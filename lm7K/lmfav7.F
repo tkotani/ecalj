@@ -8,15 +8,15 @@ Cgetarg...info...           structure ['', 'ctrl', 'v_sctrl']
 
 
 C Heap allocation
-      integer wksize
-
-      parameter(wksize= 80 000 000)
-
-      integer w(wksize)
+c      integer wksize
+c
+c      parameter(wksize= 80 000 000)
+c
+c      integer w(wksize)
 C     Next two lines guarantee w is aligned along a d.p. boundary
-      double precision ws
-      equivalence (ws,w(1))
-      common /w/ w
+c      double precision ws
+c      equivalence (ws,w(1))
+c      common /w/ w
 
 C ... Controls for IO
       integer lstrn
@@ -88,7 +88,7 @@ cMay1 patch for MPI from y.Yoshimoto
 
 C -------------- First executable statement ---------------
 C     Link in routines that cause potential library conflicts
-      call nada
+c      call nada
 
 c toksw was here. MOved to rdccat
 
@@ -118,7 +118,8 @@ C --- Version ---
 C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
-     *call lmhelp(prgnam,vn(2),vn2(2),wksize)
+c     *call lmhelp(prgnam,vn(2),vn2(2),wksize)
+     *call lmhelp(prgnam,vn(2),vn2(2),0)
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
         call cexit(0,1)
@@ -130,12 +131,13 @@ C     Add version to variables table?
 C     j = 0
 C     swtmp = a2bin('T',ltet,1,0,' ',j,-1)
 C     call addsyv('version',vn,i)
-      call headl2(prgnam,wksize,stdo)
+c      call headl2(prgnam,wksize,stdo)
+      call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
-      call pshpr(0)
-      call wkinit(wksize)
-      call wkfast(T)
-      call poppr
+c      call pshpr(0)
+c      call wkinit(wksize)
+c      call wkfast(T)
+c      call poppr
       call poseof(fopn('LOG'))
       i = fextg(ext)
       call word(ext,1,i,j)

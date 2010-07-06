@@ -37,12 +37,14 @@
 # $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
 # $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
- LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
- -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-#LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
+# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+
+#
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
 # I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
 #LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
@@ -56,6 +58,16 @@
 #LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
+
+#LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+
+
+### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
+### fftw3 is from http://www.fftw.org/download.html
+### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
+#LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+
+
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
@@ -67,21 +79,27 @@ LK = mpif90
 # where is modules?
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
-#--- v11.1
+
+#--- v11.1 ---> TOO BAD compiler. Never use this.
 FFLAGS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
-#--- v10.1
+
+#--- v10.1 Works fine. 
 #FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
-
-#
-# safer option (debug)
+#--- no opt
+#FFLAGS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
+#--- debug
 #FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
@@ -90,7 +108,7 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  -DMPIK  -DKINODEBUG
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -UMPE -DMPIK  -UMPI  
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
@@ -131,19 +149,18 @@ $(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod  : subs/m_rdctrlchk.F $
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 $(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod  : subs/m_struc_def.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
-	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_func.o
 #################################
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod  $(moddir)/m_subzi.mod
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod 
 	$(FC) $(FFLAGS) -c fp/bndfp.F -o $@	
-#$(gwd_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod  gwd/bndfp.F
-#	$(FC) $(FFLAGS) -c gwd/bndfp.F -o $@
+$(gwd_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod  gwd/bndfp.F
+	$(FC) $(FFLAGS) -c gwd/bndfp.F -o $@
 $(subs_obj_path)/hamfb3.o  : subs/hamfb3.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  subs/hamfb3.F -o $@
-$(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_func.mod
+$(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdctrl2.o subs/rdctrl2.F
 $(subs_obj_path)/rdctrlchk.o  : subs/rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdctrlchk.F
-$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_hft2rs.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdsigm2.F
 $(subs_obj_path)/rotwv.o  : subs/rotwv.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rotwv.F
@@ -155,7 +172,7 @@ $(subs_obj_path)/suham.o  : subs/suham.F $(moddir)/m_hamindex.mod $(moddir)/m_st
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suham.o  subs/suham.F
 $(subs_obj_path)/readmtopara.o $(moddir)/m_gtv2.mod : subs/readmtopara.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/readmtopara.o   subs/readmtopara.F
-$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_hft2rs.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
 $(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F
@@ -276,7 +293,7 @@ $(subs_obj_path)/ioqpp.o  : subs/ioqpp.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioqpp.o subs/ioqpp.F
 $(subs_obj_path)/iorbtm.o  : subs/iorbtm.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iorbtm.o subs/iorbtm.F
-$(subs_obj_path)/iors.o  : subs/iors.F $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/iors.o  : subs/iors.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iors.o subs/iors.F
 $(subs_obj_path)/iosits.o  : subs/iosits.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iosits.o subs/iosits.F
@@ -416,11 +433,11 @@ $(fp_obj_path)/hsmbl.o  : fp/hsmbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsmbl.o fp/hsmbl.F
 $(fp_obj_path)/ioden.o  : fp/ioden.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/ioden.o fp/ioden.F
-$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod  $(moddir)/m_pairs.mod $(moddir)/m_ovmin.mod 
+$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_ovmin.mod $(moddir)/m_pairs.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmaux.o fp/lmaux.F
 $(fp_obj_path)/lmfopb.o  : fp/lmfopb.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmfopb.o fp/lmfopb.F
-$(fp_obj_path)/lmfp.o  : fp/lmfp.F $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/lmfp.o  : fp/lmfp.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmfp.o fp/lmfp.F
 $(fp_obj_path)/locpot.o  : fp/locpot.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/locpot.o fp/locpot.F
@@ -462,7 +479,7 @@ $(fp_obj_path)/prrhat.o  : fp/prrhat.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/prrhat.o fp/prrhat.F
 $(fp_obj_path)/pwmat.o  : fp/pwmat.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/pwmat.o fp/pwmat.F
-$(fp_obj_path)/rdovfa.o  : fp/rdovfa.F $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/rdovfa.o  : fp/rdovfa.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rdovfa.o fp/rdovfa.F
 $(fp_obj_path)/rhgcmp.o  : fp/rhgcmp.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rhgcmp.o fp/rhgcmp.F
@@ -508,6 +525,10 @@ $(fp_obj_path)/m_events.o $(moddir)/m_events.mod  : fp/m_events.F
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/m_events.o fp/m_events.F
 $(fp_obj_path)/rsedit.o  : fp/rsedit.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rsedit.o fp/rsedit.F
+
+$(fp_obj_path)/augmat.o  : fp/augmat.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmat.o fp/augmat.F
+
 $(subs_obj_path)/m_sstrnsname.o $(moddir)/m_sstrnsname.mod  : subs/m_sstrnsname.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_sstrnsname.o subs/m_sstrnsname.F
 $(subs_obj_path)/struc_strn.o  : subs/struc_strn.F $(moddir)/m_sstrnsname.mod 
@@ -515,18 +536,35 @@ $(subs_obj_path)/struc_strn.o  : subs/struc_strn.F $(moddir)/m_sstrnsname.mod
 $(sla_obj_path)/fsubs.o  : slatsm/fsubs.F 
 	$(FC) $(FFLAGS) -c  -o $(sla_obj_path)/fsubs.o slatsm/fsubs.F
 
-$(subs_obj_path)/hft2rs.o: subs/hft2rs.F $(moddir)/m_pairs.mod
+$(subs_obj_path)/veecomp.o: subs/veecomp.F
+	$(FC) $(FFLAGS_LESS2) -c  -o $(subs_obj_path)/veecomp.o subs/veecomp.F 
+
+
+$(subs_obj_path)/hft2rs.o $(moddir)/m_hft2rs.mod  : subs/hft2rs.F $(moddir)/m_pairs.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hft2rs.o  subs/hft2rs.F
 
-$(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
+$(subs_obj_path)/shoshl.o  : subs/shoshl.F $(moddir)/m_pairs.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/shoshl.o  subs/shoshl.F
 
 
-$(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
+$(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod  : subs/pairc.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
 
-$(subs_obj_path)/ovmin.o $(moddir)/ovmin.mod :  subs/ovmin.F
+$(subs_obj_path)/ovmin.o $(moddir)/m_ovmin.mod  : subs/ovmin.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F
 
-$(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod : subs/subzi.F
-	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F
+$(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod  : subs/subzi.F 
+	 $(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F
+
+
+
+$(subs_obj_path)/m_gtv.o $(moddir)/m_gtv.mod  : subs/m_gtv.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_gtv.o subs/m_gtv.F
+$(subs_obj_path)/m_hamindex.o $(moddir)/m_hamindex.mod  : subs/m_hamindex.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_hamindex.o subs/m_hamindex.F
+$(subs_obj_path)/m_psigd.o $(moddir)/m_psigd.mod  : subs/m_psigd.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_psigd.o subs/m_psigd.F
+
+
+$(fp_obj_path)/vxcnlm.o  : fp/vxcnlm.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnlm.o fp/vxcnlm.F

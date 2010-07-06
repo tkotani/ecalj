@@ -1,3 +1,6 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orh2
+Cchp3 cmdvar= type(s_rv1),sv_p_,orh1
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= real(8),rv_p_,orhoca
 Cchp1 cmdvar= real(8),rv_p_,orhoc2
 Cchp1 cmdvar= real(8),rv_p_,orhoc1
@@ -110,7 +113,7 @@ Cchp1        integer:: osmrh2 , osmpt2 , osmrho , oorhat
 Cchp1         integer:: osmrh2 , osmrho , oorhat 
 Cchp1          integer:: osmrh2 , oorhat 
 Cchp1           integer:: oorhat 
-           integer,pointer :: iv_p_oorhat(:)
+           type(s_rv1),pointer :: sv_p_oorhat(:)
 
           complex(8),pointer :: zv_p_osmrh2(:)
 
@@ -188,7 +191,7 @@ Cchp1       osmpot=spot%osmpot
        zv_p_osmpot => spot%zv_p_osmpot 
 
 Cchp1       oorhat=spot%oorhat
-       iv_p_oorhat => spot%iv_p_oorhat 
+       sv_p_oorhat => spot%sv_p_oorhat 
 
 
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
@@ -409,7 +412,7 @@ C ... Read restart file
 Cchp1           call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
 Cchp1      .    qbg,w(oorhat))
            call rdovfa ( nbask ( 1 ) , nspeck ( 1 ) , ssite1 , sspec1 , 
-     .     slat , spot , qbg , iv_p_oorhat ) 
+     .     slat , spot , qbg , sv_p_oorhat ) 
 
           fileid = 'rsedit overlap fa densities'
         else
@@ -436,7 +439,7 @@ Cchp1      .    qbg,w(oorhat))
 Cchp1           k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
 Cchp1      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
            k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .     fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , iv_p_oorhat 
+     .     fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
      .     , w , nit , lbin , ifi ) 
 
 C       call shstru('spec',w(ospec2),1,nspeck(2))
@@ -457,7 +460,7 @@ Cchp1         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .  slat,w(osmrho),k1,k2,k3)
 Cchp1          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
 Cchp1      .   ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
      .    , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -467,7 +470,7 @@ C ... write atomic densities to file
 
         if (havers) then
 Cchp1           call prsed3(nbask(1),nsp,ssite1,sspec1,w(oorhat))
-           call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+           call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
      .     ) 
 
         else
@@ -485,7 +488,7 @@ Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .    slat,w(osmrho),k1,k2,k3)
 Cchp1            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
 Cchp1      .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
      .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -575,7 +578,7 @@ Cchp1      .         ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail )
 cki                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
                 call prsed1 (nbas,nbas, nspec
      .          ,  im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
-     .          , sspec1 , iv_p_oorhat , ssite1 , sspec1 , iv_p_oorhat , zv_p_osmrho 
+     .          , sspec1 , sv_p_oorhat , ssite1 , sspec1 , sv_p_oorhat , zv_p_osmrho 
      .          , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
      .          ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
 
@@ -649,7 +652,7 @@ Cchp1      .        w(oorhat),slat,w(osmrho),k1,k2,k3)
 Cchp1                call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
 Cchp1      .         sspec1 , w ( oorhat ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
                 call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
-     .          sspec1 , iv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .          sspec1 , sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
             else
@@ -791,7 +794,7 @@ Cchp1      .    , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2
 Cchp1      .    ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 cki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
            call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .     , sspec1 , iv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+     .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
      .     , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
      .     ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
@@ -810,7 +813,7 @@ Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .    slat,w(osmrho),k1,k2,k3)
 Cchp1            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
 Cchp1      .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
      .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -837,7 +840,7 @@ C ... Save
 Cchp1         k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
 Cchp1      .  nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
          k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .   fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , iv_p_oorhat 
+     .   fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
      .   , w , nit , lbin , - ifi ) 
 
 
@@ -962,12 +965,22 @@ C ... help
 
 
 cki      subroutine prsed1(mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-      subroutine prsed1(nsite1,nsite2,nspec,
-     .mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-     .site2,spec2,orh2,
-     .smrho,k11,k21,k31,
-     .smrh2,k12,k22,k32,
-     .fac,lfail)
+Cchp3       subroutine prsed1(nsite1,nsite2,nspec,
+Cchp3      .mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
+Cchp3      .site2,spec2,orh2,
+Cchp3      .smrho,k11,k21,k31,
+Cchp3      .smrh2,k12,k22,k32,
+Cchp3      .fac,lfail)
+Cchp3        subroutine prsed1 ( nsite1 , nsite2 , nspec , mode , nlst , ilst 
+Cchp3      . , nbask , nsp , site1 , spec1 , sv_p_orh1 , site2 , spec2 , orh2 
+Cchp3      . , smrho , k11 , k21 , k31 , smrh2 , k12 , k22 , k32 , fac , lfail 
+Cchp3      . ) 
+        subroutine prsed1 ( nsite1 , nsite2 , nspec , mode , nlst , ilst 
+     .  , nbask , nsp , site1 , spec1 , sv_p_orh1 , site2 , spec2 , sv_p_orh2 
+     .  , smrho , k11 , k21 , k31 , smrh2 , k12 , k22 , k32 , fac , lfail 
+     .  ) 
+
+
 
       use m_struc_def  !Cgetarg
 
@@ -1009,7 +1022,12 @@ C     implicit none
 C ... Passed parameters
       integer mode,nlst,ilst(nlst,2),nbask(2),nsp,
      .k11,k21,k31,k12,k22,k32
-      integer orh1(3,*),orh2(3,*)
+Cchp3       integer orh1(3,*),orh2(3,*)
+Cchp3        integer:: orh2(3,*) 
+        type(s_rv1) :: sv_p_orh2(3,*)
+
+       type(s_rv1) :: sv_p_orh1(3,*)
+
       real(8):: fac(2)
 cki
       integer:: nsite1,nsite2,nspec
@@ -1197,20 +1215,44 @@ C       Radial meshes must match
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
+Cchp3      .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+Cchp3      .       ) , sv_p_orh1( 1 , ib )%v , w ( orh2 ( 1 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+     .        ) , sv_p_orh1 ( 1 , ib ) %v , sv_p_orh2( 1 , jb )%v ) 
+
+
           else
-            call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
-     .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3             call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
+Cchp3      .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3              call swrho ( isync / 4 , nr1 , nsp , 1 , nlml1 , nlml2 , sv_p_orh1( 1 , ib )%v 
+Cchp3      .       , w ( orh2 ( 1 , jb ) ) ) 
+              call swrho ( isync / 4 , nr1 , nsp , 1 , nlml1 , nlml2 , sv_p_orh1 
+     .        ( 1 , ib ) %v , sv_p_orh2( 1 , jb )%v ) 
+
+
           endif
         endif
 C       Smooth local density and site core density: modified if im>=4
         if (im .ge. 4) then
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .      w(orh1(2,ib)),w(orh2(2,jb)))
-            call lcrho(nr1,nsp,1,1,fac(1),fac(2),
-     .      w(orh1(3,ib)),w(orh2(3,jb)))
+Cchp3             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
+Cchp3      .      w(orh1(2,ib)),w(orh2(2,jb)))
+Cchp3              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+Cchp3      .       ) , sv_p_orh1( 2 , ib )%v , w ( orh2 ( 2 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+     .        ) , sv_p_orh1 ( 2 , ib ) %v , sv_p_orh2( 2 , jb )%v ) 
+
+
+Cchp3             call lcrho(nr1,nsp,1,1,fac(1),fac(2),
+Cchp3      .      w(orh1(3,ib)),w(orh2(3,jb)))
+Cchp3              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , sv_p_orh1( 3 , ib )%v 
+Cchp3      .       , w ( orh2 ( 3 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , sv_p_orh1 
+     .        ( 3 , ib ) %v , sv_p_orh2( 3 , jb )%v ) 
+
+
           else
             call rx('not ready for this swap')
           endif
@@ -1291,7 +1333,10 @@ C        call info0(0,0,0,' ... Linear combination successful')
       end subroutine prsed1
 
 
-      subroutine prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
+Cchp3       subroutine prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
+       subroutine prsed2 ( nbas , nsp , ssite , sspec , sv_p_orhoat 
+     . , slat , smrho , k1 , k2 , k3 ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -1313,7 +1358,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,k1,k2,k3
-      integer orhoat(3,nbas)
+Cchp3       integer orhoat(3,nbas)
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -1407,14 +1454,32 @@ C        call upack2('site pz',ssite,ib,pnz)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
 
-        call splrho(0,nsp,nr,nlml,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
-        qv1   = srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1)
-        qv2   = srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1)
-        call splrho(1,nsp,nr,nlml,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
-        am1   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1) - qv1
-        am2   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1) - qv2
+Cchp3         call splrho(0,nsp,nr,nlml,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+         call splrho ( 0 , nsp , nr , nlml , sv_p_orhoat( 1 , ib )%v , 
+     .   sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v ) 
+
+Cchp3         qv1   = srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1)
+         qv1 = srfpi * ddot ( nr , rwgt , 1 , sv_p_orhoat( 1 , ib )%v 
+     .   , 1 ) 
+
+Cchp3         qv2   = srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1)
+         qv2 = srfpi * ddot ( nr , rwgt , 1 , sv_p_orhoat( 2 , ib )%v 
+     .   , 1 ) 
+
+Cchp3         call splrho(1,nsp,nr,nlml,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+         call splrho ( 1 , nsp , nr , nlml , sv_p_orhoat( 1 , ib )%v , 
+     .   sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v ) 
+
+Cchp3         am1   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1) - qv1
+         am1 = 2 * srfpi * ddot ( nr , rwgt , 1 , sv_p_orhoat( 1 , ib )%v 
+     .   , 1 ) - qv1 
+
+Cchp3         am2   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1) - qv2
+         am2 = 2 * srfpi * ddot ( nr , rwgt , 1 , sv_p_orhoat( 2 , ib )%v 
+     .   , 1 ) - qv2 
+
 
         if (nsp .eq. 1) then
           write(stdo,202) ib,spid,z,rmt,nr,a,lmxl,qv1,am1
@@ -1430,7 +1495,10 @@ C        call upack2('site pz',ssite,ib,pnz)
       end subroutine prsed2
 
 
-      subroutine prsed3(nbas,nsp,ssite,sspec,orhoat)
+Cchp3       subroutine prsed3(nbas,nsp,ssite,sspec,orhoat)
+       subroutine prsed3 ( nbas , nsp , ssite , sspec , sv_p_orhoat 
+     . ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -1438,7 +1506,9 @@ C- Read/write atomic densities
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp
-      integer orhoat(3,nbas)
+Cchp3       integer orhoat(3,nbas)
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -1471,16 +1541,22 @@ C ... Heap
         nlml = (lmxl+1)**2
         call radmsh(rmt,a,nr,rofi)
 
-        call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
-     .  nlml,nsp)
+Cchp3         call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
+Cchp3      .  nlml,nsp)
+         call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
+     .   , rofi , nr , nlml , nsp ) 
+
 
    10   continue
       enddo
       end subroutine prsed3
 
 
-      subroutine prsed4(mode,nbas,nspec,nsp,ssite,sspec,orhoat,
-     .slat,smrho,k1,k2,k3)
+Cchp3       subroutine prsed4(mode,nbas,nspec,nsp,ssite,sspec,orhoat,
+Cchp3      .slat,smrho,k1,k2,k3)
+       subroutine prsed4 ( mode , nbas , nspec , nsp , ssite , sspec 
+     . , sv_p_orhoat , slat , smrho , k1 , k2 , k3 ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -1509,7 +1585,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,nspec,nsp,k1,k2,k3
-      integer orhoat(3,nbas)
+Cchp3       integer orhoat(3,nbas)
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
 cki      type(s_spec)::sspec(*)
@@ -1606,21 +1684,36 @@ C        call upack2('site pz',ssite,ib,pnz)
         call radwgt(rmt,a,nr,rwgt)
 
 C       Replace rho-up,rho-down with rho, up-down
-        call splrho(0,nsp,nr,nlml,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+Cchp3         call splrho(0,nsp,nr,nlml,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+         call splrho ( 0 , nsp , nr , nlml , sv_p_orhoat( 1 , ib )%v , 
+     .   sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v ) 
+
 
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
-          call prsed5(mode0,w(orhoat(1,ib)),nr,nlml,nsp)
+Cchp3           call prsed5(mode0,w(orhoat(1,ib)),nr,nlml,nsp)
+           call prsed5 ( mode0 , sv_p_orhoat( 1 , ib )%v , nr , nlml , nsp 
+     .     ) 
+
         endif
         if (im .ge. 4) then
-          call prsed5(mode0,w(orhoat(2,ib)),nr,nlml,nsp)
-          call prsed5(mode0,w(orhoat(3,ib)),nr,1,nsp)
+Cchp3           call prsed5(mode0,w(orhoat(2,ib)),nr,nlml,nsp)
+           call prsed5 ( mode0 , sv_p_orhoat( 2 , ib )%v , nr , nlml , nsp 
+     .     ) 
+
+Cchp3           call prsed5(mode0,w(orhoat(3,ib)),nr,1,nsp)
+           call prsed5 ( mode0 , sv_p_orhoat( 3 , ib )%v , nr , 1 , nsp 
+     .     ) 
+
         endif
 
 C       Restore rho-up,rho-down from rho, up-down
-        call splrho(1,nsp,nr,nlml,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+Cchp3         call splrho(1,nsp,nr,nlml,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+         call splrho ( 1 , nsp , nr , nlml , sv_p_orhoat( 1 , ib )%v , 
+     .   sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v ) 
+
 
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
@@ -1686,7 +1779,10 @@ Cchp1           call splrho(31,nsp,nr,1,w(orhoca),w,w)
       endif
 
       call info0(1,1,0,' New density:')
-      call prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
+Cchp3       call prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
+       call prsed2 ( nbas , nsp , ssite , sspec , sv_p_orhoat , slat 
+     . , smrho , k1 , k2 , k3 ) 
+
       end subroutine prsed4
 
       subroutine prsed5(mode,rho,nr,nlml,nsp)

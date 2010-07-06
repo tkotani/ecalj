@@ -108,11 +108,11 @@ C --- Handle query ---
           print *, 'conversion error'
         endif
         goto 10
-      elseif (rdstr2(j) .eq. 'W' .or. rdstr2(j) .eq. 'w') then
-        call wkprnt(2)
-        call wkchk('Called from query')
-        call wkinfo
-        goto 10
+c      elseif (rdstr2(j) .eq. 'W' .or. rdstr2(j) .eq. 'w') then
+c        call wkprnt(2)
+c        call wkchk('Called from query')
+c        call wkinfo
+c        goto 10
       elseif (rdstr2(j) .eq. 'I' .or. rdstr2(j) .eq. 'i') then
         lquery = .not. lquery
       elseif (rdstr2(j) .eq. 'A' .or. rdstr2(j) .eq. 'a') then

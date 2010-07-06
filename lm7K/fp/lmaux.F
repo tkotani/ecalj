@@ -209,8 +209,9 @@ Cchp1      .                     oiax , mxclas
 Cchp1                             integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
 Cchp1      .                      , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
 Cchp1      .                      mxclas 
-                             integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
+                             integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
+                     real(8),allocatable:: eula(:,:)
                              integer,pointer :: iv_p_ontab(:)
 
                             integer,pointer :: iv_p_oiax(:)
@@ -627,10 +628,12 @@ Cchp1      .       , w ( oeula ) , nclass )
 Cchp1               call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
 Cchp1      .        , z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves 
 Cchp1      .        , w ( oeula ) , nclass ) 
+
+              allocate(eula(nbas,3))
                call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
      .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves , 
-     .         w ( oeula ) , nclass ) 
-
+     .         eula  , nclass ) 
+              deallocate(eula)
 
 
 

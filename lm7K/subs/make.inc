@@ -199,7 +199,6 @@ subs_list:=\
 	subzi.o \
 	suclst.o \
 	sudmtu.o \
-	suemph.o \
 	sugcut.o \
 	suham2.o \
 	suham.o \

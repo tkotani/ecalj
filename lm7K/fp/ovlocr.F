@@ -1,9 +1,18 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
-      subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
-     .orhofa,orhoat,sqloc,slmom)
+Cchp3       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
+Cchp3      .orhofa,orhoat,sqloc,slmom)
+Cchp3        subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+Cchp3      . , exi , hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+        subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+     .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
+     .  ) 
+
+
 
       use m_struc_def  !Cgetarg
 
@@ -33,7 +42,13 @@ Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
+Cchp3       integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
+Cchp3        integer:: nbas , nxi(1) , nxi0 , orhoat(3,nbas) 
+        integer:: nbas , nxi(1) , nxi0 
+        type(s_rv1) :: sv_p_orhoat(3,nbas)
+
+       type(s_rv1) :: rv_a_orhofa(nbas)
+
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
       type(s_lat)::slat
       type(s_site)::ssite(*)
@@ -210,10 +225,22 @@ Cchp1      .         , slat , b )
           enddo
         enddo
 
-        call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
-     .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
-     .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)))
+Cchp3         call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
+Cchp3      .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
+Cchp3      .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)))
+Cchp3          call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
+Cchp3      .   , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
+Cchp3      .   , 1 , is ) , rsmfa ( is ) , rv_a_orhofa( is )%v , w ( orhoat 
+Cchp3      .   ( 3 , ib ) ) , lfoca , qcsm , qloc , amom , w ( orhoat ( 1 , 
+Cchp3      .   ib ) ) , w ( orhoat ( 2 , ib ) ) ) 
+          call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
+     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
+     .    , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v 
+     .    , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
+     .    ) 
+
+
 
         sqloc = sqloc + qloc
         slmom = slmom + amom
@@ -235,12 +262,21 @@ C ... Combine sphere densities from separate threads
           lmxl=sspec(is)%lmxl
 
           nlml = (lmxl+1)**2
-          call mpibc3(w(orhoat(1,ib)),nr*nlml*nsp,4,pid,0,
-     .    'ovlocr','rhoat(1)')
-          call mpibc3(w(orhoat(2,ib)),nr*nlml*nsp,4,pid,0,
-     .    'ovlocr','rhoat(1)')
-          call mpibc3(w(orhoat(3,ib)),nr*nsp,4,pid,0,
-     .    'ovlocr','rhoat(1)')
+Cchp3           call mpibc3(w(orhoat(1,ib)),nr*nlml*nsp,4,pid,0,
+Cchp3      .    'ovlocr','rhoat(1)')
+           call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
+     .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
+
+Cchp3           call mpibc3(w(orhoat(2,ib)),nr*nlml*nsp,4,pid,0,
+Cchp3      .    'ovlocr','rhoat(1)')
+           call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
+     .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
+
+Cchp3           call mpibc3(w(orhoat(3,ib)),nr*nsp,4,pid,0,
+Cchp3      .    'ovlocr','rhoat(1)')
+           call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
+     .     0 , 'ovlocr' , 'rhoat(1)' ) 
+
 C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
 C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
 C          call MPI_BCAST(w(orhoat(2,ib)),nr*nlml*nsp,

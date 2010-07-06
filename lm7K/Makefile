@@ -37,6 +37,7 @@ PLATFORM=gfortran
 # Don't edit lines below 
 ###########################################################################
 
+
 obj_path=obj.$(PLATFORM)
 
 include slatsm/make.inc
@@ -45,7 +46,10 @@ include fp/make.inc
 
 
 #################################
-.PHONY: slatsm-lib fp-lib subs-lib  slatsm-dir fp-dir subs-dir mod-dir libs progs clean cleanobj veryclean distclean check checkgw install 
+.PHONY:  progs clean cleanbin cleanall veryclean distclean check checkgw install \
+libs slatsm-dir subs-dir fp-dir mod-dir slatsm-lib subs-lib fp-lib
+
+
 #################################
 
 
@@ -79,7 +83,8 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 ########################################
 # general rules
 ########################################
-.SUFFIXES: .o .F
+.SUFFIXES: 
+.SUFFIXES: .o .F .mod
 
 %.o:%.F
 	$(FC) $(FFLAGS) -c $<

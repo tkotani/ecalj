@@ -1,4 +1,8 @@
-      subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
+       subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
+     . sv_p_orhoat , kmax , qkl ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -38,7 +42,10 @@ Cu   19 Oct 01 Adapted from rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
+Cchp3       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
+       integer:: ib1 , ib2 , nsp , mode , kmax 
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       real(8):: qkl(0:kmax,1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -98,10 +105,14 @@ C --- Loop over sites ---
         allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
 
-        call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
-     .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .  ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
-     .  , j1 ) )
+Cchp3         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
+Cchp3      .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+Cchp3      .  ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
+Cchp3      .  , j1 ) )
+         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
+     .   , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+     .   , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) ) 
+
 
         if (allocated(h_rv)) deallocate(h_rv)
 
@@ -124,9 +135,13 @@ Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
 #if DEBUG
         if (ib .eq. 1) then
           print *, 'ib=',ib
-          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv 
-     .    , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .    ( 3 , ib ) ) , qkl ( 0 , j1 ) )
+Cchp3           call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv 
+Cchp3      .    , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+Cchp3      .    ( 3 , ib ) ) , qkl ( 0 , j1 ) )
+           call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
+     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+     .     , qkl ( 0 , j1 ) ) 
+
 
         endif
 #endif

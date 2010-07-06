@@ -35,8 +35,8 @@ C             0 => read from category, but category not read yet
 C             1 => read from category, and category has started
 C             2 => category has finished
       integer ires,ipr,cn1,cn2,incat,stdo,i1,i2,j1,j2,awrite
-      integer w(1000)
-      common /w/ w
+c      integer w(1000)
+c      common /w/ w
 
       commnt = '#'
       brack  = '{}'
@@ -49,9 +49,9 @@ C             2 => category has finished
       stdo = i1mach(2)
       fmt = '>>%f'
 
-      call pshpr(0)
-      call wkinit(1000)
-      call poppr
+c      call pshpr(0)
+c      call wkinit(1000)
+c      call poppr
 C     call finits(2,0,0,i)
 
       iarg = 1

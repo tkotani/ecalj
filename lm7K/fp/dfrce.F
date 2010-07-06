@@ -1,7 +1,17 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
-      subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
-     .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
+Cchp3       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
+Cchp3      .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
+Cchp3        subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
+Cchp3      . , nvl , sv_p_orhoat , orhat1 , elind , qmom , smrho , smrout 
+Cchp3      . , dfh ) 
+        subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
+     .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
+     .  , dfh ) 
+
+
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -72,7 +82,13 @@ C ... Passed parameters
       double precision starttime, endtime
       logical mlog,cmdopt
 #endif
-      integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
+Cchp3       integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
+Cchp3        integer:: nvl , k1 , k2 , k3 , orhat1(3,1) 
+        integer:: nvl , k1 , k2 , k3 
+        type(s_rv1) :: sv_p_orhat1(3,1)
+
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       real(8):: dfh(3,1) , qmom(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -333,8 +349,11 @@ C --- Multipole moments of the output density ---
 Ctakao_ZeroClear_NotRequiered        if (nvl<0) qmout_rv(:)=0.0d0
 
       call pshpr(0)
-      call rhomom ( nbas , ssite , sspec , orhat1 , qmout_rv , vsum 
-     .)
+Cchp3       call rhomom ( nbas , ssite , sspec , orhat1 , qmout_rv , vsum 
+Cchp3      .)
+       call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , 
+     . vsum ) 
+
 
       call poppr
       call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
@@ -460,10 +479,15 @@ c     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w (
 c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
 c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
 c     .   ) , fes1 , fes2 , fxc ) 
-         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv 
-     .   , iv_iv , qlat , 0 , cnomi_zv , ceps_zv  
-     .   , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc ) 
+Cchp3          call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+Cchp3      .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv 
+Cchp3      .   , iv_iv , qlat , 0 , cnomi_zv , ceps_zv  
+Cchp3      .   , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc ) 
+          call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+     .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+     .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
+     .    ib ) , fes1 , fes2 , fxc ) 
+
 
 
 
@@ -561,9 +585,13 @@ c      call rlse(oicdn)
 c      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
 c     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
 c     .orhoat,fes1,fes2,fxc)
-      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
-     .g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin,
-     .orhoat,fes1,fes2,fxc)
+Cchp3       subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
+Cchp3      .g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin,
+Cchp3      .orhoat,fes1,fes2,fxc)
+       subroutine pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 
+     . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
+     . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc ) 
+
 
       use m_struc_def  !Cgetarg
 c need to modify texts.
@@ -597,7 +625,10 @@ Co   fes1,fes2,fxc
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
+Cchp3       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
+       integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3) 
+       type(s_rv1) :: sv_p_orhoat(3)
+
       real(8):: qmom(1) , qmout(1) , gv(ng,3) , tau(3) , fes1(3) , 
      .fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
       type(s_site)::ssite(*)
@@ -686,8 +717,14 @@ c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
         if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
         call radwgt(rmt,a,nr,rwgt)
         nlml = (lmxl+1)**2
-        call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1)),qloc)
-        call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2)),sum)
+Cchp3         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1)),qloc)
+         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v 
+     .   , qloc ) 
+
+Cchp3         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2)),sum)
+         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v 
+     .   , sum ) 
+
         qloc = (qloc-sum)/y0
         qfat = 0d0
         do  12  i  = 1, nsp

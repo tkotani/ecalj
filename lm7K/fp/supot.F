@@ -101,7 +101,7 @@ Cchp1      .            iprint
 
              real(8),pointer :: rv_p_oag(:)
 
-            integer,pointer :: iv_p_oorhat(:)
+            type(s_rv1),pointer :: sv_p_oorhat(:)
 
            real(8),pointer :: rv_p_omad(:)
 
@@ -234,8 +234,11 @@ Cchp1         call defcc(osmpot, -k1*k2*k3*nsp)
          zv_p_osmpot(:)=0.0d0
 
 Cchp1         call defi(oorhat,3*nbaspp)
-         allocate(iv_p_oorhat(3*nbaspp))
-         iv_p_oorhat(:)=0
+         allocate(sv_p_oorhat(3*nbaspp))
+cki         sv_p_oorhat(:)=0
+         do i=1,3*nbaspp
+            nullify(sv_p_oorhat(i)%v)
+         enddo
 
 
 Cchp1         spot%osmrho=osmrho
@@ -245,7 +248,7 @@ Cchp1         spot%osmpot=osmpot
          spot%zv_p_osmpot => zv_p_osmpot 
 
 Cchp1         spot%oorhat=oorhat
-         spot%iv_p_oorhat => iv_p_oorhat 
+         spot%sv_p_oorhat => sv_p_oorhat 
 
 
 

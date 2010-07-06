@@ -1,9 +1,15 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
+Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
 Cchp1 cmdvar= real(8),rv_p_,ov1
 Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
-      subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+Cchp3       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+       subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
+     . , qbg , sv_p_orhoat ) 
+
 
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
@@ -38,7 +44,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer procid, master, mpipid
-      integer nbas,nspec,orhoat(3,nbas)
+Cchp3       integer nbas,nspec,orhoat(3,nbas)
+       integer:: nbas , nspec 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       real(8):: qbg
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
@@ -51,7 +60,13 @@ C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
 cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
-      integer nxi(nspec),orhofa(nspec),ov0a(nspec)
+Cchp3       integer nxi(nspec),orhofa(nspec),ov0a(nspec)
+Cchp3        integer:: nxi(nspec) , orhofa(nspec) 
+        integer:: nxi(nspec) 
+        type(s_rv1) :: rv_a_orhofa(nspec)
+
+       type(s_rv1) :: rv_a_ov0a(nspec)
+
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
@@ -140,11 +155,17 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
         rewind ifi
       endif
       do  10  is = 1, nspec
-        call defrr(orhofa(is),   -nrmx*nsp)
+Cchp3         call defrr(orhofa(is),   -nrmx*nsp)
+         allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
+         if (-nrmx*nsp<0) rv_a_orhofa(is)%v(:)=0.0d0
+
 cki        call defrr(orhoca(is),   -nrmx*nsp)
         allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
         sspec(is)%rv_p_orhoc=0.0d0
-        call defrr(ov0a(is),     -nrmx*nsp)
+Cchp3         call defrr(ov0a(is),     -nrmx*nsp)
+         allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
+         if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
+
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
         enddo
@@ -175,17 +196,31 @@ cki        call defrr(orhoca(is),   -nrmx*nsp)
             ccof=0
             ceh=0
             stc=0
-            call rlse(ov0a(is))
+Cchp3             call rlse(ov0a(is))
+             if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+
 cki            call rlse(orhoca(is))
             deallocate(sspec(is)%rv_p_orhoc)
-            call rlse(orhofa(is))
+Cchp3             call rlse(orhofa(is))
+             if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+
           else
-            lfail = 
-     .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
-     .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
-cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
-     .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
-     .      .lt. 0)
+Cchp3             lfail = 
+Cchp3      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
+Cchp3      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
+Cchp3 cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
+Cchp3      .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
+Cchp3      .      .lt. 0)
+Cchp3              lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
+Cchp3      .       ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
+Cchp3      .       , a0 , nr0 , qc , ccof , ceh , stc , w ( orhofa ( is ) ) , sspec 
+Cchp3      .       ( is ) %rv_p_orhoc , rv_a_ov0a( is )%v , ifi ) .lt. 0 ) 
+              lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
+     .        ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
+     .        , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec 
+     .        ( is ) %rv_p_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 ) 
+
+
           endif
         endif
         call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
@@ -199,9 +234,15 @@ C   ... Broadcast file data
         call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
         call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-        call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+Cchp3         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+         call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
+     .   , 'rhofa' ) 
+
         call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
-        call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
+Cchp3         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
+         call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
+     .   , 'v0a' ) 
+
         i = mpipid(3)
 
 C ...   Defaults
@@ -284,9 +325,18 @@ C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 C     .      orca)
 
         nlml = (lmxl+1)**2
-        call defrr (orhoat(1,ib),  nr*nlml*nsp)
-        call defrr (orhoat(2,ib),  nr*nlml*nsp)
-        call defrr (orhoat(3,ib),  nr*nsp)
+Cchp3         call defrr (orhoat(1,ib),  nr*nlml*nsp)
+         allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
+         if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
+
+Cchp3         call defrr (orhoat(2,ib),  nr*nlml*nsp)
+         allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
+         if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
+
+Cchp3         call defrr (orhoat(3,ib),  nr*nsp)
+         allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
+         if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+
 Cchp1         call defrr (ov0,           nr*nsp)
          allocate(rv_p_ov0(abs(nr*nsp)))
          if (nr*nsp<0) rv_p_ov0(:)=0.0d0
@@ -322,14 +372,23 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
 
         if (lmxl .gt. -1) then
 Cchp1           call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
-           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
-     .     ) 
+Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
+Cchp3      .     ) 
+            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
+     .      ) 
+
 
 Cchp1           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
-           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
-     .     ) 
+Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
+Cchp3      .     ) 
+            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
+     .      ) 
 
-          call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
+
+Cchp3           call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
+           call dpcopy ( sspec ( is ) %rv_p_orhoc , sv_p_orhoat( 3 , ib )%v 
+     .     , 1 , nr * nsp , 1d0 ) 
+
 
           if (lfoc .eq. 0) then
             allocate(rwgt_rv(nr))
@@ -337,15 +396,21 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
             call radwgt ( rmt , a , nr , rwgt_rv )
 
-            call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-     .      , ib ) ) , sum )
+Cchp3             call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
+Cchp3      .      , ib ) ) , sum )
+             call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
+     .       , sum ) 
+
 
             fac = 1d0
             if(dabs(sum) .gt. 1d-7) fac = qc/sum
             if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
   787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
      .      3f12.6,f12.6)
-            call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+Cchp3             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+             call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+     .       , 1 , nr * nsp , fac ) 
+
             if (allocated(rwgt_rv)) deallocate(rwgt_rv)
 
           endif
@@ -441,10 +506,19 @@ Cchp1         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
 C --- Set up local densities using rmt from atm file ---
 
 
-      call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
-     .orhoat,sqloc,slmom)
+Cchp3       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
+Cchp3      .orhoat,sqloc,slmom)
+Cchp3        call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+Cchp3      . hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+        call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+     .  hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom ) 
+
+
 C --- Add compensating uniform electron density to compensate background
-      call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
+Cchp3       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
+       call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , 
+     . sspec , ssite ) 
+
       if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
      .'density added to neutralize background, q=%;6,6d',qbg,0)
 
@@ -482,6 +556,11 @@ C --- Print charges ---
       if (dabs(dq) .gt. 1d-4 .and. ipr .gt. 0)
      .call awrit1(' rdovfa (warning) overlapped'
      .//' density not neutral'//', dq= %d',' ',80,stdo,dq)
+
+      do is=1,nspec
+          if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+          if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+      enddo
 
       call tcx('rdovfa')
 

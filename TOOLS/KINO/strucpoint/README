@@ -1,0 +1,30 @@
+structure%oelement -> structure%element(:)
+integer:: oelement,     type,pointer :: element(:)
+
+
+change 
+call mpibc1(struc,...)
+to
+call mpibc1_s_struc(struc,...)
+by hand
+
+
+$ vi struc_types
+ uncomment unchange...
+
+$ ./applyall.sh
+
+------------------
+
+$ python chp2.py "real(8)" rv_p_ ov0 < /path/to/file > x
+( for pointer )
+check x is OK or not.
+
+$ mv x /path/to/file
+
+-------------------------
+
+$ python chp3.py "type(s_rv1)" sv_p_ ov0 < /path/to/file > x
+for type(s_rv1)
+
+

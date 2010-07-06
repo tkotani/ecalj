@@ -15,7 +15,7 @@ spc30=spc10+spc10+spc10
 spc6='      '
 
 
-thisprogram='Cchp2'
+thisprogram='Cchp3'
 strinfo='...info...'+spc10
 
 def get_kind(callname):
@@ -195,12 +195,27 @@ class t_var4:
 	def __str__(self):
 		return "["+self.name+','+self.fullname+','+self.vartype+','+self.attrib+"]"
 
+def ipos_level0(istart,tok):
+        thisfunc="ipos_level0"
+        ig=0
+        for i in range(istart,len(tok)):
+                if tok[i]=='(':
+                        ig=ig+1
+                elif tok[i]==')':
+                        ig=ig-1
+                        if ig==0:
+                                return i
+        print "#error ",thisfunc,": possible error, failed to find level0",tok[istart:]
+	return istart
+
+
 class DoParse:
     printit=0
     varlist=[]
 
     def __init__(self):
 	printit=0
+
 
     def change_var_in_tok(self,var,tok0):
 	thisfunc='change_var_in_tok'
@@ -213,18 +228,15 @@ class DoParse:
 	    for i in range(len(tok)):
 		if tok[i]==var.name:
 			if i-2>=0 and i+1<len(tok) and tok[i-2]=='w' and tok[i-1]=='(':
-			    if tok[i+1]==')':
-				tok.pop(i+1)
-				tok.pop(i)
-				tok.pop(i-1)
-				tok.pop(i-2)
-				tok.insert(i-2,var.realname())	
-				iloop=1
-				ichanged=1
-				break
-			    else:
-				print "#error",thisfunc,"type is not w(foo)",tok
-				sys.exit(10)
+			    ilast=ipos_level0(i-2,tok)
+			    str_indx=tok[i+1:ilast]
+			    for j in range(ilast,i-3,-1):
+				tok.pop(j)
+
+			    tok.insert(i-2,var.realname()+list2str(str_indx)+"%v")	
+			    iloop=1
+			    ichanged=1
+			    break
 
 	return [ichanged,tok]
 
@@ -383,8 +395,9 @@ class DoParse:
 		if var.name in defnamelist:
 			#delete var in defnamelist
 			idx=defnamelist.index(var.name)
+			a = defvarlist[idx]
 			defvarlist.pop(idx)
-			newvarlist.append(t_var4(var.prefix+var.name,var.prefix+var.name,var.vartype,",pointer"))
+			newvarlist.append(t_var4(var.prefix+var.name,var.prefix+a.fullname,var.vartype,""))
 			ichanged=1
 			
 
@@ -396,7 +409,10 @@ class DoParse:
 
 	if ichanged==1:
 		if len(defvarlist)>0:
-			defstr=defvarlist[0].vartype+defvarlist[0].attrib+"::"
+			if len(defvarlist[0].attrib)>0:
+				defstr=defvarlist[0].vartype+defvarlist[0].attrib+"::"
+			else:
+				defstr=defvarlist[0].vartype+"::"
 			tok.append(defstr)
 
 		for i in range(len(defvarlist)):
@@ -406,7 +422,7 @@ class DoParse:
 				tok.append(",")
 		toklist=tok
 		for nn in newvarlist:
-			tok=nn.vartype+nn.attrib+" :: "+nn.fullname+"(:)"
+			tok=nn.vartype+nn.attrib+" :: "+nn.fullname
 			toklist.append([tok])
 		
 	return [ichanged,toklist]
@@ -577,16 +593,19 @@ class DoParse:
 	toklist=tok[:istart-1]
 	if tok[0]=='if':
 		toklist.append("then")
-        if tok[istart+2]==var.name and tok[istart+3]=="," and tok[len(tok)-1]==')':
-		sizetok=tok[istart+4:len(tok)-1]
+        if tok[istart+2]==var.name:
+	    ilast=ipos_level0(istart+2,tok)
+	    if tok[ilast+1]=="," and tok[len(tok)-1]==')':
+		sizetok=tok[ilast+2:len(tok)-1]
 		sizestr=list2str(sizetok,'')
-		tok2="allocate("+var.realname()+"(abs("+sizestr+")))"
+                arraystr=list2str(tok[istart+3:ilast+1],"")
+		tok2="allocate("+var.realname()+arraystr+"%v(abs("+sizestr+")))"
 		toklist.append([tok2])
 		if var.vartype=='integer':
 			zerostr="0"
 		else:
 			zerostr="0.0d0"
-		tok2="if ("+sizestr+"<0) "+ var.realname()+"(:)="+zerostr
+		tok2="if ("+sizestr+"<0) "+ var.realname()+arraystr+"%v(:)="+zerostr
 		toklist.append([tok2])
 		if tok[0]=='if':
 			toklist.append("endif")
@@ -624,8 +643,10 @@ class DoParse:
 	toklist=tok[:istart-1]
 	if tok[0]=='if':
 		toklist.append("then")
-        if tok[istart+2]==var.name and tok[istart+3]==")" and tok[len(tok)-1]==')':
-		tok2="if (associated("+var.realname()+")) deallocate("+var.realname()+")"
+        if tok[istart+2]==var.name and tok[len(tok)-1]==')':
+		ilast=ipos_level0(istart+2,tok)
+		arraystr=list2str(tok[istart+3:ilast+1],"")
+		tok2="if (associated("+var.realname()+arraystr+"%v)) deallocate("+var.realname()+arraystr+"%v)"
 		toklist.append([tok2])
 		if tok[0]=='if':
 			toklist.append("endif")
@@ -664,7 +685,8 @@ class DoParse:
 		else:
 			return [0,tok]
 
-	if tok[0] in ['parameter','format','use','subroutine','end','enddo','continue']:
+#	if tok[0] in ['parameter','format','use','subroutine','end','enddo','continue']:
+	if tok[0] in ['parameter','format','use','end','enddo','continue']:
 		return [0,tok]
 		
 	# foo = struc%goo 
@@ -740,8 +762,18 @@ class DoParse:
 	for var in self.varlist:
 		for i in range(len(tok)):
 			if tok[i]==var.name:
-				if i-2>=0 and i+1<len(tok) and tok[i-2]=='w' and tok[i-1]=='(' and tok[i+1]==')':
-					donothing=1
+			#	if i-2>=0 and i+1<len(tok) and tok[i-2]=='w' and tok[i-1]=='(' and tok[i+1]==')':
+			#		donothing=1
+				ilast=ipos_level0(i,tok)
+				try:
+					a=tok[ilast+1]
+				except:
+					print "#error",thisfunc,"Error", tok
+					sys.exit(10)
+				if len(tok)>ilast and (tok[ilast+1]==',' or tok[ilast+1]==')'):
+					tok[i]=var.realname()
+					ichanged=1
+					print "#error, pass var=",var.realname(),"itself, check it is OK or not"
 				else:
 					print "#error",thisfunc,"unknown structure",tok
 					sys.exit(10)
