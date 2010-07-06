@@ -19,14 +19,14 @@ PROGS = fplot pldos plbnds
 
 ALL:	$(PROGS)
 
-fplot:	fplot.o fpsub.o plsub.o contour.o
-	$(LK) $(LKFLAGS1) $@.o fpsub.o plsub.o contour.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+fplot:	fplot.o fpsub.o plsub.o contour.o alloc.o
+	$(LK) $(LKFLAGS1) $@.o fpsub.o plsub.o contour.o alloc.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-pldos:	pldos.o plsub.o
-	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+pldos:	pldos.o plsub.o alloc.o
+	$(LK) $(LKFLAGS1) $@.o plsub.o  alloc.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-plbnds:	plbnds.o plsub.o
-	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+plbnds:	plbnds.o plsub.o alloc.o
+	$(LK) $(LKFLAGS1) $@.o plsub.o  alloc.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 progs:
 	make -f Makefile fplot pldos plbnds

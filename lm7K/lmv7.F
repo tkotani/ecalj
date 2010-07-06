@@ -31,18 +31,18 @@ c      include "fp/events.ins"
 c#endif MPE
 #endif
 
-C Heap allocation
-      integer wksize
-#if MPI | MPIK
-      parameter(wksize= 300 000 000)
-#else
-      parameter(wksize= 300 000 000)
-#endif
-      integer w(wksize)
-C     Next two lines guarantee w is aligned along a d.p. boundary
-      double precision ws
-      equivalence (ws,w(1))
-      common /w/ w
+cC Heap allocation
+c      integer wksize
+c#if MPI | MPIK
+c      parameter(wksize= 300 000 000)
+c#else
+c      parameter(wksize= 300 000 000)
+c#endif
+c      integer w(wksize)
+cC     Next two lines guarantee w is aligned along a d.p. boundary
+c      double precision ws
+c      equivalence (ws,w(1))
+c      common /w/ w
 
 C ... Controls for IO
       integer lstrn
@@ -149,7 +149,8 @@ C --- Version ---
 C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
-     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
+c     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
+     .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w 
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
         call cexit(0,1)
@@ -195,12 +196,13 @@ C --- Dynamic memory allocation and other initialization ---
       EVENT_END_BARRIER  = MPE_LOG_GET_EVENT_NUMBER()
 #endif
 C --- Dynamic memory allocation and other initialization ---
-      if (procid .eq. master) call headl2(prgnam,wksize,stdo)
+c      if (procid .eq. master) call headl2(prgnam,wksize,stdo)
+      if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
-      call pshpr(0)
-      call wkinit(wksize)
-      call wkfast(T)
-      call poppr
+c      call pshpr(0)
+c      call wkinit(wksize)
+c      call wkfast(T)
+c      call poppr
       if (procid .eq. master) then
         i = fextg(ext)
       endif
@@ -266,12 +268,13 @@ C     Add version to variables table?
 C     j = 0
 C     swtmp = a2bin('T',ltet,1,0,' ',j,-1)
 C     call addsyv('version',vn,i)
-      call headl2(prgnam,wksize,stdo)
+c      call headl2(prgnam,wksize,stdo)
+      call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
-      call pshpr(0)
-      call wkinit(wksize)
-      call wkfast(T)
-      call poppr
+c      call pshpr(0)
+c      call wkinit(wksize)
+c      call wkfast(T)
+c      call poppr
       call poseof(fopn('LOG'))
       i = fextg(ext)
       call word(ext,1,i,j)

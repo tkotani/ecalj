@@ -191,9 +191,9 @@ cccccccccccc
       i = fopnT('TMP' ,-1,0,2)
       if (i .ge. 0) call dfclos(i)
       if (fhndl('TMP') .ge. 0) call dfclos(fopn('TMP'))
-      if (procid .eq. master) then
-        if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
-      endif
+c      if (procid .eq. master) then
+c        if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
+c      endif
 
 C   11 call tclev(hostnm,i)
 C      if (i .ge. 0) then

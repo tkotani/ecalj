@@ -465,10 +465,10 @@ C     Copy verbosities to print stack
         enddo
       endif
 
-      ltmp = F
-      nm='IO_WKP'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
-     .note='Print size of dynamic arrays when allocated')
-      if (ltmp) call wkprnt(1)
+c      ltmp = F
+c      nm='IO_WKP'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
+c     .note='Print size of dynamic arrays when allocated')
+c      if (ltmp) call wkprnt(1)
       nm='IO_IACTIV'; call gtv(trim(nm),tksw(prgn,nm),
      .io_iactive, note='Turn on interactive mode'//
      .'%N   May also be controlled from the command-line:'//

@@ -78,21 +78,18 @@ C    ... Order the identifiers
 C --- Eliminate duplicate tetrahedra ---
       mtet = ntet
 C ... Sort it with fast ivheap unless there is not enough memory
-      call defask(i)
-      if (i .gt. mtet*5) then
+c      call defask(i)
+c      if (i .gt. mtet*5) then
         call ivheap(5,mtet,idtet,ipq,1)
         allocate(iwk_iv(mtet*5))
-Ctakao_ZeroClear_NotRequiered          if (mtet*5<0) iwk_iv(:)=0
-
         call ivprm ( 5 , mtet , idtet , iwk_iv , ipq , .true. )
-
         if (allocated(iwk_iv)) deallocate(iwk_iv)
 
 *       call yprm('idtet',0,idtet,0,5,5,mtet)
-      else
-        call ivshel(5,mtet,idtet,ipq,.false.)
-*       call yprm('idtet',0,idtet,0,5,5,mtet)
-      endif
+c      else
+c        call ivshel(5,mtet,idtet,ipq,.false.)
+c*       call yprm('idtet',0,idtet,0,5,5,mtet)
+c      endif
       ntet = 1
       do  30  i = 2, mtet
 C        print 337, i, idtet(1,i), idtet(2,i), idtet(3,i), idtet(4,i)

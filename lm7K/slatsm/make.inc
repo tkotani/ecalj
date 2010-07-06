@@ -1,281 +1,192 @@
 sla_list=\
-	fsubs.o \
-	a2bin.o \
-	a2bina.o \
-	a2rotm.o \
-	a2vec.o \
-	afcmd.o \
-	alloc.o \
-	amix.o \
-	arrprt.o \
-	awrite.o \
-	bin2a.o \
-	bitops.o \
-	brentm.o \
-	brmin.o \
-	broydn.o \
-	broyj.o \
-	cbabk2.o \
-	cbal.o \
-	cdasin.o \
-	cdiv.o \
-	cg.o \
-	chcase.o \
-	chkhss.o \
-	cksumf.o \
-	cmdopt.o \
-	cmdstr.o \
-	comqr.o \
-	comqr2.o \
-	corth.o \
-	cplxdm.o \
-	cpstr.o \
-	cpudel.o \
-	cpvprm.o \
-	crdbf.o \
-	cross.o \
-	csmaln.o \
-	csroot.o \
-	d1mach.o \
-	da2spr.o \
-	dampy.o \
-	daxpby.o \
-	dbesj.o \
-	dbsstp.o \
-	dcabsr.o \
-	dci.o \
-	dcsqrt.o \
-	decrnd.o \
-	derfc.o \
-	dfdump.o \
-	dgedi.o \
-	dgefa.o \
-	dgesl.o \
-	diagno.o \
-	dinv33.o \
-	discop.o \
-	dlnref.o \
-	dmadd.o \
-	dmcpy.o \
-	dmpy.o \
-	dmpy22.o \
-	dmpyt.o \
-	dmsadd.o \
-	dmscop.o \
-	dmx22.o \
-	dot3.o \
-	dotprd.o \
-	dpack.o \
-	dpadd.o \
-	dpcopy.o \
-	dpdot.o \
-	dpdump.o \
-	dpmpy.o \
-	dpsadd.o \
-	dpscop.o \
-	dpsmpy.o \
-	dqinv.o \
-	dqinvb.o \
-	dsbak.o \
-	dschd.o \
-	dsev1.o \
-	dshell.o \
-	dsi.o \
-	dsidi.o \
-	dsifa.o \
-	dsisl.o \
-	dsmpy.o \
-	dspbmm.o \
-	dspdi.o \
-	dspfa.o \
-	dsprmv.o \
-	dspsl.o \
-	dsred.o \
-	dsredx.o \
-	dsum.o \
-	dsumdf.o \
-	dtribx.o \
-	dtridx.o \
-	dupack.o \
-	dvheap.o \
-	dvshel.o \
-	eigch.o \
-	epslon.o \
-	extstr.o \
-	falsi.o \
-	fftz3.o \
-	fgtcat.o \
-	finits.o \
-	fopna.o \
-	fpiint.o \
-	garg.o \
-	getcat.o \
-	gettime.o \
-	gradzr.o \
-	gvgetf.o \
-	hbak.o \
-	hchd.o \
-	hcinv.o \
-	hred.o \
-	hrmint.o \
-	htrib3.o \
-	htribk.o \
-	htribx.o \
-	htrid3.o \
-	htridi.o \
-	htridx.o \
-	hunti.o \
-	huntst.o \
-	huntx.o \
-	i1mach.o \
-	iasum.o \
-	iaxpy.o \
-	ichksm.o \
-	icopy.o \
-	idmxmn.o \
-	idnear.o \
-	iiamax.o \
-	iinear.o \
-	imtql2.o \
-	imtqlv.o \
-	imxmn.o \
-	info.o \
-	ipdump.o \
-	iprint.o \
-	ipsw.o \
-	isanrg.o \
-	ishell.o \
-	isum.o \
-	isw.o \
-	iswap.o \
-	ivheap.o \
-	ivshel.o \
-	iyamax.o \
-	lgand.o \
-	lstshr.o \
-	macro.o \
-	minfit.o \
-	mkdlst.o \
-	mkilst.o \
-	mklagw.o \
-	mklegw.o \
-	mpibc.o \
-	mstmin.o \
-	mxint.o \
-	nada.o \
-	nglob.o \
-	nintsp.o \
-	nxtarg.o \
-	nxtgrp.o \
-	pade.o \
-	parchv.o \
-	parrng.o \
-	pars1v.o \
-	parsvc.o \
-	pertev.o \
-	platsl.o \
-	pmblk.o \
-	polcof.o \
-	poldif.o \
-	poldvm.o \
-	polint.o \
-	politg.o \
-	poseof.o \
-	ppfac.o \
-	praxis.o \
-	pretty.o \
-	pythag.o \
-	qdiv.o \
-	query.o \
-	r1mach.o \
-	ran1.o \
-	rdfiln.o \
-	rdm.o \
-	rdm2.o \
-	rdtok.o \
-	rfalsi.o \
-	rs.o \
-	s8tor8.o \
-	setfac.o \
-	stkops.o \
-	strings.o \
-	strip.o \
-	strxls.o \
-	svbksb.o \
-	svd.o \
-	symvar.o \
-	symvec.o \
-	syscall.o \
-	tc.o \
-	tinvit.o \
-	tmix.o \
-	tql2.o \
-	tqlrat.o \
-	tred1.o \
-	tred2.o \
-	verfc.o \
-	wordg.o \
-	words.o \
-	ygemm.o \
-	ymcpy.o \
-	ymsadd.o \
-	ymscop.o \
-	ymtrns.o \
-	yqinv.o \
-	yqinvb.o \
-	ysbnv.o \
-	ysbnvb.o \
-	yscal.o \
-	yspbmm.o \
-	yspr2a.o \
-	ywrm.o \
-	yyaxpy.o \
-	yydot.o \
-	yydotc.o \
-	yygefa.o \
-	yygemm.o \
-	yygesl.o \
-	yyhbak.o \
-	yyhchd.o \
-	yyhifa.o \
-	yyhmpy.o \
-	yyhrdx.o \
-	yyhred.o \
-	yympy.o \
-	yympyt.o \
-	yyqinv.o \
-	yyqnvb.o \
-	yysbib.o \
-	yysbmm.o \
-	yysbnv.o \
-	yysp2a.o \
-	yyxcpy.o \
-	z1btf2.o \
-	z1btrf.o \
-	z1btrs.o \
-	z1tbsv.o \
-	z2herm.o \
-	zampy.o \
-	zerfc.o \
-	zgeevs.o \
-	zgefa.o \
-	zhev.o \
-	zhisl.o \
-	zhmpy.o \
-	zmcpy.o \
-	zmpy.o \
-	zmpy22.o \
-	zmsadd.o \
-	zmscop.o \
-	zpack.o \
-	zpmblk.o \
-	zqinv.o \
-	zqinvb.o \
-	zsum.o \
-	ztoy.o \
-	ztoyy.o \
-	ll.o \
-	matm.o \
-	gradfl.o \
-	ropylg.o
-
+fsubs.o \
+a2bin.o \
+a2bina.o \
+a2rotm.o \
+a2vec.o \
+amix.o \
+arrprt.o \
+awrite.o \
+bin2a.o \
+bitops.o \
+brentm.o \
+brmin.o \
+broyj.o \
+cdasin.o \
+cdiv.o \
+chcase.o \
+chkhss.o \
+cmdopt.o \
+cmdstr.o \
+cplxdm.o \
+cpstr.o \
+cpudel.o \
+cross.o \
+csroot.o \
+d1mach.o \
+dampy.o \
+dbesj.o \
+dcabsr.o \
+derfc.o \
+dfdump.o \
+dgedi.o \
+dgefa.o \
+dgesl.o \
+dinv33.o \
+discop.o \
+dmadd.o \
+dmcpy.o \
+dmpy.o \
+dmpy22.o \
+dmpyt.o \
+dmsadd.o \
+dmscop.o \
+dot3.o \
+dpadd.o \
+dpcopy.o \
+dpdump.o \
+dpsadd.o \
+dpscop.o \
+dqinv.o \
+dqinvb.o \
+dsbak.o \
+dschd.o \
+dsev1.o \
+dshell.o \
+dsidi.o \
+dsifa.o \
+dsisl.o \
+dsmpy.o \
+dspbmm.o \
+dsred.o \
+dsredx.o \
+dsum.o \
+dsumdf.o \
+dtribx.o \
+dtridx.o \
+dvheap.o \
+dvshel.o \
+epslon.o \
+fftz3.o \
+fgtcat.o \
+finits.o \
+fopna.o \
+fpiint.o \
+garg.o \
+getcat.o \
+gettime.o \
+gradfl.o \
+gradzr.o \
+gvgetf.o \
+hrmint.o \
+htribk.o \
+htribx.o \
+htridi.o \
+htridx.o \
+hunti.o \
+huntx.o \
+i1mach.o \
+icopy.o \
+idmxmn.o \
+iinear.o \
+imtql2.o \
+imtqlv.o \
+imxmn.o \
+info.o \
+ipdump.o \
+iprint.o \
+isanrg.o \
+ishell.o \
+isum.o \
+isw.o \
+ivheap.o \
+ivshel.o \
+iyamax.o \
+ll.o \
+macro.o \
+matm.o \
+minfit.o \
+mkdlst.o \
+mkilst.o \
+mklagw.o \
+mklegw.o \
+mpibc.o \
+mxint.o \
+nglob.o \
+nintsp.o \
+nxtarg.o \
+nxtgrp.o \
+parchv.o \
+pars1v.o \
+parsvc.o \
+pertev.o \
+platsl.o \
+pmblk.o \
+poldvm.o \
+polint.o \
+poseof.o \
+ppfac.o \
+praxis.o \
+pretty.o \
+pythag.o \
+query.o \
+ran1.o \
+rdfiln.o \
+rdm.o \
+rdtok.o \
+rfalsi.o \
+ropylg.o \
+s8tor8.o \
+setfac.o \
+strings.o \
+strip.o \
+symvar.o \
+symvec.o \
+syscall.o \
+tinvit.o \
+tql2.o \
+tqlrat.o \
+tred2.o \
+wordg.o \
+words.o \
+ymcpy.o \
+ymsadd.o \
+ymscop.o \
+ymtrns.o \
+yscal.o \
+ywrm.o \
+yyaxpy.o \
+yydot.o \
+yydotc.o \
+yygefa.o \
+yygemm.o \
+yygesl.o \
+yyhbak.o \
+yyhchd.o \
+yyhifa.o \
+yyhmpy.o \
+yyhrdx.o \
+yyhred.o \
+yympy.o \
+yympyt.o \
+yyqinv.o \
+yyqnvb.o \
+yysbmm.o \
+yysbnv.o \
+yysp2a.o \
+yyxcpy.o \
+z2herm.o \
+zampy.o \
+zerfc.o \
+zhev.o \
+zmcpy.o \
+zmsadd.o \
+zmscop.o \
+zpmblk.o \
+zqinv.o \
+zqinvb.o \
+ztoy.o \
+ztoyy.o \
+tc.o \
+afcmd.o \
+dpzero.o 

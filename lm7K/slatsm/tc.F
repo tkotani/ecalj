@@ -66,7 +66,10 @@ C$    if(mp_my_threadnum().ne.0) return
   95  continue
       if (init .eq. 0) jt0 = 1000*cpusec()
       init = 1
-      call wquery(mfree,mnow,mmax)
+c      call wquery(mfree,mnow,mmax) !takao no w(x) anymore.
+      mfree=0
+      mnow=0
+      mmax=0
 
 c ... look for entry with same call path
       ii = 0
@@ -148,11 +151,16 @@ C       jt1 = it
 
       it = 1000*cpusec()
       tm = (it-jt0)/1000d0
-      call wquery(mfree,mnow,mmax)
+      
+c      call wquery(mfree,mnow,mmax) !takao no common/w anymore
+      mfree=0
+      mnow=0
+      mmax=0
       iwmax = 0.001*mmax+0.5
-C     iwnow = 0.001*mnow+0.5
+      iwnow = 0.001*mnow+0.5
       if (iprint() .gt. 0)
-     .write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
+c     .write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
+     .write (ifi,700) 0,0,0,1,tm,tm,'main'
       lev(nn+1)=-1
 
       lvl=-1
