@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
 Cchp1 cmdvar= real(8),rv_p_,ov1
@@ -5,7 +6,10 @@ Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
-      subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+Cchp3       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+       subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
+     . , qbg , sv_p_orhoat ) 
+
 
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
@@ -40,7 +44,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer procid, master, mpipid
-      integer nbas,nspec,orhoat(3,nbas)
+Cchp3       integer nbas,nspec,orhoat(3,nbas)
+       integer:: nbas , nspec 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       real(8):: qbg
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
@@ -318,9 +325,18 @@ C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 C     .      orca)
 
         nlml = (lmxl+1)**2
-        call defrr (orhoat(1,ib),  nr*nlml*nsp)
-        call defrr (orhoat(2,ib),  nr*nlml*nsp)
-        call defrr (orhoat(3,ib),  nr*nsp)
+Cchp3         call defrr (orhoat(1,ib),  nr*nlml*nsp)
+         allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
+         if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
+
+Cchp3         call defrr (orhoat(2,ib),  nr*nlml*nsp)
+         allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
+         if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
+
+Cchp3         call defrr (orhoat(3,ib),  nr*nsp)
+         allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
+         if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+
 Cchp1         call defrr (ov0,           nr*nsp)
          allocate(rv_p_ov0(abs(nr*nsp)))
          if (nr*nsp<0) rv_p_ov0(:)=0.0d0
@@ -369,7 +385,10 @@ Cchp3      .     )
      .      ) 
 
 
-          call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
+Cchp3           call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
+           call dpcopy ( sspec ( is ) %rv_p_orhoc , sv_p_orhoat( 3 , ib )%v 
+     .     , 1 , nr * nsp , 1d0 ) 
+
 
           if (lfoc .eq. 0) then
             allocate(rwgt_rv(nr))
@@ -377,15 +396,21 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
             call radwgt ( rmt , a , nr , rwgt_rv )
 
-            call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-     .      , ib ) ) , sum )
+Cchp3             call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
+Cchp3      .      , ib ) ) , sum )
+             call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
+     .       , sum ) 
+
 
             fac = 1d0
             if(dabs(sum) .gt. 1d-7) fac = qc/sum
             if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
   787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
      .      3f12.6,f12.6)
-            call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+Cchp3             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+             call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+     .       , 1 , nr * nsp , fac ) 
+
             if (allocated(rwgt_rv)) deallocate(rwgt_rv)
 
           endif
@@ -483,11 +508,17 @@ C --- Set up local densities using rmt from atm file ---
 
 Cchp3       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
 Cchp3      .orhoat,sqloc,slmom)
-       call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
-     . hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+Cchp3        call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+Cchp3      . hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+        call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+     .  hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom ) 
+
 
 C --- Add compensating uniform electron density to compensate background
-      call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
+Cchp3       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
+       call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , 
+     . sspec , ssite ) 
+
       if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
      .'density added to neutralize background, q=%;6,6d',qbg,0)
 

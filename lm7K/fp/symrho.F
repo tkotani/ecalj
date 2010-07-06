@@ -1,3 +1,5 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -11,7 +13,10 @@ Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= real(8),iv_p_,oips0
 Cchp1 cmdvar= real(8),iv_p_,oips0
-      subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
+Cchp3       subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
+       subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
+     . , qbyl , hbyl , f ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -48,7 +53,10 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
 C     implicit none
-      integer lf,orhoat(3,*)
+Cchp3       integer lf,orhoat(3,*)
+       integer:: lf 
+       type(s_rv1) :: sv_p_orhoat(3,*)
+
       real(8):: f(*) , qbyl(*) , hbyl(*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -68,14 +76,23 @@ C     implicit none
 
       call fftz30(n1,n2,n3,k1,k2,k3)
 
-      call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
-      if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
+Cchp3       call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
+       call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
+     . , qbyl , hbyl , f ) 
+
+Cchp3       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
+       if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
+     . , sv_p_orhoat ) 
+
       call symsmr(slat,nsp,k1,k2,k3,smrho)
       call tcx('symrho')
       end subroutine symrho
 
 
-      subroutine symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
+Cchp3       subroutine symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
+       subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
+     . sv_p_orhoat , qbyl , hbyl , f ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -112,7 +129,10 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,nsp,orhoat(3,nbas),n0,lf
+Cchp3       integer nbas,nsp,orhoat(3,nbas),n0,lf
+       integer:: nbas , nsp , n0 , lf 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       parameter (n0=10)
       real(8):: f(3,nbas) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas)
       type(s_site)::ssite(*)
@@ -290,11 +310,17 @@ C   ... Apply the projectors to rhoat
             allocate(rho_rv(nr*nlml*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*nlml*nsp<0) rho_rv(:)=0.0d0
 
-            call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .      , rho_rv , orhoat , 1 )
+Cchp3             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+Cchp3      .      , rho_rv , orhoat , 1 )
+             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+     .       , rho_rv , sv_p_orhoat , 1 ) 
 
-            call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .      , rho_rv , orhoat , 2 )
+
+Cchp3             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+Cchp3      .      , rho_rv , orhoat , 2 )
+             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+     .       , rho_rv , sv_p_orhoat , 2 ) 
+
 
 
 C   ... Symmetrize site charges and eigval sum
@@ -404,13 +430,19 @@ C ... Local parameters
       end subroutine psymrq
 
 
-      subroutine psymr1(nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,orhoat,icmp)
+Cchp3       subroutine psymr1(nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,orhoat,icmp)
+       subroutine psymr1 ( nrclas , ipa , nr , nlml , nsp , nlmx , sym 
+     . , rho , sv_p_orhoat , icmp ) 
+       use m_struc_def, only: s_rv1
 
 C- Symmetrize density for one class of atoms
 C     implicit none
 C ... Passed parameters
       integer nrclas,nsp
-      integer ipa(nrclas),orhoat(3,1),nlmx,nr,nlml,icmp
+Cchp3       integer ipa(nrclas),orhoat(3,1),nlmx,nr,nlml,icmp
+       integer:: ipa(nrclas) , nlmx , nr , nlml , icmp 
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       double precision sym(nlmx,nlmx,nrclas),rho(nr,nlml,nsp)
 C ... Local parameters
       integer stdo,ia,ib,iprint,lgunit,nn
@@ -424,16 +456,24 @@ C ... Accumulate symmetrized true density on first site
       call dpzero(rho, nr*nlml*nsp)
       do  ia = 1, nrclas
         ib = ipa(ia)
-        call pxsmr1(1d0,nr,nlml,nsp,sym(1,1,ia),w(orhoat(icmp,ib)),rho,
-     .  nn)
+Cchp3         call pxsmr1(1d0,nr,nlml,nsp,sym(1,1,ia),w(orhoat(icmp,ib)),rho,
+Cchp3      .  nn)
+         call pxsmr1 ( 1d0 , nr , nlml , nsp , sym ( 1 , 1 , ia ) , sv_p_orhoat( icmp , ib )%v 
+     .   , rho , nn ) 
+
       enddo
 
 C ... Copy to all sites in class
       wgt = nrclas
       do  ia = 1, nrclas
         ib = ipa(ia)
-        call dpzero(w(orhoat(icmp,ib)), nr*nlml*nsp)
-        call pysmr1(wgt,nr,nlml,nsp,sym(1,1,ia),rho,w(orhoat(icmp,ib)),nn)
+Cchp3         call dpzero(w(orhoat(icmp,ib)), nr*nlml*nsp)
+         call dpzero ( sv_p_orhoat( icmp , ib )%v , nr * nlml * nsp ) 
+
+Cchp3         call pysmr1(wgt,nr,nlml,nsp,sym(1,1,ia),rho,w(orhoat(icmp,ib)),nn)
+         call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
+     .   , sv_p_orhoat( icmp , ib )%v , nn ) 
+
       enddo
 
       if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml

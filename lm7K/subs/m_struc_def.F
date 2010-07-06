@@ -1410,7 +1410,8 @@ CCHSTRUC       integer(8)   ::   oivso ! not used because of undef
 CCHSTRUC       integer(8)   ::   omad
        real(8) , pointer ::  rv_p_omad (:)
 CCHSTRUC       integer(8)   ::   oorhat
-       integer , pointer ::  iv_p_oorhat (:)
+cki       integer , pointer ::  iv_p_oorhat (:)
+       type(s_rv1), pointer :: sv_p_oorhat(:)
 CCHSTRUC       integer(8)   ::   opalp ! not used because of undef
 CCHSTRUC       integer(8)   ::   opapg ! not used because of undef
 CCHSTRUC       integer(8)   ::   opdel ! not used because of undef

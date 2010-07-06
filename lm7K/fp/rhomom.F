@@ -1,4 +1,8 @@
-      subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
+       subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
+     . , vsum ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -26,7 +30,10 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,orhoat(3,1)
+Cchp3       integer nbas,orhoat(3,1)
+       integer:: nbas 
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       real(8):: qmom(1) , vsum
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -93,10 +100,14 @@ C --- Loop over sites ---
 
         call radwgt ( rmt , a , nr , rwgt_rv )
 
-        call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , w ( 
-     .  orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
-     .  3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
-     .  ( j1 ) )
+Cchp3         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , w ( 
+Cchp3      .  orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
+Cchp3      .  3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
+Cchp3      .  ( j1 ) )
+         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
+     .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , cofg , 
+     .   cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) ) 
+
 
         if (ipr .ge. 40) then
           write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
@@ -108,10 +119,15 @@ C --- Loop over sites ---
   220   format(i13,i6,f12.6,f12.6,2f9.2)
   221   format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x,
      .  'Qc',8x,'Z')
-        call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv 
-     .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .  ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
-     .  h_rv , v_rv , vs1 , vs2 )
+Cchp3         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv 
+Cchp3      .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+Cchp3      .  ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
+Cchp3      .  h_rv , v_rv , vs1 , vs2 )
+         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
+     .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( 
+     .   j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2 
+     .   ) 
+
 
 
         vsum = vsum+vs1-vs2

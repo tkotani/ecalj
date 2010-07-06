@@ -1,6 +1,10 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,okv
-      subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
+Cchp3       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
+       subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
+     . , smrho ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -108,7 +112,9 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
-      integer orhat
+Cchp3       integer orhat
+       type(s_rv1) :: sv_p_orhat
+
       double complex smrho(*)
 C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
@@ -224,8 +230,11 @@ C ... Add sum of local gaussian densities to mesh density
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .  , 1 )
 
-        call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , orhat , kmax 
-     .  , ng , cn_zv )
+Cchp3         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , orhat , kmax 
+Cchp3      .  , ng , cn_zv )
+         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
+     .   , kmax , ng , cn_zv ) 
+
 
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .  , 1 )

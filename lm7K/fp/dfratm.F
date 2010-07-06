@@ -1,4 +1,7 @@
-      subroutine dfratm(nbas,ssite,sspec,orhoat)
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3       subroutine dfratm(nbas,ssite,sspec,orhoat)
+       subroutine dfratm ( nbas , ssite , sspec , sv_p_orhoat ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -19,7 +22,10 @@ Cu   18 Jun 98 adapted from nfp df_rhoat.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,orhoat(3,nbas)
+Cchp3       integer nbas,orhoat(3,nbas)
+       integer:: nbas 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -37,9 +43,18 @@ C ... Local parameters
 
         nlml = (lmxl+1)**2
         if (lmxl .gt. -1) then
-          call defrr (orhoat(1,ib),  nr*nlml*nsp)
-          call defrr (orhoat(2,ib),  nr*nlml*nsp)
-          call defrr (orhoat(3,ib),  nr*nsp)
+Cchp3           call defrr (orhoat(1,ib),  nr*nlml*nsp)
+           allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
+           if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
+
+Cchp3           call defrr (orhoat(2,ib),  nr*nlml*nsp)
+           allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
+           if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
+
+Cchp3           call defrr (orhoat(3,ib),  nr*nsp)
+           allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
+           if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+
         endif
       enddo
       end subroutine dfratm

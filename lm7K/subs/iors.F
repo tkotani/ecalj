@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= real(8),rv_p_,orhoca
 Cchp1 cmdvar= real(8),rv_p_,orhoc
 Cchp1 cmdvar= real(8),rv_p_,ov1
@@ -6,7 +7,7 @@ Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= real(8),rv_p_,oves
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
-     .fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
+     .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
 
       use m_struc_def  !Cgetarg
       use m_struc_func 
@@ -127,7 +128,10 @@ C  ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lbin
-      integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
+Cchp3       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
+       integer:: mode , nbas , nat , nspec , nit , ifi , n0 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       parameter (n0=10)
       type(s_ctrl)::sctrl
 cki      type(s_site)::ssite(*)
@@ -918,9 +922,18 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
      .      call rx('iors not set up to convert radial mesh')
-            call defrr(orhoat(1,ib),  nr*nlml*nsp)
-            call defrr(orhoat(2,ib),  nr*nlml*nsp)
-            call defrr(orhoat(3,ib),  nr*nsp)
+Cchp3             call defrr(orhoat(1,ib),  nr*nlml*nsp)
+             allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
+             if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
+
+Cchp3             call defrr(orhoat(2,ib),  nr*nlml*nsp)
+             allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
+             if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
+
+Cchp3             call defrr(orhoat(3,ib),  nr*nsp)
+             allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
+             if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+
 Cchp1             call defrr(ov1,           nr*nsp)
              allocate(rv_p_ov1(abs(nr*nsp)))
              if (nr*nsp<0) rv_p_ov1(:)=0.0d0
@@ -928,11 +941,17 @@ Cchp1             call defrr(ov1,           nr*nsp)
 
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
-              call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-     .        jfi)
+Cchp3               call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
+Cchp3      .        jfi)
+               call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , 
+     .         nsp0 , nsp , lbin , jfi ) 
+
               if (.not. lbin) read(jfi,*)
-              call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-     .        jfi)
+Cchp3               call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
+Cchp3      .        jfi)
+               call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , 
+     .         nsp0 , nsp , lbin , jfi ) 
+
               if (nlml0.gt.nlml.and.ipr.ge.10)
      .        write(stdo,202) ib,spid,'truncate',nlml0,nlml
               if (nlml0.lt.nlml.and.ipr.ge.10)
@@ -940,7 +959,10 @@ Cchp1             call defrr(ov1,           nr*nsp)
   202         format(9x,'site',i4,', species ',a,
      .        ': ',a,' local density from nlm=',i3,' to',i3)
               if (.not. lbin) read(jfi,*)
-              call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
+Cchp3               call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
+               call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr0 , 1 , 1 , nsp0 , 
+     .         nsp , lbin , jfi ) 
+
               if (.not. lbin) read(jfi,*)
 Cchp1               call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
                call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
@@ -967,18 +989,29 @@ C              goto 20
 C           endif
 
             if (mode .eq. -2) then
-              call rlse(orhoat(1,ib))
+Cchp3               call rlse(orhoat(1,ib))
+               if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
+
 Cchp1               call rlse(ov0)
                if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
 
 
             else
-              call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .        'rhoat(1)')
-              call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .        'rhoat(2)')
-              call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .        'rhoat(3)')
+Cchp3               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
+Cchp3      .        'rhoat(1)')
+               call mpibc1 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
+     .         mlog , 'iors' , 'rhoat(1)' ) 
+
+Cchp3               call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
+Cchp3      .        'rhoat(2)')
+               call mpibc1 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
+     .         mlog , 'iors' , 'rhoat(2)' ) 
+
+Cchp3               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
+Cchp3      .        'rhoat(3)')
+               call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr * nlml * nsp , 4 , 
+     .         mlog , 'iors' , 'rhoat(3)' ) 
+
 Cchp1               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
                call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
      .         ) 
@@ -1056,7 +1089,9 @@ Cchp1           ssite(ib)%ov1=ov1
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
-          call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
+Cchp3           call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
+           call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat ) 
+
         endif
 #endif
 
@@ -1224,8 +1259,11 @@ Cchp1             orhoca=sspec(is)%orhoc
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
 Cchp1               call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
-               call dpcopy ( rv_p_orhoca , w ( orhoat ( 3 , ib ) ) , 1 , nr 
-     .         * nsp , 1d0 ) 
+Cchp3                call dpcopy ( rv_p_orhoca , w ( orhoat ( 3 , ib ) ) , 1 , nr 
+Cchp3      .         * nsp , 1d0 ) 
+                call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+     .          * nsp , 1d0 ) 
+
 
             else
               allocate(rwgt_rv(nr))
@@ -1233,15 +1271,21 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
               call radwgt ( rmt , a , nr , rwgt_rv )
 
-              call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-     .        , ib ) ) , sum )
+Cchp3               call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
+Cchp3      .        , ib ) ) , sum )
+               call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
+     .         , sum ) 
+
 
               fac = 1d0
               if (dabs(sum) .gt. 1d-6) fac = qc/sum
               if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
      .        write(stdo,787) ib,qc,sum,fac
   787         format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
-              call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+Cchp3               call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+               call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+     .         , 1 , nr * nsp , fac ) 
+
               if (allocated(rwgt_rv)) deallocate(rwgt_rv)
 
             endif
@@ -1487,11 +1531,20 @@ C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
           if (mode .eq. 1) then
             if (.not. lbin) write(jfi,'('' rho1'')')
-            call dpdbyl(w(orhoat(1,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
+Cchp3             call dpdbyl(w(orhoat(1,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
+             call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr , nlml , nlml , nsp 
+     .       , nsp , lbin , - jfi ) 
+
             if (.not. lbin) write(jfi,'('' rho2'')')
-            call dpdbyl(w(orhoat(2,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
+Cchp3             call dpdbyl(w(orhoat(2,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
+             call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr , nlml , nlml , nsp 
+     .       , nsp , lbin , - jfi ) 
+
             if (.not. lbin) write(jfi,'('' rhoc'')')
-            call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
+Cchp3             call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
+             call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp 
+     .       , lbin , - jfi ) 
+
             if (.not. lbin) write(jfi,'('' v0'')')
 Cchp1             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
              call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 

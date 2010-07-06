@@ -1,3 +1,5 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -26,13 +28,21 @@ Cchp3      .  rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps
 Cchp3      .  , rvvxc , valvef , xcore , focexc , focex , focec , focvxc , 
 Cchp3      .  sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu 
 Cchp3      .  , vorb , lldau ) 
-         subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-     .   , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
-     .   , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
-     .   , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
-     .   rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
-     .   , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .   lmaxu , vorb , lldau ) 
+Cchp3          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+Cchp3      .   , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
+Cchp3      .   , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
+Cchp3      .   , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
+Cchp3      .   rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
+Cchp3      .   , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
+Cchp3      .   lmaxu , vorb , lldau ) 
+          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+     .    , slat , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
+     .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
+     .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
+     .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
+     .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
+     .    lmaxu , vorb , lldau ) 
+
 
 
 
@@ -159,8 +169,11 @@ Cchp3        integer:: nbas , nsp , job , oppi(3,nbas) , otau(3,nbas) , orhoat(3
 Cchp3      . , n0 , nppn , nab , lso , lcplxp 
 Cchp3         integer:: nbas , nsp , job , oppi(3,nbas) , orhoat(3,nbas) , 
 Cchp3      .  n0 , nppn , nab , lso , lcplxp 
-         integer:: nbas , nsp , job , orhoat(3,nbas) , n0 , nppn , nab 
-     .   , lso , lcplxp 
+Cchp3          integer:: nbas , nsp , job , orhoat(3,nbas) , n0 , nppn , nab 
+Cchp3      .   , lso , lcplxp 
+          integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp 
+          type(s_rv1) :: sv_p_orhoat(3,nbas)
+
          type(s_rv1) :: sv_p_oppi(3,nbas)
 
         type(s_rv1) :: sv_p_otau(3,nbas)
@@ -391,17 +404,29 @@ C$      j1 = iiv0(ib)+1
 
 C   ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
-          call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
-     .    nlml,nsp)
+Cchp3           call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
+Cchp3      .    nlml,nsp)
+           call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
+     .     , rofi , nr , nlml , nsp ) 
+
         endif
 
 C   --- Make potential and energy terms at this site ---
-        call locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,nlml,
-     .  qmom(j1),vval(j1),rofi,rwgt,w(orhoat(1,ib)),w(orhoat(2,ib)),
-     .  w(orhoat(3,ib)),rhol1,rhol2,v1,v2,v1es,v2es,wk,valvs,cpnvs,
-     .  rhexc,rhex,rhec,rhvxc,rvepvl,rvexl,rvecl,rvvxvl,rveptl,rvvxtl,
-     .  valvt,xcor,qloc,qlocc,aloc,alocc,gpotb,fcexc,fcex,fcec,fcvxc,
-     .  rhobg,efg(1,ib))
+Cchp3         call locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,nlml,
+Cchp3      .  qmom(j1),vval(j1),rofi,rwgt,w(orhoat(1,ib)),w(orhoat(2,ib)),
+Cchp3      .  w(orhoat(3,ib)),rhol1,rhol2,v1,v2,v1es,v2es,wk,valvs,cpnvs,
+Cchp3      .  rhexc,rhex,rhec,rhvxc,rvepvl,rvexl,rvecl,rvvxvl,rveptl,rvvxtl,
+Cchp3      .  valvt,xcor,qloc,qlocc,aloc,alocc,gpotb,fcexc,fcex,fcec,fcvxc,
+Cchp3      .  rhobg,efg(1,ib))
+         call locpt2 ( job , z , rmt , rg , a , nr , nsp , cofg , cofh 
+     .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
+     .   , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , 
+     .   sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es 
+     .   , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , 
+     .   rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc 
+     .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
+     .   , rhobg , efg ( 1 , ib ) ) 
+
 
 C   ... Write true potential to file vtrue.ib
         if (mod(job/10000,10) .eq. 2 .or. mod(job/10000,10) .eq. 3) then

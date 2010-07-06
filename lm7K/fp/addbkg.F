@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
       subroutine addbkgsm(smrho,k1,k2,k3,nsp,qbg,vol,fac)
 
 C- add uniform background to smooth charge density
@@ -25,7 +26,10 @@ C     implicit none
       return
       end subroutine addbkgsm
 
-      subroutine adbkql(orhoat,nbas,nsp,qbg,vol,fac,sspec,ssite)
+Cchp3       subroutine adbkql(orhoat,nbas,nsp,qbg,vol,fac,sspec,ssite)
+       subroutine adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , fac 
+     . , sspec , ssite ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -43,7 +47,10 @@ C----------------------------------------
 C     implicit none
       integer nrmx,nlmx,nlml,lmxl,nbas
       parameter (nrmx=1501,nlmx=64)
-      integer orhoat(3,nbas),nsp
+Cchp3       integer orhoat(3,nbas),nsp
+       integer:: nsp 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       real(8):: qbg , fac
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -71,8 +78,11 @@ C      nrml=nr*nlml
         call rxx(nr .gt. nrmx,  'addbkgloc: increase nrmx')
         call rxx(nlml .gt. nlmx,'addbkgloc: increase nlmx')
         call radmsh(rmt,a,nr,rofi)
-        call addbkgl(w(orhoat(1,ib)),w(orhoat(2,ib)),rhobkg,
-     .  nr,nsp,rofi,nlml)
+Cchp3         call addbkgl(w(orhoat(1,ib)),w(orhoat(2,ib)),rhobkg,
+Cchp3      .  nr,nsp,rofi,nlml)
+         call addbkgl ( sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
+     .   , rhobkg , nr , nsp , rofi , nlml ) 
+
    10   continue
       enddo
       end subroutine adbkql

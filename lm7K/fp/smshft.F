@@ -1,6 +1,10 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
-      subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
+Cchp3       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
+       subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
+     . , smrho ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -46,7 +50,9 @@ Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer orhoat(3,1)
+Cchp3       integer orhoat(3,1)
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -130,8 +136,11 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) cwk_zv(:)=0.0d0
       kmax = 0
 Cchp1       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
 Cchp1      .w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
-       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-     . rv_p_ogv , orhoat , cwk_zv , cgs_zv , job ) 
+Cchp3        call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+Cchp3      . rv_p_ogv , orhoat , cwk_zv , cgs_zv , job ) 
+        call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+     .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+
 
 
       if (allocated(cwk_zv)) deallocate(cwk_zv)
@@ -226,8 +235,11 @@ C --- Symmetrize the shifted density ---
       end subroutine smshft
 
 
-      subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
-     .gv,orhoat,cwk,cg,job)
+Cchp3       subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
+Cchp3      .gv,orhoat,cwk,cg,job)
+       subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
+     . , ng , gv , sv_p_orhoat , cwk , cg , job ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -307,7 +319,10 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,nsp,ng,job,orhoat(3,1)
+Cchp3       integer nbas,nsp,ng,job,orhoat(3,1)
+       integer:: nbas , nsp , ng , job 
+       type(s_rv1) :: sv_p_orhoat(3,1)
+
       real(8):: gv(ng,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -404,8 +419,14 @@ C   --- Shift in mesh density, job 1 ---
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
-          call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1,ib)),qloc)
-          call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2,ib)),sum)
+Cchp3           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1,ib)),qloc)
+           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v 
+     .     , qloc ) 
+
+Cchp3           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2,ib)),sum)
+           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v 
+     .     , sum ) 
+
           qloc = (qloc-sum)/y0
           qfat = 0d0
           do  12  i  = 1, nsp
@@ -459,14 +480,20 @@ C     ... Core + valence at old position
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
 
-          call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
+Cchp3           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
+           call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+     .     , kmax , ng , cwk ) 
+
           call dscal(ng*2,-1d0,cwk,1)
 C     ... Core + valence at new position
 
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
 
-          call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
+Cchp3           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
+           call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+     .     , kmax , ng , cwk ) 
+
 
 C     ... Add to cg
           do  i = 1, nsp

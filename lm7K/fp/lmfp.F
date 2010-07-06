@@ -124,7 +124,7 @@ Cchp1          integer:: opos , o
           integer:: o 
           real(8),pointer :: rv_p_opos(:)
 
-         integer,pointer :: iv_p_oorhat(:)
+         type(s_rv1),pointer :: sv_p_oorhat(:)
 
         complex(8),pointer :: zv_p_osmrho(:)
 
@@ -576,7 +576,7 @@ C ... Quit if --quit=ham given
 C --- Setup for iterations in a self-consistency cycle ---
 C ... Unpack or allocate some permanent arrays
 Cchp1       oorhat=spot%oorhat
-      iv_p_oorhat => spot%iv_p_oorhat 
+      sv_p_oorhat => spot%sv_p_oorhat 
 Cchp1       osmrho=spot%osmrho
       zv_p_osmrho => spot%zv_p_osmrho 
 Cchp1       osmpot=spot%osmpot
@@ -714,7 +714,7 @@ C     Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
 Cchp1         call rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,w(oorhat))
          call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg 
-     .   , iv_p_oorhat ) 
+     .   , sv_p_oorhat ) 
 
         nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
@@ -733,7 +733,7 @@ c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
 Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
 Cchp1      .  nspec,w(oorhat),w,nit1,lbin,ifi)
          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .   , nbas , nat , nspec , iv_p_oorhat , w , nit1 , lbin , ifi ) 
+     .   , nbas , nat , nspec , sv_p_oorhat , w , nit1 , lbin , ifi ) 
 
 c        print *,'yyyyyyyyyy end of iors'
 ctakao
@@ -781,7 +781,7 @@ C         If no force switch set, use default
 Cchp1           call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
 Cchp1            call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
 Cchp1      .     ) , zv_p_osmrho ) 
-            call smshft ( ssite , sspec , slat , sctrl , sham , iv_p_oorhat 
+            call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
      .      , zv_p_osmrho ) 
 
 
@@ -933,7 +933,7 @@ C --- Write smoothed charge density for contour plotting ---
 Cchp1           call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
 Cchp1            call ioden ( strn ( 7: ) , slat , ssite , sspec , w ( oorhat 
 Cchp1      .     ) , zv_p_osmrho ) 
-            call ioden ( strn ( 7: ) , slat , ssite , sspec , iv_p_oorhat 
+            call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
      .      , zv_p_osmrho ) 
 
 
@@ -966,7 +966,7 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
 Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .       , nbas , nat , nspec , iv_p_oorhat , w , iter , lbin , - ifi 
+     .       , nbas , nat , nspec , sv_p_oorhat , w , iter , lbin , - ifi 
      .       ) 
 
             call fclose(ifi)
@@ -1220,7 +1220,7 @@ C       Else, use self-consistent
 Cchp1             call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
 Cchp1              call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
 Cchp1      .       ) , zv_p_osmrho ) 
-              call smshft ( ssite , sspec , slat , sctrl , sham , iv_p_oorhat 
+              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
      .        , zv_p_osmrho ) 
 
 
@@ -1234,7 +1234,7 @@ C   ... Write restart file (to include new positions)
 Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .       , nbas , nat , nspec , iv_p_oorhat , w , iter , .true. , - ifi 
+     .       , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
      .       ) 
 
             call fclose(ifi)
@@ -1435,7 +1435,7 @@ C ... Write restart file (to include new positions)
 Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .  fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .   , nbas , nat , nspec , iv_p_oorhat , w , iter , .true. , - ifi 
+     .   , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
      .   ) 
 
         call fclose(ifi)

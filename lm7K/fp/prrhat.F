@@ -1,11 +1,17 @@
-      subroutine prrhat(nbas,ssite,sspec,orhoat)
+Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
+Cchp3       subroutine prrhat(nbas,ssite,sspec,orhoat)
+       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat ) 
+
 
       use m_struc_def  !Cgetarg
 
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
-      integer nbas,orhoat(3,nbas)
+Cchp3       integer nbas,orhoat(3,nbas)
+       integer:: nbas 
+       type(s_rv1) :: sv_p_orhoat(3,nbas)
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -47,12 +53,18 @@ Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
      .  '   nr=',i5,'   nlml=',i3)
-        call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , 
-     .  rwgt_rv , w ( orhoat ( 1 , ib ) ) )
+Cchp3         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , 
+Cchp3      .  rwgt_rv , w ( orhoat ( 1 , ib ) ) )
+         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , rwgt_rv 
+     .   , sv_p_orhoat( 1 , ib )%v ) 
 
 
-        call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv 
-     .  , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
+
+Cchp3         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv 
+Cchp3      .  , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
+         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv , 
+     .   rwgt_rv , sv_p_orhoat( 2 , ib )%v ) 
+
 
 
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
