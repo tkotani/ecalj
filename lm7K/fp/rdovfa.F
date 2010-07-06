@@ -528,9 +528,8 @@ C --- Print charges ---
 
       do is=1,nspec
           if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+          if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
       enddo
-
-
 
       call tcx('rdovfa')
 

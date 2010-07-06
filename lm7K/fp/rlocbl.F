@@ -1,11 +1,29 @@
+Cchp2 cmdvar= real(8),rv_p_,oeqhh
+Cchp2 cmdvar= real(8),rv_p_,oeqhp
+Cchp2 cmdvar= real(8),rv_p_,oeqpp
+Cchp2 cmdvar= real(8),rv_p_,oqhh
+Cchp2 cmdvar= real(8),rv_p_,oqhp
+Cchp2 cmdvar= real(8),rv_p_,oqpp
+Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
+Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
-      subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
-     .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-     .lcplxp,lekkl,oqkkl,oeqkkl,f)
+Cchp3       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
+Cchp3      .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
+Cchp3      .lcplxp,lekkl,oqkkl,oeqkkl,f)
+Cchp3        subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+Cchp3      . , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+Cchp3      . , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
+Cchp3      . , oeqkkl , f ) 
+        subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+     .  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+     .  , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
+     .  , sv_p_oeqkkl , f ) 
+
+
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -120,7 +138,13 @@ c      include "events.ins"
 c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
-      integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
+Cchp3       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
+Cchp3        integer:: oeqkkl(3,1) , osig(3,1) , otau(3,1) , oppi(3,1) 
+        integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
+        type(s_rv1) :: sv_p_oeqkkl(3,1)
+
+       type(s_rv1) :: sv_p_oqkkl(3,1)
+
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -154,8 +178,30 @@ c      integer oib(npmx),oidb(npmx),oixf(npmx),o
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
-      integer ob,odb,oppihp,oppipp,osighp,osigpp,
-     .oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
+Cchp2       integer ob,odb,oppihp,oppipp,osighp,osigpp,
+Cchp2      .oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
+Cchp2        integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oqhh 
+Cchp2      . , oqhp , oeqhh , oeqhp , oeqpp 
+Cchp2         integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oqhh 
+Cchp2      .  , oeqhh , oeqhp , oeqpp 
+Cchp2          integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
+Cchp2      .   , oeqhp , oeqpp 
+Cchp2           integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
+Cchp2      .    , oeqhp 
+Cchp2            integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
+            integer:: ob , odb , oppihp , oppipp , osighp , osigpp 
+            real(8),pointer :: rv_p_oeqhh(:)
+
+           real(8),pointer :: rv_p_oeqhp(:)
+
+          real(8),pointer :: rv_p_oeqpp(:)
+
+         real(8),pointer :: rv_p_oqhh(:)
+
+        real(8),pointer :: rv_p_oqhp(:)
+
+       real(8),pointer :: rv_p_oqpp(:)
+
       double precision pa(3),rsma,pi,tpiba
 CSFCPP#if F90
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
@@ -313,12 +359,12 @@ c        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
         nlma  = (lmxa+1)**2
         if (lmxa .eq. -1) goto 10
 
-        oqpp = oqkkl(1,ia)
-        oqhp = oqkkl(2,ia)
-        oqhh = oqkkl(3,ia)
-        oeqpp = oeqkkl(1,ia)
-        oeqhp = oeqkkl(2,ia)
-        oeqhh = oeqkkl(3,ia)
+        rv_p_oqpp => sv_p_oqkkl(1,ia)%v
+        rv_p_oqhp => sv_p_oqkkl(2,ia)%v
+        rv_p_oqhh => sv_p_oqkkl(3,ia)%v
+        rv_p_oeqpp => sv_p_oeqkkl(1,ia)%v
+        rv_p_oeqhp => sv_p_oeqkkl(2,ia)%v
+        rv_p_oeqhh => sv_p_oeqkkl(3,ia)%v
         oppipp = oppi(1,ia)
         osigpp = osig(1,ia)
         oppihp = oppi(2,ia)
@@ -416,15 +462,37 @@ CC#endif
 C          endif
 
 C     ... Add to local density coefficients for one state
-            call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
-            call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
-     .      evec(1,ispc,ivec),ewgt(1,ivec),numq,w,w(oqhh),w(oqhp))
+Cchp2             call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
+             call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+     .       , ivec ) , w , rv_p_oqpp ) 
+
+Cchp2             call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
+Cchp2      .      evec(1,ispc,ivec),ewgt(1,ivec),numq,w,w(oqhh),w(oqhp))
+Cchp2              call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+Cchp2      .       ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+Cchp2      .       ) , numq , w , w ( oqhh ) , rv_p_oqhp ) 
+              call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .        ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+     .        ) , numq , w , rv_p_oqhh , rv_p_oqhp ) 
+
+
             if (lekkl .eq. 1) then
-              call prlcb3(1,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),
-     .        evl(ivec,isp),w(oeqpp))
-              call prlcb2(1,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
-     .        evec(1,ispc,ivec),ewgt(1,ivec),numq,evl(ivec,isp),
-     .        w(oeqhh),w(oeqhp))
+Cchp2               call prlcb3(1,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),
+Cchp2      .        evl(ivec,isp),w(oeqpp))
+               call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+     .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
+
+Cchp2               call prlcb2(1,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
+Cchp2      .        evec(1,ispc,ivec),ewgt(1,ivec),numq,evl(ivec,isp),
+Cchp2      .        w(oeqhh),w(oeqhp))
+Cchp2                call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+Cchp2      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+Cchp2      .         ) , numq , evl ( ivec , isp ) , w ( oeqhh ) , rv_p_oeqhp ) 
+                call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+     .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp ) 
+
+
             endif
 
 C          ... needed for off-diagonal density matrix ... comment out now
@@ -477,8 +545,12 @@ C ... end loop over ia
           nelt(2) = (kmax+1)*nkaph*nlma*nlmh
           nelt(3) = nkaph*nkaph*nlmh*nlmh
           do  i = 1, 3
-            call MPI_BCAST(w(oqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+Cchp3             call MPI_BCAST(w(oqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
+Cchp3      .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+             call mpi_bcast ( sv_p_oqkkl( i , ia )%v , nelt ( i ) * numq * 
+     .       nsp * nspc , mpi_double_precision , pid , mpi_comm_world , ierr 
+     .       ) 
+
             if (mlog) then
               call gettime(datim)
               call awrit6(' rlocbl '//datim//' Process %i of %i on '
@@ -490,8 +562,12 @@ C ... end loop over ia
      .        nelt(i)*numq*nsp*nspc,pid)
             endif
             if (lekkl .eq. 1) then
-              call MPI_BCAST(w(oeqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-     .        MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+Cchp3               call MPI_BCAST(w(oeqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
+Cchp3      .        MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+               call mpi_bcast ( sv_p_oeqkkl( i , ia )%v , nelt ( i ) * numq 
+     .         * nsp * nspc , mpi_double_precision , pid , mpi_comm_world , 
+     .         ierr ) 
+
               if (mlog) then
                 call gettime(datim)
                 call awrit6(' rlocbl '//datim//' Process %i of %i on '

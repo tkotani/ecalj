@@ -1,7 +1,15 @@
+Cchp2 cmdvar= real(8),rv_p_,oqpp
+Cchp2 cmdvar= real(8),rv_p_,oqhp
+Cchp2 cmdvar= real(8),rv_p_,oqhh
+Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
-      subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
-     .lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
+Cchp3       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
+Cchp3      .lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
+       subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
+     . , osig , otau , oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3 , vconst 
+     . , smpot , smrho , sumev , sumtv ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -143,7 +151,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ndimh,lcplxp
-      integer oqkkl(3,nbas),oppi(3,nbas),osig(3,1),otau(3,1)
+Cchp3       integer oqkkl(3,nbas),oppi(3,nbas),osig(3,1),otau(3,1)
+       integer:: oppi(3,nbas) , osig(3,1) , otau(3,1) 
+       type(s_rv1) :: sv_p_oqkkl(3,nbas)
+
       real(8):: sumev , sumtv , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -156,8 +167,20 @@ C ... Local parameters
      .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
 Cchp1       integer oiprmb,oppihh,oppihp,oppipp,oqhh,oqhp,oqpp,osighh,osighp,
 Cchp1      .osigpp,otauhh,otauhp,otaupp
-       integer:: oppihh , oppihp , oppipp , oqhh , oqhp , oqpp , osighh 
-     . , osighp , osigpp , otauhh , otauhp , otaupp 
+Cchp2        integer:: oppihh , oppihp , oppipp , oqhh , oqhp , oqpp , osighh 
+Cchp2      . , osighp , osigpp , otauhh , otauhp , otaupp 
+Cchp2         integer:: oppihh , oppihp , oppipp , oqhp , oqpp , osighh , osighp 
+Cchp2      .  , osigpp , otauhh , otauhp , otaupp 
+Cchp2          integer:: oppihh , oppihp , oppipp , oqpp , osighh , osighp , 
+Cchp2      .   osigpp , otauhh , otauhp , otaupp 
+          integer:: oppihh , oppihp , oppipp , osighh , osighp , osigpp 
+     .    , otauhh , otauhp , otaupp 
+          real(8),pointer :: rv_p_oqpp(:)
+
+         real(8),pointer :: rv_p_oqhp(:)
+
+        real(8),pointer :: rv_p_oqhh(:)
+
        integer,pointer :: iv_p_oiprmb(:)
 
       logical lgors
@@ -236,9 +259,9 @@ C       Block into groups of consecutive l
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
 
-        oqhh = oqkkl(3,ib)
-        oqhp = oqkkl(2,ib)
-        oqpp = oqkkl(1,ib)
+        rv_p_oqhh => sv_p_oqkkl(3,ib)%v
+        rv_p_oqhp => sv_p_oqkkl(2,ib)%v
+        rv_p_oqpp => sv_p_oqkkl(1,ib)%v
         otauhh = otau(3,ib)
         otauhp = otau(2,ib)
         otaupp = otau(1,ib)
@@ -249,11 +272,32 @@ C       Block into groups of consecutive l
         oppihp = oppi(2,ib)
         oppipp = oppi(1,ib)
 
-        call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-     .  w(otauhh),w(osighh),w(oppihh),w(oppihh),
-     .  w(otauhp),w(osighp),w(oppihp),w(oppihp),
-     .  w(otaupp),w(osigpp),w(oppipp),w(oppipp),
-     .  lcplxp,lso,w(oqhh),w(oqhp),w(oqpp),nsp,nspc,sumt,sumq,sumh)
+Cchp2         call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
+Cchp2      .  w(otauhh),w(osighh),w(oppihh),w(oppihh),
+Cchp2      .  w(otauhp),w(osighp),w(oppihp),w(oppihp),
+Cchp2      .  w(otaupp),w(osigpp),w(oppipp),w(oppipp),
+Cchp2      .  lcplxp,lso,w(oqhh),w(oqhp),w(oqpp),nsp,nspc,sumt,sumq,sumh)
+Cchp2          call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
+Cchp2      .   , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
+Cchp2      .   ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
+Cchp2      .   , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
+Cchp2      .   w ( oppipp ) , lcplxp , lso , rv_p_oqhh , w ( oqhp ) , w ( oqpp 
+Cchp2      .   ) , nsp , nspc , sumt , sumq , sumh ) 
+Cchp2           call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
+Cchp2      .    , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
+Cchp2      .    ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
+Cchp2      .    , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
+Cchp2      .    w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , w ( oqpp 
+Cchp2      .    ) , nsp , nspc , sumt , sumq , sumh ) 
+           call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
+     .     , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
+     .     ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
+     .     , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
+     .     w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
+     .     , nsp , nspc , sumt , sumq , sumh ) 
+
+
+
 C       Add site augmentation contribution to rhout * (ham - ke)
         sraugm = sraugm + sumh - sumt
    10   continue
