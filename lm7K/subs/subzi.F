@@ -1,3 +1,4 @@
+Cchp2 cmdvar= real(8),rv_p_,owtkb
 Cchp1 cmdvar= real(8),rv_p_,oswtk
 #define MPI 1
       module m_subzi
@@ -5,7 +6,7 @@ Cchp1 cmdvar= real(8),rv_p_,oswtk
 c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
 c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .lwtkb,efermi,owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,esmear)
+     .lwtkb,efermi,rv_p_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,esmear)
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -82,7 +83,9 @@ C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
 Cchp1       integer owtkb,oswtk
-       integer:: owtkb 
+Cchp2        integer:: owtkb 
+        real(8),pointer :: rv_p_owtkb(:)
+
        real(8),pointer :: rv_p_oswtk(:)
 
       double precision zval,ef0,def,esmear,efermi
@@ -103,8 +106,13 @@ C ... Heap
       numq = 1
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
-      if (lmet .gt. 0 .and. (lmet .ne. 4 .or. ltet))
-     .call defrr(owtkb,ndham*nsp*nkp)
+Cchp2       if (lmet .gt. 0 .and. (lmet .ne. 4 .or. ltet))
+Cchp2      .call defrr(owtkb,ndham*nsp*nkp)
+       if ( lmet .gt. 0 .and. ( lmet .ne. 4 .or. ltet ) ) then 
+       allocate(rv_p_owtkb(abs(ndham*nsp*nkp)))
+       if (ndham*nsp*nkp<0) rv_p_owtkb(:)=0.0d0
+       endif 
+
       if (nevmx .ge. 0) then
         if (lmet .eq. 2 .or. lmet .eq. 3) then
           lwtkb = -1
@@ -112,10 +120,16 @@ C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
               ifi = fopna('wkp',-1,4)
-              if (nspc .eq. 1)
-     .        lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
-              if (nspc .eq. 2)
-     .        lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
+Cchp2               if (nspc .eq. 1)
+Cchp2      .        lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
+               if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi 
+     .         , rv_p_owtkb , ifi ) 
+
+Cchp2               if (nspc .eq. 2)
+Cchp2      .        lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
+               if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2 , nkp , 1 , 
+     .         efermi , rv_p_owtkb , ifi ) 
+
               call fclose(ifi)
               if (lerr .eq. 0) lwtkb = 1
               if (lerr .ne. 0) efermi = -99
@@ -124,8 +138,11 @@ C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
-              call mpibc1(w(owtkb),ndham*nsp*nkp,4,.false.,'subzi',
-     .        'wtkb')
+Cchp2               call mpibc1(w(owtkb),ndham*nsp*nkp,4,.false.,'subzi',
+Cchp2      .        'wtkb')
+               call mpibc1 ( rv_p_owtkb , ndham * nsp * nkp , 4 , .false. , 
+     .         'subzi' , 'wtkb' ) 
+
             endif
           endif
         endif

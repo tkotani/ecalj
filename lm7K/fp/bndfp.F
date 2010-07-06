@@ -1,3 +1,4 @@
+Cchp2 cmdvar= real(8),rv_p_,owtkb
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppix
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
@@ -281,7 +282,10 @@ Cchp1      .   , osmrho
 Cchp1           integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1            integer:: oevlall , os , oidtet , owtkb , oswtk , osoptc 
 Cchp1             integer::  os , owtkb , oswtk , osoptc  !oevlall ,
-             integer:: os , owtkb , osoptc 
+Cchp2              integer:: os , owtkb , osoptc 
+              integer:: os , osoptc 
+              real(8),pointer :: rv_p_owtkb(:)
+
              real(8),pointer :: rv_p_oswtk(:)
 
             integer,pointer :: iv_p_oidtet(:)
@@ -989,7 +993,7 @@ cccccccccccccccccccccc
 
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
 c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
-     .  nevmx,lwtkb,eferm,owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,
+     .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,
      .  dabs(esmear-mpsord))
 
         if (lwtkb .eq. -1)
@@ -2207,9 +2211,13 @@ C$$$#endif
 Cchp1                 call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
 Cchp1      .          , plat , qp , lwtkb , qval - qbg , iq , w ( owtkp ) , w ( owtkb 
 Cchp1      .          ) , ndimh , t_zv , ww_zv ) 
-                 call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
-     .           , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , w ( owtkb 
-     .           ) , ndimh , t_zv , ww_zv ) 
+Cchp2                  call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
+Cchp2      .           , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , w ( owtkb 
+Cchp2      .           ) , ndimh , t_zv , ww_zv ) 
+                  call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
+     .            , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , rv_p_owtkb 
+     .            , ndimh , t_zv , ww_zv ) 
+
 
 
                 deallocate(ww_zv)
@@ -2383,9 +2391,13 @@ C   --- Orbital magnetic moment (requires lso) ---
      .          0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .          nspc , jsp , 1 , qp , t_zv , ppnl_rv , auso_zv ) 
 
-                call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham 
-     .          , nev , w ( owtkb ) , iq , nbas , ppnl_rv , auso_zv , nl 
-     .          , nkp , orbtm_rv ) 
+Cchp2                 call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham 
+Cchp2      .          , nev , w ( owtkb ) , iq , nbas , ppnl_rv , auso_zv , nl 
+Cchp2      .          , nkp , orbtm_rv ) 
+                 call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham 
+     .           , nev , rv_p_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
+     .           , orbtm_rv ) 
+
 
                 deallocate(auso_zv)
 
@@ -2483,9 +2495,13 @@ C   ... Make new density matrix dmatu for LDA+U
      .            0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .            nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausu_rv ) 
 
-                  call mkdmtu ( ssite , sspec , w ( owtkb ) , jsp , iq , nsp , 
-     .            nspc , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , 
-     .            dmatu , nlibu , lmaxu , lldau ) 
+Cchp2                   call mkdmtu ( ssite , sspec , w ( owtkb ) , jsp , iq , nsp , 
+Cchp2      .            nspc , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , 
+Cchp2      .            dmatu , nlibu , lmaxu , lldau ) 
+                   call mkdmtu ( ssite , sspec , rv_p_owtkb , jsp , iq , nsp , nspc 
+     .             , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , dmatu , nlibu 
+     .             , lmaxu , lldau ) 
+
 
                   if (allocated(ausu_rv)) deallocate(ausu_rv)
 
@@ -2567,13 +2583,21 @@ Cchp3      .                 , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_
 Cchp3      .                 , oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 
 Cchp3      .                 , def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
 Cchp3      .                 , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
-                        call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .                  , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
-     .                  , lwtkb , w ( owtkb ) , lswtk , rv_p_oswtk , iq , lfrce , ldos 
-     .                  , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
-     .                  , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
-     .                  , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
-     .                  , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
+Cchp2                         call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+Cchp2      .                  , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+Cchp2      .                  , lwtkb , w ( owtkb ) , lswtk , rv_p_oswtk , iq , lfrce , ldos 
+Cchp2      .                  , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+Cchp2      .                  , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
+Cchp2      .                  , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
+Cchp2      .                  , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
+                         call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+     .                   , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .                   , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos 
+     .                   , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .                   , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
+     .                   , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
+     .                   , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
+
 
 
 
@@ -3065,13 +3089,20 @@ C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
           eferm = max(dosw(1),dosw(2))
 Cchp1           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevlall),w(owtkb),nkp,
 Cchp1      .    ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
-           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .     , w ( owtkb ) , nkp , ndham , ndham , nsp , xv , xv , xv , 
-     .     1 , eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+Cchp2            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+Cchp2      .     , w ( owtkb ) , nkp , ndham , ndham , nsp , xv , xv , xv , 
+Cchp2      .     1 , eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+     .      , rv_p_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
+     .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+
 
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
-          call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , w ( owtkb 
-     .    ) , 1 ) 
+Cchp2           call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , w ( owtkb 
+Cchp2      .    ) , 1 ) 
+           call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb 
+     .     , 1 ) 
+
 
 C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           if (allocated(ww_rv)) deallocate(ww_rv)
@@ -3094,11 +3125,17 @@ Cchp1      .      ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg ,
 Cchp1      .      fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 Cchp1      .      ) , dosrng , rv_p_owtkp , evlall  , efmax , lswtk , w ( oswtk 
 Cchp1      .      ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
-             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .       ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-     .       fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .       ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-     .       , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+Cchp2              call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+Cchp2      .       ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+Cchp2      .       fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+Cchp2      .       ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+Cchp2      .       , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+              call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .        ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .        fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+     .        ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .        , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
+
 
 
 
@@ -3118,7 +3155,10 @@ C         Store val charge & magnetic moment in sumqv(1..2)
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
-            i = iobzwt(0,ndhamx,nkp,nspx,eferm,w(owtkb),-ifi)
+Cchp2             i = iobzwt(0,ndhamx,nkp,nspx,eferm,w(owtkb),-ifi)
+             i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_p_owtkb , - 
+     .       ifi ) 
+
             call fclr('wkp',ifi)
           endif
         endif
@@ -3149,7 +3189,10 @@ C ... Save Fermi level, nonmetal or sampling integration
         endif
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-          i = iobzwt(1,ndham,nkp,nsp,ef0,w(owtkb),-ifi)
+Cchp2           i = iobzwt(1,ndham,nkp,nsp,ef0,w(owtkb),-ifi)
+           i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_p_owtkb , - ifi 
+     .     ) 
+
           call fclr('wkp',ifi)
         endif
       endif

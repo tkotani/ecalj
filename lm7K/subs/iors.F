@@ -188,6 +188,11 @@ Cchp1      .    isw
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
 
+#if MPI|MPIK
+      include 'mpif.h'
+      integer:: ierr
+#endif
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -910,6 +915,11 @@ C         Case read but skip over this site data
             nr = nr0
           endif
 
+#ifdef KINODEBUG
+          call mpi_barrier(mpi_comm_world,ierr)
+          write(*,*)'kino, before Allocate and read arrays for local density and potentia',mode
+#endif
+
 C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
@@ -988,6 +998,12 @@ C              call rlse(ov0)
 C              goto 20
 C           endif
 
+#if KINODEBUG
+            call mpi_barrier(mpi_comm_world,ierr)
+            write(*,*) 'kino, after allocation',mode,size(sv_p_orhoat( 1 , ib )%v),size(sv_p_orhoat( 2 , ib )%v),
+     .           size(sv_p_orhoat( 3 , ib )%v)
+#endif
+
             if (mode .eq. -2) then
 Cchp3               call rlse(orhoat(1,ib))
                if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
@@ -1009,7 +1025,8 @@ Cchp3      .        'rhoat(2)')
 
 Cchp3               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
 Cchp3      .        'rhoat(3)')
-               call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr * nlml * nsp , 4 , 
+cki bug fix ,size=nr*nsp              call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr * nlml * nsp , 4 , 
+               call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(3)' ) 
 
 Cchp1               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
@@ -1019,6 +1036,12 @@ Cchp1               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
 Cchp1               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
                call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
      .         ) 
+
+#if KINODEBUG
+            call mpi_barrier(mpi_comm_world,ierr)
+            write(*,*) 'kino, after mpibc1 orhoat, ov'
+#endif
+
 
             endif
 C     ... ASA sphere densities
