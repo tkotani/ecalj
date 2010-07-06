@@ -27,7 +27,7 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-LIBLOC=$(LIB1)
+LIBLOC=$(LIB2)
 
 
 ############ Fortran compiler
@@ -91,7 +91,9 @@ $(subs_obj_path)/spcgrp.o: subs/spcgrp.F
 #$(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod  : subs/m_rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_toksw.mod 
 #$(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod  : subs/m_struc_def.F 
 #$(subs_obj_path)/m_struc_func.o $(moddir)/m_struc_func.mod  : subs/m_struc_func.F 
- 
+
+$(subs_obj_path)/hft2rs.o $(moddir)/m_hft2rs.mod  : subs/hft2rs.F 
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/hft2rs.o
 $(subs_obj_path)/m_toksw.o $(moddir)/m_toksw.mod  : subs/m_toksw.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
 $(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod  : subs/m_rdctrl.F $(moddir)/m_gtv.mod $(moddir)/m_struc_def.mod $(moddir)/m_toksw.mod 
@@ -358,9 +360,9 @@ $(subs_obj_path)/pvsms2.o  : subs/pvsms2.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pvsms2.o subs/pvsms2.F
 $(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_func.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdctrl2.o subs/rdctrl2.F
-$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
-	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
-$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod $(moddir)/m_hft2rs.mod
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F 
+$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod $(moddir)/m_hft2rs.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm2.o subs/rdsigm2.F
 $(subs_obj_path)/relax.o  : subs/relax.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/relax.o subs/relax.F
