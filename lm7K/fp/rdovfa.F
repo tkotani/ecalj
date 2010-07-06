@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
 Cchp1 cmdvar= real(8),rv_p_,ov1
 Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -51,7 +52,10 @@ C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
 cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
-      integer nxi(nspec),orhofa(nspec),ov0a(nspec)
+Cchp3       integer nxi(nspec),orhofa(nspec),ov0a(nspec)
+       integer:: nxi(nspec) , orhofa(nspec) 
+       type(s_rv1) :: rv_a_ov0a(nspec)
+
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
@@ -144,7 +148,10 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
 cki        call defrr(orhoca(is),   -nrmx*nsp)
         allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
         sspec(is)%rv_p_orhoc=0.0d0
-        call defrr(ov0a(is),     -nrmx*nsp)
+Cchp3         call defrr(ov0a(is),     -nrmx*nsp)
+         allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
+         if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
+
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
         enddo
@@ -175,17 +182,24 @@ cki        call defrr(orhoca(is),   -nrmx*nsp)
             ccof=0
             ceh=0
             stc=0
-            call rlse(ov0a(is))
+Cchp3             call rlse(ov0a(is))
+             if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+
 cki            call rlse(orhoca(is))
             deallocate(sspec(is)%rv_p_orhoc)
             call rlse(orhofa(is))
           else
-            lfail = 
-     .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
-     .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
-cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
-     .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
-     .      .lt. 0)
+Cchp3             lfail = 
+Cchp3      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
+Cchp3      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
+Cchp3 cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
+Cchp3      .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
+Cchp3      .      .lt. 0)
+             lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
+     .       ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
+     .       , a0 , nr0 , qc , ccof , ceh , stc , w ( orhofa ( is ) ) , sspec 
+     .       ( is ) %rv_p_orhoc , rv_a_ov0a( is )%v , ifi ) .lt. 0 ) 
+
           endif
         endif
         call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
@@ -201,7 +215,10 @@ C   ... Broadcast file data
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
         call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
-        call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
+Cchp3         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
+         call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
+     .   , 'v0a' ) 
+
         i = mpipid(3)
 
 C ...   Defaults
@@ -322,12 +339,18 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
 
         if (lmxl .gt. -1) then
 Cchp1           call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
-           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
-     .     ) 
+Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
+Cchp3      .     ) 
+            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
+     .      ) 
+
 
 Cchp1           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
-           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
-     .     ) 
+Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
+Cchp3      .     ) 
+            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
+     .      ) 
+
 
           call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
 
@@ -482,6 +505,12 @@ C --- Print charges ---
       if (dabs(dq) .gt. 1d-4 .and. ipr .gt. 0)
      .call awrit1(' rdovfa (warning) overlapped'
      .//' density not neutral'//', dq= %d',' ',80,stdo,dq)
+
+      do is=1,nspec
+          if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+      enddo
+
+
 
       call tcx('rdovfa')
 
