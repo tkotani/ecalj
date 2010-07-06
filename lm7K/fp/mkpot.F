@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp3       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
@@ -9,11 +10,17 @@ Cchp3      . , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot
 Cchp3      . , qmom , vconst , vesrmt , sv_p_osig , otau , oppi , ppn , hab 
 Cchp3      . , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb , 
 Cchp3      . nlibu , lmaxu , lldau , itest ) 
-        subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
-     .  , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
-     .  , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , oppi , ppn 
-     .  , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb 
-     .  , nlibu , lmaxu , lldau , itest ) 
+Cchp3         subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+Cchp3      .  , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
+Cchp3      .  , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , oppi , ppn 
+Cchp3      .  , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb 
+Cchp3      .  , nlibu , lmaxu , lldau , itest ) 
+         subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+     .   , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
+     .   , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
+     .   , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
+     .   , vorb , nlibu , lmaxu , lldau , itest ) 
+
 
 
 
@@ -185,7 +192,10 @@ C ... Passed parameters
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
 Cchp3       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
 Cchp3        integer:: otau(nbas) , oppi(nbas) , orhoat(3,nbas) 
-        integer:: oppi(nbas) , orhoat(3,nbas) 
+Cchp3         integer:: oppi(nbas) , orhoat(3,nbas) 
+         integer:: orhoat(3,nbas) 
+         type(s_rv1) :: sv_p_oppi(nbas)
+
         type(s_rv1) :: sv_p_otau(nbas)
 
        type(s_rv1) :: sv_p_osig(nbas)
@@ -487,13 +497,21 @@ Cchp3      . , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , rvvxca
 Cchp3      . , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc , 
 Cchp3      . sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , vorb 
 Cchp3      . , lldau ) 
-        call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
-     .  , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , oppi 
-     .  , ppn , hab , vab , sab , vvesat , cpnvsa , repat , repatx , 
-     .  repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , 
-     .  rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc 
-     .  , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , 
-     .  vorb , lldau ) 
+Cchp3         call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+Cchp3      .  , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , oppi 
+Cchp3      .  , ppn , hab , vab , sab , vvesat , cpnvsa , repat , repatx , 
+Cchp3      .  repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , 
+Cchp3      .  rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc 
+Cchp3      .  , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , 
+Cchp3      .  vorb , lldau ) 
+         call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+     .   , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , sv_p_oppi 
+     .   , ppn , hab , vab , sab , vvesat , cpnvsa , repat , repatx , 
+     .   repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , 
+     .   rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc 
+     .   , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , 
+     .   vorb , lldau ) 
+
 
 
 

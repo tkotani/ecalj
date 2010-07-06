@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= real(8),rv_p_,ov01
@@ -18,13 +19,21 @@ Cchp3      . rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps , rvvxc
 Cchp3      . , valvef , xcore , focexc , focex , focec , focvxc , sqloc , 
 Cchp3      . sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , vorb 
 Cchp3      . , lldau ) 
-        subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-     .  , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
-     .  , oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc , 
-     .  rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps 
-     .  , rvvxc , valvef , xcore , focexc , focex , focec , focvxc , 
-     .  sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu 
-     .  , vorb , lldau ) 
+Cchp3         subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+Cchp3      .  , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
+Cchp3      .  , oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc , 
+Cchp3      .  rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps 
+Cchp3      .  , rvvxc , valvef , xcore , focexc , focex , focec , focvxc , 
+Cchp3      .  sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu 
+Cchp3      .  , vorb , lldau ) 
+         subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+     .   , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
+     .   , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
+     .   , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
+     .   rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
+     .   , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
+     .   lmaxu , vorb , lldau ) 
+
 
 
 
@@ -148,8 +157,12 @@ Cchp3       integer nbas,nsp,job,oppi(3,nbas),osig(3,nbas),otau(3,nbas),
 Cchp3      .orhoat(3,nbas),n0,nppn,nab,lso,lcplxp
 Cchp3        integer:: nbas , nsp , job , oppi(3,nbas) , otau(3,nbas) , orhoat(3,nbas) 
 Cchp3      . , n0 , nppn , nab , lso , lcplxp 
-        integer:: nbas , nsp , job , oppi(3,nbas) , orhoat(3,nbas) , 
-     .  n0 , nppn , nab , lso , lcplxp 
+Cchp3         integer:: nbas , nsp , job , oppi(3,nbas) , orhoat(3,nbas) , 
+Cchp3      .  n0 , nppn , nab , lso , lcplxp 
+         integer:: nbas , nsp , job , orhoat(3,nbas) , n0 , nppn , nab 
+     .   , lso , lcplxp 
+         type(s_rv1) :: sv_p_oppi(3,nbas)
+
         type(s_rv1) :: sv_p_otau(3,nbas)
 
        type(s_rv1) :: sv_p_osig(3,nbas)
@@ -535,14 +548,23 @@ Cchp3      .         , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) ,
 Cchp3      .         ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab 
 Cchp3      .         ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 
 Cchp3      .         , ib ) ) 
-                call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-     .          , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-     .          , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .          lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
-     .          , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
-     .          ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab 
-     .          ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 
-     .          , ib ) ) 
+Cchp3                 call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+Cchp3      .          , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+Cchp3      .          , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+Cchp3      .          lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+Cchp3      .          , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
+Cchp3      .          ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab 
+Cchp3      .          ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 
+Cchp3      .          , ib ) ) 
+                 call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+     .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+     .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+     .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+     .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
+     .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
+     .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
+     .           , 1 , ib ) ) 
+
 
 
 

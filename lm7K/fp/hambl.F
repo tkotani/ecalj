@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= integer,iv_p_,oiprmb
@@ -9,10 +10,15 @@ Cchp3        subroutine hambl ( mode , nbas , ssite , sspec , slat , sham
 Cchp3      . , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau 
 Cchp3      . , oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , hso 
 Cchp3      . ) 
-        subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
-     .  , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-     .  , oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , hso 
-     .  ) 
+Cchp3         subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
+Cchp3      .  , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+Cchp3      .  , oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , hso 
+Cchp3      .  ) 
+         subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
+     .   , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+     .   , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , 
+     .   hso ) 
+
 
 
 
@@ -79,7 +85,9 @@ C ... Passed parameters
       integer mode,nbas,isp,k1,k2,k3,ndimh,lcplxp,napw,igvapw(3,napw)
 Cchp3       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
 Cchp3        integer:: otau(3,nbas) , oppi(3,nbas) 
-        integer:: oppi(3,nbas) 
+Cchp3         integer:: oppi(3,nbas) 
+         type(s_rv1) :: sv_p_oppi(3,nbas)
+
         type(s_rv1) :: sv_p_otau(3,nbas)
 
        type(s_rv1) :: sv_p_osig(3,nbas)
@@ -133,9 +141,13 @@ Cchp3      . , igvapw , h , hso , s )
 Cchp3         call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
 Cchp3      .  , lcplxp , q , sv_p_osig , otau , oppi , iv_p_oiprmb , ndimh 
 Cchp3      .  , napw , igvapw , h , hso , s ) 
-         call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
-     .   , lcplxp , q , sv_p_osig , sv_p_otau , oppi , iv_p_oiprmb , ndimh 
-     .   , napw , igvapw , h , hso , s ) 
+Cchp3          call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
+Cchp3      .   , lcplxp , q , sv_p_osig , sv_p_otau , oppi , iv_p_oiprmb , ndimh 
+Cchp3      .   , napw , igvapw , h , hso , s ) 
+          call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
+     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_p_oiprmb 
+     .    , ndimh , napw , igvapw , h , hso , s ) 
+
 
 
 
