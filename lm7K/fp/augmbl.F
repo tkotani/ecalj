@@ -1,11 +1,16 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 c#define F90 1
-      subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
-     .osig,otau,oppi,iprmb,ndimh,
-     .napw,igapw,h,hso,s)
+Cchp3       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
+Cchp3      .osig,otau,oppi,iprmb,ndimh,
+Cchp3      .napw,igapw,h,hso,s)
+       subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+     . , q , sv_p_osig , otau , oppi , iprmb , ndimh , napw , igapw 
+     . , h , hso , s ) 
+
 
       use m_struc_def  !Cgetarg
 #if MPE
@@ -108,8 +113,12 @@ C ... Passed parameters
       character*120 strn
 #endif
 
-      integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
-     .osig(3,1),otau(3,1),oppi(3,1)
+Cchp3       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
+Cchp3      .osig(3,1),otau(3,1),oppi(3,1)
+       integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
+     . , iprmb(ndimh) , otau(3,1) , oppi(3,1) 
+       type(s_rv1) :: sv_p_osig(3,1)
+
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -335,36 +344,59 @@ C$$$#endif
 C   --- Add 1-center and 2-center terms ---
 #if MPI
         if (lcplxp .eq. 0) then
-          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
-     .    , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 , ia ) ) 
-     .    , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b , ndimh , 
-     .    nlmto , s_zv , h_zv )
+Cchp3           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+Cchp3      .    , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 , ia ) ) 
+Cchp3      .    , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b , ndimh , 
+Cchp3      .    nlmto , s_zv , h_zv )
+           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+     .     , kmax , nlma , sv_p_osig( 3 , ia )%v , w ( oppi ( 3 , ia ) ) 
+     .     , sv_p_osig( 2 , ia )%v , w ( oppi ( 2 , ia ) ) , b , ndimh , 
+     .     nlmto , s_zv , h_zv ) 
+
 
         else
-          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
-     .    , nlmha , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 
-     .    , ia ) ) , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b 
-     .    , ndimh , nlmto , s_zv , h_zv , hso_zv )
+Cchp3           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+Cchp3      .    , nlmha , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 
+Cchp3      .    , ia ) ) , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b 
+Cchp3      .    , ndimh , nlmto , s_zv , h_zv , hso_zv )
+           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+     .     , nlmha , kmax , nlma , sv_p_osig( 3 , ia )%v , w ( oppi ( 3 
+     .     , ia ) ) , sv_p_osig( 2 , ia )%v , w ( oppi ( 2 , ia ) ) , b 
+     .     , ndimh , nlmto , s_zv , h_zv , hso_zv ) 
+
 
         endif
 #else
 #ifndef ALL3C
         if (lcplxp .eq. 0) then
-          call augq12(mode0,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,nlma,
-     .    w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
-     .    w(oppi(2,ia)),b,ndimh,nlmto,s,h)
+Cchp3           call augq12(mode0,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,nlma,
+Cchp3      .    w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
+Cchp3      .    w(oppi(2,ia)),b,ndimh,nlmto,s,h)
+           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+     .     , kmax , nlma , sv_p_osig( 3 , ia )%v , w ( oppi ( 3 , ia ) ) 
+     .     , sv_p_osig( 2 , ia )%v , w ( oppi ( 2 , ia ) ) , b , ndimh , 
+     .     nlmto , s , h ) 
+
         else
-          call augq2z(mode0,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
-     .    nlma,w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
-     .    w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
+Cchp3           call augq2z(mode0,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
+Cchp3      .    nlma,w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
+Cchp3      .    w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
+           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+     .     , nlmha , kmax , nlma , sv_p_osig( 3 , ia )%v , w ( oppi ( 3 
+     .     , ia ) ) , sv_p_osig( 2 , ia )%v , w ( oppi ( 2 , ia ) ) , b 
+     .     , ndimh , nlmto , s , h , hso ) 
+
         endif
 #endif
 #endif
 
 C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
-        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
-     .  ( 1 , ia ) ) , b , s_zv )
+Cchp3         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
+Cchp3      .  ( 1 , ia ) ) , b , s_zv )
+         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
+     .   , b , s_zv ) 
+
 
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
           call augqp3 ( kmax , nlma , ndimh , isp , g , w ( oppi ( 1 , 
@@ -376,7 +408,10 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
 
         endif
 #else
-        call augqs3(kmax,lmxa,nlma,ndimh,isp,g,w(osig(1,ia)),b,s)
+Cchp3         call augqs3(kmax,lmxa,nlma,ndimh,isp,g,w(osig(1,ia)),b,s)
+         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
+     .   , b , s ) 
+
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
           call augqp3(kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h)
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then

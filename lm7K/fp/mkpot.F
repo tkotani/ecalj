@@ -1,7 +1,14 @@
-      subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
-     .k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
-     .oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
-     .vorb,nlibu,lmaxu,lldau,  itest)
+Cchp3 cmdvar= type(s_rv1),sv_p_,osig
+Cchp3       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
+Cchp3      .k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
+Cchp3      .oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
+Cchp3      .vorb,nlibu,lmaxu,lldau,  itest)
+       subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+     . , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
+     . , qmom , vconst , vesrmt , sv_p_osig , otau , oppi , ppn , hab 
+     . , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb , 
+     . nlibu , lmaxu , lldau , itest ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -169,7 +176,10 @@ C ... Passed parameters
       integer nlibu,lmaxu,lldau(nbas)
       parameter (n0=10,nppn=12,nab=9)
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
-      integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
+Cchp3       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
+       integer:: otau(nbas) , oppi(nbas) , orhoat(3,nbas) 
+       type(s_rv1) :: sv_p_osig(nbas)
+
       real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
      ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
       type(s_site)::ssite(*)
@@ -455,11 +465,19 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-      call locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,qmom,vval,
-     .gpot0,osig,otau,oppi,ppn,hab,vab,sab,vvesat,cpnvsa,repat,
-     .repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
-     .valvfa,xcore,fcexca,fcexa,fceca,fcvxca,sqloc,sqlocc,saloc,qval,
-     .qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
+Cchp3       call locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,qmom,vval,
+Cchp3      .gpot0,osig,otau,oppi,ppn,hab,vab,sab,vvesat,cpnvsa,repat,
+Cchp3      .repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
+Cchp3      .valvfa,xcore,fcexca,fcexa,fceca,fcvxca,sqloc,sqlocc,saloc,qval,
+Cchp3      .qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
+       call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+     . , orhoat , qmom , vval , gpot0 , sv_p_osig , otau , oppi , ppn 
+     . , hab , vab , sab , vvesat , cpnvsa , repat , repatx , repatc 
+     . , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , rvvxca 
+     . , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc , 
+     . sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , vorb 
+     . , lldau ) 
+
 
 C ... Combine spin-up and spin-down integrals
       repsm(1)  = repsm(1) + repsm(2)

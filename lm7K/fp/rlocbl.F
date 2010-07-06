@@ -1,3 +1,6 @@
+Cchp2 cmdvar= real(8),rv_p_,osighp
+Cchp2 cmdvar= real(8),rv_p_,osigpp
+Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp2 cmdvar= real(8),rv_p_,oeqhh
 Cchp2 cmdvar= real(8),rv_p_,oeqhp
 Cchp2 cmdvar= real(8),rv_p_,oeqpp
@@ -18,10 +21,15 @@ Cchp3        subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp
 Cchp3      . , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
 Cchp3      . , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
 Cchp3      . , oeqkkl , f ) 
-        subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-     .  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-     .  , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
-     .  , sv_p_oeqkkl , f ) 
+Cchp3         subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+Cchp3      .  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+Cchp3      .  , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
+Cchp3      .  , sv_p_oeqkkl , f ) 
+         subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+     .   , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+     .   , evec , ewgt , evl , sv_p_osig , otau , oppi , lcplxp , lekkl 
+     .   , sv_p_oqkkl , sv_p_oeqkkl , f ) 
+
 
 
       use m_struc_def  !Cgetarg
@@ -140,7 +148,10 @@ c#endif
      .iprmb(1),ndham,napw,igvapw(3,napw)
 Cchp3       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
 Cchp3        integer:: oeqkkl(3,1) , osig(3,1) , otau(3,1) , oppi(3,1) 
-        integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
+Cchp3         integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
+         integer:: otau(3,1) , oppi(3,1) 
+         type(s_rv1) :: sv_p_osig(3,1)
+
         type(s_rv1) :: sv_p_oeqkkl(3,1)
 
        type(s_rv1) :: sv_p_oqkkl(3,1)
@@ -189,7 +200,13 @@ Cchp2      .   , oeqhp , oeqpp
 Cchp2           integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
 Cchp2      .    , oeqhp 
 Cchp2            integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
-            integer:: ob , odb , oppihp , oppipp , osighp , osigpp 
+Cchp2             integer:: ob , odb , oppihp , oppipp , osighp , osigpp 
+Cchp2              integer:: ob , odb , oppihp , oppipp , osighp 
+              integer:: ob , odb , oppihp , oppipp 
+              real(8),pointer :: rv_p_osighp(:)
+
+             real(8),pointer :: rv_p_osigpp(:)
+
             real(8),pointer :: rv_p_oeqhh(:)
 
            real(8),pointer :: rv_p_oeqhp(:)
@@ -366,9 +383,9 @@ c        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
         rv_p_oeqhp => sv_p_oeqkkl(2,ia)%v
         rv_p_oeqhh => sv_p_oeqkkl(3,ia)%v
         oppipp = oppi(1,ia)
-        osigpp = osig(1,ia)
+        rv_p_osigpp => sv_p_osig(1,ia)%v
         oppihp = oppi(2,ia)
-        osighp = osig(2,ia)
+        rv_p_osighp => sv_p_osig(2,ia)%v
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
 c        ob = oib(ip)
@@ -510,10 +527,22 @@ CC#endif
 C     ... Contribution to forces
             if (lfrce .ne. 0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-              call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
-     .        ndimh,iprmb,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(1,
-     .        ivec),numq,cPkL,w_odb,da,wk,w(oppipp),w(oppipp),
-     .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w_oxf)
+Cchp2               call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
+Cchp2      .        ndimh,iprmb,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(1,
+Cchp2      .        ivec),numq,cPkL,w_odb,da,wk,w(oppipp),w(oppipp),
+Cchp2      .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w_oxf)
+Cchp2                call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
+Cchp2      .         , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
+Cchp2      .         ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
+Cchp2      .         , da , wk , w ( oppipp ) , w ( oppipp ) , rv_p_osigpp , w ( oppihp 
+Cchp2      .         ) , w ( oppihp ) , w ( osighp ) , lcplxp , w_oxf ) 
+                call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
+     .          , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
+     .          ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
+     .          , da , wk , w ( oppipp ) , w ( oppipp ) , rv_p_osigpp , w ( oppihp 
+     .          ) , w ( oppihp ) , rv_p_osighp , lcplxp , w_oxf ) 
+
+
             endif
           enddo
         enddo
