@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
@@ -7,9 +8,13 @@ c#define F90 1
 Cchp3       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
 Cchp3      .osig,otau,oppi,iprmb,ndimh,
 Cchp3      .napw,igapw,h,hso,s)
-       subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
-     . , q , sv_p_osig , otau , oppi , iprmb , ndimh , napw , igapw 
-     . , h , hso , s ) 
+Cchp3        subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+Cchp3      . , q , sv_p_osig , otau , oppi , iprmb , ndimh , napw , igapw 
+Cchp3      . , h , hso , s ) 
+        subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+     .  , q , sv_p_osig , sv_p_otau , oppi , iprmb , ndimh , napw , igapw 
+     .  , h , hso , s ) 
+
 
 
       use m_struc_def  !Cgetarg
@@ -115,8 +120,12 @@ C ... Passed parameters
 
 Cchp3       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
 Cchp3      .osig(3,1),otau(3,1),oppi(3,1)
-       integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
-     . , iprmb(ndimh) , otau(3,1) , oppi(3,1) 
+Cchp3        integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
+Cchp3      . , iprmb(ndimh) , otau(3,1) , oppi(3,1) 
+        integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
+     .  , iprmb(ndimh) , oppi(3,1) 
+        type(s_rv1) :: sv_p_otau(3,1)
+
        type(s_rv1) :: sv_p_osig(3,1)
 
       real(8):: q(3)

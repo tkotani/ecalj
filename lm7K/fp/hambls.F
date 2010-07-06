@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= integer,iv_p_,ontabs
 Cchp1 cmdvar= integer,iv_p_,oiaxs
@@ -9,10 +10,15 @@ CSFCPP#define F90 1
 Cchp3       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
 Cchp3      .k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
 Cchp3      .ndimh,napw,igvapw,h,s,ismidb)
-       subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
-     . , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
-     . , sv_p_osig , otau , oppi , lcplxp , lso , alfa , ndimh , napw 
-     . , igvapw , h , s , ismidb ) 
+Cchp3        subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
+Cchp3      . , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
+Cchp3      . , sv_p_osig , otau , oppi , lcplxp , lso , alfa , ndimh , napw 
+Cchp3      . , igvapw , h , s , ismidb ) 
+        subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
+     .  , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
+     .  , sv_p_osig , sv_p_otau , oppi , lcplxp , lso , alfa , ndimh 
+     .  , napw , igvapw , h , s , ismidb ) 
+
 
 
       use m_struc_def  !Cgetarg
@@ -200,7 +206,10 @@ C ... Passed parameters
       integer mode,nbas,isp,ispc,k1,k2,k3,lcplxp,ndimh,nqsig,lso,ismidb
       integer napw,igvapw(3,napw)
 Cchp3       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
-       integer:: otau(3,nbas) , oppi(3,nbas) 
+Cchp3        integer:: otau(3,nbas) , oppi(3,nbas) 
+        integer:: oppi(3,nbas) 
+        type(s_rv1) :: sv_p_otau(3,nbas)
+
        type(s_rv1) :: sv_p_osig(3,nbas)
 
       double precision qsig(3,nqsig),alfa
@@ -272,10 +281,15 @@ C --- LDA hamiltonian ---
 Cchp3         call hambl(j,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
 Cchp3      .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
 Cchp3      .  h(1,1,ispc),s(1,1,ispc),h(1,1,3))
-         call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
-     .   , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
-     .   , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) , s ( 1 , 
-     .   1 , ispc ) , h ( 1 , 1 , 3 ) ) 
+Cchp3          call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
+Cchp3      .   , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
+Cchp3      .   , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) , s ( 1 , 
+Cchp3      .   1 , ispc ) , h ( 1 , 1 , 3 ) ) 
+          call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
+     .    , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , oppi 
+     .    , lcplxp , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) 
+     .    , s ( 1 , 1 , ispc ) , h ( 1 , 1 , 3 ) ) 
+
 
       endif
       lrsig = mod(mode/10,10)
@@ -871,10 +885,15 @@ C ... For each qpi(1..nsim), add wt(qpi) * sigma(qpi)
 Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qpi(1,j),k1,k2,k3,
 Cchp3      .    smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
 Cchp3      .    hqi,sqi,w)
-           call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-     .     ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau 
-     .     , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
-     .     w ) 
+Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
+Cchp3      .     ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau 
+Cchp3      .     , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
+Cchp3      .     w ) 
+            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
+     .      ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+     .      , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
+     .      w ) 
+
 
 C       call zprm('h(lda)',2,hqi,ndimh,ndimh,ndimh)
 C       call zprm('s(lda)',2,sqi,ndimh,ndimh,ndimh)

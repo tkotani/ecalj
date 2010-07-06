@@ -100,11 +100,11 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
 #--- debug
-#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
@@ -525,6 +525,10 @@ $(fp_obj_path)/m_events.o $(moddir)/m_events.mod  : fp/m_events.F
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/m_events.o fp/m_events.F
 $(fp_obj_path)/rsedit.o  : fp/rsedit.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rsedit.o fp/rsedit.F
+
+$(fp_obj_path)/augmat.o : fp/augmat.F $(moddir)/m_struc_def.mod
+	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmat.o fp/augmat.F
+
 $(subs_obj_path)/m_sstrnsname.o $(moddir)/m_sstrnsname.mod  : subs/m_sstrnsname.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_sstrnsname.o subs/m_sstrnsname.F
 $(subs_obj_path)/struc_strn.o  : subs/struc_strn.F $(moddir)/m_sstrnsname.mod 

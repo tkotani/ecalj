@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp2 cmdvar= real(8),rv_p_,osighp
 Cchp2 cmdvar= real(8),rv_p_,osigpp
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -25,10 +26,15 @@ Cchp3         subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp
 Cchp3      .  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
 Cchp3      .  , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
 Cchp3      .  , sv_p_oeqkkl , f ) 
-         subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-     .   , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-     .   , evec , ewgt , evl , sv_p_osig , otau , oppi , lcplxp , lekkl 
-     .   , sv_p_oqkkl , sv_p_oeqkkl , f ) 
+Cchp3          subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+Cchp3      .   , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+Cchp3      .   , evec , ewgt , evl , sv_p_osig , otau , oppi , lcplxp , lekkl 
+Cchp3      .   , sv_p_oqkkl , sv_p_oeqkkl , f ) 
+          subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+     .    , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+     .    , evec , ewgt , evl , sv_p_osig , sv_p_otau , oppi , lcplxp , 
+     .    lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
+
 
 
 
@@ -149,7 +155,10 @@ c#endif
 Cchp3       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
 Cchp3        integer:: oeqkkl(3,1) , osig(3,1) , otau(3,1) , oppi(3,1) 
 Cchp3         integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
-         integer:: otau(3,1) , oppi(3,1) 
+Cchp3          integer:: otau(3,1) , oppi(3,1) 
+          integer:: oppi(3,1) 
+          type(s_rv1) :: sv_p_otau(3,1)
+
          type(s_rv1) :: sv_p_osig(3,1)
 
         type(s_rv1) :: sv_p_oeqkkl(3,1)

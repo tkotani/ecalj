@@ -1,3 +1,5 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,otaux
+Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osigx
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
 Cchp1 cmdvar= real(8),rv_p_,ov0
@@ -14,9 +16,17 @@ Cchp3      .jobgw)
 Cchp3        subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
 Cchp3      . , smpot , vconst , lcplxp , sv_p_osig , otau , oppi , ppn , vrmt 
 Cchp3      . , spotx , osigx , otaux , oppix , jobgw ) 
-        subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-     .  , smpot , vconst , lcplxp , sv_p_osig , otau , oppi , ppn , vrmt 
-     .  , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
+Cchp3         subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+Cchp3      .  , smpot , vconst , lcplxp , sv_p_osig , otau , oppi , ppn , vrmt 
+Cchp3      .  , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
+Cchp3          subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+Cchp3      .   , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppn 
+Cchp3      .   , vrmt , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
+          subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+     .    , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppn 
+     .    , vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
+
+
 
 
 
@@ -156,11 +166,17 @@ C ... Passed parameters
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
 Cchp3       integer jobgw,osig(3,nbas),otau(3,nbas),oppi(3,nbas),lh(n0)
-       integer:: jobgw , otau(3,nbas) , oppi(3,nbas) , lh(n0) 
+Cchp3        integer:: jobgw , otau(3,nbas) , oppi(3,nbas) , lh(n0) 
+        integer:: jobgw , oppi(3,nbas) , lh(n0) 
+        type(s_rv1) :: sv_p_otau(3,nbas)
+
        type(s_rv1) :: sv_p_osig(3,nbas)
 
 Cchp3       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
-       integer:: otaux(3,nbas) , oppix(3,nbas) 
+Cchp3        integer:: otaux(3,nbas) , oppix(3,nbas) 
+        integer:: oppix(3,nbas) 
+        type(s_rv1) :: sv_p_otaux(3,nbas)
+
        type(s_rv1) :: sv_p_osigx(3,nbas)
 
       real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
@@ -935,17 +951,25 @@ C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
 Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
 Cchp3      .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,igv2,
 Cchp3      .    vxc,ovl,w)
-           call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-     .     , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , otaux , oppix 
-     .     , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
+Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+Cchp3      .     , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , otaux , oppix 
+Cchp3      .     , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
+            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+     .      , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , oppix 
+     .      , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
+
 
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
 Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
 Cchp3      .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2,ham,
 Cchp3      .    ovl,w)
-           call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-     .     , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
-     .     , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
+Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+Cchp3      .     , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
+Cchp3      .     , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
+            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+     .      , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , oppi 
+     .      , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
+
 
 C   --- vxc <- LDA vxc ---
           vxc = ham - vxc
@@ -974,10 +998,15 @@ Cchp3            call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
 Cchp3      .     ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
 Cchp3      .     , osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw ,  
 Cchp3      .     igv2 , ham , ovl , i2 ) 
-            call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-     .      ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
-     .      , sv_p_osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw 
-     .      , igv2 , ham , ovl , i2 ) 
+Cchp3             call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+Cchp3      .      ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
+Cchp3      .      , sv_p_osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw 
+Cchp3      .      , igv2 , ham , ovl , i2 ) 
+             call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+     .       ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
+     .       , sv_p_osig , sv_p_otau , oppi , lcplxp , 0 , alfa , ndimh , 
+     .       napw , igv2 , ham , ovl , i2 ) 
+
 
 
           if (i .eq. -1) lpdiag = 2
