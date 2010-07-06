@@ -1,9 +1,13 @@
+Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
-      subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
-     .orhofa,orhoat,sqloc,slmom)
+Cchp3       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
+Cchp3      .orhofa,orhoat,sqloc,slmom)
+       subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+     . , exi , hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+
 
       use m_struc_def  !Cgetarg
 
@@ -33,7 +37,10 @@ Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
+Cchp3       integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
+       integer:: nbas , nxi(1) , nxi0 , orhoat(3,nbas) 
+       type(s_rv1) :: rv_a_orhofa(nbas)
+
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
       type(s_lat)::slat
       type(s_site)::ssite(*)
@@ -210,10 +217,16 @@ Cchp1      .         , slat , b )
           enddo
         enddo
 
-        call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
-     .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
-     .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
-     .  w(orhoat(1,ib)),w(orhoat(2,ib)))
+Cchp3         call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
+Cchp3      .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
+Cchp3      .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
+Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)))
+         call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
+     .   , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
+     .   , 1 , is ) , rsmfa ( is ) , rv_a_orhofa( is )%v , w ( orhoat 
+     .   ( 3 , ib ) ) , lfoca , qcsm , qloc , amom , w ( orhoat ( 1 , 
+     .   ib ) ) , w ( orhoat ( 2 , ib ) ) ) 
+
 
         sqloc = sqloc + qloc
         slmom = slmom + amom

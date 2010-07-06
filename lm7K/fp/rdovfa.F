@@ -1,3 +1,4 @@
+Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
 Cchp1 cmdvar= real(8),rv_p_,ov1
 Cchp1 cmdvar= real(8),rv_p_,ov0
@@ -53,7 +54,10 @@ C ... Local parameters
       parameter ( nrmx=1501, n0=10 )
 cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
 Cchp3       integer nxi(nspec),orhofa(nspec),ov0a(nspec)
-       integer:: nxi(nspec) , orhofa(nspec) 
+Cchp3        integer:: nxi(nspec) , orhofa(nspec) 
+        integer:: nxi(nspec) 
+        type(s_rv1) :: rv_a_orhofa(nspec)
+
        type(s_rv1) :: rv_a_ov0a(nspec)
 
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
@@ -144,7 +148,10 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
         rewind ifi
       endif
       do  10  is = 1, nspec
-        call defrr(orhofa(is),   -nrmx*nsp)
+Cchp3         call defrr(orhofa(is),   -nrmx*nsp)
+         allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
+         if (-nrmx*nsp<0) rv_a_orhofa(is)%v(:)=0.0d0
+
 cki        call defrr(orhoca(is),   -nrmx*nsp)
         allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
         sspec(is)%rv_p_orhoc=0.0d0
@@ -187,7 +194,9 @@ Cchp3             call rlse(ov0a(is))
 
 cki            call rlse(orhoca(is))
             deallocate(sspec(is)%rv_p_orhoc)
-            call rlse(orhofa(is))
+Cchp3             call rlse(orhofa(is))
+             if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+
           else
 Cchp3             lfail = 
 Cchp3      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
@@ -195,10 +204,15 @@ Cchp3      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
 Cchp3 cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
 Cchp3      .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
 Cchp3      .      .lt. 0)
-             lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
-     .       ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
-     .       , a0 , nr0 , qc , ccof , ceh , stc , w ( orhofa ( is ) ) , sspec 
-     .       ( is ) %rv_p_orhoc , rv_a_ov0a( is )%v , ifi ) .lt. 0 ) 
+Cchp3              lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
+Cchp3      .       ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
+Cchp3      .       , a0 , nr0 , qc , ccof , ceh , stc , w ( orhofa ( is ) ) , sspec 
+Cchp3      .       ( is ) %rv_p_orhoc , rv_a_ov0a( is )%v , ifi ) .lt. 0 ) 
+              lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
+     .        ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
+     .        , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec 
+     .        ( is ) %rv_p_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 ) 
+
 
           endif
         endif
@@ -213,7 +227,10 @@ C   ... Broadcast file data
         call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
         call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-        call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+Cchp3         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+         call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
+     .   , 'rhofa' ) 
+
         call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
 Cchp3         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
          call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
@@ -464,8 +481,11 @@ Cchp1         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
 C --- Set up local densities using rmt from atm file ---
 
 
-      call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
-     .orhoat,sqloc,slmom)
+Cchp3       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
+Cchp3      .orhoat,sqloc,slmom)
+       call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+     . hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
+
 C --- Add compensating uniform electron density to compensate background
       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
       if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
