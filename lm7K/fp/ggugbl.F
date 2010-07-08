@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in ggugbl , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -51,8 +52,8 @@ Cchp1          integer:: ojcg , kmax , kdim , ilm2 , ilm1
        real(8),pointer :: rv_p_ocg(:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 
 Cchp1       ocg=slat%ocg

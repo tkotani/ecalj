@@ -1,3 +1,6 @@
+Cdwdef1 have_common_w_in clsprm , #_of_w_access= 0
+Cdwdef1 have_common_w_in ioqpp , #_of_w_access= 0
+Cdwdef1 have_common_w_in aiocls , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,ormax
 Cchp1 cmdvar= real(8),rv_p_,osop
 Cchp1 cmdvar= real(8),rv_p_,opprel
@@ -642,8 +645,8 @@ Cchp1      .                    , n0
 C     integer nmto,oppn
       double precision plat(9),z,xx,dval
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       integer,allocatable:: ics(:)
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
@@ -1197,8 +1200,8 @@ Cgetarg       double precision sctrl(1),spot(1)
       type(s_pot)::spot
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C ... Local parameters
 Cchp1       integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
        integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
@@ -1379,8 +1382,8 @@ Cgetarg      .  spot(1)
       type(s_pot)::spot
 
 C heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C Local variables
       character*8 clabl,alabel, outs1*20, outs2*20, outs3*20, outs*80
       logical sw,aiomom,aiopar,aiopot,aiova,lpot,lcor,scat,lgors,

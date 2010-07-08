@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in ropyln , #_of_w_access= 0
+Cdwdef1 have_common_w_in fmain , #_of_w_access= 0
       subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
 C- Normalized spheric harmonic polynomials (vectorizes).
 C ----------------------------------------------------------------------
@@ -26,8 +28,8 @@ C     implicit none
 
       double precision x(1),y(1),z(1),yl(nd,1),rsq(1),cx(3)
       double precision fpi,f2m
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C     call tcn('ropyln')
       if (n .gt. nd) call rx('ropyln: nd too small')
@@ -146,8 +148,8 @@ C Test program to check ropyln
       parameter (nrx=20,nlmx=49,nsize=100000)
       double precision cy(16**2),x(nrx),y(nrx),z(nrx),r2(nrx),
      .ylv(nrx,nlmx),ylok(nrx,nlmx),dr(3),tops,ylm(nlmx)
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call wkinit(nsize)
       call wkfast(.true.)

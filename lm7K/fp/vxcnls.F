@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in vxcnls , #_of_w_access= 0
       subroutine vxcnls(ri,lcut,nr,np,nlm,nsp,rp,grp,ggrp,agrp,
      .yl,gyl,ylwp,rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,rep,rmu)
 C- Gradient correction to nspher. density on a radial and angular mesh
@@ -55,8 +56,8 @@ C ... Local parameters
       integer ir0,ir1,nri,incn
       logical lz
       parameter (incn=50)
-      real w(1)
-      common /w/ w
+Cdwdef1       real w(1)
+Cdwdef1       common /w/ w
       data tol/1d-15/
 
 C     call pshpr(80)

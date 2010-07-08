@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in smvxcm , #_of_w_access= 1
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -121,8 +122,10 @@ Cchp1      .  , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp
       double precision vol,sum1,sum2,vxcavg(2),x1,x2,alat
       character*180 outs
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       complex(8),allocatable ::smrho_w(:), smcor_w(:) 
 
       stdo = lgunit(1)
@@ -190,9 +193,13 @@ C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
-        call smvxc2(0,slat, nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
-     .  smrho_w,smvxc,smvx,smvc,smexc,w,
-     .  repsm,repsmx,repsmc,rmusm,vxcavg)
+Cdwdef1         call smvxc2(0,slat, nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
+Cdwdef1      .  smrho_w,smvxc,smvx,smvc,smexc,w,
+Cdwdef1      .  repsm,repsmx,repsmc,rmusm,vxcavg)
+         call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
+     .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc , iwdummy 
+     .   , repsm , repsmx , repsmc , rmusm , vxcavg ) 
+
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),

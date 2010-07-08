@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rlocbl , #_of_w_access= 2
 Cchp2 cmdvar= real(8),rv_p_,oppipp
 Cchp2 cmdvar= real(8),rv_p_,oppihh
 Cchp2 cmdvar= real(8),rv_p_,oppihp
@@ -263,8 +264,10 @@ CSFCPP      double precision eh(n0,nkap0),rsmh(n0,nkap0)
 CSFCPP#endif
 C$    integer mp_numthreads,mp_my_threadnum
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       integer:: iaini,iaend
       complex(8),allocatable::w_ob(:),w_odb(:),w_oxf(:)
 
@@ -508,17 +511,24 @@ C          endif
 
 C     ... Add to local density coefficients for one state
 Cchp2             call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
-             call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
-     .       , ivec ) , w , rv_p_oqpp ) 
+Cdwdef1              call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+Cdwdef1      .       , ivec ) , w , rv_p_oqpp ) 
+              call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+     .        , ivec ) , iwdummy , rv_p_oqpp ) 
+
 
 Cchp2             call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
 Cchp2      .      evec(1,ispc,ivec),ewgt(1,ivec),numq,w,w(oqhh),w(oqhp))
 Cchp2              call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
 Cchp2      .       ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
 Cchp2      .       ) , numq , w , w ( oqhh ) , rv_p_oqhp ) 
-              call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-     .        ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-     .        ) , numq , w , rv_p_oqhh , rv_p_oqhp ) 
+Cdwdef1               call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+Cdwdef1      .        ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+Cdwdef1      .        ) , numq , w , rv_p_oqhh , rv_p_oqhp ) 
+               call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
+     .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
+
 
 
             if (lekkl .eq. 1) then

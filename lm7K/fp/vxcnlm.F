@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in vxcnlm , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
@@ -63,8 +64,8 @@ Cchp1        integer:: okv
       complex(8),allocatable:: zgrho(:,:,:),gzgrho(:,:,:),zggrho(:,:)
       type(s_lat)::  slat
 C     Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Setup and memory allocation ---
       call tcn('vxcnlm')

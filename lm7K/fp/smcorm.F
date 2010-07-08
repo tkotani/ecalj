@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in smcorm , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
      .cgh1,cgh2,lfoc1,lfoc2)
@@ -51,8 +52,8 @@ C     integer stdo,iprint,lgunit
       parameter (k0=3, nlmx=25)
       double complex gkl(0:k0,nlmx)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C     stdo = lgunit(1)
 

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in shoshl , #_of_w_access= 3
 Cchp1 cmdvar= integer,iv_p_,ontab
 Cchp1 cmdvar= integer,iv_p_,oiax
 Cchp1 cmdvar= integer,iv_p_,ontabs
@@ -68,8 +69,10 @@ Cchp1      .ldisp,lnn,oiax
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C --- Parse modifiers ---
       stdo = lgunit(1)
@@ -145,14 +148,20 @@ C         print *, sopts(j1:j2)
             ltab = 1
 
           elseif (sopts(j1:j1+4) .eq. 'sites')  then
-            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .      , z , 0 , ' ' , w , nlst1 , lst1_iv )
+Cdwdef1             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+Cdwdef1      .      , z , 0 , ' ' , w , nlst1 , lst1_iv )
+             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , iwdummy , nlst1 , lst1_iv ) 
+
 
             j2 = j1+5+j-2
 
           elseif (sopts(j1:j1+4) .eq. 'pairs')  then
-            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .      , z , 0 , ' ' , w , nlst2 , lst2_iv )
+Cdwdef1             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+Cdwdef1      .      , z , 0 , ' ' , w , nlst2 , lst2_iv )
+             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , iwdummy , nlst2 , lst2_iv ) 
+
 
             j2 = j1+5+j-2
 
@@ -170,8 +179,12 @@ C --- Print neighbor table for each site ---
       if (ltab .ne. 0) then
         mxcsiz = 0
         call pshpr(iprint()-20)
-        call pairs(nbas,nbas,1d0,plat,(/range/2*(1+1d-6)/),bas,
-     .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+Cdwdef1         call pairs(nbas,nbas,1d0,plat,(/range/2*(1+1d-6)/),bas,
+Cdwdef1      .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 * ( 1 + 
+     .   1d - 6 ) / ) , bas , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab 
+     .   , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+
         call poppr
         allocate(rtab_rv(3*nttab))
 Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rtab_rv(:)=0.0d0

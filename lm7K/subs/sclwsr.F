@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in sclwsr , #_of_w_access= 0
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
      .slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
 
@@ -94,8 +95,8 @@ C Local variables:
      .volsph
       parameter(niax=10,mxcsiz=200,facr=2d0,tiny=1d-5)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       integer:: istdo,fopna
 

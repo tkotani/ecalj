@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in symprj , #_of_w_access= 0
       subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,
      .pos,sym)
 C- Set up symmetry projectors for one class
@@ -28,8 +29,8 @@ C ... Local parameters
 
       double precision wgt
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       lmxl = ll(nlml)
       allocate(rmat_rv(nlml*nlml))

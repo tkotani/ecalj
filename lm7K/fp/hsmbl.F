@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in hsmbl , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
@@ -44,8 +45,8 @@ Cchp1        integer:: nkd , nkq , odlv , ilm , l , m
      .tol,vol
       double complex cfac,phase
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Shorten p, multiply by corresponding phase later
 

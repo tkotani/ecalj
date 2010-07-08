@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in ovmin , #_of_w_access= 1
+Cdwdef1 have_common_w_in ovcall , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ontabo
 Cchp1 cmdvar= integer,iv_p_,oiaxo
 Cchp1 cmdvar= integer,iv_p_,ontab
@@ -69,8 +71,10 @@ c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C Local parameters
       double precision fovl,xtol,gtol,dxmn,dxmx,fovmx
       double precision wk(0:27)
@@ -215,7 +219,10 @@ c        call defrr(og,n)
      .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
 
         call pshpr(ipr-5)
-   22   call gradzr(n,w_op,w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
+Cdwdef1    22   call gradzr(n,w_op,w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
+ 22   call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
+     ., 1.0d0 , wk , isw , ir ) 
+
         xx = ovcall(n,0d0,w_op,ir,
      &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
      .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
@@ -282,8 +289,8 @@ cki
 c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C Local
       logical cmdopt
 C     character*8 clabl(10)
@@ -298,7 +305,8 @@ C ... Save pos, other initialization
       call getpr(ipr)
 c      call defrr(oposb,3*nbaspo)
       allocate(w_oposb(3,nbaspo))
-      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
+cki jul08 2010      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
+      call dpcopy(w_opos,w_oposb,1,3*nbaspo,1d0)
       call pshpr(0)
 
       do  12  i = 1, nlst

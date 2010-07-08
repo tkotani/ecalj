@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in iors , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= real(8),rv_p_,orhoca
 Cchp1 cmdvar= real(8),rv_p_,orhoc
@@ -194,8 +195,8 @@ Cchp1      .    isw
 #endif
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C ... data statements
       data vec0 /0d0,0d0,0d0/
 

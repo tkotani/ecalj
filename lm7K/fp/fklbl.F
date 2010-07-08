@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in fklbl , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
@@ -49,8 +50,8 @@ CSFCPP#if F90
       real(8),allocatable:: wk(:),yl(:)
 CSFCPP#endif
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       if (nlm .eq. 0) return
       fpi = 16d0*datan(1d0)

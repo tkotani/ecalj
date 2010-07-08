@@ -1,3 +1,6 @@
+Cdwdef1 have_common_w_in freats , #_of_w_access= 1
+Cdwdef1 have_common_w_in optfab , #_of_w_access= 0
+Cdwdef1 have_common_w_in ftfalo , #_of_w_access= 0
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
@@ -296,8 +299,10 @@ C     double precision qz(n0,2)
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
 C Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 ctakao
       integer:: ipl, ipz,iplx,iplv,ix
       real(8):: qcc,qzz
@@ -395,8 +400,11 @@ c        amgm=amgm +(3-2*i)*(qcc+ql(1,l+1,i))
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
-      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
-     .qc,qtot,amgm,w,w)
+Cdwdef1       call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
+Cdwdef1      .qc,qtot,amgm,w,w)
+       call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
+     . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy ) 
+
       if (ipr .ge. 20) then
         call awrit6('%N Species '//spid//'%a:  Z=%d'//
      .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
@@ -813,8 +821,8 @@ C ... Local parameters
      .eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
      .raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt,rmtmx
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       ipr = iprint()
       stdo = lgunit(1)
@@ -1097,8 +1105,8 @@ C     For plotting wave functions
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data flg/'*',' '/
 
 C     return

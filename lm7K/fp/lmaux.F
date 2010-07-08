@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in lmaux , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ontab
 Cchp1 cmdvar= integer,iv_p_,oiax
 Cchp1 cmdvar= real(8),rv_p_,opos
@@ -275,8 +276,8 @@ Cchp1      .                      mxclas
 
       integer:: i_copy_size, i_spackv, i_spacks
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 ctakao
 cki      integer:: ifx,w_dummy=1

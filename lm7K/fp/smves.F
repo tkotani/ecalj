@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in smves , #_of_w_access= 1
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -179,8 +180,10 @@ Cchp1      .  nlm , nsp , okv , stdo , j1 , j2 , j3
      .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C ... Setup
       call tcn('smves')
@@ -316,8 +319,12 @@ C ... Adjust vbar, vval, gpot0 by vconst
         write (stdo,233)
   233   format(' average electrostatic potential at MT boundaries',
      .  ' after shift')
-        call arrprt(' Site    ves','%,4i%:-3,6;6d','Id',
-     .  nbas,0,4,0,'  | ',w,vrmt,w,w,w,w,w,w)
+Cdwdef1         call arrprt(' Site    ves','%,4i%:-3,6;6d','Id',
+Cdwdef1      .  nbas,0,4,0,'  | ',w,vrmt,w,w,w,w,w,w)
+         call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
+     .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
+     .   , iwdummy , iwdummy , iwdummy ) 
+
       endif
 
 C ... Back transform of density and potential to real-space mesh

@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in hambls , #_of_w_access= 5
+Cdwdef1 have_common_w_in blsig , #_of_w_access= 2
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -270,8 +272,10 @@ C     integer fopna
       double precision qloc(3,nqsig)
       double precision wk(ndimh*11),evl(ndimh)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 ctakaox
       complex(8),allocatable:: ss(:,:)
@@ -386,9 +390,14 @@ Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w )
 Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
-           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .     , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
+     .      ) 
+
 
 
 
@@ -473,9 +482,14 @@ Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w )
 Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
-           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .     , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
+     .      iwdummy ) 
+
 
 
 
@@ -801,9 +815,14 @@ Cchp1      .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w )
 Cchp1             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .      , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .      , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
-             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .       , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .       , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+Cdwdef1              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cdwdef1      .       , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cdwdef1      .       , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
+     .        iwdummy ) 
+
 
 
 
@@ -906,10 +925,15 @@ Cchp3             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp
 Cchp3      .      ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
 Cchp3      .      , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
 Cchp3      .      w ) 
-             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-     .       ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-     .       , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
-     .       , w ) 
+Cdwdef1              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
+Cdwdef1      .       ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+Cdwdef1      .       , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
+Cdwdef1      .       , w ) 
+              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
+     .        ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+     .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
+     .        , iwdummy ) 
+
 
 
 
@@ -933,9 +957,14 @@ Cchp1      .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w )
 Cchp1             call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
 Cchp1      .      , 1 , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , 
 Cchp1      .      ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
-             call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-     .       , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
-     .       , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+Cdwdef1              call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+Cdwdef1      .       , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+Cdwdef1      .       , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+              call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+     .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+     .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
+     .        ) 
+
 
 
 
@@ -1060,8 +1089,10 @@ CSFCPP#endif
       double precision zsz(ndimh*nspc),ewgt(ndimh*nspc)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       save swgt
 
       lrsig = mod(mode/10,10)
@@ -1116,9 +1147,14 @@ Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w )
 Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
 Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
-           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .     , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
+     .      iwdummy ) 
+
 
 
 
@@ -1141,7 +1177,10 @@ C ... ksp = current spin index (isp or 1, in noncollinear case)
 C --- Compute double-counting contribution to total energy ---
       if (mod(mode,10) .eq. 1) then
 C  ...  zsz <- diagonal part of <sigma-vxc>
-        call phmbls(3,ndimhx,zsz,w,wk,sig,zq,zq,sig)
+Cdwdef1         call phmbls(3,ndimhx,zsz,w,wk,sig,zq,zq,sig)
+         call phmbls ( 3 , ndimhx , zsz , iwdummy , wk , sig , zq , zq 
+     .   , sig ) 
+
 C  ...  Make weights for d.c. sum
         call dpzero(ewgt,ndimhx)
         if (lwtkb .eq. 0) then

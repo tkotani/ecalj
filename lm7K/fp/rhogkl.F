@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rhogkl , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
        subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
@@ -61,8 +62,8 @@ C ... Local parameters
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
      .ceh,rfoc,df(0:20)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Setup ---
       ipr  = iprint()

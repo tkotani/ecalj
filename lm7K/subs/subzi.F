@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in subzi , #_of_w_access= 0
 Cchp2 cmdvar= real(8),rv_p_,owtkb
 Cchp1 cmdvar= real(8),rv_p_,oswtk
 #define MPI 1
@@ -94,8 +95,8 @@ C ... Local parameters
       character*11 strni(2)
       integer procid,master,mpipid
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data strni /'sampling','tetrahedron'/
 
       procid = mpipid(1)

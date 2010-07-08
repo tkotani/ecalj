@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mkqp , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,ogstar
 Cchp1 cmdvar= integer,iv_p_,ostar
@@ -100,8 +101,10 @@ Cchp1      .      , nglob
 
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       data prgnam/'mkqp'/
 
 C ... Setup
@@ -149,7 +152,10 @@ C ... Read qp from disk
         call info0(30,0,0,' MKQP:   reading data from file QPTS ...')
         nfilqp = fopna('QPTS',-1,1)
 
-        call getqp(0,nfilqp,nkp,nkxyz,lshft,ntet,w,w,w)
+Cdwdef1         call getqp(0,nfilqp,nkp,nkxyz,lshft,ntet,w,w,w)
+         call getqp ( 0 , nfilqp , nkp , nkxyz , lshft , ntet , iwdummy 
+     .   , iwdummy , iwdummy ) 
+
         if (ltet) then
           if (ntet .eq. 0)
      .    call rx('tetrahedron method specd but no tet weights given')

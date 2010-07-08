@@ -1,3 +1,6 @@
+Cdwdef1 have_common_w_in symrat , #_of_w_access= 0
+Cdwdef1 have_common_w_in psymr1 , #_of_w_access= 0
+Cdwdef1 have_common_w_in symsmr , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp1 cmdvar= real(8),rv_p_,og
@@ -188,8 +191,8 @@ Cchp1      .      , mxint , ival
 
       double precision plat(9),qlat(9)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn('symrat')
       stdo = lgunit(1)
@@ -448,8 +451,8 @@ C ... Local parameters
       integer stdo,ia,ib,iprint,lgunit,nn
       double precision wgt
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Accumulate symmetrized true density on first site
       stdo = lgunit(1)
@@ -514,8 +517,8 @@ Cchp1          integer:: n1 , n2 , n3 , ng , ngrp , okv , ngabc(3) , isp
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn('symsmr')
 

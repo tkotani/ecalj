@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in hamfb3 , #_of_w_access= 0
       subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
      ik1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
      ihq,
@@ -161,8 +162,8 @@ C Local variables
 
       double precision q1(3),qk
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
      .(jj2*ifac(2)-1)*qb(k,2) +

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in iomomx , #_of_w_access= 0
       subroutine iomomx(ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,
      .nband,nchan,nchan2,nchds,nevmx,nlistc,listc,eb,accwt,doswt,
      .dosw2,efermi,vmtz)
@@ -72,8 +73,8 @@ C Local variables
 
       character outs*80
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Read header, checking req'd matches and copying the rest ---
       rewind ifi

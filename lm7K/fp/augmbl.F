@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in augmbl , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
@@ -195,8 +196,8 @@ c#endif
 
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn ('augmbl')
 

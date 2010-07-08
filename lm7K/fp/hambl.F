@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in hambl , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -113,8 +114,8 @@ C      integer ndhrs,ontabs,oiaxs,ohrs
 C      integer i,hreal,nl,nglob,mxorb,nttabs,ival,nsp,lrsig
 C      integer os,oh,oz
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn('hambl')
       mode0 = mod(mode,10)

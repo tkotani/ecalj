@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in gensym , #_of_w_access= 2
       subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
      .nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
      .ag,ngen,gen,nwgens,nggen,isym,istab)
@@ -101,8 +102,10 @@ C Local parameters:
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C External calls:
       external  addbas,dcopy,defdr,defi,dinv33,
      .icopy,iprint,rlse,spcgrp,
@@ -131,7 +134,10 @@ C --- Symmetry group as given by input generators ---
 
 C ... Rotate the generators
       call pshpr(iprint()-11)
-      call lattdf(-ldist,dist,plat,0,w,ngen,gen)
+Cdwdef1       call lattdf(-ldist,dist,plat,0,w,ngen,gen)
+       call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
+     . ) 
+
       call poppr
       do  10  igen = 1, ngen
         call grpprd(gen(1,igen),plat,platt)
@@ -188,7 +194,10 @@ C       ngen = 0
         call groupg(0,ng,g,ag,plat,ngen,gen,agen,nwgens,nggen)
       else
         nggen = 0
-        call symtbl(0,fptol,nbas,w,bas,g,ag,ng,qlat,istab)
+Cdwdef1         call symtbl(0,fptol,nbas,w,bas,g,ag,ng,qlat,istab)
+         call symtbl ( 0 , fptol , nbas , iwdummy , bas , g , ag , ng 
+     .   , qlat , istab ) 
+
       endif
 
 C --- Make istab2 ---

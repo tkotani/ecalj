@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in seneinterp , #_of_w_access= 8
+Cdwdef1 have_common_w_in rdsigm2 , #_of_w_access= 1
 Cchp1 cmdvar= integer,iv_p_,ontabs
 Cchp1 cmdvar= integer,iv_p_,oiaxs
 Cchp1 cmdvar= real(8),rv_p_,opos
@@ -116,8 +118,10 @@ C      parameter  (nkap0=3,n0H=5)
 C      integer offH(n0H,nkap0,nbas)
 C.....titus
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       real(8):: eseavr
       integer:: napw_in
@@ -180,12 +184,18 @@ C     Switch flagging whether input file has symops or not
       call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 
 C ... Command-line switches for input sigma and defaults
-      call sigflg(' ','rsig',' ',w,w,w,lfbzin,w,
-     .lonesp,qoffi,w)
+Cdwdef1       call sigflg(' ','rsig',' ',w,w,w,lfbzin,w,
+Cdwdef1      .lonesp,qoffi,w)
+       call sigflg ( ' ' , 'rsig' , ' ' , iwdummy , iwdummy , iwdummy 
+     . , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+
       if (cmdopt('--rsig',6,0,outs)) then
         out2 = outs(7:)
         dc = out2(1:1)
-        call sigflg(dc,'rsig',out2,w,w,w,lfbzin,w,lonesp,qoffi,w)
+Cdwdef1         call sigflg(dc,'rsig',out2,w,w,w,lfbzin,w,lonesp,qoffi,w)
+         call sigflg ( dc , 'rsig' , out2 , iwdummy , iwdummy , iwdummy 
+     .   , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+
       endif
 #if 1
       if ( lfbzin .or. mod(lssym,2).eq.1 ) then
@@ -422,8 +432,11 @@ Ctakao_ZeroClear_NotRequiered        if (mxkp<0) ipq_iv(:)=0
      .' q-points in full BZ where sigma calculable ...',0,0)
 Cchp1       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
 Cchp1      .ipq_iv , w ( oqsig ) , wgt_rv , nqsig , mxkp , 0 , 0 )
-       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     . ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+Cdwdef1        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cdwdef1      . ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+
 
 
 
@@ -760,9 +773,13 @@ Cchp1      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w )
 Cchp1              call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 Cchp1      .       , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
 Cchp1      .       , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
-              call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .        , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-     .        , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+Cdwdef1               call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+Cdwdef1      .        , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+Cdwdef1      .        , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+               call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
+
 
 
 
@@ -880,9 +897,13 @@ Cchp1      .       , rsstol , i , 0 , nbas , 0 , rotm , w )
 Cchp1               call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 Cchp1      .        , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
 Cchp1      .        , rsstol , i , 0 , nbas , 0 , rotm , w ) 
-               call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-     .         , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+Cdwdef1                call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+Cdwdef1      .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+Cdwdef1      .         , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+                call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
+
 
 
 
@@ -1010,8 +1031,11 @@ Ctakao_ZeroClear_NotRequiered            if (mxkp<0) ipq_iv(:)=0
      .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
 Cchp1                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
 Cchp1      .          ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 )
-                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .           ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+Cdwdef1                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cdwdef1      .           ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
 
 
               else
@@ -1163,8 +1187,11 @@ C   ... Make is,ifac,qb,qlat
           call poppr
 Cchp1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
 Cchp1      .    ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 )
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .     ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+Cdwdef1            call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cdwdef1      .     ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+            call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .      , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
 
 
 C       call pack2('bz nkp oqp',sbz,nqp,oqp)
@@ -1188,8 +1215,11 @@ C       call prmx('qp',w(oqp),3,3,nqp)
         call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
         ifiz = fopna('qpts',-1,0)
 Cchp1         call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
-         call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
-     .   , w , w ) 
+Cdwdef1          call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
+Cdwdef1      .   , w , w ) 
+          call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
+     .    , iwdummy , iwdummy ) 
+
 
 
         if (lfbzout) then
@@ -1480,8 +1510,10 @@ C      parameter  (nkap0=3,n0H=5)
 C      integer offH(n0H,nkap0,nbas)
 C.....titus
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       real(8):: eseavr,qsmesh(3,nk1,nk2,nk3)
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
@@ -1765,8 +1797,11 @@ Ctakao_ZeroClear_NotRequiered        if (mxkp<0) ipq_iv(:)=0
      .' q-points in full BZ where sigma calculable ...',0,0)
 Cchp1       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
 Cchp1      .ipq_iv , w ( oqsig ) , wgt_rv , nqsig , mxkp , 0 , 0 )
-       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     . ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+Cdwdef1        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cdwdef1      . ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+
 
 
 

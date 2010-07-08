@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in symiax , #_of_w_access= 0
       subroutine symiax(mode,plat,nbas,pos,g,ag,ng,ntab,iax,nttab,mxcsz)
 C- Render a neighbor list compatible with symmetry operations
 C ----------------------------------------------------------------------
@@ -58,8 +59,8 @@ C ... Local parameters
       integer ,allocatable :: ntabb_iv(:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Copy iax to fixed-basis format
 C     Assume no cluster in new iax table will not exceed 8x old one

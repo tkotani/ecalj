@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in setcg , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -24,8 +25,8 @@ Cchp1          integer:: lnjcg , lnxcg , nlm , ojcg
 
        real(8),pointer :: rv_p_ocg(:)
 
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Choose dimensions for arrays
       if (lmxcg .le. 6) then

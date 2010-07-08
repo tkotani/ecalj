@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in tailsm , #_of_w_access= 0
       subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi,
      .rho,rhot,hfc,hfct)
 C- Fit tails of rho to smoothed Hankel functions
@@ -45,8 +46,8 @@ C ... Local parameters
       double precision sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20),
      .err,rsq(nr)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       print *,'tailsm: init'
       fpi = 16*datan(1d0)
       call getpr(ipr)

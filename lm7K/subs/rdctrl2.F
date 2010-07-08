@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rdctrl2 , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oips
       module m_rdctrl2_func
@@ -194,8 +195,8 @@ C ... basis
       integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,
      .oves,owk !osordn,
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 c takao
       real(8):: pnux(20)

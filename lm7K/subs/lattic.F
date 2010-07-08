@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in lattic , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
@@ -61,8 +62,8 @@ Cchp1      .  opos
      .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 C ... External calls
       external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
      .redfrr,spackv,upack,upack1,upack2

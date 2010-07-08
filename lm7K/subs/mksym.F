@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mksym , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipcp
 Cchp1 cmdvar= integer,iv_p_,oipc
@@ -87,8 +88,10 @@ C     implicit none
       type(s_array)::sarray
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C Local variables
       logical T,F,cmdopt,a2bin,ltmp
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
@@ -446,8 +449,11 @@ Cchp1         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr
 Cchp1      .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 Cchp1          call symtbl ( 1 , fptol , nbas , w , w ( opos ) , rv_p_osymgr 
 Cchp1      .   , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-          call symtbl ( 1 , fptol , nbas , w , rv_p_opos , rv_p_osymgr 
-     .    , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+Cdwdef1           call symtbl ( 1 , fptol , nbas , w , rv_p_opos , rv_p_osymgr 
+Cdwdef1      .    , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+           call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
+     .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+
 
 
 

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in elocp , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine elocp(nbas,nsp,ssite,sspec,job)
 
@@ -50,8 +51,10 @@ Cchp1       integer:: ov0
      .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
      .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C --- Setup ---
       if (mod(job,10) .eq. 0) return
@@ -198,8 +201,12 @@ C   ... Make parameters for this species
         call dpzero(rsml,n0*2)
         call dpzero(ehl,n0*2)
         call radmsh(rmt,a,nr,rofi)
-        call loctsh(1102,spid,xx,a,nr,nr,nsp,lmxa,rofi,w,
-     .  pnui,pnzi,rs3,eh3,vmtz,vseli,rsml,ehl)
+Cdwdef1         call loctsh(1102,spid,xx,a,nr,nr,nsp,lmxa,rofi,w,
+Cdwdef1      .  pnui,pnzi,rs3,eh3,vmtz,vseli,rsml,ehl)
+         call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
+     .   , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsml , ehl 
+     .   ) 
+
         call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
         call dcopy(n0,ehl, 1,eh(1,nkaph),1)
         call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)

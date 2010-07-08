@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rhomom , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
        subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
@@ -50,8 +51,8 @@ C ... Local parameters
       double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
      .ceh,rfoc,vs1,vs2
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Setup ---
       ipr  = iprint()

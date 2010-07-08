@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in asados , #_of_w_access= 3
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= integer,iv_p_,ogstar
 Cchp1 cmdvar= integer,iv_p_,ostar
@@ -165,8 +166,10 @@ C     This is a site or class list
       character*8 clabl
       parameter (T=.true., F=.false., scrwid=80)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
 ctakao
       integer,allocatable:: ics(:)
@@ -508,8 +511,12 @@ C ... Open file containing bands and dos weights
       nfilem = fopno(wtfn)
 
 C ... Get dimensions (nsp,nspc,nband,nfstg); allocate memory for eband
-      call iomomq(nfilem,0,nlf,nsp,nspc,ndum,nband,nfstg,j,ndum,
-     .nchan,nchan,i,w,w,w,w,efermi,vmtz)
+Cdwdef1       call iomomq(nfilem,0,nlf,nsp,nspc,ndum,nband,nfstg,j,ndum,
+Cdwdef1      .nchan,nchan,i,w,w,w,w,efermi,vmtz)
+       call iomomq ( nfilem , 0 , nlf , nsp , nspc , ndum , nband , 
+     . nfstg , j , ndum , nchan , nchan , i , iwdummy , iwdummy , iwdummy 
+     . , iwdummy , efermi , vmtz ) 
+
       call isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
       nspd = nsp
 C     Empirical TB stores stuff a little differently
@@ -601,14 +608,22 @@ C ... Make sure missing bands are high enough
 
 C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
       if (nchds .eq. nchan) then
-        call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-     .  , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv 
-     .  , doswt_rv , w , efermi , vmtz )
+Cdwdef1         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+Cdwdef1      .  , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv 
+Cdwdef1      .  , doswt_rv , w , efermi , vmtz )
+         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+     .   , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv , doswt_rv 
+     .   , iwdummy , efermi , vmtz ) 
+
 
       else
-        call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-     .  , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
-     .  , eband_rv , w , doswt_rv , w , efermi , vmtz )
+Cdwdef1         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+Cdwdef1      .  , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
+Cdwdef1      .  , eband_rv , w , doswt_rv , w , efermi , vmtz )
+         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+     .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
+     .   , eband_rv , iwdummy , doswt_rv , iwdummy , efermi , vmtz ) 
+
 
       endif
 C     call dfdump(w(oeband),nband*nsp*nkp,-66)

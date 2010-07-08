@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in clsset , #_of_w_access= 2
       subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
 
       use m_struc_def  !Cgetarg
@@ -53,8 +54,10 @@ C Local variables
       real(8) ,allocatable :: clctr_rv(:)
 
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C ... Setup
 
@@ -105,7 +108,9 @@ C   ... Shift pos off axis by a tiny amount, avoiding boundary problems
 c       call prmx('plat',plat,3,3,3)
 c       call prmx('plate',plate,3,3,3)
 C   ... w(opos) = positions as multiples of plat
-        call prjpos ( 2 , ix , w , plat , nbas , pos , pos_rv )
+Cdwdef1         call prjpos ( 2 , ix , w , plat , nbas , pos , pos_rv )
+         call prjpos ( 2 , ix , iwdummy , plat , nbas , pos , pos_rv ) 
+
 
 C       call prmx('pos, units of plat',w(opos),3,3,nbas)
 C   ... Positions as multiples of plate
@@ -202,8 +207,12 @@ Ctakao_ZeroClear_NotRequiered        if (nbas<0) w_iv(:)=0
         nskip = nbas/ncol
         if (ncol*(nbas/ncol) .ne. nbas) nskip = nskip+1
         outs = ' Old New   id'
-        call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
-     .  , nskip , '  | ' , clord , w , w_iv , w , w , w , w , w )
+Cdwdef1         call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
+Cdwdef1      .  , nskip , '  | ' , clord , w , w_iv , w , w , w , w , w )
+         call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
+     .   , nskip , '  | ' , clord , iwdummy , w_iv , iwdummy , iwdummy 
+     .   , iwdummy , iwdummy , iwdummy ) 
+
 
         if (allocated(w_iv)) deallocate(w_iv)
 

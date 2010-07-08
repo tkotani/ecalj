@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rstr0 , #_of_w_access= 0
       subroutine rstr0(nxi,lxi,exi,nlmx,np,x,y,z,lmxa,iop,hl,hd)
 C- Reduced strux for a vector of energies, standard definition IV-43.
 C ----------------------------------------------------------------------
@@ -31,8 +32,8 @@ C ... Local parameters
       double precision psi(-1:lmxx),phi(-1:lmxx),yl((lmxx+1)**2),r2,
      .rfac,xxx,fac2l(0:lmxx),psid,psil
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Make ylm for all points, up to lmxy, which find ---
       lmxy = -1

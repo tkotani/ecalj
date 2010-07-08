@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in hgugbl , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -52,8 +53,8 @@ Cchp1          integer:: ojcg , kmax , kdim , ilm2 , ilm1
 
       double precision q(3),e2,vol
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data q /0d0,0d0,0d0/
 
 

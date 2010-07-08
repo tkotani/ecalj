@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in smhsbl , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -212,8 +213,8 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       integer:: iloop,iloopmx
 

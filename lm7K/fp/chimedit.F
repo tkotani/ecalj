@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in chimedit , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -162,8 +163,10 @@ c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 c     .                    (jj2*ifac(2)-1)*qb(k,2) +
 c     .                    (jj3*ifac(3)-1)*qb(k,3)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       if (nglob('nsp') .ne. 2)
      .call rx('chim editor for only for magnetic systems')
@@ -293,8 +296,11 @@ C ... Number of k-points
           if (-mxkp<0) wgt_rv(:)=0.0d0
 
           call info0(20,1,0,' q-points in full BZ ...')
-          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .    ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
+Cdwdef1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cdwdef1      .    ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .     , 0 , ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 ) 
+
 
           call dpzero ( wgt_rv , mxkp )
 

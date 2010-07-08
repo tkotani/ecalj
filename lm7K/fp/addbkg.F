@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in adbkql , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
       subroutine addbkgsm(smrho,k1,k2,k3,nsp,qbg,vol,fac)
 
@@ -57,8 +58,8 @@ Cchp3       integer orhoat(3,nbas),nsp
 
       integer ib,nr,is
       double precision rhobkg,vol,a,rmt,rofi(nrmx)
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       rhobkg = fac*qbg/vol
       do  ib = 1, nbas
 

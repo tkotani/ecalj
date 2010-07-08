@@ -1,3 +1,8 @@
+Cdwdef1 have_common_w_in rsedit , #_of_w_access= 5
+Cdwdef1 have_common_w_in prsed1 , #_of_w_access= 0
+Cdwdef1 have_common_w_in prsed2 , #_of_w_access= 0
+Cdwdef1 have_common_w_in prsed3 , #_of_w_access= 0
+Cdwdef1 have_common_w_in prsed4 , #_of_w_access= 8
 Cchp3 cmdvar= type(s_rv1),sv_p_,orh2
 Cchp3 cmdvar= type(s_rv1),sv_p_,orh1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
@@ -133,8 +138,10 @@ Cchp1           integer:: oorhat
 
       integer :: i_copy_size
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C ... data statements
 C     data vec0 /0d0,0d0,0d0/
 
@@ -313,9 +320,13 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) orh2_iv(:)=0
           sctrl%lrs=32*0+64+128*0
 
 C       Get the number of atoms and species
-          k = iors ( - 1 , sctrl , w , w , slat2 , spot2 , sbz , fileid 
-     .    , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv , w , 
-     .    nit ( 2 ) , lbin , ifi )
+Cdwdef1           k = iors ( - 1 , sctrl , w , w , slat2 , spot2 , sbz , fileid 
+Cdwdef1      .    , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv , w , 
+Cdwdef1      .    nit ( 2 ) , lbin , ifi )
+           k = iors ( - 1 , sctrl , iwdummy , iwdummy , slat2 , spot2 , 
+     .     sbz , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+     .     , iwdummy , nit ( 2 ) , lbin , ifi ) 
+
 
           call info5(10,0,0,' rsedit: '//
      .    'read 2nd density from file "'//trim(fn)//'" ...  '//
@@ -338,9 +349,13 @@ C       call shstru('site',w(osite2),1,nbask(2))
 Ctakao_ZeroClear_NotRequiered          if (3*nbask(2)<0) orh2_iv(:)=0
 
           call pshpr(1)
-          k = iors ( - 2 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
-     .    , w , nit ( 2 ) , lbin , ifi )
+Cdwdef1           k = iors ( - 2 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
+Cdwdef1      .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+Cdwdef1      .    , w , nit ( 2 ) , lbin , ifi )
+           k = iors ( - 2 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
+     .     , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+     .     , iwdummy , nit ( 2 ) , lbin , ifi ) 
+
 
 C       Check for unassigned species => reduce basis
           k = 0
@@ -382,9 +397,13 @@ Cchp1           spot2%osmpot=osmpt2
 C       Pack volume
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
-          k = iors ( 1 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
-     .    , w , nit ( 2 ) , lbin , ifi )
+Cdwdef1           k = iors ( 1 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
+Cdwdef1      .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+Cdwdef1      .    , w , nit ( 2 ) , lbin , ifi )
+           k = iors ( 1 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
+     .     , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+     .     , iwdummy , nit ( 2 ) , lbin , ifi ) 
+
 
           call fclose(ifi)
         endif
@@ -438,9 +457,13 @@ Cchp1      .    qbg,w(oorhat))
      .    ' rsedit: read restart file "'//trim(fn)//'"')
 Cchp1           k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
 Cchp1      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
-           k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .     fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
-     .     , w , nit , lbin , ifi ) 
+Cdwdef1            k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+Cdwdef1      .     fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+Cdwdef1      .     , w , nit , lbin , ifi ) 
+            k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+     .      fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+     .      , iwdummy , nit , lbin , ifi ) 
+
 
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
@@ -839,9 +862,13 @@ C ... Save
      .  ' rsedit: write restart file "'//trim(fn)//'"')
 Cchp1         k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
 Cchp1      .  nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
-         k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .   fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
-     .   , w , nit , lbin , - ifi ) 
+Cdwdef1          k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+Cdwdef1      .   fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+Cdwdef1      .   , w , nit , lbin , - ifi ) 
+          k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+     .    fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+     .    , iwdummy , nit , lbin , - ifi ) 
+
 
 
         lnsave = .false.
@@ -1067,8 +1094,8 @@ Cchp1            integer:: orhoc2
       character spid1*8,spid2*8
       logical lfails
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = nglob('stdo')
       call getpr(ipr)
@@ -1376,8 +1403,8 @@ C ... Local parameters
       character spid*8
 C     double complex smpot(k1,k2,k3,2)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = nglob('stdo')
       call getpr(ipr)
@@ -1519,8 +1546,8 @@ C ... Local parameters
       double precision a,rmt
       double precision rofi(nrmx)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 
       do  ib = 1, nbas
@@ -1612,8 +1639,10 @@ Cchp1         integer:: orhoca
 
       character spid*8
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       stdo = nglob('stdo')
       call getpr(ipr)
@@ -1719,32 +1748,48 @@ C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
 C         call prmx('v0',w(ov0),nr,nr,2)
 Cchp1           call splrho(30,nsp,nr,1,w(ov0),w,w)
-           call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+Cdwdef1            call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+            call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+     .      ) 
+
 
 Cchp1           call prsed5(mode0,w(ov0),nr,1,nsp)
            call prsed5 ( mode0 , rv_p_ov0 , nr , 1 , nsp ) 
 
 Cchp1           call splrho(31,nsp,nr,1,w(ov0),w,w)
-           call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+Cdwdef1            call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+            call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+     .      ) 
+
 
 C         call prmx('v0',w(ov0),nr,nr,2)
 Cchp1           call splrho(30,nsp,nr,1,w(ov1),w,w)
-           call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+Cdwdef1            call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+            call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+     .      ) 
+
 
 Cchp1           call prsed5(mode0,w(ov1),nr,1,nsp)
            call prsed5 ( mode0 , rv_p_ov1 , nr , 1 , nsp ) 
 
 Cchp1           call splrho(31,nsp,nr,1,w(ov1),w,w)
-           call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+Cdwdef1            call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+            call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+     .      ) 
+
 
         endif
 
 C       pnu v0,v1: modified if 1's bit im set
         if (mod(im,2) .ge. 1) then
 C         call prmx('pnu',pnu,n0,n0,2)
-          call splrho(30,nsp,n0,1,pnu,w,w)
+Cdwdef1           call splrho(30,nsp,n0,1,pnu,w,w)
+           call splrho ( 30 , nsp , n0 , 1 , pnu , iwdummy , iwdummy ) 
+
           call prsed5(mode0,pnu,n0,1,nsp)
-          call splrho(31,nsp,n0,1,pnu,w,w)
+Cdwdef1           call splrho(31,nsp,n0,1,pnu,w,w)
+           call splrho ( 31 , nsp , n0 , 1 , pnu , iwdummy , iwdummy ) 
+
 
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
@@ -1766,13 +1811,19 @@ Cchp1           orhoca=sspec(is)%orhoc
           nr=sspec(is)%nr
 
 Cchp1           call splrho(30,nsp,nr,1,w(orhoca),w,w)
-           call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+Cdwdef1            call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+            call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+     .      ) 
+
 
 Cchp1           call prsed5(mode0,w(orhoca),nr,1,nsp)
            call prsed5 ( mode0 , rv_p_orhoca , nr , 1 , nsp ) 
 
 Cchp1           call splrho(31,nsp,nr,1,w(orhoca),w,w)
-           call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+Cdwdef1            call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+            call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+     .      ) 
+
 
 
         enddo

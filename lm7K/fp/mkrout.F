@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mkrout , #_of_w_access= 1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp2 cmdvar= real(8),rv_p_,oqpp
@@ -210,8 +211,10 @@ C     this ordering must match sham->eterms; see uham
       equivalence (eterms(9),sumtc)
       equivalence (eterms(12),sumt0)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C ... Setup
       stdo = lgunit(1)
@@ -543,8 +546,11 @@ Cchp2      .           , chp_rv , cpp_rv , dmatl_rv )
 
 
 
-            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
-     .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
+Cdwdef1             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
+Cdwdef1      .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
+             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , iwdummy 
+     .       , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , iwdummy ) 
+
 
           endif
 

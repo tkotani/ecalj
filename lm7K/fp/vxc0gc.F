@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in vxc0gc , #_of_w_access= 0
       subroutine vxc0gc(nr,nsp,rofi,rwgt,rho,vxc,exc,rep,rmu,lxcfun)
 C- Gradient-corrected part of vxc and exc in a spherical potential
 C ----------------------------------------------------------------------
@@ -39,8 +40,8 @@ C ... Local parameters
       parameter (nrmx=1501)
       double precision pi,rho2,rho3,ub4pi,rp(nrmx*2),rho0(2)
       integer i,ir,isp,ogrh,oagrh,oggrh,ogrgag
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       pi = 4d0*datan(1d0)
       ub4pi = 1d0/(4d0*pi)

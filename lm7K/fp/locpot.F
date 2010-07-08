@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in locpot , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
@@ -247,8 +248,8 @@ Cchp1      .    , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , nlml
 
 C$    integer iiv0(nbas),nvl
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Setup ---
       call tcn('locpot')

@@ -1,3 +1,6 @@
+Cdwdef1 have_common_w_in freats , #_of_w_access= 0
+Cdwdef1 have_common_w_in optfab , #_of_w_access= 0
+Cdwdef1 have_common_w_in ftfalo , #_of_w_access= 0
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
@@ -288,8 +291,8 @@ C     double precision qz(n0,2)
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
 C Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 ctakao
       integer:: ipl, ipz,iplx
       real(8):: qcc
@@ -796,8 +799,8 @@ C ... Local parameters
      .eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
      .raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       ipr = iprint()
       stdo = lgunit(1)
@@ -1070,8 +1073,8 @@ C     For plotting wave functions
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data flg/'*',' '/
 
 C     return

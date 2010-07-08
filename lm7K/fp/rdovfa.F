@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rdovfa , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
@@ -114,8 +115,8 @@ Cchp1      .    , ng , iofa , kcor , lcor
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn('rdovfa')
       ipr   = iprint()

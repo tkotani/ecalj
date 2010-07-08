@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in addrbl , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -195,8 +196,8 @@ CSFCPP      parameter(ndimx=1000)
 CSFCPP      double precision ewgt(3,ndimx)
 CSFCPP#endif
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')

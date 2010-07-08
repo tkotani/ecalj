@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in suham2 , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
 
@@ -50,8 +51,8 @@ Cchp1       integer ng,ogv,i
 
       double precision alat,tolgv,dum
 
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Setup ---
 

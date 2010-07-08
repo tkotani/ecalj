@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in surho , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
 Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
 Cchp3       subroutine surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
@@ -71,8 +72,8 @@ C ... Local parameters
       integer ib,i,is,kmax,lmxa,lmxh,nelt1,nelt2,nelt3,nlma,nlmh,igetss
       integer nglob,nsp,nspc,nkaph
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       nsp = nglob('nsp')
       nspc = nglob('nspc')

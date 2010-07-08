@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in gen_hamindex , #_of_w_access= 0
+Cdwdef1 have_common_w_in suham , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
@@ -61,8 +63,8 @@ c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 c      logical lprmib
 c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       character spid*8
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       real(8):: plat(3,3),qlat(3,3),alat,dum,qb(3,3),ddd(3)
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:)
       integer,parameter :: n0nkap0=30
@@ -408,8 +410,8 @@ C ... For NMTO
 C     integer olmx,ohcr,otral,otrad,oalpha,oadot,nmto
 C     double precision kmto(10),avw,dglob
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 c      integer :: sigswitch
 

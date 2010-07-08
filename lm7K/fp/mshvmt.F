@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in symvvl , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
@@ -232,8 +233,8 @@ Cchp1      . , iclbas
       real(8) ,allocatable :: sym_rv(:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       call getpr(ipr)

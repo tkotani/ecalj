@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in augmat , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
 Cchp3 cmdvar= type(s_rv1),sv_p_,osig
@@ -365,8 +366,8 @@ C ... Local parameters
      .vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn('augmat')
       pi   = 4d0*datan(1d0)

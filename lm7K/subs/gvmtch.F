@@ -1,32 +1,32 @@
-      subroutine gvmtch(ngs,ogvs,okvs,ngb,ogvb,okvb)
-C-  Ensure lower block of big list matches lower block of small list
-C     implicit none
-      integer ngs,ngb,ogvs,okvs,ogvb,okvb
-      real(8) ,allocatable :: gg_rv(:)
-      real(8) ,allocatable :: kk_rv(:)
-      real(8) ,allocatable :: iwk_rv(:)
-
-      integer w(1)
-      common /w/ w
-
-      allocate(gg_rv(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) gg_rv(:)=0.0d0
-
-      allocate(kk_rv(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) kk_rv(:)=0.0d0
-
-      allocate(iwk_rv(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
-
-      call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs 
-     .) , ngb , w ( ogvb ) , w ( okvb ) )
-
-      if (allocated(iwk_rv)) deallocate(iwk_rv)
-      if (allocated(kk_rv)) deallocate(kk_rv)
-      if (allocated(gg_rv)) deallocate(gg_rv)
-
-
-      end
+cki      subroutine gvmtch(ngs,ogvs,okvs,ngb,ogvb,okvb)
+ckiC-  Ensure lower block of big list matches lower block of small list
+ckiC     implicit none
+cki      integer ngs,ngb,ogvs,okvs,ogvb,okvb
+cki      real(8) ,allocatable :: gg_rv(:)
+cki      real(8) ,allocatable :: kk_rv(:)
+cki      real(8) ,allocatable :: iwk_rv(:)
+cki
+cki      integer w(1)
+cki      common /w/ w
+cki
+cki      allocate(gg_rv(ngs))
+ckiCtakao_ZeroClear_NotRequiered        if (ngs<0) gg_rv(:)=0.0d0
+cki
+cki      allocate(kk_rv(ngs))
+ckiCtakao_ZeroClear_NotRequiered        if (ngs<0) kk_rv(:)=0.0d0
+cki
+cki      allocate(iwk_rv(ngs))
+ckiCtakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
+cki
+cki      call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs 
+cki     .) , ngb , w ( ogvb ) , w ( okvb ) )
+cki
+cki      if (allocated(iwk_rv)) deallocate(iwk_rv)
+cki      if (allocated(kk_rv)) deallocate(kk_rv)
+cki      if (allocated(gg_rv)) deallocate(gg_rv)
+cki
+cki
+cki      end
       subroutine pgvmat2 (ng1,gv1, ng2,gv2,kv2 )
       integer:: ng1,ng2,kv2(1)
       real(8):: gv1(1),gv2(1)

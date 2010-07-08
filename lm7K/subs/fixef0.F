@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in fixef0 , #_of_w_access= 0
       subroutine fixef0(zval,nsp,nspc,nevx,ndev,evl,dosw,ef0)
 C- Corrects estimate for Fermi level
 C ----------------------------------------------------------------------
@@ -28,8 +29,8 @@ C ... Local parameters
 
       double precision w2,xx,doso(2)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call getpr(ipr)
       stdo = lgunit(1)

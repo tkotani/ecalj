@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in pvsms2 , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3       subroutine pvsms2(ssite,sspec,rotm,nbas,nsp,orhoat)
        subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
@@ -54,8 +55,8 @@ C Local variables
       double precision rYL(nl2,nl2)
       character spid*8
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Setup
       call getpr(ipr)

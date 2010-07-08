@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in chkxpn , #_of_w_access= 0
       subroutine fpchk(sspec,ssite)
       use m_struc_def
 C- Routines to check various quantities in FP code
@@ -54,8 +55,8 @@ C ... Local parameters
       character*8 spid
       character lch(0:4)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data lch /'s','p','d','f','g'/
 
 C ... setup

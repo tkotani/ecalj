@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in iopos , #_of_w_access= 0
+Cdwdef1 have_common_w_in ioposs , #_of_w_access= 0
       subroutine iopos(lio,mode,filnam,nbas,bas)
 
 C- File i/o of site positions
@@ -63,8 +65,8 @@ C ... for rdfiln
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
      .nlist(0:mxlev)
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       data rdarg /'#{}% c'/
 
@@ -214,8 +216,8 @@ C     implicit none
       real(8) ,allocatable :: pos_rv(:)
 
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Unpack site positions
       allocate(pos_rv(3*nbas))

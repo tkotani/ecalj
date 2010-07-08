@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in bndfp , #_of_w_access= 6
+Cdwdef1 have_common_w_in xmpbnd , #_of_w_access= 0
 Cchp2 cmdvar= real(8),rv_p_,owtkb
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppix
@@ -410,8 +412,10 @@ C     for LDA+U
 
       integer:: i_copy_size, i_spackv, i_spacks
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       logical :: debug=.false. !debug is only for check write. However, it can cause error
       !for 'make check',
@@ -1217,8 +1221,11 @@ C   ... If switch '--pdos'; get sites, number of channels
           allocate(chan_iv(nchmx))
 
           nll = 0
-          call sumlst(0,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
-     .    nsites,lsites,lmxch,nchan,w,nll)
+Cdwdef1           call sumlst(0,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
+Cdwdef1      .    nsites,lsites,lmxch,nchan,w,nll)
+           call sumlst ( 0 , nchmx , nbas , ng , ssite , sspec , mulopt 
+     .     , moddos , nsites , lsites , lmxch , nchan , iwdummy , nll ) 
+
           nlmax = (lmxch+1)**2
           i = nlmax*ndham*3*nsp*nbas
           if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
@@ -1266,8 +1273,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(debug) print *,'vvvvv nkp=',nkp
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (procid .eq. master) then
-          call suqlst ( plbopt , iopq , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
-     .    , nkp , qp , onesp ) 
+Cdwdef1           call suqlst ( plbopt , iopq , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
+Cdwdef1      .    , nkp , qp , onesp ) 
+           call suqlst ( plbopt , iopq , ndhamx , ef0 , i , iwdummy , nfbn 
+     .     , ifbls_iv , nkp , qp , onesp ) 
+
 
         endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1306,16 +1316,22 @@ C       iq = running index to big qp list, i1 = index to current line
   199     continue
           i = 1
           call pshpr(0)
-          call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
-     .    , i2 , qp , onesp ) 
+Cdwdef1           call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
+Cdwdef1      .    , i2 , qp , onesp ) 
+           call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .     , ifbls_iv , i2 , qp , onesp ) 
+
 
           call poppr
           if (i2 .gt. 0) then
             call pshpr(0)
             do  i1 = 1, i2
               iq = iq+1
-              call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
-     .        , i2 , qp , onesp ) 
+Cdwdef1               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
+Cdwdef1      .        , i2 , qp , onesp ) 
+               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .         , ifbls_iv , i2 , qp , onesp ) 
+
 
 Cchp1               call dpscop(qp,w(oqp),3,1,3*iq-2,1d0)
                call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 ) 
@@ -1379,8 +1395,11 @@ C --- Get qplist. This is only for no MPI mode yet...
         if (plbnd .ne. 0) then
           i = nsp
           if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-          call suqlst ( plbopt , 0 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
-     .    , nkp , qp , onesp ) 
+Cdwdef1           call suqlst ( plbopt , 0 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
+Cdwdef1      .    , nkp , qp , onesp ) 
+           call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .     , ifbls_iv , nkp , qp , onesp ) 
+
 
         else
 Cchp1           call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
@@ -2201,7 +2220,10 @@ C$$$#endif
               nev = ndimhx
               nmx = ndimhx
               nevl = ndimhx
-              call phmbls(2,ndimhx,evl(1,jsp),w,w,w,w,w,hamm)!w(oh))
+Cdwdef1               call phmbls(2,ndimhx,evl(1,jsp),w,w,w,w,w,hamm)!w(oh))
+               call phmbls ( 2 , ndimhx , evl ( 1 , jsp ) , iwdummy , iwdummy 
+     .         , iwdummy , iwdummy , iwdummy , hamm ) 
+
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
                 allocate(ww_zv(ndimhx**2*2))
@@ -2927,9 +2949,11 @@ c        ---   bcast
             ndimhx_iq = work_mpi(1)
             nev_iq = work_mpi(1)
 
-            if (procid.eq.master) then
-              call prtev(w(1),ndimhx_iq,evl(1,jsp),nevmx,efmax,nev_iq)
-            endif
+cki this causes SEGV, delete Jul08, 2010
+cki            if (procid.eq.master) then
+cki              call prtev(w(1),ndimhx_iq,evl(1,jsp),nevmx,efmax,nev_iq)
+cki            endif
+cki end
 ckino       call prtev(w(1),ndimhx,evl(1,jsp),nevmx,efmax,nev)
 ckino end
 
@@ -3646,8 +3670,8 @@ C ... Local parameters
       real(8) ,allocatable :: buf_rv(:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )

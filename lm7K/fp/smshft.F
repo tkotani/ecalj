@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in smshft , #_of_w_access= 0
+Cdwdef1 have_common_w_in pvsms1 , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
@@ -79,8 +81,8 @@ Cchp1        integer:: okv
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
      .qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C     stdo = lgunit(1)
       job = int(sctrl%lfrce)
@@ -340,8 +342,8 @@ C Local variables
       character*35 strn,spid*8
       double complex phase
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Setup
       call tcn('pvsms1')

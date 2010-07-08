@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in loctsh , #_of_w_access= 0
       subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
      .rs3,eh3,vmtz,vsel,rsml,ehl)
 C- Fit value and slope of local orbitals to smoothed Hankel
@@ -91,8 +92,8 @@ C     For plotting wave functions
 C     integer itab(n0,2)
 C     double precision pl(n0,nsp)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data orbit/'low','high'/
       data flg/'*',' '/
 

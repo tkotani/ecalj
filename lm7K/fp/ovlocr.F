@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in ovlocr , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
 Cchp1 cmdvar= integer,iv_p_,ojcg
@@ -93,8 +94,8 @@ C      include "mpif.h"
 C     double precision dval
 #endif
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data q /0d0,0d0,0d0/
       integer:: ibini,ibend
 

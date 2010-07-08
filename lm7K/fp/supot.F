@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in supot , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -116,8 +117,10 @@ Cchp1      .            iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(9),gmax,xx
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       call info0(50,1,0,' supot : potential setup ... ')
 
 
@@ -204,8 +207,11 @@ Cchp1         call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
 Cchp1      .  w(ogv),xx,xx)
 Cchp1          call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
 Cchp1      .   , ng , w ( okv ) , rv_p_ogv , xx , xx ) 
-          call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
-     .    , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
+Cdwdef1           call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
+Cdwdef1      .    , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
+           call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8 
+     .     , ngmx , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
+
 
 
         if (ng .ne. ngmx) call rx('supot: bug in gvlist')

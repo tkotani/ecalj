@@ -1,3 +1,7 @@
+Cdwdef1 have_common_w_in mixrho , #_of_w_access= 2
+Cdwdef1 have_common_w_in pvmix3 , #_of_w_access= 0
+Cdwdef1 have_common_w_in pvmix5 , #_of_w_access= 0
+Cdwdef1 have_common_w_in pvmix7 , #_of_w_access= 1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhold
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhnew
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -244,8 +248,10 @@ Cchp1        integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl
       logical parmxp
       character sout*80,fnam*8
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
       complex(8),allocatable:: w_ocn(:),w_oqkl(:)
@@ -583,9 +589,13 @@ C   ... Add site-projected screening density to rhn1,rhn2
 Cchp3         call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
 Cchp3      .  , rwgt_rv , k0 , nlm0 , fkl_zv , w , w(orhnew ( 1 , ib 
 Cchp3      . )) , w(orhnew ( 2 , ib)) , qmx)
-         call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
-     .   , rwgt_rv , k0 , nlm0 , fkl_zv , w , sv_p_orhnew( 1 , ib )%v 
-     .   , sv_p_orhnew( 2 , ib )%v , qmx ) 
+Cdwdef1          call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
+Cdwdef1      .   , rwgt_rv , k0 , nlm0 , fkl_zv , w , sv_p_orhnew( 1 , ib )%v 
+Cdwdef1      .   , sv_p_orhnew( 2 , ib )%v , qmx ) 
+          call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
+     .    , rwgt_rv , k0 , nlm0 , fkl_zv , iwdummy , sv_p_orhnew ( 1 , 
+     .    ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx ) 
+
 
 
 C       Restore rho+, rho-
@@ -663,7 +673,10 @@ C ... Find and include number of smooth mesh points.
 Ctakao_ZeroClear_NotRequiered        if (ng<0) ips0_iv(:)=0
 
 Cchp1       call lgstar ( 0 , ng , 1 , w(ogv) , ng0 , ips0_iv , w)
-       call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , w) 
+Cdwdef1        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , w) 
+        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy 
+     .  ) 
+
 
 
 C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
@@ -1213,8 +1226,8 @@ C ... Local parameters
       real(8) ,allocatable :: rwgt_rv(:)
       double precision a,rmt,rg,difa,rf
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       real(8),allocatable:: w_orsm(:,:)
       real(8):: wdummy
 
@@ -1594,8 +1607,8 @@ C ... Local parameters
 
       character outs*80
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr)
@@ -2108,8 +2121,10 @@ C ... Local parameters
       integer ib,is,igetss,i,m,lmxl,nlml,off,np,k9l,orsm(2)
       double precision aat,rmt,rg,xx
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
       real(8),allocatable:: w_orsm(:,:)
 
 C ... Restore mixed smoothed density
@@ -2191,9 +2206,13 @@ c            call defrr(orsm(m),nr*nlml*nsp)
             i = 1001
             if (wt(1) .eq. 0) i = 11001
             if (wt(2) .eq. 0) i = 21001
-            call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv 
-     .      , rwgt_rv , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib) , 
-     .      w_orsm (1, m) , w , xx)
+Cdwdef1             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv 
+Cdwdef1      .      , rwgt_rv , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib) , 
+Cdwdef1      .      w_orsm (1, m) , w , xx)
+             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv , 
+     .       rwgt_rv , kmxr , nlm0 , iwdummy , qkl ( 0 , 1 , 1 , m , ib ) 
+     .       , w_orsm ( 1 , m ) , iwdummy , xx ) 
+
           enddo
 C         Don't undo scaling of smoothed density since rho1+rho2 scaled
 C          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),

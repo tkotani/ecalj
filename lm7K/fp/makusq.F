@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in makusq , #_of_w_access= 0
+Cdwdef1 have_common_w_in pusq1 , #_of_w_access= 1
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -125,8 +127,8 @@ Cchp1       integer:: oiprmb
       real(8) ,allocatable :: dp_rv(:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Setup
 C     stdo = lgunit(1)
@@ -336,8 +338,10 @@ Cchp1          integer:: ojcg
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       call tcn ('pusq1')
 
@@ -393,9 +397,13 @@ Cchp1      .  , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
 Cchp1          call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
 Cchp1      .   , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 Cchp1      .   kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
-          call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-     .    , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .    kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
+Cdwdef1           call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+Cdwdef1      .    , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+Cdwdef1      .    kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
+           call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+     .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy ) 
+
 
 
 

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in pnunew , #_of_w_access= 1
 Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .qbyl,hbyl)
@@ -71,8 +72,10 @@ Cchp1      .l , ipqn , m , isp , ov0 , nr , nn , mxcst
       double precision pznew,fi(0:10),gi(0:10),xx,dnz
       character spid*8
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',
      .0,0)
@@ -181,9 +184,14 @@ C             val(1) = rmt
 C             slo(1) = dl + 1d0
               endif
 
-              call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
-     .        nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
-     .        , dphi , w , w , w , w , w , w , w )
+Cdwdef1               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
+Cdwdef1      .        nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
+Cdwdef1      .        , dphi , w , w , w , w , w , w , w )
+               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
+     .         0 , 1d - 12 , ebar , val , slo , nn , g_rv , iwdummy , phi , 
+     .         dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy 
+     .         , iwdummy ) 
+
 
 C           dphip = (slo(2)-phip)/rmt
               if (nn .eq. int(pnu(m,1))-l-1) then

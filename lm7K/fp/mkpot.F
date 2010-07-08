@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mkpot , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
 Cchp3 cmdvar= type(s_rv1),sv_p_,otau
@@ -260,8 +261,8 @@ C     This ordering must match sham->eterms; see uham
       equivalence (eterms(15),amom)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 ccccccccccccccccccccc
       integer:: itest,wdummy

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in ioden , #_of_w_access= 1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -133,8 +134,10 @@ Cchp1        integer:: opos !, oz
       double precision vol,xx0,xx,dval,plat(3,3),alat
       integer ib,is,igetss
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C ... External calls
       external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
      .gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
@@ -184,9 +187,13 @@ c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
 c     .ngabc,w,w,nwk,modrhg)
 Cchp1       call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),sspec(ssite(1:nbas)%spec)%z,k1,k2,k3,
 Cchp1      .ngabc,w,w,nwk,modrhg)
-       call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
-     . , w , w , nwk , modrhg ) 
+Cdwdef1        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+Cdwdef1      . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+Cdwdef1      . , w , w , nwk , modrhg ) 
+        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+     .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+     .  , iwdummy , iwdummy , nwk , modrhg ) 
+
 
       call isanrg(modrhg,-3,2,'ioden','core option',.true.)
 

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in lmfp , #_of_w_access= 4
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -107,8 +108,10 @@ C ... Passed parameters:
       type(s_move)::smove
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C ... Local variables
       integer procid,master,mpipid,nproc
       logical mlog
@@ -732,8 +735,12 @@ ctakao BZ_W is
 c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
 Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
 Cchp1      .  nspec,w(oorhat),w,nit1,lbin,ifi)
-         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .   , nbas , nat , nspec , sv_p_oorhat , w , nit1 , lbin , ifi ) 
+Cdwdef1          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+Cdwdef1      .   , nbas , nat , nspec , sv_p_oorhat , w , nit1 , lbin , ifi ) 
+          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin , 
+     .    ifi ) 
+
 
 c        print *,'yyyyyyyyyy end of iors'
 ctakao
@@ -965,9 +972,13 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
             fileid = 'lmfp:  ' // sstrn(i:j)
 Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
-             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .       , nbas , nat , nspec , sv_p_oorhat , w , iter , lbin , - ifi 
-     .       ) 
+Cdwdef1              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+Cdwdef1      .       , nbas , nat , nspec , sv_p_oorhat , w , iter , lbin , - ifi 
+Cdwdef1      .       ) 
+              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin , 
+     .        - ifi ) 
+
 
             call fclose(ifi)
           endif
@@ -1233,9 +1244,13 @@ C   ... Write restart file (to include new positions)
             fileid = 'lmfp:  ' // sstrn(i:j)
 Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
-             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .       , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
-     .       ) 
+Cdwdef1              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+Cdwdef1      .       , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
+Cdwdef1      .       ) 
+              k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+     .        , - ifi ) 
+
 
             call fclose(ifi)
           endif
@@ -1434,9 +1449,13 @@ C ... Write restart file (to include new positions)
         fileid = 'lmfp:  ' // sstrn(i:j)
 Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .  fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
-         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .   , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
-     .   ) 
+Cdwdef1          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+Cdwdef1      .   , nbas , nat , nspec , sv_p_oorhat , w , iter , .true. , - ifi 
+Cdwdef1      .   ) 
+          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+     .    , - ifi ) 
+
 
         call fclose(ifi)
       endif

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in fmain , #_of_w_access= 0
       subroutine shorps(nbas,plat,mode,pin,pout)
 C- Shift each basis vector by multiples of plat according to mode
 C ----------------------------------------------------------------
@@ -126,8 +127,8 @@ C mc posf pos -- -t plat -t -i -x
       integer ix(3),i
       double precision pos(3,48),pos2(3,48),plat(3,3),qlat(9),xx
 
-      integer w(10000)
-      common /w/ w
+Cdwdef1       integer w(10000)
+Cdwdef1       common /w/ w
       call wkinit(10000)
 
       data plat /

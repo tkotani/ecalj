@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in hft2rs , #_of_w_access= 1
 Cchp1 cmdvar= integer,iv_p_,oiax
 Cchp1 cmdvar= integer,iv_p_,ontab
 Cchp1 cmdvar= integer,iv_p_,ontabs
@@ -177,8 +178,10 @@ C ... Local parameters
       double precision tau(3)
 #endif
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 C ... External calls
       external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
      .ppair1,pshpr,redfi,rlse,tcn,tcx
@@ -201,8 +204,12 @@ C --- Mode 0 (setup) make and reduce iax table ---
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
-        call pairs(nbas,nbas,1d0,plat,(/range/2/),pos,
-     .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+Cdwdef1         call pairs(nbas,nbas,1d0,plat,(/range/2/),pos,
+Cdwdef1      .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos 
+     .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_p_oiax 
+     .   , mxcsiz ) 
+
         call poppr
 
 C   ... Standard Bloch transform doesn't require mapping to mesh

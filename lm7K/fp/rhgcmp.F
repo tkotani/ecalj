@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in rhgcmp , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
@@ -96,8 +97,8 @@ C ... External calls
       external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
      .suphas,suphs0,suylg,tcn,tcx,upack
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data q0 /0d0,0d0,0d0/
 
       call tcn('rhgcmp')

@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mkekin , #_of_w_access= 0
 Cchp2 cmdvar= real(8),rv_p_,oppipp
 Cchp2 cmdvar= real(8),rv_p_,oppihp
 Cchp2 cmdvar= real(8),rv_p_,oppihh
@@ -251,8 +252,8 @@ Cchp2                   integer:: oppipp
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 #if DEBUG
       integer fopna
 #endif

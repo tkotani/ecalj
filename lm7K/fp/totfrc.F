@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in totfrc , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),iv_p_,oistab
@@ -48,8 +49,8 @@ Cchp1      . , ibmx , isw
 
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       stdl = lgunit(2)

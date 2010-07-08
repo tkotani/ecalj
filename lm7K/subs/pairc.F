@@ -1,3 +1,7 @@
+Cdwdef1 have_common_w_in pairs , #_of_w_access= 0
+Cdwdef1 have_common_w_in pairc , #_of_w_access= 1
+Cdwdef1 have_common_w_in ppair1 , #_of_w_access= 0
+Cdwdef1 have_common_w_in ppair5 , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,ontab
 Cchp1 cmdvar= integer,iv_p_,oiax
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
@@ -350,8 +354,8 @@ C Local variables
 
       parameter (niax=10)
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C ... Set up input for call to pairc
       nbaspp = 2*nbasp - nbas
@@ -490,8 +494,10 @@ C Local variables
       real(8) ,allocatable :: ctr_rv(:)
 
       double precision r1,rr,qlat(3,3),p0(3)
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
+       integer ::iwdummy 
+
 
 C     call tcn('ppair1')
 
@@ -517,7 +523,10 @@ C ... Make r1 = 2*maximum range
       if (moder .eq. 0) r1 = 2*r1
       r1 = 2*r1
 C ... List of lattice vectors to add to pos(ib)-pos(jb)
-      call xlgen(plat,r1/alat,0d0,0,20,mode,i,w)
+Cdwdef1       call xlgen(plat,r1/alat,0d0,0,20,mode,i,w)
+       call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy 
+     . ) 
+
       allocate(lat_rv(3*i))
 Ctakao_ZeroClear_NotRequiered        if (3*i<0) lat_rv(:)=0.0d0
 
@@ -673,8 +682,8 @@ C Local variables
 
       double precision r1,r2,rr,rcut,vlat(3),drr2,tol
       parameter (tol=1d-5)
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       isw1 = mod(isw/10,10)
       ipr = iprint()
@@ -970,8 +979,8 @@ C ... Passed parameters
       real(8) ,allocatable :: wk2_rv(:)
 
 C heap:
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2

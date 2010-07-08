@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in sudmtu , #_of_w_access= 0
       subroutine sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh,lldau,
      .ng,g,istab,dmatu,vorb)
 
@@ -66,8 +67,8 @@ C ... MPI
       integer procid,master,mpipid
       logical mlog
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
 C     stdo = nglob('stdo')
       call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')

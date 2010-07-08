@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in ftlxp , #_of_w_access= 0
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
 
       use m_struc_def  !Cgetarg
@@ -46,8 +47,8 @@ C ... Local parameters
      .fact(0:20),tau(3)
       double complex cfac
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       call getpr(ipr)

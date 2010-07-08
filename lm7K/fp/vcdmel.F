@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in vcdmel , #_of_w_access= 0
 Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
@@ -109,8 +110,8 @@ Cchp1            integer:: ov0
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
       character clabl*8
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       call tcn ('vcdmel')
       rsml=0d0 !call dpzero(rsml,n0)

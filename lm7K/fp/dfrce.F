@@ -1,3 +1,5 @@
+Cdwdef1 have_common_w_in dfrce , #_of_w_access= 0
+Cdwdef1 have_common_w_in pvdf1 , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -142,8 +144,8 @@ C$    integer iiv0(nbmx)
 C     double precision dqsmo,dval
       character*40 strn
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       real(8),allocatable:: cs_(:),sn_(:)
 
       job = int(sctrl%lfrce)
@@ -653,8 +655,8 @@ C     parameter (k0=3)
 C     double complex gkl(0:k0,nlmx)
       double complex tpia,cxx,phase,gc0,xc0,cof(nlmx)
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
       data q0 /0d0,0d0,0d0/
 
       call tcn('pvdf1')

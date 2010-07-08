@@ -1,3 +1,4 @@
+Cdwdef1 have_common_w_in mshn3p , #_of_w_access= 0
 Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
 Cchp3       subroutine mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval,ef0,def,
 Cchp3      .sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
@@ -76,8 +77,8 @@ C ... Local parameters
      .q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
       equivalence (px,p(1)),(py,p(2)),(pz,p(3))
 C ... Heap
-      integer w(1)
-      common /w/ w
+Cdwdef1       integer w(1)
+Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       stdl = lgunit(2)
