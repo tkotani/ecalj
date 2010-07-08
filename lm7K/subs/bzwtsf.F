@@ -58,6 +58,9 @@ C Local variables
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
       parameter (dvcap=.2d0,itmax=50)
 
+#ifdef KINODEBUG
+      write(*,*) 'kino bzwtsf in'
+#endif
 C --- Fermi level without spin constraint ---
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,

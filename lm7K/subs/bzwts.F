@@ -92,11 +92,17 @@ C --- Locate band limits: lfill => insulator ---
       n = isign(1,norder) * mod(iabs(norder),100)
       stdo = nglob('stdo')
       stdl = nglob('stdl')
+#ifdef KINODEBUG
+       write(*,*) 'kino nevx,nsp',nevx,nsp
+#endif
       allocate(bot_rv(nevx*nsp))
 Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) bot_rv(:)=0.0d0
 
       allocate(top_rv(nevx*nsp))
 Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) top_rv(:)=0.0d0
+#ifdef KINODEBUG
+      write(*,*) 'kino allocate top_rv',nevx*nsp
+#endif
 
       nspx  = 1
       nevxx = nevx*nsp
@@ -117,10 +123,13 @@ C     job = 1 for non spin pol, -1 for spin pol
 C     Force coupled spins: find range
       if (nspx .ne. nsp .and. nspc .eq. 1) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-        allocate(bmap_iv(abs(-(nevx*nsp*nkp/nbpw+1))))
-        if (-(nevx*nsp*nkp/nbpw+1)<0) bmap_iv(:)=0
+        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
+        bmap_iv(:)=0
 
         allocate(wk_rv(nevx*nsp))
+#ifdef KINODEBUG
+        write(*,*) 'kino allocate bmap_iv, wk_rv',nevx*nsp*nkp/nbpw+1,nevx*nsp
+#endif
 Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
@@ -156,10 +165,13 @@ C ... Do the best we can should be a metal, but assumption that it isn't
 C ... Pretend as though spin-pol bands are coupled to find E_f
       if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-        allocate(bmap_iv(abs(-(nevx*nsp*nkp/nbpw+1))))
-        if (-(nevx*nsp*nkp/nbpw+1)<0) bmap_iv(:)=0
+        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
+        bmap_iv(:)=0
 
         allocate(wk_rv(nevx*nsp))
+#ifdef KINODEBUG
+         write(*,*) 'kino allocate bmap_iv, wk_rv=',nevx*nsp*nkp/nbpw+1, nevx*nsp
+#endif
 Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
@@ -212,6 +224,9 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
         endif
         nptdos = 101
         allocate(dos_rv(nspx*nptdos))
+#ifdef KINODEBUG
+        write(*,*)'kino allocate dos_rv',nspx*nptdos
+#endif
 Ctakao_ZeroClear_NotRequiered          if (nspx*nptdos<0) dos_rv(:)=0.0d0
 
         tol = 1d-6
@@ -308,6 +323,9 @@ C   ... Find Fermi level, sampling
           call info0(10,0,0,' BZWTS (warning): '//
      .    'cannot find E_F by bisection, using INTNOS')
           allocate(dos_rv(nspx*npts))
+#ifdef KINODEBUG
+          write(*,*)'kino allocate dos_rv',nspx*npts
+#endif
 Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) dos_rv(:)=0.0d0
 
           emin = elo - rnge*width/2

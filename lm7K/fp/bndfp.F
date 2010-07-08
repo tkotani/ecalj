@@ -1716,9 +1716,6 @@ C   ... Make Hamiltonian and overlap matrices
 Cchp1             oqsig=sham%oqsig
              rv_p_oqsig => sham%rv_p_oqsig 
 
-#ifdef KINODEBUG
-             write(*,'(a,i3,i3,i12)')'oqsig=',procid,iq,%loc(rv_p_oqsig)
-#endif
 cki            if (oqsig .eq. 0) oqsig = 1
 
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
@@ -2171,6 +2168,9 @@ C   ... Diagonalize and add to density
               if (allocated(t_zv)) deallocate(t_zv)
               allocate(t_zv(ndimhx**2))
             endif
+#ifdef KINODEBUG
+             write(*,*)'kino, allocate t_zv' ,ndimhx**2
+#endif
 
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
 #ifndef MPIK
@@ -2227,6 +2227,9 @@ Cdwdef1               call phmbls(2,ndimhx,evl(1,jsp),w,w,w,w,w,hamm)!w(oh))
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
                 allocate(ww_zv(ndimhx**2*2))
+#ifdef KINODEBUG
+                write(*,*)'kino allocate ww_zv', ndimhx**2*2
+#endif
 
                 if (ldim .ne. ndham) call
      .          rx('blsig needs separate dim for wtkp,evec')
@@ -2266,6 +2269,9 @@ c                 deallocate(ww_rv)
               if(debug)  print *,' vvv zzzzz 555'
 
               allocate(ww_rv(11*ndimhx))
+#ifdef KINODEBUG
+              write(*,*) 'allocate ww_rv', 11*ndimhx
+#endif
 c takao
 c          if (epsovl .eq. 0) then
 c
@@ -2407,6 +2413,9 @@ C   --- Orbital magnetic moment (requires lso) ---
                 if (lwtkb .eq. 0) call
      .          rx('metal weights required for orb. moment calculation')
                 allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
+#ifdef KINODEBUG
+                write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
+#endif
                 auso_zv(:)=0.0d0
 
                 call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
@@ -2511,6 +2520,9 @@ C   ... Make new density matrix dmatu for LDA+U
 
                   nlmax = nl*nl
                   allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
+#ifdef KINODEBUG
+                  write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
+#endif
                   ausu_rv(:)=0.0d0
 
                   call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
@@ -3095,6 +3107,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         endif
       endif
 
+      if( debug) print *, 'tttttttttt 9999999999999999999 6',lmet,ltet,lwndow
 C --- BZ integration for fermi level, band sum and qp weights ---
       if (lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
         if (lwndow) then
@@ -3154,6 +3167,8 @@ Cchp2      .       ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg ,
 Cchp2      .       fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 Cchp2      .       ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 Cchp2      .       , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+              if( debug) print *, 'tttttttttt 9999999999999999999 6 call bzwtsf'
+
               call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .        ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
      .        fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
@@ -3161,6 +3176,7 @@ Cchp2      .       , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb )
      .        , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
 
 
+              if( debug) print *, 'tttttttttt 9999999999999999999 6 return from bzwtsf'
 
 
 
@@ -3202,6 +3218,8 @@ C ... release sigma-related things.
       if(sigmamode) then
         deallocate(sfz,qsmesh,npair,pos)
       endif
+
+      if( debug) print *, 'tttttttttt 9999999999999999999 7'
 
 C ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -3313,6 +3331,8 @@ c           call rlse(oqp) --->wrong rlse. Break some arrays
       endif
 
 
+      if( debug) print *, 'tttttttttt 9999999999999999999 7'
+
 
 C --- Core-level spectroscopy ---
       if (icls .ne. 0) then
@@ -3336,6 +3356,9 @@ Cchp3       call dfratm(nbas,ssite,sspec,orhat1)
 
       allocate(qbyl_rv(n0*nbas*nsp))
       allocate(hbyl_rv(n0*nbas*nsp))
+#ifdef KINODEBUG
+      write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
+#endif
 C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
 Cchp1         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
@@ -3385,6 +3408,7 @@ Cchp3      .  , qbyl_rv , hbyl_rv , lrout )
      .   , qbyl_rv , hbyl_rv , lrout ) 
 
 
+      if( debug) print *, 'tttttttttt 9999999999999999999 7'
 
 
 C
@@ -3415,6 +3439,8 @@ C       call pshpr(iprint()-12)
 C       call poppr
       endif
 
+
+      if( debug) print *, 'tttttttttt 9999999999999999999 8'
 
 C --- Evaluate Harris energy ---
 c      call pshpr(ipr-10) !this was needed to go through test.fp (just for check write.) Why? --> but no problem... sep2009
@@ -3547,6 +3573,8 @@ c          print *,'vvv takao goto mkehfk mode2'
           call togpr()
         endif
 
+      if( debug) print *, 'tttttttttt 9999999999999999999 9'
+
 C   --- Add together force terms ---
         if ( lfrce .gt. 0 ) call totfrc ( nbas , ssite , slat , leks 
      .  , fes1_rv , fes2_rv , fh_rv , frc ) 
@@ -3556,6 +3584,9 @@ C   --- Mix input and output densities ---
         allocate(qm1_rv(nvl))
 
         allocate(qm2_rv(nvl))
+#ifdef KINODEBUG
+         write(*,*) 'kino allocate qm2_rv',nvl
+#endif
 
         call upacks('strn mix',i1,i2)
 #if MPE
@@ -3688,6 +3719,9 @@ Cdwdef1       common /w/ w
       enddo
       ista = kpproc(procid)
       allocate(buf_rv(ndham*nkp*nsp))
+#ifdef KINODEBUG
+      write(*,*)'kino allocate bug_rv',ndham*nkp*nsp
+#endif
 
       call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
      .( procid ) , mpi_double_precision , buf_rv , length , offset 

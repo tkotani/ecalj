@@ -916,7 +916,7 @@ C         Case read but skip over this site data
             nr = nr0
           endif
 
-#ifdef KINODEBUG
+#if KINODEBUG & (MPI|MPIK)
           call mpi_barrier(mpi_comm_world,ierr)
           write(*,*)'kino, before Allocate and read arrays for local density and potentia',mode
 #endif
@@ -999,7 +999,7 @@ C              call rlse(ov0)
 C              goto 20
 C           endif
 
-#if KINODEBUG
+#if KINODEBUG & (MPI|MPIK)
             call mpi_barrier(mpi_comm_world,ierr)
             write(*,*) 'kino, after allocation',mode,size(sv_p_orhoat( 1 , ib )%v),size(sv_p_orhoat( 2 , ib )%v),
      .           size(sv_p_orhoat( 3 , ib )%v)
@@ -1038,7 +1038,7 @@ Cchp1               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
                call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
      .         ) 
 
-#if KINODEBUG
+#if KINODEBUG & (MPI|MPIK)
             call mpi_barrier(mpi_comm_world,ierr)
             write(*,*) 'kino, after mpibc1 orhoat, ov'
 #endif
