@@ -1,0 +1,7 @@
+#/bin/bash -f
+grep -l "^ *common *\/ *w" /home/kino/kit/GW/7K/ecalj_2010_0708/lm7K/fp/*.F /home/kino/kit/GW/7K/ecalj_2010_0708/lm7K/subs/*.F /home/kino/kit/GW/7K/ecalj_2010_0708/lm7K/*.F > list 
+
+for name in `cat list`
+do echo $name; python dwdef1.py  < $name > x ; mv -f x $name; done
+
+
