@@ -1,3 +1,7 @@
+      logical function testwritexcfun()
+      testwritexcfun=.false.
+      end
+
 C
 C This file includes kinds of the xc functionals in LDA and GGA.
 C
@@ -618,6 +622,7 @@ C Local Variables
      .ecpw91,vcuppw91,vcdnpw91,expbe,vxuppbe,
      .vxdnpbe,ecpbe,vcuppbe,vcdnpbe
 
+      logical:: testwritexcfun
       if (lxcg .ne. 3 .and. lxcg .ne. 4) call rx('evxcp: bad lxcg')
 
       do  i = 1, n
@@ -666,16 +671,18 @@ cccccccccccccccccccccc
      .    (vxuppbe + vcuppbe - vxuplsd - vcuplsd) * 2d0
 
 ccccccccccccccccccccc
-c          aaa=(vxuppbe + vcuppbe - vxuplsd - vcuplsd)
-c          bbb=(vxdnpbe + vcdnpbe - vxdnlsd - vcdnlsd)
+          if(testwritexcfun()) then
+          aaa=(vxuppbe + vcuppbe - vxuplsd - vcuplsd)
+          bbb=(vxdnpbe + vcdnpbe - vxdnlsd - vcdnlsd)
 c          if(abs(aaa)>1.or.abs(bbb)>1) then
-c             write(1219,"('ggaxxx ',i8,255d15.6)")i,up,agrup,delgrup,uplap
-c             write(1219,"('ggaxxx ',i8,255d15.6)")i,dn,agrdn,delgrdn,dnlap
-c             write(1219,"('ggaxxx ',i8,255d15.6)")i,agr,delgr
-c             write(1219,"('ggaxxx ',i8,255f12.3)")i,aaa, vxuppbe, vcuppbe, vxuplsd, vcuplsd
-c             write(1219,"('ggaxxx ',i8,255f12.3)")i,bbb, vxdnpbe, vcdnpbe, vxdnlsd, vcdnlsd
-c             write(1219,*)
+             write(1219,"('ggaxxx ',i8,255d15.6)")i,up,agrup,delgrup,uplap
+             write(1219,"('ggaxxx ',i8,255d15.6)")i,dn,agrdn,delgrdn,dnlap
+             write(1219,"('ggaxxx ',i8,255d15.6)")i,agr,delgr
+             write(1219,"('ggaxxx ',i8,255f12.3)")i,aaa, vxuppbe, vcuppbe, vxuplsd, vcuplsd
+             write(1219,"('ggaxxx ',i8,255f12.3)")i,bbb, vxdnpbe, vcdnpbe, vxdnlsd, vcdnlsd
+             write(1219,*)
 c          endif  
+          endif
 ccccccccccccccccccccccccc
 
           if (nsp .eq. 2) vxc2(i) = vxc2(i) +
@@ -684,7 +691,9 @@ ccccccccccccccccccccccccc
       enddo
 
 ccccccccccccccccccccccccc
-c      stop 'xxxxxxxxx end of vxcgga xxxxxxxxxxxxxxxxxxxxxxxx'
+      if(testwritexcfun()) then
+      stop 'xxxxxxxxx end of vxcgga xxxxxxxxxxxxxxxxxxxxxxxx'
+      endif
 ccccccccccccccccccccccccc
 
       end
@@ -1287,6 +1296,8 @@ cdln  parameter(um=0.2195149727645171d0,uk=0.4040d0,ul=um/uk)
       parameter(um=0.2195149727645171d0)
       save uk
       data uk/0d0/
+      logical testwritexcfun
+
 C.....dln: now can change uk
       if (uk .eq. 0d0) call setuk(0.8040d0)
       call getuk(uk)
@@ -1321,7 +1332,9 @@ c----------------------------------------------------------------------
 c calculate potential from [b](24) 
       VX = exunif*(THRD4*FxPBE-(U-THRD4*S2*s)*FSS-V*FS)
 cccccccccccccccccccc
-c      write(1219,"('ggazzz ',255d15.6)")exunif,FxPBE,U*FSS,s2*s*FSS,v*FS,s,u,v,vx
+      if(testwritexcfun()) then
+      write(1219,"('ggazzz ',255d15.6)")exunif,FxPBE,U*FSS,s2*s*FSS,v*FS,s,u,v,vx
+      endif
 cccccccccccccccccccc
       RETURN
       END
