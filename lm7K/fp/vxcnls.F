@@ -235,7 +235,7 @@ c      subroutine xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
 c     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
 c     .vxcnl,excnl,sumnl)
       subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
-     .ylwp,wp,wkl,rp,ggrp,grp,agrl,rl,rwgt,lcut,
+     .ylwp,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut, !fixed bug (remove wkl) 11July2010.takao
      .vxcnl,excnl,sumnl)
 C     implicit none
       integer ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg

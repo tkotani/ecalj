@@ -218,10 +218,10 @@ c        call prm3('vnl(isp=%i)',i,vnl(1,1,1,i),n1,n2,n3)
 c      enddo
 
 C --- Make nonlocal reps, rmu ---
+      repnl=0d0
+      rmunl=0d0
+      vavgnl=0d0
       do  i = 1, nsp
-        repnl(i) = 0
-        rmunl(i) = 0
-        vavgnl(i) = 0
         do  i3 = 1, n3
           do  i2 = 1, n2
             do  i1 = 1, n1
