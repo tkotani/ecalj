@@ -282,7 +282,7 @@ c        endif
 c      close(1898)
 c      print *,'vvv'
 c      print *,'mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")'mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
       nnnew=0
 c      open(1898,file='test2vvv_smrnew')
       do  i3 = 1, k3
@@ -299,7 +299,7 @@ c        endif
       enddo
 c      close(1898)
 c      print *,'mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")'mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
+      write(6,"(a,3d13.6,i8)")' mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
 ccccccccccccccccccccccccccccccccccccc
 
 
@@ -1137,7 +1137,7 @@ c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
       enddo
 c      close(1898)
 c      print *,'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 c      nnnew=0
 c      do  i3 = 1, k3
 c      do  i2 = 1, k2
