@@ -566,7 +566,7 @@ for ii in tokenspec[1:]:
 
 tail="""
 \n
-% const pwemax=2 nk=2 nit=30
+% const pwemax=2 nk=2 nit=30 gmax=10
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
@@ -591,7 +591,7 @@ ITER  CONV=1e-6 CONVC=1e-6 NIT={nit}
 		
 HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
       FORCES=0  # 0: no force calculation, 1: forces calculaiton 
-      GMAX=10   # this is for real space mesh. See GetStarted. (Real spece mesh for charge density).
+      GMAX={gmax}   # this is for real space mesh. See GetStarted. (Real spece mesh for charge density).
                 # Instead of GMAX, we can use FTMESH.
                 # You need to use large enough GMAX to reproduce smooth density well.
                 # Look into sugcut: shown at the top of console output. 
