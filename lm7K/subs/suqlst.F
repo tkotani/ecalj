@@ -174,10 +174,10 @@ ctakao
 C ... Heap
 c      integer w(1)
 c      common /w/ w
-c      common /suqlsd/
-c     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-c     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
-      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
+      common /suqlsd/
+     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+c      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
       save evsav
       real(8),allocatable:: w_oqp(:,:)
 
@@ -691,10 +691,10 @@ c      integer oqp
       double precision x1,x2,y1,y2,evmxn,evmnn,
      .q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
 
-c      common /suqlsd/
-c     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-c     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
-      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
+      common /suqlsd/
+     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+c      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
 
       integer ipiv(ndimhx)
       real(8),allocatable :: evsav(:,:,:,:)
