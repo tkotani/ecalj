@@ -203,7 +203,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.ni
 ### Readin flags ####################################
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-if (nargv ==0):
+if (nargv ==0 or '--help' in argset):
 	print ' --- Install test for GW ---'
 	print '   usage :'
 	print '     testgw.py [options] testname testname ... '
