@@ -1,40 +1,36 @@
 HEADER  NiO antiferromagnetic II
-VERS    FP=7 LM=7
-IO      SHOW=f HELP=F VERBOS=41
-OPTIONS PFLOAT=1
+VERS    LM=7 FP=7
+IO      SHOW=f HELP=F VERBOS=51 51
+OPTIONS 
 SYMGRP  R3D R2(1,-1,0) M(1,-1,0)
 
-% const sig=1
-% const emax=1. asig=0.1 bsig=0.07
-HAM     
-        NSPIN=2 REL=T
+% const sig=12
+% const emax=1.5 asig=0.2 bsig=0.08
+HAM     FTMESH=27 ELIND=-.7 TOL=1e-5 
+        NSPIN=2 REL=T 
         RDSIG=12 RSRNGE=5.5
-        GMAX=9 ELIND=-.7 
-
-        RDSIG={sig} EWALD=T
-        FORCES=1 ELIND=-1 XCFUN=2 TOL=1d-8
         SIGP[MODE=3 EMAX={emax} A={asig} B={bsig}]
 
-BZ      NKABC=4 4 4 METAL=0 TOL=1D-13 DOS=-1.7 1.5 NPTS=2001 SAVDOS=t
+BZ      NKABC=2 2 2 METAL=0 TOL=1D-13 DOS=-1.7 1.5 NPTS=2001 SAVDOS=t
         EFMAX=999 NEVMX=999
 STR     RMAX=3.5
-
-STRUC   NBAS=4 NSPEC=3 #NL=5 NL=4 NN=1
+STRUC   NBAS=4 NSPEC=3 NL=5 NN=1
         ALAT=7.88 PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
-
-SPEC   ATOM=Mnup Z=28 R/W=.9512  IDXDN=1 1 1 1 MMOM=0,0,1  EREF=-3036.182
-                  LFOCA=0
-                  RSMH= 1.55 1.55 0.916 -1 -1 EH= -0.167 -0.1 -0.302 0 0
-
-        ATOM=Mndn Z=28 R/W=.9512 IDXDN=1 1 1 1 MMOM=0,0,-1 EREF=-3036.182
-                  RSMH= 1.55 1.55 0.916 -1 -1 EH= -0.167 -0.1 -0.302 0 0
-
-        ATOM=O    Z= 8  R/W=.656 IDXDN=1 1 1 1 1 IDMOD=0 0 1 1 1
-                  EREF=-149.1822 LMXF=6 LMXB=221
-                  O RSMH= 0.9 0.9 -1 -1 EH= -1.359 -0.507 0 0
-
+SPEC   ATOM=Mnup Z=28 R/W=.9512 LMX=3 LMXA=4 MMOM=0,0,1
+                  RSMH= 1.5,1.5,.9 EH= -0.40,-0.40,-0.40
+                  RSMH2=0,0,.9     EH2=-1.2,-2.2,-1.2
+        ATOM=Mndn Z=28 R/W=.9512 LMX=3 LMXA=4 MMOM=0,0,-1
+                  RSMH= 1.5,1.5,.9     EH= -0.40,-0.40,-0.40
+                  RSMH2=0,0,.9     EH2=-1.2,-2.2,-1.2
+        ATOM=O    Z= 8  R/W=.656 LMX=3 LMXA=4
+                  P=2.8 2.7 3.25 4.5 5.5
+                  RSMH=0.9,0.9   EH= -1.0,-0.40
+                  RSMH2=0.9,0.9   EH2=-0.4,-1.2
 SITE    ATOM=Mnup POS=  .0   .0   .0
         ATOM=Mndn POS= 1.0  1.0  1.0
         ATOM=O    POS=  .5   .5   .5
         ATOM=O    POS= 1.5  1.5  1.5
-ITER    CONV=1e-5 NIT=20 CONVC=1d-5
+ITER     MODE=A6,k=3,b=.4 CONV=1e-5 ELIND=-1 NIT=20 CNVG=1.D-7 CNVGET=1.D-7
+
+OPTIONS PFLOAT=1 #Q=band (this is quit switch if you like to add)
+                 # 

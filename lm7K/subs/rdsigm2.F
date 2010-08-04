@@ -391,6 +391,9 @@ cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs ,
 cki     .    iv_p_oiaxs , ndhrs , w ) 
      .    iv_p_oiaxs , ndhrs , rv_dummy ) 
 
+ccccccccccccccccccccccccccccccccc
+c          print *,' size iv_p_ontabls=',size(iv_p_ontabs)
+cccccccccccccccccccccccccccccccccccccc
 
 
 Cchp1       nttabs = ival(w(ontabs),nbas+1)

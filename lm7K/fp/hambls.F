@@ -281,10 +281,11 @@ ctakaox
       complex(8),allocatable:: ss(:,:)
       integer:: sigswitch,debugmode
       logical:: pmtsig
+      logical:: debug=.true.
 
 
       call tcn('hambls')
-      if(debugmode()>0) print *, ' mode napw',mode,napw
+      if(debug) print *, ' mode napw',mode,napw
 
 C --- LDA hamiltonian ---
       if (mod(mode,10) .eq. 0) then
@@ -305,9 +306,6 @@ Cchp3      .    , s ( 1 , 1 , ispc ) , h ( 1 , 1 , 3 ) )
      .     , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .     , lcplxp , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) 
      .     , s ( 1 , 1 , ispc ) , h ( 1 , 1 , 3 ) ) 
-
-
-
       endif
       lrsig = mod(mode/10,10)
       lwsig = mod(mode/1000,10)
@@ -332,7 +330,7 @@ C ... Store LDA eigenvectors, eigenvalues in s and h and exit
 c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 
 C ... Setup for Bloch transform
-
+      if(debug) print *,' goto set up bloch transformation'
       ndhrs=sham%ndhrs
 Cchp1       ontabs=sham%ontabs
        iv_p_ontabs => sham%iv_p_ontabs 
@@ -346,6 +344,7 @@ Cchp1       ohrs=sham%ohrs
 Cchp1       ooffH=sham%ooffH
        iv_p_ooffh => sham%iv_p_ooffh 
 
+      if(debug) print *,' hambles:eee 111'
 
 C     hreal=1 -> sig(T) is real
       hreal = 0
@@ -353,21 +352,26 @@ C     hreal=1 -> sig(T) is real
       nl = nglob('nl')
       mxorb = nglob('mxorb')
 Cchp1       nttabs = ival(w(ontabs),nbas+1)
+      if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 
+      if(debug) print *,' hambles:eee 111333'
       nsp  = nglob('nsp')
       call isanrg(isp,1,nsp,'hambl:','isp',T)
 
+      if(debug) print *,' hambles:eee 222'
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
 
       call dinv33(plat,1,qlat,swt)
+      if(debug) print *,' hambles:eee 333'
 
 Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
+      if(debug) print *,' hambles: eeeee1111'
 
 
 ctakao simplified case for the PMT method.

@@ -1093,57 +1093,6 @@ Cki  ifiese default value is not set.  set it to 0
       endif
 
 
-      if(llmfgw) then
-C --- GW driver ---
-
-c       osgw=spot%osgw
-        nchan=spot%nlma
-
-C ... Modes 0..4
-Cchp1         call sugw ( ssite , sspec , slat , sham , nbas , ndham , w ( 
-Cchp1      .  osmpot ) , vconst , lcplxp , osig , otau , oppi , ppnl_rv 
-Cchp1      .  , vrmt , spotx , osigx , otaux , oppix , jobgw ) 
-Cchp3          call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .   , vconst , lcplxp , osig , otau , oppi , ppnl_rv , vrmt , spotx 
-Cchp3      .   , osigx , otaux , oppix , jobgw ) 
-Cchp3           call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .    , vconst , lcplxp , sv_p_osig , otau , oppi , ppnl_rv , vrmt 
-Cchp3      .    , spotx , osigx , otaux , oppix , jobgw ) 
-Cchp3            call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .     , vconst , lcplxp , sv_p_osig , otau , oppi , ppnl_rv , vrmt 
-Cchp3      .     , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
-Cchp3             call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .      , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppnl_rv , 
-Cchp3      .      vrmt , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
-Cchp3              call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .       , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppnl_rv , 
-Cchp3      .       vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
-Cchp3               call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-Cchp3      .        , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
-Cchp3      .        , vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
-               call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-     .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
-     .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
-     .         ) 
-
-
-
-
-
-
-
-
-        deallocate(spotx)
-c        call rlse(oqmom)
-C      if (jobgw .eq. 1) then
-C        jobgw = 2
-C        call info(20,1,0,' ... Remake potential without vxc',0,0)
-C        goto 10
-C      endif
-        call tcx('bndfp')
-        call rx0('bndfp')
-      endif
-
 
 
 C --- Start loop over k points; also, re-entry for second band pass ---
@@ -1416,20 +1365,16 @@ Cchp1           call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
 C --- New sigma inerpolation mode. Simplified.
       if(debug) print *,'vvv: new sigma=',newsigmasw()
       sigmamode = mod(lrsig,10) .ne. 0
+      print *,'sigmamode=',sigmamode
 c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
       if(sigmamode.and.iter==1) then
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
-
         nbasp=sctrl%nbasp
         nl=sctrl%nl
-
-
 Cchp1         oidxsh=sham%oindxo
          iv_p_oidxsh => sham%iv_p_oindxo 
-
-
         print *,'goto gen_hamindex nkp=',nkp
 Cchp1         call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim,qplist,nkp,siginit)
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
@@ -1557,6 +1502,49 @@ C... This is needed only for hambls.F case (store ohrs)
         endif
         siginit=.false.
       endif !end of sigmamode if
+
+
+C--- GW driver must be after rdsigm2 for sigm mode
+      if(llmfgw) then
+C --- GW driver ---
+c       osgw=spot%osgw
+        nchan=spot%nlma
+C ... Modes 0..4
+Cchp1         call sugw ( ssite , sspec , slat , sham , nbas , ndham , w ( 
+Cchp1      .  osmpot ) , vconst , lcplxp , osig , otau , oppi , ppnl_rv 
+Cchp1      .  , vrmt , spotx , osigx , otaux , oppix , jobgw ) 
+Cchp3          call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .   , vconst , lcplxp , osig , otau , oppi , ppnl_rv , vrmt , spotx 
+Cchp3      .   , osigx , otaux , oppix , jobgw ) 
+Cchp3           call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .    , vconst , lcplxp , sv_p_osig , otau , oppi , ppnl_rv , vrmt 
+Cchp3      .    , spotx , osigx , otaux , oppix , jobgw ) 
+Cchp3            call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .     , vconst , lcplxp , sv_p_osig , otau , oppi , ppnl_rv , vrmt 
+Cchp3      .     , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
+Cchp3             call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .      , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppnl_rv , 
+Cchp3      .      vrmt , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
+Cchp3              call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .       , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppnl_rv , 
+Cchp3      .       vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
+Cchp3               call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+Cchp3      .        , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
+Cchp3      .        , vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
+               call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+     .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
+     .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
+     .         ) 
+        deallocate(spotx)
+c        call rlse(oqmom)
+C      if (jobgw .eq. 1) then
+C        jobgw = 2
+C        call info(20,1,0,' ... Remake potential without vxc',0,0)
+C        goto 10
+C      endif
+        call tcx('bndfp')
+        call rx0('bndfp')
+      endif
 
 
 

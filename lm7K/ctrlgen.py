@@ -532,7 +532,7 @@ for ii in tokenspec[1:]:
 			if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
 			
 			il2 = countnum(mmm,'PZ=')
-			lx = max(il1,il2)+1
+			lx = max(il1,il2)
 			lll = "%i" % lx
 			il1m=il1-1
 			lmx = "%i" % il1m

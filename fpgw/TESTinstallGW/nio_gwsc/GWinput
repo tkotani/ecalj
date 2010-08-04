@@ -14,12 +14,12 @@ unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat
 alpha_OffG    1.000 !(a.u.) Used in auxially function in the offset-Gamma method.
 nband_chi0      999 !    nband cutoff for chi0  (Optional)
 emax_chi0     999.000 !(Ry) emax cutoff for chi0  (Optional)
-nband_sigm      999    9999 !    nband cutoff for Sigma  (Optional) (1st:num in sigma; 2nd: num of G used in hsfp0)
-emax_sigm  1.5  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)
+nband_sigm    999    9999 !    nband cutoff for Sigma  (Optional) (1st:num in sigma; 2nd: num of G used in hsfp0)
+emax_sigm     2  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)
 
 ! ##### FREQUENCIES from GWIN_V2 ################ 
-dw      0.020000 !(a.u.) mesh width along real axis.
-omg_c      0.040 !(a.u.) Only for Sergey mode.
+dw      0.050000 !(a.u.) mesh width along real axis.
+omg_c      0.20 !(a.u.) Only for Sergey mode.
   !  coaser mesh for higher energy. Width get to be doubled at omg_c.
 iSigMode     3 ! sscGW mode switch. Required only in sscGW.
 niw          6 ! Number of frequencies along Im axis. Used for integration to get Sigma_c
@@ -35,22 +35,30 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 ! ################################################# 
 <PRODUCT_BASIS> ! This is the product basis block as exactly in GWIN_V2.
  tolerance to remove products due to poor linear-independency
-  0.100000D-04 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
+  0.100 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
  lcutmx(atom) = maximum l-cutoff for the product basis.  =4 is required for atoms with valence d, like Ni Ga
-  2 2 2 2 
+  4 4 2 2 
   atom   l  nnvv  nnc ! nnvv: num. of radial functions (valence) on the augmentation-waves, nnc: num. for core.
     1    0    2    3
     1    1    2    2
     1    2    2    0
+    1    3    2    0
+    1    4    2    0
     2    0    2    3
     2    1    2    2
     2    2    2    0
+    2    3    2    0
+    2    4    2    0
     3    0    2    1
     3    1    2    0
     3    2    2    0
+    3    3    2    0
+    3    4    2    0
     4    0    2    1
     4    1    2    0
     4    2    2    0
+    4    3    2    0
+    4    4    2    0
   atom   l    n  occ unocc  ! Valence(1=yes,0=no)
     1    0    1    1    1   ! 4S_p  -----
     1    0    2    0    0   ! 4S_d
@@ -58,24 +66,40 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
     1    1    2    0    0   ! 4P_d
     1    2    1    1    1   ! 3D_p
     1    2    2    0    0   ! 3D_d
+    1    3    1    0    1   ! 4f_p
+    1    3    2    0    0   ! 4f_d
+    1    4    1    0    0   ! 5g_p
+    1    4    2    0    0   ! 5g_d
     2    0    1    1    1   ! 4S_p  -----
     2    0    2    0    0   ! 4S_d
     2    1    1    1    1   ! 4P_p
     2    1    2    0    0   ! 4P_d
     2    2    1    1    1   ! 3D_p
     2    2    2    0    0   ! 3D_d
+    2    3    1    0    1   ! 4f_p
+    2    3    2    0    0   ! 4f_d
+    2    4    1    0    0   ! 5g_p
+    2    4    2    0    0   ! 5g_d
     3    0    1    1    1   ! 2S_p  -----
     3    0    2    0    0   ! 2S_d
     3    1    1    1    1   ! 2P_p
     3    1    2    0    0   ! 2P_d
-    3    2    1    0    1   ! 3d_p
+    3    2    1    1    1   ! 3d_p
     3    2    2    0    0   ! 3d_d
+    3    3    1    0    1   ! 4f_p
+    3    3    2    0    0   ! 4f_d
+    3    4    1    0    0   ! 5g_p
+    3    4    2    0    0   ! 5g_d
     4    0    1    1    1   ! 2S_p  -----
     4    0    2    0    0   ! 2S_d
     4    1    1    1    1   ! 2P_p
     4    1    2    0    0   ! 2P_d
-    4    2    1    0    1   ! 3d_p
+    4    2    1    1    1   ! 3d_p
     4    2    2    0    0   ! 3d_d
+    4    3    1    0    1   ! 4f_p
+    4    3    2    0    0   ! 4f_d
+    4    4    1    0    0   ! 5g_p
+    4    4    2    0    0   ! 5g_d
   atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
     1    0    1    0    0      0    0    ! 1S -----
     1    0    2    0    0      0    0    ! 2S
