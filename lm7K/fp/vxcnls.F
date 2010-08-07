@@ -59,9 +59,10 @@ C ... Local parameters
 Cdwdef1       real w(1)
 Cdwdef1       common /w/ w
       data tol/1d-15/
-
+      logical:: debug=.false.
 C     call pshpr(80)
       call tcn('vxcnls')
+      if(debug) print *,'vxcnls: goto vxcnls 11111'
       if (lxcg .eq. 0) return
       call getpr(ipr)
       pi = 4d0*datan(1d0)
@@ -80,6 +81,7 @@ C        enddo
 C      enddo
 
 C --- Generate density point-wise through sphere ---
+      if(debug) print *,'vxcnls: goto vxcnls 2222'
       do  i = 1, nsp
         call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0,
      .  rp(1,1,i),nr)
@@ -95,6 +97,7 @@ C --- If negative density, set to tol ---
       enddo
 
 C --- Potential from spherical part of density (valid for small r) ---
+      if(debug) print *,'vxcnls: goto vxcnls 3333'
       if (lz) then
         do  5  i = 1, nsp
           call dpcopy(rl(1,1,i),wk(1,i),1,nr,dsqrt(4*pi))
@@ -119,6 +122,7 @@ C       call prrmsh('wl in vxcnls',ri,rwgt,nr,nr,1)
       endif
 
 C --- Gradient of density point-wise through sphere ---
+      if(debug) print *,'vxcnls: goto vxcnls 44444'
       lopgfl = 0
       if (lz) lopgfl = 10
       do  10  i = 1, nsp
@@ -127,6 +131,7 @@ C --- Gradient of density point-wise through sphere ---
    10 continue
 
 C --- agrp, agrl = abs grad rho and its Yl-projection ---
+      if(debug) print *,'vxcnls: goto vxcnls 55555'
       do  20  i = 1, nsp
         do  20  ip = 1, np
           do  20  ir = 1, nr
@@ -140,6 +145,7 @@ C --- Do gradient in blocks nr-incn..nr, nr-2*incn..nr-incn ... ---
       ir1  = nr
       lmax = ll(nlm)
    30 continue
+      if(debug) print *,'vxcnls: goto vxcnls 6666'
       ir0 = max(ir1-incn,1)
       if (lz) ir0 = max(ir1-incn,2)
       nri = ir1-ir0+1
@@ -156,9 +162,16 @@ c      call defrr(owkl,nri*nlm*nsp)
 c      call xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
 c     .wp,w(owkl),rp,ggrp,grp,agrl,w(oagrp),w(ogagrp),rl,rwgt,lcut,
 c     .w(ovxcp),w(oexcp),vxcnl,excnl,sumnl)
-      call xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
-     . wp,rp,ggrp,grp,agrl,rl,rwgt,lcut,
+      if(debug) print *,'vxcnls: goto vxcnls 77777a',lxcg,lmax,ir0,ir1,nr
+      if(debug) print *,'vxcnls: goto vxcnls 77777b',np,nlm,nn,lcut
+
+      call xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp 
+     . ,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut,
      . vxcnl,excnl,sumnl)
+
+      if(debug) print *,'vxcnls: goto vxcnls 7777711111'
+c      stop 'xxxxxxxxxxxxxxxxxx test end'
+
 c      call rlse(oagrp)
       ir1 = ir0-1
 
@@ -172,6 +185,7 @@ C ... Check rmu to determine largest lmax next pass
      ..and. dabs(vhold) .gt. 1) goto 32
       goto 30
    32 continue
+      if(debug) print *,'vxcnls: goto vxcnls 88888'
 
 C --- Add nonlocal vxc into vl ----
       call daxpy(nr*nlm*nsp,1d0,vxcnl,1,vl,1)
@@ -187,6 +201,7 @@ C --- Add nonlocal vxc into vl ----
    66   continue
       endif
 C     call prrmsh('nlocal v(l=0)',ri,vxcnl,nr*nlm,nr,1)
+      if(debug) print *, 'vxcnls: goto vxcnls 99999'
 
 C --- Nonlocal rho*exc, rho*vxc ---
       do  60  i = 1, nsp
@@ -234,25 +249,30 @@ C     call poppr
 c      subroutine xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
 c     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
 c     .vxcnl,excnl,sumnl)
-      subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
-     .ylwp,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut, !fixed bug (remove wkl) 11July2010.takao
+      subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp 
+     .,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut, !fixed bug (remove wkl) 11July2010.takao
      .vxcnl,excnl,sumnl)
 C     implicit none
       integer ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg
       double precision rp(nr,np,nsp),ggrp(nr,np,nsp),ri(1),wp(np),
-     .grp(nr,np,3,nsp),agrp(ir0:ir1,np,nsp),vxcnl(nr,nlm,nsp),
+     .grp(nr,np,3,nsp),agrp(ir0:ir1,np,3*nsp-2),vxcnl(nr,nlm,nsp),
      .excnl(nr,nlm),agrl(nr,nlm,nsp),gagrp(ir0:ir1,np,3,nsp),
      .yl(np,nlm),ylwp(np,nlm),gyl(np,nlm,3),wkl(ir0:ir1,nlm,nsp),
      .vxcp(ir0:ir1,np,nsp),excp(ir0:ir1,np),rl(nr,nlm,nsp),rwgt(nr),
      .sumnl(0:20)
       integer ll,ir,ip,i,nri,ilm,l,iprint,mlm,lopgfl
+      logical :: debug=.false.
+c      real(8),allocatable:: wkl(:,:,:)
+c      allocate(wkl(ir0:ir1,nlm,nsp))
 
+      if(debug) print *,'xxcnls2 00000'
 C     call pshpr(80)
       nri = ir1-ir0+1
 
 C --- gagrp(store in vxcp) = grad rho . grad abs grad rho ---
       lopgfl = 0
       if (ri(ir0) .eq. 0) lopgfl = 10
+      if(debug) print *,'xxcnls2 1111'
       do  30  i = 1, nsp
         call gradfl(lmax,nlm,nr,np,ir0,ir1,0,lopgfl,nn,ri,yl,gyl,
      .  agrl(1,1,i),gagrp(ir0,1,1,i),0d0)
@@ -266,6 +286,7 @@ C --- gagrp(store in vxcp) = grad rho . grad abs grad rho ---
      .gagrp(ir,ip,3,i)*grp(ir,ip,3,i)
 
 C --- store in agrp:  grad total rho . grad abs grad total rho ---
+      if(debug) print *,'xxcnls2 2222'
       if (nsp .eq. 2) then
         do  34  ip = 1, np
           do  34  ir = ir0, ir1
@@ -280,6 +301,7 @@ C --- store in agrp:  grad total rho . grad abs grad total rho ---
       endif
 
 C --- Copy grad rho . grad abs grad rho into gagrp ---
+      if(debug) print *,'xxcnls2 333333'
       do  36  i  = 1, nsp
         do  36  ip = 1, np
           do  36  ir = ir0, ir1
@@ -291,15 +313,23 @@ C --- Copy grad rho . grad abs grad rho into gagrp ---
       endif
 C     call px('gr.gagr',nri,nlm,1,np,ri(ir0),wp,gagrp(ir0,1,3,1),yl,wkl)
 
+
 C --- Make agrp+,agrp- for ir0 .. ir1 ---
+      if(debug) print *,'xxcnls2 44444'
       do  40  i = 1, nsp
         do  40  ip = 1, np
           do  40  ir = ir0, ir1
    40 agrp(ir,ip,i) =
      .dsqrt(grp(ir,ip,1,i)**2+grp(ir,ip,2,i)**2+grp(ir,ip,3,i)**2)
 
+
 C --- Make agrp (total rho) agrp+.agrp-  for ir0 .. ir1 ---
+      if(debug) print *,'xxcnls2 55555'
+
       if (nsp .eq. 2) then
+cccccccccccccccccccccccccccccc
+c      return
+ccccccccccccccccccccccccccccc
         do  42  ip = 1, np
           do  42  ir = ir0, ir1
             agrp(ir,ip,3) =
@@ -311,12 +341,17 @@ C --- Make agrp (total rho) agrp+.agrp-  for ir0 .. ir1 ---
      .      grp(ir,ip,2,1)*grp(ir,ip,2,2) +
      .      grp(ir,ip,3,1)*grp(ir,ip,3,2)
    42   continue
+cccccccccccccccccccccccccccccc
+c      return
+ccccccccccccccccccccccccccccc
 C       call px('x',nri,nlm,nsp,np,ri(ir0),wp,agrp(ir0,1,3),yl,wkl)
       endif
+
 
 C --- Make nonlocal potential for points ir0 .. ir1 ---
       call dpzero(vxcp,nri*np*nsp)
       call dpzero(excp,nri*np)
+      if(debug) print *,'xxcnls2 66666'
       do  50  ip = 1, np
         if (lxcg .gt. 2) then
           call vxcgga(lxcg,nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp),
@@ -341,6 +376,7 @@ C --- Make nonlocal potential for points ir0 .. ir1 ---
           endif
         endif
    50 continue
+      if(debug) print *,'xxcnls2 77777'
 
 C ... (test): yl projection of various quantities'
 C      call px('rho',nr,nlm,nsp,np,ri,wp,rp,yl,wkl)
@@ -367,6 +403,7 @@ C --- Yl-projection of vxc,exc into vxcnl,excnl ---
 C     call prmr(nr,ri,vxcnl,nlm)
 
 C --- Estimate rmu in this ir0 ir1 interval by angular momentum ---
+      if(debug) print *,'xxcnls2 88888'
       do  82  i = 1, nsp
         do  83  l = 0, lmax
    83   sumnl(l) = 0d0
@@ -381,6 +418,7 @@ C --- Estimate rmu in this ir0 ir1 interval by angular momentum ---
   342     format('     spin 2: ',f12.6,4f10.6:/(15x,4f10.6))
         endif
    82 continue
+      if(debug) print *,'xxcnls2 99999'
 C     call poppr
 
       end

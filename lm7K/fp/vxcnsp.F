@@ -84,6 +84,7 @@ C     double precision yl(nnn*nlmx)
      .ggrp(:),agrl(:),vxcnl(:),excnl(:)
 
       data nxl /-12,-20,-32,-32,-62,-92,-122,-122/
+      logical:: debug=.false.
 
       stdo = lgunit(1)
       call getpr(ipr)
@@ -147,6 +148,7 @@ C --- Gradient correction to LD potential ---
         allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
         allocate(rp(nr,np,nsp))
         allocate(agrl(nr*nlm*nsp),vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
+        if(debug) print *,'goto vxcnls'
         call vxcnls(ri,0,nr,np,nlm,nsp,rp,grp,ggrp,agrp,yl,gyl,ylwp,
      .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,reps,rmu)
         deallocate(yl,gyl,grp,agrp,ggrp,agrl,vxcnl,excnl,rp)

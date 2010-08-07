@@ -395,7 +395,7 @@ c      write(6,"(a,12d13.5)")'rrrr: smchk smrho 2'
 c     &  , sum(smrho(:,:,:,2)), sum(abs(smrho(:,:,:,2)))
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'smvxc2: xxx'
-
+      call tcn('smvxc2')
       if (n1 .gt. n1x) call rxi('smvxc2: increase n1x, need',n1)
       stdo = lgunit(1)
       lxcf = mod(lxcfun,100)
@@ -636,6 +636,7 @@ C        call zprm3('smvxc spin 2',0,smvxc(1,1,1,2),n1,n2,n3)
 C        call zprm3('dsmvxc spin 2',0,dsmvxc(1,1,1,2),n1,n2,n3)
 C      endif
 
+      call tcx('smvxc2')
       end subroutine smvxc2
 
 

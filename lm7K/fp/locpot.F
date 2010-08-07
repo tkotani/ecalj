@@ -769,7 +769,7 @@ C ... Local parameters
      .vesn1,vesn2,vnucl,vsum,vtr,y0,ddot,a1,a2,smrhoc
       double precision qs(2)
       real(8), allocatable :: fl(:,:,:)
-
+      logical:: debug=.false.
 
 C     print *, 'zero vval'
 C     call dpzero(vval,nlml)
@@ -836,6 +836,7 @@ C       sum1 = sum1 + rwgt(i)*rhonsm(i)
      .//' = %;6d',' ',80,stdo,sumh,samh-sumh,samh)
 
 C --- rhol1 = full electron density = rho1 + rhoc ---
+      if(debug) print *,'locpt2: 1111'
       do  isp = 1, nsp
         call dpcopy(rho1(1,1,isp),rhol1(1,1,isp),1,nrml,1d0)
         call dpadd (rhol1(1,1,isp),rhoc(1,isp),1,nr,y0)
@@ -844,6 +845,7 @@ C --- rhol1 = full electron density = rho1 + rhoc ---
 C --- rhol2 = full smooth compensated density rho2+gval+gcor+gnuc ---
 C     gval : qmom * compensating gaussians
 C     Distribute core+nuclear charge equally over spins
+      if(debug) print *,'locpt2: 2222'
       do  isp = 1, nsp
         do  ilm = 1, nlml
           l = ll(ilm)
@@ -865,6 +867,7 @@ C ... Combine separate spin densities for electrostatics
       call splrho(20,nsp,nr,nlml,rhol1,rhol2,rhoc)
 
 C ... Add background density to spherical rhol1 and rhol2
+      if(debug) print *,'locpt2: 3333'
       do i = 1, nr
         rhol1(i,1,1) = rhol1(i,1,1) + srfpi*rhobg*rofi(i)**2
         rhol2(i,1,1) = rhol2(i,1,1) + srfpi*rhobg*rofi(i)**2
@@ -894,6 +897,7 @@ C ... Sphere charges; also check sphere neutrality for safety
 C --- Solve Poisson equation for the true and smooth densities ---
 C     call dpzero(vval, nlml)
 C     v1 = Ves[rho1]: true ES pot without nuclear contribution
+      if(debug) print *,'locpt2: 4444'
       call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,
      .vnucl,vsum)
       if (nlml.ge.9.and.z.gt.0.01) then
@@ -910,6 +914,7 @@ C     v2 = Ves[rhol2 = rho2+gval+gcor+gnuc] ---
      .vnucl,vsum)
 
 C --- gpotb = integrals of compensating gaussians times smooth ves ---
+      if(debug) print *,'locpt2: 5555'
       sgpotb = 0d0
       do  ilm = 1, nlml
         l = ll(ilm)
@@ -971,11 +976,14 @@ C ... Preserve potentials without exchange-correlation
 
 C ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
 C     call pshpr(ipr-31)
+
       call pshpr(max(ipr-31,min(ipr,10)))
       lxcfun = nglob('lxcf')
 
+      if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
       call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+      if(debug) print *,'locpt2: 55551111aaaa'
 
       call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
@@ -985,6 +993,7 @@ C     call pshpr(ipr-31)
       rvecv  = rep1c(1) - rep2c(1) + rep1c(2) - rep2c(2)
       call dcopy(nrml*nsp,v1es,1,v1,1)
       call poppr
+      if(debug) print *,'locpt2: 5555222'
 
 C --- Add xc potentials to v1 and v2 ---
 C     call pshpr(ipr-11)
@@ -1007,6 +1016,7 @@ C     call pshpr(ipr-11)
         enddo
         rveps = tmp(1) + tmp(2)
       endif
+      if(debug) print *,'locpt2: 5555333'
 
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
@@ -1051,6 +1061,7 @@ c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
         enddo
         rveps = rveps - (tmp(1) + tmp(2))
       endif
+      if(debug) print *,'locpt2: 666661111'
 
       call poppr
 C     call prrmsh('v2',rofi,v2,nr,nr,nlml)
@@ -1066,6 +1077,7 @@ C --- Integrals over core times effective potential ---
       enddo
 
 C --- Integrals involving the full nonspherical potential ---
+      if(debug) print *,'locpt2: 7777'
       vefv2 = 0d0
       vefv1 = 0d0
       if (ipr .ge. 40 .and. nsp .eq. 1) write(stdo,351)
