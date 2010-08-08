@@ -81,7 +81,7 @@ CLASS   ATOM=Co Z={Za} LMX=2 LMXA={nl-1} R/W={rw}+.01 IDXDN=1 1 1 {idxf} EREF={e
         RSMH= 2.3  2.3  1   EH= -0.1 -0.1 -0.2 RSMH2= 0 1.2 0  EH2= -1 -1 -1
         BAS: {nel},0,1,2.3,-.1,2,2,1,-.1,0,2,1.3,-1,0,1,2,-3 
         ATOM=Pt Z={Zb} LMX=2 LMXA={nl-1}+1 R/W={rw}-.01 IDXDN=1 1 1 {idxf} EREF={erefb} A=0.03 KMXA=5
-        BAS: {nel},0,1,2.3,-.1,2,2,1,-.1,0,2,1.3,-1,0,1,2,-3  LFOCA=2
+        BAS: {nel},0,1,2.3,-.1,2,2,1,-.1,0,2,1.3,-1,0,1,2,-3  LFOCA=1
         RSMH= 2.25 2.25 .95 EH= -.05 -.05 -.15
 MIX     MODE=B,b=.3
 ITER    MIX=B,b=.3 NIT={nit} 

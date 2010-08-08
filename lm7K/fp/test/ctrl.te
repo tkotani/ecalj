@@ -82,7 +82,7 @@ SPEC    ATOM=X1 Z={z} R/A={ra} LMX=2 LMXB=321 LMXF=6 EREF=0 A=.015 NR=0
         RSMH= rsm1,rsm1,rsm1 EH=e1,e1,e1 RSMH2=rsm2,rsm2,0 EH2=e2,e2,0
         BAS: {nel},0,2,rsm1,e1,0,{nel>2?2:1},rsm2,e2,0,1,rsm3,-3
         P={psta},5.08,6.06 LMXA=lmxa RSMA=rsma KMXA={kmx}
-        RSMG/W={rg} RFOCA/W={rfoca} LFOCA=2
+        RSMG/W={rg} RFOCA/W={rfoca} LFOCA=1
 %ifdef asa | les<0
         ATOM=E  Z=0  R/A={ra} EREF=0 A=.01 NR=0
 %else

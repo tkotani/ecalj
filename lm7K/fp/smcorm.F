@@ -97,7 +97,7 @@ Cchp1               call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
           else if (lfoc .eq. 2) then
 ccccccccccccccccccccccccccccccccc
 ctakao
-c            call rx('smcorm: we do not allow now lfoc=2 anymore takao') !Aug2010
+            call rx('smcorm: we do not allow now lfoc=2 anymore takao') !Aug2010
 ccccccccccccccccccccccccccccccccc
 
             lfoc2 = 1

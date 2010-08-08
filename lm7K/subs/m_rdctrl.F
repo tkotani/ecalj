@@ -1448,9 +1448,14 @@ C         call snit
           if (z(j) .le. 8) i0 = 0
           if (io_help .eq. 1) i0 = NULLI
           nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgn,nm),lfoca(j),
-     .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
-c     .    def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):'
-c     .    //'=1(frozenCore). Default: 1 for z>8;0 for z<=8') !takao Aug2010
+c     .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
+     .    def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):'
+     .    //'=1(frozenCore). Default: 1 for z>8;0 for z<=8')     !takao Aug2010
+          if(io_help==0) then
+          if(lfoca(j)/=0.and.lfoca(j)/=1) then
+            call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
+          endif
+          endif
 
 C       call snot
           nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgn,nm),
