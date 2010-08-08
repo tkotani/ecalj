@@ -248,4 +248,5 @@ subs_list:=\
 	getcor.o \
 	pqmix.o \
         radgra.o \
- 	xcfunc.o
+ 	xcfunc.o \
+	xcpbe.o

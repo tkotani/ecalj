@@ -194,7 +194,7 @@ C       call prm3 ('rho_%i',i,rho(1,i),n1,n2,n3)
 C       call prm3 ('lap-rho_%i',i,ggr(1,i),n1,n2,n3)
       enddo
 
-      print *,'lxcg =',lxcg
+      print *,'vxcnlm lxcg =',lxcg
       if (lxcg .gt. 2) then
         call vxcgga(lxcg,np,nsp,rho,rho(1,nsp),agr(1,1),agr(1,nsp),
      .  ggr(1,1),ggr(1,nsp),agr(1,2*nsp-1),agr(1,4),

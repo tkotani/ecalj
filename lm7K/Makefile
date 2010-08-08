@@ -83,10 +83,12 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 ########################################
 # general rules
 ########################################
-.SUFFIXES: 
-.SUFFIXES: .o .F .mod
+.SUFFIXES: .o .F90 .F .mod
 
 %.o:%.F
+	$(FC) $(FFLAGS) -c $<
+
+%.o:%.F90
 	$(FC) $(FFLAGS) -c $<
 
 sla_obj=$(addprefix slatsm/$(obj_path)/,$(sla_list))
@@ -103,6 +105,8 @@ subs-lib: $(subs_obj)
 subs-dir:
 	[ -d $(subs_obj_path) ] || mkdir  $(subs_obj_path) 
 $(subs_obj_path)/%.o: subs/%.F
+	$(FC) $(FFLAGS) -c $< -o $@ 
+$(subs_obj_path)/%.o: subs/%.F90
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
 fp_obj=$(addprefix fp/$(obj_path)/,$(fp_list))

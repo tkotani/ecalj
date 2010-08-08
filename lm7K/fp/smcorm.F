@@ -95,6 +95,11 @@ Cchp1               call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
               cgh1(i) = cgh1(i) + cofh*gkl(0,1)/vol
             enddo
           else if (lfoc .eq. 2) then
+ccccccccccccccccccccccccccccccccc
+ctakao
+c            call rx('smcorm: we do not allow now lfoc=2 anymore takao') !Aug2010
+ccccccccccccccccccccccccccccccccc
+
             lfoc2 = 1
             do  i = 1, ng
               v(1) = gv(i,1)

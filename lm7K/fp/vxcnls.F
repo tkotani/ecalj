@@ -97,7 +97,7 @@ C --- If negative density, set to tol ---
       enddo
 
 C --- Potential from spherical part of density (valid for small r) ---
-      if(debug) print *,'vxcnls: goto vxcnls 3333'
+      if(debug) print *,'vxcnls: goto vxcnls 3333 lz=',lz
       if (lz) then
         do  5  i = 1, nsp
           call dpcopy(rl(1,1,i),wk(1,i),1,nr,dsqrt(4*pi))
