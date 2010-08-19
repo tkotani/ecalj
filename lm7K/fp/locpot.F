@@ -981,11 +981,11 @@ C     call pshpr(ipr-31)
       lxcfun = nglob('lxcf')
 
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
-      call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
+      call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if(debug) print *,'locpt2: 55551111aaaa'
 
-      call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
+      call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
       rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
@@ -1004,7 +1004,7 @@ C     call pshpr(ipr-11)
       call dpzero(focec,2)
       call dpzero(focvxc,2)
       call info0(30,0,0,' Exchange for true density:')
-      call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
+      call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
         call dpzero(tmp,2)
@@ -1021,7 +1021,7 @@ C     call pshpr(ipr-11)
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
       if (lfoc .eq. 0) then
-        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
+        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
 C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
       else if (lfoc .eq. 1) then
@@ -1029,7 +1029,7 @@ C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
         enddo
-        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
+        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
@@ -1042,7 +1042,7 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
         endif
 c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
 !lm72 changed meanings of lxcfun switch.
-        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
+        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
      .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
      .  fl,qs)
         if (ipr .ge. 40)
@@ -1051,6 +1051,11 @@ c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
       else
         call rxi('locpt2: cannot handle lfoc = ',lfoc)
       endif
+
+ccccccccccccccccccccc
+c       stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 locpot'
+cccccccccccccccccccccc
+
 
       if (isw .eq. 1) then
         call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)

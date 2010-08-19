@@ -17,12 +17,12 @@ C     implicit none
       logical lrat
       double precision dy,tol,x(np),y(np),yp(np)
 C Local variables
-      integer i,m,nmax,ns,ii,ip,i0,iipm,lerr
-      parameter (nmax=50)
-      double precision den,ho,hp,w,dd,t,c(nmax),d(nmax),
+      integer i,m,ns,ii,ip,i0,iipm,lerr!,nmax
+c      parameter (nmax=10000)
+      double precision den,ho,hp,w,dd,t,c(n),d(n),
      .tiny,d1mach
 
-      if (n .gt. nmax) call rx('poldvm: increase nmax')
+c      if (n .gt. nmax) call rx('poldvm: increase nmax')
       if (n+1 .gt. np) call rx('poldvm: n+1 gt np')
       tiny = dsqrt(d1mach(1))
       if (.not. lrat) tiny = 0d0

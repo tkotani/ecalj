@@ -1,4 +1,4 @@
-      subroutine vxcnsp(isw,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc,
+      subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc,
      .focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
 C- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
 C ----------------------------------------------------------------------
@@ -86,6 +86,9 @@ C     double precision yl(nnn*nlmx)
       data nxl /-12,-20,-32,-32,-62,-92,-122,-122/
       logical:: debug=.false.
 
+      real(8):: a !takao used to get derivetive of ri. See vxcnls.F
+      real(8),allocatable::vlxc(:,:,:)
+
       stdo = lgunit(1)
       call getpr(ipr)
       lxcf = mod(lxcfun,100)
@@ -134,26 +137,28 @@ C     GGA case:  Need both yl*wp and YL to lmax+1 to make grad YL
         call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax,np,ylwp,r2)
       endif
 
+      allocate(vlxc(nr,nlm,nsp))
 C ... Generate the local exchange-correlation potential
-C     On output, yl is overwritten by YL * wp
+C     On output, yl is overwritten by YL * wp  <-------Confusing!!! remove this in future.
+      vlxc=0d0
       call vxcns2(isw,ri,nr,rwgt,np,wp,ylwp,nlm,nsp,rl,rc,lxcf,
      .lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,
-     .vl,fl,qs)
+     .vlxc,fl,qs)
 
 C --- Gradient correction to LD potential ---
-      if (lxcg .ne. 0) then
-
+      if(lxcg/=0) then
         allocate (gyl(np*nlm,3))
         call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
         allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
         allocate(rp(nr,np,nsp))
         allocate(agrl(nr*nlm*nsp),vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
         if(debug) print *,'goto vxcnls'
-        call vxcnls(ri,0,nr,np,nlm,nsp,rp,grp,ggrp,agrp,yl,gyl,ylwp,
-     .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,reps,rmu)
+        call vxcnls(a,ri,0,nr,np,nlm,nsp,rp,grp,ggrp,agrp,yl,gyl,ylwp,
+     .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vlxc,reps,rmu)
         deallocate(yl,gyl,grp,agrp,ggrp,agrl,vxcnl,excnl,rp)
-
       endif
+      vl=vl+vlxc
+      deallocate(vlxc)
 
 C ... Undo the rl scaling
       call vxcns3(nr,nlm,nsp,ri,rl,0)
@@ -246,6 +251,9 @@ C ... Local parameters
      .excx(:,:),excc(:,:)
       real(8), allocatable :: vxc(:,:,:),vx(:,:,:),
      .vc(:,:,:),vxc2(:,:,:),vx2(:,:,:),vc2(:,:,:)
+      real(8),allocatable:: vlxc(:,:,:)
+
+
       allocate (rp(nr,np),rps(nr,np,nsp),exc(nr,np),
      .excx(nr,np),excc(nr,np))
       allocate (vxc(nr,np,nsp),vx(nr,np,nsp),vc(nr,np,nsp),
@@ -394,6 +402,14 @@ C     print *, '!!'; lxcf=1
         enddo
       endif
 
+cccccccccccccccccccccccc
+c      print *,' np=',np
+c      do ir=1,nr
+c        write(6,"(i5,5d13.5)") ir,exc(ir,np-4:np)
+c      enddo
+c      stop 'xxxxxxxxxxxx test exc vxcnsp'
+cccccccccccccccccccccccc
+
 C --- Integrals rep, rmu ---
 C      rpneg = 0
 C      do  24  i = 1, nsp
@@ -473,6 +489,20 @@ C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
    30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
      .vl(1,1,i),nr)
+
+
+C$$$ccccccccccccccccccccccc
+c      allocate(vlxc(nr,nlm,nsp))
+c      do   i = 1, nsp
+c        call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,0d0,
+c     .  vlxc(1,1,i),nr)
+c      enddo
+c      isp=1
+c      do ir=1,nr
+c       write(6,"(i5,8d12.4)") ir, vxc(ir,1:8,isp) !vlxc(ir,1:8,isp)
+c      enddo
+C$$$      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxx test end vxcnsp 123'
+C$$$cccccccccccccccccccccc
 
 C --- Optionally make l-resolved vxc_L,exc_L ---
       if (mod(isw,10) .eq. 1) then

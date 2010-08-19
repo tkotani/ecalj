@@ -1,7 +1,12 @@
-! This is taken from ABINIT. http://www.abinit.org/  abinit-6.2.1 on Aug7,2010.
+! This is taken from ABINIT. http://www.abinit.org/  abinit-6.2.1 on Aug7,2010. 
 !
-! defs_basis.F, xcpbe.F invcb.F, are in thie file.
-!   call wrtout(std_out,message,'COLL') +  call leave_new('COLL') --->  replaced by subroutine rx(message)
+! defs_basis.F, xcpbe.F invcb.F, which are taken from abinit-6.2.1,
+! are slightly modified and contained in this file.
+! :: call wrtout(std_out,message,'COLL') +  call leave_new('COLL') --->  replaced by subroutine rx(message)
+!
+!  Since ABINIT is under the GPL, T.Kotani think this file is
+!  somehow affeced by the licence.
+!  But T.Kotani knows little about what the GPL means.
 !
 
 !########################################################################################## 
@@ -629,6 +634,13 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 !  call leave_new('COLL')
  end if
 !Checks the compatibility between the presence of dvxci and ndvxci
+
+!cccccccccccccccccccccccccccc
+! print *,' present=', present(d2vxci),present(dvxcdgr),present(dvxci), &
+!&  present(exexch),present(grho2_updn)
+! print *,'xxxxxxx', ndvxci, present(dvxci)
+!cccccccccccccccccccccccccc
+
  if(ndvxci /=0 .neqv. present(dvxci))then
    write(message, '(4a)' )ch10,&
 &   ' xcpbe : BUG -',ch10,&
@@ -1037,12 +1049,16 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
          dhh_dzeta=phi3_zeta*(drr_dzeta+three*rr*phi_logder)
 
 !        The GGA correlation energy is added
+!ccccccccccccccccccccc
+!	 print *,'hh=0 test'
+!	 hh=0d0
+!ccccccccccccccccccccc
          exci(ipts)=exci(ipts)+hh
 
 !        Change of variables : from (rs,zeta,tt) to (rhoup,rhodn,grrho)
 
 !        From hh to the derivative of the energy wrt the density
-         drhohh_drho=hh-third*rs*dhh_drs-zeta*dhh_dzeta-seven*third*tt*dhh_dtt
+         drhohh_drho=hh -third*rs*dhh_drs-zeta*dhh_dzeta-seven*third*tt*dhh_dtt
          vxci(ipts,1)=vxci(ipts,1)+drhohh_drho
 
 !        From hh to the derivative of the energy wrt to the gradient of the

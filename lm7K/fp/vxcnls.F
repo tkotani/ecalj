@@ -1,5 +1,5 @@
 Cdwdef1 have_common_w_in vxcnls , #_of_w_access= 0
-      subroutine vxcnls(ri,lcut,nr,np,nlm,nsp,rp,grp,ggrp,agrp,
+      subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp,rp,grp,ggrp,agrp,
      .yl,gyl,ylwp,rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,rep,rmu)
 C- Gradient correction to nspher. density on a radial and angular mesh
 C ----------------------------------------------------------------------
@@ -41,25 +41,67 @@ Cu Updates
 Cu   05 Apr 09 reduced the calling arguments for better portability
 Cu   29 Apr 05 (ATP) adaped to new vxcnsp
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lcut,nr,np,nlm,nsp,lxcg
-      double precision ri(3),yl(np,nlm),gyl(np,nlm,3),ylwp(np,nlm),
+      double precision ri(nr),gyl(np,nlm,3),ylwp(np,nlm),
      .wp(np),rep(2),rmu(2),rwgt(nr),vxcnl(nr,nlm,nsp),excnl(nr,nlm),
      .rl(nr,nlm,nsp),agrl(nr,nlm,nsp),agrp(nr,np,nsp),
      .vl(nr,nlm,nsp),rp(nr,np,nsp),grp(nr,np,3,nsp),ggrp(nr,np,nsp)
 C ... Local parameters
-      double precision pi,vhold,tol,sumnl(0:20),repnl(4),rmunl(4),weight
+      double precision pi,vhold,tol,sumnl(0:20),repnl(4),rmunl(4),weight,weightirr
       double precision wk(nr,nsp),wk2(nr,nsp)
       integer ilm,ip,ipr,ir,i,l,ll,lmax,nn,oagrp,ogagrp,lopgfl,
      .ovxcp,oexcp,owk,owkl,lmx,jx
       integer ir0,ir1,nri,incn
-      logical lz
+ 3584 logical lz
       parameter (incn=50)
 Cdwdef1       real w(1)
 Cdwdef1       common /w/ w
       data tol/1d-15/
-      logical:: debug=.false.
+
+      integer:: irr,j,idiv,isp,icenter,k
+      real(8):: a,bb,  !takao used to get derivetive of ri. See vxcnls.F
+     &  rdir(3,np),cy1,dydummy,drdp(nr),rmax,ddr,fac,dgr2dn(1:np),polinta,grptot(3)
+      integer,parameter:: ndiv=3
+      real(8),target :: yl(np,nlm)
+      real(8),pointer:: drp_drl(:,:)
+      real(8),allocatable:: dgrp_drl(:,:,:,:,:),
+     &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
+
+      interface
+         subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci, !Mandatory Arguments
+     &   d2vxci,dvxcdgr,dvxci,exexch,grho2_updn) !Optional Arguments
+         use defs_basis
+         implicit none
+         integer,intent(in),optional :: exexch
+         integer,intent(in) :: nd2vxci
+         integer,intent(in) :: ndvxci
+         integer,intent(in) :: ngr2
+         integer,intent(in) :: npts
+         integer,intent(in) :: nspden
+         integer,intent(in) :: option
+         integer,intent(in) :: order
+         real(dp),intent(out),optional :: d2vxci(npts,nd2vxci)
+         real(dp),intent(out),optional :: dvxcdgr(npts,3)
+         real(dp),intent(out),optional :: dvxci(npts,ndvxci)
+         real(dp),intent(out) :: exci(npts)
+         real(dp),intent(in),optional :: grho2_updn(npts,ngr2)
+         real(dp),intent(in) :: rho_updn(npts,nspden)
+         real(dp),intent(out) :: vxci(npts,nspden)
+         end subroutine xcpbe
+      end interface
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      logical:: newmode=.true.,
+     &  debug=.false.,plotstop=.true.,grpzerotest=.false.
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      real(8),allocatable:: dvxcdgr_dr(:,:,:),nabla_dvxcdgr(:,:,:,:),vxcnlnp(:,:,:)
+      real(8)::dvxcdgr_ilm,ddd(np),grpt(3),ggrpt
+      logical::  lrat
+      integer::lerr
+
+c      integer,allocatabel:: irr(:,:) ! irr(0:2,ir) specify radial index related to dgrp_drl.
 C     call pshpr(80)
       call tcn('vxcnls')
       if(debug) print *,'vxcnls: goto vxcnls 11111'
@@ -81,20 +123,391 @@ C        enddo
 C      enddo
 
 C --- Generate density point-wise through sphere ---
-      if(debug) print *,'vxcnls: goto vxcnls 2222'
       do  i = 1, nsp
         call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0,
      .  rp(1,1,i),nr)
       enddo
-
 C --- If negative density, set to tol ---
       do  i = 1, nsp
         do  ip = 1, np
           do  ir = 1, nr
-            if (rp(ir,ip,i) .le. 0d0) rp(ir,ip,i) = tol
+c            if (rp(ir,ip,i) .le. 0d0) rp(ir,ip,i) = tol
+            if (rp(ir,ip,i) .le. tol) rp(ir,ip,i) = tol
           enddo
         enddo
       enddo
+
+ctakao developing ccccccccccccccccccccccccccccccccccccccccccccc
+      if(newmode) then
+C --- Gradient of density point-wise through sphere ---
+c       if (lz) lopgfl = 10
+       lopgfl=10
+       do i = 1, nsp
+        call gradfl(ll(nlm),nlm,nr,np,1,nr,1,lopgfl,nn,ri,yl,gyl,
+     .  rl(1,1,i),grp(1,1,1,i),ggrp(1,1,i))
+       enddo
+  
+C$$$C --- drpdrl, dgrpdrl !takao
+C$$$      if(lxcg/=3) call rx('vxcnls: GGA=3(PBE) is only implemented yet.')
+C$$$      drp_drl=>yl  !diagonal for radial mesh
+C$$$      bb = ri(nr)/(exp(a*(nr-1))-1d0) ! drdp = drofi/di, where rofi(i) = b [e^(a(i-1)) -1]
+C$$$      do ir=1,nr
+C$$$        drdp(ir)=a*bb*exp(a*(ir-1))
+C$$$      enddo
+c f(p) = p(p-1)/2 * f_-1 + (1-p**2) *f_0 + p(p+1)/2 * f_1
+c dfdp = (p-.5)* f_-1  - 2p * f_0 + (p+.5) * f_1
+c d_dr = dfdp* dp/dr
+c      do i=-1,1
+c        d_dp(i,-1)= (i-.5d0) !dpdr(ir)
+c        d_dp(i,0) = (-2d0*i) 
+c        d_dp(i,1) = i+.5d0
+c      enddo
+C -- radial part of dgrp_drl
+c
+c
+C$$$      cy1 = dsqrt(3d0/(16*datan(1d0)))
+C$$$      do ip = 1, np
+C$$$         rdir(1,ip)=yl(ip,4)/cy1 !x
+C$$$         rdir(2,ip)=yl(ip,2)/cy1 !y
+C$$$         rdir(3,ip)=yl(ip,3)/cy1 !z
+C$$$      enddo   
+C$$$      allocate( dgrp_drl(nr,np,3,-1:1,nlm ))
+C$$$      dgrp_drl=0d0
+C$$$      do irr=2,nr !1,nr
+C$$$      do idiv=-1,1,2
+C$$$        ddr= idiv*0.5d0/drdp(irr) ! -0.5d0 for idiv=-1, 0.5 for idiv=1
+C$$$        ir=irr+idiv
+C$$$        if(idiv>nr) cycle
+C$$$        do ip=1,np
+C$$$        do j=1,3
+C$$$          dgrp_drl(irr,ip,j,idiv,1:nlm)= 
+C$$$     &    dgrp_drl(irr,ip,j,idiv,1:nlm) + rdir(j,ip)*ddr*drp_drl(ip,1:nlm)  !contribution from radial derivative. 2 is center
+C$$$          !Note : ir = irr+ idiv, where idiv=-1,0,1.
+C$$$        enddo
+C$$$        enddo
+C$$$      enddo
+C$$$      enddo
+C$$$C -- spherical part of dgdp. So smaller contribution than the radial parts.
+C$$$      idiv=0
+C$$$      do irr=2,nr
+C$$$        do ip=1,np
+C$$$        do j=1,3
+C$$$        dgrp_drl(irr,ip,j,idiv,1:nlm)= 
+C$$$     &  dgrp_drl(irr,ip,j,idiv,1:nlm) + gyl(ip,1:nlm,j)/ri(irr) ! see gradfl. 1st digit of lopgfl=lx=0
+C$$$        enddo
+C$$$        enddo
+C$$$      enddo 
+C$$$      if(debug) print *,'dgrp_drl sumcheck=',sum(abs(dgrp_drl))
+
+c      ilm=2
+c      ip=2
+c      do ir=2,nr
+c        write(6,"(i5,3(3d12.4,3x))")ir, dgrp_drl(ir,ip,1:3,-1:1,ilm)
+c      enddo   
+
+C -- grp is calculated (simple. but consistent with the definition of dgrp_drl, rather than
+c    gradfl. It might be better to use this.
+      allocate(grho2_updn(nr,np,nsp) )
+      do isp=1,nsp
+      do ip=1,np
+
+C$$$        do j=1,3
+C$$$          grp(1,ip,j,isp) = 0d0 !dummy
+C$$$          do ir=4,nr-1
+C$$$            grp(ir,ip,j,isp) = sum( dgrp_drl(ir,ip,j,-1:1,1:nlm)*rl(ir-1:ir+1,1:nlm,isp) )
+C$$$          enddo
+C$$$          do ir=1,3  ! interpolation
+C$$$            call polinx(ri(4), grp(4,ip,j,isp),   4,ri(ir), 0d0,grp(ir,ip,j,isp) ,dydummy)
+C$$$          enddo
+C$$$          call polinx(ri(nr-4),grp(nr-4,ip,j,isp),4,ri(nr), 0d0,grp(nr,ip,j,isp) ,dydummy)
+C$$$        enddo
+        if(grpzerotest) then
+        grp=0d0
+        ggrp=0d0
+        endif
+        do ir=1,nr
+          grho2_updn(ir,ip,isp) = sum(grp(ir,ip,:,isp)**2)
+          if(nsp==2) grho2_updn(ir,ip,3) = 
+     &    sum(grp(ir,ip,1,1:2))**2 + sum(grp(ir,ip,2,1:2))**2 +sum(grp(ir,ip,3,1:2))**2
+        enddo  
+      enddo
+      enddo
+ccccccccccccccccccccccc
+c      isp=1
+c        do ir=1,nr
+c          write(6,"(i5,8d12.4)") ir, grho2_updn(ir,1:8,isp)
+c          write(6,"(i5,8d12.4)") ir, grp(ir,1,1:3,isp)
+c        enddo
+cccccccccccccccccccccc
+
+
+C --- Non local part of exchange correlation, and its derivatives with respect to rp,grp.
+c      call xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci, & !Mandatory Arguments
+c     &           d2vxci,dvxcdgr,dvxci,exexch,grho2_updn)                          !Optional Arguments
+c    option =2 ->PBE
+c NOTE: rp(ir,np,isp=1) contains total electron density when nsp=1.
+      allocate(exci(nr,np),excl(nr,nlm),vxci(nr,np,nsp),dvxcdgr(nr,np,3))
+      fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
+      if(nsp==2) fac=1d0
+
+!! == call xcpbe, which is the exchange-correlation kernel for PBE-GGA related functionals ==
+c Be careful  1:dexdn(up) 2:dexdn(dn) 3:decdn(tot) for 
+c input 
+c  rho_updn: density for up and down. For nsp=1, only up is used--->total dnsity is twice of the up density.
+c  grho2_updn:square of gradient of up and down densities.
+c             When nsp=2, grho2_upsn(ir,ip,3) should contans the square for the total density.
+c
+      call xcpbe(exci=exci,npts=nr*np,nspden=nsp,
+     &           option=2,!Choice of the functional =2:PBE-GGA
+     &           order=1, !order=1 means we only calculate first derivative of rho*exc(rho,\nable rho).
+     &           rho_updn=fac*rp,vxci=vxci,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
+     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+!! Output:
+      exci = 2d0*exci !in Ry.
+      vxci = 2d0*vxci !in Ry.
+      dvxcdgr= 2d0*dvxcdgr !in Ry.
+
+!! ==== checkwrite ====
+      if(plotstop) then
+       isp=1
+       do ir=1,nr
+        write(2106,"(i5,18e12.4)") ir,ri(ir),vxci(ir,1:8,isp) !np-4:np,isp)
+        write(3106,"(i5,18e12.4)") ir,ri(ir),dvxcdgr(ir,1:8,3) !np-4:np,isp)
+        write(4106,"(i5,18e12.4)") ir,ri(ir),dvxcdgr(ir,1:8,1) !np-4:np,isp)
+        write(5106,"(i5,18e12.4)") ir,ri(ir),rp(ir,1:8,1) !np-4:np,isp)
+        write(6106,"(i5,18e12.4)") ir,ri(ir),sqrt(grho2_updn(ir,1:8,isp))/sqrt(rp(ir,1:8,1))
+       enddo
+      endif
+
+C$$$cccccccccccccccccccccccc
+C$$$c      print *,' exci sumcheck=',sum(abs(exci)),sum(abs(vxci)),sum(abs(dvxcdgr))
+C$$$C --- Calculate
+C$$$c      exl= exci
+C$$$c      vlxc = vxci*drp_drl + dvxcdgr*dgrp_drl
+C$$$Co   vlxc    :vxcnl is added to vlxc
+C$$$Co   rep   :int rho * excnl added to rep
+C$$$Co   rmu   :int rho * vxcnl added to rmu
+
+c      print *,'sumcheck sum(wp)=',sum(wp) !---> this gives =4*pi
+
+!! == vlxc is given ==
+c definition of Exc
+c Exc= \sum_{ir,ip} exci(ir,ip)* ri(ir)**2*rwgt(ip)*wp(ip)
+c Normalization: Sphere Volume (in Bohr**3) = \sum_{ir,ip} ri(ir)**2*rwgt(ip)*wp(ip)
+c Potential:   v(ir,theta,phi,isp)= \sum_ilm vlxc(ir,ilm,isp)*Y_ilm(theta,phi)
+c              ip=(theta phi)_ip
+c              1= \sum_ip w(ip) Y_ilm(ip) Y_ilm(ip)
+      allocate(vlxc(nr,nlm,nsp))
+      do ilm=1,nlm
+        ! print *,'norm  check1=',ilm ,sum(yl(1:np,ilm)*ylwp(1:np,ilm))  
+        ! sum(yl*ylwp)=1 for each ilm with double precision accuracy
+       do ir=1,nr
+        excl(ir,ilm)   = sum( exci(ir,1:np)*ylwp(1:np,ilm) ) !drp_drl(1:np,ilm) )
+        do isp=1,nsp
+        vlxc(ir,ilm,isp) = sum( vxci(ir,1:np,isp)*ylwp(1:np,ilm) ) !drp_drl(1:np,ilm) )
+        enddo
+       enddo
+      enddo
+
+C$$$cccccccccccccccccccccccc
+C$$$c      if(plotstop) then
+C$$$c      isp=1
+C$$$c      do ir=1,nr
+C$$$c        write(6,"(i5,100d12.4)") ir, dvxcdgr(ir,1:3,3),dvxcdgr(ir,np/2:np/2+3,3)
+C$$$cxxxxxxxx        write(6,"(i5,100d12.4)") ir, bsum(grp(irr,ip,j,1:nsp))vxcdgr(ir,1:3,3),dvxcdgr(ir,np/2:np/2+3,3)
+C$$$c      enddo
+C$$$c      stop 'test xxx xxxxxxxxxxxxxxx '
+C$$$c      endif
+C$$$ccccccccccccccccccccccccccccccccccccccc
+C$$$        vxcnl=0d0
+C$$$      do isp=1,nsp
+C$$$      do ilm=1,nlm
+C$$$        do irr=2,nr
+C$$$        do idiv=-1,1
+C$$$          ir = irr + idiv
+C$$$          if(ir==1) cycle
+C$$$          if(ir>nr) cycle
+C$$$          do ip=1,np
+C$$$            do j=1,3
+C$$$            grptot(j) =  sum(grp(irr,ip,j,1:nsp))
+C$$$            enddo
+C$$$            dgr2dn(ip) = sum(dgrp_drl(irr,ip,1:3,idiv,ilm) * grptot(1:3)) 
+C$$$          enddo
+C$$$          weight = ri(ir)**2*drdp(ir)
+C$$$          weightirr = ri(irr)**2*drdp(irr)
+C$$$          ddd= dvxcdgr(irr,1:np,isp)+dvxcdgr(irr,1:np,3)
+C$$$          vxcnl(ir,ilm,isp) = vxcnl(ir,ilm,isp) 
+C$$$     &    + sum(ddd*dgr2dn(1:np)*wp(1:np))* weightirr/weight
+C$$$        enddo
+C$$$        enddo
+C$$$      enddo
+C$$$      enddo
+C$$$!! === interpolation to 1,2,3 and nr-1,nr ===
+C$$$      do isp=1,nsp
+C$$$      do ilm=1,nlm
+C$$$        do ir=1,3
+C$$$          call polinx(ri(4), vxcnl(4,ilm,isp), 4,ri(ir), 0d0,vxcnl(ir,ilm,isp) ,dydummy)
+C$$$        enddo
+C$$$        call polinx(ri(nr-5),vxcnl(nr-5,ilm,isp),4,ri(nr-1), 0d0,vxcnl(nr-1,ilm,isp) ,dydummy)
+C$$$        call polinx(ri(nr-5),vxcnl(nr-5,ilm,isp),4,ri(nr), 0d0,vxcnl(nr,ilm,isp) ,dydummy)
+C$$$      enddo
+C$$$      enddo
+C$$$      if(debug) print *, 'vxcnls: goto vxcnls 99999xxx'
+
+
+!! == a new way to calculate vxcnlc ==
+!!  vxcnl= - grad [ frac{\partial rho exc}{\partial |nabla n|}  * frac{\nabla n}{nabla n}  ]
+!!  This expresssion is obtained by a partial derivative of rho exc with respect to (nabla n).
+!!  We neglect surface terms since true and counter components are cancelled out.
+!!   dvxcdgr(ir,ip,3): index=3 means frac{\partial rho exc}{\partial |nabla n|}. See xcpbe.F90
+
+!! == dvxcdgr(ir,1:np,3) ---> nabla_dvxcdgr(:,ir,1:np) ==
+      allocate(dvxcdgr_dr(nr,np,3),vxcnlnp(nr,np,nsp))
+      do isp=1,3 ! 1:dexdn(up) 2:dexdn(dn) 3:decdn(tot)
+        if(nsp==1.and.isp==2) cycle !dvxcddgr(:,:,isp=2) is dummy if nsp=1
+      do ip=1,np
+        call poldvm(x=ri,y=dvxcdgr(1:nr,ip,isp),np=nr,n=nn, 
+     &  lrat=.false.,tol=1d-12,lerr=lerr,
+     &  yp=dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
+        if (lerr /= 0) call rxi('vxcnls: poldvm 111',1000*isp+ip)
+      enddo
+      enddo
+
+!! ==== Split grad r- into x,y,z- components ====
+      cy1 = dsqrt(3d0/(16*datan(1d0)))
+      do ip = 1, np
+        rdir(1,ip)=yl(ip,4)/cy1 !x
+        rdir(2,ip)=yl(ip,2)/cy1 !y
+        rdir(3,ip)=yl(ip,3)/cy1 !z
+c        print *,' rdir**2 sum=',sum(rdir(:,ip)**2)
+      enddo   
+!! convert dvxcdgr ->  dvxcdgr_ilm  np to ilm representation.
+      allocate( nabla_dvxcdgr(1:3,nr,np,3) )
+      nabla_dvxcdgr = 0d0
+      do isp=1,3 ! 1:dexdn(up) 2:dexdn(dn) 3:decdn(tot)
+         if(nsp==1.and.isp==2) cycle !dvxcddgr(:,:,isp=2) is dummy
+      do ir=2,nr 
+        do ip=1,np
+          nabla_dvxcdgr(1:3,ir,ip,isp) = dvxcdgr_dr(ir,ip,isp)*rdir(1:3,ip)
+        enddo
+        do ilm =1,nlm
+          ddd= dvxcdgr(ir,1:np,isp) + dvxcdgr(ir,1:np,3)
+          dvxcdgr_ilm = sum( ddd*ylwp(1:np,ilm) ) !(ir,ilm) component
+          do ip=1,np
+            nabla_dvxcdgr(1:3,ir,ip,isp) = 
+     &      nabla_dvxcdgr(1:3,ir,ip,isp) + dvxcdgr_ilm/ri(ir)* gyl(ip,ilm,1:3)
+          enddo
+        enddo  
+      enddo
+      enddo
+
+!! == Calculate vxcnl in np represetation, and then it is converted to nlm representation. ==
+      fac=1d0/2d0
+      if(nsp==2) fac=1d0
+      do isp=1,nsp
+      do ir=2,nr
+        do ip=1,np
+          do j=1,3
+          grpt(j)  = sum( grp(ir,ip,j,1:nsp))  !gradient for total density
+          enddo
+          ggrpt    = sum( ggrp(ir,ip,1:nsp) )  !laplacian for total density
+          vxcnlnp(ir,ip,isp) = 
+     &    - fac*ggrp(ir,ip,isp) * dvxcdgr(ir,ip,isp) 
+     &    - fac*sum( grp(ir,ip,:,isp) * nabla_dvxcdgr(:,ir,ip,isp) )
+     &    - ggrpt * dvxcdgr(ir,ip,3) 
+     &    - sum( grpt(:) * nabla_dvxcdgr(:,ir,ip,3) )
+        enddo  
+        do ilm=1,nlm
+          vxcnl(ir,ilm,isp) = sum( vxcnlnp(ir,1:np,isp)*ylwp(1:np,ilm) )
+        enddo  
+      enddo
+      enddo
+      ir=1
+      do isp=1,nsp
+      do ilm=1,nlm
+        call polinx(ri(2),vxcnl(2,ilm,isp), 4,ri(ir), 0d0,vxcnl(ir,ilm,isp) ,dydummy)
+      enddo
+      enddo
+      deallocate(nabla_dvxcdgr,dvxcdgr_dr,vxcnlnp)
+!!
+      vl=vlxc + vxcnl
+
+cC$$$ccccccccccccccccccccccc
+      if(plotstop) then
+       isp=1
+       do ir=1,nr
+c        write(6,"(i5,4d12.4,3x,4d12.4,3x,4d12.4)") ir,
+c     &  vlxc(ir,1:4,isp), vxcnl(ir,1:4,isp),vlxc(ir,1:4,isp)+vxcnl(ir,1:4,isp)
+        write(106,"(i5,e12.4,2x,4(3e12.4,2x))") ir,ri(ir),
+     &  vl(ir,1,isp),  vlxc(ir,1 ,isp) ,vxcnl(ir,1 ,isp),
+     &  vl(ir,11,isp), vlxc(ir,11 ,isp),vxcnl(ir,11,isp),
+     &  vl(ir,21,isp), vlxc(ir,21 ,isp),vxcnl(ir,21,isp) 
+        write(1106,"(i5,e12.4,2x,4(3e12.4,2x))") ir,ri(ir),
+     &  sum(grp(ir,1,1:3,isp)**2) ,(rl(ir,1,isp))**2 , sum(grp(ir,1,1:3,isp)**2)/(rl(ir,1,isp))**2
+     &  ,sum(grp(ir,11,1:3,isp)**2),(rl(ir,11,isp))**2,sum(grp(ir,11,1:3,isp)**2)/(rl(ir,11,isp))**2
+     &  ,sum(grp(ir,21,1:3,isp)**2),(rl(ir,21,isp))**2,sum(grp(ir,21,1:3,isp)**2)/(rl(ir,21,isp))**2
+       enddo
+       write(106,*)
+       write(1106,*)
+c        isp=1
+c        do ilm=1,nlm
+c        write(6,"(i5,100d12.4)") ilm, sum(vl(:,ilm,isp)), sum(abs(vl(:,ilm,isp)))
+c        enddo
+      endif
+C$$$cccccccccccccccccccccc
+
+!! == rho*exc, rho*vxc ==
+      rmu=0d0
+      rep=0d0
+      do i = 1, nsp
+        do ilm = 1, nlm
+        do ir = 1, nr
+          weight = ri(ir)**2*rwgt(ir)
+          rmu(i) = rmu(i) + rl(ir,ilm,i)*vl(ir,ilm,i)*weight
+          rep(i) = rep(i) + rl(ir,ilm,i)*excl(ir,ilm)*weight
+        enddo
+        enddo
+        if ( i .eq. 1) print 7256, rmu(i),rep(i)
+        if ( i .eq. 2) print 7266, rmu(i),rep(i), rmu(1)+rmu(2),rep(1)+rep(2)
+ 7256   format(' vxc_gga  : rho*vxc=',f11.6,' rho*exc=',f11.6,a)
+ 7266   format('    spin 2:         ',f11.6,'          ',f11.6/
+     .         '     total:         ',f11.6,'          ',f11.6)
+      enddo  
+c      if(plotstop) stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 xcpbe'
+      call tcx('vxcnls')
+      return
+      endif
+!! = This is the end of new mode = 
+
+
+
+
+
+
+
+
+
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C Mark's old version. Not go into hereafter when newmode=T
+C --- Gradient of density point-wise through sphere ---
+      if(debug) print *,'vxcnls: goto vxcnls 44444 lz=',lz
+      lopgfl = 0
+      if (lz) lopgfl = 10
+      do  10  i = 1, nsp
+        call gradfl(ll(nlm),nlm,nr,np,1,nr,1,lopgfl,nn,ri,yl,gyl,
+     .  rl(1,1,i),grp(1,1,1,i),ggrp(1,1,i))
+   10 continue
+
+ccccccccccccccccccccccccccccccccccc
+c      print *,'ttt: test grp=ggrp=0 tttttttttttttt'
+      if(grpzerotest) then
+      grp=0d0
+      ggrp=0d0
+      endif
+ccccccccccccccccccccccccccccccccccc
 
 C --- Potential from spherical part of density (valid for small r) ---
       if(debug) print *,'vxcnls: goto vxcnls 3333 lz=',lz
@@ -120,15 +533,6 @@ C       call prrmsh('l=0 vxcnl in vxcnls',ri,vxcnl,nr,nr,1)
 C       call prrmsh('rl in vxcnls',ri,rl,nr,nr,1)
 C       call prrmsh('wl in vxcnls',ri,rwgt,nr,nr,1)
       endif
-
-C --- Gradient of density point-wise through sphere ---
-      if(debug) print *,'vxcnls: goto vxcnls 44444'
-      lopgfl = 0
-      if (lz) lopgfl = 10
-      do  10  i = 1, nsp
-        call gradfl(ll(nlm),nlm,nr,np,1,nr,1,lopgfl,nn,ri,yl,gyl,
-     .  rl(1,1,i),grp(1,1,1,i),ggrp(1,1,i))
-   10 continue
 
 C --- agrp, agrl = abs grad rho and its Yl-projection ---
       if(debug) print *,'vxcnls: goto vxcnls 55555'
@@ -211,8 +615,8 @@ C --- Nonlocal rho*exc, rho*vxc ---
             rmunl(i) = rmunl(i) + rl(ir,ilm,i)*vxcnl(ir,ilm,i)*weight
             repnl(i) = repnl(i) + rl(ir,ilm,i)*excnl(ir,ilm)*weight
    62   continue
-        if (ipr .ge. 30 .and. i .eq. 1) print 725, rmunl(i),repnl(i)
-        if (ipr .ge. 30 .and. i .eq. 2) print 726, rmunl(i),repnl(i),
+        if (ipr >-1 .and. i .eq. 1) print 725, rmunl(i),repnl(i)
+        if (ipr >-1 .and. i .eq. 2) print 726, rmunl(i),repnl(i),
      .  rmunl(1)+rmunl(2),repnl(1)+repnl(2)
   725   format(' vxcnls: nlc rmu=',f11.6,'  rep=',f11.6,a)
   726   format(' spin 2:         ',f11.6,'      ',f11.6/
@@ -220,12 +624,10 @@ C --- Nonlocal rho*exc, rho*vxc ---
         rep(i) = rep(i) + repnl(i)
         rmu(i) = rmu(i) + rmunl(i)
    60 continue
-      call tcx('vxcnls')
-
 C --- Print out rmu by angular momentum ---
-      if (ipr .lt. 35) return
-      lmax = ll(nlm)
-      do  42  i = 1, nsp
+      if (ipr >= 35) then
+       lmax = ll(nlm)
+       do  42  i = 1, nsp
         do  43  l = 0, lmax
   43    sumnl(l) = 0d0
         do  40  ilm = 1, nlm
@@ -236,15 +638,51 @@ C --- Print out rmu by angular momentum ---
         if (i .eq. 2) print 342, (sumnl(l),l=0,lmax)
   341   format(' rvnlc by L: ',f12.6,4f10.6:/(15x,4f10.6))
   342   format('     spin 2: ',f12.6,4f10.6:/(15x,4f10.6))
-   42 continue
-
+   42  continue
+      endif
 C      if (ipr .ge. 40) print 887,
 C     .  vl(1,1,1), vxcnl(1,1,1), vl(nr,1,1), vxcnl(nr,1,1)
 C  887 format(' V_0(0)=',f15.6,'  nloc VXC_0(0)=',f12.6/
 C     .       ' V_0(R)=',f15.6,'  nloc VXC_0(R)=',f12.6)
 
 C     call poppr
+
+C$$$ccccccccccccccccccccccc
+      if(plotstop) then
+      isp=1
+      do ir=1,nr
+c         write(6,"(i5,4d12.4,3x,4d12.4,3x,4d12.4)") ir, 
+c     & vl(ir,1:4,isp), vxcnl(ir,1:4,isp),vl(ir,1:4,isp)+vxcnl(ir,1:4,isp)
+c     & vl(ir,21,isp), vxcnl(ir,21,isp),vl(ir,21,isp)+vxcnl(ir,21,isp)
+        write(107,"(i5,e12.4,2x,4(3e12.4,2x))") ir,ri(ir),
+     &  vl(ir,1,isp),  vxcnl(ir,1 ,isp),vl(ir,1,isp) -vxcnl(ir,1 ,isp),
+     &  vl(ir,11,isp), vxcnl(ir,11,isp),vl(ir,11,isp)-vxcnl(ir,11,isp),
+     &  vl(ir,21,isp), vxcnl(ir,21,isp),vl(ir,21,isp)-vxcnl(ir,21,isp)
+      enddo
+      endif
+      if(plotstop) then
+        isp=1
+        do ilm=1,nlm
+        write(6,"(i5,100d12.4)") ilm, sum(vl(:,ilm,isp)), sum(abs(vl(:,ilm,isp)))
+        enddo
+      endif
+C$$$cccccccccccccccccccccc
+
+C -- rho*exc, rho*vxc ---
+      do i = 1, nsp
+        if ( i .eq. 1) print 7251, rmu(i),rep(i)
+        if ( i .eq. 2) print 7261, rmu(i),rep(i),rmu(1)+rmu(2),rep(1)+rep(2)
+      enddo  
+ 7251 format(' origmode vxcnls:     rmu=',f11.6,'  rep=',f11.6,a)
+ 7261 format(' origmode spin 2:         ',f11.6,'      ',f11.6/
+     .  '  total:         ',f11.6,'      ',f11.6)
+
+c      if(plotstop) stop 'xxxxxxxxxx testing old yyy xcfun xxxxxxxxxxx'
+      call tcx('vxcnls')
       end
+
+
+
 
 c      subroutine xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
 c     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
@@ -420,8 +858,13 @@ C --- Estimate rmu in this ir0 ir1 interval by angular momentum ---
    82 continue
       if(debug) print *,'xxcnls2 99999'
 C     call poppr
-
       end
+
+
+
+
+
+
 C      subroutine px(strn,nr,nlm,nsp,np,ri,wp,fp,yl,fl)
 C      implicit none
 C      character *(*) strn
