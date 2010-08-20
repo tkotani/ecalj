@@ -425,3 +425,4 @@ $(fp_obj_path)/augmat.o  : fp/augmat.F $(moddir)/m_struc_def.mod
 
 $(fp_obj_path)/vxcnlm.o  : fp/vxcnlm.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnlm.o fp/vxcnlm.F
+

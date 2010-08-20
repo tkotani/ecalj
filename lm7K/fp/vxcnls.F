@@ -359,7 +359,7 @@ C$$$      if(debug) print *, 'vxcnls: goto vxcnls 99999xxx'
 !!  vxcnl= - grad [ frac{\partial rho exc}{\partial |nabla n|}  * frac{\nabla n}{nabla n}  ]
 !!  This expresssion is obtained by a partial derivative of rho exc with respect to (nabla n).
 !!  We neglect surface terms since true and counter components are cancelled out.
-!!   dvxcdgr(ir,ip,3): index=3 means frac{\partial rho exc}{\partial |nabla n|}. See xcpbe.F90
+!!   dvxcdgr(ir,ip,3): index=3 means frac{\partial rho exc}{\partial |nabla n|}/|nabla n|. See xcpbe.F90
 
 !! == dvxcdgr(ir,1:np,3) ---> nabla_dvxcdgr(:,ir,1:np) ==
       allocate(dvxcdgr_dr(nr,np,3),vxcnlnp(nr,np,nsp))

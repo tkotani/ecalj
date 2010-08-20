@@ -666,7 +666,12 @@ cccccccccccccccccccccc
           if (nsp .eq. 2) vxc2(i) = vxc2(i) +
      .    (vxdnpw91 + vcdnpw91 - vxdnlsd - vcdnlsd) * 2d0
         else
+ccccccccccccccccc
           exc(i) = exc(i) + (expbe + ecpbe - exlsd - eclsd) * 2d0
+c          exc(i) = (expbe + ecpbe - exlsd - eclsd) * 2d0
+c          exc(i) = (exlsd + eclsd) * 2d0
+c          exc(i) = (expbe + ecpbe ) * 2d0
+ccccccccccccccccc
           vxc1(i) = vxc1(i) +
      .    (vxuppbe + vcuppbe - vxuplsd - vcuplsd) * 2d0
 

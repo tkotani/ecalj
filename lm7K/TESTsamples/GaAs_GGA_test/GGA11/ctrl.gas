@@ -82,3 +82,4 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
       
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
         Q=atom   # 
+        #HF=1

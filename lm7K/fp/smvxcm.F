@@ -387,6 +387,9 @@ C ... Local parameters
       integer(4):: ixxx
       real(8):: rhomin
       type(s_lat)::slat
+
+      logical :: newmode
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 cc      smrho(:,:,:,2)=0d0
 c      write(6,"(a,12d13.5)")'rrrr: smchk smrho 1'
@@ -430,69 +433,70 @@ C     ... rho = total rho for this vec; rhos = spin pol rho
             call daxpy(n1,1d0,rhos(1,2),1,rho,1)
           endif
 
-C     ... Put df/dr into dsmvxc
+C     ... Put df/dr into dsmvxc <--- not support now
           if (mod(mode,10) .ne. 0) then
-            if (lxcg .ne. 0) call rx('smvxc3: perturbation treatment '//
-     .        'not implemented with GGA')
-C           Add rho*fac/2 into rhos+, rhos- and fac*rho into rho
-            do  i = 1, nsp
-              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
-            enddo
-            call dscal(n1,1+fac,rho,1)
-C           Exchange potential at rho+drho
-            do  i = 1, nsp
-              call evxcv(rho,rhos(1,i),n1,1,lxcf,
-     .        exc2,exc1x,exc1c,vxc2(1,i),vx1(1,i),vc1(1,i))
-            enddo
-            if (mode1 .eq. 2) then
-              do  i1 = 1, n1
-                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0) then
-                  vxc2(i1,1) = 0
-                  vxc2(i1,nsp) = 0
-                endif
-              enddo
-            endif
-C           Restore rho,rhos; also add -drho to rho and -drho/2 to rhos
-            call dscal(n1,1/(1+fac),rho,1)
-            do  i = 1, nsp
-              call daxpy(n1,-fac,rho,1,rhos(1,i),1)
-            enddo
-            call dscal(n1,(1-fac),rho,1)
-C           Exchange potential at rho-drho
-            do  i = 1, nsp
-              call evxcv(rho,rhos(1,i),n1,1,lxcf,
-     .        exc1,exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
-            enddo
-            if (mode1 .eq. 2) then
-              do  i1 = 1, n1
-                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0 .or.
-     .              vxc2(i1,1).eq.0 .or. vxc2(i1,nsp) .eq. 0) then
-                  vxc1(i1,1) = 0
-                  vxc1(i1,nsp) = 0
-                  vxc2(i1,1) = 0
-                  vxc2(i1,nsp) = 0
-                endif
-              enddo
-            endif
+            call rx('svxvcm: not support perturbation treatment anymore')
+C$$$            if (lxcg .ne. 0) call rx('smvxc3: perturbation treatment '//
+C$$$     .        'not implemented with GGA')
+C$$$C           Add rho*fac/2 into rhos+, rhos- and fac*rho into rho
+C$$$            do  i = 1, nsp
+C$$$              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
+C$$$            enddo
+C$$$            call dscal(n1,1+fac,rho,1)
+C$$$C           Exchange potential at rho+drho
+C$$$            do  i = 1, nsp
+C$$$              call evxcv(rho,rhos(1,i),n1,1,lxcf,
+C$$$     .        exc2,exc1x,exc1c,vxc2(1,i),vx1(1,i),vc1(1,i))
+C$$$            enddo
+C$$$            if (mode1 .eq. 2) then
+C$$$              do  i1 = 1, n1
+C$$$                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0) then
+C$$$                  vxc2(i1,1) = 0
+C$$$                  vxc2(i1,nsp) = 0
+C$$$                endif
+C$$$              enddo
+C$$$            endif
+C$$$C           Restore rho,rhos; also add -drho to rho and -drho/2 to rhos
+C$$$            call dscal(n1,1/(1+fac),rho,1)
+C$$$            do  i = 1, nsp
+C$$$              call daxpy(n1,-fac,rho,1,rhos(1,i),1)
+C$$$            enddo
+C$$$            call dscal(n1,(1-fac),rho,1)
+C$$$C           Exchange potential at rho-drho
+C$$$            do  i = 1, nsp
+C$$$              call evxcv(rho,rhos(1,i),n1,1,lxcf,
+C$$$     .        exc1,exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
+C$$$            enddo
+C$$$            if (mode1 .eq. 2) then
+C$$$              do  i1 = 1, n1
+C$$$                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0 .or.
+C$$$     .              vxc2(i1,1).eq.0 .or. vxc2(i1,nsp) .eq. 0) then
+C$$$                  vxc1(i1,1) = 0
+C$$$                  vxc1(i1,nsp) = 0
+C$$$                  vxc2(i1,1) = 0
+C$$$                  vxc2(i1,nsp) = 0
+C$$$                endif
+C$$$              enddo
+C$$$            endif
 
-C           Restore rho,rhos
-            call dscal(n1,1/(1-fac),rho,1)
-            do  i = 1, nsp
-              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
-            enddo
+C$$$C           Restore rho,rhos
+C$$$            call dscal(n1,1/(1-fac),rho,1)
+C$$$            do  i = 1, nsp
+C$$$              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
+C$$$            enddo
 
-            do  i = 1, nsp
-              do  i1 = 1, n1
-                if (rho(i1) .gt. 0) then
-                  f1 = vxc1(i1,i)*(rho(i1)*(1-fac))**alfa
-                  f2 = vxc2(i1,i)*(rho(i1)*(1+fac))**alfa
-                  dfdr = (f2-f1)/(2d0*fac*rho(i1))
-                  vxc2(i1,i) = dfdr
-                else
-                  vxc2(i1,i) = 0
-                endif
-              enddo
-            enddo
+C$$$            do  i = 1, nsp
+C$$$              do  i1 = 1, n1
+C$$$                if (rho(i1) .gt. 0) then
+C$$$                  f1 = vxc1(i1,i)*(rho(i1)*(1-fac))**alfa
+C$$$                  f2 = vxc2(i1,i)*(rho(i1)*(1+fac))**alfa
+C$$$                  dfdr = (f2-f1)/(2d0*fac*rho(i1))
+C$$$                  vxc2(i1,i) = dfdr
+C$$$                else
+C$$$                  vxc2(i1,i) = 0
+C$$$                endif
+C$$$              enddo
+C$$$            enddo
           endif
 
 C     ... Exchange into smvxc
@@ -524,21 +528,21 @@ c     .      exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
             call dcopy(n1,exc1,1,smexc(1,i2,i3,1),2)
           enddo
 
-C     ... Perturbation dv/dr into dsmvxc
-          if (mod(mode,10) .ne. 0) then
-            do  i = 1, nsp
-              do  i1 = 1, n1
-                rrho = rho(i1)
-                if (rrho .gt. 0) then
-                  f = vxc1(i1,i) * rrho**alfa
-                  dvdr = (vxc2(i1,i) - alfa*f/rrho) / rrho**alfa
-                  dsmvxc(i1,i2,i3,i) = dvdr
-                else
-                  dsmvxc(i1,i2,i3,i) = 0
-                endif
-              enddo
-            enddo
-          endif
+CCCC... Perturbation dv/dr into dsmvxc <---'svxvcm: not support perturbation treatment anymore'
+C$$$          if (mod(mode,10) .ne. 0) then
+C$$$            do  i = 1, nsp
+C$$$              do  i1 = 1, n1
+C$$$                rrho = rho(i1)
+C$$$                if (rrho .gt. 0) then
+C$$$                  f = vxc1(i1,i) * rrho**alfa
+C$$$                  dvdr = (vxc2(i1,i) - alfa*f/rrho) / rrho**alfa
+C$$$                  dsmvxc(i1,i2,i3,i) = dvdr
+C$$$                else
+C$$$                  dsmvxc(i1,i2,i3,i) = 0
+C$$$                endif
+C$$$              enddo
+C$$$            enddo
+C$$$          endif
 
 C     ... Add to integrals
           do  i = 1, nsp
@@ -575,6 +579,18 @@ C ... Gradient corrections to potential, energy
       if (lxcg .ne. 0) then
         call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,repnl,rmunl,vavgnl,
      .    smvx,smvc,smvxc)
+c        newmode=.false.
+        newmode=.true.
+        if(newmode) then
+          do i=1,nsp
+          rhoeps(i) =  repnl(i)
+          rhomu(i)  =  rmunl(i)
+          vxcavg(i) =  vavgnl(i)
+          repnl(i)  = 0d0
+          rmunl(i)  = 0d0
+          vavgnl(i) = 0d0
+          enddo
+        endif  
 C        repnl = 0 ; rmunl = 0 ; vavgnl = 0; print *, '!!'
       endif
 C      do  i = 1, nsp
