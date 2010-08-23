@@ -411,8 +411,8 @@ C --- Add smooth exchange-correlation potential ---
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
 c        call pshpr(ipr-30)
         call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv 
-     .  , wdummy , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
+     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy 
+     .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
 C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
 C     .    tmp,tmp(2))
 c        call poppr

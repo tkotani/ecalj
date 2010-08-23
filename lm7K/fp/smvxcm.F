@@ -96,8 +96,8 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 
-      double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2),
-     .smvxc(k1,k2,k3,2),smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
+      double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*),
+     .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
 C ... Local parameters
 Cchp1       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
@@ -197,7 +197,7 @@ Cdwdef1         call smvxc2(0,slat, nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
 Cdwdef1      .  smrho_w,smvxc,smvx,smvc,smexc,w,
 Cdwdef1      .  repsm,repsmx,repsmc,rmusm,vxcavg)
          call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
-     .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc , iwdummy 
+     .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  !, iwdummy 
      .   , repsm , repsmx , repsmc , rmusm , vxcavg ) 
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
@@ -215,63 +215,61 @@ Cdwdef1      .  repsm,repsmx,repsmc,rmusm,vxcavg)
 
 C --- Perturbation branch (lfoc2 .ne. 0) ---
       if (lfoc2 .ne. 0) then
-        allocate(dxcv_zv(k1*k2*k3*nsp))
-        call smvxc2 ( 1 , slat,nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv 
-     .  , repsm , repsmx , repsmc , rmusm , vxcavg )
-        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
-        do  i = 1, nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
-     .    smrho(1,1,1,i),rvmusm(i),x2)
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
-     .    smrho(1,1,1,i),rvepsm(i),x2)
-        enddo
-        deallocate(smrho_w)
-C   ... Assemble core tails for linearized treatment on mesh
-C       w(osmcor) = portion of core treated perturbatively
-c        osmcor = osmrho
-        allocate(smcor_w(k1*k2*k3*nsp))
-Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
-Cchp1      .  , smcor_w) !w ( osmcor ) )
-         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w 
-     .   ) 
-
-
-        call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
-        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
-        call dpzero(focexc,2)
-        call dpzero(focex,2)
-        call dpzero(focec,2)
-        do  i = 1, nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),smcor_w,
-     .    x1,x2)
-          focex(i)  = x1/nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),smcor_w,
-     .    x1,x2)
-          focec(i)  = x1/nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),smcor_w,
-     .    x1,x2)
-          focexc(i) = x1/nsp
-C         Add this term to focexc to make focexc=pert corr to rhov*exc
-C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
-C     .      x1,x2)
-        enddo
-C       Peturbation correction to smvxc
-        call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
-     .  , smcor_w , dxcv_zv , smvxc , focvxc )
-
-        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
-        if (iprint() .ge. 30) then
-          outs = ' '
-          call awrit8('%x   foca'//
-     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N   foca#%2j#'//
-     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',
-     .    outs,len(outs),0,
-     .    focexc(1)+focexc(2),nsp,focexc,focexc(2),
-     .    focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
-          call awrit1('%a  charge  =%;12,6D',outs,len(outs),-stdo,sum1)
-        endif
-        deallocate(smcor_w,dxcv_zv)
+         call rx('smvxcm: not suppor perturbation branch now')
+C$$$        allocate(dxcv_zv(k1*k2*k3*nsp))
+C$$$        call smvxc2 ( 1 , slat,nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
+C$$$     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv 
+C$$$     .  , repsm , repsmx , repsmc , rmusm , vxcavg )
+C$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
+C$$$        do  i = 1, nsp
+C$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
+C$$$     .    smrho(1,1,1,i),rvmusm(i),x2)
+C$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
+C$$$     .    smrho(1,1,1,i),rvepsm(i),x2)
+C$$$        enddo
+C$$$        deallocate(smrho_w)
+C$$$C   ... Assemble core tails for linearized treatment on mesh
+C$$$C       w(osmcor) = portion of core treated perturbatively
+C$$$c        osmcor = osmrho
+C$$$        allocate(smcor_w(k1*k2*k3*nsp))
+C$$$Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
+C$$$Cchp1      .  , smcor_w) !w ( osmcor ) )
+C$$$         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w 
+C$$$     .   ) 
+C$$$        call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
+C$$$        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
+C$$$        call dpzero(focexc,2)
+C$$$        call dpzero(focex,2)
+C$$$        call dpzero(focec,2)
+C$$$        do  i = 1, nsp
+C$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),smcor_w,
+C$$$     .    x1,x2)
+C$$$          focex(i)  = x1/nsp
+C$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),smcor_w,
+C$$$     .    x1,x2)
+C$$$          focec(i)  = x1/nsp
+C$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),smcor_w,
+C$$$     .    x1,x2)
+C$$$          focexc(i) = x1/nsp
+C$$$C         Add this term to focexc to make focexc=pert corr to rhov*exc
+C$$$C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
+C$$$C     .      x1,x2)
+C$$$        enddo
+C$$$C       Peturbation correction to smvxc
+C$$$        call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
+C$$$     .  , smcor_w , dxcv_zv , smvxc , focvxc )
+C$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
+C$$$        if (iprint() .ge. 30) then
+C$$$          outs = ' '
+C$$$          call awrit8('%x   foca'//
+C$$$     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N   foca#%2j#'//
+C$$$     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',
+C$$$     .    outs,len(outs),0,
+C$$$     .    focexc(1)+focexc(2),nsp,focexc,focexc(2),
+C$$$     .    focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
+C$$$          call awrit1('%a  charge  =%;12,6D',outs,len(outs),-stdo,sum1)
+C$$$        endif
+C$$$        deallocate(smcor_w,dxcv_zv)
       endif
       deallocate(cgh2_zv,cgh1_zv)
 c      call rlse(osmrho)
@@ -308,9 +306,11 @@ Cchp1      .     , ng , w ( ogv ) , cgh1_zv , f )
 
 
       subroutine smvxc2(mode,slat,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
-     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
+c     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
+     .smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
       use m_struc_def, only: s_lat
 C- Makes smooth part of xc potential smvxc and optionally dsmvxc/drho
+c no perturbation branch (dsmvxc)
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   mode  :1s digit
@@ -369,9 +369,9 @@ C ... Passed parameters
       integer mode,nsp,k1,k2,k3,n1,n2,n3,lxcfun
       double precision rhoeps(2),rhoex(2),rhoec(2),rhomu(2),
      .vxcavg(2),vol
-      double complex smvxc(k1,k2,k3,2),smrho(k1,k2,k3,2),
-     .smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
-     .smexc(k1,k2,k3,2),dsmvxc(k1,k2,k3,2)
+      double complex smvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp),
+     .smvx(k1,k2,k3,nsp),smvc(k1,k2,k3,nsp),
+     .smexc(k1,k2,k3) !,dsmvxc(k1,k2,k3,nsp)
 C ... Local parameters
       integer i,i1,i2,i3,lgunit,lxcf,nx,stdo,iprint,n1x,lxcg,nglob,mode1
       parameter (n1x=512)
@@ -416,10 +416,14 @@ c      print *,'smvxc2: xxx'
       nx = 0
       mode1 = mod(mode/10,10)
 
-      call dpzero(smvxc,2*k1*k2*k3*nsp)
-      call dpzero(smvx,2*k1*k2*k3*nsp)
-      call dpzero(smvc,2*k1*k2*k3*nsp)
-      call dpzero(smexc,2*k1*k2*k3)
+      smvxc=0d0
+      smvx=0d0
+      smvc=0d0
+      smexc=0d0
+c      call dpzero(smvxc,2*k1*k2*k3*nsp)
+c     call dpzero(smvx,2*k1*k2*k3*nsp)
+c     call dpzero(smvc,2*k1*k2*k3*nsp)
+c     call dpzero(smexc,2*k1*k2*k3)
 
 C     Vector of points for each i2,i3.
       do  i3 = 1, n3
@@ -525,8 +529,8 @@ c     .      exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
             call dcopy(n1,vxc1(1,i),1,smvxc(1,i2,i3,i),2)
             call dcopy(n1,vx1(1,i),1,smvx(1,i2,i3,i),2)
             call dcopy(n1,vc1(1,i),1,smvc(1,i2,i3,i),2)
-            call dcopy(n1,exc1,1,smexc(1,i2,i3,1),2)
           enddo
+          call dcopy(n1,exc1,1,smexc(1,i2,i3),2)
 
 CCCC... Perturbation dv/dr into dsmvxc <---'svxvcm: not support perturbation treatment anymore'
 C$$$          if (mod(mode,10) .ne. 0) then
@@ -577,8 +581,12 @@ c      print *,' goto vxcnlm lxcg=',lxcg,sum(abs(smrho)),sum(smrho)
 
 C ... Gradient corrections to potential, energy
       if (lxcg .ne. 0) then
-        call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,repnl,rmunl,vavgnl,
-     .    smvx,smvc,smvxc)
+        print *,'smvxcm:calling vxcnlm sum smrho=',sum(abs(smrho))
+        call vxcnlm2(lxcg,nsp,k1,k2,k3,slat,smrho,
+     &    repnl,rmunl,vavgnl,smvx,smvc,smvxc)
+c        call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
+c     &    repnl,rmunl,vavgnl,smvx,smvc,smvxc)
+c
 c        newmode=.false.
         newmode=.true.
         if(newmode) then

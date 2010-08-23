@@ -207,6 +207,7 @@ c      enddo
 
 C -- grp is calculated (simple. but consistent with the definition of dgrp_drl, rather than
 c    gradfl. It might be better to use this.
+      if(debug) print *,'vxcnls: aaa111'
       allocate(grho2_updn(nr,np,nsp) )
       do isp=1,nsp
       do ip=1,np
@@ -246,6 +247,7 @@ c      call xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxc
 c     &           d2vxci,dvxcdgr,dvxci,exexch,grho2_updn)                          !Optional Arguments
 c    option =2 ->PBE
 c NOTE: rp(ir,np,isp=1) contains total electron density when nsp=1.
+      if(debug) print *,'vxcnls: aaa222'
       allocate(exci(nr,np),excl(nr,nlm),vxci(nr,np,nsp),dvxcdgr(nr,np,3))
       fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
       if(nsp==2) fac=1d0
@@ -268,6 +270,7 @@ c
       dvxcdgr= 2d0*dvxcdgr !in Ry.
 
 !! ==== checkwrite ====
+      if(debug) print *,'vxcnls: aaa333'
       if(plotstop) then
        isp=1
        do ir=1,nr
