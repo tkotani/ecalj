@@ -85,7 +85,6 @@ C     double precision yl(nnn*nlmx)
 
       data nxl /-12,-20,-32,-32,-62,-92,-122,-122/
       logical:: debug=.false.
-
       real(8):: a !takao used to get derivetive of ri. See vxcnls.F
       real(8),allocatable::vlxc(:,:,:)
 

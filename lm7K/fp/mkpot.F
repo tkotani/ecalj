@@ -265,8 +265,10 @@ Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
 ccccccccccccccccccccc
-      integer:: itest,wdummy
+      integer:: itest,wdummy,nnn
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
+      real(8),parameter:: minimumrho=1d-8
+      real(8)::sss,smmin
 cccccccccccccccccccccc
 
 
@@ -310,22 +312,39 @@ ccccccccccccccccccccccccccccccccc
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
 
-
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
-
-C --- Ensure density is positive definite ---
-      if (cmdopt('--rhopos',8,0,outs)) then
-        do  i3 = 1, n3
-          do  i2 = 1, n2
-            do  i1 = 1, n1
-              if (dble(smrho(i1,i2,i3,1)) .lt. 0) smrho(i1,i2,i3,1) = 0
-              if (dble(smrho(i1,i2,i3,nsp)) .lt. 0) smrho(i1,i2,i3,nsp) = 0
-            enddo
-          enddo
+!!== negative smrho check==
+!! We need full mesh method(all G numner is needed) or so,
+!! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
+!!  ---> see xcpbe.F90 (especially, invcb).
+      do isp=1,nsp
+        nnn=0
+        smmin=1d0
+        do i1=1,n1
+        do i2=1,n2
+        do i3=1,n3
+c          print *,i1,i2,i3,isp
+c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
+          sss=dreal(smrho(i1,i2,i3,isp))
+          if(sss<0d0) then
+            nnn=nnn+1
+            if(sss<smmin) then
+              smmin=sss
+            endif
+            smrho(i1,i2,i3,isp)=minimumrho
+          endif
         enddo
-      endif
+        enddo
+        enddo
+        if(nnn>0) then
+          write(6,*) 'warning:mkpot negative smrho; isp number min=',isp,nnn,smmin
+          print *,'enforce smrho >',minimumrho
+        else
+          write(6,*) 'all smrho is positive for isp=',isp
+        endif
+       enddo
 
 C --- Printout for smooth background charge ---
       if (qbg .ne. 0) then

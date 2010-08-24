@@ -3598,6 +3598,7 @@ Cchp3      .    , dmxp , srout_zv , zv_p_osmrho )
            call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
      .     ) , qval - qbg , elind , sv_p_orhat1 , sv_p_oorhat , k1 , k2 
      .     , k3 , dmxp , srout_zv , zv_p_osmrho ) 
+ccccccccccccccc
 
 
 ccccccccccccccccccccccccc

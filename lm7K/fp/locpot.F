@@ -981,10 +981,12 @@ C     call pshpr(ipr-31)
       lxcfun = nglob('lxcf')
 
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
+      write(6,'(a)')' === rho1 valence true density ==='
       call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if(debug) print *,'locpt2: 55551111aaaa'
 
+      write(6,'(a)')' === rho2 valence counter density ==='
       call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
@@ -1004,6 +1006,7 @@ C     call pshpr(ipr-11)
       call dpzero(focec,2)
       call dpzero(focvxc,2)
       call info0(30,0,0,' Exchange for true density:')
+      write(6,'(a)')' === rhol1 all true density ==='
       call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
@@ -1020,6 +1023,7 @@ C     call pshpr(ipr-11)
 
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
+      write(6,'(a)')' === rho2 all counter density ==='
       if (lfoc .eq. 0) then
         call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
@@ -1034,28 +1038,23 @@ C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
         enddo
-C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
-      else if (lfoc .eq. 2) then
-        if (ipr .gt. 40) print *, 'exchange for smooth density, foca=2:'
-        if (nsp .eq. 2) then
-          call dcopy(nr,rhochs,1,rhochs(1+nr),1)
-        endif
-c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
-!lm72 changed meanings of lxcfun switch.
-        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
-     .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
-     .  fl,qs)
-        if (ipr .ge. 40)
-     .  write(stdo,941) sumh,focexc(1)+focexc(2),focvxc(1)+focvxc(2)
-  941   format(' smH core xc integrals',3f12.6)
+C$$$C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
+C$$$      else if (lfoc .eq. 2) then
+C$$$        if (ipr .gt. 40) print *, 'exchange for smooth density, foca=2:'
+C$$$        if (nsp .eq. 2) then
+C$$$          call dcopy(nr,rhochs,1,rhochs(1+nr),1)
+C$$$        endif
+C$$$c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
+C$$$!lm72 changed meanings of lxcfun switch.
+C$$$        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
+C$$$     .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
+C$$$     .  fl,qs)
+C$$$        if (ipr .ge. 40)
+C$$$     .  write(stdo,941) sumh,focexc(1)+focexc(2),focvxc(1)+focvxc(2)
+C$$$  941   format(' smH core xc integrals',3f12.6)
       else
         call rxi('locpt2: cannot handle lfoc = ',lfoc)
       endif
-
-ccccccccccccccccccccc
-c       stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 locpot'
-cccccccccccccccccccccc
-
 
       if (isw .eq. 1) then
         call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)

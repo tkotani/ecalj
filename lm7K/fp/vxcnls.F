@@ -94,7 +94,7 @@ Cdwdef1       common /w/ w
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical:: newmode=.true.,
-     &  debug=.false.,plotstop=.true.,grpzerotest=.false.
+     &  debug=.false.,plotstop=.false.,grpzerotest=.false.
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       real(8),allocatable:: dvxcdgr_dr(:,:,:),nabla_dvxcdgr(:,:,:,:),vxcnlnp(:,:,:)
       real(8)::dvxcdgr_ilm,ddd(np),grpt(3),ggrpt
@@ -208,7 +208,7 @@ c      enddo
 C -- grp is calculated (simple. but consistent with the definition of dgrp_drl, rather than
 c    gradfl. It might be better to use this.
       if(debug) print *,'vxcnls: aaa111'
-      allocate(grho2_updn(nr,np,nsp) )
+      allocate(grho2_updn(nr,np,2*nsp-1) )
       do isp=1,nsp
       do ip=1,np
 
@@ -473,8 +473,8 @@ C$$$cccccccccccccccccccccc
         if ( i .eq. 1) print 7256, rmu(i),rep(i)
         if ( i .eq. 2) print 7266, rmu(i),rep(i), rmu(1)+rmu(2),rep(1)+rep(2)
  7256   format(' vxc_gga  : rho*vxc=',f11.6,' rho*exc=',f11.6,a)
- 7266   format('    spin 2:         ',f11.6,'          ',f11.6/
-     .         '     total:         ',f11.6,'          ',f11.6)
+ 7266   format('    spin 2:         ',f11.6,'         ',f11.6/
+     .         '     total:         ',f11.6,'         ',f11.6)
       enddo  
 c      if(plotstop) stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 xcpbe'
       call tcx('vxcnls')

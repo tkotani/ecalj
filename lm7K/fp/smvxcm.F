@@ -309,7 +309,8 @@ Cchp1      .     , ng , w ( ogv ) , cgh1_zv , f )
 c     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
      .smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
       use m_struc_def, only: s_lat
-C- Makes smooth part of xc potential smvxc and optionally dsmvxc/drho
+!! Not documented well yet.
+!!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
 c no perturbation branch (dsmvxc)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -390,14 +391,6 @@ C ... Local parameters
 
       logical :: newmode
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-cc      smrho(:,:,:,2)=0d0
-c      write(6,"(a,12d13.5)")'rrrr: smchk smrho 1'
-c     &  , sum(smrho(:,:,:,1)), sum(abs(smrho(:,:,:,1)))
-c      write(6,"(a,12d13.5)")'rrrr: smchk smrho 2'
-c     &  , sum(smrho(:,:,:,2)), sum(abs(smrho(:,:,:,2)))
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,'smvxc2: xxx'
       call tcn('smvxc2')
       if (n1 .gt. n1x) call rxi('smvxc2: increase n1x, need',n1)
       stdo = lgunit(1)
@@ -420,7 +413,7 @@ c      print *,'smvxc2: xxx'
       smvx=0d0
       smvc=0d0
       smexc=0d0
-c      call dpzero(smvxc,2*k1*k2*k3*nsp)
+c     call dpzero(smvxc,2*k1*k2*k3*nsp)
 c     call dpzero(smvx,2*k1*k2*k3*nsp)
 c     call dpzero(smvc,2*k1*k2*k3*nsp)
 c     call dpzero(smexc,2*k1*k2*k3)
@@ -437,70 +430,9 @@ C     ... rho = total rho for this vec; rhos = spin pol rho
             call daxpy(n1,1d0,rhos(1,2),1,rho,1)
           endif
 
-C     ... Put df/dr into dsmvxc <--- not support now
+!! ... Put df/dr into dsmvxc <--- not support now
           if (mod(mode,10) .ne. 0) then
             call rx('svxvcm: not support perturbation treatment anymore')
-C$$$            if (lxcg .ne. 0) call rx('smvxc3: perturbation treatment '//
-C$$$     .        'not implemented with GGA')
-C$$$C           Add rho*fac/2 into rhos+, rhos- and fac*rho into rho
-C$$$            do  i = 1, nsp
-C$$$              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
-C$$$            enddo
-C$$$            call dscal(n1,1+fac,rho,1)
-C$$$C           Exchange potential at rho+drho
-C$$$            do  i = 1, nsp
-C$$$              call evxcv(rho,rhos(1,i),n1,1,lxcf,
-C$$$     .        exc2,exc1x,exc1c,vxc2(1,i),vx1(1,i),vc1(1,i))
-C$$$            enddo
-C$$$            if (mode1 .eq. 2) then
-C$$$              do  i1 = 1, n1
-C$$$                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0) then
-C$$$                  vxc2(i1,1) = 0
-C$$$                  vxc2(i1,nsp) = 0
-C$$$                endif
-C$$$              enddo
-C$$$            endif
-C$$$C           Restore rho,rhos; also add -drho to rho and -drho/2 to rhos
-C$$$            call dscal(n1,1/(1+fac),rho,1)
-C$$$            do  i = 1, nsp
-C$$$              call daxpy(n1,-fac,rho,1,rhos(1,i),1)
-C$$$            enddo
-C$$$            call dscal(n1,(1-fac),rho,1)
-C$$$C           Exchange potential at rho-drho
-C$$$            do  i = 1, nsp
-C$$$              call evxcv(rho,rhos(1,i),n1,1,lxcf,
-C$$$     .        exc1,exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
-C$$$            enddo
-C$$$            if (mode1 .eq. 2) then
-C$$$              do  i1 = 1, n1
-C$$$                if (rhos(i1,1).lt.0 .or. rhos(i1,nsp).lt.0 .or.
-C$$$     .              vxc2(i1,1).eq.0 .or. vxc2(i1,nsp) .eq. 0) then
-C$$$                  vxc1(i1,1) = 0
-C$$$                  vxc1(i1,nsp) = 0
-C$$$                  vxc2(i1,1) = 0
-C$$$                  vxc2(i1,nsp) = 0
-C$$$                endif
-C$$$              enddo
-C$$$            endif
-
-C$$$C           Restore rho,rhos
-C$$$            call dscal(n1,1/(1-fac),rho,1)
-C$$$            do  i = 1, nsp
-C$$$              call daxpy(n1,fac/2,rho,1,rhos(1,i),1)
-C$$$            enddo
-
-C$$$            do  i = 1, nsp
-C$$$              do  i1 = 1, n1
-C$$$                if (rho(i1) .gt. 0) then
-C$$$                  f1 = vxc1(i1,i)*(rho(i1)*(1-fac))**alfa
-C$$$                  f2 = vxc2(i1,i)*(rho(i1)*(1+fac))**alfa
-C$$$                  dfdr = (f2-f1)/(2d0*fac*rho(i1))
-C$$$                  vxc2(i1,i) = dfdr
-C$$$                else
-C$$$                  vxc2(i1,i) = 0
-C$$$                endif
-C$$$              enddo
-C$$$            enddo
           endif
 
 C     ... Exchange into smvxc
@@ -581,13 +513,10 @@ c      print *,' goto vxcnlm lxcg=',lxcg,sum(abs(smrho)),sum(smrho)
 
 C ... Gradient corrections to potential, energy
       if (lxcg .ne. 0) then
-        print *,'smvxcm:calling vxcnlm sum smrho=',sum(abs(smrho))
-        call vxcnlm2(lxcg,nsp,k1,k2,k3,slat,smrho,
+c        print *,'smvxcm:calling vxcnlm sum smrho=',sum(abs(smrho))
+        call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
      &    repnl,rmunl,vavgnl,smvx,smvc,smvxc)
-c        call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
-c     &    repnl,rmunl,vavgnl,smvx,smvc,smvxc)
-c
-c        newmode=.false.
+c       newmode=.false.
         newmode=.true.
         if(newmode) then
           do i=1,nsp
@@ -611,26 +540,24 @@ C ... LDA, GGA Printout
       if (nx .gt. 0) call info5(20,0,0,' smvxcm (warning) mesh density '
      . //'negative at %i point%?#n>1#s##:  rhomin=%;3g',nx,nx,rrmin,0,0)
 
-      if (iprint() .ge. 30 .and. lxcg .ne. 0) then
-        call awrit8('%x sm LDA'//
-     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%1f#%2j#sm LDA'//
-     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
-     .    0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
-     .    nsp,rhomu,rhomu(2))
-        call awrit5('%a%?#n==2#%N%3f#  #avg LDA vxc ='//
-     .    '%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
-     .    -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
-
-        call awrit8('%x sm GGA'//
-     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%1f#%2j#sm GGA'//
-     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
-     .    0,repnl(1)+repnl(2),nsp,repnl,repnl(2),rmunl(1)+rmunl(2),
-     .    nsp,rmunl,rmunl(2))
-        call awrit5('%a%?#n==2#%N%3f#  #avg GGA vxc ='//
-     .    '%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
-     .    -stdo,nsp,(vavgnl(1)+vavgnl(nsp))/2,nsp,vavgnl,vavgnl(2))
-      endif
-
+C$$$      if (iprint() .ge. 30 .and. lxcg .ne. 0) then
+C$$$        call awrit8('%x sm GGA'//
+C$$$     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%1f#%2j#sm GGA'//
+C$$$     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
+C$$$     .    0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
+C$$$     .    nsp,rhomu,rhomu(2))
+C$$$        call awrit5('%a%?#n==2#%N%3f#  #avg GGA vxc ='//
+C$$$     .    '%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
+C$$$     .    -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
+C$$$        call awrit8('%x sm GGA'//
+C$$$     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%1f#%2j#sm GGA'//
+C$$$     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
+C$$$     .    0,repnl(1)+repnl(2),nsp,repnl,repnl(2),rmunl(1)+rmunl(2),
+C$$$     .    nsp,rmunl,rmunl(2))
+C$$$        call awrit5('%a%?#n==2#%N%3f#  #avg GGA vxc ='//
+C$$$     .    '%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
+C$$$     .    -stdo,nsp,(vavgnl(1)+vavgnl(nsp))/2,nsp,vavgnl,vavgnl(2))
+C$$$      endif
       if (lxcg .ne. 0) then
         do  i = 1, nsp
           rhoeps(i) = rhoeps(i) + repnl(i)
