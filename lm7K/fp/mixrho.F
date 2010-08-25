@@ -256,6 +256,8 @@ Cdwdef1       common /w/ w
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
       complex(8),allocatable:: w_ocn(:),w_oqkl(:)
       real(8),allocatable:: w_oa(:),w_oaa(:)
+      logical::       noelind
+
 
 C     print *, '!!' ; call pshpr(40)
       if (mixmod .eq. 'none') return
@@ -430,66 +432,52 @@ C       call zprm3('smrnw, moment',0,smrnew(1,1,1,2),k1,k2,k3)
 C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
       dquns = 0
       rmsuns = 0
-      do  12  i3 = 1, n3
-        do  12  i2 = 1, n2
-          do  12  i1 = 1, n1
-            dquns  = dquns + dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))
-            rmsuns = rmsuns + dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))**2
+      do 12  i3 = 1, n3
+      do 12  i2 = 1, n2
+      do 12  i1 = 1, n1
+        dquns  = dquns + dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))
+        rmsuns = rmsuns + dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))**2
    12 continue
 
+
+      if(noelind()) then
+        allocate(w_ocn(ng))
+        w_ocn=0d0
+      else
 C ... 2. cn <- (smrnew - smrho)(G)
-c      call defcc(ocn, ng)
-c      call defcc(owk, kkk)
       allocate(w_ocn(ng),w_owk(kkk))
       call dcopy(kkk*2,smrnew,1,w_owk,1)
       call dpadd(w_owk,smrho,1,kkk*2,-1d0)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
 Cchp1       call gvgetf(ng,1,w(okv),k1,k2,k3,w_owk,w(ocn))
        call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
-c     . w (ocn) ) 
      . w_ocn ) 
-c      call rlse(owk)
        deallocate(w_owk)
 
-
 C ... 3. Sum of local densities on Fourier mesh (up+down)
-      allocate(cg1_zv(abs(-ng)))
-      if (-ng<0) cg1_zv(:)=0.0d0
+      allocate(cg1_zv(ng))
+      allocate(cg2_zv(ng))
+      cg1_zv=0d0
+      cg2_zv=0d0
 
-      allocate(cg2_zv(abs(-ng)))
-      if (-ng<0) cg2_zv(:)=0.0d0
-
-Cchp3       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , orhold 
-Cchp3      ., kmxs , ng , cg1_zv )
        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhold 
      . , kmxs , ng , cg1_zv ) 
-
-
-Cchp3       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , orhnew 
-Cchp3      ., kmxs , ng , cg2_zv )
        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhnew 
      . , kmxs , ng , cg2_zv ) 
-
 
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
 C     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
 
 C ... Add output-input difference in gaussian rho to make total rho
-C     call dpzero(w(ocn),ng*2)
-c      if (.true.) then
        call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
        call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
-c      endif
-      if (allocated(cg2_zv)) deallocate(cg2_zv)
-      if (allocated(cg1_zv)) deallocate(cg1_zv)
-
+       deallocate(cg1_zv,cg2_zv)
 
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
 Cchp1       call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
        call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
-
 
 C ... 5. Add cn = screening charge into smrnew
 c      call defcc(owk,kkk)
@@ -506,6 +494,10 @@ c      call rlse(owk)
 
 C     call zprm3('screened smrnw, charge',0,smrnew,k1,k2,k3)
 C     call zprm3('screened smrnw, moment',0,smrnew(1,1,1,2),k1,k2,k3)
+      endif
+
+
+
 
 C ... RMS differences screened and input sm density; count neg points
 C     summ
@@ -544,49 +536,39 @@ C ... 6. Restore smrho+, smrho-
       endif
 C     call zprm3('smrnew',0,smrnew,k1,k2,k3)
 
+      if(.not.noelind()) then
 C --- 7. Project cn = screening density into local densities ---
-      k0 = 20
-      allocate(fkl_zv((k0+1)*nlm0*nbas))
-Ctakao_ZeroClear_NotRequiered        if ((k0+1)*nlm0*nbas<0) fkl_zv(:)=0.0d0
-
+        k0 = 20
+        allocate(fkl_zv((k0+1)*nlm0*nbas))
 Cchp1       call ftlxp ( nbas , ssite , sspec , alat , ng , w(ogv) , w 
 Cchp1      .( ocn) , k0 , nlm0 , fkl_zv)
-       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
-     . w_ocn , k0 , nlm0 , fkl_zv) 
-
+        call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
+     .  w_ocn , k0 , nlm0 , fkl_zv) 
+      endif 
 
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
-
-        a=sspec(is)%a
-        nr=sspec(is)%nr
-        rmt=sspec(is)%rmt
-
-
+        a   =sspec(is)%a
+        nr  =sspec(is)%nr
+        rmt =sspec(is)%rmt
         lmxl=sspec(is)%lmxl
         rsmv=sspec(is)%rsmv
         kmxv=sspec(is)%kmxv
-
         if (lmxl .lt. 0) cycle
+
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
-
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
-
         call radmsh ( rmt , a , nr , rofi_rv)
-
         call radwgt ( rmt , a , nr , rwgt_rv)
 
+        if(.not.noelind()) then
 C       Overwrite rho+, rho- with rho, rho+ - rho-
 Cchp3         call splrho(0,nsp,nr,nlml,
 Cchp3      .  w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)))
-         call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
+          call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
      .   sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v ) 
-
 C   ... Add site-projected screening density to rhn1,rhn2
 Cchp3         call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
 Cchp3      .  , rwgt_rv , k0 , nlm0 , fkl_zv , w , w(orhnew ( 1 , ib 
@@ -597,15 +579,12 @@ Cdwdef1      .   , sv_p_orhnew( 2 , ib )%v , qmx )
           call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
      .    , rwgt_rv , k0 , nlm0 , fkl_zv , iwdummy , sv_p_orhnew ( 1 , 
      .    ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx ) 
-
-
-
 C       Restore rho+, rho-
 Cchp3         call splrho(1,nsp,nr,nlml,
 Cchp3      .  w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)))
-         call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
-     .   sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v ) 
-
+          call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
+     .    sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v ) 
+        endif    
 
 C   ...  Always work with rho1+rho2, rho1-rho2
 C        print *, 'ib=',ib
@@ -617,12 +596,10 @@ Cchp3      .  , w(orhold ( 1 , ib)) , w(orhold ( 2 , ib)))
          call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhold( 1 , ib )%v 
      .   , sv_p_orhold( 2 , ib )%v ) 
 
-
 Cchp3         call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv 
 Cchp3      .  , w(orhnew ( 1 , ib)) , w(orhnew ( 2 , ib)))
          call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhnew( 1 , ib )%v 
      .   , sv_p_orhnew( 2 , ib )%v ) 
-
 
 
 C       debugging
@@ -672,14 +649,9 @@ C         and spherical part of rho1-rho2
       enddo
 C ... Find and include number of smooth mesh points.
       allocate(ips0_iv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) ips0_iv(:)=0
-
 Cchp1       call lgstar ( 0 , ng , 1 , w(ogv) , ng0 , ips0_iv , w)
 Cdwdef1        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , w) 
-        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy 
-     .  ) 
-
-
+        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
 
 C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
       nda = nda + 2*ng0
@@ -689,8 +661,6 @@ c      call defrr(ocn,ng*2*nsp)
 c      allocate(co_rv(ng*2*nsp))
 c      call defrr(ocn,ng*2*nsp)
       allocate(w_ocn(ng*nsp),co_rv(ng*2*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*2*nsp<0) co_rv(:)=0.0d0
-
 c      call defrr(owk,kkk*2*nsp)
       allocate(w_owk(kkk*nsp))
       call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)

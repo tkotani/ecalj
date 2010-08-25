@@ -952,8 +952,16 @@ C ... eigenvalue of s (omat)
       allocate(wk11(lwork),rwork(max(1,3*n-2)))
       call zheev('V','U',n,omat,n,eo,wk11,lwork,rwork,ier)
       deallocate(wk11,rwork)
-      if(ipr) write(6,*)'zhev_tk: ovlmat='
-      if(ipr) write(6,"(5(i5,d10.2))") (i,eo(i),i=1,n)
+      if(ipr) then
+        write(6,*)'zhev_tk: ovlmat='
+        do ix=0,n,5
+          if(eo(i)>0.1d0) then
+           write(6,*) '  ... skip larger eigenvalues ...'
+           exit
+          endif
+        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
+        enddo  
+      endif
 c      write(6,*)' zheev: diagonalization of overlap matrix info=',ier
 
 ccccccccccccccccccccccccc

@@ -67,8 +67,7 @@ HAM   NSPIN=2   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
       GMAX=10    # this is for real space mesh. See GetStarted.
       REL=T     # T:Scaler relativistic, F:non rela.
 
-      GGA=3
-      XCFUN=3   # V-Ceperly-W
+      XCFUN=103   # V-Ceperly-W
       #XCFUN=3   # PBE GGA
       #GGA=3   
 

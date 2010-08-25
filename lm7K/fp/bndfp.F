@@ -503,7 +503,7 @@ C ... MPI setup
 
 
 
-C --- Setup ---
+!!== Setup ==
       call tcn ('bndfp')
       siginit=.true.
       napw = 0
@@ -537,24 +537,18 @@ C     npqn = nglob('npqn')
 
 c ipr and stdl are processor dependent in mpi modes.
 c      print *,'zzzzzzzzzz =',ipl,stdl,lgunit(1),lgunit(2),lgunit(3)
-
-ctakao's test for replacement.
       ldos = iand(1,int(sctrl%ldos))
-
       lrsig = int(sham%lsig)
-
       lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 )
-
 c      print *,'xxx' ,lfrzw,sctrl%lbas
 c      print *,'ttt1: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
-      print *,'ttt: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
-      print *,'ttt: sham%lsig       =',sham%lsig
+c      print *,'ttt: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
+c      print *,'ttt: sham%lsig       =',sham%lsig
       if(ldos - mod(sctrl%ldos/1, 2)/=0) stop 'ttt xxx111'
       if(lfrzw- mod(sctrl%lbas/16,2)/=0) stop 'ttt xxx222'
       if(lrsig- sham%lsig/=0) stop 'ttt xxx333'
-c$$$ctakao test
       nspec= sctrl%nspec
-ctakao
+
 CKI!      allocate(sspecv(nspec+1)) ! I don't know why but nspec+1 is necessary to avoid run time error.
 CKI      allocate(sspecv(nspec+1)) !+1 makes it safer. (see below)
 CKI      do i=1,nspec

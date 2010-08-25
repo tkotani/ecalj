@@ -33,7 +33,7 @@ Cu   17 Jan 05 Output wtot
 C-----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nqp,nband,nbmx,nsp,n
+      integer nqp,nband,nbmx,nsp,n,ix
       logical metal
       double precision wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev,
      .bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
@@ -100,7 +100,13 @@ C ... Print out band weights, if only 1 kp
         do  isp = 1, nsp
           call info2(30,0,0,' SPLWTS: band weights .. '//
      .    '%?;(n==2);Spin %i;;%N       eval      weight',nsp,isp)
+          ix=0
           do  iband = 1, nband
+            if(bndwts(iband,isp,1)<1d-7) ix=ix+1
+            if(ix==10) then
+              write (stdo,"('     ... ')")
+              exit
+            endif
             write (stdo,20) evl(iband,isp,1),bndwts(iband,isp,1)
    20       format (4x,2f10.6)
           enddo
