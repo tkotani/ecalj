@@ -1,39 +1,11 @@
-Cdwdef1 have_common_w_in mkpot , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp3       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
-Cchp3      .k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
-Cchp3      .oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
-Cchp3      .vorb,nlibu,lmaxu,lldau,  itest)
-Cchp3        subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
-Cchp3      . , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
-Cchp3      . , qmom , vconst , vesrmt , sv_p_osig , otau , oppi , ppn , hab 
-Cchp3      . , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb , 
-Cchp3      . nlibu , lmaxu , lldau , itest ) 
-Cchp3         subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
-Cchp3      .  , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
-Cchp3      .  , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , oppi , ppn 
-Cchp3      .  , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job , vorb 
-Cchp3      .  , nlibu , lmaxu , lldau , itest ) 
-Cchp3          subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
-Cchp3      .   , lfrce , lcplxp , k1 , k2 , k3 , smrho , orhoat , qbg , smpot 
-Cchp3      .   , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-Cchp3      .   , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
-Cchp3      .   , vorb , nlibu , lmaxu , lldau , itest ) 
           subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , itest ) 
 
-
-
-
-
       use m_struc_def  !Cgetarg
-
+!! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -202,13 +174,10 @@ Cchp3       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
 Cchp3        integer:: otau(nbas) , oppi(nbas) , orhoat(3,nbas) 
 Cchp3         integer:: oppi(nbas) , orhoat(3,nbas) 
 Cchp3          integer:: orhoat(3,nbas) 
-          type(s_rv1) :: sv_p_orhoat(3,nbas)
-
-         type(s_rv1) :: sv_p_oppi(nbas)
-
-        type(s_rv1) :: sv_p_otau(nbas)
-
-       type(s_rv1) :: sv_p_osig(nbas)
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
+      type(s_rv1) :: sv_p_oppi(nbas)
+      type(s_rv1) :: sv_p_otau(nbas)
+      type(s_rv1) :: sv_p_osig(nbas)
 
       real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
      ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)

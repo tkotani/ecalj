@@ -1,25 +1,8 @@
-Cdwdef1 have_common_w_in mixrho , #_of_w_access= 2
-Cdwdef1 have_common_w_in pvmix3 , #_of_w_access= 0
-Cdwdef1 have_common_w_in pvmix5 , #_of_w_access= 0
-Cdwdef1 have_common_w_in pvmix7 , #_of_w_access= 1
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhold
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhnew
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp3       subroutine mixrho(ssite,sspec,slat,nsp,iter,mixmod,qval,elind,
-Cchp3      .orhnew,orhold,k1,k2,k3,dmxp,smrnew,smrho)
-Cchp3        subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
-Cchp3      . , qval , elind , sv_p_orhnew , orhold , k1 , k2 , k3 , dmxp , 
-Cchp3      . smrnew , smrho ) 
         subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho ) 
-
-
-
-      use m_struc_def  !Cgetarg
-
-C- Mix old and new charge densities
+      use m_struc_def 
+!! = Mix old and new charge densities = takao is modifing now..
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite
@@ -204,11 +187,9 @@ C ... Passed parameters
 Cchp3       integer nsp,k1,k2,k3,orhold(3,1),orhnew(3,1),iter,procid,master
 Cchp3        integer:: nsp , k1 , k2 , k3 , orhold(3,1) , iter , procid , 
 Cchp3      . master 
-        integer:: nsp , k1 , k2 , k3 , iter , procid , master 
-        type(s_rv1) :: sv_p_orhold(3,1)
-
-       type(s_rv1) :: sv_p_orhnew(3,1)
-
+      integer:: nsp , k1 , k2 , k3 , iter , procid , master 
+      type(s_rv1) :: sv_p_orhold(3,1)
+      type(s_rv1) :: sv_p_orhnew(3,1)
       character*(*) mixmod
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -250,9 +231,9 @@ Cchp1        integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl
 C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
-       integer ::iwdummy 
 
-
+      integer ::iwdummy ,isp,nnnx
+      real(8):: smmin,sss
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
       complex(8),allocatable:: w_ocn(:),w_oqkl(:)
       real(8),allocatable:: w_oa(:),w_oaa(:)
@@ -627,11 +608,8 @@ C ... Count number of elts from local densities for fancy mixing scheme
       nda = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         nr = int(sspec(is)%nr)
-
         lmxl = int(sspec(is)%lmxl)
-
         nlml = (lmxl+1)**2
         if (lmxl .eq. -1) goto 20
 C       include spherical part of local densities only
@@ -819,11 +797,13 @@ Cchp3      . , kmxr , nlm0 , k9 , w_oqkl , orhold , sv_p_orhnew , difx )
         call pvmix3 ( ssite , sspec , nbas , nsp , beta , locmix , wt 
      .  , kmxr , nlm0 , k9 , w_oqkl , sv_p_orhold , sv_p_orhnew , difx 
      .  ) 
-
-
       difxu = difx
 
-C --- 11. Spin polarized case: separate weighting for spin channels ---
+
+
+
+!!== Main Mixing part ==
+!!=== 11. Spin polarized case: separate weighting for spin channels ===
       if (nsp .eq. 2 .or. nx .gt. 0) then
         if (wt(2).ne.0 .and. nsp.eq.1)
      .  call rx1('mixrho wt(2)=%d invalid when nsp=1',wt(2))
@@ -850,10 +830,10 @@ C          rms2f = rms2f * 2
      .    '  Constrained rms DQ=%1,3;3e',wt,rms2f)
           rmsdel = rms2f
         endif
-C --- 12. Mix the soup of densities ---
+!!=== 12. Mix the soup of densities ===
         beta0 = beta
         call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa)
-C ... 13. Restore matrix a to rho+, rho-
+!!=== 13. Restore matrix a to rho+, rho===
 c       if (nsp .eq. 2 .or. nx .gt. 0) then
         call pqsclb(nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,w_oa,w_oaa)
         call pqsclc(nda*nsp,nda*nsp,nx,mxsav,w_oa)
@@ -863,10 +843,15 @@ c       endif
       else
 c        oaa = oa
         naa = nda
-C --- 12. Mix the soup of densities ---
+!!=== 12. Mix the soup of densities ===
         beta0 = beta
         call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
       endif
+
+
+
+
+
 
 
 C      nlml = 16
@@ -922,11 +907,9 @@ C ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
 
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
 
         lmxl=sspec(is)%lmxl
         rsmv=sspec(is)%rsmv
@@ -936,15 +919,9 @@ C ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
-
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
-
         call radmsh ( rmt , a , nr , rofi_rv)
-
         call radwgt ( rmt , a , nr , rwgt_rv)
-
 
 Cchp3         call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv 
 Cchp3      .  , w(orhold ( 1 , ib)) , w(orhold ( 2 , ib)))
@@ -957,8 +934,6 @@ Cchp3      .  , w(orhnew ( 1 , ib)) , w(orhnew ( 2 , ib)))
          call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , 
      .   sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v ) 
 
-
-
 C       debugging
 C        print *, 'ib=',ib
 C        call prrmsh('1 final',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
@@ -968,11 +943,7 @@ C   ... Add net local charge to qmix
         do  i = 1, nsp
           off2 = 1 + nr*nlml*(i-1)
           allocate(wk1_rv(nr))
-Ctakao_ZeroClear_NotRequiered            if (nr<0) wk1_rv(:)=0.0d0
-
           allocate(wk2_rv(nr))
-Ctakao_ZeroClear_NotRequiered            if (nr<0) wk2_rv(:)=0.0d0
-
 Cchp3           call dpscop ( w(orhold ( 1 , ib)) , wk1_rv , nr , off2 
 Cchp3      .    , 1 , 1d0)
            call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , 
@@ -1022,6 +993,7 @@ C     Add constant to smrho to force charge neutrality
       summ = 0
 
 cccccccccccccccccccccccccc
+      write(6,*)'smrho qcell: add correction to smrho=',qcell,xx
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
@@ -1094,20 +1066,49 @@ c       smrho(i1,i2,i3) = xxc
           enddo
         enddo
       enddo
+
+
 cccccccccccccccccccccccccccccccccccc
-      nnnew=0
-c      open(1898,file='test3vvv')
-      do  i3 = 1, k3
-        do  i2 = 1, k2
-          do  i1 = 1, k1
-c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
-            if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
-          enddo
+      do isp=1,nsp
+        nnnx = 0
+        smmin=1d0
+        do i1=1,k1
+        do i2=1,k2
+        do i3=1,k3
+c         print *,i1,i2,i3,isp
+c         print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
+          sss=dreal(smrho(i1,i2,i3,isp))
+          if(sss<0d0) then
+            nnnx=nnnx+1
+            if(sss<smmin) then
+              smmin=sss
+            endif
+c            smrho(i1,i2,i3,isp)=minimumrho
+          endif
         enddo
-      enddo
-c      close(1898)
-c      print *,'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+        enddo
+        enddo
+        if(nnnx>0) then
+          write(6,*) 'mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
+c          print *,'enforce smrho >',minimumrho
+        else
+          write(6,*) 'mixrho: all smrho is positive for isp=',isp
+        endif
+       enddo
+C$$$      nnnew=0
+C$$$c      open(1898,file='test3vvv')
+C$$$      do  i3 = 1, k3
+C$$$        do  i2 = 1, k2
+C$$$          do  i1 = 1, k1
+C$$$c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
+C$$$            if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+C$$$          enddo
+C$$$        enddo
+C$$$      enddo
+C$$$c      close(1898)
+C$$$c      print *,'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+C$$$      write(6,"(a,3d13.6,i8)")
+C$$$    & ' mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 c      nnnew=0
 c      do  i3 = 1, k3
 c      do  i2 = 1, k2
