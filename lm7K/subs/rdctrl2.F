@@ -89,14 +89,7 @@ Cg         :2 Dirac equation
 Cg   lxcf  :specifies type of XC potential.  1s digit specifies local XC:
 Cg         :1 for Ceperly-Alder
 Cg         :2 for Barth-Hedin (ASW fit)
-Cg         :3 for PW91
-Cg         :4 for PBE
-Cg         :10s digit specifies type of gradient correction
-Cg         :0 no gradient correction
-Cg         :1 Langreth-Mehl
-Cg         :2 PW91
-Cg         :3 PBE
-Cg         :4 PBE with Becke exchange
+Cg         :103 for PBE
 Cg   mxorb :nkaph * (maximum number of lm channels in any sphere)
 Cg         :Used for dimensioning the indexing arrays involved in
 Cg         :assembling the hamiltonian;
@@ -523,25 +516,17 @@ c        v_sctrl%ltb=i
 
 C      lxcf   parameter defining XC functional
 C      1s digit:
-C      1 for Ceperly-Alder
+C      1 for Ceperly-Alder (VWN)
 C      2 for Barth-Hedin (ASW fit)
-C      3 for PW91
-C      4 for PBE
-cC      10s digit for GGAs !old
-C      100s digit for GGAs !this assignment is from lm72 
-C      0 for LSDA
-C      1 for LMH
-C      2 for PW91
-C      3 for PBE
-C      4 for PBE with Becke exchange
-c      i = ham_lxcf + 10*gga
-      i = ham_lxcf + 100*gga !corrected for lm72 May2010takao
-C      Set modep
-      ix(1:3) = 2
-      if (prgnam == 'LMPG') ix(3) = 0
-      if (prgnam == 'LMMC') ix(1:3) = 0
+C      103 for PBE-GGA
+      v_sctrl%lxcf= ham_lxcf
 
-      v_sctrl%lxcf=i
+
+!! ==  Set modep ===
+      ix(1:3) = 2
+c      if (prgnam == 'LMPG') ix(3) = 0
+c      if (prgnam == 'LMMC') ix(1:3) = 0
+
       v_sctrl%maxit=iter_maxit
       i_copy_size=size(v_sctrl%mdprm)
       call dcopy(i_copy_size,mdprm,1,v_sctrl%mdprm,1)
@@ -1382,36 +1367,37 @@ C$$$      endif
 
 C ... Read the basis from the atm file
       if (cmdopt('--rdbasp',8,0,strn)) then
-        fileid = 'basp'
-        if (strn(9:12) .eq. ':fn=') then
-          fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
-        else
-        endif
+         call rx('not support --rdbasp')
+C$$$        fileid = 'basp'
+C$$$        if (strn(9:12) .eq. ':fn=') then
+C$$$          fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
+C$$$        else
+C$$$        endif
 
-C       Number of envelope functions before modifications
-        call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
+C$$$C       Number of envelope functions before modifications
+C$$$        call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
 
-C       Read new parms; return in k2 max no. env. fns/site read
-        call strip(fileid,i,j)
-        ifi = fopna(fileid(1:j),-1,0)
-        rewind ifi
-        if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
-     .  call rxs2('lmfp: failed to find BASIS: token in file "',
-     .  fileid(1:j),'"')
-        k2 = mod(k2,10)
-        call fclr(' ',ifi)
+C$$$C       Read new parms; return in k2 max no. env. fns/site read
+C$$$        call strip(fileid,i,j)
+C$$$        ifi = fopna(fileid(1:j),-1,0)
+C$$$        rewind ifi
+C$$$        if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
+C$$$     .  call rxs2('lmfp: failed to find BASIS: token in file "',
+C$$$     .  fileid(1:j),'"')
+C$$$        k2 = mod(k2,10)
+C$$$        call fclr(' ',ifi)
 
-C       File read cause number of envelope functions to increase?
-C       If so, increment nkaph by 1; keep old nkaph in k1 for later
-        if (k2 .gt. k1) then
-          k1 = nglob('nkaph')
-          xx(1) = dglob('nkaph',dble(k1+1),1)
-          k = nglob('nkaph')
-          call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
-          nlmax = int(v_sctrl%nl) * * 2
+C$$$C       File read cause number of envelope functions to increase?
+C$$$C       If so, increment nkaph by 1; keep old nkaph in k1 for later
+C$$$        if (k2 .gt. k1) then
+C$$$          k1 = nglob('nkaph')
+C$$$          xx(1) = dglob('nkaph',dble(k1+1),1)
+C$$$          k = nglob('nkaph')
+C$$$          call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
+C$$$          nlmax = int(v_sctrl%nl) * * 2
 
-          xx(1) = dglob('mxorb',dble(k)*nlmax,1)
-        endif
+C$$$          xx(1) = dglob('mxorb',dble(k)*nlmax,1)
+C$$$        endif
       endif
 
 C     Add dalat to alat
@@ -1522,7 +1508,7 @@ C$$$       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0
       call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
 
 
-      v_sham%lxcf=lxcf
+c      v_sham%lxcf=lxcf
 
 
 C ... Count LDA+U blocks (printout only)

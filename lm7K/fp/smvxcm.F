@@ -52,13 +52,7 @@ Cl Local variables
 Cl  lxcfun :1s digit sets local xc functional
 Cl         :  1    Ceperly-Alder
 Cl         :  2    Barth-Hedin (ASW fit)
-Cl         :  3,4  LD part of PW91 and PBE
-Cl         :100s digit sets gradient corrections
-Cl         :  0    LSDA
-Cl         :  1    Langreth-Mehl
-Cl         :  2    PW91
-Cl         :  3    PBE
-Cl         :  4    PBE with Becke exchange
+Cl         :  103 PBE-GGA
 Cr Remarks
 Cr   smoothed core is partition into core1 + core2.  All atoms with
 Cr   lfoc1=1 belong to core1; those with lfoc2=1 belong to core2.

@@ -269,6 +269,7 @@ ccccccccccccccccccccc
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
       real(8),parameter:: minimumrho=1d-8
       real(8)::sss,smmin
+      logical:: enforce_positive_smrho
 cccccccccccccccccccccc
 
 
@@ -315,6 +316,8 @@ ccccccccccccccccccccccccccccccccc
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
+
+      if(enforce_positive_smrho()) then
 !!== negative smrho check==
 !! We need full mesh method(all G numner is needed) or so,
 !! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
@@ -345,6 +348,7 @@ c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
           write(6,*) 'all smrho is positive for isp=',isp
         endif
        enddo
+      endif  
 
 C --- Printout for smooth background charge ---
       if (qbg .ne. 0) then

@@ -1006,7 +1006,7 @@ C     call pshpr(ipr-11)
       call dpzero(focec,2)
       call dpzero(focvxc,2)
       call info0(30,0,0,' Exchange for true density:')
-      write(6,'(a)')' === rhol1 all true density ==='
+      write(6,'(a)')' === rhol1 valence+core density ==='
       call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
@@ -1023,7 +1023,7 @@ C     call pshpr(ipr-11)
 
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
-      write(6,'(a)')' === rho2 all counter density ==='
+      write(6,'(a)')' === rho2 ->valence+smooth core density ==='
       if (lfoc .eq. 0) then
         call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)

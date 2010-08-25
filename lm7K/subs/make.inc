@@ -227,7 +227,6 @@ subs_list:=\
 	vldau.o \
 	volsph.o \
 	vxc0sp.o \
-	vxcgr2.o \
 	xlgen.o \
 	xxxbnd.o \
 	xxxdif.o \

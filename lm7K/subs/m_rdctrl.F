@@ -20,7 +20,7 @@ C ... HEADER, SYMGRP
 C ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
-     .nsp=1,lrel=1,lso=0,ham_udiag=0 !,ham_qasa
+     .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
 c      logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
       real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz
@@ -809,15 +809,16 @@ c      endif
      .'%N%3f 1 free-atom shift  12 screened core+nucleus')
       nm='HAM_ELIND'; call gtv(trim(nm),tksw(prgn,nm),elind,
      .def_r8=0d0,note='Lindhard energy for model screening')
+
       nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgn,nm),ham_lxcf,def_i4=2,
      .note='Specifies local exchange correlation functional:'//
-     .'%N%3f1 for Ceperly-Alder'//
+     .'%N%3f1 for Ceperly-Alder (VWN)'//
      .'%N%3f2 for Barth-Hedin (ASW fit)'//
-     .'%N%3f3 for PW91 %N%3f4 for PBE')
-      nm='HAM_GGA'; call gtv(trim(nm),tksw(prgn,nm),gga,
-     .nout=nout, def_i4=0, note='Specifies GGA functional:'//
-     .'%N%3f0 for LSDA%N%3f1 for Langreth-Mehl%N%3f2 for PW91'//
-     .'%N%3f3 for PBE%N%3f4 for PBE with Becke exchange')
+     .'%N%3f103 for PBE-GGA (use xcpbe.F in ABINIT')
+      nm='HAM_GGA'; call gtv(trim(nm),tksw(prgn,nm),ggax,
+     .nout=nout, def_i4=0, note='UnUsed now. See XCFUN...')
+      if(ggax>0) call rx('Use HAM_XCFUN instead of HAM_GGA')
+
 c      if (nout/=0) ham_lxcf= ham_lxcf
 c      nm='HAM_EBAS'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  kmto,nout=nmto,note='LMTO envelope kinetic energies')

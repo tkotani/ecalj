@@ -350,14 +350,7 @@ Cr   35   26   lxcf    parameter defining XC functional
 Cr                     1s digit:
 Cr                     1 for Ceperly-Alder
 Cr                     2 for Barth-Hedin (ASW fit)
-Cr                     3 for PW91
-Cr                     4 for PBE
-Cr                     10s digit for GGAs
-Cr                     0 for LSDA
-Cr                     1 for LMH
-Cr                     2 for PW91
-Cr                     3 for PBE
-Cr                     4 for PBE with Becke exchange
+Cr                     103 for PBE-GGA
 Cr   36   27   maxit   max. no.  iterations in self-consistency cycle
 Cr   37   28   mdprm   arg 1: 1 new dynamics  2  restart dynamics
 Cr                            4 relax with conjugate gradients
