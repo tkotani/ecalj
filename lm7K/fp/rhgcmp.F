@@ -1,8 +1,9 @@
 Cdwdef1 have_common_w_in rhgcmp , #_of_w_access= 0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
-      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
 
+c      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
+      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
       use m_struc_def  !Cgetarg
 
 C- Adds density of compensating gaussians to FT list
@@ -66,7 +67,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,ib1,ib2,ng,kmax
-      integer orhat
+c      integer orhat
+
+      type(s_rv1) :: sv_p_orhoat(3,1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -199,7 +202,8 @@ C --- Loop over sites ---
 Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) qkl_rv(:)=0.0d0
 
         call pshpr(0)
-        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat 
+c        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat
+        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , sv_p_orhoat
      .  , kmax , qkl_rv )
 
         call poppr

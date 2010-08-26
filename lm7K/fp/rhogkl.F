@@ -81,18 +81,12 @@ C --- Loop over sites ---
       j1 = 1
       do  ib = ib1, ib2
         is = int(ssite(ib)%spec)
-
-
         lmxl=sspec(is)%lmxl
         z=sspec(is)%z
         qc=sspec(is)%qc
-
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-
         rg=sspec(is)%rg
 
         if (lmxl .eq. -1) goto 10
@@ -100,12 +94,8 @@ C --- Loop over sites ---
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
         call radmsh ( rmt , a , nr , rofi_rv )
-
         call radwgt ( rmt , a , nr , rwgt_rv )
-
         allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
-
 Cchp3         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
 Cchp3      .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
 Cchp3      .  ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
@@ -113,9 +103,7 @@ Cchp3      .  , j1 ) )
          call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
      .   , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
      .   , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) ) 
-
-
-        if (allocated(h_rv)) deallocate(h_rv)
+         deallocate(h_rv)
 
         if (ipr .ge. 40) then
           write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
