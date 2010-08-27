@@ -232,12 +232,13 @@ C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
-      integer ::iwdummy ,isp,nnnx
-      real(8):: smmin,sss
+      integer ::iwdummy ,isp,nnnx,ng02,ng2
+      real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
-      complex(8),allocatable:: w_ocn(:),w_oqkl(:)
-      real(8),allocatable:: w_oa(:),w_oaa(:)
+      complex(8),allocatable:: w_oqkl(:)
+      real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
       logical::       noelind
+      logical:: mixrealsmooth
 
 
 C     print *, '!!' ; call pshpr(40)
@@ -437,8 +438,8 @@ C ... Initial charges
 
 !!== elind mode ==
       if(noelind()) then
-        allocate(w_ocn(ng))
-        w_ocn=0d0
+c        allocate(w_ocn(2*ng))
+c        w_ocn=0d0
       else
 C --- Screen sm output rho; distribute screening rho over local rho ---
 C ... 1. Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
@@ -460,7 +461,7 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
       rmsuns = dsqrt(rmsuns/(n1*n2*n3))
 
 C ... 2. cn <- (smrnew - smrho)(G)
-      allocate(w_ocn(ng),w_owk(kkk))
+      allocate(w_ocn(2*ng),w_owk(kkk))
       call dcopy(kkk*2,smrnew,1,w_owk,1)
       call dpadd(w_owk,smrho,1,kkk*2,-1d0)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
@@ -582,8 +583,8 @@ C        call prrmsh('rhold2',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 
       enddo                     ! Loop over sites
       if (allocated(fkl_zv)) deallocate(fkl_zv)
-c      call rlse(ocn)
-      deallocate(w_ocn)
+      if(allocated(w_ocn)) deallocate(w_ocn)
+
 
 C --- Fancy mixing of smoothed + some representation of local rho ---
 C ... Count number of elts from local densities for fancy mixing scheme
@@ -607,34 +608,48 @@ C         and spherical part of rho1-rho2
         endif
    20   continue
       enddo
-C ... Find and include number of smooth mesh points.
-      allocate(ips0_iv(ng))
-Cchp1       call lgstar ( 0 , ng , 1 , w(ogv) , ng0 , ips0_iv , w)
-Cdwdef1        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , w) 
-        call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
 
-C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
-      nda = nda + 2*ng0
+      if(mixrealsmooth()) then
+       ng02 = k1*k2*k3
+       ng2 = ng02
+       nda = nda + ng02
+       allocate(w_ocn(ng02*nsp),co_rv(ng02*nsp))
+       call dcopy(ng02*nsp,dreal(smrnew), 1, w_ocn,1)
+       call dcopy(ng02*nsp,dreal(smrho),  1, co_rv,1)
 
+cccccccccccccccccccccccc
+       wgtsmooth=1d0/ng02**0.5d0 !try this relative weight. Not correct weight charge mixing. 
+       print *,'wgtsmooth=',wgtsmooth
+cccccccccccccccccccccccc
+
+       w_ocn= w_ocn*wgtsmooth !
+       co_rv= co_rv*wgtsmooth !
+      else
 C ... 8. FFT smooth densities -> rho(G) for mixing
-      allocate(w_ocn(ng*nsp),co_rv(ng*2*nsp))
-      allocate(w_owk(kkk*nsp))
-      call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
-      call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-      call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
+C ... Find and include number of smooth mesh points.
+       allocate(ips0_iv(ng))
+       call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
+       ng02= ng0*2
+       ng2=ng*2
+       nda = nda + ng02
+       allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
+       allocate(w_owk(kkk*nsp))
 
-      call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
-      call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
-      call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
+       call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
+       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
+       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
 
-ccccccccccc
-c      print *,'vvv lgstar i=',i
-ccccccccccc
-C     call zprm('co-c',2,w(oco),ng,ng0,nsp)
-c      call rlse(owk)
+       call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
+       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
+       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
        deallocate(w_owk)
+
+      endif
+c
+      
+
 
 c      call defrr(oa,-nda*nsp*(mxsav+2)*2)
        allocate(w_oa(nda*nsp*(mxsav+2)*2))
@@ -671,7 +686,7 @@ C     NB: For now, nx must be zero
       k9 = 10
         call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
      .  , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
-     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng0 , 0 , nda , w_oa , w_oqkl 
+     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , rms2 , nmixr ) 
 
 C     debugging check
@@ -695,7 +710,7 @@ C      stop
 C ... Write this and prior iterations onto disk
         call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
      .  locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
-     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng0 , 0 , nda , w_oa , w_oqkl 
+     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , rms2 , nmixr ) 
 
 
@@ -815,8 +830,8 @@ Cchp3      .  w_oqkl , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv ,
 Cchp3      .  w_owk , orhold , smrho) 
          call pvmix7 ( ssite , sspec , nbas , nsp , nda , w_oa , n1 , 
      .   n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl 
-     .   , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
-     .   sv_p_orhold , smrho ) 
+     .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
+     .   sv_p_orhold , smrho, wgtsmooth ) 
 
       deallocate(w_oqkl)
 
@@ -1399,7 +1414,7 @@ Cchp3      . , sv_p_orhnew , co , cn , ng , ng0 , cnst , nda , a , qkl , rms2
 Cchp3      . , nmixr ) 
         subroutine pvmix5 ( nmix , mxsav , fnam , ifi , lbin , rmsdel 
      .  , locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
-     .  , sv_p_orhnew , co , cn , ng , ng0 , cnst , nda , a , qkl , rms2 
+     .  , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 
      .  , nmixr ) 
 
 
@@ -1437,6 +1452,7 @@ Ci   co    :input smooth density this iteration, in FT form
 Ci   cn    :output smooth density this iteration, in FT form
 Ci   ng    :leading dimension of co,cn
 Ci   ng0   :number of Fourier coefficients
+c    ng02=ng0*2 in the mixrealsmooth()=F (original case)
 Ci   cnst  :site-dependent vector marking whether to constrain
 Ci         :selected mixing (not used here)
 Co Inputs/Outputs
@@ -1478,7 +1494,7 @@ Cr     a(1+k:2*ng0:2*ng0+2*nr+(1+kmxr)*nlml) = P_kL exp. of rho1-rho2
 Cr                                             w/ l=0 part zeroed out
 Cr     ... nda = 2*ng0 + 2*nr + (1+kmxr)*nlml
 C -----------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI | MPIK
       include "mpif.h"
@@ -1498,7 +1514,7 @@ C ... Passed parameters
       logical readerror
 #endif
       logical lbin
-      integer ng,ng0,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:1),locmix,
+      integer ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:1),locmix,
      .k9,kmxr,nlm0
 Cchp3       integer orhold(3,1),orhnew(3,1)
 Cchp3        integer:: orhold(3,1) 
@@ -1507,7 +1523,7 @@ Cchp3        integer:: orhold(3,1)
        type(s_rv1) :: sv_p_orhnew(3,1)
 
       double precision a(nda,nsp,mxsav+2,2),rms2,rmsdel
-      real(8):: co(2,ng,nsp) , cn(2,ng,nsp) , qkl(0:kmxr,nlm0,nsp,4,1)
+      real(8):: co(ng2,nsp) , cn(ng2,nsp) , qkl(0:kmxr,nlm0,nsp,4,1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -1544,10 +1560,10 @@ C --- Copy rho to a; calc. RMS error; read prior iter from ifi ---
 C   ... FT Mesh density
         na = 1
         do  i = 1, nsp
-          call dpcopy(co(1,1,i),a(na+00,i,1,2),1,2*ng0,1d0)
-          call dpcopy(cn(1,1,i),a(na+00,i,1,1),1,2*ng0,1d0)
+          call dpcopy(co(1,i),a(na+00,i,1,2),1,ng02,1d0)
+          call dpcopy(cn(1,i),a(na+00,i,1,1),1,ng02,1d0)
         enddo
-        na = 1 + 2*ng0
+        na = 1 + ng02
 
 C   ... Site densities, depending on locmix
         do  ib = 1, nbas
@@ -1919,21 +1935,21 @@ C ... This is the result of linear mixing, q=0 smooth rho
 C     sqmix = a(1,0,1)*beta + a(1,0,2)*(1-beta)
       real(8),allocatable:: aaa(:)
 
-ccccccccccccccccccccccccccccccccccccccccc
-c takao simple mixing test
-c      print *,' vvv: takao simple mixing test'
-c      allocate(aaa(nda))
-c      aaa = .2d0*a(:,0,1)+.8d0*a(:,0,2)
-c      aaa = .40d0*a(:,0,1)+.6d0*a(:,0,2)
-c      aaa = .9d0*a(:,0,1)+.1d0*a(:,0,2)
-c      aaa = 1.d0*a(:,0,1)+.0d0*a(:,0,2)
-c       aaa = .5d0*a(:,0,1)+.5d0*a(:,0,2)
-c      aaa = .8d0*a(:,0,1)+.2d0*a(:,0,2)
-c      call dcopy(nda,aaa,1,a(1,0,1),1)
-c      call dcopy(nda,aaa,1,a(1,0,2),1)
-c      deallocate(aaa)
-c      return
-cccccccccccccccccccccccccccccccccccccccccc
+C$$$ccccccccccccccccccccccccccccccccccccccccc
+C$$$c takao simple mixing test
+C$$$      print *,' vvv: takao simple mixing test'
+C$$$      allocate(aaa(nda))
+C$$$c      aaa = .2d0*a(:,0,1)+.8d0*a(:,0,2)
+C$$$c      aaa = .40d0*a(:,0,1)+.6d0*a(:,0,2)
+C$$$c      aaa = .9d0*a(:,0,1)+.1d0*a(:,0,2)
+C$$$      aaa = 1.d0*a(:,0,1)+.0d0*a(:,0,2)
+C$$$c       aaa = .5d0*a(:,0,1)+.5d0*a(:,0,2)
+C$$$c      aaa = .8d0*a(:,0,1)+.2d0*a(:,0,2)
+C$$$      call dcopy(nda,aaa,1,a(1,0,1),1)
+C$$$      call dcopy(nda,aaa,1,a(1,0,2),1)
+C$$$      deallocate(aaa)
+C$$$      return
+C$$$cccccccccccccccccccccccccccccccccccccccccc
 
 
 C --- Anderson mixing ---
@@ -1971,8 +1987,8 @@ Cchp3      .locmix,wt,k9,kmxr,nlm0,qkl,ng,ng0,kv,ips0,gv,crho,wk,orhold,
 Cchp3      .smrho)
        subroutine pvmix7 ( ssite , sspec , nbas , nsp , nda , a , n1 
      . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , qkl 
-     . , ng , ng0 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho 
-     . ) 
+     . , ng , ng2, ng02 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho 
+     . ,wgtsmooth) 
 
 
       use m_struc_def  !Cgetarg
@@ -2016,19 +2032,20 @@ Co   orhold:mixed local density is returned, in rho1+rho2,rho10rho2 form
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nsp,n1,n2,n3,k1,k2,k3,ng,ng0,nda,na,nr,nbas,locmix,k9,
-     .kv(ng,3),ips0(ng),kmxr,nlm0
+      integer nsp,n1,n2,n3,k1,k2,k3,ng,ng02,nda,na,nr,nbas,locmix,k9,
+     .kv(ng,3),ips0(ng),kmxr,nlm0,ng2
 Cchp3       integer orhold(3,1)
        type(s_rv1) :: sv_p_orhold(3,1)
 
       real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) 
-     ., rf , wt(2)
+     ., rf , wt(2), wgtsmooth
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
-      double complex crho(ng,nsp),smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
+      double complex smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
+      real(8):: crho(ng2,nsp)
 C ... Local parameters
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
@@ -2041,24 +2058,33 @@ Cdwdef1       common /w/ w
        integer ::iwdummy 
 
       real(8),allocatable:: w_orsm(:,:)
+      logical:: mixrealsmooth
 
 C ... Restore mixed smoothed density
-      do  i = 1, nsp
+      if(mixrealsmooth()) then
+        do  i = 1, nsp
+          call dscal(ng02,-1d0/wgtsmooth,crho(1,i),1)
+          call daxpy(ng02,1d0/wgtsmooth,a(1,i),1,crho(1,i),1)
+          call daxpy(k1*k2*k3,1d0,crho(1,i),1,smrho(1,1,1,i),2)
+        enddo  
+      else   
+        do  i = 1, nsp
 C       Add difference of mixed, old to minimize perturbation
 ccccccccccccccccc
 c        print *,' vvv pvmix7 TEST!!! a=0 test'
 c        a=0d0
 ccccccccccccccc
-        call dscal(2*ng0,-1d0,crho(1,i),1)
-        call daxpy(2*ng0,1d0,a(1,i),1,crho(1,i),1)
+        call dscal(ng02,-1d0,crho(1,i),1)
+        call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
         call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
         call gvputf(ng,1,kv,k1,k2,k3,crho(1,i),wk)
         call fftz3(wk,n1,n2,n3,k1,k2,k3,1,0,1)
         call daxpy(2*k1*k2*k3,1d0,wk,1,smrho(1,1,1,i),1)
-      enddo
+        enddo
+      endif  
 
 C ... Update local densities
-      na = 1 + 2*ng0
+      na = 1 + ng02
       k9l = k9 - mod(k9,10)
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)

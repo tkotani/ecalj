@@ -1,10 +1,24 @@
+      logical function mixrealsmooth()
+      mixrealsmooth=.true.
+! Takao think mixrho should give a correct guess from informations
+! of |rho_in - f(rho_in)|**2
+! In our procedure now, takao think the weight from smooth part is rather small.
+! Thus our mixing procedure is mainly controlled by atoic part.
+! This works OK but may be not best...
+!   How to choose wgtsmooth? or it will be better to take correct weighting for
+!   mixing.
+      print *,'mixrealsmooth=',mixrealsmooth
+      end
+
       logical function noelind()
       noelind=.true. !in mixrho.F. If T, ELIND procedure is not.
+! Does elind really works fine? Probably, we first have to modify mixrho.
       end
 
       logical function enforce_positive_smrho()
 !      enforce smrho to positive in mkpot.F
       enforce_positive_smrho=.true.
+c      enforce_positive_smrho=.false.
       end
 
 

@@ -566,7 +566,7 @@ for ii in tokenspec[1:]:
 
 tail="""
 \n
-% const pwemax=2 nk=2 nit=30 gmax=10
+% const pwemax=2 nk=2 nit=30 gmax=12
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
@@ -598,9 +598,10 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
                 # It shows required gmax for given tolelance HAM_TOL.
       REL=T     # T:Scaler relativistic, F:non rela.
 
-      XCFUN=1   # =1 for VWN; GGA is not yet.
-                # XCFUN=2 shows a bug for Hydrogen atom. 
-		# (subs/evxc.F works only for XCFUN=1 if rho(up)=0 or rho(down)=0).
+      XCFUN=1   # =1 for VWN.
+                # =2 Birth-Hedin (if this variable is not set).
+		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
+                # =103 PBE-GGA
 
       PWMODE=11 # 10: MTO basis only (LMTO) PW basis is not used.
                 # 11: APW+MTO        (PMT)
@@ -608,7 +609,7 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
-      ELIND=-1  # this is only for accelaration of convergence. Not need to change.
+      #ELIND=-1  # (unused now) this for accelaration of convergence. maybe not efficient. See mixrealsmooth() in switch.F
       
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
                  # 

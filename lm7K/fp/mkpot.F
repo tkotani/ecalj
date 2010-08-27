@@ -187,7 +187,7 @@ Cchp3          integer:: orhoat(3,nbas)
       type(s_ham)::sham
       type(s_pot)::spot
 
-      double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*)
+      complex(8):: smrho(k1,k2,k3,*),smpot(k1,k2,k3,*)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
 C ... Local parameters
       logical cmdopt,lgors
@@ -236,8 +236,8 @@ Cdwdef1       common /w/ w
 ccccccccccccccccccccc
       integer:: itest,wdummy,nnn
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
-      real(8),parameter:: minimumrho=1d-8
-      real(8)::sss,smmin
+      real(8),parameter:: minimumrho=1d-14
+      real(8)::sss,smmin(2),srshift
       logical:: enforce_positive_smrho
 cccccccccccccccccccccc
 
@@ -291,9 +291,9 @@ ccccccccccccccccccccccccccccccccc
 !! We need full mesh method(all G numner is needed) or so,
 !! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
 !!  ---> see xcpbe.F90 (especially, invcb).
-      do isp=1,nsp
+       do isp=1,nsp
         nnn=0
-        smmin=1d0
+        smmin(isp)=0d0
         do i1=1,n1
         do i2=1,n2
         do i3=1,n3
@@ -302,22 +302,27 @@ c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
           sss=dreal(smrho(i1,i2,i3,isp))
           if(sss<0d0) then
             nnn=nnn+1
-            if(sss<smmin) then
-              smmin=sss
+            if(sss<smmin(isp)) then
+              smmin(isp)=sss
             endif
-            smrho(i1,i2,i3,isp)=minimumrho
           endif
         enddo
         enddo
         enddo
         if(nnn>0) then
-          write(6,*) 'warning:mkpot negative smrho; isp number min=',isp,nnn,smmin
-          print *,'enforce smrho >',minimumrho
+          write(6,*) 'mkpot negative smrho; isp,number,min(smrho)='
+     &    ,isp,nnn,smmin(isp)
         else
           write(6,*) 'all smrho is positive for isp=',isp
         endif
        enddo
+       if(sum(smmin(1:nsp))/=0d0) then
+         srshift = minimumrho + maxval(abs(smmin(1:nsp))) 
+         smrho(:,:,:,1:nsp) = smrho(:,:,:,1:nsp) + srshift
+         print *,'enforce positive smrho, to which we add srshift=',srshift
+       endif  
       endif  
+
 
 C --- Printout for smooth background charge ---
       if (qbg .ne. 0) then
