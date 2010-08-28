@@ -2,28 +2,28 @@
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho ) 
       use m_struc_def 
-!! = Mix old and new charge densities = takao is modifing now..
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec
-Ci     Stored:    *
-Ci     Passed to: rhgcmp ftlxp pvmix5 pvmix3 pvmix7 rhogkl
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: a nr rmt lmxl rsmv kmxv rg
-Ci     Stored:    *
-Ci     Passed to: rhgcmp ftlxp pvmix5 pvmix3 pvmix7 rhogkl
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: nabc ng ogv okv vol alat
-Ci     Stored:    *
-Ci     Passed to: rhgcmp
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   iter  :iteration number
-Ci   mixmod:string containing iteration-dependent mixing (parmxp)
-Ci   qval  :total valence charge, used to estimate Lindhard parameter
-Ci         :elind if it is not supplied
-Ci   elind :default Lindhard screening parameter
-Ci   k1,k2,k3 dimensions smrho
+!!= Mix old and new charge densities = 
+!!  Takao's version: real space mixing of smrho. It works OK. However,
+!!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
+!!     Warn. For Co case, I found broyden mixing works wrong.
+!!     ITER    NIT=30 MIX=B3,n=5,b=.7,w=1,0
+!!     However, as in copt, Broyden mixing is efficient.
+!! ----------------------------------------------------------------------
+!!i Inputs
+!!i   ssite : maybe read only
+!!i   sspec :
+!!i   slat  :
+!!i   nsp   :2 for spin-polarized case, otherwise 1
+!!i   iter  :iteration number
+!!i   mixmod:string containing iteration-dependent mixing (parmxp) What this mean???
+!!i   k1,k2,k3 dimensions smrho
+!!
+!!i     qval  :total valence charge, used to estimate Lindhard parameter
+!!ix          :elind if it is not supplied
+!!ix     elind :default Lindhard screening parameter 
+!!   Takao forbid this by noelind()=T. Is ELIND really effective?
+!! 
+!!--- below is Mark's original documents.
 Cio Inputs/Outputs
 Cio   dmxp  :Default and other values of mixing parameters.
 Cio         :The input defaults may be overridden by the string mixmod.

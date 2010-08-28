@@ -231,6 +231,7 @@ c      logical :: optic_mode1
 C ... PW takao
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
       real(8)::    pwemax,pwemin,oveps
+      character(1)::mmm
 ccccccccccccccccccccccccccccccccccccccccc
 
 Cr         1   amix    amix mode
@@ -309,7 +310,7 @@ C ... Local variables
 
       real(8):: nullrv(256)
       integer:: nulliv(256),jj(2) !,nkapsi
-      logical:: ltmp
+      logical:: ltmp,noelind
 
       data tbalph/.214286D0,.000001D0,.000001D0,.000001D0,.001D-3,
      ..287234D0,.025822D0,.000001D0,.000001D0,.001D-3,
@@ -807,9 +808,12 @@ c      endif
      .'Controls the ansatz for density shift in force calculation.'//
      .'%N%3f-1 no force%3f0 no shift'//
      .'%N%3f 1 free-atom shift  12 screened core+nucleus')
-      nm='HAM_ELIND'; call gtv(trim(nm),tksw(prgn,nm),elind,
-     .def_r8=0d0,note='Lindhard energy for model screening')
-
+      if(.not.noelind()) then
+        nm='HAM_ELIND'; call gtv(trim(nm),tksw(prgn,nm),elind,
+     .  def_r8=0d0,note='Lindhard energy for model screening')
+      else
+        elind=0d0
+      endif
       nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgn,nm),ham_lxcf,def_i4=2,
      .note='Specifies local exchange correlation functional:'//
      .'%N%3f1 for Ceperly-Alder (VWN)'//
@@ -2240,10 +2244,17 @@ c      call dcopy(37,smix,1,samix,1)
         if (io_help/=0 .and. tksw(prgn,nm)/=2) print 345
   345   format(3x,
      .  'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]',
-     .  '[;...]  or'/
+     .  '[;...] or'/
      .  3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]',
      .  '[,k=nkill]')
 C ... Sanity check and printout
+
+cc takao
+c        mmm=adjustl(iter_mix)
+c        if(mmm(1:1)=='B')
+c     &      call rx(" Broyden mixing is problematic."//
+c     &              " If necessary, you have to fix it (mixrho.F)")
+
         if (nout==1 .and. io_help==0 .and. sw/=2) then
           call r8tos8(vmix%fn,alabl)
           if (io_show==0) call pshpr(0)
