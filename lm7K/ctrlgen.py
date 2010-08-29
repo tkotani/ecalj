@@ -285,19 +285,18 @@ if(help==1):
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"+version
 	print
 	print " Usage  : ctrlgen {extension of ctrl file} [option]"
-	print "        : [options] = --readrmt -helpatomname"
+	print "        : [options] = -helpatomname"
 	print 
-	print " 1. You should have no SPEC if you use ATOM name shown by --helpatomname"
+	print " You should have no SPEC if you use ATOM name shown by --helpatomname"
 	print 
-	print " 2. option --readrmt: "
-        print "      Readin rmt.tmp file, which"
-	print '      consists of "specname R" for each line. For example,---'
+	print " If rmt.tmp exist, it is use; rmt(Muffin-tin radius) is not calculated."
+        print "      rmt.tmp consists of specname R with rmt for each line. For example,---"
         print '       --- rmt.tmp for SrTiO3 --- '
 	print '       Sr          3.616323'
 	print '       Ti          2.089960'
 	print '       O           1.595007'
         print '       --- end of rmt.tmp ------- '
-        print ' After you write rmt.tmp, do ctrlgen.py --readrmt'
+        print ' After you write rmt.tmp, do ctrlgen.py again'
 	sys.exit()
 if(helpatomname==1):
 	print "--- This is a standard name when no SPEC is specified."

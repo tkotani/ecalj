@@ -1,9 +1,0 @@
-
- LMFA:     alat = 15  nbas = 1  nspec = 1  vn 7.00(LMFA 7.0)  verb 35
- pot:      XC:CA
-fa  Pl  2.5 2.5 3.5  Ql  2 4 0
-fa op 0  27  0.916 -1.367  stf    46    42  ev -1.74600 -1.74608  pq  2.90  2.00
-fa op 1  22  0.930 -0.434  stf   263   170  ev -0.67598 -0.67620  pq  2.88  4.00
-fa op sumev   -6.19699   opt basis   -6.19594   err  0.00105
-fa Z   8.0   rm  24.38  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -149.057437
- wkinfo:  used    88 K  workspace of 80000 K   in   0 K calls

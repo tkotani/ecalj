@@ -1,0 +1,154 @@
+ -----------------------  START LMCHK    -----------------------
+ ptenv() is called with EXT=tmp
+ ptenv() not supported, but continue.
+ IO_HELP           opt    i4       1,  1,   *,  1       0
+ VERS_LM           reqd   r8       1,  1,   1, --       7
+  Expected Input style version: 7 ... found in file: 7
+ CMD               opt    chr      1,  0,   *
+ CONST             opt    chr      1,  0,   *
+ HEADER            opt    chr      1,  0,   *
+ IO_VERBOS         opt    i4v      5,  1,   1,  0       35
+ IO_IACTIV         opt    i4       1,  1,   *,  1       0
+ IO_TIM            opt    i4v      2,  2,   *,  2       0 0
+
+ --- Parameters for crystal structure ---
+ STRUC_FILE        opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       25
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0 0.5 0.5 0.5 0 0.5 0.5 0.5 0
+ STRUC_NSPEC       opt    i4       1,  1,   1, --       1
+ STRUC_DALAT       opt    r8       1,  1,   1,  0       0
+ STRUC_NL          opt    i4       1,  1,   *,  1       3
+ STRUC_SHEAR       opt    r8v      4,  4,   *, --
+ STRUC_ROT         opt    chr      1,  0,   *
+ STRUC_DEFGRD      opt    r8v      9,  9,   *, --
+ STRUC_STRAIN      opt    r8v      6,  6,   *, --
+
+ --- Program Options ---
+ OPTIONS_RMINES    opt    r8       1,  1,   *,  1       1
+ OPTIONS_RMAXES    opt    r8       1,  1,   *,  1       2
+ OPTIONS_NESABC    opt    i4v      3,  3,   *,  3       100 100 100
+ OPTIONS_Q         opt    chr      1,  0,   *
+ HAM_NSPIN         opt    i4       1,  1,   *,  1       1
+ ### ---> ENFORCE nsp=1 for LMCHK ###
+ HAM_XCFUN         opt    i4       1,  1,   *,  1       2
+
+ --- Symmetry group operations ---
+ SYMGRP            opt    chr      1,  0,   1           find
+
+ --- Parameters for species data ---
+ SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
+ SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_OMAX2        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_WSRMAX       opt    r8       1,  1,   *,  1       0
+ ... Species 1
+ SPEC_ATOM         reqd   chr      1,  0,   1           H
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       1
+ SPEC_ATOM_R       opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/W     opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/A     opt    r8       1,  1,   *, --
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.025
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       51
+ SPEC_ATOM_LMX     opt    i4       1,  1,   *,  1       2
+
+ --- Parameters for site data ---
+ SITE_FILE         opt    chr      1,  0,   *
+ ... Site 1
+ SITE_ATOM         reqd   chr      1,  0,   1           H
+ H        xxx            1           1
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       -0.0161658 -0.0161658 -0.0161658
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 2
+ SITE_ATOM         reqd   chr      1,  0,   1           H
+ H        xxx            1           1
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.0161658 0.0161658 0.0161658
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for structure constants ---
+ STR_RMAXS         opt    r8       1,  1,   *, --
+ STR_RMAX          opt    r8       1,  1,   *,  1       0
+ STR_MXNBR         opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for Ewald sums ---
+ EWALD_AS          opt    r8       1,  1,   *,  1       2
+ EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
+ EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
+ EWALD_RPAD        opt    r8       1,  1,   *,  1       0
+  mxcst switch =           1           0 F F F
+  LMCHK  vn 7.00  verb 35
+ pot:      XC:BH
+ lattic:
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 3906.250000
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat=25.00000   awald= 0.127
+         r1=  1.585   nkd=  79      q1=  4.641   nkg= 113
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 12 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3d r2(1,-0,-1)
+         i*r3d r2(1,-0,-1)
+ MKSYM:  found 12 space group operations ... includes inversion
+ zzz nclass=           1
+  qqqqq ics=           1
+  lmaux:
+  lmxa=          -1
+  z   =   1.0000000000000000     
+ Use default rmaxs = 20.937 a.u. = 2.7*avw = 0.837*alat
+
+ ... Make sphere radii
+ makrm0:
+
+conf:SPEC_ATOM= H : --- Table for atomic configuration ---
+conf int(P)z = int(P) where P is replaced by PZ if it is semicore
+conf:  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf
+conf:    1  0       1  1        1.000    0.000 => 
+conf:    1  1       2  2        0.000    0.000 => 
+conf:    1  2       3  3        0.000    0.000 => 
+conf:    1  3       4  4        0.000    0.000 => 
+conf:-----------------------------------------------------
+ tailsm: init
+ tailsm:xxx1
+ tailsm:xxx2
+ tailsm: end
+
+ pairc, ib=  1:   2 neighbors in range  0.222  5.560
+ pairc:      2 pairs total    2 is max cluster size
+
+ pairc, ib=  2:   2 neighbors in range  0.222  5.560
+ pairc:      2 pairs total    2 is max cluster size
+
+ makrm0: initial MT radii from first estat potential maximum
+  site   spec            rmt       rmt-       rmt-       rold   lock
+                                  <spec avg>  spec-min
+    1    1:H            0.7000     0.0000     0.0000     0.0000    
+    2    1:H            0.7000     0.0000     0.0000     0.0000    
+ SCLWSR:  vol = 3906.25 a.u..   Initial sphere packing = 0.1%  scaled to 0.1%
+ constr omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+ actual omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+
+ spec  name        old rmax    new rmax     ratio
+   1   H           0.699967    0.700000    1.000047
+  zzzz nclspp=           1
+
+   Site     Spec            Rmax                Position
+    1      1  H           0.700000  -0.016166  -0.016166  -0.016166
+    2      1  H           0.700000   0.016166   0.016166   0.016166
+
+ Cell volume= 3906.25000   Sum of sphere volumes= 2.87351 (0.00074)
+
+ ib jb  cl1     cl2        Pos(jb)-Pos(ib)      Dist  sumrs   Ovlp    %
+  1  2  H       H         0.808  0.808  0.808  1.400  1.400   0.00   0.0*
+
+ OVMIN:     fovl = 0   <ovlp> = 0%   max ovlp = 0%
+ Exit 0 LMCHK 

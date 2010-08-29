@@ -18,6 +18,7 @@
       logical function enforce_positive_smrho()
 !      enforce smrho to positive in mkpot.F
       enforce_positive_smrho=.true.
+c      enforce_positive_smrho=.false.
       end
 
 c-----------

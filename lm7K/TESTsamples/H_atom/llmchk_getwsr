@@ -1,4 +1,6 @@
- -----------------------  START LMCHK (80000K)  -----------------------
+ -----------------------  START LMCHK    -----------------------
+ ptenv() is called with EXT=tmp
+ ptenv() not supported, but continue.
  IO_HELP           opt    i4       1,  1,   *,  1       0
  VERS_LM           reqd   r8       1,  1,   1, --       7
   Expected Input style version: 7 ... found in file: 7
@@ -6,7 +8,6 @@
  CONST             opt    chr      1,  0,   *
  HEADER            opt    chr      1,  0,   *
  IO_VERBOS         opt    i4v      5,  1,   1,  0       35
- IO_WKP            opt    lg       1,  1,   *,  1       F
  IO_IACTIV         opt    i4       1,  1,   *,  1       0
  IO_TIM            opt    i4v      2,  2,   *,  2       0 0
 
@@ -35,9 +36,6 @@
  --- Symmetry group operations ---
  SYMGRP            opt    chr      1,  0,   1           find
 
- --- Parameters for PGF ---
- PGF_MODE          opt    i4       1,  1,   *, --
-
  --- Parameters for species data ---
  SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
  SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
@@ -57,6 +55,7 @@
  SITE_FILE         opt    chr      1,  0,   *
  ... Site 1
  SITE_ATOM         reqd   chr      1,  0,   1           H
+ H        xxx            1           1
  SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 0
  SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
  SITE_ATOM_ROT     opt    chr      1,  0,   *
@@ -66,17 +65,16 @@
  STR_RMAXS         opt    r8       1,  1,   *, --
  STR_RMAX          opt    r8       1,  1,   *,  1       0
  STR_MXNBR         opt    i4       1,  1,   *,  1       0
- STR_SHOW          opt    lg       1,  1,   *,  1       F
- STR_EQUIV         opt    lg       1,  1,   *,  1       F
 
  --- Parameters for Ewald sums ---
  EWALD_AS          opt    r8       1,  1,   *,  1       2
  EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
  EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
  EWALD_RPAD        opt    r8       1,  1,   *,  1       0
-
- LMCHK:    alat = 15  nbas = 0(+1)  nspec = 1  vn 7.00  verb 35
+  mxcst switch =           1           0 F F F
+  LMCHK  vn 7.00  verb 35
  pot:      XC:BH
+ lattic:
 
                 Plat                                  Qlat
    1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
@@ -91,14 +89,19 @@
  SYMLAT: Bravais system is cubic with 48 symmetry operations.
  SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
  GROUPG: the following are sufficient to generate the space group:
-         i*r3d r2(0,1,1)
-         i*r3d r2(0,1,1)
+         i*r3d r2(-0,1,1)
+         i*r3d r2(-0,1,1)
  MKSYM:  found 48 space group operations ... includes inversion
+ zzz nclass=           1
+  qqqqq ics=           1
+  lmaux:
+  lmxa=          -1
+  z   =   1.0000000000000000     
  Use default rmaxs = 25.124 a.u. = 2.7*avw = 1.675*alat
 
  ... Make sphere radii
  makrm0:
- 
+
 conf:SPEC_ATOM= H : --- Table for atomic configuration ---
 conf int(P)z = int(P) where P is replaced by PZ if it is semicore
 conf:  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf
@@ -107,8 +110,11 @@ conf:    1  1       2  2        0.000    0.000 =>
 conf:    1  2       3  3        0.000    0.000 => 
 conf:    1  3       4  4        0.000    0.000 => 
 conf:-----------------------------------------------------
+ tailsm: init
+ tailsm:xxx1
+ tailsm:xxx2
+ tailsm: end
 
- pairc, ib=  1:   1 neighbors in range  0.371*alat =   5.56
+ pairc, ib=  1:   1 neighbors in range  0.371  5.560
  pairc:      1 pairs total    1 is max cluster size
  Exit -1 makrm0: failed to find maximum in potential
- wkinfo:  used   104 K  workspace of 80000 K   in   0 K calls

@@ -1,0 +1,2089 @@
+ -----------------------  START LMF      -----------------------
+ ptenv() is called with EXT=h2
+ ptenv() not supported, but continue.
+ IO_HELP           opt    i4       1,  1,   *,  1       0
+ VERS_LM           reqd   r8       1,  1,   1, --       7
+  Expected Input style version: 7 ... found in file: 7
+ VERS_FP           reqd   r8       1,  1,   1, --       7
+  Expected Program version: 7 ... found in file: 7
+ CMD               opt    chr      1,  0,   *
+ CONST             opt    chr      1,  0,   *
+ HEADER            opt    chr      1,  0,   *
+ IO_VERBOS         opt    i4v      5,  1,   1,  0       35
+ IO_IACTIV         opt    i4       1,  1,   *,  1       0
+ IO_TIM            opt    i4v      2,  2,   *,  2       0 0
+
+ --- Parameters for crystal structure ---
+ STRUC_FILE        opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       25
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0 0.5 0.5 0.5 0 0.5 0.5 0.5 0
+ STRUC_NSPEC       opt    i4       1,  1,   1, --       1
+ STRUC_DALAT       opt    r8       1,  1,   1,  0       0
+ STRUC_NL          opt    i4       1,  1,   *,  1       3
+ STRUC_SHEAR       opt    r8v      4,  4,   *, --
+ STRUC_ROT         opt    chr      1,  0,   *
+ STRUC_DEFGRD      opt    r8v      9,  9,   *, --
+ STRUC_STRAIN      opt    r8v      6,  6,   *, --
+
+ --- Program Options ---
+ OPTIONS_HF        opt    lg       1,  1,   *,  1       F
+ OPTIONS_Q         opt    chr      1,  0,   *
+ OPTIONS_PFLOAT    opt    i4       1,  1,   1,  0       1
+
+ --- Parameters for hamiltonian ---
+ HAM_NSPIN         opt    i4       1,  1,   1,  0       1
+ HAM_REL           opt    i4       1,  1,   1,  0       1
+ HAM_GMAX          reqd   r8       1,  1,   1, --       12
+ HAM_TOL           opt    r8       1,  1,   *,  1       1e-6
+ HAM_FRZWF         opt    lg       1,  1,   *,  1       F
+ HAM_FORCES        opt    i4       1,  1,   1,  0       0
+ HAM_ELIND         opt    r8       1,  1,   *,  1       0
+ HAM_XCFUN         opt    i4       1,  1,   1,  0       103
+ HAM_GGA           opt    i4       1,  1,   *,  1       0
+ HAM_RDSIG         opt    i4       1,  1,   *,  1       0
+ HAM_RSRNGE        opt    r8       1,  1,   *,  1       5
+ HAM_RSSTOL        opt    r8       1,  1,   *,  1       5e-6
+ HAM_EWALD         opt    lg       1,  1,   *,  1       F
+ HAM_PMIN          opt    r8v     10,  1,   *, 10       0 0 0 0 0 0 0 0 0 0
+ HAM_PMAX          opt    r8v     10,  1,   *, 10       0 0 0 0 0 0 0 0 0 0
+ HAM_OVEPS         opt    r8       1,  1,   *,  1       0
+ HAM_OVNCUT        opt    i4       1,  1,   *,  1       0
+ HAM_PWMODE        opt    i4       1,  1,   1,  0       11
+ HAM_PWEMIN        opt    r8       1,  1,   *,  1       0
+ HAM_PWEMAX        opt    r8       1,  1,   1,  0       4
+ HAM_NPWPAD        opt    i4       1,  1,   *,  1       -1
+ HAM_SIGP          opt    ---                           missing
+ HAM_SIGP_MODE     opt    i4       1,  1,   *,  1       3
+ HAM_SIGP_A        opt    r8       1,  1,   *,  1       0.02
+ HAM_SIGP_B        opt    r8       1,  1,   *,  1       0.06
+ HAM_SIGP_NMIN     opt    i4       1,  1,   *,  1       0
+ HAM_SIGP_EMIN     opt    r8       1,  1,   *,  1       0
+ HAM_SIGP_NMAX     opt    i4       1,  1,   *,  1       0
+ HAM_SIGP_EMAX     opt    r8       1,  1,   *,  1       2
+ HAM_SIGP_EFIT     opt    r8       1,  1,   *,  1       0
+
+ --- Symmetry group operations ---
+ SYMGRP            opt    chr      1,  0,   1           find
+
+ --- Parameters for species data ---
+ SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
+ SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_OMAX2        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_WSRMAX       opt    r8       1,  1,   *,  1       0
+ ... Species 1
+ SPEC_ATOM         reqd   chr      1,  0,   1           H
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       1
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       0.7
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.025
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       91
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    reqd   r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH      reqd   r8v      4,  4,   4, --       -0.5 -0.5 -0.5 -0.5
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH2     reqd   r8v      4,  4,   4, --       -2 -2 -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *, --
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *, --
+ DEFPQ, z=1: P=  1.76  2.30  3.16  4.11  5.10
+        z=1: Q=  1.00  0.00  0.00  0.00  0.00
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       0
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       1
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_HCR     opt    r8v      4,  4,   *, --
+ SPEC_ATOM_HCR/R   opt    r8v      4,  4,   *,  4       0.7 0.7 0.7 0.7
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+
+ --- Parameters for site data ---
+ SITE_FILE         opt    chr      1,  0,   *
+ ... Site 1
+ SITE_ATOM         reqd   chr      1,  0,   1           H
+ H        xxx            1           1
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       -0.0254034 -0.0254034 -0.0254034
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 2
+ SITE_ATOM         reqd   chr      1,  0,   1           H
+ H        xxx            1           1
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.0254034 0.0254034 0.0254034
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+
+ --- Parameters for structure constants ---
+ STR_RMAXS         opt    r8       1,  1,   *, --
+ STR_RMAX          opt    r8       1,  1,   *,  1       0
+
+ --- Parameters for Brillouin zone integration ---
+ BZ_GETQP          opt    lg       1,  1,   *,  1       F
+ BZ_NKABC          reqd   i4v      3,  1,   3, --       1 1 1
+ BZ_PUTQP          opt    lg       1,  1,   *,  1       F
+ BZ_BZJOB          opt    i4v      3,  1,   1,  0       0
+ BZ_METAL          opt    i4       1,  1,   1,  0       3
+ BZ_TETRA          opt    lg       1,  1,   1,  0       F
+ BZ_N              opt    i4       1,  1,   1,  0       -1
+ BZ_W              opt    r8       1,  1,   1,  0       1e-3
+ BZ_EF0            opt    r8       1,  1,   *,  1       0
+ BZ_DELEF          opt    r8       1,  1,   *,  1       0.05
+ BZ_ZBAK           opt    r8       1,  1,   *,  1       0
+ BZ_SAVDOS         opt    i4       1,  1,   *,  1       0
+ BZ_DOS            opt    r8v      2,  1,   *,  2       -1 0
+ BZ_NPTS           opt    i4       1,  1,   *,  1       1001
+ BZ_EFMAX          opt    r8       1,  1,   *,  1       5
+ BZ_NEVMX          opt    i4       1,  1,   *,  1       0
+ BZ_ZVAL           opt    r8       1,  1,   *,  1       0
+ BZ_NOINV          opt    lg       1,  1,   *,  1       F
+ BZ_FSMOM          opt    r8       1,  1,   *,  1       0
+ BZ_INVIT          opt    lg       1,  1,   *,  1       T
+ BZ_MULL           opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for Ewald sums ---
+ EWALD_AS          opt    r8       1,  1,   *,  1       2
+ EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
+ EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
+ EWALD_RPAD        opt    r8       1,  1,   *,  1       0
+
+ --- Parameters for iterations ---
+ ITER_NIT          opt    i4       1,  1,   1,  0       30
+ ITER_NRMIX        opt    i4v      2,  1,   *,  2       80 2
+ ITER_MIX          opt    chr      1,  0,   *
+ ITER_AMIX         opt    chr      1,  0,   *
+ ITER_CONV         opt    r8       1,  1,   1,  0       1e-6
+ ITER_CONVC        opt    r8       1,  1,   1,  0       1e-6
+ ITER_UMIX         opt    r8       1,  1,   *,  1       1
+ ITER_TOLU         opt    r8       1,  1,   *,  1       0
+ ITER_NITU         opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for dynamics and statics ---
+ DYN_NIT           opt    i4       1,  1,   *,  1       1
+ DYN_MSTAT         opt    ---                           missing
+ DYN_MD            opt    ---                           missing
+
+ rdctrl: reset global max nl from 3 to 5
+  mxcst switch =           1           0 F F F
+  LMF  vn 7.00(LMF 7.0)  verb 35
+ special:  APW basis
+ pot:      XC:PW91+LMH(gga)
+          (warning) mixing incompatible functionals
+ bz:       metal(3), invit 
+          (warning) mixing incompatible functionals
+ goto setcg
+ lattic:
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 3906.250000
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat=25.00000   awald= 0.127
+         r1=  1.585   nkd=  79      q1=  4.641   nkg= 113
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 12 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3d r2(1,-0,-1)
+         i*r3d r2(1,-0,-1)
+ MKSYM:  found 12 space group operations ... includes inversion
+ zzz nclass=           1
+ 
+ lstar xxx=          -2
+ BZMESH:  1 irreducible QP from 1 ( 1 1 1 )  shift= F F F
+ lstar xxx=          -2
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ H        0.700  0.280    4    5         4  0.175  0.350    15    0   0.280
+
+ MSHSIZ: mesh has 55 x 55 x 55 divisions; length 0.321, 0.321, 0.321
+         generated from gmax = 12.0 a.u. : 114067 vectors of 166375 (68%)
+
+ gvlist: cutoff radius  12.000 gives 114067   recips of max 166375
+ SGVSYM: 10156 symmetry stars found for 114067 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 64 0 36 0
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      32     0    18    32    50       0
+   2      32     0    18    32    50       0
+  all     64     0    36    64   100       0
+ suham :  50 augmentation channels, 50 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  H        0*   0.50  -0.50  14.868    1.25E-04  114067*
+  H        1*   0.50  -0.50  16.301    1.50E-03  114067*
+  H        2*   0.50  -0.50  17.691    1.80E-02  114067*
+  H        3    0.50  -0.50  19.039    2.16E-01  114067*
+  H        0*   0.50  -2.00  14.868    1.25E-04  114067*
+  H        1*   0.50  -2.00  16.301    1.50E-03  114067*
+  H        2*   0.50  -2.00  17.691    1.80E-02  114067*
+  H        3    0.50  -2.00  19.039    2.16E-01  114067*
+
+ suham:  q-dependent PW basis with  Emin = 0 < E < 4.
+         Est. min,max PW dimension = 514,544.  Use npwpad = 6 => ndham = 614
+
+ iors  : read restart file (binary, mesh density) 
+         use from  restart file: ef window, pnu 
+         ignore in restart file: positions 
+
+ --- BNDFP:  begin iteration 1 of 30 ---
+ mkpot negative smrho; isp,number,min(smrho)=           1           2 -1.42107642248265932E-013
+ enforce positive smrho, to which we add srshift=  1.52107642248265940E-013
+
+ avg es pot at rmt=-1.122338  avg sphere pot= 0.000100  vconst= 1.122338
+
+ smooth rhoves      6.339479   charge     1.981345
+ smooth rhoeps =   -1.193172   rhomu =   -1.532240  avg vxc =   -0.055862 
+ smooth rhoeps =   -1.193172   rhomu =   -1.532240  avg vxc =   -0.055862 
+
+ locpot:
+  i job kmax lfltwf=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.229202 rho*exc=  -0.166669
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.213167 rho*exc=  -0.154020
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.229202 rho*exc=  -0.166669
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.213167 rho*exc=  -0.154020
+ potential shift to crystal energy zero:   -0.003685
+  i job kmax lfltwf=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.229202 rho*exc=  -0.166669
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.213167 rho*exc=  -0.154020
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.229202 rho*exc=  -0.166669
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.213167 rho*exc=  -0.154020
+ potential shift to crystal energy zero:   -0.003685
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.590092        -0.210716        -0.800808
+   rhoval*ves              0.831735        -0.068232         0.763503
+   psnuc*ves              11.847223       -18.303411        -6.456188
+   utot                    6.339479        -9.185821        -2.846342
+   rho*exc                -1.193172        -0.025299        -1.218471
+   rho*vxc                -1.532240        -0.032070        -1.564311
+   valence chg             1.981345         0.018655         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0.001)  ef0=1.005089
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5161  1.0291  1.1036  1.2175  1.2175  1.2758  1.2802  1.2802  1.2961
+  1.3198  1.3234  1.3317  1.3317  1.3382  1.3382  1.3854  1.3990  1.5317
+  1.5317  1.5528  1.5710  1.5710  1.5827  1.5827  1.5845  1.5845  1.5908
+  1.6478  1.6637  1.7132  1.7132  1.7279  1.7279  1.7427  1.7589  1.7589
+  1.7606  1.7655  1.7655  1.7764  1.7774  1.7774  1.7798  1.7798  1.7818
+  1.7828  1.7926  1.7953  1.7953  1.7983  1.7983  1.8393  1.8399  1.8439
+  1.8439  1.8454  1.8458  1.8458  1.8465  1.9417  1.9998  2.0719  2.0719
+  2.0758  2.0758  2.1133  2.1271  2.1735  2.1812  2.1812  2.2180  2.2180
+  2.2365  2.2365  2.2393  2.2393  2.2520  2.2720  2.2820  2.2841  2.2841
+  2.2882  2.2898  2.2898  2.2939  2.2939  2.2945  2.2945  2.2947  2.3211
+  2.3265  2.3265  2.3305  2.3305  2.3333  2.3401  2.3401  2.3422  2.3428
+  2.3428  2.3447  2.3456  2.3481  2.3481  2.3486  2.3507  2.3507  2.3534
+  2.3555  2.3555  2.3557  2.3560  2.3560  2.4746  2.5145  2.5468  2.5544
+  2.5544  2.5633  2.5633  2.5689  2.5877  2.5877  2.5911  2.5911  2.5917
+  2.5921  2.5932  2.5932  2.5950  2.5950  2.5961  2.5969  2.5969  2.5971
+  2.5971  2.5974  2.6820  2.7074  2.7263  2.7263  2.7290  2.7290  2.7667
+  2.7739  2.7779  2.7779  2.7790  2.7804  2.7804  2.7824  2.7836  2.7836
+  2.7845  2.7845  2.7856  2.7863  2.7886  2.7886  2.7886  2.7890  2.7890
+  2.7891  2.8068  2.8069  2.8069  2.8069  2.8069  2.8069  2.9355  2.9970
+  3.0260  3.0522  3.0522  3.0657  3.0657  3.0728  3.0728  3.0777  3.0777
+  3.0840  3.1505  3.1758  3.1946  3.2117  3.2117  3.2186  3.2186  3.2460
+  3.2466  3.2466  3.2469  3.2469  3.2620  3.2620  3.2651  3.2666  3.2666
+  3.2714  3.2724  3.2724  3.2726  3.2738  3.2766  3.2766  3.2808  3.2819
+  3.2837  3.2837  3.2844  3.2872  3.2872  3.2904  3.2904  3.2926  3.2926
+  3.2964  3.3017  3.3035  3.3035  3.3039  3.3039  3.3053  3.3053  3.3059
+  3.3075  3.3075  3.3086  3.3094  3.3381  3.3410  3.3410  3.3418  3.3423
+  3.3423  3.3442  3.3458  3.3464  3.3465  3.3465  3.3485  3.3485  3.3497
+  3.3612  3.3612  3.3613  3.3614  3.3614  3.3615  3.3632  3.3635  3.3635
+  3.3638  3.3638  3.3638  3.3646  3.3646  3.3646  3.3646  3.5220  3.5574
+  3.5689  3.5689  3.5740  3.5740  3.5820  3.5934  3.5943  3.5943  3.5961
+  3.5961  3.6024  3.6024  3.6030  3.6030  3.6044  3.6050  3.6128  3.6128
+  3.6129  3.6129  3.6129  3.6129  3.7016  3.7183  3.7358  3.7506  3.7506
+  3.7537  3.7537  3.7547  3.7842  3.7842  3.7847  3.7847  3.7847  3.7875
+  3.7892  3.7892  3.7900  3.7900  3.7912  3.7913  3.7913  3.7913  3.7913
+  3.7918  3.8435  3.8496  3.8528  3.8528  3.8534  3.8534  3.8536  3.8576
+  3.8581  3.8581  3.8581  3.8581  3.8604  3.8604  3.8604  3.8610  3.8610
+  3.8610  3.8614  3.8618  3.8618  3.8618  3.8619  3.8619  4.0392  4.0760
+  4.0942  4.1005  4.1005  4.1021  4.1021  4.1026  4.1305  4.1634  4.1753
+  4.2059  4.2059  4.2119  4.2119  4.2268  4.2268  4.2431  4.2431  4.2523
+  4.2532  4.2533  4.2533  4.2539  4.2539  4.2599  4.2986  4.2988  4.2988
+  4.2994  4.2994  4.2994  4.3028  4.3028  4.3031  4.3031  4.3032  4.3039
+  4.3068  4.3070  4.3082  4.3086  4.3086  4.3095  4.3095  4.3095  4.3095
+  4.3096  4.3096  4.3100  4.3224  4.3224  4.3224  4.3225  4.3225  4.3225
+  4.3563  4.3583  4.3583  4.3602  4.3602  4.3613  4.3630  4.3630  4.3631
+  4.3631  4.3633  4.3645  4.3645  4.3657  4.3671  4.3671  4.3676  4.3693
+  4.3693  4.3701  4.3701  4.3701  4.3703  4.3703  4.5027  4.5211  4.5484
+  4.5667  4.5667  4.5691  4.5691  4.5710  4.5888  4.5888  4.5920  4.5920
+  4.5944  4.5996  4.6004  4.6004  4.6006  4.6006  4.6051  4.6051  4.6053
+  4.6053  4.6054  4.6055  4.6119  4.6135  4.6135  4.6150  4.6150  4.6155
+  4.6177  4.6177  4.6179  4.6179  4.6183  4.6187  4.6193  4.6193  4.6193
+  4.6193  4.6221  4.6222  4.6222  4.6223  4.6223  4.6223  4.6249  4.6250
+  4.7276  4.7509  4.7572  4.7596  4.7596  4.7671  4.7671  4.7722  4.7780
+  4.7780  4.7813  4.7813  4.7833  4.7833  4.7858  4.7858  4.7903  4.7909
+  4.7909  4.7918  4.7919  4.7937  4.7937  4.7937  4.7937  4.7939  4.7963
+  4.7963  4.7963  4.7966  4.7966  4.7966  4.8081  4.8084  4.8084  4.8086
+  4.8086  4.8086  4.8117  4.8121  4.8121  4.8125  4.8125  4.8126  4.8126
+  4.8126  4.8126  4.8127  4.8147  4.8149  4.8151  4.8151  4.8152  4.8152
+  4.8193  4.8194  4.8194  4.8194  4.8195  4.8195  4.8208  4.8208  4.8208
+  4.8209  4.8209  4.8209  4.8234  4.8235  4.8237  4.8237  4.8237  4.8237
+  5.2977  5.5225  5.6785  5.9845  5.9845  6.0964  6.0964  6.3016  6.7036
+  6.7036  6.9893  6.9893  7.1584  7.1584  7.4484  7.7415  7.7415  8.3939
+  8.3939  8.5875  8.6540  9.1481  9.1943  9.2219  9.9745 10.0234 10.0234
+ 10.5234 10.9080 10.9080 11.2338 12.7656 12.7656 13.7040 15.6273 15.6273
+ 16.7482 16.7482 16.8485 21.2026 21.2177 21.2177 21.2290 21.2290 21.3832
+ 21.3832 23.9778 23.9778 24.6767 25.8703 27.8211 27.8211 27.9071 28.0002
+ 28.2671 28.3620 28.7791 28.7791 29.4359 29.4359 29.8427 30.1956 30.1956
+ 31.3709
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.516104  2.000000
+      1.029126  0.000000
+      1.103650  0.000000
+      1.217502  0.000000
+      1.217502  0.000000
+      1.275813  0.000000
+      1.280209  0.000000
+      1.280209  0.000000
+      1.296104  0.000000
+      1.319786  0.000000
+     ... 
+ T=157.9K, E_F=0.99046, sumev=1.032208, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5161  1.0291  1.1036  1.2175  1.2175  1.2758  1.2802  1.2802  1.2961
+  1.3198  1.3234  1.3317  1.3317  1.3382  1.3382  1.3854  1.3990  1.5317
+  1.5317  1.5528  1.5710  1.5710  1.5827  1.5827  1.5845  1.5845  1.5908
+  1.6478  1.6637  1.7132  1.7132  1.7279  1.7279  1.7427  1.7589  1.7589
+  1.7606  1.7655  1.7655  1.7764  1.7774  1.7774  1.7798  1.7798  1.7818
+  1.7828  1.7926  1.7953  1.7953  1.7983  1.7983  1.8393  1.8399  1.8439
+  1.8439  1.8454  1.8458  1.8458  1.8465  1.9417  1.9998  2.0719  2.0719
+  2.0758  2.0758  2.1133  2.1271  2.1735  2.1812  2.1812  2.2180  2.2180
+  2.2365  2.2365  2.2393  2.2393  2.2520  2.2720  2.2820  2.2841  2.2841
+  2.2882  2.2898  2.2898  2.2939  2.2939  2.2945  2.2945  2.2947  2.3211
+  2.3265  2.3265  2.3305  2.3305  2.3333  2.3401  2.3401  2.3422  2.3428
+  2.3428  2.3447  2.3456  2.3481  2.3481  2.3486  2.3507  2.3507  2.3534
+  2.3555  2.3555  2.3557  2.3560  2.3560  2.4746  2.5145  2.5468  2.5544
+  2.5544  2.5633  2.5633  2.5689  2.5877  2.5877  2.5911  2.5911  2.5917
+  2.5921  2.5932  2.5932  2.5950  2.5950  2.5961  2.5969  2.5969  2.5971
+  2.5971  2.5974  2.6820  2.7074  2.7263  2.7263  2.7290  2.7290  2.7667
+  2.7739  2.7779  2.7779  2.7790  2.7804  2.7804  2.7824  2.7836  2.7836
+  2.7845  2.7845  2.7856  2.7863  2.7886  2.7886  2.7886  2.7890  2.7890
+  2.7891  2.8068  2.8069  2.8069  2.8069  2.8069  2.8069  2.9355  2.9970
+  3.0260  3.0522  3.0522  3.0657  3.0657  3.0728  3.0728  3.0777  3.0777
+  3.0840  3.1505  3.1758  3.1946  3.2117  3.2117  3.2186  3.2186  3.2460
+  3.2466  3.2466  3.2469  3.2469  3.2620  3.2620  3.2651  3.2666  3.2666
+  3.2714  3.2724  3.2724  3.2726  3.2738  3.2766  3.2766  3.2808  3.2819
+  3.2837  3.2837  3.2844  3.2872  3.2872  3.2904  3.2904  3.2926  3.2926
+  3.2964  3.3017  3.3035  3.3035  3.3039  3.3039  3.3053  3.3053  3.3059
+  3.3075  3.3075  3.3086  3.3094  3.3381  3.3410  3.3410  3.3418  3.3423
+  3.3423  3.3442  3.3458  3.3464  3.3465  3.3465  3.3485  3.3485  3.3497
+  3.3612  3.3612  3.3613  3.3614  3.3614  3.3615  3.3632  3.3635  3.3635
+  3.3638  3.3638  3.3638  3.3646  3.3646  3.3646  3.3646  3.5220  3.5574
+  3.5689  3.5689  3.5740  3.5740  3.5820  3.5934  3.5943  3.5943  3.5961
+  3.5961  3.6024  3.6024  3.6030  3.6030  3.6044  3.6050  3.6128  3.6128
+  3.6129  3.6129  3.6129  3.6129  3.7016  3.7183  3.7358  3.7506  3.7506
+  3.7537  3.7537  3.7547  3.7842  3.7842  3.7847  3.7847  3.7847  3.7875
+  3.7892  3.7892  3.7900  3.7900  3.7912  3.7913  3.7913  3.7913  3.7913
+  3.7918  3.8435  3.8496  3.8528  3.8528  3.8534  3.8534  3.8536  3.8576
+  3.8581  3.8581  3.8581  3.8581  3.8604  3.8604  3.8604  3.8610  3.8610
+  3.8610  3.8614  3.8618  3.8618  3.8618  3.8619  3.8619  4.0392  4.0760
+  4.0942  4.1005  4.1005  4.1021  4.1021  4.1026  4.1305  4.1634  4.1753
+  4.2059  4.2059  4.2119  4.2119  4.2268  4.2268  4.2431  4.2431  4.2523
+  4.2532  4.2533  4.2533  4.2539  4.2539  4.2599  4.2986  4.2988  4.2988
+  4.2994  4.2994  4.2994  4.3028  4.3028  4.3031  4.3031  4.3032  4.3039
+  4.3068  4.3070  4.3082  4.3086  4.3086  4.3095  4.3095  4.3095  4.3095
+  4.3096  4.3096  4.3100  4.3224  4.3224  4.3224  4.3225  4.3225  4.3225
+  4.3563  4.3583  4.3583  4.3602  4.3602  4.3613  4.3630  4.3630  4.3631
+  4.3631  4.3633  4.3645  4.3645  4.3657  4.3671  4.3671  4.3676  4.3693
+  4.3693  4.3701  4.3701  4.3701  4.3703  4.3703  4.5027  4.5211  4.5484
+  4.5667  4.5667  4.5691  4.5691  4.5710  4.5888  4.5888  4.5920  4.5920
+  4.5944  4.5996  4.6004  4.6004  4.6006  4.6006  4.6051  4.6051  4.6053
+  4.6053  4.6054  4.6055  4.6119  4.6135  4.6135  4.6150  4.6150  4.6155
+  4.6177  4.6177  4.6179  4.6179  4.6183  4.6187  4.6193  4.6193  4.6193
+  4.6193  4.6221  4.6222  4.6222  4.6223  4.6223  4.6223  4.6249  4.6250
+  4.7276  4.7509  4.7572  4.7596  4.7596  4.7671  4.7671  4.7722  4.7780
+  4.7780  4.7813  4.7813  4.7833  4.7833  4.7858  4.7858  4.7903  4.7909
+  4.7909  4.7918  4.7919  4.7937  4.7937  4.7937  4.7937  4.7939  4.7963
+  4.7963  4.7963  4.7966  4.7966  4.7966  4.8081  4.8084  4.8084  4.8086
+  4.8086  4.8086  4.8117  4.8121  4.8121  4.8125  4.8125  4.8126  4.8126
+  4.8126  4.8126  4.8127  4.8147  4.8149  4.8151  4.8151  4.8152  4.8152
+  4.8193  4.8194  4.8194  4.8194  4.8195  4.8195  4.8208  4.8208  4.8208
+  4.8209  4.8209  4.8209  4.8234  4.8235  4.8237  4.8237  4.8237  4.8237
+  5.2977  5.5225  5.6785  5.9845  5.9845  6.0964  6.0964  6.3016  6.7036
+  6.7036  6.9893  6.9893  7.1584  7.1584  7.4484  7.7415  7.7415  8.3939
+  8.3939  8.5875  8.6540  9.1481  9.1943  9.2219  9.9745 10.0234 10.0234
+ 10.5234 10.9080 10.9080 11.2338 12.7656 12.7656 13.7040 15.6273 15.6273
+ 16.7482 16.7482 16.8485 21.2026 21.2177 21.2177 21.2290 21.2290 21.3832
+ 21.3832 23.9778 23.9778 24.6767 25.8703 27.8211 27.8211 27.9071 28.0002
+ 28.2671 28.3620 28.7791 28.7791 29.4359 29.4359 29.8427 30.1956 30.1956
+ 31.3709
+ (warning) DOS window (-1,0) reset to (0.0161,1.4905)
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.516104  2.000000
+      1.029126  0.000000
+      1.103650  0.000000
+      1.217502  0.000000
+      1.217502  0.000000
+      1.275813  0.000000
+      1.280209  0.000000
+      1.280209  0.000000
+      1.296104  0.000000
+      1.319786  0.000000
+     ... 
+ T=157.9K, E_F=0.99046, sumev=1.032208, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local
+   1    0.170899    0.162371    0.008529
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.170899    0.162371    0.008529
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.170233    0.516104    1.678736    1.680135    1.500000    1.680135
+ 1     0    0.000640    0.516104    2.291789    2.292352    2.250000    2.292352
+ 2     0    0.000025    0.516104    3.157304    3.157441    3.147584    3.157441
+ 3     0    0.000001    0.516104    4.105838    4.105887    4.102416    4.105887
+ 4     0    0.000000    0.516104    5.079536    5.079560    5.077979    5.079560
+
+ site    2   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.170233    0.516104    1.678736    1.680135    1.500000    1.680135
+ 1     0    0.000640    0.516104    2.291789    2.292352    2.250000    2.292352
+ 2     0    0.000025    0.516104    3.157304    3.157441    3.147584    3.157441
+ 3     0    0.000001    0.516104    4.105838    4.105887    4.102416    4.105887
+ 4     0    0.000000    0.516104    5.079536    5.079560    5.077979    5.079560
+
+ Harris energy:
+ sumev=        1.032208  val*vef=      -0.800808   sumtv=       1.833015
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.218471     utot=      -2.846342    ehar=      -2.231799
+
+ srhov:     -0.491352     -0.192879     -0.684231 sumev=    1.032208   sumtv=    1.716439
+ all smrho is positive for isp=           1
+
+ avg es pot at rmt=-1.199027  avg sphere pot= 0.000100  vconst= 1.199027
+
+ smooth rhoves      6.396087   charge     1.982942
+ smooth rhoeps =   -1.138376   rhomu =   -1.461570  avg vxc =   -0.061013 
+ smooth rhoeps =   -1.138376   rhomu =   -1.461570  avg vxc =   -0.061013 
+
+ locpot:
+  i job kmax lfltwf=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.203924 rho*exc=  -0.147913
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.189705 rho*exc=  -0.136614
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.203924 rho*exc=  -0.147913
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.189705 rho*exc=  -0.136614
+  i job kmax lfltwf=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.203924 rho*exc=  -0.147913
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.189705 rho*exc=  -0.136614
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.203924 rho*exc=  -0.147913
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.189705 rho*exc=  -0.136614
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.443831        -0.192134        -0.635966
+   rhoval*ves              0.916482        -0.062440         0.854041
+   psnuc*ves              11.875692       -18.297985        -6.422293
+   utot                    6.396087        -9.180213        -2.784126
+   rho*exc                -1.138376        -0.022597        -1.160973
+   rho*vxc                -1.461570        -0.028438        -1.490007
+   valence chg             1.982942         0.017058         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ Kohn-Sham energy:
+ sumtv=        1.716439  sumtc=         0.000000   ekin=        1.716439
+ rhoep=       -1.160973   utot=        -2.784126   ehks=       -2.228660
+ mixrho: sum smrho  init = 0.843894D+02 0.179343D-28 0.843894D+02       0
+ mixrho: sum smrnew new  = 0.844575D+02 0.651180D-28 0.844575D+02       0
+  
+ mixrho: dqsum rmsuns=  0.40906D-06  0.69005D-03  0.11219D-19
+ mixrealsmooth= T
+ wgtsmooth=  2.45163586350269835E-003
+ mixrho:  sought 8 iter from file mixm; read 8.  RMS DQ=4.44e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.981345      1.982942      1.982942      0.000690      1.982942
+ site    1    0.009328      0.008529      0.008529      0.000275      0.008529
+ site    2    0.009328      0.008529      0.008529      0.000275      0.008529
+ AMIX: condition of normal eqns >100000. Reducing nmix to 7
+ AMIX: condition of normal eqns >100000. Reducing nmix to 6
+ AMIX: condition of normal eqns >100000. Reducing nmix to 5
+ AMIX: condition of normal eqns >100000. Reducing nmix to 4
+ AMIX: condition of normal eqns >100000. Reducing nmix to 3
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=167639  beta=1  tm=5  rmsdel=4.44e-5
+   tj: 0.99939
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -5.94916435558978662E-010 -1.52298607503098526E-013
+ mixrho: warning. negative smrho; isp number min=           1           2 -1.92723589663618990E-015
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  1  of 30    ehf=      -2.231799   ehk=      -2.228660
+i nk=1 dis=.8 ehf=-2.2317986 ehk=-2.22866
+
+ --- BNDFP:  begin iteration 2 of 30 ---
+ mkpot negative smrho; isp,number,min(smrho)=           1           2 -1.92723589663618990E-015
+ enforce positive smrho, to which we add srshift=  1.19272358966361899E-014
+
+ avg es pot at rmt=-1.122391  avg sphere pot= 0.000100  vconst= 1.122391
+
+ smooth rhoves      6.339517   charge     1.981346
+ smooth rhoeps =   -1.193132   rhomu =   -1.532189  avg vxc =   -0.055866 
+ smooth rhoeps =   -1.193132   rhomu =   -1.532189  avg vxc =   -0.055866 
+
+ locpot:
+  i job kmax lfltwf=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.228197 rho*exc=  -0.166531
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.212158 rho*exc=  -0.153882
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.228197 rho*exc=  -0.166531
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.212158 rho*exc=  -0.153882
+ potential shift to crystal energy zero:   -0.003676
+  i job kmax lfltwf=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.228197 rho*exc=  -0.166531
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.212158 rho*exc=  -0.153882
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.228197 rho*exc=  -0.166531
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.212158 rho*exc=  -0.153882
+ potential shift to crystal energy zero:   -0.003676
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.589994        -0.210712        -0.800706
+   rhoval*ves              0.831789        -0.068228         0.763560
+   psnuc*ves              11.847245       -18.303408        -6.456162
+   utot                    6.339517        -9.185818        -2.846301
+   rho*exc                -1.193132        -0.025298        -1.218429
+   rho*vxc                -1.532189        -0.032078        -1.564266
+   valence chg             1.981346         0.018654         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0.001)  ef0=0.99046
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5161  1.0291  1.1037  1.2175  1.2175  1.2759  1.2803  1.2803  1.2962
+  1.3198  1.3234  1.3317  1.3317  1.3382  1.3382  1.3854  1.3990  1.5318
+  1.5318  1.5529  1.5710  1.5710  1.5828  1.5828  1.5845  1.5845  1.5908
+  1.6479  1.6638  1.7132  1.7132  1.7279  1.7279  1.7427  1.7589  1.7589
+  1.7607  1.7656  1.7656  1.7764  1.7775  1.7775  1.7798  1.7798  1.7818
+  1.7829  1.7926  1.7954  1.7954  1.7983  1.7983  1.8394  1.8399  1.8440
+  1.8440  1.8455  1.8458  1.8458  1.8465  1.9418  1.9998  2.0720  2.0720
+  2.0759  2.0759  2.1133  2.1271  2.1735  2.1813  2.1813  2.2181  2.2181
+  2.2365  2.2365  2.2393  2.2393  2.2521  2.2721  2.2821  2.2841  2.2841
+  2.2883  2.2899  2.2899  2.2939  2.2939  2.2946  2.2946  2.2947  2.3212
+  2.3265  2.3265  2.3305  2.3305  2.3333  2.3401  2.3401  2.3423  2.3429
+  2.3429  2.3448  2.3456  2.3482  2.3482  2.3486  2.3508  2.3508  2.3534
+  2.3555  2.3555  2.3558  2.3560  2.3560  2.4746  2.5145  2.5468  2.5544
+  2.5544  2.5633  2.5633  2.5689  2.5878  2.5878  2.5911  2.5911  2.5917
+  2.5921  2.5933  2.5933  2.5950  2.5950  2.5962  2.5970  2.5970  2.5971
+  2.5971  2.5974  2.6820  2.7074  2.7263  2.7263  2.7290  2.7290  2.7667
+  2.7739  2.7779  2.7779  2.7790  2.7804  2.7804  2.7825  2.7837  2.7837
+  2.7845  2.7845  2.7856  2.7863  2.7886  2.7886  2.7887  2.7890  2.7890
+  2.7892  2.8068  2.8069  2.8069  2.8069  2.8070  2.8070  2.9356  2.9970
+  3.0260  3.0522  3.0522  3.0657  3.0657  3.0728  3.0728  3.0777  3.0777
+  3.0840  3.1506  3.1758  3.1947  3.2117  3.2117  3.2186  3.2186  3.2460
+  3.2466  3.2466  3.2470  3.2470  3.2620  3.2620  3.2651  3.2666  3.2666
+  3.2714  3.2725  3.2725  3.2727  3.2738  3.2767  3.2767  3.2809  3.2819
+  3.2838  3.2838  3.2844  3.2873  3.2873  3.2904  3.2904  3.2926  3.2926
+  3.2965  3.3018  3.3035  3.3035  3.3040  3.3040  3.3053  3.3053  3.3059
+  3.3075  3.3075  3.3086  3.3095  3.3381  3.3411  3.3411  3.3419  3.3423
+  3.3423  3.3442  3.3459  3.3464  3.3465  3.3465  3.3486  3.3486  3.3497
+  3.3613  3.3613  3.3614  3.3615  3.3615  3.3615  3.3632  3.3635  3.3635
+  3.3638  3.3638  3.3639  3.3646  3.3646  3.3646  3.3646  3.5220  3.5574
+  3.5689  3.5689  3.5740  3.5740  3.5821  3.5935  3.5943  3.5943  3.5962
+  3.5962  3.6025  3.6025  3.6030  3.6030  3.6045  3.6050  3.6129  3.6129
+  3.6129  3.6129  3.6130  3.6130  3.7016  3.7184  3.7358  3.7506  3.7506
+  3.7538  3.7538  3.7547  3.7843  3.7843  3.7847  3.7847  3.7847  3.7875
+  3.7893  3.7893  3.7900  3.7900  3.7913  3.7913  3.7913  3.7914  3.7914
+  3.7918  3.8435  3.8496  3.8529  3.8529  3.8534  3.8534  3.8536  3.8577
+  3.8581  3.8581  3.8582  3.8582  3.8604  3.8605  3.8605  3.8610  3.8610
+  3.8610  3.8615  3.8618  3.8618  3.8618  3.8620  3.8620  4.0393  4.0761
+  4.0943  4.1006  4.1006  4.1021  4.1021  4.1026  4.1305  4.1635  4.1754
+  4.2059  4.2059  4.2119  4.2119  4.2269  4.2269  4.2432  4.2432  4.2523
+  4.2533  4.2534  4.2534  4.2539  4.2539  4.2600  4.2987  4.2988  4.2988
+  4.2994  4.2994  4.2994  4.3028  4.3028  4.3031  4.3031  4.3033  4.3039
+  4.3069  4.3071  4.3082  4.3086  4.3086  4.3095  4.3095  4.3096  4.3096
+  4.3096  4.3096  4.3100  4.3225  4.3225  4.3225  4.3225  4.3225  4.3225
+  4.3563  4.3583  4.3583  4.3602  4.3602  4.3613  4.3630  4.3630  4.3631
+  4.3631  4.3633  4.3645  4.3646  4.3657  4.3671  4.3671  4.3676  4.3693
+  4.3693  4.3701  4.3701  4.3701  4.3704  4.3704  4.5027  4.5211  4.5485
+  4.5668  4.5668  4.5691  4.5691  4.5711  4.5889  4.5889  4.5920  4.5920
+  4.5945  4.5997  4.6005  4.6005  4.6006  4.6006  4.6052  4.6052  4.6054
+  4.6054  4.6055  4.6056  4.6119  4.6135  4.6135  4.6150  4.6150  4.6155
+  4.6177  4.6177  4.6179  4.6179  4.6184  4.6188  4.6193  4.6193  4.6194
+  4.6194  4.6222  4.6223  4.6223  4.6224  4.6224  4.6224  4.6250  4.6250
+  4.7277  4.7509  4.7573  4.7597  4.7597  4.7672  4.7672  4.7723  4.7781
+  4.7781  4.7813  4.7813  4.7834  4.7834  4.7858  4.7858  4.7903  4.7909
+  4.7909  4.7919  4.7920  4.7937  4.7937  4.7938  4.7938  4.7939  4.7963
+  4.7963  4.7964  4.7967  4.7967  4.7967  4.8082  4.8085  4.8085  4.8086
+  4.8086  4.8086  4.8118  4.8121  4.8121  4.8125  4.8125  4.8126  4.8126
+  4.8127  4.8127  4.8128  4.8147  4.8149  4.8152  4.8152  4.8153  4.8153
+  4.8194  4.8194  4.8194  4.8194  4.8195  4.8195  4.8208  4.8209  4.8209
+  4.8209  4.8209  4.8210  4.8234  4.8236  4.8237  4.8237  4.8237  4.8237
+  5.2977  5.5224  5.6784  5.9844  5.9844  6.0963  6.0963  6.3017  6.7037
+  6.7037  6.9894  6.9894  7.1584  7.1584  7.4485  7.7415  7.7415  8.3939
+  8.3939  8.5876  8.6541  9.1481  9.1945  9.2220  9.9744 10.0234 10.0234
+ 10.5232 10.9080 10.9080 11.2343 12.7656 12.7656 13.7034 15.6279 15.6279
+ 16.7484 16.7484 16.8485 21.2019 21.2182 21.2182 21.2295 21.2295 21.3836
+ 21.3836 23.9783 23.9783 24.6766 25.8705 27.8213 27.8213 27.9073 28.0004
+ 28.2673 28.3622 28.7796 28.7796 29.4363 29.4363 29.8440 30.1964 30.1964
+ 31.3704
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.516105  2.000000
+      1.029148  0.000000
+      1.103697  0.000000
+      1.217547  0.000000
+      1.217547  0.000000
+      1.275861  0.000000
+      1.280258  0.000000
+      1.280258  0.000000
+      1.296154  0.000000
+      1.319833  0.000000
+     ... 
+ T=157.9K, E_F=0.990453, sumev=1.032211, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5161  1.0291  1.1037  1.2175  1.2175  1.2759  1.2803  1.2803  1.2962
+  1.3198  1.3234  1.3317  1.3317  1.3382  1.3382  1.3854  1.3990  1.5318
+  1.5318  1.5529  1.5710  1.5710  1.5828  1.5828  1.5845  1.5845  1.5908
+  1.6479  1.6638  1.7132  1.7132  1.7279  1.7279  1.7427  1.7589  1.7589
+  1.7607  1.7656  1.7656  1.7764  1.7775  1.7775  1.7798  1.7798  1.7818
+  1.7829  1.7926  1.7954  1.7954  1.7983  1.7983  1.8394  1.8399  1.8440
+  1.8440  1.8455  1.8458  1.8458  1.8465  1.9418  1.9998  2.0720  2.0720
+  2.0759  2.0759  2.1133  2.1271  2.1735  2.1813  2.1813  2.2181  2.2181
+  2.2365  2.2365  2.2393  2.2393  2.2521  2.2721  2.2821  2.2841  2.2841
+  2.2883  2.2899  2.2899  2.2939  2.2939  2.2946  2.2946  2.2947  2.3212
+  2.3265  2.3265  2.3305  2.3305  2.3333  2.3401  2.3401  2.3423  2.3429
+  2.3429  2.3448  2.3456  2.3482  2.3482  2.3486  2.3508  2.3508  2.3534
+  2.3555  2.3555  2.3558  2.3560  2.3560  2.4746  2.5145  2.5468  2.5544
+  2.5544  2.5633  2.5633  2.5689  2.5878  2.5878  2.5911  2.5911  2.5917
+  2.5921  2.5933  2.5933  2.5950  2.5950  2.5962  2.5970  2.5970  2.5971
+  2.5971  2.5974  2.6820  2.7074  2.7263  2.7263  2.7290  2.7290  2.7667
+  2.7739  2.7779  2.7779  2.7790  2.7804  2.7804  2.7825  2.7837  2.7837
+  2.7845  2.7845  2.7856  2.7863  2.7886  2.7886  2.7887  2.7890  2.7890
+  2.7892  2.8068  2.8069  2.8069  2.8069  2.8070  2.8070  2.9356  2.9970
+  3.0260  3.0522  3.0522  3.0657  3.0657  3.0728  3.0728  3.0777  3.0777
+  3.0840  3.1506  3.1758  3.1947  3.2117  3.2117  3.2186  3.2186  3.2460
+  3.2466  3.2466  3.2470  3.2470  3.2620  3.2620  3.2651  3.2666  3.2666
+  3.2714  3.2725  3.2725  3.2727  3.2738  3.2767  3.2767  3.2809  3.2819
+  3.2838  3.2838  3.2844  3.2873  3.2873  3.2904  3.2904  3.2926  3.2926
+  3.2965  3.3018  3.3035  3.3035  3.3040  3.3040  3.3053  3.3053  3.3059
+  3.3075  3.3075  3.3086  3.3095  3.3381  3.3411  3.3411  3.3419  3.3423
+  3.3423  3.3442  3.3459  3.3464  3.3465  3.3465  3.3486  3.3486  3.3497
+  3.3613  3.3613  3.3614  3.3615  3.3615  3.3615  3.3632  3.3635  3.3635
+  3.3638  3.3638  3.3639  3.3646  3.3646  3.3646  3.3646  3.5220  3.5574
+  3.5689  3.5689  3.5740  3.5740  3.5821  3.5935  3.5943  3.5943  3.5962
+  3.5962  3.6025  3.6025  3.6030  3.6030  3.6045  3.6050  3.6129  3.6129
+  3.6129  3.6129  3.6130  3.6130  3.7016  3.7184  3.7358  3.7506  3.7506
+  3.7538  3.7538  3.7547  3.7843  3.7843  3.7847  3.7847  3.7847  3.7875
+  3.7893  3.7893  3.7900  3.7900  3.7913  3.7913  3.7913  3.7914  3.7914
+  3.7918  3.8435  3.8496  3.8529  3.8529  3.8534  3.8534  3.8536  3.8577
+  3.8581  3.8581  3.8582  3.8582  3.8604  3.8605  3.8605  3.8610  3.8610
+  3.8610  3.8615  3.8618  3.8618  3.8618  3.8620  3.8620  4.0393  4.0761
+  4.0943  4.1006  4.1006  4.1021  4.1021  4.1026  4.1305  4.1635  4.1754
+  4.2059  4.2059  4.2119  4.2119  4.2269  4.2269  4.2432  4.2432  4.2523
+  4.2533  4.2534  4.2534  4.2539  4.2539  4.2600  4.2987  4.2988  4.2988
+  4.2994  4.2994  4.2994  4.3028  4.3028  4.3031  4.3031  4.3033  4.3039
+  4.3069  4.3071  4.3082  4.3086  4.3086  4.3095  4.3095  4.3096  4.3096
+  4.3096  4.3096  4.3100  4.3225  4.3225  4.3225  4.3225  4.3225  4.3225
+  4.3563  4.3583  4.3583  4.3602  4.3602  4.3613  4.3630  4.3630  4.3631
+  4.3631  4.3633  4.3645  4.3646  4.3657  4.3671  4.3671  4.3676  4.3693
+  4.3693  4.3701  4.3701  4.3701  4.3704  4.3704  4.5027  4.5211  4.5485
+  4.5668  4.5668  4.5691  4.5691  4.5711  4.5889  4.5889  4.5920  4.5920
+  4.5945  4.5997  4.6005  4.6005  4.6006  4.6006  4.6052  4.6052  4.6054
+  4.6054  4.6055  4.6056  4.6119  4.6135  4.6135  4.6150  4.6150  4.6155
+  4.6177  4.6177  4.6179  4.6179  4.6184  4.6188  4.6193  4.6193  4.6194
+  4.6194  4.6222  4.6223  4.6223  4.6224  4.6224  4.6224  4.6250  4.6250
+  4.7277  4.7509  4.7573  4.7597  4.7597  4.7672  4.7672  4.7723  4.7781
+  4.7781  4.7813  4.7813  4.7834  4.7834  4.7858  4.7858  4.7903  4.7909
+  4.7909  4.7919  4.7920  4.7937  4.7937  4.7938  4.7938  4.7939  4.7963
+  4.7963  4.7964  4.7967  4.7967  4.7967  4.8082  4.8085  4.8085  4.8086
+  4.8086  4.8086  4.8118  4.8121  4.8121  4.8125  4.8125  4.8126  4.8126
+  4.8127  4.8127  4.8128  4.8147  4.8149  4.8152  4.8152  4.8153  4.8153
+  4.8194  4.8194  4.8194  4.8194  4.8195  4.8195  4.8208  4.8209  4.8209
+  4.8209  4.8209  4.8210  4.8234  4.8236  4.8237  4.8237  4.8237  4.8237
+  5.2977  5.5224  5.6784  5.9844  5.9844  6.0963  6.0963  6.3017  6.7037
+  6.7037  6.9894  6.9894  7.1584  7.1584  7.4485  7.7415  7.7415  8.3939
+  8.3939  8.5876  8.6541  9.1481  9.1945  9.2220  9.9744 10.0234 10.0234
+ 10.5232 10.9080 10.9080 11.2343 12.7656 12.7656 13.7034 15.6279 15.6279
+ 16.7484 16.7484 16.8485 21.2019 21.2182 21.2182 21.2295 21.2295 21.3836
+ 21.3836 23.9783 23.9783 24.6766 25.8705 27.8213 27.8213 27.9073 28.0004
+ 28.2673 28.3622 28.7796 28.7796 29.4363 29.4363 29.8440 30.1964 30.1964
+ 31.3704
+ (warning) DOS window (-1,0) reset to (0.0161,1.4905)
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.516105  2.000000
+      1.029148  0.000000
+      1.103697  0.000000
+      1.217547  0.000000
+      1.217547  0.000000
+      1.275861  0.000000
+      1.280258  0.000000
+      1.280258  0.000000
+      1.296154  0.000000
+      1.319833  0.000000
+     ... 
+ T=157.9K, E_F=0.990453, sumev=1.032211, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local
+   1    0.170919    0.162236    0.008683
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.170919    0.162236    0.008683
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.170253    0.516105    1.680135    1.679546    1.500000    1.679546
+ 1     0    0.000640    0.516105    2.292352    2.291920    2.250000    2.291920
+ 2     0    0.000025    0.516105    3.157441    3.157308    3.147584    3.157308
+ 3     0    0.000001    0.516105    4.105887    4.105832    4.102416    4.105832
+ 4     0    0.000000    0.516105    5.079560    5.079532    5.077979    5.079532
+
+ site    2   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.170253    0.516105    1.680135    1.679546    1.500000    1.679546
+ 1     0    0.000640    0.516105    2.292352    2.291920    2.250000    2.291920
+ 2     0    0.000025    0.516105    3.157441    3.157308    3.147584    3.157308
+ 3     0    0.000001    0.516105    4.105887    4.105832    4.102416    4.105832
+ 4     0    0.000000    0.516105    5.079560    5.079532    5.077979    5.079532
+
+ Harris energy:
+ sumev=        1.032211  val*vef=      -0.800706   sumtv=       1.832917
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.218429     utot=      -2.846301    ehar=      -2.231814
+
+ srhov:     -0.490462     -0.194196     -0.684658 sumev=    1.032211   sumtv=    1.716869
+ all smrho is positive for isp=           1
+
+ avg es pot at rmt=-1.198988  avg sphere pot= 0.000100  vconst= 1.198988
+
+ smooth rhoves      6.394776   charge     1.982634
+ smooth rhoeps =   -1.138041   rhomu =   -1.461147  avg vxc =   -0.061010 
+ smooth rhoeps =   -1.138041   rhomu =   -1.461147  avg vxc =   -0.061010 
+
+ locpot:
+  i job kmax lfltwf=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.203943 rho*exc=  -0.147951
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.189479 rho*exc=  -0.136458
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.203943 rho*exc=  -0.147951
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.189479 rho*exc=  -0.136458
+  i job kmax lfltwf=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.203943 rho*exc=  -0.147951
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.189479 rho*exc=  -0.136458
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.203943 rho*exc=  -0.147951
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.189479 rho*exc=  -0.136458
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.442876        -0.193559        -0.636435
+   rhoval*ves              0.915196        -0.061557         0.853639
+   psnuc*ves              11.874356       -18.297035        -6.422679
+   utot                    6.394776        -9.179296        -2.784520
+   rho*exc                -1.138041        -0.022986        -1.161027
+   rho*vxc                -1.461147        -0.028927        -1.490074
+   valence chg             1.982634         0.017366         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ Kohn-Sham energy:
+ sumtv=        1.716869  sumtc=         0.000000   ekin=        1.716869
+ rhoep=       -1.161027   utot=        -2.784520   ehks=       -2.228678
+ mixrho: sum smrho  init = 0.843895D+02 0.242821D-28 0.843895D+02       0
+ mixrho: sum smrnew new  = 0.844443D+02 0.901027D-29 0.844443D+02       0
+  
+ mixrho: dqsum rmsuns=  0.32975D-06  0.69026D-03 -0.16650D-18
+ mixrealsmooth= T
+ wgtsmooth=  2.45163586350269835E-003
+ mixrho:  sought 8 iter from file mixm; read 8.  RMS DQ=4.40e-5  last it=4.44e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.981346      1.982634      1.982634      0.000690      1.982634
+ site    1    0.009327      0.008683      0.008683      0.000230      0.008683
+ site    2    0.009327      0.008683      0.008683      0.000230      0.008683
+ AMIX: condition of normal eqns >100000. Reducing nmix to 7
+ AMIX: condition of normal eqns >100000. Reducing nmix to 6
+ AMIX: condition of normal eqns >100000. Reducing nmix to 5
+ AMIX: condition of normal eqns >100000. Reducing nmix to 4
+ AMIX: condition of normal eqns >100000. Reducing nmix to 3
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=167639  beta=1  tm=5  rmsdel=4.4e-5
+   tj:-3.76014
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -1.08863640324585731E-010 -2.78690919230939486E-014
+ mixrho: warning. negative smrho; isp number min=           1           2 -8.75342522560078921E-014
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  2  of 30    ehf=      -2.231814   ehk=      -2.228678
+ From last iter    ehf=      -2.231799   ehk=      -2.228660
+ diffe(q)= -0.000015 (0.000044)    tol= 0.000001 (0.000001)   more=T
+i nk=1 dis=.8 ehf=-2.2318139 ehk=-2.2286783
+
+ --- BNDFP:  begin iteration 3 of 30 ---
+ mkpot negative smrho; isp,number,min(smrho)=           1           2 -8.75342522560078921E-014
+ enforce positive smrho, to which we add srshift=  9.75342522560078873E-014
+
+ avg es pot at rmt=-1.198840  avg sphere pot= 0.000100  vconst= 1.198840
+
+ smooth rhoves      6.389848   charge     1.981474
+ smooth rhoeps =   -1.136784   rhomu =   -1.459557  avg vxc =   -0.060998 
+ smooth rhoeps =   -1.136784   rhomu =   -1.459557  avg vxc =   -0.060998 
+
+ locpot:
+  i job kmax lfltwf=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.204019 rho*exc=  -0.148093
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.188630 rho*exc=  -0.135870
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.204019 rho*exc=  -0.148093
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.188630 rho*exc=  -0.135870
+ potential shift to crystal energy zero:    0.011188
+  i job kmax lfltwf=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.204019 rho*exc=  -0.148093
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.188630 rho*exc=  -0.135870
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.204019 rho*exc=  -0.148093
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.188630 rho*exc=  -0.135870
+ potential shift to crystal energy zero:    0.011188
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.439283        -0.198925        -0.638208
+   rhoval*ves              0.910365        -0.058239         0.852126
+   psnuc*ves              11.869332       -18.293466        -6.424134
+   utot                    6.389848        -9.175852        -2.786004
+   rho*exc                -1.136784        -0.024446        -1.161230
+   rho*vxc                -1.459557        -0.030777        -1.490334
+   valence chg             1.981474         0.018526         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0.001)  ef0=0.990453
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5397  1.0763  1.1744  1.2833  1.2833  1.3475  1.3521  1.3521  1.3696
+  1.3898  1.3950  1.4027  1.4027  1.4110  1.4110  1.4513  1.4673  1.5981
+  1.5981  1.6229  1.6415  1.6415  1.6539  1.6539  1.6556  1.6556  1.6620
+  1.7185  1.7355  1.7821  1.7821  1.7982  1.7982  1.8134  1.8299  1.8299
+  1.8314  1.8364  1.8364  1.8472  1.8495  1.8495  1.8512  1.8512  1.8532
+  1.8548  1.8652  1.8680  1.8680  1.8713  1.8713  1.9120  1.9124  1.9168
+  1.9168  1.9185  1.9189  1.9189  1.9200  2.0072  2.0659  2.1414  2.1414
+  2.1468  2.1468  2.1841  2.1968  2.2386  2.2461  2.2461  2.2854  2.2854
+  2.3061  2.3061  2.3079  2.3079  2.3217  2.3442  2.3540  2.3561  2.3561
+  2.3602  2.3620  2.3620  2.3661  2.3661  2.3667  2.3667  2.3669  2.3929
+  2.3977  2.3977  2.4023  2.4023  2.4065  2.4118  2.4118  2.4148  2.4149
+  2.4149  2.4163  2.4187  2.4204  2.4206  2.4206  2.4237  2.4237  2.4250
+  2.4284  2.4284  2.4287  2.4290  2.4290  2.5434  2.5836  2.6159  2.6236
+  2.6236  2.6336  2.6336  2.6402  2.6586  2.6586  2.6628  2.6628  2.6634
+  2.6638  2.6648  2.6648  2.6669  2.6669  2.6681  2.6685  2.6685  2.6686
+  2.6686  2.6690  2.7524  2.7779  2.7957  2.7957  2.7986  2.7986  2.8380
+  2.8458  2.8500  2.8500  2.8510  2.8523  2.8523  2.8545  2.8556  2.8556
+  2.8565  2.8565  2.8574  2.8581  2.8604  2.8604  2.8607  2.8608  2.8608
+  2.8610  2.8799  2.8799  2.8800  2.8800  2.8800  2.8800  3.0016  3.0625
+  3.0908  3.1190  3.1190  3.1341  3.1341  3.1421  3.1421  3.1471  3.1471
+  3.1542  3.2221  3.2467  3.2641  3.2807  3.2807  3.2874  3.2874  3.3155
+  3.3161  3.3161  3.3172  3.3172  3.3321  3.3321  3.3358  3.3377  3.3377
+  3.3424  3.3428  3.3435  3.3435  3.3449  3.3478  3.3478  3.3519  3.3528
+  3.3549  3.3549  3.3556  3.3587  3.3587  3.3616  3.3616  3.3639  3.3639
+  3.3676  3.3740  3.3758  3.3758  3.3761  3.3761  3.3775  3.3775  3.3782
+  3.3797  3.3797  3.3809  3.3819  3.4096  3.4125  3.4125  3.4134  3.4137
+  3.4137  3.4169  3.4185  3.4191  3.4191  3.4191  3.4212  3.4212  3.4224
+  3.4339  3.4339  3.4340  3.4341  3.4341  3.4344  3.4356  3.4361  3.4361
+  3.4365  3.4365  3.4367  3.4373  3.4373  3.4373  3.4373  3.5920  3.6279
+  3.6394  3.6394  3.6446  3.6446  3.6528  3.6650  3.6659  3.6659  3.6679
+  3.6679  3.6741  3.6741  3.6745  3.6745  3.6762  3.6766  3.6848  3.6848
+  3.6848  3.6848  3.6849  3.6850  3.7713  3.7873  3.8051  3.8201  3.8201
+  3.8234  3.8234  3.8246  3.8553  3.8553  3.8554  3.8554  3.8561  3.8585
+  3.8602  3.8602  3.8612  3.8612  3.8625  3.8627  3.8627  3.8628  3.8628
+  3.8629  3.9159  3.9221  3.9251  3.9251  3.9257  3.9257  3.9260  3.9300
+  3.9305  3.9305  3.9305  3.9305  3.9327  3.9328  3.9328  3.9333  3.9334
+  3.9334  3.9339  3.9342  3.9342  3.9343  3.9343  3.9343  4.1066  4.1451
+  4.1644  4.1718  4.1718  4.1736  4.1736  4.1742  4.2011  4.2310  4.2416
+  4.2729  4.2729  4.2781  4.2781  4.2940  4.2940  4.3104  4.3104  4.3212
+  4.3219  4.3231  4.3231  4.3236  4.3236  4.3304  4.3705  4.3707  4.3707
+  4.3714  4.3714  4.3714  4.3747  4.3747  4.3750  4.3750  4.3751  4.3758
+  4.3784  4.3789  4.3804  4.3805  4.3805  4.3816  4.3816  4.3818  4.3818
+  4.3819  4.3819  4.3823  4.3955  4.3955  4.3955  4.3955  4.3955  4.3955
+  4.4276  4.4297  4.4297  4.4318  4.4318  4.4330  4.4344  4.4344  4.4345
+  4.4345  4.4361  4.4362  4.4365  4.4388  4.4402  4.4402  4.4407  4.4424
+  4.4424  4.4431  4.4432  4.4432  4.4434  4.4434  4.5723  4.5901  4.6174
+  4.6360  4.6360  4.6389  4.6389  4.6408  4.6596  4.6596  4.6627  4.6627
+  4.6658  4.6710  4.6719  4.6719  4.6720  4.6720  4.6764  4.6769  4.6769
+  4.6770  4.6770  4.6772  4.6837  4.6852  4.6852  4.6868  4.6868  4.6872
+  4.6894  4.6894  4.6897  4.6897  4.6901  4.6905  4.6911  4.6911  4.6911
+  4.6911  4.6939  4.6939  4.6939  4.6940  4.6940  4.6940  4.6966  4.6967
+  4.7991  4.8227  4.8282  4.8305  4.8305  4.8379  4.8379  4.8439  4.8495
+  4.8495  4.8528  4.8528  4.8550  4.8550  4.8573  4.8573  4.8623  4.8624
+  4.8629  4.8633  4.8638  4.8655  4.8655  4.8657  4.8657  4.8657  4.8681
+  4.8681  4.8681  4.8684  4.8684  4.8685  4.8804  4.8806  4.8806  4.8809
+  4.8809  4.8809  4.8839  4.8842  4.8842  4.8847  4.8847  4.8848  4.8848
+  4.8849  4.8849  4.8849  4.8874  4.8876  4.8879  4.8879  4.8880  4.8880
+  4.8918  4.8919  4.8919  4.8919  4.8920  4.8920  4.8934  4.8934  4.8934
+  4.8935  4.8935  4.8935  4.8960  4.8961  4.8962  4.8962  4.8963  4.8963
+  5.3564  5.5745  5.7224  6.0301  6.0301  6.1365  6.1365  6.3455  6.7433
+  6.7433  7.0245  7.0245  7.1996  7.1996  7.4918  7.7845  7.7845  8.4309
+  8.4309  8.6247  8.6909  9.1861  9.2304  9.2599 10.0025 10.0533 10.0533
+ 10.5349 10.9406 10.9406 11.2546 12.7859 12.7859 13.7056 15.6412 15.6412
+ 16.7604 16.7604 16.8514 21.2088 21.2304 21.2304 21.2444 21.2444 21.3978
+ 21.3978 23.9932 23.9932 24.6870 25.8780 27.8352 27.8352 27.9249 28.0175
+ 28.2851 28.3794 28.7910 28.7910 29.4496 29.4496 29.8493 30.2049 30.2049
+ 31.3769
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.539679  2.000000
+      1.076340  0.000000
+      1.174370  0.000000
+      1.283261  0.000000
+      1.283261  0.000000
+      1.347549  0.000000
+      1.352143  0.000000
+      1.352143  0.000000
+      1.369573  0.000000
+      1.389769  0.000000
+     ... 
+ T=157.9K, E_F=1.01376, sumev=1.079357, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5397  1.0763  1.1744  1.2833  1.2833  1.3475  1.3521  1.3521  1.3696
+  1.3898  1.3950  1.4027  1.4027  1.4110  1.4110  1.4513  1.4673  1.5981
+  1.5981  1.6229  1.6415  1.6415  1.6539  1.6539  1.6556  1.6556  1.6620
+  1.7185  1.7355  1.7821  1.7821  1.7982  1.7982  1.8134  1.8299  1.8299
+  1.8314  1.8364  1.8364  1.8472  1.8495  1.8495  1.8512  1.8512  1.8532
+  1.8548  1.8652  1.8680  1.8680  1.8713  1.8713  1.9120  1.9124  1.9168
+  1.9168  1.9185  1.9189  1.9189  1.9200  2.0072  2.0659  2.1414  2.1414
+  2.1468  2.1468  2.1841  2.1968  2.2386  2.2461  2.2461  2.2854  2.2854
+  2.3061  2.3061  2.3079  2.3079  2.3217  2.3442  2.3540  2.3561  2.3561
+  2.3602  2.3620  2.3620  2.3661  2.3661  2.3667  2.3667  2.3669  2.3929
+  2.3977  2.3977  2.4023  2.4023  2.4065  2.4118  2.4118  2.4148  2.4149
+  2.4149  2.4163  2.4187  2.4204  2.4206  2.4206  2.4237  2.4237  2.4250
+  2.4284  2.4284  2.4287  2.4290  2.4290  2.5434  2.5836  2.6159  2.6236
+  2.6236  2.6336  2.6336  2.6402  2.6586  2.6586  2.6628  2.6628  2.6634
+  2.6638  2.6648  2.6648  2.6669  2.6669  2.6681  2.6685  2.6685  2.6686
+  2.6686  2.6690  2.7524  2.7779  2.7957  2.7957  2.7986  2.7986  2.8380
+  2.8458  2.8500  2.8500  2.8510  2.8523  2.8523  2.8545  2.8556  2.8556
+  2.8565  2.8565  2.8574  2.8581  2.8604  2.8604  2.8607  2.8608  2.8608
+  2.8610  2.8799  2.8799  2.8800  2.8800  2.8800  2.8800  3.0016  3.0625
+  3.0908  3.1190  3.1190  3.1341  3.1341  3.1421  3.1421  3.1471  3.1471
+  3.1542  3.2221  3.2467  3.2641  3.2807  3.2807  3.2874  3.2874  3.3155
+  3.3161  3.3161  3.3172  3.3172  3.3321  3.3321  3.3358  3.3377  3.3377
+  3.3424  3.3428  3.3435  3.3435  3.3449  3.3478  3.3478  3.3519  3.3528
+  3.3549  3.3549  3.3556  3.3587  3.3587  3.3616  3.3616  3.3639  3.3639
+  3.3676  3.3740  3.3758  3.3758  3.3761  3.3761  3.3775  3.3775  3.3782
+  3.3797  3.3797  3.3809  3.3819  3.4096  3.4125  3.4125  3.4134  3.4137
+  3.4137  3.4169  3.4185  3.4191  3.4191  3.4191  3.4212  3.4212  3.4224
+  3.4339  3.4339  3.4340  3.4341  3.4341  3.4344  3.4356  3.4361  3.4361
+  3.4365  3.4365  3.4367  3.4373  3.4373  3.4373  3.4373  3.5920  3.6279
+  3.6394  3.6394  3.6446  3.6446  3.6528  3.6650  3.6659  3.6659  3.6679
+  3.6679  3.6741  3.6741  3.6745  3.6745  3.6762  3.6766  3.6848  3.6848
+  3.6848  3.6848  3.6849  3.6850  3.7713  3.7873  3.8051  3.8201  3.8201
+  3.8234  3.8234  3.8246  3.8553  3.8553  3.8554  3.8554  3.8561  3.8585
+  3.8602  3.8602  3.8612  3.8612  3.8625  3.8627  3.8627  3.8628  3.8628
+  3.8629  3.9159  3.9221  3.9251  3.9251  3.9257  3.9257  3.9260  3.9300
+  3.9305  3.9305  3.9305  3.9305  3.9327  3.9328  3.9328  3.9333  3.9334
+  3.9334  3.9339  3.9342  3.9342  3.9343  3.9343  3.9343  4.1066  4.1451
+  4.1644  4.1718  4.1718  4.1736  4.1736  4.1742  4.2011  4.2310  4.2416
+  4.2729  4.2729  4.2781  4.2781  4.2940  4.2940  4.3104  4.3104  4.3212
+  4.3219  4.3231  4.3231  4.3236  4.3236  4.3304  4.3705  4.3707  4.3707
+  4.3714  4.3714  4.3714  4.3747  4.3747  4.3750  4.3750  4.3751  4.3758
+  4.3784  4.3789  4.3804  4.3805  4.3805  4.3816  4.3816  4.3818  4.3818
+  4.3819  4.3819  4.3823  4.3955  4.3955  4.3955  4.3955  4.3955  4.3955
+  4.4276  4.4297  4.4297  4.4318  4.4318  4.4330  4.4344  4.4344  4.4345
+  4.4345  4.4361  4.4362  4.4365  4.4388  4.4402  4.4402  4.4407  4.4424
+  4.4424  4.4431  4.4432  4.4432  4.4434  4.4434  4.5723  4.5901  4.6174
+  4.6360  4.6360  4.6389  4.6389  4.6408  4.6596  4.6596  4.6627  4.6627
+  4.6658  4.6710  4.6719  4.6719  4.6720  4.6720  4.6764  4.6769  4.6769
+  4.6770  4.6770  4.6772  4.6837  4.6852  4.6852  4.6868  4.6868  4.6872
+  4.6894  4.6894  4.6897  4.6897  4.6901  4.6905  4.6911  4.6911  4.6911
+  4.6911  4.6939  4.6939  4.6939  4.6940  4.6940  4.6940  4.6966  4.6967
+  4.7991  4.8227  4.8282  4.8305  4.8305  4.8379  4.8379  4.8439  4.8495
+  4.8495  4.8528  4.8528  4.8550  4.8550  4.8573  4.8573  4.8623  4.8624
+  4.8629  4.8633  4.8638  4.8655  4.8655  4.8657  4.8657  4.8657  4.8681
+  4.8681  4.8681  4.8684  4.8684  4.8685  4.8804  4.8806  4.8806  4.8809
+  4.8809  4.8809  4.8839  4.8842  4.8842  4.8847  4.8847  4.8848  4.8848
+  4.8849  4.8849  4.8849  4.8874  4.8876  4.8879  4.8879  4.8880  4.8880
+  4.8918  4.8919  4.8919  4.8919  4.8920  4.8920  4.8934  4.8934  4.8934
+  4.8935  4.8935  4.8935  4.8960  4.8961  4.8962  4.8962  4.8963  4.8963
+  5.3564  5.5745  5.7224  6.0301  6.0301  6.1365  6.1365  6.3455  6.7433
+  6.7433  7.0245  7.0245  7.1996  7.1996  7.4918  7.7845  7.7845  8.4309
+  8.4309  8.6247  8.6909  9.1861  9.2304  9.2599 10.0025 10.0533 10.0533
+ 10.5349 10.9406 10.9406 11.2546 12.7859 12.7859 13.7056 15.6412 15.6412
+ 16.7604 16.7604 16.8514 21.2088 21.2304 21.2304 21.2444 21.2444 21.3978
+ 21.3978 23.9932 23.9932 24.6870 25.8780 27.8352 27.8352 27.9249 28.0175
+ 28.2851 28.3794 28.7910 28.7910 29.4496 29.4496 29.8493 30.2049 30.2049
+ 31.3769
+ (warning) DOS window (-1,0) reset to (0.0397,1.5138)
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.539679  2.000000
+      1.076340  0.000000
+      1.174370  0.000000
+      1.283261  0.000000
+      1.283261  0.000000
+      1.347549  0.000000
+      1.352143  0.000000
+      1.352143  0.000000
+      1.369573  0.000000
+      1.389769  0.000000
+     ... 
+ T=157.9K, E_F=1.01376, sumev=1.079357, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local
+   1    0.175861    0.166981    0.008880
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.175861    0.166981    0.008880
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.175095    0.539679    1.679546    1.680477    1.500000    1.680477
+ 1     0    0.000737    0.539679    2.291920    2.292360    2.250000    2.292360
+ 2     0    0.000029    0.539679    3.157308    3.157428    3.147584    3.157428
+ 3     0    0.000001    0.539679    4.105832    4.105879    4.102416    4.105879
+ 4     0    0.000000    0.539679    5.079532    5.079555    5.077979    5.079555
+
+ site    2   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.175095    0.539679    1.679546    1.680477    1.500000    1.680477
+ 1     0    0.000737    0.539679    2.291920    2.292360    2.250000    2.292360
+ 2     0    0.000029    0.539679    3.157308    3.157428    3.147584    3.157428
+ 3     0    0.000001    0.539679    4.105832    4.105879    4.102416    4.105879
+ 4     0    0.000000    0.539679    5.079532    5.079555    5.077979    5.079555
+
+ Harris energy:
+ sumev=        1.079357  val*vef=      -0.638208   sumtv=       1.717565
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.161230     utot=      -2.786004    ehar=      -2.229668
+
+ srhov:     -0.500057     -0.199510     -0.699567 sumev=    1.079357   sumtv=    1.778924
+ mkpot negative smrho; isp,number,min(smrho)=           1           6 -1.43097589358415420E-014
+ enforce positive smrho, to which we add srshift=  2.43097589358415436E-014
+
+ avg es pot at rmt=-1.167392  avg sphere pot= 0.000100  vconst= 1.167392
+
+ smooth rhoves      6.356992   charge     1.982240
+ smooth rhoeps =   -1.159874   rhomu =   -1.489240  avg vxc =   -0.057838 
+ smooth rhoeps =   -1.159874   rhomu =   -1.489240  avg vxc =   -0.057838 
+
+ locpot:
+  i job kmax lfltwf=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.211747 rho*exc=  -0.153650
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.196803 rho*exc=  -0.141790
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.211747 rho*exc=  -0.153650
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.196803 rho*exc=  -0.141790
+  i job kmax lfltwf=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.211747 rho*exc=  -0.153650
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.196803 rho*exc=  -0.141790
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.211747 rho*exc=  -0.153650
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.196803 rho*exc=  -0.141790
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.526226        -0.199120        -0.725346
+   rhoval*ves              0.857774        -0.063992         0.793781
+   psnuc*ves              11.856210       -18.299386        -6.443175
+   utot                    6.356992        -9.181689        -2.824697
+   rho*exc                -1.159874        -0.023720        -1.183594
+   rho*vxc                -1.489240        -0.029887        -1.519127
+   valence chg             1.982240         0.017760         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ Kohn-Sham energy:
+ sumtv=        1.778924  sumtc=         0.000000   ekin=        1.778924
+ rhoep=       -1.183594   utot=        -2.824697   ehks=       -2.229367
+ mixrho: sum smrho  init = 0.843950D+02-0.273883D-28 0.843950D+02       0
+ mixrho: sum smrnew new  = 0.844276D+02 0.240356D-28 0.844276D+02       0
+  
+ mixrho: dqsum rmsuns=  0.19600D-06  0.16071D-03  0.16720D-18
+ mixrealsmooth= T
+ wgtsmooth=  2.45163586350269835E-003
+ mixrho:  sought 8 iter from file mixm; read 8.  RMS DQ=1.55e-5  last it=4.40e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.981474      1.982240      1.982240      0.000161      1.982240
+ site    1    0.009263      0.008880      0.008880      0.000147      0.008880
+ site    2    0.009263      0.008880      0.008880      0.000147      0.008880
+ AMIX: condition of normal eqns >100000. Reducing nmix to 7
+ AMIX: condition of normal eqns >100000. Reducing nmix to 6
+ AMIX: condition of normal eqns >100000. Reducing nmix to 5
+ AMIX: condition of normal eqns >100000. Reducing nmix to 4
+ AMIX: condition of normal eqns >100000. Reducing nmix to 3
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=167639  beta=1  tm=5  rmsdel=1.55e-5
+   tj: 0.24725
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -1.75271692992584605E-010 -4.48695534061016566E-014
+ mixrho: all smrho is positive for isp=           1
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  3  of 30    ehf=      -2.229668   ehk=      -2.229367
+ From last iter    ehf=      -2.231814   ehk=      -2.228678
+ diffe(q)=  0.002145 (0.000015)    tol= 0.000001 (0.000001)   more=T
+i nk=1 dis=.8 ehf=-2.2296684 ehk=-2.2293669
+
+ --- BNDFP:  begin iteration 4 of 30 ---
+ all smrho is positive for isp=           1
+
+ avg es pot at rmt=-1.175204  avg sphere pot= 0.000100  vconst= 1.175204
+
+ smooth rhoves      6.366234   charge     1.982337
+ smooth rhoeps =   -1.154432   rhomu =   -1.482234  avg vxc =   -0.058691 
+ smooth rhoeps =   -1.154432   rhomu =   -1.482234  avg vxc =   -0.058691 
+
+ locpot:
+  i job kmax lfltwf=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209874 rho*exc=  -0.152247
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195050 rho*exc=  -0.140478
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209874 rho*exc=  -0.152247
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195050 rho*exc=  -0.140478
+ potential shift to crystal energy zero:    0.011193
+  i job kmax lfltwf=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209874 rho*exc=  -0.152247
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195050 rho*exc=  -0.140478
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209874 rho*exc=  -0.152247
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195050 rho*exc=  -0.140478
+ potential shift to crystal energy zero:    0.011193
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.505757        -0.197744        -0.703502
+   rhoval*ves              0.871771        -0.063390         0.808380
+   psnuc*ves              11.860697       -18.298805        -6.438108
+   utot                    6.366234        -9.181097        -2.814864
+   rho*exc                -1.154432        -0.023538        -1.177970
+   rho*vxc                -1.482234        -0.029648        -1.511882
+   valence chg             1.982337         0.017663         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0.001)  ef0=1.01376
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5300  1.0615  1.1532  1.2635  1.2635  1.3262  1.3308  1.3308  1.3476
+  1.3688  1.3734  1.3816  1.3816  1.3892  1.3892  1.4314  1.4466  1.5780
+  1.5780  1.6020  1.6204  1.6204  1.6327  1.6327  1.6345  1.6345  1.6409
+  1.6972  1.7138  1.7613  1.7613  1.7771  1.7771  1.7922  1.8085  1.8085
+  1.8104  1.8153  1.8153  1.8262  1.8280  1.8280  1.8301  1.8301  1.8321
+  1.8334  1.8436  1.8464  1.8464  1.8495  1.8495  1.8901  1.8907  1.8950
+  1.8950  1.8966  1.8970  1.8970  1.8979  1.9873  2.0459  2.1205  2.1205
+  2.1256  2.1256  2.1629  2.1760  2.2191  2.2264  2.2264  2.2653  2.2653
+  2.2853  2.2853  2.2874  2.2874  2.3009  2.3225  2.3325  2.3346  2.3346
+  2.3387  2.3405  2.3405  2.3446  2.3446  2.3453  2.3453  2.3454  2.3714
+  2.3764  2.3764  2.3807  2.3807  2.3845  2.3904  2.3904  2.3931  2.3935
+  2.3935  2.3949  2.3968  2.3989  2.3989  2.3990  2.4018  2.4018  2.4037
+  2.4066  2.4066  2.4069  2.4072  2.4072  2.5227  2.5628  2.5951  2.6027
+  2.6027  2.6125  2.6125  2.6188  2.6374  2.6374  2.6414  2.6414  2.6420
+  2.6425  2.6435  2.6435  2.6454  2.6454  2.6466  2.6472  2.6472  2.6473
+  2.6473  2.6476  2.7312  2.7567  2.7749  2.7749  2.7776  2.7776  2.8166
+  2.8242  2.8284  2.8284  2.8295  2.8308  2.8308  2.8330  2.8341  2.8341
+  2.8350  2.8350  2.8360  2.8367  2.8390  2.8390  2.8392  2.8394  2.8394
+  2.8396  2.8580  2.8581  2.8582  2.8582  2.8582  2.8582  2.9819  3.0428
+  3.0712  3.0989  3.0989  3.1137  3.1137  3.1214  3.1214  3.1263  3.1263
+  3.1332  3.2006  3.2254  3.2431  3.2597  3.2597  3.2667  3.2667  3.2948
+  3.2952  3.2952  3.2961  3.2961  3.3111  3.3111  3.3145  3.3165  3.3165
+  3.3212  3.3218  3.3223  3.3223  3.3237  3.3267  3.3267  3.3308  3.3317
+  3.3336  3.3336  3.3344  3.3375  3.3375  3.3404  3.3404  3.3427  3.3427
+  3.3464  3.3525  3.3543  3.3543  3.3546  3.3546  3.3560  3.3560  3.3567
+  3.3583  3.3583  3.3594  3.3604  3.3883  3.3911  3.3911  3.3920  3.3924
+  3.3924  3.3951  3.3967  3.3973  3.3974  3.3974  3.3993  3.3993  3.4005
+  3.4122  3.4122  3.4123  3.4124  3.4124  3.4126  3.4140  3.4144  3.4144
+  3.4148  3.4148  3.4149  3.4156  3.4156  3.4156  3.4156  3.5709  3.6067
+  3.6181  3.6181  3.6233  3.6233  3.6316  3.6437  3.6445  3.6445  3.6464
+  3.6464  3.6527  3.6527  3.6531  3.6531  3.6547  3.6552  3.6634  3.6634
+  3.6634  3.6634  3.6635  3.6636  3.7504  3.7665  3.7843  3.7992  3.7992
+  3.8025  3.8025  3.8037  3.8341  3.8341  3.8343  3.8343  3.8348  3.8373
+  3.8391  3.8391  3.8400  3.8400  3.8413  3.8414  3.8414  3.8415  3.8415
+  3.8417  3.8942  3.9004  3.9035  3.9035  3.9041  3.9041  3.9043  3.9084
+  3.9088  3.9088  3.9089  3.9089  3.9111  3.9112  3.9112  3.9117  3.9117
+  3.9117  3.9122  3.9126  3.9126  3.9126  3.9127  3.9127  4.0864  4.1243
+  4.1433  4.1505  4.1505  4.1522  4.1522  4.1528  4.1800  4.2106  4.2216
+  4.2527  4.2527  4.2581  4.2581  4.2739  4.2739  4.2902  4.2902  4.3009
+  4.3010  4.3022  4.3022  4.3027  4.3027  4.3093  4.3491  4.3492  4.3492
+  4.3499  4.3499  4.3500  4.3532  4.3532  4.3536  4.3536  4.3536  4.3543
+  4.3571  4.3575  4.3589  4.3591  4.3591  4.3601  4.3601  4.3602  4.3602
+  4.3603  4.3603  4.3607  4.3737  4.3737  4.3737  4.3737  4.3737  4.3737
+  4.4064  4.4084  4.4084  4.4104  4.4104  4.4116  4.4132  4.4132  4.4132
+  4.4132  4.4146  4.4147  4.4148  4.4168  4.4183  4.4183  4.4187  4.4205
+  4.4205  4.4212  4.4213  4.4213  4.4215  4.4215  4.5515  4.5693  4.5966
+  4.6151  4.6151  4.6179  4.6179  4.6198  4.6384  4.6384  4.6415  4.6415
+  4.6445  4.6496  4.6505  4.6505  4.6507  4.6507  4.6552  4.6554  4.6554
+  4.6555  4.6555  4.6558  4.6623  4.6638  4.6638  4.6654  4.6654  4.6659
+  4.6680  4.6680  4.6683  4.6683  4.6687  4.6691  4.6697  4.6697  4.6697
+  4.6697  4.6726  4.6727  4.6727  4.6727  4.6727  4.6727  4.6754  4.6754
+  4.7777  4.8011  4.8068  4.8092  4.8092  4.8167  4.8167  4.8224  4.8281
+  4.8281  4.8314  4.8314  4.8335  4.8335  4.8358  4.8358  4.8407  4.8410
+  4.8412  4.8419  4.8422  4.8440  4.8440  4.8441  4.8442  4.8442  4.8466
+  4.8466  4.8467  4.8469  4.8469  4.8470  4.8588  4.8591  4.8591  4.8593
+  4.8593  4.8593  4.8623  4.8627  4.8627  4.8632  4.8632  4.8633  4.8633
+  4.8633  4.8633  4.8634  4.8657  4.8658  4.8661  4.8661  4.8662  4.8662
+  4.8702  4.8703  4.8703  4.8703  4.8704  4.8704  4.8717  4.8718  4.8718
+  4.8718  4.8718  4.8719  4.8743  4.8745  4.8746  4.8746  4.8747  4.8747
+  5.3386  5.5579  5.7074  6.0151  6.0151  6.1225  6.1225  6.3307  6.7295
+  6.7295  7.0116  7.0116  7.1858  7.1858  7.4776  7.7705  7.7705  8.4179
+  8.4179  8.6116  8.6779  9.1731  9.2183  9.2469  9.9918 10.0419 10.0419
+ 10.5268 10.9288 10.9288 11.2459 12.7769 12.7769 13.6975 15.6328 15.6328
+ 16.7512 16.7512 16.8432 21.1999 21.2218 21.2218 21.2357 21.2357 21.3889
+ 21.3889 23.9842 23.9842 24.6782 25.8742 27.8265 27.8265 27.9160 28.0085
+ 28.2761 28.3704 28.7827 28.7827 29.4415 29.4415 29.8435 30.1985 30.1985
+ 31.3701
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.529950  2.000000
+      1.061456  0.000000
+      1.153226  0.000000
+      1.263540  0.000000
+      1.263540  0.000000
+      1.326233  0.000000
+      1.330753  0.000000
+      1.330753  0.000000
+      1.347593  0.000000
+      1.368753  0.000000
+     ... 
+ T=157.9K, E_F=1.004078, sumev=1.0599, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5300  1.0615  1.1532  1.2635  1.2635  1.3262  1.3308  1.3308  1.3476
+  1.3688  1.3734  1.3816  1.3816  1.3892  1.3892  1.4314  1.4466  1.5780
+  1.5780  1.6020  1.6204  1.6204  1.6327  1.6327  1.6345  1.6345  1.6409
+  1.6972  1.7138  1.7613  1.7613  1.7771  1.7771  1.7922  1.8085  1.8085
+  1.8104  1.8153  1.8153  1.8262  1.8280  1.8280  1.8301  1.8301  1.8321
+  1.8334  1.8436  1.8464  1.8464  1.8495  1.8495  1.8901  1.8907  1.8950
+  1.8950  1.8966  1.8970  1.8970  1.8979  1.9873  2.0459  2.1205  2.1205
+  2.1256  2.1256  2.1629  2.1760  2.2191  2.2264  2.2264  2.2653  2.2653
+  2.2853  2.2853  2.2874  2.2874  2.3009  2.3225  2.3325  2.3346  2.3346
+  2.3387  2.3405  2.3405  2.3446  2.3446  2.3453  2.3453  2.3454  2.3714
+  2.3764  2.3764  2.3807  2.3807  2.3845  2.3904  2.3904  2.3931  2.3935
+  2.3935  2.3949  2.3968  2.3989  2.3989  2.3990  2.4018  2.4018  2.4037
+  2.4066  2.4066  2.4069  2.4072  2.4072  2.5227  2.5628  2.5951  2.6027
+  2.6027  2.6125  2.6125  2.6188  2.6374  2.6374  2.6414  2.6414  2.6420
+  2.6425  2.6435  2.6435  2.6454  2.6454  2.6466  2.6472  2.6472  2.6473
+  2.6473  2.6476  2.7312  2.7567  2.7749  2.7749  2.7776  2.7776  2.8166
+  2.8242  2.8284  2.8284  2.8295  2.8308  2.8308  2.8330  2.8341  2.8341
+  2.8350  2.8350  2.8360  2.8367  2.8390  2.8390  2.8392  2.8394  2.8394
+  2.8396  2.8580  2.8581  2.8582  2.8582  2.8582  2.8582  2.9819  3.0428
+  3.0712  3.0989  3.0989  3.1137  3.1137  3.1214  3.1214  3.1263  3.1263
+  3.1332  3.2006  3.2254  3.2431  3.2597  3.2597  3.2667  3.2667  3.2948
+  3.2952  3.2952  3.2961  3.2961  3.3111  3.3111  3.3145  3.3165  3.3165
+  3.3212  3.3218  3.3223  3.3223  3.3237  3.3267  3.3267  3.3308  3.3317
+  3.3336  3.3336  3.3344  3.3375  3.3375  3.3404  3.3404  3.3427  3.3427
+  3.3464  3.3525  3.3543  3.3543  3.3546  3.3546  3.3560  3.3560  3.3567
+  3.3583  3.3583  3.3594  3.3604  3.3883  3.3911  3.3911  3.3920  3.3924
+  3.3924  3.3951  3.3967  3.3973  3.3974  3.3974  3.3993  3.3993  3.4005
+  3.4122  3.4122  3.4123  3.4124  3.4124  3.4126  3.4140  3.4144  3.4144
+  3.4148  3.4148  3.4149  3.4156  3.4156  3.4156  3.4156  3.5709  3.6067
+  3.6181  3.6181  3.6233  3.6233  3.6316  3.6437  3.6445  3.6445  3.6464
+  3.6464  3.6527  3.6527  3.6531  3.6531  3.6547  3.6552  3.6634  3.6634
+  3.6634  3.6634  3.6635  3.6636  3.7504  3.7665  3.7843  3.7992  3.7992
+  3.8025  3.8025  3.8037  3.8341  3.8341  3.8343  3.8343  3.8348  3.8373
+  3.8391  3.8391  3.8400  3.8400  3.8413  3.8414  3.8414  3.8415  3.8415
+  3.8417  3.8942  3.9004  3.9035  3.9035  3.9041  3.9041  3.9043  3.9084
+  3.9088  3.9088  3.9089  3.9089  3.9111  3.9112  3.9112  3.9117  3.9117
+  3.9117  3.9122  3.9126  3.9126  3.9126  3.9127  3.9127  4.0864  4.1243
+  4.1433  4.1505  4.1505  4.1522  4.1522  4.1528  4.1800  4.2106  4.2216
+  4.2527  4.2527  4.2581  4.2581  4.2739  4.2739  4.2902  4.2902  4.3009
+  4.3010  4.3022  4.3022  4.3027  4.3027  4.3093  4.3491  4.3492  4.3492
+  4.3499  4.3499  4.3500  4.3532  4.3532  4.3536  4.3536  4.3536  4.3543
+  4.3571  4.3575  4.3589  4.3591  4.3591  4.3601  4.3601  4.3602  4.3602
+  4.3603  4.3603  4.3607  4.3737  4.3737  4.3737  4.3737  4.3737  4.3737
+  4.4064  4.4084  4.4084  4.4104  4.4104  4.4116  4.4132  4.4132  4.4132
+  4.4132  4.4146  4.4147  4.4148  4.4168  4.4183  4.4183  4.4187  4.4205
+  4.4205  4.4212  4.4213  4.4213  4.4215  4.4215  4.5515  4.5693  4.5966
+  4.6151  4.6151  4.6179  4.6179  4.6198  4.6384  4.6384  4.6415  4.6415
+  4.6445  4.6496  4.6505  4.6505  4.6507  4.6507  4.6552  4.6554  4.6554
+  4.6555  4.6555  4.6558  4.6623  4.6638  4.6638  4.6654  4.6654  4.6659
+  4.6680  4.6680  4.6683  4.6683  4.6687  4.6691  4.6697  4.6697  4.6697
+  4.6697  4.6726  4.6727  4.6727  4.6727  4.6727  4.6727  4.6754  4.6754
+  4.7777  4.8011  4.8068  4.8092  4.8092  4.8167  4.8167  4.8224  4.8281
+  4.8281  4.8314  4.8314  4.8335  4.8335  4.8358  4.8358  4.8407  4.8410
+  4.8412  4.8419  4.8422  4.8440  4.8440  4.8441  4.8442  4.8442  4.8466
+  4.8466  4.8467  4.8469  4.8469  4.8470  4.8588  4.8591  4.8591  4.8593
+  4.8593  4.8593  4.8623  4.8627  4.8627  4.8632  4.8632  4.8633  4.8633
+  4.8633  4.8633  4.8634  4.8657  4.8658  4.8661  4.8661  4.8662  4.8662
+  4.8702  4.8703  4.8703  4.8703  4.8704  4.8704  4.8717  4.8718  4.8718
+  4.8718  4.8718  4.8719  4.8743  4.8745  4.8746  4.8746  4.8747  4.8747
+  5.3386  5.5579  5.7074  6.0151  6.0151  6.1225  6.1225  6.3307  6.7295
+  6.7295  7.0116  7.0116  7.1858  7.1858  7.4776  7.7705  7.7705  8.4179
+  8.4179  8.6116  8.6779  9.1731  9.2183  9.2469  9.9918 10.0419 10.0419
+ 10.5268 10.9288 10.9288 11.2459 12.7769 12.7769 13.6975 15.6328 15.6328
+ 16.7512 16.7512 16.8432 21.1999 21.2218 21.2218 21.2357 21.2357 21.3889
+ 21.3889 23.9842 23.9842 24.6782 25.8742 27.8265 27.8265 27.9160 28.0085
+ 28.2761 28.3704 28.7827 28.7827 29.4415 29.4415 29.8435 30.1985 30.1985
+ 31.3701
+ (warning) DOS window (-1,0) reset to (0.0300,1.5041)
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.529950  2.000000
+      1.061456  0.000000
+      1.153226  0.000000
+      1.263540  0.000000
+      1.263540  0.000000
+      1.326233  0.000000
+      1.330753  0.000000
+      1.330753  0.000000
+      1.347593  0.000000
+      1.368753  0.000000
+     ... 
+ T=157.9K, E_F=1.004078, sumev=1.0599, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local
+   1    0.174683    0.165910    0.008773
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.174683    0.165910    0.008773
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.173943    0.529950    1.680477    1.680266    1.500000    1.680266
+ 1     0    0.000711    0.529950    2.292360    2.292340    2.250000    2.292340
+ 2     0    0.000028    0.529950    3.157428    3.157432    3.147584    3.157432
+ 3     0    0.000001    0.529950    4.105879    4.105883    4.102416    4.105883
+ 4     0    0.000000    0.529950    5.079555    5.079557    5.077979    5.079557
+
+ site    2   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.173943    0.529950    1.680477    1.680266    1.500000    1.680266
+ 1     0    0.000711    0.529950    2.292360    2.292340    2.250000    2.292340
+ 2     0    0.000028    0.529950    3.157428    3.157432    3.147584    3.157432
+ 3     0    0.000001    0.529950    4.105879    4.105883    4.102416    4.105883
+ 4     0    0.000000    0.529950    5.079555    5.079557    5.077979    5.079557
+
+ Harris energy:
+ sumev=        1.059900  val*vef=      -0.703502   sumtv=       1.763402
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.177970     utot=      -2.814864    ehar=      -2.229432
+
+ srhov:     -0.507029     -0.197281     -0.704310 sumev=    1.059900   sumtv=    1.764210
+ mkpot negative smrho; isp,number,min(smrho)=           1           2 -3.32497392543187468E-014
+ enforce positive smrho, to which we add srshift=  4.32497392543187483E-014
+
+ avg es pot at rmt=-1.174528  avg sphere pot= 0.000100  vconst= 1.174528
+
+ smooth rhoves      6.366276   charge     1.982454
+ smooth rhoeps =   -1.155058   rhomu =   -1.483043  avg vxc =   -0.058551 
+ smooth rhoeps =   -1.155058   rhomu =   -1.483043  avg vxc =   -0.058551 
+
+ locpot:
+  i job kmax lfltwf=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209875 rho*exc=  -0.152275
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195143 rho*exc=  -0.140579
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209875 rho*exc=  -0.152275
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195143 rho*exc=  -0.140579
+  i job kmax lfltwf=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209875 rho*exc=  -0.152275
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195143 rho*exc=  -0.140579
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209875 rho*exc=  -0.152275
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195143 rho*exc=  -0.140579
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.507542        -0.197232        -0.704773
+   rhoval*ves              0.871481        -0.063749         0.807732
+   psnuc*ves              11.861072       -18.299189        -6.438117
+   utot                    6.366276        -9.181469        -2.815193
+   rho*exc                -1.155058        -0.023392        -1.178449
+   rho*vxc                -1.483043        -0.029462        -1.512505
+   valence chg             1.982454         0.017546         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ Kohn-Sham energy:
+ sumtv=        1.764210  sumtc=         0.000000   ekin=        1.764210
+ rhoep=       -1.178449   utot=        -2.815193   ehks=       -2.229432
+ mixrho: sum smrho  init = 0.844317D+02 0.267029D-27 0.844317D+02       0
+ mixrho: sum smrnew new  = 0.844367D+02 0.203255D-28 0.844367D+02       0
+  
+ mixrho: dqsum rmsuns=  0.29709D-07  0.41249D-05  0.10708D-18
+ mixrealsmooth= T
+ wgtsmooth=  2.45163586350269835E-003
+ mixrho:  sought 8 iter from file mixm; read 8.  RMS DQ=7.80e-7  last it=1.55e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.982337      1.982454      1.982454      0.000004      1.982454
+ site    1    0.008831      0.008773      0.008773      0.000020      0.008773
+ site    2    0.008831      0.008773      0.008773      0.000020      0.008773
+ AMIX: condition of normal eqns >100000. Reducing nmix to 7
+ AMIX: condition of normal eqns >100000. Reducing nmix to 6
+ AMIX: condition of normal eqns >100000. Reducing nmix to 5
+ AMIX: condition of normal eqns >100000. Reducing nmix to 4
+ AMIX: condition of normal eqns >100000. Reducing nmix to 3
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: nmix=2 mmix=8  nelts=167639  beta=1  tm=5  rmsdel=7.8e-7
+   tj:-0.11375  -0.03545
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -2.87726734798932071E-010 -7.36580441085266087E-014
+ mixrho: warning. negative smrho; isp number min=           1          30 -1.17042809974112543E-011
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  4  of 30    ehf=      -2.229432   ehk=      -2.229432
+ From last iter    ehf=      -2.229668   ehk=      -2.229367
+ diffe(q)=  0.000237 (0.000001)    tol= 0.000001 (0.000001)   more=T
+i nk=1 dis=.8 ehf=-2.2294316 ehk=-2.2294317
+
+ --- BNDFP:  begin iteration 5 of 30 ---
+ mkpot negative smrho; isp,number,min(smrho)=           1          30 -1.17042809974112543E-011
+ enforce positive smrho, to which we add srshift=  1.17142809974112545E-011
+
+ avg es pot at rmt=-1.174472  avg sphere pot= 0.000100  vconst= 1.174472
+
+ smooth rhoves      6.366337   charge     1.982471
+ smooth rhoeps =   -1.155120   rhomu =   -1.483123  avg vxc =   -0.058536 
+ smooth rhoeps =   -1.155120   rhomu =   -1.483123  avg vxc =   -0.058536 
+
+ locpot:
+  i job kmax lfltwf=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209872 rho*exc=  -0.152273
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195156 rho*exc=  -0.140588
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209872 rho*exc=  -0.152273
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195156 rho*exc=  -0.140588
+ potential shift to crystal energy zero:    0.011194
+  i job kmax lfltwf=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=T
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209872 rho*exc=  -0.152273
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195156 rho*exc=  -0.140588
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209872 rho*exc=  -0.152273
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195156 rho*exc=  -0.140588
+ potential shift to crystal energy zero:    0.011194
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.507688        -0.197147        -0.704835
+   rhoval*ves              0.871520        -0.063799         0.807721
+   psnuc*ves              11.861154       -18.299243        -6.438089
+   utot                    6.366337        -9.181521        -2.815184
+   rho*exc                -1.155120        -0.023369        -1.178488
+   rho*vxc                -1.483123        -0.029433        -1.512556
+   valence chg             1.982471         0.017529         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0.001)  ef0=1.004078
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5297  1.0610  1.1527  1.2630  1.2630  1.3257  1.3302  1.3302  1.3470
+  1.3682  1.3728  1.3811  1.3811  1.3886  1.3886  1.4309  1.4460  1.5774
+  1.5774  1.6014  1.6198  1.6198  1.6321  1.6321  1.6340  1.6340  1.6403
+  1.6966  1.7132  1.7607  1.7607  1.7765  1.7765  1.7916  1.8080  1.8080
+  1.8099  1.8148  1.8148  1.8256  1.8275  1.8275  1.8295  1.8295  1.8315
+  1.8328  1.8430  1.8458  1.8458  1.8489  1.8489  1.8896  1.8901  1.8944
+  1.8944  1.8960  1.8964  1.8964  1.8973  1.9867  2.0454  2.1199  2.1199
+  2.1250  2.1250  2.1624  2.1754  2.2186  2.2259  2.2259  2.2647  2.2647
+  2.2848  2.2848  2.2868  2.2868  2.3003  2.3219  2.3319  2.3340  2.3340
+  2.3382  2.3399  2.3399  2.3441  2.3441  2.3447  2.3447  2.3448  2.3708
+  2.3758  2.3758  2.3802  2.3802  2.3839  2.3898  2.3898  2.3925  2.3929
+  2.3929  2.3944  2.3962  2.3983  2.3983  2.3985  2.4012  2.4012  2.4032
+  2.4060  2.4060  2.4063  2.4066  2.4066  2.5222  2.5623  2.5945  2.6022
+  2.6022  2.6119  2.6119  2.6182  2.6369  2.6369  2.6409  2.6409  2.6414
+  2.6419  2.6429  2.6429  2.6449  2.6449  2.6460  2.6467  2.6467  2.6468
+  2.6468  2.6471  2.7306  2.7561  2.7743  2.7743  2.7770  2.7770  2.8160
+  2.8237  2.8278  2.8278  2.8289  2.8302  2.8302  2.8324  2.8336  2.8336
+  2.8345  2.8345  2.8354  2.8362  2.8384  2.8384  2.8386  2.8388  2.8388
+  2.8390  2.8575  2.8575  2.8576  2.8576  2.8576  2.8576  2.9814  3.0423
+  3.0707  3.0983  3.0983  3.1131  3.1131  3.1209  3.1209  3.1258  3.1258
+  3.1326  3.2000  3.2248  3.2425  3.2591  3.2591  3.2661  3.2661  3.2942
+  3.2947  3.2947  3.2955  3.2955  3.3106  3.3106  3.3139  3.3159  3.3159
+  3.3206  3.3212  3.3217  3.3217  3.3231  3.3261  3.3261  3.3302  3.3311
+  3.3330  3.3330  3.3339  3.3369  3.3369  3.3399  3.3399  3.3421  3.3421
+  3.3459  3.3519  3.3537  3.3537  3.3540  3.3540  3.3555  3.3555  3.3561
+  3.3577  3.3577  3.3588  3.3598  3.3877  3.3906  3.3906  3.3914  3.3918
+  3.3918  3.3945  3.3961  3.3967  3.3968  3.3968  3.3987  3.3987  3.3999
+  3.4116  3.4116  3.4117  3.4118  3.4118  3.4120  3.4135  3.4138  3.4138
+  3.4142  3.4142  3.4143  3.4150  3.4150  3.4150  3.4150  3.5704  3.6061
+  3.6176  3.6176  3.6227  3.6227  3.6310  3.6431  3.6439  3.6439  3.6459
+  3.6459  3.6521  3.6521  3.6525  3.6525  3.6541  3.6546  3.6629  3.6629
+  3.6629  3.6629  3.6629  3.6630  3.7499  3.7659  3.7837  3.7986  3.7986
+  3.8019  3.8019  3.8031  3.8335  3.8335  3.8337  3.8337  3.8342  3.8367
+  3.8385  3.8385  3.8394  3.8394  3.8407  3.8409  3.8409  3.8409  3.8409
+  3.8411  3.8936  3.8998  3.9029  3.9029  3.9035  3.9035  3.9037  3.9078
+  3.9083  3.9083  3.9083  3.9083  3.9105  3.9106  3.9106  3.9111  3.9112
+  3.9112  3.9116  3.9120  3.9120  3.9120  3.9121  3.9121  4.0859  4.1237
+  4.1428  4.1499  4.1499  4.1516  4.1516  4.1522  4.1794  4.2101  4.2210
+  4.2522  4.2522  4.2575  4.2575  4.2733  4.2733  4.2896  4.2896  4.3003
+  4.3004  4.3016  4.3016  4.3021  4.3021  4.3087  4.3485  4.3487  4.3487
+  4.3494  4.3494  4.3494  4.3526  4.3526  4.3530  4.3530  4.3531  4.3538
+  4.3566  4.3570  4.3583  4.3585  4.3585  4.3595  4.3595  4.3597  4.3597
+  4.3598  4.3598  4.3602  4.3731  4.3731  4.3731  4.3731  4.3731  4.3731
+  4.4058  4.4078  4.4078  4.4099  4.4099  4.4110  4.4126  4.4126  4.4127
+  4.4127  4.4140  4.4142  4.4142  4.4163  4.4177  4.4177  4.4181  4.4199
+  4.4199  4.4207  4.4207  4.4207  4.4209  4.4209  4.5509  4.5687  4.5960
+  4.6146  4.6146  4.6173  4.6173  4.6193  4.6379  4.6379  4.6409  4.6409
+  4.6439  4.6490  4.6499  4.6499  4.6501  4.6501  4.6546  4.6548  4.6548
+  4.6549  4.6549  4.6552  4.6617  4.6633  4.6633  4.6649  4.6649  4.6653
+  4.6675  4.6675  4.6677  4.6677  4.6681  4.6685  4.6691  4.6691  4.6691
+  4.6691  4.6720  4.6721  4.6721  4.6721  4.6721  4.6721  4.6748  4.6748
+  4.7771  4.8006  4.8063  4.8086  4.8086  4.8161  4.8161  4.8218  4.8275
+  4.8275  4.8308  4.8308  4.8329  4.8329  4.8352  4.8352  4.8401  4.8404
+  4.8407  4.8413  4.8417  4.8434  4.8434  4.8435  4.8436  4.8436  4.8460
+  4.8460  4.8461  4.8463  4.8463  4.8465  4.8583  4.8585  4.8585  4.8587
+  4.8587  4.8588  4.8617  4.8621  4.8621  4.8626  4.8626  4.8627  4.8627
+  4.8628  4.8628  4.8628  4.8651  4.8653  4.8656  4.8656  4.8656  4.8656
+  4.8696  4.8697  4.8697  4.8697  4.8698  4.8698  4.8712  4.8712  4.8712
+  4.8713  4.8713  4.8713  4.8737  4.8739  4.8741  4.8741  4.8741  4.8741
+  5.3381  5.5574  5.7070  6.0147  6.0147  6.1221  6.1221  6.3303  6.7291
+  6.7291  7.0113  7.0113  7.1855  7.1855  7.4772  7.7701  7.7701  8.4176
+  8.4176  8.6113  8.6776  9.1728  9.2181  9.2466  9.9916 10.0416 10.0416
+ 10.5267 10.9285 10.9285 11.2457 12.7767 12.7767 13.6973 15.6326 15.6326
+ 16.7509 16.7509 16.8429 21.1995 21.2215 21.2215 21.2355 21.2355 21.3886
+ 21.3886 23.9839 23.9839 24.6779 25.8745 27.8263 27.8263 27.9157 28.0082
+ 28.2759 28.3701 28.7825 28.7825 29.4412 29.4412 29.8435 30.1985 30.1985
+ 31.3699
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.529702  2.000000
+      1.061048  0.000000
+      1.152658  0.000000
+      1.262990  0.000000
+      1.262990  0.000000
+      1.325664  0.000000
+      1.330181  0.000000
+      1.330181  0.000000
+      1.347003  0.000000
+      1.368184  0.000000
+     ... 
+ T=157.9K, E_F=1.003831, sumev=1.059404, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+  mode napw           0         531
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 595
+ zhev_tk: ovlmat=
+    1  0.76D-03    2  0.46D-02    3  0.21D-01    4  0.21D-01    5  0.37D-01
+    6  0.65D-01    7  0.65D-01    8  0.15D+00    9  0.15D+00   10  0.18D+00
+   ... skip larger eigenvalues ...
+ eigenvalue=
+ end of zhev_tk
+  0.5297  1.0610  1.1527  1.2630  1.2630  1.3257  1.3302  1.3302  1.3470
+  1.3682  1.3728  1.3811  1.3811  1.3886  1.3886  1.4309  1.4460  1.5774
+  1.5774  1.6014  1.6198  1.6198  1.6321  1.6321  1.6340  1.6340  1.6403
+  1.6966  1.7132  1.7607  1.7607  1.7765  1.7765  1.7916  1.8080  1.8080
+  1.8099  1.8148  1.8148  1.8256  1.8275  1.8275  1.8295  1.8295  1.8315
+  1.8328  1.8430  1.8458  1.8458  1.8489  1.8489  1.8896  1.8901  1.8944
+  1.8944  1.8960  1.8964  1.8964  1.8973  1.9867  2.0454  2.1199  2.1199
+  2.1250  2.1250  2.1624  2.1754  2.2186  2.2259  2.2259  2.2647  2.2647
+  2.2848  2.2848  2.2868  2.2868  2.3003  2.3219  2.3319  2.3340  2.3340
+  2.3382  2.3399  2.3399  2.3441  2.3441  2.3447  2.3447  2.3448  2.3708
+  2.3758  2.3758  2.3802  2.3802  2.3839  2.3898  2.3898  2.3925  2.3929
+  2.3929  2.3944  2.3962  2.3983  2.3983  2.3985  2.4012  2.4012  2.4032
+  2.4060  2.4060  2.4063  2.4066  2.4066  2.5222  2.5623  2.5945  2.6022
+  2.6022  2.6119  2.6119  2.6182  2.6369  2.6369  2.6409  2.6409  2.6414
+  2.6419  2.6429  2.6429  2.6449  2.6449  2.6460  2.6467  2.6467  2.6468
+  2.6468  2.6471  2.7306  2.7561  2.7743  2.7743  2.7770  2.7770  2.8160
+  2.8237  2.8278  2.8278  2.8289  2.8302  2.8302  2.8324  2.8336  2.8336
+  2.8345  2.8345  2.8354  2.8362  2.8384  2.8384  2.8386  2.8388  2.8388
+  2.8390  2.8575  2.8575  2.8576  2.8576  2.8576  2.8576  2.9814  3.0423
+  3.0707  3.0983  3.0983  3.1131  3.1131  3.1209  3.1209  3.1258  3.1258
+  3.1326  3.2000  3.2248  3.2425  3.2591  3.2591  3.2661  3.2661  3.2942
+  3.2947  3.2947  3.2955  3.2955  3.3106  3.3106  3.3139  3.3159  3.3159
+  3.3206  3.3212  3.3217  3.3217  3.3231  3.3261  3.3261  3.3302  3.3311
+  3.3330  3.3330  3.3339  3.3369  3.3369  3.3399  3.3399  3.3421  3.3421
+  3.3459  3.3519  3.3537  3.3537  3.3540  3.3540  3.3555  3.3555  3.3561
+  3.3577  3.3577  3.3588  3.3598  3.3877  3.3906  3.3906  3.3914  3.3918
+  3.3918  3.3945  3.3961  3.3967  3.3968  3.3968  3.3987  3.3987  3.3999
+  3.4116  3.4116  3.4117  3.4118  3.4118  3.4120  3.4135  3.4138  3.4138
+  3.4142  3.4142  3.4143  3.4150  3.4150  3.4150  3.4150  3.5704  3.6061
+  3.6176  3.6176  3.6227  3.6227  3.6310  3.6431  3.6439  3.6439  3.6459
+  3.6459  3.6521  3.6521  3.6525  3.6525  3.6541  3.6546  3.6629  3.6629
+  3.6629  3.6629  3.6629  3.6630  3.7499  3.7659  3.7837  3.7986  3.7986
+  3.8019  3.8019  3.8031  3.8335  3.8335  3.8337  3.8337  3.8342  3.8367
+  3.8385  3.8385  3.8394  3.8394  3.8407  3.8409  3.8409  3.8409  3.8409
+  3.8411  3.8936  3.8998  3.9029  3.9029  3.9035  3.9035  3.9037  3.9078
+  3.9083  3.9083  3.9083  3.9083  3.9105  3.9106  3.9106  3.9111  3.9112
+  3.9112  3.9116  3.9120  3.9120  3.9120  3.9121  3.9121  4.0859  4.1237
+  4.1428  4.1499  4.1499  4.1516  4.1516  4.1522  4.1794  4.2101  4.2210
+  4.2522  4.2522  4.2575  4.2575  4.2733  4.2733  4.2896  4.2896  4.3003
+  4.3004  4.3016  4.3016  4.3021  4.3021  4.3087  4.3485  4.3487  4.3487
+  4.3494  4.3494  4.3494  4.3526  4.3526  4.3530  4.3530  4.3531  4.3538
+  4.3566  4.3570  4.3583  4.3585  4.3585  4.3595  4.3595  4.3597  4.3597
+  4.3598  4.3598  4.3602  4.3731  4.3731  4.3731  4.3731  4.3731  4.3731
+  4.4058  4.4078  4.4078  4.4099  4.4099  4.4110  4.4126  4.4126  4.4127
+  4.4127  4.4140  4.4142  4.4142  4.4163  4.4177  4.4177  4.4181  4.4199
+  4.4199  4.4207  4.4207  4.4207  4.4209  4.4209  4.5509  4.5687  4.5960
+  4.6146  4.6146  4.6173  4.6173  4.6193  4.6379  4.6379  4.6409  4.6409
+  4.6439  4.6490  4.6499  4.6499  4.6501  4.6501  4.6546  4.6548  4.6548
+  4.6549  4.6549  4.6552  4.6617  4.6633  4.6633  4.6649  4.6649  4.6653
+  4.6675  4.6675  4.6677  4.6677  4.6681  4.6685  4.6691  4.6691  4.6691
+  4.6691  4.6720  4.6721  4.6721  4.6721  4.6721  4.6721  4.6748  4.6748
+  4.7771  4.8006  4.8063  4.8086  4.8086  4.8161  4.8161  4.8218  4.8275
+  4.8275  4.8308  4.8308  4.8329  4.8329  4.8352  4.8352  4.8401  4.8404
+  4.8407  4.8413  4.8417  4.8434  4.8434  4.8435  4.8436  4.8436  4.8460
+  4.8460  4.8461  4.8463  4.8463  4.8465  4.8583  4.8585  4.8585  4.8587
+  4.8587  4.8588  4.8617  4.8621  4.8621  4.8626  4.8626  4.8627  4.8627
+  4.8628  4.8628  4.8628  4.8651  4.8653  4.8656  4.8656  4.8656  4.8656
+  4.8696  4.8697  4.8697  4.8697  4.8698  4.8698  4.8712  4.8712  4.8712
+  4.8713  4.8713  4.8713  4.8737  4.8739  4.8741  4.8741  4.8741  4.8741
+  5.3381  5.5574  5.7070  6.0147  6.0147  6.1221  6.1221  6.3303  6.7291
+  6.7291  7.0113  7.0113  7.1855  7.1855  7.4772  7.7701  7.7701  8.4176
+  8.4176  8.6113  8.6776  9.1728  9.2181  9.2466  9.9916 10.0416 10.0416
+ 10.5267 10.9285 10.9285 11.2457 12.7767 12.7767 13.6973 15.6326 15.6326
+ 16.7509 16.7509 16.8429 21.1995 21.2215 21.2215 21.2355 21.2355 21.3886
+ 21.3886 23.9839 23.9839 24.6779 25.8745 27.8263 27.8263 27.9157 28.0082
+ 28.2759 28.3701 28.7825 28.7825 29.4412 29.4412 29.8435 30.1985 30.1985
+ 31.3699
+ (warning) DOS window (-1,0) reset to (0.0297,1.5038)
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=.001 ---
+ SPLWTS: band weights .. 
+       eval      weight
+      0.529702  2.000000
+      1.061048  0.000000
+      1.152658  0.000000
+      1.262990  0.000000
+      1.262990  0.000000
+      1.325664  0.000000
+      1.330181  0.000000
+      1.330181  0.000000
+      1.347003  0.000000
+      1.368184  0.000000
+     ... 
+ T=157.9K, E_F=1.003831, sumev=1.059404, TS=0, 2 electrons
+ Entropy S=0 k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local
+   1    0.174641    0.165864    0.008777
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.174641    0.165864    0.008777
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.173902    0.529702    1.680266    1.680222    1.500000    1.680222
+ 1     0    0.000710    0.529702    2.292340    2.292316    2.250000    2.292316
+ 2     0    0.000028    0.529702    3.157432    3.157425    3.147584    3.157425
+ 3     0    0.000001    0.529702    4.105883    4.105880    4.102416    4.105880
+ 4     0    0.000000    0.529702    5.079557    5.079556    5.077979    5.079556
+
+ site    2   species   1:H       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.173902    0.529702    1.680266    1.680222    1.500000    1.680222
+ 1     0    0.000710    0.529702    2.292340    2.292316    2.250000    2.292316
+ 2     0    0.000028    0.529702    3.157432    3.157425    3.147584    3.157425
+ 3     0    0.000001    0.529702    4.105883    4.105880    4.102416    4.105880
+ 4     0    0.000000    0.529702    5.079557    5.079556    5.077979    5.079556
+
+ Harris energy:
+ sumev=        1.059404  val*vef=      -0.704835   sumtv=       1.764240
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.178488     utot=      -2.815184    ehar=      -2.229433
+
+ srhov:     -0.507079     -0.197225     -0.704304 sumev=    1.059404   sumtv=    1.763709
+ mkpot negative smrho; isp,number,min(smrho)=           1           2 -2.36518462225537804E-015
+ enforce positive smrho, to which we add srshift=  1.23651846222553780E-014
+
+ avg es pot at rmt=-1.174775  avg sphere pot= 0.000100  vconst= 1.174775
+
+ smooth rhoves      6.366545   charge     1.982445
+ smooth rhoeps =   -1.154874   rhomu =   -1.482807  avg vxc =   -0.058573 
+ smooth rhoeps =   -1.154874   rhomu =   -1.482807  avg vxc =   -0.058573 
+
+ locpot:
+  i job kmax lfltwf=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209807 rho*exc=  -0.152227
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195071 rho*exc=  -0.140527
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209807 rho*exc=  -0.152227
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195071 rho*exc=  -0.140527
+  i job kmax lfltwf=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.70000  nr= 91   a=0.025  nlml=25  rg=0.175  Vfloat=F
+ === rho1 valence true density ===
+ vxc_gga  : rho*vxc=  -0.209807 rho*exc=  -0.152227
+ === rho2 valence counter density ===
+ vxc_gga  : rho*vxc=  -0.195071 rho*exc=  -0.140527
+ === rhol1 valence+core density ===
+ vxc_gga  : rho*vxc=  -0.209807 rho*exc=  -0.152227
+ === rho2 ->valence+smooth core density ===
+ vxc_gga  : rho*vxc=  -0.195071 rho*exc=  -0.140527
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.506828        -0.197236        -0.704064
+   rhoval*ves              0.871909        -0.063693         0.808215
+   psnuc*ves              11.861181       -18.299132        -6.437951
+   utot                    6.366545        -9.181413        -2.814868
+   rho*exc                -1.154874        -0.023400        -1.178273
+   rho*vxc                -1.482807        -0.029472        -1.512279
+   valence chg             1.982445         0.017555         2.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ Kohn-Sham energy:
+ sumtv=        1.763709  sumtc=         0.000000   ekin=        1.763709
+ rhoep=       -1.178273   utot=        -2.814868   ehks=       -2.229432
+ mixrho: sum smrho  init = 0.844374D+02-0.354297D-27 0.844374D+02       0
+ mixrho: sum smrnew new  = 0.844363D+02 0.221621D-28 0.844363D+02       0
+  
+ mixrho: dqsum rmsuns= -0.67052D-08  0.16654D-05 -0.30508D-18
+ mixrealsmooth= T
+ wgtsmooth=  2.45163586350269835E-003
+ mixrho:  sought 8 iter from file mixm; read 8.  RMS DQ=2.16e-7  last it=7.80e-7
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.982471      1.982445      1.982445      0.000002      1.982445
+ site    1    0.008764      0.008777      0.008777      0.000005      0.008777
+ site    2    0.008764      0.008777      0.008777      0.000005      0.008777
+ AMIX: condition of normal eqns >100000. Reducing nmix to 7
+ AMIX: condition of normal eqns >100000. Reducing nmix to 6
+ AMIX: condition of normal eqns >100000. Reducing nmix to 5
+ AMIX: condition of normal eqns >100000. Reducing nmix to 4
+ AMIX: condition of normal eqns >100000. Reducing nmix to 3
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=167639  beta=1  tm=5  rmsdel=2.16e-7
+   tj: 0.20519
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -1.77151227714889004E-010 -4.53507142950115825E-014
+ mixrho: all smrho is positive for isp=           1
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  5  of 30    ehf=      -2.229433   ehk=      -2.229432
+ From last iter    ehf=      -2.229432   ehk=      -2.229432
+ diffe(q)= -0.000001 (0.000000)    tol= 0.000001 (0.000001)   more=F
+c nk=1 dis=.8 ehf=-2.2294325 ehk=-2.2294325
+ Exit 0 LMF 

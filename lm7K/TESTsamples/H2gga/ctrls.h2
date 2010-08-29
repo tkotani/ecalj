@@ -1,0 +1,10 @@
+% const disexp=1.4 a=25.0 dis=0.0  dd=(disexp+dis)/a/sqrt(3.0)
+% const pwemax=4 nk=1 da=0
+SYMGRP find  # 'find' evaluate space-group symmetry automatically.
+             # Usually 'find is OK', but lmf may use lower symmetry
+	     # because of numerical problem.
+             # Do lmchk to check how it is evaluated.
+STRUC   ALAT={a} DALAT={da} PLAT= 0 .5 .5   .5 0 .5    .5 .5 0 
+        NBAS= 2  NSPEC=1
+SITE    ATOM=H POS=-.5*{dd} -.5*{dd} -.5*{dd} 
+        ATOM=H POS=.5*{dd} .5*{dd} .5*{dd} 

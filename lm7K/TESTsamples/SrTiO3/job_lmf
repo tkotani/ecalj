@@ -1,6 +1,0 @@
-#!/bin/bash
-ddd=srtio3
-lmdir=../..
-$lmdir/lmfa $ddd  |tee llmfa.$ddd
-rm rst.* mix.* moms.* 
-$lmdir/lmf $ddd   |tee llmf.$ddd
