@@ -90,6 +90,15 @@ Cdwdef1       common /w/ w
          real(dp),intent(in) :: rho_updn(npts,nspden)
          real(dp),intent(out) :: vxci(npts,nspden)
          end subroutine xcpbe
+         
+         subroutine poldvm(x,y,np,n,lrat,tol,lerr,yp)
+         implicit none
+         integer,intent(in):: np,n
+         logical,intent(in):: lrat
+         double precision,intent(in):: x(np),y(np),tol ! define these as double precision because of the definition in slatsm/poldvm 
+         double precision, intent(out):: yp(np)
+         integer,intent(out):: lerr
+         end subroutine poldvm
       end interface
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
