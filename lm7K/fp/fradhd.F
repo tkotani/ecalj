@@ -73,6 +73,7 @@ cki            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,wk,10,xi)
               if (l .eq. 0) rl = 1
 
 C             call hansmr(r,e,asm,xi,l+1)
+cki              call hansr(rsm,0,l+1,1,l+1,e,r**2,1,1,idx,wk,10,xi)
               call hansr(rsm,0,l+1,1,l+1,e,r**2,nr,1,idx,wk,10,xi)
 
 C             g0 = dexp(-asm*asm*r*r)
