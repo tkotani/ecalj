@@ -73,8 +73,8 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ############################################
 #FC = mpif90
 #LK = mpif90
-FC = ifort
-LK = ifort  -parallel 
+FC = ifort -CB
+LK = ifort  -parallel  -CB
 #
 # where is modules?
 moddir = MODDIR/$(obj_path)
@@ -100,11 +100,11 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
 #--- debug
-#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################

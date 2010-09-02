@@ -24,7 +24,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer ip
       double precision v(3)
-      character*(1) t(0:1)
+      character*(1) t(0:*)
 C Local variables
       double precision tiny,x,y,z,d
       character rchr*9, sout*50

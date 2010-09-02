@@ -162,7 +162,10 @@ C------------------------------------------------------
 C ... Find which of swtok corresponds to prgn
       do  isw = 1, nsw
         ix = index(swtok(isw)(1:npgsz),trim(prgn)//'::')
-        if (ix/=0 .and. swtok(isw)(ix-1:ix-1) .eq. ' ') goto 100
+cki        if (ix/=0 .and. swtok(isw)(ix-1:ix-1) .eq. ' ') goto 100
+        if (ix/=0) then
+         if (swtok(isw)(ix-1:ix-1) .eq. ' ') goto 100
+        endif
       enddo
       call rx('tksw: no switches for program '//prgn)
   100 continue

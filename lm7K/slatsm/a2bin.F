@@ -80,7 +80,7 @@ C --------------------------------------------------------------------
 C     implicit none
       character*1 instr(0:*),term
       integer cast,count,j,jmaxi
-      double precision res(0:1)
+      double precision res(0:*)
 C ... Local parameters
       integer namlen,parenc
       integer opnum,numnum,toktyp,ptktyp,prevop,opstk(0:32),optok,maxsiz
@@ -433,10 +433,10 @@ Cr   What's the purpose of casting to char? I don't know, so you
 Cr   get an error.
 C -------------------------------------------------------------------
 C     implicit none
-      logical   resL(0:1)
-      integer   resI(0:1),cast,count
-      real      resR(0:1)
-      double precision  resD(0:1),val
+      logical   resL(0:*)
+      integer   resI(0:*),cast,count
+      real      resR(0:*)
+      double precision  resD(0:*),val
 
       goto (10,20,30,40,50),cast+1
    20 stop 'A2BIN: can''t cast result.'

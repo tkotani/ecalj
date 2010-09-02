@@ -76,7 +76,7 @@ C     implicit none
 C Passed Parameters
       character(mxlen):: outstr
       character(*) fmt
-      double precision res(0:1)
+      double precision res(0:*)
       integer nblk,cast,count,ip,mxlen,ndec,is
 C Local Variables
       logical lD,lS,lF,lnull,llnull,parstr
@@ -379,7 +379,7 @@ C     Handle null number: replace ascii string with 'NULL'
       subroutine bin2al(fmt,res,count,strn)
       character*(*) fmt, strn
       integer count
-      logical res(0:1)
+      logical res(0:*)
       write(strn,fmt) res(count)
       end
       subroutine bin2ai(fmt,res,count,strn,lnull)

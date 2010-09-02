@@ -37,7 +37,7 @@ Cu   10 May 01 Returns -n rather than -1 when nrbas-th atom not found
 C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      integer ic,nbas,ipc(nbas),nrbas
+      integer ic,nbas,ipc(*),nrbas
 C Local parameters
       integer ibas,n,nbasa
 
