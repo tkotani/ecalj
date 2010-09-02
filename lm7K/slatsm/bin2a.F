@@ -74,8 +74,8 @@ Cu   02 Aug 07 Added :n outputs null string when res=NULLI
 C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
-      character*(*) outstr
-      character*(*) fmt
+      character(mxlen):: outstr
+      character(*) fmt
       double precision res(0:1)
       integer nblk,cast,count,ip,mxlen,ndec,is
 C Local Variables

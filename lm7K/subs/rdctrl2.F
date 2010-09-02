@@ -143,7 +143,7 @@ C ... Passed parameters
       integer:: recln,nrecs
       character slabl_(1)*8
       character strn*(recln)
-      character*(1000) recrd
+      character*(*) recrd
       logical pass2
 Cki      integer v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,
 Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
