@@ -74,6 +74,7 @@ c      logical:: newmode=.false. , debug=.false., plottest=.false.
 c      logical:: newmode=.true. , debug=.false., plottest=.true.
 c      logical:: newmode=.true. , debug=.false., plottest=.true.
 
+      real(8),allocatable:: r_smrho(:,:,:,:)
 
       interface
          subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci, !Mandatory Arguments
@@ -164,11 +165,16 @@ cccccccccccccccccccccccccccccc
        fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
        if(nsp==2) fac=1d0
        if(debug) print * ,'newmode goto xcpbe'
+cki
+       allocate(r_smrho(k1,k2,k3,nsp))
+       r_smrho=fac*dreal(smrho)
        call xcpbe(exci=enl,npts=n1*n2*n3,nspden=nsp,
      &           option=2,!Choice of the functional =2:PBE-GGA
      &           order=1, !order=1 means we only calculate first derivative of rho*exc(rho,\nable rho).
-     &           rho_updn=fac*dreal(smrho),vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
+cki     &           rho_updn=fac*dreal(smrho),vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
+     &           rho_updn=r_smrho,vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
      &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+       deallocate(r_smrho)
 
 !!=== Output: converted to Ry.===
        enl = 2d0*enl !in Ry.
