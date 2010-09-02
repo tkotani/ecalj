@@ -371,7 +371,7 @@ C ---------------------------------------------------------------
 C     implicit none
       integer lmax,nG,nD,nlmx,nrx,job
       double precision alat,awald,vol,rsm,p(3),q(3),
-     .wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),hsm(2,nlmx)
+     .wk(nrx,*),yl(nrx,1),qlv(3,1),dlv(3,1),hsm(2,nlmx)
 C Local variables
       integer ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx,
      .lx1(1)
