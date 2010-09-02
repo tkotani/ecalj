@@ -192,7 +192,7 @@ C     implicit none
 C- Parses string for first nonblank character, right to left
 C     implicit none
       integer nt,i
-      character*1 t(0:1)
+      character*1 t(0:*)
       i = nt
    99 i = i-1
       if (i .lt. 0) return

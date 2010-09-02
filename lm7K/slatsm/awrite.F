@@ -131,6 +131,9 @@ C ... Local parameters
       data fchr /' :;,#irdegGltapfbzDwWcoxu?jNF'/
       data lnulls /.false./
 
+ckino
+      logical:: l_exec
+
 C --- Setup ---
 C ... ia,iff,ip: indices to current argument, pos in fmt, pos in s
       mxl = iabs(mxln)
@@ -175,11 +178,19 @@ C  ...  Character terminating conditional string
         goto 20
       endif
 C  ...  Any non-% character
-      if (fmt(iff:iff) .ne. '%' .or. fmt(iff:iff+1) .eq. '%%') then
+ckino      if (fmt(iff:iff) .ne. '%' .or. fmt(iff:iff+1) .eq. '%%') then
+        l_exec=.false.
+        if (fmt(iff:iff) .ne. '%') l_exec=.true.
+        if (iff+1<=len(fmt)) then
+           if (fmt(iff:iff+1) .eq. '%%')  l_exec=.true.
+        endif
+      if (l_exec) then
 *         print *, 'parsing non-%:', iff, fmt(1:iff)
         ip = ip+1
         if (ip .le. min(ls,mxl)) s(ip:ip) = fmt(iff:iff)
+        if (iff+1<=len(fmt)) then
         if (fmt(iff:iff+1) .eq. '%%') iff = iff+1
+        endif
         goto 20
 C   --- Parse % ---
       else

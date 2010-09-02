@@ -229,7 +229,9 @@ C ... Append
         nout = id
       endif
 C ... Strip
+      if (0<id .and. id<=len(sout))then
       if (sout(id:id) .eq. '.') id = id-1
+      endif
       do  41  k = nout, i0, -1
         j = k
 *        print *, '!!!',sout(1:j),' ',j,id

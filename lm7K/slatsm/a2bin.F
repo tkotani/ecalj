@@ -493,7 +493,7 @@ C -------------------------------------------------------------------
 C     implicit none
       integer   i,j0,j,jmax,iprint
       logical   lskp
-      character*1       t,strn(0:1),term
+      character*1       t,strn(0:*),term
       double precision res,sgn
 #if FORMATTED_READ
 #else

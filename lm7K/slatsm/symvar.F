@@ -162,7 +162,7 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer size,i,mxdecl,iopt
-      character*1 recrd(0:1)
+      character*1 recrd(0:*)
 C Local parameters
       double precision dum,dum2
       integer j,nextop,i0,ndecl,k,ifi,fopnx,m
