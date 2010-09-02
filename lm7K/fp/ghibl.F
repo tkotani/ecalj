@@ -38,7 +38,7 @@ C ... Passed parameters
       integer nlmg,nlmh,kmax,ndim1,ndim2,jcg(1),indxcg(1)
       double precision rsmg,rsmh(1),eg,eh(1)
       double precision ph(3),pg(3),cg(1),cy(1),q(3),slat(1)
-      double complex s(ndim1,ndim2,0:1)
+      double complex s(ndim1,ndim2,0:*)
 C ... Local parameters
       integer nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k,
      .ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2

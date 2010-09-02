@@ -52,7 +52,7 @@ C ---------------------------------------------------------------
 C     implicit none
       integer nxi,lmxa,lmax,nG,nD,nlmx,nrx,lxi(nxi),job
       double precision alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3),
-     .wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),
+     .wk(nrx,*),yl(nrx,1),qlv(3,1),dlv(3,1),
      .hsm(2,nlmx,1),hsmp(2,nlmx,1)
 C Local variables
       integer ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,

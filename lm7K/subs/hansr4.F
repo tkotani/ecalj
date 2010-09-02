@@ -104,7 +104,7 @@ Cu  15 Aug 00 extended to e>0 (but erfc not vectorized)
 C ---------------------------------------------------------------
 C     implicit none
       integer nrx,nr,lmax
-      double precision rsq(1),e,chi(nrx,-1:0),rsm,wk(nr),wk2(nr)
+      double precision rsq(1),e,chi(nrx,-1:*),rsm,wk(nr),wk2(nr)
 C Local variables
       logical lpos
       integer l,ir,ir1

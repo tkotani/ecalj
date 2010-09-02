@@ -37,7 +37,7 @@ Cu  15 Aug 00 extended to e>0; added 1000 digit job
 C ---------------------------------------------------------------
 C     implicit none
       integer k0,kmax,lmax,nkd,nrx,job
-      double precision alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,4),yl(nrx,1)
+      double precision alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,*),yl(nrx,1)
       double precision gkl(2,0:k0,1),e
 C Local variables
       integer ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1

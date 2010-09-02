@@ -206,6 +206,8 @@ Cchp3             call rlse(orhofa(is))
              if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
 
           else
+ckino
+             nr0=nrmx ! %rv_p_orhoc(nrmx*nsp)
 Cchp3             lfail = 
 Cchp3      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
 Cchp3      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,

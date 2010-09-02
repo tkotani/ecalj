@@ -220,8 +220,11 @@ Cchp1      .         , slat , b )
             call dpzero(b0,(kmxv+1)*nlmh)
             if (ib .eq. jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
             do  i = 1, nsp
+ckino
+              write(*,*)'kinodebug: p1ovlc', kmxv,nlml,nsp,i,1+(1+kmxv)*nlml*(i-1)
               call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,
-     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
+cki     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
+     .        acof(1,1,i) )
             enddo
           enddo
         enddo
