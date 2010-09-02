@@ -56,7 +56,8 @@ C --- Set up and invert matrix ylm(p) ---
 
 C   ... Normalize p, make ylm(p)
         do  8  i = 1, mmax
-          call dscal(3,1/dsqrt(p(i,1)**2+p(2,i)**2+p(3,i)**2),p(1,i),1)
+cki          call dscal(3,1/dsqrt(p(i,1)**2+p(2,i)**2+p(3,i)**2),p(1,i),1)
+          call dscal(3,1/dsqrt(p(1,i)**2+p(2,i)**2+p(3,i)**2),p(1,i),1)
           rp(i,1) =p(1,i)
           rp(i,2) =p(2,i)
           rp(i,3) =p(3,i)
