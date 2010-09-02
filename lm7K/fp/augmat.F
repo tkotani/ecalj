@@ -350,7 +350,7 @@ Cchp3         integer:: oppi(3) , jcg(1) , indxcg(1) , lh(nkap0)
      .pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2),
      .v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml),
      .hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp),
-     .eh(n0,nkaph),rsmh(n0,nkaph),ehl(n0),rsml(n0),
+     .eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0),
      .rs3,vmtz
 C ... Local parameters
       integer k,ll,lmxl,nlma,nlmh,i

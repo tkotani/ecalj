@@ -5,7 +5,7 @@ C  30 generates points midway between the sides of the icosahedron.
 C  60 generates points for the buckeyball.
 C     implicit none
       integer npt
-      double precision r(3,20)
+      double precision r(3,npt)
       double precision d,cp,cx,pi,sx,sp,ddot,x(3,12),r2(3),wb,wi,rm(3,3)
       integer i
 
