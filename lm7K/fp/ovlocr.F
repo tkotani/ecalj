@@ -221,8 +221,8 @@ Cchp1      .         , slat , b )
             if (ib .eq. jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
             do  i = 1, nsp
               call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,
-cki     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
-     .        acof(1,1,i) )
+     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
+ccc     .        acof(1,1,i) ) !this kino's fix on Sep/3/2010 is wrong...
             enddo
           enddo
         enddo

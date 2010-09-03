@@ -34,10 +34,7 @@ C ... Passed parameters
      .xh(nr,0:lmxh,nkaps),dh(0:lmxh,nkaps)
 C ... Local parameters
       integer ik,l,i,idx
-cki      double precision rsm,e,rmt,r,vhh,dhh,xi(0:20),wk(2),rl
-      double precision rsm,e,rmt,r,vhh,dhh,xi(0:20),rl
-cki  wk(2) is wrong!
-      double precision wk(nr,4+lmxh)
+      double precision rsm,e,rmt,r,vhh,dhh,xi(0:20),wk(2),rl
 C     double precision hs(0:20),dhs(0:20),ddhs(0:20),xx
 
       call dpzero(fh,nr*(1+lmxh)*nkaps)
@@ -59,8 +56,7 @@ C           call hansmr(rmt,e,asm,xi,l+1)
 C           vh(l,ik) = xi(l) * rmt**l
 C           dh(l,ik) = vh(l,ik)*l/rmt - xi(l+1)*rmt**(l+1)
 
-cki            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,wk,10,xi)
-            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,nr,1,idx,wk,10,xi)
+            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,wk,10,xi)
             vh(l,ik) = xi(l) * rl
             dh(l,ik) = vh(l,ik)*l/rmt - xi(l+1)*rl*rmt
 
@@ -73,8 +69,7 @@ cki            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,wk,10,xi)
               if (l .eq. 0) rl = 1
 
 C             call hansmr(r,e,asm,xi,l+1)
-cki              call hansr(rsm,0,l+1,1,l+1,e,r**2,1,1,idx,wk,10,xi)
-              call hansr(rsm,0,l+1,1,l+1,e,r**2,nr,1,idx,wk,10,xi)
+              call hansr(rsm,0,l+1,1,l+1,e,r**2,1,1,idx,wk,10,xi)
 
 C             g0 = dexp(-asm*asm*r*r)
               vhh = xi(l) * rl
