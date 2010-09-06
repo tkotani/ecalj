@@ -1,3 +1,19 @@
+c      module m_poldvm
+
+c      interface poldvm
+c        module procedure poldvm
+c        subroutine poldvm(x,y,np,n,lrat,tol,lerr,yp)
+c        implicit none
+c        integer,intent(in):: np,n
+c        logical,intent(in):: lrat
+c        double precision,intent(in):: x(np),y(np),tol ! define these as double precision because of the definition in slatsm/poldvm 
+c        double precision, intent(out):: yp(np)
+c        integer,intent(out):: lerr
+c        end subroutine poldvm
+c      end interface
+
+c      contains
+
       subroutine poldvm(x,y,np,n,lrat,tol,lerr,yp)
 C- Derivative of tabulated function by rational function interpolation
 C ----------------------------------------------------------------
@@ -87,7 +103,7 @@ C ---   Decide which whether to accumulate correction C or D to y ---
 
    10 continue
 
-      end
+      end subroutine poldvm
 C      subroutine fmain
 CC      implicit none
 C      integer np,i,n,lerr
@@ -119,3 +135,4 @@ C        write(*,'(1x,3f12.6,1pe15.4)') xa(i),fa(i),y(i),fa(i)-y(i)
 C   13 continue
 C      end
 
+c      end module m_poldvm

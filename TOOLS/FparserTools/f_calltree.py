@@ -91,7 +91,9 @@ fsdict={}
 for ffile in argset:
 #    print '---- '+ffile+' start -----'
     reader = FortranFileReader(ffile)
-    reader.set_mode(isfree=False,isstrict=False)
+    fform=False
+    if(re.search('.F90',ffile)): fform=True
+    reader.set_mode(isfree=fform,isstrict=False)
     parser=FortranParser(reader,ignore_comments=False)
     parser.parse()
     sstack=[]
@@ -158,6 +160,7 @@ for ffile in argset:
             ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
             ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
             ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
+            ffileo = re.sub('.F90','.o',ffileo)
             ffileo = re.sub('.F','.o',ffileo)
             moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
             moddict[ins.name]=ffileo

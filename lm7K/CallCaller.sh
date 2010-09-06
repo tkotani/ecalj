@@ -8,7 +8,7 @@ echo  '--- Now generating a file 'callcaller.dat' ... It takes 1 minute or so!'
 echo
 echo ##############
 #../TOOLS/ANALYZE/analyze.py freeat fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > lmfa_tree
-../TOOLS/FparserTools/f_calltree.py lmv7.F lmfav7.F lmv7util.F fp/*.F subs/*.F >callcaller.dat 2>callcaller.err
+../TOOLS/FparserTools/f_calltree.py lmv7.F lmfav7.F lmv7util.F fp/*.F subs/*.F subs/*.F90 >callcaller.dat 2>callcaller.err
 #../TOOLS/f_calltree.py lmv7.F fp/*.F >callcaller.dat 2>callcaller.err
 egrep -e '(ERROR|Error)' callcaller.err
 echo

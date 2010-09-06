@@ -102,7 +102,8 @@ C --- Loop over spins and l ---
      .      gzl,gp,ez,phz,dphz,phip,dphip,p)
 C         Scale extended local orbital
             if (lpzi .gt. 1) then
-              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
+c              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
+              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
               call dscal(2*nr,1/fac1,gzl,1)
             endif

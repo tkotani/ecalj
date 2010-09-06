@@ -54,12 +54,13 @@ C ... Passed parameters
       double precision hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax)
 C ... Local parameters
       integer idx,l,mode0,mode1
-      double precision xi(-1:lmax+2),wk(2)
+      double precision xi(-1:lmax+2) !,wk(2)
 
       if (lmax .lt. 0) return
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
+c      call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
+      call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,11,xi)
       do  54  l = 0, lmax
         hs(l)   = xi(l)
         if (mode0 .ne. 0) then

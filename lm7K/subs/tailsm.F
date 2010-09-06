@@ -39,7 +39,7 @@ C ... Passed parameters
 C ... Local parameters
       logical lzero
       integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit
-      real(8) ,allocatable :: wk_rv(:)
+c      real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: idx_rv(:)
       real(8) ,allocatable :: xi_rv(:)
 
@@ -66,19 +66,21 @@ Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) xi_rv(:)=0.0d0
       allocate(idx_rv(nr*2))
 Ctakao_ZeroClear_NotRequiered        if (nr*2<0) idx_rv(:)=0.0d0
 
-      allocate(wk_rv(nr*6))
+c      allocate(wk_rv(nr*6))
 Ctakao_ZeroClear_NotRequiered        if (nr*6<0) wk_rv(:)=0.0d0
 
 C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0
       if (lzero) rsq(1) = rsq(2)/100
-      print *,'tailsm:xxx1'
+c      print *,'tailsm:xxx1'
+c      call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
+c     .idx_rv , wk_rv , 0 , xi_rv )
       call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
-     .idx_rv , wk_rv , 0 , xi_rv )
+     .idx_rv, 0 , xi_rv )
 
-      print *,'tailsm:xxx2'
+c      print *,'tailsm:xxx2'
       if (lzero) rsq(1) = 0
-      if (allocated(wk_rv)) deallocate(wk_rv)
+c      if (allocated(wk_rv)) deallocate(wk_rv)
       if (allocated(idx_rv)) deallocate(idx_rv)
 
 

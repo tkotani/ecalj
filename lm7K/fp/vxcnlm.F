@@ -3,7 +3,7 @@
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
       use m_struc_def, only:s_lat
-c      use m_xcpbe_interface
+      use m_xcpbe,  only: xcpbe
 !! ----------------------------------------------------------------------
 !!i Inputs
 !!i   lxcg  : dummy now.  (need to set option in xcpbe)
@@ -75,29 +75,6 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
 c      logical:: newmode=.true. , debug=.false., plottest=.true.
 
       real(8),allocatable:: r_smrho(:,:,:,:)
-
-      interface
-         subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci, !Mandatory Arguments
-     &   d2vxci,dvxcdgr,dvxci,exexch,grho2_updn) !Optional Arguments
-         use defs_basis
-         implicit none
-         integer,intent(in),optional :: exexch
-         integer,intent(in) :: nd2vxci
-         integer,intent(in) :: ndvxci
-         integer,intent(in) :: ngr2
-         integer,intent(in) :: npts
-         integer,intent(in) :: nspden
-         integer,intent(in) :: option
-         integer,intent(in) :: order
-         real(dp),intent(out),optional :: d2vxci(npts,nd2vxci)
-         real(dp),intent(out),optional :: dvxcdgr(npts,3)
-         real(dp),intent(out),optional :: dvxci(npts,ndvxci)
-         real(dp),intent(out) :: exci(npts)
-         real(dp),intent(in),optional :: grho2_updn(npts,ngr2)
-         real(dp),intent(in) :: rho_updn(npts,nspden)
-         real(dp),intent(out) :: vxci(npts,nspden)
-         end subroutine xcpbe
-      end interface
 
 !!== Setup ==
       call tcn('vxcnlm')

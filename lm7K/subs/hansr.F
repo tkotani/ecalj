@@ -1,4 +1,5 @@
-      subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,wk,job,xi)
+c      subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,wk,job,xi)
+      subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,job,xi)
 C- Vector of smoothed Hankel functions, set of negative e's
 C ---------------------------------------------------------------
 Ci Inputs
@@ -10,8 +11,6 @@ Ci   job      1s digit nonzero, scale xi by r**l
 Ci           10s digit nonzero, input rsq is already sorted
 Ci   idx     integer work array of length 2*nrx.
 Ci           Not needed if 10s digit of job set.
-Ci   wk      double precision work arry of length (4+lmx-lmn)*nrx
-Ci           Length can be 2*nrx if 10s digit of job set.
 Co Outputs
 Co   xi      smoothed Hankels for: xi(1..nr, 0..lxi(ie), 1..nxi)
 Co           xi is the radial part/r**l, so the solid Hankel is

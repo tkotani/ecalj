@@ -12,6 +12,8 @@
 # $(moddir)/m_pairs.mod :subs/pairc.F
 # $(moddir)/m_rdctrl2_func.mod :subs/rdctrl2.F
 # $(moddir)/m_subzi.mod :subs/subzi.F
+# $(moddir)/defs_basis.mod :subs/xcpbe.F90
+# $(moddir)/m_xcpbe.mod :subs/xcpbe.F90
 lmv7.o : lmv7.F $(fp_obj_path)/m_events.o $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
 lmfav7.o : lmfav7.F $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
 lmv7util.o : lmv7util.F $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
@@ -88,3 +90,51 @@ $(fp_obj_path)/ugcomp.o : fp/ugcomp.F $(fp_obj_path)/m_events.o $(subs_obj_path)
 $(fp_obj_path)/vcdmel.o : fp/vcdmel.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesft.o : fp/vesft.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesgcm.o : fp/vesgcm.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/vxcnlm.o : fp/vxcnlm.F $(subs_obj_path)/xcpbe.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/vxcnls.o : fp/vxcnls.F $(subs_obj_path)/xcpbe.o
+$(subs_obj_path)/asados.o : subs/asados.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/asars.o : subs/asars.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/chkdmu.o : subs/chkdmu.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/clsset.o : subs/clsset.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/defspc.o : subs/defspc.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/freeat.o : subs/freeat.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/freeat.bk.o : subs/freeat.bk.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/gtpcor.o : subs/gtpcor.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/hamfb3.o : subs/hamfb3.F $(subs_obj_path)/m_hamindex.o
+$(subs_obj_path)/hft2rs.o : subs/hft2rs.F $(subs_obj_path)/pairc.o
+$(subs_obj_path)/ioeula.o : subs/ioeula.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/ioorbp.o : subs/ioorbp.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/iopos.o : subs/iopos.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/iorbtm.o : subs/iorbtm.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/iors.o : subs/iors.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/iosits.o : subs/iosits.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/lattic.o : subs/lattic.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/m_rdctrl.o : subs/m_rdctrl.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/makidx.o : subs/makidx.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/mchan.o : subs/mchan.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/mkqp.o : subs/mkqp.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/mksym.o : subs/mksym.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/prdmts.o : subs/prdmts.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rdsigm.o : subs/rdsigm.F $(subs_obj_path)/m_psigd.o $(subs_obj_path)/hft2rs.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rdsigm2.o : subs/rdsigm2.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/hft2rs.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/relax.o : subs/relax.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rlxstp.o : subs/rlxstp.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rotwv.o : subs/rotwv.F $(subs_obj_path)/m_hamindex.o
+$(subs_obj_path)/rotycs.o : subs/rotycs.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/setcg.o : subs/setcg.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/shoshl.o : subs/shoshl.F $(subs_obj_path)/pairc.o
+$(subs_obj_path)/struc_strn.o : subs/struc_strn.F $(subs_obj_path)/m_sstrnsname.o
+$(subs_obj_path)/suclst.o : subs/suclst.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/sudmtu.o : subs/sudmtu.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/sugcut.o : subs/sugcut.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/suham.o : subs/suham.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/suham2.o : subs/suham2.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/suidx.o : subs/suidx.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/suldau.o : subs/suldau.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/sumlst.o : subs/sumlst.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/symdmu.o : subs/symdmu.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/uspecb.o : subs/uspecb.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/writebasis.o : subs/writebasis.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/xcpbe.o90 : subs/xcpbe.F90 $(subs_obj_path)/xcpbe.o

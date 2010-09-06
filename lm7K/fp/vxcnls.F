@@ -1,6 +1,7 @@
 Cdwdef1 have_common_w_in vxcnls , #_of_w_access= 0
       subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp,rp,grp,ggrp,agrp,
      .yl,gyl,ylwp,rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,rep,rmu)
+      use m_xcpbe,  only: xcpbe
 C- Gradient correction to nspher. density on a radial and angular mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -69,37 +70,6 @@ Cdwdef1       common /w/ w
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
 
-      interface
-         subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci, !Mandatory Arguments
-     &   d2vxci,dvxcdgr,dvxci,exexch,grho2_updn) !Optional Arguments
-         use defs_basis
-         implicit none
-         integer,intent(in),optional :: exexch
-         integer,intent(in) :: nd2vxci
-         integer,intent(in) :: ndvxci
-         integer,intent(in) :: ngr2
-         integer,intent(in) :: npts
-         integer,intent(in) :: nspden
-         integer,intent(in) :: option
-         integer,intent(in) :: order
-         real(dp),intent(out),optional :: d2vxci(npts,nd2vxci)
-         real(dp),intent(out),optional :: dvxcdgr(npts,3)
-         real(dp),intent(out),optional :: dvxci(npts,ndvxci)
-         real(dp),intent(out) :: exci(npts)
-         real(dp),intent(in),optional :: grho2_updn(npts,ngr2)
-         real(dp),intent(in) :: rho_updn(npts,nspden)
-         real(dp),intent(out) :: vxci(npts,nspden)
-         end subroutine xcpbe
-         
-         subroutine poldvm(x,y,np,n,lrat,tol,lerr,yp)
-         implicit none
-         integer,intent(in):: np,n
-         logical,intent(in):: lrat
-         double precision,intent(in):: x(np),y(np),tol ! define these as double precision because of the definition in slatsm/poldvm 
-         double precision, intent(out):: yp(np)
-         integer,intent(out):: lerr
-         end subroutine poldvm
-      end interface
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical:: newmode=.true.,
@@ -378,9 +348,12 @@ C$$$      if(debug) print *, 'vxcnls: goto vxcnls 99999xxx'
       do isp=1,3 ! 1:dexdn(up) 2:dexdn(dn) 3:decdn(tot)
         if(nsp==1.and.isp==2) cycle !dvxcddgr(:,:,isp=2) is dummy if nsp=1
       do ip=1,np
-        call poldvm(x=ri,y=dvxcdgr(1:nr,ip,isp),np=nr,n=nn, 
-     &  lrat=.false.,tol=1d-12,lerr=lerr,
-     &  yp=dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
+c        call poldvm(x=ri,y=dvxcdgr(1:nr,ip,isp),np=nr,n=nn, 
+c     &  lrat=.false.,tol=1d-12,lerr=lerr,
+c     &  yp=dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
+        call poldvm(ri,dvxcdgr(1:nr,ip,isp),nr,nn, 
+     &  .false.,1d-12,lerr,
+     &  dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
         if (lerr /= 0) call rxi('vxcnls: poldvm 111',1000*isp+ip)
       enddo
       enddo

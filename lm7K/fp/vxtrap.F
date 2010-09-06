@@ -245,7 +245,7 @@ C ... Passed parameters
 C ... Local parameters
       integer nrx,idn,IPRTDB,nxtn,ir,info,mode0
       parameter (nrx=1501,IPRTDB=10)
-      double precision rbig,rwgt(nrx),wk(2*nrx),xi(nrx,0:l),r2(nrx)
+      double precision rbig,rwgt(nrx),xi(nrx,0:l),r2(nrx) !,wk(2*nrx)
       double precision fac1,fac2,rsm,ekin,eh,alfa,beta
       double precision hs(0:l),dhs(0:l),ddhs(0:l)
       double precision hsp(0:l),dhsp(0:l),ddhsp(0:l)
@@ -271,7 +271,8 @@ C       g = 0
           r2(ir) = ribig(ir-1+nrmt)**2
         enddo
 C       Hankel function scaled to match g at nrmt
-        call hansr(rsml,0,l,1,l,ehl,r2,nrx,nxtn,idn,wk,11,xi)
+c        call hansr(rsml,0,l,1,l,ehl,r2,nrx,nxtn,idn,wk,11,xi)
+        call hansr(rsml,0,l,1,l,ehl,r2,nrx,nxtn,idn,11,xi)
 C       fac1 = phi/xi(1,l)
         fac1 = g(nrmt,1)/rmt/xi(1,l)
         fac2 = g(nrmt,2)/rmt/xi(1,l)

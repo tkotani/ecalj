@@ -393,7 +393,35 @@ end module defs_basis
 !!***
 
 
+module m_xcpbe
 
+!!      interface xcpbe
+!!        module procedure xcpbe
+!!          subroutine
+!!          xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci,  & !Mandatory Arguments
+!! &        d2vxci,dvxcdgr,dvxci,exexch,grho2_updn)  !Optional Arguments
+!!          use defs_basis
+!!          implicit none
+!!          integer,intent(in),optional :: exexch
+!!          integer,intent(in) :: nd2vxci
+!!          integer,intent(in) :: ndvxci
+!!          integer,intent(in) :: ngr2
+!!          integer,intent(in) :: npts
+!!          integer,intent(in) :: nspden
+!!          integer,intent(in) :: option
+!!          integer,intent(in) :: order
+!!          real(dp),intent(out),optional :: d2vxci(npts,nd2vxci)
+!!          real(dp),intent(out),optional :: dvxcdgr(npts,3)
+!!          real(dp),intent(out),optional :: dvxci(npts,ndvxci)
+!!          real(dp),intent(out) :: exci(npts)
+!!          real(dp),intent(in),optional :: grho2_updn(npts,ngr2)
+!!          real(dp),intent(in) :: rho_updn(npts,nspden)
+!!          real(dp),intent(out) :: vxci(npts,nspden)
+!!          end subroutine xcpbe
+!!      end interface
+
+
+contains
 !########################################################################################## 
 !{\src2tex{textfont=tt}}
 !!****f* ABINIT/xcpbe
@@ -5425,5 +5453,6 @@ end subroutine xcpbe
 
 
 
+end module m_xcpbe
 
 
