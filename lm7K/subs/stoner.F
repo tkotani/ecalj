@@ -24,10 +24,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
       logical io
-      integer nl,nbas,nclass,iclass(nbas),idxdn(0:nl-1,0:1),npts,mnpts,
-     .index(0:1)
-      double precision ef,dr(2),zos(0:npts-1,0:1),stni(0:1),
-     .ammax(0:1),Nbar(mnpts),emag(mnpts),
+      integer nl,nbas,nclass,iclass(nbas),idxdn(0:nl-1,0:*),npts,mnpts,
+     .index(0:*)
+      double precision ef,dr(2),zos(0:npts-1,0:*),stni(0:*),
+     .ammax(0:*),Nbar(mnpts),emag(mnpts),
      .mwk(mnpts),amom(0:nclass-1),e(0:nclass-1)
       character*8 clabl(0:nclass-1)
 C Local Variables

@@ -98,7 +98,7 @@ C Passed parameters
      .idmod(0:nl-1)
       parameter (ncmx=50, nvmx=20)
       double precision ec(ncmx),ev(nvmx),rofi(nr,2),v(nr,nsp),
-     .rho(nr,nsp),rhoc(nr,nsp),rhoin(nr,nsp),pnu(nl,nsp),
+     .rho(nr,nsp),rhoc(nr,nsp),rhoin(nr,nsp),pnu(nl,2),
      .qnu(3,nl,nsp),z,rmax,a,qc,vrmax(2),exrmax(2),dv,rhrmx,
      .rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc,
      .utot

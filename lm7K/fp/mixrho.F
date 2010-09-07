@@ -1514,7 +1514,7 @@ C ... Passed parameters
       logical readerror
 #endif
       logical lbin
-      integer ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:1),locmix,
+      integer ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:*),locmix,
      .k9,kmxr,nlm0
 Cchp3       integer orhold(3,1),orhnew(3,1)
 Cchp3        integer:: orhold(3,1) 

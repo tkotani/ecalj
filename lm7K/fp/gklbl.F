@@ -137,7 +137,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k0,kmax,nkd,nlm
-      double precision p(3),q(3),alat,rsm,wk(0:kmax,0:1),dlv(3,nkd)
+      double precision p(3),q(3),alat,rsm,wk(0:kmax,0:*),dlv(3,nkd)
       double complex gkl(0:k0,nlm)
 C ... Local parameters
       integer nlm0,ilm,ir,k,l,ll,lmax,m,nm

@@ -70,7 +70,7 @@ C         call dgemm('N','N',3,1,3,1d0,plat,3,vec,3,0d0,ag(1,ng),3)
       subroutine parsop(t,i,a)
 C- Parse string for a point group operator
       double precision v(3),sp,c,s,pi2,a(3,3),ddot
-      character*1 t(0:1)
+      character*1 t(0:*)
       logical parsvc
       integer i,j,k,nrot,iii
       pi2 = 8*datan(1d0)

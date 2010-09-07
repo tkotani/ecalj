@@ -1638,10 +1638,10 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer itab(0:1),lmax,nr,nrmt,n0
+      integer itab(0:*),lmax,nr,nrmt,n0
       parameter (n0=10)
-      double precision a,b,rmax,rmt,z,rtab(0:1),etab(0:1),
-     .rofi(nr),psi(nr,0:1),g(nr,2),v(nr),pl(0:n0-1)
+      double precision a,b,rmax,rmt,z,rtab(0:*),etab(0:*),
+     .rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
       character spid*8
 C ... Local parameters
       integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,fopna,stdo

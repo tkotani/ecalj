@@ -87,11 +87,9 @@ C ... Passed parameters
 Cchp3       integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
 Cchp3        integer:: nvl , k1 , k2 , k3 , orhat1(3,1) 
         integer:: nvl , k1 , k2 , k3 
-        type(s_rv1) :: sv_p_orhat1(3,1)
-
-       type(s_rv1) :: sv_p_orhoat(3,1)
-
-      real(8):: dfh(3,1) , qmom(1)
+      type(s_rv1) :: sv_p_orhat1(3,*)
+      type(s_rv1) :: sv_p_orhoat(3,*)
+      real(8):: dfh(3,*) , qmom(*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -501,6 +499,7 @@ C
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
         enddo
 
+        print *,'dfrce vvvvvvvvvvvvvvvvvv '
 #if ! (MPI | MPIK)
         if (iprint() .ge. 30)
      .  write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
@@ -631,7 +630,7 @@ Cchp3       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
        integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3) 
        type(s_rv1) :: sv_p_orhoat(3)
 
-      real(8):: qmom(1) , qmout(1) , gv(ng,3) , tau(3) , fes1(3) , 
+      real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , 
      .fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -1071,17 +1070,23 @@ C ... Restore rho+, rho-
 
 C ... Overwrite vxcp with df/drho
       do  i = 1, nsp
-        do  i1 = 1, nn
-          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
+c        do  i1 = 1, nn
+         do i1=1,n1
+         do i2=1,n2
+         do i3=1,n3
+          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
           if (rrho .gt. 0) then
-            f1 = vxcm(i1,1,1,i)*(rrho*(1-fac))**alfa
-            f2 = vxcp(i1,1,1,i)*(rrho*(1+fac))**alfa
+            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
+            f2 = vxcp(i1,12,i3,i)*(rrho*(1+fac))**alfa
             dfdr = (f2-f1)/(2d0*fac*rrho)
-            vxcp(i1,1,1,i) = dfdr
+            vxcp(i1,i2,i3,i) = dfdr
           else
-            vxcp(i1,1,1,i) = 0
+            vxcp(i1,i2,i3,i) = 0d0
           endif
-        enddo
+         enddo
+         enddo
+         enddo
+c        enddo
       enddo
 
 C ... vxcm = vxc (smrho)
@@ -1092,16 +1097,22 @@ C ... vxcm = vxc (smrho)
 
 C ... dvxc/drho into dvxc
       do  i = 1, nsp
-        do  i1 = 1, nn
-          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
+c        do  i1 = 1, nn
+         do i1=1,n1
+         do i2=1,n2
+         do i3=1,n3
+          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
           if (rrho .gt. 0) then
-            f = vxcm(i1,1,1,i) * rrho**alfa
-            dvdr = (vxcp(i1,1,1,i) - alfa*f/rrho) / rrho**alfa
-            dvxc(i1,1,1,i) = dvdr
+            f = vxcm(i1,i2,i3,i) * rrho**alfa
+            dvdr = (vxcp(i1,i2,i3,i) - alfa*f/rrho) / rrho**alfa
+            dvxc(i1,i2,i3,i) = dvdr
           else
-            dvxc(i1,1,1,i) = 0
+            dvxc(i1,i2,i3,i) = 0
           endif
-        enddo
+         enddo
+         enddo
+         enddo
+c        enddo
       enddo
 
 C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)

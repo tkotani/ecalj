@@ -152,7 +152,7 @@ C  Integrals are: pkl pk'l p_k3,0 r^(2+2l), 0<k3<kmax3
 C     implicit none
       integer k0,kmax,kmax3,lmax,l
       double precision rmax,rsm,aklm(0:k0,0:k0,0:lmax),
-     .s(0:k0,0:k0,0:k0,0:1),sum,qq
+     .s(0:k0,0:k0,0:k0,0:*),sum,qq
       integer m1,m2,m3,k1,k2,k3
 
 C --- Decomposition of pkl into simple polynomials ---
@@ -183,7 +183,7 @@ C  Pkl for k=1,2 defined by rsm, for k=3 defined by rsm3
 C     implicit none
       integer k0,kmax,kmax3,lmax
       double precision rmax,rsm,rsm3,aklm(0:kmax,0:kmax,0:lmax),
-     .s(0:k0,0:k0,0:k0,0:1),aklm3(0:kmax3,0:kmax3,0:0)
+     .s(0:k0,0:k0,0:k0,0:*),aklm3(0:kmax3,0:kmax3,0:0)
       integer l,k1,k2,k3,m1,m2,m3
       double precision sum,qq
 c|    double precision p1(0:20,0:10),p2(0:20,0:10)

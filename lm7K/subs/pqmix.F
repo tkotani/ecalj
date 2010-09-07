@@ -982,7 +982,7 @@ C --- Save x^(m+2) into a(*,0,2) and exit ---
      .pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
 C- Copy from holding array into P,Q
 C     implicit none
-      integer nda,mxsav,nclass,nl,nsp,nx,lmx(nclass),cnst(0:1)
+      integer nda,mxsav,nclass,nl,nsp,nx,lmx(nclass),cnst(0:*)
       double precision a(nda,0:mxsav+1,2),rms2,
      .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
      .pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx),ddot
@@ -1051,7 +1051,7 @@ Ci  rms2  :rms change in parameters to be mixed.
 C -----------------------------------------------------------------
 C     implicit none
       logical lbin
-      integer nda,nmix,mxsav,ifi,nclass,nl,nsp,lmx(nclass),nx,cnst(0:1)
+      integer nda,nmix,mxsav,ifi,nclass,nl,nsp,lmx(nclass),nx,cnst(0:*)
       double precision a(nda,0:mxsav+1,2),rms2,
      .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
      .pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)

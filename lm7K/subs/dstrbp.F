@@ -288,7 +288,7 @@ C     .  ,'rem2=',rem2
 
       subroutine pdstlb(nloop,np,index)
       implicit none
-      integer nloop, np, index(0:np-1,0:1)
+      integer nloop, np, index(0:np-1,0:*)
       integer n, p, m, i, j, sum1, sum2, iprint, lgunit
       n = nloop
       do i = 0, np-1

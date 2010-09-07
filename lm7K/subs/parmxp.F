@@ -105,7 +105,7 @@ C     implicit none
 C Passed parameters
       integer broy
 C     character strn*(*),mixnam*8
-      character strn*(70),mixnam*8
+      character strn*(*),mixnam*8
       integer iter,lstrn,nkill,nmix
       double precision wgt(3),beta,elind,wc,betv,rmserr
 C Local variables

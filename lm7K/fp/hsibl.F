@@ -361,7 +361,14 @@ C   ... Loop over second of (ib1,ib2) site pairs
 
             i_copy_size=size(sspec(is2)%ngcut)
             call i8icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
-
+ccccccccccccccccccccccc
+c            print *,'wwwww ng=',ng
+c            do i=1,i_copy_size
+c               if(sspec(is2)%ngcut(i)/=0) then
+c               write(6,*)'wwwww ',is2,sspec(is2)%ngcut(i)
+c               endif
+c            enddo
+cccccccccccccccccccccccc
             call suphas ( q , p2 , ng , iv_iv , n1 , n2 , n3 , qlat , 
      .      w_ocos2(1,ip) , w_osin2(1,ip) )
 

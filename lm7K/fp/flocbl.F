@@ -178,10 +178,10 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ia,kmax,lcplxp,nkaph,nlma,nlmha,nlmto,iprmb(1)
+      integer ia,kmax,lcplxp,nkaph,nlma,nlmha,nlmto,iprmb(*)
       double precision
-     .evl,sighp(nkaph,0:kmax,0:1),ppihp(nkaph,0:kmax,nlmha,nlma),
-     .sigpp(0:kmax,0:kmax,0:1),ppipp(0:kmax,0:kmax,nlma,nlma)
+     .evl,sighp(nkaph,0:kmax,0:*),ppihp(nkaph,0:kmax,nlmha,nlma),
+     .sigpp(0:kmax,0:kmax,0:*),ppipp(0:kmax,0:kmax,nlma,nlma)
       double complex wk(0:kmax,nlma),evec(1),cPkL(0:kmax,nlma)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma)

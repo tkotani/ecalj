@@ -33,8 +33,8 @@ Cu   25 Jan 00 veckl generates gp as well as p.
 C ----------------------------------------------------------------------
 C     implicit none
       integer nr,kmax,lmax,nrx,k0,lrl
-      double precision r(nrx),wk(nr),rsm,p(nrx,0:k0,0:1),
-     .gp(nrx,0:k0,0:1)
+      double precision r(nrx),wk(nr),rsm,p(nrx,0:k0,0:*),
+     .gp(nrx,0:k0,0:*)
       integer i,l,k
       double precision a,xx,xx2,xx3
 

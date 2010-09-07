@@ -554,7 +554,7 @@ C ... Passed parameters
       integer iprt(n0,nkap0,*),ipet(n0,nkap0,*)
       double precision vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*),
      .psi0(ng,2,nspc,nvec),wk2(ng),cosgp(ng),singp(ng),etab(*),
-     .rtab(*),gq(ng,3),f(3,nbas,numq),ewgt(numq,ivec),qlat(3,3)
+     .rtab(*),gq(ng,3),f(3,nbas,numq),ewgt(numq,nvec+ivec-1),qlat(3,3)
       double complex
      .psi(ng,nspc,nvec),evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec)
 C ... Local parameters

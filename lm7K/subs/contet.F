@@ -57,7 +57,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,
-     .n3,nevmx,igstar(0:1),ipq0(n1,n2,n3),iblst(nevmx)
+     .n3,nevmx,igstar(0:*),ipq0(n1,n2,n3),iblst(nevmx)
       double precision eband(nbmx,nspx,*),emin,emax,wk(npts),
      .zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),qp(3,1),cvec(3,2)
       logical lidos

@@ -26,7 +26,7 @@ Cr   This version checks for unit stride lengths in (a,b,c)
 C ----------------------------------------------------------------
 C     implicit none
       integer nca,nra,ncb,nrb,ncc,nrc,n,m
-      double precision a(0:1), b(0:1), c(0:1), scalea, scaleb
+      double precision a(0:*), b(0:*), c(0:*), scalea, scaleb
       integer i,j,ia,ib,ic
 
 C --- Case unit stride length for each column ---

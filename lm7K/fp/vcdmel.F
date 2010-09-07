@@ -421,7 +421,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer isite,lcls,ndham,ndimh,nlma,nlmax,nsite,indxcg(1),jcg(1)
-      double precision cg(1),ume(0:1),sme(0:1),s(3,nsite,ndimh,2)
+      double precision cg(1),ume(0:*),sme(0:*),s(3,nsite,ndimh,2)
       double complex aus(nlmax,ndham,2)
 C ... Local parameters
       integer kk(4),mlm,lm,ll,klm,ii,indx,icg1,icg2,icg,llm,ib,k

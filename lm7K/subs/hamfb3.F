@@ -24,7 +24,7 @@ Co Outputs
 Co   gfbz  : For those qp in star iq, hq stored
 C ----------------------------------------------------------------------
       implicit none
-      integer:: nk1,nk2,nk3,k1,k2,k3,ipq(1),igstar(0:1),ndimh,ldima,ldimb,napw_in
+      integer:: nk1,nk2,nk3,k1,k2,k3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in
       real(8)::    hq(ndimh,ndimh),qin(3),qb(3,3),plat(3,3),qlat(3,3)
       complex(8):: gfbz(k1,k2,k3,ldima,ldimb)
       integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim
@@ -149,7 +149,7 @@ C Passed variables
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer nbas,nk1,nk2,nk3,k1,k2,k3,istab(nbas,1),
-     .ipq(1),igstar(0:1),ifac(3),offH(n0H,nkap0,nbas),iprmb(ldima)
+     .ipq(1),igstar(0:*),ifac(3),offH(n0H,nkap0,nbas),iprmb(ldima)
       double precision hq(lidim,nspc,lidim,nspc)
       double precision hw(lidim,nspc,lidim,nspc)
       double precision hw2(lidim,2,nspc,lidim,nspc)

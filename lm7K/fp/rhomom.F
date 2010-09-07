@@ -33,7 +33,7 @@ C     implicit none
 C ... Passed parameters
 Cchp3       integer nbas,orhoat(3,1)
        integer:: nbas 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+       type(s_rv1) :: sv_p_orhoat(3,*)
 
       real(8):: qmom(1) , vsum
       type(s_site)::ssite(*)
