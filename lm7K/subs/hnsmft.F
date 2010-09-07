@@ -28,7 +28,7 @@ C-----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer nr,nrmt,nf
-      double precision rofi(nr),rho(nr),e(nf),f(nf),xi(nr,nf),qcst(nf),
+      double precision rofi(nr),rho(nr),e(nf),f(*),xi(nr,nf),qcst(nf),
      .qout
 C Local variables
       integer i,ip,ipr,ir,ire,irs,is,j,nfmax,info,lpr,lgunit,stdo

@@ -1,4 +1,4 @@
-      subroutine tcinit(ltrace,lprof)
+      subroutine tcinit(ltrace,lprof,levelinit)
 C- Setup for timer and workspace routines
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,7 +21,8 @@ C     implicit none
       character*20 name(nx),nam0
       character*(*) str1,str2
       character*3  tt(0:20)
-      integer ncall(nx),lev(nx),it1(nx),icb(nx),icall(0:30)
+      integer ncall(nx),lev(nx),it1(nx),icb(nx),icall(-2:30) 
+                       !bugfux this was icall(0:30) sep2010
       integer iwk0(nx),iwk1(nx),iwk2(nx),iwk3(nx)
       integer lvl,lv,last,j1,j2,iwmax,ilev,stdo,lgunit
       integer ifi,iprint
@@ -29,7 +30,9 @@ C$    integer mp_my_threadnum
       real ttot(nx),tavg,tm
       double precision cpusec
       save
-      data nn/0/, ii/0/, level/0/, init/0/, ltr/0/, lpr/0/
+      data nn/0/, ii/0/, init/0/, ltr/0/, lpr/0/ !level/0/, 
+
+      level=levelinit
 
       stdo = lgunit(1)
       if (ltrace .ne. 0) ltr = ltrace
@@ -100,6 +103,7 @@ c ... add a new entry
       ttot(nn) = 0
       name(nn) = nam0
       lev(nn) = level-1
+c      print *,'level-2=',level-2
       icb(nn) = icall(level-2)
       ii = nn
 
@@ -110,11 +114,11 @@ c ... do real operations here
         it1(ii) = it
         icall(level-1) = ii
         if (ltr .gt. levx .and. iprint() .gt. 0) then
-          write(stdo,100) 0.001*(it-jt0),str1
+          write(stdo,100) level,0.001*(it-jt0),str1
         elseif (iabs(ltr) .gt. levx .and. iprint() .gt. 0) then
-          write(stdo,100) 0.001*(it-jt0),str1,mnow,mmax
+          write(stdo,100) level,0.001*(it-jt0),str1,mnow,mmax
         endif
-  100   format(' >>',f10.2,'   enter ',a:t43,
+  100   format(' >> level:',i2,'  CPUsec=',f10.2,'  enter ',a:t43,
      .  '  mnow =',i11,'  mmax=',i11)
 C       jt1 = it
         return

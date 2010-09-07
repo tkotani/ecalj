@@ -748,7 +748,8 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer npg,nsg,nbas,istab(nbas,1)
-      double precision g(3,3,npg),ag(3,npg)
+c      double precision g(3,3,npg),ag(3,npg)
+      double precision g(3,3,*),ag(3,*)
 C ... Local parameters
       integer ig,jg
       double precision ginv(3,3)

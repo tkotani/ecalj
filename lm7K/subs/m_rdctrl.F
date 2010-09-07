@@ -318,6 +318,7 @@ C ... Local variables
      ..385057D0,.073209D0,.022481D0,.006069D0,.001D-3,
      ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
 
+      integer:: levelinit=0
 
 C ... For MPI
       procid = mpipid(1)
@@ -496,7 +497,7 @@ C     Override with '--time=' commmand-line arg
         if (i .lt. 0) call rxs('error parsing switch ',a)
         i0 = max(i0,i)
       endif
-      if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1))
+      if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1),levelinit)
 
 C --- Struc ---
       if (tksw(prgn,'STRUC') == 2) goto 59

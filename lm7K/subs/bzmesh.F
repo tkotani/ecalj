@@ -101,7 +101,7 @@ C-----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lshft(3)
-      integer n1,n2,n3,nqmx,ng,nq,igstar(0:1),ipq(n1,n2,n3),lpbc
+      integer n1,n2,n3,nqmx,ng,nq,igstar(0:*),ipq(n1,n2,n3),lpbc
       double precision qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(9,1)
 C ... Local parameters
       logical lsgrp

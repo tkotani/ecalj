@@ -20,7 +20,7 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer lmax,konfig(0:8),lmaxc
-      double precision pnu(0:1),z
+      double precision pnu(0:*),z
 C Local parameters
       integer l
       integer LI,NA,K,RB,CS,FR,CU,AG,AU,HF

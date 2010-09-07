@@ -41,7 +41,7 @@ Cu   01 Jul 05 Zero-radius empty spheres skip as having no local part
 Cu   14 Jun 00 spin polarized
 Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 Cchp3       integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
 Cchp3        integer:: nbas , nxi(1) , nxi0 , orhoat(3,nbas) 
@@ -56,33 +56,23 @@ Cchp3        integer:: nbas , nxi(1) , nxi0 , orhoat(3,nbas)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer nrmx,nlmx,ktop0,stdo
-      parameter(nrmx=1501,nlmx=64,ktop0=25)
-Cchp1       integer ib,ipr,iprint,is,jb,je,js,kmxv,lfoca,lgunit,lmxl,nlmh,
-Cchp1      .nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
-Cchp1        integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-Cchp1      . , lgunit , lmxl , nlmh , nlml , nr , ocy , oidxcg , ojcg , nsp 
-Cchp1      . , nglob , i 
-Cchp1         integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-Cchp1      .  , lgunit , lmxl , nlmh , nlml , nr , oidxcg , ojcg , nsp , nglob 
-Cchp1      .  , i 
-Cchp1          integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-Cchp1      .   , lgunit , lmxl , nlmh , nlml , nr , ojcg , nsp , nglob , i 
-          integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+      integer stdo !nrmx,nlmx,ktop0,stdo
+c      parameter(nrmx=1501,nlmx=64,ktop0=25)
+      integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
      .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i 
-          integer,pointer :: iv_p_ojcg(:)
 
-         integer,pointer :: iv_p_oidxcg(:)
-
-        real(8),pointer :: rv_p_ocy(:)
-
-       real(8),pointer :: rv_p_ocg(:)
+      integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:)
+      real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:)
 
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom
-      double precision a,rofi(nrmx),rwgt(nrmx),rhohd(nrmx*2),p1(3),
-     .p2(3),b0(ktop0+1),acof((ktop0+1),nlmx,2),q(3)
-      double complex b((ktop0+1),nlmx)
+      double precision a,p1(3),
+     .p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
+c      double complex b((ktop0+1),nlmx)
+
+      real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
+      complex(8),allocatable:: b(:,:)
+
 
 #if MPI | MPIK
 C      include "mpif.h"
@@ -93,9 +83,6 @@ C      include "mpif.h"
       character strn*120
 C     double precision dval
 #endif
-C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data q /0d0,0d0,0d0/
       integer:: ibini,ibend
 
@@ -109,19 +96,10 @@ Cdwdef1       common /w/ w
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
-
-Cchp1       ocg=slat%ocg
-       rv_p_ocg => slat%rv_p_ocg 
-
-Cchp1       ojcg=slat%ojcg
-       iv_p_ojcg => slat%iv_p_ojcg 
-
-Cchp1       oidxcg=slat%oidxcg
-       iv_p_oidxcg => slat%iv_p_oidxcg 
-
-Cchp1       ocy=slat%ocy
-       rv_p_ocy => slat%rv_p_ocy 
-
+      rv_p_ocg    => slat%rv_p_ocg 
+      iv_p_ojcg   => slat%iv_p_ojcg 
+      iv_p_oidxcg => slat%iv_p_oidxcg 
+      rv_p_ocy    => slat%rv_p_ocy 
 
 
 C --- Loop over sites where density is made ---
@@ -161,14 +139,18 @@ c      do  ib = 1, nbas
       do  ib = ibini,ibend
 
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,p1,1)
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,p1,1)
+        p1(:)=ssite(ib)%pos(:)
 
         lmxl=sspec(is)%lmxl
         kmxv=sspec(is)%kmxv
         rsmv=sspec(is)%rsmv
 
+        nlml = (lmxl+1)**2
+        allocate(acof(0:kmxv,nlml,nsp),b(0:kmxv,nlml))
+        acof=0d0
+        b=0d0
 
         a=sspec(is)%a
         nr=sspec(is)%nr
@@ -177,23 +159,22 @@ c      do  ib = 1, nbas
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca,
      .  z)
         qcsm = qcorg+qcorh
-        nlml = (lmxl+1)**2
 C       if (z .eq. 0 .and. rmt .eq. 0) goto 10
         if (lmxl .eq. -1) goto 10
-        if (nr .gt. nrmx) call rxi('ovlocr: increase nrmx, need',nr)
-        if (kmxv .gt.ktop0) call rxi('ovlocr: increase ktop0 need',kmxv)
-        if (nlml .gt. nlmx) call rxi('ovlocr: increase nlmx need',nlml)
-
+        allocate(rofi(nr),rwgt(nr))
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
+c        if (nr .gt. nrmx) call rxi('ovlocr: increase nrmx, need',nr)
+c        if (kmxv .gt.ktop0) call rxi('ovlocr: increase ktop0 need',kmxv)
+c        if (nlml .gt. nlmx) call rxi('ovlocr: increase nlmx need',nlml)
 
 C   ... Loop over other sites, add up tail expansion
-        call dpzero(acof,(kmxv+1)*nlml*nsp)
         do  jb = 1, nbas
 
           js=ssite(jb)%spec
-          i_copy_size=size(ssite(jb)%pos)
-          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
+c          i_copy_size=size(ssite(jb)%pos)
+c          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
+          p2(:)=ssite(jb)%pos(:)
 
           do  je = 1, nxi(js)
             rsmh = rsmfa(js)
@@ -214,16 +195,14 @@ Cchp1      .         , slat , b )
      .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
      .          , slat , b ) 
 
-
-
-
-            call dpzero(b0,(kmxv+1)*nlmh)
+            allocate(b0(0:kmxv,nlmh))
+            b0=0d0
+c            call dpzero(b0,(kmxv+1)*nlmh)
             if (ib .eq. jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
             do  i = 1, nsp
-              call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,
-     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
-ccc     .        acof(1,1,i) ) !this kino's fix on Sep/3/2010 is wrong...
+              call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,acof(0,1,i))
             enddo
+            deallocate(b0)
           enddo
         enddo
 
@@ -237,7 +216,8 @@ Cchp3      .   , 1 , is ) , rsmfa ( is ) , rv_a_orhofa( is )%v , w ( orhoat
 Cchp3      .   ( 3 , ib ) ) , lfoca , qcsm , qloc , amom , w ( orhoat ( 1 , 
 Cchp3      .   ib ) ) , w ( orhoat ( 2 , ib ) ) ) 
           call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
-     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
+c     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
+     .    , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v 
      .    , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
      .    ) 
@@ -247,7 +227,9 @@ Cchp3      .   ib ) ) , w ( orhoat ( 2 , ib ) ) )
         sqloc = sqloc + qloc
         slmom = slmom + amom
 
+        deallocate(rofi,rwgt)
    10   continue
+        deallocate(acof,b)
       enddo
 
 #if MPI | MPIK
@@ -337,7 +319,7 @@ C ... Local parameters
       end subroutine p1ovlc
 
 
-      subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,rhohd,
+      subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, !rhohd,
      .nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
 
 C- Assemble local density from P_kl expansion for one site
@@ -373,19 +355,20 @@ Co   amom  :sphere magnetic moment
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nxi0,ib,nsp,kmxv,nlml,nxi,lfoca
       double precision qcsm,qloc,rhofa(nr,nsp),rho1(nr,nlml,nsp),
      .rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1),
      .hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
 C ... Local parameters
-      integer kmx,lmx,stdo
-      parameter (kmx=20, lmx=6)
+      integer stdo !kmx,lmx,
+c      parameter (kmx=20, lmx=6)
       integer i,ie,ilm,ipr,iprint,k,l,lgunit,ll,lmax,lmxl,isp
       double precision asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut,
      .r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0,
-     .pkl(0:kmx,0:lmx),xi(0:10),x0(0:2),ddot
+     .xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
+      real(8),allocatable:: pkl(:,:)
 
       ipr   = iprint()
       stdo  = lgunit(1)
@@ -393,7 +376,8 @@ C ... Local parameters
       srfpi = dsqrt(4*pi)
       y0    = 1d0/srfpi
       lmxl  = ll(nlml)
-      if (lmxl .gt. lmx) call rxi('ovlocr: increase lmx, need',lmxl)
+      allocate(pkl(0:kmxv,0:lmxl))
+c      if (lmxl .gt. lmx) call rxi('ovlocr: increase lmx, need',lmxl)
 
 C     do  ilm = 1, nlml
 C       do  k = 0, kmxv
@@ -442,11 +426,11 @@ c|  917 format('summed smooth charge:  num',f14.8,'   exact',f14.8
 c|     .   /' total smooth q',f14.8,'  outside',f14.8)
 
 C --- Assemble overlapped tail density in rho2 ---
-      if (kmxv .gt. kmx) call rx('ovlocr: increase kmx')
+c      if (kmxv .gt. kmx) call rx('ovlocr: increase kmx')
       call dpzero(rho2,  nr*nlml*nsp)
       do  i = 1, nr
         r = rofi(i)
-        call radpkl(r,rsmv,kmxv,lmxl,kmx,pkl)
+        call radpkl(r,rsmv,kmxv,lmxl,kmxv,pkl)
         do  isp = 1, nsp
           do  ilm = 1, nlml
             l = ll(ilm)

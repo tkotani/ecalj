@@ -39,7 +39,7 @@ Cu   11 May 07 (S. Lozovoi) small bug fixes; similarity with hansmz
 C ---------------------------------------------------------------
 C     implicit none
       integer nrx,nr,lmn,lmx,idx(nrx,2),nxi,lxi(nxi),job
-      double precision rsq(nrx),e,exi(nxi)
+      double precision rsq(*),e,exi(nxi)
       double precision xi(nrx,lmn:lmx,nxi),wk(nrx,4+lmx-lmn)
 C Local variables
       integer ir,j,l,k,n0,n1,n2,ie,lmax

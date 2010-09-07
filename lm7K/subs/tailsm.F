@@ -34,8 +34,8 @@ C     implicit none
 C ... Passed parameters
       integer lrhot,nsp,nr,nrmt,nxi0,nxi
       double precision a,b,rmt,rsm
-      double precision hfc(nxi0,nsp),exi(nxi),rho(nr),rofi(nr)
-      double precision hfct(nxi0,nsp),rhot(nr)
+      double precision hfc(nxi0,nsp),exi(nxi),rho(*),rofi(nr)
+      double precision hfct(nxi0,nsp),rhot(*)
 C ... Local parameters
       logical lzero
       integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit

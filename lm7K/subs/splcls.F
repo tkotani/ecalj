@@ -23,7 +23,8 @@ C     implicit none
 C Passed parameters:
       logical nosplt
       integer nbas,nspec,nclass,ng,istab(nbas,ng),ipc(nbas),
-     .ics(nspec),nrclas(nspec)
+c     .ics(nspec),nrclas(nspec)
+     .ics(*),nrclas(nspec)
       double precision bas(3,*)
       character*8 slabl(*)
 C Local parameters:

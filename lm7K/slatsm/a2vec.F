@@ -26,7 +26,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
       integer ip,lstr,cast,nsep,nvec,itrm,ix(1)
-      character str*(*), sep(nsep)*1
+      character str*(*), sep(*)*1
       double precision res(1)
 C Local Variables
       integer iv,ip0,iitrm
