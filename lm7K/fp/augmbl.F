@@ -162,45 +162,24 @@ Cchp1         integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma
 Cchp1      .  , nlmha , nkaph , oidxcg , ojcg , mode1 , nlmto 
 Cchp1          integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
 Cchp1      .   , nlmha , nkaph , ojcg , mode1 , nlmto 
-          integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+      integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
      .    , nlmha , nkaph , mode1 , nlmto 
-          integer,pointer :: iv_p_ojcg(:)
-
-         integer,pointer :: iv_p_oidxcg(:)
-
-        real(8),pointer :: rv_p_ocy(:)
-
-       real(8),pointer :: rv_p_ocg(:)
-
+      integer,pointer :: iv_p_ojcg(:)
+      integer,pointer :: iv_p_oidxcg(:)
+      real(8),pointer :: rv_p_ocy(:)
+      real(8),pointer :: rv_p_ocg(:)
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
-c#ifndef F90
-c      integer ib,is,ik,nlmh
-c      double precision p(3)
-cC ... For the basis
-c      integer nkap0,n0,nkapi
-c      parameter (nkap0=3,n0=10)
-c      integer lh(nkap0)
-c      double precision eh(n0,nkap0),rsmh(n0,nkap0)
-c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
-c#endif
+      integer:: initbas, endbas
+      logical:: debug=.false.
+
 #if MPI
       integer, dimension(:), allocatable :: bproc
-      complex(8) ,allocatable :: h_zv(:)
-      complex(8) ,allocatable :: hbuf_zv(:)
-      complex(8) ,allocatable :: s_zv(:)
-      complex(8) ,allocatable :: sbuf_zv(:)
-      complex(8) ,allocatable :: hso_zv(:)
-
+      complex(8) ,allocatable :: h_zv(:),
+     & hbuf_zv(:),  s_zv(:), sbuf_zv(:),  hso_zv(:)
 #endif
-      integer:: initbas, endbas
 
-
-C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
-
+C--------------------------
       call tcn ('augmbl')
-
 #if MPI
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -316,9 +295,7 @@ Cchp1      .     kmax , nlma , ndimh , napw , igapw , b , xx )
             call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
      .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
-
-
-
+            if(debug) print *,'end of bstrux'
 
 C$$$#else
 C$$$C       Zero out strux to eliminate contributions from local orbitals
@@ -430,6 +407,8 @@ Cchp3      .     , ndimh , nlmto , s , h , hso )
 #endif
 #endif
 
+        if(debug) print *,'augg 1111111'
+
 C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
 Cchp3         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
@@ -472,9 +451,12 @@ Cchp3      .    hso)
         endif
 #endif
 
+        if(debug) print *,'augg 222222 ia=',ia
    10   continue
 C ... end loop over ia
       enddo
+
+
 #if MPI
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_AUGMBL,procid,"augmbl")
@@ -864,7 +846,6 @@ c#endif
 
 
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,g,sig,b,s)
-
 C- Add B+ sig B to s for L-diagonal sig
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -888,20 +869,19 @@ C ... Passed parameters
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
      .g(0:kmax,nlma),csum
 C ... Local parameters
-      integer nlmax
-      parameter (nlmax=49)
-      integer kjtop,i1,i2,ilm,k1,k2,l,kjlm,lla(nlmax)
-      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6/
-
-      if (nlma .gt. nlmax) call rxi('augqs3: increase nlmax to',nlma)
-
+c      integer nlmax
+c      parameter (nlmax=49)
+      integer i1,i2,ilm,k1,k2,l,kjlm !,lla(nlmax) !kjtop,
+c      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6/
+      integer :: ll
+c      if (nlma .gt. nlmax) call rxi('augqs3: increase nlmax to',nlma)
 C     call tcn('augqs3')
-      kjtop = nlma*(kmax+1)
+c      kjtop = nlma*(kmax+1)
       do  i2 = 1, ndimh
-
 C   ... Make sig*b in g
         do  ilm = 1, nlma
-          l = lla(ilm)
+c          l = lla(ilm)
+          l = ll(ilm)
           do  k1 = 0, kmax
             g(k1,ilm) = 0d0
             do  k2 = 0, kmax
@@ -912,20 +892,20 @@ C   ... Make sig*b in g
 C   ... Make dot products with vectors i1
         do  i1 = 1, i2
 c         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-          csum = (0d0,0d0)
-          do  kjlm = 0, kjtop-1
-            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
-          enddo
-          s(i1,i2) = s(i1,i2) + csum
+ctakao
+c          csum = (0d0,0d0)
+c          do  kjlm = 0, kjtop-1
+c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
+c          enddo
+c          s(i1,i2) = s(i1,i2) + csum
+          s(i1,i2) = s(i1,i2) + sum( dconjg(b(:,:,i1))*g(:,:) )
         enddo
       enddo
 C     call tcx('augqs3')
-
       end subroutine augqs3
 
 
       subroutine augqp3(kmax,nlma,ndimh,isp,g,ppi,b,h)
-
 C- Add B+ ppi B to H for non-L-diagonal matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -943,21 +923,21 @@ Cu Updates
 Cu 01 Sep 04 folded so into complex potential
 Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,nlma,ndimh,isp
       double precision ppi(0:kmax,0:kmax,nlma,nlma,isp)
       double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
      .g(0:kmax,nlma),csum
 C ... Local parameters
-      integer i1,i2,jlm1,jlm2,k1,k2,kjtop,kjlm
+      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
 
 C     call tcn('augqp3')
-      kjtop = nlma*(kmax+1)
-
+c      kjtop = nlma*(kmax+1)
       do  i2 = 1, ndimh
 C   ... g <- ppi*b
-        call dpzero(g,2*kjtop)
+c        call dpzero(g,2*kjtop)
+        g=0d0
         do  jlm1 = 1, nlma
           do  jlm2 = 1, nlma
             do  k2 = 0, kmax
@@ -968,15 +948,15 @@ C   ... g <- ppi*b
             enddo
           enddo
         enddo
-
-C   ... Make dot products with vectors i1
+cC   ... Make dot products with vectors i1
         do  i1 = 1, i2
-C         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-          csum = (0d0,0d0)
-          do  kjlm = 0, kjtop-1
-            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
-          enddo
-          h(i1,i2) = h(i1,i2) + csum
+cC         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
+c          csum = (0d0,0d0)
+c          do  kjlm = 0, kjtop-1
+c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
+c          enddo
+c          h(i1,i2) = h(i1,i2) + csum
+          h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
         enddo
       enddo
 C     call tcx('augqp3')
@@ -984,7 +964,6 @@ C     call tcx('augqp3')
 
 
       subroutine augq3z(mode1,kmax,nlma,ndimh,isp,g,ppi,b,h,hso)
-
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1004,21 +983,21 @@ Cu 03 Feb 05 (A. Chantis) added 3- center spherical so*(LxSx+LySy)
 Cu 01 Sep 04 folded so into complex potential
 Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,nlma,ndimh,isp,mode1
       double complex ppi(0:kmax,0:kmax,nlma,nlma,isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
      .g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
 C ... Local parameters
-      integer i1,i2,jlm1,jlm2,k1,k2,kjtop,kjlm
+      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
 
 C     call tcn('augqp3')
-      kjtop = nlma*(kmax+1)
+c      kjtop = nlma*(kmax+1)
       do  i2 = 1, ndimh
 C   ... g <- ppi*b
-        call dpzero(g,2*kjtop)
-        call dpzero(gso,2*kjtop)
+        g=0d0   !call dpzero(g,2*kjtop)
+        gso=0d0 !call dpzero(gso,2*kjtop)
         do  jlm1 = 1, nlma
           do  jlm2 = 1, nlma
             do  k2 = 0, kmax
@@ -1036,18 +1015,20 @@ C     ...  Make LxSx+LySy part of SO
 
 C   ... Make dot products with vectors i1
         do  i1 = 1, ndimh
-C         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-          csum = (0d0,0d0)
-          if (mode1 .eq. 1 .and. isp .eq. 2) csum1 = (0d0,0d0)
-          do  kjlm = 0, kjtop-1
-            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
+cC         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
+c          csum = (0d0,0d0)
+c          if (mode1 .eq. 1 .and. isp .eq. 2) csum1 = (0d0,0d0)
+c          do  kjlm = 0, kjtop-1
+c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
+cC     ...  Make LxSx+LySy part of SO
+c            if (mode1 .eq. 1 .and. isp .eq. 2)
+c     .      csum1 = csum1 + dconjg(b(kjlm,1,i1))*gso(kjlm,1)
+c          enddo
+c          h(i1,i2) = h(i1,i2) + csum
+          h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
 C     ...  Make LxSx+LySy part of SO
-            if (mode1 .eq. 1 .and. isp .eq. 2)
-     .      csum1 = csum1 + dconjg(b(kjlm,1,i1))*gso(kjlm,1)
-          enddo
-          h(i1,i2) = h(i1,i2) + csum
           if (mode1 .eq. 1 .and. isp .eq. 2) 
-     .    hso(i1,i2) = hso(i1,i2) + 0.5d0*csum1
+     .      hso(i1,i2) = hso(i1,i2) + .5d0*sum(dconjg(b(:,:,i1))*gso(:,:)) !+ 0.5d0*csum1
         enddo
       enddo
 C     call tcx('augqp3')

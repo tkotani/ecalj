@@ -707,7 +707,7 @@ C ... Passed parameters
       integer ie,ir,nlm1,nlm2,offlm,ng
       double precision yl(ng,1),he(ng,1),hr(ng,1),cosgp(1),singp(1),
      .wk(ng),etab(ie),rtab(ir),vol
-      double complex c(ng,nlm2),cfac(nlm2)
+      double complex c(ng,offlm+1+nlm2-nlm1),cfac(offlm+1+nlm2-nlm1) !c(ng,nlm2),cfac(nlm2)
 C ... Local parameters
       integer i,ilm,offi,lmax,ll,l,m
       double precision xxx,fac1,pi

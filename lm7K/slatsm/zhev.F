@@ -44,9 +44,9 @@ C Passed parameters
       logical linv,lx
       integer lov,lh,lz
       integer n,nev,nmx
-      double precision h(1),s(1),e(n),wk(1),z(2),emx
+      double precision h(*),s(*),e(n),wk(*),z(2),emx
 
-#if LAPACK
+C$$$#if LAPACK
 C Local parameters
       integer ier,lwork
       character jobz
@@ -78,139 +78,139 @@ C       lh = n
 C       call zprm('evecs',2,z,lz,n,nmx)
         nev = min(n,nmx)
       endif
-#else
-C Local parameters
-      integer i,j,k,m,mdim,k1,k2,k3,k4,k5,k6,k7,k8,k9,n2,ier
+C$$$#else
+C$$$C Local parameters
+C$$$      integer i,j,k,m,mdim,k1,k2,k3,k4,k5,k6,k7,k8,k9,n2,ier
 
-      call tcn('zhev')
-      n2 = n**2
+C$$$      call tcn('zhev')
+C$$$      n2 = n**2
 
-C --- Take care of n=1 case ---
-      if (n .eq. 1) then
-        e(1) = h(1)
-        if (lov .gt. 0) e(1) = h(1)/s(1)
-        if (1 .gt. nev .or. e(1) .gt. emx) return
-        z(1) = 1
-        z(2) = 0
-        return
-      endif
+C$$$C --- Take care of n=1 case ---
+C$$$      if (n .eq. 1) then
+C$$$        e(1) = h(1)
+C$$$        if (lov .gt. 0) e(1) = h(1)/s(1)
+C$$$        if (1 .gt. nev .or. e(1) .gt. emx) return
+C$$$        z(1) = 1
+C$$$        z(2) = 0
+C$$$        return
+C$$$      endif
 
-C --- Separate real and imaginary parts ---
-      mdim = 2*lh
-      call ztoy(h,lh,n,n,0)
-      if (lov .gt. 0) call ztoy(s,lh,n,n,0)
+C$$$C --- Separate real and imaginary parts ---
+C$$$      mdim = 2*lh
+C$$$      call ztoy(h,lh,n,n,0)
+C$$$      if (lov .gt. 0) call ztoy(s,lh,n,n,0)
 
-C --- Debugging: eigenvalues of overlap ---
-C      call htridx(mdim,n,s(1),s(lh+1),e,wk,wk(3*n+1),wk(n+1))
-C      do  11  j = 1, n
-C   11 wk(j) = wk(j)**2
-C      call tqlrat(n,e,wk,ier)
-C      write(6,600) e
-C  600 format(' evl='/(1x,1p,5e14.6))
-C      call rx('eigenvalues of overlap')
+C$$$C --- Debugging: eigenvalues of overlap ---
+C$$$C      call htridx(mdim,n,s(1),s(lh+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$C      do  11  j = 1, n
+C$$$C   11 wk(j) = wk(j)**2
+C$$$C      call tqlrat(n,e,wk,ier)
+C$$$C      write(6,600) e
+C$$$C  600 format(' evl='/(1x,1p,5e14.6))
+C$$$C      call rx('eigenvalues of overlap')
 
-C --- H <- S^-1/2  H  S^-1/2 ---
-      if (lov .gt. 0) then
-        call yyhchd(mdim,n,s,s(lh+1),wk,lx,.true.,ier)
-        call rxx(ier.ne.0,'ZHEV: error in yyhchd')
-        if (lx) then
-          if (lz .ne. lh) call rx('zhev not ready for lz ne lh')
-          call yyhrdx(mdim,n,h,h(lh+1),s,s(lh+1),z,z(lz+1))
-        else
-          call yyhred(mdim,n,h,h(lh+1),s,s(lh+1),.true.)
-        endif
-      endif
+C$$$C --- H <- S^-1/2  H  S^-1/2 ---
+C$$$      if (lov .gt. 0) then
+C$$$        call yyhchd(mdim,n,s,s(lh+1),wk,lx,.true.,ier)
+C$$$        call rxx(ier.ne.0,'ZHEV: error in yyhchd')
+C$$$        if (lx) then
+C$$$          if (lz .ne. lh) call rx('zhev not ready for lz ne lh')
+C$$$          call yyhrdx(mdim,n,h,h(lh+1),s,s(lh+1),z,z(lz+1))
+C$$$        else
+C$$$          call yyhred(mdim,n,h,h(lh+1),s,s(lh+1),.true.)
+C$$$        endif
+C$$$      endif
 
-C --- Transform to tridiagonal matrix ---
-      if (linv) then
-        k1 = 1
-        k2 = k1 + 3*n
-        k3 = k2 + n
-        k4 = k3 + n
-        k5 = k4 + n
-        k6 = k5 + n
-        k7 = k6 + n
-        k8 = k7 + n
-        k9 = k8 + n
-#ifndef GENERIC
-        call htridx(mdim,n,h(1),h(lh+1),wk(k1),wk(k2),wk(k3),wk(n+1))
-#else
-        call htridi(mdim,n,h(1),h(lh+1),wk(k1),wk(k2),wk(k3),wk(n+1))
-#endif
-      else
-#ifndef GENERIC
-        call htridx(mdim,n,h(1),h(lh+1),e,wk,wk(3*n+1),wk(n+1))
-#else
-        call htridi(mdim,n,h(1),h(lh+1),e,wk,wk(3*n+1),wk(n+1))
-#endif
-      endif
+C$$$C --- Transform to tridiagonal matrix ---
+C$$$      if (linv) then
+C$$$        k1 = 1
+C$$$        k2 = k1 + 3*n
+C$$$        k3 = k2 + n
+C$$$        k4 = k3 + n
+C$$$        k5 = k4 + n
+C$$$        k6 = k5 + n
+C$$$        k7 = k6 + n
+C$$$        k8 = k7 + n
+C$$$        k9 = k8 + n
+C$$$#ifndef GENERIC
+C$$$        call htridx(mdim,n,h(1),h(lh+1),wk(k1),wk(k2),wk(k3),wk(n+1))
+C$$$#else
+C$$$        call htridi(mdim,n,h(1),h(lh+1),wk(k1),wk(k2),wk(k3),wk(n+1))
+C$$$#endif
+C$$$      else
+C$$$#ifndef GENERIC
+C$$$        call htridx(mdim,n,h(1),h(lh+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$#else
+C$$$        call htridi(mdim,n,h(1),h(lh+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$#endif
+C$$$      endif
 
-C --- Eigenvalues only ---
-      if (nmx .le. 0) then
-        do  12  j = 1, n
-   12   wk(j) = wk(j)**2
-        call tqlrat(n,e,wk,ier)
-        call rxx(ier.ne.0,'ZHEV: tqlrat cannot find all evals')
-        nev = 0
-        goto 100
+C$$$C --- Eigenvalues only ---
+C$$$      if (nmx .le. 0) then
+C$$$        do  12  j = 1, n
+C$$$   12   wk(j) = wk(j)**2
+C$$$        call tqlrat(n,e,wk,ier)
+C$$$        call rxx(ier.ne.0,'ZHEV: tqlrat cannot find all evals')
+C$$$        nev = 0
+C$$$        goto 100
 
-C --- Eigenvalues and eigenvectors ---
-      else if (linv) then
-        call imtqlv(n,wk(k1),wk(k2),wk(k3),e,wk(k9),ier,wk(k4))
-        call rxx(ier.ne.0,'ZHEV: imtqlv cannot find all evals')
-C   --- Determine number of eigenvectors to be calculated ---
-        nev = 1
-        do  14  j = 2, n
-          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
-   14   continue
-        call tinvit(2*lz,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
-     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
-        call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
-      else
-        do  17  j = 1, n
-          k = (j-1)*2*lz
-          m = k+n
-          do  16  i = k+1, m
-   16     z(i) = 0d0
-          z(k+j) = 1d0
-   17   continue
-        call imtql2(2*lz,n,e,wk,z,ier)
-C       call prmx('eval',e,n,n,1)
-        call rxx(ier.ne.0,'ZHEV: imtql2 cannot find all evecs')
+C$$$C --- Eigenvalues and eigenvectors ---
+C$$$      else if (linv) then
+C$$$        call imtqlv(n,wk(k1),wk(k2),wk(k3),e,wk(k9),ier,wk(k4))
+C$$$        call rxx(ier.ne.0,'ZHEV: imtqlv cannot find all evals')
+C$$$C   --- Determine number of eigenvectors to be calculated ---
+C$$$        nev = 1
+C$$$        do  14  j = 2, n
+C$$$          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+C$$$   14   continue
+C$$$        call tinvit(2*lz,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
+C$$$     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
+C$$$        call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
+C$$$      else
+C$$$        do  17  j = 1, n
+C$$$          k = (j-1)*2*lz
+C$$$          m = k+n
+C$$$          do  16  i = k+1, m
+C$$$   16     z(i) = 0d0
+C$$$          z(k+j) = 1d0
+C$$$   17   continue
+C$$$        call imtql2(2*lz,n,e,wk,z,ier)
+C$$$C       call prmx('eval',e,n,n,1)
+C$$$        call rxx(ier.ne.0,'ZHEV: imtql2 cannot find all evecs')
 
-C   --- Determine number of eigenvectors to be calculated ---
-        nev = 1
-        do  15  j = 2, n
-          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
-   15   continue
-      endif
-C     call prmx('eval',e,n,n,1)
+C$$$C   --- Determine number of eigenvectors to be calculated ---
+C$$$        nev = 1
+C$$$        do  15  j = 2, n
+C$$$          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+C$$$   15   continue
+C$$$      endif
+C$$$C     call prmx('eval',e,n,n,1)
 
-      if (nev .gt. 0) then
-#ifndef GENERIC
-        if (lz .ne. lh) call rx('zhev not ready for lz ne lh')
-        call htribx(mdim,n,h(1),h(lh+1),wk(n+1),nev,z(1),z(lz+1))
-#else
-        call htribk(mdim,n,h(1),h(lh+1),wk(n+1),nev,z(1),z(lz+1))
-#endif
+C$$$      if (nev .gt. 0) then
+C$$$#ifndef GENERIC
+C$$$        if (lz .ne. lh) call rx('zhev not ready for lz ne lh')
+C$$$        call htribx(mdim,n,h(1),h(lh+1),wk(n+1),nev,z(1),z(lz+1))
+C$$$#else
+C$$$        call htribk(mdim,n,h(1),h(lh+1),wk(n+1),nev,z(1),z(lz+1))
+C$$$#endif
 
-C --- Get the eigenvectors of H - E O ---
-        if (lov .gt. 0) then
-          if (lx) then
-            call ymcpy(z,2*lz,1,lz,h,mdim,1,lh,n,n)
-            call yympy(s,s(lh+1),mdim,1,h,h(lh+1),mdim,1,z,z(lz+1),2*lz,
-     .      1,n,nev,n)
-          else
-            call yyhbak(mdim,n,s,s(lh+1),nev,z,z(lz+1),.true.)
-          endif
-        endif
+C$$$C --- Get the eigenvectors of H - E O ---
+C$$$        if (lov .gt. 0) then
+C$$$          if (lx) then
+C$$$            call ymcpy(z,2*lz,1,lz,h,mdim,1,lh,n,n)
+C$$$            call yympy(s,s(lh+1),mdim,1,h,h(lh+1),mdim,1,z,z(lz+1),2*lz,
+C$$$     .      1,n,nev,n)
+C$$$          else
+C$$$            call yyhbak(mdim,n,s,s(lh+1),nev,z,z(lz+1),.true.)
+C$$$          endif
+C$$$        endif
 
-C   --- Convert eigenvectors to double complex storage ---
-        call ztoy(z,lz,n,nev,1)
-C       call zprm('evecs',2,z,lz,n,nmx)
-      endif
+C$$$C   --- Convert eigenvectors to double complex storage ---
+C$$$        call ztoy(z,lz,n,nev,1)
+C$$$C       call zprm('evecs',2,z,lz,n,nmx)
+C$$$      endif
 
-#endif
+C$$$#endif
 
   100 call tcx('zhev')
       end
@@ -254,7 +254,7 @@ C Passed parameters
       double precision h(1),s(1),e(n),wk(1),z(2),emx
       logical lov
 
-#if LAPACK
+C$$$#if LAPACK
 C Local parameters
       integer ier,lwork
       character jobz
@@ -281,163 +281,163 @@ C Local parameters
         nev = min(n,nmx)
       endif
       call rxx(ier.ne.0,'zhev: zhegv cannot find all evals')
-#else
-C Local parameters
-      integer i,j,k,m,mdim,k1,k2,k3,k4,k5,k6,k7,k8,k9,n2,ier
+C$$$#else
+C$$$C Local parameters
+C$$$      integer i,j,k,m,mdim,k1,k2,k3,k4,k5,k6,k7,k8,k9,n2,ier
 
-C     call prm('(5f20.15)',s,n,n)
-      call tcn('zhev')
-      n2 = n**2
+C$$$C     call prm('(5f20.15)',s,n,n)
+C$$$      call tcn('zhev')
+C$$$      n2 = n**2
 
-C --- Take care of n=1 case ---
-      if (n .eq. 1) then
-        e(1) = h(1)
-        if (lov) e(1) = h(1)/s(1)
-        if (1 .gt. nev .or. e(1) .gt. emx) return
-        z(1) = 1
-        z(2) = 0
-        return
-      endif
+C$$$C --- Take care of n=1 case ---
+C$$$      if (n .eq. 1) then
+C$$$        e(1) = h(1)
+C$$$        if (lov) e(1) = h(1)/s(1)
+C$$$        if (1 .gt. nev .or. e(1) .gt. emx) return
+C$$$        z(1) = 1
+C$$$        z(2) = 0
+C$$$        return
+C$$$      endif
 
-CC --- Use diagno if lx ---
-C      if (lx) then
-C        call cplx2r(n2,0,h,z)
-C        if (lov) call cplx2r(n2,0,s,z)
-C        i = 0
-C        if (lov) i = 1
-C        call diagno(n,h,s,wk,lx,i,linv,nmx,emx,nev,z,e)
-C        call cplx2r(n2,1,z,h)
-C        goto 40
-C      endif
+C$$$CC --- Use diagno if lx ---
+C$$$C      if (lx) then
+C$$$C        call cplx2r(n2,0,h,z)
+C$$$C        if (lov) call cplx2r(n2,0,s,z)
+C$$$C        i = 0
+C$$$C        if (lov) i = 1
+C$$$C        call diagno(n,h,s,wk,lx,i,linv,nmx,emx,nev,z,e)
+C$$$C        call cplx2r(n2,1,z,h)
+C$$$C        goto 40
+C$$$C      endif
 
-C --- Separate real and imaginary parts ---
-      mdim = 2*n
-      call ztoy(h,n,n,n,0)
-      if (lov) call ztoy(s,n,n,n,0)
-C      mdim = 2*n
-C      do  10  j = 1, n
-C        k = (j-1)*mdim + 1
-C        l = k + n
-C        call dcopy(n,h(k+1),2,wk,1)
-C        call dcopy(n,h(k),2,h(k),1)
-C        call dcopy(n,wk,1,h(l),1)
-C        if (lov) then
-C          call dcopy(n,s(k+1),2,wk,1)
-C          call dcopy(n,s(k),2,s(k),1)
-C          call dcopy(n,wk,1,s(l),1)
-C        endif
-C   10 continue
+C$$$C --- Separate real and imaginary parts ---
+C$$$      mdim = 2*n
+C$$$      call ztoy(h,n,n,n,0)
+C$$$      if (lov) call ztoy(s,n,n,n,0)
+C$$$C      mdim = 2*n
+C$$$C      do  10  j = 1, n
+C$$$C        k = (j-1)*mdim + 1
+C$$$C        l = k + n
+C$$$C        call dcopy(n,h(k+1),2,wk,1)
+C$$$C        call dcopy(n,h(k),2,h(k),1)
+C$$$C        call dcopy(n,wk,1,h(l),1)
+C$$$C        if (lov) then
+C$$$C          call dcopy(n,s(k+1),2,wk,1)
+C$$$C          call dcopy(n,s(k),2,s(k),1)
+C$$$C          call dcopy(n,wk,1,s(l),1)
+C$$$C        endif
+C$$$C   10 continue
 
 
-C --- Debugging: eigenvalues of overlap ---
-C      call htridx(mdim,n,s(1),s(n+1),e,wk,wk(3*n+1),wk(n+1))
-C      do  11  j = 1, n
-C   11 wk(j) = wk(j)**2
-C      call tqlrat(n,e,wk,ier)
-C      write(6,600) e
-C  600 format(' evl='/(1x,1p,5e14.6))
-C      call rx('eigenvalues of overlap')
+C$$$C --- Debugging: eigenvalues of overlap ---
+C$$$C      call htridx(mdim,n,s(1),s(n+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$C      do  11  j = 1, n
+C$$$C   11 wk(j) = wk(j)**2
+C$$$C      call tqlrat(n,e,wk,ier)
+C$$$C      write(6,600) e
+C$$$C  600 format(' evl='/(1x,1p,5e14.6))
+C$$$C      call rx('eigenvalues of overlap')
 
-C --- H <- S^-1/2  H  S^-1/2 ---
-      if (lov) then
-        call yyhchd(mdim,n,s,s(n+1),wk,lx,.true.,ier)
-        call rxx(ier.ne.0,'ZHEV: error in yyhchd')
-        if (lx) then
-          call yyhrdx(mdim,n,h,h(n+1),s,s(n+1),z,z(n+1))
-        else
-          call yyhred(mdim,n,h,h(n+1),s,s(n+1),.true.)
-        endif
-      endif
+C$$$C --- H <- S^-1/2  H  S^-1/2 ---
+C$$$      if (lov) then
+C$$$        call yyhchd(mdim,n,s,s(n+1),wk,lx,.true.,ier)
+C$$$        call rxx(ier.ne.0,'ZHEV: error in yyhchd')
+C$$$        if (lx) then
+C$$$          call yyhrdx(mdim,n,h,h(n+1),s,s(n+1),z,z(n+1))
+C$$$        else
+C$$$          call yyhred(mdim,n,h,h(n+1),s,s(n+1),.true.)
+C$$$        endif
+C$$$      endif
 
-C --- Transform to tridiagonal matrix ---
-      if (linv) then
-        k1 = 1
-        k2 = k1 + 3*n
-        k3 = k2 + n
-        k4 = k3 + n
-        k5 = k4 + n
-        k6 = k5 + n
-        k7 = k6 + n
-        k8 = k7 + n
-        k9 = k8 + n
-#ifndef GENERIC
-        call htridx(mdim,n,h(1),h(n+1),wk(k1),wk(k2),wk(k3),wk(n+1))
-#else
-        call htridi(mdim,n,h(1),h(n+1),wk(k1),wk(k2),wk(k3),wk(n+1))
-#endif
-      else
-#ifndef GENERIC
-        call htridx(mdim,n,h(1),h(n+1),e,wk,wk(3*n+1),wk(n+1))
-#else
-        call htridi(mdim,n,h(1),h(n+1),e,wk,wk(3*n+1),wk(n+1))
-#endif
-      endif
+C$$$C --- Transform to tridiagonal matrix ---
+C$$$      if (linv) then
+C$$$        k1 = 1
+C$$$        k2 = k1 + 3*n
+C$$$        k3 = k2 + n
+C$$$        k4 = k3 + n
+C$$$        k5 = k4 + n
+C$$$        k6 = k5 + n
+C$$$        k7 = k6 + n
+C$$$        k8 = k7 + n
+C$$$        k9 = k8 + n
+C$$$#ifndef GENERIC
+C$$$        call htridx(mdim,n,h(1),h(n+1),wk(k1),wk(k2),wk(k3),wk(n+1))
+C$$$#else
+C$$$        call htridi(mdim,n,h(1),h(n+1),wk(k1),wk(k2),wk(k3),wk(n+1))
+C$$$#endif
+C$$$      else
+C$$$#ifndef GENERIC
+C$$$        call htridx(mdim,n,h(1),h(n+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$#else
+C$$$        call htridi(mdim,n,h(1),h(n+1),e,wk,wk(3*n+1),wk(n+1))
+C$$$#endif
+C$$$      endif
 
-C --- Eigenvalues only ---
-      if (nmx .le. 0) then
-        do  12  j = 1, n
-   12   wk(j) = wk(j)**2
-        call tqlrat(n,e,wk,ier)
-        call rxx(ier.ne.0,'ZHEV: tqlrat cannot find all evals')
-        nev = 0
-        goto 100
+C$$$C --- Eigenvalues only ---
+C$$$      if (nmx .le. 0) then
+C$$$        do  12  j = 1, n
+C$$$   12   wk(j) = wk(j)**2
+C$$$        call tqlrat(n,e,wk,ier)
+C$$$        call rxx(ier.ne.0,'ZHEV: tqlrat cannot find all evals')
+C$$$        nev = 0
+C$$$        goto 100
 
-C --- Eigenvalues and eigenvectors ---
-      else if (linv) then
-        call imtqlv(n,wk(k1),wk(k2),wk(k3),e,wk(k9),ier,wk(k4))
-        call rxx(ier.ne.0,'ZHEV: imtqlv cannot find all evals')
-C   --- Determine number of eigenvectors to be calculated ---
-        nev = 1
-        do  14  j = 2, n
-          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
-   14   continue
-        call tinvit(mdim,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
-     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
-        call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
-      else
-        do  17  j = 1, n
-          k = (j-1)*mdim
-          m = k+n
-          do  16  i = k+1, m
-   16     z(i) = 0d0
-          z(k+j) = 1d0
-   17   continue
-        call imtql2(mdim,n,e,wk,z,ier)
-        call rxx(ier.ne.0,'ZHEV: imtql2 cannot find all evecs')
+C$$$C --- Eigenvalues and eigenvectors ---
+C$$$      else if (linv) then
+C$$$        call imtqlv(n,wk(k1),wk(k2),wk(k3),e,wk(k9),ier,wk(k4))
+C$$$        call rxx(ier.ne.0,'ZHEV: imtqlv cannot find all evals')
+C$$$C   --- Determine number of eigenvectors to be calculated ---
+C$$$        nev = 1
+C$$$        do  14  j = 2, n
+C$$$          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+C$$$   14   continue
+C$$$        call tinvit(mdim,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
+C$$$     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
+C$$$        call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
+C$$$      else
+C$$$        do  17  j = 1, n
+C$$$          k = (j-1)*mdim
+C$$$          m = k+n
+C$$$          do  16  i = k+1, m
+C$$$   16     z(i) = 0d0
+C$$$          z(k+j) = 1d0
+C$$$   17   continue
+C$$$        call imtql2(mdim,n,e,wk,z,ier)
+C$$$        call rxx(ier.ne.0,'ZHEV: imtql2 cannot find all evecs')
 
-C   --- Determine number of eigenvectors to be calculated ---
-        nev = 1
-        do  15  j = 2, n
-          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
-   15   continue
-      endif
+C$$$C   --- Determine number of eigenvectors to be calculated ---
+C$$$        nev = 1
+C$$$        do  15  j = 2, n
+C$$$          if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+C$$$   15   continue
+C$$$      endif
 
-      if (nev .gt. 0) then
-#ifndef GENERIC
-        call htribx(mdim,n,h(1),h(n+1),wk(n+1),nev,z(1),z(n+1))
-#else
-        call htribk(mdim,n,h(1),h(n+1),wk(n+1),nev,z(1),z(n+1))
-#endif
+C$$$      if (nev .gt. 0) then
+C$$$#ifndef GENERIC
+C$$$        call htribx(mdim,n,h(1),h(n+1),wk(n+1),nev,z(1),z(n+1))
+C$$$#else
+C$$$        call htribk(mdim,n,h(1),h(n+1),wk(n+1),nev,z(1),z(n+1))
+C$$$#endif
 
-C --- Get the eigenvectors of H - E O ---
-        if (lov) then
-          if (lx) then
-            call dcopy(n2*2,z,1,h,1)
-            call yympy(s,s(n+1),mdim,1,h,h(n+1),mdim,1,z,z(n+1),mdim,1,
-     .      n,nev,n)
-          else
-            call yyhbak(mdim,n,s,s(n+1),nev,z,z(n+1),.true.)
-          endif
-        endif
+C$$$C --- Get the eigenvectors of H - E O ---
+C$$$        if (lov) then
+C$$$          if (lx) then
+C$$$            call dcopy(n2*2,z,1,h,1)
+C$$$            call yympy(s,s(n+1),mdim,1,h,h(n+1),mdim,1,z,z(n+1),mdim,1,
+C$$$     .      n,nev,n)
+C$$$          else
+C$$$            call yyhbak(mdim,n,s,s(n+1),nev,z,z(n+1),.true.)
+C$$$          endif
+C$$$        endif
 
-C   --- Convert eigenvectors to double complex storage ---
-        call ztoy(z,n,n,nev,1)
-C       call zprm('evecs',2,z,lz,n,min(nev,nmx))
-      endif
+C$$$C   --- Convert eigenvectors to double complex storage ---
+C$$$        call ztoy(z,n,n,nev,1)
+C$$$C       call zprm('evecs',2,z,lz,n,min(nev,nmx))
+C$$$      endif
 
-C  40 if (nev .gt. 0 .and. ltime .ge. 0) print 337, nev,nmx,n,emx
-C  337 format(' nev, nevmx, ndim=',3i4,' emx=',f10.5)
-#endif
+C$$$C  40 if (nev .gt. 0 .and. ltime .ge. 0) print 337, nev,nmx,n,emx
+C$$$C  337 format(' nev, nevmx, ndim=',3i4,' emx=',f10.5)
+C$$$#endif
 
   100 call tcx('zhev')
       end
@@ -503,9 +503,9 @@ C Local parameters
 
       lmode = mode
 
-#ifndef LAPACK
-      call rx('zhev2:  only implemented in LAPACK mode, sorry')
-#endif
+C$$$#ifndef LAPACK
+C$$$      call rx('zhev2:  only implemented in LAPACK mode, sorry')
+C$$$#endif
 
 C --- Cholesky decompose s ---
       if (mod(lmode,2) .ne. 0) then
@@ -617,9 +617,9 @@ CSFCPP#endif
 
       call tcn('zhev3')
 
-#ifndef LAPACK
-      call rx('zhev3:  only implemented in LAPACK mode, sorry')
-#endif
+C$$$#ifndef LAPACK
+C$$$      call rx('zhev3:  only implemented in LAPACK mode, sorry')
+C$$$#endif
 
       lmode = mode
 

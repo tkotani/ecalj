@@ -162,7 +162,6 @@ yygefa.o \
 yygemm.o \
 yygesl.o \
 yyhbak.o \
-yyhchd.o \
 yyhifa.o \
 yyhmpy.o \
 yyhrdx.o \

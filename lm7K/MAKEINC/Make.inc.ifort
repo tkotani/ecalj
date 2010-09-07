@@ -75,6 +75,8 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #LK = mpif90
 FC = ifort -CB
 LK = ifort  -parallel  -CB
+#FC = ifort
+#LK = ifort  -parallel
 #
 # where is modules?
 moddir = MODDIR/$(obj_path)
