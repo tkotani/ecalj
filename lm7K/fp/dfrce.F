@@ -499,7 +499,6 @@ C
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
         enddo
 
-        print *,'dfrce vvvvvvvvvvvvvvvvvv '
 #if ! (MPI | MPIK)
         if (iprint() .ge. 30)
      .  write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
@@ -985,14 +984,14 @@ C      print 339, 'qmom(out-in) dv     ',fes2
      .smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
       use m_struc_def
 C- Makes derivative of smoothed xc potential wrt density.
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,nsp,n1,n2,n3,k1,k2,k3
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 
-      double complex vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp),
+      complex(8):: vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp),
      .dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp),
      .wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp),
      .wk3(k1,k2,k3,nsp)
@@ -1069,25 +1068,52 @@ C ... Restore rho+, rho-
       endif
 
 C ... Overwrite vxcp with df/drho
+C$$$      do i = 1, nsp
+C$$$         do i3=1,n3
+C$$$         do i2=1,n2
+C$$$         do i1=1,n1
+C$$$          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
+C$$$          if (rrho .gt. 0) then
+C$$$            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
+C$$$            f2 = vxcp(i1,12,i3,i)*(rrho*(1+fac))**alfa
+C$$$            dfdr = (f2-f1)/(2d0*fac*rrho)
+C$$$            vxcp(i1,i2,i3,i) = dfdr
+C$$$          else
+C$$$            vxcp(i1,i2,i3,i) = 0d0
+C$$$          endif
+C$$$         enddo
+C$$$         enddo
+C$$$         enddo
+C$$$      enddo 
+c------------------
       do  i = 1, nsp
-c        do  i1 = 1, nn
-         do i1=1,n1
-         do i2=1,n2
-         do i3=1,n3
-          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
+        do i1 = 1, nn
+          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
           if (rrho .gt. 0) then
-            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
-            f2 = vxcp(i1,12,i3,i)*(rrho*(1+fac))**alfa
+            f1 = vxcm(i1,1,1,i)*(rrho*(1-fac))**alfa
+            f2 = vxcp(i1,1,1,i)*(rrho*(1+fac))**alfa
             dfdr = (f2-f1)/(2d0*fac*rrho)
-            vxcp(i1,i2,i3,i) = dfdr
+            vxcp(i1,1,1,i) = dfdr
           else
-            vxcp(i1,i2,i3,i) = 0d0
+            vxcp(i1,1,1,i) = 0d0
           endif
-         enddo
-         enddo
-         enddo
-c        enddo
+        enddo
       enddo
+
+ccccccccccccccccccccccccccccccccccccccccccc
+      do i=1,nsp
+      do i3=1,5
+      do i2=1,3
+      do i1=1,2
+        write(6,"('ssss ',4i3,2d13.5)")i,i1,i2,i3,vxcp(i1,i2,i3,i)
+      enddo
+      enddo
+      enddo
+      enddo
+      print *,' ssssss sum vxcp=',sum(abs(vxcp))
+c      stop 'xxxxxxxxxx 11111111'
+ccccccccccccccccccccccccccccccccccccccccccc
+
 
 C ... vxcm = vxc (smrho)
       call dpzero(vxcm, nn*2*nsp)
@@ -1098,22 +1124,26 @@ C ... vxcm = vxc (smrho)
 C ... dvxc/drho into dvxc
       do  i = 1, nsp
 c        do  i1 = 1, nn
-         do i1=1,n1
-         do i2=1,n2
          do i3=1,n3
+         do i2=1,n2
+         do i1=1,n1
           rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
           if (rrho .gt. 0) then
             f = vxcm(i1,i2,i3,i) * rrho**alfa
             dvdr = (vxcp(i1,i2,i3,i) - alfa*f/rrho) / rrho**alfa
             dvxc(i1,i2,i3,i) = dvdr
           else
-            dvxc(i1,i2,i3,i) = 0
+            dvxc(i1,i2,i3,i) = 0d0
           endif
          enddo
          enddo
          enddo
 c        enddo
       enddo
+cccccccccccccccccccccccccc
+      print *,' ssssss sum svxc=',sum(abs(dvxc))
+cccccccccccccccccccccccccc
+
 
 C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
       call poppr
