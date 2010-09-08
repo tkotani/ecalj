@@ -1662,7 +1662,7 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
               if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xv,1,3,1d0)
               !print *,'xxx xxx 1111'
               call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
-     .        0,0,napw,dum,dum,dum,dum)
+     .        0,napw,napw,dum,dum,dum,dum)
               call poppr
 c              call defi(oigv2,3*napw)
               allocate(igv2x(3,napw))
@@ -1671,7 +1671,7 @@ c              call defi(oigv2,3*napw)
               call pshpr(iprint()-10)
               !print *,'xxx xxx 2222'
               call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
-     .        , 0 , 2 , 0 , napw , kv_iv , dum , dum , igv2x ) 
+     .        , 0 , 2 , napw , napw , kv_iv , dum , dum , igv2x ) 
 
               !print *,'xxx xxx 3333'
               deallocate(kv_iv)
