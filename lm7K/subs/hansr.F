@@ -39,7 +39,7 @@ Cu   11 May 07 (S. Lozovoi) small bug fixes; similarity with hansmz
 C ---------------------------------------------------------------
 C     implicit none
       integer nrx,nr,lmn,lmx,idx(nrx,2),nxi,lxi(nxi),job
-      double precision rsq(*),e,exi(nxi)
+      double precision rsq(nr),e,exi(nxi)
       double precision xi(nrx,lmn:lmx,nxi),wk(nrx,4+lmx-lmn)
 C Local variables
       integer ir,j,l,k,n0,n1,n2,ie,lmax
@@ -175,7 +175,8 @@ C     ... Power series for points within rc1
           call hansr1(rsq(1),lmn,lmax,nrx,n1-1,e,rsm,dsqrt(rc1),
      .    xi(1,lmn,ie))
 C     ... Normal evaluation of smoothed Hankels
-          call hansr2(rsq(n1),lmn,lmax,nrx,n2-n1,e,rsm,wk(n1,1),
+          if (n1 <= nr) 
+     .    call hansr2(rsq(n1),lmn,lmax,nrx,n2-n1,e,rsm,wk(n1,1),
      .    wk(n1,2),xi(n1,lmn,ie))
 C     ... Asymtotic case, r>>rsm
           if(n2 .le. nr)
