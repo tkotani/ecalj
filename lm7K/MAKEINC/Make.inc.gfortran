@@ -26,8 +26,9 @@ LIB2= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a
 LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
+LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
-LIBLOC=$(LIB2)
+LIBLOC=$(LIB4)
 
 
 ############ Fortran compiler

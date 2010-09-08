@@ -42,7 +42,6 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -59,7 +58,8 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-#LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+#LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 
 
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
@@ -73,10 +73,10 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ############################################
 #FC = mpif90
 #LK = mpif90
-FC = ifort -CB
-LK = ifort  -parallel  -CB
-#FC = ifort
-#LK = ifort  -parallel
+#FC = ifort -CB
+#LK = ifort  -parallel  -CB
+FC = ifort
+LK = ifort  -parallel
 #
 # where is modules?
 moddir = MODDIR/$(obj_path)
@@ -102,11 +102,11 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
 #--- debug
-FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
