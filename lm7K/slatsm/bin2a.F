@@ -398,7 +398,7 @@ C     implicit none
 C ... Passed parameters
       character*(*) fmt, strn
       integer count
-      integer res(0:1)
+      integer res(0:count)
       logical lnull
 C ... Local parameters
       integer NULLI
