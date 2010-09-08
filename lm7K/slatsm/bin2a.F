@@ -74,7 +74,8 @@ Cu   02 Aug 07 Added :n outputs null string when res=NULLI
 C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
-      character(mxlen):: outstr ! ?---> !character(maxlen) did not work in gfortran. Maybe a bug in gfortran.
+Cki      character(*):: outstr ! ?---> !character(mxlen) did not work in gfortran. Maybe a bug in gfortran.
+      character(mxlen):: outstr ! ?---> !character(*) did not work in ifort
       character(*):: fmt
       double precision res(0:*)
       integer nblk,cast,count,ip,mxlen,ndec,is
