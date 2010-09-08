@@ -86,7 +86,7 @@ C  No check is made on lengths of strings.
 C     implicit none
       integer idest,isrc,len
       integer i
-      character*(1) dest(1),src(1)
+      character*(1) dest(*),src(*)
       do  10  i = 0, len-1
    10 dest(idest+i) = src(isrc+i)
       end

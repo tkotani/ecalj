@@ -27,6 +27,7 @@ C     implicit none
 C Passed Parameters
       integer ip,lstr,cast,nsep,nvec,itrm,ix(1)
       character str*(*), sep(*)*1
+      character c_sep
       double precision res(1)
 C Local Variables
       integer iv,ip0,iitrm
@@ -46,15 +47,22 @@ C   ... ip0 points to start of next token
         call chrps2(str,sep,nsep,lstr,ip0,ix(iv))
         if (ip0 .ge. lstr) ix(iv) = 0
 C       No terminator was found: possibly exit with error
+        if (ix(iv).eq.0) then
+           c_sep=' ' ! any value is OK.
+        else
+           c_sep=sep(ix(iv))
+        endif
         if (ix(iv) .eq. 0) then
 C         Still ok if expr runs to last char in string with no term
           ip0 = ip
-          if (.not.a2bin(str,res,cast,iv-1,sep(ix(iv)),ip0,lstr-1)) then
+cki          if (.not.a2bin(str,res,cast,iv-1,sep(ix(iv)),ip0,lstr-1)) then
+          if (.not.a2bin(str,res,cast,iv-1,c_sep,ip0,lstr-1)) then
             a2vec = -iv
             return
           endif
         endif
-        if (.not. a2bin(str,res,cast,iv-1,sep(ix(iv)),ip,lstr-1)) then
+cki        if (.not. a2bin(str,res,cast,iv-1,sep(ix(iv)),ip,lstr-1)) then
+        if (.not. a2bin(str,res,cast,iv-1,c_sep,ip,lstr-1)) then
 C ...     Try for nam=expr
           if (nvec .lt. 0) then
             call skipbl(str,lstr,ip)
