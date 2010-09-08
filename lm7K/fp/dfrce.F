@@ -1068,52 +1068,38 @@ C ... Restore rho+, rho-
       endif
 
 C ... Overwrite vxcp with df/drho
-C$$$      do i = 1, nsp
-C$$$         do i3=1,n3
-C$$$         do i2=1,n2
-C$$$         do i1=1,n1
-C$$$          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
-C$$$          if (rrho .gt. 0) then
-C$$$            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
-C$$$            f2 = vxcp(i1,12,i3,i)*(rrho*(1+fac))**alfa
-C$$$            dfdr = (f2-f1)/(2d0*fac*rrho)
-C$$$            vxcp(i1,i2,i3,i) = dfdr
-C$$$          else
-C$$$            vxcp(i1,i2,i3,i) = 0d0
-C$$$          endif
-C$$$         enddo
-C$$$         enddo
-C$$$         enddo
-C$$$      enddo 
-c------------------
-      do  i = 1, nsp
-        do i1 = 1, nn
-          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
+      do i = 1, nsp
+         do i3=1,n3
+         do i2=1,n2
+         do i1=1,n1
+          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
           if (rrho .gt. 0) then
-            f1 = vxcm(i1,1,1,i)*(rrho*(1-fac))**alfa
-            f2 = vxcp(i1,1,1,i)*(rrho*(1+fac))**alfa
+            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
+            f2 = vxcp(i1,i2,i3,i)*(rrho*(1+fac))**alfa
             dfdr = (f2-f1)/(2d0*fac*rrho)
-            vxcp(i1,1,1,i) = dfdr
+            vxcp(i1,i2,i3,i) = dfdr
           else
-            vxcp(i1,1,1,i) = 0d0
+            vxcp(i1,i2,i3,i) = 0d0
           endif
-        enddo
-      enddo
-
-ccccccccccccccccccccccccccccccccccccccccccc
-      do i=1,nsp
-      do i3=1,5
-      do i2=1,3
-      do i1=1,2
-        write(6,"('ssss ',4i3,2d13.5)")i,i1,i2,i3,vxcp(i1,i2,i3,i)
-      enddo
-      enddo
-      enddo
-      enddo
-      print *,' ssssss sum vxcp=',sum(abs(vxcp))
-c      stop 'xxxxxxxxxx 11111111'
-ccccccccccccccccccccccccccccccccccccccccccc
-
+         enddo
+         enddo
+         enddo
+      enddo 
+C$$$      do  i = 1, nsp
+C$$$        do i1 = 1,nn
+C$$$          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
+C$$$          if (rrho .gt. 0) then
+C$$$            f1 = vxcm(i1,1,1,i)*(rrho*(1-fac))**alfa
+C$$$            f2 = vxcp(i1,1,1,i)*(rrho*(1+fac))**alfa
+C$$$            dfdr = (f2-f1)/(2d0*fac*rrho)
+C$$$            print *,' f f f=',f1,f2,dfdr,vxcp(1,1,1,1)
+C$$$            vxcp(i1,1,1,i) = dfdr
+C$$$          else
+C$$$            vxcp(i1,1,1,i) = 0d0
+C$$$          endif
+C$$$        enddo
+C$$$      enddo
+C$$$      endif
 
 C ... vxcm = vxc (smrho)
       call dpzero(vxcm, nn*2*nsp)
@@ -1123,10 +1109,9 @@ C ... vxcm = vxc (smrho)
 
 C ... dvxc/drho into dvxc
       do  i = 1, nsp
-c        do  i1 = 1, nn
-         do i3=1,n3
-         do i2=1,n2
-         do i1=1,n1
+        do i3=1,n3
+        do i2=1,n2
+        do i1=1,n1
           rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
           if (rrho .gt. 0) then
             f = vxcm(i1,i2,i3,i) * rrho**alfa
@@ -1135,24 +1120,17 @@ c        do  i1 = 1, nn
           else
             dvxc(i1,i2,i3,i) = 0d0
           endif
-         enddo
-         enddo
-         enddo
-c        enddo
+        enddo
+        enddo
+        enddo
       enddo
-cccccccccccccccccccccccccc
-      print *,' ssssss sum svxc=',sum(abs(dvxc))
-cccccccccccccccccccccccccc
-
-
 C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
       call poppr
-
       end subroutine pvdf2
 
 
-      subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
 
+      subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
 C- Overwrites dvxc with (nout-nin)*dvxc
 C     implicit none
 C ... Passed parameters
