@@ -75,7 +75,7 @@ c      character*1 recrd(0:1)
 c      equivalence( recrd(0),w(1))
 CKi      character*1,allocatable:: recrd(:)
       character:: recrd_(0:mxrecs*recln0-1)
-      character*(1000):: recrd
+      character*(mxrecs*recln0):: recrd
       equivalence ( recrd, recrd_ )
 
 
