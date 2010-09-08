@@ -20,7 +20,7 @@ Co   vecs may be changed, depending on opts
 C ----------------------------------------------------------------
 C     implicit none
       integer m,n,iprm(n),opts
-      integer vecs(m,n)
+      integer vecs(m,n*2)
       integer di,dl
       integer l,ir,irra,i,j,mm,i1,i2,nn
       logical norm

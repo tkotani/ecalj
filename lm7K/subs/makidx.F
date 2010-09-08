@@ -141,7 +141,8 @@ C Passed parameters
 
       integer nl,nkaph,ib1,ib2,nkap0,n0,n0H,ips(ib2),iprma(ib2)
       parameter (nkap0=3,n0=10,n0H=5)
-      integer offh(n0H,nkap0,5),iprmb(*),ldham(4) !offh(n0H,nkap0,4) bugfix sep2010
+      integer offh(n0H,nkap0,ib2+1),iprmb(*),ldham(4) !offh(n0H,nkap0,4) bugfix sep2010
+            ! offh(n0H,nkap0,5) : bug fix sep2010
 C Local parameters
       integer indx,iposn,l,m,iprior,j,lgunit,idxdn(n0,nkap0),is,ib,i,
      .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,mxorb,jb,
