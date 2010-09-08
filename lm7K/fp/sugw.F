@@ -246,6 +246,7 @@ Cchp1         integer:: ov0
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
      .testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:),
      .geig(:,:,:),geig_p(:,:,:)
+      integer::isize_ham(3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       integer ndhamx,nspx,nnnx,ifiv
       character strn*120
@@ -1031,10 +1032,11 @@ Cchp3              call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
 Cchp3      .       ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
 Cchp3      .       , sv_p_osig , sv_p_otau , oppi , lcplxp , 0 , alfa , ndimh , 
 Cchp3      .       napw , igv2 , ham , ovl , i2 ) 
+              isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
      .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
      .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
-     .        , napw , igv2 , ham , ovl , i2 ) 
+     .        , napw , igv2 , ham , ovl , isize_ham, i2 ) 
 
 
 

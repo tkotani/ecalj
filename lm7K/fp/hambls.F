@@ -24,7 +24,7 @@ Cchp3      .  , napw , igvapw , h , s , ismidb )
          subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
      .   , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .   , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
-     .   , napw , igvapw , h , s , ismidb ) 
+     .   , napw , igvapw , h , s ,isize_h, ismidb ) 
 
 
 
@@ -230,7 +230,8 @@ Cchp3         integer:: oppi(3,nbas)
       type(s_lat)::slat
 
       double complex smpot(k1,k2,k3)
-      double complex h(ndimh,ndimh,ispc),s(ndimh,ndimh,ispc)
+      integer:: isize_h(3)
+      double complex h(ndimh,ndimh,isize_h(3)),s(ndimh,ndimh,isize_h(3))
 C ... Local parameters
       double precision qpi(3,4),tol,ddot,plat(3,3),qlat(3,3),norm(4,4),
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)

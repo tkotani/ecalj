@@ -466,6 +466,7 @@ Cchp1       integer :: nhmax,nknknk,npairmx,opos,jx,nsp_dummy,ndimh_dummy
 
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
+      integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
       integer,allocatable:: npair(:,:), nlat(:,:,:,:)
@@ -2037,10 +2038,11 @@ Cchp3                   call hambls ( i , nbas , ssite , sspec , slat , sham , i
 Cchp3      .            ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
 Cchp3      .            vconst , sv_p_osig , sv_p_otau , oppi , lcplxp , lso , alfa , 
 Cchp3      .            ndimh , napw , igv2x , hamm , ovlm , ismidb ) 
+                   isize_hamm(3)=size(hamm)
                    call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
      .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa 
-     .             , ndimh , napw , igv2x , hamm , ovlm , ismidb ) 
+     .             , ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ) 
 
 
 
