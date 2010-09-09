@@ -8,7 +8,7 @@ Cchp3      .sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -85,8 +85,10 @@ Cdwdef1       common /w/ w
       ipr = iprint()
       ipl = ipr
       lrep = 0
-      nsp  = nglob('nsp')
-      nkaph = nglob('nkaph')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 
 C ... Semiconductors: don't do anything
       if (lmet .eq. 0) then

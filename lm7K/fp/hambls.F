@@ -30,7 +30,7 @@ Cchp3      .  , napw , igvapw , h , s , ismidb )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
       use m_psigd
 C- Hamiltonian and overlap of LDA+(sigma-vxc) for one k-point.
 C ----------------------------------------------------------------------
@@ -326,7 +326,8 @@ C ... Store LDA eigenvectors, eigenvalues in s and h and exit
         goto 999
       endif
       if (lrsig .eq. 0) goto 999
-      nspc = nglob('nspc')
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
       ndimhx = ndimh * nspc
 c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 
@@ -350,14 +351,17 @@ Cchp1       ooffH=sham%ooffH
 C     hreal=1 -> sig(T) is real
       hreal = 0
       if (lrsig .ge. 4) hreal = 1
-      nl = nglob('nl')
-      mxorb = nglob('mxorb')
+Changenglob      nl = nglob('nl')
+      nl = globalvariables%nl
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
 Cchp1       nttabs = ival(w(ontabs),nbas+1)
       if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 
       if(debug) print *,' hambles:eee 111333'
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
       call isanrg(isp,1,nsp,'hambl:','isp',T)
 
       if(debug) print *,' hambles:eee 222'
@@ -1019,7 +1023,7 @@ C     pgf90 6.0-2 on x86-64 Linux  !!
      .lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- sigma-vxc or sum_occ <sigma-vxc> for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1123,8 +1127,10 @@ Cchp1       oiprmb=sham%oindxo
 C     hreal=1 -> sig(T) is real
       hreal = 0
       if (lrsig .ge. 4) hreal = 1
-      nl = nglob('nl')
-      mxorb = nglob('mxorb')
+Changenglob      nl = nglob('nl')
+      nl = globalvariables%nl
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
 Cchp1       nttabs = ival(w(ontabs),nbas+1)
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 

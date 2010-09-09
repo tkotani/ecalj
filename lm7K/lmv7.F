@@ -3,6 +3,7 @@ C For lmf, lmfgw. Single core, MPI, and MPIK modes.
 C- Main program for lmf and so on.
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
+      use m_globalvariables
 #if MPI | MPIK
 #if MPE 
       use m_events !Event numbers: include "events.ins"

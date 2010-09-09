@@ -7,7 +7,7 @@ Cchp1 cmdvar= real(8),rv_p_,ocy
      .vrmt,qbg)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -189,7 +189,8 @@ C ... Setup
       call tcn('smves')
       ipr   = iprint()
       stdo  = lgunit(1)
-      nsp   = nglob('nsp')
+Changenglob      nsp   = nglob('nsp')
+      nsp   = globalvariables%nsp
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi

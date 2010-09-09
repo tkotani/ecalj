@@ -8,7 +8,7 @@ Cchp3       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- File I/O charge density on a uniform mesh in a plane or full 3d mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -145,8 +145,10 @@ C ... External calls
 
       real(8),allocatable:: zz(:)
 C ... Unpack and setup
-      nsp = nglob('nsp')
-      nbas = nglob('nbas')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
       stdo = lgunit(1)
 
       i_copy_size=size(slat%plat)

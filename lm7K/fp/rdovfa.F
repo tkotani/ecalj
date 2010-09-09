@@ -14,6 +14,7 @@ Cchp3       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
 
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
+      use m_globalvariables
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------
@@ -122,7 +123,8 @@ Cdwdef1       common /w/ w
       ipr   = iprint()
       stdo  = lgunit(1)
       stdl  = lgunit(2)
-      nsp   = nglob('nsp')
+Changenglob      nsp   = nglob('nsp')
+      nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
 
 Cchp1       osmrho=spot%osmrho

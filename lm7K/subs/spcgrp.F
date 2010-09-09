@@ -69,6 +69,7 @@ C --- Make the space group ---
       call sgroup(0,gen,trans,ngen,g,ag,ng,ngmx,qb)
       end
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
+      use m_globalvariables
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -115,7 +116,8 @@ C ... Local parameters
       data e/1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
       call getpr(ipr)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       sout = ' '
       call spgcop(e,ae,g,ag)
       ng = 1

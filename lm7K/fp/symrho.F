@@ -22,7 +22,7 @@ Cchp3       subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -71,8 +71,10 @@ Cchp3       integer lf,orhoat(3,*)
 
       call tcn('symrho')
       call info(30,1,0,' Symmetrize density..',0,0)
-      nbas = nglob('nbas')
-      nsp = nglob('nsp')
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)

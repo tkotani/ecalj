@@ -51,6 +51,7 @@ Cchp3      .    lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
 
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -279,7 +280,8 @@ Cdwdef1       common /w/ w
       namelen(procid) = i-1
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
-      nsp = nglob('nsp')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
       if (mlog) then
         do  pid = 0, numprocs-1
           call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
@@ -294,7 +296,8 @@ Cdwdef1       common /w/ w
       call tcn('rlocbl')
 
 C --- Setup ---
-      nkaph = nglob('nkaph')
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 

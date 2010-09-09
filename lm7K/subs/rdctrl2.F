@@ -11,6 +11,7 @@ Cchp1 cmdvar= integer,iv_p_,oips
       use m_rdctrl
       use m_gtv
       use m_struc_func
+      use m_globalvariables
 c      use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
@@ -1460,27 +1461,40 @@ C     Probably ought to have lmxb<l<=lmxa => 'high' always
 C     nfp-style basis:
       if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
 
-      call suidx(nglob('nkaph'),j,nspec,v_sspec)
+Changenglob      call suidx(nglob('nkaph'),j,nspec,v_sspec)
+      call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
 C ... Set some global variables
-      xx(1) = dglob('nspec',dble(nspec),1)
-      xx(1) = dglob('nbas',dble(nbas),1)
-      xx(1) = dglob('nbasp',dble(nbasp),1)
-      xx(1) = dglob('nsp',dble(nsp),1)
-      xx(1) = dglob('nl',dble(nl),1)
-      xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
+Changenglob      xx(1) = dglob('nspec',dble(nspec),1)
+      globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
+Changenglob      xx(1) = dglob('nbas',dble(nbas),1)
+      globalvariables%nbas = dble(nbas); globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
+Changenglob      xx(1) = dglob('nbasp',dble(nbasp),1)
+      globalvariables%nbasp = dble(nbasp); globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
+Changenglob      xx(1) = dglob('nsp',dble(nsp),1)
+      globalvariables%nsp = dble(nsp); globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
+Changenglob      xx(1) = dglob('nl',dble(nl),1)
+      globalvariables%nl = dble(nl); globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
+Changenglob      xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
+      globalvariables%lrel = dble(avw); globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
 
-      xx(1) = dglob('lrel',dble(lrel),1)
+Changenglob      xx(1) = dglob('lrel',dble(lrel),1)
+      globalvariables%lrel = dble(lrel); globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
       lxcf = int(v_sctrl%lxcf)
 
-      xx(1) = dglob('lxcf',dble(lxcf),1)
-      xx(1) = dglob('stdo',dble(stdo),1)
-      xx(1) = dglob('stdl',dble(stdl),1)
-      xx(1) = dglob('stde',dble(stde),1)
+Changenglob      xx(1) = dglob('lxcf',dble(lxcf),1)
+      globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1; xx(1) = dble(lxcf)
+Changenglob      xx(1) = dglob('stdo',dble(stdo),1)
+      globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; xx(1) = dble(stdo)
+Changenglob      xx(1) = dglob('stdl',dble(stdl),1)
+      globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1; xx(1) = dble(stdl)
+Changenglob      xx(1) = dglob('stde',dble(stde),1)
+      globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1; xx(1) = dble(stde)
       nspc = 1
 c      if (bitand(lncol,1+2+4) .ne. 0) nspc = 2
       if (iand(lncol,4) .ne. 0) nspc = 2
-      xx(1) = dglob('nspc',dble(nspc),1)
+Changenglob      xx(1) = dglob('nspc',dble(nspc),1)
+      globalvariables%nspc = dble(nspc); globalvariables%l_nspc = globalvariables%l_nspc +1; xx(1) = dble(nspc)
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
         nat = nbas
@@ -1495,7 +1509,8 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
         enddo
       endif
       call mpibc1(nat,1,2,0,'rdctrl','nat')
-      xx(1) = dglob('nat',dble(nat),1)
+Changenglob      xx(1) = dglob('nat',dble(nat),1)
+      globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
 
 C ... Set modep
       ix(1) = 2

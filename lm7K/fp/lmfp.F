@@ -13,6 +13,7 @@ Cchp1 cmdvar= real(8),iv_p_,oips0
 
       use m_struc_def  !Cgetarg
       use m_struc_func, only: mpibc1_s_lat
+      use m_globalvariables
 C- LM-FP self-consistency loop
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -328,7 +329,8 @@ c       lcgf=sctrl%lcgf
 c       lsx=sctrl%lsx
 
 C     call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
-      nat = nglob('nat')
+Changenglob      nat = nglob('nat')
+      nat = globalvariables%nat
 
       qbg = sctrl%zbak(1)
 

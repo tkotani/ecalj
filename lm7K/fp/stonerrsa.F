@@ -1,5 +1,6 @@
       subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq,
      .x0et)
+      use m_globalvariables
 C- Transverse susceptibility matrix <~e| X |e~> from X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -50,7 +51,8 @@ C     For calculating JMAT:
       parameter (rydberg=13.6058d0)
 
 C --- Setup ---
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
       nwx = 400
       rymev = rydberg*1d3

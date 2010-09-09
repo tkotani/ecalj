@@ -54,7 +54,7 @@ Cchp3      .    , f )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -202,7 +202,8 @@ Cdwdef1       common /w/ w
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
 C     call wkprnt(1)
-      nbas = nglob('nbas')
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
 

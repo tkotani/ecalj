@@ -1,7 +1,7 @@
       subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -75,9 +75,12 @@ C     equivalence (eterms(7),rhovxc)
 
 C     stdo = lgunit(1)
 C     stdl = lgunit(2)
-      nsp  = nglob('nsp')
-      stdo = nglob('stdo')
-      stdl = nglob('stdl')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
+Changenglob      stdl = nglob('stdl')
+      stdl = globalvariables%stdl
       call getpr(ipr)
       ipl = 1
 

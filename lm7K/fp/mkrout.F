@@ -33,7 +33,7 @@ Cchp3      .  , qbyl , hbyl , lrout )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -221,7 +221,8 @@ C ... Setup
       ipr  = iprint()
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4d0*pi)
-      nkaph = nglob('nkaph')
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
       sums1 = 0
       call tcn('mkrout')
 

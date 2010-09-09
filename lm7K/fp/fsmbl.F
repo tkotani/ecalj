@@ -7,6 +7,7 @@ Cchp1 cmdvar= real(8),rv_p_,ocg
      .numq,nevec,evl,evec,ewgt,f)
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -147,7 +148,8 @@ C --- Setup ---
       endif
 #endif
 
-      nbas  = nglob('nbas')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
 
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 

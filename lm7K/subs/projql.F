@@ -1,4 +1,5 @@
       subroutine projql(qlat)
+      use m_globalvariables
 C- Project 3D reciprocal lattice vecs on surface (2D recip lattice vecs)
 C ----------------------------------------------------------------------
 Ci Input qlat(3,3)  3D reciprocal lattice vectors
@@ -25,7 +26,8 @@ C ... Ignore qlat(3,.) by making it zero
 C      do  22  j = 1, 3
 C   22 qlat(j,3)=0d0
       if (iprint() .ge. 20) then
-        stdo = nglob('stdo')
+Changenglob        stdo = nglob('stdo')
+        stdo = globalvariables%stdo
         write(stdo,*) ' 2D-reciprocal vectors:'
         do  23  i = 1, 2
           write(stdo,222) (qlat(j,i),j=1,3)

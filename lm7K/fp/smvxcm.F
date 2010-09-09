@@ -7,7 +7,7 @@ Cchp1 cmdvar= real(8),rv_p_,ocy
      .rvepsm,focexc,focex,focec,focvxc,f)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -123,8 +123,10 @@ Cdwdef1       common /w/ w
       complex(8),allocatable ::smrho_w(:), smcor_w(:) 
 
       stdo = lgunit(1)
-      nsp  = nglob('nsp')
-      lxcfun = nglob('lxcf')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = globalvariables%lxcf
       call tcn('smvxc')
 
 c      i_copy_size=size(slat%nabc)

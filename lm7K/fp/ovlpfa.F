@@ -2,7 +2,7 @@
      .gv,cv)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,7 +59,8 @@ C     integer ifi,fopna
       call tcn('ovlpfa')
       ipr  = iprint()
       stdo = lgunit(1)
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4*pi)
 

@@ -1,7 +1,7 @@
       subroutine praugm(sspec,is)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C-  Print species information
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -33,7 +33,8 @@ C      idcode(1) = '*'
       is2 = is
       if (is .le. 0) then
         is1 = 1
-        is2 = nglob('nspec')
+Changenglob        is2 = nglob('nspec')
+        is2 = globalvariables%nspec
       endif
 
       write (stdo,501)

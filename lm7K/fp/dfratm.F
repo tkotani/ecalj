@@ -4,7 +4,7 @@ Cchp3       subroutine dfratm(nbas,ssite,sspec,orhoat)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Allocate arrays for local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,7 +32,8 @@ Cchp3       integer nbas,orhoat(3,nbas)
 C ... Local parameters
       integer ib,is,igetss,lmxl,nlml,nr,nsp,nglob
 
-      nsp = nglob('nsp')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
 
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)

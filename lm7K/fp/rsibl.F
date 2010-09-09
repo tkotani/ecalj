@@ -4,6 +4,7 @@ CSFCPP#define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
      .napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -170,8 +171,10 @@ C     call wkprnt(1)
       if (nevec .le. 0) return
       call tcn('rsibl')
 
-      nbas  = nglob('nbas')
-      nspec = nglob('nspec')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
       nlmto = ndimh-napw
 
 C ... First setup

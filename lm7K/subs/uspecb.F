@@ -1,7 +1,7 @@
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -90,10 +90,12 @@ C ... Local parameters
       save nkaph
       data nkaph /-1/
 
-      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
 
       if (mode .eq. -1) then
-        nkaph = nglob('nkaph')
+Changenglob        nkaph = nglob('nkaph')
+        nkaph = globalvariables%nkaph
         return
       else if (mode .eq. 0) then
         i = 0

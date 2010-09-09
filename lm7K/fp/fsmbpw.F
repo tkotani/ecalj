@@ -3,6 +3,7 @@ Cdwdef1 have_common_w_in fsmbpw , #_of_w_access= 0
      .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -120,7 +121,8 @@ C --- Setup ---
       endif
 #endif
 
-      nbas  = nglob('nbas')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
       pi = 4d0*datan(1d0)
 C     tpiba = 2d0*pi/alat
       fpi = 4*pi

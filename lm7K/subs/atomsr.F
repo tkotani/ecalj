@@ -5,6 +5,7 @@ c#define ONE_ATOM_UNIT 1
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .job,niter,lfrz)
 
+      use m_globalvariables
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------
 Ci Inputs
@@ -126,7 +127,8 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       external lgunit
 
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
-      lrel = nglob('lrel')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       b = rmax/(dexp(a*(nr-1)) - 1)

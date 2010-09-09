@@ -13,7 +13,7 @@ Cchp3      . , ndos , dos , sumev , sumqv )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Initialize output density coeffs, dos, and eigenvalue sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -75,9 +75,12 @@ C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
-      nsp = nglob('nsp')
-      nspc = nglob('nspc')
-      nkaph = nglob('nkaph')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 
 C ... Reset coeffs of local density
       do  ib = 1, nbas

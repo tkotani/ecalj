@@ -1,6 +1,7 @@
 CSFCPP#define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
      .nr,rc,nsp,v,rho)
+      use m_globalvariables
 C- Renormalise charge or potential for a free atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,7 +61,8 @@ CSFCPP      if (nr .gt. nrmax) call rx('RNATM: nr > nrmax')
 CSFCPP#endif
 
 C --- Setup ---
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       rmax = rofi(nr)
       call radwgt(rmax,a,nr,rwgt)
       rcw = rc(2)
@@ -133,6 +135,7 @@ C      sum = 2d0*sum*a/3d0
 C      end
 
       subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
+      use m_globalvariables
 C- Makes contribution to charge density from a given spin and l,
 C  for free atom and given spherical potential (Adapted from nwrofp)
 C ----------------------------------------------------------------------
@@ -178,7 +181,8 @@ C     stdo = nglob('stdo')
       eval = ev(ival)
       val = 1.d-30
       slo = -val
-      lrel = nglob('lrel')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
       if (lrel .eq. 0) then
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
      .  sum,a,b,rofi,nr,nre)

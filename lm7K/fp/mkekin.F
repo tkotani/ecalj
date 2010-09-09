@@ -37,7 +37,7 @@ Cchp3      .   , k3 , vconst , smpot , smrho , sumev , sumtv )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -259,9 +259,12 @@ Cdwdef1       common /w/ w
 #endif
 
       stdo = lgunit(1)
-      nsp  = nglob('nsp')
-      nspc = nglob('nspc')
-      nkaph = nglob('nkaph')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
       call getpr(ipr)
 
       i_copy_size=size(slat%nabc)

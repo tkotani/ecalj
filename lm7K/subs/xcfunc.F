@@ -1726,6 +1726,7 @@ C     implicit none
 
       subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
      . exc,vxc)
+      use m_globalvariables
 c      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
 c     .grh,ggrh,agrh,grgagr,exc,vxc)
 ctakao automatic array version
@@ -1759,7 +1760,8 @@ C ... Passed parameters
 C ... Local parameters
       integer ir,i,lxcf,lxcg,nglob
 
-      lxcg = mod(nglob('lxcf')/100,100)
+Changenglob      lxcg = mod(nglob('lxcf')/100,100)
+      lxcg = mod(globalvariables%lxcf/100,100)
 C      integer iprint
 C      if (iprint() .ge. 80) then
 C        call prmr(20,rofi,rp(2,1),1)
@@ -1795,7 +1797,8 @@ C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
 
 C --- Gradient term for all points ---
       if (lxcg .ge. 3) then
-        lxcf = mod(nglob('lxcf'),100)
+Changenglob        lxcf = mod(nglob('lxcf'),100)
+        lxcf = mod(globalvariables%lxcf,100)
         if (lxcf .ne. 3 .and. lxcf .ne. 4) call
      .  rx('vxcgf2: inconsistent use of local and GGA functionals')
         call vxcgga(lxcg,nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),

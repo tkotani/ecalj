@@ -9,7 +9,7 @@ Cchp3       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -92,8 +92,10 @@ C     stdo = lgunit(1)
       call tcn('smshft')
 
 C --- Setup and printout ---
-      nsp  = nglob('nsp')
-      nbas = nglob('nbas')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
 
       alat=slat%alat
       i_copy_size=size(slat%plat)

@@ -272,6 +272,7 @@ Cu   09 Aug 07
 C ----------------------------------------------------------------------
       use m_toksw
       use m_gtv
+      use m_globalvariables
 C     implicit none
 C ... Passed parameters
       character*(*):: prgn
@@ -1776,9 +1777,12 @@ C       Maximum L-cutoff
 C       Set global variables nkaph and mxorb
         nkaph = nkaph+lpzi-1
 C       print *, nkaph,nlmax,nkaph*nlmax
-        xx = dglob('nkaph',dble(nkaph),1)
-        xx = dglob('nlmax',dble(nlmax),1)
-        xx = dglob('mxorb',dble(nkaph)*nlmax,1)
+Changenglob        xx = dglob('nkaph',dble(nkaph),1)
+        globalvariables%nkaph = dble(nkaph); globalvariables%l_nkaph = globalvariables%l_nkaph +1; xx = dble(nkaph)
+Changenglob        xx = dglob('nlmax',dble(nlmax),1)
+        globalvariables%nlmax = dble(nlmax); globalvariables%l_nlmax = globalvariables%l_nlmax +1; xx = dble(nlmax)
+Changenglob        xx = dglob('mxorb',dble(nkaph)*nlmax,1)
+        globalvariables%mxorb = dble(nkaph)*nlmax; globalvariables%l_mxorb = globalvariables%l_mxorb +1; xx = dble(nkaph)*nlmax
       endif
    79 continue
 

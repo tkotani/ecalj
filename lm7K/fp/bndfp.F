@@ -33,7 +33,7 @@ Cchp1 cmdvar= real(8),rv_p_,oqp
      &igv2,napwk,igv2rev,ibasindex,getikt
       use m_rdctrl, only: ncutovl
       use m_struc_def
-
+      use m_globalvariables
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -511,8 +511,10 @@ C ... MPI setup
       napw = 0
       ipr  = iprint()
       ipl  = ipr
-      nsp  = nglob('nsp')
-      nspc = nglob('nspc')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
 C     npqn = nglob('npqn')
       lso = isw ( iand(4,int(sctrl%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 
      .) + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
@@ -1064,7 +1066,8 @@ C     Allocate aus for all qp
      .  isite,iclsl,iclsn,nsites)
         efmax = 1d3
         nevmx = ndhamx
-        nlmax = nglob('mxorb') / nglob('nkaph')
+Changenglob        nlmax = nglob('mxorb') / nglob('nkaph')
+        nlmax = globalvariables%mxorb / globalvariables%nkaph
         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid
      .  .eq. master)
      .  call awrit6(' CLS: %iMb memory for aus: nlmax=%i ndham=%i '//
@@ -1307,7 +1310,8 @@ C ... Setup for spin-orbit coupling
       if (lso .ne. 0) then
 C        call sumlst(10,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
 C     .    nsites,lsites,lmxch,nchan,w,nll)
-        nlmax = nglob('nlmax')
+Changenglob        nlmax = nglob('nlmax')
+        nlmax = globalvariables%nlmax
         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
         allocate(orbtm_rv(nl*nsp*nbas))
         orbtm_rv(:)=0.0d0
@@ -2795,7 +2799,8 @@ Cchp1           call mpibc2(w(oswtk),ndhamx*nkp,4,mlog,'bndfp','swtk')
 
         endif
 C     Allreduce qkkl
-        nkaph = nglob('nkaph')
+Changenglob        nkaph = nglob('nkaph')
+        nkaph = globalvariables%nkaph
         do  ib = 1, nbas
           is = int(ssite(ib)%spec)
 

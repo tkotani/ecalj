@@ -1,0 +1,9 @@
+Erase dglob and nglob
+and use m_globalvariables
+
+to see which file has them
+gawk -f makegloblist.awk sources
+
+to change the contents of files
+gawk -f changenglob.awk  sources
+

@@ -3,7 +3,7 @@ Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine elocp(nbas,nsp,ssite,sspec,job)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,10 +59,13 @@ Cdwdef1       common /w/ w
 C --- Setup ---
       if (mod(job,10) .eq. 0) return
       call tcn('elocp')
-      stdo = nglob('stdo')
-      nspec = nglob('nspec')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
       ipr = iprint()
-      nkaph = nglob('nkaph')
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
       eloc = .false.
       call dpzero(vsel,4*n0*nbas)
 

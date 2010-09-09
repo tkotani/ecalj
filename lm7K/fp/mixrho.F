@@ -2,6 +2,7 @@
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho ) 
       use m_struc_def 
+      use m_globalvariables
 !!= Mix old and new charge densities = 
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -309,9 +310,12 @@ ccccccccccccccccccccccccccccccccccccc
 #endif
 
 C --- Setup ---
-      nbas = nglob('nbas')
-      stdo = nglob('stdo')
-      stdl = nglob('stdl')
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
+Changenglob      stdl = nglob('stdl')
+      stdl = globalvariables%stdl
       call getpr(ipr)
       ipl = 1
       nx = 0

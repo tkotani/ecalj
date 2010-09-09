@@ -43,7 +43,7 @@ Cchp3      .     )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Driver to set up GW
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -318,8 +318,10 @@ Cchp1       og=slat%osymgr
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
       lchk = 1
-      nsp  = nglob('nsp')
-      nspc = nglob('nspc')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
       lrsig = int(sham%lsig)
 
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
@@ -1200,7 +1202,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 C   --- Project wf into augmentation spheres, Kotani conventions ---
-            nlmax = nglob('mxorb') / nglob('nkaph')
+Changenglob            nlmax = nglob('mxorb') / nglob('nkaph')
+            nlmax = globalvariables%mxorb / globalvariables%nkaph
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
 

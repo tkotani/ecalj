@@ -1,5 +1,6 @@
       integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
      .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
+      use m_globalvariables
 C- I/O for free-atom data, one species
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,8 +42,10 @@ C ... Local parameters
 
       ipr    = iprint()
       stdo   = lgunit(1)
-      nsp  = nglob('nsp')
-      lrel = nglob('lrel')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
       msg  = '         File mismatch:'
       iofa   = -1
 

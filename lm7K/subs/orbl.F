@@ -1,4 +1,6 @@
       subroutine orbl(ib,ldimp,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
+      use m_globalvariables
+ 
 C- Extract a list of l's in given hamiltonian block for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,8 +44,10 @@ C Local
       data nl /-1/, nkaph /-1/
 
 C     if (mxorb .eq. -1) mxorb = nglob('mxorb')
-      if (nl .eq. -1) nl = nglob('nl')
-      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+Changenglob      if (nl .eq. -1) nl = nglob('nl')
+      if (nl .eq. -1) nl = globalvariables%nl
+Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
 
 C --- Make ltab,offl in l order, followed by k order ---
       norb = 0
@@ -81,6 +85,7 @@ C     .  '  offl=%n:1i',' ',80,6,ib,ndim,norb,ltab,norb,offl)
       end
 
       subroutine iprmsb(mode,ib1,ib2,nbas,offH,indxsh,indxi,offl,norb)
+      use m_globalvariables
 C- Create a permutation table for a hamiltonian subblock
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -121,7 +126,8 @@ C     implicit none
       iorbi = ldimi
       horbi = ldimi+idimi
       norbi = ldimi+idimi+hdimi
-      mxorb = nglob('mxorb')
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
       if (mod(mode,10) .eq. 1) then
         offlm = mxorb*(ib1-1)
         nlmr = mxorb*ib2 - offlm
@@ -173,6 +179,7 @@ C   ... Lower block
       end
 
       subroutine offsHp(iprmb,ib1,ib2,lfast,ldimp,ldim,off,ld)
+      use m_globalvariables
 C- Hamiltonian offset and last orbital for a block of sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -211,7 +218,8 @@ C ... Local parameters
       save mxorb
       data mxorb /-1/
 
-      if (mxorb .eq. -1) mxorb = nglob('mxorb')
+Changenglob      if (mxorb .eq. -1) mxorb = nglob('mxorb')
+      if (mxorb .eq. -1) mxorb = globalvariables%mxorb
       ld = 0
 
 C ... Brute force (no assumption about site ordering)

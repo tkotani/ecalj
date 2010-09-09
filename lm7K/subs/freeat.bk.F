@@ -60,8 +60,10 @@ ctakao
       logical ixx
       ifi = fopna('atm',-1,0)
       rewind ifi
-      nspec = nglob('nspec')
-      nsp   = nglob('nsp')
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
+Changenglob      nsp   = nglob('nsp')
+      nsp   = globalvariables%nsp
       stdo = lgunit(1)
       exi(1) = -1
       exi(2) = -2
@@ -300,8 +302,10 @@ ctakao
       stdo   = lgunit(1)
       stdl   = lgunit(2)
       ipr    = iprint()
-      lrel   = nglob('lrel')
-      nsp    = nglob('nsp')
+Changenglob      lrel   = nglob('lrel')
+      lrel   = globalvariables%lrel
+Changenglob      nsp    = nglob('nsp')
+      nsp    = globalvariables%nsp
       lfrz   = 0
       lgrad  = lxcfun/10
 
@@ -587,7 +591,8 @@ C ... Local parameters
       character*1 lsym(0:n0-1), cc, str*15, spid*8
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -805,7 +810,8 @@ Cdwdef1       common /w/ w
       ipr = iprint()
       stdo = lgunit(1)
       stdl = lgunit(2)
-      lrel = nglob('lrel')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
       if (z .lt. 0.99d0) lrel = 0
       if (lmxa .gt. 8) call rx('optfab:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -1720,7 +1726,8 @@ C ... Local parameters
 
       call getpr(ipr)
       stdo = lgunit(1)
-      nsp =  nglob('nsp')
+Changenglob      nsp =  nglob('nsp')
+      nsp =  globalvariables%nsp
       rmt = rofi(nrmt)
       q0 = 0d0
       do  10  i = nrmt, nr

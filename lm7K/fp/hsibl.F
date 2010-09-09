@@ -2,6 +2,7 @@
       subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
      .napw,igapw,h)
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -159,8 +160,10 @@ c      common /w/ w
 #endif
 
 C ... First setup
-      nbas  = nglob('nbas')
-      nspec = nglob('nspec')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
       nlmto = ndimh - napw
       if (nspec .gt. nermx) call rx('hsibl: increase nermx')
 

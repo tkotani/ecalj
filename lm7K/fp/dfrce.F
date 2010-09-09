@@ -15,6 +15,7 @@ Cchp3      . , dfh )
 
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -194,9 +195,12 @@ c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
       c = 1000
       stdo = lgunit(1)
-      nsp  = nglob('nsp')
-      nbas = nglob('nbas')
-      nspec= nglob('nspec')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
+Changenglob      nspec= nglob('nspec')
+      nspec= globalvariables%nspec
       nn   = k1*k2*k3
 
 C ... Arrays needed for pvdf1
@@ -594,6 +598,7 @@ Cchp3      .orhoat,fes1,fes2,fxc)
 
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 c need to modify texts.
 C- Estimate shift in local density for one site
 C ----------------------------------------------------------------------
@@ -668,7 +673,8 @@ c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       call stdfac(20,df)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
-      nbas = nglob('nbas')
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
 C     tpiba = 2*pi/alat
       tpia = 2*pi*dcmplx(0d0,-1d0)/alat
       job0 = mod(job,10)
@@ -1154,7 +1160,7 @@ C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
       subroutine pvdf4(ssite,sspec,slat,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1217,7 +1223,8 @@ C      double complex gkl(0:k0,nlmx)
       call stdfac(20,df)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
-      nbas = nglob('nbas')
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)

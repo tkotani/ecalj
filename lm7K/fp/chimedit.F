@@ -8,7 +8,7 @@ Cchp1 cmdvar= real(8),iv_p_,oistab
      .nbas,nat,nspec)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Magnetic Linear response editor
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -168,7 +168,8 @@ Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
-      if (nglob('nsp') .ne. 2)
+Changenglob      if (nglob('nsp') .ne. 2)
+      if (globalvariables%nsp .ne. 2)
      .call rx('chim editor for only for magnetic systems')
 
 C --- Setup ---

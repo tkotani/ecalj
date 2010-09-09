@@ -7,6 +7,7 @@ CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      .napw,igapw,h,s)
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -235,7 +236,8 @@ Cdwdef1       common /w/ w
 
 C --- Setup ---
       nlmto = ndimh-napw
-      nbas  = nglob('nbas')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
 
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 

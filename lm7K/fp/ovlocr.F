@@ -16,7 +16,7 @@ Cchp3      . , exi , hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -89,7 +89,8 @@ C     double precision dval
       call tcn('ovlocr')
       ipr  = iprint()
       stdo = lgunit(1)
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
 #if MPI | MPIK
       procid = mpipid(1)
       numprocs = mpipid(0)

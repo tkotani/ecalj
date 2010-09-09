@@ -2,7 +2,7 @@
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -80,7 +80,8 @@ C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
       if (nlibu .eq. 0) return
 C     stdo = nglob('stdo')
       havesh = idvsh
-      stdl = nglob('stdl')
+Changenglob      stdl = nglob('stdl')
+      stdl = globalvariables%stdl
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call info0(20,1,0,' chkdmu:  '//

@@ -3,7 +3,7 @@ Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -58,7 +58,8 @@ C --- Setup ---
 
       lfp=sctrl%lfp
 
-      nspec = nglob('nspec')
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
 
 C --- FP setup ---
       if (lfp .ne. 0) then

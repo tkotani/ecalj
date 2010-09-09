@@ -1,4 +1,5 @@
       subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
+      use m_globalvariables
 C- Coefficients to Madelung matrix
 C ----------------------------------------------------------------
 Ci Inputs
@@ -39,7 +40,8 @@ C --- Generate Madelung matrix ---
 
 C --- Printout ---
       if (iprint() .lt. 90) return
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       write(stdo,100) nbas
   100 format(/' Madelung matrix: nbas=',i5)
       do  20  ibas = 1, nbas

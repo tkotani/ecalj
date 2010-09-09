@@ -64,6 +64,7 @@ Cu   27 Jun 04 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+      use m_globalvariables
       integer lmxb,nr,nrmt,nsp,n0,mode
       double precision a,z,rs3,eh3,vmtz
       parameter (n0=10)
@@ -101,7 +102,8 @@ C     call prrmsh('loctsh v',rofi,v,nr,nr,nsp)
 
 C --- Setup ---
       ipr = iprint()
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 C     stdl = nglob('stdl')
       if (lmxb .gt. 8) call rx('loctsh:  lmax too large')
       rmt = rofi(nrmt)

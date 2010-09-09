@@ -49,7 +49,7 @@ Cchp3      .   lmaxu , vorb , lldau )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -253,12 +253,14 @@ Cdwdef1       common /w/ w
 
 C --- Setup ---
       call tcn('locpot')
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0 = 1d0/srfpi
-      nkaph = nglob('nkaph')
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
       k = nrmx*nlmx*2
       allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
       allocate(efg(5,nbas),zz(nbas))
@@ -619,6 +621,7 @@ C     Electric field gradient
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg)
 
+      use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -978,7 +981,8 @@ C ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
 C     call pshpr(ipr-31)
 
       call pshpr(max(ipr-31,min(ipr,10)))
-      lxcfun = nglob('lxcf')
+Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = globalvariables%lxcf
 
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
       write(6,'(a)')' === rho1 valence true density ==='
@@ -1000,7 +1004,8 @@ C     call pshpr(ipr-31)
 C --- Add xc potentials to v1 and v2 ---
 C     call pshpr(ipr-11)
       call pshpr(max(ipr-11,min(ipr,10)))
-      lxcfun = nglob('lxcf')
+Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = globalvariables%lxcf
       call dpzero(focexc,2)
       call dpzero(focex,2)
       call dpzero(focec,2)

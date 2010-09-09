@@ -5,7 +5,7 @@ Cchp3       subroutine prrhat(nbas,ssite,sspec,orhoat)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
@@ -27,7 +27,8 @@ C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
       stdo = lgunit(1)
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)

@@ -1,5 +1,6 @@
       subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi,
      .metal,sumev,bndwts,wtot,entrpy,dosef,cv)
+      use m_globalvariables
 C- make sampling weights for integrals under the Fermi surface
 C-----------------------------------------------------------------------
 Ci  Input
@@ -42,7 +43,8 @@ C ... Local parameters
       double precision e,s,d,wt,x,xx,dsdt,tdsdt
 C      double precision sp,sm,dsdt,tdsdt,dsdt1,dsdt2
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       sumev = 0d0
       wtot = 0d0
       entrpy = 0d0

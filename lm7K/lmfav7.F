@@ -2,6 +2,7 @@ Cgetarg...info...           structure ['', 'ctrl', 'v_sctrl']
       program lmfa
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
+      use m_globalvariables
       implicit none
 
       integer procid, master, mpipid, nproc

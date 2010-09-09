@@ -1,5 +1,6 @@
       subroutine invbl(lasa,lov,nbas,nl,nsp,ldim,plat,nsite,iax,
      .indxsh,ik,nk,bk,strxk,hk,sk,strx,hrs,srs)
+      use m_globalvariables
 C- Inverse Bloch transform to extract real space hamiltonian and overlap
 C ----------------------------------------------------------------------
 Ci Inputs:  lasa: T for lmasa, F for TBE which tranposes the strux.
@@ -30,7 +31,8 @@ C Extrinsic functions
 
 C Intrinsic functions
       intrinsic datan, dcos, dsin
-      mxorb = nglob('mxorb')
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
       twopi = 8*datan(1d0)
 
       call rxx(nsp.ne.1,'INVBL: not set up for spin')

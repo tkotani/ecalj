@@ -30,6 +30,7 @@ C For lmdos and lmchk. Single core mode only. No MPI modes.
 C- Main program for lmf and so on.
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
+      use m_globalvariables
       implicit none
 c      integer procid, master, mpipid, nproc
 
@@ -113,7 +114,8 @@ C --- Version ---
       vn(1) = vn(1) + vn2(1)/1d5
       vn(2) = vn(2) + vn2(2)/1d5
       stdo = lgunit(1)
-      i = dglob('stdo',dble(stdo),1)
+Changenglob      i = dglob('stdo',dble(stdo),1)
+      globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; i = dble(stdo)
 c      master = 0
 c      procid = mpipid(1)
 c      nproc  = mpipid(0)
@@ -445,7 +447,7 @@ C$$$       end subroutine sttmpd
 
 
       subroutine findctrlstart(nfilin)
-
+      use m_globalvariables
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn
@@ -1321,7 +1323,7 @@ c#define ONE_ATOM_UNIT 1
      .ic2)
       
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- File I/O atomic data for classes ic1..ic2
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1551,7 +1553,8 @@ Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
 
-      lrel = nglob('lrel')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
 
       mode0 = mod(mode,10)
       mode00 = mod(mode0,4)

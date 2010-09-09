@@ -1,4 +1,5 @@
       subroutine getqp(mode,nfilqp,nqp,nkabc,lshft,ntet,q,wts,idtet)
+      use m_globalvariables
 C- I/O for q-points on disc
 C-----------------------------------------------------------------------
 Ci Input
@@ -36,7 +37,8 @@ C Local variables
 
       if (nfilqp .lt. 0) goto 100
       outs = ' '
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 C --- Read branch ---
 C     Header string: first line not beginning with a '#'
       if (mode .eq. 0) then

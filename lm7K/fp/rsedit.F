@@ -30,6 +30,7 @@ c   mv x file.F
      .nbas,nat,nspec)
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 C- Restart file editor
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -158,7 +159,8 @@ C     # spec and # sites in spec 2nd atom density
       natk(2) = nat
 C     true if rs data available, but not saved
       lnsave = .false.
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
       qbg = sctrl%zbak(1)
 
 
@@ -1010,7 +1012,7 @@ Cchp3      . )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Add fac*2nd density to density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1097,7 +1099,8 @@ C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
       isync = mod(mode,10)
       im  = mod(mode/10,10)
@@ -1366,7 +1369,7 @@ Cchp3       subroutine prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Print out density information
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1406,7 +1409,8 @@ C ... Heap
 Cdwdef1       integer w(1)
 Cdwdef1       common /w/ w
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
@@ -1586,7 +1590,7 @@ Cchp3      .slat,smrho,k1,k2,k3)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Remove spin or charge part of atomic densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1644,7 +1648,8 @@ Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)

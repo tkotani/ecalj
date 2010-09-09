@@ -6,7 +6,7 @@ Cchp3       subroutine pvsms2(ssite,sspec,rotm,nbas,nsp,orhoat)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Rotate local densities by specified rotation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,7 +60,8 @@ Cdwdef1       common /w/ w
 
 C ... Setup
       call getpr(ipr)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 
 C ... Rotation matrix for real spherical harmonics
 C     call prmx('pvsms2 rotm',rotm,3,3,3)

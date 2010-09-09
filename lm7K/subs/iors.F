@@ -12,6 +12,7 @@ Cchp1 cmdvar= real(8),rv_p_,oves
 
       use m_struc_def  !Cgetarg
       use m_struc_func 
+      use m_globalvariables
 C- I/O for charge density
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -225,8 +226,10 @@ C ... MPI setup
       elseif (mode .eq. -2 .or. mode .eq. -1 .or. mode .eq. 1) then
         vs   =  1.04d0
       endif
-      nsp    = nglob('nsp')
-      lrel   = nglob('lrel')
+Changenglob      nsp    = nglob('nsp')
+      nsp    = globalvariables%nsp
+Changenglob      lrel   = nglob('lrel')
+      lrel   = globalvariables%lrel
       lrs ( 1 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
 
       lrs ( 2 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
@@ -254,7 +257,8 @@ Cchp1         osmrho=spot%osmrho
       ifmt = '(20i5)'
 C ... Hardwired for now
       npan = 1
-      nl = nglob('nl')
+Changenglob      nl = nglob('nl')
+      nl = globalvariables%nl
 
 C ... Message
       if (ipr .ge. 10) then

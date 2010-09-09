@@ -5,7 +5,7 @@ Cchp3       subroutine dfqkkl(nbas,ssite,sspec,numq,oqkkl)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -45,9 +45,12 @@ C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nglob,nlma,nlmh,nsp,
      .nspc,nelt3,nelt2,nkaph
 
-      nsp = nglob('nsp')
-      nspc = nglob('nspc')
-      nkaph = nglob('nkaph')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 
 C --- Loop over sites, allocating qkkl for each site ---
       do  ib = 1, nbas

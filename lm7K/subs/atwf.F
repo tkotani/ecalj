@@ -173,6 +173,7 @@ C --- Core eigenfunctions and eigenvalues ---
 
       subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt,
      .nphimx,konfig,ecore,gcore,gval)
+      use m_globalvariables
 C- Translate radial wave functions from shifted to standard log mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -230,7 +231,8 @@ C ... Local parameters
      .norm(2,0:lmxa,nphimx,nsp)  ! norm on log mesh
 
 C ... Setup
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       if (nr .gt. nrmx) call rx('increase nrmx in atwf')
 
 C ... Shifted and standard log mesh

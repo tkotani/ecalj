@@ -292,6 +292,7 @@ C ... Reverse table of igv2 --->igv2rev
 
       use m_struc_def  !Cgetarg
 
+      use m_globalvariables
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -441,7 +442,8 @@ c       lfp=sctrl%lfp
 
 c       lpgf = int(sctrl%lpgf(1))
 
-      nkaph = nglob('nkaph')
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 
       pwmode=sham%pwmode
       pwemin=sham%pwemin

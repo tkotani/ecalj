@@ -13,7 +13,7 @@ Cchp3      .  , sv_p_otau , oppi )
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -77,9 +77,12 @@ C ... Local parameters
      .nsp,nspc,nkaph,nso
 C     double precision z,rmt
 
-      nsp = nglob('nsp')
-      nspc = nglob('nspc')
-      nkaph = nglob('nkaph')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nspc = nglob('nspc')
+      nspc = globalvariables%nspc
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
 c      print *,'lso nspc=',lso,nspc
       call rxx(lso.eq.1.and.nspc.ne.2,'dfaugm: inconsistent parameters')
       nso = 1

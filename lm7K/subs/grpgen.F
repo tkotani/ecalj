@@ -1,4 +1,5 @@
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
+      use m_globalvariables
 C- Generate all point symmetry operations from the generation group
 C ----------------------------------------------------------------
 Ci Inputs
@@ -20,7 +21,8 @@ C     implicit none
       character*80 sout
       data e /1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
       sout = ' '
 

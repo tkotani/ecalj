@@ -18,6 +18,7 @@ Cchp1 cmdvar= integer,iv_p_,ooffh
 
       use m_struc_def  !Cgetarg
       use m_hft2rs
+      use m_globalvariables
 C- Read sigm(k) from file and generate sigm(R)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -303,7 +304,8 @@ C --- Setup and printout ---
 
 C     tolq is allowed fuzz in qp
       tolq = 1d-6
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       ledit = 0
       lrsig = mod(mode,10)
       lwsig = 0
@@ -791,7 +793,8 @@ C ... titus
           allocate(wk_zv(ndimh**2))
           if (ndimh**2<0) wk_zv(:)=0.0d0
 
-          nl = nglob('nl')
+Changenglob          nl = nglob('nl')
+          nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimh**2))
           if (ndimh**2<0) sigm_zv(:)=0.0d0
@@ -1096,7 +1099,8 @@ c        endif
         allocate(hrss(nhrss))
         hrss = rv_p_ohrs
 
-        mxorb = nglob('mxorb')
+Changenglob        mxorb = nglob('mxorb')
+        mxorb = globalvariables%mxorb
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
@@ -1107,7 +1111,8 @@ Cchp1         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv )
          call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
 
 
-        nl = nglob('nl')
+Changenglob        nl = nglob('nl')
+        nl = globalvariables%nl
 Cchp1         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
 Cchp1      .  , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
 Cchp1      .  ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w 
@@ -1624,7 +1629,7 @@ C       Assign header parameters or check with file correspondence
       subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
-
+      use m_globalvariables
 C- Compare Bloch summed sigma against file sigma(k)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1707,8 +1712,10 @@ Cdwdef1       common /w/ w
 
       call getpr(ipr)
       stdo = lgunit(1)
-      nl = nglob('nl')
-      mxorb = nglob('mxorb')
+Changenglob      nl = nglob('nl')
+      nl = globalvariables%nl
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
       opt01 = mod(mod(opt,10),2)
       opt0  = mod(opt,10)
       nscnts = 0
@@ -1912,7 +1919,7 @@ C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
 
       subroutine siged(mode,nbas,nsp,ndhrs,plat,pos,ndimh,iprmb,hreal,
      .ntab,iax,hrs)
-
+      use m_globalvariables
 C- Sigma editor
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1957,7 +1964,8 @@ C ... Local parameters
 C ... Default range: all pairs
       it1 = 1
       it2 = ntab(nbas+1)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       rcut = 2
       if (hreal .ne. 0) call rx('siged not ready for hreal')
 
@@ -1980,7 +1988,8 @@ C       print *, dsum(2*ndhrs*ndhrs*it2,hrs,1)
         call dscal(2*ndhrs*ndhrs*it2,0.5d0,hrs,1)
 C       print *, dsum(2*ndhrs*ndhrs*it2,hrs,1)
         nsp = 1
-        rr = dglob('nsp',1d0,1)
+Changenglob        rr = dglob('nsp',1d0,1)
+        globalvariables%nsp = 1d0; globalvariables%l_nsp = globalvariables%l_nsp +1; rr = 1d0
         return
       endif
 

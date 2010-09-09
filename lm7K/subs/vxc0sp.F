@@ -1,4 +1,5 @@
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
+      use m_globalvariables
 C- Adds xc part to spherical potential, makes integrals rmu and rep
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,14 +52,16 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 
 c old version before lm72
 c      lx    = nglob('lxcf')
 c      lxcf2 = mod(lx,10)
 c      lxcg = lx/10
 clm72
-      lxcfun = nglob('lxcf')
+Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = globalvariables%lxcf
       lxcf = mod(lxcfun,100)
       lxcg = lxcfun/100
 

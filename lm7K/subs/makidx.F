@@ -2,6 +2,7 @@
      .ldham)
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 
 C- Makes hamiltonian offsets and permutation indices
 C ----------------------------------------------------------------------
@@ -268,7 +269,8 @@ C --- Make iprmb ---
   100 continue
       indx = 0
 C     For now, require that morb = nl*nkaph
-      mxorb = nglob('mxorb')
+Changenglob      mxorb = nglob('mxorb')
+      mxorb = globalvariables%mxorb
       i = nl**2*nkaph
       call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
       call iinit(ndimi,n0H*nkap0)

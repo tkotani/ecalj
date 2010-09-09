@@ -1,5 +1,6 @@
       subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
      .sumec,sumtc,rhoc,ncore,ecore,gcore)
+      use m_globalvariables
 C- Generate the core density for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -50,7 +51,8 @@ C ... Local parameters
 
       stdo = lgunit(1)
       call getpr(ipr)
-      nsp = nglob('nsp')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
       qcore = 0d0
       ncore = 0
       qsc = 0d0

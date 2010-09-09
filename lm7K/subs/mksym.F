@@ -13,7 +13,7 @@ Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -161,7 +161,8 @@ Cchp1                 integer:: opos , oiwk , aginv
       call dcopy(i_copy_size,slat%dist,1,dist,1)
 
       ngmx = 48
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
 
 C ... Re-entry when ngmx was increased

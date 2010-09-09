@@ -2,7 +2,6 @@
      .ssite,strn,dmatu)
 
       use m_struc_def  !Cgetarg
-
 C- Writes out a site density-matrix-like object for all sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -70,6 +69,7 @@ C ... Local parameters
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .nsp,nspc)
 
+      use m_globalvariables
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -108,7 +108,8 @@ C ... Local parameters
       if (nspc .eq. 2) call rx('prdmts not ready for nspc=2')
       if (mpipid(1) .ne. 0) return
       call getpr(ipr)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       nlm = 2*l+1
 
       if (ifi .ne. 0) then

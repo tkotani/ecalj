@@ -2,7 +2,7 @@
      .pnu,qnu,lbin,ifi)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- ASA file I/O to restart file
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -81,10 +81,14 @@ c      integer w(1)
 c      common /w/ w
 
       jobid = 'ASA output'
-      nbas = nglob('nbasp')
-      nsp = nglob('nsp')
-      nl = nglob('nl')
-      nspec = nglob('nspec')
+Changenglob      nbas = nglob('nbasp')
+      nbas = globalvariables%nbasp
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nl = nglob('nl')
+      nl = globalvariables%nl
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
       nit = 1
 
 C ... Get class list

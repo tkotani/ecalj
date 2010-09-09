@@ -4,7 +4,7 @@ Cdwdef1 have_common_w_in ftfalo , #_of_w_access= 0
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -63,8 +63,10 @@ ctakao
 
       ifi = fopna('atm',-1,0)
       rewind ifi
-      nspec = nglob('nspec')
-      nsp   = nglob('nsp')
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
+Changenglob      nsp   = nglob('nsp')
+      nsp   = globalvariables%nsp
       stdo = lgunit(1)
       exi(1) = -1
       exi(2) = -2
@@ -204,7 +206,7 @@ ctakao
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot)
-
+      use m_globalvariables
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -310,8 +312,10 @@ ctakao
       stdo   = lgunit(1)
       stdl   = lgunit(2)
       ipr    = iprint()
-      lrel   = nglob('lrel')
-      nsp    = nglob('nsp')
+Changenglob      lrel   = nglob('lrel')
+      lrel   = globalvariables%lrel
+Changenglob      nsp    = nglob('nsp')
+      nsp    = globalvariables%nsp
       lfrz   = 0
       lgrad  = lxcfun/10
 ctakao
@@ -573,7 +577,7 @@ C --- Fit analytical expression to tail of core density ---
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi)
-
+      use m_globalvariables
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -609,7 +613,8 @@ C ... Local parameters
       character*1 lsym(0:n0-1), cc, str*15, spid*8
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -770,7 +775,7 @@ C ... Find the outermost maximum
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .spid,itab,rtab,etab)
-
+      use m_globalvariables
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -827,7 +832,8 @@ Cdwdef1       common /w/ w
       ipr = iprint()
       stdo = lgunit(1)
       stdl = lgunit(2)
-      lrel = nglob('lrel')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
       if (z .lt. 0.99d0) lrel = 0
       if (lmxa .gt. 8) call rx('optfab:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -1719,7 +1725,7 @@ C ... Write the plot file
 
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
-
+      use m_globalvariables
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1752,7 +1758,8 @@ C ... Local parameters
 
       call getpr(ipr)
       stdo = lgunit(1)
-      nsp =  nglob('nsp')
+Changenglob      nsp =  nglob('nsp')
+      nsp =  globalvariables%nsp
       rmt = rofi(nrmt)
       q0 = 0d0
       do  10  i = nrmt, nr

@@ -1,5 +1,6 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
      .qdiff,svflg,amom,etot,lsc)
+      use m_globalvariables
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,8 +45,10 @@ C ... Local parameters
 
       character*255:: formatc(903:904),lbll
 
-      stdo = nglob('stdo')
-      nsp  = nglob('nsp')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
 C     Assume not self-consistent
       lsc = 3
       more = .true.

@@ -6,7 +6,7 @@ Cchp3       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
 
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,7 +59,8 @@ C --- Setup ---
       stdo = lgunit(1)
       fpi  = 16d0*datan(1d0)
       y0   = 1d0/dsqrt(fpi)
-      nsp  = nglob('nsp')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
       allocate(rofi_rv(nrmx))
 Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rofi_rv(:)=0.0d0
 

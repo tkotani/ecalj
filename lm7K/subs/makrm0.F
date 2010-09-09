@@ -1,6 +1,7 @@
 Cdwdef1 have_common_w_in makrm0 , #_of_w_access= 0
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
+      use m_globalvariables
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -120,7 +121,8 @@ C --- Setup ---
       call isanrg(opt1,0,2,'makrm0:','10s digit opt',.true.)
       call isanrg(opt2,0,1,'makrm0:','100s digit opt',.true.)
       call isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
-      nsp = nglob('nsp')
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
       stdo = lgunit(1)
       call getpr(ipr)
       call dpzero(rpos,3*mxcsiz)

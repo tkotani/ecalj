@@ -1,4 +1,5 @@
       integer function nnrl(mode,ib1,ib2,iprmb,ndim)
+      use m_globalvariables
 C- Returns number of RL channels between sites ib1, ib2
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,8 +30,10 @@ C Local
       data nl /-1/, nkaph /-1/
 
 C     mxorb = nglob('mxorb')
-      if (nl .eq. -1) nl = nglob('nl')
-      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+Changenglob      if (nl .eq. -1) nl = nglob('nl')
+      if (nl .eq. -1) nl = globalvariables%nl
+Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
 
       nnrli = 0

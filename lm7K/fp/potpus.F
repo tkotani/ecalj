@@ -1,5 +1,6 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
      .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
+      use m_globalvariables
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -166,8 +167,10 @@ C     Spin-Orbit related parameters
       common /cc/ cc
 
 C ... Setup
-      lrel = nglob('lrel')
-      stdo = nglob('stdo')
+Changenglob      lrel = nglob('lrel')
+      lrel = globalvariables%lrel
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       call getpr(ipr)
 C     lorthd = 0
       lorthz = 0

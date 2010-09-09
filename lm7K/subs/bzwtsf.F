@@ -1,6 +1,7 @@
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
+      use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -68,7 +69,8 @@ C --- Fermi level without spin constraint ---
       if (nsp .eq. 1) return
 
       call getpr(ipr)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 C     stdl = nglob('stdl')
 
 C --- Make and print out magnetic moment ---

@@ -1,6 +1,7 @@
 #define MULLIKEN 1
       subroutine suqlst(sopts,iop,nband,efermi,nsp,evl,nfbn,ifblst,nq,
      .qp,onesp)
+      use m_globalvariables
 C- Set up a list of q-points in various modes for energy bands
 C  See also entry suqlsw(nband,jsp,nsp,evl)
 C ----------------------------------------------------------------------
@@ -183,7 +184,8 @@ c      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
 
       procid = mpipid(1)
       master = 0
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       op1 = mod(iop,10)
       nqall = 0
 
@@ -534,7 +536,8 @@ C         if (nblst .le. 5) prfmt = '(8f10.6)'
       elseif (mode .eq. 3) then
         j = mod(iq-2,nqy)
         i = (iq-2-j)/nqy
-        stdo = nglob('stdo')
+Changenglob        stdo = nglob('stdo')
+        stdo = globalvariables%stdo
         if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
   345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
 
@@ -610,7 +613,8 @@ C         if (nblst .le. 5) prfmt = '(8f10.6)'
       elseif (mode .eq. 3) then
         j = mod(iq-2,nqy)
         i = (iq-2-j)/nqy
-        stdo = nglob('stdo')
+Changenglob        stdo = nglob('stdo')
+        stdo = globalvariables%stdo
         if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
 c  345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
 
@@ -652,6 +656,7 @@ C ... Keep running tab on smallest,largest eval
 
       subroutine suqlse(nband,jsp,nsp,ndimhx,ifbn,nfbn,ifblst,ndlst,
      .evec,wk)
+      use m_globalvariables
 C- Write to file the projection of eigenvector subblock for this qp
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -757,7 +762,8 @@ C         if (nblst .gt. 0 .and. nblst .le. 5) prfmt = '(8f10.6)'
         call rx('need copy weights into different place, mode=3')
         j = mod(iq-2,nqy)
         i = (iq-2-j)/nqy
-        stdo = nglob('stdo')
+Changenglob        stdo = nglob('stdo')
+        stdo = globalvariables%stdo
         if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
   345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
 

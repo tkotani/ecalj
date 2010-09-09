@@ -5,7 +5,7 @@ Cchp1 cmdvar= real(8),rv_p_,ogv
 c      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -125,8 +125,10 @@ Cchp1       okv=slat%okv
 
       vol=slat%vol
 
-      nspec = nglob('nspec')
-      nsp   = nglob('nsp')
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
+Changenglob      nsp   = nglob('nsp')
+      nsp   = globalvariables%nsp
       modgkl = mode
       if (mode .ge. 200) modgkl = mod(mode,100)
 C      if (mode .eq. 0) then

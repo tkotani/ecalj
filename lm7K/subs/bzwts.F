@@ -1,6 +1,7 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
      .wtkb,dosef,qval,ent)
+      use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -90,8 +91,10 @@ C --- Locate band limits: lfill => insulator ---
       qval(2) = 0
       ent = 0
       n = isign(1,norder) * mod(iabs(norder),100)
-      stdo = nglob('stdo')
-      stdl = nglob('stdl')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
+Changenglob      stdl = nglob('stdl')
+      stdl = globalvariables%stdl
 #ifdef KINODEBUG
        write(*,*) 'kino nevx,nsp',nevx,nsp
 #endif

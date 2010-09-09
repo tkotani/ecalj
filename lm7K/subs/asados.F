@@ -12,7 +12,7 @@ Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Partial density-of-states generator
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -176,7 +176,8 @@ ctakao
       real(8),allocatable:: z(:)
 
 C --- Setup ---
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 
       nbas=sctrl%nbas
       nclass=sctrl%nclass

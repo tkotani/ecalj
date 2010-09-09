@@ -1,4 +1,5 @@
       subroutine shear(nbas,plat,tau,alpha,eps,s)
+      use m_globalvariables
 C- Apply a pure strain to lattice and basis vectors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -25,7 +26,8 @@ C ... Local parameters
       parameter (nbmx = 256)
       double precision s(3,3),b(3,3),x(21),t(3,nbmx),det,e(6)
 
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       if (dabs(alpha) .lt. 1d-8) return
       if (nbas .gt. nbmx)
      .call fexit(-1,9,'Increase nbmx in SHEAR',0)

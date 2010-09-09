@@ -1,0 +1,533 @@
+
+lmfav7.F
+      subroutine prmx(strn,s,ns,nr,nc)
+      i = dglob('stdo',dble(stdo),1)
+
+lmv7.F
+      end subroutine findctrlstart 
+      i = dglob('stdo',dble(stdo),1)
+
+lmv7util.F
+      end subroutine findctrlstart 
+      i = dglob('stdo',dble(stdo),1)
+
+lmv7util.F
+      subroutine aiocls(lio,mode,sarray,sctrl,sham,spot,sspec,slat,ic1,
+      lrel = nglob('lrel')
+
+fp/addrbl.F
+           subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
+      nbas = nglob('nbas')
+
+fp/augmbl.F
+         subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+      nbas  = nglob('nbas')
+      nkaph = nglob('nkaph')
+
+fp/bndfp.F
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
+      nsp  = nglob('nsp')
+      nspc = nglob('nspc')
+        nlmax = nglob('mxorb') / nglob('nkaph')
+        nlmax = nglob('nlmax')
+        nkaph = nglob('nkaph')
+
+fp/chimedit.F
+      subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
+      if (nglob('nsp') .ne. 2)
+
+fp/dfaugm.F
+         subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
+      nsp = nglob('nsp')
+      nspc = nglob('nspc')
+      nkaph = nglob('nkaph')
+
+fp/dfqkkl.F
+       subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
+      nsp = nglob('nsp')
+      nspc = nglob('nspc')
+      nkaph = nglob('nkaph')
+
+fp/dfratm.F
+       subroutine dfratm ( nbas , ssite , sspec , sv_p_orhoat ) 
+      nsp = nglob('nsp')
+
+fp/dfrce.F
+        subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
+      nsp  = nglob('nsp')
+      nbas = nglob('nbas')
+      nspec= nglob('nspec')
+
+fp/dfrce.F
+       subroutine pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 
+      nbas = nglob('nbas')
+
+fp/dfrce.F
+      subroutine pvdf4(ssite,sspec,slat,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
+      nbas = nglob('nbas')
+
+fp/elocp.F
+      subroutine elocp(nbas,nsp,ssite,sspec,job)
+      stdo = nglob('stdo')
+      nspec = nglob('nspec')
+      nkaph = nglob('nkaph')
+
+fp/fpchk.F
+      subroutine chkxpn(ssite,sspec)
+      nbas  = nglob('nbas')
+      nspec = nglob('nspec')
+
+fp/fsmbl.F
+      subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
+      nbas  = nglob('nbas')
+
+fp/fsmbpw.F
+      subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
+      nbas  = nglob('nbas')
+
+fp/gaugm.F
+      subroutine gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,vsm,
+      nspc = nglob('nspc')
+
+fp/hambls.F
+         subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
+      nspc = nglob('nspc')
+      nl = nglob('nl')
+      mxorb = nglob('mxorb')
+      nsp  = nglob('nsp')
+
+fp/hambls.F
+      subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
+      nl = nglob('nl')
+      mxorb = nglob('mxorb')
+
+fp/hsibl.F
+      subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
+      nbas  = nglob('nbas')
+      nspec = nglob('nspec')
+
+fp/ioden.F
+       subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
+      nsp = nglob('nsp')
+      nbas = nglob('nbas')
+
+fp/lmfp.F
+      subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
+      nat = nglob('nat')
+
+fp/locpot.F
+          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+      stdo = nglob('stdo')
+      nkaph = nglob('nkaph')
+
+fp/locpot.F
+      subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
+      lxcfun = nglob('lxcf')
+      lxcfun = nglob('lxcf')
+
+fp/loctsh.F
+      subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
+      stdo = nglob('stdo')
+
+fp/mixrho.F
+        subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
+      nbas = nglob('nbas')
+      stdo = nglob('stdo')
+      stdl = nglob('stdl')
+
+fp/mkehkf.F
+      subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
+      nsp  = nglob('nsp')
+      stdo = nglob('stdo')
+      stdl = nglob('stdl')
+
+fp/mkekin.F
+          subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
+      nsp  = nglob('nsp')
+      nspc = nglob('nspc')
+      nkaph = nglob('nkaph')
+
+fp/mkpot.F
+          subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+      nsp  = nglob('nsp')
+      lxcfun = nglob('lxcf')
+
+fp/mkrout.F
+         subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
+      nkaph = nglob('nkaph')
+
+fp/mshn3p.F
+       subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce 
+      nsp  = nglob('nsp')
+      nkaph = nglob('nkaph')
+
+fp/ovlocr.F
+        subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+      nsp  = nglob('nsp')
+
+fp/ovlpfa.F
+      subroutine ovlpfa(ssite,slat,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,
+      nsp  = nglob('nsp')
+
+fp/potpus.F
+      subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
+      lrel = nglob('lrel')
+      stdo = nglob('stdo')
+
+fp/praugm.F
+      subroutine praugm(sspec,is)
+        is2 = nglob('nspec')
+
+fp/prrhat.F
+       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat ) 
+      nsp  = nglob('nsp')
+
+fp/rdovfa.F
+       subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
+      nsp   = nglob('nsp')
+
+fp/rhgcmp.F
+      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
+      nspec = nglob('nspec')
+      nsp   = nglob('nsp')
+
+fp/rhomom.F
+       subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
+      nsp  = nglob('nsp')
+
+fp/rlocbl.F
+           subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+      nsp = nglob('nsp')
+      nkaph = nglob('nkaph')
+
+fp/rsedit.F
+      subroutine rsedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
+      nsp  = nglob('nsp')
+
+fp/rsedit.F
+        subroutine prsed1 ( nsite1 , nsite2 , nspec , mode , nlst , ilst 
+      stdo = nglob('stdo')
+
+fp/rsedit.F
+       subroutine prsed2 ( nbas , nsp , ssite , sspec , sv_p_orhoat 
+      stdo = nglob('stdo')
+
+fp/rsedit.F
+       subroutine prsed4 ( mode , nbas , nspec , nsp , ssite , sspec 
+      stdo = nglob('stdo')
+
+fp/rsibl.F
+      subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
+      nbas  = nglob('nbas')
+      nspec = nglob('nspec')
+
+fp/smhsbl.F
+      subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
+      nbas  = nglob('nbas')
+
+fp/smshft.F
+       subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
+      nsp  = nglob('nsp')
+      nbas = nglob('nbas')
+
+fp/smves.F
+      subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
+      nsp   = nglob('nsp')
+
+fp/smvxcm.F
+      subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
+      nsp  = nglob('nsp')
+      lxcfun = nglob('lxcf')
+
+fp/stonerrsa.F
+      subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq,
+      stdo = nglob('stdo')
+
+fp/sugw.F
+            subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+      nsp  = nglob('nsp')
+      nspc = nglob('nspc')
+            nlmax = nglob('mxorb') / nglob('nkaph')
+
+fp/surho.F
+        subroutine surho ( nbas , ssite , sspec , lmet , ldos , lrout 
+      nsp = nglob('nsp')
+      nspc = nglob('nspc')
+      nkaph = nglob('nkaph')
+
+fp/symrho.F
+       subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
+      nbas = nglob('nbas')
+      nsp = nglob('nsp')
+
+subs/asados.F
+      subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
+      stdo = nglob('stdo')
+
+subs/asars.F
+      subroutine asars(mode,sctrl,ssite,sspec,slat,spot,sbz,
+      nbas = nglob('nbasp')
+      nsp = nglob('nsp')
+      nl = nglob('nl')
+      nspec = nglob('nspec')
+
+subs/atomsr.F
+      subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
+      lrel = nglob('lrel')
+
+subs/atwf.F
+      subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt,
+      stdo = nglob('stdo')
+
+subs/bzwts.F
+      subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
+      stdo = nglob('stdo')
+      stdl = nglob('stdl')
+
+subs/bzwtsf.F
+      subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
+      stdo = nglob('stdo')
+
+subs/chkdmu.F
+      subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,idvsh,
+      stdl = nglob('stdl')
+
+subs/defspc.F
+      subroutine defspc(sspec)
+      nspec = nglob('nspec')
+
+subs/freeat.F
+      subroutine freeat(sctrl,sspec,sham,spot)
+      nspec = nglob('nspec')
+      nsp   = nglob('nsp')
+
+subs/freeat.F
+      subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
+      lrel   = nglob('lrel')
+      nsp    = nglob('nsp')
+
+subs/freeat.F
+      subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
+      stdo = nglob('stdo')
+
+subs/freeat.F
+      subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
+      lrel = nglob('lrel')
+
+subs/freeat.F
+      subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
+      nsp =  nglob('nsp')
+
+subs/freeat.bk.F
+      subroutine freeat(sctrl,sspec,sham,spot)
+      nspec = nglob('nspec')
+      nsp   = nglob('nsp')
+
+subs/freeat.bk.F
+      subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
+      lrel   = nglob('lrel')
+      nsp    = nglob('nsp')
+
+subs/freeat.bk.F
+      subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
+      stdo = nglob('stdo')
+
+subs/freeat.bk.F
+      subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
+      lrel = nglob('lrel')
+
+subs/freeat.bk.F
+      subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
+      nsp =  nglob('nsp')
+
+subs/getcor.F
+      subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
+      nsp = nglob('nsp')
+
+subs/getqp.F
+      subroutine getqp(mode,nfilqp,nqp,nkabc,lshft,ntet,q,wts,idtet)
+      stdo = nglob('stdo')
+
+subs/groupg.F
+      subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
+      stdo = nglob('stdo')
+
+subs/grpgen.F
+      subroutine grpgen(gen,ngen,symops,ng,ngmx)
+      stdo = nglob('stdo')
+
+subs/invbl.F
+      subroutine invbl(lasa,lov,nbas,nl,nsp,ldim,plat,nsite,iax,
+      mxorb = nglob('mxorb')
+
+subs/iofa.F
+      integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
+      nsp  = nglob('nsp')
+      lrel = nglob('lrel')
+
+subs/iors.F
+      integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
+      nsp    = nglob('nsp')
+      lrel   = nglob('lrel')
+      nl = nglob('nl')
+
+subs/m_rdctrl.F
+     .  '%N%3fwith a linear function of LDA eigenvalues (diagonal)')
+        xx = dglob('nkaph',dble(nkaph),1)
+        xx = dglob('nlmax',dble(nlmax),1)
+        xx = dglob('mxorb',dble(nkaph)*nlmax,1)
+
+subs/madmat.F
+      subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
+      stdo = nglob('stdo')
+
+subs/makidx.F
+      subroutine makidx(nl,nkaph,ib1,ib2,iprma,sspec,ips,offH,iprmb,
+      mxorb = nglob('mxorb')
+
+subs/makrm0.F
+      subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
+      nsp = nglob('nsp')
+
+subs/mkqp.F
+      subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
+      stdo = nglob('stdo')
+
+subs/mksym.F
+      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
+      stdo = nglob('stdo')
+
+subs/nnrl.F
+      integer function nnrl(mode,ib1,ib2,iprmb,ndim)
+      if (nl .eq. -1) nl = nglob('nl')
+      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+
+subs/nwit.F
+      subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
+      stdo = nglob('stdo')
+      nsp  = nglob('nsp')
+
+subs/orbl.F
+      subroutine orbl(ib,ldimp,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
+      if (nl .eq. -1) nl = nglob('nl')
+      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+
+subs/orbl.F
+      subroutine iprmsb(mode,ib1,ib2,nbas,offH,indxsh,indxi,offl,norb)
+      mxorb = nglob('mxorb')
+
+subs/orbl.F
+      subroutine offsHp(iprmb,ib1,ib2,lfast,ldimp,ldim,off,ld)
+      if (mxorb .eq. -1) mxorb = nglob('mxorb')
+
+subs/prdmts.F
+      subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
+      stdo = nglob('stdo')
+
+subs/projql.F
+      subroutine projql(qlat)
+        stdo = nglob('stdo')
+
+subs/pvsms2.F
+       subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
+      stdo = nglob('stdo')
+
+subs/rdctrl2.F
+      subroutine rdctrl2(recrd,recln,nrecs,
+      call suidx(nglob('nkaph'),j,nspec,v_sspec)
+      xx(1) = dglob('nspec',dble(nspec),1)
+      xx(1) = dglob('nbas',dble(nbas),1)
+      xx(1) = dglob('nbasp',dble(nbasp),1)
+      xx(1) = dglob('nsp',dble(nsp),1)
+      xx(1) = dglob('nl',dble(nl),1)
+      xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
+      xx(1) = dglob('lrel',dble(lrel),1)
+      xx(1) = dglob('lxcf',dble(lxcf),1)
+      xx(1) = dglob('stdo',dble(stdo),1)
+      xx(1) = dglob('stdl',dble(stdl),1)
+      xx(1) = dglob('stde',dble(stde),1)
+      xx(1) = dglob('nspc',dble(nspc),1)
+      xx(1) = dglob('nat',dble(nat),1)
+
+subs/rdsigm.F
+      subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
+      stdo = nglob('stdo')
+          nl = nglob('nl')
+        mxorb = nglob('mxorb')
+        nl = nglob('nl')
+
+subs/rdsigm.F
+      subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
+      nl = nglob('nl')
+      mxorb = nglob('mxorb')
+
+subs/rdsigm.F
+      subroutine siged(mode,nbas,nsp,ndhrs,plat,pos,ndimh,iprmb,hreal,
+      stdo = nglob('stdo')
+        rr = dglob('nsp',1d0,1)
+
+subs/rdsigm2.F
+      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
+      stdo = nglob('stdo')
+          nl = nglob('nl')
+        mxorb = nglob('mxorb')
+        nl = nglob('nl')
+
+subs/rdsigm2.F
+      subroutine rdsigm2(nbas,nsp,ndimh,slat,sham,sbz,ifis, 
+      stdo = nglob('stdo')
+          nl = nglob('nl')
+
+subs/rnatm.F
+      subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
+      stdo = nglob('stdo')
+
+subs/rnatm.F
+      subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
+      lrel = nglob('lrel')
+
+subs/shear.F
+      subroutine shear(nbas,plat,tau,alpha,eps,s)
+      stdo = nglob('stdo')
+
+subs/spcgrp.F
+      subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
+      stdo = nglob('stdo')
+
+subs/splwts.F
+      subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi,
+      stdo = nglob('stdo')
+
+subs/suham.F
+      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+      nkaph = nglob('nkaph')
+
+subs/suham2.F
+      subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
+      nspec = nglob('nspec')
+
+subs/suqlst.F
+      subroutine suqlst(sopts,iop,nband,efermi,nsp,evl,nfbn,ifblst,nq,
+      stdo = nglob('stdo')
+        stdo = nglob('stdo')
+        stdo = nglob('stdo')
+
+subs/suqlst.F
+      subroutine suqlse(nband,jsp,nsp,ndimhx,ifbn,nfbn,ifblst,ndlst,
+        stdo = nglob('stdo')
+
+subs/uspecb.F
+      subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
+      if (nkaph .eq. -1) nkaph = nglob('nkaph')
+        nkaph = nglob('nkaph')
+
+subs/vxc0sp.F
+      subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
+      stdo = nglob('stdo')
+      lxcfun = nglob('lxcf')
+
+subs/xcfunc.F
+      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
+      lxcg = mod(nglob('lxcf')/100,100)
+        lxcf = mod(nglob('lxcf'),100)
+

@@ -10,7 +10,7 @@ Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -111,7 +111,8 @@ C ... Setup
       ntet = 0
 cki      oidtet = 1
       nullify(iv_p_oidtet)
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
 
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)

@@ -5,6 +5,7 @@
      .    , vorb , nlibu , lmaxu , lldau , itest ) 
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -274,8 +275,10 @@ ccccccccccccccccccccccccccccccccc
      .call rx('mkpot: incompatible ldau,lcplxp')
       stdo = lgunit(1)
       stdl = lgunit(2)
-      nsp  = nglob('nsp')
-      lxcfun = nglob('lxcf')
+Changenglob      nsp  = nglob('nsp')
+      nsp  = globalvariables%nsp
+Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
 
       i_copy_size=size(slat%nabc)

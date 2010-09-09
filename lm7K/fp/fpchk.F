@@ -30,7 +30,7 @@ C ... Passed parameters
       subroutine chkxpn(ssite,sspec)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
@@ -61,8 +61,10 @@ Cdwdef1       common /w/ w
 
 C ... setup
       stdo = lgunit(1)
-      nbas  = nglob('nbas')
-      nspec = nglob('nspec')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
+Changenglob      nspec = nglob('nspec')
+      nspec = globalvariables%nspec
       call getpr(ipr)
       write(stdo,400)
   400 format(/' RMS errors in expanded head and tail functions.'

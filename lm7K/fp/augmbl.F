@@ -25,6 +25,7 @@ Cchp3      .  , h , hso , s )
 
 
       use m_struc_def  !Cgetarg
+      use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -193,8 +194,10 @@ C--------------------------
 #endif
 
 C --- Setup ---
-      nbas  = nglob('nbas')
-      nkaph = nglob('nkaph')
+Changenglob      nbas  = nglob('nbas')
+      nbas  = globalvariables%nbas
+Changenglob      nkaph = nglob('nkaph')
+      nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw

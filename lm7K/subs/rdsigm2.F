@@ -18,6 +18,7 @@ Cchp1 cmdvar= integer,iv_p_,ooffh
 
       use m_struc_def  !Cgetarg
       use m_hft2rs 
+      use m_globalvariables
 C- takao. obtain sene at given q (qin).
 C
 Ci sfz
@@ -160,7 +161,8 @@ C --- Setup and printout ---
 
 C     tolq is allowed fuzz in qp
       tolq = 1d-6
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       ledit = 0
       lrsig = mod(mode,10)
       lwsig = 0
@@ -531,7 +533,8 @@ C ... titus
           allocate(wk_zv(ndimh**2))
 Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) wk_zv(:)=0.0d0
 
-          nl = nglob('nl')
+Changenglob          nl = nglob('nl')
+          nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimh**2))
 Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) sigm_zv(:)=0.0d0
@@ -833,7 +836,8 @@ c        endif
         allocate(hrss(nhrss))
         hrss = rv_p_ohrs
 
-        mxorb = nglob('mxorb')
+Changenglob        mxorb = nglob('mxorb')
+        mxorb = globalvariables%mxorb
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
@@ -844,7 +848,8 @@ Cchp1         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv )
          call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
 
 
-        nl = nglob('nl')
+Changenglob        nl = nglob('nl')
+        nl = globalvariables%nl
 Cchp1         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
 Cchp1      .  , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
 Cchp1      .  ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w 
@@ -1246,7 +1251,7 @@ Cdwdef1      .   , w , w )
      &nk1,nk2,nk3,ldim,qsmesh,sfz)
 
       use m_struc_def  !Cgetarg
-
+      use m_globalvariables
       use m_hamindex
 C- takao. Expand self-energy (read by ifis) to all the q point on mesh. In developing.
 Ci ifis:  file hundle for self-energy file sigm. only at irreducible q point.
@@ -1542,7 +1547,8 @@ C --- Setup and printout ---
 
 C     tolq is allowed fuzz in qp
       tolq = 1d-6
-      stdo = nglob('stdo')
+Changenglob      stdo = nglob('stdo')
+      stdo = globalvariables%stdo
       ledit = 0
       lrsig = 2  !mod(mode,10)
       lwsig = 0
@@ -1880,7 +1886,8 @@ C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
 
           allocate(wk_zv(ndimh**2))
-          nl = nglob('nl')
+Changenglob          nl = nglob('nl')
+          nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimh**2))
 
