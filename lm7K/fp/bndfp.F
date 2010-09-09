@@ -25,7 +25,8 @@ Cchp1 cmdvar= real(8),rv_p_,oqsig
 Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
-     .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,evl,frc,
+     .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, !evl,
+     . frc,
      .dmatu,vorb,llmfgw)
       use m_hamindex, only: 
      &ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
@@ -239,7 +240,7 @@ c#endif
       parameter ( nbx=512, n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
-      real(8):: dmxp(33),evl(ndham,2),frc(3,nbas)
+      real(8):: dmxp(33),frc(3,nbas)
 ctakao
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -486,7 +487,7 @@ Cchp1       integer :: nhmax,nknknk,npairmx,opos,jx,nsp_dummy,ndimh_dummy
 
       integer:: iqini,iqend
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
-      real(8),allocatable:: evlall(:,:,:)
+      real(8),allocatable:: evlall(:,:,:),evl(:,:)
 
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
@@ -523,6 +524,11 @@ C     npqn = nglob('npqn')
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
       ndhamx = ndham*nspc
       nspx = nsp / nspc
+
+ctakao sep2010 !complicated.
+c      I think nspc=2 for non-colinear case.
+c      allocate(evl(ndham,2))
+      allocate(evl(ndhamx,nspx))
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)

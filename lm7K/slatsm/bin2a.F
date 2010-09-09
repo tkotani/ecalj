@@ -72,10 +72,15 @@ Cr     call bin2a('f4:10',1,4,1.24996d-5,...) => 1e-5
 Cu Updates
 Cu   02 Aug 07 Added :n outputs null string when res=NULLI
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed Parameters
-Cki      character(*):: outstr ! ?---> !character(mxlen) did not work in gfortran. Maybe a bug in gfortran.
-      character(mxlen):: outstr ! ?---> !character(*) did not work in ifort
+
+cc kino's correctio for ifort was
+cc     character(mxlen):: outstr ! ?---> !character(*) can not check size of outstr.  
+cc However, because of a bug in grortran4.3.4, this is not allowed. Thus I now use character(*).
+cc Sep2010
+      character(*):: outstr 
+cc
       character(*):: fmt
       double precision res(0:*)
       integer nblk,cast,count,ip,mxlen,ndec,is

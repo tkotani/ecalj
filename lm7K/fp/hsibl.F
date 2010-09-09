@@ -604,65 +604,66 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer n1,n2,ofh1,ofh2,ncut2(n2),ndimh,ng
-      double complex c1(ng,n1),c2(ng,n2),cf1(n1),cf2(n2),h(ndimh,ndimh)
+      double complex c1(ng,n1),c2(ng,n2),cf1(n1),cf2(n2),h(n1,n2) !h(ndimh,ndimh)
 C ... Local parameters
       integer i,i1,i2,ncut
       double complex csum
-#if NBAR
-      integer nbar
-      double precision xx
-      double complex wk(n1,n2)
-#endif
-#if CRAY
-      double complex wk(n1)
-#endif
+c#if NBAR
+c      integer nbar
+c      double precision xx
+c      double complex wk(n1,n2)
+c#endif
+c#if CRAY
+c      double complex wk(n1)
+c#endif
 
       call tcn('hsibl2')
 
-#if NBAR
-C     xx = 1
-C     do   i = 1, n2
-C       xx = xx*min(ng,ncut2(i))
-C     enddo
-C     nbar = xx**(1.d0/dble(n2))
-      nbar = min(ng,ncut2(1))
-      do  i = 1, n2
-        nbar = min(nbar,min(ng,ncut2(i)))
-      enddo
-      call zgemm('C','N',n1,n2,nbar,dcmplx(1d0,0d0),c1,ng,c2,ng,
-     .dcmplx(0d0,0d0),wk,n1)
-      do  i2 = 1, n2
-        ncut = min(ng,ncut2(i2))
-        do  i1 = 1, n1
-          csum = wk(i1,i2)
-          do  i = nbar+1, ncut
-            csum = csum + dconjg(c1(i,i1))*c2(i,i2)
-          enddo
-C         This reduces accuracy, but makes exactly compatible
-          do  i = ncut+1, nbar
-            csum = csum - dconjg(c1(i,i1))*c2(i,i2)
-          enddo
-          csum = csum * dconjg(cf1(i1))*cf2(i2)
-          h(i1+ofh1,i2+ofh2) = h(i1+ofh1,i2+ofh2) + csum
-        enddo
-      enddo
-#elif CRAY
-      do  i2 = 1, n2
-        ncut = min(ng,ncut2(i2))
-        do  i1 = 1, n1
-          wk(i1) = 0
-        enddo
-        do  i = 1, ncut
-          do  i1 = 1, n1
-            wk(i1) = wk(i1) + dconjg(c1(i,i1))*c2(i,i2)
-          enddo
-        enddo
-        do  i1 = 1, n1
-          csum = wk(i1) * dconjg(cf1(i1))*cf2(i2)
-          h(i1+ofh1,i2+ofh2) = h(i1+ofh1,i2+ofh2) + csum
-        enddo
-      enddo
-#else
+C$$$#if NBAR
+C$$$C     xx = 1
+C$$$C     do   i = 1, n2
+C$$$C       xx = xx*min(ng,ncut2(i))
+C$$$C     enddo
+C$$$C     nbar = xx**(1.d0/dble(n2))
+C$$$      nbar = min(ng,ncut2(1))
+C$$$      do  i = 1, n2
+C$$$        nbar = min(nbar,min(ng,ncut2(i)))
+C$$$      enddo
+C$$$      call zgemm('C','N',n1,n2,nbar,dcmplx(1d0,0d0),c1,ng,c2,ng,
+C$$$     .dcmplx(0d0,0d0),wk,n1)
+C$$$      do  i2 = 1, n2
+C$$$        ncut = min(ng,ncut2(i2))
+C$$$        do  i1 = 1, n1
+C$$$          csum = wk(i1,i2)
+C$$$          do  i = nbar+1, ncut
+C$$$            csum = csum + dconjg(c1(i,i1))*c2(i,i2)
+C$$$          enddo
+C$$$C         This reduces accuracy, but makes exactly compatible
+C$$$          do  i = ncut+1, nbar
+C$$$            csum = csum - dconjg(c1(i,i1))*c2(i,i2)
+C$$$          enddo
+C$$$          csum = csum * dconjg(cf1(i1))*cf2(i2)
+C$$$          h(i1+ofh1,i2+ofh2) = h(i1+ofh1,i2+ofh2) + csum
+C$$$        enddo
+C$$$      enddo
+C$$$#elif CRAY
+C$$$      do  i2 = 1, n2
+C$$$        ncut = min(ng,ncut2(i2))
+C$$$        do  i1 = 1, n1
+C$$$          wk(i1) = 0
+C$$$        enddo
+C$$$        do  i = 1, ncut
+C$$$          do  i1 = 1, n1
+C$$$            wk(i1) = wk(i1) + dconjg(c1(i,i1))*c2(i,i2)
+C$$$          enddo
+C$$$        enddo
+C$$$        do  i1 = 1, n1
+C$$$          csum = wk(i1) * dconjg(cf1(i1))*cf2(i2)
+C$$$          h(i1+ofh1,i2+ofh2) = h(i1+ofh1,i2+ofh2) + csum
+C$$$        enddo
+C$$$      enddo
+C$$$#else
+c      print *,' bbbb:',ndimh,ofh1+n1,ofh2+n2
       do  i2 = 1, n2
         ncut = min(ng,ncut2(i2))
         do  i1 = 1, n1
@@ -674,7 +675,7 @@ C         This reduces accuracy, but makes exactly compatible
           h(i1+ofh1,i2+ofh2) = h(i1+ofh1,i2+ofh2) + csum
         enddo
       enddo
-#endif
+C$$$#endif
 
       call tcx('hsibl2')
       end subroutine hsibl2

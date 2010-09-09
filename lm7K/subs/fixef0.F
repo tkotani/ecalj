@@ -21,7 +21,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nsp,nspc,ndev,nevx
-      double precision zval,ef0,evl(ndev),dosw(2)
+      double precision zval,ef0,evl(ndev*2),dosw(2)!takao evl(ndev)->evl(ndev*2)
 C ... Local parameters
       integer:: i , i1 , stdo , lgunit , ipr , nbpw , i1mach
       integer ,allocatable :: bmap_iv(:)

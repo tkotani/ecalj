@@ -251,7 +251,7 @@ C ----------------------------------------------------------------
 C Passed parameters
       logical linv,lx
       integer n,nev,nmx,ltime
-      double precision h(1),s(1),e(n),wk(1),z(2),emx
+      double precision h(*),s(*),e(n),wk(*),z(*),emx
       logical lov
 
 C$$$#if LAPACK

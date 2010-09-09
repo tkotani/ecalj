@@ -91,9 +91,11 @@ C ... Program-dependent name and help
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
       parameter (mxrecs=10000,recln0=120)
       character*8 alabl
-      character:: recrd_(0:mxrecs*recln0-1)
-      character*(1000):: recrd
-      equivalence ( recrd, recrd_ )
+
+c      character:: recrd(0:mxrecs*recln0-1)
+c      character*(1000):: recrd
+c      equivalence ( recrd, recrd_ )
+      character*(mxrecs*recln0):: recrd
 
       real(8),parameter::    NULLR =-99999
       real(8)::pwmode,pwemin,pwemax

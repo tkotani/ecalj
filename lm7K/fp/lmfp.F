@@ -133,7 +133,7 @@ Cchp1          integer:: opos , o
 
        complex(8),pointer :: zv_p_osmpot(:)
 
-      real(8) ,allocatable :: evl_rv(:)
+c      real(8) ,allocatable :: evl_rv(:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
       real(8) ,allocatable :: pos2_rv(:)
@@ -587,7 +587,7 @@ Cchp1       osmpot=spot%osmpot
 
       allocate(ftot_rv(3*nbas))
       ndham=sham%ndham
-      allocate(evl_rv(ndham*2))
+c      allocate(evl_rv(ndham*2))
 
 C ... Set various switches
 C     Whether forces, and how to calculate non Helman-Feynman corr.
@@ -903,8 +903,8 @@ C --- Make and diagonalize hamiltonian, make new charge density ---
 
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
      ., sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
-     .leks , lrout , lfrce , lpnu , dmxp , iter , maxit , evl_rv 
-     ., frc_rv , dmatu, vorbdmat, llmfgw )
+     . leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
+     . frc_rv , dmatu, vorbdmat, llmfgw )
 
 
 C ... check convergence of dmatu and update it and vorbdmat if necessary
@@ -1358,7 +1358,7 @@ Cchp1         call rlse(opos)
 C     if (maxit .eq. 0) call rx0(' zero iterations sought ... quitting')
 Cki#error, have return with len(w_varlist)>0 at line 1250
       if (allocated(lldau_iv)) deallocate(lldau_iv)
-      if (allocated(evl_rv)) deallocate(evl_rv)
+c      if (allocated(evl_rv)) deallocate(evl_rv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(shr_rv)) deallocate(shr_rv)
       if (allocated(p_rv)) deallocate(p_rv)
@@ -1423,7 +1423,7 @@ C     New shear
 C     A little memory leakage rel to 1st pass, but not so serious
       if (allocated(pos2_rv)) deallocate(pos2_rv)
       if (allocated(lldau_iv)) deallocate(lldau_iv)
-      if (allocated(evl_rv)) deallocate(evl_rv)
+c      if (allocated(evl_rv)) deallocate(evl_rv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(shr_rv)) deallocate(shr_rv)
 c      call rlse(ovorbdmat)
