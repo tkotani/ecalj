@@ -34,6 +34,6 @@
       integer:: stdo=-999999
       integer:: l_stdo=0
       end type t_globalvariables
-      type(t_globalvariables) :: globalvariables
+      type(t_globalvariables),save :: globalvariables
       end module m_globalvariables
 
