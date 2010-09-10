@@ -269,13 +269,17 @@ for ffile in argset:
         if(isinstance(ins, classes.Use)):
             print "@use Modu:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
             usedsf.add(ins.name)
+
 ## For test, you may need to comment out a following line because it can cause key error 
 ## if all used modules are not contained in input files.
 #############
-            if(moddict[ins.name] != ffileo):
+            if(ins.name=='ifport'): #ifport is a module defeined in outside of 
+                pass
+            elif(moddict[ins.name] != ffileo):
                 #print 'checkwrite qqqqq', moddict[ins.name],ffileo
                 modd.append(moddict[ins.name])
 #############
+
         mapo=item.strlinemap
         deptho=depth
         inso=ins

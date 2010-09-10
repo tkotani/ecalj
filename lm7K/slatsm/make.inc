@@ -22,9 +22,7 @@ cplxdm.o \
 cpstr.o \
 cpudel.o \
 cross.o \
-csroot.o \
 d1mach.o \
-dampy.o \
 dbesj.o \
 dcabsr.o \
 derfc.o \
@@ -34,7 +32,6 @@ dgefa.o \
 dgesl.o \
 dinv33.o \
 discop.o \
-dmadd.o \
 dmcpy.o \
 dmpy.o \
 dmpy22.o \
@@ -80,9 +77,7 @@ gradzr.o \
 gvgetf.o \
 hrmint.o \
 htribk.o \
-htribx.o \
 htridi.o \
-htridx.o \
 hunti.o \
 huntx.o \
 i1mach.o \
@@ -149,7 +144,6 @@ tqlrat.o \
 tred2.o \
 wordg.o \
 words.o \
-ymcpy.o \
 ymsadd.o \
 ymscop.o \
 ymtrns.o \
@@ -161,13 +155,8 @@ yydotc.o \
 yygefa.o \
 yygemm.o \
 yygesl.o \
-yyhbak.o \
 yyhifa.o \
 yyhmpy.o \
-yyhrdx.o \
-yyhred.o \
-yympy.o \
-yympyt.o \
 yyqinv.o \
 yyqnvb.o \
 yysbmm.o \
@@ -187,5 +176,4 @@ zqinvb.o \
 ztoy.o \
 ztoyy.o \
 tc.o \
-afcmd.o \
-dpzero.o 
+dpzero.o

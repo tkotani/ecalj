@@ -248,4 +248,5 @@ subs_list:=\
 	pqmix.o \
         radgra.o \
  	xcfunc.o \
-	xcpbe.o
+	xcpbe.o \
+        m_globalvariables.o
