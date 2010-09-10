@@ -21,7 +21,7 @@ C Passed parameters
       double precision a(1), b(1), c(n,1)
 C Local variables
       integer:: nrow , ir , ic , nr , nc , ns , n2 
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       logical ca,cb,tra,trb
       parameter (nrow=48)
@@ -33,21 +33,21 @@ C Local variables
 
       n2 = n**2
       ns = n*l
-      allocate(rv_w_owk(nrow*l*2))
+      allocate(wk_rv(nrow*l*2))
 
       do  10  ir = 1, n, nrow
         nr = min(n-ir+1,nrow)
         nc = nr+ir-1
         if (tra) then
-          call xyhmpy( nr , l , ns , a ( 1 + ( ir - 1 ) * l ) , ca , rv_w_owk ) 
-          call zampy ( rv_w_owk , nr , 1 , l * nr , b , l , 1 , ns , c 
+          call xyhmpy( nr , l , ns , a ( 1 + ( ir - 1 ) * l ) , ca , wk_rv ) 
+          call zampy ( wk_rv , nr , 1 , l * nr , b , l , 1 , ns , c 
      .    ( ir , 1 ) , n , 1 , n2 , nr , nc , l ) 
         else
           call zampy(a(ir),n,1,ns,b,l,1,ns,c(ir,1),n,1,n2,nr,nc,l)
         endif
    10 continue
       if ( .not. lc ) then 
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(wk_rv)) deallocate(wk_rv)
         return
       endif 
 
@@ -57,7 +57,7 @@ C Local variables
           c(ir+n2,ic) = -c(ic+n2,ir)
    12 continue
 
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(wk_rv)) deallocate(wk_rv)
       end
 
       subroutine xyhmpy(nr,l,ns,a,ca,w)

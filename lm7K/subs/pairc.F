@@ -1,9 +1,3 @@
-Cdwdef1 have_common_w_in pairs , #_of_w_access= 0
-Cdwdef1 have_common_w_in pairc , #_of_w_access= 1
-Cdwdef1 have_common_w_in ppair1 , #_of_w_access= 0
-Cdwdef1 have_common_w_in ppair5 , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,ontab
-Cchp1 cmdvar= integer,iv_p_,oiax
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
 c find
 c
@@ -337,9 +331,6 @@ Co   w(oiax) :iax array; see pairc, below where it is generated
 Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
-Cchp1       integer nbas,nbasp,ipsp(1),pltab(1),nttab,ontab,oiax,nd,iltab
-Cchp1        integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , ontab , 
-Cchp1      . nd , iltab 
         integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab 
         integer,pointer :: iv_p_ontab(:)
 
@@ -354,8 +345,6 @@ C Local variables
 
       parameter (niax=10)
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Set up input for call to pairc
       nbaspp = 2*nbasp - nbas
@@ -363,16 +352,13 @@ C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
-Cchp1       call defi(ontab, nbasp+1)
        allocate(iv_p_ontab(abs(nbasp+1)))
        if (nbasp+1<0) iv_p_ontab(:)=0
 
-Cchp1       call defi(oiax, -niax*mxnbr)
        allocate(iv_p_oiax(abs(-niax*mxnbr)))
        if (-niax*mxnbr<0) iv_p_oiax(:)=0
 
       allocate(wk_rv(3*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 
       do  10  i = 1, 3
         modep(i) = 2
@@ -382,12 +368,6 @@ Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
-Cchp1       call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
-Cchp1      .plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
-Cchp1      .) , w ( oiax ) , wk_rv , mxcsiz )
-Cchp1        call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
-Cchp1      . plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
-Cchp1      . ) , iv_p_oiax , wk_rv , mxcsiz ) 
         call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
      .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
      .  , iv_p_oiax , wk_rv , mxcsiz ) 
@@ -396,7 +376,6 @@ Cchp1      . ) , iv_p_oiax , wk_rv , mxcsiz )
 
 
 C ... Allocate iax to proper size
-Cchp1       call redfi(oiax, niax*nttab)
        i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
        iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
        i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
@@ -494,8 +473,6 @@ C Local variables
       real(8) ,allocatable :: ctr_rv(:)
 
       double precision r1,rr,qlat(3,3),p0(3)
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -523,12 +500,10 @@ C ... Make r1 = 2*maximum range
       if (moder .eq. 0) r1 = 2*r1
       r1 = 2*r1
 C ... List of lattice vectors to add to pos(ib)-pos(jb)
-Cdwdef1       call xlgen(plat,r1/alat,0d0,0,20,mode,i,w)
        call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy 
      . ) 
 
       allocate(lat_rv(3*i))
-Ctakao_ZeroClear_NotRequiered        if (3*i<0) lat_rv(:)=0.0d0
 
       call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv 
      .)
@@ -540,12 +515,10 @@ C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
 C ... Save true pos in opos
 C     and ctr in octr in case same address space used for ctr
       allocate(pos_rv(3*nbasp))
-Ctakao_ZeroClear_NotRequiered        if (3*nbasp<0) pos_rv(:)=0.0d0
 
       call dpcopy ( pos , pos_rv , 1 , 3 * nbasp , 1d0 )
 
       allocate(ctr_rv(3*nsite))
-Ctakao_ZeroClear_NotRequiered        if (3*nsite<0) ctr_rv(:)=0.0d0
 
       call dpcopy ( ctr , ctr_rv , 1 , 3 * nsite , 1d0 )
 
@@ -593,13 +566,10 @@ C --- Find all sites in range of ctr ---
 
 C --- Sort table by increasing length ---
         allocate(wk1_rv((nttab-mtab)*niax))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*niax<0) wk1_rv(:)=0.0d0
 
         allocate(wk2_rv((nttab-mtab)))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)<0) wk2_rv(:)=0.0d0
 
         allocate(wk3_rv((nttab-mtab)*3))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*3<0) wk3_rv(:)=0.0d0
 
         call ppair3 ( nttab - mtab , iax ( 1 , mtab ) , rtab ( 1 , mtab 
      .  ) , wk1_rv , wk2_rv , wk3_rv )
@@ -682,8 +652,6 @@ C Local variables
 
       double precision r1,r2,rr,rcut,vlat(3),drr2,tol
       parameter (tol=1d-5)
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       isw1 = mod(isw/10,10)
       ipr = iprint()
@@ -729,10 +697,8 @@ C         endif
 
 C ... Assign a unique id for every different site in the cluster table
       allocate(iwk_iv(nttab))
-Ctakao_ZeroClear_NotRequiered        if (nttab<0) iwk_iv(:)=0
 
       allocate(pos_rv(3*nttab))
-Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) pos_rv(:)=0.0d0
 
       call siteid ( iax , nsite , ntab , plat , pos , pos_rv , iwk_iv 
      ., i )
@@ -979,17 +945,13 @@ C ... Passed parameters
       real(8) ,allocatable :: wk2_rv(:)
 
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2
         nttab = ntab(ib+1)-ntab(ib)
         allocate(wk1_rv(nttab))
-Ctakao_ZeroClear_NotRequiered          if (nttab<0) wk1_rv(:)=0.0d0
 
         allocate(wk2_rv(nttab*3))
-Ctakao_ZeroClear_NotRequiered          if (nttab*3<0) wk2_rv(:)=0.0d0
 
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
      .  , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )

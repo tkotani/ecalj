@@ -20,14 +20,14 @@ C Passed parameters
       integer n,l1,l2,ofa1,ofa2
       double precision scal, a1(1), a2(1)
 C Local parameters
-      real(8) ,allocatable :: rv_w_oa(:)
+      real(8) ,allocatable :: a_rv(:)
 C --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
-      allocate(rv_w_oa(n))
-      call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , rv_w_oa , 1 ) 
-      call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , rv_w_oa , 1 ) 
+      allocate(a_rv(n))
+      call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , a_rv , 1 ) 
+      call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , a_rv , 1 ) 
       call daxpy (n,1d0,a2(1+ofa2),l2,a1(1+ofa1),l1)
-      call dcopy ( n , rv_w_oa , 1 , a2 ( 1 + ofa2 ) , l2 ) 
-      deallocate(rv_w_oa)
+      call dcopy ( n , a_rv , 1 , a2 ( 1 + ofa2 ) , l2 ) 
+      deallocate(a_rv)
       if (scal .eq. 1) return
       call dscal(n,scal,a1(1+ofa1),l1)
       call dscal(n,scal,a2(1+ofa2),l1)

@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in lattic , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= real(8),rv_p_,odlv
-Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine lattic(slat,sctrl,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -43,11 +39,6 @@ C ... Passed parameters
       type(s_array)::sarray
 
 C ... Local parameters
-Cchp1       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
-Cchp1        integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
-Cchp1      . odlv , opos 
-Cchp1         integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
-Cchp1      .  opos 
          integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas 
          real(8),pointer :: rv_p_opos(:)
 
@@ -62,8 +53,6 @@ Cchp1      .  opos
      .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 C ... External calls
       external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
      .redfrr,spackv,upack,upack1,upack2
@@ -132,7 +121,6 @@ C ... Apply specified linear transformation of lattice and basis vectors
       ldist=slat%ldist
       i_copy_size=size(slat%dist)
       call dcopy(i_copy_size,slat%dist,1,dist,1)
-Cchp1       opos=slat%opos
        rv_p_opos => slat%rv_p_opos 
 
 
@@ -140,12 +128,10 @@ c      print *,'xxxxxxx2'
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
-Cchp1         call rdistn(w(opos),w(opos),nbaspp,gx,gy,gz,gt)
          call rdistn ( rv_p_opos , rv_p_opos , nbaspp , gx , gy , gz , 
      .   gt ) 
 
       elseif (ldist .ne. 0) then
-Cchp1         call lattdf(ldist,dist,plat0,nbaspp,w(opos),0,0d0)
          call lattdf ( ldist , dist , plat0 , nbaspp , rv_p_opos , 0 , 
      .   0d0 ) 
 
@@ -160,20 +146,13 @@ c        endif
         dist(3,3) = 1
       endif
 
-Cchp1       call defrr(odlv,  3*nkdmx)
        allocate(rv_p_odlv(abs(3*nkdmx)))
        if (3*nkdmx<0) rv_p_odlv(:)=0.0d0
 
-Cchp1       call defrr(oqlv,  3*nkqmx)
        allocate(rv_p_oqlv(abs(3*nkqmx)))
        if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
 
       lmxst = 6
-Cchp1       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
-Cchp1      .lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
-Cchp1        call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
-Cchp1      . gy , gz , gt , plat , qlat , lmxst , vol , awald , w ( odlv ) 
-Cchp1      . , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
         call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
      .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_p_odlv 
      .  , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
@@ -204,14 +183,12 @@ c       call dcopy(i_copy_size,platl,1,slat%platl,1)
 c       i_copy_size=size(slat%platr)
 c       call dcopy(i_copy_size,platr,1,slat%platr,1)
 
-Cchp1       call redfrr(oqlv,3*nkq)
        i_data_size=size(rv_p_oqlv); allocate(rv_a_tmp(i_data_size))
        rv_a_tmp=rv_p_oqlv; deallocate(rv_p_oqlv)
        i_data_size=min(i_data_size,3*nkq); allocate(rv_p_oqlv(3*nkq))
        rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
 
 cki      call defps2(odlv,oqlv)
-Cchp1       call redfrr(odlv,3*nkd)
        i_data_size=size(rv_p_odlv); allocate(rv_a_tmp(i_data_size))
        rv_a_tmp=rv_p_odlv; deallocate(rv_p_odlv)
        i_data_size=min(i_data_size,3*nkd); allocate(rv_p_odlv(3*nkd))
@@ -221,10 +198,8 @@ Cchp1       call redfrr(odlv,3*nkd)
       slat%awald=awald
       slat%nkd=nkd
       slat%nkq=nkq
-Cchp1       slat%odlv=odlv
        slat%rv_p_odlv => rv_p_odlv 
 
-Cchp1       slat%oqlv=oqlv
        slat%rv_p_oqlv => rv_p_oqlv 
 
 
@@ -234,7 +209,6 @@ Cchp1       slat%oqlv=oqlv
 
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbaspp
-Cchp1         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
      .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
 

@@ -1,11 +1,3 @@
-Cdwdef1 have_common_w_in makusq , #_of_w_access= 0
-Cdwdef1 have_common_w_in pusq1 , #_of_w_access= 1
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .aus)
@@ -113,7 +105,6 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-Cchp1       integer:: oiprmb
        integer,pointer :: iv_p_oiprmb(:)
 
       real(8) ,allocatable :: rofi_rv(:)
@@ -127,8 +118,6 @@ Cchp1       integer:: oiprmb
       real(8) ,allocatable :: dp_rv(:)
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Setup
 C     stdo = lgunit(1)
@@ -145,7 +134,6 @@ C --- Start loop over atoms ---
         is = int(ssite(ib)%spec)
 
 
-Cchp1         oiprmb=sham%oindxo
          iv_p_oiprmb => sham%iv_p_oindxo 
 
 
@@ -168,47 +156,32 @@ Cchp1         oiprmb=sham%oindxo
 
 C   --- Set up all radial head and tail functions, and their BC's
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
 
         call radmsh ( rmt , a , nr , rofi_rv )
 
         allocate(fh_rv(nr*(lmxh+1)*nkapi))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) fh_rv(:)=0.0d0
 
         allocate(xh_rv(nr*(lmxh+1)*nkapi))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) xh_rv(:)=0.0d0
 
         allocate(vh_rv((lmxh+1)*nkapi))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) vh_rv(:)=0.0d0
 
         allocate(dh_rv((lmxh+1)*nkapi))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) dh_rv(:)=0.0d0
 
         call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rofi_rv 
      .  , fh_rv , xh_rv , vh_rv , dh_rv )
 
         allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) fp_rv(:)=0.0d0
 
         allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) xp_rv(:)=0.0d0
 
         allocate(vp_rv((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) vp_rv(:)=0.0d0
 
         allocate(dp_rv((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
         call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
      .  , xp_rv , vp_rv , dp_rv )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-Cchp1         call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
-Cchp1      .  lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
-Cchp1      .  , igvapw , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv 
-Cchp1      .  , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
-Cchp1      .  aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
-Cchp1      .  ) )
          call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
      .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
@@ -317,10 +290,6 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-Cchp1       integer:: ocg , ojcg , oidxcg , ocy
-Cchp1        integer:: ojcg , oidxcg , ocy 
-Cchp1         integer:: ojcg , oidxcg 
-Cchp1          integer:: ojcg 
           integer,pointer :: iv_p_ojcg(:)
 
          integer,pointer :: iv_p_oidxcg(:)
@@ -338,23 +307,17 @@ Cchp1          integer:: ojcg
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
       call tcn ('pusq1')
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -383,23 +346,7 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
 
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
-Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma*ndimh<0) b_zv(:)=0.0d0
 
-Cchp1       call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
-Cchp1      .) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-Cchp1      .q , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
-Cchp1        call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
-Cchp1      . ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-Cchp1      . q , kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
-Cchp1         call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
-Cchp1      .  ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
-Cchp1      .  , kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
-Cchp1          call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-Cchp1      .   , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-Cchp1      .   kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
-Cdwdef1           call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-Cdwdef1      .    , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-Cdwdef1      .    kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
            call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
      .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy ) 
@@ -438,7 +385,6 @@ C     whereas ispc=1 for independent spins, and spin index when nspc=2
 
 C --- Loop over eigenstates ---
         allocate(a_zv((kmax+1)*nlma))
-Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma<0) a_zv(:)=0.0d0
 
         do  ivec = 1, nev
 C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))

@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in shoshl , #_of_w_access= 3
-Cchp1 cmdvar= integer,iv_p_,ontab
-Cchp1 cmdvar= integer,iv_p_,oiax
-Cchp1 cmdvar= integer,iv_p_,ontabs
       subroutine shoshl(sopts,nbas,bas,plat,mxnbr0,z,slabl,dclabl,ips,
      .ipc,ves,eula,nclass)
       use m_pairs
@@ -47,7 +43,6 @@ C Local parameters
       parameter (niax=10)
       logical lves,leula,a2bin
       double precision avwsr,avw,range,xx,stdo,wdummy
-Cchp1       integer:: ontab , olstc
        integer:: olstc 
        integer,pointer :: iv_p_ontab(:)
 
@@ -58,9 +53,6 @@ Cchp1       integer:: ontab , olstc
       real(8) ,allocatable :: dist_rv(:)
       real(8) ,allocatable :: mark_rv(:)
 
-Cchp1       integer npr(2),mxnbr,ib,ic,iclbsj,j,j1,j2,lstyle,ival,
-Cchp1      .scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
-Cchp1      .ldisp,lnn,oiax
        integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
      . , ival , scrwid , ltab , nlstc , nlst1 , nlst2 , mxcsiz , iprint 
      . , ifi , fopn , lgunit , ldisp , lnn 
@@ -69,8 +61,6 @@ Cchp1      .ldisp,lnn,oiax
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -87,18 +77,14 @@ c      olstc = 1
       nlst1 = 0
       nlst2 = 0
       allocate(lst1_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) lst1_iv(:)=0
 
       allocate(lst2_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) lst2_iv(:)=0
 
       lnn = 0
       ldisp = 0
       allocate(dist_rv(nbas*3))
-Ctakao_ZeroClear_NotRequiered        if (nbas*3<0) dist_rv(:)=0.0d0
 
       allocate(mark_rv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) mark_rv(:)=0.0d0
 
       call dcopy ( nbas * 3 , bas , 1 , dist_rv , 1 )
 
@@ -148,8 +134,6 @@ C         print *, sopts(j1:j2)
             ltab = 1
 
           elseif (sopts(j1:j1+4) .eq. 'sites')  then
-Cdwdef1             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-Cdwdef1      .      , z , 0 , ' ' , w , nlst1 , lst1_iv )
              call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
      .       , z , 0 , ' ' , iwdummy , nlst1 , lst1_iv ) 
 
@@ -157,8 +141,6 @@ Cdwdef1      .      , z , 0 , ' ' , w , nlst1 , lst1_iv )
             j2 = j1+5+j-2
 
           elseif (sopts(j1:j1+4) .eq. 'pairs')  then
-Cdwdef1             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-Cdwdef1      .      , z , 0 , ' ' , w , nlst2 , lst2_iv )
              call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
      .       , z , 0 , ' ' , iwdummy , nlst2 , lst2_iv ) 
 
@@ -179,26 +161,18 @@ C --- Print neighbor table for each site ---
       if (ltab .ne. 0) then
         mxcsiz = 0
         call pshpr(iprint()-20)
-Cdwdef1         call pairs(nbas,nbas,1d0,plat,(/range/2*(1+1d-6)/),bas,
-Cdwdef1      .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
          call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 * ( 1 + 
      .   1d - 6 ) / ) , bas , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab 
      .   , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 
         call poppr
         allocate(rtab_rv(3*nttab))
-Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rtab_rv(:)=0.0d0
 
-Cchp1         call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
-Cchp1      .  , rtab_rv )
          call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas 
      .   , rtab_rv ) 
 
 
 C       if (ldisp .eq. 1) ltab = 2
-Cchp1         call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
-Cchp1      .  , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat 
-Cchp1      .  , bas , dist_rv , mark_rv , ipc , dclabl , ifi )
          call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab 
      .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat , bas , 
      .   dist_rv , mark_rv , ipc , dclabl , ifi ) 
@@ -226,7 +200,6 @@ C --- Show shells for each class ---
       endif
 c      call defi(oiax,niax*mxnbr)
       allocate(wk_rv(mxnbr),w_oiax(niax*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) wk_rv(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
       avw = 1
@@ -445,7 +418,6 @@ C ... Setup
       nbonds = 0
 c      call defi(oslist,nbas)
       allocate(blist_iv(nbas),slist(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) blist_iv(:)=0
 
 
 C ... Switches
@@ -492,10 +464,8 @@ C         Bond list
         mxnbr = mxnbr0
       endif
       allocate(iax_iv(niax*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (niax*mxnbr<0) iax_iv(:)=0
 
       allocate(wk_rv(mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) wk_rv(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
 
@@ -527,10 +497,8 @@ C   ... Get shell dimensions
         if (-nspec**2*nshell**2<0) num_iv(:)=0
 
         allocate(ang_rv(nspec**2*nshell**2*nmxshl**2))
-Ctakao_ZeroClear_NotRequiered          if (nspec**2*nshell**2*nmxshl**2<0) ang_rv(:)=0.0d0
 
         allocate(d_rv(nshell))
-Ctakao_ZeroClear_NotRequiered          if (nshell<0) d_rv(:)=0.0d0
 
 
 C   ... Print bond angles

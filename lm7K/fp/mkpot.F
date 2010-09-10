@@ -171,10 +171,6 @@ C ... Passed parameters
       integer nlibu,lmaxu,lldau(nbas)
       parameter (n0=10,nppn=12,nab=9)
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
-Cchp3       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
-Cchp3        integer:: otau(nbas) , oppi(nbas) , orhoat(3,nbas) 
-Cchp3         integer:: oppi(nbas) , orhoat(3,nbas) 
-Cchp3          integer:: orhoat(3,nbas) 
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(nbas)
       type(s_rv1) :: sv_p_otau(nbas)
@@ -231,8 +227,6 @@ C     This ordering must match sham->eterms; see uham
       equivalence (eterms(15),amom)
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 ccccccccccccccccccccc
       integer:: itest,wdummy,nnn
@@ -336,7 +330,6 @@ C --- Printout for smooth background charge ---
       endif
 
 C --- Smooth electrostatic potential ---
-Cchp3       call rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
        call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum 
      . ) 
 
@@ -344,7 +337,6 @@ Cchp3       call rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
 C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
 C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
       allocate(hpot0_rv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) hpot0_rv(:)=0.0d0
 
 
       i = 1
@@ -498,32 +490,6 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-Cchp3       call locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,qmom,vval,
-Cchp3      .gpot0,osig,otau,oppi,ppn,hab,vab,sab,vvesat,cpnvsa,repat,
-Cchp3      .repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
-Cchp3      .valvfa,xcore,fcexca,fcexa,fceca,fcvxca,sqloc,sqlocc,saloc,qval,
-Cchp3      .qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
-Cchp3        call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
-Cchp3      . , orhoat , qmom , vval , gpot0 , sv_p_osig , otau , oppi , ppn 
-Cchp3      . , hab , vab , sab , vvesat , cpnvsa , repat , repatx , repatc 
-Cchp3      . , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , rvvxca 
-Cchp3      . , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc , 
-Cchp3      . sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , vorb 
-Cchp3      . , lldau ) 
-Cchp3         call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
-Cchp3      .  , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , oppi 
-Cchp3      .  , ppn , hab , vab , sab , vvesat , cpnvsa , repat , repatx , 
-Cchp3      .  repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , 
-Cchp3      .  rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc 
-Cchp3      .  , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , 
-Cchp3      .  vorb , lldau ) 
-Cchp3          call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
-Cchp3      .   , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , sv_p_oppi 
-Cchp3      .   , ppn , hab , vab , sab , vvesat , cpnvsa , repat , repatx , 
-Cchp3      .   repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , rvepsa , 
-Cchp3      .   rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca , sqloc 
-Cchp3      .   , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , 
-Cchp3      .   vorb , lldau ) 
           call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppn , hab , vab , sab , vvesat , cpnvsa , repat , 

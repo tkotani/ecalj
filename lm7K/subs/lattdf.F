@@ -41,7 +41,6 @@ C      double precision rYL(nl2,nl2)
       if (ldist .eq. 0) return
       call getpr(ipr)
       allocate(bwk_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) bwk_rv(:)=0.0d0
 
       call dcopy(9,defgrd,1,work,1)
       if (iabs(ldist) .eq. 1) call makrot(work,defgrd)

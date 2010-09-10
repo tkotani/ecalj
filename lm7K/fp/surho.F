@@ -1,11 +1,3 @@
-Cdwdef1 have_common_w_in surho , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp3       subroutine surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
-Cchp3      .oqkkl,oeqkkl,k1,k2,k3,smrout,ndos,dos,sumev,sumqv)
-Cchp3        subroutine surho ( nbas , ssite , sspec , lmet , ldos , lrout 
-Cchp3      . , lekkl , numq , sv_p_oqkkl , oeqkkl , k1 , k2 , k3 , smrout 
-Cchp3      . , ndos , dos , sumev , sumqv ) 
         subroutine surho ( nbas , ssite , sspec , lmet , ldos , lrout 
      .  , lekkl , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , smrout 
      .  , ndos , dos , sumev , sumqv ) 
@@ -57,8 +49,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,ldos,lmet,lrout,lekkl,nbas,ndos,numq
-Cchp3       integer oqkkl(3,nbas),oeqkkl(3,nbas)
-Cchp3        integer:: oeqkkl(3,nbas) 
         type(s_rv1) :: sv_p_oeqkkl(3,nbas)
 
        type(s_rv1) :: sv_p_oqkkl(3,nbas)
@@ -72,8 +62,6 @@ C ... Local parameters
       integer ib,i,is,kmax,lmxa,lmxh,nelt1,nelt2,nelt3,nlma,nlmh,igetss
       integer nglob,nsp,nspc,nkaph
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 Changenglob      nsp = nglob('nsp')
       nsp = globalvariables%nsp
@@ -101,29 +89,23 @@ C ... Reset coeffs of local density
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
 
         if (lrout .ne. 0) then
-Cchp3           call dpzero(w(oqkkl(1,ib)), nelt1*numq*nsp*nspc)
            call dpzero ( sv_p_oqkkl( 1 , ib )%v , nelt1 * numq * nsp * nspc 
      .     ) 
 
-Cchp3           call dpzero(w(oqkkl(2,ib)), nelt2*numq*nsp*nspc)
            call dpzero ( sv_p_oqkkl( 2 , ib )%v , nelt2 * numq * nsp * nspc 
      .     ) 
 
-Cchp3           call dpzero(w(oqkkl(3,ib)), nelt3*numq*nsp*nspc)
            call dpzero ( sv_p_oqkkl( 3 , ib )%v , nelt3 * numq * nsp * nspc 
      .     ) 
 
         endif
         if (lrout .ne. 0 .and. lekkl .ne. 0) then
-Cchp3           call dpzero(w(oeqkkl(1,ib)), nelt1*numq*nsp*nspc)
            call dpzero ( sv_p_oeqkkl( 1 , ib )%v , nelt1 * numq * nsp * 
      .     nspc ) 
 
-Cchp3           call dpzero(w(oeqkkl(2,ib)), nelt2*numq*nsp*nspc)
            call dpzero ( sv_p_oeqkkl( 2 , ib )%v , nelt2 * numq * nsp * 
      .     nspc ) 
 
-Cchp3           call dpzero(w(oeqkkl(3,ib)), nelt3*numq*nsp*nspc)
            call dpzero ( sv_p_oeqkkl( 3 , ib )%v , nelt3 * numq * nsp * 
      .     nspc ) 
 

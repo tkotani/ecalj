@@ -1,8 +1,3 @@
-Cdwdef1 have_common_w_in hhugbl , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
      .ndim2,slat,wk,dwk,s,ds)
 
@@ -42,12 +37,6 @@ C ... Passed parameters
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
 C ... Local parameters
-Cchp1       integer ocg,ojcg,oidxcg,ocy,kmax,kdim,i2,i1,lmxx,nlmx,l,ll
-Cchp1        integer:: ojcg , oidxcg , ocy , kmax , kdim , i2 , i1 , lmxx 
-Cchp1      . , nlmx , l , ll 
-Cchp1         integer:: ojcg , oidxcg , kmax , kdim , i2 , i1 , lmxx , nlmx 
-Cchp1      .  , l , ll 
-Cchp1          integer:: ojcg , kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll 
           integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll 
           integer,pointer :: iv_p_ojcg(:)
 
@@ -61,23 +50,17 @@ Cchp1          integer:: ojcg , kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll
       double precision add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2
       double precision zer(0:lmxx),bet1(nlmx),fac(nlmx)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data q /0d0,0d0,0d0/
       data zer /lmxx*0d0,0d0/
 
       pi = 4d0*datan(1d0)
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
       vol=slat%vol
@@ -86,17 +69,6 @@ Cchp1       ocy=slat%ocy
       kdim = 0
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
 
-Cchp1       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,
-Cchp1      .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
-Cchp1        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
-Cchp1      . , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
-Cchp1      . ) , w ( ojcg ) , w ( ocy ) , slat , s , ds ) 
-Cchp1         call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
-Cchp1      .  , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
-Cchp1      .  ) , w ( ojcg ) , rv_p_ocy , slat , s , ds ) 
-Cchp1          call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
-Cchp1      .   , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
-Cchp1      .   , w ( ojcg ) , rv_p_ocy , slat , s , ds ) 
           call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
      .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
      .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
@@ -105,17 +77,6 @@ Cchp1      .   , w ( ojcg ) , rv_p_ocy , slat , s , ds )
 
 
 
-Cchp1       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,zer,nlm1,nlm2,kmax,ndim1,
-Cchp1      .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,wk,dwk)
-Cchp1        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
-Cchp1      . , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
-Cchp1      . ) , w ( ojcg ) , w ( ocy ) , slat , wk , dwk ) 
-Cchp1         call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
-Cchp1      .  , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
-Cchp1      .  ) , w ( ojcg ) , rv_p_ocy , slat , wk , dwk ) 
-Cchp1          call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
-Cchp1      .   , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
-Cchp1      .   , w ( ojcg ) , rv_p_ocy , slat , wk , dwk ) 
           call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
      .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
      .    , iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 

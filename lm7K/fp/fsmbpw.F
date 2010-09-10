@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in fsmbpw , #_of_w_access= 0
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
      .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
 
@@ -93,8 +92,6 @@ C ... Local parameters
       integer iloop,ib
 #endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       integer:: ibini,ibend
 
 C --- Setup ---

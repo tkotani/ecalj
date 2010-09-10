@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in makrm0 , #_of_w_access= 0
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
       use m_globalvariables
@@ -107,8 +106,6 @@ C ... External calls
       external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
      .iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data sym /' ','*'/
 
       print *,'makrm0:'

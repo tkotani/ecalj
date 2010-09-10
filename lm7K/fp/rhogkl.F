@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in rhogkl , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
        subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
      . sv_p_orhoat , kmax , qkl ) 
 
@@ -43,7 +40,6 @@ Cu   19 Oct 01 Adapted from rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
        integer:: ib1 , ib2 , nsp , mode , kmax 
        type(s_rv1) :: sv_p_orhoat(3,1)
 
@@ -62,17 +58,13 @@ C ... Local parameters
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
      .ceh,rfoc,df(0:20)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
       allocate(rofi_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rofi_rv(:)=0.0d0
 
       allocate(rwgt_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rwgt_rv(:)=0.0d0
 
       call stdfac(20,df)
       if (ipr .ge. 40) write(stdo,221)
@@ -96,10 +88,6 @@ C --- Loop over sites ---
         call radmsh ( rmt , a , nr , rofi_rv )
         call radwgt ( rmt , a , nr , rwgt_rv )
         allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
-Cchp3         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
-Cchp3      .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-Cchp3      .  ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
-Cchp3      .  , j1 ) )
          call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
      .   , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
      .   , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) ) 
@@ -124,9 +112,6 @@ Cchp3      .  , j1 ) )
 #if DEBUG
         if (ib .eq. 1) then
           print *, 'ib=',ib
-Cchp3           call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv 
-Cchp3      .    , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-Cchp3      .    ( 3 , ib ) ) , qkl ( 0 , j1 ) )
            call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
      .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
      .     , qkl ( 0 , j1 ) ) 

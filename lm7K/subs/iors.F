@@ -1,11 +1,3 @@
-Cdwdef1 have_common_w_in iors , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp1 cmdvar= real(8),rv_p_,orhoca
-Cchp1 cmdvar= real(8),rv_p_,orhoc
-Cchp1 cmdvar= real(8),rv_p_,ov1
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= complex(8),zv_p_,osmrho
-Cchp1 cmdvar= real(8),rv_p_,oves
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
@@ -130,7 +122,6 @@ C  ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lbin
-Cchp3       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
        integer:: mode , nbas , nat , nspec , nit , ifi , n0 
        type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -153,16 +144,6 @@ C ... Local parameters
      .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
-Cchp1       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-Cchp1      ., stdo , isw , osmrho , oves
-Cchp1        integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-Cchp1      . , stdo , isw , osmrho 
-Cchp1         integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-Cchp1      .  , stdo , isw 
-Cchp1          integer:: orhoca , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit , stdo 
-Cchp1      .   , isw 
-Cchp1           integer:: orhoca , ngabc(3) , n1 , n2 , n3 , lgunit , stdo , 
-Cchp1      .    isw 
            integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw 
            real(8),pointer :: rv_p_orhoca(:)
 
@@ -196,8 +177,6 @@ Cchp1      .    isw
 #endif
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 C ... data statements
       data vec0 /0d0,0d0,0d0/
 
@@ -248,7 +227,6 @@ C     ndyn = igets('move size',smove)
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
 
-Cchp1         osmrho=spot%osmrho
          zv_p_osmrho => spot%zv_p_osmrho 
 
 
@@ -440,15 +418,12 @@ C   ... FP mesh density
               call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
 
               call fftz30(n1,n2,n3,k1,k2,k3)
-Cchp1               call defcc (osmrho,-k1*k2*k3*nsp)
                allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
                if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
 
-Cchp1               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
                call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
      .         , lbin , jfi ) 
 
-Cchp1               call rlse(osmrho)
                if (associated(zv_p_osmrho)) deallocate(zv_p_osmrho)
 
 
@@ -458,7 +433,6 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
 c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
 cccccccccccccccccc
-Cchp1               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
                call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
      .         , lbin , jfi ) 
 
@@ -468,10 +442,8 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222333'
 cccccccccccccccccc
                 i = k1*k2*k3*2
-Cchp1                 call dscal(i,0.5d0,w(osmrho),1)
                  call dscal ( i , 0.5d0 , zv_p_osmrho , 1 ) 
 
-Cchp1                 call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
                  call dpscop ( zv_p_osmrho , zv_p_osmrho , i , 1 , 1 + i , 1d0 
      .           ) 
 
@@ -498,8 +470,6 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
               call pshpr(50)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
-Cchp1               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
-Cchp1      .        k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
                call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
      .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho ) 
 
@@ -514,13 +484,11 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .        ' :  scale smooth density by',f8.4)
-Cchp1               call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
                call dpcopy ( zv_p_osmrho , zv_p_osmrho , 1 , 2 * k1 * k2 * k3 
      .         * nsp , vfac ) 
 
             endif
           endif
-Cchp1           call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
            call mpibc1 ( zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
      .     , 'iors' , 'smrho' ) 
 
@@ -929,7 +897,6 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
-Cchp1           call defrr(ov0,           nr*nsp)
            allocate(rv_p_ov0(abs(nr*nsp)))
            if (nr*nsp<0) rv_p_ov0(:)=0.0d0
 
@@ -937,33 +904,25 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
      .      call rx('iors not set up to convert radial mesh')
-Cchp3             call defrr(orhoat(1,ib),  nr*nlml*nsp)
              allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
              if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
 
-Cchp3             call defrr(orhoat(2,ib),  nr*nlml*nsp)
              allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
              if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
 
-Cchp3             call defrr(orhoat(3,ib),  nr*nsp)
              allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
              if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
-Cchp1             call defrr(ov1,           nr*nsp)
              allocate(rv_p_ov1(abs(nr*nsp)))
              if (nr*nsp<0) rv_p_ov1(:)=0.0d0
 
 
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
-Cchp3               call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-Cchp3      .        jfi)
                call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , 
      .         nsp0 , nsp , lbin , jfi ) 
 
               if (.not. lbin) read(jfi,*)
-Cchp3               call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-Cchp3      .        jfi)
                call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , 
      .         nsp0 , nsp , lbin , jfi ) 
 
@@ -974,25 +933,20 @@ Cchp3      .        jfi)
   202         format(9x,'site',i4,', species ',a,
      .        ': ',a,' local density from nlm=',i3,' to',i3)
               if (.not. lbin) read(jfi,*)
-Cchp3               call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
                call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr0 , 1 , 1 , nsp0 , 
      .         nsp , lbin , jfi ) 
 
               if (.not. lbin) read(jfi,*)
-Cchp1               call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
                call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (.not. lbin) read(jfi,*)
-Cchp1               call dpdbyl(w(ov1),nr0,1,1,nsp0,nsp,lbin,jfi)
                call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (nsp0 .lt. nsp) then
-Cchp1                 call dscal(nr0*2,2d0,w(ov0),1)
                  call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
 
-Cchp1                 call dscal(nr0*2,2d0,w(ov1),1)
                  call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
 
               endif
@@ -1010,35 +964,25 @@ C           endif
 #endif
 
             if (mode .eq. -2) then
-Cchp3               call rlse(orhoat(1,ib))
                if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
 
-Cchp1               call rlse(ov0)
                if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
 
 
             else
-Cchp3               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
-Cchp3      .        'rhoat(1)')
                call mpibc1 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(1)' ) 
 
-Cchp3               call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
-Cchp3      .        'rhoat(2)')
                call mpibc1 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(2)' ) 
 
-Cchp3               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
-Cchp3      .        'rhoat(3)')
 cki bug fix ,size=nr*nsp              call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr * nlml * nsp , 4 , 
                call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(3)' ) 
 
-Cchp1               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
                call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
      .         ) 
 
-Cchp1               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
                call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
      .         ) 
 
@@ -1061,15 +1005,12 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
 
-Cchp1                 oves=spot%oves
                  rv_p_oves => spot%rv_p_oves 
 
 
-Cchp1                 call dvset(w(oves),ic,ic,vrmax)
                  call dvset ( rv_p_oves , ic , ic , vrmax ) 
 
 
-Cchp1                 spot%oves=oves
                  spot%rv_p_oves => rv_p_oves 
 
 
@@ -1096,10 +1037,8 @@ C     ... store data in strucs
           sspec(is)%qc=qc
 
 
-Cchp1           ssite(ib)%ov0=ov0
            ssite(ib)%rv_p_ov0 => rv_p_ov0 
 
-Cchp1           ssite(ib)%ov1=ov1
            ssite(ib)%rv_p_ov1 => rv_p_ov1 
 
 
@@ -1117,7 +1056,6 @@ Cchp1           ssite(ib)%ov1=ov1
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
-Cchp3           call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
            call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat ) 
 
         endif
@@ -1161,7 +1099,6 @@ C   --- Read data on free-atom core states and fit to fa density ---
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
-Cchp1             call defrr(orhoca, nr*nsp)
              allocate(rv_p_orhoca(abs(nr*nsp)))
              if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
 
@@ -1169,33 +1106,27 @@ Cchp1             call defrr(orhoca, nr*nsp)
               if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
               if (lbin) then
-Cchp1                 call dpdump(w(orhoca),nr*nsp0,jfi)
                  call dpdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
 
               else
-Cchp1                 call dfdump(w(orhoca),nr*nsp0,jfi)
                  call dfdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
 
               endif
 C           spin-split core density
               if (nsp .gt. nsp0) then
                 i = nr
-Cchp1                 call dscal(i,0.5d0,w(orhoca),1)
                  call dscal ( i , 0.5d0 , rv_p_orhoca , 1 ) 
 
-Cchp1                 call dpscop(w(orhoca),w(orhoca),i,1,1+i,1d0)
                  call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0 
      .           ) 
 
               endif
             endif
             if (mode .eq. 1) then
-Cchp1               call mpibc1(w(orhoca),nr*nsp,4,mlog,'iors','rhoca')
                call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
      .         ) 
 
             else
-Cchp1               call rlse(orhoca)
                if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
 
 
@@ -1252,7 +1183,6 @@ C         Pack species data
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
-Cchp1           sspec(is)%orhoc=orhoca
            sspec(is)%rv_p_orhoc => rv_p_orhoca 
 
 
@@ -1280,27 +1210,20 @@ c   ... Copy or rescale cores, in case foca was switched on or off
 
             lfoc=sspec(is)%lfoca
             qc=sspec(is)%qc
-Cchp1             orhoca=sspec(is)%orhoc
              rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
-Cchp1               call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
-Cchp3                call dpcopy ( rv_p_orhoca , w ( orhoat ( 3 , ib ) ) , 1 , nr 
-Cchp3      .         * nsp , 1d0 ) 
                 call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .          * nsp , 1d0 ) 
 
 
             else
               allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
               call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cchp3               call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-Cchp3      .        , ib ) ) , sum )
                call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
      .         , sum ) 
 
@@ -1310,7 +1233,6 @@ Cchp3      .        , ib ) ) , sum )
               if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
      .        write(stdo,787) ib,qc,sum,fac
   787         format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
-Cchp3               call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
                call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
      .         , 1 , nr * nsp , fac ) 
 
@@ -1426,7 +1348,6 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-Cchp1         call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
          call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_p_osmrho 
      .   , lbin , - jfi ) 
 
@@ -1505,10 +1426,8 @@ C   --- Write information for local densities ---
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cchp1           ov0=ssite(ib)%ov0
            rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-Cchp1           ov1=ssite(ib)%ov1
            rv_p_ov1 => ssite(ib)%rv_p_ov1 
 
 
@@ -1559,27 +1478,22 @@ C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
           if (mode .eq. 1) then
             if (.not. lbin) write(jfi,'('' rho1'')')
-Cchp3             call dpdbyl(w(orhoat(1,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
              call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr , nlml , nlml , nsp 
      .       , nsp , lbin , - jfi ) 
 
             if (.not. lbin) write(jfi,'('' rho2'')')
-Cchp3             call dpdbyl(w(orhoat(2,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
              call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr , nlml , nlml , nsp 
      .       , nsp , lbin , - jfi ) 
 
             if (.not. lbin) write(jfi,'('' rhoc'')')
-Cchp3             call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
              call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp 
      .       , lbin , - jfi ) 
 
             if (.not. lbin) write(jfi,'('' v0'')')
-Cchp1             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
              call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
             if (.not. lbin) write(jfi,'('' v1'')')
-Cchp1             call dpdbyl(w(ov1),nr,1,1,nsp,nsp,lbin,-jfi)
              call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
@@ -1596,11 +1510,9 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
-Cchp1               oves=spot%oves
                rv_p_oves => spot%rv_p_oves 
 
 
-Cchp1               vrmax(1) = dval(w(oves),ic)
                vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
 
               write(jfi,143) vrmax(1)
@@ -1638,7 +1550,6 @@ C   --- Write data on free-atom core states and fit to fa density ---
           cof=sspec(is)%ctail
           eh=sspec(is)%etail
           stc=sspec(is)%stc
-Cchp1           orhoca=sspec(is)%orhoc
            rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
@@ -1670,13 +1581,11 @@ Cchp1           orhoca=sspec(is)%orhoc
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
-Cchp1               call dpdump(w(orhoca),nr*nsp,-jfi)
                call dpdump ( rv_p_orhoca , nr * nsp , - jfi ) 
 
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
-Cchp1               call dfdump(w(orhoca),nr*nsp,-jfi)
                call dfdump ( rv_p_orhoca , nr * nsp , - jfi ) 
 
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')

@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in rstr0 , #_of_w_access= 0
       subroutine rstr0(nxi,lxi,exi,nlmx,np,x,y,z,lmxa,iop,hl,hd)
 C- Reduced strux for a vector of energies, standard definition IV-43.
 C ----------------------------------------------------------------------
@@ -32,8 +31,6 @@ C ... Local parameters
       double precision psi(-1:lmxx),phi(-1:lmxx),yl((lmxx+1)**2),r2,
      .rfac,xxx,fac2l(0:lmxx),psid,psil
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Make ylm for all points, up to lmxy, which find ---
       lmxy = -1
@@ -48,10 +45,8 @@ C --- Make ylm for all points, up to lmxy, which find ---
     2 continue
       if (lmxy .gt. lmxx) call rxi('rstr0: lmax exceeds lmxx:',lmxy)
       allocate(ylm_rv((lmxy+1)**2*np))
-Ctakao_ZeroClear_NotRequiered        if ((lmxy+1)**2*np<0) ylm_rv(:)=0.0d0
 
       allocate(r2_rv(np))
-Ctakao_ZeroClear_NotRequiered        if (np<0) r2_rv(:)=0.0d0
 
       call ropyln ( np , x , y , z , lmxy , np , ylm_rv , r2_rv 
      .)

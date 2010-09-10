@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in vxcnls , #_of_w_access= 0
       subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp,rp,grp,ggrp,agrp,
      .yl,gyl,ylwp,rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,rep,rmu)
       use m_xcpbe,  only: xcpbe
@@ -57,8 +56,6 @@ C ... Local parameters
       integer ir0,ir1,nri,incn
  3584 logical lz
       parameter (incn=50)
-Cdwdef1       real w(1)
-Cdwdef1       common /w/ w
       data tol/1d-15/
 
       integer:: irr,j,idiv,isp,icenter,k

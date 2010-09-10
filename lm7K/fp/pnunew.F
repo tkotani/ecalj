@@ -1,5 +1,3 @@
-Cdwdef1 have_common_w_in pnunew , #_of_w_access= 1
-Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .qbyl,hbyl)
 
@@ -55,8 +53,6 @@ cki      type(s_site)::ssite(*)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
-Cchp1       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
-Cchp1      .l , ipqn , m , isp , ov0 , nr , nn , mxcst
        integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
      . l , ipqn , m , isp , nr , nn , mxcst 
        real(8),pointer :: rv_p_ov0(:)
@@ -72,8 +68,6 @@ Cchp1      .l , ipqn , m , isp , ov0 , nr , nn , mxcst
       double precision pznew,fi(0:10),gi(0:10),xx,dnz
       character spid*8
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -91,7 +85,6 @@ C --- For each site, do ---
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cchp1         ov0=ssite(ib)%ov0
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
@@ -137,18 +130,13 @@ C       ... Log derivative by direct num integration
               nr=sspec(is)%nr
 
               allocate(g_rv(nr*2))
-Ctakao_ZeroClear_NotRequiered              if (nr*2<0) g_rv(:)=0.0d0
 
               allocate(rofi_rv(nr*2))
-Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rofi_rv(:)=0.0d0
 
               call radmsh ( rmt , a , nr , rofi_rv )
 
               allocate(v0i_rv(nr))
-Ctakao_ZeroClear_NotRequiered              if (nr<0) v0i_rv(:)=0.0d0
 
-Cchp1               call dpscop ( w ( ov0 ) , v0i_rv , nr , 1 + nr * ( isp - 1 
-Cchp1      .        ) , 1 , 1d0 )
                call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 ) 
 
@@ -160,7 +148,6 @@ Cchp1      .        ) , 1 , 1d0 )
                 slo(1) = dl + 1d0
                 nn = int(mod(pnu(m,1),10d0))-l-1
                 allocate(gp_rv(8*nr))
-Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
 C             xx = dval(w(ov0i),nr)
                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
@@ -184,9 +171,6 @@ C             val(1) = rmt
 C             slo(1) = dl + 1d0
               endif
 
-Cdwdef1               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
-Cdwdef1      .        nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
-Cdwdef1      .        , dphi , w , w , w , w , w , w , w )
                call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
      .         0 , 1d - 12 , ebar , val , slo , nn , g_rv , iwdummy , phi , 
      .         dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy 
@@ -212,7 +196,6 @@ C       ... Estimate new pnz for semicore state
                 slo(1) = dnz + 1d0
                 nn = int(mod(pnz(m,1),10d0))-l-1
                 allocate(gp_rv(8*nr))
-Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
      .          nr , 2 , 1d - 12 , ez , val , slo , nn , g_rv , gp_rv , 

@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in smvxcm , #_of_w_access= 1
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
      .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .rvepsm,focexc,focex,focec,focvxc,f)
@@ -94,13 +90,6 @@ C ... Passed parameters
      .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
 C ... Local parameters
-Cchp1       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
-Cchp1      ., okv , ocy , lfoc1 , lfoc2 , iprint , excsan 
-Cchp1      ., lxcfun , nglob , nsp
-Cchp1        integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
-Cchp1      . , okv , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
-Cchp1         integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , okv 
-Cchp1      .  , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
          integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
      .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
          integer,pointer :: iv_p_okv(:)
@@ -116,8 +105,6 @@ Cchp1      .  , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp
       double precision vol,sum1,sum2,vxcavg(2),x1,x2,alat
       character*180 outs
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
       complex(8),allocatable ::smrho_w(:), smcor_w(:) 
@@ -133,16 +120,13 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
       alat=slat%alat
       vol=slat%vol
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -153,8 +137,6 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-Cchp1       call smcorm ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-Cchp1      .cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
        call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 ) 
 
@@ -162,8 +144,6 @@ Cchp1      .cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if (lfoc1 .eq. 1) then
-Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
-Cchp1      .  , smrho_w ) !w ( osmrho ) )
          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w 
      .   ) 
 
@@ -189,9 +169,6 @@ C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
-Cdwdef1         call smvxc2(0,slat, nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
-Cdwdef1      .  smrho_w,smvxc,smvx,smvc,smexc,w,
-Cdwdef1      .  repsm,repsmx,repsmc,rmusm,vxcavg)
          call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
      .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  !, iwdummy 
      .   , repsm , repsmx , repsmc , rmusm , vxcavg ) 
@@ -276,16 +253,10 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-Cchp1           call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , cgh1_zv 
-Cchp1      .    )
            call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
      .     ) 
 
 
-Cchp1           call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , w ( ocy 
-Cchp1      .    ) , ng , w ( ogv ) , cgh1_zv , f )
-Cchp1            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
-Cchp1      .     , ng , w ( ogv ) , cgh1_zv , f ) 
             call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
      .      , ng , rv_p_ogv , cgh1_zv , f ) 
 

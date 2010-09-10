@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in pvsms2 , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3       subroutine pvsms2(ssite,sspec,rotm,nbas,nsp,orhoat)
        subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
      . ) 
 
@@ -41,7 +38,6 @@ Cu   21 Dec 04 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,nsp,orhoat(3,1)
        integer:: nbas , nsp 
        type(s_rv1) :: sv_p_orhoat(3,1)
 
@@ -55,8 +51,6 @@ C Local variables
       double precision rYL(nl2,nl2)
       character spid*8
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Setup
       call getpr(ipr)
@@ -90,11 +84,9 @@ C --- For each site and l, rotate the m-components ---
         nlml = (lmxl+1)**2
         if (nlml .gt. nl2) call rx('increase nl2 in pvsms2')
 
-Cchp3         call pvsms3(nr,nr,nlml,nsp,rYL,nl2,w(orhoat(1,ib)))
          call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 1 , ib )%v 
      .   ) 
 
-Cchp3         call pvsms3(nr,nr,nlml,nsp,rYL,nl2,w(orhoat(2,ib)))
          call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 2 , ib )%v 
      .   ) 
 

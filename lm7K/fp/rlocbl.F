@@ -1,46 +1,4 @@
-Cdwdef1 have_common_w_in rlocbl , #_of_w_access= 2
-Cchp2 cmdvar= real(8),rv_p_,oppipp
-Cchp2 cmdvar= real(8),rv_p_,oppihh
-Cchp2 cmdvar= real(8),rv_p_,oppihp
-Cchp2 cmdvar= real(8),rv_p_,_oppihp
-Cchp2 cmdvar= real(8),rv_p_,oppipp
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp2 cmdvar= real(8),rv_p_,osighp
-Cchp2 cmdvar= real(8),rv_p_,osigpp
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp2 cmdvar= real(8),rv_p_,oeqhh
-Cchp2 cmdvar= real(8),rv_p_,oeqhp
-Cchp2 cmdvar= real(8),rv_p_,oeqpp
-Cchp2 cmdvar= real(8),rv_p_,oqhh
-Cchp2 cmdvar= real(8),rv_p_,oqhp
-Cchp2 cmdvar= real(8),rv_p_,oqpp
-Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
-Cchp3       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
-Cchp3      .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-Cchp3      .lcplxp,lekkl,oqkkl,oeqkkl,f)
-Cchp3        subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-Cchp3      . , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-Cchp3      . , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
-Cchp3      . , oeqkkl , f ) 
-Cchp3         subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-Cchp3      .  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-Cchp3      .  , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
-Cchp3      .  , sv_p_oeqkkl , f ) 
-Cchp3          subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-Cchp3      .   , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-Cchp3      .   , evec , ewgt , evl , sv_p_osig , otau , oppi , lcplxp , lekkl 
-Cchp3      .   , sv_p_oqkkl , sv_p_oeqkkl , f ) 
-Cchp3           subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
-Cchp3      .    , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
-Cchp3      .    , evec , ewgt , evl , sv_p_osig , sv_p_otau , oppi , lcplxp , 
-Cchp3      .    lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
            subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
@@ -165,11 +123,6 @@ c      include "events.ins"
 c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
-Cchp3       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
-Cchp3        integer:: oeqkkl(3,1) , osig(3,1) , otau(3,1) , oppi(3,1) 
-Cchp3         integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
-Cchp3          integer:: otau(3,1) , oppi(3,1) 
-Cchp3           integer:: oppi(3,1) 
            type(s_rv1) :: sv_p_oppi(3,1)
 
           type(s_rv1) :: sv_p_otau(3,1)
@@ -196,10 +149,6 @@ C ... Local parameters or process-shared variables
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
-Cchp1       integer ocg,ocy,oidxcg,ojcg
-Cchp1        integer:: ocy , oidxcg , ojcg 
-Cchp1         integer:: oidxcg , ojcg 
-Cchp1          integer:: ojcg 
           integer,pointer :: iv_p_ojcg(:)
 
          integer,pointer :: iv_p_oidxcg(:)
@@ -213,21 +162,6 @@ c      integer oib(npmx),oidb(npmx),oixf(npmx),o
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
-Cchp2       integer ob,odb,oppihp,oppipp,osighp,osigpp,
-Cchp2      .oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
-Cchp2        integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oqhh 
-Cchp2      . , oqhp , oeqhh , oeqhp , oeqpp 
-Cchp2         integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oqhh 
-Cchp2      .  , oeqhh , oeqhp , oeqpp 
-Cchp2          integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
-Cchp2      .   , oeqhp , oeqpp 
-Cchp2           integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
-Cchp2      .    , oeqhp 
-Cchp2            integer:: ob , odb , oppihp , oppipp , osighp , osigpp , oeqhh 
-Cchp2             integer:: ob , odb , oppihp , oppipp , osighp , osigpp 
-Cchp2              integer:: ob , odb , oppihp , oppipp , osighp 
-Cchp2               integer:: ob , odb , oppihp , oppipp 
-Cchp2                integer:: ob , odb , oppihp 
                 integer:: ob , odb 
                 real(8),pointer :: rv_p_oppihp(:)
 
@@ -265,8 +199,6 @@ CSFCPP      double precision eh(n0,nkap0),rsmh(n0,nkap0)
 CSFCPP#endif
 C$    integer mp_numthreads,mp_my_threadnum
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
       integer:: iaini,iaend
@@ -299,16 +231,12 @@ C --- Setup ---
 Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -427,20 +355,6 @@ c        odb = oidb(ip)
 c        oxf = oixf(ip)
 
 CSFCPP#if F90
-Cchp1         call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-Cchp1      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
-Cchp1      .  w(odb))
-Cchp1          call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
-Cchp1      .   ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-Cchp1      .   q , kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb 
-Cchp1      .   ) ) 
-Cchp1           call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
-Cchp1      .    ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
-Cchp1      .    , kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb ) 
-Cchp1      .    ) 
-Cchp1            call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-Cchp1      .     , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-Cchp1      .     kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb ) ) 
             call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
      .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb ) 
@@ -513,21 +427,10 @@ CC#endif
 C          endif
 
 C     ... Add to local density coefficients for one state
-Cchp2             call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
-Cdwdef1              call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
-Cdwdef1      .       , ivec ) , w , rv_p_oqpp ) 
               call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
      .        , ivec ) , iwdummy , rv_p_oqpp ) 
 
 
-Cchp2             call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
-Cchp2      .      evec(1,ispc,ivec),ewgt(1,ivec),numq,w,w(oqhh),w(oqhp))
-Cchp2              call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-Cchp2      .       ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-Cchp2      .       ) , numq , w , w ( oqhh ) , rv_p_oqhp ) 
-Cdwdef1               call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-Cdwdef1      .        ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-Cdwdef1      .        ) , numq , w , rv_p_oqhh , rv_p_oqhp ) 
                call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
      .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
@@ -535,17 +438,9 @@ Cdwdef1      .        ) , numq , w , rv_p_oqhh , rv_p_oqhp )
 
 
             if (lekkl .eq. 1) then
-Cchp2               call prlcb3(1,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),
-Cchp2      .        evl(ivec,isp),w(oeqpp))
                call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
      .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
 
-Cchp2               call prlcb2(1,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
-Cchp2      .        evec(1,ispc,ivec),ewgt(1,ivec),numq,evl(ivec,isp),
-Cchp2      .        w(oeqhh),w(oeqhp))
-Cchp2                call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-Cchp2      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-Cchp2      .         ) , numq , evl ( ivec , isp ) , w ( oeqhh ) , rv_p_oeqhp ) 
                 call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
      .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp ) 
@@ -568,25 +463,6 @@ CC#endif
 C     ... Contribution to forces
             if (lfrce .ne. 0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-Cchp2               call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
-Cchp2      .        ndimh,iprmb,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(1,
-Cchp2      .        ivec),numq,cPkL,w_odb,da,wk,w(oppipp),w(oppipp),
-Cchp2      .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w_oxf)
-Cchp2                call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
-Cchp2      .         , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-Cchp2      .         ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
-Cchp2      .         , da , wk , w ( oppipp ) , w ( oppipp ) , rv_p_osigpp , w ( oppihp 
-Cchp2      .         ) , w ( oppihp ) , w ( osighp ) , lcplxp , w_oxf ) 
-Cchp2                 call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
-Cchp2      .          , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-Cchp2      .          ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
-Cchp2      .          , da , wk , w ( oppipp ) , w ( oppipp ) , rv_p_osigpp , w ( oppihp 
-Cchp2      .          ) , w ( oppihp ) , rv_p_osighp , lcplxp , w_oxf ) 
-Cchp2                  call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
-Cchp2      .           , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-Cchp2      .           ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
-Cchp2      .           , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , w ( oppihp 
-Cchp2      .           ) , w ( oppihp ) , rv_p_osighp , lcplxp , w_oxf ) 
                   call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
      .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
@@ -627,8 +503,6 @@ C ... end loop over ia
           nelt(2) = (kmax+1)*nkaph*nlma*nlmh
           nelt(3) = nkaph*nkaph*nlmh*nlmh
           do  i = 1, 3
-Cchp3             call MPI_BCAST(w(oqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-Cchp3      .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
              call mpi_bcast ( sv_p_oqkkl( i , ia )%v , nelt ( i ) * numq * 
      .       nsp * nspc , mpi_double_precision , pid , mpi_comm_world , ierr 
      .       ) 
@@ -644,8 +518,6 @@ Cchp3      .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
      .        nelt(i)*numq*nsp*nspc,pid)
             endif
             if (lekkl .eq. 1) then
-Cchp3               call MPI_BCAST(w(oeqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-Cchp3      .        MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
                call mpi_bcast ( sv_p_oeqkkl( i , ia )%v , nelt ( i ) * numq 
      .         * nsp * nspc , mpi_double_precision , pid , mpi_comm_world , 
      .         ierr ) 

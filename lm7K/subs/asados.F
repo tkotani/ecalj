@@ -1,14 +1,3 @@
-Cdwdef1 have_common_w_in asados , #_of_w_access= 3
-Cchp1 cmdvar= integer,iv_p_,oipc
-Cchp1 cmdvar= integer,iv_p_,ogstar
-Cchp1 cmdvar= integer,iv_p_,ostar
-Cchp1 cmdvar= integer,iv_p_,oidtet
-Cchp1 cmdvar= real(8),rv_p_,ormax
-Cchp1 cmdvar= integer,iv_p_,oipq
-Cchp1 cmdvar= real(8),rv_p_,owtkp
-Cchp1 cmdvar= integer,iv_p_,oics
-Cchp1 cmdvar= real(8),rv_p_,oqp
-Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -107,17 +96,6 @@ C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .lcond,lrange,lidos,lfp
-Cchp1       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-Cchp1      ., oipq , oclabl
-Cchp1        integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-Cchp1      . , oipq 
-Cchp1         integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
-Cchp1          integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
-Cchp1           integer:: ogstar , oidtet , oipc , ormax , oipq 
-Cchp1            integer:: ogstar , oidtet , oipc , ormax 
-Cchp1             integer:: ogstar , oidtet , oipc 
-Cchp1              integer:: ogstar , oipc 
-Cchp1               integer:: oipc 
                integer,pointer :: iv_p_oipc(:)
 
               integer,pointer :: iv_p_ogstar(:)
@@ -166,8 +144,6 @@ C     This is a site or class list
       character*8 clabl
       parameter (T=.true., F=.false., scrwid=80)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
@@ -191,18 +167,14 @@ c       lham=sctrl%lham
 
 
       nclasp=sarray%nclasp
-Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
-Cchp1       oipc=sarray%oipc
        iv_p_oipc => sarray%iv_p_oipc 
 
-Cchp1       ormax=sarray%ormax
        rv_p_ormax => sarray%rv_p_ormax 
 
 
 
-Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
 
@@ -228,7 +200,6 @@ C ... Class-dependent arrays
 
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(nclasp),z(nclasp))
-Cchp1       call icopy(nclasp,w(oics),1,ics,1)
        call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
 
       do i=1,nclasp
@@ -264,7 +235,6 @@ C     ldos is not set properly when asados is called, so make assumptions
         endif
         nchmx = nbas*nl**2
         allocate(chan_iv(nchmx))
-Ctakao_ZeroClear_NotRequiered          if (nchmx<0) chan_iv(:)=0
 
         call sumlst ( lopt , nchmx , nbas , 1 , ssite , sspec , strn 
      .  ( 7: ) , moddos , nsite , lsite , lmxch , nchan , chan_iv 
@@ -392,8 +362,6 @@ C         DOS for a prescribed list of classes only
               else
                 j1 = m+2
               endif
-Cchp1               call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
-Cchp1      .        lsite)
                call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
      .         , nlstc , lsite ) 
 
@@ -417,10 +385,8 @@ C     List of irreducible qp, tetrahedra, ipq
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-Cchp1       oidtet=sbz%oidtet
        iv_p_oidtet => sbz%iv_p_oidtet 
 
-Cchp1       owtkp=sbz%owtkp
        rv_p_owtkp => sbz%rv_p_owtkp 
 
 
@@ -453,36 +419,25 @@ C   ... Determine number of planes and energy windows for BZ map
    98   call rxx(nkp .eq. 0,prgnam//': empty or badly formed BZPL file')
 C   ... Get BZ plane(s) and BZ sampling parameters
         allocate(nw_iv(npln))
-Ctakao_ZeroClear_NotRequiered          if (npln<0) nw_iv(:)=0
 
         allocate(nq_iv(2*npln))
-Ctakao_ZeroClear_NotRequiered          if (2*npln<0) nq_iv(:)=0
 
         allocate(vx_rv(3*npln))
-Ctakao_ZeroClear_NotRequiered          if (3*npln<0) vx_rv(:)=0.0d0
 
         allocate(vy_rv(3*npln))
-Ctakao_ZeroClear_NotRequiered          if (3*npln<0) vy_rv(:)=0.0d0
 
         allocate(x_rv(2*npln))
-Ctakao_ZeroClear_NotRequiered          if (2*npln<0) x_rv(:)=0.0d0
 
         allocate(y_rv(2*npln))
-Ctakao_ZeroClear_NotRequiered          if (2*npln<0) y_rv(:)=0.0d0
 
         allocate(z_rv(npln))
-Ctakao_ZeroClear_NotRequiered          if (npln<0) z_rv(:)=0.0d0
 
         allocate(ew_rv(abs(-2*npln*nwmx)))
         if (-2*npln*nwmx<0) ew_rv(:)=0.0d0
 
-Cchp1         call defdr(oqp, 3*nkp)
          allocate(rv_p_oqp(abs(3*nkp)))
          if (3*nkp<0) rv_p_oqp(:)=0.0d0
 
-Cchp1         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv 
-Cchp1      .  , nq_iv , vx_rv , vy_rv , x_rv , y_rv , z , w 
-Cchp1      .  ( oqp ) )
          call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv 
      .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
 
@@ -512,8 +467,6 @@ C ... Open file containing bands and dos weights
       nfilem = fopno(wtfn)
 
 C ... Get dimensions (nsp,nspc,nband,nfstg); allocate memory for eband
-Cdwdef1       call iomomq(nfilem,0,nlf,nsp,nspc,ndum,nband,nfstg,j,ndum,
-Cdwdef1      .nchan,nchan,i,w,w,w,w,efermi,vmtz)
        call iomomq ( nfilem , 0 , nlf , nsp , nspc , ndum , nband , 
      . nfstg , j , ndum , nchan , nchan , i , iwdummy , iwdummy , iwdummy 
      . , iwdummy , efermi , vmtz ) 
@@ -534,7 +487,6 @@ C     Empirical TB stores stuff a little differently
       nspx = nsp / nspc
       nbandx = nband*nspc
       allocate(eband_rv(nband*nsp*nkp))
-Ctakao_ZeroClear_NotRequiered        if (nband*nsp*nkp<0) eband_rv(:)=0.0d0
 
 
 C ... Determine number of DOS channels (nchan=0 -> total dos only)
@@ -587,20 +539,16 @@ C       Suppress projection of unity into parts for total dos
         endif
       else
         allocate(doswt_rv(nchds*nbandx*nspc))
-Ctakao_ZeroClear_NotRequiered          if (nchds*nbandx*nspc<0) doswt_rv(:)=0.0d0
 
         nfstg = 1
       endif
       if (bzmap) then
         allocate(dos_rv(nqmx*nsp*nchds*nwmx*npln))
-Ctakao_ZeroClear_NotRequiered          if (nqmx*nsp*nchds*nwmx*npln<0) dos_rv(:)=0.0d0
 
       else
         allocate(wk_rv(npts))
-Ctakao_ZeroClear_NotRequiered          if (npts<0) wk_rv(:)=0.0d0
 
         allocate(dos_rv(npts*nsp*nchds))
-Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchds<0) dos_rv(:)=0.0d0
 
       endif
 
@@ -609,18 +557,12 @@ C ... Make sure missing bands are high enough
 
 C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
       if (nchds .eq. nchan) then
-Cdwdef1         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-Cdwdef1      .  , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv 
-Cdwdef1      .  , doswt_rv , w , efermi , vmtz )
          call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv , doswt_rv 
      .   , iwdummy , efermi , vmtz ) 
 
 
       else
-Cdwdef1         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-Cdwdef1      .  , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
-Cdwdef1      .  , eband_rv , w , doswt_rv , w , efermi , vmtz )
          call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
      .   , eband_rv , iwdummy , doswt_rv , iwdummy , efermi , vmtz ) 
@@ -713,46 +655,23 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-Cchp1         oqp=sbz%oqp
          rv_p_oqp => sbz%rv_p_oqp 
 
-Cchp1         owtkp=sbz%owtkp
          rv_p_owtkp => sbz%rv_p_owtkp 
 
-Cchp1         ogstar=sbz%ostar
          iv_p_ogstar => sbz%iv_p_ostar 
 
 
 
         ntet=sbz%ntet
-Cchp1         oidtet=sbz%oidtet
          iv_p_oidtet => sbz%iv_p_oidtet 
 
-Cchp1         oipq=sbz%oipq
          iv_p_oipq => sbz%iv_p_oipq 
 
 
         allocate(dos_rv(npts*nsp*nchan))
-Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) dos_rv(:)=0.0d0
 
         if (nblst .eq. 0) nblst = nevmx
-Cchp1         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-Cchp1      .  ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
-Cchp1      .  oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
-Cchp1      .  ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
-Cchp1      .  dos_rv )
-Cchp1          call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-Cchp1      .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
-Cchp1      .   , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
-Cchp1      .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
-Cchp1           call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-Cchp1      .    ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
-Cchp1      .    , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
-Cchp1      .    doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
-Cchp1            call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-Cchp1      .     ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
-Cchp1      .     , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
-Cchp1      .     doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
             call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
      .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
      .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
@@ -766,10 +685,6 @@ Cchp1      .     doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv )
 C --- make DOS or NOS ---
       else
         if (ltet) then
-Cchp1           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
-Cchp1      .    ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , eband_rv 
-Cchp1      .    , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv 
-Cchp1      .    )
            call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
      .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
      .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
@@ -780,9 +695,6 @@ Cchp1      .    )
 C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
-Cchp1           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
-Cchp1      .    width , nkp , w ( owtkp ) , eband_rv , doswt_rv , npts 
-Cchp1      .    , emin , emax , lidos , wk_rv , dos_rv )
            call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
      .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
      .     , emax , lidos , wk_rv , dos_rv ) 
@@ -829,12 +741,10 @@ C     Loop over all sites (or classes)
 
           if (nsite .ne. 0) then
             ib = i
-Cchp1             ic = ival(w(oipc),ib)
              ic = ival ( iv_p_oipc , ib ) 
 
           else
             ic = i
-Cchp1             ib = iclbas(i,w(oipc))
              ib = iclbas ( i , iv_p_oipc ) 
 
           endif

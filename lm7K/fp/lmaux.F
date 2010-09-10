@@ -1,29 +1,3 @@
-Cdwdef1 have_common_w_in lmaux , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,ontab
-Cchp1 cmdvar= integer,iv_p_,oiax
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= integer,iv_p_,oipc
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= real(8),rv_p_,odlv
-Cchp1 cmdvar= real(8),rv_p_,oag
-Cchp1 cmdvar= real(8),rv_p_,ormax
-Cchp1 cmdvar= integer,iv_p_,owk
-Cchp1 cmdvar= integer,iv_p_,onrc
-Cchp1 cmdvar= integer,iv_p_,oips
-Cchp1 cmdvar= real(8),rv_p_,orhrmx
-Cchp1 cmdvar= real(8),rv_p_,oqt
-Cchp1 cmdvar= real(8),rv_p_,oqnu
-Cchp1 cmdvar= real(8),rv_p_,oqc
-Cchp1 cmdvar= real(8),rv_p_,opp
-Cchp1 cmdvar= real(8),rv_p_,opnu
-Cchp1 cmdvar= integer,iv_p_,oinitc
-Cchp1 cmdvar= integer,iv_p_,ohave
-Cchp1 cmdvar= real(8),rv_p_,ovrmax
-Cchp1 cmdvar= real(8),rv_p_,oves
-Cchp1 cmdvar= real(8),rv_p_,oqlv
-Cchp1 cmdvar= integer,iv_p_,oics
-Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .sarray,sbz,slabl,sstrn,mode,wksize)
 
@@ -121,95 +95,6 @@ C ... Local parameters
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .ngmx,nsgrp
-Cchp1       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      ., opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-Cchp1      ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
-Cchp1 cki     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
-Cchp1      .onrmsh , oalpha  , onpr , os , ormx , oip , oips , opgfsl 
-Cchp1      ., ontab , oiax , og , oag , mxclas , oics
-Cchp1        integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-Cchp1      . , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
-Cchp1      . oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-Cchp1      . , og , oag , mxclas , oics 
-Cchp1         integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      .  , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-Cchp1      .  , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
-Cchp1      .  oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-Cchp1      .  , og , oag , mxclas 
-Cchp1          integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      .   , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-Cchp1      .   , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
-Cchp1      .   , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
-Cchp1      .   , oag , mxclas 
-Cchp1           integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      .    , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , ovrmax , 
-Cchp1      .    owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , 
-Cchp1      .    onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og , 
-Cchp1      .    oag , mxclas 
-Cchp1            integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-Cchp1      .     , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 
-Cchp1      .     , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
-Cchp1      .     ormx , oip , oips , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1             integer:: oeold , oeula , oipc , olmx , onrc , opnu , opold , 
-Cchp1      .      opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , 
-Cchp1      .      odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
-Cchp1      .      , oips , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1              integer:: oeold , oeula , oipc , olmx , onrc , opold , opp , 
-Cchp1      .       oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv 
-Cchp1      .       , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , 
-Cchp1      .       oips , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1               integer:: oeold , oeula , oipc , olmx , onrc , opold , oqc , 
-Cchp1      .        oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham 
-Cchp1      .        , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl 
-Cchp1      .        , ontab , oiax , og , oag , mxclas 
-Cchp1                integer:: oeold , oeula , oipc , olmx , onrc , opold , oqnu , 
-Cchp1      .         oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham , oamsh 
-Cchp1      .         , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl , 
-Cchp1      .         ontab , oiax , og , oag , mxclas 
-Cchp1                 integer:: oeold , oeula , oipc , olmx , onrc , opold , oqt , 
-Cchp1      .          orhrmx , ormax , owk , owk2 , opos , odlv , orham , oamsh , onrmsh 
-Cchp1      .          , oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-Cchp1      .          , og , oag , mxclas 
-Cchp1                  integer:: oeold , oeula , oipc , olmx , onrc , opold , orhrmx 
-Cchp1      .           , ormax , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , 
-Cchp1      .           oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-Cchp1      .           , og , oag , mxclas 
-Cchp1                   integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
-Cchp1      .            , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
-Cchp1      .            , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
-Cchp1      .            , oag , mxclas 
-Cchp1                    integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
-Cchp1      .             , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
-Cchp1      .             , onpr , os , ormx , oip , opgfsl , ontab , oiax , og , oag , 
-Cchp1      .             mxclas 
-Cchp1                     integer:: oeold , oeula , oipc , olmx , opold , ormax , owk , 
-Cchp1      .              owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , 
-Cchp1      .              os , ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1                      integer:: oeold , oeula , oipc , olmx , opold , ormax , owk2 
-Cchp1      .               , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
-Cchp1      .               ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1                       integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-Cchp1      .                odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
-Cchp1      .                , opgfsl , ontab , oiax , og , oag , mxclas 
-Cchp1                        integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-Cchp1      .                 odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
-Cchp1      .                 , opgfsl , ontab , oiax , og , mxclas 
-Cchp1                         integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-Cchp1      .                  orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
-Cchp1      .                  , ontab , oiax , og , mxclas 
-Cchp1                          integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-Cchp1      .                   orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
-Cchp1      .                   , ontab , oiax , mxclas 
-Cchp1                           integer:: oeold , oeula , olmx , opold , owk2 , opos , orham 
-Cchp1      .                    , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , 
-Cchp1      .                    ontab , oiax , mxclas 
-Cchp1                            integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
-Cchp1      .                     , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
-Cchp1      .                     oiax , mxclas 
-Cchp1                             integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
-Cchp1      .                      , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
-Cchp1      .                      mxclas 
                              integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
                      real(8),allocatable:: eula(:,:)
@@ -276,10 +161,7 @@ Cchp1      .                      mxclas
 
       integer:: i_copy_size, i_spackv, i_spacks
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
-ctakao
 cki      integer:: ifx,w_dummy=1
       integer:: ifx,w_dummy(1)=1
       integer,allocatable:: ics(:)
@@ -307,16 +189,12 @@ C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
 c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 
-Cchp1       oinitc=sarray%ohave
        iv_p_oinitc => sarray%iv_p_ohave 
 
-Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
-Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
-Cchp1       onrc=sarray%onrc
        iv_p_onrc => sarray%iv_p_onrc 
 
 ccc
@@ -326,18 +204,14 @@ c       npadl=sarray%npadl
 c       npadr=sarray%npadr
       nclasp=sarray%nclasp
 c       opgfsl=sarray%opgfsl
-Cchp1       ormax=sarray%ormax
        rv_p_ormax => sarray%rv_p_ormax 
 
 
 
-Cchp1       opos=sarray%opos
        rv_p_opos => sarray%rv_p_opos 
 
-Cchp1       oipc=sarray%oipc
        iv_p_oipc => sarray%iv_p_oipc 
 
-Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
 
@@ -348,31 +222,23 @@ c       i_copy_size=size(sham%qss)
 c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 
-Cchp1       opnu=spot%opnu
        rv_p_opnu => spot%rv_p_opnu 
 
-Cchp1       oqnu=spot%oqnu
        rv_p_oqnu => spot%rv_p_oqnu 
 
-Cchp1       opp=spot%opp
        rv_p_opp => spot%rv_p_opp 
 
-Cchp1       oqc=spot%oqc
        rv_p_oqc => spot%rv_p_oqc 
 
-Cchp1       oqt=spot%oqt
        rv_p_oqt => spot%rv_p_oqt 
 
 
 
 cki      oaamom=spot%oaamom
-Cchp1       orhrmx=spot%orhrmx
        rv_p_orhrmx => spot%rv_p_orhrmx 
 
-Cchp1       oves=spot%oves
        rv_p_oves => spot%rv_p_oves 
 
-Cchp1       ovrmax=spot%ovrmax
        rv_p_ovrmax => spot%rv_p_ovrmax 
 
 
@@ -386,11 +252,9 @@ c       call dcopy(i_copy_size,slat%plat2,1,plat2,1)
 
 
       nkd=slat%nkd
-Cchp1       odlv=slat%odlv
        rv_p_odlv => slat%rv_p_odlv 
 
       nkq=slat%nkq
-Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
 
@@ -402,7 +266,6 @@ ctakao
 c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
 c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
-Cchp1       call icopy(nclasp,w(oics),1,ics,1)
        call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
 
       lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
@@ -417,7 +280,6 @@ Cchp1       call icopy(nclasp,w(oics),1,ics,1)
 
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
-Cchp1         call shorps(nbasp,plat,modep,w(opos),w(opos))
          call shorps ( nbasp , plat , modep , rv_p_opos , rv_p_opos ) 
 
       endif
@@ -428,10 +290,6 @@ C ... Read from restart file
 
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
-Cchp1           call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
-Cchp1      .    w(opnu),w(oqnu),.false.,ifi)
-Cchp1            call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
-Cchp1      .     rv_p_opnu , w ( oqnu ) , .false. , ifi ) 
             call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
      .      rv_p_opnu , rv_p_oqnu , .false. , ifi ) 
 
@@ -467,8 +325,6 @@ C ... Get neighbor table iax for each atom in the cluster
         call pshpr(iprint()-20)
 c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
-Cchp1         call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
-Cchp1      .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
          call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos 
      .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 
@@ -506,7 +362,6 @@ C        xx = dglob('lrel',1d0,1)
 C        xx = dglob('nsp',1d0,1)
 C       Initial estimate for sphere radii: overlapping atom potentials
           allocate(zz_rv(nspec))
-Ctakao_ZeroClear_NotRequiered          if (nspec<0) zz_rv(:)=0.0d0
 
           i_copy_size=1;
           do i_spackv=1,nspec
@@ -516,7 +371,6 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) zz_rv(:)=0.0d0
           enddo
 
           allocate(rmt_rv(nspec))
-Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
 
           i_copy_size=1;
           do i_spackv=1,nspec
@@ -541,11 +395,6 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
           else
             call rx('LMAUX: not implemented for lpbc>1')
           endif
-Cchp1           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
-Cchp1      .    slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
-Cchp1      .    )
-Cchp1            call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
-Cchp1      .     slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
             call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos , 
      .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
 
@@ -559,12 +408,6 @@ C   ... Scale sphere radii satisfying constraints
           call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
           wsrmax=sctrl%wsrmax
 
-Cchp1           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
-Cchp1      .    ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
-Cchp1      .    , wsrmax , omax1 , omax2 , rmt_rv )
-Cchp1            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
-Cchp1      .     ) , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
-Cchp1      .     , omax1 , omax2 , rmt_rv ) 
             call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos 
      .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv ) 
@@ -586,15 +429,12 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
           do i=1,nclspp
             rmax(i) =sspec(ics(i))%rmt
           enddo
-Cchp1           call defdr(ormax,nclspp)
            allocate(rv_p_ormax(abs(nclspp)))
            if (nclspp<0) rv_p_ormax(:)=0.0d0
 
-Cchp1           call dcopy(nclspp,rmax,1,w(ormax),1)
            call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
 
 
-Cchp1           sarray%ormax=ormax
            sarray%rv_p_ormax => rv_p_ormax 
 
           ifx=1
@@ -603,7 +443,6 @@ Cchp1           sarray%ormax=ormax
 c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
-Cchp1           call dcopy(nclasp,w(ormax),1,rmax,1)
            call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
 
         endif
@@ -615,20 +454,6 @@ C --- Show neighbors by shell ---
         outs = ' '
         j = 8
         if (cmdopt('--shell',j-1,0,outs)) then
-Cchp1           call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
-Cchp1      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
-Cchp1            call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-Cchp1      .     , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , w ( oves 
-Cchp1      .     ) , w ( oeula ) , nclass ) 
-Cchp1             call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-Cchp1      .      , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , rv_p_oves 
-Cchp1      .      , w ( oeula ) , nclass ) 
-Cchp1              call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-Cchp1      .       , z , slabl , rv_p_oclabl , iv_p_oips , w ( oipc ) , rv_p_oves 
-Cchp1      .       , w ( oeula ) , nclass ) 
-Cchp1               call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-Cchp1      .        , z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves 
-Cchp1      .        , w ( oeula ) , nclass ) 
 
               allocate(eula(nbas,3))
                call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
@@ -644,9 +469,6 @@ Cchp1      .        , w ( oeula ) , nclass )
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
-Cchp1           call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
-Cchp1            call shoang ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-Cchp1      .     , slabl , iv_p_oips ) 
             call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
      .      slabl , iv_p_oips ) 
 
@@ -663,10 +485,8 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
           j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
      .    sspec,ssite)
           allocate(pos2_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
 
           allocate(ips2_iv(nbas))
-Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
 
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
@@ -683,19 +503,11 @@ Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
           enddo
 
 
-Cchp1           call defrr(og,   9*ngmx)
            allocate(rv_p_og(abs(9*ngmx)))
            if (9*ngmx<0) rv_p_og(:)=0.0d0
 
-Cchp1           call symlat(plat,ngrp,w(og),j)
            call symlat ( plat , ngrp , rv_p_og , j ) 
 
-Cchp1           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
-Cchp1      .    ) , w ( opos ) , ips2_iv , pos2_rv )
-Cchp1            j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , iv_p_oips 
-Cchp1      .     , w ( opos ) , ips2_iv , pos2_rv ) 
-Cchp1             j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
-Cchp1      .      , w ( opos ) , ips2_iv , pos2_rv ) 
              j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
      .       , rv_p_opos , ips2_iv , pos2_rv ) 
 
@@ -713,12 +525,10 @@ C ... Write positions in Cartesian coordinates and as multiples plat
 C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
-Cchp1             call dpscop(w(opos),xv,3,3*i-2,1,1d0)
              call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
 
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-Cchp1             ip = ival(w(oips),i)
              ip = ival ( iv_p_oips , i ) 
 
             print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
@@ -734,14 +544,6 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         if (swtmp) i = 7
         j = 1
         if (iprint() .lt. 30) j = 0
-Cchp1         call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
-Cchp1      .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
-Cchp1          call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-Cchp1      .   , rmax , rv_p_oclabl , w ( oipc ) , modep , z , ontab , oiax 
-Cchp1      .   , w ( opos ) , j ) 
-Cchp1           call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-Cchp1      .    , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
-Cchp1      .    w ( opos ) , j ) 
            call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
      .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
      .     rv_p_opos , j ) 
@@ -749,8 +551,6 @@ Cchp1      .    w ( opos ) , j )
 
 
 C ... Write positions to file
-Cchp1         if (cmdopt('--wpos=',7,0,outs))
-Cchp1      .  call iopos(T,0,outs(8:),nbasp,w(opos))
          if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0 
      .   , outs ( 8: ) , nbasp , rv_p_opos ) 
 

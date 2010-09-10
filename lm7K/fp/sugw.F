@@ -1,36 +1,4 @@
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppix
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otaux
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osigx
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp1 cmdvar= real(8),rv_p_,oqsig
 #define V2 1
-Cchp3       subroutine sugw(ssite,sspec,slat,sham,nbas,ndham,
-Cchp3      .smpot,vconst,lcplxp,osig,otau,oppi,ppn,vrmt,
-Cchp3      .spotx,osigx,otaux,oppix,
-Cchp3      .jobgw)
-Cchp3        subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-Cchp3      . , smpot , vconst , lcplxp , sv_p_osig , otau , oppi , ppn , vrmt 
-Cchp3      . , spotx , osigx , otaux , oppix , jobgw ) 
-Cchp3         subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-Cchp3      .  , smpot , vconst , lcplxp , sv_p_osig , otau , oppi , ppn , vrmt 
-Cchp3      .  , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
-Cchp3          subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-Cchp3      .   , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppn 
-Cchp3      .   , vrmt , spotx , sv_p_osigx , otaux , oppix , jobgw ) 
-Cchp3           subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-Cchp3      .    , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , oppi , ppn 
-Cchp3      .    , vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw ) 
-Cchp3            subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
-Cchp3      .     , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
-Cchp3      .     , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , oppix , jobgw 
-Cchp3      .     ) 
             subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
@@ -177,9 +145,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
-Cchp3       integer jobgw,osig(3,nbas),otau(3,nbas),oppi(3,nbas),lh(n0)
-Cchp3        integer:: jobgw , otau(3,nbas) , oppi(3,nbas) , lh(n0) 
-Cchp3         integer:: jobgw , oppi(3,nbas) , lh(n0) 
          integer:: jobgw , lh(n0) 
          type(s_rv1) :: sv_p_oppi(3,nbas)
 
@@ -187,9 +152,6 @@ Cchp3         integer:: jobgw , oppi(3,nbas) , lh(n0)
 
        type(s_rv1) :: sv_p_osig(3,nbas)
 
-Cchp3       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
-Cchp3        integer:: otaux(3,nbas) , oppix(3,nbas) 
-Cchp3         integer:: oppix(3,nbas) 
          type(s_rv1) :: sv_p_oppix(3,nbas)
 
         type(s_rv1) :: sv_p_otaux(3,nbas)
@@ -217,9 +179,6 @@ C ... Local parameters
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .stdo
 C     integer lshft(3)
-Cchp1       integer:: og , oiprmb , ov0
-Cchp1        integer:: og , ov0 
-Cchp1         integer:: ov0 
          real(8),pointer :: rv_p_ov0(:)
 
         real(8),pointer :: rv_p_og(:)
@@ -263,7 +222,6 @@ c      integer:: oigv2
 
 C ... for reading self-energy
       integer nqsig
-Cchp1       integer oqsig
        real(8),pointer :: rv_p_oqsig(:)
 
 
@@ -311,7 +269,6 @@ C --- Setup ---
 
       npgrp=slat%npgrp
       nsgrp=slat%nsgrp
-Cchp1       og=slat%osymgr
        rv_p_og => slat%rv_p_osymgr 
 
 
@@ -329,7 +286,6 @@ Changenglob      nspc = nglob('nspc')
 C     lsig = 0
 
       nqsig=sham%nqsig
-Cchp1       oqsig=sham%oqsig
        rv_p_oqsig => sham%rv_p_oqsig 
 
 
@@ -395,7 +351,6 @@ C ... Count number of atoms : exclude floating orbitals
 
       napw = 0
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
 
@@ -435,7 +390,6 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
         call info(30,1,1,
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 C   ... Create file SYMOPS
-Cchp1         call wsymops(w(og),nsgrp)
          call wsymops ( rv_p_og , nsgrp ) 
 
 C   ... Create file LATTC
@@ -451,7 +405,6 @@ C   ... Create file LATTC
           lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
-Cchp1             call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
              call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
      .       xx , offl , i1 ) 
 
@@ -644,7 +597,6 @@ C   ... Atom data (gwa)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cchp1           ov0=ssite(ib)%ov0
            rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
@@ -657,8 +609,6 @@ Cchp1           ov0=ssite(ib)%ov0
           lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
-Cchp1             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
-Cchp1      .      i1,ncore,konfig,ecore,w,w)
              call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
      .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
      .       , w ) 
@@ -668,8 +618,6 @@ Cchp1      .      i1,ncore,konfig,ecore,w,w)
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
-Cchp1             call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
-Cchp1      .      nphimx,ncore,konfig,ecore,gcore,gval)
              call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
      .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
      .       , gcore , gval ) 
@@ -930,7 +878,6 @@ c          call pshpr(101)
 c          call defi(oigv2,3*napw)
           allocate(igv2(3,napw))
           allocate(kv_iv(3*napw))
-Ctakao_ZeroClear_NotRequiered            if (3*napw<0) kv_iv(:)=0
 
           call pshpr(iprint()-10)
           call gvlst2 ( alat , plat , xx , 0 , 0 , 0 , pwgmin , pwgmax 
@@ -968,15 +915,6 @@ c$$$        endif
 
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
-Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
-Cchp3      .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,igv2,
-Cchp3      .    vxc,ovl,w)
-Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-Cchp3      .     , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , otaux , oppix 
-Cchp3      .     , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
-Cchp3             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-Cchp3      .      , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , oppix 
-Cchp3      .      , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
@@ -984,15 +922,6 @@ Cchp3      .      , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w )
 
 
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
-Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
-Cchp3      .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2,ham,
-Cchp3      .    ovl,w)
-Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-Cchp3      .     , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
-Cchp3      .     , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
-Cchp3             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
-Cchp3      .      , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , oppi 
-Cchp3      .      , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
@@ -1019,21 +948,6 @@ C   --- LDA + sigma Hamiltonian for this qp ---
           lpdiag = 0
           i = lrsig*10 + 1
           ispc = min(isp,nspc)
-Cchp1           call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
-Cchp1      .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
-Cchp1      .    ndimh,napw,igv2,ham,ovl,i2)
-Cchp3            call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-Cchp3      .     ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
-Cchp3      .     , osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw ,  
-Cchp3      .     igv2 , ham , ovl , i2 ) 
-Cchp3             call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-Cchp3      .      ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
-Cchp3      .      , sv_p_osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw 
-Cchp3      .      , igv2 , ham , ovl , i2 ) 
-Cchp3              call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-Cchp3      .       ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
-Cchp3      .       , sv_p_osig , sv_p_otau , oppi , lcplxp , 0 , alfa , ndimh , 
-Cchp3      .       napw , igv2 , ham , ovl , i2 ) 
               isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
      .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
@@ -1063,7 +977,6 @@ C            call rlse(oww)
               endif
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
               allocate(ww_rv(11*ndimh))
-Ctakao_ZeroClear_NotRequiered            if (11*ndimh<0) ww_rv(:)=0.0d0
 
               epsovl = sham%oveps
 
@@ -1265,9 +1178,6 @@ c            inn = qlatinv*(qp-q)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
-Cchp1               call pwmat(slat,ssite,sspec,nbas,ndimh,napw,igv2,
-Cchp1 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
-Cchp1      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
                call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,  
      .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
      .         , ppovl , phovl ) 

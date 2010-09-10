@@ -1,22 +1,3 @@
-Cdwdef1 have_common_w_in symrat , #_of_w_access= 0
-Cdwdef1 have_common_w_in psymr1 , #_of_w_access= 0
-Cdwdef1 have_common_w_in symsmr , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
-Cchp1 cmdvar= complex(8),zv_p_,obgv
-Cchp1 cmdvar= real(8),rv_p_,oag
-Cchp1 cmdvar= real(8),iv_p_,oistab
-Cchp1 cmdvar= real(8),iv_p_,oips0
-Cchp1 cmdvar= real(8),iv_p_,oips0
-Cchp3       subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
        subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
      . , qbyl , hbyl , f ) 
 
@@ -56,7 +37,6 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
 C     implicit none
-Cchp3       integer lf,orhoat(3,*)
        integer:: lf 
        type(s_rv1) :: sv_p_orhoat(3,*)
 
@@ -81,11 +61,9 @@ Changenglob      nsp = nglob('nsp')
 
       call fftz30(n1,n2,n3,k1,k2,k3)
 
-Cchp3       call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
        call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
      . , qbyl , hbyl , f ) 
 
-Cchp3       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
        if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
      . , sv_p_orhoat ) 
 
@@ -94,7 +72,6 @@ Cchp3       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
       end subroutine symrho
 
 
-Cchp3       subroutine symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
        subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
      . sv_p_orhoat , qbyl , hbyl , f ) 
 
@@ -134,7 +111,6 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,nsp,orhoat(3,nbas),n0,lf
        integer:: nbas , nsp , n0 , lf 
        type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -145,27 +121,6 @@ Cchp3       integer nbas,nsp,orhoat(3,nbas),n0,lf
       type(s_lat)::slat
 
 C ... Local parameters
-Cchp1       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      ., lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
-Cchp1      ., ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival
-Cchp1        integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      . , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
-Cchp1      . , ocy , og , oidxcg , ojcg , igetss , mxint , ival 
-Cchp1         integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      .  , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , ocg , ocy 
-Cchp1      .  , og , oidxcg , ojcg , igetss , mxint , ival 
-Cchp1          integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      .   , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , ocy , og 
-Cchp1      .   , oidxcg , ojcg , igetss , mxint , ival 
-Cchp1           integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      .    , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , oidxcg 
-Cchp1      .    , ojcg , igetss , mxint , ival 
-Cchp1            integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      .     , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , ojcg 
-Cchp1      .     , igetss , mxint , ival 
-Cchp1             integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-Cchp1      .      , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , igetss 
-Cchp1      .      , mxint , ival 
              integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
      .       mxint , ival 
@@ -193,24 +148,18 @@ Cchp1      .      , mxint , ival
 
       double precision plat(9),qlat(9)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn('symrat')
       stdo = lgunit(1)
       ipr = iprint()
 
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -219,28 +168,22 @@ Cchp1       ocy=slat%ocy
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
 
 
       ngrp=slat%nsgrp
-Cchp1       og=slat%osymgr
        rv_p_og => slat%rv_p_osymgr 
 
-Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
 
 
       allocate(ips_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ips_iv(:)=0
 
       allocate(ipc_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipc_iv(:)=0
 
       allocate(pos0_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos0_rv(:)=0.0d0
 
 
 C ... Separate sites into symmetry classes
@@ -268,10 +211,8 @@ C  300 format(/' symrat: number of symmetry classes is',i3)
 
 C --- Start loop over classes ---
       allocate(ipa_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipa_iv(:)=0
 
       allocate(pos_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos_rv(:)=0.0d0
 
 
       do  ic = 1, nclass
@@ -295,14 +236,7 @@ Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos_rv(:)=0.0d0
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))
-Ctakao_ZeroClear_NotRequiered          if (nlmx*nlmx*nrclas<0) sym_rv(:)=0.0d0
 
-Cchp1           call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w 
-Cchp1      .    ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
-Cchp1            call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
-Cchp1      .     og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv ) 
-Cchp1             call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
-Cchp1      .      og ) , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
              call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
      .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
 
@@ -313,16 +247,11 @@ Cchp1      .      og ) , rv_p_oag , plat , qlat , pos_rv , sym_rv )
 C   ... Apply the projectors to rhoat
           if (lmxl .gt. -1) then
             allocate(rho_rv(nr*nlml*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*nlml*nsp<0) rho_rv(:)=0.0d0
 
-Cchp3             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-Cchp3      .      , rho_rv , orhoat , 1 )
              call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 1 ) 
 
 
-Cchp3             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-Cchp3      .      , rho_rv , orhoat , 2 )
              call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 2 ) 
 
@@ -435,7 +364,6 @@ C ... Local parameters
       end subroutine psymrq
 
 
-Cchp3       subroutine psymr1(nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,orhoat,icmp)
        subroutine psymr1 ( nrclas , ipa , nr , nlml , nsp , nlmx , sym 
      . , rho , sv_p_orhoat , icmp ) 
        use m_struc_def, only: s_rv1
@@ -444,7 +372,6 @@ C- Symmetrize density for one class of atoms
 C     implicit none
 C ... Passed parameters
       integer nrclas,nsp
-Cchp3       integer ipa(nrclas),orhoat(3,1),nlmx,nr,nlml,icmp
        integer:: ipa(nrclas) , nlmx , nr , nlml , icmp 
        type(s_rv1) :: sv_p_orhoat(3,1)
 
@@ -453,16 +380,12 @@ C ... Local parameters
       integer stdo,ia,ib,iprint,lgunit,nn
       double precision wgt
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Accumulate symmetrized true density on first site
       stdo = lgunit(1)
       call dpzero(rho, nr*nlml*nsp)
       do  ia = 1, nrclas
         ib = ipa(ia)
-Cchp3         call pxsmr1(1d0,nr,nlml,nsp,sym(1,1,ia),w(orhoat(icmp,ib)),rho,
-Cchp3      .  nn)
          call pxsmr1 ( 1d0 , nr , nlml , nsp , sym ( 1 , 1 , ia ) , sv_p_orhoat( icmp , ib )%v 
      .   , rho , nn ) 
 
@@ -472,10 +395,8 @@ C ... Copy to all sites in class
       wgt = nrclas
       do  ia = 1, nrclas
         ib = ipa(ia)
-Cchp3         call dpzero(w(orhoat(icmp,ib)), nr*nlml*nsp)
          call dpzero ( sv_p_orhoat( icmp , ib )%v , nr * nlml * nsp ) 
 
-Cchp3         call pysmr1(wgt,nr,nlml,nsp,sym(1,1,ia),rho,w(orhoat(icmp,ib)),nn)
          call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
      .   , sv_p_orhoat( icmp , ib )%v , nn ) 
 
@@ -499,12 +420,6 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
-Cchp1       integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , oips0 , okv 
-Cchp1      ., ngabc(3) , isp
-Cchp1        integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , okv , ngabc(3) 
-Cchp1      . , isp 
-Cchp1         integer:: n1 , n2 , n3 , ng , ngrp , ogv , okv , ngabc(3) , isp 
-Cchp1          integer:: n1 , n2 , n3 , ng , ngrp , okv , ngabc(3) , isp 
           integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp 
           integer,pointer :: iv_p_okv(:)
 
@@ -519,53 +434,37 @@ Cchp1          integer:: n1 , n2 , n3 , ng , ngrp , okv , ngabc(3) , isp
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn('symsmr')
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
 
 
       ngrp=slat%nsgrp
-Cchp1       oips0=slat%oips0
        iv_p_oips0 => slat%iv_p_oips0 
 
-Cchp1       obgv=slat%obgv
        zv_p_obgv => slat%zv_p_obgv 
 
 
       if (ngrp .gt. 1) then
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         allocate(cv_zv(ng))
-Ctakao_ZeroClear_NotRequiered          if (ng<0) cv_zv(:)=0.0d0
 
         allocate(csym_zv(ng))
-Ctakao_ZeroClear_NotRequiered          if (ng<0) csym_zv(:)=0.0d0
 
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
-Cchp1           call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
-Cchp1      .    1 , 1 , isp ) , cv_zv )
            call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
      .     1 , 1 , isp ) , cv_zv ) 
 
 
-Cchp1           call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , cv_zv 
-Cchp1      .    , csym_zv )
-Cchp1            call gvsym ( ng , w ( ogv ) , iv_p_oips0 , w ( obgv ) , cv_zv 
-Cchp1      .     , csym_zv ) 
-Cchp1             call gvsym ( ng , w ( ogv ) , iv_p_oips0 , zv_p_obgv , cv_zv 
-Cchp1      .      , csym_zv ) 
              call gvsym ( ng , rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
      .       csym_zv ) 
 
@@ -574,8 +473,6 @@ Cchp1      .      , csym_zv )
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
-Cchp1           call gvaddf ( ng , w ( okv ) , k1 , k2 , k3 , csym_zv , smrho 
-Cchp1      .    ( 1 , 1 , 1 , isp ) )
            call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) ) 
 

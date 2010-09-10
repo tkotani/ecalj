@@ -1,5 +1,3 @@
-Cdwdef1 have_common_w_in elocp , #_of_w_access= 1
-Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine elocp(nbas,nsp,ssite,sspec,job)
 
       use m_struc_def  !Cgetarg
@@ -41,7 +39,6 @@ C ... Local parameters
      .nr,nrmx,nrspec,nspec,stdo
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,nkaph,idamax
-Cchp1       integer:: ov0
        real(8),pointer :: rv_p_ov0(:)
 
       integer ,allocatable :: ips_iv(:)
@@ -51,8 +48,6 @@ Cchp1       integer:: ov0
      .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
      .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -75,7 +70,6 @@ C --- Find val, slo, K.E. for all sites ---
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-Cchp1         ov0=ssite(ib)%ov0
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
@@ -102,8 +96,6 @@ Cchp1         ov0=ssite(ib)%ov0
         eloc = .true.
 
         call radmsh(rmt,a,nr,rofi)
-Cchp1         call loctsh(1101,spid,z,a,nr,nr,nsp,lmxa,rofi,w(ov0),
-Cchp1      .  pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
          call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi 
      .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
      .   , rsml , ehl ) 
@@ -117,7 +109,6 @@ Cchp1      .  pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
 
 C --- Determine shape of smooth Hankel tails for local orbitals ---
       allocate(ips_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ips_iv(:)=0
 
       i_copy_size=1;
       do i_spackv=1,nbas
@@ -204,8 +195,6 @@ C   ... Make parameters for this species
         call dpzero(rsml,n0*2)
         call dpzero(ehl,n0*2)
         call radmsh(rmt,a,nr,rofi)
-Cdwdef1         call loctsh(1102,spid,xx,a,nr,nr,nsp,lmxa,rofi,w,
-Cdwdef1      .  pnui,pnzi,rs3,eh3,vmtz,vseli,rsml,ehl)
          call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
      .   , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsml , ehl 
      .   ) 

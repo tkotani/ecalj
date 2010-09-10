@@ -1,5 +1,3 @@
-Cdwdef1 have_common_w_in iopos , #_of_w_access= 0
-Cdwdef1 have_common_w_in ioposs , #_of_w_access= 0
       subroutine iopos(lio,mode,filnam,nbas,bas)
 
 C- File i/o of site positions
@@ -65,8 +63,6 @@ C ... for rdfiln
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
      .nlist(0:mxlev)
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       data rdarg /'#{}% c'/
 
@@ -103,7 +99,6 @@ C   ... Write, mode=1
 C   ... Write, mode=0
           elseif (mode .eq. 0) then
             allocate(wk_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) wk_rv(:)=0.0d0
 
             call dmcpy ( bas , 3 , 1 , wk_rv , 1 , nbas , 3 , nbas )
 
@@ -140,7 +135,6 @@ C   ... Look for mode on first line
 C   ... Read, mode=0
           if (lmode .eq. 0) then
             allocate(wk_rv(3*nbas*2))
-Ctakao_ZeroClear_NotRequiered            if (3*nbas*2<0) wk_rv(:)=0.0d0
 
             j = rdm ( ifi , 0 , 3 * nbas , ' ' , wk_rv , nbas , 3 )
 
@@ -216,12 +210,9 @@ C     implicit none
       real(8) ,allocatable :: pos_rv(:)
 
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Unpack site positions
       allocate(pos_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos_rv(:)=0.0d0
 
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas

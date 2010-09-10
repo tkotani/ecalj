@@ -1,5 +1,3 @@
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp3       subroutine dfqkkl(nbas,ssite,sspec,numq,oqkkl)
        subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
      . ) 
 
@@ -34,7 +32,6 @@ Cu   22 Apr 00 Adapted from nfp df_qkkl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,numq,oqkkl(3,nbas)
        integer:: nbas , numq 
        type(s_rv1) :: sv_p_oqkkl(3,nbas)
 
@@ -68,21 +65,18 @@ C --- Loop over sites, allocating qkkl for each site ---
 
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
-Cchp3         call defrr(oqkkl(1,ib), nelt1*numq*nsp*nspc)
          allocate(sv_p_oqkkl(1,ib)%v(abs(nelt1*numq*nsp*nspc)))
          if (nelt1*numq*nsp*nspc<0) sv_p_oqkkl(1,ib)%v(:)=0.0d0
 
 
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
-Cchp3         call defrr(oqkkl(2,ib), nelt2*numq*nsp*nspc)
          allocate(sv_p_oqkkl(2,ib)%v(abs(nelt2*numq*nsp*nspc)))
          if (nelt2*numq*nsp*nspc<0) sv_p_oqkkl(2,ib)%v(:)=0.0d0
 
 
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
-Cchp3         call defrr(oqkkl(3,ib), nelt3*numq*nsp*nspc)
          allocate(sv_p_oqkkl(3,ib)%v(abs(nelt3*numq*nsp*nspc)))
          if (nelt3*numq*nsp*nspc<0) sv_p_oqkkl(3,ib)%v(:)=0.0d0
 

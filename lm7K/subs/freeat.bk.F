@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in freats , #_of_w_access= 0
-Cdwdef1 have_common_w_in optfab , #_of_w_access= 0
-Cdwdef1 have_common_w_in ftfalo , #_of_w_access= 0
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
@@ -293,8 +290,6 @@ C     double precision qz(n0,2)
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
 C Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 ctakao
       integer:: ipl, ipz,iplx
       real(8):: qcc
@@ -459,10 +454,8 @@ C --- Print info about free-atom wavefunctions ---
       if (lwf .ne. 0) then
         if (ipr .gt. 30) then
           allocate(g_rv(nr*2))
-Ctakao_ZeroClear_NotRequiered        if (nr*2<0) g_rv(:)=0.0d0
 
           allocate(psi_rv(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nr*(lmxa+1)*nsp<0) psi_rv(:)=0.0d0
 
           lplawv = 0
           if (ipr .ge. 50) lplawv = 1
@@ -804,8 +797,6 @@ C ... Local parameters
      .eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
      .raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       ipr = iprint()
       stdo = lgunit(1)
@@ -821,13 +812,10 @@ Changenglob      lrel = nglob('lrel')
      .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
      .  ' ',80,stdo,ipr,rmt)
         allocate(h_rv(nr))
-Ctakao_ZeroClear_NotRequiered        if (nr<0) h_rv(:)=0.0d0
 
         allocate(g_rv(2*nr))
-Ctakao_ZeroClear_NotRequiered        if (2*nr<0) g_rv(:)=0.0d0
 
         allocate(gp_rv(2*nr*4))
-Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) gp_rv(:)=0.0d0
 
 
 C --- Parameters for minimisation ---
@@ -1000,7 +988,6 @@ C     lplawv=nglob('lplawv')
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
         allocate(psi_rv(nr*lmxa))
-Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) psi_rv(:)=0.0d0
 
         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
      .  , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )
@@ -1079,8 +1066,6 @@ C     For plotting wave functions
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data flg/'*',' '/
 
 C     return
@@ -1096,13 +1081,10 @@ C     stdl = lgunit(2)
 
       do  80  i = 1, nsp
         allocate(h_rv(nr))
-Ctakao_ZeroClear_NotRequiered        if (nr<0) h_rv(:)=0.0d0
 
         allocate(g_rv(2*nr))
-Ctakao_ZeroClear_NotRequiered        if (2*nr<0) g_rv(:)=0.0d0
 
         allocate(gp_rv(2*nr*4))
-Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) gp_rv(:)=0.0d0
 
 
 C --- Loop over local orbitals ---
@@ -1236,7 +1218,6 @@ C     lplawv=nglob('lplawv')
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
         allocate(psi_rv(nr*lmxa))
-Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) psi_rv(:)=0.0d0
 
         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
      .  , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )

@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in readctrlpq , #_of_w_access= 0
       module m_rdctrl
       use m_struc_def
       implicit none
@@ -2733,8 +2732,6 @@ C ... Local parameters
      .iv(100),ii,n,js
       real(8):: xv(100),xx,pi
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)

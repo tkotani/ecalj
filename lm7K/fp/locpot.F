@@ -1,41 +1,3 @@
-Cdwdef1 have_common_w_in locpot , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp1 cmdvar= real(8),rv_p_,ov01
-Cchp1 cmdvar= real(8),rv_p_,ov1
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocg
-Cchp3       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
-Cchp3      .qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
-Cchp3      .cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
-Cchp3      .rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,
-Cchp3      .saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
-Cchp3        subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-Cchp3      . , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , otau , oppi 
-Cchp3      . , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc , rhoex , 
-Cchp3      . rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps , rvvxc 
-Cchp3      . , valvef , xcore , focexc , focex , focec , focvxc , sqloc , 
-Cchp3      . sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu , vorb 
-Cchp3      . , lldau ) 
-Cchp3         subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-Cchp3      .  , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
-Cchp3      .  , oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc , 
-Cchp3      .  rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , rveps 
-Cchp3      .  , rvvxc , valvef , xcore , focexc , focex , focec , focvxc , 
-Cchp3      .  sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , lmaxu 
-Cchp3      .  , vorb , lldau ) 
-Cchp3          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-Cchp3      .   , slat , orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
-Cchp3      .   , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
-Cchp3      .   , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
-Cchp3      .   rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
-Cchp3      .   , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-Cchp3      .   lmaxu , vorb , lldau ) 
           subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
      .    , slat , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
@@ -164,14 +126,6 @@ Cu   17 Jun 98 Adapted from DLN to run parallel on SGI
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,nsp,job,oppi(3,nbas),osig(3,nbas),otau(3,nbas),
-Cchp3      .orhoat(3,nbas),n0,nppn,nab,lso,lcplxp
-Cchp3        integer:: nbas , nsp , job , oppi(3,nbas) , otau(3,nbas) , orhoat(3,nbas) 
-Cchp3      . , n0 , nppn , nab , lso , lcplxp 
-Cchp3         integer:: nbas , nsp , job , oppi(3,nbas) , orhoat(3,nbas) , 
-Cchp3      .  n0 , nppn , nab , lso , lcplxp 
-Cchp3          integer:: nbas , nsp , job , orhoat(3,nbas) , n0 , nppn , nab 
-Cchp3      .   , lso , lcplxp 
           integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp 
           type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -221,19 +175,6 @@ C ... for core hole
       real(8),allocatable:: wk(:),rhol1(:),rhol2(:),
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
       logical lfltwf
-Cchp1       integer i,stdo,nglob,ipr,iprint,j1,ib,is,lmxl,
-Cchp1      .lmxa,nr,lmxb,kmax,lfoc,nrml,ov01,ov0,nlml,ocg,
-Cchp1      .ojcg,oidxcg
-Cchp1        integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-Cchp1      . , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
-Cchp1      . ojcg , oidxcg 
-Cchp1         integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-Cchp1      .  , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
-Cchp1      .  ojcg 
-Cchp1          integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-Cchp1      .   , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml 
-Cchp1           integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-Cchp1      .    , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , nlml 
            integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
            real(8),pointer :: rv_p_ov01(:)
@@ -248,8 +189,6 @@ Cchp1      .    , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , nlml
 
 C$    integer iiv0(nbas),nvl
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Setup ---
       call tcn('locpot')
@@ -318,10 +257,8 @@ C$&  MP_SCHEDTYPE=RUNTIME
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-Cchp1         ov0=ssite(ib)%ov0
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-Cchp1         ov01=ssite(ib)%ov1
          rv_p_ov01 => ssite(ib)%rv_p_ov1 
 
 
@@ -407,20 +344,12 @@ C$      j1 = iiv0(ib)+1
 
 C   ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
-Cchp3           call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
-Cchp3      .    nlml,nsp)
            call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
      .     , rofi , nr , nlml , nsp ) 
 
         endif
 
 C   --- Make potential and energy terms at this site ---
-Cchp3         call locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,nlml,
-Cchp3      .  qmom(j1),vval(j1),rofi,rwgt,w(orhoat(1,ib)),w(orhoat(2,ib)),
-Cchp3      .  w(orhoat(3,ib)),rhol1,rhol2,v1,v2,v1es,v2es,wk,valvs,cpnvs,
-Cchp3      .  rhexc,rhex,rhec,rhvxc,rvepvl,rvexl,rvecl,rvvxvl,rveptl,rvvxtl,
-Cchp3      .  valvt,xcor,qloc,qlocc,aloc,alocc,gpotb,fcexc,fcex,fcec,fcvxc,
-Cchp3      .  rhobg,efg(1,ib))
          call locpt2 ( job , z , rmt , rg , a , nr , nsp , cofg , cofh 
      .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
      .   , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , 
@@ -439,7 +368,6 @@ C   ... Write true potential to file vtrue.ib
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
-Cchp1             call dpscop(v1,w(ov0),nr,1+nr*nlml*i,1+nr*i,y0)
              call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
      .       * i , y0 ) 
 
@@ -448,7 +376,6 @@ Cchp1             call dpscop(v1,w(ov0),nr,1+nr*nlml*i,1+nr*i,y0)
 
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-Cchp1           call dpscop(v1,w(ov01),nr,1+nr*nlml*i,1+nr*i,y0)
            call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
      .     * i , y0 ) 
 
@@ -520,70 +447,13 @@ C     ... Use effective potentials with modified xc
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
 
-Cchp1           ocg=slat%ocg
            rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1           ojcg=slat%ojcg
            iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1           oidxcg=slat%oidxcg
            iv_p_oidxcg => slat%iv_p_oidxcg 
 
 
-Cchp1           call augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,
-Cchp1      .    rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
-Cchp1      .    gpot0(j1),nkaph,nkapi,lmxb,lh,eh,rsmh,ehl,rsml,rs3,vmtz,
-Cchp1      .    lcplxp,lmaxu,vorb,lldau(ib),iblu,idu,
-Cchp1      .    osig(1,ib),otau(1,ib),oppi(1,ib),ppnl(1,1,1,ib),
-Cchp1      .    hab(1,1,1,ib),vab(1,1,1,ib),sab(1,1,1,ib))
-Cchp1            call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp1      .     , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , w ( ojcg ) , 
-Cchp1      .     w ( oidxcg ) , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph 
-Cchp1      .     , nkapi , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp 
-Cchp1      .     , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) 
-Cchp1      .     , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
-Cchp1      .     , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
-Cchp1      .     1 , 1 , ib ) ) 
-Cchp1             call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp1      .      , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , w ( ojcg ) , 
-Cchp1      .      iv_p_oidxcg , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph 
-Cchp1      .      , nkapi , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp 
-Cchp1      .      , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) 
-Cchp1      .      , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
-Cchp1      .      , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
-Cchp1      .      1 , 1 , ib ) ) 
-Cchp1              call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp1      .       , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-Cchp1      .       , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi 
-Cchp1      .       , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , 
-Cchp1      .       lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , 
-Cchp1      .       otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
-Cchp1      .       hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
-Cchp1      .       , 1 , ib ) ) 
-Cchp3               call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp3      .        , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-Cchp3      .        , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-Cchp3      .        lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
-Cchp3      .        , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , otau ( 
-Cchp3      .        1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab ( 
-Cchp3      .        1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , 
-Cchp3      .        ib ) ) 
-Cchp3                call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp3      .         , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-Cchp3      .         , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-Cchp3      .         lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
-Cchp3      .         , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , otau 
-Cchp3      .         ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab 
-Cchp3      .         ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 
-Cchp3      .         , ib ) ) 
-Cchp3                 call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-Cchp3      .          , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-Cchp3      .          , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-Cchp3      .          lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
-Cchp3      .          , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
-Cchp3      .          ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab 
-Cchp3      .          ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 
-Cchp3      .          , ib ) ) 
                  call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
      .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
      .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 

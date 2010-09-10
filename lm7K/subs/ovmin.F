@@ -1,9 +1,3 @@
-Cdwdef1 have_common_w_in ovmin , #_of_w_access= 1
-Cdwdef1 have_common_w_in ovcall , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,ontabo
-Cchp1 cmdvar= integer,iv_p_,oiaxo
-Cchp1 cmdvar= integer,iv_p_,ontab
-Cchp1 cmdvar= integer,iv_p_,oiax
       module m_ovmin
       contains
       subroutine ovmin(sovmin,nbas,nbasp,alat,plat,rmax,rmt,dclabl,
@@ -42,8 +36,6 @@ Cu   24 Nov 97  changed ovmin to call fovlp for fast execution
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-Cchp1       integer nbas,nbasp,ontab,oiax,iprtbl
-Cchp1        integer:: nbas , nbasp , ontab , iprtbl 
         integer:: nbas , nbasp , iprtbl 
         integer,pointer :: iv_p_ontab(:)
 
@@ -56,10 +48,6 @@ C     integer ntab(nbas+1),iax(niax,1)
       character sovmin*(*)
 C static:
       double precision alato,plato(9),xx
-Cchp1       integer nbaso,nbaspo,mxlst,nlst,modeo(3), !opos,ormax,oz oips,
-Cchp1      .ontabo,oiaxo,novl
-Cchp1        integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , ontabo , 
-Cchp1      . novl 
         integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , novl 
         integer,pointer :: iv_p_ontabo(:)
 
@@ -71,8 +59,6 @@ c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 C Local parameters
@@ -89,11 +75,6 @@ C --- Print out positions and overlaps ---
       call getpr(ipr)
       if (iprtbl .gt. 0) call ovlchk(nbas,nbasp,pos,alat,rmax,0d0,
      .dclabl,ips,mode,plat,fovmx,xx)
-Cchp1       call fovlp(1,nbas,w(ontab),w(oiax),plat,pos,ips,alat,rmax,z,6d0,
-Cchp1      .1d0,.75d0,.5d0,fovmx,fovl,novl)
-Cchp1        call fovlp ( 1 , nbas , w ( ontab ) , iv_p_oiax , plat , pos 
-Cchp1      . , ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , 
-Cchp1      . fovl , novl ) 
         call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos , 
      .  ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , fovl 
      .  , novl ) 
@@ -219,7 +200,6 @@ c        call defrr(og,n)
      .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
 
         call pshpr(ipr-5)
-Cdwdef1    22   call gradzr(n,w_op,w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
  22   call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
      ., 1.0d0 , wk , isw , ir ) 
 
@@ -240,11 +220,6 @@ C --- Print out updated positions and overlaps ---
         print '(/'' OVMIN:  updated site positions:'')'
         if (iprtbl .gt. 0) call ovlchk(nbas,nbasp,pos,alat,rmax,0d0,
      .  dclabl,ips,mode,plat,fovmx,xx)
-Cchp1         call fovlp(1,nbas,w(ontab),w(oiax),plat,pos,ips,alat,rmax,z,6d0,
-Cchp1      .  1d0,.75d0,.5d0,fovmx,fovl,novl)
-Cchp1          call fovlp ( 1 , nbas , w ( ontab ) , iv_p_oiax , plat , pos 
-Cchp1      .   , ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , 
-Cchp1      .   fovl , novl ) 
           call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos , 
      .    ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , fovl 
      .    , novl ) 
@@ -271,10 +246,6 @@ C     implicit none
       double precision x,p(3*n)
 C static:
       double precision alato,plato(9)
-Cchp1       integer nbaso,nbaspo,mxlst,nlst,modeo(3),oposb, !oz ormax, oips,
-Cchp1      .ontabo,oiaxo,novl,novlp,novlm
-Cchp1        integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , oposb , 
-Cchp1      . ontabo , novl , novlp , novlm 
         integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , oposb , 
      .  novl , novlp , novlm 
         integer,pointer :: iv_p_ontabo(:)
@@ -289,8 +260,6 @@ cki
 c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 C Local
       logical cmdopt
 C     character*8 clabl(10)
@@ -316,11 +285,6 @@ cki jul08 2010      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
 
       call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
      .w_oips,modeo,plato,fovl,xx)
-Cchp1       call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w_opos,w_oips,alato,
-Cchp1      .w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovl,novl)
-Cchp1        call fovlp ( 1 , nbaso , w ( ontabo ) , iv_p_oiaxo , plato , 
-Cchp1      . w_opos , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 
-Cchp1      . , .5d0 , xx , fovl , novl ) 
         call fovlp ( 1 , nbaso , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
      .  , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .  , xx , fovl , novl ) 
@@ -342,11 +306,6 @@ C     .    alato,w_ormax,w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
 C ... Gradient of fovl wrt pos
       do  20  i = 1, nlst
         j = ilst(i)
-Cchp1         call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
-Cchp1      .  alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fov0,novl0)
-Cchp1          call fovlp ( j , j , w ( ontabo ) , iv_p_oiaxo , plato , w_opos 
-Cchp1      .   , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-Cchp1      .   , xx , fov0 , novl0 ) 
           call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
      .    , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .    , xx , fov0 , novl0 ) 
@@ -357,11 +316,6 @@ Cchp1      .   , xx , fov0 , novl0 )
           call dvset(w_opos,3*j-3+ix,3*j-3+ix,val+dx)
 C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
 C     .    w_oips,modeo,plato,fovp,xx)
-Cchp1           call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
-Cchp1      .    alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovp,novlp)
-Cchp1            call fovlp ( j , j , w ( ontabo ) , iv_p_oiaxo , plato , w_opos 
-Cchp1      .     , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-Cchp1      .     , xx , fovp , novlp ) 
             call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .      , xx , fovp , novlp ) 
@@ -370,11 +324,6 @@ Cchp1      .     , xx , fovp , novlp )
           call dvset(w_opos,3*j-3+ix,3*j-3+ix,val-dx)
 C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
 C     .    w_oips,modeo,plato,fovm,xx)
-Cchp1           call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
-Cchp1      .    alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovm,novlm)
-Cchp1            call fovlp ( j , j , w ( ontabo ) , iv_p_oiaxo , plato , w_opos 
-Cchp1      .     , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-Cchp1      .     , xx , fovm , novlm ) 
             call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .      , xx , fovm , novlm ) 

@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in sclwsr , #_of_w_access= 0
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
      .slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
 
@@ -95,8 +94,6 @@ C Local variables:
      .volsph
       parameter(niax=10,mxcsiz=200,facr=2d0,tiny=1d-5)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       integer:: istdo,fopna
 
@@ -126,13 +123,11 @@ C --- Make a neighbor table and adjust llock to freeze ES sites ---
       nbasp = nbas
       mxnbr = mxcsiz*nbas
       allocate(ntab_iv(nbasp+1))
-Ctakao_ZeroClear_NotRequiered        if (nbasp+1<0) ntab_iv(:)=0
 
       allocate(iax_iv(abs(-niax*mxnbr)))
       if (-niax*mxnbr<0) iax_iv(:)=0
 
       allocate(wk_rv(3*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 
       nttab = mxnbr
       call pshpr(ipr-20)

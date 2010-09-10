@@ -93,10 +93,8 @@ Changenglob      nspec = nglob('nspec')
 
 C ... Get class list
       allocate(ipc_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipc_iv(:)=0
 
       allocate(ipa_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipa_iv(:)=0
 
       i_copy_size=1;
       do i_spackv=1,nbas
@@ -116,7 +114,6 @@ C ... Memory for qnu, site resolved
 
 C ... For now, just a placeholder.
       allocate(ov_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) ov_iv(:)=0
 
 
 C ... Poke class-based P,Q into site->pnu and oqnu

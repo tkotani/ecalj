@@ -1,9 +1,3 @@
-Cdwdef1 have_common_w_in chimedit , #_of_w_access= 1
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= real(8),rv_p_,oag
-Cchp1 cmdvar= real(8),iv_p_,oistab
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .nbas,nat,nspec)
 
@@ -123,10 +117,6 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-Cchp1       integer:: opos , oistab , og , oag
-Cchp1        integer:: opos , og , oag 
-Cchp1         integer:: opos , og 
-Cchp1          integer:: opos 
           real(8),pointer :: rv_p_opos(:)
 
          real(8),pointer :: rv_p_og(:)
@@ -163,8 +153,6 @@ c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 c     .                    (jj2*ifac(2)-1)*qb(k,2) +
 c     .                    (jj3*ifac(3)-1)*qb(k,3)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -176,19 +164,15 @@ C --- Setup ---
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-Cchp1       opos=slat%opos
        rv_p_opos => slat%rv_p_opos 
 
 
 
       nsgrp=slat%nsgrp
-Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
-Cchp1       og=slat%osymgr
        rv_p_og => slat%rv_p_osymgr 
 
-Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
 
@@ -198,7 +182,6 @@ C     should be from sgw?
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
-Cchp1       call dcopy(3*nbas,w(opos),1,pos,1)
        call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
 
       call pshpr(0)
@@ -297,8 +280,6 @@ C ... Number of k-points
           if (-mxkp<0) wgt_rv(:)=0.0d0
 
           call info0(20,1,0,' q-points in full BZ ...')
-Cdwdef1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-Cdwdef1      .    ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
            call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
      .     , 0 , ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 ) 
 
@@ -307,9 +288,6 @@ Cdwdef1      .    ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-Cchp1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-Cchp1      .    , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
-Cchp1      .    )
            call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
      .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 ) 
 

@@ -139,7 +139,6 @@ Changenglob      lrel = nglob('lrel')
       stc(2) = 0d0
       stc(1) = 0d0
       allocate(rho_rv(nr*nsp*2*(nmix+2)))
-Ctakao_ZeroClear_NotRequiered        if (nr*nsp*2*(nmix+2)<0) rho_rv(:)=0.0d0
 
 
 C --- Core charge, radial mesh points and weights ---

@@ -1,8 +1,3 @@
-Cdwdef1 have_common_w_in ioden , #_of_w_access= 1
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhat
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp3       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
        subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
      . , smrho ) 
 
@@ -113,15 +108,12 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
-Cchp3       integer orhat
        type(s_rv1) :: sv_p_orhat
 
       double complex smrho(*)
 C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
-Cchp1       integer:: okv , opos , oz
-Cchp1        integer:: opos !, oz 
         real(8),pointer :: rv_p_opos(:)
 
        integer,pointer :: iv_p_okv(:)
@@ -134,8 +126,6 @@ Cchp1        integer:: opos !, oz
       double precision vol,xx0,xx,dval,plat(3,3),alat
       integer ib,is,igetss
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 C ... External calls
@@ -156,7 +146,6 @@ Changenglob      nbas = nglob('nbas')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
@@ -171,7 +160,6 @@ ccccccccccccccccccccccccccccc
 
 
       alat=slat%alat
-Cchp1       opos=slat%opos
        rv_p_opos => slat%rv_p_opos 
 
 
@@ -187,11 +175,6 @@ c      enddo
       modrhg = 2
 c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
 c     .ngabc,w,w,nwk,modrhg)
-Cchp1       call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),sspec(ssite(1:nbas)%spec)%z,k1,k2,k3,
-Cchp1      .ngabc,w,w,nwk,modrhg)
-Cdwdef1        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-Cdwdef1      . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
-Cdwdef1      . , w , w , nwk , modrhg ) 
         call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
      .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
      .  , iwdummy , iwdummy , nwk , modrhg ) 
@@ -206,18 +189,14 @@ C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
 
 C ... Put n0(G) into psrho and cn
       allocate(psrho_zv(kkk*nsp))
-Ctakao_ZeroClear_NotRequiered        if (kkk*nsp<0) psrho_zv(:)=0.0d0
 
       allocate(cn_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cn_zv(:)=0.0d0
 
       call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
 
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      ., 0 , - 1 )
 
-Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , psrho_zv 
-Cchp1      ., cn_zv )
        call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
      . cn_zv ) 
 
@@ -239,8 +218,6 @@ C ... Add sum of local gaussian densities to mesh density
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .  , 1 )
 
-Cchp3         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , orhat , kmax 
-Cchp3      .  , ng , cn_zv )
          call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
      .   , kmax , ng , cn_zv ) 
 
@@ -254,8 +231,6 @@ Cchp3      .  , ng , cn_zv )
 
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
-Cchp1         call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cn_zv 
-Cchp1      .  , psrho_zv )
          call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
      .   ) 
 
@@ -288,11 +263,7 @@ Cchp1      .  , psrho_zv )
 C ... File I/O
       nwk = 12*max(k1,k2,k3)
       allocate(wk_zv(nwk**2*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
 
-Cchp1       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
-Cchp1      .) , sspec(ssite(1:nbas)%spec)%z , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
-Cchp1      ., nwk , modrhg )
        call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
      . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
      . , psrho_zv , wk_zv , nwk , modrhg ) 

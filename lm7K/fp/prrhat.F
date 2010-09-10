@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in prrhat , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3       subroutine prrhat(nbas,ssite,sspec,orhoat)
        subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat ) 
 
 
@@ -9,7 +6,6 @@ Cchp3       subroutine prrhat(nbas,ssite,sspec,orhoat)
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,orhoat(3,nbas)
        integer:: nbas 
        type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -24,8 +20,6 @@ C ... Local parameters
 
       double precision a,rmt
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
@@ -41,10 +35,8 @@ Changenglob      nsp  = nglob('nsp')
 
         if (lmxl .eq. -1) goto 10
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
 
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
 
         call radmsh ( rmt , a , nr , rofi_rv )
 
@@ -55,15 +47,11 @@ Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
      .  '   nr=',i5,'   nlml=',i3)
-Cchp3         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , 
-Cchp3      .  rwgt_rv , w ( orhoat ( 1 , ib ) ) )
          call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , rwgt_rv 
      .   , sv_p_orhoat( 1 , ib )%v ) 
 
 
 
-Cchp3         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv 
-Cchp3      .  , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
          call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv , 
      .   rwgt_rv , sv_p_orhoat( 2 , ib )%v ) 
 

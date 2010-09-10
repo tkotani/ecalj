@@ -1,14 +1,3 @@
-Cdwdef1 have_common_w_in ovlocr , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
-Cchp3       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
-Cchp3      .orhofa,orhoat,sqloc,slmom)
-Cchp3        subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
-Cchp3      . , exi , hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
         subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
      .  ) 
@@ -43,8 +32,6 @@ Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-Cchp3       integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
-Cchp3        integer:: nbas , nxi(1) , nxi0 , orhoat(3,nbas) 
         integer:: nbas , nxi(1) , nxi0 
         type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -181,17 +168,6 @@ c          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
             rsmh = rsmfa(js)
             eh   = exi(je,js)
             nlmh = 1
-Cchp1             call hxpbl(p2,p1,q,rsmh,rsmv,eh,kmxv,nlmh,nlml,kmxv,
-Cchp1      .      nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
-Cchp1              call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-Cchp1      .       , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
-Cchp1      .       ) , slat , b ) 
-Cchp1               call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-Cchp1      .        , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
-Cchp1      .        , slat , b ) 
-Cchp1                call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-Cchp1      .         , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy 
-Cchp1      .         , slat , b ) 
                 call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
      .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
      .          , slat , b ) 
@@ -207,15 +183,6 @@ c            call dpzero(b0,(kmxv+1)*nlmh)
           enddo
         enddo
 
-Cchp3         call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
-Cchp3      .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
-Cchp3      .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
-Cchp3      .  w(orhoat(1,ib)),w(orhoat(2,ib)))
-Cchp3          call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
-Cchp3      .   , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
-Cchp3      .   , 1 , is ) , rsmfa ( is ) , rv_a_orhofa( is )%v , w ( orhoat 
-Cchp3      .   ( 3 , ib ) ) , lfoca , qcsm , qloc , amom , w ( orhoat ( 1 , 
-Cchp3      .   ib ) ) , w ( orhoat ( 2 , ib ) ) ) 
           call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
 c     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
@@ -247,18 +214,12 @@ C ... Combine sphere densities from separate threads
           lmxl=sspec(is)%lmxl
 
           nlml = (lmxl+1)**2
-Cchp3           call mpibc3(w(orhoat(1,ib)),nr*nlml*nsp,4,pid,0,
-Cchp3      .    'ovlocr','rhoat(1)')
            call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
      .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
 
-Cchp3           call mpibc3(w(orhoat(2,ib)),nr*nlml*nsp,4,pid,0,
-Cchp3      .    'ovlocr','rhoat(1)')
            call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
      .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
 
-Cchp3           call mpibc3(w(orhoat(3,ib)),nr*nsp,4,pid,0,
-Cchp3      .    'ovlocr','rhoat(1)')
            call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
      .     0 , 'ovlocr' , 'rhoat(1)' ) 
 

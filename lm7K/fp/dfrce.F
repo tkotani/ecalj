@@ -1,14 +1,3 @@
-Cdwdef1 have_common_w_in dfrce , #_of_w_access= 0
-Cdwdef1 have_common_w_in pvdf1 , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp3       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
-Cchp3      .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
-Cchp3        subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
-Cchp3      . , nvl , sv_p_orhoat , orhat1 , elind , qmom , smrho , smrout 
-Cchp3      . , dfh ) 
         subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
      .  , dfh ) 
@@ -85,8 +74,6 @@ C ... Passed parameters
       double precision starttime, endtime
       logical mlog,cmdopt
 #endif
-Cchp3       integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
-Cchp3        integer:: nvl , k1 , k2 , k3 , orhat1(3,1) 
         integer:: nvl , k1 , k2 , k3 
       type(s_rv1) :: sv_p_orhat1(3,*)
       type(s_rv1) :: sv_p_orhoat(3,*)
@@ -101,8 +88,6 @@ C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-Cchp1       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
-Cchp1        integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn 
 c        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
         integer,pointer :: iv_p_okv(:)
 
@@ -143,8 +128,6 @@ C$    integer iiv0(nbmx)
 C     double precision dqsmo,dval
       character*40 strn
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       real(8),allocatable:: cs_(:),sn_(:)
 
       job = int(sctrl%lfrce)
@@ -176,10 +159,8 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
@@ -205,16 +186,12 @@ Changenglob      nspec= nglob('nspec')
 
 C ... Arrays needed for pvdf1
       allocate(ceps_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) ceps_zv(:)=0.0d0
 
       allocate(cnomi_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cnomi_zv(:)=0.0d0
 
       allocate(cvin_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cvin_zv(:)=0.0d0
 
       allocate(cdvx_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cdvx_zv(:)=0.0d0
 
 
 C ... Set up for vectorized Y_lm and gaussians
@@ -226,16 +203,11 @@ C ... Set up for vectorized Y_lm and gaussians
       enddo
       nlmtop = (ltop+1)**2
       allocate(yl_rv(ng*nlmtop))
-Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) yl_rv(:)=0.0d0
 
       allocate(g2_rv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 
       allocate(g_rv(ng*3))
-Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
-Cchp1       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-Cchp1      ., yl_rv )
        call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
@@ -243,16 +215,13 @@ Cchp1      ., yl_rv )
       if (allocated(g_rv)) deallocate(g_rv)
 
       allocate(iv_iv(ng*3))
-Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_iv(:)=0
 
-Cchp1       call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
        call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
 
 
 
 C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
-Ctakao_ZeroClear_NotRequiered        if (nn<0) smro_zv(:)=0.0d0
 
 c      call defrr(ocs, ng)
 c      call defrr(osn, ng)
@@ -265,8 +234,6 @@ c      call defrr(osn, ng)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
      ., - 1 )
 
-Cchp1       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-Cchp1      ., cvin_zv )
        call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
      . ) 
 
@@ -317,8 +284,6 @@ C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
      .0 , - 1 )
 
-Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , dvxc_zv 
-Cchp1      ., cdvx_zv )
        call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
      . cdvx_zv ) 
 
@@ -329,8 +294,6 @@ C --- Cnomi = (n0_out(q) - n0_in(q)) ---
      ., - 1 )
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-Cchp1       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-Cchp1      ., cnomi_zv )
        call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
      . ) 
 
@@ -350,11 +313,8 @@ C      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
 
 C --- Multipole moments of the output density ---
       allocate(qmout_rv(nvl))
-Ctakao_ZeroClear_NotRequiered        if (nvl<0) qmout_rv(:)=0.0d0
 
       call pshpr(0)
-Cchp3       call rhomom ( nbas , ssite , sspec , orhat1 , qmout_rv , vsum 
-Cchp3      .)
        call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , 
      . vsum ) 
 
@@ -369,8 +329,6 @@ C --- Lindhard dielectric function ---
         tpiba = 2*pi/alat
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-Cchp1         call lindsc ( 3 , ng , w ( ogv ) , tpiba , elind , ceps_zv 
-Cchp1      .  )
          call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
 
 
@@ -473,20 +431,11 @@ c        ocdn = oicdn(ip)
 c        ocdn0 = oicdn0(ip)
 c        ocdv = oicdv(ip)
 
-Cchp1         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-Cchp1      .  , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
-Cchp1      .  ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
-Cchp1      .  , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
-Cchp1      .  , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
 c         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
 c     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w ( 
 c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
 c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
 c     .   ) , fes1 , fes2 , fxc ) 
-Cchp3          call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-Cchp3      .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv 
-Cchp3      .   , iv_iv , qlat , 0 , cnomi_zv , ceps_zv  
-Cchp3      .   , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc ) 
           call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
      .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
@@ -589,9 +538,6 @@ c      call rlse(oicdn)
 c      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
 c     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
 c     .orhoat,fes1,fes2,fxc)
-Cchp3       subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
-Cchp3      .g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin,
-Cchp3      .orhoat,fes1,fes2,fxc)
        subroutine pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 
      . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
      . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc ) 
@@ -630,7 +576,6 @@ Co   fes1,fes2,fxc
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
        integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3) 
        type(s_rv1) :: sv_p_orhoat(3)
 
@@ -658,8 +603,6 @@ C     parameter (k0=3)
 C     double complex gkl(0:k0,nlmx)
       double complex tpia,cxx,phase,gc0,xc0,cof(nlmx)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data q0 /0d0,0d0,0d0/
 
       call tcn('pvdf1')
@@ -723,11 +666,9 @@ c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
         if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
         call radwgt(rmt,a,nr,rwgt)
         nlml = (lmxl+1)**2
-Cchp3         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1)),qloc)
          call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v 
      .   , qloc ) 
 
-Cchp3         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2)),sum)
          call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v 
      .   , sum ) 
 

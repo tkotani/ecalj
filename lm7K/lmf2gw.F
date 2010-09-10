@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in lmf2gw , #_of_w_access= 0
 C#define V2
 C#define unix
 C#define FEXTENS
@@ -95,8 +94,6 @@ c-----------------------------------------------------------------------
 c ------------------------------------------
 c dimension work space
       integer,parameter :: nsize= 1 000 000
-Cdwdef1       real w(nsize)
-Cdwdef1       common /w/ w
 c ------------------------------------------
 
 cccccccccccccccccccccccccccccccc

@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in rhomom , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
        subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
      . , vsum ) 
 
@@ -31,7 +28,6 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,orhoat(3,1)
        integer:: nbas 
        type(s_rv1) :: sv_p_orhoat(3,*)
 
@@ -51,8 +47,6 @@ C ... Local parameters
       double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
      .ceh,rfoc,vs1,vs2
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Setup ---
       ipr  = iprint()
@@ -62,16 +56,12 @@ C --- Setup ---
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
       allocate(rofi_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rofi_rv(:)=0.0d0
 
       allocate(rwgt_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rwgt_rv(:)=0.0d0
 
       allocate(h_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) h_rv(:)=0.0d0
 
       allocate(v_rv(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) v_rv(:)=0.0d0
 
       if (ipr .ge. 40) write(stdo,221)
 
@@ -102,10 +92,6 @@ C --- Loop over sites ---
 
         call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cchp3         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , w ( 
-Cchp3      .  orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
-Cchp3      .  3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
-Cchp3      .  ( j1 ) )
          call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , cofg , 
      .   cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) ) 
@@ -121,10 +107,6 @@ Cchp3      .  ( j1 ) )
   220   format(i13,i6,f12.6,f12.6,2f9.2)
   221   format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x,
      .  'Qc',8x,'Z')
-Cchp3         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv 
-Cchp3      .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-Cchp3      .  ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
-Cchp3      .  h_rv , v_rv , vs1 , vs2 )
          call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( 
      .   j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2 

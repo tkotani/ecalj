@@ -1,13 +1,3 @@
-Cdwdef1 have_common_w_in rdovfa , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),rv_a_,orhofa
-Cchp3 cmdvar= type(s_rv1),rv_a_,ov0a
-Cchp1 cmdvar= real(8),rv_p_,ov1
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp1 cmdvar= complex(8),zv_p_,osmrho
-Cchp3       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
        subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
      . , qbg , sv_p_orhoat ) 
 
@@ -46,7 +36,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer procid, master, mpipid
-Cchp3       integer nbas,nspec,orhoat(3,nbas)
        integer:: nbas , nspec 
        type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -62,8 +51,6 @@ C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
 cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
-Cchp3       integer nxi(nspec),orhofa(nspec),ov0a(nspec)
-Cchp3        integer:: nxi(nspec) , orhofa(nspec) 
         integer:: nxi(nspec) 
         type(s_rv1) :: rv_a_orhofa(nspec)
 
@@ -72,26 +59,6 @@ Cchp3        integer:: nxi(nspec) , orhofa(nspec)
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
-Cchp1       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-Cchp1      .k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-Cchp1      ., nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-Cchp1      ., ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
-Cchp1        integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-Cchp1      . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-Cchp1      . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-Cchp1      . , ov1 , ng , ogv , okv , iofa , kcor , lcor 
-Cchp1         integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-Cchp1      .  k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-Cchp1      .  , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-Cchp1      .  , ov1 , ng , okv , iofa , kcor , lcor 
-Cchp1          integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-Cchp1      .   k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-Cchp1      .   , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-Cchp1      .   , ov1 , ng , iofa , kcor , lcor 
-Cchp1           integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-Cchp1      .    k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-Cchp1      .    , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov1 
-Cchp1      .    , ng , iofa , kcor , lcor 
            integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
      .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
@@ -116,8 +83,6 @@ Cchp1      .    , ng , iofa , kcor , lcor
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn('rdovfa')
       ipr   = iprint()
@@ -127,7 +92,6 @@ Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
 
-Cchp1       osmrho=spot%osmrho
        zv_p_osmrho => spot%zv_p_osmrho 
 
 
@@ -158,14 +122,12 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
         rewind ifi
       endif
       do  10  is = 1, nspec
-Cchp3         call defrr(orhofa(is),   -nrmx*nsp)
          allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
          if (-nrmx*nsp<0) rv_a_orhofa(is)%v(:)=0.0d0
 
 cki        call defrr(orhoca(is),   -nrmx*nsp)
         allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
         sspec(is)%rv_p_orhoc=0.0d0
-Cchp3         call defrr(ov0a(is),     -nrmx*nsp)
          allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
          if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
 
@@ -199,27 +161,15 @@ Cchp3         call defrr(ov0a(is),     -nrmx*nsp)
             ccof=0
             ceh=0
             stc=0
-Cchp3             call rlse(ov0a(is))
              if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
 
 cki            call rlse(orhoca(is))
             deallocate(sspec(is)%rv_p_orhoc)
-Cchp3             call rlse(orhofa(is))
              if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
 
           else
 ckino
              nr0=nrmx ! %rv_p_orhoc(nrmx*nsp)
-Cchp3             lfail = 
-Cchp3      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
-Cchp3      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
-Cchp3 cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
-Cchp3      .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
-Cchp3      .      .lt. 0)
-Cchp3              lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
-Cchp3      .       ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
-Cchp3      .       , a0 , nr0 , qc , ccof , ceh , stc , w ( orhofa ( is ) ) , sspec 
-Cchp3      .       ( is ) %rv_p_orhoc , rv_a_ov0a( is )%v , ifi ) .lt. 0 ) 
               lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
      .        ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
      .        , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec 
@@ -239,12 +189,10 @@ C   ... Broadcast file data
         call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
         call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-Cchp3         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
          call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
      .   , 'rhofa' ) 
 
         call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
-Cchp3         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
          call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
      .   , 'v0a' ) 
 
@@ -330,23 +278,18 @@ C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 C     .      orca)
 
         nlml = (lmxl+1)**2
-Cchp3         call defrr (orhoat(1,ib),  nr*nlml*nsp)
          allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
          if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
 
-Cchp3         call defrr (orhoat(2,ib),  nr*nlml*nsp)
          allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
          if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
 
-Cchp3         call defrr (orhoat(3,ib),  nr*nsp)
          allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
          if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
-Cchp1         call defrr (ov0,           nr*nsp)
          allocate(rv_p_ov0(abs(nr*nsp)))
          if (nr*nsp<0) rv_p_ov0(:)=0.0d0
 
-Cchp1         call defrr (ov1,           nr*nsp)
          allocate(rv_p_ov1(abs(nr*nsp)))
          if (nr*nsp<0) rv_p_ov1(:)=0.0d0
 
@@ -354,7 +297,6 @@ Cchp1         call defrr (ov1,           nr*nsp)
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
           allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
 
           call radwgt ( rmt , a , nr , rwgt_rv )
 
@@ -376,33 +318,23 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
         endif
 
         if (lmxl .gt. -1) then
-Cchp1           call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
-Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
-Cchp3      .     ) 
             call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
-Cchp1           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
-Cchp3            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
-Cchp3      .     ) 
             call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
-Cchp3           call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
            call dpcopy ( sspec ( is ) %rv_p_orhoc , sv_p_orhoat( 3 , ib )%v 
      .     , 1 , nr * nsp , 1d0 ) 
 
 
           if (lfoc .eq. 0) then
             allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
             call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cchp3             call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-Cchp3      .      , ib ) ) , sum )
              call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
      .       , sum ) 
 
@@ -412,7 +344,6 @@ Cchp3      .      , ib ) ) , sum )
             if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
   787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
      .      3f12.6,f12.6)
-Cchp3             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
              call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
      .       , 1 , nr * nsp , fac ) 
 
@@ -422,10 +353,8 @@ Cchp3             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
         endif
 
 
-Cchp1         ssite(ib)%ov0=ov0
          ssite(ib)%rv_p_ov0 => rv_p_ov0 
 
-Cchp1         ssite(ib)%ov1=ov1
          ssite(ib)%rv_p_ov1 => rv_p_ov1 
 
 
@@ -438,18 +367,13 @@ C     end loop over sites
 C --- Overlap smooth hankels to get smooth interstitial density ---
 
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
 
       allocate(cv_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cv_zv(:)=0.0d0
 
-Cchp1       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
-Cchp1      ., ng , ng , w ( ogv ) , cv_zv )
        call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
      . , ng , ng , rv_p_ogv , cv_zv ) 
 
@@ -464,10 +388,6 @@ c        call wkchk('qqq: aaa')
 c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
 ccccccccccccccc
 
-Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv 
-Cchp1      ., w ( osmrho ) )
-Cchp1        call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
-Cchp1      . ) 
         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
      .  ) 
 
@@ -487,22 +407,18 @@ ccccccccccccccc
 
 
 C ... FFT to real-space mesh
-Cchp1       call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
        call fftz3 ( zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      . , 0 , 1 ) 
 
 C ... Add compensating uniform electron density to compensate background
-Cchp1       call addbkgsm(w(osmrho),k1,k2,k3,nsp,qbg,vol,-1d0)
        call addbkgsm ( zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
      . , - 1d0 ) 
 
 C ... integrate
-Cchp1       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
        call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
      . , sum1 , sum2 ) 
 
       if (nsp .eq. 2) then
-Cchp1         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
          call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
      .   , smom , sum2 ) 
 
@@ -511,16 +427,11 @@ Cchp1         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
 C --- Set up local densities using rmt from atm file ---
 
 
-Cchp3       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
-Cchp3      .orhoat,sqloc,slmom)
-Cchp3        call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
-Cchp3      . hfc , rsmfa , rv_a_orhofa , orhoat , sqloc , slmom ) 
         call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
      .  hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom ) 
 
 
 C --- Add compensating uniform electron density to compensate background
-Cchp3       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
        call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , 
      . sspec , ssite ) 
 

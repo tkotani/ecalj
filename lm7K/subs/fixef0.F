@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in fixef0 , #_of_w_access= 0
       subroutine fixef0(zval,nsp,nspc,nevx,ndev,evl,dosw,ef0)
 C- Corrects estimate for Fermi level
 C ----------------------------------------------------------------------
@@ -29,8 +28,6 @@ C ... Local parameters
 
       double precision w2,xx,doso(2)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call getpr(ipr)
       stdo = lgunit(1)
@@ -40,7 +37,6 @@ Cdwdef1       common /w/ w
         if (-(nevx*nsp/nbpw+1)<0) bmap_iv(:)=0
 
         allocate(wk_rv(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , ndev , nevx , nsp , nspc , 1 , nbpw , bmap_iv 
      .  , wk_rv , evl )

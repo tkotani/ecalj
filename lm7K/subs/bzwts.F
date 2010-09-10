@@ -99,10 +99,8 @@ Changenglob      stdl = nglob('stdl')
        write(*,*) 'kino nevx,nsp',nevx,nsp
 #endif
       allocate(bot_rv(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) bot_rv(:)=0.0d0
 
       allocate(top_rv(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) top_rv(:)=0.0d0
 #ifdef KINODEBUG
       write(*,*) 'kino allocate top_rv',nevx*nsp
 #endif
@@ -133,7 +131,6 @@ C     Force coupled spins: find range
 #ifdef KINODEBUG
         write(*,*) 'kino allocate bmap_iv, wk_rv',nevx*nsp*nkp/nbpw+1,nevx*nsp
 #endif
-Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
      .  , wk_rv , eb )
@@ -175,7 +172,6 @@ C ... Pretend as though spin-pol bands are coupled to find E_f
 #ifdef KINODEBUG
          write(*,*) 'kino allocate bmap_iv, wk_rv=',nevx*nsp*nkp/nbpw+1, nevx*nsp
 #endif
-Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
      .  , wk_rv , eb )
@@ -230,7 +226,6 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
 #ifdef KINODEBUG
         write(*,*)'kino allocate dos_rv',nspx*nptdos
 #endif
-Ctakao_ZeroClear_NotRequiered          if (nspx*nptdos<0) dos_rv(:)=0.0d0
 
         tol = 1d-6
 C       Preliminary check that dos lies within emin,emax
@@ -329,7 +324,6 @@ C   ... Find Fermi level, sampling
 #ifdef KINODEBUG
           write(*,*)'kino allocate dos_rv',nspx*npts
 #endif
-Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) dos_rv(:)=0.0d0
 
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
@@ -370,7 +364,6 @@ C   ... (optional) Tabulate specific heat in file for list of T's
             itmax = mkdlst(outs(i:),1d-8,-1,w)
             if (itmax .gt. 0) then
               allocate(tlst_rv(itmax))
-Ctakao_ZeroClear_NotRequiered            if (itmax<0) tlst_rv(:)=0.0d0
 
               call word(outs,1,it,j)
               call info2(20,0,0,' Writing CV(T) to file for %i vals of T: '

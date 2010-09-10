@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in hft2rs , #_of_w_access= 1
-Cchp1 cmdvar= integer,iv_p_,oiax
-Cchp1 cmdvar= integer,iv_p_,ontab
-Cchp1 cmdvar= integer,iv_p_,ontabs
       module m_hft2rs
       contains
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
@@ -158,8 +154,6 @@ C ... Passed parameters
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1)
-Cchp1       integer oiax,ontab
-Cchp1        integer:: oiax 
         integer,pointer :: iv_p_oiax(:)
 
        integer,pointer :: iv_p_ontab(:)
@@ -178,8 +172,6 @@ C ... Local parameters
       double precision tau(3)
 #endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 C ... External calls
@@ -204,8 +196,6 @@ C --- Mode 0 (setup) make and reduce iax table ---
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
-Cdwdef1         call pairs(nbas,nbas,1d0,plat,(/range/2/),pos,
-Cdwdef1      .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
          call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos 
      .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_p_oiax 
      .   , mxcsiz ) 
@@ -218,13 +208,6 @@ C   ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
-Cchp1           call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,
-Cchp1      .    offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
-Cchp1      .    nviax,nvtot,dmx)
-Cchp1            call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
-Cchp1      .     , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
-Cchp1      .     , iv_p_ontab , w ( oiax ) , qoff , ndhrs , hrs , nviax , nvtot 
-Cchp1      .     , dmx ) 
             call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
      .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
@@ -240,13 +223,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     ... Reduce iax table to elements on mesh in common with pairc
           allocate(iwk_iv((niax+1)*mxcsiz))
-Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iwk_iv(:)=0
 
 C         nttabs = nttab
-Cchp1           call hft2r3 ( 1 , nbas , iwk_iv , w ( ontab ) , w ( oiax ) 
-Cchp1      .    , nttab , mxcsiz )
-Cchp1            call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , w ( oiax ) , nttab 
-Cchp1      .     , mxcsiz ) 
             call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab 
      .      , mxcsiz ) 
 
@@ -263,17 +241,12 @@ C   ... Add pairs so that any ri-rj has corresponding rj-ri
           if (mode3 .eq. 2) i = 111
 C         nttabs = nttab
           nttab = nttab*3
-Cchp1           call redfi(oiax,niax*nttab)
            i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
            iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
            i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
            iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
           call pshpr(ipr)
-Cchp1           call symiax(i,plat,nbas,pos,g,ag,nsgrp,w(ontab),w(oiax),
-Cchp1      .    nttab,mxcsiz)
-Cchp1            call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab 
-Cchp1      .     , w ( oiax ) , nttab , mxcsiz ) 
             call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab 
      .      , iv_p_oiax , nttab , mxcsiz ) 
 
@@ -282,10 +255,6 @@ Cchp1      .     , w ( oiax ) , nttab , mxcsiz )
 
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
-Cchp1           call ppair1(0,1,nbas,nbas,-1,1d0,plat,pos,range/2,
-Cchp1      .    nttab,w(ontab),w(oiax),mxcsiz)
-Cchp1            call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
-Cchp1      .     range / 2 , nttab , iv_p_ontab , w ( oiax ) , mxcsiz ) 
             call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
      .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 
@@ -295,7 +264,6 @@ Cchp1      .     range / 2 , nttab , iv_p_ontab , w ( oiax ) , mxcsiz )
 
 
 C   ... iax is now complete ... reallocate array
-Cchp1         call redfi(oiax,niax*nttab)
          i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
          iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
          i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
@@ -307,10 +275,6 @@ C       ipr = 70
 C       call pshpr(ipr)
         if (ipr .gt. 40) then
           call pshpr(ipr-10)
-Cchp1           call ppair1(20,1,nbas,nbas,-1,1d0,plat,pos,range/2,
-Cchp1      .    nttab,w(ontab),w(oiax),mxcsiz)
-Cchp1            call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
-Cchp1      .     range / 2 , nttab , iv_p_ontab , w ( oiax ) , mxcsiz ) 
             call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
      .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 
@@ -331,13 +295,6 @@ C       Scale by phase for offset k-mesh
 C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 
-Cchp1         call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,offH,
-Cchp1      .  idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
-Cchp1      .  nvtot,dmx)
-Cchp1          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
-Cchp1      .   , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
-Cchp1      .   , iv_p_ontab , w ( oiax ) , qoff , ndhrs , hrs , nviax , nvtot 
-Cchp1      .   , dmx ) 
           call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
      .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
@@ -501,10 +458,8 @@ C --- Make list for a dimensionless lattice (alat=1) ---
 c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
           ngmx = n1*n2*n3
           allocate(gv_rv(ngmx*3))
-Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) gv_rv(:)=0.0d0
 
           allocate(kv_iv(ngmx*3))
-Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) kv_iv(:)=0
 
 C     print *, 'ia,ib=',ia,ib
 C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
@@ -517,7 +472,6 @@ C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
 
 C --- For each connecting vector, mark iax table or poke into hrs ---
           allocate(rtab_rv(3*(is2-is1+1)))
-Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rtab_rv(:)=0.0d0
 
           if (ltrans) then
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 

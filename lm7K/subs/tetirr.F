@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in tetirr , #_of_w_access= 0
       subroutine tetirr(qb,n1,n2,n3,ipq,ntet,idtet)
 C-  Finds inequivalent tetrahedra and counts them
 C ----------------------------------------------------------------------
@@ -28,8 +27,6 @@ C Local variables:
       logical ipr
       character outs*80
 C Heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       ipr = iprint() .ge. 30 .and. 6*n1*n2*n3 .gt. 1000
      ..or. iprint() .ge. 40

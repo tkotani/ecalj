@@ -1,9 +1,3 @@
-Cdwdef1 have_common_w_in smshft , #_of_w_access= 0
-Cdwdef1 have_common_w_in pvsms1 , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp3       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
        subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
      . , smrho ) 
 
@@ -52,7 +46,6 @@ Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer orhoat(3,1)
        type(s_rv1) :: sv_p_orhoat(3,1)
 
       type(s_site)::ssite(*)
@@ -65,8 +58,6 @@ Cchp3       integer orhoat(3,1)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,nbas,ng,ngabc(3),nglob,nsp
-Cchp1       integer:: ogv , okv
-Cchp1        integer:: okv 
         integer,pointer :: iv_p_okv(:)
 
        real(8),pointer :: rv_p_ogv(:)
@@ -81,8 +72,6 @@ Cchp1        integer:: okv
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
      .qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C     stdo = lgunit(1)
       job = int(sctrl%lfrce)
@@ -107,10 +96,8 @@ Changenglob      nbas = nglob('nbas')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
@@ -120,11 +107,8 @@ C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
 C ... Hold on to original smrho (cgr)
       allocate(cgr_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgr_zv(:)=0.0d0
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , cgr_zv 
-Cchp1      .)
        call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
      . ) 
 
@@ -132,16 +116,10 @@ Cchp1      .)
 
 C --- Shift in unscreened density at the two positions ---
       allocate(cgs_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgs_zv(:)=0.0d0
 
       allocate(cwk_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cwk_zv(:)=0.0d0
 
       kmax = 0
-Cchp1       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-Cchp1      .w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
-Cchp3        call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-Cchp3      . rv_p_ogv , orhoat , cwk_zv , cgs_zv , job ) 
         call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
      .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
 
@@ -185,8 +163,6 @@ C       Compute elind if not given
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-Cchp1         call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , cgs_zv 
-Cchp1      .  )
          call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
 
 
@@ -198,8 +174,6 @@ C        call dscal(2*ng,.001d0,w(ocgs),1)
       endif
 
 C ... Debugging: show delta smrho
-Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgs_zv 
-Cchp1      ., smrho )
        call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
      . ) 
 
@@ -217,8 +191,6 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       enddo
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
-Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgr_zv 
-Cchp1      ., smrho )
        call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
      . ) 
 
@@ -239,8 +211,6 @@ C --- Symmetrize the shifted density ---
       end subroutine smshft
 
 
-Cchp3       subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
-Cchp3      .gv,orhoat,cwk,cg,job)
        subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
      . , ng , gv , sv_p_orhoat , cwk , cg , job ) 
 
@@ -323,7 +293,6 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer nbas,nsp,ng,job,orhoat(3,1)
        integer:: nbas , nsp , ng , job 
        type(s_rv1) :: sv_p_orhoat(3,1)
 
@@ -344,8 +313,6 @@ C Local variables
       character*35 strn,spid*8
       double complex phase
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C ... Setup
       call tcn('pvsms1')
@@ -423,11 +390,9 @@ C   --- Shift in mesh density, job 1 ---
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
-Cchp3           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1,ib)),qloc)
            call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v 
      .     , qloc ) 
 
-Cchp3           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2,ib)),sum)
            call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v 
      .     , sum ) 
 
@@ -484,7 +449,6 @@ C     ... Core + valence at old position
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
 
-Cchp3           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
            call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
      .     , kmax , ng , cwk ) 
 
@@ -494,7 +458,6 @@ C     ... Core + valence at new position
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
 
-Cchp3           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
            call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
      .     , kmax , ng , cwk ) 
 

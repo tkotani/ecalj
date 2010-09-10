@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in gensym , #_of_w_access= 2
       subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
      .nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
      .ag,ngen,gen,nwgens,nggen,isym,istab)
@@ -102,8 +101,6 @@ C Local parameters:
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 C External calls:
@@ -134,7 +131,6 @@ C --- Symmetry group as given by input generators ---
 
 C ... Rotate the generators
       call pshpr(iprint()-11)
-Cdwdef1       call lattdf(-ldist,dist,plat,0,w,ngen,gen)
        call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
      . ) 
 
@@ -180,7 +176,6 @@ C   ... Symmetry of lattice without basis
         call symlat(plat,ng,g,isym(1))
 C   ... Symmetry of lattice with basis
         allocate(wk_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) wk_rv(:)=0.0d0
 
 C       call prmx('pos',bas,3,3,nbas)
         call symcry ( fptol , bas , wk_rv , ips , nbas , nspec , nrspec 
@@ -194,7 +189,6 @@ C       ngen = 0
         call groupg(0,ng,g,ag,plat,ngen,gen,agen,nwgens,nggen)
       else
         nggen = 0
-Cdwdef1         call symtbl(0,fptol,nbas,w,bas,g,ag,ng,qlat,istab)
          call symtbl ( 0 , fptol , nbas , iwdummy , bas , g , ag , ng 
      .   , qlat , istab ) 
 

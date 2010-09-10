@@ -532,10 +532,8 @@ C ... default nmix
       if (nmix .lt. 0) nmix = 2
       nmix = min(mmix,nmix)
       allocate(norm_rv(mxsav**2))
-Ctakao_ZeroClear_NotRequiered        if (mxsav**2<0) norm_rv(:)=0.0d0
 
       allocate(kpvt_iv(mxsav))
-Ctakao_ZeroClear_NotRequiered        if (mxsav<0) kpvt_iv(:)=0
 
       if (beta .lt. 0) nmix = -nmix
 C ... imix is a local copy of nmix
@@ -543,7 +541,6 @@ C ... imix is a local copy of nmix
       if (imix .lt. 0) imix = mmix
 C ... save PQ array
       allocate(a_rv(nda*(mxsav+2)*2))
-Ctakao_ZeroClear_NotRequiered        if (nda*(mxsav+2)*2<0) a_rv(:)=0.0d0
 
       call dcopy ( nda * ( mxsav + 2 ) * 2 , a , 1 , a_rv , 1 )
 
@@ -762,25 +759,18 @@ c      common /w/ w
 
 C --- Allocate some arrays ---
       allocate(xmp1_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) xmp1_rv(:)=0.0d0
 
       allocate(f_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) f_rv(:)=0.0d0
 
       allocate(ui_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) ui_rv(:)=0.0d0
 
       allocate(vti_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) vti_rv(:)=0.0d0
 
       allocate(xold_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) xold_rv(:)=0.0d0
 
       allocate(df_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) df_rv(:)=0.0d0
 
       allocate(dx_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) dx_rv(:)=0.0d0
 
 
 C ... imix is a local copy of nmix
@@ -790,7 +780,6 @@ C ... imix is a local copy of nmix
 C --- Starting from iteration mmix, build the Jacobian matrix ---
     1 jmix = min(mmix,iabs(imix))
       allocate(wk_rv(nda*2*(jmix+2)))
-Ctakao_ZeroClear_NotRequiered        if (nda*2*(jmix+2)<0) wk_rv(:)=0.0d0
 
       do  10  km = 1, jmix
 C   ... this loops from most-distant to most-recent
@@ -907,10 +896,8 @@ c      common /w/ w
 
 C --- Allocate some arrays ---
       allocate(p_rv(nda*6))
-Ctakao_ZeroClear_NotRequiered        if (nda*6<0) p_rv(:)=0.0d0
 
       allocate(dx_rv(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) dx_rv(:)=0.0d0
 
 
 C ... imix is a local copy of nmix

@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in iomomx , #_of_w_access= 0
       subroutine iomomx(ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,
      .nband,nchan,nchan2,nchds,nevmx,nlistc,listc,eb,accwt,doswt,
      .dosw2,efermi,vmtz)
@@ -73,8 +72,6 @@ C Local variables
 
       character outs*80
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Read header, checking req'd matches and copying the rest ---
       rewind ifi
@@ -119,13 +116,10 @@ C --- Read info spec'd by nfstg for each qp until error ---
       read (ifi,err=999,end=999) nlf
       nevmx = 0
       allocate(eb_rv(nband))
-Ctakao_ZeroClear_NotRequiered        if (nband<0) eb_rv(:)=0.0d0
 
       allocate(accm_rv(nchan*nband*nfstg))
-Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) accm_rv(:)=0.0d0
 
       allocate(dosw_rv(nchan*nband*nfstg))
-Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) dosw_rv(:)=0.0d0
 
       if (nfstg .ge. 100) call rxi('iomomx not ready for nfstg=',nfstg)
       do  10  jq = 1, iq*(nsp/nspc)

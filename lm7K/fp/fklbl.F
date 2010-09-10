@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in fklbl , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,odlv
-Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine fklbl(p,rsm,kmax,nlm,k0,cy,slat,fkl)
 
@@ -32,9 +29,6 @@ C ... Passed parameters
 
       double complex fkl(0:k0,nlm)
 C ... Local parameters
-Cchp1       integer nlm0,lmax,ll,nkd,nkq,odlv,oqlv,nrx,owk,oyl,job,ilm,k
-Cchp1        integer:: nlm0 , lmax , ll , nkd , nkq , odlv , nrx , owk , oyl 
-Cchp1      . , job , ilm , k 
         integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job 
      .  , ilm , k 
         real(8),pointer :: rv_p_odlv(:)
@@ -50,8 +44,6 @@ CSFCPP#if F90
       real(8),allocatable:: wk(:),yl(:)
 CSFCPP#endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       if (nlm .eq. 0) return
       fpi = 16d0*datan(1d0)
@@ -83,10 +75,8 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       nkd=slat%nkd
       nkq=slat%nkq
-Cchp1       odlv=slat%odlv
        rv_p_odlv => slat%rv_p_odlv 
 
-Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
 
@@ -94,11 +84,6 @@ Cchp1       oqlv=slat%oqlv
       nrx = max(nkd,nkq)
 CSFCPP#if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
-Cchp1       call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,wk,yl,
-Cchp1      .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
-Cchp1        call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , 
-Cchp1      . awald , alat , rv_p_oqlv , nkq , w ( odlv ) , nkd , vol , fsm 
-Cchp1      . ) 
         call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , 
      .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
      .  ) 
@@ -108,8 +93,6 @@ Cchp1      . )
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
       else
         job = 2
-Cchp1         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-Cchp1      .  yl,wk,job,fkl)
          call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
      .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
 

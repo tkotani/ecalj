@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in clsset , #_of_w_access= 2
       subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
 
       use m_struc_def  !Cgetarg
@@ -54,8 +53,6 @@ C Local variables
       real(8) ,allocatable :: clctr_rv(:)
 
 C heap:
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -91,7 +88,6 @@ C   ... Determine supercell size
         ifac = 2**ndig
         if (ifac .eq. 1024) ifac = 1000
         allocate(pose_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pose_rv(:)=0.0d0
 
         ix(1) = 1
         ix(2) = 1
@@ -99,7 +95,6 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pose_rv(:)=0.0d0
         call shorps(nbas,plat,ix,pos,pos)
 c       call prmx('shortened pos',pos,3,3,nbas)
         allocate(pos_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos_rv(:)=0.0d0
 
         call dcopy ( 3 * nbas , pos , 1 , pos_rv , 1 )
 
@@ -108,7 +103,6 @@ C   ... Shift pos off axis by a tiny amount, avoiding boundary problems
 c       call prmx('plat',plat,3,3,3)
 c       call prmx('plate',plate,3,3,3)
 C   ... w(opos) = positions as multiples of plat
-Cdwdef1         call prjpos ( 2 , ix , w , plat , nbas , pos , pos_rv )
          call prjpos ( 2 , ix , iwdummy , plat , nbas , pos , pos_rv ) 
 
 
@@ -175,10 +169,8 @@ C     call awrit2(' clsset: %n:1i',' ',255,lgunit(1),nbas,clssl)
 
 C ... Make cllst
       allocate(ncltb_rv(ncl+1))
-Ctakao_ZeroClear_NotRequiered        if (ncl+1<0) ncltb_rv(:)=0.0d0
 
       allocate(clctr_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) clctr_rv(:)=0.0d0
 
       call clsctr ( nbas , pos , clssl , clord , ncltb_rv , cllst 
      ., clctr_rv )
@@ -191,7 +183,6 @@ C ... Print re-ordering of sites
 C     call awrit2(' clord: %n:1i',' ',255,lgunit(1),nbas,clord)
 C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
       allocate(w_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) w_iv(:)=0
 
       call ivprm ( 1 , nbas , clssl , w_iv , clord , .false. )
 
@@ -207,8 +198,6 @@ Ctakao_ZeroClear_NotRequiered        if (nbas<0) w_iv(:)=0
         nskip = nbas/ncol
         if (ncol*(nbas/ncol) .ne. nbas) nskip = nskip+1
         outs = ' Old New   id'
-Cdwdef1         call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
-Cdwdef1      .  , nskip , '  | ' , clord , w , w_iv , w , w , w , w , w )
          call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
      .   , nskip , '  | ' , clord , iwdummy , w_iv , iwdummy , iwdummy 
      .   , iwdummy , iwdummy , iwdummy ) 

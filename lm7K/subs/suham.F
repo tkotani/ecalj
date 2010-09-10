@@ -1,17 +1,3 @@
-Cdwdef1 have_common_w_in gen_hamindex , #_of_w_access= 0
-Cdwdef1 have_common_w_in suham , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= integer,iv_p_,oipc
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp1 cmdvar= real(8),rv_p_,oag
-Cchp1 cmdvar= integer,iv_p_,oips
-Cchp1 cmdvar= integer,iv_p_,oidxsh
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp1 cmdvar= integer,iv_p_,offh
-Cchp1 cmdvar= integer,iv_p_,ooffh
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
 
       use m_struc_def  !Cgetarg
@@ -45,16 +31,12 @@ C Passed parameters
 c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
-Cchp1       integer nkap0,n0, oag,og,ibas,k
-Cchp1        integer:: nkap0 , n0 , og , ibas , k 
         integer:: nkap0 , n0 , ibas , k 
         real(8),pointer :: rv_p_og(:)
 
        real(8),pointer :: rv_p_oag(:)
 
 c      parameter (nkap0=3,n0=10)
-Cchp1       integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
-Cchp1      .specw,fieldw,iorb,offsi,ib,is,opos,norb
        integer:: l , ndim , ipr , nglob , nbas , ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb 
        real(8),pointer :: rv_p_opos(:)
@@ -63,8 +45,6 @@ c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 c      logical lprmib
 c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       character spid*8
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       real(8):: plat(3,3),qlat(3,3),alat,dum,qb(3,3),ddd(3)
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:)
       integer,parameter :: n0nkap0=30
@@ -80,10 +60,8 @@ Cdwdef1       common /w/ w
       integer:: i_copy_size,i_spacks,i_spackv
 C
 
-Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
-Cchp1       og=slat%osymgr
        rv_p_og => slat%rv_p_osymgr 
 
       ngrp=slat%nsgrp
@@ -91,7 +69,6 @@ Cchp1       og=slat%osymgr
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-Cchp1       opos=slat%opos
        rv_p_opos => slat%rv_p_opos 
 
       i_copy_size=size(slat%qlat)
@@ -159,10 +136,8 @@ c ... reverse maping of offset-index for hamiltonian
 
 C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-Cchp1       call dcopy(ngrp*9,w(og),1,symops,1)
        call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
 
-Cchp1       call dcopy(ngrp*3,w(oag),1,ag,1)
        call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
 
 
@@ -173,8 +148,6 @@ Cchp1       call dcopy(ngrp*3,w(oag),1,ag,1)
 
       enddo
 c ... get space group information
-Cchp1       call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
-Cchp1      o,miat,tiat,invgx,shtvg )
        call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
      . , miat , tiat , invgx , shtvg ) 
 
@@ -382,19 +355,12 @@ C ... Local parameters
 
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
-Cchp1       integer:: oalph , oiax , ontab , os , ng , ogv
        integer:: oalph , oiax , ontab , os , ng 
        real(8),pointer :: rv_p_ogv(:)
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
-Cchp1       integer obas,offH,oidxsh,oipc,oips,oo,opp,oeula,opti,obs,omagf
-Cchp1        integer:: obas , oidxsh , oipc , oips , oo , opp , oeula , opti 
-Cchp1      . , obs , omagf 
-Cchp1         integer:: obas , oipc , oips , oo , opp , oeula , opti , obs 
-Cchp1      .  , omagf 
-Cchp1          integer:: obas , oipc , oo , opp , oeula , opti , obs , omagf 
           integer:: obas , oo , opp , oeula , opti , obs , omagf 
           integer,pointer :: iv_p_oipc(:)
 
@@ -411,17 +377,13 @@ C ... For NMTO
 C     integer olmx,ohcr,otral,otrad,oalpha,oadot,nmto
 C     double precision kmto(10),avw,dglob
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 c      integer :: sigswitch
 
 C --- Setup ---
 
-Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
-Cchp1       oipc=sarray%oipc
        iv_p_oipc => sarray%iv_p_oipc 
 
 
@@ -458,11 +420,9 @@ Changenglob      nkaph = nglob('nkaph')
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
-Cchp1       call defi(offH, -n0H*nkap0*(nbasp+1))
        allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
        if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
 
-Cchp1       call defi(oidxsh,ndim+3)
        allocate(iv_p_oidxsh(abs(ndim+3)))
        if (ndim+3<0) iv_p_oidxsh(:)=0
 
@@ -489,12 +449,6 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-Cchp1         call makidx(nl,nkaph,1,nbasp,0,sspec,w(oips),w(offH),w(oidxsh),
-Cchp1      .  ldham)
-Cchp1          call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
-Cchp1      .   , iv_p_offh , w ( oidxsh ) , ldham ) 
-Cchp1           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
-Cchp1      .    , iv_p_offh , iv_p_oidxsh , ldham ) 
            call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
      .     , iv_p_offh , iv_p_oidxsh , ldham ) 
 
@@ -515,10 +469,8 @@ C ... Make rest of ldham
       ldham(8) = nspx
 
       sham%ndofH=nbasp+1
-Cchp1       sham%ooffH=offH
        sham%iv_p_ooffh => iv_p_offh 
 
-Cchp1       sham%oindxo=oidxsh
        sham%iv_p_oindxo => iv_p_oidxsh 
 
       i_copy_size=size(sham%ldham)
@@ -579,13 +531,11 @@ C         Find largest lmxa
      .nvi,nvl,lmxax,0,0)
 
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
       alat=slat%alat
       tolgv=slat%tolft
 
-Cchp1       call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
        call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
      . ) 
 
@@ -668,19 +618,14 @@ C    ...  Printout
           call poppr
           call info0(40,1,-1,' G vectors at the Gamma point:')
           allocate(igv2_iv(3*npw))
-Ctakao_ZeroClear_NotRequiered              if (3*npw<0) igv2_iv(:)=0
 
           allocate(kv_iv(3*npw))
-Ctakao_ZeroClear_NotRequiered              if (3*npw<0) kv_iv(:)=0
 
-Cchp1           call defrr(ogv,3*npw)
            allocate(rv_p_ogv(abs(3*npw)))
            if (3*npw<0) rv_p_ogv(:)=0.0d0
 
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
-Cchp1           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
-Cchp1      .    8 + 2 , npw , npw , kv_iv , w ( ogv ) , xx , igv2_iv )
            call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
      .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
 
@@ -688,7 +633,6 @@ Cchp1      .    8 + 2 , npw , npw , kv_iv , w ( ogv ) , xx , igv2_iv )
           call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
-Cchp1           call rlse(ogv)
            if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
 
 

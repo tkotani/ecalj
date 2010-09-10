@@ -1,26 +1,4 @@
-Cdwdef1 have_common_w_in hambls , #_of_w_access= 5
-Cdwdef1 have_common_w_in blsig , #_of_w_access= 2
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp1 cmdvar= integer,iv_p_,ontabs
-Cchp1 cmdvar= integer,iv_p_,oiaxs
-Cchp1 cmdvar= real(8),rv_p_,ohrs
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp1 cmdvar= integer,iv_p_,ooffh
 CSFCPP#define F90 1
-Cchp3       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
-Cchp3      .k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
-Cchp3      .ndimh,napw,igvapw,h,s,ismidb)
-Cchp3        subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
-Cchp3      . , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
-Cchp3      . , sv_p_osig , otau , oppi , lcplxp , lso , alfa , ndimh , napw 
-Cchp3      . , igvapw , h , s , ismidb ) 
-Cchp3         subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
-Cchp3      .  , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
-Cchp3      .  , sv_p_osig , sv_p_otau , oppi , lcplxp , lso , alfa , ndimh 
-Cchp3      .  , napw , igvapw , h , s , ismidb ) 
          subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
      .   , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .   , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
@@ -213,9 +191,6 @@ C     implicit none
 C ... Passed parameters
       integer mode,nbas,isp,ispc,k1,k2,k3,lcplxp,ndimh,nqsig,lso,ismidb
       integer napw,igvapw(3,napw)
-Cchp3       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
-Cchp3        integer:: otau(3,nbas) , oppi(3,nbas) 
-Cchp3         integer:: oppi(3,nbas) 
          type(s_rv1) :: sv_p_oppi(3,nbas)
 
         type(s_rv1) :: sv_p_otau(3,nbas)
@@ -237,11 +212,6 @@ C ... Local parameters
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
-Cchp1       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
-Cchp1        integer:: oiprmb , ontabs , oiaxs , ohrs 
-Cchp1         integer:: ontabs , oiaxs , ohrs 
-Cchp1          integer:: ontabs , oiaxs 
-Cchp1           integer:: ontabs 
            integer,pointer :: iv_p_ontabs(:)
 
           integer,pointer :: iv_p_oiaxs(:)
@@ -273,8 +243,6 @@ C     integer fopna
       double precision qloc(3,nqsig)
       double precision wk(ndimh*11),evl(ndimh)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -292,17 +260,6 @@ C --- LDA hamiltonian ---
       if (mod(mode,10) .eq. 0) then
         j = 0
         if (lso .eq. 1) j = 10
-Cchp3         call hambl(j,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
-Cchp3      .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
-Cchp3      .  h(1,1,ispc),s(1,1,ispc),h(1,1,3))
-Cchp3          call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
-Cchp3      .   , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
-Cchp3      .   , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) , s ( 1 , 
-Cchp3      .   1 , ispc ) , h ( 1 , 1 , 3 ) ) 
-Cchp3           call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
-Cchp3      .    , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , oppi 
-Cchp3      .    , lcplxp , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) 
-Cchp3      .    , s ( 1 , 1 , ispc ) , h ( 1 , 1 , 3 ) ) 
            call hambl ( j , nbas , ssite , sspec , slat , sham , isp , q 
      .     , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .     , lcplxp , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) 
@@ -334,16 +291,12 @@ c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 C ... Setup for Bloch transform
       if(debug) print *,' goto set up bloch transformation'
       ndhrs=sham%ndhrs
-Cchp1       ontabs=sham%ontabs
        iv_p_ontabs => sham%iv_p_ontabs 
 
-Cchp1       oiaxs=sham%oiaxs
        iv_p_oiaxs => sham%iv_p_oiaxs 
 
-Cchp1       ohrs=sham%ohrs
        rv_p_ohrs => sham%rv_p_ohrs 
 
-Cchp1       ooffH=sham%ooffH
        iv_p_ooffh => sham%iv_p_ooffh 
 
       if(debug) print *,' hambles:eee 111'
@@ -355,7 +308,6 @@ Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
-Cchp1       nttabs = ival(w(ontabs),nbas+1)
       if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 
@@ -371,7 +323,6 @@ Changenglob      nsp  = nglob('nsp')
       call dinv33(plat,1,qlat,swt)
       if(debug) print *,' hambles:eee 333'
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%sigp)
@@ -390,18 +341,6 @@ c        allocate(e(ndimh))
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-Cchp1      .  ss(1,1),w,w)
-Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
-Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
-Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
      .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
@@ -482,18 +421,6 @@ C       call rx0('done')
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-Cchp1      .  s(1,1,ispc),w,w)
-Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
-Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
-Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
      .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
@@ -815,18 +742,6 @@ C       call zprm('h(lda)',2,h,ndimh,ndimh,ndimh)
 C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
 C       Call to bloch : 104110=perm orb, transpose, add, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
-Cchp1           call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-Cchp1      .    h(1,1,ispc),w,w)
-Cchp1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .     , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
-Cchp1             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .      , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cchp1      .      , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
-Cdwdef1              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cdwdef1      .       , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-Cdwdef1      .       , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
               call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
      .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
@@ -923,21 +838,6 @@ C ... For each qpi(1..nsim), add wt(qpi) * sigma(qpi)
           call daxpy(3,1d0,q,1,qpi(1,j),1)
           call info5(50,0,0,' qi(%i) = %3:-1,6;6d  |qi-q|=%,6;6d',
      .    j,qpi(1,j),dq,0,0)
-Cchp3           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qpi(1,j),k1,k2,k3,
-Cchp3      .    smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
-Cchp3      .    hqi,sqi,w)
-Cchp3            call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-Cchp3      .     ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau 
-Cchp3      .     , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
-Cchp3      .     w ) 
-Cchp3             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-Cchp3      .      ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-Cchp3      .      , oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi , 
-Cchp3      .      w ) 
-Cdwdef1              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-Cdwdef1      .       ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-Cdwdef1      .       , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
-Cdwdef1      .       , w ) 
               call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
      .        ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
@@ -958,17 +858,6 @@ C       hqi <- z(qpi) z(q)^-1
 C       sqi <- sigma(qpi)
 C       Call to bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
-Cchp1           call bloch(i,qpi(1,j),nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sqi,w,w)
-Cchp1            call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-Cchp1      .     , 1 , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , 
-Cchp1      .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
-Cchp1             call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-Cchp1      .      , 1 , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , 
-Cchp1      .      ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
-Cdwdef1              call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-Cdwdef1      .       , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
-Cdwdef1      .       , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
               call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
      .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
      .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
@@ -1072,10 +961,6 @@ C ... Passed parameters
 
       double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
 C ... Local parameters
-Cchp1       integer oiprmb,ontabs,oiaxs,ohrs
-Cchp1        integer:: ontabs , oiaxs , ohrs 
-Cchp1         integer:: ontabs , oiaxs 
-Cchp1          integer:: ontabs 
           integer,pointer :: iv_p_ontabs(:)
 
          integer,pointer :: iv_p_oiaxs(:)
@@ -1098,8 +983,6 @@ CSFCPP#endif
       double precision zsz(ndimh*nspc),ewgt(ndimh*nspc)
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
       save swgt
@@ -1111,16 +994,12 @@ Cdwdef1       common /w/ w
 C ... Setup for Bloch transform
 
       ndhrs=sham%ndhrs
-Cchp1       ontabs=sham%ontabs
        iv_p_ontabs => sham%iv_p_ontabs 
 
-Cchp1       oiaxs=sham%oiaxs
        iv_p_oiaxs => sham%iv_p_oiaxs 
 
-Cchp1       ohrs=sham%ohrs
        rv_p_ohrs => sham%rv_p_ohrs 
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
 
@@ -1131,7 +1010,6 @@ Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
-Cchp1       nttabs = ival(w(ontabs),nbas+1)
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 
       call isanrg(isp,1,nsp,'blsig:','isp',T)
@@ -1149,18 +1027,6 @@ C     Call to bloch : 104110=perm orb, transpose, no add, c*16
         if (nspc .eq. 2) ksp = jsp
 C     collinear case:     ksp = isp, jsp=1
 C     noncollinear case:  ksp=1..2,  jsp=1..2
-Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-Cchp1      .  w(ohrs),ndhrs,ksp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-Cchp1      .  sig(1,1,jsp),w,w)
-Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , ksp , nsp , ndimh , ndimh 
-Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
-Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
-Cdwdef1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-Cdwdef1      .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-Cdwdef1      .     , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
      .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
@@ -1188,7 +1054,6 @@ C ... ksp = current spin index (isp or 1, in noncollinear case)
 C --- Compute double-counting contribution to total energy ---
       if (mod(mode,10) .eq. 1) then
 C  ...  zsz <- diagonal part of <sigma-vxc>
-Cdwdef1         call phmbls(3,ndimhx,zsz,w,wk,sig,zq,zq,sig)
          call phmbls ( 3 , ndimhx , zsz , iwdummy , wk , sig , zq , zq 
      .   , sig ) 
 

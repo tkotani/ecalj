@@ -1319,8 +1319,8 @@ C$$$      double precision rcut,amu,azero
 
 C$$$Cdelw1       integer nvclst,owk,oiwk,nlin,nlinmx
 C$$$       integer:: nvclst , nlin , nlinmx 
-C$$$       real(8) ,allocatable :: rv_w_owk(:)
-C$$$       integer ,allocatable :: iv_w_oiwk(:)
+C$$$       real(8) ,allocatable :: wk_rv(:)
+C$$$       integer ,allocatable :: iwk_iv(:)
 
 C$$$      double precision hess(ndim,ndim),p(ndim*(11+2*ndim)),dxmx,xtol,xx,
 C$$$     .  xn,veclst(3,5),wk(0:26),dx
@@ -1413,15 +1413,15 @@ C$$$        veclst(2,2) = 2
 C$$$        veclst(3,2) = 2
 C$$$        nvclst = 2
 C$$$Cdelw1         call defrr(owk, 3*nvclst)
-C$$$         allocate(rv_w_owk(3*nvclst))
-C$$$         if (3*nvclst<0) rv_w_owk(:)=0.0d0
+C$$$         allocate(wk_rv(3*nvclst))
+C$$$         if (3*nvclst<0) wk_rv(:)=0.0d0
 
 C$$$Cdelw1         call defi(oiwk,nvclst)
-C$$$         allocate(iv_w_oiwk(nvclst))
-C$$$         if (nvclst<0) iv_w_oiwk(:)=0
+C$$$         allocate(iwk_iv(nvclst))
+C$$$         if (nvclst<0) iwk_iv(:)=0
 
 C$$$Cdelw1         call suhsmp(ndim/2,2,w(oiwk),w(owk),30,veclst,nvclst,icofn,cofn)
-C$$$         call suhsmp ( ndim / 2 , 2 , iv_w_oiwk , rv_w_owk , 30 , veclst 
+C$$$         call suhsmp ( ndim / 2 , 2 , iwk_iv , wk_rv , 30 , veclst 
 C$$$     .   , nvclst , icofn , cofn ) 
 
 C$$$        endif
@@ -1643,8 +1643,8 @@ C$$$      deallocate(f)
 C$$$Cdelw1 w_varlist remains: owk oiwk 
 C$$$Cdelw1 w_varlist (undel), remains: (None)
 C$$$Cdelw1 w_varlist (del), remains: [owk oiwk]
-C$$$       if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
-C$$$       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+C$$$       if (allocated(iwk_iv)) deallocate(iwk_iv)
+C$$$       if (allocated(wk_rv)) deallocate(wk_rv)
 
 C$$$      end
 C$$$#endif

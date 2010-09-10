@@ -1,30 +1,3 @@
-Cdwdef1 have_common_w_in clsprm , #_of_w_access= 0
-Cdwdef1 have_common_w_in ioqpp , #_of_w_access= 0
-Cdwdef1 have_common_w_in aiocls , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,ormax
-Cchp1 cmdvar= real(8),rv_p_,osop
-Cchp1 cmdvar= real(8),rv_p_,opprel
-Cchp1 cmdvar= real(8),rv_p_,orhrmx
-Cchp1 cmdvar= real(8),rv_p_,orhos
-Cchp1 cmdvar= real(8),rv_p_,oqt
-Cchp1 cmdvar= real(8),rv_p_,oqpp
-Cchp1 cmdvar= real(8),rv_p_,oqnu
-Cchp1 cmdvar= real(8),rv_p_,oqc
-Cchp1 cmdvar= real(8),rv_p_,omp
-Cchp1 cmdvar= real(8),rv_p_,opp
-Cchp1 cmdvar= real(8),rv_p_,opnu
-Cchp1 cmdvar= real(8),rv_p_,opmpol
-Cchp1 cmdvar= real(8),rv_p_,ogrrme
-Cchp1 cmdvar= real(8),rv_p_,obxc
-Cchp1 cmdvar= integer,iv_p_,oinitc
-Cchp1 cmdvar= integer,iv_p_,ohave
-Cchp1 cmdvar= real(8),rv_p_,ovrmax
-Cchp1 cmdvar= real(8),rv_p_,ova
-Cchp1 cmdvar= real(8),rv_p_,ovintr
-Cchp1 cmdvar= real(8),rv_p_,oves
-Cchp1 cmdvar= real(8),rv_p_,ovdif
-Cchp1 cmdvar= integer,iv_p_,oics
-Cchp1 cmdvar= real(8),rv_p_,oclabl
 C For lmdos and lmchk. Single core mode only. No MPI modes.
       program lmfutil
 C- Main program for lmf and so on.
@@ -540,65 +513,6 @@ Cgetarg      .  slat(1),sbz(1),sstr(1)
 C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
-Cchp1       integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
-Cchp1      .orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
-Cchp1      .opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
-Cchp1        integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-Cchp1      . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
-Cchp1      . , oifrlx , oivso , oipc , opos , oics , ozos , ormax , opmpol 
-Cchp1      . , oqpp , ogrrme , n0 
-Cchp1         integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-Cchp1      .  , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
-Cchp1      .  , oifrlx , oivso , oipc , opos , ozos , ormax , opmpol , oqpp 
-Cchp1      .  , ogrrme , n0 
-Cchp1          integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , orhrmx 
-Cchp1      .   , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel , oifrlx 
-Cchp1      .   , oivso , oipc , opos , ozos , ormax , opmpol , oqpp , ogrrme 
-Cchp1      .   , n0 
-Cchp1           integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-Cchp1      .    ovrmax , orhos , osop , ogroup , ovintr , opp , opprel , oifrlx 
-Cchp1      .    , oivso , oipc , opos , ozos , ormax , opmpol , oqpp , ogrrme 
-Cchp1      .    , n0 
-Cchp1            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-Cchp1      .     ovrmax , orhos , osop , ogroup , opp , opprel , oifrlx , oivso 
-Cchp1      .     , oipc , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
-Cchp1             integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-Cchp1      .      orhos , osop , ogroup , opp , opprel , oifrlx , oivso , oipc 
-Cchp1      .      , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
-Cchp1              integer:: obxc , opnu , oqnu , oqc , oqt , orhrmx , orhos , osop 
-Cchp1      .       , ogroup , opp , opprel , oifrlx , oivso , oipc , opos , ozos 
-Cchp1      .       , ormax , opmpol , oqpp , ogrrme , n0 
-Cchp1               integer:: opnu , oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup 
-Cchp1      .        , opp , opprel , oifrlx , oivso , oipc , opos , ozos , ormax 
-Cchp1      .        , opmpol , oqpp , ogrrme , n0 
-Cchp1                integer:: opnu , oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup 
-Cchp1      .         , opp , opprel , oifrlx , oivso , oipc , opos , ozos , ormax 
-Cchp1      .         , opmpol , oqpp , n0 
-Cchp1                 integer:: opnu , oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup 
-Cchp1      .          , opp , opprel , oifrlx , oivso , oipc , opos , ozos , ormax 
-Cchp1      .          , oqpp , n0 
-Cchp1                  integer:: oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup , 
-Cchp1      .           opp , opprel , oifrlx , oivso , oipc , opos , ozos , ormax , 
-Cchp1      .           oqpp , n0 
-Cchp1                   integer:: oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup , 
-Cchp1      .            opprel , oifrlx , oivso , oipc , opos , ozos , ormax , oqpp , 
-Cchp1      .            n0 
-Cchp1                    integer:: oqnu , oqt , orhrmx , orhos , osop , ogroup , opprel 
-Cchp1      .             , oifrlx , oivso , oipc , opos , ozos , ormax , oqpp , n0 
-Cchp1                     integer:: oqt , orhrmx , orhos , osop , ogroup , opprel , oifrlx 
-Cchp1      .              , oivso , oipc , opos , ozos , ormax , oqpp , n0 
-Cchp1                      integer:: oqt , orhrmx , orhos , osop , ogroup , opprel , oifrlx 
-Cchp1      .               , oivso , oipc , opos , ozos , ormax , n0 
-Cchp1                       integer:: orhrmx , orhos , osop , ogroup , opprel , oifrlx , 
-Cchp1      .                oivso , oipc , opos , ozos , ormax , n0 
-Cchp1                        integer:: orhrmx , osop , ogroup , opprel , oifrlx , oivso , 
-Cchp1      .                 oipc , opos , ozos , ormax , n0 
-Cchp1                         integer:: osop , ogroup , opprel , oifrlx , oivso , oipc , opos 
-Cchp1      .                  , ozos , ormax , n0 
-Cchp1                          integer:: osop , ogroup , oifrlx , oivso , oipc , opos , ozos 
-Cchp1      .                   , ormax , n0 
-Cchp1                           integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , ormax 
-Cchp1      .                    , n0 
                            integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
                            real(8),pointer :: rv_p_ormax(:)
 
@@ -649,8 +563,6 @@ Cchp1      .                    , n0
 C     integer nmto,oppn
       double precision plat(9),z,xx,dval
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       integer,allocatable:: ics(:)
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
@@ -682,48 +594,37 @@ Cgetarg       call upack1('array nclasp',sarray,nclasp)
 
 C ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
-Cchp1         call defdr(opnu,-nlspc)
          allocate(rv_p_opnu(abs(-nlspc)))
          if (-nlspc<0) rv_p_opnu(:)=0.0d0
 
-Cchp1         call defdr(oqnu,-3*nlspc)
          allocate(rv_p_oqnu(abs(-3*nlspc)))
          if (-3*nlspc<0) rv_p_oqnu(:)=0.0d0
 
-Cchp1         call defdr(opp,-6*nlspc)
          allocate(rv_p_opp(abs(-6*nlspc)))
          if (-6*nlspc<0) rv_p_opp(:)=0.0d0
 
-Cchp1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
          allocate(rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
          if (-32*nl*nl*max(nclspp,nspec)<0) rv_p_opprel(:)=0.0d0
 
-Cchp1         call defdr(oqc,-nclasp)
          allocate(rv_p_oqc(abs(-nclasp)))
          if (-nclasp<0) rv_p_oqc(:)=0.0d0
 
-Cchp1         call defdr(oqt,-nclasp)
          allocate(rv_p_oqt(abs(-nclasp)))
          if (-nclasp<0) rv_p_oqt(:)=0.0d0
 
-Cchp1         call defi (oinitc,-nclasp)
          allocate(iv_p_oinitc(abs(-nclasp)))
          if (-nclasp<0) iv_p_oinitc(:)=0
 
 c        call defi (ogroup,-2*nclasp)
-Cchp1         call defdr(oves,-nclspp)
          allocate(rv_p_oves(abs(-nclspp)))
          if (-nclspp<0) rv_p_oves(:)=0.0d0
 
-Cchp1         call defdr(ovdif,-nclspp)
          allocate(rv_p_ovdif(abs(-nclspp)))
          if (-nclspp<0) rv_p_ovdif(:)=0.0d0
 
-Cchp1         call defdr(orhrmx,-nclspp)
          allocate(rv_p_orhrmx(abs(-nclspp)))
          if (-nclspp<0) rv_p_orhrmx(:)=0.0d0
 
-Cchp1         call defdr(ovrmax,-2*nclspp)
          allocate(rv_p_ovrmax(abs(-2*nclspp)))
          if (-2*nclspp<0) rv_p_ovrmax(:)=0.0d0
 
@@ -731,22 +632,18 @@ C       call defdr(oqnu,-3*nlspc)
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg         call upack1('array oics',sarray,oics)
         
-Cchp1         oics=sarray%oics
          iv_p_oics => sarray%iv_p_oics 
 
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
         allocate( ics(nclspp) )
-Cchp1         call icopy(nclspp,w(oics),1,ics,1)
          call icopy ( nclspp , iv_p_oics , 1 , ics , 1 ) 
 
         print *,' qqqqq ics=',ics
-Cchp1         call defdr(ormax,nclspp)
          allocate(rv_p_ormax(abs(nclspp)))
          if (nclspp<0) rv_p_ormax(:)=0.0d0
 
-Cchp1         call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_p_ormax 
      .   , 1 ) 
 
@@ -758,10 +655,8 @@ Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
         
 c        sarray%ogroup=ogroup 
-Cchp1         sarray%ormax=ormax 
          sarray%rv_p_ormax => rv_p_ormax 
 
-Cchp1         sarray%ohave=oinitc 
          sarray%iv_p_ohave => iv_p_oinitc 
 
 
@@ -771,16 +666,12 @@ Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 Cgetarg         call pack5('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
         
-Cchp1         spot%opnu=opnu 
          spot%rv_p_opnu => rv_p_opnu 
 
-Cchp1         spot%oqnu=oqnu 
          spot%rv_p_oqnu => rv_p_oqnu 
 
-Cchp1         spot%oqc=oqc 
          spot%rv_p_oqc => rv_p_oqc 
 
-Cchp1         spot%oqt=oqt 
          spot%rv_p_oqt => rv_p_oqt 
 
 
@@ -792,24 +683,18 @@ Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg         call pack5('pot oves ovdif ovrmax orhrmx opp',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,opp)
         
-Cchp1         spot%oves=oves 
          spot%rv_p_oves => rv_p_oves 
 
-Cchp1         spot%ovdif=ovdif 
          spot%rv_p_ovdif => rv_p_ovdif 
 
-Cchp1         spot%ovrmax=ovrmax 
          spot%rv_p_ovrmax => rv_p_ovrmax 
 
-Cchp1         spot%orhrmx=orhrmx 
          spot%rv_p_orhrmx => rv_p_orhrmx 
 
-Cchp1         spot%opp=opp 
          spot%rv_p_opp => rv_p_opp 
 
 
 C       Even in collinear case, bxc might be written to
-Cchp1         call defdr(obxc,-3*nclasp)
          allocate(rv_p_obxc(abs(-3*nclasp)))
          if (-3*nclasp<0) rv_p_obxc(:)=0.0d0
 
@@ -817,10 +702,8 @@ Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg         call pack5('pot opprel obxc nrhos',spot,opprel,obxc,0,0,0)
         
-Cchp1         spot%opprel=opprel 
          spot%rv_p_opprel => rv_p_opprel 
 
-Cchp1         spot%obxc=obxc 
          spot%rv_p_obxc => rv_p_obxc 
 
         spot%nrhos=0 
@@ -837,18 +720,14 @@ Cgetarg           call upack2('ham neula nbf',sham,neula,nbf)
           neula=sham%neula
           nbf=sham%nbf
           nrhos = max(nl,neula,nbf)
-Cchp1           call rlse(obxc)
            if (associated(rv_p_obxc)) deallocate(rv_p_obxc)
 
-Cchp1           call defdr(orhos,2*3*4*nrhos*nclasp)
            allocate(rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
            if (2*3*4*nrhos*nclasp<0) rv_p_orhos(:)=0.0d0
 
-Cchp1           call defdr(osop,-nlspc*nsp*9)
            allocate(rv_p_osop(abs(-nlspc*nsp*9)))
            if (-nlspc*nsp*9<0) rv_p_osop(:)=0.0d0
 
-Cchp1           call defdr(obxc,-3*nclasp)
            allocate(rv_p_obxc(abs(-3*nclasp)))
            if (-3*nclasp<0) rv_p_obxc(:)=0.0d0
 
@@ -859,13 +738,10 @@ Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 Cgetarg           call pack5('pot nrhos orhos obxc osop',spot,
 Cgetarg      .      nrhos,orhos,obxc,osop,0)
           spot%nrhos=nrhos 
-Cchp1           spot%orhos=orhos 
            spot%rv_p_orhos => rv_p_orhos 
 
-Cchp1           spot%obxc=obxc 
            spot%rv_p_obxc => rv_p_obxc 
 
-Cchp1           spot%osop=osop 
            spot%rv_p_osop => rv_p_osop 
 
         endif
@@ -874,8 +750,6 @@ cki        ogrrme = 0
           nullify(rv_p_ogrrme)
 Cgetarg         if (igets('ctrl loptc',sctrl) .gt. 0)
 Cgetarg      .    call defrr(ogrrme,-16*nl*nsp*nclasp)
-Cchp1         if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl 
-Cchp1      .  * nsp * nclasp ) 
          if ( int ( sctrl%loptc ) .gt. 0 ) then 
          allocate(rv_p_ogrrme(abs(-16*nl*nsp*nclasp)))
          if (-16*nl*nsp*nclasp<0) rv_p_ogrrme(:)=0.0d0
@@ -885,7 +759,6 @@ Cchp1      .  * nsp * nclasp )
 Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg         call pack1('pot ogrrme',spot,ogrrme)
         
-Cchp1         spot%ogrrme=ogrrme 
          spot%rv_p_ogrrme => rv_p_ogrrme 
 
 
@@ -894,14 +767,12 @@ Cgetarg      .      lgors('ctrl lscr,-1',sctrl)) then
         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
      .  ) then 
 
-Cchp1           call defdr(ovintr,-nclasp*(nl*nsp)**2)
            allocate(rv_p_ovintr(abs(-nclasp*(nl*nsp)**2)))
            if (-nclasp*(nl*nsp)**2<0) rv_p_ovintr(:)=0.0d0
 
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)
           
-Cchp1           spot%ovintr=ovintr 
            spot%rv_p_ovintr => rv_p_ovintr 
 
 
@@ -913,26 +784,21 @@ ctakao remove asa
 
 C   ... Allocate memory for, attempt to read qpp from file
         if (lnsph .ne. 0 .or. nlibu .ne. 0) then
-Cchp1           call defrr(opmpol,-(2*nl-1)*nl**2*3*nsp*nclasp)
            allocate(rv_p_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
            if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) rv_p_opmpol(:)=0.0d0
 
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
-Cchp1           call defrr(oqpp,2*nqpp*4*nsp*nbas)
            allocate(rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
            if (2*nqpp*4*nsp*nbas<0) rv_p_oqpp(:)=0.0d0
 
-Cchp1           call dvset(w(oqpp),1,1,-1d0)
            call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
 
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
 Cgetarg           call pack2('pot opmpol oqpp',spot,opmpol,oqpp)
-Cchp1           spot%opmpol=opmpol 
            spot%rv_p_opmpol => rv_p_opmpol 
 
-Cchp1           spot%oqpp=oqpp 
            spot%rv_p_oqpp => rv_p_oqpp 
 
           call ioqpp(.false.,sctrl,spot)
@@ -1117,20 +983,14 @@ Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 Cgetarg         call upack('pot opnu oqnu',spot,opnu,oqnu,0,0,0)
         
-Cchp1         opnu=spot%opnu
          rv_p_opnu => spot%rv_p_opnu 
 
-Cchp1         oqnu=spot%oqnu
          rv_p_oqnu => spot%rv_p_oqnu 
 
 
-Cchp1         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
-Cchp1      .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
          call dpscop ( rv_p_opnu , rv_p_opnu , nl * nsp * i1 , nl * nsp 
      .   * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
 
-Cchp1         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
-Cchp1      .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
          call dpscop ( rv_p_oqnu , rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
      .   nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
 
@@ -1142,32 +1002,24 @@ Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg         call upack('pot oves ovdif ovrmax orhrmx',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,0)
         
-Cchp1         oves=spot%oves
          rv_p_oves => spot%rv_p_oves 
 
-Cchp1         ovdif=spot%ovdif
          rv_p_ovdif => spot%rv_p_ovdif 
 
-Cchp1         ovrmax=spot%ovrmax
          rv_p_ovrmax => spot%rv_p_ovrmax 
 
-Cchp1         orhrmx=spot%orhrmx
          rv_p_orhrmx => spot%rv_p_orhrmx 
 
 
-Cchp1         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_oves , rv_p_oves , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-Cchp1         call dpscop(w(ovdif),w(ovdif),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_ovdif , rv_p_ovdif , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-Cchp1         call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_ovrmax , rv_p_ovrmax , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-Cchp1         call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_orhrmx , rv_p_orhrmx , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
@@ -1204,10 +1056,7 @@ Cgetarg       double precision sctrl(1),spot(1)
       type(s_pot)::spot
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 C ... Local parameters
-Cchp1       integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
        integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
      . , ipr 
        real(8),pointer :: rv_p_oqpp(:)
@@ -1226,14 +1075,12 @@ Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
 Cgetarg       oqpp = igets('pot oqpp',spot)
-Cchp1       oqpp = spot%oqpp
        rv_p_oqpp => spot%rv_p_oqpp 
 
 
       ifi = fopna('qpp',-1,4+8)
 
       if (lio) then
-Cchp1         call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
          call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_p_oqpp , 1 , i1 
      .   , i1 , i2 ) 
 
@@ -1241,12 +1088,10 @@ Cchp1         call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
       else
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
-Cchp1         if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
          if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_p_oqpp , i1 , i2 ) .lt. 
      .   0 ) then 
 
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
-Cchp1           call dvset(w(oqpp),1,1,-1d0)
            call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
 
         endif
@@ -1386,51 +1231,12 @@ Cgetarg      .  spot(1)
       type(s_pot)::spot
 
 C heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 C Local variables
       character*8 clabl,alabel, outs1*20, outs2*20, outs3*20, outs*80
       logical sw,aiomom,aiopar,aiopot,aiova,lpot,lcor,scat,lgors,
      .aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
       logical havepq,havepp,haveso,haveop,haveva,havemp,
      .readpq,readpp,readso,readop,readva,readmp
-Cchp1       integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
-Cchp1      .olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
-Cchp1      .ogrrme,n0,nglob
-Cchp1        integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
-Cchp1      . , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
-Cchp1      . , opot , ocor , oics , ohave , onrc , ogrrme , n0 , nglob 
-Cchp1         integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
-Cchp1      .  , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
-Cchp1      .  , opot , ocor , ohave , onrc , ogrrme , n0 , nglob 
-Cchp1          integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , ova 
-Cchp1      .   , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp , 
-Cchp1      .   opot , ocor , ohave , onrc , ogrrme , n0 , nglob 
-Cchp1           integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , omp 
-Cchp1      .    , osop , olpp , olppr , olsop , olgrme , olva , olmp , opot , 
-Cchp1      .    ocor , ohave , onrc , ogrrme , n0 , nglob 
-Cchp1            integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
-Cchp1      .     olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , ohave 
-Cchp1      .     , onrc , ogrrme , n0 , nglob 
-Cchp1             integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
-Cchp1      .      olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , onrc 
-Cchp1      .      , ogrrme , n0 , nglob 
-Cchp1              integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
-Cchp1      .       olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , onrc 
-Cchp1      .       , n0 , nglob 
-Cchp1               integer:: oqnu , orhrmx , opp , opprel , omp , osop , olpp , 
-Cchp1      .        olppr , olsop , olgrme , olva , olmp , opot , ocor , onrc , n0 
-Cchp1      .        , nglob 
-Cchp1                integer:: oqnu , orhrmx , opprel , omp , osop , olpp , olppr 
-Cchp1      .         , olsop , olgrme , olva , olmp , opot , ocor , onrc , n0 , nglob 
-Cchp1                 integer:: oqnu , orhrmx , opprel , osop , olpp , olppr , olsop 
-Cchp1      .          , olgrme , olva , olmp , opot , ocor , onrc , n0 , nglob 
-Cchp1                  integer:: orhrmx , opprel , osop , olpp , olppr , olsop , olgrme 
-Cchp1      .           , olva , olmp , opot , ocor , onrc , n0 , nglob 
-Cchp1                   integer:: opprel , osop , olpp , olppr , olsop , olgrme , olva 
-Cchp1      .            , olmp , opot , ocor , onrc , n0 , nglob 
-Cchp1                    integer:: osop , olpp , olppr , olsop , olgrme , olva , olmp 
-Cchp1      .             , opot , ocor , onrc , n0 , nglob 
                     integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
                     real(8),pointer :: rv_p_osop(:)
 
@@ -1487,16 +1293,12 @@ Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg       call upack('pot opp opprel osop ogrrme',spot,opp,opprel,osop,
 Cgetarg      .  ogrrme,0)
       
-Cchp1       opp=spot%opp
        rv_p_opp => spot%rv_p_opp 
 
-Cchp1       opprel=spot%opprel
        rv_p_opprel => spot%rv_p_opprel 
 
-Cchp1       osop=spot%osop
        rv_p_osop => spot%rv_p_osop 
 
-Cchp1       ogrrme=spot%ogrrme
        rv_p_ogrrme => spot%rv_p_ogrrme 
 
 
@@ -1507,16 +1309,12 @@ Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 Cgetarg       call upack('pot opnu oqnu orhrmx ovrmax',spot,opnu,oqnu,orhrmx,
 Cgetarg      .  ovrmax,0)
       
-Cchp1       opnu=spot%opnu
        rv_p_opnu => spot%rv_p_opnu 
 
-Cchp1       oqnu=spot%oqnu
        rv_p_oqnu => spot%rv_p_oqnu 
 
-Cchp1       orhrmx=spot%orhrmx
        rv_p_orhrmx => spot%rv_p_orhrmx 
 
-Cchp1       ovrmax=spot%ovrmax
        rv_p_ovrmax => spot%rv_p_ovrmax 
 
 
@@ -1525,13 +1323,10 @@ Cgetarg...info...           integer :: omp , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg       call upack('pot ovintr opmpol oves',spot,ova,omp,oves,0,0)
       
-Cchp1       ova=spot%ovintr
        rv_p_ova => spot%rv_p_ovintr 
 
-Cchp1       omp=spot%opmpol
        rv_p_omp => spot%rv_p_opmpol 
 
-Cchp1       oves=spot%oves
        rv_p_oves => spot%rv_p_oves 
 
 
@@ -1543,13 +1338,10 @@ Cgetarg       call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
 Cgetarg      .  ohave,oics,0)
       
       nclasp=sarray%nclasp
-Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
-Cchp1       ohave=sarray%ohave
        iv_p_ohave => sarray%iv_p_ohave 
 
-Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
 
@@ -1578,7 +1370,6 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
       do  10  ic = ic1, i2
 cki        is = w(oics+ic-1)
         is=iv_p_oics(ic)
-Cchp1         icmap = iclbsj(is,w(oics),-nclasp,1)
          icmap = iclbsj ( is , iv_p_oics , - nclasp , 1 ) 
 
         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
@@ -1604,7 +1395,6 @@ C   --- Open the atom file ---
         outs1 = ' '
         outs2 = ' '
         outs3 = ' '
-Cchp1         call r8tos8(dval(w(oclabl),ic),clabl)
          call r8tos8 ( dval ( rv_p_oclabl , ic ) , clabl ) 
 
         if (mode00 .ne. 3) then
@@ -1617,54 +1407,44 @@ c#endif
 
 C  --- Copy what is passed through to holding arrays ---
         k = nl*nsp
-Cchp1         call pvaioc(w(ohave),1,ic,icmap,havepq,jc)
          call pvaioc ( iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
 
         readpq = .not. havepq .or. mode00 .eq. 2 .and. jc .ne. ic
         readpq = readpq .and. mode00 .lt. 3
         if (havepq) then
-Cchp1           call dpscop(w(opnu),pnuloc,k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1 
      .     , 1d0 ) 
 
-Cchp1           call dpscop(w(oqnu),qnuloc,3*k,1+(jc-1)*3*k,1,1d0)
            call dpscop ( rv_p_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
      .     * k , 1 , 1d0 ) 
 
-Cchp1           call dpscop(w(orhrmx),rhrmx,1,jc,1,1d0)
            call dpscop ( rv_p_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
 
-Cchp1           call dpscop(w(ovrmax),vrmax,2,2*jc-1,1,1d0)
            call dpscop ( rv_p_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 
      .     ) 
 
           if (ic.ne.jc) call awrit0('%a pq,',outs1,len(outs1),0)
         endif
         k = 6*nl*nsp
-Cchp1         call pvaioc(w(ohave),2,ic,icmap,havepp,jc)
          call pvaioc ( iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
 
         readpp = .not. havepp .or. mode00 .eq. 2 .and. jc .ne. ic
         readpp = readpp .and. mode00 .lt. 3
         if (havepp) then
-Cchp1           call dpscop(w(opp),w(olpp),k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (lrel .eq. 2) then
             k = 4*nl*2*nl*2*2
-Cchp1             call dpscop(w(opprel),w(olppr),k,1+(jc-1)*k,1,1d0)
              call dpscop ( rv_p_opprel , olppr , k , 1 + ( jc - 1 ) 
      .       * k , 1 , 1d0 ) 
 
           endif
-Cchp1           call dpscop(w(oves),ves,1,jc,1,1d0)
            call dpscop ( rv_p_oves , ves , 1 , jc , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a pp,',outs1,len(outs1),0)
         endif
         k = (nl*nsp)**2
-Cchp1         call pvaioc(w(ohave),8,ic,icmap,haveva,jc)
          call pvaioc ( iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
 
 cki        haveva = haveva .and. ova .gt. 0
@@ -1673,14 +1453,12 @@ cki        haveva = haveva .and. ova .gt. 0
 cki        readva = readva .and. ova .gt. 0 .and. mode00 .lt. 3
         readva = readva .and. associated(rv_p_ova) .and. mode00 .lt. 3
         if (haveva) then
-Cchp1           call dpscop(w(ova),w(olva),k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_ova , olva , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a va,',outs1,len(outs1),0)
         endif
         k = nl**2*(2*nl-1)*3*nsp
-Cchp1         call pvaioc(w(ohave),16,ic,icmap,havemp,jc)
          call pvaioc ( iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
 
 cki        havemp = havemp .and. omp .gt. 0
@@ -1689,14 +1467,12 @@ cki        havemp = havemp .and. omp .gt. 0
 cki        readmp = readmp .and. omp .gt. 0 .and. mode00 .lt. 3
         readmp = readmp .and. associated(rv_p_omp) .and. mode00 .lt. 3
         if (havemp) then
-Cchp1           call dpscop(w(omp),w(olmp),k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_omp , olmp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a mp,',outs1,len(outs1),0)
         endif
         k = nl*nsp*nsp*9
-Cchp1         call pvaioc(w(ohave),4,ic,icmap,haveso,jc)
          call pvaioc ( iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
 
 cki        haveso = haveso .and. osop.gt. 0
@@ -1705,14 +1481,12 @@ cki        haveso = haveso .and. osop.gt. 0
 cki        readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
         readso = readso .and. associated(rv_p_osop) .and. mode00 .lt. 3
         if (haveso) then
-Cchp1           call dpscop(w(osop),w(olsop),k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_osop , olsop , k , 1 + ( jc - 1 ) * 
      .     k , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
         endif
         k = 16*nl*nsp
-Cchp1         call pvaioc(w(ohave),32,ic,icmap,haveop,jc)
          call pvaioc ( iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
 
 cki        haveop = haveop .and. ogrrme .gt. 0
@@ -1721,7 +1495,6 @@ cki        haveop = haveop .and. ogrrme .gt. 0
 cki        readop = readop .and. ogrrme .gt. 0 .and. mode00 .lt. 3
         readop = readop .and. associated(rv_p_ogrrme) .and. mode00 .lt. 3
         if (haveop) then
-Cchp1           call dpscop(w(ogrrme),w(olgrme),k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_ogrrme , olgrme , k , 1 + ( jc - 1 ) 
      .     * k , 1 , 1d0 ) 
 
@@ -1818,66 +1591,51 @@ cki     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
 
           k = nl*nsp
           if (havepq .or. readpq) then
-Cchp1             call dpscop(pnuloc,w(opnu),k,1,1+(ic-1)*k,1d0)
              call dpscop ( pnuloc , rv_p_opnu , k , 1 , 1 + ( ic - 1 ) * k 
      .       , 1d0 ) 
 
-Cchp1             call dpscop(qnuloc,w(oqnu),3*k,1,1+(ic-1)*3*k,1d0)
              call dpscop ( qnuloc , rv_p_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
      .       * 3 * k , 1d0 ) 
 
-Cchp1             call dpscop(rhrmx,w(orhrmx),1,1,ic,1d0)
              call dpscop ( rhrmx , rv_p_orhrmx , 1 , 1 , ic , 1d0 ) 
 
-Cchp1             call dpscop(vrmax,w(ovrmax),2,1,2*ic-1,1d0)
              call dpscop ( vrmax , rv_p_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 
      .       ) 
 
           endif
           k = 6*nl*nsp
           if (havepp .or. readpp) then
-Cchp1             call dpscop(w(olpp),w(opp),k,1,1+(ic-1)*k,1d0)
              call dpscop ( olpp , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
      .       * k , 1d0 ) 
 
             if (lrel .eq. 2) then
               k = 4*nl*2*nl*2*2
-Cchp1               call dpscop(w(olppr),w(opprel),k,1,1+(ic-1)*k,1d0)
                call dpscop ( olppr , rv_p_opprel , k , 1 , 1 + ( ic - 
      .         1 ) * k , 1d0 ) 
 
             endif
-Cchp1             call dpscop(ves,w(oves),1,1,ic,1d0)
              call dpscop ( ves , rv_p_oves , 1 , 1 , ic , 1d0 ) 
 
           endif
           k = (nl*nsp)**2
 cki          if ((haveva .or. readva) .and. ova .gt. 0)
-Cchp1           if ((haveva .or. readva) .and. associated(rv_p_ova) ) 
-Cchp1      .    call dpscop(w(olva),w(ova),k,1,1+(ic-1)*k,1d0)
            if ( ( haveva .or. readva ) .and. associated ( rv_p_ova ) ) call 
      .     dpscop ( olva  , rv_p_ova , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl**2*(2*nl-1)*3*nsp
 cki          if ((havemp .or. readmp) .and. omp .gt. 0)
-Cchp1           if ((havemp .or. readmp) .and. associated(rv_p_omp) )
-Cchp1      .    call dpscop(w(olmp),w(omp),k,1,1+(ic-1)*k,1d0)
            if ( ( havemp .or. readmp ) .and. associated ( rv_p_omp ) ) call 
      .     dpscop ( olmp  , rv_p_omp , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl*nsp*nsp*9
 cki          if ((haveso .or. readso) .and. osop .gt. 0)
-Cchp1           if ((haveso .or. readso) .and. associated(rv_p_osop ))
-Cchp1      .    call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
            if ( ( haveso .or. readso ) .and. associated ( rv_p_osop ) ) 
      .     call dpscop ( olsop  , rv_p_osop , k , 1 , 1 + ( ic - 1 
      .     ) * k , 1d0 ) 
 
           k = 16*nl*nsp
-Cchp1           if ((haveop .or. readop) .and. associated(rv_p_ogrrme))
-Cchp1      .    call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)
            if ( ( haveop .or. readop ) .and. associated ( rv_p_ogrrme ) 
      .     ) call dpscop ( olgrme  , rv_p_ogrrme , k , 1 , 1 + ( ic 
      .     - 1 ) * k , 1d0 ) 

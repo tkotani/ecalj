@@ -1,45 +1,4 @@
-Cdwdef1 have_common_w_in addrbl , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp1 cmdvar= integer,iv_p_,oidxsh
-Cchp1 cmdvar= integer,iv_p_,oindxo
 CSFCPP#define F90 1
-Cchp3       subroutine addrbl(ssite,sspec,slat,sham,isp,nsp,nspc,q,wtkp,ndham,
-Cchp3      .ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
-Cchp3      .lekkl,k1,k2,k3,smpot,vconst,osig,otau,oppi,lcplxp,numq,qval,
-Cchp3      .evec,evl,nevl,ef0,def,esmear,emin,emax,ndos,dos,smrho,sumqv,
-Cchp3      .sumev,oqkkl,oeqkkl,f)
-Cchp3        subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
-Cchp3      . nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
-Cchp3      . , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
-Cchp3      . , k2 , k3 , smpot , vconst , osig , otau , oppi , lcplxp , numq 
-Cchp3      . , qval , evec , evl , nevl , ef0 , def , esmear , emin , emax 
-Cchp3      . , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl , oeqkkl , 
-Cchp3      . f ) 
-Cchp3         subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
-Cchp3      .  nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
-Cchp3      .  , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
-Cchp3      .  , k2 , k3 , smpot , vconst , osig , otau , oppi , lcplxp , numq 
-Cchp3      .  , qval , evec , evl , nevl , ef0 , def , esmear , emin , emax 
-Cchp3      .  , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl 
-Cchp3      .  , f ) 
-Cchp3          subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
-Cchp3      .   nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
-Cchp3      .   , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
-Cchp3      .   , k2 , k3 , smpot , vconst , sv_p_osig , otau , oppi , lcplxp 
-Cchp3      .   , numq , qval , evec , evl , nevl , ef0 , def , esmear , emin 
-Cchp3      .   , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl 
-Cchp3      .   , f ) 
-Cchp3           subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
-Cchp3      .    nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
-Cchp3      .    , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
-Cchp3      .    , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , oppi , lcplxp 
-Cchp3      .    , numq , qval , evec , evl , nevl , ef0 , def , esmear , emin 
-Cchp3      .    , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl 
-Cchp3      .    , f ) 
            subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
      .     nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
      .     , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
@@ -155,11 +114,6 @@ C ... Passed parameters
       type(s_lat)::slat
       type(s_ham)::sham
 
-Cchp3       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
-Cchp3        integer:: oeqkkl(3,1) , osig(3,1) , otau(3,1) , oppi(3,1) 
-Cchp3         integer:: osig(3,1) , otau(3,1) , oppi(3,1) 
-Cchp3          integer:: otau(3,1) , oppi(3,1) 
-Cchp3           integer:: oppi(3,1) 
            type(s_rv1) :: sv_p_oppi(3,1)
 
           type(s_rv1) :: sv_p_otau(3,1)
@@ -173,8 +127,6 @@ Cchp3           integer:: oppi(3,1)
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
      .smpot(k1,k2,k3,isp)
 C ... Local parameters
-Cchp1       integer i,k,nevec,nbas,nglob,ngabc(3),n1,n2,n3,oidxsh,ndimhx,
-Cchp1      .lmxax,lmxa,nlmax,nlmto,ig
        integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig 
        integer,pointer :: iv_p_oidxsh(:)
@@ -196,8 +148,6 @@ CSFCPP      parameter(ndimx=1000)
 CSFCPP      double precision ewgt(3,ndimx)
 CSFCPP#endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
@@ -214,7 +164,6 @@ CSFCPP#if ! (F90 | AUTO_ARRAY)
 CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 CSFCPP#endif
 
-Cchp1       oidxsh=sham%oindxo
        iv_p_oidxsh => sham%iv_p_oindxo 
 
 
@@ -287,8 +236,6 @@ C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
-Cchp1           call fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,w(oidxsh),
-Cchp1      .    numq,nevec,evl(1,isp),evec,ewgt,f)
            call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh , 
      .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f ) 
@@ -304,10 +251,6 @@ C        enddo
 
           vol=slat%vol
 
-Cchp1           call fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,w(oidxsh),numq,
-Cchp1      .    nevec,evl(1,isp),evec,ewgt,
-Cchp1      .    napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),
-Cchp1      .    f)
            call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f ) 
@@ -323,8 +266,6 @@ C     print *, '!!'; call dpzero(f,9)
 
 C ... Add to smooth density
       if (lrout .gt. 0) then
-Cchp1         call rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,napw,
-Cchp1      .  igapw,w(oidxsh),numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
          call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
      .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f ) 
@@ -338,29 +279,6 @@ C      enddo
 
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
-Cchp1         call rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,nspc,
-Cchp1      .  napw,igapw,w(oidxsh),numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-Cchp1      .  lcplxp,lekkl,oqkkl,oeqkkl,f)
-Cchp3          call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-Cchp3      .   ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-Cchp3      .   , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , oqkkl 
-Cchp3      .   , oeqkkl , f ) 
-Cchp3           call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-Cchp3      .    ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-Cchp3      .    , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
-Cchp3      .    , oeqkkl , f ) 
-Cchp3            call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-Cchp3      .     ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-Cchp3      .     , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , sv_p_oqkkl 
-Cchp3      .     , sv_p_oeqkkl , f ) 
-Cchp3             call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-Cchp3      .      ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-Cchp3      .      , evec , ewgt , evl , sv_p_osig , otau , oppi , lcplxp , lekkl 
-Cchp3      .      , sv_p_oqkkl , sv_p_oeqkkl , f ) 
-Cchp3              call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-Cchp3      .       ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-Cchp3      .       , evec , ewgt , evl , sv_p_osig , sv_p_otau , oppi , lcplxp , 
-Cchp3      .       lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
               call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
      .        ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 

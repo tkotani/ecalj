@@ -1,8 +1,3 @@
-Cdwdef1 have_common_w_in totfrc , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,og
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= real(8),iv_p_,oistab
-Cchp1 cmdvar= real(8),iv_p_,oips0
       subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
 
       use m_struc_def  !Cgetarg
@@ -35,10 +30,6 @@ C ... Passed parameters
       type(s_lat)::slat
 
 C ... Local parameters
-Cchp1       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
-Cchp1      ., og , ibmx , isw
-Cchp1        integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , og 
-Cchp1      . , ibmx , isw 
         integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
      .  , isw 
         real(8),pointer :: rv_p_og(:)
@@ -49,8 +40,6 @@ Cchp1      . , ibmx , isw
 
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       stdl = lgunit(2)
@@ -122,22 +111,15 @@ Cdwdef1       common /w/ w
 C     Symmetrize forces to machine precision
 
       ng=slat%nsgrp
-Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
-Cchp1       og=slat%osymgr
        rv_p_og => slat%rv_p_osymgr 
 
 
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
         allocate(wk_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) wk_rv(:)=0.0d0
 
-Cchp1         call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , wk_rv 
-Cchp1      .  , f )
-Cchp1          call symfor ( nbas , 1 , w ( og ) , ng , iv_p_oistab , wk_rv 
-Cchp1      .   , f ) 
           call symfor ( nbas , 1 , rv_p_og , ng , iv_p_oistab , wk_rv , 
      .    f ) 
 

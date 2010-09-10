@@ -1,33 +1,3 @@
-Cdwdef1 have_common_w_in mkekin , #_of_w_access= 0
-Cchp2 cmdvar= real(8),rv_p_,oppipp
-Cchp2 cmdvar= real(8),rv_p_,oppihp
-Cchp2 cmdvar= real(8),rv_p_,oppihh
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp2 cmdvar= real(8),rv_p_,otaupp
-Cchp2 cmdvar= real(8),rv_p_,otauhp
-Cchp2 cmdvar= real(8),rv_p_,otauhh
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp2 cmdvar= real(8),rv_p_,osigpp
-Cchp2 cmdvar= real(8),rv_p_,osighp
-Cchp2 cmdvar= real(8),rv_p_,osighh
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp2 cmdvar= real(8),rv_p_,oqpp
-Cchp2 cmdvar= real(8),rv_p_,oqhp
-Cchp2 cmdvar= real(8),rv_p_,oqhh
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp3       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
-Cchp3      .lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
-Cchp3        subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
-Cchp3      . , osig , otau , oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3 , vconst 
-Cchp3      . , smpot , smrho , sumev , sumtv ) 
-Cchp3         subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
-Cchp3      .  , sv_p_osig , otau , oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3 
-Cchp3      .  , vconst , smpot , smrho , sumev , sumtv ) 
-Cchp3          subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
-Cchp3      .   , sv_p_osig , sv_p_otau , oppi , lcplxp , sv_p_oqkkl , k1 , k2 
-Cchp3      .   , k3 , vconst , smpot , smrho , sumev , sumtv ) 
           subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv ) 
@@ -176,10 +146,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ndimh,lcplxp
-Cchp3       integer oqkkl(3,nbas),oppi(3,nbas),osig(3,1),otau(3,1)
-Cchp3        integer:: oppi(3,nbas) , osig(3,1) , otau(3,1) 
-Cchp3         integer:: oppi(3,nbas) , otau(3,1) 
-Cchp3          integer:: oppi(3,nbas) 
           type(s_rv1) :: sv_p_oppi(3,nbas)
 
          type(s_rv1) :: sv_p_otau(3,1)
@@ -198,26 +164,6 @@ Cchp3          integer:: oppi(3,nbas)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
      .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
-Cchp1       integer oiprmb,oppihh,oppihp,oppipp,oqhh,oqhp,oqpp,osighh,osighp,
-Cchp1      .osigpp,otauhh,otauhp,otaupp
-Cchp2        integer:: oppihh , oppihp , oppipp , oqhh , oqhp , oqpp , osighh 
-Cchp2      . , osighp , osigpp , otauhh , otauhp , otaupp 
-Cchp2         integer:: oppihh , oppihp , oppipp , oqhp , oqpp , osighh , osighp 
-Cchp2      .  , osigpp , otauhh , otauhp , otaupp 
-Cchp2          integer:: oppihh , oppihp , oppipp , oqpp , osighh , osighp , 
-Cchp2      .   osigpp , otauhh , otauhp , otaupp 
-Cchp2           integer:: oppihh , oppihp , oppipp , osighh , osighp , osigpp 
-Cchp2      .    , otauhh , otauhp , otaupp 
-Cchp2            integer:: oppihh , oppihp , oppipp , osighp , osigpp , otauhh 
-Cchp2      .     , otauhp , otaupp 
-Cchp2             integer:: oppihh , oppihp , oppipp , osigpp , otauhh , otauhp 
-Cchp2      .      , otaupp 
-Cchp2              integer:: oppihh , oppihp , oppipp , otauhh , otauhp , otaupp 
-Cchp2               integer:: oppihh , oppihp , oppipp , otauhp , otaupp 
-Cchp2                integer:: oppihh , oppihp , oppipp , otaupp 
-Cchp2                 integer:: oppihh , oppihp , oppipp 
-Cchp2                  integer:: oppihp , oppipp 
-Cchp2                   integer:: oppipp 
                    real(8),pointer :: rv_p_oppipp(:)
 
                   real(8),pointer :: rv_p_oppihp(:)
@@ -252,8 +198,6 @@ Cchp2                   integer:: oppipp
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 #if DEBUG
       integer fopna
 #endif
@@ -272,7 +216,6 @@ Changenglob      nkaph = nglob('nkaph')
       vol=slat%vol
 
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
 
@@ -313,7 +256,6 @@ C --- Integral rhout*veff, part from augmentation ---
 
         if (lmxa .eq. -1) goto 10
 
-Cchp1         call orbl(ib,0,ndimh,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
          call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
@@ -336,77 +278,6 @@ C       Block into groups of consecutive l
         rv_p_oppihp => sv_p_oppi(2,ib)%v
         rv_p_oppipp => sv_p_oppi(1,ib)%v
 
-Cchp2         call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-Cchp2      .  w(otauhh),w(osighh),w(oppihh),w(oppihh),
-Cchp2      .  w(otauhp),w(osighp),w(oppihp),w(oppihp),
-Cchp2      .  w(otaupp),w(osigpp),w(oppipp),w(oppipp),
-Cchp2      .  lcplxp,lso,w(oqhh),w(oqhp),w(oqpp),nsp,nspc,sumt,sumq,sumh)
-Cchp2          call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .   , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
-Cchp2      .   ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
-Cchp2      .   , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
-Cchp2      .   w ( oppipp ) , lcplxp , lso , rv_p_oqhh , w ( oqhp ) , w ( oqpp 
-Cchp2      .   ) , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2           call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .    , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
-Cchp2      .    ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
-Cchp2      .    , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
-Cchp2      .    w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , w ( oqpp 
-Cchp2      .    ) , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2            call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .     , blks , lmxh , nlmh , w ( otauhh ) , w ( osighh ) , w ( oppihh 
-Cchp2      .     ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
-Cchp2      .     , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
-Cchp2      .     w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .     , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2             call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .      , blks , lmxh , nlmh , w ( otauhh ) , rv_p_osighh , w ( oppihh 
-Cchp2      .      ) , w ( oppihh ) , w ( otauhp ) , w ( osighp ) , w ( oppihp ) 
-Cchp2      .      , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
-Cchp2      .      w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .      , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2              call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .       , blks , lmxh , nlmh , w ( otauhh ) , rv_p_osighh , w ( oppihh 
-Cchp2      .       ) , w ( oppihh ) , w ( otauhp ) , rv_p_osighp , w ( oppihp ) 
-Cchp2      .       , w ( oppihp ) , w ( otaupp ) , w ( osigpp ) , w ( oppipp ) , 
-Cchp2      .       w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .       , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2               call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .        , blks , lmxh , nlmh , w ( otauhh ) , rv_p_osighh , w ( oppihh 
-Cchp2      .        ) , w ( oppihh ) , w ( otauhp ) , rv_p_osighp , w ( oppihp ) 
-Cchp2      .        , w ( oppihp ) , w ( otaupp ) , rv_p_osigpp , w ( oppipp ) , 
-Cchp2      .        w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .        , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2                call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .         , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , w ( oppihh 
-Cchp2      .         ) , w ( oppihh ) , w ( otauhp ) , rv_p_osighp , w ( oppihp ) 
-Cchp2      .         , w ( oppihp ) , w ( otaupp ) , rv_p_osigpp , w ( oppipp ) , 
-Cchp2      .         w ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .         , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2                 call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .          , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , w ( oppihh 
-Cchp2      .          ) , w ( oppihh ) , rv_p_otauhp , rv_p_osighp , w ( oppihp ) , 
-Cchp2      .          w ( oppihp ) , w ( otaupp ) , rv_p_osigpp , w ( oppipp ) , w 
-Cchp2      .          ( oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp 
-Cchp2      .          , nsp , nspc , sumt , sumq , sumh ) 
-Cchp2                  call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .           , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , w ( oppihh 
-Cchp2      .           ) , w ( oppihh ) , rv_p_otauhp , rv_p_osighp , w ( oppihp ) , 
-Cchp2      .           w ( oppihp ) , rv_p_otaupp , rv_p_osigpp , w ( oppipp ) , w ( 
-Cchp2      .           oppipp ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , 
-Cchp2      .           nsp , nspc , sumt , sumq , sumh ) 
-Cchp2                   call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .            , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
-Cchp2      .            , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , w ( oppihp ) , w 
-Cchp2      .            ( oppihp ) , rv_p_otaupp , rv_p_osigpp , w ( oppipp ) , w ( oppipp 
-Cchp2      .            ) , lcplxp , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , 
-Cchp2      .            nspc , sumt , sumq , sumh ) 
-Cchp2                    call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-Cchp2      .             , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
-Cchp2      .             , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
-Cchp2      .             , rv_p_otaupp , rv_p_osigpp , w ( oppipp ) , w ( oppipp ) , lcplxp 
-Cchp2      .             , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
-Cchp2      .             , sumq , sumh ) 
                     call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
      .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
      .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 

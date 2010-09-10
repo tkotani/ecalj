@@ -1,9 +1,3 @@
-Cdwdef1 have_common_w_in vcdmel , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
 Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'vcdmel']
 Cdelw1 var ['oul', '1', 'oul', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
 Cdelw1 var ['osl', '1', 'osl', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
@@ -81,11 +75,6 @@ Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
 Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
 Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
 Cdelw1      .og,os
-Cchp1        integer:: ocg , ojcg , oidxcg , ocy , ov0 
-Cchp1         integer:: ojcg , oidxcg , ocy , ov0 
-Cchp1          integer:: ojcg , oidxcg , ov0 
-Cchp1           integer:: ojcg , ov0 
-Cchp1            integer:: ov0 
             real(8),pointer :: rv_p_ov0(:)
 
            integer,pointer :: iv_p_ojcg(:)
@@ -96,42 +85,36 @@ Cchp1            integer:: ov0
 
         real(8),pointer :: rv_p_ocg(:)
 
-       real(8) ,allocatable :: rv_w_orofi(:)
-       real(8) ,allocatable :: rv_w_oul(:)
-       real(8) ,allocatable :: rv_w_osl(:)
-       real(8) ,allocatable :: rv_w_ogz(:)
-       real(8) ,allocatable :: rv_w_oruu(:)
-       real(8) ,allocatable :: rv_w_orus(:)
-       real(8) ,allocatable :: rv_w_orss(:)
-       real(8) ,allocatable :: rv_w_og(:)
-       real(8) ,allocatable :: rv_w_os(:)
+       real(8) ,allocatable :: rofi_rv(:)
+       real(8) ,allocatable :: ul_rv(:)
+       real(8) ,allocatable :: sl_rv(:)
+       real(8) ,allocatable :: gz_rv(:)
+       real(8) ,allocatable :: ruu_rv(:)
+       real(8) ,allocatable :: rus_rv(:)
+       real(8) ,allocatable :: rss_rv(:)
+       real(8) ,allocatable :: g_rv(:)
+       real(8) ,allocatable :: s_rv(:)
 
       double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
       character clabl*8
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn ('vcdmel')
       rsml=0d0 !call dpzero(rsml,n0)
       ehl=0d0  !call dpzero(ehl,n0)
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 66
 Cdelw1 do not change ocg because of ['undef', 'wvar', 'wref']
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
 Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
 Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -144,7 +127,6 @@ Cchp1       ocy=slat%ocy
         !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
         call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-Cchp1         ov0=ssite(ib)%ov0
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
         !i_copy_size=size(ssite(ib)%pz)
@@ -163,34 +145,31 @@ Cchp1         ov0=ssite(ib)%ov0
         if (lmxa .gt. lmxax) call rxi('vcdmel needs lmxax ',lmxa)
         if (lmxa .eq. -1) cycle !  if (lmxa .eq. -1) goto 10
 Cdelw1         call defrr (orofi, nr)
-        allocate(rv_w_orofi(nr))
+        allocate(rofi_rv(nr))
 Cdelw1         call radmsh (rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rv_w_orofi ) 
+        call radmsh ( rmt , a , nr , rofi_rv ) 
 C   --- Augmented wave functions u,s
 Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
-        allocate(rv_w_oul(nr*(lmxa+1)*nsp))
+        allocate(ul_rv(nr*(lmxa+1)*nsp))
 Cdelw1         call defrr(osl,   nr*(lmxa+1)*nsp)
-        allocate(rv_w_osl(nr*(lmxa+1)*nsp))
+        allocate(sl_rv(nr*(lmxa+1)*nsp))
 Cdelw1         call defrr(ogz,   nr*(lmxa+1)*nsp)
-        allocate(rv_w_ogz(nr*(lmxa+1)*nsp))
+        allocate(gz_rv(nr*(lmxa+1)*nsp))
 Cdelw1         call defrr(oruu,  nr*(lmxa+1)*2*nsp)
-        allocate(rv_w_oruu(nr*(lmxa+1)*2*nsp))
+        allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
 Cdelw1         call defrr(orus,  nr*(lmxa+1)*2*nsp)
-        allocate(rv_w_orus(nr*(lmxa+1)*2*nsp))
+        allocate(rus_rv(nr*(lmxa+1)*2*nsp))
 Cdelw1         call defrr(orss,  nr*(lmxa+1)*2*nsp)
-        allocate(rv_w_orss(nr*(lmxa+1)*2*nsp))
+        allocate(rss_rv(nr*(lmxa+1)*2*nsp))
 
         call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-Cchp1         call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-Cchp1      .  , xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
-Cchp1      .  , rv_w_oruu , rv_w_orus , rv_w_orss ) 
          call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
-     .   xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
-     .   , rv_w_oruu , rv_w_orus , rv_w_orss ) 
+     .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
+     .   , ruu_rv , rus_rv , rss_rv ) 
 
 
 C   --- Matrix elements of u,s with core
@@ -198,31 +177,28 @@ C   --- Matrix elements of u,s with core
         call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
      .  ' ',120,i1mach(2),ib,ncls,lcls)
 Cdelw1         call defrr(og,   nr*2)
-         allocate(rv_w_og(nr*2))
-         if (nr*2<0) rv_w_og(:)=0.0d0
+         allocate(g_rv(nr*2))
+         if (nr*2<0) g_rv(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
 Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
-Cchp1         call pvcdm1 ( ncls , lcls , rv_w_og , z , lmxa , w ( ov0 ) , 
-Cchp1      .  a , nr , rv_w_orofi , rv_w_oul , rv_w_osl , nsp , lmxax , ume 
-Cchp1      .  ( 0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
-         call pvcdm1 ( ncls , lcls , rv_w_og , z , lmxa , rv_p_ov0 , a 
-     .   , nr , rv_w_orofi , rv_w_oul , rv_w_osl , nsp , lmxax , ume ( 
+         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a 
+     .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
      .   0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
 
 
 Cdelw1 rlse name= orofi old_list= orofi oul osl ogz oruu orus orss og 
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1         call rlse (orofi)
-         deallocate(rv_w_og,rv_w_orss,rv_w_orus,rv_w_oruu,rv_w_ogz,rv_w_osl,rv_w_oul,rv_w_orofi)
+         deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
 c   10   continue
       enddo
 C --- Open CLS weights file and write first line
 Cdelw1       call defrr(os,3*ndimh*nsite*2)
-       allocate(rv_w_os(3*ndimh*nsite*2))
-       if (3*ndimh*nsite*2<0) rv_w_os(:)=0.0d0
+       allocate(s_rv(3*ndimh*nsite*2))
+       if (3*ndimh*nsite*2<0) s_rv(:)=0.0d0
 
       nl = sctrl%nl
       nfstg = 11
@@ -235,7 +211,7 @@ C     iomoms-compatible format ---
       do   iq = 1, nq
         do  isp = 1, nsp
 Cdelw1           call dpzero(w(os),3*ndimh*nsite*2)
-           call dpzero ( rv_w_os , 3 * ndimh * nsite * 2 ) 
+           call dpzero ( s_rv , 3 * ndimh * nsite * 2 ) 
 
           do  i = 1, nsite
             lcls = iclsl(i)
@@ -253,21 +229,9 @@ Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 137
 Cdelw1               call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,
 Cdelw1      .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
 Cdelw1      .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
-Cchp1                call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-Cchp1      .         ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-Cchp1      .         , isp , i ) , lcls , w ( ocg ) , w ( ojcg ) , w ( oidxcg ) , 
-Cchp1      .         rv_w_os ) 
-Cchp1                 call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-Cchp1      .          ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-Cchp1      .          , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , w ( oidxcg ) , rv_w_os 
-Cchp1      .          ) 
-Cchp1                  call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-Cchp1      .           ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-Cchp1      .           , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , iv_p_oidxcg , rv_w_os 
-Cchp1      .           ) 
                   call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
      .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-     .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , rv_w_os 
+     .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv 
      .            ) 
 
 
@@ -277,13 +241,13 @@ Cchp1      .           )
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..
 Cdelw1           call dscal(3*ndimh*nsite*2,1d2,w(os),1)
-           call dscal ( 3 * ndimh * nsite * 2 , 1d2 , rv_w_os , 1 ) 
+           call dscal ( 3 * ndimh * nsite * 2 , 1d2 , s_rv , 1 ) 
 
 Cdelw1           j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,1,1,ndimh,ndimh,
 Cdelw1      .    nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
            j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
      .     , 1 , 1 , ndimh , ndimh , nchan , nchan , ndimh , evl ( 1 , isp 
-     .     , iq ) , 0d0 , rv_w_os , 0d0 , 0d0 , 0d0 ) 
+     .     , iq ) , 0d0 , s_rv , 0d0 , 0d0 , 0d0 ) 
 
         enddo
       enddo
@@ -293,7 +257,7 @@ Cdelw1      .    nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
 Cdelw1 rlse name= os old_list= os 
 Cdelw1 rlse name= os new_list= (None)
 Cdelw1       call rlse(os)
-       if (allocated(rv_w_os)) deallocate(rv_w_os)
+       if (allocated(s_rv)) deallocate(s_rv)
 
       call fclose(ifi)
       call tcx ('vcdmel')

@@ -29,7 +29,7 @@ C     implicit none
       double precision e0(ld),dh(ld,ld,2),z(ld,ld,2),wk(ld,ld,2),de(ld)
       double precision ds(ld,ld,2)
       integer:: l2 , k , m , i , j 
-      complex(8) ,allocatable :: zv_w_ow(:)
+      complex(8) ,allocatable :: w_zv(:)
 
       double precision tol,xx,ddot,dr,di
 
@@ -46,8 +46,8 @@ C --- First order correction for eigenvalues ---
 C --- Eigenvectors, 1st order perturbation theory; overwrite dh ---
 C ... hang onto dh for 2nd order perturbation correction
       if (mod(iopt/100,10) .eq. 1) then
-        allocate(zv_w_ow(l2))
-        call dcopy ( l2 * 2 , dh , 1 , zv_w_ow , 1 ) 
+        allocate(w_zv(l2))
+        call dcopy ( l2 * 2 , dh , 1 , w_zv , 1 ) 
       endif
 C ... Make A_mk = <z_m dH z_k>
       call yygemm('C','N',ld,ld,ld,1d0,z,z(1,1,2),ld,
@@ -78,8 +78,8 @@ C     call yprm('dz',2,wk,ld*ld,ld,ld,ld)
 
 C ... Restore w to dh; save z0 in w; add pert. correction to z
       if (mod(iopt/100,10) .eq. 1) then
-        call dcopy ( l2 * 2 , zv_w_ow , 1 , dh , 1 ) 
-        call dcopy ( l2 * 2 , z , 1 , zv_w_ow , 1 ) 
+        call dcopy ( l2 * 2 , w_zv , 1 , dh , 1 ) 
+        call dcopy ( l2 * 2 , z , 1 , w_zv , 1 ) 
       endif
       call daxpy(l2*2,1d0,wk,1,z,1)
 C     call yprm('new z',2,z,ld*ld,ld,ld,ld)
@@ -112,7 +112,7 @@ C        print *, 'second order'
 Cc        call pvpert(iopt,ld,e0,dh,ds,w(ow),z,wk,de)
 C        call rlse(ow)
 C      endif
-      if (allocated(zv_w_ow)) deallocate(zv_w_ow)
+      if (allocated(w_zv)) deallocate(w_zv)
 
       end
 

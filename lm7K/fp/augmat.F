@@ -1,24 +1,3 @@
-Cdwdef1 have_common_w_in augmat , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp3       subroutine augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,
-Cchp3      .a,nr,nsp,lso,rofi,rwgt,cg,jcg,indxcg,v0,v1,v2,gpotb,gpot0,
-Cchp3      .nkaph,nkapi,lmxh,lh,eh,rsmh,ehl,rsml,rs3,vmtz,lcplxp,
-Cchp3      .lmaxu,vorb,lldau,iblu,idu,
-Cchp3      .osig,otau,oppi,ppnl,hab,vab,sab)
-Cchp3        subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
-Cchp3      . , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg 
-Cchp3      . , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
-Cchp3      . eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu , vorb , 
-Cchp3      . lldau , iblu , idu , sv_p_osig , otau , oppi , ppnl , hab , vab 
-Cchp3      . , sab ) 
-Cchp3         subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
-Cchp3      .  , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg 
-Cchp3      .  , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
-Cchp3      .  eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu , vorb , 
-Cchp3      .  lldau , iblu , idu , sv_p_osig , sv_p_otau , oppi , ppnl , hab 
-Cchp3      .  , vab , sab ) 
          subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
      .   , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg 
      .   , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
@@ -336,9 +315,6 @@ C ... Passed parameters
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       parameter (n0=10,nkap0=3,nppn=12,nab=9)
       double precision z,rmt,rsma,a
-Cchp3       integer osig(3),otau(3),oppi(3),jcg(1),indxcg(1),lh(nkap0)
-Cchp3        integer:: otau(3) , oppi(3) , jcg(1) , indxcg(1) , lh(nkap0) 
-Cchp3         integer:: oppi(3) , jcg(1) , indxcg(1) , lh(nkap0) 
          integer:: jcg(1) , indxcg(1) , lh(nkap0) 
          type(s_rv1) :: sv_p_oppi(3)
 
@@ -366,8 +342,6 @@ C ... Local parameters
      .vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn('augmat')
       pi   = 4d0*datan(1d0)
@@ -414,24 +388,6 @@ C     at this site and store in vumm
 C --- Augmentation matrices for cases P*P, H*H, H*P ---
 
 C ... Hsm*Hsm
-Cchp3       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-Cchp3      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-Cchp3      .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-Cchp3      .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-Cchp3      .lmxh,w(osig(3)),w(otau(3)),nlmh,nlmh,w(oppi(3)),
-Cchp3      .lmaxu,vumm,lldau,idu)
-Cchp3        call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      . , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      . vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
-Cchp3      . , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
-Cchp3      . , sv_p_osig( 3 )%v , w ( otau ( 3 ) ) , nlmh , nlmh , w ( oppi 
-Cchp3      . ( 3 ) ) , lmaxu , vumm , lldau , idu ) 
-Cchp3         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      .  , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      .  vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
-Cchp3      .  , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
-Cchp3      .  , sv_p_osig ( 3 ) %v , sv_p_otau( 3 )%v , nlmh , nlmh , w ( oppi 
-Cchp3      .  ( 3 ) ) , lmaxu , vumm , lldau , idu ) 
          call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
@@ -443,24 +399,6 @@ Cchp3      .  ( 3 ) ) , lmaxu , vumm , lldau , idu )
 
 
 C ... Pkl*Pkl
-Cchp3       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-Cchp3      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-Cchp3      .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-Cchp3      .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-Cchp3      .lmxa,w(osig(1)),w(otau(1)),nlma,nlma,w(oppi(1)),
-Cchp3      .lmaxu,vumm,lldau,idu)
-Cchp3        call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      . , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      . vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
-Cchp3      . fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
-Cchp3      . , vp , dp , lmxa , sv_p_osig( 1 )%v , w ( otau ( 1 ) ) , nlma 
-Cchp3      . , nlma , w ( oppi ( 1 ) ) , lmaxu , vumm , lldau , idu ) 
-Cchp3         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      .  , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      .  vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
-Cchp3      .  fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
-Cchp3      .  , vp , dp , lmxa , sv_p_osig ( 1 ) %v , sv_p_otau( 1 )%v , nlma 
-Cchp3      .  , nlma , w ( oppi ( 1 ) ) , lmaxu , vumm , lldau , idu ) 
          call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
@@ -472,24 +410,6 @@ Cchp3      .  , nlma , w ( oppi ( 1 ) ) , lmaxu , vumm , lldau , idu )
 
 
 C ... Hsm*Pkl
-Cchp3       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-Cchp3      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-Cchp3      .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-Cchp3      .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-Cchp3      .lmxh,w(osig(2)),w(otau(2)),nlmh,nlma,w(oppi(2)),
-Cchp3      .lmaxu,vumm,lldau,idu)
-Cchp3        call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      . , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      . vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
-Cchp3      . , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 
-Cchp3      . dp , lmxh , sv_p_osig( 2 )%v , w ( otau ( 2 ) ) , nlmh , nlma 
-Cchp3      . , w ( oppi ( 2 ) ) , lmaxu , vumm , lldau , idu ) 
-Cchp3         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
-Cchp3      .  , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-Cchp3      .  vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
-Cchp3      .  , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 
-Cchp3      .  dp , lmxh , sv_p_osig ( 2 ) %v , sv_p_otau( 2 )%v , nlmh , nlma 
-Cchp3      .  , w ( oppi ( 2 ) ) , lmaxu , vumm , lldau , idu ) 
          call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 

@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in ugcomp , #_of_w_access= 0
 CSFCPP#define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
       use m_struc_def  !Cgetarg
@@ -102,8 +101,6 @@ c #endif
 #endif
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       integer:: ibini,ibend
       call tcn('ugcomp')

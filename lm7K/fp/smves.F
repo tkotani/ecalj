@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in smves , #_of_w_access= 1
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
-Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
@@ -153,15 +149,6 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
-Cchp1       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-Cchp1      ., lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-Cchp1      .nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
-Cchp1        integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-Cchp1      . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-Cchp1      . nlm , nsp , ogv , okv , stdo , j1 , j2 , j3 
-Cchp1         integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-Cchp1      .  , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-Cchp1      .  nlm , nsp , okv , stdo , j1 , j2 , j3 
          integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
      .   nlm , nsp , stdo , j1 , j2 , j3 
@@ -180,8 +167,6 @@ Cchp1      .  nlm , nsp , okv , stdo , j1 , j2 , j3
      .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -198,16 +183,13 @@ Changenglob      nsp   = nglob('nsp')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -218,7 +200,6 @@ C     Electrostatics depend only on total spin density
       endif
 
       allocate(cv_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cv_zv(:)=0.0d0
 
       call dpzero(f, 3*nbas)
 
@@ -229,10 +210,6 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-Cchp1       call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
-Cchp1      ., k2 , k3 , smrho , smpot , u00 )
-Cchp1        call vesft ( slat , ng , rv_p_ogv , w ( okv ) , cv_zv , k1 , 
-Cchp1      . k2 , k3 , smrho , smpot , u00 ) 
         call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 ) 
 
@@ -241,21 +218,9 @@ Cchp1      . k2 , k3 , smrho , smpot , u00 )
 
 C ... Add estatic potential of compensating gaussians to smpot
       allocate(cg1_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cg1_zv(:)=0.0d0
 
       allocate(cgsum_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cgsum_zv(:)=0.0d0
 
-Cchp1       call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
-Cchp1      ., ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
-Cchp1      ., k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
-Cchp1      .)
-Cchp1        call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-Cchp1      . ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
-Cchp1      . k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
-Cchp1         call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-Cchp1      .  ng , rv_p_ogv , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
-Cchp1      .  k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
          call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
      .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
@@ -267,10 +232,6 @@ Cchp1      .  k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-Cchp1       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-Cchp1      .w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
-Cchp1        call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , w 
-Cchp1      . ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval ) 
         call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
 
@@ -320,8 +281,6 @@ C ... Adjust vbar, vval, gpot0 by vconst
         write (stdo,233)
   233   format(' average electrostatic potential at MT boundaries',
      .  ' after shift')
-Cdwdef1         call arrprt(' Site    ves','%,4i%:-3,6;6d','Id',
-Cdwdef1      .  nbas,0,4,0,'  | ',w,vrmt,w,w,w,w,w,w)
          call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
      .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
      .   , iwdummy , iwdummy , iwdummy ) 

@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in subzi , #_of_w_access= 0
-Cchp2 cmdvar= real(8),rv_p_,owtkb
-Cchp1 cmdvar= real(8),rv_p_,oswtk
 #define MPI 1
       module m_subzi
       contains
@@ -83,8 +80,6 @@ C     implicit none
 C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
-Cchp1       integer owtkb,oswtk
-Cchp2        integer:: owtkb 
         real(8),pointer :: rv_p_owtkb(:)
 
        real(8),pointer :: rv_p_oswtk(:)
@@ -95,8 +90,6 @@ C ... Local parameters
       character*11 strni(2)
       integer procid,master,mpipid
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data strni /'sampling','tetrahedron'/
 
       procid = mpipid(1)
@@ -107,8 +100,6 @@ Cdwdef1       common /w/ w
       numq = 1
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
-Cchp2       if (lmet .gt. 0 .and. (lmet .ne. 4 .or. ltet))
-Cchp2      .call defrr(owtkb,ndham*nsp*nkp)
        if ( lmet .gt. 0 .and. ( lmet .ne. 4 .or. ltet ) ) then 
        allocate(rv_p_owtkb(abs(ndham*nsp*nkp)))
        if (ndham*nsp*nkp<0) rv_p_owtkb(:)=0.0d0
@@ -121,13 +112,9 @@ C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
               ifi = fopna('wkp',-1,4)
-Cchp2               if (nspc .eq. 1)
-Cchp2      .        lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
                if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi 
      .         , rv_p_owtkb , ifi ) 
 
-Cchp2               if (nspc .eq. 2)
-Cchp2      .        lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
                if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2 , nkp , 1 , 
      .         efermi , rv_p_owtkb , ifi ) 
 
@@ -139,8 +126,6 @@ C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
-Cchp2               call mpibc1(w(owtkb),ndham*nsp*nkp,4,.false.,'subzi',
-Cchp2      .        'wtkb')
                call mpibc1 ( rv_p_owtkb , ndham * nsp * nkp , 4 , .false. , 
      .         'subzi' , 'wtkb' ) 
 
@@ -153,7 +138,6 @@ cki      oswtk = 1
       nullify(rv_p_oswtk)
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
-Cchp1         call defrr(oswtk,ndham*nsp*nkp)
          allocate(rv_p_oswtk(abs(ndham*nsp*nkp)))
          if (ndham*nsp*nkp<0) rv_p_oswtk(:)=0.0d0
 

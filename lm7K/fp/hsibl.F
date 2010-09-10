@@ -461,7 +461,6 @@ C     Ends loop over ib1
         ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
 #endif
         allocate(hbuf_zv(ndimh*ndimh))
-Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) hbuf_zv(:)=0.0d0
 
         call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
      .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )

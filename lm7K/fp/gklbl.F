@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in gklbl , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,odlv
-Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
 
@@ -32,9 +29,6 @@ C ... Passed parameters
       double complex gkl(0:k0,nlm)
 C ... Local parameters
       double complex cfac,phase
-Cchp1       integer ilm,k,ll,lmax,nkd,nkq,odlv,oqlv,owk,l,m
-Cchp1        integer:: ilm , k , ll , lmax , nkd , nkq , odlv , owk , l , 
-Cchp1      . m 
         integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m 
         real(8),pointer :: rv_p_odlv(:)
 
@@ -45,8 +39,6 @@ CSFCPP#if F90
       real(8),allocatable:: wk(:)
 CSFCPP#endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       if (nlm .eq. 0) return
       pi = 4d0*datan(1d0)
@@ -64,10 +56,8 @@ Cdwdef1       common /w/ w
 
       nkd=slat%nkd
       nkq=slat%nkq
-Cchp1       odlv=slat%odlv
        rv_p_odlv => slat%rv_p_odlv 
 
-Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
 
@@ -82,14 +72,12 @@ C ... Shorten p, multiply by corresponding phase later
 C ... If the smoothing radius is larger than the Ewald parameter,
 C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
-Cchp1         call gklblq(p1,rsm,q,kmax,nlm,k0,alat,w(oqlv),nkq,vol,gkl)
          call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
      .   , nkq , vol , gkl ) 
 
       else
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
-Cchp1         call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,wk,gkl)
          call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
      .   , nkd , wk , gkl ) 
 

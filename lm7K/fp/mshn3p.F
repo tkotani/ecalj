@@ -1,7 +1,3 @@
-Cdwdef1 have_common_w_in mshn3p , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp3       subroutine mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval,ef0,def,
-Cchp3      .sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
        subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce 
      . , qval , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
      . k3 , smrho , sv_p_oqkkl , f , lrep ) 
@@ -59,7 +55,6 @@ Cu   22 May 00 Adapted from nfp ip_density.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer n1,n2,n3,k1,k2,k3,lmet,lfrce,lrout,lrep,nbas,oqkkl(3,1)
        integer:: n1 , n2 , n3 , k1 , k2 , k3 , lmet , lfrce , lrout 
      . , lrep , nbas 
        type(s_rv1) :: sv_p_oqkkl(3,1)
@@ -77,8 +72,6 @@ C ... Local parameters
      .q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
       equivalence (px,p(1)),(py,p(2)),(pz,p(3))
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       stdl = lgunit(2)
@@ -216,15 +209,12 @@ C   ... Case Pkl*Pkl, P*H, H*H
             nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
             nelt2 = (kmax+1)*nkaph*nlma*nlmh
             nelt3 = nkaph*nkaph*nlmh*nlmh
-Cchp3             call mshn31(w1,w2,w3,nelt1,nsp,w(oqkkl(1,ib)))
              call mshn31 ( w1 , w2 , w3 , nelt1 , nsp , sv_p_oqkkl( 1 , ib )%v 
      .       ) 
 
-Cchp3             call mshn31(w1,w2,w3,nelt2,nsp,w(oqkkl(2,ib)))
              call mshn31 ( w1 , w2 , w3 , nelt2 , nsp , sv_p_oqkkl( 2 , ib )%v 
      .       ) 
 
-Cchp3             call mshn31(w1,w2,w3,nelt3,nsp,w(oqkkl(3,ib)))
              call mshn31 ( w1 , w2 , w3 , nelt3 , nsp , sv_p_oqkkl( 3 , ib )%v 
      .       ) 
 

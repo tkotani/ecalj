@@ -1,5 +1,3 @@
-Cdwdef1 have_common_w_in suham2 , #_of_w_access= 0
-Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
 
       use m_struc_def  !Cgetarg
@@ -45,14 +43,11 @@ C ... Passed parameters
 C ... Local parameters
       integer nspec,lfp,nglob
 C ... Needed for
-Cchp1       integer ng,ogv,i
        integer:: ng , i 
        real(8),pointer :: rv_p_ogv(:)
 
       double precision alat,tolgv,dum
 
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
 C --- Setup ---
 
@@ -67,13 +62,11 @@ C --- FP setup ---
         if (i .ge. 100) then
 
           ng=slat%ng
-Cchp1           ogv=slat%ogv
            rv_p_ogv => slat%rv_p_ogv 
 
           alat=slat%alat
           tolgv=slat%tolft
 
-Cchp1           call sugcut(2,nspec,sspec,alat,ng,w(ogv),tolgv)
            call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
      .     ) 
 

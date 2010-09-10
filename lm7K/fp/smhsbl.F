@@ -1,8 +1,3 @@
-Cdwdef1 have_common_w_in smhsbl , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      .napw,igapw,h,s)
@@ -170,10 +165,6 @@ C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
       integer nbas,nglob,nlmto
-Cchp1       integer ocg,ocy,oidxcg,ojcg
-Cchp1        integer:: ocy , oidxcg , ojcg 
-Cchp1         integer:: oidxcg , ojcg 
-Cchp1          integer:: ojcg 
           integer,pointer :: iv_p_ojcg(:)
 
          integer,pointer :: iv_p_oidxcg(:)
@@ -214,8 +205,6 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       integer:: iloop,iloopmx
 
@@ -239,16 +228,12 @@ C --- Setup ---
 Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
@@ -380,21 +365,6 @@ C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
                 nlm2 = (lh2(i2)+1)**2
                 if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .          call rx('smhsbl: increase nlms')
-Cchp1                 call hhibl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
-Cchp1      .          e2(1,i2),nlm1,nlm2,1,nlms,nlms,w(ocg),w(oidxcg),w(ojcg),
-Cchp1      .          w(ocy),slat,s0(1,1,0,i1,i2))
-Cchp1                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-Cchp1      .           i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-Cchp1      .           , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy ) , slat 
-Cchp1      .           , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
-Cchp1                   call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-Cchp1      .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-Cchp1      .            , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy , slat 
-Cchp1      .            , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
-Cchp1                    call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-Cchp1      .             i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-Cchp1      .             , nlms , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy , slat 
-Cchp1      .             , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
                     call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .              i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
      .              , nlms , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , slat 

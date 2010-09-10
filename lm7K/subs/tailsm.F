@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in tailsm , #_of_w_access= 0
       subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi,
      .rho,rhot,hfc,hfct)
 C- Fit tails of rho to smoothed Hankel functions
@@ -46,8 +45,6 @@ c      real(8) ,allocatable :: wk_rv(:)
       double precision sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20),
      .err,rsq(nr)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       print *,'tailsm: init'
       fpi = 16*datan(1d0)
       call getpr(ipr)
@@ -61,13 +58,10 @@ C --- Tabulate smoothed Hankels on a radial mesh ---
         lx0(ie) = 0
    12 continue
       allocate(xi_rv(nr*nxi))
-Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) xi_rv(:)=0.0d0
 
       allocate(idx_rv(nr*2))
-Ctakao_ZeroClear_NotRequiered        if (nr*2<0) idx_rv(:)=0.0d0
 
 c      allocate(wk_rv(nr*6))
-Ctakao_ZeroClear_NotRequiered        if (nr*6<0) wk_rv(:)=0.0d0
 
 C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0

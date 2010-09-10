@@ -1,6 +1,3 @@
-Cdwdef1 have_common_w_in rhgcmp , #_of_w_access= 0
-Cchp1 cmdvar= integer,iv_p_,okv
-Cchp1 cmdvar= real(8),rv_p_,ogv
 
 c      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
@@ -78,8 +75,6 @@ c      integer orhat
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
-Cchp1       integer:: ogv , okv , nsp
-Cchp1        integer:: okv , nsp 
         integer:: nsp 
         integer,pointer :: iv_p_okv(:)
 
@@ -100,8 +95,6 @@ C ... External calls
       external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
      .suphas,suphs0,suylg,tcn,tcx,upack
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
       data q0 /0d0,0d0,0d0/
 
       call tcn('rhgcmp')
@@ -117,10 +110,8 @@ Cdwdef1       common /w/ w
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng1=slat%ng
-Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-Cchp1       okv=slat%okv
        iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
@@ -149,16 +140,11 @@ C --- Set up help arrays ---
       enddo
       nlmtop = (ltop+1)**2
       allocate(yl_rv(ng*nlmtop))
-Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) yl_rv(:)=0.0d0
 
       allocate(g2_rv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 
       allocate(g_rv(ng*3))
-Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
-Cchp1       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-Cchp1      ., yl_rv )
        call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
@@ -167,17 +153,13 @@ Cchp1      ., yl_rv )
 
 
       allocate(iv_iv(ng*3))
-Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_iv(:)=0
 
-Cchp1       call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
        call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
 
 
       allocate(cs_rv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cs_rv(:)=0.0d0
 
       allocate(sn_rv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) sn_rv(:)=0.0d0
 
 
 C --- Loop over sites ---
@@ -201,7 +183,6 @@ C --- Loop over sites ---
 
 
         allocate(qkl_rv(nlm*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) qkl_rv(:)=0.0d0
 
         call pshpr(0)
 c        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat

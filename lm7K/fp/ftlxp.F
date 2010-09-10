@@ -1,4 +1,3 @@
-Cdwdef1 have_common_w_in ftlxp , #_of_w_access= 0
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
 
       use m_struc_def  !Cgetarg
@@ -47,8 +46,6 @@ C ... Local parameters
      .fact(0:20),tau(3)
       double complex cfac
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       stdo = lgunit(1)
       call getpr(ipr)
@@ -69,13 +66,10 @@ C ... Set up spherical harmonics for max l needed
       enddo
       ntop = (ltop+1)**2
       allocate(yl_rv(ntop*ng))
-Ctakao_ZeroClear_NotRequiered        if (ntop*ng<0) yl_rv(:)=0.0d0
 
       allocate(g2_rv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 
       allocate(h_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) h_zv(:)=0.0d0
 
       call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 
      ., ltop , ng , yl_rv , g2_rv )

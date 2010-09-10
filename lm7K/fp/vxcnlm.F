@@ -267,11 +267,6 @@ c      print *,'vxcnlm xxx 000000',slat%nabc
 c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
       do  i = 1, nsp
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
-Cchp1         call grfmsh(601,alat,ng,w(ogv),w(okv),k1,k2,k3,n1,n2,n3,
-Cchp1      .  smrho(1,1,1,i),zgrho(1,1,i),zggrho(1,i))
-Cchp1          call grfmsh ( 601 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
-Cchp1      .   , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1 
-Cchp1      .   , i ) , zggrho ( 1 , i ) ) 
           call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , zggrho ( 1 , i ) ) 
@@ -312,10 +307,6 @@ C     Use zggrho as complex work array
         call dpzero(zggrho,np*2)
         call dcopy(np,agr(1,i),1,zggrho,2)
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
-Cchp1         call grfmsh(201,alat,ng,w(ogv),w(okv),k1,k2,k3,n1,n2,n3,
-Cchp1      .  zggrho,gzgrho(1,1,i),xx)
-Cchp1          call grfmsh ( 201 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
-Cchp1      .   , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
           call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
 

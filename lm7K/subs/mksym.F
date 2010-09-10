@@ -1,15 +1,3 @@
-Cdwdef1 have_common_w_in mksym , #_of_w_access= 1
-Cchp1 cmdvar= real(8),rv_p_,opos
-Cchp1 cmdvar= integer,iv_p_,oipcp
-Cchp1 cmdvar= integer,iv_p_,oipc
-Cchp1 cmdvar= real(8),rv_p_,osymgr
-Cchp1 cmdvar= real(8),rv_p_,oag
-Cchp1 cmdvar= integer,iv_p_,onrcp
-Cchp1 cmdvar= integer,iv_p_,onrc
-Cchp1 cmdvar= integer,iv_p_,oips
-Cchp1 cmdvar= real(8),iv_p_,oistab
-Cchp1 cmdvar= integer,iv_p_,oics
-Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -88,8 +76,6 @@ C     implicit none
       type(s_array)::sarray
 
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 C Local variables
@@ -97,23 +83,6 @@ C Local variables
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
-Cchp1       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
-Cchp1      ., oipc , oipcp , oiwk , oag , osymgr , aginv
-Cchp1        integer:: oics , oips , oistab , onrc , onrcp , opos , oipc , 
-Cchp1      . oipcp , oiwk , oag , osymgr , aginv 
-Cchp1         integer:: oips , oistab , onrc , onrcp , opos , oipc , oipcp 
-Cchp1      .  , oiwk , oag , osymgr , aginv 
-Cchp1          integer:: oips , onrc , onrcp , opos , oipc , oipcp , oiwk , 
-Cchp1      .   oag , osymgr , aginv 
-Cchp1           integer:: onrc , onrcp , opos , oipc , oipcp , oiwk , oag , osymgr 
-Cchp1      .    , aginv 
-Cchp1            integer:: onrcp , opos , oipc , oipcp , oiwk , oag , osymgr , 
-Cchp1      .     aginv 
-Cchp1             integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
-Cchp1              integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
-Cchp1               integer:: opos , oipc , oipcp , oiwk , aginv 
-Cchp1                integer:: opos , oipcp , oiwk , aginv 
-Cchp1                 integer:: opos , oiwk , aginv 
                  integer:: oiwk , aginv 
                  real(8),pointer :: rv_p_opos(:)
 
@@ -169,30 +138,23 @@ C ... Re-entry when ngmx was increased
     5 continue
 
 C ... For memory allocation of class data, assume initially nclass=nbas
-Cchp1       call defrr(oag,   3*ngmx)
        allocate(rv_p_oag(abs(3*ngmx)))
        if (3*ngmx<0) rv_p_oag(:)=0.0d0
 
-Cchp1       call defrr(osymgr,9*ngmx)
        allocate(rv_p_osymgr(abs(9*ngmx)))
        if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
 
-Cchp1       call defi(oipc,  nsite)
        allocate(iv_p_oipc(abs(nsite)))
        if (nsite<0) iv_p_oipc(:)=0
 
-Cchp1       call defi(oics,  nsite)
        allocate(iv_p_oics(abs(nsite)))
        if (nsite<0) iv_p_oics(:)=0
 
       allocate(nrspc_iv(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) nrspc_iv(:)=0
 
 
-Cchp1       opos=sarray%opos
        rv_p_opos => sarray%rv_p_opos 
 
-Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
 
@@ -242,37 +204,20 @@ C --- Generate space group ---
 
 C ... When generating the group the basis may become enlarged ...
 C     copy larger files relevant arrays to larger workspace
-Cchp1       call defi (oistab,(ngmx+1)*nbas)
        allocate(iv_p_oistab(abs((ngmx+1)*nbas)))
        if ((ngmx+1)*nbas<0) iv_p_oistab(:)=0.0d0
 
 C     call defi (oistb2,(ngmx+1)*nbas)
       allocate(ips2_iv(ngmx*nbas))
-Ctakao_ZeroClear_NotRequiered        if (ngmx*nbas<0) ips2_iv(:)=0
 
       allocate(pos2_rv(3*ngmx*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) pos2_rv(:)=0.0d0
 
-Cchp1       call icopy ( nbas , w ( oips ) , 1 , ips2_iv , 1 )
        call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
 
 
-Cchp1       call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
        call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
 
 
-Cchp1       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-Cchp1      ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-Cchp1      ., nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
-Cchp1      ., ssymgr , nggen , isym , w ( oistab ) )
-Cchp1        call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-Cchp1      . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-Cchp1      . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen , 
-Cchp1      . ssymgr , nggen , isym , iv_p_oistab ) 
-Cchp1         call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-Cchp1      .  , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-Cchp1      .  , nrspc_iv , nsgrp , w ( osymgr ) , rv_p_oag , ngen , gen , ssymgr 
-Cchp1      .  , nggen , isym , iv_p_oistab ) 
          call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
      .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
      .   , nrspc_iv , nsgrp , rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
@@ -290,7 +235,6 @@ Cchp1      .  , nggen , isym , iv_p_oistab )
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-Cchp1         call rlse(oag)
          if (associated(rv_p_oag)) deallocate(rv_p_oag)
 
 
@@ -306,7 +250,6 @@ Cchp1         call rlse(oag)
 
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-Cchp1           call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
      .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
 
@@ -327,7 +270,6 @@ C --- Add inversion to point group ---
         gen(5,ngen) = -1
         gen(9,ngen) = -1
         call pshpr(iprint()-40)
-Cchp1         call grpgen(gen(1,ngen),1,w(osymgr),npgrp,ngmx)
          call grpgen ( gen ( 1 , ngen ) , 1 , rv_p_osymgr , npgrp , ngmx 
      .   ) 
 
@@ -348,30 +290,13 @@ C --- Printout of symmetry operations ---
       if (mod(mode/10,10) .eq. 0) goto 100
 
 C --- Split species into classes ---
-Cchp1       call defi(onrc, nspec)
        allocate(iv_p_onrc(abs(nspec)))
        if (nspec<0) iv_p_onrc(:)=0
 
-Cchp1       call icopy(nsite,w(oips),1,w(oipc),1)
-Cchp1        call icopy ( nsite , iv_p_oips , 1 , w ( oipc ) , 1 ) 
         call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
 
 
 
-Cchp1       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
-Cchp1      .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
-Cchp1        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-Cchp1      . , nsgrp , w ( oistab ) , nspec , slabl , nclass , w ( oipc ) 
-Cchp1      . , iv_p_oics , w ( onrc ) ) 
-Cchp1         call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-Cchp1      .  , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
-Cchp1      .  iv_p_oics , w ( onrc ) ) 
-Cchp1          call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-Cchp1      .   , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
-Cchp1      .   iv_p_oics , iv_p_onrc ) 
-Cchp1           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-Cchp1      .    , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-Cchp1      .    iv_p_oics , iv_p_onrc ) 
            call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
      .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
      .     iv_p_oics , iv_p_onrc ) 
@@ -412,7 +337,6 @@ C$$$        call icopy(nsite,w(oipc),1,w(oipcp),1)
 C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
 C$$$      else
 C   ... Reallocate arrays as permanent arrays
-Cchp1       call redfi(oics,   nclspp)
        i_data_size=size(iv_p_oics); allocate(iv_a_tmp(i_data_size))
        iv_a_tmp=iv_p_oics; deallocate(iv_p_oics)
        i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
@@ -424,12 +348,10 @@ C$$$      endif
 
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
-Cchp1         call defi(oistab,  npgrp*nbas)
          allocate(iv_p_oistab(abs(npgrp*nbas)))
          if (npgrp*nbas<0) iv_p_oistab(:)=0.0d0
 
       else
-Cchp1         call defi(oistab,  nsgrp*nbas)
          allocate(iv_p_oistab(abs(nsgrp*nbas)))
          if (nsgrp*nbas<0) iv_p_oistab(:)=0.0d0
 
@@ -442,16 +364,6 @@ C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 C      call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-Cchp1       call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
-Cchp1      .w(oistab))
-Cchp1        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
-Cchp1      . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
-Cchp1         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
-Cchp1      .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-Cchp1          call symtbl ( 1 , fptol , nbas , w , w ( opos ) , rv_p_osymgr 
-Cchp1      .   , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-Cdwdef1           call symtbl ( 1 , fptol , nbas , w , rv_p_opos , rv_p_osymgr 
-Cdwdef1      .    , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
            call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
      .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 
@@ -470,12 +382,6 @@ C     stop
 
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
-Cchp1         if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
-Cchp1      .  call rx('bug in mksym')
-Cchp1          if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , w ( oag ) 
-Cchp1      .   , iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-Cchp1           if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , rv_p_oag , 
-Cchp1      .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
            if ( aginv ( rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
      .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
 
@@ -486,7 +392,6 @@ Cchp1      .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' )
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
-Cchp1         call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
          call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
      .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oipc ) 
 
@@ -494,23 +399,12 @@ Cchp1         call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,
 
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
-Cchp1         call defrr(oclabl, nclspp)
          allocate(rv_p_oclabl(abs(nclspp)))
          if (nclspp<0) rv_p_oclabl(:)=0.0d0
 
-Cchp1         call defi (onrcp,  nclspp)
          allocate(iv_p_onrcp(abs(nclspp)))
          if (nclspp<0) iv_p_onrcp(:)=0
 
-Cchp1         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
-Cchp1      .  ssite,w(oclabl),w(onrcp))
-Cchp1          call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , w ( oics ) , w 
-Cchp1      .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) 
-Cchp1      .   ) 
-Cchp1           call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
-Cchp1      .    oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) ) 
-Cchp1            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
-Cchp1      .     oipcp ) , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
             call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
      .      , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
 
@@ -543,25 +437,19 @@ C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass
 
 
-Cchp1       sarray%onrcp=onrcp
        sarray%iv_p_onrcp => iv_p_onrcp 
 
-Cchp1       sarray%oipcp=oipcp
        sarray%iv_p_oipcp => iv_p_oipcp 
 
 
 
-Cchp1       sarray%oics=oics
        sarray%iv_p_oics => iv_p_oics 
 
-Cchp1       sarray%oipc=oipc
        sarray%iv_p_oipc => iv_p_oipc 
 
-Cchp1       sarray%oclabl=oclabl
        sarray%rv_p_oclabl => rv_p_oclabl 
 
       sarray%nclasp=nclasp
-Cchp1       sarray%onrc=onrc
        sarray%iv_p_onrc => iv_p_onrc 
 
 
@@ -570,13 +458,10 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
 
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp
-Cchp1       slat%oistab=oistab
        slat%iv_p_oistab => iv_p_oistab 
 
-Cchp1       slat%oag=oag
        slat%rv_p_oag => rv_p_oag 
 
-Cchp1       slat%osymgr=osymgr
        slat%rv_p_osymgr => rv_p_osymgr 
 
 

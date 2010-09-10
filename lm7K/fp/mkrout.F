@@ -1,30 +1,3 @@
-Cdwdef1 have_common_w_in mkrout , #_of_w_access= 1
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
-Cchp3 cmdvar= type(s_rv1),sv_p_,orhat1
-Cchp2 cmdvar= real(8),rv_p_,oqpp
-Cchp2 cmdvar= real(8),rv_p_,oqhp
-Cchp2 cmdvar= real(8),rv_p_,oqhh
-Cchp3 cmdvar= type(s_rv1),sv_p_,oeqkkl
-Cchp3 cmdvar= type(s_rv1),sv_p_,oqkkl
-Cchp1 cmdvar= real(8),rv_p_,orhoca
-Cchp1 cmdvar= real(8),rv_p_,orhoc
-Cchp1 cmdvar= real(8),rv_p_,ov01
-Cchp1 cmdvar= real(8),rv_p_,ov1
-Cchp1 cmdvar= real(8),rv_p_,ov0
-Cchp1 cmdvar= integer,iv_p_,ojcg
-Cchp1 cmdvar= integer,iv_p_,oidxcg
-Cchp1 cmdvar= real(8),rv_p_,ocy
-Cchp1 cmdvar= real(8),rv_p_,ocg
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp3       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
-Cchp3      .oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
-Cchp3        subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
-Cchp3      . , nlmto , lekkl , sv_p_oqkkl , oeqkkl , orhoat , hab , sab , 
-Cchp3      . qbyl , hbyl , lrout ) 
-Cchp3         subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
-Cchp3      .  , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , orhoat , hab , sab 
-Cchp3      .  , qbyl , hbyl , lrout ) 
          subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .   , sab , qbyl , hbyl , lrout ) 
@@ -86,11 +59,6 @@ Cu   20 May 00 adapted from nfp mk_dens2
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cchp3       integer n0,nab,nbas,nsp,lekkl,nlmto,lrout,
-Cchp3      .oqkkl(3,nbas),oeqkkl(3,nbas),orhoat(3,nbas)
-Cchp3        integer:: n0 , nab , nbas , nsp , lekkl , nlmto , lrout , oeqkkl(3,nbas) 
-Cchp3      . , orhoat(3,nbas) 
-Cchp3         integer:: n0 , nab , nbas , nsp , lekkl , nlmto , lrout , orhoat(3,nbas) 
          integer:: n0 , nab , nbas , nsp , lekkl , nlmto , lrout 
          type(s_rv1) :: sv_p_orhoat(3,nbas)
 
@@ -109,45 +77,6 @@ cki      type(s_spec)::sspec(*)
       type(s_lat)::slat
 
 C ... Local parameters
-Cchp1       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      ., lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-Cchp1      .orhoca , ov0 , ov01 , oiprmb , stdo , igetss
-Cchp1        integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-Cchp1      . orhoca , ov0 , ov01 , stdo , igetss 
-Cchp1         integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .  , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .  nr , ncore , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca 
-Cchp1      .  , ov0 , ov01 , stdo , igetss 
-Cchp1          integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .   , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .   nr , ncore , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 
-Cchp1      .   , ov01 , stdo , igetss 
-Cchp1           integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .    , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .    nr , ncore , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 
-Cchp1      .    , stdo , igetss 
-Cchp1            integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .     , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .     nr , ncore , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 , stdo 
-Cchp1      .     , igetss 
-Cchp1             integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .      , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .      nr , ncore , oqhh , oqhp , oqpp , orhoca , ov01 , stdo , igetss 
-Cchp1              integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp1      .       , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp1      .       nr , ncore , oqhh , oqhp , oqpp , orhoca , stdo , igetss 
-Cchp2               integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp2      .        , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp2      .        nr , ncore , oqhh , oqhp , oqpp , stdo , igetss 
-Cchp2                integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp2      .         , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp2      .         nr , ncore , oqhp , oqpp , stdo , igetss 
-Cchp2                 integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-Cchp2      .          , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-Cchp2      .          nr , ncore , oqpp , stdo , igetss 
                  integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      .           nr , ncore , stdo , igetss 
@@ -211,8 +140,6 @@ C     this ordering must match sham->eterms; see uham
       equivalence (eterms(9),sumtc)
       equivalence (eterms(12),sumt0)
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
        integer ::iwdummy 
 
 
@@ -226,21 +153,16 @@ Changenglob      nkaph = nglob('nkaph')
       sums1 = 0
       call tcn('mkrout')
 
-Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-Cchp1       ojcg=slat%ojcg
        iv_p_ojcg => slat%iv_p_ojcg 
 
-Cchp1       oidxcg=slat%oidxcg
        iv_p_oidxcg => slat%iv_p_oidxcg 
 
-Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%eterms)
@@ -277,7 +199,6 @@ C --- Start loop over atoms ---
 
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
-Cchp1         orhoca=sspec(is)%orhoc
          rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
@@ -285,7 +206,6 @@ Cchp1         orhoca=sspec(is)%orhoc
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-Cchp1         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
          call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
@@ -295,10 +215,8 @@ Cchp1         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-Cchp1         ov0=ssite(ib)%ov0
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-Cchp1         ov01=ssite(ib)%ov1
          rv_p_ov01 => ssite(ib)%rv_p_ov1 
 
 
@@ -311,10 +229,8 @@ Cchp1         ov01=ssite(ib)%ov1
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
 
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
 
         call radmsh ( rmt , a , nr , rofi_rv )
 
@@ -324,41 +240,31 @@ Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
           rv_p_oqhh => sv_p_oqkkl(3,ib)%v
           rv_p_oqhp => sv_p_oqkkl(2,ib)%v
           rv_p_oqpp => sv_p_oqkkl(1,ib)%v
-Cchp3           call dpzero(w(orhoat(1,ib)),nr*nlml*nsp)
            call dpzero ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp ) 
 
-Cchp3           call dpzero(w(orhoat(2,ib)),nr*nlml*nsp)
            call dpzero ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp ) 
 
 
 C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(fh_rv(nr*(lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) fh_rv(:)=0.0d0
 
           allocate(xh_rv(nr*(lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) xh_rv(:)=0.0d0
 
           allocate(vh_rv((lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) vh_rv(:)=0.0d0
 
           allocate(dh_rv((lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) dh_rv(:)=0.0d0
 
           call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rofi_rv 
      .    , fh_rv , xh_rv , vh_rv , dh_rv )
 
           allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) fp_rv(:)=0.0d0
 
           allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) xp_rv(:)=0.0d0
 
           allocate(vp_rv((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) vp_rv(:)=0.0d0
 
           allocate(dp_rv((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
           call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
      .    , xp_rv , vp_rv , dp_rv )
@@ -366,27 +272,18 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
 C   ... Augmented wave functions
           allocate(ul_rv(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) ul_rv(:)=0.0d0
 
           allocate(sl_rv(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) sl_rv(:)=0.0d0
 
           allocate(gz_rv(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) gz_rv(:)=0.0d0
 
           allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) ruu_rv(:)=0.0d0
 
           allocate(rus_rv(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rus_rv(:)=0.0d0
 
           allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rss_rv(:)=0.0d0
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
-Cchp1           call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-Cchp1      .    , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
-Cchp1      .    , ruu_rv , rus_rv , rss_rv )
            call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv ) 
@@ -407,31 +304,6 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           allocate(dmatl_rv(abs(-(lmxa+1)**2*nlml*nsp*9)))
           if (-(lmxa+1)**2*nlml*nsp*9<0) dmatl_rv(:)=0.0d0
 
-Cchp1           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
-Cchp1      .    ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-Cchp1      .    , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-Cchp1      .    , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-Cchp1      .    )
-Cchp1            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
-Cchp1      .     ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-Cchp1      .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-Cchp1      .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp1             call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
-Cchp1      .      ( ojcg ) , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , 
-Cchp1      .      blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , 
-Cchp1      .      vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2              call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .       , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , w 
-Cchp2      .       ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , 
-Cchp2      .       dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2               call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .        , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-Cchp2      .        , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-Cchp2      .        , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2                call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .         , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-Cchp2      .         , rv_p_oqhp , w ( oqpp ) , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-Cchp2      .         , chp_rv , cpp_rv , dmatl_rv ) 
                 call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
      .          , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .          , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
@@ -446,9 +318,6 @@ Cchp2      .         , chp_rv , cpp_rv , dmatl_rv )
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
-Cchp3           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
-Cchp3      .    , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , w 
-Cchp3      .    ( orhoat ( 1 , ib ) ) )
            call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
      .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v 
      .     ) 
@@ -462,27 +331,18 @@ C       call poppr
 
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
-Cchp3           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-Cchp3      .    , nkaph , nkaph , fh_rv , lmxh , chh_rv , w ( orhoat ( 
-Cchp3      .    2 , ib ) ) )
            call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
      .     , nkaph , nkaph , fh_rv , lmxh , chh_rv , sv_p_orhoat( 2 , ib )%v 
      .     ) 
 
 
 C       H Pkl product
-Cchp3           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-Cchp3      .    , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , w ( orhoat 
-Cchp3      .    ( 2 , ib ) ) )
            call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
      .     , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , sv_p_orhoat( 2 , ib )%v 
      .     ) 
 
 
 C       Pkl Pkl product
-Cchp3           call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv 
-Cchp3      .    , lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , 
-Cchp3      .    w ( orhoat ( 2 , ib ) ) )
            call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , 
      .     lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v 
      .     ) 
@@ -511,31 +371,6 @@ C       Remake hbyl from energy-weighted density matrix
 
             call dpzero ( cpp_rv , k )
 
-Cchp1             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
-Cchp1      .      w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-Cchp1      .      , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-Cchp1      .      , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-Cchp1      .      )
-Cchp1              call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
-Cchp1      .       ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-Cchp1      .       , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-Cchp1      .       , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp1               call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
-Cchp1      .        ( ojcg ) , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , 
-Cchp1      .        blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , 
-Cchp1      .        vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2                call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .         , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , w 
-Cchp2      .         ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , 
-Cchp2      .         dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2                 call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .          , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-Cchp2      .          , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-Cchp2      .          , chp_rv , cpp_rv , dmatl_rv ) 
-Cchp2                  call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
-Cchp2      .           , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-Cchp2      .           , rv_p_oqhp , w ( oqpp ) , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-Cchp2      .           , chp_rv , cpp_rv , dmatl_rv ) 
                   call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
      .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
@@ -547,8 +382,6 @@ Cchp2      .           , chp_rv , cpp_rv , dmatl_rv )
 
 
 
-Cdwdef1             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
-Cdwdef1      .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
              call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , iwdummy 
      .       , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , iwdummy ) 
 
@@ -556,14 +389,10 @@ Cdwdef1      .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
           endif
 
 C   --- Print charges for information ---
-Cchp3           call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
-Cchp3      .    ( 1 , ib ) ) , sum1 )
            call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .     , sum1 ) 
 
 
-Cchp3           call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
-Cchp3      .    ( 2 , ib ) ) , sum2 )
            call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 2 , ib )%v 
      .     , sum2 ) 
 
@@ -571,14 +400,10 @@ Cchp3      .    ( 2 , ib ) ) , sum2 )
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
-Cchp3             sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
-Cchp3      .      1 , ib ) ) , 1 ) / y0
              sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v 
      .       , 1 ) / y0 
 
 
-Cchp3             sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
-Cchp3      .      2 , ib ) ) , 1 ) / y0
              sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 2 , ib )%v 
      .       , 1 ) / y0 
 
@@ -593,8 +418,6 @@ Cchp3      .      2 , ib ) ) , 1 ) / y0
         endif
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity
-Cchp3         call mkrou6 ( rofi_rv , w ( orhoat ( 1 , ib ) ) , nr , nlml 
-Cchp3      .  , nsp , xx , xx , res )
          call mkrou6 ( rofi_rv , sv_p_orhoat( 1 , ib )%v , nr , nlml , 
      .   nsp , xx , xx , res ) 
 
@@ -608,12 +431,6 @@ Cchp3      .  , nsp , xx , xx , res )
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
-Cchp1           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv 
-Cchp1      .    , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
-Cchp1      .    ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
-Cchp3            call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
-Cchp3      .     , kcor , lcor , qcor , smec , smtc , w ( orhoat ( 3 , ib ) ) 
-Cchp3      .     , ncore , 0d0 , 0d0 ) 
             call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
      .      , kcor , lcor , qcor , smec , smtc , sv_p_orhoat( 3 , ib )%v 
      .      , ncore , 0d0 , 0d0 ) 
@@ -634,9 +451,6 @@ C         smec = smec+sum
   288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-Cchp1           call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
-Cchp3            call dpcopy ( rv_p_orhoca , w ( orhoat ( 3 , ib ) ) , 1 , nr 
-Cchp3      .     * nsp , 1d0 ) 
             call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .      * nsp , 1d0 ) 
 

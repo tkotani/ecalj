@@ -1,20 +1,3 @@
-Cdwdef1 have_common_w_in hambl , #_of_w_access= 0
-Cchp3 cmdvar= type(s_rv1),sv_p_,oppi
-Cchp3 cmdvar= type(s_rv1),sv_p_,otau
-Cchp3 cmdvar= type(s_rv1),sv_p_,osig
-Cchp1 cmdvar= integer,iv_p_,oiprmb
-Cchp1 cmdvar= integer,iv_p_,oindxo
-Cchp3       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
-Cchp3      .smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
-Cchp3      .h,s,hso)
-Cchp3        subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
-Cchp3      . , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , otau 
-Cchp3      . , oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , hso 
-Cchp3      . ) 
-Cchp3         subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
-Cchp3      .  , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-Cchp3      .  , oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , hso 
-Cchp3      .  ) 
          subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
      .   , isp , q , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .   , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , h , s , 
@@ -84,9 +67,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,isp,k1,k2,k3,ndimh,lcplxp,napw,igvapw(3,napw)
-Cchp3       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
-Cchp3        integer:: otau(3,nbas) , oppi(3,nbas) 
-Cchp3         integer:: oppi(3,nbas) 
          type(s_rv1) :: sv_p_oppi(3,nbas)
 
         type(s_rv1) :: sv_p_otau(3,nbas)
@@ -104,7 +84,6 @@ Cchp3         integer:: oppi(3,nbas)
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
-Cchp1       integer oiprmb
        integer,pointer :: iv_p_oiprmb(:)
 
       double precision vavg
@@ -114,14 +93,11 @@ C      integer ndhrs,ontabs,oiaxs,ohrs
 C      integer i,hreal,nl,nglob,mxorb,nttabs,ival,nsp,lrsig
 C      integer os,oh,oz
 C ... Heap
-Cdwdef1       integer w(1)
-Cdwdef1       common /w/ w
 
       call tcn('hambl')
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 
-Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
 
@@ -134,17 +110,6 @@ C ... Skip LDA H, S
       if (mode0 .gt. 1) goto 100
 
 C --- Augmentation part of hamiltonian and overlap ---
-Cchp1       call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
-Cchp1      .osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
-Cchp3        call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
-Cchp3      . , lcplxp , q , osig , otau , oppi , iv_p_oiprmb , ndimh , napw 
-Cchp3      . , igvapw , h , hso , s ) 
-Cchp3         call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
-Cchp3      .  , lcplxp , q , sv_p_osig , otau , oppi , iv_p_oiprmb , ndimh 
-Cchp3      .  , napw , igvapw , h , hso , s ) 
-Cchp3          call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
-Cchp3      .   , lcplxp , q , sv_p_osig , sv_p_otau , oppi , iv_p_oiprmb , ndimh 
-Cchp3      .   , napw , igvapw , h , hso , s ) 
           call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
      .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_p_oiprmb 
      .    , ndimh , napw , igvapw , h , hso , s ) 
@@ -167,16 +132,12 @@ C     call pvhmb1(1,slat,k1,k2,k3,smpot,-vavg)
 C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
-Cchp1       call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
-Cchp1      .napw,igvapw,h,s)
        call smhsbl ( mode0 , ssite , sspec , slat , vavg + vconst , 
      . q , ndimh , iv_p_oiprmb , napw , igvapw , h , s ) 
 
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
-Cchp1       call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
-Cchp1      .napw,igvapw,h)
        call hsibl ( ssite , sspec , slat , k1 , k2 , k3 , smpot , isp 
      . , q , ndimh , iv_p_oiprmb , napw , igvapw , h ) 
 
