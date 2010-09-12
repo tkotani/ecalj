@@ -955,7 +955,7 @@ C ... eigenvalue of s (omat)
       if(ipr) then
         write(6,*)'zhev_tk: ovlmat='
         do ix=0,n,5
-          if(eo(i)>0.1d0) then
+          if(eo(ix)>0.1d0) then
            write(6,*) '  ... skip larger eigenvalues ...'
            exit
           endif
