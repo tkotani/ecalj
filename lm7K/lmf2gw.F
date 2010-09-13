@@ -108,6 +108,8 @@ cccccccccccccccccccccccccccccccc
       ext = '.' // ext0(i1:i2)
       ifi = fext(ext)
 
+      call show_programinfo(6)
+
 c- OPEN *.gwb
 C      ifigwa = 331
 C      ifigwb = 332

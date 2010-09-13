@@ -105,6 +105,8 @@ c      equivalence ( recrd, recrd_ )
       real(8):: bz_w,dval!test
 
 C --- Version ---
+      call show_programinfo(6)
+
       vrsion(1) = 'LM'
       vrsion(2) = ' '
       vn(1) = 7.00d0
@@ -235,6 +237,7 @@ cccccccccccccccccc
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .v_sarry,v_smove,v_stb,sstrn)
+
 
 cccccccccccccccccc
 c      print *,' uuuu000 222 nmap=',int(v_sctrl%nmap) 

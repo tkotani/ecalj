@@ -29,9 +29,9 @@
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
 
-PLATFORM=ifort
+#PLATFORM=ifort
 #PLATFORM=ifort_mpi
-#PLATFORM=ifort_mpik
+PLATFORM=ifort_mpik
 
 ###########################################################################
 # Don't edit lines below 
@@ -77,6 +77,7 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 #slatsm-lib: slatsm-dir
 #subs-lib: subs-dir
 #fp-lib: fp-dir subs-lib
+
 
 
 
@@ -139,6 +140,29 @@ $(fp_obj_path)/%.o: fp/%.F
 include MAKEINC/Make.inc.$(PLATFORM)
 #include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
 
+############################################
+# version information
+############################################
+# This must be placed after including Make.inc.PLATFORM
+result_uname_a := $(shell uname -a | head -c 120)
+result_linked_at := $(shell LANG=C; date)
+result_etc_issue := $(shell cat /etc/issue|head -1 -c120)
+result_git_branch := $(shell cat ../.git/HEAD| sed 's/^ref: *//')
+result_git_commit := $(shell cat ../.git/`cat ../.git/HEAD| sed 's/^ref: *//' `)
+result_fflags := $(shell echo ${FFLAGS} | head -1 -c 120)
+result_libloc := $(shell echo ${LIBLOC} | head -1 -c 120)
+#result_fc_version := is placed at Make.inc.PLATFORM
+
+VERSIONFLAGS := -D___UNAME_A___="\"$(result_uname_a)\""   \
+    -D___LINK_TIME___="\"$(result_linked_at)\"" \
+    -D___ETC_ISSUE___="\"$(result_etc_issue)\"" \
+    -D___GIT_BRANCH___="\"$(result_git_branch)\"" \
+    -D___GIT_COMMIT___="\"$(result_git_commit)\"" \
+    -D___PLATFORM___="\"$(PLATFORM)\"" \
+    -D___FC_VERSION___="\"$(result_fc_version)\"" \
+    -D___FFLAGS___="\"$(result_fflags)\"" \
+    -D___LIBLOC___="\"$(result_libloc)\""
+
 mod-dir:
 	[ -d MODDIR ] || mkdir  MODDIR 
 	[ -d $(moddir) ] || mkdir  $(moddir) 
@@ -154,7 +178,7 @@ lmchk.o: lmv7util.F
 #lm.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLM -DNC -c lmv7.F -o $@
 lmfa.o: lmfav7.F
-	$(FC) $(FFLAGS) -DLMFA -c lmfav7.F -o $@
+	$(FC) $(FFLAGS) -DLMFA -c lmfav7.F  -o $@
 lmf.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF  -c lmv7.F -o $@
 lmdos.o: lmv7util.F
@@ -171,21 +195,25 @@ lmf2gw.o: lmf2gw.F
 ########################################
 # programs
 ########################################
-lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA) 
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 #lmscell: lmscell.o $(LIBSUBS) $(LIBSLA)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmdos:	lmdos.o $(LIBSUBS) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
  
 lmfa:	lmfa.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 #lm:	lm.o  $(LIBSUBS) 
 #	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 # non-colinear verion
@@ -193,10 +221,12 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBNC) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmf2gw:	lmf2gw.o
-	$(FC) $(LKFLAGS1) $@.o $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
 #tbe:	tbe.o $(LIBSUBS) $(LIBTB)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBTB) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -212,26 +242,30 @@ lmf-MPI.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
 
 lmf-MPI:        lmf-MPI.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPI.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 ####### for MPIK
 lmf-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
 
 lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 
 ##########################################

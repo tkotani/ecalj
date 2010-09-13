@@ -128,6 +128,8 @@ cend-----
 #endif      
 
 C --- Version ---
+      call show_programinfo(6)
+
       vrsion(1) = 'LM'
       vrsion(2) = ' '
       vn(1) = 7.00d0
@@ -385,6 +387,7 @@ cccccccccccccccccc
       ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
 #endif
 #endif
+
 
 
 C --- Lattice setup ---
