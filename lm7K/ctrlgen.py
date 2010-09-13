@@ -285,11 +285,11 @@ if(help==1):
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"+version
 	print
 	print " Usage  : ctrlgen {extension of ctrl file} [option]"
-	print "        : [options] = -helpatomname"
+	print "        : [options] = --helpatomname, --readrmt"
 	print 
 	print " You should have no SPEC if you use ATOM name shown by --helpatomname"
 	print 
-	print " If rmt.tmp exist, it is use; rmt(Muffin-tin radius) is not calculated."
+	print " If rmt.tmp exists and --readrmt, rmt.tmp is use; then rmt(Muffin-tin radius) are not calculated."
         print "      rmt.tmp consists of specname R with rmt for each line. For example,---"
         print '       --- rmt.tmp for SrTiO3 --- '
 	print '       Sr          3.616323'
