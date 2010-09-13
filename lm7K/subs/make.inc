@@ -3,6 +3,7 @@ subs_list:=\
 	m_hamindex.o \
 	m_sstrnsname.o \
 	m_struc_def.o \
+        m_globalvariables.o \
 	m_gtv.o \
 	addbas.o \
 	addrwf.o \

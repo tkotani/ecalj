@@ -77,6 +77,12 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #LK = ifort  -parallel  -CB
 FC = ifort
 LK = ifort  -parallel
+result_fc_version :=$(shell head -1 .fc_version)
+make_fc_version:
+	rm -f .fc_version
+	export LANG=C
+	-${FC} -v 2> .fc_version
+
 #
 # where is modules?
 moddir = MODDIR/$(obj_path)

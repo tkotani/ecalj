@@ -94,6 +94,8 @@ c      call nada
 c toksw was here. MOved to rdccat
 
 C --- Version ---
+      call show_programinfo(6)
+
       vrsion(1) = 'LM'
       vrsion(2) = ' '
       vn(1) = 7.00d0
@@ -232,7 +234,6 @@ c
 
       print *,'end of rdctrl2 in imfav7'
 C ... Input to scale MT radii (define RESIZE)
-
 
 
 
