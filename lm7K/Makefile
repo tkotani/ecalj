@@ -31,7 +31,7 @@ PLATFORM=gfortran
 
 #PLATFORM=ifort
 #PLATFORM=ifort_mpi
-PLATFORM=ifort_mpik
+#PLATFORM=ifort_mpik
 
 ###########################################################################
 # Don't edit lines below 
@@ -315,4 +315,4 @@ checkgw:
 
 
 install: 
-	cp $(programs) $(fplotprogs) ~/bin
+	cp $(programs) $(fplotprogs) ctrlgen.py ~/bin
