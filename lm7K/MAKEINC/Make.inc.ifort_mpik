@@ -73,11 +73,10 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ############################################
 FC = mpif90
 LK = mpif90
-result_fc_version :=$(shell head -1 .fc_version)
+result_fc_version =$(shell head -1 .fc_version)
 make_fc_version:
 	rm -f .fc_version
-	export LANG=C
-	-${FC} -v 2> .fc_version
+	-export LANG=C; ${FC} -v 2> .fc_version
 
 
 #FC = ifort

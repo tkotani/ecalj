@@ -154,7 +154,7 @@ result_fflags := $(shell echo ${FFLAGS} | head -1 -c 120)
 result_libloc := $(shell echo ${LIBLOC} | head -1 -c 120)
 #result_fc_version := is placed at Make.inc.PLATFORM
 
-VERSIONFLAGS := -D___UNAME_A___="\"$(result_uname_a)\""   \
+VERSIONFLAGS = -D___UNAME_A___="\"$(result_uname_a)\""   \
     -D___LINK_TIME___="\"$(result_linked_at)\"" \
     -D___ETC_ISSUE___="\"$(result_etc_issue)\"" \
     -D___GIT_BRANCH___="\"$(result_git_branch)\"" \
@@ -196,23 +196,23 @@ lmf2gw.o: lmf2gw.F
 ########################################
 # programs
 ########################################
-lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA) 
+lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA)  make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 #lmscell: lmscell.o $(LIBSUBS) $(LIBSLA)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lmdos:	lmdos.o $(LIBSUBS) $(LIBSLA)
+lmdos:	lmdos.o $(LIBSUBS) $(LIBSLA) make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
  
-lmfa:	lmfa.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
+lmfa:	lmfa.o $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
-lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
+lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 #lm:	lm.o  $(LIBSUBS) 
@@ -221,11 +221,11 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
 #lm:	lm.o  $(LIBSUBS) 
 #	$(LK) $(LKFLAGS1) $@.o $(LIBNC) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
-lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
+lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lmf2gw:	lmf2gw.o
+lmf2gw:	lmf2gw.o make_fc_version
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
