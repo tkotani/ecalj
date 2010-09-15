@@ -289,7 +289,8 @@ if(help==1):
 	print 
 	print " You should have no SPEC if you use ATOM name shown by --helpatomname"
 	print 
-	print " If rmt.tmp exists and --readrmt, rmt.tmp is use; then rmt(Muffin-tin radius) are not calculated."
+	print " If we supply rmt.tmp by hand with --readrmt, the give rmt.tmp is used."
+        print " The rmt(Muffin-tin radius) are not calculated."
         print "      rmt.tmp consists of specname R with rmt for each line. For example,---"
         print '       --- rmt.tmp for SrTiO3 --- '
 	print '       Sr          3.616323'
@@ -432,7 +433,7 @@ for i in listr:
 #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
 print 
 print ' rmt.tmp: gives  R= -->', rdic
-print 
+print ' we use R=3.0 if R is larger than 3.0'
 #sys.exit()
 
 
@@ -524,10 +525,11 @@ for ii in tokenspec[1:]:
 			il1=4
 			pz=re.split("PZ",mmmx)
                         #Over ride by new setting
-			rsmh= max(string.atof(rdic[ikey])*1.0/2.0,0.5)
+			rmt = min(string.atof(rdic[ikey]),3.0)
+			rsmh = max(rmt*1.0/2.0,0.5)
 			rsmh= '%6.3f' % rsmh
-			mmm= 'RSMH= '           +il1*rsmh+' EH= '+il1*' -0.5'+'\n'
-			mmm= mmm+ '     RSMH2= '+il1*rsmh+' EH2='+il1*' -2'+'\n'
+			mmm= 'RSMH=  '          +il1*rsmh+' EH= '+il1*' -1.0'+'\n' #-1 and -0.5 which is better? 
+			mmm= mmm+ '     RSMH2= '+il1*rsmh+' EH2='+il1*' -2.0'+'\n'
 			if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
 			
 			il2 = countnum(mmm,'PZ=')
@@ -535,8 +537,9 @@ for ii in tokenspec[1:]:
 			lll = "%i" % lx
 			il1m=il1-1
 			lmx = "%i" % il1m
+			rmt= '%6.3f' % rmt
 			#print il1,il2,lx
-			aaa = aaa+' R='+rdic[ikey]+'\n'+' '*5+mmm \
+			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm \
 			    +' '*5+'KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n'+'     MMOM=0 0 0 0'+'\n\n'
 		ispec=ispec+1
 		ix=1
