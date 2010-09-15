@@ -1,3 +1,7 @@
+      logical function stabilize_zhev()
+      stabilize_zhev=.false.
+      end
+
       logical function mixrealsmooth()
       mixrealsmooth=.true.
 ! Takao think mixrho should give a correct guess from informations

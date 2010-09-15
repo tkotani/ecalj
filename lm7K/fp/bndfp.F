@@ -435,6 +435,7 @@ ctakao
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:)
 
+      logical :: stabilize_zhev
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -2071,7 +2072,7 @@ c takao version. Not in lm-7.0beta
 c            call zhev_tk(ndimhx-napw,ndimhx,w(oh),w(os),nmx,epsovl,
                 call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
      .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
-     .          , t_zv , iq = = 1 ) 
+     .          , t_zv, iq==1, stabilize_zhev()) 
 
                 print *,'end of zhev_tk'
                 eomin = dval ( ww_rv , 1 ) 

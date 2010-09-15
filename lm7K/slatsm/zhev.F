@@ -805,7 +805,7 @@ CSFCPP#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk(nlmto,n,h,s,nmx, epsovl,ncut,
-     &nevl,nev,e,eo,lz,z,ipr)
+     &nevl,nev,e,eo,lz,z,ipr,stabilize_zhev)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -844,16 +844,16 @@ C ----------------------------------------------------------------
       implicit none
 C Passed parameters
       integer n,nev,nmx,ltime,ngv,lz,nevl,ncut
-      logical ipr
+      logical ipr,stabilize_zhev
       double precision e(n),wk(1),emx,eee
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
      &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
-     &hhm(:,:),zzz(:)
-      integer:: i,j,nlmto,ni,nm,ik,ik2
-      real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl
+     &hhm(:,:),zzz(:),omatinv(:,:),oox(:,:)
+      integer:: i,j,nlmto,ni,nm,ik,ik2,k
+      real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
       real(8),allocatable:: scale(:),rwork(:)
-      real(8):: eo(1)
+      real(8):: eo(n),delta_stabilize
 C Local parameters
       integer ier,lwork,ix
       character*1 jobz
@@ -963,6 +963,48 @@ C ... eigenvalue of s (omat)
         enddo  
       endif
 c      write(6,*)' zheev: diagonalization of overlap matrix info=',ier
+
+
+
+
+!! ==== new mode to avoid linear depedency by replacing h= h + delta_stabilize* O^-1====
+c      print *,' ier=',ier
+      if(stabilize_zhev) then
+       allocate(omatinv(n,n))!,oox(n,n))
+       omatinv=0d0
+       do j=1,n
+       do i=1,n
+       do k=1,n
+         omatinv(i,j) = omatinv(i,j) + omat(i,k)*1d0/eo(k)*dconjg(omat(j,k)) !this is eigenfunction for original problem.
+       enddo
+       enddo
+       enddo
+       delta_stabilize = 1d-10
+       h= h + delta_stabilize*omatinv 
+       !This procedure push up null vector(pooly-linear dependent basis) to very high eigenvalues.
+       ! delta_stabilie can be somehow unclear; if you have strange eigenvalue at low energy,
+       ! enlarge this.
+       deallocate(omatinv)
+      endif
+ccbug in gfortran?
+cc      do j=1,n
+cc      do i=1,n
+cc        omatinv(i,j) = sum( omat(i,:)*1d0/eo(:)*dconjg(omat(j,:)))
+cc      enddo
+cc      enddo
+ccccccccccc check omatinv
+c      oox = matmul(s,omatinv)
+c      do j=1,n
+c      do i=1,n
+c        epsx=oox(i,j)
+c        if(i==j) write(6,*) i,j,epsx,oox(i,j)
+c        if(i/=j.and.epsx>1d-5) write(6,*) i,j,epsx !,oox(i,j)
+c      enddo
+c      enddo
+c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxx'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
 
 ccccccccccccccccccccccccc
 c     print *,' ------- omat*s*omat ------- '
@@ -1088,94 +1130,94 @@ ccccccccccccccccccccccccc
 
 
 
-C --- mode 2. rescpect MTO --- a branch. not good.
-! I tested it; it seems not good. ---------------------------------
- 100  continue
-C ... PW part ! ... project out mto part
-      allocate(omat2(nlmto,nlmto),omat2i(nlmto,nlmto))
-      omat2  = s(1:nlmto,1:nlmto) !omat2=<chi_i|chi_j>
-      omat2i = omat2
-      call matcinv(nlmto,omat2i)  !omat2i is inverse of <chi_i|chi_j>
-      ngv = n - nlmto
-      deallocate(omat2)
-      allocate( omat(ngv,ngv) )
-c      omat=0d0
-c      do i=1,ngv
-c         omat(i,i) = s(nlmto+i,nlmto+i)
-c        print *,'qqq',i,omat(i,i)
-c      enddo                
-! <PW'|PW'> matrix. PW' = |PW> - |chi_i> O^(-1)_ij <chi_j|PW>
-      omat = s(nlmto+1:n,nlmto+1:n)  ! n=nlmto+ngv
-     .-  matmul( dconjg(transpose( s(1:nlmto,nlmto+1:n))) ,
-     .matmul( omat2i, s(1:nlmto,nlmto+1:n))   )
-C ... eigenvalue of <PW'|PW'>
-      jobz = 'V'
-      lwork = ngv*ngv
-      allocate(wk11(lwork),rwork(max(1,3*ngv-2)))
-      call zheev(jobz,'U',ngv,omat,ngv,eo,wk11,lwork,rwork,ier)
-      deallocate(wk11,rwork)
-      if(ipr) write(6,*)'zhev_tk: ovlmat='
-      if(ipr) write(6,"(5(i5,d10.2))") (i,eo(i),i=1,ngv)
-! skip low  eigenvalue
-      do ix= 1,ngv
-        if(eo(ix)>epsovl) then
-          ni = ix ! we use i = ni...n. Skip 1...ni-1
-          exit
-        endif
-      enddo
-      nm = ngv-ni+1  +nlmto      ! this is the dimension.
-C ... We solve solution in the Hilbert space spanned by zz (dimension = nm)
-      print *,' nlmto ngv nm=',nlmto,ngv,nm
-      allocate(zz(n,nm))
-      zz=0d0
-      do ix=1,nlmto
-        zz(ix,ix) = 1d0
-      enddo
-      do ix= 1, nm-nlmto
-c        zz(ix+nlmto,ix+nlmto) = omat(ix,ix) /sqrt(eo(ix))
-c        print *,' ppp omat',ix,zz(ix,ix)
-        zz(nlmto+1:n,ix+nlmto) = omat(:,ix) /sqrt(eo(ix))
-        zz(1:nlmto,  ix+nlmto) = 
-     &  - matmul(omat2i, matmul(s(1:nlmto,nlmto+1:n),omat(:,ix))) 
-     &  /sqrt(eo(ix))
-      enddo
-C ... Hamiltonian  <zz|H|zz>  <zz|Ozz>
-      allocate(hh(nm,nm),oo(nm,nm))
-      hh = matmul(dconjg(transpose(zz)),matmul(h,zz))
-      oo = matmul(dconjg(transpose(zz)),matmul(s,zz))
-      e = 99.d0 !initialization
-C ... diagonalize
-      if (nmx .le. 0) then
-        jobz = 'N'
-        lwork = 4*nm
-        allocate(wk11(lwork),rwork(max(1,3*nm-2)))
-        call zhegv(1,jobz,'U',nm,hh,nm,oo,nm,e,wk11,lwork,rwork,ier)
-        nev = 0
-      else
-        jobz = 'V'
-        lwork = nm*nmx
-        allocate(wk11(lwork),rwork(max(1,3*nm-2)))
-        call zhegv(1,jobz,'U',nm,hh,nm,oo,nm,e,wk11,lwork,rwork,ier)
-        z=1d99
-        do i=1,min(nmx,nm)
-          do j=1,n
-            z(j,i) = sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
-          enddo
-        enddo
-        nev = min(nmx,nm)
-      endif
-ccccccccccccccccccccccccc
-c      do i=1,nm
-c        write(6,"(a,i5,12d13.5)") 'zhev mode2: eee=',i,e(i)
-c      enddo
-c      stop ' --- vvv:zhev --- '
-ccccccccccccccccccccccccc
-      deallocate(wk11,rwork)
-      deallocate(omat,zz,oo,omat2i)
-      call rxx(ier.ne.0,'zhev: zhegv cannot find all evals 222')
-c      stop 'xxxxxxxxxxxxxxxxxxx'
+C$$$C --- mode 2. rescpect MTO --- a branch. not good.
+C$$$! I tested it; it seems not good. ---------------------------------
+C$$$ 100  continue
+C$$$C ... PW part ! ... project out mto part
+C$$$      allocate(omat2(nlmto,nlmto),omat2i(nlmto,nlmto))
+C$$$      omat2  = s(1:nlmto,1:nlmto) !omat2=<chi_i|chi_j>
+C$$$      omat2i = omat2
+C$$$      call matcinv(nlmto,omat2i)  !omat2i is inverse of <chi_i|chi_j>
+C$$$      ngv = n - nlmto
+C$$$      deallocate(omat2)
+C$$$      allocate( omat(ngv,ngv) )
+C$$$c      omat=0d0
+C$$$c      do i=1,ngv
+C$$$c         omat(i,i) = s(nlmto+i,nlmto+i)
+C$$$c        print *,'qqq',i,omat(i,i)
+C$$$c      enddo                
+C$$$! <PW'|PW'> matrix. PW' = |PW> - |chi_i> O^(-1)_ij <chi_j|PW>
+C$$$      omat = s(nlmto+1:n,nlmto+1:n)  ! n=nlmto+ngv
+C$$$     .-  matmul( dconjg(transpose( s(1:nlmto,nlmto+1:n))) ,
+C$$$     .matmul( omat2i, s(1:nlmto,nlmto+1:n))   )
+C$$$C ... eigenvalue of <PW'|PW'>
+C$$$      jobz = 'V'
+C$$$      lwork = ngv*ngv
+C$$$      allocate(wk11(lwork),rwork(max(1,3*ngv-2)))
+C$$$      call zheev(jobz,'U',ngv,omat,ngv,eo,wk11,lwork,rwork,ier)
+C$$$      deallocate(wk11,rwork)
+C$$$      if(ipr) write(6,*)'zhev_tk: ovlmat='
+C$$$      if(ipr) write(6,"(5(i5,d10.2))") (i,eo(i),i=1,ngv)
+C$$$! skip low  eigenvalue
+C$$$      do ix= 1,ngv
+C$$$        if(eo(ix)>epsovl) then
+C$$$          ni = ix ! we use i = ni...n. Skip 1...ni-1
+C$$$          exit
+C$$$        endif
+C$$$      enddo
+C$$$      nm = ngv-ni+1  +nlmto      ! this is the dimension.
+C$$$C ... We solve solution in the Hilbert space spanned by zz (dimension = nm)
+C$$$      print *,' nlmto ngv nm=',nlmto,ngv,nm
+C$$$      allocate(zz(n,nm))
+C$$$      zz=0d0
+C$$$      do ix=1,nlmto
+C$$$        zz(ix,ix) = 1d0
+C$$$      enddo
+C$$$      do ix= 1, nm-nlmto
+C$$$c        zz(ix+nlmto,ix+nlmto) = omat(ix,ix) /sqrt(eo(ix))
+C$$$c        print *,' ppp omat',ix,zz(ix,ix)
+C$$$        zz(nlmto+1:n,ix+nlmto) = omat(:,ix) /sqrt(eo(ix))
+C$$$        zz(1:nlmto,  ix+nlmto) = 
+C$$$     &  - matmul(omat2i, matmul(s(1:nlmto,nlmto+1:n),omat(:,ix))) 
+C$$$     &  /sqrt(eo(ix))
+C$$$      enddo
+C$$$C ... Hamiltonian  <zz|H|zz>  <zz|Ozz>
+C$$$      allocate(hh(nm,nm),oo(nm,nm))
+C$$$      hh = matmul(dconjg(transpose(zz)),matmul(h,zz))
+C$$$      oo = matmul(dconjg(transpose(zz)),matmul(s,zz))
+C$$$      e = 99.d0 !initialization
+C$$$C ... diagonalize
+C$$$      if (nmx .le. 0) then
+C$$$        jobz = 'N'
+C$$$        lwork = 4*nm
+C$$$        allocate(wk11(lwork),rwork(max(1,3*nm-2)))
+C$$$        call zhegv(1,jobz,'U',nm,hh,nm,oo,nm,e,wk11,lwork,rwork,ier)
+C$$$        nev = 0
+C$$$      else
+C$$$        jobz = 'V'
+C$$$        lwork = nm*nmx
+C$$$        allocate(wk11(lwork),rwork(max(1,3*nm-2)))
+C$$$        call zhegv(1,jobz,'U',nm,hh,nm,oo,nm,e,wk11,lwork,rwork,ier)
+C$$$        z=1d99
+C$$$        do i=1,min(nmx,nm)
+C$$$          do j=1,n
+C$$$            z(j,i) = sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
+C$$$          enddo
+C$$$        enddo
+C$$$        nev = min(nmx,nm)
+C$$$      endif
+C$$$ccccccccccccccccccccccccc
+C$$$c      do i=1,nm
+C$$$c        write(6,"(a,i5,12d13.5)") 'zhev mode2: eee=',i,e(i)
+C$$$c      enddo
+C$$$c      stop ' --- vvv:zhev --- '
+C$$$ccccccccccccccccccccccccc
+C$$$      deallocate(wk11,rwork)
+C$$$      deallocate(omat,zz,oo,omat2i)
+C$$$      call rxx(ier.ne.0,'zhev: zhegv cannot find all evals 222')
+C$$$c      stop 'xxxxxxxxxxxxxxxxxxx'
 
-! exit 
+C$$$! exit 
  999  continue
       call tcx('zhev_tk')
       end

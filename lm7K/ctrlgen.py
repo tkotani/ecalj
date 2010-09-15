@@ -279,7 +279,7 @@ help=0
 helpatomname=0
 if (nargv==0 or  '--help' in  argset): help=1
 if ('--helpatomname' in  argset): helpatomname=1
-version=" ver.2.0 tkotani 13July2010"
+version=" tkotani Sep15_2010"
 if(help==1):
 	print 
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"+version
