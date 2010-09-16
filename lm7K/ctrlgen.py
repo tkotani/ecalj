@@ -586,6 +586,9 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #N=-1
       #W=0.001
 
+      #For Total DOS DOS: range , NPTS, division. We need to set METAL=3 with default TETRA (no TETRA).
+      #SAVDOS=T DOS=-1 1 NPTS=2001
+
 ITER  CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # An other choice is
                 # ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT=20
