@@ -1,6 +1,7 @@
-      logical function stabilize_zhev()
-      stabilize_zhev=.false.
-      end
+c      logical function stabilize_zhev()
+c      stabilize_zhev=.true.
+c      print *,' stabilize_zhev=',stabilize_zhev
+c      end
 
       logical function mixrealsmooth()
       mixrealsmooth=.true.

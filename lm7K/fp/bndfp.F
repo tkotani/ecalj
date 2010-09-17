@@ -236,7 +236,7 @@ CKI      type(s_spec),allocatable:: sspecv(:)
 C ... Local parameters
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-      real(8) ,allocatable :: eomin_rv(:)
+c      real(8) ,allocatable :: eomin_rv(:)
 
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      ., i , iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
@@ -320,7 +320,7 @@ C ... Local parameters
      .sev00,sev1,sumtv,alfa,vconst,qbg,ebot,pi,def,ef0,ehar,eks,
      .dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
      .sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
-     .ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,eomin,dval
+     .ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
 
 C     For now: PW basis
@@ -435,7 +435,7 @@ ctakao
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:)
 
-      logical :: stabilize_zhev
+c      logical :: stabilize_zhev
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -884,12 +884,12 @@ c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
      .    call info(20,0,1,'%8pReplace ef0 with file ef=%;6d',eferm,0)
           ef0 = eferm
         endif
-#if MPIK
-        if (epsovl .ne. 0) then
-          allocate(eomin_rv(nsp*nkp))
-
-        endif
-#endif
+c#if MPIK
+c        if (epsovl .ne. 0) then
+c          allocate(eomin_rv(nsp*nkp))
+c
+c        endif
+c#endif
       else
         nkp = 0
         ldos = 0
@@ -1114,9 +1114,10 @@ C       Re-allocate qp and evl arrays
          if (3*nkp<0) rv_p_oqp(:)=0.0d0
 
 c        call defrr(oevlall, ndham*nsp*nkp)
-        if (epsovl .ne. 0) then
-          allocate(eomin_rv(nsp*nkp))
-        endif
+
+c        if (epsovl .ne. 0) then
+c          allocate(eomin_rv(nsp*nkp))
+c        endif
         call info2(20,1,1,
      .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
 C       Loop through all qp; accumulate vector of qp.
@@ -2072,10 +2073,10 @@ c takao version. Not in lm-7.0beta
 c            call zhev_tk(ndimhx-napw,ndimhx,w(oh),w(os),nmx,epsovl,
                 call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
      .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
-     .          , t_zv, iq==1, stabilize_zhev()) 
+     .          , t_zv, iq==1)!, stabilize_zhev()) 
 
-                print *,'end of zhev_tk'
-                eomin = dval ( ww_rv , 1 ) 
+c                print *,'end of zhev_tk'
+c                eomin = dval ( ww_rv , 1 ) 
 
               endif
               deallocate(ww_rv)
@@ -2095,11 +2096,11 @@ ctakao
             if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
 
 #ifndef MPIK
-            if (epsovl .ne. 0) then
-              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g.  '//
-     .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
-     .        eomin,ndimhx-nevl,ndimhx,nevl,0)
-            endif
+c            if (epsovl .ne. 0) then
+c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g.  '//
+c     .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
+c     .        eomin,ndimhx-nevl,ndimhx,nevl,0)
+c            endif
             if(debug) print *,' goto print nevl nev nmx=',nevl,nev,nmx
             call prtev ( t_zv , nevl , evl ( 1 , jsp ) , nmx , efmax , 
      .      nev ) 
@@ -2167,13 +2168,13 @@ C   ... Save data for this qp to moments file
 C   ... Copy eigenvalues into array containing ev for all qp
               call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
-#if MPIK
-              if (epsovl .ne. 0) then
-                call dpscop ( eomin , eomin_rv , 1 , 1 , 1 + ( jsp - 1 + isqp 
-     .          ) , 1d0 ) 
-
-              endif
-#endif
+c#if MPIK
+c              if (epsovl .ne. 0) then
+c                call dpscop ( eomin , eomin_rv , 1 , 1 , 1 + ( jsp - 1 + isqp 
+c     .          ) , 1d0 ) 
+c
+c              endif
+c#endif
 
               if( debug) print *, 'tttttttttt 22222'
 
@@ -2374,11 +2375,11 @@ C   ... Save evals for this qp
             elseif (plbnd .ne. 0) then
               call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
-              if (epsovl .ne. 0) then
-                call dpscop ( eomin , eomin_rv , 1 , 1 , 1 + ( jsp - 1 + isqp 
-     .          ) , 1d0 ) 
-
-              endif
+c              if (epsovl .ne. 0) then
+c                call dpscop ( eomin , eomin_rv , 1 , 1 , 1 + ( jsp - 1 + isqp 
+c     .          ) , 1d0 ) 
+c
+c              endif
 #endif
 
             endif
@@ -2472,10 +2473,9 @@ C     You can't do this until you have all the evals.
 
 C     Share bands among all processors
       call xmpbnd(kpproc,ndham,nkp,nsp,evlall)
-      if (epsovl .ne. 0) then
-        call xmpbnd ( kpproc , 1 , nkp , nsp , eomin_rv ) 
-
-      endif
+c      if (epsovl .ne. 0) then
+c        call xmpbnd ( kpproc , 1 , nkp , nsp , eomin_rv ) 
+c      endif
       if (icls .ne. 0 .and. lwtkb .ne. -1) then
         call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
         call xmpbnd ( kpproc , nlmax * ndham * 3 * nsites , nkp , nsp 
@@ -2627,18 +2627,17 @@ C       isp serves as a flag for the noncollinear case
             if (ispc .eq. 2) jsp = 1
             call dpscop(evlall,evl(1,jsp),ndhamx,
      .      1+ndham*(jsp-1+isqp),1,1d0)
-            if (epsovl .ne. 0) then
-              call dpscop ( eomin_rv , eomin , 1 , 1 + ( jsp - 1 + isqp 
-     .        ) , 1 , 1d0 ) 
-
-            endif
+c            if (epsovl .ne. 0) then
+c              call dpscop ( eomin_rv , eomin , 1 , 1 + ( jsp - 1 + isqp 
+c     .        ) , 1 , 1d0 ) 
+c            endif
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
             call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d',
      .      iq,nkp,qp,0,0)
-            if (epsovl .ne. 0) then
-              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g',
-     .        eomin,0,0,0,0)
-            endif
+c            if (epsovl .ne. 0) then
+c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g',
+c     .        eomin,0,0,0,0)
+c            endif
 ckino start, set origin  for bcast, 05Feb09
 c        --- use ndimhx_iq and nev_iq below
 c        --- I am afraid that this part can't execute correctly in the case of MPIK.
@@ -3208,7 +3207,7 @@ ccccccccccccccccccccccccc
       if (allocated(qm1_rv)) deallocate(qm1_rv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
-      if (allocated(eomin_rv)) deallocate(eomin_rv)
+c      if (allocated(eomin_rv)) deallocate(eomin_rv)
       if (allocated(fes1_rv)) deallocate(fes1_rv)
       if (allocated(ppnl_rv)) deallocate(ppnl_rv)
       if (allocated(sab_rv)) deallocate(sab_rv)

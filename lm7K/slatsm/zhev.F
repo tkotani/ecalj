@@ -805,7 +805,7 @@ CSFCPP#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk(nlmto,n,h,s,nmx, epsovl,ncut,
-     &nevl,nev,e,eo,lz,z,ipr,stabilize_zhev)
+     &nevl,nev,e,eo,lz,z,ipr) !,stabilize_zhev)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -844,16 +844,19 @@ C ----------------------------------------------------------------
       implicit none
 C Passed parameters
       integer n,nev,nmx,ltime,ngv,lz,nevl,ncut
-      logical ipr,stabilize_zhev
-      double precision e(n),wk(1),emx,eee
+      logical ipr !, stabilize_zhev
+      double precision e(n),wk(1),emx,eee,fac
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
      &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
-     &hhm(:,:),zzz(:),omatinv(:,:),oox(:,:)
+     &hhm(:,:),zzz(:),omatinv(:,:),oxx(:,:)
       integer:: i,j,nlmto,ni,nm,ik,ik2,k
       real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
       real(8),allocatable:: scale(:),rwork(:)
-      real(8):: eo(n),delta_stabilize
+      real(8):: eo(n) !,delta_stabilize
+
+      integer :: epsovl_mode=1
+
 C Local parameters
       integer ier,lwork,ix
       character*1 jobz
@@ -890,9 +893,6 @@ c        omat(i,j)=scale(i)*scale(j)*omat(i,j) !this is based on  1d0/scale*|bas
           h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
         enddo
       enddo
-      allocate(omat(n,n))
-      omat = s !reserved
-
 c$$$cccccccccccccccccccccccccccc
 c$$$      do i=1,n
 c$$$         ddd=0d0
@@ -945,12 +945,13 @@ c      stop
 ccccccccccccccccccccccccccc
 
 
-
-C ... eigenvalue of s (omat)
+!! ... eigenvalue of s (omat)
+      allocate(omat(n,n))
+      omat = s !reserved
       jobz = 'V'
       lwork = n*n
       allocate(wk11(lwork),rwork(max(1,3*n-2)))
-      call zheev('V','U',n,omat,n,eo,wk11,lwork,rwork,ier)
+      call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
       deallocate(wk11,rwork)
       if(ipr) then
         write(6,*)'zhev_tk: ovlmat='
@@ -965,27 +966,69 @@ C ... eigenvalue of s (omat)
 c      write(6,*)' zheev: diagonalization of overlap matrix info=',ier
 
 
-
-
-!! ==== new mode to avoid linear depedency by replacing h= h + delta_stabilize* O^-1====
+!! === new mode to avoid linear depedency by replacing h and o ===
+!! h= h + 99*2**(-o/epsovl)
+!! o= o +    2**(-o/epsovl) ! note overlap matrix o is by s in this code.
+!!                          ! oox -> 2**(-o/expovl) 
 c      print *,' ier=',ier
-      if(stabilize_zhev) then
-       allocate(omatinv(n,n))!,oox(n,n))
-       omatinv=0d0
+c      print *,'epsovl=',epsovl
+      if(epsovl_mode==1.and.epsovl/=0d0) then
+c       print *,' zhev:epsovl_mode=1 epsovl=',epsovl
+       if(epsovl>1.or.epsovl<0) call rx('HAM_OVEPS: NOT in 0<OVEPS<1')
+       allocate(oxx(n,n))
+       oxx=0d0
+       do k=1,n
+         fac = 2**(-eo(k)/epsovl)
        do j=1,n
        do i=1,n
-       do k=1,n
-         omatinv(i,j) = omatinv(i,j) + omat(i,k)*1d0/eo(k)*dconjg(omat(j,k)) !this is eigenfunction for original problem.
+         oxx(i,j) = oxx(i,j) + omat(i,k)*fac*dconjg(omat(j,k)) 
+         !this is eigenfunction for original problem.
        enddo
        enddo
        enddo
-       delta_stabilize = 1d-10
-       h= h + delta_stabilize*omatinv 
+       h= h + 99d0*oxx 
+       s= s + oxx 
        !This procedure push up null vector(pooly-linear dependent basis) to very high eigenvalues.
        ! delta_stabilie can be somehow unclear; if you have strange eigenvalue at low energy,
        ! enlarge this.
-       deallocate(omatinv)
+
+       omat = s !reserved
+       jobz = 'V'
+       lwork = n*n
+       allocate(wk11(lwork),rwork(max(1,3*n-2)))
+       call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
+       deallocate(wk11,rwork)
+       if(ipr) then
+        write(6,*)'zhev_tk: ovlmat (after modified)='
+        do ix=0,n,5
+          if(eo(ix)>0.1d0) then
+           write(6,*) '  ... skip larger eigenvalues ...'
+           exit
+          endif
+        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
+        enddo  
+       endif
+       deallocate(oxx)
+C$$$      if(stabilize_zhev) then
+C$$$       allocate(omatinv(n,n))!,oox(n,n))
+C$$$       omatinv=0d0
+C$$$       do j=1,n
+C$$$       do i=1,n
+C$$$       do k=1,n
+C$$$         omatinv(i,j) = omatinv(i,j) + omat(i,k)*1d0/eo(k)*dconjg(omat(j,k)) !this is eigenfunction for original problem.
+C$$$       enddo
+C$$$       enddo
+C$$$       enddo
+C$$$       delta_stabilize = 1d-10
+C$$$       h= h + delta_stabilize*omatinv 
+C$$$       !This procedure push up null vector(pooly-linear dependent basis) to very high eigenvalues.
+C$$$       ! delta_stabilie can be somehow unclear; if you have strange eigenvalue at low energy,
+C$$$       ! enlarge this.
+C$$$       deallocate(omatinv)
+C$$$      endif
       endif
+
+
 ccbug in gfortran?
 cc      do j=1,n
 cc      do i=1,n
@@ -1021,12 +1064,16 @@ ccccccccccccccccccccccc
       if(ipr) write(6,*)'eigenvalue='
 ! We solve  (z* h z -  epsilon z* o z) a =0
       if(ncut==0) then
-        do ix= 1,n
-          if(eo(ix)>epsovl) then
-            ni = ix ! take i = ni...n
-            exit
+        if(epsovl_mode==0 )then
+          do ix= 1,n
+           if(eo(ix)>epsovl) then
+           ni = ix ! take i = ni...n
+          exit
           endif
-        enddo
+          enddo
+        else
+          ni=1
+        endif
       else
         write(6,"(a,i3)")' zhev_tk: ncut=',ncut
         ni = ncut+1

@@ -28,7 +28,7 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
-LIBLOC=$(LIB1)
+LIBLOC=$(LIB2)
 
 
 ############ Fortran compiler

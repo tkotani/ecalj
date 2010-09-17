@@ -912,6 +912,11 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
 
 
             call fclose(ifi)
+c
+c            takao save rst file option
+c            if(cmdopt('--saveallrst',12,0,strn) then
+c               call fsystm('cp "//rst)
+            
           endif
         endif
       endif
