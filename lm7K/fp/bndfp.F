@@ -435,7 +435,6 @@ ctakao
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:)
 
-c      logical :: stabilize_zhev
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -565,6 +564,7 @@ C     icls = igets('optic cls',w(osoptc))
       if (ndham.le.0)
      .call rx('bndfp: hamiltonian matrix has zero dimension')
 
+c
 
 #if MPI
 C MPI Process configuration
@@ -1970,19 +1970,15 @@ C       Need all eigenvalues if 'fat bands' plotting mode
               efmax = 99999
             endif
 
-ctakao
             if(napw/=0.and.ncutovl/=0) then
               if(lpdiag ==1 .or. lpdiag==2) then
                 stop 'bndfp: lpdiag-PW mode with OVNCUT/=0 is not yet'
               endif
             endif
-c
             if(debug) print *,'lpdiag=',lpdiag
-
-
-
             if(lpdiag .eq. 1) then
-              call rx('parallel diag is not yet. Need to recover followings.')
+              call rx('parallel diag is not yet.'//
+     &                'Need to implement. See bndfp.F.')
 C$$$          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
 C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_START_PZHEV,procid,"pzhev")
@@ -2000,99 +1996,67 @@ C$$$          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
 C$$$#endif
             elseif (lpdiag .eq. 2) then
               call dcopy ( ndimhx * * 2 * 2 , ovlm , 1 , t_zv , 1 ) 
-
               nev = ndimhx
               nmx = ndimhx
               nevl = ndimhx
                call phmbls ( 2 , ndimhx , evl ( 1 , jsp ) , iwdummy , iwdummy 
      .         , iwdummy , iwdummy , iwdummy , hamm ) 
-
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
                 allocate(ww_zv(ndimhx**2*2))
 #ifdef KINODEBUG
                 write(*,*)'kino allocate ww_zv', ndimhx**2*2
 #endif
-
                 if (ldim .ne. ndham) call
      .          rx('blsig needs separate dim for wtkp,evec')
                   call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
      .            , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , rv_p_owtkb 
      .            , ndimh , t_zv , ww_zv ) 
-
-
-
                 deallocate(ww_zv)
-
               endif
               if(debug) print *,'vvv2 lwtkb=',lwtkb
             else
-              if(debug)  print *,' vvv zzzzz vvvv lpdiag else'
-
-              if (nspc .eq. 2) then
-c                 allocate(ww_rv(ndimhx**2))
-                if(debug)  print *,' vvv zzzzz 111'
-c                 call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm ) 
+              if(nspc .eq. 2) then
+c                call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm ) 
                 call sopert2 ( 0 , ndimh , nspc, hamm , hamm ) 
-                if(debug)  print *,' vvv zzzzz 22'
-c                 call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm ) 
                 call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm ) 
-                if(debug)  print *,' vvv zzzzz 333'
-
-c                 deallocate(ww_rv)
-                if(debug)  print *,' vvv zzzzz 444'
-
               endif
               if(debug)  print *,' vvv zzzzz 555'
-
               allocate(ww_rv(11*ndimhx))
 #ifdef KINODEBUG
               write(*,*) 'allocate ww_rv', 11*ndimhx
 #endif
-c takao
-c          if (epsovl .eq. 0) then
-c
-
-              if(debug)  print *,' vvv zzzzzzzzzzzzzz bbbbbbbb'
-c          if(.false.) then
               if(napw == 0) then
-c            call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
-                !print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
+c               call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
+c                print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
                 call zhev ( ndimhx , hamm , ovlm , t , t , nmx , efmax , nev 
      .          , ww_rv , f , - 1 , evl ( 1 , jsp ) , t_zv ) 
-
-                !print *,'end of zhev'
+c                print *,'end of zhev'
                 nevl = ndimhx
               else
                 nevl = -1
-                call dvset ( ww_rv , 1 , 1 , 99999d0 ) 
-
-c            call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
-c     .        nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
-c takao version. Not in lm-7.0beta
-c            call zhev_tk(ndimhx-napw,ndimhx,w(oh),w(os),nmx,epsovl,
+                ww_rv(1)=99999d0
+c                call dvset ( ww_rv , 1 , 1 , 99999d0 ) 
+c               call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
+c     .         nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
+!! takao's version of diagonization.
                 call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
      .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
-     .          , t_zv, iq==1)!, stabilize_zhev()) 
-
+     .          , t_zv, iq==1, sham%delta_stabilize) 
 c                print *,'end of zhev_tk'
 c                eomin = dval ( ww_rv , 1 ) 
-
               endif
               deallocate(ww_rv)
             endif
 
-
-C       Pad evals between ndimh and ndham with a large positive number
-C       to avoid mixing up integration routines
+!!       Pad evals between ndimh and ndham with a large positive number
+!!       to avoid mixing up integration routines
             if (ndhamx .gt. nevl .and. nspc .eq. 2) then
               call dvset(evl,1+nevl,ndhamx,99999d0)
             elseif (ndham*nspc .gt. nevl) then
               call dvset(evl(1,jsp),1+nevl,ndham,99999d0)
             endif
-ctakao
             nevls(iq,isp)=nevl
-
             if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
 
 #ifndef MPIK

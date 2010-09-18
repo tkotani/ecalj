@@ -859,7 +859,8 @@ CCHSTRUC       integer(8)   ::   ooffH
        integer , pointer ::  iv_p_ooffH (:)
 CCHSTRUC       integer(8)   ::   oqsig
        real(8) , pointer ::  rv_p_oqsig (:)
-      real(8)   ::   oveps
+      real(8)   ::   oveps,delta_stabilize !takao sep2010 
+                      ! H-> H+ delta_stabilize*O^-1
       real(8)   ::   pmax(10)
       real(8)   ::   pmin(10)
       real(8)   ::   pwemax
@@ -2968,6 +2969,8 @@ Cstruc_makeinit.py skip iv_p_ooffH(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
        call mpi_bcast(struc%oveps, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%delta_stabilize, 1,MPI_REAL8 !takao sep2010
+     , , master, MPI_COMM_WORLD,ierr)
        i_data_size=size(struc%pmax) ! pmax(10)
        call mpi_bcast(struc%pmax, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -4456,6 +4459,7 @@ cki       struc%opos=0
 cki       struc%oiaxs=0
 cki       struc%ontabs=0
        struc%oveps=0.0d0
+       struc%delta_stabilize=0.0d0 !takao sep2010
        struc%pmax=0.0d0
        struc%pmin=0.0d0
        struc%pwemax=0.0d0

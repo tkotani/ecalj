@@ -229,7 +229,7 @@ c      logical :: optic_mode1
 
 C ... PW takao
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
-      real(8)::    pwemax,pwemin,oveps
+      real(8)::    pwemax,pwemin,oveps,delta_stabilize
       character(1)::mmm
 ccccccccccccccccccccccccccccccccccccccccc
 
@@ -930,10 +930,15 @@ C      stop
      .'Diagonalize hamiltonian in reduced hilbert space,'//
      .'%N%3fdiscarding part with evals of overlap < OVEPS')
 
-      nm='HAM_OVNCUT'; call gtv(trim(nm),tksw(prgn,nm),
-     .ncutovl, def_i4=0, note=
-     .'Diagonalize hamiltonian in reduced hilbert space,'//
-     .'%N%3fdiscarding OVNCUT basis')
+c      nm='HAM_OVNCUT'; call gtv(trim(nm),tksw(prgn,nm),
+c     .ncutovl, def_i4=0, note=
+c     .'Diagonalize hamiltonian in reduced hilbert space,'//
+c     .'%N%3fdiscarding OVNCUT basis')
+
+      nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgn,nm),
+     . delta_stabilize, def_r8=1d-12, nout=nout,note=
+     .'Stabilizer for Diagonalize hamiltonian,'//
+     .'%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
 
 C ... APW basis
       nm='HAM_PWMODE'; call gtv(trim(nm),tksw(prgn,nm),pwmode,
@@ -3313,7 +3318,7 @@ C     call tkadd(" START~")
       call tkadd(" HAM_GGA~")
       call tkadd(" HAM_GMAX")
 ctakao
-      call tkadd(" HAM_OVEPS~  HAM_OVNCUT~ ")
+      call tkadd(" HAM_OVEPS~ HAM_STABILIZE~") !  HAM_OVNCUT~ ")
       call tkadd(" HAM_PMAX~")
       call tkadd(" HAM_PMIN~")
       call tkadd(" HAM_PWMODE~ HAM_PWEMIN~ HAM_PWEMAX~ HAM_NPWPAD~")

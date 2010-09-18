@@ -805,7 +805,7 @@ CSFCPP#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk(nlmto,n,h,s,nmx, epsovl,ncut,
-     &nevl,nev,e,eo,lz,z,ipr) !,stabilize_zhev)
+     &nevl,nev,e,eo,lz,z,ipr,delta_stabilize)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -844,7 +844,7 @@ C ----------------------------------------------------------------
       implicit none
 C Passed parameters
       integer n,nev,nmx,ltime,ngv,lz,nevl,ncut
-      logical ipr !, stabilize_zhev
+      logical ipr 
       double precision e(n),wk(1),emx,eee,fac
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
@@ -853,7 +853,7 @@ C Passed parameters
       integer:: i,j,nlmto,ni,nm,ik,ik2,k
       real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
       real(8),allocatable:: scale(:),rwork(:)
-      real(8):: eo(n) !,delta_stabilize
+      real(8):: eo(n) ,delta_stabilize
 
       integer :: epsovl_mode=1
 
@@ -883,8 +883,9 @@ c      omat2=s
       do i=1,n
         scale(i)= 1d0/sqrt(s(i,i))  
       enddo
+
 c This scaling is to keep the Hilbert space of MTO.
-      scale(1:nlmto)=scale(1:nlmto)*100d0
+c      scale(1:nlmto)=scale(1:nlmto)*100d0
 
       do i=1,n
         do j=1,n
@@ -966,19 +967,23 @@ ccccccccccccccccccccccccccc
 c      write(6,*)' zheev: diagonalization of overlap matrix info=',ier
 
 
+
 !! === new mode to avoid linear depedency by replacing h and o ===
 !! h= h + 99*2**(-o/epsovl)
 !! o= o +    2**(-o/epsovl) ! note overlap matrix o is by s in this code.
 !!                          ! oox -> 2**(-o/expovl) 
 c      print *,' ier=',ier
 c      print *,'epsovl=',epsovl
-      if(epsovl_mode==1.and.epsovl/=0d0) then
-c       print *,' zhev:epsovl_mode=1 epsovl=',epsovl
-       if(epsovl>1.or.epsovl<0) call rx('HAM_OVEPS: NOT in 0<OVEPS<1')
+c      if(epsovl_mode==1) then
+c      if(epsovl_mode==1.and.epsovl/=0d0) then
+cc       print *,' zhev:epsovl_mode=1 epsovl=',epsovl
+c      if(epsovl>1.or.epsovl<0) call rx('HAM_OVEPS: NOT in 0<OVEPS<1')
+      if(delta_stabilize>0d0) then
        allocate(oxx(n,n))
        oxx=0d0
        do k=1,n
-         fac = 2**(-eo(k)/epsovl)
+c         fac = 2**(-eo(k)/epsovl)
+         fac = 1d0/eo(k)
        do j=1,n
        do i=1,n
          oxx(i,j) = oxx(i,j) + omat(i,k)*fac*dconjg(omat(j,k)) 
@@ -986,28 +991,30 @@ c       print *,' zhev:epsovl_mode=1 epsovl=',epsovl
        enddo
        enddo
        enddo
-       h= h + 99d0*oxx 
-       s= s + oxx 
+
+       h = h + delta_stabilize *oxx
+       h = (h + transpose(dconjg(h)))/2d0 !make sure h is hermitian
+c       s= s + oxx 
        !This procedure push up null vector(pooly-linear dependent basis) to very high eigenvalues.
        ! delta_stabilie can be somehow unclear; if you have strange eigenvalue at low energy,
        ! enlarge this.
 
-       omat = s !reserved
-       jobz = 'V'
-       lwork = n*n
-       allocate(wk11(lwork),rwork(max(1,3*n-2)))
-       call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
-       deallocate(wk11,rwork)
-       if(ipr) then
-        write(6,*)'zhev_tk: ovlmat (after modified)='
-        do ix=0,n,5
-          if(eo(ix)>0.1d0) then
-           write(6,*) '  ... skip larger eigenvalues ...'
-           exit
-          endif
-        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
-        enddo  
-       endif
+c       omat = s !reserved
+c       jobz = 'V'
+c       lwork = n*n
+c       allocate(wk11(lwork),rwork(max(1,3*n-2)))
+c       call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
+c       deallocate(wk11,rwork)
+c       if(ipr) then
+c        write(6,*)'zhev_tk: ovlmat (after modified)='
+c        do ix=0,n,5
+c          if(eo(ix)>0.1d0) then
+c           write(6,*) '  ... skip larger eigenvalues ...'
+c           exit
+c          endif
+c        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
+c        enddo  
+c       endif
        deallocate(oxx)
 C$$$      if(stabilize_zhev) then
 C$$$       allocate(omatinv(n,n))!,oox(n,n))
@@ -1064,16 +1071,16 @@ ccccccccccccccccccccccc
       if(ipr) write(6,*)'eigenvalue='
 ! We solve  (z* h z -  epsilon z* o z) a =0
       if(ncut==0) then
-        if(epsovl_mode==0 )then
+c        if(epsovl_mode==1 )then
+c          ni=1
+c        else
           do ix= 1,n
            if(eo(ix)>epsovl) then
            ni = ix ! take i = ni...n
           exit
           endif
           enddo
-        else
-          ni=1
-        endif
+c        endif
       else
         write(6,"(a,i3)")' zhev_tk: ncut=',ncut
         ni = ncut+1

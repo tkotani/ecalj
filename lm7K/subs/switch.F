@@ -1,8 +1,3 @@
-c      logical function stabilize_zhev()
-c      stabilize_zhev=.true.
-c      print *,' stabilize_zhev=',stabilize_zhev
-c      end
-
       logical function mixrealsmooth()
       mixrealsmooth=.true.
 ! Takao think mixrho should give a correct guess from informations

@@ -686,6 +686,7 @@ C     Parameters for APW
 
 
       v_sham%oveps=oveps
+      v_sham%delta_stabilize=delta_stabilize !takao sep2010
 
 
 C ... Allocate and initialize sarray
