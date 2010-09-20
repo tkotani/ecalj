@@ -885,7 +885,7 @@ c      omat2=s
       enddo
 
 c This scaling is to keep the Hilbert space of MTO.
-c      scale(1:nlmto)=scale(1:nlmto)*100d0
+      scale(1:nlmto)=scale(1:nlmto)*100d0
 
       do i=1,n
         do j=1,n
