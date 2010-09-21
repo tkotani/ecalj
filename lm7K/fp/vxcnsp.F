@@ -16,19 +16,11 @@ Ci   nlm   :L-cutoff for density expansion
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   rl    :full charge density * r**2
 Ci   lxcfun:specifies exchange-correlation functional
-Ci         :1s digit sets local xc functional
-Ci         :  1    Ceperly-Alder
-Ci         :  2    Barth-Hedin (ASW fit)
-Ci         :  3,4  LD part of PW91 and PBE
-Ci         :100s digit sets gradient corrections
-Ci         :  0    LSDA
-Ci         :  1    Langreth-Mehl
-Ci         :  2    PW91
-Ci         :  3    PBE
-Ci         :  4    PBE with Becke exchange
-Ci         :10000s digit sets flag to treat core in perturbation th.
-Ci   rc    :l=0 charge density*4*pi*ri**2 to be added in pert. theory
-Ci         :Not used unless 100s digit of lxcfun is set.
+!!          1:VWN
+!!          2:barth-hedin
+!!         103:GGA-PBE
+!!         lpert=T  is not supported now.
+!!
 Co Outputs
 Co   focex :(100s digit lxcfun): integral rc * vx
 Co   focec :(100s digit lxcfun): integral rc * vc
@@ -79,7 +71,7 @@ C ... Local parameters
       integer stdo,lgunit,ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
       double precision p(3,nnn),wp(nnn),p2(nnn*3),r2(nnn),fpi
 C     double precision yl(nnn*nlmx)
-      real(8), allocatable :: ylwp(:)
+c      real(8), allocatable :: ylwp(:)
       real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:),
      .ggrp(:),agrl(:),vxcnl(:),excnl(:)
 
@@ -117,44 +109,41 @@ C     if (lxcg .ne. 0) lmax = lmax+1
       repsx(2) = 0
       repsc(2) = 0
 
-C ... Scale rl to true density
+!!== Scale rl to true density ==
       call vxcns3(nr,nlm,nsp,ri,rl,1)
       if (lpert) then
         call vxcns3(nr,1,1,ri,rc,1)
         call dscal(nr,1/fpi,rc,1)
       endif
 
-C ... Spherical harmonic polynomials ... to be overwritten by Yl * wp
       call dmcpy(p,1,3,p2,np,1,np,3)
-C     GGA case:  Need both yl*wp and YL to lmax+1 to make grad YL
-      if (lxcg .ne. 0) then
-        allocate (yl(np*(lmax+2)**2),ylwp(np*(lmax+2)**2))
-        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
-        call dcopy(np*nlm,yl,1,ylwp,1)
-      else
-        allocate (ylwp(np*nlm))
-        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax,np,ylwp,r2)
-      endif
 
+!!== XC part ==
       allocate(vlxc(nr,nlm,nsp))
-C ... Generate the local exchange-correlation potential
-C     On output, yl is overwritten by YL * wp  <-------Confusing!!! remove this in future.
-      vlxc=0d0
-      call vxcns2(isw,ri,nr,rwgt,np,wp,ylwp,nlm,nsp,rl,rc,lxcf,
-     .lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,
-     .vlxc,fl,qs)
-
-C --- Gradient correction to LD potential ---
-      if(lxcg/=0) then
+!!=== LDA exchange-correlation potential ===
+      if(lxcg==0) then
+        allocate (yl(np*nlm))
+        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax,np,yl,r2)
+        vlxc=0d0
+        call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf,
+     .  lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,
+     .  vlxc,fl,qs)
+        deallocate (yl)
+      else
+!!=== GGA ===
+!!    GGA case:  Need both YL to lmax+1 to make grad YL
+        allocate (yl(np*(lmax+2)**2)) !,ylwp(np*(lmax+2)**2))
+        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
         allocate (gyl(np*nlm,3))
         call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
-        allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
-        allocate(rp(nr,np,nsp))
-        allocate(agrl(nr*nlm*nsp),vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
+c        allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
+c        allocate(rp(nr,np,nsp))
+c        allocate(agrl(nr*nlm*nsp))!,vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
         if(debug) print *,'goto vxcnls'
-        call vxcnls(a,ri,0,nr,np,nlm,nsp,rp,grp,ggrp,agrp,yl,gyl,ylwp,
-     .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vlxc,reps,rmu)
-        deallocate(yl,gyl,grp,agrp,ggrp,agrl,vxcnl,excnl,rp)
+        call vxcnls(a,ri,0,nr,np,nlm,nsp,!rp,grp,ggrp,agrp,yl,gyl, !ylwp,
+c     .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vlxc,reps,rmu)
+     .  yl,gyl,rwgt,wp,rl,lxcg, vlxc,reps,rmu)
+        deallocate(yl,gyl) !,grp,agrp,ggrp,agrl)!,vxcnl,excnl,rp)
       endif
       vl=vl+vlxc
       deallocate(vlxc)
@@ -165,8 +154,6 @@ C ... Undo the rl scaling
         call vxcns3(nr,1,1,ri,rc,0)
         call dscal(nr,fpi,rc,1)
       endif
-
-      deallocate(ylwp)
 
       end
 
@@ -195,9 +182,7 @@ Ci         :  1    Ceperly-Alder
 Ci         :  2    Barth-Hedin (ASW fit)
 Ci         :  3,4  LD part of PW91 and PBE
 Ci   lpert :Make perturbation integrals focexc and focvxc
-Cio Inputs/Outputs
-Cio  yl    :Spherical harmonics YL(rp)
-Cio        :yl is OVERWRITTEN by YL * wp on output
+Ci   yl    :Spherical harmonics YL(rp) !sep2010 takao. yl is not overwritten by ylwp now.
 Co Outputs
 Co   focexc:(lpert only): integral rc * vxc
 Co   focex :(lpert only): integral rc * vx
@@ -241,6 +226,7 @@ C ... Passed parameters
       double precision ri(1),yl(np,nlm),wp(np),rep(2),repx(2),repc(2),
      .rmu(2),rwgt(nr),focexc(2),focex(2),focec(2),focvxc(2),
      .rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,nsp+1),rc(nr)
+     & ,ylwp(np,nlm)  !to avoid confusion. Sep2010 takao
 C ... Local parameters
       integer ilm,ip,ipr,ir,i,n1,ineg(2),isw1
       double precision weight,suml(0:40),fac,dmach,alfa,sum(2)
@@ -482,11 +468,11 @@ C              endif
 C --- Scale yl by wp for fast multiplication --- ---
       do  12  ilm = 1, nlm
         do  12  ip = 1, np
-   12 yl(ip,ilm) = yl(ip,ilm)*wp(ip)
+   12 ylwp(ip,ilm) = yl(ip,ilm)*wp(ip) ! it was yl=yl*wp
 
 C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
-   30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
+   30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0,
      .vl(1,1,i),nr)
 
 
@@ -506,10 +492,10 @@ C$$$cccccccccccccccccccccc
 C --- Optionally make l-resolved vxc_L,exc_L ---
       if (mod(isw,10) .eq. 1) then
         do  i = 1, nsp
-          call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,0d0,
+          call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,0d0, !yl-->ylwp
      .    fl(1,1,i),nr)
         enddo
-        call dgemm('N','N',nr,nlm,np,1d0,exc,nr,yl,np,0d0,
+        call dgemm('N','N',nr,nlm,np,1d0,exc,nr,ylwp,np,0d0,  !yl-->ylwp
      .  fl(1,1,1+nsp),nr)
       endif
 

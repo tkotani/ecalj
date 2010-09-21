@@ -125,7 +125,5 @@ fp_list=\
 	grfmsh.o \
 	smvxcm.o \
 	vxcnsp.o \
-	vxc0gc.o \
-	vxcnlm.o \
-	vxcnls.o
+	vxcnlm.o
 	

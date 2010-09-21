@@ -1761,7 +1761,14 @@ C ... Local parameters
       integer ir,i,lxcf,lxcg,nglob
 
 Changenglob      lxcg = mod(nglob('lxcf')/100,100)
-      lxcg = mod(globalvariables%lxcf/100,100)
+c      lxcg = mod(globalvariables%lxcf/100,100)
+
+
+ccccccccccccccccccccccccc
+      lxcg=3
+ccccccccccccccccccccccccc
+
+
 C      integer iprint
 C      if (iprint() .ge. 80) then
 C        call prmr(20,rofi,rp(2,1),1)

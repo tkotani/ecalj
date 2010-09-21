@@ -27,7 +27,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lp,lmax,ndim,nrx,nr
-      double precision x(nr),y(nr),z(nr),yl(nrx,1),gyl(nrx,ndim,3),r2(1)
+      double precision x(nr),y(nr),z(nr),yl(nrx,*),gyl(nrx,ndim,3),r2(*)
 C ... Local parameters
       integer ilm,kx1,kx2,ky1,ky2,kz,l,m,i
       double precision cx1,cx2,cy1,cy2,cz,f

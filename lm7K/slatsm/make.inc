@@ -176,4 +176,5 @@ zqinvb.o \
 ztoy.o \
 ztoyy.o \
 tc.o \
-dpzero.o
+dpzero.o \
+scglp1.o

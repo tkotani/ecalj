@@ -177,7 +177,6 @@ subs_list:=\
 	rstr0.o \
 	s2sph.o \
 	scg.o \
-	scglp1.o \
 	sclwsr.o \
 	setcg.o \
 	shear.o \
@@ -250,4 +249,6 @@ subs_list:=\
         radgra.o \
  	xcfunc.o \
 	xcpbe.o \
-        m_globalvariables.o
+        m_globalvariables.o \
+	vxcnls.o \
+	vxc0gc.o
