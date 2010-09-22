@@ -34,7 +34,7 @@ Cu   22 Apr 00 Adapted from nfp hhig_bl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer jcg(1),indxcg(1),nlmg,nlmh,kmax,ndim1,ndim2,kdim
+      integer jcg(*),indxcg(*),nlmg,nlmh,kmax,ndim1,ndim2,kdim
       double precision ph(3),pg(3),cg(1),cy(1),slat(1),rsmg,rsmh
       double complex s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
 C ... Local parameters

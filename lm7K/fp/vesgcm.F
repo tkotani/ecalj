@@ -60,7 +60,7 @@ C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
       double precision qsmc,zsum
-      real(8):: qmom(1) , gv(ng,3) , cy(1) , f(3,nbas) , gpot0(1) , 
+      real(8):: qmom(*) , gv(ng,3) , cy(*) , f(3,nbas) , gpot0(*) , 
      .hpot0(nbas) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)

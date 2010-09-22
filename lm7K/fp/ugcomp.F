@@ -58,7 +58,7 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
       integer nbas
-      real(8):: qmom(1) , gpot0(1) , f(3,nbas) , hpot0(nbas) , ugg
+      real(8):: qmom(*) , gpot0(*) , f(3,nbas) , hpot0(nbas) , ugg
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat

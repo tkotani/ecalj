@@ -273,7 +273,7 @@ Cdelw1 w_varlist (del), remains: (None)
 C- Radial matrix elements < (u,s) | r | core >
 C     implicit none
       integer ncls,lcls,lmxa,nr,nsp,lmxax
-      double precision a,z,gcore(nr,2),rofi(1),v(nr,nsp),
+      double precision a,z,gcore(nr,2),rofi(nr),v(nr,nsp),
      .ul(nr,0:lmxa,nsp),sl(nr,0:lmxa,nsp),ume(0:lmxax,nsp),
      .sme(0:lmxax,nsp)
 C Local
@@ -384,8 +384,8 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer isite,lcls,ndham,ndimh,nlma,nlmax,nsite,indxcg(1),jcg(1)
-      double precision cg(1),ume(0:*),sme(0:*),s(3,nsite,ndimh,2)
+      integer isite,lcls,ndham,ndimh,nlma,nlmax,nsite,indxcg(*),jcg(*)
+      double precision cg(*),ume(0:*),sme(0:*),s(3,nsite,ndimh,2)
       double complex aus(nlmax,ndham,2)
 C ... Local parameters
       integer kk(4),mlm,lm,ll,klm,ii,indx,icg1,icg2,icg,llm,ib,k

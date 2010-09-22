@@ -24,7 +24,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer kmax,nlm,k0
-      real(8):: p(3) , cy(1) , rsm
+      real(8):: p(3) , cy(*) , rsm
       type(s_lat)::slat
 
       double complex fkl(0:k0,nlm)
