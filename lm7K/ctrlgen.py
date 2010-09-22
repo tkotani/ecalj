@@ -614,8 +614,9 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
+      #STABILIZE=1e-10  # Default is 1e-8 for robust convergence. But 1e-10 can give slightly lower total energy.
+
       #ELIND=-1  # (unused now) this for accelaration of convergence. maybe not efficient. See mixrealsmooth() in switch.F
-      
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
                  # 
 """
