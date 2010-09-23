@@ -2,57 +2,55 @@
      . yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) !,agrl,vxcnl,excnl,vl,rep,rmu)
       use m_xcpbe,  only: xcpbe
 !!= Gradient correction to nspher. density on a radial and angular mesh =
-!! ----------------------------------------------------------------------
-Ci Inputs
-Ci   ri    :mesh of points
-Ci   lcut  :1 if cutoff exc for small rho to avoid blowup in exc
-Ci   nr    :number of radial mesh points
-Ci   np    :number of points for angular integration
-Ci   nlm   :maximum (l+1)**2
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   yl    :Ylm's tabulated on angular mesh
-Ci   gyl   :Gradient of Ylm's tabulated on angular mesh
-Ci   rwgt  :radial mesh weights
-Ci   wp    :angular mesh weights (not needed unless debugging)
-Ci   rl    :density on radial mesh
-Ci   agrl  :|rl|
-Ci   lxcg : unused in new mode (PBE-GGA lxcg=103 only).
-Co Outputs
-Cox   rp    :spin pol density on the combined radial and angular mesh
-Cox   grp   :grad rp
-Cox   ggrp  :Laplacian rp
-Cox   agrp  :|grad rp|
-Cox   vxcnl  :nonlocal XC potential on the combined radial * angular mesh
-Cox   excnl  :nonlocal XC energy on the combined radial * angular mesh
-Co   vl    :vxc in GGA
-Co   rep   :\int rho * exc
-Co   rmu   :\int rho * vxc
-Cl Local variables
-Cl         :
-!!l   ylwp  :Ylm*wp, where wp are weights for angular mesh
-Cr Remarks
-Cr
-!! Updates
-!! Sep2010 takao
-Cu   05 Apr 09 reduced the calling arguments for better portability
-Cu   29 Apr 05 (ATP) adaped to new vxcnsp
-!! ----------------------------------------------------------------------
+!!----------------------------------------------------------------------
+!!*Inputs
+!!   ri    :mesh of points
+!!   lcut  :1 if cutoff exc for small rho to avoid blowup in exc
+!!   nr    :number of radial mesh points
+!!   np    :number of points for angular integration
+!!   nlm   :maximum (l+1)**2
+!!   nsp   :2 for spin-polarized case, otherwise 1
+!!   yl    :Ylm's tabulated on angular mesh
+!!   gyl   :Gradient of Ylm's tabulated on angular mesh
+!!   rwgt  :radial mesh weights
+!!   wp    :angular mesh weights (not needed unless debugging)
+!!   rl    :density on radial mesh
+!!   agrl  :|rl|
+!!   lxcg : unused in new mode (PBE-GGA lxcg=103 only).
+!!*Outputs
+!!   vl    :vxc in GGA
+!!   rep   :\int rho * exc
+!!   rmu   :\int rho * vxc
+!!
+!!*Local variables
+!!   rp    :spin pol density on the combined radial and angular mesh
+!!   ylwp  :Ylm*wp, where wp are weights for angular mesh
+!!   grp   :grad rp
+!!   ggrp  :Laplacian rp
+!!** these are not used in new mode
+!!   agrp   :|grad rp| Not used in new mode
+!!
+!!*Updates
+!!      Sep 10 takao
+!!   05 Apr 09 reduced the calling arguments for better portability
+!!   29 Apr 05 (ATP) adaped to new vxcnsp
+!!----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
+
       integer lcut,nr,np,nlm,nsp,lxcg
       double precision ri(nr),gyl(np,nlm,3),ylwp(np,nlm),
      .wp(np),rep(2),rmu(2),rwgt(nr),vxcnl(nr,nlm,nsp),excnl(nr,nlm),
      .rl(nr,nlm,nsp),agrl(nr,nlm,nsp),agrp(nr,np,nsp),
      .vl(nr,nlm,nsp),rp(nr,np,nsp),grp(nr,np,3,nsp),ggrp(nr,np,nsp)
-C ... Local parameters
-      double precision pi,vhold,tol,sumnl(0:20),repnl(4),rmunl(4),weight,weightirr
+
+      double precision pi,vhold,sumnl(0:20),repnl(4),rmunl(4),weight,weightirr
       double precision wk(nr,nsp),wk2(nr,nsp)
       integer ilm,ip,ipr,ir,i,l,ll,lmax,nn,oagrp,ogagrp,lopgfl,
      .ovxcp,oexcp,owk,owkl,lmx,jx
       integer ir0,ir1,nri,incn
  3584 logical lz
       parameter (incn=50)
-      data tol/1d-15/
+      real(8):: tol=1d-20
 
       integer:: irr,j,idiv,isp,icenter,k
       real(8):: a,bb,  !takao used to get derivetive of ri. See vxcnls.F
@@ -63,11 +61,11 @@ C ... Local parameters
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical:: newmode=.true.,
      &  debug=.false.,plotstop=.false.,grpzerotest=.false.
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
       real(8),allocatable:: dvxcdgr_dr(:,:,:),nabla_dvxcdgr(:,:,:,:),vxcnlnp(:,:,:)
       real(8)::dvxcdgr_ilm,ddd(np),grpt(3),ggrpt
       logical::  lrat
@@ -116,8 +114,13 @@ c       if (lz) lopgfl = 10
        do  ip = 1, np
        do  ir = 1, nr
          if (rp(ir,ip,i) .le. tol) rp(ir,ip,i)   = tol
-         if (rp(ir,ip,i) .le. tol) grp(ir,ip,:,i)= tol
-         if (rp(ir,ip,i) .le. tol) ggrp(ir,ip,i) = tol
+         if (rp(ir,ip,i) .le. tol) grp(ir,ip,:,i)= tol*10 
+         if (rp(ir,ip,i) .le. tol) ggrp(ir,ip,i) = tol*10
+         !Why to*10? T.Kotani have not checked xcpbe.F90. However, it works in practice.
+         ! Try O atom e.g. and plot fort.4106 by plotstop=T.
+         ! I think we need to examine xcpbe.F90 in future. (because we suppose 
+         !   grp=ggrp=0 means LDA. and shuold be safer. But it is opposite).
+         !
        enddo
        enddo
        enddo
@@ -463,13 +466,15 @@ C$$$cccccccccccccccccccccc
           rep(i) = rep(i) + rl(ir,ilm,i)*excl(ir,ilm)*weight
         enddo
         enddo
+        if(ipr>41) then
         if ( i .eq. 1) print 7256, rmu(i),rep(i)
         if ( i .eq. 2) print 7266, rmu(i),rep(i), rmu(1)+rmu(2),rep(1)+rep(2)
+        endif
  7256   format(' vxc_gga  : rho*vxc=',f11.6,' rho*exc=',f11.6,a)
  7266   format('    spin 2:         ',f11.6,'         ',f11.6/
      .         '     total:         ',f11.6,'         ',f11.6)
       enddo  
-c      if(plotstop) stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 xcpbe'
+      if(plotstop) stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 xcpbe'
       call tcx('vxcnls')
 
 cccccccccccccccccccccccccccccccccc
@@ -692,7 +697,6 @@ C -- rho*exc, rho*vxc ---
  7251 format(' origmode vxcnls:     rmu=',f11.6,'  rep=',f11.6,a)
  7261 format(' origmode spin 2:         ',f11.6,'      ',f11.6/
      .  '  total:         ',f11.6,'      ',f11.6)
-
 c      if(plotstop) stop 'xxxxxxxxxx testing old yyy xcfun xxxxxxxxxxx'
       call tcx('vxcnls')
       end

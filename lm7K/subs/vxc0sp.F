@@ -114,7 +114,7 @@ c         wp(1)=4d0*pi
          call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
 c         call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
          gyl=0d0
-         print *,'goto vxcnls only s channel',sum(abs(gyl))
+c         print *,'goto vxcnls only s channel',sum(abs(gyl))
 c         nlm=1
 c         allocate(rll(nr,nsp))
 c         rll(:,1:nsp)= 
