@@ -3022,7 +3022,7 @@ C       call pshpr(iprint()-12)
           call dcopy(i_copy_size,sham%pmax,1,xv(11),1)
 
           call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
-     .    , hab_rv , sab_rv , qbyl_rv , hbyl_rv ) 
+     .    , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm ) 
 
         endif
 C       call poppr

@@ -1,9 +1,11 @@
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
-     .qbyl,hbyl)
+     .qbyl,hbyl,eferm)
 
       use m_struc_def  !Cgetarg
+!!= Makes new boundary conditions pnu for phi,phidot =
+!!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
 
-C- Makes new boundary conditions pnu for phi,phidot
+
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
@@ -41,7 +43,7 @@ Cu   20 Sep 01 Some patches to work in pathological cases
 Cu   17 Sep 01 When local orbital present, allow semiore pnz to float
 Cu   28 Aug 01 Extended to local orbitals.  For now, freeze pnu
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,nsp,lfrzw,n0,nab
       parameter(n0=10,nab=9)
@@ -67,9 +69,10 @@ C ... Local parameters
       double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
       double precision pznew,fi(0:10),gi(0:10),xx,dnz
       character spid*8
-C ... Heap
-       integer ::iwdummy 
 
+      integer ::iwdummy ,i_copy_size,nnz,nnv
+      real(8):: eferm,eee
+      logical:: lsemicorepz
 
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',
      .0,0)
@@ -96,9 +99,10 @@ C --- For each site, do ---
         mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        call r8tos8(sspec(is)%name,spid)
 
         if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
 
@@ -116,31 +120,31 @@ C         Initially set lfrzv,lfrzz to external constraints.
             lfrzz = lfrzv
             lpz = pnz(m,1) .ne. 0
 
+            lsemicorepz = .false.
+            if(lpz)then
+              nnv = int(mod(pnu(m,1),10d0))-l-1
+              nnz = int(mod(pnz(m,1),10d0))-l-1
+              if(nnz<nnv) then !this means semicore for local orbital.
+c                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m,isp)
+                lsemicorepz = .true.
+              endif
+            endif  
+
 C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
 
 C       ... Log derivative by direct num integration
-
               is=ssite(ib)%spec
-
-
               z=sspec(is)%z
               a=sspec(is)%a
               nr=sspec(is)%nr
-
               allocate(g_rv(nr*2))
-
               allocate(rofi_rv(nr*2))
-
               call radmsh ( rmt , a , nr , rofi_rv )
-
               allocate(v0i_rv(nr))
-
                call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 ) 
-
-
 
               if (mod(idmod(m),10) .eq. 3) then
                 val(1) = rmt
@@ -171,23 +175,35 @@ C             val(1) = rmt
 C             slo(1) = dl + 1d0
               endif
 
-               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
+!! takao Sep24 2010
+              if(lsemicorepz)then
+                print *,' pnunew: valence with semicore ebar=efermi'
+                ebar=eferm
+              endif
+
+              call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
      .         0 , 1d - 12 , ebar , val , slo , nn , g_rv , iwdummy , phi , 
      .         dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy 
      .         , iwdummy ) 
-
+              nnv=nn
 
 C           dphip = (slo(2)-phip)/rmt
               if (nn .eq. int(pnu(m,1))-l-1) then
                 dl = rmt*slo(1)/val(1) - 1
                 p1 = 0.5d0 - datan(dl)/pi
-              elseif (ipr .ge. 10) then
+c              elseif (ipr .ge. 10) then
+              elseif (ipr .ge. 10.and.(.not.lsemicorepz)) then
                 print *,' node =',nn
                 call info2(10,0,0,' (warning) failed to find proper '
      .          //'node count for l=%i  ebar=%;4d: pnu not calc',l,
      .          ebar)
               endif
 
+              if(lsemicorepz) then
+                dl = rmt*slo(1)/val(1) - 1
+                p1 = 0.5d0 - datan(dl)/pi
+c                print *,'zzzzzz p1=',p1,dl
+              endif  
 
 C       ... Estimate new pnz for semicore state
               if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then
@@ -216,7 +232,7 @@ C             dh_l/dr = l*h_l/r - h_l+1, h=g_l/r**(l+1)
 C             when cz -> 0,  dl -> -l-1
                 dl = (l*gi(l) - gi(l+1))/gi(l)
                 pznew = 0.5d0 - datan(dl)/pi
-                lfrzv = .true.
+c                lfrzv = .true. !takao commentout Sep2010
               else
                 lfrzz = .true.
                 pznew = 0.5d0 - datan(dble(l))/pi
@@ -226,7 +242,6 @@ C             when cz -> 0,  dl -> -l-1
               if (allocated(v0i_rv)) deallocate(v0i_rv)
               if (allocated(rofi_rv)) deallocate(rofi_rv)
               if (allocated(g_rv)) deallocate(g_rv)
-
 
 C       ... First root of quad equation is the one we want
 C           huu = hab(1,m,isp,ib)
@@ -257,8 +272,13 @@ C     --- Set the new pnu ---
             pold = pnu(m,isp)
             ipqn = pold
             ptry = pold
-            if (dabs(p1) .lt. 1d10) ptry = ipqn+p1
-c          print *,' lfrzv=', lfrzv
+c            print *,'zzzz: ', ipqn,  nnv + l+1, nnv
+            if (dabs(p1) .lt. 1d10) ptry = nnv + l+1 +p1 !takao
+c            if (dabs(p1) .lt. 1d10) ptry = ipqn+p1
+
+c            print *,' lfrzv=', lfrzv
+c            if (.not. lfrzv) then
+
             if (.not. lfrzv) then
               pnu(m,isp) = ptry
 C       ... Permit pnu no lower than free electron value or pmin
