@@ -279,7 +279,7 @@ help=0
 helpatomname=0
 if (nargv==0 or  '--help' in  argset): help=1
 if ('--helpatomname' in  argset): helpatomname=1
-version=" tkotani Sep15_2010"
+version=" tkotani Nov10_2010"
 if(help==1):
 	print 
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"+version
@@ -616,7 +616,7 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
                       # about overcompleteness. See GetStarted.
       #STABILIZE=1e-10  # 1e-8 is for robust convergence. But 1e-10 can give slightly lower total energy.
 
-      #ELIND=-1  # (unused now) this for accelaration of convergence. maybe not efficient. See mixrealsmooth() in switch.F
+      ELIND=-1  # this for accelaration of convergence. Avoid Charge sloshing. 
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
                  # 
 """

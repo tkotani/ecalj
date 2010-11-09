@@ -11,8 +11,9 @@
       end
 
       logical function noelind()
-      noelind=.true. !in mixrho.F. If T, ELIND procedure is not.
-! Does elind really works fine? Probably, we first have to modify mixrho.
+      noelind=.false. !in mixrho.F. If T, ELIND procedure is not.
+! Does elind really works fine? It works for LiC2 case.
+! Probably, we first have to modify mixrho.
       end
 
       logical function enforce_positive_smrho()

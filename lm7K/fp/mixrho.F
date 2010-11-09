@@ -20,9 +20,7 @@
 !!i   k1,k2,k3 dimensions smrho
 !!
 !!i     qval  :total valence charge, used to estimate Lindhard parameter
-!!ix          :elind if it is not supplied
-!!ix     elind :default Lindhard screening parameter 
-!!   Takao forbid this by noelind()=T. Is ELIND really effective?
+!!i     elind :default Lindhard screening parameter 
 !! 
 !!--- below is Mark's original documents.
 Cio Inputs/Outputs
