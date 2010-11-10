@@ -1,13 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #########################################################################
 # Generate a temprate of ctrl file from ctrls.
-#
-#  T.Kotani. March.2009.
-#  this worked by python 2.5.2
-#
-#  By Hiori Kino, Aug, 2004
-#  modified: Sep, 24, 2004 by H.Kino
-#  
+# Work with python 2.5 or so.
+#  Takao Kotani and Hiori Kino
 # ---  a ctrls is ---
 # HEADER  SrTiO3 cubic 
 # STRUC   NBAS=5 NSPEC=3 ALAT=7.37 
@@ -568,7 +563,7 @@ for ii in tokenspec[1:]:
 
 tail="""
 \n
-% const pwemax=2 nk=2 nit=30 gmax=12
+% const pwemax=2 nk=2 nit=30 gmax=12 nspin=1
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
@@ -594,7 +589,7 @@ ITER  CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT=20
                 # Practically results are independent from mixing procedure.
 		
-HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
+HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
       FORCES=0  # 0: no force calculation, 1: forces calculaiton 
       GMAX={gmax}   # this is for real space mesh. See GetStarted. (Real spece mesh for charge density).
                 # Instead of GMAX, we can use FTMESH.
@@ -614,9 +609,12 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
-      #STABILIZE=1e-10  # 1e-8 is for robust convergence. But 1e-10 can give slightly lower total energy.
-
-      ELIND=-1  # this for accelaration of convergence. Avoid Charge sloshing. 
+      STABILIZE=1e-10  # 1e-8 is for robust convergence. But 1e-10 can give slightly lower total energy.
+                       # If this is small enough as 1e-8 or less, final results are little affected.
+      ELIND=-1  # this for accelaration of convergence. Avoid Charge sloshing. Not affect to the final results.
+                # For O2 molecule, ELIND=0 allows faster convergence.
+                # For Li_C2 (24 atoms in a cell), ELIND=-1 allows faster convergence.
+               
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
                  # 
 """
