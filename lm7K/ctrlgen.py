@@ -620,9 +620,12 @@ OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
 """
 
 ### Write ctrl.ext
-g = open("ctrl."+ext,'wt')
+#g = open("ctrl."+ext,'wt')
+#g.write(ctrlnospec+aaa+tail)
+#g.close()
+g = open("ctrl."+ext+".by_ctrlgen",'wt')
 g.write(ctrlnospec+aaa+tail)
 g.close()
-print " Check ctrl."+ext
+print "OK! A template of ctrl file, ctrl."+ext+".by_ctrlgen, is generated."
 sys.exit()
 
