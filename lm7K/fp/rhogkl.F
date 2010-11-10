@@ -45,9 +45,9 @@ C     implicit none
 C ... Passed parameters
 Cchp3       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
        integer:: ib1 , ib2 , nsp , mode , kmax 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+       type(s_rv1) :: sv_p_orhoat(3,*)
 
-      real(8):: qkl(0:kmax,1)
+      real(8):: qkl(0:kmax,*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 

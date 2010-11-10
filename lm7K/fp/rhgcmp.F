@@ -69,7 +69,7 @@ C ... Passed parameters
       integer mode,ib1,ib2,ng,kmax
 c      integer orhat
 
-      type(s_rv1) :: sv_p_orhoat(3,1)
+      type(s_rv1) :: sv_p_orhoat(3,*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat

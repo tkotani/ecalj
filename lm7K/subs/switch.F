@@ -1,10 +1,10 @@
       logical function noelind()
-      noelind=.true. !in mixrho.F. If T, ELIND procedure is not.
+      noelind=.false. !in mixrho.F. If T, ELIND procedure is not.
       end
 
       logical function enforce_positive_smrho()
 !      enforce smrho to positive in mkpot.F
-      enforce_positive_smrho=.true.
+      enforce_positive_smrho=.false.
       end
 
 
