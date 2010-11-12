@@ -274,7 +274,7 @@ help=0
 helpatomname=0
 if (nargv==0 or  '--help' in  argset): help=1
 if ('--helpatomname' in  argset): helpatomname=1
-version=" tkotani Nov10_2010"
+version=" tkotani Nov12_2010"
 if(help==1):
 	print 
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"+version
@@ -609,23 +609,30 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
-      STABILIZE=1e-10  # 1e-8 is for robust convergence. But 1e-10 can give slightly lower total energy.
-                       # If this is small enough as 1e-8 or less, final results are little affected.
+
       ELIND=-1  # this for accelaration of convergence. Avoid Charge sloshing. Not affect to the final results.
                 # For O2 molecule, ELIND=0 allows faster convergence.
                 # For Li_C2 (24 atoms in a cell), ELIND=-1 allows faster convergence.
+
+      #STABILIZE=1e-10 #!!! Test option for convergence check. Not tested well.
+                       # default is negative, then STABILIZER in diagonalization is not effective 
+                       # (See slatsm/zhev.F delta_stabilize).
+                       # I am not sure wether this stabilizer works OK or not(in cases this gives little help).
+                       # STABILIZE=1e-10 may make convergence stabilized 
+                       # (by pushing up poorly-linear-dependent basis to high eigenvalues).
+                       # STABILIZE=1e-8 may give more stable convergence. 
+                       # If STABILIZE is too large, it may affect to low eigenvalues around E_Fermi
                
-OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
-                 # 
+OPTIONS PFLOAT=1 
+        # Q=band (this is quit switch if you like to add)
 """
 
 ### Write ctrl.ext
 #g = open("ctrl."+ext,'wt')
 #g.write(ctrlnospec+aaa+tail)
 #g.close()
-g = open("ctrl."+ext+".by_ctrlgen",'wt')
+g = open("ctrlgen.ctrl."+ext+",'wt')
 g.write(ctrlnospec+aaa+tail)
 g.close()
-print "OK! A template of ctrl file, ctrl."+ext+".by_ctrlgen, is generated."
+print "OK! A template of ctrl file, ctrlgen.ctrl."+ext+", is generated."
 sys.exit()
-

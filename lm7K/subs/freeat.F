@@ -65,13 +65,43 @@ Changenglob      nspec = nglob('nspec')
 Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
       stdo = lgunit(1)
-      exi(1) = -1
-      exi(2) = -2
-      exi(3) = -4
-      exi(4) = -6
-      exi(5) = -9
-      exi(6) = -15
-      nxi = 6
+c      exi(1) = -1
+c      exi(2) = -2
+c      exi(3) = -4
+c      exi(4) = -6
+c      exi(5) = -9
+c      exi(6) = -15
+c      nxi = 6
+
+      exi(1) = -0.5
+      exi(2) = -1
+      exi(3) = -2
+      exi(4) = -4
+      exi(5) = -6
+      exi(6) = -9
+      exi(7) = -15
+      nxi = 7
+
+c      exi(1) = -.25
+c      exi(2) = -.5
+c      exi(3) = -1
+c      exi(4) = -2
+c      exi(5) = -4
+c      exi(6) = -6
+c      exi(7) = -9
+c      exi(8) = -15
+c      nxi = 8
+
+c      exi(1) = -.5
+c      exi(2) = -1
+c      exi(3) = -2
+c      exi(4) = -4
+c      exi(5) = -6
+c      exi(6) = -9
+c      exi(7) = -15
+c      exi(8) = -20
+c      nxi = 8
+
       call dpzero(hfct,2*nxi0)
 
       pzsum=0d0
@@ -274,8 +304,8 @@ C ... Passed parameters
       parameter (nrmx=1501,n0=10)
       character*8 spid
       double precision rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref,
-     .v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,1),hfct(nxi0,1),
-     .exi(1),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
+     .v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*),
+     .exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
 C ... Local parameters
       logical cmdopt
       integer ncmx,nvmx

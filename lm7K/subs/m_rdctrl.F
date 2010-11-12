@@ -936,8 +936,9 @@ c     .'Diagonalize hamiltonian in reduced hilbert space,'//
 c     .'%N%3fdiscarding OVNCUT basis')
 
       nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgn,nm),
-     . delta_stabilize, def_r8=1d-10, nout=nout,note=
-     .'Stabilizer for Diagonalize hamiltonian,'//
+c     . delta_stabilize, def_r8=1d-10, nout=nout,note=
+     . delta_stabilize, def_r8=-1d0, nout=nout,note=
+     .'Stabilizer for Diagonalize hamiltonian (if negative, not effective),'//
      .'%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
 
 C ... APW basis

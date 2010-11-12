@@ -28,7 +28,7 @@ C-----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer nr,nrmt,nf
-      double precision rofi(nr),rho(nr),e(nf),f(*),xi(nr,nf),qcst(nf),
+      double precision rofi(nr),rho(nr),e(nf),f(nf+1),xi(nr,nf),qcst(nf),
      .qout
 C Local variables
       integer i,ip,ipr,ir,ire,irs,is,j,nfmax,info,lpr,lgunit,stdo
@@ -36,7 +36,7 @@ C Local variables
       integer ipiv(nfmax)
       double precision r,rhot,rhotol,err,a,b,dif,fpi,fit,qtf,qtr,qof,qor
       double precision s(nfmax,nfmax),wk(2*nfmax),wt
-
+      real(8):: ff(nf)
 C --- Setup ---
       if (nf+1 .gt. nfmax) call rx('HNSMFT: nf gt nfmax')
       fpi = 16*datan(1d0)
@@ -85,13 +85,32 @@ C --- Add constraint that charge outsite rmt matches rho ---
       call dcopy(nf,qcst,1,s(nf+1,1),nfmax)
       s(nf+1,nf+1) = 0
       f(nf+1) = qout
+ccccccccccccccc
+c      print *,'qqqq qcst=',qcst
+ccccccccccccccc
+citerative fitting.
+
 
 C --- Least-squares fit ---
 C     call prmx('s',s,nfmax,nf+1,nf+1)
 C     call prmx('f',f,nfmax,nf,1)
+
       call dsytrf('L',nf+1,s,nfmax,ipiv,wk,2*nfmax,info)
       if (info .ne. 0) call rx('hnsmft: normal matrix not pos def')
       call dsytrs('L',nf+1,1,s,nfmax,ipiv,f,nf+1,info)
+
+ctakao simple inversion 
+c      call dsytrf('L',nf,s,nfmax,ipiv,wk,2*nfmax,info)
+c      if (info .ne. 0) call rx('hnsmft: normal matrix not pos def')
+c      call dsytrs('L',nf,1,s,nfmax,ipiv,f,nf,info)
+
+ctakao exi(nf) first,...
+c      ff=f(1:nf)
+c      f(nf)=ff(nf)/s(nf,nf)
+c      do i=nf-1,1
+c        f(i)=(ff(i)-sum(s(i,i+1:nf)*ff(1:i+1)))/s(i,i)
+c      enddo
+
 
 C --- Printout ---
       if (ipr .gt. 30) then

@@ -89,6 +89,7 @@ C --- Fit smoothed hankels to rho ---
 
 C   ... Fitting constraints for smoothed Hankels
         do  14  ie = 1, nxi
+          print *,'eee exi=',ie,exi(ie)
           if (rsm .lt. 1d-9) then
             sr = dsqrt(-exi(ie))*rmt
             qcst(ie) = -dsqrt(fpi)*(sr+1)*dexp(-sr)/exi(ie)
