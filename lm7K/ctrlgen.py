@@ -584,11 +584,14 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #For Total DOS DOS: range , NPTS, division. We need to set METAL=3 with default TETRA (no TETRA).
       #SAVDOS=T DOS=-1 1 NPTS=2001
 
-ITER  CONV=1e-6 CONVC=1e-6 NIT={nit}
-                # An other choice is
-                # ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT=20
-                # Practically results are independent from mixing procedure.
-		
+ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT={nit}
+                # Mixing procedure.
+                # You can also use faster convergence scheme, the Broyden mixing as 
+                #    ITER CONV=1e-6 CONVC=1e-6 NIT={nit}
+                # (default). A little unstable than Anderson mixing as MIX=A.
+                #  This may allow faster convergece for sp bonded systems. 
+                #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#ITERcat
+
 HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
       FORCES=0  # 0: no force calculation, 1: forces calculaiton 
       GMAX={gmax}   # this is for real space mesh. See GetStarted. (Real spece mesh for charge density).
@@ -610,10 +613,12 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
 
-      ELIND=-1  # this for accelaration of convergence. Avoid Charge sloshing. Not affect to the final results.
-                # For O2 molecule, ELIND=0 allows faster convergence.
+      ELIND=-.7 # this is to accelarate convergence. Not affect to the final results.
+                # For O2 molecule, Use ELIND=0(this is default).
                 # For Li_C2 (24 atoms in a cell), ELIND=-1 allows faster convergence.
-
+                # NOTE!!! For SrTiO3, I needed ELIND=0 or EH=-0.1 or so;
+                #         when ELIND=-1, it failed to converge by some strange mixing (or something).
+  
       #STABILIZE=1e-10 #!!! Test option for convergence check. Not tested well.
                        # default is negative, then STABILIZER in diagonalization is not effective 
                        # (See slatsm/zhev.F delta_stabilize).
@@ -622,6 +627,9 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                        # (by pushing up poorly-linear-dependent basis to high eigenvalues).
                        # STABILIZE=1e-8 may give more stable convergence. 
                        # If STABILIZE is too large, it may affect to low eigenvalues around E_Fermi
+
+      #FRZWF=T #to fix augmentation function. 
+      #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat
                
 OPTIONS PFLOAT=1 
         # Q=band (this is quit switch if you like to add)
