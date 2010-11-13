@@ -137,7 +137,7 @@ C       ... Loop over reciprocal lattice vectors
             if (nsp .eq. 2) write(stdo,700) 'spin2:',(hfc(i,2,is),i=1,nx)
             write(stdo,'(1x)')
           endif
-  700     format(2x,a7,6f11.3)
+  700     format(2x,a7,16f11.3)
         endif
       enddo
 

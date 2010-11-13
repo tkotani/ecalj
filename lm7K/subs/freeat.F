@@ -60,52 +60,32 @@ ctakao
 
       ifi = fopna('atm',-1,0)
       rewind ifi
-Changenglob      nspec = nglob('nspec')
       nspec = globalvariables%nspec
-Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
-      stdo = lgunit(1)
-c      exi(1) = -1
-c      exi(2) = -2
-c      exi(3) = -4
-c      exi(4) = -6
-c      exi(5) = -9
-c      exi(6) = -15
-c      nxi = 6
-
-      exi(1) = -0.5
-      exi(2) = -1
-      exi(3) = -2
-      exi(4) = -4
-      exi(5) = -6
-      exi(6) = -9
-      exi(7) = -15
-      nxi = 7
-
-c      exi(1) = -.25
-c      exi(2) = -.5
-c      exi(3) = -1
-c      exi(4) = -2
-c      exi(5) = -4
-c      exi(6) = -6
-c      exi(7) = -9
-c      exi(8) = -15
-c      nxi = 8
-
-c      exi(1) = -.5
-c      exi(2) = -1
-c      exi(3) = -2
-c      exi(4) = -4
-c      exi(5) = -6
-c      exi(6) = -9
-c      exi(7) = -15
-c      exi(8) = -20
-c      nxi = 8
-
-      call dpzero(hfct,2*nxi0)
-
+      stdo  = lgunit(1)
+      hfct=0d0 
       pzsum=0d0
+
       do  is = 1, nspec
+c takao. I found tht Li requires -0.5 to have positive smooth rho.
+       if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
+       exi(1) = -0.5
+       exi(2) = -1
+       exi(3) = -2
+       exi(4) = -4
+       exi(5) = -6
+       exi(6) = -9
+       exi(7) = -15
+       nxi = 7
+       else           !this is original setting. For CrN. This is necessary (maybe long range cutoff is required).
+       exi(1) = -1
+       exi(2) = -2
+       exi(3) = -4
+       exi(4) = -6
+       exi(5) = -9
+       exi(6) = -15
+       nxi = 6
+       endif
 
 C       Unpack sctrl data
 
