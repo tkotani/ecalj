@@ -606,7 +606,7 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #  disable this addition in cases that knows the symmetry is broken
       #
 
-      #FSMOM=real number (fixed momentmethod)
+      #FSMOM=real number (fixed moment method)
       #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. No constraint is imposed if this value is zero (the default).
@@ -648,11 +648,9 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
 
-      ELIND=-1  # this is to accelarate convergence. Not affect to the final results.
-                # For O2 molecule, Use ELIND=0(this is default).
-                # For Li_C2 (24 atoms in a cell), ELIND=-1 allows faster convergence.
-                # NOTE!!! For SrTiO3, I needed ELIND=0 or EH=-0.1 or so;
-                #         when ELIND=-1, it failed to converge by some strange mixing (or something).
+      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
+                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
+                 # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
   
       #STABILIZE=1e-10 #!!! Test option for convergence check. Not tested well.
                        # default is negative, then STABILIZER in diagonalization is not effective 

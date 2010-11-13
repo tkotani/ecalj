@@ -1185,8 +1185,8 @@ ccccccccccccccccccccccc
         nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgn,nm),z(j),
      .  cindx=jj,note='Atomic number')
 
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec aaa mxcst j-loop j nspec',j,nspec
+
         sw = tksw(prgn,'SPEC_ATOM_R')
         if (sw /= 2) then
           nout = 0
@@ -1211,7 +1211,6 @@ c takao for lmchk even when R is not given. See default of LMCHK
         endif
 c        if (ltbe) rmt(j) = 1d0
 
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
 
 C   ... Radial mesh parameters: determine default value of a
@@ -1514,7 +1513,7 @@ C       Negative radii: convert to actual numbers
 
           nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgn,nm),rs3(j),
 c     .    def_r8=1d0,cindx=jj,
-     .    def_r8=.5d0,cindx=jj, !takao Nov13,2010
+     .    def_r8=rmt(j)/2d0,cindx=jj, !takao Nov13,2010
      .    note='Minimum smoothing radius for local orbital')
 
 C       Downfolding switches: if auto DNF turned on, default is zero.
