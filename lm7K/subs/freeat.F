@@ -376,11 +376,11 @@ C         Make pz the valence state: hardwire qat
 
 ctakao
       print *
-      write(6,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),
+      write(stdo,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),
      &' : --- Table for atomic configuration ---'
-      write(6,"(a)")'conf'//
+      write(stdo,"(a)")'conf'//
      &' int(P)z = int(P) where P is replaced by PZ if it is semicore'
-      write(6,"(a)")'conf:'//
+      write(stdo,"(a)")'conf:'//
      &'  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf'
 c      qtot=0d0
 c      qc  = 0d0
@@ -395,7 +395,7 @@ c      qzz=0d0
 c        qc = qc+qcc
 c        qzz=0d0
 c        if(ipz/=0.and.ipz<ipl) qzz=(4*l+2)/nsp
-          write(6,"('conf: ', 
+          write(stdo,"('conf: ', 
      &    i4,i3,3x,i5,i3,2x,f11.3,f9.3,' => ',10(i1,','))") 
      &    i,l,ipl,iplv,ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
 c, qzz
@@ -403,9 +403,21 @@ c     &   ,ql(1,l+1,i)+QZ, qcc-qzz
 c        qtot=qtot +         qcc+ql(1,l+1,i)
 c        amgm=amgm +(3-2*i)*(qcc+ql(1,l+1,i))
         enddo
-        write(6,"(a)")
+        write(stdo,"(a)")
      &  'conf:-----------------------------------------------------'
       enddo
+cNov 2010 QvalCheck
+      do i = 1, nsp
+        do l = 0, lmxa
+          if(.not. cmdopt('--skip_qvalcheck',16,0,strn)) then
+            if(ql(1,l+1,i)<-1d-10) then
+              call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM'//
+     &        ' or Use --skip_qvalcheck')
+          endif
+          endif
+        enddo
+      enddo
+      
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
@@ -1487,7 +1499,7 @@ C ... Local parameters
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
 
-      eb1 = -30
+      eb1 = -50 !ccctakao 30
       eb2 = 20
       tol = 1d-10
       val = 1d-30
@@ -1570,7 +1582,7 @@ C ... Local parameters
       integer konfig,nn,nre
       double precision dnu,eb1,eb2,pi,slo(5),sum,tol,val(5)
       pi = 4d0*datan(1d0)
-      eb1 = -30
+      eb1 = -50 !ccctakao -30
       eb2 = 20
       tol = 1d-10
 

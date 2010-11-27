@@ -1513,7 +1513,7 @@ C       Negative radii: convert to actual numbers
 
           nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgn,nm),rs3(j),
 c     .    def_r8=1d0,cindx=jj,
-     .    def_r8=rmt(j)/2d0,cindx=jj, !takao Nov13,2010
+     .    def_r8=0.5d0,cindx=jj, !takao Nov26,2010
      .    note='Minimum smoothing radius for local orbital')
 
 C       Downfolding switches: if auto DNF turned on, default is zero.

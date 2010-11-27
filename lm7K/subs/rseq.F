@@ -28,6 +28,7 @@ Cr   Output wavefunction normalized to 1 ... so g(nr) .ne. val*wsr
 Cr   Note: if r = b(exp(a*z)-1) then Jacobian dr=a(r+b) dz
 Cr
 Cu Updates
+!!takao       open(7838,file='RSEQ_ERROR') is written when rseq is not converged.
 Cu   08 Feb 01 if rseq fails to converge, but the number of nodes is
 Cu             correct, rseq returns with a warning instead of aborting
 C ----------------------------------------------------------------
@@ -43,10 +44,12 @@ C ... Local parameters
 C ... Speed of light, or infinity in nonrelativistic case
       common /cc/ c
 C     double complex gc(nr,2),ec,valc,sloc
-
       call getpr(ipr)
       nitmax = 80
+cccccccccccccccccccccccccccccc
       if (ipr .ge. 110) write(*,815) z,l,nod,val,slo,eb1,eb2
+c      write(*,815) z,l,nod,val,slo,eb1,eb2
+ccccccccccccccccccccccccccccccc
   815 format(' RSEQ:  Z=',f5.1,'  l=',i1,'  nod=',i1,'  bc=',2f7.3,
      .'  e1,e2=',2f8.2)
       e1 = eb1
@@ -87,6 +90,8 @@ C       Integrate the scalar relativistic eqn outward from origin to kc
           e = (e1 + e2)/2
           goto 1
         endif
+ 1011   continue
+
 C   ... Calculate q = norm of wave function from trapezoidal rule and
 C       de = estimated correction to eigenvalue
         ratio = val2/val1
@@ -101,8 +106,11 @@ C       de = estimated correction to eigenvalue
         q = a*(q - (rofi(nre)+b)*g(nre,1)*g(nre,1)/2)
         de = -val2*(slo2 - ratio*slo1)/q
 
+cccccccccccccccccccccccc
         if (ipr .ge. 120 .or. nit .ge. nitmax-5)
      .  write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
+c        write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
+ccccccccccccccccccccccccc
         if (de .gt. 0d0) e1 = e
         if (de .lt. 0d0) e2 = e
         e = e + de
@@ -157,14 +165,16 @@ C --- Possible warning or error exit ---
           write(*,816) l,nod,abs(de),e
   816     format(' RSEQ (warning) eval for l=',i1,' node=',i1,
      .    ' did not converge: de=',1pd8.2,' e=',1pd11.4)
+!(this number 7836 is not used anywhere else? takao).
+          open(7836,file='RSEQ_ERROR')
+          write(7836,816) l,nod,abs(de),e
+          close(7836) 
         endif
       endif
-
 C     ec = e
 C     valc = val
 C     sloc = slo
 C     call zseq(ec,tol,z,l,nod,valc,sloc,v,gc,q,a,b,rofi,nr,nre)
-
       end
       subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
 C- Integrate the scalar relativistic eqn outward to rofi(kr)

@@ -74,8 +74,10 @@ C     .    gp,phi,dphi,phip,dphip,p)
 *      print *, '!! makrwf'
 C     if (mode .ge. 10) modep = modep+10
 
+c      print *,'xxxxxxxxxxxxxxx test111'
       call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo,
      .nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
+c      print *,'xxxxxxxxxxxxxxx test222'
 C     dphip = (sloi(2)-phip)/rmax
 
 C     call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)

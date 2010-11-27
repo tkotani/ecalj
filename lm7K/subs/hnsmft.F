@@ -114,6 +114,8 @@ c      enddo
 
 C --- Printout ---
       if (ipr .gt. 30) then
+        write(stdo,*)" ---E:energies of smHankels."//
+     &  " C:fitting coeeficient for core tail. ---"
         call awrit2(' E:%n:4;8F',' ',80,stdo,nf,e)
         call awrit2(' C:%n:4;8F',' ',80,stdo,nf,f)
       endif

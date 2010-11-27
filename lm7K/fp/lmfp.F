@@ -99,7 +99,7 @@ C ... Passed parameters:
       type(s_move)::smove
 
 C ... Heap
-       integer ::iwdummy 
+       integer ::iwdummy ,idummy
 
 C ... Local variables
       integer procid,master,mpipid,nproc

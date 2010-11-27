@@ -76,7 +76,7 @@ Cu    8 Feb 02 smvx and smvc (T. Miyake)
 Cu   13 Jun 00 spin polarized
 Cu    1 May 00 Adapted from nfp sxc_smooth.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,lfrce,k1,k2,k3,ngabc(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -108,6 +108,10 @@ C ... Heap
        integer ::iwdummy 
 
       complex(8),allocatable ::smrho_w(:), smcor_w(:) 
+      integer:: nnn,isp
+      real(8):: sss ,srshift,swmin
+      real(8),parameter:: minimumrho=1d-14
+      logical::enforce_positive_smrho
 
       stdo = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
@@ -115,21 +119,16 @@ Changenglob      nsp  = nglob('nsp')
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
       call tcn('smvxc')
-
 c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ngabc=slat%nabc
-      ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
-
-       iv_p_okv => slat%iv_p_okv 
-
-      vol=slat%vol
-      alat=slat%alat
-      vol=slat%vol
-       rv_p_ocy => slat%rv_p_ocy 
-
-
+      ngabc = slat%nabc
+      ng    = slat%ng
+      rv_p_ogv => slat%rv_p_ogv 
+      iv_p_okv => slat%iv_p_okv 
+      vol  = slat%vol
+      alat = slat%alat
+      vol  = slat%vol
+      rv_p_ocy => slat%rv_p_ocy 
 c      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
@@ -140,13 +139,10 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
        call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 ) 
 
-
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
-      if (lfoc1 .eq. 1) then
-         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w 
-     .   ) 
-
+      if(lfoc1 .eq. 1) then
+        call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -156,6 +152,30 @@ C ... smrho_w = smrho + smoothed core from foca hankel heads
       else
         call dpcopy(smrho,smrho_w,1,k123*nsp,1d0)
       endif
+
+      if(enforce_positive_smrho()) then
+!!== negative smrho check== This is also similar with what is done in mkpot.
+!! For GGA, we have to supply positive rho. See enforce_positive_smrho section in mkpot.
+       nnn=0
+       swmin=0d0
+       do i=1,k1*k2*k3*nsp
+         sss=dreal(smrho_w(i))
+         if(sss<0d0) then
+            nnn=nnn+1
+            if(sss<swmin) then
+              swmin=sss
+            endif
+         endif
+       enddo
+       if(nnn>0) then
+         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
+         srshift = minimumrho + abs(swmin) 
+         smrho_w = smrho_w + srshift
+         write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
+       else
+         write(6,*) 'smvxcm: all smrho_w is positive'
+       endif
+      endif 
 
 C ... Force density strictly positive definite
 C      print *, 'density strictly pos def?'
@@ -357,7 +377,8 @@ C ... Local parameters
       type(s_lat)::slat
 
       logical :: newmode
-
+      integer:: nnn,isp
+      real(8):: sss ,smmin(2)
       call tcn('smvxc2')
       if (n1 .gt. n1x) call rxi('smvxc2: increase n1x, need',n1)
       stdo = lgunit(1)
