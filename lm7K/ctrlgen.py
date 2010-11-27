@@ -541,7 +541,9 @@ for ii in tokenspec[1:]:
 			rmt= '%6.3f' % rmt
 			#print il1,il2,lx
 			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm \
-			    +' '*5+'KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n'+'     MMOM=0 0 0 0'+'\n\n'
+			    +' '*5+'KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n' \
+                            +'     MMOM=0 0 0 0'+'\n'+'     #Q= \n' \
+                            +'     #MMOM and Q are to set electron population. See conf: in lmfa output'
 		ispec=ispec+1
 		ix=1
 	if(ii=='ENDATOM'): break
@@ -566,7 +568,6 @@ for ii in tokenspec[1:]:
 #     + ' '*5+'KMXA={kmxa} LMXA='+lll+'\n'+' '*5+'MMOM=0 0 0 0'
 
 
-
 tail="""
 \n
 % const pwemax=2 nk=2 nit=30 gmax=12 nspin=1
@@ -584,9 +585,14 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
 
 
       #Setting for molecules. No tetrahedron integration. (Smearing))
+      # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
       #TETRA=0 
-      #N=-1
-      #W=0.001
+      #N=-1    !Negative is Fermi distribution function W= gives temperature.
+      #W=0.001 !This corresponds to T=157K as shown in console output
+      #W=0.01  !W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
+               !Now you don't need to use NEVMX in double band-path method,
+               !which obtain only eigenvalues in first-path to obtain integration weights
+               !, and accumulate eigenfunctions in second path.
 
 
       #For Total DOS.   DOS:range, NPTS:division. We need to set METAL=3 with default TETRA (no TETRA).

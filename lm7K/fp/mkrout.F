@@ -292,26 +292,18 @@ C   ... Augmented wave functions
 
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
           k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
-          allocate(chh_rv(abs(-k)))
-          if (-k<0) chh_rv(:)=0.0d0
-
-          allocate(chp_rv(abs(-k)))
-          if (-k<0) chp_rv(:)=0.0d0
-
-          allocate(cpp_rv(abs(-k)))
-          if (-k<0) cpp_rv(:)=0.0d0
-
-          allocate(dmatl_rv(abs(-(lmxa+1)**2*nlml*nsp*9)))
-          if (-(lmxa+1)**2*nlml*nsp*9<0) dmatl_rv(:)=0.0d0
-
-                call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
-     .          , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .          , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-     .          , chp_rv , cpp_rv , dmatl_rv ) 
-
-
-
-
+          allocate(chh_rv(k))
+          chh_rv(:)=0d0
+          allocate(chp_rv(k))
+          chp_rv(:)=0d0
+          allocate(cpp_rv(k))
+          cpp_rv(:)=0d0
+          allocate(dmatl_rv((lmxa+1)**2*nlml*nsp*9))
+          dmatl_rv(:)=0d0
+          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
+     .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+     .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+     .     , chp_rv , cpp_rv , dmatl_rv ) 
 
 
 
@@ -391,12 +383,13 @@ C       Remake hbyl from energy-weighted density matrix
 C   --- Print charges for information ---
            call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .     , sum1 ) 
-
-
            call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 2 , ib )%v 
      .     , sum2 ) 
 
-
+ccccccccccccccccccccc
+c          print *,'ddd sum1 sum2=',sum1,sum(abs(sv_p_orhoat( 1 , ib )%v))
+c     &    ,size(sv_p_orhoat( 1 , ib )%v),nr*nlml*nsp
+ccccccccccccccccccccc
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
@@ -672,6 +665,14 @@ C ... local parameters
 C     double precision top
 
       call tcn('mkrou2')
+ccccccccccc
+c      print *,'ddd ', sum(abs(dmatl(:,:,:,1:2,1:2,:)))
+c      print *,'ddd ', sum(abs(ul))
+c      print *,'ddd ruu ', sum(abs(ruu))
+c      print *,'ddd ', sum(abs(rus))
+c      print *,'ddd ', sum(abs(rss))
+c      print *,'ddd ul ', sum(abs(ul))
+c      print *,'ddd ', sum(abs(sl))
 
 C --- Full density as products (u,s) (u,s); no small component ---
       do  isp = 1, nsp
@@ -725,8 +726,8 @@ C 700       format(3i5,4f14.8)
       enddo
 
 C --- Remake spherical density including small component ---
-C     print *, 'skip remaking spher. density'
-C     return
+c      print *, 'skip remaking spher. density'
+c      return
       call dpzero(rho,nr)
       call dpzero(rho(1,1,nsp),nr)
       do  isp = 1, nsp

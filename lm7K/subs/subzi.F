@@ -80,7 +80,8 @@ C     implicit none
 C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
-        real(8),pointer :: rv_p_owtkb(:)
+c        real(8),pointer :: rv_p_owtkb(:)
+        real(8),pointer :: rv_p_owtkb(:,:,:)
 
        real(8),pointer :: rv_p_oswtk(:)
 
@@ -101,8 +102,8 @@ C ... Heap
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
        if ( lmet .gt. 0 .and. ( lmet .ne. 4 .or. ltet ) ) then 
-       allocate(rv_p_owtkb(abs(ndham*nsp*nkp)))
-       if (ndham*nsp*nkp<0) rv_p_owtkb(:)=0.0d0
+       allocate(rv_p_owtkb(ndham,nsp,nkp))
+c       allocate(rv_p_owtkb(ndham*nsp*nkp))
        endif 
 
       if (nevmx .ge. 0) then
@@ -126,7 +127,7 @@ C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
-               call mpibc1 ( rv_p_owtkb , ndham * nsp * nkp , 4 , .false. , 
+              call mpibc1 ( rv_p_owtkb , ndham * nsp * nkp , 4 , .false. , 
      .         'subzi' , 'wtkb' ) 
 
             endif

@@ -2,7 +2,7 @@
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
-     .    , vorb , nlibu , lmaxu , lldau , itest ) 
+     .    , vorb , nlibu , lmaxu , lldau , nsp,itest ) 
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -184,7 +184,7 @@ C ... Passed parameters
       type(s_ham)::sham
       type(s_pot)::spot
 
-      complex(8):: smrho(k1,k2,k3,*),smpot(k1,k2,k3,*)
+      complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
 C ... Local parameters
       logical cmdopt,lgors
@@ -270,7 +270,7 @@ ccccccccccccccccccccccccccccccccc
       stdo = lgunit(1)
       stdl = lgunit(2)
 Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      nsp  = globalvariables%nsp
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
@@ -402,6 +402,7 @@ C --- Add smooth exchange-correlation potential ---
         fxc_rv(:)  =0d0
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
 c        call pshpr(ipr-30)
+
         call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
      .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy 
      .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
@@ -439,8 +440,6 @@ cccccccccccccccccc
      .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
      .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
      .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
-
-
 
 cccccccccccccccccccccccc
 ccc      print *,'vvv readin smpot vxc'

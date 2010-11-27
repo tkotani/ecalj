@@ -231,8 +231,10 @@ C --- Loop over l ---
           if (lpzi(l) .ne. 0) moda(l) = 6
 C ... Semicore wf gz and its sphere boundary parameters
           if (lpzi(l) .ne. 0) then
+c          print *,'zzzzzzzzzz000 1'
             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,
      .      gz,gp,ez,phz,dphz,phzp,dphzp,pz)
+c          print *,'zzzzzzzzzz000 2'
 
 C   ... Keep local copies of gz for SO coupling
             if (lso .ne. 0) then
@@ -274,8 +276,10 @@ C     ... Recopy gz for SO coupling
           endif
 
 C ... Valence w.f. g,gp, and their sphere boundary parameters
+c          print *,'zzzzzzzzzz1'
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,
      .    ev,phi,dphi,phip,dphip,p)
+c          print *,'zzzzzzzzzz2'
 C     <g H g> = e <g g> = e
 C     <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
 C     <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep

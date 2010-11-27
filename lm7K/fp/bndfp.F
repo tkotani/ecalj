@@ -251,7 +251,7 @@ c      real(8) ,allocatable :: eomin_rv(:)
       real(8) ,allocatable :: dos_rv(:)
 
               integer:: os , osoptc 
-              real(8),pointer :: rv_p_owtkb(:)
+              real(8),pointer :: rv_p_owtkb(:,:,:)
 
              real(8),pointer :: rv_p_oswtk(:)
 
@@ -363,8 +363,7 @@ C     for LDA+U
      .dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 
       integer:: i_copy_size, i_spackv, i_spacks
-C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy 
 
 
       logical :: debug=.false. !debug is only for check write. However, it can cause error
@@ -434,7 +433,10 @@ ctakao
       integer:: iqini,iqend
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:)
-
+      
+      integer:: nevec,idummy
+      real(8):: epsnevec
+      nevec=0
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -472,6 +474,10 @@ C     npqn = nglob('npqn')
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
       ndhamx = ndham*nspc
       nspx = nsp / nspc
+
+!! related to the error in rseq. clean up RSEQ_ERROR at first because
+!! this error is only fatal when it is finaly converged. takaoNov28_2010
+      idummy=unlink('RSEQ_ERROR')
 
 ctakao sep2010 !complicated.
 c      I think nspc=2 for non-colinear case.
@@ -630,7 +636,7 @@ C ... for BZ integration
       efmax=sbz%efmax
       fsmom=sbz%fsmom
 
-c      print *,' w=',esmear
+      print *,'ttt nevmx w=',nevmx,esmear
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
       mpsord = int(dabs(esmear))
@@ -736,7 +742,7 @@ c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
      .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
      .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+     .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
 
 
 
@@ -809,7 +815,7 @@ ccccccccccccccccccccccccc
      .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
 
 
 
@@ -896,6 +902,7 @@ c#endif
         lwtkb = -1
         icls = 0
       endif
+c      print *,'ttt after subzi nevmx=',nevmx
 
 c$$$C ... Set switch to write file sigii
 c$$$#ifndef LMFGW
@@ -1963,6 +1970,8 @@ C   ... Diagonalize and add to density
      .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
 #endif
             nmx = min(nevmx,ndimhx)
+            nmx = max(nmx,nevec) !nevec is given in the case of double path formalism
+                                 !Nov25 2010.
             if (lwtkb .eq. -1) nmx = -1
 C       Need all eigenvalues if 'fat bands' plotting mode
             if (nfbn(1) .gt. 0) then
@@ -2106,21 +2115,24 @@ C ...  In k-parallel mode, defer this section until all qp available
                     goto 99
                   endif
                 endif
-C         Check for cases when nevmx is too small : i=2 => fatal error
-                i = 0
-                if (nevmx.ge.0 .and. lmet .ne. 0) then
-                  dum = evl(max(nev,1),jsp)
-C           if (ef0 .ge. dum) i = 2
-                  if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
-                  if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
-                endif
-                if (i .eq. 2) then
-                  if (iprint() .gt. 0)
-     .            call awrit3('%N evl(nev=%i)=%;3d but '//
-     .            'ef0=%;3d ... restart with larger efmax or nevmx',
-     .            ' ',80,stdo,nev,evl(max(nev,1),jsp),ef0)
-                  call rx('bndfp')
-                endif
+!!takao comment out because of nevec algolism. Really OK? Nov25 2010
+!!we may assume double-path method (weight first, then accumulate density(second band path)).
+cC         Check for cases when nevmx is too small : i=2 => fatal error
+c                i = 0
+c                if (nevmx.ge.0 .and. lmet .ne. 0) then
+c                  dum = evl(max(nev,1),jsp)
+cC           if (ef0 .ge. dum) i = 2
+c                  if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
+c                  if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
+c                endif
+c                print *,' ttt: nev=',nev,ndimhx
+c                if (i .eq. 2) then
+c                  if (iprint() .gt. 0)
+c     .            call awrit3('%N evl(nev=%i)=%;3d but '//
+c     .            'ef0=%;3d ... restart with larger efmax or nevmx',
+c     .            ' ',80,stdo,nev,evl(max(nev,1),jsp),ef0)
+c                  call rx('bndfp')
+c                endif
               endif
             endif
 #endif
@@ -2206,7 +2218,8 @@ C   --- Mulliken analysis and partial DOS ---
 #if MPIK
                     call rx('PDOS not k-parallel.')
 #endif
-                    call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
+                    call rxx(nspc.ne.1,
+     &              'pdos not implemented in noncoll case')
                     i = nlmax*ndham*3*nsp*nbas
                     allocate(ausp_zv(i))
                     ausp_zv(:)=0.0d0
@@ -2284,34 +2297,26 @@ C   ... for core-level spectroscopy
 #endif
                 call makusq ( 0 , ssite , sspec , slat , sham , nbas , nsites 
      .          , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
-     .          nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv 
-     .          ) 
-
+     .          nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   ) 
 
 C       Accumulate output density and sampling DOS
 C       Even if no output rho, still call addrbl to make DOS when lmet=4
               elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
 C         dum=frc(3,1)
-                         call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .                   , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
-     .                   , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos 
-     .                   , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
-     .                   , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
-     .                   , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
-     .                   , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
-
-
-
-
-
-
-
-
-
-
+                if(debug) print *,'goto addrbl nevl=',nevl
+                call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+     .          , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .          , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos 
+     .          , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+c    .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
+     .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev 
+                     !Nov25 2010 nev should contain calculated number of eigenvectors.
+     .          , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
+     .          , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc ) 
 C          print 399,iq,frc(3,1),frc(3,1)-dum
 C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
               endif
+
 #ifndef MPIK
             elseif (plbnd .ne. 0) then
               i = nsp
@@ -2783,11 +2788,8 @@ C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
      .      , rv_p_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
      .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
 
-
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
-           call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb 
-     .     , 1 ) 
-
+           call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb, 1 ) 
 
 C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           if (allocated(ww_rv)) deallocate(ww_rv)
@@ -2795,7 +2797,7 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
         else
           dosrng = 8
           if (mpsord .lt. 0) dosrng = 16
-              if( debug) print *, 'tttttttttt 9999999999999999999 6 call bzwtsf'
+              if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
 
               call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .        ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
@@ -2803,29 +2805,33 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
      .        ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
      .        , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
 
-
-              if( debug) print *, 'tttttttttt 9999999999999999999 6 return from bzwtsf'
-
-
+              if( debug) print *, 'tttt 199 6 return from bzwtsf'
 
 C         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
             sumqv(1,1) = sumqv(1,2)
             sumqv(2,1) = sumqv(2,2)
           endif
+!!=== takao automatic search for nevmx (this can be just outside of endif below? I failed why?) ===
+!!Nov25 2010
+          if(associated(rv_p_owtkb)) then
+            do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
+            nevec = i
+            if (maxval(rv_p_owtkb(i,:,:)) .gt. epsnevec()) exit
+            enddo
+c          call getnevec(ndham,nsp,nkp,nev,rv_p_owtkb, nevec)
+          endif
         endif
-        if (lmet .ne. 4) ef0 = eferm
-        if ( lmet .ne. 4 ) then
-
+!!
+        if (lmet .ne. 4) then
+          ef0 = eferm
           sbz%ef=ef0
         endif
 
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
-             i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_p_owtkb , - 
-     .       ifi ) 
-
+             i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_p_owtkb , -ifi ) 
             call fclr('wkp',ifi)
           endif
         endif
@@ -2858,9 +2864,7 @@ C ... Save Fermi level, nonmetal or sampling integration
         endif
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-           i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_p_owtkb , - ifi 
-     .     ) 
-
+           i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_p_owtkb , -ifi ) 
           call fclr('wkp',ifi)
         endif
       endif
@@ -2994,9 +2998,9 @@ C     --window: Put output density into orhat and smrho, and exit
 
         goto 999
       endif
-         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
-     .   , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
-     .   , qbyl_rv , hbyl_rv , lrout ) 
+      call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
+     ., lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
+     ., qbyl_rv , hbyl_rv , lrout ) 
 
 
       if( debug) print *, 'tttttttttt 9999999999999999999 7'
@@ -3084,7 +3088,7 @@ c          call pshpr(ipr-4)
      .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , 0 ) 
+     .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
 
 
 
@@ -3274,4 +3278,14 @@ c      subroutine xxxbfp
 c
 c      end subroutine xxxbfp
 
+c      subroutine getnevec(ndham,nsp,nkp,nev,wtkb, nevec)
+c      implicit none
+c      integer:: ndham,nsp,nkp,nevec,i,nev
+c      real(8):: wtkb(ndham,nsp,nkp)
+c      print *,'nev sum(wtkb)=',nev,sum(wtkb)
+c      do  i = nev, 1, -1 !this is the same as nvec search in addrbl.
+c        nevec = i
+c        if (maxval(wtkb(i,:,:)) .gt. 1d-6) exit
+c      enddo
+c      end
 

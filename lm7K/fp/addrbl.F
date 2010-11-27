@@ -141,13 +141,13 @@ CSFCPP#else
 CSFCPP      double precision qpgv,qpg2v,ylv
 CSFCPP#endif
 CSFCPP#if F90 | AUTO_ARRAY
-      double precision ewgt(ndimh*nspc*numq)
+      double precision ewgt(ndimh*nspc*numq),epsnevec
 CSFCPP#else
 CSFCPP      integer ndimx
 CSFCPP      parameter(ndimx=1000)
 CSFCPP      double precision ewgt(3,ndimx)
 CSFCPP#endif
-C ... Heap
+
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
@@ -218,10 +218,17 @@ C ... Case band weights are passed
         call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
         do  10  i = nevl, 1, -1
           nevec = i
-          if (abs(wtkb(i,isp,iq)) .gt. 1d-6) goto 12
+c          if (abs(wtkb(i,isp,iq)) .gt. neveceps()1d-6) goto 12
+          if (abs(wtkb(i,isp,iq)) .gt. epsnevec()) goto 12
    10   continue
    12   continue
       endif
+ccccccccccccc
+c      print *,'ttt:addrbl nevec=',nevec
+c      do i=1,nevl
+c        print *,i,wtkb(i,isp,iq)
+c      enddo
+ccccccccccccc
 
 C ... Add to sampling dos
       if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,

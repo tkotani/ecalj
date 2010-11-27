@@ -157,8 +157,25 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
         ei(4) = -1.5d0
         eb1 = e-.1d0
         eb2 = e+.1d0
+
+cccccccccccccccccccccccccccccccccccc
+c choice 2 takao. For deep semicore, to avoid error in rseq (Mg dimer in 10\A cubic cell).
+        ei=ei/2d0 !In future, we have to use better solution.
+c      you may need to use ei/3.0 or better algolism
+c  I had a problem that it results in warning rseq, 
+c  because two exponential solution makes huge changes due to slight difference of energy
+c  and node number can not be the same.
+c    ATOM= Mg Z= 12 R= 3.000
+c     RSMH=   1.500 1.500 1.500 1.500 EH=  -1.0 -1.0 -1.0 -1.0
+c     RSMH2=  1.500 1.500 1.500 1.500 EH2= -2.0 -2.0 -2.0 -2.0
+c     PZ=0,12.9 P=0,3.3     KMXA={kmxa}  LMX=3 LMXA=4
+cccccccccccccccccccccccccccccccccccc
+
         do  10  i = 1, nptdif
           sloi(i) = slo(1) + dele*ei(i)*ddde*val(1)/rmax
+cccccccccccccccccc
+c          print *,' nptdif sloi val=',i,sloi(i),val(1)
+cccccccccccccccccc
           ei(i) = e + dele*ei(i)
           call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),
      .    sum,a,b,rofi,nr,nre)

@@ -112,7 +112,7 @@ cki      equivalence ( recrd, recrd_ )
 
       integer::ic
       real(8):: bz_w,dval!test
-
+      logical:: fileexist
 
 #if MPI|MPIK
       integer  nsize, id 
@@ -438,6 +438,8 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
+      inquire(file='RSEQ_ERROR',exist=fileexist)
+      if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif
 
 
