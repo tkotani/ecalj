@@ -65,37 +65,37 @@ c 5     .062833
         szz=' '
         if(1.5d0<zz .and.  zz<3.5d0) then
           write(sss,"(f8.3)") zz-2d0
-          szz='  PZ=11.9 Q=0,'//trim(adjustl(sss))
+          szz='  PZ=11.9 P=2.6 Q=0,'//trim(adjustl(sss))
         endif
 c p channel local orbital
         if(10.5d0<zz .and. zz<12.5d0) then !2p
-          szz='  PZ=0,12.9 '
+          szz='  PZ=0,12.9 P=0,3.3'
         endif
         if(18.5d0<zz .and. zz<20.5d0) then !3p
-          szz='  PZ=0,13.9 '
+          szz='  PZ=0,13.9 P=0,4.3'
         endif
         if(36.5d0<zz .and. zz<38.5d0) then !4p lo
-          szz='  PZ=0,14.9 '
+          szz='  PZ=0,14.9 P=0,5.3'
         endif
         if(54.5d0<zz .and. zz<56.5d0) then !5p lo
-          szz='  PZ=0,15.9 '
+          szz='  PZ=0,15.9 P=0,6.3'
         endif
         if(86.5d0<zz .and. zz<88.5d0) then !6p lo
-          szz='  PZ=0,16.9 '
+          szz='  PZ=0,16.9 P=0,7.3'
         endif
 c d channel local orbital
         if(29.5d0<zz .and. zz<32.5d0) then !3d
-          szz='  PZ=0,0,13.9 '
+          szz='  PZ=0,0,13.9 P=0,0,4.2'
         endif
         if(47.5d0<zz .and. zz<51.5d0) then !4d
-          szz='  PZ=0,0,14.9 '
+          szz='  PZ=0,0,14.9 P=0,0,5.2'
         endif
         if(79.5d0<zz .and. zz<83.5d0) then !4d
-          szz='  PZ=0,0,15.9 '
+          szz='  PZ=0,0,15.9 P=0,0,6.2'
         endif
 c f channel
         if(70.5d0<zz .and. zz<73.5d0) then !4f
-          szz='  PZ=0,0,0,14.9 '
+          szz='  PZ=0,0,0,14.9 P=0,0,0,5.15'
         endif
         write(jfi,"(a)") trim(szz)
   110 continue

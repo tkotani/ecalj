@@ -27,7 +27,7 @@ C ... Passed parameters
       double precision z,p(n0,2),q(n0,2)
 C ... Local parameters
       logical lchange
-      integer l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin
+      integer l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin,k02(n0)
       double precision pdef(0:3,0:100),dasum,w1,w2
       integer NULLI
       parameter (NULLI=-99999)
@@ -44,7 +44,7 @@ C ... Local parameters
      .2.92D+00,  2.86D+00,  3.18D+00,  4.11D+00,
      .2.92D+00,  2.89D+00,  3.18D+00,  4.10D+00/
       data ((pdef(l,iz),l=0,3),iz=10,19) /
-     .3.17D+00,  2.92D+00,  3.12D+00,  4.10D+00,
+     .3.17D+00,  2.92D+00,  3.12D+00,  4.10D+00, !Ne
      .3.70D+00,  3.38D+00,  3.19D+00,  4.12D+00,
      .3.76D+00,  3.50D+00,  3.22D+00,  4.12D+00,
      .3.81D+00,  3.59D+00,  3.24D+00,  4.13D+00,
@@ -52,7 +52,8 @@ C ... Local parameters
      .3.92D+00,  3.78D+00,  3.20D+00,  4.12D+00,
      .3.94D+00,  3.84D+00,  3.18D+00,  4.11D+00,
      .3.94D+00,  3.89D+00,  3.18D+00,  4.11D+00,
-     .3.94D+00,  3.92D+00,  3.18D+00,  4.10D+00,
+c     .3.94D+00,  3.92D+00,  3.18D+00,  4.10D+00,
+     .4.17D+00,  3.92D+00,  3.18D+00,  4.10D+00, !takao for Ar
      .4.70D+00,  4.36D+00,  3.24D+00,  4.12D+00/
       data ((pdef(l,iz),l=0,3),iz=20,29) /
      .4.72D+00,  4.40D+00,  3.38D+00,  4.13D+00,
@@ -146,7 +147,7 @@ C ... Local parameters
 
       call fsanrg(z,0d0,100d0,0d0,' ','atomic number z',.true.)
       iz = nint(max(z,0d0))
-      if (iz .gt. z) then
+      if (iz .gt. z) then !takao added -1d-12 for safe.
         iz2 = max(iz-1,0)
         if (iz2 .eq. iz) iz2 = iz+1
       else
@@ -154,6 +155,9 @@ C ... Local parameters
       endif
       w2 = (z-iz)/(iz2-iz)
       w1 = 1-w2
+
+c      print *,'conf:xxx iz=',iz,w1,w2,iz,iz2
+
 
       lmx = min(lmax,3)
       if (lmax+1 .gt. n0) call rx('defpq: increase n0')
@@ -199,8 +203,19 @@ C     If encounter NULLI for any l<lmx, set all q for that l and higher
       endif
 
 C     Atomic moments and configuration
-      call atmoms(k0,q0,dble(iz))
-      call atmoms(k0,q02,dble(iz2))
+c      call atmoms(k0,q0,dble(iz))
+c      call atmoms(k0,q02,dble(iz2))
+      k0=0
+      k02=0
+      call atmoms(k02,q02,dble(iz2))
+      call atmoms(k0,q0,dble(iz)) !takao think this is correct order to obtain k0. Nov29 2010
+
+!! Sanity check for virtual crystal approx. takao Nov29 2010.
+      if(abs(z-int(z))>1d-10 .and. sum(abs(k0-k02))>0) then
+        call rx('For such a case for Virtual crystal approx.'
+     &   //' Core configulation should be the same. Need to set P and Q')
+      endif
+
 C ... Make default values
       do  l = lmin, lmx
         kl = int(p(l+1,1))
