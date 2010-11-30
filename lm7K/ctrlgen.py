@@ -587,12 +587,12 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #Setting for molecules. No tetrahedron integration. (Smearing))
       # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
       #TETRA=0 
-      #N=-1    !Negative is Fermi distribution function W= gives temperature.
-      #W=0.001 !This corresponds to T=157K as shown in console output
-      #W=0.01  !W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
-               !Now you don't need to use NEVMX in double band-path method,
-               !which obtain only eigenvalues in first-path to obtain integration weights
-               !, and accumulate eigenfunctions in second path.
+      #N=-1    #Negative is Fermi distribution function W= gives temperature.
+      #W=0.001 #This corresponds to T=157K as shown in console output
+      #W=0.01  #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
+               #Now you don't need to use NEVMX in double band-path method,
+               #which obtain only eigenvalues in first-path to obtain integration weights
+               #, and accumulate eigenfunctions in second path.
 
 
       #For Total DOS.   DOS:range, NPTS:division. We need to set METAL=3 with default TETRA (no TETRA).

@@ -46,6 +46,7 @@ c      parameter (nrmx=1501)
       real(8):: p(3,nnn),wp(nnn),rwgt(nr) ,p2(nnn*3),r2(nnn)
       real(8),allocatable:: gyl(:,:),yl(:),rll(:,:),vxc_(:,:)
       logical:: newv=.true.
+c      logical:: newv=.false.
 c      print *,'newv=',newv
       pi = 4d0*datan(1d0)
       ub4pi = 1d0/(4d0*pi)

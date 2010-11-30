@@ -233,7 +233,7 @@ ccccccccccccccccccccc
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
       real(8),parameter:: minimumrho=1d-14
       real(8)::sss,smmin(2),srshift
-      logical:: enforce_positive_smrho
+c      logical:: enforce_positive_smrho
 cccccccccccccccccccccc
 
 
@@ -282,43 +282,43 @@ Changenglob      lxcfun = nglob('lxcf')
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
-
-      if(enforce_positive_smrho()) then
-!!== negative smrho check==
-!! We need full mesh method(all G numner is needed) or so,
-!! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
-!!  ---> see xcpbe.F90 (especially, invcb).
-       do isp=1,nsp
-        nnn=0
-        smmin(isp)=0d0
-        do i1=1,n1
-        do i2=1,n2
-        do i3=1,n3
-c          print *,i1,i2,i3,isp
-c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
-          sss=dreal(smrho(i1,i2,i3,isp))
-          if(sss<0d0) then
-            nnn=nnn+1
-            if(sss<smmin(isp)) then
-              smmin(isp)=sss
-            endif
-          endif
-        enddo
-        enddo
-        enddo
-        if(nnn>0) then
-          write(6,*) 'mkpot negative smrho; isp,number,min(smrho)='
-     &    ,isp,nnn,smmin(isp)
-        else
-          write(6,*) 'all smrho is positive for isp=',isp
-        endif
-       enddo
-       if(sum(smmin(1:nsp))/=0d0) then
-         srshift = minimumrho + maxval(abs(smmin(1:nsp))) 
-         smrho(:,:,:,1:nsp) = smrho(:,:,:,1:nsp) + srshift
-         print *,'enforce positive smrho, to which we add srshift=',srshift
-       endif  
-      endif  
+C$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
+C$$$      if(enforce_positive_smrho()) then
+C$$$!!== negative smrho check==
+C$$$!! We need full mesh method(all G numner is needed) or so,
+C$$$!! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
+C$$$!!  ---> see xcpbe.F90 (especially, invcb).
+C$$$       do isp=1,nsp
+C$$$        nnn=0
+C$$$        smmin(isp)=0d0
+C$$$        do i1=1,n1
+C$$$        do i2=1,n2
+C$$$        do i3=1,n3
+C$$$c          print *,i1,i2,i3,isp
+C$$$c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
+C$$$          sss=dreal(smrho(i1,i2,i3,isp))
+C$$$          if(sss<0d0) then
+C$$$            nnn=nnn+1
+C$$$            if(sss<smmin(isp)) then
+C$$$              smmin(isp)=sss
+C$$$            endif
+C$$$          endif
+C$$$        enddo
+C$$$        enddo
+C$$$        enddo
+C$$$        if(nnn>0) then
+C$$$          write(6,*) 'mkpot negative smrho; isp,number,min(smrho)='
+C$$$     &    ,isp,nnn,smmin(isp)
+C$$$        else
+C$$$          write(6,*) 'all smrho is positive for isp=',isp
+C$$$        endif
+C$$$       enddo
+C$$$       if(sum(smmin(1:nsp))/=0d0) then
+C$$$         srshift = minimumrho + maxval(abs(smmin(1:nsp))) 
+C$$$         smrho(:,:,:,1:nsp) = smrho(:,:,:,1:nsp) + srshift
+C$$$         print *,'enforce positive smrho, to which we add srshift=',srshift
+C$$$       endif  
+C$$$      endif  
 
 
 C --- Printout for smooth background charge ---

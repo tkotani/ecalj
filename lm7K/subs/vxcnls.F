@@ -2,6 +2,8 @@
      . yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) !,agrl,vxcnl,excnl,vl,rep,rmu)
       use m_xcpbe,  only: xcpbe
 !!= Gradient correction to nspher. density on a radial and angular mesh =
+!!*NOTE: seeing tol=1d-10 is changed on Dec1st 2010. But this is empirically determined for Co atom. 
+!! If GGA is unstable than LDA, Check this routine. I am not so definite for tol and so.
 !!----------------------------------------------------------------------
 !!*Inputs
 !!   ri    :mesh of points
@@ -31,6 +33,8 @@
 !!   agrp   :|grad rp| Not used in new mode
 !!
 !!*Updates
+!!  Dec1st 10 tol=1d-10. 
+!!  Previous setting has a problem for Kino's Co MMOM= 0 0 4 0 case.
 !!      Sep 10 takao
 !!   05 Apr 09 reduced the calling arguments for better portability
 !!   29 Apr 05 (ATP) adaped to new vxcnsp
@@ -50,7 +54,7 @@
       integer ir0,ir1,nri,incn
  3584 logical lz
       parameter (incn=50)
-      real(8):: tol=1d-20
+      real(8):: tol=1d-10
 
       integer:: irr,j,idiv,isp,icenter,k
       real(8):: a,bb,  !takao used to get derivetive of ri. See vxcnls.F
@@ -78,7 +82,7 @@ C     call pshpr(80)
       if (lxcg .eq. 0) return
       call getpr(ipr)
       pi = 4d0*datan(1d0)
-      nn = 4
+      nn = 4 
       call dpzero(repnl,4)
       call dpzero(rmunl,4)
       call dpzero(excnl,nr*nlm)
@@ -110,20 +114,22 @@ c       if (lz) lopgfl = 10
        enddo
 
 !! -- If negative density, set to tol ---
+!! In the folloing of call xcpbe, corresponding vxc and so become zero. So they are dummy.
        do  i = 1, nsp
        do  ip = 1, np
        do  ir = 1, nr
          if (rp(ir,ip,i) .le. tol) rp(ir,ip,i)   = tol
          if (rp(ir,ip,i) .le. tol) grp(ir,ip,:,i)= tol*10 
          if (rp(ir,ip,i) .le. tol) ggrp(ir,ip,i) = tol*10
-         !Why to*10? T.Kotani have not checked xcpbe.F90. However, it works in practice.
-         ! Try O atom e.g. and plot fort.4106 by plotstop=T.
+         !  takao modified this on Dec1st 2010 for stability. Now tol=1d-10
+         ! Previous version is with tol=1d-20 grp=ggrp=tol=10*tol caused problem.
          ! I think we need to examine xcpbe.F90 in future. (because we suppose 
          !   grp=ggrp=0 means LDA. and shuold be safer. But it is opposite).
          !
        enddo
        enddo
        enddo
+
   
 C$$$C --- drpdrl, dgrpdrl !takao
 C$$$      if(lxcg/=3) call rx('vxcnls: GGA=3(PBE) is only implemented yet.')

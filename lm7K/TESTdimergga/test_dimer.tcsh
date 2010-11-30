@@ -35,7 +35,7 @@ else if( $ext == 'mg2') then
   set disang=1.751421
 else if( $ext == 'co2') then
   set elt=Co
-  set mmom='MMOM=0 0 4 0'
+  set mmom='MMOM=0 0 3 0'
   set nspin=2
   set disang=1.216687
 else if( $ext == 'sc2') then
