@@ -59,6 +59,8 @@ C Local variables
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
       parameter (dvcap=.2d0,itmax=50)
 
+      logical:: agreemom
+      real(8),parameter::    NULLR =-99999
 #ifdef KINODEBUG
       write(*,*) 'kino bzwtsf in'
 #endif
@@ -86,7 +88,8 @@ C --- Make and print out magnetic moment ---
       endif
 
 C --- Setup for fixed-spin moment method ---
-      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
+c      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
+      if (fsmom==NULLR .or. lwtkb .eq. 0) return
       call dpzero(vhold,12)
       vnow = 0
       ef0 = efermi
@@ -95,6 +98,7 @@ C --- Setup for fixed-spin moment method ---
 
 C --- Re-entry point for new guess at potential shift ---
 C     iterate to itmax times.  iter<0 => last iteration
+!! iter start
    10 continue
       iter = iter + 1
 
@@ -103,8 +107,15 @@ C ... Magnetic moment
       if (ipr .ge. 41) call awrit5(' dv=%;10,6D  yields '//
      .'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
      .stdo,vnow,efermi,amom,fmom,vnow)
+!!takao for molecule Dec1 2010
+      agreemom= abs(amom-fmom) < 1d-3
+c      print *,'ttttt amom fmom=',amom,fmom,agreemom
       call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
-      if (abs(dv) .lt. 1d-6) then
+
+      if(agreemom) vhold(12)=0
+c      if (abs(dv) .lt. 1d-6) then
+      if (abs(dv).lt.1d-6 .or. agreemom) then
+                                !takao for molecules.
 C       A root was found
         if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
      .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
@@ -150,7 +161,6 @@ C ... Fermi level with dv shift
         write(stdo,922) amom
       endif
       if (iter .gt. 0) call poppr
-
       do  ikp = 1, nkp
         do  ib = 1, nevx
           if (nspc .eq. 2) then
@@ -162,15 +172,16 @@ C ... Fermi level with dv shift
           endif
         enddo
       enddo
-
       if (iter .gt. 0) goto 10
+!! end of iter
+
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
         lwtkb = 1
       endif
-
       end
+
       subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom)
 C- Determine the magnetic moment, collinear or noncollinear case
 C ----------------------------------------------------------------------
