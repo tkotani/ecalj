@@ -426,7 +426,7 @@ ctakao
       complex(8)::sss
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
-      logical:: noshorbz,siginit
+      logical:: noshorbz,siginit,bzwtsf_bisection
       real(8),allocatable:: qplist(:,:)
       real(8):: qpo(3),qpx(3)
 
@@ -2799,13 +2799,20 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           if (mpsord .lt. 0) dosrng = 16
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
 
-              call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .        ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-     .        fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .        ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-     .        , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
-
-              if( debug) print *, 'tttt 199 6 return from bzwtsf'
+              if(bzwtsf_bisection()) then
+               call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+     .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
+              else
+               call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+     .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
+              endif
+              if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
 
 C         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
