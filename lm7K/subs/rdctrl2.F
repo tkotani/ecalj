@@ -312,6 +312,7 @@ ctakao Kino's Cki error
       v_sbz%ef=bz_ef
       v_sbz%efmax=bz_efmax
       v_sbz%fsmom=bz_fsmom
+      v_sbz%fsmommethod=bz_fsmommethod
 
       i = 1*isw(bz_lio1)+2*isw(bz_lio2) !+8*isw(bz_lio8)
 

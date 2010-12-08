@@ -94,6 +94,7 @@ C 30  48  4       zval  1
       real(8)   ::   ef
       real(8)   ::   efmax
       real(8)   ::   fsmom
+      integer(8)   ::   fsmommethod !Dec 2010 takao
       real(8)   ::   lcond(4)
       integer(8)   ::   lio
       integer(8)   ::   lmet

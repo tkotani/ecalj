@@ -589,11 +589,22 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #TETRA=0 
       #N=-1    #Negative is Fermi distribution function W= gives temperature.
       #W=0.001 #This corresponds to T=157K as shown in console output
-      #W=0.01  #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
+               #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
                #Now you don't need to use NEVMX in double band-path method,
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
+      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
 
+      #FSMOM=real number (fixed moment method)
+      #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
+      #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
+      #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
+      #
+      #FSMOMMETHOD=0 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
+      #  =0: original mode suitable for solids.(default)
+      #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.
+      #      Not allowed to use together with HAM_SO=1 (L.S). 
+      #      It seems good enough to use W=0.001. Smaller W= may cause instability.
 
       #For Total DOS.   DOS:range, NPTS:division. We need to set METAL=3 with default TETRA (no TETRA).
       #SAVDOS=T DOS=-1 1 NPTS=2001
@@ -610,12 +621,6 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #  is broken: e.g. when spin-orbit coupling is included or when the (beyond LDA) 
       #  self-energy breaks time-reversal symmetry. In most cases, lmf program will automatically 
       #  disable this addition in cases that knows the symmetry is broken
-      #
-
-      #FSMOM=real number (fixed moment method)
-      #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
-      #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
-      #  assigned by FSMOM=. No constraint is imposed if this value is zero (the default).
       #
 
       #INVIT=F

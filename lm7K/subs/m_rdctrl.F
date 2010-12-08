@@ -118,7 +118,7 @@ C ... Iterations
 
 C ... BZ
       integer:: bz_nabc(3)=NULLI,bz_lshft(3)=0,
-     .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos
+     .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod
       real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
      .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0
       logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
@@ -2163,6 +2163,10 @@ c      if (ltbe) xx = 5d0
      .'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
      .def_r8=0d0,note='Fixed-spin moment (fixed-spin moment method)')
+
+      nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgn,nm),bz_fsmommethod,
+     .def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
+
 c      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
 c     .  def_lg=F,note='Calculate density matrix')
       nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
@@ -3139,6 +3143,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
+      call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
       call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
@@ -3278,6 +3283,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
+      call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
       call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
@@ -3398,6 +3404,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
+      call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
       call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
