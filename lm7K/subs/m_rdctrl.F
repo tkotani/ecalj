@@ -2162,7 +2162,7 @@ c      if (ltbe) xx = 5d0
      .def_lg=F,note=
      .'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
-     .def_r8=0d0,note='Fixed-spin moment (fixed-spin moment method)')
+     .def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
 
       nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgn,nm),bz_fsmommethod,
      .def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
