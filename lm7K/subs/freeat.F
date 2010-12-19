@@ -865,7 +865,8 @@ C --- Parameters for minimisation ---
 c takao makes "safer setting"
 ctakao
 c      rlim1 = 0.9d0
-        rlim1 = 0.3d0 !original
+c        rlim1 = 0.3d0 !original
+        rlim1 = 0.5*rmt !original
 c      rlim1 = 0.8d0
 
         rlim2 = 2*rmt
@@ -904,7 +905,8 @@ C   ... Potential parameters at MT sphere
      .    , gp_rv , a , b , pnu , enu , p , phi , dphi , phip , dphip 
      .    )
 
-          rsm = rmt
+c          rsm = rmt
+          rsm = rmt*.5
           eh = -1
           if (jpr .gt. 0) write (stdo,340)
   340     format('  L   parin    aux      E1       E2       E3',
@@ -917,17 +919,18 @@ C     ... Get center energy
      .      , e2 , qrmt )
 
 C     ... Vary rsm
-            drsm = drsm0
-            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi 
-     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
-     .      , dphip , e3 , qrmt )
+c            drsm = drsm0
+c            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi 
+c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+c     .      , dphip , e3 , qrmt )
+c
+c            call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi 
+c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+c     .      , dphip , e1 , qrmt )
+c
+c            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
+c     .      stifr,jpr)
 
-            call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi 
-     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
-     .      , dphip , e1 , qrmt )
-
-            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
-     .      stifr,jpr)
 C     ... Vary eh
             deh = deh0
 c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
@@ -942,9 +945,11 @@ c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
             call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
      .      stife,jpr)
 
-            radd = rnew-rsm
+c            radd = rnew-rsm
+            radd=0d0
+
             eadd = enew-eh
-            rsm = rnew
+c            rsm = rnew
             eh = enew
             if (dabs(radd).lt.5d-3 .and. dabs(eadd).lt. 5d-3) goto 90
    12     continue
@@ -966,15 +971,17 @@ C   ... End of iteration loop
 
 C   ... Possibly constrain rsm
 ctakao
-          rmtmx= rmt*2d0/3d0
+ctakao dec15 2010
+          rmtmx= rmt*.5d0+1d-10
           if(rmtmx<.5d0) rmtmx=.5d0
-          if(l>=2) rmtmx=rmt
+c          if(l>=2) rmtmx=rmt
 
           if (mod(isw,10) .eq. 1 .and. rsm .gt. rmtmx) then
             if (ipr .ge. 20)
      .      write(stdo,
      .      '('' ...rsm exceeded rmtmx.. repeat with rsm= rmtmx ='',f8.5)') rmtmx
-            rsm = rmtmx
+c            rsm = rmtmx
+            rsm = 0.5d0*rmtmx
 
             sume2 = sume2 - qvl*e2
 

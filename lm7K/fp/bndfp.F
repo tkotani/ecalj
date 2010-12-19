@@ -2798,7 +2798,7 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           dosrng = 8
           if (mpsord .lt. 0) dosrng = 16
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-
+              print *,'vvvv fsmom=',fsmom
               if(sbz%fsmommethod == 1) then !takao dec2010
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 

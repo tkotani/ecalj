@@ -850,6 +850,9 @@ C Passed parameters
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
      &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
      &hhm(:,:),zzz(:),omatinv(:,:),oxx(:,:)
+#ifndef USE_TRANSPOSE
+      complex(8),allocatable:: h_t(:,:)
+#endif
       integer:: i,j,nlmto,ni,nm,ik,ik2,k
       real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
       real(8),allocatable:: scale(:),rwork(:)
@@ -993,7 +996,24 @@ c         fac = 2**(-eo(k)/epsovl)
        enddo
 
        h = h + delta_stabilize *oxx
+#ifndef USE_TRANSPOSE
+       allocate(h_t(n,n))
+       do j=1,n
+       do i=1,n
+c          H^T 
+         h_t(i,j)=h(j,i)
+       enddo
+       enddo
+       do j=1,n
+       do i=1,n
+        h(i,j)= (h(i,j) + dconjg(h_t(i,j)))*0.5d0 
+            ! make sure h is hermitian
+       enddo
+       enddo
+       deallocate(h_t)
+#else
        h = (h + transpose(dconjg(h)))/2d0 !make sure h is hermitian
+#endif
 c       s= s + oxx 
        !This procedure push up null vector(pooly-linear dependent basis) to very high eigenvalues.
        ! delta_stabilie can be somehow unclear; if you have strange eigenvalue at low energy,
