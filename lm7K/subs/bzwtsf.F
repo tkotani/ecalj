@@ -201,7 +201,6 @@ C Local variables
       real(8),allocatable:: ebs(:,:,:)
       logical:: quitvnow
 
-      call tcn('bzwtsf')
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
@@ -226,6 +225,7 @@ C Local variables
 !!== Setup for fixed-spin moment method ==
 c      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
       if (fmom==NULLR .or. lwtkb .eq. 0) return
+      call tcn('bzwtsf')
       call dpzero(vhold,12)
       vnow = 0
       ef0 = efermi
