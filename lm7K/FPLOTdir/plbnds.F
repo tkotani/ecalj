@@ -14,7 +14,7 @@ Cu   06 Jun 06 can read files with color weights
 C ----------------------------------------------------------------------
       implicit none
       integer nqmx,maxlin,louts,nouts
-      parameter(nqmx=450, maxlin=50, louts=140, nouts=80 )
+      parameter(nqmx=4500, maxlin=50, louts=140, nouts=80 )
       double precision xline(0:maxlin),xdum(2),ydum(2)
       double precision xq(0:nqmx),eq(nqmx)
       real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:)
