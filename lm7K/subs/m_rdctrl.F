@@ -938,7 +938,7 @@ c     .'%N%3fdiscarding OVNCUT basis')
       nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgn,nm),
 c     . delta_stabilize, def_r8=1d-10, nout=nout,note=
      . delta_stabilize, def_r8=-1d0, nout=nout,note=
-     .'Stabilizer for Diagonalize hamiltonian (if negative, not effective),'//
+     .'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
      .'%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
 
 C ... APW basis

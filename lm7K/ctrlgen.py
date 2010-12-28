@@ -19,12 +19,101 @@
 #   ATOM=O  Z=8
 # ---- end here ------
 # (HEADER and so are at the begining of lines)
+# take Kino's change.
 #########################################################################
 
 import os
 import sys
 import string
 import re
+
+systype_val="molecule"
+r_mul_val=0.9
+xcfun_val="103"
+nspin_val="2"
+eh1="-0.1"
+eh2="-2.0"
+mmom_val="0 0 2 0"
+nk_val="4"
+
+
+def manip_argset(argset):
+    global nspin_val, xcfun_val, mmom_val, r_mul_val, systype_val, readrmt, nk_val
+
+    error_title="ARGUMENT ERROR"
+    ierror=0
+
+    nspin_val="1"
+    xcfun_str="pbe"
+    xcfun_val=103
+    mmom_val="0 0 0 0"
+    r_mul_val="1.0"
+    systype_val="molecule"
+    nk_val="4"
+    readrmt=0
+
+    for arg in argset:
+	if re.match("--nspin",arg)!=None:
+		nspinlist=arg.split("=")
+		if len(nspinlist)==2:
+			nspin_val=nspinlist[1]
+	elif re.match("--xcfun",arg)!=None:
+		xclist=arg.split("=")
+		if len(xclist)==2:
+			xcfun_str=xclist[1]
+	elif re.match("--mmom",arg)!=None:
+		mmomlist=arg.split("=")
+		if len(mmomlist)==2:
+			mmom_val=mmomlist[1]
+	elif re.match("--r_mul",arg)!=None:
+                rlist=arg.split("=")
+                if len(rlist)==2:
+                        r_mul_val=rlist[1]
+	elif re.match("--nk",arg)!=None:
+                nklist=arg.split("=")
+                if len(nklist)==2:
+                        nk_val=nklist[1]
+        elif re.match("--systype",arg)!=None:
+                syslist=arg.split("=")
+                if len(syslist)==2:
+                        systype_val=syslist[1]
+	elif arg=="--help":
+		do_nothing=0
+	elif arg=="--readrmt":
+		readrmt=1
+	elif re.match("-",arg):
+		sys.stderr.write( error_title + ", unknown arg:  "+arg+"\n")
+		ierror+=1
+
+    xcfun_val="103"
+    if xcfun_str.upper()=="PBE":
+	xcfun_val="103"
+    elif xcfun_str.upper()=="VWN":
+	xcfun_val="1"
+    else:
+	sys.stderr.write(error_title+", --xc="+xcfun_str+" : unknown\n")
+	ierror+=1
+
+    if systype_val.upper()=="MOLECULE":
+        do_nothing=0
+        nk_val="1"
+    elif systype_val.upper()=="BULK":
+        do_nothing=0
+    else:
+        sys.stderr.write(error_title+", --systype="+systype_val+" : unknown\n")
+        ierror+=1
+
+    show_it=1
+    if (show_it!=0):
+    	print "nspin_val=",nspin_val
+    	print "xcfun_val=",xcfun_val
+    	print "mmom_val=",mmom_val
+    	print "r_mul_val=",r_mul_val," float=",float(r_mul_val)
+    	print "systype_val=",systype_val
+    	print "readrmt=",readrmt
+    if ierror!=0:
+	print "ABORT"
+	sys.exit(-1)
 
 #-------------------------------------------------------
 def  line2Token(linein):
@@ -299,16 +388,19 @@ if(helpatomname==1):
 	print   specstd
 	sys.exit()
 
+manip_argset(argset)
 
 #########################
 ext=sys.argv[1]
 print "Generate ctrl."+ext+" from ctrls."+ext + "..."
 
 ctrls = "ctrls." + ext
-if ('--readrmt' in  argset):
-	readrmt=1
-else:
-	readrmt=0
+
+
+#if ('--readrmt' in  argset):
+#	readrmt=1
+#else:
+#	readrmt=0
 
 #### Read in ctrls #####
 f=open(ctrls,'rt')
@@ -430,7 +522,9 @@ rdic={}
 for i in listr:
 	xx=re.split(' *',i)
 	#print xx
-	rdic[xx[0]]=xx[1]
+	#rdic[xx[0]]=xx[1]
+	rdic[xx[0]]= string.atof(xx[1])*string.atof(r_mul_val)
+	rdic[xx[0]]= str(rdic[xx[0]])
 #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
 print 
 print ' rmt.tmp: gives  R= -->', rdic
@@ -478,7 +572,8 @@ aaa = aaa+' R='+rdic[ikey]+'\n'
 
 ### ctrl.tmp2 contains R=. Do lmfa to get mtopara.*
 f = open("ctrl.tmp2",'wt')
-f.write(ctrlnospec+aaa +'\nHAM  XCFUN=1\n')
+f.write(ctrlnospec+aaa +'\nHAM  XCFUN=')
+f.write(xcfun_val+'\n')
 f.close()
 os.system("lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
 f=open("exitcode",'rt')
@@ -519,20 +614,28 @@ for ii in tokenspec[1:]:
 		ix=0
 	elif(ii=='ATOM=' or ii=='ENDATOM'):
 		if(ispec>0): 
-
 			mmmx=mtodic[ikey]
 			mmm=re.sub(","," ",mmmx)
-			#il1 = countnum(mmm,'RSMH=')
-			il1=4
+			il1 = countnum(mmm,'RSMH=')
+			il1min = 4
+			il1=max(il1+1,il1min)
 			pz=re.split("PZ",mmmx)
                         #Over ride by new setting
+
 			rmt = min(string.atof(rdic[ikey]),3.0)
 			rsmh = max(rmt*1.0/2.0,0.5)
 			rsmh= '%6.3f' % rsmh
-			mmm= 'RSMH=  '          +il1*rsmh+' EH= '+il1*' -1.0'+'\n' #-1 and -0.5 which is better? 
-			mmm= mmm+ '     RSMH2= '+il1*rsmh+' EH2='+il1*' -2.0'+'\n'
-			if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
+			mmm= 'RSMH=  '          +il1*rsmh+' EH=  '+il1*(eh1+' ')+'\n' #-1 and -0.5 which is better? 
+			mmm= mmm+ '     RSMH2= '+il1*rsmh+' EH2= '+il1*(eh2+' ')+'\n'
+			#ieh = countnum(mmm,'EH=')
+			#eh=re.split("EH",mmmx)
+			#eh=re.split("PZ",eh[1])
+			#print eh,il1
+			#print pz
+			#mmm= 'RSMH= '+ il1*rsmh
+			#mmm= mmm + ' EH'+eh[0]+(il1-ieh)*" -0.1"+"\n"
 			
+			if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
 			il2 = countnum(mmm,'PZ=')
 			lx = max(il1,il2)
 			lll = "%i" % lx
@@ -540,10 +643,10 @@ for ii in tokenspec[1:]:
 			lmx = "%i" % il1m
 			rmt= '%6.3f' % rmt
 			#print il1,il2,lx
-			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm \
-			    +' '*5+'KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n' \
-                            +'     MMOM=0 0 0 0'+'\n'+'     #Q= \n' \
-                            +'     #MMOM and Q are to set electron population. See conf: in lmfa output'
+			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm+'\n' \
+			    +'      KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n' \
+                            +'      MMOM=0 0 0 0'+'\n'+'      #Q= \n' \
+                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output'
 		ispec=ispec+1
 		ix=1
 	if(ii=='ENDATOM'): break
@@ -569,9 +672,15 @@ for ii in tokenspec[1:]:
 
 
 tail="""
-\n
-% const pwemax=2 nk=2 nit=30 gmax=12 nspin=1
-BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
+\n"""
+
+if (systype_val.upper()=="BULK") :
+	tail = tail+ "% const pwemax=2 nk="+nk_val+" nit=30 gmax=12 "
+else:
+	tail = tail+ "% const pwemax=2 nk="+nk_val+" nit=30 gmax=12 "
+tail = tail + "        nspin="+nspin_val+"\n"
+
+tail = tail + """BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
 		#   (SAVDOS, DOS, NPTS gives no side effect for self-consitency calculaiton).
@@ -586,14 +695,28 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
 
       #Setting for molecules. No tetrahedron integration. (Smearing))
       # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
-      #TETRA=0 
+"""
+if (systype_val.upper()=="BULK") :
+	tail =  tail + """      #TETRA=0 
       #N=-1    #Negative is Fermi distribution function W= gives temperature.
       #W=0.001 #This corresponds to T=157K as shown in console output
                #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
                #Now you don't need to use NEVMX in double band-path method,
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
-      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
+"""
+else :
+	tail =  tail + """      TETRA=0 
+      N=-1    #Negative is Fermi distribution function W= gives temperature.
+      W=0.001 #This corresponds to T=157K as shown in console output
+               #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
+               #Now you don't need to use NEVMX in double band-path method,
+               #which obtain only eigenvalues in first-path to obtain integration weights
+               #, and accumulate eigenfunctions in second path.
+"""
+
+
+tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
 
       #FSMOM=real number (fixed moment method)
       #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
@@ -646,8 +769,9 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # Look into sugcut: shown at the top of console output. 
                 # It shows required gmax for given tolelance HAM_TOL.
       REL=T     # T:Scaler relativistic, F:non rela.
-
-      XCFUN=1   # =1 for VWN.
+"""
+tail = tail + "     XCFUN=" + xcfun_val + """
+          # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
@@ -658,19 +782,16 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
+"""
+if (systype_val.upper()=="BULK") :
+	tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.
+"""
+else :
+	tail =  tail + """      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
+"""
 
-      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
-                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
+tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
-  
-      #STABILIZE=1e-10 #!!! Test option for convergence check. Not tested well.
-                       # default is negative, then STABILIZER in diagonalization is not effective 
-                       # (See slatsm/zhev.F delta_stabilize).
-                       # I am not sure wether this stabilizer works OK or not(in cases this gives little help).
-                       # STABILIZE=1e-10 may make convergence stabilized 
-                       # (by pushing up poorly-linear-dependent basis to high eigenvalues).
-                       # STABILIZE=1e-8 may give more stable convergence. 
-                       # If STABILIZE is too large, it may affect to low eigenvalues around E_Fermi
 
       #FRZWF=T #to fix augmentation function. 
       #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat

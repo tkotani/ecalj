@@ -90,7 +90,7 @@ c d channel local orbital
         if(47.5d0<zz .and. zz<51.5d0) then !4d
           szz='  PZ=0,0,14.9 P=0,0,5.2'
         endif
-        if(79.5d0<zz .and. zz<83.5d0) then !4d
+        if(79.5d0<zz .and. zz<83.5d0) then !5d
           szz='  PZ=0,0,15.9 P=0,0,6.2'
         endif
 c f channel
