@@ -76,7 +76,7 @@ C     implicit none
 C ... Passed parameters
       integer nl,nsp,lmx,ncmx,nvmx,kcor,lcor
       double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
-     .qc,qt,dq,z,ec(1),ev(1)
+     .qc,qt,dq,z,ec(*),ev(*)
 C ... Local parameters
       integer l,k,konf,konfig,konfg(0:10),isp,lmaxc,ncore,nval
       integer iprint

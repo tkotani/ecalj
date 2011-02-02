@@ -297,7 +297,7 @@ C     integer idmoz(n0)
      .ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps,
      .amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul,
      .pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2),
-     .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2)
+     .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
 C     double precision qz(n0,2)
       integer fopna,i,ifi,ipr,iprint,isp,isw,l,lfrz,
      .lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
@@ -313,7 +313,7 @@ C Heap
 ctakao
       integer:: ipl, ipz,iplx,iplv,ix
       real(8):: qcc,qzz
-
+      real(8),allocatable:: plplus(:,:),qlplus(:,:)
       stdo   = lgunit(1)
       stdl   = lgunit(2)
       ipr    = iprint()
@@ -325,17 +325,22 @@ Changenglob      nsp    = nglob('nsp')
       lgrad  = lxcfun/10
 ctakao
 c      if(ipr>29) then
-c      print *
-c      do i = 1, nsp
-c      do l = 0, lmxa
-c      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
-c      enddo
-c      enddo
+      print *
+      do i = 1, nsp
+      do l = 0, lmxa
+      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+      enddo
+      enddo
 c      endif
 
 C --- Get species data ----
       call dpzero(pl,2*n0)
       call dpzero(ql,2*3*n0)
+      allocate(plplus(0:lmxa,nsp),qlplus(0:lmxa,nsp))
+      plplus=0d0
+      qlplus=0d0
+
+      qatbk=qat
       do  10  i = 1, nsp
         do  10  l = 0, lmxa
           pnul = pnu(l+1,i)
@@ -343,20 +348,31 @@ C --- Get species data ----
           if (pzl .ne. 0) then
 C         Make pz the valence state: hardwire qat
             if (int(pnul-1) .eq. int(pzl)) then
-              if (qat(l+1,i) .ne. 0) then
-                write(6,"(/,10(a,/))")
-     &          ' ###### Why is Exit caused? #######################',
-     &          ' # This version can not treat two valence channels ',
-     &          ' # per l (Q for a l-channl is zero if the l is with PZ).',
-     &          ' # This causes a problem typically in Li; then we ',
-     &          ' # can not treat PZ=1.9 and P=2.2 as valence.',
-     &          ' # To avoid this, use Q=0,1 together. This trick supply an ',
-     &          ' # electron to p channel; this trick works fine.'
-                call fexit3(-1,111,
-     .          ' Exit -1 freeat, l=%i:  nonzero charge Q=%d not allowed'
-     .          //'  with sc PZ=%;3d',l,qat(l+1,i),pzl)
-              endif
-              pnul = pzl
+c$$$              if (qat(l+1,i) .ne. 0) then
+c$$$                write(6,"(/,10(a,/))")
+c$$$     &          ' ###### Why is Exit caused? #######################',
+c$$$     &          ' # This version can not treat two valence channels ',
+c$$$     &          ' # per l (Q for a l-channl is zero if the l is with PZ).',
+c$$$     &          ' # This causes a problem typically in Li; then we ',
+c$$$     &          ' # can not treat PZ=1.9 and P=2.2 as valence.',
+c$$$     &          ' # To avoid this, use Q=0,1 together. This trick supply an ',
+c$$$     &          ' # electron to p channel; this trick works fine.'
+c$$$                call fexit3(-1,111,
+c$$$     .          ' Exit -1 freeat, l=%i:  nonzero charge Q=%d not allowed'
+c$$$     .          //'  with sc PZ=%;3d',l,qat(l+1,i),pzl)
+c$$$              endif
+c              if (qat(l+1,i) .ne. 0) then !!feb2011
+!! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
+!!       feb2011
+                write(6,*)     '=== Two valence channels: P and PZ ==='
+                qlplus(l,i)= qatbk(l+1,1)/nsp !!For P channel. Preserve pl and ql to plplus,and qlplus.
+                plplus(l,i)= int(pnul) + .5d0
+                if( nsp==2 ) then !too confusing. should be simplified...
+                  qlplus(l,i) = qatbk(l+1,1)/2d0 - qatbk(l+1,2)/2d0*dble(2*i-3)
+                  if (pnul == 0) plplus(l+1,i) = plplus(l+1,1) 
+                endif  
+c             endif
+              pnul = pzl               !!For PZ channel.
               qat(l+1,1) = 4*l+2
               qat(l+1,2) = 0
             elseif (int(pnul+1) .ne. int(pzl)) then
@@ -367,8 +383,8 @@ C         Make pz the valence state: hardwire qat
           pl(l+1,i) = int(pnul) + .5d0
           ql(1,l+1,i) = qat(l+1,1)/nsp
           if (nsp .eq. 2) then
-            if (pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
-            ql(1,l+1,i) = qat(l+1,1)/nsp - qat(l+1,2)/2*dble(2*i-3)
+            if (pnul .eq. 0) pl(l+1,i) = pl(l+1,1) 
+            ql(1,l+1,i) = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
           endif
           ql(2,l+1,i) = 0d0
           ql(3,l+1,i) = 0d0
@@ -379,7 +395,7 @@ ctakao
       write(stdo,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),
      &' : --- Table for atomic configuration ---'
       write(stdo,"(a)")'conf'//
-     &' int(P)z = int(P) where P is replaced by PZ if it is semicore'
+     &' When int(P)z .ne. int(P), Qval is charge for MTOcore(PZ) and MTO(P)'
       write(stdo,"(a)")'conf:'//
      &'  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf'
 c      qtot=0d0
@@ -397,7 +413,9 @@ c        qzz=0d0
 c        if(ipz/=0.and.ipz<ipl) qzz=(4*l+2)/nsp
           write(stdo,"('conf: ', 
      &    i4,i3,3x,i5,i3,2x,f11.3,f9.3,' => ',10(i1,','))") 
-     &    i,l,ipl,iplv,ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
+c     &    i,l,ipl,iplv,ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
+     &    i,l,ipl,iplv,ql(1,l+1,i)+qlplus(l,i),qcc, (ix,ix=l+1,iplv-1)
+
 c, qzz
 c     &   ,ql(1,l+1,i)+QZ, qcc-qzz
 c        qtot=qtot +         qcc+ql(1,l+1,i)
@@ -421,9 +439,10 @@ cNov 2010 QvalCheck
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
-       call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
+      call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
      . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy ) 
-
+      qtot=qtot+sum(qlplus(:,:)) !takao feb2011
+      amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
       if (ipr .ge. 20) then
         call awrit6('%N Species '//spid//'%a:  Z=%d'//
      .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
@@ -456,7 +475,8 @@ C     call pshpr(min(iprint(),40))
       call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr,
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',
-     .nitmax,lfrz)
+     .nitmax,lfrz,plplus,qlplus)
+      dq=dq+sum(qlplus(:,:)) !takao feb2011
 C     call poppr
 
       if (ipr .ge. 20)
@@ -504,7 +524,7 @@ C --- Print info about free-atom wavefunctions ---
           lplawv = 0
           if (ipr .ge. 50) lplawv = 1
           call pratfs ( spid , lplawv , z , a , nr , rmax , nrmt , lmxa 
-     .    , pl , nsp , v , rofi , g_rv , psi_rv )
+     .    , pl , nsp , v , rofi , g_rv , psi_rv, plplus,qlplus)
 
           deallocate(psi_rv)
           deallocate(g_rv)
@@ -589,7 +609,7 @@ C --- Fit analytical expression to tail of core density ---
 
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
-     .rofi,g,psi)
+     .rofi,g,psi,plplus,qlplus)
       use m_globalvariables
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -625,6 +645,11 @@ C ... Local parameters
      .pmax,ctp,ecor,rmt
       character*1 lsym(0:n0-1), cc, str*15, spid*8
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
+      integer::iz
+!! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
+!! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
+!! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
+      real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp) 
 
 Changenglob      stdo = nglob('stdo')
       stdo = globalvariables%stdo
@@ -644,7 +669,10 @@ C --- Valence states ---
         eb1 = -50d0
         eb2 =  50d0
         do  20  l = 0, lmaxa
+          do 20 iz= 0,1
+          if(iz==1 .and. plplus(l,isp)<= 0d0) cycle !feb2011
           konfig = pl(l+1,isp)
+          if(iz==1) konfig=plplus(l,isp)
           dl = dtan(pi*(0.5d0-pl(l+1,isp)))
           nn = konfig-l-1
           ev(l) = -0.5d0
@@ -877,7 +905,6 @@ c      rlim2 = rmt+1d-6
 
         deh0  = 0.05d0
 ctakao
-c      elim1 = -5.0d0
         elim1 = -2.5d0
         elim2 = -0.10d0
 C     elim2 = -0.20d0
@@ -917,7 +944,7 @@ C     ... Get center energy
             call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv 
      .      , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
      .      , e2 , qrmt )
-            print *,' ttt center e=',irep,eh,e2
+c            print *,' ttt center e=',irep,eh,e2
 
 C     ... Vary rsm
 c            drsm = drsm0

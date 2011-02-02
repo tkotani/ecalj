@@ -3,7 +3,7 @@ c#define ONE_ATOM_UNIT 1
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
-     .job,niter,lfrz)
+     .job,niter,lfrz,plplus,qlplus)
 
       use m_globalvariables
 C- Makes an atomic sphere self-consistent and get atomic charges
@@ -115,6 +115,7 @@ C  Local parameters
 C for Anderson mixing:
       integer:: amix , nmix
       real(8) ,allocatable :: rho_rv(:)
+      real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
 
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
@@ -150,12 +151,19 @@ C --- Core charge, radial mesh points and weights ---
       endif
       call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm,
      .ec,ev)
+
 C --- Guesses for core and valence eigenvalues ---
+ctakao probably not needed here
       if (ec(1) .eq. 0)
      .call getqvc(nsp,nl,lmax,z,pnu,qnu,ncmx,nvmx,kcor,lcor,qcor,qc,
-     .qtot,amgm,ec,ev)
+     .qtot,amgm,ec,ev) !only for core number check since we set ev and ev below. 
+                       !will be replace by simple code.
       call radmsh(rmax,a,nr,rofi)
       call radwgt(rmax,a,nr,rofi(1,2))
+
+!! initialize ev here(overide getqvc now).feb2011
+      ev = -0.5d0
+      ec = -5.0d0
 
 C --- Moments printout ---
       if (iprint() .ge. 20) then
@@ -185,7 +193,7 @@ C --- Moments printout ---
 C --- Initial charge density ---
       if (job .eq. 'pot') then
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rhoin,rhoc,kcor,
-     .  lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000)
+     .  lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000,plplus,qlplus)
         if (niter .eq. 0) then
           call dcopy(nr*nsp,rhoin,1,rho,1)
 Cki#error, have return with len(w_varlist)>0 at line 189
@@ -254,7 +262,7 @@ C       Get rhrmx, exrmax
         if (last .and. iprint().ge.40) ipr1 = 1
         if (last .and. iprint().gt.40) ipr1 = 2
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc,
-     .  kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1)
+     .  kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus)
         drho = 0
         sum = 0
         vrhoc = 0
@@ -359,7 +367,7 @@ C --- write out rho if requested ---
 
         call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
      .  rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu 
-     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000 )
+     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus)
 
         call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr , 
      .  nl * nsp )
@@ -756,7 +764,7 @@ C         Exit point
 
 
       subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc,
-     .kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr)
+     .kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus)
 
 C- Makes spherical charge density for a spherical potential.
 C  ---------------------------------------------------
@@ -831,8 +839,8 @@ C     implicit none
 C Passed parameters
       logical lgdd,lfrz
       integer nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr
-      double precision z,a,b,tol,sumev(nsp),sumec(nsp),sumtc(nsp),ec(1),
-     .ev(1),qcor(2),v(nr,nsp),rofi(nr),rho(nr,nlr,nsp),rhoc(nr,nsp),
+      double precision z,a,b,tol,sumev(nsp),sumec(nsp),sumtc(nsp),ec(*),
+     .ev(*),qcor(2),v(nr,nsp),rofi(nr),rho(nr,nlr,nsp),rhoc(nr,nsp),
      .qnu(3,nl,nsp),pnu(nl,nsp)
 C Local parameters
       logical free
@@ -843,6 +851,7 @@ C Local parameters
       double precision g(2*nrmx),gp(2*nrmx*4)
 C     Speed of light, or infinity in nonrelativistic case
       common /cc/ c
+      real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
 
       call setcc(lrel)
 
@@ -875,20 +884,35 @@ C --- Loop over valence states ---
       do  20  isp = 1, nsp
         sumev(isp) = 0d0
         do  20  l = 0, lmax
-
+        do  20  iz=0,1  !takao feb2011
           if (nlr .eq. nl) lr = l+1
           q0 = max(qnu(1,l+1,isp),0d0)
           q1 = qnu(2,l+1,isp)
           q2 = qnu(3,l+1,isp)
           if (q0 .lt. 1d-6) goto 20
           nn = int(pnu(l+1,isp)) - l - 1
-          ival = ival+1
-          eval = ev(ival)
-
           val(1) = rmax
           dl = dtan(pi*(0.5d0 - pnu(l+1,isp)))
           slo(1) = dl + 1
-
+          if(iz==0) then
+          ival = ival+1
+          eval = ev(ival)
+          endif
+!! Setting when iz=1 override setting when iz=1
+          if(iz==1)then
+          if(plplus(l,isp)>0d0) then
+c             print *,'vvvvvv', plplus(l,isp)
+            q0=qlplus(l,isp)
+            q1=0d0
+            q2=0d0
+            nn=int(plplus(l,isp)) - l - 1
+            dl = dtan(pi*(0.5d0 - plplus(l,isp)))
+            slo(1) = dl + 1
+          else
+            cycle
+          endif
+          endif
+  
           if (free) val(1) = 1d-30
           if (free) slo(1) = -val(1)
           call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v(1,isp),g,

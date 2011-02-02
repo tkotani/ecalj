@@ -4,7 +4,6 @@
      .prgnam,vrsion,vn,vn2,
      .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      .v_sstr,v_sarry,v_smove,v_stb,sstrn)
-
       use m_rdctrl
       use m_gtv
       use m_struc_func
@@ -195,18 +194,14 @@ c     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
-        integer:: ib , ispec 
-        real(8),pointer :: rv_p_opos(:)
-
-       integer,pointer :: iv_p_oips(:)
-
+      integer:: ib , ispec 
+      real(8),pointer :: rv_p_opos(:)
+      integer,pointer :: iv_p_oips(:)
       integer,allocatable:: wowk(:)
-
 
       procid = mpipid(1)
       nproc  = mpipid(0)
       master = 0
-
       scrwid = 80
       stdo = lgunit(1)
       stdl = lgunit(2)
@@ -1607,47 +1602,52 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
           if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
 
-          ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.
-     .    prgnam.eq.'LMF' .or. prgnam.eq.'LMFGWD' .or.
-     .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or.
-     .    prgnam.eq.'LMFA' .or. prgnam.eq.'LMCHK'
-          if (ltmp) then
-            call awrit1('%x pot:%10p'//'%?;n==0; non-rel,;.;',strn,
-     .      scrwid,0,lrel)
-            call awrit8('%a%?;%c==,;;%b%a%b;%-1j'//
-     .      '%?;n>1; spin-pol,;;'//
-     .      '%?;n; LDA+U,;;'//
-     .      '%?;n==1; XC:CA,;;%-1j'//
-     .      '%?;n==2; XC:BH,;;%-1j'//
-     .      '%?;n==3; XC:PW91,;;%-1j'//
-     .      '%?;n==4; XC:PBE,;;'//
-     .      '%?;n==1;%b+LMH(gga),;;%-1j'//
-     .      '%?;n==2;%b+PW91(gga),;;%-1j'//
-     .      '%?;n==3;%b+PBE(gga),;;%-1j'//
-     .      '%?;n==4;%b+Becke(gga),;;'//
-     .      '%?;n; frozen-wave-functions,;;'//
-     .      '%?;n==1; nsph-mpol,;;'//
-     .      '%?;n; read Sigma,;;'//
-     .      '%?;n; make SX,;;'//
-     .      '%b %b',
-clm72
-     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,100),lxcf/100,lfrzw, !lm72
-c     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
-c     .      isw(lasa32),lrsig,lsx)
-     .      0,lrsig,0)
-            call awrit0(strn,' ',-80,lgunit(k))
-          endif
+C$$$          ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.
+C$$$     .    prgnam.eq.'LMF' .or. prgnam.eq.'LMFGWD' .or.
+C$$$     .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or.
+C$$$     .    prgnam.eq.'LMFA' .or. prgnam.eq.'LMCHK'
+C$$$          if (ltmp) then
+C$$$            call awrit1('%x pot:%10p'//'%?;n==0; non-rel,;.;',strn,
+C$$$     .      scrwid,0,lrel)
+C$$$            call awrit8('%a%?;%c==,;;%b%a%b;%-1j'//
+C$$$     .      '%?;n>1; spin-pol,;;'//
+C$$$     .      '%?;n; LDA+U,;;'//
+C$$$     .      '%?;n==1; XC:CA,;;%-1j'//
+C$$$     .      '%?;n==2; XC:BH,;;%-1j'//
+C$$$     .      '%?;n==3; XC:PW91,;;%-1j'//
+C$$$     .      '%?;n==4; XC:PBE,;;'//
+C$$$     .      '%?;n==1;%b+LMH(gga),;;%-1j'//
+C$$$     .      '%?;n==2;%b+PW91(gga),;;%-1j'//
+C$$$     .      '%?;n==3;%b+PBE(gga),;;%-1j'//
+C$$$     .      '%?;n==4;%b+Becke(gga),;;'//
+C$$$     .      '%?;n; frozen-wave-functions,;;'//
+C$$$     .      '%?;n==1; nsph-mpol,;;'//
+C$$$     .      '%?;n; read Sigma,;;'//
+C$$$     .      '%?;n; make SX,;;'//
+C$$$     .      '%b %b',
+C$$$clm72
+C$$$     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,100),lxcf/100,lfrzw, !lm72
+C$$$c     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
+C$$$c     .      isw(lasa32),lrsig,lsx)
+C$$$     .      0,lrsig,0)
+C$$$            call awrit0(strn,' ',-80,lgunit(k))
+C$$$          endif
+
 c          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
 c          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
 c          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
 c     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
 c     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 clm72
-        call isanrg(mod(lxcf,100),0,4,prgnam,'XC functional',.true.)
-        call isanrg(lxcf/100,0,4,prgnam,'GGA functional',.true.)
-        if (mod(lxcf,100) .eq. 2 .and. lxcf/100 .gt. 1 .or.
-     .      mod(lxcf,100) .ne. 2 .and. lxcf/100 .eq. 1) call info0
-     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
+        if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
+          call rx('only XCFUN=1,2,103 are allowed now')
+        endif
+
+C$$$        call isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
+C$$$        call isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
+C$$$        if (mod(lxcf,100) .eq. 2 .and. lxcf/100 .gt. 1 .or.
+C$$$     .      mod(lxcf,100) .ne. 2 .and. lxcf/100 .eq. 1) call info0
+C$$$     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
 C$$$        if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
 C$$$Cgetarg           i = igets('ctrl sdmod',v_sctrl)
