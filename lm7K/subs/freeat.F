@@ -325,12 +325,12 @@ Changenglob      nsp    = nglob('nsp')
       lgrad  = lxcfun/10
 ctakao
 c      if(ipr>29) then
-      print *
-      do i = 1, nsp
-      do l = 0, lmxa
-      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
-      enddo
-      enddo
+c      print *
+c      do i = 1, nsp
+c      do l = 0, lmxa
+c      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+c      enddo
+c      enddo
 c      endif
 
 C --- Get species data ----

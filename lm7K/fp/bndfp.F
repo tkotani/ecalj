@@ -10,6 +10,9 @@ C oevl -> evlall
       use m_rdctrl, only: ncutovl
       use m_struc_def
       use m_globalvariables
+#if defined(__INTEL_COMPILER)
+      use ifport, only: unlink
+#endif
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -436,6 +439,7 @@ ctakao
       
       integer:: nevec,idummy
       real(8):: epsnevec
+
       nevec=0
 C     call wkfast(.false.)
       if (maxit .eq. 0) return

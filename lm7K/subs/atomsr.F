@@ -765,7 +765,7 @@ C         Exit point
 
       subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc,
      .kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus)
-
+!! ev is dummy now. feb2010 takao
 C- Makes spherical charge density for a spherical potential.
 C  ---------------------------------------------------
 Ci Inputs:
@@ -807,7 +807,7 @@ Co   sumec :sum of core eigenvalues
 Co   sumtc :core kinetic energy = sumec - v*rhoc
 Co   sumev :sum of valence eigenvalues
 Co   ec    :core eigenvalues
-Co   ev    :valence eigenvalues
+Co   ev    :valence eigenvalues !not output now
 Cr Remarks:
 Cr   rho is determined by boundary conditions pnu and moments qnu.
 Cr   For rmax>10 sets phidot, phidotdot are made zero.
@@ -880,7 +880,12 @@ C --- Calculate core density ---
       endif
 
 C --- Loop over valence states ---
-      ival = 0
+c      ival = 0
+c          if(iz==0) then
+c          ival = ival+1
+c          eval = ev(ival)
+c          endif
+      eval=-0.5d0 !initial condition. the same as getqvc
       do  20  isp = 1, nsp
         sumev(isp) = 0d0
         do  20  l = 0, lmax
@@ -894,13 +899,9 @@ C --- Loop over valence states ---
           val(1) = rmax
           dl = dtan(pi*(0.5d0 - pnu(l+1,isp)))
           slo(1) = dl + 1
-          if(iz==0) then
-          ival = ival+1
-          eval = ev(ival)
-          endif
 !! Setting when iz=1 override setting when iz=1
           if(iz==1)then
-          if(plplus(l,isp)>0d0) then
+          if(plplus(l,isp)>0d0.and.qlplus(l,isp)>0d0) then
 c             print *,'vvvvvv', plplus(l,isp)
             q0=qlplus(l,isp)
             q1=0d0
@@ -912,12 +913,17 @@ c             print *,'vvvvvv', plplus(l,isp)
             cycle
           endif
           endif
-  
+
+ccccccccccccccccccccccc
+c          print *,'tttt:l nn iz q0 dl =',l,nn,iz, q0,dl
+cccccccccccccccccccccccc
+
           if (free) val(1) = 1d-30
           if (free) slo(1) = -val(1)
           call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v(1,isp),g,
      .    sum,a,b,rofi,nr,nre)
-          ev(ival) = eval
+c          ev(ival) = eval !takao think this is not necessary. ev is a dummy
+cfeb2010 just for initial condition.
           sumev(isp) = sumev(isp) + eval*q0 + q1
           ro = g(nr)**2
           if (.not.free .and. ro .lt. rocrit) write(*,766) l,nn,nre,ro

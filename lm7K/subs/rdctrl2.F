@@ -1639,10 +1639,11 @@ c          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
 c     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
 c     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 clm72
+      if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
         if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
           call rx('only XCFUN=1,2,103 are allowed now')
         endif
-
+      endif  
 C$$$        call isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
 C$$$        call isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
 C$$$        if (mod(lxcf,100) .eq. 2 .and. lxcf/100 .gt. 1 .or.
