@@ -64,8 +64,8 @@ c 4     .077979
 c 5     .062833
         szz=' '
         if(1.5d0<zz .and.  zz<3.5d0) then
-          write(sss,"(f8.3)") zz-2d0
-          szz='  PZ=11.9 P=2.6'//trim(adjustl(sss))
+c          write(sss,"(f8.3)") zz-2d0
+          szz='  PZ=11.9 P=2.6' !//trim(adjustl(sss))
         endif
 c p channel local orbital
         if(10.5d0<zz .and. zz<12.5d0) then !2p
