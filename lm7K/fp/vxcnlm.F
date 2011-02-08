@@ -63,6 +63,7 @@ C ----------------------------------------------------------------------
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:),enlbk(:,:,:)
       real(8),allocatable:: dvxcdgr(:,:,:,:),grho2_updn(:,:,:,:),grho(:,:,:,:,:),gv(:,:)
+      real(8),allocatable::  grho2_updn_forcall(:,:,:,:)
       complex(8),allocatable:: zgrho(:,:,:),gzgrho(:,:,:),zggrho(:,:)
       complex(8),allocatable:: fgrd(:,:,:),fn(:,:,:),fg(:,:),fgg(:)
 
@@ -145,12 +146,26 @@ cccccccccccccccccccccccccccccc
 cki
        allocate(r_smrho(k1,k2,k3,nsp))
        r_smrho=fac*dreal(smrho)
+c allocate for calling a subroutine
+       allocate(grho2_updn_forcall(n1,n2,n3,2*nsp-1))
+       do isp=1,2*nsp-1
+       do i3=1,n3
+       do i2=1,n2
+       do i1=1,n1
+           grho2_updn_forcall(i1,i2,i3,isp)=fac**2*grho2_updn(i1,i2,i3,isp)
+       enddo
+       enddo
+       enddo
+       enddo
        call xcpbe(exci=enl,npts=n1*n2*n3,nspden=nsp,
      &           option=2,!Choice of the functional =2:PBE-GGA
      &           order=1, !order=1 means we only calculate first derivative of rho*exc(rho,\nable rho).
 cki     &           rho_updn=fac*dreal(smrho),vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
      &           rho_updn=r_smrho,vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
-     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+c     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+     &           dvxcdgr=dvxcdgr, grho2_updn=grho2_updn_forcall)   !Optional Arguments
+       deallocate(grho2_updn_forcall) ! deallocate temporary data
+
        deallocate(r_smrho)
 
 !!=== Output: converted to Ry.===

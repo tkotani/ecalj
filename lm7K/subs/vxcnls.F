@@ -64,6 +64,7 @@
       real(8),pointer:: drp_drl(:,:)
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
+      real(8),allocatable:: grho2_updn_forcall(:,:,:)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical:: newmode=.true.,
@@ -245,11 +246,22 @@ c  rho_updn: density for up and down. For nsp=1, only up is used--->total dnsity
 c  grho2_updn:square of gradient of up and down densities.
 c             When nsp=2, grho2_upsn(ir,ip,3) should contans the square for the total density.
 c
+c allocate for calling xcpbe
+      allocate( grho2_updn_forcall(nr,np,2*nsp-1)  )
+      do isp=1,2*nsp-1
+      do ip=1,np
+      do ir=1,nr
+         grho2_updn_forcall(ir,ip,isp)=fac**2*grho2_updn(ir,ip,isp)
+      enddo
+      enddo
+      enddo 
       call xcpbe(exci=exci,npts=nr*np,nspden=nsp,
      &           option=2,!Choice of the functional =2:PBE-GGA
      &           order=1, !order=1 means we only calculate first derivative of rho*exc(rho,\nable rho).
      &           rho_updn=fac*rp,vxci=vxci,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
-     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+c     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
+     &           dvxcdgr=dvxcdgr, grho2_updn=grho2_updn_forcall)   !Optional Arguments
+      deallocate(grho2_updn_forcall)
 !! Output:
       exci = 2d0*exci !in Ry.
       vxci = 2d0*vxci !in Ry.
