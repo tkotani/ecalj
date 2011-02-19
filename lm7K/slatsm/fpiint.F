@@ -1,4 +1,7 @@
       subroutine fpiint(nx,np,nxp,x,w)
+ctakao. Maybe it will be better to replace this with spherical design
+cas http://www2.research.att.com/~njas/sphdesigns/
+c
 C- Points and weights for integration on a sphere surface
 C ----------------------------------------------------------------------
 Ci Inputs
