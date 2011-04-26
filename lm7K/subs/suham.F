@@ -1,4 +1,4 @@
-      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit,no_qpgpsi) !from showbs
 
       use m_struc_def  !Cgetarg
 
@@ -55,7 +55,7 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
 
       integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,imx,ndummy
       real(8):: qplist(3,nkp)
-      logical:: siginit
+      logical:: siginit,no_qpgpsi
 
       integer:: i_copy_size,i_spacks,i_spackv
 C
@@ -158,6 +158,7 @@ c ... get rotation matrix dlmm
 
 C --- APW part
  1011 continue
+      if(no_qpgpsi) goto 1012
 C q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz
@@ -180,8 +181,10 @@ c        call shorbz( qxx, qq(:,iq), qlat, plat)
         call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
         write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
       enddo
-c
 
+
+C ---
+ 1012 continue
       pwmode=sham%pwmode
       pwemin=sham%pwemin
       pwemax=sham%pwemax
