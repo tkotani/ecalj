@@ -439,6 +439,7 @@ ctakao
       
       integer:: nevec,idummy
       real(8):: epsnevec
+      logical:: onlyonce
 
       nevec=0
 C     call wkfast(.false.)
@@ -1236,7 +1237,8 @@ C --- New sigma inerpolation mode. Simplified.
 c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
-      if(iter==1) then
+      if(iter==1.and.onlyonce) then
+         onlyonce=.false.
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
         nbasp=sctrl%nbasp
