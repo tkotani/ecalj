@@ -825,7 +825,8 @@ C--------------------------------------------------------------------
       integer  iprint
       external iprint
       integer ires(3, nbas, ng)
-      integer(4):: ib1,ib2
+ckino delete integer(4) def.      integer(4):: ib1,ib2
+      integer:: ib1,ib2
 c
       real(8) ::tran(3),delta(3,ng)
       data ep/1.0d-3/

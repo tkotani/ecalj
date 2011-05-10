@@ -1,6 +1,7 @@
       subroutine matinv(n,a)
       implicit none
-      integer(4) :: n, info, ipiv(n)
+ckino delete integer(4) def.      integer(4) :: n, info, ipiv(n)
+      integer :: n, info, ipiv(n)
       real(8):: a(n,n)
       real(8),allocatable:: work(:)
       call dgetrf(n,n,a,n,ipiv,info)
@@ -19,7 +20,8 @@
 
       subroutine matinv2(n,a,info)
       implicit none
-      integer(4) :: n, info, ipiv(n)
+ckino delete integer(4) def.      integer(4) :: n, info, ipiv(n)
+      integer :: n, info, ipiv(n)
       real(8):: a(n,n)
       real(8),allocatable:: work(:)
       call dgetrf(n,n,a,n,ipiv,info)
@@ -40,7 +42,8 @@
       subroutine matcinv(n,a)
 C --- a inverse is returned.
       implicit none
-      integer(4) :: n, info, ipiv(n)
+ckino  delete integer(4) def.    integer(4) :: n, info, ipiv(n)
+      integer :: n, info, ipiv(n)
       complex(8):: a(n,n)
       complex(8),allocatable:: work(:)
       call zgetrf(n,n,a,n,ipiv,info)

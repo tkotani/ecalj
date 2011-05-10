@@ -78,8 +78,25 @@ C  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
 Ci nn(3,3)
 Co xmx2(i)  Maximum of x_i**2
       implicit none
+#define NOTARGET
+#ifdef NOTARGET
+      real(8):: nn(3,3)
+#else
       real(8),target:: nn(3,3)
+#endif
       real(8):: v2(2),ainv(2,2), rmax2, xmx2(3),det,fac,nv2(2)
+#ifdef NOTARGET
+      real(8)::n11,n12,n13,n21,n22,n23,n31,n32,n33
+      n11=nn(1,1)
+      n12=nn(1,2)
+      n13=nn(1,3)
+      n21=nn(2,1)
+      n22=nn(2,2)
+      n23=nn(2,3)
+      n31=nn(3,1)
+      n32=nn(3,2)
+      n33=nn(3,3)
+#else
       real(8),pointer::n11,n12,n13,n21,n22,n23,n31,n32,n33
       n11=>nn(1,1)
       n12=>nn(1,2)
@@ -90,6 +107,7 @@ Co xmx2(i)  Maximum of x_i**2
       n31=>nn(3,1)
       n32=>nn(3,2)
       n33=>nn(3,3)
+#endif
       !print *,'nn=',nn
 c
       det= n22*n33-n23*n32
@@ -121,6 +139,7 @@ c
       fac = n33-sum(nv2 *matmul(ainv,nv2))
       xmx2(3) = 1d0/fac
       end
+#undef NOTARGET
 
 
 

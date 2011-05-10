@@ -98,7 +98,8 @@ C ... Heap
 
 
       real(8):: qin(3)
-      integer(4):: ndhamx,debugmode
+ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
+      integer:: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh)
 
       complex(8):: zv_dummy(1)

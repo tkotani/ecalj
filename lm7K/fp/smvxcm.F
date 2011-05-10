@@ -372,7 +372,8 @@ C ... Local parameters
       double precision rho(n1x),rhos(n1x,2)
       character*180 outs
 
-      integer(4):: ixxx
+ckino delete integer(4) def.      integer(4):: ixxx
+      integer:: ixxx
       real(8):: rhomin
       type(s_lat)::slat
 

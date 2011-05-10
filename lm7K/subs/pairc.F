@@ -206,13 +206,17 @@ c True G is given by
 c    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
 c
       implicit none
-      integer(4) :: ng
+ckino delete integer(4) def.      integer(4) :: ng
+      integer :: ng
       real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
      &,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
-      integer(4) ::  
+ckino delete integer(4) def.      integer(4) ::  
+      integer ::  
      &n1max,n1min,n2max,n2min,n3max,n3min,
      &i1,i2,i3,ig,job
-      integer(4),optional ::  ngvec(3,ng)
+ckino delete integer(4) def.     integer(4),optional ::  ngvec(3,ng)
+ckino and delete optional def.
+      integer ::  ngvec(3,ng)
       pi=4d0*datan(1d0)
 c      call u_lat_vecs(s_lat,alat,plat,qlat)
       tpiba=2*pi/alat
@@ -273,7 +277,8 @@ c      c = c/anorm/bnorm
 c mini-sort routine.
       implicit real*8(a-h,o-z)
       real(8)::        ea(n)
-      integer(4):: ieaord(n)
+ckino delete integer(4) def.      integer(4):: ieaord(n)
+      integer:: ieaord(n)
 c sorting of ea
       isig = 1
 *poption noparallel
