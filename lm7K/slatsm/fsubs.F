@@ -23,9 +23,17 @@
       
 
       subroutine fsystm(ps,res)
+#ifdef HASIFPORT
+      use ifport
+#endif
       character(*) ps
-      integer res
+      integer(4):: res
       res = system(ps)
+#ifdef HASIFPORT
+      if (res.ne.0) then
+         write(*,*) 'system: return code=',res,ierrno()
+      endif
+#endif
       end subroutine fsystm
 
       subroutine cwrite(ps,i1,i2,newln)

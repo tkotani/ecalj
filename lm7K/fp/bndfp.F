@@ -257,21 +257,21 @@ ckino lswtk must be 0 initially.
       real(8) ,allocatable :: dos_rv(:)
 
               integer:: os , osoptc 
-              real(8),pointer :: rv_p_owtkb(:,:,:)
+              real(8),pointer :: rv_p_owtkb(:,:,:)=>NULL()
 
              real(8),pointer :: rv_p_oswtk(:)=>NULL()
 
-            integer,pointer :: iv_p_oidtet(:)
+            integer,pointer :: iv_p_oidtet(:)=>NULL()
 
-           type(s_rv1),pointer :: sv_p_oorhat(:)
+           type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
 
-          complex(8),pointer :: zv_p_osmrho(:)
+          complex(8),pointer :: zv_p_osmrho(:)=>NULL()
 
-         complex(8),pointer :: zv_p_osmpot(:)
+         complex(8),pointer :: zv_p_osmpot(:)=>NULL()
 
-        real(8),pointer :: rv_p_owtkp(:)
+        real(8),pointer :: rv_p_owtkp(:)=>NULL()
 
-       real(8),pointer :: rv_p_oqp(:)
+       real(8),pointer :: rv_p_oqp(:)=>NULL()
 
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes1_rv(:)
@@ -318,6 +318,10 @@ ckino lswtk must be 0 initially.
        type(s_rv1) :: sv_p_osigx(3,nbx)
 
 
+ckino
+       logical:: l_temp_rv_p_oswtk, l_temp_rv_p_owtkb,l_temp_iv_p_oidtet
+
+ckino end 
       double precision sigp(10)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -2823,12 +2827,40 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
      .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
      .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               else
+ckino       maybe a switch for these is lmet.ne.0 
+               l_temp_rv_p_oswtk=.false.
+               if (.not.associated(rv_p_oswtk)) then
+                   allocate(rv_p_oswtk(1))
+                   l_temp_rv_p_oswtk=.true.
+               endif
+               l_temp_rv_p_owtkb=.false.
+               if (.not.associated(rv_p_oswtk))then
+                   allocate(rv_p_oswtk(1))
+                   l_temp_rv_p_owtkb=.true.
+               endif
+               l_temp_iv_p_oidtet=.false.
+               if (.not.associated(iv_p_oidtet))then
+                   allocate(iv_p_oidtet(1))
+                   l_temp_iv_p_oidtet=.true.
+               endif
+ckino end
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
      .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               endif
+ckino
+              if (l_temp_rv_p_oswtk) then
+                 deallocate(rv_p_oswtk); rv_p_oswtk=>NULL()
+              endif
+              if (l_temp_rv_p_owtkb) then
+                 deallocate(rv_p_owtkb); rv_p_owtkb=>NULL()
+              endif
+              if (l_temp_iv_p_oidtet) then
+                 deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
+              endif
+ckinoend
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
 
 C         Store val charge & magnetic moment in sumqv(1..2)

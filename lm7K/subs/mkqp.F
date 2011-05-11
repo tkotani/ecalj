@@ -311,6 +311,9 @@ C     call prmx('qp',w(oqp),3,3,nkp)
 
 
       sbz%ntet=ntet
+       if (.not.associated(iv_p_oidtet))then
+          write(*,*)'warnig in mkqp: iv_p_oidtet is not allocated. but continue.'
+       endif
        sbz%iv_p_oidtet => iv_p_oidtet 
 
 
