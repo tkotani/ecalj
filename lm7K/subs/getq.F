@@ -1,50 +1,6 @@
-      subroutine getq(nsp,nl,lmx,nc,z,pnu,qnu,ics,sspec,qc,qt,dq)
-C- Gets the charge and related parameters for a set of atoms
-C ----------------------------------------------------------------
-Ci Inputs
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   nl    :(global maximum l) + 1
-Ci   lmx   :lmx(j) = maximum l for atom j
-Ci   nc    :number of classes
-Ci   z     :nuclear charge
-Ci   pnu   :pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-Ci         :Integer part used to get princ. quant. number for counting
-Ci   qnu   :energy-weighted moments of the sphere charges
-Ci   ics   :species table: class ic belongs to species ics(ic)
-Ci         :Set to zero to suppress information for core hole
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci         :Not used unless ics(1)>0
-Ci     Elts read: kcor,lcor,qcor
-Co Outputs
-Co   qc:    core electronic charge
-Co   qt:    total charge (nuclear + electronic) within sphere
-Co   dq:    difference between spin up and spin down charge
-Cu Updates
-Cu   04 Jan 06 Redesign to enable core hole
-Cu   17 Feb 03 Changed dq to correct convention (q+ - q-)
-C ----------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer nl,nsp,nc,lmx(nc),ics(nc)
-      double precision pnu(nl,nsp,nc),qnu(3,nl,nsp,nc),
-     .qc(nc),qt(nc),dq(nc),z(nc),sspec(1)
-C ... Local parameters
-      integer ic,kcor,lcor,is
-      double precision qcor(2)
 
-      do  ic = 1, nc
-        if (ics(1) .eq. 0) then
-          kcor = 0
-          lcor = 0
-        else
-          is = ics(ic)
-          call gtpcor(sspec,is,kcor,lcor,qcor)
-        endif
-        call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
-     .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic),0d0,0d0)
-      enddo
-
-      end
+      module m_getqvc
+      contains
       subroutine getqvc(nsp,nl,lmx,z,pnu,qnu,ncmx,nvmx,
      .kcor,lcor,qcor,qc,qt,dq,ec,ev)
 C- Gets the charge and related parameters within an atom
@@ -75,8 +31,15 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nl,nsp,lmx,ncmx,nvmx,kcor,lcor
+#define USEOPTIONAL
+#ifdef USEOPTIONAL
+      double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
+     .qc,qt,dq,z
+      real(8),optional:: ec(*),ev(*)
+#else
       double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
      .qc,qt,dq,z,ec(*),ev(*)
+#endif
 C ... Local parameters
       integer l,k,konf,konfig,konfg(0:10),isp,lmaxc,ncore,nval
       integer iprint
@@ -132,5 +95,60 @@ C ... Local parameters
      .call rx('GETQVC: too many orbitals')
 
       qt = qc + qt - z
-      end
+      end subroutine getqvc
 
+      end module m_getqvc
+
+      subroutine getq(nsp,nl,lmx,nc,z,pnu,qnu,ics,sspec,qc,qt,dq)
+C- Gets the charge and related parameters for a set of atoms
+C ----------------------------------------------------------------
+Ci Inputs
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   nl    :(global maximum l) + 1
+Ci   lmx   :lmx(j) = maximum l for atom j
+Ci   nc    :number of classes
+Ci   z     :nuclear charge
+Ci   pnu   :pnu = .5 - atan(Dl)/pi + (princ.quant.number).
+Ci         :Integer part used to get princ. quant. number for counting
+Ci   qnu   :energy-weighted moments of the sphere charges
+Ci   ics   :species table: class ic belongs to species ics(ic)
+Ci         :Set to zero to suppress information for core hole
+Ci   sspec :struct for species-specific information; see routine uspec
+Ci         :Not used unless ics(1)>0
+Ci     Elts read: kcor,lcor,qcor
+Co Outputs
+Co   qc:    core electronic charge
+Co   qt:    total charge (nuclear + electronic) within sphere
+Co   dq:    difference between spin up and spin down charge
+Cu Updates
+Cu   04 Jan 06 Redesign to enable core hole
+Cu   17 Feb 03 Changed dq to correct convention (q+ - q-)
+C ----------------------------------------------------------------
+      use m_getqvc
+C     implicit none
+C ... Passed parameters
+      integer nl,nsp,nc,lmx(nc),ics(nc)
+      double precision pnu(nl,nsp,nc),qnu(3,nl,nsp,nc),
+     .qc(nc),qt(nc),dq(nc),z(nc),sspec(1)
+C ... Local parameters
+      integer ic,kcor,lcor,is
+      double precision qcor(2)
+
+      do  ic = 1, nc
+        if (ics(1) .eq. 0) then
+          kcor = 0
+          lcor = 0
+        else
+          is = ics(ic)
+          call gtpcor(sspec,is,kcor,lcor,qcor)
+        endif
+#ifdef USEOPTIONAL
+        call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
+     .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic))
+#else
+        call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
+     .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic),0d0,0d0)
+#endif
+      enddo
+
+      end

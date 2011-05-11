@@ -1,4 +1,6 @@
 #define V2 1
+
+#define USEOPTIONAL 1
             subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
@@ -12,6 +14,7 @@
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_phmbls
 C- Driver to set up GW
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1004,7 +1007,11 @@ C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
               call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
             elseif (lpdiag .eq. 2) then
               evec = ovl
+#ifdef USEOPTIONAL
+              call phmbls(mode=2,ndimh=ndimh,eval=evl(1,isp),zhz=ham)
+#else
               call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
+#endif
               nev = ndimh
               call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
             else

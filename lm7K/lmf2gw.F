@@ -452,7 +452,8 @@ ccccc
               ec_d(icor1, ic, isp) = ec_A(icore)
               gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
               call gintxx(gcore_A(1,icore),gcore_A(1,icore),
-     .        a_A,b_A,nr_A,ovv)
+ckino ovv -> ovv(1)     .        a_A,b_A,nr_A,ovv)
+     .        a_A,b_A,nr_A,ovv(1))
               write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
      .        l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),
      &        icore,icor1

@@ -1,3 +1,107 @@
+#define USEOPTIONAL 1
+      module m_pvioeu
+      contains
+      subroutine pvioeu(mode,ssite,eula,nbas,neul)
+
+      use m_struc_def  !Cgetarg
+
+C- Writes the Euler angles to a file or to stdout
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode  :0 write in format suitable for rdm
+Ci         :1 write in printout format
+Ci         :10s digit
+Ci         :0 printout is for Euler angles
+Ci         :1 printout is for Bfield
+Ci   ssite :struct for site-specific information; see routine usite
+Ci     Elts read: *
+Ci     Stored:    clabel
+Ci   eula  :Euler angles for noncollinear spins
+Ci   nbas  :size of basis
+Ci   neul  :1 if Euler angles are l-independent, nl otherwise
+Co Outputs
+Co   Writes to stdout the Euler angles
+Cr Remarks
+Cr
+Cu Updates
+Cu   14 Feb 03 output can be for euler angles or for B-field
+Cu   22 May 02 Writes label information if passed through in ssite
+Cu             Altered argument list
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer mode,nbas,neul
+      real(8):: eula(nbas,neul,3)
+#ifdef USEOPTIONAL
+      type(s_site),optional::ssite(*)
+#else
+      type(s_site)::ssite(*)
+#endif
+
+C ... Local parameters
+      integer i,j,k,lgunit,stdo,mode0,mode1,lbl
+      double precision rotm(3,3)
+      character*72 outs, clabl*8
+      character*255:: formatc(344:346),lbll
+
+      mode0 = mod(mode,10)
+      mode1 = mod(mode/10,10)
+      stdo = lgunit(1)
+      clabl = ' '
+      if (mode0 .ne. 0) then
+c        assign 344 to lbl
+c        if (mode1 .ne. 0) assign 345 to lbl
+c        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
+        lbl=344
+        if (mode1 .ne. 0) lbl=345
+        if (mode1 .eq. 0 .and. mode0 .ne. 0) lbl=346
+        formatc(344)="('   ib     alpha        beta       gamma':6x,a)"
+        formatc(345)="('   ib      bx          by          bz  ':6x,a)"
+        formatc(346)="('   ib   alpha      beta     gamma':5x,a,"//
+     .  "11x,'z axis rotated to:')"
+        lbll=formatc(lbl)
+
+        if ( neul .gt. 1)  write(outs,trim(lbll))
+c        if (ssite(1)%size .eq. 0 .or. neul .gt. 1)  write(outs,trim(lbll))
+c        if (ssite(1)%size .ne. 0 .and. neul .eq. 1) write(outs,trim(lbll)) 'class'
+      endif
+c  344 format('   ib     alpha        beta       gamma':6x,a)
+c  345 format('   ib      bx          by          bz  ':6x,a)
+c  346 format('   ib   alpha      beta     gamma':5x,a,
+c     .  11x,'z axis rotated to:')
+      if (neul .gt. 4) then
+        call awrit0('%a     lm',outs,len(outs),0)
+      elseif (neul .gt. 1) then
+        call awrit0('%a      l',outs,len(outs),0)
+      endif
+      call awrit0(outs,' ',-len(outs),stdo)
+      do  21  i = 1, nbas
+c        if (ssite(1)%size .ne. 0) then
+c          do i_spacks=i,i
+c            call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
+c          enddo
+c        endif
+        if (neul .gt. 1 .and. mode0 .ne. 0) then
+          if (clabl .eq. ' ') call awrit1('# site %,4i',' ',80,stdo,i)
+          if (clabl .ne. ' ') call awrit1('# site %,4i  class '//clabl,
+     .    ' ',80,stdo,i)
+          write(stdo,'(i5,3f12.6,i4)')
+     .    (i,(eula(i,j,k),k=1,3),j, j=1,neul)
+        elseif (neul.eq.1 .and. mode0.ne.0 .and. clabl.eq.' ') then
+          write(stdo,'(i5,3f12.6)')
+     .    (i,(eula(i,j,k),k=1,3), j=1,neul)
+        elseif (neul .eq. 1 .and. mode0 .ne. 0) then
+          call eua2rm(eula(i,1,1),eula(i,1,2),eula(i,1,3),rotm)
+          write(stdo,'(i5,3f10.6,3x,a,1x,3f10.6)')
+     .    i,(eula(i,1,k),k=1,3), clabl, (rotm(3,k),k=1,3)
+        else
+          write(stdo,'(3f16.12)') ((eula(i,j,k),k=1,3),j=1,neul)
+        endif
+   21 continue
+
+      end subroutine pvioeu
+      end module m_pvioeu
+
       subroutine ioeula(nbas,nl,eula,neul,xsi,ifi)
 
 C- I/O of Euler angles
@@ -22,6 +126,7 @@ Cu             call mpibc1(xsi,5,4,mlog,'susite','xsi')
 Cu             call mpibc1(eula,nbas*neul*3,4,mlog,'susite','eula')
 Cu   19 Nov 97 use rdfiln for reading first line
 C ----------------------------------------------------------------
+      use m_pvioeu
 C     implicit none
       integer nbas,neul,nl,ifi
       double precision eula(nbas,neul,3),tmp(125),xsi(3)
@@ -121,105 +226,11 @@ C   ... Read the data, 1 atom at a time ...
      .      'ioeula:  bad file')
             call dmcpy(tmp,neul,1,eula(i,1,1),nbas*neul,nbas,neul,nc)
    20     continue
+#ifdef USEOPTIONAL
+          if (ipr .ge. 50) call pvioeu(mode=1,eula=eula,nbas=nbas,neul=neul)
+#else
           if (ipr .ge. 50) call pvioeu(1,0d0,eula,nbas,neul)
+#endif
         endif
       endif
       end subroutine ioeula
-
-      subroutine pvioeu(mode,ssite,eula,nbas,neul)
-
-      use m_struc_def  !Cgetarg
-
-C- Writes the Euler angles to a file or to stdout
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 write in format suitable for rdm
-Ci         :1 write in printout format
-Ci         :10s digit
-Ci         :0 printout is for Euler angles
-Ci         :1 printout is for Bfield
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Stored:    clabel
-Ci   eula  :Euler angles for noncollinear spins
-Ci   nbas  :size of basis
-Ci   neul  :1 if Euler angles are l-independent, nl otherwise
-Co Outputs
-Co   Writes to stdout the Euler angles
-Cr Remarks
-Cr
-Cu Updates
-Cu   14 Feb 03 output can be for euler angles or for B-field
-Cu   22 May 02 Writes label information if passed through in ssite
-Cu             Altered argument list
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,nbas,neul
-      real(8):: eula(nbas,neul,3)
-      type(s_site)::ssite(*)
-
-C ... Local parameters
-      integer i,j,k,lgunit,stdo,mode0,mode1,lbl
-      double precision rotm(3,3)
-      character*72 outs, clabl*8
-      character*255:: formatc(344:346),lbll
-
-      mode0 = mod(mode,10)
-      mode1 = mod(mode/10,10)
-      stdo = lgunit(1)
-      clabl = ' '
-      if (mode0 .ne. 0) then
-c        assign 344 to lbl
-c        if (mode1 .ne. 0) assign 345 to lbl
-c        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
-        lbl=344
-        if (mode1 .ne. 0) lbl=345
-        if (mode1 .eq. 0 .and. mode0 .ne. 0) lbl=346
-        formatc(344)="('   ib     alpha        beta       gamma':6x,a)"
-        formatc(345)="('   ib      bx          by          bz  ':6x,a)"
-        formatc(346)="('   ib   alpha      beta     gamma':5x,a,"//
-     .  "11x,'z axis rotated to:')"
-        lbll=formatc(lbl)
-
-        if ( neul .gt. 1)  write(outs,trim(lbll))
-c        if (ssite(1)%size .eq. 0 .or. neul .gt. 1)  write(outs,trim(lbll))
-c        if (ssite(1)%size .ne. 0 .and. neul .eq. 1) write(outs,trim(lbll)) 'class'
-      endif
-c  344 format('   ib     alpha        beta       gamma':6x,a)
-c  345 format('   ib      bx          by          bz  ':6x,a)
-c  346 format('   ib   alpha      beta     gamma':5x,a,
-c     .  11x,'z axis rotated to:')
-      if (neul .gt. 4) then
-        call awrit0('%a     lm',outs,len(outs),0)
-      elseif (neul .gt. 1) then
-        call awrit0('%a      l',outs,len(outs),0)
-      endif
-      call awrit0(outs,' ',-len(outs),stdo)
-      do  21  i = 1, nbas
-c        if (ssite(1)%size .ne. 0) then
-c          do i_spacks=i,i
-c            call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
-c          enddo
-c        endif
-        if (neul .gt. 1 .and. mode0 .ne. 0) then
-          if (clabl .eq. ' ') call awrit1('# site %,4i',' ',80,stdo,i)
-          if (clabl .ne. ' ') call awrit1('# site %,4i  class '//clabl,
-     .    ' ',80,stdo,i)
-          write(stdo,'(i5,3f12.6,i4)')
-     .    (i,(eula(i,j,k),k=1,3),j, j=1,neul)
-        elseif (neul.eq.1 .and. mode0.ne.0 .and. clabl.eq.' ') then
-          write(stdo,'(i5,3f12.6)')
-     .    (i,(eula(i,j,k),k=1,3), j=1,neul)
-        elseif (neul .eq. 1 .and. mode0 .ne. 0) then
-          call eua2rm(eula(i,1,1),eula(i,1,2),eula(i,1,3),rotm)
-          write(stdo,'(i5,3f10.6,3x,a,1x,3f10.6)')
-     .    i,(eula(i,1,k),k=1,3), clabl, (rotm(3,k),k=1,3)
-        else
-          write(stdo,'(3f16.12)') ((eula(i,j,k),k=1,3),j=1,neul)
-        endif
-   21 continue
-
-      end subroutine pvioeu
-
-

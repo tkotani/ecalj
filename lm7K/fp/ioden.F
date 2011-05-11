@@ -1,287 +1,7 @@
-       subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
-     . , smrho ) 
+#define USEOPTIONAL
 
-
-      use m_struc_def  !Cgetarg
-      use m_globalvariables
-C- File I/O charge density on a uniform mesh in a plane or full 3d mesh
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   sopts :character string specifying plane and other options.
-Ci         :Specifications and options are separated by a delimiter,
-Ci         :which is the first character in sopts.
-Ci         :
-Ci         :if option is g3d then the density is written to
-Ci         :disk on the full 3d grid.   Otherwise:
-Ci         :The density is written to disk for a uniform of mesh of
-Ci         :points in one plane.  This information is specified by three
-Ci         :groups of numbers: the origin, a first direction vector with
-Ci         :its number of points, and a second direction vector with its
-Ci         :number of points.
-Ci         :
-Ci         :At present, these points must be taken from the points on
-Ci         :the smooth mesh, smrho.  In this case, all three groups of
-Ci         :information are sets of integers.  For example,
-Ci         :specify the origin by three numbers:
-Ci         :    o=#1,#2,#3
-Ci         :The point (#1,#2,#3) corresponds to the Cartesian coordinate
-Ci         :   #1/n1 p1 + #2/n2 p2 + #3/n3 p3
-Ci         :where (n1,n2,n3) are the number of divisions in the
-Ci         :mesh along the three lattice vectors (p1,p2,p3).
-Ci         :o=0,0,0 corresponds to the origin.
-Ci         :
-Ci         :Specify the direction vectors by
-Ci         :    l1=#1,#2,#3[,#4]
-Ci         :    l2=#1,#2,#3[,#4]
-Ci         :
-Ci         :l1 and l2 specify the first and second direction vectors,
-Ci         :respectively.  #1,#2,#3 select the
-Ci         :increments in mesh points along each of the three lattice
-Ci         :vectors that define the direction vector.  Thus in Cartesian
-Ci         :coordinates a direction vector is
-Ci         :   #1/n1 p1 + #2/n2 p2 + #3/n3 p3
-Ci         :where as before (n1,n2,n3) are the number of divisions in
-Ci         :the mesh along the three lattice vectors (p1,p2,p3).
-Ci         :The last number (#4) specifies how many points to take
-Ci         :in that direction.
-Ci         :
-Ci         :Other options:
-Ci         :  g3d       output of 3d grid plus headers in xsf format ready for xcrysden
-Ci         :  fn=name   specifies the file name for file I/O
-Ci         :
-Ci         :   core=#   specifies how local rho is to be included
-Ci         :            #=0 include core densities - nuclear charge
-Ci         :            #=1 include core densities
-Ci         :            #=2 (default) exclude core densities
-Ci         :            #=-1 no local densities to be included
-Ci         :            #=-2 true local density, no smoothed part
-Ci         :            #=-3 istl-local sm densities, no true part
-Ci         :
-Ci         :Example: using '~' as the delimiter, and suppose
-Ci         :n1=n2=48 and n3=120, the specification
-Ci         :  ~fn=myrho~o=0,0,60~l1=1,1,0,49~l2=0,0,1,121
-Ci         :writes 'myrho.ext' a mesh (49,121) points.
-Ci         :The origin (first point) lies at (p3/2)
-Ci         :The first vector points along (p1+p2), and has that length;
-Ci         :the second vector points along p3, and has that length.
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: plat nabc ng okv vol
-Ci     Stored:    *
-Ci     Passed to: rhgcmp
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: rhgcmp
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: rhgcmp
-Ci   orhat :offsets to arrays containing local atom densities
-Ci   smrho :smooth density on uniform mesh
-Co Outputs
-Co   The sum local gaussian densities and smrho is written to disk
-Cl Local variables
-Cl   modrhg:controls what part of core density is added
-Cl         :-1 Add no local densities
-Cl         : 0 include core density - sm nuclear charge
-Cl         : 1 include core density, but no nuclear charge
-Cl         : 2 exclude core density
-Cr Remarks
-Cr    sopts specifies which plane(s) are written to disk
-Cr Bugs
-Cr   Routines create smoothe approximation to density, not true density
-Cu Updates
-Cu   July 7 05 (Walter Lambrecht) New option g3d
-Cu   25 Aug 04 New modes -2, -3
-Cu   24 May 03 Corrections to errors in messages
-Cu   23 Oct 01 Local densities are more accurately represented
-Cu             in G_kL expansion:  k=0..kmax.  Added core= option.
-Cu   25 Apr 01 Simplified the plane specification
-Cu   02 Mar 01 Spin polarized
-Cu   09 Feb 01 Added local gaussian densities to file I/O
-Cu             and extended how a plane may be specified
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      character*(*) sopts
-      type(s_lat)::slat
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-
-       type(s_rv1) :: sv_p_orhat
-
-      double complex smrho(*)
-C ... Local parameters
-      integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
-      integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
-        real(8),pointer :: rv_p_opos(:)
-
-       integer,pointer :: iv_p_okv(:)
-
-      complex(8) ,allocatable :: cn_zv(:)
-      complex(8) ,allocatable :: psrho_zv(:)
-      complex(8) ,allocatable :: wk_zv(:)
-
-      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      double precision vol,xx0,xx,dval,plat(3,3),alat
-      integer ib,is,igetss
-C ... Heap
-       integer ::iwdummy 
-
-C ... External calls
-      external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
-     .gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
-     .pshpr,rhgcmp,rhomom,rx,upack,upack2
-
-      real(8),allocatable:: zz(:)
-C ... Unpack and setup
-Changenglob      nsp = nglob('nsp')
-      nsp = globalvariables%nsp
-Changenglob      nbas = nglob('nbas')
-      nbas = globalvariables%nbas
-      stdo = lgunit(1)
-
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ng=slat%ng
-       iv_p_okv => slat%iv_p_okv 
-
-      vol=slat%vol
-
-ccccccccccccccccccccccccccccc
-c      allocate(zz(nbas))
-c      zz=sspec(1:nbas)%z
-c      print *,' zz1=',zz
-c      print *,' zz2=',sspec(1:nbas)%z
-c      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-ccccccccccccccccccccccccccccc
-
-
-      alat=slat%alat
-       rv_p_opos => slat%rv_p_opos 
-
-
-c      call defrr(oz,nbas)
-c      do ib = 1,nbas
-c        is = int(ssite(ib)%spec)
-cc        w(oz-2+ib*2)=sspec(is)%z !but Kino's email on 5June2010.
-c        call dcopy(1,sspec(is)%z,1,w(oz-2+ib*2),1)
-c      enddo
-      call fftz30(n1,n2,n3,k1,k2,k3)
-      kkk = k1*k2*k3
-      kmax = 3
-      modrhg = 2
-c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
-c     .ngabc,w,w,nwk,modrhg)
-        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-     .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
-     .  , iwdummy , iwdummy , nwk , modrhg ) 
-
-
-      call isanrg(modrhg,-3,2,'ioden','core option',.true.)
-
-C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
-      if (nsp .eq. 2) then
-        call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1+kkk),0,1)
-      endif
-
-C ... Put n0(G) into psrho and cn
-      allocate(psrho_zv(kkk*nsp))
-
-      allocate(cn_zv(ng*nsp))
-
-      call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
-
-      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
-     ., 0 , - 1 )
-
-       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
-     . cn_zv ) 
-
-
-      xx0 = dval ( cn_zv , 1 )
-
-
-C ... Add sum of local gaussian densities to mesh density
-      print *,' modrhg=',modrhg
-      if (modrhg .ge. 0 .or. modrhg .le. -2) then
-        if (modrhg .eq.  0) i = 131
-        if (modrhg .eq.  1) i =  31
-        if (modrhg .eq.  2) i =   1
-        if (modrhg .eq. -2) i =   2
-        if (modrhg .eq. -3) i =   3
-        if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , cn_zv , 
-     .  1 )
-
-        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
-     .  , 1 )
-
-         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
-     .   , kmax , ng , cn_zv ) 
-
-
-        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
-     .  , 1 )
-
-      endif
-      xx = dval ( cn_zv , 1 )
-
-
-C ... FFT (n0 + gaussians) (G) to real-space mesh
-      if (modrhg .ge. 0) then
-         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
-     .   ) 
-
-
-        call awrit2('%N ioden : local densities + envelope density,'
-     .  //' Qloc=%,6;6d  Q=%,6;6d',' ',80,stdo,(xx-xx0)*vol,xx*vol)
-        if (modrhg .lt. 2) then
-          call awrit1('%9fLocal densities include core'//
-     .    '%?#n==0#+nuclear## contributions.',' ',80,stdo,modrhg)
-        endif
-      elseif (modrhg .eq. -2) then
-        call info2(0,0,0,'%N ioden : local'//
-     .  ' densities (true-smooth terms),  Qloc=%,6;6d',xx*vol,0)
-      elseif (modrhg .eq. -3) then
-        call info2(0,0,0,'%N ioden : smooth (envelope - local)'//
-     .  ' density,  Qs=%,6;6d  Qs-Qs(loc)=%,6;6d',
-     .  xx0*vol,xx*vol)
-      else
-        call info2(0,0,0,'%N ioden : smooth density only'//
-     .  ' (no local densities added) Qsm=%,6;6d',xx0*vol,0)
-      endif
-
-      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
-     ., 0 , 1 )
-
-
-      if (allocated(cn_zv)) deallocate(cn_zv)
-
-
-C ... File I/O
-      nwk = 12*max(k1,k2,k3)
-      allocate(wk_zv(nwk**2*nsp))
-
-       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
-     . , psrho_zv , wk_zv , nwk , modrhg ) 
-
-
-      if (allocated(wk_zv)) deallocate(wk_zv)
-      if (allocated(psrho_zv)) deallocate(psrho_zv)
-
-c      call rlse(oz)
-
-
-C ... Restore smrho+, smrho-
-      if (nsp .eq. 2) then
-        call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1+kkk),0,1)
-      endif
-      end subroutine ioden
-
-
+      module m_ioden2
+      contains
       subroutine ioden2(mode,sopts,nsp,plat,alat,nbas,pos,z,k1,k2,k3,
      .ngabc,smrho,wk,nwk,modrhg)
 
@@ -325,8 +45,14 @@ C     implicit none
 C ... Passed parameters
       character*(*) sopts
       integer mode,ngabc(3),k1,k2,k3,nwk,nsp,modrhg,nbas
+#ifdef USEOPTIONAL
+      double complex ,optional:: smrho(k1,k2,k3,nsp)
+      double precision plat(3,3),alat,pos(3,nbas)
+      real(8),optional:: wk(nwk,nwk,nsp)
+#else
       double complex smrho(k1,k2,k3,nsp)
       double precision plat(3,3),wk(nwk,nwk,nsp),alat,pos(3,nbas)
+#endif
       double precision z(nbas)
 C ... Local parameters
       logical lok
@@ -521,5 +247,305 @@ C --- Write the file ---
       call rxs('ioden: failed to parse option ... ',sopts(j1:j2))
 
       end subroutine ioden2
+      end module m_ioden2
+
+       subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
+     . , smrho ) 
+
+
+      use m_struc_def  !Cgetarg
+      use m_globalvariables
+      use m_ioden2
+C- File I/O charge density on a uniform mesh in a plane or full 3d mesh
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   sopts :character string specifying plane and other options.
+Ci         :Specifications and options are separated by a delimiter,
+Ci         :which is the first character in sopts.
+Ci         :
+Ci         :if option is g3d then the density is written to
+Ci         :disk on the full 3d grid.   Otherwise:
+Ci         :The density is written to disk for a uniform of mesh of
+Ci         :points in one plane.  This information is specified by three
+Ci         :groups of numbers: the origin, a first direction vector with
+Ci         :its number of points, and a second direction vector with its
+Ci         :number of points.
+Ci         :
+Ci         :At present, these points must be taken from the points on
+Ci         :the smooth mesh, smrho.  In this case, all three groups of
+Ci         :information are sets of integers.  For example,
+Ci         :specify the origin by three numbers:
+Ci         :    o=#1,#2,#3
+Ci         :The point (#1,#2,#3) corresponds to the Cartesian coordinate
+Ci         :   #1/n1 p1 + #2/n2 p2 + #3/n3 p3
+Ci         :where (n1,n2,n3) are the number of divisions in the
+Ci         :mesh along the three lattice vectors (p1,p2,p3).
+Ci         :o=0,0,0 corresponds to the origin.
+Ci         :
+Ci         :Specify the direction vectors by
+Ci         :    l1=#1,#2,#3[,#4]
+Ci         :    l2=#1,#2,#3[,#4]
+Ci         :
+Ci         :l1 and l2 specify the first and second direction vectors,
+Ci         :respectively.  #1,#2,#3 select the
+Ci         :increments in mesh points along each of the three lattice
+Ci         :vectors that define the direction vector.  Thus in Cartesian
+Ci         :coordinates a direction vector is
+Ci         :   #1/n1 p1 + #2/n2 p2 + #3/n3 p3
+Ci         :where as before (n1,n2,n3) are the number of divisions in
+Ci         :the mesh along the three lattice vectors (p1,p2,p3).
+Ci         :The last number (#4) specifies how many points to take
+Ci         :in that direction.
+Ci         :
+Ci         :Other options:
+Ci         :  g3d       output of 3d grid plus headers in xsf format ready for xcrysden
+Ci         :  fn=name   specifies the file name for file I/O
+Ci         :
+Ci         :   core=#   specifies how local rho is to be included
+Ci         :            #=0 include core densities - nuclear charge
+Ci         :            #=1 include core densities
+Ci         :            #=2 (default) exclude core densities
+Ci         :            #=-1 no local densities to be included
+Ci         :            #=-2 true local density, no smoothed part
+Ci         :            #=-3 istl-local sm densities, no true part
+Ci         :
+Ci         :Example: using '~' as the delimiter, and suppose
+Ci         :n1=n2=48 and n3=120, the specification
+Ci         :  ~fn=myrho~o=0,0,60~l1=1,1,0,49~l2=0,0,1,121
+Ci         :writes 'myrho.ext' a mesh (49,121) points.
+Ci         :The origin (first point) lies at (p3/2)
+Ci         :The first vector points along (p1+p2), and has that length;
+Ci         :the second vector points along p3, and has that length.
+Ci   slat  :struct for lattice information; see routine ulat
+Ci     Elts read: plat nabc ng okv vol
+Ci     Stored:    *
+Ci     Passed to: rhgcmp
+Ci   ssite :struct for site-specific information; see routine usite
+Ci     Elts read: *
+Ci     Stored:    *
+Ci     Passed to: rhgcmp
+Ci   sspec :struct for species-specific information; see routine uspec
+Ci     Elts read: *
+Ci     Stored:    *
+Ci     Passed to: rhgcmp
+Ci   orhat :offsets to arrays containing local atom densities
+Ci   smrho :smooth density on uniform mesh
+Co Outputs
+Co   The sum local gaussian densities and smrho is written to disk
+Cl Local variables
+Cl   modrhg:controls what part of core density is added
+Cl         :-1 Add no local densities
+Cl         : 0 include core density - sm nuclear charge
+Cl         : 1 include core density, but no nuclear charge
+Cl         : 2 exclude core density
+Cr Remarks
+Cr    sopts specifies which plane(s) are written to disk
+Cr Bugs
+Cr   Routines create smoothe approximation to density, not true density
+Cu Updates
+Cu   July 7 05 (Walter Lambrecht) New option g3d
+Cu   25 Aug 04 New modes -2, -3
+Cu   24 May 03 Corrections to errors in messages
+Cu   23 Oct 01 Local densities are more accurately represented
+Cu             in G_kL expansion:  k=0..kmax.  Added core= option.
+Cu   25 Apr 01 Simplified the plane specification
+Cu   02 Mar 01 Spin polarized
+Cu   09 Feb 01 Added local gaussian densities to file I/O
+Cu             and extended how a plane may be specified
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      character*(*) sopts
+      type(s_lat)::slat
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+
+       type(s_rv1) :: sv_p_orhat
+
+      double complex smrho(*)
+C ... Local parameters
+      integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
+      integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
+        real(8),pointer :: rv_p_opos(:)
+
+       integer,pointer :: iv_p_okv(:)
+
+      complex(8) ,allocatable :: cn_zv(:)
+      complex(8) ,allocatable :: psrho_zv(:)
+ckino not complex but real      complex(8) ,allocatable :: wk_zv(:)
+      real(8) ,allocatable :: wk_rv(:)
+
+      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+      double precision vol,xx0,xx,dval,plat(3,3),alat
+      integer ib,is,igetss
+C ... Heap
+       integer ::iwdummy 
+
+C ... External calls
+      external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
+     .gvputf,icopy,ivset,mkils0,mkilst,nwordg,poppr,
+     .pshpr,rhgcmp,rhomom,rx,upack,upack2
+
+      real(8),allocatable:: zz(:)
+C ... Unpack and setup
+Changenglob      nsp = nglob('nsp')
+      nsp = globalvariables%nsp
+Changenglob      nbas = nglob('nbas')
+      nbas = globalvariables%nbas
+      stdo = lgunit(1)
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ng=slat%ng
+       iv_p_okv => slat%iv_p_okv 
+
+      vol=slat%vol
+
+ccccccccccccccccccccccccccccc
+c      allocate(zz(nbas))
+c      zz=sspec(1:nbas)%z
+c      print *,' zz1=',zz
+c      print *,' zz2=',sspec(1:nbas)%z
+c      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+ccccccccccccccccccccccccccccc
+
+
+      alat=slat%alat
+       rv_p_opos => slat%rv_p_opos 
+
+
+c      call defrr(oz,nbas)
+c      do ib = 1,nbas
+c        is = int(ssite(ib)%spec)
+cc        w(oz-2+ib*2)=sspec(is)%z !but Kino's email on 5June2010.
+c        call dcopy(1,sspec(is)%z,1,w(oz-2+ib*2),1)
+c      enddo
+      call fftz30(n1,n2,n3,k1,k2,k3)
+      kkk = k1*k2*k3
+      kmax = 3
+      modrhg = 2
+c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
+c     .ngabc,w,w,nwk,modrhg)
+#ifdef USEOPTIONAL
+        call ioden2 ( mode=0 , sopts=sopts ,nsp= nsp ,plat= plat , 
+     .   alat=alat , nbas=nbas , pos=rv_p_opos 
+     .  , z=sspec ( ssite ( 1:nbas ) %spec ) %z , k1=k1 , k2=k2 , k3=k3
+     .   , ngabc=ngabc 
+     .  , nwk=nwk , modrhg=modrhg ) 
+#else
+        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+     .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+     .  , iwdummy , iwdummy , nwk , modrhg ) 
+#endif
+
+
+      call isanrg(modrhg,-3,2,'ioden','core option',.true.)
+
+C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
+      if (nsp .eq. 2) then
+        call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1+kkk),0,1)
+      endif
+
+C ... Put n0(G) into psrho and cn
+      allocate(psrho_zv(kkk*nsp))
+
+      allocate(cn_zv(ng*nsp))
+
+      call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
+
+      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+     ., 0 , - 1 )
+
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
+     . cn_zv ) 
+
+
+      xx0 = dval ( cn_zv , 1 )
+
+
+C ... Add sum of local gaussian densities to mesh density
+      print *,' modrhg=',modrhg
+      if (modrhg .ge. 0 .or. modrhg .le. -2) then
+        if (modrhg .eq.  0) i = 131
+        if (modrhg .eq.  1) i =  31
+        if (modrhg .eq.  2) i =   1
+        if (modrhg .eq. -2) i =   2
+        if (modrhg .eq. -3) i =   3
+        if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , cn_zv , 
+     .  1 )
+
+        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
+     .  , 1 )
+
+         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
+     .   , kmax , ng , cn_zv ) 
+
+
+        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
+     .  , 1 )
+
+      endif
+      xx = dval ( cn_zv , 1 )
+
+
+C ... FFT (n0 + gaussians) (G) to real-space mesh
+      if (modrhg .ge. 0) then
+         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
+     .   ) 
+
+
+        call awrit2('%N ioden : local densities + envelope density,'
+     .  //' Qloc=%,6;6d  Q=%,6;6d',' ',80,stdo,(xx-xx0)*vol,xx*vol)
+        if (modrhg .lt. 2) then
+          call awrit1('%9fLocal densities include core'//
+     .    '%?#n==0#+nuclear## contributions.',' ',80,stdo,modrhg)
+        endif
+      elseif (modrhg .eq. -2) then
+        call info2(0,0,0,'%N ioden : local'//
+     .  ' densities (true-smooth terms),  Qloc=%,6;6d',xx*vol,0)
+      elseif (modrhg .eq. -3) then
+        call info2(0,0,0,'%N ioden : smooth (envelope - local)'//
+     .  ' density,  Qs=%,6;6d  Qs-Qs(loc)=%,6;6d',
+     .  xx0*vol,xx*vol)
+      else
+        call info2(0,0,0,'%N ioden : smooth density only'//
+     .  ' (no local densities added) Qsm=%,6;6d',xx0*vol,0)
+      endif
+
+      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+     ., 0 , 1 )
+
+
+      if (allocated(cn_zv)) deallocate(cn_zv)
+
+
+C ... File I/O
+      nwk = 12*max(k1,k2,k3)
+
+ckino not complex but real,      allocate(wk_zv(nwk**2*nsp))
+      allocate(wk_rv(nwk**2*nsp))
+
+       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+ckino not complex but real     . , psrho_zv , wk_zv , nwk , modrhg ) 
+     . , psrho_zv , wk_rv , nwk , modrhg ) 
+
+
+ckino not complex but real      if (allocated(wk_zv)) deallocate(wk_zv)
+      if (allocated(wk_rv)) deallocate(wk_rv)
+      if (allocated(psrho_zv)) deallocate(psrho_zv)
+
+c      call rlse(oz)
+
+
+C ... Restore smrho+, smrho-
+      if (nsp .eq. 2) then
+        call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1+kkk),0,1)
+      endif
+      end subroutine ioden
+
+
 
 

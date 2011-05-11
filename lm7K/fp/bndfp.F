@@ -1,3 +1,4 @@
+#define USEOPTIONAL 1
 C oevl -> evlall
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
@@ -10,6 +11,7 @@ C oevl -> evlall
       use m_rdctrl, only: ncutovl
       use m_struc_def
       use m_globalvariables
+      use m_phmbls
 #if defined(__INTEL_COMPILER)
       use ifport, only: unlink
 #endif
@@ -241,10 +243,11 @@ C ... Local parameters
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
 c      real(8) ,allocatable :: eomin_rv(:)
 
+ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      ., i , iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
      ., lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
-     ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk , nl 
+     ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
      ., lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
      ., stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
      ., nfilem , iobzwt , lnoxc , lrsig , lwsig , jobgw , nll , lpdiag 
@@ -256,7 +259,7 @@ c      real(8) ,allocatable :: eomin_rv(:)
               integer:: os , osoptc 
               real(8),pointer :: rv_p_owtkb(:,:,:)
 
-             real(8),pointer :: rv_p_oswtk(:)
+             real(8),pointer :: rv_p_oswtk(:)=>NULL()
 
             integer,pointer :: iv_p_oidtet(:)
 
@@ -996,6 +999,7 @@ C --- Start loop over k points; also, re-entry for second band pass ---
         call dpzero ( fh_rv , 3 * nbas ) 
 
       endif
+
 
       if (lswtk .eq. 1) then
         efmax = 1d3
@@ -2016,8 +2020,13 @@ C$$$#endif
               nev = ndimhx
               nmx = ndimhx
               nevl = ndimhx
+#ifdef USEOPTIONAL
+               call phmbls ( mode=2 , ndimh=ndimhx , eval=evl ( 1 , jsp ) 
+     .         , zhz= hamm ) 
+#else
                call phmbls ( 2 , ndimhx , evl ( 1 , jsp ) , iwdummy , iwdummy 
      .         , iwdummy , iwdummy , iwdummy , hamm ) 
+#endif
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
                 allocate(ww_zv(ndimhx**2*2))

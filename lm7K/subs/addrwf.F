@@ -1,3 +1,5 @@
+      module m_addrwf
+      contains
       subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd,
      .g,s)
 C- Add constant * radial wave function to another radial wave function
@@ -38,8 +40,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer l,ndg,n1,nr,mode
+#define USEOPTIONAL
+#ifdef USEOPTIONAL
+      real(8):: fac,rofi(nr),rwgt(nr),
+     .gadd(ndg,2),g(ndg,2),s
+      real(8),optional:: z,v(nr),ev,eadd
+#else
       double precision fac,z,rofi(nr),rwgt(nr),v(nr),ev,eadd,
      .gadd(ndg,2),g(ndg,2),s
+#endif
 C ... Local parameters
       integer ir
       double precision cc,vi,fllp1,gf11,gf22,gf12,r,tmc
@@ -81,7 +90,8 @@ C       Rest of the loop computes overlap between new g and gadd
       endif
 
       if (n1 .gt. 0 .and. n1 .lt. nr) rwgt(n1) = rwgt(n1)/2
-      end
+      end subroutine addrwf
+      end module m_addrwf
 
       subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz,
      .phzp,dphzp,pnz,rsml,ehl,g0,g1,gz)
@@ -120,6 +130,7 @@ Cu   04 Sep 04 Adapted to extended local orbitals
 Cu   06 Mar 02 New routine
 C ----------------------------------------------------------------------
 C     implicit none
+      use m_addrwf
 C ... Passed parameters
       integer l,nr
       double precision a,rofi(nr),rwgt(nr),rsml(*),ehl(*)
@@ -148,14 +159,26 @@ C ... Local parameters
         bs = phi/det
         fac = phz*au + dphz*as
         x = 0
+#ifdef USEOPTIONAL
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g0(1,2),g=gz(1,2),
+     .  s=xx)
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g0,g=gz,s=xx)
+#else
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0(1,2),gz(1,2),
      .  xx)
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0,gz,xx)
+#endif
 
         fac = phz*bu + dphz*bs
+#ifdef USEOPTIONAL
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g1(1,2),g=gz(1,2),
+     .  s=xx)
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g1,g=gz,s=xx)
+#else
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1(1,2),gz(1,2),
      .  xx)
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1,gz,xx)
+#endif
 
       elseif (lpzi .eq. 2 .or. lpzi .eq. 3) then
         call dcopy(nr,gz,1,gzbig,1)
@@ -222,6 +245,7 @@ Cu   12 Jul 04 Add option 3 to mode.  New argument list
 Cu   06 Mar 02 New routine
 C ----------------------------------------------------------------------
 C     implicit none
+      use m_addrwf
 C ... Passed parameters
       integer mode,l,ng,n1,nr
       double precision z,v(nr),rofi(nr),rwgt(nr),e0,e1,ez,D

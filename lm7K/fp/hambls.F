@@ -1,4 +1,163 @@
 CSFCPP#define F90 1
+
+#define USEOPTIONAL 1
+
+      module m_phmbls
+      contains
+      subroutine phmbls(mode,ndimh,eval,iprm,wk,h,zd,z,zhz)
+
+C- Make (zd+)*h*z; order in ascending order of eigenvalues
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode  :consists of a sequence of bits that prescribed independent
+Ci         :functions
+Ci         :0  =mode0   do nothing; just return
+Ci         :1  =mode1   make zhz = zd+ * h * z
+Ci         :2  =mode2   poke diagonal of zhz into eval
+Ci         :4  =mode4   permute eval in ascending eval order
+Ci         :8  =mode8   permute z in ascending eval order
+Ci         :16 =mode16  permute zhz in ascending eval order
+Ci         :32 =mode32  Overwrite starting z with z^-1
+Ci                      Thus, e.g. mode1 => (zd+)^-1 * h * (z)^-1
+Ci         :64 =mode64  make zhz = zd+ * e * z
+Ci                      If used in conjunction w/ mode=32, reconstructs
+Ci                      hamiltonian from evals,evecs.
+Ci   ndimh :dimension of zhz, zd, z
+Ci   wk    :double complex work array of length ndimh**2
+Ci   h     :hamiltonian
+Ci         :Not used unless mode1 set
+Cio Inputs/Outputs
+Cio  iprm  :integer work of length ndimh.
+Cio        :Space used if any permutations done (mode4,mode8,mode16)
+Cio        :On output, holds permutations that order z and zhz in
+Cio        :ascending eval order.
+Cio  eval  :eigenvalues.
+Cio        :If mode2, eval generated from diag (zd+ h z)
+Cio        :Otherwise eval is input
+Cio  zd    :(mode1,mode64 only) left evec to generate (zd+ h z).
+Cio        :Usually zd and z point to the same address space;
+Cio        :however, they may be different, e.g. in constructing
+Cio        :off-diagonal spin blocks from spin diagonal z's
+Cio  z     :approximate eigenvectors
+Cio        :If mode16, z are permuted by ascending eval order
+Cio  zhz   :zd+ * h * z, where z are evecs, h is hamiltonian
+Cio        :If mode1, zhz is generated from z
+Cio        :Otherwise zhz is input
+Cio        :If mode8, output zhz is permuted by ascending eval order
+Cio        :NB: zhz can occupy the same address space as h
+Cio        :in which case h will be overwitten
+Cr Remarks
+Cr
+Cu Updates
+Cu   16 Jan 07 New mode 32
+Cu   19 May 03 First created
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+#ifdef USEOPTIONAL
+      integer mode,ndimh
+      integer,optional::iprm(ndimh)
+#else
+      integer mode,ndimh,iprm(ndimh)
+#endif
+      double precision eval(ndimh)
+#ifdef USEOPTIONAL
+      complex(8),optional:: z(ndimh,ndimh),zd(ndimh,ndimh)
+      complex(8)::zhz(ndimh,ndimh)
+      complex(8),optional:: wk(ndimh,ndimh)
+      complex(8),optional::h(ndimh,ndimh)
+#else
+      double complex z(ndimh,ndimh),zd(ndimh,ndimh),zhz(ndimh,ndimh)
+      double complex wk(ndimh,ndimh),h(ndimh,ndimh)
+#endif
+C ... Local parameters
+      double complex zer,one
+      parameter (zer=(0d0,0d0),one=(1d0,0d0))
+      integer i,j,k
+CSFCPP#if F90
+      integer ipiv(ndimh)
+CSFCPP#elif AUTO_ARRAY
+CSFCPP      integer ipiv(ndimh)
+CSFCPP#else
+CSFCPP      integer ipiv
+CSFCPP      call rx('phmbls: requires compiler with allocatable arrays')
+CSFCPP#endif
+
+      if (mode .eq. 0) return
+
+C ... Invert z
+      if (mod(mode/32,2) .ne. 0) then
+        call zgetrf(ndimh,ndimh,z,ndimh,ipiv,j)
+        call zgetri(ndimh,z,ndimh,ipiv,wk,ndimh**2,j)
+C       call zprm('z^-1',2,z,ndimh,ndimh,ndimh)
+      endif
+
+C ... zhz <- zd+ * h * z
+      if (mod(mode,2) .eq. 1) then
+        call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,h,ndimh,
+     .  zer,wk,ndimh)
+        call zgemm('N','N',ndimh,ndimh,ndimh,one,wk,ndimh,z,ndimh,
+     .  zer,zhz,ndimh)
+C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
+      endif
+
+C ... Eigenvalue estimates
+      if (mod(mode/2,2) .eq. 1) then
+        do  i = 1, ndimh
+          eval(i) = zhz(i,i)
+        enddo
+      endif
+
+C ... iprm sorts eigenvalues in ascending order
+      if (mod(mode/4,8) .ne. 0) then
+        call dvheap(1,ndimh,eval,iprm,0d0,1)
+      endif
+
+C ... Permute evals
+      if (mod(mode/4,8) .ne. 0) then
+        call dvprm(1,ndimh,eval,wk,iprm,.true.)
+      endif
+
+C ... Permute eigenvectors
+      if (mod(mode/8,2) .ne. 0) then
+        call zcopy(ndimh**2,z,1,wk,1)
+        do  i = 1, ndimh
+          k = iprm(i)
+          do  j = 1, ndimh
+            z(j,i) = wk(j,k)
+          enddo
+        enddo
+      endif
+
+C ... Permute zhz
+      if (mod(mode/16,2) .ne. 0) then
+        call zcopy(ndimh**2,zhz,1,wk,1)
+        do  i = 1, ndimh
+          k = iprm(i)
+          do  j = 1, ndimh
+            zhz(j,i) = wk(iprm(j),k)
+          enddo
+        enddo
+      endif
+
+C ... zhz <- zd+ * e * z ... usu. used in conjunction w/ mode=32
+      if (mod(mode/64,2) .ne. 0) then
+        do  j = 1, ndimh
+          do  i = 1, ndimh
+            wk(i,j) = eval(i)*z(i,j)
+          enddo
+        enddo
+C       call zprm('e * z',2,wk,ndimh,ndimh,ndimh)
+        call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,wk,ndimh,
+     .  zer,zhz,ndimh)
+C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
+
+      endif
+
+      end subroutine phmbls
+      end module m_phmbls
+
+
          subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
      .   , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .   , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
@@ -10,6 +169,7 @@ CSFCPP#define F90 1
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_psigd
+      use m_phmbls
 C- Hamiltonian and overlap of LDA+(sigma-vxc) for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -457,7 +617,11 @@ C       Return with raw sigm (orbital basis) in s, LDA evals in h
 C   ... Rotate sigm to LDA basis; step C in Remarks.
 C       s <- (Z.lda)+ sigma-vxc Z.lda = sigma-vxc in LDA basis
 C       call zprm('sigma, orbital basis',2,s,ndimh,ndimh,ndimh)
+#ifdef USEOPTIONAL
+        call phmbls(mode=3,ndimh=ndimh,eval=e0,wk=z0,h=s(1,1,ispc),zd=zqi,z=zqi,zhz=s(1,1,ispc))
+#else
         call phmbls(3,ndimh,e0,xx,z0,s(1,1,ispc),zqi,zqi,s(1,1,ispc))
+#endif
 C       call zprm('sigma, LDA basis',2,s,ndimh,ndimh,ndimh)
 
 C       Return with raw sigm (LDA basis) in s, LDA evals in h
@@ -491,7 +655,11 @@ C   ... Return with modified sigm (orb basis) in s, LDA evals in h
         if (lwsig .eq. 5) then
 C         call zqinv('n',zqi,ndimh,-ndimh**2,ndimh,h,ndimh,i)
 C         call rxx(i.lt.0,'hambls: failed to invert evec matrix')
+#ifdef USEOPTIONAL
+          call phmbls(mode=33,ndimh=ndimh,eval=e0,wk=z0,h=s(1,1,ispc),zd=zqi,z=zqi,zhz=s(1,1,ispc))
+#else
           call phmbls(33,ndimh,e0,xx,z0,s(1,1,ispc),zqi,zqi,s(1,1,ispc))
+#endif
 C         call zprm('sigm(orb)',2,s(1,1,ispc),ndimh,ndimh,ndimh)
           call dcopy(ndimh,e,1,h,1)
           goto 99
@@ -570,8 +738,13 @@ C          h(1:ndimh,1:ndimh,3) = 0
 C         Effective hamiltonian of h+sig, orbital basis
 *         call zprm('z11',2,s(1,1,1),ndimh,ndimh,ndimh)
 *         call zprm('z22',2,s(1,1,2),ndimh,ndimh,ndimh)
+#ifdef USEOPTIONAL
+          call phmbls(mode=1,ndimh=ndimh,eval=e0,wk=z0,
+     .    h=h(1,1,3),zd=s(1,1,1),z=s(1,1,2),zhz=h(1,1,3))
+#else
           call phmbls(1,ndimh,e0,xx,z0,
      .    h(1,1,3),s(1,1,1),s(1,1,2),h(1,1,3))
+#endif
 *         call zprm('S.O, evec repsn',2,h(1,1,3),ndimh,ndimh,ndimh)
 
           deallocate(z0,zqi,e0)
@@ -913,6 +1086,7 @@ C     pgf90 6.0-2 on x86-64 Linux  !!
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_phmbls
 C- sigma-vxc or sum_occ <sigma-vxc> for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1054,8 +1228,13 @@ C ... ksp = current spin index (isp or 1, in noncollinear case)
 C --- Compute double-counting contribution to total energy ---
       if (mod(mode,10) .eq. 1) then
 C  ...  zsz <- diagonal part of <sigma-vxc>
+#ifdef USEOPTIONAL
+         call phmbls ( mode=3 , ndimh=ndimhx , eval=zsz  , wk=wk , h=sig ,zd= zq , z=zq 
+     .   , zhz=sig ) 
+#else
          call phmbls ( 3 , ndimhx , zsz , iwdummy , wk , sig , zq , zq 
      .   , sig ) 
+#endif
 
 C  ...  Make weights for d.c. sum
         call dpzero(ewgt,ndimhx)
@@ -1104,7 +1283,7 @@ CSFCPP#endif
       end subroutine blsig
 
       subroutine permhk(mode,nbas,ldh,offH,h,hp,lblock)
-
+      use m_phmbls
 C- Permutation of H by kappa blocks
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1203,145 +1382,6 @@ C ... Local parameters
 
       end subroutine permhk
 
-      subroutine phmbls(mode,ndimh,eval,iprm,wk,h,zd,z,zhz)
-
-C- Make (zd+)*h*z; order in ascending order of eigenvalues
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :consists of a sequence of bits that prescribed independent
-Ci         :functions
-Ci         :0  =mode0   do nothing; just return
-Ci         :1  =mode1   make zhz = zd+ * h * z
-Ci         :2  =mode2   poke diagonal of zhz into eval
-Ci         :4  =mode4   permute eval in ascending eval order
-Ci         :8  =mode8   permute z in ascending eval order
-Ci         :16 =mode16  permute zhz in ascending eval order
-Ci         :32 =mode32  Overwrite starting z with z^-1
-Ci                      Thus, e.g. mode1 => (zd+)^-1 * h * (z)^-1
-Ci         :64 =mode64  make zhz = zd+ * e * z
-Ci                      If used in conjunction w/ mode=32, reconstructs
-Ci                      hamiltonian from evals,evecs.
-Ci   ndimh :dimension of zhz, zd, z
-Ci   wk    :double complex work array of length ndimh**2
-Ci   h     :hamiltonian
-Ci         :Not used unless mode1 set
-Cio Inputs/Outputs
-Cio  iprm  :integer work of length ndimh.
-Cio        :Space used if any permutations done (mode4,mode8,mode16)
-Cio        :On output, holds permutations that order z and zhz in
-Cio        :ascending eval order.
-Cio  eval  :eigenvalues.
-Cio        :If mode2, eval generated from diag (zd+ h z)
-Cio        :Otherwise eval is input
-Cio  zd    :(mode1,mode64 only) left evec to generate (zd+ h z).
-Cio        :Usually zd and z point to the same address space;
-Cio        :however, they may be different, e.g. in constructing
-Cio        :off-diagonal spin blocks from spin diagonal z's
-Cio  z     :approximate eigenvectors
-Cio        :If mode16, z are permuted by ascending eval order
-Cio  zhz   :zd+ * h * z, where z are evecs, h is hamiltonian
-Cio        :If mode1, zhz is generated from z
-Cio        :Otherwise zhz is input
-Cio        :If mode8, output zhz is permuted by ascending eval order
-Cio        :NB: zhz can occupy the same address space as h
-Cio        :in which case h will be overwitten
-Cr Remarks
-Cr
-Cu Updates
-Cu   16 Jan 07 New mode 32
-Cu   19 May 03 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,ndimh,iprm(ndimh)
-      double precision eval(ndimh)
-      double complex z(ndimh,ndimh),zd(ndimh,ndimh),zhz(ndimh,ndimh)
-      double complex wk(ndimh,ndimh),h(ndimh,ndimh)
-C ... Local parameters
-      double complex zer,one
-      parameter (zer=(0d0,0d0),one=(1d0,0d0))
-      integer i,j,k
-CSFCPP#if F90
-      integer ipiv(ndimh)
-CSFCPP#elif AUTO_ARRAY
-CSFCPP      integer ipiv(ndimh)
-CSFCPP#else
-CSFCPP      integer ipiv
-CSFCPP      call rx('phmbls: requires compiler with allocatable arrays')
-CSFCPP#endif
-
-      if (mode .eq. 0) return
-
-C ... Invert z
-      if (mod(mode/32,2) .ne. 0) then
-        call zgetrf(ndimh,ndimh,z,ndimh,ipiv,j)
-        call zgetri(ndimh,z,ndimh,ipiv,wk,ndimh**2,j)
-C       call zprm('z^-1',2,z,ndimh,ndimh,ndimh)
-      endif
-
-C ... zhz <- zd+ * h * z
-      if (mod(mode,2) .eq. 1) then
-        call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,h,ndimh,
-     .  zer,wk,ndimh)
-        call zgemm('N','N',ndimh,ndimh,ndimh,one,wk,ndimh,z,ndimh,
-     .  zer,zhz,ndimh)
-C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
-      endif
-
-C ... Eigenvalue estimates
-      if (mod(mode/2,2) .eq. 1) then
-        do  i = 1, ndimh
-          eval(i) = zhz(i,i)
-        enddo
-      endif
-
-C ... iprm sorts eigenvalues in ascending order
-      if (mod(mode/4,8) .ne. 0) then
-        call dvheap(1,ndimh,eval,iprm,0d0,1)
-      endif
-
-C ... Permute evals
-      if (mod(mode/4,8) .ne. 0) then
-        call dvprm(1,ndimh,eval,wk,iprm,.true.)
-      endif
-
-C ... Permute eigenvectors
-      if (mod(mode/8,2) .ne. 0) then
-        call zcopy(ndimh**2,z,1,wk,1)
-        do  i = 1, ndimh
-          k = iprm(i)
-          do  j = 1, ndimh
-            z(j,i) = wk(j,k)
-          enddo
-        enddo
-      endif
-
-C ... Permute zhz
-      if (mod(mode/16,2) .ne. 0) then
-        call zcopy(ndimh**2,zhz,1,wk,1)
-        do  i = 1, ndimh
-          k = iprm(i)
-          do  j = 1, ndimh
-            zhz(j,i) = wk(iprm(j),k)
-          enddo
-        enddo
-      endif
-
-C ... zhz <- zd+ * e * z ... usu. used in conjunction w/ mode=32
-      if (mod(mode/64,2) .ne. 0) then
-        do  j = 1, ndimh
-          do  i = 1, ndimh
-            wk(i,j) = eval(i)*z(i,j)
-          enddo
-        enddo
-C       call zprm('e * z',2,wk,ndimh,ndimh,ndimh)
-        call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,wk,ndimh,
-     .  zer,zhz,ndimh)
-C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
-
-      endif
-
-      end subroutine phmbls
 
 
 C      subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd)

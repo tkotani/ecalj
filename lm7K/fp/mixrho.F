@@ -664,7 +664,8 @@ C     NB: For now, nx must be zero
       k9 = 10
         call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
      .  , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
-     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , 0 , nda , w_oa , w_oqkl 
+ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , 0 , nda , w_oa , w_oqkl 
+     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , (/0/) , nda , w_oa , w_oqkl 
      .  , rms2 , nmixr ) 
 
 C     debugging check
@@ -688,7 +689,8 @@ C      stop
 C ... Write this and prior iterations onto disk
         call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
      .  locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
-     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , 0 , nda , w_oa , w_oqkl 
+ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , 0 , nda , w_oa , w_oqkl 
+     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , (/0/) , nda , w_oa , w_oqkl 
      .  , rms2 , nmixr ) 
 
 
@@ -1091,7 +1093,8 @@ C ... Passed parameters
 
        type(s_rv1) :: sv_p_orhnew(3,nbas)
 
-      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
+ckino wt(3)      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
+      real(8):: difx , beta , wt(3) , qkl(0:kmxr,nlm0,nsp,4,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 

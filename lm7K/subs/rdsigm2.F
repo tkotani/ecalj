@@ -1,9 +1,11 @@
+#define USEOPTIONAL 1
       subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      &nk1,nk2,nk3,sfz) !,qin,isp,sene)
 
       use m_struc_def  !Cgetarg
       use m_hft2rs 
       use m_globalvariables
+      use m_sigflg
 C- takao. obtain sene at given q (qin).
 C
 Ci sfz
@@ -155,14 +157,24 @@ C     Switch flagging whether input file has symops or not
       call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 
 C ... Command-line switches for input sigma and defaults
+#ifdef USEOPTIONAL
+       call sigflg (dc= ' ' , sio='rsig' , strn=' ' 
+     . , lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  ) 
+#else
        call sigflg ( ' ' , 'rsig' , ' ' , iwdummy , iwdummy , iwdummy 
      . , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+#endif
 
       if (cmdopt('--rsig',6,0,outs)) then
         out2 = outs(7:)
         dc = out2(1:1)
+#ifdef USEOPTIONAL
+         call sigflg ( dc=dc , sio='rsig' , strn=out2 
+     .   , lfbz=lfbzin  ,lonesp= lonesp , qpoff=qoffi  ) 
+#else
          call sigflg ( dc , 'rsig' , out2 , iwdummy , iwdummy , iwdummy 
      .   , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+#endif
 
       endif
 #if 1

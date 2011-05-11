@@ -1,5 +1,134 @@
 c#define ONE_ATOM_UNIT 1
 
+#define USEOPTIONAL 1
+      module m_rhocor
+      contains
+      subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
+     .qcor,tol,ec,sumec,sumtc,rho,gcore,ipr)
+
+C- Generates the (spherical) charge density from the core states
+C ----------------------------------------------------------------------
+Ci Inputs:
+Ci   isw   :1 return the core wave functions in gcore
+Ci   z     :nuclear charge
+Ci   lmax  :maximum l
+Ci   nsp   :=1 for non-spin-polarized =2 for spin-polarized calculations
+Ci   konfig:core configuration. Core orbitals are specified by:
+Ci         :  1, 2, ..., konf(0)-1 for s
+Ci         :  2, 3, ..., konf(1)-1 for p
+Ci         :  3, 4, ..., konf(2)-1 for d, and so on.
+Ci   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+Ci   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+Ci   nr    :number of radial mesh points
+Ci   rofi  :radial mesh points
+Ci   v     :spherical potential (electronic contribution)
+Ci   g     :work array holding normalized wave function times r
+Ci   kcor  :(partial core occupation) p.q.n for occupation
+Ci   lcor  :(partial core occupation) l quantum for occupation
+Ci   qcor  :(partial core occupation) core charge and moment
+Ci   tol   :wave function tolerance
+Ci   ipr   :0 no printout
+Ci         :1 summary printout
+Ci         :2 detailed printout
+Cio Inputs/Outputs:
+Cio  ec    :guessed core eigenvalues (input)
+Cio         core eigenvalues (output)
+Co Outputs:
+Co   rho   :spherical charge density times 4*pi*r*r
+Co         :the spherical charge density of the core states is added
+Co   sumec :sum of core eigenvalues
+Co   sumtc :core kinetic energy
+Co   gcore :(isw=0) not used
+Co         :(isw=1) core wave functions
+Cl Local variables
+Cl   deg   :orbital occupation number
+Cr Remarks:
+Cu Updates
+Cu   19 Apr 01 core wave functions may be saved in gcore
+C  ---------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
+#ifdef USEOPTIONAL
+      double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
+     .sumec(nsp),sumtc(nsp),v(nr,nsp),ec(*)
+      real(8),optional:: gcore(nr,2,*)
+#else
+      double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
+     .sumec(nsp),sumtc(nsp),v(nr,nsp),gcore(nr,2,*),ec(*)
+#endif
+C ... Local parameters
+      character*1 pqn(9),ang(6)
+      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit
+      double precision deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax,
+     .rorim,slo,sum,tcore,val,vrho,kappa2
+C ... Heap
+      data pqn /'1','2','3','4','5','6','7','8','9'/
+      data ang /'s','p','d','f','g','h'/
+
+      stdo = lgunit(1)
+      rmax  = rofi(nr)
+      b     = rmax/(dexp(a*nr-a)-1.d0)
+      e1    = -2.5d0*z*z - 5d0
+      e2    = 20d0
+      icore = 0
+      do  80  isp = 1, nsp
+        sumec(isp) = 0d0
+        sumtc(isp) = 0d0
+        qcore = 0d0
+        rhorim = 0d0
+        if (ipr .ge. 2) write(stdo,757)
+        if(ipr.ge.2 .and. nsp.eq.2)
+     .  write(stdo,'('' spin'',i2,'':'')') isp
+  757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
+     .  4x,'nre',2x,'rho(rmax)')
+        do  10  l = 0, lmax
+          do  10  konf = l, konfig(l)-2
+            deg = (2*(2*l+1))/nsp
+            if (konf+1.eq.kcor .and. l.eq.lcor) then
+              deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
+            endif
+            icore = icore+1
+            nodes = konf - l
+            ecor0 = ec(icore)
+            val = 1d-30
+            slo = -val
+            call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,v(1,isp),
+     .      g,sum,a,b,rofi,nr,nre)
+            ecore = ecor0
+C     ... Correct core energy by using hankel bc's
+            kappa2 = ecor0 - v(nr,isp) + 2*z/rmax
+            if (nre .eq. nr .and. kappa2 .lt. 0d0) then
+              dlml = -1d0 - dsqrt(-kappa2)*rmax
+              do  31  ll = 1, l
+                dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
+   31         continue
+              slo = val*(dlml+l+1)/rmax
+              call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,v(1,isp),
+     .        g,sum,a,b,rofi,nr,nre)
+            endif
+            ec(icore) = ecore
+            if (isw .eq. 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
+
+C     --- Add to rho, make integral v*rho ---
+            call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v(1,isp),rho(1,isp),
+     .      deg,vrho,rorim)
+            rhorim = rhorim + rorim
+            tcore = ecore - vrho
+            qcore = qcore + deg
+            sumec(isp) = sumec(isp) + deg*ecore
+            sumtc(isp) = sumtc(isp) + deg*tcore
+            if (ipr.ge.2) write(stdo,758)
+     .      pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
+  758       format(1x,2a1,f8.2,3f15.6,i7,f9.5)
+   10   continue
+        if (ipr.gt.0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
+  230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
+     .  '  rho(rmax)',f8.5)
+   80 continue
+      end subroutine rhocor
+      end module m_rhocor
+
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
@@ -91,6 +220,7 @@ Cr     ekin = sumev + sumec + dsumec - rhovh - rhomu
 Cb Bugs
 Cb   Total energy terms need to be cleaned up and simplified.
 C ----------------------------------------------------------------
+      use m_getqvc
 C     implicit none
 C Passed parameters
       logical lfrz,lgdd
@@ -149,8 +279,13 @@ C --- Core charge, radial mesh points and weights ---
      .    '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
         endif
       endif
+#ifdef USEOPTIONAL
+      call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm
+     .)
+#else
       call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm,
      .ec,ev)
+#endif
 
 C --- Guesses for core and valence eigenvalues ---
 ctakao probably not needed here
@@ -836,6 +971,7 @@ Cr     rho= q_0 phi*phi + 2 q_1 phi*phidot +
 Cr          q_2 (phidot*phidot + phi*phidotdot)
 C  ---------------------------------------------------
 C     implicit none
+      use m_rhocor
 C Passed parameters
       logical lgdd,lfrz
       integer nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr
@@ -873,8 +1009,13 @@ C --- Calculate core density ---
       if (nlr .eq. 1) then
         if (.not. lfrz) then
           call dpzero(rhoc,nr*nsp)
+#ifdef USEOPTIONAL
+          call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
+     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,ipr=ipr)
+#else
           call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
      .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,0d0,ipr)
+#endif
         endif
         call dcopy(nr*nsp,rhoc,1,rho,1)
       endif
@@ -972,124 +1113,6 @@ C  ...  Case add -p q2 phi phi into rho
   20  continue
       end subroutine newrho
 
-      subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
-     .qcor,tol,ec,sumec,sumtc,rho,gcore,ipr)
-
-C- Generates the (spherical) charge density from the core states
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   isw   :1 return the core wave functions in gcore
-Ci   z     :nuclear charge
-Ci   lmax  :maximum l
-Ci   nsp   :=1 for non-spin-polarized =2 for spin-polarized calculations
-Ci   konfig:core configuration. Core orbitals are specified by:
-Ci         :  1, 2, ..., konf(0)-1 for s
-Ci         :  2, 3, ..., konf(1)-1 for p
-Ci         :  3, 4, ..., konf(2)-1 for d, and so on.
-Ci   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-Ci   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-Ci   nr    :number of radial mesh points
-Ci   rofi  :radial mesh points
-Ci   v     :spherical potential (electronic contribution)
-Ci   g     :work array holding normalized wave function times r
-Ci   kcor  :(partial core occupation) p.q.n for occupation
-Ci   lcor  :(partial core occupation) l quantum for occupation
-Ci   qcor  :(partial core occupation) core charge and moment
-Ci   tol   :wave function tolerance
-Ci   ipr   :0 no printout
-Ci         :1 summary printout
-Ci         :2 detailed printout
-Cio Inputs/Outputs:
-Cio  ec    :guessed core eigenvalues (input)
-Cio         core eigenvalues (output)
-Co Outputs:
-Co   rho   :spherical charge density times 4*pi*r*r
-Co         :the spherical charge density of the core states is added
-Co   sumec :sum of core eigenvalues
-Co   sumtc :core kinetic energy
-Co   gcore :(isw=0) not used
-Co         :(isw=1) core wave functions
-Cl Local variables
-Cl   deg   :orbital occupation number
-Cr Remarks:
-Cu Updates
-Cu   19 Apr 01 core wave functions may be saved in gcore
-C  ---------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
-      double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
-     .sumec(nsp),sumtc(nsp),v(nr,nsp),gcore(nr,2,*),ec(*)
-C ... Local parameters
-      character*1 pqn(9),ang(6)
-      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit
-      double precision deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax,
-     .rorim,slo,sum,tcore,val,vrho,kappa2
-C ... Heap
-      data pqn /'1','2','3','4','5','6','7','8','9'/
-      data ang /'s','p','d','f','g','h'/
-
-      stdo = lgunit(1)
-      rmax  = rofi(nr)
-      b     = rmax/(dexp(a*nr-a)-1.d0)
-      e1    = -2.5d0*z*z - 5d0
-      e2    = 20d0
-      icore = 0
-      do  80  isp = 1, nsp
-        sumec(isp) = 0d0
-        sumtc(isp) = 0d0
-        qcore = 0d0
-        rhorim = 0d0
-        if (ipr .ge. 2) write(stdo,757)
-        if(ipr.ge.2 .and. nsp.eq.2)
-     .  write(stdo,'('' spin'',i2,'':'')') isp
-  757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
-     .  4x,'nre',2x,'rho(rmax)')
-        do  10  l = 0, lmax
-          do  10  konf = l, konfig(l)-2
-            deg = (2*(2*l+1))/nsp
-            if (konf+1.eq.kcor .and. l.eq.lcor) then
-              deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
-            endif
-            icore = icore+1
-            nodes = konf - l
-            ecor0 = ec(icore)
-            val = 1d-30
-            slo = -val
-            call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,v(1,isp),
-     .      g,sum,a,b,rofi,nr,nre)
-            ecore = ecor0
-C     ... Correct core energy by using hankel bc's
-            kappa2 = ecor0 - v(nr,isp) + 2*z/rmax
-            if (nre .eq. nr .and. kappa2 .lt. 0d0) then
-              dlml = -1d0 - dsqrt(-kappa2)*rmax
-              do  31  ll = 1, l
-                dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
-   31         continue
-              slo = val*(dlml+l+1)/rmax
-              call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,v(1,isp),
-     .        g,sum,a,b,rofi,nr,nre)
-            endif
-            ec(icore) = ecore
-            if (isw .eq. 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
-
-C     --- Add to rho, make integral v*rho ---
-            call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v(1,isp),rho(1,isp),
-     .      deg,vrho,rorim)
-            rhorim = rhorim + rorim
-            tcore = ecore - vrho
-            qcore = qcore + deg
-            sumec(isp) = sumec(isp) + deg*ecore
-            sumtc(isp) = sumtc(isp) + deg*tcore
-            if (ipr.ge.2) write(stdo,758)
-     .      pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
-  758       format(1x,2a1,f8.2,3f15.6,i7,f9.5)
-   10   continue
-        if (ipr.gt.0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
-  230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
-     .  '  rho(rmax)',f8.5)
-   80 continue
-      end subroutine rhocor
 
 
       subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho,

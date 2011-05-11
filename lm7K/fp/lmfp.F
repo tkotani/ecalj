@@ -997,7 +997,8 @@ C       Buglet: this eats up a little memory.  Never released.
           call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
 
           if (lshr) then
-            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh , 
+ckino etot(1)            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh , 
+            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
      .      pletot , dist )
 
             if (irlxsh .ne. 0) then

@@ -1,3 +1,5 @@
+#define USEOPTIONAL 1
+
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
@@ -278,6 +280,7 @@ Cu   01 Feb 06 Enables renormalized free atom density
 Cu   19 Apr 02 Redesigned input to avoid the use of structures
 Cu   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
 C ----------------------------------------------------------------------
+      use m_getqvc 
       implicit none
 C ... Passed parameters
       integer nrmx,nrmt,is,nxi0,nxi,nrmix(2),lwf,lxcfun,n0,kcor,lcor
@@ -439,8 +442,13 @@ cNov 2010 QvalCheck
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
+#ifdef USEOPTIONAL
+      call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
+     . lcor , qcor , qc , qtot , amgm )
+#else
       call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
      . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy ) 
+#endif
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
       if (ipr .ge. 20) then

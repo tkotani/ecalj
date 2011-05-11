@@ -229,7 +229,8 @@ C ... Passed parameters
      & ,ylwp(np,nlm)  !to avoid confusion. Sep2010 takao
 C ... Local parameters
       integer ilm,ip,ipr,ir,i,n1,ineg(2),isw1
-      double precision weight,suml(0:40),fac,dmach,alfa,sum(2)
+ckino size 41->42      double precision weight,suml(0:40),fac,dmach,alfa,sum(2)
+      double precision weight,suml(0:41),fac,dmach,alfa,sum(2)
       double precision rhot,f1,f2,dfdr,dvdr,f
       double precision qs(2),tol
       real(8), allocatable :: rp(:,:),rps(:,:,:),exc(:,:),

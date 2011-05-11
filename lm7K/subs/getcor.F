@@ -35,6 +35,7 @@ Cu   19 Apr 01 core evals and wave functions may be saved
 Cu   19 Jun 00 spin polarized
 Cu   26 May 00 adapted from nfp getcor.f
 C ----------------------------------------------------------------------
+      use m_rhocor
 C     implicit none
 C ... Passed parameters
       integer mode,nr,nrmx,n0,kcor,lcor,lmax,ncore

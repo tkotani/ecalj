@@ -1,3 +1,186 @@
+#define USEOPTIONAL
+      module m_prlcb
+      contains
+      subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
+     .nlmto,evec,ewgt,numq,evl,qhh,qhp)
+
+C- Add one and two-center terms to density coeffs
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   job   :0 accumulate local density-matrix
+Ci         :1 accumulate local density-matrix weighted by energy
+Ci   ia    :site of augmentation
+Ci   nkaph :dimensions qhh,qhp
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   nlmha :dimensions qhh,qhp
+Ci   kmax  :polynomial cutoff
+Ci   nlma  :augmentation L-cutoff
+Ci   isp   :spin channel
+Ci   cPkL  :PkL expansion eigenvector at site ia.
+Ci   nlmto :dimension of lmto component of basis
+Ci   evec  :eigenvector
+Ci   numq  :number of trial fermi levels
+Ci   ewgt  :eigenvector weight
+Ci   evl   :energy weight (job=1)
+Co Outputs
+Co   qhh   :one-center density-matrix for PkL expansion (job=0)
+Co         :energy-weighted matrix (job=1)
+Co   qhp   :two-center density-matrix for PkL expansion (job=0)
+Co         :energy-weighted matrix (job=1)
+Cr Remarks
+Cu Updates
+Cu   05 Jul 08 (T. Kotani)
+Cu             Option to accumulate energy-weighted output density
+Cu   27 Aug 01 Extended to local orbitals.
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,numq,iprmb(1)
+#ifdef USEOPTIONAL
+      double precision qhh(nkaph,nkaph,nlmha,nlmha,numq,isp),
+     .qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq)
+      real(8),optional::evl
+#else
+      double precision qhh(nkaph,nkaph,nlmha,nlmha,numq,isp),
+     .qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq),evl
+#endif
+      double complex evec(nlmto),cPkL(0:kmax,nlma)
+C ... Local parameters
+      integer i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,
+     .l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
+      parameter (n0=10,nkap0=3)
+      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+     .blks(n0*nkap0),ntab(n0*nkap0)
+      double precision xx
+
+      if (nlmto .eq. 0) return
+      call tcn('prlcb2')
+
+C --- Loop over all orbitals centered at site ia, incl. local orbs ---
+      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+C     Block into groups of consecutive l
+      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+
+      do  io1 = 1, norb
+
+        l1  = ltab(io1)
+        ik1 = ktab(io1)
+        nlm11 = l1**2+1
+        nlm12 = nlm11 + blks(io1)-1
+C       i1 = hamiltonian offset for first orbital in block
+        i1 = offl(io1)
+        do  ilm1 = nlm11, nlm12
+          i1 = i1+1
+C     ... Accumulate products H*Pkl
+          do  iq = 1, numq
+            if (job .eq. 0) then
+              do  k = 0, kmax
+                do  ilma = 1, nlma
+                  qhp(ik1,k,ilm1,ilma,iq,isp)= qhp(ik1,k,ilm1,ilma,iq,isp)
+     .            + 2d0*dconjg(evec(i1))*cPkL(k,ilma)*ewgt(iq)
+                enddo
+              enddo
+            else
+              do  k = 0, kmax
+                qhp(ik1,k,ilm1,ilm1,iq,isp)= qhp(ik1,k,ilm1,ilm1,iq,isp)
+     .          + evl*2d0*dconjg(evec(i1))*cPkL(k,ilm1)*ewgt(iq)
+              enddo
+            endif
+          enddo
+
+C     ... Accumulate products H*H
+          do  io2 = 1, norb
+
+            l2  = ltab(io2)
+            ik2 = ktab(io2)
+            nlm21 = l2**2+1
+            nlm22 = nlm21 + blks(io2)-1
+C           i2 = orbital index in iprmb order
+            i2 = offl(io2)
+            do  ilm2 = nlm21, nlm22
+              i2 = i2+1
+              if (job .eq. 0) then
+                do  iq = 1, numq
+                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
+     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
+     .            dconjg(evec(i1))*evec(i2)*ewgt(iq)
+                enddo
+              elseif (job .eq. 1 .and. ilm1 .eq. ilm2) then
+                do  iq = 1, numq
+                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
+     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
+     .            evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
+                enddo
+              endif
+            enddo
+          enddo
+
+        enddo
+      enddo
+
+      call tcx('prlcb2')
+      end subroutine prlcb2
+
+
+      subroutine prlcb3(job,kmax,nlma,isp,cPkL,numq,ewgt,evl,qpp)
+
+C- Add to local density coefficients for one state
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   job   :0 accumulate local density-matrix
+Ci         :1 accumulate local density-matrix weighted by energy
+Ci   kmax  :polynomial cutoff in PkL expansion
+Ci   nlma  :L cutoff in PkL expansion
+Ci   isp   :spin channel
+Ci   cPkL  :coefficients to PkL expansion of evec
+Ci   numq  :number of trial fermi levels
+Ci   ewgt  :eigenvector weights
+Ci   evl   :energy weight (job=1)
+Co Outputs
+Co   qpp   :local density matrix for PkL expansion (job=0)
+Co         :energy-weighted local density matrix (job=1)
+Cr Remarks
+Cu Updates
+Cu   05 Jul 08 (T. Kotani)
+Cu             Option to accumulate energy-weighted output density
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer job,kmax,nlma,isp,numq
+      double complex cPkL(0:kmax,nlma)
+#ifdef USEOPTIONAL
+      double precision qpp(0:kmax,0:kmax,nlma,nlma,numq,isp),ewgt(numq)
+      real(8),optional::evl
+#else
+      double precision qpp(0:kmax,0:kmax,nlma,nlma,numq,isp),ewgt(numq),
+     .evl
+#endif
+C ... Local parameters
+      double precision fac
+      integer iq,ilm2,ilm1,k1,k2
+
+      call tcn('prlcb3')
+      do  iq = 1, numq
+        fac = ewgt(iq)
+        if (job .eq. 1) fac = evl*ewgt(iq)
+        do  ilm2 = 1, nlma
+          do  ilm1 = 1, nlma
+            do  k1 = 0, kmax
+              do  k2 = 0, kmax
+                qpp(k1,k2,ilm1,ilm2,iq,isp)= qpp(k1,k2,ilm1,ilm2,iq,isp)
+     .          + fac*dconjg(cPkL(k1,ilm1))*cPkL(k2,ilm2)
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+      call tcx('prlcb3')
+
+      end subroutine prlcb3
+
+      end module m_prlcb
+
+
 CSFCPP#define F90 1
            subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
@@ -10,6 +193,7 @@ CSFCPP#define F90 1
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_prlcb
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -427,13 +611,23 @@ CC#endif
 C          endif
 
 C     ... Add to local density coefficients for one state
+#ifdef USEOPTIONAL
+              call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
+     .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= rv_p_oqpp ) 
+
+              call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
+     .         nlmha=nlmha , kmax=kmax , nlma=nlma , 
+     .         isp=ksp , cpkl=cpkl , nlmto=nlmto , 
+     .         evec=evec ( 1 , ispc , ivec ) , ewgt=ewgt ( 1 , ivec ) , 
+     .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp ) 
+#else
               call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
      .        , ivec ) , iwdummy , rv_p_oqpp ) 
-
 
                call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
      .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
+#endif
 
 
 
@@ -612,171 +806,6 @@ C     call zprm('cPkL',2,cPkL,kmax+1,kmax+1,nlma)
       end subroutine rlocb1
 
 
-      subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
-     .nlmto,evec,ewgt,numq,evl,qhh,qhp)
-
-C- Add one and two-center terms to density coeffs
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   job   :0 accumulate local density-matrix
-Ci         :1 accumulate local density-matrix weighted by energy
-Ci   ia    :site of augmentation
-Ci   nkaph :dimensions qhh,qhp
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   nlmha :dimensions qhh,qhp
-Ci   kmax  :polynomial cutoff
-Ci   nlma  :augmentation L-cutoff
-Ci   isp   :spin channel
-Ci   cPkL  :PkL expansion eigenvector at site ia.
-Ci   nlmto :dimension of lmto component of basis
-Ci   evec  :eigenvector
-Ci   numq  :number of trial fermi levels
-Ci   ewgt  :eigenvector weight
-Ci   evl   :energy weight (job=1)
-Co Outputs
-Co   qhh   :one-center density-matrix for PkL expansion (job=0)
-Co         :energy-weighted matrix (job=1)
-Co   qhp   :two-center density-matrix for PkL expansion (job=0)
-Co         :energy-weighted matrix (job=1)
-Cr Remarks
-Cu Updates
-Cu   05 Jul 08 (T. Kotani)
-Cu             Option to accumulate energy-weighted output density
-Cu   27 Aug 01 Extended to local orbitals.
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,numq,iprmb(1)
-      double precision qhh(nkaph,nkaph,nlmha,nlmha,numq,isp),
-     .qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq),evl
-      double complex evec(nlmto),cPkL(0:kmax,nlma)
-C ... Local parameters
-      integer i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,
-     .l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
-      parameter (n0=10,nkap0=3)
-      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .blks(n0*nkap0),ntab(n0*nkap0)
-      double precision xx
-
-      if (nlmto .eq. 0) return
-      call tcn('prlcb2')
-
-C --- Loop over all orbitals centered at site ia, incl. local orbs ---
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-C     Block into groups of consecutive l
-      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
-      do  io1 = 1, norb
-
-        l1  = ltab(io1)
-        ik1 = ktab(io1)
-        nlm11 = l1**2+1
-        nlm12 = nlm11 + blks(io1)-1
-C       i1 = hamiltonian offset for first orbital in block
-        i1 = offl(io1)
-        do  ilm1 = nlm11, nlm12
-          i1 = i1+1
-C     ... Accumulate products H*Pkl
-          do  iq = 1, numq
-            if (job .eq. 0) then
-              do  k = 0, kmax
-                do  ilma = 1, nlma
-                  qhp(ik1,k,ilm1,ilma,iq,isp)= qhp(ik1,k,ilm1,ilma,iq,isp)
-     .            + 2d0*dconjg(evec(i1))*cPkL(k,ilma)*ewgt(iq)
-                enddo
-              enddo
-            else
-              do  k = 0, kmax
-                qhp(ik1,k,ilm1,ilm1,iq,isp)= qhp(ik1,k,ilm1,ilm1,iq,isp)
-     .          + evl*2d0*dconjg(evec(i1))*cPkL(k,ilm1)*ewgt(iq)
-              enddo
-            endif
-          enddo
-
-C     ... Accumulate products H*H
-          do  io2 = 1, norb
-
-            l2  = ltab(io2)
-            ik2 = ktab(io2)
-            nlm21 = l2**2+1
-            nlm22 = nlm21 + blks(io2)-1
-C           i2 = orbital index in iprmb order
-            i2 = offl(io2)
-            do  ilm2 = nlm21, nlm22
-              i2 = i2+1
-              if (job .eq. 0) then
-                do  iq = 1, numq
-                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .            dconjg(evec(i1))*evec(i2)*ewgt(iq)
-                enddo
-              elseif (job .eq. 1 .and. ilm1 .eq. ilm2) then
-                do  iq = 1, numq
-                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .            evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
-                enddo
-              endif
-            enddo
-          enddo
-
-        enddo
-      enddo
-
-      call tcx('prlcb2')
-      end subroutine prlcb2
-
-
-      subroutine prlcb3(job,kmax,nlma,isp,cPkL,numq,ewgt,evl,qpp)
-
-C- Add to local density coefficients for one state
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   job   :0 accumulate local density-matrix
-Ci         :1 accumulate local density-matrix weighted by energy
-Ci   kmax  :polynomial cutoff in PkL expansion
-Ci   nlma  :L cutoff in PkL expansion
-Ci   isp   :spin channel
-Ci   cPkL  :coefficients to PkL expansion of evec
-Ci   numq  :number of trial fermi levels
-Ci   ewgt  :eigenvector weights
-Ci   evl   :energy weight (job=1)
-Co Outputs
-Co   qpp   :local density matrix for PkL expansion (job=0)
-Co         :energy-weighted local density matrix (job=1)
-Cr Remarks
-Cu Updates
-Cu   05 Jul 08 (T. Kotani)
-Cu             Option to accumulate energy-weighted output density
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer job,kmax,nlma,isp,numq
-      double complex cPkL(0:kmax,nlma)
-      double precision qpp(0:kmax,0:kmax,nlma,nlma,numq,isp),ewgt(numq),
-     .evl
-C ... Local parameters
-      double precision fac
-      integer iq,ilm2,ilm1,k1,k2
-
-      call tcn('prlcb3')
-      do  iq = 1, numq
-        fac = ewgt(iq)
-        if (job .eq. 1) fac = evl*ewgt(iq)
-        do  ilm2 = 1, nlma
-          do  ilm1 = 1, nlma
-            do  k1 = 0, kmax
-              do  k2 = 0, kmax
-                qpp(k1,k2,ilm1,ilm2,iq,isp)= qpp(k1,k2,ilm1,ilm2,iq,isp)
-     .          + fac*dconjg(cPkL(k1,ilm1))*cPkL(k2,ilm2)
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-      call tcx('prlcb3')
-
-      end subroutine prlcb3
 
 
 C  ... needed for off-diagonal density matrix ... comment out now

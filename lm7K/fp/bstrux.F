@@ -1,9 +1,101 @@
 CSFCPP#define F90 1
+
+#define USEOPTIONAL 1
+
+      module m_prlcb1
+      contains
+      subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+     .nlma,kmax,b0,db0,b,db)
+
+C- Poke strux and grads from b0,db0 to full arrays b,db
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode  :0 poke b only
+Ci         :1 poke b and db
+Ci   ndimh :dimension of hamiltonian
+Ci   ib    :site of strux head
+Ci   nlmbx :dimensions b,db
+Ci   nlma  :augmentation L-cutoff
+Ci   kmax  :Pkl polynomial cutoff
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   b0    :L-ordered strux for one ik block and pair of sites
+Ci   db0   :gradient of b0
+Co Outputs
+Co   b     :subblock corresponding to b0 is poked into b
+Co   db    :subblock corresponding to db0 is poked into db
+Cr Remarks
+Cr   b0,db0 have normal L ordering in both row and column dimensions.
+Cr   b,db   have normal L ordering in rows but iprmb ordering in columns
+Cr   This routine is identical in function to paugq1 (augmbl.f) except:
+Cr     the gradient db of b can optionally be filled
+Cr     array indices to b are ordered differently
+Cu Updates
+Cu   25 Aug 04 Adapted to extended local orbitals
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer mode,kmax,ndimh,ik,nlma,nlmbx
+      integer n0,nkap0
+      parameter (n0=10,nkap0=3)
+      integer norb,ltab(norb),ktab(norb),offl(norb)
+      double precision rsmh(n0,nkap0)
+#ifdef USEOPTIONAL
+      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
+      complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
+#else
+      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
+     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
+#endif
+C ... Local parameters
+      integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
+      integer blks(norb),ntab(norb)
+      double precision xx
+
+C     Block into groups of consecutive l
+      call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
+
+      do  iorb = 1, norb
+        ik1 = ktab(iorb)
+C       Loop only over orbitals belonging to this energy block
+        if (ik1 .eq. ik .and. blks(iorb) .ne. 0) then
+          l1  = ltab(iorb)
+          nlm1 = l1**2+1
+          nlm2 = nlm1 + blks(iorb)-1
+C         i1 = index to hamiltonian offset
+          i1 = offl(iorb)
+C          print *, iorb,ik,l1,i1+1,i1+nlm2-nlm1+1
+C  333     format('block',i4,' ik=',i4,' l=',i4,
+C     .      ' start=',i4,' stop=',i4)
+          do  ilmb = nlm1, nlm2
+            i1 = i1+1
+            if (mode .eq. 0) then
+              do  ilma = 1, nlma
+                do  k = 0, kmax
+                  b(i1,ilma,k) = b0(k,ilma,ilmb)
+                enddo
+              enddo
+            else
+              do  ilma = 1, nlma
+                do  k = 0, kmax
+                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
+                  db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
+                  db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
+                  db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
+                enddo
+              enddo
+            endif
+          enddo
+        endif
+      enddo
+      end subroutine prlcb1
+
+      end module m_prlcb1
+
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
      .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
 
       use m_struc_def  !Cgetarg
-
+      use m_prlcb1
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -149,8 +241,14 @@ C         Note: indices of b are ordered differently by mode (see Outputs)
               call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,db0,b,db)
             elseif (mode .eq. 2) then
+#ifdef USEOPTIONAL
+              call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab,
+     .        ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx,
+     .        nlma=nlma,kmax=kmax,b0=b0,b=b)
+#else
               call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,xx,b,xx)
+#endif
             endif
           enddo
         enddo
@@ -462,85 +560,5 @@ C ... Local parameters
       enddo
       end subroutine paugq2
 
-
-      subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-     .nlma,kmax,b0,db0,b,db)
-
-C- Poke strux and grads from b0,db0 to full arrays b,db
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 poke b only
-Ci         :1 poke b and db
-Ci   ndimh :dimension of hamiltonian
-Ci   ib    :site of strux head
-Ci   nlmbx :dimensions b,db
-Ci   nlma  :augmentation L-cutoff
-Ci   kmax  :Pkl polynomial cutoff
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   b0    :L-ordered strux for one ik block and pair of sites
-Ci   db0   :gradient of b0
-Co Outputs
-Co   b     :subblock corresponding to b0 is poked into b
-Co   db    :subblock corresponding to db0 is poked into db
-Cr Remarks
-Cr   b0,db0 have normal L ordering in both row and column dimensions.
-Cr   b,db   have normal L ordering in rows but iprmb ordering in columns
-Cr   This routine is identical in function to paugq1 (augmbl.f) except:
-Cr     the gradient db of b can optionally be filled
-Cr     array indices to b are ordered differently
-Cu Updates
-Cu   25 Aug 04 Adapted to extended local orbitals
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,kmax,ndimh,ik,nlma,nlmbx
-      integer n0,nkap0
-      parameter (n0=10,nkap0=3)
-      integer norb,ltab(norb),ktab(norb),offl(norb)
-      double precision rsmh(n0,nkap0)
-      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
-     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-C ... Local parameters
-      integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
-      integer blks(norb),ntab(norb)
-      double precision xx
-
-C     Block into groups of consecutive l
-      call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
-
-      do  iorb = 1, norb
-        ik1 = ktab(iorb)
-C       Loop only over orbitals belonging to this energy block
-        if (ik1 .eq. ik .and. blks(iorb) .ne. 0) then
-          l1  = ltab(iorb)
-          nlm1 = l1**2+1
-          nlm2 = nlm1 + blks(iorb)-1
-C         i1 = index to hamiltonian offset
-          i1 = offl(iorb)
-C          print *, iorb,ik,l1,i1+1,i1+nlm2-nlm1+1
-C  333     format('block',i4,' ik=',i4,' l=',i4,
-C     .      ' start=',i4,' stop=',i4)
-          do  ilmb = nlm1, nlm2
-            i1 = i1+1
-            if (mode .eq. 0) then
-              do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) = b0(k,ilma,ilmb)
-                enddo
-              enddo
-            else
-              do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
-                  db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
-                  db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
-                  db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
-                enddo
-              enddo
-            endif
-          enddo
-        endif
-      enddo
-      end subroutine prlcb1
 
 

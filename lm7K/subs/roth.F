@@ -270,7 +270,8 @@ C       ofb is col offset in h0 so that R(h(*,jb1)) placed at h0 start
         ofb = k1-1
         call cplxdm(kcplx,ldha,ld0b,ld01,ld02,ld0r,of0i)
         call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,q,
-     .  rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+ckino  off0 is array     .  rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+     .  rmat,k1,k2,1,nbas,0,ld0r,(/-1/),ofb,h0(1+off2),of0i,ldhr,
      .  ldhb,h,ofhi)
 C       Rotate il block, when h is composite
         if (ibla .eq. 4) then
@@ -282,7 +283,8 @@ C         h(*,k) -> h0(P(*),k-ofb).  ofb = first iwave col in h,
 C         + size of l-block so as to preserve contents of l-block
           ofb = k1-1 - (offH(1,1,jb1+1)-offH(1,1,jb1))
           call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,
-     .    q,rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+ckino off0 is array     .    q,rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+     .    q,rmat,k1,k2,1,nbas,0,ld0r,(/-1/),ofb,h0(1+off2),of0i,ldhr,
      .    ldhb,h,ofhi)
         endif
 C       call yprm('R H (c)',kcplx+2,h0(1+off2),ldha*ld0b,ldha,ldha,ld0b)
@@ -294,7 +296,8 @@ C       call yprm('R H (c)',kcplx+2,h0(1+off2),ldha*ld0b,ldha,ldha,ld0b)
         k2 = ldimb-ldmpb
         call cplxdm(kcplx,ldha,ldhb,ld01,ld02,ld0r,of0i)
         call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,q,
-     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+ckino off0 is array     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+     .  rmat,k1,k2,1,nbas,0,ld0r,(/-1/),0,h0,of0i,ldhr,ldhb,h,ofhi)
 C       call yprm('R H',kcplx+2,h0,ldha*ldhb,ldha,ldha,ldha)
 C       call yprm('R H',kcplx+2,h0,ldha*ldhb,ldha,ldha,k2-k1+1)
       endif
@@ -330,7 +333,8 @@ C       k1,k2 encompass l-waves for site ib1
 C       ofa is col offset in h0 so that R(h(*,jb1)) placed at h0 start
         ofa = k1-1
         call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,q,
-     .  rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,ldhb,h,
+ckino off0 is array     .  rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,ldhb,h,
+     .  rmat,k1,k2,1,nbas,ib1,ld0r,(/-1/),ofa,h0(1+off1),of0i,ldhr,ldhb,h,
      .  ofhi)
 C       Rotate il block, when h is composite
         if (ibla .eq. 4) then
@@ -342,7 +346,8 @@ C         h0(k-ofa,P(*)) -> h(k,*).  ofa = first iwave col in h,
 C         + size of l-block so as to preserve contents of l-block
           ofa = k1-1 - (offH(1,1,ib1+1)-offH(1,1,ib1))
           call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,
-     .    q,rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,
+ckino off0 is array     .    q,rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,
+     .    q,rmat,k1,k2,1,nbas,ib1,ld0r,(/-1/),ofa,h0(1+off1),of0i,ldhr,
      .    ldhb,h,ofhi)
         endif
       else
@@ -350,7 +355,8 @@ C         + size of l-block so as to preserve contents of l-block
         k2 = offH(ibla,1,nbas+1)
         call cplxdm(kcplx,ldha,ldhb,ld01,ld02,ld0r,of0i)
         call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,q,
-     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+ckino off0 is array     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+     .  rmat,k1,k2,1,nbas,0,ld0r,(/-1/),0,h0,of0i,ldhr,ldhb,h,ofhi)
       endif
 C     call yprm('R H R^-1',kcplx+2,h,ofhi,ldha,ldha,ldhb)
 
