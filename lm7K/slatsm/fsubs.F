@@ -27,7 +27,7 @@
       use ifport
 #endif
       character(*) ps
-      integer(4):: res
+      integer:: res
       res = system(ps)
 #ifdef HASIFPORT
       if (res.ne.0) then
