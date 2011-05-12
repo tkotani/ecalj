@@ -372,15 +372,15 @@ C ... Local parameters
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
-           integer,pointer :: iv_p_ontabs(:)
+           integer,pointer :: iv_p_ontabs(:) =>NULL()
 
-          integer,pointer :: iv_p_oiaxs(:)
+          integer,pointer :: iv_p_oiaxs(:) =>NULL()
 
-         real(8),pointer :: rv_p_ohrs(:)
+         real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-        integer,pointer :: iv_p_oiprmb(:)
+        integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
-       integer,pointer :: iv_p_ooffh(:)
+       integer,pointer :: iv_p_ooffh(:) =>NULL()
 
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
       integer hreal,nl,nglob,mxorb,nttabs,ival,nsp,ndhrs,nsim,moditp,
@@ -1135,13 +1135,13 @@ C ... Passed parameters
 
       double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
 C ... Local parameters
-          integer,pointer :: iv_p_ontabs(:)
+          integer,pointer :: iv_p_ontabs(:) =>NULL()
 
-         integer,pointer :: iv_p_oiaxs(:)
+         integer,pointer :: iv_p_oiaxs(:) =>NULL()
 
-        real(8),pointer :: rv_p_ohrs(:)
+        real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       integer i,lrsig,ipr,jsp,ksp
       integer hreal,nl,nglob,mxorb,nttabs,ival,ndhrs,nevec,ndimhx

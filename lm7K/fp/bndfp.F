@@ -359,7 +359,7 @@ C     for CLS
 C     for Mulliken
        integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
      . , nchmx , lmdim , lmxch 
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
@@ -400,11 +400,11 @@ C #endif
 
 C For self-energy
       integer nqsig
-       real(8),pointer :: rv_p_oqsig(:)
+       real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
 
        integer:: nbasp 
-       integer,pointer :: iv_p_oidxsh(:)
+       integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
 
 C     Data statements
@@ -418,7 +418,7 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
        integer:: nhmax , nknknk , npairmx , jx , nsp_dummy , ndimh_dummy 
-       real(8),pointer :: rv_p_opos(:)
+       real(8),pointer :: rv_p_opos(:) =>NULL()
 
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)

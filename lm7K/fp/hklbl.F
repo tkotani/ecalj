@@ -33,9 +33,9 @@ C ... Passed parameters
 C ... Local parameters
         integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
      .  , owk , oyl 
-        real(8),pointer :: rv_p_odlv(:)
+        real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:)
+       real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       parameter (nlm0=144)
       double precision alat,awald,fpi,pi,sp,tol,vol,plat(3,3),

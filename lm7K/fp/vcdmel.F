@@ -75,15 +75,15 @@ Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
 Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
 Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
 Cdelw1      .og,os
-            real(8),pointer :: rv_p_ov0(:)
+            real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-           integer,pointer :: iv_p_ojcg(:)
+           integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-          integer,pointer :: iv_p_oidxcg(:)
+          integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocy(:)
+         real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocg(:)
+        real(8),pointer :: rv_p_ocg(:) =>NULL()
 
        real(8) ,allocatable :: rofi_rv(:)
        real(8) ,allocatable :: ul_rv(:)

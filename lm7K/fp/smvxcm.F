@@ -92,11 +92,11 @@ C ... Passed parameters
 C ... Local parameters
          integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
      .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
-         integer,pointer :: iv_p_okv(:)
+         integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:)
+        real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocy(:)
+       real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)

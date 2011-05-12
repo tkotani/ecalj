@@ -61,7 +61,7 @@
      &  rdir(3,np),cy1,dydummy,drdp(nr),rmax,ddr,fac,dgr2dn(1:np),polinta,grptot(3)
       integer,parameter:: ndiv=3
       real(8),target :: yl(np,nlm)
-      real(8),pointer:: drp_drl(:,:)
+      real(8),pointer:: drp_drl(:,:) =>NULL()
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
       real(8),allocatable:: grho2_updn_forcall(:,:,:)

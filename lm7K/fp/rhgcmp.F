@@ -76,9 +76,9 @@ C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
         integer:: nsp 
-        integer,pointer :: iv_p_okv(:)
+        integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)

@@ -40,7 +40,7 @@ C Local parameters
       double precision x1,xn
 CSFCPP#if F90
       type row
-      real(8), pointer :: p(:)
+      real(8), pointer :: p(:) =>NULL()
       end type row
       type(row) :: symptr(mxnam)
       save symptr

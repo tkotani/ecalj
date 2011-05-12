@@ -105,7 +105,7 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: fh_rv(:)
@@ -290,13 +290,13 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)

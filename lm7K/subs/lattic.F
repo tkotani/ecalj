@@ -40,11 +40,11 @@ C ... Passed parameters
 
 C ... Local parameters
          integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas 
-         real(8),pointer :: rv_p_opos(:)
+         real(8),pointer :: rv_p_opos(:) =>NULL()
 
-        real(8),pointer :: rv_p_odlv(:)
+        real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:)
+       real(8),pointer :: rv_p_oqlv(:) =>NULL()
        real(8),allocatable:: rv_a_tmp(:)
 
       integer nbaspp,npadl,npadr

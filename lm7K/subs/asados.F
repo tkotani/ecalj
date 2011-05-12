@@ -96,23 +96,23 @@ C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .lcond,lrange,lidos,lfp
-               integer,pointer :: iv_p_oipc(:)
+               integer,pointer :: iv_p_oipc(:) =>NULL()
 
-              integer,pointer :: iv_p_ogstar(:)
+              integer,pointer :: iv_p_ogstar(:) =>NULL()
 
-             integer,pointer :: iv_p_oidtet(:)
+             integer,pointer :: iv_p_oidtet(:) =>NULL()
 
-            real(8),pointer :: rv_p_ormax(:)
+            real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-           integer,pointer :: iv_p_oipq(:)
+           integer,pointer :: iv_p_oipq(:) =>NULL()
 
-          real(8),pointer :: rv_p_owtkp(:)
+          real(8),pointer :: rv_p_owtkp(:) =>NULL()
 
-         integer,pointer :: iv_p_oics(:)
+         integer,pointer :: iv_p_oics(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqp(:)
+        real(8),pointer :: rv_p_oqp(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:)
+       real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: doswt_rv(:)

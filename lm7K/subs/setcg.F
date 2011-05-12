@@ -8,13 +8,13 @@ C     implicit none
       type(s_lat)::slat
 
           integer:: lnjcg , lnxcg , nlm 
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
 
 C ... Choose dimensions for arrays

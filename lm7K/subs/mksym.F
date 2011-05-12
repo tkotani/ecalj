@@ -84,27 +84,27 @@ C Local variables
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
                  integer:: oiwk , aginv 
-                 real(8),pointer :: rv_p_opos(:)
+                 real(8),pointer :: rv_p_opos(:) =>NULL()
 
-                integer,pointer :: iv_p_oipcp(:)
+                integer,pointer :: iv_p_oipcp(:) =>NULL()
 
-               integer,pointer :: iv_p_oipc(:)
+               integer,pointer :: iv_p_oipc(:) =>NULL()
 
-              real(8),pointer :: rv_p_osymgr(:)
+              real(8),pointer :: rv_p_osymgr(:) =>NULL()
 
-             real(8),pointer :: rv_p_oag(:)
+             real(8),pointer :: rv_p_oag(:) =>NULL()
 
-            integer,pointer :: iv_p_onrcp(:)
+            integer,pointer :: iv_p_onrcp(:) =>NULL()
 
-           integer,pointer :: iv_p_onrc(:)
+           integer,pointer :: iv_p_onrc(:) =>NULL()
 
-          integer,pointer :: iv_p_oips(:)
+          integer,pointer :: iv_p_oips(:) =>NULL()
 
-         integer,pointer :: iv_p_oistab(:)
+         integer,pointer :: iv_p_oistab(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:)
+        integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:)
+       real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:)

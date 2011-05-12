@@ -366,9 +366,9 @@ C ... Passed parameters
 C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
-        real(8),pointer :: rv_p_opos(:)
+        real(8),pointer :: rv_p_opos(:) =>NULL()
 
-       integer,pointer :: iv_p_okv(:)
+       integer,pointer :: iv_p_okv(:) =>NULL()
 
       complex(8) ,allocatable :: cn_zv(:)
       complex(8) ,allocatable :: psrho_zv(:)

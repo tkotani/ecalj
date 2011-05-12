@@ -152,11 +152,11 @@ C ... Local parameters
          integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
      .   nlm , nsp , stdo , j1 , j2 , j3 
-         integer,pointer :: iv_p_okv(:)
+         integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:)
+        real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocy(:)
+       real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)

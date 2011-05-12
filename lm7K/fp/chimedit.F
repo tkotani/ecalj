@@ -117,13 +117,13 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-          real(8),pointer :: rv_p_opos(:)
+          real(8),pointer :: rv_p_opos(:) =>NULL()
 
-         real(8),pointer :: rv_p_og(:)
+         real(8),pointer :: rv_p_og(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:)
+        real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:)
+       integer,pointer :: iv_p_oistab(:) =>NULL()
 
       integer ,allocatable :: gstar_iv(:)
       real(8) ,allocatable :: wgt_rv(:)

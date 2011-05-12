@@ -184,27 +184,27 @@ C ... Local parameters
                  integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      .           nr , ncore , stdo , igetss 
-                 real(8),pointer :: rv_p_oqpp(:)
+                 real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-                real(8),pointer :: rv_p_oqhp(:)
+                real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-               real(8),pointer :: rv_p_oqhh(:)
+               real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-              real(8),pointer :: rv_p_orhoca(:)
+              real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-             real(8),pointer :: rv_p_ov01(:)
+             real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-            real(8),pointer :: rv_p_ov0(:)
+            real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-           integer,pointer :: iv_p_ojcg(:)
+           integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-          integer,pointer :: iv_p_oidxcg(:)
+          integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocy(:)
+         real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocg(:)
+        real(8),pointer :: rv_p_ocg(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)

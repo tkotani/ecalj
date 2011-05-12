@@ -83,7 +83,7 @@ C ... Passed parameters
 c        real(8),pointer :: rv_p_owtkb(:)
         real(8),pointer :: rv_p_owtkb(:,:,:)
 
-       real(8),pointer :: rv_p_oswtk(:)
+       real(8),pointer :: rv_p_oswtk(:) 
 
       double precision zval,ef0,def,esmear,efermi
 C ... Local parameters

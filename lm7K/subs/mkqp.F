@@ -50,19 +50,19 @@ C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
              integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
      .       , lshft(3) , lpbc , ntet , i , iprint , igets , stdo , nglob 
-             real(8),pointer :: rv_p_osymgr(:)
+             real(8),pointer :: rv_p_osymgr(:) =>NULL()
 
-            integer,pointer :: iv_p_ogstar(:)
+            integer,pointer :: iv_p_ogstar(:) =>NULL()
 
-           integer,pointer :: iv_p_oidtet(:)
+           integer,pointer :: iv_p_oidtet(:) =>NULL()
 
-          integer,pointer :: iv_p_owk(:)
+          integer,pointer :: iv_p_owk(:) =>NULL()
 
-         integer,pointer :: iv_p_oipq(:)
+         integer,pointer :: iv_p_oipq(:) =>NULL()
 
-        real(8),pointer :: rv_p_owtkp(:)
+        real(8),pointer :: rv_p_owtkp(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqp(:)
+       real(8),pointer :: rv_p_oqp(:) =>NULL()
 
        integer,allocatable :: iv_a_tmp(:)
 

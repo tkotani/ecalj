@@ -41,7 +41,7 @@ C ... Passed parameters
       double complex cgh1(ng),cgh2(ng)
 C ... Local parameters
        integer:: k0 , nlmx , kmax , ib , is , lfoc , i 
-       real(8),pointer :: rv_p_ocy(:)
+       real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       double precision tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh,
      .ceh,rfoc,z

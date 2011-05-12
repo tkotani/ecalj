@@ -69,8 +69,8 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_str):: v_sstr
       type(s_tb):: v_stb
 
-      type(s_spec),pointer:: v_sspec(:)
-      type(s_site),pointer:: v_ssite(:)
+      type(s_spec),pointer:: v_sspec(:) =>NULL()
+      type(s_site),pointer:: v_ssite(:) =>NULL()
 
       parameter (mxspec=256)
       character*8 slabl(mxspec)

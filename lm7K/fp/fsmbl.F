@@ -80,13 +80,13 @@ C ... Local parameters
           integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
      .    , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , nlm1 , 
      .    nlm2 
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),

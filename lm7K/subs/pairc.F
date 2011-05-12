@@ -337,7 +337,7 @@ Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
         integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab 
-        integer,pointer :: iv_p_ontab(:)
+        integer,pointer :: iv_p_ontab(:) 
 
        integer,pointer :: iv_p_oiax(:)
 

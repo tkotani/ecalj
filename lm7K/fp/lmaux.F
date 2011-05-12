@@ -98,51 +98,51 @@ C ... Local parameters
                              integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
                      real(8),allocatable:: eula(:,:)
-                             integer,pointer :: iv_p_ontab(:)
+                             integer,pointer :: iv_p_ontab(:) =>NULL()
 
-                            integer,pointer :: iv_p_oiax(:)
+                            integer,pointer :: iv_p_oiax(:) =>NULL()
 
-                           real(8),pointer :: rv_p_opos(:)
+                           real(8),pointer :: rv_p_opos(:) =>NULL()
 
-                          integer,pointer :: iv_p_oipc(:)
+                          integer,pointer :: iv_p_oipc(:) =>NULL()
 
-                         real(8),pointer :: rv_p_og(:)
+                         real(8),pointer :: rv_p_og(:) =>NULL()
 
-                        real(8),pointer :: rv_p_odlv(:)
+                        real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-                       real(8),pointer :: rv_p_oag(:)
+                       real(8),pointer :: rv_p_oag(:) =>NULL()
 
-                      real(8),pointer :: rv_p_ormax(:)
+                      real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-                     integer,pointer :: iv_p_owk(:)
+                     integer,pointer :: iv_p_owk(:) =>NULL()
 
-                    integer,pointer :: iv_p_onrc(:)
+                    integer,pointer :: iv_p_onrc(:) =>NULL()
 
-                   integer,pointer :: iv_p_oips(:)
+                   integer,pointer :: iv_p_oips(:) =>NULL()
 
-                  real(8),pointer :: rv_p_orhrmx(:)
+                  real(8),pointer :: rv_p_orhrmx(:) =>NULL()
 
-                 real(8),pointer :: rv_p_oqt(:)
+                 real(8),pointer :: rv_p_oqt(:) =>NULL()
 
-                real(8),pointer :: rv_p_oqnu(:)
+                real(8),pointer :: rv_p_oqnu(:) =>NULL()
 
-               real(8),pointer :: rv_p_oqc(:)
+               real(8),pointer :: rv_p_oqc(:) =>NULL()
 
-              real(8),pointer :: rv_p_opp(:)
+              real(8),pointer :: rv_p_opp(:) =>NULL()
 
-             real(8),pointer :: rv_p_opnu(:)
+             real(8),pointer :: rv_p_opnu(:) =>NULL()
 
-            integer,pointer :: iv_p_oinitc(:)
+            integer,pointer :: iv_p_oinitc(:) =>NULL()
 
-           real(8),pointer :: rv_p_ovrmax(:)
+           real(8),pointer :: rv_p_ovrmax(:) =>NULL()
 
-          real(8),pointer :: rv_p_oves(:)
+          real(8),pointer :: rv_p_oves(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqlv(:)
+         real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:)
+        integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:)
+       real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       real(8) ,allocatable :: pos2_rv(:)
       real(8) ,allocatable :: rmt_rv(:)

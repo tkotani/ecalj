@@ -38,13 +38,13 @@ C ... Passed parameters
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
 C ... Local parameters
           integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll 
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       parameter (lmxx=6,nlmx=(lmxx+1)**2)
       double precision add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2

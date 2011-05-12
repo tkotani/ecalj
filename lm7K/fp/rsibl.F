@@ -106,9 +106,9 @@ C ... Local parameters
         integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint 
-        integer,pointer :: iv_p_okv(:)
+        integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx)

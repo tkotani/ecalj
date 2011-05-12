@@ -31,10 +31,10 @@ C ... Passed parameters
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
 !! ... Local parameters
       integer:: kmax , kdim , ilm2 , ilm1 
-      integer,pointer :: iv_p_ojcg(:)
-      integer,pointer :: iv_p_oidxcg(:)
-      real(8),pointer :: rv_p_ocy(:)
-      real(8),pointer :: rv_p_ocg(:)
+      integer,pointer :: iv_p_ojcg(:) =>NULL()
+      integer,pointer :: iv_p_oidxcg(:) =>NULL()
+      real(8),pointer :: rv_p_ocy(:) =>NULL()
+      real(8),pointer :: rv_p_ocg(:) =>NULL()
       rv_p_ocg    => slat%rv_p_ocg 
       iv_p_ojcg   => slat%iv_p_ojcg 
       iv_p_oidxcg => slat%iv_p_oidxcg 

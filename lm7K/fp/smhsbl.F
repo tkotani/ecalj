@@ -165,13 +165,13 @@ C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
       integer nbas,nglob,nlmto
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2

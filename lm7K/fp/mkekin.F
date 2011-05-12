@@ -164,31 +164,31 @@ C ... Passed parameters
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
      .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
-                   real(8),pointer :: rv_p_oppipp(:)
+                   real(8),pointer :: rv_p_oppipp(:) =>NULL()
 
-                  real(8),pointer :: rv_p_oppihp(:)
+                  real(8),pointer :: rv_p_oppihp(:) =>NULL()
 
-                 real(8),pointer :: rv_p_oppihh(:)
+                 real(8),pointer :: rv_p_oppihh(:) =>NULL()
 
-                real(8),pointer :: rv_p_otaupp(:)
+                real(8),pointer :: rv_p_otaupp(:) =>NULL()
 
-               real(8),pointer :: rv_p_otauhp(:)
+               real(8),pointer :: rv_p_otauhp(:) =>NULL()
 
-              real(8),pointer :: rv_p_otauhh(:)
+              real(8),pointer :: rv_p_otauhh(:) =>NULL()
 
-             real(8),pointer :: rv_p_osigpp(:)
+             real(8),pointer :: rv_p_osigpp(:) =>NULL()
 
-            real(8),pointer :: rv_p_osighp(:)
+            real(8),pointer :: rv_p_osighp(:) =>NULL()
 
-           real(8),pointer :: rv_p_osighh(:)
+           real(8),pointer :: rv_p_osighh(:) =>NULL()
 
-          real(8),pointer :: rv_p_oqpp(:)
+          real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqhp(:)
+         real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqhh(:)
+        real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       logical lgors
       parameter (n0=10,nkap0=3)

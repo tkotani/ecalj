@@ -154,7 +154,7 @@ Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_tb):: v_stb
-      type(s_spec),pointer:: v_sspec(:)
+      type(s_spec),pointer:: v_sspec(:) 
       type(s_site),pointer:: v_ssite(:)
 
       integer:: i_spec
@@ -195,8 +195,8 @@ c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
       integer:: ib , ispec 
-      real(8),pointer :: rv_p_opos(:)
-      integer,pointer :: iv_p_oips(:)
+      real(8),pointer :: rv_p_opos(:) =>NULL()
+      integer,pointer :: iv_p_oips(:) =>NULL()
       integer,allocatable:: wowk(:)
 
       procid = mpipid(1)

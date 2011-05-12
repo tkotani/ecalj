@@ -182,11 +182,11 @@ C ... Local parameters
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .stdo
 C     integer lshft(3)
-         real(8),pointer :: rv_p_ov0(:)
+         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-        real(8),pointer :: rv_p_og(:)
+        real(8),pointer :: rv_p_og(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
@@ -225,7 +225,7 @@ c      integer:: oigv2
 
 C ... for reading self-energy
       integer nqsig
-       real(8),pointer :: rv_p_oqsig(:)
+       real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
 
 C ... for band plotting

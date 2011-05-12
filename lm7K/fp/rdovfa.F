@@ -63,15 +63,15 @@ cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
      .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor 
-           real(8),pointer :: rv_p_ov1(:)
+           real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov0(:)
+          real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-         integer,pointer :: iv_p_okv(:)
+         integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:)
+        real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       complex(8),pointer :: zv_p_osmrho(:)
+       complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
       real(8) ,allocatable :: rwgt_rv(:)
       complex(8) ,allocatable :: cv_zv(:)

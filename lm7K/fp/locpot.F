@@ -177,15 +177,15 @@ C ... for core hole
       logical lfltwf
            integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
-           real(8),pointer :: rv_p_ov01(:)
+           real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov0(:)
+          real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-         integer,pointer :: iv_p_ojcg(:)
+         integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-        integer,pointer :: iv_p_oidxcg(:)
+        integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
 C$    integer iiv0(nbas),nvl
 C ... Heap

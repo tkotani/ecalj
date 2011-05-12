@@ -31,31 +31,31 @@ C ... Passed parameters
 C ... Local parameters
                    integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
      .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint 
-                   real(8),pointer :: rv_p_opos(:)
+                   real(8),pointer :: rv_p_opos(:) =>NULL()
 
-                  real(8),pointer :: rv_p_og(:)
+                  real(8),pointer :: rv_p_og(:) =>NULL()
 
-                 integer,pointer :: iv_p_okv(:)
+                 integer,pointer :: iv_p_okv(:) =>NULL()
 
-                real(8),pointer :: rv_p_ogv(:)
+                real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-               real(8),pointer :: rv_p_odlv(:)
+               real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-              complex(8),pointer :: zv_p_obgv(:)
+              complex(8),pointer :: zv_p_obgv(:) =>NULL()
 
-             real(8),pointer :: rv_p_oag(:)
+             real(8),pointer :: rv_p_oag(:) =>NULL()
 
-            type(s_rv1),pointer :: sv_p_oorhat(:)
+            type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
-           real(8),pointer :: rv_p_omad(:)
+           real(8),pointer :: rv_p_omad(:) =>NULL()
 
-          complex(8),pointer :: zv_p_osmrho(:)
+          complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-         complex(8),pointer :: zv_p_osmpot(:)
+         complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
-        integer,pointer :: iv_p_oips0(:)
+        integer,pointer :: iv_p_oips0(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:)
+       real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(9),gmax,xx

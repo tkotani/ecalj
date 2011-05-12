@@ -34,27 +34,27 @@ C ... Local parameters
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                  integer:: ohrss 
-                 integer,pointer :: iv_p_ontabs(:)
+                 integer,pointer :: iv_p_ontabs(:) =>NULL()
 
-                integer,pointer :: iv_p_oiaxs(:)
+                integer,pointer :: iv_p_oiaxs(:) =>NULL()
 
-               real(8),pointer :: rv_p_opos(:)
+               real(8),pointer :: rv_p_opos(:) =>NULL()
 
-              real(8),pointer :: rv_p_og(:)
+              real(8),pointer :: rv_p_og(:) =>NULL()
 
-             real(8),pointer :: rv_p_oag(:)
+             real(8),pointer :: rv_p_oag(:) =>NULL()
 
-            real(8),pointer :: rv_p_ohrs(:)
+            real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-         integer,pointer :: iv_p_oistab(:)
+         integer,pointer :: iv_p_oistab(:) =>NULL()
 
-          integer,pointer :: iv_p_oiprmb(:)
+          integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqsig(:)
+         real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqp(:)
+        real(8),pointer :: rv_p_oqp(:) =>NULL()
 
-       integer,pointer :: iv_p_ooffh(:)
+       integer,pointer :: iv_p_ooffh(:) =>NULL()
 
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
@@ -1237,23 +1237,23 @@ c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                 integer:: ohrss , osigm2 , odelt , oistb2 
                 integer,pointer :: iv_p_ontabs(:)
 
-               integer,pointer :: iv_p_oiaxs(:)
+               integer,pointer :: iv_p_oiaxs(:) 
 
-              real(8),pointer :: rv_p_opos(:)
+              real(8),pointer :: rv_p_opos(:) 
 
-             real(8),pointer :: rv_p_og(:)
+             real(8),pointer :: rv_p_og(:) 
 
             real(8),pointer :: rv_p_oag(:)
 
-           real(8),pointer :: rv_p_ohrs(:)
+           real(8),pointer :: rv_p_ohrs(:) 
 
-         integer,pointer :: iv_p_oistab(:)
+         integer,pointer :: iv_p_oistab(:) 
 
          integer,pointer :: iv_p_oiprmb(:)
 
-        real(8),pointer :: rv_p_oqsig(:)
+        real(8),pointer :: rv_p_oqsig(:) 
 
-       integer,pointer :: iv_p_ooffh(:)
+       integer,pointer :: iv_p_ooffh(:) 
 
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)

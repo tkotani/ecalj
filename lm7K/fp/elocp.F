@@ -39,7 +39,7 @@ C ... Local parameters
      .nr,nrmx,nrspec,nspec,stdo
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,nkaph,idamax
-       real(8),pointer :: rv_p_ov0(:)
+       real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ,allocatable :: ips_iv(:)
 

@@ -185,7 +185,7 @@ C Local parameters
       logical lves,leula,a2bin
       double precision avwsr,avw,range,xx,stdo,wdummy
        integer:: olstc 
-       integer,pointer :: iv_p_ontab(:)
+       integer,pointer :: iv_p_ontab(:) =>NULL()
 
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: rtab_rv(:)
@@ -197,7 +197,7 @@ C Local parameters
        integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
      . , ival , scrwid , ltab , nlstc , nlst1 , nlst2 , mxcsiz , iprint 
      . , ifi , fopn , lgunit , ldisp , lnn 
-       integer,pointer :: iv_p_oiax(:)
+       integer,pointer :: iv_p_oiax(:) =>NULL()
 
       character*8  dc*1
       parameter (scrwid=120)

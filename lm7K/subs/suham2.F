@@ -44,7 +44,7 @@ C ... Local parameters
       integer nspec,lfp,nglob
 C ... Needed for
        integer:: ng , i 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       double precision alat,tolgv,dum
 

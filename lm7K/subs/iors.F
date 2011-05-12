@@ -145,15 +145,15 @@ C ... Local parameters
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
            integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw 
-           real(8),pointer :: rv_p_orhoca(:)
+           real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov1(:)
+          real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-         real(8),pointer :: rv_p_ov0(:)
+         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-        complex(8),pointer :: zv_p_osmrho(:)
+        complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-       real(8),pointer :: rv_p_oves(:)
+       real(8),pointer :: rv_p_oves(:) =>NULL()
 
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)

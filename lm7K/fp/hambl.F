@@ -84,7 +84,7 @@ C ... Passed parameters
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
-       integer,pointer :: iv_p_oiprmb(:)
+       integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       double precision vavg
 C     double precision plat(3,3)

@@ -199,9 +199,9 @@ C ... Local parameters
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
         integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl 
-        integer,pointer :: iv_p_okv(:)
+        integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       integer ,allocatable :: ips0_iv(:)
       real(8) ,allocatable :: co_rv(:)

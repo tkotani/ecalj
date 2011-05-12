@@ -359,19 +359,19 @@ C ... Local parameters
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
        integer:: oalph , oiax , ontab , os , ng 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
           integer:: obas , oo , opp , oeula , opti , obs , omagf 
-          integer,pointer :: iv_p_oipc(:)
+          integer,pointer :: iv_p_oipc(:) =>NULL()
 
-         integer,pointer :: iv_p_oips(:)
+         integer,pointer :: iv_p_oips(:) =>NULL()
 
-        integer,pointer :: iv_p_oidxsh(:)
+        integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
-       integer,pointer :: iv_p_offh(:)
+       integer,pointer :: iv_p_offh(:) =>NULL()
 
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts

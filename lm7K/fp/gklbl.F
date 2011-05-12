@@ -30,9 +30,9 @@ C ... Passed parameters
 C ... Local parameters
       double complex cfac,phase
         integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m 
-        real(8),pointer :: rv_p_odlv(:)
+        real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:)
+       real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
 CSFCPP#if F90

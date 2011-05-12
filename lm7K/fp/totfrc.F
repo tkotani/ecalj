@@ -32,9 +32,9 @@ C ... Passed parameters
 C ... Local parameters
         integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
      .  , isw 
-        real(8),pointer :: rv_p_og(:)
+        real(8),pointer :: rv_p_og(:) =>NULL()
 
-      integer,pointer :: iv_p_oistab(:)
+      integer,pointer :: iv_p_oistab(:) =>NULL()
 
       real(8) ,allocatable :: wk_rv(:)
 

@@ -217,9 +217,9 @@ C ... Local parameters
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
         integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas 
-        real(8),pointer :: rv_p_og(:)
+        real(8),pointer :: rv_p_og(:) =>NULL()
 
-       real(8),pointer :: rv_p_oag(:)
+       real(8),pointer :: rv_p_oag(:) =>NULL()
 
       real(8) ,allocatable :: qwk_rv(:)
       real(8) ,allocatable :: sym_rv(:)

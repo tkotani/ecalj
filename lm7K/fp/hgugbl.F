@@ -34,13 +34,13 @@ C ... Passed parameters
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
 C ... Local parameters
           integer:: kmax , kdim , ilm2 , ilm1 
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       double precision q(3),e2,vol
 C ... Heap

@@ -37,9 +37,9 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
         integer:: nbas , nbasp , iprtbl 
-        integer,pointer :: iv_p_ontab(:)
+        integer,pointer :: iv_p_ontab(:) 
 
-       integer,pointer :: iv_p_oiax(:)
+       integer,pointer :: iv_p_oiax(:) 
 
 C     integer ntab(nbas+1),iax(niax,1)
       double precision plat(3,3),pos(3,nbasp),rmax(1),rmt(1),z(1),alat
@@ -49,9 +49,9 @@ C     integer ntab(nbas+1),iax(niax,1)
 C static:
       double precision alato,plato(9),xx
         integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , novl 
-        integer,pointer :: iv_p_ontabo(:)
+        integer,pointer :: iv_p_ontabo(:) =>NULL()
 
-       integer,pointer :: iv_p_oiaxo(:)
+       integer,pointer :: iv_p_oiaxo(:) =>NULL()
 
       parameter (mxlst=256)
       integer ilst(mxlst)
@@ -248,9 +248,9 @@ C static:
       double precision alato,plato(9)
         integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , oposb , 
      .  novl , novlp , novlm 
-        integer,pointer :: iv_p_ontabo(:)
+        integer,pointer :: iv_p_ontabo(:) 
 
-       integer,pointer :: iv_p_oiaxo(:)
+       integer,pointer :: iv_p_oiaxo(:) 
 
 cki
       real(8) :: w_ormax(:)

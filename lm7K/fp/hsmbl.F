@@ -32,9 +32,9 @@ C ... Passed parameters
       double complex hsm(1),hsmp(1)
 C ... Local parameters
         integer:: nkd , nkq , ilm , l , m 
-        real(8),pointer :: rv_p_odlv(:)
+        real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:)
+       real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
      .tol,vol

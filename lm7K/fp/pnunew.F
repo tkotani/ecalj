@@ -57,7 +57,7 @@ C ... Local parameters
       logical lpz,lfrzv,lfrzz
        integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
      . l , ipqn , m , isp , nr , nn , mxcst 
-       real(8),pointer :: rv_p_ov0(:)
+       real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)

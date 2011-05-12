@@ -40,8 +40,8 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_str):: v_sstr
       type(s_tb):: v_stb
 
-      type(s_spec),pointer:: v_sspec(:)
-      type(s_site),pointer:: v_ssite(:)
+      type(s_spec),pointer:: v_sspec(:) =>NULL()
+      type(s_site),pointer:: v_ssite(:) =>NULL()
 
       parameter (mxspec=256)
       character*8 slabl(mxspec)
@@ -517,47 +517,47 @@ C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
                            integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
-                           real(8),pointer :: rv_p_ormax(:)
+                           real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-                          real(8),pointer :: rv_p_osop(:)
+                          real(8),pointer :: rv_p_osop(:) =>NULL()
 
-                         real(8),pointer :: rv_p_opprel(:)
+                         real(8),pointer :: rv_p_opprel(:) =>NULL()
 
-                        real(8),pointer :: rv_p_orhrmx(:)
+                        real(8),pointer :: rv_p_orhrmx(:) =>NULL()
 
-                       real(8),pointer :: rv_p_orhos(:)
+                       real(8),pointer :: rv_p_orhos(:) =>NULL()
 
-                      real(8),pointer :: rv_p_oqt(:)
+                      real(8),pointer :: rv_p_oqt(:) =>NULL()
 
-                     real(8),pointer :: rv_p_oqpp(:)
+                     real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-                    real(8),pointer :: rv_p_oqnu(:)
+                    real(8),pointer :: rv_p_oqnu(:) =>NULL()
 
-                   real(8),pointer :: rv_p_oqc(:)
+                   real(8),pointer :: rv_p_oqc(:) =>NULL()
 
-                  real(8),pointer :: rv_p_opp(:)
+                  real(8),pointer :: rv_p_opp(:) =>NULL()
 
-                 real(8),pointer :: rv_p_opnu(:)
+                 real(8),pointer :: rv_p_opnu(:) =>NULL()
 
-                real(8),pointer :: rv_p_opmpol(:)
+                real(8),pointer :: rv_p_opmpol(:) =>NULL()
 
-               real(8),pointer :: rv_p_ogrrme(:)
+               real(8),pointer :: rv_p_ogrrme(:) =>NULL()
 
-              real(8),pointer :: rv_p_obxc(:)
+              real(8),pointer :: rv_p_obxc(:) =>NULL()
 
-             integer,pointer :: iv_p_oinitc(:)
+             integer,pointer :: iv_p_oinitc(:) =>NULL()
 
-            real(8),pointer :: rv_p_ovrmax(:)
+            real(8),pointer :: rv_p_ovrmax(:) =>NULL()
 
-           real(8),pointer :: rv_p_ovintr(:)
+           real(8),pointer :: rv_p_ovintr(:) =>NULL()
 
-          real(8),pointer :: rv_p_oves(:)
+          real(8),pointer :: rv_p_oves(:) =>NULL()
 
-         real(8),pointer :: rv_p_ovdif(:)
+         real(8),pointer :: rv_p_ovdif(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:)
+        integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:)
+       real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
@@ -1062,7 +1062,7 @@ C ... Heap
 C ... Local parameters
        integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
      . , ipr 
-       real(8),pointer :: rv_p_oqpp(:)
+       real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
 
       call getpr(ipr)
@@ -1241,33 +1241,33 @@ C Local variables
       logical havepq,havepp,haveso,haveop,haveva,havemp,
      .readpq,readpp,readso,readop,readva,readmp
                     integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
-                    real(8),pointer :: rv_p_osop(:)
+                    real(8),pointer :: rv_p_osop(:) =>NULL()
 
-                   real(8),pointer :: rv_p_opprel(:)
+                   real(8),pointer :: rv_p_opprel(:) =>NULL()
 
-                  real(8),pointer :: rv_p_orhrmx(:)
+                  real(8),pointer :: rv_p_orhrmx(:) =>NULL()
 
-                 real(8),pointer :: rv_p_oqnu(:)
+                 real(8),pointer :: rv_p_oqnu(:) =>NULL()
 
-                real(8),pointer :: rv_p_omp(:)
+                real(8),pointer :: rv_p_omp(:) =>NULL()
 
-               real(8),pointer :: rv_p_opp(:)
+               real(8),pointer :: rv_p_opp(:) =>NULL()
 
-              real(8),pointer :: rv_p_opnu(:)
+              real(8),pointer :: rv_p_opnu(:) =>NULL()
 
-             real(8),pointer :: rv_p_ogrrme(:)
+             real(8),pointer :: rv_p_ogrrme(:) =>NULL()
 
-            integer,pointer :: iv_p_ohave(:)
+            integer,pointer :: iv_p_ohave(:) =>NULL()
 
-           real(8),pointer :: rv_p_ovrmax(:)
+           real(8),pointer :: rv_p_ovrmax(:) =>NULL()
 
-          real(8),pointer :: rv_p_ova(:)
+          real(8),pointer :: rv_p_ova(:) =>NULL()
 
-         real(8),pointer :: rv_p_oves(:)
+         real(8),pointer :: rv_p_oves(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:)
+        integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:)
+       real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       parameter(n0=10)
       integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,

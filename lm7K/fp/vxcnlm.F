@@ -57,8 +57,8 @@ C ----------------------------------------------------------------------
 
       type(s_lat)::  slat
       integer ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3),nnn
-      integer,pointer :: iv_p_okv(:)
-      real(8),pointer :: rv_p_ogv(:)
+      integer,pointer :: iv_p_okv(:) =>NULL()
+      real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:),enlbk(:,:,:)

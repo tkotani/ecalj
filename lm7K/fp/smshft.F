@@ -58,9 +58,9 @@ C ... Passed parameters
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,nbas,ng,ngabc(3),nglob,nsp
-        integer,pointer :: iv_p_okv(:)
+        integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)

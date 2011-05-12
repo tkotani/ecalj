@@ -129,7 +129,7 @@ C ... Passed parameters
 C ... Local parameters
        integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig 
-       integer,pointer :: iv_p_oidxsh(:)
+       integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))

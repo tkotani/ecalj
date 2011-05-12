@@ -110,13 +110,13 @@ C ... Local variables
      .nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .stdo,pdim,lsc
           integer:: o 
-          real(8),pointer :: rv_p_opos(:)
+          real(8),pointer :: rv_p_opos(:) =>NULL()
 
-         type(s_rv1),pointer :: sv_p_oorhat(:)
+         type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
-        complex(8),pointer :: zv_p_osmrho(:)
+        complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-       complex(8),pointer :: zv_p_osmpot(:)
+       complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
 c      real(8) ,allocatable :: evl_rv(:)
       real(8) ,allocatable :: frc_rv(:)
@@ -151,11 +151,11 @@ C ... for relaxation
 cki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
 
-         real(8),pointer :: rv_p_og(:)
+         real(8),pointer :: rv_p_og(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:)
+        real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:)
+       integer,pointer :: iv_p_oistab(:) =>NULL()
 
       real(8) ,allocatable :: shr_rv(:)
 

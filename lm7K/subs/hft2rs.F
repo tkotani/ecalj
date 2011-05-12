@@ -154,7 +154,7 @@ C ... Passed parameters
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1)
-        integer,pointer :: iv_p_oiax(:)
+        integer,pointer :: iv_p_oiax(:) 
 
        integer,pointer :: iv_p_ontab(:)
 

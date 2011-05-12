@@ -133,10 +133,10 @@ c#endif
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
      .    , nlmha , nkaph , mode1 , nlmto 
-      integer,pointer :: iv_p_ojcg(:)
-      integer,pointer :: iv_p_oidxcg(:)
-      real(8),pointer :: rv_p_ocy(:)
-      real(8),pointer :: rv_p_ocg(:)
+      integer,pointer :: iv_p_ojcg(:) =>NULL()
+      integer,pointer :: iv_p_oidxcg(:) =>NULL()
+      real(8),pointer :: rv_p_ocy(:) =>NULL()
+      real(8),pointer :: rv_p_ocg(:) =>NULL()
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas
       logical:: debug=.false.

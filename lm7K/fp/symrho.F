@@ -124,19 +124,19 @@ C ... Local parameters
              integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
      .       mxint , ival 
-             real(8),pointer :: rv_p_og(:)
+             real(8),pointer :: rv_p_og(:) =>NULL()
 
-            integer,pointer :: iv_p_ojcg(:)
+            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-           integer,pointer :: iv_p_oidxcg(:)
+           integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-          real(8),pointer :: rv_p_ocy(:)
+          real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocg(:)
+         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:)
+        real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:)
+       integer,pointer :: iv_p_oistab(:) =>NULL()
 
       integer ,allocatable :: ipa_iv(:)
       integer ,allocatable :: ipc_iv(:)
@@ -421,13 +421,13 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
           integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp 
-          integer,pointer :: iv_p_okv(:)
+          integer,pointer :: iv_p_okv(:) =>NULL()
 
-         real(8),pointer :: rv_p_ogv(:)
+         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-        complex(8),pointer :: zv_p_obgv(:)
+        complex(8),pointer :: zv_p_obgv(:) =>NULL()
 
-       integer,pointer :: iv_p_oips0(:)
+       integer,pointer :: iv_p_oips0(:) =>NULL()
 
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)

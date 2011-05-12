@@ -11,7 +11,7 @@ C Kino April2009.
       end type
 
       type s_rv1
-        real(8),pointer:: v(:)
+        real(8),pointer:: v(:) =>NULL()
       end type s_rv1
 
 Cr --- explanation of  ubz ---
@@ -109,16 +109,16 @@ C 30  48  4       zval  1
       integer(8)   ::   ntet
 CCHSTRUC       integer(8)   ::   odos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oidtet
-       integer , pointer ::  iv_p_oidtet (:)
+       integer , pointer ::  iv_p_oidtet (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oipq
-       integer , pointer ::  iv_p_oipq (:)
+       integer , pointer ::  iv_p_oipq (:) =>NULL()
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
-       real(8) , pointer ::  rv_p_oqp (:)
+       real(8) , pointer ::  rv_p_oqp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ostar
-       integer , pointer ::  iv_p_ostar (:)
+       integer , pointer ::  iv_p_ostar (:) =>NULL()
 CCHSTRUC       integer(8)   ::   owtkp
-       real(8) , pointer ::  rv_p_owtkp (:)
+       real(8) , pointer ::  rv_p_owtkp (:) =>NULL()
       real(8)   ::   range
       real(8)   ::   semsh(10)
       real(8)   ::   stnr
@@ -206,36 +206,36 @@ C 32  33 -1       size  1
       integer(8)   ::   npadr
       integer(8)   ::   npl
 CCHSTRUC       integer(8)   ::   oclabl
-       real(8) , pointer ::  rv_p_oclabl (:)
+       real(8) , pointer ::  rv_p_oclabl (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ocllst ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
 c      integer(8)   ::   ogroup
 CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohave
-       integer , pointer ::  iv_p_ohave (:)
+       integer , pointer ::  iv_p_ohave (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oics
-       integer , pointer ::  iv_p_oics (:)
+       integer , pointer ::  iv_p_oics (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
 cki      integer(8)   ::   oipc
-      integer, pointer :: iv_p_oipc(:)
+      integer, pointer :: iv_p_oipc(:) =>NULL()
 cki      integer(8)   ::   oipcp
-      integer, pointer :: iv_p_oipcp(:)
+      integer, pointer :: iv_p_oipcp(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oips
-       integer , pointer ::  iv_p_oips (:)
+       integer , pointer ::  iv_p_oips (:) =>NULL()
 CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
 CCHSTRUC       integer(8)   ::   onrc
-       integer , pointer ::  iv_p_onrc (:)
+       integer , pointer ::  iv_p_onrc (:) =>NULL()
 CCHSTRUC       integer(8)   ::   onrcp
-       integer , pointer ::  iv_p_onrcp (:)
+       integer , pointer ::  iv_p_onrcp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   opgfsl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
 cki      integer(8)   ::   opos
-         real(8), pointer :: rv_p_opos(:)
+         real(8), pointer :: rv_p_opos(:) =>NULL()
 CCHSTRUC       integer(8)   ::   ormax
-       real(8) , pointer ::  rv_p_ormax (:)
+       real(8) , pointer ::  rv_p_ormax (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
 CCHSTRUC       integer(8)   ::   ostni ! not used because of undef
 CCHSTRUC       integer(8)   ::   ozos ! not used because of undef
@@ -847,19 +847,19 @@ C 56 130  2      udiag  1
 CCHSTRUC       integer(8)   ::   obdots ! not used because of undef
 CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohrs
-       real(8) , pointer ::  rv_p_ohrs (:)
+       real(8) , pointer ::  rv_p_ohrs (:) =>NULL()
 cki      integer(8)   ::   oiaxs
-       integer, pointer :: iv_p_oiaxs(:)
+       integer, pointer :: iv_p_oiaxs(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oindxo
-       integer , pointer ::  iv_p_oindxo (:)
+       integer , pointer ::  iv_p_oindxo (:) =>NULL()
 CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
 CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
 cki      integer(8)   ::   ontabs
-       integer, pointer :: iv_p_ontabs(:)
+       integer, pointer :: iv_p_ontabs(:) =>NULL()
 CCHSTRUC       integer(8)   ::   ooffH
-       integer , pointer ::  iv_p_ooffH (:)
+       integer , pointer ::  iv_p_ooffH (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqsig
-       real(8) , pointer ::  rv_p_oqsig (:)
+       real(8) , pointer ::  rv_p_oqsig (:) =>NULL()
       real(8)   ::   oveps,delta_stabilize !takao sep2010 
                       ! H-> H+ delta_stabilize*O^-1
       real(8)   ::   pmax(10)
@@ -989,33 +989,33 @@ C 43 121  4        vol  1
       integer(8)   ::   npgrp
       integer(8)   ::   nsgrp
 CCHSTRUC       integer(8)   ::   oag
-       real(8) , pointer ::  rv_p_oag (:)
+       real(8) , pointer ::  rv_p_oag (:) =>NULL()
 CCHSTRUC       integer(8)   ::   obgv
-       complex(8) , pointer ::  zv_p_obgv (:)
+       complex(8) , pointer ::  zv_p_obgv (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ocg
-       real(8) , pointer ::  rv_p_ocg (:)
+       real(8) , pointer ::  rv_p_ocg (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ocy
-       real(8) , pointer ::  rv_p_ocy (:)
+       real(8) , pointer ::  rv_p_ocy (:) =>NULL()
 CCHSTRUC       integer(8)   ::   odlv
-       real(8) , pointer ::  rv_p_odlv (:)
+       real(8) , pointer ::  rv_p_odlv (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ogv
-       real(8) , pointer ::  rv_p_ogv (:)
+       real(8) , pointer ::  rv_p_ogv (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oidxcg
-       integer , pointer ::  iv_p_oidxcg (:)
+       integer , pointer ::  iv_p_oidxcg (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oips0
-       integer , pointer ::  iv_p_oips0 (:)
+       integer , pointer ::  iv_p_oips0 (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oistab
-       integer , pointer ::  iv_p_oistab (:)
+       integer , pointer ::  iv_p_oistab (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ojcg
-       integer , pointer ::  iv_p_ojcg (:)
+       integer , pointer ::  iv_p_ojcg (:) =>NULL()
 CCHSTRUC       integer(8)   ::   okv
-       integer , pointer ::  iv_p_okv (:)
+       integer , pointer ::  iv_p_okv (:) =>NULL()
 cki      integer(8)   ::   opos
-       real(8), pointer :: rv_p_opos(:)
+       real(8), pointer :: rv_p_opos(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqlv
-       real(8) , pointer ::  rv_p_oqlv (:)
+       real(8) , pointer ::  rv_p_oqlv (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osymgr
-       real(8) , pointer ::  rv_p_osymgr (:)
+       real(8) , pointer ::  rv_p_osymgr (:) =>NULL()
       real(8)   ::   plat(3,3)
       real(8)   ::   plat0(3,3)
       real(8)   ::   plat2(3,3)
@@ -1388,7 +1388,7 @@ C 58  64  4      vmtz0  1
       integer(8)   ::   nrhos
 CCHSTRUC       integer(8)   ::   oaamom ! not used because of undef
 CCHSTRUC       integer(8)   ::   obxc
-       real(8) , pointer ::  rv_p_obxc (:)
+       real(8) , pointer ::  rv_p_obxc (:) =>NULL()
 CCHSTRUC       integer(8)   ::   odddpf ! not used because of undef
 CCHSTRUC       integer(8)   ::   oddpf ! not used because of undef
 CCHSTRUC       integer(8)   ::   oddpfr ! not used because of undef
@@ -1399,14 +1399,14 @@ CCHSTRUC       integer(8)   ::   ofes ! not used because of undef
 CCHSTRUC       integer(8)   ::   ogma ! not used because of undef
 CCHSTRUC       integer(8)   ::   ogmar ! not used because of undef
 CCHSTRUC       integer(8)   ::   ogrrme
-       real(8) , pointer ::  rv_p_ogrrme (:)
+       real(8) , pointer ::  rv_p_ogrrme (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ohab ! not used because of undef
 CCHSTRUC       integer(8)   ::   oivso ! not used because of undef
 CCHSTRUC       integer(8)   ::   omad
-       real(8) , pointer ::  rv_p_omad (:)
+       real(8) , pointer ::  rv_p_omad (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oorhat
 cki       integer , pointer ::  iv_p_oorhat (:)
-       type(s_rv1), pointer :: sv_p_oorhat(:)
+       type(s_rv1), pointer :: sv_p_oorhat(:) =>NULL()
 CCHSTRUC       integer(8)   ::   opalp ! not used because of undef
 CCHSTRUC       integer(8)   ::   opapg ! not used because of undef
 CCHSTRUC       integer(8)   ::   opdel ! not used because of undef
@@ -1414,49 +1414,49 @@ CCHSTRUC       integer(8)   ::   opf ! not used because of undef
 CCHSTRUC       integer(8)   ::   opfnc ! not used because of undef
 CCHSTRUC       integer(8)   ::   opfr ! not used because of undef
 CCHSTRUC       integer(8)   ::   opmpol
-       real(8) , pointer ::  rv_p_opmpol (:)
+       real(8) , pointer ::  rv_p_opmpol (:) =>NULL()
 CCHSTRUC       integer(8)   ::   opnu
-       real(8) , pointer ::  rv_p_opnu (:)
+       real(8) , pointer ::  rv_p_opnu (:) =>NULL()
 CCHSTRUC       integer(8)   ::   opp
-       real(8) , pointer ::  rv_p_opp (:)
+       real(8) , pointer ::  rv_p_opp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
 CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
 CCHSTRUC       integer(8)   ::   opprel
-       real(8) , pointer ::  rv_p_opprel (:)
+       real(8) , pointer ::  rv_p_opprel (:) =>NULL()
 CCHSTRUC       integer(8)   ::   opti ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqc
-       real(8) , pointer ::  rv_p_oqc (:)
+       real(8) , pointer ::  rv_p_oqc (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqmom ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqnu
-       real(8) , pointer ::  rv_p_oqnu (:)
+       real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqpp
-       real(8) , pointer ::  rv_p_oqpp (:)
+       real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqt
-       real(8) , pointer ::  rv_p_oqt (:)
+       real(8) , pointer ::  rv_p_oqt (:) =>NULL()
 CCHSTRUC       integer(8)   ::   orhos
-       real(8) , pointer ::  rv_p_orhos (:)
+       real(8) , pointer ::  rv_p_orhos (:) =>NULL()
 CCHSTRUC       integer(8)   ::   orhrmx
-       real(8) , pointer ::  rv_p_orhrmx (:)
+       real(8) , pointer ::  rv_p_orhrmx (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osab ! not used because of undef
 CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
 CCHSTRUC       integer(8)   ::   osmpot
-       complex(8) , pointer ::  zv_p_osmpot (:)
+       complex(8) , pointer ::  zv_p_osmpot (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osmrho
-       complex(8) , pointer ::  zv_p_osmrho (:)
+       complex(8) , pointer ::  zv_p_osmrho (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osop
-       real(8) , pointer ::  rv_p_osop (:)
+       real(8) , pointer ::  rv_p_osop (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
 CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
 CCHSTRUC       integer(8)   ::   otau ! not used because of undef
 CCHSTRUC       integer(8)   ::   ovab ! not used because of undef
 CCHSTRUC       integer(8)   ::   ovdif
-       real(8) , pointer ::  rv_p_ovdif (:)
+       real(8) , pointer ::  rv_p_ovdif (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oves
-       real(8) , pointer ::  rv_p_oves (:)
+       real(8) , pointer ::  rv_p_oves (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ovintr
-       real(8) , pointer ::  rv_p_ovintr (:)
+       real(8) , pointer ::  rv_p_ovintr (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ovrmax
-       real(8) , pointer ::  rv_p_ovrmax (:)
+       real(8) , pointer ::  rv_p_ovrmax (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ovshf ! not used because of undef
       real(8)   ::   vconst(3)
       real(8)   ::   vmtz
@@ -1659,7 +1659,7 @@ C 74 341  4        vso  4
       real(8)   ::   etail
       real(8)   ::   name !string
 cki      integer(8)   ::   orhoc
-      real(8), pointer :: rv_p_orhoc(:)
+      real(8), pointer :: rv_p_orhoc(:) =>NULL()
       real(8)   ::   stc
       integer(8)   ::   lmxb
       integer(8)   ::   lmxf
@@ -1783,9 +1783,9 @@ C 27  87  4      vshft  1
 CCHSTRUC       integer(8)   ::   offh ! not used because of undef
 CCHSTRUC       integer(8)   ::   orho ! not used because of undef
 CCHSTRUC       integer(8)   ::   ov0
-       real(8) , pointer ::  rv_p_ov0 (:)
+       real(8) , pointer ::  rv_p_ov0 (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ov1
-       real(8) , pointer ::  rv_p_ov1 (:)
+       real(8) , pointer ::  rv_p_ov1 (:) =>NULL()
       integer(8)   ::   pl
       integer(8)   ::   plv
       real(8)   ::   pnu(20)

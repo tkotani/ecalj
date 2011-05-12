@@ -333,13 +333,13 @@ C ... Local parameters or process-shared variables
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
-          integer,pointer :: iv_p_ojcg(:)
+          integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:)
+         integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:)
+        real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:)
+       real(8),pointer :: rv_p_ocg(:) =>NULL()
 
 c      integer oib(npmx),oidb(npmx),oixf(npmx),o
       double precision alat,qlat(3,3)
@@ -347,25 +347,25 @@ C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
                 integer:: ob , odb 
-                real(8),pointer :: rv_p_oppihp(:)
+                real(8),pointer :: rv_p_oppihp(:) =>NULL()
 
-               real(8),pointer :: rv_p_oppipp(:)
+               real(8),pointer :: rv_p_oppipp(:) =>NULL()
 
-              real(8),pointer :: rv_p_osighp(:)
+              real(8),pointer :: rv_p_osighp(:) =>NULL()
 
-             real(8),pointer :: rv_p_osigpp(:)
+             real(8),pointer :: rv_p_osigpp(:) =>NULL()
 
-            real(8),pointer :: rv_p_oeqhh(:)
+            real(8),pointer :: rv_p_oeqhh(:) =>NULL()
 
-           real(8),pointer :: rv_p_oeqhp(:)
+           real(8),pointer :: rv_p_oeqhp(:) =>NULL()
 
-          real(8),pointer :: rv_p_oeqpp(:)
+          real(8),pointer :: rv_p_oeqpp(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqhh(:)
+         real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqhp(:)
+        real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqpp(:)
+       real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
       double precision pa(3),rsma,pi,tpiba
 CSFCPP#if F90

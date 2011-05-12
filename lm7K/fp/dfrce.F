@@ -89,9 +89,9 @@ C Local variables
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
-        integer,pointer :: iv_p_okv(:)
+        integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:)
+       real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       complex(8) ,allocatable :: ceps_zv(:)
       complex(8) ,allocatable :: cnomi_zv(:)

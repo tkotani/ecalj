@@ -48,8 +48,8 @@ c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
      .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i 
 
-      integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:)
-      real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:)
+      integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:) =>NULL()
+      real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:) =>NULL()
 
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom

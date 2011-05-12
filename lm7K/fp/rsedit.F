@@ -91,15 +91,15 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
-           type(s_rv1),pointer :: sv_p_oorhat(:)
+           type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
-          complex(8),pointer :: zv_p_osmrh2(:)
+          complex(8),pointer :: zv_p_osmrh2(:) =>NULL()
 
-         complex(8),pointer :: zv_p_osmrho(:)
+         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-        complex(8),pointer :: zv_p_osmpt2(:)
+        complex(8),pointer :: zv_p_osmpt2(:) =>NULL()
 
-       complex(8),pointer :: zv_p_osmpot(:)
+       complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
       integer ,allocatable :: orh2_iv(:)
       real(8) ,allocatable :: qmom_rv(:)
@@ -947,17 +947,17 @@ cki      type(s_spec)::spec2(*)
 C ... Local parameters
       integer il,ib,jb,is,js,lmxa,lmxl,lmxa2,lmxl2,nr1,nr2,nrmx
       integer nglob,stdo,ipr,nlml1,nlml2,isync,im,n0
-            real(8),pointer :: rv_p_orhoc2(:)
+            real(8),pointer :: rv_p_orhoc2(:) =>NULL()
 
-           real(8),pointer :: rv_p_orhoc1(:)
+           real(8),pointer :: rv_p_orhoc1(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov01(:)
+          real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-         real(8),pointer :: rv_p_ov11(:)
+         real(8),pointer :: rv_p_ov11(:) =>NULL()
 
-        real(8),pointer :: rv_p_ov02(:)
+        real(8),pointer :: rv_p_ov02(:) =>NULL()
 
-       real(8),pointer :: rv_p_ov12(:)
+       real(8),pointer :: rv_p_ov12(:) =>NULL()
 
       integer ,allocatable:: flgspc(:)
       parameter (nrmx=1501,n0=10)
@@ -1447,11 +1447,11 @@ C ... Local parameters
       integer ib,is,nr,lmxa,lmxl,lmxb,nlml,ipr,nglob,stdo,im,mode0
       double precision z,qc,rg,a,rmt,rsma
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
-         real(8),pointer :: rv_p_orhoca(:)
+         real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-        real(8),pointer :: rv_p_ov1(:)
+        real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-       real(8),pointer :: rv_p_ov0(:)
+       real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       character spid*8
 C ... Heap
