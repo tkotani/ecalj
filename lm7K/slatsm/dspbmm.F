@@ -47,9 +47,11 @@ C ... Local parameters
       integer ir,k,pa,ofxb,ofbb,nra,nca,ic,i,j,n
       double precision alp
 C     integer ofx,ofb
+      logical:: l_dummy_isanrg,isanrg
 
 C --- Setup ---
-      call isanrg(mode,0,2,'dspbmm:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,2,'dspbmm:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,2,'dspbmm:','mode',.true.)
       alp = 1
       if (mode .eq. 2) alp = -1
 C     offsets shifting origin of x and b.
@@ -158,9 +160,11 @@ C ... Local parameters
       integer ir,k,pa,ofxb,ofbb,nra,nca,ic,i,j,k1,k2
       double precision alp
 C     integer ofx,ofb
+      logical:: isanrg, l_dummy_isanrg
 
 C --- Setup ---
-      call isanrg(mode,0,2,'dmspbm:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,2,'dmspbm:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,2,'dmspbm:','mode',.true.)
       alp = 1
       if (mode .eq. 2) alp = -1
 C     offsets shifting origin of x and b.

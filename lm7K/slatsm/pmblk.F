@@ -93,6 +93,7 @@ C ... Passed parameters
 C ... Local parameters
       integer ilma,ib,iofo,ilm,iofn,nlmi,ipn,ipo,offo0,offn0,
      .nn,no,mode1,mode2,mode3,mode4,jb,jofo,jlm,jofn,nlmj,jpn,jpo
+      logical:: l_dummy_isanrg, isanrg
 
       mode1 = mod(mode,10)
       mode2 = mod(mode/10,10)
@@ -113,7 +114,8 @@ C     call awrit2('pm iofn %n,3i',' ',80,6,nblk+1,ioffn)
      .call rxi('pmblk: imcompatible switches, mode=',mode)
       if (mode2.ge.2 .and. mode3.eq.2)
      .call rxi('pmblk: imcompatible switches, mode=',mode)
-      call isanrg(mode3,0,2,'pmblk:','100s digit mode', .true.)
+Ckino isanrg is logical function,       call isanrg(mode3,0,2,'pmblk:','100s digit mode', .true.)
+      l_dummy_isanrg=isanrg(mode3,0,2,'pmblk:','100s digit mode', .true.)
 
       nmax = -1
       nlmi = 0

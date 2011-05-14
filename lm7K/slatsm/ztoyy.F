@@ -27,10 +27,13 @@ C     implicit none
       double precision a(1)
       integer lbak,kcplxl
       double precision wkr(nr),wkc(nc)
+      logical:: isanrg, l_dummy_isanrg
       if ( kcplxi .eq. kcplxf ) return
 
-      call isanrg(kcplxi,0,2,'ztoyy','kcplxi',.true.)
-      call isanrg(kcplxf,0,2,'ztoyy','kcplxf',.true.)
+Ckino isanrg is logical function,       call isanrg(kcplxi,0,2,'ztoyy','kcplxi',.true.)
+      l_dummy_isanrg=isanrg(kcplxi,0,2,'ztoyy','kcplxi',.true.)
+Ckino isanrg is logical function,       call isanrg(kcplxf,0,2,'ztoyy','kcplxf',.true.)
+      l_dummy_isanrg=isanrg(kcplxf,0,2,'ztoyy','kcplxf',.true.)
 
       kcplxl = kcplxi
 

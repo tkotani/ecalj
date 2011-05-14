@@ -41,6 +41,7 @@ Cu   29 Jan 01 Changed meaning of nca (2nd to last argument)
 C ----------------------------------------------------------------------
 C     implicit none
       integer kcplx,lda,ldb,ld1,ld2,nca,oi
+      logical:: l_dummy_isanrg,isanrg
 
       if (kcplx .eq. 0) then
         ld1 = lda
@@ -58,7 +59,8 @@ C     implicit none
         nca = lda*2
         oi  = lda
       else
-        call isanrg(kcplx,0,2,'cplxdm:','kcplx',.true.)
+Ckino isanrg is logical function,         call isanrg(kcplx,0,2,'cplxdm:','kcplx',.true.)
+        l_dummy_isanrg=isanrg(kcplx,0,2,'cplxdm:','kcplx',.true.)
       endif
 
       end

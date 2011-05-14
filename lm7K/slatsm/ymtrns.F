@@ -54,8 +54,10 @@ C     implicit none
 C ... Local parameters
       integer ofij,ofji,n,m,mmin1
       double precision wkr,wki
+      logical:: isanrg,l_dummy_isanrg
 
-      call isanrg(mode,0,1,'ymtrns','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,1,'ymtrns','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,1,'ymtrns','mode',.true.)
       do  n = n1, n2
 
 C   --- Out-of-place transpose ---

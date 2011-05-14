@@ -66,6 +66,8 @@ c     The following are specific to rdfiln
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
      .nlist(0:mxlev)
 
+      logical:: isanrg, l_dummy_isanrg
+
 #if ANSI | FIXEDLENGTH
       if (recln .ne. recl0) call
      .rxi('fgtcat: recompile with recl0=',recln)
@@ -98,7 +100,8 @@ C --- Show what category would have been sought ---
       endif
 
 C --- Find category and read it in ---
-      call isanrg(recln,1,recl,'fgtcat:','recln',.true.)
+Ckino isanrg is logical function,       call isanrg(recln,1,recl,'fgtcat:','recln',.true.)
+      l_dummy_isanrg=isanrg(recln,1,recl,'fgtcat:','recln',.true.)
       if (mxrec .le. 0) call rxi('fgtcat: illegal mxrec',mxrec)
       call stswt('start',1,swt)
       if (lrewnd) rewind ifi

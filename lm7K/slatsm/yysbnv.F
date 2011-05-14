@@ -81,6 +81,7 @@ C     implicit none
       character*1 cs
       double precision xx
       integer nmin,n1,n2,nm1,nm2,m1,m2,i,j,nd,modl,mode0,mode1,nnmin
+      logical:: isanrg, l_dummy_isanrg
 #if DEBUG
       character*10 fmt
       data fmt /'(9f10.5)'/
@@ -91,7 +92,8 @@ C     implicit none
       if (mod(mode,10) .eq. 3) cs = 'h'
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call isanrg(mode1,0,1,'yysbnv:','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode1,0,1,'yysbnv:','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode1,0,1,'yysbnv:','10s digit mode',.true.)
       modl = 10*mod(mode0,3)
 C     nmin = smallest rank below which standard inversion is used
       nmin = 32

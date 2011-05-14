@@ -54,12 +54,15 @@ C ... Local parameters
       integer ir,k,pa,ofxb,ofbb,nra,nca,ic,i,j,mode0,mode1
       double precision alp
 C     integer ofx,ofb
+      logical:: isanrg, l_dummy_isanrg
 
 C --- Setup ---
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call isanrg(mode0,0,2,'yysbmm:','1s digit mode',.true.)
-      call isanrg(mode1,0,2,'yysbmm:','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode0,0,2,'yysbmm:','1s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode0,0,2,'yysbmm:','1s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode1,0,2,'yysbmm:','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode1,0,2,'yysbmm:','10s digit mode',.true.)
       if (mode1 .eq. 0) then
         call dspbmm(mode0,i1,i2,j1,j2,nc,ar,lda,ija,offs,xr,ldx,br,ldb)
         return
@@ -187,12 +190,15 @@ C ... Local parameters
       integer ir,k,pa,ofxb,ofbb,nra,nca,ic,i,j,mode0,mode1,k1,k2
       double precision alp
 C     integer ofx,ofb
+      logical:: isanrg, l_dummy_isanrg
 
 C --- Setup ---
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call isanrg(mode0,0,2,'yymsbm:','1s digit mode',.true.)
-      call isanrg(mode1,0,2,'yymsbm:','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode0,0,2,'yymsbm:','1s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode0,0,2,'yymsbm:','1s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode1,0,2,'yymsbm:','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode1,0,2,'yymsbm:','10s digit mode',.true.)
       if (mode1 .eq. 0) then
         call dmspbm(mode0,i1,i2,j1,j2,nr,ar,lda,ija,offs,xr,ldx,br,ldb)
         return

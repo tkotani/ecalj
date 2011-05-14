@@ -293,6 +293,8 @@ C common block
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
      .iend,ichoos,nchoos,noerr,optio
 
+      logical:: isanrg, l_dummy_isanrg
+
       data nmcast /'logical','char','integer','real','double'/
       data cc /'l',' ','i','r','g'/
 
@@ -304,7 +306,8 @@ C common block
         partok = -1
         return
       endif
-      call isanrg(mod(iopt,10),0,2,'partok','iopt',.true.)
+Ckino isanrg is logical function,       call isanrg(mod(iopt,10),0,2,'partok','iopt',.true.)
+      l_dummy_isanrg=isanrg(mod(iopt,10),0,2,'partok','iopt',.true.)
 
       lopt = mod(iopt,10) .ne. 0
       errflg = count .lt. 0

@@ -300,6 +300,9 @@ C ... Passed parameters
 C ... Local parameters
       integer j1,j2,fextg,fopng,fopnx
       character tmpdir*100,pfnam*100,ext*100
+
+      logical:: isanrg, l_dummy_isanrg
+
       save tmpdir
       data tmpdir /' '/
 
@@ -317,7 +320,8 @@ C ... Local parameters
         return
       endif
 
-      call isanrg(mode,0,4,'fopnt','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,4,'fopnt','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,4,'fopnt','mode',.true.)
 
       if (mod(mode,2) .eq. 0) then
         j1 = fextg(ext)
