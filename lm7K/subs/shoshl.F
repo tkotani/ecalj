@@ -760,6 +760,7 @@ C ... Local parameters
       character clabl*8, clabl2*8
       double precision d,ddot,dsqrt,dpos(3),qlat(9),tol
 C     logical latvec
+      logical::isanrg, l_dummy_isanrg
 
       tol = 1d-6
 

@@ -43,6 +43,8 @@ C ... Local parameters
       double precision hs(0:l),dhs(0:l),ddhs(0:l)
       double precision hsp(0:l),dhsp(0:l),ddhsp(0:l)
 
+      logical:: isanrg,l_dummy_isanrg
+
 C --- Radial part of smooth hankels and its derivatives ---
       call hansmd(12,r,eh,rsm,l,hs,dhs,ddhs,hsp,dhsp,ddhsp)
 
@@ -182,6 +184,7 @@ C ... Local parameters
       double precision tol,eh0,dxrsm
       parameter (tol=1d-12,IPRT1=100/1,IPRTW=50/1,maxit=50,dxrsm=.05d0)
       double precision xnow,alfa,beta,xclose,bclose,eclose,tclose,wk(12)
+      logical:: isanrg, l_dummy_isanrg
 
       stdo = lgunit(1)
       call getpr(ipr)

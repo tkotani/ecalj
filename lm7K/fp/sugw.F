@@ -254,6 +254,10 @@ c      common /w/ w
 
       real(8),allocatable:: qzz(:,:)
       integer,allocatable:: igv2(:,:)
+
+
+      logical:: l_dummy_isanrg,isanrg
+
 C --- Setup ---
       print *,'sugw:'
       call getpr(ipr)

@@ -152,6 +152,8 @@ C Local parameters
       character*80 outs,strn*5
       parameter (maxp=3)
 
+      logical:: l_dummy_isanrg, isanrg
+
 C --- Setup ---
       if (nkaph .gt. nkap0) call rx('makidx: increase nkap0')
       stdo = lgunit(1)

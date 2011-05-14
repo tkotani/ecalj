@@ -83,6 +83,7 @@ cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
 C ... Heap
+      logical:: l_dummy_isanrg,isanrg
 
       call tcn('rdovfa')
       ipr   = iprint()

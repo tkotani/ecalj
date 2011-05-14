@@ -36,6 +36,7 @@ C     implicit none
 C Local variables
       integer i
       double precision g2,xx,yy,eps,pi
+      logical:: l_dummy_isanrg,isanrg
 
       pi = 4d0*datan(1d0)
 

@@ -108,6 +108,8 @@ C ... External calls
 C ... Heap
       data sym /' ','*'/
 
+      logical:: isanrg, l_dummy_isanrg
+
       print *,'makrm0:'
 C --- Setup ---
       opt0 = mod(opt,10)

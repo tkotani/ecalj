@@ -201,6 +201,8 @@ C     character*8 clabl
       double precision xx,wk(3*n0*2),ploc(n0,2)
 C     logical aiopot
 
+      logical:: isanrg, l_dummy_isanrg
+
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 

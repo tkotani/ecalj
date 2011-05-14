@@ -81,6 +81,8 @@ C              Anyway, extrapolation is somewhat arbitrary.
       double precision dasum,tphi,rbig,phi,dphi,xx
       double precision gzbig(nrx*2),gbig(nrx*2)
 
+      logical:: l_dummy_isanrg,isanrg
+
 C ... Setup
       if (mode .eq. 0) return
 Ckino isanrg is logical function,       call isanrg(mode,0,8,'vxtrap:','mode',.true.)

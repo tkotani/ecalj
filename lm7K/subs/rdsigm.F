@@ -68,6 +68,8 @@ C ... Local parameters
       integer i,j,j1,j2,iv(10)
       logical lio
 
+      logical:: isanrg, l_dummy_isanrg
+
       lio = sio .eq. 'wsig'
       if (.not. lio) then
         if (sio .ne. 'rsig') call rx('sigflg: bad argument '//sio)
@@ -400,6 +402,7 @@ C ... Heap
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
+      logical:: isanrg, l_dummy_isanrg
 
 
 
@@ -1475,6 +1478,7 @@ C ... Passed parameters
      .mode
 C ... Local parameters
       integer jfi,i1,i2,i3,i4,i5,i6,i7,i8,i9,ivsn,modef
+      logical:: isanrg, l_dummy_isanrg
       if (ifi .lt. 0) then
         ivsn = 1
 C       if (mode .eq. 0) ivsn = 0

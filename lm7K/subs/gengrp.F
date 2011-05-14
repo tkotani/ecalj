@@ -50,7 +50,7 @@ C Local variables:
 C     integer info
 C     character*72 gens1(4)
 C ... External calls
-      external chcase,gtcsym,isanrg,query,rx,rxs,words
+      external chcase,gtcsym,query,rx,rxs,words
 C Data statements:
       data isym1/0,2*1,13*2,59*3,68*4,3*6,1*5,1*6,1*5,6*6,1*5,4*6,2*5,
      .4*6,2*5,27*6,36*7/
@@ -63,6 +63,8 @@ C Data statements:
       data isym6/0,1*1,1*2,3*3,4*4,6*5,9*6,22*7,28*8,6*9,2*10,6*11,
      .10*12,12*13,12*14,20*15,4*16,2*17,7*18,6*19,6*20,6*21,
      .1*22,2*23,6*24,4*25,4*26,4*27,5*28,7*29,8*30,6*31,10*32/
+
+      logical:: isanrg, l_dummy_isanrg
 
       c(  1)='  1 P1         E'
       c(  2)='  2 P-1        I'

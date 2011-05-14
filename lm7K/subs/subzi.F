@@ -207,6 +207,7 @@ C ... Passed parameters
       double precision efermi,wtkb(nevx,nsp,nq)
 C ... Local parameters
       integer jfi,nevx0,nq0,nsp0,iprint,lgunit
+      logical:: isanrg, l_dummy_isanrg
 
 Ckino isanrg is logical function,       call isanrg(mode,0,1,' iobzwt','mode',.false.)
       l_dummy_isanrg=isanrg(mode,0,1,' iobzwt','mode',.false.)

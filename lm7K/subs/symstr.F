@@ -45,6 +45,8 @@ C Local parameters
       double precision tmp
       double complex tmpc
 
+      logical:: isanrg, l_dummy_isanrg
+
 C Cludge for now ...
       asym = 0
       if (nkap .ne. 1) return

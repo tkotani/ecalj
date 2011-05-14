@@ -160,6 +160,8 @@ C Local variables
       data procid /0/ master /0/
       data rdarg /'#{}% c'/
 
+      logical :: isanrg, l_dummy_isanrg
+
 C ... Setup
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )

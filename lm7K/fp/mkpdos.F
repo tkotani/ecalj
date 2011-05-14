@@ -53,6 +53,7 @@ C ... Local parameters
       double precision summ(121),suml(11),s11,s22,s33,s12,s13,s23,
      .suma,sum,rmt
       double complex au,as,az
+      logical:: l_dummy_isanrg,isanrg
 
 Ckino isanrg is logical function,       call isanrg(mode,0,5,' mkpdos','mode',.true.)
       l_dummy_isanrg=isanrg(mode,0,5,' mkpdos','mode',.true.)

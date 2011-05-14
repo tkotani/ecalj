@@ -246,6 +246,8 @@ C ... Local parameters
       integer parg
       integer i,j,j1,j2,iv(10),lfile
 
+      logical:: l_dummy_isanrg, isanrg
+
       lfile = 0
       lwevec = 1
       call dpzero(shftqp,3)

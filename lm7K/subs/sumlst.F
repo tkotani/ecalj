@@ -88,6 +88,8 @@ C Local Variables
      .'site list atom-projected',
      .'site list l-projected','site list lm-projected' /
 
+      logical:: isanrg, l_dummy_isanrg
+
       lopt0 = mod(lopt,10)
       lopt1 = mod(lopt/10,10)
       ipr = iprint()

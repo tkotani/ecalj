@@ -44,6 +44,7 @@ C ... Local parameters
       integer iorb,jorb,ki,kj,li,lj,lk,kk
       double precision x1,x2
       logical deq,lreqe,lreqr,lreql,lreqz,lnever,bittst,match
+      logical:: l_dumy_isanrg,isanrg
       deq(x1,x2) = dabs(x1-x2) .lt. 1d-8
 
 Ckino isanrg is logical function,       call isanrg(mode,1,31,'gtbsl1:','mode',.true.)

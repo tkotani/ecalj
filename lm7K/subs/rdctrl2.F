@@ -199,6 +199,8 @@ c
       integer,pointer :: iv_p_oips(:) =>NULL()
       integer,allocatable:: wowk(:)
 
+      logical:: isanrg,l_dummy_isanrg
+
       procid = mpipid(1)
       nproc  = mpipid(0)
       master = 0

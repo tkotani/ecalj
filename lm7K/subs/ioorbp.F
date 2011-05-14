@@ -46,6 +46,7 @@ C ... Local parameters
      .it(n0),idxdn(n0,nkap0)
       double precision rtab(n0,nkap0),etab(n0,nkap0),orbp(n0,2,nkap0),
      .dasum
+      logical:: l_dummy_isanrg, isanrg
 
       if (mod(mode,10) .ne. 1 .or. mod(mode/10,10) .gt. 1 .or.
      .mod(mode/100,10) .gt. 1)

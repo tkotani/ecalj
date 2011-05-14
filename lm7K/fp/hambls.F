@@ -412,6 +412,8 @@ ctakaox
       logical:: pmtsig
       logical:: debug=.true.
 
+      logical:: l_dummy_isanrg,isanrg
+
 
       call tcn('hambls')
       if(debug) print *, ' mode napw',mode,napw
@@ -1160,6 +1162,8 @@ CSFCPP#endif
 
 C ... Heap
        integer ::iwdummy 
+
+       logical:: l_dummy_isanrg,isanrg
 
       save swgt
 

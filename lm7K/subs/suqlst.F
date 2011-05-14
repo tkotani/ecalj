@@ -170,6 +170,8 @@ C ... Local variables
 C ... MPI
       integer procid,master,mpipid
 
+      logical:: l_dummy_isanrg,isanrg
+
 ctakao
       real(8)::qlx(3)
 C ... Heap
@@ -838,6 +840,7 @@ C ... Passed parameters
 C ... Local parameters
       integer nq1,nql,mode1,mode2,mode4,iq1,i,nline,isp
       double precision ql(3),evl(3000)
+      logical :: l_dummy_isanrg,isanrg
 
       if (mode .eq. 0) return
       mode1 = mod(mode,2)

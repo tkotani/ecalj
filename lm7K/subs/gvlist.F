@@ -104,7 +104,7 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-      external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,isanrg,
+      external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,
      .pvglst,rlse,rx,shorbz
 cccccccccccccc
       integer,save:: i,iyy
@@ -119,6 +119,8 @@ cccccccccccccc
       real(8) ,allocatable :: kk_rv(:)
       real(8) ,allocatable :: iwk_rv(:)
       integer,allocatable:: nlatout(:,:)
+
+      logical:: isanrg, l_dummy_isanrg
 cccccccccccccc
 
 C ... Setup

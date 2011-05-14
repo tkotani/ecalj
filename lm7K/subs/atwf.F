@@ -68,6 +68,8 @@ C     parameter (tol=1d-12)
       double precision rofi(nrmx),rwgt(nrmx),rhoc(nrmx,2),gp(2*nrmx*4)
       double precision phi,dphi,phip,dphip,p,phz,dphz,phzp,dphzp
 
+      logical:: isanrg, l_dummy_isanrg
+
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 

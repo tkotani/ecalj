@@ -81,7 +81,7 @@ C ... Local parameters
      .g(nrx,2),gp(nrx,8),gzl(nrx,2),phz,dphz
       double precision rofi(nrx),rwgt(nrx),vbig(nrx,2)
       double precision xi(0:n0),wk(2),fac1
-
+      logical:: isanrg, l_dummy_isanrg
 
 C --- Make rofi,rwgt, and possibly extended mesh ---
       call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,

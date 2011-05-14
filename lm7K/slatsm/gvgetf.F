@@ -1,3 +1,4 @@
+#if 0
       subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)
 C- Gathers Fourier coefficients from 3D array c into list c0.
 C     implicit none
@@ -40,4 +41,5 @@ C     implicit none
         c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
    10 continue
       end
+#endif
 

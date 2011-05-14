@@ -172,6 +172,7 @@ C ... Local parameters
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
 
       logical:: l_dummy_aiomom, aiomom
+      integer:: fextg, i_dummy_fextg
 
 #if MPI|MPIK
       include 'mpif.h'
@@ -1292,7 +1293,8 @@ C --- Output ---
 C ...   Write header and general information
         fid0 = fid
         call strip(fid0,i0,i1)
-        call fextg(datimp)
+ckino integer        call fextg(datimp)
+        i_dummy_fextg= fextg(datimp)
         jobid = datimp(2:)
         call ftime(datimp)
         hostnm = ' '

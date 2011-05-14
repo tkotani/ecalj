@@ -63,6 +63,8 @@ C ... Local parameters
       logical lg3d
       integer i1,i2,i3
 
+      logical:: l_dummy_isanrg,isanrg
+
 ccccccccccccccccccccccccccccc
 c      print *,' zzxxx=',z
 c      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzz'
@@ -381,6 +383,8 @@ ckino not complex but real      complex(8) ,allocatable :: wk_zv(:)
       integer ib,is,igetss
 C ... Heap
        integer ::iwdummy 
+
+      logical:: l_dummy_isanrg,isanrg
 
 C ... External calls
       external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,

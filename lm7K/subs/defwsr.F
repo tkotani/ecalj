@@ -19,7 +19,8 @@ C Local variables:
       integer iprint,iz,lgunit
       double precision cpwsr(0:100)
 C External calls:
-      external isanrg
+c      external isanrg
+      logical:: isanrg, l_dummy_isanrg
 C Intrinsic functions:
       intrinsic idnint
 C Data statements:

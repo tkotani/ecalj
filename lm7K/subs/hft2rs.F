@@ -593,7 +593,7 @@ C ... Local parameters
 C     character*20 strn
       parameter (tol=1d-5)
 C ... External calls
-      external isanrg
+c      external isanrg
 
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)

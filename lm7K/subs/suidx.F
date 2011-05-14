@@ -95,6 +95,8 @@ C ... Local parameters
       integer idxdn(n0,nkap0),lp1,mode0,ik
       double precision orbp(n0,2,nkap0),pz(n0,2),dum
 
+       logical:: l_dummy_isanrg, isanrg
+
       mode0 = mod(mode,10)
       lmf = mod(mode/10,10) .eq. 1
 Ckino isanrg is logical function,       call isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
@@ -222,6 +224,7 @@ C ... Passed parameters
       integer mode,idxdn
       double precision pz
 C ... Local parameters
+      logical:: l_dummy_isanrg,isanrg
 
 Ckino isanrg is logical function,       call isanrg(mod(mode,10),0,2,'pz2idx','1s digit mode',.true.)
       l_dummy_isanrg=isanrg(mod(mode,10),0,2,'pz2idx','1s digit mode',.true.)

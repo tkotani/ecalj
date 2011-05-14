@@ -96,6 +96,8 @@ ctakao
       logical:: nexist
       real(8):: sigiir
       integer,optional,intent(in):: iprx
+
+      logical:: isanrg, l_dummy_isanrg
 c
 c      print *,'psigd',present(iout)
 c      print *,' iout=',iout

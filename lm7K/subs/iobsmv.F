@@ -26,6 +26,7 @@ C ... Passed parameters
 C ... Local parameters
       integer i,jfi
 C     double precision
+      logical:: isanrg, l_dummy_isanrg
 
 Ckino isanrg is logical function,       call isanrg(mode,0,0,' iobsmv','mode',.true.)
       l_dummy_isanrg=isanrg(mode,0,0,' iobsmv','mode',.true.)
@@ -71,6 +72,7 @@ C ... Local parameters
       integer recln,nw,j1,j2,i
       parameter (recln=80)
       character*(recln) s
+      logical :: l_dummy_isanrg, isanrg
 
 Ckino isanrg is logical function,       call isanrg(mode,0,0,' iobsm0','mode',.true.)
       l_dummy_isanrg=isanrg(mode,0,0,' iobsm0','mode',.true.)

@@ -171,6 +171,8 @@ c      integer:: odmatu , ovorbdmat , odmato
       double precision tolu
       data irlxsh /0/ dist0 /9*0d0/
 
+      logical:: l_dummy_isanrg,isanrg
+
 c takao test
       real(8):: pnu(20),bz_w
       logical :: llmfgw

@@ -60,7 +60,10 @@ C ... Local parameters
 CSFCPP#if F90
       integer ipiv(n*nspc)
       complex(8),allocatable:: zt(:,:,:),work(:,:,:)
+      logical :: l_dummy_isanrg,isanrg
+
       allocate(zt(n*nspc,n,nspc),work(n*nspc,n,nspc))
+
 CSFCPP#elif AUTO_ARRAY
 CSFCPP      integer ipiv(n*nspc)
 CSFCPP      double complex zt(n*nspc,n,nspc),work(n*nspc,n,nspc)

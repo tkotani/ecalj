@@ -151,6 +151,8 @@ ctakao
       integer,allocatable:: ics(:)
       real(8),allocatable:: z(:)
 
+      logical:: isanrg, l_dummy_isanrg
+
 C --- Setup ---
 Changenglob      stdo = nglob('stdo')
       stdo = globalvariables%stdo

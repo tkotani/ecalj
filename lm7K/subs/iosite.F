@@ -151,6 +151,8 @@ C Local variables
       data procid /0/ master /0/
       data rdarg /'#{}% c'/
 
+      logical:: isanrg, l_dummy_isanrg
+
 C ... Setup
       iosite = -1
       call getpr(ipr)

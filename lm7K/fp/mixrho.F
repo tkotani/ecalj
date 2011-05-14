@@ -2173,6 +2173,7 @@ C ... Passed parameters
 C ... Local parameters
       integer i,ilm,mode0,mode1
       double precision ri
+      logical:: l_dummy_isanrg,isanrg
 
       if (mode .le. 0) return
       mode0 = mod(mode,10)
