@@ -27,7 +27,8 @@ C ... Local parameters
       integer i,jfi
 C     double precision
 
-      call isanrg(mode,0,0,' iobsmv','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,0,' iobsmv','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,0,' iobsmv','mode',.true.)
       if (ifi .lt. 0) then
         jfi = -ifi
         call awrit4('frame t= %g T= %g V= %g T+V= %g',' ',80,jfi,
@@ -71,7 +72,8 @@ C ... Local parameters
       parameter (recln=80)
       character*(recln) s
 
-      call isanrg(mode,0,0,' iobsm0','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,0,' iobsm0','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,0,' iobsm0','mode',.true.)
       call poseof(ifi)
       backspace ifi
       backspace ifi

@@ -661,7 +661,8 @@ C --- Third-generation NMTO ---
 c      if (lgen3 .ne. 0) then
 c         stop 'xxxxxxxxxxx third generation nmto path. not meaningful'
 C        call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
-C        call isanrg(nmto,2,5,'suham','nmto',.true.)
+Ckino isanrg is logical function, C        call isanrg(nmto,2,5,'suham','nmto',.true.)
+C        l_dummy_isanrg=isanrg(nmto,2,5,'suham','nmto',.true.)
 C        call defdr(otral,-4*nl**2*nbasp*nmto)
 C        call defdr(otrad,-4*nl**2*nbasp*nmto)
 C

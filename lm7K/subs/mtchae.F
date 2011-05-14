@@ -187,7 +187,8 @@ C ... Local parameters
       call getpr(ipr)
       mode0 = mod(mode,100)
       mode2 = mod(mode/100,10)
-      call isanrg(l,0,8,'mtchre','l',.true.)
+Ckino isanrg is logical function,       call isanrg(l,0,8,'mtchre','l',.true.)
+      l_dummy_isanrg=isanrg(l,0,8,'mtchre','l',.true.)
 
 C ... Start of matching in current mode
    10 continue

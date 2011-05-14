@@ -204,8 +204,10 @@ C     logical aiopot
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 
-      call isanrg(mode0,0,1,'asars1:','1s digit mode',.true.)
-      call isanrg(mode1,1,3,'asars1:','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode0,0,1,'asars1:','1s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode0,0,1,'asars1:','1s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode1,1,3,'asars1:','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode1,1,3,'asars1:','10s digit mode',.true.)
 
 C --- Create symmetrized pnu ---
       if (mode0 .eq. 1) then

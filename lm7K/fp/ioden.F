@@ -114,7 +114,8 @@ C   ... option l[12]=#,#,#,#
             i = 0
             call chrps2(sopts(j1+1:),'12',2,0,i,iv)
 C         this check should never be necessary
-C         call isanrg(iv,1,2,' ','iv in ioden ... bug ..',.true.)
+Ckino isanrg is logical function, C         call isanrg(iv,1,2,' ','iv in ioden ... bug ..',.true.)
+C         l_dummy_isanrg=isanrg(iv,1,2,' ','iv in ioden ... bug ..',.true.)
             i = j1+2
             j = iv(1)
             k = a2vec(sopts,j2,i,2,', '//dc,3,2,4,kv,lic(1,j))
@@ -441,7 +442,8 @@ c     .ngabc,w,w,nwk,modrhg)
 #endif
 
 
-      call isanrg(modrhg,-3,2,'ioden','core option',.true.)
+Ckino isanrg is logical function,       call isanrg(modrhg,-3,2,'ioden','core option',.true.)
+      l_dummy_isanrg=isanrg(modrhg,-3,2,'ioden','core option',.true.)
 
 C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
       if (nsp .eq. 2) then

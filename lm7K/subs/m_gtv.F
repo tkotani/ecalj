@@ -451,6 +451,8 @@ C     character(21+124):: rrrx
 C     A string for help printout
       data opts /'opt','reqd','skip'/
 
+      logical:: isanrg, l_dummy_isanrg
+
       entry gtv_r8(name,sw,dat,def_r8,cindx,note,or,nmin,nout,Texist)
       nndef = 0; sizez = 1; defa(1) = 0d0
       if ( present(def_r8)  ) then
@@ -518,7 +520,8 @@ C       if (sum(cindx)-cindx(2)/=size(cindx)-1) !only cont(2) allowed now
         if (cindx(1) .ne. 1) call rx('gtv:  cindx(1)>1 not implemented')
         cindx2 = cindx(2)
       endif
-      call isanrg(sw,0,2,' gtv','sw',.true.)
+Ckino isanrg is logical function,       call isanrg(sw,0,2,' gtv','sw',.true.)
+      l_dummy_isanrg=isanrg(sw,0,2,' gtv','sw',.true.)
       nndef = min(nndef,sizez)  ! Only use defaults up to size of input
 
 C ... Local copy of nmin that always exists
@@ -531,7 +534,8 @@ C       nmin<0 => nparse MUST be at least nminl
           lrqdn = nmin .lt. 0
           nminl = iabs(nmin)
           if (io_help .eq. 0 .and. (ig .ne. 'chr'))
-     .    call isanrg(iabs(nmin),-1,sizez,' gtv','nmin',.true.)
+Ckino isanrg is logical function,      .    call isanrg(iabs(nmin),-1,sizez,' gtv','nmin',.true.)
+     .    l_dummy_isanrg=isanrg(iabs(nmin),-1,sizez,' gtv','nmin',.true.)
         elseif (ig .eq. 'chr') then
           nminl = 0
         endif

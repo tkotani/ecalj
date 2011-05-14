@@ -51,7 +51,8 @@ C Cludge for now ...
       ik = 1
       jk = 1
 
-      call isanrg(mode,0,2,'symstr:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,2,'symstr:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,2,'symstr:','mode',.true.)
 
       do  10  i = 1, nsites
         j = iax(6,i)

@@ -348,11 +348,16 @@ C ... This shouldn't be ... for backwards compatibility
 C     if (lhf) irs(1) = 0
 
 C     Sanity checks: most ASA "extras" are not implemented here
-c      call isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
-c      call isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
-      call isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
-c      call isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
-C     call isanrg(lncol,0,0,'lmfp:','lncol',.true.)
+Ckino isanrg is logical function, c      call isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
+c      l_dummy_isanrg=isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
+Ckino isanrg is logical function, c      call isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
+c      l_dummy_isanrg=isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
+Ckino isanrg is logical function,       call isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
+      l_dummy_isanrg=isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
+Ckino isanrg is logical function, c      call isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
+c      l_dummy_isanrg=isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
+Ckino isanrg is logical function, C     call isanrg(lncol,0,0,'lmfp:','lncol',.true.)
+C     l_dummy_isanrg=isanrg(lncol,0,0,'lmfp:','lncol',.true.)
 
 C ... Printout properties of species
       if (ipr .ge. 30) then

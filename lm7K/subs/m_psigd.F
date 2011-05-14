@@ -171,7 +171,8 @@ C       Calculate new diagonal sigma that satisfies constraints
             if (dble(sigii) .lt. asig) sigii = asig
             if (dble(sigii) .gt. bsig) sigii = bsig
           else
-            call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+            l_dummy_isanrg=isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
           endif
         endif
 

@@ -320,6 +320,8 @@ C ... Local variables
 
       integer:: levelinit=0
 
+      logical:: isanrg, l_dummy_isanrg
+
 C ... For MPI
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -699,7 +701,8 @@ C$$$     .  '%N%3f1: gamma'//
 C$$$     . '%N%02f>1: (gamma(1)+gamma(nsp))/2'//
 C$$$     .  '%N%3f : Some noncollinear algorithms automatically'//
 C$$$     .  '%N%3f : average spins this latter representation')
-C$$$      if (io_help==0) call isanrg(j,0,2,' rdccat:','GAMMA',.true.)
+Ckino isanrg is logical function, C$$$      if (io_help==0) call isanrg(j,0,2,' rdccat:','GAMMA',.true.)
+C$$$      if (io_help==0) l_dummy_isanrg=isanrg(j,0,2,' rdccat:','GAMMA',.true.)
 c      lham128 = j .gt. 0
 C$$$      lasa512 = j .gt. 1
 C$$$      nm='OPTIONS_ASA_CCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa4,
@@ -733,7 +736,8 @@ c      endif
       nm='HAM_NSPIN'; call gtv(trim(nm),tksw(prgn,nm),nsp,
      .def_i4=1,note='Set to 2 for spin polarized calculations')
       if (io_help .eq. 0) then
-        call isanrg(nsp,1,2,'rdctrl','nsp',T)
+Ckino isanrg is logical function,         call isanrg(nsp,1,2,'rdctrl','nsp',T)
+        l_dummy_isanrg=isanrg(nsp,1,2,'rdctrl','nsp',T)
       else
         nsp = 1
       endif
@@ -765,7 +769,8 @@ C     Fully relativistic => spin-orbit coupling
      .  '%N%3f1 : Add L.S to hamiltonian'//
      .  '%N%3f2 : Add Lz.Sz only to hamiltonian'//
      .  '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-        if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
+Ckino isanrg is logical function,         if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
+        if (io_help==0) l_dummy_isanrg=isanrg(lso,0,3,' rdctrl:','SO',T)
         if (lso == 1) lncol4 = T
         if (lso == 2) lncol32= T
         if (lso == 3) lncol64= T
@@ -876,7 +881,8 @@ c      call packk('ham sigp',sham,sigp,n=8)
 c      nm='HAM_NMTO'; sw = tksw(prgn,nm); call gtv(trim(nm),sw,
 c     .  nmto,def_i4=0,Texist=ltmp, note=
 c     .  'Order of polynomial approximation for NMTO hamiltonian')
-c      if (nmto>0) call isanrg(nmto,2,5,'rdctrl','nmto',.true.)
+Ckino isanrg is logical function, c      if (nmto>0) call isanrg(nmto,2,5,'rdctrl','nmto',.true.)
+c      if (nmto>0) l_dummy_isanrg=isanrg(nmto,2,5,'rdctrl','nmto',.true.)
 c      if (nmto .gt. 0 .or. (io_help .ne. 0 .and. ltmp)) then
 c!       Warning: kmto also used by lmmc; meaning is somewhat different
 c        nm='HAM_KMTO'; call gtv(trim(nm),tksw(prgn,nm),
@@ -1691,11 +1697,14 @@ c     .    'radius over which true,smooth Hankels differ',-1,4,i1,TF(36))
 C       Some sanity checks
         if (io_help == 0 .and. lmxaj .ge. 0) then
           if (tksw(prgn,'SPEC_ATOM_LFOCA') /= 2)
-     .    call isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
-          if (tksw(prgn,'SPEC_ATOM_LMXL') /= 2) call
+Ckino isanrg is logical function,      .    call isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
+     .    l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
+ckino isanrg is logical function          if (tksw(prgn,'SPEC_ATOM_LMXL') /= 2) call
+          if (tksw(prgn,'SPEC_ATOM_LMXL') /= 2) l_dummy_isanrg=
      .    isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
           if (tksw(prgn,'SPEC_ATOM_KMXA') /= 2)
-     .    call isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
+Ckino isanrg is logical function,      .    call isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
+     .    l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
         endif
 
 c        i0 = partks(recrd(catbeg),'C-HOLE ',' ','spec coreh',sspec,j,
@@ -2030,7 +2039,8 @@ c      else
 c        nm='STR_ENV_NEL'; call gtv(trim(nm),tksw(prgn,nm),str_nkaps,
 c     .    def_i4=nkapsi,note='Number of SSSW or NMTO energies')
 c        if (str_mode .eq. 2)
-c     .    call isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
+Ckino isanrg is logical function, c     .    call isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
+c     .    l_dummy_isanrg=isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
 c        nkapsi = str_nkaps
 c        if (io_help .eq. 1) then
 c          str_nkaps = 1
@@ -2327,7 +2337,8 @@ c      endif
      .  '%N%3fXIPMX=1: mix vin and v(qmix)'//
      .  '%N%3fXIPMX=2: mix vin and v(qout)')
         if (nout .gt. 0) then
-          call isanrg(i0,0,3,'rdctrl','XIPMX',T)
+Ckino isanrg is logical function,           call isanrg(i0,0,3,'rdctrl','XIPMX',T)
+          l_dummy_isanrg=isanrg(i0,0,3,'rdctrl','XIPMX',T)
           if (i0 .gt. 0) lves = 1 !it was lves= .true., but this is a bug . sctrl/lves is integer(8).
         endif
         vmix%lxpot = i0
@@ -2394,7 +2405,8 @@ C$$$        if (io_help .eq. 1) call info0(1,1,0,
 C$$$     .  ' * The FIT tokens are used for tight-binding fitting')
 C$$$      nm='TB_FIT_MODE'; call gtv(trim(nm),tksw(prgn,nm),tb_fmode,
 C$$$     .  note='Fit mode: 0 fit params, 1 fit in range of RFIT')
-C$$$      if (tb_fmode>=0) call isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
+Ckino isanrg is logical function, C$$$      if (tb_fmode>=0) call isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
+C$$$      if (tb_fmode>=0) l_dummy_isanrg=isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
 C$$$      if (tb_fmode>=0 .or. io_help .eq. 1) then
 C$$$      nm='TB_FIT_NBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_nbfit,
 C$$$     .    nmin=2,note='Min and max band number to fit')
@@ -2597,7 +2609,8 @@ C    if (io_help .ne. 0 .or. ltmp) then
       if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
         nn = NULLI
       else
-        call isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
+Ckino isanrg is logical function,         call isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
+        l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
       endif
       nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
      .gd_modt(1:max(1,nn)),
@@ -2626,7 +2639,8 @@ C ... Bulirsch-Stoer integration parmaters
         if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
           nn = NULLI
         else
-          call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
+Ckino isanrg is logical function,           call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
+          l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
         endif
         if (nout .gt. 0) nn = nout
         nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),

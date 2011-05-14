@@ -311,7 +311,8 @@ C         Calculate conductivity or some quantity other than dos
               i = parg('mode=',2,sopts(j1:),m,len(sopts(j1:)),
      .        dc//' ',1,1,iv,icond)
               if (i .le. 0) goto 999
-              call isanrg(icond,0,2,' ','dos mode',.true.)
+Ckino isanrg is logical function,               call isanrg(icond,0,2,' ','dos mode',.true.)
+              l_dummy_isanrg=isanrg(icond,0,2,' ','dos mode',.true.)
 C           lcond = .true.
 C         Number of energy points
             elseif (sopts(j1:j1+4) .eq. 'npts=')  then
@@ -471,7 +472,8 @@ C ... Get dimensions (nsp,nspc,nband,nfstg); allocate memory for eband
      . nfstg , j , ndum , nchan , nchan , i , iwdummy , iwdummy , iwdummy 
      . , iwdummy , efermi , vmtz ) 
 
-      call isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
+Ckino isanrg is logical function,       call isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
+      l_dummy_isanrg=isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
       nspd = nsp
 C     Empirical TB stores stuff a little differently
       if (tbdos) then

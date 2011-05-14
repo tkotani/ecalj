@@ -80,7 +80,8 @@ C --- Count number of core states ---
         konfz = mod(pnz(k,1),10d0)
         if (konfz .eq. 0) konfz = konfig(k)
 C       Sanity check
-        call isanrg(konfz,konfig(k)-1,konfig(k)+1,'atwf:','pnuz',.true.)
+Ckino isanrg is logical function,         call isanrg(konfz,konfig(k)-1,konfig(k)+1,'atwf:','pnuz',.true.)
+        l_dummy_isanrg=isanrg(konfz,konfig(k)-1,konfig(k)+1,'atwf:','pnuz',.true.)
 C       lpz = konfz .ne. konfig(k)
         do  konf = l+1, min(konfz,konfig(k))-1
           ncore = ncore+nsp
@@ -131,11 +132,13 @@ C         phi,phidot already orthogonal if mode1=1
 
 C     ... Make local orbital
             if (konf .ne. konfig(k)) then
-              call isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
+Ckino isanrg is logical function,               call isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
+              l_dummy_isanrg=isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
               call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnz(1,isp),2,
      .        gval(1,l,3,isp),gp,ez,phz,dphz,phzp,dphzp,p)
 
-              call isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
+Ckino isanrg is logical function,               call isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
+              l_dummy_isanrg=isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
               if (mode1 .eq. 0) then
 
 C             Extra scaling

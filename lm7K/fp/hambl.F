@@ -158,14 +158,16 @@ C --- Bloch transform sigma matrix and add to h ---
 C      call upack('ham ndhrs ontabs oiaxs ohrs',sham,
 C     .  ndhrs,ontabs,oiaxs,ohrs,0)
 C      lrsig = mod(mode/10,10)
-C      call isanrg(lrsig,0,2,'hambl:','10s digit mode',.true.)
+Ckino isanrg is logical function, C      call isanrg(lrsig,0,2,'hambl:','10s digit mode',.true.)
+C      l_dummy_isanrg=isanrg(lrsig,0,2,'hambl:','10s digit mode',.true.)
 C      if (lrsig .ne. 0 .and. ohrs .ne. 0) then
 C        hreal = 2-mod(lrsig,4)
 C        nl = nglob('nl')
 C        mxorb = nglob('mxorb')
 C        nttabs = ival(w(ontabs),nbas+1)
 C        nsp  = nglob('nsp')
-C        call isanrg(isp,1,nsp,'hambl:','isp',.true.)
+Ckino isanrg is logical function, C        call isanrg(isp,1,nsp,'hambl:','isp',.true.)
+C        l_dummy_isanrg=isanrg(isp,1,nsp,'hambl:','isp',.true.)
 C        call upack('lat plat',slat,plat,0,0,0,0)
 C
 C        call defcc(oh,ndimh**2)

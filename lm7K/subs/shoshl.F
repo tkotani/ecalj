@@ -775,7 +775,8 @@ C     logical latvec
       call getpr(ipr)
       ipr = 100
       stdo = lgunit(1)
-      call isanrg(mod(ltab,10),1,3,' shoshl:','tab',.true.)
+Ckino isanrg is logical function,       call isanrg(mod(ltab,10),1,3,' shoshl:','tab',.true.)
+      l_dummy_isanrg=isanrg(mod(ltab,10),1,3,' shoshl:','tab',.true.)
 
       if (ltab .eq. 3)
      .call awrit1('%% rows 3 cols %i sparse',' ',80,ifi,nbas)

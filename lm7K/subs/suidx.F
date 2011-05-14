@@ -97,8 +97,10 @@ C ... Local parameters
 
       mode0 = mod(mode,10)
       lmf = mod(mode/10,10) .eq. 1
-      call isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
-      call isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
 C     Determine whether basis has any local orbitals
       call uspecb(0,0,sspec,1,nspec,dum,dum,dum,iloc)
       if (iloc/10 .ne. 0) then
@@ -221,8 +223,10 @@ C ... Passed parameters
       double precision pz
 C ... Local parameters
 
-      call isanrg(mod(mode,10),0,2,'pz2idx','1s digit mode',.true.)
-      call isanrg(mode/10,0,1,'pz2idx','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mod(mode,10),0,2,'pz2idx','1s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mod(mode,10),0,2,'pz2idx','1s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode/10,0,1,'pz2idx','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode/10,0,1,'pz2idx','10s digit mode',.true.)
 
       if (mod(mode,10) .eq. 1) then
         call fsanrg(pz,0d0,28d0,0d0,'pz2idx','pz',.true.)
@@ -230,8 +234,10 @@ C ... Local parameters
         if (pz .ge. 10) idxdn = 11
         if (pz .ge. 20) idxdn = 12
       elseif (mod(mode,10) .eq. 2) then
-        call isanrg(mod(idxdn,10),0,2,'pz2idx','1s digit idxdn',.true.)
-        call isanrg(idxdn/10,0,1,'pz2idx','10s digit idxdn',.true.)
+Ckino isanrg is logical function,         call isanrg(mod(idxdn,10),0,2,'pz2idx','1s digit idxdn',.true.)
+        l_dummy_isanrg=isanrg(mod(idxdn,10),0,2,'pz2idx','1s digit idxdn',.true.)
+Ckino isanrg is logical function,         call isanrg(idxdn/10,0,1,'pz2idx','10s digit idxdn',.true.)
+        l_dummy_isanrg=isanrg(idxdn/10,0,1,'pz2idx','10s digit idxdn',.true.)
         if (idxdn .lt. 10) pz =  0
         if (idxdn .eq. 10) pz = mod(pz,10d0) +  0
         if (idxdn .eq. 11) pz = mod(pz,10d0) + 10

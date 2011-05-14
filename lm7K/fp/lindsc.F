@@ -39,7 +39,8 @@ C Local variables
 
       pi = 4d0*datan(1d0)
 
-      call isanrg(job,0,4,'lindsc:','job', .true.)
+Ckino isanrg is logical function,       call isanrg(job,0,4,'lindsc:','job', .true.)
+      l_dummy_isanrg=isanrg(job,0,4,'lindsc:','job', .true.)
       if (job .eq. 0) return
 
       cn(1) = 0

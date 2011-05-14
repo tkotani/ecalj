@@ -86,7 +86,8 @@ C ... Local parameters
 C --- Make rofi,rwgt, and possibly extended mesh ---
       call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
      .lpz,nrbig,rofi,rwgt,vbig)
-      call isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
+Ckino isanrg is logical function,       call isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
+      l_dummy_isanrg=isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
 
 C --- Loop over spins and l ---
       do  i = 1, nsp

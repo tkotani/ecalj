@@ -428,7 +428,8 @@ C --- LDA hamiltonian ---
       lrsig = mod(mode/10,10)
       lwsig = mod(mode/1000,10)
       ismidb = 0
-      call isanrg(lwsig,0,5,'hambls:','lwsig',T)
+Ckino isanrg is logical function,       call isanrg(lwsig,0,5,'hambls:','lwsig',T)
+      l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
 
 C ... Store LDA eigenvectors, eigenvalues in s and h and exit
       if (lwsig .eq. 1) then
@@ -474,7 +475,8 @@ Changenglob      mxorb = nglob('mxorb')
       if(debug) print *,' hambles:eee 111333'
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-      call isanrg(isp,1,nsp,'hambl:','isp',T)
+Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'hambl:','isp',T)
+      l_dummy_isanrg=isanrg(isp,1,nsp,'hambl:','isp',T)
 
       if(debug) print *,' hambles:eee 222'
       i_copy_size=size(slat%plat)
@@ -1186,7 +1188,8 @@ Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
        nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
 
-      call isanrg(isp,1,nsp,'blsig:','isp',T)
+Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'blsig:','isp',T)
+      l_dummy_isanrg=isanrg(isp,1,nsp,'blsig:','isp',T)
       ndimhx = ndimh*nspc
 
 CSFCPP#if F90
@@ -1531,7 +1534,8 @@ C          elseif (modsgp .eq. 2) then
 C            if (dble(sigii) .lt. asig) sigii = asig
 C            if (dble(sigii) .gt. bsig) sigii = bsig
 C          else
-C            call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+Ckino isanrg is logical function, C            call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+C            l_dummy_isanrg=isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
 C          endif
 C        endif
 C

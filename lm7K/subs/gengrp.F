@@ -614,7 +614,8 @@ C           For some groups, there is an alternate origin
                   read(c(isym8+1),200) isym(7),corig,csym(7),symgrp
                   if (corig.ne.'2') call rxs(' SPCGRP: bad corig,',corig)
                 else
-                  call isanrg(iorig,1,2,'SPCGRP:','iorig',.true.)
+Ckino isanrg is logical function,                   call isanrg(iorig,1,2,'SPCGRP:','iorig',.true.)
+                  l_dummy_isanrg=isanrg(iorig,1,2,'SPCGRP:','iorig',.true.)
                 endif
               elseif (corig .ne. ' ') then
                 call rxs(' SPCGRP: bad corig,',corig)

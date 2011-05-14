@@ -272,7 +272,8 @@ C     For now, require that morb = nl*nkaph
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
       i = nl**2*nkaph
-      call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
+Ckino isanrg is logical function,       call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
+      l_dummy_isanrg=isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
       call iinit(ndimi,n0H*nkap0)
       do  112  iprior = 1, maxp+1
 C       iposn = 0

@@ -87,7 +87,8 @@ C ... Form contravariant (z~)+ = z^-1
 C      call zprm('z',2,z,nx,nx,nx)
 C      call zprm('zt',2,zt,nx,nx,nx)
 
-      call isanrg(mode,0,5,' mullmf:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,5,' mullmf:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,5,' mullmf:','mode',.true.)
       iprmin = 80*iq*isp
       ipr = iprint()
       if (ipr .ge. iprmin) write(stdo,1)

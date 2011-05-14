@@ -167,6 +167,8 @@ C ... Local parameters
       integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
 
       double precision dmx(2)
+
+      logical:: isanrg, l_dummy_isanrg
 #if DEBUG
       integer iaxi(5)
       double precision tau(3)
@@ -184,8 +186,10 @@ C ... External calls
       mode1 = mod(mode/10,10)
       mode2 = mod(mode/100,10)
       mode3 = mod(mode/1000,10)
-      call isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
-      call isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
+      l_dummy_isanrg=isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
 
 C --- Mode 0 (setup) make and reduce iax table ---
       if (mode0 .eq. 0) then
@@ -424,18 +428,22 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-      external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,isanrg,
+      external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,
      .poppr,pshpr,rlse
+
+       logical:: isanrg, l_dummy_isanrg
 
 c      allocate(_rv(1))
 c      if (1<0) _rv(:)=0.0d0
 
       id = offH(1,1,ia2+1)-offH(1,1,ia1)
       print *,'idim id=',idim,id
-      call isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
+Ckino isanrg is logical function,       call isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
+      l_dummy_isanrg=isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
       jd = offH(1,1,ib2+1) - offH(1,1,ib1)
       print *,'idim jd=',jdim,jd
-      call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
+Ckino isanrg is logical function,       call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
+      l_dummy_isanrg=isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       ltrans = mod(mode/10000,10) .ne. 0
       dmx(1) = 0
       dmx(2) = 0

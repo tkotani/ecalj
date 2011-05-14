@@ -160,6 +160,8 @@ C Local variables
       complex(8) ,allocatable :: wk_zv(:)
 
       double precision q1(3),qk
+
+      integer:: roth, i_dummy_roth
 C heap:
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
@@ -213,7 +215,8 @@ C   ... Rotate and copy
               do  14  js = 1, nspc
                 if (kcplx .eq. 0) then
                   if (ig .ne. 1) then
-                    call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+                    i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
      .              lidim , wk_zv , hw ( 1 , is , 1 , js ) )
 
@@ -226,7 +229,8 @@ C   ... Rotate and copy
    16             continue
                 else
                   if (ig .ne. 1) then
-                    call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+                    i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
      .              lidim , wk_zv , hw2 ( 1 , 1 , is , 1 , js ) )
 

@@ -266,7 +266,8 @@ C   ... Return here to resume parsing for arguments
             j = 0
             if (parg('mode=',2,strn(j1:),j,len(strn(j1:)),
      .      dc//' ',1,1,i,lwevec) .lt. 0) goto 999
-            call isanrg(lwevec,0,2,'EVCFLG:','mode',.true.)
+Ckino isanrg is logical function,             call isanrg(lwevec,0,2,'EVCFLG:','mode',.true.)
+            l_dummy_isanrg=isanrg(lwevec,0,2,'EVCFLG:','mode',.true.)
           elseif (strn(j1:j1+5) .eq. 'shftq=')  then
             j = 0
             if (parg('shftq=',4,strn(j1:),j,len(strn(j1:)),

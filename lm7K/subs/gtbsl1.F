@@ -46,7 +46,8 @@ C ... Local parameters
       logical deq,lreqe,lreqr,lreql,lreqz,lnever,bittst,match
       deq(x1,x2) = dabs(x1-x2) .lt. 1d-8
 
-      call isanrg(mode,1,31,'gtbsl1:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,1,31,'gtbsl1:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,1,31,'gtbsl1:','mode',.true.)
       lreqr = bittst(mode,1)
       lreqe = bittst(mode,2)
       lreql = bittst(mode,4)

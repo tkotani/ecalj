@@ -129,7 +129,8 @@ C        modgkl = 31
 C      elseif (mode .eq. 2) then
 C        modgkl = 1
 C      endif
-C      call isanrg(mode,0,3,'rhgcmp:','mode', .true.)
+Ckino isanrg is logical function, C      call isanrg(mode,0,3,'rhgcmp:','mode', .true.)
+C      l_dummy_isanrg=isanrg(mode,0,3,'rhgcmp:','mode', .true.)
 
 C --- Set up help arrays ---
       ltop = 0

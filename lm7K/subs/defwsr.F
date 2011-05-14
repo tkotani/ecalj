@@ -43,7 +43,8 @@ C Data statements:
      .2.93d0,2.95d0,2.99d0,3.05d0,3.17d0/
 
       iz = idnint(z)
-      call isanrg(iz,0,100,'DEFWSR:','z',.true.)
+Ckino isanrg is logical function,       call isanrg(iz,0,100,'DEFWSR:','z',.true.)
+      l_dummy_isanrg=isanrg(iz,0,100,'DEFWSR:','z',.true.)
       wsr = cpwsr(iz)
       if (iprint() .ge. 120) write(lgunit(1),300) iz,wsr
 

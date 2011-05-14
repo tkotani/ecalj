@@ -308,7 +308,8 @@ C           For now, sites must be ordered
             endif
             if (bittst(lio345,4)) nbas = nbasl
             if (bittst(lio12,4))
-     .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
+Ckino isanrg is logical function,      .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
+     .      l_dummy_isanrg=isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
 C         file pointer now at EOF.  Restore position
             rewind ifi
             nr = 0
@@ -364,7 +365,8 @@ C   ... Read, std format.  Return here to resume parsing for arguments
 C   ... Read version and check compatibility with calling program
           i = j1+2
           if (.not. a2bin(a,vnx,4,0,' ',i,len(a)-5)) goto 99
-          call isanrg(int(vnx),2,3,'IOSITS:',
+Ckino isanrg is logical function,           call isanrg(int(vnx),2,3,'IOSITS:',
+          l_dummy_isanrg=isanrg(int(vnx),2,3,'IOSITS:',
      .    'file''s version number',.true.)
 C   ... Read lio345
           i = 0
@@ -385,7 +387,8 @@ C   ... Read nbas
             if (.not. a2bin(a,nbasl,2,0,' ',i,len(a)-5)) goto 99
             if (bittst(lio345,4)) nbas = nbasl
             if (bittst(lio12,4))
-     .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
+Ckino isanrg is logical function,      .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
+     .      l_dummy_isanrg=isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
           endif
 C   ... Read alat (optional if sought), plat (reqd if sought)
           if (bittst(lio12,1) .or. bittst(lio345,1)) then

@@ -55,6 +55,8 @@ C ... Local parameters
       double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
+
+      integer:: iofa, i_dummy_iofa
 ctakao
       logical ixx,ioorbp
       real(8):: pzsum
@@ -180,7 +182,8 @@ C       Copy second spin channel of rho,v
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
         endif
-        call iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
+ckino iofa is integer        call iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
+        i_dummy_iofa= iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
      .  a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,-ifi)
 
         pzsum= pzsum+sum(pz(1:lmxa+1,1))

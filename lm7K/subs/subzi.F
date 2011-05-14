@@ -209,7 +209,8 @@ C ... Passed parameters
 C ... Local parameters
       integer jfi,nevx0,nq0,nsp0,iprint,lgunit
 
-      call isanrg(mode,0,1,' iobzwt','mode',.false.)
+Ckino isanrg is logical function,       call isanrg(mode,0,1,' iobzwt','mode',.false.)
+      l_dummy_isanrg=isanrg(mode,0,1,' iobzwt','mode',.false.)
 
       iobzwt = 0
 C ... File read

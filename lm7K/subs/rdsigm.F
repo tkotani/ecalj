@@ -108,7 +108,8 @@ C   ... Return here to resume parsing for arguments
             j = 0
             if (parg('trans=',2,strn(j1:),j,len(strn(j1:)),
      .      dc//' ',1,1,i,lwsig) .lt. 0) goto 999
-            call isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
+Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
+            l_dummy_isanrg=isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
             if (lwsig .ne. 0 .and. mod(lwsig,10) .eq. 0 .or.
      .      lwsig .ge. 40)
      .      call rxi('rdsigm: nonsensical trans',lwsig)
@@ -435,7 +436,8 @@ C     Switch flagging whether input file has symops or not
       if (mod(mode/1000,10) .eq. 1) kcplx = 0
       lphase = mod(mode/1000,10) .eq. 0
       lssym = mod(mode/10000,10)
-      call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+      l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 
 C ... Command-line switches for input sigma and defaults
 #ifdef USEOPTIONAL
@@ -521,7 +523,8 @@ C ... Command-line switches for input sigma and defaults
      .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
      .  '%?#(n==3)# and E(lda)<%d'//
      .  ' ',efit,modsgp,emax,0,0)
-        call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+Ckino isanrg is logical function,         call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
       endif
       if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
         call info5(30,0,0,
@@ -813,7 +816,8 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 
 
 
-      call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
       call info2(30,0,0,
      .'%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//
@@ -1503,22 +1507,32 @@ C       File header is pre-version 1; set version, modef to zero
         endif
 C       Assign mode or check with file correspondence
         if (mod(optio/2,2) .ne. 0) then
-          call isanrg(modef,mode,mode,'iosigh:','file''s mode',.true.)
+Ckino isanrg is logical function,           call isanrg(modef,mode,mode,'iosigh:','file''s mode',.true.)
+          l_dummy_isanrg=isanrg(modef,mode,mode,'iosigh:','file''s mode',.true.)
         else
           mode = modef
         endif
 C       Assign header parameters or check with file correspondence
         if (mod(optio,2) .ne. 0) then
           read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
-          call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
-          call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
-          call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
-          call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
-          call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
-          call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
-          call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
-          call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
-          call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
+Ckino isanrg is logical function,           call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
+          l_dummy_isanrg=isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
+Ckino isanrg is logical function,           call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
+          l_dummy_isanrg=isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
+Ckino isanrg is logical function,           call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
+          l_dummy_isanrg=isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
+Ckino isanrg is logical function,           call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
+          l_dummy_isanrg=isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
+Ckino isanrg is logical function,           call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
+          l_dummy_isanrg=isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
+Ckino isanrg is logical function,           call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
+          l_dummy_isanrg=isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
+Ckino isanrg is logical function,           call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
+          l_dummy_isanrg=isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
+Ckino isanrg is logical function,           call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
+          l_dummy_isanrg=isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
+Ckino isanrg is logical function,           call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
+          l_dummy_isanrg=isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
         else
           read(ifi,err=99,end=99)
      .    nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3

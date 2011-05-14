@@ -448,6 +448,8 @@ ctakao
       real(8):: epsnevec
       logical:: onlyonce
 
+      logical:: isanrg, l_dummy_isanrg
+
       nevec=0
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
@@ -713,7 +715,8 @@ C     Switch to plot bands at specified qp
 
 C     Sanity checks
       if (lmet .eq. 1) call rx('bndfp: lmet=1 not implemented')
-      call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
+Ckino isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
+      l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 
 C --- Define local arrays used in the generation of the potential ---
 C  10 continue
@@ -861,7 +864,8 @@ C
 C
 C C     Transformation modes: read qp and jump to start
 C       if (lwsig .ne. 0) then
-C         call isanrg(lwsig,-1,5,'BNDFP:','lwsig',.true.)
+Ckino isanrg is logical function, C         call isanrg(lwsig,-1,5,'BNDFP:','lwsig',.true.)
+C         l_dummy_isanrg=isanrg(lwsig,-1,5,'BNDFP:','lwsig',.true.)
 C         onesp = 0
 C         lwtkb = 0
 C
@@ -1844,7 +1848,8 @@ c      endif
 c      lrsig = mod(mode/10,10)
 c      lwsig = mod(mode/1000,10)
 c      ismidb = 0
-c      call isanrg(lwsig,0,5,'hambls:','lwsig',T)
+Ckino isanrg is logical function, c      call isanrg(lwsig,0,5,'hambls:','lwsig',T)
+c      l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
 
 C ... Store LDA eigenvectors, eigenvalues in s and h and exit
 c      if (lwsig .eq. 1) then

@@ -218,7 +218,8 @@ C ...   Sanity checks
           call fsanrg(z0,z,z,0d-9,msg,'z',.true.)
           call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.true.)
           call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
-          call isanrg(nr0,nr,nr,msg,'nr',.true.)
+Ckino isanrg is logical function,           call isanrg(nr0,nr,nr,msg,'nr',.true.)
+          l_dummy_isanrg=isanrg(nr0,nr,nr,msg,'nr',.true.)
         endif
 
 C ...   Pack into sspec

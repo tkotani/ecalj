@@ -114,7 +114,8 @@ C         DOS mode; see Remarks
             i = parg('mode=',2,sopts(j1:),m,len(sopts(j1:)),
      .      dc//' ',1,1,iv,mode)
             if (i .le. 0) goto 999
-            call isanrg(mode,0,5,' sumlst:','mode',.true.)
+Ckino isanrg is logical function,             call isanrg(mode,0,5,' sumlst:','mode',.true.)
+            l_dummy_isanrg=isanrg(mode,0,5,' sumlst:','mode',.true.)
             if (ipr .ge. 10) then
               if ((mode .eq. 2 .or. mode .eq. 5) .and. ng .gt. 1)
      .        call awrit0(' **WARNING** sumlst: '//
@@ -156,7 +157,8 @@ C --- Generate lsites,lmxch ---
         else
           ib = lsites(isite)
         endif
-        call isanrg(ib,1,nbas,' sumlst:','site',.true.)
+Ckino isanrg is logical function,         call isanrg(ib,1,nbas,' sumlst:','site',.true.)
+        l_dummy_isanrg=isanrg(ib,1,nbas,' sumlst:','site',.true.)
 
         is=ssite(ib)%spec
 

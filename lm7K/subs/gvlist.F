@@ -135,8 +135,10 @@ C ... Setup
       m = mod(mod(job/100,10),4)
       lgpq = mod(job/100,10) .gt. 4
 
-      call isanrg(job0,0,11,'gvlist','1+10s digit job',.true.)
-      call isanrg(m,0,2,'gvlist','100s digit job',.true.)
+Ckino isanrg is logical function,       call isanrg(job0,0,11,'gvlist','1+10s digit job',.true.)
+      l_dummy_isanrg=isanrg(job0,0,11,'gvlist','1+10s digit job',.true.)
+Ckino isanrg is logical function,       call isanrg(m,0,2,'gvlist','100s digit job',.true.)
+      l_dummy_isanrg=isanrg(m,0,2,'gvlist','100s digit job',.true.)
       call dpzero(q,3)
       if (m .eq. 1) then
         call dpcopy(tau,q,1,3,1d0)

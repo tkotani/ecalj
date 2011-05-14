@@ -54,7 +54,8 @@ C ... Local parameters
      .suma,sum,rmt
       double complex au,as,az
 
-      call isanrg(mode,0,5,' mkpdos','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,5,' mkpdos','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,5,' mkpdos','mode',.true.)
       lmxax = ll(nlmax)
 
       ichan = 0
@@ -140,7 +141,8 @@ C            endif
    10   continue
       enddo
 
-      call isanrg(ichan,1,nchan,' mkpdos','nchan',.true.)
+Ckino isanrg is logical function,       call isanrg(ichan,1,nchan,' mkpdos','nchan',.true.)
+      l_dummy_isanrg=isanrg(ichan,1,nchan,' mkpdos','nchan',.true.)
 
       end subroutine mkpdos
 

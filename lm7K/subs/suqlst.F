@@ -844,9 +844,11 @@ C ... Local parameters
       mode2 = mod(mode/2,2)
       mode4 = mod(mode/4,2)
       if (mode4 .ne. 0) then
-        call isanrg(nb2,1,min(lde,nbf),'suqlsr:','top band index',
+Ckino isanrg is logical function,         call isanrg(nb2,1,min(lde,nbf),'suqlsr:','top band index',
+        l_dummy_isanrg=isanrg(nb2,1,min(lde,nbf),'suqlsr:','top band index',
      .  .true.)
-        call isanrg(nb1,1,nb2,'suqlsr:','bottom band index',.true.)
+Ckino isanrg is logical function,         call isanrg(nb1,1,nb2,'suqlsr:','bottom band index',.true.)
+        l_dummy_isanrg=isanrg(nb1,1,nb2,'suqlsr:','bottom band index',.true.)
       endif
 
 C --- For each panel, do ---

@@ -213,8 +213,10 @@ C           if (i .lt. 0) lmxi=-i-2
             lmxb=sspec(is)%lmxb
 
 C         Sanity checks
-            call isanrg(norp,2,2,'ioorbp:','norp',.true.)
-            call isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',
+Ckino isanrg is logical function,             call isanrg(norp,2,2,'ioorbp:','norp',.true.)
+            l_dummy_isanrg=isanrg(norp,2,2,'ioorbp:','norp',.true.)
+Ckino isanrg is logical function,             call isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',
+            l_dummy_isanrg=isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',
      .      .true.)
             call dpzero(etab,n0*2)
             call dpzero(rtab,n0*2)

@@ -338,7 +338,8 @@ C ... Count number of atoms : exclude floating orbitals
         read (5,*) job
       endif
       print '(/a,i2)', ' gw setup, job', job
-      call isanrg(job,0,5,'sugw:','job',.true.)
+Ckino isanrg is logical function,       call isanrg(job,0,5,'sugw:','job',.true.)
+      l_dummy_isanrg=isanrg(job,0,5,'sugw:','job',.true.)
       if (job .eq. 3) call rxi('sugw: bad job = ',job)
       bandmode = .false.
       jobb = 0
@@ -791,9 +792,12 @@ C        ifi = fopnx('ham',2,4,-1)
           ifi = fopna('ham',-1,4)
           rewind ifi
           read(ifi) ndhamx, nspx, nnnx
-          call isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
-          call isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
-          call isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
+Ckino isanrg is logical function,           call isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
+          l_dummy_isanrg=isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
+Ckino isanrg is logical function,           call isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
+          l_dummy_isanrg=isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
+Ckino isanrg is logical function,           call isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
+          l_dummy_isanrg=isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
 C        ifiv = fopnx('v_xc',2,4,-1)
           if (.not. cmdopt('--novxc',7,0,strn)) then
             ifiv = fopna('vxc',-1,4)

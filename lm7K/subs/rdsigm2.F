@@ -109,6 +109,8 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
 
       integer:: i_copy_size,nhrss
       real(8),allocatable::hrss(:)
+
+      logical:: l_dummy_isanrg, isanrg
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -154,7 +156,8 @@ C     Switch flagging whether input file has symops or not
       if (mod(mode/1000,10) .eq. 1) kcplx = 0
       lphase = mod(mode/1000,10) .eq. 0
       lssym = mod(mode/10000,10)
-      call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+Ckino isanrg is logical function,       call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+      l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 
 C ... Command-line switches for input sigma and defaults
 #ifdef USEOPTIONAL
@@ -240,7 +243,8 @@ C ... Command-line switches for input sigma and defaults
      .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
      .  '%?#(n==3)# and E(lda)<%d'//
      .  ' ',efit,modsgp,emax,0,0)
-        call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+Ckino isanrg is logical function,         call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
       endif
       if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
         call info5(30,0,0,
@@ -405,7 +409,8 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 
 
 
-      call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
       call info2(30,0,0,
      .'%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//
@@ -1295,6 +1300,8 @@ C ... Heap
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
       integer:: i_copy_size
+
+      logical:: isanrg, l_dummy_isanrg
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -1344,7 +1351,8 @@ c      lssym = mod(mode/10000,10)
 
       lphase = .true.
       lssym  = 0
-c      call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+Ckino isanrg is logical function, c      call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+c      l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 
 C ... Command-line switches for input sigma and defaults
 c      call sigflg(' ','rsig',' ',w,w,w,lfbzin,w,
@@ -1416,7 +1424,8 @@ c$$$        if (nmax .eq. 0) call info5(30,0,0,
 c$$$     .    '%9fLinear fit to diagonal sigma for E(lda)>%d'//
 c$$$     .    '%?#(n==3)# and E(lda)<%d'//
 c$$$     .    ' ',efit,modsgp,emax,0,0)
-c$$$        call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+Ckino isanrg is logical function, c$$$        call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+c$$$        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
 c$$$      endif
 c$$$      if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
 c$$$        call info5(30,0,0,
@@ -1584,7 +1593,8 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
      . 0 ) 
 
 
-      call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
 c      call info2(30,0,0,
 c     .  '%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//

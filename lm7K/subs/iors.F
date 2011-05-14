@@ -171,6 +171,8 @@ C ... Local parameters
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
 
+      logical:: l_dummy_aiomom, aiomom
+
 #if MPI|MPIK
       include 'mpif.h'
       integer:: ierr
@@ -999,7 +1001,8 @@ C     ... ASA sphere densities
 C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
             call dpzero(ql,3*n0*nsp)
             if (procid .eq. master) then
-              call aiomom(spid0,pnu,qnu(1,1,1+(ib-1)*nsp),
+Ckino aiomom is logical function,               call aiomom(spid0,pnu,qnu(1,1,1+(ib-1)*nsp),
+              l_dummy_aiomom=aiomom(spid0,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,jfi)
               if (vs1 .lt. -1.041d0) then
                 read(jfi,43) vrmax(1)
@@ -1507,7 +1510,8 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               rh = 0
               vrmax(1) = 0
               vrmax(2) = 0
-              call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
+Ckino aiomom is logical function,               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
+              l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
                rv_p_oves => spot%rv_p_oves 

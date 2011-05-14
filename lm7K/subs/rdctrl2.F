@@ -1633,8 +1633,10 @@ C$$$     .      0,lrsig,0)
 C$$$            call awrit0(strn,' ',-80,lgunit(k))
 C$$$          endif
 
-c          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
-c          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
+Ckino isanrg is logical function, c          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
+c          l_dummy_isanrg=isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
+Ckino isanrg is logical function, c          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
+c          l_dummy_isanrg=isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
 c          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
 c     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
 c     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
@@ -1644,8 +1646,10 @@ clm72
           call rx('only XCFUN=1,2,103 are allowed now')
         endif
       endif  
-C$$$        call isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
-C$$$        call isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
+Ckino isanrg is logical function, C$$$        call isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
+C$$$        l_dummy_isanrg=isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
+Ckino isanrg is logical function, C$$$        call isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
+C$$$        l_dummy_isanrg=isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
 C$$$        if (mod(lxcf,100) .eq. 2 .and. lxcf/100 .gt. 1 .or.
 C$$$     .      mod(lxcf,100) .ne. 2 .and. lxcf/100 .eq. 1) call info0
 C$$$     .    (10,0,0,'%10f(warning) mixing incompatible functionals')

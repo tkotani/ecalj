@@ -2177,9 +2177,12 @@ C ... Local parameters
       if (mode .le. 0) return
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call isanrg(linv,-1,0,'pvmix9:','linv', .true.)
-      call isanrg(mode0,0,1,'pvmix9:','1s digit mode', .true.)
-      call isanrg(mode1,0,2,'pvmix9:','10s digit mode', .true.)
+Ckino isanrg is logical function,       call isanrg(linv,-1,0,'pvmix9:','linv', .true.)
+      l_dummy_isanrg=isanrg(linv,-1,0,'pvmix9:','linv', .true.)
+Ckino isanrg is logical function,       call isanrg(mode0,0,1,'pvmix9:','1s digit mode', .true.)
+      l_dummy_isanrg=isanrg(mode0,0,1,'pvmix9:','1s digit mode', .true.)
+Ckino isanrg is logical function,       call isanrg(mode1,0,2,'pvmix9:','10s digit mode', .true.)
+      l_dummy_isanrg=isanrg(mode1,0,2,'pvmix9:','10s digit mode', .true.)
 
 C ... Forward
       if (linv .eq. 0) then

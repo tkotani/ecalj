@@ -83,7 +83,8 @@ C              Anyway, extrapolation is somewhat arbitrary.
 
 C ... Setup
       if (mode .eq. 0) return
-      call isanrg(mode,0,8,'vxtrap:','mode',.true.)
+Ckino isanrg is logical function,       call isanrg(mode,0,8,'vxtrap:','mode',.true.)
+      l_dummy_isanrg=isanrg(mode,0,8,'vxtrap:','mode',.true.)
       lmode0 = mod(mode,2) .ne. 0
       lmode1 = mod(mode/2,2) .ne. 0
       lmode2 = mod(mode/4,2) .ne. 0
@@ -132,7 +133,8 @@ C        if (nr .lt. nrbig) rwgt(nr) = rwgt(nr)/2
 
 C --- Potential on extended mesh ---
       if (.not. lmode2) return
-      call isanrg(nrbig,nr,nrx,'vxtrap:','nrbig',.true.)
+Ckino isanrg is logical function,       call isanrg(nrbig,nr,nrx,'vxtrap:','nrbig',.true.)
+      l_dummy_isanrg=isanrg(nrbig,nr,nrx,'vxtrap:','nrbig',.true.)
       if (rbig .lt. rmax) call rx('vxtrap: illegal value for rbig')
 
       do  isp = 1, nsp
