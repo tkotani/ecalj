@@ -450,6 +450,8 @@ ctakao
 
       logical:: isanrg, l_dummy_isanrg
 
+      integer:: getef, i_dummy_getef
+
       nevec=0
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
@@ -1093,7 +1095,8 @@ C ... Case only generate bands at supplied qp: setup
 C       Try and read Fermi level from file
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-          call getef(ifi,0,ef0)
+ckino getef is integer          call getef(ifi,0,ef0)
+          i_dummy_getef= getef(ifi,0,ef0)
           call fclr('wkp',ifi)
         endif
 
