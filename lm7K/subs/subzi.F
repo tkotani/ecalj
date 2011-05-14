@@ -1,4 +1,3 @@
-#define MPI 1
       module m_subzi
       contains
 c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
