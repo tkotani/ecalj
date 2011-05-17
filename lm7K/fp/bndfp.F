@@ -446,7 +446,7 @@ ctakao
       
       integer:: nevec,idummy
       real(8):: epsnevec
-      logical:: onlyonce=.true.
+      logical:: onlyonce=.false.
 
       logical:: isanrg, l_dummy_isanrg
 
