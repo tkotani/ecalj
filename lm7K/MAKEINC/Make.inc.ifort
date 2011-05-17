@@ -77,6 +77,10 @@ LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 #LK = ifort  -parallel  -CB
 FC = ifort -mcmodel=medium -heap-arrays 100
 LK = ifort -parallel -mcmodel=medium -heap-arrays 100
+
+# -heap-array puts automatic and temporary arrays on the heap instead of stack
+# -mcmodel=medium uses data area beyound 2GB. 
+
 result_fc_version =$(shell head -1 .fc_version)
 make_fc_version:
 	rm -f .fc_version
@@ -87,31 +91,24 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-#--- v11.1 ---> TOO BAD compiler. Never use this.
-FFLAGS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+FFLAGS_COMMON= -cm -WB  -cpp $(CPP_SW) $(module) -132
 
-#--- v10.1 Works fine. 
-#FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
-#--- no opt
-#FFLAGS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
+#--- v11.1 
+# FFLAGS -O1 -O1 -O1 -O0 -O0 
+
+FFLAGS = -O1 $(FFLAGS_COMMON)
+FFLAGS_LESS =  -O1 $(FFLAGS_COMMON) 
+FFLAGS_LESS2 =  -O1  $(FFLAGS_COMMON)
+FFLAGS_LESS3 =  -O0  $(FFLAGS_COMMON)
+FFLAGS_NONE =  -O0 $(FFLAGS_COMMON)
+
 #--- debug
-#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS =     -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS2 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS3 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_NONE =  -g -traceback  $(FFLAGS_COMMON)
+
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
@@ -157,7 +154,7 @@ $(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod  : subs/m_rdctrlchk.F $
 $(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod  : subs/m_struc_def.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
 #################################
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod  $(moddir)/m_phmbls.mod 
 	$(FC) $(FFLAGS) -c fp/bndfp.F -o $@	
 $(gwd_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod  gwd/bndfp.F
 	$(FC) $(FFLAGS) -c gwd/bndfp.F -o $@
@@ -181,7 +178,7 @@ $(subs_obj_path)/readmtopara.o $(moddir)/m_gtv2.mod : subs/readmtopara.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/readmtopara.o   subs/readmtopara.F
 $(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_globalvariables.mod $(moddir)/m_hft2rs.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
-$(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/hambls.o  $(moddir)/m_phmbls.mod : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F
 ## ... patch section for ./fp/subs.a
 $(fp_obj_path)/rhogkl.o  : fp/rhogkl.F $(moddir)/m_struc_def.mod 
@@ -262,7 +259,7 @@ $(subs_obj_path)/asvsph2.o  : subs/asvsph2.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asvsph2.o subs/asvsph2.F
 $(subs_obj_path)/atfold.o  : subs/atfold.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atfold.o subs/atfold.F
-$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_globalvariables.mod 
+$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_globalvariables.mod  $(moddir)/m_getqvc.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atomsr.o subs/atomsr.F
 $(subs_obj_path)/bndasa.o  : subs/bndasa.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/bndasa.o subs/bndasa.F
@@ -589,8 +586,10 @@ $(subs_obj_path)/bzwtsf.o  : subs/bzwtsf.F $(moddir)/m_globalvariables.mod
 
 $(subs_obj_path)/getcor.o  : subs/getcor.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getcor.o subs/getcor.F
-$(subs_obj_path)/getqp.o  : subs/getqp.F $(moddir)/m_globalvariables.mod 
+$(subs_obj_path)/getqp.o   : subs/getqp.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getqp.o subs/getqp.F
+$(subs_obj_path)/getq.o  subs/getq.F $(moddir)/m_getqvc.mod  : subs/getq.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getq.o subs/getq.F
 $(subs_obj_path)/groupg.o  : subs/groupg.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/groupg.o subs/groupg.F
 $(subs_obj_path)/grpgen.o  : subs/grpgen.F $(moddir)/m_globalvariables.mod 

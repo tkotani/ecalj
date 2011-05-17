@@ -446,7 +446,7 @@ ctakao
       
       integer:: nevec,idummy
       real(8):: epsnevec
-      logical:: onlyonce
+      logical:: onlyonce=.true.
 
       logical:: isanrg, l_dummy_isanrg
 
@@ -1263,22 +1263,25 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
      .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
 
-C$$$        write(6,*)
-C$$$        write(6,*) ' --- Hamiltonian index ---'
-C$$$        write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-C$$$        do  iorb = 1, norbt
-C$$$          ib = ibastab(iorb)
+#if 1
+        write(6,*)
+        write(6,*) ' --- Hamiltonian index ---'
+        write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+        do  iorb = 1, norbt
+          ib = ibastab(iorb)
 
-C$$$          is=ssite(ib)%spec
+          is=ssite(ib)%spec
 
-C$$$          do i_spacks=is,is
-C$$$            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-C$$$          enddo
+          do i_spacks=is,is
+            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+          enddo
 
-C$$$          write(6,"(3i3,2x,2i5,3x,a)") 
-C$$$     &    ib,ltab(iorb),ktab(iorb), 
-C$$$     &    offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
-C$$$        enddo
+          write(6,"(3i3,2x,2i5,3x,a)") 
+     &    ib,ltab(iorb),ktab(iorb), 
+     &    offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+        enddo
+#endif
+
         write(6,*) ' ngrp=', ngrp
         !do ig = 1, ngrp
         !write(6,*) ig
