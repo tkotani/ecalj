@@ -1872,7 +1872,8 @@ c      endif
 c      if (lrsig .eq. 0) goto 999
             else
 C ... Interpolation of sene= \Sigm-Vxc at given q.
-                   isize_hamm(3)=size(hamm)
+ckino                    isize_hamm(3)=size(hamm)
+                   isize_hamm(3)=size(hamm,dim=3)
                    call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
      .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa 
