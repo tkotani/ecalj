@@ -7,10 +7,10 @@
 ############# Libraries BLAS LAPACK FFTW 
 
 ### kino's case
-LIB1= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
+LIB1=  -lfftw3 \
+ $(HOME)/kit/LAPACK/lapack_linuxgfortran.a \
+ $(HOME)/kit/LAPACK/blas_linuxgfortran.a \
+ $(HOME)/kit/LAPACK/tmglib_linuxgfortran.a
 
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -28,7 +28,7 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
-LIBLOC=$(LIB2)
+LIBLOC=$(LIB4)
 
 
 ############ Fortran compiler
@@ -435,7 +435,7 @@ $(fp_obj_path)/vxcnlm.o  : fp/vxcnlm.F $(moddir)/m_struc_def.mod $(moddir)/m_xcp
 
 
 
-$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_globalvariables.mod 
+$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_globalvariables.mod  $(moddir)/m_getqvc.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atomsr.o subs/atomsr.F
 $(subs_obj_path)/atwf.o  : subs/atwf.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atwf.o subs/atwf.F
@@ -452,6 +452,8 @@ $(subs_obj_path)/getcor.o  : subs/getcor.F $(moddir)/m_globalvariables.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getcor.o subs/getcor.F
 $(subs_obj_path)/getqp.o  : subs/getqp.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getqp.o subs/getqp.F
+$(subs_obj_path)/getq.o $(moddir)/m_getqvc.mod : subs/getq.F $(moddir)/m_globalvariables.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getq.o subs/getq.F
 $(subs_obj_path)/groupg.o  : subs/groupg.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/groupg.o subs/groupg.F
 $(subs_obj_path)/grpgen.o  : subs/grpgen.F $(moddir)/m_globalvariables.mod 

@@ -240,6 +240,9 @@ c      call defrr(ohr, ng*nrt)
 
       allocate(w_ogq(ng*3), w_oyl(ng*nlmtop), w_oylw(ng*nlmtop), w_og2(ng), w_ohe(ng*net), w_ohr(ng*nrt))
 
+Ckino H_L(G)= \frac{-4 pi}{e-G^2} {cal Y}_L(-iG) exp(gamma(e-G^2))
+Ckino hsibl1 calculaets he=1/(e-G^2) and hr=exp(-gamma G^2)
+Ckino the other parts are calculated in rsibl5.
       call dpzero(q0,3)
       if (nlmto .gt. 0) then
          call hsibl1 ( net , etab , nrt , rtab , ltop , alat , q0 , ng 
@@ -339,14 +342,20 @@ c        nvec = min(nblk, nevec-ivec+1)
 
 CSFCPP#if F90
 C   ... Add together total smooth wavefunction
+ckino   rsibl1 calculates fourier transformed smoothed Hankel, H(G), to psi
         call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2,
      .  n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk,
      .  wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
      .  ewgt,ivec,nvec,evec,w,psi,w)
+Ckino    rsiblp adds PW(G) to psi 
         call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
      .  evec(1,1,ivec),psi)
 
+Ckino now psi= H(G) + PW(G)
+
 C   ... Add to real-space mesh, optionally make smpot*psi for forces
+Ckino rsibl2 executes FFT to get psi(r), which is F0
+Ckino and also calculates <psi|psi>(=F0F0) to get real space charge density.
 #if MPI | OPENMP
          call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
      .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
@@ -585,10 +594,13 @@ c takao Apr2009
             ncutt=ncut(lt+1,kp)
             call ncutcorrect(ncutt,1,gq,ng)
 c
+Ckino    rsibl5 calculates 4 pi exp(e gamma) and {cal Y}_L(-iG) 
+Ckino    and make psi0(G), which is H(-iG), with hr and he.
             call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncutt)
      .      ,yl,ylw,he,hr,wk2,ioff,evec(1,1,ivec),ndimh,nspc,nvec,psi0)
           endif
         enddo
+Ckino    multiply exp(i G R_i) * psi0 to make psi()
         call rsibl6(ng,nspc,nvec,cosgp,singp,psi0,psi)
 
         if (mode .eq. 1) then
@@ -809,7 +821,9 @@ C ... Local parameters
 
 C ... Phase and other factors
       lmax = ll(nlm2)
+Ckino -4 pi exp(e gamma)
       fac = -4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
+Ckino phase factor of {cal Y}_L(-iG) 
       cc = (0d0,1d0)*fac
       ilm = 0
       do  l = 0, lmax
@@ -885,6 +899,7 @@ C ... Local parameters
 
       call tcn('rsibl6')
 
+Ckino phase factor exp(i G R_spc)
       do  iv = 1, nvec
         do  ispc = 1, nspc
           do  i = 1, ng

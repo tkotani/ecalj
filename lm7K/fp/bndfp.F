@@ -733,6 +733,7 @@ C  10 continue
       allocate(ppnl_rv(nppn*n0*nsp*nbas))
       allocate(fes1_rv(3*nbas))
 
+Ckino dfaugm alllocates and initializes variables
          call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
      .   , sv_p_otau , sv_p_oppi ) 
 
@@ -745,6 +746,7 @@ C --- Make the potential sans XC part ---
           call info(20,1,0,' Make potential without XC part ...',0,0)
           call togpr()
           i = 1 + 10*lfrzw + 100
+Ckino dfaugm alllocates and initializes variables
              call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
      .       , sv_p_otaux , sv_p_oppix ) 
 
@@ -755,6 +757,8 @@ c          call defcc(ospotx, -k1*k2*k3*nsp)
           spotx=0d0
 c          call defcc(osmrox, -k1*k2*k3*nsp)
 c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
+Ckino mkpot calls locpot. and locpot calls augmat. 
+Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
      .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
      .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
@@ -1264,6 +1268,9 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
      .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
 
 #if 1
+Ckino ib=atom index
+Ckino ltab=L 
+Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         write(6,*)
         write(6,*) ' --- Hamiltonian index ---'
         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
@@ -1831,6 +1838,9 @@ C           enddo
 C           enddo
 C C cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+Ckino hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
+Ckino finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s. 
+Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
 
 C --- Set up hamiltonian.
 ccccc     if (mod(mode,10) .eq. 0) then

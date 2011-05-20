@@ -247,6 +247,7 @@ C   --- Make strux to expand all orbitals at site ia ---
 c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
+Ckino bstrux makes C_kl(=b).
             call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
      .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
