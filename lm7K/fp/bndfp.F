@@ -832,6 +832,8 @@ c          stop 'xxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccc
 
       call togpr()
+Ckino mkpot calls locpot. and locpot calls augmat. 
+Ckino augmat calculates sig,tau,ppi.
             call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
      .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
@@ -3162,6 +3164,8 @@ ccccccccccccccccccccc
 
 ctakao sep2009
 c          call pshpr(ipr-4)
+Ckino mkpot calls locpot. and locpot calls augmat. 
+Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
      .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 

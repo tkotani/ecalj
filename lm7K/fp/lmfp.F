@@ -881,6 +881,8 @@ C$$$        goto 2
 C$$$      endif
 
 C --- Write smoothed charge density for contour plotting ---
+
+Ckino ioden is called everytime! Isn't the location strange?
       if (procid .eq. master) then
         if (cmdopt('--wden',6,0,strn)) then
             call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
@@ -953,6 +955,15 @@ C     The desired tolerances in q,e
 
           i = 0
           if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
+
+Ckino check whether SCF is achieved or not. 
+Ckino
+Ckino nwit() Outputs
+Ckino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
+Ckino         :1 if not self-consistent, but encountered max. no. iter.
+Ckino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
+Ckino         :3 otherwise
+
           call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
      .    ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
      .    , amom , etot , lsc )
@@ -973,6 +984,7 @@ C     Continue iterations toward self-consistency
         if (lsc .gt. 2) then
           irs(1) = 3
           goto 5
+Ckino      ---------------- SCF (iteration) loop end ---------------------
         endif
 
 C ... Reset quantities for iterations towards self-consistency
