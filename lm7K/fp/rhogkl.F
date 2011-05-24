@@ -160,6 +160,8 @@ Ci   rfoc  :smoothing radius for hankel head fitted to core tail
 Ci   z     :nuclear charge
 Co Outputs
 Co   qkl  :expansion coefficients for rho
+Cw Workarea:
+Cw   pkl: 
 Cr Remarks
 Cr   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout
 Cr   The core spillout term is:

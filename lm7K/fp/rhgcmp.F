@@ -198,6 +198,14 @@ Ckino G_kL expansion of valence sphere densities
 
         call poppr
 Ckino Convert G_kL expansion of function centered at a site to PW's
+Ckino for Gaussian(G)
+Ckino   rg: gam=1/4*rg**2
+Ckino      sqkl=sqkl + qkl(k,ilm)*fac
+Ckino   cg(i) = cg(i) + sqkl*cc*yl(i,ilm)
+Ckino for H(G)
+Ckino   rfoc: gamf=1/4*rfoc**2
+Ckino   ceh:  exp(gamf*(ceh-g2))/ceh-g2
+Ckino   cofh: cg(i)=cg(i)+cofh*aa*phase
         call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
      .  / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv 
      .  , cs_rv , sn_rv , cg )
