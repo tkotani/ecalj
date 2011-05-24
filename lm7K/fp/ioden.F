@@ -433,6 +433,7 @@ c      enddo
       modrhg = 2
 c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
 c     .ngabc,w,w,nwk,modrhg)
+Ckino  mode=0 checks format
 #ifdef USEOPTIONAL
         call ioden2 ( mode=0 , sopts=sopts ,nsp= nsp ,plat= plat , 
      .   alat=alat , nbas=nbas , pos=rv_p_opos 
@@ -450,6 +451,11 @@ Ckino isanrg is logical function,       call isanrg(modrhg,-3,2,'ioden','core op
       l_dummy_isanrg=isanrg(modrhg,-3,2,'ioden','core option',.true.)
 
 C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
+Ckino  smrho is complex(8), dsumdf() is for real(8) 
+Ckino  so kkk*2 is necessary to use dsumdf(). 
+Ckino 
+Ckino  return values: smrho(:kkk)=spin(1)+spin(2)
+Ckino  and            smrho(kkk+1:kkk*2)=spin(1)-spin(2)
       if (nsp .eq. 2) then
         call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1+kkk),0,1)
       endif
@@ -459,6 +465,7 @@ C ... Put n0(G) into psrho and cn
 
       allocate(cn_zv(ng*nsp))
 
+Ckino smrho is complex(8) , so kkk*2 is necessary.
       call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
 
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
@@ -466,13 +473,22 @@ C ... Put n0(G) into psrho and cn
 
        call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
      . cn_zv ) 
+Ckino now cn_zv(G,nsp)
 
 
+Ckino xx0 = real and G=0 component
       xx0 = dval ( cn_zv , 1 )
 
 
 C ... Add sum of local gaussian densities to mesh density
       print *,' modrhg=',modrhg
+Ckino core=#   specifies how local rho is to be included
+Ckino         :            #=0 include core densities - nuclear charge
+Ckino         :            #=1 include core densities
+Ckino         :            #=2 (default) exclude core densities
+Ckino         :            #=-1 no local densities to be included
+Ckino         :            #=-2 true local density, no smoothed part
+Ckino         :            #=-3 istl-local sm densities, no true part
       if (modrhg .ge. 0 .or. modrhg .le. -2) then
         if (modrhg .eq.  0) i = 131
         if (modrhg .eq.  1) i =  31
@@ -481,9 +497,11 @@ C ... Add sum of local gaussian densities to mesh density
         if (modrhg .eq. -3) i =   3
         if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , cn_zv , 
      .  1 )
+Ckino                      -> cn_zv=0 if i==2
 
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .  , 1 )
+Ckino                      -> cn_zv=-cn_zv if i==3
 
          call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
      .   , kmax , ng , cn_zv ) 
@@ -522,6 +540,7 @@ C ... FFT (n0 + gaussians) (G) to real-space mesh
 
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      ., 0 , 1 )
+Ckino now psrho_zv is real space mesh.
 
 
       if (allocated(cn_zv)) deallocate(cn_zv)
@@ -533,6 +552,7 @@ C ... File I/O
 ckino not complex but real,      allocate(wk_zv(nwk**2*nsp))
       allocate(wk_rv(nwk**2*nsp))
 
+Ckino mode=1 write smrho to the file
        call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
      . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
 ckino not complex but real     . , psrho_zv , wk_zv , nwk , modrhg ) 

@@ -146,6 +146,7 @@ C --- Set up help arrays ---
 
       allocate(g_rv(ng*3))
 
+Ckino Set up vectors g, g2, yl from list of vectors gv
        call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
@@ -155,6 +156,7 @@ C --- Set up help arrays ---
 
       allocate(iv_iv(ng*3))
 
+Ckino Setup for suphas: write each gv as linear combination of qlat.
        call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
 
 
@@ -175,10 +177,13 @@ C --- Loop over sites ---
         lmxl=sspec(is)%lmxl
         rg=sspec(is)%rg
 
+Ckino label 10 is at the end of the 'ib' loop 
         if (lmxl .eq. -1) goto 10
+Ckino corprm() returns parameters for smooth core+nucleus representation
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (mode .eq. 2) cofh = 0
         nlm = (lmxl+1)**2
+Ckino Makes exp(-i p* (q+G)) for a list of reciprocal lattice vectors
         call suphas ( q0 , tau , ng , iv_iv , n1 , n2 , n3 , qlat 
      .  , cs_rv , sn_rv )
 
@@ -187,14 +192,17 @@ C --- Loop over sites ---
 
         call pshpr(0)
 c        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat
+Ckino G_kL expansion of valence sphere densities
         call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , sv_p_orhoat
      .  , kmax , qkl_rv )
 
         call poppr
+Ckino Convert G_kL expansion of function centered at a site to PW's
         call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
      .  / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv 
      .  , cs_rv , sn_rv , cg )
 
+Ckino PW expansion of Z * delta(r)
         if ( mode .ge. 200 ) call rhgcm3 ( - z , vol , ng , cs_rv 
      .  , sn_rv , cg )
 
