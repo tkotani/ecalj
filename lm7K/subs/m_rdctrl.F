@@ -2164,8 +2164,11 @@ c      if (ltbe) xx = 5d0
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
      .def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
 
+!!===Jun2nd 2011. FSMOMMETHOD=1(bzwfsm.F) is renewed,===
+!!*It is now default. We expect this should be generally better than both of previous version 
+!! of FSMOMMETHOD=1 and =0 (Mark's original)
       nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgn,nm),bz_fsmommethod,
-     .def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
+     .def_i4=1,note='Method of Fixed-spin moment 0:original 1:discrete') 
 
 c      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
 c     .  def_lg=F,note='Calculate density matrix')

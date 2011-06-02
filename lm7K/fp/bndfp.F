@@ -439,7 +439,7 @@ ctakao
       
       integer:: nevec,idummy
       real(8):: epsnevec
-      logical:: onlyonce
+      logical:: onlyonce=.true.
 
       nevec=0
 C     call wkfast(.false.)
