@@ -1,4 +1,4 @@
-!!== FSMOMMETHOD=1 ogiginal version==
+!!== FSMOMMETHOD=1 ==
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
@@ -66,6 +66,8 @@ C Local variables
       real(8):: ehomo1,ehomo2,elumo1,elumo2
       real(8),allocatable:: ebs(:,:,:)
       real(8):: ele1,ele2
+      integer:: itermx
+      logical:: quitvnow
 
 C --- Fermi level without spin constraint ---
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
@@ -102,29 +104,87 @@ C --- Make and print out magnetic moment ---
       elumo1= minval(eb(nmom1+1,1,:))
       elumo2= minval(eb(nmom2+1,2,:))
       vnow = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
+      efermi=(ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0
       write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
       write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15)")ehomo1,elumo1,elumo1-ehomo1
       write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15)")ehomo2,elumo2,elumo2-ehomo2
-      write(stdo,"('bzwtsf2: Set Bias  -Vup+Vdn=',f20.15)")vnow
+      write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vnow
 
-C ... Potential shift
-      allocate(ebs(nevx,nsp,nkp))
-      ebs(:,1,:) = eb(:,1,:) - vnow/2
-      ebs(:,2,:) = eb(:,2,:) + vnow/2
 
-C ... Fermi level with dv shift
-c      if (iter .gt. 0) call pshpr(ipr-50)
-      call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-c     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+!!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
+      vhold= 0d0 
+      ef0  = efermi
+c      vnow=0d0
+      call info0(41,1,0,' Seek potential shift for fixed-spin mom ...')
+
+!!== do loop for new guess at potential shift ==
+!!bisection method takao
+      itermx=100
+      quitvnow=.false.
+      do 10 iter=1,itermx
+!! Potential shift
+       allocate(ebs(nevx,2,nkp))
+       if (nspc .eq. 2) then
+        ebs = eb + vnow/2*swtk
+       else
+        ebs(:,1,:) = eb(:,1,:) - vnow/2
+        ebs(:,2,:) = eb(:,2,:) + vnow/2
+       endif
+!! Fermi level with dv shift
+       if(.not.quitvnow) call pshpr(ipr-50)
+       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
      .  sumev,wtkb,dosef,qval,ent)
-      call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
-     .    amom)
-      write(stdo,922) amom
-      deallocate(ebs)
-c
-      sumev=sumev+ nmom1*(vnow/2d0) - nmom2*(vnow/2d0) !sumev correction takao
+       if (iprint()>= 20) then
+        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
+     .  amom)
+        write(stdo,922) amom
+       endif
+       deallocate(ebs)
+       if (.not.quitvnow) call poppr
+       if(quitvnow) exit
 
+!!=== Magnetic moment ===
+       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+       if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
+     . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
+     . stdo,vnow,efermi,amom,fmom,vnow)
+!!takao for molecule Dec1 2010
+       agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
+       print *,'ttttt amom fmom=',amom,fmom,agreemom
+c      if(original_dvdos) then
+        call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
+       if(agreemom) vhold(12)=0
+c      if (abs(dv) .lt. 1d-6) then
+       quitvnow=.false.
+       if (abs(dv).lt.1d-6 .or. agreemom) then 
+C       A root was found
+        if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
+     .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
+          if (ipr .ge. 10)
+     .    call awrit5('%N BZWTSF2: potential shift bracketed.'//
+     .    '  Unconstrained efermi=%,6;6d.'//
+     .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
+     .    '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,ef0,
+     .    fmom,amom,efermi,vnow)
+        quitvnow=.true.
+        endif
+       else if (iter .eq. itmax) then
+        if (ipr .ge. 10)
+     .  call awrit5('%N BZWTSF2: failed to converge potential shift'//
+     .  ' after %i iterations.'//
+     .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
+     .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
+     .  vnow)
+        quitvnow=.true.
+       endif
+ 10   continue
+C--------------------------------------
+c
+      ele1 = (zval+amom)/2d0
+      ele2 = (zval-amom)/2d0
+      sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
+      write(stdo,"('bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=',f20.15)")vnow
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then

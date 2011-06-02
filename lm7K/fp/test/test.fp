@@ -757,7 +757,8 @@ compare_res chk1cg "last iter mmom" $mmomn $mmomnr $dmomntol1 pass
 chk1cg:
 endif
 
-compare_res chk1ch "last iter RMS dq" $dqn $dqnr $drmsqtol1 pass
+compare_res chk1ch "chk1ch last iter RMS dq" $dqn $dqnr $drmsqtol1 pass
+
 chk1ch:
 
 # compare bnds to reference
@@ -1113,7 +1114,7 @@ set refout=$testdir/out.lmf.fsmom.$ext.gz testout=out.lmf.$ext
 endif
 if (! -e $refout) then
   echo "$space ... skipping test : missing reference file $refout"
-  goto chk3e
+  goto chk3ee
 endif
 set pass
 query chk31 chk3e 'run this test'
@@ -1322,7 +1323,8 @@ compare_res chk3cg "last iter mmom" $mmomn $mmomnr $dmomntol3 pass
 chk3cg:
 endif
 
-compare_res chk3ch "last iter RMS dq" $dqn $dqnr $drmsqtol3 pass
+compare_res chk3ch "chk3ch last iter RMS dq" $dqn $dqnr $drmsqtol3 pass
+
 chk3ch:
 
 # compare bnds to reference
@@ -1552,7 +1554,8 @@ compare_res chkx3cg "last iter mmom" $mmomn $mmomnr $dmomntol3 pass
 chkx3cg:
 endif
 
-compare_res chkx3ch "last iter RMS dq" $dqn $dqnr $drmsqtol3 pass
+compare_res chkx3ch "chkx3ch last iter RMS dq" $dqn $dqnr $drmsqtol3 pass
+
 chkx3ch:
 
 # compare bnds to reference
@@ -1579,15 +1582,15 @@ else
 endif
 endif
 
-
+chk3e:
 if ($?pass) then
     echo "$space test 3 PASSED ($ext)"
 else
     echo "$space test 3 FAILED ($ext)"
     set failed = ($failed 3)
 endif
-
-chk3e:
+chk3ee: #new
+#chk3e: moved to above if sentence Mar2011
 
 echo $joblist | grep 4 >/dev/null
 if ($status) goto chk4e
