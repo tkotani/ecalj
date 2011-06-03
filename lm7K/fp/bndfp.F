@@ -19,6 +19,7 @@ C oevl -> evlall
       use m_events !Event numbers: include "events.ins"
 #endif
       use m_subzi 
+      use m_rsibl_ev  ! to plot wavefunction in the fat band mode 
 C- One band pass, full-potential hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -2364,6 +2365,18 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
 
 #ifndef MPIK
             elseif (plbnd .ne. 0) then
+
+ckino
+              write(*,*)  'case plbnd.ne.0 (no MPIK)'
+
+ckino             nfbn(1)>0 means fat band mode
+              if (nfbn(1)>0) then
+
+                call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc,
+     .            napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3)
+
+              endif
+
               i = nsp
               if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
 c          call suqlsw(nevl,jsp,i,evl(1,jsp))
@@ -2387,6 +2400,9 @@ c          call suqlsw(nevl,jsp,i,evl(1,jsp))
 #else
 C   ... Save evals for this qp
             elseif (plbnd .ne. 0) then
+ckino
+              write(*,*)  'case plbnd.ne.0 (no MPIK)'
+
               call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
 c              if (epsovl .ne. 0) then

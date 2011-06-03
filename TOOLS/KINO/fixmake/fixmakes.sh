@@ -1,5 +1,5 @@
 #!/bin/sh
-path=/home/kino/kit/GW/7K/ecalj_2010_0705/TOOLS/KINO/fixmake
+path=/home/kino2/GW/ecalj_2011_0520-0602/TOOLS/KINO/fixmake
 src=MAKEINC/Make.inc.ifort
  gawk -f $path/fromfiles.awk subs/*.F fp/*.F 
  cat $src __makefile__ | gawk -f $path/frommake.awk > x

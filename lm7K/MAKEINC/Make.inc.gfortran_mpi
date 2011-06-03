@@ -178,9 +178,9 @@ $(fp_obj_path)/addrbl.o  : fp/addrbl.F $(moddir)/m_globalvariables.mod $(moddir)
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/addrbl.o fp/addrbl.F
 $(fp_obj_path)/augmbl.o  : fp/augmbl.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmbl.o fp/augmbl.F
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_phmbls.mod $(moddir)/m_rdctrl.mod $(moddir)/m_rsibl_ev.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bndfp.o fp/bndfp.F
-$(fp_obj_path)/bstrux.o  : fp/bstrux.F $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/bstrux.o $(moddir)/m_prlcb1.mod  : fp/bstrux.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bstrux.o fp/bstrux.F
 $(fp_obj_path)/chimedit.o  : fp/chimedit.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/chimedit.o fp/chimedit.F
@@ -214,7 +214,7 @@ $(fp_obj_path)/gwcphi.o  : fp/gwcphi.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/gwcphi.o fp/gwcphi.F
 $(fp_obj_path)/hambl.o  : fp/hambl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambl.o fp/hambl.F
-$(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/hambls.o $(moddir)/m_phmbls.mod  : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F
 $(fp_obj_path)/hgugbl.o  : fp/hgugbl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hgugbl.o fp/hgugbl.F
@@ -228,7 +228,7 @@ $(fp_obj_path)/hsibl.o  : fp/hsibl.F $(moddir)/m_events.mod $(moddir)/m_globalva
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsibl.o fp/hsibl.F
 $(fp_obj_path)/hsmbl.o  : fp/hsmbl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsmbl.o fp/hsmbl.F
-$(fp_obj_path)/ioden.o  : fp/ioden.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/ioden.o $(moddir)/m_ioden2.mod  : fp/ioden.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/ioden.o fp/ioden.F
 $(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_ovmin.mod $(moddir)/m_pairs.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmaux.o fp/lmaux.F
@@ -254,7 +254,7 @@ $(fp_obj_path)/mkpdos.o  : fp/mkpdos.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/mkpdos.o fp/mkpdos.F
 $(fp_obj_path)/mkpot.o  : fp/mkpot.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/mkpot.o fp/mkpot.F
-$(fp_obj_path)/mkrout.o  : fp/mkrout.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/mkrout.o $(moddir)/m_mkrou3.mod  : fp/mkrout.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/mkrout.o fp/mkrout.F
 $(fp_obj_path)/mshn3p.o  : fp/mshn3p.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/mshn3p.o fp/mshn3p.F
@@ -280,7 +280,7 @@ $(fp_obj_path)/rhgcmp.o  : fp/rhgcmp.F $(moddir)/m_globalvariables.mod $(moddir)
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rhgcmp.o fp/rhgcmp.F
 $(fp_obj_path)/rhomom.o  : fp/rhomom.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rhomom.o fp/rhomom.F
-$(fp_obj_path)/rlocbl.o  : fp/rlocbl.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/rlocbl.o $(moddir)/m_prlcb.mod  : fp/rlocbl.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rlocbl.o fp/rlocbl.F
 $(fp_obj_path)/rsedit.o  : fp/rsedit.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rsedit.o fp/rsedit.F
@@ -298,7 +298,7 @@ $(fp_obj_path)/smves.o  : fp/smves.F $(moddir)/m_globalvariables.mod $(moddir)/m
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/smves.o fp/smves.F
 $(fp_obj_path)/smvxcm.o  : fp/smvxcm.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/smvxcm.o fp/smvxcm.F
-$(fp_obj_path)/sugw.o  : fp/sugw.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/sugw.o  : fp/sugw.F $(moddir)/m_globalvariables.mod $(moddir)/m_phmbls.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/sugw.o fp/sugw.F
 $(fp_obj_path)/supot.o  : fp/supot.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/supot.o fp/supot.F
@@ -334,7 +334,7 @@ $(subs_obj_path)/defspc.o  : subs/defspc.F $(moddir)/m_globalvariables.mod $(mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/defspc.o subs/defspc.F
 $(subs_obj_path)/findes.o  : subs/findes.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/findes.o subs/findes.F
-$(subs_obj_path)/freeat.o  : subs/freeat.F $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/freeat.o  : subs/freeat.F $(moddir)/m_getqvc.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/freeat.o subs/freeat.F
 $(subs_obj_path)/freeat.bk.o  : subs/freeat.bk.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/freeat.bk.o subs/freeat.bk.F
@@ -342,7 +342,7 @@ $(subs_obj_path)/gtpcor.o  : subs/gtpcor.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/gtpcor.o subs/gtpcor.F
 $(subs_obj_path)/hamfb3.o  : subs/hamfb3.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hamfb3.o subs/hamfb3.F
-$(subs_obj_path)/ioeula.o  : subs/ioeula.F $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/ioeula.o $(moddir)/m_pvioeu.mod  : subs/ioeula.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioeula.o subs/ioeula.F
 $(subs_obj_path)/ioorbp.o  : subs/ioorbp.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioorbp.o subs/ioorbp.F
@@ -380,9 +380,9 @@ $(subs_obj_path)/pvsms2.o  : subs/pvsms2.F $(moddir)/m_globalvariables.mod $(mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pvsms2.o subs/pvsms2.F
 $(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_globalvariables.mod $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdctrl2.o subs/rdctrl2.F
-$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_globalvariables.mod $(moddir)/m_hft2rs.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm.o $(moddir)/m_sigflg.mod  : subs/rdsigm.F $(moddir)/m_globalvariables.mod $(moddir)/m_hft2rs.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
-$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_hft2rs.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_hft2rs.mod $(moddir)/m_sigflg.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm2.o subs/rdsigm2.F
 $(subs_obj_path)/relax.o  : subs/relax.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/relax.o subs/relax.F
@@ -428,7 +428,7 @@ $(sla_obj_path)/fsubs.o  : slatsm/fsubs.F
 $(subs_obj_path)/hft2rs.o $(moddir)/m_hft2rs.mod  : subs/hft2rs.F $(moddir)/m_pairs.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hft2rs.o  subs/hft2rs.F
 
-$(subs_obj_path)/shoshl.o  : subs/shoshl.F $(moddir)/m_pairs.mod 
+$(subs_obj_path)/shoshl.o $(moddir)/m_xxsho.mod  : subs/shoshl.F $(moddir)/m_pairs.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/shoshl.o  subs/shoshl.F
 
 $(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod  : subs/pairc.F 
@@ -448,7 +448,7 @@ $(fp_obj_path)/vxcnlm.o  : fp/vxcnlm.F $(moddir)/m_struc_def.mod $(moddir)/m_xcp
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnlm.o fp/vxcnlm.F
 
 
-$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_globalvariables.mod 
+$(subs_obj_path)/atomsr.o $(moddir)/m_rhocor.mod  : subs/atomsr.F $(moddir)/m_getqvc.mod $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atomsr.o subs/atomsr.F
 $(subs_obj_path)/atwf.o  : subs/atwf.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atwf.o subs/atwf.F
@@ -461,7 +461,7 @@ $(subs_obj_path)/bzwtsf.o  : subs/bzwtsf.F $(moddir)/m_globalvariables.mod
 
 
 
-$(subs_obj_path)/getcor.o  : subs/getcor.F $(moddir)/m_globalvariables.mod 
+$(subs_obj_path)/getcor.o  : subs/getcor.F $(moddir)/m_globalvariables.mod $(moddir)/m_rhocor.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getcor.o subs/getcor.F
 $(subs_obj_path)/getqp.o  : subs/getqp.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getqp.o subs/getqp.F
@@ -632,3 +632,170 @@ $(fp_obj_path)/stonerrsa.o  : fp/stonerrsa.F $(moddir)/m_globalvariables.mod
 
 $(fp_obj_path)/vxcnls.o  : fp/vxcnls.F $(moddir)/m_xcpbe.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnls.o fp/vxcnls.F
+$(subs_obj_path)/addrwf.o $(moddir)/m_addrwf.mod  : subs/addrwf.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/addrwf.o subs/addrwf.F
+
+
+
+
+
+
+
+
+
+
+
+
+$(subs_obj_path)/getq.o $(moddir)/m_getqvc.mod  : subs/getq.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getq.o subs/getq.F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$(subs_obj_path)/vxcnls.o  : subs/vxcnls.F $(moddir)/m_xcpbe.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/vxcnls.o subs/vxcnls.F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$(fp_obj_path)/rsibl_ev.o $(moddir)/m_rsibl_ev.mod  : fp/rsibl_ev.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod $(moddir)/m_w_psir.mod 
+	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/rsibl_ev.o fp/rsibl_ev.F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$(fp_obj_path)/w_psir.o $(moddir)/m_unusedfid.mod $(moddir)/m_w_psir.mod  : fp/w_psir.F 
+	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/w_psir.o fp/w_psir.F

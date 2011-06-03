@@ -89,6 +89,7 @@ fp_list=\
 	rlocbl.o \
 	rsedit.o \
 	rsibl.o \
+	rsibl_ev.o \
 	setofl.o \
 	sgvsym.o \
 	smcorm.o \
@@ -125,5 +126,6 @@ fp_list=\
 	grfmsh.o \
 	smvxcm.o \
 	vxcnsp.o \
-	vxcnlm.o
+	vxcnlm.o \
+        w_psir.o 
 	
