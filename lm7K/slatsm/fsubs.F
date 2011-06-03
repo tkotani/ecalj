@@ -202,4 +202,25 @@ c         write(*,*) 't=',t
       end subroutine mkdcon
 
 
-
+#if 0
+      integer function unlink(filename)
+      implicit none
+       character(*):: filename
+       integer:: istart,iend,unusedfid,i
+       logical:: L      
+       unlink=1
+       istart=100; iend=999
+      do i=istart,iend
+        inquire(i,opened=L)
+        if (.not.L) then
+          unusedfid=i
+          return
+        endif
+      enddo
+      unusedfid=0
+      if (unusedfid==0) return
+      open(unusedfid,file=filename)
+      close(unusedfid,status='delete')
+      unlink=0
+      end function unlink
+#endif

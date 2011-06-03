@@ -74,7 +74,6 @@ getcat.o \
 gettime.o \
 gradfl.o \
 gradzr.o \
-gvgetf.o \
 hrmint.o \
 htribk.o \
 htridi.o \

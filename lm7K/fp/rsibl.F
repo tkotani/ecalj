@@ -106,9 +106,11 @@ C ... Local parameters
         integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint 
-        integer,pointer :: iv_p_okv(:) =>NULL()
-
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino 2011.05        integer,pointer :: iv_p_okv(:) =>NULL()
+        integer,allocatable :: iv_p_okv(:)
+      
+ckino 2011.05       real(8),pointer :: rv_p_ogv(:) =>NULL()
+       real(8),allocatable :: rv_p_ogv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx)
@@ -183,9 +185,9 @@ C ... First setup
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino 2011.05       rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino 2011.05       iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
@@ -474,7 +476,9 @@ C
       ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
 #endif
 #endif
-       if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
+ckino 2011.05 if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
+       if (allocated(rv_p_ogv)) deallocate(rv_p_ogv)
+       if (allocated(iv_p_okv)) deallocate(iv_p_okv)
 
 CSFCPP#if F90
       deallocate(ivp)

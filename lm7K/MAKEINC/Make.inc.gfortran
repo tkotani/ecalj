@@ -45,25 +45,30 @@ make_fc_version:
 ############# where is modules?
 moddir = MODDIR/$(obj_path)
 module = -J$(moddir) -I$(moddir)
+
 ############# Fortran compiler switch
-FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
-FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
-FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
-FFLAGS_NONE = -g  -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS_LESS67 = -O0 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132
-#FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math  $(CPP_SW) $(module)
-#FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) $(module)
-#FFLAGS_NONE = -g  $(CPP_SW) $(module)
+FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
+
+#gcc ?: -O3, -O2, -O1, -O0
+#gcc 4.6.0: -O2, -O2, -O1, -O0
+
+FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_NONE = -g   $(FFLAGS_COMMON)
+FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 #
 # safer option (debug)
-#FFLAGS =      -g  $(CPP_SW) $(module)
-#FFLAGS_LESS = -g  $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -g  $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -g  $(CPP_SW) $(module)
-#FFLAGS_NONE = -g  $(CPP_SW) $(module)
+#
+#FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
+
+
+
 ############# CPP switch 
 CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR
 #
@@ -116,7 +121,7 @@ AR := ar
 ARFLAGS := rv
 RANLIB := ranlib
 ############# program and libraries (choose one of sections; normal, MPI, or MPIK)
-programs = lmf lmfa lmfgw lmdos lmchk lmf2gw rdcmd lm67
+programs = lmf lmfa lmfgw lmdos lmchk lmf2gw rdcmd #lm67
 SUBS   := libsubs.a
 FP     := libfp.a
 GWD    := libgwd.a
@@ -163,7 +168,7 @@ $(fp_obj_path)/addrbl.o  : fp/addrbl.F $(moddir)/m_globalvariables.mod $(moddir)
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/addrbl.o fp/addrbl.F
 $(fp_obj_path)/augmbl.o  : fp/augmbl.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmbl.o fp/augmbl.F
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_globalvariables.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_subzi.mod  $(moddir)/m_phmbls.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bndfp.o fp/bndfp.F
 $(fp_obj_path)/bstrux.o  : fp/bstrux.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bstrux.o fp/bstrux.F
@@ -199,7 +204,7 @@ $(fp_obj_path)/gwcphi.o  : fp/gwcphi.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/gwcphi.o fp/gwcphi.F
 $(fp_obj_path)/hambl.o  : fp/hambl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambl.o fp/hambl.F
-$(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/hambls.o $(moddir)/m_phmbls.mod : fp/hambls.F $(moddir)/m_globalvariables.mod $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F
 $(fp_obj_path)/hgugbl.o  : fp/hgugbl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hgugbl.o fp/hgugbl.F
