@@ -19,7 +19,8 @@ C oevl -> evlall
       use m_events !Event numbers: include "events.ins"
 #endif
       use m_subzi 
-      use m_rsibl_ev  ! to plot wavefunction in the fat band mode 
+      use m_rsibl_ev, only : rsibl_ev  ! to plot wavefunction in the fat band mode 
+      use m_w_psir , only: w_psir_cmdopt
 C- One band pass, full-potential hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -452,6 +453,11 @@ ctakao
       logical:: isanrg, l_dummy_isanrg
 
       integer:: getef, i_dummy_getef
+
+
+ckino
+      integer:: n_listwf
+      integer, allocatable:: listwf(:)
 
       nevec=0
 C     call wkfast(.false.)
@@ -1121,10 +1127,39 @@ C       In parallel mode, suqlst call only serves to generate nkp
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(debug) print *,'vvvvv nkp=',nkp
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+ckino plotting wavefunction
+        write(*,*)'allocate listwf , size=',ndham
+        if (allocated(listwf))  deallocate(listwf) 
+        allocate(listwf(ndham))
+        n_listwf=ndham; listwf=0
+
         if (procid .eq. master) then
+ckino  
+           write(*,*) 'calling suqlst'
            call suqlst ( plbopt , iopq , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp ) 
 
+ckino       fat band and write psi
+           n_listwf=0
+ckino           write(*,*)'checking --writewf option'
+ckino 
+ckino  Usage: also use fat band option
+ckino    --band~col=1:8~fn=syml --writewf:band=1:10
+ckino         if you want to write wavefunction (F0) from the 1st to 10th band
+ckino
+ckino         q-list must be set in the syml file
+ckino         For example, if you want to write the wavefunction at the gamma point
+ckino            ' 2   0 0 0  1 0 0 '
+ckino            ' 0   0 0 0  0 0 0 '
+ckino           is necessary. It also write the wavefunction at k=(1 0 0). 
+ckino
+           strn=' '
+           if (cmdopt('--writewf',9,0,strn)) then
+              call w_psir_cmdopt(strn(10:),ndham,n_listwf,listwf)
+              write(*,*)'--writewf option, ndham,n_listwf=',ndham,n_listwf
+              write(*,'(8I5)')  listwf(1:n_listwf)
+           endif
 
         endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1135,6 +1170,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (nkp .le. 0) call rx0('bndfp')
         call mpibc1(nfbn,2,2,mlog,'bndfp','nfbn')
         call mpibc1(onesp,1,2,mlog,'bndfp','onesp')
+
+ckino plotting wavefunction
+        call mpibc1(n_listwf,1,2, mlog,'bndfp','n_listwf')
+        if (n_listwf>0) then
+          call mpibc1(listwf,n_listwf,2, mlog,'bndfp','listwf')
+        endif
 
 C MPIK: Setup to assemble all k-points into single list with qp table
 #if MPIK
@@ -2369,11 +2410,13 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
 ckino
               write(*,*)  'case plbnd.ne.0 (no MPIK)'
 
-ckino             nfbn(1)>0 means fat band mode
-              if (nfbn(1)>0) then
+ckino             nfbn(1)>0 means fat band mode => nmx=ndimh, all the evec are calculated 
+ckino             n_listwf>0 means listwf is set by --writewf
+              if (nfbn(1)>0 .and. n_listwf>0) then
 
-                call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc,
-     .            napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3)
+                call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
+     .          ,  napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3
+     .          ,  n_listwf,listwf    )
 
               endif
 

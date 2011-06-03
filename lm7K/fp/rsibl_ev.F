@@ -3,7 +3,7 @@
 Ckino from rsibl write eigenvectors
 CSFCPP#define F90 1
       subroutine rsibl_ev(ssite,sspec,slat,nbas,isp,q,iq,ndimh,nspc,
-     .napw,igapw,iprmb,nevec,evec,k1,k2,k3)
+     .napw,igapw,iprmb,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
       use m_struc_def  !Cgetarg
       use m_globalvariables
 #if MPE
@@ -104,6 +104,9 @@ C Event numbers:
       type(s_lat)::slat
 
       double complex evec(ndimh,nspc,nevec)
+      integer:: n_eiglist
+      integer:: eiglist(n_eiglist)
+
 C ... Local parameters
       integer n0,nkap0,nermx,npmx,nblk,nlmto
       parameter (n0=10,nkap0=3,nermx=100,npmx=128)
@@ -152,9 +155,6 @@ ckino      complex(8),allocatable:: f0(:,:,:, :,:)
 
       complex(8),allocatable:: smrho(:,:,:,:), smpot(:,:,:)
 
-      real(8):: qlist(3,10)
-      integer:: n_qlist
-      integer:: eiglist(10),n_eiglist
 
       logical:: cmdopt
 
@@ -363,8 +363,6 @@ ckino#endif
 
 Ckino write psi=F0 part
          if (.true.) then
-           n_eiglist=10
-           eiglist=(/1,2,3,4,5,6,7,8,9,10/)
              call w_psir(ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2
      i   , k3 , iv_p_okv , isp, q ,iq 
      i   ,  n_eiglist,eiglist

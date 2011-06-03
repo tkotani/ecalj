@@ -275,4 +275,37 @@ ckino     .   'rot f=',f( imaxi(1),imaxi(2),imaxi(3) )*zphase
 ckino      stop 'debug end: kino'
       end subroutine w_psir
 
+      subroutine w_psir_cmdopt(sopts,m_listwf,n_listwf,listwf)
+      implicit none
+      character*(*),intent(in):: sopts
+      integer,intent(in):: m_listwf
+      integer,intent(out):: n_listwf,listwf(m_listwf)
+
+      character(12)::thisfunc='w_psi_cmdopt'
+
+      character:: dc
+      integer:: j1,j2
+
+      n_listwf=0
+      j2=0
+        j2=j2+1
+        if (sopts(j2:j2).eq.dc) return
+        j1=min(len(sopts),j2)
+        call nwordg(sopts,0,dc//' ',1,j1,j2)
+        if (j2.ge.j1) then
+c           write(*,*)thisfunc,':j1,j2,sopts=',j1,j2,sopts(j1:j1+5)
+           if (sopts(j1:j1+5).eq.':band=' ) then
+c              write(*,*)thisfunc,':sopts=',sopts(j1+6:j2),m_listwf
+              call mkils0(sopts(j1+6:j2),n_listwf,listwf(1))
+              if (n_listwf>m_listwf) then
+c                 write(*,*)thisfunc,': parse error, opt=',trim(sopts)
+                 n_listwf=0
+                 return
+              endif
+              call mkilst(sopts(j1+6:j2),n_listwf,listwf)
+           endif
+        endif
+
+      end subroutine w_psir_cmdopt
+
       end module m_w_psir

@@ -143,7 +143,7 @@ func dep_fromfile(narg, iarg,file,ret,n,a,imodule,iuse) {
         else if (match($0,"^ +use ")){
 	    gsub(","," , ")
             n=split($0,a)
-            if (a[2]!="=") {
+            if (a[2]!="=" && a[2]!="ifport") {
             	iuse++
 	    	g_use[iarg,iuse] = a[2]
             	g_use[iarg,0]=iuse
