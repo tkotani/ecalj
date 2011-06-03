@@ -34,7 +34,7 @@ C Local parameters:
       character*12 csym1(0:7)
 
 C External calls:
-      external dcopy,dinv33,dmpy,errmsg,iprint,latvec,lgunit
+Ckino 2011.05 del external,       external dcopy,dinv33,dmpy,errmsg,iprint,latvec,lgunit
       data nrot /2,3,4,6/
       data csym1 /'indefinite','triclinic','monoclinic','orthorhombic',
      .'tetragonal','rhombohedral','hexagonal','cubic'/

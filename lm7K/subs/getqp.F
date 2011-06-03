@@ -32,7 +32,7 @@ C Passed parameters
 C Local variables
       integer iqp,i,is,iprint,it,iv(5),parg,stdo,nglob,a2vec
       double precision xv(5)
-      external iprint
+Ckino 2011.05 del external,       external iprint
       character outs*80
 
       if (nfilqp .lt. 0) goto 100

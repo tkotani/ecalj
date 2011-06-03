@@ -43,7 +43,7 @@ C ... Local parameters
       real(8) qxq_inv_r(nw,nq),qxq_inv_i(nw,nq),
      .epole_fm(nq),epole_af(nq),vpole_fm(nq),vpole_af(nq)
       real(8) rtmp,rtmp1,rtmp2,rymev,epole
-      external :: polinta
+Ckino 2011.05 del external,       external :: polinta
 C     For calculating JMAT:
       complex(8) oo(nmbas,nmbas),evc(nmbas,nmbas),sqm(nmbas,nmbas),
      .jjmat(nmbas,nmbas),jjmat2(nmbas,nmbas),mxi(nmbas,nmbas)

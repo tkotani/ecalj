@@ -37,8 +37,8 @@ c      complex(8) ,allocatable :: cv2(:)
 
       double precision gmax,gmax1,gmax2,tau(3)
 C ... External calls
-      external defcc,defi,defrr,dpzero,fftz3,gvctof,gvgetf,
-     .gvlist,gvmtch,gvputf,pchms2,pchmsh,poppr,pshpr,rlse,rx
+Ckino 2011.05 del external,       external defcc,defi,defrr,dpzero,fftz3,gvctof,gvgetf,
+Ckino 2011.05 del external,      .gvlist,gvmtch,gvputf,pchms2,pchmsh,poppr,pshpr,rlse,rx
 
 c      integer w(1)
 c      common /w/ w

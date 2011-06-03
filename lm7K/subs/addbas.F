@@ -30,7 +30,7 @@ C Local parameters:
       logical latvec
       character*50 sg
 C External calls:
-      external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
+Ckino 2011.05 del external,       external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
 C Intrinsic functions:
       intrinsic  idnint
 

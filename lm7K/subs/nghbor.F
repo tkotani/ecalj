@@ -31,7 +31,7 @@ C Local parameters
       integer i1,i2,i3,iprint,ix,i,j,k,iat2
       double precision dsqr,drr2
       double precision dr(3),rmxsqr
-      external iprint,drr2
+Ckino 2011.05 del external,       external iprint,drr2
 
       rmxsqr = rmax**2
       call latlim(plat,rmax,i1,i2,i3)

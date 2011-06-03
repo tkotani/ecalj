@@ -63,7 +63,7 @@ C ... Local parameters
       double precision c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,
      .xxz,xxavg,wkz(nr,4)
 C ... External calls
-      external daxpy,dscal,getpr
+Ckino 2011.05 del external,       external daxpy,dscal,getpr
 C     Speed of light, or infinity in nonrelativistic case
       common /cc/ c
       data pa /1d0/

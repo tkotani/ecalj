@@ -18,7 +18,7 @@ C Local parameters
      .m1,m2,m3,mb,n1,n2,n3,nl,nm3,s1,s2,s3,t1,t2,t3
       double precision q1,sr2,t,srpi,fs,f100,f102
       double precision fac(161)
-      external f100,f102
+Ckino 2011.05 del external,       external f100,f102
       data srpi /1.772453851d0/
       fs(i) = 1 + 4*(i/2) - 2*i
 

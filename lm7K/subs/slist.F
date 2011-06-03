@@ -42,8 +42,8 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-      external clrsyv,defi,hunti,ishell,lodsyv,mkils0,mkilst,numsyv,
-     .nwordg,rlse,rxi,rxs,tokmat
+Ckino 2011.05 del external,       external clrsyv,defi,hunti,ishell,lodsyv,mkils0,mkilst,numsyv,
+Ckino 2011.05 del external,      .nwordg,rlse,rxi,rxs,tokmat
 
       ls = len(strlst)
       nlist = 0

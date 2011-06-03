@@ -38,7 +38,7 @@ C ... Local parameters
      .iv,parg,nlists,mxint,nspec,ib,is,iclbsj
       character dc*1
       integer lgunit
-      external awrit2,defi,ishell,mkilst,nwordg,rxs,slist,word
+Ckino 2011.05 del external,       external awrit2,defi,ishell,mkilst,nwordg,rxs,slist,word
 c
       integer,allocatable::olist(:)
 

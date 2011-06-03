@@ -76,7 +76,7 @@ C ... Local parameters
       character*(150) sout,head
       double precision xx(8)
 C ... External calls
-      external awrit0,vwrt,word
+Ckino 2011.05 del external,       external awrit0,vwrt,word
 
       nrow = (ntab+ncol-1)/ncol
       call word(casts,1,i1,i2)

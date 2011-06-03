@@ -104,8 +104,8 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-      external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,
-     .pvglst,rlse,rx,shorbz
+Ckino 2011.05 del external,       external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,
+Ckino 2011.05 del external,      .pvglst,rlse,rx,shorbz
 cccccccccccccc
       integer,save:: i,iyy
       integer,allocatable:: ixx(:,:)
@@ -437,7 +437,7 @@ C Local variables
       parameter (PRTG=80)
 c      parameter (PRTG=0)
 C ... External calls
-      external dvshel
+Ckino 2011.05 del external,       external dvshel
 
       do  ig = 1, ng
         gg(ig)= (gv(ig,1)+p(1))**2+(gv(ig,2)+p(2))**2+(gv(ig,3)+p(3))**2

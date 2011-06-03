@@ -177,8 +177,8 @@ C ... Heap
        integer ::iwdummy 
 
 C ... External calls
-      external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
-     .ppair1,pshpr,redfi,rlse,tcn,tcx
+Ckino 2011.05 del external,       external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
+Ckino 2011.05 del external,      .ppair1,pshpr,redfi,rlse,tcn,tcx
 
       call tcn('hft2rs')
       call getpr(ipr)
@@ -428,8 +428,8 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-      external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,
-     .poppr,pshpr,rlse
+Ckino 2011.05 del external,       external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,
+Ckino 2011.05 del external,      .poppr,pshpr,rlse
 
        logical:: isanrg, l_dummy_isanrg
 
@@ -763,7 +763,7 @@ C ... Local parameters
       integer is1,is2,ib,nstart,i,nib
 C     integer iprint,lgunit,stdo
 C ... External calls
-      external icopy,ivheap,ivprm
+Ckino 2011.05 del external,       external icopy,ivheap,ivprm
 
 C --- Reorder iax table site-by-site ---
       do  ib = ib1, ib2

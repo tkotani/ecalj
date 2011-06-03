@@ -32,7 +32,7 @@ C     implicit none
       integer i,k
       double precision a,h1,h2,h3,s0,ex2,dsqrt,datan,dexp,derfc,srpi
       intrinsic dsqrt,datan,dexp
-      external derfc
+Ckino 2011.05 del external,       external derfc
 
       srpi = dsqrt(4d0*datan(1d0))
 

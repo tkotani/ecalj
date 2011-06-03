@@ -57,7 +57,7 @@ c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
 C NB: a bug for x<=4 !!! (errors ~10-3)
       double precision x, bj0cs(19), ampl, theta, xsml, y,
      1d1mach, dcsevl, dcos, dsqrt
-      external d1mach,  dcsevl, initds
+Ckino 2011.05 del external,       external d1mach,  dcsevl, initds
 c
 c series for bj0        on the interval  0.          to  1.60000e+01
 c                                        with weighted error   4.39e-32
@@ -108,7 +108,7 @@ c sept 1983 edition.  w. fullerton, c3, los alamos scientific lab.
 c apr 1991  bug fix by boisvert@cam.nist.gov
       double precision x, bj1cs(19), ampl, theta, xsml, xmin, y,
      1d1mach, dcsevl, dcos, dsqrt
-      external d1mach, dcsevl, initds
+Ckino 2011.05 del external,       external d1mach, dcsevl, initds
 c
 c series for bj1        on the interval  0.          to  1.60000e+01
 c                                        with weighted error   1.16e-33
@@ -169,7 +169,7 @@ c
       double precision x, ampl, theta, bm0cs(37), bt02cs(39),
      1bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl,
      2dsqrt
-      external d1mach, dcsevl, initds
+Ckino 2011.05 del external,       external d1mach, dcsevl, initds
 c
 c series for bm0        on the interval  1.56250e-02 to  6.25000e-02
 c                                        with weighted error   4.40e-32
@@ -398,7 +398,7 @@ c
       double precision x, ampl, theta, bm1cs(37), bt12cs(39),
      1bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl,
      2dsqrt
-      external d1mach, dcsevl, initds
+Ckino 2011.05 del external,       external d1mach, dcsevl, initds
 c
 c series for bm1        on the interval  1.56250e-02 to  6.25000e-02
 c                                        with weighted error   4.91e-32

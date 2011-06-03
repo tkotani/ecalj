@@ -57,7 +57,7 @@ C Passed parameters
 c local parameters
       integer ir,ir1
       double precision pi,tpi,gamma,tpiba2,r1,r2,derfc,d1mach
-      external derfc,d1mach
+Ckino 2011.05 del external,       external derfc,d1mach
 
       pi = 4*datan(1d0)
       tpi = 2*pi

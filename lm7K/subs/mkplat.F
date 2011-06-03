@@ -42,7 +42,7 @@ C Local variables:
       double precision a,alpha,b,beta,c,gamma,platwk(9)
       logical lscr
 C ... External calls
-      external bravsy,cpplat,cvplat,gtcsym,latpar,roplat,stplat
+Ckino 2011.05 del external,       external bravsy,cpplat,cvplat,gtcsym,latpar,roplat,stplat
 
 C --- Make most compact unit cell -> platcp = plat(*,2) ---
       call cpplat(plat(1,1),plat(1,2))
@@ -95,7 +95,7 @@ C Local variables:
       double precision platt(3,3),qlatcp(3,3),mat(9),vecg(3),vol
       character*200 symops
 C External calls:
-      external dinv33,dmpy,rotmat,rx
+Ckino 2011.05 del external,       external dinv33,dmpy,rotmat,rx
 C Statement functions:
       mm(ii,m)=ltmax-(mod(ii,ll1**m)-mod(ii,ll1**(m-1)))/ll1**(m-1)
 C Data statements:
@@ -252,8 +252,8 @@ C Local variables:
       logical lra1,lsl1,lsma1,lra2,lsl2,lsma2
       parameter(tollat=1.d-5)
 C External calls:
-      external cross,dcopy,dinv33,dmpy,dscal,dswap,dvheap,dvprm,iinit,
-     .rx,rxi
+Ckino 2011.05 del external,       external cross,dcopy,dinv33,dmpy,dscal,dswap,dvheap,dvprm,iinit,
+Ckino 2011.05 del external,      .rx,rxi
 C Intrinsic functions:
       intrinsic  dabs,iabs,idnint,mod
 C Statement functions:
@@ -507,7 +507,7 @@ C Local variables:
       double precision cosvec,facdeg,pi,ddot
       parameter(pi=3.14159265358979324d0,facdeg=180.d0/pi)
 C External calls:
-      external cosvec,ddot,iprint,lgunit
+Ckino 2011.05 del external,       external cosvec,ddot,iprint,lgunit
 
       stdo  = lgunit(1)
       a     = alat*dsqrt(ddot(3,platcv(1),1,platcv(1),1))
@@ -564,7 +564,7 @@ C Local variables:
      .vol,volst
       logical latvec
 C ... External calls
-      external dinv33,dmpy,dscal
+Ckino 2011.05 del external,       external dinv33,dmpy,dscal
 C Intrinsic functions:
       intrinsic dabs
 C Data statements:
@@ -636,8 +636,8 @@ C Local variables:
       parameter(twopi=6.28318530717958648d0)
       parameter(tiny=1.0d-5)
 C External calls:
-      external daxpy,dcopy,ddet33,dpzero,ddot,dscal,errmsg,idamax,
-     .nrmliz
+Ckino 2011.05 del external,       external daxpy,dcopy,ddet33,dpzero,ddot,dscal,errmsg,idamax,
+Ckino 2011.05 del external,      .nrmliz
 C Intrinsic functions:
       intrinsic  dabs,dacos,dcos,dmax1,dsign,dsin,dsqrt,iabs,idnint
 
@@ -749,7 +749,7 @@ C Local variables:
       integer i
       double precision d,d2
 C External calls:
-      external dcopy,dscal
+Ckino 2011.05 del external,       external dcopy,dscal
 
       call dcopy(3*n,r,1,rn,1)
       do i=1,n
@@ -774,7 +774,7 @@ C Passed variables:
 C Local variables:
       double precision ddot,m1cm2(3)
 C External calls:
-      external cross,ddot
+Ckino 2011.05 del external,       external cross,ddot
 
       call cross(matrix(4),matrix(7),m1cm2)
       ddet33 = ddot(3,matrix(1),1,m1cm2,1)
@@ -796,7 +796,7 @@ C Passed variables:
 C Local variables:
       double precision ddot,d1,d2
 C External calls:
-      external rx,ddot
+Ckino 2011.05 del external,       external rx,ddot
 
       d1 = ddot(3,r1,1,r1,1)
       d2 = ddot(3,r2,1,r2,1)

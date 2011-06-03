@@ -24,7 +24,7 @@ C     implicit none
 C Passed parameters      
       integer job,iarg
       double precision fcargs(1)
-      external fcn
+Ckino 2011.05 del external,       external fcn
 #if unix
       logical lsequ,lext
       integer i,fext,nargf,n,it(5),iv(5),a2vec

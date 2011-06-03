@@ -66,7 +66,7 @@ C ... Local parameters
      .getdig,i1,i2,i3,ibp
       double precision bin,eigen(4),v,wt,ebot,dmin1,wc
 C ... External calls
-      external dcopy,dpzero,mkcond,slinz
+Ckino 2011.05 del external,       external dcopy,dpzero,mkcond,slinz
 
       if (npts .le. 1 .or. npts .le. 2 .and. .not. lidos) call rx1(
      .'contet: npts(=%i) too small for DOS : require npts>2',npts)

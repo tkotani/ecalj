@@ -54,8 +54,8 @@ C ... Local parameters
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
 C ... Heap
 C ... External calls
-      external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
-     .redfrr,spackv,upack,upack1,upack2
+Ckino 2011.05 del external,       external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
+Ckino 2011.05 del external,      .redfrr,spackv,upack,upack1,upack2
 
       print *,'lattic:'
 C     call info(30,1,0,' Real and recip space lattices:',0,0)

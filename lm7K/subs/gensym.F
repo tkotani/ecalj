@@ -104,9 +104,9 @@ C heap:
        integer ::iwdummy 
 
 C External calls:
-      external  addbas,dcopy,defdr,defi,dinv33,
-     .icopy,iprint,rlse,spcgrp,
-     .symcry,symlat
+Ckino 2011.05 del external,       external  addbas,dcopy,defdr,defi,dinv33,
+Ckino 2011.05 del external,      .icopy,iprint,rlse,spcgrp,
+Ckino 2011.05 del external,      .symcry,symlat
 
       call rxx(.not. lcar, 'gensym not implemented lcar')
       call rxx(lfix,  'gensym not implemented lfix')

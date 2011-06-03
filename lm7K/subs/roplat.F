@@ -103,7 +103,7 @@ C Local variables:
      .tb(9,7),parm,vol,wk
       parameter(pi=3.14159265358979324d0,facdeg=180.d0/pi,parm=1.d-4)
 C External calls:
-      external dmpy,iprint,lgunit,query
+Ckino 2011.05 del external,       external dmpy,iprint,lgunit,query
 C Data statements:
       data tb/1.0d0, .0d0, .0d0,  .0d0, 1.0d0, .0d0,  .0d0,.0d0, 1.0d0,
      .0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
@@ -217,8 +217,8 @@ C Local variables:
       character*72 messg
       parameter(tollat=1.d-5)
 C External calls:
-      external  cross,d1mach,danrm2,dcopy,ddot,dinv33,
-     .iprint,lgunit,prodln
+Ckino 2011.05 del external,       external  cross,d1mach,danrm2,dcopy,ddot,dinv33,
+Ckino 2011.05 del external,      .iprint,lgunit,prodln
 C Intrinsic functions:
       intrinsic  dabs,dsqrt,idnint,mod
 C Statement functions:
@@ -329,7 +329,7 @@ C Passed variables:
 C Local variables:
       double precision avol
 C External calls:
-      external danrm2
+Ckino 2011.05 del external,       external danrm2
 C Intrinsic functions:
       intrinsic dabs,dsqrt
 

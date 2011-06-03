@@ -69,7 +69,7 @@ C ... Local parameters
      .,epole_fm(nq),epole_af(nq),vpole_fm(nq),vpole_af(nq)
       real(8) , allocatable:: freq_intp(:),e_intp(:)
       parameter (rydberg=13.6058d0)
-      external :: polinta
+Ckino 2011.05 del external,       external :: polinta
 
       ! for jmat calculation
       complex(8)  oo(nmbas,nmbas),evc(nmbas,nmbas)

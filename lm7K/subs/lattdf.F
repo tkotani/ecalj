@@ -32,7 +32,7 @@ C ... Local parameters
       real(8) ,allocatable :: bwk_rv(:)
 
 C ... External calls
-      external dcopy,defrr,dinv33,dmpy,getpr,makrot,shear
+Ckino 2011.05 del external,       external dcopy,defrr,dinv33,dmpy,getpr,makrot,shear
 C     Debugging
 C      integer nlx,nl2
 C      parameter (nlx=4,nl2=nlx*nlx)

@@ -91,7 +91,7 @@ C     implicit none
 C passed arguments
       double precision f,x(n),fx,t,h,eps,scbd,v(n,n),d(n),
      .y(n),z(n),q0(n),q1(n),tvec(n)
-      external f
+Ckino 2011.05 del external,       external f
       logical illc,lc,lq1,lq2
 C local
       integer nl,nf,kl,kt,i,j,k,k2,ipr,ierr,ipl,nits,is,iprint,i1mach
@@ -450,7 +450,7 @@ C     implicit none
       integer n,ir
       double precision f,x(n),v(n,n),d2,x1,f1,fx,h,t,ldt,dmin,eps,
      .qd0,qd1,q0(n),q1(n),tvec(n)
-      external f
+Ckino 2011.05 del external,       external f
       integer nf,j,nits,nl
       logical fk,lq
 C local
@@ -621,7 +621,7 @@ C     implicit none
       integer n,nf,nl,ir
       double precision f,x(n),fx,dmin,h,t,ldt,eps,qf1,qd0,qd1,q0(n),
      .q1(n),tvec(n)
-      external f
+Ckino 2011.05 del external,       external f
 C local
       double precision qa,qb,qc,s,l,dum,dsqrt
       integer i,iprint
@@ -674,7 +674,7 @@ Cr eq (1.11) Brent.
 Cr flin places t in x if f returns ir=-1
 C-----------------------------------------------------------------------
 C     implicit none
-      external f
+Ckino 2011.05 del external,       external f
       integer n,j,nf,ir
       double precision f,x(n),v(n,n),l,t(n),qd0,qd1,q0(n),q1(n)
 C local

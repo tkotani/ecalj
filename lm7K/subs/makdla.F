@@ -27,7 +27,7 @@ C Local variables:
       double precision er2,fi(0:nlmax+1),gi(0:nlmax+1),wn,wj,dlr,dj,dn,
      .sigma,phi,rdphia,rdfi,rdgi
 C External calls:
-      external bessl2
+Ckino 2011.05 del external,       external bessl2
 
       er2 = kbak*rmax*rmax
       call bessl2(er2,0,l+1,fi(0),gi(0))

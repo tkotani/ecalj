@@ -118,7 +118,7 @@ C Local variables
       parameter (catl0=7,recl0=72)
       integer i
       logical rdstrn,lsequ
-      external rdstrn,lsequ
+Ckino 2011.05 del external,       external rdstrn,lsequ
       if (lrewnd) rewind ifi
       scat = .false.
    10 if (.not. rdstrn(ifi,a,recl0,.false.)) return

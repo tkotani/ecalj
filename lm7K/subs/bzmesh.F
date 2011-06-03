@@ -110,8 +110,8 @@ C ... Local parameters
      .nn2,nn3,stdo,nsgrp,mxxyz
       double precision w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
 C ... External calls
-      external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,
-     .grpop,iinit,projql,rx,rxx
+Ckino 2011.05 del external,       external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,
+Ckino 2011.05 del external,      .grpop,iinit,projql,rx,rxx
       character*1 chr(0:2)
 #if DEBUG
       character*30 sg

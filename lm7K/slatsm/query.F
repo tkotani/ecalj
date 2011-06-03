@@ -33,7 +33,7 @@ C Local parameters
       save lquery
       character*(1) rdstr2(2)
       equivalence (rdstr,rdstr2)
-      external lsequ,a2bin,iprint
+Ckino 2011.05 del external,       external lsequ,a2bin,iprint
 
 #if MPI | MPIK
       return

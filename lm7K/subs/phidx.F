@@ -90,7 +90,7 @@ C Local variables
      .sloi(5),vali(5),phiai(4),dlai(4),ei(4),de1,de2,del1,del2,tole
       parameter (tole=1d-10)
 C External calls
-      external dfphi,gintsr,iprint,makdla,rseq,rsq1,rx,lgunit
+Ckino 2011.05 del external,       external dfphi,gintsr,iprint,makdla,rseq,rsq1,rx,lgunit
 
 C ... Setup: extract a and b
       job0 = mod(job,10)

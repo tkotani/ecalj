@@ -333,7 +333,7 @@ C Local variables:
       character*72 fmt
       parameter(fpi3=4.18879020478639053d0,tiny=1d-5)
 C ... External calls
-      external dcopy,dpzero,dscal,errmsg,getpr,iinit
+Ckino 2011.05 del external,       external dcopy,dpzero,dscal,errmsg,getpr,iinit
 
       avw  = avwsr(plat,alat,vol,nbas)
       gw   = avw*gamma
