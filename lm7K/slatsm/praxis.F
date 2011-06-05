@@ -91,7 +91,7 @@ C     implicit none
 C passed arguments
       double precision f,x(n),fx,t,h,eps,scbd,v(n,n),d(n),
      .y(n),z(n),q0(n),q1(n),tvec(n)
-Ckino 2011.05 del external,       external f
+      external f
       logical illc,lc,lq1,lq2
 C local
       integer nl,nf,kl,kt,i,j,k,k2,ipr,ierr,ipl,nits,is,iprint,i1mach

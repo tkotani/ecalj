@@ -24,7 +24,9 @@
 
       subroutine fsystm(ps,res)
 #ifdef HASIFPORT
+#if  ( defined __INTEL_COMPILER && __INTEL_COMPILER!=1110)
       use ifport
+#endif
 #endif
       character(*) ps
       integer:: res
