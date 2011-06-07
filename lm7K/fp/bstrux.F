@@ -307,9 +307,9 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
         phase = exp(srm1*alat*ddot(3,qpg,1,pa,1))
         facexp = exp(-gamma*qpg2)
         ilm = 0
-        rsmal = 1
-        srm1l = 1
-
+        rsmal = 1d0
+        srm1l = 1d0 !!I thims srm1l is (i)**l for -q in Eq 5.17. JMP39 3401
+                    !!For exansion, assume epsilon=0 JMP39 3419.
         if (mode .eq. 0) then
           do  l = 0, lmxa
             do  m = 1, 2*l+1
@@ -318,9 +318,12 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
               fac = fac2l(l+1)/rsmal/fpi
               qk = 1
               do  k = 0, kmax
-                pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                gfourier = qk*facilm*facexp ! Eq. 5.17
+                pgint =  dfac(k)*fac        !! Eq. 12.8 in JMP39 3393
+                gfourier = qk*facilm*facexp !! Eq. 5.17
                 b0(k,ilm,ig+nlmto) = gfourier/pgint/srvol*phase
+cccccccccccccccccccccccccc
+c                b0(k,ilm,ig+nlmto) = 0d0
+cccccccccccccccccccccccccc
                 fac = fac * 4/rsma**2
                 qk = -qpg2 * qk
               enddo
@@ -341,6 +344,9 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
                   pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
                   gfourier = qk*facilm*facexp ! Eq.5.17
                   b = gfourier/pgint/srvol*phase
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c                  b=0d0
+cccccccccccccccccccccccccccccccccccccccccccccccccc
                   b1(ig+nlmto,ilm,k) = b
                   db(ig+nlmto,ilm,k,1) = -srm1*qpg(1) * b
                   db(ig+nlmto,ilm,k,2) = -srm1*qpg(2) * b
@@ -353,6 +359,9 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
                   pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
                   gfourier = qk*facilm*facexp ! Eq.5.17
                   b = gfourier/pgint/srvol*phase
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c                  b=0d0
+cccccccccccccccccccccccccccccccccccccccccccccccccc
                   b1(ig+nlmto,ilm,k) = b
                   fac = fac * 4/rsma**2
                   qk = -qpg2 * qk

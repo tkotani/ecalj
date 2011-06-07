@@ -160,6 +160,7 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
 
 cccccccccccccccccccccccccccccccccccc
 c choice 2 takao. For deep semicore, to avoid error in rseq (Mg dimer in 10\A cubic cell).
+c        print *,'qqqqqqqqqqqqqqqq qqqqqq'
         ei=ei/2d0 !In future, we have to use better solution.
 c      you may need to use ei/3.0 or better algolism
 c  I had a problem that it results in warning rseq, 

@@ -20,7 +20,8 @@ LIB1= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
 #LIBLOC= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
 
 # ubuntu 9.10 apt-get install
-LIB2= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
+
+LIB2= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
 
 # centos yum install. Zgemm did not work for larger size of matrix.
 LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \

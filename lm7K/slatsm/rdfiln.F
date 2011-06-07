@@ -1734,10 +1734,10 @@ C   ... Substitute a character variable
         call skpblb(aa2,ctlen,i2)
         m = min(m,i2+1)
         a(ja-1) = ' '
-C         print *, 'before 33',(a(kkk), kkk=1,ja-2+0)
+         print *, 'before 33',(a(kkk), kkk=1,ja-2+0),"###"
         do  33  k = i1, m
    33   a(ja+k-i1-1) = aa2(k:k)
-C         print *, 'after 33',k1,k2,(a(kkk), kkk=1,ja+m-i1-1)
+         print *, 'after 33',(a(kkk), kkk=1,ja+m-i1-1),"###"
         ja = ja+m-i1
 
 C   ... Numerical expression

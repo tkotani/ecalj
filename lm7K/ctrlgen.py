@@ -646,7 +646,7 @@ for ii in tokenspec[1:]:
 			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm+'\n' \
 			    +'      KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n' \
                             +'      MMOM=0 0 0 0'+'\n'+'      #Q= \n' \
-                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output'
+                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output\n'
 		ispec=ispec+1
 		ix=1
 	if(ii=='ENDATOM'): break
