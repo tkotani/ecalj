@@ -21,6 +21,8 @@ LIB1=  -lfftw3 \
 
 # ubuntu 9.10 apt-get install
 LIB2= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
+# ubuntu 10.04 apt-get install
+LIB5= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
 
 # centos yum install. Zgemm did not work for larger size of matrix.
 LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
@@ -28,7 +30,8 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
-LIBLOC=$(LIB4)
+
+LIBLOC=$(LIB5)
 
 
 ############ Fortran compiler
@@ -52,20 +55,20 @@ FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
 #gcc ?: -O3, -O2, -O1, -O0
 #gcc 4.6.0: -O2, -O2, -O1, -O0
 
-#FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
-#FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
-#FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
-#FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
-#FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
-#FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
+FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
+FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 #
 # safer option (debug)
 #
-FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
 
 
 
@@ -630,6 +633,7 @@ $(fp_obj_path)/stonerrsa.o  : fp/stonerrsa.F $(moddir)/m_globalvariables.mod
 
 $(fp_obj_path)/vxcnls.o  : fp/vxcnls.F $(moddir)/m_xcpbe.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnls.o fp/vxcnls.F
+
 $(subs_obj_path)/addrwf.o $(moddir)/m_addrwf.mod  : subs/addrwf.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/addrwf.o subs/addrwf.F
 
@@ -709,8 +713,6 @@ $(subs_obj_path)/addrwf.o $(moddir)/m_addrwf.mod  : subs/addrwf.F
 
 
 
-$(subs_obj_path)/vxcnls.o  : subs/vxcnls.F $(moddir)/m_xcpbe.mod 
-	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/vxcnls.o subs/vxcnls.F
 
 
 

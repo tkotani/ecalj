@@ -405,8 +405,8 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
         phase = exp(srm1*alat*ddot(3,qpg,1,pa,1))
         facexp = exp(-gamma*qpg2)
         ilm = 0
-        rsmal = 1
-        srm1l = 1
+        rsmal = 1d0 !takao 1 to 1d0 June2011 (may give little effects).
+        srm1l = 1d0 !
 
         if (mode .eq. 0) then
           do  l = 0, lmxa

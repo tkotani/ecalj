@@ -135,6 +135,12 @@ for ffile in argset:
         if(isinstance(ins, classes.Subroutine)):
             print "@def Subr:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap #,ins.a #,ins.a.variable_names
             subs.append(ins.name)
+            print ins.a.variables
+            print dir(ins)
+            #print ins.get_entity()
+            #for iii in ins.item:
+            #    print iii
+            sys.exit()
             addfsdist(fsdict,ins.name,ffile)
         if(isinstance(ins, classes.Function)):  
             print "@def Func:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap #,type(ins) #,ins.a
