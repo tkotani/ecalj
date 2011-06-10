@@ -255,7 +255,7 @@ c      common /w/ w
 C tolch is tolerance for change in the charge density, tolv for rseq
       double precision tolch,tl
       parameter (tolch=5d-5,tolrsq=1d-12)
-Ckino 2011.05 del external,       external lgunit
+      external lgunit
 
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
 Changenglob      lrel = nglob('lrel')

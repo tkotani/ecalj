@@ -25,7 +25,7 @@ C     implicit none
      .w,emin,emax,tol,wt,emesh
       integer i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint
       double precision e,x,range,test,step,d,s,xx
-Ckino 2011.05 del external,       external delstp
+      external delstp
 
       call dpzero(dos,nsp*ndos)
       step = (emax - emin) / (ndos - 1)

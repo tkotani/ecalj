@@ -56,7 +56,7 @@ C Local parameters
       integer l1(4), l2(4), ij(2), i1(2), i2(2), i3(6)
       double precision cval,dmax,x,y,z1,z2,zz
       double precision xint(4),xy(2)
-Ckino 2011.05 del external,       external drwc,fill0,iget,iprint,mark1
+      external drwc,fill0,iget,iprint,mark1
 
       equivalence (l2(1),imax), (l2(2),jmax), (l2(3),imin),
      *(l2(4),jmin)

@@ -29,7 +29,8 @@ C ... Local parameters
       double precision amom,orbl(10)
       character*8 slabl
 C ... External calls
-Ckino 2011.05 del external,       external dpzero,getpr,spacks
+ckino      external dpzero,getpr,spacks
+      external dpzero,getpr
 
       call getpr(ipr)
       if (ipr .lt. 20) return

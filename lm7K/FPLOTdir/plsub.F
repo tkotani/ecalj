@@ -2918,7 +2918,11 @@ C local parameters
       logical cmdopt
 
 c      call spchar(1,bs)
+#ifdef DOUBLEBACKSLASH
+      bs='\\'
+#else
       bs='\'
+#endif
       show = 'show'//shift
       if (shift(1:2) .eq. 'tx') show = 'show'
       newl = 'newline'//hvl//fr
@@ -3088,7 +3092,11 @@ C ... Local parameters
       character bkslsh*1
 
 c      call spchar(1,bkslsh)
+#ifdef DOUBLEBACKSLASH
+      bkslsh="\\"
+#else
       bkslsh="\"
+#endif
 C --- strip line of its control chars to determine true stringwidth ---
       tlen = 0
       do  i = 1, ilen

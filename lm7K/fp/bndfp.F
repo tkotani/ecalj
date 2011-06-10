@@ -459,6 +459,13 @@ ckino
       integer:: n_listwf
       integer, allocatable:: listwf(:)
 
+#if !defined(__INTEL_COMPILER)
+      integer:: unlink 
+#endif
+
+
+ckino begin
+
       nevec=0
 C     call wkfast(.false.)
       if (maxit .eq. 0) return

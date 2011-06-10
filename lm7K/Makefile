@@ -24,12 +24,15 @@
 ######################################################################################################
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
+#PLATFORM=fujitsufortran
+PLATFORM=fujitsufortran_mpik
+
 #PLATFORM=gfortran
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
 
-PLATFORM=ifort
+#PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 
@@ -172,48 +175,50 @@ mod-dir:
 # Generate main routines
 ########################################
 lmchk.o: lmv7util.F
-	$(FC) $(FFLAGS) -DLMCHK -DFP -c lmv7util.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMCHK -DFP -c lmv7util.F -o $@
 #lm.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLM -DNC -c lmv7.F -o $@
 # non colinear version
 #lm.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLM -DNC -c lmv7.F -o $@
 lmfa.o: lmfav7.F
-	$(FC) $(FFLAGS) -DLMFA -c lmfav7.F  -o $@
+	$(FC) $(FFLAGS_NONE) -DLMFA -c lmfav7.F  -o $@
 lmf.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF  -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF  -c lmv7.F -o $@
 lmdos.o: lmv7util.F
-	$(FC) $(FFLAGS) -DLMDOS -c lmv7util.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMDOS -c lmv7util.F -o $@
 lmfgw.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 #lmscell.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
 #tbe.o: lmv7.F
 #	$(FC) $(FFLAGS) -DTBE -c lmv7.F -o $@
 lmf2gw.o: lmf2gw.F
-	$(FC) $(FFLAGS) -c lmf2gw.F -o $@
+	$(FC) $(FFLAGS_NONE) -c lmf2gw.F -o $@
 
 ########################################
 # programs
 ########################################
 lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA)  make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 #lmscell: lmscell.o $(LIBSUBS) $(LIBSLA)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmdos:	lmdos.o $(LIBSUBS) $(LIBSLA) make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
  
 lmfa:	lmfa.o $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 #lm:	lm.o  $(LIBSUBS) 
 #	$(LK) $(LKFLAGS1) $@.o $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -222,11 +227,13 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
 #	$(LK) $(LKFLAGS1) $@.o $(LIBNC) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmf2gw:	lmf2gw.o make_fc_version
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
 #tbe:	tbe.o $(LIBSUBS) $(LIBTB)
@@ -240,32 +247,36 @@ lm67:	lm67src/lm67.F
 
 ####### for MPI
 lmf-MPI.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF -c lmv7.F -o $@
 
 lmf-MPI:        lmf-MPI.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPI.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 ####### for MPIK
 lmf-MPIK.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF -c lmv7.F -o $@
 
 lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPIK.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
+	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(FC) $(FFLAGS) $(VERSIONFLAGS) -c show_programinfo.F  -o show_programinfo.o
+	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 

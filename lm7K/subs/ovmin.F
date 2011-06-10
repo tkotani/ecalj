@@ -67,7 +67,7 @@ C Local parameters
       integer i1mach,isw,ir,i,j,j1,j2,ls,m,lstyle, !op
      .iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n
       character dc*1
-Ckino 2011.05 del external,       external mxint
+      external mxint
       integer,allocatable:: olist(:)
       real(8),allocatable:: w_opos(:,:),w_oz(:),w_ormax(:),w_oips(:),w_op(:)
 

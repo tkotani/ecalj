@@ -50,7 +50,7 @@ c Adapted from ...  w. fullerton, c3, los alamos scientific lab.
 C     implicit none
       double complex z, cdasin
       double precision pi2
-Ckino 2011.05 del external,       external cdasin
+      external cdasin
       data pi2 /1.5707963267 9489661923d0/
 
       cdacos = pi2 - cdasin (z)

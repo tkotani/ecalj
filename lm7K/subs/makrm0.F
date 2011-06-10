@@ -103,8 +103,8 @@ C     Relative positions
       double precision rpos(3,mxcsiz),ri,rbar,rmin,vrmax,cur,slo,di
       character*1 sym(2)
 C ... External calls
-Ckino 2011.05 del external,       external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
-Ckino 2011.05 del external,      .iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
+      external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
+     .iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
 C ... Heap
       data sym /' ','*'/
 

@@ -19,7 +19,7 @@ Cr   For real*8 double precision see below
 C ----------------------------------------------------------------
       double precision x, erfcs(21), erfccs(59), erc2cs(49), sqeps,
      .sqrtpi, xmax, xsml, y,  d1mach, dcsevl, dexp, dlog, dsqrt
-Ckino 2011.05 del external,       external d1mach, dcsevl, initds
+      external d1mach, dcsevl, initds
       save
       data erf cs(  1) / -.4904612123 4691808039 9845440333 76 d-1 /
       data erf cs(  2) / -.1422612051 0371364237 8247418996 31 d+0 /
@@ -241,7 +241,7 @@ C ----------------------------------------------------------------
       dimension erfcs(13), erfccs(24), erc2cs(23)
       real eta
       integer iprint
-Ckino 2011.05 del external,       external dcsevl, initds, d1mach,  iprint
+      external dcsevl, initds, d1mach,  iprint
 
       save
 

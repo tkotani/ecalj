@@ -51,7 +51,7 @@ CSFCPP      parameter (nrmax=1501)
 CSFCPP      double precision rh1(nrmax),rh2(nrmax),rwgt(nrmax)
 CSFCPP#endif
 C ... External calls
-Ckino 2011.05 del external,       external dpcopy,info2,makrvl,radwgt,rseq,rx
+      external dpcopy,info2,makrvl,radwgt,rseq,rx
       integer:: iz
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
       

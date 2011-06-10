@@ -52,7 +52,7 @@ C ... Passed parameters
       character*(*) str
       integer iw,j1,j2
 C ... External calls
-Ckino 2011.05 del external,       external nword
+      external nword
       j1 = 1
       call nword(str,iw,j1,j2)
       end

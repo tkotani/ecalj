@@ -18,7 +18,7 @@ C ... Local parameters
       integer ifblk,ifinc,i0,i,lstr,lsep,iterm,ip
       character*1 cl,ch
 C ... External calls
-Ckino 2011.05 del external,       external chrps2,skipbl
+      external chrps2,skipbl
 
       nw = 0
       i0 = 1
@@ -120,7 +120,7 @@ C ... Local parameters
       integer ifblk,ifinc,nw,i0,i,lstr,lsep,iterm,ip
       character*1 cl,ch
 C ... External calls
-Ckino 2011.05 del external,       external chrps2,skipbl
+      external chrps2,skipbl
 
       nw = 0
       i0 = i1

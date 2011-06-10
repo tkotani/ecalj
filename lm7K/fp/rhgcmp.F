@@ -92,8 +92,11 @@ C ... Local parameters
       double precision alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
      .vol,z,q0(3),df(0:20),plat(3,3),qlat(3,3),tau(3)
 C ... External calls
-Ckino 2011.05 del external,       external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
-Ckino 2011.05 del external,      .suphas,suphs0,suylg,tcn,tcx,upack
+ckino      external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
+ckino     .suphas,suphs0,suylg,tcn,tcx,upack
+ckino del defi defrr,upack,rlse
+      external corprm,poppr,pshpr,rhgcm2,rhogkl,stdfac,
+     .suphas,suphs0,suylg,tcn,tcx
 C ... Heap
       data q0 /0d0,0d0,0d0/
 
