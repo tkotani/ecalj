@@ -42,7 +42,6 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -65,6 +64,7 @@ LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
+
 LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 
 
@@ -74,48 +74,41 @@ LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 FC = mpif90 -f90=ifort -mcmodel=medium -heap-arrays 100
 LK = mpif90 -f90=ifort -parallel -mcmodel=medium -heap-arrays 100
 
+# -heap-array puts automatic and temporary arrays on the heap instead of stack
+# -mcmodel=medium uses data area beyound 2GB. 
+
 result_fc_version =$(shell head -1 .fc_version)
 make_fc_version:
 	rm -f .fc_version
 	-export LANG=C; ${FC} -v 2> .fc_version
 
-
-#FC = ifort
-#LK = ifort  -parallel 
 #
 # where is modules?
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-#--- v11.1 ---> TOO BAD compiler. Never use this.
-FFLAGS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132
 
-#--- v10.1 Works fine. 
-#FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
-#--- no opt
-#FFLAGS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
+#--- v11.1 
+# FFLAGS -O1 -O1 -O1 -O0 -O0 
+
+FFLAGS = -O1 $(FFLAGS_COMMON)
+FFLAGS_LESS =  -O1 $(FFLAGS_COMMON) 
+FFLAGS_LESS2 =  -O1  $(FFLAGS_COMMON)
+FFLAGS_LESS3 =  -O0  $(FFLAGS_COMMON)
+FFLAGS_NONE =  -O0 $(FFLAGS_COMMON)
+
 #--- debug
-#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS =     -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS2 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS3 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_NONE =  -g -traceback  $(FFLAGS_COMMON)
+
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -UMPE -DMPIK  -UMPI  
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -DMPIK 
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
@@ -564,14 +557,12 @@ $(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod  : subs/subzi.F
 	 $(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F
 
 
-
 $(subs_obj_path)/m_gtv.o $(moddir)/m_gtv.mod  : subs/m_gtv.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_gtv.o subs/m_gtv.F
 $(subs_obj_path)/m_hamindex.o $(moddir)/m_hamindex.mod  : subs/m_hamindex.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_hamindex.o subs/m_hamindex.F
 $(subs_obj_path)/m_psigd.o $(moddir)/m_psigd.mod  : subs/m_psigd.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/m_psigd.o subs/m_psigd.F
-
 
 $(fp_obj_path)/vxcnlm.o  : fp/vxcnlm.F $(moddir)/m_struc_def.mod $(moddir)/m_xcpbe.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnlm.o fp/vxcnlm.F
@@ -593,6 +584,8 @@ $(subs_obj_path)/getcor.o  : subs/getcor.F $(moddir)/m_globalvariables.mod $(mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getcor.o subs/getcor.F
 $(subs_obj_path)/getqp.o  : subs/getqp.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getqp.o subs/getqp.F
+$(subs_obj_path)/getq.o $(moddir)/m_getqvc.mod  : subs/getq.F 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getq.o subs/getq.F
 $(subs_obj_path)/groupg.o  : subs/groupg.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/groupg.o subs/groupg.F
 $(subs_obj_path)/grpgen.o  : subs/grpgen.F $(moddir)/m_globalvariables.mod 
@@ -774,8 +767,7 @@ $(subs_obj_path)/addrwf.o $(moddir)/m_addrwf.mod  : subs/addrwf.F
 
 
 
-$(subs_obj_path)/getq.o $(moddir)/m_getqvc.mod  : subs/getq.F 
-	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getq.o subs/getq.F
+
 
 
 
