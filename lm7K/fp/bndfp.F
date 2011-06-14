@@ -259,9 +259,12 @@ ckino lswtk must be 0 initially.
       real(8) ,allocatable :: dos_rv(:)
 
               integer:: os , osoptc 
-              real(8),pointer :: rv_p_owtkb(:,:,:)=>NULL()
+ckino change rv_p_owtkb allocatable
+ckino              real(8),pointer :: rv_p_owtkb(:,:,:)=>NULL()
+              real(8),allocatable :: rv_p_owtkb(:,:,:)
 
-             real(8),pointer :: rv_p_oswtk(:)=>NULL()
+ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)=>NULL()
+             real(8),allocatable :: rv_p_oswtk(:)
 
             integer,pointer :: iv_p_oidtet(:)=>NULL()
 
@@ -320,8 +323,9 @@ ckino lswtk must be 0 initially.
        type(s_rv1) :: sv_p_osigx(3,nbx)
 
 
-ckino
-       logical:: l_temp_rv_p_oswtk, l_temp_rv_p_owtkb,l_temp_iv_p_oidtet
+ckino, used for dummy allocations 
+       logical:: l_temp_rv_p_oswtk=.false., l_temp_rv_p_owtkb=.false.,
+     .    l_temp_iv_p_oidtet=.false.
 
 ckino end 
       double precision sigp(10)
@@ -2919,13 +2923,18 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
               else
 ckino       maybe a switch for these is lmet.ne.0 
                l_temp_rv_p_oswtk=.false.
-               if (.not.associated(rv_p_oswtk)) then
+ckino change rv_p_oswtk allocatable               if (.not.associated(rv_p_oswtk)) then
+               if (.not.allocated(rv_p_oswtk)) then
                    allocate(rv_p_oswtk(1))
                    l_temp_rv_p_oswtk=.true.
                endif
                l_temp_rv_p_owtkb=.false.
-               if (.not.associated(rv_p_oswtk))then
-                   allocate(rv_p_oswtk(1))
+ckino bug fix oswtk -> owtkb
+ckino change rv_p_owtkb allocatable
+ckino               if (.not.associated(rv_p_oswtk))then
+ckino                   allocate(rv_p_oswtk(1))
+               if (.not.allocated(rv_p_owtkb))then
+                   allocate(rv_p_owtkb(1,1,1))
                    l_temp_rv_p_owtkb=.true.
                endif
                l_temp_iv_p_oidtet=.false.
@@ -2942,13 +2951,21 @@ ckino end
               endif
 ckino
               if (l_temp_rv_p_oswtk) then
-                 deallocate(rv_p_oswtk); rv_p_oswtk=>NULL()
+ckino change rv_p_oswtk allocatable                 deallocate(rv_p_oswtk); rv_p_oswtk=>NULL()
+                 deallocate(rv_p_oswtk)
+ckino add .false
+                 l_temp_rv_p_oswtk=.false.
               endif
               if (l_temp_rv_p_owtkb) then
-                 deallocate(rv_p_owtkb); rv_p_owtkb=>NULL()
+ckino change rv_p_owtkb allocatable                 deallocate(rv_p_owtkb); rv_p_owtkb=>NULL()
+                 deallocate(rv_p_owtkb)
+ckino add .false
+                 l_temp_rv_p_owtkb=.false.
               endif
               if (l_temp_iv_p_oidtet) then
                  deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
+ckino add .false
+                 l_temp_iv_p_oidtet=.false.
               endif
 ckinoend
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
@@ -2960,7 +2977,8 @@ C         Store val charge & magnetic moment in sumqv(1..2)
           endif
 !!=== takao automatic search for nevmx (this can be just outside of endif below? I failed why?) ===
 !!Nov25 2010
-          if(associated(rv_p_owtkb)) then
+ckino change rv_p_owtkb_allocatable         if(associated(rv_p_owtkb)) then
+          if(allocated(rv_p_owtkb)) then
             do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
             nevec = i
             if (maxval(rv_p_owtkb(i,:,:)) .gt. epsnevec()) exit
