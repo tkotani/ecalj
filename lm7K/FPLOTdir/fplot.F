@@ -1249,7 +1249,11 @@ C --- Normal exit ---
 C ... Below assumes a postscript file ...
       if (lbbox .ne. 0) then
 c        call spchar(1,bkslsh)
+#ifdef DOUBLEBACKSLASH
+        bkslsh='\\'
+#else
         bkslsh='\'
+#endif
         strn = 'awk -vbbox="`echo quit|gs -sDEVICE=bbox -dNOPAUSE '//
      .  'ps.dat 2>&1|grep BoundingBox:|head -1`" '//
      .  '''{print ; if (NR == 1) '//
@@ -1322,7 +1326,11 @@ C- For latex postprocessing
 
 C     Generic call for backslash character
 c      call spchar(1,bkslsh)
+#ifdef DOUBLEBACKSLASH
+      bkslsh='\\'
+#else
       bkslsh='\'
+#endif
 
 C ... Create head
       ifi = fopng('psfrag.tex',-1,0)

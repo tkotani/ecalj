@@ -91,7 +91,7 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-FFLAGS_COMMON= -cm -WB  -cpp $(CPP_SW) $(module) -132
+FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132
 
 #--- v11.1 
 # FFLAGS -O1 -O1 -O1 -O0 -O0 

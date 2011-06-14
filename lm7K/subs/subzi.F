@@ -80,9 +80,11 @@ C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
 c        real(8),pointer :: rv_p_owtkb(:)
-        real(8),pointer :: rv_p_owtkb(:,:,:)
+ckino change rv_p_owtkb allocatable        real(8),pointer :: rv_p_owtkb(:,:,:)
+        real(8),allocatable :: rv_p_owtkb(:,:,:)
 
-       real(8),pointer :: rv_p_oswtk(:) 
+ckino change rv_p_oswtk allocatable       real(8),pointer :: rv_p_oswtk(:) 
+       real(8),allocatable :: rv_p_oswtk(:) 
 
       double precision zval,ef0,def,esmear,efermi
 C ... Local parameters
@@ -135,9 +137,10 @@ C           Broadcast lwtkb,efermi,wtkb
       endif
       lswtk = -2
 cki      oswtk = 1
-      nullify(rv_p_oswtk)
+ckino change rv_p_oswtk allocatable      nullify(rv_p_oswtk)
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
+         if (allocated(rv_p_oswtk)) deallocate( rv_p_oswtk ) 
          allocate(rv_p_oswtk(abs(ndham*nsp*nkp)))
          if (ndham*nsp*nkp<0) rv_p_oswtk(:)=0.0d0
 

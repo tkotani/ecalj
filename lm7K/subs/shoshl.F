@@ -430,7 +430,8 @@ C ... Heap
 c      integer w(1)
 c      common /w/ w
 C ... External calls
-Ckino 2011.05 del external,       external defdr,defi,nghbor,nwordg,pvang1,pvang2,rlse,rxs
+ckino defdr,defi,rlse
+      external nghbor,nwordg,pvang1,pvang2,rxs
 
 C ... Setup
       range = 2.5d0
@@ -628,7 +629,7 @@ C ... Local parameters
       integer i,j,n,is,js,nsh1,nsh2,nmx2,k
       double precision rdtodg,d1,d2,dp,ddot,wk1(0:3),wk2(0:3)
 C ... External calls
-Ckino 2011.05 del external,       external dlmn,rxx
+      external dlmn,rxx
 
       nmx2 = nmxshl**2
       rdtodg = 45d0 / datan(1.d0)

@@ -950,6 +950,13 @@ C     The desired tolerances in q,e
 
         etol = sctrl%tol(3)
 
+ckino
+#if MPI|MPIK
+ckino   to confirm that nwit() follows the previous messages. 
+        flush(6)
+        call mpi_barrier(MPI_COMM_WORLD,ierr)
+#endif
+
         if (procid .eq. master) then
           rhosig = sham%eterms(19)
 

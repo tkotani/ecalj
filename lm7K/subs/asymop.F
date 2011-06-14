@@ -91,7 +91,7 @@ C Local parameters:
      .wk(9),sintbn,omcos,ddot
       parameter(tiny=1d-5)
 C External calls:
-Ckino 2011.05 del external,       external daxpy,dcopy,ddet33,dpzero,dnrm2,dscal,idamax,ddot
+      external daxpy,dcopy,ddet33,dpzero,dnrm2,dscal,idamax,ddot
 
       twopi = 8*datan(1d0)
 C --- Make grp from (nrot,vecg,li) ---

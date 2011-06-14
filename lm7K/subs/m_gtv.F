@@ -784,9 +784,10 @@ C ... Passed parameters
       logical,intent(out) :: Texist
 C ... Local parameters
       character(1024) :: nameb
-      integer :: i1,iend,spoint,i,ilev,iix,iex,itrm,
+ckino del spoint
+      integer :: i1,iend,i,ilev,iix,iex,itrm,
      .mxlev,ie,ii0,ii
-Ckino 2011.05 del external,       external :: spoint
+ckino      external :: spoint
       integer ::  n
       character(3) :: ig
       character(1) :: keye

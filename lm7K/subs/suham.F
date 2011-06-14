@@ -824,7 +824,7 @@ C--------------------------------------------------------------------
      &tiat(3,nbas,ng),am(3,3),b1,b2,b3,bas(3,nbas),
      &tr1,tr2,tr3,ep, dd1,dd2,dd3,t1,t2,t3
       integer  iprint
-Ckino 2011.05 del external,       external iprint
+      external iprint
       integer ires(3, nbas, ng)
 ckino delete integer(4) def.      integer(4):: ib1,ib2
       integer:: ib1,ib2

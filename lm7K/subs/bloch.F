@@ -165,7 +165,7 @@ C ... Local parameters
 C     parameter (ndss=49)
 C     double precision sc(ndss,ndss,2),swk(ndss,2,ndss)
 C ... External calls
-Ckino 2011.05 del external,       external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
+      external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
 C ... Heap
 C     integer w(1)
 C     common /w/ w

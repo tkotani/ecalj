@@ -26,7 +26,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer minmax,ir,itmax,iter
       double precision ax,bx,cx,fa,fb,fc,f,eps,tol
-Ckino 2011.05 del external,       external f
+      external f
 
       ir = 0
       call mnbrak(ax,bx,cx,fa,fb,fc,f,-9d9,9d9,minmax,itmax,iter,ir)
@@ -56,7 +56,7 @@ C     implicit none
 C Passed Parameters
       integer ir,iter,iprint
       double precision a,x,fx,f
-Ckino 2011.05 del external,       external f
+      external f
 
       fx = f(a,1,ir)
       iter = iter+1
@@ -94,7 +94,7 @@ C     implicit none
       double precision DUM,Q,R,U,FU,ULIM
       INTEGER MAXMIN,LOCMXN,IR,itmax,iter
       double precision XLOW,XHIGH,X1,X2
-Ckino 2011.05 del external,       external f
+      external f
       iter = 0
       bx = cx
 
@@ -347,7 +347,7 @@ C     implicit none
      .fu,etemp,cgold
       parameter (cgold=1.d0-0.61803398874990d0)
       integer iter,iprint,maxit
-Ckino 2011.05 del external,       external f
+      external f
 
 C ... Return with error if root not bracketed
       if ((fa-fb)*maxmin .lt. 0 .or. (fc-fb)*maxmin .lt. 0 .or.

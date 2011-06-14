@@ -47,7 +47,7 @@ C     implicit none
       double precision xx,enu,gamma,pgam
       double precision cold,srdold,alpold,cnew,srdnew,alpnew,pold,pnew
       double precision oalpha
-Ckino 2011.05 del external,       external oalpha,iclbas
+      external oalpha,iclbas
 
       do  10  jc = nclass, 1, -1
         jb = iclbas(jc,ipc)

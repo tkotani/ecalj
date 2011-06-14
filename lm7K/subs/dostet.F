@@ -26,7 +26,7 @@ C ... Local parameters
       integer isp,ib,i,itet,ichan,iq1,iq2,iq3,iq4,nspc,jsp,ksp
       double precision bin,eigen(4),v,wt,ebot,dmin1,eg0(4)
 C ... External calls
-Ckino 2011.05 del external,       external dcopy,dpzero,slinz
+      external dcopy,dpzero,slinz
 
       if (npts .le. 1 .or. npts .le. 2 .and. .not. lidos) call rx1(
      .'dostet: npts(=%i) too small for DOS : require npts>2',npts)

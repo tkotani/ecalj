@@ -58,7 +58,7 @@ C     data plat /1d0,0d0,0d0,-.5d0,0.8660254d0,0d0,0d0,0d0,1.142d0/
 C     data qlat /1d0,0.57735027d0,0d0,0d0,1.15470054d0,0d0,
 C    .            0d0,0d0,0.87565674d0/
 C ... External calls
-Ckino 2011.05 del external,       external dinv33,dmpy,rx1
+      external dinv33,dmpy,rx1
 
       if (mode .eq. 0) then
         wt = 1

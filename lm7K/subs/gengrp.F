@@ -50,7 +50,7 @@ C Local variables:
 C     integer info
 C     character*72 gens1(4)
 C ... External calls
-Ckino 2011.05 del external,       external chcase,gtcsym,query,rx,rxs,words
+      external chcase,gtcsym,query,rx,rxs,words
 C Data statements:
       data isym1/0,2*1,13*2,59*3,68*4,3*6,1*5,1*6,1*5,6*6,1*5,4*6,2*5,
      .4*6,2*5,27*6,36*7/

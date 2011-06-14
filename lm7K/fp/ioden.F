@@ -387,9 +387,10 @@ C ... Heap
       logical:: l_dummy_isanrg,isanrg
 
 C ... External calls
-Ckino 2011.05 del external,       external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
-Ckino 2011.05 del external,      .gvputf,icopy,ivset,mkils0,mkilst,nwordg,poppr,
-Ckino 2011.05 del external,      .pshpr,rhgcmp,rhomom,rx,upack,upack2
+ckino del upack,upack2
+      external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
+     .gvputf,icopy,ivset,mkils0,mkilst,nwordg,poppr,
+     .pshpr,rhgcmp,rhomom,rx
 
       real(8),allocatable:: zz(:)
 C ... Unpack and setup
