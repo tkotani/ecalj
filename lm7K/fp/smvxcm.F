@@ -160,7 +160,8 @@ C ... smrho_w = smrho + smoothed core from foca hankel heads
        swmin=0d0
        do i=1,k1*k2*k3*nsp
          sss=dreal(smrho_w(i))
-         if(sss<0d0) then
+c        if(sss<0d0) then
+         if(sss<minimumrho) then !25July 2011 for the case of He with alat =15Ang (even when all positive, we have NaN for vxc).
             nnn=nnn+1
             if(sss<swmin) then
               swmin=sss
@@ -168,7 +169,8 @@ C ... smrho_w = smrho + smoothed core from foca hankel heads
          endif
        enddo
        if(nnn>0) then
-         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
+c         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
+         write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
          srshift = minimumrho + abs(swmin) 
          smrho_w = smrho_w + srshift
          write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift

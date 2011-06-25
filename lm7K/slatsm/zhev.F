@@ -1164,23 +1164,22 @@ c      nev=nm
 c      deallocate(wk11,rwork) ! move to the line after calling zheev 
       deallocate(omat,scale,zz,hh)
 
-cccccccccccccccccccccccccccccccccccccccc
-c takao test for singlet O.
-c      print *,'vvv zhev: takao special test for O singlet'
-c      if(abs(e(3)-e(4))<0.001) then
-c      if(.false.) then !abs(e(3)-e(4))<0.03) then
-c         eee= e(2)
-c         e(2)= e(3)
-c         e(3)= e(4)
-c         e(4)= eee+1d0
-c         allocate(zzz(n))
-c         zzz   = z(:,2)
-c         z(:,2)= z(:,3)
-c         z(:,3)= z(:,4)
-c         z(:,4)= zzz
-c         deallocate(zzz)
-c      endif
-ccccccccccccccccccccccccccccccccccccccccc
+c$$$cccccccccccccccccccccccccccccccccccccccc
+c$$$c takao test for singlet O.
+c$$$      print *,'vvv zhev: takao special test for O singlet'
+c$$$      if(abs(e(3)-e(4))<0.01) then
+c$$$         eee= e(2)
+c$$$         e(2)= e(3)
+c$$$         e(3)= e(4)
+c$$$         e(4)= eee+1d0
+c$$$         allocate(zzz(n))
+c$$$         zzz   = z(:,2)
+c$$$         z(:,2)= z(:,3)
+c$$$         z(:,3)= z(:,4)
+c$$$         z(:,4)= zzz
+c$$$         deallocate(zzz)
+c$$$      endif
+c$$$ccccccccccccccccccccccccccccccccccccccccc
 
 
 c      do i=1,nev
