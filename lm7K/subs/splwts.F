@@ -41,6 +41,7 @@ C ... Passed parameters
 C ... Local parameters
       integer iqp,iband,isp,iprint,i1mach,stdo,nglob
       double precision e,s,d,wt,x,xx,dsdt,tdsdt
+      logical fractional
 C      double precision sp,sm,dsdt,tdsdt,dsdt1,dsdt2
 
 Changenglob      stdo = nglob('stdo')
@@ -50,6 +51,7 @@ Changenglob      stdo = nglob('stdo')
       entrpy = 0d0
       dosef = 0
       tdsdt = 0
+      fractional=.false.
       do  3  iqp = 1, nqp
         do  2  iband = 1, nband
           do  1  isp = 1, nsp
@@ -85,6 +87,9 @@ C              endif
             endif
             wt = abs(wgts(iqp)) * (1d0 - s) / nsp
             bndwts(iband,isp,iqp) = wt
+            if(0.1d0<wt.and.wt<0.9d0) then
+               fractional=.true.
+            endif
             dosef = dosef + d*abs(wgts(iqp))/w/nsp
             wtot = wtot + wt
             sumev = sumev + e * wt
@@ -99,9 +104,15 @@ C              endif
 
 C ... Print out band weights, if only 1 kp
       if (iprint() .gt. 30 .and. nqp .eq. 1) then
+        isplwts=1093
+        open(isplwts,file="BandWeight.dat")
         do  isp = 1, nsp
           call info2(30,0,0,' SPLWTS: band weights .. '//
      .    '%?;(n==2);Spin %i;;%N       eval      weight',nsp,isp)
+          if(fractional) then
+            write(isplwts,*)"! Fractional occupation (criterion 0.1<wgt<0.9)"
+            write(stdo,*)   "! Fractional occupation (criterion 0.1<wgt<0.9)"
+          endif
           ix=0
           do  iband = 1, nband
             if(bndwts(iband,isp,1)<1d-7) ix=ix+1
@@ -109,10 +120,12 @@ C ... Print out band weights, if only 1 kp
               write (stdo,"('     ... ')")
               exit
             endif
-            write (stdo,20) evl(iband,isp,1),bndwts(iband,isp,1)
-   20       format (4x,2f10.6)
+            write (stdo,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+            write (isplwts,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+   20       format (4x,i5,2f10.6)
           enddo
         enddo
+        close(isplwts)
       endif
 C ... Print out various k-point integrations
       if (iprint() .ge. 10) then

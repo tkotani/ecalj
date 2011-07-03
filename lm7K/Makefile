@@ -25,9 +25,9 @@
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
 #PLATFORM=fujitsufortran
-PLATFORM=fujitsufortran_mpik
+#PLATFORM=fujitsufortran_mpik
 
-#PLATFORM=gfortran
+PLATFORM=gfortran
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik

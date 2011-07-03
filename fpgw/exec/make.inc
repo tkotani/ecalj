@@ -119,8 +119,9 @@ tet5_g = .o
 #LIBMATH= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
 
 # ubuntu 9.10
-LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
+#LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
 
+LIBLOC= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
 
 
 
