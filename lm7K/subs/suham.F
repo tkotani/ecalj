@@ -216,7 +216,10 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       print *,' goto APW part pwmode=',pwmode,pwemin,pwemax
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
       allocate( napwk(nkt))
-      if(pwmode<10) call rx('gen_hamindex: takao assumes pwmode>=10')
+      if(pwmode<10) then
+        !'gen_hamindex: takao assumes pwmode>=10 so this may not work well '
+        return
+      endif
       pwgmax = dsqrt(pwemax)
       pwgmin = dsqrt(pwemin) !this will be removed.
       napwmx = 0
