@@ -60,11 +60,13 @@
 
 #LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
 
+### Centos5 Xeon5700 ifort11 (from Nagara) ###
+#MKL_LIBS=-L/opt/intel/mkl/lib/intel64  -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lpthread -limf -L/opt/intel/composerxe/lib/intel64 -liomp5
+#LIBLOC= $(MKL_LIBS) #/usr/lib64/libfftw3.so.3
 
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
-
 LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 
 
