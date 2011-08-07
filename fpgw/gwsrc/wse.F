@@ -106,13 +106,13 @@ c      return
 c      end
 c--------------------------------------------------------------------
 c------------------------------------------------------------------------
-      subroutine rsexx (nspin, itq, q, ntq,nq,
+      subroutine rsexx (nspin, itq, q, ntq,nq,ginv, 
      o                 vxco)
       implicit real*8 (a-h,o-z)
       dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
       real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
-      logical ::nocore
-      real(8)::  rydberg
+      logical ::nocore,lfind
+      real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
 
 c      if (nspin == 2) stop 'nspin=2 require some change!'
 c
@@ -144,10 +144,24 @@ c
 cccccccc
 c          write(6,"('ikp qqq q=',i5,3d12.4,3x,3d12.4)") ikp,qqq(1:3,ikp),q(1:3,iq)
 cccccccc
-          if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <1d-10) then
+
+c         if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <1d-10) then
+c            ikpx=ikp
+c            goto 100
+c          endif  
+!above block to find out ikpx is replaced (even when translational equivalent points)
+!          lfind=.false.
+          if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <tolq) then
+             lfind=.true.
+          else
+            call rangedq( matmul(ginv,q(1:3,iq)-qqq(:,ikp)), qx)
+            if(sum(abs(qx))< tolq) lfind=.true.
+          endif
+          if(lfind) then
             ikpx=ikp
             goto 100
-          endif
+          endif  
+c
         enddo
         stop ' rsexx: not find ikp'
  100    continue
