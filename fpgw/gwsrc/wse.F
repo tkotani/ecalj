@@ -150,7 +150,7 @@ c            ikpx=ikp
 c            goto 100
 c          endif  
 !above block to find out ikpx is replaced (even when translational equivalent points)
-!          lfind=.false.
+          lfind=.false.
           if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <tolq) then
              lfind=.true.
           else
