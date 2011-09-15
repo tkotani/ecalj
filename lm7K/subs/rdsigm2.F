@@ -572,7 +572,7 @@ C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
 
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
-            write(6,"(a,13f13.5)")'goto hamfbk3  input qp=', qp
+             write(6,"(a,13f13.5)")'goto hamfbk3 xx input qp=', qp
 c        napw_in=0 ! for test
 
             i_copy_size=size(slat%qlat)
@@ -583,7 +583,7 @@ c        napw_in=0 ! for test
      .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ifac , 
      .      gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) )
 
-            write(6,"(a,3f13.5)")'end of hamfbk3'
+            if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
 c
 c        i = 100*kcplx + 00
 c        if (lphase) i = i+40
@@ -1728,7 +1728,7 @@ c$$$          call rlse(osigm2)
 c$$$        endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
-            write(6,"(a,13f13.5)")' Goto hamfb3k  input qp=', qp
+            write(6,"(a,13f13.5)")' Goto hamfb3k  xxx input qp=', qp
             ikt = getikt(qp)
             napw_in= napwk(ikt)
 
@@ -1740,7 +1740,7 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
      .      ifac , gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
      .      ) )
 
-            write(6,"(a,3f13.5)")'end of hamfbk3'
+            if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
           enddo
           deallocate(sigm_zv)
           deallocate(wk_zv)

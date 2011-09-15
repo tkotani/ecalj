@@ -10,7 +10,7 @@ c
       integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
       integer:: nlat(3,npairmx,nbas,nbas),nd(3)
       integer,parameter:: noutmx=100
-      integer:: nlatout(3,noutmx)
+      integer:: nlatout(3,noutmx),debugmode
       real(8):: pos(3,nbas),plat(3,3), pi,qlat(3,3),q(3),pin(3),rmax2 !,nrmax(3)
       real(8):: qwgt(npairmx,nbas,nbas),eps=1d-8
       real(8):: posp(3),rxlat(3,3),xmx2(3),rxprod(3,3),dummy,rrr,rmax
@@ -41,8 +41,8 @@ c      print *, 'end of ellips xmx2=',xmx2
       npair=0
       do ib1=1,nbas
         do ib2=1,nbas
-          print *
-          print *,' ---- ib1 ib2=',ib1,ib2
+          if(debugmode()>0) print *
+          if(debugmode()>0) print *,' ---- ib1 ib2=',ib1,ib2
           posp = matmul( pos(:,ib1)-pos(:,ib2), qlat(:,:)) !posp is on plat-coodinate
           nnn=0
           do ik1=0,nk1-1
@@ -86,11 +86,11 @@ c          write(6,"(3i4,' nmax=',3i4,' nout=',i3)")nd(1:3),nmax(1:3),nout
           npair(ib1,ib2)= nnn
 
 c check write
-          write(6,"(a,2i4,2x,i6)") ' ib1 ib2 npair=',ib1,ib2,npair(ib1,ib2)
+          if(debugmode()>0) write(6,"(a,2i4,2x,i6)") ' ib1 ib2 npair=',ib1,ib2,npair(ib1,ib2)
           do ni = 1,npair(ib1,ib2)
             posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2))
             rrr = sqrt(sum(posp**2))
-            write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rrr,qwgt(ni,ib1,ib2)
+            if(debugmode()>0) write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rrr,qwgt(ni,ib1,ib2)
           enddo
 
         enddo

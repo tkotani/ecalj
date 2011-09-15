@@ -23,7 +23,7 @@ Co Outputs
 Co   gfbz  : For those qp in star iq, hq stored
 C ----------------------------------------------------------------------
       implicit none
-      integer:: nk1,nk2,nk3,k1,k2,k3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in
+      integer:: nk1,nk2,nk3,k1,k2,k3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in,debugmode
       real(8)::    hq(ndimh,ndimh),qin(3),qb(3,3),plat(3,3),qlat(3,3)
       complex(8):: gfbz(k1,k2,k3,ldima,ldimb)
       integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim
@@ -33,18 +33,18 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
      .(jj2*ifac(2)-1)*qb(k,2) +
      .(jj3*ifac(3)-1)*qb(k,3)
       call tcn('hamfb3k')
-      print *, 'hamfb3k: start...'
+      if(debugmode()>0) print *, 'hamfb3k: start...'
       iq1 = 0
       do  i3 = 1, nk3
         do  i2 = 1, nk2
           do  i1 = 1, nk1
             iq1 = iq1+1
-            print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
+            if(debugmode()>0) print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
             if (ipq(iq1) .ne. iq) cycle
             q1(1) = qk(1,i1,i2,i3)
             q1(2) = qk(2,i1,i2,i3)
             q1(3) = qk(3,i1,i2,i3)
-            print *,q1
+            if(debugmode()>0) print *,q1
 c        ig = igstar(iq1)
 c        write(6,"(a,i4)") 'symops',ig
 c        write(6,"(3f10.5)")symops(1,:,ig)
@@ -58,7 +58,7 @@ c       write(6,"(a,3f13.5)")
           enddo
         enddo
       enddo
-      print *, 'hamfb3k: end...'
+      if(debugmode()>0) print *, 'hamfb3k: end...'
       call tcx('hamfb3k')
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc

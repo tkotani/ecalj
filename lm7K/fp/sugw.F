@@ -256,7 +256,7 @@ c      common /w/ w
       integer,allocatable:: igv2(:,:)
 
 
-      logical:: l_dummy_isanrg,isanrg
+      logical:: l_dummy_isanrg,isanrg,oncewrite
 
 C --- Setup ---
       print *,'sugw:'
@@ -977,7 +977,7 @@ C   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
             if (iprint() .ge. 30) call awrit3(
      .      ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
-            print *,'vvvvv lpdiag=',lpdiag
+            if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
               if (nspc .eq. 2) then
                 call rx('diagonalization not ready for nspc=2')
@@ -1040,7 +1040,7 @@ C       call prmx('eval',evl,ndham,ndimh,1)
             endif
 
             if (mod(iq,10) .ne. 1) call poppr
-            print *,' lwvxc=',lwvxc
+            write(6,"(' sugw:lwvxc= ',l)")lwvxc
             if (lwvxc) then
               ifi = fopna('evec',-1,4)
               write(ifi) q, evec(1:ndimh,1:ndimh)

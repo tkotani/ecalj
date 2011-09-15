@@ -284,9 +284,9 @@ c find symops(3,3,ig),
 c      nlmto = ndimh-napw_in
       nlmto=ldim
       if(debugmode()>0) then
-        print *,' ttt: invgx =',invgx(igg),shtvg(:,igg)
-        print *,' ttt: ',ddd,ddd2
-        print *,' ttt: ntorb napwin',norbt,ndimh,napw_in
+        print *,' tttt: invgx =',invgx(igg),shtvg(:,igg)
+        print *,' tttt: ',ddd,ddd2
+        print *,' tttt: ntorb napwin',norbt,ndimh,napw_in,nlmto
       endif
 
 
@@ -382,9 +382,11 @@ c       evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
         if(debugmode()>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2
       endif
 c
-      deallocate(sigx)
       ierr=0
-      end
+      if(debugmode()>0) print *,' goto deallcate sigx'
+      deallocate(sigx)
+      if(debugmode()>0) print *,' end of rotsig'
+      end subroutine rotsig
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)

@@ -454,7 +454,7 @@ ctakao
       real(8):: epsnevec
       logical:: onlyonce=.true.
 
-      logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg,oncewrite
 
       integer:: getef, i_dummy_getef
 
@@ -1311,7 +1311,13 @@ C --- New sigma inerpolation mode. Simplified.
 c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
-      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
+
+
+
+c      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
+       if(iter==1.and.onlyonce) then
+!takao for test to go through gwsc...
+        
          onlyonce=.false.
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
@@ -1763,7 +1769,7 @@ c       close(3012)
 ccccccccccccccccccccccccccccc
               ikt=getikt(qp) ! index for qp
               if(napwk(ikt)==0) then
-                print *,' napw=0 skip napw part '
+                if(oncewrite(4)) print *,' napw=0 skip napw part '
                 goto 1019
               endif
 ccccccccccccccccccccccccccccc
@@ -1950,7 +1956,7 @@ ckino                    isize_hamm(3)=size(hamm)
 
 c        nsmidb = min(nsmidb,ismidb) !????
               if(sigmamode) deallocate(sene)
-              print *,' end of hambls mode=',i
+              if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
 
 ccccccccccccccccccccccccccccccccccc

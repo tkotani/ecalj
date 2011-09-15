@@ -958,6 +958,7 @@ C ... APW basis
      .'%N%3f10s digit:'//
      .'%N%6f0: PW basis fixed'//
      .'%N%6f1: PW basis q-dependent')
+      if(pwmode==10) pwmode=0 !takao added. corrected Sep2011
       nm='HAM_PWEMIN'; call gtv(trim(nm),tksw(prgn,nm),
      .pwemin, def_r8=0d0, nout=nout, note=
      .'Include APWs with energy E > PWEMIN (Ry)')

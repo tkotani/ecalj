@@ -97,7 +97,7 @@ ctakao
       real(8):: sigiir
       integer,optional,intent(in):: iprx
 
-      logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg,oncewrite
 c
 c      print *,'psigd',present(iout)
 c      print *,' iout=',iout
@@ -210,7 +210,7 @@ c
             do iii=1,3
               read(ifiese,*) sigiir,ispx
               sigii=sigiir
-              if(ndimh==i.and.present(iprx)) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
+              if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
               if(isp==ispx) goto 898
             enddo
             stop 'psigd: can not find ESEAVR for given isp'
