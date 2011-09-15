@@ -1,0 +1,92 @@
+=== ecalj package ===
+
+The first principle electronic structure calculations.
+Complied mainly by T.Kotani and H.Kino.
+
+(1)All electron full potential PMT method (LAPW+LMTO)
+   Related source codes are in ecalj/lm7K/ 
+(2)GW method, especially, 
+   Quasi particle self-consistent GW method (QSGW),
+   dielectric functions, spin fluctions.
+   Related source codes are in ecalj/fpgw/
+
+QSGW is still difficult to handle (only work with LMTO now).
+PMT method is still under developing.  
+
+====================================================
+Our home page is at http://pmt.sakura.ne.jp/wiki/,
+(not so much documents in English yet).
+Here is minimum instruction for installation and its tests.
+See the wiki page about its details.
+====================================================
+
+--- lm7K -------
+*Installation for lm7K
+Let us assume you use linux like ubuntu. 
+
+>sudo apt-get install gfortran      # GFORTRAN
+>sudo apt-get install mpich2        # MPI
+>sudo apt-get install libfftw3-3    # FFTW
+>sudo apt-get install libblas3gf    # BLAS
+>sudo apt-get install liblapack3gf  # LAPACK
+
+Check PLATFORM=gfortran at the head of ecalj/lm7K/Makefile.
+ecalj/lm7K/MAKEINC/Make.ing.gfortran is used for PLATFORM=gfortran.
+Check LIBLOC in Make.ing.gfortran when you use different math libraries.
+
+you may have to modify lm7K/MAKEINK/Make.inc.gfortran, compile options
+and so on (but usually, only modify math library LIBLOC).
+
+Parallel make as
+prompt>make -j4
+may speed it up for multicore machines. But in cases it stops because
+of dependency is not well-described. In such case, repeat it without -j4.
+
+
+*For ifort.
+You can set PLATFORM=ifort. Then ecalj/lm7K/MAKEINC/Make.inc.ifort is
+used --- you need to set math libraries in it.
+
+You can make both binaries with gfortran and with ifort at lm7K. 
+Then you have to do "make clean" at ecalj/lm7K, before you make
+binaries. (e.g You first make binaries with gfortan. Then move binaries to
+your another directories, then do make clean, and set PLATFORM=ifort,
+and so make for ifort.
+
+---
+*Test for lm7K
+You first have to make your bin directory at your_name/bin/.
+Then you do 
+>make install
+at ecalj/lm7K 
+This only copy several binanries to your /bin. No changed to systems.
+Then do 
+>make check
+at ecalj/lm7K. It may take five minutes or so. 
+If you see "All test passed" finally, your installation is OK.
+
+
+--------------------
+*Installation for fpgw/
+At fpgw/exec/ directory, you have to run 
+>make
+>make install
+>make install2
+. Before this, you have to set blas and lapack in fpge/exec/make.inc.
+--------------------
+*Installation test for fpgw/
+At fpgw/TESTInstallGW/, run
+>./testgw.py
+(it pauses once and you need to push return again).
+
+It makes temp_* directories under TESTinstallGW/.
+>./testgw.py --help
+shows help.
+(The tests are not maintained well now Aug2011. In a few cases it
+fails, even though fpgw works OK).
+
+
+---------------------------
+* Other points
+>make cleanall 
+This removes all *.o *.a and binaries except original source.

@@ -899,7 +899,7 @@ c-------------------------
 c     - takao Vxc is readin from VXCFP
       if(ixc==1) then
         allocate(  vxcfp(ntq,nq,nspin) )
-        call rsexx(nspin,itq,q,ntq,nq, vxcfp)
+        call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
 c     loop over spins
         do is = 1,nspinmx
           write (ifxc(is),*) '==================================='

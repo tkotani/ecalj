@@ -1312,12 +1312,8 @@ c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
 
-
-
 c      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
-       if(iter==1.and.onlyonce) then
-!takao for test to go through gwsc...
-        
+      if(iter==1.and.onlyonce) then
          onlyonce=.false.
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
