@@ -11,7 +11,7 @@ echo ##############
 ../TOOLS/FparserTools/f_calltree.py lmv7.F lmfav7.F lmv7util.F fp/*.F subs/*.F subs/*.F90 slatsm/*.F >callcaller.dat 2>callcaller.err
 #../TOOLS/FparserTools/f_calltree.py lmv7.F lmfav7.F lmv7util.F fp/*.F subs/*.F subs/*.F90 >callcaller.dat 2>callcaller.err
 #../TOOLS/f_calltree.py lmv7.F fp/*.F >callcaller.dat 2>callcaller.err
-egrep -e '(ERROR|Error)' callcaller.err
+egrep -e '^(ERROR|Error)' callcaller.err
 echo
 echo '------------------------------------------------------------------------------'
 echo '--- If no ERROR is shown above, it is succeeded. To check, tail callcaller.err.'
