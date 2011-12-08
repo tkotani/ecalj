@@ -67,11 +67,11 @@ cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
 
           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-         integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.8.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.8.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       complex(8),pointer :: zv_p_osmrho(:) =>NULL()
+ckino Dec.8.2011:         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
       real(8) ,allocatable :: rwgt_rv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -93,7 +93,7 @@ Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
 
-       zv_p_osmrho => spot%zv_p_osmrho 
+ckino Dec.8.2011:         zv_p_osmrho => spot%zv_p_osmrho 
 
 
       procid = mpipid(1)
@@ -369,15 +369,16 @@ C     end loop over sites
 C --- Overlap smooth hankels to get smooth interstitial density ---
 
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.8.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.8.2011:         iv_p_okv => slat%iv_p_okv 
 
 
       allocate(cv_zv(ng*nsp))
 
        call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
-     . , ng , ng , rv_p_ogv , cv_zv ) 
+ckino Dec.8.2011:       . , ng , ng , rv_p_ogv , cv_zv ) 
+     . , ng , ng , slat%rv_p_ogv , cv_zv ) 
 
 
 
@@ -390,7 +391,9 @@ c        call wkchk('qqq: aaa')
 c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
 ccccccccccccccc
 
-        call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
+ckino Dec.8.2011:          call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
+ckino Dec.8.2011:          call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
+        call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
      .  ) 
 
 
@@ -409,19 +412,23 @@ ccccccccccccccc
 
 
 C ... FFT to real-space mesh
-       call fftz3 ( zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+ckino Dec.8.2011:         call fftz3 ( zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+       call fftz3 ( spot%zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      . , 0 , 1 ) 
 
 C ... Add compensating uniform electron density to compensate background
-       call addbkgsm ( zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
+ckino Dec.8.2011:         call addbkgsm ( zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
+       call addbkgsm ( spot%zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
      . , - 1d0 ) 
 
 C ... integrate
-       call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+ckino Dec.8.2011:         call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+       call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
      . , sum1 , sum2 ) 
 
       if (nsp .eq. 2) then
-         call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+ckino Dec.8.2011:           call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+         call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
      .   , smom , sum2 ) 
 
         smom = 2*smom - sum1

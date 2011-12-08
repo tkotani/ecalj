@@ -268,13 +268,13 @@ ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)
 
             integer,pointer :: iv_p_oidtet(:)=>NULL()
 
-           type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
+ckino Dec.8.2011:             type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
 
-          complex(8),pointer :: zv_p_osmrho(:)=>NULL()
+ckino Dec.8.2011:            complex(8),pointer :: zv_p_osmrho(:)=>NULL()
 
-         complex(8),pointer :: zv_p_osmpot(:)=>NULL()
+ckino Dec.8.2011:           complex(8),pointer :: zv_p_osmpot(:)=>NULL()
 
-        real(8),pointer :: rv_p_owtkp(:)=>NULL()
+ckino Dec.8.2011:          real(8),pointer :: rv_p_owtkp(:)=>NULL()
 
        real(8),pointer :: rv_p_oqp(:)=>NULL()
 
@@ -365,7 +365,7 @@ C     for CLS
 C     for Mulliken
        integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
      . , nchmx , lmdim , lmxch 
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
@@ -406,11 +406,11 @@ C #endif
 
 C For self-energy
       integer nqsig
-       real(8),pointer :: rv_p_oqsig(:) =>NULL()
+ckino Dec.8.2011:         real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
 
        integer:: nbasp 
-       integer,pointer :: iv_p_oidxsh(:) =>NULL()
+ckino Dec.8.2011:         integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
 
 C     Data statements
@@ -424,7 +424,7 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
        integer:: nhmax , nknknk , npairmx , jx , nsp_dummy , ndimh_dummy 
-       real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
 
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
@@ -588,11 +588,11 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
       endif
 
 
-       sv_p_oorhat => spot%sv_p_oorhat 
+ckino Dec.8.2011:         sv_p_oorhat => spot%sv_p_oorhat 
 
-       zv_p_osmrho => spot%zv_p_osmrho 
+ckino Dec.8.2011:         zv_p_osmrho => spot%zv_p_osmrho 
 
-       zv_p_osmpot => spot%zv_p_osmpot 
+ckino Dec.8.2011:         zv_p_osmpot => spot%zv_p_osmpot 
 
 c       osoptc=spot%osoptc
 
@@ -686,7 +686,7 @@ C ... for BZ integration
 
        rv_p_oqp => sbz%rv_p_oqp 
 
-       rv_p_owtkp => sbz%rv_p_owtkp 
+ckino Dec.8.2011:         rv_p_owtkp => sbz%rv_p_owtkp 
 
 
       ltet = ntet .gt. 0
@@ -778,7 +778,9 @@ c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
-     .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
+ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
+ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
+     .         lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
      .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -853,7 +855,10 @@ ccccccccccccccccccccccccc
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
             call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
+ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
+ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot 
+ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot 
+     .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_p_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -1319,10 +1324,11 @@ c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
         nbasp=sctrl%nbasp
         nl=sctrl%nl
-        iv_p_oidxsh => sham%iv_p_oindxo 
+ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo 
         print *,'goto gen_hamindex nkp=',nkp
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
-     .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
+ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
+     .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 
 #if 1
 Ckino ib=atom index
@@ -1425,10 +1431,11 @@ c      deallocate(range)
 c
         allocate(npair(nbas,nbas),pos(3,nbas))
 
-         rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:           rv_p_opos => slat%rv_p_opos 
 
 
-         call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 ) 
+ckino Dec.8.2011:           call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 ) 
+         call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 1 ) 
 
         npairmx=nk1*nk2*nk3*2
         do
@@ -1459,7 +1466,8 @@ C --- GW driver ---
 c       osgw=spot%osgw
         nchan=spot%nlma
 C ... Modes 0..4
-               call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+               call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .         ) 
@@ -1628,7 +1636,7 @@ c              call defi(oigv2,3*napw)
 C   ... Make Hamiltonian and overlap matrices
 
             nqsig=sham%nqsig
-             rv_p_oqsig => sham%rv_p_oqsig 
+ckino Dec.8.2011:               rv_p_oqsig => sham%rv_p_oqsig 
 
 cki            if (oqsig .eq. 0) oqsig = 1
 
@@ -1907,7 +1915,8 @@ ccccc     if (mod(mode,10) .eq. 0) then
               jx = 0
               if (lso == 1) jx = 10
                   call hambl ( jx , nbas , ssite , sspec , slat , sham , isp , 
-     .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+ckino Dec.8.2011:       .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) ) 
 
@@ -1942,7 +1951,9 @@ C ... Interpolation of sene= \Sigm-Vxc at given q.
 ckino                    isize_hamm(3)=size(hamm)
                    isize_hamm(3)=size(hamm,dim=3)
                    call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-     .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
+ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
+ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
+     .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa 
      .             , ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ) 
 
@@ -2119,7 +2130,8 @@ C$$$#endif
                 if (ldim .ne. ndham) call
      .          rx('blsig needs separate dim for wtkp,evec')
                   call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
-     .            , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , rv_p_owtkb 
+ckino Dec.8.2011:       .            , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , rv_p_owtkb 
+     .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_p_owtkp , rv_p_owtkb 
      .            , ndimh , t_zv , ww_zv ) 
                 deallocate(ww_zv)
               endif
@@ -2299,10 +2311,11 @@ C   --- Mulliken analysis and partial DOS ---
                     doswt_rv(:)=0.0d0
 
 
-                     iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.8.2011:                       iv_p_oiprmb => sham%iv_p_oindxo 
 
 
-                     call mullmf ( nbas , ssite , sspec , iv_p_oiprmb , t_zv , ndimh 
+ckino Dec.8.2011:                       call mullmf ( nbas , ssite , sspec , iv_p_oiprmb , t_zv , ndimh 
+                     call mullmf ( nbas , ssite , sspec , sham%iv_p_oindxo , t_zv , ndimh 
      .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
      .               , chan_iv , lmdim , ndham , doswt_rv ) 
 
@@ -2405,9 +2418,11 @@ C       Even if no output rho, still call addrbl to make DOS when lmet=4
 C         dum=frc(3,1)
                 if(debug) print *,'goto addrbl nevl=',nevl
                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .          , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+ckino Dec.8.2011:       .          , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .          , qp , sbz%rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
      .          , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos 
-     .          , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+ckino Dec.8.2011:       .          , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .          , lekkl , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
 c    .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
      .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev 
                      !Nov25 2010 nev should contain calculated number of eigenvectors.
@@ -2920,7 +2935,8 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
      .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               else
 ckino       maybe a switch for these is lmet.ne.0 
@@ -2948,7 +2964,8 @@ ckino end
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
      .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               endif
 ckino
@@ -3088,12 +3105,14 @@ c          allocate(dos_rv(3*ndos))
           else
             if (mpsord .ge. 100) mpsord = mod(mpsord,100)
              if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
-     .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 
              if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
-     .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 
@@ -3147,17 +3166,21 @@ C --- Assemble output density ---
 C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
            call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
-     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_oorhat , hab_rv , sab_rv 
+ckino Dec.8.2011:       .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_oorhat , hab_rv , sab_rv 
+     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_p_oorhat , hab_rv , sab_rv 
      .     , qbyl_rv , hbyl_rv , lrout ) 
 
 
 
 
-         call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_p_osmrho 
+ckino Dec.8.2011:           call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_p_osmrho 
+         call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_p_osmrho 
      .   , 1 ) 
 
 
-          call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , sv_p_oorhat 
+ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , sv_p_oorhat 
+ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , spot%sv_p_oorhat 
+          call symrho ( ssite , sspec , slat , lfrce , spot%zv_p_osmrho , spot%sv_p_oorhat 
      .    , qbyl_rv , hbyl_rv , frc ) 
 
 
@@ -3212,7 +3235,9 @@ C --- Evaluate KS total energy, correction to Harris force ---
 
 C   ... Correction to harris force
            call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
-     .     , sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho , 
+ckino Dec.8.2011:       .     , sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho , 
+ckino Dec.8.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho , 
+     .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_p_osmrho , 
      .     srout_zv , fh_rv ) 
 
 
@@ -3226,7 +3251,8 @@ C   ... Evaluate KS total energy and output magnetic moment
 c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
                call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
      .         , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3 
-     .         , vconst , zv_p_osmpot , srout_zv , sev , sumtv ) 
+ckino Dec.8.2011:       .         , vconst , zv_p_osmpot , srout_zv , sev , sumtv ) 
+     .         , vconst , spot%zv_p_osmpot , srout_zv , sev , sumtv ) 
 
 
 
@@ -3253,7 +3279,8 @@ c          call pshpr(ipr-4)
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
+ckino Dec.8.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
+     .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_p_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -3310,8 +3337,10 @@ cc1          call dcopy(k1*k2*k3*4,w(osmrho),1,smrhobk,1)
 cc2          call dcopy(k1*k2*k3*2,srout_zv,1,smrhobk,1)
 ccccccccccccccccccccccc
            call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
-     .     ) , qval - qbg , elind , sv_p_orhat1 , sv_p_oorhat , k1 , k2 
-     .     , k3 , dmxp , srout_zv , zv_p_osmrho ) 
+ckino Dec.8.2011:       .     ) , qval - qbg , elind , sv_p_orhat1 , sv_p_oorhat , k1 , k2 
+     .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_p_oorhat , k1 , k2 
+ckino Dec.8.2011:       .     , k3 , dmxp , srout_zv , zv_p_osmrho ) 
+     .     , k3 , dmxp , srout_zv , spot%zv_p_osmrho ) 
 ccccccccccccccc
 
 

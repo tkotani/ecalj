@@ -112,11 +112,11 @@ C ... Local variables
           integer:: o 
           real(8),pointer :: rv_p_opos(:) =>NULL()
 
-         type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
+ckino Dec.8.2011:           type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-       complex(8),pointer :: zv_p_osmpot(:) =>NULL()
+ckino Dec.8.2011:         complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
 c      real(8) ,allocatable :: evl_rv(:)
       real(8) ,allocatable :: frc_rv(:)
@@ -151,11 +151,11 @@ C ... for relaxation
 cki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
 
-         real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.8.2011:           real(8),pointer :: rv_p_og(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:) =>NULL()
+ckino Dec.8.2011:          real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:) =>NULL()
+ckino Dec.8.2011:         integer,pointer :: iv_p_oistab(:) =>NULL()
 
       real(8) ,allocatable :: shr_rv(:)
 
@@ -556,9 +556,9 @@ C ... Quit if --quit=ham given
 
 C --- Setup for iterations in a self-consistency cycle ---
 C ... Unpack or allocate some permanent arrays
-      sv_p_oorhat => spot%sv_p_oorhat 
+ckino Dec.8.2011:        sv_p_oorhat => spot%sv_p_oorhat 
       zv_p_osmrho => spot%zv_p_osmrho 
-      zv_p_osmpot => spot%zv_p_osmpot 
+ckino Dec.8.2011:        zv_p_osmpot => spot%zv_p_osmpot 
 
       allocate(ftot_rv(3*nbas))
       ndham=sham%ndham
@@ -623,15 +623,17 @@ C     Check for LDA+U ... return nlibu > 0 if any U blocks
       if (nlibu > 0) then
 C       need group info to symmetrize site density matrix
         ng=slat%nsgrp
-        iv_p_oistab => slat%iv_p_oistab 
-        rv_p_og => slat%rv_p_osymgr 
+ckino Dec.8.2011:          iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.8.2011:          rv_p_og => slat%rv_p_osymgr 
         umix=smix%umix
         tolu=smix%tolu
         if (umix .eq. 0) umix = 1
 C       if (tolu .eq. 0d0) tolu = 1d-4
 C       initialize density matrix for LDA+U
           call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-     .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
+ckino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
+ckino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab , dmatu , vorbdmat ) 
+     .    , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
       endif
 C     end LDA+U  initialization section
 
@@ -683,7 +685,8 @@ C           3              read nothing (data already input)
 C     Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
          call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg 
-     .   , sv_p_oorhat ) 
+ckino Dec.8.2011:       .   , sv_p_oorhat ) 
+     .   , spot%sv_p_oorhat ) 
 
         nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
@@ -700,7 +703,8 @@ ctakao BZ_W is
 
 c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
           k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin , 
+ckino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin , 
+     .    , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , nit1 , lbin , 
      .    ifi ) 
 
 
@@ -745,7 +749,8 @@ C         If no force switch set, use default
             sctrl%lfrce=1
           endif
 
-            call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
+ckino Dec.8.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
+            call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
      .      , zv_p_osmrho ) 
 
 
@@ -863,7 +868,9 @@ C ... check convergence of dmatu and update it and vorbdmat if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
           call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
      .    , 0 , dmatu , dmato, vorbdmat, tolu , umix 
-     .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
+ckino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
+ckino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab ) 
+     .    , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab ) 
 
 
 
@@ -885,7 +892,8 @@ C --- Write smoothed charge density for contour plotting ---
 Ckino ioden is called everytime! Isn't the location strange?
       if (procid .eq. master) then
         if (cmdopt('--wden',6,0,strn)) then
-            call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
+ckino Dec.8.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
+            call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat 
      .      , zv_p_osmrho ) 
 
 
@@ -916,7 +924,8 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
             call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' // sstrn(i:j)
               k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin , 
+ckino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin , 
+     .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , lbin , 
      .        - ifi ) 
 
 
@@ -1054,11 +1063,11 @@ C       Restore lattice symmetry to machine precision
           if (cmdopt('--fixpos',8,0,strn)) then
 
             ng=slat%nsgrp
-             iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.8.2011:               iv_p_oistab => slat%iv_p_oistab 
 
-             rv_p_oag => slat%rv_p_oag 
+ckino Dec.8.2011:               rv_p_oag => slat%rv_p_oag 
 
-             rv_p_og => slat%rv_p_osymgr 
+ckino Dec.8.2011:               rv_p_og => slat%rv_p_osymgr 
 
 
 C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
@@ -1068,8 +1077,11 @@ C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
             endif
             if (strn(9:9) .ne. ':' .or.
      .      .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-                call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og 
-     .          , rv_p_oag , iv_p_oistab ) 
+ckino Dec.8.2011:                  call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og 
+                call fixpos ( rv_p_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
+ckino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab ) 
+ckino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab ) 
+     .          , slat%rv_p_oag , slat%iv_p_oistab ) 
 
 
 
@@ -1170,7 +1182,8 @@ C       If explicitly told to read from atom files after atom movmment
 C       Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
-              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
+ckino Dec.8.2011:                call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
+              call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
      .        , zv_p_osmrho ) 
 
 
@@ -1182,7 +1195,8 @@ C   ... Write restart file (to include new positions)
             call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' // sstrn(i:j)
               k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+ckino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+     .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
      .        , - ifi ) 
 
 
@@ -1365,7 +1379,8 @@ C ... Write restart file (to include new positions)
         call upacks('strn jobid',i,j)
         fileid = 'lmfp:  ' // sstrn(i:j)
           k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-     .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+ckino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+     .    , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
      .    , - ifi ) 
 
 

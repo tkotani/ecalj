@@ -34,12 +34,12 @@ C Local parameters
         integer:: nkap0 , n0 , ibas , k 
         real(8),pointer :: rv_p_og(:)
 
-       real(8),pointer :: rv_p_oag(:)
+ckino Dec.8.2011:         real(8),pointer :: rv_p_oag(:)
 
 c      parameter (nkap0=3,n0=10)
        integer:: l , ndim , ipr , nglob , nbas , ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb 
-       real(8),pointer :: rv_p_opos(:)
+ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:)
 
 c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 c      logical lprmib
@@ -60,7 +60,7 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       integer:: i_copy_size,i_spacks,i_spackv
 C
 
-       rv_p_oag => slat%rv_p_oag 
+ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
 
        rv_p_og => slat%rv_p_osymgr 
 
@@ -69,7 +69,7 @@ C
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
 
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
@@ -138,7 +138,8 @@ C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
        call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
 
-       call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
+ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
+       call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
 
 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
@@ -148,7 +149,8 @@ C ... symmetry operation
 
       enddo
 c ... get space group information
-       call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
+ckino Dec.8.2011:         call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
+       call mptauof ( symops , ngrp , plat , nbas , slat%rv_p_opos , iclasst 
      . , miat , tiat , invgx , shtvg ) 
 
 c ... get rotation matrix dlmm
@@ -368,9 +370,9 @@ C ... Needed for iostr
       integer ,allocatable :: igv2_iv(:)
 
           integer:: obas , oo , opp , oeula , opti , obs , omagf 
-          integer,pointer :: iv_p_oipc(:) =>NULL()
+ckino Dec.8.2011:            integer,pointer :: iv_p_oipc(:) =>NULL()
 
-         integer,pointer :: iv_p_oips(:) =>NULL()
+ckino Dec.8.2011:           integer,pointer :: iv_p_oips(:) =>NULL()
 
         integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
@@ -388,9 +390,9 @@ c      integer :: sigswitch
 
 C --- Setup ---
 
-       iv_p_oips => sarray%iv_p_oips 
+ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips 
 
-       iv_p_oipc => sarray%iv_p_oipc 
+ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc 
 
 
 
@@ -455,7 +457,8 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
+ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
+           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
      .     , iv_p_offh , iv_p_oidxsh , ldham ) 
 
 

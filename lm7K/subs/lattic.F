@@ -40,7 +40,7 @@ C ... Passed parameters
 
 C ... Local parameters
          integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas 
-         real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.8.2011:           real(8),pointer :: rv_p_opos(:) =>NULL()
 
         real(8),pointer :: rv_p_odlv(:) =>NULL()
 
@@ -123,18 +123,20 @@ C ... Apply specified linear transformation of lattice and basis vectors
       ldist=slat%ldist
       i_copy_size=size(slat%dist)
       call dcopy(i_copy_size,slat%dist,1,dist,1)
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
 
 
 c      print *,'xxxxxxx2'
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
-         call rdistn ( rv_p_opos , rv_p_opos , nbaspp , gx , gy , gz , 
+ckino Dec.8.2011:           call rdistn ( rv_p_opos , rv_p_opos , nbaspp , gx , gy , gz , 
+         call rdistn ( slat%rv_p_opos , slat%rv_p_opos , nbaspp , gx , gy , gz , 
      .   gt ) 
 
       elseif (ldist .ne. 0) then
-         call lattdf ( ldist , dist , plat0 , nbaspp , rv_p_opos , 0 , 
+ckino Dec.8.2011:           call lattdf ( ldist , dist , plat0 , nbaspp , rv_p_opos , 0 , 
+         call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_p_opos , 0 , 
      .   0d0 ) 
 
 c        if (nbaspp .gt. nbas) then
@@ -212,7 +214,8 @@ cki      call defps2(odlv,oqlv)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbaspp
          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-     .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+ckino Dec.8.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
 
       enddo
 

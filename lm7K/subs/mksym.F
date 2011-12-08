@@ -84,7 +84,7 @@ C Local variables
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
                  integer:: oiwk , aginv 
-                 real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.8.2011:                   real(8),pointer :: rv_p_opos(:) =>NULL()
 
                 integer,pointer :: iv_p_oipcp(:) =>NULL()
 
@@ -98,7 +98,7 @@ C Local variables
 
            integer,pointer :: iv_p_onrc(:) =>NULL()
 
-          integer,pointer :: iv_p_oips(:) =>NULL()
+ckino Dec.8.2011:            integer,pointer :: iv_p_oips(:) =>NULL()
 
          integer,pointer :: iv_p_oistab(:) =>NULL()
 
@@ -153,9 +153,9 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       allocate(nrspc_iv(nbas))
 
 
-       rv_p_opos => sarray%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => sarray%rv_p_opos 
 
-       iv_p_oips => sarray%iv_p_oips 
+ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips 
 
 
 C     call defi(oips,nbas)
@@ -212,10 +212,12 @@ C     call defi (oistb2,(ngmx+1)*nbas)
 
       allocate(pos2_rv(3*ngmx*nbas))
 
-       call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
+ckino Dec.8.2011:         call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
+       call icopy ( nbas , sarray%iv_p_oips , 1 , ips2_iv , 1 ) 
 
 
-       call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
+ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
+       call dcopy ( 3 * nbas , sarray%rv_p_opos , 1 , pos2_rv , 1 ) 
 
 
          call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
@@ -251,7 +253,8 @@ C     call defi (oistb2,(ngmx+1)*nbas)
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+ckino Dec.8.2011:       .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+     .     , i_copy_size , i_spackv + 1 - 1 , sarray%rv_p_opos ) 
 
         enddo
 
@@ -293,11 +296,13 @@ C --- Split species into classes ---
        allocate(iv_p_onrc(abs(nspec)))
        if (nspec<0) iv_p_onrc(:)=0
 
-        call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
+ckino Dec.8.2011:          call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
+        call icopy ( nsite , sarray%iv_p_oips , 1 , iv_p_oipc , 1 ) 
 
 
 
-           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
+ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
+           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
      .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
      .     iv_p_oics , iv_p_onrc ) 
 
@@ -364,7 +369,8 @@ C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 C      call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-           call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
+ckino Dec.8.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
+           call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , rv_p_osymgr 
      .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 
 

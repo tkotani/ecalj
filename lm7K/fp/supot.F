@@ -31,7 +31,7 @@ C ... Passed parameters
 C ... Local parameters
                    integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
      .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint 
-                   real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.8.2011:                     real(8),pointer :: rv_p_opos(:) =>NULL()
 
                   real(8),pointer :: rv_p_og(:) =>NULL()
 
@@ -39,11 +39,11 @@ C ... Local parameters
 
                 real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-               real(8),pointer :: rv_p_odlv(:) =>NULL()
+ckino Dec.8.2011:                 real(8),pointer :: rv_p_odlv(:) =>NULL()
 
               complex(8),pointer :: zv_p_obgv(:) =>NULL()
 
-             real(8),pointer :: rv_p_oag(:) =>NULL()
+ckino Dec.8.2011:               real(8),pointer :: rv_p_oag(:) =>NULL()
 
             type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
@@ -55,7 +55,7 @@ C ... Local parameters
 
         integer,pointer :: iv_p_oips0(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:) =>NULL()
+ckino Dec.8.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(9),gmax,xx
@@ -72,16 +72,16 @@ C ... Heap
 
       alat=slat%alat
       vol=slat%vol
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
 
 
 
       awald=slat%awald
       nkd=slat%nkd
       nkq=slat%nkq
-       rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.8.2011:         rv_p_odlv => slat%rv_p_odlv 
 
-       rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.8.2011:         rv_p_oqlv => slat%rv_p_oqlv 
 
 
 
@@ -92,8 +92,11 @@ C --- Monopole Madelung matrix ---
          allocate(rv_p_omad(nbaspp**2))
          rv_p_omad(:)=0.0d0
 
-            call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
-     .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+ckino Dec.8.2011:              call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
+ckino Dec.8.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , rv_p_odlv 
+            call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_p_odlv 
+ckino Dec.8.2011:       .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+     .      , nkd , slat%rv_p_oqlv , nkq , rv_p_omad ) 
 
 
 
@@ -181,10 +184,11 @@ C   ... Setup for symmetrization
         ngrp=slat%nsgrp
          rv_p_og => slat%rv_p_osymgr 
 
-         rv_p_oag => slat%rv_p_oag 
+ckino Dec.8.2011:           rv_p_oag => slat%rv_p_oag 
 
 
-             call sgvsym ( ngrp , rv_p_og , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
+ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
+             call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
      .       , zv_p_obgv ) 
 
 
