@@ -42,9 +42,9 @@ C ... Local parameters
          integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas 
 ckino Dec.8.2011:           real(8),pointer :: rv_p_opos(:) =>NULL()
 
-        real(8),pointer :: rv_p_odlv(:) =>NULL()
+ckino Dec.8.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:) =>NULL()
+ckino Dec.8.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
        real(8),allocatable:: rv_a_tmp(:)
 
       integer nbaspp,npadl,npadr
@@ -150,16 +150,22 @@ c        endif
         dist(3,3) = 1
       endif
 
-       allocate(rv_p_odlv(abs(3*nkdmx)))
-       if (3*nkdmx<0) rv_p_odlv(:)=0.0d0
+ckino Dec.8.2011:         allocate(rv_p_odlv(abs(3*nkdmx)))
+       allocate(slat%rv_p_odlv(abs(3*nkdmx)))
+ckino Dec.8.2011:         if (3*nkdmx<0) rv_p_odlv(:)=0.0d0
+       if (3*nkdmx<0) slat%rv_p_odlv(:)=0.0d0
 
-       allocate(rv_p_oqlv(abs(3*nkqmx)))
-       if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
+ckino Dec.8.2011:         allocate(rv_p_oqlv(abs(3*nkqmx)))
+       allocate(slat%rv_p_oqlv(abs(3*nkqmx)))
+ckino Dec.8.2011:         if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
+       if (3*nkqmx<0) slat%rv_p_oqlv(:)=0.0d0
 
       lmxst = 6
         call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
-     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_p_odlv 
-     .  , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+ckino Dec.8.2011:       .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_p_odlv 
+     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_p_odlv 
+ckino Dec.8.2011:       .  , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+     .  , nkd , slat%rv_p_oqlv , nkq , nkdmx , nkqmx ) 
 
 
 
@@ -187,24 +193,32 @@ c       call dcopy(i_copy_size,platl,1,slat%platl,1)
 c       i_copy_size=size(slat%platr)
 c       call dcopy(i_copy_size,platr,1,slat%platr,1)
 
-       i_data_size=size(rv_p_oqlv); allocate(rv_a_tmp(i_data_size))
-       rv_a_tmp=rv_p_oqlv; deallocate(rv_p_oqlv)
-       i_data_size=min(i_data_size,3*nkq); allocate(rv_p_oqlv(3*nkq))
-       rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+ckino Dec.8.2011:         i_data_size=size(rv_p_oqlv); allocate(rv_a_tmp(i_data_size))
+       i_data_size=size(slat%rv_p_oqlv); allocate(rv_a_tmp(i_data_size))
+ckino Dec.8.2011:         rv_a_tmp=rv_p_oqlv; deallocate(rv_p_oqlv)
+       rv_a_tmp=slat%rv_p_oqlv; deallocate(slat%rv_p_oqlv)
+ckino Dec.8.2011:         i_data_size=min(i_data_size,3*nkq); allocate(rv_p_oqlv(3*nkq))
+       i_data_size=min(i_data_size,3*nkq); allocate(slat%rv_p_oqlv(3*nkq))
+ckino Dec.8.2011:         rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+       slat%rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
 
 cki      call defps2(odlv,oqlv)
-       i_data_size=size(rv_p_odlv); allocate(rv_a_tmp(i_data_size))
-       rv_a_tmp=rv_p_odlv; deallocate(rv_p_odlv)
-       i_data_size=min(i_data_size,3*nkd); allocate(rv_p_odlv(3*nkd))
-       rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+ckino Dec.8.2011:         i_data_size=size(rv_p_odlv); allocate(rv_a_tmp(i_data_size))
+       i_data_size=size(slat%rv_p_odlv); allocate(rv_a_tmp(i_data_size))
+ckino Dec.8.2011:         rv_a_tmp=rv_p_odlv; deallocate(rv_p_odlv)
+       rv_a_tmp=slat%rv_p_odlv; deallocate(slat%rv_p_odlv)
+ckino Dec.8.2011:         i_data_size=min(i_data_size,3*nkd); allocate(rv_p_odlv(3*nkd))
+       i_data_size=min(i_data_size,3*nkd); allocate(slat%rv_p_odlv(3*nkd))
+ckino Dec.8.2011:         rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+       slat%rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
 
 
       slat%awald=awald
       slat%nkd=nkd
       slat%nkq=nkq
-       slat%rv_p_odlv => rv_p_odlv 
+ckino Dec.8.2011:         slat%rv_p_odlv => rv_p_odlv 
 
-       slat%rv_p_oqlv => rv_p_oqlv 
+ckino Dec.8.2011:         slat%rv_p_oqlv => rv_p_oqlv 
 
 
 

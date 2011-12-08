@@ -145,15 +145,15 @@ C ... Local parameters
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
            integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw 
-           real(8),pointer :: rv_p_orhoca(:) =>NULL()
+ckino Dec.8.2011            real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov1(:) =>NULL()
+ckino Dec.8.2011           real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-         real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.8.2011          real(8),pointer :: rv_p_ov0(:) =>NULL()
 
         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-       real(8),pointer :: rv_p_oves(:) =>NULL()
+ckino Dec.8.2011        real(8),pointer :: rv_p_oves(:) =>NULL()
 
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
@@ -900,8 +900,10 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
-           allocate(rv_p_ov0(abs(nr*nsp)))
-           if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+ckino Dec.8.2011            allocate(rv_p_ov0(abs(nr*nsp)))
+           allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
+ckino Dec.8.2011            if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+           if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
 
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
@@ -916,8 +918,10 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
              allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
              if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
-             allocate(rv_p_ov1(abs(nr*nsp)))
-             if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+ckino Dec.8.2011              allocate(rv_p_ov1(abs(nr*nsp)))
+             allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
+ckino Dec.8.2011              if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+             if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
 
 
             if (procid .eq. master) then
@@ -940,17 +944,21 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
      .         nsp , lbin , jfi ) 
 
               if (.not. lbin) read(jfi,*)
-               call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+ckino Dec.8.2011                call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+               call dpdbyl ( ssite(ib)%rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (.not. lbin) read(jfi,*)
-               call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+ckino Dec.8.2011                call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+               call dpdbyl ( ssite(ib)%rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (nsp0 .lt. nsp) then
-                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
+ckino Dec.8.2011                  call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
+                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov0 , 1 ) 
 
-                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
+ckino Dec.8.2011                  call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
+                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov1 , 1 ) 
 
               endif
 C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
@@ -969,7 +977,8 @@ C           endif
             if (mode .eq. -2) then
                if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
 
-               if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
+ckino Dec.8.2011                if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
+               if (associated(ssite(ib)%rv_p_ov0)) deallocate(ssite(ib)%rv_p_ov0)
 
 
             else
@@ -983,10 +992,12 @@ cki bug fix ,size=nr*nsp              call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr
                call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(3)' ) 
 
-               call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
+ckino Dec.8.2011                call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
+               call mpibc1 ( ssite(ib)%rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
      .         ) 
 
-               call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
+ckino Dec.8.2011                call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
+               call mpibc1 ( ssite(ib)%rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
      .         ) 
 
 #if KINODEBUG & (MPI|MPIK)
@@ -1009,13 +1020,14 @@ Ckino aiomom is logical function,               call aiomom(spid0,pnu,qnu(1,1,1+
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
 
-                 rv_p_oves => spot%rv_p_oves 
+ckino Dec.8.2011                  rv_p_oves => spot%rv_p_oves 
 
 
-                 call dvset ( rv_p_oves , ic , ic , vrmax ) 
+ckino Dec.8.2011                  call dvset ( rv_p_oves , ic , ic , vrmax ) 
+                 call dvset ( spot%rv_p_oves , ic , ic , vrmax ) 
 
 
-                 spot%rv_p_oves => rv_p_oves 
+ckino Dec.8.2011                  spot%rv_p_oves => rv_p_oves 
 
 
               endif
@@ -1041,9 +1053,9 @@ C     ... store data in strucs
           sspec(is)%qc=qc
 
 
-           ssite(ib)%rv_p_ov0 => rv_p_ov0 
+ckino Dec.8.2011            ssite(ib)%rv_p_ov0 => rv_p_ov0 
 
-           ssite(ib)%rv_p_ov1 => rv_p_ov1 
+ckino Dec.8.2011            ssite(ib)%rv_p_ov1 => rv_p_ov1 
 
 
    20     continue
@@ -1103,35 +1115,43 @@ C   --- Read data on free-atom core states and fit to fa density ---
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
-             allocate(rv_p_orhoca(abs(nr*nsp)))
-             if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
+ckino Dec.8.2011              allocate(rv_p_orhoca(abs(nr*nsp)))
+             allocate(sspec(is)%rv_p_orhoc(abs(nr*nsp)))
+ckino Dec.8.2011              if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
+             if (nr*nsp<0) sspec(is)%rv_p_orhoc(:)=0.0d0
 
             if (procid .eq. master) then
               if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
               if (lbin) then
-                 call dpdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+ckino Dec.8.2011                  call dpdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+                 call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi ) 
 
               else
-                 call dfdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+ckino Dec.8.2011                  call dfdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+                 call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi ) 
 
               endif
 C           spin-split core density
               if (nsp .gt. nsp0) then
                 i = nr
-                 call dscal ( i , 0.5d0 , rv_p_orhoca , 1 ) 
+ckino Dec.8.2011                  call dscal ( i , 0.5d0 , rv_p_orhoca , 1 ) 
+                 call dscal ( i , 0.5d0 , sspec(is)%rv_p_orhoc , 1 ) 
 
-                 call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0 
+ckino Dec.8.2011                  call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0 
+                 call dpscop ( sspec(is)%rv_p_orhoc , sspec(is)%rv_p_orhoc , i , 1 , 1 + i , 1d0 
      .           ) 
 
               endif
             endif
             if (mode .eq. 1) then
-               call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
+ckino Dec.8.2011                call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
+               call mpibc1 ( sspec(is)%rv_p_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
      .         ) 
 
             else
-               if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
+ckino Dec.8.2011                if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
+               if (associated(sspec(is)%rv_p_orhoc)) deallocate(sspec(is)%rv_p_orhoc)
 
 
               do i_spacks=is,is
@@ -1175,7 +1195,8 @@ C           spin-split core density
 C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
 cki            orhoca = 0
-            nullify(rv_p_orhoca)
+ckino Dec.8.2011             nullify(rv_p_orhoca)
+            nullify(sspec(is)%rv_p_orhoc)
             rsmfa = 0
             nxi = 0
             call dpzero(exi,n0)
@@ -1187,7 +1208,8 @@ C         Pack species data
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
-           sspec(is)%rv_p_orhoc => rv_p_orhoca 
+ckino Dec.8.2011            sspec(is)%rv_p_orhoc => rv_p_orhoca 
+           sspec(is)%rv_p_orhoc => sspec(is)%rv_p_orhoc 
 
 
 
@@ -1214,12 +1236,14 @@ c   ... Copy or rescale cores, in case foca was switched on or off
 
             lfoc=sspec(is)%lfoca
             qc=sspec(is)%qc
-             rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.8.2011              rv_p_orhoca => sspec(is)%rv_p_orhoc 
+             sspec(is)%rv_p_orhoc => sspec(is)%rv_p_orhoc 
 
 
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
-                call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+ckino Dec.8.2011                 call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+                call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .          * nsp , 1d0 ) 
 
 
@@ -1431,9 +1455,9 @@ C   --- Write information for local densities ---
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.8.2011            rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-           rv_p_ov1 => ssite(ib)%rv_p_ov1 
+ckino Dec.8.2011            rv_p_ov1 => ssite(ib)%rv_p_ov1 
 
 
           if (lmxa .eq. -1) goto 120
@@ -1495,11 +1519,13 @@ C     ... Write arrays for local density and potential
      .       , lbin , - jfi ) 
 
             if (.not. lbin) write(jfi,'('' v0'')')
-             call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+ckino Dec.8.2011              call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+             call dpdbyl ( ssite(ib)%rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
             if (.not. lbin) write(jfi,'('' v1'')')
-             call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+ckino Dec.8.2011              call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+             call dpdbyl ( ssite(ib)%rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
           else
@@ -1516,10 +1542,11 @@ Ckino aiomom is logical function,               call aiomom(spid,pnu,qnu(1,1,1+(
               l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
-               rv_p_oves => spot%rv_p_oves 
+ckino Dec.8.2011                rv_p_oves => spot%rv_p_oves 
 
 
-               vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
+ckino Dec.8.2011                vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
+               vrmax ( 1 ) = dval ( spot%rv_p_oves , ic ) 
 
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
@@ -1556,7 +1583,8 @@ C   --- Write data on free-atom core states and fit to fa density ---
           cof=sspec(is)%ctail
           eh=sspec(is)%etail
           stc=sspec(is)%stc
-           rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.8.2011            rv_p_orhoca => sspec(is)%rv_p_orhoc 
+           sspec(is)%rv_p_orhoc => sspec(is)%rv_p_orhoc 
 
 
 
@@ -1587,12 +1615,14 @@ C   --- Write data on free-atom core states and fit to fa density ---
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
-               call dpdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+ckino Dec.8.2011                call dpdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+               call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi ) 
 
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
-               call dfdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+ckino Dec.8.2011                call dfdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+               call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi ) 
 
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
      .        rsmfa,nxi
