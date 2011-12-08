@@ -106,13 +106,14 @@ ckino Dec.8.2011:                             real(8),pointer :: rv_p_opos(:) =>
 
 ckino Dec.8.2011:                            integer,pointer :: iv_p_oipc(:) =>NULL()
 
-                         real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.8.2011                         real(8),pointer :: rv_p_og(:) =>NULL()
+                         real(8),allocatable :: rv_a_og(:) 
 
 ckino Dec.8.2011:                          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
 ckino Dec.8.2011:                         real(8),pointer :: rv_p_oag(:) =>NULL()
 
-                      real(8),pointer :: rv_p_ormax(:) =>NULL()
+ckino Dec.8.2011                      real(8),pointer :: rv_p_ormax(:) =>NULL()
 
                      integer,pointer :: iv_p_owk(:) =>NULL()
 
@@ -204,7 +205,7 @@ c       npadl=sarray%npadl
 c       npadr=sarray%npadr
       nclasp=sarray%nclasp
 c       opgfsl=sarray%opgfsl
-       rv_p_ormax => sarray%rv_p_ormax 
+ckino Dec.8.2011       rv_p_ormax => sarray%rv_p_ormax 
 
 
 
@@ -438,13 +439,16 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
           do i=1,nclspp
             rmax(i) =sspec(ics(i))%rmt
           enddo
-           allocate(rv_p_ormax(abs(nclspp)))
-           if (nclspp<0) rv_p_ormax(:)=0.0d0
+ckino Dec.8.2011           allocate(rv_p_ormax(abs(nclspp)))
+           allocate(sarray%rv_p_ormax(abs(nclspp)))
+ckino Dec.8.2011           if (nclspp<0) rv_p_ormax(:)=0.0d0
+           if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
 
-           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
+ckino Dec.8.2011           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
+           call dcopy ( nclspp , rmax , 1 , sarray%rv_p_ormax , 1 ) 
 
 
-           sarray%rv_p_ormax => rv_p_ormax 
+ckino Dec.8.2011           sarray%rv_p_ormax => rv_p_ormax 
 
           ifx=1
         endif
@@ -452,7 +456,8 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
 c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
-           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
+ckino Dec.8.2011           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
+           call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rmax , 1 ) 
 
         endif
 
@@ -519,13 +524,16 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
           enddo
 
 
-           allocate(rv_p_og(abs(9*ngmx)))
-           if (9*ngmx<0) rv_p_og(:)=0.0d0
+ckino Dec.8.2011           allocate(rv_p_og(abs(9*ngmx)))
+ckino Dec.8.2011           if (9*ngmx<0) rv_p_og(:)=0.0d0
+           allocate(rv_a_og(abs(9*ngmx)))
+           if (9*ngmx<0) rv_a_og(:)=0.0d0
 
-           call symlat ( plat , ngrp , rv_p_og , j ) 
+ckino Dec.8.2011           call symlat ( plat , ngrp , rv_p_og , j ) 
+           call symlat ( plat , ngrp , rv_a_og , j ) 
 
 ckino Dec.8.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
-             j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , sarray%iv_p_oips 
+             j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips 
 ckino Dec.8.2011:       .       , rv_p_opos , ips2_iv , pos2_rv ) 
      .       , sarray%rv_p_opos , ips2_iv , pos2_rv ) 
 
