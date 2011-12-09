@@ -133,10 +133,10 @@ c#endif
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
      .    , nlmha , nkaph , mode1 , nlmto 
-      integer,pointer :: iv_p_ojcg(:) =>NULL()
-      integer,pointer :: iv_p_oidxcg(:) =>NULL()
-      real(8),pointer :: rv_p_ocy(:) =>NULL()
-      real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.8.2011:        integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.8.2011:        integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.8.2011:        real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.8.2011:        real(8),pointer :: rv_p_ocg(:) =>NULL()
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas
       logical:: debug=.false.
@@ -170,13 +170,13 @@ Changenglob      nkaph = nglob('nkaph')
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.8.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.8.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.8.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.8.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
@@ -248,8 +248,12 @@ c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
 Ckino bstrux makes C_kl(=b).
-            call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-     .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
+            call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.8.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.8.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
             if(debug) print *,'end of bstrux'
 

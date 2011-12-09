@@ -27,12 +27,12 @@
 #PLATFORM=fujitsufortran
 #PLATFORM=fujitsufortran_mpik
 
-PLATFORM=gfortran
+#PLATFORM=gfortran
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
 
-#PLATFORM=ifort
+PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 

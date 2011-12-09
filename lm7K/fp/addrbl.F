@@ -129,7 +129,7 @@ C ... Passed parameters
 C ... Local parameters
        integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig 
-       integer,pointer :: iv_p_oidxsh(:) =>NULL()
+ckino Dec.9.2011:         integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -164,7 +164,7 @@ CSFCPP#if ! (F90 | AUTO_ARRAY)
 CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 CSFCPP#endif
 
-       iv_p_oidxsh => sham%iv_p_oindxo 
+ckino Dec.9.2011:         iv_p_oidxsh => sham%iv_p_oindxo 
 
 
 C     Setup for PW part of basis
@@ -244,7 +244,8 @@ C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
            call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh , 
-     .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec , 
+ckino Dec.9.2011:       .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec , 
+     .     nlmto , sham%iv_p_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f ) 
 
         endif
@@ -258,7 +259,8 @@ C        enddo
 
           vol=slat%vol
 
-           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh 
+ckino Dec.9.2011:             call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh 
+           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_p_oindxo 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f ) 
 
@@ -274,7 +276,8 @@ C     print *, '!!'; call dpzero(f,9)
 C ... Add to smooth density
       if (lrout .gt. 0) then
          call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-     .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+ckino Dec.9.2011:       .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+     .   iq , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f ) 
 
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
@@ -287,7 +290,8 @@ C      enddo
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
               call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
-     .        ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+ckino Dec.9.2011:       .        ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+     .        ndham , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
 

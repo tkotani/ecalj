@@ -117,13 +117,13 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-          real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.8.2011:            real(8),pointer :: rv_p_opos(:) =>NULL()
 
-         real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.8.2011:           real(8),pointer :: rv_p_og(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:) =>NULL()
+ckino Dec.8.2011:          real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:) =>NULL()
+ckino Dec.8.2011:         integer,pointer :: iv_p_oistab(:) =>NULL()
 
       integer ,allocatable :: gstar_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -164,16 +164,16 @@ C --- Setup ---
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
 
 
 
       nsgrp=slat%nsgrp
-       iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.8.2011:         iv_p_oistab => slat%iv_p_oistab 
 
-       rv_p_og => slat%rv_p_osymgr 
+ckino Dec.8.2011:         rv_p_og => slat%rv_p_osymgr 
 
-       rv_p_oag => slat%rv_p_oag 
+ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
 
 
 
@@ -182,7 +182,8 @@ C     should be from sgw?
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
-       call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
+ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
+       call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos , 1 ) 
 
       call pshpr(0)
       llshft = .false.
@@ -288,7 +289,8 @@ C ... Number of k-points
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+ckino Dec.8.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
      .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 ) 
 
 
