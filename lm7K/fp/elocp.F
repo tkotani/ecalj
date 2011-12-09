@@ -39,7 +39,7 @@ C ... Local parameters
      .nr,nrmx,nrspec,nspec,stdo
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,nkaph,idamax
-       real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ,allocatable :: ips_iv(:)
 
@@ -70,7 +70,7 @@ C --- Find val, slo, K.E. for all sites ---
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
 
@@ -97,7 +97,8 @@ C --- Find val, slo, K.E. for all sites ---
 
         call radmsh(rmt,a,nr,rofi)
          call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi 
-     .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+ckino Dec.9.2011:       .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+     .   , ssite(ib)%rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
      .   , rsml , ehl ) 
 
    10   continue

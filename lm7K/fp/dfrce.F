@@ -89,9 +89,9 @@ C Local variables
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
-        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.9.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       complex(8) ,allocatable :: ceps_zv(:)
       complex(8) ,allocatable :: cnomi_zv(:)
@@ -159,9 +159,9 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.9.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
@@ -208,7 +208,8 @@ C ... Set up for vectorized Y_lm and gaussians
 
       allocate(g_rv(ng*3))
 
-       call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+       call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
 
@@ -216,7 +217,8 @@ C ... Set up for vectorized Y_lm and gaussians
 
       allocate(iv_iv(ng*3))
 
-       call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+ckino Dec.9.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+       call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
 
 
 
@@ -234,7 +236,8 @@ c      call defrr(osn, ng)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
      ., - 1 )
 
-       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
      . ) 
 
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
@@ -284,7 +287,8 @@ C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
      .0 , - 1 )
 
-       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
+ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
+       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
      . cdvx_zv ) 
 
 
@@ -294,7 +298,8 @@ C --- Cnomi = (n0_out(q) - n0_in(q)) ---
      ., - 1 )
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
      . ) 
 
 
@@ -329,7 +334,8 @@ C --- Lindhard dielectric function ---
         tpiba = 2*pi/alat
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-         call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
+ckino Dec.9.2011:           call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
+         call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv ) 
 
 
       endif
@@ -437,7 +443,8 @@ c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) ,
 c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
 c     .   ) , fes1 , fes2 , fxc ) 
           call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-     .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+ckino Dec.9.2011:       .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+     .    , qmout_rv , ng , slat%rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
      .    ib ) , fes1 , fes2 , fxc ) 
 

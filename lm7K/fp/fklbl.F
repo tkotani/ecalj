@@ -31,9 +31,9 @@ C ... Passed parameters
 C ... Local parameters
         integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job 
      .  , ilm , k 
-        real(8),pointer :: rv_p_odlv(:) =>NULL()
+ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       parameter ( nlm0=196 )
       double precision q(3),alat,plat(9),qlat(9),p1(3)
@@ -75,9 +75,9 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       nkd=slat%nkd
       nkq=slat%nkq
-       rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
 
-       rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
 
 
       call shorbz(p,p1,plat,qlat)
@@ -85,7 +85,9 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 CSFCPP#if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
         call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , 
-     .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
+ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
+ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
+     .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
      .  ) 
 
 
@@ -94,7 +96,8 @@ CSFCPP#if F90
       else
         job = 2
          call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
-     .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
+ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
+     .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
 
       endif
       deallocate(wk,yl)
