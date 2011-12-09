@@ -372,15 +372,15 @@ C ... Local parameters
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
-           integer,pointer :: iv_p_ontabs(:) =>NULL()
+ckino Dec.9.2011:             integer,pointer :: iv_p_ontabs(:) =>NULL()
 
-          integer,pointer :: iv_p_oiaxs(:) =>NULL()
+ckino Dec.9.2011:            integer,pointer :: iv_p_oiaxs(:) =>NULL()
 
-         real(8),pointer :: rv_p_ohrs(:) =>NULL()
+ckino Dec.9.2011:           real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-        integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.9.2011:          integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
-       integer,pointer :: iv_p_ooffh(:) =>NULL()
+ckino Dec.9.2011:         integer,pointer :: iv_p_ooffh(:) =>NULL()
 
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
       integer hreal,nl,nglob,mxorb,nttabs,ival,nsp,ndhrs,nsim,moditp,
@@ -454,13 +454,13 @@ c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 C ... Setup for Bloch transform
       if(debug) print *,' goto set up bloch transformation'
       ndhrs=sham%ndhrs
-       iv_p_ontabs => sham%iv_p_ontabs 
+ckino Dec.9.2011:         iv_p_ontabs => sham%iv_p_ontabs 
 
-       iv_p_oiaxs => sham%iv_p_oiaxs 
+ckino Dec.9.2011:         iv_p_oiaxs => sham%iv_p_oiaxs 
 
-       rv_p_ohrs => sham%rv_p_ohrs 
+ckino Dec.9.2011:         rv_p_ohrs => sham%rv_p_ohrs 
 
-       iv_p_ooffh => sham%iv_p_ooffh 
+ckino Dec.9.2011:         iv_p_ooffh => sham%iv_p_ooffh 
 
       if(debug) print *,' hambles:eee 111'
 
@@ -471,8 +471,10 @@ Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
-      if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
-       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+ckino Dec.9.2011:        if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
+      if(debug) print *,' hambles:eee 111222 sham%iv_p_ontabs=',sham%iv_p_ontabs
+ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+       nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
 
       if(debug) print *,' hambles:eee 111333'
 Changenglob      nsp  = nglob('nsp')
@@ -487,7 +489,7 @@ Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'hambl:','isp',T)
       call dinv33(plat,1,qlat,swt)
       if(debug) print *,' hambles:eee 333'
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.9.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
@@ -505,8 +507,11 @@ c        allocate(e(ndimh))
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+            call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      ) 
 
@@ -585,8 +590,11 @@ C       call rx0('done')
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+            call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
      .      iwdummy ) 
 
@@ -919,8 +927,11 @@ C       call zprm('h(lda)',2,h,ndimh,ndimh,ndimh)
 C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
 C       Call to bloch : 104110=perm orb, transpose, add, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
-              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:                call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
      .        iwdummy ) 
 
@@ -1035,8 +1046,11 @@ C       hqi <- z(qpi) z(q)^-1
 C       sqi <- sigma(qpi)
 C       Call to bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
-              call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-     .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+ckino Dec.9.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+              call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo 
+ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+     .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
      .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
      .        ) 
 
@@ -1139,13 +1153,13 @@ C ... Passed parameters
 
       double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
 C ... Local parameters
-          integer,pointer :: iv_p_ontabs(:) =>NULL()
+ckino Dec.9.2011:            integer,pointer :: iv_p_ontabs(:) =>NULL()
 
-         integer,pointer :: iv_p_oiaxs(:) =>NULL()
+ckino Dec.9.2011:           integer,pointer :: iv_p_oiaxs(:) =>NULL()
 
-        real(8),pointer :: rv_p_ohrs(:) =>NULL()
+ckino Dec.9.2011:          real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.9.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       integer i,lrsig,ipr,jsp,ksp
       integer hreal,nl,nglob,mxorb,nttabs,ival,ndhrs,nevec,ndimhx
@@ -1174,13 +1188,13 @@ C ... Heap
 C ... Setup for Bloch transform
 
       ndhrs=sham%ndhrs
-       iv_p_ontabs => sham%iv_p_ontabs 
+ckino Dec.9.2011:         iv_p_ontabs => sham%iv_p_ontabs 
 
-       iv_p_oiaxs => sham%iv_p_oiaxs 
+ckino Dec.9.2011:         iv_p_oiaxs => sham%iv_p_oiaxs 
 
-       rv_p_ohrs => sham%rv_p_ohrs 
+ckino Dec.9.2011:         rv_p_ohrs => sham%rv_p_ohrs 
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.9.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
 
 C     hreal=1 -> sig(T) is real
@@ -1190,7 +1204,8 @@ Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
-       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+       nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
 
 Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'blsig:','isp',T)
       l_dummy_isanrg=isanrg(isp,1,nsp,'blsig:','isp',T)
@@ -1208,8 +1223,11 @@ C     Call to bloch : 104110=perm orb, transpose, no add, c*16
         if (nspc .eq. 2) ksp = jsp
 C     collinear case:     ksp = isp, jsp=1
 C     noncollinear case:  ksp=1..2,  jsp=1..2
-            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+            call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
      .      iwdummy ) 
 

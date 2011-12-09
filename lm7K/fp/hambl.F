@@ -84,7 +84,7 @@ C ... Passed parameters
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.9.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       double precision vavg
 C     double precision plat(3,3)
@@ -98,7 +98,7 @@ C ... Heap
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.9.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
 
 
@@ -111,7 +111,8 @@ C ... Skip LDA H, S
 
 C --- Augmentation part of hamiltonian and overlap ---
           call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
-     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_p_oiprmb 
+ckino Dec.9.2011:       .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_p_oiprmb 
+     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , sham%iv_p_oindxo 
      .    , ndimh , napw , igvapw , h , hso , s ) 
 
 
@@ -133,13 +134,15 @@ C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
        call smhsbl ( mode0 , ssite , sspec , slat , vavg + vconst , 
-     . q , ndimh , iv_p_oiprmb , napw , igvapw , h , s ) 
+ckino Dec.9.2011:       . q , ndimh , iv_p_oiprmb , napw , igvapw , h , s ) 
+     . q , ndimh , sham%iv_p_oindxo , napw , igvapw , h , s ) 
 
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
        call hsibl ( ssite , sspec , slat , k1 , k2 , k3 , smpot , isp 
-     . , q , ndimh , iv_p_oiprmb , napw , igvapw , h ) 
+ckino Dec.9.2011:       . , q , ndimh , iv_p_oiprmb , napw , igvapw , h ) 
+     . , q , ndimh , sham%iv_p_oindxo , napw , igvapw , h ) 
 
 
 C ... Restore istl potential

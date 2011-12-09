@@ -30,9 +30,9 @@ C ... Passed parameters
 C ... Local parameters
       double complex cfac,phase
         integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m 
-        real(8),pointer :: rv_p_odlv(:) =>NULL()
+ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
 CSFCPP#if F90
@@ -56,9 +56,9 @@ C ... Heap
 
       nkd=slat%nkd
       nkq=slat%nkq
-       rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
 
-       rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
 
 
 
@@ -72,13 +72,15 @@ C ... Shorten p, multiply by corresponding phase later
 C ... If the smoothing radius is larger than the Ewald parameter,
 C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
-         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
+ckino Dec.9.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
+         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_oqlv 
      .   , nkq , vol , gkl ) 
 
       else
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
-         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
+ckino Dec.9.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
+         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_odlv 
      .   , nkd , wk , gkl ) 
 
         deallocate(wk)
