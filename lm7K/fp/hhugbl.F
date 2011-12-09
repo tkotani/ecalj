@@ -38,13 +38,13 @@ C ... Passed parameters
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
 C ... Local parameters
           integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll 
-          integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.9.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.9.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.9.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       parameter (lmxx=6,nlmx=(lmxx+1)**2)
       double precision add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2
@@ -55,13 +55,13 @@ C ... Heap
 
       pi = 4d0*datan(1d0)
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy 
 
       vol=slat%vol
 
@@ -70,16 +70,24 @@ C ... Heap
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
 
           call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
-     .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg 
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
+ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
+     .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds ) 
 
 
 
 
 
           call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
-     .    , iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg 
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 
+ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 
+     .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , wk , dwk ) 
 
 
 

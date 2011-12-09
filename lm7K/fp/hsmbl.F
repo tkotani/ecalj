@@ -32,9 +32,9 @@ C ... Passed parameters
       double complex hsm(1),hsmp(1)
 C ... Local parameters
         integer:: nkd , nkq , ilm , l , m 
-        real(8),pointer :: rv_p_odlv(:) =>NULL()
+ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqlv(:) =>NULL()
+ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
 
       double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
      .tol,vol
@@ -64,23 +64,26 @@ C      p1 = p
 
       nkd=slat%nkd
       nkq=slat%nkq
-       rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
 
-       rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
 
 
       rwald = 1d0/awald
       asm = 1d0/rsm
 
       if (rsm .lt. rwald) then
-         call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
+ckino Dec.9.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
+         call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv , 
      .   nkq , vol , hsm , hsmp ) 
 
-         call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
+ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
+         call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv 
      .   , nkd , hsm , hsmp ) 
 
       else
-         call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 
+ckino Dec.9.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 
+         call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq 
      .   , vol , hsm , hsmp ) 
 
       endif
