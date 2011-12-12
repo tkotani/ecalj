@@ -92,11 +92,11 @@ C ... Passed parameters
 C ... Local parameters
          integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
      .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
-         integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
@@ -123,12 +123,12 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc = slat%nabc
       ng    = slat%ng
-      rv_p_ogv => slat%rv_p_ogv 
-      iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv 
       vol  = slat%vol
       alat = slat%alat
       vol  = slat%vol
-      rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:        rv_p_ocy => slat%rv_p_ocy 
 c      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
@@ -136,13 +136,15 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-       call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
+ckino Dec.12.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
+       call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 ) 
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if(lfoc1 .eq. 1) then
-        call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
+ckino Dec.12.2011:          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
+        call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -275,12 +277,15 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-           call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+           call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
      .     ) 
 
 
-            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
-     .      , ng , rv_p_ogv , cgh1_zv , f ) 
+ckino Dec.12.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
+            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy 
+ckino Dec.12.2011:       .      , ng , rv_p_ogv , cgh1_zv , f ) 
+     .      , ng , slat%rv_p_ogv , cgh1_zv , f ) 
 
 
 

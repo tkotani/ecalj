@@ -152,11 +152,11 @@ C ... Local parameters
          integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
      .   nlm , nsp , stdo , j1 , j2 , j3 
-         integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
-        real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
@@ -183,14 +183,14 @@ Changenglob      nsp   = nglob('nsp')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
@@ -210,7 +210,9 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-        call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
+ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
+ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
+        call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 ) 
 
 
@@ -221,8 +223,11 @@ C ... Add estatic potential of compensating gaussians to smpot
 
       allocate(cgsum_zv(ng))
 
-         call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-     .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+ckino Dec.12.2011:           call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
+         call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom , 
+ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+     .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
 
 
@@ -232,7 +237,9 @@ C ... Add estatic potential of compensating gaussians to smpot
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-        call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
+ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
+ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv 
+        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
 
 

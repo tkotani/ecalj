@@ -165,13 +165,13 @@ C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
       integer nbas,nglob,nlmto
-          integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
@@ -228,13 +228,13 @@ C --- Setup ---
 Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
@@ -367,7 +367,11 @@ C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
      .          call rx('smhsbl: increase nlms')
                     call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .              i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-     .              , nlms , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , slat 
+ckino Dec.12.2011:       .              , nlms , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , slat 
+ckino Dec.12.2011:       .              , nlms , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , slat 
+ckino Dec.12.2011:       .              , nlms , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , slat 
+ckino Dec.12.2011:       .              , nlms , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat 
+     .              , nlms , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat 
      .              , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
 
 

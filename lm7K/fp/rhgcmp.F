@@ -76,9 +76,9 @@ C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
         integer:: nsp 
-        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)
@@ -113,9 +113,9 @@ C ... Heap
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng1=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
@@ -150,7 +150,8 @@ C --- Set up help arrays ---
       allocate(g_rv(ng*3))
 
 Ckino Set up vectors g, g2, yl from list of vectors gv
-       call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+ckino Dec.12.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+       call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
 
@@ -160,7 +161,8 @@ Ckino Set up vectors g, g2, yl from list of vectors gv
       allocate(iv_iv(ng*3))
 
 Ckino Setup for suphas: write each gv as linear combination of qlat.
-       call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+ckino Dec.12.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+       call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
 
 
       allocate(cs_rv(ng))
