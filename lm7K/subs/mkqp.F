@@ -50,7 +50,7 @@ C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
              integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
      .       , lshft(3) , lpbc , ntet , i , iprint , igets , stdo , nglob 
-             real(8),pointer :: rv_p_osymgr(:) =>NULL()
+ckino 12月.12.2011:               real(8),pointer :: rv_p_osymgr(:) =>NULL()
 
 ckino Dec.8.2011:              integer,pointer :: iv_p_ogstar(:) =>NULL()
 
@@ -92,7 +92,7 @@ Changenglob      stdo = nglob('stdo')
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
-       rv_p_osymgr => slat%rv_p_osymgr 
+ckino 12月.12.2011:         rv_p_osymgr => slat%rv_p_osymgr 
 
 
 c       lpgf = int(sctrl%lpgf(1))
@@ -227,7 +227,8 @@ ckino Dec.8.2011:           call ivset ( iv_p_ogstar , 1 , 1 , lgstar )
         call info0(20,0,0,' ')
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
-     .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
      .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 
@@ -270,7 +271,8 @@ ckino Dec.8.2011:           call ivset ( iv_p_ogstar , 1 , 1 , lgstar )
 
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
-     .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
      .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 

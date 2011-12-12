@@ -96,23 +96,23 @@ C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .lcond,lrange,lidos,lfp
-               integer,pointer :: iv_p_oipc(:) =>NULL()
+ckino Dec.12.2011:                 integer,pointer :: iv_p_oipc(:) =>NULL()
 
-              integer,pointer :: iv_p_ogstar(:) =>NULL()
+ckino Dec.12.2011:                integer,pointer :: iv_p_ogstar(:) =>NULL()
 
-             integer,pointer :: iv_p_oidtet(:) =>NULL()
+ckino Dec.12.2011:               integer,pointer :: iv_p_oidtet(:) =>NULL()
 
-            real(8),pointer :: rv_p_ormax(:) =>NULL()
+ckino Dec.12.2011:              real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-           integer,pointer :: iv_p_oipq(:) =>NULL()
+ckino Dec.12.2011:             integer,pointer :: iv_p_oipq(:) =>NULL()
 
-          real(8),pointer :: rv_p_owtkp(:) =>NULL()
+ckino Dec.12.2011:            real(8),pointer :: rv_p_owtkp(:) =>NULL()
 
-         integer,pointer :: iv_p_oics(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_oics(:) =>NULL()
 
         real(8),pointer :: rv_p_oqp(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: doswt_rv(:)
@@ -169,15 +169,15 @@ c       lham=sctrl%lham
 
 
       nclasp=sarray%nclasp
-       iv_p_oics => sarray%iv_p_oics 
+ckino Dec.12.2011:         iv_p_oics => sarray%iv_p_oics 
 
-       iv_p_oipc => sarray%iv_p_oipc 
+ckino Dec.12.2011:         iv_p_oipc => sarray%iv_p_oipc 
 
-       rv_p_ormax => sarray%rv_p_ormax 
+ckino Dec.12.2011:         rv_p_ormax => sarray%rv_p_ormax 
 
 
 
-       rv_p_oclabl => sarray%rv_p_oclabl 
+ckino Dec.12.2011:         rv_p_oclabl => sarray%rv_p_oclabl 
 
 
 
@@ -202,7 +202,8 @@ C ... Class-dependent arrays
 
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(nclasp),z(nclasp))
-       call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
+ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
+       call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 ) 
 
       do i=1,nclasp
         z(i)=sspec(ics(i))%z
@@ -365,7 +366,8 @@ C         DOS for a prescribed list of classes only
               else
                 j1 = m+2
               endif
-               call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
+ckino Dec.12.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
+               call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass 
      .         , nlstc , lsite ) 
 
             else
@@ -388,9 +390,9 @@ C     List of irreducible qp, tetrahedra, ipq
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-       iv_p_oidtet => sbz%iv_p_oidtet 
+ckino Dec.12.2011:         iv_p_oidtet => sbz%iv_p_oidtet 
 
-       rv_p_owtkp => sbz%rv_p_owtkp 
+ckino Dec.12.2011:         rv_p_owtkp => sbz%rv_p_owtkp 
 
 
 
@@ -661,24 +663,27 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
          rv_p_oqp => sbz%rv_p_oqp 
 
-         rv_p_owtkp => sbz%rv_p_owtkp 
+ckino Dec.12.2011:           rv_p_owtkp => sbz%rv_p_owtkp 
 
-         iv_p_ogstar => sbz%iv_p_ostar 
+ckino Dec.12.2011:           iv_p_ogstar => sbz%iv_p_ostar 
 
 
 
         ntet=sbz%ntet
-         iv_p_oidtet => sbz%iv_p_oidtet 
+ckino Dec.12.2011:           iv_p_oidtet => sbz%iv_p_oidtet 
 
-         iv_p_oipq => sbz%iv_p_oipq 
+ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq 
 
 
         allocate(dos_rv(npts*nsp*nchan))
 
         if (nblst .eq. 0) nblst = nevmx
             call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
-     .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp 
+ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+     .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , npts , emin , emax , lidos , wk_rv , dos_rv ) 
 
 
@@ -690,7 +695,8 @@ C --- make DOS or NOS ---
       else
         if (ltet) then
            call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
-     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
+ckino Dec.12.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
+     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, eband_rv 
      .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
 
 
@@ -700,7 +706,8 @@ C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
            call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
-     .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
+ckino Dec.12.2011:       .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
+     .     width , nkp , sbz%rv_p_owtkp, eband_rv , doswt_rv , npts , emin 
      .     , emax , lidos , wk_rv , dos_rv ) 
 
 
@@ -745,11 +752,13 @@ C     Loop over all sites (or classes)
 
           if (nsite .ne. 0) then
             ib = i
-             ic = ival ( iv_p_oipc , ib ) 
+ckino Dec.12.2011:               ic = ival ( iv_p_oipc , ib ) 
+             ic = ival ( sarray%iv_p_oipc, ib ) 
 
           else
             ic = i
-             ib = iclbas ( i , iv_p_oipc ) 
+ckino Dec.12.2011:               ib = iclbas ( i , iv_p_oipc ) 
+             ib = iclbas ( i , sarray%iv_p_oipc) 
 
           endif
 
