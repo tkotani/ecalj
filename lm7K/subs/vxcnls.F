@@ -62,7 +62,7 @@
       integer,parameter:: ndiv=3
 ckino delete target      real(8),target :: yl(np,nlm)
       real(8) :: yl(np,nlm)
-      real(8),pointer:: drp_drl(:,:) =>NULL()
+ckino Dec.12.2011 delete drp_drl      real(8),pointer:: drp_drl(:,:) =>NULL()
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
       real(8),allocatable:: grho2_updn_forcall(:,:,:)
