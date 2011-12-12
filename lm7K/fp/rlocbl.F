@@ -333,13 +333,13 @@ C ... Local parameters or process-shared variables
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
-          integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
 c      integer oib(npmx),oidb(npmx),oixf(npmx),o
       double precision alat,qlat(3,3)
@@ -415,13 +415,13 @@ C --- Setup ---
 Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 c      call defi(o,1)
@@ -539,8 +539,12 @@ c        odb = oidb(ip)
 c        oxf = oixf(ip)
 
 CSFCPP#if F90
-            call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-     .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
+            call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.12.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb ) 
 
 
