@@ -1,0 +1,6 @@
+       iv_p_ontabs => sham%iv_p_ontabs 
+       iv_p_oiaxs => sham%iv_p_oiaxs 
+       rv_p_ohrs => sham%rv_p_ohrs 
+       iv_p_oiprmb => sham%iv_p_oindxo 
+       iv_p_ooffh => sham%iv_p_ooffh 
+

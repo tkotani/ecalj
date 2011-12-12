@@ -1,0 +1,5 @@
+       rv_p_oag => slat%rv_p_oag 
+       rv_p_opos => slat%rv_p_opos 
+       iv_p_oipc => sarray%iv_p_oipc 
+       iv_p_oips => sarray%iv_p_oips 
+

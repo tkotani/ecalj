@@ -1,0 +1,9 @@
+       sv_p_oorhat => spot%sv_p_oorhat 
+       zv_p_osmrho => spot%zv_p_osmrho 
+       zv_p_osmpot => spot%zv_p_osmpot 
+       rv_p_owtkp => sbz%rv_p_owtkp 
+                     iv_p_oiprmb => sham%iv_p_oindxo 
+             rv_p_oqsig => sham%rv_p_oqsig 
+        iv_p_oidxsh => sham%iv_p_oindxo 
+         rv_p_opos => slat%rv_p_opos 
+

@@ -1,0 +1,3 @@
+       rv_p_og => slat%rv_p_osymgr 
+       rv_p_oag => slat%rv_p_oag 
+

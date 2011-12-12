@@ -1,0 +1,4 @@
+       iv_p_okv => slat%iv_p_okv 
+       rv_p_ogv => slat%rv_p_ogv 
+       zv_p_osmrho => spot%zv_p_osmrho 
+

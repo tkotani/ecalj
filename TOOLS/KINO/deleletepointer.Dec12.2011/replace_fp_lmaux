@@ -1,0 +1,20 @@
+       rv_p_oqnu => spot%rv_p_oqnu 
+       rv_p_oqc => spot%rv_p_oqc 
+       rv_p_opp => spot%rv_p_opp 
+       rv_p_opnu => spot%rv_p_opnu 
+       rv_p_oqc => spot%rv_p_oqc 
+       iv_p_oinitc => sarray%iv_p_ohave 
+       rv_p_ovrmax => spot%rv_p_ovrmax 
+       rv_p_oves => spot%rv_p_oves 
+       rv_p_oqlv => slat%rv_p_oqlv 
+       iv_p_oics => sarray%iv_p_oics 
+       iv_p_oics => sarray%iv_p_oics 
+       rv_p_oclabl => sarray%rv_p_oclabl 
+  gsub(       "rv_p_opos","sarray%rv_p_opos") 
+  gsub("iv_p_oipc","sarray%iv_p_oipc")
+  gsub("rv_p_odlv","slat%rv_p_odlv")
+  gsub("rv_p_oag","slat%rv_p_oag")
+  gsub("iv_p_onrc", "sarray%iv_p_onrc")
+  gsub("iv_p_oips","sarray%iv_p_oips")
+  gsub("rv_p_orhrmx","spot%rv_p_orhrmx")
+  gsub("rv_p_oqt","spot%rv_p_oqt")

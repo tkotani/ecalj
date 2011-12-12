@@ -1,0 +1,3 @@
+       rv_p_odlv => slat%rv_p_odlv 
+       rv_p_oqlv => slat%rv_p_oqlv 
+

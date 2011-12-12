@@ -1,0 +1,6 @@
+      sv_p_oorhat => spot%sv_p_oorhat 
+      zv_p_osmpot => spot%zv_p_osmpot 
+        rv_p_og => slat%rv_p_osymgr 
+             rv_p_oag => slat%rv_p_oag 
+        iv_p_oistab => slat%iv_p_oistab 
+

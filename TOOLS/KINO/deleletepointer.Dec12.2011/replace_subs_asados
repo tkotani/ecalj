@@ -1,0 +1,9 @@
+       iv_p_oipc => sarray%iv_p_oipc 
+         iv_p_ogstar => sbz%iv_p_ostar 
+       iv_p_oidtet => sbz%iv_p_oidtet 
+       rv_p_ormax => sarray%rv_p_ormax 
+         iv_p_oipq => sbz%iv_p_oipq 
+       rv_p_owtkp => sbz%rv_p_owtkp 
+       iv_p_oics => sarray%iv_p_oics 
+       rv_p_oclabl => sarray%rv_p_oclabl 
+

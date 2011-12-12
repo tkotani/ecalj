@@ -1,0 +1,5 @@
+           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+       rv_p_og => slat%rv_p_osymgr 
+       iv_p_oiprmb => sham%iv_p_oindxo 
+       rv_p_oqsig => sham%rv_p_oqsig 
+

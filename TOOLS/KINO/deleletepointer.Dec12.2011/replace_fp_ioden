@@ -1,0 +1,3 @@
+       rv_p_opos => slat%rv_p_opos 
+       iv_p_okv => slat%iv_p_okv 
+

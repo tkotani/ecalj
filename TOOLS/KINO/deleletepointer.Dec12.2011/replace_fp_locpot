@@ -1,0 +1,5 @@
+         rv_p_ov01 => ssite(ib)%rv_p_ov1 
+           iv_p_ojcg => slat%iv_p_ojcg 
+           iv_p_oidxcg => slat%iv_p_oidxcg 
+           rv_p_ocg => slat%rv_p_ocg 
+
