@@ -40,7 +40,8 @@ C Local parameters
       double precision x1,xn
 CSFCPP#if F90
       type row
-      real(8), pointer :: p(:) =>NULL()
+ckino Dec.12.2011 , This cause memory leak.     real(8), pointer :: p(:) =>NULL()
+      real(8), allocatable :: p(:)
       end type row
       type(row) :: symptr(mxnam)
       save symptr
