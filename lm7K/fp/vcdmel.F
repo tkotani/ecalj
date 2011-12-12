@@ -75,15 +75,15 @@ Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
 Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
 Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
 Cdelw1      .og,os
-            real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.12.2011:              real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-           integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.12.2011:             integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-          integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:            integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:           real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
 
        real(8) ,allocatable :: rofi_rv(:)
        real(8) ,allocatable :: ul_rv(:)
@@ -105,17 +105,17 @@ C ... Heap
       ehl=0d0  !call dpzero(ehl,n0)
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 66
 Cdelw1 do not change ocg because of ['undef', 'wvar', 'wref']
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
 
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
 Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
 Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
       do  i = 1, nsite
@@ -127,7 +127,7 @@ Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
         !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
         call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
         !i_copy_size=size(ssite(ib)%pz)
         !call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
@@ -167,7 +167,8 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-         call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+ckino Dec.12.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv ) 
 
@@ -184,7 +185,8 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
 Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
-         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a 
+ckino Dec.12.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a 
+         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a 
      .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
      .   0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
 
@@ -231,7 +233,10 @@ Cdelw1      .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
 Cdelw1      .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
                   call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
      .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-     .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv 
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv 
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , iv_p_oidxcg , s_rv 
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
+     .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
      .            ) 
 
 

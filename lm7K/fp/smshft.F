@@ -58,9 +58,9 @@ C ... Passed parameters
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,nbas,ng,ngabc(3),nglob,nsp
-        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
@@ -96,9 +96,9 @@ Changenglob      nbas = nglob('nbas')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
@@ -109,7 +109,8 @@ C ... Hold on to original smrho (cgr)
       allocate(cgr_zv(ng*nsp))
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
+       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
      . ) 
 
 
@@ -121,7 +122,8 @@ C --- Shift in unscreened density at the two positions ---
 
       kmax = 0
         call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-     .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+ckino Dec.12.2011:       .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+     .  slat%rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
 
 
 
@@ -163,7 +165,8 @@ C       Compute elind if not given
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
+ckino Dec.12.2011:           call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
+         call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv ) 
 
 
 C        call dscal(2*ng,.001d0,w(ocgs),1)
@@ -174,7 +177,8 @@ C        call dscal(2*ng,.001d0,w(ocgs),1)
       endif
 
 C ... Debugging: show delta smrho
-       call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
+ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
+       call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
      . ) 
 
 
@@ -191,7 +195,8 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       enddo
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
-       call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
+ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
+       call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
      . ) 
 
 

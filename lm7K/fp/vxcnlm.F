@@ -57,8 +57,8 @@ C ----------------------------------------------------------------------
 
       type(s_lat)::  slat
       integer ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3),nnn
-      integer,pointer :: iv_p_okv(:) =>NULL()
-      real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:        real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:),enlbk(:,:,:)
@@ -87,10 +87,11 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
       n3= ngabc(3)
       if(abs(n1-k1)+abs(n2-k2)+abs(n3-k3)/=0) call rx('vxcnlm: ni/=ki')
       ng    = slat%ng
-      rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv 
       allocate(gv(ng,3))
-      call dcopy(3*ng,rv_p_ogv,1,gv,1)
-      iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:        call dcopy(3*ng,rv_p_ogv,1,gv,1)
+      call dcopy(3*ng,slat%rv_p_ogv,1,gv,1)
+ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv 
       alat  =slat%alat
       vol   =slat%vol
       np = n1*n2*n3 !k1*k2*k3
@@ -102,7 +103,9 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
        if(debug) print * ,'goto newmode 111',smrho(1,1,1,1)
        allocate(zgrho(np,3,nsp))
        do  i = 1, nsp
-          call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , dummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
        enddo
@@ -195,7 +198,8 @@ c          print *,'sumcheck fn j =',sum(abs(fn))
           enddo
           enddo
           call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
-          call gvgetf(ng,1,iv_p_okv,k1,k2,k3,fn,fg(1,j))
+ckino Dec.12.2011:            call gvgetf(ng,1,iv_p_okv,k1,k2,k3,fn,fg(1,j))
+          call gvgetf(ng,1,slat%iv_p_okv,k1,k2,k3,fn,fg(1,j))
 c          print *,'sumcheck fg j =',sum(abs(fg(:,j)))
          enddo  
 !!== make i G fg ---> FFT back ==
@@ -209,7 +213,8 @@ c         print *, 'check xxx fg(1,1:3) sum =',sum(abs(gv(1,1:3) *fg(1,1:3)))
 c           print *, ig,abs(fgg(ig)),sum(gv(ig,1:3)**2),sum(fg(ig,1:3)**2)
          enddo
 c         print *, 'check xxx fgg sum =',sum(abs(fgg)),ng,sum(abs(gv)),sum(abs(fg))
-         call gvputf(ng,1,iv_p_okv,k1,k2,k3,fgg,fgrd)
+ckino Dec.12.2011:           call gvputf(ng,1,iv_p_okv,k1,k2,k3,fgg,fgrd)
+         call gvputf(ng,1,slat%iv_p_okv,k1,k2,k3,fgg,fgrd)
          call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
          vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
        enddo
@@ -282,7 +287,9 @@ c      print *,'vxcnlm xxx 000000',slat%nabc
 c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
       do  i = 1, nsp
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
-          call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , zggrho ( 1 , i ) ) 
 C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
@@ -322,7 +329,9 @@ C     Use zggrho as complex work array
         call dpzero(zggrho,np*2)
         call dcopy(np,agr(1,i),1,zggrho,2)
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
-          call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
 
 

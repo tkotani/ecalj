@@ -126,17 +126,17 @@ C ... Local parameters
      .       mxint , ival 
              real(8),pointer :: rv_p_og(:) =>NULL()
 
-            integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.12.2011:              integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-           integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:             integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-          real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:            real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:           real(8),pointer :: rv_p_ocg(:) =>NULL()
 
-        real(8),pointer :: rv_p_oag(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_oag(:) =>NULL()
 
-       integer,pointer :: iv_p_oistab(:) =>NULL()
+ckino Dec.12.2011:         integer,pointer :: iv_p_oistab(:) =>NULL()
 
       integer ,allocatable :: ipa_iv(:)
       integer ,allocatable :: ipc_iv(:)
@@ -154,13 +154,13 @@ C ... Heap
       ipr = iprint()
 
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
@@ -168,14 +168,14 @@ C ... Heap
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-       iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.12.2011:         iv_p_oistab => slat%iv_p_oistab 
 
 
 
       ngrp=slat%nsgrp
        rv_p_og => slat%rv_p_osymgr 
 
-       rv_p_oag => slat%rv_p_oag 
+ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag 
 
 
 
@@ -237,8 +237,10 @@ C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))
 
-             call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
-     .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+ckino Dec.12.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
+             call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , rv_p_og 
+ckino Dec.12.2011:       .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+     .       , slat%rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
 
 
 
@@ -421,13 +423,13 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
           integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp 
-          integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:            integer,pointer :: iv_p_okv(:) =>NULL()
 
-         real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:           real(8),pointer :: rv_p_ogv(:) =>NULL()
 
-        complex(8),pointer :: zv_p_obgv(:) =>NULL()
+ckino Dec.12.2011:          complex(8),pointer :: zv_p_obgv(:) =>NULL()
 
-       integer,pointer :: iv_p_oips0(:) =>NULL()
+ckino Dec.12.2011:         integer,pointer :: iv_p_oips0(:) =>NULL()
 
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -440,16 +442,16 @@ C ... Heap
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
 
 
 
       ngrp=slat%nsgrp
-       iv_p_oips0 => slat%iv_p_oips0 
+ckino Dec.12.2011:         iv_p_oips0 => slat%iv_p_oips0 
 
-       zv_p_obgv => slat%zv_p_obgv 
+ckino Dec.12.2011:         zv_p_obgv => slat%zv_p_obgv 
 
 
       if (ngrp .gt. 1) then
@@ -461,11 +463,15 @@ C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
-           call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
+ckino Dec.12.2011:             call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
+           call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
      .     1 , 1 , isp ) , cv_zv ) 
 
 
-             call gvsym ( ng , rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
+ckino Dec.12.2011:               call gvsym ( ng , rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
+ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
+ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
+             call gvsym ( ng , slat%rv_p_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
      .       csym_zv ) 
 
 
@@ -473,7 +479,8 @@ C       call zprm3('smrho before poke',smrho,k1,k2,k3)
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
-           call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
+ckino Dec.12.2011:             call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
+           call gvaddf ( ng , slat%iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) ) 
 
 
