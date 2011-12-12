@@ -177,15 +177,15 @@ C ... for core hole
       logical lfltwf
            integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
-           real(8),pointer :: rv_p_ov01(:) =>NULL()
+ckino 12月.12.2011:             real(8),pointer :: rv_p_ov01(:) =>NULL()
 
           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-         integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino 12月.12.2011:           integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-        integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino 12月.12.2011:          integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino 12月.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
 C$    integer iiv0(nbas),nvl
 C ... Heap
@@ -259,7 +259,7 @@ C$&  MP_SCHEDTYPE=RUNTIME
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
          rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-         rv_p_ov01 => ssite(ib)%rv_p_ov1 
+ckino 12月.12.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1 
 
 
         i_copy_size=size(ssite(ib)%pz)
@@ -376,7 +376,8 @@ C   ... Update the potential used to define basis set
 
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-           call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
+ckino 12月.12.2011:             call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
+           call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr 
      .     * i , y0 ) 
 
         enddo
@@ -447,15 +448,18 @@ C     ... Use effective potentials with modified xc
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
 
-           rv_p_ocg => slat%rv_p_ocg 
+ckino 12月.12.2011:             rv_p_ocg => slat%rv_p_ocg 
 
-           iv_p_ojcg => slat%iv_p_ojcg 
+ckino 12月.12.2011:             iv_p_ojcg => slat%iv_p_ojcg 
 
-           iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino 12月.12.2011:             iv_p_oidxcg => slat%iv_p_oidxcg 
 
 
                  call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-     .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, iv_p_oidxcg 
+ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, slat%iv_p_oidxcg
+     .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_p_oidxcg
      .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
