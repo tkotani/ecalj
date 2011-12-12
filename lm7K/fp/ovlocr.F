@@ -48,8 +48,8 @@ c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
      .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i 
 
-      integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:) =>NULL()
-      real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:        integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:        real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:) =>NULL()
 
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom
@@ -84,10 +84,10 @@ Changenglob      nsp  = nglob('nsp')
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
-      rv_p_ocg    => slat%rv_p_ocg 
-      iv_p_ojcg   => slat%iv_p_ojcg 
-      iv_p_oidxcg => slat%iv_p_oidxcg 
-      rv_p_ocy    => slat%rv_p_ocy 
+ckino Dec.12.2011:        rv_p_ocg    => slat%rv_p_ocg 
+ckino Dec.12.2011:        iv_p_ojcg   => slat%iv_p_ojcg 
+ckino Dec.12.2011:        iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:        rv_p_ocy    => slat%rv_p_ocy 
 
 
 C --- Loop over sites where density is made ---
@@ -169,7 +169,11 @@ c          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
             eh   = exi(je,js)
             nlmh = 1
                 call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-     .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+     .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
      .          , slat , b ) 
 
             allocate(b0(0:kmxv,nlmh))

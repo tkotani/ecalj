@@ -105,7 +105,7 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.12.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: fh_rv(:)
@@ -134,7 +134,7 @@ C --- Start loop over atoms ---
         is = int(ssite(ib)%spec)
 
 
-         iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.12.2011:           iv_p_oiprmb => sham%iv_p_oindxo 
 
 
 
@@ -182,7 +182,8 @@ C   --- Set up all radial head and tail functions, and their BC's
      .  , xp_rv , vp_rv , dp_rv )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-         call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
+ckino Dec.12.2011:           call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
+         call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh 
      .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
@@ -290,13 +291,13 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-          integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-         integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-       real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
 
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)
@@ -312,13 +313,13 @@ C ... Heap
 
       call tcn ('pusq1')
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
@@ -347,8 +348,12 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
 
-           call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-     .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
+           call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.12.2011:       .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:       .     , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy ) 
 
 

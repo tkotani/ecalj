@@ -57,7 +57,7 @@ C ... Local parameters
       logical lpz,lfrzv,lfrzz
        integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
      . l , ipqn , m , isp , nr , nn , mxcst 
-       real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
@@ -88,7 +88,7 @@ C --- For each site, do ---
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
 
@@ -143,7 +143,8 @@ C       ... Log derivative by direct num integration
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
-               call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+               call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 ) 
 
               if (mod(idmod(m),10) .eq. 3) then

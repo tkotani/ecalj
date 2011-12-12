@@ -199,9 +199,9 @@ C ... Local parameters
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
         integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl 
-        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       integer ,allocatable :: ips0_iv(:)
       real(8) ,allocatable :: co_rv(:)
@@ -324,9 +324,9 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
 
-       iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
 
       vol=slat%vol
 
@@ -458,7 +458,8 @@ C ... 2. cn <- (smrnew - smrho)(G)
       call dcopy(kkk*2,smrnew,1,w_owk,1)
       call dpadd(w_owk,smrho,1,kkk*2,-1d0)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
-       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
+ckino Dec.12.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
+       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk , 
      . w_ocn ) 
        deallocate(w_owk)
 C ... 3. Sum of local densities on Fourier mesh (up+down)
@@ -481,12 +482,14 @@ C ... Add output-input difference in gaussian rho to make total rho
 
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
-       call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
+ckino Dec.12.2011:         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
+       call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elinl , w_ocn ) 
 
 C ... 5. Add cn = screening charge into smrnew
 c      call defcc(owk,kkk)
        allocate(w_owk(kkk))
-       call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn , 
+ckino Dec.12.2011:         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn , 
+       call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_ocn , 
      . w_owk ) 
 
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -512,7 +515,8 @@ C     call zprm3('smrnew',0,smrnew,k1,k2,k3)
 C --- 7. Project cn = screening density into local densities ---
         k0 = 20
         allocate(fkl_zv((k0+1)*nlm0*nbas))
-        call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
+ckino Dec.12.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
+        call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_p_ogv ,  
      .  w_ocn , k0 , nlm0 , fkl_zv) 
       endif 
 
@@ -606,7 +610,8 @@ cccccccccccccccccccccccc
 C ... 8. FFT smooth densities -> rho(G) for mixing
 C ... Find and include number of smooth mesh points.
        allocate(ips0_iv(ng))
-       call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
+ckino Dec.12.2011:         call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
+       call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
        ng02= ng0*2
        ng2=ng*2
        nda = nda + ng02
@@ -615,13 +620,17 @@ C ... Find and include number of smooth mesh points.
 
        call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
+       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
+ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
+       call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn) 
 
        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
-       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
+       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
+ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
+       call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv) 
        deallocate(w_owk)
 
       endif
@@ -792,7 +801,9 @@ c      call defcc(owk,kkk)
       allocate(w_owk(kkk))
          call pvmix7 ( ssite , sspec , nbas , nsp , nda , w_oa , n1 , 
      .   n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl 
-     .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
+ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
+ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
+     .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
      .   sv_p_orhold , smrho, wgtsmooth ) 
 
       deallocate(w_oqkl)
