@@ -63,9 +63,9 @@ cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
      .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor 
-           real(8),pointer :: rv_p_ov1(:) =>NULL()
+ckino Dec.13.2011:             real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.13.2011:            real(8),pointer :: rv_p_ov0(:) =>NULL()
 
 ckino Dec.8.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
@@ -289,11 +289,15 @@ C     .      orca)
          allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
          if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
-         allocate(rv_p_ov0(abs(nr*nsp)))
-         if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+ckino Dec.13.2011:           allocate(rv_p_ov0(abs(nr*nsp)))
+         allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
+ckino Dec.13.2011:           if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+         if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
 
-         allocate(rv_p_ov1(abs(nr*nsp)))
-         if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+ckino Dec.13.2011:           allocate(rv_p_ov1(abs(nr*nsp)))
+         allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
+ckino Dec.13.2011:           if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+         if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
 
 
 C       Core magnetic moment (possible if magnetized core hole)
@@ -320,11 +324,13 @@ C       Core magnetic moment (possible if magnetized core hole)
         endif
 
         if (lmxl .gt. -1) then
-            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
+ckino Dec.13.2011:              call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
+            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov0 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
-            call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
+ckino Dec.13.2011:              call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
+            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov1 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
@@ -355,9 +361,9 @@ C       Core magnetic moment (possible if magnetized core hole)
         endif
 
 
-         ssite(ib)%rv_p_ov0 => rv_p_ov0 
+ckino Dec.13.2011:           ssite(ib)%rv_p_ov0 => rv_p_ov0 
 
-         ssite(ib)%rv_p_ov1 => rv_p_ov1 
+ckino Dec.13.2011:           ssite(ib)%rv_p_ov1 => rv_p_ov1 
 
 
         ztot = ztot+z

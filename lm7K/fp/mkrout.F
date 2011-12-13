@@ -190,21 +190,21 @@ C ... Local parameters
 
                real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-              real(8),pointer :: rv_p_orhoca(:) =>NULL()
+ckino Dec.13.2011:                real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-             real(8),pointer :: rv_p_ov01(:) =>NULL()
+ckino Dec.13.2011:  ckino Dec.13.2011:               real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-            real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.13.2011:              real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-           integer,pointer :: iv_p_ojcg(:) =>NULL()
+ckino Dec.13.2011:             integer,pointer :: iv_p_ojcg(:) =>NULL()
 
-          integer,pointer :: iv_p_oidxcg(:) =>NULL()
+ckino Dec.13.2011:            integer,pointer :: iv_p_oidxcg(:) =>NULL()
 
-         real(8),pointer :: rv_p_ocy(:) =>NULL()
+ckino Dec.13.2011:           real(8),pointer :: rv_p_ocy(:) =>NULL()
 
-        real(8),pointer :: rv_p_ocg(:) =>NULL()
+ckino Dec.13.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.13.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)
@@ -257,17 +257,17 @@ Changenglob      nkaph = nglob('nkaph')
       sums1 = 0
       call tcn('mkrout')
 
-       rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.13.2011:         rv_p_ocg => slat%rv_p_ocg 
 
-       iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.13.2011:         iv_p_ojcg => slat%iv_p_ojcg 
 
-       iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.13.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
 
-       rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.13.2011:         rv_p_ocy => slat%rv_p_ocy 
 
 
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.13.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
@@ -303,14 +303,15 @@ C --- Start loop over atoms ---
 
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
-         rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.13.2011:           rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-         call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab 
+ckino Dec.13.2011:           call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab 
+         call orbl ( ib , 0 , nlmto , sham%iv_p_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
@@ -319,9 +320,9 @@ C --- Start loop over atoms ---
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-         rv_p_ov01 => ssite(ib)%rv_p_ov1 
+ckino Dec.13.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1 
 
 
 
@@ -388,7 +389,8 @@ C   ... Augmented wave functions
           allocate(rss_rv(nr*(lmxa+1)*2*nsp))
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
-           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+ckino Dec.13.2011:             call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv ) 
 
@@ -404,8 +406,11 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           cpp_rv(:)=0d0
           allocate(dmatl_rv((lmxa+1)**2*nlml*nsp*9))
           dmatl_rv(:)=0d0
-          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
-     .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
+ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , slat%iv_p_ojcg 
+          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
+ckino Dec.13.2011:       .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+     .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .     , chp_rv , cpp_rv , dmatl_rv ) 
 
@@ -467,8 +472,11 @@ C       Remake hbyl from energy-weighted density matrix
 
             call dpzero ( cpp_rv , k )
 
-                  call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
-     .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
+ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , slat%iv_p_ojcg 
+                  call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
+ckino Dec.13.2011:       .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+     .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .            , chp_rv , cpp_rv , dmatl_rv ) 
 
@@ -533,7 +541,8 @@ C       Contribution to mag outsite rmt: extrapolate tail to infinity
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
-            call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
+ckino Dec.13.2011:              call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
+            call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_p_ov1 
      .      , kcor , lcor , qcor , smec , smtc , sv_p_orhoat( 3 , ib )%v 
      .      , ncore , 0d0 , 0d0 ) 
 
@@ -553,7 +562,8 @@ C         smec = smec+sum
   288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-            call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+ckino Dec.13.2011:              call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+            call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .      * nsp , 1d0 ) 
 
 
