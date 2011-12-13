@@ -115,7 +115,7 @@ ckino Dec.8.2011:                         real(8),pointer :: rv_p_oag(:) =>NULL(
 
 ckino Dec.8.2011                      real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-                     integer,pointer :: iv_p_owk(:) =>NULL()
+ckino Dec.13.2011:                       integer,pointer :: iv_p_owk(:) =>NULL()
 
 ckino Dec.8.2011:                      integer,pointer :: iv_p_onrc(:) =>NULL()
 

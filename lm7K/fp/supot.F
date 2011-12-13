@@ -33,7 +33,7 @@ C ... Local parameters
      .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint 
 ckino Dec.8.2011:                     real(8),pointer :: rv_p_opos(:) =>NULL()
 
-                  real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.13.2011:                    real(8),pointer :: rv_p_og(:) =>NULL()
 
 ckino Dec.8.2011:                   integer,pointer :: iv_p_okv(:) =>NULL()
 
@@ -199,7 +199,7 @@ ckino Dec.8.2011:           zv_p_obgv(:)=0.0d0
 
 
         ngrp=slat%nsgrp
-         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.13.2011:           rv_p_og => slat%rv_p_osymgr 
 
 ckino Dec.8.2011:           rv_p_oag => slat%rv_p_oag 
 
@@ -207,7 +207,8 @@ ckino Dec.8.2011:           rv_p_oag => slat%rv_p_oag
 ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
 ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
 ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , iv_p_oips0 
-             call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
+ckino Dec.13.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
+             call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
 ckino Dec.8.2011:       .       , zv_p_obgv ) 
      .       , slat%zv_p_obgv ) 
 

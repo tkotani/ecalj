@@ -179,7 +179,7 @@ C ... for core hole
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
 ckino 12月.12.2011:             real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.13.2011:            real(8),pointer :: rv_p_ov0(:) =>NULL()
 
 ckino 12月.12.2011:           integer,pointer :: iv_p_ojcg(:) =>NULL()
 
@@ -257,7 +257,7 @@ C$&  MP_SCHEDTYPE=RUNTIME
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 ckino 12月.12.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1 
 
@@ -368,7 +368,8 @@ C   ... Write true potential to file vtrue.ib
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
-             call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+             call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
      .       * i , y0 ) 
 
           enddo
@@ -460,7 +461,8 @@ ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p
 ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, iv_p_oidxcg 
 ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, slat%iv_p_oidxcg
      .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_p_oidxcg
-     .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+     .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
