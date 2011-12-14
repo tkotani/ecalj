@@ -102,7 +102,7 @@ ckino Dec.8.2011:            integer,pointer :: iv_p_oips(:) =>NULL()
 
 ckino Dec.14.2011:           integer,pointer :: iv_p_oistab(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:) =>NULL()
+ckino Dec.14.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
 
 ckino Dec.14.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
@@ -151,8 +151,10 @@ ckino Dec.14.2011:         if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
        allocate(iv_p_oipc(abs(nsite)))
        if (nsite<0) iv_p_oipc(:)=0
 
-       allocate(iv_p_oics(abs(nsite)))
-       if (nsite<0) iv_p_oics(:)=0
+ckino Dec.14.2011:         allocate(iv_p_oics(abs(nsite)))
+       allocate(sarray%iv_p_oics(abs(nsite)))
+ckino Dec.14.2011:         if (nsite<0) iv_p_oics(:)=0
+       if (nsite<0) sarray%iv_p_oics(:)=0
 
       allocate(nrspc_iv(nbas))
 
@@ -316,7 +318,8 @@ ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_
            call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
 ckino Dec.14.2011:       .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
      .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-     .     iv_p_oics , iv_p_onrc ) 
+ckino Dec.14.2011:       .     iv_p_oics , iv_p_onrc ) 
+     .     sarray%iv_p_oics , iv_p_onrc ) 
 
 
 
@@ -354,10 +357,14 @@ C$$$        call icopy(nsite,w(oipc),1,w(oipcp),1)
 C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
 C$$$      else
 C   ... Reallocate arrays as permanent arrays
-       i_data_size=size(iv_p_oics); allocate(iv_a_tmp(i_data_size))
-       iv_a_tmp=iv_p_oics; deallocate(iv_p_oics)
-       i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
-       iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+ckino Dec.14.2011:         i_data_size=size(iv_p_oics); allocate(iv_a_tmp(i_data_size))
+       i_data_size=size(sarray%iv_p_oics); allocate(iv_a_tmp(i_data_size))
+ckino Dec.14.2011:         iv_a_tmp=iv_p_oics; deallocate(iv_p_oics)
+       iv_a_tmp=sarray%iv_p_oics; deallocate(sarray%iv_p_oics)
+ckino Dec.14.2011:         i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
+       i_data_size=min(i_data_size,nclspp); allocate(sarray%iv_p_oics(nclspp))
+ckino Dec.14.2011:         iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+       sarray%iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 cki      oipcp = oipc
         iv_p_oipcp => iv_p_oipc
@@ -435,7 +442,8 @@ ckino Dec.14.2011:           if (nclspp<0) rv_p_oclabl(:)=0.0d0
          allocate(iv_p_onrcp(abs(nclspp)))
          if (nclspp<0) iv_p_onrcp(:)=0
 
-            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
+ckino Dec.14.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
+            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , iv_p_oipcp 
 ckino Dec.14.2011:       .      , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
      .      , nspec , slabl , ssite , sarray%rv_p_oclabl , iv_p_onrcp ) 
 
@@ -475,7 +483,7 @@ C --- Cleanup: poke class and symmetry info into structures ---
 
 
 
-       sarray%iv_p_oics => iv_p_oics 
+ckino Dec.14.2011:         sarray%iv_p_oics => iv_p_oics 
 
        sarray%iv_p_oipc => iv_p_oipc 
 
