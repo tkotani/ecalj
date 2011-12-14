@@ -365,7 +365,8 @@ C ... Local parameters
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
        integer:: oalph , oiax , ontab , os , ng 
-       real(8),pointer :: rv_p_ogv(:) =>NULL()
+ckino Dec.14.2011 manual correction       real(8),pointer :: rv_p_ogv(:) =>NULL()
+       real(8),allocatable :: rv_a_ogv(:)
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
@@ -547,12 +548,13 @@ C         Find largest lmxa
      .nvi,nvl,lmxax,0,0)
 
       ng=slat%ng
-       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.14.2011       rv_p_ogv => slat%rv_p_ogv 
 
       alat=slat%alat
       tolgv=slat%tolft
 
-       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
+ckino Dec.14.2011       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
+       call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
      . ) 
 
 
@@ -637,19 +639,22 @@ C    ...  Printout
 
           allocate(kv_iv(3*npw))
 
-           allocate(rv_p_ogv(abs(3*npw)))
-           if (3*npw<0) rv_p_ogv(:)=0.0d0
+ckino Dec.14.2011 manual correction           allocate(rv_p_ogv(abs(3*npw)))
+ckino Dec.14.2011 manual correction           if (3*npw<0) rv_p_ogv(:)=0.0d0
+           allocate(rv_a_ogv(abs(3*npw))); rv_a_ogv(:)=0.0d0
 
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
            call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
-     .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
+ckino Dec.14.2011 manual correction     .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
+     .     8 + 2 , npw , npw , kv_iv , rv_a_ogv , xx , igv2_iv ) 
 
 
           call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
-           if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
+ckino Dec.14.2011 manual correction           if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
+          deallocate(rv_a_ogv)
 
 
         endif

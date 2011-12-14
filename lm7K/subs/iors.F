@@ -152,6 +152,8 @@ ckino 12月.14.2011:            real(8),pointer :: rv_p_ov1(:) =>NULL()
 ckino 12月.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
+ckino Dec.14.2011
+        complex(8),allocatable :: zv_a_osmrho(:) 
 
 ckino 12月.14.2011:         real(8),pointer :: rv_p_oves(:) =>NULL()
 
@@ -421,13 +423,17 @@ C   ... FP mesh density
               call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
 
               call fftz30(n1,n2,n3,k1,k2,k3)
-               allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
-               if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+ckino Dec.14.2011 manual correction              allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+               allocate(zv_a_osmrho(abs(-k1*k2*k3*nsp)))
+ckino Dec.14.2011 manual correction               if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+               if (-k1*k2*k3*nsp<0) zv_a_osmrho(:)=0.0d0
 
-               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+ckino Dec.14.2011 manual correction               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho 
      .         , lbin , jfi ) 
 
-               if (associated(zv_p_osmrho)) deallocate(zv_p_osmrho)
+ckino Dec.14.2011 manual correction               if (associated(zv_p_osmrho)) deallocate(zv_p_osmrho)
+                deallocate(zv_a_osmrho)
 
 
             elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
@@ -1144,6 +1150,8 @@ C           spin-split core density
 
             else
                if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
+ckino Dec.14.2011 
+               nullify(rv_p_orhoca)
 
 
               do i_spacks=is,is
@@ -1187,6 +1195,8 @@ C           spin-split core density
 C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
 cki            orhoca = 0
+ckino Dec.14.2011
+            if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca) 
             nullify(rv_p_orhoca)
             rsmfa = 0
             nxi = 0
