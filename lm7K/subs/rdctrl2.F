@@ -195,8 +195,8 @@ c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
       integer:: ib , ispec 
-      real(8),pointer :: rv_p_opos(:) =>NULL()
-      integer,pointer :: iv_p_oips(:) =>NULL()
+ckino Dec.14.2011:        real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.14.2011:        integer,pointer :: iv_p_oips(:) =>NULL()
       integer,allocatable:: wowk(:)
 
       logical:: isanrg,l_dummy_isanrg
@@ -1811,27 +1811,34 @@ c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
       enddo
       v_sham%seref=seref
 c
-       allocate(rv_p_opos(abs(3*nsite)))
-       if (3*nsite<0) rv_p_opos(:)=0.0d0
+ckino Dec.14.2011:         allocate(rv_p_opos(abs(3*nsite)))
+       allocate(v_slat%rv_p_opos(abs(3*nsite)))
+ckino Dec.14.2011:         if (3*nsite<0) rv_p_opos(:)=0.0d0
+       if (3*nsite<0) v_slat%rv_p_opos(:)=0.0d0
 
-       allocate(iv_p_oips(abs(nsite)))
-       if (nsite<0) iv_p_oips(:)=0
+ckino Dec.14.2011:         allocate(iv_p_oips(abs(nsite)))
+       allocate(v_sarry%iv_p_oips(abs(nsite)))
+ckino Dec.14.2011:         if (nsite<0) iv_p_oips(:)=0
+       if (nsite<0) v_sarry%iv_p_oips(:)=0
 
       do i_spackv=1,nsite
         i_copy_size=3
          call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
-     .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_p_opos ) 
 
         i_copy_size=1
          call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
-     .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
+ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oips ) 
 
       enddo
-       v_slat%rv_p_opos => rv_p_opos 
+ckino Dec.14.2011:         v_slat%rv_p_opos => rv_p_opos 
 
-       v_sarry%rv_p_opos => rv_p_opos 
+ckino Dec.14.2011:         v_sarry%rv_p_opos => rv_p_opos 
+        v_sarry%rv_p_opos => v_slat%rv_p_opos
 
-       v_sarry%iv_p_oips => iv_p_oips 
+ckino Dec.14.2011:         v_sarry%iv_p_oips => iv_p_oips 
 
 
 
