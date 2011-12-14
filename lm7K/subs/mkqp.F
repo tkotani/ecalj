@@ -59,7 +59,7 @@ ckino Dec.8.2011:             integer,pointer :: iv_p_oidtet(:) =>NULL()
 ckino Dec.14 manual correction          integer,pointer :: iv_p_owk(:) =>NULL()
           integer,allocatable :: iv_a_owk(:) 
 
-         integer,pointer :: iv_p_oipq(:) =>NULL()
+ckino Dec.14.2011:           integer,pointer :: iv_p_oipq(:) =>NULL()
 
 ckino Dec.8.2011:          real(8),pointer :: rv_p_owtkp(:) =>NULL()
 
@@ -201,8 +201,10 @@ ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*mxkp)))
 ckino Dec.8.2011:           if (3*mxkp<0) rv_p_oqp(:)=0.0d0
          if (3*mxkp<0) sbz%rv_p_oqp(:)=0.0d0
 
-         allocate(iv_p_oipq(abs(6*mxkp)))
-         if (6*mxkp<0) iv_p_oipq(:)=0
+ckino Dec.14.2011:           allocate(iv_p_oipq(abs(6*mxkp)))
+         allocate(sbz%iv_p_oipq(abs(6*mxkp)))
+ckino Dec.14.2011:           if (6*mxkp<0) iv_p_oipq(:)=0
+         if (6*mxkp<0) sbz%iv_p_oipq(:)=0
 
         call dinv33(plat,1,qlat,vol)
 
@@ -227,9 +229,12 @@ ckino Dec.8.2011:           call ivset ( iv_p_ogstar , 1 , 1 , lgstar )
 
         call info0(20,0,0,' ')
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
-ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
+ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp , 
+ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
      .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 
@@ -263,17 +268,22 @@ ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
          if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
 
-         allocate(iv_p_oipq(abs(6*mxkp)))
-         if (6*mxkp<0) iv_p_oipq(:)=0
+ckino Dec.14.2011:           allocate(iv_p_oipq(abs(6*mxkp)))
+         allocate(sbz%iv_p_oipq(abs(6*mxkp)))
+ckino Dec.14.2011:           if (6*mxkp<0) iv_p_oipq(:)=0
+         if (6*mxkp<0) sbz%iv_p_oipq(:)=0
 
         call pshpr(0)
 ckino Dec.8.2011:           call ivset ( iv_p_ogstar , 1 , 1 , lgstar ) 
          call ivset ( sbz%iv_p_ostar , 1 , 1 , lgstar ) 
 
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
-ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
+ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp , 
+ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
      .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 
@@ -286,11 +296,13 @@ ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc
 
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq
         if (.not. ((ltet .and. .not. lnoirr) .or. lipq)) then
-           if (associated(iv_p_oipq)) deallocate(iv_p_oipq)
+ckino Dec.14.2011:             if (associated(iv_p_oipq)) deallocate(iv_p_oipq)
+           if (associated(sbz%iv_p_oipq)) deallocate(sbz%iv_p_oipq)
 
 
 cki          oipq = -999
-             nullify(iv_p_oipq)
+ckino Dec.14.2011:               nullify(iv_p_oipq)
+             nullify(sbz%iv_p_oipq)
         endif
 
 C   ... Generate inequivalent tetrahedra
@@ -303,21 +315,30 @@ ckino Dec.8.2011:             if (mxkp*30<0) iv_p_oidtet(:)=0
 C     ... Save a copy of ipq since tetirr destroys this array
           if (lipq) then
 cki            owk = oipq
-ckino Dec.14.2011 manual correction     iv_p_owk => iv_p_oipq
-             allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=iv_p_oipq(:)
-ckino Dec.14.2011 manual correction             allocate(iv_p_oipq(abs(6*mxkp)))
+ckino Dec.14.2011:  ckino Dec.14.2011 manual correction     iv_p_owk => iv_p_oipq
+ckino Dec.14.2011 manual correction     iv_p_owk => sbz%iv_p_oipq
+ckino Dec.14.2011:               allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=iv_p_oipq(:)
+             allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=sbz%iv_p_oipq(:)
+ckino Dec.14.2011:  ckino Dec.14.2011 manual correction             allocate(iv_p_oipq(abs(6*mxkp)))
+ckino Dec.14.2011 manual correction             allocate(sbz%iv_p_oipq(abs(6*mxkp)))
              
-ckino Dec.14.2011 manual correction             if (6*mxkp<0) iv_p_oipq(:)=0
-              iv_p_oipq(:)=0
+ckino Dec.14.2011:  ckino Dec.14.2011 manual correction             if (6*mxkp<0) iv_p_oipq(:)=0
+ckino Dec.14.2011 manual correction             if (6*mxkp<0) sbz%iv_p_oipq(:)=0
+ckino Dec.14.2011:                iv_p_oipq(:)=0
+              sbz%iv_p_oipq(:)=0
 
-ckino Dec.14.2011 manual correction              call icopy ( 6 * mxkp , iv_p_owk , 1 , iv_p_oipq , 1 ) 
-              call icopy ( 6 * mxkp , iv_a_owk , 1 , iv_p_oipq , 1 ) 
+ckino Dec.14.2011:  ckino Dec.14.2011 manual correction              call icopy ( 6 * mxkp , iv_p_owk , 1 , iv_p_oipq , 1 ) 
+ckino Dec.14.2011 manual correction              call icopy ( 6 * mxkp , iv_p_owk , 1 , sbz%iv_p_oipq , 1 ) 
+ckino Dec.14.2011:                call icopy ( 6 * mxkp , iv_a_owk , 1 , iv_p_oipq , 1 ) 
+              call icopy ( 6 * mxkp , iv_a_owk , 1 , sbz%iv_p_oipq , 1 ) 
 
 
           endif
             call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) 
-ckino Dec.8.2011:       .      , iv_p_oipq , ntet , iv_p_oidtet ) 
-     .      , iv_p_oipq , ntet , sbz%iv_p_oidtet ) 
+ckino Dec.14.2011:  ckino Dec.8.2011:       .      , iv_p_oipq , ntet , iv_p_oidtet ) 
+ckino Dec.8.2011:       .      , sbz%iv_p_oipq , ntet , iv_p_oidtet ) 
+ckino Dec.14.2011:       .      , iv_p_oipq , ntet , sbz%iv_p_oidtet ) 
+     .      , sbz%iv_p_oipq , ntet , sbz%iv_p_oidtet ) 
 
 
 ckino Dec.8.2011:             i_data_size=size(iv_p_oidtet); allocate(iv_a_tmp(i_data_size))
@@ -332,15 +353,19 @@ ckino Dec.8.2011:             iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); 
 C     ... Unless ipq still needed, throw it away
           if (lipq) then
 cki            oipq = owk
-ckino Dec.14.2011 manual correction            iv_p_oipq => iv_p_owk
-               iv_p_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk) 
+ckino Dec.14.2011:  ckino Dec.14.2011 manual correction            iv_p_oipq => iv_p_owk
+ckino Dec.14.2011 manual correction            sbz%iv_p_oipq => iv_p_owk
+ckino Dec.14.2011:                 iv_p_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk) 
+               sbz%iv_p_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk) 
           else
 cki            call defps2(oipq,oidtet)
-             if (associated(iv_p_oipq)) deallocate(iv_p_oipq)
+ckino Dec.14.2011:               if (associated(iv_p_oipq)) deallocate(iv_p_oipq)
+             if (associated(sbz%iv_p_oipq)) deallocate(sbz%iv_p_oipq)
 
 
 cki            oipq = -999
-              nullify(iv_p_oipq)
+ckino Dec.14.2011:                nullify(iv_p_oipq)
+              nullify(sbz%iv_p_oipq)
           endif
         endif
       endif
@@ -370,7 +395,7 @@ ckino Dec.8.2011:         sbz%iv_p_oidtet => iv_p_oidtet
 
 cki      if ( oipq .gt. 0 ) then
 
-         sbz%iv_p_oipq => iv_p_oipq 
+ckino Dec.14.2011:           sbz%iv_p_oipq => iv_p_oipq 
 
 cki      endif
 
