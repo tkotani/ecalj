@@ -49,9 +49,9 @@ C     integer ntab(nbas+1),iax(niax,1)
 C static:
       double precision alato,plato(9),xx
         integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , novl 
-        integer,pointer :: iv_p_ontabo(:) =>NULL()
+ckino Dec.14.2011 manual correction        integer,pointer :: iv_p_ontabo(:) =>NULL()
 
-       integer,pointer :: iv_p_oiaxo(:) =>NULL()
+ckino Dec.14.2011 manual correction       integer,pointer :: iv_p_oiaxo(:) =>NULL()
 
       parameter (mxlst=256)
       integer ilst(mxlst)
@@ -164,9 +164,9 @@ C  ...  set up static block for ovcall
         nbaso = nbas
         nbaspo = nbasp
 cki        ontabo = ontab
-        iv_p_ontabo => iv_p_ontab
+ckino Dec.14.2011 manual correction       iv_p_ontabo => iv_p_ontab
 cki        oiaxo = oiax
-        iv_p_oiaxo => iv_p_oiax
+ckino Dec.14.2011 manual correction        iv_p_oiaxo => iv_p_oiax
 
 c        call defrr(opos,3*nbasp)
         allocate(w_opos(3,nbasp))
@@ -197,7 +197,8 @@ c        call defrr(og,n)
    20   continue
         xx = ovcall(n,0d0,w_op,ir,
      &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
-     .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
+ckino Dec.14.2011 manual correction     .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
+     .  w_ormax,w_oips,modeo,iv_p_ontab,iv_p_oiax)
 
         call pshpr(ipr-5)
  22   call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
@@ -205,7 +206,8 @@ c        call defrr(og,n)
 
         xx = ovcall(n,0d0,w_op,ir,
      &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
-     .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
+ckino Dec.14.2011 manual correction     .  w_ormax,w_oips,modeo,iv_p_ontabo,iv_p_oiaxo)
+     .  w_ormax,w_oips,modeo,iv_p_ontab,iv_p_oiax)
 
         if (ir .lt. 0) goto 22
         call poppr
