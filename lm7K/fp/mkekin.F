@@ -188,7 +188,7 @@ C ... Local parameters
 
         real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       logical lgors
       parameter (n0=10,nkap0=3)
@@ -216,7 +216,7 @@ Changenglob      nkaph = nglob('nkaph')
       vol=slat%vol
 
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
 
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
@@ -256,7 +256,8 @@ C --- Integral rhout*veff, part from augmentation ---
 
         if (lmxa .eq. -1) goto 10
 
-         call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
+ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
+         call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
 C       Block into groups of consecutive l
