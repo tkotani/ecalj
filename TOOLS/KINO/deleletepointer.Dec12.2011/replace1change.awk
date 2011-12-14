@@ -1,5 +1,6 @@
 BEGIN{
-  print "# please set LANG=C before invoking this script to show date in English"
+  print "#please set LANG=C before invoking this script to show date in English"
+  print "#input= ",ARGV[1]
   print "BEGIN{"
   print " str=strftime(\"%b.%d.%Y\")"
   print " comment=\"ckino \" str \": \"";
@@ -23,7 +24,7 @@ BEGIN{
   gsub("\""," ")
   gsub(","," ")
   gsub("\\("," ")
-  gsub("\)"," ")
+  gsub("\\)"," ")
   n=split($0,a)
   }
   name1=a[1]
@@ -47,8 +48,8 @@ BEGIN{
   print "  if (match($0,\"pointer\")) { next;}"
   print "  if (match($0,\"" name1match " *=> *" name2match "\")) { next;}"
   print "  if (match($0,\"" name2match " *=> *" name1match "\")) { next;}"
-#  print "  gsub(\"" name1 "[^a-zA-Z0-9]\",\"" name2 "\")"
   print "  gsub(\"" name1 "\",\"" name2 "\")"
+#  print "  gsubexact0($0,\"" name1 "\",\"" name2 "\")"
   print "  if (match($0,\""  strucmatch strucmatch "\")) {next;}"
   print "}"
 }
