@@ -62,7 +62,7 @@ C
 
 ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
 
-       rv_p_og => slat%rv_p_osymgr 
+ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
 
       ngrp=slat%nsgrp
 
@@ -136,7 +136,8 @@ c ... reverse maping of offset-index for hamiltonian
 
 C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-       call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
+ckino Dec.14.2011:         call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
+       call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
 
 ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
        call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
@@ -374,9 +375,9 @@ ckino Dec.8.2011:            integer,pointer :: iv_p_oipc(:) =>NULL()
 
 ckino Dec.8.2011:           integer,pointer :: iv_p_oips(:) =>NULL()
 
-        integer,pointer :: iv_p_oidxsh(:) =>NULL()
+ckino Dec.14.2011:          integer,pointer :: iv_p_oidxsh(:) =>NULL()
 
-       integer,pointer :: iv_p_offh(:) =>NULL()
+ckino Dec.14.2011:         integer,pointer :: iv_p_offh(:) =>NULL()
 
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
@@ -428,11 +429,15 @@ Changenglob      nkaph = nglob('nkaph')
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
-       allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
-       if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
+ckino Dec.14.2011:         allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
+       allocate(sham%iv_p_ooffh(abs(-n0h*nkap0*(nbasp+1))))
+ckino Dec.14.2011:         if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
+       if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
 
-       allocate(iv_p_oidxsh(abs(ndim+3)))
-       if (ndim+3<0) iv_p_oidxsh(:)=0
+ckino Dec.14.2011:         allocate(iv_p_oidxsh(abs(ndim+3)))
+       allocate(sham%iv_p_oindxo(abs(ndim+3)))
+ckino Dec.14.2011:         if (ndim+3<0) iv_p_oidxsh(:)=0
+       if (ndim+3<0) sham%iv_p_oindxo(:)=0
 
       stdo = lgunit(1)
 
@@ -459,7 +464,9 @@ C --- Hamiltonian offsets, orbital permutation table ---
       else
 ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
            call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
-     .     , iv_p_offh , iv_p_oidxsh , ldham ) 
+ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham ) 
+ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham ) 
+     .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 
 
 
 
@@ -478,9 +485,9 @@ C ... Make rest of ldham
       ldham(8) = nspx
 
       sham%ndofH=nbasp+1
-       sham%iv_p_ooffh => iv_p_offh 
+ckino Dec.14.2011:         sham%iv_p_ooffh => iv_p_offh 
 
-       sham%iv_p_oindxo => iv_p_oidxsh 
+ckino Dec.14.2011:         sham%iv_p_oindxo => iv_p_oidxsh 
 
       i_copy_size=size(sham%ldham)
       call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
