@@ -114,7 +114,7 @@ C ... Local variables
 
 ckino Dec.8.2011:           type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
-        complex(8),pointer :: zv_p_osmrho(:) =>NULL()
+ckino Dec.14.2011:          complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
 ckino Dec.8.2011:         complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
@@ -557,7 +557,7 @@ C ... Quit if --quit=ham given
 C --- Setup for iterations in a self-consistency cycle ---
 C ... Unpack or allocate some permanent arrays
 ckino Dec.8.2011:        sv_p_oorhat => spot%sv_p_oorhat 
-      zv_p_osmrho => spot%zv_p_osmrho 
+ckino Dec.14.2011:        zv_p_osmrho => spot%zv_p_osmrho 
 ckino Dec.8.2011:        zv_p_osmpot => spot%zv_p_osmpot 
 
       allocate(ftot_rv(3*nbas))
@@ -751,7 +751,8 @@ C         If no force switch set, use default
 
 ckino Dec.8.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
             call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
-     .      , zv_p_osmrho ) 
+ckino Dec.14.2011:       .      , zv_p_osmrho ) 
+     .      , spot%zv_p_osmrho ) 
 
 
 C         Restore force switch
@@ -894,7 +895,8 @@ Ckino ioden is called everytime! Isn't the location strange?
         if (cmdopt('--wden',6,0,strn)) then
 ckino Dec.8.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
             call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat 
-     .      , zv_p_osmrho ) 
+ckino Dec.14.2011:       .      , zv_p_osmrho ) 
+     .      , spot%zv_p_osmrho ) 
 
 
         endif
@@ -1184,7 +1186,8 @@ C       Else, use self-consistent
             irs(1) = 3
 ckino Dec.8.2011:                call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
               call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
-     .        , zv_p_osmrho ) 
+ckino Dec.14.2011:       .        , zv_p_osmrho ) 
+     .        , spot%zv_p_osmrho ) 
 
 
           endif
