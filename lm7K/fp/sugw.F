@@ -182,11 +182,11 @@ C ... Local parameters
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .stdo
 C     integer lshft(3)
-         real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-        real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.14.2011:          real(8),pointer :: rv_p_og(:) =>NULL()
 
-       integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
@@ -225,7 +225,7 @@ c      integer:: oigv2
 
 C ... for reading self-energy
       integer nqsig
-       real(8),pointer :: rv_p_oqsig(:) =>NULL()
+ckino Dec.14.2011:         real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
 
 C ... for band plotting
@@ -276,7 +276,7 @@ C --- Setup ---
 
       npgrp=slat%npgrp
       nsgrp=slat%nsgrp
-       rv_p_og => slat%rv_p_osymgr 
+ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
 
 
       call fftz30(n1,n2,n3,k1,k2,k3)
@@ -293,7 +293,7 @@ Changenglob      nspc = nglob('nspc')
 C     lsig = 0
 
       nqsig=sham%nqsig
-       rv_p_oqsig => sham%rv_p_oqsig 
+ckino Dec.14.2011:         rv_p_oqsig => sham%rv_p_oqsig 
 
 
 cki      if (oqsig .eq. 0) oqsig = 1
@@ -359,7 +359,7 @@ Ckino isanrg is logical function,       call isanrg(job,0,5,'sugw:','job',.true.
 
       napw = 0
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
 
 
@@ -398,7 +398,8 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
         call info(30,1,1,
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 C   ... Create file SYMOPS
-         call wsymops ( rv_p_og , nsgrp ) 
+ckino Dec.14.2011:           call wsymops ( rv_p_og , nsgrp ) 
+         call wsymops ( slat%rv_p_osymgr , nsgrp ) 
 
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
@@ -413,7 +414,8 @@ C   ... Create file LATTC
           lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
-             call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
+ckino Dec.14.2011:               call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
+             call orbl ( i , 0 , ldim , sham%iv_p_oindxo , norb , ltab , ktab , 
      .       xx , offl , i1 ) 
 
             write(ifi,"(3i10)") i1
@@ -605,7 +607,7 @@ C   ... Atom data (gwa)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
 
 
@@ -618,7 +620,8 @@ C   ... Atom data (gwa)
 
           if (lmaxa .gt. -1) then
              call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
-     .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+     .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , i1 , ncore , konfig , ecore , w 
      .       , w ) 
 
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
@@ -627,7 +630,8 @@ C   ... Atom data (gwa)
 C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
              call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
-     .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
+ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
+     .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , nphimx , ncore , konfig , ecore 
      .       , gcore , gval ) 
 
 C         Header data for this atom
@@ -961,7 +965,8 @@ C   --- LDA + sigma Hamiltonian for this qp ---
           ispc = min(isp,nspc)
               isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-     .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
+ckino Dec.14.2011:       .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
+     .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
      .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
      .        , napw , igv2 , ham , ovl , isize_ham, i2 ) 
 
@@ -1194,7 +1199,8 @@ c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
                call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,  
-     .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
+ckino Dec.14.2011:       .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
+     .         igv2 , sham%iv_p_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
      .         , ppovl , phovl ) 
 
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
