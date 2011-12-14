@@ -56,7 +56,8 @@ ckino Dec.8.2011:              integer,pointer :: iv_p_ogstar(:) =>NULL()
 
 ckino Dec.8.2011:             integer,pointer :: iv_p_oidtet(:) =>NULL()
 
-          integer,pointer :: iv_p_owk(:) =>NULL()
+ckino Dec.14 manual correction          integer,pointer :: iv_p_owk(:) =>NULL()
+          integer,allocatable :: iv_a_owk(:) 
 
          integer,pointer :: iv_p_oipq(:) =>NULL()
 
@@ -302,11 +303,15 @@ ckino Dec.8.2011:             if (mxkp*30<0) iv_p_oidtet(:)=0
 C     ... Save a copy of ipq since tetirr destroys this array
           if (lipq) then
 cki            owk = oipq
-             iv_p_owk => iv_p_oipq
-             allocate(iv_p_oipq(abs(6*mxkp)))
-             if (6*mxkp<0) iv_p_oipq(:)=0
+ckino Dec.14.2011 manual correction     iv_p_owk => iv_p_oipq
+             allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=iv_p_oipq(:)
+ckino Dec.14.2011 manual correction             allocate(iv_p_oipq(abs(6*mxkp)))
+             
+ckino Dec.14.2011 manual correction             if (6*mxkp<0) iv_p_oipq(:)=0
+              iv_p_oipq(:)=0
 
-              call icopy ( 6 * mxkp , iv_p_owk , 1 , iv_p_oipq , 1 ) 
+ckino Dec.14.2011 manual correction              call icopy ( 6 * mxkp , iv_p_owk , 1 , iv_p_oipq , 1 ) 
+              call icopy ( 6 * mxkp , iv_a_owk , 1 , iv_p_oipq , 1 ) 
 
 
           endif
@@ -327,7 +332,8 @@ ckino Dec.8.2011:             iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); 
 C     ... Unless ipq still needed, throw it away
           if (lipq) then
 cki            oipq = owk
-            iv_p_oipq => iv_p_owk
+ckino Dec.14.2011 manual correction            iv_p_oipq => iv_p_owk
+               iv_p_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk) 
           else
 cki            call defps2(oipq,oidtet)
              if (associated(iv_p_oipq)) deallocate(iv_p_oipq)
