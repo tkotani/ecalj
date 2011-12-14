@@ -32,7 +32,7 @@ c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
         integer:: nkap0 , n0 , ibas , k 
-        real(8),pointer :: rv_p_og(:)
+ckino Dec.14.2011:        real(8),pointer :: rv_p_og(:)
 
 ckino Dec.8.2011:         real(8),pointer :: rv_p_oag(:)
 
