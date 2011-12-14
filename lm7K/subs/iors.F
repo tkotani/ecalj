@@ -147,13 +147,13 @@ C ... Local parameters
            integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw 
            real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-          real(8),pointer :: rv_p_ov1(:) =>NULL()
+ckino 12月.14.2011:            real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-         real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino 12月.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
         complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-       real(8),pointer :: rv_p_oves(:) =>NULL()
+ckino 12月.14.2011:         real(8),pointer :: rv_p_oves(:) =>NULL()
 
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
@@ -900,8 +900,10 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
-           allocate(rv_p_ov0(abs(nr*nsp)))
-           if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+ckino 12月.14.2011:             allocate(rv_p_ov0(abs(nr*nsp)))
+           allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
+ckino 12月.14.2011:             if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+           if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
 
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
@@ -916,8 +918,10 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
              allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
              if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
-             allocate(rv_p_ov1(abs(nr*nsp)))
-             if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+ckino 12月.14.2011:               allocate(rv_p_ov1(abs(nr*nsp)))
+             allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
+ckino 12月.14.2011:               if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+             if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
 
 
             if (procid .eq. master) then
@@ -940,17 +944,21 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
      .         nsp , lbin , jfi ) 
 
               if (.not. lbin) read(jfi,*)
-               call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+ckino 12月.14.2011:                 call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+               call dpdbyl ( ssite(ib)%rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (.not. lbin) read(jfi,*)
-               call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+ckino 12月.14.2011:                 call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+               call dpdbyl ( ssite(ib)%rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
      .         ) 
 
               if (nsp0 .lt. nsp) then
-                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
+ckino 12月.14.2011:                   call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
+                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov0 , 1 ) 
 
-                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
+ckino 12月.14.2011:                   call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
+                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov1 , 1 ) 
 
               endif
 C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
@@ -969,7 +977,8 @@ C           endif
             if (mode .eq. -2) then
                if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
 
-               if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
+ckino 12月.14.2011:                 if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
+               if (associated(ssite(ib)%rv_p_ov0)) deallocate(ssite(ib)%rv_p_ov0)
 
 
             else
@@ -983,10 +992,12 @@ cki bug fix ,size=nr*nsp              call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr
                call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(3)' ) 
 
-               call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
+ckino 12月.14.2011:                 call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
+               call mpibc1 ( ssite(ib)%rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
      .         ) 
 
-               call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
+ckino 12月.14.2011:                 call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
+               call mpibc1 ( ssite(ib)%rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
      .         ) 
 
 #if KINODEBUG & (MPI|MPIK)
@@ -1009,13 +1020,14 @@ Ckino aiomom is logical function,               call aiomom(spid0,pnu,qnu(1,1,1+
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
 
-                 rv_p_oves => spot%rv_p_oves 
+ckino 12月.14.2011:                   rv_p_oves => spot%rv_p_oves 
 
 
-                 call dvset ( rv_p_oves , ic , ic , vrmax ) 
+ckino 12月.14.2011:                   call dvset ( rv_p_oves , ic , ic , vrmax ) 
+                 call dvset ( spot%rv_p_oves , ic , ic , vrmax ) 
 
 
-                 spot%rv_p_oves => rv_p_oves 
+ckino 12月.14.2011:                   spot%rv_p_oves => rv_p_oves 
 
 
               endif
@@ -1041,9 +1053,9 @@ C     ... store data in strucs
           sspec(is)%qc=qc
 
 
-           ssite(ib)%rv_p_ov0 => rv_p_ov0 
+ckino 12月.14.2011:             ssite(ib)%rv_p_ov0 => rv_p_ov0 
 
-           ssite(ib)%rv_p_ov1 => rv_p_ov1 
+ckino 12月.14.2011:             ssite(ib)%rv_p_ov1 => rv_p_ov1 
 
 
    20     continue
@@ -1431,9 +1443,9 @@ C   --- Write information for local densities ---
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino 12月.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-           rv_p_ov1 => ssite(ib)%rv_p_ov1 
+ckino 12月.14.2011:             rv_p_ov1 => ssite(ib)%rv_p_ov1 
 
 
           if (lmxa .eq. -1) goto 120
@@ -1495,11 +1507,13 @@ C     ... Write arrays for local density and potential
      .       , lbin , - jfi ) 
 
             if (.not. lbin) write(jfi,'('' v0'')')
-             call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+ckino 12月.14.2011:               call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+             call dpdbyl ( ssite(ib)%rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
             if (.not. lbin) write(jfi,'('' v1'')')
-             call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+ckino 12月.14.2011:               call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+             call dpdbyl ( ssite(ib)%rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
      .       ) 
 
           else
@@ -1516,10 +1530,11 @@ Ckino aiomom is logical function,               call aiomom(spid,pnu,qnu(1,1,1+(
               l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
-               rv_p_oves => spot%rv_p_oves 
+ckino 12月.14.2011:                 rv_p_oves => spot%rv_p_oves 
 
 
-               vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
+ckino 12月.14.2011:                 vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
+               vrmax ( 1 ) = dval ( spot%rv_p_oves , ic ) 
 
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
