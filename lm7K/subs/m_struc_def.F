@@ -849,13 +849,15 @@ CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohrs
        real(8) , pointer ::  rv_p_ohrs (:) =>NULL()
 cki      integer(8)   ::   oiaxs
-       integer, pointer :: iv_p_oiaxs(:) =>NULL()
+ckino Dec.14.2011:         integer, pointer :: iv_p_oiaxs(:) =>NULL()
+       integer, allocatable :: iv_a_oiaxs(:) 
 CCHSTRUC       integer(8)   ::   oindxo
        integer , pointer ::  iv_p_oindxo (:) =>NULL()
 CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
 CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
 cki      integer(8)   ::   ontabs
-       integer, pointer :: iv_p_ontabs(:) =>NULL()
+ckino Dec.14.2011:         integer, pointer :: iv_p_ontabs(:) =>NULL()
+       integer, allocatable :: iv_a_ontabs(:) 
 CCHSTRUC       integer(8)   ::   ooffH
        integer , pointer ::  iv_p_ooffH (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqsig

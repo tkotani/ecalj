@@ -304,7 +304,9 @@ c sorting of ea
       module m_pairs
       contains
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
-     .pltab,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+ckino Dec.14.2011:       .pltab,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
+ckino Dec.14.2011:       .pltab,nttab,iv_p_ontab,iv_a_oiax,mxcsiz)
+     .pltab,nttab,iv_a_ontab,iv_a_oiax,mxcsiz)
 C- Allocate memory for and create neighbor table for a crystal
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -337,9 +339,11 @@ Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
         integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab 
-        integer,pointer :: iv_p_ontab(:) 
+ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:) 
+        integer,allocatable :: iv_a_ontab(:) 
 
-       integer,pointer :: iv_p_oiax(:)
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
+       integer,allocatable :: iv_a_oiax(:)
 
       double precision alat,plat(9),rmax(1),baspp(3,1)
 C Local variables
@@ -357,11 +361,15 @@ C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
-       allocate(iv_p_ontab(abs(nbasp+1)))
-       if (nbasp+1<0) iv_p_ontab(:)=0
+ckino Dec.14.2011:         allocate(iv_p_ontab(abs(nbasp+1)))
+       allocate(iv_a_ontab(abs(nbasp+1)))
+ckino Dec.14.2011:         if (nbasp+1<0) iv_p_ontab(:)=0
+       if (nbasp+1<0) iv_a_ontab(:)=0
 
-       allocate(iv_p_oiax(abs(-niax*mxnbr)))
-       if (-niax*mxnbr<0) iv_p_oiax(:)=0
+ckino Dec.14.2011:         allocate(iv_p_oiax(abs(-niax*mxnbr)))
+       allocate(iv_a_oiax(abs(-niax*mxnbr)))
+ckino Dec.14.2011:         if (-niax*mxnbr<0) iv_p_oiax(:)=0
+       if (-niax*mxnbr<0) iv_a_oiax(:)=0
 
       allocate(wk_rv(3*mxnbr))
 
@@ -374,17 +382,23 @@ C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
         call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
-     .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
-     .  , iv_p_oiax , wk_rv , mxcsiz ) 
+ckino Dec.14.2011:       .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
+     .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_a_ontab 
+ckino Dec.14.2011:       .  , iv_p_oiax , wk_rv , mxcsiz ) 
+     .  , iv_a_oiax , wk_rv , mxcsiz ) 
 
 
 
 
 C ... Allocate iax to proper size
-       i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
-       iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
-       i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
-       iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+ckino Dec.14.2011:         i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
+       i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
+ckino Dec.14.2011:         iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
+       iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
+ckino Dec.14.2011:         i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
+       i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
+ckino Dec.14.2011:         iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+       iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
       if (allocated(wk_rv)) deallocate(wk_rv)
 

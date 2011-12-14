@@ -185,7 +185,8 @@ C Local parameters
       logical lves,leula,a2bin
       double precision avwsr,avw,range,xx,stdo,wdummy
        integer:: olstc 
-       integer,pointer :: iv_p_ontab(:) =>NULL()
+ckino Dec.14.2011:         integer,pointer :: iv_p_ontab(:) =>NULL()
+       integer,allocatable :: iv_a_ontab(:) 
 
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: rtab_rv(:)
@@ -197,7 +198,8 @@ C Local parameters
        integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
      . , ival , scrwid , ltab , nlstc , nlst1 , nlst2 , mxcsiz , iprint 
      . , ifi , fopn , lgunit , ldisp , lnn 
-       integer,pointer :: iv_p_oiax(:) =>NULL()
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:) =>NULL()
+       integer,allocatable :: iv_a_oiax(:) 
 
       character*8  dc*1
       parameter (scrwid=120)
@@ -304,17 +306,21 @@ C --- Print neighbor table for each site ---
         call pshpr(iprint()-20)
          call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 * ( 1 + 
      .   1d - 6 ) / ) , bas , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab 
-     .   , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+ckino Dec.14.2011:       .   , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+ckino Dec.14.2011:       .   , iv_p_ontab , iv_a_oiax , mxcsiz ) 
+     .   , iv_a_ontab , iv_a_oiax , mxcsiz ) 
 
         call poppr
         allocate(rtab_rv(3*nttab))
 
-         call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas 
+ckino Dec.14.2011:           call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas 
+         call mkrtab ( 000 , 1d0 , plat , bas , iv_a_oiax , nttab , bas 
      .   , rtab_rv ) 
 
 
 C       if (ldisp .eq. 1) ltab = 2
-         call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab 
+ckino Dec.14.2011:           call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab 
+         call psho1 ( ldisp * 10 + ltab , lnn , iv_a_oiax , nbas , nttab 
      .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat , bas , 
      .   dist_rv , mark_rv , ipc , dclabl , ifi ) 
 

@@ -34,9 +34,11 @@ C ... Local parameters
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                  integer:: ohrss 
-                 integer,pointer :: iv_p_ontabs(:) =>NULL()
+ckino Dec.14.2011:                   integer,pointer :: iv_p_ontabs(:) =>NULL()
+                 integer,allocatable :: iv_a_ontabs(:) 
 
-                integer,pointer :: iv_p_oiaxs(:) =>NULL()
+ckino Dec.14.2011:                  integer,pointer :: iv_p_oiaxs(:) =>NULL()
+                integer,allocatable :: iv_a_oiaxs(:) 
 
                real(8),pointer :: rv_p_opos(:) =>NULL()
 
@@ -349,16 +351,19 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
      .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
-     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
+ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
 cki     .    iv_p_oiaxs , ndhrs , w ) 
-     .    iv_p_oiaxs , ndhrs , rv_dummy ) 
+ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy ) 
+     .    iv_a_oiaxs , ndhrs , rv_dummy ) 
 
 ccccccccccccccccccccccccccccccccc
 c          print *,' size iv_p_ontabls=',size(iv_p_ontabs)
 cccccccccccccccccccccccccccccccccccccc
 
 
-       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+       nttabs = ival ( iv_a_ontabs , nbas + 1 ) 
 
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
@@ -634,7 +639,9 @@ C ... titus
                call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
      .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) 
-     .         , plat , rv_p_opos ,iv_p_ontabs , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
+ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
+ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
+     .         , plat , rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
 
 
 
@@ -662,9 +669,13 @@ C     exit of MPI master loop
 
 
       sham%ndhrs=ndhrs
-       sham%iv_p_ontabs => iv_p_ontabs 
+ckino Dec.14.2011:         sham%iv_p_ontabs => iv_p_ontabs 
+ckino Dec.14.2011:         sham%iv_a_ontabs => iv_a_ontabs 
+      call move_alloc(from= iv_a_ontabs ,to= sham%iv_a_ontabs )
 
-       sham%iv_p_oiaxs => iv_p_oiaxs 
+ckino Dec.14.2011:         sham%iv_p_oiaxs => iv_p_oiaxs 
+ckino Dec.14.2011:         sham%iv_a_oiaxs => iv_a_oiaxs 
+      call move_alloc(from= iv_a_oiaxs ,to= sham%iv_a_oiaxs )
 
        sham%rv_p_ohrs => rv_p_ohrs 
 
@@ -683,7 +694,8 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
         if (procid .eq. master) then
           call dpzero(tmp,3)
                call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
      .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -746,7 +758,9 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
 Changenglob        nl = nglob('nl')
         nl = globalvariables%nl
               call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
-     .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
+ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
+ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_a_oiaxs 
+     .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
      .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 
 
@@ -770,7 +784,8 @@ C   ... Check how well symmetrized FT replicates sigma(k) at file qp
      .      ' (sigma scaled) ')
           else
                 call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -808,7 +823,9 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
               if (nsp .eq. 1) call rx(
      .        'onesp option nonsensical unless sigma file is spin pol')
                    call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-     .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
+     .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
      .             ) 
 
 
@@ -819,7 +836,9 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
 
             if (ledit .eq. 1) then
                    call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-     .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
+     .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
      .             ) 
 
 
@@ -928,7 +947,8 @@ C         call prmx('qp',w(oqp),3,3,nqp)
 C         call prmx('qp',w(oqp),3,3,nqp)
             endif
                 call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
-     .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
      .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
 
 
@@ -1240,9 +1260,11 @@ C ... Local parameters
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                 integer:: ohrss , osigm2 , odelt , oistb2 
-                integer,pointer :: iv_p_ontabs(:)
+ckino Dec.14.2011:                  integer,pointer :: iv_p_ontabs(:)
+                integer,allocatable :: iv_a_ontabs(:)
 
-               integer,pointer :: iv_p_oiaxs(:) 
+ckino Dec.14.2011:                 integer,pointer :: iv_p_oiaxs(:) 
+               integer,allocatable :: iv_a_oiaxs(:) 
 
               real(8),pointer :: rv_p_opos(:) 
 

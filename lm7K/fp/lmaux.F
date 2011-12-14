@@ -98,9 +98,11 @@ C ... Local parameters
                              integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
                      real(8),allocatable:: eula(:,:)
-                             integer,pointer :: iv_p_ontab(:) =>NULL()
+ckino Dec.14.2011:                               integer,pointer :: iv_p_ontab(:) =>NULL()
+                             integer,allocatable :: iv_a_ontab(:) 
 
-                            integer,pointer :: iv_p_oiax(:) =>NULL()
+ckino Dec.14.2011:                              integer,pointer :: iv_p_oiax(:) =>NULL()
+                            integer,allocatable :: iv_a_oiax(:) 
 
 ckino Dec.8.2011:                             real(8),pointer :: rv_p_opos(:) =>NULL()
 
@@ -332,7 +334,9 @@ c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
 ckino Dec.8.2011:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos 
          call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , sarray%rv_p_opos 
-     .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
+     .   , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) 
 
         call poppr
 
@@ -575,7 +579,9 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
            call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
 ckino Dec.8.2011:       .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
 ckino Dec.8.2011:       .     , rmax , sarray%rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
-     .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
+ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
+ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_a_oiax , 
+     .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
 ckino Dec.8.2011:       .     rv_p_opos , j ) 
      .     sarray%rv_p_opos , j ) 
 

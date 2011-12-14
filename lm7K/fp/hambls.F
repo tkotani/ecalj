@@ -472,9 +472,11 @@ Changenglob      nl = nglob('nl')
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
 ckino Dec.9.2011:        if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
-      if(debug) print *,' hambles:eee 111222 sham%iv_p_ontabs=',sham%iv_p_ontabs
+ckino Dec.14.2011:        if(debug) print *,' hambles:eee 111222 sham%iv_p_ontabs=',sham%iv_p_ontabs
+      if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
 ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
-       nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
+ckino Dec.14.2011:         nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
+       nttabs = ival ( sham%iv_a_ontabs , nbas + 1 ) 
 
       if(debug) print *,' hambles:eee 111333'
 Changenglob      nsp  = nglob('nsp')
@@ -511,7 +513,8 @@ ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oip
             call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      ) 
 
@@ -594,7 +597,8 @@ ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oip
             call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
      .      iwdummy ) 
 
@@ -931,7 +935,8 @@ ckino Dec.9.2011:                call bloch ( i , q , nl , plat , mxorb , iv_p_o
               call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.14.2011:       .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .        , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
      .        iwdummy ) 
 
@@ -1050,7 +1055,8 @@ ckino Dec.9.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mx
               call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo 
 ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
 ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
-     .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+ckino Dec.14.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+     .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
      .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
      .        ) 
 
@@ -1205,7 +1211,8 @@ Changenglob      nl = nglob('nl')
 Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
 ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
-       nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
+ckino Dec.14.2011:         nttabs = ival ( sham%iv_p_ontabs , nbas + 1 ) 
+       nttabs = ival ( sham%iv_a_ontabs , nbas + 1 ) 
 
 Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'blsig:','isp',T)
       l_dummy_isanrg=isanrg(isp,1,nsp,'blsig:','isp',T)
@@ -1227,7 +1234,8 @@ ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oip
             call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
      .      iwdummy ) 
 
