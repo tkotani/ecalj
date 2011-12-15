@@ -308,7 +308,7 @@ ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)
 
          type(s_rv1) :: sv_p_oqkkl(3,nbx)
 
-        type(s_rv1) :: sv_p_otau(3,nbx)
+        type(s_rv1) :: sv_p_otau(3,nbx),sv_p_otau22(3,nbx)
 
        type(s_rv1) :: sv_p_osig(3,nbx)
 
@@ -752,8 +752,8 @@ C  10 continue
       allocate(fes1_rv(3*nbas))
 
 Ckino dfaugm alllocates and initializes variables
-         call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
-     .   , sv_p_otau , sv_p_oppi ) 
+         call dfaugm_tau22 ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
+     .   , sv_p_otau , sv_p_oppi,  sv_p_otau22 ) 
 
 
 
@@ -765,8 +765,8 @@ C --- Make the potential sans XC part ---
           call togpr()
           i = 1 + 10*lfrzw + 100
 Ckino dfaugm alllocates and initializes variables
-             call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
-     .       , sv_p_otaux , sv_p_oppix ) 
+             call dfaugm_tau22 ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
+     .       , sv_p_otaux , sv_p_oppix,  sv_p_otau22 ) !Do I need sv_p_otau22x? 
 
 
 
@@ -777,11 +777,13 @@ c          call defcc(osmrox, -k1*k2*k3*nsp)
 c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
-               call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
+               call mkpot_tau22 ( nbas , ssite , sspec , slat , sham , spot , 0 , 
      .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
      .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
+     .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0
+     &         , sv_p_otau22 ) 
+
 
 
 
@@ -852,11 +854,13 @@ ccccccccccccccccccccccccc
       call togpr()
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
-            call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+            call mkpot_tau22 ( nbas , ssite , sspec , slat , sham , spot , lfrce 
      .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
+     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0,
+     &      sv_p_otau22 ) 
+
 
 
 
@@ -3252,11 +3256,12 @@ ctakao sep2009
 c          call pshpr(ipr-4)
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
-               call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+               call mkpot_tau22 ( nbas , ssite , sspec , slat , sham , spot , lfrce 
      .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
+     .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0,
+     &         sv_p_otau22 ) 
 
 
 

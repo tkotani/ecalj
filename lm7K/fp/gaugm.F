@@ -1,10 +1,10 @@
 CSFCPP#define F90 1
-      subroutine gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,vsm,
+      subroutine gaugm_tau22(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,vsm,
      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
      .nf1,nf1s,lmx1,lx1,f1,x1,v1,d1,
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
      .lmux,sig,tau,nlx1,nlx2,ppi,
-     .lmaxu,vumm,lldau,idu)
+     .lmaxu,vumm,lldau,idu   ,tau22)
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -221,6 +221,8 @@ C ... Local parameters
      .sum((lmx1+1)*(lmx2+1)*nlml)
 CSFCPP#if F90
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
+
+      real(8):: tau22(nf1,nf2,0:lmux,nsp) !Nov2011
 CSFCPP#else
 CSFCPP      double complex hso(nf1,nf2,nlx1,nlx2,2,2)
 CSFCPP      double complex ppiz(nf1,nf2,nlx1,nlx2,2,2)
@@ -260,6 +262,7 @@ C --- Make sig, tau, ppi0 = spherical part of ppi ---
 C     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
         call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2,
      .  nr,rofi,rwgt,vsms,lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0)
+        tau22(:,:,:,i)=tau(:,:,:,i)
 C     print *, '!! zero ppi0 (sm), sig(sm)'
 C     ppi0 = 0
 C     sig(1:nf1,1:nf2,0:lmux,i) = 0

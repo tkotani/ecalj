@@ -948,3 +948,38 @@ C     call tcx('augqp3')
       end subroutine augq3z
 
 
+
+
+cccccccc
+      subroutine tau22add(tau22,ppi,deltatau22) !Nov2011
+C- add deltatau22* tau22 to ppi matrix
+      implicit none
+      real(8):: deltatau22
+      real(8):: ppi(nkaph,nkaph,nlmha,nlmha) !ppi(nf1,nf2,nlx1,nlx2,nsp,1)
+      real(8):: tau22(nf1,nf2,0:lmux,nsp) 
+C --- Add tau into ppi ---
+      do  iorb = 1, norb
+C       l1,ik1 = l and kaph indices, needed for sigma
+        l1  = ltab(iorb)
+        ik1 = ktab(iorb)
+        i1 = offl(iorb)
+        do  ilm1 = l1**2+1, (l1+1)**2
+          i1 = i1+1
+          do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+                if (ilm1 .eq. ilm2) then
+c     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+c                 h(i1,i2) = h(i1,i2) + delttatau22* tau(ik1,ik2,ilm1,ilm2,isp)
+                 ppi(ik1,ik2,ilm1,ilm2,isp) = 
+     &           ppi(ik1,ik2,ilm1,ilm2,isp) 
+     &           + delttatau22* tau(ik1,ik2,l1,isp)
+                endif
+              enddo
+          enddo
+      enddo  
+      enddo  
+      end

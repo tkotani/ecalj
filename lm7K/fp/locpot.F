@@ -1,10 +1,11 @@
-          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+          subroutine locpot_tau22( nbas , nsp , lso , lcplxp , ssite , sspec 
      .    , slat , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .    lmaxu , vorb , lldau ) 
+     .    lmaxu , vorb , lldau ,
+     &    sv_p_otau22)
 
 
 
@@ -131,7 +132,7 @@ C ... Passed parameters
 
          type(s_rv1) :: sv_p_oppi(3,nbas)
 
-        type(s_rv1) :: sv_p_otau(3,nbas)
+        type(s_rv1) :: sv_p_otau(3,nbas), sv_p_otau22(3,nbas)
 
        type(s_rv1) :: sv_p_osig(3,nbas)
 
@@ -447,27 +448,19 @@ C     ... Use effective potentials with modified xc
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
 
-           rv_p_ocg => slat%rv_p_ocg 
+          rv_p_ocg    => slat%rv_p_ocg 
+          iv_p_ojcg   => slat%iv_p_ojcg 
+          iv_p_oidxcg => slat%iv_p_oidxcg 
 
-           iv_p_ojcg => slat%iv_p_ojcg 
-
-           iv_p_oidxcg => slat%iv_p_oidxcg 
-
-
-                 call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-     .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-     .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
-     .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
-     .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
-     .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
-     .           , 1 , ib ) ) 
-
-
-
-
-
-
+          call augmat_tau22 ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+     .      , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+     .      , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+     .        lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+     .      , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
+     .        ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
+     .        hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
+     .      , 1 , ib ) ,
+     &       sv_p_otau22(1,ib))
 
         endif
 
@@ -482,7 +475,7 @@ C     Electric field gradient
       deallocate(wk,rhol1,rhol2,v1,v2,v1es,v2es)
       call tcx('locpot')
 
-      end subroutine locpot
+      end subroutine locpot_tau22
 
 
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,

@@ -1,8 +1,9 @@
-          subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+          subroutine mkpot_tau22 ( nbas , ssite , sspec , slat , sham , spot 
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
-     .    , vorb , nlibu , lmaxu , lldau , nsp,itest ) 
+     .    , vorb , nlibu , lmaxu , lldau , nsp,itest,
+     &    sv_p_otau22 ) 
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -173,7 +174,7 @@ C ... Passed parameters
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(nbas)
-      type(s_rv1) :: sv_p_otau(nbas)
+      type(s_rv1) :: sv_p_otau(nbas),sv_p_otau22(nbas)
       type(s_rv1) :: sv_p_osig(nbas)
 
       real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
@@ -489,13 +490,14 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-          call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+          call locpot_tau22 ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppn , hab , vab , sab , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .    lmaxu , vorb , lldau ) 
+     .    lmaxu , vorb , lldau,
+     &    sv_p_otau22) 
 
 
 
@@ -651,6 +653,6 @@ c------------------
 
       call tcx('mkpot')
 
-      end subroutine mkpot
+      end subroutine mkpot_tau22
 
 

@@ -1,5 +1,17 @@
+# $(moddir)/m_prlcb1.mod :fp/bstrux.F
+# $(moddir)/m_phmbls.mod :fp/hambls.F
+# $(moddir)/m_ioden2.mod :fp/ioden.F
 # $(moddir)/m_events.mod :fp/m_events.F
+# $(moddir)/m_mkrou3.mod :fp/mkrout.F
+# $(moddir)/m_prlcb.mod :fp/rlocbl.F
+# $(moddir)/m_rsibl_ev.mod :fp/rsibl_ev.F
+# $(moddir)/m_unusedfid.mod :fp/w_psir.F
+# $(moddir)/m_w_psir.mod :fp/w_psir.F
+# $(moddir)/m_addrwf.mod :subs/addrwf.F
+# $(moddir)/m_rhocor.mod :subs/atomsr.F
+# $(moddir)/m_getqvc.mod :subs/getq.F
 # $(moddir)/m_hft2rs.mod :subs/hft2rs.F
+# $(moddir)/m_pvioeu.mod :subs/ioeula.F
 # $(moddir)/m_globalvariables.mod :subs/m_globalvariables.F
 # $(moddir)/m_gtv.mod :subs/m_gtv.F
 # $(moddir)/m_hamindex.mod :subs/m_hamindex.F
@@ -12,6 +24,8 @@
 # $(moddir)/m_ovmin.mod :subs/ovmin.F
 # $(moddir)/m_pairs.mod :subs/pairc.F
 # $(moddir)/m_rdctrl2_func.mod :subs/rdctrl2.F
+# $(moddir)/m_sigflg.mod :subs/rdsigm.F
+# $(moddir)/m_xxsho.mod :subs/shoshl.F
 # $(moddir)/m_subzi.mod :subs/subzi.F
 # $(moddir)/defs_basis.mod :subs/xcpbe.F90
 # $(moddir)/m_xcpbe.mod :subs/xcpbe.F90
@@ -22,7 +36,7 @@ $(fp_obj_path)/addbkg.o : fp/addbkg.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/addrbl.o : fp/addrbl.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/augmat.o : fp/augmat.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/augmbl.o : fp/augmbl.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/bndfp.o : fp/bndfp.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/subzi.o $(subs_obj_path)/m_struc_def.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_hamindex.o
+$(fp_obj_path)/bndfp.o : fp/bndfp.F $(fp_obj_path)/rsibl_ev.o $(fp_obj_path)/w_psir.o $(fp_obj_path)/hambls.o $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/subzi.o $(subs_obj_path)/m_struc_def.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_hamindex.o
 $(fp_obj_path)/bstrux.o : fp/bstrux.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/chimedit.o : fp/chimedit.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/corprm.o : fp/corprm.F $(subs_obj_path)/m_struc_def.o
@@ -79,6 +93,7 @@ $(fp_obj_path)/rhomom.o : fp/rhomom.F $(subs_obj_path)/m_globalvariables.o $(sub
 $(fp_obj_path)/rlocbl.o : fp/rlocbl.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rsedit.o : fp/rsedit.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rsibl.o : fp/rsibl.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/rsibl_ev.o : fp/rsibl_ev.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/m_events.o $(fp_obj_path)/w_psir.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/setofl.o : fp/setofl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smcorm.o : fp/smcorm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smhsbl.o : fp/smhsbl.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
@@ -86,7 +101,7 @@ $(fp_obj_path)/smshft.o : fp/smshft.F $(subs_obj_path)/m_globalvariables.o $(sub
 $(fp_obj_path)/smves.o : fp/smves.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smvxcm.o : fp/smvxcm.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/stonerrsa.o : fp/stonerrsa.F $(subs_obj_path)/m_globalvariables.o
-$(fp_obj_path)/sugw.o : fp/sugw.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/sugw.o : fp/sugw.F $(subs_obj_path)/m_globalvariables.o $(fp_obj_path)/hambls.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/supot.o : fp/supot.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/surho.o : fp/surho.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/symrho.o : fp/symrho.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
@@ -96,19 +111,18 @@ $(fp_obj_path)/vcdmel.o : fp/vcdmel.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesft.o : fp/vesft.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesgcm.o : fp/vesgcm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vxcnlm.o : fp/vxcnlm.F $(subs_obj_path)/xcpbe.o $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/vxcnls.o : fp/vxcnls.F $(subs_obj_path)/xcpbe.o
 $(subs_obj_path)/asados.o : subs/asados.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/asars.o : subs/asars.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/atomsr.o : subs/atomsr.F $(subs_obj_path)/m_globalvariables.o
+$(subs_obj_path)/atomsr.o : subs/atomsr.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/getq.o
 $(subs_obj_path)/atwf.o : subs/atwf.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/bzwts.o : subs/bzwts.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/bzwtsf.o : subs/bzwtsf.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/chkdmu.o : subs/chkdmu.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsset.o : subs/clsset.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/defspc.o : subs/defspc.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/freeat.o : subs/freeat.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/freeat.o : subs/freeat.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/getq.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/freeat.bk.o : subs/freeat.bk.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/getcor.o : subs/getcor.F $(subs_obj_path)/m_globalvariables.o
+$(subs_obj_path)/getcor.o : subs/getcor.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/atomsr.o
 $(subs_obj_path)/getqp.o : subs/getqp.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/groupg.o : subs/groupg.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/grpgen.o : subs/grpgen.F $(subs_obj_path)/m_globalvariables.o
@@ -139,7 +153,7 @@ $(subs_obj_path)/projql.o : subs/projql.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdsigm.o : subs/rdsigm.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_psigd.o $(subs_obj_path)/hft2rs.o $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/rdsigm2.o : subs/rdsigm2.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/hft2rs.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rdsigm2.o : subs/rdsigm2.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/rdsigm.o $(subs_obj_path)/hft2rs.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/relax.o : subs/relax.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rlxstp.o : subs/rlxstp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rnatm.o : subs/rnatm.F $(subs_obj_path)/m_globalvariables.o
@@ -163,6 +177,7 @@ $(subs_obj_path)/suqlst.o : subs/suqlst.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/symdmu.o : subs/symdmu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/uspecb.o : subs/uspecb.F $(subs_obj_path)/m_globalvariables.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/vxc0sp.o : subs/vxc0sp.F $(subs_obj_path)/m_globalvariables.o
+$(subs_obj_path)/vxcnls.o : subs/vxcnls.F $(subs_obj_path)/xcpbe.o
 $(subs_obj_path)/writebasis.o : subs/writebasis.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/xcfunc.o : subs/xcfunc.F $(subs_obj_path)/m_globalvariables.o
 $(subs_obj_path)/xcpbe.o90 : subs/xcpbe.F90 $(subs_obj_path)/xcpbe.o

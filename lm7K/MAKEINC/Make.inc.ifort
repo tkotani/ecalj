@@ -42,6 +42,9 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+### Nagara centos5 case
+MKL_LIBS=-L/opt/intel/mkl/lib/intel64  -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lpthread -limf -L/opt/intel/composerxe/lib/intel64 -liomp5
+LIBLOC= $(MKL_LIBS) #/usr/lib64/libfftw3.so.3
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -65,7 +68,7 @@
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
 
-LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+#LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 
 
 ############################################
@@ -91,7 +94,8 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132
+#FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132
+FFLAGS_COMMON= -cm -WB  -cpp $(CPP_SW) $(module) -132
 
 #--- v11.1 
 # FFLAGS -O1 -O1 -O1 -O0 -O0 
