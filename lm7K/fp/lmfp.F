@@ -176,7 +176,7 @@ c      integer:: odmatu , ovorbdmat , odmato
 c takao test
       real(8):: pnu(20),bz_w
       logical :: llmfgw
-#if MPI
+#if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
 #endif

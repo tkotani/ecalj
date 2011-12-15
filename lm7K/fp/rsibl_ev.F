@@ -86,7 +86,7 @@ C ... Passed parameters
       character*26 datim
       integer namelen(0:MAX_PROCS-1),i
       double precision starttime, endtime
-      logical mlog,cmdopt
+      logical mlog!,cmdopt
       integer lgunit
       character*120 strn
 #endif
@@ -154,7 +154,8 @@ ckino      complex(8),allocatable:: f0(:,:,:, :,:)
 
       real(8),allocatable:: ewgt(:,:)
 
-      complex(8),allocatable:: smrho(:,:,:,:), smpot(:,:,:)
+ckino Dec.15.2011      complex(8),allocatable:: smrho(:,:,:,:), smpot(:,:,:)
+      complex(8),allocatable:: smrho(:,:,:,:,:), smpot(:,:,:,:)
 
 
       logical:: cmdopt
@@ -211,8 +212,10 @@ ckino Dec.8.2011:         rv_p_ogv(:)=0.0d0
 
 
 ckino dummy allocation
-       allocate(smrho(k1,k2,k3,numq))
-       allocate(smpot(k1,k2,3))
+ckino Dec.15.2011       allocate(smrho(k1,k2,k3,numq))
+       allocate(smrho(k1,k2,k3,numq,isp))
+ckino Dec.15.2011       allocate(smpot(k1,k2,3))
+       allocate(smpot(k1,k2,3,isp))
 
 c
 c      call defi (oiv, ng*3)
