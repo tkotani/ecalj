@@ -42,7 +42,7 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -87,12 +87,12 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-#--- v11.1 ---> TOO BAD compiler. Never use this.
-FFLAGS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+#--- v11.1 
+FFLAGS = -132 -O1  -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -O1  -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -O1  -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -O0  -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -g  -WB   -cpp $(CPP_SW) $(module)
 
 #--- v10.1 Works fine. 
 #FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
@@ -115,7 +115,7 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -UMPE -DMPI  -UMPIK
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  -DMPI  
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
