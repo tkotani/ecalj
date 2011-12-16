@@ -268,7 +268,7 @@ ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)
 ckino Dec.8.2011:               real(8),allocatable :: rv_p_oswtk(:)
              real(8),allocatable :: rv_a_oswtk(:)
 
-            integer,pointer :: iv_p_oidtet(:)=>NULL()
+ckino Dec.16.2011:              integer,pointer :: iv_p_oidtet(:)=>NULL()
 
 ckino Dec.8.2011:             type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
 
@@ -663,7 +663,7 @@ C ... for BZ integration
       call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-       iv_p_oidtet => sbz%iv_p_oidtet 
+ckino Dec.16.2011:         iv_p_oidtet => sbz%iv_p_oidtet 
 
       lmet=sbz%lmet
 
@@ -2930,7 +2930,8 @@ C --- BZ integration for fermi level, band sum and qp weights ---
           eferm = min(dosw(1),dosw(2))
            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .     , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
-     .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
+ckino Dec.16.2011:       .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
+     .     , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
 
 
 C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
@@ -2938,7 +2939,8 @@ C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
 ckino Dec.8.2011:       .      , rv_p_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
      .      , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-     .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+ckino Dec.16.2011:       .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+     .      eferm , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
 
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
 ckino Dec.8.2011:             call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb, 1 ) 
@@ -2954,7 +2956,8 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
 
               if(sbz%fsmommethod == 1) then !takao dec2010
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
@@ -2987,13 +2990,16 @@ ckino Dec.8.2011:                     l_temp_rv_p_owtkb=.true.
                    l_temp_rv_a_owtkb=.true.
                endif
                l_temp_iv_p_oidtet=.false.
-               if (.not.associated(iv_p_oidtet))then
-                   allocate(iv_p_oidtet(1))
+ckino Dec.16.2011:                 if (.not.associated(iv_p_oidtet))then
+               if (.not.associated(sbz%iv_p_oidtet))then
+ckino Dec.16.2011:                     allocate(iv_p_oidtet(1))
+                   allocate(sbz%iv_p_oidtet(1))
                    l_temp_iv_p_oidtet=.true.
                endif
 ckino end
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
@@ -3021,7 +3027,8 @@ ckino Dec.8.2011:                   l_temp_rv_p_owtkb=.false.
                  l_temp_rv_a_owtkb=.false.
               endif
               if (l_temp_iv_p_oidtet) then
-                 deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
+ckino Dec.16.2011:                   deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
+                 deallocate(sbz%iv_p_oidtet); sbz%iv_p_oidtet=>NULL()
 ckino add .false
                  l_temp_iv_p_oidtet=.false.
               endif
@@ -3137,7 +3144,8 @@ c          allocate(dos_rv(3*ndos))
           if (ltet) then
              call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .       , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
-     .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum , 
+ckino Dec.16.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum , 
+     .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_p_oidtet , dum , 
      .       dum ) 
 
 
