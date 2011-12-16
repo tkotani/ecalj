@@ -145,7 +145,7 @@ C ... Local parameters
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
            integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw 
-           real(8),pointer :: rv_p_orhoca(:) =>NULL()
+ckino Dec.16.2011:             real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
 ckino 12月.14.2011:            real(8),pointer :: rv_p_ov1(:) =>NULL()
 
@@ -1121,37 +1121,46 @@ C   --- Read data on free-atom core states and fit to fa density ---
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
-             allocate(rv_p_orhoca(abs(nr*nsp)))
-             if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
+ckino Dec.16.2011:               allocate(rv_p_orhoca(abs(nr*nsp)))
+             allocate(sspec(is)%rv_p_orhoc(abs(nr*nsp)))
+ckino Dec.16.2011:               if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
+             if (nr*nsp<0) sspec(is)%rv_p_orhoc(:)=0.0d0
 
             if (procid .eq. master) then
               if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
               if (lbin) then
-                 call dpdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+ckino Dec.16.2011:                   call dpdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+                 call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi ) 
 
               else
-                 call dfdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+ckino Dec.16.2011:                   call dfdump ( rv_p_orhoca , nr * nsp0 , jfi ) 
+                 call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi ) 
 
               endif
 C           spin-split core density
               if (nsp .gt. nsp0) then
                 i = nr
-                 call dscal ( i , 0.5d0 , rv_p_orhoca , 1 ) 
+ckino Dec.16.2011:                   call dscal ( i , 0.5d0 , rv_p_orhoca , 1 ) 
+                 call dscal ( i , 0.5d0 , sspec(is)%rv_p_orhoc , 1 ) 
 
-                 call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0 
+ckino Dec.16.2011:                   call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0 
+                 call dpscop ( sspec(is)%rv_p_orhoc , sspec(is)%rv_p_orhoc , i , 1 , 1 + i , 1d0 
      .           ) 
 
               endif
             endif
             if (mode .eq. 1) then
-               call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
+ckino Dec.16.2011:                 call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
+               call mpibc1 ( sspec(is)%rv_p_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
      .         ) 
 
             else
-               if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
+ckino Dec.16.2011:                 if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
+               if (associated(sspec(is)%rv_p_orhoc)) deallocate(sspec(is)%rv_p_orhoc)
 ckino Dec.14.2011 
-               nullify(rv_p_orhoca)
+ckino Dec.16.2011:                 nullify(rv_p_orhoca)
+               nullify(sspec(is)%rv_p_orhoc)
 
 
               do i_spacks=is,is
@@ -1196,8 +1205,10 @@ C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
 cki            orhoca = 0
 ckino Dec.14.2011
-            if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca) 
-            nullify(rv_p_orhoca)
+ckino Dec.16.2011:              if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca) 
+            if (associated(sspec(is)%rv_p_orhoc)) deallocate(sspec(is)%rv_p_orhoc) 
+ckino Dec.16.2011:              nullify(rv_p_orhoca)
+            nullify(sspec(is)%rv_p_orhoc)
             rsmfa = 0
             nxi = 0
             call dpzero(exi,n0)
@@ -1209,7 +1220,7 @@ C         Pack species data
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
-           sspec(is)%rv_p_orhoc => rv_p_orhoca 
+ckino Dec.16.2011:             sspec(is)%rv_p_orhoc => rv_p_orhoca 
 
 
 
@@ -1236,12 +1247,13 @@ c   ... Copy or rescale cores, in case foca was switched on or off
 
             lfoc=sspec(is)%lfoca
             qc=sspec(is)%qc
-             rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.16.2011:               rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
-                call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+ckino Dec.16.2011:                  call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+                call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .          * nsp , 1d0 ) 
 
 
@@ -1581,7 +1593,7 @@ C   --- Write data on free-atom core states and fit to fa density ---
           cof=sspec(is)%ctail
           eh=sspec(is)%etail
           stc=sspec(is)%stc
-           rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.16.2011:             rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
 
 
@@ -1612,12 +1624,14 @@ C   --- Write data on free-atom core states and fit to fa density ---
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
-               call dpdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+ckino Dec.16.2011:                 call dpdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+               call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi ) 
 
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
-               call dfdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+ckino Dec.16.2011:                 call dfdump ( rv_p_orhoca , nr * nsp , - jfi ) 
+               call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi ) 
 
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
      .        rsmfa,nxi
