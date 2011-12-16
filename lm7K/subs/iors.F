@@ -151,7 +151,7 @@ ckino 12月.14.2011:            real(8),pointer :: rv_p_ov1(:) =>NULL()
 
 ckino 12月.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
 
-        complex(8),pointer :: zv_p_osmrho(:) =>NULL()
+ckino Dec.16.2011:          complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 ckino Dec.14.2011
         complex(8),allocatable :: zv_a_osmrho(:) 
 
@@ -232,7 +232,7 @@ C     ndyn = igets('move size',smove)
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
 
-         zv_p_osmrho => spot%zv_p_osmrho 
+ckino Dec.16.2011:           zv_p_osmrho => spot%zv_p_osmrho 
 
 
       endif
@@ -442,7 +442,8 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
 c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
 cccccccccccccccccc
-               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+ckino Dec.16.2011:                 call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , spot%zv_p_osmrho 
      .         , lbin , jfi ) 
 
               if (nsp .gt. nsp0) then
@@ -451,9 +452,11 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222333'
 cccccccccccccccccc
                 i = k1*k2*k3*2
-                 call dscal ( i , 0.5d0 , zv_p_osmrho , 1 ) 
+ckino Dec.16.2011:                   call dscal ( i , 0.5d0 , zv_p_osmrho , 1 ) 
+                 call dscal ( i , 0.5d0 , spot%zv_p_osmrho , 1 ) 
 
-                 call dpscop ( zv_p_osmrho , zv_p_osmrho , i , 1 , 1 + i , 1d0 
+ckino Dec.16.2011:                   call dpscop ( zv_p_osmrho , zv_p_osmrho , i , 1 , 1 + i , 1d0 
+                 call dpscop ( spot%zv_p_osmrho , spot%zv_p_osmrho , i , 1 , 1 + i , 1d0 
      .           ) 
 
 C           call zprm3('smrho after split',0,w(osmrho),k1,k2,k3*2)
@@ -480,7 +483,8 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
                call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
-     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho ) 
+ckino Dec.16.2011:       .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho ) 
+     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho ) 
 
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
@@ -493,12 +497,14 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .        ' :  scale smooth density by',f8.4)
-               call dpcopy ( zv_p_osmrho , zv_p_osmrho , 1 , 2 * k1 * k2 * k3 
+ckino Dec.16.2011:                 call dpcopy ( zv_p_osmrho , zv_p_osmrho , 1 , 2 * k1 * k2 * k3 
+               call dpcopy ( spot%zv_p_osmrho , spot%zv_p_osmrho , 1 , 2 * k1 * k2 * k3 
      .         * nsp , vfac ) 
 
             endif
           endif
-           call mpibc1 ( zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
+ckino Dec.16.2011:             call mpibc1 ( zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
+           call mpibc1 ( spot%zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
      .     , 'iors' , 'smrho' ) 
 
   115     continue
@@ -1387,7 +1393,8 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-         call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_p_osmrho 
+ckino Dec.16.2011:           call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_p_osmrho 
+         call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , spot%zv_p_osmrho 
      .   , lbin , - jfi ) 
 
 #endif
