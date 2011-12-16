@@ -86,17 +86,17 @@ C Local variables
                  integer:: oiwk , aginv 
 ckino Dec.8.2011:                   real(8),pointer :: rv_p_opos(:) =>NULL()
 
-                integer,pointer :: iv_p_oipcp(:) =>NULL()
+ckino Dec.16.2011:                  integer,pointer :: iv_p_oipcp(:) =>NULL()
 
-               integer,pointer :: iv_p_oipc(:) =>NULL()
+ckino Dec.16.2011:                 integer,pointer :: iv_p_oipc(:) =>NULL()
 
 ckino Dec.14.2011:                real(8),pointer :: rv_p_osymgr(:) =>NULL()
 
 ckino Dec.14.2011:               real(8),pointer :: rv_p_oag(:) =>NULL()
 
-            integer,pointer :: iv_p_onrcp(:) =>NULL()
+ckino Dec.16.2011:              integer,pointer :: iv_p_onrcp(:) =>NULL()
 
-           integer,pointer :: iv_p_onrc(:) =>NULL()
+ckino Dec.16.2011:             integer,pointer :: iv_p_onrc(:) =>NULL()
 
 ckino Dec.8.2011:            integer,pointer :: iv_p_oips(:) =>NULL()
 
@@ -148,8 +148,10 @@ ckino Dec.14.2011:         allocate(rv_p_osymgr(abs(9*ngmx)))
 ckino Dec.14.2011:         if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
        if (9*ngmx<0) slat%rv_p_osymgr(:)=0.0d0
 
-       allocate(iv_p_oipc(abs(nsite)))
-       if (nsite<0) iv_p_oipc(:)=0
+ckino Dec.16.2011:         allocate(iv_p_oipc(abs(nsite)))
+       allocate(sarray%iv_p_oipc(abs(nsite)))
+ckino Dec.16.2011:         if (nsite<0) iv_p_oipc(:)=0
+       if (nsite<0) sarray%iv_p_oipc(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oics(abs(nsite)))
        allocate(sarray%iv_p_oics(abs(nsite)))
@@ -306,20 +308,25 @@ C --- Printout of symmetry operations ---
       if (mod(mode/10,10) .eq. 0) goto 100
 
 C --- Split species into classes ---
-       allocate(iv_p_onrc(abs(nspec)))
-       if (nspec<0) iv_p_onrc(:)=0
+ckino Dec.16.2011:         allocate(iv_p_onrc(abs(nspec)))
+       allocate(sarray%iv_p_onrc(abs(nspec)))
+ckino Dec.16.2011:         if (nspec<0) iv_p_onrc(:)=0
+       if (nspec<0) sarray%iv_p_onrc(:)=0
 
 ckino Dec.8.2011:          call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
-        call icopy ( nsite , sarray%iv_p_oips , 1 , iv_p_oipc , 1 ) 
+ckino Dec.16.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , iv_p_oipc , 1 ) 
+        call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_p_oipc , 1 ) 
 
 
 
 ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
            call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
 ckino Dec.14.2011:       .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-     .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
+ckino Dec.16.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
+     .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
 ckino Dec.14.2011:       .     iv_p_oics , iv_p_onrc ) 
-     .     sarray%iv_p_oics , iv_p_onrc ) 
+ckino Dec.16.2011:       .     sarray%iv_p_oics , iv_p_onrc ) 
+     .     sarray%iv_p_oics , sarray%iv_p_onrc ) 
 
 
 
@@ -367,7 +374,8 @@ ckino Dec.14.2011:         iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deall
        sarray%iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 cki      oipcp = oipc
-        iv_p_oipcp => iv_p_oipc
+ckino Dec.16.2011:          iv_p_oipcp => iv_p_oipc
+        sarray%iv_p_oipcp => sarray%iv_p_oipc
 C$$$      endif
 
 C ... Remake istab
@@ -428,7 +436,8 @@ C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
          call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
-     .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oipc ) 
+ckino Dec.16.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oipc ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_p_oipc ) 
 
       enddo
 
@@ -439,20 +448,25 @@ ckino Dec.14.2011:           allocate(rv_p_oclabl(abs(nclspp)))
 ckino Dec.14.2011:           if (nclspp<0) rv_p_oclabl(:)=0.0d0
          if (nclspp<0) sarray%rv_p_oclabl(:)=0.0d0
 
-         allocate(iv_p_onrcp(abs(nclspp)))
-         if (nclspp<0) iv_p_onrcp(:)=0
+ckino Dec.16.2011:           allocate(iv_p_onrcp(abs(nclspp)))
+         allocate(sarray%iv_p_onrcp(abs(nclspp)))
+ckino Dec.16.2011:           if (nclspp<0) iv_p_onrcp(:)=0
+         if (nclspp<0) sarray%iv_p_onrcp(:)=0
 
 ckino Dec.14.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
-            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , iv_p_oipcp 
+ckino Dec.16.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , iv_p_oipcp 
+            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , sarray%iv_p_oipcp 
 ckino Dec.14.2011:       .      , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
-     .      , nspec , slabl , ssite , sarray%rv_p_oclabl , iv_p_onrcp ) 
+ckino Dec.16.2011:       .      , nspec , slabl , ssite , sarray%rv_p_oclabl , iv_p_onrcp ) 
+     .      , nspec , slabl , ssite , sarray%rv_p_oclabl , sarray%iv_p_onrcp ) 
 
 
 
 
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
 cki        onrc = onrcp
-        iv_p_onrc => iv_p_onrcp
+ckino Dec.16.2011:          iv_p_onrc => iv_p_onrcp
+        sarray%iv_p_onrc => sarray%iv_p_onrcp
 C$$$     else
 C$$$          call defi (onrc,   nclasp)
 C$$$          call icopy(nclasp,w(onrcp),1,w(onrc),1)
@@ -465,7 +479,8 @@ cki        oclabl = 0
 ckino Dec.14.2011:          nullify(rv_p_oclabl)
         nullify(sarray%rv_p_oclabl)
 cki        onrcp = 0
-        nullify(iv_p_onrcp)
+ckino Dec.16.2011:          nullify(iv_p_onrcp)
+        nullify(sarray%iv_p_onrcp)
       endif
 
 C       call awrit2('%n:1i',' ',100,6,nsite,w(oipc))
@@ -477,20 +492,20 @@ C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass
 
 
-       sarray%iv_p_onrcp => iv_p_onrcp 
+ckino Dec.16.2011:         sarray%iv_p_onrcp => iv_p_onrcp 
 
-       sarray%iv_p_oipcp => iv_p_oipcp 
+ckino Dec.16.2011:         sarray%iv_p_oipcp => iv_p_oipcp 
 
 
 
 ckino Dec.14.2011:         sarray%iv_p_oics => iv_p_oics 
 
-       sarray%iv_p_oipc => iv_p_oipc 
+ckino Dec.16.2011:         sarray%iv_p_oipc => iv_p_oipc 
 
 ckino Dec.14.2011:         sarray%rv_p_oclabl => rv_p_oclabl 
 
       sarray%nclasp=nclasp
-       sarray%iv_p_onrc => iv_p_onrc 
+ckino Dec.16.2011:         sarray%iv_p_onrc => iv_p_onrc 
 
 
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))

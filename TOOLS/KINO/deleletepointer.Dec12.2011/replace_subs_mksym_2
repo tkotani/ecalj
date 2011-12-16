@@ -1,0 +1,6 @@
+ rv_p_osymgr =>       slat%rv_p_osymgr => rv_p_osymgr 
+ rv_p_oag =>       slat%rv_p_oag => rv_p_oag 
+ iv_p_oistab =>       slat%iv_p_oistab => iv_p_oistab 
+ rv_p_oclabl =>       sarray%rv_p_oclabl => rv_p_oclabl 
+
+

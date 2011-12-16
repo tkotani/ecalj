@@ -1,0 +1,4 @@
+ rv_p_ov1 =>           ssite(ib)%rv_p_ov1 => rv_p_ov1 
+ rv_p_ov0 =>           ssite(ib)%rv_p_ov0 => rv_p_ov0 
+                 rv_p_oves => spot%rv_p_oves 
+
