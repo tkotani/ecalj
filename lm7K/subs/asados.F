@@ -110,7 +110,8 @@ ckino Dec.12.2011:            real(8),pointer :: rv_p_owtkp(:) =>NULL()
 
 ckino Dec.12.2011:           integer,pointer :: iv_p_oics(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqp(:) =>NULL()
+ckino Dec.16.2011:          real(8),pointer :: rv_p_oqp(:) =>NULL()
+        real(8),allocatable :: rv_a_oqp(:)
 
 ckino Dec.12.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
@@ -440,11 +441,14 @@ C   ... Get BZ plane(s) and BZ sampling parameters
         allocate(ew_rv(abs(-2*npln*nwmx)))
         if (-2*npln*nwmx<0) ew_rv(:)=0.0d0
 
-         allocate(rv_p_oqp(abs(3*nkp)))
-         if (3*nkp<0) rv_p_oqp(:)=0.0d0
+ckino Dec.16.2011:           allocate(rv_p_oqp(abs(3*nkp)))
+         allocate(rv_a_oqp(abs(3*nkp)))
+ckino Dec.16.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
+         if (3*nkp<0) rv_a_oqp(:)=0.0d0
 
          call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv 
-     .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
+ckino Dec.16.2011:       .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
+     .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_a_oqp ) 
 
 
         wtbzm = 2d0 / nsp
@@ -661,7 +665,7 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-         rv_p_oqp => sbz%rv_p_oqp 
+ckino Dec.16.2011:           rv_p_oqp => sbz%rv_p_oqp 
 
 ckino Dec.12.2011:           rv_p_owtkp => sbz%rv_p_owtkp 
 
@@ -680,7 +684,8 @@ ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq
         if (nblst .eq. 0) nblst = nevmx
             call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
 ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
-     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp 
+ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp 
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
 ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
 ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
