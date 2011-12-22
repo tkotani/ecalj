@@ -141,6 +141,7 @@ Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SI
       end subroutine sigflg
       end module m_sigflg
 
+#if 0
       subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      .lwsig)
 
@@ -1439,6 +1440,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
 
       end subroutine rdsigm
+#endif
 
       subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp,
      .lshft1,lshft2,lshft3,ifi)

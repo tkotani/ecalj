@@ -40,23 +40,23 @@ ckino Dec.14.2011:                   integer,pointer :: iv_p_ontabs(:) =>NULL()
 ckino Dec.14.2011:                  integer,pointer :: iv_p_oiaxs(:) =>NULL()
                 integer,allocatable :: iv_a_oiaxs(:) 
 
-               real(8),pointer :: rv_p_opos(:) =>NULL()
+ckino Dec.22.2011:                 real(8),pointer :: rv_p_opos(:) =>NULL()
 
-              real(8),pointer :: rv_p_og(:) =>NULL()
+ckino Dec.22.2011:                real(8),pointer :: rv_p_og(:) =>NULL()
 
-             real(8),pointer :: rv_p_oag(:) =>NULL()
+ckino Dec.22.2011:               real(8),pointer :: rv_p_oag(:) =>NULL()
 
-            real(8),pointer :: rv_p_ohrs(:) =>NULL()
+ckino Dec.22.2011:              real(8),pointer :: rv_p_ohrs(:) =>NULL()
 
-         integer,pointer :: iv_p_oistab(:) =>NULL()
+ckino Dec.22.2011:           integer,pointer :: iv_p_oistab(:) =>NULL()
 
-          integer,pointer :: iv_p_oiprmb(:) =>NULL()
+ckino Dec.22.2011:            integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqsig(:) =>NULL()
+ckino Dec.22.2011:           real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
         real(8),pointer :: rv_p_oqp(:) =>NULL()
 
-       integer,pointer :: iv_p_ooffh(:) =>NULL()
+ckino Dec.22.2011:         integer,pointer :: iv_p_ooffh(:) =>NULL()
 
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
@@ -205,9 +205,9 @@ C ... Command-line switches for input sigma and defaults
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
-       iv_p_ooffh => sham%iv_p_ooffh 
+ckino Dec.22.2011:         iv_p_ooffh => sham%iv_p_ooffh 
 
-       iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.22.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
 
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
@@ -307,20 +307,21 @@ C     Sanity checks
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos 
 
 
 
       nsgrp=slat%nsgrp
-       iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.22.2011:         iv_p_oistab => slat%iv_p_oistab 
 
-       rv_p_og => slat%rv_p_osymgr 
+ckino Dec.22.2011:         rv_p_og => slat%rv_p_osymgr 
 
-       rv_p_oag => slat%rv_p_oag 
+ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag 
 
 
 C     Get leading dimension of hrs
-       call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
+ckino Dec.22.2011:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
+       call offshp ( sham%iv_p_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
      . ) 
 
 C     Setup for FFT
@@ -349,10 +350,14 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (ltrans) i = i + 10000
       print *,' go to hft2rs i=',i
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
-     .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+     .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
 cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
-     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
+ckino Dec.22.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , iv_a_ontabs , 
 cki     .    iv_p_oiaxs , ndhrs , w ) 
 ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy ) 
      .    iv_a_oiaxs , ndhrs , rv_dummy ) 
@@ -367,17 +372,23 @@ ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
 
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
-         allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
-         rv_p_ohrs(:)=0d0
+ckino Dec.22.2011:           allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
+         allocate(sham%rv_p_ohrs(ndhrs**2*nttabs*nsp))
+ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
+         sham%rv_p_ohrs(:)=0d0
       else
-         allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
-         rv_p_ohrs(:)=0d0
+ckino Dec.22.2011:           allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+         allocate(sham%rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
+         sham%rv_p_ohrs(:)=0d0
       endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
-       allocate(rv_p_oqsig(abs(3*mxkp)))
-       if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
+ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
+       allocate(sham%rv_p_oqsig(abs(3*mxkp)))
+ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
+       if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
 
        allocate(rv_p_oqp(abs(3*mxkp)))
        if (3*mxkp<0) rv_p_oqp(:)=0.0d0
@@ -395,20 +406,22 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       call info(20,1,0,
      .' q-points in full BZ where sigma calculable ...',0,0)
         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-     .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+ckino Dec.22.2011:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+     .  , 0 , ipq_iv , sham%rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
 
 
 
 
       sham%nqsig=nqsig
-       sham%rv_p_oqsig => rv_p_oqsig 
+ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig 
 
 
       call dpzero ( wgt_rv , mxkp )
 
       call info2(20,0,0,
      .' Irr. qp for which sigma is calculated ...',0,0)
-        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+ckino Dec.22.2011:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
      .  , 0 ) 
 
@@ -637,11 +650,16 @@ C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
                call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
-     .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+     .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
-     .         , plat , rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
+ckino Dec.22.2011:       .         , plat , rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
+ckino Dec.22.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
+     .         , plat , slat%rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 
 
 
@@ -677,7 +695,7 @@ ckino Dec.14.2011:         sham%iv_p_oiaxs => iv_p_oiaxs
 ckino Dec.14.2011:         sham%iv_a_oiaxs => iv_a_oiaxs 
       call move_alloc(from= iv_a_oiaxs ,to= sham%iv_a_oiaxs )
 
-       sham%rv_p_ohrs => rv_p_ohrs 
+ckino Dec.22.2011:         sham%rv_p_ohrs => rv_p_ohrs 
 
 
 
@@ -695,7 +713,9 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
           call dpzero(tmp,3)
                call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-     .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+     .         , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -714,11 +734,13 @@ ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs ,
 
 C ... Broadcast R.S. sigma before symmetrization
       if (hreal .eq. 1) then
-         call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+ckino Dec.22.2011:           call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+         call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
      .   , 'rdsigm' , 'hrs' ) 
 
       else
-         call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+ckino Dec.22.2011:           call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+         call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
      .   , mlog , 'rdsigm' , 'hrs' ) 
 
       endif
@@ -741,9 +763,11 @@ cCchp1           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
 c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 , 
 c     .     w ( ohrss ) , 1 ) 
 c        endif
-        nhrss= size(rv_p_ohrs)
+ckino Dec.22.2011:          nhrss= size(rv_p_ohrs)
+        nhrss= size(sham%rv_p_ohrs)
         allocate(hrss(nhrss))
-        hrss = rv_p_ohrs
+ckino Dec.22.2011:          hrss = rv_p_ohrs
+        hrss = sham%rv_p_ohrs
 
 Changenglob        mxorb = nglob('mxorb')
         mxorb = globalvariables%mxorb
@@ -752,16 +776,21 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
         allocate(istb2_iv(nsgrp*nbas))
 
-         call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+ckino Dec.22.2011:           call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+         call istbpm ( slat%iv_p_oistab , nbas , nsgrp , istb2_iv ) 
 
 
 Changenglob        nl = nglob('nl')
         nl = globalvariables%nl
-              call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+ckino Dec.22.2011:                call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+              call rsmsym ( i , plat , mxorb , sham%iv_p_oindxo , ndimh , nbas , 
 ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
 ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_a_oiaxs 
-     .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
-     .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+ckino Dec.22.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
+     .        slat%rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
+ckino Dec.22.2011:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+ckino Dec.22.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+     .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
 
 
 
@@ -785,7 +814,9 @@ C   ... Check how well symmetrized FT replicates sigma(k) at file qp
           else
                 call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-     .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+     .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -796,11 +827,13 @@ ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs 
 
 C   ... Broadcast R.S. sigma after symmetrization
         if (hreal .eq. 1) then
-           call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+ckino Dec.22.2011:             call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+           call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
      .     , 'rdsigm' , 'hrs' ) 
 
         else
-           call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+ckino Dec.22.2011:             call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+           call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
      .     , mlog , 'rdsigm' , 'hrs' ) 
 
         endif
@@ -822,10 +855,13 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
             if (lonesp .eq. 1) then
               if (nsp .eq. 1) call rx(
      .        'onesp option nonsensical unless sigma file is spin pol')
-                   call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+ckino Dec.22.2011:                     call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+                   call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
-     .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+     .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , sham%rv_p_ohrs 
      .             ) 
 
 
@@ -835,10 +871,13 @@ ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_
             endif
 
             if (ledit .eq. 1) then
-                   call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+ckino Dec.22.2011:                     call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+                   call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
-     .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
+     .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , sham%rv_p_ohrs 
      .             ) 
 
 
@@ -892,7 +931,8 @@ C        if (lnwmsh .or. ltmp) then
               else
                 call info0(20,1,0,
      .          ' Creating sigma for new mesh (file sigm2) ...')
-                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+ckino Dec.22.2011:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
      .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
      .            , 0 ) 
 
@@ -903,7 +943,8 @@ C        if (lnwmsh .or. ltmp) then
 
             elseif (lfbzout) then
 cki              oqp = oqsig
-              rv_p_oqp => rv_p_oqsig
+ckino Dec.22.2011:                rv_p_oqp => rv_p_oqsig
+              rv_p_oqp => sham%rv_p_oqsig
               nqp = nqsig
               call info2(20,1,0,
      .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
@@ -948,7 +989,9 @@ C         call prmx('qp',w(oqp),3,3,nqp)
             endif
                 call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
 ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-     .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
+     .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
 
 
@@ -1266,21 +1309,21 @@ ckino Dec.14.2011:                  integer,pointer :: iv_p_ontabs(:)
 ckino Dec.14.2011:                 integer,pointer :: iv_p_oiaxs(:) 
                integer,allocatable :: iv_a_oiaxs(:) 
 
-              real(8),pointer :: rv_p_opos(:) 
+ckino Dec.22.2011:                real(8),pointer :: rv_p_opos(:) 
 
-             real(8),pointer :: rv_p_og(:) 
+ckino Dec.22.2011:               real(8),pointer :: rv_p_og(:) 
 
-            real(8),pointer :: rv_p_oag(:)
+ckino Dec.22.2011:              real(8),pointer :: rv_p_oag(:)
 
-           real(8),pointer :: rv_p_ohrs(:) 
+ckino Dec.22.2011:             real(8),pointer :: rv_p_ohrs(:) 
 
-         integer,pointer :: iv_p_oistab(:) 
+ckino Dec.22.2011:           integer,pointer :: iv_p_oistab(:) 
 
-         integer,pointer :: iv_p_oiprmb(:)
+ckino Dec.22.2011:           integer,pointer :: iv_p_oiprmb(:)
 
-        real(8),pointer :: rv_p_oqsig(:) 
+ckino Dec.22.2011:          real(8),pointer :: rv_p_oqsig(:) 
 
-       integer,pointer :: iv_p_ooffh(:) 
+ckino Dec.22.2011:         integer,pointer :: iv_p_ooffh(:) 
 
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
@@ -1511,16 +1554,16 @@ C     Sanity checks
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-       rv_p_opos => slat%rv_p_opos 
+ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos 
 
 
 
       nsgrp=slat%nsgrp
-       iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.22.2011:         iv_p_oistab => slat%iv_p_oistab 
 
-       rv_p_og => slat%rv_p_osymgr 
+ckino Dec.22.2011:         rv_p_og => slat%rv_p_osymgr 
 
-       rv_p_oag => slat%rv_p_oag 
+ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag 
 
 
 C     Get leading dimension of hrs
@@ -1579,8 +1622,10 @@ c      endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
-       allocate(rv_p_oqsig(abs(3*mxkp)))
-       if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
+ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
+       allocate(sham%rv_p_oqsig(abs(3*mxkp)))
+ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
+       if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
 
       allocate(qp_rv(3*mxkp))
 
@@ -1597,20 +1642,22 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       call info(20,1,0,
      .' q-points in full BZ where sigma calculable ...',0,0)
         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-     .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+ckino Dec.22.2011:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+     .  , 0 , ipq_iv , sham%rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
 
 
 
 
       sham%nqsig=nqsig
-       sham%rv_p_oqsig => rv_p_oqsig 
+ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig 
 
 
       call dpzero ( wgt_rv , mxkp )
 
       call info2(20,0,0,
      .' Irr. qp for which sigma is calculated ...',0,0)
-       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+ckino Dec.22.2011:         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
      . , nsgrps , ipq_iv , qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 
      . 0 ) 
 
