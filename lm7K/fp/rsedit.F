@@ -91,7 +91,7 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
-           type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
+ckino Dec.26.2011:             type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
           complex(8),pointer :: zv_p_osmrh2(:) =>NULL()
 
@@ -167,7 +167,7 @@ C     Get pointers for density
 
        zv_p_osmpot => spot%zv_p_osmpot 
 
-       sv_p_oorhat => spot%sv_p_oorhat 
+ckino Dec.26.2011:         sv_p_oorhat => spot%sv_p_oorhat 
 
 
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
@@ -378,7 +378,8 @@ C ... Read restart file
      .outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
         if (outs(1:5) .eq. 'rsfa ') then
            call rdovfa ( nbask ( 1 ) , nspeck ( 1 ) , ssite1 , sspec1 , 
-     .     slat , spot , qbg , sv_p_oorhat ) 
+ckino Dec.26.2011:       .     slat , spot , qbg , sv_p_oorhat ) 
+     .     slat , spot , qbg , spot%sv_p_oorhat ) 
 
           fileid = 'rsedit overlap fa densities'
         else
@@ -403,7 +404,8 @@ C ... Read restart file
           call info0(10,0,-1,
      .    ' rsedit: read restart file "'//trim(fn)//'"')
             k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .      fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+ckino Dec.26.2011:       .      fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+     .      fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
      .      , iwdummy , nit , lbin , ifi ) 
 
 
@@ -421,7 +423,8 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+ckino Dec.26.2011:            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
      .    , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -430,7 +433,8 @@ C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
 
         if (havers) then
-           call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+ckino Dec.26.2011:             call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+           call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
      .     ) 
 
         else
@@ -444,7 +448,8 @@ C ... show
      .    '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+ckino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
      .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -522,7 +527,8 @@ C       Carry out operation on 1st or second density
 cki                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
                 call prsed1 (nbas,nbas, nspec
      .          ,  im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
-     .          , sspec1 , sv_p_oorhat , ssite1 , sspec1 , sv_p_oorhat , zv_p_osmrho 
+ckino Dec.26.2011:       .          , sspec1 , sv_p_oorhat , ssite1 , sspec1 , sv_p_oorhat , zv_p_osmrho 
+     .          , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , zv_p_osmrho 
      .          , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
      .          ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
 
@@ -588,7 +594,8 @@ C       Carry out operation on 1st or second density
           if (outs(j1:j2) .eq. '1') then
             if (havers) then
                 call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
-     .          sspec1 , sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.26.2011:       .          sspec1 , sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .          sspec1 , spot%sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
             else
@@ -715,7 +722,8 @@ C        call upack1('lat nabc',slat,ngabc)
 C        call upack1('lat nabc',w(oslat2),ngabc2)
 cki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
            call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+ckino Dec.26.2011:       .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+     .     , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
      .     , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
      .     ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
@@ -730,7 +738,8 @@ cki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1
 C         call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call info0(1,1,0,' New density from rs file:')
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+ckino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
      .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 
 
@@ -755,7 +764,8 @@ C ... Save
         call info0(10,0,-1,
      .  ' rsedit: write restart file "'//trim(fn)//'"')
           k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
-     .    fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+ckino Dec.26.2011:       .    fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
+     .    fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
      .    , iwdummy , nit , lbin , - ifi ) 
 
 
@@ -1447,7 +1457,7 @@ C ... Local parameters
       integer ib,is,nr,lmxa,lmxl,lmxb,nlml,ipr,nglob,stdo,im,mode0
       double precision z,qc,rg,a,rmt,rsma
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
-         real(8),pointer :: rv_p_orhoca(:) =>NULL()
+ckino Dec.26.2011:           real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
         real(8),pointer :: rv_p_ov1(:) =>NULL()
 
@@ -1599,17 +1609,20 @@ C     Species core density modified if im ge 4
         do  is = 1, nspec
 
 
-           rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.26.2011:             rv_p_orhoca => sspec(is)%rv_p_orhoc 
 
           nr=sspec(is)%nr
 
-            call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+ckino Dec.26.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
      .      ) 
 
 
-           call prsed5 ( mode0 , rv_p_orhoca , nr , 1 , nsp ) 
+ckino Dec.26.2011:             call prsed5 ( mode0 , rv_p_orhoca , nr , 1 , nsp ) 
+           call prsed5 ( mode0 , sspec(is)%rv_p_orhoc , nr , 1 , nsp ) 
 
-            call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+ckino Dec.26.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
      .      ) 
 
 
