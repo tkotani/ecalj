@@ -3,10 +3,107 @@ import sys
 import string
 import os
 
+
+g_pos_eqp=0
+
+def eqpsort(x,y):
+	return x[g_pos_eqp]-y[g_pos_eqp]
+
+
+#
+# add by Kino , 2011,Dec.26
+# string: keyword
+# sortkey is keyword
+# return = sorted list of string
+# if failed to find keyword, return the original s0
+#
+def sortbyfield(s0,keyword,printsw):
+        pr = (printsw==1)
+
+	# search the 'q state ... eQP...' line and find the field of eQP
+	global g_pos_eqp
+	g_pos_eqp=0
+	for s in s0:
+		s1=s.split()
+		if len(s1)>5:
+		    if (s1[0]=="q" and s1[1]=="state"):
+			for ix in range(len(s1)):
+				if  s1[ix][0:len(keyword)]==keyword:
+					g_pos_eqp=ix+2
+					break
+		if g_pos_eqp>0: 
+			break
+		
+	# failed to find eQP, then do nothing and return 
+	if g_pos_eqp==0: 
+		return s0
+
+	print "by",keyword, "(the", g_pos_eqp, "th field)."
+	
+
+	# make list 
+	all_slist=[]
+	local_slist=[]
+	flag=0
+	for s in s0:
+		s_split=s.split()
+		try:
+			keyvalue=string.atof(s_split[g_pos_eqp])
+		except:
+			keyvalue=0.0
+				 
+				
+		if len(s_split)>0:
+			local_slist.append([keyvalue,s])
+		if len(s_split)>0:
+		    if s_split[0]=="q":
+			all_slist.append([flag,local_slist]); local_slist=[]
+		if len(s_split)==0:
+			all_slist.append([flag,local_slist]); local_slist=[]
+		if len(s_split)>1 and s_split[0]=="q":
+			flag=1
+	if len(local_slist)>0:
+		all_slist.append([flag,local_slist]); local_slist=[]
+	#print "list"
+	#for s in all_slist:
+	#	print len(s), s
+	#	print "------------"
+			
+	for ix in range(len(all_slist)):
+		if all_slist[ix][0]==1:
+			#print "sort->",all_slist[ix][1]
+			all_slist[ix][1].sort()
+	#print "sorted"
+	#for s in all_slist:
+	#	print len(s), s
+	#	print "------------"
+
+	# make list again
+	s_sorted=[]
+	for s in all_slist:
+		for s1 in s[1]:
+			s_sorted.append(s1[1])
+	if pr: 
+	    print "result"
+	    for s in s_sorted:
+		print s
+
+	return s_sorted
+	
+# endif def sortbykey
+				
+
 def compareqpu(qpu1,qpu2,printsw):
 	pr = (printsw==1)
 	oxx= string.split(qpu1,'\n') 
 	oyy= string.split(qpu2,'\n')
+	print "sort file1...",
+	oxx=sortbyfield(oxx,"eQP",printsw) 
+	print "sort file2...",
+	oyy=sortbyfield(oyy,"eQP",printsw) 
+
+	errmax=0.0
+	errmax_at=["","",""]
 	errsum=0.0
 	for ix in range( max(len(oxx),len(oyy))):
 		iline=oxx[ix]
@@ -22,9 +119,21 @@ def compareqpu(qpu1,qpu2,printsw):
 					if (iw >=15) & pr : print '%9.5f' % (w1-w2),
 					if (iw <=14) & pr : print '%6.2f' % (w1-w2),
 					errsum=errsum + abs(w1-w2)
+					if  iw<15 and abs(w1-w2) > 1.0E-1:
+						print "error at the",iw+1, "th field" 
+						print "file1>",iline
+						print "file2>",ilin2
+						if errmax<abs(w1-w2): 
+							errmax=abs(w1-w2)
+							errmax_at=["at "+str(iw),iline,ilin2]
 				if pr: print
 			except:
 				if pr: print iline
+
+	if errmax>1.0E-2:
+		print "error max. is",errmax_at[0]
+		print "file1>",errmax_at[1]
+		print "file2>",errmax_at[2]
 	return errsum
 
 ############### main ###################################
@@ -42,7 +151,7 @@ if(errsum<2e-4):
 	print '   Comparison OK!  Difference<2e-4 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
 	sys.exit()
 else:
-	errsum = compareqpu(qpu1,qpu2, printsw=1)
+	#errsum = compareqpu(qpu1,qpu2, printsw=1)
 	print 
 	print '   Error! Difference>1e-4 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  sum(abs(QPU-QPU))=',errsum
 	print '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)'
