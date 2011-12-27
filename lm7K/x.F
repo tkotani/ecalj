@@ -22,9 +22,9 @@
        write(io,'(a,a,a)') info,'uname -a (<=120): ',
      ."Linux maro005 3.0.0-14-generic #23-Ubuntu SMP Mon Nov 21 20:28:43 UTC 2011 x86_64 x86_64 x86_64 GNU/Linux"
        write(io,'(a,a,a)') info,'/etc/issue: ',"Ubuntu 11.10 \n \l"
-       write(io,'(a,a,a)') info,'git branch: ',"refs/heads/kino-alloc5"
-       write(io,'(a,a,a)') info,'git commit: ',"c65b00702acb6e10caeaf6834a77e029900006e7"
-       write(io,'(a,a,a)') info,'linked at: ',"Tue Dec 27 14:10:37 JST 2011"
+       write(io,'(a,a,a)') info,'git branch: ',"refs/heads/kino-alloc6"
+       write(io,'(a,a,a)') info,'git commit: ',"ea607f0615d5512cbb43d8fe7d4429cab91c878a"
+       write(io,'(a,a,a)') info,'linked at: ',"Tue Dec 27 15:46:27 JST 2011"
 
 
 

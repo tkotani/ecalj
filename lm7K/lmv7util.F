@@ -628,9 +628,11 @@ ckino Dec.27.2011:           if (-nclasp<0) spot%rv_p_oqt(:)=0.0d0
          if (-nclasp<0) spot%rv_p_oqt(:)=0.0d0
 
 ckino Dec.27.2011:           allocate(iv_p_oinitc(abs(-nclasp)))
-         allocate(sarray%iv_p_ohave(abs(-nclasp)))
+ckino Dec.27.2011:           allocate(sarray%iv_p_ohave(abs(-nclasp)))
+         allocate(sarray%iv_a_oipq(abs(-nclasp)))
 ckino Dec.27.2011:           if (-nclasp<0) iv_p_oinitc(:)=0
-         if (-nclasp<0) sarray%iv_p_ohave(:)=0
+ckino Dec.27.2011:           if (-nclasp<0) sarray%iv_p_ohave(:)=0
+         if (-nclasp<0) sarray%iv_a_oipq(:)=0
 
 c        call defi (ogroup,-2*nclasp)
 ckino Dec.27.2011:           allocate(spot%rv_p_oves(abs(-nclspp)))
@@ -664,7 +666,8 @@ c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
         allocate( ics(nclspp) )
 ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
-         call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
+ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
+         call icopy ( nclspp , sarray%iv_a_oics , 1 , ics , 1 ) 
 
         print *,' qqqqq ics=',ics
 ckino Dec.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
@@ -1427,9 +1430,11 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
       do  10  ic = ic1, i2
 cki        is = w(oics+ic-1)
 ckino Dec.27.2011:          is=sarray%iv_p_oics(ic)
-        is=sarray%iv_p_oics(ic)
+ckino Dec.27.2011:          is=sarray%iv_p_oics(ic)
+        is=sarray%iv_a_oics(ic)
 ckino Dec.27.2011:           icmap = iclbsj ( is , sarray%iv_p_oics , - nclasp , 1 ) 
-         icmap = iclbsj ( is , sarray%iv_p_oics , - nclasp , 1 ) 
+ckino Dec.27.2011:           icmap = iclbsj ( is , sarray%iv_p_oics , - nclasp , 1 ) 
+         icmap = iclbsj ( is , sarray%iv_a_oics , - nclasp , 1 ) 
 
         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
 Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
@@ -1455,7 +1460,8 @@ C   --- Open the atom file ---
         outs2 = ' '
         outs3 = ' '
 ckino Dec.27.2011:           call r8tos8 ( dval ( sarray%rv_p_oclabl , ic ) , clabl ) 
-         call r8tos8 ( dval ( sarray%rv_p_oclabl , ic ) , clabl ) 
+ckino Dec.27.2011:           call r8tos8 ( dval ( sarray%rv_p_oclabl , ic ) , clabl ) 
+         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
 
         if (mode00 .ne. 3) then
 c#if ONE_ATOM_UNIT
@@ -1468,7 +1474,8 @@ c#endif
 C  --- Copy what is passed through to holding arrays ---
         k = nl*nsp
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 1 , ic , icmap , havepq , jc ) 
 
         readpq = .not. havepq .or. mode00 .eq. 2 .and. jc .ne. ic
         readpq = readpq .and. mode00 .lt. 3
@@ -1492,7 +1499,8 @@ ckino Dec.27.2011:             call dpscop ( spot%rv_p_ovrmax , vrmax , 2 , 2 * 
         endif
         k = 6*nl*nsp
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 2 , ic , icmap , havepp , jc ) 
 
         readpp = .not. havepp .or. mode00 .eq. 2 .and. jc .ne. ic
         readpp = readpp .and. mode00 .lt. 3
@@ -1515,7 +1523,8 @@ ckino Dec.27.2011:             call dpscop ( spot%rv_p_oves , ves , 1 , jc , 1 ,
         endif
         k = (nl*nsp)**2
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 8 , ic , icmap , haveva , jc ) 
 
 cki        haveva = haveva .and. ova .gt. 0
 ckino Dec.27.2011:          haveva = haveva .and. associated(spot%rv_p_ovintr)
@@ -1533,7 +1542,8 @@ ckino Dec.27.2011:             call dpscop ( spot%rv_p_ovintr , olva , k , 1 + (
         endif
         k = nl**2*(2*nl-1)*3*nsp
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 16 , ic , icmap , havemp , jc ) 
 
 cki        havemp = havemp .and. omp .gt. 0
 ckino Dec.27.2011:          havemp = havemp .and. associated(spot%rv_p_opmpol)
@@ -1551,7 +1561,8 @@ ckino Dec.27.2011:             call dpscop ( spot%rv_p_opmpol , olmp , k , 1 + (
         endif
         k = nl*nsp*nsp*9
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 4 , ic , icmap , haveso , jc ) 
 
 cki        haveso = haveso .and. osop.gt. 0
 ckino Dec.27.2011:          haveso = haveso .and. associated(spot%rv_p_osop)
@@ -1569,7 +1580,8 @@ ckino Dec.27.2011:             call dpscop ( spot%rv_p_osop , olsop , k , 1 + ( 
         endif
         k = 16*nl*nsp
 ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
-         call pvaioc ( sarray%iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
+         call pvaioc ( sarray%iv_a_oipq , 32 , ic , icmap , haveop , jc ) 
 
 cki        haveop = haveop .and. ogrrme .gt. 0
 ckino Dec.27.2011:          haveop = haveop .and. associated(spot%rv_p_ogrrme)
@@ -1670,7 +1682,8 @@ ckino Dec.27.2011:            if (readmp .and. associated(spot%rv_p_opmpol) ) th
 C     ... Update what parameters are available
 cki          w(ohave+ic-1) = isw(haveop.or.readop)*32+
 ckino Dec.27.2011:            sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
-          sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
+ckino Dec.27.2011:            sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
+          sarray%iv_a_oipq(ic) = isw(haveop.or.readop)*32+
      .    isw(havemp.or.readmp)*16+
      .    isw(haveva.or.readva)*8 +
      .    isw(haveso.or.readso)*4 +
@@ -1678,7 +1691,8 @@ ckino Dec.27.2011:            sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
      .    isw(havepq.or.readpq)*1 +
 cki     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
 ckino Dec.27.2011:       .    sarray%iv_p_ohave(ic) - bitand(sarray%iv_p_ohave(ic),63)
-     .    sarray%iv_p_ohave(ic) - bitand(sarray%iv_p_ohave(ic),63)
+ckino Dec.27.2011:       .    sarray%iv_p_ohave(ic) - bitand(sarray%iv_p_ohave(ic),63)
+     .    sarray%iv_a_oipq(ic) - bitand(sarray%iv_a_oipq(ic),63)
 
           k = nl*nsp
           if (havepq .or. readpq) then

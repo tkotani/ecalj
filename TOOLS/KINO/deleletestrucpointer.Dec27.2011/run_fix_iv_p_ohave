@@ -1,0 +1,3 @@
+script=tmp/fix_iv_p_ohave.awk
+for name in subs/m_struc_def.F lmv7util.F
+do  gawk -f $script $name >x;mv  x $name; done

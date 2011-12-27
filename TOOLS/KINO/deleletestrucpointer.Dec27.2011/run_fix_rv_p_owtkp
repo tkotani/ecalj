@@ -1,0 +1,3 @@
+script=tmp/fix_rv_p_owtkp.awk
+for name in fp/bndfp.F subs/asados.F subs/m_struc_def.F subs/mkqp.F
+do  gawk -f $script $name >x;mv  x $name; done

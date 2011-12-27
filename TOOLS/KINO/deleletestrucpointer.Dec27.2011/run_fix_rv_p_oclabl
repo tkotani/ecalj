@@ -1,0 +1,3 @@
+script=tmp/fix_rv_p_oclabl.awk
+for name in lmv7util.F fp/lmaux.F subs/asados.F subs/m_struc_def.F subs/mksym.F 
+do  gawk -f $script $name >x;mv  x $name; done

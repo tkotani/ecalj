@@ -2145,7 +2145,8 @@ C$$$#endif
                   call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
 ckino Dec.8.2011:       .            , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , rv_p_owtkb 
 ckino Dec.8.2011:       .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_p_owtkp , rv_p_owtkb 
-     .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_p_owtkp , rv_a_owtkb 
+ckino Dec.27.2011:       .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_p_owtkp , rv_a_owtkb 
+     .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_a_owtkp , rv_a_owtkb 
      .            , ndimh , t_zv , ww_zv ) 
                 deallocate(ww_zv)
               endif
@@ -2435,7 +2436,8 @@ C         dum=frc(3,1)
                 if(debug) print *,'goto addrbl nevl=',nevl
                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
 ckino Dec.8.2011:       .          , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
-     .          , qp , sbz%rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+ckino Dec.27.2011:       .          , qp , sbz%rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .          , qp , sbz%rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
 ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos 
 ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos 
      .          , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos 
@@ -2961,7 +2963,8 @@ ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidte
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-     .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+ckino Dec.27.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
 ckino Dec.8.2011:       .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
      .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               else
@@ -3003,7 +3006,8 @@ ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidte
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-     .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+ckino Dec.27.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
 ckino Dec.8.2011:       .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
      .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               endif
@@ -3157,13 +3161,15 @@ ckino Dec.16.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_o
             if (mpsord .ge. 100) mpsord = mod(mpsord,100)
              if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
 ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
-     .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+ckino Dec.27.2011:       .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .       , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 
              if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
 ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
-     .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+ckino Dec.27.2011:       .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .       , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 

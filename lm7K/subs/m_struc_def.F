@@ -111,14 +111,17 @@ CCHSTRUC       integer(8)   ::   odos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oidtet
        integer , pointer ::  iv_p_oidtet (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oipq
-       integer , pointer ::  iv_p_oipq (:) =>NULL()
+ckino Dec.27.2011:         integer , pointer ::  iv_p_oipq (:) =>NULL()
+       integer , allocatable ::  iv_a_oipq (:) 
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
        real(8) , pointer ::  rv_p_oqp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ostar
-       integer , pointer ::  iv_p_ostar (:) =>NULL()
+ckino Dec.27.2011:         integer , pointer ::  iv_p_ostar (:) =>NULL()
+       integer , allocatable ::  iv_a_ostar (:) 
 CCHSTRUC       integer(8)   ::   owtkp
-       real(8) , pointer ::  rv_p_owtkp (:) =>NULL()
+ckino Dec.27.2011:         real(8) , pointer ::  rv_p_owtkp (:) =>NULL()
+       real(8) , allocatable ::  rv_a_owtkp (:) 
       real(8)   ::   range
       real(8)   ::   semsh(10)
       real(8)   ::   stnr
@@ -206,16 +209,19 @@ C 32  33 -1       size  1
       integer(8)   ::   npadr
       integer(8)   ::   npl
 CCHSTRUC       integer(8)   ::   oclabl
-       real(8) , pointer ::  rv_p_oclabl (:) =>NULL()
+ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oclabl (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oclabl (:) 
 CCHSTRUC       integer(8)   ::   ocllst ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
 c      integer(8)   ::   ogroup
 CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohave
-       integer , pointer ::  iv_p_ohave (:) =>NULL()
+ckino Dec.27.2011:         integer , pointer ::  iv_p_ohave (:) =>NULL()
+       integer , allocatable ::  iv_a_oipq (:) 
 CCHSTRUC       integer(8)   ::   oics
-       integer , pointer ::  iv_p_oics (:) =>NULL()
+ckino Dec.27.2011:         integer , pointer ::  iv_p_oics (:) =>NULL()
+       integer , allocatable ::  iv_a_oics (:) 
 CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
 cki      integer(8)   ::   oipc
       integer, pointer :: iv_p_oipc(:) =>NULL()

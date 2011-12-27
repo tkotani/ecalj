@@ -204,7 +204,8 @@ C ... Class-dependent arrays
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(nclasp),z(nclasp))
 ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
-       call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 ) 
+ckino Dec.27.2011:         call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 ) 
+       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 ) 
 
       do i=1,nclasp
         z(i)=sspec(ics(i))%z
@@ -368,7 +369,8 @@ C         DOS for a prescribed list of classes only
                 j1 = m+2
               endif
 ckino Dec.12.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
-               call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass 
+ckino Dec.27.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass 
+               call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_a_oclabl, z , nclass 
      .         , nlstc , lsite ) 
 
             else
@@ -688,7 +690,9 @@ ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%i
      .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
 ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
 ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
-     .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+ckino Dec.27.2011:       .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+ckino Dec.27.2011:       .      , sbz%iv_a_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+     .      , sbz%iv_a_oipq, sbz%iv_a_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , npts , emin , emax , lidos , wk_rv , dos_rv ) 
 
 
@@ -712,7 +716,8 @@ C   ... dosspl reads bands and moms on the fly to save work space
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
            call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
 ckino Dec.12.2011:       .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
-     .     width , nkp , sbz%rv_p_owtkp, eband_rv , doswt_rv , npts , emin 
+ckino Dec.27.2011:       .     width , nkp , sbz%rv_p_owtkp, eband_rv , doswt_rv , npts , emin 
+     .     width , nkp , sbz%rv_a_owtkp, eband_rv , doswt_rv , npts , emin 
      .     , emax , lidos , wk_rv , dos_rv ) 
 
 
