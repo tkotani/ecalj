@@ -1036,7 +1036,8 @@ ckino 12月.14.2011:                   rv_p_oves => spot%rv_p_oves
 
 
 ckino 12月.14.2011:                   call dvset ( rv_p_oves , ic , ic , vrmax ) 
-                 call dvset ( spot%rv_p_oves , ic , ic , vrmax ) 
+ckino 12月.27.2011:                   call dvset ( spot%rv_p_oves , ic , ic , vrmax ) 
+                 call dvset ( spot%rv_a_oves , ic , ic , vrmax ) 
 
 
 ckino 12月.14.2011:                   spot%rv_p_oves => rv_p_oves 
@@ -1563,7 +1564,8 @@ ckino 12月.14.2011:                 rv_p_oves => spot%rv_p_oves
 
 
 ckino 12月.14.2011:                 vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
-               vrmax ( 1 ) = dval ( spot%rv_p_oves , ic ) 
+ckino 12月.27.2011:                 vrmax ( 1 ) = dval ( spot%rv_p_oves , ic ) 
+               vrmax ( 1 ) = dval ( spot%rv_a_oves , ic ) 
 
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)

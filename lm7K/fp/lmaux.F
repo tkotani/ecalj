@@ -298,7 +298,9 @@ C ... Read from restart file
             call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
 ckino Dec.8.2011:       .      rv_p_opnu , rv_p_oqnu , .false. , ifi ) 
 ckino Dec.8.2011:       .      rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
-     .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+ckino 12月.27.2011:       .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+ckino 12月.27.2011:       .      spot%rv_a_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+     .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi ) 
 
 
           call fclr('rsta',ifi)
@@ -485,7 +487,8 @@ ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oip
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
+ckino 12月.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
+     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
      .         eula  , nclass ) 
               deallocate(eula)
 

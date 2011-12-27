@@ -1420,7 +1420,8 @@ CCHSTRUC       integer(8)   ::   ogrrme
 CCHSTRUC       integer(8)   ::   ohab ! not used because of undef
 CCHSTRUC       integer(8)   ::   oivso ! not used because of undef
 CCHSTRUC       integer(8)   ::   omad
-       real(8) , pointer ::  rv_p_omad (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_omad (:) =>NULL()
+       real(8) , allocatable ::  rv_a_omad (:) 
 CCHSTRUC       integer(8)   ::   oorhat
 cki       integer , pointer ::  iv_p_oorhat (:)
        type(s_rv1), pointer :: sv_p_oorhat(:) =>NULL()
@@ -1431,29 +1432,35 @@ CCHSTRUC       integer(8)   ::   opf ! not used because of undef
 CCHSTRUC       integer(8)   ::   opfnc ! not used because of undef
 CCHSTRUC       integer(8)   ::   opfr ! not used because of undef
 CCHSTRUC       integer(8)   ::   opmpol
-       real(8) , pointer ::  rv_p_opmpol (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_opmpol (:) =>NULL()
+       real(8) , allocatable ::  rv_a_opmpol (:) 
 CCHSTRUC       integer(8)   ::   opnu
-       real(8) , pointer ::  rv_p_opnu (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_opnu (:) =>NULL()
+       real(8) , allocatable ::  rv_a_opnu (:) 
 CCHSTRUC       integer(8)   ::   opp
        real(8) , pointer ::  rv_p_opp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
 CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
 CCHSTRUC       integer(8)   ::   opprel
-       real(8) , pointer ::  rv_p_opprel (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_opprel (:) =>NULL()
+       real(8) , allocatable ::  rv_a_opprel (:) 
 CCHSTRUC       integer(8)   ::   opti ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqc
        real(8) , pointer ::  rv_p_oqc (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqmom ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqnu
-       real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oqnu (:) 
 CCHSTRUC       integer(8)   ::   oqpp
        real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqt
-       real(8) , pointer ::  rv_p_oqt (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqt (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oqt (:) 
 CCHSTRUC       integer(8)   ::   orhos
        real(8) , pointer ::  rv_p_orhos (:) =>NULL()
 CCHSTRUC       integer(8)   ::   orhrmx
-       real(8) , pointer ::  rv_p_orhrmx (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_orhrmx (:) =>NULL()
+       real(8) , allocatable ::  rv_a_orhrmx (:) 
 CCHSTRUC       integer(8)   ::   osab ! not used because of undef
 CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
 CCHSTRUC       integer(8)   ::   osmpot
@@ -1461,15 +1468,18 @@ CCHSTRUC       integer(8)   ::   osmpot
 CCHSTRUC       integer(8)   ::   osmrho
        complex(8) , pointer ::  zv_p_osmrho (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osop
-       real(8) , pointer ::  rv_p_osop (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_osop (:) =>NULL()
+       real(8) , allocatable ::  rv_a_osop (:) 
 CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
 CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
 CCHSTRUC       integer(8)   ::   otau ! not used because of undef
 CCHSTRUC       integer(8)   ::   ovab ! not used because of undef
 CCHSTRUC       integer(8)   ::   ovdif
-       real(8) , pointer ::  rv_p_ovdif (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ovdif (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ovdif (:) 
 CCHSTRUC       integer(8)   ::   oves
-       real(8) , pointer ::  rv_p_oves (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oves (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oves (:) 
 CCHSTRUC       integer(8)   ::   ovintr
        real(8) , pointer ::  rv_p_ovintr (:) =>NULL()
 CCHSTRUC       integer(8)   ::   ovrmax

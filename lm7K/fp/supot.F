@@ -90,9 +90,11 @@ ckino Dec.8.2011:         rv_p_oqlv => slat%rv_p_oqlv
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
 ckino Dec.8.2011:           allocate(rv_p_omad(nbaspp**2))
-         allocate(spot%rv_p_omad(nbaspp**2))
+ckino 12月.27.2011:           allocate(spot%rv_p_omad(nbaspp**2))
+         allocate(spot%rv_a_omad(nbaspp**2))
 ckino Dec.8.2011:           rv_p_omad(:)=0.0d0
-         spot%rv_p_omad(:)=0.0d0
+ckino 12月.27.2011:           spot%rv_p_omad(:)=0.0d0
+         spot%rv_a_omad(:)=0.0d0
 
 ckino Dec.8.2011:              call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
 ckino Dec.8.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , rv_p_odlv 
@@ -100,7 +102,8 @@ ckino 12月.27.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald 
             call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_a_odlv 
 ckino Dec.8.2011:       .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
 ckino Dec.8.2011:       .      , nkd , slat%rv_p_oqlv , nkq , rv_p_omad ) 
-     .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_p_omad ) 
+ckino 12月.27.2011:       .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_p_omad ) 
+     .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_a_omad ) 
 
 
 
