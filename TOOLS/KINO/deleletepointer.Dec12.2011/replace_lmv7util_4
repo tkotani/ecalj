@@ -1,0 +1,4 @@
+       rv_p_opnu => spot%rv_p_opnu 
+       iv_p_ohave => sarray%iv_p_ohave 
+
+

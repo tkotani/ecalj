@@ -43,14 +43,16 @@ BEGIN{
   gsub("\\)","\\\\)",strucmatch)
 
   print "/^ .*" name1 "/{"
-  print "  print comment,$0"
+  print "  old=$0"
 #  print "  if (match($0,\"" strmatch "\")) {next}"
-  print "  if (match($0,\"pointer\")) { next;}"
-  print "  if (match($0,\"" name1match " *=> *" name2match "\")) { next;}"
-  print "  if (match($0,\"" name2match " *=> *" name1match "\")) { next;}"
+  print "  if (match($0,\"pointer\")) { print comment,$0;next;}"
+  print "  if (match($0,\"" name1match " *=> *" name2match "\")) { print comment,$0;next;}"
+  print "  if (match($0,\"" name2match " *=> *" name1match "\")) { print comment,$0;next;}"
   print "  gsub(\"" name1 "\",\"" name2 "\")"
 #  print "  gsubexact0($0,\"" name1 "\",\"" name2 "\")"
-  print "  if (match($0,\""  strucmatch strucmatch "\")) {next;}"
+#  print "  if (match($0,\""  strucmatch strucmatch "\")) {next;}"
+  print "  gsub(\"" strucmatch strucmatch "\",\"" strucmatch "\")"
+  print "  if (old != $0 ) {print comment,$0}"
   print "}"
 }
 END{ 

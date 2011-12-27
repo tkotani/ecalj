@@ -1,0 +1,9 @@
+ rv_p_ormax =>        sarray%rv_p_ormax => rv_p_ormax 
+       rv_p_osop => spot%rv_p_osop 
+       rv_p_opprel => spot%rv_p_opprel 
+         rv_p_orhrmx => spot%rv_p_orhrmx 
+rv_p_orhos=>           spot%rv_p_orhos => rv_p_orhos 
+       rv_p_ogrrme => spot%rv_p_ogrrme 
+       rv_p_oclabl => sarray%rv_p_oclabl 
+         rv_p_ovdif => spot%rv_p_ovdif 
+

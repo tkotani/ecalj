@@ -517,47 +517,47 @@ C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
                            integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
-                           real(8),pointer :: rv_p_ormax(:) =>NULL()
+ckino Dec.27.2011:                             real(8),pointer :: rv_p_ormax(:) =>NULL()
 
-                          real(8),pointer :: rv_p_osop(:) =>NULL()
+ckino Dec.27.2011:                            real(8),pointer :: rv_p_osop(:) =>NULL()
 
-                         real(8),pointer :: rv_p_opprel(:) =>NULL()
+ckino Dec.27.2011:                           real(8),pointer :: rv_p_opprel(:) =>NULL()
 
-                        real(8),pointer :: rv_p_orhrmx(:) =>NULL()
+ckino Dec.27.2011:                          real(8),pointer :: rv_p_orhrmx(:) =>NULL()
 
-                       real(8),pointer :: rv_p_orhos(:) =>NULL()
+ckino Dec.27.2011:                         real(8),pointer :: rv_p_orhos(:) =>NULL()
 
-                      real(8),pointer :: rv_p_oqt(:) =>NULL()
+ckino Dec.27.2011:                        real(8),pointer :: rv_p_oqt(:) =>NULL()
 
-                     real(8),pointer :: rv_p_oqpp(:) =>NULL()
+ckino Dec.27.2011:                       real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-                    real(8),pointer :: rv_p_oqnu(:) =>NULL()
+ckino Dec.27.2011:                      real(8),pointer :: rv_p_oqnu(:) =>NULL()
 
-                   real(8),pointer :: rv_p_oqc(:) =>NULL()
+ckino Dec.27.2011:                     real(8),pointer :: rv_p_oqc(:) =>NULL()
 
-                  real(8),pointer :: rv_p_opp(:) =>NULL()
+ckino Dec.27.2011:                    real(8),pointer :: rv_p_opp(:) =>NULL()
 
-                 real(8),pointer :: rv_p_opnu(:) =>NULL()
+ckino Dec.27.2011:                   real(8),pointer :: rv_p_opnu(:) =>NULL()
 
-                real(8),pointer :: rv_p_opmpol(:) =>NULL()
+ckino Dec.27.2011:                  real(8),pointer :: rv_p_opmpol(:) =>NULL()
 
-               real(8),pointer :: rv_p_ogrrme(:) =>NULL()
+ckino Dec.27.2011:                 real(8),pointer :: rv_p_ogrrme(:) =>NULL()
 
-              real(8),pointer :: rv_p_obxc(:) =>NULL()
+ckino Dec.27.2011:                real(8),pointer :: rv_p_obxc(:) =>NULL()
 
-             integer,pointer :: iv_p_oinitc(:) =>NULL()
+ckino Dec.27.2011:               integer,pointer :: iv_p_oinitc(:) =>NULL()
 
-            real(8),pointer :: rv_p_ovrmax(:) =>NULL()
+ckino Dec.27.2011:              real(8),pointer :: rv_p_ovrmax(:) =>NULL()
 
-           real(8),pointer :: rv_p_ovintr(:) =>NULL()
+ckino Dec.27.2011:             real(8),pointer :: rv_p_ovintr(:) =>NULL()
 
-          real(8),pointer :: rv_p_oves(:) =>NULL()
+ckino Dec.27.2011:            real(8),pointer :: rv_p_oves(:) =>NULL()
 
-         real(8),pointer :: rv_p_ovdif(:) =>NULL()
+ckino Dec.27.2011:           real(8),pointer :: rv_p_ovdif(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:) =>NULL()
+ckino Dec.27.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:) =>NULL()
+ckino Dec.27.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
@@ -597,57 +597,83 @@ Cgetarg       call upack1('array nclasp',sarray,nclasp)
 
 C ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
-         allocate(rv_p_opnu(abs(-nlspc)))
-         if (-nlspc<0) rv_p_opnu(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_opnu(abs(-nlspc)))
+         allocate(spot%rv_p_opnu(abs(-nlspc)))
+ckino Dec.27.2011:           if (-nlspc<0) spot%rv_p_opnu(:)=0.0d0
+         if (-nlspc<0) spot%rv_p_opnu(:)=0.0d0
 
-         allocate(rv_p_oqnu(abs(-3*nlspc)))
-         if (-3*nlspc<0) rv_p_oqnu(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_oqnu(abs(-3*nlspc)))
+         allocate(spot%rv_p_oqnu(abs(-3*nlspc)))
+ckino Dec.27.2011:           if (-3*nlspc<0) spot%rv_p_oqnu(:)=0.0d0
+         if (-3*nlspc<0) spot%rv_p_oqnu(:)=0.0d0
 
-         allocate(rv_p_opp(abs(-6*nlspc)))
-         if (-6*nlspc<0) rv_p_opp(:)=0.0d0
+ckino Dec.27.2011:           allocate(rv_p_opp(abs(-6*nlspc)))
+         allocate(spot%rv_p_opp(abs(-6*nlspc)))
+ckino Dec.27.2011:           if (-6*nlspc<0) rv_p_opp(:)=0.0d0
+         if (-6*nlspc<0) spot%rv_p_opp(:)=0.0d0
 
-         allocate(rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
-         if (-32*nl*nl*max(nclspp,nspec)<0) rv_p_opprel(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
+         allocate(spot%rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
+ckino Dec.27.2011:           if (-32*nl*nl*max(nclspp,nspec)<0) spot%rv_p_opprel(:)=0.0d0
+         if (-32*nl*nl*max(nclspp,nspec)<0) spot%rv_p_opprel(:)=0.0d0
 
-         allocate(rv_p_oqc(abs(-nclasp)))
-         if (-nclasp<0) rv_p_oqc(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_oqc(abs(-nclasp)))
+         allocate(spot%rv_p_oqc(abs(-nclasp)))
+ckino Dec.27.2011:           if (-nclasp<0) spot%rv_p_oqc(:)=0.0d0
+         if (-nclasp<0) spot%rv_p_oqc(:)=0.0d0
 
-         allocate(rv_p_oqt(abs(-nclasp)))
-         if (-nclasp<0) rv_p_oqt(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_oqt(abs(-nclasp)))
+         allocate(spot%rv_p_oqt(abs(-nclasp)))
+ckino Dec.27.2011:           if (-nclasp<0) spot%rv_p_oqt(:)=0.0d0
+         if (-nclasp<0) spot%rv_p_oqt(:)=0.0d0
 
-         allocate(iv_p_oinitc(abs(-nclasp)))
-         if (-nclasp<0) iv_p_oinitc(:)=0
+ckino Dec.27.2011:           allocate(iv_p_oinitc(abs(-nclasp)))
+         allocate(sarray%iv_p_ohave(abs(-nclasp)))
+ckino Dec.27.2011:           if (-nclasp<0) iv_p_oinitc(:)=0
+         if (-nclasp<0) sarray%iv_p_ohave(:)=0
 
 c        call defi (ogroup,-2*nclasp)
-         allocate(rv_p_oves(abs(-nclspp)))
-         if (-nclspp<0) rv_p_oves(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_oves(abs(-nclspp)))
+         allocate(spot%rv_p_oves(abs(-nclspp)))
+ckino Dec.27.2011:           if (-nclspp<0) spot%rv_p_oves(:)=0.0d0
+         if (-nclspp<0) spot%rv_p_oves(:)=0.0d0
 
-         allocate(rv_p_ovdif(abs(-nclspp)))
-         if (-nclspp<0) rv_p_ovdif(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_ovdif(abs(-nclspp)))
+         allocate(spot%rv_p_ovdif(abs(-nclspp)))
+ckino Dec.27.2011:           if (-nclspp<0) spot%rv_p_ovdif(:)=0.0d0
+         if (-nclspp<0) spot%rv_p_ovdif(:)=0.0d0
 
-         allocate(rv_p_orhrmx(abs(-nclspp)))
-         if (-nclspp<0) rv_p_orhrmx(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_orhrmx(abs(-nclspp)))
+         allocate(spot%rv_p_orhrmx(abs(-nclspp)))
+ckino Dec.27.2011:           if (-nclspp<0) spot%rv_p_orhrmx(:)=0.0d0
+         if (-nclspp<0) spot%rv_p_orhrmx(:)=0.0d0
 
-         allocate(rv_p_ovrmax(abs(-2*nclspp)))
-         if (-2*nclspp<0) rv_p_ovrmax(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_ovrmax(abs(-2*nclspp)))
+         allocate(spot%rv_p_ovrmax(abs(-2*nclspp)))
+ckino Dec.27.2011:           if (-2*nclspp<0) spot%rv_p_ovrmax(:)=0.0d0
+         if (-2*nclspp<0) spot%rv_p_ovrmax(:)=0.0d0
 
 C       call defdr(oqnu,-3*nlspc)
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg         call upack1('array oics',sarray,oics)
         
-         iv_p_oics => sarray%iv_p_oics 
+ckino Dec.27.2011:           iv_p_oics => sarray%iv_p_oics 
 
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
         allocate( ics(nclspp) )
-         call icopy ( nclspp , iv_p_oics , 1 , ics , 1 ) 
+ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
+         call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
 
         print *,' qqqqq ics=',ics
-         allocate(rv_p_ormax(abs(nclspp)))
-         if (nclspp<0) rv_p_ormax(:)=0.0d0
+ckino Dec.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
+         allocate(sarray%rv_p_ormax(abs(nclspp)))
+ckino Dec.27.2011:           if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
+         if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
 
-         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_p_ormax 
+ckino Dec.27.2011:           call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_p_ormax 
+         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_p_ormax 
      .   , 1 ) 
 
 
@@ -658,9 +684,9 @@ Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
         
 c        sarray%ogroup=ogroup 
-         sarray%rv_p_ormax => rv_p_ormax 
+ckino Dec.27.2011:           sarray%rv_p_ormax => rv_p_ormax 
 
-         sarray%iv_p_ohave => iv_p_oinitc 
+ckino Dec.27.2011:           sarray%iv_p_ohave => iv_p_oinitc 
 
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
@@ -669,13 +695,13 @@ Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 Cgetarg         call pack5('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
         
-         spot%rv_p_opnu => rv_p_opnu 
+ckino Dec.27.2011:           spot%rv_p_opnu => rv_p_opnu 
 
-         spot%rv_p_oqnu => rv_p_oqnu 
+ckino Dec.27.2011:           spot%rv_p_oqnu => rv_p_oqnu 
 
-         spot%rv_p_oqc => rv_p_oqc 
+ckino Dec.27.2011:           spot%rv_p_oqc => rv_p_oqc 
 
-         spot%rv_p_oqt => rv_p_oqt 
+ckino Dec.27.2011:           spot%rv_p_oqt => rv_p_oqt 
 
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
@@ -686,28 +712,30 @@ Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg         call pack5('pot oves ovdif ovrmax orhrmx opp',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,opp)
         
-         spot%rv_p_oves => rv_p_oves 
+ckino Dec.27.2011:           spot%rv_p_oves => rv_p_oves 
 
-         spot%rv_p_ovdif => rv_p_ovdif 
+ckino Dec.27.2011:           spot%rv_p_ovdif => rv_p_ovdif 
 
-         spot%rv_p_ovrmax => rv_p_ovrmax 
+ckino Dec.27.2011:           spot%rv_p_ovrmax => rv_p_ovrmax 
 
-         spot%rv_p_orhrmx => rv_p_orhrmx 
+ckino Dec.27.2011:           spot%rv_p_orhrmx => rv_p_orhrmx 
 
-         spot%rv_p_opp => rv_p_opp 
+ckino Dec.27.2011:           spot%rv_p_opp => rv_p_opp 
 
 
 C       Even in collinear case, bxc might be written to
-         allocate(rv_p_obxc(abs(-3*nclasp)))
-         if (-3*nclasp<0) rv_p_obxc(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_obxc(abs(-3*nclasp)))
+         allocate(spot%rv_p_obxc(abs(-3*nclasp)))
+ckino Dec.27.2011:           if (-3*nclasp<0) spot%rv_p_obxc(:)=0.0d0
+         if (-3*nclasp<0) spot%rv_p_obxc(:)=0.0d0
 
 Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg         call pack5('pot opprel obxc nrhos',spot,opprel,obxc,0,0,0)
         
-         spot%rv_p_opprel => rv_p_opprel 
+ckino Dec.27.2011:           spot%rv_p_opprel => rv_p_opprel 
 
-         spot%rv_p_obxc => rv_p_obxc 
+ckino Dec.27.2011:           spot%rv_p_obxc => rv_p_obxc 
 
         spot%nrhos=0 
 
@@ -723,16 +751,23 @@ Cgetarg           call upack2('ham neula nbf',sham,neula,nbf)
           neula=sham%neula
           nbf=sham%nbf
           nrhos = max(nl,neula,nbf)
-           if (associated(rv_p_obxc)) deallocate(rv_p_obxc)
+ckino Dec.27.2011:             if (associated(spot%rv_p_obxc)) deallocate(spot%rv_p_obxc)
+           if (associated(spot%rv_p_obxc)) deallocate(spot%rv_p_obxc)
 
-           allocate(rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
-           if (2*3*4*nrhos*nclasp<0) rv_p_orhos(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
+           allocate(spot%rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
+ckino Dec.27.2011:             if (2*3*4*nrhos*nclasp<0) spot%rv_p_orhos(:)=0.0d0
+           if (2*3*4*nrhos*nclasp<0) spot%rv_p_orhos(:)=0.0d0
 
-           allocate(rv_p_osop(abs(-nlspc*nsp*9)))
-           if (-nlspc*nsp*9<0) rv_p_osop(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_osop(abs(-nlspc*nsp*9)))
+           allocate(spot%rv_p_osop(abs(-nlspc*nsp*9)))
+ckino Dec.27.2011:             if (-nlspc*nsp*9<0) spot%rv_p_osop(:)=0.0d0
+           if (-nlspc*nsp*9<0) spot%rv_p_osop(:)=0.0d0
 
-           allocate(rv_p_obxc(abs(-3*nclasp)))
-           if (-3*nclasp<0) rv_p_obxc(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_obxc(abs(-3*nclasp)))
+           allocate(spot%rv_p_obxc(abs(-3*nclasp)))
+ckino Dec.27.2011:             if (-3*nclasp<0) spot%rv_p_obxc(:)=0.0d0
+           if (-3*nclasp<0) spot%rv_p_obxc(:)=0.0d0
 
 Cgetarg...info...           integer :: nrhos , integer(8) :: spot%nrhos 1
 Cgetarg...info...           integer :: orhos , integer(8) :: spot%orhos 1
@@ -741,28 +776,31 @@ Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 Cgetarg           call pack5('pot nrhos orhos obxc osop',spot,
 Cgetarg      .      nrhos,orhos,obxc,osop,0)
           spot%nrhos=nrhos 
-           spot%rv_p_orhos => rv_p_orhos 
+ckino Dec.27.2011:             spot%rv_p_orhos => rv_p_orhos 
 
-           spot%rv_p_obxc => rv_p_obxc 
+ckino Dec.27.2011:             spot%rv_p_obxc => rv_p_obxc 
 
-           spot%rv_p_osop => rv_p_osop 
+ckino Dec.27.2011:             spot%rv_p_osop => rv_p_osop 
 
         endif
 
 cki        ogrrme = 0
-          nullify(rv_p_ogrrme)
+ckino Dec.27.2011:            nullify(spot%rv_p_ogrrme)
+          nullify(spot%rv_p_ogrrme)
 Cgetarg         if (igets('ctrl loptc',sctrl) .gt. 0)
 Cgetarg      .    call defrr(ogrrme,-16*nl*nsp*nclasp)
          if ( int ( sctrl%loptc ) .gt. 0 ) then 
-         allocate(rv_p_ogrrme(abs(-16*nl*nsp*nclasp)))
-         if (-16*nl*nsp*nclasp<0) rv_p_ogrrme(:)=0.0d0
+ckino Dec.27.2011:           allocate(spot%rv_p_ogrrme(abs(-16*nl*nsp*nclasp)))
+         allocate(spot%rv_p_ogrrme(abs(-16*nl*nsp*nclasp)))
+ckino Dec.27.2011:           if (-16*nl*nsp*nclasp<0) spot%rv_p_ogrrme(:)=0.0d0
+         if (-16*nl*nsp*nclasp<0) spot%rv_p_ogrrme(:)=0.0d0
          endif 
 
 
 Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg         call pack1('pot ogrrme',spot,ogrrme)
         
-         spot%rv_p_ogrrme => rv_p_ogrrme 
+ckino Dec.27.2011:           spot%rv_p_ogrrme => rv_p_ogrrme 
 
 
 Cgetarg         if (lgors('ctrl lsx,3',sctrl) .or.
@@ -770,13 +808,15 @@ Cgetarg      .      lgors('ctrl lscr,-1',sctrl)) then
         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
      .  ) then 
 
-           allocate(rv_p_ovintr(abs(-nclasp*(nl*nsp)**2)))
-           if (-nclasp*(nl*nsp)**2<0) rv_p_ovintr(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_ovintr(abs(-nclasp*(nl*nsp)**2)))
+           allocate(spot%rv_p_ovintr(abs(-nclasp*(nl*nsp)**2)))
+ckino Dec.27.2011:             if (-nclasp*(nl*nsp)**2<0) spot%rv_p_ovintr(:)=0.0d0
+           if (-nclasp*(nl*nsp)**2<0) spot%rv_p_ovintr(:)=0.0d0
 
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)
           
-           spot%rv_p_ovintr => rv_p_ovintr 
+ckino Dec.27.2011:             spot%rv_p_ovintr => rv_p_ovintr 
 
 
         endif
@@ -787,22 +827,27 @@ ctakao remove asa
 
 C   ... Allocate memory for, attempt to read qpp from file
         if (lnsph .ne. 0 .or. nlibu .ne. 0) then
-           allocate(rv_p_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
-           if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) rv_p_opmpol(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
+           allocate(spot%rv_p_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
+ckino Dec.27.2011:             if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) spot%rv_p_opmpol(:)=0.0d0
+           if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) spot%rv_p_opmpol(:)=0.0d0
 
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
-           allocate(rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
-           if (2*nqpp*4*nsp*nbas<0) rv_p_oqpp(:)=0.0d0
+ckino Dec.27.2011:             allocate(spot%rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
+           allocate(spot%rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
+ckino Dec.27.2011:             if (2*nqpp*4*nsp*nbas<0) spot%rv_p_oqpp(:)=0.0d0
+           if (2*nqpp*4*nsp*nbas<0) spot%rv_p_oqpp(:)=0.0d0
 
-           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+ckino Dec.27.2011:             call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
+           call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
 
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
 Cgetarg           call pack2('pot opmpol oqpp',spot,opmpol,oqpp)
-           spot%rv_p_opmpol => rv_p_opmpol 
+ckino Dec.27.2011:             spot%rv_p_opmpol => rv_p_opmpol 
 
-           spot%rv_p_oqpp => rv_p_oqpp 
+ckino Dec.27.2011:             spot%rv_p_oqpp => rv_p_oqpp 
 
           call ioqpp(.false.,sctrl,spot)
         endif
@@ -986,15 +1031,17 @@ Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 Cgetarg         call upack('pot opnu oqnu',spot,opnu,oqnu,0,0,0)
         
-         rv_p_opnu => spot%rv_p_opnu 
+ckino Dec.27.2011:           rv_p_opnu => spot%rv_p_opnu 
 
-         rv_p_oqnu => spot%rv_p_oqnu 
+ckino Dec.27.2011:           rv_p_oqnu => spot%rv_p_oqnu 
 
 
-         call dpscop ( rv_p_opnu , rv_p_opnu , nl * nsp * i1 , nl * nsp 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_opnu , spot%rv_p_opnu , nl * nsp * i1 , nl * nsp 
+         call dpscop ( spot%rv_p_opnu , spot%rv_p_opnu , nl * nsp * i1 , nl * nsp 
      .   * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
 
-         call dpscop ( rv_p_oqnu , rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_oqnu , spot%rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
+         call dpscop ( spot%rv_p_oqnu , spot%rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
      .   nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
 
 
@@ -1005,25 +1052,29 @@ Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg         call upack('pot oves ovdif ovrmax orhrmx',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,0)
         
-         rv_p_oves => spot%rv_p_oves 
+ckino Dec.27.2011:           rv_p_oves => spot%rv_p_oves 
 
-         rv_p_ovdif => spot%rv_p_ovdif 
+ckino Dec.27.2011:           rv_p_ovdif => spot%rv_p_ovdif 
 
-         rv_p_ovrmax => spot%rv_p_ovrmax 
+ckino Dec.27.2011:           rv_p_ovrmax => spot%rv_p_ovrmax 
 
-         rv_p_orhrmx => spot%rv_p_orhrmx 
+ckino Dec.27.2011:           rv_p_orhrmx => spot%rv_p_orhrmx 
 
 
-         call dpscop ( rv_p_oves , rv_p_oves , i1 , nclass + 1 , nclasp 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_oves , spot%rv_p_oves , i1 , nclass + 1 , nclasp 
+         call dpscop ( spot%rv_p_oves , spot%rv_p_oves , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-         call dpscop ( rv_p_ovdif , rv_p_ovdif , i1 , nclass + 1 , nclasp 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_ovdif , spot%rv_p_ovdif , i1 , nclass + 1 , nclasp 
+         call dpscop ( spot%rv_p_ovdif , spot%rv_p_ovdif , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-         call dpscop ( rv_p_ovrmax , rv_p_ovrmax , i1 , nclass + 1 , nclasp 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_ovrmax , spot%rv_p_ovrmax , i1 , nclass + 1 , nclasp 
+         call dpscop ( spot%rv_p_ovrmax , spot%rv_p_ovrmax , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-         call dpscop ( rv_p_orhrmx , rv_p_orhrmx , i1 , nclass + 1 , nclasp 
+ckino Dec.27.2011:           call dpscop ( spot%rv_p_orhrmx , spot%rv_p_orhrmx , i1 , nclass + 1 , nclasp 
+         call dpscop ( spot%rv_p_orhrmx , spot%rv_p_orhrmx , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
 
@@ -1062,7 +1113,7 @@ C ... Heap
 C ... Local parameters
        integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
      . , ipr 
-       real(8),pointer :: rv_p_oqpp(:) =>NULL()
+ckino Dec.27.2011:         real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
 
       call getpr(ipr)
@@ -1078,24 +1129,27 @@ Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
 Cgetarg       oqpp = igets('pot oqpp',spot)
-       rv_p_oqpp => spot%rv_p_oqpp 
+ckino Dec.27.2011:         rv_p_oqpp => spot%rv_p_oqpp 
 
 
       ifi = fopna('qpp',-1,4+8)
 
       if (lio) then
-         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_p_oqpp , 1 , i1 
+ckino Dec.27.2011:           call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_p_oqpp , 1 , i1 
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_p_oqpp , 1 , i1 
      .   , i1 , i2 ) 
 
         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
       else
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
-         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_p_oqpp , i1 , i2 ) .lt. 
+ckino Dec.27.2011:           if ( rdm ( ifi , 2 , i1 * i2 , ' ' , spot%rv_p_oqpp , i1 , i2 ) .lt. 
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , spot%rv_p_oqpp , i1 , i2 ) .lt. 
      .   0 ) then 
 
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
-           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+ckino Dec.27.2011:             call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
+           call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
 
         endif
         call poppr
@@ -1241,33 +1295,33 @@ C Local variables
       logical havepq,havepp,haveso,haveop,haveva,havemp,
      .readpq,readpp,readso,readop,readva,readmp
                     integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
-                    real(8),pointer :: rv_p_osop(:) =>NULL()
+ckino Dec.27.2011:                      real(8),pointer :: rv_p_osop(:) =>NULL()
 
-                   real(8),pointer :: rv_p_opprel(:) =>NULL()
+ckino Dec.27.2011:                     real(8),pointer :: rv_p_opprel(:) =>NULL()
 
-                  real(8),pointer :: rv_p_orhrmx(:) =>NULL()
+ckino Dec.27.2011:                    real(8),pointer :: rv_p_orhrmx(:) =>NULL()
 
-                 real(8),pointer :: rv_p_oqnu(:) =>NULL()
+ckino Dec.27.2011:                   real(8),pointer :: rv_p_oqnu(:) =>NULL()
 
-                real(8),pointer :: rv_p_omp(:) =>NULL()
+ckino Dec.27.2011:                  real(8),pointer :: rv_p_omp(:) =>NULL()
 
-               real(8),pointer :: rv_p_opp(:) =>NULL()
+ckino Dec.27.2011:                 real(8),pointer :: rv_p_opp(:) =>NULL()
 
-              real(8),pointer :: rv_p_opnu(:) =>NULL()
+ckino Dec.27.2011:                real(8),pointer :: rv_p_opnu(:) =>NULL()
 
-             real(8),pointer :: rv_p_ogrrme(:) =>NULL()
+ckino Dec.27.2011:               real(8),pointer :: rv_p_ogrrme(:) =>NULL()
 
-            integer,pointer :: iv_p_ohave(:) =>NULL()
+ckino Dec.27.2011:              integer,pointer :: iv_p_ohave(:) =>NULL()
 
-           real(8),pointer :: rv_p_ovrmax(:) =>NULL()
+ckino Dec.27.2011:             real(8),pointer :: rv_p_ovrmax(:) =>NULL()
 
-          real(8),pointer :: rv_p_ova(:) =>NULL()
+ckino Dec.27.2011:            real(8),pointer :: rv_p_ova(:) =>NULL()
 
-         real(8),pointer :: rv_p_oves(:) =>NULL()
+ckino Dec.27.2011:           real(8),pointer :: rv_p_oves(:) =>NULL()
 
-        integer,pointer :: iv_p_oics(:) =>NULL()
+ckino Dec.27.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
 
-       real(8),pointer :: rv_p_oclabl(:) =>NULL()
+ckino Dec.27.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       parameter(n0=10)
       integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
@@ -1296,13 +1350,13 @@ Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg       call upack('pot opp opprel osop ogrrme',spot,opp,opprel,osop,
 Cgetarg      .  ogrrme,0)
       
-       rv_p_opp => spot%rv_p_opp 
+ckino Dec.27.2011:         rv_p_opp => spot%rv_p_opp 
 
-       rv_p_opprel => spot%rv_p_opprel 
+ckino Dec.27.2011:         rv_p_opprel => spot%rv_p_opprel 
 
-       rv_p_osop => spot%rv_p_osop 
+ckino Dec.27.2011:         rv_p_osop => spot%rv_p_osop 
 
-       rv_p_ogrrme => spot%rv_p_ogrrme 
+ckino Dec.27.2011:         rv_p_ogrrme => spot%rv_p_ogrrme 
 
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
@@ -1312,13 +1366,13 @@ Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 Cgetarg       call upack('pot opnu oqnu orhrmx ovrmax',spot,opnu,oqnu,orhrmx,
 Cgetarg      .  ovrmax,0)
       
-       rv_p_opnu => spot%rv_p_opnu 
+ckino Dec.27.2011:         rv_p_opnu => spot%rv_p_opnu 
 
-       rv_p_oqnu => spot%rv_p_oqnu 
+ckino Dec.27.2011:         rv_p_oqnu => spot%rv_p_oqnu 
 
-       rv_p_orhrmx => spot%rv_p_orhrmx 
+ckino Dec.27.2011:         rv_p_orhrmx => spot%rv_p_orhrmx 
 
-       rv_p_ovrmax => spot%rv_p_ovrmax 
+ckino Dec.27.2011:         rv_p_ovrmax => spot%rv_p_ovrmax 
 
 
 Cgetarg...info...           integer :: ova , integer(8) :: spot%ovintr 1
@@ -1326,11 +1380,11 @@ Cgetarg...info...           integer :: omp , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg       call upack('pot ovintr opmpol oves',spot,ova,omp,oves,0,0)
       
-       rv_p_ova => spot%rv_p_ovintr 
+ckino Dec.27.2011:         rv_p_ova => spot%rv_p_ovintr 
 
-       rv_p_omp => spot%rv_p_opmpol 
+ckino Dec.27.2011:         rv_p_omp => spot%rv_p_opmpol 
 
-       rv_p_oves => spot%rv_p_oves 
+ckino Dec.27.2011:         rv_p_oves => spot%rv_p_oves 
 
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
@@ -1341,11 +1395,11 @@ Cgetarg       call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
 Cgetarg      .  ohave,oics,0)
       
       nclasp=sarray%nclasp
-       rv_p_oclabl => sarray%rv_p_oclabl 
+ckino Dec.27.2011:         rv_p_oclabl => sarray%rv_p_oclabl 
 
-       iv_p_ohave => sarray%iv_p_ohave 
+ckino Dec.27.2011:         iv_p_ohave => sarray%iv_p_ohave 
 
-       iv_p_oics => sarray%iv_p_oics 
+ckino Dec.27.2011:         iv_p_oics => sarray%iv_p_oics 
 
 
 Changenglob      lrel = nglob('lrel')
@@ -1372,8 +1426,10 @@ c      call defdr(ocor,3000)
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
       do  10  ic = ic1, i2
 cki        is = w(oics+ic-1)
-        is=iv_p_oics(ic)
-         icmap = iclbsj ( is , iv_p_oics , - nclasp , 1 ) 
+ckino Dec.27.2011:          is=sarray%iv_p_oics(ic)
+        is=sarray%iv_p_oics(ic)
+ckino Dec.27.2011:           icmap = iclbsj ( is , sarray%iv_p_oics , - nclasp , 1 ) 
+         icmap = iclbsj ( is , sarray%iv_p_oics , - nclasp , 1 ) 
 
         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
 Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
@@ -1398,7 +1454,8 @@ C   --- Open the atom file ---
         outs1 = ' '
         outs2 = ' '
         outs3 = ' '
-         call r8tos8 ( dval ( rv_p_oclabl , ic ) , clabl ) 
+ckino Dec.27.2011:           call r8tos8 ( dval ( sarray%rv_p_oclabl , ic ) , clabl ) 
+         call r8tos8 ( dval ( sarray%rv_p_oclabl , ic ) , clabl ) 
 
         if (mode00 .ne. 3) then
 c#if ONE_ATOM_UNIT
@@ -1410,95 +1467,120 @@ c#endif
 
 C  --- Copy what is passed through to holding arrays ---
         k = nl*nsp
-         call pvaioc ( iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
 
         readpq = .not. havepq .or. mode00 .eq. 2 .and. jc .ne. ic
         readpq = readpq .and. mode00 .lt. 3
         if (havepq) then
-           call dpscop ( rv_p_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1 
+           call dpscop ( spot%rv_p_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1 
      .     , 1d0 ) 
 
-           call dpscop ( rv_p_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
+           call dpscop ( spot%rv_p_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
      .     * k , 1 , 1d0 ) 
 
-           call dpscop ( rv_p_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
+           call dpscop ( spot%rv_p_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
 
-           call dpscop ( rv_p_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 
+           call dpscop ( spot%rv_p_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 
      .     ) 
 
           if (ic.ne.jc) call awrit0('%a pq,',outs1,len(outs1),0)
         endif
         k = 6*nl*nsp
-         call pvaioc ( iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
 
         readpp = .not. havepp .or. mode00 .eq. 2 .and. jc .ne. ic
         readpp = readpp .and. mode00 .lt. 3
         if (havepp) then
-           call dpscop ( rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
+ckino Dec.27.2011:             call dpscop ( rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( spot%rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (lrel .eq. 2) then
             k = 4*nl*2*nl*2*2
-             call dpscop ( rv_p_opprel , olppr , k , 1 + ( jc - 1 ) 
+ckino Dec.27.2011:               call dpscop ( spot%rv_p_opprel , olppr , k , 1 + ( jc - 1 ) 
+             call dpscop ( spot%rv_p_opprel , olppr , k , 1 + ( jc - 1 ) 
      .       * k , 1 , 1d0 ) 
 
           endif
-           call dpscop ( rv_p_oves , ves , 1 , jc , 1 , 1d0 ) 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_oves , ves , 1 , jc , 1 , 1d0 ) 
+           call dpscop ( spot%rv_p_oves , ves , 1 , jc , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a pp,',outs1,len(outs1),0)
         endif
         k = (nl*nsp)**2
-         call pvaioc ( iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
 
 cki        haveva = haveva .and. ova .gt. 0
-        haveva = haveva .and. associated(rv_p_ova)
+ckino Dec.27.2011:          haveva = haveva .and. associated(spot%rv_p_ovintr)
+        haveva = haveva .and. associated(spot%rv_p_ovintr)
         readva = .not. haveva .or. mode00 .eq. 2 .and. jc .ne. ic
 cki        readva = readva .and. ova .gt. 0 .and. mode00 .lt. 3
-        readva = readva .and. associated(rv_p_ova) .and. mode00 .lt. 3
+ckino Dec.27.2011:          readva = readva .and. associated(spot%rv_p_ovintr) .and. mode00 .lt. 3
+        readva = readva .and. associated(spot%rv_p_ovintr) .and. mode00 .lt. 3
         if (haveva) then
-           call dpscop ( rv_p_ova , olva , k , 1 + ( jc - 1 ) * k 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_ovintr , olva , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( spot%rv_p_ovintr , olva , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a va,',outs1,len(outs1),0)
         endif
         k = nl**2*(2*nl-1)*3*nsp
-         call pvaioc ( iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
 
 cki        havemp = havemp .and. omp .gt. 0
-        havemp = havemp .and. associated(rv_p_omp)
+ckino Dec.27.2011:          havemp = havemp .and. associated(spot%rv_p_opmpol)
+        havemp = havemp .and. associated(spot%rv_p_opmpol)
         readmp = .not. havemp .or. mode00 .eq. 2 .and. jc .ne. ic
 cki        readmp = readmp .and. omp .gt. 0 .and. mode00 .lt. 3
-        readmp = readmp .and. associated(rv_p_omp) .and. mode00 .lt. 3
+ckino Dec.27.2011:          readmp = readmp .and. associated(spot%rv_p_opmpol) .and. mode00 .lt. 3
+        readmp = readmp .and. associated(spot%rv_p_opmpol) .and. mode00 .lt. 3
         if (havemp) then
-           call dpscop ( rv_p_omp , olmp , k , 1 + ( jc - 1 ) * k 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_opmpol , olmp , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( spot%rv_p_opmpol , olmp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a mp,',outs1,len(outs1),0)
         endif
         k = nl*nsp*nsp*9
-         call pvaioc ( iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
 
 cki        haveso = haveso .and. osop.gt. 0
-        haveso = haveso .and. associated(rv_p_osop)
+ckino Dec.27.2011:          haveso = haveso .and. associated(spot%rv_p_osop)
+        haveso = haveso .and. associated(spot%rv_p_osop)
         readso = .not. haveso .or. mode00 .eq. 2 .and. jc .ne. ic
 cki        readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
-        readso = readso .and. associated(rv_p_osop) .and. mode00 .lt. 3
+ckino Dec.27.2011:          readso = readso .and. associated(spot%rv_p_osop) .and. mode00 .lt. 3
+        readso = readso .and. associated(spot%rv_p_osop) .and. mode00 .lt. 3
         if (haveso) then
-           call dpscop ( rv_p_osop , olsop , k , 1 + ( jc - 1 ) * 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_osop , olsop , k , 1 + ( jc - 1 ) * 
+           call dpscop ( spot%rv_p_osop , olsop , k , 1 + ( jc - 1 ) * 
      .     k , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
         endif
         k = 16*nl*nsp
-         call pvaioc ( iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
+ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
+         call pvaioc ( sarray%iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
 
 cki        haveop = haveop .and. ogrrme .gt. 0
-        haveop = haveop .and. associated(rv_p_ogrrme)
+ckino Dec.27.2011:          haveop = haveop .and. associated(spot%rv_p_ogrrme)
+        haveop = haveop .and. associated(spot%rv_p_ogrrme)
         readop = .not. haveop .or. mode00 .eq. 2 .and. jc .ne. ic
 cki        readop = readop .and. ogrrme .gt. 0 .and. mode00 .lt. 3
-        readop = readop .and. associated(rv_p_ogrrme) .and. mode00 .lt. 3
+ckino Dec.27.2011:          readop = readop .and. associated(spot%rv_p_ogrrme) .and. mode00 .lt. 3
+        readop = readop .and. associated(spot%rv_p_ogrrme) .and. mode00 .lt. 3
         if (haveop) then
-           call dpscop ( rv_p_ogrrme , olgrme , k , 1 + ( jc - 1 ) 
+ckino Dec.27.2011:             call dpscop ( spot%rv_p_ogrrme , olgrme , k , 1 + ( jc - 1 ) 
+           call dpscop ( spot%rv_p_ogrrme , olgrme , k , 1 + ( jc - 1 ) 
      .     * k , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a opp,',outs1,len(outs1),0)
@@ -1561,86 +1643,107 @@ C             call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
             if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
           endif
 cki          if (readso .and. osop .gt. 0) then
-          if (readso .and. associated(rv_p_osop) ) then
+ckino Dec.27.2011:            if (readso .and. associated(spot%rv_p_osop) ) then
+          if (readso .and. associated(spot%rv_p_osop) ) then
             readso = aiosop(clabl,olsop,nl,lmx,nsp,ifi)
             if (readso) call awrit0('%a so,',outs2,len(outs2),0)
           endif
 cki          if (readop .and. ogrrme .gt. 0) then
-          if (readop .and. associated(rv_p_ogrrme)) then
+ckino Dec.27.2011:            if (readop .and. associated(spot%rv_p_ogrrme)) then
+          if (readop .and. associated(spot%rv_p_ogrrme)) then
             readop = aiorme(clabl,olgrme,nl,nsp,ifi)
             if (readop) call awrit0('%a op,',outs2,len(outs2),0)
           endif
 cki          if (readva .and. ova .gt. 0) then
-          if (readva .and. associated(rv_p_ova) ) then
+ckino Dec.27.2011:            if (readva .and. associated(spot%rv_p_ovintr) ) then
+          if (readva .and. associated(spot%rv_p_ovintr) ) then
             readva = aiova(clabl,olva,nl,lmx,nsp,ifi)
             if (readva) call awrit0('%a va,',outs2,len(outs2),0)
           endif
 cki          if (readmp .and. omp .gt. 0) then
-          if (readmp .and. associated(rv_p_omp) ) then
+ckino Dec.27.2011:            if (readmp .and. associated(spot%rv_p_opmpol) ) then
+          if (readmp .and. associated(spot%rv_p_opmpol) ) then
             readmp = aiomp(clabl,olmp,nl,2*nl-2,nsp,ifi)
             if (readmp) call awrit0('%a mp,',outs2,len(outs2),0)
           endif
 
 C     ... Update what parameters are available
 cki          w(ohave+ic-1) = isw(haveop.or.readop)*32+
-          iv_p_ohave(ic) = isw(haveop.or.readop)*32+
+ckino Dec.27.2011:            sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
+          sarray%iv_p_ohave(ic) = isw(haveop.or.readop)*32+
      .    isw(havemp.or.readmp)*16+
      .    isw(haveva.or.readva)*8 +
      .    isw(haveso.or.readso)*4 +
      .    isw(havepp.or.readpp)*2 +
      .    isw(havepq.or.readpq)*1 +
 cki     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
-     .    iv_p_ohave(ic) - bitand(iv_p_ohave(ic),63)
+ckino Dec.27.2011:       .    sarray%iv_p_ohave(ic) - bitand(sarray%iv_p_ohave(ic),63)
+     .    sarray%iv_p_ohave(ic) - bitand(sarray%iv_p_ohave(ic),63)
 
           k = nl*nsp
           if (havepq .or. readpq) then
-             call dpscop ( pnuloc , rv_p_opnu , k , 1 , 1 + ( ic - 1 ) * k 
+ckino Dec.27.2011:               call dpscop ( pnuloc , spot%rv_p_opnu , k , 1 , 1 + ( ic - 1 ) * k 
+             call dpscop ( pnuloc , spot%rv_p_opnu , k , 1 , 1 + ( ic - 1 ) * k 
      .       , 1d0 ) 
 
-             call dpscop ( qnuloc , rv_p_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
+ckino Dec.27.2011:               call dpscop ( qnuloc , spot%rv_p_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
+             call dpscop ( qnuloc , spot%rv_p_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
      .       * 3 * k , 1d0 ) 
 
-             call dpscop ( rhrmx , rv_p_orhrmx , 1 , 1 , ic , 1d0 ) 
+ckino Dec.27.2011:               call dpscop ( rhrmx , spot%rv_p_orhrmx , 1 , 1 , ic , 1d0 ) 
+             call dpscop ( rhrmx , spot%rv_p_orhrmx , 1 , 1 , ic , 1d0 ) 
 
-             call dpscop ( vrmax , rv_p_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 
+ckino Dec.27.2011:               call dpscop ( vrmax , spot%rv_p_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 
+             call dpscop ( vrmax , spot%rv_p_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 
      .       ) 
 
           endif
           k = 6*nl*nsp
           if (havepp .or. readpp) then
-             call dpscop ( olpp , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
+ckino Dec.27.2011:               call dpscop ( olpp , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
+             call dpscop ( olpp , spot%rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
      .       * k , 1d0 ) 
 
             if (lrel .eq. 2) then
               k = 4*nl*2*nl*2*2
-               call dpscop ( olppr , rv_p_opprel , k , 1 , 1 + ( ic - 
+ckino Dec.27.2011:                 call dpscop ( olppr , spot%rv_p_opprel , k , 1 , 1 + ( ic - 
+               call dpscop ( olppr , spot%rv_p_opprel , k , 1 , 1 + ( ic - 
      .         1 ) * k , 1d0 ) 
 
             endif
-             call dpscop ( ves , rv_p_oves , 1 , 1 , ic , 1d0 ) 
+ckino Dec.27.2011:               call dpscop ( ves , spot%rv_p_oves , 1 , 1 , ic , 1d0 ) 
+             call dpscop ( ves , spot%rv_p_oves , 1 , 1 , ic , 1d0 ) 
 
           endif
           k = (nl*nsp)**2
 cki          if ((haveva .or. readva) .and. ova .gt. 0)
-           if ( ( haveva .or. readva ) .and. associated ( rv_p_ova ) ) call 
-     .     dpscop ( olva  , rv_p_ova , k , 1 , 1 + ( ic - 1 ) * k , 
+ckino Dec.27.2011:             if ( ( haveva .or. readva ) .and. associated ( spot%rv_p_ovintr ) ) call 
+           if ( ( haveva .or. readva ) .and. associated ( spot%rv_p_ovintr ) ) call 
+ckino Dec.27.2011:       .     dpscop ( olva  , spot%rv_p_ovintr , k , 1 , 1 + ( ic - 1 ) * k , 
+     .     dpscop ( olva  , spot%rv_p_ovintr , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl**2*(2*nl-1)*3*nsp
 cki          if ((havemp .or. readmp) .and. omp .gt. 0)
-           if ( ( havemp .or. readmp ) .and. associated ( rv_p_omp ) ) call 
-     .     dpscop ( olmp  , rv_p_omp , k , 1 , 1 + ( ic - 1 ) * k , 
+ckino Dec.27.2011:             if ( ( havemp .or. readmp ) .and. associated ( spot%rv_p_opmpol ) ) call 
+           if ( ( havemp .or. readmp ) .and. associated ( spot%rv_p_opmpol ) ) call 
+ckino Dec.27.2011:       .     dpscop ( olmp  , spot%rv_p_opmpol , k , 1 , 1 + ( ic - 1 ) * k , 
+     .     dpscop ( olmp  , spot%rv_p_opmpol , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl*nsp*nsp*9
 cki          if ((haveso .or. readso) .and. osop .gt. 0)
-           if ( ( haveso .or. readso ) .and. associated ( rv_p_osop ) ) 
-     .     call dpscop ( olsop  , rv_p_osop , k , 1 , 1 + ( ic - 1 
+ckino Dec.27.2011:             if ( ( haveso .or. readso ) .and. associated ( spot%rv_p_osop ) ) 
+           if ( ( haveso .or. readso ) .and. associated ( spot%rv_p_osop ) ) 
+ckino Dec.27.2011:       .     call dpscop ( olsop  , spot%rv_p_osop , k , 1 , 1 + ( ic - 1 
+     .     call dpscop ( olsop  , spot%rv_p_osop , k , 1 , 1 + ( ic - 1 
      .     ) * k , 1d0 ) 
 
           k = 16*nl*nsp
-           if ( ( haveop .or. readop ) .and. associated ( rv_p_ogrrme ) 
-     .     ) call dpscop ( olgrme  , rv_p_ogrrme , k , 1 , 1 + ( ic 
+ckino Dec.27.2011:             if ( ( haveop .or. readop ) .and. associated ( spot%rv_p_ogrrme ) 
+           if ( ( haveop .or. readop ) .and. associated ( spot%rv_p_ogrrme ) 
+ckino Dec.27.2011:       .     ) call dpscop ( olgrme  , spot%rv_p_ogrrme , k , 1 , 1 + ( ic 
+     .     ) call dpscop ( olgrme  , spot%rv_p_ogrrme , k , 1 , 1 + ( ic 
      .     - 1 ) * k , 1d0 ) 
 
         endif

@@ -1,0 +1,10 @@
+         rv_p_ovrmax => spot%rv_p_ovrmax 
+         iv_p_oics => sarray%iv_p_oics 
+       rv_p_oqnu => spot%rv_p_oqnu 
+       rv_p_oqpp => spot%rv_p_oqpp 
+rv_p_oqt =>         spot%rv_p_oqt => rv_p_oqt 
+rv_p_obxc =>         spot%rv_p_obxc => rv_p_obxc 
+         rv_p_oves => spot%rv_p_oves 
+rv_p_oqc =>         spot%rv_p_oqc => rv_p_oqc 
+       rv_p_ova => spot%rv_p_ovintr 
+
