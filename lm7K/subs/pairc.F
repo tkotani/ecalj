@@ -362,11 +362,14 @@ C ... Estimate an upper bound to the size of the neighbor table
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
 ckino Dec.14.2011:         allocate(iv_p_ontab(abs(nbasp+1)))
+ckino Dec.27.2011: 
+       if (allocated(iv_a_ontab)) deallocate(iv_a_ontab)
        allocate(iv_a_ontab(abs(nbasp+1)))
 ckino Dec.14.2011:         if (nbasp+1<0) iv_p_ontab(:)=0
        if (nbasp+1<0) iv_a_ontab(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oiax(abs(-niax*mxnbr)))
+       if (allocated(iv_a_oiax)) deallocate(iv_a_oiax)
        allocate(iv_a_oiax(abs(-niax*mxnbr)))
 ckino Dec.14.2011:         if (-niax*mxnbr<0) iv_p_oiax(:)=0
        if (-niax*mxnbr<0) iv_a_oiax(:)=0
