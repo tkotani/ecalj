@@ -1,0 +1,3 @@
+script=tmp/fix_rv_p_ormax.awk
+for n in fp/lmaux.F subs/m_struc_def.F lmv7util.F
+do gawk -f $script $n >x;mv x $n ; done

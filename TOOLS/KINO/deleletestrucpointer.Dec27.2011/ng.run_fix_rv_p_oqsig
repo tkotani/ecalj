@@ -1,0 +1,4 @@
+script=tmp/fix_rv_p_oqsig.awk
+for n in  fp/bndfp.F fp/sugw.F subs/m_struc_def.F subs/rdsigm2.F
+
+do gawk -f $script $n >x;mv x $n ; done

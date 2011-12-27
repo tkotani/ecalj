@@ -209,7 +209,8 @@ C ... Set up for vectorized Y_lm and gaussians
       allocate(g_rv(ng*3))
 
 ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
-       call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
+ckino 12月.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
+       call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
 
@@ -218,7 +219,8 @@ ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_r
       allocate(iv_iv(ng*3))
 
 ckino Dec.9.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
-       call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
+ckino 12月.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
+       call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv ) 
 
 
 
@@ -335,7 +337,8 @@ C --- Lindhard dielectric function ---
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
 ckino Dec.9.2011:           call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
-         call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv ) 
+ckino 12月.27.2011:           call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv ) 
+         call lindsc ( 3 , ng , slat%rv_a_ogv , tpiba , elind , ceps_zv ) 
 
 
       endif
@@ -444,7 +447,8 @@ c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib
 c     .   ) , fes1 , fes2 , fxc ) 
           call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
 ckino Dec.9.2011:       .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
-     .    , qmout_rv , ng , slat%rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+ckino 12月.27.2011:       .    , qmout_rv , ng , slat%rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+     .    , qmout_rv , ng , slat%rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
      .    ib ) , fes1 , fes2 , fxc ) 
 

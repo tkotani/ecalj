@@ -1340,7 +1340,8 @@ ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
         print *,'goto gen_hamindex nkp=',nkp
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
 ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
-     .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
+ckino 12月.27.2011:       .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
+     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 
 #if 1
 Ckino ib=atom index
@@ -2331,7 +2332,8 @@ ckino Dec.8.2011:                       iv_p_oiprmb => sham%iv_p_oindxo
 
 
 ckino Dec.8.2011:                       call mullmf ( nbas , ssite , sspec , iv_p_oiprmb , t_zv , ndimh 
-                     call mullmf ( nbas , ssite , sspec , sham%iv_p_oindxo , t_zv , ndimh 
+ckino 12月.27.2011:                       call mullmf ( nbas , ssite , sspec , sham%iv_p_oindxo , t_zv , ndimh 
+                     call mullmf ( nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
      .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
      .               , chan_iv , lmdim , ndham , doswt_rv ) 
 
@@ -2463,7 +2465,8 @@ ckino             n_listwf>0 means listwf is set by --writewf
               if (nfbn(1)>0 .and. n_listwf>0) then
 
                 call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
-     .          ,  napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3
+ckino 12月.27.2011:       .          ,  napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3
+     .          ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
      .          ,  n_listwf,listwf    )
 
               endif

@@ -1099,7 +1099,8 @@ ckino Dec.16.2011:                 call fixpos ( rv_p_opos , nbas , fptol , ng ,
                call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
 c     kino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab ) 
 c     kino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab ) 
-     .              , slat%rv_p_oag , slat%iv_p_oistab ) 
+ckino 12月.27.2011:       .              , slat%rv_p_oag , slat%iv_p_oistab ) 
+     .              , slat%rv_a_oag , slat%iv_p_oistab ) 
 
 
 

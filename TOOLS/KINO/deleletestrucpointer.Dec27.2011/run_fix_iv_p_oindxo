@@ -1,0 +1,5 @@
+script=tmp/fix_iv_p_oindxo.awk
+for n in fp/addrbl.F fp/bndfp.F fp/hambl.F fp/hambls.F fp/makusq.F \
+fp/mkekin.F fp/mkrout.F fp/sugw.F subs/m_struc_def.F subs/rdsigm2.F \
+subs/suham.F
+do gawk -f $script $n >x;mv x $n ; done

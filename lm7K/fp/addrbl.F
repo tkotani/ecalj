@@ -245,7 +245,8 @@ C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
         if (nlmto .gt. 0) then
            call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh , 
 ckino Dec.9.2011:       .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec , 
-     .     nlmto , sham%iv_p_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
+ckino 12月.27.2011:       .     nlmto , sham%iv_p_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
+     .     nlmto , sham%iv_a_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f ) 
 
         endif
@@ -260,7 +261,8 @@ C        enddo
           vol=slat%vol
 
 ckino Dec.9.2011:             call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh 
-           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_p_oindxo 
+ckino 12月.27.2011:             call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_p_oindxo 
+           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_a_oindxo 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f ) 
 
@@ -277,7 +279,8 @@ C ... Add to smooth density
       if (lrout .gt. 0) then
          call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
 ckino Dec.9.2011:       .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-     .   iq , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
+ckino 12月.27.2011:       .   iq , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
+     .   iq , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f ) 
 
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
@@ -291,7 +294,8 @@ C ... Add to local density coefficients
       if (lrout .gt. 0) then
               call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
 ckino Dec.9.2011:       .        ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
-     .        ndham , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
+ckino 12月.27.2011:       .        ndham , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
+     .        ndham , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
 

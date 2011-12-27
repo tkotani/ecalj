@@ -257,7 +257,8 @@ C --- Integral rhout*veff, part from augmentation ---
         if (lmxa .eq. -1) goto 10
 
 ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
-         call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab 
+ckino 12月.27.2011:           call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab 
+         call orbl ( ib , 0 , ndimh , sham%iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
 C       Block into groups of consecutive l

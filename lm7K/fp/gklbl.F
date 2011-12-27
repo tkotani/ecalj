@@ -80,7 +80,8 @@ ckino Dec.9.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat 
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
 ckino Dec.9.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
-         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_odlv 
+ckino 12月.27.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_odlv 
+         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_odlv 
      .   , nkd , wk , gkl ) 
 
         deallocate(wk)

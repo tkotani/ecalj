@@ -137,7 +137,8 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
 ckino Dec.12.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
-       call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv 
+ckino 12月.27.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv 
+       call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 ) 
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
@@ -283,9 +284,11 @@ ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 
 
 
 ckino Dec.12.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
-            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy 
+ckino 12月.27.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy 
+            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_a_ocy 
 ckino Dec.12.2011:       .      , ng , rv_p_ogv , cgh1_zv , f ) 
-     .      , ng , slat%rv_p_ogv , cgh1_zv , f ) 
+ckino 12月.27.2011:       .      , ng , slat%rv_p_ogv , cgh1_zv , f ) 
+     .      , ng , slat%rv_a_ogv , cgh1_zv , f ) 
 
 
 

@@ -68,7 +68,8 @@ ckino Dec.14.2011:             rv_p_ogv => slat%rv_p_ogv
           tolgv=slat%tolft
 
 ckino Dec.14.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
-           call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
+ckino 12月.27.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
+           call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
      .     ) 
 
         endif

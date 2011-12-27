@@ -90,7 +90,8 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
 ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv 
       allocate(gv(ng,3))
 ckino Dec.12.2011:        call dcopy(3*ng,rv_p_ogv,1,gv,1)
-      call dcopy(3*ng,slat%rv_p_ogv,1,gv,1)
+ckino 12月.27.2011:        call dcopy(3*ng,slat%rv_p_ogv,1,gv,1)
+      call dcopy(3*ng,slat%rv_a_ogv,1,gv,1)
 ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv 
       alat  =slat%alat
       vol   =slat%vol
@@ -105,7 +106,8 @@ ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
        do  i = 1, nsp
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+ckino 12月.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , dummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
        enddo
@@ -289,7 +291,8 @@ c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
 ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+ckino 12月.27.2011:            call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , zggrho ( 1 , i ) ) 
 C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
@@ -331,7 +334,8 @@ C     Use zggrho as complex work array
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+ckino 12月.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
 
 

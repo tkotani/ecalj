@@ -241,7 +241,8 @@ CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
 cki      integer(8)   ::   opos
          real(8), pointer :: rv_p_opos(:) =>NULL()
 CCHSTRUC       integer(8)   ::   ormax
-       real(8) , pointer ::  rv_p_ormax (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ormax (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ormax (:) 
 CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
 CCHSTRUC       integer(8)   ::   ostni ! not used because of undef
 CCHSTRUC       integer(8)   ::   ozos ! not used because of undef
@@ -858,7 +859,8 @@ cki      integer(8)   ::   oiaxs
 ckino Dec.14.2011:         integer, pointer :: iv_p_oiaxs(:) =>NULL()
        integer, allocatable :: iv_a_oiaxs(:) 
 CCHSTRUC       integer(8)   ::   oindxo
-       integer , pointer ::  iv_p_oindxo (:) =>NULL()
+ckino 12月.27.2011:         integer , pointer ::  iv_p_oindxo (:) =>NULL()
+       integer , allocatable ::  iv_a_oindxo (:) 
 CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
 CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
 cki      integer(8)   ::   ontabs
@@ -997,19 +999,26 @@ C 43 121  4        vol  1
       integer(8)   ::   npgrp
       integer(8)   ::   nsgrp
 CCHSTRUC       integer(8)   ::   oag
-       real(8) , pointer ::  rv_p_oag (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oag (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oag (:) 
 CCHSTRUC       integer(8)   ::   obgv
-       complex(8) , pointer ::  zv_p_obgv (:) =>NULL()
+ckino 12月.27.2011:         complex(8) , pointer ::  zv_p_obgv (:) =>NULL()
+       complex(8) , allocatable ::  zv_a_obgv (:) 
 CCHSTRUC       integer(8)   ::   ocg
-       real(8) , pointer ::  rv_p_ocg (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ocg (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ocg (:) 
 CCHSTRUC       integer(8)   ::   ocy
-       real(8) , pointer ::  rv_p_ocy (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ocy (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ocy (:) 
 CCHSTRUC       integer(8)   ::   odlv
-       real(8) , pointer ::  rv_p_odlv (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_odlv (:) =>NULL()
+       real(8) , allocatable ::  rv_a_odlv (:) 
 CCHSTRUC       integer(8)   ::   ogv
-       real(8) , pointer ::  rv_p_ogv (:) =>NULL()
+ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ogv (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ogv (:) 
 CCHSTRUC       integer(8)   ::   oidxcg
-       integer , pointer ::  iv_p_oidxcg (:) =>NULL()
+ckino 12月.27.2011:         integer , pointer ::  iv_p_oidxcg (:) =>NULL()
+       integer , allocatable ::  iv_a_oidxcg (:) 
 CCHSTRUC       integer(8)   ::   oips0
        integer , pointer ::  iv_p_oips0 (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oistab

@@ -64,10 +64,13 @@ ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
           call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
 ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
 ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino 12月.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino 12月.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg 
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg 
 ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
 ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
-     .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds ) 
+ckino 12月.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds ) 
+     .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , s , ds ) 
 
 
 

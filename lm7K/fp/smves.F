@@ -212,7 +212,8 @@ C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 C --- Estatic potential of smooth density without gaussians ---
 ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
 ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
-        call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
+ckino 12月.27.2011:          call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
+        call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 ) 
 
 
@@ -224,10 +225,12 @@ C ... Add estatic potential of compensating gaussians to smpot
       allocate(cgsum_zv(ng))
 
 ckino Dec.12.2011:           call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-         call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom , 
+ckino 12月.27.2011:           call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom , 
+         call vesgcm ( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom , 
 ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
 ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
-     .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+ckino 12月.27.2011:       .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+     .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
 
 
@@ -239,7 +242,8 @@ ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cg
 C ... Compute e.s. potential at MT boundary
 ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
 ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv 
-        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv 
+ckino 12月.27.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv 
+        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
 
 

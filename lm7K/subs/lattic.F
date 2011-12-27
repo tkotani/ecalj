@@ -151,9 +151,11 @@ c        endif
       endif
 
 ckino Dec.8.2011:         allocate(rv_p_odlv(abs(3*nkdmx)))
-       allocate(slat%rv_p_odlv(abs(3*nkdmx)))
+ckino 12月.27.2011:         allocate(slat%rv_p_odlv(abs(3*nkdmx)))
+       allocate(slat%rv_a_odlv(abs(3*nkdmx)))
 ckino Dec.8.2011:         if (3*nkdmx<0) rv_p_odlv(:)=0.0d0
-       if (3*nkdmx<0) slat%rv_p_odlv(:)=0.0d0
+ckino 12月.27.2011:         if (3*nkdmx<0) slat%rv_p_odlv(:)=0.0d0
+       if (3*nkdmx<0) slat%rv_a_odlv(:)=0.0d0
 
 ckino Dec.8.2011:         allocate(rv_p_oqlv(abs(3*nkqmx)))
        allocate(slat%rv_p_oqlv(abs(3*nkqmx)))
@@ -163,7 +165,8 @@ ckino Dec.8.2011:         if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
       lmxst = 6
         call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
 ckino Dec.8.2011:       .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_p_odlv 
-     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_p_odlv 
+ckino 12月.27.2011:       .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_p_odlv 
+     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_a_odlv 
 ckino Dec.8.2011:       .  , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
      .  , nkd , slat%rv_p_oqlv , nkq , nkdmx , nkqmx ) 
 
@@ -204,13 +207,17 @@ ckino Dec.8.2011:         rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallo
 
 cki      call defps2(odlv,oqlv)
 ckino Dec.8.2011:         i_data_size=size(rv_p_odlv); allocate(rv_a_tmp(i_data_size))
-       i_data_size=size(slat%rv_p_odlv); allocate(rv_a_tmp(i_data_size))
+ckino 12月.27.2011:         i_data_size=size(slat%rv_p_odlv); allocate(rv_a_tmp(i_data_size))
+       i_data_size=size(slat%rv_a_odlv); allocate(rv_a_tmp(i_data_size))
 ckino Dec.8.2011:         rv_a_tmp=rv_p_odlv; deallocate(rv_p_odlv)
-       rv_a_tmp=slat%rv_p_odlv; deallocate(slat%rv_p_odlv)
+ckino 12月.27.2011:         rv_a_tmp=slat%rv_p_odlv; deallocate(slat%rv_p_odlv)
+       rv_a_tmp=slat%rv_a_odlv; deallocate(slat%rv_a_odlv)
 ckino Dec.8.2011:         i_data_size=min(i_data_size,3*nkd); allocate(rv_p_odlv(3*nkd))
-       i_data_size=min(i_data_size,3*nkd); allocate(slat%rv_p_odlv(3*nkd))
+ckino 12月.27.2011:         i_data_size=min(i_data_size,3*nkd); allocate(slat%rv_p_odlv(3*nkd))
+       i_data_size=min(i_data_size,3*nkd); allocate(slat%rv_a_odlv(3*nkd))
 ckino Dec.8.2011:         rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
-       slat%rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+ckino 12月.27.2011:         slat%rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+       slat%rv_a_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
 
 
       slat%awald=awald

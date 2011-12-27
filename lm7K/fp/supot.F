@@ -96,7 +96,8 @@ ckino Dec.8.2011:           rv_p_omad(:)=0.0d0
 
 ckino Dec.8.2011:              call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
 ckino Dec.8.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , rv_p_odlv 
-            call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_p_odlv 
+ckino 12月.27.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_p_odlv 
+            call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_a_odlv 
 ckino Dec.8.2011:       .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
 ckino Dec.8.2011:       .      , nkd , slat%rv_p_oqlv , nkq , rv_p_omad ) 
      .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_p_omad ) 
@@ -130,7 +131,8 @@ c        call pshpr(iprint()-0)
 
 C   ... Make list of lattice vectors within cutoff
 ckino Dec.8.2011:           allocate(rv_p_ogv(abs(ngmx*3)))
-         allocate(slat%rv_p_ogv(abs(ngmx*3)))
+ckino 12月.27.2011:           allocate(slat%rv_p_ogv(abs(ngmx*3)))
+         allocate(slat%rv_a_ogv(abs(ngmx*3)))
 c         if (ngmx*3<0) rv_p_ogv(:)=0.0d0
 
 ckino Dec.8.2011:           allocate(iv_p_okv(abs(ngmx*3)))
@@ -140,7 +142,8 @@ c         if (ngmx*3<0) iv_p_okv(:)=0
            call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8 
 ckino Dec.8.2011:       .     , ngmx , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
 ckino Dec.8.2011:       .     , ngmx , ng , iv_p_okv , slat%rv_p_ogv , xx , xx ) 
-     .     , ngmx , ng , slat%iv_p_okv , slat%rv_p_ogv , xx , xx ) 
+ckino 12月.27.2011:       .     , ngmx , ng , slat%iv_p_okv , slat%rv_p_ogv , xx , xx ) 
+     .     , ngmx , ng , slat%iv_p_okv , slat%rv_a_ogv , xx , xx ) 
 
 
 
@@ -193,9 +196,11 @@ ckino Dec.8.2011:           iv_p_oips0(:)=0.0d0
          slat%iv_p_oips0(:)=0.0d0
 
 ckino Dec.8.2011:           allocate(zv_p_obgv(ng))
-         allocate(slat%zv_p_obgv(ng))
+ckino 12月.27.2011:           allocate(slat%zv_p_obgv(ng))
+         allocate(slat%zv_a_obgv(ng))
 ckino Dec.8.2011:           zv_p_obgv(:)=0.0d0
-         slat%zv_p_obgv(:)=0.0d0
+ckino 12月.27.2011:           slat%zv_p_obgv(:)=0.0d0
+         slat%zv_a_obgv(:)=0.0d0
 
 
         ngrp=slat%nsgrp
@@ -208,9 +213,12 @@ ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , rv_p_oag , ng , r
 ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
 ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , iv_p_oips0 
 ckino Dec.13.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
-             call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
+ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
+ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
+             call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
 ckino Dec.8.2011:       .       , zv_p_obgv ) 
-     .       , slat%zv_p_obgv ) 
+ckino 12月.27.2011:       .       , slat%zv_p_obgv ) 
+     .       , slat%zv_a_obgv ) 
 
 
 

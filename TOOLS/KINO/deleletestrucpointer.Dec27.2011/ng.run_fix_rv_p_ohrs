@@ -1,0 +1,3 @@
+script=tmp/fix_rv_p_ohrs.awk
+for n in fp/hambls.F subs/rdsigm2.F subs/m_struc_def.F
+do gawk -f $script $n >x;mv x $n ; done

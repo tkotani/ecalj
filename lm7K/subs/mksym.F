@@ -139,9 +139,11 @@ C ... Re-entry when ngmx was increased
 
 C ... For memory allocation of class data, assume initially nclass=nbas
 ckino Dec.14.2011:         allocate(rv_p_oag(abs(3*ngmx)))
-       allocate(slat%rv_p_oag(abs(3*ngmx)))
+ckino 12月.27.2011:         allocate(slat%rv_p_oag(abs(3*ngmx)))
+       allocate(slat%rv_a_oag(abs(3*ngmx)))
 ckino Dec.14.2011:         if (3*ngmx<0) rv_p_oag(:)=0.0d0
-       if (3*ngmx<0) slat%rv_p_oag(:)=0.0d0
+ckino 12月.27.2011:         if (3*ngmx<0) slat%rv_p_oag(:)=0.0d0
+       if (3*ngmx<0) slat%rv_a_oag(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(rv_p_osymgr(abs(9*ngmx)))
        allocate(slat%rv_p_osymgr(abs(9*ngmx)))
@@ -236,7 +238,8 @@ ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 )
      .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
 ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
 ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
-     .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_p_oag , ngen , gen , ssymgr 
+ckino 12月.27.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_p_oag , ngen , gen , ssymgr 
+     .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
 ckino Dec.14.2011:       .   , nggen , isym , iv_p_oistab ) 
      .   , nggen , isym , slat%iv_p_oistab ) 
 
@@ -253,7 +256,8 @@ ckino Dec.14.2011:       .   , nggen , isym , iv_p_oistab )
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
 ckino Dec.14.2011:           if (associated(rv_p_oag)) deallocate(rv_p_oag)
-         if (associated(slat%rv_p_oag)) deallocate(slat%rv_p_oag)
+ckino 12月.27.2011:           if (associated(slat%rv_p_oag)) deallocate(slat%rv_p_oag)
+         if (allocated(slat%rv_a_oag)) deallocate(slat%rv_a_oag)
 
 
         goto 5
@@ -412,7 +416,8 @@ ckino Dec.14.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray
            call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_p_osymgr 
 ckino Dec.14.2011:       .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino Dec.14.2011:       .     , slat%rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-     .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 
+ckino 12月.27.2011:       .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 
+     .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_p_oistab ) 
 
 
 
@@ -431,7 +436,8 @@ C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
 ckino Dec.14.2011:             if ( aginv ( rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
 ckino Dec.14.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
-           if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_p_oag , 
+ckino 12月.27.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_p_oag , 
+           if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
 ckino Dec.14.2011:       .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
      .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
 

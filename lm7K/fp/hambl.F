@@ -112,7 +112,8 @@ C ... Skip LDA H, S
 C --- Augmentation part of hamiltonian and overlap ---
           call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
 ckino Dec.9.2011:       .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_p_oiprmb 
-     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , sham%iv_p_oindxo 
+ckino 12月.27.2011:       .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , sham%iv_p_oindxo 
+     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , sham%iv_a_oindxo 
      .    , ndimh , napw , igvapw , h , hso , s ) 
 
 
@@ -135,14 +136,16 @@ C     print *, '!!'; s = 0
 
        call smhsbl ( mode0 , ssite , sspec , slat , vavg + vconst , 
 ckino Dec.9.2011:       . q , ndimh , iv_p_oiprmb , napw , igvapw , h , s ) 
-     . q , ndimh , sham%iv_p_oindxo , napw , igvapw , h , s ) 
+ckino 12月.27.2011:       . q , ndimh , sham%iv_p_oindxo , napw , igvapw , h , s ) 
+     . q , ndimh , sham%iv_a_oindxo , napw , igvapw , h , s ) 
 
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
        call hsibl ( ssite , sspec , slat , k1 , k2 , k3 , smpot , isp 
 ckino Dec.9.2011:       . , q , ndimh , iv_p_oiprmb , napw , igvapw , h ) 
-     . , q , ndimh , sham%iv_p_oindxo , napw , igvapw , h ) 
+ckino 12月.27.2011:       . , q , ndimh , sham%iv_p_oindxo , napw , igvapw , h ) 
+     . , q , ndimh , sham%iv_a_oindxo , napw , igvapw , h ) 
 
 
 C ... Restore istl potential

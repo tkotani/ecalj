@@ -671,12 +671,15 @@ ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 
 
         print *,' qqqqq ics=',ics
 ckino Dec.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
-         allocate(sarray%rv_p_ormax(abs(nclspp)))
+ckino 12月.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
+         allocate(sarray%rv_a_ormax(abs(nclspp)))
 ckino Dec.27.2011:           if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
-         if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
+ckino 12月.27.2011:           if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
+         if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
 
 ckino Dec.27.2011:           call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_p_ormax 
-         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_p_ormax 
+ckino 12月.27.2011:           call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_p_ormax 
+         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_a_ormax 
      .   , 1 ) 
 
 

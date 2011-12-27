@@ -541,10 +541,13 @@ c        oxf = oixf(ip)
 CSFCPP#if F90
 ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
 ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
-            call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino 12月.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino 12月.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
+            call bstrux ( 1 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg 
 ckino Dec.12.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 ckino Dec.12.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino 12月.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb ) 
 
 

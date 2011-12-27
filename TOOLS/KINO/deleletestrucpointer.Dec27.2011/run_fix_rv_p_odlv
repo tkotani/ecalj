@@ -1,0 +1,6 @@
+script=tmp/fix_rv_p_odlv.awk
+for n in  fp/fklbl.F fp/gklbl.F fp/hklbl.F fp/hsmbl.F \
+fp/supot.F subs/lattic.F subs/m_struc_def.F
+
+
+do gawk -f $script $n >x;mv x $n ; done

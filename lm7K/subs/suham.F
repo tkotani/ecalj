@@ -140,7 +140,8 @@ ckino Dec.14.2011:         call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 )
        call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
 
 ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
-       call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
+ckino 12月.27.2011:         call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
+       call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 ) 
 
 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
@@ -436,9 +437,11 @@ ckino Dec.14.2011:         if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
        if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oidxsh(abs(ndim+3)))
-       allocate(sham%iv_p_oindxo(abs(ndim+3)))
+ckino 12月.27.2011:         allocate(sham%iv_p_oindxo(abs(ndim+3)))
+       allocate(sham%iv_a_oindxo(abs(ndim+3)))
 ckino Dec.14.2011:         if (ndim+3<0) iv_p_oidxsh(:)=0
-       if (ndim+3<0) sham%iv_p_oindxo(:)=0
+ckino 12月.27.2011:         if (ndim+3<0) sham%iv_p_oindxo(:)=0
+       if (ndim+3<0) sham%iv_a_oindxo(:)=0
 
       stdo = lgunit(1)
 
@@ -467,7 +470,8 @@ ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec ,
            call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
 ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham ) 
 ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham ) 
-     .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 
+ckino 12月.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 
+     .     , sham%iv_p_ooffh , sham%iv_a_oindxo , ldham ) 
 
 
 
@@ -554,7 +558,8 @@ ckino Dec.14.2011       rv_p_ogv => slat%rv_p_ogv
       tolgv=slat%tolft
 
 ckino Dec.14.2011       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
-       call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
+ckino 12月.27.2011:         call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
+       call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
      . ) 
 
 
