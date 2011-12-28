@@ -1,6 +1,6 @@
 # 1 "show_programinfo.F"
-# 1 "<組み込み>"
-# 1 "<コマンドライン>"
+# 1 "<built-in>"
+# 1 "<command-line>"
 # 1 "show_programinfo.F"
       subroutine show_programinfo(io)
       implicit none
@@ -23,8 +23,8 @@
      ."Linux maro005 3.0.0-14-generic #23-Ubuntu SMP Mon Nov 21 20:28:43 UTC 2011 x86_64 x86_64 x86_64 GNU/Linux"
        write(io,'(a,a,a)') info,'/etc/issue: ',"Ubuntu 11.10 \n \l"
        write(io,'(a,a,a)') info,'git branch: ',"refs/heads/kino-alloc6"
-       write(io,'(a,a,a)') info,'git commit: ',"3eaa9e8a25bfe6962e529937976011565dafed3b"
-       write(io,'(a,a,a)') info,'linked at: ',"Wed Dec 28 12:48:32 JST 2011"
+       write(io,'(a,a,a)') info,'git commit: ',"07fdbc8c151e680eaabc3a25bdab42b6c94a81d2"
+       write(io,'(a,a,a)') info,'linked at: ',"Wed Dec 28 14:30:49 JST 2011"
 
 
 

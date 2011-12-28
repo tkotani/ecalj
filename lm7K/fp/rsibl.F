@@ -106,8 +106,10 @@ C ... Local parameters
         integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint 
-ckino 2011.05        integer,pointer :: iv_p_okv(:) =>NULL()
-        integer,allocatable :: iv_p_okv(:)
+ckino Dec.28.2011:  ckino 2011.05        integer,pointer :: iv_p_okv(:) =>NULL()
+ckino 2011.05        integer,pointer :: iv_a_okv(:) =>NULL()
+ckino Dec.28.2011:          integer,allocatable :: iv_p_okv(:)
+        integer,allocatable :: iv_a_okv(:)
       
 ckino 2011.05       real(8),pointer :: rv_p_ogv(:) =>NULL()
 ckino Dec.8.2011:         real(8),allocatable :: rv_p_ogv(:)
@@ -188,7 +190,8 @@ C ... First setup
       ng=slat%ng
 ckino 2011.05       rv_p_ogv => slat%rv_p_ogv 
 
-ckino 2011.05       iv_p_okv => slat%iv_p_okv 
+ckino Dec.28.2011:  ckino 2011.05       iv_p_okv => slat%iv_p_okv 
+ckino 2011.05       iv_a_okv => slat%iv_a_okv 
 
       vol=slat%vol
 
@@ -203,8 +206,10 @@ ckino Dec.8.2011:         allocate(rv_p_ogv(abs(ng*3)))
        allocate(rv_a_ogv(abs(ng*3)))
 ckino Dec.8.2011:         rv_p_ogv(:)=0.0d0
        rv_a_ogv(:)=0.0d0
-       allocate(iv_p_okv(abs(ng*3)))
-       iv_p_okv(:)=0
+ckino Dec.28.2011:         allocate(iv_p_okv(abs(ng*3)))
+       allocate(iv_a_okv(abs(ng*3)))
+ckino Dec.28.2011:         iv_p_okv(:)=0
+       iv_a_okv(:)=0
 
 c
 c      call defi (oiv, ng*3)
@@ -213,8 +218,10 @@ c      call defi (oiv, ng*3)
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
         call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
-ckino Dec.8.2011:       .  , ng , iv_p_okv , rv_p_ogv , w_oiv , w_oiv ) 
-     .  , ng , iv_p_okv , rv_a_ogv , w_oiv , w_oiv ) 
+ckino Dec.28.2011:  ckino Dec.8.2011:       .  , ng , iv_p_okv , rv_p_ogv , w_oiv , w_oiv ) 
+ckino Dec.8.2011:       .  , ng , iv_a_okv , rv_p_ogv , w_oiv , w_oiv ) 
+ckino Dec.28.2011:       .  , ng , iv_p_okv , rv_a_ogv , w_oiv , w_oiv ) 
+     .  , ng , iv_a_okv , rv_a_ogv , w_oiv , w_oiv ) 
 
 
       call poppr
@@ -365,12 +372,14 @@ Ckino rsibl2 executes FFT to get psi(r), which is F0
 Ckino and also calculates <psi|psi>(=F0F0) to get real space charge density.
 #if MPI | OPENMP
          call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
-     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino Dec.28.2011:       .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+     .   , k3 , iv_a_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
      .   1 , 1 , 1 , isp ) , psir , xsmrho , vpsi ) 
 
 #else
          call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
-     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino Dec.28.2011:       .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+     .   , k3 , iv_a_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
      .   1 , 1 , 1 , isp ) , psir , smrho ( 1 , 1 , 1 , 1 , isp ) , vpsi 
      .   ) 
 
@@ -484,7 +493,8 @@ C
 ckino 2011.05 if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
 ckino Dec.8.2011:         if (allocated(rv_p_ogv)) deallocate(rv_p_ogv)
        if (allocated(rv_a_ogv)) deallocate(rv_a_ogv)
-       if (allocated(iv_p_okv)) deallocate(iv_p_okv)
+ckino Dec.28.2011:         if (allocated(iv_p_okv)) deallocate(iv_p_okv)
+       if (allocated(iv_a_okv)) deallocate(iv_a_okv)
 
 CSFCPP#if F90
       deallocate(ivp)

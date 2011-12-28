@@ -113,7 +113,8 @@ C ... Local parameters
         integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint 
-       integer,allocatable :: iv_p_okv(:) 
+ckino Dec.28.2011:         integer,allocatable :: iv_p_okv(:) 
+       integer,allocatable :: iv_a_okv(:) 
 
 ckino Dec.8.2011:         real(8),allocatable :: rv_p_ogv(:) 
        real(8),allocatable :: rv_a_ogv(:) 
@@ -207,8 +208,10 @@ ckino Dec.8.2011:         allocate(rv_p_ogv(abs(ng*3)))
        allocate(rv_a_ogv(abs(ng*3)))
 ckino Dec.8.2011:         rv_p_ogv(:)=0.0d0
        rv_a_ogv(:)=0.0d0
-       allocate(iv_p_okv(abs(ng*3)))
-       iv_p_okv(:)=0
+ckino Dec.28.2011:         allocate(iv_p_okv(abs(ng*3)))
+       allocate(iv_a_okv(abs(ng*3)))
+ckino Dec.28.2011:         iv_p_okv(:)=0
+       iv_a_okv(:)=0
 
 
 ckino dummy allocation
@@ -222,8 +225,10 @@ c      call defi (oiv, ng*3)
        allocate(w_oiv(ng*3))
 
         call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
-ckino Dec.8.2011:       .  , ng , iv_p_okv , rv_p_ogv , w_oiv , w_oiv ) 
-     .  , ng , iv_p_okv , rv_a_ogv , w_oiv , w_oiv ) 
+ckino Dec.28.2011:  ckino Dec.8.2011:       .  , ng , iv_p_okv , rv_p_ogv , w_oiv , w_oiv ) 
+ckino Dec.8.2011:       .  , ng , iv_a_okv , rv_p_ogv , w_oiv , w_oiv ) 
+ckino Dec.28.2011:       .  , ng , iv_p_okv , rv_a_ogv , w_oiv , w_oiv ) 
+     .  , ng , iv_a_okv , rv_a_ogv , w_oiv , w_oiv ) 
 
 
       call poppr
@@ -359,12 +364,14 @@ Ckino and also calculates <psi|psi>(=F0F0) to get real space charge density.
 Ckino psir is work area. 
 ckino#if MPI | OPENMP
 ckino         call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
-ckino     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino Dec.28.2011:  ckino     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino     .   , k3 , iv_a_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
 ckino     .   1 , 1 , 1  ) , psir , xsmrho , vpsi ) 
 ckino
 ckino#else
 ckino         call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
-ckino     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino Dec.28.2011:  ckino     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+ckino     .   , k3 , iv_a_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
 ckino     .   1 , 1 , 1  ) , psir , smrho ( 1 , 1 , 1 , 1  ) , vpsi ) 
 ckino
 ckino#endif
@@ -372,7 +379,8 @@ ckino#endif
 Ckino write psi=F0 part
          if (.true.) then
              call w_psir(ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2
-     i   , k3 , iv_p_okv , isp, q ,iq 
+ckino Dec.28.2011:       i   , k3 , iv_p_okv , isp, q ,iq 
+     i   , k3 , iv_a_okv , isp, q ,iq 
      i   ,  n_eiglist,eiglist
      i   , plat,alat, nbas, slat%rv_p_opos, sspec(ssite(1:nbas)%spec)%z
      w  , psir )
@@ -447,7 +455,8 @@ ckino add deallocations
        if (allocated(ewgt)) deallocate(ewgt)
 ckino Dec.8.2011:         if (allocated(rv_p_ogv)) deallocate(rv_p_ogv)
        if (allocated(rv_a_ogv)) deallocate(rv_a_ogv)
-       if (allocated(iv_p_okv)) deallocate(iv_p_okv) 
+ckino Dec.28.2011:         if (allocated(iv_p_okv)) deallocate(iv_p_okv) 
+       if (allocated(iv_a_okv)) deallocate(iv_a_okv) 
 
       deallocate(ivp)
 C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
