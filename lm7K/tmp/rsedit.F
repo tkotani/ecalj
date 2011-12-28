@@ -97,7 +97,7 @@ c     kino Dec.26.2011:             type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL
 
       complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
-ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmpt2(:) =>NULL()
+      complex(8),pointer :: zv_p_osmpt2(:) =>NULL()
 
       complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
@@ -339,15 +339,13 @@ C     Make space for smooth density
             allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
             if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
 
-ckino Dec.28.2011:              allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
-            allocate(spot2%zv_p_osmpot(abs(-k1*k2*k3*nsp)))
-ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
-            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmpot(:)=0.0d0
+            allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
+            if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
 
 
             spot2%zv_p_osmrho => zv_p_osmrh2 
 
-ckino Dec.28.2011:              spot2%zv_p_osmpot => zv_p_osmpt2 
+            spot2%zv_p_osmpot => zv_p_osmpt2 
 
 
 C     Pack volume
