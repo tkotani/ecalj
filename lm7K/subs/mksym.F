@@ -219,9 +219,11 @@ C --- Generate space group ---
 C ... When generating the group the basis may become enlarged ...
 C     copy larger files relevant arrays to larger workspace
 ckino Dec.14.2011:         allocate(iv_p_oistab(abs((ngmx+1)*nbas)))
-       allocate(slat%iv_p_oistab(abs((ngmx+1)*nbas)))
+ckino Dec.28.2011:         allocate(slat%iv_p_oistab(abs((ngmx+1)*nbas)))
+       allocate(slat%iv_a_oistab(abs((ngmx+1)*nbas)))
 ckino Dec.14.2011:         if ((ngmx+1)*nbas<0) iv_p_oistab(:)=0.0d0
-       if ((ngmx+1)*nbas<0) slat%iv_p_oistab(:)=0.0d0
+ckino Dec.28.2011:         if ((ngmx+1)*nbas<0) slat%iv_p_oistab(:)=0.0d0
+       if ((ngmx+1)*nbas<0) slat%iv_a_oistab(:)=0.0d0
 
 C     call defi (oistb2,(ngmx+1)*nbas)
       allocate(ips2_iv(ngmx*nbas))
@@ -244,7 +246,8 @@ ckino 12月.27.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_p
 ckino Dec.28.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
      .   , nrspc_iv , nsgrp , slat%rv_a_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
 ckino Dec.14.2011:       .   , nggen , isym , iv_p_oistab ) 
-     .   , nggen , isym , slat%iv_p_oistab ) 
+ckino Dec.28.2011:       .   , nggen , isym , slat%iv_p_oistab ) 
+     .   , nggen , isym , slat%iv_a_oistab ) 
 
 
 
@@ -333,7 +336,8 @@ ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_
            call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
 ckino Dec.14.2011:       .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
 ckino Dec.16.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-     .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
+ckino Dec.28.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
+     .     , nsgrp , slat%iv_a_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
 ckino Dec.14.2011:       .     iv_p_oics , iv_p_onrc ) 
 ckino Dec.16.2011:       .     sarray%iv_p_oics , iv_p_onrc ) 
 ckino Dec.27.2011:       .     sarray%iv_p_oics , sarray%iv_p_onrc ) 
@@ -396,15 +400,21 @@ C$$$      endif
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
 ckino Dec.14.2011:           allocate(iv_p_oistab(abs(npgrp*nbas)))
-         allocate(slat%iv_p_oistab(abs(npgrp*nbas)))
+ckino Dec.28.2011:           allocate(slat%iv_p_oistab(abs(npgrp*nbas)))
+         if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
+         allocate(slat%iv_a_oistab(abs(npgrp*nbas)))
 ckino Dec.14.2011:           if (npgrp*nbas<0) iv_p_oistab(:)=0.0d0
-         if (npgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
+ckino Dec.28.2011:           if (npgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
+         if (npgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
 
       else
 ckino Dec.14.2011:           allocate(iv_p_oistab(abs(nsgrp*nbas)))
-         allocate(slat%iv_p_oistab(abs(nsgrp*nbas)))
+ckino Dec.28.2011:           allocate(slat%iv_p_oistab(abs(nsgrp*nbas)))
+         if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
+         allocate(slat%iv_a_oistab(abs(nsgrp*nbas)))
 ckino Dec.14.2011:           if (nsgrp*nbas<0) iv_p_oistab(:)=0.0d0
-         if (nsgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
+ckino Dec.28.2011:           if (nsgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
+         if (nsgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
 
       endif
       call dinv33(plat,1,qlat,xx)
@@ -422,7 +432,8 @@ ckino Dec.28.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray
 ckino Dec.14.2011:       .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino Dec.14.2011:       .     , slat%rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino 12月.27.2011:       .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 
-     .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_p_oistab ) 
+ckino Dec.28.2011:       .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_p_oistab ) 
+     .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_a_oistab ) 
 
 
 
@@ -445,7 +456,8 @@ ckino 12月.27.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp ,
 ckino Dec.28.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
            if ( aginv ( slat%rv_a_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
 ckino Dec.14.2011:       .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-     .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+ckino Dec.28.2011:       .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+     .     slat%iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
 
 
 

@@ -356,7 +356,8 @@ ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrp ,
 ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 ckino 12月.27.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
-     .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
+ckino Dec.28.2011:       .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
+     .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_a_ooffH 
 cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.22.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
@@ -662,7 +663,8 @@ ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , rv_p_oag , 
 ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
 ckino 12月.27.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
-     .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
+ckino Dec.28.2011:       .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
+     .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_a_ooffH 
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
@@ -790,7 +792,8 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         allocate(istb2_iv(nsgrp*nbas))
 
 ckino Dec.22.2011:           call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
-         call istbpm ( slat%iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+ckino Dec.28.2011:           call istbpm ( slat%iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+         call istbpm ( slat%iv_a_oistab , nbas , nsgrp , istb2_iv ) 
 
 
 Changenglob        nl = nglob('nl')

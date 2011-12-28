@@ -109,7 +109,8 @@ C 30  48  4       zval  1
       integer(8)   ::   ntet
 CCHSTRUC       integer(8)   ::   odos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oidtet
-       integer , pointer ::  iv_p_oidtet (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_oidtet (:) =>NULL()
+       integer , allocatable ::  iv_a_oidtet (:) 
 CCHSTRUC       integer(8)   ::   oipq
 ckino Dec.27.2011:         integer , pointer ::  iv_p_oipq (:) =>NULL()
        integer , allocatable ::  iv_a_oipq (:) 
@@ -867,7 +868,8 @@ cki      integer(8)   ::   ontabs
 ckino Dec.14.2011:         integer, pointer :: iv_p_ontabs(:) =>NULL()
        integer, allocatable :: iv_a_ontabs(:) 
 CCHSTRUC       integer(8)   ::   ooffH
-       integer , pointer ::  iv_p_ooffH (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_ooffH (:) =>NULL()
+       integer , allocatable ::  iv_a_ooffH (:) 
 CCHSTRUC       integer(8)   ::   oqsig
        real(8) , pointer ::  rv_p_oqsig (:) =>NULL()
       real(8)   ::   oveps,delta_stabilize !takao sep2010 
@@ -1020,11 +1022,14 @@ CCHSTRUC       integer(8)   ::   oidxcg
 ckino 12月.27.2011:         integer , pointer ::  iv_p_oidxcg (:) =>NULL()
        integer , allocatable ::  iv_a_oidxcg (:) 
 CCHSTRUC       integer(8)   ::   oips0
-       integer , pointer ::  iv_p_oips0 (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_oips0 (:) =>NULL()
+       integer , allocatable ::  iv_a_oips0 (:) 
 CCHSTRUC       integer(8)   ::   oistab
-       integer , pointer ::  iv_p_oistab (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_oistab (:) =>NULL()
+       integer , allocatable ::  iv_a_oistab (:) 
 CCHSTRUC       integer(8)   ::   ojcg
-       integer , pointer ::  iv_p_ojcg (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_ojcg (:) =>NULL()
+       integer , allocatable ::  iv_a_ojcg (:) 
 CCHSTRUC       integer(8)   ::   okv
        integer , pointer ::  iv_p_okv (:) =>NULL()
 cki      integer(8)   ::   opos

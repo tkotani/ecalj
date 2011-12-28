@@ -256,7 +256,8 @@ ckino 12月.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%
 ckino Dec.8.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 ckino Dec.8.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 ckino 12月.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.28.2011:       .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
             if(debug) print *,'end of bstrux'
 

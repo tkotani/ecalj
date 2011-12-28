@@ -48,9 +48,11 @@ ckino 12月.27.2011:         if (lnjcg<0) slat%rv_p_ocg(:)=0.0d0
        if (lnjcg<0) slat%rv_a_ocg(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(iv_p_ojcg(abs(lnjcg)))
-       allocate(slat%iv_p_ojcg(abs(lnjcg)))
+ckino Dec.28.2011:         allocate(slat%iv_p_ojcg(abs(lnjcg)))
+       allocate(slat%iv_a_ojcg(abs(lnjcg)))
 ckino Dec.14.2011:         if (lnjcg<0) iv_p_ojcg(:)=0
-       if (lnjcg<0) slat%iv_p_ojcg(:)=0
+ckino Dec.28.2011:         if (lnjcg<0) slat%iv_p_ojcg(:)=0
+       if (lnjcg<0) slat%iv_a_ojcg(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oidxcg(abs(lnxcg)))
 ckino 12月.27.2011:         allocate(slat%iv_p_oidxcg(abs(lnxcg)))
@@ -69,7 +71,8 @@ ckino Dec.14.2011:           call scg ( lmxcg , rv_p_ocg , iv_p_oidxcg , slat%iv
 ckino Dec.14.2011:           call scg ( lmxcg , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg ) 
 ckino 12月.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg ) 
 ckino 12月.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
-         call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
+ckino Dec.28.2011:           call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
+         call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg ) 
 
 
 

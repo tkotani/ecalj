@@ -238,7 +238,8 @@ ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_
 ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
 ckino 12月.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
 ckino 12月.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
-     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
+ckino Dec.28.2011:       .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
+     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv 
      .            ) 
 
 

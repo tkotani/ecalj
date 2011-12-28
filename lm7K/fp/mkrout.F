@@ -410,7 +410,8 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
 ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
 ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , slat%iv_p_ojcg 
 ckino 12月.27.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
-          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
+ckino Dec.28.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
+          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino 12月.27.2011:       .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
@@ -478,7 +479,8 @@ C       Remake hbyl from energy-weighted density matrix
 ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
 ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , slat%iv_p_ojcg 
 ckino 12月.27.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
-                  call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
+ckino Dec.28.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
+                  call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino 12月.27.2011:       .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 

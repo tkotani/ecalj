@@ -49,7 +49,8 @@ ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg , slat
 ckino 12月.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
 ckino 12月.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
 ckino 12月.27.2011:       .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-     .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
+ckino Dec.28.2011:       .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
+     .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy 
      .    , slat , s , ds ) 
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1

@@ -144,15 +144,19 @@ ckino Dec.27.2011:           if (-nkp<0) sbz%rv_p_owtkp(:)=0.0d0
 
         if (ntet .gt. 0) then
 ckino Dec.8.2011:             allocate(iv_p_oidtet(abs(ntet*5)))
-           allocate(sbz%iv_p_oidtet(abs(ntet*5)))
+ckino Dec.28.2011:             allocate(sbz%iv_p_oidtet(abs(ntet*5)))
+           allocate(sbz%iv_a_oidtet(abs(ntet*5)))
 ckino Dec.8.2011:             if (ntet*5<0) iv_p_oidtet(:)=0
-           if (ntet*5<0) sbz%iv_p_oidtet(:)=0
+ckino Dec.28.2011:             if (ntet*5<0) sbz%iv_p_oidtet(:)=0
+           if (ntet*5<0) sbz%iv_a_oidtet(:)=0
 
         else
 ckino Dec.8.2011:             allocate(iv_p_oidtet(abs(1)))
-           allocate(sbz%iv_p_oidtet(abs(1)))
+ckino Dec.28.2011:             allocate(sbz%iv_p_oidtet(abs(1)))
+           allocate(sbz%iv_a_oidtet(abs(1)))
 ckino Dec.8.2011:             if (1<0) iv_p_oidtet(:)=0
-           if (1<0) sbz%iv_p_oidtet(:)=0
+ckino Dec.28.2011:             if (1<0) sbz%iv_p_oidtet(:)=0
+           if (1<0) sbz%iv_a_oidtet(:)=0
 
         endif
 ckino Dec.8.2011:             call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
@@ -160,7 +164,8 @@ ckino Dec.8.2011:             call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , nt
 ckino Dec.8.2011:       .     , rv_p_owtkp , iv_p_oidtet ) 
 ckino Dec.8.2011:       .     , sbz%rv_p_owtkp , iv_p_oidtet ) 
 ckino Dec.27.2011:       .     , sbz%rv_p_owtkp , sbz%iv_p_oidtet ) 
-     .     , sbz%rv_a_owtkp , sbz%iv_p_oidtet ) 
+ckino Dec.28.2011:       .     , sbz%rv_a_owtkp , sbz%iv_p_oidtet ) 
+     .     , sbz%rv_a_owtkp , sbz%iv_a_oidtet ) 
 
 
 
@@ -341,9 +346,11 @@ ckino Dec.27.2011:               nullify(sbz%iv_p_oipq)
 C   ... Generate inequivalent tetrahedra
         if (ltet .and. .not. lnoirr) then
 ckino Dec.8.2011:             allocate(iv_p_oidtet(abs(mxkp*30)))
-           allocate(sbz%iv_p_oidtet(abs(mxkp*30)))
+ckino Dec.28.2011:             allocate(sbz%iv_p_oidtet(abs(mxkp*30)))
+           allocate(sbz%iv_a_oidtet(abs(mxkp*30)))
 ckino Dec.8.2011:             if (mxkp*30<0) iv_p_oidtet(:)=0
-           if (mxkp*30<0) sbz%iv_p_oidtet(:)=0
+ckino Dec.28.2011:             if (mxkp*30<0) sbz%iv_p_oidtet(:)=0
+           if (mxkp*30<0) sbz%iv_a_oidtet(:)=0
 
 C     ... Save a copy of ipq since tetirr destroys this array
           if (lipq) then
@@ -375,17 +382,22 @@ ckino Dec.14.2011:  ckino Dec.8.2011:       .      , iv_p_oipq , ntet , iv_p_oid
 ckino Dec.8.2011:       .      , sbz%iv_p_oipq , ntet , iv_p_oidtet ) 
 ckino Dec.14.2011:       .      , iv_p_oipq , ntet , sbz%iv_p_oidtet ) 
 ckino Dec.27.2011:       .      , sbz%iv_p_oipq , ntet , sbz%iv_p_oidtet ) 
-     .      , sbz%iv_a_oipq , ntet , sbz%iv_p_oidtet ) 
+ckino Dec.28.2011:       .      , sbz%iv_a_oipq , ntet , sbz%iv_p_oidtet ) 
+     .      , sbz%iv_a_oipq , ntet , sbz%iv_a_oidtet ) 
 
 
 ckino Dec.8.2011:             i_data_size=size(iv_p_oidtet); allocate(iv_a_tmp(i_data_size))
-           i_data_size=size(sbz%iv_p_oidtet); allocate(iv_a_tmp(i_data_size))
+ckino Dec.28.2011:             i_data_size=size(sbz%iv_p_oidtet); allocate(iv_a_tmp(i_data_size))
+           i_data_size=size(sbz%iv_a_oidtet); allocate(iv_a_tmp(i_data_size))
 ckino Dec.8.2011:             iv_a_tmp=iv_p_oidtet; deallocate(iv_p_oidtet)
-           iv_a_tmp=sbz%iv_p_oidtet; deallocate(sbz%iv_p_oidtet)
+ckino Dec.28.2011:             iv_a_tmp=sbz%iv_p_oidtet; deallocate(sbz%iv_p_oidtet)
+           iv_a_tmp=sbz%iv_a_oidtet; deallocate(sbz%iv_a_oidtet)
 ckino Dec.8.2011:             i_data_size=min(i_data_size,ntet*5); allocate(iv_p_oidtet(ntet*5))
-           i_data_size=min(i_data_size,ntet*5); allocate(sbz%iv_p_oidtet(ntet*5))
+ckino Dec.28.2011:             i_data_size=min(i_data_size,ntet*5); allocate(sbz%iv_p_oidtet(ntet*5))
+           i_data_size=min(i_data_size,ntet*5); allocate(sbz%iv_a_oidtet(ntet*5))
 ckino Dec.8.2011:             iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-           sbz%iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+ckino Dec.28.2011:             sbz%iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+           sbz%iv_a_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 C     ... Unless ipq still needed, throw it away
           if (lipq) then
@@ -427,9 +439,11 @@ ckino Dec.8.2011:         sbz%iv_p_ostar => iv_p_ogstar
 
       sbz%ntet=ntet
 ckino Dec.8.2011:         if (.not.associated(iv_p_oidtet))then
-       if (.not.associated(sbz%iv_p_oidtet))then
+ckino Dec.28.2011:         if (.not.associated(sbz%iv_p_oidtet))then
+       if (.not.allocated(sbz%iv_a_oidtet))then
 ckino Dec.8.2011:            write(*,*)'warnig in mkqp: iv_p_oidtet is not allocated. but continue.'
-          write(*,*)'warnig in mkqp: sbz%iv_p_oidtet is not allocated. but continue.'
+ckino Dec.28.2011:            write(*,*)'warnig in mkqp: sbz%iv_p_oidtet is not allocated. but continue.'
+          write(*,*)'warnig in mkqp: sbz%iv_a_oidtet is not allocated. but continue.'
        endif
 ckino Dec.8.2011:         sbz%iv_p_oidtet => iv_p_oidtet 
 
@@ -450,7 +464,8 @@ ckino Dec.8.2011:             call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , 
 ckino Dec.8.2011:       .     , rv_p_owtkp , iv_p_oidtet ) 
 ckino Dec.8.2011:       .     , sbz%rv_p_owtkp , iv_p_oidtet ) 
 ckino Dec.27.2011:       .     , sbz%rv_p_owtkp , sbz%iv_p_oidtet ) 
-     .     , sbz%rv_a_owtkp , sbz%iv_p_oidtet ) 
+ckino Dec.28.2011:       .     , sbz%rv_a_owtkp , sbz%iv_p_oidtet ) 
+     .     , sbz%rv_a_owtkp , sbz%iv_a_oidtet ) 
 
 
 

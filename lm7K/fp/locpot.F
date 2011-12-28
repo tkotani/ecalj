@@ -462,7 +462,8 @@ ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p
 ckino 12月.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, slat%iv_p_oidxcg
 ckino 12月.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_p_oidxcg
 ckino 12月.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
-     .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
+ckino Dec.28.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
+     .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_a_ojcg, slat%iv_a_oidxcg
 ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 

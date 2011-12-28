@@ -433,9 +433,12 @@ Changenglob      nkaph = nglob('nkaph')
       endif
       ndim = nbasp * nl**2 * nkaph
 ckino Dec.14.2011:         allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
-       allocate(sham%iv_p_ooffh(abs(-n0h*nkap0*(nbasp+1))))
+ckino Dec.28.2011:         allocate(sham%iv_p_ooffh(abs(-n0h*nkap0*(nbasp+1))))
+        if (allocated(sham%iv_a_ooffH)) deallocate(sham%iv_a_ooffH)
+       allocate(sham%iv_a_ooffH(abs(-n0h*nkap0*(nbasp+1))))
 ckino Dec.14.2011:         if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
-       if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
+ckino Dec.28.2011:         if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
+       if (-n0h*nkap0*(nbasp+1)<0) sham%iv_a_ooffH(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oidxsh(abs(ndim+3)))
 ckino 12月.27.2011:         allocate(sham%iv_p_oindxo(abs(ndim+3)))
@@ -472,7 +475,8 @@ ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec ,
 ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham ) 
 ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham ) 
 ckino 12月.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 
-     .     , sham%iv_p_ooffh , sham%iv_a_oindxo , ldham ) 
+ckino Dec.28.2011:       .     , sham%iv_p_ooffh , sham%iv_a_oindxo , ldham ) 
+     .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham ) 
 
 
 

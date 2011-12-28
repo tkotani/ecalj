@@ -687,7 +687,8 @@ ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq
             call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
 ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
 ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp 
-     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
+ckino Dec.28.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%rv_p_oqp 
 ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
 ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
 ckino Dec.27.2011:       .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
@@ -705,7 +706,8 @@ C --- make DOS or NOS ---
         if (ltet) then
            call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
 ckino Dec.12.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
-     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, eband_rv 
+ckino Dec.28.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, eband_rv 
+     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, eband_rv 
      .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
 
 

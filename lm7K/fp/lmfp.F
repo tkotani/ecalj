@@ -639,7 +639,8 @@ C     initialize density matrix for LDA+U
 c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab , dmatu , vorbdmat ) 
 ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab , dmatu , vorbdmat ) 
       endif
 C     end LDA+U  initialization section
 
@@ -883,7 +884,8 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
 c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab ) 
 ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab ) 
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab ) 
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab ) 
 
 
 
@@ -1103,7 +1105,8 @@ ckino Dec.28.2011:                 call fixpos ( rv_a_opos , nbas , fptol , ng ,
 c     kino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab ) 
 c     kino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab ) 
 ckino 12月.27.2011:       .              , slat%rv_p_oag , slat%iv_p_oistab ) 
-     .              , slat%rv_a_oag , slat%iv_p_oistab ) 
+ckino Dec.28.2011:       .              , slat%rv_a_oag , slat%iv_p_oistab ) 
+     .              , slat%rv_a_oag , slat%iv_a_oistab ) 
 
 
 

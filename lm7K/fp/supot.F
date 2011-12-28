@@ -195,9 +195,11 @@ ckino Dec.8.2011:           spot%sv_p_oorhat => sv_p_oorhat
 
 C   ... Setup for symmetrization
 ckino Dec.8.2011:           allocate(iv_p_oips0(ng))
-         allocate(slat%iv_p_oips0(ng))
+ckino Dec.28.2011:           allocate(slat%iv_p_oips0(ng))
+         allocate(slat%iv_a_oips0(ng))
 ckino Dec.8.2011:           iv_p_oips0(:)=0.0d0
-         slat%iv_p_oips0(:)=0.0d0
+ckino Dec.28.2011:           slat%iv_p_oips0(:)=0.0d0
+         slat%iv_a_oips0(:)=0.0d0
 
 ckino Dec.8.2011:           allocate(zv_p_obgv(ng))
 ckino 12月.27.2011:           allocate(slat%zv_p_obgv(ng))
@@ -220,7 +222,8 @@ ckino Dec.13.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , 
 ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
 ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
 ckino Dec.28.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
-             call sgvsym ( ngrp , slat%rv_a_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
+ckino Dec.28.2011:               call sgvsym ( ngrp , slat%rv_a_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
+             call sgvsym ( ngrp , slat%rv_a_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_a_oips0 
 ckino Dec.8.2011:       .       , zv_p_obgv ) 
 ckino 12月.27.2011:       .       , slat%zv_p_obgv ) 
      .       , slat%zv_a_obgv ) 

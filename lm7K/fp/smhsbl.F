@@ -374,7 +374,8 @@ ckino Dec.12.2011:       .              , nlms , rv_p_ocg , slat%iv_p_oidxcg , s
 ckino 12月.27.2011:       .              , nlms , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat 
 ckino 12月.27.2011:       .              , nlms , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat 
 ckino 12月.27.2011:       .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat 
-     .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy , slat 
+ckino Dec.28.2011:       .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy , slat 
+     .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy , slat 
      .              , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
 
 

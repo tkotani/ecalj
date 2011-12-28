@@ -78,7 +78,8 @@ ckino 12月.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p
 ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
 ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
 ckino 12月.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds ) 
-     .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , s , ds ) 
+ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , s , ds ) 
+     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , s , ds ) 
 
 
 
@@ -93,7 +94,8 @@ ckino 12月.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p
 ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 
 ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , wk , dwk ) 
 ckino 12月.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , wk , dwk ) 
-     .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , wk , dwk ) 
+ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , wk , dwk ) 
+     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , wk , dwk ) 
 
 
 

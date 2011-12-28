@@ -329,7 +329,8 @@ ckino, used for dummy allocations
 ckino Dec.8.2011:         logical:: l_temp_rv_p_oswtk=.false., l_temp_rv_p_owtkb=.false.,
 ckino Dec.8.2011:         logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_p_owtkb=.false.,
        logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.,
-     .    l_temp_iv_p_oidtet=.false.
+ckino Dec.28.2011:       .    l_temp_iv_p_oidtet=.false.
+     .    l_temp_iv_a_oidtet=.false.
 
 ckino end 
       double precision sigp(10)
@@ -2936,7 +2937,8 @@ C --- BZ integration for fermi level, band sum and qp weights ---
            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .     , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
 ckino Dec.16.2011:       .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
-     .     , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
+ckino Dec.28.2011:       .     , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
+     .     , 2 , ntet , sbz%iv_a_oidtet , sev , dum ) 
 
 
 C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
@@ -2945,7 +2947,8 @@ C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
 ckino Dec.8.2011:       .      , rv_p_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
      .      , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
 ckino Dec.16.2011:       .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
-     .      eferm , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
+ckino Dec.28.2011:       .      eferm , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
+     .      eferm , 2 , ntet , sbz%iv_a_oidtet , sev , dum ) 
 
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
 ckino Dec.8.2011:             call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb, 1 ) 
@@ -2962,7 +2965,8 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
               if(sbz%fsmommethod == 1) then !takao dec2010
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
 ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
+ckino Dec.28.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
@@ -2995,17 +2999,22 @@ ckino Dec.8.2011:                     allocate(rv_p_owtkb(1,1,1))
 ckino Dec.8.2011:                     l_temp_rv_p_owtkb=.true.
                    l_temp_rv_a_owtkb=.true.
                endif
-               l_temp_iv_p_oidtet=.false.
+ckino Dec.28.2011:                 l_temp_iv_p_oidtet=.false.
+               l_temp_iv_a_oidtet=.false.
 ckino Dec.16.2011:                 if (.not.associated(iv_p_oidtet))then
-               if (.not.associated(sbz%iv_p_oidtet))then
+ckino Dec.28.2011:                 if (.not.associated(sbz%iv_p_oidtet))then
+               if (.not.allocated(sbz%iv_a_oidtet))then
 ckino Dec.16.2011:                     allocate(iv_p_oidtet(1))
-                   allocate(sbz%iv_p_oidtet(1))
-                   l_temp_iv_p_oidtet=.true.
+ckino Dec.28.2011:                     allocate(sbz%iv_p_oidtet(1))
+                   allocate(sbz%iv_a_oidtet(1))
+ckino Dec.28.2011:                     l_temp_iv_p_oidtet=.true.
+                   l_temp_iv_a_oidtet=.true.
                endif
 ckino end
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
 ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
+ckino Dec.28.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
+     .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
 ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
 ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
@@ -3033,11 +3042,14 @@ ckino add .false
 ckino Dec.8.2011:                   l_temp_rv_p_owtkb=.false.
                  l_temp_rv_a_owtkb=.false.
               endif
-              if (l_temp_iv_p_oidtet) then
+ckino Dec.28.2011:                if (l_temp_iv_p_oidtet) then
+              if (l_temp_iv_a_oidtet) then
 ckino Dec.16.2011:                   deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
-                 deallocate(sbz%iv_p_oidtet); sbz%iv_p_oidtet=>NULL()
+ckino Dec.28.2011:                   deallocate(sbz%iv_p_oidtet); sbz%iv_p_oidtet=>NULL()
+                 deallocate(sbz%iv_a_oidtet); 
 ckino add .false
-                 l_temp_iv_p_oidtet=.false.
+ckino Dec.28.2011:                   l_temp_iv_p_oidtet=.false.
+                 l_temp_iv_a_oidtet=.false.
               endif
 ckinoend
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
@@ -3152,7 +3164,8 @@ c          allocate(dos_rv(3*ndos))
              call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .       , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
 ckino Dec.16.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum , 
-     .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_p_oidtet , dum , 
+ckino Dec.28.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_p_oidtet , dum , 
+     .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , 
      .       dum ) 
 
 

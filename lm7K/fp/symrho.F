@@ -240,7 +240,8 @@ C   ... Make the projectors; make to at least to l=1 for forces
 ckino Dec.12.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
 ckino Dec.13.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , rv_p_og 
 ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_p_osymgr 
-             call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_a_osymgr 
+ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_a_osymgr 
+             call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_a_oistab , slat%rv_a_osymgr 
 ckino Dec.12.2011:       .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
 ckino 12月.27.2011:       .       , slat%rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
      .       , slat%rv_a_oag , plat , qlat , pos_rv , sym_rv ) 
@@ -476,7 +477,8 @@ ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , 
 ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
 ckino 12月.27.2011:               call gvsym ( ng , slat%rv_p_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
 ckino 12月.27.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
-             call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_a_obgv , cv_zv , 
+ckino Dec.28.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_a_obgv , cv_zv , 
+             call gvsym ( ng , slat%rv_a_ogv , slat%iv_a_oips0 , slat%zv_a_obgv , cv_zv , 
      .       csym_zv ) 
 
 
