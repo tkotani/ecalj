@@ -1,0 +1,3 @@
+script=tmp/fix_iv_p_oips0.awk
+for n in fp/supot.F fp/symrho.F subs/m_struc_def.F 
+do gawk -f $script $n >x;mv x $n; done

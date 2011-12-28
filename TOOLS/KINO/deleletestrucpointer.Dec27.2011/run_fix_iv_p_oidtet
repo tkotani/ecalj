@@ -1,0 +1,3 @@
+script=tmp/fix_iv_p_oidtet.awk
+for n in fp/bndfp.F subs/asados.F subs/m_struc_def.F subs/mkqp.F 
+do gawk -f $script $n >x;mv x $n; done
