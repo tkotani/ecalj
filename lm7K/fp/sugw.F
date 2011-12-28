@@ -623,7 +623,8 @@ ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0
           if (lmaxa .gt. -1) then
              call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
 ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
-     .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+ckino Dec.28.2011:       .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+     .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
      .       , w ) 
 
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
@@ -633,7 +634,8 @@ C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
              call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
 ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
-     .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , nphimx , ncore , konfig , ecore 
+ckino Dec.28.2011:       .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , nphimx , ncore , konfig , ecore 
+     .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
      .       , gcore , gval ) 
 
 C         Header data for this atom

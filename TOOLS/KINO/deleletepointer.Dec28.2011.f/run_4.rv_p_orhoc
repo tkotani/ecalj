@@ -1,0 +1,4 @@
+script=tmp/4.rv_p_orhoc.awk
+for n in  fp/mkrout.F fp/rdovfa.F fp/rsedit.F subs/iors.F subs/m_struc_def.F
+
+do gawk -f $script $n >x;mv x $n; done

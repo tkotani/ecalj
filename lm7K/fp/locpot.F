@@ -369,7 +369,8 @@ C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
 ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
-             call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+ckino Dec.28.2011:               call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+             call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
      .       * i , y0 ) 
 
           enddo
@@ -378,7 +379,8 @@ ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlm
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
 ckino 12月.12.2011:             call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
-           call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr 
+ckino Dec.28.2011:             call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr 
+           call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr 
      .     * i , y0 ) 
 
         enddo
@@ -465,7 +467,8 @@ ckino 12月.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat
 ckino Dec.28.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
      .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_a_ojcg, slat%iv_a_oidxcg
 ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+ckino Dec.28.2011:       .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+     .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 

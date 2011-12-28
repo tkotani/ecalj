@@ -785,7 +785,9 @@ Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
 ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
 ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
-     .         lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
+ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
+ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_p_oorhat , qbg , spotx 
+     .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
      .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -863,7 +865,10 @@ Ckino augmat calculates sig,tau,ppi.
 ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot 
 ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot 
 ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot 
-     .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_p_osmpot 
+ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_p_osmpot 
+ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_a_osmpot 
+ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_p_oorhat , qbg , spot%zv_a_osmpot 
+     .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -1481,7 +1486,8 @@ c       osgw=spot%osgw
         nchan=spot%nlma
 C ... Modes 0..4
 ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
-               call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot 
+ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot 
+               call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .         ) 
@@ -1931,7 +1937,8 @@ ccccc     if (mod(mode,10) .eq. 0) then
               if (lso == 1) jx = 10
                   call hambl ( jx , nbas , ssite , sspec , slat , sham , isp , 
 ckino Dec.8.2011:       .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
-     .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+ckino Dec.28.2011:       .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) ) 
 
@@ -1968,7 +1975,8 @@ ckino                    isize_hamm(3)=size(hamm)
                    call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
 ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
 ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
-     .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
+ckino Dec.28.2011:       .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
+     .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa 
      .             , ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ) 
 
@@ -2445,7 +2453,8 @@ ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , i
 ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos 
      .          , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos 
 ckino Dec.8.2011:       .          , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
-     .          , lekkl , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+ckino Dec.28.2011:       .          , lekkl , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .          , lekkl , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
 c    .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
      .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev 
                      !Nov25 2010 nev should contain calculated number of eigenvectors.
@@ -3240,20 +3249,24 @@ C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
            call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
 ckino Dec.8.2011:       .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_oorhat , hab_rv , sab_rv 
-     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_p_oorhat , hab_rv , sab_rv 
+ckino Dec.28.2011:       .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_p_oorhat , hab_rv , sab_rv 
+     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_a_oorhat , hab_rv , sab_rv 
      .     , qbyl_rv , hbyl_rv , lrout ) 
 
 
 
 
 ckino Dec.8.2011:           call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_p_osmrho 
-         call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_p_osmrho 
+ckino Dec.28.2011:           call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_p_osmrho 
+         call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_a_osmrho 
      .   , 1 ) 
 
 
 ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , sv_p_oorhat 
 ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , spot%sv_p_oorhat 
-          call symrho ( ssite , sspec , slat , lfrce , spot%zv_p_osmrho , spot%sv_p_oorhat 
+ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%zv_p_osmrho , spot%sv_p_oorhat 
+ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_p_oorhat 
+          call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_a_oorhat 
      .    , qbyl_rv , hbyl_rv , frc ) 
 
 
@@ -3310,7 +3323,9 @@ C   ... Correction to harris force
            call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
 ckino Dec.8.2011:       .     , sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho , 
 ckino Dec.8.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho , 
-     .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_p_osmrho , 
+ckino Dec.28.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_p_osmrho , 
+ckino Dec.28.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
+     .     , spot%sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
      .     srout_zv , fh_rv ) 
 
 
@@ -3325,7 +3340,8 @@ c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
                call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
      .         , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3 
 ckino Dec.8.2011:       .         , vconst , zv_p_osmpot , srout_zv , sev , sumtv ) 
-     .         , vconst , spot%zv_p_osmpot , srout_zv , sev , sumtv ) 
+ckino Dec.28.2011:       .         , vconst , spot%zv_p_osmpot , srout_zv , sev , sumtv ) 
+     .         , vconst , spot%zv_a_osmpot , srout_zv , sev , sumtv ) 
 
 
 
@@ -3353,7 +3369,8 @@ Ckino mkpot calls locpot. and locpot calls augmat.
 Ckino augmat calculates sig,tau,ppi.
                call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
 ckino Dec.8.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot 
-     .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_p_osmpot 
+ckino Dec.28.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_p_osmpot 
+     .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_a_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
@@ -3411,9 +3428,11 @@ cc2          call dcopy(k1*k2*k3*2,srout_zv,1,smrhobk,1)
 ccccccccccccccccccccccc
            call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
 ckino Dec.8.2011:       .     ) , qval - qbg , elind , sv_p_orhat1 , sv_p_oorhat , k1 , k2 
-     .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_p_oorhat , k1 , k2 
+ckino Dec.28.2011:       .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_p_oorhat , k1 , k2 
+     .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_a_oorhat , k1 , k2 
 ckino Dec.8.2011:       .     , k3 , dmxp , srout_zv , zv_p_osmrho ) 
-     .     , k3 , dmxp , srout_zv , spot%zv_p_osmrho ) 
+ckino Dec.28.2011:       .     , k3 , dmxp , srout_zv , spot%zv_p_osmrho ) 
+     .     , k3 , dmxp , srout_zv , spot%zv_a_osmrho ) 
 ccccccccccccccc
 
 

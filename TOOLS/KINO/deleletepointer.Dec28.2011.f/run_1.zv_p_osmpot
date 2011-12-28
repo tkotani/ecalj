@@ -1,0 +1,3 @@
+script=tmp/1.zv_p_osmpot.awk
+for n in fp/bndfp.F fp/lmfp.F fp/rsedit.F fp/supot.F subs/m_struc_def.F
+do gawk -f $script $n >x;mv x $n; done

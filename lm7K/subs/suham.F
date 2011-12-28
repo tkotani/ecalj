@@ -471,7 +471,8 @@ C --- Hamiltonian offsets, orbital permutation table ---
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
 ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
-           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
+ckino Dec.28.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
+           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_a_oips 
 ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham ) 
 ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham ) 
 ckino 12月.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 

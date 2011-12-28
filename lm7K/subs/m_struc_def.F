@@ -230,7 +230,8 @@ ckino Dec.28.2011:        integer, pointer :: iv_p_oipc(:) =>NULL()
 cki      integer(8)   ::   oipcp
 ckino Dec.28.2011:        integer, pointer :: iv_p_oipcp(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oips
-       integer , pointer ::  iv_p_oips (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_oips (:) =>NULL()
+       integer , allocatable ::  iv_a_oips (:) 
 CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
 CCHSTRUC       integer(8)   ::   onrc
        integer , pointer ::  iv_p_onrc (:) =>NULL()
@@ -1436,7 +1437,8 @@ ckino 12月.27.2011:         real(8) , pointer ::  rv_p_omad (:) =>NULL()
        real(8) , allocatable ::  rv_a_omad (:) 
 CCHSTRUC       integer(8)   ::   oorhat
 cki       integer , pointer ::  iv_p_oorhat (:)
-       type(s_rv1), pointer :: sv_p_oorhat(:) =>NULL()
+ckino Dec.28.2011:         type(s_rv1), pointer :: sv_p_oorhat(:) =>NULL()
+       type(s_rv1), allocatable :: sv_a_oorhat(:) 
 CCHSTRUC       integer(8)   ::   opalp ! not used because of undef
 CCHSTRUC       integer(8)   ::   opapg ! not used because of undef
 CCHSTRUC       integer(8)   ::   opdel ! not used because of undef
@@ -1476,9 +1478,11 @@ ckino 12月.27.2011:         real(8) , pointer ::  rv_p_orhrmx (:) =>NULL()
 CCHSTRUC       integer(8)   ::   osab ! not used because of undef
 CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
 CCHSTRUC       integer(8)   ::   osmpot
-       complex(8) , pointer ::  zv_p_osmpot (:) =>NULL()
+ckino Dec.28.2011:         complex(8) , pointer ::  zv_p_osmpot (:) =>NULL()
+       complex(8) , allocatable ::  zv_a_osmpot (:) 
 CCHSTRUC       integer(8)   ::   osmrho
-       complex(8) , pointer ::  zv_p_osmrho (:) =>NULL()
+ckino Dec.28.2011:         complex(8) , pointer ::  zv_p_osmrho (:) =>NULL()
+       complex(8) , allocatable ::  zv_a_osmrho (:) 
 CCHSTRUC       integer(8)   ::   osop
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_osop (:) =>NULL()
        real(8) , allocatable ::  rv_a_osop (:) 
@@ -1700,7 +1704,8 @@ C 74 341  4        vso  4
       real(8)   ::   etail
       real(8)   ::   name !string
 cki      integer(8)   ::   orhoc
-      real(8), pointer :: rv_p_orhoc(:) =>NULL()
+ckino Dec.28.2011:        real(8), pointer :: rv_p_orhoc(:) =>NULL()
+      real(8), allocatable :: rv_a_orhoc(:) 
       real(8)   ::   stc
       integer(8)   ::   lmxb
       integer(8)   ::   lmxf
@@ -1824,9 +1829,11 @@ C 27  87  4      vshft  1
 CCHSTRUC       integer(8)   ::   offh ! not used because of undef
 CCHSTRUC       integer(8)   ::   orho ! not used because of undef
 CCHSTRUC       integer(8)   ::   ov0
-       real(8) , pointer ::  rv_p_ov0 (:) =>NULL()
+ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ov0 (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ov0 (:) 
 CCHSTRUC       integer(8)   ::   ov1
-       real(8) , pointer ::  rv_p_ov1 (:) =>NULL()
+ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ov1 (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ov1 (:) 
       integer(8)   ::   pl
       integer(8)   ::   plv
       real(8)   ::   pnu(20)

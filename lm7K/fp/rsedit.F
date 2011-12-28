@@ -247,10 +247,14 @@ C     Make space for smooth density
 
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
 ckino Dec.28.2011:              allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
-            if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
-            allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+ckino Dec.28.2011:              if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
+            if (allocated(spot2%zv_a_osmrho))  deallocate(spot2%zv_a_osmrho)
+ckino Dec.28.2011:              allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+            if (allocated(spot2%zv_a_osmrho)) deallocate(spot2%zv_a_osmrho)
+            allocate(spot2%zv_a_osmrho(abs(-k1*k2*k3*nsp)))
 ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
-            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
+ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
+            if (-k1*k2*k3*nsp<0) spot2%zv_a_osmrho(:)=0.0d0
 
 
 ckino Dec.28.2011:              spot2%zv_p_osmrho => zv_p_osmrh2 
@@ -340,15 +344,22 @@ C     Make space for smooth density
 
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
 ckino Dec.28.2011:              allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
-            if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
-            allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+ckino Dec.28.2011:              if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
+            if (allocated(spot2%zv_a_osmrho))  deallocate(spot2%zv_a_osmrho)
+ckino Dec.28.2011:              allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+            if (allocated(spot2%zv_a_osmrho)) deallocate(spot2%zv_a_osmrho)
+            allocate(spot2%zv_a_osmrho(abs(-k1*k2*k3*nsp)))
 ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
-            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
+ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
+            if (-k1*k2*k3*nsp<0) spot2%zv_a_osmrho(:)=0.0d0
 
 ckino Dec.28.2011:              allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
-            allocate(spot2%zv_p_osmpot(abs(-k1*k2*k3*nsp)))
+ckino Dec.28.2011:              allocate(spot2%zv_p_osmpot(abs(-k1*k2*k3*nsp)))
+            if (allocated(spot2%zv_a_osmpot)) deallocate(spot2%zv_a_osmpot)
+            allocate(spot2%zv_a_osmpot(abs(-k1*k2*k3*nsp)))
 ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
-            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmpot(:)=0.0d0
+ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) spot2%zv_p_osmpot(:)=0.0d0
+            if (-k1*k2*k3*nsp<0) spot2%zv_a_osmpot(:)=0.0d0
 
 
 ckino Dec.28.2011:              spot2%zv_p_osmrho => zv_p_osmrh2 
@@ -376,7 +387,8 @@ C     call shstru('site',w(osite2),1,nbask(2))
          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
          call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
 ckino Dec.28.2011:       .        slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
-     .        slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .        slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+     .        slat2 , spot2%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
 
@@ -388,7 +400,8 @@ C     ... Read restart file
          if (outs(1:5) .eq. 'rsfa ') then
             call rdovfa ( nbask ( 1 ) , nspeck ( 1 ) , ssite1 , sspec1 , 
 c     kino Dec.26.2011:       .     slat , spot , qbg , sv_p_oorhat ) 
-     .           slat , spot , qbg , spot%sv_p_oorhat ) 
+ckino Dec.28.2011:       .           slat , spot , qbg , spot%sv_p_oorhat ) 
+     .           slat , spot , qbg , spot%sv_a_oorhat ) 
 
             fileid = 'rsedit overlap fa densities'
          else
@@ -414,7 +427,8 @@ c     kino Dec.26.2011:       .     slat , spot , qbg , sv_p_oorhat )
      .           ' rsedit: read restart file "'//trim(fn)//'"')
             k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
 c     kino Dec.26.2011:       .      fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
-     .           fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
+ckino Dec.28.2011:       .           fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
+     .           fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_a_oorhat 
      .           , iwdummy , nit , lbin , ifi ) 
 
 
@@ -433,9 +447,11 @@ C     call shstru('site',w(osite2),1,nbask(2))
 
          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 c     kino Dec.26.2011:            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
-         call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+ckino Dec.28.2011:           call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+         call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_a_oorhat 
 ckino Dec.28.2011:       .        , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-     .        , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .        , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+     .        , slat , spot%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
 
@@ -444,7 +460,8 @@ C     ... write atomic densities to file
 
          if (havers) then
 c     kino Dec.26.2011:             call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
-            call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+ckino Dec.28.2011:              call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+            call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_a_oorhat 
      .           ) 
 
          else
@@ -459,9 +476,11 @@ C     ... show
 C     call upack1('lat nabc',slat,ngabc)
             call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 c     kino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+ckino Dec.28.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_a_oorhat 
 ckino Dec.28.2011:       .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-     .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+     .           , slat , spot%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -473,7 +492,8 @@ ckino Dec.28.2011:       .           , slat , zv_p_osmrho , k1 , k2 , k3 )
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
             call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
 ckino Dec.28.2011:       .           slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
-     .           slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+     .           slat2 , spot2%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -541,9 +561,12 @@ c     ki                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ss
      .                 ,  im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
 c     kino Dec.26.2011:       .          , sspec1 , sv_p_oorhat , ssite1 , sspec1 , sv_p_oorhat , zv_p_osmrho 
 ckino Dec.28.2011:       .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , zv_p_osmrho 
-     .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , spot%zv_p_osmrho 
+ckino Dec.28.2011:       .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , spot%zv_p_osmrho 
+ckino Dec.28.2011:       .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , spot%zv_a_osmrho 
+     .                 , sspec1 , spot%sv_a_oorhat , ssite1 , sspec1 , spot%sv_a_oorhat , spot%zv_a_osmrho 
 ckino Dec.28.2011:       .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
-     .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot%zv_p_osmrho , ngabc 
+ckino Dec.28.2011:       .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot%zv_p_osmrho , ngabc 
+     .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot%zv_a_osmrho , ngabc 
      .                 ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
 
 
@@ -561,9 +584,11 @@ ckino Dec.28.2011:       .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc (
 c     ki               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
                   call prsed1 (nbas,nbas,nspec, im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
 ckino Dec.28.2011:       .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , zv_p_osmrh2 
-     .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , spot2%zv_p_osmrho 
+ckino Dec.28.2011:       .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , spot2%zv_p_osmrho 
+     .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , spot2%zv_a_osmrho 
 ckino Dec.28.2011:       .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , zv_p_osmrh2 , 
-     .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , spot2%zv_p_osmrho , 
+ckino Dec.28.2011:       .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , spot2%zv_p_osmrho , 
+     .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , spot2%zv_a_osmrho , 
      .                 ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
 
@@ -612,7 +637,9 @@ C     Carry out operation on 1st or second density
                   call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
 c     kino Dec.26.2011:       .          sspec1 , sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
 ckino Dec.28.2011:       .                 sspec1 , spot%sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-     .                 sspec1 , spot%sv_p_oorhat , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .                 sspec1 , spot%sv_p_oorhat , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .                 sspec1 , spot%sv_p_oorhat , slat , spot%zv_a_osmrho , k1 , k2 , k3 ) 
+     .                 sspec1 , spot%sv_a_oorhat , slat , spot%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
                else
@@ -623,7 +650,8 @@ ckino Dec.28.2011:       .                 sspec1 , spot%sv_p_oorhat , slat , zv
                if (have2s) then
                   call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
 ckino Dec.28.2011:       .                 sspec2 , orh2_iv , slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
-     .                 sspec2 , orh2_iv , slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .                 sspec2 , orh2_iv , slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
+     .                 sspec2 , orh2_iv , slat2 , spot2%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
                else
@@ -742,9 +770,12 @@ c     ki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , s
          call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
 c     kino Dec.26.2011:       .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
 ckino Dec.28.2011:       .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
-     .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , spot%zv_p_osmrho 
+ckino Dec.28.2011:       .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , spot%zv_p_osmrho 
+ckino Dec.28.2011:       .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , spot%zv_a_osmrho 
+     .        , sspec1 , spot%sv_a_oorhat , ssite2 , sspec2 , orh2_iv , spot%zv_a_osmrho 
 ckino Dec.28.2011:       .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
-     .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot2%zv_p_osmrho , ngabc2 
+ckino Dec.28.2011:       .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot2%zv_p_osmrho , ngabc2 
+     .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot2%zv_a_osmrho , ngabc2 
      .        ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
 
@@ -759,9 +790,11 @@ C     call upack1('lat nabc',slat,ngabc)
             call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
             call info0(1,1,0,' New density from rs file:')
 c     kino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
-            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+ckino Dec.28.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_a_oorhat 
 ckino Dec.28.2011:       .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-     .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
+     .           , slat , spot%zv_a_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -786,7 +819,8 @@ C     ... Save
      .        ' rsedit: write restart file "'//trim(fn)//'"')
          k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
 c     kino Dec.26.2011:       .    fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , sv_p_oorhat 
-     .        fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
+ckino Dec.28.2011:       .        fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_p_oorhat 
+     .        fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , spot%sv_a_oorhat 
      .        , iwdummy , nit , lbin , - ifi ) 
 
 
@@ -1169,15 +1203,19 @@ C     Potentials v0,v1: modified if 2's bit im set
          if (mod(im,4) .ge. 2) then
             if (isync .lt. 2) then
 ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov01 
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov0 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov0 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_a_ov0 
 ckino Dec.28.2011:       .              , rv_p_ov02 ) 
-     .              , site2(jb)%rv_p_ov0 ) 
+ckino Dec.28.2011:       .              , site2(jb)%rv_p_ov0 ) 
+     .              , site2(jb)%rv_a_ov0 ) 
 
 
 ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov11 
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov1 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov1 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_a_ov1 
 ckino Dec.28.2011:       .              , rv_p_ov12 ) 
-     .              , site2(jb)%rv_p_ov1 ) 
+ckino Dec.28.2011:       .              , site2(jb)%rv_p_ov1 ) 
+     .              , site2(jb)%rv_a_ov1 ) 
 
 
             else
@@ -1209,9 +1247,11 @@ ckino Dec.28.2011:              rv_p_orhoc2 => spec2(js)%rv_p_orhoc
 
             if (isync .lt. 2) then
 ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_orhoc1 
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , spec1(is)%rv_p_orhoc 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , spec1(is)%rv_p_orhoc 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , spec1(is)%rv_a_orhoc 
 ckino Dec.28.2011:       .              , rv_p_orhoc2 ) 
-     .              , spec2(js)%rv_p_orhoc ) 
+ckino Dec.28.2011:       .              , spec2(js)%rv_p_orhoc ) 
+     .              , spec2(js)%rv_a_orhoc ) 
 
 
             else
@@ -1591,29 +1631,35 @@ C     Potentials v0,v1: modified if 2's bit im set
          if (mod(im,4) .ge. 2) then
 C     call prmx('v0',w(ov0),nr,nr,2)
 ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
-            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_a_ov0 , iwdummy , iwdummy 
      .           ) 
 
 
 ckino Dec.28.2011:              call prsed5 ( mode0 , rv_p_ov0 , nr , 1 , nsp ) 
-            call prsed5 ( mode0 , ssite(ib)%rv_p_ov0 , nr , 1 , nsp ) 
+ckino Dec.28.2011:              call prsed5 ( mode0 , ssite(ib)%rv_p_ov0 , nr , 1 , nsp ) 
+            call prsed5 ( mode0 , ssite(ib)%rv_a_ov0 , nr , 1 , nsp ) 
 
 ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
-            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_a_ov0 , iwdummy , iwdummy 
      .           ) 
 
 
 C     call prmx('v0',w(ov0),nr,nr,2)
 ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
-            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_a_ov1 , iwdummy , iwdummy 
      .           ) 
 
 
 ckino Dec.28.2011:              call prsed5 ( mode0 , rv_p_ov1 , nr , 1 , nsp ) 
-            call prsed5 ( mode0 , ssite(ib)%rv_p_ov1 , nr , 1 , nsp ) 
+ckino Dec.28.2011:              call prsed5 ( mode0 , ssite(ib)%rv_p_ov1 , nr , 1 , nsp ) 
+            call prsed5 ( mode0 , ssite(ib)%rv_a_ov1 , nr , 1 , nsp ) 
 
 ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
-            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_a_ov1 , iwdummy , iwdummy 
      .           ) 
 
 
@@ -1647,15 +1693,18 @@ c     kino Dec.26.2011:             rv_p_orhoca => sspec(is)%rv_p_orhoc
             nr=sspec(is)%nr
 
 c     kino Dec.26.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
-            call splrho ( 30 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , sspec(is)%rv_a_orhoc , iwdummy , iwdummy 
      .           ) 
 
 
 c     kino Dec.26.2011:             call prsed5 ( mode0 , rv_p_orhoca , nr , 1 , nsp ) 
-            call prsed5 ( mode0 , sspec(is)%rv_p_orhoc , nr , 1 , nsp ) 
+ckino Dec.28.2011:              call prsed5 ( mode0 , sspec(is)%rv_p_orhoc , nr , 1 , nsp ) 
+            call prsed5 ( mode0 , sspec(is)%rv_a_orhoc , nr , 1 , nsp ) 
 
 c     kino Dec.26.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , iwdummy , iwdummy 
-            call splrho ( 31 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , sspec(is)%rv_p_orhoc , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , sspec(is)%rv_a_orhoc , iwdummy , iwdummy 
      .           ) 
 
 

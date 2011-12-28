@@ -169,22 +169,30 @@ ckino Dec.8.2011:           slat%iv_p_okv => iv_p_okv
 C       call prmx('gv',w(ogv),ngmx,ng,3)
 
 ckino Dec.8.2011:           allocate(zv_p_osmrho(k1*k2*k3*nsp))
-         allocate(spot%zv_p_osmrho(k1*k2*k3*nsp))
+ckino Dec.28.2011:           allocate(spot%zv_p_osmrho(k1*k2*k3*nsp))
+         if (allocated(spot%zv_a_osmrho)) deallocate(spot%zv_a_osmrho)
+         allocate(spot%zv_a_osmrho(k1*k2*k3*nsp))
 c         if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
 ckino Dec.8.2011:           zv_p_osmrho(:)=0d0
-         spot%zv_p_osmrho(:)=0d0
+ckino Dec.28.2011:           spot%zv_p_osmrho(:)=0d0
+         spot%zv_a_osmrho(:)=0d0
 
 ckino Dec.8.2011:           allocate(zv_p_osmpot(k1*k2*k3*nsp))
-         allocate(spot%zv_p_osmpot(k1*k2*k3*nsp))
+ckino Dec.28.2011:           allocate(spot%zv_p_osmpot(k1*k2*k3*nsp))
+         if (allocated(spot%zv_a_osmpot)) deallocate(spot%zv_a_osmpot)
+         allocate(spot%zv_a_osmpot(k1*k2*k3*nsp))
 ckino Dec.8.2011:           zv_p_osmpot(:)=0.0d0
-         spot%zv_p_osmpot(:)=0.0d0
+ckino Dec.28.2011:           spot%zv_p_osmpot(:)=0.0d0
+         spot%zv_a_osmpot(:)=0.0d0
 
 ckino Dec.8.2011:           allocate(sv_p_oorhat(3*nbaspp))
-         allocate(spot%sv_p_oorhat(3*nbaspp))
+ckino Dec.28.2011:           allocate(spot%sv_p_oorhat(3*nbaspp))
+         if (allocated(spot%sv_a_oorhat)) deallocate(spot%sv_a_oorhat)
+         allocate(spot%sv_a_oorhat(3*nbaspp))
 cki         sv_p_oorhat(:)=0
          do i=1,3*nbaspp
 ckino Dec.8.2011:              nullify(sv_p_oorhat(i)%v)
-            nullify(spot%sv_p_oorhat(i)%v)
+ckino Dec.28.2011:              nullify(spot%sv_p_oorhat(i)%v)
          enddo
 
 

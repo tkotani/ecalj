@@ -168,7 +168,8 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
 ckino Dec.12.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
-         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
+ckino Dec.28.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
+         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv ) 
 
@@ -186,7 +187,8 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
 Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
 ckino Dec.12.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a 
-         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a 
+ckino Dec.28.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a 
+         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a 
      .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
      .   0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
 

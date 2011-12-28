@@ -391,7 +391,8 @@ C   ... Augmented wave functions
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
 ckino Dec.13.2011:             call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
-           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
+ckino Dec.28.2011:             call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
+           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv ) 
 
@@ -549,7 +550,8 @@ C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
 ckino Dec.13.2011:              call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
-            call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_p_ov1 
+ckino Dec.28.2011:              call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_p_ov1 
+            call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 
      .      , kcor , lcor , qcor , smec , smtc , sv_p_orhoat( 3 , ib )%v 
      .      , ncore , 0d0 , 0d0 ) 
 
@@ -570,7 +572,8 @@ C         smec = smec+sum
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
 ckino Dec.13.2011:              call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr 
-            call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+ckino Dec.28.2011:              call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
+            call dpcopy ( sspec(is)%rv_a_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
      .      * nsp , 1d0 ) 
 
 

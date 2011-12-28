@@ -144,7 +144,8 @@ C       ... Log derivative by direct num integration
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
 ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
-               call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+ckino Dec.28.2011:                 call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+               call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 ) 
 
               if (mod(idmod(m),10) .eq. 3) then

@@ -693,7 +693,8 @@ C     Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
          call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg 
 c     kino Dec.8.2011:       .   , sv_p_oorhat ) 
-     .        , spot%sv_p_oorhat ) 
+ckino Dec.28.2011:       .        , spot%sv_p_oorhat ) 
+     .        , spot%sv_a_oorhat ) 
 
          nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
@@ -711,7 +712,8 @@ c     takao BZ_W is
 c     print *,'yyyyyyy goto iors osmrho=',spot%osmrho
          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
 c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin , 
-     .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , nit1 , lbin , 
+ckino Dec.28.2011:       .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , nit1 , lbin , 
+     .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi ) 
 
 
@@ -758,9 +760,11 @@ C     If no force switch set, use default
             endif
 
 c     kino Dec.8.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
-            call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
+ckino Dec.28.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
+            call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat 
 c     kino Dec.14.2011:       .      , zv_p_osmrho ) 
-     .           , spot%zv_p_osmrho ) 
+ckino Dec.28.2011:       .           , spot%zv_p_osmrho ) 
+     .           , spot%zv_a_osmrho ) 
 
 
 C     Restore force switch
@@ -908,9 +912,11 @@ C     kino ioden is called everytime! Isn't the location strange?
       if (procid .eq. master) then
          if (cmdopt('--wden',6,0,strn)) then
 c     kino Dec.8.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
-            call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat 
+ckino Dec.28.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat 
+            call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_a_oorhat 
 c     kino Dec.14.2011:       .      , zv_p_osmrho ) 
-     .           , spot%zv_p_osmrho ) 
+ckino Dec.28.2011:       .           , spot%zv_p_osmrho ) 
+     .           , spot%zv_a_osmrho ) 
 
 
          endif
@@ -941,7 +947,8 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
                fileid = 'lmfp:  ' // sstrn(i:j)
                k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
 c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin , 
-     .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , lbin , 
+ckino Dec.28.2011:       .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , lbin , 
+     .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi ) 
 
 
@@ -1212,9 +1219,11 @@ C     Else, use self-consistent
             else if (.not. lshr) then
                irs(1) = 3
 c     kino Dec.8.2011:                call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
-               call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
+ckino Dec.28.2011:                 call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
+               call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat 
 c     kino Dec.14.2011:       .        , zv_p_osmrho ) 
-     .              , spot%zv_p_osmrho ) 
+ckino Dec.28.2011:       .              , spot%zv_p_osmrho ) 
+     .              , spot%zv_a_osmrho ) 
 
 
             endif
@@ -1226,7 +1235,8 @@ C     ... Write restart file (to include new positions)
                fileid = 'lmfp:  ' // sstrn(i:j)
                k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
 c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
-     .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
+ckino Dec.28.2011:       .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
+     .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi ) 
 
 
@@ -1420,7 +1430,8 @@ C     ... Write restart file (to include new positions)
          fileid = 'lmfp:  ' // sstrn(i:j)
          k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
 c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
-     .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
+ckino Dec.28.2011:       .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
+     .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi ) 
 
 

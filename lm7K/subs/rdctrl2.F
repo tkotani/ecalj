@@ -1817,9 +1817,12 @@ ckino Dec.14.2011:         if (3*nsite<0) rv_p_opos(:)=0.0d0
        if (3*nsite<0) v_slat%rv_p_opos(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(iv_p_oips(abs(nsite)))
-       allocate(v_sarry%iv_p_oips(abs(nsite)))
+ckino Dec.28.2011:         allocate(v_sarry%iv_p_oips(abs(nsite)))
+       if (allocated(v_sarry%iv_a_oips)) deallocate(v_sarry%iv_a_oips)
+       allocate(v_sarry%iv_a_oips(abs(nsite)))
 ckino Dec.14.2011:         if (nsite<0) iv_p_oips(:)=0
-       if (nsite<0) v_sarry%iv_p_oips(:)=0
+ckino Dec.28.2011:         if (nsite<0) v_sarry%iv_p_oips(:)=0
+       if (nsite<0) v_sarry%iv_a_oips(:)=0
 
       do i_spackv=1,nsite
         i_copy_size=3
@@ -1830,7 +1833,8 @@ ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
         i_copy_size=1
          call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
 ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oips ) 
+ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oips ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips ) 
 
       enddo
 ckino Dec.14.2011:         v_slat%rv_p_opos => rv_p_opos 

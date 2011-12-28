@@ -410,7 +410,8 @@ C       Initial estimate for sphere radii: overlapping atom potentials
 ckino Dec.8.2011:              call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos , 
             call makrm0 ( 101 , nspec , nbas , alat , plat , sarray%rv_p_opos , 
 ckino Dec.8.2011:       .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
-     .      slabl , sarray%iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+     .      slabl , sarray%iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) 
 
 
 
@@ -425,7 +426,8 @@ C   ... Scale sphere radii satisfying constraints
 ckino Dec.8.2011:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos 
             call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , sarray%rv_p_opos 
 ckino Dec.8.2011:       .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
-     .      , sarray%iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+ckino Dec.28.2011:       .      , sarray%iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+     .      , sarray%iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv ) 
 
 
@@ -489,7 +491,8 @@ ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , s
 ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino 12月.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
-     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
+ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
+     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
      .         eula  , nclass ) 
               deallocate(eula)
 
@@ -504,7 +507,8 @@ C --- Show angles between neighbors ---
 ckino Dec.8.2011:              call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
             call shoang ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
 ckino Dec.8.2011:       .      slabl , iv_p_oips ) 
-     .      slabl , sarray%iv_p_oips ) 
+ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips ) 
+     .      slabl , sarray%iv_a_oips ) 
 
 
         endif
@@ -546,7 +550,8 @@ ckino Dec.8.2011           call symlat ( plat , ngrp , rv_p_og , j )
            call symlat ( plat , ngrp , rv_a_og , j ) 
 
 ckino Dec.8.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
-             j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips 
+ckino Dec.28.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips 
+             j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips 
 ckino Dec.8.2011:       .       , rv_p_opos , ips2_iv , pos2_rv ) 
      .       , sarray%rv_p_opos , ips2_iv , pos2_rv ) 
 
@@ -570,7 +575,8 @@ ckino Dec.8.2011:               call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
 ckino Dec.8.2011:               ip = ival ( iv_p_oips , i ) 
-             ip = ival ( sarray%iv_p_oips , i ) 
+ckino Dec.28.2011:               ip = ival ( sarray%iv_p_oips , i ) 
+             ip = ival ( sarray%iv_a_oips , i ) 
 
             print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
   345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)

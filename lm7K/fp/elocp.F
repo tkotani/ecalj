@@ -98,7 +98,8 @@ ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
         call radmsh(rmt,a,nr,rofi)
          call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi 
 ckino Dec.9.2011:       .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
-     .   , ssite(ib)%rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+ckino Dec.28.2011:       .   , ssite(ib)%rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+     .   , ssite(ib)%rv_a_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
      .   , rsml , ehl ) 
 
    10   continue

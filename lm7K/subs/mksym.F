@@ -233,7 +233,8 @@ C     call defi (oistb2,(ngmx+1)*nbas)
       allocate(pos2_rv(3*ngmx*nbas))
 
 ckino Dec.8.2011:         call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
-       call icopy ( nbas , sarray%iv_p_oips , 1 , ips2_iv , 1 ) 
+ckino Dec.28.2011:         call icopy ( nbas , sarray%iv_p_oips , 1 , ips2_iv , 1 ) 
+       call icopy ( nbas , sarray%iv_a_oips , 1 , ips2_iv , 1 ) 
 
 
 ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
@@ -331,7 +332,8 @@ ckino Dec.16.2011:         if (nspec<0) iv_p_onrc(:)=0
 ckino Dec.8.2011:          call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
 ckino Dec.16.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , iv_p_oipc , 1 ) 
 ckino Dec.28.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_p_oipc , 1 ) 
-        call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_a_oipc , 1 ) 
+ckino Dec.28.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_a_oipc , 1 ) 
+        call icopy ( nsite , sarray%iv_a_oips , 1 , sarray%iv_a_oipc , 1 ) 
 
 
 

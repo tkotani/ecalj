@@ -127,8 +127,11 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
          if (-nrmx*nsp<0) rv_a_orhofa(is)%v(:)=0.0d0
 
 cki        call defrr(orhoca(is),   -nrmx*nsp)
-        allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
-        sspec(is)%rv_p_orhoc=0.0d0
+ckino Dec.28.2011:          allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
+        if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
+        allocate(sspec(is)%rv_a_orhoc(   nrmx*nsp) )
+ckino Dec.28.2011:          sspec(is)%rv_p_orhoc=0.0d0
+        sspec(is)%rv_a_orhoc=0.0d0
          allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
          if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
 
@@ -165,16 +168,19 @@ cki        call defrr(orhoca(is),   -nrmx*nsp)
              if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
 
 cki            call rlse(orhoca(is))
-            deallocate(sspec(is)%rv_p_orhoc)
+ckino Dec.28.2011:              deallocate(sspec(is)%rv_p_orhoc)
+            deallocate(sspec(is)%rv_a_orhoc)
              if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
 
           else
 ckino
-             nr0=nrmx ! %rv_p_orhoc(nrmx*nsp)
+ckino Dec.28.2011:               nr0=nrmx ! %rv_p_orhoc(nrmx*nsp)
+             nr0=nrmx ! %rv_a_orhoc(nrmx*nsp)
               lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc 
      .        ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 
      .        , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec 
-     .        ( is ) %rv_p_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 ) 
+ckino Dec.28.2011:       .        ( is ) %rv_p_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 ) 
+     .        ( is ) %rv_a_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 ) 
 
 
           endif
@@ -193,7 +199,8 @@ C   ... Broadcast file data
          call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
      .   , 'rhofa' ) 
 
-        call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
+ckino Dec.28.2011:          call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
+        call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
          call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' 
      .   , 'v0a' ) 
 
@@ -290,14 +297,20 @@ C     .      orca)
          if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
 
 ckino Dec.13.2011:           allocate(rv_p_ov0(abs(nr*nsp)))
-         allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
+ckino Dec.28.2011:           allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
+         if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
+         allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
 ckino Dec.13.2011:           if (nr*nsp<0) rv_p_ov0(:)=0.0d0
-         if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
+ckino Dec.28.2011:           if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
+         if (nr*nsp<0) ssite(ib)%rv_a_ov0(:)=0.0d0
 
 ckino Dec.13.2011:           allocate(rv_p_ov1(abs(nr*nsp)))
-         allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
+ckino Dec.28.2011:           allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
+         if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
+         allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
 ckino Dec.13.2011:           if (nr*nsp<0) rv_p_ov1(:)=0.0d0
-         if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
+ckino Dec.28.2011:           if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
+         if (nr*nsp<0) ssite(ib)%rv_a_ov1(:)=0.0d0
 
 
 C       Core magnetic moment (possible if magnetized core hole)
@@ -306,9 +319,11 @@ C       Core magnetic moment (possible if magnetized core hole)
 
           call radwgt ( rmt , a , nr , rwgt_rv )
 
-          call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_p_orhoc , sum )
+ckino Dec.28.2011:            call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_p_orhoc , sum )
+          call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_a_orhoc , sum )
 
-          call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_p_orhoc , sum1 )
+ckino Dec.28.2011:            call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_p_orhoc , sum1 )
+          call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_a_orhoc , sum1 )
 
           sum2 = sum - sum1
           call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -325,16 +340,19 @@ C       Core magnetic moment (possible if magnetized core hole)
 
         if (lmxl .gt. -1) then
 ckino Dec.13.2011:              call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov0 , 1 , nr * nsp , 1d0 
-            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov0 , 1 , nr * nsp , 1d0 
+ckino Dec.28.2011:              call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov0 , 1 , nr * nsp , 1d0 
+            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov0 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
 ckino Dec.13.2011:              call dpcopy ( rv_a_ov0a( is )%v , rv_p_ov1 , 1 , nr * nsp , 1d0 
-            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov1 , 1 , nr * nsp , 1d0 
+ckino Dec.28.2011:              call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_p_ov1 , 1 , nr * nsp , 1d0 
+            call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov1 , 1 , nr * nsp , 1d0 
      .      ) 
 
 
-           call dpcopy ( sspec ( is ) %rv_p_orhoc , sv_p_orhoat( 3 , ib )%v 
+ckino Dec.28.2011:             call dpcopy ( sspec ( is ) %rv_p_orhoc , sv_p_orhoat( 3 , ib )%v 
+           call dpcopy ( sspec ( is ) %rv_a_orhoc , sv_p_orhoat( 3 , ib )%v 
      .     , 1 , nr * nsp , 1d0 ) 
 
 
@@ -401,7 +419,8 @@ ccccccccccccccc
 ckino Dec.8.2011:          call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
 ckino Dec.8.2011:          call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
 ckino Dec.28.2011:          call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
-        call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
+ckino Dec.28.2011:          call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
+        call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cv_zv , spot%zv_a_osmrho 
      .  ) 
 
 
@@ -421,22 +440,26 @@ ccccccccccccccc
 
 C ... FFT to real-space mesh
 ckino Dec.8.2011:         call fftz3 ( zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
-       call fftz3 ( spot%zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+ckino Dec.28.2011:         call fftz3 ( spot%zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+       call fftz3 ( spot%zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      . , 0 , 1 ) 
 
 C ... Add compensating uniform electron density to compensate background
 ckino Dec.8.2011:         call addbkgsm ( zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
-       call addbkgsm ( spot%zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
+ckino Dec.28.2011:         call addbkgsm ( spot%zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
+       call addbkgsm ( spot%zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
      . , - 1d0 ) 
 
 C ... integrate
 ckino Dec.8.2011:         call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
-       call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
+ckino Dec.28.2011:         call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
+       call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho 
      . , sum1 , sum2 ) 
 
       if (nsp .eq. 2) then
 ckino Dec.8.2011:           call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
-         call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
+ckino Dec.28.2011:           call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho 
+         call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho 
      .   , smom , sum2 ) 
 
         smom = 2*smom - sum1
