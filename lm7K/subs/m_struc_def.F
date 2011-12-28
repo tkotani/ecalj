@@ -225,9 +225,10 @@ ckino Dec.27.2011:         integer , pointer ::  iv_p_oics (:) =>NULL()
        integer , allocatable ::  iv_a_oics (:) 
 CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
 cki      integer(8)   ::   oipc
-      integer, pointer :: iv_p_oipc(:) =>NULL()
+ckino Dec.28.2011:        integer, pointer :: iv_p_oipc(:) =>NULL()
+      integer, allocatable :: iv_a_oipc(:) 
 cki      integer(8)   ::   oipcp
-      integer, pointer :: iv_p_oipcp(:) =>NULL()
+ckino Dec.28.2011:        integer, pointer :: iv_p_oipcp(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oips
        integer , pointer ::  iv_p_oips (:) =>NULL()
 CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef

@@ -1,0 +1,5 @@
+script=tmp/1.iv_p_oipcp.awk
+for n in subs/m_struc_def.F subs/mksym.F
+do gawk -f $script $n >x;mv x $n; done
+
+

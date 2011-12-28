@@ -765,12 +765,14 @@ C     Loop over all sites (or classes)
           if (nsite .ne. 0) then
             ib = i
 ckino Dec.12.2011:               ic = ival ( iv_p_oipc , ib ) 
-             ic = ival ( sarray%iv_p_oipc, ib ) 
+ckino Dec.28.2011:               ic = ival ( sarray%iv_p_oipc, ib ) 
+             ic = ival ( sarray%iv_a_oipc, ib ) 
 
           else
             ic = i
 ckino Dec.12.2011:               ib = iclbas ( i , iv_p_oipc ) 
-             ib = iclbas ( i , sarray%iv_p_oipc) 
+ckino Dec.28.2011:               ib = iclbas ( i , sarray%iv_p_oipc) 
+             ib = iclbas ( i , sarray%iv_a_oipc) 
 
           endif
 

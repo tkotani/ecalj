@@ -488,7 +488,8 @@ ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , i
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino 12月.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
+ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
+     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
      .         eula  , nclass ) 
               deallocate(eula)
 
@@ -590,7 +591,8 @@ ckino Dec.8.2011:       .     , rmax , sarray%rv_p_oclabl , iv_p_oipc , modep , 
 ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
 ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_a_oiax , 
 ckino Dec.27.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
-     .     , rmax , sarray%rv_a_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
+ckino Dec.28.2011:       .     , rmax , sarray%rv_a_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
+     .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
 ckino Dec.8.2011:       .     rv_p_opos , j ) 
      .     sarray%rv_p_opos , j ) 
 
