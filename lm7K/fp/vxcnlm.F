@@ -107,7 +107,8 @@ ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
 ckino 12月.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , dummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
        enddo
@@ -201,7 +202,8 @@ c          print *,'sumcheck fn j =',sum(abs(fn))
           enddo
           call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
 ckino Dec.12.2011:            call gvgetf(ng,1,iv_p_okv,k1,k2,k3,fn,fg(1,j))
-          call gvgetf(ng,1,slat%iv_p_okv,k1,k2,k3,fn,fg(1,j))
+ckino Dec.28.2011:            call gvgetf(ng,1,slat%iv_p_okv,k1,k2,k3,fn,fg(1,j))
+          call gvgetf(ng,1,slat%iv_a_okv,k1,k2,k3,fn,fg(1,j))
 c          print *,'sumcheck fg j =',sum(abs(fg(:,j)))
          enddo  
 !!== make i G fg ---> FFT back ==
@@ -216,7 +218,8 @@ c           print *, ig,abs(fgg(ig)),sum(gv(ig,1:3)**2),sum(fg(ig,1:3)**2)
          enddo
 c         print *, 'check xxx fgg sum =',sum(abs(fgg)),ng,sum(abs(gv)),sum(abs(fg))
 ckino Dec.12.2011:           call gvputf(ng,1,iv_p_okv,k1,k2,k3,fgg,fgrd)
-         call gvputf(ng,1,slat%iv_p_okv,k1,k2,k3,fgg,fgrd)
+ckino Dec.28.2011:           call gvputf(ng,1,slat%iv_p_okv,k1,k2,k3,fgg,fgrd)
+         call gvputf(ng,1,slat%iv_a_okv,k1,k2,k3,fgg,fgrd)
          call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
          vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
        enddo
@@ -292,7 +295,8 @@ C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
 ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
 ckino 12月.27.2011:            call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+ckino Dec.28.2011:            call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , zggrho ( 1 , i ) ) 
 C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
@@ -335,7 +339,8 @@ C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
 ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
 ckino 12月.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
 
 

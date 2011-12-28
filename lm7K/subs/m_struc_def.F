@@ -855,7 +855,8 @@ C 56 130  2      udiag  1
 CCHSTRUC       integer(8)   ::   obdots ! not used because of undef
 CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohrs
-       real(8) , pointer ::  rv_p_ohrs (:) =>NULL()
+ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ohrs (:) =>NULL()
+       real(8) , allocatable ::  rv_a_ohrs (:) 
 cki      integer(8)   ::   oiaxs
 ckino Dec.14.2011:         integer, pointer :: iv_p_oiaxs(:) =>NULL()
        integer, allocatable :: iv_a_oiaxs(:) 
@@ -1031,7 +1032,8 @@ CCHSTRUC       integer(8)   ::   ojcg
 ckino Dec.28.2011:         integer , pointer ::  iv_p_ojcg (:) =>NULL()
        integer , allocatable ::  iv_a_ojcg (:) 
 CCHSTRUC       integer(8)   ::   okv
-       integer , pointer ::  iv_p_okv (:) =>NULL()
+ckino Dec.28.2011:         integer , pointer ::  iv_p_okv (:) =>NULL()
+       integer , allocatable ::  iv_a_okv (:) 
 cki      integer(8)   ::   opos
        real(8), pointer :: rv_p_opos(:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqlv

@@ -459,7 +459,8 @@ C ... 2. cn <- (smrnew - smrho)(G)
       call dpadd(w_owk,smrho,1,kkk*2,-1d0)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
-       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk , 
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk , 
+       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_owk , 
      . w_ocn ) 
        deallocate(w_owk)
 C ... 3. Sum of local densities on Fourier mesh (up+down)
@@ -490,7 +491,8 @@ C ... 5. Add cn = screening charge into smrnew
 c      call defcc(owk,kkk)
        allocate(w_owk(kkk))
 ckino Dec.12.2011:         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn , 
-       call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_ocn , 
+ckino Dec.28.2011:         call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_ocn , 
+       call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_ocn , 
      . w_owk ) 
 
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -624,7 +626,8 @@ ckino 12月.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ip
        call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
+       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, w_ocn) 
 ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
 ckino 12月.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn) 
        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , w_ocn) 
@@ -632,7 +635,8 @@ ckino 12月.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ip
        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
-       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
+       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, co_rv) 
 ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
 ckino 12月.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv) 
        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , co_rv) 
@@ -809,7 +813,8 @@ c      call defcc(owk,kkk)
 ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
 ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
 ckino 12月.27.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
-     .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
+ckino Dec.28.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
+     .   , ng , ng2, ng02 , slat%iv_a_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
      .   sv_p_orhold , smrho, wgtsmooth ) 
 
       deallocate(w_oqkl)

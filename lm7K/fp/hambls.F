@@ -515,7 +515,8 @@ ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      ) 
 
@@ -600,7 +601,8 @@ ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
      .      iwdummy ) 
 
@@ -939,7 +941,8 @@ ckino 12月.27.2011:                call bloch ( i , q , nl , plat , mxorb , sha
 ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.14.2011:       .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .        , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+ckino Dec.28.2011:       .        , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .        , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
      .        iwdummy ) 
 
@@ -1060,7 +1063,8 @@ ckino 12月.27.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat ,
 ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
 ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
 ckino Dec.14.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
-     .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+ckino Dec.28.2011:       .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+     .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh 
      .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
      .        ) 
 
@@ -1240,7 +1244,8 @@ ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
 ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
      .      iwdummy ) 
 

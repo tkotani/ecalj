@@ -239,7 +239,8 @@ c      call defrr(osn, ng)
      ., - 1 )
 
 ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
-       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
      . ) 
 
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
@@ -290,7 +291,8 @@ C     call zprm3('drho',0,w(osmro),k1,k2,k3)
      .0 , - 1 )
 
 ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
-       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
+       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , 
      . cdvx_zv ) 
 
 
@@ -301,7 +303,8 @@ C --- Cnomi = (n0_out(q) - n0_in(q)) ---
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
 ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
-       call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
      . ) 
 
 

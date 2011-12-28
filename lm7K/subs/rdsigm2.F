@@ -380,14 +380,20 @@ ckino 12月.27.2011:         nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
 ckino Dec.22.2011:           allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
-         allocate(sham%rv_p_ohrs(ndhrs**2*nttabs*nsp))
+ckino Dec.28.2011:           allocate(sham%rv_p_ohrs(ndhrs**2*nttabs*nsp))
+        if (allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
+         allocate(sham%rv_a_ohrs(ndhrs**2*nttabs*nsp))
 ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
-         sham%rv_p_ohrs(:)=0d0
+ckino Dec.28.2011:           sham%rv_p_ohrs(:)=0d0
+         sham%rv_a_ohrs(:)=0d0
       else
 ckino Dec.22.2011:           allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
-         allocate(sham%rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+ckino Dec.28.2011:           allocate(sham%rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+        if (allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
+         allocate(sham%rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
 ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
-         sham%rv_p_ohrs(:)=0d0
+ckino Dec.28.2011:           sham%rv_p_ohrs(:)=0d0
+         sham%rv_a_ohrs(:)=0d0
       endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
@@ -672,7 +678,8 @@ ckino Dec.22.2011:       .         , plat , rv_p_opos ,iv_a_ontabs , iv_a_oiaxs 
 ckino Dec.22.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.27.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 ckino 12月.27.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
-     .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
+ckino Dec.28.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
+     .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
 
 
 
@@ -730,7 +737,8 @@ ckino Dec.22.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs ,
 ckino Dec.22.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino 12月.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-     .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.28.2011:       .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+     .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -750,12 +758,14 @@ ckino 12月.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%
 C ... Broadcast R.S. sigma before symmetrization
       if (hreal .eq. 1) then
 ckino Dec.22.2011:           call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
-         call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+ckino Dec.28.2011:           call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+         call mpibc1 ( sham%rv_a_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
      .   , 'rdsigm' , 'hrs' ) 
 
       else
 ckino Dec.22.2011:           call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
-         call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+ckino Dec.28.2011:           call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+         call mpibc1 ( sham%rv_a_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
      .   , mlog , 'rdsigm' , 'hrs' ) 
 
       endif
@@ -779,10 +789,12 @@ c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 ,
 c     .     w ( ohrss ) , 1 ) 
 c        endif
 ckino Dec.22.2011:          nhrss= size(rv_p_ohrs)
-        nhrss= size(sham%rv_p_ohrs)
+ckino Dec.28.2011:          nhrss= size(sham%rv_p_ohrs)
+        nhrss= size(sham%rv_a_ohrs)
         allocate(hrss(nhrss))
 ckino Dec.22.2011:          hrss = rv_p_ohrs
-        hrss = sham%rv_p_ohrs
+ckino Dec.28.2011:          hrss = sham%rv_p_ohrs
+        hrss = sham%rv_a_ohrs
 
 Changenglob        mxorb = nglob('mxorb')
         mxorb = globalvariables%mxorb
@@ -810,7 +822,8 @@ ckino 12月.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sha
 ckino Dec.22.2011:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 ckino Dec.22.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 ckino Dec.28.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
-     .        , slat%rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
+ckino Dec.28.2011:       .        , slat%rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
+     .        , slat%rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_a_ohrs ) 
 
 
 
@@ -838,7 +851,8 @@ ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs 
 ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino 12月.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.28.2011:       .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
 
 
@@ -850,12 +864,14 @@ ckino 12月.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham
 C   ... Broadcast R.S. sigma after symmetrization
         if (hreal .eq. 1) then
 ckino Dec.22.2011:             call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
-           call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+ckino Dec.28.2011:             call mpibc1 ( sham%rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
+           call mpibc1 ( sham%rv_a_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
      .     , 'rdsigm' , 'hrs' ) 
 
         else
 ckino Dec.22.2011:             call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
-           call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+ckino Dec.28.2011:             call mpibc1 ( sham%rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
+           call mpibc1 ( sham%rv_a_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
      .     , mlog , 'rdsigm' , 'hrs' ) 
 
         endif
@@ -886,7 +902,8 @@ ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs 
 ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.28.2011:       .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs 
      .             ) 
 
 
@@ -905,7 +922,8 @@ ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs 
 ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.28.2011:       .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs 
      .             ) 
 
 
@@ -1022,7 +1040,8 @@ ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs 
 ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino 12月.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.28.2011:       .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
 
 

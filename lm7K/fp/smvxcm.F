@@ -145,7 +145,8 @@ C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if(lfoc1 .eq. 1) then
 ckino Dec.12.2011:          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
-        call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
+ckino Dec.28.2011:          call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
+        call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -279,7 +280,8 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
-           call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+ckino Dec.28.2011:             call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+           call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
      .     ) 
 
 

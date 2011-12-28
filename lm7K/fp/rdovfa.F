@@ -400,7 +400,8 @@ ccccccccccccccc
 
 ckino Dec.8.2011:          call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
 ckino Dec.8.2011:          call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
-        call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
+ckino Dec.28.2011:          call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
+        call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cv_zv , spot%zv_p_osmrho 
      .  ) 
 
 

@@ -468,7 +468,8 @@ C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
 ckino Dec.12.2011:             call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
-           call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
+ckino Dec.28.2011:             call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
+           call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
      .     1 , 1 , isp ) , cv_zv ) 
 
 
@@ -487,7 +488,8 @@ ckino Dec.28.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oip
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
 ckino Dec.12.2011:             call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
-           call gvaddf ( ng , slat%iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
+ckino Dec.28.2011:             call gvaddf ( ng , slat%iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
+           call gvaddf ( ng , slat%iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) ) 
 
 

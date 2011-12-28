@@ -140,14 +140,17 @@ ckino 12月.27.2011:           allocate(slat%rv_p_ogv(abs(ngmx*3)))
 c         if (ngmx*3<0) rv_p_ogv(:)=0.0d0
 
 ckino Dec.8.2011:           allocate(iv_p_okv(abs(ngmx*3)))
-         allocate(slat%iv_p_okv(abs(ngmx*3)))
+ckino Dec.28.2011:           allocate(slat%iv_p_okv(abs(ngmx*3)))
+        if (allocated(slat%iv_a_okv)) deallocate(slat%iv_a_okv)
+         allocate(slat%iv_a_okv(abs(ngmx*3)))
 c         if (ngmx*3<0) iv_p_okv(:)=0
 
            call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8 
 ckino Dec.8.2011:       .     , ngmx , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
 ckino Dec.8.2011:       .     , ngmx , ng , iv_p_okv , slat%rv_p_ogv , xx , xx ) 
 ckino 12月.27.2011:       .     , ngmx , ng , slat%iv_p_okv , slat%rv_p_ogv , xx , xx ) 
-     .     , ngmx , ng , slat%iv_p_okv , slat%rv_a_ogv , xx , xx ) 
+ckino Dec.28.2011:       .     , ngmx , ng , slat%iv_p_okv , slat%rv_a_ogv , xx , xx ) 
+     .     , ngmx , ng , slat%iv_a_okv , slat%rv_a_ogv , xx , xx ) 
 
 
 

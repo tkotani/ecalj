@@ -213,7 +213,8 @@ C --- Estatic potential of smooth density without gaussians ---
 ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
 ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
 ckino 12月.27.2011:          call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
-        call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
+ckino Dec.28.2011:          call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
+        call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 ) 
 
 
@@ -230,7 +231,8 @@ ckino 12月.27.2011:           call vesgcm ( nbas , ssite , sspec , slat , slat%
 ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
 ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
 ckino 12月.27.2011:       .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
-     .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+ckino Dec.28.2011:       .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+     .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
 
 
@@ -243,7 +245,8 @@ C ... Compute e.s. potential at MT boundary
 ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
 ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv 
 ckino 12月.27.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv 
-        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv 
+ckino Dec.28.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv 
+        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
 
 

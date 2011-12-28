@@ -110,7 +110,8 @@ C ... Hold on to original smrho (cgr)
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
-       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
+       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv 
      . ) 
 
 
@@ -180,7 +181,8 @@ C        call dscal(2*ng,.001d0,w(ocgs),1)
 
 C ... Debugging: show delta smrho
 ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
-       call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
+ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
+       call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho 
      . ) 
 
 
@@ -198,7 +200,8 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
 ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
-       call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
+ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
+       call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho 
      . ) 
 
 

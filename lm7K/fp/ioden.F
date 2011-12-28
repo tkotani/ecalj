@@ -475,7 +475,8 @@ Ckino smrho is complex(8) , so kkk*2 is necessary.
      ., 0 , - 1 )
 
 ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
-       call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , psrho_zv , 
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , psrho_zv , 
+       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , psrho_zv , 
      . cn_zv ) 
 Ckino now cn_zv(G,nsp)
 
@@ -521,7 +522,8 @@ Ckino                      -> cn_zv=-cn_zv if i==3
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
 ckino Dec.9.2011:           call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
-         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
+ckino Dec.28.2011:           call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
+         call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
      .   ) 
 
 
