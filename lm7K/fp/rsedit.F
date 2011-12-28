@@ -93,7 +93,7 @@ c     integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
 c     kino Dec.26.2011:             type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL()
 
-      complex(8),pointer :: zv_p_osmrh2(:) =>NULL()
+ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmrh2(:) =>NULL()
 
       complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
@@ -246,11 +246,14 @@ C     Make space for smooth density
             call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-            allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
-            if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
+ckino Dec.28.2011:              allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
+            if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
+            allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
+            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
 
 
-            spot2%zv_p_osmrho => zv_p_osmrh2 
+ckino Dec.28.2011:              spot2%zv_p_osmrho => zv_p_osmrh2 
 
 
             allocate(orh2_iv(3*nbask(2)))
@@ -336,8 +339,11 @@ C     Make space for smooth density
             call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-            allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
-            if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
+ckino Dec.28.2011:              allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
+            if (associated(spot2%zv_p_osmrho))  deallocate(spot2%zv_p_osmrho)
+            allocate(spot2%zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
+            if (-k1*k2*k3*nsp<0) spot2%zv_p_osmrho(:)=0.0d0
 
 ckino Dec.28.2011:              allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
             allocate(spot2%zv_p_osmpot(abs(-k1*k2*k3*nsp)))
@@ -345,7 +351,7 @@ ckino Dec.28.2011:              if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
             if (-k1*k2*k3*nsp<0) spot2%zv_p_osmpot(:)=0.0d0
 
 
-            spot2%zv_p_osmrho => zv_p_osmrh2 
+ckino Dec.28.2011:              spot2%zv_p_osmrho => zv_p_osmrh2 
 
 ckino Dec.28.2011:              spot2%zv_p_osmpot => zv_p_osmpt2 
 
@@ -369,7 +375,8 @@ C     call shstru('site',w(osite2),1,nbask(2))
          call info0(1,1,0,' Second Density:')
          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
          call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
-     .        slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .        slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+     .        slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
 
@@ -463,7 +470,8 @@ c     kino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , 
 
             call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
             call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
-     .           slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+     .           slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -548,8 +556,10 @@ c     kino Dec.26.2011:       .          , sspec1 , sv_p_oorhat , ssite1 , sspec
                if (have2s) then
 c     ki               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
                   call prsed1 (nbas,nbas,nspec, im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
-     .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , zv_p_osmrh2 
-     .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , zv_p_osmrh2 , 
+ckino Dec.28.2011:       .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , zv_p_osmrh2 
+     .                 , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , spot2%zv_p_osmrho 
+ckino Dec.28.2011:       .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , zv_p_osmrh2 , 
+     .                 , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , spot2%zv_p_osmrho , 
      .                 ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
 
@@ -607,7 +617,8 @@ c     kino Dec.26.2011:       .          sspec1 , sv_p_oorhat , slat , zv_p_osmr
             elseif (outs(j1:j2) .eq. '2') then
                if (have2s) then
                   call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
-     .                 sspec2 , orh2_iv , slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .                 sspec2 , orh2_iv , slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+     .                 sspec2 , orh2_iv , slat2 , spot2%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
                else
@@ -726,7 +737,8 @@ c     ki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , s
          call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
 c     kino Dec.26.2011:       .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
      .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
-     .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
+ckino Dec.28.2011:       .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
+     .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot2%zv_p_osmrho , ngabc2 
      .        ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 
 
