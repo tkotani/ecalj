@@ -1,0 +1,6 @@
+script="tmp/fix_rv_p_osymgr.awk"
+for n in fp/chimedit.F fp/lmfp.F fp/mshvmt.F fp/sugw.F fp/supot.F \
+fp/symrho.F fp/totfrc.F subs/m_struc_def.F subs/mkqp.F subs/mksym.F \
+subs/rdsigm2.F subs/suham.F
+
+do gawk -f $script $n >x;mv x $n; done

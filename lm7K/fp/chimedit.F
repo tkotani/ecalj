@@ -290,7 +290,8 @@ C ... Number of k-points
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
 ckino Dec.8.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+ckino Dec.28.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
      .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 ) 
 
 

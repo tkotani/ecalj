@@ -74,7 +74,8 @@ ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
       if (rsm .lt. rwald) then
 ckino Dec.9.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
-         call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv , 
+ckino Dec.28.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv , 
+         call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_a_oqlv , 
      .   nkq , vol , hsm , hsmp ) 
 
 ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
@@ -84,7 +85,8 @@ ckino 12月.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , a
 
       else
 ckino Dec.9.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 
-         call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq 
+ckino Dec.28.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq 
+         call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_a_oqlv , nkq 
      .   , vol , hsm , hsmp ) 
 
       endif

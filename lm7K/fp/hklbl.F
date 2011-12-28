@@ -96,7 +96,8 @@ c      print *,'hklbl:bbb'
 ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , rv_p_odlv 
 ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv 
 ckino 12月.27.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv 
-     .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv 
+ckino Dec.28.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv 
+     .  , nlm , wk , yl , awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv 
      .  , nkd , vol , hsm , hsmp ) 
 
 

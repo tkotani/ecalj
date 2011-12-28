@@ -399,7 +399,8 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 C   ... Create file SYMOPS
 ckino Dec.14.2011:           call wsymops ( rv_p_og , nsgrp ) 
-         call wsymops ( slat%rv_p_osymgr , nsgrp ) 
+ckino Dec.28.2011:           call wsymops ( slat%rv_p_osymgr , nsgrp ) 
+         call wsymops ( slat%rv_a_osymgr , nsgrp ) 
 
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))

@@ -73,7 +73,8 @@ C ... If the smoothing radius is larger than the Ewald parameter,
 C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
 ckino Dec.9.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
-         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_oqlv 
+ckino Dec.28.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_oqlv 
+         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_oqlv 
      .   , nkq , vol , gkl ) 
 
       else

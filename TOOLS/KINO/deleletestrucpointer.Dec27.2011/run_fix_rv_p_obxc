@@ -1,0 +1,4 @@
+script="tmp/fix_rv_p_obxc.awk"
+for n in subs/m_struc_def.F lmv7util.F
+
+do gawk -f $script $n >x;mv x $n; done

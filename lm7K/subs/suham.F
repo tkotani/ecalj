@@ -137,7 +137,8 @@ c ... reverse maping of offset-index for hamiltonian
 C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
 ckino Dec.14.2011:         call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
-       call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
+ckino Dec.28.2011:         call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
+       call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 ) 
 
 ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
 ckino 12月.27.2011:         call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 

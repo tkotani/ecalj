@@ -103,7 +103,8 @@ ckino 12月.27.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald 
 ckino Dec.8.2011:       .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
 ckino Dec.8.2011:       .      , nkd , slat%rv_p_oqlv , nkq , rv_p_omad ) 
 ckino 12月.27.2011:       .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_p_omad ) 
-     .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_a_omad ) 
+ckino Dec.28.2011:       .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_a_omad ) 
+     .      , nkd , slat%rv_a_oqlv , nkq , spot%rv_a_omad ) 
 
 
 
@@ -218,7 +219,8 @@ ckino Dec.8.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , n
 ckino Dec.13.2011:               call sgvsym ( ngrp , rv_p_og , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
 ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_p_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
 ckino 12月.27.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_p_ogv , slat%iv_p_oips0 
-             call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
+ckino Dec.28.2011:               call sgvsym ( ngrp , slat%rv_p_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
+             call sgvsym ( ngrp , slat%rv_a_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_p_oips0 
 ckino Dec.8.2011:       .       , zv_p_obgv ) 
 ckino 12月.27.2011:       .       , slat%zv_p_obgv ) 
      .       , slat%zv_a_obgv ) 

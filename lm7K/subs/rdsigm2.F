@@ -355,7 +355,8 @@ ckino Dec.22.2011:       .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge ,
 ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 ckino 12月.27.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
-     .    nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
+ckino Dec.28.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
+     .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
 cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.22.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
@@ -426,7 +427,8 @@ ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig
       call info2(20,0,0,
      .' Irr. qp for which sigma is calculated ...',0,0)
 ckino Dec.22.2011:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+ckino Dec.28.2011:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
      .  , 0 ) 
 
@@ -659,7 +661,8 @@ ckino Dec.22.2011:       .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , 
 ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
 ckino 12月.27.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
-     .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
+ckino Dec.28.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
+     .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
@@ -803,7 +806,8 @@ ckino 12月.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sha
      .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
 ckino Dec.22.2011:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 ckino Dec.22.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
-     .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
+ckino Dec.28.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
+     .        , slat%rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
 
 
 
@@ -953,7 +957,8 @@ C        if (lnwmsh .or. ltmp) then
                 call info0(20,1,0,
      .          ' Creating sigma for new mesh (file sigm2) ...')
 ckino Dec.22.2011:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+ckino Dec.28.2011:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
      .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
      .            , 0 ) 
 
@@ -1680,7 +1685,8 @@ ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig
       call info2(20,0,0,
      .' Irr. qp for which sigma is calculated ...',0,0)
 ckino Dec.22.2011:         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+ckino Dec.28.2011:         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
      . , nsgrps , ipq_iv , qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 
      . 0 ) 
 

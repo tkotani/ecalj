@@ -146,9 +146,11 @@ ckino 12月.27.2011:         if (3*ngmx<0) slat%rv_p_oag(:)=0.0d0
        if (3*ngmx<0) slat%rv_a_oag(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(rv_p_osymgr(abs(9*ngmx)))
-       allocate(slat%rv_p_osymgr(abs(9*ngmx)))
+ckino Dec.28.2011:         allocate(slat%rv_p_osymgr(abs(9*ngmx)))
+       allocate(slat%rv_a_osymgr(abs(9*ngmx)))
 ckino Dec.14.2011:         if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
-       if (9*ngmx<0) slat%rv_p_osymgr(:)=0.0d0
+ckino Dec.28.2011:         if (9*ngmx<0) slat%rv_p_osymgr(:)=0.0d0
+       if (9*ngmx<0) slat%rv_a_osymgr(:)=0.0d0
 
 ckino Dec.16.2011:         allocate(iv_p_oipc(abs(nsite)))
        allocate(sarray%iv_p_oipc(abs(nsite)))
@@ -239,7 +241,8 @@ ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 )
 ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
 ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
 ckino 12月.27.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_p_oag , ngen , gen , ssymgr 
-     .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
+ckino Dec.28.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
+     .   , nrspc_iv , nsgrp , slat%rv_a_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
 ckino Dec.14.2011:       .   , nggen , isym , iv_p_oistab ) 
      .   , nggen , isym , slat%iv_p_oistab ) 
 
@@ -294,7 +297,8 @@ C --- Add inversion to point group ---
         gen(9,ngen) = -1
         call pshpr(iprint()-40)
 ckino Dec.14.2011:           call grpgen ( gen ( 1 , ngen ) , 1 , rv_p_osymgr , npgrp , ngmx 
-         call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_p_osymgr , npgrp , ngmx 
+ckino Dec.28.2011:           call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_p_osymgr , npgrp , ngmx 
+         call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_a_osymgr , npgrp , ngmx 
      .   ) 
 
         call poppr
@@ -413,7 +417,8 @@ C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 ckino Dec.8.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
 ckino Dec.14.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , rv_p_osymgr 
-           call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_p_osymgr 
+ckino Dec.28.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_p_osymgr 
+           call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_a_osymgr 
 ckino Dec.14.2011:       .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino Dec.14.2011:       .     , slat%rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino 12月.27.2011:       .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 
@@ -437,7 +442,8 @@ C   ... For each i*grpop fix translation ag to be that of grpop
 ckino Dec.14.2011:             if ( aginv ( rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
 ckino Dec.14.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
 ckino 12月.27.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_p_oag , 
-           if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
+ckino Dec.28.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
+           if ( aginv ( slat%rv_a_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
 ckino Dec.14.2011:       .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
      .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
 

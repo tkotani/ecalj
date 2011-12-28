@@ -88,7 +88,8 @@ CSFCPP#if F90
 ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
 ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
 ckino 12月.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
-     .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
+ckino Dec.28.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
+     .  awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
      .  ) 
 
 

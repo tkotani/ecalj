@@ -638,7 +638,8 @@ C     initialize density matrix for LDA+U
          call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab , dmatu , vorbdmat ) 
-     .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
       endif
 C     end LDA+U  initialization section
 
@@ -881,7 +882,8 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
      .        , 0 , dmatu , dmato, vorbdmat, tolu , umix 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
 c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab ) 
-     .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab ) 
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab ) 
 
 
 
@@ -1096,7 +1098,8 @@ C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
      .              .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
 c     kino Dec.8.2011:                  call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og 
 ckino Dec.16.2011:                 call fixpos ( rv_p_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
-               call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
+ckino Dec.28.2011:                 call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
+               call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_a_osymgr 
 c     kino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab ) 
 c     kino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab ) 
 ckino 12月.27.2011:       .              , slat%rv_p_oag , slat%iv_p_oistab ) 

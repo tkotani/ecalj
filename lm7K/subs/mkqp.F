@@ -249,7 +249,8 @@ ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osy
 ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
+ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.27.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 
@@ -309,7 +310,8 @@ ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osy
 ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
+ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
+     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
 ckino Dec.27.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc ) 
