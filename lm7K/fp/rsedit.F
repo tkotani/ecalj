@@ -95,11 +95,11 @@ c     kino Dec.26.2011:             type(s_rv1),pointer :: sv_p_oorhat(:) =>NULL
 
 ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmrh2(:) =>NULL()
 
-      complex(8),pointer :: zv_p_osmrho(:) =>NULL()
+ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmrho(:) =>NULL()
 
 ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmpt2(:) =>NULL()
 
-      complex(8),pointer :: zv_p_osmpot(:) =>NULL()
+ckino Dec.28.2011:        complex(8),pointer :: zv_p_osmpot(:) =>NULL()
 
       integer ,allocatable :: orh2_iv(:)
       real(8) ,allocatable :: qmom_rv(:)
@@ -163,9 +163,9 @@ c     call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
 
 C     Get pointers for density
 
-      zv_p_osmrho => spot%zv_p_osmrho 
+ckino Dec.28.2011:        zv_p_osmrho => spot%zv_p_osmrho 
 
-      zv_p_osmpot => spot%zv_p_osmpot 
+ckino Dec.28.2011:        zv_p_osmpot => spot%zv_p_osmpot 
 
 c     kino Dec.26.2011:         sv_p_oorhat => spot%sv_p_oorhat 
 
@@ -434,7 +434,8 @@ C     call shstru('site',w(osite2),1,nbask(2))
          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 c     kino Dec.26.2011:            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
-     .        , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .        , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .        , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
 
@@ -459,7 +460,8 @@ C     call upack1('lat nabc',slat,ngabc)
             call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 c     kino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
             call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
-     .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -538,8 +540,10 @@ c     ki                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ss
                   call prsed1 (nbas,nbas, nspec
      .                 ,  im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
 c     kino Dec.26.2011:       .          , sspec1 , sv_p_oorhat , ssite1 , sspec1 , sv_p_oorhat , zv_p_osmrho 
-     .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , zv_p_osmrho 
-     .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
+ckino Dec.28.2011:       .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , zv_p_osmrho 
+     .                 , sspec1 , spot%sv_p_oorhat , ssite1 , sspec1 , spot%sv_p_oorhat , spot%zv_p_osmrho 
+ckino Dec.28.2011:       .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
+     .                 , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot%zv_p_osmrho , ngabc 
      .                 ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
 
 
@@ -607,7 +611,8 @@ C     Carry out operation on 1st or second density
                if (havers) then
                   call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
 c     kino Dec.26.2011:       .          sspec1 , sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
-     .                 sspec1 , spot%sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .                 sspec1 , spot%sv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .                 sspec1 , spot%sv_p_oorhat , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
                else
@@ -736,7 +741,8 @@ C     call upack1('lat nabc',w(oslat2),ngabc2)
 c     ki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
          call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
 c     kino Dec.26.2011:       .     , sspec1 , sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
-     .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+ckino Dec.28.2011:       .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+     .        , sspec1 , spot%sv_p_oorhat , ssite2 , sspec2 , orh2_iv , spot%zv_p_osmrho 
 ckino Dec.28.2011:       .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
      .        , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , spot2%zv_p_osmrho , ngabc2 
      .        ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
@@ -754,7 +760,8 @@ C     call upack1('lat nabc',slat,ngabc)
             call info0(1,1,0,' New density from rs file:')
 c     kino Dec.26.2011:              call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , sv_p_oorhat 
             call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , spot%sv_p_oorhat 
-     .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+ckino Dec.28.2011:       .           , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+     .           , slat , spot%zv_p_osmrho , k1 , k2 , k3 ) 
 
 
          endif
@@ -971,17 +978,17 @@ c     ki      type(s_spec)::spec2(*)
 C     ... Local parameters
       integer il,ib,jb,is,js,lmxa,lmxl,lmxa2,lmxl2,nr1,nr2,nrmx
       integer nglob,stdo,ipr,nlml1,nlml2,isync,im,n0
-      real(8),pointer :: rv_p_orhoc2(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_orhoc2(:) =>NULL()
 
-      real(8),pointer :: rv_p_orhoc1(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_orhoc1(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov01(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov01(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov11(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov11(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov02(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov02(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov12(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov12(:) =>NULL()
 
       integer ,allocatable:: flgspc(:)
       parameter (nrmx=1501,n0=10)
@@ -1067,18 +1074,18 @@ C     hangenglob      stdo = nglob('stdo')
          is=site1(ib)%spec
          i_copy_size=size(site1(ib)%pnu)
          call dcopy(i_copy_size,site1(ib)%pnu,1,pnu,1)
-         rv_p_ov01 => site1(ib)%rv_p_ov0 
+ckino Dec.28.2011:           rv_p_ov01 => site1(ib)%rv_p_ov0 
 
-         rv_p_ov11 => site1(ib)%rv_p_ov1 
+ckino Dec.28.2011:           rv_p_ov11 => site1(ib)%rv_p_ov1 
 
 
 
          js=site2(jb)%spec
          i_copy_size=size(site2(jb)%pnu)
          call dcopy(i_copy_size,site2(jb)%pnu,1,pnu2,1)
-         rv_p_ov02 => site2(jb)%rv_p_ov0 
+ckino Dec.28.2011:           rv_p_ov02 => site2(jb)%rv_p_ov0 
 
-         rv_p_ov12 => site2(jb)%rv_p_ov1 
+ckino Dec.28.2011:           rv_p_ov12 => site2(jb)%rv_p_ov1 
 
 
 
@@ -1161,12 +1168,16 @@ C     Smooth local density and site core density: modified if im>=4
 C     Potentials v0,v1: modified if 2's bit im set
          if (mod(im,4) .ge. 2) then
             if (isync .lt. 2) then
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov01 
-     .              , rv_p_ov02 ) 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov01 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov0 
+ckino Dec.28.2011:       .              , rv_p_ov02 ) 
+     .              , site2(jb)%rv_p_ov0 ) 
 
 
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov11 
-     .              , rv_p_ov12 ) 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov11 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , site1(ib)%rv_p_ov1 
+ckino Dec.28.2011:       .              , rv_p_ov12 ) 
+     .              , site2(jb)%rv_p_ov1 ) 
 
 
             else
@@ -1189,16 +1200,18 @@ C     Pnu modified if 1's bit im set
 C     Species core density modified if im ge 4
          if (im .ge. 4 .and. flgspc(is) .eq. 0) then
 
-            rv_p_orhoc1 => spec1(is)%rv_p_orhoc 
+ckino Dec.28.2011:              rv_p_orhoc1 => spec1(is)%rv_p_orhoc 
 
 
 
-            rv_p_orhoc2 => spec2(js)%rv_p_orhoc 
+ckino Dec.28.2011:              rv_p_orhoc2 => spec2(js)%rv_p_orhoc 
 
 
             if (isync .lt. 2) then
-               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_orhoc1 
-     .              , rv_p_orhoc2 ) 
+ckino Dec.28.2011:                 call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_orhoc1 
+               call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , spec1(is)%rv_p_orhoc 
+ckino Dec.28.2011:       .              , rv_p_orhoc2 ) 
+     .              , spec2(js)%rv_p_orhoc ) 
 
 
             else
@@ -1473,9 +1486,9 @@ C     ... Local parameters
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
 c     kino Dec.26.2011:           real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov1(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov1(:) =>NULL()
 
-      real(8),pointer :: rv_p_ov0(:) =>NULL()
+ckino Dec.28.2011:        real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       character spid*8
 C     ... Heap
@@ -1517,9 +1530,9 @@ C     .  5x,'mtrue',5x,'q2        m2')
          is=ssite(ib)%spec
          i_copy_size=size(ssite(ib)%pnu)
          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.28.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
 
-         rv_p_ov1 => ssite(ib)%rv_p_ov1 
+ckino Dec.28.2011:           rv_p_ov1 => ssite(ib)%rv_p_ov1 
 
 
 C     call upack2('site pz',ssite,ib,pnz)
@@ -1577,24 +1590,30 @@ C     Restore rho-up,rho-down from rho, up-down
 C     Potentials v0,v1: modified if 2's bit im set
          if (mod(im,4) .ge. 2) then
 C     call prmx('v0',w(ov0),nr,nr,2)
-            call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
      .           ) 
 
 
-            call prsed5 ( mode0 , rv_p_ov0 , nr , 1 , nsp ) 
+ckino Dec.28.2011:              call prsed5 ( mode0 , rv_p_ov0 , nr , 1 , nsp ) 
+            call prsed5 ( mode0 , ssite(ib)%rv_p_ov0 , nr , 1 , nsp ) 
 
-            call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov0 , iwdummy , iwdummy 
      .           ) 
 
 
 C     call prmx('v0',w(ov0),nr,nr,2)
-            call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+            call splrho ( 30 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
      .           ) 
 
 
-            call prsed5 ( mode0 , rv_p_ov1 , nr , 1 , nsp ) 
+ckino Dec.28.2011:              call prsed5 ( mode0 , rv_p_ov1 , nr , 1 , nsp ) 
+            call prsed5 ( mode0 , ssite(ib)%rv_p_ov1 , nr , 1 , nsp ) 
 
-            call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+ckino Dec.28.2011:              call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , iwdummy , iwdummy 
+            call splrho ( 31 , nsp , nr , 1 , ssite(ib)%rv_p_ov1 , iwdummy , iwdummy 
      .           ) 
 
 
