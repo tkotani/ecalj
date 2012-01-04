@@ -184,11 +184,11 @@ C ... Local parameters
                  integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      .           nr , ncore , stdo , igetss 
-                 real(8),pointer :: rv_p_oqpp(:) =>NULL()
+ckino Jan.04.2012:                   real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-                real(8),pointer :: rv_p_oqhp(:) =>NULL()
+ckino Jan.04.2012:                  real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-               real(8),pointer :: rv_p_oqhh(:) =>NULL()
+ckino Jan.04.2012:                 real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
 ckino Dec.13.2011:                real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
@@ -343,9 +343,12 @@ ckino Dec.13.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1
         call radwgt ( rmt , a , nr , rwgt_rv )
 
         if (lrout .ne. 0) then
-          rv_p_oqhh => sv_p_oqkkl(3,ib)%v
-          rv_p_oqhp => sv_p_oqkkl(2,ib)%v
-          rv_p_oqpp => sv_p_oqkkl(1,ib)%v
+ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
+#define OQHH sv_p_oqkkl(3,ib)%v
+ckino Jan.04.2012:            rv_p_oqhp => sv_p_oqkkl(2,ib)%v
+#define OQHP sv_p_oqkkl(2,ib)%v
+ckino Jan.04.2012:            rv_p_oqpp => sv_p_oqkkl(1,ib)%v
+#define OQPP sv_p_oqkkl(1,ib)%v
            call dpzero ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp ) 
 
            call dpzero ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp ) 
@@ -415,8 +418,11 @@ ckino Dec.28.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , sl
           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino 12月.27.2011:       .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+ckino Jan.04.2012:       .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+     .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH 
+ckino Jan.04.2012:       .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+ckino Jan.04.2012:       .     , OQHP , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+     .     , OQHP , OQPP , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .     , chp_rv , cpp_rv , dmatl_rv ) 
 
 
@@ -463,9 +469,12 @@ C   ... Site charge and eigenvalue sum decomposed by l
 
 C       Remake hbyl from energy-weighted density matrix
           if (lekkl .ne. 0) then
-            rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
-            rv_p_oqhp => sv_p_oeqkkl(2,ib)%v
-            rv_p_oqpp => sv_p_oeqkkl(1,ib)%v
+ckino Jan.04.2012:              rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
+#define OQHH sv_p_oeqkkl(3,ib)%v
+ckino Jan.04.2012:              rv_p_oqhp => sv_p_oeqkkl(2,ib)%v
+#define OQHP sv_p_oeqkkl(2,ib)%v
+ckino Jan.04.2012:              rv_p_oqpp => sv_p_oeqkkl(1,ib)%v
+#define OQPP sv_p_oeqkkl(1,ib)%v
             nlml1 = 1
             call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
      .      * 9 )
@@ -484,8 +493,11 @@ ckino Dec.28.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , 
                   call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino 12月.27.2011:       .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+ckino Jan.04.2012:       .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+     .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH 
+ckino Jan.04.2012:       .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+ckino Jan.04.2012:       .            , OQHP , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+     .            , OQHP , OQPP , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .            , chp_rv , cpp_rv , dmatl_rv ) 
 
 

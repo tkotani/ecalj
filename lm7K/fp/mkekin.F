@@ -164,29 +164,29 @@ C ... Passed parameters
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
      .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
-                   real(8),pointer :: rv_p_oppipp(:) =>NULL()
+ckino Jan.04.2012:                     real(8),pointer :: rv_p_oppipp(:) =>NULL()
 
-                  real(8),pointer :: rv_p_oppihp(:) =>NULL()
+ckino Jan.04.2012:                    real(8),pointer :: rv_p_oppihp(:) =>NULL()
 
-                 real(8),pointer :: rv_p_oppihh(:) =>NULL()
+ckino Jan.04.2012:                   real(8),pointer :: rv_p_oppihh(:) =>NULL()
 
-                real(8),pointer :: rv_p_otaupp(:) =>NULL()
+ckino Jan.04.2012:                  real(8),pointer :: rv_p_otaupp(:) =>NULL()
 
-               real(8),pointer :: rv_p_otauhp(:) =>NULL()
+ckino Jan.04.2012:                 real(8),pointer :: rv_p_otauhp(:) =>NULL()
 
-              real(8),pointer :: rv_p_otauhh(:) =>NULL()
+ckino Jan.04.2012:                real(8),pointer :: rv_p_otauhh(:) =>NULL()
 
-             real(8),pointer :: rv_p_osigpp(:) =>NULL()
+ckino Jan.04.2012:               real(8),pointer :: rv_p_osigpp(:) =>NULL()
 
-            real(8),pointer :: rv_p_osighp(:) =>NULL()
+ckino Jan.04.2012:              real(8),pointer :: rv_p_osighp(:) =>NULL()
 
-           real(8),pointer :: rv_p_osighh(:) =>NULL()
+ckino Jan.04.2012:             real(8),pointer :: rv_p_osighh(:) =>NULL()
 
-          real(8),pointer :: rv_p_oqpp(:) =>NULL()
+ckino Jan.04.2012:            real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqhp(:) =>NULL()
+ckino Jan.04.2012:           real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqhh(:) =>NULL()
+ckino Jan.04.2012:          real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
 ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
@@ -267,24 +267,49 @@ C       Block into groups of consecutive l
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
 
-        rv_p_oqhh => sv_p_oqkkl(3,ib)%v
-        rv_p_oqhp => sv_p_oqkkl(2,ib)%v
-        rv_p_oqpp => sv_p_oqkkl(1,ib)%v
-        rv_p_otauhh => sv_p_otau(3,ib)%v
-        rv_p_otauhp => sv_p_otau(2,ib)%v
-        rv_p_otaupp => sv_p_otau(1,ib)%v
-        rv_p_osighh => sv_p_osig(3,ib)%v
-        rv_p_osighp => sv_p_osig(2,ib)%v
-        rv_p_osigpp => sv_p_osig(1,ib)%v
-        rv_p_oppihh => sv_p_oppi(3,ib)%v
-        rv_p_oppihp => sv_p_oppi(2,ib)%v
-        rv_p_oppipp => sv_p_oppi(1,ib)%v
+ckino Jan.04.2012:          rv_p_oqhh => sv_p_oqkkl(3,ib)%v
+#define OQHH sv_p_oqkkl(3,ib)%v
+ckino Jan.04.2012:          rv_p_oqhp => sv_p_oqkkl(2,ib)%v
+#define OQHP sv_p_oqkkl(2,ib)%v
+ckino Jan.04.2012:          rv_p_oqpp => sv_p_oqkkl(1,ib)%v
+#define OQPP sv_p_oqkkl(1,ib)%v
+ckino Jan.04.2012:          rv_p_otauhh => sv_p_otau(3,ib)%v
+#define OTAUHH sv_p_otau(3,ib)%v
+ckino Jan.04.2012:          rv_p_otauhp => sv_p_otau(2,ib)%v
+#define OTAUHP sv_p_otau(2,ib)%v
+ckino Jan.04.2012:          rv_p_otaupp => sv_p_otau(1,ib)%v
+#define OTAUPP sv_p_otau(1,ib)%v
+ckino Jan.04.2012:          rv_p_osighh => sv_p_osig(3,ib)%v
+#define OSIGHH sv_p_osig(3,ib)%v
+ckino Jan.04.2012:          rv_p_osighp => sv_p_osig(2,ib)%v
+#define OSIGHP sv_p_osig(2,ib)%v
+ckino Jan.04.2012:          rv_p_osigpp => sv_p_osig(1,ib)%v
+#define OSIGPP sv_p_osig(1,ib)%v
+ckino Jan.04.2012:          rv_p_oppihh => sv_p_oppi(3,ib)%v
+#define OPPIHH sv_p_oppi(3,ib)%v
+ckino Jan.04.2012:          rv_p_oppihp => sv_p_oppi(2,ib)%v
+#define OPPIHP sv_p_oppi(2,ib)%v
+ckino Jan.04.2012:          rv_p_oppipp => sv_p_oppi(1,ib)%v
+#define OPPIPP sv_p_oppi(1,ib)%v
 
                     call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-     .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
-     .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
-     .              , rv_p_otaupp , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp 
-     .              , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
+ckino Jan.04.2012:       .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
+ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , rv_p_osighh , rv_p_oppihh 
+ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , rv_p_oppihh 
+     .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH 
+ckino Jan.04.2012:       .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
+ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
+ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp 
+ckino Jan.04.2012:       .              , OPPIHH , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp 
+     .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP 
+ckino Jan.04.2012:       .              , rv_p_otaupp , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp 
+ckino Jan.04.2012:       .              , OTAUPP , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp 
+ckino Jan.04.2012:       .              , OTAUPP , OSIGPP , rv_p_oppipp , rv_p_oppipp , lcplxp 
+     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP , lcplxp 
+ckino Jan.04.2012:       .              , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
+ckino Jan.04.2012:       .              , lso , OQHH , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
+ckino Jan.04.2012:       .              , lso , OQHH , OQHP , rv_p_oqpp , nsp , nspc , sumt 
+     .              , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt 
      .              , sumq , sumh ) 
 
 

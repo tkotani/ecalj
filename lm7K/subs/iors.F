@@ -1003,7 +1003,8 @@ C           endif
 #endif
 
             if (mode .eq. -2) then
-               if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
+ckino Jan.4.2012               if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
+               if (allocated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
 
 ckino 12月.14.2011:                 if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
 ckino Dec.28.2011:                 if (associated(ssite(ib)%rv_p_ov0)) deallocate(ssite(ib)%rv_p_ov0)

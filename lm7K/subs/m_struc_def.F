@@ -11,7 +11,8 @@ C Kino April2009.
       end type
 
       type s_rv1
-        real(8),pointer:: v(:) =>NULL()
+ckino Jan.4.2012        real(8),pointer:: v(:) =>NULL()
+        real(8),allocatable:: v(:)
       end type s_rv1
 
 Cr --- explanation of  ubz ---

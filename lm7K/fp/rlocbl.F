@@ -347,25 +347,25 @@ C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
                 integer:: ob , odb 
-                real(8),pointer :: rv_p_oppihp(:) =>NULL()
+ckino Jan.04.2012:                  real(8),pointer :: rv_p_oppihp(:) =>NULL()
 
-               real(8),pointer :: rv_p_oppipp(:) =>NULL()
+ckino Jan.04.2012:                 real(8),pointer :: rv_p_oppipp(:) =>NULL()
 
-              real(8),pointer :: rv_p_osighp(:) =>NULL()
+ckino Jan.04.2012:                real(8),pointer :: rv_p_osighp(:) =>NULL()
 
-             real(8),pointer :: rv_p_osigpp(:) =>NULL()
+ckino Jan.04.2012:               real(8),pointer :: rv_p_osigpp(:) =>NULL()
 
-            real(8),pointer :: rv_p_oeqhh(:) =>NULL()
+ckino Jan.04.2012:              real(8),pointer :: rv_p_oeqhh(:) =>NULL()
 
-           real(8),pointer :: rv_p_oeqhp(:) =>NULL()
+ckino Jan.04.2012:             real(8),pointer :: rv_p_oeqhp(:) =>NULL()
 
-          real(8),pointer :: rv_p_oeqpp(:) =>NULL()
+ckino Jan.04.2012:            real(8),pointer :: rv_p_oeqpp(:) =>NULL()
 
-         real(8),pointer :: rv_p_oqhh(:) =>NULL()
+ckino Jan.04.2012:           real(8),pointer :: rv_p_oqhh(:) =>NULL()
 
-        real(8),pointer :: rv_p_oqhp(:) =>NULL()
+ckino Jan.04.2012:          real(8),pointer :: rv_p_oqhp(:) =>NULL()
 
-       real(8),pointer :: rv_p_oqpp(:) =>NULL()
+ckino Jan.04.2012:         real(8),pointer :: rv_p_oqpp(:) =>NULL()
 
       double precision pa(3),rsma,pi,tpiba
 CSFCPP#if F90
@@ -522,16 +522,26 @@ c        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
         nlma  = (lmxa+1)**2
         if (lmxa .eq. -1) goto 10
 
-        rv_p_oqpp => sv_p_oqkkl(1,ia)%v
-        rv_p_oqhp => sv_p_oqkkl(2,ia)%v
-        rv_p_oqhh => sv_p_oqkkl(3,ia)%v
-        rv_p_oeqpp => sv_p_oeqkkl(1,ia)%v
-        rv_p_oeqhp => sv_p_oeqkkl(2,ia)%v
-        rv_p_oeqhh => sv_p_oeqkkl(3,ia)%v
-        rv_p_oppipp => sv_p_oppi(1,ia)%v
-        rv_p_osigpp => sv_p_osig(1,ia)%v
-        rv_p_oppihp => sv_p_oppi(2,ia)%v
-        rv_p_osighp => sv_p_osig(2,ia)%v
+ckino Jan.04.2012:          rv_p_oqpp => sv_p_oqkkl(1,ia)%v
+#define OQPP sv_p_oqkkl(1,ia)%v
+ckino Jan.04.2012:          rv_p_oqhp => sv_p_oqkkl(2,ia)%v
+#define OQHP sv_p_oqkkl(2,ia)%v
+ckino Jan.04.2012:          rv_p_oqhh => sv_p_oqkkl(3,ia)%v
+#define OQHH sv_p_oqkkl(3,ia)%v
+ckino Jan.04.2012:          rv_p_oeqpp => sv_p_oeqkkl(1,ia)%v
+#define OEQPP sv_p_oeqkkl(1,ia)%v
+ckino Jan.04.2012:          rv_p_oeqhp => sv_p_oeqkkl(2,ia)%v
+#define OEQHP sv_p_oeqkkl(2,ia)%v
+ckino Jan.04.2012:          rv_p_oeqhh => sv_p_oeqkkl(3,ia)%v
+#define OEQHH sv_p_oeqkkl(3,ia)%v
+ckino Jan.04.2012:          rv_p_oppipp => sv_p_oppi(1,ia)%v
+#define OPPIPP sv_p_oppi(1,ia)%v
+ckino Jan.04.2012:          rv_p_osigpp => sv_p_osig(1,ia)%v
+#define OSIGPP sv_p_osig(1,ia)%v
+ckino Jan.04.2012:          rv_p_oppihp => sv_p_oppi(2,ia)%v
+#define OPPIHP sv_p_oppi(2,ia)%v
+ckino Jan.04.2012:          rv_p_osighp => sv_p_osig(2,ia)%v
+#define OSIGHP sv_p_osig(2,ia)%v
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
 c        ob = oib(ip)
@@ -621,31 +631,40 @@ C          endif
 C     ... Add to local density coefficients for one state
 #ifdef USEOPTIONAL
               call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
-     .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= rv_p_oqpp ) 
+ckino Jan.04.2012:       .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= rv_p_oqpp ) 
+     .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= OQPP ) 
 
               call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
      .         nlmha=nlmha , kmax=kmax , nlma=nlma , 
      .         isp=ksp , cpkl=cpkl , nlmto=nlmto , 
      .         evec=evec ( 1 , ispc , ivec ) , ewgt=ewgt ( 1 , ivec ) , 
-     .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp ) 
+ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp ) 
+ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=OQHP ) 
+     .         numq=numq  , qhh=OQHH , qhp=OQHP ) 
 #else
               call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
-     .        , ivec ) , iwdummy , rv_p_oqpp ) 
+ckino Jan.04.2012:       .        , ivec ) , iwdummy , rv_p_oqpp ) 
+     .        , ivec ) , iwdummy , OQPP ) 
 
                call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-     .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
+ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
+ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , OQHP ) 
+     .         ) , numq , iwdummy , OQHH , OQHP ) 
 #endif
 
 
 
             if (lekkl .eq. 1) then
                call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
-     .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
+ckino Jan.04.2012:       .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
+     .         , ivec ) , evl ( ivec , isp ) , OEQPP ) 
 
                 call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-     .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp ) 
+ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp ) 
+ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , OEQHP ) 
+     .          ) , numq , evl ( ivec , isp ) , OEQHH , OEQHP ) 
 
 
             endif
@@ -668,8 +687,13 @@ C     ... Contribution to forces
                   call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
      .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
-     .            , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , rv_p_oppihp 
-     .            , rv_p_oppihp , rv_p_osighp , lcplxp , w_oxf ) 
+ckino Jan.04.2012:       .            , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , rv_p_oppihp 
+ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , rv_p_osigpp , rv_p_oppihp 
+ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , OSIGPP , rv_p_oppihp 
+     .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP 
+ckino Jan.04.2012:       .            , rv_p_oppihp , rv_p_osighp , lcplxp , w_oxf ) 
+ckino Jan.04.2012:       .            , OPPIHP , rv_p_osighp , lcplxp , w_oxf ) 
+     .            , OPPIHP , OSIGHP , lcplxp , w_oxf ) 
 
 
 

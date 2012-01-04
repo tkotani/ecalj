@@ -165,12 +165,14 @@ ckino Dec.28.2011:          sspec(is)%rv_p_orhoc=0.0d0
             ccof=0
             ceh=0
             stc=0
-             if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+ckino Jan.4.2012             if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+             if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
 
 cki            call rlse(orhoca(is))
 ckino Dec.28.2011:              deallocate(sspec(is)%rv_p_orhoc)
             deallocate(sspec(is)%rv_a_orhoc)
-             if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+ckino Jan.4.2012             if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+             if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
 
           else
 ckino
@@ -514,8 +516,10 @@ C --- Print charges ---
      .//' density not neutral'//', dq= %d',' ',80,stdo,dq)
 
       do is=1,nspec
-          if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
-          if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+ckino Jan.4.2012          if (associated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+          if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+ckino Jan.4.2012          if (associated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+          if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
       enddo
 
       call tcx('rdovfa')

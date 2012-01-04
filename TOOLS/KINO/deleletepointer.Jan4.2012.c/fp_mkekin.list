@@ -1,0 +1,13 @@
+        rv_p_oqhh => sv_p_oqkkl(3,ib)%v
+        rv_p_oqhp => sv_p_oqkkl(2,ib)%v
+        rv_p_oqpp => sv_p_oqkkl(1,ib)%v
+        rv_p_otauhh => sv_p_otau(3,ib)%v
+        rv_p_otauhp => sv_p_otau(2,ib)%v
+        rv_p_otaupp => sv_p_otau(1,ib)%v
+        rv_p_osighh => sv_p_osig(3,ib)%v
+        rv_p_osighp => sv_p_osig(2,ib)%v
+        rv_p_osigpp => sv_p_osig(1,ib)%v
+        rv_p_oppihh => sv_p_oppi(3,ib)%v
+        rv_p_oppihp => sv_p_oppi(2,ib)%v
+        rv_p_oppipp => sv_p_oppi(1,ib)%v
+
