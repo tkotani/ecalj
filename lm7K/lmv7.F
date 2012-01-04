@@ -69,8 +69,10 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_str):: v_sstr
       type(s_tb):: v_stb
 
-      type(s_spec),pointer:: v_sspec(:) =>NULL()
-      type(s_site),pointer:: v_ssite(:) =>NULL()
+ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
+      type(s_spec),allocatable:: v_sspec(:) 
+ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
+      type(s_site),allocatable:: v_ssite(:) 
 
       parameter (mxspec=256)
       character*8 slabl(mxspec)
@@ -374,6 +376,8 @@ c      v_sctrl%nmap=9999
 cccccccccccccccccc
 
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
+ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .v_sarry,v_smove,v_stb,sstrn)
 
@@ -393,6 +397,7 @@ cccccccccccccccccc
 C --- Lattice setup ---
       print *,'goto setcg'
       call setcg(v_slat,8,12)
+ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 
 C --- Generate symmetry operations; split species into classes  ---
@@ -408,6 +413,7 @@ Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 c this is equivalent to
 c       if ( v_sctrl%lqp==0 ) lc = lc+2 
 #endif
+ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 
       if (cmdopt('--sfill',7,0,strn)) then
@@ -415,6 +421,7 @@ c       if ( v_sctrl%lqp==0 ) lc = lc+2
       endif
 
 C ... Set default values for species data
+ckino Jan.04.2012:        call defspc(v_sspec)
       call defspc(v_sspec)
 
 C ... Patch for now ... maybe replace
@@ -437,6 +444,8 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+ckino Jan.04.2012:       .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
+ckino Jan.04.2012:       .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
      .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

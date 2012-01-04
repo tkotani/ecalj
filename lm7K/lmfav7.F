@@ -43,8 +43,10 @@ CKi     *  v_smove,v_sstr,v_stb
       type(s_str):: v_sstr
       type(s_tb):: v_stb
 
-      type(s_spec),pointer:: v_sspec(:) =>NULL()
-      type(s_site),pointer:: v_ssite(:) =>NULL()
+ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
+      type(s_spec),allocatable:: v_sspec(:) 
+ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
+      type(s_site),allocatable:: v_ssite(:) 
 
 
       parameter (mxspec=256)
@@ -227,6 +229,8 @@ C      call rx('done')
 
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
+ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *v_sarry,v_smove,v_stb,sstrn)
 
@@ -242,6 +246,7 @@ C --- Lattice setup ---
 
 ctakao will add |1)
       call setcg(v_slat,8,12)
+ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 
 
@@ -259,6 +264,7 @@ Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 
 ctakao will add |1)
       print *,'goto mksym'
+ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       print *,'end of mksym x'
 
@@ -287,6 +293,7 @@ C$$$      endif
 
 C ... Set default values for species data
       print *,'goto defspc'
+ckino Jan.04.2012:        call defspc(v_sspec)
       call defspc(v_sspec)
       print *,'end of defspc'
 
@@ -301,6 +308,7 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
         call rx0(prgnam)
       endif
       print *,'goto freeat'
+ckino Jan.04.2012:        call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
 Cgetarg       end

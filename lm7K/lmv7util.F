@@ -40,8 +40,10 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_str):: v_sstr
       type(s_tb):: v_stb
 
-      type(s_spec),pointer:: v_sspec(:) =>NULL()
-      type(s_site),pointer:: v_ssite(:) =>NULL()
+ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
+      type(s_spec),allocatable:: v_sspec(:) 
+ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
+      type(s_site),allocatable:: v_ssite(:) 
 
       parameter (mxspec=256)
       character*8 slabl(mxspec)
@@ -208,6 +210,8 @@ c      v_sctrl%nmap=9999
 cccccccccccccccccc
 
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
+ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .v_sarry,v_smove,v_stb,sstrn)
 
@@ -218,6 +222,7 @@ cccccccccccccccccc
 
 C --- Lattice setup ---
       call setcg(v_slat,8,12)
+ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 
 C --- Generate symmetry operations; split species into classes  ---
@@ -231,20 +236,25 @@ Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 c this is equivalent to
       if ( v_sctrl%lqp==0 ) lc = lc+2 
 c#endif
+ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 c nmap is not zero cleared ---> takao think it is zero for all cases here.
 
 C --- Allocate permanent class arrays, maps and other initialization ---
+ckino Jan.04.2012:        call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
       call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
      .v_slat,v_sbz,v_sstr,sstrn)
 
 C --- Read available class parameters from file ---
 #if LMCHK
       call aiocls(.false.,0,v_sarry,v_sctrl,v_sham,v_spot,
+ckino Jan.04.2012:       .v_sspec,v_slat,1,0)
      .v_sspec,v_slat,1,0)
       call aiocls(.false.,17,v_sarry,v_sctrl,v_sham,v_spot,
+ckino Jan.04.2012:       .v_sspec,v_slat,1,0)
      .v_sspec,v_slat,1,0)
       if (lc .ge. 20)
+ckino Jan.04.2012:       .call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
      .call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
      .v_slat,v_sbz,v_sstr,sstrn)
 #endif
@@ -254,6 +264,7 @@ C --- Read available class parameters from file ---
       endif
 
 C ... Set default values for species data
+ckino Jan.04.2012:        call defspc(v_sspec)
       call defspc(v_sspec)
 
 C ... quit after SHOW
@@ -266,6 +277,8 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 
 #if LMCHK & FP
       if (cmdopt('--fp',4,0,strn)) then
+ckino Jan.04.2012:          call fpchk(v_sspec,v_ssite)
+ckino Jan.04.2012:          call fpchk(v_sspec,v_ssite)
         call fpchk(v_sspec,v_ssite)
         call cexit(0,1)
       endif
@@ -273,12 +286,16 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 
 #if LMCHK
 c      if (cmdopt('--findes',8,0,strn)) auxmod = 128
+ckino Jan.04.2012:        call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
       call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
+ckino Jan.04.2012:       .v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,0) !wksize)
      .v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,0) !wksize)
 #endif
 
 #if LMDOS
       call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat,
+ckino Jan.04.2012:       .v_sspec,v_ssite,v_sarry)
+ckino Jan.04.2012:       .v_sspec,v_ssite,v_sarry)
      .v_sspec,v_ssite,v_sarry)
 #endif
 

@@ -2,6 +2,8 @@
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
      .prgnam,vrsion,vn,vn2,
+ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
+ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      .v_sstr,v_sarry,v_smove,v_stb,sstrn)
       use m_rdctrl
@@ -154,8 +156,10 @@ Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_tb):: v_stb
-      type(s_spec),pointer:: v_sspec(:) 
-      type(s_site),pointer:: v_ssite(:)
+ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) 
+      type(s_spec),allocatable:: v_sspec(:) 
+ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:)
+      type(s_site),allocatable:: v_ssite(:)
 
       integer:: i_spec
 
@@ -987,7 +991,9 @@ Cki      call defrr(v_sspec,1000)
 Cki      call uspec(v_sspec,-1,0,1,0,0,0)
 Cki      call redfrr(v_sspec,nspec*nint(dval(v_sspec,1)))
 Cki      call uspec(v_sspec,-1,-000,nspec,0,0,0)
+ckino Jan.04.2012:        allocate(v_sspec(nspec))
       allocate(v_sspec(nspec))
+ckino Jan.04.2012:        do i=1,nspec; v_sspec(i)%size=uspec_size(); enddo
       do i=1,nspec; v_sspec(i)%size=uspec_size(); enddo
 
 C ... old defaults
@@ -1015,26 +1021,31 @@ C        call spacks(1,'spec coreh',v_sspec,'        ',j,j)
 C      enddo
       i_copy_size=1;
       do i_spackv=1,nspec
+ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
         call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
       enddo
 
       i_copy_size=1;
       do i_spackv=1,nspec
+ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
         call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
       enddo
 
       i_copy_size=1;
       do i_spackv=1,nspec
+ckino Jan.04.2012:          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
         call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
       enddo
 
       i_copy_size=1;
       do i_spackv=1,nspec
+ckino Jan.04.2012:          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
         call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
       enddo
 
       i_copy_size=1;
       do i_spackv=1,nspec
+ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
         call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
       enddo
 
@@ -1042,70 +1053,108 @@ C      enddo
       do  j = 1, nspec
         slabl_(j) = slabl(j)
         do i_spacks=j,j
+ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
           call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
         enddo
 
         do i_spacks=j,j
+ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
           call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
         enddo
 
         do i_spacks=j,j
+ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
           call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
         enddo
 
         do i_spacks=j,j
+ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
           call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
         enddo
 
 
+ckino Jan.04.2012:          v_sspec(j)%a=spec_a(j)
         v_sspec(j)%a=spec_a(j)
+ckino Jan.04.2012:          v_sspec(j)%nr=nr(j)
         v_sspec(j)%nr=nr(j)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%alpha)
         i_copy_size=size(v_sspec(j)%alpha)
+ckino Jan.04.2012:          call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
         call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%coreq)
         i_copy_size=size(v_sspec(j)%coreq)
+ckino Jan.04.2012:          call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
         call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
 
 
+ckino Jan.04.2012:          v_sspec(j)%lxi=lxi(j)
         v_sspec(j)%lxi=lxi(j)
+ckino Jan.04.2012:          v_sspec(j)%nxi=nxi(j)
         v_sspec(j)%nxi=nxi(j)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%exi)
         i_copy_size=size(v_sspec(j)%exi)
+ckino Jan.04.2012:          call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
         call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
 
 
+ckino Jan.04.2012:          v_sspec(j)%group=grp(j)
         v_sspec(j)%group=grp(j)
+ckino Jan.04.2012:          v_sspec(j)%grp2=grp2(j)
         v_sspec(j)%grp2=grp2(j)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%hcr)
         i_copy_size=size(v_sspec(j)%hcr)
+ckino Jan.04.2012:          call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
         call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idmod)
         i_copy_size=size(v_sspec(j)%idmod)
+ckino Jan.04.2012:          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
         call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
 
 
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%ehvl)
         i_copy_size=size(v_sspec(j)%ehvl)
+ckino Jan.04.2012:          call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
         call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
 
 C       Set idxdn
         call ivset(ix,1,n0*nkap0,1)
         call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
 
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idxdn)
         i_copy_size=size(v_sspec(j)%idxdn)
+ckino Jan.04.2012:          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
         call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idu)
         i_copy_size=size(v_sspec(j)%idu)
+ckino Jan.04.2012:          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
         call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%jh)
         i_copy_size=size(v_sspec(j)%jh)
+ckino Jan.04.2012:          call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
         call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%uh)
         i_copy_size=size(v_sspec(j)%uh)
+ckino Jan.04.2012:          call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
         call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
 
 
+ckino Jan.04.2012:          v_sspec(j)%kmxt=kmxt(j)
         v_sspec(j)%kmxt=kmxt(j)
+ckino Jan.04.2012:          v_sspec(j)%kmxv=kmxv(j)
         v_sspec(j)%kmxv=kmxv(j)
+ckino Jan.04.2012:          v_sspec(j)%lfoca=lfoca(j)
         v_sspec(j)%lfoca=lfoca(j)
+ckino Jan.04.2012:          v_sspec(j)%rsmv=rsmv(j)
         v_sspec(j)%rsmv=rsmv(j)
 
 
+ckino Jan.04.2012:          v_sspec(j)%lmxa=lmxa(j)
         v_sspec(j)%lmxa=lmxa(j)
+ckino Jan.04.2012:          v_sspec(j)%lmxb=lmxb(j)
         v_sspec(j)%lmxb=lmxb(j)
+ckino Jan.04.2012:          v_sspec(j)%lmxl=lmxl(j)
         v_sspec(j)%lmxl=lmxl(j)
+ckino Jan.04.2012:          v_sspec(j)%lmxpb=lmxpb(j)
         v_sspec(j)%lmxpb=lmxpb(j)
 
 C       pack mxcst(j)
@@ -1121,9 +1170,13 @@ C       pack orbp(j)
         call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
         call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
 
+ckino Jan.04.2012:          v_sspec(j)%mass=mass(j)
         v_sspec(j)%mass=mass(j)
+ckino Jan.04.2012:          v_sspec(j)%mxcst=i
         v_sspec(j)%mxcst=i
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%orbp)
         i_copy_size=size(v_sspec(j)%orbp)
+ckino Jan.04.2012:          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
         call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
 C       Pack P,Q,PZ for both spins
@@ -1132,31 +1185,50 @@ C       Pack P,Q,PZ for both spins
         call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
         call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
 
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%p)
         i_copy_size=size(v_sspec(j)%p)
+ckino Jan.04.2012:          call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
         call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%pz)
         i_copy_size=size(v_sspec(j)%pz)
+ckino Jan.04.2012:          call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
         call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%q)
         i_copy_size=size(v_sspec(j)%q)
+ckino Jan.04.2012:          call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
         call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
+ckino Jan.04.2012:          v_sspec(j)%z=z(j)
         v_sspec(j)%z=z(j)
 
 
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%colxbs)
         i_copy_size=size(v_sspec(j)%colxbs)
+ckino Jan.04.2012:          call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
         call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
+ckino Jan.04.2012:          v_sspec(j)%radxbs=radxbs(j)
         v_sspec(j)%radxbs=radxbs(j)
 
 c        call pack5('spec rcfa rcut rfoca rg rham',v_sspec,j,
 
+ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%rcfa)
         i_copy_size=size(v_sspec(j)%rcfa)
+ckino Jan.04.2012:          call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
         call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
+ckino Jan.04.2012:          v_sspec(j)%rcut=rcut(j)
         v_sspec(j)%rcut=rcut(j)
+ckino Jan.04.2012:          v_sspec(j)%rfoca=rfoca(j)
         v_sspec(j)%rfoca=rfoca(j)
+ckino Jan.04.2012:          v_sspec(j)%rg=rg(j)
         v_sspec(j)%rg=rg(j)
 
 
+ckino Jan.04.2012:          v_sspec(j)%rmt=rmt(j)
         v_sspec(j)%rmt=rmt(j)
+ckino Jan.04.2012:          v_sspec(j)%rs3=rs3(j)
         v_sspec(j)%rs3=rs3(j)
+ckino Jan.04.2012:          v_sspec(j)%rsma=rsma(j)
         v_sspec(j)%rsma=rsma(j)
+ckino Jan.04.2012:          v_sspec(j)%rsmfa=rsmfa(j)
         v_sspec(j)%rsmfa=rsmfa(j)
 
 C$$$        if (ltbe) then
@@ -1197,9 +1269,13 @@ C$$$            call ii8copy(i_copy_size,dvec2,1,v_sbz%lshft,1)
 C$$$          endif
 C$$$        endif
 
+ckino Jan.04.2012:          v_sspec(j)%dv=dv(j)
         v_sspec(j)%dv=dv(j)
+ckino Jan.04.2012:          v_sspec(j)%eref=eref(j)
         v_sspec(j)%eref=eref(j)
+ckino Jan.04.2012:          v_sspec(j)%rham=rham(j)
         v_sspec(j)%rham=rham(j)
+ckino Jan.04.2012:          v_sspec(j)%rint=rint(j)
         v_sspec(j)%rint=rint(j)
 
       enddo
@@ -1216,7 +1292,9 @@ CKi      call defrr(v_ssite,1000)
 CKi      call usite(v_ssite,-1,0,1,0,0,0)
 CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
 CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
+ckino Jan.04.2012:        allocate(v_ssite(nsite))
       allocate(v_ssite(nsite))
+ckino Jan.04.2012:        do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
       do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
 
 C     Old defaults
@@ -1226,29 +1304,46 @@ C     call spackv(1,'site relax',v_ssite,1,nsite,ix)
 C       Pack spec into class in case spec info is sufficient
 C       and spid into class label
 
+ckino Jan.04.2012:          v_ssite(j)%spec=ips(j)
         v_ssite(j)%spec=ips(j)
+ckino Jan.04.2012:          v_ssite(j)%class=ips(j)
         v_ssite(j)%class=ips(j)
+ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%dpole)
         i_copy_size=size(v_ssite(j)%dpole)
+ckino Jan.04.2012:          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
         call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+ckino Jan.04.2012:          v_ssite(j)%mpole=mpole(j)
         v_ssite(j)%mpole=mpole(j)
 
         do i_spacks=j,j
+ckino Jan.04.2012:            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
           call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
         enddo
 
 
+ckino Jan.04.2012:          v_ssite(j)%pl=ipl(j)
         v_ssite(j)%pl=ipl(j)
+ckino Jan.04.2012:          v_ssite(j)%plv=plv(j)
         v_ssite(j)%plv=plv(j)
+ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%pos)
         i_copy_size=size(v_ssite(j)%pos)
+ckino Jan.04.2012:          call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
         call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
+ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%vel)
         i_copy_size=size(v_ssite(j)%vel)
+ckino Jan.04.2012:          call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
         call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
 
 
+ckino Jan.04.2012:          v_ssite(j)%vshft=vshft(j)
         v_ssite(j)%vshft=vshft(j)
+ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%relax)
         i_copy_size=size(v_ssite(j)%relax)
+ckino Jan.04.2012:          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
         call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%eula)
         i_copy_size=size(v_ssite(j)%eula)
+ckino Jan.04.2012:          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
         call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
 
 C$$$        if (ltbe) then
@@ -1454,6 +1549,7 @@ C     nfp-style basis:
       if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
 
 Changenglob      call suidx(nglob('nkaph'),j,nspec,v_sspec)
+ckino Jan.04.2012:        call suidx(globalvariables%nkaph,j,nspec,v_sspec)
       call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
 C ... Set some global variables
@@ -1492,9 +1588,11 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
         nat = nbas
         do  i = 1, nbas
 
+ckino Jan.04.2012:            j=v_ssite(i)%spec
           j=v_ssite(i)%spec
 
 
+ckino Jan.04.2012:            l=v_sspec(j)%lmxa
           l=v_sspec(j)%lmxa
 
           if (l .eq. -1) nat = nat-1
@@ -1523,6 +1621,8 @@ c      call defi(owk,-nbas)
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)
+ckino Jan.04.2012:        call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
+ckino Jan.04.2012:        call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
       v_sham%nlibu=nlibu
       v_sham%lmaxu=k
@@ -1802,11 +1902,15 @@ C --- takao embed contents in susite here. This is only for lmf and lmfgw.
 c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
       seref = 0d0
       do ib = 1, nsite
+ckino Jan.04.2012:          ispec = v_ssite(ib)%spec
         ispec = v_ssite(ib)%spec
         if (ispec <= 0) cycle
 c         call spacks_copy('u',sspec(i)%name,i,i,spid,ispec)
 c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
+ckino Jan.04.2012:          v_ssite(ispec)%clabel = v_sspec(ispec)%name
+ckino Jan.04.2012:          v_ssite(ispec)%clabel = v_sspec(ispec)%name
         v_ssite(ispec)%clabel = v_sspec(ispec)%name
+ckino Jan.04.2012:          seref = seref +     v_sspec(ispec)%eref
         seref = seref +     v_sspec(ispec)%eref
       enddo
       v_sham%seref=seref
@@ -1828,12 +1932,14 @@ ckino Dec.28.2011:         if (nsite<0) v_sarry%iv_p_oips(:)=0
 
       do i_spackv=1,nsite
         i_copy_size=3
+ckino Jan.04.2012:           call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
          call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
 ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
 ckino Jan.04.2012:       .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_p_opos ) 
      .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos ) 
 
         i_copy_size=1
+ckino Jan.04.2012:           call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
          call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
 ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
 ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oips ) 
@@ -1866,6 +1972,7 @@ c       v_sham%lham=(int(v_sctrl%lham))
 C     Broadcast spec structure to fix floating orbitals case
 cki      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
        do i_spec=1,nspec
+ckino Jan.04.2012:         call mpibc1_s_spec(v_sspec(i_spec),.false.,
        call mpibc1_s_spec(v_sspec(i_spec),.false.,
      .'rdctrl','sspec')
        enddo
