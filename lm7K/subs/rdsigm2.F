@@ -403,6 +403,8 @@ ckino Dec.28.2011:           sham%rv_p_ohrs(:)=0d0
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
 ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
+ckino Jan.4.2012
+       if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
        allocate(sham%rv_p_oqsig(abs(3*mxkp)))
 ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
        if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
@@ -1688,6 +1690,8 @@ c      endif
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
 ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
+ckino Jan.4.2012
+       if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
        allocate(sham%rv_p_oqsig(abs(3*mxkp)))
 ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
        if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0

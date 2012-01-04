@@ -1215,6 +1215,8 @@ C MPIK: Setup to assemble all k-points into single list with qp table
         call suqlsm(i)
 C       Re-allocate qp and evl arrays
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
+ckino Jan.4.2012
+         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
          allocate(sbz%rv_p_oqp(abs(3*nkp)))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
          if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0

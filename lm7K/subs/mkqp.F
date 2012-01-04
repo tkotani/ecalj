@@ -131,6 +131,8 @@ C ... Read qp from disk
           ntet = 0
         endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
+ckino Jan.4.2012
+         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
          allocate(sbz%rv_p_oqp(abs(3*nkp)))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
          if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
@@ -212,6 +214,8 @@ ckino Dec.27.2011:           call dvset ( sbz%rv_p_owtkp , 1 , 1 , dble ( nsgrp 
 
 #endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*mxkp)))
+ckino Jan.4.2012
+         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
          allocate(sbz%rv_p_oqp(abs(3*mxkp)))
 ckino Dec.8.2011:           if (3*mxkp<0) rv_p_oqp(:)=0.0d0
          if (3*mxkp<0) sbz%rv_p_oqp(:)=0.0d0
@@ -291,6 +295,8 @@ ckino Dec.27.2011:           call dvset ( sbz%rv_p_owtkp , 1 , 1 , dble ( nsgrp 
 
 #endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
+ckino Jan.4.2012
+         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
          allocate(sbz%rv_p_oqp(abs(3*nkp)))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
          if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
