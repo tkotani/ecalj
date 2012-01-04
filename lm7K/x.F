@@ -23,8 +23,8 @@
      ."Linux maro005 3.0.0-14-generic #23-Ubuntu SMP Mon Nov 21 20:28:43 UTC 2011 x86_64 x86_64 x86_64 GNU/Linux"
        write(io,'(a,a,a)') info,'/etc/issue: ',"Ubuntu 11.10 \n \l"
        write(io,'(a,a,a)') info,'git branch: ',"refs/heads/kino-alloc6"
-       write(io,'(a,a,a)') info,'git commit: ',"12e781328f9831f275699d8a15ec4fd3d4f2f95c"
-       write(io,'(a,a,a)') info,'linked at: ',"Wed Dec 28 17:59:34 JST 2011"
+       write(io,'(a,a,a)') info,'git commit: ',"395baaba4ea85158f7bee122ead8b5428e162fdf"
+       write(io,'(a,a,a)') info,'linked at: ',"Wed Jan  4 13:33:37 JST 2012"
 
 
 

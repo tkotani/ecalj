@@ -234,9 +234,11 @@ ckino Dec.28.2011:         integer , pointer ::  iv_p_oips (:) =>NULL()
        integer , allocatable ::  iv_a_oips (:) 
 CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
 CCHSTRUC       integer(8)   ::   onrc
-       integer , pointer ::  iv_p_onrc (:) =>NULL()
+ckino Jan.04.2012:         integer , pointer ::  iv_p_onrc (:) =>NULL()
+       integer , allocatable ::  iv_a_onrc (:) 
 CCHSTRUC       integer(8)   ::   onrcp
-       integer , pointer ::  iv_p_onrcp (:) =>NULL()
+ckino Jan.04.2012:         integer , pointer ::  iv_p_onrcp (:) =>NULL()
+       integer , allocatable ::  iv_a_onrcp (:) 
 CCHSTRUC       integer(8)   ::   opgfsl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
@@ -1453,6 +1455,7 @@ ckino 12月.27.2011:         real(8) , pointer ::  rv_p_opnu (:) =>NULL()
        real(8) , allocatable ::  rv_a_opnu (:) 
 CCHSTRUC       integer(8)   ::   opp
 ckino Jan.4.2012       real(8) , pointer ::  rv_p_opp (:) =>NULL()
+       real(8) , allocatable ::  rv_a_opp (:)
 CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
 CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
 CCHSTRUC       integer(8)   ::   opprel
@@ -1467,6 +1470,7 @@ ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
        real(8) , allocatable ::  rv_a_oqnu (:) 
 CCHSTRUC       integer(8)   ::   oqpp
 ckino Jan.4.2012       real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
+       real(8) , allocatable ::  rv_a_oqpp (:) 
 CCHSTRUC       integer(8)   ::   oqt
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqt (:) =>NULL()
        real(8) , allocatable ::  rv_a_oqt (:) 

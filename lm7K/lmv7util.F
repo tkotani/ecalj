@@ -612,9 +612,9 @@ ckino 12月.27.2011:           if (-3*nlspc<0) spot%rv_p_oqnu(:)=0.0d0
          if (-3*nlspc<0) spot%rv_a_oqnu(:)=0.0d0
 
 ckino Dec.27.2011:           allocate(rv_p_opp(abs(-6*nlspc)))
-         allocate(spot%rv_p_opp(abs(-6*nlspc)))
+         allocate(spot%rv_a_opp(abs(-6*nlspc)))
 ckino Dec.27.2011:           if (-6*nlspc<0) rv_p_opp(:)=0.0d0
-         if (-6*nlspc<0) spot%rv_p_opp(:)=0.0d0
+         if (-6*nlspc<0) spot%rv_a_opp(:)=0.0d0
 
 ckino Dec.27.2011:           allocate(spot%rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
 ckino 12月.27.2011:           allocate(spot%rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
@@ -871,12 +871,12 @@ ckino 12月.27.2011:             if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) spot%rv_p_o
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
 ckino Dec.27.2011:             allocate(spot%rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
-           allocate(spot%rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
+           allocate(spot%rv_a_oqpp(abs(2*nqpp*4*nsp*nbas)))
 ckino Dec.27.2011:             if (2*nqpp*4*nsp*nbas<0) spot%rv_p_oqpp(:)=0.0d0
-           if (2*nqpp*4*nsp*nbas<0) spot%rv_p_oqpp(:)=0.0d0
+           if (2*nqpp*4*nsp*nbas<0) spot%rv_a_oqpp(:)=0.0d0
 
 ckino Dec.27.2011:             call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
-           call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
+           call dvset ( spot%rv_a_oqpp , 1 , 1 , - 1d0 ) 
 
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
@@ -1178,7 +1178,7 @@ ckino Dec.27.2011:         rv_p_oqpp => spot%rv_p_oqpp
 
       if (lio) then
 ckino Dec.27.2011:           call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_p_oqpp , 1 , i1 
-         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_p_oqpp , 1 , i1 
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_a_oqpp , 1 , i1 
      .   , i1 , i2 ) 
 
         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
@@ -1186,12 +1186,12 @@ ckino Dec.27.2011:           call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , spot%rv_p
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
 ckino Dec.27.2011:           if ( rdm ( ifi , 2 , i1 * i2 , ' ' , spot%rv_p_oqpp , i1 , i2 ) .lt. 
-         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , spot%rv_p_oqpp , i1 , i2 ) .lt. 
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , spot%rv_a_oqpp , i1 , i2 ) .lt. 
      .   0 ) then 
 
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
 ckino Dec.27.2011:             call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
-           call dvset ( spot%rv_p_oqpp , 1 , 1 , - 1d0 ) 
+           call dvset ( spot%rv_a_oqpp , 1 , 1 , - 1d0 ) 
 
         endif
         call poppr
@@ -1549,7 +1549,7 @@ ckino Dec.27.2011:           call pvaioc ( sarray%iv_p_ohave , 2 , ic , icmap , 
         readpp = readpp .and. mode00 .lt. 3
         if (havepp) then
 ckino Dec.27.2011:             call dpscop ( rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
-           call dpscop ( spot%rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( spot%rv_a_opp , olpp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (lrel .eq. 2) then
@@ -1780,7 +1780,7 @@ ckino Dec.28.2011:               call dpscop ( vrmax , spot%rv_p_ovrmax , 2 , 1 
           k = 6*nl*nsp
           if (havepp .or. readpp) then
 ckino Dec.27.2011:               call dpscop ( olpp , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
-             call dpscop ( olpp , spot%rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
+             call dpscop ( olpp , spot%rv_a_opp , k , 1 , 1 + ( ic - 1 ) 
      .       * k , 1d0 ) 
 
             if (lrel .eq. 2) then
