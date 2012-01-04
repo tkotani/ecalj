@@ -1452,7 +1452,7 @@ CCHSTRUC       integer(8)   ::   opnu
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_opnu (:) =>NULL()
        real(8) , allocatable ::  rv_a_opnu (:) 
 CCHSTRUC       integer(8)   ::   opp
-       real(8) , pointer ::  rv_p_opp (:) =>NULL()
+ckino Jan.4.2012       real(8) , pointer ::  rv_p_opp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
 CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
 CCHSTRUC       integer(8)   ::   opprel
@@ -1466,7 +1466,7 @@ CCHSTRUC       integer(8)   ::   oqnu
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
        real(8) , allocatable ::  rv_a_oqnu (:) 
 CCHSTRUC       integer(8)   ::   oqpp
-       real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
+ckino Jan.4.2012       real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
 CCHSTRUC       integer(8)   ::   oqt
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_oqt (:) =>NULL()
        real(8) , allocatable ::  rv_a_oqt (:) 
