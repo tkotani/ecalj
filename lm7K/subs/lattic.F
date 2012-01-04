@@ -131,12 +131,14 @@ C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
 ckino Dec.8.2011:           call rdistn ( rv_p_opos , rv_p_opos , nbaspp , gx , gy , gz , 
-         call rdistn ( slat%rv_p_opos , slat%rv_p_opos , nbaspp , gx , gy , gz , 
+ckino Jan.04.2012:           call rdistn ( slat%rv_p_opos , slat%rv_p_opos , nbaspp , gx , gy , gz , 
+         call rdistn ( slat%rv_a_opos , slat%rv_a_opos , nbaspp , gx , gy , gz , 
      .   gt ) 
 
       elseif (ldist .ne. 0) then
 ckino Dec.8.2011:           call lattdf ( ldist , dist , plat0 , nbaspp , rv_p_opos , 0 , 
-         call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_p_opos , 0 , 
+ckino Jan.04.2012:           call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_p_opos , 0 , 
+         call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_a_opos , 0 , 
      .   0d0 ) 
 
 c        if (nbaspp .gt. nbas) then
@@ -243,7 +245,8 @@ ckino Dec.8.2011:         slat%rv_p_oqlv => rv_p_oqlv
       do i_spackv=1,nbaspp
          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
 ckino Dec.8.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+ckino Jan.04.2012:       .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
       enddo
 

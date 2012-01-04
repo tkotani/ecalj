@@ -153,7 +153,8 @@ ckino 12月.27.2011:         call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 
       enddo
 c ... get space group information
 ckino Dec.8.2011:         call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
-       call mptauof ( symops , ngrp , plat , nbas , slat%rv_p_opos , iclasst 
+ckino Jan.04.2012:         call mptauof ( symops , ngrp , plat , nbas , slat%rv_p_opos , iclasst 
+       call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg ) 
 
 c ... get rotation matrix dlmm

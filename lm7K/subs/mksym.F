@@ -238,7 +238,9 @@ ckino Dec.28.2011:         call icopy ( nbas , sarray%iv_p_oips , 1 , ips2_iv , 
 
 
 ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
-       call dcopy ( 3 * nbas , sarray%rv_p_opos , 1 , pos2_rv , 1 ) 
+ckino Jan.04.2012:         call dcopy ( 3 * nbas , sarray%rv_p_opos , 1 , pos2_rv , 1 ) 
+ckino Jan.04.2012:         call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos2_rv , 1 ) 
+       call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos2_rv , 1 ) 
 
 
          call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
@@ -283,7 +285,9 @@ ckino 12月.27.2011:           if (associated(slat%rv_p_oag)) deallocate(slat%rv
         do i_spackv=1,nbas
            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
 ckino Dec.8.2011:       .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .     , i_copy_size , i_spackv + 1 - 1 , sarray%rv_p_opos ) 
+ckino Jan.04.2012:       .     , i_copy_size , i_spackv + 1 - 1 , sarray%rv_p_opos ) 
+ckino Jan.04.2012:       .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
         enddo
 
@@ -340,7 +344,9 @@ ckino Dec.28.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%i
 
 
 ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
-           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
+ckino Jan.04.2012:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
+ckino Jan.04.2012:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_p_opos , nbas 
+           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_a_opos , nbas 
 ckino Dec.14.2011:       .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
 ckino Dec.16.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
 ckino Dec.28.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
@@ -437,7 +443,9 @@ C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 ckino Dec.8.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
 ckino Dec.14.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , rv_p_osymgr 
 ckino Dec.28.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_p_osymgr 
-           call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_a_osymgr 
+ckino Jan.04.2012:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_a_osymgr 
+ckino Jan.04.2012:             call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_p_opos , slat%rv_a_osymgr 
+           call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_a_opos , slat%rv_a_osymgr 
 ckino Dec.14.2011:       .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino Dec.14.2011:       .     , slat%rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
 ckino 12月.27.2011:       .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 

@@ -396,14 +396,16 @@ C     unpack from site structure
             ix(3) = 2
             call info0(50,1,0,' lmfp : shortening basis vectors ... ')
 ckino Dec.16.2011:              call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
-            call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+ckino Jan.04.2012:              call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+            call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
 
 
             i_copy_size=size(ssite(1)%pos)
             do i_spackv=1,nbaspp
                call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
 ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+ckino Jan.04.2012:       .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
             enddo
 
@@ -521,7 +523,8 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
             j = 1
             call ivset(ix,1,3,j)
 ckino Dec.16.2011:              call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv ) 
-            call shorps ( nbas , plat , ix , slat%rv_p_opos , pos2_rv ) 
+ckino Jan.04.2012:              call shorps ( nbas , plat , ix , slat%rv_p_opos , pos2_rv ) 
+            call shorps ( nbas , plat , ix , slat%rv_a_opos , pos2_rv ) 
 
 
             call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
@@ -740,7 +743,8 @@ ckino Dec.16.2011:           rv_p_opos => slat%rv_p_opos
          do i_spackv=1,nbaspp
             call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
 ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+ckino Jan.04.2012:       .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
          enddo
 
@@ -832,23 +836,27 @@ C     --- Optionally re-shorten basis vectors ---
          ix(2) = 2
          ix(3) = 2
 ckino Dec.16.2011:           call shorps ( - nbas , plat , ix , pos2_rv , rv_p_opos ) 
-         call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+ckino Jan.04.2012:           call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+         call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
 
 
          call info0(20,1,-1,
      .        ' lmfp  : write shortening vectors to file shorps ...')
 ckino Dec.16.2011:           call iopos ( .true. , 1 , 'shorps' , nbas , rv_p_opos ) 
-         call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_p_opos ) 
+ckino Jan.04.2012:           call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_p_opos ) 
+         call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos ) 
 
 ckino Dec.16.2011:           call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
-         call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+ckino Jan.04.2012:           call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
+         call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
 
 
          i_copy_size=size(ssite(1)%pos)
          do i_spackv=1,nbaspp
             call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
 ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+ckino Jan.04.2012:       .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
          enddo
 
@@ -1381,7 +1389,8 @@ ckino Dec.16.2011:        rv_p_opos => slat%rv_p_opos
 
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
 ckino Dec.16.2011:       .     , 3 , 0d0 , rv_p_opos , 3 ) 
-     .     , 3 , 0d0 , slat%rv_p_opos , 3 ) 
+ckino Jan.04.2012:       .     , 3 , 0d0 , slat%rv_p_opos , 3 ) 
+     .     , 3 , 0d0 , slat%rv_a_opos , 3 ) 
 
 
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
@@ -1389,7 +1398,8 @@ C     call prmx('positions for plat0',w(opos),3,3,nbas)
       do i_spackv=1,nbas
          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
 ckino Dec.16.2011:       .        , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+ckino Jan.04.2012:       .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
+     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
 
       enddo
 

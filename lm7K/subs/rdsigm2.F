@@ -365,7 +365,8 @@ cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs ,
 ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.22.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
 ckino 12月.27.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
-     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
+ckino Jan.04.2012:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_a_opos , sham%iv_a_ontabs , 
 cki     .    iv_p_oiaxs , ndhrs , w ) 
 ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy ) 
 ckino Dec.27.2011:       .    sham%iv_a_oiaxs , ndhrs , rv_dummy ) 
@@ -685,7 +686,8 @@ ckino Dec.22.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , iv_a_o
 ckino Dec.27.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 ckino 12月.27.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 ckino Dec.28.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
-     .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
+ckino Jan.04.2012:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
+     .         , plat , slat%rv_a_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
 
 
 
@@ -826,7 +828,8 @@ ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontab
 ckino Dec.22.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
 ckino Dec.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , sham%iv_a_oiaxs 
 ckino 12月.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
-     .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
+ckino Jan.04.2012:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
+     .        slat%rv_a_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
 ckino Dec.22.2011:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 ckino Dec.22.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
 ckino Dec.28.2011:       .        , slat%rv_p_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_p_ohrs ) 
@@ -902,7 +905,8 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
               if (nsp .eq. 1) call rx(
      .        'onesp option nonsensical unless sigma file is spin pol')
 ckino Dec.22.2011:                     call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-                   call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
+ckino Jan.04.2012:                     call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
+                   call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
@@ -922,7 +926,8 @@ ckino Dec.28.2011:       .             , sham%iv_a_oindxo , hreal , sham%iv_a_on
 
             if (ledit .eq. 1) then
 ckino Dec.22.2011:                     call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-                   call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
+ckino Jan.04.2012:                     call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_p_opos , ndimh 
+                   call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
 ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 

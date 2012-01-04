@@ -285,7 +285,9 @@ ckino Dec.8.2011:         call icopy ( nclasp , sarray%iv_p_oics , 1 , ics , 1 )
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
 ckino Dec.8.2011:           call shorps ( nbasp , plat , modep , rv_p_opos , rv_p_opos ) 
-         call shorps ( nbasp , plat , modep , sarray%rv_p_opos , sarray%rv_p_opos ) 
+ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , sarray%rv_p_opos , sarray%rv_p_opos ) 
+ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , slat%rv_p_opos , slat%rv_p_opos ) 
+         call shorps ( nbasp , plat , modep , slat%rv_a_opos , slat%rv_a_opos ) 
 
       endif
 
@@ -335,7 +337,9 @@ C ... Get neighbor table iax for each atom in the cluster
 c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
 ckino Dec.8.2011:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos 
-         call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , sarray%rv_p_opos 
+ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , sarray%rv_p_opos 
+ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_p_opos 
+         call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_a_opos 
 ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
      .   , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) 
@@ -408,7 +412,9 @@ C       Initial estimate for sphere radii: overlapping atom potentials
             call rx('LMAUX: not implemented for lpbc>1')
           endif
 ckino Dec.8.2011:              call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos , 
-            call makrm0 ( 101 , nspec , nbas , alat , plat , sarray%rv_p_opos , 
+ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , sarray%rv_p_opos , 
+ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_p_opos , 
+            call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_a_opos , 
 ckino Dec.8.2011:       .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
 ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
      .      slabl , sarray%iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) 
@@ -424,7 +430,9 @@ C   ... Scale sphere radii satisfying constraints
           wsrmax=sctrl%wsrmax
 
 ckino Dec.8.2011:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos 
-            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , sarray%rv_p_opos 
+ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , sarray%rv_p_opos 
+ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_p_opos 
+            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_a_opos 
 ckino Dec.8.2011:       .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
 ckino Dec.28.2011:       .      , sarray%iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , sarray%iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
@@ -483,7 +491,9 @@ C --- Show neighbors by shell ---
 
               allocate(eula(nbas,3))
 ckino Dec.8.2011:                 call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
-               call shoshl ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
+ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
+ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr , 
+               call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr , 
 ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves , 
 ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
@@ -505,7 +515,9 @@ C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
 ckino Dec.8.2011:              call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
-            call shoang ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
+ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
+ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr , 
+            call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr , 
 ckino Dec.8.2011:       .      slabl , iv_p_oips ) 
 ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips ) 
      .      slabl , sarray%iv_a_oips ) 
@@ -553,7 +565,9 @@ ckino Dec.8.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_p_og
 ckino Dec.28.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips 
              j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips 
 ckino Dec.8.2011:       .       , rv_p_opos , ips2_iv , pos2_rv ) 
-     .       , sarray%rv_p_opos , ips2_iv , pos2_rv ) 
+ckino Jan.04.2012:       .       , sarray%rv_p_opos , ips2_iv , pos2_rv ) 
+ckino Jan.04.2012:       .       , slat%rv_p_opos , ips2_iv , pos2_rv ) 
+     .       , slat%rv_a_opos , ips2_iv , pos2_rv ) 
 
 
 
@@ -570,7 +584,9 @@ C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
 ckino Dec.8.2011:               call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
-             call dpscop ( sarray%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
+ckino Jan.04.2012:               call dpscop ( sarray%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
+ckino Jan.04.2012:               call dpscop ( slat%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
+             call dpscop ( slat%rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
 
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
@@ -600,14 +616,18 @@ ckino Dec.27.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , 
 ckino Dec.28.2011:       .     , rmax , sarray%rv_a_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
      .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
 ckino Dec.8.2011:       .     rv_p_opos , j ) 
-     .     sarray%rv_p_opos , j ) 
+ckino Jan.04.2012:       .     sarray%rv_p_opos , j ) 
+ckino Jan.04.2012:       .     slat%rv_p_opos , j ) 
+     .     slat%rv_a_opos , j ) 
 
 
 
 C ... Write positions to file
          if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0 
 ckino Dec.8.2011:       .   , outs ( 8: ) , nbasp , rv_p_opos ) 
-     .   , outs ( 8: ) , nbasp , sarray%rv_p_opos ) 
+ckino Jan.04.2012:       .   , outs ( 8: ) , nbasp , sarray%rv_p_opos ) 
+ckino Jan.04.2012:       .   , outs ( 8: ) , nbasp , slat%rv_p_opos ) 
+     .   , outs ( 8: ) , nbasp , slat%rv_a_opos ) 
 
 
 C ... Inner products between Euler angles

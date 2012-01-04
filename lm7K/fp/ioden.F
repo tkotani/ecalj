@@ -438,13 +438,15 @@ Ckino  mode=0 checks format
 #ifdef USEOPTIONAL
         call ioden2 ( mode=0 , sopts=sopts ,nsp= nsp ,plat= plat , 
 ckino Dec.9.2011:       .   alat=alat , nbas=nbas , pos=rv_p_opos 
-     .   alat=alat , nbas=nbas , pos=slat%rv_p_opos 
+ckino Jan.04.2012:       .   alat=alat , nbas=nbas , pos=slat%rv_p_opos 
+     .   alat=alat , nbas=nbas , pos=slat%rv_a_opos 
      .  , z=sspec ( ssite ( 1:nbas ) %spec ) %z , k1=k1 , k2=k2 , k3=k3
      .   , ngabc=ngabc 
      .  , nwk=nwk , modrhg=modrhg ) 
 #else
 ckino Dec.9.2011:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
+ckino Jan.04.2012:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
+        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
      .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
      .  , iwdummy , iwdummy , nwk , modrhg ) 
 #endif
@@ -561,7 +563,8 @@ ckino not complex but real,      allocate(wk_zv(nwk**2*nsp))
 
 Ckino mode=1 write smrho to the file
 ckino Dec.9.2011:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
+ckino Jan.04.2012:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
+       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
      . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
 ckino not complex but real     . , psrho_zv , wk_zv , nwk , modrhg ) 
      . , psrho_zv , wk_rv , nwk , modrhg ) 

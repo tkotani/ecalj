@@ -99,7 +99,8 @@ ckino 12月.27.2011:           spot%rv_p_omad(:)=0.0d0
 ckino Dec.8.2011:              call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
 ckino Dec.8.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , rv_p_odlv 
 ckino 12月.27.2011:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_p_odlv 
-            call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_a_odlv 
+ckino Jan.04.2012:              call madmat ( nbaspp , slat%rv_p_opos , awald , alat , vol , slat%rv_a_odlv 
+            call madmat ( nbaspp , slat%rv_a_opos , awald , alat , vol , slat%rv_a_odlv 
 ckino Dec.8.2011:       .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
 ckino Dec.8.2011:       .      , nkd , slat%rv_p_oqlv , nkq , rv_p_omad ) 
 ckino 12月.27.2011:       .      , nkd , slat%rv_p_oqlv , nkq , spot%rv_p_omad ) 

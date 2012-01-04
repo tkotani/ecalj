@@ -244,7 +244,7 @@ CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
 cki      integer(8)   ::   opos
-         real(8), pointer :: rv_p_opos(:) =>NULL()
+ckino Jan.4.2012         real(8), pointer :: rv_p_opos(:) =>NULL()
 CCHSTRUC       integer(8)   ::   ormax
 ckino 12月.27.2011:         real(8) , pointer ::  rv_p_ormax (:) =>NULL()
        real(8) , allocatable ::  rv_a_ormax (:) 
@@ -1039,7 +1039,8 @@ CCHSTRUC       integer(8)   ::   okv
 ckino Dec.28.2011:         integer , pointer ::  iv_p_okv (:) =>NULL()
        integer , allocatable ::  iv_a_okv (:) 
 cki      integer(8)   ::   opos
-       real(8), pointer :: rv_p_opos(:) =>NULL()
+ckino Jan.4.2012       real(8), pointer :: rv_p_opos(:) =>NULL()
+       real(8), allocatable :: rv_a_opos(:) 
 CCHSTRUC       integer(8)   ::   oqlv
 ckino Dec.28.2011:         real(8) , pointer ::  rv_p_oqlv (:) =>NULL()
        real(8) , allocatable ::  rv_a_oqlv (:) 

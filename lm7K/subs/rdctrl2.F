@@ -1812,9 +1812,11 @@ c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
       v_sham%seref=seref
 c
 ckino Dec.14.2011:         allocate(rv_p_opos(abs(3*nsite)))
-       allocate(v_slat%rv_p_opos(abs(3*nsite)))
+ckino Jan.04.2012:         allocate(v_slat%rv_p_opos(abs(3*nsite)))
+       allocate(v_slat%rv_a_opos(abs(3*nsite)))
 ckino Dec.14.2011:         if (3*nsite<0) rv_p_opos(:)=0.0d0
-       if (3*nsite<0) v_slat%rv_p_opos(:)=0.0d0
+ckino Jan.04.2012:         if (3*nsite<0) v_slat%rv_p_opos(:)=0.0d0
+       if (3*nsite<0) v_slat%rv_a_opos(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(iv_p_oips(abs(nsite)))
 ckino Dec.28.2011:         allocate(v_sarry%iv_p_oips(abs(nsite)))
@@ -1828,7 +1830,8 @@ ckino Dec.28.2011:         if (nsite<0) v_sarry%iv_p_oips(:)=0
         i_copy_size=3
          call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
 ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_p_opos ) 
+ckino Jan.04.2012:       .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_p_opos ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos ) 
 
         i_copy_size=1
          call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
@@ -1840,7 +1843,7 @@ ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oip
 ckino Dec.14.2011:         v_slat%rv_p_opos => rv_p_opos 
 
 ckino Dec.14.2011:         v_sarry%rv_p_opos => rv_p_opos 
-        v_sarry%rv_p_opos => v_slat%rv_p_opos
+ckino Jan.04.2012:          v_sarry%rv_p_opos => v_slat%rv_p_opos
 
 ckino Dec.14.2011:         v_sarry%iv_p_oips => iv_p_oips 
 

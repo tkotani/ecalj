@@ -382,7 +382,8 @@ Ckino write psi=F0 part
 ckino Dec.28.2011:       i   , k3 , iv_p_okv , isp, q ,iq 
      i   , k3 , iv_a_okv , isp, q ,iq 
      i   ,  n_eiglist,eiglist
-     i   , plat,alat, nbas, slat%rv_p_opos, sspec(ssite(1:nbas)%spec)%z
+ckino Jan.04.2012:       i   , plat,alat, nbas, slat%rv_p_opos, sspec(ssite(1:nbas)%spec)%z
+     i   , plat,alat, nbas, slat%rv_a_opos, sspec(ssite(1:nbas)%spec)%z
      w  , psir )
 Ckino  input      compelx(8):: psi(ng,nspc,nev)
 Ckino  work area  complex(8):: psir(k1,k2,k3)

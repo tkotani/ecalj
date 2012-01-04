@@ -1454,7 +1454,8 @@ ckino Dec.8.2011:           rv_p_opos => slat%rv_p_opos
 
 
 ckino Dec.8.2011:           call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 ) 
-         call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 1 ) 
+ckino Jan.04.2012:           call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 1 ) 
+         call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 ) 
 
         npairmx=nk1*nk2*nk3*2
         do

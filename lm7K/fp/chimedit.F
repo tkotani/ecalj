@@ -183,7 +183,8 @@ C     should be from sgw?
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
 ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
-       call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos , 1 ) 
+ckino Jan.04.2012:         call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos , 1 ) 
+       call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos , 1 ) 
 
       call pshpr(0)
       llshft = .false.
