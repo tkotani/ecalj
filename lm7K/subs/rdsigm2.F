@@ -55,6 +55,9 @@ ckino Dec.22.2011:            integer,pointer :: iv_p_oiprmb(:) =>NULL()
 ckino Dec.22.2011:           real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
         real(8),pointer :: rv_p_oqp(:) =>NULL()
+ckino Jan.4.2012
+        real(8),allocatable,target :: rv_a_oqp(:)
+        
 
 ckino Dec.22.2011:         integer,pointer :: iv_p_ooffh(:) =>NULL()
 
@@ -403,7 +406,10 @@ ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
 ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
        if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
 
-       allocate(rv_p_oqp(abs(3*mxkp)))
+ckino Jan.4.2012       allocate(rv_p_oqp(abs(3*mxkp)))
+       allocate(rv_a_oqp(abs(3*mxkp)))
+       rv_p_oqp=>rv_a_oqp
+ckino end
        if (3*mxkp<0) rv_p_oqp(:)=0.0d0
 
       allocate(gstar_iv(abs(-mxkp-1)))
@@ -750,7 +756,9 @@ ckino Dec.28.2011:       .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv
 
       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( 
      .'-wsig' , 5 , 0 , outs ) ) ) then
-         if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+ckino Jan.4.2012         if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+         if (associated(rv_p_oqp)) nullify(rv_p_oqp)
+         if (allocated(rv_a_oqp)) deallocate(rv_a_oqp)
 
       endif
 
@@ -943,12 +951,12 @@ C        if (lnwmsh .or. ltmp) then
               i_copy_size=size(sbz%lshft)
               call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
               nqp=sbz%nkp
-               rv_p_oqp => sbz%rv_p_oqp 
-
-
+ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%rv_p_oqp 
 
               mxkp = nk1*nk2*nk3
-               allocate(rv_p_oqp(abs(3*mxkp)))
+ckino Jan.4.2012               allocate(rv_p_oqp(abs(3*mxkp)))
+               allocate(rv_a_oqp(abs(3*mxkp)))
+               rv_p_oqp=>rv_a_oqp
                if (3*mxkp<0) rv_p_oqp(:)=0.0d0
 
               allocate(gstar_iv(abs(-mxkp-1)))
@@ -1087,7 +1095,9 @@ C ... Transformations done by caller: write qp list to disk
         if (lfbzout) then
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-           allocate(rv_p_oqp(abs(3*mxkp)))
+ckino Jan.4.2012           allocate(rv_p_oqp(abs(3*mxkp)))
+           allocate(rv_a_oqp(abs(3*mxkp)))
+           rv_p_oqp=>rv_a_oqp
            if (3*mxkp<0) rv_p_oqp(:)=0.0d0
 
           allocate(ipq_iv(mxkp))
