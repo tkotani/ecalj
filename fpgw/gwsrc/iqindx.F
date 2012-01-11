@@ -15,7 +15,7 @@ c      if(isave>nq.or.saveiq()==0) isave=0
           iq = iqx
         endif
         call rangedq(matmul(ginv,q-qq(:,iq)), qx)
-        if(sum(abs(qx))< 1d-7) then
+        if(sum(abs(qx))< 1d-6) then
           iqindx=iq
           isave =iq
           qu=qq(:,iq)
@@ -56,7 +56,7 @@ Ci ginv is the inverse of plat (premitive translation vector).
           iq = iqx
         endif
         call rangedq(matmul(ginv,q-qq(:,iq)), qx)
-        if(sum(abs(qx))< 1d-7) then
+        if(sum(abs(qx))< 1d-6) then
           iqindx0=iq
           isave =iq
 c          print *,"isave=",isave
