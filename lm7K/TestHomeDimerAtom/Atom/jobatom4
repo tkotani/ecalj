@@ -1,0 +1,118 @@
+#!/bin/bash
+### See $1:fsmom and $2:rstar
+dist=`echo $1|sed -e 's/\,/ /g' `
+#for ix in $dist
+#do
+#echo ix= $ix
+#done
+#echo $dist
+#exit
+jobid=$1$2$3$4$5$`basename $0`
+#jobid=$1$2$3$4`basename $0`
+echo $jobid
+temp2=temp2.$jobid
+temp1=temp1.$jobid
+temp0=temp0.$jobid
+work=work.$jobid
+pushd .
+
+if [ ! -x "$work" ]; then  mkdir $work;fi
+cd    $work
+work=`pwd`
+
+## set common part
+echo $* |cut -d  ' ' -f 2- > $temp0.init
+
+## for initial condition
+cat << 'IIIII1' > $temp1.init
+#### for init calculations #Asymmetric cell
+plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
+symgrp= 'SYMGRP e'
+dirhead= 'INIT,dis,'
+setting['NIT___']= '40'
+setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
+#setting['POS2___']= '-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5'
+setting['JOBLIST___']=\
+'''
+  echo ' INIT:distance_c=' `echo "scale=3;${discenter}*0.529177"|bc` 'ang = ' `echo "scale=3;${discenter}"|bc` 'a.u.'
+  echo ' rmt(a.u.)=' $rmt
+  lmfa --noopt dimer $arguments0 > llmfa
+  rm -f {rst,mixm,moms}.dimer
+  #echo start ctrl dimer dis= $dis pwe= $pwe
+  lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe
+'''
+IIIII1
+
+# for main calculation
+cat << 'IIIII2' > $temp2.init
+#### for main calculations
+plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
+symgrp='SYMGRP e'
+dirhead='DimerSYMI,dis,'
+setting['NIT___']= '80'
+setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
+#setting['POS2___']= '-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5'
+setting['JOBLIST___']=\
+'''
+  rm -f {mixm,moms}.dimer
+  #echo start ctrl dimer dis= $dis pwe= $pwe
+  lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe
+'''
+IIIII2
+
+### init and main job ###################
+for dis in $dist
+do
+ cd $work 
+ cat $temp0.init   > $temp1,$dis
+ cat $temp1.init  >> $temp1,$dis
+ echo "pwe=2@"    >> $temp1,$dis #these override standard setting in #temp0.init
+ echo "dis=$dis@" >> $temp1,$dis #these override standard setting in #temp0.init
+ echo "bzw=0@" >> $temp1,$dis #these override standard setting in #temp0.init 
+ job_atom.py $temp1,$dis $jobid
+ d1=`cat dname1.$jobid`
+ d2=`cat dname2.$jobid`
+ if [ ! -x "../$d1" ]; then  mkdir ../$d1; fi
+ if [ ! -x "../$d1/$d2,dis=$dis" ]; then mkdir ../$d1/$d2,dis=$dis; fi
+ d0=../$d1/$d2,dis=$dis
+ # echo 'xxxxxxxxxxx' $d0
+ mv  ctrl.dimer $d0
+ cd  $d0
+ # echo ===start of INIT: $jobid
+ echo === INIT condition calculation: dis=$dis $jobid
+ rstinit=$work/rst.dimer.$jobid
+ bash ctrl.dimer
+# mv rst.dimer $rstinit
+ cp rst.dimer $rstinit
+ echo ===end   of init: $jobid
+
+for pwe in 2 3 4 
+do
+ echo === START calculation: pwe=$pwe dis=$dis $jobid
+ cd $work
+ cat $temp0.init  > $temp2,$dis,$pwe
+ cat $temp2.init >> $temp2,$dis,$pwe
+ echo "pwe=$pwe@" >> $temp2,$dis,$pwe
+ echo "dis=$dis@" >> $temp2,$dis,$pwe
+ job_atom.py $temp2,$dis,$pwe $jobid
+ d1=`cat dname1.$jobid`
+ d2=`cat dname2.$jobid`
+
+ if [ $pwe == '2' ]; then #starting point
+   if [ ! -x "../$d1" ]; then mkdir ../$d1; fi
+   if [ ! -x "../$d1/$d2,dis=$dis" ]; then mkdir ../$d1/$d2,dis=$dis; fi
+   echo '   copy initial rst as ' rst.dimer.$jobid
+   cp  $rstinit  ../$d1/$d2,dis=$dis/rst.dimer
+ fi
+
+ cd  ../$d1/$d2,dis=$dis
+ mv  $work/ctrl.dimer  .
+ bash ctrl.dimer 
+ cp ctrl.dimer ctrl.$pwe.dat
+ mv BandWeight.dat BandWeight.$pwe.dat
+# echo === END    calculation: pwe=$pwe dis=$dis $jobid
+#cp   rst.dimer $work/rst.dimer.$jobid
+done
+done
+
+popd

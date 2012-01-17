@@ -1,0 +1,43 @@
+=== Calculations of diatomic molecules. ===
+job_run.qsub (for qsub system) 
+ or
+job_run.bg (for background job),
+perform all steps below. It is better 
+===
+0. Edit 
+   jobtemplate.bash (for qsub)  or jobtemplate.bg.bash (for background
+   job) for your system.
+
+1. Setup1. 
+  We assume lmf and lmfa in your ~/bin
+  >cp job_molecule_dis.py jobmoldimer1 jobqsubdimer.py * ~/bin
+  >cp savedata pldimer1 plmol.py ~/bin/   
+
+2. Setup2.
+  Make working directory <work dir>.
+  >cp jobdimerlist.test jobtemplate.bash extra.bash homedimerdistance.bash <work dir>
+  I recommend to look into jobtemplate.bash, which used other *.bash files.
+
+3. Run
+   > jobqsubdimer.py jobdimerlist.test jobtemplate.bash 
+   ,where jobqsubdimer.py calls jobmoldimer1
+
+You can use atomlist.10 or so. But it takes hours, roughly speaking,
+atomlist.10 asks a day or so with 96 cores. atomlist.15 asked one
+week; it looks too long (probably something inefficient ...).
+======================================
+
+
+=== Plot ===
+To gather data and plot them, peform savedata command at TEST.qsub or TEST.bg
+
+>savedata <2Sz> <Z>
+For example
+>savedata 0 1
+for H_2.
+======================================
+
+
+=== ATOM in supercell ===
+Look into Atom/README.
+======================================

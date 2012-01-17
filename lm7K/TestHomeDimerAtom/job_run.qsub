@@ -1,0 +1,17 @@
+#!/bin/bash
+### for dimer calculation
+cp job_molecule_dis.py jobmoldimer1 jobqsubdimer.py ~/bin
+### for data plot
+cp savedata pldimer1 plmol.py ~/bin/   
+### Run job for dimer 
+### USAGE: jobquedimer.py <jobdimerlist> <jobtemplete for que>
+###        use extra_nrel.bash for NREL=T calculation.
+###
+mkdir TEST.qsub
+cp jobdimerlist.test jobtemplate.bash atomlist.bash extra.bash homodimerdistance.bash TEST.qsub
+cd TEST.qsub
+jobqsubdimer.py jobdimerlist.test  jobtemplate.bash 
+
+#jobquedimer.py jobdimerlist.test  jobtemplate.bash 
+#jobeuqdimer.py joblist.10  jobtemplate.bash
+#jobeuqdimer.py joblist.15  jobtemplate.bash
