@@ -300,8 +300,8 @@ C ... Read from restart file
             call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
 ckino Dec.8.2011:       .      rv_p_opnu , rv_p_oqnu , .false. , ifi ) 
 ckino Dec.8.2011:       .      rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
-ckino 12月.27.2011:       .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
-ckino 12月.27.2011:       .      spot%rv_a_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+ckino Dec.27.2011:       .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+ckino Dec.27.2011:       .      spot%rv_a_opnu , spot%rv_p_oqnu , .false. , ifi ) 
      .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi ) 
 
 
@@ -456,14 +456,14 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
             rmax(i) =sspec(ics(i))%rmt
           enddo
 ckino Dec.8.2011           allocate(rv_p_ormax(abs(nclspp)))
-ckino 12月.27.2011:             allocate(sarray%rv_p_ormax(abs(nclspp)))
+ckino Dec.27.2011:             allocate(sarray%rv_p_ormax(abs(nclspp)))
            allocate(sarray%rv_a_ormax(abs(nclspp)))
 ckino Dec.8.2011           if (nclspp<0) rv_p_ormax(:)=0.0d0
-ckino 12月.27.2011:             if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
+ckino Dec.27.2011:             if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
            if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
 
 ckino Dec.8.2011           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
-ckino 12月.27.2011:             call dcopy ( nclspp , rmax , 1 , sarray%rv_p_ormax , 1 ) 
+ckino Dec.27.2011:             call dcopy ( nclspp , rmax , 1 , sarray%rv_p_ormax , 1 ) 
            call dcopy ( nclspp , rmax , 1 , sarray%rv_a_ormax , 1 ) 
 
 
@@ -476,7 +476,7 @@ c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
 ckino Dec.8.2011           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
-ckino 12月.27.2011:             call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rmax , 1 ) 
+ckino Dec.27.2011:             call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rmax , 1 ) 
            call dcopy ( nclasp , sarray%rv_a_ormax , 1 , rmax , 1 ) 
 
         endif
@@ -499,7 +499,7 @@ ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oip
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-ckino 12月.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
+ckino Dec.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
 ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
 ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
      .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 

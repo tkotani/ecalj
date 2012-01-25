@@ -124,7 +124,7 @@ C --- Shift in unscreened density at the two positions ---
       kmax = 0
         call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
 ckino Dec.12.2011:       .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
-ckino 12月.27.2011:       .  slat%rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+ckino Dec.27.2011:       .  slat%rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
      .  slat%rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
 
 
@@ -168,7 +168,7 @@ C       Compute elind if not given
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
 ckino Dec.12.2011:           call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
-ckino 12月.27.2011:           call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv ) 
+ckino Dec.27.2011:           call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv ) 
          call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elind , cgs_zv ) 
 
 

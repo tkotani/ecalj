@@ -277,7 +277,7 @@ ckino Dec.12.2011:                call symqmp ( nrclas , nlml , nlml , plat , po
 ckino Dec.28.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_p_osymgr 
               call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_a_osymgr 
 ckino Dec.12.2011:       .        , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
-ckino 12月.27.2011:       .        , slat%rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+ckino Dec.27.2011:       .        , slat%rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
      .        , slat%rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
 
 

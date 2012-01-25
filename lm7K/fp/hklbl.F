@@ -95,7 +95,7 @@ c      print *,'hklbl:bbb'
         call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
 ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , rv_p_odlv 
 ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv 
-ckino 12月.27.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv 
+ckino Dec.27.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv 
 ckino Dec.28.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv 
      .  , nlm , wk , yl , awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv 
      .  , nkd , vol , hsm , hsmp ) 
@@ -107,7 +107,7 @@ ckino Dec.28.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nk
         job = 2
          call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
 ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
-ckino 12月.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
+ckino Dec.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
      .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , hkl ) 
 
       endif

@@ -79,7 +79,7 @@ ckino Dec.28.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , sl
      .   nkq , vol , hsm , hsmp ) 
 
 ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
-ckino 12月.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv 
+ckino Dec.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv 
          call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_a_odlv 
      .   , nkd , hsm , hsmp ) 
 

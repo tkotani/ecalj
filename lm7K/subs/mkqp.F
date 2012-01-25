@@ -50,7 +50,7 @@ C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
              integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
      .       , lshft(3) , lpbc , ntet , i , iprint , igets , stdo , nglob 
-ckino 12月.12.2011:               real(8),pointer :: rv_p_osymgr(:) =>NULL()
+ckino Dec.12.2011:               real(8),pointer :: rv_p_osymgr(:) =>NULL()
 
 ckino Dec.8.2011:              integer,pointer :: iv_p_ogstar(:) =>NULL()
 
@@ -93,7 +93,7 @@ Changenglob      stdo = nglob('stdo')
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
-ckino 12月.12.2011:         rv_p_osymgr => slat%rv_p_osymgr 
+ckino Dec.12.2011:         rv_p_osymgr => slat%rv_p_osymgr 
 
 
 c       lpgf = int(sctrl%lpgf(1))
@@ -254,8 +254,8 @@ ckino Dec.27.2011:           call ivset ( sbz%iv_p_ostar , 1 , 1 , lgstar )
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp , 
-ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
-ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
@@ -317,8 +317,8 @@ ckino Dec.27.2011:           call ivset ( sbz%iv_p_ostar , 1 , 1 , lgstar )
              call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp , 
-ckino Dec.14.2011:  ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
-ckino 12月.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp , 
+ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp , 
 ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 

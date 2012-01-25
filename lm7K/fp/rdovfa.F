@@ -404,7 +404,7 @@ ckino Dec.8.2011:         iv_p_okv => slat%iv_p_okv
 
        call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
 ckino Dec.8.2011:       . , ng , ng , rv_p_ogv , cv_zv ) 
-ckino 12月.27.2011:       . , ng , ng , slat%rv_p_ogv , cv_zv ) 
+ckino Dec.27.2011:       . , ng , ng , slat%rv_p_ogv , cv_zv ) 
      . , ng , ng , slat%rv_a_ogv , cv_zv ) 
 
 

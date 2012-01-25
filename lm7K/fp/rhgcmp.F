@@ -151,7 +151,7 @@ C --- Set up help arrays ---
 
 Ckino Set up vectors g, g2, yl from list of vectors gv
 ckino Dec.12.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
-ckino 12月.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
+ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
        call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
      . ) 
 
@@ -163,7 +163,7 @@ ckino 12月.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_r
 
 Ckino Setup for suphas: write each gv as linear combination of qlat.
 ckino Dec.12.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
-ckino 12月.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
+ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
        call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv ) 
 
 

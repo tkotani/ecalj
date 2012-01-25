@@ -183,7 +183,7 @@ C   --- Set up all radial head and tail functions, and their BC's
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
 ckino Dec.12.2011:           call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
-ckino 12月.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh 
+ckino Dec.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh 
          call pusq1 ( mode , ib , isp , nspc , sham%iv_a_oindxo , nlmax , lmxh 
      .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
@@ -351,12 +351,12 @@ C --- Make strux to expand all orbitals at site ia ---
 
 ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
 ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
-ckino 12月.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
-ckino 12月.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
+ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
+ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
            call bstrux ( 2 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg 
 ckino Dec.12.2011:       .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 ckino Dec.12.2011:       .     , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino 12月.27.2011:       .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.27.2011:       .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
 ckino Dec.28.2011:       .     , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy ) 

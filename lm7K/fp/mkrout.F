@@ -311,7 +311,7 @@ ckino Dec.13.2011:           rv_p_orhoca => sspec(is)%rv_p_orhoc
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
 ckino Dec.13.2011:           call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab 
-ckino 12月.27.2011:           call orbl ( ib , 0 , nlmto , sham%iv_p_oindxo , norb , ltab , ktab 
+ckino Dec.27.2011:           call orbl ( ib , 0 , nlmto , sham%iv_p_oindxo , norb , ltab , ktab 
          call orbl ( ib , 0 , nlmto , sham%iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx ) 
 
@@ -413,11 +413,11 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           dmatl_rv(:)=0d0
 ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
 ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , slat%iv_p_ojcg 
-ckino 12月.27.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
+ckino Dec.27.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
 ckino Dec.28.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-ckino 12月.27.2011:       .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+ckino Dec.27.2011:       .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino Jan.04.2012:       .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH 
 ckino Jan.04.2012:       .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
@@ -488,11 +488,11 @@ ckino Jan.04.2012:              rv_p_oqpp => sv_p_oeqkkl(1,ib)%v
 
 ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
 ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , slat%iv_p_ojcg 
-ckino 12月.27.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
+ckino Dec.27.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_p_ocg , slat%iv_p_ojcg 
 ckino Dec.28.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_p_ojcg 
                   call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg 
 ckino Dec.13.2011:       .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-ckino 12月.27.2011:       .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
+ckino Dec.27.2011:       .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
 ckino Jan.04.2012:       .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
      .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH 
 ckino Jan.04.2012:       .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 

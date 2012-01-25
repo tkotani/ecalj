@@ -173,9 +173,9 @@ ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_
 ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
 ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
 ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino 12月.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino 12月.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino 12月.27.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
 ckino Dec.28.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
      .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy 
      .          , slat , b ) 

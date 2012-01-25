@@ -484,7 +484,7 @@ C ... Add output-input difference in gaussian rho to make total rho
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
 ckino Dec.12.2011:         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
-ckino 12月.27.2011:         call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elinl , w_ocn ) 
+ckino Dec.27.2011:         call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elinl , w_ocn ) 
        call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elinl , w_ocn ) 
 
 C ... 5. Add cn = screening charge into smrnew
@@ -519,7 +519,7 @@ C --- 7. Project cn = screening density into local densities ---
         k0 = 20
         allocate(fkl_zv((k0+1)*nlm0*nbas))
 ckino Dec.12.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
-ckino 12月.27.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_p_ogv ,  
+ckino Dec.27.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_p_ogv ,  
         call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_a_ogv ,  
      .  w_ocn , k0 , nlm0 , fkl_zv) 
       endif 
@@ -615,7 +615,7 @@ C ... 8. FFT smooth densities -> rho(G) for mixing
 C ... Find and include number of smooth mesh points.
        allocate(ips0_iv(ng))
 ckino Dec.12.2011:         call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
-ckino 12月.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
+ckino Dec.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
        call lgstar ( 0 , ng , 1 , slat%rv_a_ogv , ng0 , ips0_iv , iwdummy ) 
        ng02= ng0*2
        ng2=ng*2
@@ -629,7 +629,7 @@ ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_
 ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
        call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, w_ocn) 
 ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
-ckino 12月.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn) 
+ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn) 
        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , w_ocn) 
 
        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
@@ -638,7 +638,7 @@ ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_
 ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
        call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, co_rv) 
 ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
-ckino 12月.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv) 
+ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv) 
        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , co_rv) 
        deallocate(w_owk)
 
@@ -812,7 +812,7 @@ c      call defcc(owk,kkk)
      .   n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl 
 ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
 ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
-ckino 12月.27.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
+ckino Dec.27.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
 ckino Dec.28.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
      .   , ng , ng2, ng02 , slat%iv_a_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
      .   sv_p_orhold , smrho, wgtsmooth ) 

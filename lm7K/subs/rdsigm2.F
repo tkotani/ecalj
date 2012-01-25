@@ -35,7 +35,7 @@ C ... Local parameters
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                  integer:: ohrss 
 ckino Dec.14.2011:                   integer,pointer :: iv_p_ontabs(:) =>NULL()
-ckino 12月.27.2011:                   integer,allocatable :: iv_a_ontabs(:) 
+ckino Dec.27.2011:                   integer,allocatable :: iv_a_ontabs(:) 
 
 ckino Dec.14.2011:                  integer,pointer :: iv_p_oiaxs(:) =>NULL()
 ckino Dec.27.2011:                  integer,allocatable :: iv_a_oiaxs(:) 
@@ -324,7 +324,7 @@ ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag
 
 C     Get leading dimension of hrs
 ckino Dec.22.2011:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
-ckino 12月.27.2011:         call offshp ( sham%iv_p_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
+ckino Dec.27.2011:         call offshp ( sham%iv_p_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
        call offshp ( sham%iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
      . ) 
 
@@ -357,14 +357,14 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
 ckino Dec.22.2011:       .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-ckino 12月.27.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
+ckino Dec.27.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .    nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_p_ooffh 
      .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_a_ooffH 
 cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
 ckino Dec.22.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
-ckino 12月.27.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
+ckino Dec.27.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
 ckino Jan.04.2012:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_p_opos , sham%iv_a_ontabs , 
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_a_opos , sham%iv_a_ontabs , 
 cki     .    iv_p_oiaxs , ndhrs , w ) 
@@ -378,7 +378,7 @@ cccccccccccccccccccccccccccccccccccccc
 
 
 ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
-ckino 12月.27.2011:         nttabs = ival ( sham%iv_a_ontabs , nbas + 1 ) 
+ckino Dec.27.2011:         nttabs = ival ( sham%iv_a_ontabs , nbas + 1 ) 
        nttabs = ival ( sham%iv_a_ontabs , nbas + 1 ) 
 
 C     Allocate memory for hrs
@@ -676,7 +676,7 @@ C ... titus
 ckino Dec.22.2011:       .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
 ckino Dec.22.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
-ckino 12月.27.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
+ckino Dec.27.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_p_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .         , nsp , nbas , slat%rv_p_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
 ckino Dec.28.2011:       .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_p_ooffh 
      .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_a_ooffH 
@@ -686,7 +686,7 @@ ckino Dec.14.2011:       .         , plat , rv_p_opos ,iv_p_ontabs , iv_a_oiaxs 
 ckino Dec.22.2011:       .         , plat , rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.22.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
 ckino Dec.27.2011:       .         , plat , slat%rv_p_opos ,iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
-ckino 12月.27.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
+ckino Dec.27.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 ckino Dec.28.2011:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_p_ohrs ) 
 ckino Jan.04.2012:       .         , plat , slat%rv_p_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
      .         , plat , slat%rv_a_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs ) 
@@ -719,7 +719,7 @@ C     exit of MPI master loop
       sham%ndhrs=ndhrs
 ckino Dec.14.2011:         sham%iv_p_ontabs => iv_p_ontabs 
 ckino Dec.14.2011:         sham%iv_a_ontabs => iv_a_ontabs 
-ckino 12月.27.2011:        call move_alloc(from= iv_a_ontabs ,to= sham%iv_a_ontabs )
+ckino Dec.27.2011:        call move_alloc(from= iv_a_ontabs ,to= sham%iv_a_ontabs )
 
 ckino Dec.14.2011:         sham%iv_p_oiaxs => iv_p_oiaxs 
 ckino Dec.14.2011:         sham%iv_a_oiaxs => iv_a_oiaxs 
@@ -746,7 +746,7 @@ ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs ,
 ckino Dec.22.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.22.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-ckino 12月.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.27.2011:       .         , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino Dec.28.2011:       .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .         , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
@@ -823,13 +823,13 @@ ckino Dec.28.2011:           call istbpm ( slat%iv_p_oistab , nbas , nsgrp , ist
 Changenglob        nl = nglob('nl')
         nl = globalvariables%nl
 ckino Dec.22.2011:                call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
-ckino 12月.27.2011:                call rsmsym ( i , plat , mxorb , sham%iv_p_oindxo , ndimh , nbas , 
+ckino Dec.27.2011:                call rsmsym ( i , plat , mxorb , sham%iv_p_oindxo , ndimh , nbas , 
               call rsmsym ( i , plat , mxorb , sham%iv_a_oindxo , ndimh , nbas , 
 ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
 ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_a_oiaxs 
 ckino Dec.22.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
 ckino Dec.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , sham%iv_a_oiaxs 
-ckino 12月.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
+ckino Dec.27.2011:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
 ckino Jan.04.2012:       .        slat%rv_p_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
      .        slat%rv_a_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs 
 ckino Dec.22.2011:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
@@ -863,7 +863,7 @@ ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs 
 ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-ckino 12月.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino Dec.28.2011:       .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
@@ -914,8 +914,8 @@ ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_
 ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino Dec.28.2011:       .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
      .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs 
      .             ) 
@@ -935,8 +935,8 @@ ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_
 ckino Dec.22.2011:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.22.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
 ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
-ckino 12月.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
+ckino Dec.27.2011:       .             , sham%iv_p_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
 ckino Dec.28.2011:       .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_p_ohrs 
      .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs 
      .             ) 
@@ -1054,7 +1054,7 @@ ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs 
 ckino Dec.22.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.22.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
 ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
-ckino 12月.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
+ckino Dec.27.2011:       .          , hreal , sham%iv_p_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
 ckino Dec.28.2011:       .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
@@ -1371,7 +1371,7 @@ C ... Local parameters
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
                 integer:: ohrss , osigm2 , odelt , oistb2 
 ckino Dec.14.2011:                  integer,pointer :: iv_p_ontabs(:)
-ckino 12月.27.2011:                  integer,allocatable :: iv_a_ontabs(:)
+ckino Dec.27.2011:                  integer,allocatable :: iv_a_ontabs(:)
 
 ckino Dec.14.2011:                 integer,pointer :: iv_p_oiaxs(:) 
 ckino Dec.27.2011:                 integer,allocatable :: iv_a_oiaxs(:) 

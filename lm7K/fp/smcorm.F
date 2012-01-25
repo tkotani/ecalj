@@ -83,7 +83,7 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
 ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
-ckino 12月.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
+ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
                call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
      .         , gkl ) 
 
@@ -101,7 +101,7 @@ ccccccccccccccccccccccccccccccccc
               v(2) = gv(i,2)
               v(3) = gv(i,3)
 ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
-ckino 12月.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
+ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
                call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
      .         , gkl ) 
 

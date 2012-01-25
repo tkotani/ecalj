@@ -510,7 +510,7 @@ C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
 ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
             call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
@@ -596,7 +596,7 @@ C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
 ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
             call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
@@ -936,7 +936,7 @@ C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
 C       Call to bloch : 104110=perm orb, transpose, add, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
 ckino Dec.9.2011:                call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-ckino 12月.27.2011:                call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.27.2011:                call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
               call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
@@ -1058,7 +1058,7 @@ C       sqi <- sigma(qpi)
 C       Call to bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
 ckino Dec.9.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-ckino 12月.27.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo 
+ckino Dec.27.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo 
               call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_a_oindxo 
 ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
 ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
@@ -1239,7 +1239,7 @@ C     Call to bloch : 104110=perm orb, transpose, no add, c*16
 C     collinear case:     ksp = isp, jsp=1
 C     noncollinear case:  ksp=1..2,  jsp=1..2
 ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-ckino 12月.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
+ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs 
             call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs 
 ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 

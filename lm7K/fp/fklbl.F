@@ -87,7 +87,7 @@ CSFCPP#if F90
         call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , 
 ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
 ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
-ckino 12月.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
+ckino Dec.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
 ckino Dec.28.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
      .  awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
      .  ) 
@@ -99,7 +99,7 @@ ckino Dec.28.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv
         job = 2
          call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
 ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
-ckino 12月.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
+ckino Dec.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
      .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , fkl ) 
 
       endif

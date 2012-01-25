@@ -34,17 +34,17 @@ C ... Choose dimensions for arrays
 C ... Allocate and occupy the arrays
       nlm=(lmxcy+1)**2
 ckino Dec.14.2011:         allocate(rv_p_ocy(abs(nlm)))
-ckino 12月.27.2011:         allocate(slat%rv_p_ocy(abs(nlm)))
+ckino Dec.27.2011:         allocate(slat%rv_p_ocy(abs(nlm)))
        allocate(slat%rv_a_ocy(abs(nlm)))
 ckino Dec.14.2011:         if (nlm<0) rv_p_ocy(:)=0.0d0
-ckino 12月.27.2011:         if (nlm<0) slat%rv_p_ocy(:)=0.0d0
+ckino Dec.27.2011:         if (nlm<0) slat%rv_p_ocy(:)=0.0d0
        if (nlm<0) slat%rv_a_ocy(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(rv_p_ocg(abs(lnjcg)))
-ckino 12月.27.2011:         allocate(slat%rv_p_ocg(abs(lnjcg)))
+ckino Dec.27.2011:         allocate(slat%rv_p_ocg(abs(lnjcg)))
        allocate(slat%rv_a_ocg(abs(lnjcg)))
 ckino Dec.14.2011:         if (lnjcg<0) rv_p_ocg(:)=0.0d0
-ckino 12月.27.2011:         if (lnjcg<0) slat%rv_p_ocg(:)=0.0d0
+ckino Dec.27.2011:         if (lnjcg<0) slat%rv_p_ocg(:)=0.0d0
        if (lnjcg<0) slat%rv_a_ocg(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(iv_p_ojcg(abs(lnjcg)))
@@ -55,22 +55,22 @@ ckino Dec.28.2011:         if (lnjcg<0) slat%iv_p_ojcg(:)=0
        if (lnjcg<0) slat%iv_a_ojcg(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oidxcg(abs(lnxcg)))
-ckino 12月.27.2011:         allocate(slat%iv_p_oidxcg(abs(lnxcg)))
+ckino Dec.27.2011:         allocate(slat%iv_p_oidxcg(abs(lnxcg)))
        allocate(slat%iv_a_oidxcg(abs(lnxcg)))
 ckino Dec.14.2011:         if (lnxcg<0) iv_p_oidxcg(:)=0
-ckino 12月.27.2011:         if (lnxcg<0) slat%iv_p_oidxcg(:)=0
+ckino Dec.27.2011:         if (lnxcg<0) slat%iv_p_oidxcg(:)=0
        if (lnxcg<0) slat%iv_a_oidxcg(:)=0
 
 
 ckino Dec.14.2011:         call sylmnc ( rv_p_ocy , lmxcy ) 
-ckino 12月.27.2011:         call sylmnc ( slat%rv_p_ocy , lmxcy ) 
+ckino Dec.27.2011:         call sylmnc ( slat%rv_p_ocy , lmxcy ) 
        call sylmnc ( slat%rv_a_ocy , lmxcy ) 
 
 ckino Dec.14.2011:           call scg ( lmxcg , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg ) 
 ckino Dec.14.2011:           call scg ( lmxcg , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg ) 
 ckino Dec.14.2011:           call scg ( lmxcg , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg ) 
-ckino 12月.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg ) 
-ckino 12月.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
+ckino Dec.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg ) 
+ckino Dec.27.2011:           call scg ( lmxcg , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
 ckino Dec.28.2011:           call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg ) 
          call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg ) 
 

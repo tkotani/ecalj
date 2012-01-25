@@ -416,7 +416,7 @@ C   ... Create file LATTC
 
           if (lmxa(i) .gt. -1) then
 ckino Dec.14.2011:               call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
-ckino 12月.27.2011:               call orbl ( i , 0 , ldim , sham%iv_p_oindxo , norb , ltab , ktab , 
+ckino Dec.27.2011:               call orbl ( i , 0 , ldim , sham%iv_p_oindxo , norb , ltab , ktab , 
              call orbl ( i , 0 , ldim , sham%iv_a_oindxo , norb , ltab , ktab , 
      .       xx , offl , i1 ) 
 
@@ -1204,7 +1204,7 @@ c     &        matmul(qlatinv,qp-q),inn
 
                call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,  
 ckino Dec.14.2011:       .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
-ckino 12月.27.2011:       .         igv2 , sham%iv_p_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
+ckino Dec.27.2011:       .         igv2 , sham%iv_p_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
      .         igv2 , sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
      .         , ppovl , phovl ) 
 
