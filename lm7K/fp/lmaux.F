@@ -167,7 +167,7 @@ C ... Heap
 
 cki      integer:: ifx,w_dummy=1
       integer:: ifx,w_dummy(1)=1
-      integer,allocatable:: ics(:)
+ckino 2012.Feb.13 needless      integer,allocatable:: ics(:)
       integer,allocatable:: lmxa(:)
 c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       real(8),allocatable:: z(:),rmax(:)
@@ -268,12 +268,17 @@ ckino Dec.8.2011:         rv_p_oqlv => slat%rv_p_oqlv
 ctakao
 c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
 c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
-      allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
+ckino 2012.Feb.13      allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
+      allocate(lmxa(nclasp),z(nclasp))
 ckino Dec.8.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
 ckino Dec.8.2011:         call icopy ( nclasp , sarray%iv_p_oics , 1 , ics , 1 ) 
 
-      lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
-      z   (1:nclasp) = sspec(ics(1:nclasp))%z
+ckino 2012.Feb.13
+c      lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
+c      z   (1:nclasp) = sspec(ics(1:nclasp))%z
+ckino 2012.Feb.13 end 
+      lmxa(1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%lmxa
+      z   (1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%z
       print *,' lmxa=',lmxa
       print *,' z   =',z
 
@@ -453,7 +458,8 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
           allocate(rmax(nclspp))
           print *,' zzzz nclspp=',nclspp
           do i=1,nclspp
-            rmax(i) =sspec(ics(i))%rmt
+ckino 2012.Deb.13            rmax(i) =sspec(ics(i))%rmt
+            rmax(i) =sspec(sarray%iv_a_oics(i))%rmt
           enddo
 ckino Dec.8.2011           allocate(rv_p_ormax(abs(nclspp)))
 ckino Dec.27.2011:             allocate(sarray%rv_p_ormax(abs(nclspp)))
@@ -867,7 +873,8 @@ C$$$c     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv )
 C$$$      endif
 
 ctakao
-      deallocate(ics,lmxa,z)
+ckino 2012.Deb.13      deallocate(ics,lmxa,z)
+      deallocate(lmxa,z)
       if (allocated(lockc_rv)) deallocate(lockc_rv)
       if (allocated(rmtc_rv)) deallocate(rmtc_rv)
       if (allocated(zc_rv)) deallocate(zc_rv)

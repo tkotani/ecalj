@@ -149,7 +149,7 @@ C ... Heap
 
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
 ctakao
-      integer,allocatable:: ics(:)
+ckino 2021.Feb.13 integer,allocatable:: ics(:)
       real(8),allocatable:: z(:)
 
       logical:: isanrg, l_dummy_isanrg
@@ -202,13 +202,15 @@ C     For now... until input in rdccat is patched
 C ... Class-dependent arrays
 
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
-      allocate(ics(nclasp),z(nclasp))
+ckino 2012.Feb.13  delete ics    allocate(ics(nclasp),z(nclasp))
+      allocate(z(nclasp))
 ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
 ckino Dec.27.2011:         call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 ) 
-       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 ) 
+ckino 2012.Feb.13       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 ) 
 
       do i=1,nclasp
-        z(i)=sspec(ics(i))%z
+ckino 2012 Feb.13        z(i)=sspec(ics(i))%z
+        z(i)=sspec(sarray%iv_a_oics(i))%z
       enddo
 
 c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
