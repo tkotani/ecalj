@@ -75,7 +75,7 @@ c      integer(4),allocatable:: iqok(:)
 
 c---
       real(8),allocatable :: rkpr(:,:,:),rkmr(:,:,:),rofi(:,:)
-      real(8):: eee,eees, q_org(3)
+      real(8):: eee,eees, q_org(3),screenfac
       integer(4):: ifvcfporg,nqbz_in,nblochpmx_in
       complex(8),allocatable:: vcoul_org(:,:)
 
@@ -94,7 +94,7 @@ c---
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b
-      logical:: is_mix0vec
+      logical:: is_mix0vec,newaniso
 
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -420,6 +420,10 @@ c      if(alat1.le.0.5d0) alat1=alat
       qadd=.7*qdist0
       a0=as/rdist0
       awald=a0/alat
+cccccccccccccccccccccccccccccccccccc
+c takao
+c      tol1= tol*alat**(lmax+1) *0.01
+cccccccccccccccccccccccccccccccccccccc
       tol1= tol*alat**(lmax+1)
       if(allochk) write(*,*) 'allocate(dlv, qlv, work) '
       allocate(dlv(3,nkdmx), qlv(3,nkqmx), work(max0(nkdmx,nkqmx)) )
@@ -440,12 +444,14 @@ c      if(alat1.le.0.5d0) alat1=alat
       deallocate(work)
 
 C... readin r0c
-      if(imode==101.or.imode==102) then
+      if(newaniso()) then
+        eee=screenfac() !takao feb2012
+      elseif(imode==101.or.imode==102) then
         eee = eees()
       else
         eee=0d0
       endif
-      write(6,"(' Coulomb is exp(eee*r)/r. eee=',d13.6,d13.6)")eee
+      write(6,"(' Coulomb is exp(sqrt(-eee)*r)/r. eee=',d13.6,d13.6)")eee
 
 C--- bessel and hankel for the expansion of exp(-r/r_0)/r.
 c bessel and hankel is renomarized so that its behaves as r^l and r^{-l-1} near r=0.
@@ -696,8 +702,9 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
           qq = q
         endif
 
-        if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
-
+c comment out takao
+c        if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
+c
 
 C... q+G vector
         call readqg('QGcou',qq,ginv,  quu,ngc, ngvecc )
@@ -705,9 +712,12 @@ C... q+G vector
         write(6,*)
         write(6,'("###  iqx q ngc =",i5,3f10.4,i5," #############")') iqx,q,ngc
 
-        if(bzcase()==1.and.iqx==1) then
+        if(newaniso()) then
+          continue
+        elseif(bzcase()==1.and.iqx==1) then
           goto 1101
         endif
+
 c        ngc = ngcn(iq)
 c        ngvecc(1:3,1:ngc) = ngvecci(1:3,1:ngc,iq)
 c        write(6,*)' iq ngc=',iq, ngc
@@ -740,6 +750,9 @@ c          call strxq(1,0d0,q,p,nlx1,nlx2,nlx1,alat,voltot,
             deallocate( s,sd )
           enddo
         enddo
+ccccccccccccccccccccccccccc
+c        strx=0d0
+cccccccccccccccccccccccccccc
 
 C--- onsite integrals <j(e=0)|P^(q+G)_L> and <B|v(onsite)|B>
 c$$$      if(.true.) then !==New version without sgpp and fouvp allocation June2004=====
@@ -976,7 +989,9 @@ C... Store matching matrix
           deallocate(pomat)
         endif
 
-        if(bzcase()==1.and.iqx==1)then
+        if(newaniso()) then
+          continue
+        elseif(bzcase()==1.and.iqx==1)then
           cycle
         endif
 
@@ -1006,7 +1021,7 @@ c
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
 c Mix0vec ---------------------------------
-        if( iqx > nqibz ) then
+        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
           if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
           allocate( oo(ngb,ngb) )
           allocate( ppovl(ngc,ngc) )
@@ -1039,7 +1054,8 @@ c Mix0vec ---------------------------------
      &    write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
           allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
           hh  = - vcoul0
-          nmx = 5
+          nmx = 15
+c          nmx = ngb
           call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
           do ipl1=1,nev
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
@@ -1055,7 +1071,18 @@ c Mix0vec ---------------------------------
      &             , (sum(tpiba**2*q(1:3)**2)-eee)
           write(6,'(" --- vcoul(cal ) =",2d14.6)') 
      &    sum( dconjg(zz(1:ngb,1))*matmul( vcoul0,zz(1:ngb,1)) )*voltot
+ccccccccccccccccccccccccccccccccccccccccc
+c          do igc=1,ngb
+c          qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
+c          write(6,'(" --- vcoul(exact) xxx =",d14.6," absq2=",d24.16)')
+c     &    fpi*voltot/(sum(tpiba**2*(qqx(1:3)**2)-eee))
+c     &             , (sum(tpiba**2*(qqx(1:3)**2)-eee))
+c          write(6,'(" --- vcoul(cal ) xxx =",2d14.6)') 
+c     &    sum( dconjg(zz(1:ngb,igc))*matmul( vcoul0,zz(1:ngb,igc)) )*voltot
+c          enddo
+cccccccccccccccccccccccccccccccccccccccccc
           deallocate(vcoul0)
+
           if(wqt(iqx-nqibz)==0d0) then
 
 C --- To get the vector <Mixed basis| q=0> --------------

@@ -299,12 +299,26 @@ cc --- add a constant wave function ----
 c Here you can add any functions in the same way.
       if(smbasis().and.smbasis_case()==1) goto 113
 
+ctakao
       if(zvztest()/=2) then !oct2004
         iprad  = iprad  + 1 ! radial function index
         nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
         ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
         rprod(1:nrofi,iprad) = r(1:nrofi)
       endif
+c$$$ this is better but so many ProductBasis. Used for the check on Coulomb matrix at q->0.
+c$$$      if(zvztest()/=2) then 
+c$$$        do lx = 0,lcutmx !feb2012
+c$$$          iprad  = iprad  + 1 ! radial function index
+c$$$          nxx(lx) = nxx(lx) + 1
+c$$$          ipx(lx, nxx(lx)) = iprad
+c$$$          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**lx
+c$$$          iprad  = iprad  + 1 ! radial function index
+c$$$          nxx(lx) = nxx(lx) + 1
+c$$$          ipx(lx, nxx(lx)) = iprad
+c$$$          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**(lx+1)
+c$$$        enddo
+c$$$      endif
 
 c ---
  113  continue

@@ -152,6 +152,8 @@ c        write(6,*)ibl1,n,l,m,lmbl(ibl1)
         write(6,*)' ibl1 nbloch',ibl1, nbloch
         stop ' vcoulq: error ibl1/= nbloch'
       endif
+
+
 c-- <B|v|B> block
 c      write(6,*)' vcoulq: bvb block xxx rojbsum='
 c      write(6,*) sum(rojb(:,:,1))
@@ -184,6 +186,10 @@ c      write(6,*) sum(sgbb(:,:,:,4))
           endif
         enddo
       enddo
+
+ccccccccccccccccccccccccccc
+c      goto 1112
+ccccccccccccccccccccccccccc
 
 c <P_G|v|B>
       if(debug) write(6,*)' vcoulq_4: pgvb block 1111'
@@ -313,6 +319,10 @@ c     &      +  sgpp(ig1, ig2, lm2, ibas2)
           enddo
         enddo
       enddo
+ccccccccccccccccccccccccccccccc
+c 1112 continue
+ccccccccccccccccccccccccccccccc
+
 
 c-- Right-Upper part of vcoul.
       if(debug) write(6,*)' vcoulq_4: right-upper'

@@ -47,6 +47,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret
+      real(8):: deltaq
 c------------------------------------------------
       qreduce0 = qreduce()
       if(iq0pin == 3) then
@@ -268,7 +269,9 @@ c        endif
 c          nq0x = 8*abs (q0pchoice())
           nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
         endif
-
+ctakao cccccccccccccccccccccc
+        nq0x=4
+ccccccccccccccccccccccccccccc
         www=wgtq0p()
 
         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
@@ -280,15 +283,36 @@ c          nq0x = 8*abs (q0pchoice())
           nmm=1
           if(.not.timereversal()) nmm=2
           allocate( q0x(3,nq0x), wt0(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
-          call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
-     i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
-     o         q0x,wt0,nq00i)
+ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          nq00i=3
+          pi=4d0*atan(1d0)
+          deltaq=0.01*alat/(2*pi) !dq is 0.01 a.u.
+          q0x(:,1)=(/deltaq, 0d0,    0d0/)
+          q0x(:,2)=(/0d0, deltaq,    0d0/)
+          q0x(:,3)=(/0d0,    0d0, deltaq/)
+c          q0x(:,4)=(/0d0, 0d0, 0d0/)
+c          deltaq=0.01/sqrt(2d0)*alat/(2*pi) !dq is 0.01 a.u.
+c          q0x(:,4)=(/0d0,   deltaq, deltaq/)
+c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
+c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
+c          q0x(:,7)=(/0d0, 0d0, 0d0/)
+          wt0=1d0/3d0
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c          call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
+c     i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
+c     o         q0x,wt0,nq00i)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 c ... inequivalent q0x points ----
           call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt)
           write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
         print *,' xxxxxxx nq0i=',nq0i
-
+cccccccccccccccccccccccccccccccccccccccccccc
+c takao test
+c        q0i=q0i*0.0125
+c         q0i=q0i*0.01
+cccccccccccccccccccccccccccccccccccccccccccc
         open (1101,file='Q0P')
         www=wgtq0p()
         if(bzcase()==2) then
@@ -415,7 +439,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C... feb2006 enlarge number of q
       if(.not.timereversal().and.iq0pin==1) then
-        write(6,*)" timereversal==off : take -Q0P"
+        write(6,*)" timereversal==off : add -Q0P points"
         do iq=1,nq0i
           q0i(:,iq+nq0i)= -q0i(:,iq)
         enddo

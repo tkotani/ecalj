@@ -1,3 +1,10 @@
+      logical function newaniso()
+      newaniso=.true.
+      end
+      real(8) function screenfac()
+      screenfac=-0.0001d0 !
+      end
+
 c      integer function nomatm()
 cc In cases (corei7+gfortran and so on in my case),zgemm did not work.
 cc now in ppbafp.fal.F
@@ -12,7 +19,7 @@ c===========================================================
 c============================================================
       logical function is_mix0vec()
 !is_mis0vec=0 is original version. But it caused a problem at BZ bounday.
-      is_mix0vec=.true. 
+      is_mix0vec=.true.  
       end
 
       logical function evaltest()

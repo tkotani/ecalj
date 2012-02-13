@@ -1040,7 +1040,7 @@ c Mix0vec ---------------------------------
      &    write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
           allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
           hh  = - vcoul0
-          nmx = 5
+          nmx = 25
           call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
           do ipl1=1,nev
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
