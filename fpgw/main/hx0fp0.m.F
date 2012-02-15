@@ -174,7 +174,7 @@ c      integer :: nw2
       complex(8)::x0mx
       complex(8),allocatable:: UU0(:,:),VT0(:,:)
 
-      logical :: ngczero=.false., sergeyv=.false., chipm=.false.,nolfco=.false.
+      logical :: ngczero=.false., sergeyv=.true., chipm=.false.,nolfco=.false. !sergeyv only
      &  ,epsmode=.false.,normalm=.false., eiqr=.false.
       integer(4)::  ife, idum4 !ingczero,ifchipmn,ifchipm,
       real(8):: qs,qt,ww,muu, ddq(3)
@@ -215,12 +215,12 @@ C --- computational mode select
       write(6,"(a)") 
      &      '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
       write(6,"(a)") ' #1:run mode'
-      write(6,"(a)") '    1   : normal'
-      write(6,"(a)") '    2   : epsNolfc'
-      write(6,"(a)") '    3   : eps'
-      write(6,"(a)") '    22  : chi^+- NoLFC'
-      write(6,"(a)") '    23  : chi^+- '
-      write(6,"(a)") '    101 : total energy Miyake'
+c      write(6,"(a)") '    1   : normal'
+c      write(6,"(a)") '    2   : epsNolfc'
+c      write(6,"(a)") '    3   : eps'
+c      write(6,"(a)") '    22  : chi^+- NoLFC'
+c      write(6,"(a)") '    23  : chi^+- '
+c      write(6,"(a)") '    101 : total energy Miyake'
       write(6,"(a)") '    11  : normal    Sergey'
       write(6,"(a)") '    202 : epsNoLFC  Sergey'
       write(6,"(a)") '    203 : eps       Sergey'
@@ -235,7 +235,7 @@ c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
 ! Test mode   write(6,"(a)") '   tettest(4) Realtetwt4(5) Realtetwt5(6) '
       call readin6(ixc,iqxini,iqxend, idum4 ) !ingczero)
       call headver('hx0fp0',ixc)
-      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+c      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
       if(iqxini ==0 ) then
         paralellx0=.false.
         write(6,"(' ixc = ',i4)") ixc
@@ -245,68 +245,35 @@ c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
      &  ixc, iqxini, iqxend
       endif
 
-! original mode
-      if    (ixc==1) then
-        write(6,*) ' OK ixc=1. normal mode'
-        normalm=.true.
-!     -- eps modes
-      elseif(ixc==2) then
-        write(6,*) ' OK ixc=2. eps mode. ONLY NoLFC'
-        omitqbz=.true.
-      elseif(ixc==3) then
-        write(6,*) ' OK ixc=3. eps mode'
-        omitqbz=.true.
-      elseif(ixc==22)then
-        write(6,*) ' OK ixc=22. (chi^{+-})^{-1} NoLFC mode'
-        omitqbz=.true.
-      elseif(ixc==23)then
-        write(6,*) ' OK ixc=23. (chi^{+-})^{-1} mode' !May2005
-        omitqbz=.true.
-! test modes
-      elseif(ixc==4) then
-        write(6,*)            ' OK ixc=4. test. mode tetwt4.vs.tetwt5.'
-      elseif(ixc==5) then
-        write(6,*) ' OK ixc=5. Real-axis tetwt4 mode'
-
-! total energy mode
-      elseif(ixc==101) then
-        write(6,*)' OK ixc=101. Miyake x0 mode'
-        ecorr_on=901
-
+      if(ixc<=5.or.ixc==22.or.ixc==23.or.ixc==101) then
+         write(*,*)'these modes are removed now'
+         stop 'these modes are not supported'
 ! test mode
       elseif(ixc==6) then
-        sergeyv=.true.
         write(6,*) ' OK ixc=6. Real-axis tetwt5 mode'
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
-        sergeyv=.true. !ixc=11
         normalm=.true.
-
 !     -- eps mode NoLFC
       elseif(ixc==202) then
         write(6,*) " OK ixc=202  sergey's eps mode Only NoLFC "
-        sergeyv=.true. !ixc=11
         realonly=.true.
 c        iepsmode=202
         omitqbz=.true.
 !     -- eps mode with LFC
       elseif(ixc==203) then
         write(6,*) " OK ixc=203 sergey's eps mode with LFC "
-        sergeyv=.true. !ixc=11
         realonly=.true.
 c        iepsmode=203
         omitqbz=.true.
 ! Total energy modes
       elseif(ixc==12) then
         write(6,*) " OK ixc=12 Miyake's total energy Sergey"
-        sergeyv=.true. !ixc=11
         imagonly=.true.
         ecorr_on=901
-
 !     -- chipm mode NoLFC
       elseif(ixc==222) then
         write(6,*) " OK ixc=222    chipm sergey's "
-        sergeyv=.true.
         realonly=.true.
         omitqbz=.true.
         eiqr =.true.
@@ -320,24 +287,18 @@ c        eiqr =.true.
 !     -- eps mode with LFC
       elseif(ixc==223) then
         write(6,*) " OK ixc=223  chipm with LFC sergey's  "
-        sergeyv=.true.
         realonly=.true.
         omitqbz=.true.
         eiqr =.true.
       else
         stop' hx0fp0: mode ixc is not appropriate'
       endif
-!
-      if(    ixc==  2.or.ixc==  3.or.ixc== 22.or.ixc== 23
-     &   .or.ixc==202.or.ixc==203.or.ixc==222.or.ixc==223) then
-c     &   .or.ixc==10222) then
-        epsmode=.true. !        iepsmode = ixc
-      endif
-      if(epsmode) then
+
+      if(ixc==202.or.ixc==203.or.ixc==222.or.ixc==223) then
+        epsmode=.true. 
         if(mod(ixc,200)==22.or.mod(ixc,200)==23) chipm =.true.
         if(mod(ixc,10)==2)                       nolfco=.true.
       endif
-C ...  End of switch section.
 
 c      if(epsmode) then
 c        if(chipm) ifchipmlog = iopen ('ChiPM.log',1,3,0)
@@ -385,37 +346,28 @@ C --- Use regular mesh even for bzcase==2 and qbzreg()=T
         write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
       enddo
       print *,' nqbz nqibz =',nqbz,nqibz
-
 c      print *,  qbz
 c      print *,' irk=',irk
 c      print *,' #### idtetf: ####'
 c      print *, idtetf
 
 !- oct2005 not implimented cases.
-      if(smbasis()) then
-        if(.not.sergeyv) 
-     &  stop ' smbasis=T & sergeyv=F is not implimented yet'
-        if(chipm) then
-          print *,' smbasis=T & chipm=T is not implimented yet.'//
+      if(smbasis().and.chipm) then
+        print *,' smbasis=T & chipm=T is not implimented yet.'//
      &       ' Supply consistent MixSpin for smbasis!'//
      &       ' MixSpin should be converted at the end of hvccfp0.'
-          stop ' smbasis=T & chipm=T is not implimented yet.'
-        endif
+        stop ' smbasis=T & chipm=T is not implimented yet.'
       endif
-
 !
       call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
       write(6,"(' ScaledGapX0=',f5.3)") sciss
 
 C --- readin GWIN and LMTO, then allocate and set datas.
-      if(epsmode.and.sergeyv) then
+      if(epsmode) then
         nwin = -999
-      elseif(ixc==101.or.ixc==1.or.sergeyv) then
-        nwin = 0      !Readin nw from NW file
       else
-        nwin = -999   !Not readin NW file
+        nwin = 0      !Readin nw from NW file
       endif
-c      if(iepsmode==202.or.iepsmode==203) nwin = -999
 
 C ... Readin by genallcf
       incwfin= 0  !use ForX0 for core in GWIN
@@ -563,33 +515,30 @@ C ... initialization of readEigen
       call init_readeigen2(mrecb,nlmto,mrecg)
 
 C --- set realomega, imagomega tetra nw niw nwp ifgb0vec ------------
-      if( ixc==101 ) then
-        realomega =.false.
-        imagomega =.true.
-        nw = 0
-        nwp= 0
-      elseif( ixc==1 ) then !old imagw = 2 case
-        realomega =.true.
-        imagomega =.true.
-      elseif( epsmode.and.(.not.sergeyv)) then !ixc==2.or.ixc==3.or.ixc==22.or.ixc==23 ) then
-        print *, 'mode=',ixc
-        realomega =.true.
-        imagomega =.false.
-        niw = 0
-        call getkeyvalue("GWinput","EPSrange",epsrng )
-        call getkeyvalue("GWinput","EPSdw",  dwry )
-        epsrng=epsrng/2d0
-        dw = dwry/2d0
-        if(dw==0d0) then
-          nw = 1
-        else
-          nw = (epsrng/2d0 - 1d-10)/(dw/2d0) + 2 !epsrng/2d0 corresponds to in a.u.
-        endif
-      elseif(ixc==4.or.ixc==5.or.ixc==6) then
-! ... These are test modes.
-! ixc=4 tetrahedren weight test. tetwt5.vs.tetwt5. Write tethis.chk
-! ixc=5 Spectrum function (Img part) along the Real axis with tetwt4
-! ixc=6 Spectrum function (Img part) along the Real axis with tetwt5. Histgram method.
+c$$$      if( ixc==101 ) then
+c$$$        realomega =.false.
+c$$$        imagomega =.true.
+c$$$        nw = 0
+c$$$        nwp= 0
+c$$$      elseif( ixc==1 ) then !old imagw = 2 case
+c$$$        realomega =.true.
+c$$$        imagomega =.true.
+c$$$      elseif( epsmode.and.(.not.sergeyv)) then !ixc==2.or.ixc==3.or.ixc==22.or.ixc==23 ) then
+c$$$        print *, 'mode=',ixc
+c$$$        realomega =.true.
+c$$$        imagomega =.false.
+c$$$        niw = 0
+c$$$        call getkeyvalue("GWinput","EPSrange",epsrng )
+c$$$        call getkeyvalue("GWinput","EPSdw",  dwry )
+c$$$        epsrng=epsrng/2d0
+c$$$        dw = dwry/2d0
+c$$$        if(dw==0d0) then
+c$$$          nw = 1
+c$$$        else
+c$$$          nw = (epsrng/2d0 - 1d-10)/(dw/2d0) + 2 !epsrng/2d0 corresponds to in a.u.
+c$$$        endif
+      if(ixc==6) then
+! test modes. ixc=6 Spectrum function (Img part) along the Real axis with tetwt5. Histgram method.
         realomega = .true.
         imagomega = .false.
         tetra     = .true.
@@ -639,7 +588,7 @@ c$$$        endif
         nwhis=nw
 
 C ... Sergey Faleev's normal mode (Hilbert transformation for \chi.
-      elseif(sergeyv) then
+      else
         realomega = .true.
         imagomega = .true.
         tetra     = .true.
@@ -699,7 +648,7 @@ C ... for frhis_m
             !  dressed coulomb line
           endif
         enddo
-        if(epsmode.and.sergeyv) then !epsmode==202.or.iepsmode==203) then
+        if(epsmode) then 
           nw  = nwhis-1
           niw = 0
         endif
@@ -721,21 +670,20 @@ c        write(6,"(' ixc=11: niw nw nwhis=',3i5)") niw,nw,nwhis
         npm=2
         nw_i=-nw
         if(.not.tetra)      stop ' tetra=T for timereversal=off'
-        if(.not.sergeyv)    stop ' sergeyv=T for timereversal=off'
         if(chipm)           stop ' chipm=F for timereversal=off'
       endif
 
 ! ...
-      if(realomega.and.(.not.sergeyv)) then !     elseif (realomega.and.(ixc==22.or.ixc==23)) then
-        nwp = nw+1 !Feb2006 I want to unify the meaning of nwp as nwp=nw+1
-        !With this change x0kf_v2z calculate one more freq_r along real axis.
-        ! at freq_r(nw). --->It WAS not calculated. It wat up to freq_r(nw-1).
-        ! But not tested well.
-        allocate( freq_r(0:nw) )
-        do iw = 0,nw
-          freq_r(iw) = dw*iw ! freq_r
-        enddo
-      endif
+c$$$      if(realomega.and.(.not.sergeyv)) then !     elseif (realomega.and.(ixc==22.or.ixc==23)) then
+c$$$        nwp = nw+1 !Feb2006 I want to unify the meaning of nwp as nwp=nw+1
+c$$$        !With this change x0kf_v2z calculate one more freq_r along real axis.
+c$$$        ! at freq_r(nw). --->It WAS not calculated. It wat up to freq_r(nw-1).
+c$$$        ! But not tested well.
+c$$$        allocate( freq_r(0:nw) )
+c$$$        do iw = 0,nw
+c$$$          freq_r(iw) = dw*iw ! freq_r
+c$$$        enddo
+c$$$      endif
 
 C ... get eigenvector corresponds to exp(iqr) (q is almost zero).
       if(epsmode) then !iepsmode/=0) then ;  print *, ' read in Mix0vec'
@@ -762,13 +710,13 @@ C ... get eigenvector corresponds to exp(iqr) (q is almost zero).
       endif
 
 C --- WVI only for imagonly for ixc==12
-      if(imagonly.and.sergeyv) then
+      if(imagonly) then
         realomega =.false.
         imagomega =.true.
       endif
 
 C --- epsPP noLFC mode for ixc==13
-      if(realonly.and.sergeyv) then
+      if(realonly) then
         realomega =.true.
         imagomega =.false.
       endif
@@ -965,7 +913,7 @@ C... check write 1st part for Ec mode to ecorr.chk Nov2004
         totexc = 0d0
         trpv   = 0d0
         trlog  = 0d0
-        if(.not.sergeyv) necut=1
+c        if(.not.sergeyv) necut=1
       else
         necut=1
       endif
@@ -1059,12 +1007,12 @@ c          open(ifv,file='MixSpin.'//charnum3(ibas))
             spinmom=(chg1-chg2)
             schi=1d0
             if(spinmom<0d0) then
-              if(.not.sergeyv)  then
-                freq_r= -freq_r
-              else
+c              if(.not.sergeyv)  then
+c                freq_r= -freq_r
+c              else
                 schi  = -1d0   ! This affects to dpsion. Obtained results
                 ! should be the same in both mode.
-              endif
+c              endif
             endif
           endif
 
@@ -1119,7 +1067,7 @@ c      endif
       else
         nmbas_in = 1
       endif
-      if(epsmode.and.sergeyv.and.nolfco) then
+      if(epsmode.and.nolfco) then
         allocate( rcxqmean(nwhis,npm,nmbas_in,nmbas_in))
         if(debug) write(6,"('fff:',3i5)") nwhis,npm,nmbas_in
       else
@@ -1362,10 +1310,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        write(6,*) "---  end of allocation zw0 zxq zxqi"
         if(ixc==6 ) then
           allocate( rcxq(ngb,ngb,nwp,npm) )
-        elseif(epsmode.and.sergeyv.and.nolfco) then !iepsmode==202) then
+        elseif(epsmode.and.nolfco) then !iepsmode==202) then
           allocate( rcxq(1,1,1,npm) )
           rcxqmean=0d0
-        elseif(sergeyv) then
+        else
           write(6,*) "rcxq alloc ngb nwhis npm ---",ngb,nwhis,npm
           allocate( rcxq(ngb,ngb,nwhis,npm) )
         endif
@@ -1373,7 +1321,7 @@ c        write(6,*) "---  end of allocation zw0 zxq zxqi"
 c        write(6,*) "---  aaa1 ---"
         zxq=0d0; zxqi=0d0
 c        write(6,*) "---  aaa2 --- sergeyv=",sergeyv
-        if(sergeyv) rcxq = dcmplx(0d0,0d0)
+        rcxq = dcmplx(0d0,0d0)
 c        write(6,*) "---  aaa3 ---"
 c============ loop over spin============================================
 !=======================================================================
@@ -1388,10 +1336,8 @@ C ... spin chi_charge or chi_+-
             write(6,*)" chi_+- mode ixc=",ixc
             if(is==1) isf=2
             if(is==2) isf=1
-            if(sergeyv) then
-              rcxq=0d0
-              if(epsmode.and.nolfco) rcxqmean=0d0
-            endif
+            rcxq=0d0
+            if(epsmode.and.nolfco) rcxqmean=0d0
           endif
 
 C ---  tetraini block tetra==.true.===============================1ini
@@ -1439,7 +1385,7 @@ C ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
      i          ihw,nhw,jhw,   ! job=1    not-used
      o          whw,           ! job=1    not-used
      i        iq,is,isf,nqibz)
-            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
+c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
             nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
             if(debug) print *,' nbnbx=',nbnbx
             allocate(  n1b(nbnbx,nqbz,npm)
@@ -1456,154 +1402,155 @@ C ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
           endif
 C --- end of tetraini block==========================================1end
 
-
-C --- TetrahedronWeight_4 block. tettwt4  ixc<=5 ==============2ini
-          if(tetra.and.(.not.sergeyv)) then !(ixc==101.or.ixc<=5.or.ixc==22.or.ixc==23)) then
-            allocate( wgt(nband+nctot,nband,nqbz) )
-            if(.not.tmpwwk) allocate( wwk(nbnbx,nqbz,niw+nw+1)) ! +1 is for nwp case
-            if(tmpwwk) rewind(ifwwk)
-            nwmax = niw +nw +1
-            if(ixc==4.or.ixc==5) nwmax = nw+1
-            do iw = 1, nwmax
-              if(ixc==4.or.ixc==5.or.ixc==6) then
-                fff = freq_r(iw-1)+img*delta
-                write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)")iw-1,fff*2d0
-              elseif(iw<=niw) then
-                fff = img * freq_i(iw)            ! along img axis
-                write(6,"(' *** iw on imag= ',i3,' omega(Ry)=',2d15.6)")iw,fff*2d0
-              endif
-            enddo
-
-            do 1010 iw = 1,nwmax
-              if(ixc==4.or.ixc==5.or.ixc==6) then
-                fff = freq_r(iw-1)+img*delta
-!                write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)")
-!     &          iw-1,fff*2d0
-              else
-                if(iw<=niw) then
-                  fff = img * freq_i(iw)            ! along img axis
-!                 write(6,"(' *** iw on imag= ',i3,' omega(Ry)=',2d15.6)")
-!     &           iw,fff*2d0
-                else
-!nw iw-niw ---> iw-niw-1
-                  fff = freq_r(iw-niw-1) + img*delta ! delta is in a.u.  ! along real axis
-!                 write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)") iw,fff*2d0
-                endif
-              endif
-
-              call tetwt4x_dev(fff,  
-     i              q, ekxx1, ekxx2, qbas,ginv,ef,
-     d          ntetf, nqbzw, nband,nqbz,
-     i          nctot,ecore(1,is),idtetf,qbzw,ib1bz, chipm, !ixc,
-     o          wgt, nbnbtt,
-     i       iq,is,isf,nqibz) ! new input for devided-tetrahedron method.
-
-!-------------------
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C ... Be careful about sign of spin direction.
-c This may be confusing.
-c Maybe better to make it clean with clearer notation.
-              if(chipm.and.spinmom<0) wgt= dconjg(wgt)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-              if(dreal(fff)==0d0) wgt = dreal(wgt) ! imag part zero clear for omg=0 !this is not necessary.
-
-              if(tmpwwk) then
-                print *,' keyx rewind ifwwk nwmax=',iw,nbnbx,nqbz
-                call rsvwwk4_w( wgt,nqbz,nband,nctot,nbnbx,
-     i          n1b, n2b, nbnb, ifwwk)
-              else
-                call rsvwwk4( wgt,nqbz,nband,nctot,nbnbx,
-     i          n1b, n2b, nbnb,
-     o          wwk(1,1,iw) )
-              endif
-ccccccccccccccccccccccccccccc
-c             write(996,"(' --- iq iw=',2i3)" ),iq,iw
-c             do ik  = 1,nqbz
-c             do ibib= 1,nbnb(ik)
-c               write(996,"(4i4,2d16.8)" )
-c     &         ik,iw,n1b(ibib,ik),n2b(ibib,ik),wwk(ibib,ik,iw)
-c             enddo
-c             enddo
-cccccccccccccccccccccccccccc
-c--------------------------
-c              if( maxval(nbnb(1:nqbz,iw)) > nbnbx) then ! security check
-c               print *,' hx0fp0: maxval(nbnb(1:nqbz,iw)) > nbnbx ',
-c     &          nbnbx,nbnb(1:nqbz,iw)
-c                stop ' hx0fp0: maxval(nbnb(1:nqbz,iw)) > nbnbx '
-c              endif
-c--------------------------
-ccccccccccccccccccccccccccccccc
-c            if(iq==2.and.iw==nwmax) write(996,*)' --- end of iq=2 ---'
-c            if(iq==3.and.iw==1) then
-c             write(996,"(' --- iq iw=',2i3)" ),iq,iw
-c             do ik  = 1,nqbz
-c             do ibib= 1,nbnb(ik)
-c               write(996,"(' k ib jb=',3i4,' wwk=',2d16.8)" )
-c     &         ik,n1b(ibib,ik),n2b(ibib,ik),wwk(ibib,ik,iw)
-c             enddo
-c             enddo
-c             stop '----- test end ------------'
-c           endif
-ccccccccccccccccccccccccccccccc
- 1010       continue
-            print *,'end of 1010 loop'
-            deallocate(wgt)
-            if(tmpwwk) then
-              allocate( wwk(nbnbx,nqbz,nwmax) )
-              print *,' wwk allocated'
-              ifwwk=iclose('tmp.wwk')
-c              rewind(ifwwk)
-              ifwwk = iopen('tmp.wwk',0,-1,0)
-              print *,' keyx rewind ifwwk nwmax=',nwmax,nbnbx,nqbz,niw,nw
-              do iw=1,nwmax
-                read(ifwwk) wwk(1:nbnbx,1:nqbz,iw)
-              enddo
-              ifwwk=iclose('tmp.wwk')
-              print *,' readend of wwk'
-            endif
-          endif
-C --- TetrahedronWeight_4 block end.========================2end
-
-
-c==============x0kf_v2 block original(.not.sergeyv) case =====================3ini
-          if(tetra.and.((.not.sergeyv).and.ixc/=4) )then !ixc<=3.or.ixc==5.or.ixc==101.or.ixc==22.or.ixc==23)) then
-            if(ixc==5) then
-              wwk = dimag(wwk)
-            endif
-            print *,' --- goto x0kf_v2z'
-            if(npm==2) stop 'x0kf_v2z may not work for npm==2'
-            call x0kf_v2z(   ! lessl,
-     i            wwk,n1b,n2b,nbnbx,nbnb, tetra, ! for tetra=T
-     i              q, is,isf, nspin, !is,  !,ifcphi ifev1,ifev2 ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
-     i              qbas,ginv,ef,qbz,wbz,   !iindxk,
-c     i            index_qbz,n_index_qbz, jan2004
-     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, !mdim=nblocha
-     i              ppb(1,is), !,pdb(1,is),dpb(1,is),ddb(1,is),
-     i              freq_r,freq_i,delta,realomega,imagomega, 
-     i              icore,ncore,
-     &              ecore(1,is),
-     d            nlmto,nqbz,noccx,noccxv,
-     d            nl,nclass,natom,nnc,
-     d            nlnmx,mdimx,nbloch,nwp,  niw,
-c     i    iq,ngpn,ngcni(iqx),ngpmx,ngcmx  , geigB(1,1,1,is), Jan2004
-c     i    ngvecpB,ngveccB, ngveccB(1,1,iqx),
-     i     iq,ngc,ngpmx,ngcmx  ,
-c     i    ngveccB,  !ngveccB(1,1,iqx),
-     i     nqbze,nband,nqibz, 
-     o     zxq,zxqi,            ! zxq... are accumulated variable for spins 
-     i     nolfco,zzr,    !for iepsmode
-     o     x0mean, !   )  !for iepsmode
-     i     vcoul,ngb ) ! for te
-          endif
-          if(epsmode.and.nolfco) 
-     &      print *,' nolfco --- end of x0kf_v2 sum x0mean',sum(abs(x0mean))
-c=============x0kf_v2 block end===============================3end
+c sergeyv=T only now feb2012
+c$$$C --- TetrahedronWeight_4 block. tettwt4  ixc<=5 ==============2ini
+c$$$          if(tetra.and.(.not.sergeyv)) then !(ixc==101.or.ixc<=5.or.ixc==22.or.ixc==23)) then
+c$$$             allocate( wgt(nband+nctot,nband,nqbz) )
+c$$$             if(.not.tmpwwk) allocate( wwk(nbnbx,nqbz,niw+nw+1)) ! +1 is for nwp case
+c$$$             if(tmpwwk) rewind(ifwwk)
+c$$$             nwmax = niw +nw +1
+c$$$             if(ixc==4.or.ixc==5) nwmax = nw+1
+c$$$             do iw = 1, nwmax
+c$$$                if(ixc==4.or.ixc==5.or.ixc==6) then
+c$$$                   fff = freq_r(iw-1)+img*delta
+c$$$                   write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)")iw-1,fff*2d0
+c$$$                elseif(iw<=niw) then
+c$$$                   fff = img * freq_i(iw) ! along img axis
+c$$$                   write(6,"(' *** iw on imag= ',i3,' omega(Ry)=',2d15.6)")iw,fff*2d0
+c$$$                endif
+c$$$             enddo
+c$$$
+c$$$             do 1010 iw = 1,nwmax
+c$$$                if(ixc==4.or.ixc==5.or.ixc==6) then
+c$$$                   fff = freq_r(iw-1)+img*delta
+c$$$!     write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)")
+c$$$!     &          iw-1,fff*2d0
+c$$$                else
+c$$$                   if(iw<=niw) then
+c$$$                      fff = img * freq_i(iw) ! along img axis
+c$$$!     write(6,"(' *** iw on imag= ',i3,' omega(Ry)=',2d15.6)")
+c$$$!     &           iw,fff*2d0
+c$$$                   else
+c$$$!     nw iw-niw ---> iw-niw-1
+c$$$                      fff = freq_r(iw-niw-1) + img*delta ! delta is in a.u.  ! along real axis
+c$$$!     write(6,"(' *** iw on real= ',i3,' omega(Ry)=',2d15.6)") iw,fff*2d0
+c$$$                   endif
+c$$$                endif
+c$$$
+c$$$                call tetwt4x_dev(fff,  
+c$$$     i               q, ekxx1, ekxx2, qbas,ginv,ef,
+c$$$     d               ntetf, nqbzw, nband,nqbz,
+c$$$     i               nctot,ecore(1,is),idtetf,qbzw,ib1bz, chipm, !ixc,
+c$$$     o               wgt, nbnbtt,
+c$$$     i       iq,is,isf,nqibz) ! new input for devided-tetrahedron method.
+c$$$
+c$$$!-------------------
+c$$$
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$C ... Be careful about sign of spin direction.
+c$$$c This may be confusing.
+c$$$c Maybe better to make it clean with clearer notation.
+c$$$              if(chipm.and.spinmom<0) wgt= dconjg(wgt)
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$
+c$$$              if(dreal(fff)==0d0) wgt = dreal(wgt) ! imag part zero clear for omg=0 !this is not necessary.
+c$$$
+c$$$              if(tmpwwk) then
+c$$$                print *,' keyx rewind ifwwk nwmax=',iw,nbnbx,nqbz
+c$$$                call rsvwwk4_w( wgt,nqbz,nband,nctot,nbnbx,
+c$$$     i          n1b, n2b, nbnb, ifwwk)
+c$$$              else
+c$$$                call rsvwwk4( wgt,nqbz,nband,nctot,nbnbx,
+c$$$     i          n1b, n2b, nbnb,
+c$$$     o          wwk(1,1,iw) )
+c$$$              endif
+c$$$ccccccccccccccccccccccccccccc
+c$$$c             write(996,"(' --- iq iw=',2i3)" ),iq,iw
+c$$$c             do ik  = 1,nqbz
+c$$$c             do ibib= 1,nbnb(ik)
+c$$$c               write(996,"(4i4,2d16.8)" )
+c$$$c     &         ik,iw,n1b(ibib,ik),n2b(ibib,ik),wwk(ibib,ik,iw)
+c$$$c             enddo
+c$$$c             enddo
+c$$$cccccccccccccccccccccccccccc
+c$$$c--------------------------
+c$$$c              if( maxval(nbnb(1:nqbz,iw)) > nbnbx) then ! security check
+c$$$c               print *,' hx0fp0: maxval(nbnb(1:nqbz,iw)) > nbnbx ',
+c$$$c     &          nbnbx,nbnb(1:nqbz,iw)
+c$$$c                stop ' hx0fp0: maxval(nbnb(1:nqbz,iw)) > nbnbx '
+c$$$c              endif
+c$$$c--------------------------
+c$$$ccccccccccccccccccccccccccccccc
+c$$$c            if(iq==2.and.iw==nwmax) write(996,*)' --- end of iq=2 ---'
+c$$$c            if(iq==3.and.iw==1) then
+c$$$c             write(996,"(' --- iq iw=',2i3)" ),iq,iw
+c$$$c             do ik  = 1,nqbz
+c$$$c             do ibib= 1,nbnb(ik)
+c$$$c               write(996,"(' k ib jb=',3i4,' wwk=',2d16.8)" )
+c$$$c     &         ik,n1b(ibib,ik),n2b(ibib,ik),wwk(ibib,ik,iw)
+c$$$c             enddo
+c$$$c             enddo
+c$$$c             stop '----- test end ------------'
+c$$$c           endif
+c$$$ccccccccccccccccccccccccccccccc
+c$$$ 1010       continue
+c$$$            print *,'end of 1010 loop'
+c$$$            deallocate(wgt)
+c$$$            if(tmpwwk) then
+c$$$              allocate( wwk(nbnbx,nqbz,nwmax) )
+c$$$              print *,' wwk allocated'
+c$$$              ifwwk=iclose('tmp.wwk')
+c$$$c              rewind(ifwwk)
+c$$$              ifwwk = iopen('tmp.wwk',0,-1,0)
+c$$$              print *,' keyx rewind ifwwk nwmax=',nwmax,nbnbx,nqbz,niw,nw
+c$$$              do iw=1,nwmax
+c$$$                read(ifwwk) wwk(1:nbnbx,1:nqbz,iw)
+c$$$              enddo
+c$$$              ifwwk=iclose('tmp.wwk')
+c$$$              print *,' readend of wwk'
+c$$$            endif
+c$$$          endif
+c$$$C --- TetrahedronWeight_4 block end.========================2end
+c$$$
+c$$$
+c$$$c==============x0kf_v2 block original(.not.sergeyv) case =====================3ini
+c$$$          if(tetra.and.((.not.sergeyv).and.ixc/=4) )then !ixc<=3.or.ixc==5.or.ixc==101.or.ixc==22.or.ixc==23)) then
+c$$$            if(ixc==5) then
+c$$$              wwk = dimag(wwk)
+c$$$            endif
+c$$$            print *,' --- goto x0kf_v2z'
+c$$$            if(npm==2) stop 'x0kf_v2z may not work for npm==2'
+c$$$            call x0kf_v2z(   ! lessl,
+c$$$     i            wwk,n1b,n2b,nbnbx,nbnb, tetra, ! for tetra=T
+c$$$     i              q, is,isf, nspin, !is,  !,ifcphi ifev1,ifev2 ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
+c$$$     i              qbas,ginv,ef,qbz,wbz,   !iindxk,
+c$$$c     i            index_qbz,n_index_qbz, jan2004
+c$$$     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, !mdim=nblocha
+c$$$     i              ppb(1,is), !,pdb(1,is),dpb(1,is),ddb(1,is),
+c$$$     i              freq_r,freq_i,delta,realomega,imagomega, 
+c$$$     i              icore,ncore,
+c$$$     &              ecore(1,is),
+c$$$     d            nlmto,nqbz,noccx,noccxv,
+c$$$     d            nl,nclass,natom,nnc,
+c$$$     d            nlnmx,mdimx,nbloch,nwp,  niw,
+c$$$c     i    iq,ngpn,ngcni(iqx),ngpmx,ngcmx  , geigB(1,1,1,is), Jan2004
+c$$$c     i    ngvecpB,ngveccB, ngveccB(1,1,iqx),
+c$$$     i     iq,ngc,ngpmx,ngcmx  ,
+c$$$c     i    ngveccB,  !ngveccB(1,1,iqx),
+c$$$     i     nqbze,nband,nqibz, 
+c$$$     o     zxq,zxqi,            ! zxq... are accumulated variable for spins 
+c$$$     i     nolfco,zzr,    !for iepsmode
+c$$$     o     x0mean, !   )  !for iepsmode
+c$$$     i     vcoul,ngb ) ! for te
+c$$$          endif
+c$$$          if(epsmode.and.nolfco) 
+c$$$     &      print *,' nolfco --- end of x0kf_v2 sum x0mean',sum(abs(x0mean))
+c$$$c=============x0kf_v2 block end===============================3end
 
 
 c=======TetrahedronWeight_5 block. tetwt5  ixc==,4,6,11 =======4ini
-          if(ixc==4.or.sergeyv) then
+c sergeyv=T only now feb2012
+c          if(ixc==4.or.sergeyv) then
 C --- METHOD (tetwt5) for the tetrahedron weight
 !   Histogram secstions are specified by frhis(1:nwp)
 !     The 1st   bin  is     [frhis(1),  frhis(2)]   ...
@@ -1707,7 +1654,7 @@ c            enddo
 c            enddo
 c            stop 'hx0fp0.m.fal.f ---  testend'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          endif
+c          endif
 c=======TetrahedronWeight_5 block end ==================4end
 
 
@@ -1721,7 +1668,8 @@ c   whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ib
 c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
-          if(sergeyv) then ;  print *, ' --- goto x0kf_v4hz '
+c          if(sergeyv) then ;  
+            print *, ' --- goto x0kf_v4hz '
 c- new version only along real axis for
             call x0kf_v4hz(npm,ncc,   
      i          ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
@@ -1741,53 +1689,52 @@ c- new version only along real axis for
             !  rcxq is the accumulating variable for spins 
      i    nolfco,zzr,nmbas_in,  !for nolfco Add nmbas Sep2006
      o    rcxqmean   ) !for nolfco
-          endif
+c          endif
 
-c=========== Check write mode4 block ixc==4 ============6ini
-          if(ixc==4) then
-C --- check write ---
-            ichkhis = iopen ('tethis.chk',1,-1,0)
-            do jpm   = 1,npm
-              do ik   = 1,nqbz
-                do ibib = 1,nbnb(ik,jpm)
-                  ib1  = n1b(ibib,ik,jpm)
-                  ib2  = n2b(ibib,ik,jpm)
-                  ihww = ihw(ibib,ik,jpm)
-                  write(ichkhis,"('--- ik ib jb jpm =',4i4)") ik,ib1,ib2,jpm
-                  do iw = 1, nhw(ibib,ik,jpm)
-                    write(ichkhis, "('his [min max]=',i6,2f7.4,
-     &             ' whw wwk*h= ',2d12.5,'( =',d12.5,'+',d12.5,')')")
-     &          ihww+iw-1, freq_r(ihww+iw-1), freq_r(ihww+iw),
-!-------------------------------------------------------
-     &          whw(jhw(ibib,ik,jpm)+iw-1),                     !weight for the histgram range. by tetwt5
-!------------ v.s. -------------
-     &          dimag(wwk(ibib,ik,ihww+iw-1)+wwk(ibib,ik,ihww+iw))/2d0
-     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight=weight1+weight2 for each bin of the histgram range by tetwt4.fal
-!-------------------------------------------------------
-     &          dimag(wwk(ibib,ik,ihww+iw-1))/2d0
-     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight1 for the histgram range by tetwt4
-     &          dimag(wwk(ibib,ik,ihww+iw))/2d0
-     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw))     !weight2 for the histgram range by tetwt4
-                  enddo
-                enddo
-              enddo
-            enddo
-            ichkhis = iclose('tethis.chk')
-            print *,' OK! hx0fp1_tetwt5_test end. Histgram method.'
-            print *,' The final reulst wwk vs.whw is in tethis.chk!'
-            print *,' This code is a routine to test tetwt5.'
-            stop    ' ixc==4  Weight Histgram check. wwk vs.whw'
-          endif  ! end of if(tetra)
-c=========== Check write mode4 block end  ==============6end
-
-
-          if(ixc==4.or.sergeyv)         deallocate(ihw,nhw,jhw, whw,ibjb)
-          if(tetra.and.(.not.sergeyv) ) deallocate(wwk) ! !ixc<=5.or.ixc==101.or.ixc==22.or.ixc==23))
-          if(tetra)                     deallocate( n1b,n2b)
+c$$$c=========== Check write mode4 block ixc==4 ============6ini
+c$$$          if(ixc==4) then
+c$$$C --- check write ---
+c$$$            ichkhis = iopen ('tethis.chk',1,-1,0)
+c$$$            do jpm   = 1,npm
+c$$$              do ik   = 1,nqbz
+c$$$                do ibib = 1,nbnb(ik,jpm)
+c$$$                  ib1  = n1b(ibib,ik,jpm)
+c$$$                  ib2  = n2b(ibib,ik,jpm)
+c$$$                  ihww = ihw(ibib,ik,jpm)
+c$$$                  write(ichkhis,"('--- ik ib jb jpm =',4i4)") ik,ib1,ib2,jpm
+c$$$                  do iw = 1, nhw(ibib,ik,jpm)
+c$$$                    write(ichkhis, "('his [min max]=',i6,2f7.4,
+c$$$     &             ' whw wwk*h= ',2d12.5,'( =',d12.5,'+',d12.5,')')")
+c$$$     &          ihww+iw-1, freq_r(ihww+iw-1), freq_r(ihww+iw),
+c$$$!-------------------------------------------------------
+c$$$     &          whw(jhw(ibib,ik,jpm)+iw-1),                     !weight for the histgram range. by tetwt5
+c$$$!------------ v.s. -------------
+c$$$     &          dimag(wwk(ibib,ik,ihww+iw-1)+wwk(ibib,ik,ihww+iw))/2d0
+c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight=weight1+weight2 for each bin of the histgram range by tetwt4.fal
+c$$$!-------------------------------------------------------
+c$$$     &          dimag(wwk(ibib,ik,ihww+iw-1))/2d0
+c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight1 for the histgram range by tetwt4
+c$$$     &          dimag(wwk(ibib,ik,ihww+iw))/2d0
+c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw))     !weight2 for the histgram range by tetwt4
+c$$$                  enddo
+c$$$                enddo
+c$$$              enddo
+c$$$            enddo
+c$$$            ichkhis = iclose('tethis.chk')
+c$$$            print *,' OK! hx0fp1_tetwt5_test end. Histgram method.'
+c$$$            print *,' The final reulst wwk vs.whw is in tethis.chk!'
+c$$$            print *,' This code is a routine to test tetwt5.'
+c$$$            stop    ' ixc==4  Weight Histgram check. wwk vs.whw'
+c$$$          endif  ! end of if(tetra)
+c$$$c=========== Check write mode4 block end  ==============6end
+         if(ixc==4.or.sergeyv)         deallocate(ihw,nhw,jhw, whw,ibjb)
+c$$$     if(tetra.and.(.not.sergeyv) ) deallocate(wwk) ! !ixc<=5.or.ixc==101.or.ixc==22.or.ixc==23))
+         if(tetra)                     deallocate( n1b,n2b)
 
           iecut=1
 
-          if(sergeyv) then !This was in 1003 loop as if(ixc==11.and.is==nspinmx) then
+c sergeyv=T only feb2012
+c          if(sergeyv) then !This was in 1003 loop as if(ixc==11.and.is==nspinmx) then
             if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
             if(is==nspinmx.or.chipm) then
               if(ixc==6) then ! ... convert from rcxq to zxq for ixc==6
@@ -1822,7 +1769,7 @@ c$$$     o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
               endif
             endif  ;  print *,' --- end of dpsion5 ----'
             if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean',sum(abs(x0mean))
-          endif
+c          endif
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
  1033   continue
@@ -1905,7 +1852,7 @@ c         write (ifrx) rxq,cxq
             else
               write(6,*) '--- dielectric constant --- '//ttt
             endif
-          elseif(ixc==1.or.sergeyv) then
+c          elseif(ixc==1.or.sergeyv) then
             write(6, *)" trace check for W-V"
           endif
 
@@ -2480,11 +2427,11 @@ c        close(ifdpin)
       is = iclose('hbe.d')
       call cputid(0)
       if(ixc==101) stop ' OK! hx0fp0 mode=101 Ecor '
-      if(ixc==1)   stop ' OK! hx0fp0 mode=1 normal'
-      if(ixc==2)   stop ' OK! hx0fp0 mode=2  eps NoLFC'
-      if(ixc==22)  stop ' OK! hx0fp0 mode=22 chi+- NoLFC'
-      if(ixc==23)  stop ' OK! hx0fp0 mode=23 chi+- LFC  '
-      if(ixc==3)   stop ' OK! hx0fp0 mode=3 eps with LFC'
+c      if(ixc==1)   stop ' OK! hx0fp0 mode=1 normal'
+c      if(ixc==2)   stop ' OK! hx0fp0 mode=2  eps NoLFC'
+c      if(ixc==22)  stop ' OK! hx0fp0 mode=22 chi+- NoLFC'
+c      if(ixc==23)  stop ' OK! hx0fp0 mode=23 chi+- LFC  '
+c      if(ixc==3)   stop ' OK! hx0fp0 mode=3 eps with LFC'
       if(ixc==202) stop ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC'
       if(ixc==203) stop ' OK! hx0fp0 mode=203 sergeyv eps LFC '
       if(ixc==222) stop ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv'
@@ -2492,9 +2439,9 @@ c      if(ixc==10222)stop' OK! hx0fp0 mode=10222 <q|chi+-|q> NoLFC sergeyv'
       if(ixc==223) stop ' OK! hx0fp0 mode=223 chi+- LFC sergeyv'
       if(ixc==11)  stop ' OK! hx0fp0 mode=11 normal sergeyv'
       if(ixc==12)  stop ' OK! hx0fp0 mode=12 Ecor sergeyv mode'
-      if(ixc==4)   stop ' OK! hx0fp0 ixc=4 test'
-      if(ixc==5)   stop ' OK! hx0fp0 ixc=5 test'
-      if(ixc==6)   stop ' OK! hx0fp0 ixc=6 test'
+c      if(ixc==4)   stop ' OK! hx0fp0 ixc=4 test'
+c      if(ixc==5)   stop ' OK! hx0fp0 ixc=5 test'
+c      if(ixc==6)   stop ' OK! hx0fp0 ixc=6 test'
       end
 
 c--------------------------------------------------------------------

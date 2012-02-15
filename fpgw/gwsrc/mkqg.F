@@ -44,7 +44,7 @@ c      logical :: readgwinput
       logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
       integer(4)::nmm
 
-      logical ::anyq                , caca
+      logical ::anyq                , caca,newaniso
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret
       real(8):: deltaq
@@ -265,15 +265,14 @@ c          nn2= mod(q0pchoice()-1000,10)
 c          nq0x= 4*nn1*nn2
 c          print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c        endif
-        if( q0pchoice()<0) then
+
+        if(newaniso()) then !feb2012
+        nq0x=4
+        elseif( q0pchoice()<0) then
 c          nq0x = 8*abs (q0pchoice())
           nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
         endif
-ctakao cccccccccccccccccccccc
-        nq0x=4
-ccccccccccccccccccccccccccccc
         www=wgtq0p()
-
         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
         if(noq0p) then
           nq00i=0
@@ -284,6 +283,7 @@ ccccccccccccccccccccccccccccc
           if(.not.timereversal()) nmm=2
           allocate( q0x(3,nq0x), wt0(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          if(newaniso() ) then
           nq00i=3
           pi=4d0*atan(1d0)
           deltaq=0.01*alat/(2*pi) !dq is 0.01 a.u.
@@ -297,12 +297,11 @@ c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
 c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
 c          q0x(:,7)=(/0d0, 0d0, 0d0/)
           wt0=1d0/3d0
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c          call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
-c     i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
-c     o         q0x,wt0,nq00i)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+          else
+          call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
+     i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
+     o         q0x,wt0,nq00i)
+          endif
 c ... inequivalent q0x points ----
           call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt)
           write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
