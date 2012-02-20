@@ -29,6 +29,7 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 #	print len(oyy),max(len(oxx),len(oyy))
 #	sys.exit()
 
+	ierrl=0
 	for ix in range(max(len(oxx),len(oyy))):
 		try: #check end of oxx or not
 			izz=ix1
@@ -82,9 +83,13 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 
 				if (  abs(w1-w2) > tol ):
 					errmax=abs(w1-w2)
+					print
 					print ix,iline
 					print ix,ilin2
-					return errmax
+					ierrl=ierrl+1
+					if(ierrl>10):
+						print 'Error lines (less than ten shown) with > tol=',tol
+						return errmax
 
 	return errmax
 

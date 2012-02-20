@@ -89,7 +89,7 @@ C---for mode 8
       external ll
 #endif
 
-      logical :: smbasis
+      logical :: smbasis,oldver,newaniso
       character*15 rprodf
       integer(4) :: ifprodmt, smbasiscut,l1l2p,l1l2m,inn
       integer(4) :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
@@ -300,14 +300,14 @@ c Here you can add any functions in the same way.
       if(smbasis().and.smbasis_case()==1) goto 113
 
 ctakao
-c      if(zvztest()/=2) then !oct2004
-c        iprad  = iprad  + 1 ! radial function index
-c        nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
-c        ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
-c        rprod(1:nrofi,iprad) = r(1:nrofi)
-c      endif
+      oldver= .not.newaniso()
+      if(oldver .and. zvztest()/=2) then !oct2004 only add one s product basis.
+        iprad  = iprad  + 1 ! radial function index
+        nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
+        ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
+        rprod(1:nrofi,iprad) = r(1:nrofi)
 ! this is better (but larger ProductBasis). Used for the check on Coulomb matrix at q->0.
-      if(zvztest()/=2) then 
+      elseif(zvztest()/=2) then !followings may be a compromise to give reasoably good enough <M|v|M>.
         do lx = 0,1 !  =0,lcutmx !feb2012
           iprad  = iprad  + 1 ! radial function index
           nxx(lx) = nxx(lx) + 1

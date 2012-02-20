@@ -702,9 +702,9 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
           qq = q
         endif
 
-c comment out takao
-c        if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
-c
+        if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
+          if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
+        endif
 
 C... q+G vector
         call readqg('QGcou',qq,ginv,  quu,ngc, ngvecc )
