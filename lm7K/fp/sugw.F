@@ -1,17 +1,9 @@
 #define V2 1
-
 #define USEOPTIONAL 1
             subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ) 
-
-
-
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
@@ -144,40 +136,33 @@ Cu   25 Oct 01 (T. Kotani) split functions into parts, with job
 Cu             Binary files imcompatible with prior versions.
 Cu   23 Apr 01 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
+      integer:: i_copy_size,i_spackv
 C ... Passed parameters
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
-         integer:: jobgw , lh(n0) 
-         type(s_rv1) :: sv_p_oppi(3,nbas)
-
-        type(s_rv1) :: sv_p_otau(3,nbas)
-
-       type(s_rv1) :: sv_p_osig(3,nbas)
-
-         type(s_rv1) :: sv_p_oppix(3,nbas)
-
-        type(s_rv1) :: sv_p_otaux(3,nbas)
-
-       type(s_rv1) :: sv_p_osigx(3,nbas)
-
-      real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
-     ., spotx(1) , vrmt(nbas)
-cki      type(s_site)::ssite(*)
+      integer:: jobgw , lh(n0) 
+      type(s_rv1) :: sv_p_oppi(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
+      type(s_rv1) :: sv_p_oppix(3,nbas)
+      type(s_rv1) :: sv_p_otaux(3,nbas)
+      type(s_rv1) :: sv_p_osigx(3,nbas)
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_ham)::sham
+      real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas)
 
 C ... Local parameters
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
       integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,ifi,
-     .ifiqg,ifiqgc,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline,
+     .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, !ifiqgc,
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,jobb,k1,
-     .k2,k3,konf,konfig(0:n0),l,lchk,ldham(8,2),ldim,loldpw,
+     .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, ldham(8,2),
      .lgunit,lmaxa,lmxax,lpdiag,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
-     .ncore,ndima,ndimh,nevl,nev,ngabc(3),ngc,ngcmx,nglob,ngp,ngp_p,
+     .ncore,ndima,ndimh,nevl,nev,nglob,ngp,ngp_p, !ngabc(3),ngc,ngcmx
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .stdo
@@ -191,14 +176,14 @@ ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
 
-      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      equivalence (ldim,ldham(1,1))
+c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+c      equivalence (ldim,ldham(1,1))
       real(8) q(3),QpGcut_psi,QpGcut_cou,dum,dval,
      .xx(5),gmax,pnu(n0,2),pnz(n0,2),ecore(50),a,z,rmt(nbas),b,vshft,
-     .alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,qx(3),q_p(3),
+     .alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), !,qx(3)
      .epsovl,dgets
       integer ,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:),
-     .nlindx(:,:,:),ngvecp(:,:),ngvecp_p(:,:),ngvecc(:,:)
+     .nlindx(:,:,:),ngvecp(:,:),ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:)
       integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:)
@@ -219,14 +204,12 @@ ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 C ... For PW basis
 c      integer:: oigv2
       integer ,allocatable :: kv_iv(:)
-
       integer pwmode,napw
       double precision pwemin,pwemax,pwgmin,pwgmax,eomin
 
 C ... for reading self-energy
       integer nqsig
-ckino Dec.14.2011:         real(8),pointer :: rv_p_oqsig(:) =>NULL()
-
+ckino Dec.14.2011: real(8),pointer :: rv_p_oqsig(:) =>NULL()
 
 C ... for band plotting
       real(8),allocatable :: ovvx(:,:,:)
@@ -236,7 +219,6 @@ C ... for band plotting
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
       data lorb /'p','d','l'/
       data dig /'1','2','3','4','5','6','7','8','9'/
-
 C      integer jfi
 C      integer,allocatable::  ngvecp_(:,:),ngvecc_(:,:)
 C      real(8),allocatable:: evl_(:,:)
@@ -245,35 +227,32 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
 C ... Heap
 c      integer w(1)
 c      common /w/ w
-
+      integer:: w(1) !! dummy
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii
-
-      logical :: debug=.false.
+      logical:: debug=.false.
       complex(8),allocatable:: evecout(:,:),evecr(:,:)
-
       real(8),allocatable:: qzz(:,:)
       integer,allocatable:: igv2(:,:)
-
-
       logical:: l_dummy_isanrg,isanrg,oncewrite
 
 C --- Setup ---
       print *,'sugw:'
       call getpr(ipr)
-
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-
-
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+cc      i_copy_size=size(slat%nabc)
+cc      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      ngabc=
+      n1=slat%nabc(1)
+      n2=slat%nabc(2)
+      n3=slat%nabc(3)
+      plat=slat%plat
+      qlat=slat%qlat
       gmax=slat%gmax
-
-
       npgrp=slat%npgrp
       nsgrp=slat%nsgrp
 ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
@@ -356,15 +335,12 @@ Ckino isanrg is logical function,       call isanrg(job,0,5,'sugw:','job',.true.
         jobb = 5
       endif
       if (bandmode) lsig=0
-
       napw = 0
 
 ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
-
-
-
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
+      ldim=ldham(1,1)
       pwmode=sham%pwmode
       pwemin=sham%pwemin
       pwemax=sham%pwemax
@@ -375,14 +351,10 @@ C ... Generate ndima
       ndima = 0
       lmxax = -1
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
-
-
         lmaxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-
         lmxax = max(lmxax,lmaxa)
         if (lmaxa .gt. -1) then
           do  l = 0, lmaxa
@@ -453,10 +425,7 @@ C   ... Create file NLAindx
 C       This loop order is backwardly compatible with prior versions
         do  ipqn = 1, 3
           do  ib = 1, nbas
-
             is=ssite(ib)%spec
-
-
             lmaxa=sspec(is)%lmxa
             i_copy_size=size(sspec(is)%p)
             call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
@@ -513,15 +482,14 @@ C --- Read file NLAindx ---
       ifi = fopnx('NLAindx',2,1,-1)
       call ioaindx(3,lmxax,nat,ndima,nlindx,ifi)
 
-C ... Read QGpsi and QGcou (takao 2003 Sep)
+C ... Read QGpsi !takao feb2012 ---> Not QGcou now
       if (jobb .eq. 0) then
         ifiqg  = fopnx('QGpsi',2,4,-1)
-        ifiqgc = fopnx('QGcou',2,4,-1)
-C
+c        ifiqgc = fopnx('QGcou',2,4,-1)
         read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz
-        read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
-        if (nqnum .ne. nqnumx)
-     .  call rx('sugw: different nqnum in QGcou QGpsi')
+ctakao feb2012      read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
+ctakao feb2012      if (nqnum .ne. nqnumx)
+ctakao feb2012   .  call rx('sugw: different nqnum in QGcou QGpsi')
       endif
 
 C --- Write, or read past header information, file gwb ---
@@ -556,10 +524,9 @@ C       call spackv(10,'site pos',ssite,1,nbas,bas)
           if (lmaxa .gt. -1) then
             iat = iat + 1
             if (iat .gt. nat) call rx('bug in sugw')
-
-            i_copy_size=size(ssite(i)%pos)
-            call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1)
-
+c            i_copy_size=size(ssite(i)%pos)
+c            call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1)
+            bas(:,iat)=ssite(i)%pos
             lmxa(iat) = lmaxa
           endif
         enddo
@@ -569,7 +536,6 @@ C       call spackv(10,'site pos',ssite,1,nbas,bas)
 C   ... Determine nphimx
         nphimx = 0
         do  i = 1, nbas
-
           is=ssite(i)%spec
           i_copy_size=size(ssite(i)%pnu)
           call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
@@ -766,7 +732,7 @@ C   ... Read SYML file
 C ... Write, or read past, ngpmx,ngcmx
       if (job .eq. 1) then
         ifi = fopna('gwb',-1,4)
-        write(ifi) ngpmx,ngcmx
+        write(ifi) ngpmx !takao feb2012 ,ngcmx
       else
         ifi = fopna('gwb',-1,4)
         read(ifi)
@@ -847,17 +813,17 @@ C --- Main loop for eigenfunction generation ---
 
         read (ifiqg)  q,  ngp   ! q, and number of G vectors for
         ! eigenfunction expansion at this q
-        read (ifiqgc) qx, ngc   ! q, and number of G vectors for
+c        read (ifiqgc) qx, ngc   ! q, and number of G vectors for
         ! expansion of the Coulomb interaction
-        if (abs(sum(q-qx)) .gt. 1d-10) then
-          print *, q
-          print *, qx
-          call rx(' sugw : abs(sum(q-qx))>1d-10')
-        endif
-        allocate(ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) )
+c        if (abs(sum(q-qx)) .gt. 1d-10) then
+c          print *, q
+c          print *, qx
+c          call rx(' sugw : abs(sum(q-qx))>1d-10')
+c        endif
+        allocate(ngvecp(3,max(ngp,1))) !takao feb2012, ngvecc(3,max(ngc,1)) )
         read (ifiqg)  ngvecp
-        read (ifiqgc) ngvecc
-        if (job .ne. 1) deallocate(ngvecp, ngvecc)
+c        read (ifiqgc) ngvecc
+        if (job .ne. 1) deallocate(ngvecp) !takao feb2012 , ngvecc)
 
  1021   continue
 
@@ -923,29 +889,26 @@ C   ... Must pass shortened qp to pwmat in APW case
 c$$$        if (napw .gt. 0 .and. loldpw .lt. 2) then
 c$$$          loldpw = loldpw + 2
 c$$$        endif
-
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
         if (bandmode .and. jobb .eq. 0) then
           allocate(geig(max(ngp,1),ndimh,nsp))
         endif
+        if(debug) print *,' goto hambl loop'
         do  isp = 1, nsp
-
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
-
-
+          if(debug) print *,' goto hambl vxc '
 
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
              call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
-
-
+          if(debug) print *,' goto hambl lda o '
 
 C   --- vxc <- LDA vxc ---
           vxc = ham - vxc
@@ -1296,8 +1259,9 @@ c        print *,'uuu ndimh=',ndimh
 c takao Apr2009
 c       write (ifi) evec,evl(1:ndimh,isp),cphi(:,:,isp)
             write (ifi) evl(1:ndimh,isp),cphi(:,:,isp)
-            write (ifi) ngp,ngc
-            write (ifi) ngvecp, ngvecc, pwz
+            write (ifi) ngp !takao feb2012 ,ngc
+c            write (ifi) ngvecp, ngvecc, pwz
+            write (ifi) ngvecp, pwz !takao feb2012
 
             ifi = fopna('gw1',-1,4)
             write(ifi) q, (evl(i,isp),i=1,ndimh)
@@ -1432,7 +1396,7 @@ C     --- Save eigenfunctions of previous loop ---
             if (ngp .gt. 0) then
               deallocate(ppovl,pwz)
             endif
-            if (isp .eq. nsp) deallocate(ngvecp,ngvecc)
+            if (isp .eq. nsp) deallocate(ngvecp)!takao feb2012 ,ngvecc)
 
 C   ... Subtract <psi|vxc|psi> from starting evl=e(lda+sigma-vxc)
 C       evl should contain e(lda+sigma-vxc)
@@ -1483,7 +1447,7 @@ C       File write
       enddo ! Loop over qp
       if (jobb .ne. 5) then
         call fclr(' ',ifiqg)
-        call fclr(' ',ifiqgc)
+c        call fclr(' ',ifiqgc)
       endif
       if (.not. bandmode) then
         ifi = fopna('gwb',-1,4)

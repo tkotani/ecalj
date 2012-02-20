@@ -91,7 +91,7 @@ C ... Local parameters
       double complex,allocatable:: pwh(:,:),ppovlx(:,:)
 
       integer :: inn(3),matmul_pwhovl
-      logical:: debug=.true.
+      logical:: debug=.false.
 
       integer:: i_copy_size, i_spackv, i_spacks
 C --- Setup ---

@@ -1,5 +1,5 @@
       logical function newaniso()
-      newaniso=.false. !.true.
+      newaniso=.false.
       end
       real(8) function screenfac()
       screenfac=-0.0001d0 !

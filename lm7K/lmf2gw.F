@@ -27,7 +27,7 @@ C     implicit real*8 (a-h,o-z)
       integer icor1,icorex,nphimx,i,i1,i2,ibas,ibasx,ibx,ic,icore,
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
      .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
-     .ncore,ndimh,ngc,ngcmx,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A
+     .ncore,ndimh,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
       real(8) qlat(3,3),ovv(20),ef0,qpgcut_phi,qpgcut_cou,z,
      .a_a,b_a,rofi_anr
       character*120  ext0*8, ext*8
@@ -41,7 +41,7 @@ C     implicit real*8 (a-h,o-z)
      &,rofi_A(:)
      &,gcore_A(:,:), ec_A(:), bas(:,:)
       integer,allocatable:: konf(:,:),lmxaa(:),nncx(:,:)
-     &,ngvecp(:,:),ngvecc(:,:)
+     &,ngvecp(:,:) !takao feb2012 ,ngvecc(:,:)
       real(8),allocatable :: qbze(:,:)
       real(8),parameter ::  rydberg=13.6058d0
       logical ::
@@ -149,7 +149,7 @@ c     &              n1q,n2q,n3q,plat(1:3,1:3)
      &nqbz,plat(1:3,1:3),nqbze
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
-      read (ifigwb) ngpmx, ngcmx
+      read (ifigwb) ngpmx !, ngcmx
 
 C      No longer needed
 C      ifi = fopnx('Q0P',2,1,-1)
@@ -266,11 +266,12 @@ c        enddo
 
 
 c --- Plane wave part
-          read (ifigwb) ngp,ngc
+          read (ifigwb) ngp !,ngc
           allocate( geig(ngp, nbandmx),
-     &    ngvecp(3,ngp),ngvecc(3,ngc) )
+     &    ngvecp(3,ngp) )!takao feb2012 ,ngvecc(3,ngc) )
           geig=1d20
-          read(ifigwb) ngvecp, ngvecc,geig(:,1:nband)
+c          read(ifigwb) ngvecp, ngvecc,geig(:,1:nband) !takao feb2012
+          read(ifigwb) ngvecp,geig(:,1:nband)
 c        if(cphigeigmode) then
           write(ificg) ngp
           write(ificg) geig(1:ngp,1:nbandmx)
@@ -280,7 +281,7 @@ c sum check
 c        else
 c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
 c        endif
-          deallocate( geig,ngvecp,ngvecc )
+          deallocate( geig,ngvecp)!takao feb2012 ,ngvecc )
 
           if(ikp>nqbz) goto 888
 

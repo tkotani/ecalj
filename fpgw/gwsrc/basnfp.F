@@ -300,25 +300,26 @@ c Here you can add any functions in the same way.
       if(smbasis().and.smbasis_case()==1) goto 113
 
 ctakao
-      if(zvztest()/=2) then !oct2004
-        iprad  = iprad  + 1 ! radial function index
-        nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
-        ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
-        rprod(1:nrofi,iprad) = r(1:nrofi)
+c      if(zvztest()/=2) then !oct2004
+c        iprad  = iprad  + 1 ! radial function index
+c        nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
+c        ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
+c        rprod(1:nrofi,iprad) = r(1:nrofi)
+c      endif
+! this is better (but larger ProductBasis). Used for the check on Coulomb matrix at q->0.
+      if(zvztest()/=2) then 
+        do lx = 0,1 !  =0,lcutmx !feb2012
+          iprad  = iprad  + 1 ! radial function index
+          nxx(lx) = nxx(lx) + 1
+          ipx(lx, nxx(lx)) = iprad
+          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**lx
+          if(lx>=2) cycle !if(lx>=2) cycle !to reduce number of basis basis.
+          iprad  = iprad  + 1 ! radial function index
+          nxx(lx) = nxx(lx) + 1
+          ipx(lx, nxx(lx)) = iprad
+          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**(lx+1)
+        enddo
       endif
-c$$$ this is better but so many ProductBasis. Used for the check on Coulomb matrix at q->0.
-c$$$      if(zvztest()/=2) then 
-c$$$        do lx = 0,lcutmx !feb2012
-c$$$          iprad  = iprad  + 1 ! radial function index
-c$$$          nxx(lx) = nxx(lx) + 1
-c$$$          ipx(lx, nxx(lx)) = iprad
-c$$$          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**lx
-c$$$          iprad  = iprad  + 1 ! radial function index
-c$$$          nxx(lx) = nxx(lx) + 1
-c$$$          ipx(lx, nxx(lx)) = iprad
-c$$$          rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**(lx+1)
-c$$$        enddo
-c$$$      endif
 
 c ---
  113  continue
