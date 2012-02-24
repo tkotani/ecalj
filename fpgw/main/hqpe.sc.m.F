@@ -523,7 +523,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           write(6,*)
           write(6,"( ' ip ntq ntqxx=',3i5)")ip,ntq,ntqxx
           if(ip==1) then
-             ntqmin=ntqxx
+             ntqxxmin=ntqxx
           else
             if(ntqxx<ntqxxmin) ntqxxmin=ntqxx
           endif  
