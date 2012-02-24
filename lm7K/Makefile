@@ -200,7 +200,7 @@ lmf2gw.o: lmf2gw.F
 # programs
 ########################################
 lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA)  make_fc_version
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS)  $(CPP_SW) show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
@@ -212,12 +212,12 @@ lmdos:	lmdos.o $(LIBSUBS) $(LIBSLA) make_fc_version
 
  
 lmfa:	lmfa.o $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 #lm:	lm.o  $(LIBSUBS) 
@@ -227,12 +227,12 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) make_fc_version
 #	$(LK) $(LKFLAGS1) $@.o $(LIBNC) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) make_fc_version
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmf2gw:	lmf2gw.o make_fc_version
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
@@ -250,7 +250,7 @@ lmf-MPI.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -c lmv7.F -o $@
 
 lmf-MPI:        lmf-MPI.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
@@ -258,7 +258,7 @@ lmfgw-MPI.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
@@ -267,7 +267,7 @@ lmf-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -c lmv7.F -o $@
 
 lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
@@ -275,7 +275,7 @@ lmfgw-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
-	$(CPP)  $(VERSIONFLAGS)  show_programinfo.F > x.F
+	$(CPP)  $(VERSIONFLAGS) $(CPP_SW)  show_programinfo.F > x.F
 	$(FC) $(FFLAGS)  -c x.F  -o show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
