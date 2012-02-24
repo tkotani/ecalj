@@ -50,6 +50,24 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
 c      print *,' readgeig: q=',q
       call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
 
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$! find qu= sym*qi feb2012takao
+c$$$! For given qu, get q = sym*qi.
+c$$$      integer(4)::ngrp,nq
+c$$$      real(8):: symops(3,3,ngrp),qt(3,nq),q0i(3,nq),sym(3,3)
+c$$$!  qt(ix)= sym(igx(iq))*q0i(ix), ix=1,nq
+c$$$      do ix=1,nq
+c$$$        if(sum(abs(qu-qt(:,ix)))<1d-6) then
+c$$$          iq = ix  
+c$$$          sym= symops(:,:,igx(iq))
+c$$$          qi= q0i(:,iq)
+c$$$          exit
+c$$$        elseif(ix==nq0)
+c$$$           stop 'readgeig: can not find iq'
+c$$$        endif
+c$$$      enddo
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+
       if(ngp_in < ngp(iq)) then
         print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
         stop 'readgeig: ngpmx<ngp(iq)'
@@ -63,6 +81,13 @@ c      print *,' readgeig: q=',q
         ikpisp= isp + nsp*(iq-1)
         read(ifgeig, rec=ikpisp) geigen(1:ngpmx,1:nband)
       endif
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$!rotate eigen function at qi to at qu.
+c$$$!feb2012takao
+c$$$      call rotwv(qi,qu,ndimh,napw_in,nband,evec,evecout,ierr)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       end subroutine
 
 c------------------------------

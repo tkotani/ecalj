@@ -1,7 +1,5 @@
-      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit,no_qpgpsi) !from showbs
-
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
-
       use m_hamindex
 C- Set up m_hamiltonian. Index for Hamiltonian.  Generated index are stored into m_hamindex
 C ----------------------------------------------------------------------
@@ -37,7 +35,8 @@ ckino Dec.14.2011:        real(8),pointer :: rv_p_og(:)
 ckino Dec.8.2011:         real(8),pointer :: rv_p_oag(:)
 
 c      parameter (nkap0=3,n0=10)
-       integer:: l , ndim , ipr , nglob , nbas , ldim , off , offs , 
+       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , nbas !takao2010feb note nbas=nbas_in 
+                                                                    ! nbas isin m_hamindex already.
      . specw , fieldw , iorb , offsi , ib , is , norb 
 ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:)
 
@@ -45,38 +44,33 @@ c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 c      logical lprmib
 c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       character spid*8
-      real(8):: plat(3,3),qlat(3,3),alat,dum,qb(3,3),ddd(3)
+      real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:)
       integer,parameter :: n0nkap0=30
       integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
       real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3)
-
-      integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,imx,ndummy
+      integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,ndummy !imx,
       real(8):: qplist(3,nkp)
-      logical:: siginit,no_qpgpsi
-
-      integer:: i_copy_size,i_spacks,i_spackv
+      logical:: siginit, qpgexist !,no_qpgpsi
+      integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in
 C
-
 ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
-
 ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
-
-      ngrp=slat%nsgrp
-
-
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
 ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
-
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+c
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,,1,qlat,1)
+c
+      nbas=nbas_in
+      ngrp=slat%nsgrp
+      plat=slat%plat
+      qlat=slat%qlat
       alat=slat%alat
-
       if(.not.siginit) goto 1011
-
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas),ispec(nbas))
       write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
       write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
@@ -138,7 +132,7 @@ C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
 ckino Dec.14.2011:         call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
 ckino Dec.28.2011:         call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
-       call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 ) 
+      call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 ) 
 
 ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
 ckino Dec.27.2011:         call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
@@ -164,29 +158,57 @@ c ... get rotation matrix dlmm
 
 C --- APW part
  1011 continue
-      if(no_qpgpsi) goto 1012
+c      if(no_qpgpsi) goto 1012
+      inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
+      if(.not.qpgexist) goto 1012
 C q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz
-      nkt = 2*nqbz + 2*nkp
+
+
+c$$$cccccccccccccccccccccccccccccc
+c$$$      nkt = 2*nqbz + 2*nkp
+c$$$      if(allocated(qq)) deallocate(qq)
+c$$$      allocate( qq(3,nkt) )
+c$$$      print *,'gen_hamindex: nkt nqbz=',nkt,nqbz
+c$$$      do  iq = 1, nqbz
+c$$$        read(ifiqg)  qxx  ! q, and number of G vectors for
+c$$$        read(ifiqg)
+c$$$        qq(:,iq)=qxx
+c$$$        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
+c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
+c$$$      enddo
+c$$$      print *
+c$$$      call fclr(' ',ifiqg)
+c$$$      do iq = nqbz+1, nqbz+nkp
+c$$$        qq(:,iq) = qplist(:,iq-nqbz)
+c$$$        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
+c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
+c$$$      enddo
+cccccccccccccccccccccccccccccc
+c feb2012takao. Why do we need duplicated qq (1:2*nqnum + 2*nkp) ??? 
+c  we have two set of data for original qxx in QGpsi and their shortened.
+      nkt = 2*nqnum + 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+c      nkt = nqnum + nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
       allocate( qq(3,nkt) )
-      print *,'gen_hamindex: nkt nqbz=',nkt,nqbz
-      do  iq = 1, nqbz
+      print *,'gen_hamindex: nkt nqnum=',nkt,nqnum
+      do  iq = 1, nqnum
         read(ifiqg)  qxx  ! q, and number of G vectors for
         read(ifiqg)
         qq(:,iq)=qxx
-        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
-        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
-c        call shorbz( qxx, qq(:,iq), qlat, plat)
+        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
+        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
       enddo
       print *
       call fclr(' ',ifiqg)
-      do iq = nqbz+1, nqbz+nkp
-        qq(:,iq) = qplist(:,iq-nqbz)
-        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
-        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
+      do iq = nqnum+1, nqnum+nkp
+        qq(:,iq) = qplist(:,iq-nqnum)
+        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
+        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
       enddo
+cccccccccccccccccccccccccccccc
+
 
 
 C ---
@@ -199,6 +221,7 @@ C ---
         allocate(napwk(nkt))
         napwk=0
         napwmx=0
+        call writehamindex() !feb2012takao
         return
       endif
 
@@ -267,16 +290,14 @@ C ... Reverse table of igv2 --->igv2rev
           !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
         enddo
       enddo
-      print *,' --- nkt,napwmx = ',nkt,napwmx
-
+      print *,' ---- nkt,napwmx = ',nkt,napwmx
+      call writehamindex() !feb2012takao
       end subroutine gen_hamindex
 
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
-
       use m_struc_def  !Cgetarg
-
       use m_globalvariables
 C- Hamiltonian setup
 C ----------------------------------------------------------------------

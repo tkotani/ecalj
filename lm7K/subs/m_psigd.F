@@ -99,8 +99,8 @@ ctakao
 
       logical:: isanrg, l_dummy_isanrg,oncewrite
 c
-c      print *,'psigd',present(iout)
-c      print *,' iout=',iout
+      print *,'psigd',present(iout)
+      print *,' iout=',iout
 
 
       call getpr(ipr)
@@ -117,6 +117,9 @@ c      print *,' iout=',iout
       asig   = sigp(6)
       bsig   = sigp(7)
 
+      if(present(iout).and.iout==1) then
+         continue
+      else
       if (mode .eq. 0) then
         call info5(PRTE,1,0,
      .  ' hambls: approximate sigma'//
@@ -137,6 +140,7 @@ c      print *,' iout=',iout
         stop 'for now'
       else
         call rxi('psigd: bad mode ',mode)
+      endif
       endif
 
       imin=ndimh
@@ -180,12 +184,15 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
 
 
 C       Printout
-        if (mode .eq. 1) then
+        if(present(iout).and.iout==1) then
+           continue
+        else
+         if (mode .eq. 1) then
           if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
             write(stdo,331) i,eval(i),dble(sigii)
   331       format(i6,f12.6,2x,f12.6)
           endif
-        else
+         else
           if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
             write(stdo,332)
      .      i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
@@ -197,6 +204,7 @@ C       Printout
             write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
   334       format(i6,f12.6,2x,f12.6,12x,f13.6)
           endif
+         endif
         endif
 
 C       Overwrite full sigma with diagonal matrix, or write to sigd

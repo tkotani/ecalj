@@ -63,7 +63,7 @@ c----------------------------------------------
       real(8),allocatable:: eseavr(:,:),eseavr_in(:,:)
 
       integer,allocatable:: nhqx(:,:)
-      integer:: nz
+      integer:: nz,ntqmin
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c     logical :: core3ptest=.false. ! This is for test for NiO_bigbas
@@ -513,8 +513,6 @@ c     se(itp,itp,ip)=se(itp,itp,ip) - 0.5*vxc(itp,ip)/rydberg()
 c     enddo
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
-!     Bug fix ntqxx had been undefined! Jan2004.
           ntqxx=ntq
           do itp=ntq,1,-1
             if(se(itp,itp,ip)/=0d0) then
@@ -524,6 +522,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           enddo
           write(6,*)
           write(6,"( ' ip ntq ntqxx=',3i5)")ip,ntq,ntqxx
+          if(ip==1) then
+             ntqmin=ntqxx
+          else
+            if(ntqxx<ntqxxmin) ntqxxmin=ntqxx
+          endif  
 
           do itp = 1,ntqxx
             do itpp= 1,ntqxx
@@ -611,7 +614,7 @@ c     - write SE_ij-Vxc_ij where ij are basis function indices
      &                 .gt. 1d-8  ) stop 'hqpe: v_xc is not hermitean'
             enddo
           enddo
-          write(ifse_out) qqq(1:3,ikpx,is),eseavr(ip,is)  !june2009 add eseavr
+          write(ifse_out) qqq(1:3,ikpx,is),eseavr(ip,is),ntqxx  !june2009 add eseavr !feb2012 ntqxx
 
 c     sigma_mixing = .false.
 c     if (sigma_mixing) then
@@ -834,9 +837,9 @@ c-----------------------------------------------------------------
         do ip=1,nq
           eseavrmean = eseavrmean+ nstar(ip)*eseavr(ip,is)
         enddo
-        write(if_eseavr,"(d23.15,i3)")eseavrmean/nqbz,is 
+        write(if_eseavr,"(d23.15,i3,i8)")eseavrmean/nqbz,is ,ntqxxmin
       enddo
-      write(if_eseavr,"(a)")' e-weighted average of self-energy for unoccupied bands. ispin'
+      write(if_eseavr,"(a)")' e-weighted average of self-energy for unoccupied bands. ispin ntqxxmin'
       isx= iclose(if_eseavr)
 
 

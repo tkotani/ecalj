@@ -376,7 +376,7 @@ C     implicit none
       integer n1,n2,n3,is(3),ifac(3),lpbc
       double precision plat(3,3),rb(3,3),qb(3,3),qlat(3,3),vol
       integer k,m,m1,m2,m3,iprint,lgunit,stdo
-
+c      print *,'bzmsh0:',plat,n1,n2,n3,lshft,lpbc
       stdo = lgunit(1)
       is(1)   = 0
       is(2)   = 0
@@ -417,7 +417,7 @@ C     implicit none
         rb(m,2) = plat(m,2)*m2
         rb(m,3) = plat(m,3)*m3
     8 continue
-
+c      print *,'end of bzmesh0'
       end
       integer function mxxyz()
 C- Return maximum integer whose cube fits into integer word

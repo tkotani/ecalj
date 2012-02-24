@@ -6,12 +6,13 @@ C oevl -> evlall
      . frc,
      .dmatu,vorb,llmfgw)
       use m_hamindex, only: 
-     &ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
-     &igv2,napwk,igv2rev,ibasindex,getikt
+     &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
+     &  igv2,napwk,igv2rev,ibasindex,getikt
       use m_rdctrl, only: ncutovl
       use m_struc_def
       use m_globalvariables
       use m_phmbls
+      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !these are given here.
 #if defined(__INTEL_COMPILER)
       use ifport, only: unlink
 #endif
@@ -428,7 +429,7 @@ ctakao
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
-       integer:: nhmax , nknknk , npairmx , jx , nsp_dummy , ndimh_dummy 
+       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy 
 ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
 
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
@@ -436,15 +437,14 @@ ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
       integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
-      integer,allocatable:: npair(:,:), nlat(:,:,:,:)
-      real(8),allocatable:: qwgt(:,:,:),range(:,:),qsmesh(:,:,:,:),pos(:,:)
+      real(8),allocatable:: range(:,:),pos(:,:)
 
 
-      integer:: ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),j1x,j2x,ix1,ix2,ix3
+      integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
 
-      complex(8)::sss
+c      complex(8)::sss
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
       logical:: noshorbz,siginit,bzwtsf_bisection
@@ -467,6 +467,9 @@ ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
 ckino
       integer:: n_listwf
       integer, allocatable:: listwf(:)
+
+      integer(4):: ntqxx,ispx
+      real(8)::eseavrmean
 
 #if !defined(__INTEL_COMPILER)
       integer:: unlink 
@@ -608,7 +611,6 @@ C     icls = igets('optic cls',w(osoptc))
       if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       if (ndham.le.0)
      .call rx('bndfp: hamiltonian matrix has zero dimension')
-
 c
 
 #if MPI
@@ -631,26 +633,22 @@ C MPI Process configuration
 
       call dvset(eterms,1,20,-99d0)
       eterms(19) = 0d0
-
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,eterms,1,sham%eterms,1)
-
-
       nvl=spot%nlml
       nchan=spot%nlma
-
       eks = 0
 
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      plat=slat%plat
+      qlat=slat%qlat
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-
       vol = slat%vol
-
 
 c      call fftz30(n1,n2,n3,k1,k2,k3)
       k1 = n1
@@ -659,7 +657,6 @@ c      call fftz30(n1,n2,n3,k1,k2,k3)
 
 
 C ... for BZ integration
-
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1)
       nkp=sbz%nkp
@@ -667,8 +664,6 @@ C ... for BZ integration
 ckino Dec.16.2011:         iv_p_oidtet => sbz%iv_p_oidtet 
 
       lmet=sbz%lmet
-
-
       mpsord=sbz%n
       esmear=sbz%w
       nevmx=sbz%nevmx
@@ -1346,10 +1341,11 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
         nl=sctrl%nl
 ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo 
         print *,'goto gen_hamindex nkp=',nkp
-         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
+        call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
 ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
-ckino Dec.27.2011:       .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
-     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
+ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
+ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
+     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
 
 #if 1
 Ckino ib=atom index
@@ -1493,7 +1489,7 @@ ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nba
                call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
-     .         ) 
+     .         ,nk1,nk2,nk3,sfz,sigmamode) 
         deallocate(spotx)
 c        call rlse(oqmom)
 C      if (jobgw .eq. 1) then
@@ -1562,7 +1558,6 @@ c      nsmidb = ndham
         isqp = nsp*(iq-1)
 C       Get qp either from qp list or read from suqlst
 
-
 #ifndef MPIK
 c        if (plbnd .ne. 0) then
 c          i = nsp
@@ -1588,34 +1583,18 @@ c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
 C   ... Loop over majority, minority spins
 C       In the SO case, still a loop isp=1..2
 C       isp=1 generates just the 11 block
-
-c        call defrr(oh,-ndhamx**2*2)
-c        call defrr(os,-ndhamx**2*2)
-
         if(debug) print *,'goto spin loop nsp=',nsp
         do  isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
-
-cccccccccccccc
 ctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
             qpo=qp
             if(.not.noshorbz()) then
               if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
             endif
-
-
-ccccccccccccccccccccccccc
-c        qp=(/-1d0/3d0,1d0/3d0,1d0/3d0/)
-c        qp=(/.5d0,.5d0,-.5d0/)
-c        qp=(/-1d0,0d0,0d0/)
-ccccccccccccccccccccccccc
-
-
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
 C   ... For this qp, G vectors for PW basis and hamiltonian dimension
@@ -1654,35 +1633,22 @@ c              call defi(oigv2,3*napw)
               allocate(igv2x(1,1)) !dummy
             endif
             ndimhx = ndimh*nspc !this is iq-dependent.
-
             if(debug)  print *,'vvvvvv xxx cccccccccc2222'
 
 C   ... Make Hamiltonian and overlap matrices
-
             nqsig=sham%nqsig
 ckino Dec.8.2011:               rv_p_oqsig => sham%rv_p_oqsig 
-
 cki            if (oqsig .eq. 0) oqsig = 1
-
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
             !nspc=1
-
             if(debug) print *,'zzzzzzzzzzzzz11111111'
-c ---
             if(isp==1) then
               if(allocated(hamm)) deallocate(hamm)
               if(allocated(ovlm)) deallocate(ovlm)
-c      if(allocated(hamsom)) deallocate(hamsom)
               nnspc=1
               if(nspc==2) nnspc=4
               allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
-c      if(lso/=0) then
-c        allocate(hamsom(ndimh,ndimh))
-c      else
-c        allocate(hamsom(1,1)) !dummy
-c      endif
             endif
-
             if(ispc==1) then
               hamm=0d0
               ovlm=0d0
@@ -1718,192 +1684,16 @@ c        if(iq==1) then
 c              ifio = fopna('ovlmat',-1,4)
 c        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,' mmm: qp=',qp
 
-
-            if(debug) print *,' mmm1: qp=',qp
+! Determine interpolated self-energy sene at qp from sfz
             if(sigmamode) then
-c --- Generate interpolation weight wgtq.
-              allocate( wgtq(nbas,nbas,nk1,nk2,nk3) )
-              pi2i = 2d0*4d0*datan(1d0)*(0d0,1d0)
-              wgtq = 0d0
-              !print *,' mmm2: qp=',qp
-              do ib1=1,nbas
-                do ib2=1,nbas
-                  do ii = 1,npair(ib1,ib2)
-                    rrr = matmul(plat, nlat(:,ii,ib1,ib2))
-ccccccccccccccccccccccccccccccccccc
-c          write(6,"(a, 3i5,2x,3f8.3)")'vvv1: qwgt=', ib1,ib2,ii
-ccccccccccccccccccccccccccccccccccc
-
-cccccccccccccccccccccccccccccccccccccccc
-c          qpx=(/-0.50000D+00, -0.50000D+00, -0.50000D+00/)
-ccccccccccccccccccccccccccccccccccccccccccc
-
-c wgtq is interpolation weight for MTO.
-                    do ik1=1,nk1
-                      do ik2=1,nk2
-                        do ik3=1,nk3
-                          wgtq(ib1,ib2,ik1,ik2,ik3) = wgtq(ib1,ib2,ik1,ik2,ik3) 
-     &                    + qwgt(ii,ib1,ib2)*exp( -pi2i*sum( (qp-qsmesh(:,ik1,ik2,ik3))*rrr ) )
-c     &      + qwgt(ii,ib1,ib2)*exp( -pi2i*sum( (qpx-qsmesh(:,ik1,ik2,ik3))*rrr ) )
-                        enddo
-                      enddo
-                    enddo
-                  enddo
-                enddo
-              enddo
-              !deallocate( nlat, qwgt )
-cccccccccccccccccccc
-c        do ib1=1,nbas
-c        do ib2=1,nbas
-c        do ik1=1,nk1
-c        do ik2=1,nk2
-c        do ik3=1,nk3
-c          write(6,"(a, 2i3,3i8,2x,2f8.3)")'vvv: wgtq=', ib1,ib2,ik1,ik2,ik3, wgtq(ib1,ib2,ik1,ik2,ik3)
-c       enddo
-c       enddo
-c        enddo
-c        enddo
-c        enddo
-cccccccccccccccccccc
-
-c ---  MTO part of interpolated sigm(i,j)
+c              print *,' goto seneinterp2: qp=',qp
               allocate(sene(ndimh,ndimh))
-              sene=0d0
-c       open(3012,file="sfz")
-              do j1=1,ldim
-                do j2=1,ldim
-                  ib1= ibasindex(j1)
-                  ib2= ibasindex(j2)
-                  do ik1=1,nk1
-                    do ik2=1,nk2
-                      do ik3=1,nk3
-c           write(3012,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,sfz(ik1,ik2,ik3,j1,j2,isp)
-c           if(j1==1.and.j2==1) then
-c          if( sum(abs(qp-qsmesh(:,ik1,ik2,ik3)))<1d-8) then
-c            write(6,"(a, 3f8.3,2x,3f8.3,3i6)")'vvv: qp=',qp,qsmesh(:,ik1,ik2,ik3),ik1,ik2,ik3
-c          endif
-c            endif
-                        sene(j1,j2)= sene(j1,j2) + wgtq(ib1,ib2,ik1,ik2,ik3)*sfz(ik1,ik2,ik3,j1,j2,isp)
-                      enddo
-                    enddo
-                  enddo
-                enddo
-              enddo
-c       close(3012)
-              deallocate(wgtq)
-
-ccccccccccccccccccccccccccccc
-              ikt=getikt(qp) ! index for qp
-              if(napwk(ikt)==0) then
-                if(oncewrite(4)) print *,' napw=0 skip napw part '
-                goto 1019
-              endif
-ccccccccccccccccccccccccccccc
-
-C --- APW part of interpolarion sigm(i,j)
-c... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
-              print *,' --- goto qparam--- '
-              call qparam(qp,qsmesh,nk1,nk2,nk3,plat, ikc,qpara,igshift)
-              ! eight corners of a cube -->
-              !  do ix1=0,1
-              !  do ix2=0,1
-              !  do ix3=0,1
-              !    qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-              !  enddo
-              !  enddo
-              !  enddo
-c... interpolation weight at eight corners of a cube
-              call interparam(qpara, wgc)
-              print *,' --- end of interparam ---'
-cccccccccccccccccccccccccc
-c        wgc=0d0
-c        wgc(0,0,0)=1d0
-cccccccccccccccccccccccccc
-
-c... obtain G index for eight corners of a cube. qp is in the cube.
-              allocate( igx(ndimh,0:1,0:1,0:1) )
-              ikt=getikt(qp) ! index for qp
-              print *,'ikt qp=',ikt,qp
-              nkk= (/nk1,nk2,nk3/)
-
-              do ig=1,napwk(ikt) !qp+G
-                do ix1=0,1
-                  do ix2=0,1
-                    do ix3=0,1
-                      igvecc0 = igv2(:,ig,ikt) + igshift(:,ix1,ix2,ix3)
-                      qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-                      iktm = getikt(qmm) !index for qmm
-                      qqq = matmul(qp-qmm,plat)
-
-                      igvecc = igvecc0 + qqq + 10000 + 1d-8 ! +10000 is to make igvecc+qqq positve. and then subtract -10000
-                      igvecc = igvecc - 10000              !
-
-                      igx(ig,ix1,ix2,ix3) = igv2rev(igvecc(1),igvecc(2),igvecc(3),iktm)
-                      !igx at eight corners. If missing, 9999999 !see suham.F
-                      ! if(ix1==0.and.ix2==0.and.ix3==0) then
-                      !   write(6,"(a,3f8.3)")'=', igvecc0 + qqq- igvecc
-                      !   print *,'iktm qmm=',iktm,qmm
-                      !   write(6,"(a,20i8)")'ix1 ix2 ix3 igvecc=', igvecc,igshift(:,ix1,ix2,ix3),igv2(:,ig,ikt)
-                      !   write(6,"(a,10i8)")'ix1 ix2 ix3 ig igx=', ix1,ix2,ix3, ig, igx(ig,ix1,ix2,ix3)
-                      ! endif
-                    enddo
-                  enddo
-                enddo
-              enddo
-c
-              print *,'goto sss section'
-              do j1=1,ndimh
-                do j2=1,ndimh
-                  if(j1<=ldim.and.j2<=ldim) cycle
-ccccccccccccccc
-c         if(j1>ldim.and.j2>ldim) cycle
-ccccccccccccccc
-                  sss=0d0
-                  www=0d0
-                  do ix1=0,1
-                    do ix2=0,1
-                      do ix3=0,1
-                        !if(wgc(ix1,ix2,ix3)==0d0) cycle
-                        if(j1<=ldim) then
-                          j1x= j1
-                        else
-                          j1x= igx(j1-ldim,ix1,ix2,ix3)+ldim  !G1
-                        endif
-                        if(j2<=ldim) then
-                          j2x= j2
-                        else
-                          j2x= igx(j2-ldim,ix1,ix2,ix3)+ldim  !G2
-                        endif
-                        !print *,'j1x j2x=',j1-ldim,j2-ldim,j1x,j2x,ik1,ik2,ik3
-                        !if(j1x == 999999+ldim) cycle
-                        !if(j2x == 999999+ldim) cycle
-                        if(j1x == 999999+ldim) goto 888
-                        if(j2x == 999999+ldim) goto 888
-                        ik1= ikc(1,ix1,ix2,ix3)
-                        ik2= ikc(2,ix1,ix2,ix3)
-                        ik3= ikc(3,ix1,ix2,ix3)
-c          if(wgc(ix1,ix2,ix3)/=0d0) then
-c            write(6,"(a,3i5,a,3i5,d13.6)")
-c     &      ' ik1 ik2 ik3=',ik1,ik2,ik3,' ix1 ix2 ix3=',ix1,ix2,ix3,wgc(ix1,ix2,ix3)
-c          endif
-                        !print *,' ix=',ix1,ix2,ix3
-                        sss = sss+ wgc(ix1,ix2,ix3)* sfz(ik1,ik2,ik3,j1x,j2x,isp)
-                        www = www+ wgc(ix1,ix2,ix3)
-                        !print *,' xxx'
-                      enddo                                         ! sigma at eight corners
-                    enddo
-                  enddo
-                  !print *,'j1 j2 www=',j1,j2,www
-                  sene(j1,j2)= sene(j1,j2) + sss/www
-
- 888              continue
-                enddo
-              enddo
-              deallocate(igx)
- 1019         continue
+              call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
+     o        sene) 
             endif
+
 C cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
 C C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
@@ -1940,14 +1730,10 @@ ccccc     if (mod(mode,10) .eq. 0) then
               if (lso == 1) jx = 10
                   call hambl ( jx , nbas , ssite , sspec , slat , sham , isp , 
 ckino Dec.8.2011:       .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
-ckino Dec.28.2011:       .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
+ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) ) 
-
-
-
-
               if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc)+sene
               if(sigmamode) deallocate(sene)
 ccccc     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
@@ -3112,7 +2898,7 @@ ckino Dec.8.2011:               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , r
 
 C ... release sigma-related things.
       if(sigmamode) then
-        deallocate(sfz,qsmesh,npair,pos)
+        deallocate(sfz,qsmesh,npair,pos,nlat,qwgt)
       endif
 
       if( debug) print *, 'tttttttttt 9999999999999999999 7'

@@ -1,4 +1,158 @@
 #define USEOPTIONAL 1
+      module m_seneinput
+      implicit none
+      integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
+      integer(4)::npairmx
+      real(8),allocatable:: qsmesh(:,:,:,:)
+      real(8),allocatable:: qwgt(:,:,:)
+      end module
+
+      subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+     i  sfz,ldim,ndimh, 
+     o  sene) 
+      use m_hamindex,only: napwmx, ibastab, igv2,napwk,igv2rev,ibasindex,getikt
+      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
+!- give sene from sfz
+      implicit none
+      integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimh,
+     &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
+     &  j1x,j2x,ix1,ix2,ix3,ikt,ig,nkk(3),igvecc0(3),iktm,igvecc(3),j1,j2
+c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
+      complex(8):: sfz(nk1,nk2,nk3,ndimh,ndimh), 
+     &  pi2i,sene(ndimh,ndimh),sss
+      complex(8),allocatable:: wgtq(:,:,:,:,:)
+      real(8)::rrr(3),plat(3,3) !,qsmesh(3,nk1,nk2,nk3)
+      logical:: oncewrite,debug=.false.
+      integer(4),allocatable::igx(:,:,:,:)
+      real(8):: wgc(0:1,0:1,0:1),qpara(3),qmm(3),qqq(3),www,qp(3) !,qwgt(npairmx,nbas,nbas)
+
+      if(debug) print *,' seneinterp2: qp=',qp,nk1,nk2,nk3
+! --- Generate interpolation weight wgtq.
+      allocate( wgtq(nbas,nbas,nk1,nk2,nk3) )
+      pi2i = 2d0*4d0*datan(1d0)*(0d0,1d0)
+      wgtq = 0d0
+      do ib1=1,nbas
+      do ib2=1,nbas
+        do ii = 1,npair(ib1,ib2)
+          rrr = matmul(plat, nlat(:,ii,ib1,ib2))
+! wgtq is interpolation weight for MTO.
+          do ik1=1,nk1
+          do ik2=1,nk2
+          do ik3=1,nk3
+            wgtq(ib1,ib2,ik1,ik2,ik3) = wgtq(ib1,ib2,ik1,ik2,ik3) 
+     &      + qwgt(ii,ib1,ib2)*exp( -pi2i*sum( (qp-qsmesh(:,ik1,ik2,ik3))*rrr ) )
+          enddo
+          enddo
+          enddo
+        enddo
+      enddo
+      enddo
+! ---  MTO part of interpolated sigm(i,j)
+      sene=0d0
+      do j1=1,ldim
+      do j2=1,ldim
+         ib1= ibasindex(j1)
+         ib2= ibasindex(j2)
+         do ik1=1,nk1
+         do ik2=1,nk2
+         do ik3=1,nk3
+           sene(j1,j2)= sene(j1,j2) + wgtq(ib1,ib2,ik1,ik2,ik3)*sfz(ik1,ik2,ik3,j1,j2) !,isp)
+         enddo
+         enddo
+         enddo
+      enddo
+      enddo
+      deallocate(wgtq)
+!!--- return when no APW
+      ikt=getikt(qp) ! index for qp
+      if(napwk(ikt)==0) then
+      if(oncewrite(4)) print *,' napw=0 skip napw part '
+        return
+      endif
+
+!!--- APW part of interpolarion sigm(i,j)
+!!... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
+      print *,' --- goto qparam--- '
+      call qparam(qp,qsmesh,nk1,nk2,nk3,plat, ikc,qpara,igshift)
+       ! eight corners of a cube -->
+       !  do ix1=0,1
+       !  do ix2=0,1
+       !  do ix3=0,1
+       !    qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
+       !  enddo
+       !  enddo
+       !  enddo
+!!... interpolation weight at eight corners of a cube
+      call interparam(qpara, wgc)
+      print *,' --- end of interparam ---'
+!!... obtain G index for eight corners of a cube. qp is in the cube.
+      allocate( igx(ndimh,0:1,0:1,0:1) )
+      ikt=getikt(qp) ! index for qp
+      print *,'ikt qp=',ikt,qp
+      nkk= (/nk1,nk2,nk3/)
+      do ig=1,napwk(ikt) !qp+G
+        do ix1=0,1
+        do ix2=0,1
+        do ix3=0,1
+          igvecc0 = igv2(:,ig,ikt) + igshift(:,ix1,ix2,ix3)
+          qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
+          iktm = getikt(qmm) !index for qmm
+          qqq = matmul(qp-qmm,plat)
+          igvecc = igvecc0 + qqq + 10000 + 1d-8 ! +10000 is to make igvecc+qqq positve. and then subtract -10000
+          igvecc = igvecc - 10000              !
+          igx(ig,ix1,ix2,ix3) = igv2rev(igvecc(1),igvecc(2),igvecc(3),iktm)
+          !igx at eight corners. If missing, 9999999 !see suham.F
+          ! if(ix1==0.and.ix2==0.and.ix3==0) then
+          !   write(6,"(a,3f8.3)")'=', igvecc0 + qqq- igvecc
+          !   print *,'iktm qmm=',iktm,qmm
+          !   write(6,"(a,20i8)")'ix1 ix2 ix3 igvecc=', igvecc,igshift(:,ix1,ix2,ix3),igv2(:,ig,ikt)
+          !   write(6,"(a,10i8)")'ix1 ix2 ix3 ig igx=', ix1,ix2,ix3, ig, igx(ig,ix1,ix2,ix3)
+          ! endif
+        enddo
+        enddo
+        enddo
+      enddo
+!!... fill APW part
+      print *,'goto sss section'
+      do j1=1,ndimh
+      do j2=1,ndimh
+        if(j1<=ldim.and.j2<=ldim) cycle
+        sss=0d0
+        www=0d0
+        do ix1=0,1
+        do ix2=0,1
+        do ix3=0,1
+          !if(wgc(ix1,ix2,ix3)==0d0) cycle
+          if(j1<=ldim) then
+            j1x= j1
+          else
+            j1x= igx(j1-ldim,ix1,ix2,ix3)+ldim  !G1
+          endif
+          if(j2<=ldim) then
+            j2x= j2
+          else
+            j2x= igx(j2-ldim,ix1,ix2,ix3)+ldim  !G2
+          endif
+          if(j1x == 999999+ldim) goto 888
+          if(j2x == 999999+ldim) goto 888
+          ik1= ikc(1,ix1,ix2,ix3)
+          ik2= ikc(2,ix1,ix2,ix3)
+          ik3= ikc(3,ix1,ix2,ix3)
+          sss = sss+ wgc(ix1,ix2,ix3)* sfz(ik1,ik2,ik3,j1x,j2x) !,isp)
+          www = www+ wgc(ix1,ix2,ix3)
+        enddo                                         ! sigma at eight corners
+        enddo
+        enddo
+        sene(j1,j2)= sene(j1,j2) + sss/www
+ 888    continue
+      enddo
+      enddo
+      deallocate(igx)
+ 1019 continue
+      end subroutine seneinterp2
+
+
+
       subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      &nk1,nk2,nk3,sfz) !,qin,isp,sene)
 
@@ -115,7 +269,7 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
       integer:: i_copy_size,nhrss
       real(8),allocatable::hrss(:)
 
-      logical:: l_dummy_isanrg, isanrg
+      logical:: l_dummy_isanrg, isanrg, debug=.false.
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -308,10 +462,13 @@ C     Sanity checks
       if (lsplts) call info0(30,0,0,
      .'%9f(warning) sigm file not spin pol .. splitting spins')
 
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+ctakao feb2012
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      plat=slat%plat
 ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos 
 
+      if(debug) print *,'seneinterp: debug DDDDDDDDDD'
 
 
       nsgrp=slat%nsgrp
@@ -327,11 +484,13 @@ ckino Dec.22.2011:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh 
 ckino Dec.27.2011:         call offshp ( sham%iv_p_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
        call offshp ( sham%iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
      . ) 
+      if(debug) print *,'seneinterp: debug EEEEEEEEEE'
 
 C     Setup for FFT
       call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
      .'rdsigm: not ready for FFT w/ dimensions ne no div.')
+      if(debug) print *,'seneinterp: debug GGGGGGGGGGGGG '
 C ... Number of group operations for input file sigma
       if (mod(lssym,2) .eq. 0) nsgrps = nsgrp
       if (mod(lssym,2) .eq. 1) nsgrps = 1
@@ -340,16 +499,20 @@ C ... Make is,ifac,qb,qlat,qoff
       do  8  i = 1, 3
         llshft(i) = lshft(i) .ne. 0
     8 continue
+      if(debug) print *,'seneinterp: debug FFFFFFF 00000'
       call pshpr(0)
+      if(debug) print *,'seneinterp: debug FFFFFFF 00000 xxx'
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
+      if(debug) print *,'seneinterp: debug FFFFFFF 1111111'
       call poppr
       do  i = 1, 3
         qoff(i) = qk(i,1,1,1) + qoffi(i)
       enddo
 
+      if(debug) print *,'seneinterp: debug FFFFFFF 2222'
 C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
       i = 1000 + 10*hreal + 0
-C      print *, '!!'; i = 1000*0 + 10*hreal + 0
+C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
       print *,' go to hft2rs i=',i
@@ -371,9 +534,10 @@ cki     .    iv_p_oiaxs , ndhrs , w )
 ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy ) 
 ckino Dec.27.2011:       .    sham%iv_a_oiaxs , ndhrs , rv_dummy ) 
      .    sham%iv_a_oiaxs , ndhrs , rv_dummy ) 
+      if(debug) print *,'seneinterp: debug FFFFFFF 3333333'
 
 ccccccccccccccccccccccccccccccccc
-c          print *,' size iv_p_ontabls=',size(iv_p_ontabs)
+          print *,' size iv_p_ontabls=',size(sham%iv_a_ontabs)
 cccccccccccccccccccccccccccccccccccccc
 
 
@@ -425,6 +589,8 @@ ckino end
       allocate(wgt_rv(abs(-mxkp)))
       if (-mxkp<0) wgt_rv(:)=0.0d0
 
+      print *,'seneinterp: debug HHHHH'
+
       call info(20,1,0,
      .' q-points in full BZ where sigma calculable ...',0,0)
         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
@@ -433,6 +599,7 @@ ckino Dec.22.2011:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 
 
 
 
+      print *,'seneinterp: debug IIIIIIII'
 
       sham%nqsig=nqsig
 ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig 
@@ -616,12 +783,14 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
              write(6,"(a,13f13.5)")'goto hamfbk3 xx input qp=', qp
 c        napw_in=0 ! for test
 
-            i_copy_size=size(slat%qlat)
-            call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+ctakao feb2012
+c            i_copy_size=size(slat%qlat)
+c            call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv 
-     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ifac , 
+c     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ifac , 
+     .      , napw_in , ndimh , ndimh , ndimh , qb , ifac , 
      .      gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) )
 
             if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
@@ -1169,12 +1338,11 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
 
 
-      subroutine rdsigm2(nbas,nsp,ndimh,slat,sham,sbz,ifis, 
+      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
      &nk1,nk2,nk3,ldim,qsmesh,sfz)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_hamindex
+      use m_hamindex  !nbas is in this structure
 C- takao. Expand self-energy (read by ifis) to all the q point on mesh. In developing.
 Ci ifis:  file hundle for self-energy file sigm. only at irreducible q point.
 Co complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp):  self-energy (\Sigma-Vxc) for  all the q points on mesh.
@@ -1349,7 +1517,7 @@ Cu   27 Jul 02 first created
 C ------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer mode,nbas,ifis,ndimh,lwsig
+      integer mode,ifis,ndimh,lwsig, nbas_dummy!nbas,
 C     integer osig(nbas),otau(nbas),oppi(nbas)
       type(s_lat)::slat
       type(s_ham)::sham
@@ -1411,7 +1579,7 @@ C MPI
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
       double precision alf(2)
 C     integer os
-      double precision plat(3,3),qp(3),tolq,rsstol,sigp(10)  ,qlat(3,3)
+      double precision qp(3),tolq,rsstol,sigp(10)  !plat(3,3),qlat(3,3) 
       double precision emin,emax,asig,bsig,efit,rotm(3,3),ddot !,qoff(3)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
@@ -1433,7 +1601,7 @@ C ... Heap
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
       integer:: i_copy_size
 
-      logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg,debug=.false.
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -1619,8 +1787,8 @@ c        if (lfbzin) nqp = nk1*nk2*nk3
 
 C     Sanity checks
 
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
 ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos 
 
 
@@ -1632,6 +1800,7 @@ ckino Dec.22.2011:         rv_p_og => slat%rv_p_osymgr
 
 ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag 
 
+      if(debug) print *,'rdsigm2: debug AAAAAAAAAAAAAAAA'
 
 C     Get leading dimension of hrs
 c      call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
@@ -1645,6 +1814,7 @@ c      if (mod(lssym,2) .eq. 1) nsgrps = 1
 c      if (lfbzin) nsgrps = 1
       nsgrps = nsgrp
 
+      if(debug) print *,'rdsigm2: debug BBBBBBBBBBBBBBBBBBBB'
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
         llshft(i) = lshft(i) .ne. 0
@@ -1668,6 +1838,7 @@ c      do  i = 1, 3
 c        qoff(i) = qk(i,1,1,1) + qoffi(i)
 c      enddo
 
+      if(debug) print *,'rdsigm2: debug111111'
 
 C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
 c      i = 1000 + 10*hreal + 0
@@ -1708,6 +1879,7 @@ ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
       allocate(wgt_rv(abs(-mxkp)))
       if (-mxkp<0) wgt_rv(:)=0.0d0
 
+      if(debug) print *,'rdsigm2: debug2222'
       call info(20,1,0,
      .' q-points in full BZ where sigma calculable ...',0,0)
         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
@@ -1871,11 +2043,12 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
             ikt = getikt(qp)
             napw_in= napwk(ikt)
 
-            i_copy_size=size(slat%qlat)
-            call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+c            i_copy_size=size(slat%qlat)
+c            call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv 
-     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
+c     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
+     .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
      .      ifac , gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
      .      ) )
 

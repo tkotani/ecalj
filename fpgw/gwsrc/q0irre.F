@@ -1,9 +1,13 @@
-      subroutine q0irre(q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt)
+      subroutine q0irre(q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix)
 c inequivalent points
       implicit none
-      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06
+      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix
       real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3),
-     &   qt(3) ,wt0(nx06), wt(nx06)
+     &   qt(3) ,wt0(nx06), wt(nx06),qx(3)
+      logical:: ltrans
+      real(8):: plat(3,3)
+      real(8):: platt(3,3)
+c      print *,'presense trans=',present(ltrans)
 ccccccccc
 c        print *, ' --- rotation ---'
 c        do ig = 1,ngrp
@@ -13,6 +17,9 @@ c         write(6,"(3f14.6)") symops(i,1:3,ig)
 c        enddo
 c       enddo
 ccccccccc
+      if(ltrans) then
+       platt=transpose(plat)
+      endif
       wt=1d99
       ixx = 0
       do i = 1,nx06
@@ -26,9 +33,22 @@ c       print *, 'q0irre: i ix sum=',
 c     &  i,ix, sum(abs(q0i(:,ix)-matmul(sym,qt)))
 cccccccccccccccccccccc
 c         if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-10) then
-            if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-6) then !2000 Nov.
+            if(ltrans) then
+              call rangedq(matmul(platt,(qt-matmul(sym,q0i(:,ix)))), qx)
+              if(sum(abs(qx))<1d-8) then
+ccc
+c              write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
+c              write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
+              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
+ccc
               wt(ix) = wt(ix)+wt0(i)
               goto 990
+              endif  
+            else
+              if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-6) then !2000 Nov.
+              wt(ix) = wt(ix)+wt0(i)
+              goto 990
+              endif
             endif
           enddo
         enddo
@@ -721,3 +741,4 @@ c      ixtest=0
 c      if(q0pchoice()==5) ixtest=1
 c      if(q0pchoice()==6) ixtest=2
 c      end
+

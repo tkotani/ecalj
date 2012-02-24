@@ -48,6 +48,10 @@ c      logical :: readgwinput
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret
       real(8):: deltaq
+ctakao feb2012
+      integer(4):: nqi,ifix
+      real(8),allocatable:: wti(:),qi(:,:)
+
 c------------------------------------------------
       qreduce0 = qreduce()
       if(iq0pin == 3) then
@@ -279,11 +283,11 @@ c          nq0x = 8*abs (q0pchoice())
           print *,' TestNoQ0P=.true. '
           nq0i=0
         else
-          nmm=1
-          if(.not.timereversal()) nmm=2
-          allocate( q0x(3,nq0x), wt0(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
+         nmm=1
+         if(.not.timereversal()) nmm=2
+         allocate( q0x(3,nq0x), wt0(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          if(newaniso() ) then
+         if(newaniso() ) then
           nq00i=3
           pi=4d0*atan(1d0)
           deltaq=0.01*alat/(2*pi) !dq is 0.01 a.u.
@@ -296,15 +300,15 @@ c          q0x(:,4)=(/0d0,   deltaq, deltaq/)
 c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
 c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
 c          q0x(:,7)=(/0d0, 0d0, 0d0/)
-          wt0=1d0/3d0
-          else
+           wt0=1d0/3d0
+         else
           call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
      o         q0x,wt0,nq00i)
-          endif
+         endif
 c ... inequivalent q0x points ----
-          call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt)
-          write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
+         call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix)
+         write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
         print *,' xxxxxxx nq0i=',nq0i
 cccccccccccccccccccccccccccccccccccccccccccc
@@ -583,8 +587,8 @@ c
 
       write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn !takao 2003 Sep.
       write(ifiqgc) nqnum,ngcmx,QpGcut_cou
-      write(6,*) ' --- Maxmum number of G for psi =',ngpmx
-      write(6,*) ' --- Maxmum number of G for Cou =',ngcmx
+      write(6,*) ' --- Max number of G for psi =',ngpmx
+      write(6,*) ' --- Max number of G for Cou =',ngcmx
 c
 c ... Get G vector for given q.
       do iq = 1, nqnum
@@ -602,6 +606,25 @@ c ... Get G vector for given q.
         write (ifiqgc) ngvecc
         deallocate(ngvecp,ngvecc)
       enddo
+
+c takao feb2012
+      if(allocated(wt0)) deallocate(wt0)
+      allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
+      wt0=0d0
+      ifix=1101
+      open (ifix,form='unformatted',file='ROTWVinfo')
+      call q0irre(qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix)
+      close(ifix)
+      write(6,*)
+      write(6,*)' --- irreducible q0i --- '
+      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
+c
+c        wtx = 0d0; q0xx(1) = 0.01d0; q0xx(2:3) =0d0
+c        write(101,"(d24.16,3x, 3d24.16,a)" ) wtx,q0xx(1:3),
+c     &  " ! Zero-weight lines used  for \eps calculation.
+c     &   To make it effective, enlarge nq0i and do echo 2|qg4gw!"
+      close(1101)
+
       deallocate(ngpn,ngcn)
       if(iq0pin==1) deallocate(ngvect)
 c      print *,'end of mkqg'

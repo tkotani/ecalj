@@ -230,14 +230,15 @@ c
       enddo
       end
 c
-      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
+      subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr)
+c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       use m_hamindex
 C- sigma rotator. sig at qin to sig at qout.
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
       integer   :: ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
       real(8):: qin(3),qout(3)
-      real(8)   :: q(3),delta(3),ddd(3),qpg(3),plat(3,3),qlat(3,3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
+      real(8)   :: q(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !plat(3,3),qlat(3,3)
       complex(8):: phase,img=(0d0,1d0),img2pi
 
       complex(8):: sig(ndimh,ndimh),sigout(ndimh,ndimh)
@@ -263,20 +264,30 @@ c find symops(3,3,ig),
             print *,'ttt: q      =',q
             print *,'ttt: qtarget=',qtarget
             print *,'ttt: matmul q =',matmul(symops(:,:,igx),q)
-            print *,'ttt: rotwv: OK! igg=',igg
+            print *,'ttt: rotsig: OK! igg=',igg
             print *
           endif
           goto 1012
         endif
       enddo
-      write(6,"(a,3f7.3,2x,3f7.3)")'  rotwv: qtarget is not a star of q',q,qtarget
+      write(6,"(a,3f7.3,2x,3f7.3)")'  rotsig: qtarget is not a star of q',q,qtarget
       print *
       return
  1012 continue
 
-      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
+c ddd=ddd2 is not necessary. There is ambiguity. takao feb2011
+c      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
       ddd2 = shtvg(:,invgx(igg))
-      if(sum(abs(ddd-ddd2))>1d-8) stop 'rotwv: ddd/=ddd2'
+ctakao think this is not necessary feb2012
+c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
+c$$$         print *,'aaa: ddd ddd2=',ddd,ddd2
+c$$$         print *,'rotsig: ddd/=ddd2'
+c$$$         stop 'rotsig: ddd/=ddd2'
+c$$$      endif
+ccccccccccccccccccccccc
+      print *,'takao test 111 ddd=ddd2'
+      ddd=ddd2
+ccccccccccccccccccccccc
 
       allocate(sigx(ndimh,ndimh))
       sigx=0d0
@@ -319,7 +330,7 @@ c apw part ------------
       if(napw_in/=0) then
         ikt  = getikt(q)    !index for q
         ikt2 = getikt(qtarget) !index for qtarget
-        print *,' rotwv ikt ikt2=',ikt,ikt2
+        print *,' rotsig ikt ikt2=',ikt,ikt2
         if(napw_in /= napwk(ikt) ) then
           call rx('rotsig: napw_in /= napw(ikt)')
         endif
@@ -364,7 +375,7 @@ c apw part ------------
       if(napw_in/=0) then
         ikt  = getikt(q)    !index for q
         ikt2 = getikt(qtarget) !index for qtarget
-        if(debugmode()>0) print *,' rotwv 111 ikt ikt2=',ikt,ikt2
+        if(debugmode()>0) print *,' rotsig 111 ikt ikt2=',ikt,ikt2
         if(napw_in /= napwk(ikt) ) then
           call rx('rotsig: napw_in /= napw(ikt)')
         endif
@@ -389,13 +400,14 @@ c
       end subroutine rotsig
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)
+      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
+c      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)
       use m_hamindex
 C- wave function rotator. evec at q to evecout at qg=g(q).
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
       integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
-      real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),plat(3,3),qlat(3,3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
+      real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
       img2pi=2*4d0*datan(1d0)*img
       ierr=1
@@ -422,7 +434,15 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
 
       ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
       ddd2 = shtvg(:,invgx(igg))
-      if(sum(abs(ddd-ddd2))>1d-8) stop 'rotwv: ddd/=ddd2'
+c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
+c$$$         print *,'bbb: ddd ddd2=',ddd,ddd2
+c$$$         print *,'rotwv: ddd/=ddd2'
+c$$$         stop 'rotwv: ddd/=ddd2'
+c$$$      endif
+ccccccccccccccccccccccc
+      print *,'takao test ddd=ddd2'
+      ddd=ddd2
+ccccccccccccccccccccccc
 
       evecout=0d0
       nlmto = ndimh-napw_in

@@ -404,20 +404,16 @@ C     integer fopna
       double precision wk(ndimh*11),evl(ndimh)
 C ... Heap
        integer ::iwdummy 
-
-
 ctakaox
       complex(8),allocatable:: ss(:,:)
       integer:: sigswitch,debugmode
       logical:: pmtsig
       logical:: debug=.false.
       logical:: l_dummy_isanrg,isanrg,oncewrite
+
       if(debugmode()>0) debug=.true.
-
-
       call tcn('hambls')
       if(debug) print *, ' mode napw',mode,napw
-
 C --- LDA hamiltonian ---
       if (mod(mode,10) .eq. 0) then
         j = 0
@@ -519,10 +515,6 @@ ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp
      .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      ) 
-
-
-
-
         h(:,:,ispc) = h(:,:,ispc) + ss
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
 C      .    z0,F,e,ndimh,zqi)

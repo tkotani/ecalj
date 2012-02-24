@@ -3,7 +3,7 @@
             subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ) 
+     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode) 
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
@@ -192,7 +192,7 @@ c      equivalence (ldim,ldham(1,1))
       complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
      .testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:),
-     .geig(:,:,:),geig_p(:,:,:)
+     .geig(:,:,:),geig_p(:,:,:),sene(:,:)
       integer::isize_ham(3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       integer ndhamx,nspx,nnnx,ifiv
@@ -230,11 +230,14 @@ c      common /w/ w
       integer:: w(1) !! dummy
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii
-      logical:: debug=.false.
+      logical:: debug=.true.
       complex(8),allocatable:: evecout(:,:),evecr(:,:)
       real(8),allocatable:: qzz(:,:)
       integer,allocatable:: igv2(:,:)
-      logical:: l_dummy_isanrg,isanrg,oncewrite
+      logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode
+
+      integer(4):: nk1,nk2,nk3
+      real(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !ndham =ndimh
 
 C --- Setup ---
       print *,'sugw:'
@@ -916,31 +919,34 @@ C   --- vxc <- LDA vxc ---
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
           if (lwvxc) then
             ifiv = fopna('vxc',-1,4)
-
-c          write(ifv_xc) ndimh !june209 takao --->why did I do so? I don't remember sep3.2009.
+c           write(ifv_xc) ndimh !june209 takao --->why did I do so? I don't remember sep3.2009.
 c move back to original ifiv
             write(ifiv) ndimh
-
-
             write(ifiv) q,vxc
 C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
           endif
 
-C   --- LDA + sigma Hamiltonian for this qp ---
+!!   --- LDA + sigma Hamiltonian for this qp ---
           lpdiag = 0
           i = lrsig*10 + 1
-          ispc = min(isp,nspc)
-              isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
+          if(sigmamode.and.newsigmasw()) then
+             allocate(sene(ndimh,ndimh))
+             call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,
+     i       sfz(:,:,:,:,:,isp),ldim,ndimh, 
+     o       sene) 
+             ham=ham+sene
+             deallocate(sene)
+          else   
+            ispc = min(isp,nspc)
+            isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
 ckino Dec.14.2011:       .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
      .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
      .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
      .        , napw , igv2 , ham , ovl , isize_ham, i2 ) 
-
-
-
-
+          endif
           if (i .eq. -1) lpdiag = 2
+          print *,' end of generation of Hamiltonian'
 
 C   --- Branch job = 1 : make cphi, matrix elements ---
           if (job .eq. 1) then
@@ -1040,7 +1046,8 @@ c       if(iq==8) then
               do iqzz = 1,nqzz
                 qtarget = qzz(:,iqzz)
 c
-                call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,ierr)
+c                call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,ierr)
+                call rotwv(q,qtarget,ndimh,napw,ndimh, evec,evecout,ierr)
                 if(ierr/=0) cycle
 
                 do
