@@ -7,7 +7,7 @@ C oevl -> evlall
      .dmatu,vorb,llmfgw)
       use m_hamindex, only: 
      &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
-     &  igv2,napwk,igv2rev,ibasindex,getikt
+     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
       use m_struc_def
       use m_globalvariables
@@ -1333,6 +1333,7 @@ c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
 
 c      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
+c      if(iter==1.and.(onlyonce.or.plbnd/=0)) then
       if(iter==1.and.onlyonce) then
          onlyonce=.false.
 c takao to get all qp. I think suqlst looks too complicated...
@@ -1393,8 +1394,8 @@ c      lwsig=0
         !stop 'xxx'
         rsrnge = sham%rsrnge
         print *,'rsrnge=',rsrnge
+        write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
         if (ldim .ne. ndham) then !june2009 takao
-          write(6,"(a,2i5)")" --- ldim(dim of lmto)   ; napwmx= ",ldim,napwmx
           write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
         endif
 c        if(ndham/=ndham) stop "we now assume ndham = ndmam"
@@ -1687,7 +1688,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ! Determine interpolated self-energy sene at qp from sfz
             if(sigmamode) then
-c              print *,' goto seneinterp2: qp=',qp
+              if(debug) print *,' goto seneinterp2: qp=',qp
               allocate(sene(ndimh,ndimh))
               call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
      i        sfz(:,:,:,:,:,isp),ldim,ndimh, 

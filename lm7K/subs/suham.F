@@ -218,6 +218,7 @@ C ---
       pwemax=sham%pwemax
 
       if(pwmode==0) then
+        if(allocated(napwk)) deallocate(napwk)
         allocate(napwk(nkt))
         napwk=0
         napwmx=0

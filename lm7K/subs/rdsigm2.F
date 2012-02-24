@@ -7,6 +7,7 @@
       real(8),allocatable:: qwgt(:,:,:)
       end module
 
+
       subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
      i  sfz,ldim,ndimh, 
      o  sene) 
@@ -64,11 +65,14 @@ c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
       enddo
       deallocate(wgtq)
 !!--- return when no APW
-      ikt=getikt(qp) ! index for qp
-      if(napwk(ikt)==0) then
-      if(oncewrite(4)) print *,' napw=0 skip napw part '
-        return
+      if(ldim==ndimh) then
+         return
       endif
+      ikt=getikt(qp) ! index for qp
+c      if(napwk(ikt)==0) then
+c      if(oncewrite(4)) print *,' napw=0 skip napw part '
+c        return
+c      endif
 
 !!--- APW part of interpolarion sigm(i,j)
 !!... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -2040,18 +2044,18 @@ c$$$        endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
             write(6,"(a,13f13.5)")' Goto hamfb3k  xxx input qp=', qp
-            ikt = getikt(qp)
-            napw_in= napwk(ikt)
-
-c            i_copy_size=size(slat%qlat)
-c            call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
+            if(ldim==ndimh) then
+              napw_in=0
+              ikt=-9999
+            else
+              ikt = getikt(qp)
+              napw_in= napwk(ikt)
+            endif  
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv 
-c     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
+c    .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
      .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
      .      ifac , gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
      .      ) )
-
             if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
           enddo
           deallocate(sigm_zv)
