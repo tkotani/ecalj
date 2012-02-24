@@ -403,20 +403,22 @@ C --- Add smooth exchange-correlation potential ---
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
 c        call pshpr(ipr-30)
 
-        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy 
-     .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
-C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
-C     .    tmp,tmp(2))
-c        call poppr
-        rvepsv(1) = rvepsv(1) + rvepsv(2)
-        rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
+Ctakao2012feb --- comment out
+C$$$        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
+C$$$     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy 
+C$$$     .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
+C$$$C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
+C$$$C     .    tmp,tmp(2))
+C$$$c        call poppr
+C$$$        rvepsv(1) = rvepsv(1) + rvepsv(2)
+C$$$        rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
+
+
 C   ... Smooth exchange-correlation potential
 c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
 c        call dpzero ( smexc_zv , k1 * k2 * k3 )
         smvxc_zv=0d0 
         smexc_zv=0d0 
-
 
 cccccccccccccccccccccccc
 c      open(2021,file='smpot2.bk')
