@@ -237,9 +237,10 @@ c      common /w/ w
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode
 
       integer(4):: nk1,nk2,nk3
-      real(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !ndham =ndimh
+      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
 C --- Setup ---
+      call tcn ('sugw')
       print *,'sugw:'
       call getpr(ipr)
       alat=slat%alat
@@ -250,16 +251,15 @@ c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 cc      i_copy_size=size(slat%nabc)
 cc      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 c      ngabc=
-      n1=slat%nabc(1)
-      n2=slat%nabc(2)
-      n3=slat%nabc(3)
-      plat=slat%plat
-      qlat=slat%qlat
-      gmax=slat%gmax
-      npgrp=slat%npgrp
-      nsgrp=slat%nsgrp
+      n1 =slat%nabc(1)
+      n2 =slat%nabc(2)
+      n3 =slat%nabc(3)
+      plat =slat%plat
+      qlat =slat%qlat
+      gmax =slat%gmax
+      npgrp =slat%npgrp
+      nsgrp =slat%nsgrp
 ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
-
 
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
@@ -927,6 +927,7 @@ C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
           endif
 
 !!   --- LDA + sigma Hamiltonian for this qp ---
+          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
           lpdiag = 0
           i = lrsig*10 + 1
           if(sigmamode.and.newsigmasw()) then
@@ -1479,6 +1480,7 @@ c        call fclr(' ',ifiqgc)
 
 c      if (allocated(ww_rv)) deallocate(ww_rv)
 
+      call tcx('sugw')
       end subroutine sugw
 
 
