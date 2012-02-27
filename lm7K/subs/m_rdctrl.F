@@ -660,7 +660,8 @@ C     .  'third for graphical output')
       endif
 
       nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgn,nm),lpfloat,
-     .def_i4=0,note=
+!     .def_i4=0,note=
+     .def_i4=1,note=  !feb2012takao
      .'Controls how band CG is determined in floating Pnu.'//
      .'%N%5f0 Band CG found by traditional method'//
      .'%N%5f1 Band CG found from true energy moment of density')
