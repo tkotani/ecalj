@@ -1,7 +1,7 @@
-      subroutine q0irre(q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix)
+      subroutine q0irre(q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
 c inequivalent points
       implicit none
-      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix
+      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr
       real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3),
      &   qt(3) ,wt0(nx06), wt(nx06),qx(3)
       logical:: ltrans
@@ -17,6 +17,7 @@ c         write(6,"(3f14.6)") symops(i,1:3,ig)
 c        enddo
 c       enddo
 ccccccccc
+      irr=0
       if(ltrans) then
        platt=transpose(plat)
       endif
@@ -55,6 +56,7 @@ ccc
 c
         ixx = ixx+1
         q0i(:,ixx) = qt
+        irr(i)=1  !this is irreducible
         wt   (ixx) = wt0(i)
   990   continue
       enddo

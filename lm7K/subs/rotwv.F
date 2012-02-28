@@ -270,7 +270,7 @@ c find symops(3,3,ig),
           goto 1012
         endif
       enddo
-      write(6,"(a,3f7.3,2x,3f7.3)")'  rotsig: qtarget is not a star of q',q,qtarget
+      write(6,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
       print *
       return
  1012 continue
@@ -432,7 +432,7 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
       return
  1012 continue
 
-      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
+c      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
       ddd2 = shtvg(:,invgx(igg))
 c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
 c$$$         print *,'bbb: ddd ddd2=',ddd,ddd2
@@ -443,15 +443,14 @@ ccccccccccccccccccccccc
       print *,'takao test ddd=ddd2'
       ddd=ddd2
 ccccccccccccccccccccccc
-
       evecout=0d0
       nlmto = ndimh-napw_in
-
 
 c mto part
 c          write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
 c      evecout=9.99999d10
+      if(nlmto/=0) then
       ibaso=-999
       do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
         !Index of Hamiltonian is devided into these blocks.
@@ -468,8 +467,10 @@ c      evecout=9.99999d10
 c       sigmax(ix,  init1:iend1)= matmul(sigma(ix,init2:iend2),dlmm(-l:l,-l:l,igg))
 c    evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
       enddo
+      endif
 c
 c apw part
+      if(napw_in/=0) then
       ikt  = getikt(q)    !index for q
 c      print *,' rotwv 000 ikt=',ikt
       ikt2 = getikt(qtarget) !index for qtarget
@@ -488,6 +489,8 @@ c       print *,ig,'nnn  ikt2=',nnn,ikt2
         evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
 c     sigmax(ix,nlmto+ig) =   sigma(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
       enddo
+      endif
+
 c      print *,' rotwv : ikt ikt2=',ikt,ikt2
       ierr=0
       end

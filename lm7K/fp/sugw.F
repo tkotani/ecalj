@@ -230,13 +230,13 @@ c      common /w/ w
       integer:: w(1) !! dummy
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii
-      logical:: debug=.true.
+      logical:: debug=.false.
       complex(8),allocatable:: evecout(:,:),evecr(:,:)
       real(8),allocatable:: qzz(:,:)
       integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode
 
-      integer(4):: nk1,nk2,nk3
+      integer(4):: nk1,nk2,nk3,   irr,nqirr !feb2012takao
       complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
 C --- Setup ---
@@ -489,7 +489,7 @@ C ... Read QGpsi !takao feb2012 ---> Not QGcou now
       if (jobb .eq. 0) then
         ifiqg  = fopnx('QGpsi',2,4,-1)
 c        ifiqgc = fopnx('QGcou',2,4,-1)
-        read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz
+        read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz,nqirr
 ctakao feb2012      read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
 ctakao feb2012      if (nqnum .ne. nqnumx)
 ctakao feb2012   .  call rx('sugw: different nqnum in QGcou QGpsi')
@@ -509,7 +509,7 @@ C --- Write, or read past header information, file gwb ---
 #if V2
 C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
 C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
-        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !mark 2005 Jul
+        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqirr !mark 2005 Jul
 #else
         write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
 #endif
@@ -804,6 +804,14 @@ C --- Main loop for eigenfunction generation ---
       endif
 
       do  iq = 1, nqtot
+        read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
+        ! eigenfunction expansion at this q
+c        read (ifiqgc) qx, ngc   ! q, and number of G vectors for
+        ! expansion of the Coulomb interaction
+c        if (abs(sum(q-qx)) .gt. 1d-10) then
+c          print *, qx
+c          call rx(' sugw : abs(sum(q-qx))>1d-10')
+c        endif
 
         lwvxc =
      .  lsig.gt.0 .and. job.eq.1 .and. iq.le.nnn .and. .not. bandmode
@@ -814,26 +822,22 @@ C --- Main loop for eigenfunction generation ---
           goto 1021
         endif
 
-        read (ifiqg)  q,  ngp   ! q, and number of G vectors for
-        ! eigenfunction expansion at this q
-c        read (ifiqgc) qx, ngc   ! q, and number of G vectors for
-        ! expansion of the Coulomb interaction
-c        if (abs(sum(q-qx)) .gt. 1d-10) then
-c          print *, q
-c          print *, qx
-c          call rx(' sugw : abs(sum(q-qx))>1d-10')
-c        endif
         allocate(ngvecp(3,max(ngp,1))) !takao feb2012, ngvecc(3,max(ngc,1)) )
         read (ifiqg)  ngvecp
 c        read (ifiqgc) ngvecc
         if (job .ne. 1) deallocate(ngvecp) !takao feb2012 , ngvecc)
+        if(irr==0) then
+          if(allocated(ngvecp)) deallocate(ngvecp)
+          cycle
+        endif
 
  1021   continue
 
-
         call shorbz(q,qp,qlat,plat)
-        if (ipr .gt. 41) write (stdo,578) iq,q,qp
-  578   format(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)
+        if(ipr > 41) then
+          write(stdo,*)
+          write(stdo,"(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)") iq,q,qp
+        endif
 
 
 ccccccccccccccccccc
@@ -927,7 +931,8 @@ C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
           endif
 
 !!   --- LDA + sigma Hamiltonian for this qp ---
-          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
+c          print *,'ndham ndimh=',ndham,ndimh
+c          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
           lpdiag = 0
           i = lrsig*10 + 1
           if(sigmamode.and.newsigmasw()) then
@@ -947,7 +952,7 @@ ckino Dec.14.2011:       .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig 
      .        , napw , igv2 , ham , ovl , isize_ham, i2 ) 
           endif
           if (i .eq. -1) lpdiag = 2
-          print *,' end of generation of Hamiltonian'
+          if(debug) print *,' end of generation of Hamiltonian'
 
 C   --- Branch job = 1 : make cphi, matrix elements ---
           if (job .eq. 1) then
@@ -1019,7 +1024,7 @@ C       call prmx('eval',evl,ndham,ndimh,1)
             endif
 
             if (mod(iq,10) .ne. 1) call poppr
-            write(6,"(' sugw:lwvxc= ',l)")lwvxc
+            if(debug) write(6,"(' sugw:lwvxc= ',l)")lwvxc
             if (lwvxc) then
               ifi = fopna('evec',-1,4)
               write(ifi) q, evec(1:ndimh,1:ndimh)
@@ -1261,8 +1266,8 @@ C          print *, 'oops 6'
 C        endif
 C        deallocate(evec_,evl_,cphi_,ngvecp_,ngvecc_,pwz_)
 
-            write (ifi) q, ndimh
-            write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
+            write (ifi) q, ndimh, iq
+            if(debug) write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
 c        print *,'uuu ndimh=',ndimh
 c takao Apr2009
 c       write (ifi) evec,evl(1:ndimh,isp),cphi(:,:,isp)

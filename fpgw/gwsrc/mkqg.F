@@ -21,7 +21,7 @@ c---------------------------------------------------
      &  volum,voltot,pi,q0(3),qlat0(3,3), alat,tripl,
      &  symops(3,3,ngrp),xx,qqx(3),alpm
       integer(4),allocatable:: ngvecp(:,:), ngvecc(:,:),
-     &  ngpn(:),ngcn(:),ngvect(:,:,:),ngcx(:), nqq(:)
+     &  ngpn(:),ngcn(:),ngvect(:,:,:),ngcx(:), nqq(:)   ,irr(:) !feb2012takao
       real(8),allocatable :: q0x(:,:), q0i(:,:),wt(:),wt0(:),
      &  qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:)
       real(8) :: qbas(3,3),vol,ginv(3,3),aaa,det,dq(3),www
@@ -77,7 +77,7 @@ c nqq(is),qq1(1:3,is),qq2(1:3,is),is =1,nline
      &     nqq(is),(qq1(i,is),i=1,3),(qq2(i,is),i=1,3)
         enddo
         nqnumx = sum(nqq(1:nline))
-        allocate( qq(1:3,nqnumx) )
+        allocate( qq(1:3,nqnumx),irr(nqnumx) )
         iqq = 0
         do is = 1,nline
           nk = nqq(is)
@@ -271,7 +271,7 @@ c          print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c        endif
 
         if(newaniso()) then !feb2012
-        nq0x=4
+          nq0x=4
         elseif( q0pchoice()<0) then
 c          nq0x = 8*abs (q0pchoice())
           nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
@@ -285,7 +285,7 @@ c          nq0x = 8*abs (q0pchoice())
         else
          nmm=1
          if(.not.timereversal()) nmm=2
-         allocate( q0x(3,nq0x), wt0(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
+         allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(newaniso() ) then
           nq00i=3
@@ -307,7 +307,8 @@ c          q0x(:,7)=(/0d0, 0d0, 0d0/)
      o         q0x,wt0,nq00i)
          endif
 c ... inequivalent q0x points ----
-         call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix)
+         call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix,irr)
+         deallocate(irr)
          write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
         print *,' xxxxxxx nq0i=',nq0i
@@ -467,7 +468,7 @@ c--- Get qq; q-point for eigenfunctions'
       if(offmesh) nqnum = nqnum + nqbz
       nqnum = nqnum + nqbz*nq0i
       nqnum = nqnum + 1 !add Gamma
-      allocate( qq(1:3,nqnum) )
+      allocate( qq(1:3,nqnum),irr(nqnum) )
 !!!      nqnum = ix !=n1q*n2q*n3q*(nq0i+1) ! total q number
 C... Regular mesh (qq are the same in the both bzcase)
       ddq = 0d0
@@ -572,6 +573,18 @@ c
 ccccccccccccccccccccccccccc
       if(anyq) nnn=nqnum
 ccccccccccccccccccccccccccc
+c takao feb2012
+      if(allocated(wt0)) deallocate(wt0)
+      allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
+      wt0=0d0
+      ifix=1101
+      open (ifix,form='unformatted',file='ROTWVinfo')
+      call q0irre(qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix,irr)
+      close(ifix)
+      write(6,*)
+      write(6,*)' --- irreducible q0i --- '
+      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
+      write(6,*)
 c
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(verbose()>150) 
@@ -585,7 +598,7 @@ c
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
 
-      write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn !takao 2003 Sep.
+      write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn, nqi !takao 2003 Sep. !feb2012 nqi
       write(ifiqgc) nqnum,ngcmx,QpGcut_cou
       write(6,*) ' --- Max number of G for psi =',ngpmx
       write(6,*) ' --- Max number of G for Cou =',ngcmx
@@ -595,29 +608,18 @@ c ... Get G vector for given q.
         q = qq(1:3,iq)
         ngp = ngpn(iq)
         ngc = ngcn(iq)
-        write (6,"(' iq=',i5,' q=',3f7.3,' ngp ngc = ',2i6)")
-     &  iq, q, ngp, ngc
+        write (6,"(' iq=',i5,' q=',3f7.3,' ngp ngc = ',2i6, ' irreducible=',i2)")
+     &  iq, q, ngp, ngc, irr(iq)
         allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) !larger than 1. Aug2005
         call getgv2(alat,plat,qlat, q, QpGcut_psi, 2, ngp,  ngvecp)  ! for eigenfunction
         call getgv2(alat,plat,qlat, q, QpGcut_Cou, 2, ngc,  ngvecc)  ! for Coulomb
-        write (ifiqg) q, ngp
+        write (ifiqg) q, ngp, irr(iq)
         write (ifiqg) ngvecp
         write (ifiqgc) q, ngc
         write (ifiqgc) ngvecc
         deallocate(ngvecp,ngvecc)
       enddo
 
-c takao feb2012
-      if(allocated(wt0)) deallocate(wt0)
-      allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
-      wt0=0d0
-      ifix=1101
-      open (ifix,form='unformatted',file='ROTWVinfo')
-      call q0irre(qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix)
-      close(ifix)
-      write(6,*)
-      write(6,*)' --- irreducible q0i --- '
-      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
 c
 c        wtx = 0d0; q0xx(1) = 0.01d0; q0xx(2:3) =0d0
 c        write(101,"(d24.16,3x, 3d24.16,a)" ) wtx,q0xx(1:3),

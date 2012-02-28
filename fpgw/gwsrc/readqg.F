@@ -104,9 +104,11 @@ cr key=='QGcou' or 'QGpsi'
       if(ifi==1) then
         call iqindx2(qin,ginv, qp,nqnump, iq,qu)
         ngv  = ngp(iq)
+        if(verbose()>=80) print *,'ngp=',ngv
       elseif(ifi==2) then
         call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         ngv  = ngc(iq)
+        if(verbose()>=80) print *,'ngc=',ngv
       endif
       return
       stop "readqg0: can not find QGpsi or QPcou for given q"

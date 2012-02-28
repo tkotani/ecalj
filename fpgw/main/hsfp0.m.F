@@ -176,7 +176,7 @@ c     logical :: sergeys
 
 c     logical :: imgonly=.false.
       complex(8):: zseciip(-1:1)
-
+      logical :: debug=.true.
 C...  mode switch. --------------
       if(cohtest) then
         screen = .true.
@@ -1049,6 +1049,7 @@ c     rotate atomic positions invrot*R = R' + T
           invr       = invrot (irot,invg,ngrp)
 
 c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+          if(debug) print *,'### goto ppbafp_v2 ###'
           call ppbafp_v2 (irot,ngrp,is,nspin,
      i           il,in,im, nlnm,
      d           nl,nn,nclass,nlnmx,
@@ -1069,7 +1070,8 @@ c     if(tetra.and.(.not.exchange)) then
 c     ntqx =3*ntq
 c     endif
 c     loop over q
-          do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+          do 1001 ip = 1,nq   !
+            if(debug) write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
             if(ixc==2) then
 c     iq  = idxk (q(1,ip),qbz,nqbz)
 c     call rwdd1 (ifev(is),iq, nband,eq)
@@ -1087,6 +1089,7 @@ c     call rwdd1 (ifev(is),iq, nband,eq)
             endif
 
 c     if(sergeys) then
+            if(debug) print *,'### goto sxcf_fal3z ###'
             call sxcf_fal3z (kount, ip,q(1,ip),irot,itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
 c     v2

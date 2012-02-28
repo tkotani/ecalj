@@ -365,7 +365,7 @@ C...
       complex(8):: zwzz(3)
 
       real(8),allocatable:: ebb(:)
-      integer(4):: ii
+      integer(4):: ii,iq
       logical ::evaltest !, imgonly
 
 c      imgonly=.false.
@@ -669,15 +669,12 @@ c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
 
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      do iq=1,nqibz
-c        write(6,"('--goto drvmelp2 qibz ngc=',3f9.4,'  ',i5)")
-c     &       qibz(1:3,iq),ngcni(iq)
-c      enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+!debugcccccccccccccccccccccccccc
+      if(debug)then
+        write(6,"('--goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)")
+     &       qibz_k,ngc
+      endif
+ccccccccccccccccccccccccccccccccc
         call drvmelp2( q,   ntp0, ! q in FBZ
      i                 q-qbz_kr, nbmax,  ! q-rk
      i                 qibz_k,           ! k in IBZ for e-product basis

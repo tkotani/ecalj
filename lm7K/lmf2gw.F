@@ -146,7 +146,10 @@ c$$$      endif
 c---
       read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,
 c     &              n1q,n2q,n3q,plat(1:3,1:3)
-     &nqbz,plat(1:3,1:3),nqbze
+     &nqbz,plat(1:3,1:3),nqbze, nqirr !feb2012takao
+ccccccccccccccccccccccc
+      nqbze=nqirr !nqbze means number of calculated bands (irreducible only) feb2012takao
+ccccccccccccccccccccccc
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
       read (ifigwb) ngpmx !, ngcmx
@@ -240,7 +243,7 @@ c      write(6,'('' nband=ndimh (max) '',i5)') nbandmx
       vxclda=1d20
       do ikp = 1,nqbze
         do isp = 1, nsp
-          read (ifigwb) qbze(:,ikp),nband
+          read (ifigwb) qbze(:,ikp),nband,iq
           write(6,"(a,3i6,3x,3f11.6,$)") 'ikp isp nband q=',
      &    ikp,isp,nband, qbze(:,ikp)
 
@@ -283,7 +286,8 @@ c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
 c        endif
           deallocate( geig,ngvecp)!takao feb2012 ,ngvecc )
 
-          if(ikp>nqbz) goto 888
+c          if(ikp>nqbz) goto 888
+          if(iq>nqbz) goto 888
 
 
 c --- VXCFP
