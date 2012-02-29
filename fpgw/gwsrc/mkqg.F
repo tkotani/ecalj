@@ -307,7 +307,7 @@ c          q0x(:,7)=(/0d0, 0d0, 0d0/)
      o         q0x,wt0,nq00i)
          endif
 c ... inequivalent q0x points ----
-         call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix,irr)
+         call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix,irr)
          deallocate(irr)
          write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
@@ -576,13 +576,15 @@ ccccccccccccccccccccccccccc
 c takao feb2012
       if(allocated(wt0)) deallocate(wt0)
       allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
-      wt0=0d0
+      wt0=1d0
       ifix=1101
       open (ifix,form='unformatted',file='ROTWVinfo')
-      call q0irre(qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix,irr)
+      call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix,irr)
       close(ifix)
       write(6,*)
-      write(6,*)' --- irreducible q0i --- '
+      write(6,*)' --- irreducible qi --- '
+      write(6,*)
+     &  '             qx             qy             qz          count'
       write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
       write(6,*)
 c

@@ -1,9 +1,12 @@
-      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit) !,no_qpgpsi) !from showbs
+c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex
-C- Set up m_hamiltonian. Index for Hamiltonian.  Generated index are stored into m_hamindex
-C ----------------------------------------------------------------------
-Ci Inputs all arguments are input
+!!- Set up m_hamiltonian. Index for Hamiltonian.  -
+!!  Generated index are stored into m_hamindex
+!!  Only include q-point information for GW (QGpsi).
+!!
+!!#Inputs 
 Co all output is in m_hamindex
 C
 Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
@@ -19,7 +22,6 @@ c      enddo
 Ch takao june2009
 C ----------------------------------------------------------------------
       implicit none
-C Passed parameters
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
       type(s_lat)::slat
@@ -52,7 +54,7 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       integer,allocatable:: kv(:)
       real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3)
       integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,ndummy !imx,
-      real(8):: qplist(3,nkp)
+c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in
 C
@@ -165,7 +167,6 @@ C q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz
 
-
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
 c$$$      if(allocated(qq)) deallocate(qq)
@@ -188,28 +189,27 @@ c$$$      enddo
 cccccccccccccccccccccccccccccc
 c feb2012takao. Why do we need duplicated qq (1:2*nqnum + 2*nkp) ??? 
 c  we have two set of data for original qxx in QGpsi and their shortened.
-      nkt = 2*nqnum + 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-c      nkt = nqnum + nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      nkt = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
       allocate( qq(3,nkt) )
-      print *,'gen_hamindex: nkt nqnum=',nkt,nqnum
+      print *
+      print *,'gen_hamindex: Readin QGpsi. nkt nqnum=',nkt,nqnum
       do  iq = 1, nqnum
         read(ifiqg)  qxx  ! q, and number of G vectors for
         read(ifiqg)
         qq(:,iq)=qxx
-        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
-        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
+c       call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
+c       write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
+        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
+        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
       enddo
-      print *
-      call fclr(' ',ifiqg)
-      do iq = nqnum+1, nqnum+nkp
-        qq(:,iq) = qplist(:,iq-nqnum)
-        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
-        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
-      enddo
-cccccccccccccccccccccccccccccc
-
-
+      call fclr(' ',ifiqg) !close file
+c$$$      print *
+c$$$      do iq = nqnum+1, nqnum+nkp
+c$$$        qq(:,iq) = qplist(:,iq-nqnum)
+c$$$        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
+c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
+c$$$      enddo
 
 C ---
  1012 continue

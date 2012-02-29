@@ -1013,11 +1013,11 @@ Changenglob        nlmax = nglob('mxorb') / nglob('nkaph')
       endif
 
 ctakaox june2009
-      ifiogw=9038
-      inquire(unit=ifiogw,opened=nexist)
-      if(nexist) 
-     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
-      open(ifiogw,file='NBANDGW')
+c      ifiogw=9038
+c      inquire(unit=ifiogw,opened=nexist)
+c      if(nexist) 
+c     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
+c      open(ifiogw,file='NBANDGW')
 Cki  ifiese default value is not set.  set it to 0
       ifiese=0
       if(lrsig/=0) then
@@ -1304,18 +1304,15 @@ C       endif
 C --- Get qplist. This is only for no MPI mode yet...
       if(allocated(qplist)) deallocate(qplist)
       allocate(qplist(3,nkp))
-      do  iq = 1, nkp
+      do iq = 1, nkp
         if (plbnd .ne. 0) then
           i = nsp
           if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
            call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp ) 
-
-
         else
 ckino Dec.8.2011:             call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 ) 
            call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 ) 
-
         endif
         qplist(:,iq)=qp
       enddo
@@ -1324,7 +1321,8 @@ ckino Dec.8.2011:             call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 ,
         write(6,"(i5,3f8.3)")iq,qplist(:,iq)
       enddo
 
-C --- New sigma inerpolation mode. Simplified.
+
+!! --- New sigma inerpolation mode. Simplified.
       if(debug) print *,'vvv: new sigma=',newsigmasw()
       sigmamode = mod(lrsig,10) .ne. 0
       print *,'sigmamode=',sigmamode
@@ -1335,7 +1333,7 @@ c      if(sigmamode.and.iter==1) then
 c      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
 c      if(iter==1.and.(onlyonce.or.plbnd/=0)) then
       if(iter==1.and.onlyonce) then
-         onlyonce=.false.
+        onlyonce=.false.
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
         nbasp=sctrl%nbasp
@@ -1346,7 +1344,8 @@ ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
 ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
 ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
-     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
+c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
+     .   nbasp , sham%iv_a_oindxo , ldim , siginit)
 
 #if 1
 Ckino ib=atom index
@@ -1454,8 +1453,7 @@ ckino Dec.8.2011:           rv_p_opos => slat%rv_p_opos
 
 ckino Dec.8.2011:           call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 ) 
 ckino Jan.04.2012:           call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 1 ) 
-         call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 ) 
-
+        call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 ) 
         npairmx=nk1*nk2*nk3*2
         do
           npairmx= npairmx + nk1*nk2*nk3*.5
@@ -3266,7 +3264,7 @@ c      if (allocated(eomin_rv)) deallocate(eomin_rv)
 c       call rlse(oqp) !release all the w(oxxx) array allocated within this routine.
       call tcx('bndfp')
 ctakaox june2009
-      close(ifiogw)
+c      close(ifiogw)
 Cki
       if ( ifiese>0 ) close(ifiese)
 c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor

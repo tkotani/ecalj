@@ -1,9 +1,9 @@
-      subroutine q0irre(q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
+      subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
 c inequivalent points
       implicit none
-      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr
+      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib
       real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3),
-     &   qt(3) ,wt0(nx06), wt(nx06),qx(3)
+     &   qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
       logical:: ltrans
       real(8):: plat(3,3)
       real(8):: platt(3,3)
@@ -21,10 +21,27 @@ ccccccccc
       if(ltrans) then
        platt=transpose(plat)
       endif
-      wt=1d99
+
+      wt=0d0
       ixx = 0
       do i = 1,nx06
         qt = q0(:,i)
+        do ib = 1,nqibz
+          if(sum(abs(qibz(:,ib)-qt))<1d-8) then
+c            write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
+c            wt(ix) = wt(ix)+wt0(i)
+            ixx = ixx+1
+            q0i(:,ixx) = qt
+            irr(i)=1  !this is irreducible
+            goto 980
+          endif
+        enddo
+ 980    continue
+      enddo
+!!        
+      do i = 1,nx06
+        qt = q0(:,i)
+
 c equivalence check
         do ix = 1,ixx
           do ig = 1,ngrp
@@ -37,11 +54,9 @@ c         if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-10) then
             if(ltrans) then
               call rangedq(matmul(platt,(qt-matmul(sym,q0i(:,ix)))), qx)
               if(sum(abs(qx))<1d-8) then
-ccc
-c              write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
-c              write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
+c             write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
+c             write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
               write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
-ccc
               wt(ix) = wt(ix)+wt0(i)
               goto 990
               endif  
@@ -53,11 +68,11 @@ ccc
             endif
           enddo
         enddo
-c
+
         ixx = ixx+1
         q0i(:,ixx) = qt
         irr(i)=1  !this is irreducible
-        wt   (ixx) = wt0(i)
+        wt(ixx) = wt(ixx)+wt0(i)
   990   continue
       enddo
       nq0i = ixx

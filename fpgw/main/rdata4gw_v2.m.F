@@ -235,7 +235,7 @@ c
      &     gcore_n  (:,:,:,:) , aann(:)
       integer(4),allocatable:: nrnn(:)
 
-      integer(4):: igp1,igp2,   icold,nbandx,ifnband
+      integer(4):: igp1,igp2,   icold,nbandx,ifnband,iread
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
 
@@ -589,7 +589,8 @@ c$$$      if(nocore) then; ifv= iopen('VXCFPV',0,-1,0) ! Vxc by LDA
 c$$$      else           ; ifv= iopen('VXCFP',0,-1,0)
 c$$$      endif
       ifv= iopen('VXCFP',0,-1,0)
-      write(ifv) nband,nnnn     !nqbz
+c      write(ifv) nband,nnnn    
+      write(ifv) nband,nqtt    !feb2012takao
 
 c
 c     ifplane = iopen('PLN',0,-1,0)             ! plane wave part
@@ -1432,19 +1433,39 @@ c          endif
         enddo                  !end of spin loop
         if(verbose()>50) write(6,*) ' goto GEIG'
 
-C --- Plane wave part
-        read (ifiqg)  qqqa, ngp, irr
-        read (ifiqgc) qqqb, ngc
+!!--- Plane wave part ---
+        iread=0
+        do !irr is the flag to judge to check irreducible point or not.
+          read (ifiqg, err=1012) qqqa, ngp !, irr
+          read (ifiqgc         ) qqqb, ngc
+c          print *,'zzzz qqqa=',qqqa
+          allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
+          read (ifiqg ) ngvecp
+          read (ifiqgc) ngvecc
+          if(sum(abs(qtt(:,ikp)-qqqa))<1d-8) exit
+          deallocate(ngvecp,ngvecc)
+          cycle
+ 1012     continue
+          if(iread==1) call rx('rdata4gw_v2:readin error on QGpsi QGcou')
+          iread=1
+          rewind ifiqg
+          rewind ifiqgc
+          read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
+          read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
+        enddo
+ccccccccccccccccc
+        if(debug) print *,' ikp ngp ngc qtt =',ikp,ngp,qtt(:,ikp)
+        if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
+        if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
+ccccccccccccccccc
 
-        allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
-        read (ifiqg ) ngvecp
-        read (ifiqgc) ngvecc
-!feb2012takao
-!  qtt: irreducible q point only(eigenvalue, eigenfunctions are given).
-!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
-! thus the following check before feb2012 should not now.
-c        if(sum(abs(qtt(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtt/=qqq wrong QpGphi?'
-c        if(sum(abs(qtt(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtt/=qqq wrong QpGcou?'
+
+!!#feb2012takao
+!!  qtt: irreducible q point only(eigenvalue, eigenfunctions are given).
+!!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
+!! thus the following check before feb2012 should not now.
+        if(sum(abs(qtt(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtt/=qqq wrong QpGphi?'
+        if(sum(abs(qtt(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtt/=qqq wrong QpGcou?'
 
 c     write(ifplane) ngp,ngc
 c        if(.not.cphigeigmode) then
@@ -1675,6 +1696,7 @@ c     endif
       do ix= nqini, nqnumt
       write(6,"(' qibze= ',3f10.4)") qibze(1:3,ix)
       enddo
+      write(6,*)
       do ix=1,nqtt
       write(6,"(' qtt  = ',3f10.4)") qtt(1:3,ix)
       enddo
@@ -1683,28 +1705,21 @@ c     endif
       do iqi = nqini, nqnumt    !nqibz + nq0i + iadd
         qx  = qibze(1:3,iqi)
 ccccccccccccccccccccccccccccccccccccccccccc
-        if(debug) print *,' xxxxx nqtt,qx=',qx,iqi
+        write(6,"(i4,' ',3f10.4)") iqi,qx
 c     do ix=1,nqtt
 c     write(6,"(3f10.4)") qtt(1:3,ix)
 c     enddo
 ccccccccccccccccccccccccccccccccccccccccccc
         if( iqi <=nqibz.or.ngczero) then !jun2005 ngczero
-!feb2012takao ccccccccccccccccccccc
-c         iq = idxk (qibze(1:3,iqi),  qtt,nqtt) !jun2005 qibz-->qibze
-          call iqindx2sym(qx,ginv,symgr,ngrp, qtt,nqtt,iq,qu)
-ccccccccccccccccccccccccccccccccccc
-!     iq0=0 !iq0 is added on 8/18/2005
-        elseif( iqi > nqibz) then
-c           call idindx2(qibze(1:3,iqi),ginv, qtt,nqtt,iq,qu)
-          call iqindx2((/0d0,0d0,0d0/),ginv, qtt,nqtt,iq,qu)
-c     iq0=1
-! We use the G-vector(for Coul) at q=0 for q0i vector.
+         iq = idxk (qibze(1:3,iqi), qtt,nqtt) !feb2012takao
+        elseif( iqi > nqibz) then !     iq0=0 !iq0 is added on 8/18/2005
+         iq = idxk ((/0d0,0d0,0d0/), qtt,nqtt)! We use the G-vector(for Coul) at q=0 for q0i vector.
         endif
-        if(debug) print *,' yyyyyyy xxxxx nqtt,qx=',qx,iqi
+        if(debug) print *,'yyyyy222 nqtt,qx=',qx,iqi,iq
         ngc  = ngcx(iq)
         ngc2 = ngc2x(iqi)
         write(ippovl) qx, ngc,ngc2
-        write(6,"(' qx iqi iq ngc ngc2=',3f7.4,4i5)" ) qx,iqi,iq, ngc,ngc2
+        write(6,"('   qx iqi iq ngc ngc2=',3f7.4,4i5)" ) qx,iqi,iq, ngc,ngc2
         if(ippovlinv_test)  write(ippovlinv) qx,ngc
         if(ppovl0l       )  write(ippovl0)   qx,ngc
 !     Aug2005
