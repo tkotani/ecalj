@@ -20,7 +20,7 @@ c------------------------------------------
      i     nolfco,zzr, !iepsmode,zzr,
      o     rcxqmean)
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
 c     o     zxq)
 ctm, 060516, no-screening mode

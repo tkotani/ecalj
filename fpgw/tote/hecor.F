@@ -6,7 +6,7 @@ c Calculates the RPA correlation part in the total energy
 c from gwsrc/hsfp0.f, July 05, 2001, Takashi Miyake
 c------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_readqg
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3

@@ -124,8 +124,9 @@ c
 c----------------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
       use m_readqg
-      use m_readeigen
       use keyvalue
+      use m_readeigen,only: readeval,readcphi,readgeig,
+     & init_readeigen_phi_noeval,init_readeigen_mlw_noeval1d,init_readeigen_mlw_noeval
       implicit none
       integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,

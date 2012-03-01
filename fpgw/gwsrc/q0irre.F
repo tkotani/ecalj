@@ -56,7 +56,7 @@ c         if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-10) then
               if(sum(abs(qx))<1d-8) then
 c             write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
 c             write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
-              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
+c              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
               wt(ix) = wt(ix)+wt0(i)
               goto 990
               endif  

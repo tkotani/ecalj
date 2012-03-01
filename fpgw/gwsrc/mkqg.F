@@ -307,7 +307,7 @@ c          q0x(:,7)=(/0d0, 0d0, 0d0/)
      o         q0x,wt0,nq00i)
          endif
 c ... inequivalent q0x points ----
-         call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,ifix,irr)
+         call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,0,irr)
          deallocate(irr)
          write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
@@ -361,7 +361,7 @@ CAug2005
           else
             nq0i = nq0i00
           endif
-          if(nq0i <=0) stop 'There are neither <QforEPS> nor <QforEPS>. '
+          if(nq0i <=0) stop 'There are neither <QforEPS> nor <QforEPS>.'
           allocate( q0i(3,nq0i) )
           print *,' nq0i=',nq0i
           if(nq0i00>0) then
@@ -577,10 +577,10 @@ c takao feb2012
       if(allocated(wt0)) deallocate(wt0)
       allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
       wt0=1d0
-      ifix=1101
-      open (ifix,form='unformatted',file='ROTWVinfo')
-      call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,ifix,irr)
-      close(ifix)
+c      ifix=1101
+c      open (ifix,form='unformatted',file='ROTWVinfo')
+      call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr)
+c      close(ifix)
       write(6,*)
       write(6,*)' --- irreducible qi --- '
       write(6,*)
@@ -600,6 +600,7 @@ c
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
 
+      print *,' nqi=',nqi
       write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn, nqi !takao 2003 Sep. !feb2012 nqi
       write(ifiqgc) nqnum,ngcmx,QpGcut_cou
       write(6,*) ' --- Max number of G for psi =',ngpmx
@@ -610,7 +611,7 @@ c ... Get G vector for given q.
         q = qq(1:3,iq)
         ngp = ngpn(iq)
         ngc = ngcn(iq)
-        write (6,"(' iq=',i5,' q=',3f7.3,' ngp ngc = ',2i6, ' irreducible=',i2)")
+        write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2)")
      &  iq, q, ngp, ngc, irr(iq)
         allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) !larger than 1. Aug2005
         call getgv2(alat,plat,qlat, q, QpGcut_psi, 2, ngp,  ngvecp)  ! for eigenfunction

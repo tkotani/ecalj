@@ -125,12 +125,13 @@ c
         ifvxcfp  = iopen('VXCFP',0,0,0)
       endif
       read(ifvxcfp) ldim,nqbz
+      print *,' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
       do ikp = 1,nqbz
 c        read(ifvxcfp) qqq(1:3,ikp),(vxcfpx(i,ikp),i=1,ldim)
         read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
 cccccccccccccccccccccccccccccccccc
-c        write(612,"(100d13.5)") qqq(1:3,ikp)
+        write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
 cccccccccccccccccccccccccccccccccc
       enddo
       if(nocore) then

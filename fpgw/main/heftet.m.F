@@ -5,7 +5,7 @@ c So it contains many unused variables.
 c-------------------------------------------------------------
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,readeval
       implicit none
       real(8) :: shtw
       integer(4) :: mxclass,ngnmax,
@@ -230,7 +230,7 @@ C --- Locate band limits ---
 
       if(imode==1) then
         call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
-        ! EVU EVD are readin in init_readeigen
+        ! EValue is readin in init_readeigen
         nsp   = nspin !26jan2006
         allocate( eband2(nband,nsp,nqbz) )
         ddq = 0d0
@@ -244,7 +244,8 @@ c        print *,' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
             ix = ix+1
 c          write(6,*)'is ix=',is,ix
 c          write(6,"(' --- qbz=',2i5,3f9.4)") iqi,is!,qbz(:,iqi)+ddq
-            call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
+             call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
+             write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
           enddo
         enddo
         ldim  = nband
@@ -348,7 +349,8 @@ c        stop 'test end xxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccc
       write(6,"(' end of efrang2: e1 e2 nteti=',2d15.7,i6)") e1,e2,nteti
       write(6,"(' elo ehi = ',2d15.7,i6)") elo,ehi
-
+      write(6,*)'e1=',e1
+      write(6,*)'e2=',e2
 cccccccccccccccccccccccccccccccccccccccccccc
       if(e1 /= e2) then
         if(.not. ( qbzreg().and.bzcase()==1 ) ) then
@@ -375,7 +377,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
           call bzints2x(volwgt,eband,dum,nkp,ldim,nbmax,
      .              nsp,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
           call fermi(zval,dos,nptdos,e1,e2,efermi,e1,e2,dosef)
-          write(*,"(7x,5(d13.6,1x))") efermi, e1, e2, e2-e1, dosef
+c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
           if(e2 - e1 < tol) goto 4
         enddo
         call

@@ -575,6 +575,7 @@ C ------------------
 c     e1 = emin + de*(i1 - 1)  -de
 c      e2 = e1 + 3*de
 c----------------------
+      print *,e1,QVAL,Q1,Q2,DE
       EFERM = e1 + (QVAL-Q1)/(Q2-Q1)*DE
       dosef = (q2-q1)/de
       END

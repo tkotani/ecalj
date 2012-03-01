@@ -33,7 +33,7 @@ c     This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use keyvalue
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       implicit none

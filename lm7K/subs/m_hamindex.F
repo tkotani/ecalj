@@ -8,21 +8,25 @@ c index for Hamiltonian
       integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
       real(8):: plat(3,3),qlat(3,3)
       integer:: imx=null,nbas
+      integer:: nqtt,nqtti
+      real(8),allocatable:: qtt(:,:),qtti(:,:)
+      integer,allocatable:: iqmap(:),igmap(:)
+      logical,private:: debug=.false.
       contains
 
       integer function getikt(qin)
-      integer::i,debugmode
+      integer::i
       real(8):: qin(3)
-      if(debugmode()>0) print *,'nkt=',nkt
+      if(debug) print *,'nkt=',nkt
       do i=1, nkt
-        if(debugmode()>0) print *,i,qin, qq(:,i)
+        if(debug) print *,i,qin, qq(:,i)
         if(sum (abs(qin-qq(:,i)))<1d-8) then
           getikt=i
           return
         endif
       enddo
       print *,' getikt: error qin=',qin
-      call rx(' getikt can not find ikt for given q')
+      stop ' getikt can not find ikt for given q'
       end function
 
       subroutine writehamindex()
@@ -30,8 +34,8 @@ c index for Hamiltonian
 c ... write info for rotation. feb2012takao
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      write(ifi)ngrp,nbas,kxx,lxx
-      write(ifi)symops,ag,invgx,miat,tiat,shtvg
+      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti
+      write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap
       write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
       write(ifi)imx,napwmx,nkt
       write(ifi)qq,igv2,igv2rev
@@ -44,10 +48,11 @@ c ... write info for rotation. feb2012takao
 c ... read info for rotation. feb2012takao
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      read(ifi)ngrp,nbas,kxx,lxx
-      allocate(symops(3,3,ngrp),ag(3,ngrp))
+      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti
+      allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqtti))
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-      read(ifi)symops,ag,invgx,miat,tiat,shtvg
+      allocate(iqmap(nqtt),igmap(nqtt))
+      read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap
       allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
       allocate( offlrev(nbas,0:lxx,kxx))
       allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))

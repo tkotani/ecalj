@@ -1,12 +1,16 @@
-C ... read eigen
       module m_readeigen
-c------Return eigenvalus and eigenfunctions for given q and isp.
-c Routines are:
-C   readeval: ev (eigenvalue)
-c
+!!-- Return eigenvalus and eigenfunctions for given q and isp.--
+!! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
+!! qtti(1:3,nqtti) :eivenvalues, eigenvectors are calculated only for them.
+!!                  See lmfgw (q-vector with irr flag in QGpsi).
+!!
+!!* we have to call init_foobar to call readeval, readcphi, readgeig.
+!!----------------
+      use m_hamindex
       implicit none
-      integer(4),private :: nqtt
-      real(8),allocatable,private:: qtt(:,:),evud(:,:,:),ginv(:,:)
+c      integer(4),private :: nqtt
+c      real(8),allocatable,private:: qtt(:,:)
+      real(8),allocatable,private:: evud(:,:,:),ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
       integer(4),private:: nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
@@ -17,23 +21,25 @@ ctm
       integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
-c-----------------------------------------------------------------
+      logical,private:: debug=.true.
+!!--------------------------------------------------------------
       contains
 
-c------------------------------
       subroutine readeval(q,isp, ev)
-! return ev(1:nband) for given q(1:3) and isp
+!!-- return ev(1:nband) for given q(1:3) and isp --
       implicit none
-      integer(4):: isp,iq,iqindx
+      integer(4):: isp,iq,iqindx,i
       real(8):: q(3)
       real(8):: ev(nband)
       if(init) then
         stop 'readeigen: modele is not initialized yet'
       endif
-c      iq = idxk(q, qtt,nqtt)
       iq = iqindx(q, ginv,qtt,nqtt)
-c      print *,' iq=',iq
-      ev(1:nband) = evud(1:nband,iq,isp)
+      ev(1:nband) = evud(1:nband,iqmap(iq),isp) !iqmap is given in suham.F/gen_hamindex
+      if(debug) then
+        write(6,"('iqindx=',i4,3f13.5)")iq,q
+        write(6,"(9f9.4)")ev(1:9)
+      endif
       end subroutine
 
 c------------------------------
@@ -140,7 +146,7 @@ c      print *,' readgeig: q=',q
 
 c------------------------------
       subroutine readcphi_mlw(q,ldim2_in,isp,  qu,cphif)
-! return ev(1:nband) for given q(1:3) and isp
+!!-- return ev(1:nband) for given q(1:3) and isp
       implicit none
       integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
       real(8)   :: q(3),qu(3)
@@ -162,13 +168,15 @@ c      print *,' readgcphi_mlw: q=',q
 
 c------------------------------
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-!initialization. Save QpGpsi EVU EVD to arrays.
+!!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
-      integer(4):: ifev(2),iq,is,ifiqg,nnnn,ikp,nsp_in, 
+      integer(4):: iq,is,ifiqg,nnnn,ikp,nsp_in, 
      & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose
       real(8):: ginv_in(3,3)
       integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
+      integer:: ifev,nband_ev, nqtti_, nsp_ev,nqtt_
+      real(8),allocatable:: qtt_(:,:),qtti_(:,:)
       write(6,*) 'init_readeigen:'
       allocate(ginv(3,3))
       ginv  = ginv_in
@@ -177,41 +185,63 @@ c------------------------------
       nband = nband_in
       mrece = mrece_in
 c      write(6,*) 'init_readeigen:1'
-c... Readin QGpsi
+
+!!--- store requied index
+      call readhamindex() 
+!!--- Readin QGpsi ---
       ifiqg  = 101
       open(ifiqg ,file='QGpsi',form='unformatted')
-      read(ifiqg) nqtt , ngpmx, QpGcut_psi, nnnn
-      write(6,*)'read(ifiqg)', nqtt , ngpmx, QpGcut_psi, nnnn
-      allocate( ngvecp(3,ngpmx),qtt(3,nqtt),ngp(nqtt) )
-      do ikp = 1,nqtt
-        read (ifiqg) qtt(:,ikp), ngp(ikp)
+      read(ifiqg) nqtt_ , ngpmx, QpGcut_psi, nnnn
+      write(6,*)'read(ifiqg)', nqtt_ , ngpmx, QpGcut_psi, nnnn
+      allocate( ngvecp(3,ngpmx),qtt_(3,nqtt_),ngp(nqtt_) )
+      do ikp = 1,nqtt_
+        read (ifiqg) qtt_(:,ikp), ngp(ikp)
         read (ifiqg) ngvecp(1:3, 1:ngp(ikp))
       enddo
       close(ifiqg)
-      deallocate(ngvecp)
-c      write(6,*) 'init_readeigen:2'
+      deallocate(ngvecp,qtt_)
 
-c... Readin ev
-      allocate(evud(nband,nqtt,nsp))
-      ifev(1) = iopen('EVU', 0,0,mrece)
-      if(nsp==2) ifev(2) = iopen('EVD', 0,0,mrece)
-      do is= 1,nsp
-        call rwdd (ifev(is),   !read eigenvalues
-     d              nband,nqtt, 
-     o              evud(1,1,is))
-c        print *, 'evud is=',is,minval(evud(:,:,is))
-        if(verbose()>100 ) then
-          do ik=1,nqtt
-            do ib=1,nband
-              write(6,"('ib ik e=',2i5,f13.5)") ib,ik,evud(ib,ik,is)
-            enddo
-          enddo
-        endif
-      enddo
-c      stop
+!!--- Read eigenvalue ---
+      ifev= iopen('EValue',0,-1,0)    !feb2012takao
+      read(ifev) nband_ev, nqtti_, nsp_ev
+      write(*,*)'read EValue: nband_ev,nqtti,nsp_ev', nband_ev, nqtti_, nsp_ev
+      if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
+      if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
+      if(nqtti  /=  nqtti_) stop 'init_readeigen:nqtti/=nqtti_'
+      allocate(evud(nband,nqtti_,nsp),qtti_(3,nqtti_))
+      read(ifev) qtti_(1:3,1:nqtti_) !qtti
+      read(ifev) evud(1:nband, 1:nqtti, 1:nsp )
+      close(ifev)
+      if(debug) then
+        do is= 1,nsp
+        do ik= 1,nqtt
+        do ib= 1,nband
+          write(6,"('ib ik e=',2i5,f13.5)") ib,ik,evud(ib,ik,is)
+        enddo
+        enddo
+        enddo
+      endif
+
+c comment out mar2012takao
+c      ifev(1) = iopen('EVU', 0,0,mrece)
+c      if(nsp==2) ifev(2) = iopen('EVD', 0,0,mrece)
+C$$$      do is= 1,nsp
+C$$$        call rwdd (ifev(is),   !read eigenvalues
+C$$$     d              nband,nqtti, 
+C$$$     o              evud(1,1,is))
+C$$$c        print *, 'evud is=',is,minval(evud(:,:,is))
+C$$$        if(debug) then
+C$$$          do ik=1,nqtt
+C$$$            do ib=1,nband
+C$$$              write(6,"('ib ik e=',2i5,f13.5)") ib,ik,evud(ib,ik,is)
+C$$$            enddo
+C$$$          enddo
+C$$$        endif
+C$$$      enddo
+C$$$c      stop
+C$$$      isx = iclose('EVU')
+C$$$      if(nsp==2) isx = iclose('EVD')
       leval= minval(evud)
-      isx = iclose('EVU')
-      if(nsp==2) isx = iclose('EVD')
       init=.false.
       end subroutine
 
@@ -250,7 +280,8 @@ c        read(ifcphi) cphi(1:ldim2,1:nband,ikp,is)
           ikpisp= is + nsp*(ikp-1)
           if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
 ccccccccccccccccccccccc
-          if(verbose()>40) write(6,'("Readin geig sumcheck ",i5,3f9.4,"  ",i5,2d13.6)')
+          if(verbose()>40) 
+     &       write(6,'("Readin geig sumcheck ",i5,3f9.4,"  ",i5,2d13.6)')
      &      ikp,qtt(:,ikp),ngp(ikp),sum(geig(1:ngp(ikp),1:nband,ikp,is))
 cccccccccccccccccccccc
 c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)

@@ -5,7 +5,8 @@ c
 c Aug 19, 2004 Takashi Miyake
 c------------------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,readcphi,readgeig,
+     & init_readeigen_phi_noeval,init_readeigen_mlw_noeval1d,init_readeigen_mlw_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

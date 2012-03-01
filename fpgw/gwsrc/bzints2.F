@@ -286,11 +286,11 @@ Cr                       If the bottom is higher that the top then
 Cr                       we have an insulator and e1=e2.
 Cr    If nsp is zero, the upper and lower band limits are returned
 C ----------------------------------------------------------------------
-
+      implicit none
 C Passed parameters
       integer nsp,nkp,nbmax,nband
       double precision zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),
-     .                 ebtop(nband,nsp),ebbott(*),ebtopp(*),elo,ehi
+     .                 ebtop(nband,nsp),ebbott(*),ebtopp(*),elo,ehi,em
 C Local parameters
       double precision e,d1mach
       integer i,j,ikp,isp,iba,nval,nbbot,nbtop

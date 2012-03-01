@@ -51,7 +51,8 @@ init:
 	exec ./checkmodule ../*/*.F ../Miyake/*/*.F
 
 checkmod:
-	exec ./checkmodule ../*/*.F ../Miyake/*/*.F
+	exec ./checkmodule ../*/*.F ../Miyake/*/*.F 
+#../../lm7K/subs/m_hamindex.F
 
 
 ####from tote #################################################################################                                     
@@ -447,6 +448,7 @@ eout2: $(EO2)
  $(nfpsrc)cross.o
 
  GW0 = \
+ $(gwsrc)m_hamindex.o\
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
  $(gwsrc)rppovl.o \

@@ -1,6 +1,6 @@
       program hx0fp0
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only:readeval,init_readeigen,init_readeigen2
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

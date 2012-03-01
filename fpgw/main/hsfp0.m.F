@@ -25,7 +25,7 @@ c     Apr 2002 takao kotani. multiple argumentation wave per l.
 c     This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,readeval,lowesteval,init_readeigen2
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

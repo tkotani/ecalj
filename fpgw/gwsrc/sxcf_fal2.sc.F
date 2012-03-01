@@ -87,7 +87,7 @@ c
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      o zsec,coh)
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
       use m_nbandgw,only: getnbandgw
 

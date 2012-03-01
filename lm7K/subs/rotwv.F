@@ -399,6 +399,7 @@ c
       if(debugmode()>0) print *,' end of rotsig'
       end subroutine rotsig
 
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine rotwv(q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
 c      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)

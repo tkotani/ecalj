@@ -6,7 +6,7 @@ c  to see the treatment of eigenfunctions.
 c
 c-------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,readcphi,readgeig
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

@@ -372,10 +372,7 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
       if (job .eq. 0) then
         call info(30,1,1,
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
-C   ... Create file SYMOPS
-ckino Dec.14.2011:           call wsymops ( rv_p_og , nsgrp ) 
-ckino Dec.28.2011:           call wsymops ( slat%rv_p_osymgr , nsgrp ) 
-         call wsymops ( slat%rv_a_osymgr , nsgrp ) 
+c         call wsymops ( slat%rv_a_osymgr , nsgrp ) 
 
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
@@ -477,7 +474,7 @@ C   ... Create file CLASS
         deallocate(ipc,ipcx)
         call fclr(' ',ifi)
         call fexit(0,1,' OK! '//
-     .  'lmfgw mode=0 generated LATTC SYMOPS CLASS NLAindx ldima',0)
+     .  'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
       endif
 
 C --- Read file NLAindx ---
@@ -812,7 +809,6 @@ c        if (abs(sum(q-qx)) .gt. 1d-10) then
 c          print *, qx
 c          call rx(' sugw : abs(sum(q-qx))>1d-10')
 c        endif
-
         lwvxc =
      .  lsig.gt.0 .and. job.eq.1 .and. iq.le.nnn .and. .not. bandmode
         if (cmdopt('--novxc',7,0,strn)) lwvxc = .false.
@@ -826,7 +822,8 @@ c        endif
         read (ifiqg)  ngvecp
 c        read (ifiqgc) ngvecc
         if (job .ne. 1) deallocate(ngvecp) !takao feb2012 , ngvecc)
-        if(irr==0) then
+!!calculate only for irr=1 case
+        if(irr==0) then 
           if(allocated(ngvecp)) deallocate(ngvecp)
           cycle
         endif
@@ -1539,29 +1536,6 @@ C --- File write ---
       end subroutine ioaindx
 
 
-      subroutine wsymops(symops,ngrp)
-
-c inequivalent points
-C     implicit none
-      integer :: i,ngrp,ig,ifi,fopnx
-      real(8) :: symops(3,3,ngrp)
-
-C     print *, ' --- writing SYMOPS ---'
-C     don't use this ... non portable, and can fail on some machines
-C     ifi=6661
-C     open (ifi, file='SYMOPS')
-      ifi = fopnx('SYMOPS',2,2,-1)
-
-      write(ifi,*) ngrp
-      do ig = 1,ngrp
-        write(ifi,*) ig
-c        print *, ' ig=',ig
-        do i=1,3
-          write(ifi,"(3e24.16)") symops(i,1:3,ig)
-        enddo
-      enddo
-      call fclr(' ',ifi)
-      end subroutine wsymops
 
 
       subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)

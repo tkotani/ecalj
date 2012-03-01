@@ -2,7 +2,7 @@
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex
-!!- Set up m_hamiltonian. Index for Hamiltonian.  -
+!!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
 !!
@@ -19,32 +19,19 @@ c         k    = ktab(iorb)        !kappa (diffent MTO index for each l)
 c        init1 = offl(iorb)+1      !starting index for the block iorb
 c        iend1 = offl(iorb)+2*l+1  !end of the block for the iorb
 c      enddo
-Ch takao june2009
-C ----------------------------------------------------------------------
+!!h takao june2009
+!!---
       implicit none
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
       type(s_lat)::slat
       type(s_bz)::sbz
       type(s_ham)::sham
-
-c      integer nkaph,iprma(*)
       integer iprmb(*),nl
-C Local parameters
-        integer:: nkap0 , n0 , ibas , k 
-ckino Dec.14.2011:        real(8),pointer :: rv_p_og(:)
-
-ckino Dec.8.2011:         real(8),pointer :: rv_p_oag(:)
-
-c      parameter (nkap0=3,n0=10)
-       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , nbas !takao2010feb note nbas=nbas_in 
-                                                                    ! nbas isin m_hamindex already.
+      integer:: nkap0 , n0 , ibas , k 
+      integer:: l , ndim , ipr , nglob ,  ldim , off , offs , nbas !takao2010feb note nbas=nbas_in 
+                                                                   ! nbas isin m_hamindex already.
      . specw , fieldw , iorb , offsi , ib , is , norb 
-ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:)
-
-c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-c      logical lprmib
-c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       character spid*8
       real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:)
@@ -52,21 +39,12 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
-      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3)
-      integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,ndummy !imx,
+      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3)
+      integer:: nqnum, ngpmx,ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nnnx !imx,
 c      real(8):: qplist(3,nkp)
-      logical:: siginit, qpgexist !,no_qpgpsi
-      integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in
-C
-ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
-ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
-c
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,,1,qlat,1)
-c
+      logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
+      integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr
+!!--- setup ---
       nbas=nbas_in
       ngrp=slat%nsgrp
       plat=slat%plat
@@ -76,16 +54,14 @@ c
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas),ispec(nbas))
       write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
       write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-C --- MTO part
-C ... obtain norbt, lxx,kxx
+!!--- MTO part ---
+!!---- obtain norbt, lxx,kxx ----
       norbt=0
       kxx=-1
       lxx=-1
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
-
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do iorb = 1, norb
           norbt = norbt+1
@@ -94,7 +70,7 @@ C ... obtain norbt, lxx,kxx
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
         enddo
       enddo
-c ... make index table
+!!--- make index table ---
       allocate( ibasindex(ndimham))
       allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
       norbt=0
@@ -130,28 +106,29 @@ c ... reverse maping of offset-index for hamiltonian
         offlrev(ibas,l,k)= offl(iorb)
       enddo
 
-C ... symmetry operation
+!!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-ckino Dec.14.2011:         call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
-ckino Dec.28.2011:         call dcopy ( ngrp * 9 , slat%rv_p_osymgr , 1 , symops , 1 ) 
       call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 ) 
-
-ckino Dec.8.2011:         call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
-ckino Dec.27.2011:         call dcopy ( ngrp * 3 , slat%rv_p_oag , 1 , ag , 1 ) 
-       call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 ) 
-
-
+      call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 ) 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       do ib=1,nbas
-
         iclasst(ib)=ssite(ib)%class
-
       enddo
-c ... get space group information
-ckino Dec.8.2011:         call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
-ckino Jan.04.2012:         call mptauof ( symops , ngrp , plat , nbas , slat%rv_p_opos , iclasst 
+!!---- get space group information ----
+!!# translation informations also in miat tiat invgx, shtvg
        call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg ) 
+
+!!---- write SYMOPS ---- mar2012takao
+      ifisym = fopnx('SYMOPS',2,2,-1)
+      write(ifisym,*) ngrp
+      do ig = 1,ngrp
+        write(ifisym,*) ig, invgx(ig), shtvg(1:3,ig)
+        do i=1,3
+          write(ifisym,"(3e24.16)") symops(i,1:3,ig)
+        enddo
+      enddo
+      call fclr(' ',ifisym)
 
 c ... get rotation matrix dlmm
       allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
@@ -165,7 +142,7 @@ c      if(no_qpgpsi) goto 1012
       if(.not.qpgexist) goto 1012
 C q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
-      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz
+      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nnnx, nqtti
 
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
@@ -192,10 +169,16 @@ c  we have two set of data for original qxx in QGpsi and their shortened.
       nkt = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
       allocate( qq(3,nkt) )
+      allocate( qtti(3,nqtti))
       print *
       print *,'gen_hamindex: Readin QGpsi. nkt nqnum=',nkt,nqnum
+      iqi=0
       do  iq = 1, nqnum
-        read(ifiqg)  qxx  ! q, and number of G vectors for
+        read(ifiqg)  qxx,ngp,irr  ! q, and number of G vectors for
+        if(irr/=0) then
+          iqi=iqi+1
+          qtti(:,iqi)=qxx
+        endif
         read(ifiqg)
         qq(:,iq)=qxx
 c       call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
@@ -212,6 +195,39 @@ c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq
 c$$$      enddo
 
 C ---
+
+!!---- Generate info for rotwv and write ----
+      nqtt = nqnum
+      print *,' nqtt nqtti=',nqtt,nqtti
+      allocate(iqmap(nqtt),igmap(nqtt))
+      platt= transpose(plat) !this is inverse of qlat
+      allocate(qtt(3,nqtt))
+      qtt(:,1:nqtt)=qq(:,1:nqtt)
+      do i=1,nqtt
+       qtarget(:)=qtt(:,i)
+       do iq=1,nqtti
+         q=qtti(:,iq)
+         iqq=iq
+       do ig=1,ngrp
+c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
+        call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
+        if(sum(abs(qx))<1d-8) then
+          igg=ig
+          if(debug)print *,' q qtarget     =',q,qtarget
+          if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
+          if(debug)print *
+          goto 2012
+        endif
+       enddo
+       enddo
+       write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found',q,qtarget
+       call rx('gen_hamindex: qtarget can not found')
+ 2012  continue
+       iqmap(i)=iqq
+       igmap(i)=igg
+      enddo 
+
+!!
  1012 continue
       pwmode=sham%pwmode
       pwemin=sham%pwemin

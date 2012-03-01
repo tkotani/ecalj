@@ -13,7 +13,7 @@ Cr the key routine is x0k_v2.
 c
 c-------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

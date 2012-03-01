@@ -30,7 +30,7 @@ c
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
      o zsec,coh,exx)
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
 CMay2006 TimeReversal off. when nw_i is not zero.
 

@@ -1,6 +1,6 @@
       program hchknw
 c---     check the number of nw
-      use m_readeigen
+      use m_readeigen,only: init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue
@@ -102,7 +102,7 @@ c      common /w/ w(iwksize)
       real(8)::efin
 
       integer(4):: nss(2)
-c      logical:: readgwinput
+      logical:: debug=.true.
 
 c---------------------------------------------------------------
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
@@ -322,10 +322,9 @@ C...
         enddo
       endif
 
-c      print *,' goto init_readeigen'
+      if(debug)print *,' goto init_readeigen'
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
-
-c      print *,' end of init_readeigen'
+      if(debug)print *,' end of init_readeigen'
 c----------------------------------------------
       if(.not.tetra) then
         if(esmr/=0d0) then
@@ -419,8 +418,10 @@ c
         do iq = 1, nqbz
 c       call rwdd1 (ifev(is), iq, nband, eqt)
           call readeval(qbz(1,iq),is,eqt)
+          print *
           do ib=1,nband
             eee = eqt(ib)
+            if(ib<6) print *,' iq ib eee=',iq,ib,eee
             if( eee <ef+ffac*esmr .and. eee>emaxv) emaxv = eee
             if( eee >ef-ffac*esmr .and. eee<eminc) eminc = eee
           enddo

@@ -20,7 +20,8 @@ c------------------------------------------
      i     nolfco,zzr,nmbas, !iepsmode,zzr, nmbas added Sep2006
      o     rcxqmean)
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: readeval,readcphi,readgeig
+c      use m_readeigen
       use keyvalue
 c     o     zxq)
 C- Only the spectrum function (imaginary part) along the real axis.

@@ -388,7 +388,7 @@ C     for LDA+U
       integer ::iwdummy 
 
 
-      logical :: debug=.false. !debug is only for check write. However, it can cause error
+      logical :: debug=.true. !debug is only for check write. However, it can cause error
       !for 'make check',
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK

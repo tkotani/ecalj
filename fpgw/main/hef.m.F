@@ -2,7 +2,7 @@
 c-------------------------------------------------------------
 c hef is from hsfp0 but it is only to calcuate ef and Ex test.
 c so this routine contains unused things so much.
-      use m_readeigen
+      use m_readeigen,only:init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

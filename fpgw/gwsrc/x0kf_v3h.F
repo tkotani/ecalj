@@ -20,7 +20,7 @@ c------------------------------------------
      i     nolfco,zzr, !iepsmode,zzr,
      o     rcxqmean)
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
 c     o     zxq)
 C- Only the spectrum function (imaginary part) along the real axis.
