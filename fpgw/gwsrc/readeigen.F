@@ -119,13 +119,13 @@ ccccccccccccccccccccccccccccccccccccccccccc
 c------------------------------
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
       use m_hamindex,only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
-     &  miat,tiat,dlmm,norbt
+     &  miat,tiat,dlmm,norbt,shtvg
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi
       real(8)   :: q(3),qu(3),qtarget(3)
-      complex(8):: img2pi,img=(0d0,1d0),phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband) !takao 1->*->nband
+      complex(8):: img2pi,img=(0d0,1d0),phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq !takao 1->*->nband
       img2pi=2d0*4d0*datan(1d0)*img
       if(init2) then
         stop 'readcphi: modele is not initialized yet'
@@ -134,7 +134,7 @@ c------------------------------
 !! iqmap(iq): iq is rotated to igmap(iq) (qtt(1:nqtt)) by sympos(  ,igmap(iq)).
       iqq=iqmap(iq)
       iqi=iqimap(iq)
-      qtarget=qtt(:,iqq)
+      qtarget=qtt(:,iq)
       igg=igmap(iq)
       if(keepeig) then
         cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
@@ -148,11 +148,12 @@ cccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccc
 
 !! rotation  See mto part of rotwv xxxxxxxxxx
+      phaseq= exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
       ibaso=-999
       do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
         !Index of Hamiltonian is devided into these blocks.
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
+        if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*(tiat(:,ibas,igg)-shtvg(:,igg))) )
         ibaso=ibas
         l   = l_tbl(iorb)
         k   = k_tbl(iorb)
@@ -160,7 +161,7 @@ cccccccccccccccccccccccccccccccccc
         iend1 = ini1+2*l
         ini2 = offsetrev_tbl(miat(ibas,igg),l,k)+1
         iend2 = ini2+2*l
-        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))*phase
+        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))*phase*phaseq
         write(6,*)ibaso,ibas,phase
         write(6,*)ini1,iend1,ini2,iend2
         write(6,*)sum(abs(dlmm(-l:l,-l:l,l,igg)))
