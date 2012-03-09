@@ -1,6 +1,6 @@
       real(8) function nocctotg2(ispin, ef,esmr,qbz,wbz,
      d                         nband,nqbz)
-      use m_readeigen
+      use m_readeigen, only: readeval
 c Count the total number of electrons under Ef.
 c use readeval
 c ispin   = 1, paramagnetic

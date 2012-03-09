@@ -1,24 +1,27 @@
       module m_hamindex
-c index for Hamiltonian
+!! ==index for Hamiltonian !this should be the same as lm7K/fp/m_hamindex.F ==
       implicit none
       integer,parameter:: null=-999999
-      integer:: ngrp=null, lxx=null, kxx=null, norbt=null, napwmx=null, nkt=null,ndimham=null
-      integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),invgx(:),miat(:,:),offlrev(:,:,:),ibastab(:)
-      real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
-      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
-      real(8):: plat(3,3),qlat(3,3)
-      integer:: imx=null,nbas
+      integer:: ngrp=null, lxx=null, kxx=null, norbt=null 
+      integer:: imx=null,nbas,ndimham=null
       integer:: nqtt,nqtti
+      integer:: nqnum,ngpmx
+      integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
+      integer,allocatable:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
+      real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
+      real(8):: plat(3,3),qlat(3,3)
       real(8),allocatable:: qtt(:,:),qtti(:,:)
-      integer,allocatable:: iqmap(:),igmap(:)
       logical,private:: debug=.false.
+
+      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
+      integer::  napwmx=null, nkt=null
       contains
 
       integer function getikt(qin)
-      integer::i
+      integer::i,nqnum
       real(8):: qin(3)
-      if(debug) print *,'nkt=',nkt
-      do i=1, nkt
+c      if(debug) print *,'nkt=',nkt
+      do i=1, nqnum*2 !nkt
         if(debug) print *,i,qin, qq(:,i)
         if(sum (abs(qin-qq(:,i)))<1d-8) then
           getikt=i
@@ -31,40 +34,40 @@ c index for Hamiltonian
 
       subroutine writehamindex()
       integer(4):: ifi
-c ... write info for rotation. feb2012takao
+!! == write info for wave rotation. feb2012takao ==
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti
-      write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap
-      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
-      write(ifi)imx,napwmx,nkt
-      write(ifi)qq,igv2,igv2rev
+      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti,nqnum,imx,ngpmx,norbt
+      write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
+c      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
+      write(ifi)dlmm
+      write(ifi)qq !,ngvecp,ngvecprev
       write(ifi)plat,qlat
       close(ifi)
-      end subroutine
+      end subroutine writehamindex
 
       subroutine readhamindex()
+!! == read info for wave rotation. feb2012takao ==
       integer(4):: ifi
-c ... read info for rotation. feb2012takao
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti
+      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti,nqnum,imx,ngpmx,norbt
       allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqtti))
-      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-      allocate(iqmap(nqtt),igmap(nqtt))
-      read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap
-      allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
-      allocate( offlrev(nbas,0:lxx,kxx))
+      allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
+      allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
+      read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
+c      allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
+c      allocate( offlrev(nbas,0:lxx,kxx))
       allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
-      read(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
-      read(ifi)imx,napwmx,nkt
-      allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
-      allocate( igv2(3,napwmx,nkt) )
-      allocate( qq(3,nkt) )
-      read(ifi)qq,igv2,igv2rev
+      read(ifi) dlmm
+c      read(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
+c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
+c      allocate( ngvecp(3,ngpmx,nqnum) )
+      allocate( qq(3,nqnum*2))
+      read(ifi)qq !,ngvecp,ngvecprev
       read(ifi)plat,qlat
       close(ifi)
-      end subroutine
+      end subroutine readhamindex
 
       end module
 

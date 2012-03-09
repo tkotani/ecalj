@@ -839,8 +839,8 @@ c -------------------------------------------------------------------
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
      o       zmelt)
-      use m_readqg
-      use m_readeigen
+      use m_readqg,only: readqg
+      use m_readeigen,only: readgeig
 c ! q1=q    ---> iq 1:ntp0 q-point
 c ! q2=q-rk ---> kp 1:nt0  occupied
 c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
@@ -863,7 +863,7 @@ c-----------------------------------------------------
 c     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
 c     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
      & ,pi=3.1415926535897932D0
-!      complex(8) :: geigB  (ngpmx,nband,nqbz)
+!      complex(8) :: geigB  (ngpmx_in,nband,nqbz)
       complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband)
      &            ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)

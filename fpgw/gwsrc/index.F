@@ -1,5 +1,5 @@
       integer function maxocc2 (nspin,ef, nband, qbz,nqbz)
-      use m_readeigen
+      use m_readeigen, only: readeval
       implicit none
       integer(4):: nspin,nqbz,nband,noccx,is,iq,noccxt,noccx1
       real(8) :: qbz(3,nqbz),ef

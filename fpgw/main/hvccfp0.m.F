@@ -692,25 +692,23 @@ C... Store matting matrix (imatchn,imatcho,pmatch)
         ifpomat   = iopen('POmat',0,-1,0)
 c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       endif
-!
+!! == main loop for iqx ==
       do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
-        if(iqx > nqibz) then  !       iq = 1
+       write(*,"('#### do 1001 start iqx=',i5)")iqx
+       if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
           qq = 0d0
         else                  !       iq = iqx
           q  = qibz(:,iqx)
           qq = q
         endif
-
         if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
           if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
         endif
-
-C... q+G vector
+!! ==== q+G vector ====
         call readqg('QGcou',qq,ginv,  quu,ngc, ngvecc )
         ngb = nbloch + ngc  !it was ngcnn(iq)
-        write(6,*)
-        write(6,'("###  iqx q ngc =",i5,3f10.4,i5," #############")') iqx,q,ngc
+        write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
 
         if(newaniso()) then
           continue

@@ -37,19 +37,19 @@ c      logical :: readgwinput
       logical :: qreduce ,qreduce0 ,ibzqq
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:),qbzrr(:,:)
       integer:: imx,ifinin,il,nq0i0,ni,nq0i00
-      integer(4),allocatable :: ndiv(:)
+      integer(4),allocatable :: ndiv(:),ngvecprev(:,:,:)
 
       real(8):: ddq(3)
       logical :: offmesh=.false. ,offmeshg=.false.
       logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
       integer(4)::nmm
 
-      logical ::anyq                , caca,newaniso
+      logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
-      integer(4):: nany,ifqpnt,ret
+      integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
       real(8):: deltaq
 ctakao feb2012
-      integer(4):: nqi,ifix
+      integer(4):: nqi,ifix,ig
       real(8),allocatable:: wti(:),qi(:,:)
 
 c------------------------------------------------
@@ -573,7 +573,7 @@ c
 ccccccccccccccccccccccccccc
       if(anyq) nnn=nqnum
 ccccccccccccccccccccccccccc
-c takao feb2012
+!! takao feb2012
       if(allocated(wt0)) deallocate(wt0)
       allocate(wt0(nqnum),qi(3,nqnum),wti(nqnum))
       wt0=1d0
@@ -587,26 +587,28 @@ c      close(ifix)
      &  '             qx             qy             qz          count'
       write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
       write(6,*)
-c
+!!
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(verbose()>150) 
      &  write(6,*) ' *** q vector in 1st BZ + q0 shift.   ngp ***'
       do iq = 1, nqnum
         q = qq(1:3,iq)
-        call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),dummy)
+        call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx) !imx mar2012takao
         call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),dummy)
         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
-
       print *,' nqi=',nqi
-      write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn, nqi !takao 2003 Sep. !feb2012 nqi
+      write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn, nqi,imx !takao 2003 Sep. !feb2012 nqi !imx mar2012takao
       write(ifiqgc) nqnum,ngcmx,QpGcut_cou
       write(6,*) ' --- Max number of G for psi =',ngpmx
       write(6,*) ' --- Max number of G for Cou =',ngcmx
-c
-c ... Get G vector for given q.
+
+!! === Get G vector for given q. ===
+      print *,'imx=',imx
+      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) ) !mar2012takao
+      ngvecprev=9999
       do iq = 1, nqnum
         q = qq(1:3,iq)
         ngp = ngpn(iq)
@@ -617,26 +619,26 @@ c ... Get G vector for given q.
         call getgv2(alat,plat,qlat, q, QpGcut_psi, 2, ngp,  ngvecp)  ! for eigenfunction
         call getgv2(alat,plat,qlat, q, QpGcut_Cou, 2, ngc,  ngvecc)  ! for Coulomb
         write (ifiqg) q, ngp, irr(iq)
-        write (ifiqg) ngvecp
+!!  *Reverse table of ngvecp ---> ngvecprev
+c        print *,' goto nnn3 determine ngvecprev'
+        do ig = 1,ngp
+          nnn3 = ngvecp(1:3, ig)
+c          print *,' ig ngvecp=',ig, nnn3
+          ngvecprev( nnn3(1), nnn3(2),nnn3(3)) = ig
+        enddo
+        write (ifiqg)  ngvecp,ngvecprev !ngvecprev is added on mar2012takao
         write (ifiqgc) q, ngc
         write (ifiqgc) ngvecc
         deallocate(ngvecp,ngvecc)
       enddo
-
-c
-c        wtx = 0d0; q0xx(1) = 0.01d0; q0xx(2:3) =0d0
-c        write(101,"(d24.16,3x, 3d24.16,a)" ) wtx,q0xx(1:3),
-c     &  " ! Zero-weight lines used  for \eps calculation.
-c     &   To make it effective, enlarge nq0i and do echo 2|qg4gw!"
-      close(1101)
-
-      deallocate(ngpn,ngcn)
+      deallocate(ngpn,ngcn,ngvecprev)
       if(iq0pin==1) deallocate(ngvect)
-c      print *,'end of mkqg'
+      if(debug) print *,'end of mkqg'
       end
 
-c --- tripl
+
       doubleprecision function tripl(a,b,c)
+!! == tripl  ==
       implicit real*8 (a-h,p-z), integer(o)
 c     dimension a(3),b(3),c(3)
 c ... g77 needs this rewriting for opt > O1
@@ -659,7 +661,7 @@ c ... g77 needs this rewriting
      o  qibz,wibz, nstar,irk,  nqibz,
      o  idtetf, ntetf, qbzw,ib1bz, nqbzw,
      o  idteti, nteti )
-C- Generate BZ mesh data reuired for GW ---
+!! == genbzdata1_xxxxxxx: Generate BZ mesh data reuired for GW ==
 Ciput
 C  plat,qlat,n1q,n2,n3q,symops,ngrp,
 C  tetraf: if true, this generate the BZ data for full-1stBZ tetrahedron method

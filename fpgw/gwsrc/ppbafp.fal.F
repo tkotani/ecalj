@@ -325,12 +325,12 @@ c extensiton to nbloch+ngc
 
 c------------------------------------------------------
       subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, isp,ginv,
-     i        ngc,ngcmx,ngpmx,nband,itp0, 
+     i        ngc,ngcmx,ngpmx_in,nband,itp0, 
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
      o       rmelt,cmelt)
-      use m_readqg
-      use m_readeigen
+      use m_readqg, only : readqg
+      use m_readeigen,only : readgeig
 c ! q1=q    ---> iq 1:ntp0 q-point
 c ! q2=q-rk ---> kp 1:nt0  occupied
 c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
@@ -338,11 +338,11 @@ c  zmelpl
 c-----------------------------------------------------
       implicit none
       real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
-      integer(4):: ngp1, ngp2, ngpmx,nqbz,nqibz,  !iq,kp,k,
+      integer(4):: ngp1, ngp2, ngpmx_in,nqbz,nqibz,  !iq,kp,k,
      &      ngcmx ,nctot,nband,
      &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
-     &             ngvecpB1(3,ngpmx),  
-     &             ngvecpB2(3,ngpmx),  
+     &             ngvecpB1(3,ngpmx_in),  
+     &             ngvecpB2(3,ngpmx_in),  
      &             ngveccBr(3,ngcmx), itp0(ntp0),
      &     nadd(3),isp  !,ngpn(nqbz)
       complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
@@ -353,10 +353,13 @@ c-----------------------------------------------------
      &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
      &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
      & ,pi=3.1415926535897932D0
-!      complex(8) :: geigB  (ngpmx,nband,nqbz)
-      complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband)
+!      complex(8) :: geigB  (ngpmx_in,nband,nqbz)
+      complex(8):: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
       integer(4)::verbose
+      logical:: debug=.false.
+      if(verbose()>=90) debug=.true.
+
 c
 c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) print *,' drvmelp2:'
@@ -364,11 +367,30 @@ c      ngp1 = ngpn(iq)  ! q        in FBZ
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
       call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
-      call readgeig(q,    ngpmx, isp, qu1, geig1)
-      call readgeig(q_rk, ngpmx, isp, qu2, geig2)
+c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp1,q,qt      ,sum(abs(ngvecpB1(:,1:ngp1)))
+c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(ngvecpB2(:,1:ngp2)))
+      
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      print *,'drvmelp2: goto readgeig'
+      call readgeig(q,    ngpmx_in, isp, qu1, geig1)
+      call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
+      print *,'drvmelp2: endof readgeig'
+c      qu1=qt
+c      qu2=q_rkt
+c      geig1=0d0
+c      geig2=0d0
+c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp1,q,qt      ,sum(abs(
+c     &       geig1(1:ngp1,itp0(1:ntp0)))), ntp0  ! q1=q    ---> iq ngp1 1:ntp0 q-point
+c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp2,q_rk,q_rkt,sum(abs(
+c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
+cc      allocate( zmelpl(ngc,nt0,ntp0) )
+c      print *,'test 888888888888888888888',ngc,nt0,ntp0
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      print *,'drvmelp2: end readgeig'
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
-      if(verbose()>=100) print *,' end of read geig '
+      if(debug) print *,' drvmelp2:end of read geig '
 
 c     ngc  = ngcni(k)  ! k-points in IBZ
 c      allocate( geigq(ngp1,ntp0) )
@@ -389,6 +411,7 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
         stop "drvmlp: abs(add-nadd))>1d-10"
       endif
 
+      if(debug) print *,' goto alloc zmelpl'
       allocate( zmelpl(ngc,nt0,ntp0) )
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c      if(.false.) then !old version
@@ -408,27 +431,31 @@ c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occup
 c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
+      if(debug) print *, 'drvmelp2:goto melpln2'
       call melpln2( ngp1, ngvecpB1
-     &           ,   ngp2, ngvecpB2
-c     &           ,   ngc,  ngveccBr, nadd,
+     &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,
      &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
      &       geig2(1:ngp2,1:nt0), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
      i       shtv, matmul(symope,qik),qik, symope, qbas, 
      o       zmelpl)
-c      deallocate(geig1,geig2)
+      if(debug) print *,'end of melpln2'
+
+ 8888 continue
+c     deallocate(geig1,geig2)
       rmelt=0d0
       cmelt=0d0
       rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
      &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
       cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
      &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-c extensiton to nbloch+ngc
+cc extensiton to nbloch+ngc
       rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
      & = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
      & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       deallocate(zmelpl)
+      if(debug) print *,'end of drvmelp2'
       end
 
 
@@ -450,18 +477,21 @@ cr See the variable sumchck.
       real(8)    :: symops(3,3), qq(3), qrot(3),qbas(3,3)
      &             ,qbasinv(3,3),
      &     qfbz(3),rotnvg(3,3),vec(3),xsign(1:3),det,sumchk !,sumchk2
+      logical:: debug=.true.
 c
 c      print *,' rotgvec: '
       call dinv33(qbas,0,qbasinv,det)
 !      symops = grp(:,:,irot)
-c     write(6,'(3f12.6)') symops(1,1:3)
-c     write(6,'(3f12.6)') symops(2,1:3)
-c     write(6,'(3f12.6)') symops(3,1:3)
+      if(debug) write(6,'(3f12.6)') symops(1,1:3)
+      if(debug) write(6,'(3f12.6)') symops(2,1:3)
+      if(debug) write(6,'(3f12.6)') symops(3,1:3)
 
       rotnvg = matmul(qbasinv,matmul(symops,qbas))
+c      print *, 'sum rotnvg=',sum(rotnvg)
       sumchk  =0d0
 c      sumchk2 =0d0
       do iq  = 1, nqibz
+        if(debug) print *,' iq=',iq, ' sum ngveccB=', sum(abs(ngveccB(1:3,1:ngcn(iq), iq)))
         do igc = 1, ngcn(iq)
           vec  = matmul( rotnvg, ngveccB(1:3,igc, iq))
 ! vec should be the almost integer and ngveccBr = vec.
@@ -487,9 +517,9 @@ c     &     qrot + matmul(qbas, ngveccBr(1:3, igc, iq)) ))
 c        enddo
 cccccccccccccccc
 ccccccccccccccc
-c     print *," rotgvec: nmin nmax="
-c     & ,minval(ngveccBr(1:3, 1:ngcn(iq), iq))
-c     & ,maxval(ngveccBr(1:3, 1:ngcn(iq), iq))
+      if(debug) print *," rotgvec: nmin nmax="
+     & ,minval(ngveccBr(1:3, 1:ngcn(iq), iq))
+     & ,maxval(ngveccBr(1:3, 1:ngcn(iq), iq))
 ccccccccccccccc
       enddo
       if(abs(sumchk)/nqibz/minval(ngcn)>1d-4) then

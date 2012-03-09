@@ -18,9 +18,9 @@ c
      d                  nl,nclass,natom,nnc,
      d                  nlnmx,mdimx,nbloch,nwt,
 c
-c     i      iq,  ngpn,ngc, ngpmx,ngcmx,  geigB, jan2004
+c     i      iq,  ngpn,ngc, ngpmx_in,ngcmx,  geigB, jan2004
 c     i       ngvecpB,ngveccB,
-     i      iq, ngbb, ngc, ngpmx,ngcmx,  !oct2005 ngbb is not ngc + nbloch for smbasis=T.
+     i      iq, ngbb, ngc, ngpmx_in,ngcmx,  !oct2005 ngbb is not ngc + nbloch for smbasis=T.
 c     i      ngveccB,
      i      nqbze, nband,nqibz,
 c
@@ -28,8 +28,8 @@ c
 c------------------------------------------
      i     nolfco,zzr, !iepsmode,zzr,
      o     rcxqmean)
-      use m_readqg
-      use m_readeigen
+      use m_readqg, only: readqg
+      use m_readeigen, only: readeval,readcphi,readgeig
       use keyvalue
 c     o     zxq)
 c- Only the spectrum function (imaginary part) along the real axis.
@@ -97,12 +97,12 @@ c      dimension qk(3) !,qbkp(3)
 c      integer w
 c      common /w/ w(1)
 
-      integer(4):: ngpmx, ngcmx, nqbze, nband,
-     &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
+      integer(4):: ngpmx_in, ngcmx, nqbze, nband,
+     &              ngc,nadd(3), !ngvecpB(3,ngpmx_in,nqbze), ngpn(nqbze),
      &             igc, !ngveccB(3,ngcmx),
-     &             ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx)
+     &             ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in)
 
-c      complex(8):: geigB  (ngpmx,nband,nqbze)
+c      complex(8):: geigB  (ngpmx_in,nband,nqbze)
 c      complex(8):: geigB  (1,1,1)
 
       complex(8),allocatable :: zmelt(:,:,:)
@@ -162,7 +162,7 @@ c      logical:: ifgeigb,iffk,iffkp
 c      character*3 charnum3
 
       real(8):: qu1(3),qu2(3),qu1x(3),qu2x(3),quu(3)
-c      complex(8)::   geig1(ngpmx,nband),  geig2(ngpmx,nband)
+c      complex(8)::   geig1(ngpmx_in,nband),  geig2(ngpmx_in,nband)
 
       integer(4):: nbcut,nbcut2
       logical :: iww1=.true.,iww2=.true.

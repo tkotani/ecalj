@@ -219,7 +219,7 @@ c
 
 c------------------------------------------------------------------
       real(8) function lowesteigen(nspin,nband,qbz,nqbz)
-      use m_readeigen
+      use m_readeigen, only :readeval
 c lowest eband -----------------------------------------
       implicit none
       integer(4):: nband,nqbz,nspin,iq,is

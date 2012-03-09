@@ -240,7 +240,7 @@ c
 
       integer(4):: igp1,igp2,   icold,nbandx,ifnband,iread
       real(8),allocatable:: qtt(:,:)
-      integer:: nqtt,igg
+      integer:: nqtt,igg,iorb
       real(8):: platt(3,3),qtarget(3)
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
@@ -657,14 +657,16 @@ C --- augmentation wave numbering--- idxnlmc in index.f order
       nmax = maxval(nvmax)
       allocate( iord(-lmxamx:lmxamx,nmax,0:lmxamx,nbas))
       ix=0
+      iorb=0
       do ibas = 1,nbas
         ic = iclass(ibas)
         do lx = 0,lmxa(ic)
           do nx = 1,nvmax(lx,ic)
+            iorb=iorb+1
             do mx = -lx,lx
               ix = ix+1
               iord(mx,nx,lx,ibas)=ix
-              write(ifoc,"(10i5)")mx,nx,lx,ibas,ix
+              write(ifoc,"(10i6)")mx,nx,lx,ibas,ix,iorb
             enddo
           enddo
         enddo

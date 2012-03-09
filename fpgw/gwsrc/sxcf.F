@@ -221,8 +221,8 @@ c nw      = no. frequencies along the real axis
 c
 c zsec(iw, t, iq) = <psi(q,t) |SEc (iw)| psi(q,t)>
 c----------------------------------------------------------------------
-      use m_readqg
-      use m_readeigen
+      use m_readqg, only:readqg0
+      use m_readeigen, only: readcphi
       implicit none
       integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,

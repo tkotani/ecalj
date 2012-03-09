@@ -47,7 +47,7 @@ Ci ginv is the inverse of plat (premitive translation vector).
       integer(4):: nq,i_out, iq,iqx,iqindx !,saveiq
       real(8):: q(3),qq(3,nq),ginv(3,3),qx(3),qu(3)
       integer(4),save :: isave=0  !accelation to find iqindx
-c      print *, ' iqindx2 q=',q
+      write(*,"(' iqindx2: q=',3f20.15)") q
 c      if(isave>nq.or.saveiq()==0) isave=0
       if(isave>nq) isave=0
       do iqx = isave+1,isave+nq
@@ -57,11 +57,12 @@ c      if(isave>nq.or.saveiq()==0) isave=0
           iq = iqx
         endif
         call rangedq(matmul(ginv,q-qq(:,iq)), qx)
+c        print *,' iq,q-qq(:,iq)',iq,q-qq(:,iq)
         if(sum(abs(qx))< 1d-6) then
           iqindx=iq
           isave =iq
           qu=qq(:,iq)
-c          print *,"isave=",isave
+c          print *,"iqindx2:isave iqindx=",isave,iqindx
           return
         endif
       enddo

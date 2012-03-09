@@ -1,19 +1,18 @@
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
      o                 ng, ngvec)
-C-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
-c takao
-c job==1 -> return ng (number of G ) only
-c job==2 -> return ng and ngvec
-c True G is given by
-c    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
-c
+!! == Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u. ==
+!! job==1 -> return ng (number of G ) and imx(as ngvec(1,1));mar2012takao add imx.
+!! job==2 -> return ng and ngvec
+!! True G is given as
+!!    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
+!! -------------------------------------------------------------
       implicit none
       integer(4) :: ng
       real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
      & ,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
       integer(4) ::  ngvec(3,ng),
      &    n1max,n1min,n2max,n2min,n3max,n3min,
-     &    i1,i2,i3,ig,job
+     &    i1,i2,i3,ig,job,imx
       pi=4d0*datan(1d0)
 c      call u_lat_vecs(s_lat,alat,plat,qlat)
       tpiba=2*pi/alat
@@ -37,6 +36,7 @@ c search range of n1 n2 n3
 
 c get ngvec within the limit.
       ig=0
+      imx=-9999
       do i1 = n1min, n1max
         do i2 = n2min, n2max
           do i3 = n3min, n3max
@@ -49,6 +49,7 @@ c      do i3 = n3min-3, n3max+3
             if( sum(qpg(1:3)**2) < QpGmax2) then
               ig = ig+1
               if(job==2) ngvec(1:3,ig) = (/i1,i2,i3/)
+              if(job==1) imx=max(imx,abs(i1),abs(i2),abs(i3))
 c          if(job==2) write(1116,'(f8.4,3i3)')
 c     &      tpiba*sqrt(sum(qpg(1:3)**2)),ngvec(1:3,ig) ! check write
             endif
@@ -56,6 +57,7 @@ c     &      tpiba*sqrt(sum(qpg(1:3)**2)),ngvec(1:3,ig) ! check write
         enddo
       enddo
       ng = ig
+      if(job==1) ngvec(1,1)=imx !mar2012takao
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine eprod(a,b, c)

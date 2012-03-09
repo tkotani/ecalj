@@ -398,8 +398,8 @@ c work arrays for psi2br.f
       allocate(expikt(natom))
 
 c read eval and eigen
-      call readeval (q, isp, eq(1,ip))
-      call  readcphi(q, nlmto,isp, quu, cphikq)
+      call readeval(q, isp, eq(1,ip))
+      call readcphi(q, nlmto,isp, quu, cphikq)
       if(debug) print *, ' sxcf: 2'
 
 c eigenfunction for itp at q
@@ -556,8 +556,11 @@ c        call rwdd1   (ifev, kp,nband,ekq)
 
 c        ikpisp=isp + nsp*(kp-1)
 c        call rwdd1  (ifcphi, ikpisp,2*nlmtobnd, cphikq)
-        call  readcphi(qk, nlmto,isp, quu, cphikq)
 
+        call  readcphi(qk, nlmto,isp, quu, cphikq)
+c        if(debug) write(6,"('111111 end of readcphi: sum of cphikq=',4d23.16)")
+c     &                 sum(cphikq),sum(abs(cphikq) )
+c        stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
 
 c no. occupied (core+valence) and unoccupied states at q-rk
 c      call dcopy   (nband,ekq,1,ekc(nctot+1),1)
@@ -631,7 +634,10 @@ c>> core
      d              mdimx,nlmto,nbloch,nlnmx,nt,ntp0,natom,nclass,
      d              nl,nnc,                ! nt,ntp0 denotes dimenstion of rmel
      o              zzmel) !rmel,cmel)
-        if(debug)  print *, ' sxcf: goto psi2bc1'
+        if(debug)print *, ' sxcf: goto psi2bc1'
+        if(debug)
+     &    write(6,"('end of psicb_v2:sum(zmel)sum(abszmel)=',4d23.16)")
+     &    sum(zzmel),sum(abs(zzmel) )
 c>> valence
         call psi2b_v2 (nbmax, ntp0, iclass,
      i    dreal(expikt(1:natom)),dimag(expikt(1:natom)),
@@ -664,17 +670,12 @@ cccccccccccccccccccccccccccccccccccccccccccccc
 c-plane
         allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
      &            cmelt(ngb, nctot+nbmax, ntp0))
-        if(debug) print *, ' sxcf_fal2: goto drvmelp'
+        if(debug) print *, ' sxcf_fal2: goto drvmelp',ngb,nctot,nbmax,ntp0
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
+       if(debug)write(6,"('==goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)") qibz_k,ngc
 
-!debugcccccccccccccccccccccccccc
-      if(debug)then
-        write(6,"('--goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)")
-     &       qibz_k,ngc
-      endif
-ccccccccccccccccccccccccccccccccc
         call drvmelp2( q,   ntp0, ! q in FBZ
      i                 q-qbz_kr, nbmax,  ! q-rk
      i                 qibz_k,           ! k in IBZ for e-product basis
@@ -683,8 +684,8 @@ ccccccccccccccccccccccccccccccccc
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
      o       rmelt,cmelt)
-
-c        if(debug) write(6,"('sss: sum of       zmelt=',4d23.16)") sum(zmel),sum(abs(zmel))
+      if(debug) write(6,"('--end of drvmelp2 sum(zmelt)=',4d23.16)") sum(zzmel),sum(abs(zzmel))
+      if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
 c zmel(I,ij) = dcmplx(rmelt, cmelt) = < psi_i psi^*_j | M_I>
 c oct2005

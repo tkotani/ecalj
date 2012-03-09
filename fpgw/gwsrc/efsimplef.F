@@ -4,10 +4,10 @@
      i             valn, legas, esmr, !input only for empty case
      i             qbz,nqbz, !index_qbz, n_index_qbz,
      o             ef)
-      use m_readeigen
-C- Calculate efermi for discrete sum. (not for tetrahedron method)
-Cr user readeval (readeigen.f) to get eigenvalues.
-Cr You need to call init_reaeigen before you call this.
+      use m_readeigen, only: readeval,readcphi,readgeig
+!!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
+!! You need to call init_reaeigen before you call this.
+!! user readeval (readeigen.f) to get eigenvalues.
 c ispin   = 1, paramagnetic
 c           2, ferromagnetic
 c ef      = fermi level
@@ -467,7 +467,7 @@ c     print *,' ein enumef=', ein, enumef
 c---------------------------------------------------------------
       subroutine findemaxmin(nband,qbz,nqbz,nspin,
      o   emax,emin)
-      use m_readeigen
+      use m_readeigen, only: readeval
       implicit none
       integer(4) :: nband,nqbz,nspin,isp,kx,i !,ifev(2)
       real(8)::emax,emin,qbz(3,nqbz),eee

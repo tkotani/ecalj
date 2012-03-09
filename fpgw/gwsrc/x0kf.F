@@ -16,9 +16,9 @@ c
      d                  nl,nclass,natom,nnc,
      d                  nlnmx,mdimx,nbloch,nwt,niwt,
 c
-c     i      iq,  ngpn,ngc, ngpmx,ngcmx, !geigB,
+c     i      iq,  ngpn,ngc, ngpmx_in,ngcmx, !geigB,
 c     i       ngvecpB,ngveccB,
-     i      iq, ngc, ngpmx,ngcmx,
+     i      iq, ngc, ngpmx_in,ngcmx,
 c     i      ngveccB,
      i      nqbze, nband,nqibz,
 c
@@ -26,8 +26,8 @@ c
      i      nolfco,zzr,
      o      x0mean, !)
      i   vcoul,ngbx)
-      use m_readqg
-      use m_readeigen
+      use m_readqg, only : readqg
+      use m_readeigen, only : readeval,readcphi,readgeig
       use keyvalue
 c takao kotani Aug 2002   This originated from Ferdi's x0k.
 c
@@ -114,11 +114,11 @@ c      integer w
 c      common /w/ w(1)
 
 ctakao -----------------------------------------------------------
-      integer(4):: ngpmx, ngcmx, nqbze, nband,
-     &             ngc,nadd(3), !ngpn(nqbze),ngvecpB(3,ngpmx,nqbze),
-     &             ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx) !, ngveccB(3,ngcmx),igc
-c      complex(8):: geigB  (ngpmx,nband,nqbze)
-      complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband)
+      integer(4):: ngpmx_in, ngcmx, nqbze, nband,
+     &             ngc,nadd(3), !ngpn(nqbze),ngvecpB(3,ngpmx_in,nqbze),
+     &             ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in) !, ngveccB(3,ngcmx),igc
+c      complex(8):: geigB  (ngpmx_in,nband,nqbze)
+      complex(8):: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
 c      complex(8),allocatable:: zmelpl(:,:,:)
 c      real(8),allocatable::  rmelt(:,:,:),cmelt(:,:,:)
       complex(8),allocatable :: zmelt(:,:,:)

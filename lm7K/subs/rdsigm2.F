@@ -11,7 +11,7 @@
       subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
      i  sfz,ldim,ndimh, 
      o  sene) 
-      use m_hamindex,only: napwmx, ibastab, igv2,napwk,igv2rev,ibasindex,getikt
+      use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
       use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
 !- give sene from sfz
       implicit none

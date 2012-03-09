@@ -19,7 +19,7 @@ c     i       ngvecpB,ngveccB,
 c------------------------------------------
      i     nolfco,zzr,nmbas, !iepsmode,zzr, nmbas added Sep2006
      o     rcxqmean)
-      use m_readqg
+      use m_readqg,only :readqg
       use m_readeigen,only: readeval,readcphi,readgeig
 c      use m_readeigen
       use keyvalue
