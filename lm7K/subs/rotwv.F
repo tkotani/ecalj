@@ -232,7 +232,8 @@ c
 c
       subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr)
 c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
-      use m_hamindex
+      use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbt,
+     &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
 C- sigma rotator. sig at qin to sig at qout.
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
@@ -403,7 +404,8 @@ c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine rotwv(q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
 c      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)
-      use m_hamindex
+      use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbt,
+     &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
 C- wave function rotator. evec at q to evecout at qg=g(q).
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none

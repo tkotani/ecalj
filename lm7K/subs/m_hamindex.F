@@ -4,17 +4,15 @@
       integer,parameter:: null=-999999
       integer:: ngrp=null, lxx=null, kxx=null, norbt=null 
       integer:: imx=null,nbas,ndimham=null
-      integer:: nqtt,nqtti
-      integer:: nqnum,ngpmx
+      integer:: nqtt,nqtti, nqnum,ngpmx
       integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
       integer,allocatable:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
       real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
       real(8):: plat(3,3),qlat(3,3)
       real(8),allocatable:: qtt(:,:),qtti(:,:)
-      logical,private:: debug=.false.
-
       integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
       integer::  napwmx=null, nkt=null
+      logical,private:: debug=.false.
       contains
 
       integer function getikt(qin)

@@ -10,7 +10,7 @@ MPI version
 CLEAN   rm -f ctrl.eras moms.eras occnum.eras out1.eras out2.eras qpp.eras
 VERS    LMASA-6 LMF-6 LM:7 FP:7
 IO      SHOW=f HELP=f VERBOS=30 WKP=F IACTIV=F
-OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f  HF={hf} SO={so}
+OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f  HF={hf} SO={so} PFLOAT=0
 # SYMGRP  i*i
 SYMGRP  find
 BZ      METAL=2 TETRA=t NEVMX=50 EFMAX=3 NKABC={nk} {nk} {nk} BZJOB=f

@@ -30,8 +30,10 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
+# ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
+LIBubuntu11= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
-LIBLOC=$(LIB5)
+LIBLOC=$(LIBubuntu11)
 
 
 ############ Fortran compiler

@@ -1,9 +1,9 @@
       subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
-c     ik1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
-     ik1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar,
-     ihq,
-     ogfbz)
-      use m_hamindex
+c    i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
+     i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar,
+     i hq,
+     o gfbz)
+c      use m_hamindex
 C- Generate gfbz (full BZ) from hq (1st BZ).
 Ci q iq: q and index for q
 Ci   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs

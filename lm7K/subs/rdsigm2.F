@@ -1346,7 +1346,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
      &nk1,nk2,nk3,ldim,qsmesh,sfz)
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_hamindex  !nbas is in this structure
+      use m_hamindex,only : getikt,napwk,plat
+c  !nbas is in this structure
 C- takao. Expand self-energy (read by ifis) to all the q point on mesh. In developing.
 Ci ifis:  file hundle for self-energy file sigm. only at irreducible q point.
 Co complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp):  self-energy (\Sigma-Vxc) for  all the q points on mesh.

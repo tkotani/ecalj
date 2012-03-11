@@ -5,9 +5,9 @@ C oevl -> evlall
      .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, !evl,
      . frc,
      .dmatu,vorb,llmfgw)
-      use m_hamindex, only: 
-     &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
-     &  igv2,napwk,igv2rev
+      use m_hamindex, only: napwmx,ngrp,norbt,ibastab,ltab,ktab,offl
+c     &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
+c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
       use m_struc_def
       use m_globalvariables
@@ -388,7 +388,7 @@ C     for LDA+U
       integer ::iwdummy 
 
 
-      logical :: debug=.true. !debug is only for check write. However, it can cause error
+      logical :: debug=.false. !debug is only for check write. However, it can cause error
       !for 'make check',
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK

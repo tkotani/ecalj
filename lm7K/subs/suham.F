@@ -1,7 +1,9 @@
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit) !,no_qpgpsi) !from showbs
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
-      use m_hamindex
+      use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
+     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbt,ngrp,nqtt,nqtti,plat,qlat,miat,tiat,
+     &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
@@ -29,8 +31,7 @@ c      enddo
       type(s_ham)::sham
       integer iprmb(*),nl
       integer:: nkap0 , n0 , ibas , k 
-      integer:: l , ndim , ipr , nglob ,  ldim , off , offs , nbas !takao2010feb note nbas=nbas_in 
-                                                                   ! nbas isin m_hamindex already.
+      integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb 
       character spid*8
       real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),

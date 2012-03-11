@@ -238,90 +238,90 @@ c        cgr(lm1,lm2,lm,ig) = sumr
       print *,' rotcg end:'
       end
 
-c-------------------------------------------------------
-      subroutine drvmelp( iq, ntp0, kp,nt0, k,
-     i        ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itp0, 
-     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i       rmel, cmel, nbloch,noccx,nctot,
-     o       rmelt,cmelt)
-c ! q1=q    ---> iq 1:ntp0 q-point
-c ! q2=q-rk ---> kp 1:nt0  occupied
-c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
-c  zmelpl
-c-----------------------------------------------------
-      implicit none
-      integer(4):: iq,kp,k,ngp1, ngp2, ngpmx,nqbz,nqibz, 
-     &      ngcmx ,nctot,nband,
-     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
-     &             ngvecpB  (3,ngpmx,nqbz),  
-     &             ngveccBr (3,ngcmx,nqibz), itp0(ntp0),
-     &     nadd(3),ngpn(nqbz)
-      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
-      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
-     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
-     &         ,rmel(nbloch,noccx,ntp0) 
-     &         ,cmel(nbloch,noccx,ntp0) 
-     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-     & ,pi=3.1415926535897932D0
-      complex(8) :: geigB  (ngpmx,nband,nqbz)
-c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
-      ngp1 = ngpn(iq)  ! q        in FBZ
-      ngp2 = ngpn(kp)  ! q-rk     in FBZ
-c     ngc  = ngcni(k)  ! k-points in IBZ
-      allocate( geigq(ngp1,ntp0), zmelpl(ngc,nt0,ntp0) )
-      do itx = 1,ntp0
-        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
-      enddo
-c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
-      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
-      ! rk          -q          +(q-rk) is not zero.
-c     print *,' drvmelp qdiff',qdiff
-      add  = matmul(qbasinv,qdiff)
-      nadd = idint( add + dsign(.5d0,add))
-c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)')
-c     &  add,nadd,abs(add-nadd)
-      if(sum(abs(add-nadd))>1d-7) stop "drvmlp: abs(add-nadd))>1d-10"
-cccccccccccccccccccccccccccccccccccccccccccccccc
-c      if(.false.) then !old version
-c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c     i       shtv, matmul(symope,qibz(1:3,k)), qbas,
-c     o       zmelpl)
-c      else             !new version from Sep-10 2000
-      call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
-     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
-     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
-     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas, 
-     o       zmelpl)
-c       endif
-      deallocate(geigq)
-      rmelt=0d0
-      cmelt=0d0
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-c      zmelpl=0d0
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-      rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
-     &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
-     &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,' !!!!!! NO PLANE WAVE !!!'
-c      return
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c extensiton to nbloch+ngc
-      rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-     & = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
-      cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-     & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
-      deallocate(zmelpl)
-
-      end
+c$$$c-------------------------------------------------------
+c$$$      subroutine drvmelp( iq, ntp0, kp,nt0, k,
+c$$$     i        ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itp0, 
+c$$$     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+c$$$     i       rmel, cmel, nbloch,noccx,nctot,
+c$$$     o       rmelt,cmelt)
+c$$$c ! q1=q    ---> iq 1:ntp0 q-point
+c$$$c ! q2=q-rk ---> kp 1:nt0  occupied
+c$$$c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
+c$$$c  zmelpl
+c$$$c-----------------------------------------------------
+c$$$      implicit none
+c$$$      integer(4):: iq,kp,k,ngp1, ngp2, ngpmx,nqbz,nqibz, 
+c$$$     &      ngcmx ,nctot,nband,
+c$$$     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
+c$$$     &             ngvecpB  (3,ngpmx,nqbz),  
+c$$$     &             ngveccBr (3,ngcmx,nqibz), itp0(ntp0),
+c$$$     &     nadd(3),ngpn(nqbz)
+c$$$      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
+c$$$      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
+c$$$     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
+c$$$     &         ,rmel(nbloch,noccx,ntp0) 
+c$$$     &         ,cmel(nbloch,noccx,ntp0) 
+c$$$     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+c$$$     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+c$$$     & ,pi=3.1415926535897932D0
+c$$$      complex(8) :: geigB  (ngpmx,nband,nqbz)
+c$$$c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
+c$$$      ngp1 = ngpn(iq)  ! q        in FBZ
+c$$$      ngp2 = ngpn(kp)  ! q-rk     in FBZ
+c$$$c     ngc  = ngcni(k)  ! k-points in IBZ
+c$$$      allocate( geigq(ngp1,ntp0), zmelpl(ngc,nt0,ntp0) )
+c$$$      do itx = 1,ntp0
+c$$$        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
+c$$$      enddo
+c$$$c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
+c$$$      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
+c$$$      ! rk          -q          +(q-rk) is not zero.
+c$$$c     print *,' drvmelp qdiff',qdiff
+c$$$      add  = matmul(qbasinv,qdiff)
+c$$$      nadd = idint( add + dsign(.5d0,add))
+c$$$c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)')
+c$$$c     &  add,nadd,abs(add-nadd)
+c$$$      if(sum(abs(add-nadd))>1d-7) stop "drvmlp: abs(add-nadd))>1d-10"
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c      if(.false.) then !old version
+c$$$c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
+c$$$c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
+c$$$c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
+c$$$c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
+c$$$c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
+c$$$c     i       shtv, matmul(symope,qibz(1:3,k)), qbas,
+c$$$c     o       zmelpl)
+c$$$c      else             !new version from Sep-10 2000
+c$$$      call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
+c$$$     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
+c$$$     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
+c$$$     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
+c$$$     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
+c$$$     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas, 
+c$$$     o       zmelpl)
+c$$$c       endif
+c$$$      deallocate(geigq)
+c$$$      rmelt=0d0
+c$$$      cmelt=0d0
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c      zmelpl=0d0
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$      rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
+c$$$     &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
+c$$$      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
+c$$$     &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c      print *,' !!!!!! NO PLANE WAVE !!!'
+c$$$c      return
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c extensiton to nbloch+ngc
+c$$$      rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
+c$$$     & = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
+c$$$      cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
+c$$$     & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
+c$$$      deallocate(zmelpl)
+c$$$
+c$$$      end
 
 c------------------------------------------------------
       subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, isp,ginv,

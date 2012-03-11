@@ -49,7 +49,7 @@ ctm
 !!-----------------------------------------------
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
 !!-- return ev(1:nband) for given q(1:3) and isp --
-      use m_hamindex,only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap
+      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap
       implicit none
       integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi
       real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3)
@@ -118,7 +118,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
       end subroutine readgeig
 c------------------------------
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
-      use m_hamindex,only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
+      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
      &  miat,tiat,dlmm,norbt,shtvg
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
