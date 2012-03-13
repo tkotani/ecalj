@@ -28,6 +28,7 @@ c
      i omega,iwini,iwend,
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
+     i pos, !mar2012
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
@@ -263,7 +264,7 @@ c
      &  qbasinv(3,3), det,qdiff(3),add(3),symope(3,3),
      &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
      &   ppb(1), !pdb(1),dpb(1),ddb(1), !*
-     &  coh(ntq,nq)
+     &  coh(ntq,nq)   , pos(3,natom)
       complex(8)::   alagr3zz,wintz !geigB  (ngpmx,nband,nqbz),
 
 c
@@ -399,7 +400,7 @@ c work arrays for psi2br.f
 
 c read eval and eigen
       call readeval(q, isp, eq(1,ip))
-      call readcphi(q, nlmto,isp, quu, cphikq)
+      call readcphi( q, nlmto,isp, quu, cphikq)
       if(debug) print *, ' sxcf: 2'
 
 c eigenfunction for itp at q
@@ -557,7 +558,11 @@ c        call rwdd1   (ifev, kp,nband,ekq)
 c        ikpisp=isp + nsp*(kp-1)
 c        call rwdd1  (ifcphi, ikpisp,2*nlmtobnd, cphikq)
 
+c        call  readcphi2(pos,natom,qk, nlmto,isp, quu, cphikq)
         call  readcphi(qk, nlmto,isp, quu, cphikq)
+
+
+
 c        if(debug) write(6,"('111111 end of readcphi: sum of cphikq=',4d23.16)")
 c     &                 sum(cphikq),sum(abs(cphikq) )
 c        stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'

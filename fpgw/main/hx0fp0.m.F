@@ -1690,7 +1690,7 @@ c- new version only along real axis for
      i    nolfco,zzr,nmbas_in,  !for nolfco Add nmbas Sep2006
      o    rcxqmean   ) !for nolfco
 c          endif
-
+c          stop '--- test end of x0kf_v2hz ---------'
 c$$$c=========== Check write mode4 block ixc==4 ============6ini
 c$$$          if(ixc==4) then
 c$$$C --- check write ---

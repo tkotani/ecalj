@@ -20,7 +20,7 @@ ctm
       integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
-      logical,private:: debug=.true.
+      logical,private:: debug=.false.
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offsetrev_tbl(:,:,:)
@@ -28,7 +28,8 @@ ctm
       contains
 
       subroutine readeval(q,isp, ev)
-!!-- return ev(1:nband) for given q(1:3) and isp --
+!! == return ev(1:nband) for given q(1:3) and isp ==
+!! * 
       use m_hamindex, only: qtt,nqtt,iqimap
       implicit none
       integer(4):: isp,iq,iqindx,i
@@ -38,9 +39,9 @@ ctm
         stop 'readeigen: modele is not initialized yet'
       endif
       iq = iqindx(q, ginv,qtt,nqtt)
-      print *,'iq iqimap(iq)=',iq,iqimap(iq)
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
       if(debug) then
+        print *,'iq iqimap(iq)=',iq,iqimap(iq) 
         write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
         write(6,"(9f9.4)")ev(1:9)
       endif
@@ -54,14 +55,13 @@ ctm
       integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi
       real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3)
       complex(8):: geigen(ngp_in,nband),geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
-      logical ::debug=.true.
       img2pi=2d0*4d0*datan(1d0)*img
       platt=transpose(plat) !this is inverse of qlat
       if(init2) then
         stop 'readgeig: modele is not initialized yet'
       endif
       call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu is a G vector.
-      print *,' readgeig:xxx iq=',iq
+      if(debug) print *,' readgeig:xxx iq=',iq
 c      do iq=1,nqtt
 c         write(*,*)iq,qtt(:,iq)
 c      enddo
@@ -115,45 +115,51 @@ ccccccccccccccccccccccccccccccccccccccccccc
         print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
         stop 'readgeig: ngpmx<ngp(iq)'
       endif
+ccccccccccccccccccccccccccccccccc
+c      geigen=0d0
+ccccccccccccccccccccccccccccccccc
       end subroutine readgeig
-c------------------------------
+
+!!
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
-     &  miat,tiat,dlmm,norbt,shtvg
+     &  miat,tiat,dlmm,norbt,shtvg,symops
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
-     & ini1,ini2,iend1,iend2,igg,ig,iqi
-      real(8)   :: q(3),qu(3),qtarget(3)
-      complex(8):: img2pi,img=(0d0,1d0),phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq !takao 1->*->nband
+     & ini1,ini2,iend1,iend2,igg,ig,iqi,i 
+      real(8)   :: q(3),qu(3),qtarget(3) ,qrot(3)
+      complex(8):: img2pi,img=(0d0,1d0),phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
       img2pi=2d0*4d0*datan(1d0)*img
       if(init2) then
         stop 'readcphi: modele is not initialized yet'
       endif
       call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
-!! iqmap(iq): iq is rotated to igmap(iq) (qtt(1:nqtt)) by sympos(  ,igmap(iq)).
+!! iqmap(iq): for given iq, iqmap(iq) --> iq (qtt(1:nqtt)) by sympos(  ,igmap(iq)).
       iqq=iqmap(iq)
       iqi=iqimap(iq)
       qtarget=qtt(:,iq)
       igg=igmap(iq)
+      qrot=matmul(symops(:,:,igg),qtt(:,iqq))
       if(keepeig) then
         cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
       else
         ikpisp= isp + nsp*(iqi-1)
         read(ifcphi, rec=ikpisp) cphifr(1:ldim2,1:nband)
       endif
-cccccccccccccccccccccccccccccccccc
-       write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbt,
+      if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbt,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
-cccccccccccccccccccccccccccccccccc
-
-!! rotation  See mto part of rotwv xxxxxxxxxx
-      phaseq= exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
+!! rotation  See mto part of rotwv.F 
+!! (then MTO itself is rotated. a little diffent from here).
+      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
       ibaso=-999
       do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
         !Index of Hamiltonian is devided into these blocks.
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*(tiat(:,ibas,igg)-shtvg(:,igg))) )
+        if(ibas/=ibaso) then
+          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas,igg)-shtvg(:,igg))) )
+c          phaseatom= exp( img2pi*sum( qtarget*pos(:,miat(ibas,igg))) )
+        endif   
         ibaso=ibas
         l   = l_tbl(iorb)
         k   = k_tbl(iorb)
@@ -161,18 +167,40 @@ cccccccccccccccccccccccccccccccccc
         iend1 = ini1+2*l
         ini2 = offsetrev_tbl(miat(ibas,igg),l,k)+1
         iend2 = ini2+2*l
-        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))*phase*phaseq
+        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))
+     &                       *phase*phaseq
+        if(debug) then
         write(6,*)ibaso,ibas,phase
         write(6,*)ini1,iend1,ini2,iend2
         write(6,*)sum(abs(dlmm(-l:l,-l:l,l,igg)))
         write(6,*)l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
         write(6,*)l,k,igg,sum(abs(cphif(ini2:iend2,:)))
+        endif
       enddo
 ccccccccccccccccccccccccccccccccc
 c       write(6,"('readcphi:: xxxx sum of cphifr=',2i4,4d23.16)")ldim2_in,ldim2,
 c     &                sum(cphif(1:ldim2,1:nband)),sum(abs(cphif(1:ldim2,1:nband)))
 c       stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccc
+
+ccccccccccccccccccccccccccccccccccc
+c      cphif=0d0
+cccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccc
+c      write(6,"('rrcc0:',i3,3f8.4)")iq,qu
+c      do i=1,1
+c      write(6,"('rrccb:',5(2x,2f8.4))")
+c     &  cphif(14,i)/cphif(1,i) !*abs(cphif(1,i))
+c      enddo
+c      cphif(5:13, :)=0d0
+c      cphif(14,:)=0d0
+c      cphif(18:26,:)=0d0
+
+c      cphif(1:8,:)=0d0
+c      cphif(19:26,:)=0d0
+c      cphif(1,:)=0d0
+c      cphif(19,:)=0d0
+cccccccccccccccccccccccccccccccccccc
       end subroutine readcphi
 
 
@@ -327,12 +355,13 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       close(ifev)
       if(debug) then
         do is= 1,nsp
-        do ik= 1,nqtt
+        do ik= 1,nqtti
         do ib= 1,nband
-          write(6,"('ib ik e=',2i5,f13.5)") ib,ik,evud(ib,ik,is)
+          write(6,"('ib ik e=',3i5,f13.5)") ib,ik,is,evud(ib,ik,is)
         enddo
         enddo
         enddo
+        if(debug) print *,'init_readeigen:end'
       endif
 
 c comment out mar2012takao

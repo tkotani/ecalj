@@ -13,6 +13,7 @@ c---private
       integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
       real(8),allocatable,private    :: qx_s(:,:)
       complex(8),allocatable,private :: ppx_s(:,:,:)
+      logical,private:: debug=.false.
 c-----------------------------------------------------------------
       contains
 c-----------------------------------------------------
@@ -27,7 +28,7 @@ c-----------------------------------------------------
       logical :: KeepPPOVL
       integer:: verbose
 cccccccccccccccccccccccccccccccccccccccccc
-      if(allocated(ngvecc2_0_s)) then
+      if(debug .and. allocated(ngvecc2_0_s)) then
         print *,' getppx :sumcheck ngvecc2_0= 3',ngc2_s(3),sum(abs(ngvecc2_0_s(1:3,1:ngc2_s(3),3)))
       endif
 ccccccccccccccccccccccccccccccccccccccccc  

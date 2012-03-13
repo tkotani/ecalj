@@ -47,7 +47,8 @@ Ci ginv is the inverse of plat (premitive translation vector).
       integer(4):: nq,i_out, iq,iqx,iqindx !,saveiq
       real(8):: q(3),qq(3,nq),ginv(3,3),qx(3),qu(3)
       integer(4),save :: isave=0  !accelation to find iqindx
-      write(*,"(' iqindx2: q=',3f20.15)") q
+      logical::debug=.false.
+      if(debug) write(*,"(' iqindx2: q=',3f20.15)") q
 c      if(isave>nq.or.saveiq()==0) isave=0
       if(isave>nq) isave=0
       do iqx = isave+1,isave+nq

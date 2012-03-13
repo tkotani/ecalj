@@ -176,7 +176,7 @@ c     logical :: sergeys
 
 c     logical :: imgonly=.false.
       complex(8):: zseciip(-1:1)
-      logical :: debug=.true.
+      logical :: debug=.false.
 C...  mode switch. --------------
       if(cohtest) then
         screen = .true.
@@ -1124,6 +1124,7 @@ c     i     shtw,
      i              omega, iwini,iwend,
      i              nbmx(2),ebmx(2), !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
+     i    pos, !mar2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
 

@@ -138,7 +138,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
 
       integer(4):: nkmin,  nkmax, nkqmin, nkqmax
       real(8):: qq(3)
-      integer(4):: ib1, ib2,      ngcx
+      integer(4):: ib1, ib2,      ngcx,ix,iy
 
       integer(4),allocatable:: ngvecc(:,:)
       logical :: onceww !testtr,negative_testtr
@@ -240,7 +240,7 @@ c        kisp= isp + nsp*(k-1)
 c        call rwdd1   (ifcphi, kisp, 2*nlmto*noccxv, cphik)
 c        kpisp= isp + nsp*(kp-1)
 c        call rwdd1   (ifcphi, kpisp, 2*nlmtoband,  cphikq)
-        call  readcphi(  rk(:,k)-qq, nlmto,isp1,   quu,cphik)
+        call  readcphi(  rk(:,k)-qq, nlmto,isp1,   quu,cphik) !quu is used q for eigenfunctions.
         call  readcphi(q+rk(:,k)-qq, nlmto,isp2,   quu,cphikq)
 
 C --- tetra ------ override nt0 itps ntp0 ---------------
@@ -595,9 +595,10 @@ ccccccccccccccccccccccccccccccc faleev variant begin,it about 15% faster for MnO
             ! if (abs(zmelt2) .lt. 1d-4) cycle
             do igb1=1,igb2
               z1p(igb1,igb2) = 
-     &       dconjg(zmelt(igb1,it,itp)) * zmelt2
+     &        dconjg(zmelt(igb1,it,itp)) * zmelt2
             enddo
           enddo
+c          write(6,"(a,2f10.6)")"zzz: z1p=",sum(abs(z1p)) 
 
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) then
             stop "x0kf_v4hz: iw>nwt"
@@ -707,16 +708,20 @@ c      deallocate(zxq_) !...........................sf 21May02
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)
       print *,' x0kf_v4hz: end'
-cccccccccccccccccccccccccccccccccccccccccccc
-c        print *,' ---- trace chck ---- '
-c        do iw= 1,nwt
-c        do ix=1,5
-c          write(6,"(a,2i4,3d13.5)")' ttt=',iw,ix,
-c     &    rcxq(ix,ix+1,iw),rcxq(ix,ix+1,iw),rcxq(ix+1,ix,iw)
-c        enddo
-c        enddo
-c        stop 'test zzzzzzzzzzz1'
-cccccccccccccccccccccccccccccccccccccccccccc
+c$$$cccccccccccccccccccccccccccccccccccccccccccc
+c$$$        print *,' ---- trace chck ---- '
+c$$$        do jpm=1,npm
+c$$$        do iw= 1,nwt
+c$$$        do ix=1,ngb
+c$$$        do iy=1,ngb
+c$$$          write(6,"(a,2i4,3f13.6)")' ttttt=',ix,iy,
+c$$$     &    sum(abs(rcxq(ix,iy,:,jpm)))
+c$$$        enddo
+c$$$        enddo
+c$$$        enddo
+c$$$        enddo
+c$$$        stop 'xxxxxxxxxxxxxxxxxxxxxx'
+c$$$cccccccccccccccccccccccccccccccccccccccccccc
       end
 
 C=====================================================================

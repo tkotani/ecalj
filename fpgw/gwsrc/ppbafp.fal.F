@@ -369,12 +369,10 @@ c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp1,q,qt      ,sum(abs(ngvecpB1(:,1:ngp1)))
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(ngvecpB2(:,1:ngp2)))
-      
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      print *,'drvmelp2: goto readgeig'
+      if(debug) print *,'drvmelp2: goto readgeig'
       call readgeig(q,    ngpmx_in, isp, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
-      print *,'drvmelp2: endof readgeig'
+      if(debug) print *,'drvmelp2: endof readgeig'
 c      qu1=qt
 c      qu2=q_rkt
 c      geig1=0d0
@@ -387,7 +385,6 @@ cc      allocate( zmelpl(ngc,nt0,ntp0) )
 c      print *,'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      print *,'drvmelp2: end readgeig'
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
       if(debug) print *,' drvmelp2:end of read geig '
@@ -477,7 +474,7 @@ cr See the variable sumchck.
       real(8)    :: symops(3,3), qq(3), qrot(3),qbas(3,3)
      &             ,qbasinv(3,3),
      &     qfbz(3),rotnvg(3,3),vec(3),xsign(1:3),det,sumchk !,sumchk2
-      logical:: debug=.true.
+      logical:: debug=.false.
 c
 c      print *,' rotgvec: '
       call dinv33(qbas,0,qbasinv,det)
