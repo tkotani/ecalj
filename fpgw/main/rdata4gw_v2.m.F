@@ -124,7 +124,7 @@ c     implicit real*8 (a-h,o-z)
       real(8),allocatable :: wt(:),q0i(:,:)
       real(8),allocatable :: qibz(:,:)
 
-      integer(4):: nqbz ,icore1,nnn(3),nnnn, mrecg
+      integer(4):: nqbz ,icore1,nnn(3),nnnn, mrecg,nqi
       integer,allocatable:: invgx(:)
       real(8),allocatable:: shtvg(:,:)
 
@@ -319,10 +319,10 @@ c     endif
 
 !!---- rewind QGpsi ----
       rewind ifiqg
-      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
+      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn,nqi
 
-      write(6,*) 'QpGcut_psi QpGcutCou nnnn from QGpsi QGcou='
-     &     , QpGcut_psi,QpGcut_Cou ,nnnn
+      write(6,*) 'QpGcut_psi QpGcutCou nnnn nqi from QGpsi QGcou='
+     &     , QpGcut_psi,QpGcut_Cou ,nnnn,nqi
 
 C --- Readin Q0P
       print *, 'reading QOP'
@@ -620,7 +620,7 @@ c$$$      if(nocore) then; ifv= iopen('VXCFPV',0,-1,0) ! Vxc by LDA
 c$$$      else           ; ifv= iopen('VXCFP',0,-1,0)
 c$$$      endif
       ifv= iopen('VXCFP',0,-1,0)
-      write(ifv) nband,nnnn      !mar2012takao
+      write(ifv) nband,nqi      !mar2012takao
 c      write(ifv) nband,nqtti    !feb2012takao
 
 c
