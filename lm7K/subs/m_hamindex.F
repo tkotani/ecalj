@@ -11,7 +11,7 @@
       real(8):: plat(3,3),qlat(3,3)
       real(8),allocatable:: qtt(:,:),qtti(:,:)
       integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-      integer::  napwmx=null, nkt=null
+      integer::  napwmx=null, nkt=null,lxxa=null
       logical,private:: debug=.false.
       contains
 
@@ -19,7 +19,7 @@
       integer::i,nqnum
       real(8):: qin(3)
 c      if(debug) print *,'nkt=',nkt
-      do i=1, nqnum*2 !nkt
+      do i=1, nqnum !*2 !nkt
         if(debug) print *,i,qin, qq(:,i)
         if(sum (abs(qin-qq(:,i)))<1d-8) then
           getikt=i
@@ -38,6 +38,7 @@ c      if(debug) print *,'nkt=',nkt
       write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti,nqnum,imx,ngpmx,norbt
       write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
 c      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
+      write(ifi)lxxa
       write(ifi)dlmm
       write(ifi)qq !,ngvecp,ngvecprev
       write(ifi)plat,qlat
@@ -56,7 +57,8 @@ c      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
       read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
 c      allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
 c      allocate( offlrev(nbas,0:lxx,kxx))
-      allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
+      read(ifi) lxxa
+      allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       read(ifi) dlmm
 c      read(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
 c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )

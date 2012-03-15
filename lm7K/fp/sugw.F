@@ -957,7 +957,8 @@ C   --- Branch job = 1 : make cphi, matrix elements ---
 
 C   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-            if (iprint() .ge. 30) call awrit3(
+c            if (iprint() .ge. 30) 
+            call awrit3(
      .      ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
             if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
@@ -970,30 +971,24 @@ C            call rlse(oww)
               endif
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
               allocate(ww_rv(11*ndimh))
-
               epsovl = sham%oveps
-
               if (epsovl .le. 0) then
                 call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
      .          , nev , ww_rv , .false. , - 1 , evl ( 1 , isp ) , evec )
-
               else
                 nevl = -1
                 call dvset ( ww_rv , 1 , 1 , 99999d0 )
-
                 call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
      .          , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
      .          evec )
-
                 eomin = dval ( ww_rv , 1 )
-
                 call info5(30,0,0,
      .          ' Overlap''s smallest eigenvalue: %;3g.  '//
      .          '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
      .          eomin,ndimh-nevl,ndimh,nevl,0)
               endif
               deallocate(ww_rv)
-
+              if(debug) print *,'wwwww ndimh nev=',ndimh,nev
               call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
             elseif (lpdiag .eq. 2) then
               evec = ovl

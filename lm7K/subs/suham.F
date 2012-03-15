@@ -3,7 +3,8 @@ c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,q
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbt,ngrp,nqtt,nqtti,plat,qlat,miat,tiat,
-     &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex
+     &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
+     &  nkt,napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
@@ -43,7 +44,7 @@ c      enddo
       real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3)
       integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nnnx !imx,
 c      real(8):: qplist(3,nkp)
-      logical:: siginit, qpgexist,debug=.true. !,no_qpgpsi
+      logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
      &  i,ifiqibz,igg,iqq,iqi,irr,iqi_
 
@@ -83,13 +84,10 @@ c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),
       norbt=0
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
-
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
-
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
           norbt=norbt+1
@@ -137,9 +135,10 @@ c ... reverse maping of offset-index for hamiltonian
       enddo
       call fclr(' ',ifisym)
 
-c ... get rotation matrix dlmm
-      allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
-      call rotdlmm(symops,ngrp, lxx+1, dlmm)
+c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
+      lxxa=nl-1
+      allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
+      call rotdlmm(symops,ngrp, nl, dlmm)
       print *,' end of rotdlmm'
 
 C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
@@ -151,6 +150,7 @@ C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012tak
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nnnx, nqtti,imx
 
+      
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
 c$$$      if(allocated(qq)) deallocate(qq)
@@ -172,11 +172,14 @@ c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq
 c$$$      enddo
 cccccccccccccccccccccccccccccc
 
-!! === feb2012takao. Why do we need duplicated qq (1:2*nqnum + 2*nkp) ??? ===
+
+!! === feb2012takao. ===
 !! we have two set of data for original qxx in QGpsi and their shortened.
 c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
-      allocate( qtti(3,nqtti), qq(3,nqnum*2),iqtt(nqnum) )
+      nqtt=nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
+      nkt=nqtt
+      allocate( qtti(3,nqtti), qq(3,nqtt),iqtt(nqtt) )
 c      allocate( ngvecp(3,ngpmx,nqnum))
 c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
       print *
@@ -204,7 +207,7 @@ c$$$        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
 c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
 c$$$      enddo
 !! ==== Generate info for rotwv and write ====
-      nqtt = nqnum
+      nqtt = nqnum*2
       print *,' nqtt nqtti=',nqtt,nqtti
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       platt= transpose(plat) !this is inverse of qlat
@@ -237,89 +240,73 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
       enddo 
       call writehamindex() !feb2012takao
 
-!! === rotation of APW. (not pw for GW).===
-c$$$ 1012 continue
-c$$$      pwmode=sham%pwmode
-c$$$      pwemin=sham%pwemin
-c$$$      pwemax=sham%pwemax
-c
-c      if(pwmode==0) then
-c        if(allocated(napwk)) deallocate(napwk)
-c        allocate(napwk(nkt))
-c        napwk=0
-c        napwmx=0
-c        print *,'pwmode=0 writehamindex'
-c        return
-c      endif
-c
-c ... self-energy is on the mesh points specified by QGpsi (I think correct. takao).
-c
-c      call upack('bz nkp nkabc lshft',sbz,nkp,nkabc,lshft,0,0)
-c      nk1 = nkabc(1)
-c      nk2 = nkabc(2)
-c      nk3 = nkabc(3)
-c      qb(:,1) = qlat(:,1)/nk1
-c      qb(:,2) = qlat(:,2)/nk2
-c      qb(:,3) = qlat(:,3)/nk3
-c      ddd=0d0
-c      if( lshft(1)/=0) ddd = ddd+ qb(:,1)/2d0
-c      if( lshft(2)/=0) ddd = ddd+ qb(:,2)/2d0
-c      if( lshft(3)/=0) ddd = ddd+ qb(:,3)/2d0
-c      nkt=nk1*nk2*nk3
-c
-c$$$C ... Get igv2(3,iapw,ikt). pwmode>=10 only
-c$$$      print *,' goto APW part pwmode=',pwmode,pwemin,pwemax
-c$$$      if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
-c$$$      allocate( napwk(nkt))
-c$$$      if(pwmode<10) then
-c$$$        !'gen_hamindex: takao assumes pwmode>=10 so this may not work well '
-c$$$        return
-c$$$      endif
-c$$$      pwgmax = dsqrt(pwemax)
-c$$$      pwgmin = dsqrt(pwemin) !this will be removed.
-c$$$      napwmx = 0
-c$$$      call pshpr(0)
-c$$$      do ikt=1,nkt
-c$$$        !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
-c$$$        !print *,' 111 alat plat=',alat,plat
-c$$$        !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
-c$$$        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
-c$$$     .  0,0,napwx,dum,dum,dum,dum)
-c$$$        !print *,' 111x   =',napwmx
-c$$$        napwk(ikt) = napwx
-c$$$        if(napwmx<napwx) napwmx = napwx
-c$$$      enddo
-c$$$      call poppr
-c$$$      !print *,'zzzzzzzzzz1'
-c$$$      allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
-c$$$      !print *,'zzzzzzzzzz2'
-c$$$      do ikt = 1,nkt
-c$$$        print *,' 222 ikt=',ikt
-c$$$        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
-c$$$     .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
-c$$$      enddo
-c$$$      deallocate(kv)
-c$$$
-c$$$C ... Reverse table of igv2 --->igv2rev
-c$$$      imx=-999
-c$$$      do ikt = 1,nkt
-c$$$        ixx = maxval( abs(igv2(1:3,1:napwk(ikt),ikt)))
-c$$$        if(ixx>imx) imx=ixx
-c$$$      enddo
-c$$$      allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
-c$$$      igv2rev=999999
-c$$$      do ikt = 1,nkt
-c$$$        print *
-c$$$        do ig  = 1,napwk( ikt )
-c$$$          nnn  = igv2(1:3, ig, ikt)
-c$$$          igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
-c$$$          !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
-c$$$        enddo
-c$$$      enddo
-c$$$      print *,' ---- nkt,napwmx = ',nkt,napwmx
-c$$$      call writehamindex() !feb2012takao
-      end subroutine gen_hamindex
 
+!! === rotation of APW. (not the IPW part for GW).===
+c$$$ 1012 continue
+      pwmode=sham%pwmode
+      pwemax=sham%pwemax
+c     pwemin=sham%pwemin
+      if(pwmode==0.or.pwemax<1d-8) then
+        if(allocated(napwk)) deallocate(napwk)
+        allocate(napwk(nkt))
+        napwk=0
+        napwmx=0
+        print *,'pwmode=0 writehamindex'
+        return
+      endif
+
+C ... Get igv2(3,iapw,ikt). pwmode>=10 only
+      print *,' goto APW part pwmode=',pwmode,pwemax !pwemin
+      if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
+      allocate( napwk(nkt))
+      if(pwmode<10) then
+        !'gen_hamindex: takao assumes pwmode>=10 so this may not work well '
+        return
+      endif
+      pwgmax = dsqrt(pwemax)
+      pwgmin = 0d0 !dsqrt(pwemin) !this will be removed.
+      napwmx = 0
+      call pshpr(0)
+      do ikt=1,nkt
+        !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
+        !print *,' 111 alat plat=',alat,plat
+        !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
+        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+     .  0,0,napwx,dum,dum,dum,dum)
+        !print *,' 111x   =',napwmx
+        napwk(ikt) = napwx
+        if(napwmx<napwx) napwmx = napwx
+      enddo
+      call poppr
+      !print *,'zzzzzzzzzz1'
+      allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
+      !print *,'zzzzzzzzzz2'
+      do ikt = 1,nkt
+        print *,' 222 ikt=',ikt
+        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+     .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
+      enddo
+      deallocate(kv)
+
+C ... Reverse table of igv2 --->igv2rev
+      imx=-999
+      do ikt = 1,nkt
+        ixx = maxval( abs(igv2(1:3,1:napwk(ikt),ikt)))
+        if(ixx>imx) imx=ixx
+      enddo
+      allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
+      igv2rev=999999
+      do ikt = 1,nkt
+        print *
+        do ig  = 1,napwk( ikt )
+          nnn  = igv2(1:3, ig, ikt)
+          igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
+          !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+        enddo
+      enddo
+      print *,' ---- nkt,napwmx = ',nkt,napwmx
+      call writehamindex() !feb2012takao
+      end subroutine gen_hamindex
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)

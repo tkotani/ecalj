@@ -429,6 +429,12 @@ c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
       if(debug) print *, 'drvmelp2:goto melpln2'
+ccccccccccccccccccc
+c      print *, 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
+c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
+ccccccccccccccccccccccccccccccccccc
+
+
       call melpln2( ngp1, ngvecpB1
      &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,

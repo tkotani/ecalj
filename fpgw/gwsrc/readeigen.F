@@ -60,7 +60,9 @@ ctm
       if(init2) then
         stop 'readgeig: modele is not initialized yet'
       endif
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu is a G vector.
+!! nqtt/2=nqnum. See lm7k/fp/suham.F
+      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
+
       if(debug) print *,' readgeig:xxx iq=',iq
 c      do iq=1,nqtt
 c         write(*,*)iq,qtt(:,iq)
@@ -76,10 +78,11 @@ c      enddo
         print *,' ddddd qu      =',qu
         print *,' ddddd qtarget=',qtarget
         print *,' ddddd q (iqq)=',qtt(:,iqq)
+        print *,' nqp(iq) ngp(iqq)=',ngp(iq),ngp(iqq)
       endif   
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
-      if(ngp(iq)/=ngp(iqq)) stop 'readgeig: ngp(iq)/=ngp(iqq)'
+      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
       if(debug) print *,' ngp=',ngp(iq)
       if(keepeig) then
         geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
@@ -90,6 +93,7 @@ c      enddo
 ccccccccccccccccccccccccccccccccccccccccccc
 c      geigen=0d0
 c      return
+c      print *,'uuuu: sum geigenr=',nband,sum(abs(geigenr(1:ngp(iq),1:nband)))
 ccccccccccccccccccccccccccccccccccccccccccc
 !! rotation wave
       ddd = shtvg(:,invgx(igg))
@@ -117,6 +121,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
       endif
 ccccccccccccccccccccccccccccccccc
 c      geigen=0d0
+c      print *,'uuuu: sum geigenr=',nband,sum(abs(geigen(1:ngp(iqq),1:nband)))
 ccccccccccccccccccccccccccccccccc
       end subroutine readgeig
 
@@ -134,7 +139,8 @@ ccccccccccccccccccccccccccccccccc
       if(init2) then
         stop 'readcphi: modele is not initialized yet'
       endif
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
+!! nqtt/2=nqnum. See lm7k/fp/suham.F
+      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q.  q-qu= G vectors.
 !! iqmap(iq): for given iq, iqmap(iq) --> iq (qtt(1:nqtt)) by sympos(  ,igmap(iq)).
       iqq=iqmap(iq)
       iqi=iqimap(iq)
@@ -172,9 +178,9 @@ c          phaseatom= exp( img2pi*sum( qtarget*pos(:,miat(ibas,igg))) )
         if(debug) then
         write(6,*)ibaso,ibas,phase
         write(6,*)ini1,iend1,ini2,iend2
-        write(6,*)sum(abs(dlmm(-l:l,-l:l,l,igg)))
-        write(6,*)l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
-        write(6,*)l,k,igg,sum(abs(cphif(ini2:iend2,:)))
+        write(6,*)'sumd  dlmm =',igg,l,sum(abs(dlmm(-l:l,-l:l,l,igg)))
+        write(6,*)'sumcr cphifr=',l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
+        write(6,*)'sumcf cphif=',l,k,igg,sum(abs(cphif(ini2:iend2,:)))
         endif
       enddo
 ccccccccccccccccccccccccccccccccc

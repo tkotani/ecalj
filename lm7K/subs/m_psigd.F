@@ -252,11 +252,11 @@ c         sig(i,:) = 0d0
 c         sig(:,i) = 0d0
 c         sig(i,i) = sigii
 c       endif
-      if(present(iout).and.iout==1) then
-        inquire(file='NBANDGW',number=ifiogw)
-        !print *,'ifiogw=',ifiogw
-        write(ifiogw,"(3d23.15,i3,3x,2i8)") q,isp,imin,imax
-c         print *,'xxx uuu xxx',ifio,q,isp,imin,imax
-      endif
+c$$$      if(present(iout).and.iout==1) then
+c$$$        inquire(file='NBANDGW',number=ifiogw)
+c$$$        !print *,'ifiogw=',ifiogw
+c$$$        write(ifiogw,"(3d23.15,i3,3x,2i8)") q,isp,imin,imax
+c$$$c         print *,'xxx uuu xxx',ifio,q,isp,imin,imax
+c$$$      endif
       end subroutine psigd
       end module m_psigd

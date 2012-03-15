@@ -3,7 +3,9 @@
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
-
+!! takao think this is too complicated... 
+!! I am not sure whether this is OK for PMT mode or not.
+!!
 C- Makes hamiltonian offsets and permutation indices
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -36,8 +36,8 @@ c      logical :: readgwinput
 
       logical :: qreduce ,qreduce0 ,ibzqq
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:),qbzrr(:,:)
-      integer:: imx,ifinin,il,nq0i0,ni,nq0i00
-      integer(4),allocatable :: ndiv(:),ngvecprev(:,:,:)
+      integer:: imx,ifinin,il,nq0i0,ni,nq0i00,imx0
+      integer,allocatable :: ndiv(:),ngvecprev(:,:,:)
 
       real(8):: ddq(3)
       logical :: offmesh=.false. ,offmeshg=.false.
@@ -591,9 +591,11 @@ c      close(ifix)
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(verbose()>150) 
      &  write(6,*) ' *** q vector in 1st BZ + q0 shift.   ngp ***'
+      imx=0
       do iq = 1, nqnum
         q = qq(1:3,iq)
-        call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx) !imx mar2012takao
+        call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
+        if(imx0>imx) imx=imx0
         call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),dummy)
         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
       enddo
@@ -606,7 +608,7 @@ c      close(ifix)
       write(6,*) ' --- Max number of G for Cou =',ngcmx
 
 !! === Get G vector for given q. ===
-      print *,'imx=',imx
+      print *,'imx nqnum=',imx,nqnum
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) ) !mar2012takao
       ngvecprev=9999
       do iq = 1, nqnum

@@ -620,8 +620,8 @@ c$$$      if(nocore) then; ifv= iopen('VXCFPV',0,-1,0) ! Vxc by LDA
 c$$$      else           ; ifv= iopen('VXCFP',0,-1,0)
 c$$$      endif
       ifv= iopen('VXCFP',0,-1,0)
-c      write(ifv) nband,nnnn    
-      write(ifv) nband,nqtti    !feb2012takao
+      write(ifv) nband,nnnn      !mar2012takao
+c      write(ifv) nband,nqtti    !feb2012takao
 
 c
 c     ifplane = iopen('PLN',0,-1,0)             ! plane wave part

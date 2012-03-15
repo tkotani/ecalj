@@ -31,7 +31,7 @@ c
      i pos, !mar2012
      o zsec,coh,exx)
       use m_readqg
-      use m_readeigen,only: readeval,readcphi,readgeig
+      use m_readeigen,only: readeval,readcphi
       use keyvalue
 CMay2006 TimeReversal off. when nw_i is not zero.
 
@@ -571,6 +571,7 @@ c no. occupied (core+valence) and unoccupied states at q-rk
 c      call dcopy   (nband,ekq,1,ekc(nctot+1),1)
         ekc(nctot+1:nctot+nband) = ekq (1:nband)
         nt0 = nocc (ekc,ef,.true.,nstatetot)
+
 c
         ddw= .5d0
         if(GaussSmear()) ddw= 10d0
@@ -607,6 +608,10 @@ c-------------
 c-------------
         endif
         nstate = nctot + nbmax ! = nstate for the case of correlation
+ccccccccccccccccccccc
+c        print *,'uuuuuu: nbmax',nbmax,nt0p,nctot
+ccccccccccccccccccccc
+
 
 c====================================================
 c matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
