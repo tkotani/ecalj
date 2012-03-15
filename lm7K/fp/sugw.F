@@ -1,14 +1,15 @@
 #define V2 1
 #define USEOPTIONAL 1
-            subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+!! ------------------------------
+!! ------------------------------
+      subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sfz,sigmamode) 
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
-C- Driver to set up GW
-C ----------------------------------------------------------------------
+!! == Driver to set up GW ==
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec pnu pz ov0
@@ -135,7 +136,7 @@ Cu   25 Apr 02 Added local orbitals
 Cu   25 Oct 01 (T. Kotani) split functions into parts, with job
 Cu             Binary files imcompatible with prior versions.
 Cu   23 Apr 01 First created
-C ----------------------------------------------------------------------
+!! ----------------------------------------------------------------------
       implicit none
       integer:: i_copy_size,i_spackv
 C ... Passed parameters

@@ -13,7 +13,7 @@
      o  sene) 
       use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
       use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
-!- give sene from sfz
+!! == Give \Sigma-Vxc for given qp from sfz ==
       implicit none
       integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimh,
      &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),

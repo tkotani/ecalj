@@ -35,11 +35,10 @@ Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
 
       logical function newsigmasw()
 ! newsigmasw: in this case, we only use emax_sigm in hqpe.sc.m.F when we construct sigma.
-
 c        T: newsigma rotation, and interpolation.
 c        O: old version
-      newsigmasw=.true.
-c      newsigmasw=.false.
+c      newsigmasw=.true.
+      newsigmasw=.false.
       end
 
       logical function pmtsig()

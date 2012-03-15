@@ -1,5 +1,7 @@
 #define USEOPTIONAL 1
 C oevl -> evlall
+!! -------------------------
+!! -------------------------
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, !evl,
@@ -9,22 +11,21 @@ C oevl -> evlall
 c     &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
 c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
-      use m_struc_def
-      use m_globalvariables
-      use m_phmbls
+      use m_globalvariables, only: globalvariables
+      use m_phmbls,only :phmbls
       use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !these are given here.
+      use m_struc_def
 #if defined(__INTEL_COMPILER)
       use ifport, only: unlink
 #endif
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
-      use m_subzi 
+      use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev  ! to plot wavefunction in the fat band mode 
       use m_w_psir , only: w_psir_cmdopt
-C- One band pass, full-potential hamiltonian
-C ----------------------------------------------------------------------
-Ci Inputs
+!! == One band pass, full-potential hamiltonian ==
+!! ;Inputs
 Ci   nbas  :size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -185,9 +186,8 @@ Cu   21 Mar 01 bug fix in call to makdos
 Cu   20 Mar 01 (ATP) Added Mulliken analysis, CLS
 Cu   15 Feb 01 eliminated smrho, smpot from passed arguments
 Cu   23 Jan 01 bug fixes connected with lrout=0
-C ----------------------------------------------------------------------
+!! -----------------------------------------
       implicit none
-C ... Passed parameters
       logical :: llmfgw
 #if MPI | MPIK
       include "mpif.h"
@@ -258,29 +258,21 @@ ckino lswtk must be 0 initially.
      ., onesp , nfbn(2) , mpipid , ldham(8,2) , ldim , ndimh , ndimhx 
      ., lekkl 
       real(8) ,allocatable :: dos_rv(:)
-
-              integer:: os , osoptc 
+      integer:: os , osoptc 
 ckino change rv_p_owtkb allocatable
 ckino              real(8),pointer :: rv_p_owtkb(:,:,:)=>NULL()
 ckino Dec.8.2011:                real(8),allocatable :: rv_p_owtkb(:,:,:)
-              real(8),allocatable :: rv_a_owtkb(:,:,:)
-
+      real(8),allocatable :: rv_a_owtkb(:,:,:)
 ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)=>NULL()
 ckino Dec.8.2011:               real(8),allocatable :: rv_p_oswtk(:)
-             real(8),allocatable :: rv_a_oswtk(:)
+      real(8),allocatable :: rv_a_oswtk(:)
 
 ckino Dec.16.2011:              integer,pointer :: iv_p_oidtet(:)=>NULL()
-
 ckino Dec.8.2011:             type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
-
 ckino Dec.8.2011:            complex(8),pointer :: zv_p_osmrho(:)=>NULL()
-
 ckino Dec.8.2011:           complex(8),pointer :: zv_p_osmpot(:)=>NULL()
-
 ckino Dec.8.2011:          real(8),pointer :: rv_p_owtkp(:)=>NULL()
-
 ckino Dec.8.2011:         real(8),pointer :: rv_p_oqp(:)=>NULL()
-
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
@@ -303,39 +295,29 @@ ckino Dec.8.2011:         real(8),pointer :: rv_p_oqp(:)=>NULL()
       real(8) ,allocatable :: orbtm_rv(:)
       integer ,allocatable :: ifbls_iv(:)
 
-            type(s_rv1) :: sv_p_orhat1(3,nbx)
-
-           type(s_rv1) :: sv_p_oppi(3,nbx)
-
-          type(s_rv1) :: sv_p_oeqkkl(3,nbx)
-
-         type(s_rv1) :: sv_p_oqkkl(3,nbx)
-
-        type(s_rv1) :: sv_p_otau(3,nbx)
-
-       type(s_rv1) :: sv_p_osig(3,nbx)
+      type(s_rv1) :: sv_p_orhat1(3,nbx)
+      type(s_rv1) :: sv_p_oppi(3,nbx)
+      type(s_rv1) :: sv_p_oeqkkl(3,nbx)
+      type(s_rv1) :: sv_p_oqkkl(3,nbx)
+      type(s_rv1) :: sv_p_otau(3,nbx)
+      type(s_rv1) :: sv_p_osig(3,nbx)
 
       equivalence (ldim,ldham(1,1))
-
       logical a2bin
-         integer:: ospotx , osgw 
-         type(s_rv1) :: sv_p_oppix(3,nbx)
+      integer:: ospotx , osgw 
 
-        type(s_rv1) :: sv_p_otaux(3,nbx)
-
-       type(s_rv1) :: sv_p_osigx(3,nbx)
-
+      type(s_rv1) :: sv_p_oppix(3,nbx)
+      type(s_rv1) :: sv_p_otaux(3,nbx)
+      type(s_rv1) :: sv_p_osigx(3,nbx)
 
 ckino, used for dummy allocations 
 ckino Dec.8.2011:         logical:: l_temp_rv_p_oswtk=.false., l_temp_rv_p_owtkb=.false.,
 ckino Dec.8.2011:         logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_p_owtkb=.false.,
-       logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.,
+      logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.,
 ckino Dec.28.2011:       .    l_temp_iv_p_oidtet=.false.
-     .    l_temp_iv_a_oidtet=.false.
-
+     &  l_temp_iv_a_oidtet=.false.
 ckino end 
       double precision sigp(10)
-
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       !equivalence (nk1,nkabc(1)), (nk2,nkabc(2)), (nk3,nkabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
@@ -344,49 +326,38 @@ ckino end
      .sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
      .ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
-
-C     For now: PW basis
+!!      For now: PW basis
       integer,allocatable:: igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
-
       integer pwmode,napw
       double precision pwemin,pwemax,pwgmin,pwgmax
-
 C     real(8),allocatable :: qpe(:,:)
-
       logical T, F
-C     for spin-orbit
+!!     for spin-orbit
       complex(8) ,allocatable :: auso_zv(:)
-
-C     for partial dos
+!!     for partial dos
       complex(8) ,allocatable :: ausp_zv(:)
-
-C     for CLS
+!!     for CLS
       integer nsitmx
       parameter (nsitmx = 256)
       integer:: nlmax , i1mach , icls , isite(nsitmx) , iclsl(nsitmx) 
      ., iclsn(nsitmx) 
       complex(8) ,allocatable :: ausc_zv(:)
-
-C     for Mulliken
+!!     for Mulliken
        integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
      . , nchmx , lmdim , lmxch 
 ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
-
-C     for pzhev
+!!     for pzhev
       integer nblk,nprow,npcol,nmx
-C     for LDA+U
+!!     for LDA+U
       real(8) ,allocatable :: ausu_rv(:)
-
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),
      .dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 
       integer:: i_copy_size, i_spackv, i_spacks
       integer ::iwdummy 
-
 
       logical :: debug=.false. !debug is only for check write. However, it can cause error
       !for 'make check',
@@ -413,15 +384,10 @@ C #endif
 C For self-energy
       integer nqsig
 ckino Dec.8.2011:         real(8),pointer :: rv_p_oqsig(:) =>NULL()
-
-
        integer:: nbasp 
 ckino Dec.8.2011:         integer,pointer :: iv_p_oidxsh(:) =>NULL()
-
-
 C     Data statements
       data T /.true./ F /.false./
-
       integer,allocatable:: nevls(:,:)
 
 ctakao
@@ -429,7 +395,7 @@ ctakao
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
-       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy 
+      integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy 
 ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
 
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
@@ -438,7 +404,6 @@ ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
       real(8):: rrr(3)
       complex(8):: pi2i
       real(8),allocatable:: range(:,:),pos(:,:)
-
 
       integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
       integer,allocatable::igx(:,:,:,:)
@@ -463,7 +428,6 @@ c      complex(8)::sss
 
       integer:: getef, i_dummy_getef
 
-
 ckino
       integer:: n_listwf
       integer, allocatable:: listwf(:)
@@ -474,7 +438,7 @@ ckino
 #if !defined(__INTEL_COMPILER)
       integer:: unlink 
 #endif
-
+!! -----------------------------------------
 
 ckino begin
 
@@ -494,8 +458,7 @@ C ... MPI setup
 #endif
 
 
-
-!!== Setup ==
+!! === Setup ===
       call tcn ('bndfp')
       siginit=.true.
       napw = 0
@@ -756,19 +719,15 @@ Ckino dfaugm alllocates and initializes variables
      .   , sv_p_otau , sv_p_oppi ) 
 
 
-
-
 C --- Make the potential sans XC part ---
       if(llmfgw) then
-        if (jobgw .eq. 1 .or. jobgw .eq. -999) then
+        if(jobgw .eq. 1 .or. jobgw .eq. -999) then
           call info(20,1,0,' Make potential without XC part ...',0,0)
           call togpr()
           i = 1 + 10*lfrzw + 100
 Ckino dfaugm alllocates and initializes variables
-             call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
+          call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
      .       , sv_p_otaux , sv_p_oppix ) 
-
-
 
 c          call defcc(ospotx, -k1*k2*k3*nsp)
           allocate(spotx(k1,k2,k3,nsp))
@@ -777,21 +736,15 @@ c          call defcc(osmrox, -k1*k2*k3*nsp)
 c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
 Ckino mkpot calls locpot. and locpot calls augmat. 
 Ckino augmat calculates sig,tau,ppi.
-               call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
+          call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
 ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx 
 ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
 ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx 
 ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_p_oorhat , qbg , spotx 
-     .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
-     .         , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .         , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
-
-
-
-
-
-
+     .     lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
+     .     , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
+     .     , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     .     , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 ) 
           call togpr()
 c          call rlse(osmrox)
         endif
@@ -818,17 +771,6 @@ c      endif
 
 
 c xxxxxxxxxxx new sigma block
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1485,7 +1427,7 @@ c       osgw=spot%osgw
 C ... Modes 0..4
 ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
 ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot 
-               call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
+        call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .         ,nk1,nk2,nk3,sfz,sigmamode) 
@@ -1501,8 +1443,7 @@ C      endif
       endif
 
 
-
-C --- do loop for iq and isp ---------------
+!! === do loop for iq and isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
 ctakao
       if(allocated(nevls)) deallocate(nevls)
@@ -1586,11 +1527,11 @@ C   ... Loop over majority, minority spins
 C       In the SO case, still a loop isp=1..2
 C       isp=1 generates just the 11 block
         if(debug) print *,'goto spin loop nsp=',nsp
+        qpo=qp !moved here on mar2012 only for band plot
         do  isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
 ctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
-            qpo=qp
             if(.not.noshorbz()) then
               if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
             endif
