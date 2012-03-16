@@ -1,4 +1,3 @@
-#define V2 1
 #define USEOPTIONAL 1
 !! ------------------------------
 !! ------------------------------
@@ -38,7 +37,7 @@ Ci   vrmt  :electrostatic potential at MT boundaries
 Ci   jobgw :-999 prompt for and read jobgw from stdin
 Ci         :0 create files SYMOPS,LATTC,CLASS,NLAindx
 Ci         :1 create files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk
-Ci         :2 create file  gw2.
+Cixxxx         :2 create file  gw2. !mar2012 removed.
 Co Outputs
 Co   Files written according to jobgw
 Co   The following shows what files are written for jobgw=1
@@ -82,8 +81,8 @@ Co           q, vxc
 Cl Local variables
 Cl   lsig  :switch to create files vxc and evec for making sigma
 Cl   lwvxc :T, write to evec and vxc files
-Cl   nnn   :number of qp in full BZ
-Cl   nqnum :number of qp in full BZ * number of 'special gamma points'
+Cl   nnn   :number of qp in IBZ
+Cl   nqnum :number of qp in IBZ plus points related to Gamma. See mkqg.F to generate QGpsi
 Cl         :or generally the number of qp at which eigenfunctions calc.
 Cl   ngp   :no. G vectors for eigenfunction expansion (depends on q-pt)
 Cl   ngc   :no. G vectors for coulomb interaction (depends on q-pt)
@@ -165,7 +164,7 @@ C ... Local parameters
      .lgunit,lmaxa,lmxax,lpdiag,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,ndimh,nevl,nev,nglob,ngp,ngp_p, !ngabc(3),ngc,ngcmx
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
-     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
+     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,iqibz,imx,
      .stdo
 C     integer lshft(3)
 ckino Dec.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
@@ -237,7 +236,7 @@ c      common /w/ w
       integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode
 
-      integer(4):: nk1,nk2,nk3,   irr,nqirr !feb2012takao
+      integer(4):: nk1,nk2,nk3,   irr,nqi !feb2012takao
       complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
 C --- Setup ---
@@ -270,10 +269,7 @@ Changenglob      nsp  = nglob('nsp')
 Changenglob      nspc = nglob('nspc')
       nspc = globalvariables%nspc
       lrsig = int(sham%lsig)
-
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
-      lsig = 1
-C     lsig = 0
 
       nqsig=sham%nqsig
 ckino Dec.14.2011:         rv_p_oqsig => sham%rv_p_oqsig 
@@ -338,6 +334,7 @@ Ckino isanrg is logical function,       call isanrg(job,0,5,'sugw:','job',.true.
         bandmode = .true.
         jobb = 5
       endif
+      lsig = 1
       if (bandmode) lsig=0
       napw = 0
 
@@ -478,39 +475,27 @@ C   ... Create file CLASS
      .  'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
       endif
 
-C --- Read file NLAindx ---
+!! ==== Read file NLAindx ====
       allocate(nlindx(3,0:lmxax,nat))
       ifi = fopnx('NLAindx',2,1,-1)
       call ioaindx(3,lmxax,nat,ndima,nlindx,ifi)
 
-C ... Read QGpsi !takao feb2012 ---> Not QGcou now
+!! ... Read QGpsi !takao feb2012 ---> Not QGcou now
       if (jobb .eq. 0) then
         ifiqg  = fopnx('QGpsi',2,4,-1)
-c        ifiqgc = fopnx('QGcou',2,4,-1)
-        read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz,nqirr
-ctakao feb2012      read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
-ctakao feb2012      if (nqnum .ne. nqnumx)
-ctakao feb2012   .  call rx('sugw: different nqnum in QGcou QGpsi')
+        read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
       endif
 
-C --- Write, or read past header information, file gwb ---
+!! ==== Write, or read past header information, file gwb ====
       ifi = fopna('gwb',-1,4)
       rewind ifi
-      if (job .eq. 1) then
+      if(job==1) then
         ef0 = 1d99                !dummy
-
         i = fopna('gw1',-1,4)
         rewind i
         i = fopna('gw2',-1,4)
         rewind i
-
-#if V2
-C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
-C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
-        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqirr !mark 2005 Jul
-#else
-        write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
-#endif
+        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi 
         allocate(ips(nbas),lmxa(nat),bas(3,nat))
         i_copy_size=1;
         do i_spackv=1,nbas
@@ -671,11 +656,11 @@ C               print *, icore,gcore(nr,1,icore)
         enddo
         call fclr('gwa',ifi)
 
-      elseif (job .eq. 2) then
-        read(ifi)
-        read(ifi)
-        i = fopna('gw2',-1,4)
-        rewind i
+c      elseif (job .eq. 2) then
+c        read(ifi)
+c        read(ifi)
+c        i = fopna('gw2',-1,4)
+c        rewind i
       else
         call rxi('sugw: bad job',job)
       endif
@@ -739,52 +724,40 @@ C ... Write, or read past, ngpmx,ngcmx
         read(ifi)
       endif
 
-C     nnn = n1q*n2q*n3q  n1q,n2q,n3q no longer read in (takao sep 2003)
-      nnn = nqbz
-      if (job .eq. 1) nqtot = nqnum
-      if (job .eq. 2) nqtot = nnn
+!! mar2012 read this any case.
+c      ifi = fopnx('QIBZ',2,1,-1)
+c      read(ifi,*) nqibz
 
-C --- Evecs and matrix elements of vxc for irr qp ---
-C     Note: this routine should use only irr qp.
-      if (lsig .gt. 0) then
-        if (nqnum < nnn) call rxi('sugw: nqnum < nnn, nqnum=',nqnum)
+!! mar2012 rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
+      nqtot=nqnum
+      nnn=nqibz
+c$$$      if (job .eq. 1) nqtot = nqnum
+c$$$      if (job .eq. 2) nqtot = nnn
 
-        ifi = fopnx('QIBZ',2,1,-1)
-        rewind ifi
-        read(ifi,*) nqibz
-
-        if (job .eq. 1) then
-
+!! --- Evecs and matrix elements of vxc for irr qp ---
+!!    Note: this routine should use only irr qp.
+      if (lsig > 0) then
+        if (job==1) then
           if (.not. cmdopt('--novxc',7,0,strn)) then
             ifi = fopna('evec',-1,4)
             rewind ifi
-            write(ifi) ndham, nsp, nnn, nqnum
+            write(ifi) ndham, nsp, nnn !, nqnum
             ifiv = fopna('vxc',-1,4)
-C           call iosigh(0,nscnts,nsp,ndimh,0,0,0,nnn,
-C     .       lshft(1),lshft(2),lshft(3),-ifiv)
             rewind ifiv
             write(ifiv) ndham, nsp, nnn
           endif
-        elseif (job .eq. 2) then
-
-C        ifi = fopnx('ham',2,4,-1)
-          ifi = fopna('ham',-1,4)
-          rewind ifi
-          read(ifi) ndhamx, nspx, nnnx
-Ckino isanrg is logical function,           call isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
-          l_dummy_isanrg=isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
-Ckino isanrg is logical function,           call isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
-          l_dummy_isanrg=isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
-Ckino isanrg is logical function,           call isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
-          l_dummy_isanrg=isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
-C        ifiv = fopnx('v_xc',2,4,-1)
-          if (.not. cmdopt('--novxc',7,0,strn)) then
-            ifiv = fopna('vxc',-1,4)
-C         call iosigh(0,nscnts,nsp,ndham,0,0,0,nnn,
-C     .     lshft(1),lshft(2),lshft(3),-ifiv)
-            rewind ifiv
-            write(ifiv) ndham, nsp, nnn
-          endif
+c$$$        elseif (job==2) then
+c$$$          ifi = fopna('ham',-1,4)
+c$$$          rewind ifi
+c$$$          read(ifi) ndhamx, nspx, nnnx
+c$$$          if(ndhamx/=ndham) call rxi('sugw:ndhamx',ndhamx-ndham)
+c$$$          if(nspx/=nsp)     call rxi('sugw: nspx-nsp=',nspx-nsp)
+c$$$          if(nnn/=nnnx)     call rxi('sugw: nnnx-nnn=',nnnx-nnn)
+c$$$          if (.not. cmdopt('--novxc',7,0,strn)) then
+c$$$          ifiv = fopna('vxc',-1,4)
+c$$$          rewind ifiv
+c$$$          write(ifiv) ndham, nsp, nnn
+c$$$          endif
         endif
       endif
 
@@ -796,22 +769,18 @@ C --- Main loop for eigenfunction generation ---
         if (job .eq. 1 .and. .not. bandmode) call info2(20,1,1,
      .  ' ... Make LDA w.f. and matrix elements, %i qp: file(s) gwb'//
      .  '%?#n#, vxc, evec##',nqtot,lsig)
-        if (job .eq. 2) call awrit1(
-     .  ' ... Make <psi|H(no vxc)|psi>, %i qp (file gw2)%N',
-     .  ' ',80,stdo,nqtot)
+c$$$        if (job .eq. 2) call awrit1(
+c$$$     .  ' ... Make <psi|H(no vxc)|psi>, %i qp (file gw2)%N',
+c$$$     .  ' ',80,stdo,nqtot)
       endif
 
+      iqibz=0
       do  iq = 1, nqtot
         read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
-        ! eigenfunction expansion at this q
-c        read (ifiqgc) qx, ngc   ! q, and number of G vectors for
-        ! expansion of the Coulomb interaction
-c        if (abs(sum(q-qx)) .gt. 1d-10) then
-c          print *, qx
-c          call rx(' sugw : abs(sum(q-qx))>1d-10')
-c        endif
-        lwvxc =
-     .  lsig.gt.0 .and. job.eq.1 .and. iq.le.nnn .and. .not. bandmode
+          ! eigenfunction expansion at this q
+          ! expansion of the Coulomb interaction
+        if(irr==1) iqibz=iqibz+1
+        lwvxc = lsig>0 .and. job==1 .and. (.not.bandmode).and. iqibz<=nqibz
         if (cmdopt('--novxc',7,0,strn)) lwvxc = .false.
 
         if (jobb .eq. 5) then
@@ -920,12 +889,9 @@ C   --- vxc <- LDA vxc ---
 
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
           if (lwvxc) then
-            ifiv = fopna('vxc',-1,4)
-c           write(ifv_xc) ndimh !june209 takao --->why did I do so? I don't remember sep3.2009.
-c move back to original ifiv
+            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q 
             write(ifiv) ndimh
             write(ifiv) q,vxc
-C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
           endif
 
 !!   --- LDA + sigma Hamiltonian for this qp ---
@@ -1420,32 +1386,32 @@ C   ... Save to file gw2 energies e(lda+sigma-vxc-vxc)
             write(ifi) q, (evl(i,isp),i=1,ndimh)
             deallocate(testc)
 
-C   --- Branch job = 2 : matrix elements of ham without vxc ---
-          else
-
-C   ... Diagonal matrix elements of <psi|H(lda)-vxc|psi>
-            allocate(testc(ndimh,ndimh))
-C       Read eigenvectors from gwb
-            ifi = fopna('gwb',-1,4)
-            read (ifi)
-            read (ifi) evec
-            read (ifi)
-            read (ifi)
-C       evl = <psi|H(no XC)|psi>
-            call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
-     .      evec,ndimh,ham,ndimh,(0d0,0d0),testc,ndimh)
-            call dpzero(evl,ndimh)
-            do  i1 = 1, ndimh
-              do  i2 = 1, ndimh
-                evl(i1,1) = evl(i1,1) + testc(i1,i2) * evec(i2,i1)
-              end do
-            end do
-C       call prmx('e(H-vxc)',evl,ndimh,ndimh,1)
-C       File write
-            ifi = fopna('gw2',-1,4)
-            write(ifi) q, (evl(i,1),i=1,ndimh)
-            deallocate(testc)
-
+c$$$C   --- Branch job = 2 : matrix elements of ham without vxc ---
+c$$$          else
+c$$$
+c$$$C   ... Diagonal matrix elements of <psi|H(lda)-vxc|psi>
+c$$$            allocate(testc(ndimh,ndimh))
+c$$$C       Read eigenvectors from gwb
+c$$$            ifi = fopna('gwb',-1,4)
+c$$$            read (ifi)
+c$$$            read (ifi) evec
+c$$$            read (ifi)
+c$$$            read (ifi)
+c$$$C       evl = <psi|H(no XC)|psi>
+c$$$            call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
+c$$$     .      evec,ndimh,ham,ndimh,(0d0,0d0),testc,ndimh)
+c$$$            call dpzero(evl,ndimh)
+c$$$            do  i1 = 1, ndimh
+c$$$              do  i2 = 1, ndimh
+c$$$                evl(i1,1) = evl(i1,1) + testc(i1,i2) * evec(i2,i1)
+c$$$              end do
+c$$$            end do
+c$$$C       call prmx('e(H-vxc)',evl,ndimh,ndimh,1)
+c$$$C       File write
+c$$$            ifi = fopna('gw2',-1,4)
+c$$$            write(ifi) q, (evl(i,1),i=1,ndimh)
+c$$$            deallocate(testc)
+c$$$
           endif
         enddo ! Loop over spins
         deallocate(ham,ovl,evec,vxc,cphi,cphin,igv2)

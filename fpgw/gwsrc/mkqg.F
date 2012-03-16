@@ -571,7 +571,7 @@ c          write(6,"(' qq=',3f13.5)") qq(1:3,iq)
       endif
 c
 ccccccccccccccccccccccccccc
-      if(anyq) nnn=nqnum
+c      if(anyq) nnn=nqnum
 ccccccccccccccccccccccccccc
 !! takao feb2012
       if(allocated(wt0)) deallocate(wt0)
@@ -582,11 +582,10 @@ c      open (ifix,form='unformatted',file='ROTWVinfo')
       call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr)
 c      close(ifix)
       write(6,*)
-      write(6,*)' --- irreducible qi --- '
+      write(6,*)' --- Irreducible qpoint --- nqi=',nqi
       write(6,*)
      &  '             qx             qy             qz          count'
       write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
-      write(6,*)
 !!
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(verbose()>150) 
@@ -601,14 +600,18 @@ c      close(ifix)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
-      print *,' nqi=',nqi
-      write(ifiqg ) nqnum,ngpmx,QpGcut_psi, nnn, nqi,imx !takao 2003 Sep. !feb2012 nqi !imx mar2012takao
+      print *,' nqi=',nqi 
+!! :nqi:   The number of irreducible points (including irr. of offset points).
+!! ::       We calcualte eigenfunction and Vxc for these points.
+!! :nqnum: total number of q points.
+!! :imx:   to allocate ngvecprev as follows.
+      write(ifiqg ) nqnum,ngpmx,QpGcut_psi,nqbz,nqi,imx,nqibz
       write(ifiqgc) nqnum,ngcmx,QpGcut_cou
+      print *,'imx nqnum=',imx,nqnum
       write(6,*) ' --- Max number of G for psi =',ngpmx
       write(6,*) ' --- Max number of G for Cou =',ngcmx
 
 !! === Get G vector for given q. ===
-      print *,'imx nqnum=',imx,nqnum
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) ) !mar2012takao
       ngvecprev=9999
       do iq = 1, nqnum

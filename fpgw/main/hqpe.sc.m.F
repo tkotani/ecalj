@@ -444,6 +444,13 @@ c     print *,' xxx1'
         enddo
 
         if (is == 1) write(ifse_out) nspin,ndimh,n1,n2,n3,nq,0,0,0
+cccccccccccccccccccccccccc
+c        print *,' nnn=',nnn
+c        do ikp=1,nnn
+c           write(6,"(i5,3f8.4)")ikp,qqq(1:3,ikp,is)
+c        enddo
+c        stop
+ccccccccccccccccccccccccccccccc
 
         do ip=1,nq
           do ikp=1,nnn        !nqbz
@@ -452,7 +459,7 @@ c     print *,' xxx1'
               goto 100
             endif
           enddo               !ikp
-          stop 'hqpe: not find ikp 100'
+          stop 'hqpe.sc: not find ikp 100'
  100      continue
 
           nz=nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq

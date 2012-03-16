@@ -1545,7 +1545,7 @@ c     nc takao normalization check
         ngvecpf (1:3,1:ngp, ikp) = ngvecp
 c-------
         deallocate( ngvecp,ngvecc )
-        if(ikp>nnnn) cycle
+c     if(ikp>nnnn) cycle
 c     if(ikp>nqbz) cycle
         write(ifv) qtti(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
 

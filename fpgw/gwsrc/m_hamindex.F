@@ -4,7 +4,7 @@
       integer,parameter:: null=-999999
       integer:: ngrp=null, lxx=null, kxx=null, norbt=null 
       integer:: imx=null,nbas,ndimham=null
-      integer:: nqtt,nqtti, nqnum,ngpmx
+      integer:: nqtt,nqi, nqnum,ngpmx
       integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
       integer,allocatable:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
       real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
@@ -35,7 +35,7 @@ c      if(debug) print *,'nkt=',nkt
 !! == write info for wave rotation. feb2012takao ==
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti,nqnum,imx,ngpmx,norbt
+      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbt
       write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
 c      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
       write(ifi)lxxa
@@ -50,8 +50,8 @@ c      write(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
       integer(4):: ifi
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
-      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqtti,nqnum,imx,ngpmx,norbt
-      allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqtti))
+      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbt
+      allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
       allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap

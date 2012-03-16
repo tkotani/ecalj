@@ -1,7 +1,7 @@
       module m_readeigen
 !!-- Return eigenvalus and eigenfunctions for given q and isp.--
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
-!! qtti(1:3,nqtti) :eivenvalues, eigenvectors are calculated only for them.
+!! qtti(1:3,nqi) :eivenvalues, eigenvectors are calculated only for them.
 !!                  See lmfgw (q-vector with irr flag in QGpsi).
 !!
 !!* we have to call init_foobar to call readeval, readcphi, readgeig.
@@ -313,7 +313,7 @@ c------------------------------
       real(8):: ginv_in(3,3)
 c      integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
-      integer:: ifev,nband_ev, nqtti_, nsp_ev !,nqnum
+      integer:: ifev,nband_ev, nqi_, nsp_ev !,nqnum
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
       write(6,*) 'init_readeigen:'
       allocate(ginv(3,3))
@@ -327,7 +327,7 @@ c      write(6,*) 'init_readeigen:1'
 !!--- store requied index
       call readhamindex() 
 c      write(*,*)ngrp,nbas,kxx,lxx
-c      write(*,*)'nqtt=',nqtt,nqtti,nqnum
+c      write(*,*)'nqtt=',nqtt,nqi,nqnum
 c      write(*,*)'imx=',imx,ngpmx
 c      do iq=1,nqtt
 c        write(*,*) qtt(:,iq)
@@ -336,7 +336,7 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
 !!--- Readin QGpsi ---
       ifiqg  = 101
       open(ifiqg ,file='QGpsi',form='unformatted')
-      read(ifiqg) nqnum , ngpmx, QpGcut_psi, nnnn,nqtti,imx
+      read(ifiqg) nqnum , ngpmx, QpGcut_psi, nnnn,nqi,imx
       write(6,*)'read(ifiqg)', nqnum , ngpmx, QpGcut_psi, nnnn
       allocate( qtt_(3,nqnum),ngp(nqnum) )
       allocate( ngvecp(3,ngpmx,nqnum))
@@ -350,18 +350,18 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
 
 !!--- Read eigenvalue ---
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
-      read(ifev) nband_ev, nqtti_, nsp_ev
-      write(*,*)'read EValue: nband_ev,nqtti,nsp_ev', nband_ev, nqtti_, nsp_ev
+      read(ifev) nband_ev, nqi_, nsp_ev
+      write(*,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
       if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
       if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
-      if(nqtti  /=  nqtti_) stop 'init_readeigen:nqtti/=nqtti_'
-      allocate(evud(nband,nqtti_,nsp),qtti_(3,nqtti_))
-      read(ifev) qtti_(1:3,1:nqtti_) !qtti
-      read(ifev) evud(1:nband, 1:nqtti, 1:nsp )
+      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
+      allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
+      read(ifev) qtti_(1:3,1:nqi_) !qtti
+      read(ifev) evud(1:nband, 1:nqi, 1:nsp )
       close(ifev)
       if(debug) then
         do is= 1,nsp
-        do ik= 1,nqtti
+        do ik= 1,nqi
         do ib= 1,nband
           write(6,"('ib ik e=',3i5,f13.5)") ib,ik,is,evud(ib,ik,is)
         enddo
@@ -375,7 +375,7 @@ c      ifev(1) = iopen('EVU', 0,0,mrece)
 c      if(nsp==2) ifev(2) = iopen('EVD', 0,0,mrece)
 C$$$      do is= 1,nsp
 C$$$        call rwdd (ifev(is),   !read eigenvalues
-C$$$     d              nband,nqtti, 
+C$$$     d              nband,nqi, 
 C$$$     o              evud(1,1,is))
 C$$$c        print *, 'evud is=',is,minval(evud(:,:,is))
 C$$$        if(debug) then
@@ -463,18 +463,18 @@ c --- Readin CPHI and GEIG
       if(.not.keepeig) return
 c      ifgeig = iopen('GEIG',0,-1,0)
 c      ifcphi = iopen('CPHI',0,-1,0) ! Coeeficients of eigenfunction
-      allocate(geig(ngpmx,nband,nqtti,nsp))
-      allocate(cphi(ldim2,nband,nqtti,nsp))
-      do ikp= 1,nqtti
+      allocate(geig(ngpmx,nband,nqi,nsp))
+      allocate(cphi(ldim2,nband,nqi,nsp))
+      do ikp= 1,nqi
         do is= 1,nsp
 c        read(ifgeig) geig(1:ngpmx,1:nband,ikp,is) !geig(1:ngp(ikp),1:nband,ikp,1:is)
 c        read(ifcphi) cphi(1:ldim2,1:nband,ikp,is)
           ikpisp= is + nsp*(ikp-1)
           if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
 ccccccccccccccccccccccc
-          if(verbose()>40) 
-     &       write(6,'("Readin geig sumcheck ",i5,3f9.4,"  ",i5,2d13.6)')
-     &      ikp,qtti(:,ikp),ngp(ikp),sum(geig(1:ngp(ikp),1:nband,ikp,is))
+c          if(verbose()>40) 
+c     &       write(6,'("Readin geig sumcheck ",i5,3f9.4,"  ",i5,2d13.6)')
+c     &      ikp,qtti(:,ikp),ngp(ikp),sum(geig(1:ngp(ikp),1:nband,ikp,is))
 cccccccccccccccccccccc
 c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)

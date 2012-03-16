@@ -2,7 +2,7 @@
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
-     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbt,ngrp,nqtt,nqtti,plat,qlat,miat,tiat,
+     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbt,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
      &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
      &  nkt,napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -42,7 +42,7 @@ c      enddo
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
       real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3)
-      integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nnnx !imx,
+      integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ !imx,
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
@@ -148,7 +148,7 @@ C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012tak
       endif
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
-      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nnnx, nqtti,imx
+      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi,imx !,nqibz
 
       
 c$$$cccccccccccccccccccccccccccccc
@@ -179,7 +179,7 @@ c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
       nqtt=nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
       nkt=nqtt
-      allocate( qtti(3,nqtti), qq(3,nqtt),iqtt(nqtt) )
+      allocate( qtti(3,nqi), qq(3,nqtt),iqtt(nqtt) )
 c      allocate( ngvecp(3,ngpmx,nqnum))
 c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
       print *
@@ -208,14 +208,14 @@ c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq
 c$$$      enddo
 !! ==== Generate info for rotwv and write ====
       nqtt = nqnum*2
-      print *,' nqtt nqtti=',nqtt,nqtti
+      print *,' nqtt nqi=',nqtt,nqi
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       platt= transpose(plat) !this is inverse of qlat
       allocate(qtt(3,nqtt))
       qtt(:,1:nqtt)=qq(:,1:nqtt)
       do i=1,nqtt
        qtarget(:)=qtt(:,i)
-       do iqi=1,nqtti
+       do iqi=1,nqi
          q=qtti(:,iqi)
          iqq=iqtt(iqi) 
          iqi_=iqi
