@@ -32,5 +32,4 @@ SITE    ATOM=Mnup POS=  .0   .0   .0
         ATOM=O    POS= 1.5  1.5  1.5
 ITER     MODE=A6,k=3,b=.4 CONV=1e-5 ELIND=-1 NIT=20 CNVG=1.D-7 CNVGET=1.D-7
 
-OPTIONS PFLOAT=1 #Q=band (this is quit switch if you like to add)
-                 # 
+OPTIONS  #Q=band (this is quit switch if you like to add)

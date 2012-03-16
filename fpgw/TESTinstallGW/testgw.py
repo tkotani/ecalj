@@ -24,7 +24,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 	try:
 		os.mkdir(workdir)
 	except:
-		print workdir +' already exist. You can use --enfoece, which clear the directory first.'
+		print workdir +' already exist. You can use --enforce, which clear the directory first. --help exist.'
 		sys.exit(-1)
 	print '--> start run for '+ dir + ' ==='
 	print ' commanddir =',commanddir
@@ -49,7 +49,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 		else:
 			print 'Error exit! Failed for "'+cm +'" in ' + workdir
 			print '  (or killed by yourself)'
-			sys.exit(-1)
+			#sys.exit(-1)
 # Compare results.
 	print
 	print '--> Compare your results with previous results'
@@ -64,7 +64,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 			pass
 		else:
 			print '=== Failed for test ' + testname,' ==='
-			sys.exit(-1)
+			#sys.exit(-1)
 			
 	if(rett==0 & deletetemp==1):
 		shutil.rmtree(workdir,'ignore_errors')
@@ -73,15 +73,16 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 		print '--> we did calculations at workdir=', workdir
 	print
 	print
-
+	return ret+rett
 
 ##### main routine ##########################
 testdir = os.getcwd()
 ecaldir = os.path.dirname(os.path.dirname(testdir)) #+'/ecal'
 exe= ecaldir+'/fpgw/exec/'
-print 'exe=',exe
-print 'testdir=',testdir
-print 'ecal directory=',ecaldir
+print 
+print ' exe=',exe
+print ' testdir=',testdir
+print ' ecal directory=',ecaldir
 print ' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py '
 #dat=raw_input(' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py) --- ')
 #if(dat==''):
@@ -98,10 +99,10 @@ testcommand=[]
 
 
 ###########
-comparekey=" 'fp pot' 'fp evl'"
 
 
 
+comparekey="' '"
 #
 testn='gas_eps_lmfh'
 testname.append(testn)
@@ -171,6 +172,7 @@ datadir  = testdir+ '/' + testn+'/'
 testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 
 #
+comparekey=" 'fp pot' 'fp evl'"
 testn='si_gwsc'
 testname.append(testn)
 startfile.append('ctrl.si GWinput')
@@ -204,9 +206,12 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.ni
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
 if (nargv ==0 or '--help' in argset):
-	print ' --- Install test for GW ---'
+	print 
+	print 
+	print ' === Install test for GW Mar2012 === '
 	print '   usage :'
 	print '     testgw.py [options] testname testname ... '
+	print '     This perform check calculations in /temp_testname directory'
 	print '   options:'
 	print '     --help   :  this help'
 	print '     --enforce:  remove temp_* directories at first even if they exists'
@@ -249,6 +254,7 @@ print
 
 
 ### Run tests
+failed=''
 for i in range(len(testname)):
 	if all==0:
 		if testname[i] in  argset:
@@ -260,8 +266,15 @@ for i in range(len(testname)):
 	dir        = testname[i]+'/'
 	datadir    = testdir+ '/' + dir
 	workdir    = testdir+ '/temp_' + dir
-	testrun(testname[i],commanddir,datadir,workdir,commands[i],startfile[i],testcommand[i],enforce,deletetemp)
-
+	ret=testrun(testname[i],commanddir,datadir,workdir,commands[i],startfile[i],testcommand[i],enforce,deletetemp)
+	if ret!=0:
+		failed= failed + testname[i]+' '
+if failed!='': 
+	print '=== Failed test cases are ==='
+	print failed
+else:
+	print 'OK! All test passes'
+	
 sys.exit()
 
 

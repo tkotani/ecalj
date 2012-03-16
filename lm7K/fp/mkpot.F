@@ -88,8 +88,8 @@ Cl   rvmusm:int rhosm * vxc(rhosm+smcor1) where smcor1 is portion
 Cl         :of smooth core density treated nonperturbatively.
 Cl   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
 Cl         :of smooth core density treated nonperturbatively.
-Cl   rvepsv:integral of valence density times exc(valence density)
-Cl   rvvxcv:integral of valence density times vxc(valence density)
+ccCl   rvepsv:integral of valence density times exc(valence density) !removed now
+ccCl   rvvxcv:integral of valence density times vxc(valence density) !removed now
 Cl   rhvsm :integral n0~ phi0~
 Cl   sgp0  :compensating gaussians * sm-Ves = int (n0~-n0) phi0~
 Cl   valfsm:rhvsm - sgp0 + rvmusm + fcvxc0 = n0 (phi0~ + Vxc(n0))
@@ -525,10 +525,10 @@ C ... Combine spin-up and spin-down integrals
 C --- Total energy terms ---
 C ... Integral of valence density times xc potential(valence density)
       if (mod(job,1000) .lt. 100) then
-        rvepsv(1) = rvepsv(1) + rvepva
-        rvexv(1)  = rvexv(1) + rvexva
-        rvecv(1)  = rvecv(1) + rvecva
-        rvvxcv(1) = rvvxcv(1) + rvvxva
+c        rvepsv(1) = rvepsv(1) + rvepva
+c        rvexv(1)  = rvexv(1) + rvexva
+c        rvecv(1)  = rvecv(1) + rvecva
+c        rvvxcv(1) = rvvxcv(1) + rvvxva
       endif
       if (mod(mod(job/1000,10),2) .eq. 1) then
         rveps(1) = rveps(1) + rvepsa
