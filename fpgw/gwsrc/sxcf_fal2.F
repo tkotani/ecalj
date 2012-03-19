@@ -1082,6 +1082,8 @@ c May2006 zwz
         npm = 1
         if(nw_i/=0) npm = 2  ! TimeReversal off case.
 
+        if(allocated(zwz)) deallocate(zwz)
+        if(allocated(zwzi)) deallocate(zwzi)
         allocate( zwz(niw*npm, nstate,ntp0),  zwzi(nstate,ntp0) )
         if(screen) allocate( zwz00(nstate,ntp0) )
 c
@@ -1132,8 +1134,9 @@ c2end
      o          zwz(ix,1:nstate,1:ntp0))
           endif
         enddo !ix
-        if(verbose()>50) write(*,'("6.1 before matzwz in ix cycle ",$)')
+        if(verbose()>50) write(*,'("xxx:6.1 before matzwz in ix cycle ",$)')
         if(verbose()>50) call cputid(0)
+        if(debug) print *,' sumzmel=',ngb, nstate, ntp0,sum(abs(zmel))
 ******************************* END 1 ***********************************************
 !  zwz      symmetric part zwz(1:nx,        :,:)
 !      anti-symmetric part zwz(nx+1:nx*npm, :,:)
@@ -1511,6 +1514,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           deallocate(zw)
         else
           nstatex= max(ntp0,nt_max)
+          if(allocated(zwz)) deallocate(zwz)
           allocate( zwz(nwxi:nwx,1:nstatex,ntp0) )
           do      ix = nwxi,nwx
             nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
@@ -1537,10 +1541,14 @@ c---------------------------------------------
 c-------------------------------
 c loop over w and t in SEc(qt,w)
 c-------------------------------
+       if(debug) print *,' sss ngb, nstate, ntp0=',ngb,nstate,ntp0
+       if(debug) print *,' sss zmel=',sum(abs(zmel(:,:,:)))
+
         if(verbose()>50) write(*,'("10 wfacx  iw,itp,it cycles ",$)')
         if(verbose()>50) call cputid(0)
         do 2001 iw  = iwini,iwend
         do 2001 itp = 1,ntq
+          if(debug) print *,'2011 0 zmel=',sum(abs(zmel(:,:,:)))
           omg = omega(itp,iw)
 c          write(6,"('2001: iw itp omg=',2i5,d13.6)")iw,itp,omg-ef
           if (omg >= ef) then
@@ -1554,6 +1562,7 @@ c          write(6,"('2001: iw itp omg=',2i5,d13.6)")iw,itp,omg-ef
           endif
 
           do 2011 it= itini,itend
+            if(debug) print *,'2011 1 loop--- it=',iw,itp,it,sum(abs(zmel(:,:,:)))
             esmrx = esmr
             if(it<=nctot) esmrx = 0d0
             wfac = wfacx2(omg,ef, ekc(it),esmrx)
@@ -1613,18 +1622,30 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(zwz3mode) then
               zwz3=(0d0,0d0)
 !$OMP parallel do private( ix,igb2,zz2)
+              if(debug) write(6,"('wwwwwww ixs=',10i4)"),ixs,igb2,it,itp
+              if(debug) print *,'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
+
               do ix = ixs, ixs+2
                 do igb2=1,ngb
+c                  print *,' ix igb2=',ixs,ix,igb2,iir
+c                  print *,' it itp=',it,itp
+c                  print *,' zw3=', sum(zw3(1:ngb,igb2,iir*(ix-1)) )
+c                  print *,' zmel=',sum(dconjg(zmel(1:2,it,itp)))
                   zz2 = sum(dconjg(zmel(1:ngb,it,itp))*zw3(1:ngb,igb2,iir*(ix-1)) )
-                  zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2*zmel(igb2,it,itp)
+                  zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
                 enddo !igb2
               enddo !ix
 !$OMP end parallel do
+              if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)"),ixs
+              if(debug) print *,zwz3(1:3)          !,freq_r(ixs-1),zwz3(1:3)
+              if(debug) print *,'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
+              if(debug) print *,'2011 bbb www zmel=',sum(abs(zmel(:,:,:)))
 
               zsec(iw,itp,ip) = zsec(iw,itp,ip) 
-     &      + wfac*alagr3zz(we,freq_r(ixs-1),zwz3) !faleev
+     &      + wfac *alagr3zz(we,freq_r(ixs-1),zwz3) !faleev
 
-
+              if(debug) print *,'2011 ccc www zmel=',sum(abs(zmel(:,:,:)))
+              if(debug) write(6,"('wwwwwww eo zsecsum')")
 
 cccccccccccccccccccccccccccccc
 c            if(iw==0) then

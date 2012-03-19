@@ -314,9 +314,10 @@ c----------------------------------------------------
       real(8) function wintsf(rdn,rup)
 c integral \int^rup_rdn exp(x**2)*derfc(x)
 c up to x <rmax<15 which is limited by the range of derfc(x).
-      implicit real*8 (a-h,o-z)
-      integer(4),parameter:: nd=2001
-      real(8) :: polinta, rmax=14.9d0
+      implicit none
+      integer:: ix
+      integer,parameter:: nd=2001
+      real(8) :: polinta, rmax=14.9d0,rdn,rup,sumx,x,x0,xm
       real(8),save :: eeint(nd),xval(nd)
       logical :: init=.true.
 c--------------
@@ -330,10 +331,10 @@ c--------------
           x = rmax*dble(ix-1)/(nd-1)
           xm= .5d0*(x + x0)
           xval(ix) = x
-          sum  = 1/6d0 * exp(x0**2)*derfc(x0)
+          sumx  = 1/6d0 * exp(x0**2)*derfc(x0)
      &         + 4/6d0 * exp(xm**2)*derfc(xm)
      &         + 1/6d0 * exp(x **2)*derfc(x )
-          eeint(ix) = eeint(ix-1) + rmax/(nd-1) * sum
+          eeint(ix) = eeint(ix-1) + rmax/(nd-1) * sumx
 ccccccccccccccccccccccc
 c        write(1113,"(4d24.16)") x,derfc(x),exp(x**2)*derfc(x),eeint(ix)
 ccccccccccccccccccccccc
@@ -380,7 +381,7 @@ c we      = w - e
 c nx      = no. x points
 
       implicit real*8 (a-h,o-z)
-      dimension x(nx),wt(nx),expa(nx)
+      real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum,img=(0d0,1d0),wintz
       real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
       data pi/3.1415926535897932d0/,
@@ -469,7 +470,7 @@ c we      = w - e
 c nx      = no. x points
 
       implicit real*8 (a-h,o-z)
-      dimension x(nx),wt(nx),expa(nx)
+      real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum
       real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
       data pi/3.1415926535897932d0/,
@@ -521,7 +522,7 @@ c evne function version of alagr3z
 c return the interpolated value on x for fi(xi).
 c We assume even function.
 c Imag part is corrected to be >0
-      dimension  xi(3)
+      real(8)::  xi(3)
       complex(8) :: fi(3) ,alagr3z
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
@@ -668,7 +669,7 @@ c return the interpolated value on x for fi(xi).
 c We assume even function.
 c Imag part is corrected to be >0
       integer(4) :: i,j,n
-      dimension  xi(3)
+      real(8)::  xi(3)
       complex(8) :: fi(3)
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
@@ -833,7 +834,7 @@ c x  = the point at which the function is to be interpolated
 c xi(3) = points where the function is given
 c fi(3) = the function at xi
       implicit real*8 (a-h,o-z)
-      dimension xi(3)
+      real(8):: xi(3)
       complex(8) :: fi(3)
       xx1        = x-xi(1)
       xx2        = x-xi(2)
@@ -853,7 +854,8 @@ c evne function version of alagr3z !
 c return the interpolated value on x for fi(xi).
 c We assume even function.
 c Imag part is corrected to be >0
-      real(8)::  xi(3), amatinv(3,3),amat(3,3),x
+      implicit none
+      real(8)::  xi(3), amatinv(3,3),amat(3,3),x,detxx
       complex(8) :: fi(3)
       amat(1:3,1) = 1d0
       amat(1:3,2) = xi(1:3)**2

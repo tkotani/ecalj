@@ -255,6 +255,7 @@ print
 
 ### Run tests
 failed=''
+success=''
 for i in range(len(testname)):
 	if all==0:
 		if testname[i] in  argset:
@@ -269,11 +270,14 @@ for i in range(len(testname)):
 	ret=testrun(testname[i],commanddir,datadir,workdir,commands[i],startfile[i],testcommand[i],enforce,deletetemp)
 	if ret!=0:
 		failed= failed + testname[i]+' '
+	else:
+		success=success + testname[i]+' '
 if failed!='': 
 	print '=== Failed test cases are ==='
 	print failed
 else:
-	print 'OK! All test passes'
+	print '=== OK! All test below are passed ==='
+	print success
 	
 sys.exit()
 
