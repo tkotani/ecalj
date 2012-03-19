@@ -40,7 +40,7 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 # Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed
 # older verion OR no -Osomething options. (only for sxcf.*.F)
-FFLAGS=  -O2  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O0  -ffixed-line-length-132
 
 #

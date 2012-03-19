@@ -492,7 +492,7 @@ C ----------------------------------------------------------------
       implicit none
 C Passed parameters
       integer mode,ldhs,n,m
-      double precision h(1),s(1)
+      double precision h(*),s(*)
       logical lx
 C Local parameters
       integer ier,itype,lmode
