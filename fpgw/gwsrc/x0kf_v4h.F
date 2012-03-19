@@ -489,18 +489,23 @@ c$$$           write(6,"('uuu geig=',d23.16)")
 c$$$     &        sum(abs(geig1(1:ngp1, itps:itps+ntp0-1))),
 c$$$     &        sum(abs(geig2(1:ngp2, 1:nt0)))
 c$$$cccccccccccccccccccccccccccc
+c                  print *,'qqqqq:',ibib,k,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
                     if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
                     !iiww=iw+ihw(ibib,k)-1
                     imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
                     rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
      &        rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight !sum over spin in hx0fp0
+                    print *,'rrrrr: ',k,iw,imagweight,zq0zq0
                   enddo ! iw
                 enddo ! imb2
               enddo ! imb1
             enddo ! ----- ibib loop
           enddo ! ----- jpm loop
           deallocate(zmelt,z1p)
+ccccccccccccccccccccccccccc
+c        print *,'pppp:rcxqmean sum=',k,sum(abs(rcxqmean(:,1,1,1)))
+ccccccccccccccccccccccccccc
           cycle
         endif
 
@@ -784,7 +789,7 @@ C... ecut mode
      o   zxqi(ngb,ngb,niwt),img !npm), img  !zxqi(...,npm) may2006
 
       real(8),allocatable:: ebb(:)
-      integer(4):: ii
+      integer(4):: ii,i,ibas1,ibas2
       logical :: evaltest !,testtr
 
       if(verbose()>89) debug=.true.
@@ -1008,10 +1013,21 @@ cccccccccccccccccccccccccccccc
               endif
               zxqn1(iw,:,:) = - wfac*rcxqmean(iw,1,:,:)/(his_r(iw)-his_l(iw))
             enddo
-            rx0mean1 = reshape( 
-     &                      matmul( reshape(rmatt, (/nw_w+1,nwhis/) )
-     &                            , reshape(zxqn1, (/nwhis,nmbas*nmbas/) )),
-     &                       (/nw_w+1,nmbas,nmbas/)  )
+ccccccccccccccccccc
+c            rx0mean1 = reshape( 
+c     &                      matmul( reshape(rmatt, (/nw_w+1,nwhis/) )
+c     &                            , reshape(zxqn1, (/nwhis,nmbas*nmbas/) )),
+c     &                       (/nw_w+1,nmbas,nmbas/)  )
+c
+! Mar2012, code above did not work in gfortran...
+            do i=0,nw_w
+            do ibas1=1,nmbas
+            do ibas2=1,nmbas
+              rx0mean1(i,ibas1,ibas2) = sum(rmatt(i,:,1)* zxqn1(:,ibas1,ibas2))
+            enddo
+            enddo
+            enddo
+cccccccccccccccccccc
             if(chipm.and.ispx==2) then
               x0mean    = x0mean + rx0mean1
             elseif(chipm) then
