@@ -34,6 +34,25 @@ c      print *,"sumcheck=",sum(a),sum(b),n1,n2,n3
       endif
       end
 
+      subroutine matinv(n,a)
+      implicit none
+      integer(4) :: n, info, ipiv(n)
+      real(8):: a(n,n)
+      real(8),allocatable:: work(:)
+      call dgetrf(n,n,a,n,ipiv,info)
+      if(info/=0) then
+        print *,' matinv: zegtrf info=',info
+        stop    ' matinv: zegtrf '
+      endif
+      allocate(work(n*n))
+      call dgetri(n,a,n,ipiv,work,n*n,info)
+      deallocate(work)
+      if(info/=0) then
+        print *,'matinv: zegtri info=',info
+        stop    'matinv: zegtri '
+      endif
+      end
+
 c--------------------------------------------------------------------------
 c      subroutine mml(a,b,c) This would not work why?
 c      Maybe becase the size information can not be passed to the lower level.

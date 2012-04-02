@@ -48,9 +48,9 @@ c      logical :: readgwinput
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
       real(8):: deltaq
-ctakao feb2012
+ctakao mar2012
       integer(4):: nqi,ifix,ig
-      real(8),allocatable:: wti(:),qi(:,:)
+      real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:)
 
 c------------------------------------------------
       qreduce0 = qreduce()
@@ -288,7 +288,7 @@ c          nq0x = 8*abs (q0pchoice())
          allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(newaniso() ) then
-          nq00i=3
+          nq00i=4
           pi=4d0*atan(1d0)
           deltaq=0.01*alat/(2*pi) !dq is 0.01 a.u.
           q0x(:,1)=(/deltaq, 0d0,    0d0/)
@@ -296,21 +296,24 @@ ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           q0x(:,3)=(/0d0,    0d0, deltaq/)
 c          q0x(:,4)=(/0d0, 0d0, 0d0/)
 c          deltaq=0.01/sqrt(2d0)*alat/(2*pi) !dq is 0.01 a.u.
-c          q0x(:,4)=(/0d0,   deltaq, deltaq/)
+          q0x(:,4)=(/0d0,   deltaq, deltaq/)
 c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
 c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
 c          q0x(:,7)=(/0d0, 0d0, 0d0/)
-           wt0=1d0/3d0
+          wt0=1d0/3d0
+!! ...  invariante dielectoric tensor.
+          allocate(epinv(3,3,nq0x))
+          call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i)
          else
           call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
      o         q0x,wt0,nq00i)
+!! ... inequivalent q0x points ...
+          call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,0,irr)
          endif
-c ... inequivalent q0x points ----
-         call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,0,irr)
          deallocate(irr)
-         write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
+        write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         print *,' xxxxxxx nq0i=',nq0i
 cccccccccccccccccccccccccccccccccccccccccccc
 c takao test

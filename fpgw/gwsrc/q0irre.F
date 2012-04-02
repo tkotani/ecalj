@@ -1,3 +1,105 @@
+      subroutine diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i)
+!! == invariant dielectric tensor given by symmetrization ==
+!! In addition, we have generate it.
+!! Output::
+!!      epinv(3,nq0i): inequivalent tensor.
+!!      q0i(3,nq0i)  : irreducible q-point for tensor.
+!!      nqpi: number of inequivalent k point.
+!!
+      implicit none
+      integer :: nq0x,ngrp,nq0i,ik,i,j,ig,ix,ixx,jk
+      real(8) :: q0x(1:3,nq0x),q0i(1:3,nq0i),symops(3,3,ngrp),sym(3,3),q0xoi(3,nq0x)
+      real(8) :: epinv(3,3,nq0i),emat(3,3),qr(3),fac,qnorm
+      real(8),allocatable:: epinv_(:,:,:) !,omat(:,:),omati(:,:)
+c$$$!! overlap matrix and its inverse
+c$$$      allocate(omat(nq0x,nq0x),omati(nq0x,nq0x))
+c$$$      do ik=1,nq0x
+c$$$c         print *, 'q0x ik=',ik,q0x(:,ik)
+c$$$      do jk=1,nq0x
+c$$$         omat(ik,jk)=sum(q0x(:,ik)*q0x(:,jk))
+c$$$      enddo
+c$$$      enddo
+c$$$c
+c$$$      do ik=1,nq0x
+c$$$        write(*,"(6f9.5)")omat(ik,:)
+c$$$      enddo  
+c$$$      omati=omat
+c$$$c      print *, omati
+c$$$      call matinv(nq0x,omati)
+c$$$      print *,'111111111xxxxxxxxxxxxxx'
+c$$$      stop 'xxxxxxxxxx'
+c$$$      do i=1,3
+c$$$        q0xoi(i,:) =  matmul( q0x(i,:),omati(:,:) )
+c$$$      enddo
+!! Generate invariant tensor for each q0x
+      write(*,*) ' diele_invariant: nq0x=',nq0x
+      allocate(epinv_(3,3,nq0x))
+      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ===' 
+      epinv_= 0d0
+      do ik=1,nq0x
+        do ig = 1,ngrp
+          sym = symops(:,:,ig)
+          qr=matmul(sym,q0x(:,ik))
+          do i=1,3
+          do j=1,3
+            epinv_(i,j,ik) = epinv_(i,j,ik) + qr(i)*qr(j)
+          enddo  
+          enddo
+c          write(*,"(i20,3f19.14)")ig,epinv_(1,:,ik)
+c          write(*,"(i20,3f19.14)")ig,epinv_(2,:,ik)
+c          write(*,"(i20,3f19.14)")ig,epinv_(3,:,ik)
+c          write(*,*)
+        enddo
+        write(*,"(3f19.14)")epinv_(1,:,ik)
+        write(*,"(3f19.14)")epinv_(2,:,ik)
+        write(*,"(3f19.14)")epinv_(3,:,ik)
+        write(*,*)
+      enddo
+!! check agreement.
+      write(*,*)'  === epinv: invariant tensor ===' 
+      ixx=0
+      do ik = 1,nq0x
+        do ix = 1,ixx
+          fac= epinv_(1,1,ik)/epinv(1,1,ix)
+          if( sum(abs(epinv_(:,:,ik)-fac*epinv(:,:,ix))) < 1d-6*sum(abs(epinv_(:,:,ik))) ) then
+            goto 990
+          endif
+        enddo  
+        ixx=ixx+1
+        q0i(:,ixx)=q0x(:,ik)
+        qnorm=sum(q0x(:,ik)* matmul(epinv_(:,:,ik),q0x(:,ik)))/sum(q0x(:,ik)**2)
+c        print *,' qnorm=',qnorm
+c        print *,' epinv=',epinv_(:,:,ik)
+        epinv(:,:,ix)=epinv_(:,:,ik)/qnorm
+  990   continue
+      enddo  
+      nq0i = ixx
+c$$$!! clean zero 
+c$$$      do ik = 1,nq0i
+c$$$         do i=1,3
+c$$$           if(abs(q0i(i,ik))<1d-6) then
+c$$$             q0i(i,ik)=0d0
+c$$$           endif 
+c$$$         enddo
+c$$$         do i=1,3
+c$$$         do j=1,3
+c$$$           if(abs(epinv(i,j,ik))<1d-6) then
+c$$$            epinv(i,j,ik)=0d0
+c$$$           endif 
+c$$$         enddo
+c$$$         enddo
+c$$$      enddo  
+!!
+      do ik=1,nq0i
+        write(*,"(3d22.14)")epinv(1,:,ik)
+        write(*,"(3d22.14)")epinv(2,:,ik)
+        write(*,"(3d22.14)")epinv(3,:,ik)
+        write(*,*)
+      enddo
+      end
+
+
+
       subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
 c inequivalent points
       implicit none
