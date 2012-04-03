@@ -47,7 +47,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-      real(8):: deltaq
+      real(8):: deltaq,deltaq_scale=0.01d0
 ctakao mar2012
       integer(4):: nqi,ifix,ig
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:)
@@ -271,7 +271,7 @@ c          print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c        endif
 
         if(newaniso()) then !feb2012
-          nq0x=4
+          nq0x=6
         elseif( q0pchoice()<0) then
 c          nq0x = 8*abs (q0pchoice())
           nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
@@ -288,17 +288,17 @@ c          nq0x = 8*abs (q0pchoice())
          allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(newaniso() ) then
-          nq00i=4
+          nq00i=6
           pi=4d0*atan(1d0)
-          deltaq=0.01*alat/(2*pi) !dq is 0.01 a.u.
+          deltaq=deltaq_scale*alat/(2*pi) !dq is 0.01 a.u.
           q0x(:,1)=(/deltaq, 0d0,    0d0/)
           q0x(:,2)=(/0d0, deltaq,    0d0/)
           q0x(:,3)=(/0d0,    0d0, deltaq/)
 c          q0x(:,4)=(/0d0, 0d0, 0d0/)
 c          deltaq=0.01/sqrt(2d0)*alat/(2*pi) !dq is 0.01 a.u.
           q0x(:,4)=(/0d0,   deltaq, deltaq/)
-c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
-c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
+          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
+          q0x(:,6)=(/deltaq,deltaq, 0d0/)
 c          q0x(:,7)=(/0d0, 0d0, 0d0/)
           wt0=1d0/3d0
 !! ...  invariante dielectoric tensor.

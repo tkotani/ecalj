@@ -79,6 +79,12 @@ c --- mode
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
+      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3) then
+        continue
+      else
+        print *,'qg4gw do not allow iq0pin=',iq0pin
+        stop 'qg4gw do not allow iq0pin='
+      endif
 
 c--- If GWinput is not exist, GWIN0 GWIN_V2 and QPNT are converted to GWinput.
 c      if(readgwinput()) then

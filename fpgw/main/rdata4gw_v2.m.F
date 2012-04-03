@@ -240,8 +240,13 @@ c
 
       integer(4):: igp1,igp2,   icold,nbandx,ifnband,iread
       real(8),allocatable:: qtt(:,:)
-      integer:: nqtt,igg,iorb
+      integer:: nqtt,igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
+      logical:: newaniso
+      integer:: ngcB,iqx,iqindx
+      real(8):: quu(3)
+      integer,allocatable:: ngveccB(:,:)
+
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
 
@@ -319,7 +324,7 @@ c     endif
 
 !!---- rewind QGpsi ----
       rewind ifiqg
-      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn,nqi
+      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn,nqi,imx,nqibz
 
       write(6,*) 'QpGcut_psi QpGcutCou nnnn nqi from QGpsi QGcou='
      &     , QpGcut_psi,QpGcut_Cou ,nnnn,nqi
@@ -480,6 +485,8 @@ c$$$      if(nocore) then           ! NoCore or not? inquire(file='NoCore',exist
 c$$$        write(6,"(a)")' NoCore case. So we use Vxc(nvalence)'
 c$$$      endif
       call dinv33 ( plat,1,qlat,volumxx )
+      call dinv33(qlat,0,ginv,det)
+
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
 
@@ -1217,7 +1224,7 @@ c     endif
       ifnband = iopen('NBANDikp',1,-1,0)
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
-      do ikp = 1,nqtti
+      do 1200 ikp = 1,nqtti
         if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp
 C... determined nbandx, 1:nbandx is meaningful.
         nbandx = nband 
@@ -1602,11 +1609,37 @@ ccccccccccccccccccccccccccccccc
           deallocate(ppovl)
         endif
 c     nc---------------------------------------------
-      enddo
+ 1200 continue 
       print *,' end of eigensection-----'
+      print *
 
+!! --- check agreement of ngvecc. Apr2012takao
+      if(newaniso()) then
+        if(sum(qtti(:,1)**2)<1d-10) then
+          continue
+        else
+          stop ' qtti(:,ikp=1)/=0'
+        endif
+        do iq=1,nq0i
+          iqx= iqindx(q0i(:,iq), ginv,qtti,nqtti)
+          write(*,"('newaniso check: iq iqx q=',2i3,3f13.5)") iq,iqx,q0i(:,iq)
+          if(ngcx(iqx)-ngcx(1)/=0) then
+            print *,' iqx=',iqx,ngcx(ikp),ngcx(1)
+            print *,'qtti(:,ikp=1)=',qtti(:,1)
+            print *,'qtti(:,ikp)=',qtti(:,iqx)
+            stop 'ngcx(ikp)-ngc(1)/=0 to avoid this, use smaller deltaq_scale. or different QpGcou to void incidental difference.'
+            do igc=1,ngcx(iqx)
+              if(sum(abs(ngveccf(:,igc,iqx)-ngveccf(:,igc,1)))/=0) then
+                print *,' ikp=', 1,   ngveccf(:,igc,1)
+                print *,' iqx=', iqx, ngveccf(:,igc,iqx)
+                stop 'ngveccf(:,iqx)/=ngveccf(:,1)'
+              endif
+            enddo
+          endif  
+        enddo
+      endif
 
-!!--- required Input for hvccfp0 ---
+!! --- required Input for hvccfp0 ---
       ifhvccfp  = iopen('HVCCIN',0,-1,0)
       write(ifhvccfp) alat, plat,qlat,nqtti, nbas,nband
       write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
@@ -1679,7 +1712,8 @@ c     jun2005
 !     We assuem qibze(iqi<=nqibz) are not changed.
 c     if( qreduce() ) then
 c     allocate(qsave(3,nqnumt))
-      call dinv33(qlat,0,ginv,det)
+c      call dinv33(qlat,0,ginv,det)
+c
 c     imx=0
 c     do iq= 1,nqnumt
 c     call qqsave(qibze(1:3,iq),nqnumt,ginv,qsave,imx)
