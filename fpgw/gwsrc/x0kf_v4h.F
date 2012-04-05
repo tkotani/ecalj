@@ -867,10 +867,8 @@ C--------------------------------------------------------------
         his_C(-iw) = -his_C(iw)
       enddo
       his_C(0) = 0d0; his_R(0)=-999; his_L(0)=-999
-C
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
       if(debug.and.(.not.nolfco)) write(6,*)'sumchk 111 rcxq=', sum(abs(rcxq))
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       if(.not.nolfco) then
         do iw= 1, nwhis
           if(ecut<1d9) then
@@ -885,17 +883,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
           enddo
 c         if(debug) print *, 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
         enddo
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(debug.and.(.not.nolfco)) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-C... Temporary. maybe, we will have better procedure...
-c        do igb2= 1, ngb
-c        do igb1= 1, igb2-1
-c          rcxq(igb2,igb1,:,1:npm) = dconjg(rcxq(igb1,igb2,:,1:npm))
-c        enddo
-c        enddo
+!! Temporary. maybe, we will have better procedure...
         do jpm=1,npm
           do iw= 1, nwhis
             do igb2= 1, ngb
@@ -906,35 +895,8 @@ c        enddo
           enddo
         enddo
       endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       if(debug.and.(.not.nolfco)) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c$$$      if(testtr()) then
-c$$$        ifxx=9216
-c$$$        open(ifxx,file="rcxq.dat")
-c$$$        do jpm=1,npm
-c$$$        do iw=1, nwhis
-c$$$        do igb1= 1, ngb
-c$$$        do igb2= 1, igb1
-c$$$          write(ifxx,"(4i5,4d14.6)") iw,igb2,igb1,jpm,rcxq(igb2,igb1,iw,jpm)
-c$$$          if(igb1==igb2) then
-c$$$            write(6,"(4i5,4d14.6)") iw,igb2,igb1,jpm,rcxq(igb2,igb1,iw,jpm)
-c$$$          endif
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c       write(6,*)'sumchk 333 rcxq=', sum(abs(rcxq))
-c$$$c       write(6,*)'sumchk 444 rcxq=', sum(abs(rcxq(1:ngb,1:ngb, 1:nwhis,1:npm))),
-c$$$c     &     ngb,nwhis,npm
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        print *, '-----test end of testTR------------npm=',npm
-c$$$        close(ifxx)
-c$$$        stop     '-----test end of testTR------------'
-c$$$      endif
-
       if(evaltest()) then
         write(6,"('hhh --- EigenValues for rcxq --------')")
         allocate(ebb(ngb))
@@ -950,19 +912,6 @@ c$$$      endif
         enddo
         deallocate(ebb)
       endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-cccccccccccccccccccccccccccccccccccc
-c        do igb1= 1, ngb
-c        do it=1,nwhis
-c          write(6,"('igb1 iwt rcxq=',2i5,4d14.6)")
-c     &    igb1,it,rcxq(igb1,igb1,it,1:npm)
-c        enddo
-c        enddo
-cccccccccccccccccccccccccccccccccc
-
-
 
 C--- realomega case
       if(realomega)then
@@ -1161,10 +1110,6 @@ c     &                      , reshape(zxqn,(/nwhis*npm/))            )
      &              1d0, zxqi,    ngb*ngb )
           deallocate(imattC)
         endif
-
-!     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
-!                 iw =1,nwhis   it=0:nw_w
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$       write(6,*) '--- img-------'
 c$$$       do igb1=1,5
 c$$$       do igb2=1,5
@@ -1176,37 +1121,8 @@ c$$$       do igb2=ngb-5,ngb
 c$$$         write(6,"(' zxqi=', 2i5,4(2d13.5,2x))") igb1,igb2,zxqi(igb1,igb2,1:3)
 c$$$       enddo
 c$$$       enddo
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccc     o   zxqi(ngb,ngb,niwt),img !npm), img  !zxqi(...,npm) may2006
-c$$$      if(testtr()) then
-c$$$        ifxx=9216
-c$$$        open(ifxx,file="zxqi.dat")
-c$$$        do iw  = 1, niwt
-c$$$        do igb1= 1, ngb
-c$$$        do igb2= 1, ngb
-c$$$          write(ifxx,"(3i5,4d14.6)") iw,igb2,igb1,zxqi(igb2,igb1,iw)
-c$$$c          if(igb1==igb2) then
-c$$$c            write(6,"(4i5,4d14.6)")  iw,igb2,igb1,zxq(igb2,igb1,iw)
-c$$$c          endif
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        print *, '-----test end of testTR----zxqi--------npm=',npm
-c$$$        close(ifxx)
-c$$$        stop     '-----test end of testTR------------'
-c$$$      endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
       endif
-
-c  deallocate(im_zxq,re_zxq,ii_zxq, frhis_m,deriv,delhis)
-c      if(realomega)  deallocate(r_fac,r_fac0)
-c      if(imagomega)  deallocate(i_fac1,i_fac2,i_fac0)
       deallocate(his_L,his_C,his_R)
       write(*,'("         end dpsion5 ",$)')
       call cputid(0)
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$      stop 'xxxxxxxxxxxxxxx dpsion5 xxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccccccccccccccccccc
       end

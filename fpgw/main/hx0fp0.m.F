@@ -2383,16 +2383,16 @@ c            print *,'sss sumchk zxqi=',sum(abs(zxqi(:,:,iw))) !,ipm)))
                   allocate(epstinv(ngb,ngb))
                 endif   
                 read(ifepstinv) epstinv(2:ngb,2:ngb)
-                if( iw==nw  ) ifepstinv = iclose('EPS0invR')
+                if( iw==nw  ) ifepstinv = iclose('EPS0invI')
                 iq0 = iq - nqibz
 !! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
-                sk (1:ngb,iq0)= x0mean(iw,1,1:ngb)
-                sks(1:ngb,iq0)= x0mean(iw,2,2:ngb) !sk(1)=sks(1) -> sks(1) isn't used. 
-                w_k (2:ngb,iw,iq0)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), sk(2:ngb,iw)*vcousq(2:ngb)) 
-                w_ks(2:ngb,iw,iq0)= sqfourpi*matmul(sks(2:ngb,iw)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
-                llw(iw,iq-nqibz,iq0)= sum(q**2) ! 1 of Eq.(40) 
-     &                  -fourpi* sk(1,1,iw,iq0) !sk(1,1,iw)= H of Eq.(40).
-     &                  -sqfourpi* sum( sks(2:ngb,iw,iq0)*w_k(2:ngb,iw,iq0)*
+                skI (1:ngb,iw,iq0)= x0mean(iw???,1,1:ngb)
+                sksI(1:ngb,iw,iq0)= x0mean(iw???,2,2:ngb) !sk(1)=sks(1) -> sks(1) isn't used. 
+                w_kI (2:ngb,iw,iq0)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb,iw)*vcousq(2:ngb)) 
+                w_ksI(2:ngb,iw,iq0)= sqfourpi*matmul(sksI(2:ngb,iw)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
+                llwI(iw,iq0)= sum(q**2) ! 1 of Eq.(40) 
+     &                  -fourpi  * skI(1,1,iw,iq0) !sk(1,1,iw)= H of Eq.(40).
+     &                  -sqfourpi* sum( sksI(2:ngb,iw,iq0)*w_kI(2:ngb,iw,iq0)*
      &                                  vcousq(2:ngb,iq0) )
               endif
             else
