@@ -1613,31 +1613,32 @@ c     nc---------------------------------------------
       print *,' end of eigensection-----'
       print *
 
-!! --- check agreement of ngvecc. Apr2012takao
-      if(newaniso()) then
-        if(sum(qtti(:,1)**2)<1d-10) then
-          continue
-        else
-          stop ' qtti(:,ikp=1)/=0'
-        endif
-        do iq=1,nq0i
-          iqx= iqindx(q0i(:,iq), ginv,qtti,nqtti)
-          write(*,"('newaniso check: iq iqx q=',2i3,3f13.5)") iq,iqx,q0i(:,iq)
-          if(ngcx(iqx)-ngcx(1)/=0) then
-            print *,' iqx=',iqx,ngcx(ikp),ngcx(1)
-            print *,'qtti(:,ikp=1)=',qtti(:,1)
-            print *,'qtti(:,ikp)=',qtti(:,iqx)
-            stop 'ngcx(ikp)-ngc(1)/=0 to avoid this, use smaller deltaq_scale. or different QpGcou to void incidental difference.'
-            do igc=1,ngcx(iqx)
-              if(sum(abs(ngveccf(:,igc,iqx)-ngveccf(:,igc,1)))/=0) then
-                print *,' ikp=', 1,   ngveccf(:,igc,1)
-                print *,' iqx=', iqx, ngveccf(:,igc,iqx)
-                stop 'ngveccf(:,iqx)/=ngveccf(:,1)'
-              endif
-            enddo
-          endif  
-        enddo
-      endif
+c$$$!! --- check agreement of ngvecc. Apr2012takao
+!! this check is probably not necessary because we use qq=0 for q0i. See hvccfp0.
+c$$$      if(newaniso()) then
+c$$$        if(sum(qtti(:,1)**2)<1d-10) then
+c$$$          continue
+c$$$        else
+c$$$          stop ' qtti(:,ikp=1)/=0'
+c$$$        endif
+c$$$        do iq=1,nq0i
+c$$$          iqx= iqindx(q0i(:,iq), ginv,qtti,nqtti)
+c$$$          write(*,"('newaniso check: iq iqx q=',2i3,3f13.5)") iq,iqx,q0i(:,iq)
+c$$$          if(ngcx(iqx)-ngcx(1)/=0) then
+c$$$            print *,' iqx=',iqx,ngcx(ikp),ngcx(1)
+c$$$            print *,'qtti(:,ikp=1)=',qtti(:,1)
+c$$$            print *,'qtti(:,ikp)=',qtti(:,iqx)
+c$$$            stop 'ngcx(ikp)-ngc(1)/=0 to avoid this, use smaller deltaq_scale. or different QpGcou to void incidental difference.'
+c$$$            do igc=1,ngcx(iqx)
+c$$$              if(sum(abs(ngveccf(:,igc,iqx)-ngveccf(:,igc,1)))/=0) then
+c$$$                print *,' ikp=', 1,   ngveccf(:,igc,1)
+c$$$                print *,' iqx=', iqx, ngveccf(:,igc,iqx)
+c$$$                stop 'ngveccf(:,iqx)/=ngveccf(:,1)'
+c$$$              endif
+c$$$            enddo
+c$$$          endif  
+c$$$        enddo
+c$$$      endif
 
 !! --- required Input for hvccfp0 ---
       ifhvccfp  = iopen('HVCCIN',0,-1,0)

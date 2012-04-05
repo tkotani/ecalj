@@ -206,9 +206,18 @@ c      integer :: nw2
       real(8),allocatable:: eee(:),mmnorm(:),
      &    asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
       real(8):: eex(4),eey(4)
-
+!!
+      logical :: newaniso,newaniso2 !apr2012
+      integer :: ngb0,ifvcoud,idummy
+      complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:)
+      real(8),allocatable:: vcousq(:)
+      complex(8):: llw(:) !Eq.(40) in PRB81 125102
+      real(8):: fourpi,sqfourpi
+!! -------------------------------------------------------------------
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
+      fourpi=4d0*pi
+      sqfourpi=sqrt(fourpi)
 
 !-------------------------------------------------------------------------
 C --- computational mode select
@@ -245,12 +254,12 @@ c      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
      &  ixc, iqxini, iqxend
       endif
 
-      if(ixc<=5.or.ixc==22.or.ixc==23.or.ixc==101) then
+      if(ixc<=6.or.ixc==22.or.ixc==23.or.ixc==101) then
          write(*,*)'these modes are removed now'
          stop 'these modes are not supported'
-! test mode
-      elseif(ixc==6) then
-        write(6,*) ' OK ixc=6. Real-axis tetwt5 mode'
+c! test mode
+c      elseif(ixc==6) then
+c        write(6,*) ' OK ixc=6. Real-axis tetwt5 mode'
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
         normalm=.true.
@@ -313,6 +322,11 @@ C ... files for RPA correlation energy mode.
           close(ieceig,status='delete')
         endif
         open(ieclog, file='ecorr.chk')
+      endif
+!! ====newaniso2====
+      newaniso2=.false.
+      if(newaniso().and.ixc==11) then
+        newaniso2=.true.
       endif
 
 C --- Readin BZDATA. See gwsrc/rwbzdata.f
@@ -453,10 +467,12 @@ C ... q near zero
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       close(101)
-      wqtsum = sum(abs(wqt(1:nq0i)))
-      call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-      if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p)) 
+      if(.not.newaniso2()) then
+        wqtsum = sum(abs(wqt(1:nq0i)))
+        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
+        if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p)) 
      &  stop ' wqtsum of Q0P /=1 '
+      endif
 
 C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2( nclass,nl,nxx)
@@ -537,58 +553,60 @@ c$$$          nw = 1
 c$$$        else
 c$$$          nw = (epsrng/2d0 - 1d-10)/(dw/2d0) + 2 !epsrng/2d0 corresponds to in a.u.
 c$$$        endif
-      if(ixc==6) then
-! test modes. ixc=6 Spectrum function (Img part) along the Real axis with tetwt5. Histgram method.
-        realomega = .true.
-        imagomega = .false.
-        tetra     = .true.
-        niw = 0
-! ---  For tetwt5 ---  the tetrahedron weight for spectrum function (imaginary part)
-!   Histogram bins are specified by freq_r(1:nwp)
-!     nwp=nw+1; frhis(1)=0
-!     The 1st   bin  is     [frhis(1),  frhis(2)]   ...
-!     The last  bin  is     [frhis(nw), frhis(nwp)].
 
-! ... These parameters specifies a test histgram bins;Sergey's mesh just for test modes.
-        nw0 = 200    !100    800
-        dwh = 0.01d0 !0.02d0 0.0025d0 !in hartree
-        call findemaxmin(nband,qbze,nqbze,nspin,emax,emin)
-c$$$ Even if we neglect this section, result is not so bad---anyway we may need to
-c$$$ fix this block if necessary. Oct2005
-c$$$        if(bzcase()==2) then
-c$$$          allocate(qbz2(3,nqbz))
-c$$$          do iq=1,nqbz
-c$$$           qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
-c$$$          enddo
-c$$$          call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-c$$$          emax=max(emax,emax2)
-c$$$          emin=min(emin,emin2)
-c$$$          deallocate(qbz2)
-c$$$        endif
-        if (nctot .gt. 0) Emin = minval(ecore(:,1:nspin))
-        omg2max = (Emax-Emin)*.5+.2d0    !(in Hartree) covers  all relevant omega, +.2 for margin
-        omg1max = dwh*(nw0-1)
-        nwp = int(sqrt(omg2max*(2*nw0-1d0)/dwh-(nw0**2-3*nw0+1d0)))+1 ! + 1 for margin
-        nw  = nwp-1
-        write(*,*) Emax,Emin,nw0,nw  ! nwp is new max number in frequency array
-        write(6,'(a32,2i7,2d15.3)')'hx0fp0: nw0,nw,omg1max,omg2max='
-     &              , nw0,nw,  omg1max,omg2max
-        if (nw <= nw0) stop 'hx0fp0:ixc==[456] nw2 <= nw'
-        allocate(freq_r(0:nw))
-        do iw=0,nw  !This is a test mesh by Sergey.Faleev
-          if(iw+1<=nw0) then;  freq_r(iw)=dwh*iw
-          else;  freq_r(iw)=dwh*((iw+1)**2+nw0**2-3*nw0+1)/(2*nw0-1d0)
-          endif
-        enddo 
-! freq_r(iw) is linear for iw<=nw and quadratic for nw<iw<=nw2
-! freq_r(iw) chosen in such a way that it is continues with
-!   nw nwp=nw+1 freq_r(1:nwp) are used after here.
-        allocate(frhis(nwp))
-        frhis=freq_r(0:nw)
-        nwhis=nw
+c$$$      if(ixc==6) then
+c$$$! test modes. ixc=6 Spectrum function (Img part) along the Real axis with tetwt5. Histgram method.
+c$$$        realomega = .true.
+c$$$        imagomega = .false.
+c$$$        tetra     = .true.
+c$$$        niw = 0
+c$$$! ---  For tetwt5 ---  the tetrahedron weight for spectrum function (imaginary part)
+c$$$!   Histogram bins are specified by freq_r(1:nwp)
+c$$$!     nwp=nw+1; frhis(1)=0
+c$$$!     The 1st   bin  is     [frhis(1),  frhis(2)]   ...
+c$$$!     The last  bin  is     [frhis(nw), frhis(nwp)].
+c$$$
+c$$$! ... These parameters specifies a test histgram bins;Sergey's mesh just for test modes.
+c$$$        nw0 = 200    !100    800
+c$$$        dwh = 0.01d0 !0.02d0 0.0025d0 !in hartree
+c$$$        call findemaxmin(nband,qbze,nqbze,nspin,emax,emin)
+c$$$c$$$ Even if we neglect this section, result is not so bad---anyway we may need to
+c$$$c$$$ fix this block if necessary. Oct2005
+c$$$c$$$        if(bzcase()==2) then
+c$$$c$$$          allocate(qbz2(3,nqbz))
+c$$$c$$$          do iq=1,nqbz
+c$$$c$$$           qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
+c$$$c$$$          enddo
+c$$$c$$$          call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
+c$$$c$$$          emax=max(emax,emax2)
+c$$$c$$$          emin=min(emin,emin2)
+c$$$c$$$          deallocate(qbz2)
+c$$$c$$$        endif
+c$$$        if (nctot .gt. 0) Emin = minval(ecore(:,1:nspin))
+c$$$        omg2max = (Emax-Emin)*.5+.2d0    !(in Hartree) covers  all relevant omega, +.2 for margin
+c$$$        omg1max = dwh*(nw0-1)
+c$$$        nwp = int(sqrt(omg2max*(2*nw0-1d0)/dwh-(nw0**2-3*nw0+1d0)))+1 ! + 1 for margin
+c$$$        nw  = nwp-1
+c$$$        write(*,*) Emax,Emin,nw0,nw  ! nwp is new max number in frequency array
+c$$$        write(6,'(a32,2i7,2d15.3)')'hx0fp0: nw0,nw,omg1max,omg2max='
+c$$$     &              , nw0,nw,  omg1max,omg2max
+c$$$        if (nw <= nw0) stop 'hx0fp0:ixc==[456] nw2 <= nw'
+c$$$        allocate(freq_r(0:nw))
+c$$$        do iw=0,nw  !This is a test mesh by Sergey.Faleev
+c$$$          if(iw+1<=nw0) then;  freq_r(iw)=dwh*iw
+c$$$          else;  freq_r(iw)=dwh*((iw+1)**2+nw0**2-3*nw0+1)/(2*nw0-1d0)
+c$$$          endif
+c$$$        enddo 
+c$$$! freq_r(iw) is linear for iw<=nw and quadratic for nw<iw<=nw2
+c$$$! freq_r(iw) chosen in such a way that it is continues with
+c$$$!   nw nwp=nw+1 freq_r(1:nwp) are used after here.
+c$$$        allocate(frhis(nwp))
+c$$$        frhis=freq_r(0:nw)
+c$$$        nwhis=nw
+c$$$
+c$$$      else
 
 C ... Sergey Faleev's normal mode (Hilbert transformation for \chi.
-      else
         realomega = .true.
         imagomega = .true.
         tetra     = .true.
@@ -660,7 +678,7 @@ C ... for frhis_m
         nwp = nw+1
         delta=0d0 !only for writeemesh
 c        write(6,"(' ixc=11: niw nw nwhis=',3i5)") niw,nw,nwhis
-      endif
+c$$$      endif
 
 ! Timereversal=F is implimented only for tetra=T and sergeyv=T
       npm=1
@@ -873,6 +891,8 @@ C --- ppb ---
 C ... Set iqxini
       if(omitqbz) then
         iqxini= nqibz + 1
+      elseif(newaniso2()) then
+        iqxini=1
       elseif(paralellx0) then
      &  !skip
       elseif(bzcase()==1) then
@@ -1144,14 +1164,23 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
+!! === readin square of the the Coulomb matrix ===
+!! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
+      if(newaniso2()) then
+       ifvcoud = iopen('Vcoud',0,0,0)
+       read(ifvcoud) ngb0
+       allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
+       read(ifvcoud) vcousq
+       read(ifvcoud) zcousq
+       vcousq=sqrt(vcousq) !
+       idummy =iclose('Vcoud')
+      endif 
 
-
-
-C --- Calculate x0(q,iw) and W ------------------------------------------
-!============ loop over q point ========================================
-!=======================================================================
-!      if(iepsmode==202) iqxini = nqibz+1
-      do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
+!! ---------------------------------------------------------
+!! === Calculate x0(q,iw) and W ===
+!! This is a main loop 
+!!
+      do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted when iqxini=2
         call cputid (0)
         q = qibze(:,iq)
         if(iq<=nqibz.or.ngczero) then ! iqx = iq
@@ -1159,10 +1188,15 @@ C --- Calculate x0(q,iw) and W ------------------------------------------
         else  !    iqx = 1            ! corresponding q=0
           qq=0d0
         endif
-
         call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
+!! *sanity check
+        if( newaniso2().and.iq==1 ) then 
+          if(sum(q**2)>1d-10) then
+            stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
+          endif   
+        endif
 
-C --- readin Coulomb matrix
+!! ==== readin Coulomb matrix ====
         if(chipm.and.(.not.legas).and.(.not.eiqr)) then
           allocate(vcoul(1,1))!dummy
           ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
@@ -1170,14 +1204,12 @@ C --- readin Coulomb matrix
           read(ifvcfpout) ngb       ! oct2005 !I added ngb to VCCFP
           allocate(vcoul(ngb,ngb))
           read(ifvcfpout) vcoul,qx  ! coulomb matrix
-css
           if(sum(q**2)<1d-10) then
             if(sum(qx**2) >1d-7)stop'qx=0 xxx See hvccfp0'
           elseif(sum(abs(q-qx))>1d-10) then
             write(6,"('iq q=',i5,3d15.7,' qx(VCCFP)=',3d15.7)")iq,q,qx
             stop 'hx0fp0: VCCFP is not compatible'
           endif
-ccss
 c         if(sum(abs(q-qx))>1d-10) then
 c         write(6,"('iq q=',i5,3f9.4,' qx(VCCFP)=',3f9.4)")iq,q,qx
 c         stop 'hx0fp0: VCCFP is not compatible'
@@ -1185,7 +1217,32 @@ c         endif
         endif
         write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
 
-C --- eps mode
+!! ==== nolfco is overlaid ====
+        if( newaniso2() ) then
+          if( iq>nqibz  ) then
+           if( ngb0/=ngb ) then
+            stop 'hx0fp0.m.f:ngb0/=ngb'
+           endif 
+           nolfco =.true.
+           nmbas_in=ngb
+           nmbas  = ngb
+           nmbas1 = 2  !nmbas1=2 is for newaniso modes. For P1mu and Pmu1 components.
+           nmbas2 = ngb
+           if(allocated(rcxqmean)) deallocate(rcxqmean)
+           if(allocated(x0mean)  ) deallocate(x0mean)
+           if(allocated(zzr))      deallocate(zzr)
+           allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) ) 
+           allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
+           allocate( zzr(ngb,ngb) )
+           rcxqmean= 0d0
+           x0mean  = 0d0
+           zzr     = zcousq
+          endif
+        else
+          nmbas1=nmbas
+          nmbas2=nmbas
+        endif
+!! ==== set up for epsilon mode =====
         if(epsmode) then !iepsmode/=0) then      ! only calculate iq>nqibz
           if(iq<=nqibz) then
             deallocate(vcoul)
@@ -1303,14 +1360,16 @@ cc             do i=1,nbloch
 cc                 sprojx(i,i)= 1d0 + sprojx(i,i)
 cc              enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-        allocate( zw0(ngb,ngb),
+        if(.not.nolfco) then !apr2012. followings are only for .not.nolfco
+          allocate( zw0(ngb,ngb),
      &    zxq (ngb,ngb,nw_i:nw), 
      &    zxqi(ngb,ngb,niw)) !,npm))
+          zxq=0d0; zxqi=0d0
+        endif
 c        write(6,*) "---  end of allocation zw0 zxq zxqi"
-        if(ixc==6 ) then
-          allocate( rcxq(ngb,ngb,nwp,npm) )
-        elseif(epsmode.and.nolfco) then !iepsmode==202) then
+c        if(ixc==6 ) then
+c          allocate( rcxq(ngb,ngb,nwp,npm) )
+        if(epsmode.and.nolfco) then !iepsmode==202) then
           allocate( rcxq(1,1,1,npm) )
           rcxqmean=0d0
         else
@@ -1319,7 +1378,6 @@ c        write(6,*) "---  end of allocation zw0 zxq zxqi"
         endif
 ! Error around here might be because of too large rcxq is allocated...
 c        write(6,*) "---  aaa1 ---"
-        zxq=0d0; zxqi=0d0
 c        write(6,*) "---  aaa2 --- sergeyv=",sergeyv
         rcxq = dcmplx(0d0,0d0)
 c        write(6,*) "---  aaa3 ---"
@@ -1672,8 +1730,8 @@ c          if(sergeyv) then ;
             print *, ' --- goto x0kf_v4hz '
 c- new version only along real axis for
             call x0kf_v4hz(npm,ncc,   
-     i          ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-     i            n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
      i              nspin,is,isf,
      i              qbas,ginv,  qbz,wbz, 
@@ -1686,9 +1744,10 @@ c- new version only along real axis for
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq, ! See rcxq_zxq in x0kf_v3h.f; rcxq is equivalent with zxq;
-            !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in,  !for nolfco Add nmbas Sep2006
-     o    rcxqmean   ) !for nolfco
+     &    !  rcxq is the accumulating variable for spins 
+     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2,zcousq,newaniso(),!for nolfco Add nmbas Sep2006
+     &                         !zcousq is added apr2012takao            
+     o    rcxqmean ) !for nolfco
 c          endif
 c          print *,'ttttt: rcxqmean sum =',sum(abs(rcxqmean))
 
@@ -1739,36 +1798,31 @@ c sergeyv=T only feb2012
 c          if(sergeyv) then !This was in 1003 loop as if(ixc==11.and.is==nspinmx) then
             if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
             if(is==nspinmx.or.chipm) then
-              if(ixc==6) then ! ... convert from rcxq to zxq for ixc==6
-                stop "--- !This path is not tested yet !!!!---"
-                zxq(:,:,0)=0d0
-                do jpm =1,npm
-                  do iw  = 1,nw
-                    do i=1,ngb
-                      do j=1,i
-                        ixx=1
-                        if(jpm==2) ixx=-1
-                        zxq(j,i,iw*ixx )=rcxq(j,i,iw,jpm)
-                        zxq(i,j,iw*ixx )=dconjg(zxq(j,i,iw*ixx))
-                      enddo
-                    enddo
-                  enddo
-                enddo
-              else
-                write(6,'("goto dpsion5: "
-     &       //"nwhis nw_i niw nw_w nmbas_in=",5i5)') nwhis,nw_i,nw,niw,nmbas_in
+c$$$             if(ixc==6) then ! ... convert from rcxq to zxq for ixc==6
+c$$$                stop "--- !This path is not tested yet !!!!---"
+c$$$                zxq(:,:,0)=0d0
+c$$$                do jpm =1,npm
+c$$$                  do iw  = 1,nw
+c$$$                    do i=1,ngb
+c$$$                      do j=1,i
+c$$$                        ixx=1
+c$$$                        if(jpm==2) ixx=-1
+c$$$                        zxq(j,i,iw*ixx )=rcxq(j,i,iw,jpm)
+c$$$                        zxq(i,j,iw*ixx )=dconjg(zxq(j,i,iw*ixx))
+c$$$                      enddo
+c$$$                    enddo
+c$$$                  enddo
+c$$$                enddo
+c$$$             else
+              write(6,'("goto dpsion5: "
+     &        //"nwhis nw_i niw nw_w nmbas_in=",5i5)') nwhis,nw_i,nw,niw,nmbas_in
                 write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
-c$$$             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega,
-c$$$     i        ngb, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
-c$$$     o        zxq, zxqi,
-c$$$     i        nolfco,chipm, schi,is,  rcxqmean,ecut(iecut),ecuts(iecut), !iepsmode,
-c$$$     o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
-                call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
+              call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
      i        ngb, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
      o        zxq, zxqi, 
      i        nolfco,chipm, schi,is,  rcxqmean,nmbas_in,ecut(iecut),ecuts(iecut),
      o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
-              endif
+             endif
             endif  ;  print *,' --- end of dpsion5 ----'
             if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean',sum(abs(x0mean))
 c          endif
@@ -1896,9 +1950,69 @@ cnw all freq is from zero freq(0:nwp-1); nwp is the number of real flequencies.
                 write(6,*) "test end of h0000000000000000000"
               endif
 
-C ... wcf
-              call wcf( ngb, vcoul, zxq(1,1,iw), imode,
+!! === wcf: W= (1-v zxq)^{-1} v ===
+!! *newaniso2 mode
+              if(newaniso2()) then
+               if(iq==1) then
+!!  Eqs.(37),(38) in PRB81 125102
+                if(iw==nw_i) then
+                  allocate(epstinv(ngb,ngb),epstilde(ngb,ngb))
+                endif  
+                do igb1=1+1,ngb 
+                do igb2=1+1,ngb
+                  epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
+                enddo
+                enddo
+                epstinv=epstilde(:,:)
+                call matcinv(ngb-1,epstinv(2:ngb,2:ngb))
+                zw0(:,1)=0d0
+                zw0(1,:)=0d0
+                do igb1=1+1,ngb 
+                do igb2=1+1,ngb
+                  zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+                enddo
+                enddo
+                if( iw==nw_i) then
+                  ifepstinv = iopen('EPS0invR',0,0,0)
+                  write(ifepstinv) ngb
+                endif
+                write(ifepstinv) epstinv(2:ngb,2:ngb)
+                if( iw==nw)  then
+                  ifepstinv = iclose('EPS0invR')
+                  deallocate(epstinv,epstilde)
+                endif  
+               elseif(iq>nqibz) then
+                if( iw==nw_i) then
+                  ifepstinv = iopen('EPS0invR',0,0,0)
+                  read(ifepstinv) ngb
+                  allocate(epstinv(ngb,ngb))
+                endif   
+                read(ifepstinv) epstinv(2:ngb,2:ngb)
+                if( iw==nw  ) ifepstinv = iclose('EPS0invR')
+                iq0 = iq - nqibz
+!! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
+                sk (1:ngb,iq0)= x0mean(iw,1,1:ngb)
+                sks(1:ngb,iq0)= x0mean(iw,2,2:ngb) !sk(1)=sks(1) -> sks(1) isn't used. 
+                w_k (2:ngb,iw,iq0)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), sk(2:ngb,iw)*vcousq(2:ngb)) 
+                w_ks(2:ngb,iw,iq0)= sqfourpi*matmul(sks(2:ngb,iw)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
+                llw(iw,iq-nqibz,iq0)= sum(q**2) ! 1 of Eq.(40) 
+     &                  -fourpi* sk(1,1,iw,iq0) !sk(1,1,iw)= H of Eq.(40).
+     &                  -sqfourpi* sum( sks(2:ngb,iw,iq0)*w_k(2:ngb,iw,iq0)*
+     &                                  vcousq(2:ngb,iq0) )
+               endif
+              else
+!! *original mode
+                call wcf( ngb, vcoul, zxq(1,1,iw), imode,
      &                zw0)
+              endif
+  
+ccccccccccccccccccccccccccccccccccc
+              print *,' iq=',iq,' q=',q
+              stop 'cccccccc test end xxxxxxxxxxxxxxxxx'
+ccccccccccccccccccccccccccccccccccc
+              
+
 
 !... a debug mode
               if(evaltest()) then
@@ -2154,32 +2268,32 @@ c     &          deallocate(sqovlp,sqovlpi,UU0,VT0,SS0,mmat,zzz)
           if( allocated(zzr)   ) deallocate(zzr)
           if( allocated(x0mean)) deallocate(x0mean)
           if( allocated(gbvec) ) deallocate(gbvec)
-          if( ixc==5.or.ixc==6 ) then
-            jpm=1
-c            nwmax = nw
-c            if(ixc==5) nwmax =nw
-            allocate(trwv(nw_i:nw),trwv2(nw_i:nw))
-            do iw = nw_i,nw !max ! trace check
-              trwv(iw) = zxq(6,7,iw)
-              trwv2(iw) = 0d0
-              do i = 1,ngb
-                trwv2(iw) = trwv2(iw) + zxq(i,i,iw)
-              enddo
-            enddo
-            do iw= nw_i,nw-1
-              if(ixc==5) 
-     &         write(6,"('iq iw[min_max]=',2i5,2f7.4,' trwv by wwk*h= ',
-     &         12d13.5)") iq, iw, freq_r(iw), freq_r(iw+1), 
-     &         (trwv2(iw)+trwv2(iw+1))/2d0*(freq_r(iw)-freq_r(iw+1)),
-     &         (trwv(iw)+trwv(iw+1))  /2d0*(freq_r(iw)-freq_r(iw+1))
-              !weight for the histgram range. by tetwt5
-              if(ixc==6) 
-     &         write(6,"('iq iw[min_max]=',2i5,2f7.4,' trwv by whw  = ',
-     &         12d13.5)") iq,iw, freq_r(iw), freq_r(iw+1),
-     &            trwv2(iw),trwv(iw) !weight for the histgram range. by tetwt5
-            enddo
-            deallocate(trwv,trwv2)
-          endif
+c$$$          if( ixc==5.or.ixc==6 ) then
+c$$$            jpm=1
+c$$$c            nwmax = nw
+c$$$c            if(ixc==5) nwmax =nw
+c$$$            allocate(trwv(nw_i:nw),trwv2(nw_i:nw))
+c$$$            do iw = nw_i,nw !max ! trace check
+c$$$              trwv(iw) = zxq(6,7,iw)
+c$$$              trwv2(iw) = 0d0
+c$$$              do i = 1,ngb
+c$$$                trwv2(iw) = trwv2(iw) + zxq(i,i,iw)
+c$$$              enddo
+c$$$            enddo
+c$$$            do iw= nw_i,nw-1
+c$$$              if(ixc==5) 
+c$$$     &         write(6,"('iq iw[min_max]=',2i5,2f7.4,' trwv by wwk*h= ',
+c$$$     &         12d13.5)") iq, iw, freq_r(iw), freq_r(iw+1), 
+c$$$     &         (trwv2(iw)+trwv2(iw+1))/2d0*(freq_r(iw)-freq_r(iw+1)),
+c$$$     &         (trwv(iw)+trwv(iw+1))  /2d0*(freq_r(iw)-freq_r(iw+1))
+c$$$              !weight for the histgram range. by tetwt5
+c$$$              if(ixc==6) 
+c$$$     &         write(6,"('iq iw[min_max]=',2i5,2f7.4,' trwv by whw  = ',
+c$$$     &         12d13.5)") iq,iw, freq_r(iw), freq_r(iw+1),
+c$$$     &            trwv2(iw),trwv(iw) !weight for the histgram range. by tetwt5
+c$$$            enddo
+c$$$            deallocate(trwv,trwv2)
+c$$$          endif
         endif
 
 C ... Close files for epsmode
@@ -2231,8 +2345,63 @@ c           enddo
 c$$$          do ipm=1,npm
           do iw  = 1,niw
 c            print *,'sss sumchk zxqi=',sum(abs(zxqi(:,:,iw))) !,ipm)))
-            call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
+
+            if(newaniso2()) then 
+              if(iq==1) then
+!!  Eqs.(37),(38) in PRB81 125102
+                if(iw==1) then
+                  allocate(epstinv(ngb,ngb),epstilde(ngb,ngb))
+                endif  
+                do igb1=1+1,ngb 
+                do igb2=1+1,ngb
+                  epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
+                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
+                enddo
+                enddo
+                epstinv=epstilde(:,:)
+                call matcinv(ngb-1,epstinv(2:ngb,2:ngb))
+                zw0(:,1)=0d0
+                zw0(1,:)=0d0
+                do igb1=1+1,ngb 
+                do igb2=1+1,ngb
+                  zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+                enddo
+                enddo
+                if(iw==1) then
+                  ifepstinv = iopen('EPS0invI',0,0,0)
+                  write(ifepstinv) ngb
+                endif
+                write(ifepstinv) epstinv(2:ngb,2:ngb)
+                if(iw==nw)  then
+                  ifepstinv = iclose('EPS0invI')
+                  deallocate(epstinv,epstilde)
+                endif  
+               elseif(iq>nqibz) then
+                if( iw==1) then
+                  ifepstinv = iopen('EPS0invI',0,0,0)
+                  read(ifepstinv) ngb
+                  allocate(epstinv(ngb,ngb))
+                endif   
+                read(ifepstinv) epstinv(2:ngb,2:ngb)
+                if( iw==nw  ) ifepstinv = iclose('EPS0invR')
+                iq0 = iq - nqibz
+!! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
+                sk (1:ngb,iq0)= x0mean(iw,1,1:ngb)
+                sks(1:ngb,iq0)= x0mean(iw,2,2:ngb) !sk(1)=sks(1) -> sks(1) isn't used. 
+                w_k (2:ngb,iw,iq0)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), sk(2:ngb,iw)*vcousq(2:ngb)) 
+                w_ks(2:ngb,iw,iq0)= sqfourpi*matmul(sks(2:ngb,iw)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
+                llw(iw,iq-nqibz,iq0)= sum(q**2) ! 1 of Eq.(40) 
+     &                  -fourpi* sk(1,1,iw,iq0) !sk(1,1,iw)= H of Eq.(40).
+     &                  -sqfourpi* sum( sks(2:ngb,iw,iq0)*w_k(2:ngb,iw,iq0)*
+     &                                  vcousq(2:ngb,iq0) )
+              endif
+            else
+
+!! *original mode
+              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
      o              zw0)
+            endif  
+
 c            print *,'sss sumchk zw0=',sum(abs(zw0))
             zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
             write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v

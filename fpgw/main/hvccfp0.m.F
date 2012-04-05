@@ -93,7 +93,7 @@ c---
       real(8)::absqq,qqx(3), epsmx
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
-      integer(4):: ifgb0vec_a,ifgb0vec_b
+      integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
       logical:: is_mix0vec,newaniso
 
       pi  = 4d0*datan(1d0)
@@ -692,6 +692,10 @@ C... Store matting matrix (imatchn,imatcho,pmatch)
         ifpomat   = iopen('POmat',0,-1,0)
 c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       endif
+!! === open file Vcoud ===
+!! This contains E(\nu,I), given in PRB81,125102
+        ifvcoud = iopen('Vcoud',0,-1,0)
+
 !! == main loop for iqx ==
       do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
        write(*,"('#### do 1001 start iqx=',i5)")iqx
@@ -1052,12 +1056,24 @@ c Mix0vec ---------------------------------
      &    write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
           allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
           hh  = - vcoul0
-          nmx = 15
-c          nmx = ngb
+c          nmx = 15
+          nmx = ngb
           call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
-          do ipl1=1,nev
+          do ipl1=1,15 !nev
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
           enddo
+
+!! === save zz === apr2012takao
+          if( newaniso().and.iqx==1 ) then 
+            if(sum(q**2)>1d-10) then
+               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
+            endif   
+            write(ifvcoud) ngb
+            write(ifvcoud) -eb
+            write(ifvcoud) zz
+            idummy=iclose('Vcoud')
+          endif  
+
           print *
           write(6,'(" eig0 must be equal to the largest =", 2d24.16)')
      &       sum(  dconjg(zz(1:ngb,1))*matmul( vcoul0,zz(1:ngb,1))  )
