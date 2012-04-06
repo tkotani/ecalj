@@ -496,7 +496,7 @@ c                  print *,'qqqqq:',ibib,k,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(i
                     imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
                     rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
      &        rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight !sum over spin in hx0fp0
-                    print *,'rrrrr: ',k,iw,imagweight,zq0zq0
+                    !print *,'rrrrr: ',k,iw,imagweight,zq0zq0
                   enddo ! iw
                 enddo ! imb2
               enddo ! imb1
@@ -734,9 +734,10 @@ C=====================================================================
      i                                 realomega,   imagomega,      !freqr ->frhis ...sf
      i                    ngb, rcxq, npm, nw_i,
      o      zxq,zxqi,
-     i    nolfco,chipm,schi,isp,  rcxqmean,nmbas,  !iepsmode, rcxqmean, ! epsmode
-     i    ecut,ecuts, 
-     o    x0mean)
+c     i    nolfco,chipm,schi,isp,  rcxqmean,nmbas,  !iepsmode, rcxqmean, ! epsmode
+     i    chipm,schi,isp,   !No nolfco mode. Apr2012.
+     i    ecut,ecuts)
+c     o    x0mean)
 C- Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 Cr v4 works for timereversal=F (npm=2 case).
 Cr  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
@@ -764,10 +765,10 @@ C------------------------------------------------------------------
       logical :: realomega, imagomega
       complex(8):: rcxq(ngb,ngb, nwhis,npm) !sf 13June
 c      logical   :: iepsmode
-      logical :: nolfco,chipm
+      logical :: chipm
 
-      integer(4)::isp,ispx, nmbas
-      complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
+      integer(4)::isp,ispx !, nmbas
+c      complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
 C... ecut mode
       real(8):: ecut,ecuts,wcut,wcutef,dee,schi
       logical ::debug=.false.
@@ -782,7 +783,7 @@ C... ecut mode
       complex(8),allocatable:: rrr(:)
 
       integer(4)::nw_i,jpm,ipm,verbose,isgi
-      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
+c      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
       complex(8):: 
      o   zxq (ngb,ngb, nw_i: nw_w), !iw=0 means omg=0,
       !iw=1:nw_w corresponds to iw's bit of the frequensy histogram 
@@ -795,16 +796,11 @@ C... ecut mode
       if(verbose()>89) debug=.true.
 c ------------------------------------------------
       write(*,'(" dpsion5: start...   ",$)')
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(debug) write(6,*)' ngb nwhis npm =', ngb, nwhis,npm
       if(debug) then
-        if(.not.nolfco) then
-          write(6,*)' sumchk rcxq=', sum(abs(rcxq))
-        else
-          write(6,*)' sumchk rcxqmean=', sum(abs(rcxqmean))
-        endif
+        write(6,*)' ngb nwhis npm =', ngb, nwhis,npm
+        write(6,*)' sumchk rcxq=', sum(abs(rcxq))
       endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       write(6,"('  nw_w nwhis=',2i5)") nw_w,nwhis
       pi  = 4d0*datan(1d0)
       img = (0d0,1d0)
@@ -848,11 +844,9 @@ C--------------------------------------------------------------
       enddo
       his_C(0) = 0d0; his_R(0)=-999; his_L(0)=-999
 C
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(debug.and.(.not.nolfco)) write(6,*)'sumchk 111 rcxq=', sum(abs(rcxq))
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(.not.nolfco) then
-        do iw= 1, nwhis
+      if(debug) write(6,*)'sumchk 111 rcxq=', sum(abs(rcxq))
+
+      do iw= 1, nwhis
           if(ecut<1d9) then
             wfac= wcutef(his_C(iw), ecut,ecuts)
           else
@@ -864,11 +858,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
             call dscal(2*ngb*ngb, -wfac/(his_r(iw)-his_l(iw)),rcxq(1,1,iw,jpm),1)
           enddo
 c         if(debug) print *, 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
-        enddo
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug.and.(.not.nolfco)) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      enddo
+      if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
 
 C... Temporary. maybe, we will have better procedure...
 c        do igb2= 1, ngb
@@ -876,7 +867,7 @@ c        do igb1= 1, igb2-1
 c          rcxq(igb2,igb1,:,1:npm) = dconjg(rcxq(igb1,igb2,:,1:npm))
 c        enddo
 c        enddo
-        do jpm=1,npm
+      do jpm=1,npm
           do iw= 1, nwhis
             do igb2= 1, ngb
               do igb1= 1, igb2-1
@@ -884,36 +875,8 @@ c        enddo
               enddo
             enddo
           enddo
-        enddo
-      endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(debug.and.(.not.nolfco)) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c$$$      if(testtr()) then
-c$$$        ifxx=9216
-c$$$        open(ifxx,file="rcxq.dat")
-c$$$        do jpm=1,npm
-c$$$        do iw=1, nwhis
-c$$$        do igb1= 1, ngb
-c$$$        do igb2= 1, igb1
-c$$$          write(ifxx,"(4i5,4d14.6)") iw,igb2,igb1,jpm,rcxq(igb2,igb1,iw,jpm)
-c$$$          if(igb1==igb2) then
-c$$$            write(6,"(4i5,4d14.6)") iw,igb2,igb1,jpm,rcxq(igb2,igb1,iw,jpm)
-c$$$          endif
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c       write(6,*)'sumchk 333 rcxq=', sum(abs(rcxq))
-c$$$c       write(6,*)'sumchk 444 rcxq=', sum(abs(rcxq(1:ngb,1:ngb, 1:nwhis,1:npm))),
-c$$$c     &     ngb,nwhis,npm
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        print *, '-----test end of testTR------------npm=',npm
-c$$$        close(ifxx)
-c$$$        stop     '-----test end of testTR------------'
-c$$$      endif
+      enddo
+      if(debug) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
 
       if(evaltest()) then
         write(6,"('hhh --- EigenValues for rcxq --------')")
@@ -930,19 +893,6 @@ c$$$      endif
         enddo
         deallocate(ebb)
       endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-cccccccccccccccccccccccccccccccccccc
-c        do igb1= 1, ngb
-c        do it=1,nwhis
-c          write(6,"('igb1 iwt rcxq=',2i5,4d14.6)")
-c     &    igb1,it,rcxq(igb1,igb1,it,1:npm)
-c        enddo
-c        enddo
-cccccccccccccccccccccccccccccccccc
-
-
 
 C--- realomega case
       if(realomega)then
@@ -965,11 +915,6 @@ C--- realomega case
           else
             do iw= 1,nwhis
               rmatt(:,iw,1) = rmat(:,iw,1) - rmat(:,-iw,1)
-ccccccccccccccccccccccccccccccccccccccc
-c          if(testtr() ) then
-c            rmatt(:,iw,1) = rmat(:,iw,1)
-c          endif
-ccccccccccccccccccccccccccccccccccccccc
             enddo
           endif
           deallocate(rmat,rrr)
@@ -990,79 +935,16 @@ ccccccccccccccccccccccccccccccccccccccc
         endif
         rmatt = rmatt/pi ; if(debug) print *,'dpsion5: RRR 6666'
 
-cccccccccccccccccccccccccccccc
-ctest020oct
-c        rmatt=0d0
-c        print *,' test: x0kf_v4h: rmatt=1d0 ------ '
-c        rmatt=1d0
-cccccccccccccccccccccccccccccc
-
-
-!... nolfc case epsmode ----------------------------------------------------
-        if(nolfco) then !iepsmode=202 ! real mode is assumed
-          if(npm==2.and.nmbas/=1) 
-     &      stop 'x0kf_v4h:npm==2.and.nmbas/=1 is not implimented yet'
-          if(npm==1) then
-            allocate(    zxqn1(nwhis,nmbas,nmbas),
-     &                rx0mean1(0:nw_w,nmbas,nmbas) )
-            do iw = 1,nwhis
-              if(ecut<1d9) then
-                wfac= wcutef(his_C(iw), ecut,ecuts)
-              else
-                wfac= 1d0
-              endif
-              zxqn1(iw,:,:) = - wfac*rcxqmean(iw,1,:,:)/(his_r(iw)-his_l(iw))
-            enddo
-ccccccccccccccccccc
-c            rx0mean1 = reshape( 
-c     &                      matmul( reshape(rmatt, (/nw_w+1,nwhis/) )
-c     &                            , reshape(zxqn1, (/nwhis,nmbas*nmbas/) )),
-c     &                       (/nw_w+1,nmbas,nmbas/)  )
-c
-! Mar2012, code above did not work in gfortran...
-            do i=0,nw_w
-            do ibas1=1,nmbas
-            do ibas2=1,nmbas
-              rx0mean1(i,ibas1,ibas2) = sum(rmatt(i,:,1)* zxqn1(:,ibas1,ibas2))
-            enddo
-            enddo
-            enddo
-cccccccccccccccccccc
-            if(chipm.and.ispx==2) then
-              x0mean    = x0mean + rx0mean1
-            elseif(chipm) then
-              x0mean    = x0mean + rx0mean1
-              x0mean(1:nw_w,:,:) = x0mean(1:nw_w,:,:) + img*zxqn1(1:nw_w,:,:)
-            else
-              x0mean = rx0mean1
-              x0mean(1:nw_w,:,:) = x0mean(1:nw_w,:,:) + img*zxqn1(1:nw_w,:,:)
-            endif
-            deallocate(zxqn1,rx0mean1)
-          else !npm==2 ------------------------------------
-            allocate( zxqn(nwhis,npm), rx0mean(-nw_w:nw_w) )
-            zxqn=0d0
-            do iw  = 1,nwhis
-              if(ecut<1d9) then
-                wfac= wcutef(his_C(iw), ecut,ecuts)
-              else
-                wfac= 1d0
-              endif
-              zxqn(iw,:) = - wfac*rcxqmean(iw,:,1,1)/(his_r(iw)-his_l(iw))
-            enddo
-            rx0mean = matmul( reshape(rmatt,(/2*nw_w+1,nwhis*npm/))
-     &                      , reshape(zxqn,(/nwhis*npm/))            )
-            x0mean(:,1,1) = rx0mean
-            x0mean(1:nw_w  ,1,1) = x0mean(1:nw_w  ,1,1) + img*zxqn(1:nw_w,1)
-            x0mean(-nw_w:-1,1,1) = x0mean(-nw_w:-1,1,1) + img*zxqn(-nw_w:-1,2)
-            deallocate(zxqn,rx0mean)
-          endif
-          goto 998
-        endif
-
+!! takao remove if(nolfc) block here.
         write(6,*) " --- realomega dgemm--- "
 
-C... !!!chipm case is not yet for npm==2
-! Note rcxq is negative now (converted at the top of this routine !!!
+
+!! WARN! I think npm==2.and.chipm is not meaningful(apr2012). But I am not sure.
+          if(npm==2.and.chipm) 
+     &      stop 'x0kf_v4h:npm==2.and.chipm is not meaningful probably'
+
+
+!! Note rcxq is negative now (converted at the top of this routine !!!
         if(     chipm .and. ispx==2 ) then
           !nothing here
         elseif( chipm               ) then
@@ -1070,106 +952,31 @@ C... !!!chipm case is not yet for npm==2
         else
           zxq = 0d0    ! not accumlating case.
           call zaxpy( ngb*ngb*nw_w, img, rcxq(1,1,1,1), 1, zxq(1,1,1), 1)
-!          zxq(:,:,0) = 0d0
-!          call zcopy( ngb*ngb*nw_w, rcxq,1, zxq(1,1,1),1)
-!          call zscal( ngb*ngb*nw_w,   img,  zxq(1,1,1),1)
         endif
-        if(debug) print *, 'dpsion5: RRR 88888 xxxxxxxxx '
+
         if(npm==2) then
-c          call zaxpy( ngb*ngb*nw_w,img, rcxq(1,1,1,2),1, zxq(:,:,-1:-nw_w:-1),1)
           do iw=1,nw_w
             call zaxpy( ngb*ngb, img, rcxq(1,1,iw,2),1, zxq(:,:,-iw),1)
           enddo
         endif
-!     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
-!                 iw =1,nwhis   it=0:nw_w
-        if(debug) print *, 'dpsion5: RRR 88888 yyyyyy '
+
         if(npm==1) then
           call dgemm('n','t',  2*ngb*ngb, nw_w+1, nwhis, 1d0, 
      &              rcxq,2*ngb*ngb,  rmatt, nw_w+1,
      &               1d0, zxq,2*ngb*ngb )
-c          do iw= 0,nw_w
-c            write(6,"('uuu sumzxq',i5,2d13.6)") iw, sum(zxq(:,:,iw))
-c          enddo
-c          stop 'test end xxxxxxxxxxxxxxxxx'
-        else !npm==2 ------------------------------------------------------
+        elseif(npm==2) then
           call dgemm('n','t',  2*ngb*ngb,   npm*nw_w+1, nwhis, 1d0, 
      &              rcxq(1,1,1,1), 2*ngb*ngb, rmatt(:,:,1), npm*nw_w+1,
      &               1d0, zxq, 2*ngb*ngb )
-c          if(.not.testtr()) then
           call dgemm('n','t',  2*ngb*ngb,   npm*nw_w+1, nwhis, 1d0, 
      &              rcxq(1,1,1,2), 2*ngb*ngb, rmatt(:,:,2), npm*nw_w+1,
      &               1d0, zxq, 2*ngb*ngb )
-c          endif
-c          do iw=-nw_w,nw_w
-c            write(6,"('uuu sumzxq',i5,2d13.6)") iw, sum(zxq(:,:,iw))
-c          enddo
-c          stop 'test end xxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-c          call dgemm('n','t',  2*ngb*ngb, npm*nw_w+1, nwhis, 1d0,
-c     &              rcxq(1,1,1,1), 2*ngb*ngb,  rmatt(:,:,1), npm*nw_w+1,
-c     &               1d0, zxq,2*ngb*ngb )
-c          call dgemm('n','t',  2*ngb*ngb, npm*nw_w+1, nwhis, 1d0,
-c     &              rcxq(1,1,1,2), 2*ngb*ngb,  rmatt(:,:,2), npm*nw_w+1,
-c     &               1d0, zxq,2*ngb*ngb )
+        else
+           stop 'dpsion5: npm=1 or 2'
         endif
-        if(debug) print *, 'dpsion5: RRR 9999 xxxxxxxxx '
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$      write(6,*) '--- after dgemm-------'
-c$$$      do igb1=1,5
-c$$$      do igb2=1,5
-c$$$        write(6,"(' zxq=', 2i5,4(2d13.5,2x))") igb1,igb2,zxq(igb1,igb2,0:3)
-c$$$      enddo
-c$$$      enddo
-c$$$      do igb1=ngb-5,ngb
-c$$$      do igb2=ngb-5,ngb
-c$$$         write(6,"(' zxq=', 2i5,4(2d13.5,2x))") igb1,igb2,zxq(igb1,igb2,0:3)
-c$$$      enddo
-c$$$      enddo
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
- 998    continue
         deallocate(rmatt)
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c         allocate(ebb(ngb))
-c         do iw =nw_i,nw_w
-c            call diagcvh2((zxq(:,:,iw)-transpose(dconjg(zxq(:,:,iw))))/2d0/img, ngb, ebb)
-c            do ii=1,ngb
-c            if( abs(ebb(ii))>1d-8 .and. ebb(ii)>0) then
-c             write(6, "('hhhsss : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-c            else
-c             write(6, "('hhhsxxx: iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-c            endif
-cc     &        write(6,*) 'hhh2:', iw, ii, ebb(ii)
-c           enddo
-c         enddo
-c         deallocate(ebb)
-c         write(6,*) "test end of hssssssssssssssss"
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccc     o   zxq (ngb,ngb, nw_i: nw_w), !iw=0 means omg=0,
-ccc     o   zxqi(ngb,ngb,niwt),img !npm), img  !zxqi(...,npm) may2006
-c$$$      if(testtr()) then
-c$$$        ifxx=9216
-c$$$        open(ifxx,file="zxq.dat")
-c$$$        do iw= nw_i,nw_w
-c$$$        do igb1= 1, ngb
-c$$$        do igb2= 1, ngb
-c$$$          write(ifxx,"(3i5,4d14.6)") iw,igb2,igb1,zxq(igb2,igb1,iw)
-c$$$c          if(igb1==igb2) then
-c$$$c            write(6,"(4i5,4d14.6)")  iw,igb2,igb1,zxq(igb2,igb1,iw)
-c$$$c          endif
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        print *, '-----test end of testTR----zxq--------npm=',npm
-c$$$        close(ifxx)
-c$$$      endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
       endif
+
 
 C--- imagomega case      imatt(niwt -->niwt,npm may2005
       if(imagomega) then

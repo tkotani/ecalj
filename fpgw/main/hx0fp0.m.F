@@ -207,6 +207,8 @@ c      integer :: nw2
      &    asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
       real(8):: eex(4),eey(4)
 
+      integer:: ngb_in
+
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
 
@@ -1235,6 +1237,7 @@ C --- eps mode
 c              if( imbas_s(imb)<-1) zzr(i+1:i+nblocha(ibas), 1)= -zzr( i+1:i+nblocha(ibas), 1)
             enddo
           endif
+
 ! This override zzr
           if(chipm .and.nolfco) then
             deallocate(zzr,x0mean)
@@ -1317,12 +1320,17 @@ c        write(6,*) "---  end of allocation zw0 zxq zxqi"
           write(6,*) "rcxq alloc ngb nwhis npm ---",ngb,nwhis,npm
           allocate( rcxq(ngb,ngb,nwhis,npm) )
         endif
-! Error around here might be because of too large rcxq is allocated...
-c        write(6,*) "---  aaa1 ---"
-        zxq=0d0; zxqi=0d0
-c        write(6,*) "---  aaa2 --- sergeyv=",sergeyv
-        rcxq = dcmplx(0d0,0d0)
-c        write(6,*) "---  aaa3 ---"
+
+!! takao apr2012
+        if(nolfco) then
+            if(allocated(rcxq)) deallocate(rcxq)
+            if(allocated(zxq) ) deallocate(zxq)
+            if(allocated(zxqi) ) deallocate(zxqi)
+            allocate( rcxq(nmbas_in,nmbas_in,nwhis,npm) )
+            allocate( zxq (nmbas_in,nmbas_in,nw_i:nw), zxqi (nmbas_in,nmbas_in,niw))
+        endif  
+
+        zxq=0d0;  zxqi=0d0;  rcxq = 0d0
 c============ loop over spin============================================
 !=======================================================================
         do 1003 is = 1,nspinmx
@@ -1763,12 +1771,32 @@ c$$$     i        ngb, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
 c$$$     o        zxq, zxqi,
 c$$$     i        nolfco,chipm, schi,is,  rcxqmean,ecut(iecut),ecuts(iecut), !iepsmode,
 c$$$     o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
-                call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i        ngb, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
-     o        zxq, zxqi, 
-     i        nolfco,chipm, schi,is,  rcxqmean,nmbas_in,ecut(iecut),ecuts(iecut),
-     o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
-              endif
+
+
+c rcxqmean --->rcxq index conversion
+               if(nolfco) then
+                do iw=1,nw
+                do jpm=1,npm
+                  rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
+                enddo
+                enddo
+               endif
+               ngb_in=ngb
+               if(nolfco) ngb_in=nmbas_in
+
+               call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
+     i         ngb_in, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
+     o         zxq, zxqi, 
+c    i         nolfco,chipm, schi,is,  rcxqmean,nmbas_in,ecut(iecut),ecuts(iecut),
+     i         chipm, schi,is,  ecut(iecut),ecuts(iecut))
+c     o          x0mean)  !zxq x0mean is accumlating veriable for chipm mode
+               if(nolfco) then
+                 do iw=nw_i,nw
+                  x0mean(iw,:,:)=zxq(:,:,iw)
+                 enddo  
+               endif
+               
+              endif 
             endif  ;  print *,' --- end of dpsion5 ----'
             if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean',sum(abs(x0mean))
 c          endif
@@ -2304,7 +2332,9 @@ c$$$ 2005 continue ! iecut loop
 
 
 c 1002 continue  ! end of frequency block-loop
-        deallocate(vcoul, zw0, zxq, zxqi)
+        deallocate(vcoul, zw0)
+        if(allocated(zxq )) deallocate(zxq)
+        if(allocated(zxqi)) deallocate(zxqi)
  1001 continue
 C--- end of loop over q point =================================
 c=======================================================================
