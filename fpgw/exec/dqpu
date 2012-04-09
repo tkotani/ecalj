@@ -36,10 +36,19 @@ except:
 
 qpu1 = open(sys.argv[1],'rt').read()
 qpu2 = open(sys.argv[2],'rt').read()
-errsum = compareqpu(qpu1,qpu2, printsw=0)
+
+#print sys.argv
+if '--print' in sys.argv : 
+	printsw=1
+else:
+	printsw=0
+#print 'printsw=', printsw
+errsum = compareqpu(qpu1,qpu2, printsw)
+#errsum = compareqpu(qpu1,qpu2, printsw=0)
+	
 	
 if(errsum<1e-3):
-	print '   Comparison OK!  Difference<2e-4 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
+	print '   Comparison OK!  Difference sum=',errsum,' <1e-3 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
 	sys.exit()
 else:
 	errsum = compareqpu(qpu1,qpu2, printsw=1)

@@ -2421,6 +2421,6 @@ C===================================================================
       do i = 1,ngb
         trwv2 = trwv2 + zw(i,i)
       enddo !  write(6,'(" realomg trwv=",2i6,4d22.14)') iq,iw,trwv(iw),trwv2(iw)
-      write(6,'(a,f10.4,2i5,4d22.14)')tagname,freqq,iq,iw,trwv,trwv2
+      write(6,'(a,f10.4,2i5,4d22.14)')trim(adjustl(tagname)),freqq,iq,iw,trwv,trwv2
       end
 
