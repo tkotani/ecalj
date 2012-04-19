@@ -208,15 +208,17 @@ c      integer :: nw2
       real(8):: eex(4),eey(4)
 !!
       logical :: newaniso,newaniso2 !apr2012
-      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0
+      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:)
       real(8),allocatable:: vcousq(:)
       real(8):: fourpi,sqfourpi
 
 !! Eq.(40) in PRB81 125102
-      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:), 
-     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
-     &  s_vc(:)
+c      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:), 
+c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
+      complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
+     &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:)
+      complex(8):: llw, llwI
 
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -1168,7 +1170,7 @@ c$$$ 1101  continue
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! === readin square of the the Coulomb matrix ===
+!! === readin square of the the Coulomb matrix at q=0 ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
       if(newaniso2) then
        ifvcoud = iopen('Vcoud',0,0,0)
@@ -1774,7 +1776,7 @@ c$$$c=========== Check write mode4 block end  ==============6end
             if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
             if(is==nspinmx.or.chipm) then
               write(6,'("goto dpsion5: "
-     &        //"nwhis nw_i niw nw_w nmbas_in=",5i5)') nwhis,nw_i,nw,niw,nmbas_in
+     &        //"nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
               write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
 !! rcxqmean--->rcxq index conversion
               if(nolfco) then
@@ -1965,25 +1967,35 @@ c                print *,'ttt end readin EPS0invR'
                 iq0 = iq - nqibz
 !! allocate sk, sks, w_k, wks, skI
                 if(iq0==1.and.iw==nw_i) then
+c                  allocate( 
+c     &             sk( ngb,nw_i:nw,nq0i),  sks(ngb,nw_i:nw,nq0i), skI( ngb,niw,nq0i), sksI(ngb,niw,nq0i),
+c     &             w_k(ngb,nw_i:nw,nq0i), w_ks(ngb,nw_i:nw,nq0i), w_kI(ngb,niw,nq0i),w_ksI(ngb,niw,nq0i), 
+c     &             llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
                   allocate( 
-     &             sk( ngb,nw_i:nw,nq0i),  sks(ngb,nw_i:nw,nq0i), skI( ngb,niw,nq0i), sksI(ngb,niw,nq0i),
-     &             w_k(ngb,nw_i:nw,nq0i), w_ks(ngb,nw_i:nw,nq0i), w_kI(ngb,niw,nq0i),w_ksI(ngb,niw,nq0i), 
-     &             llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
+     &             sk( ngb),  sks(ngb), skI( ngb), sksI(ngb),
+     &             w_k(ngb), w_ks(ngb), w_kI(ngb),w_ksI(ngb)) 
+                  ifisk=iopen('Polarization0',0,-1,0)
+                  write(ifisk) ngb,nw_i,nw,niw
+c     &             llw, llwI )
                   allocate(s_vc(ngb-1))
                 endif  
 !! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
 c                print *,'tttt sk sks writing'
-                sk(  1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
-                sks( 1:ngb,iw,iq0)= zxq(2,1:ngb,iw) !sk(1)=sks(1) -> sks(1) isn't used. 
+                sk(  1:ngb)= zxq(1,1:ngb,iw)
+                sks( 1:ngb)= zxq(2,1:ngb,iw) !sk(1)=sks(1) -> sks(1) isn't used. 
 c                print *,'tttt sk sks stored'
-
-                w_k( 2:ngb,iw,iq0)= sqfourpi*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb,iw,iq0)*vcousq(2:ngb)) 
-                w_ks(2:ngb,iw,iq0)= sqfourpi*matmul( sks(2:ngb,iw,iq0)*vcousq(2:ngb), epstinv(2:ngb,2:ngb)) 
-                llw(iw,iq0)= sum(q**2)    ! 1 of Eq.(40) in PRB81 125102
-     &            -fourpi* sk(1,iw,iq0) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
-     &            -sqfourpi* sum( sks(2:ngb,iw,iq0)*w_k(2:ngb,iw,iq0)*
-     &                                  vcousq(2:ngb) )
+                w_k(1) =0d0
+                w_ks(1)=0d0
+                w_k( 2:ngb)= sqfourpi*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb)*vcousq(2:ngb)) 
+                w_ks(2:ngb)= sqfourpi*matmul( sks(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb)) 
+                llw= sum(q**2)    ! 1 of Eq.(40) in PRB81 125102
+     &            -fourpi* sk(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
+     &            -sqfourpi* sum( sks(2:ngb)*w_k(2:ngb)*vcousq(2:ngb) )
                 if(iw==nw) deallocate(epstinv)
+!!
+                write(ifisk) iq0,q,iw
+                write(ifisk) sk,sks,w_k,w_ks,llw
+!!
               else
 !! *original mode
                 call wcf( ngb, vcoul, zxq(1,1,iw), imode,
@@ -2361,21 +2373,21 @@ c            print *,'tttt  iw niw=',iw,niw
 
                 iq0 = iq - nqibz
 !! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
-c                print *,'goto skI store'
-                skI (1:ngb,iw,iq0)= zxqi(1,1:ngb,iw)
-c                print *,'goto sksI store'
-                sksI(1:ngb,iw,iq0)= zxqi(2,1:ngb,iw) 
-c                print *,'goto w_kI store'
-                w_kI (2:ngb,iw,iq0)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb,iw,iq0)*vcousq(2:ngb)) 
-c                print *,'goto w_ksI store'
-                w_ksI(2:ngb,iw,iq0)= sqfourpi*matmul(sksI(2:ngb,iw,iq0)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
-c                print *,'goto llwI store'
-                llwI(iw,iq0)= sum(q**2) ! 1 of Eq.(40) in PRB81 125102
-     &                  -fourpi  * skI(1,iw,iq0) !sk(1,1,iw)=sks(1,1,iw)= H of Eq.(40).
-     &                  -sqfourpi* sum( sksI(2:ngb,iw,iq0)*w_kI(2:ngb,iw,iq0)*
-     &                                  vcousq(2:ngb) )
+                skI  (1:ngb)= zxqi(1,1:ngb,iw)
+                sksI (1:ngb)= zxqi(2,1:ngb,iw) 
+                w_kI(1) =0d0
+                w_ksI(1)=0d0
+                w_kI (2:ngb)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb)*vcousq(2:ngb)) 
+                w_ksI(2:ngb)= sqfourpi*matmul(sksI(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
+                llwI  = sum(q**2) ! 1 of Eq.(40) in PRB81 125102
+     &                  -fourpi  * skI(1) !sk(1,1,iw)=sks(1,1,iw)= H of Eq.(40).
+     &                  -sqfourpi* sum( sksI(2:ngb)*w_kI(2:ngb)*vcousq(2:ngb) )
 c                print *,' xxx  store iw niw',iw,niw
                 if(iw==niw) deallocate(epstinv)
+!!
+                write(ifisk) iw
+                write(ifisk) skI,sksI,w_kI,w_ksI,llwI
+!!
             else
 !! *original mode
               call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
@@ -2464,6 +2476,9 @@ c 1002 continue  ! end of frequency block-loop
 C--- end of loop over q point =================================
 c=======================================================================
  1100 continue
+      ifisk=iclose('Polarization0')
+
+
 
 
 !--- legas mode is not working now. Need fixing... voltot ntot are not given.
