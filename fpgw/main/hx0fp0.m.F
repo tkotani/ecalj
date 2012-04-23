@@ -2478,6 +2478,16 @@ c=======================================================================
  1100 continue
       ifisk=iclose('Polarization0')
 
+      
+!! == W(0) contant part for iq>nqibz ==
+c      llw
+c      do iw=
+c         llw(lm)
+c         sk(3,2:ngb)
+c
+!! == W(0) div part for iq=1
+
+!! K expantion --> integral ---> W(0) average
 
 
 

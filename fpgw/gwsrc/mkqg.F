@@ -49,8 +49,11 @@ c      logical :: readgwinput
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
       real(8):: deltaq,deltaq_scale=0.01d0
 ctakao mar2012
-      integer(4):: nqi,ifix,ig
-      real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:)
+      integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm
+      real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),dmlx(:,:),cy(:),yl(:)
+      integer:: xyz2lm(3)
+      real(8):: rrr(3),r2s,emat(3,3)
+
 
 c------------------------------------------------
       qreduce0 = qreduce()
@@ -304,6 +307,75 @@ c          q0x(:,7)=(/0d0, 0d0, 0d0/)
 !! ...  invariante dielectoric tensor.
           allocate(epinv(3,3,nq0x))
           call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i)
+
+!! == To convert invariant tensor on YL representation (Y00 and Y2m) ==
+          lmxax=1
+          allocate( cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2) )
+          allocate( matxxl(3,3,(2*lmxax+1)**2) )
+          call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
+          xyz2lm( 2)=-1 !y
+          xyz2lm( 3)= 0 !z
+          xyz2lm( 1)= 1 !x
+!! matxxl(i,j,L) = \int d\Omega x_i x_j  Y_L(\Omega), where x_i are nomlized.
+          do i=1,3
+          do j=1,3
+            matxxl(i,j,:) = cg(xyz2lm(i)+3,xyz2lm(j)+3,:)*4d0*pi/3d0 
+                               !sqrt(4*pi/3) comes from normalization of Y_l=1.
+          enddo
+          enddo
+!! epinv is expanded as
+!!   <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat)
+          allocate(dmlx(nq0i,9))
+          do iq0i=1,nq0i
+          do lx=1,9 
+            dmlx(iq0i,lx)=sum(epinv(:,:,iq0i)*matxxl(:,:,lx))
+          enddo
+          enddo
+c$$$!! check xxxxxxxxxxxxxxxxxxxx
+c$$$          do lx=5,9
+c$$$             do i=2,4
+c$$$             do j=2,4
+c$$$               write(*,"(' l1 l2 l= cg=',3i3,f9.5)")i-1,j-1,lx-7,cg(i,j,lx)
+c$$$             enddo
+c$$$             enddo
+c$$$             write(*,*)
+c$$$          enddo
+c$$$          do lx=5,9
+c$$$             do i=1,3
+c$$$             do j=1,3
+c$$$               write(*,"(' matxxl l1 l2 l= cg=',3i3,f9.5)")i,j,lx,matxxl(i,j,lx)
+c$$$             enddo
+c$$$             enddo
+c$$$             write(*,*)
+c$$$          enddo
+c$$$          do lx=1,1
+c$$$             do i=1,3
+c$$$             do j=1,3
+c$$$               write(*,"(' matxxl l1 l2 l= cg=',3i3,f9.5)")i,j,lx,matxxl(i,j,lx)
+c$$$             enddo
+c$$$             enddo
+c$$$             write(*,*)
+c$$$          enddo
+c$$$          do iq0i=1,nq0i
+c$$$          do lx=1,9
+c$$$            write(*,"(' iq0i lx dmlx=',2i3,f9.3)")iq0i,lx,dmlx(iq0i,lx)
+c$$$          enddo
+c$$$          enddo
+c$$$          lx=2
+c$$$          allocate(cy((lx+1)**2),yl((lx+1)**2))
+c$$$          call sylmnc(cy,lx)
+c$$$          rrr=(/.5d0,.1d0,0.8d0/)
+c$$$          rrr=rrr/sqrt(sum(rrr**2))
+c$$$          call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$          do lm=1,9
+c$$$            write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm) 
+c$$$          enddo
+c$$$          do iq0i=1,nq0i
+c$$$            write(*,"('   ylm   expansion=',i3,f10.5)") iq0i,sum(dmlx(iq0i,:)*cy(:)*yl(:))
+c$$$            emat=epinv(:,:,iq0i)
+c$$$            write(*,"('   epinv expansion=',i3,f10.5)") iq0i,sum(rrr*matmul(emat,rrr))
+c$$$          enddo  
+c$$$          stop 'xxxxxx test end xxxxxxxxxxxxxxxxx'
          else
           call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
