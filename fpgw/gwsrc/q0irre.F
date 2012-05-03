@@ -1,16 +1,71 @@
-      subroutine diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i)
+      subroutine auxfunlm(q, alp, alat, qlat, ngc, ngvect,lx,  auxfun)
+      implicit none
+      real(8) :: alat,q(3),tpiba,aucfun,qg(3),qlat(3,3),qg2
+     & ,pi=3.1415926535897932D0,alp
+      integer(4) :: ig, ngc, ngvect(3,ngc),lx
+      real(8):: r2s, auxfun((lx+1)**2),alpqg2
+      real(8),allocatable:: cy(:),yl(:)
+      allocate(cy((lx+1)**2),yl((lx+1)**2))
+      call sylmnc(cy,lx)
+      tpiba  = 2*pi/alat
+      auxfun = 0d0
+      do ig = 1,ngc
+        qg(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvect(1:3,ig)))
+        qg2     = sum(qg(1:3)**2)
+        alpqg2= alp* qg2
+        call sylm(qg/sqrt(qg2),yl,lx,r2s) !spherical factor Y( q+G )
+        auxfun = auxfun + exp(-alpqg2)/qg2 *cy(:)*yl(:) !cy*yl =Y_L(qg/|qg|)
+      enddo
+      end
+
+      subroutine getwklm(alat,vol,plat,qlat,alp,qbz,nnn,ngc,ngcmx,ngvect,lx,
+     o    wklm)
+!! == spherical integration weight Klm with reference auxially functions 
+!! Output
+!!   wklm: K_lm is defined around Eq.35 in Copmuter Physics Comm. 176(2007)1-13.
+      implicit none
+      integer :: iq,i,nnn,lm,lx
+      integer :: ngc(nnn), ngcmx, ngvect(3,ngcmx,nnn)
+      real(8)    :: alp, alat,qbz(3,nnn),vol,volinv,
+     &      qlat(3,3) ,plat(3,3),wtrue00,
+     &  pi=3.1415926535897932D0, wklm((lx+1)**2)
+      real(8),allocatable:: funa(:,:),wsumau(:)
+      allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2))
+!! ==== true integal of auxially function ====
+      volinv  = (2*pi)**3/vol
+      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
+
+!! ==== discrete sum (except q=0) of auxially functions ==== 
+      do iq = 2,nnn ! omit q=0 point iq=1
+        call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
+     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq)) 
+c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
+      enddo
+      do lm=1,(lx+1)**2
+        wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
+c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
+      enddo
+      lm=1
+      wklm(lm)          = wtrue00 - wsumau(lm)
+      write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00,wsumau(lm)
+      wklm(2:(lx+1)**2) = 0d0 - wsumau(2:(lx+1)**2)
+      deallocate(funa)
+      end
+
+
+      subroutine diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i,wq0i)
 !! == invariant dielectric tensor given by symmetrization ==
 !! In addition, we have generate it.
 !! Output::
 !!      epinv(3,nq0i): inequivalent tensor.
 !!      q0i(3,nq0i)  : irreducible q-point for tensor.
-!!      nqpi: number of inequivalent k point.
+!!      nq0i: number of inequivalent k point.
 !!
       implicit none
       integer :: nq0x,ngrp,nq0i,ik,i,j,ig,ix,ixx,jk
       real(8) :: q0x(1:3,nq0x),q0i(1:3,nq0i),symops(3,3,ngrp),sym(3,3),q0xoi(3,nq0x)
-      real(8) :: epinv(3,3,nq0i),emat(3,3),qr(3),fac,qnorm
-      real(8),allocatable:: epinv_(:,:,:) !,omat(:,:),omati(:,:)
+      real(8) :: epinv(3,3,nq0x),emat(3,3),qr(3),fac,qnorm,wq0i(nq0x)
+c      real(8),allocatable:: epinv_(:,:,:) !,omat(:,:),omati(:,:)
 c$$$!! overlap matrix and its inverse
 c$$$      allocate(omat(nq0x,nq0x),omati(nq0x,nq0x))
 c$$$      do ik=1,nq0x
@@ -31,49 +86,90 @@ c$$$      stop 'xxxxxxxxxx'
 c$$$      do i=1,3
 c$$$        q0xoi(i,:) =  matmul( q0x(i,:),omati(:,:) )
 c$$$      enddo
-!! Generate invariant tensor for each q0x
-      write(*,*) ' diele_invariant: nq0x=',nq0x
-      allocate(epinv_(3,3,nq0x))
-      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ===' 
-      epinv_= 0d0
+
+c$$$!! Generate invariant tensor for each q0x
+c$$$      write(*,*) ' diele_invariant: nq0x=',nq0x
+c$$$      allocate(epinv_(3,3,nq0x))
+c$$$      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ===' 
+c$$$      epinv_= 0d0
+c$$$      do ik=1,nq0x
+c$$$        do ig = 1,ngrp
+c$$$          sym = symops(:,:,ig)
+c$$$          qr=matmul(sym,q0x(:,ik))
+c$$$          do i=1,3
+c$$$          do j=1,3
+c$$$            epinv_(i,j,ik) = epinv_(i,j,ik) + qr(i)*qr(j)
+c$$$          enddo  
+c$$$          enddo
+c$$$c          write(*,"(i20,3f19.14)")ig,epinv_(1,:,ik)
+c$$$c          write(*,"(i20,3f19.14)")ig,epinv_(2,:,ik)
+c$$$c          write(*,"(i20,3f19.14)")ig,epinv_(3,:,ik)
+c$$$c          write(*,*)
+c$$$        enddo
+c$$$        write(*,"(3f19.14)")epinv_(1,:,ik)
+c$$$        write(*,"(3f19.14)")epinv_(2,:,ik)
+c$$$        write(*,"(3f19.14)")epinv_(3,:,ik)
+c$$$        write(*,*)
+c$$$      enddo
+!! inequivalent q point by symmetry
+      ixx=0
       do ik=1,nq0x
         do ig = 1,ngrp
           sym = symops(:,:,ig)
           qr=matmul(sym,q0x(:,ik))
-          do i=1,3
-          do j=1,3
-            epinv_(i,j,ik) = epinv_(i,j,ik) + qr(i)*qr(j)
-          enddo  
+          do ix=1,ixx
+            if( sum(abs(qr-q0i(:,ix))) <1d-6) then
+              wq0i(ix)=wq0i(ix)+1d0/nq0x
+              goto 935
+            endif
           enddo
-c          write(*,"(i20,3f19.14)")ig,epinv_(1,:,ik)
-c          write(*,"(i20,3f19.14)")ig,epinv_(2,:,ik)
-c          write(*,"(i20,3f19.14)")ig,epinv_(3,:,ik)
-c          write(*,*)
         enddo
-        write(*,"(3f19.14)")epinv_(1,:,ik)
-        write(*,"(3f19.14)")epinv_(2,:,ik)
-        write(*,"(3f19.14)")epinv_(3,:,ik)
-        write(*,*)
-      enddo
-!! check agreement.
-      write(*,*)'  === epinv: invariant tensor ===' 
-      ixx=0
-      do ik = 1,nq0x
-        do ix = 1,ixx
-          fac= epinv_(1,1,ik)/epinv(1,1,ix)
-          if( sum(abs(epinv_(:,:,ik)-fac*epinv(:,:,ix))) < 1d-6*sum(abs(epinv_(:,:,ik))) ) then
-            goto 990
-          endif
-        enddo  
         ixx=ixx+1
         q0i(:,ixx)=q0x(:,ik)
-        qnorm=sum(q0x(:,ik)* matmul(epinv_(:,:,ik),q0x(:,ik)))/sum(q0x(:,ik)**2)
-c        print *,' qnorm=',qnorm
-c        print *,' epinv=',epinv_(:,:,ik)
-        epinv(:,:,ix)=epinv_(:,:,ik)/qnorm
-  990   continue
+        wq0i(ix)= 1d0/nq0x
+  935   continue
       enddo  
       nq0i = ixx
+      write(6,"('ineq. q=',i3,f16.7,2x,3f16.7)")(i,wq0i(i),q0i(1:3,i),i=1,nq0i)
+
+!! Generate invariant tensor for each q0x
+      write(*,*)'  === epinv: all invariant tensor from q0i(3,1:nq0i) ===' 
+      epinv = 0d0
+      do ik=1,nq0i
+        do ig = 1,ngrp
+          sym = symops(:,:,ig)
+          qr=matmul(sym,q0i(:,ik))
+          do i=1,3
+          do j=1,3
+            epinv(i,j,ik) = epinv(i,j,ik) + qr(i)*qr(j)
+          enddo  
+          enddo
+        enddo
+        qnorm=sum(q0i(:,ik)* matmul(epinv(:,:,ik),q0i(:,ik)))/sum(q0i(:,ik)**2)
+        epinv(:,:,ik)=epinv(:,:,ik)/qnorm
+      enddo
+
+c$$$!! check agreement.
+c$$$      write(*,*)'  === epinv: invariant tensor ===' 
+c$$$      ixx=0
+c$$$      do ik = 1,nq0x
+c$$$        do ix = 1,ixx
+c$$$          fac= epinv_(1,1,ik)/epinv(1,1,ix)
+c$$$          if( sum(abs(epinv_(:,:,ik)-fac*epinv(:,:,ix))) < 1d-6*sum(abs(epinv_(:,:,ik))) ) then
+c$$$            goto 990
+c$$$          endif
+c$$$        enddo  
+c$$$        ixx=ixx+1
+c$$$        q0i(:,ixx)=q0x(:,ik)
+c$$$        qnorm=sum(q0x(:,ik)* matmul(epinv_(:,:,ik),q0x(:,ik)))/sum(q0x(:,ik)**2)
+c$$$c        print *,' qnorm=',qnorm
+c$$$c        print *,' epinv=',epinv_(:,:,ik)
+c$$$        epinv(:,:,ix)=epinv_(:,:,ik)/qnorm
+c$$$  990   continue
+c$$$        wq0i(ix)=wq0i(ix)+1d0/nq0x
+c$$$      enddo  
+c$$$      nq0i = ixx
+
 c$$$!! clean zero 
 c$$$      do ik = 1,nq0i
 c$$$         do i=1,3
@@ -736,7 +832,7 @@ c
       end
 c
       real(8) function atomform0(aqg) !(aqg,z,valn)
-      real(8):: kappa2 =(1d0/3d0)**2
+      real(8):: kappa2 =(1d0/3d0)**2,aqg !aqg was missing. Add aqg here on 24Apr2012.
 c      atomform0 = 1d0/(kappa2 +aqg**2)**2/aqg**2
       atomform0 = 1d0/(kappa2 +aqg**2)**2/aqg**2
       end

@@ -28,7 +28,7 @@ c
      i omega,iwini,iwend,
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
-     i pos, !mar2012
+     i pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012 !wklm apr2012takao
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi
@@ -369,6 +369,15 @@ C...
       integer(4):: ii,iq
       logical ::evaltest !, imgonly
 
+      integer:: lxklm,ngb0,ivc
+      real(8):: wklm((lxklm+1)**2),pi,fpi,vc
+      complex(8)::zcousq(ngb0,ngb0),zmelt1,zmelt0
+      real(8)::vcoud(ngb0),voltot
+      logical :: newaniso
+      complex(8),allocatable:: ppovl(:,:),ppovlz(:,:)
+
+      pi  = 4d0*datan(1d0)
+      fpi = 4d0*pi
 c      imgonly=.false.
 c--------------------------------------------------------------------
       debug=.false.
@@ -431,10 +440,14 @@ c      stop "sss"
 c
 ccccccccccccccccccccccccccccccccc
 
-      if(bzcase()==1) then
+      if(newaniso()) then
+         continue
+      else
+        if(bzcase()==1) then
         kx = 1  ! qibz(:,1)=0 contribution for kcount
         if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
-      endif
+        endif
+      endif  
 
       if (tote) exxq = 0.d0
 
@@ -455,6 +468,10 @@ c --- main loop start
       iqini=2
       if(bzcase()==2) iqini=1
       iqend=nqibz+nq0i
+      if(newaniso()) then !takao2012apr
+        iqini=1
+        if(exchange) iqend=nqibz
+      endif
 
 cccccccccccccccccccccccccccccc
       call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
@@ -521,6 +538,7 @@ c          deallocate(vcoul)
 c          cycle
 c          print *,' kount out =',kount(k,ip)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
+          print *,'kp ip kount nstar=',kx,ip,kount(kx,ip),nstar(kx)
           if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
         else
           if( wgt0(kx-nqibz,irot) == 0d0 ) then
@@ -565,7 +583,6 @@ c        call  readcphi2(pos,natom,qk, nlmto,isp, quu, cphikq)
 
 c        if(debug) write(6,"('111111 end of readcphi: sum of cphikq=',4d23.16)")
 c     &                 sum(cphikq),sum(abs(cphikq) )
-c        stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
 
 c no. occupied (core+valence) and unoccupied states at q-rk
 c      call dcopy   (nband,ekq,1,ekc(nctot+1),1)
@@ -880,15 +897,84 @@ c
           allocate( z1p(ngb,nctot+nbmax,ntp0), w3p( nctot+nbmax,ntp0))
           call matm( vcoult, zmel,
      &           z1p, ngb,ngb,(nctot+nbmax)*ntp0 )
-          deallocate(vcoult, zmel)
 
+!! ==== ngb=1 at q=0 is for exp(iqr) basis. ====
+!!
+c$$$      if(kx>=2 .and. kx <=nqibz) then !for testxxxxxx
+c$$$          print *,'test skip kx=',kx
+c$$$          do itp = 1,ntp0
+c$$$          do it  = 1,nctot+nbmax
+c$$$            w3p(it,itp) =0d0 
+c$$$          enddo
+c$$$          enddo 
+c$$$          deallocate(vcoult, zmel)
+c$$$      else 
+         if(newaniso() .and. kx==1) then !apr2012takao
+            if(sum(qbz_kr**2)>1d-6) then
+             print *,'sxcf_fal2:xxx q/=0 q=',qbz_kr
+             stop 'sxcf_fal2:xxx q/=0'
+            endif   
+            allocate(ppovl(ngc,ngc),ppovlz(ngc,ngb))
+            call readppovl0(qbz_kr,ngc,ppovl)
+            ppovlz=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) 
+            do itp = 1,ntp0
+            do it  = 1,nctot+nbmax
+             w3p(it,itp) = 0d0 
+             do ivc=1,ngb 
+              if(ivc==1) then
+c                 voltot = 302.838874d0   
+                 vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)  
+                 print *,'wklm(1)=',wklm(1)
+              else
+                 vc= vcoud(ivc)
+              endif
+!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (zcousq^*(:,mu) ppovl)
+!! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
+              zmelt1 =  sum( zmel(1:nbloch,it,itp) * zcousq(1:nbloch,ivc)   )
+     &              +  sum( zmel(nbloch+1:nbloch+ngc,it,itp)*ppovlz(:,ivc))
+c     &                       matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,ivc)) )
+c              voltot = 302.838874d0   
+c              zmelt1 = zmelt1 * sqrt(voltot)
+c              zmelt1 =  zmel(ivc,it,itp) * dconjg(zmel(ivc,it,itp))
+              w3p(it,itp) = w3p(it,itp)+ vc* abs(zmelt1)**2
+cccccccccccccccccccccccccccccccccccccccccccc
+!! may2012takao
+!! be careful for complex conjugate...  zmel(ib,it,itp)= <psi_itp psi_it|ib>
+              if(.false.) then
+              if(kx==1.and. ivc==1.and.abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
+                voltot = 302.838874d0   !test for gas_pw_gw_lmfh case
+                zmelt0 = sum( zmel(1:nbloch,it,itp)*zcousq(1:nbloch,ivc) )*sqrt(voltot)
+                zmelt1 = sum( zmel(nbloch+1:nbloch+ngc,it,itp)*
+     &                        matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,ivc)))
+     &                        *sqrt(voltot)
+c                print *,'it itp zmelt0 1 =',it,itq(itp),ekc(it),abs(zmelt0),abs(zmelt0+zmelt1)
+                print *,'it itp zmelttot =',it,itq(itp),ekc(it),abs(zmelt0+zmelt1)
+              endif   
+              endif
+ccccccccccccccccccccccccccccccccccccccccccc
+             enddo
+            enddo
+            enddo
+          deallocate(ppovl,ppovlz)
+          deallocate(vcoult, zmel)
+       else   
+          deallocate(vcoult, zmel)
 c         print *,' nctot nbmax=',nctot,nbmax
           do itp = 1,ntp0
             do it  = 1,nctot+nbmax
               w3p(it,itp) = sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itp)
-     .                   +      dimag(z1p(:,it,itp))*cmelt(:,it,itp) )
+     .                     +      dimag(z1p(:,it,itp))*cmelt(:,it,itp) )
+cccccccccccccccccccccc
+              if(kx>nqibz) then
+              if(abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
+                print *,'zzz: it itp zmelt1 =',it,itq(itp), 
+     &          sum( rmelt(1:nbloch,it,itp)**2 + cmelt(1:nbloch,it,itp)**2)
+              endif
+              endif
+cccccccccccccccccccccc  
             enddo
           enddo
+        endif   
 
 cccccccccccccccccccccccccccccccccccc
 c test
@@ -1030,6 +1116,7 @@ c------------------------------------------------
         ix = 1  - nw_i
 
 ccccccccccccccccccccccccccccccccccccccccccc faleev cccccccccccccccccccccc
+
         nrec=(kx-2)*(nw-nw_i+1) +ix
         if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) +ix
         if(debug) print *,' wvr nrec=',nrec
@@ -1048,6 +1135,13 @@ c          zmel1(:)=dconjg(zmel(:,it,itp))
 c            zz2 = sum( zmel1(1:igb2-1)*zw(1:igb2-1,igb2) )
               zz2 = sum( dconjg(zmel(1:igb2-1,it,itp))*zw(1:igb2-1,igb2) )
 
+              if(newaniso() ) then
+                 stop 'now developing... Wmean for iq>iqibz, and Wdiv for iq=1'
+cxxxxxxxxxxxxxxxxxxxxxxxxxxx
+czwz0 should be replaced with correct W ofr kx
+cxxx takao we have to use zcousq here for kx=1 iq0
+cxxxxxxxxxxxxxxxxxxxxxxxxxxx
+              endif
               zwz0(it,itp) = zwz0(it,itp)+zz2*zmel(igb2,it,itp)*2+
      &       dconjg(zmel(igb2,it,itp))*zw(igb2,igb2)*zmel(igb2,it,itp)
             enddo !igb2

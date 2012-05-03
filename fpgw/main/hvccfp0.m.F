@@ -611,7 +611,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
         do ibas= 1, nbas
           do l   = 0, lx(ibas)
             nxdim = nx(l,ibas)
-            if(nxdim <=1) write(6,*)'hvccfp0:smbasis case error nxdim <=1'
+            if(nxdim<=1)write(6,*)'hvccfp0:smbasis case error nxdim <=1'
 !       pval  = prodmt(1, 1:nxdim, l,ibas)
 !       pslo  = prodmt(2, 1:nxdim, l,ibas)
 !       prod(r, inew) = \sum_iold rrmat(inew,iold) * prod(r,iold)

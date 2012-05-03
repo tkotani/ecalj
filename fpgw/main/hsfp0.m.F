@@ -177,6 +177,13 @@ c     logical :: sergeys
 c     logical :: imgonly=.false.
       complex(8):: zseciip(-1:1)
       logical :: debug=.false.
+
+!! newaniso mode
+      real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
+      complex(8),allocatable:: zcousq(:,:)
+      logical:: newaniso
+      integer:: ngb0,ifvcoud,lxklm,ifidmlx
+
 C...  mode switch. --------------
       if(cohtest) then
         screen = .true.
@@ -893,6 +900,27 @@ c     --- info
      &        ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
       endif
 
+!! === readin Vcoud and EPSwklm for newaniso()=T ===
+      if(newaniso()) then
+       ifvcoud = iopen('Vcoud',0,0,0)
+       read(ifvcoud) ngb0
+       allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
+       read(ifvcoud) vcoud
+       read(ifvcoud) zcousq
+       vcousq=sqrt(vcoud) !
+       idummy =iclose('Vcoud')
+       ifidmlx = iopen('EPSwklm',0,0,0)
+       read(ifidmlx) nq0ix,lxklm
+       if(nq0i/=nq0ix) stop 'nq0i from EPSwklm /= nq0i'
+       allocate( dmlx(nq0i,9))
+       allocate( epinvq0i(nq0i,nq0i) )
+       allocate( wklm((lxklm+1)**2))
+       read(ifidmlx) dmlx, epinvq0i
+       read(ifidmlx) wklm
+       ifidmlx = iclose(ifidmlx)
+      endif 
+
+
 c-------------------------
 c     LDA exchange-correlation
 c-------------------------
@@ -981,7 +1009,6 @@ c     write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
 c-----------------------------------------------------------
 c     calculate the correlated part of the self-energy SEc(qt,w)
 c-----------------------------------------------------------
-c     arrays for sxcf.f
       nlnx4    = nlnx**4
       niwx     = max0 (nw+1,niw)
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nband), 
@@ -1124,7 +1151,7 @@ c     i     shtw,
      i              omega, iwini,iwend,
      i              nbmx(2),ebmx(2), !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
-     i    pos, !mar2012
+     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
 

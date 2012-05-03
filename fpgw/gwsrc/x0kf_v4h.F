@@ -24,6 +24,8 @@ c------------------------------------------
 c      use m_readeigen
       use keyvalue
 c     o     zxq)
+!! note zcousq is added on apr2012. 
+!!
 C- Only the spectrum function (imaginary part) along the real axis.
 Cr This version x0kf_v2hx is for timereversl=F (npm=2). dec2006
 c   zxq(i,j,iw) = (-1/pi) \int_{freqr(iw)}^{freqr(iw+1)} d \omega Img<M(i)|x0(q,\omega)|M(j)>

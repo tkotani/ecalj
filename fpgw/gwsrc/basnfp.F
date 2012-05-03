@@ -308,7 +308,7 @@ ctakao
         rprod(1:nrofi,iprad) = r(1:nrofi)
 ! this is better (but larger ProductBasis). Used for the check on Coulomb matrix at q->0.
       elseif(zvztest()/=2) then !followings may be a compromise to give reasoably good enough <M|v|M>.
-        do lx = 0,1 !  =0,lcutmx !feb2012
+        do lx = 0,1 !=0,lcutmx !=0,1  =!feb2012
           iprad  = iprad  + 1 ! radial function index
           nxx(lx) = nxx(lx) + 1
           ipx(lx, nxx(lx)) = iprad

@@ -1,3 +1,23 @@
+      subroutine readppovl0(q,ngc,ppovl)
+      implicit none
+      integer(4):: ngc_r,ippovl0,ixx,ngc
+      complex(8):: ppovl(ngc,ngc)
+      real(8):: q(3),qx(3)
+      ippovl0=2301
+      open(ippovl0,file='PPOVL0',form='unformatted')
+      do
+        read(ippovl0) qx,ngc_r
+        if(sum(abs(qx-q))<1d-6) then
+c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
+          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
+          read(ippovl0) ppovl
+c           print *,' readin PPOVL0 OK q=',q
+          exit
+        endif
+      enddo
+      close(ippovl0)
+      end
+
       module m_readQG
 c------ Return QGcou and QGpsi ---------------------------------
 c all these are private.

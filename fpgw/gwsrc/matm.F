@@ -41,15 +41,15 @@ c      print *,"sumcheck=",sum(a),sum(b),n1,n2,n3
       real(8),allocatable:: work(:)
       call dgetrf(n,n,a,n,ipiv,info)
       if(info/=0) then
-        print *,' matinv: zegtrf info=',info
-        stop    ' matinv: zegtrf '
+        print *,' matinv: degtrf info=',info
+        stop    ' matinv: degtrf '
       endif
       allocate(work(n*n))
       call dgetri(n,a,n,ipiv,work,n*n,info)
       deallocate(work)
       if(info/=0) then
-        print *,'matinv: zegtri info=',info
-        stop    'matinv: zegtri '
+        print *,'matinv: degtri info=',info
+        stop    'matinv: degtri '
       endif
       end
 

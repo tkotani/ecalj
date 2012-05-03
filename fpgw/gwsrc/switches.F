@@ -2,7 +2,7 @@
       newaniso=.true.
       end
       real(8) function screenfac()
-      screenfac=-0.0001d0 !
+      screenfac=-0.001d0 !
       end
 
 c      integer function nomatm()

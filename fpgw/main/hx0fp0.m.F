@@ -192,7 +192,7 @@ c      integer :: nw2
       integer(4):: ipm,nrecoff
 
       real(8),allocatable:: ebb(:)
-      logical :: evaltest
+      logical :: evaltest !for a debug test
       character*300:: aline
       integer(4):: istat,nmbas,imb,imb1,imb2,nmbas_in
       integer(4),allocatable:: imbas(:), imbas_s(:),iibas(:)
@@ -218,7 +218,9 @@ c      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:),
 c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:)
-      complex(8):: llw, llwI
+      complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:)
+      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:)
+      integer:: lxklm,nlxklm,ifidmlx
 
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -1178,9 +1180,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
        read(ifvcoud) vcousq
        read(ifvcoud) zcousq
+c       zcousqinv=zcousq
+c       call matinv(ngb0,zcousqinv)
        vcousq=sqrt(vcousq) !
        idummy =iclose('Vcoud')
       endif 
+
+      allocate(llw(iqxini:iqxend,nw_i:nw),llwI(iqxini:iqxend,niw))
 
 !! ---------------------------------------------------------
 !! === Calculate x0(q,iw) and W ===
@@ -1707,8 +1713,10 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
 c          if(sergeyv) then ;  
-            print *, ' --- goto x0kf_v4hz '
+            print *, ' --- goto x0kf_v4hz ---- '
 c- new version only along real axis for
+!! Input of "zcousq for iq=1 newanizox" and "zzr for iq>iqibz .and.newaniso2" are the same.
+!! (thus this may be improved).
             call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -1725,7 +1733,7 @@ c- new version only along real axis for
      i    nqbze,nband,nqibz, 
      o    rcxq, ! See rcxq_zxq in x0kf_v3h.f; rcxq is equivalent with zxq;
      &    !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2,zcousq,newaniso(),!for nolfco Add nmbas Sep2006
+     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2,zcousq,newaniso2,!for nolfco Add nmbas Sep2006
      &                         !zcousq is added apr2012takao            
      o    rcxqmean ) !for nolfco
 
@@ -1906,21 +1914,21 @@ cnw all freq is from zero freq(0:nwp-1); nwp is the number of real flequencies.
 c              print *,'tttt iw=',iw
 c              write(6,"(' rrr sum zxq=',i5,4d23.14)") iw,sum(zxq(:,:,iw)),sum(abs(zxq(:,:,iw)))
 
-! a debug mode.
-              if(evaltest()) then
-                write(6,"('hhh --- EigenValues for Im( xq) --------')")
-                allocate(ebb(ngb))
-                call diagcvh2((zxq(:,:,iw)-transpose(dconjg(zxq(:,:,iw))))/2d0/img, ngb, ebb)
-                do ii=1,ngb
-                  if( abs(ebb(ii))>1d-8 .and. ebb(ii)>0) then
-                    write(6, "('hhhIxq : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-                  else
-                    write(6, "('hhhIxqxxx : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-                  endif
-                enddo
-                deallocate(ebb)
-                write(6,*) "test end of h0000000000000000000"
-              endif
+c$$$!! a debug mode.
+c$$$              if(evaltest()) then
+c$$$                write(6,"('hhh --- EigenValues for Im( xq) --------')")
+c$$$                allocate(ebb(ngb))
+c$$$                call diagcvh2((zxq(:,:,iw)-transpose(dconjg(zxq(:,:,iw))))/2d0/img, ngb, ebb)
+c$$$                do ii=1,ngb
+c$$$                  if( abs(ebb(ii))>1d-8 .and. ebb(ii)>0) then
+c$$$                    write(6, "('hhhIxq : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
+c$$$                  else
+c$$$                    write(6, "('hhhIxqxxx : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
+c$$$                  endif
+c$$$                enddo
+c$$$                deallocate(ebb)
+c$$$                write(6,*) "test end of h0000000000000000000"
+c$$$              endif
 !! === wcf: W= (1-v zxq)^{-1} v ===
 !! *newaniso2 mode
 c              print *,'tttt newaniso2 iq iw=',newaniso2,iq,iw,nw
@@ -1988,45 +1996,51 @@ c                print *,'tttt sk sks stored'
                 w_ks(1)=0d0
                 w_k( 2:ngb)= sqfourpi*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb)*vcousq(2:ngb)) 
                 w_ks(2:ngb)= sqfourpi*matmul( sks(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb)) 
-                llw= sum(q**2)    ! 1 of Eq.(40) in PRB81 125102
+                llw(iw,iq0)= sum(q**2)    ! 1 of Eq.(40) in PRB81 125102
      &            -fourpi* sk(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
      &            -sqfourpi* sum( sks(2:ngb)*w_k(2:ngb)*vcousq(2:ngb) )
+                llw(iw,iq0)=llw(iw,iq0)/ sum(q**2)  
                 if(iw==nw) deallocate(epstinv)
 !!
                 write(ifisk) iq0,q,iw
                 write(ifisk) sk,sks,w_k,w_ks,llw
-!!
+!! Constant part (which should be spherically symmetrized) is
+!!                zw0=0d0
+!!               do igb1=2,ngb
+!!                  zw0(igb1,2:ngb)=1d0/llw * w_ks(igb1)*wk(2:ngb)
+!!               enddo  
+
               else
-!! *original mode
+!! Original mode
                 call wcf( ngb, vcoul, zxq(1,1,iw), imode,
      &                zw0)
               endif
 c              print *,'tttt end of wcf',newaniso2,iq
  
+c$$$!!... a debug mode
+c$$$              if(evaltest()) then
+c$$$                write(6,"('hhh --- EigenValues for Im( W) --------')")
+c$$$                allocate(ebb(ngb))
+c$$$                call diagcvh2( (zw0-transpose(dconjg(zw0)))/2d0/img, ngb, ebb)
+c$$$                do ii=1,ngb
+c$$$                  if( abs(ebb(ii))>1d-8 .and. ebb(ii)>0) then
+c$$$                    write(6, "('hhhIWq : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
+c$$$                  else
+c$$$                    write(6, "('hhhIWqxxx : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
+c$$$                  endif
+c$$$                enddo
+c$$$                deallocate(ebb)
+c$$$                write(6,*) '---Stop here: end of evaletes---'
+c$$$                if(iw==nw)  stop  '---Stop here: end of evaletes---'
+c$$$              endif
 
-!!... a debug mode
-              if(evaltest()) then
-                write(6,"('hhh --- EigenValues for Im( W) --------')")
-                allocate(ebb(ngb))
-                call diagcvh2( (zw0-transpose(dconjg(zw0)))/2d0/img, ngb, ebb)
-                do ii=1,ngb
-                  if( abs(ebb(ii))>1d-8 .and. ebb(ii)>0) then
-                    write(6, "('hhhIWq : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-                  else
-                    write(6, "('hhhIWqxxx : iw ii eb=',2i4,d13.5)") iw, ii, ebb(ii)
-                  endif
-                enddo
-                deallocate(ebb)
-                write(6,*) '---Stop here: end of evaletes---'
-                if(iw==nw)  stop  '---Stop here: end of evaletes---'
-              endif
               if(newaniso2.and.iq>nqibz) then
                 continue
               else
-                if(debug) write(6,"('tttt rrr sum zw0=',i5,4d23.14)") iw,sum(zw0),sum(abs(zw0))
-                zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
-                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
-                call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
+               if(debug) write(6,"('tttt rrr sum zw0=',i5,4d23.14)") iw,sum(zw0),sum(abs(zw0))
+               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
+               write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
+               call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
               endif  
 
 c              print *,'tttt wvr3 nrec=',(iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1, nblochpmx,iq-iqxini,iw,nw
@@ -2153,7 +2167,7 @@ c!      &                      i4,d13.5,256d13.5 )" ) ii, ss0(ii)
 c!                     endif
 c!                   enddo
 c! 
-c! cxxxx this SVD procedure is not used now.
+c! cxxxx thisa SVD procedure is not used now.
 c! c!      SVD of chi^-1: !now only look for lowest eigenvalue problem... So rather eigenvalue problem instead of SVD
 c! c                  write(6,"(a,i5)")' ----SVD: chiinv --- iw=',iw
 c! c                  zxq(1:nbloch,1:nbloch,iw)=zzz
@@ -2379,9 +2393,10 @@ c            print *,'tttt  iw niw=',iw,niw
                 w_ksI(1)=0d0
                 w_kI (2:ngb)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb)*vcousq(2:ngb)) 
                 w_ksI(2:ngb)= sqfourpi*matmul(sksI(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
-                llwI  = sum(q**2) ! 1 of Eq.(40) in PRB81 125102
+                llwI(iq,iq0)  = sum(q**2) ! 1 of Eq.(40) in PRB81 125102
      &                  -fourpi  * skI(1) !sk(1,1,iw)=sks(1,1,iw)= H of Eq.(40).
      &                  -sqfourpi* sum( sksI(2:ngb)*w_kI(2:ngb)*vcousq(2:ngb) )
+                llwI(iq,iq0)  = llwI(iq,iq0)/sum(q**2) ! 1 of Eq.(40) in PRB81 125102
 c                print *,' xxx  store iw niw',iw,niw
                 if(iw==niw) deallocate(epstinv)
 !!
@@ -2393,8 +2408,9 @@ c                print *,' xxx  store iw niw',iw,niw
               call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
      o              zw0)
             endif  
+
             if(newaniso2.and.iq>nqibz) then
-               continue
+               continue !this is because required constant parts are already written in write(ifisk) w_k and so on.
             else
 c            print *,'sss sumchk zw0=',sum(abs(zw0))
               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
@@ -2478,20 +2494,34 @@ c=======================================================================
  1100 continue
       ifisk=iclose('Polarization0')
 
-      
-!! == W(0) contant part for iq>nqibz ==
-c      llw
-c      do iw=
-c         llw(lm)
-c         sk(3,2:ngb)
-c
-!! == W(0) div part for iq=1
 
-!! K expantion --> integral ---> W(0) average
+      if(newaniso()) then
+!! == W(0) divergent part ==
+!! getw0 routine...
+      ifidmlx = iopen('EPSwklm',0,0,0)
+      read(ifidmlx) nq0i,lxklm
+      allocate( dmlx(nq0i,9))
+      allocate( epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i))
+      nlxklm=(lxklm+1)**2
+      allocate( wklm(nlxklm))
+      read(ifidmlx) dmlx, epinvq0i
+      read(ifidmlx) wklm
+      ifidmlx = iclose(ifidmlx)
+
+!! starting from llw(iw,iq0),llwI(iw,iq0)
+!! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
+      allocate(w0(nw_i:nw),w0i(niw))
+      call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i, lxklm,w0)
+      call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i, lxklm,w0i)
+!! w0 and w0i are weight for digergent part... See exchange part in sxcf...
+      endif
 
 
 
-!--- legas mode is not working now. Need fixing... voltot ntot are not given.
+
+
+
+!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
       if(epsmode.and.legas) then
         stop ' LEGAS mode is not maintained well. Need some fixing.'
         voltot=0d0
@@ -2733,26 +2763,6 @@ c         call matcinv(ngb,sqovlp)     !  inverse
 c         ovlpi=ovlp
 c         deallocate(ppovl,ovlp)
       end
-c---------------------------------------------------------------------
-      subroutine readppovl0(q,ngc,ppovl)
-      implicit none
-      integer(4):: ngc_r,ippovl0,ixx,ngc
-      complex(8):: ppovl(ngc,ngc)
-      real(8):: q(3),qx(3)
-      ippovl0=2301
-      open(ippovl0,file='PPOVL0',form='unformatted')
-      do
-        read(ippovl0) qx,ngc_r
-        if(sum(abs(qx-q))<1d-6) then
-c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
-          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
-          read(ippovl0) ppovl
-c           print *,' readin PPOVL0 OK q=',q
-          exit
-        endif
-      enddo
-      close(ippovl0)
-      end
 c--------------------------------------------------------------------
       subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
       implicit none
@@ -2832,3 +2842,42 @@ c--------------------------------------------------------------------
       call diagcv(ovlpc,wpvcc, evecc, nbloch, eval, nmx, 1d99, nev)
       deallocate(ovlpc,evecc,wpvcc)
       end
+
+      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,lmxax, w0)
+      implicit none
+      integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw
+      complex(8):: llw(ii:ie,nq0i),w0(ii:ie)
+      complex(8):: llwyl(9,ii:ie),llw_invr(1:nq0i,ii:ie)
+      real(8):: epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i),dmlx(nq0i,nq0i)
+      real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2),
+     &   cgllw((lmxax+1)**2,(lmxax+1)**2),wklm((lmxax+1)**2)
+      real(8):: fpi,pi
+      pi  = 4d0*datan(1d0)
+      fpi = 4d0*pi
+      nlklm=(lmxax+1)**2
+      epinvq0i_m1=epinvq0i
+      call matinv(nq0i,epinvq0i_m1)
+      do iw= ii,ie
+        llw_invr(1:nq0i,iw) = matmul (epinvq0i_m1, llw(1:nq0i,iw)) 
+        ! llw_invr: representation in a linear combination of invariat tensor of epsilon.
+        lm=1
+        llwyl(lm,iw) = sum(dmlx(1:nq0i,lm)*llw_invr(1:nq0i,iw))
+        do lm=5,9
+        llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(1:nq0i,iw))
+        enddo
+      enddo  
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
+      do iw =ii,ie
+        do lm2=1,nlklm
+        do lm1=1,nlklm
+          cgllw(lm1,lm2) = cg(lm2,1,lm1)*llwyl(1,iw)+ sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
+        enddo
+        enddo
+!! === inversion as 4pi = Cg * llwyl * Klm ! Klm should be not confused with wklm  ===
+!! (=Klm in C.Fryesoldt's paper)
+       call matinv(nlklm,cgllw)
+!! === spherical integral of Klm ===
+        w0(iw)= sum(wklm(:)*fpi*cgllw(:,1)) !Klm=fpi*cgllw(:,1)
+      enddo
+      end
+
