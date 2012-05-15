@@ -17,14 +17,13 @@ c     i       ngvecpB,ngveccB,
      i      nqbze, nband,nqibz, 
      o      rcxq,
 c------------------------------------------
-     i     nolfco,zzr,nmbas,nmbas1,nmbas2, zcousq,newanisox, !iepsmode,zzr, nmbas added Sep2006
-     o     rcxqmean)         !zcousq added apr2012takao
+     i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz,newanisox, !iepsmode,zzr, nmbas added Sep2006
+     o     rcxqmean)         
       use m_readqg,only :readqg
       use m_readeigen,only: readeval,readcphi,readgeig
 c      use m_readeigen
       use keyvalue
 c     o     zxq)
-!! note zcousq is added on apr2012. 
 !!
 C- Only the spectrum function (imaginary part) along the real axis.
 Cr This version x0kf_v2hx is for timereversl=F (npm=2). dec2006
@@ -120,7 +119,7 @@ c-----
       integer(4):: verbose
 c---for iepsmode
       logical   :: nolfco !iepsmode
-      integer(4):: nmbas, imb1,imb2, nmbas1,nmbas2
+      integer(4):: nmbas, imb1,imb2, nmbas1,nmbas2,imb
       complex(8):: zq01,zq02,zzr(ngbb,nmbas)
 c      real(8)   :: zq0zq0
       complex(8)   :: zq0zq0 !This is a bug for the case of two atoms per cell!!! oct2006
@@ -145,9 +144,9 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       integer(4),allocatable:: ngvecc(:,:)
       logical :: onceww !testtr,negative_testtr
 
-!! 
+!! takao apr2012
       logical :: newanisox, z1stcol
-      complex(8) :: zcousq(ngbb,ngbb)
+      complex(8) :: ppovlz(ngbb,ngbb)
 c ------------------------------------------------
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
@@ -412,19 +411,6 @@ c$$$     & ,sum(abs(zmelt(1:ngb,1:nctot+nt0,1:ntp0)))
 c$$$cc     & ,sum(abs(zmelt(1:ngb,1:nctot+nt0,5:26)))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! === zmelt conversion === \mu-basis representation.
-        if(newanisox.and.iq==1) then
-          if(ngb/=ngbb) then
-            print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
-            stop 'x0kf_v4h: ngb/=ngbb'
-          endif
-          do it=1,nctot+nt0
-          do itp=1,ncc+ntp0
-          zmelt(:,it,itp) = matmul(zmelt(:, it,itp),zcousq(:,:))
-          enddo
-          enddo
-        endif
-
 C...Feb2006 We have gotten zmelt until here. -------------------------------
 !   zmelt(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0)
 !   ,where ncc=0(npm=1) or ncc=nctot(npm=2)
@@ -448,8 +434,37 @@ C This replace original zmelt with new zmelt based on smoothed mixed basis.
 c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         endif
 
-!New section Dec 2003.
+!! === zmelt conversion === \mu-basis representation.
+        if(newanisox) then !.and.iq==1) then
+          if(ngb/=ngbb) then
+            print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
+            stop 'x0kf_v4h: ngb/=ngbb'
+          endif
+          do it=1,nctot+nt0
+          do itp=1,ncc+ntp0
+!! See sxcf_fal2.F L933 around. zmelt1
+            do imb=1,max(nmbas1,nmbas2) 
+            zmelt(imb,it,itp) =  sum( zmelt(:,it,itp)*ppovlz(:,imb) )
+            enddo
+          enddo
+          enddo
+       endif   
+       
+!! New section Dec 2003.
         if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
+          if(.not.newanisox) then
+            do it=1,nctot+nt0
+            do itp=1,ncc+ntp0
+            do imb=1,max(nmbas1,nmbas2) 
+              zmelt(imb,it,itp) =  sum(zmelt(:,it,itp)*zzr(:,imb) )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c              write(*,"('ppppp ',3i4,d13.6)")  k,it,itp,abs(zmelt(imb,it,itp))**2/sum(q**2)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            enddo
+            enddo
+            enddo
+          endif  
+
           do jpm  = 1,npm !
             do ibib = 1, nbnb(k,jpm) !---  ibib loop
               if(jpm==1) then
@@ -486,20 +501,14 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
                 itp =       n2b(ibib,k,jpm) - itps + 1 - nband !core
               endif
 
-              do imb1=1,nmbas1
-                z1stcol= (nmbas1==2.and.imb1==2.and.newanisox)
-                if(z1stcol) then
-                  zq02 = sum(zmelt(1:ngb,it,itp)*zzr(1:ngb,1))
-                else  
-                  zq01 = sum(zmelt(1:ngb,it,itp)*zzr(1:ngb,imb1)) 
-                endif
+                do imb1=1,nmbas1
+                  zq01 = zmelt(imb1,it,itp) 
+                  z1stcol=(nmbas1==2.and.imb1==2.and.newanisox)
+                  if(z1stcol) zq01 = zmelt(1,it,itp)
                 do imb2=1,nmbas2
-                  if(z1stcol) then
-                    zq01 = sum(zmelt(1:ngb,it,itp)*zzr(1:ngb,imb2))
-                  else 
-                    zq02 = sum(zmelt(1:ngb,it,itp)*zzr(1:ngb,imb2))
-                  endif
+                  zq02 = zmelt(imb2,it,itp) 
                   zq0zq0 = dconjg(zq01)*zq02
+                  if(z1stcol) zq0zq0 = dconjg(zq0zq0)
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
                     if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
                     !iiww=iw+ihw(ibib,k)-1

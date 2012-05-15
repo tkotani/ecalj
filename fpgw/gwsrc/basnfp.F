@@ -89,7 +89,7 @@ C---for mode 8
       external ll
 #endif
 
-      logical :: smbasis,oldver,newaniso
+      logical :: smbasis,newaniso,addbasnew
       character*15 rprodf
       integer(4) :: ifprodmt, smbasiscut,l1l2p,l1l2m,inn
       integer(4) :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
@@ -300,8 +300,7 @@ c Here you can add any functions in the same way.
       if(smbasis().and.smbasis_case()==1) goto 113
 
 ctakao
-      oldver= .not.newaniso()
-      if(oldver .and. zvztest()/=2) then !oct2004 only add one s product basis.
+      if(.not. addbasnew().and.zvztest()/=2) then !oct2004. Add one s product basis.
         iprad  = iprad  + 1 ! radial function index
         nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
         ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).

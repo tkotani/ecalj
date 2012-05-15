@@ -1023,7 +1023,7 @@ c
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
 c Mix0vec ---------------------------------
-        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
+c        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
           if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
           allocate( oo(ngb,ngb) )
           allocate( ppovl(ngc,ngc) )
@@ -1064,15 +1064,15 @@ c          nmx = 15
           enddo
 
 !! === save zz === apr2012takao
-          if( newaniso().and.iqx==1 ) then 
-            if(sum(q**2)>1d-10) then
-               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
-            endif   
-            write(ifvcoud) ngb
-            write(ifvcoud) -eb
-            write(ifvcoud) zz
-            idummy=iclose('Vcoud')
-          endif  
+c          if( newaniso().and.iqx==1 ) then 
+c            if(sum(q**2)>1d-10) then
+c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
+c            endif
+          write(ifvcoud) ngb
+          write(ifvcoud) q
+          print *,'qqqqqq q=',q
+          write(ifvcoud) -eb
+          write(ifvcoud) zz
 
           print *
           write(6,'(" eig0 must be equal to the largest =", 2d24.16)')
@@ -1181,10 +1181,11 @@ c phasex ---just to clean. this is irrelevant
           deallocate(hh,oo,zz,eb,oox,zzr)
           deallocate(ppovl)
 c2---------------------
-        endif
+c        endif
  1001 continue
 
       deallocate(ngvecc)
+      idummy=iclose('Vcoud')
       if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
       if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
       if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
