@@ -344,71 +344,50 @@ c-------------------------------------------------------------------
       end
 
 
-
-      subroutine q0iwgt3(allq0i,symops,ngrp,wqt,q0i,nq0i,           !S.F.Jan06
+!! -------- S.F.Jan06 --------------------------------------------------
+      subroutine q0iwgt3(allq0i,symops,ngrp,wqt,q0i,nq0i,           
      o                  wgt0)
-c Get weight for each k-points near 0.
-c wgt0(irreducible-k, irotation)
+!! Get weight for each k-points near 0.
+!! wgt0(irreducible-k, irotation)
       implicit none
-      logical allq0i !if true --> all rot. incl., even equivivalent !S.F.Jan06
-      !if false -> include only nonequivivalent rot. !S.F.Jan06
+      logical allq0i !if true --> all rot. incl., even equivivalent 
+      !if false -> include only nonequivivalent rot. 
       integer(4) :: ixx,ix,i, ngrp,ig,nq0i
       real(8)     :: q0(3,6),q0i(3,6),symops(3,3,ngrp),sym(3,3),
      &  sym2(3,3),qt(3), q0in(3,ngrp*nq0i), wgt0(nq0i,ngrp), wqt(nq0i)
-
-c      print *,' q0iwgt:'
-c      wgt0 = 0d0                                                 !S.F.Jan06
-      wgt0 = 1d0                                                 !S.F.Jan06
-C      ixx = 0
+      wgt0 = 1d0                                                 
       do i = 1,nq0i
-        ixx = 0                                                   !S.F.Jan06
+        ixx = 0                                                   
         qt = q0i(:,i)
 c equivalence check
         do ig = 1,ngrp
           sym = symops(:,:,ig)
-          if (allq0i) then                                        !S.F.Jan06
+          if (allq0i) then                                        
             wgt0 (i,ig)  = wqt(i) /dble(ngrp)
-            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3,f12.5)')'allq0i=T ',i,ig, wgt0(i,ig) !S.F.Jan06
-          else                                                    !S.F.Jan06
-ctakao comment out once more to keep symmetry !
-c          write(66,'(2i3,3f12.5)')i,ig,matmul(sym,qt)
-cccccccccccccccccccccccccccccccccccccccc
-            if (ig > 1) then                                      !S.F.Jan06
-              do ix = 1,ig-1                                        !S.F.Jan06
-cC              if(sum(abs(q0in(:,ix)-matmul(sym,qt)))<1d-10) then
-                sym2=symops(:,:,ix)                                !S.F.Jan06
-                if(sum(abs(  matmul(sym2,qt)-                      !S.F.Jan06
-     .                      matmul(sym,qt)  ))<1d-8) then
-                  wgt0(i,ig) = 0d0
-                  goto 1111                                       !S.F.Jan06
-                endif                                              !S.F.Jan06
-              enddo                                                 !S.F.Jan06
-            endif                                                 !S.F.Jan06
-ccccccccccccccccccccccccccccccccccccccc
-            ixx = ixx+1                                            !S.F.Jan06
-c          q0in (:,ixx) = matmul(sym,qt)
-          endif                                                   !S.F.Jan06
-cccccccccccc
- 1111     continue                                                !S.F.Jan06
+            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3,f12.5)')'allq0i=T ',i,ig, wgt0(i,ig) 
+          else                                                    
+            do ix = 1,ig-1                                        
+              sym2=symops(:,:,ix)            
+              if(sum(abs(  matmul(sym2,qt)- matmul(sym,qt)  ))<1d-6) then
+                wgt0(i,ig) = 0d0
+                goto 1111                                       
+              endif                                              
+            enddo                                                 
+            ixx = ixx+1                                            
+          endif                                                   
+ 1111     continue                                                
         enddo !ig
-        if (.not. allq0i) then                                    !S.F.Jan06
-          do ig = 1, ngrp                                         !S.F.Jan06
-            wgt0(i,ig) = wgt0(i,ig)*wqt(i)/dble(ixx)              !S.F.Jan06
-            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3, f12.5)')'allq0i=F ',i,ig, wgt0(i,ig)  !S.F.Jan06
-          enddo !ig                                               !S.F.Jan06
-        endif                                                     !S.F.Jan06
+        if (.not. allq0i) then                                    
+          do ig = 1, ngrp                                         
+            wgt0(i,ig) = wgt0(i,ig)*wqt(i)/dble(ixx)              
+            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3, f12.5)')'allq0i=F ',i,ig, wgt0(i,ig)  
+          enddo !ig                                               
+        endif                                                     
       enddo !i
       if (abs(sum(wgt0)-1d0) .gt. 1d-8) stop 'q0iwgt3: wrong wgt0'
       if (abs(sum(wqt)-1d0) .gt. 1d-8)  stop 'q0iwgt3: wrong wqt'
-ccccccccccccccccccccc
-c     do ig=1,ngrp
-c     write(6,*)' sym ig  =',ig
-c     write(6,'(3f12.6)') symops(1,1:3,ig)
-c     write(6,'(3f12.6)') symops(2,1:3,ig)
-c     write(6,'(3f12.6)') symops(3,1:3,ig)
-c      enddo
-ccccccccccccccccccccc
       end
+
 
       integer*4 function ivsumxxx(ia,n)
       integer(4) ::ia(n)

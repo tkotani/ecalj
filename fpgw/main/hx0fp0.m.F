@@ -117,7 +117,7 @@ c      integer :: nw2
       real(8)::efin
 
       integer(4):: bzcase, ngc,mrecg
-      real(8):: qq(3),quu(3), deltaq(3),qqq(3)=0d0
+      real(8):: qq(3),quu(3), deltaq(3) !,qqq(3)=0d0
       logical:: omitqbz=.false., noq0p
 
       logical,allocatable :: iwgt(:,:,:,:)
@@ -164,7 +164,7 @@ c      integer :: nw2
       real(8),allocatable::eval(:)
       integer(4):: new,nmxx,ii,iy,ipl1,ixx
 
-      complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:)
+      complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:),ppovlz(:,:),ppovlzinv(:,:)
       real(8)::qxx(3),ssm
 ! svd. not used now
       real(8),allocatable::SS(:),rwork(:),ss0(:)
@@ -205,13 +205,13 @@ c      integer :: nw2
       complex(8):: trr,trr0,trr1     , zzzx(4,4), zzzy(4,4),trrx,mmatx(4,4),denom(4,4)
       real(8),allocatable:: eee(:),mmnorm(:),
      &    asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
-      real(8):: eex(4),eey(4)
+      real(8):: eex(4),eey(4),qvv(3)
 !!
       logical :: newaniso,newaniso2 !apr2012
       integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:)
       real(8),allocatable:: vcousq(:)
-      real(8):: fourpi,sqfourpi
+      real(8):: fourpi,sqfourpi,tpioa
 
 !! Eq.(40) in PRB81 125102
 c      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:), 
@@ -220,7 +220,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:)
       real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:)
-      integer:: lxklm,nlxklm,ifidmlx
+      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx
 
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -426,7 +426,7 @@ C ... Readin by genallcf
 
       print *,' ncore=',ncore
       print *,' iclass=',iclass
-
+      tpioa=2d0*pi/alat
 ! ...
       if(chipm.and.nspin==1) stop 'chipm mode is for nspin=2'
       nw_input = nw ; print *, 'nw delta=',nw_input,delta
@@ -478,7 +478,7 @@ C ... q near zero
      &  stop ' wqtsum of Q0P /=1 '
       endif
 
-C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
+C --- readin by rdpp ; Radial integrals ppbrd and plane wave part 
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
@@ -848,6 +848,7 @@ C --- READIN ANFcond------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
       print *,' ANFcond exist? =',anfexist
       if(anfexist) then
+         print *,' WARN: this mode is not maintained recently... this may cause a problem'
         allocate(ibasf(natom),transaf(1:3,natom))
         ifianf = 211
         open(ifianf,file='ANFcond')
@@ -1172,26 +1173,14 @@ c$$$ 1101  continue
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! === readin square of the the Coulomb matrix at q=0 ===
-!! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
-      if(newaniso2) then
-       ifvcoud = iopen('Vcoud',0,0,0)
-       read(ifvcoud) ngb0
-       allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
-       read(ifvcoud) vcousq
-       read(ifvcoud) zcousq
-c       zcousqinv=zcousq
-c       call matinv(ngb0,zcousqinv)
-       vcousq=sqrt(vcousq) !
-       idummy =iclose('Vcoud')
-      endif 
 
-      allocate(llw(iqxini:iqxend,nw_i:nw),llwI(iqxini:iqxend,niw))
-
+      allocate( llw(nw_i:nw,iqxini:iqxend), llwI(niw,iqxini:iqxend) )
 !! ---------------------------------------------------------
 !! === Calculate x0(q,iw) and W ===
 !! This is a main loop 
 !!
+      ifisk=iopen('WKcomponent',0,-1,0)
+
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted when iqxini=2
         call cputid (0)
         q = qibze(:,iq)
@@ -1229,31 +1218,91 @@ c         endif
         endif
         write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
 
+!! === readin diagonalized Coulomb interaction ===
+!! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
+        if(newaniso2) then
+cccccccccccccccccccccccccccccccccccccccc
+c         print *,' dddddddddd test  qq=q ddddddddddd'
+c          qq=q
+          q = qibze(:,iq)
+         if(sum(abs(q))<1d-6) then !reopen Vcoud
+           idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
+           ifvcoud = iopen('Vcoud',0,0,0)
+         endif  
+cccccccccccccccccccccccccccccccccccccccc
+         read(ifvcoud) ngb0
+         read(ifvcoud) qvv
+         print *,'qvv=',qvv
+         if(sum(abs(qvv-q))>1d-10) then
+          print *,'qvv =',qvv
+          stop 'hx0fp0: qvv/=0 hvcc is not consistent'
+         endif   
+         if(allocated(zcousq)) deallocate( zcousq,vcousq )
+         allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
+         read(ifvcoud) vcousq
+         print *,'qvv =',qvv
+         do igb1=1,ngb0
+           print *,'qvv sum vcousq ',igb1,vcousq(igb1)
+         enddo
+         read(ifvcoud) zcousq
+         vcousq=sqrt(vcousq)
+        endif 
+ccccccccccccccccccccccccccccccccccccc
+c                print *,'qqqqq11111 vcousq',sum(abs(vcousq))
+c                stop 'xxxxxx111111111 22222 33333 ccccc'
+cccccccccccccccccccccccccccccc
+
 !! ==== nolfco is overlaid ====
-        if( newaniso2.and. iq>nqibz  ) then
+!! may2012takao
+ccccc
+        print *,'dddddddddddddd off-set Gamma original-like test dddddddddddddddddd'
+        if(.false.) then 
+ccccc        if(newaniso2.and. iq>nqibz  ) then
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           if( ngb0/=ngb ) then
-           stop 'hx0fp0.m.f:ngb0/=ngb'
+            stop 'hx0fp0.m.f:ngb0/=ngb'
           endif 
           nolfco =.true.
           nmbas_in=ngb
           nmbas1 = 2  !nmbas1=2 is for newaniso modes. For P1mu and Pmu1 components.
           nmbas2 = ngb
           if(allocated(rcxqmean)) deallocate(rcxqmean)
-          if(allocated(x0mean)  ) deallocate(x0mean)
+c          if(allocated(x0mean)  ) deallocate(x0mean)
           if(allocated(zzr))      deallocate(zzr)
           allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) ) 
-          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
+c          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
           allocate( zzr(ngb,ngb) )
           rcxqmean= 0d0
-          x0mean  = 0d0
-          zzr     = zcousq
-        elseif(nolfco) then
-          nmbas1=nmbas_in !meaningful in both of dpsion5 and x0kf_v4h.
-          nmbas2=nmbas_in !
-        else
+        elseif(newaniso2) then !.and.iq==1) then
           nmbas1=ngb !meaningful in dpsion5, not used in x0kf_v4h.
           nmbas2=ngb !
+        elseif(nolfco) then
+          nmbas1=nmbas_in 
+          nmbas2=nmbas_in 
+        else
+          nmbas1=ngb 
+          nmbas2=ngb 
         endif
+
+        if(newaniso2) then
+          if(allocated(ppovlz)) deallocate(ppovlz)
+          if(allocated(ppovlzinv)) deallocate(ppovlzinv)
+          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
+          call readppovl0(qq,ngc,ppovl)
+          ppovlz(1:nbloch,:)=zcousq(1:nbloch,:)
+          ppovlz(nbloch+1:nbloch+ngc,:) 
+     &    = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) 
+          if(allocated(zzr)) zzr = ppovlz
+          deallocate(ppovl)
+          write(*,*)'nnnnn',nbloch+ngc,ngb
+ccccccccccccccccccccccccccccccccccccccccccccc
+c          do ix=1,ngb
+c             do iy=1,ngb
+c                ppovlz(ix,iy)=ix*iy
+c             enddo
+c          enddo
+ccccccccccccccccccccccccccccccccccccccccccccc
+        endif  
 
 !! ==== set up for epsilon mode =====
         if(epsmode) then !iepsmode/=0) then      ! only calculate iq>nqibz
@@ -1365,8 +1414,8 @@ c          allocate( rcxq(1,1,1,npm) )
         else
           allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
         endif  
-
         zxq=0d0;  zxqi=0d0;  rcxq = 0d0
+
 !! ---------------------------------------------------------------
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
@@ -1397,8 +1446,8 @@ C ... kqxx(kx) ekxx ---
 !    ekxx1  for  rk
 !    ekxx2  for q+rk.  See tetwt4
             do kx = 1, nqbz
-              call readeval(    qbz(:,kx)-qqq, is, ekxx1(1:nband, kx) )
-              call readeval(q + qbz(:,kx)-qqq,isf, ekxx2(1:nband, kx) )
+              call readeval(    qbz(:,kx), is, ekxx1(1:nband, kx) ) !qqq is removed.
+              call readeval(q + qbz(:,kx),isf, ekxx2(1:nband, kx) )
             enddo
 C ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
 !     the pairs are not dependent on the energy omega
@@ -1445,6 +1494,7 @@ c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
             deallocate(iwgt)
           endif
 C --- end of tetraini block==========================================1end
+
 
 c sergeyv=T only now feb2012
 c$$$C --- TetrahedronWeight_4 block. tettwt4  ixc<=5 ==============2ini
@@ -1702,6 +1752,7 @@ c          endif
 c=======TetrahedronWeight_5 block end ==================4end
 
 
+
 c==============x0kf_v4hz block.  =========================5ini
 c Instead of wwk, you have to use whw(nwhtot).
 c You will need to pass these arrays to x0kf
@@ -1712,12 +1763,9 @@ c   whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ib
 c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
-c          if(sergeyv) then ;  
-            print *, ' --- goto x0kf_v4hz ---- '
-c- new version only along real axis for
-!! Input of "zcousq for iq=1 newanizox" and "zzr for iq>iqibz .and.newaniso2" are the same.
-!! (thus this may be improved).
-            call x0kf_v4hz(npm,ncc,   
+          print *, ' --- goto x0kf_v4hz ---- dddddddddddddddd newaniso= ',newaniso2
+
+          call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
@@ -1733,14 +1781,39 @@ c- new version only along real axis for
      i    nqbze,nband,nqibz, 
      o    rcxq, ! See rcxq_zxq in x0kf_v3h.f; rcxq is equivalent with zxq;
      &    !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2,zcousq,newaniso2,!for nolfco Add nmbas Sep2006
-     &                         !zcousq is added apr2012takao            
+     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz,
+cooo
+c     i    .false.,!for nolfco Add nmbas Sep2006
+     i    newaniso2,!for nolfco Add nmbas Sep2006
      o    rcxqmean ) !for nolfco
+cooo          if(allocated(ppovlz)) deallocate(ppovlz)
 
-c          endif
-c          print *,'ttttt: rcxqmean sum =',sum(abs(rcxqmean))
 
-c          stop '--- test end of x0kf_v2hz ---------'
+c$$$cccccccccccccccccccccccccccccccccccccccccc
+c$$$cooo
+c$$$      do jpm=1,npm
+c$$$          do iw= 1, nwhis
+c$$$            do igb2= 1, nmbas2
+c$$$              do igb1= 1, igb2-1
+c$$$                rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+c$$$              enddo
+c$$$            enddo
+c$$$          enddo
+c$$$      enddo
+c$$$          print *,' ddddddddddd ppovlinv*rcxq*ppovlinv xxxxxxxx'
+c$$$             ppovlzinv = ppovlz
+c$$$             call matcinv(ngb,ppovlzinv)
+c$$$c          allocate( rcxq(ngb,ngb,nwhis,npm) )
+c$$$             do jpm=1,npm
+c$$$             do iw=1,nwhis
+c$$$             rcxq(:,:,iw,jpm) = matmul(dconjg(transpose(ppovlzinv)),matmul(rcxq(:,:,iw,jpm),ppovlzinv))
+c$$$             enddo
+c$$$             enddo
+c$$$             deallocate(ppovlzinv)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
 c$$$c=========== Check write mode4 block ixc==4 ============6ini
 c$$$          if(ixc==4) then
 c$$$C --- check write ---
@@ -1785,10 +1858,10 @@ c$$$c=========== Check write mode4 block end  ==============6end
             if(is==nspinmx.or.chipm) then
               write(6,'("goto dpsion5: "
      &        //"nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
+c              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
 !! rcxqmean--->rcxq index conversion
               if(nolfco) then
-                do iw=1,nw
+                do iw=1,nwhis
                 do jpm=1,npm
                   rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
                 enddo
@@ -1802,16 +1875,18 @@ c$$$c=========== Check write mode4 block end  ==============6end
 c     i        nolfco,chipm, schi,is,  rcxqmean,nmbas_in,ecut(iecut),ecuts(iecut),
      i        chipm, schi,is,  ecut(iecut),ecuts(iecut))
 c     o        x0mean)  ! x0mean is removed. zxq,zxqi are accumlating veriable for chipm mode
-              if(nolfco) then
+              if(nolfco.and.epsmode) then
                 do iw=nw_i,nw
                   x0mean(iw,:,:)=zxq(:,:,iw)
                 enddo  
               endif
-            endif  ;  print *,' --- end of dpsion5 ----'
-            if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean',sum(abs(x0mean))
+            endif  ;  print *,' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
+            if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean   ',sum(abs(x0mean))
+            if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean11 ',sum(abs(x0mean(:,1,1)))
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
 !=======================================================================
+
 
 c==============x0kf_v3h block end  =========================
 c$$$- 13July2005
@@ -1837,7 +1912,7 @@ c$$$        endif
 c       write(ifdpin)  nwhis,nw,niw, ngb, frhis,freq_r, freq_i,rcxq
 
 
-C ---  RealOmega ====================================
+!! ===  RealOmega ====================================
         if (realomega) then
           if(chipm) then !ixc==22.or.ixc==23) then
             if (nspin==1) stop 'chipm modes are for nspin==2'
@@ -1904,16 +1979,36 @@ c     &     ,zzz(nbloch,nbloch))
 c          endif
 c          write(6,*)"zzzz nw_i nw=",nw_i,nw
 
+!! prepare for iq0.
+          iq0 = iq - nqibz
+          if(newaniso2) then
+           if( iq==1 ) then
+            ifepstinv = iopen('EPS0inv',0,-1,0)
+            write(ifepstinv) ngb
+           elseif(iq0>0) then
+            write(ifisk) ngb,nw_i,nw,niw
+            allocate( sk( ngb),  sks(ngb), w_k(ngb), w_ks(ngb) ) 
+            allocate( skI( ngb),  sksI(ngb), w_kI(ngb), w_ksI(ngb) ) 
+c            allocate( s_vc(ngb-1))
+           endif  
+           print *,' dddddddddd allocate epstilde dddddddddd'
+cccc           if(iq<=nqibz) then
+             allocate(epstilde(ngb,ngb))
+ccccc           endif  
+           if(iq0 >= 1) then
+             ifepstinv = iopen('EPS0inv',0,0,0)
+             read(ifepstinv) ngb
+           endif  
+           allocate(epstinv(ngb,ngb))
+          endif  
+
+
+!! === iw loop for real axiw ===
           do 1015 iw  = nw_i,nw  !Feb2006. Before it was 1:nwp (nwp=nw+1).
             !  So freq_r(iw-1) is shifted to freq_r(iw).
-cnw all freq is from zero freq(0:nwp-1); nwp is the number of real flequencies.
             frr= dsign(freq_r(abs(iw)),dble(iw))
             if(.not.epsmode) then  !if(ixc==1.or.sergeyv) then
               imode = 1
-              !if(debug) 
-c              print *,'tttt iw=',iw
-c              write(6,"(' rrr sum zxq=',i5,4d23.14)") iw,sum(zxq(:,:,iw)),sum(abs(zxq(:,:,iw)))
-
 c$$$!! a debug mode.
 c$$$              if(evaltest()) then
 c$$$                write(6,"('hhh --- EigenValues for Im( xq) --------')")
@@ -1931,94 +2026,85 @@ c$$$                write(6,*) "test end of h0000000000000000000"
 c$$$              endif
 !! === wcf: W= (1-v zxq)^{-1} v ===
 !! *newaniso2 mode
-c              print *,'tttt newaniso2 iq iw=',newaniso2,iq,iw,nw
-              if(newaniso2.and.iq==1) then
+c             print *,'tttt newaniso2 iq iw=',newaniso2,iq,iw,nw
+              print *,'ddddd 1111 original-like mode dddddddddddd'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cooo test mode
+c             if(.true.) then ! Original mode
+c             ppovlzinv = ppovlz
+c             call matcinv(ngb,ppovlzinv)
+c             zxq(:,:,iw) = matmul(dconjg(transpose(ppovlzinv)),matmul(zxq(:,:,iw),ppovlzinv))
+c             deallocate(ppovlzinv)
+c             call wcf( ngb, vcoul, zxq(1,1,iw), imode,
+c     &                zw0)
+c             zw0=matmul(dconjg(transpose(zcousq)),matmul(zw0,zcousq))
+c              else               if(newaniso2.and.iq<=nqibz) then
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c              else
+
+cooo
+c              if(newaniso2.and.iq<=nqibz) then
+              if(.true.) then
+                if(iq==1) then
+                  ix=1
+                  zw0(:,1)=0d0
+                  zw0(1,:)=0d0
+                else  
+                  ix=0
+                endif
+
 !!  Eqs.(37),(38) in PRB81 125102
-                if(iw==nw_i) then
-                  allocate(epstinv(ngb,ngb),epstilde(ngb,ngb))
-                endif  
-                do igb1=1+1,ngb 
-                do igb2=1+1,ngb
+                do igb1=ix+1,ngb 
+                do igb2=ix+1,ngb
                   epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
                   if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
                 enddo
                 enddo
-                epstinv=epstilde(:,:)
-                call matcinv(ngb-1,epstinv(2:ngb,2:ngb))
-                zw0(:,1)=0d0
-                zw0(1,:)=0d0
-                do igb1=1+1,ngb 
-                do igb2=1+1,ngb
+cccccccccccccccccccccccccccccccc
+c                print *,'qqqqq sumcheck epstinv',sum(abs(zxq(ix+1:ngb,ix+1:ngb,iw)))
+c                print *,'qqqqq vcousq',sum(abs(vcousq))
+c                stop 'xxxxxxxxxxxxxxxxxxxx'
+ccccccccccccccccccccccccccccccccc
+                epstinv=epstilde
+                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+                do igb1=1+ix,ngb 
+                do igb2=1+ix,ngb
                   zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+                  if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
                 enddo
-                if( iw==nw_i) then
-                  ifepstinv = iopen('EPS0invR',0,-1,0)
-                  write(ifepstinv) ngb
-                endif
-                write(ifepstinv) epstinv(2:ngb,2:ngb)
-                if( iw==nw)  then
-                  ifepstinv = iclose('EPS0invR')
-                  deallocate(epstinv,epstilde)
-                endif  
-              elseif(newaniso2.and.iq>nqibz) then
-                if( iw==nw_i) then
-                  ifepstinv = iopen('EPS0invR',0,0,0)
-                  read(ifepstinv) ngb
-                  allocate(epstinv(ngb,ngb))
-                endif   
+c                print *,'qqqqq sumcheck epstinv',sum(abs(epstinv(ix+1:ngb,ix+1:ngb)))
+                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb)
+              elseif(newaniso2) then
                 read(ifepstinv) epstinv(2:ngb,2:ngb)
-                if( iw==nw  ) then
-                   ifepstinv = iclose('EPS0invR')
-                endif
-c                print *,'ttt end readin EPS0invR'
-                iq0 = iq - nqibz
-!! allocate sk, sks, w_k, wks, skI
-                if(iq0==1.and.iw==nw_i) then
-c                  allocate( 
-c     &             sk( ngb,nw_i:nw,nq0i),  sks(ngb,nw_i:nw,nq0i), skI( ngb,niw,nq0i), sksI(ngb,niw,nq0i),
-c     &             w_k(ngb,nw_i:nw,nq0i), w_ks(ngb,nw_i:nw,nq0i), w_kI(ngb,niw,nq0i),w_ksI(ngb,niw,nq0i), 
-c     &             llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
-                  allocate( 
-     &             sk( ngb),  sks(ngb), skI( ngb), sksI(ngb),
-     &             w_k(ngb), w_ks(ngb), w_kI(ngb),w_ksI(ngb)) 
-                  ifisk=iopen('Polarization0',0,-1,0)
-                  write(ifisk) ngb,nw_i,nw,niw
-c     &             llw, llwI )
-                  allocate(s_vc(ngb-1))
-                endif  
+c                print *,'ttt end readin EPS0inv'
 !! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
 c                print *,'tttt sk sks writing'
                 sk(  1:ngb)= zxq(1,1:ngb,iw)
-                sks( 1:ngb)= zxq(2,1:ngb,iw) !sk(1)=sks(1) -> sks(1) isn't used. 
-c                print *,'tttt sk sks stored'
+                sks( 1:ngb)= zxq(2,1:ngb,iw) 
                 w_k(1) =0d0
                 w_ks(1)=0d0
                 w_k( 2:ngb)= sqfourpi*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb)*vcousq(2:ngb)) 
                 w_ks(2:ngb)= sqfourpi*matmul( sks(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb)) 
-                llw(iw,iq0)= sum(q**2)    ! 1 of Eq.(40) in PRB81 125102
+c 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c                print *, 'ddddd llw= 1- 4pi*diag only xxxxxxxxxxxx'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+                llw(iw,iq0)= sum(q**2*tpioa**2)    ! 1 of Eq.(40) in PRB81 125102
      &            -fourpi* sk(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
      &            -sqfourpi* sum( sks(2:ngb)*w_k(2:ngb)*vcousq(2:ngb) )
-                llw(iw,iq0)=llw(iw,iq0)/ sum(q**2)  
-                if(iw==nw) deallocate(epstinv)
-!!
-                write(ifisk) iq0,q,iw
-                write(ifisk) sk,sks,w_k,w_ks,llw
-!! Constant part (which should be spherically symmetrized) is
-!!                zw0=0d0
-!!               do igb1=2,ngb
-!!                  zw0(igb1,2:ngb)=1d0/llw * w_ks(igb1)*wk(2:ngb)
-!!               enddo  
-
-              else
-!! Original mode
+                llw(iw,iq0)=llw(iw,iq0)/ sum(q**2*tpioa**2)  
+ccccccccccccccccccccccccccccccccccc
+                write(*,*) 'epsPP iq iw',iq,iw, 1d0 - fourpi* sk(1)/sum(q**2*tpioa**2)
+                write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
+                write(ifisk) iw,iq0,q
+                write(ifisk) w_k,w_ks
+              else ! Original mode
                 call wcf( ngb, vcoul, zxq(1,1,iw), imode,
      &                zw0)
               endif
-c              print *,'tttt end of wcf',newaniso2,iq
  
 c$$$!!... a debug mode
-c$$$              if(evaltest()) then
 c$$$                write(6,"('hhh --- EigenValues for Im( W) --------')")
 c$$$                allocate(ebb(ngb))
 c$$$                call diagcvh2( (zw0-transpose(dconjg(zw0)))/2d0/img, ngb, ebb)
@@ -2030,22 +2116,51 @@ c$$$                    write(6, "('hhhIWqxxx : iw ii eb=',2i4,d13.5)") iw, ii, 
 c$$$                  endif
 c$$$                enddo
 c$$$                deallocate(ebb)
-c$$$                write(6,*) '---Stop here: end of evaletes---'
-c$$$                if(iw==nw)  stop  '---Stop here: end of evaletes---'
-c$$$              endif
 
-              if(newaniso2.and.iq>nqibz) then
-                continue
+
+cccccccccccccccccccccccccccccccccc
+            print *,'ddddddddddddd original like dddddddddddd iq ngb=',iq,ngb
+            if(iq==1) then
+               zw0=0d0
+            endif
+cccccccccccccccccccccccccccccccccc
+
+
+
+ccccccccccccccc
+              print *,'ddddd2222 original like mode dddddddddddddddd'
+              if(.false.) then 
+cccc              if(newaniso2.and.iq>nqibz) then
+ccccccccccccccccc
+                zw(1:ngb,1:ngb) = 0d0
+                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
               else
-               if(debug) write(6,"('tttt rrr sum zw0=',i5,4d23.14)") iw,sum(zw0),sum(abs(zw0))
-               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
-               write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
-               call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
+                zw(1:ngb,1:ngb) = zw0
+ccccccccccccccccccccc
+c              if(iq>nqibz) zw=0d0
+ccccccccccccccccccccc
+                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
+                call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
               endif  
 
-c              print *,'tttt wvr3 nrec=',(iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1, nblochpmx,iq-iqxini,iw,nw
-              !----------------------------
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cooo
+          if(mod(iw,3)==1) then
+           do igb1=1,ngb,23
+           do igb2=1,ngb,23
+             write(*,"('zzzzzw zw:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
+           enddo
+           enddo
+          endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
             elseif(epsmode.and.(.not.chipm)) then !.and.ixc/=23) then ! No LFC (local field correction). It's better to use echo 4| hbasfp0.
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c              print *,'ppppp sumcheck zxq=',sum(abs(zxq)),sum(abs(zzr)),sum(abs(vcoul)),sum(abs(gbvec))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
               vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
               if(.not.nolfco) then
                 x0mean(iw,1,1) = sum( dconjg(zzr(:,1))* matmul(zxq(:,:,iw),zzr(:,1)))
@@ -2260,6 +2375,11 @@ c!               endif
 c            print *,'tttt aaa iw=',iw
  1015     continue
           print *,'tttt  end of  do 1015 loop'
+          if(newaniso2) then
+            if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
+          endif  
+
+
 c
 c          if(chipm.and.(.not.nolfco)) 
 c     &          deallocate(sqovlp,sqovlpi,UU0,VT0,SS0,mmat,zzz)
@@ -2340,83 +2460,111 @@ c           enddo
             imode=1
           endif
 
-c$$$          do ipm=1,npm
-          do iw  = 1,niw
-c            print *,'sss sumchk zxqi=',sum(abs(zxqi(:,:,iw))) !,ipm)))
-
-c            print *,'tttt  iw niw=',iw,niw
-            if(newaniso2 .and. iq==1) then 
+!! === iw loop for imag axiw ===
+          do 1016 iw  = 1,niw
+ccccccccccccccccccc
+            print *,'ddddddddddd original like zzzzzzzz'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cooo test mode
+c            if(.true.) then 
+c            ppovlzinv = ppovlz
+c            call matcinv(ngb,ppovlzinv)
+c            zxqi(:,:,iw) = matmul(dconjg(transpose(ppovlzinv)),matmul(zxqi(:,:,iw),ppovlzinv))
+c            deallocate(ppovlzinv)
+c            call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
+c     o              zw0)
+c              zw0=matmul(dconjg(transpose(zcousq)),matmul(zw0,zcousq))
+c            else  if(newaniso2 .and. iq<=nqibz ) then 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cooo
+c             if(newaniso2 .and. iq<=nqibz ) then 
+             if(.true.) then 
 !!  Eqs.(37),(38) in PRB81 125102
-                if(iw==1) then
-                  allocate(epstinv(ngb,ngb),epstilde(ngb,ngb))
-                endif  
-                do igb1=1+1,ngb 
-                do igb2=1+1,ngb
+               if(iq==1) then
+                  ix=1
+                  zw0(:,1)=0d0
+                  zw0(1,:)=0d0
+                else  
+                  ix=0
+                endif
+ccccccccccccccccccccccccccccccccccc
+c                print *,'ddddddddddd ix=0'
+c                ix=0
+ccccccccccccccccccccccccccccccccccc
+!!  Eqs.(37),(38) in PRB81 125102
+                do igb1=ix+1,ngb 
+                do igb2=ix+1,ngb
                   epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
                   if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
                 enddo
                 enddo
-                epstinv=epstilde(:,:)
-                call matcinv(ngb-1,epstinv(2:ngb,2:ngb))
-                zw0(:,1)=0d0
-                zw0(1,:)=0d0
-                do igb1=1+1,ngb 
-                do igb2=1+1,ngb
+                epstinv=epstilde
+                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+                do igb1=ix+1,ngb 
+                do igb2=ix+1,ngb
                   zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+                  if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
                 enddo
-                if(iw==1) then
-                  ifepstinv = iopen('EPS0invI',0,-1,0)
-                  write(ifepstinv) ngb
-                endif
-                write(ifepstinv) epstinv(2:ngb,2:ngb)
-                if(iw==niw)  then
-                  ifepstinv = iclose('EPS0invI')
-                  deallocate(epstinv,epstilde)
-                endif  
-            elseif(newaniso2 .and. iq>nqibz) then
-                if( iw==1) then
-                  ifepstinv = iopen('EPS0invI',0,0,0)
-                  read(ifepstinv) ngb
-                  allocate(epstinv(ngb,ngb))
-                endif   
+                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb)
+            elseif(newaniso2) then
                 read(ifepstinv) epstinv(2:ngb,2:ngb)
-                if( iw==nw  ) then
-                   ifepstinv = iclose('EPS0invI')
-                endif
-
                 iq0 = iq - nqibz
-!! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
                 skI  (1:ngb)= zxqi(1,1:ngb,iw)
                 sksI (1:ngb)= zxqi(2,1:ngb,iw) 
                 w_kI(1) =0d0
                 w_ksI(1)=0d0
                 w_kI (2:ngb)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb)*vcousq(2:ngb)) 
                 w_ksI(2:ngb)= sqfourpi*matmul(sksI(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
-                llwI(iq,iq0)  = sum(q**2) ! 1 of Eq.(40) in PRB81 125102
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c                print *, 'ddddd 222 llw= 1- 4pi*diag only xxxxxxxxxxxx'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+                llwI(iw,iq0)  = sum(q**2*tpioa**2) ! 1 of Eq.(40) in PRB81 125102
      &                  -fourpi  * skI(1) !sk(1,1,iw)=sks(1,1,iw)= H of Eq.(40).
      &                  -sqfourpi* sum( sksI(2:ngb)*w_kI(2:ngb)*vcousq(2:ngb) )
-                llwI(iq,iq0)  = llwI(iq,iq0)/sum(q**2) ! 1 of Eq.(40) in PRB81 125102
-c                print *,' xxx  store iw niw',iw,niw
-                if(iw==niw) deallocate(epstinv)
-!!
-                write(ifisk) iw
-                write(ifisk) skI,sksI,w_kI,w_ksI,llwI
-!!
-            else
-!! *original mode
+                llwI(iw,iq0)  = llwI(iw,iq0)/sum(q**2*tpioa**2) ! 1 of Eq.(40) in PRB81 125102
+                write(*,*) 'iq iw llwI',iq,iw,llwI(iw,iq0)
+                write(ifisk) iw,iq0,q
+                write(ifisk) w_kI,w_ksI
+
+            else ! original mode
               call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
      o              zw0)
             endif  
 
-            if(newaniso2.and.iq>nqibz) then
-               continue !this is because required constant parts are already written in write(ifisk) w_k and so on.
+cccccccccccccccccccccccccccccccccc
+cooo
+            print *,'ddddddddddddd original like dddddddddddd111 iq ngb=',iq,ngb
+            if(iq==1) then
+               zw0=0d0
+            endif
+cccccccccccccccccccccccccccccccccc
+
+            if(.false.) then
+ccc            if(newaniso2.and.iq>nqibz) then
+              zw(1:ngb,1:ngb) = 0d0 ! zw(nblochpmx,nblochpmx)
+              write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
             else
-c            print *,'sss sumchk zw0=',sum(abs(zw0))
               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
               write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
               call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
             endif 
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cooo
+          if(mod(iw,3)==1) then
+           do igb1=1,ngb,23
+           do igb2=1,ngb,23
+             write(*,"('zzzzzv zwi:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
+           enddo
+           enddo
+          endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
 
 C --- for Miyake's total energy !Nov2004 ----------------
             if(ecorr_on>0.and. (.not.newaniso2)) then !I did not modified this for newaniso2
@@ -2476,7 +2624,14 @@ c           enddo
 c           deallocate( ovlpc,evall,evecc)
 ccccccccccccccccccccccccccccccccccccccccccccccc
             endif
-          enddo
+ 1016    continue
+         if(newaniso2) then
+           if(iq>=nqibz) ifepstinv = iclose('EPS0inv') !iq>=nqibz --> readin mode
+           deallocate(epstinv)
+           if(allocated(epstilde)) deallocate(epstilde)
+           if(allocated(skI)) deallocate(skI,sksI,w_kI,w_ksI)
+           if(allocated(epstilde)) deallocate(epstilde)
+         endif  
 c$$$          enddo
         endif
 C... ImagOmega end ===============================
@@ -2492,29 +2647,130 @@ c 1002 continue  ! end of frequency block-loop
 C--- end of loop over q point =================================
 c=======================================================================
  1100 continue
-      ifisk=iclose('Polarization0')
 
 
-      if(newaniso()) then
+
+
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+        print *,'dddddddddddddddd test xxxxxx goto 1034 dddddddddddddddd'
+        goto 1034
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+!! == W(0) divergent part and W(0) non-analytic constant part.==
+      if(newaniso2) then
+       print *,' --- newaniso2 mode W(0) divergent part ---'
 !! == W(0) divergent part ==
 !! getw0 routine...
-      ifidmlx = iopen('EPSwklm',0,0,0)
-      read(ifidmlx) nq0i,lxklm
-      allocate( dmlx(nq0i,9))
-      allocate( epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i))
-      nlxklm=(lxklm+1)**2
-      allocate( wklm(nlxklm))
-      read(ifidmlx) dmlx, epinvq0i
-      read(ifidmlx) wklm
-      ifidmlx = iclose(ifidmlx)
-
+       ifidmlx = iopen('EPSwklm',0,0,0)
+       read(ifidmlx) nq0i,lxklm
+       allocate( dmlx(nq0i,9))
+       allocate( epinvq0i(nq0i,nq0i))
+       nlxklm=(lxklm+1)**2
+       allocate( wklm(nlxklm))
+       read(ifidmlx) dmlx, epinvq0i
+       read(ifidmlx) wklm
+       ifidmlx = iclose(ifidmlx)
 !! starting from llw(iw,iq0),llwI(iw,iq0)
 !! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
-      allocate(w0(nw_i:nw),w0i(niw))
-      call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i, lxklm,w0)
-      call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i, lxklm,w0i)
-!! w0 and w0i are weight for digergent part... See exchange part in sxcf...
+       allocate(w0(nw_i:nw),w0i(niw))
+       print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
+       print *,'ddddddddddd getw0 dddddddddddd'
+       if(.false.) then
+       call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm, lxklm,w0)
+       call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm, lxklm,w0i)
+       endif
+
+c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
+!! === w0,w0i are stored to zw for q=0 ===
+!! === w_ks*wk are stored to zw for iq >nqibz ===
+       ifisk = iclose('WKcomponent')
+       ifisk = iopen('WKcomponent',0,-1,0)
+       do iq = iqxini,iqxend
+        if(iq==1.or.iq>nqibz) then
+          continue
+        else
+          cycle
+        endif
+        print *,' Reading "WKcomponent" iq=',iq
+        if(iq>nqibz) read(ifisk) ngb,nw_ixxx,nwxxx,niwxxx
+        allocate(w_k(ngb),w_ks(ngb))
+
+        do ircw=1,2
+          if(ircw==1) then
+           nini=nw_i;   nend=nw;   ifrcwx=ifrcw
+          elseif(ircw==2) then
+           nini=1;      nend=niw;  ifrcwx=ifrcwi
+          endif
+        do iw=nini,nend
+          if( iq==1 ) then
+            read(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
+            if(ircw==1) zw(1,1) = w0(iw)
+            if(ircw==2) zw(1,1) = w0i(iw)
+cccccccccccccccccccccccc
+c            print *,'dddddddd zw0 iq=1ddddddddd '
+c            zw=0d0
+cccccccccccccccccccccccccc
+
+          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
+            if(.false.) then
+               print *,'ddd skip readin ifisk ddddddddd'
+              read(ifisk) iwxx,iq0xx,qxx
+              if(iwxx /=iw) stop 'iwxx/=iw'
+              if(iq0xx /=iq-nqibz) stop 'iq0xx /=iq'
+              if(sum(abs(qibze(:,iq)-qxx))>1d-8) stop 'sum(abs(qq-qxx))>1d-8'
+              read(ifisk) w_k,w_ks
+            endif
+
+            zw(1,:)=0d0
+            zw(:,1)=0d0
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            print *,'ddddddddddd xxxxxxxxxx test skip w_ks*wk xxxxxxxx'
+            zw=0d0
+            if(.false.) then
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+             do igb2=1+1,ngb
+             zw(1+1:ngb,igb2)= w_ks(1+1:ngb)*w_k(igb2)/llw(iw,iq0)
+             enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          endif  
+          write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw !(1:ngb,1:ngb)
+        enddo 
+        enddo 
+        deallocate(w_k,w_ks)
+       enddo 
       endif
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ 1034  continue
+       print *,'dddddddddddddd test skip end ddddddddddddddddddd'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+      print *,' ddddddddd WVR zero clear dddddddddddddddd'
+       do ircw=1,2
+         if(ircw==1) then
+           nini=nw_i;   nend=nw;   ifrcwx=ifrcw
+         elseif(ircw==2) then
+           nini=1;      nend=niw;  ifrcwx=ifrcwi
+         endif
+       do iq = iqxini,iqxend
+       do iw = nini,nend
+         if(iq==1) then !.or.iq>nqibz) then
+           zw=0d0
+           print *,' rec=',iq,iw,((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )
+           write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw 
+         endif
+       enddo 
+       enddo
+       enddo 
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
@@ -2843,41 +3099,72 @@ c--------------------------------------------------------------------
       deallocate(ovlpc,evecc,wpvcc)
       end
 
-      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,lmxax, w0)
+      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,lmxax, w0)
       implicit none
-      integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw
+      integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw,ll,lm1x,lm2x
       complex(8):: llw(ii:ie,nq0i),w0(ii:ie)
       complex(8):: llwyl(9,ii:ie),llw_invr(1:nq0i,ii:ie)
       real(8):: epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i),dmlx(nq0i,nq0i)
-      real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2),
-     &   cgllw((lmxax+1)**2,(lmxax+1)**2),wklm((lmxax+1)**2)
+      real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2)
+      complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2)
+      real(8):: wklm((lmxax+1)**2),ylm
       real(8):: fpi,pi
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       nlklm=(lmxax+1)**2
       epinvq0i_m1=epinvq0i
+      print *,' getw0 matinv:',nq0i,epinvq0i,lmxax
+      print *,' getw0:',ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
       call matinv(nq0i,epinvq0i_m1)
       do iw= ii,ie
-        llw_invr(1:nq0i,iw) = matmul (epinvq0i_m1, llw(1:nq0i,iw)) 
+        llw_invr(iw,1:nq0i) = matmul (epinvq0i_m1, llw(iw,1:nq0i)) 
         ! llw_invr: representation in a linear combination of invariat tensor of epsilon.
         lm=1
-        llwyl(lm,iw) = sum(dmlx(1:nq0i,lm)*llw_invr(1:nq0i,iw))
+        llwyl(lm,iw) = sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
         do lm=5,9
-        llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(1:nq0i,iw))
+         llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
         enddo
+c        write(*,"('llw yl iw ',i3,20d9.1)")iw,sum(llw(iw,1:nq0i))!llwyl(1,iw),llwyl(5:9,iw)
       enddo  
-      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
+!!
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
+      w0=0d0
       do iw =ii,ie
+        print *
+        print *,'-- iw=',iw
+        lm2x=0
         do lm2=1,nlklm
-        do lm1=1,nlklm
-          cgllw(lm1,lm2) = cg(lm2,1,lm1)*llwyl(1,iw)+ sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
-        enddo
+         if(mod(ll(lm2),2)==1) cycle
+         lm2x=lm2x+1
+         lm1x=0
+         do lm1=1,nlklm
+          if(mod(ll(lm1),2)==1) cycle
+          lm1x=lm1x+1 
+          cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
+         enddo
+         write(*,"('cg111 cgllw: ',i3, f9.4,'  ',12d9.1)") lm2x, cg(1,1,1), real(cgllw(1:10,lm2x))
         enddo
 !! === inversion as 4pi = Cg * llwyl * Klm ! Klm should be not confused with wklm  ===
-!! (=Klm in C.Fryesoldt's paper)
-       call matinv(nlklm,cgllw)
+!! (Klm is defeined in Christoph's paper PRB 125102-8)
+        call matcinv(lm2x,cgllw(1:lm2x,1:lm2x))
 !! === spherical integral of Klm ===
-        w0(iw)= sum(wklm(:)*fpi*cgllw(:,1)) !Klm=fpi*cgllw(:,1)
+cccccccccccccccccccccccccccccccccccccccccccccc
+        print *,' ddddd only isotropic part getw0 xxxxxxxxxxx lm1=1 s-mode only wklm=',wklm(1)
+        ylm=sqrt(1d0/fpi)
+ccccccccccccccccccccccccccccccccccccccccccccccc
+        lm1x=0
+        do lm1=1, nlklm
+          if(mod(ll(lm1),2)==1) cycle
+          lm1x=lm1x+1
+          w0(iw)= w0(iw)+ wklm(lm1)*(fpi*cgllw(lm1x,1)*ylm-fpi) !Klm=fpi*cgllw(:,1)
+          print *,' dddddcc cgllw',lm1,w0(iw)
+        enddo   
       enddo
+c      stop 'xxxxxxxxx test end xxxxxxxxxxxxxxxxxx getw0'
       end
 
+      integer function ll(ilm)
+      integer:: lla(169)
+      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6,15*7,17*8,19*9,21*10,23*11,25*12 /
+      ll=lla(ilm)
+      end

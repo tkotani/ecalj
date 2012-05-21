@@ -1,8 +1,22 @@
+      logical function addbasnew()
+      addbasnew=.false. !new version of adding polynomial-like product basis in MTs.
+                       ! If false, use old version (less product basis set is added.) 
+      end
+
       logical function newaniso()
       newaniso=.true.
+c      newaniso=.false.
       end
+
       real(8) function screenfac()
-      screenfac=-0.001d0 !
+c      srceenfac=0d0
+c      screenfac=-1d-8 !NaN for GaAs222 test. This gives negative eigenvalue of Vcoul for q=0
+      screenfac=-1d-8
+      end
+
+!! testmode
+      logical function testomitq0()
+      testomitq0=.false.
       end
 
 c      integer function nomatm()
@@ -18,7 +32,7 @@ c===========================================================
       end
 c============================================================
       logical function is_mix0vec()
-!is_mis0vec=0 is original version. But it caused a problem at BZ bounday.
+!is_mis0vec=.false. is original version. But it caused a problem at BZ bounday.
       is_mix0vec=.true.  
       end
 

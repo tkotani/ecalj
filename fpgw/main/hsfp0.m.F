@@ -508,7 +508,6 @@ C...  reading general energy mesh from file 'freq_r'
         close(3111)
       endif
 c     write(6,*) freq_r
-c     stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 c...  Readin eigen functions
 c     ifev(1)   = iopen('EVU', 0,0,mrece)
@@ -902,16 +901,12 @@ c     --- info
 
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
       if(newaniso()) then
-       ifvcoud = iopen('Vcoud',0,0,0)
-       read(ifvcoud) ngb0
-       allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
-       read(ifvcoud) vcoud
-       read(ifvcoud) zcousq
-       vcousq=sqrt(vcoud) !
-       idummy =iclose('Vcoud')
        ifidmlx = iopen('EPSwklm',0,0,0)
        read(ifidmlx) nq0ix,lxklm
-       if(nq0i/=nq0ix) stop 'nq0i from EPSwklm /= nq0i'
+       if(nq0i/=nq0ix) then
+          print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+          stop 'nq0i from EPSwklm /= nq0i'
+       endif   
        allocate( dmlx(nq0i,9))
        allocate( epinvq0i(nq0i,nq0i) )
        allocate( wklm((lxklm+1)**2))
@@ -1062,6 +1057,7 @@ c
 
 c     loop over rotations -------------------------------
         do 1000 irot = 1,ngrp
+           print *,'uuuuuuuu takao do 1000 ',sum(abs( irk(:,irot) )),sum(abs( wgt0(:,irot)))
           if( sum(abs( irk(:,irot) )) ==0 .and.
      &           sum(abs( wgt0(:,irot))) == 0d0 ) then
             cycle
@@ -1151,7 +1147,8 @@ c     i     shtw,
      i              omega, iwini,iwend,
      i              nbmx(2),ebmx(2), !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
-     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
+c     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
+     i    pos,wklm,lxklm,ngb0, !mar2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
 

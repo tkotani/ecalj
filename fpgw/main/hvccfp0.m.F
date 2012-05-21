@@ -90,7 +90,7 @@ c---
       real(8),allocatable:: prodmt(:,:,:,:),rdmatch(:,:,:,:)
       complex(8),allocatable:: ppmt(:,:,:,:),pmat(:,:),pomat(:,:),oon(:,:)
       complex(8):: pval,pslo,phasex
-      real(8)::absqq,qqx(3), epsmx
+      real(8)::absqq,qqx(3), epsmx,aaaa
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
@@ -1023,7 +1023,7 @@ c
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
 c Mix0vec ---------------------------------
-        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
+c        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
           if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
           allocate( oo(ngb,ngb) )
           allocate( ppovl(ngc,ngc) )
@@ -1059,20 +1059,39 @@ c Mix0vec ---------------------------------
 c          nmx = 15
           nmx = ngb
           call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
-          do ipl1=1,15 !nev
+          do ipl1=1,nev
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
           enddo
+          print *,' dddddd nev ngv=',nev,ngb
 
 !! === save zz === apr2012takao
-          if( newaniso().and.iqx==1 ) then 
-            if(sum(q**2)>1d-10) then
-               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
-            endif   
-            write(ifvcoud) ngb
-            write(ifvcoud) -eb
-            write(ifvcoud) zz
-            idummy=iclose('Vcoud')
-          endif  
+c          if( newaniso().and.iqx==1 ) then 
+c            if(sum(q**2)>1d-10) then
+c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
+c            endif
+          write(ifvcoud) ngb
+          write(ifvcoud) q
+          print *,'qqqqqq q=',q
+          write(ifvcoud) -eb
+          write(ifvcoud) zz
+ccccccccccccccccccccccccccccccccccccccc
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$        print *,' dddddddddddddddd q=',q
+c$$$        do ix=1,ngb
+c$$$        do iy=1,ngb
+c$$$          aaaa=  sum(  dconjg(zz(1:ngb,ix))*matmul( oox,zz(1:ngb,iy))  )
+c$$$           if(ix==iy .and.  abs(aaaa-1d0) >1d-8 ) then
+c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
+c$$$           endif  
+c$$$           if(ix/=iy .and.  abs(aaaa) >1d-8 ) then
+c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
+c$$$           endif  
+c$$$        enddo
+c$$$        enddo
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
 
           print *
           write(6,'(" eig0 must be equal to the largest =", 2d24.16)')
@@ -1181,10 +1200,11 @@ c phasex ---just to clean. this is irrelevant
           deallocate(hh,oo,zz,eb,oox,zzr)
           deallocate(ppovl)
 c2---------------------
-        endif
+c        endif
  1001 continue
 
       deallocate(ngvecc)
+      idummy=iclose('Vcoud')
       if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
       if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
       if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'

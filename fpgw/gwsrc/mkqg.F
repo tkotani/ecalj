@@ -47,12 +47,12 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-      real(8):: deltaq,deltaq_scale=0.001d0,delta5,delta8
+      real(8):: deltaq,delta5,delta8,deltaq_scale=0.09d0 !,,deltaq_scale=0.001d0 !
 ctakao mar2012
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
      &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:)
-      integer:: xyz2lm(3),ifidmlx,iclose,iopen
+      integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix
       real(8):: rrr(3),r2s,emat(3,3)
 
 
@@ -263,10 +263,17 @@ c        endif
      &          ngcx(iq), ngvect(1:3,1:ngcx(iq),iq) )
         enddo
 
+!! number of spherical points.
+cccc        nq00ix=12 !spherical points
+c        nq00ix=12   !spherical points
+        nq00ix=3   !spherical points
+        nq00ix=6   !spherical points
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 c
         nx0 = 1
         if(nx0==2) xn  = 3d0 !ratio parameter for Q2 and Q1, only effective for nx0=2 case
-        nq0x=12*nx0
+        nq0x=nq00ix*nx0
 c        nq0x=4*nx0
 !
 c        if(q0pchoice()/1000==1) then
@@ -276,7 +283,7 @@ c          nq0x= 4*nn1*nn2
 c          print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c        endif
         if(newaniso()) then !feb2012
-          nq0x=12
+          nq0x=nq00ix
         elseif( q0pchoice()<0) then
 c          nq0x = 8*abs (q0pchoice())
           nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
@@ -295,13 +302,27 @@ ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(newaniso() ) then
           pi=4d0*atan(1d0)
           deltaq=deltaq_scale*alat/(2*pi) !dq is 0.01 a.u.
-c          nq00i=6
-c          q0x(:,1)=(/deltaq, 0d0,    0d0/)
-c          q0x(:,2)=(/0d0, deltaq,    0d0/)
-c          q0x(:,3)=(/0d0,    0d0, deltaq/)
-c          q0x(:,4)=(/0d0,   deltaq, deltaq/)
-c          q0x(:,5)=(/deltaq, 0d0,   deltaq/)
-c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
+          if(nq00ix==3) then
+           nq00i=3
+           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
+           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
+           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
+          elseif(nq00ix==6) then
+           nq00i=6
+           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
+           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
+           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
+           q0x(:,4)=(/deltaq, -deltaq,  -deltaq/)
+           q0x(:,5)=(/-deltaq, deltaq,  -deltaq/)
+           q0x(:,6)=(/-deltaq, -deltaq,  deltaq/)
+c           nq00i=6
+c           q0x(:,1)=(/deltaq, 0d0,    0d0/)
+c           q0x(:,2)=(/0d0, deltaq,    0d0/)
+c           q0x(:,3)=(/0d0,    0d0, deltaq/)
+c           q0x(:,4)=(/0d0,   deltaq, deltaq/)
+c           q0x(:,5)=(/deltaq, 0d0,   deltaq/)
+c           q0x(:,6)=(/deltaq,deltaq, 0d0/)
+          elseif(nq00ix==12) then
 !! spherical design des.3.12.5
 !! des.3.12.5
           nq00i=12
@@ -322,7 +343,9 @@ c          q0x(:,6)=(/deltaq,deltaq, 0d0/)
           q0x(:,10)=(/-delta8,0d0,delta5/)
           q0x(:,11)=(/delta5,delta8,0d0/)
           q0x(:,12)=(/0d0,-delta5,-delta8/)
-
+          else
+             stop 'mkqg: not implemented nq00i'
+          endif
 
 !! ...  invariante dielectoric tensor.
           allocate(epinv(3,3,nq0x))
@@ -382,6 +405,7 @@ c$$$            write(*,"(' iq0i lx dmlx=',2i3,f9.3)")iq0i,lx,dmlx(iq0i,lx)
 c$$$          enddo
 c$$$          enddo
 
+
 !! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
 !! ===== generate YL for a test vector rrr (rrr is ehat above).=====
           lx=2
@@ -394,6 +418,8 @@ c$$$          enddo
 c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm) ;   enddo
           write(*,*)
           write(*,"(  ' test: r=',3f10.5)") rrr
+
+!!
           do iq0i=1,nq0i
             write(*,"(' test: ylm   expansion=',i3,f10.5)") iq0i,sum(dmlx(iq0i,:)*cy(:)*yl(:))
             emat=epinv(:,:,iq0i)
@@ -402,8 +428,9 @@ c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl
           write(*,*)
           allocate( epinvq0i(nq0i,nq0i))
           do i=1,nq0i
-          do j=1,nq0i  !epinvq0i= <q0i| epinv(:,:,iq0j)|q0i>
-            epinvq0i(i,j) = sum( q0i(:,iq0i)* matmul(epinv(:,:,j),q0i(:,iq0i)) )
+          do j=1,nq0i  !epinvq0i= <q0i/|q0i|| epinv(:,:,iq0j)|q0i/|q0i|>
+            epinvq0i(i,j) = sum( q0i(:,i)* matmul(epinv(:,:,j),q0i(:,i)))/sum(q0i(:,i)**2)
+            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
           enddo
           enddo
           lxklm=6
@@ -428,7 +455,7 @@ c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl
          endif
          deallocate(irr)
         endif
-        write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
+        write(6,"('i wt q0i=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
 c        print *,' xxxxxxx nq0i=',nq0i
 cccccccccccccccccccccccccccccccccccccccccccc
 c takao test

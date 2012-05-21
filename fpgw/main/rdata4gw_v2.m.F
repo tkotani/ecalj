@@ -1808,12 +1808,17 @@ c------------------
      &           rmax, nbas,  bas, lmxaa, lmxax,
      o           ppovl)
         else
-          call mkppovl(alat,plat,qlat, qx, 
-     &           ngc, ngveccf(1,1,iq), 
-     &           ngc, ngveccf(1,1,iq),
-c     &    rmax, nbas,  bas, lmxaa, lmxax,    !April22 2004
-     &           rmax, nbas,  bas, 2*lmxaa, 2*lmxax, ! 
-     o           ppovl)
+c replaces with mkppovl2 2012may
+c          call mkppovl(alat,plat,qlat, qx, 
+c     &           ngc, ngveccf(1,1,iq), 
+c     &           ngc, ngveccf(1,1,iq),
+c     &           rmax, nbas,  bas, 2*lmxaa, 2*lmxax, ! 
+c     o           ppovl)
+        call mkppovl2(alat,plat,qlat, 
+     &        ngc,  ngveccf(1,1,iq ), 
+     &        ngc,  ngveccf(1,1,iq), 
+     &        nbas, rmax, bas,  
+     o        ppovl)
         endif
         if(debug) print *,' ttt: end of mkppovl ...'
 
