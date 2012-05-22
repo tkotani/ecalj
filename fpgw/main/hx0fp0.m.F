@@ -2137,6 +2137,7 @@ ccccccccccccccccc
               else
                 zw(1:ngb,1:ngb) = zw0
 ccccccccccccccccccccc
+cooo
 c              if(iq>nqibz) zw=0d0
 ccccccccccccccccccccc
                 write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
@@ -2546,6 +2547,10 @@ ccc            if(newaniso2.and.iq>nqibz) then
               write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
             else
               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
+ccccccccccccccccccccc
+cooo
+c              if(iq>nqibz) zw=0d0
+ccccccccccccccccccccc
               write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
               call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
             endif 
@@ -2750,27 +2755,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-
-
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
-      print *,' ddddddddd WVR zero clear dddddddddddddddd'
-       do ircw=1,2
-         if(ircw==1) then
-           nini=nw_i;   nend=nw;   ifrcwx=ifrcw
-         elseif(ircw==2) then
-           nini=1;      nend=niw;  ifrcwx=ifrcwi
-         endif
-       do iq = iqxini,iqxend
-       do iw = nini,nend
-         if(iq==1) then !.or.iq>nqibz) then
-           zw=0d0
-           print *,' rec=',iq,iw,((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )
-           write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw 
-         endif
-       enddo 
-       enddo
-       enddo 
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 

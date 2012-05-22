@@ -476,8 +476,14 @@ c     if(smbasis()) ifpomat = iopen('POmat',0,-1,0) !oct2005
       print *,'ddddddddddd  original mode like dddddddddd'
       if(newaniso()) then !takao2012apr
         iqini=1
-cc        if(exchange) iqend=nqibz
+        if(exchange) iqend=nqibz
       endif
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      print *,'dddddddddddd iqend=nqibz test ddddddddddd'
+c      iqend=nqibz
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 cccccccccccccccccccccccccccccc
       call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
@@ -515,7 +521,7 @@ cccccccccccccccccccccccccccccccccccccccc
 cooo         qibz_k= qibz(:,kx)
 c          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         if(sum(abs(qibz_k))<1d-6) then
+         if(sum(abs(qxx))<1d-6) then
           idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
           ifvcoud = iopen('Vcoud',0,0,0)
          endif  
@@ -597,8 +603,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        print *,'dddddddddddddddd kx==1 cycle dddddddddddddddd'
-        if(kx==1) cycle
+c        print *,'dddddddddddddddd kx==1 cycle dddddddddddddddd'
+c        if(kx==1) cycle
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 

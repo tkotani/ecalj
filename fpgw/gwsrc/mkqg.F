@@ -48,6 +48,7 @@ c      logical :: readgwinput
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
       real(8):: deltaq,delta5,delta8,deltaq_scale=0.09d0 !,,deltaq_scale=0.001d0 !
+c      real(8):: deltaq,delta5,delta8,deltaq_scale=0.001d0
 ctakao mar2012
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
@@ -267,7 +268,7 @@ c        endif
 cccc        nq00ix=12 !spherical points
 c        nq00ix=12   !spherical points
         nq00ix=3   !spherical points
-        nq00ix=6   !spherical points
+c        nq00ix=6   !spherical points
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c
@@ -350,6 +351,7 @@ c           q0x(:,6)=(/deltaq,deltaq, 0d0/)
 !! ...  invariante dielectoric tensor.
           allocate(epinv(3,3,nq0x))
           call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
+c          call diele_invariant_bk(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
 
 !! == To convert invariant tensor on YL representation (Y00 and Y2m) ==
           lmxax=1
