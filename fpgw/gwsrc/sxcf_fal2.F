@@ -491,6 +491,10 @@ cccccccccccccccccccccccccccccc
       if(noq0p) iqend=nqibz
 ccccccccccccccccccccccccccccccccc
 
+cccccccccccccccccccccccccccccccccccc
+c      iqend=nqibz
+cccccccccccccccccccccccccccccccccccc
+
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend 
         print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
@@ -1020,7 +1024,7 @@ c$$$      else
              do ivc=1,ngb 
               if(ivc==1.and.kx==1) then
                 vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)  
-                print *,'wklm(1)=',wklm(1)
+                print *,'wklm(1) wk=',wklm(1),wk(kx)
               else
                 vc= vcoud(ivc)
               endif
@@ -1278,6 +1282,9 @@ c          print *,' ix nrec=',ix,niw,nrec
           if(bzcase()==2) nrec= (kx-1)*niw + ix
           if(debug) print *,' wvi nrec=',nrec
           read(ifrcwi,rec=nrec) zw  ! Readin W-v on imag axis
+ccccccccccccccccccccccccccccccccccccccc
+        print *,'kkkkkk sumcheck zwi=',kx,sum(abs(zw(1:ngb,1:ngb)))
+ccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccc
 c          write(6,"(' trans =',i4,2d13.6)") ix
 c     &    ,sum(abs(zw-dconjg(transpose(zw)))),sum(abs(zw))

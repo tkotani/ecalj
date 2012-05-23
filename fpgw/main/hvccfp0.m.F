@@ -1147,6 +1147,7 @@ c1... Case1 to write ifgb0vec -------------------------------------
 
             allocate( gbvec(ngb), b0mat(nbloch) )
             print *,' goto mkb0'
+
 C ... get a vector <Product Basis| q+0>
             call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx,
      i        alat,bas,nbas,nbloch, 
@@ -1161,6 +1162,7 @@ cccccccccccccccccccccccccccc
             ooxi=oox
             call matcinv(ngb,ooxi)
             gbvec = matmul(ooxi, zzr)
+
 cccccccccccccc
 c           do igc=1,ngb
 c             write(6,"('ssss: ',i5,2d14.6)") igc, gbvec(igc)
