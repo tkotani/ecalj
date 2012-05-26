@@ -493,6 +493,7 @@ ccccccccccccccccccccccccccccccccc
 
 cccccccccccccccccccccccccccccccccccc
 c      iqend=nqibz
+c      print *,'dddddddd test iqend=',iqend
 cccccccccccccccccccccccccccccccccccc
 
 !! == Big loop for kx ==

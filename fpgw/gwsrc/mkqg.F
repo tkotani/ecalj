@@ -48,7 +48,7 @@ c      logical :: readgwinput
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
 c      real(8):: deltaq,delta5,delta8,deltaq_scale=0.09d0 !,,deltaq_scale=0.001d0 !
-      real(8):: deltaq,delta5,delta8,deltaq_scale=0.001d0
+      real(8):: deltaq,delta5,delta8,deltaq_scale=0.001d0 
 ctakao mar2012
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),

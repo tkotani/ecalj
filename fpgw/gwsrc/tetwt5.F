@@ -168,12 +168,14 @@ c-devided tet
       real(8):: scissors_x0, ddw
 
       integer :: nbandmx_kq,nbandmx_k
+      real(8):: fermi_dS(3,3) !not yet used...
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
       if(verbose()>=150) chkwrt=.true.
 
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
+      fermi_dS=0d0
       if(job==0) iwgt = .false.
 
 c--- devided-tetrahedron method.
@@ -471,8 +473,8 @@ c           jbxmx = noccx_kq + nctot
      i          kkv,kvec,eocc,eunocc,
      i          x, efermi, 
      i          frhis, nwhis,  
-     o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
-
+     o          wtthis2, ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
+     m          fermi_dS) ! may2012
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif
@@ -708,7 +710,8 @@ c------------------------------------------------------------------------
       subroutine lindtet6(
      i  kkv,kvec, ea, eb, x, efermi,      ! kvec(1:3, 0:3), ea(0:3), x(0:3) 
      i  frhis, nwhis,  
-     o  wtthis )
+     o  wtthis , 
+     m  fermi_ds)
 C- Calculate the imaginary part of \int dk1 dk2 dk3 f(ea)(1-f(eb))/(\omega+x ), that is,
 C  the microcell integral of wtthis(ihis) = \int_lower(ihis)^upper(ihis) d\omega \int d^3k f(ea(k)) (1-f(eb(q+k))) \delta (omg + x(k) )
 C f(E) denote the Fermi distribution funciton. Only for T=0.
@@ -716,6 +719,7 @@ C Tetrahedon is specified by values at 4 corners; kvec(1:3, 1:4), ea(1:4), eb(1:
 Cr This code is based on J.Rath&A.J.Freeman PRB11(6) p.2109(1975).
 Cr The \sum_ihis wthis(ihis) = the total volume of the microcell = \int d^3 k
 ctakao/Feb/2002 -----------------------------------------------------------------
+!! ds is the accumulation variable for the fermi surface.
       implicit none
       integer(4) :: ieaord(1:4),i,isig,n,itmp,ix
       real(8)    ::  kvec(1:3, 1:4), x(1:4), ea(1:4),
@@ -724,6 +728,7 @@ ctakao/Feb/2002 ----------------------------------------------------------------
       integer(4):: nwhis
       real(8):: frhis(nwhis+1),wtthis(nwhis,4)
       logical:: chkwrt=.false.
+      real(8):: fermi_ds(3,3)
 c---------------------------------------------------------------------------------
       if(chkwrt) then
         print *, ' lindtet6: *****************************'
@@ -775,6 +780,14 @@ ccccccccccccc
         call midk3(kk,ee,xx,ebf, 4,2,  kk(1,1+4),xx(1+4),ebf(1+4)) !K1 !K1 is on the like k4---k2.
         call midk3(kk,ee,xx,ebf, 4,1,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
         call midk3(kk,ee,xx,ebf, 4,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
+
+!! Corners of occupied states at the Fermi energy are kk(1:3,i+4) i=1,2,3.
+!! This makes a Fermi surface
+        if(sum(abs(ea-eb))<1d-6) then
+         call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
+        endif  
+
+!! still developing 
         call  inttetra6(kkv,kk,xx,ebf,(/4,1+4,2+4,3+4/),  ! k4,K1,K2,K3
      i         frhis,  nwhis,  
      o         wtthis )
@@ -784,6 +797,12 @@ ccccccccccccc
         call midk3(kk,ee,xx,ebf, 4,1,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
         call midk3(kk,ee,xx,ebf, 3,1,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
         call midk3(kk,ee,xx,ebf, 3,2,  kk(1,4+4),xx(4+4),ebf(4+4)) !K4
+
+        if(sum(abs(ea-eb))<1d-6) then
+        call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+        call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
+        endif
+
         if(chkwrt) write(6,*) 'lindtet6: fig 2 xxx2'
         call  inttetra6(kkv,kk,xx,ebf,(/4, 3,1+4,2+4/),  ! k4,k3,K1,K2
      i         frhis,  nwhis,  
@@ -803,6 +822,11 @@ c-----------
         call midk3(kk,ee,xx,ebf, 1,4,  kk(1,1+4),xx(1+4),ebf(1+4)) !K1
         call midk3(kk,ee,xx,ebf, 1,2,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
         call midk3(kk,ee,xx,ebf, 1,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
+
+        if(sum(abs(ea-eb))<1d-6) then
+        call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+        endif
+
         call  inttetra6(kkv,kk,xx,ebf,(/3, 4,3+4, 2/),  ! k3,k4,K3,k2
      i         frhis,  nwhis,  
      o         wtthis )

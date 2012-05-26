@@ -1,3 +1,9 @@
+      subroutine fermids(k1,k2,k3,ds)
+      real(8):: k1(3),k2(3),k3(3),ds(3,3),ee(3)
+      call cross_x(k1-k3,k2-k3,ee)
+      ds(i,j)=ds(i,j)+ee(i)*ee(j)/sqrt(sum(ee**2))
+      end
+
 c --- external product
       subroutine cross_x(a,b,c)
       implicit real*8 (a-h,p-z), integer(o)
