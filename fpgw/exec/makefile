@@ -270,7 +270,8 @@ eout2: $(EO2)
  $(gwsrc)cross.o \
  $(gwsrc)llnew.o \
  $(gwsrc)readqg.o \
- $(gwsrc)iqindx.o 
+ $(gwsrc)iqindx.o \
+ $(gwsrc)rotdlmm.o
 
  SXC_SC = \
  $(main)hsfp0.sc.m.o \
@@ -618,8 +619,8 @@ eout2: $(EO2)
  hbasfp0:	$(BAS) 
 	 $(LK) $(LKFLAGS1) $(BAS) $(LKFLAGS2) -o $@
 
- hvccfp0:	$(VCC)  $(NFPL) $(DERFC)
-	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC) $(LKFLAGS2) -o $@
+ hvccfp0:	$(VCC)  $(NFPL) $(DERFC) 
+	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC)  $(LKFLAGS2) -o $@
 
  hx0fp0:	$(X0) $(GW0)  
 	 $(LK) $(LKFLAGS1) $(X0)     $(GW0)  $(LKFLAGS2) -o $@

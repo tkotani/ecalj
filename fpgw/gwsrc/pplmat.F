@@ -583,9 +583,10 @@ c---------------------
       subroutine matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
      i   ngvec,
      o   ppovl)
-c ppovl = \int_{cell} IPW(G) d^3r
-c G = ggvec = g2 -g1 <g1|g2>
-c
+!! ---------------------------------------------
+!! ppovl = \int_{cell} \bfr IPW(G) d^3r ==
+!! G = ggvec = g2 -g1 = 2pi/alat * \sum_n qlat(:,n)*ngvec(n)
+!! 
       implicit none
       integer(4) :: nbas,ibas,ngvec(3)
       real(8) :: ggvec(3), alat,bas(3,nbas),rmax(nbas),voltot,absg,grmx
@@ -601,17 +602,72 @@ c
         if(absg==0d0) then
           ppovl = ppovl - pi4*rmax(ibas)**3/3d0
         else
-
-ccccccccccccccccccccccccccc
-ctest
-c          ppovl = 0d0
-c         cycle
-ccccccccccccccccccccccccccc
-
           grmx  = absg* rmax(ibas)
           ppovl = ppovl
      &      - exp( img* sum(ggvec*bas(1:3,ibas))*alat )  
      &        * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
+        endif
+      enddo
+      end
+
+c---------------------
+      integer function njudge000(ngvec)
+      implicit none
+      integer:: ngvec(3),ix,i,j,k
+      if(sum(abs(ngvec))==0) then
+         njudge000=0
+         return
+      endif
+      do i=1,3
+         if(i==1) then;  j=2; k=3; endif
+         if(i==2) then;  j=3; k=1; endif
+         if(i==3) then;  j=1; k=2; endif
+         if(ngvec(i)/=0.and.ngvec(j)==0.and.ngvec(k)==0) then
+           njudge000=i
+           return
+         endif
+      enddo
+      njudge000=-1
+      end
+      subroutine matgg2bfr(alat,bas,rmax,nbas,voltot, plat,qlat,
+     i   ngvec,
+     o   bfrppovl)
+!! ---------------------------------------------
+!! bfrppovl = \int_{cell} \bfr IPW(G) d^3r ==
+!! G = ggvec = g2 -g1 = 2pi/alat * \sum_n qlat(:,n)*ngvec(n)
+      implicit none
+      integer(4) :: nbas,ibas,ngvec(3)
+      real(8) :: ggvec(3), alat,bas(3,nbas),rmax(nbas),voltot,absg,grmx
+     &           ,tpibaqlat(3,3)
+      complex(8) :: bfrppovl(3)
+      real(8),parameter :: pi =3.1415926535897932D0,pi4=pi*4d0
+      complex(8) :: img =(0d0,1d0)
+      real(8):: plat(3,3),qlat(3,3),dabsGdG(3),rcenter(3)
+      integer:: ix,njudge000
+c      print *,' matgg2bfr:'
+      tpibaqlat =  2d0*pi/alat *qlat
+      ggvec(1:3) =  matmul(tpibaqlat, ngvec(1:3))
+      absg       =  sqrt(sum(ggvec(1:3)**2))
+!! full space part
+      ix= njudge000(ngvec)
+      bfrppovl = 0d0
+      if(ix==0) then
+        bfrppovl = alat*voltot*0.5d0*(plat(:,1)+plat(:,2)+plat(:,3))
+      elseif(ix>0) then
+        bfrppovl = voltot*alat*plat(:,ix)/img/ngvec(ix)
+      endif
+!! subtract MT part
+      if(absg/=0d0) dabsGdG = ggvec/absg
+      do ibas = 1,nbas
+        if(absg==0d0) then
+          bfrppovl = bfrppovl - pi4*rmax(ibas)**3/3d0*alat*bas(1:3,ibas) !alat*bas is the center
+        else
+          grmx  = absg* rmax(ibas)
+          bfrppovl = bfrppovl
+     &      - img*bas(1:3,ibas)*alat * exp( img* sum(ggvec*bas(1:3,ibas))*alat )  
+     &        * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
+     &      -  exp( img* sum(ggvec*bas(1:3,ibas))*alat )  
+     &        * pi4/absg**3 * rmax(ibas)*( grmx * sin(grmx) + 2*cos(grmx) )*dabsGdG(:)
         endif
       enddo
       end

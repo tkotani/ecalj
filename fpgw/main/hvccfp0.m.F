@@ -55,7 +55,7 @@ c check
       real(8) :: sss1,sss2,dnorm
 c
 
-      complex(8),allocatable:: gbvec(:), ppovl(:,:), b0mat(:)
+      complex(8),allocatable:: gbvec(:), ppovl(:,:), b0mat(:),rb0mat(:,:)
 
       integer(4) ::igc,igc0,ifgb0vec,ifgb0vec1,ix, iy
 
@@ -94,7 +94,8 @@ c---
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
-      logical:: is_mix0vec,newaniso
+      logical:: newaniso !is_mix0vec,
+      complex(8),allocatable:: zzrr(:,:)
 
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -519,7 +520,7 @@ c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
         iqxend = nqibz + nq0i
         ifvcfpout = iopen('VCCFP',0,-1,0)
         ifgb0vec = iopen ( "Mix0vec",1,3,0)
-        ifgb0vec1 = iopen ( "Mix0vec1",1,3,0)
+c        ifgb0vec1 = iopen ( "Mix0vec1",1,3,0)
       endif
 
       if(imode==202) then
@@ -1116,21 +1117,22 @@ c          enddo
 cccccccccccccccccccccccccccccccccccccccccc
           deallocate(vcoul0)
 
-          if(wqt(iqx-nqibz)==0d0) then
 
-C --- To get the vector <Mixed basis| q=0> --------------
-cki            if(is_mix0vec()==0) then     !used original befor oct2006
-            if(.not.is_mix0vec()) then     !used original befor oct2006
-! See switch.F ---> this is not used now.
-              ifgb0vec_a =ifgb0vec1
-              ifgb0vec_b =ifgb0vec
-cki            elseif(is_mix0vec()==1) then !oct2006 new case
-            else
-! ismix0vec=1 is to avoid problem at BZ boundary when is_mix0vec()=0.
+
+!! === To get the vector <Mixed basis| q=0> and <Mixed basis|\bfr > ===
+!! See is_mix0vec() \in switch.F ---> this is not used now. older than oct2006
+!! ismix0vec=.true. is to avoid problem at BZ boundary when is_mix0vec()=0.
+c          print *,' wqt(iqx-nqibz)=',iqx,nqibz,wqt(iqx-nqibz)
+c          if(wqt(iqx-nqibz)==0d0) then
+          if(.true.) then
+c            if(.not.is_mix0vec()) then !before oct2006
+c              ifgb0vec_a =ifgb0vec1
+c              ifgb0vec_b =ifgb0vec
+c            else                       !after oct2006
               ifgb0vec_a =ifgb0vec
-              ifgb0vec_b =ifgb0vec1
-            endif
-c1... Case1 to write ifgb0vec -------------------------------------
+c              ifgb0vec_b =ifgb0vec1
+c            endif
+!! === Case1 to write ifgb0vec ===
             write(6,*)' voltot=',voltot
             if(ngc==0) then
               continue
@@ -1145,14 +1147,34 @@ c1... Case1 to write ifgb0vec -------------------------------------
               zzr(nbloch+1:nbloch+ngc) = ppovl(1:ngc,igc0)
             endif
 
-            allocate( gbvec(ngb), b0mat(nbloch) )
-            print *,' goto mkb0'
-
-C ... get a vector <Product Basis| q+0>
+!! --- <PB|\bfr> is stored in rb0mat May2012
+            allocate( gbvec(ngb), b0mat(nbloch),rb0mat(nbloch,3) )
+            print *,' goto mkb0: generate b0mat and rb0mat'
+!! ... get  <Product Basis| q+0> and <Product Basis |\bfr exp(iqr)>
             call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx,
      i        alat,bas,nbas,nbloch, 
-     o        b0mat)
-            zzr(1:nbloch) = b0mat(1:nbloch)
+     o        b0mat,rb0mat)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            call mkb00( lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx,
+     i        alat,bas,nbas,nbloch, 
+     o        rb0mat)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+            zzr(1:nbloch)    = b0mat(1:nbloch)
+            allocate(zzrr(ngb,3))
+            zzrr(1:nbloch,1:3) = rb0mat(1:nbloch,1:3)
+            print *,' zzrr sumcheck=',nbloch,sum(abs(zzrr(1:nbloch,1:3)))
+!! ... get <IPW| \bfr>
+            do ig1  = 1, ngc
+              call matgg2bfr(alat,bas,rmax,nbas,voltot, plat,qlat,
+     i        ngvecc(:,ig1),
+     o        zzrr(nbloch+ig1,1:3))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c              zzrr(nbloch+ig1,1:3)=zzrr(nbloch+ig1,1:3)/voltot
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            enddo
+
 cccccccccccccccccccccccccccc
 c           do igc=1,ngb
 c             write(6,"('ssss: ',i5,2d14.6)") igc, zzr(igc)
@@ -1162,7 +1184,6 @@ cccccccccccccccccccccccccccc
             ooxi=oox
             call matcinv(ngb,ooxi)
             gbvec = matmul(ooxi, zzr)
-
 cccccccccccccc
 c           do igc=1,ngb
 c             write(6,"('ssss: ',i5,2d14.6)") igc, gbvec(igc)
@@ -1170,39 +1191,41 @@ c           enddo
 ccccccccccccccc
             deallocate(ooxi)
             dnorm = sqrt( sum(dconjg(gbvec)*zzr) )
-! remove /dnorm at 14June2008. See main/hx0fp0.
-! dnorm corresponds to volume (or sum of MT volume if no IPW).
-c            gbvec = gbvec /dnorm
-c            zzr   = zzr   /dnorm
-! Not dnorm=1 at 14June2008. See main/hx0fp0.
-c            dnorm=1
+!! remove /dnorm at 14June2008. See main/hx0fp0.
+!! dnorm corresponds to volume (or sum of MT volume if no IPW).
+            if(iqx==1) then
             write(ifgb0vec_a,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
             write(ifgb0vec_a,"(4d24.16)") (gbvec(i),zzr(i),i=1,ngb)
-            deallocate( gbvec, b0mat)
-c1----------------------------------------------------
-
-c2... --- Case2 to write ifgb0vec c2 is problematic at BZ boundary...------
-            dnorm  = 1d0
-            zzr(:) = matmul (oox, zz(:,1))
-            igc0 = 999999 !dummy now
-c phasex ---just to clean. this is irrelevant
-            phasex =1d0
-            do i=1,ngb
-              if(abs(zz(i,1)) > 1d-3) phasex = abs(zz(i,1))/zz(i,1)
-            enddo
-            do i=1,ngb
-              zz(i,1)= phasex * zz(i,1)
-              zzr(i) = phasex * zzr(i)
-            enddo
-            write (ifgb0vec_b,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
-            write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
+            write(ifgb0vec_a,*)'======== start of zzrr ============ iqx=',iqx
+            write(ifgb0vec_a,"(i4, 6d24.16)") (i, zzrr(i,1:3),i=1,ngb) !may2012 <MPB|\bfr>
+            write(ifgb0vec_a,*)'======== end of zzrr=============== iqx=',iqx
+ccccccccccccccccccccccccccc
+c            stop 'xxxxxxxxx test end xxxxxxxxxxxxxx'
+cccccccccccccccccccccccccccc
+            endif
+            deallocate( gbvec, b0mat,zzrr,rb0mat)
+!! === Case1 end ===
+c$$$!! === Case2 to write ifgb0vec c2 is problematic at BZ boundary. older than oct2006. ===
+c$$$ It is better to keep this section; case2 is a smplest test to confirm the Case1 above.
+c$$$            dnorm  = 1d0
+c$$$            zzr(:) = matmul (oox, zz(:,1))
+c$$$            igc0 = 999999 !dummy now
+c$$$            phasex =1d0   ! phasex ---just to clean. this is irrelevant
+c$$$            do i=1,ngb
+c$$$              if(abs(zz(i,1)) > 1d-3) phasex = abs(zz(i,1))/zz(i,1)
+c$$$            enddo
+c$$$            do i=1,ngb
+c$$$              zz(i,1)= phasex * zz(i,1)
+c$$$              zzr(i) = phasex * zzr(i)
+c$$$            enddo
+c$$$            write (ifgb0vec_b,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
+c$$$            write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
+c$$$!! === case2 end ===
           endif
           if(allochk) !bugfix ---this was in inside or above if 7Feb2006
-     &    write(*,*)'deallocate(hh,oo,zz,eb,oox,zzr)'
+     &      write(*,*)'deallocate(hh,oo,zz,eb,oox,zzr)'
           deallocate(hh,oo,zz,eb,oox,zzr)
           deallocate(ppovl)
-c2---------------------
-c        endif
  1001 continue
 
       deallocate(ngvecc)
@@ -1390,47 +1413,54 @@ c      pmat(:,1:nnn) = uu(:,1:nnn)
 c---------------------------------------------------------------------
       subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx,
      i        alat,bas,nbas,nbloch, 
-     o        b0mat)
-C--make the matrix elementes < B_q | exp(iq r)>
+     o        b0mat,rb0mat)
+!! == make the matrix elementes < B_q | exp(iq r)> and <B_q|\bfr exp(iq r)> ==
+!! modified on may2012. Add rb0mat as <B_q|\bfr exp(iq r)>.
       implicit none
-      integer(4) :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
-
-      integer(4) :: nbas,lxx, lx(nbas), nxx, nx(0:lxx,nbas),nrr(nbas)
+      integer :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
+      integer :: nbas,lxx, lx(nbas), nxx, nx(0:lxx,nbas),nrr(nbas)
       real(8)    :: rprodx(nrx,nxx,0:lxx,nbas),aa(nbas),bb(nbas),
      &   phi(0:lxx),psi(0:lxx), bas(3,nbas),
-     &   alat,
+     &   alat,qqq(3),phal,
      &   pi,fpi,tpiba,qg1(3),q(3),absqg,r2s,a,b
-c
-      complex(8) :: b0mat(nbloch),img=(0d0,1d0) ,phase
-c
-      integer(4),allocatable:: ibasbl(:), nbl(:), lbl(:), lmbl(:)
-      real(8),allocatable :: ajr(:,:),rofi(:),rob0(:,:,:)
-      real(8),allocatable::cy(:),yl(:)
-      complex(8),allocatable :: pjyl(:,:)
+      complex(8) :: b0mat(nbloch),img=(0d0,1d0) ,phase, rb0mat(nbloch,3)
+      integer,allocatable:: ibasbl(:), nbl(:), lbl(:), lmbl(:)
+      real(8),allocatable :: ajr(:,:),rofi(:),rob0(:,:,:),rajr(:,:),rrob0(:,:,:,:)
+      real(8),allocatable::cy(:),yl(:),cg(:,:,:)
+      complex(8),allocatable :: pjyl(:,:),rpjyl(:,:,:,:)
 #ifdef COMMONLL
       integer(4) ll(51**2)
       common/llblock/ll
 #else
       integer(4) ll
 #endif
-
+      integer:: lmxax,lra,ix,lm2,lm1
 c-----
       write(6,*)'mkb0:'
       pi   = 4d0*datan(1d0)
       fpi  = 4*pi
       nlx  = (lxx+1)**2
-c
       tpiba = 2*pi/alat
       qg1(1:3) = tpiba * q(1:3)
       absqg    = sqrt(sum(qg1(1:3)**2))
 c
-      allocate(ajr(1:nrx,0:lxx), pjyl(nlx,nbas),rofi(nrx),
+      allocate(ajr(1:nrx,0:lxx),rajr(1:nrx,0:lxx), pjyl((lxx+1)**2,nbas),rofi(nrx),
      &  ibasbl(nbloch), nbl(nbloch), lbl(nbloch), lmbl(nbloch),
-     &  cy(nlx),yl(nlx),rob0(nxx,0:lxx,nbas))
+     &  cy(nlx),yl(nlx),rob0(nxx,0:lxx,nbas),rrob0(nxx,0:lxx,0:lxx,nbas),
+     &  rpjyl((lxx+1)**2,0:lxx,nbas,3))
 c
       call sylmnc(cy,lxx)
-      call sylm( qg1/absqg,yl,lxx,r2s) !spherical factor Y( q+G )
+      qqq=0d0
+      if(absqg>1d-6) qqq=qg1/absqg
+      call sylm( qqq,yl,lxx,r2s) !spherical factor Y( q+G )
 c
+      lmxax= maxval(lx(1:nbas))+1
+      allocate( cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2) )
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
+!!  cg(lm1,lm2,lm) max(lm)=(2*lmxax+1)**2)  
+c
+      rpjyl=0d0
+      rrob0=0d0
       do ibas = 1,nbas
         a = aa(ibas)
         b = bb(ibas)
@@ -1439,29 +1469,55 @@ c
         do ir      = 1, nr
           rofi(ir) = b*( exp(a*(ir-1)) - 1d0)
           call bessl(absqg**2*rofi(ir)**2,lx(ibas),phi,psi)
+cccccccccccccccccccccccccccccccccccccccccccccccccccc
+c          print *,' qqqqq ir phi', phi(0:5)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
           do l  = 0,lx(ibas)
-c ... bessel function
+!! ... bessel function ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
             ajr(ir,l) = phi(l)* rofi(ir) **(l +1 )
-            ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
+            rajr(ir,l) = rofi(ir) * ajr(ir,l)
           enddo
         enddo
 
-c ... Coefficients for j_l yl  on MT  in the expantion of of exp(i q r).
+!! ... Coefficients for j_l yl  on MT  in the expantion of of exp(i q r).
         phase = exp( img*sum(qg1(1:3)*bas(1:3,ibas))*alat  )
-        do lm = 1,(lx(ibas)+1)**2
+        do lm = 1,(lx(ibas)+1)**2 
           l = ll(lm)
-          pjyl(lm,ibas) = fpi *img**l *cy(lm)*yl(lm) *phase  *absqg**l
+          phal=phase  *absqg**l
+          if(absqg<1d-6) phal=1d0
+          pjyl(lm,ibas) = fpi *img**l *cy(lm)*yl(lm) *phal
         enddo
-c ... rob0
+!! ... rob0
         do l = 0,lx(ibas)
-          do n = 1,nx(l,ibas)
+        do n = 1,nx(l,ibas)
             call gintxx( ajr(1,l), rprodx(1,n,l,ibas), a,b,nr,
      o                 rob0(n,l,ibas) )
+        enddo
+        enddo
+!! ... Coefficients for \bfr j_l yl om MT in the expansion of \bfr exp (iq r)
+        do ix=1,3 ! x y z
+          if(ix==1)  lm2=3+1 !x
+          if(ix==2)  lm2=3-1 !y
+          if(ix==3)  lm2=3+0 !z
+          do lm  =   1,(lx(ibas)+1)**2 
+            do lm1 = 1,(lx(ibas)+1)**2
+            lra = ll(lm1)
+            rpjyl(lm,lra,ibas,ix) = rpjyl(lm,lra,ibas,ix) + cg(lm1,lm2,lm)*pjyl(lm1,ibas)  ! lra is to specify radil function
+            enddo
+          enddo  
+        enddo
+!! ... rrob0  lra=0, lx(ibas)+1.
+        do l = 0,lx(ibas)
+        do lra = 0,lx(ibas)
+          do n = 1,nx(l,ibas)
+            call gintxx( rajr(1,lra), rprodx(1,n,l,ibas), a,b,nr,
+     o                 rrob0(n,l,lra,ibas) )
           enddo
+        enddo
         enddo
       enddo
 
-c ... index (mx,nx,lx,ibas) order.
+!! ... index (mx,nx,lx,ibas) order.
       ibl1 = 0
       do ibas= 1, nbas
         do l   = 0, lx(ibas) ! write(6,'(" l ibas nx =",3i5)') l,nx(l,ibas),ibas
@@ -1476,15 +1532,123 @@ c ... index (mx,nx,lx,ibas) order.
           enddo
         enddo
       enddo
-c ... pjyl * rob0
+
+!! ... pjyl * rob0, sum(rpjyl * rrob0)
+      rb0mat=0d0
       do ibl1= 1, nbloch
         ibas= ibasbl(ibl1)
         n   = nbl  (ibl1)
         l   = lbl  (ibl1)
         lm  = lmbl (ibl1)
-        b0mat(ibl1) = pjyl(lm,ibas) * rob0(n,l,ibas)
+        b0mat(ibl1)     = pjyl(lm,ibas) * rob0(n,l,ibas)
+        do ix=1,3
+          rb0mat(ibl1,ix) = rb0mat(ibl1,ix) + sum(rpjyl(lm,0:lx(ibas),ibas,ix)*rrob0(n,l,0:lx(ibas),ibas) )
+!! constant part
+          if(l==0) rb0mat(ibl1,ix) = rb0mat(ibl1,ix) + bas(ix,ibas)*b0mat(ibl1)
+        enddo
       enddo
-      deallocate(ajr, pjyl,rofi,
-     &  ibasbl, nbl, lbl, lmbl,
-     &  cy,yl,rob0)
+      deallocate(ajr, pjyl,rofi, ibasbl, nbl, lbl, lmbl, cy,yl,rob0)
+ccccccccccccccccccccccc
+c      print *,'mkb0:sumcheck rb0mat b0mat=',sum(abs(rb0mat)),sum(abs(b0mat))
+ccccccccccccccccccccccc
+      end
+
+
+
+
+
+
+c---------------------------------------------------------------------
+      subroutine mkb00(lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx,
+     i        alat,bas,nbas,nbloch, 
+     o        rb0mat)
+!! == make the matrix elementes < B_q | exp(iq r)> and <B_q|\bfr exp(iq r)> ==
+!! modified on may2012. Add rb0mat as <B_q|\bfr exp(iq r)>.
+      implicit none
+      integer :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
+      integer :: nbas,lxx, lx(nbas), nxx, nx(0:lxx,nbas),nrr(nbas)
+      real(8)    :: rprodx(nrx,nxx,0:lxx,nbas),aa(nbas),bb(nbas),
+     &   phi(0:lxx),psi(0:lxx), bas(3,nbas),
+     &   alat,qqq(3),phal,
+     &   pi,fpi,tpiba,r2s,a,b,volbas(nbas)
+      complex(8) :: b0mat(nbloch),img=(0d0,1d0) ,phase, rb0mat(nbloch,3)
+      integer,allocatable:: ibasbl(:), nbl(:), lbl(:), lmbl(:)
+      real(8),allocatable :: ajr(:,:),rofi(:),rob0(:,:,:),rajr(:,:),rrob0(:,:,:)
+      real(8),allocatable::cy(:),yl(:),cg(:,:,:),rofi2(:)
+      complex(8),allocatable :: pjyl(:,:),rpjyl(:,:,:,:)
+#ifdef COMMONLL
+      integer(4) ll(51**2)
+      common/llblock/ll
+#else
+      integer(4) ll
+#endif
+      integer:: lmxax,lra,ix,lm2,lm1
+c-----
+      write(6,*)'mkb0:'
+      pi   = 4d0*datan(1d0)
+      fpi  = 4*pi
+      nlx  = (lxx+1)**2
+      tpiba = 2*pi/alat
+c
+      allocate(ajr(1:nrx,0:lxx),rajr(1:nrx,0:lxx), pjyl((lxx+1)**2,nbas),rofi(nrx),rofi2(nrx),
+     &  ibasbl(nbloch), nbl(nbloch), lbl(nbloch), lmbl(nbloch),
+     &  cy(nlx),yl(nlx),rob0(nxx,0:lxx,nbas),rrob0(nxx,0:lxx,nbas),
+     &  rpjyl((lxx+1)**2,0:lxx,nbas,3))
+
+      lmxax= maxval(lx(1:nbas))+1
+      do ibas = 1,nbas
+        a = aa(ibas)
+        b = bb(ibas)
+        nr= nrr(ibas)
+        rofi(1) = 0d0
+        rofi2(1)= 0d0
+        do ir      = 1, nr
+          rofi(ir) = b*( exp(a*(ir-1)) - 1d0)
+          rofi2(ir) = rofi(ir)**2
+        enddo
+        do l = 0,lx(ibas)
+        do n = 1,nx(l,ibas)
+            call gintxx( rofi2, rprodx(1,n,l,ibas), a,b,nr, rrob0(n,l,ibas) )
+            call gintxx( rofi,  rprodx(1,n,l,ibas), a,b,nr,  rob0(n,l,ibas) )
+        enddo
+        enddo
+        volbas(ibas)=4d0*pi/3d0*rofi(nr)**3
+      enddo
+
+!! ... index (mx,nx,lx,ibas) order.
+      ibl1 = 0
+      do ibas= 1, nbas
+        do l   = 0, lx(ibas) ! write(6,'(" l ibas nx =",3i5)') l,nx(l,ibas),ibas
+          do n   = 1, nx(l,ibas)
+            do m   = -l, l
+              ibl1  = ibl1 + 1
+              ibasbl(ibl1) = ibas
+              nbl   (ibl1) = n
+              lbl   (ibl1) = l
+              lmbl  (ibl1) = l**2 + l+1 +m ! write(6,*)ibl1,n,l,m,lmbl(ibl1)
+            enddo
+          enddo
+        enddo
+      enddo
+
+!! ... pjyl * rob0, sum(rpjyl * rrob0)
+      rb0mat=0d0
+      do ibl1= 1, nbloch
+        ibas= ibasbl(ibl1)
+        n   = nbl  (ibl1)
+        l   = lbl  (ibl1)
+        lm  = lmbl (ibl1)
+        rb0mat(ibl1,:)=0d0
+        if(l==1) then
+          if(lm==3+1) ix=1   !x
+          if(lm==3-1) ix=2   !y
+          if(lm==3+0) ix=3   !z
+          rb0mat(ibl1,ix) = rrob0(n,l,ibas) 
+        elseif(l==0) then
+          do ix=1,3
+            rb0mat(ibl1,ix) = bas(ix,ibas)*rob0(n,l,ibas)*sqrt(4d0*pi)
+         enddo
+        endif 
+      enddo
+c      deallocate(ajr, pjyl,rofi, ibasbl, nbl, lbl, lmbl, cy,yl,rob0)
       end
