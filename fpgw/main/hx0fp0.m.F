@@ -2154,7 +2154,7 @@ cc                sks( 1:ngb)= zxq(1:ngb,1,iw)
                 w_k( 2:ngb)= vcou1sq*matmul( sk(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) ) 
                 w_ks(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sks(2:ngb)*vcousq(2:ngb)) 
 cmmm epsPP mode - vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
-                llw(iw,iq0)=  1d0 -vcou1*sk(1) !- vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
+                llw(iw,iq0)=  1d0 -vcou1*sk(1) - vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm
 c                write(*,"('mmmw0  ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(1,2:10:3,iw),zxq(1,63:70:3,iw)
@@ -2580,7 +2580,7 @@ c                w_ksI(2:ngb)= vcou1*vcousq(2:ngb)*matmul( epstinv(2:ngb,2:ngb),
                 w_kI( 2:ngb)= vcou1sq*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) ) 
                 w_ksI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb)) 
 cmmm epsPP mode ---> no - vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
-                llwI(iw,iq0)=  1d0 -vcou1*skI(1) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+                llwI(iw,iq0)=  1d0 -vcou1*skI(1) - vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
 ccccccc cmmm2 xxxxxx
                 write(*,*) 'iq iw llwI',iq,iw,llwI(iw,iq0)
                 write(ifisk) iw,iq0,q
@@ -2717,7 +2717,7 @@ c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
        ifisk = iclose('WKcomponent')
        ifisk = iopen('WKcomponent',0,-1,0)
 cmmm
-       do iq = 1,1 !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
+       do iq = iqxini,iqxend !1,1 !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
         q = qibze(:,iq)
         if(iq>nqibz) then
            iq0 = iq - nqibz
@@ -2733,26 +2733,26 @@ cmmm
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = w0(iw)
             if(ircw==2) zw(1,1) = w0i(iw)
-c$$$cmmm3 cccccccccccccccccccccccccccccccccccccccccc
-c$$$          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
-c$$$            print *,'ddd skip readin ifisk ddddddddd'
-c$$$            read(ifisk) iwxx,iq0xx,qxx
-c$$$            if(iwxx /=iw) stop 'iwxx/=iw'
-c$$$           if(iq0xx /=iq-nqibz) stop 'iq0xx /=iq'
-c$$$            if(sum(abs(qibze(:,iq)-qxx))>1d-8) stop 'sum(abs(qq-qxx))>1d-8'
-c$$$            read(ifisk) vw_k(2:ngb),vw_ks(2:ngb)
-c$$$            zw=0d0
-c$$$            do igb1=1+1,ngb
-c$$$            do igb2=1+1,ngb
-c$$$              vc1vc2 = vw_ks(igb1)*vw_k(igb2)   
-c$$$              if(ircw==1) zw(igb1,igb2)=vc1vc2/llw(iw,iq0)  
-c$$$              if(ircw==2) zw(igb1,igb2)=vc1vc2/llwI(iw,iq0) 
-c$$$            enddo
-c$$$            enddo
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
+cmmm3 cccccccccccccccccccccccccccccccccccccccccc
+          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
+            print *,'ddd skip readin ifisk ddddddddd'
+            read(ifisk) iwxx,iq0xx,qxx
+            if(iwxx /=iw) stop 'iwxx/=iw'
+           if(iq0xx /=iq-nqibz) stop 'iq0xx /=iq'
+            if(sum(abs(qibze(:,iq)-qxx))>1d-8) stop 'sum(abs(qq-qxx))>1d-8'
+            read(ifisk) vw_k(2:ngb),vw_ks(2:ngb)
+            zw=0d0
+            do igb1=1+1,ngb
+            do igb2=1+1,ngb
+              vc1vc2 = vw_ks(igb1)*vw_k(igb2)   
+              if(ircw==1) zw(igb1,igb2)=vc1vc2/llw(iw,iq0)  
+              if(ircw==2) zw(igb1,igb2)=vc1vc2/llwI(iw,iq0) 
+            enddo
+            enddo
+ccccccccccccccccccccccccccccccccccccccccccccccc
           endif
-c          if(iq==1.or.iq>nqibz) write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
-          write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
+          if(iq==1.or.iq>nqibz) write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
+c          write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccmmm3
 c          if(iq<=nqibz) then

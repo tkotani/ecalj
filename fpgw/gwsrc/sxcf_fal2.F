@@ -476,8 +476,8 @@ c     if(smbasis()) ifpomat = iopen('POmat',0,-1,0) !oct2005
       print *,'ddddddddddd  original mode like dddddddddd'
       if(newaniso()) then !takao2012apr
         iqini=1
-        iqend=nqibz !no sum for offset-Gamma points.
-c        if(exchange) iqend=nqibz
+c        iqend=nqibz !no sum for offset-Gamma points.
+        if(exchange) iqend=nqibz
       endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
