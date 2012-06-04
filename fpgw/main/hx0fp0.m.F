@@ -208,19 +208,20 @@ c      integer :: nw2
       real(8):: eex(4),eey(4),qvv(3)
 !!
       logical :: newaniso,newaniso2 !apr2012
-      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk
+      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:)
       real(8),allocatable:: vcousq(:)
-      real(8):: fourpi,sqfourpi,tpioa
+      real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
 !! Eq.(40) in PRB81 125102
 c      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:), 
 c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
-     &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:)
-      complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:)
+     &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
+      complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
       real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:)
-      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx
+      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx
+      complex(8):: vc1vc2
 
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -1220,20 +1221,17 @@ c         endif
 
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
+
         if(newaniso2) then
-cccccccccccccccccccccccccccccccccccccccc
-c         print *,' dddddddddd test  qq=q ddddddddddd'
-c          qq=q
-          q = qibze(:,iq)
-         if(sum(abs(q))<1d-6) then !reopen Vcoud
+!! qq is used.
+         if(sum(abs(qq))<1d-6) then !reopen Vcoud
            idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
            ifvcoud = iopen('Vcoud',0,0,0)
          endif  
-cccccccccccccccccccccccccccccccccccccccc
          read(ifvcoud) ngb0
          read(ifvcoud) qvv
          print *,'qvv=',qvv
-         if(sum(abs(qvv-q))>1d-10) then
+         if(sum(abs(qvv-qq))>1d-10) then
           print *,'qvv =',qvv
           stop 'hx0fp0: qvv/=0 hvcc is not consistent'
          endif   
@@ -1247,19 +1245,16 @@ cccccccccccccccccccccccccccccccccccccccc
          read(ifvcoud) zcousq
          vcousq=sqrt(vcousq)
         endif 
-ccccccccccccccccccccccccccccccccccccc
-c                print *,'qqqqq11111 vcousq',sum(abs(vcousq))
-c                stop 'xxxxxx111111111 22222 33333 ccccc'
-cccccccccccccccccccccccccccccc
 
 !! ==== nolfco is overlaid ====
 !! may2012takao
 ccccc
 cooo
 c        print *,'dddddddddddddd off-set Gamma original-like test dddddddddddddddddd'
-c        if(.false.) then 
-        if(newaniso2.and. iq>nqibz  ) then
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cmmmmm
+cmmm3
+        if(newaniso2.and. iq>nqibz  ) then !for mmmw
+cc        if(.false.) then !comment out for mmmz
           if( ngb0/=ngb ) then
             stop 'hx0fp0.m.f:ngb0/=ngb'
           endif 
@@ -2043,10 +2038,12 @@ c              else               if(newaniso2.and.iq<=nqibz) then
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c              else
 
-cooo
-              if(newaniso2.and.iq<=nqibz) then
-c              if(.true.) then
+cmmm
+              if(newaniso2.and.iq<=nqibz) then !for mmmw
+cc            if(.true.) then !for mmmz
+cmmm            
                 if(iq==1) then
+cc              if(iq==1.or.iq>nqibz) then
                   ix=1
                   zw0(:,1)=0d0
                   zw0(1,:)=0d0
@@ -2061,13 +2058,58 @@ c              if(.true.) then
                   if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
                 enddo
                 enddo
-cccccccccccccccccccccccccccccccc
-c                print *,'qqqqq sumcheck epstinv',sum(abs(zxq(ix+1:ngb,ix+1:ngb,iw)))
-c                print *,'qqqqq vcousq',sum(abs(vcousq))
-c                stop 'xxxxxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccc
-                epstinv=epstilde
+                epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$cmmm direct inversion vs. block inversion
+c$$$                if(iq>nqibz) then
+c$$$c direct inversion
+c$$$                ix=0
+c$$$                do igb1=ix+1,ngb 
+c$$$                do igb2=ix+1,ngb
+c$$$                  epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+c$$$                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
+c$$$                enddo
+c$$$                enddo
+c$$$                epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+c$$$                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+c$$$                do igb1=1+ix,ngb 
+c$$$                do igb2=1+ix,ngb
+c$$$                  zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+c$$$                  if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
+c$$$                enddo
+c$$$                enddo
+c$$$c              write(*,"('mmmmzp99x  ',i3,10(2d13.5,2x))") iw,zw0(1,1),zw0(2:10:3,1),zw0(63:70:3,1)
+c$$$              write(*,"('mmmmzp99x  ',i3,10(2d13.5,2x))") iw,1d0/epstinv(1,1),zw0(2:10:3,1),zw0(63:70:3,1)
+c$$$c             write(*,"('mmmmzp99x  ',i3,10(2d13.5,2x))") iw,zw0(1,1),zw0(1,2:10:3),zw0(1,63:70:3)
+c$$$c block inversion
+c$$$                ix=1
+c$$$                do igb1=ix+1,ngb 
+c$$$                do igb2=ix+1,ngb
+c$$$                  epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+c$$$                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
+c$$$                enddo
+c$$$                enddo
+c$$$                epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+c$$$                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+c$$$                absq=sqrt(sum(q**2*tpioa**2))
+c$$$                sk(  1:ngb)= zxq(1,1:ngb,iw)
+c$$$                sks( 1:ngb)= zxq(1:ngb,1,iw) 
+c$$$                w_k(1) =0d0
+c$$$                w_ks(1)=0d0
+c$$$                w_k( 2:ngb)= vcousq(2:ngb)*vcousq(1)*matmul(vcousq(1)*sk(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb))
+c$$$                w_ks(2:ngb)= vcousq(2:ngb)*vcousq(1)*matmul(epstinv(2:ngb,2:ngb),vcousq(1)*sks(2:ngb)*vcousq(2:ngb))
+c$$$                llw(iw,iq0)= 
+c$$$     &             1d0 
+c$$$     &            -vcousq(1)*sk(1)*vcousq(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
+c$$$     &            -vcousq(1)*vcousq(1)* sum( vcousq(2:ngb)*sk(2:ngb) * matmul(epstinv(2:ngb,2:ngb),sks(2:ngb)*vcousq(2:ngb)))
+c$$$                write(*,"('mmmmzwp99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0), !(1d0/llw(iw,iq0)-1d0)*vcousq(1)**2,
+c$$$c     &                  w_k(2:10:3)/llw(iw,iq0), w_k(63:70:3)/llw(iw,iq0)
+c$$$     &                  w_ks(2:10:3)/llw(iw,iq0), w_ks(63:70:3)/llw(iw,iq0)
+c$$$                write(*,"('mmmmzwp99x ')")
+c$$$                endif
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
                 do igb1=1+ix,ngb 
                 do igb2=1+ix,ngb
                   zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
@@ -2075,31 +2117,61 @@ ccccccccccccccccccccccccccccccccc
                 enddo
                 enddo
 c                print *,'qqqqq sumcheck epstinv',sum(abs(epstinv(ix+1:ngb,ix+1:ngb)))
-                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb)
-              elseif(newaniso2) then
-                read(ifepstinv) epstinv(2:ngb,2:ngb)
-c                print *,'ttt end readin EPS0inv'
-!! output sk, sks, w_k, w_ks and llw for give iq0 >iq-nqibz
-c                print *,'tttt sk sks writing'
-                sk(  1:ngb)= zxq(1,1:ngb,iw)
-                sks( 1:ngb)= zxq(2,1:ngb,iw) 
+                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cmmmm
+c       if(iq>nqibz) then
+c         write(*,"('mmmmz99x ',i3,10(2d13.5,2x))") iw,zw0(1,1)+vcousq(1)**2,zw0(2:10:3,1),zw0(63:70:3,1)
+c       endif
+c       if(iq==1.or.iq>nqibz) then
+c                write(*,"('mmmz0  ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(1,2:10:3,iw),zxq(1,63:70:3,iw)
+c                write(*,"('mmmz0* ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(2:10:3,1,iw),zxq(63:70:3,1,iw)
+c         write(*,"('mmmmz99x ',i3,10(2d13.5,2x))") iw,zw0(1,1)+vcousq(1)**2,zw0(1,2:10:3),zw0(1,63:70:3)
+c       write(*,"('mmmzx  ',2i3,10(2d13.5,2x))") iq,iw,zxq(2,1,iw),zxq(2,2:10:3,iw),zxq(2,63:70:3,iw)
+c       write(*,"('mmmzx  ',2i3,10(2d13.5,2x))") iq,iw,zxq(3,1,iw),zxq(3,2:10:3,iw),zxq(3,63:70:3,iw)
+c       write(*,"('mmmzxs ',2i3,10(2d13.5,2x))") iq,iw,zxq(1,1,iw),zxq(2:10:3,1,iw),zxq(63:70:3,1,iw)
+c       write(*,"('mmmzxs ',2i3,10(2d13.5,2x))") iq,iw,zxq(1,2,iw),zxq(2:10:3,2,iw),zxq(63:70:3,2,iw)
+c       write(*,"('mmmmzee',2i3,10(2d13.5,2x))")iq,iw,epstilde(2,2),epstilde(2,2:10:3),epstilde(2,63:70:3)  
+c       write(*,"('mmmmzee',2i3,10(2d13.5,2x))")iq,iw,epstilde(3,2),epstilde(3,2:10:3),epstilde(3,63:70:3)
+c       endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+              endif
+
+              if(newaniso2.and.iq>nqibz) then
+cmmm3
+                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+                if(iw/=iwx) stop 'hx0fp0: iw/=iwx'  !sanity check
+cmmm3
+                sk  (1:ngb)= zxq(1,1:ngb,iw)
+                sks (1:ngb)= zxq(2,1:ngb,iw) 
+cc                sk(  1:ngb)= zxq(1,1:ngb,iw)
+cc                sks( 1:ngb)= zxq(1:ngb,1,iw) 
+
                 w_k(1) =0d0
                 w_ks(1)=0d0
-                w_k( 2:ngb)= sqfourpi*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb)*vcousq(2:ngb)) 
-                w_ks(2:ngb)= sqfourpi*matmul( sks(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb)) 
-!! comment out sqfourpi*foobar term for no off-diagonal test.
-c                print *, 'ddddd 222 llw= 1- 4pi*diag only xxxxxxxxxxxx'
-                llw(iw,iq0)= sum(q**2*tpioa**2)    ! 1 of Eq.(40) in PRB81 125102
-     &            -fourpi* sk(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
-     &            -sqfourpi* sum( sks(2:ngb)*w_k(2:ngb)*vcousq(2:ngb) )
-                llw(iw,iq0)=llw(iw,iq0)/ sum(q**2*tpioa**2)  
+                vcou1= fourpi/sum(q**2*tpioa**2) !test --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee) 
+                vcou1sq= sqrt(vcou1)   ! only vcousq(1) should be replaced.
+                w_k( 2:ngb)= vcou1sq*matmul( sk(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) ) 
+                w_ks(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sks(2:ngb)*vcousq(2:ngb)) 
+cmmm epsPP mode - vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
+                llw(iw,iq0)=  1d0 -vcou1*sk(1) !- vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cmmmm
+c                write(*,"('mmmw0  ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(1,2:10:3,iw),zxq(1,63:70:3,iw)
+c                write(*,"('mmmw0* ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(2,2:10:3,iw),zxq(2,63:70:3,iw)
+c                write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,fourpi/sum(q**2*tpioa**2)/llw(iw,iq0),
+c     &                  w_k(2:10:3)/llw(iw,iq0),w_k(63:70:3)/llw(iw,iq0)
+c                write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
+c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 write(*,*) 'epsPP iq iw',iq,iw, 1d0 - fourpi* sk(1)/sum(q**2*tpioa**2)
                 write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
                 write(ifisk) iw,iq0,q
-                write(ifisk) w_k,w_ks
-              else ! Original mode
-                call wcf( ngb, vcoul, zxq(1,1,iw), imode,
-     &                zw0)
+                write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
+              endif
+
+              if(.not.newaniso2) then               ! Original mode
+                call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
               endif
  
 c$$$!!... a debug mode
@@ -2127,15 +2199,11 @@ ccccccccccccccc
 cooo
 c              print *,'ddddd2222 original like mode dddddddddddddddd'
 c              if(.false.) then 
-               if(newaniso2.and.iq>nqibz) then
-                zw(1:ngb,1:ngb) = 0d0
-                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
+              if(newaniso2.and.iq>nqibz) then
+c                zw(1:ngb,1:ngb) = 0d0
+c                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
               else
                 zw(1:ngb,1:ngb) = zw0
-ccccccccccccccccccccc
-cooo
-c              if(iq>nqibz) zw=0d0
-ccccccccccccccccccccc
                 write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
                 call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
               endif  
@@ -2461,20 +2529,19 @@ c              zw0=matmul(dconjg(transpose(zcousq)),matmul(zw0,zcousq))
 c            else  if(newaniso2 .and. iq<=nqibz ) then 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cooo
+cmmm3
              if(newaniso2 .and. iq<=nqibz ) then 
-c             if(.true.) then 
+cc             if(.true.) then 
 !!  Eqs.(37),(38) in PRB81 125102
+cmmm3
                if(iq==1) then
+cc              if(iq==1.or.iq>nqibz) then
                   ix=1
                   zw0(:,1)=0d0
                   zw0(1,:)=0d0
                 else  
                   ix=0
                 endif
-ccccccccccccccccccccccccccccccccccc
-c                print *,'ddddddddddd ix=0'
-c                ix=0
-ccccccccccccccccccccccccccccccccccc
 !!  Eqs.(37),(38) in PRB81 125102
                 do igb1=ix+1,ngb 
                 do igb2=ix+1,ngb
@@ -2490,56 +2557,52 @@ ccccccccccccccccccccccccccccccccccc
                   if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
                 enddo
-                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb)
-            elseif(newaniso2) then
-                read(ifepstinv) epstinv(2:ngb,2:ngb)
-                iq0 = iq - nqibz
+                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+            endif
+cmmm3    
+            if(newaniso2.and.iq>nqibz) then
+                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+                if(iw/=iwx) then
+                   print *,'iw iwx=',iw,iwx
+                   stop 'hx0fp0: iw/=iwx' !sanity check
+                endif   
+cmmm3
+cc                skI  (1:ngb)= zxqi(1,1:ngb,iw)
+cc                sksI (1:ngb)= zxqi(1:ngb,1,iw) 
                 skI  (1:ngb)= zxqi(1,1:ngb,iw)
                 sksI (1:ngb)= zxqi(2,1:ngb,iw) 
-                w_kI(1) =0d0
-                w_ksI(1)=0d0
-                w_kI (2:ngb)= sqfourpi*matmul(epstinv(2:ngb,2:ngb), skI(2:ngb)*vcousq(2:ngb)) 
-                w_ksI(2:ngb)= sqfourpi*matmul(sksI(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb)) 
-!! comment out sqfourpi*foobar term for no off-diagonal test.
-c                print *, 'ddddd 222 llw= 1- 4pi*diag only xxxxxxxxxxxx' 
-               llwI(iw,iq0)  = sum(q**2*tpioa**2) ! 1 of Eq.(40) in PRB81 125102
-     &                  -fourpi  * skI(1) !sk(1,1,iw)=sks(1,1,iw)= H of Eq.(40).
-     &                  -sqfourpi* sum( sksI(2:ngb)*w_kI(2:ngb)*vcousq(2:ngb) )
-                llwI(iw,iq0)  = llwI(iw,iq0)/sum(q**2*tpioa**2) ! 1 of Eq.(40) in PRB81 125102
+                w_kI(1) = 0d0
+                w_ksI(1)= 0d0
+                vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee) 
+                vcou1sq= sqrt(vcou1)
+c                w_kI( 2:ngb)= vcou1*vcousq(2:ngb)*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) ) 
+c                w_ksI(2:ngb)= vcou1*vcousq(2:ngb)*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb)) 
+                w_kI( 2:ngb)= vcou1sq*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) ) 
+                w_ksI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb)) 
+cmmm epsPP mode ---> no - vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+                llwI(iw,iq0)=  1d0 -vcou1*skI(1) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+ccccccc cmmm2 xxxxxx
                 write(*,*) 'iq iw llwI',iq,iw,llwI(iw,iq0)
                 write(ifisk) iw,iq0,q
-                write(ifisk) w_kI,w_ksI
-
-            else ! original mode
-              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  !,ipm),imode, 
-     o              zw0)
+                write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
+            endif
+   
+            if(.not.newaniso2) then               ! original mode
+              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  zw0)
             endif  
 
-cccccccccccccccccccccccccccccccccc
-cooo
-c            print *,'ddddddddddddd original like dddddddddddd111 iq ngb=',iq,ngb
-c            if(iq==1) then
-c               zw0=0d0
-c            endif
-cccccccccccccccccccccccccccccccccc
-
-c            if(.false.) then
             if(newaniso2.and.iq>nqibz) then
-              zw(1:ngb,1:ngb) = 0d0 ! zw(nblochpmx,nblochpmx)
-              write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
+c              zw(1:ngb,1:ngb) = 0d0 ! zw(nblochpmx,nblochpmx)
+c              write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
             else
               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
-ccccccccccccccccccccc
-cooo
-c              if(iq>nqibz) zw=0d0
-ccccccccccccccccccccc
               write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
               call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
             endif 
 
 
-C --- for Miyake's total energy !Nov2004 ----------------
-            if(ecorr_on>0.and. (.not.newaniso2)) then !I did not modified this for newaniso2
+!! --- Miyake's total energy branch !Nov2004. not maintained now... need to fix this maybe(2012takao) -----------
+            if(ecorr_on>0 .and. (.not.newaniso2)) then !I did not modified this for newaniso2 2012takao
               if (debug) write(*,*)'ip,ix=',iq,iw,'  niw=',niw
               call getwk(iq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
               call ecorq2 (vcoul, zw0, ngb, iq,iw,ieceig,
@@ -2598,7 +2661,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
             endif
  1016    continue
          if(newaniso2) then
-           if(iq>=nqibz) ifepstinv = iclose('EPS0inv') !iq>=nqibz --> readin mode
+           if(iq==1)    ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
+           if(iq>nqibz) ifepstinv = iclose('EPS0inv') !iq>nqibz --> readin mode
            deallocate(epstinv)
            if(allocated(epstilde)) deallocate(epstilde)
            if(allocated(skI)) deallocate(skI,sksI,w_kI,w_ksI)
@@ -2608,7 +2672,6 @@ c$$$          enddo
         endif
 C... ImagOmega end ===============================
 c$$$ 2005 continue ! iecut loop
-
 
 c 1002 continue  ! end of frequency block-loop
         deallocate(vcoul)
@@ -2621,10 +2684,9 @@ c=======================================================================
  1100 continue
 
 
-c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        print *,'dddddddddddddddd test xxxxxx goto 1034 dddddddddddddddd'
-c        goto 1034
-c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c        goto 1034 !for debug
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
@@ -2654,12 +2716,13 @@ c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !! === w_ks*wk are stored to zw for iq >nqibz ===
        ifisk = iclose('WKcomponent')
        ifisk = iopen('WKcomponent',0,-1,0)
-       do iq = iqxini,iqxend
+cmmm
+       do iq = 1,1 !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
         q = qibze(:,iq)
         if(iq>nqibz) then
            iq0 = iq - nqibz
            read(ifisk) ngb,nw_ixxx,nwxxx,niwxxx
-          allocate(w_k(ngb),w_ks(ngb))
+          allocate(vw_k(ngb),vw_ks(ngb))
         endif   
         do ircw=1,2
           if    (ircw==1) then;  nini=nw_i;   nend=nw ;   ifrcwx=ifrcw
@@ -2670,20 +2733,32 @@ c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = w0(iw)
             if(ircw==2) zw(1,1) = w0i(iw)
-          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
-            print *,'ddd skip readin ifisk ddddddddd'
-            read(ifisk) iwxx,iq0xx,qxx
-            if(iwxx /=iw) stop 'iwxx/=iw'
-            if(iq0xx /=iq-nqibz) stop 'iq0xx /=iq'
-            if(sum(abs(qibze(:,iq)-qxx))>1d-8) stop 'sum(abs(qq-qxx))>1d-8'
-            read(ifisk) w_k,w_ks
-            zw=0d0
-            do igb2=1+1,ngb
-              if(ircw==1) zw(1+1:ngb,igb2)= w_ks(1+1:ngb)*w_k(igb2)/llw(iw,iq0)/sum(q**2*tpioa**2)
-              if(ircw==2) zw(1+1:ngb,igb2)= w_ks(1+1:ngb)*w_k(igb2)/llwI(iw,iq0)/sum(q**2*tpioa**2)
-            enddo
+c$$$cmmm3 cccccccccccccccccccccccccccccccccccccccccc
+c$$$          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
+c$$$            print *,'ddd skip readin ifisk ddddddddd'
+c$$$            read(ifisk) iwxx,iq0xx,qxx
+c$$$            if(iwxx /=iw) stop 'iwxx/=iw'
+c$$$           if(iq0xx /=iq-nqibz) stop 'iq0xx /=iq'
+c$$$            if(sum(abs(qibze(:,iq)-qxx))>1d-8) stop 'sum(abs(qq-qxx))>1d-8'
+c$$$            read(ifisk) vw_k(2:ngb),vw_ks(2:ngb)
+c$$$            zw=0d0
+c$$$            do igb1=1+1,ngb
+c$$$            do igb2=1+1,ngb
+c$$$              vc1vc2 = vw_ks(igb1)*vw_k(igb2)   
+c$$$              if(ircw==1) zw(igb1,igb2)=vc1vc2/llw(iw,iq0)  
+c$$$              if(ircw==2) zw(igb1,igb2)=vc1vc2/llwI(iw,iq0) 
+c$$$            enddo
+c$$$            enddo
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
           endif
-          if(iq==1.or.iq>nqibz) write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw !(1:ngb,1:ngb)
+c          if(iq==1.or.iq>nqibz) write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
+          write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ngb)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccmmm3
+c          if(iq<=nqibz) then
+c             zw=0d0
+c             write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw !(1:ngb,1:ngb)
+c          endif   
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cooo  check write
           if(mod(iw,3)==1) then
@@ -2697,20 +2772,14 @@ cooo  check write
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo 
         enddo 
-        if(iq>nqibz) deallocate(w_k,w_ks)
+        if(iq>nqibz) deallocate(vw_k,vw_ks)
        enddo 
       endif
 
 
-
-
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c 1034  continue
-c       print *,'dddddddddddddd test skip end ddddddddddddddddddd'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
 
 
 !! --- legas mode is not working now. Need fixing... voltot ntot are not given.

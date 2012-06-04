@@ -1,5 +1,5 @@
       logical function addbasnew()
-      addbasnew=.false. !new version of adding polynomial-like product basis in MTs.
+      addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
                        ! If false, use old version (less product basis set is added.) 
       end
 

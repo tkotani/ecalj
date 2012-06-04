@@ -47,12 +47,11 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-c      real(8):: deltaq,delta5,delta8,deltaq_scale=0.09d0 !,,deltaq_scale=0.001d0 !
-      real(8):: deltaq,delta5,delta8,deltaq_scale=0.001d0 
-ctakao mar2012
+      real(8):: deltaq,delta5,delta8,deltaq_scale=0.1d0
+
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
-     &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:)
+     &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:),norq0x(:)
       integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix
       real(8):: rrr(3),r2s,emat(3,3)
 
@@ -267,10 +266,9 @@ c        endif
 !! number of spherical points.
 cccc        nq00ix=12 !spherical points
 c        nq00ix=12   !spherical points
-        nq00ix=3   !spherical points
-c        nq00ix=6   !spherical points
+c        nq00ix=3   !spherical points
+        nq00ix=6   !spherical points
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 c
         nx0 = 1
         if(nx0==2) xn  = 3d0 !ratio parameter for Q2 and Q1, only effective for nx0=2 case
@@ -298,24 +296,43 @@ c          nq0x = 8*abs (q0pchoice())
         else
          nmm=1
          if(.not.timereversal()) nmm=2
-         allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm))
+         allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm),norq0x(nq0x))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(newaniso() ) then
           pi=4d0*atan(1d0)
           deltaq=deltaq_scale*alat/(2*pi) !dq is 0.01 a.u.
           if(nq00ix==3) then
            nq00i=3
-           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
-           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
-           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
+c           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
+c           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
+c           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
+           q0x(:,1)= qlat(:,1)/n1q/4d0*deltaq_scale
+           q0x(:,2)= qlat(:,2)/n2q/4d0*deltaq_scale
+           q0x(:,3)= qlat(:,3)/n3q/4d0*deltaq_scale
           elseif(nq00ix==6) then
+!! six independent direction is required to calculate full dielectric matrix (symmetric -->six components).
            nq00i=6
-           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
-           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
-           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
-           q0x(:,4)=(/deltaq, -deltaq,  -deltaq/)
-           q0x(:,5)=(/-deltaq, deltaq,  -deltaq/)
-           q0x(:,6)=(/-deltaq, -deltaq,  deltaq/)
+           q0x(:,1)= qlat(:,1)/n1q/4d0*deltaq_scale
+           q0x(:,2)= qlat(:,2)/n2q/4d0*deltaq_scale
+           q0x(:,3)= qlat(:,3)/n3q/4d0*deltaq_scale
+           norq0x(1)=sqrt(sum(q0x(:,1)**2))
+           norq0x(2)=sqrt(sum(q0x(:,2)**2))
+           norq0x(3)=sqrt(sum(q0x(:,3)**2))
+           q0x(:,4)= (q0x(:,1)-q0x(:,2))/2d0
+           q0x(:,5)= (q0x(:,2)-q0x(:,3))/2d0
+           q0x(:,6)= (q0x(:,3)-q0x(:,1))/2d0
+           norq0x(4)=sqrt(sum(q0x(:,4)**2))
+           norq0x(5)=sqrt(sum(q0x(:,5)**2))
+           norq0x(6)=sqrt(sum(q0x(:,6)**2))
+           q0x(:,4)= (q0x(:,1)-q0x(:,2))/norq0x(4)*(norq0x(1)+norq0x(2))/2d0
+           q0x(:,5)= (q0x(:,2)-q0x(:,3))/norq0x(5)*(norq0x(2)+norq0x(3))/2d0
+           q0x(:,6)= (q0x(:,3)-q0x(:,1))/norq0x(6)*(norq0x(3)+norq0x(1))/2d0
+c           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
+c           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
+c           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
+c           q0x(:,4)=(/deltaq, -deltaq,  -deltaq/)
+c           q0x(:,5)=(/-deltaq, deltaq,  -deltaq/)
+c           q0x(:,6)=(/-deltaq, -deltaq,  deltaq/)
 c           nq00i=6
 c           q0x(:,1)=(/deltaq, 0d0,    0d0/)
 c           q0x(:,2)=(/0d0, deltaq,    0d0/)
@@ -347,6 +364,12 @@ c           q0x(:,6)=(/deltaq,deltaq, 0d0/)
           else
              stop 'mkqg: not implemented nq00i'
           endif
+ccccccccccccccccccccccccccccc
+          do i=1,nq00i
+             write(*,'(" initial q0x=",i3,3f9.3)')i,q0x(:,i)
+          enddo   
+ccccccccccccccccccccccccccccc
+
 
 !! ...  invariante dielectoric tensor.
           allocate(epinv(3,3,nq0x))

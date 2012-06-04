@@ -134,6 +134,12 @@ echo 0|$nfpgw/hvccfp0  >lvcc
 echo 1|$nfpgw/hsfp0_sc   >lsx
 
 # -- Sergey.F the screened coulom interaction 
+if(-e WVI) then
+  rm -f WVI 
+endif
+if(-e WVR) then
+  rm -f WVR 
+endif
 echo 11|$nfpgw/hx0fp0_sc  >lx0
 
 #########################################################

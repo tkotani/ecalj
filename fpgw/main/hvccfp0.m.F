@@ -1099,6 +1099,9 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           write(6,'(" zz norm check=",d24.16)')
      &    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
           print *
+c          write(6,'(" --- vcoul(exact  no eee)=",d14.6," absq2=",d24.16)')
+c     &    fpi*voltot/(sum(tpiba**2*q(1:3)**2))
+c     &             , (sum(tpiba**2*q(1:3)**2))
           write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)')
      &    fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee)
      &             , (sum(tpiba**2*q(1:3)**2)-eee)

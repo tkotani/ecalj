@@ -476,7 +476,8 @@ c     if(smbasis()) ifpomat = iopen('POmat',0,-1,0) !oct2005
       print *,'ddddddddddd  original mode like dddddddddd'
       if(newaniso()) then !takao2012apr
         iqini=1
-        if(exchange) iqend=nqibz
+        iqend=nqibz !no sum for offset-Gamma points.
+c        if(exchange) iqend=nqibz
       endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1031,6 +1032,14 @@ c$$$      else
               endif
               zmelt1 =  sum( zmel(:,it,itp) *ppovlz(:,ivc) )
               w3p(it,itp) = w3p(it,itp)+ vc * abs(zmelt1)**2
+ccccccccccccccccccccc test cccccccccccccccccccccccc
+c              if(ivc==1) w3p(it,itp) = 0d0
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+c              if(kx==1.and. ivc==1.and.abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
+c              voltot=270.01139400000000
+c              print *,'zzzzzz abszmelt=',abs(zmelt1)**2*voltot
+c              endif
+
 c$$$!! may2012takao test mode. this is useful to see what zmel means
 c$$$!! be careful for complex conjugate...  zmel(ib,it,itp)= <psi_itp psi_it|ib>
 c$$$              if(.false.) then
@@ -1115,6 +1124,14 @@ c Write the Spectrum function for exchange May. 2001
               enddo
             enddo
           endif
+
+ccccccccccccccccccccccccccccccccccccccc
+caaaaa
+c          if(kx>nqibz) then
+c             cycle
+c          endif
+ccccccccccccccccccccccccccccccccccccccccc
+
 
 c--- Correct weigts wfac for valence by esmr
           do it = nctot+1, nctot+nbmax
