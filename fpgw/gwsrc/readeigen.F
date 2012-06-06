@@ -1,3 +1,80 @@
+      subroutine rotmto(qin,cphiin,nbloch,nband,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offsetrev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,nbas,
+     o  cphiout)
+!!== Rotation of a function of ProductBasis or MT part of wave function.
+!! (then MTO itself is rotated. a little diffent from here).
+!! See also mto part of lm7K/subs/rotwv.F 
+!!      
+!! qin  = qtti(:,iqi)
+!! cphiin cphi(1:ldim2,1:nband,iqi,isp) eigenfunction @ qtti(:,iqi)
+!! dlmm   dlmm(-l:l,-l:l,l,igg)
+!! sym   symops(:,:,igg)
+!! tiat   tiat(:,ibas,igg)
+!! shtvg  shtvg(:,igg)
+!! miat   miat(ibas,igg)
+!!
+!!  cphin (iqq) ---> cphiout (iq) 
+      implicit none
+      integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
+      integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
+      integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
+      real(8):: tiat(3,nbas)
+      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase
+      real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
+      real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
+      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl
+      integer::  offsetrev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+      qrot = matmul(sym,qin)
+      phaseq   = exp( -img2pi*sum(qrot*shtvg )) 
+      ibaso=-999
+      do iorb=1,norbt !orbital-blocks 
+        ibas = ibas_tbl(iorb)
+        if(ibas/=ibaso) then !just for speed up
+          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) )
+        endif   
+        ibaso=ibas
+        l = l_tbl(iorb)
+        k = k_tbl(iorb)
+        ini1 = offset_tbl(iorb)+1
+        iend1 = ini1+2*l
+        ini2 = offsetrev_tbl(miat(ibas),l,k)+1
+        iend2 = ini2+2*l
+        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
+      enddo
+      end subroutine rotmto
+!! ------------------------------------------------------
+      subroutine rotipw(qin,qtarget,geigenin,ngp,nband,
+     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,imx,
+     o  geigenout)
+!! == Rotation of Plane wave part. by sym==
+!! 
+!! Mapped from qtt(:,iqq) to qtt(:,iq) 
+!!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
+!!  geigenin (iqq) ---> geigenout (iq) 
+      implicit none
+      real(8):: sym(3,3),qlat(3,3),platt(3,3)
+     &  ,shtvg(3)
+      integer:: ngp,imx,nband,
+     &          ngvecp(3,ngp), !,iqq),
+     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq) 
+      real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
+      integer:: ig,ig2,nnn(3)
+      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
+      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
+      do ig = 1,ngp !ngp(iqq)
+        qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
+        qpgr = matmul(sym,qpg)             !rotated q+G
+        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
+        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
+      enddo
+      end subroutine rotipw
+!! ------------------------------------------------------
+
+
       module m_readeigen
 !!-- Return eigenvalus and eigenfunctions for given q and isp.--
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
@@ -50,10 +127,10 @@ ctm
 !!-----------------------------------------------
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
 !!-- return ev(1:nband) for given q(1:3) and isp --
-      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap
+      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
       implicit none
       integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi
-      real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3)
+      real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
       complex(8):: geigen(ngp_in,nband),geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
       img2pi=2d0*4d0*datan(1d0)*img
       platt=transpose(plat) !this is inverse of qlat
@@ -90,81 +167,109 @@ c      enddo
         ikpisp= isp + nsp*(iqi-1)
         read(ifgeig, rec=ikpisp) geigenr(1:ngpmx,1:nband)
       endif
-ccccccccccccccccccccccccccccccccccccccccccc
-c      geigen=0d0
-c      return
-c      print *,'uuuu: sum geigenr=',nband,sum(abs(geigenr(1:ngp(iq),1:nband)))
-ccccccccccccccccccccccccccccccccccccccccccc
-!! rotation wave
-      ddd = shtvg(:,invgx(igg))
-      if(debug) then
-        print *,' ddddd=',igg,ddd
-        write(*,"('ddddd iq =',2i5,3f13.5)") iq,  ngp(iq), qtt(:,iqq)
-        write(*,"('ddddd iqq=',2i5,3f13.5,2x,3f13.5)") iqq, ngp(iq), q,qu
-        print *,' ddddd '
-      endif
-   
-      do ig = 1,ngp(iqq)
-        if(debug) print *,' ig=',ig
-        qpg = qtt(:,iqq) + matmul( qlat(:,:),ngvecp(:,ig,iqq)) !q+G
-        if(debug) print *,' qpg=',qpg
-        qpgr = matmul(symops(:,:,igg),qpg)             !rotated q+G
-        if(debug) print *,' qpgr=',qpgr
-        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
-        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3),iq)
-        if(debug) print *,' nnn=',nnn
-        geigen(ig2,:)= geigenr(ig,:) * exp( img2pi*sum(qpg*ddd) )
-      enddo
       if(ngp_in < ngp(iq)) then
         print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
         stop 'readgeig: ngpmx<ngp(iq)'
       endif
-ccccccccccccccccccccccccccccccccc
-c      geigen=0d0
-c      print *,'uuuu: sum geigenr=',nband,sum(abs(geigen(1:ngp(iqq),1:nband)))
-ccccccccccccccccccccccccccccccccc
+!! new rotation of IPW. june2012
+!!   qinput: qtt(:,iqq)  ---> qtarget: qtt(:,iq) ( G-vector difference from symops*qtt(:,iqq) )
+      call rotipw(qtt(:,iqq),qtt(:,iq),geigenr(1:ngp(iqq),1:nband),ngp(iqq),nband,
+     &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),imx,
+     &  geigen(1:ngp(iq),1:nband))
+      return
+
+!! Followings are not used now...  june2012
+!! We can use the followings instead of rotipw (both should give the same result).
+!! ----------
+!! Rotation  See mto part of lm7K/subs/rotwv.F 
+!! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
+!! rotation wave
+c      ddd = shtvg(:,invgx(igg))
+cccccccccccccccccccccccccccccccccc
+c      print *,' xddddd1= ',-matmul(symops(:,:,igg),ddd)
+c      print *,' xddddd2= ',shtvg(:,igg)
+c      print *,' xddddd   '
+ccccccccccccccccccccccccccccccccccc
+c      if(debug) then
+c        print *,' ddddd=',igg,ddd
+c        write(*,"('ddddd iq =',2i5,3f13.5)") iq,  ngp(iq), qtt(:,iqq)
+c        write(*,"('ddddd iqq=',2i5,3f13.5,2x,3f13.5)") iqq, ngp(iq), q,qu
+c        print *,' ddddd '
+c      endif
+      do ig = 1,ngp(iqq)
+        qpg = qtt(:,iqq) + matmul( qlat(:,:),ngvecp(:,ig,iqq)) !q+G
+        qpgr = matmul(symops(:,:,igg),qpg)             !rotated q+G
+        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3),iq)
+ccccccccccccccccccccccccccccccccccc
+cddd
+c        geigen(ig2,:)= geigenr(ig,:) * exp( img2pi*sum(qpg*ddd) )
+       geigen(ig2,:)= geigenr(ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
+ccccccccccccccccccccccccccccccccccc
+      enddo
       end subroutine readgeig
 
 !!
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
-     &  miat,tiat,dlmm,norbt,shtvg,symops
+     &  miat,tiat,dlmm,norbt,shtvg,symops,lxxa,nbas
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i 
-      real(8)   :: q(3),qu(3),qtarget(3) ,qrot(3)
-      complex(8):: img2pi,img=(0d0,1d0),phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
-      img2pi=2d0*4d0*datan(1d0)*img
-      if(init2) then
-        stop 'readcphi: modele is not initialized yet'
-      endif
+      real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
+      complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
+      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+      if(init2) stop 'readcphi: modele is not initialized yet'
 !! nqtt/2=nqnum. See lm7k/fp/suham.F
-      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q.  q-qu= G vectors.
-!! iqmap(iq): for given iq, iqmap(iq) --> iq (qtt(1:nqtt)) by sympos(  ,igmap(iq)).
-      iqq=iqmap(iq)
-      iqi=iqimap(iq)
-      qtarget=qtt(:,iq)
-      igg=igmap(iq)
-      qrot=matmul(symops(:,:,igg),qtt(:,iqq))
+      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
+!!  For given iq, iqq = iqmap(iq)  
+!! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))  and  qtt(:,iqq) = qtti(:,iqi)
+      igg=igmap(iq)  
+      iqq=iqmap(iq)  ! mapped from qtt(:,iqq) to qtt(:,iq); 
+                     ! qtt(:,iq)=matmul(sym(igg),qtt(:,iqq))+some Gvector(see iqindx2 above)
+      iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See lqg4gw and lm7K/subs/suham.F:L200).
+                     ! qtt(:,iqq) = qtti(:,iqi) is satisfied. 
+                     ! qtti(:,iqi) are only when eigenfunctions are calculated).
       if(keepeig) then
         cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
       else
         ikpisp= isp + nsp*(iqi-1)
         read(ifcphi, rec=ikpisp) cphifr(1:ldim2,1:nband)
-      endif
+      endif 
       if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbt,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
-!! rotation  See mto part of rotwv.F 
+!!
+      call rotmto(qtt(:,iqq),cphifr,ldim2,nband,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offsetrev_tbl,
+     i  maxval(ibas_tbl),maxval(l_tbl),maxval(k_tbl),
+     i  ginv,symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),nbas, 
+     o  cphif)
+      return
+
+!! Followings are not used now...  june2012
+!! We can use the followings instead of rotmto (both should give the same result).
+!! ----------
+!! Rotation  See mto part of lm7K/subs/rotwv.F 
+!! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
 !! (then MTO itself is rotated. a little diffent from here).
-      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
+!! qrot= symops(igg) qtt
+      qrot=matmul(symops(:,:,igg),qtt(:,iqq)) !qrot-qtt(:,iq) is some G vector.
+      phaseq   = exp( -img2pi*sum( qrot*shtvg(:,igg)) ) 
+cddd
+c      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+cccccccccccccccccccccccccccccccccc
+c      print *,' xddddd1= ', sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )
+c      print *,' xddddd2= ',-sum( qrot*shtvg(:,igg))
+c      print *,' xddddd diff=   ',sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )+sum( qrot*shtvg(:,igg))
+ccccccccccccccccccccccccccccccccccc
       ibaso=-999
       do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
         !Index of Hamiltonian is devided into these blocks.
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
           phase = exp( -img2pi*sum(qrot*(tiat(:,ibas,igg)-shtvg(:,igg))) )
-c          phaseatom= exp( img2pi*sum( qtarget*pos(:,miat(ibas,igg))) )
         endif   
         ibaso=ibas
         l   = l_tbl(iorb)
@@ -187,10 +292,6 @@ ccccccccccccccccccccccccccccccccc
 c       write(6,"('readcphi:: xxxx sum of cphifr=',2i4,4d23.16)")ldim2_in,ldim2,
 c     &                sum(cphif(1:ldim2,1:nband)),sum(abs(cphif(1:ldim2,1:nband)))
 c       stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccccc
-
-ccccccccccccccccccccccccccccccccccc
-c      cphif=0d0
 cccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccc
 c      write(6,"('rrcc0:',i3,3f8.4)")iq,qu
@@ -1490,9 +1591,7 @@ c            write(7500,*)cphi(:,:,ikp,is)
         ifcphi = iopen('CPHI.mlw',0,0,mrecb_o)
       endif
 
-
       deallocate(cbwf)
-
 
 c replace dimensions
       nband = nwf
@@ -1500,10 +1599,10 @@ c replace dimensions
       nband_o = nband
       mrecb = mrecb_o
       mrecg = mrecg_o
-
 c ---
-
       end subroutine
+      end module
+
 
 c taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
@@ -1522,4 +1621,3 @@ c taken from lm7k/subs/rotwv.F
       enddo
       end subroutine conv2int
 c
-      end module

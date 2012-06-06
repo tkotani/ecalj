@@ -1,7 +1,13 @@
       subroutine mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pin,
      &                   QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
-      use m_get_bzdata1
-      use keyvalue
+      use m_get_bzdata1,only:  getbzdata1,
+     &  nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r,
+     &  qbz,wbz,qibz,wibz,
+     &  qbzw, qbasmc, dq_bzcase2, qibz_r,
+     &  idtetf, ib1bz, idteti,
+     &  irk, nstar, nstbz,
+     &  qbzm, qbzwm
+      use keyvalue,only: getkeyvalue
 C- Make required q and G in the expantion of GW.
 c   |q+G| < QpGcut_psi for eigenfunction psi.
 c   |q+G| < QpGcut_Cou for coulomb interaction
@@ -47,7 +53,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-      real(8):: deltaq,delta5,delta8,deltaq_scale=0.1d0
+      real(8):: deltaq,delta5,delta8,deltaq_scale=0.5d0
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),

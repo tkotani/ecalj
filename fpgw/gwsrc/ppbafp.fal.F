@@ -61,16 +61,19 @@ c          ioff(ip1,ip2) =  ip1+ 2*(ip2-1)+ 4*(ic-1) + 4*nclass*(isp-1)
 c        enddo
 c        enddo
 c     print *, ' ic lx=',ic, lx(ibas)
-c loop over product basis
+
+!! loop over product basis
         i = 0 !i = product basis index.
         do lb  = 0, lx (ibas)
           do nb  = 1, nx (lb,ibas)
             do mb  = -lb, lb
               i    = i+1  !The number of product basis is  =(i at the end of loop).
               lmb  = lb*lb + lb + mb + 1
-c
-c      write(6,'(10i4)')ic,i,lb,nb,mb
-c
+
+cccccccccccccccccc
+      write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
+cccccccccccccccccc
+
 c loop over LMTO basis
               do  i2 = 1,mnl(ic)
                 np   = in(i2,ic)

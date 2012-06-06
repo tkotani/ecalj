@@ -26,9 +26,19 @@ c     This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,readeval,lowesteval,init_readeigen2
-      use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
-      use keyvalue
+      use m_read_bzdata,only: read_bzdata,
+     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
+     &  dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
+     &  idtetf,ib1bz,idteti,
+     &  nstar,irk,nstbz
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
+     &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
+     &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
+     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
+      use keyvalue,only: getkeyvalue
       implicit none
 c     real(8),parameter ::
 c     &  ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -45,20 +55,6 @@ c     test switches to calculate the self-energy based on an another separation 
       ! Note that you have to supply EFERMI by the tetrahedon method.
 c------------------------------------
       real(8)    :: esmr2,shtw
-c     integer(4) :: mxclass,ngnmax,mbytes,mwords,iwksize,
-c     &   natom,nclass,ipos,igrp,
-c     &   iqibz,
-c     &   iqbz,
-c     &   iinvg,
-c     o   nspin,nl,nn,nnv,nnc,
-c     o   inindx,inindxv,inindxc,iiclass,
-c     d   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-c     o   iz,
-c     o   iil,iin,iim,iilnm,i_mnl,
-c     o   iilv,iinv,iimv,iilnmv,i_mnlv,
-c     o   iilc,iinc,iimc,iilnmc,i_mnlc,
-c     o   incwf,iecore,ikonf,iicore,incore,nctot,
-c     o   imagw,niw,nw,ifreq,
       integer(4)::
      &     ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &     ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
@@ -68,42 +64,25 @@ c     o   imagw,niw,nw,ifreq,
      &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
-c
-c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2)
-c     &    ifev(2),
      &     ifsec(2)             !,ifcphi
      &     ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      &     ifsecomg(2),ifexx,ndble=8
-c
-c     real(8) :: alat,ef,diw,dw,delta,pi,tpia,vol,voltot,rs,alpha,
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      &     qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,
      &     zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
-c
-c     &   lowesteval !defined in readeigen
-ccc   qbas(3,3),ginv(3,3) plat(3,3),
       logical lqall,laf
-c     character*120 symgrp
-
-c     class parameters
-c     parameter (mxclass=100)
-c     character*6 clabl(mxclass)
-c     symmetry group
-c     parameter (ngnmax=10)
-c     real(8) :: gen(9,ngnmax)
-c
       integer(4),allocatable :: itq(:)
       real(8),allocatable    :: q(:,:)
 
 c     takao
-      integer(4),allocatable :: ngvecpB(:,:,:), !ngveccB(:,:,:),
-     &     ngvecp(:,:), ngvecc(:,:),iqib(:), !,ngpn(:)ngcni(:)
-     &     kount(:,:), nx(:,:),nblocha(:),lx(:) !ngveccBr(:,:,:)
+      integer(4),allocatable :: ngvecpB(:,:,:), 
+     &     ngvecp(:,:), ngvecc(:,:),iqib(:),    
+     &     kount(:,:), nx(:,:),nblocha(:),lx(:) 
       real(8),allocatable:: vxcfp(:,:,:),
      &     wqt(:), wgt0(:,:),q0i(:,:),
      &     ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:),
-     &     ppbrdx(:,:,:,:,:,:,:),aaa(:,:), !symope(:,:,:)=symgg, ! qibz(:,:),
-     &     ppb(:), eq(:),       !,pdb(:),dpb(:),ddb(:)
+     &     ppbrdx(:,:,:,:,:,:,:),aaa(:,:), 
+     &     ppb(:), eq(:),       
      &     eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c

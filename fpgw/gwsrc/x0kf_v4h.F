@@ -21,11 +21,10 @@ c------------------------------------------
      o     rcxqmean)         
       use m_readqg,only :readqg
       use m_readeigen,only: readeval,readcphi,readgeig
-c      use m_readeigen
-      use keyvalue
-c     o     zxq)
-!!
+      use keyvalue,only:getkeyvalue
+
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
+
 C- Only the spectrum function (imaginary part) along the real axis.
 Cr This version x0kf_v2hx is for timereversl=F (npm=2). dec2006
 c   zxq(i,j,iw) = (-1/pi) \int_{freqr(iw)}^{freqr(iw+1)} d \omega Img<M(i)|x0(q,\omega)|M(j)>

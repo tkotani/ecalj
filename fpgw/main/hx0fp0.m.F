@@ -1,9 +1,19 @@
       program hx0fp0
-      use m_readqg
-      use m_readeigen,only:readeval,init_readeigen,init_readeigen2
-      use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
-      use keyvalue
+      use m_readqg,only: readqg,readngmx
+      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
+      use m_read_bzdata,only: read_bzdata,
+     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
+     &  dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
+     &  idtetf,ib1bz,idteti,
+     &  nstar,irk,nstbz
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
+     &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
+     &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
+     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
+      use keyvalue,only: getkeyvalue
 C-------------------------------------------------
 C  Calculate x0, W-V, \epsilon
 Cr
@@ -219,9 +229,14 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:)
+      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
       integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx
       complex(8):: vc1vc2
+      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:)
+
+      real(8),allocatable:: aik(:,:,:,:)
+      integer,allocatable:: aiktimer(:,:)
+
 
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -334,16 +349,17 @@ C ... files for RPA correlation energy mode.
         newaniso2=.true.
       endif
 
-C --- Readin BZDATA. See gwsrc/rwbzdata.f
+C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !--------readin data set when you call read_BZDATA ---------------
 !       integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,
-!     &   n_index_qbz
+!c     &   n_index_qbz
 !       integer(4):: n1,n2,n3
 !       real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2
 !       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
 !     &    ,wibz(:),qbzw(:,:)
 !       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-!     &    ,nstar(:),irk(:,:),index_qbz(:,:,:),nstbz(:)
+!     &    ,nstar(:),irk(:,:),nstbz(:)
+!c  ,index_qbz(:,:,:)
 !-----------------------------------------------------------------
       call read_BZDATA()
 
@@ -381,14 +397,12 @@ c      print *, idtetf
       call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
       write(6,"(' ScaledGapX0=',f5.3)") sciss
 
-C --- readin GWIN and LMTO, then allocate and set datas.
+!! === Readin by genallcf ===
       if(epsmode) then
         nwin = -999
       else
         nwin = 0      !Readin nw from NW file
       endif
-
-C ... Readin by genallcf
       incwfin= 0  !use ForX0 for core in GWIN
       efin =  0d0 !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
@@ -410,20 +424,6 @@ C ... Readin by genallcf
 !     o    nocc(:,:,:),nunocc(:,:,:)
 !      real(8), allocatable::
 !     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
-!-----------------------------------------------------------------------
-!      call genallcf_v2x(
-!     o                   plat,alat,natom,nclass,ipos,   !structure
-!     o                   symgrp,gen,ngnmax,ngrp,igrp,   !symmetry
-!     o                   iinvg,ef,
-!     o                   clabl,nspin,nl,nn,nnv,nnc,                  !l,n, dimensions
-!     o                   inindx,inindxv,inindxc,iiclass,             !l,n, dimensions
-!     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
-!     o                   izdummy,
-!     o   iil,  iin,iim,   iilnm,i_mnl, ! l,n,m for Phi ! w(i_mnl)=> mnl(ic) for all electron
-!     o   iilv,iinv,iimv,iilnmv, i_mnlv,! l,n,m for Phi
-!     o   iilc,iinc,iimc,iilnmc, i_mnlc,! l,n,m for Phi
-!     o   incwf,iecore,ikonf,iicore,incore,nctot,            !core
-!     o   imagw_dummy,niw,dum1,nw,dw,delta,dum2,dum3,idummy) ! frequency
 
       print *,' ncore=',ncore
       print *,' iclass=',iclass
@@ -1174,6 +1174,18 @@ c$$$ 1101  continue
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!! === Use of symmetry. EIBZ procedure PRB81,125102 ===
+      print *,' goto eibzsym: EIBZ data is not yet used... just show info'
+      allocate( qeibz(3,nqbz,iqxini:iqxend),neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),
+     &  aik(3,3,2*ngrp,iqxini:iqxend),aiktimer(2*ngrp,iqxini:iqxend),ngrpt(iqxini:iqxend) )
+      call eibzsym(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal(),ginv,
+     o  qeibz,neibz,nwgt, aik,aiktimer,ngrpt)
+!! === rotation operator ===
+!!  |M_I> --> |M_J> pdrod(J,I,aik). See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
+!! not yet implemented. PRB81, 125102, hopefully we can expect 2 to 3 times faster code.
+c      stop  '--------- test end eibzsym --------------'
+
+
 
       allocate( llw(nw_i:nw,iqxini:iqxend), llwI(niw,iqxini:iqxend) )
 !! ---------------------------------------------------------
@@ -1492,6 +1504,8 @@ c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
 C --- end of tetraini block==========================================1end
 
 
+
+
 c sergeyv=T only now feb2012
 c$$$C --- TetrahedronWeight_4 block. tettwt4  ixc<=5 ==============2ini
 c$$$          if(tetra.and.(.not.sergeyv)) then !(ixc==101.or.ixc<=5.or.ixc==22.or.ixc==23)) then
@@ -1614,7 +1628,7 @@ c$$$            call x0kf_v2z(   ! lessl,
 c$$$     i            wwk,n1b,n2b,nbnbx,nbnb, tetra, ! for tetra=T
 c$$$     i              q, is,isf, nspin, !is,  !,ifcphi ifev1,ifev2 ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
 c$$$     i              qbas,ginv,ef,qbz,wbz,   !iindxk,
-c$$$c     i            index_qbz,n_index_qbz, jan2004
+c$$$cc     i            index_qbz,n_index_qbz, jan2004
 c$$$     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, !mdim=nblocha
 c$$$     i              ppb(1,is), !,pdb(1,is),dpb(1,is),ddb(1,is),
 c$$$     i              freq_r,freq_i,delta,realomega,imagomega, 
@@ -1748,7 +1762,6 @@ c          endif
 c=======TetrahedronWeight_5 block end ==================4end
 
 
-
 c==============x0kf_v4hz block.  =========================5ini
 c Instead of wwk, you have to use whw(nwhtot).
 c You will need to pass these arrays to x0kf
@@ -1760,7 +1773,6 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
           print *, ' --- goto x0kf_v4hz ---- dddddddddddddddd newaniso= ',newaniso2
-
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -1879,6 +1891,8 @@ c     o        x0mean)  ! x0mean is removed. zxq,zxqi are accumlating veriable f
             endif  ;  print *,' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
             if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean   ',sum(abs(x0mean))
             if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean11 ',sum(abs(x0mean(:,1,1)))
+
+
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
 !=======================================================================
@@ -1998,7 +2012,6 @@ ccccc           endif
            allocate(epstinv(ngb,ngb))
           endif  
 
-
 !! === iw loop for real axiw ===
           do 1015 iw  = nw_i,nw  !Feb2006. Before it was 1:nwp (nwp=nw+1).
             !  So freq_r(iw-1) is shifted to freq_r(iw).
@@ -2117,7 +2130,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 enddo
                 enddo
 c                print *,'qqqqq sumcheck epstinv',sum(abs(epstinv(ix+1:ngb,ix+1:ngb)))
-                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+                if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm
 c       if(iq>nqibz) then
@@ -2426,7 +2439,7 @@ c!               endif
             endif
 c            print *,'tttt aaa iw=',iw
  1015     continue
-          print *,'tttt  end of  do 1015 loop'
+c          print *,'tttt  end of  do 1015 loop'
           if(newaniso2) then
             if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
           endif  
@@ -2515,7 +2528,7 @@ c           enddo
 !! === iw loop for imag axiw ===
           do 1016 iw  = 1,niw
 ccccccccccccccccccc
-            print *,'ddddddddddd original like zzzzzzzz'
+c            print *,'ddddddddddd original like zzzzzzzz'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cooo test mode
 c            if(.true.) then 
@@ -2557,7 +2570,7 @@ cc              if(iq==1.or.iq>nqibz) then
                   if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
                 enddo
-                write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+                if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
             endif
 cmmm3    
             if(newaniso2.and.iq>nqibz) then
@@ -2671,6 +2684,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$          enddo
         endif
 C... ImagOmega end ===============================
+
 c$$$ 2005 continue ! iecut loop
 
 c 1002 continue  ! end of frequency block-loop
@@ -2680,6 +2694,7 @@ c 1002 continue  ! end of frequency block-loop
         if(allocated(zxqi)) deallocate(zxqi)
  1001 continue
 C--- end of loop over q point =================================
+
 c=======================================================================
  1100 continue
 
