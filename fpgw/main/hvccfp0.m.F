@@ -100,9 +100,10 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       fpi = 4d0*pi
 
 C --- paralell or not
-      call headver('hvccfp0',imode)
       write(6,"(' mode(now only =0)? +(pararell iqxini iqxend ?)')")
       call readin5(imode,iqxini,iqxend)
+      call headver('hvccfp0: start',imode)
+      call cputid (0)
       if(imode==202 ) then
         write(6,*)' hvccfp0: imode=',imode
       elseif(imode==101) then
@@ -531,6 +532,11 @@ c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
         iqxini = 1 !oct2005
       else
         iqxini = 1
+      endif
+!!
+      if(newaniso()) then
+        iqxini=1
+        iqxend=nqibz
       endif
 
 c qibz loop
@@ -1023,6 +1029,8 @@ c
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
 c Mix0vec ---------------------------------
+!! diagonalize the Coulomb matrix
+        if(.true.) then
 c        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
           if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
           allocate( oo(ngb,ngb) )
@@ -1060,9 +1068,11 @@ c          nmx = 15
           nmx = ngb
           call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
           do ipl1=1,nev
+            if(ipl1==11) write(6,*)' ... '
+            if(ipl1>10.and.ipl1<nev-5) cycle
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
           enddo
-          print *,' dddddd nev ngv=',nev,ngb
+          write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
 
 !! === save zz === apr2012takao
 c          if( newaniso().and.iqx==1 ) then 
@@ -1071,7 +1081,6 @@ c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
 c            endif
           write(ifvcoud) ngb
           write(ifvcoud) q
-          print *,'qqqqqq q=',q
           write(ifvcoud) -eb
           write(ifvcoud) zz
 ccccccccccccccccccccccccccccccccccccccc
@@ -1205,7 +1214,7 @@ c phasex ---just to clean. this is irrelevant
           deallocate(hh,oo,zz,eb,oox,zzr)
           deallocate(ppovl)
 c2---------------------
-c        endif
+        endif
  1001 continue
 
       deallocate(ngvecc)
@@ -1213,6 +1222,7 @@ c        endif
       if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
       if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
       if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
+      call cputid(0)
       stop ' OK! hvccfp0 '
       end
 

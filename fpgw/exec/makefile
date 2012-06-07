@@ -270,7 +270,8 @@ eout2: $(EO2)
  $(gwsrc)cross.o \
  $(gwsrc)llnew.o \
  $(gwsrc)readqg.o \
- $(gwsrc)iqindx.o 
+ $(gwsrc)iqindx.o \
+ $(gwsrc)cputid.o
 
  SXC_SC = \
  $(main)hsfp0.sc.m.o \

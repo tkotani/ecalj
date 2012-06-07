@@ -53,7 +53,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-      real(8):: deltaq,delta5,delta8,deltaq_scale=0.5d0
+      real(8):: deltaq,delta5,delta8,deltaq_scale=.25d0
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
@@ -312,15 +312,15 @@ ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
 c           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
 c           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
-           q0x(:,1)= qlat(:,1)/n1q/4d0*deltaq_scale
-           q0x(:,2)= qlat(:,2)/n2q/4d0*deltaq_scale
-           q0x(:,3)= qlat(:,3)/n3q/4d0*deltaq_scale
+           q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
+           q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
+           q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
           elseif(nq00ix==6) then
 !! six independent direction is required to calculate full dielectric matrix (symmetric -->six components).
            nq00i=6
-           q0x(:,1)= qlat(:,1)/n1q/4d0*deltaq_scale
-           q0x(:,2)= qlat(:,2)/n2q/4d0*deltaq_scale
-           q0x(:,3)= qlat(:,3)/n3q/4d0*deltaq_scale
+           q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
+           q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
+           q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
            norq0x(1)=sqrt(sum(q0x(:,1)**2))
            norq0x(2)=sqrt(sum(q0x(:,2)**2))
            norq0x(3)=sqrt(sum(q0x(:,3)**2))

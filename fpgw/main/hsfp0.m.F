@@ -178,6 +178,7 @@ C...  mode switch. --------------
         call readin5(ixc,nz,idummy)
       endif
       call headver('hsfp0',ixc)
+      call cputid (0) !initialization
 
       write(6,*) ' ixc nz=',ixc, nz
       if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'

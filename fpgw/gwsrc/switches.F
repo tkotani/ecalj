@@ -27,7 +27,7 @@ c      end
 c===========================================================
       subroutine headver(head,id1)
       character*(*) head
-      write(6,"(a,a)") head,": VerNum= 033a6: 20Nov2009"
+      write(6,"(a,a, i3)") head,": VerNum= xxx: imode=",id1
       if(id1==-9999) stop '---end of version check!'
       end
 c============================================================

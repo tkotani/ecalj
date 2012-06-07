@@ -243,6 +243,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       pi         = 4d0*datan(1d0)
       fourpi=4d0*pi
       sqfourpi=sqrt(fourpi)
+      call cputid (0)
 
 !-------------------------------------------------------------------------
 C --- computational mode select
@@ -264,6 +265,7 @@ c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
 ! Test mode   write(6,"(a)") '   tettest(4) Realtetwt4(5) Realtetwt5(6) '
       call readin6(ixc,iqxini,iqxend, idum4 ) !ingczero)
       call headver('hx0fp0',ixc)
+      call cputid(0)
 c      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
       if(iqxini ==0 ) then
         paralellx0=.false.
@@ -1211,7 +1213,7 @@ c      stop  '--------- test end eibzsym --------------'
         endif
 
 !! ==== readin Coulomb matrix ====
-        if(chipm.and.(.not.legas).and.(.not.eiqr)) then
+        if(chipm.and.(.not.legas).and.(.not.eiqr).or.newaniso2) then
           allocate(vcoul(1,1))!dummy
           ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
         else
@@ -1242,7 +1244,7 @@ c         endif
          endif  
          read(ifvcoud) ngb0
          read(ifvcoud) qvv
-         print *,'qvv=',qvv
+c         print *,'qvv=',qvv
          if(sum(abs(qvv-qq))>1d-10) then
           print *,'qvv =',qvv
           stop 'hx0fp0: qvv/=0 hvcc is not consistent'
@@ -1250,10 +1252,10 @@ c         endif
          if(allocated(zcousq)) deallocate( zcousq,vcousq )
          allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
          read(ifvcoud) vcousq
-         print *,'qvv =',qvv
-         do igb1=1,ngb0
-           print *,'qvv sum vcousq ',igb1,vcousq(igb1)
-         enddo
+c         print *,'qvv =',qvv
+c         do igb1=1,ngb0
+c           print *,'qvv sum vcousq ',igb1,vcousq(igb1)
+c         enddo
          read(ifvcoud) zcousq
          vcousq=sqrt(vcousq)
         endif 
@@ -2036,7 +2038,7 @@ c$$$              endif
 !! === wcf: W= (1-v zxq)^{-1} v ===
 !! *newaniso2 mode
 c             print *,'tttt newaniso2 iq iw=',newaniso2,iq,iw,nw
-              print *,'ddddd 1111 original-like mode dddddddddddd'
+c              print *,'ddddd 1111 original-like mode dddddddddddd'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cooo test mode
 c             if(.true.) then ! Original mode
@@ -2178,7 +2180,7 @@ c                write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 write(*,*) 'epsPP iq iw',iq,iw, 1d0 - fourpi* sk(1)/sum(q**2*tpioa**2)
-                write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
+c                write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
                 write(ifisk) iw,iq0,q
                 write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
               endif
@@ -2776,14 +2778,14 @@ c             write(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 )  ) zw !(
 c          endif   
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cooo  check write
-          if(mod(iw,3)==1) then
-           do igb1=1,ngb,23
-           do igb2=1,ngb,23
-             if(ircw==1) write(*,"('zzzwr:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
-             if(ircw==2) write(*,"('zzzwi:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
-           enddo
-           enddo
-          endif
+c          if(mod(iw,3)==1) then
+c           do igb1=1,ngb,23
+c           do igb2=1,ngb,23
+c             if(ircw==1) write(*,"('zzzwr:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
+c             if(ircw==2) write(*,"('zzzwi:',4i4,2d13.5)")iq,iw,igb1,igb2,zw(igb1,igb2)
+c           enddo
+c           enddo
+c          endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo 
         enddo 
@@ -3166,7 +3168,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
       w0=0d0
       do iw =ii,ie
-        print *
+c        print *
         print *,'-- iw=',iw
         lm2x=0
         cgllw=0d0

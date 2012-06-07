@@ -20,7 +20,7 @@
 
       subroutine getwklm(alat,vol,plat,qlat,alp,qbz,nnn,ngc,ngcmx,ngvect,lx,
      o    wklm)
-!! == spherical integration weight Klm with reference auxially functions 
+!! == spherical integration weight Klm with reference auxially functions ==
 !! Output
 !!   wklm: K_lm is defined around Eq.35 in Copmuter Physics Comm. 176(2007)1-13.
       implicit none
