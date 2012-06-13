@@ -18,7 +18,7 @@ c-----------------------------------------------------------------
      &            ,dum(2)
       parameter(Img=(0d0,1d0))
 
-      print *; print *,' ROTDLMM:'
+      print *,' rotdlmm:'
       do 10 ig =1,ng
         do 20 i=1,3
         do 20 j=1,3
@@ -140,7 +140,7 @@ c  msc mcs conversion matrix generation 2->m 1->-m for m>0
         Mcs(m,2,2)=-osq2*Img
       enddo
 c
-      print * ,' goto do 23'
+c      print * ,' goto do 23'
       do 23 is=1,ng
         if(.false.) then
 c        if(iprint().ge.150) then
@@ -193,7 +193,7 @@ c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l
         endif
 cccccccccccccccccccccc
    23 continue
-      print *,' end of rotdlmm'
+c      print *,' end of rotdlmm'
       end
 c--------------------------------------------
       double precision function igann(i)

@@ -37,3 +37,4 @@ c$$$      deallocate(ovlpi)
 !     &  stop 'sumcheck zzz  zzz-uu*s*vt= error'
 !      deallocate(vtt)
       end
+

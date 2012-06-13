@@ -53,7 +53,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
-      real(8):: deltaq,delta5,delta8,deltaq_scale=.25d0
+      real(8):: deltaq,delta5,delta8,deltaq_scale=.1d0
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
@@ -61,7 +61,10 @@ c      logical :: readgwinput
       integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix
       real(8):: rrr(3),r2s,emat(3,3)
 
-
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+      integer:: llxxx,lm1,lm2
+      real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
+      real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
 c------------------------------------------------
       qreduce0 = qreduce()
       if(iq0pin == 3) then
@@ -442,7 +445,7 @@ c$$$          enddo
           lx=2
           allocate(cy((lx+1)**2),yl((lx+1)**2))
           call sylmnc(cy,lx)
-          rrr=(/.5d0,.1d0,0.8d0/) !test data
+          rrr=(/.5d0,-.1d0,-0.7d0/) !test data
           rrr=rrr/sqrt(sum(rrr**2))
           call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
 !! ===== check (rrr*emat*rrr = sum(dmlx* YL)
@@ -461,19 +464,111 @@ c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl
           do i=1,nq0i
           do j=1,nq0i  !epinvq0i= <q0i/|q0i|| epinv(:,:,iq0j)|q0i/|q0i|>
             epinvq0i(i,j) = sum( q0i(:,i)* matmul(epinv(:,:,j),q0i(:,i)))/sum(q0i(:,i)**2)
-            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
+c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
           enddo
           enddo
           lxklm=6
           allocate(wklm((lxklm+1)**2))
           call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,
      o      wklm)
-          do i=1,(lxklm+1)**2
-            write(6,'(" mkqg: i Wklm=",i3,f9.4)')i,wklm(i)
-          enddo
+c          do i=1,(lxklm+1)**2
+c            write(6,'(" mkqg: i Wklm=",i3,f9.4)')i,wklm(i)
+c          enddo
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ctest
+       do i=1,(lxklm+1)**2
+         if(abs(wklm(i))>1d-10) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
+       enddo
+!! ==== true integal of auxially function ====
+      volinv  = (2*pi)**3/voltot
+      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
+!! ==== discrete sum (except q=0) of auxially functions ==== 
+      allocate(funa((lxklm+1)**2,nqbz),wsumau((lxklm+1)**2))
+      do iq = 2,nqbz ! omit q=0 point iq=1
+        call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
+     &             ngcx(iq),ngvect(1:3,1:ngcx(iq),iq),lxklm,funa(:,iq)) 
+c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
+      enddo
+  
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! spherical design des.3.12.5 check. Because of angular momentum synsesize, 
+!! des.3.12.5 gives correct normalization of product up to l=2 (lm<=9)
+c$$$      deallocate(cy,yl,q0x)
+c$$$      nq00i=12
+c$$$      allocate(cy((lxklm+1)**2),yll((lxklm+1)**2,nq00i))
+c$$$      tpiba  = 2d0*pi/alat
+c$$$      call sylmnc(cy,lxklm)
+c$$$          allocate( q0x(3,nq00i) )
+c$$$          delta8=0.850650808352d0 !*deltaq
+c$$$          delta5=0.525731112119d0 !*deltaq
+c$$$          q0x(:,1)=(/delta8, 0d0, -delta5/)
+c$$$          q0x(:,2)=(/delta5, -delta8, 0d0/)
+c$$$          q0x(:,3)=(/0d0,-delta5, delta8/)
+c$$$          q0x(:,4)=(/delta8, 0d0, delta5/)
+c$$$          q0x(:,5)=(/-delta5,-delta8,0d0/)
+c$$$          q0x(:,6)=(/0d0,delta5,-delta8/)
+c$$$          q0x(:,7)=(/-delta8,0d0,-delta5/)
+c$$$          q0x(:,8)=(/-delta5,delta8,0d0/)
+c$$$          q0x(:,9)=(/0d0,delta5,delta8/)
+c$$$          q0x(:,10)=(/-delta8,0d0,delta5/)
+c$$$          q0x(:,11)=(/delta5,delta8,0d0/)
+c$$$          q0x(:,12)=(/0d0,-delta5,-delta8/)
+c$$$      do iq=1,nq00i
+c$$$        qg(1:3) = q0x(:,iq)
+c$$$        call sylm(qg/sum(qg**2),yll(:,iq),lxklm,r2s) !spherical factor Y( q+G )
+c$$$c        print *,' qg for yll=',iq, qg
+c$$$c        print *,' yll=',cy(1:20)*yll(1:20,iq)
+c$$$      enddo
+
+!! normalization check
+c      do lm1=1,(3+1)**2
+c      do lm2=lm1,(3+1)**2
+c        aaa=sum(cy(lm1)*cy(lm2)*yll(lm1,:)*yll(lm2,:))/12d0*4d0*pi
+c        if(abs(aaa)>1d-6) write(6,"('ylm*ylm=',2i3,d13.5)")lm1,lm2,aaa
+c      enddo
+c      enddo
+c      do lm1=1,(5+1)**2
+c        aaa=sum(cy(lm1)*yll(lm1,:))
+c        if(abs(aaa)>1d-6) write(6,"('ylm*ylm=',i3,d13.5)")lm1,aaa
+c      enddo
+c      stop ' xxxxxxxxx spherical normalization xxxxxxxx'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+c$$$!! test function generation
+c$$$      deallocate(cy,yl)
+c$$$      allocate(cy((lxklm+1)**2),yl((lxklm+1)**2))
+c$$$      tpiba  = 2d0*pi/alat
+c$$$      call sylmnc(cy,lxklm)
+c$$$      do iq=1,nqbz
+c$$$        funa(:,iq)=0d0
+c$$$      do ig=1,ngcx(iq)
+c$$$        qg(1:3) = tpiba * (qbz(1:3,iq)+ matmul(qlat, ngvect(1:3,ig,iq)))
+c$$$        qg2     = sum(qg(1:3)**2)
+c$$$        alpqg2= alp* qg2
+c$$$        call sylm(qg/sqrt(qg2),yl,lxklm,r2s) !spherical factor Y( q+G )
+c$$$        funa(:,iq) = funa(:,iq) + exp(-alpqg2)*(1d0+1/(qg2+5d0))/qg2*cy(:)*yl(:) !cy*yl =Y_L(qg/|qg|)
+c$$$      enddo  
+c$$$      enddo
+c$$$c what is wtrue???
+c$$$ccccccccccccccccccccccccc
+c$$$      do lm=1,(lxklm+1)**2
+c$$$        wsumau(lm) = sum(funa(lm,2:nqbz))/dble(nqbz)
+c$$$c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
+c$$$       if(lm==1) then
+c$$$        write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
+c$$$     &     lm,llxxx(lm),wklm(lm), wtrue00,wklm(lm)+wsumau(lm), wsumau(lm)!,wklm(lm)+wsumau(lm)-wtrue00
+c$$$       else    
+c$$$        write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
+c$$$     &     lm,llxxx(lm),wklm(lm), 0d0,  wklm(lm)+wsumau(lm), wsumau(lm)
+c$$$       endif 
+c$$$      enddo  
+c$$$      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
           ifidmlx = iopen('EPSwklm',0,-1,0)
           write(ifidmlx) nq0i,lxklm
-          write(ifidmlx) dmlx, epinvq0i
+          write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
           write(ifidmlx) wklm
           ifidmlx = iclose(ifidmlx)
           deallocate(cy,yl,epinvq0i,dmlx,wklm)
@@ -869,3 +964,24 @@ C-------------------------------------------------------------------------
       end
 
 
+      integer(4) function llxxx(ilm)
+      integer(4),parameter :: lmx=50
+      integer(4),save:: lla((lmx+1)**2)
+      logical:: init=.true.
+      if(ilm>(lmx+1)**2) stop 'll: ilm too large'
+      if(init) then
+        do l=0,lmx
+          lini= l**2 + 1
+          lend=(l+1)**2
+          lla(lini:lend)=l
+        enddo
+      endif
+      llxxx = lla(ilm)
+ccccccccccccccccccccccc
+c      do i=1,(lmx+1)**2
+c        write(117,"(' i ll=',2i5)")i,lla(i)
+c      enddo
+c      stop 'test end'
+cccccccccccccccccccccccc
+      return
+      end

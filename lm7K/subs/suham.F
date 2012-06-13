@@ -1,4 +1,4 @@
-      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit) !,no_qpgpsi) !from showbs
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw) !,no_qpgpsi) !from showbs
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
@@ -48,6 +48,7 @@ c      real(8):: qplist(3,nkp)
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
      &  i,ifiqibz,igg,iqq,iqi,irr,iqi_
 
+      logical:: llmfgw
 c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
@@ -141,6 +142,14 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
       call rotdlmm(symops,ngrp, nl, dlmm)
       print *,' end of rotdlmm'
 
+
+!! no GW-related part 
+      if(.not.llmfgw) then
+        print *,'gen_hamindex: no GW related part'
+        return
+      endif
+
+
 C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
@@ -231,8 +240,9 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
         endif
        enddo
        enddo
-       write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found',q,qtarget
-       call rx('gen_hamindex: qtarget can not found')
+       write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
+     & ' You may have to delete inconsistent QGpsi.',q,qtarget
+       call rx('gen_hamindex: qtarget can not found. You may have to delete inconsistent QGpsi.')
  2012  continue
        iqmap(i)=iqq
        iqimap(i)=iqi_

@@ -203,6 +203,7 @@ eout2: $(EO2)
  $(gwsrc)getgv2.o \
  $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)zsvd.o \
  $(GW0)
 
  RDAT_v2 = \

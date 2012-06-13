@@ -1281,14 +1281,15 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
         nbasp=sctrl%nbasp
         nl=sctrl%nl
 ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo 
+        if(llmfgw) then
         print *,'goto gen_hamindex nkp=',nkp
         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
 ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode) 
 ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
-     .   nbasp , sham%iv_a_oindxo , ldim , siginit)
-
+     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw)
+        endif
 #if 1
 Ckino ib=atom index
 Ckino ltab=L 

@@ -229,7 +229,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
+      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
       integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx
       complex(8):: vc1vc2
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:)
@@ -244,7 +244,9 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       fourpi=4d0*pi
       sqfourpi=sqrt(fourpi)
       call cputid (0)
-
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+c      goto 9989
+ccccccccccccccccccccccccccccccccccccccccccccccccc
 !-------------------------------------------------------------------------
 C --- computational mode select
 c takao keeps only the Sergey mode.
@@ -2702,31 +2704,35 @@ c=======================================================================
 
 
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        goto 1034 !for debug
+cc        goto 1034 !for debug
+c 9989  continue
+c       print *,' --- start wklm test ---'
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
       if(newaniso2) then
-       print *,' --- newaniso2 mode W(0) divergent part ---'
+       print *
+       print *,' ==== newaniso2 mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
 !! getw0 routine...
        ifidmlx = iopen('EPSwklm',0,0,0)
        read(ifidmlx) nq0i,lxklm
        allocate( dmlx(nq0i,9))
-       allocate( epinvq0i(nq0i,nq0i))
+       allocate( epinvq0i(nq0i,nq0i),epinv(3,3,nq0i))
        nlxklm=(lxklm+1)**2
        allocate( wklm(nlxklm))
-       read(ifidmlx) dmlx, epinvq0i
+       read(ifidmlx) dmlx, epinv,epinvq0i
        read(ifidmlx) wklm
        ifidmlx = iclose(ifidmlx)
+
 !! starting from llw(iw,iq0),llwI(iw,iq0)
 !! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
        allocate(w0(nw_i:nw),w0i(niw))
-       print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
+c       print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)       
-       call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,w0)
-       call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,w0i)
+       call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
+       call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
 
 c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !! === w0,w0i are stored to zw for q=0 ===
@@ -2937,7 +2943,6 @@ c      if(ixc==6)   stop ' OK! hx0fp0 ixc=6 test'
 c--------------------------------------------------------------------
       real*8 function eclda_bh(rs)
       real(8) :: rs,cp,rp,z
-
       cp       = 0.0504d0*0.5d0 ! 0.5 changes unit from Ry to Hartree
       rp       = 30.d0
       z        = rs / rp
@@ -2960,7 +2965,6 @@ c--------------------------------------------------------------------
      o                 wibz,wqt,wx,freqx,ecqw)
 
       implicit double precision (a-h,o-z)
-
       dimension   wibz(nqibz),wqt(nq0i),wx(niw),
      .            freqx(niw),ecqw(nqitot,niw)
       real(8):: rydberg
@@ -2968,7 +2972,6 @@ c--------------------------------------------------------------------
       write(ifcor,*)'nqibz =',nqibz
       write(ifcor,*)'nq0i  =',nq0i
       write(ifcor,*)'niw   =',niw
-
       do ip = 2,nqitot
         if (ip <= nqibz) then
           wk = wibz(ip)*0.5d0 ! 0.5 for the normalization of wibz
@@ -2977,7 +2980,6 @@ c        wk = wqt(ip-nqibz)*wibz(1)*0.5d0 ! 0.5 for the normalization of wibz
           wk = wqt(ip-nqibz)* 1d0/dble(nqbz)
         endif
         write(ifcor,*)'*** iq,wq = ',ip,wk
-
         sume=0d0
         do ix = 1,niw
           write(ifcor,*)freqx(ix),ecqw(ip,ix),wx(ix)
@@ -2990,7 +2992,7 @@ c        wk = wqt(ip-nqibz)*wibz(1)*0.5d0 ! 0.5 for the normalization of wibz
       end
 c---------------------------------------------------------------------
       subroutine getsqovlp(q,ngc,ngb,sqovlp)
-C- Get ppovl
+!! == Get sqrt of ppovl ==
       implicit none
       real(8)::q(3)
       integer(4):: ngc,ngb,nbloch,i,nmxx,ix,iy,nev
@@ -3041,8 +3043,10 @@ c         call matcinv(ngb,sqovlp)     !  inverse
 c         ovlpi=ovlp
 c         deallocate(ppovl,ovlp)
       end
+
 c--------------------------------------------------------------------
       subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
+!! == check write for zw, no output == !!
       implicit none
       integer(4):: nblochpmx,nbloch,ngb,iw,i,iq
       complex(8):: zw(nblochpmx,nblochpmx),trwv,trwv2
@@ -3064,6 +3068,7 @@ c      do i = 1,ngb
 c        write(6,'("iii i=",i4,a,f10.4,2i5,4d22.14)')i,tagname,freqq,iq,iw,zw(i,i)
 c      enddo
       end
+
 c--------------------------------------------------------------------
 C      subroutine test_xxx(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
 C      implicit none
@@ -3078,8 +3083,9 @@ C        trwv2 = trwv2 + zw(i,i)
 C      end forall
 C      end
 c--------------------------------------------------------------------
+
       function matcinvf(a) result(b)
-C- Test routine for Inversion
+!!== Test routine for Inversion ==
       implicit none
       integer(4) :: info,n,n2(2)
       integer(4),allocatable :: ipiv(:)
@@ -3101,8 +3107,10 @@ C- Test routine for Inversion
         stop    'matcinv: zegtri '
       endif
       end
+
 c--------------------------------------------------------------------
       subroutine diagno00(nbloch,wpvc,eval)
+!! == ontain eigenvalue only for input complex matrix wpvc(nbloch,nbloch)
       implicit none
       integer(4):: nbloch,nmx,nev,i
       complex(8),allocatable:: ovlpc(:,:),evecc(:,:),wpvcc(:,:)
@@ -3121,25 +3129,39 @@ c--------------------------------------------------------------------
       deallocate(ovlpc,evecc,wpvcc)
       end
 
-!! ----------------------------------------------------------------------------------
-      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax, w0)
+c ------------------------------------------------------------------------------
+      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0)
+!! == Obtain effective screened Coulomnb interaction W-V at q=0 ==
+!! Output
+!!     w0(ii:ie), others are inputs.
+!! INPUT
+!! ii: start index of iw
+!! iw: end index of iw
       implicit none
       integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw,ll,lm1x,lm2x
       complex(8):: llw(ii:ie,nq0i),w0(ii:ie)
-      complex(8):: llwyl(9,ii:ie),llw_invr(1:nq0i,ii:ie)
+      complex(8):: llwyl(9,ii:ie),llw_invr(ii:ie,1:nq0i)
       real(8):: epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i),dmlx(nq0i,9)
       real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2)
-      complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2)
-      real(8):: wklm((lmxax+1)**2),ylm,wbz
-      real(8):: fpi,pi
+      complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2),sss,sss2
+      real(8):: wklm((lmxax+1)**2),ylm,wbz,rrr2(3)
+      real(8):: fpi,pi,epinv(3,3,nq0i),q0i(3,nq0i),  r2s,emat(3,3),rrr(3),qnorm2(nq0i)
+      integer:: nlmm,lx,iq0i,iq0x
+      real(8),allocatable:: cy(:),yl(:),yl2(:)
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       nlklm=(lmxax+1)**2
       epinvq0i_m1=epinvq0i
-      print *,' getw0 matinv:',nq0i,epinvq0i,lmxax
-      print *,' getw0:',ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
-c      print *,' ppp2 dmlx=',dmlx
+      write(6,"(' getw0 start:',4i3,d13.6)") nq0i,lmxax,ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      nlm=(lmxax+1)**2
+c      do lm=1,nlm
+c        if(abs(wklm(lm))>1d-10) write(6,*)lm,ll(lm),wklm(lm)
+c      enddo   
+c      stop 'test end vvvvvvvvvvvvvvvvvvvvvv'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call matinv(nq0i,epinvq0i_m1)
+      llwyl=0d0
       do iw= ii,ie
         llw_invr(iw,1:nq0i) = matmul (epinvq0i_m1, llw(iw,1:nq0i)) 
         ! llw_invr: representation in a linear combination of invariat tensor of epsilon.
@@ -3150,74 +3172,105 @@ c      print *,' ppp2 dmlx=',dmlx
         enddo
 c       write(*,"('pppp2 iw llw',i3,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
       enddo  
-!!
-c      stop 'xxxxxx test end xxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccccccccccccccccc
-c test check
-c      print *,' epinvq0i_m1=',epinvq0i_m1
-c      llwyl = 0d0
-c      llwyl(1,ii:ie)=llw(ii:ie,1)* sqrt(fpi)
-cccccccccccccccccccccccccccccccccccccccccccccc
-
-cccccccccccccccccccccccccccccccccccccccccccccccc
-cooo
-c      print *,'dddd s channel only '
-c      nlklm=1
-cccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
+!! ===== generate YL for a test vector rrr (rrr is ehat above).=====
+c$$$      lx=2
+c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2),yl2((lx+1)**2))
+c$$$      call sylmnc(cy,lx)
+c$$$      rrr=(/-0.36d0,0.20d0,0.4d0/)
+c$$$      rrr=rrr/sqrt(sum(rrr**2))
+c$$$      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$      write(*,"(  ' testttt: r=',3f10.5)") rrr
+c$$$      do iw= ii,ie
+c$$$        sss=0d0
+c$$$        do iq0i=1,nq0i
+c$$$          sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+c$$$        enddo  
+c$$$        write(*,"(' testttt: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,
+c$$$     &    llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))
+c$$$      enddo   
+c$$$      stop 'getw0: xxxxxx test end xxx for given test rrr(1:3) xxxxxxxxx'
+c
+c$$$      do iw= ii,ie
+c$$$        do iq0x=1,nq0i
+c$$$        sss=0d0
+c$$$        do iq0i=1,nq0i
+c$$$            sss= sss  + llw_invr(iw,iq0i)*sum(q0i(:,iq0x)*matmul(epinv(:,:,iq0i),q0i(:,iq0x)))
+c$$$     &                 /sum(q0i(:,iq0x)**2)
+c$$$        enddo  
+c$$$        write(*,"(' testttt: epinv expansion=',2i3,4f10.5)") iq0x,iw,sss
+c$$$        enddo
+c$$$        write(*,*)
+c$$$      enddo   
+c$$$      stop 'test: reproduce llw at q0i'
+Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
+!! ==== for a test case of rrr ====
+      lx=lmxax
+      if(allocated(cy)) deallocate(cy)
+      if(allocated(yl)) deallocate(yl)
+      allocate(cy((lx+1)**2),yl((lx+1)**2))
+      call sylmnc(cy,lx)
+      rrr=(/-0.36d0,0.20d0,0.4d0/)
+      rrr=rrr/sqrt(sum(rrr**2))
+      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+      write(*,"(  ' test input: q=',3f10.5)") rrr
+!! ---
+
       w0=0d0
       do iw =ii,ie
-c        print *
-        print *,'-- iw=',iw
         lm2x=0
         cgllw=0d0
         do lm2=1,nlklm
-         if(mod(ll(lm2),2)==1) cycle
+         if(mod(ll(lm2),2)==1) cycle  !only even l
          lm2x=lm2x+1
          lm1x=0
          do lm1=1,nlklm
-          if(mod(ll(lm1),2)==1) cycle
+          if(mod(ll(lm1),2)==1) cycle !only even l
           lm1x=lm1x+1 
           cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
          enddo
         enddo
-ccccccccccccccccccccccc
-c        lm2x=0
-c        do lm2=1,nlklm
-c         if(mod(ll(lm2),2)==1) cycle
-c         lm2x=lm2x+1
-c         write(*,"('cg111 cgllw: ',i3, f9.4,'  ',20d12.4)") lm2x, cg(1,1,1), (cgllw(1:min(10,lm2x),lm2x))
-c        enddo
-cccccccccccccccccccccccccccc
-
-!! === inversion as 4pi = Cg * llwyl * Klm ! Klm should be not confused with wklm  ===
+!! === inversion as 1 = \sum_L1 llwyl_L1 * \sum_L2 K_L2 ===
+!! Klm should be not confused with wklm
+!! (both sides multipled by Y_L are spherically integraled 
 !! (Klm is defeined in Christoph's paper PRB 125102-8)
         call matcinv(lm2x,cgllw(1:lm2x,1:lm2x))
-ccccccccccccccccccc
-c        print *,'d2ddd iw llw W00(goto 4pi for largw iw)',iw,llw(iw,1),cgllw(1:lm2x,1:lm2x) !/fpi**0.5 !cgallw= 4pi**.5/llw
-cccccccccccccccccccc
+        cgllw(1:lm2x,1:lm2x)=sqrt(fpi)*cgllw(1:lm2x,1:lm2x)
+
+!! for check write
+        sss=0d0
+        lm2x=0
+        do lm2=1,nlklm
+         if(mod(ll(lm2),2)==1) cycle  !only even l
+         lm2x=lm2x+1
+         sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
+        enddo
+        sss2=0d0
+        do iq0i=1,nq0i
+          sss2 = sss2 + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+        enddo   
+        write(*,"(' epinv inversion test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,1d0/sss2,
+     &    1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
 
 !! === spherical integral of Klm ===
-c        print *,' ddddd only isotropic part getw0 xxxxxxxxxxx lm1=1 s-mode only wklm=',wklm(1)
         lm1x=0
         do lm1=1, nlklm
           if(mod(ll(lm1),2)==1) cycle
           lm1x=lm1x+1
-          w0(iw)= w0(iw)+ wklm(lm1)*fpi*cgllw(lm1x,1)/wbz  !Klm=fpi*cgllw(:,1) !fpi**1.5 -->Coulomb
-          if(lm1==1) w0(iw)= w0(iw) - wklm(lm1)*fpi**1.5d0/wbz  !Klm=fpi*cgllw(:,1) !fpi**1.5 -->Coulomb
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c          w0(iw)= wklm(1)*(fpi*cgllw(1,1)-fpi**1.5d0)/wbz  !Klm=fpi*cgllw(:,1) !fpi**1.5 -->Coulomb
-c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          w0(iw)= w0(iw)+ wklm(lm1)* fpi* cgllw(lm1x,1)/wbz      ! Klm=cgllw(:,1) 
+          if(lm1==1) w0(iw)= w0(iw) - wklm(lm1)*fpi**1.5d0/wbz   ! fpi**1.5 --> subtract Coulomb
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz !test case of llw at q0i(:,iq0i=1).
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo   
       enddo
-
-c      do iw =ii,ie
-c        print *,' ddddd iw cgllw',iw,w0(iw)
-c      enddo
-
-c      stop 'xxxxxxxxx test end xxxxxxxxxxxxxxxxxx getw0'
+      do iw=ii,ie
+        write(6,"('w0 & w0(1:nq0i)=',2d13.5,10(1x,2d13.5))")
+     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
+      enddo  
       end
 
       integer function ll(ilm)

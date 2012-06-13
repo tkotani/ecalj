@@ -384,8 +384,8 @@ c equivalence check
           enddo !ig                                               
         endif                                                     
       enddo !i
-      if (abs(sum(wgt0)-1d0) .gt. 1d-8) stop 'q0iwgt3: wrong wgt0'
-      if (abs(sum(wqt)-1d0) .gt. 1d-8)  stop 'q0iwgt3: wrong wqt'
+c      if (abs(sum(wgt0)-1d0) .gt. 1d-8) stop 'q0iwgt3: wrong wgt0'
+c      if (abs(sum(wqt)-1d0) .gt. 1d-8)  stop 'q0iwgt3: wrong wqt'
       end
 
 
