@@ -1,0 +1,76 @@
+./ecurve_gaussian.py  0.6 0.9 0 H
+./ecurve_gaussian.py  2.6 2.85 0 Li
+./ecurve_gaussian.py  2.3 2.55 0 Be
+./ecurve_gaussian.py  1.4 1.7 2 B
+./ecurve_gaussian.py  1.4 1.8 4 B
+./ecurve_gaussian.py  1.2 1.45 2 C
+./ecurve_gaussian.py  0.95 1.25 0 N
+./ecurve_gaussian.py  1.1 1.4  2 O
+./ecurve_gaussian.py  1.2 1.45 0 F
+
+./ecurve_gaussian.py  2.95 3.2  0 Na
+./ecurve_gaussian.py  3.35 3.65 0 Mg
+
+./ecurve_gaussian.py  2.3 2.6  2 Al notkey=set2
+./ecurve_gaussian.py  2.6 3  2 Al notkey=set2
+
+./ecurve_gaussian.py  2.2 2.4 2 Si notkey=set2
+
+./ecurve_gaussian.py  1.75 2.1 0 P 
+./ecurve_gaussian.py  1.75 2.2 2 S 
+./ecurve_gaussian.py  1.9 2.2 0 Cl
+
+./ecurve_gaussian.py  3.8 4.2 0 K
+./ecurve_gaussian.py  4 4.3   0 Ca
+./ecurve_gaussian.py  2.5 2.8  2 Sc
+./ecurve_gaussian.py  2.5 2.8  4 Sc
+./ecurve_gaussian.py  1.8 2.0  2 Ti
+./ecurve_gaussian.py  1.65 2.0  2 V notkey=set
+
+./ecurve_gaussian.py  1.5 1.7 0 Cr
+./ecurve_gaussian.py  1.55 1.75 2 Mn
+./ecurve_gaussian.py  1.85 2.15 6 Fe
+./ecurve_gaussian.py  1.85 2.15 4 Co
+./ecurve_gaussian.py  1.95 2.35 2 Ni notkey=set
+
+./ecurve_gaussian.py  2.1 2.4 0 Cu
+./ecurve_gaussian.py  3 3.4 0 Zn
+
+./ecurve_gaussian.py  2.3 2.55 2 Ga notkey=set
+./ecurve_gaussian.py  2.6 2.9 2 Ga notkey=set
+
+./ecurve_gaussian.py  2.35 2.6 2  Ge notkey=set
+#./ecurve_gaussian.py  2.1 2.4 2 Ge key=set2
+#./ecurve_gaussian.py  2.1 2.4 2 Ge key=set3
+
+./ecurve_gaussian.py  1.95 2.35 0  As
+./ecurve_gaussian.py  2.05 2.35 2  Se
+./ecurve_gaussian.py  2.15 2.45 0  Br
+
+exit
+
+exit
+
+
+distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $Sc $Sc2dis $alatpath10
+distance=-0.4;0.4@  fsmom=4@ rstar=0.8,0.9,1.0@ $Sc $Sc2dis $alatpath10
+distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $Ti $Ti2dis $alatpath10
+distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $V  $V2dis $alatpath10
+distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $V  $V2dis $alatpath10
+distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $Cr $Cr2dis $alatpath10
+distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $Cr $Cr2dis $alatpath10
+distance=-0.4;0.4@  fsmom=4@ rstar=0.8,0.9,1.0@ $Cr $Cr2dis $alatpath10
+distance=-0.4;1.0@  fsmom=2@ rstar=0.8,0.9,1.0@ $Mn $Mn2dis $alatpath10
+distance=-0.4;2.7@  fsmom=10@ rstar=0.8,0.9,1.0@ $Mn $Mn2dis $alatpath10
+distance=-0.4;0.6@  fsmom=6@ rstar=0.8,0.9,1.0@ $Fe $Fe2dis $alatpath10
+distance=-0.4;0.6@  fsmom=8@ rstar=0.8,0.9,1.0@ $Fe $Fe2dis $alatpath10
+distance=-0.4;0.5@  fsmom=4@ rstar=0.8,0.9,1.0@ $Co $Co2dis $alatpath10
+distance=-0.4;0.5@  fsmom=2@ rstar=0.8,0.9,1.0@ $Ni $Ni2dis $alatpath10
+distance=-0.4;0.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Cu $Cu2dis $alatpath10
+distance=-0.4;0.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Zn $Zn2dis $alatpath10
+distance=-0.9;0.5@  fsmom=2@ rstar=0.8,0.9,1.0@ $Ga $Ga2dis $alatpath10
+distance=-0.9;0.5@  fsmom=2@ rstar=0.8,0.9,1.0@ $Ge $Ge2dis $alatpath10
+distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $As $As2dis $alatpath10
+distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $Se $Se2dis $alatpath10
+distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $Br $Br2dis $alatpath10
+#distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Kr $Kr2dis $alatpath10

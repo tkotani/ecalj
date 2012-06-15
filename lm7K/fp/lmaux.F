@@ -457,6 +457,9 @@ c takao
 c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
           allocate(rmax(nclspp))
           print *,' zzzz nclspp=',nclspp
+c takao jun2012
+          if(allocated(sarray%rv_a_ormax)) deallocate(sarray%rv_a_ormax) !is this correct???
+
           do i=1,nclspp
 ckino 2012.Deb.13            rmax(i) =sspec(ics(i))%rmt
             rmax(i) =sspec(sarray%iv_a_oics(i))%rmt

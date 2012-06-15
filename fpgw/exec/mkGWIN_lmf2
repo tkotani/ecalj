@@ -38,7 +38,7 @@ cat <<EOF >GWIN0
 n1 n2 n3
  $n1 $n2 $n3
 cut
- 2.7 2.5 
+ 3.0 2.5 
 alpha
  1
 Number of bands

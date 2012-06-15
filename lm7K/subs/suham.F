@@ -1,4 +1,4 @@
-      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw) !,no_qpgpsi) !from showbs
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
@@ -46,7 +46,7 @@ c      enddo
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
-     &  i,ifiqibz,igg,iqq,iqi,irr,iqi_
+     &  i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
 
       logical:: llmfgw
 c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
@@ -144,8 +144,8 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
 
 
 !! no GW-related part 
-      if(.not.llmfgw) then
-        print *,'gen_hamindex: no GW related part'
+      if(.not.llmfgw.or.(llmfgw.and.jobgw==0)) then
+        print *,'gen_hamindex: no GW related part. not readin QGpsi'
         return
       endif
 

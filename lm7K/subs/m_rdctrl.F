@@ -1228,7 +1228,7 @@ C   ... Radial mesh parameters: determine default value of a
           call pshpr(0)
           call rmesh(z(j),rmt(j),lrel,.false.,nrmx,xx,i0)
           call poppr
-          if (xx .eq. .03d0) xx = .025d0
+          if (xx .eq. .03d0) xx = .015d0 !.025d0 jun2012 .025 to .015 as default.
         endif
         nm='SPEC_ATOM_A'; call gtv(trim(nm),tksw(prgn,nm),spec_a(j),
      .  def_r8=xx,cindx=jj,nout=nout,

@@ -1288,7 +1288,7 @@ ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit,
 ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode) 
 c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
-     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw)
+     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw,jobgw)
         endif
 #if 1
 Ckino ib=atom index
@@ -2666,133 +2666,66 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         endif
       endif
 
-      if( debug) print *, 'tttttttttt 9999999999999999999 6',lmet,ltet,lwndow
 C --- BZ integration for fermi level, band sum and qp weights ---
-      if (lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
+      if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
         if (lwndow) then
           allocate(ww_rv(ndham*nsp*nkp))
-
           eferm = min(dosw(1),dosw(2))
            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .     , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
-ckino Dec.16.2011:       .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
-ckino Dec.28.2011:       .     , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
      .     , 2 , ntet , sbz%iv_a_oidtet , sev , dum ) 
-
-
-C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
           eferm = max(dosw(1),dosw(2))
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-ckino Dec.8.2011:       .      , rv_p_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
      .      , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-ckino Dec.16.2011:       .      eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
-ckino Dec.28.2011:       .      eferm , 2 , ntet , sbz%iv_p_oidtet , sev , dum ) 
      .      eferm , 2 , ntet , sbz%iv_a_oidtet , sev , dum ) 
-
-C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
-ckino Dec.8.2011:             call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_p_owtkb, 1 ) 
            call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb, 1 ) 
-
-C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           if (allocated(ww_rv)) deallocate(ww_rv)
-
         else
           dosrng = 8
           if (mpsord .lt. 0) dosrng = 16
               if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-
               if(sbz%fsmommethod == 1) then !takao dec2010
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-ckino Dec.28.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-ckino Dec.27.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-ckino Dec.8.2011:       .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
      .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               else
 ckino       maybe a switch for these is lmet.ne.0 
 ckino Dec.8.2011:                 l_temp_rv_p_oswtk=.false.
                l_temp_rv_a_oswtk=.false.
-ckino change rv_p_oswtk allocatable               if (.not.associated(rv_p_oswtk)) then
-ckino Dec.8.2011:                 if (.not.allocated(rv_p_oswtk)) then
                if (.not.allocated(rv_a_oswtk)) then
-ckino Dec.8.2011:                     allocate(rv_p_oswtk(1))
                    allocate(rv_a_oswtk(1))
-ckino Dec.8.2011:                     l_temp_rv_p_oswtk=.true.
                    l_temp_rv_a_oswtk=.true.
                endif
-ckino Dec.8.2011:                 l_temp_rv_p_owtkb=.false.
                l_temp_rv_a_owtkb=.false.
-ckino bug fix oswtk -> owtkb
-ckino change rv_p_owtkb allocatable
-ckino               if (.not.associated(rv_p_oswtk))then
-ckino                   allocate(rv_p_oswtk(1))
-ckino Dec.8.2011:                 if (.not.allocated(rv_p_owtkb))then
                if (.not.allocated(rv_a_owtkb))then
-ckino Dec.8.2011:                     allocate(rv_p_owtkb(1,1,1))
                    allocate(rv_a_owtkb(1,1,1))
-ckino Dec.8.2011:                     l_temp_rv_p_owtkb=.true.
                    l_temp_rv_a_owtkb=.true.
                endif
-ckino Dec.28.2011:                 l_temp_iv_p_oidtet=.false.
                l_temp_iv_a_oidtet=.false.
-ckino Dec.16.2011:                 if (.not.associated(iv_p_oidtet))then
-ckino Dec.28.2011:                 if (.not.associated(sbz%iv_p_oidtet))then
                if (.not.allocated(sbz%iv_a_oidtet))then
-ckino Dec.16.2011:                     allocate(iv_p_oidtet(1))
-ckino Dec.28.2011:                     allocate(sbz%iv_p_oidtet(1))
                    allocate(sbz%iv_a_oidtet(1))
-ckino Dec.28.2011:                     l_temp_iv_p_oidtet=.true.
                    l_temp_iv_a_oidtet=.true.
                endif
-ckino end
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-ckino Dec.16.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-ckino Dec.28.2011:       .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_p_oidtet , qval - qbg , 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-ckino Dec.8.2011:       .         ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-ckino Dec.8.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
-ckino Dec.27.2011:       .         ) , dosrng , sbz%rv_p_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-ckino Dec.8.2011:       .         , eferm , sev , rv_p_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
      .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ) 
               endif
-ckino
-ckino Dec.8.2011:                if (l_temp_rv_p_oswtk) then
               if (l_temp_rv_a_oswtk) then
-ckino change rv_p_oswtk allocatable                 deallocate(rv_p_oswtk); rv_p_oswtk=>NULL()
-ckino Dec.8.2011:                   deallocate(rv_p_oswtk)
                  deallocate(rv_a_oswtk)
-ckino add .false
-ckino Dec.8.2011:                   l_temp_rv_p_oswtk=.false.
                  l_temp_rv_a_oswtk=.false.
               endif
-ckino Dec.8.2011:                if (l_temp_rv_p_owtkb) then
               if (l_temp_rv_a_owtkb) then
-ckino change rv_p_owtkb allocatable                 deallocate(rv_p_owtkb); rv_p_owtkb=>NULL()
-ckino Dec.8.2011:                   deallocate(rv_p_owtkb)
                  deallocate(rv_a_owtkb)
-ckino add .false
-ckino Dec.8.2011:                   l_temp_rv_p_owtkb=.false.
                  l_temp_rv_a_owtkb=.false.
               endif
-ckino Dec.28.2011:                if (l_temp_iv_p_oidtet) then
               if (l_temp_iv_a_oidtet) then
-ckino Dec.16.2011:                   deallocate(iv_p_oidtet); iv_p_oidtet=>NULL()
-ckino Dec.28.2011:                   deallocate(sbz%iv_p_oidtet); sbz%iv_p_oidtet=>NULL()
                  deallocate(sbz%iv_a_oidtet); 
-ckino add .false
-ckino Dec.28.2011:                   l_temp_iv_p_oidtet=.false.
                  l_temp_iv_a_oidtet=.false.
               endif
-ckinoend
-              if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-
 C         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
             sumqv(1,1) = sumqv(1,2)
@@ -2800,12 +2733,9 @@ C         Store val charge & magnetic moment in sumqv(1..2)
           endif
 !!=== takao automatic search for nevmx (this can be just outside of endif below? I failed why?) ===
 !!Nov25 2010
-ckino change rv_p_owtkb_allocatable         if(associated(rv_p_owtkb)) then
-ckino Dec.8.2011:            if(allocated(rv_p_owtkb)) then
           if(allocated(rv_a_owtkb)) then
             do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
             nevec = i
-ckino Dec.8.2011:              if (maxval(rv_p_owtkb(i,:,:)) .gt. epsnevec()) exit
             if (maxval(rv_a_owtkb(i,:,:)) .gt. epsnevec()) exit
             enddo
 c          call getnevec(ndham,nsp,nkp,nev,rv_p_owtkb, nevec)
@@ -2837,14 +2767,12 @@ ckino Dec.8.2011:               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , r
         endif
       endif
 
-C ... release sigma-related things.
+!! ... release sigma-related things.
       if(sigmamode) then
         deallocate(sfz,qsmesh,npair,pos,nlat,qwgt)
       endif
 
-      if( debug) print *, 'tttttttttt 9999999999999999999 7'
-
-C ... Save Fermi level, nonmetal or sampling integration
+!! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
         if (lmet .eq. 0) then
           ef0 = (evtop+ecbot)/2
@@ -2854,13 +2782,12 @@ C ... Save Fermi level, nonmetal or sampling integration
         endif
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-ckino Dec.8.2011:             i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_p_owtkb , -ifi ) 
            i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi ) 
           call fclr('wkp',ifi)
         endif
       endif
 
-C ... Cleanup asa-style moments file, print table of DOS channels
+!! ... Cleanup asa-style moments file, print table of DOS channels
       if (nfilem .gt. 0) then
         i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
      .  ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
@@ -2873,7 +2800,7 @@ C ... Cleanup asa-style moments file, print table of DOS channels
       endif
       if (allocated(chan_iv)) deallocate(chan_iv)
 
-C ... Average forces so net force on system is zero (APW case)
+!! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
         call dpzero(xv,3)
         do  i1 = 1, nbas

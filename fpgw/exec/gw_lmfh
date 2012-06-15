@@ -19,12 +19,18 @@ endif
 popd >& /dev/null
 
 if (! -e ctrl.$argv[1]) then
-  echo "missing file ctrl.$argv[1]"
+  echo "missing file ctrl.$argv[1] !"
   shift
   goto usage
 endif
 if (! -e rst.$argv[1] && ! -e rsta.$argv[1]) then
-  echo "missing file neither rst.$argv[1] nor rsta..$argv[1]"
+  echo "missing file neither rst.$argv[1] nor rsta..$argv[1] !"
+  shift
+  goto usage
+endif
+
+if (! -e GWinput) then
+  echo "missing file GWinput !"
   shift
   goto usage
 endif

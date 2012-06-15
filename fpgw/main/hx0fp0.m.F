@@ -3232,14 +3232,14 @@ Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           lm1x=lm1x+1 
           cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
          enddo
-        enddo
-!! === inversion as 1 = \sum_L1 llwyl_L1 * \sum_L2 K_L2 ===
-!! Klm should be not confused with wklm
-!! (both sides multipled by Y_L are spherically integraled 
-!! (Klm is defeined in Christoph's paper PRB 125102-8)
+       enddo
+!! === inversion of 1 = \sum_L1 llwyl(L1)Y_L1 * \sum_L2 K_L2 Y_L2===
+!! Both sides are multipled by Y_L and spherically integraled.
+!! warn: Klm should be not confused with wklm
+!! Klm is defeined in Christoph's paper PRB 125102-8
         call matcinv(lm2x,cgllw(1:lm2x,1:lm2x))
-        cgllw(1:lm2x,1:lm2x)=sqrt(fpi)*cgllw(1:lm2x,1:lm2x)
-
+        cgllw(1:lm2x,1:lm2x)= sqrt(fpi)*cgllw(1:lm2x,1:lm2x) 
+                             !sqrt(fpi) comes from \int d\Omega Y_0 (right hand side of inversion eq).
 !! for check write
         sss=0d0
         lm2x=0

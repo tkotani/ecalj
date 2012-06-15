@@ -24,7 +24,7 @@
 import os, sys, string, re
 
 atomlist="""
-# atom info. atomlist.bash homodimerdistance.bash
+### atom info. atomlist.bash homodimerdistance.bash R= is in angstrome.
 H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
 #### Kino's reference values of dimers (angstrome) ### Rare Gas -> in VWN LDA
 He=  " atomz=2@ pz='PZ=11.8'@ p='P=2.3'@ eh=-0.1@ eh2=-2@            R=1.17@"  
@@ -86,10 +86,12 @@ Se=" atomz=34@                      eh=-1@ eh2=-2@     R=1.10@"
 Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
 Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
 Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
-######## No setings yet after Kr ###########
-Rb  =" atomz=37@"
-Sr  =" atomz=38@" 
-Y   =" atomz=39@" 
+
+######## These are given in a simple guess  ###########
+Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
+## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
+Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
+Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@" (same R with Sc)
 Zr  =" atomz=40@"
 Nb  =" atomz=41@" 
 Mo  =" atomz=42@" 
@@ -158,7 +160,7 @@ Lr  =" atomz=103@"
 
 #---------------------------------------------------
 def manip_argset(argset):
-    global nspin_val, xcfun_val, mmom_val, r_mul_val, systype_val,nk_val,showatomlist,rlmchk,showhelp
+    global nspin_val, xcfun_val, mmom_val, r_mul_val, systype_val,nk_val,showatomlist,showhelp #rlmchk,
     error_title="ARGUMENT ERROR"
     ierror=0
 # defalut setting
@@ -171,7 +173,7 @@ def manip_argset(argset):
     systype_val="bulk"
     nk_val="4"
 #    readrmt=0
-    rlmchk=0
+#    rlmchk=0
     showatomlist=0
     showhelp=0
     for arg in argset:
@@ -199,8 +201,8 @@ def manip_argset(argset):
                 syslist=arg.split("=")
                 if len(syslist)==2:
                         systype_val=syslist[1]
-	elif arg=="--rlmchk":
-		rlmchk=1
+#	elif arg=="--rlmchk":
+#		rlmchk=1
         elif arg=="--showatomlist":
             showatomlist=1
 	elif arg=="--help":
@@ -388,6 +390,7 @@ eh1="-0.1"
 eh2="-2.0"
 mmom_val="0 0 2 0"
 nk_val="4"
+Rfac=0.9
 
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
@@ -430,11 +433,10 @@ if(showatomlist==1):
 	print "--- This is atomlist in ctrlgen.py (not yet set after Kr) ---."
 	sys.exit()
 specstd=dicatom.keys()
-print specstd
+#print specstd
 #print dicatom
-Rfac=0.9
-keya='Fe'
-print dicatom[keya]
+#keya='Fe'
+#print dicatom[keya]
 #rmt = float(dicatom[keya][-1].split('R=')[1])/.529177 * Rfac
 #'rmt=',rmt,dicatom[keya]
 #rmt = eval(dicatom[keya+'2dis'].split('@')[0].split('discenter=')[1])/2.*Rfac
@@ -506,17 +508,27 @@ for ispec in uniq(sitename):
     z=spec2z[ispec]
     aaa=''
 #    aaa=aaa+ ' R='+ '%6.3f' %
-    rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177 *Rfac 
-    rrrh = rrr/2.0
+    try:
+        rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177 *Rfac 
+        if(rrr>2.6): rrr=2.6 #upper limit of R
+        rrrh = rrr/2.0
+    except:
+        aaa= '    ATOM='+ispec +' Z='+ z +' R= and so on are not yet in atomlist xxxxx'
+        specsec= specsec + aaa +'\n'
+        continue
     rsize= '%6.2f' % rrr
     rsizeh= '%6.2f' % rrrh
     aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
     aaa=aaa+  ' '+getdataa2( dicatom[z2dicatom[z]],'pz=')
     aaa=aaa+  ' '+getdataa2( dicatom[z2dicatom[z]],'p=')+'\n'
-    aaa=aaa+ '    EH='+getdataa( dicatom[z2dicatom[z]],'eh=')*4
+    aaa=aaa+ '      EH='+getdataa( dicatom[z2dicatom[z]],'eh=')*4
     aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
-    aaa=aaa+ '    EH2='+ getdataa( dicatom[z2dicatom[z]],'eh2=')*4
-    aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n'
+    aaa=aaa+ '      EH2='+ getdataa( dicatom[z2dicatom[z]],'eh2=')*4
+    aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
+			    +'      KMXA={kmxa}  LMX=3 LMXA=4\n' \
+                            +'      MMOM=0 0 0 0'+'\n'+'      #Q= \n' \
+                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output\n'
+
     specsec= specsec + aaa +'\n'
 
 
@@ -559,12 +571,12 @@ f.write(alltmp)
 f.close()
 
 
-### Get R= by lmchk ###
-if(rlmchk==1):
-	os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
-	f=open("exitcode",'rt')
-	iexit=int(f.read())
-	f.close()
+# ### Get R= by lmchk ###
+# if(rlmchk==1):
+# 	os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
+# 	f=open("exitcode",'rt')
+# 	iexit=int(f.read())
+# 	f.close()
     
 # ### Read rmax, and make rdic ##############################################
 # try:
@@ -586,54 +598,17 @@ if(rlmchk==1):
 # print ' we use R=3.0 if R is larger than 3.0'
 # #sys.exit()
 
-
 ### Read in "ctrls."+ext ######################################################
 try:
 	listctrl  = lineReadfile("ctrl.tmp") 
 except:
 	print '---> no ctrl or some problem'
 	sys.exit()
-ictrlnospec = RemoveCat2(listctrl,"SPEC")
-ctrlnospec=''
-for i in ictrlnospec:
-	ctrlnospec=ctrlnospec+i+'\n'
 
-#################################################
-print ctrlnospec
-
-
-### spec section
-listspec =  GetCat(listctrl,"SPEC")
-tokenspec=line2Token(listspec)
-#print '### ', tokenspec
-if(tokenspec[0]!='SPEC'):
-	print 'tokenspec[0]!=SPEC :ctrls is wrong or bug?'
-	sys.exit()
-
-print 'xxxxxxxxxxxxxxxxxxxxxx spec xxxxxxxxxxxx'
-print tokenspec
-sys.exit()
-
-### Generate ctrl.tmp2 including R=
-aaa=''
-ispec=0
-ix=0
-aaa='SPEC\n  '
-for ii in tokenspec[1:]:
-	if(ix==1):
-		ikey=ii
-		#print ikey
-		ix=0
-	elif(ii=='ATOM='):
-		if(ispec>0): aaa = aaa+' R= '+rdic[ikey]+'\n      '
-		ispec=ispec+1
-		ix=1
-	aaa=aaa+' '+ii
-aaa = aaa+' R='+rdic[ikey]+'\n'
-
-### ctrl.tmp2 contains R=. Do lmfa to get mtopara.*
+#print listctrl
+### ctrl.tmp contains R=. Do lmfa to get mtopara.*
 f = open("ctrl.tmp2",'wt')
-f.write(ctrlnospec+aaa +'\nHAM  XCFUN=')
+f.write('\n'.join(listctrl) +'\nHAM  XCFUN=')
 f.write(xcfun_val+'\n')
 f.close()
 
@@ -641,80 +616,13 @@ os.system("lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
 f=open("exitcode",'rt')
 iexit=int(f.read())
 f.close()
-
-
 if (iexit != 0):
-	print '! Exit -1: not go through lmfa. Wrong ctrls?'
+	print '! Exit -1: not go through lmfa. You may need to modify SPEC for atoms not in atomlist.'
 else:
 	print ' ------tail of llmf.tmp2 ----------------------------------'
 	os.system("tail llmfa.tmp2")
 	print ' ----  lmfa has done! --------------------------------------'
 	print 
-
-#NOTE: "lmfa tmp2 >& llmfa.tmp2" caused a  bug in python. "Bad fd number"
-
-### Readin mtopara
-ext2='tmp2'
-try:
-	listmto = lineReadfile("mtopara."+ext2)
-except:
-	print "---> No mtopara."+ext2, "or some problem"
-	sys.exit()
-mtodic={}
-for i in listmto:
-	i=re.sub("KMXA=","\n    KMXA={kmxa} LMXA=5",i)
-	xx=i.split('@')
-	mtodic[xx[0]]= xx[1]
-
-### Get new SPEC section (taken setting from mtopara).
-ispec=0
-ix=0
-aaa='SPEC\n'
-tokenspec.append("ENDATOM")
-for ii in tokenspec[1:]:
-	#print 'xxxxxxxxxxx',ii
-	if(ix==1):
-		ikey=ii
-		ix=0
-	elif(ii=='ATOM=' or ii=='ENDATOM'):
-		if(ispec>0): 
-			mmmx=mtodic[ikey]
-			mmm=re.sub(","," ",mmmx)
-			il1 = countnum(mmm,'RSMH=')
-			il1min = 4
-			il1=max(il1+1,il1min)
-			pz=re.split("PZ",mmmx)
-                        #Over ride by new setting
-
-			rmt = min(string.atof(rdic[ikey]),3.0)
-			rsmh = max(rmt*1.0/2.0,0.5)
-			rsmh= '%6.3f' % rsmh
-			mmm= 'RSMH=  '          +il1*rsmh+' EH=  '+il1*(eh1+' ')+'\n' #-1 and -0.5 which is better? 
-			mmm= mmm+ '     RSMH2= '+il1*rsmh+' EH2= '+il1*(eh2+' ')+'\n'
-			#ieh = countnum(mmm,'EH=')
-			#eh=re.split("EH",mmmx)
-			#eh=re.split("PZ",eh[1])
-			#print eh,il1
-			#print pz
-			#mmm= 'RSMH= '+ il1*rsmh
-			#mmm= mmm + ' EH'+eh[0]+(il1-ieh)*" -0.1"+"\n"
-			
-			if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
-			il2 = countnum(mmm,'PZ=')
-			lx = max(il1,il2)
-			lll = "%i" % lx
-			il1m=il1-1
-			lmx = "%i" % il1m
-			rmt= '%6.3f' % rmt
-			#print il1,il2,lx
-			aaa = aaa+' R='+rmt +'\n'+' '*5+mmm+'\n' \
-			    +'      KMXA={kmxa} '+' LMX='+lmx+' LMXA='+lll+'\n' \
-                            +'      MMOM=0 0 0 0'+'\n'+'      #Q= \n' \
-                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output\n'
-		ispec=ispec+1
-		ix=1
-	if(ii=='ENDATOM'): break
-	aaa=aaa+' '+ii
 
 # mmmx = mtodic[ikey]
 # mmm = re.sub(","," ",mmmx)
@@ -880,7 +788,7 @@ OPTIONS PFLOAT=1
 #g.write(ctrlnospec+aaa+tail)
 #g.close()
 g = open("ctrlgen.ctrl."+ext,'wt')
-g.write(ctrlnospec+aaa+tail)
+g.write('\n'.join(listctrl)+tail)
 g.close()
 print "OK! A template of ctrl file, ctrlgen.ctrl."+ext+", is generated."
 sys.exit()

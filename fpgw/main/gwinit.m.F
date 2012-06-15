@@ -393,9 +393,9 @@ c Required inputs lmxa(1:ibas)       : lmax for argumantation.
 c                 konf(lmxa(ic),ic)  : number of cores
 c--------------------------
       ifigwin = 888
-      dw = 0.01d0  !dw =0.02
-      niw = 6      !niw =10
-      delta  = -1d-4
+      dw = 0.005d0  !dw =0.02
+      niw = 10      !niw =10
+      delta  = -1d-6
       deltaw = 0.02d0
       esmr   = 0.003d0 ! 0.01d0
 
@@ -442,7 +442,7 @@ c ... PRODUCT BASIS -------------------------
      & "PRODUCT BASIS--------------------------------------------------"
       write(ifigwin,"(a)") 
      & " tolerance to remove products due to poor linear-independency"
-      tolopt =1d-5
+      tolopt =1d-2
       write(ifigwin,"(d14.6,a)") tolopt, 
      & " ! =tolopt; larger gives smaller num. of product basis."//
      & " See lbas and lbasC, which are output of hbasfp0."
