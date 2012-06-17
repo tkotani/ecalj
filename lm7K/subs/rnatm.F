@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
-     .nr,rc,nsp,v,rho)
+     .nr,rc,nsp,v,rho,plplus,qlplus)
       use m_globalvariables
 C- Renormalise charge or potential for a free atom
 C ----------------------------------------------------------------------
@@ -83,14 +83,18 @@ Changenglob      stdo = nglob('stdo')
         do l = 0, lmax
         do iz= 0,1
           lp1 = l+1
-          konfig = pl(lp1,isp)
+!! bug fix around here jun2012 
+!! but not tested yet since this routine is used only when 'SPEC_ATOM_RCFA'.
+          if(iz==1) qqq= ql(lp1,isp) 
+          if(iz==0) qqq= qlplus(l,isp) 
+          if (qqq .lt. 1d-6) goto 20
+          if(iz==1) konfig = pl(lp1,isp)
           if(iz==0) konfig = plplus(l,isp)
-          sum1(lp1,isp) = 0
-          sum2(lp1,isp) = 0
-          if (ql(lp1,isp) .lt. 1d-6) goto 20
+          sum1(lp1,isp) = 0d0
+          sum2(lp1,isp) = 0d0
           call makrvl(z,l,a,b,nr,rofi,konfig,v(1,isp),ev,tol,rh1)
 C       call intrho(rh1,rofi,a,b,nr,sum1(lp1,isp))
-          sum1(lp1,isp) = ql(lp1,isp) * ddot(nr,rwgt,1,rh1,1)
+          sum1(lp1,isp) = qqq * ddot(nr,rwgt,1,rh1,1)
           if (irchan(lp1) .eq. 0) then
             do  ir = 1, nr
               r = rofi(ir)
@@ -101,10 +105,7 @@ C       call intrho(rh1,rofi,a,b,nr,sum1(lp1,isp))
             call dpcopy(rh1,rh2,1,nr,1d0)
           endif
 C       call intrho(rh2,rofi,a,b,nr,sum2(lp1,isp))
-          if(iz==0) qqq= ql(lp1,isp) 
-          if(iz==1) qqq= qlplus(l,isp) !feb2011 takao
-            sum2(lp1,isp) = qqq* ddot(nr,rwgt,1,rh2,1)
-          if (qqq .lt. 1d-6) goto 20
+          sum2(lp1,isp) = qqq* ddot(nr,rwgt,1,rh2,1)
           fac = sum1(lp1,isp)/sum2(lp1,isp)
           do  ir = 1, nr
             rho(ir,isp) = rho(ir,isp) + qqq* (fac*rh2(ir)-rh1(ir))

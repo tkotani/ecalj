@@ -4,7 +4,6 @@
 # Work with python 2.5 or so.
 #  Takao Kotani and Hiori Kino
 # ---  a ctrls is ---
-# HEADER  SrTiO3 cubic 
 # STRUC   ALAT=7.37 
 #         PLAT=1 0 0  0 1 0  0 0 1
 # SITE
@@ -13,10 +12,6 @@
 #   ATOM=O  POS=1/2  0   0
 #   ATOM=O  POS= 0  1/2  0
 #   ATOM=O  POS= 0   0  1/2
-# SPEC
-#   ATOM=Sr  
-#   ATOM=Ti  
-#   ATOM=O  
 # ---- end here ------
 # (HEADER and so are at the begining of lines)
 # take Kino's change.
@@ -24,6 +19,7 @@
 import os, sys, string, re
 
 atomlist="""
+### jun2012kotani
 ### atom info. atomlist.bash homodimerdistance.bash R= is in angstrome.
 H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
 #### Kino's reference values of dimers (angstrome) ### Rare Gas -> in VWN LDA
@@ -56,15 +52,15 @@ Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"
 #####  When we use 'PZ=3.9,3.9,13.9' (13.9 LoMTO for 3d) stops with 
 #####  Exit -1 : mtchre : failed to match phi'/phi=-5.612 to envelope, l=2.
 Fe=  " atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Co=  " atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=0.99@"       
+Co=  " atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
 Ni=  " atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
 ### Fe,Co,Ni good for bulk ###
 Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
-Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=0.99@"        
+Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
 Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.06@"        
 ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              
 Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=0.99@"       
+Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
 Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
 ### PZ=3.9 (local orbital might be more stable than LoMTO)
 Cu=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
@@ -86,7 +82,6 @@ Se=" atomz=34@                      eh=-1@ eh2=-2@     R=1.10@"
 Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
 Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
 Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
-
 ######## These are given in a simple guess  ###########
 Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
@@ -160,7 +155,7 @@ Lr  =" atomz=103@"
 
 #---------------------------------------------------
 def manip_argset(argset):
-    global nspin_val, xcfun_val, mmom_val, r_mul_val, systype_val,nk_val,showatomlist,showhelp #rlmchk,
+    global nspin_val, xcfun_val, mmom_val,  systype_val,nk_val,showatomlist,showhelp #rlmchk,r_mul_val,
     error_title="ARGUMENT ERROR"
     ierror=0
 # defalut setting
@@ -168,7 +163,7 @@ def manip_argset(argset):
     xcfun_str="pbe"
     xcfun_val=103
     mmom_val="0 0 0 0"
-    r_mul_val="1.0"
+#    r_mul_val="1.0"
 #    systype_val="molecule"
     systype_val="bulk"
     nk_val="4"
@@ -189,10 +184,10 @@ def manip_argset(argset):
 		mmomlist=arg.split("=")
 		if len(mmomlist)==2:
 			mmom_val=mmomlist[1]
-	elif re.match("--r_mul",arg)!=None:
-                rlist=arg.split("=")
-                if len(rlist)==2:
-                        r_mul_val=rlist[1]
+#	elif re.match("--r_mul",arg)!=None:
+#                rlist=arg.split("=")
+#                if len(rlist)==2:
+#                        r_mul_val=rlist[1]
 	elif re.match("--nk",arg)!=None:
                 nklist=arg.split("=")
                 if len(nklist)==2:
@@ -236,7 +231,7 @@ def manip_argset(argset):
     	print "nspin_val=",nspin_val
     	print "xcfun_val=",xcfun_val
     	print "mmom_val=",mmom_val
-    	print "r_mul_val=",r_mul_val," float=",float(r_mul_val)
+#    	print "r_mul_val=",r_mul_val," float=",float(r_mul_val)
     	print "systype_val=",systype_val
 #    	print "readrmt=",readrmt
     if ierror!=0:
@@ -386,11 +381,8 @@ systype_val="molecule"
 r_mul_val=0.9
 xcfun_val="103"
 nspin_val="2"
-eh1="-0.1"
-eh2="-2.0"
 mmom_val="0 0 2 0"
 nk_val="4"
-Rfac=0.9
 
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
@@ -509,8 +501,8 @@ for ispec in uniq(sitename):
     aaa=''
 #    aaa=aaa+ ' R='+ '%6.3f' %
     try:
-        rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177 *Rfac 
-        if(rrr>2.6): rrr=2.6 #upper limit of R
+        rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177*r_mul_val
+        if(rrr>2.8): rrr=2.8 #upper limit of R
         rrrh = rrr/2.0
     except:
         aaa= '    ATOM='+ispec +' Z='+ z +' R= and so on are not yet in atomlist xxxxx'
@@ -535,41 +527,32 @@ for ispec in uniq(sitename):
 
 ##################
 os.system("rm -rf llmchk_getwsr llmfa.tmp2")
-head="### This is generated by ctrlgen.py from ctrls \n"
+head="### This is generated by ctrlgen2.py from ctrls \n"
 head= head+ """
 ### For tokens, See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html. 
 ### However, lm7K is now a little different from Mark's lmf package in a few points.
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
-VERS    LM=7 FP=7
-             # version check. Fixed.
-
+VERS    LM=7 FP=7        # version check. Fixed.
 IO      SHOW=T VERBOS=35
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
-	     #
-	     # lerger VERBOSE gives more detailed console output.
-
-SYMGRP find  # 'find' evaluate space-group symmetry automatically.
-             # Usually 'find is OK', but lmf may use lower symmetry
-	     # because of numerical problem.
-             # Do lmchk to check how it is evaluated.
-             # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat
-             
+	     # larger VERBOSE gives more detailed console output.
+SYMGRP find   # 'find' evaluate space-group symmetry automatically.
+              # Usually 'find is OK', but lmf may use lower symmetry
+	      # because of numerical problem.
+              # Do lmchk to check how it is evaluated.
+              # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat
 %const kmxa=5  # kmxa=5 is good for pwemax=3 or lower.
                # larger kmxa is better but time-consuming. A rule of thumb: kmxa>pwemax in Ry.\n
 """
-
 alltmp = head + glist(listno) \
 	 + glist(liststruc)  + "  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
 	 + glist(listsite) \
 	 + 'SPEC\n'+specsec
-
-#print alltmp
 f = open("ctrl.tmp",'wt')
 f.write(alltmp)
 f.close()
-
 
 # ### Get R= by lmchk ###
 # if(rlmchk==1):

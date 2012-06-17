@@ -39,7 +39,12 @@ Mn=" atom='Mn'@ atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@"
 #Fe=" atom='Fe'@ atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
 #Co=" atom='Co'@ atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
 #Ni=" atom='Ni'@ atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
-Fe=" atom='Fe'@ atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+
+#Fe=" atom='Fe'@ atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+
+#Fe new to keep orthogonality jun2012
+Fe=" atom='Fe'@ atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+
 Co=" atom='Co'@ atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
 Ni=" atom='Ni'@ atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
 

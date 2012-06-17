@@ -1,40 +1,65 @@
-=== Calculations of diatomic molecules. ===
-job_run.qsub (for qsub system) 
- or
-job_run.bg (for background job),
-perform all steps below. It is better 
-===
-0. Edit 
-   jobtemplate.bash (for qsub)  or jobtemplate.bg.bash (for background
-   job) for your system.
+=== How to perform test calculations here for H2 diatomic molecules. ===
 
+> job_run.bg (for background job),
+    or job_run.qsub (for qsub system) 
+This perform all steps below. 
+This test (for H2) requires a few minutes or so with a corei5
+notebook.
+
+For your convenience, we have pss in this directory; this shows job
+status. (and you can kill a submitted job of dimer calculation by "pss -KILL jobid").
+
+---
+The followings describes what job_run.bg does.
+===================================================
+0. Edit 
+   jobtemplate.bash (for qsub)  or jobtemplate.bg.bash (for background job) for your system.
 1. Setup1. 
   We assume lmf and lmfa in your ~/bin
   >cp job_molecule_dis.py jobmoldimer1 jobqsubdimer.py * ~/bin
   >cp savedata pldimer1 plmol.py ~/bin/   
 
+  >cp pss ~/bin  (pss is just a utility)
+
 2. Setup2.
   Make working directory <work dir>.
   >cp jobdimerlist.test jobtemplate.bash extra.bash homedimerdistance.bash <work dir>
-  I recommend to look into jobtemplate.bash, which used other *.bash files.
+  <work dir> is TEST.bg in the case the job_run.bg.
+  I recommend to look into main code jobtemplate.bash, which uses other *.bash files.
 
 3. Run
-   > jobqsubdimer.py jobdimerlist.test jobtemplate.bash 
+   > jobbgdimer.py jobdimerlist.test jobtemplate.bash 
    ,where jobqsubdimer.py calls jobmoldimer1
+   (use jobqsubdimer.py in the case of qsub).
 
 You can use atomlist.10 or so. But it takes hours, roughly speaking,
-atomlist.10 asks a day or so with 96 cores. atomlist.15 asked one
-week; it looks too long (probably something inefficient ...).
-======================================
+atomlist.10 (for all dimers) asks a day or so with 96 cores. 
+atomlist.15 requires one week; it looks too long (we have room to make it efficient ...).
+=======================================================
+
+=== How it work ===.
+In Test.bg <work dir>, you see
+jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath5
+This is the main script to run a job for 
+magnetic mom=0; distance=-0.2+gaussian value; MT size=0.8*gaussian
+value; supercell is 5 angstrome cell.
+
+Main routinine is jobmoldimer1, which you copied to your bin.
+this generate ctrl files and invoke lmfa, and lmf, and make required
+directories.
+INIT.xxx/ is to generate initial contision.
+DimerSYMI.xxx/ is for main calculations...
 
 
 === Plot ===
-To gather data and plot them, peform savedata command at TEST.qsub or TEST.bg
+To gather data and plot them, peform savedata command at /TEST.bg or /TEST.qsub  
 
 >savedata <2Sz> <Z>
 For example
 >savedata 0 1
 for H_2.
+This gives a picture of gnuplot.
+Data for plot is in datg.savedata.0.1.
 ======================================
 
 

@@ -96,7 +96,7 @@ C ... SPEC
      .hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
      .dv(:), uh(:,:),jh(:,:),
      .qpol(:,:),stni(:),tbvso(:,:),
-     .pnu(:,:,:),qnu(:,:,:),
+     .pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
      .coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
      .rg(:),rsma(:),rfoca(:),
      .rsmfa(:),rcfa(:,:),
@@ -231,6 +231,7 @@ C ... PW takao
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
       real(8)::    pwemax,pwemin,oveps,delta_stabilize
       character(1)::mmm
+      integer:: iqnu
 ccccccccccccccccccccccccccccccccccccccccc
 
 Cr         1   amix    amix mode
@@ -321,6 +322,8 @@ C ... Local variables
       integer:: levelinit=0
 
       logical:: isanrg, l_dummy_isanrg
+
+      integer:: lx
 
 C ... For MPI
       procid = mpipid(1)
@@ -1407,7 +1410,8 @@ ccccccccccccccccccccccccccc
 C   ... Set up default P,Q in absence of explicit specification
           call dpzero(pnu(1,1,j),nsp*n0)
           call dpzero(qnu(1,1,j),nsp*n0)
-C       This branch sets defaults beforehand ... too complicated
+
+!!       This branch sets defaults beforehand ... too complicated
 C        if (io_help == 0) then
 CC         Default P,Q, nsp=1
 C          if (debug) call pshpr(100)
@@ -1421,11 +1425,13 @@ C        nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
 C     .    qnu(1:nlaj,1,j),def_r8v=qnu(:,1,j),nmin=nlaji,cindx=jj,note=
 C     .    'Starting sphere charges for each l channel')
 C        call snit
+
+!! -- takao move back default value of dev_r8v to zero june2012 --
           nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
-     .    pnu(1:nlaj,1,j),cindx=jj,note=
+     .    pnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note=
      .    'Starting log der. parameters for each l')
           nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
-     .    qnu(1:nlaj,1,j),cindx=jj,note=
+     .    qnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note=
      .    'Starting valence charges for each l channel.'//
      .    '%N%2f Q do not include semicore(PZ) electrons.'//
      &    '%N%2f Charge configuration is shown by lmfa %N'//
@@ -1436,12 +1442,27 @@ C        call snit
      &    '%N%2f To avoid this, use Q=0,1 together.'//
      &    ' This trick supply an '//
      &    '%N%2f electron to 2p channel; this trick works fine.')
-
-C       Reset default P,Q in absence of explicit specification
+!! ==== Reset default P,Q in absence of explicit specification ====
           if (io_help == 0) then
             if (io_show .ne. 0) call pshpr(50)
-C         call snit
-            call defpq(z(j),lmxaj,1,pnu(1,1,j),qnu(1,1,j))
+
+!! -- takao jun2012. qnu is set by default p. --
+!! This looks too complicated. Fix this in future.
+!! In anyway, we expect pnu and qnu are correctly returned (qnu does not care value of given P).
+c            print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
+!! set default pnu. See the following section 'correct qnu'
+!! isp=1 means charge. isp=2 means mmom
+            if(allocated(pnudefault)) deallocate(pnudefault,qnudefault,qnudummy)
+            allocate(pnudefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp))
+            pnudefault=0d0
+            qnudefault=0d0
+            iqnu=1
+            if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
+            call defpq(z(j),lmxaj,1,pnudefault,qnudefault)  ! qnu is given here for default pnu. 
+            call defpq(z(j),lmxaj,1,pnu(1,1,j),qnudummy)  ! set pnu. qnu is kept (but not used here).
+            if(iqnu==0) qnu(:,1,j)=qnudefault(:,1)
+!!
+
 C         call snit
             if (io_show .ne. 0) call poppr
           endif
@@ -1462,6 +1483,18 @@ C         call snit
           if (nout>0) then
             if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
           endif
+
+!! correct qnu jun2012takao
+          if(iqnu==0) then
+          do lx=0,lmxaj !correct valence number of electrons.
+            if(pz(lx+1,1,j)<1d-8) cycle 
+c             print *,'qnu=',lx,qnu(lx+1,1,j)
+            if( int(pz(lx+1,1,j))<int(pnudefault(lx+1,1)) ) then
+              qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
+            endif
+          enddo
+          endif
+!!
 
           i0 = 1
           if (z(j) .le. 8) i0 = 0
@@ -1507,9 +1540,11 @@ C       xx = 0.50d0*rmt(j); if (io_help .eq. 1) xx = NULLI
           nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgn,nm),rsmfa(j),
      .    def_r8=xx,cindx=jj,note=
      .    'Smoothing for free atom.  input<0 => choose default * -input')
+
           nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgn,nm),rcfa(1:2,j)
      .    ,def_r8v=zerov,nmin=2,cindx=jj,note=
-     .    'Cutoff radius for renormalization of free atom density.'//
+     .    'Cutoff radius for renormalization of free atom density'//
+     .    '(WARN:takao rnatm.F is not tested).'//
      .    '%N%3fOptional 2nd argument = width'//
      .    '%N%3fRCFA<0 => renormalize potential instead of density')
 

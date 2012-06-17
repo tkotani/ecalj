@@ -300,30 +300,31 @@ ctakao probably not needed here
       ev = -0.5d0
       ec = -5.0d0
 
-C --- Moments printout ---
-      if (iprint() .ge. 20) then
-        ltmp=dasum(lmax+1,qnu(2,1,1),3)+dasum(lmax+1,qnu(3,1,1),3).eq.0
-        if (ltmp) then
-          call awrit5('  Pl= %n:-1,1;5#8d%?!n==2! spn 2  %n:-1,1;5#8d',
-     .    ' ',180,stdo,lmax+1,pnu,nsp,lmax+1,pnu(1,2))
-          call dcopy(lmax+1,qnu,3,awk,1)
-          call dcopy(lmax+1,qnu(1,1,nsp),3,awk(1,2),1)
-          call awrit5('  Ql= %n:-1,1;5#8d%?!n==2! spn 2  %n:-1,1;5#8d',
-     .    ' ',180,stdo,lmax+1,awk,nsp,lmax+1,awk(1,2))
-        elseif (iprint() .ge. 30) then
-          write(stdo,891)
-  891     format(
-     .    '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
-          do  11  isp = 1, nsp
-            do  11  l = 0, lmax
-              dl = dtan(pi*(.5d0 - pnu(l+1,isp)))
-              if (dabs(dl) .gt. 9999) dl = 0
-              write(stdo,100) l,pnu(l+1,isp),(qnu(ii,l+1,isp),ii=1,3),
-     .        idmod(l),dl
-  100         format(i4,4f13.7,i4,f13.7)
-   11     continue
-        endif
-      endif
+!! takao2012jun. The followings are confusing when we use PZ and P together; because of historical reason, ql is used for PZ and so on.Need to improved...
+c$$$C --- Moments printout ---
+c$$$      if (iprint() .ge. 20) then
+c$$$        ltmp=dasum(lmax+1,qnu(2,1,1),3)+dasum(lmax+1,qnu(3,1,1),3).eq.0
+c$$$        if (ltmp) then
+c$$$          call awrit5('  Pl= %n:-1,1;5#8d%?!n==2! spn 2  %n:-1,1;5#8d',
+c$$$     .    ' ',180,stdo,lmax+1,pnu,nsp,lmax+1,pnu(1,2))
+c$$$          call dcopy(lmax+1,qnu,3,awk,1)
+c$$$          call dcopy(lmax+1,qnu(1,1,nsp),3,awk(1,2),1)
+c$$$          call awrit5('  Ql= %n:-1,1;5#8d%?!n==2! spn 2  %n:-1,1;5#8d',
+c$$$     .    ' ',180,stdo,lmax+1,awk,nsp,lmax+1,awk(1,2))
+c$$$        elseif (iprint() .ge. 30) then
+c$$$          write(stdo,891)
+c$$$  891     format(
+c$$$     .    '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
+c$$$          do  11  isp = 1, nsp
+c$$$            do  11  l = 0, lmax
+c$$$              dl = dtan(pi*(.5d0 - pnu(l+1,isp)))
+c$$$              if (dabs(dl) .gt. 9999) dl = 0
+c$$$              write(stdo,100) l,pnu(l+1,isp),(qnu(ii,l+1,isp),ii=1,3),
+c$$$     .        idmod(l),dl
+c$$$  100         format(i4,4f13.7,i4,f13.7)
+c$$$   11     continue
+c$$$        endif
+c$$$      endif
 
 C --- Initial charge density ---
       if (job .eq. 'pot') then
@@ -383,7 +384,6 @@ C       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
         vnucl = v(1,1)
 C       Exchange-correlation potential
         if (last .and. iprint() .ge. 50) call pshpr(80)
-c        print *,'xxx goto vxc0sp'
         call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax)
         if (last .and. iprint() .ge. 50) call poppr
 C       Get rhrmx, exrmax

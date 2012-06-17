@@ -1,15 +1,74 @@
       module m_rdctrl2_func
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
-     .prgnam,vrsion,vn,vn2,
+     . prgnam,vrsion,vn,vn2,
 ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
 ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     .v_sstr,v_sarry,v_smove,v_stb,sstrn)
-      use m_rdctrl
+     . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
+     . v_sstr,v_sarry,v_smove,v_stb,sstrn)
       use m_gtv
       use m_struc_func
       use m_globalvariables
+      use m_rdctrl,only:
+     &  readctrl,readctrlpq,
+     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_tb,s_spec,s_site,
+!!
+     &  io_show,io_help,nvario,header,symg,
+     &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,nmto,lrsig,
+     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,kmto,rsrnge,vmtz,
+     &  alfsi,dabc,rsstol,pmin,pmax,
+     &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
+     &    sigp_mode,sigp_nmin,sigp_nmax,
+!! OPTIONAL
+     &    lcd2,lcd4,lves,                        
+     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
+     &    lscr,smalit,nesabc, 
+     &    lstonr,quit,nl,lpfloat, rmines,rmaxes,ham_qss,
+!! STRUC
+     &  lat_slat,dlat,alat,plat,lat_gam,dalat, 
+     &     vol,avw,lat_dist,
+     &     nbas,nbasp,nsite,nspec,nclass,lat_ldist,
+!! SPEC
+     &  omax1,omax2,wsrmax,sclwsr,   
+     &    mxspec,slabl,lmxbx,lmxax,nkaph,
+     &    mxcst1,mxcst2,mxcst4,idxdn, grp,grp2,idu,lmxb,lmxa,idmod,iq1,ivso,
+     .    kmxt,kmxv,lfoca,lmxl,lxi,nxi,nr,lmxpb,
+     .    rsmh,rsmh2,eh,eh2,
+     .    hcr,rs3,rham,alpha,ehvl,
+     .    dv, uh,jh,
+     .    qpol,stni,tbvso,
+     .    pnu,qnu,
+     .    coreq,mass,colxbs,radxbs,
+     .    rg,rsma,rfoca,
+     .    rsmfa,rcfa,
+     .    exi,rint,rcut,rmt,pz,
+     .    amom,spec_a,z,eref,rsmv,pb1,pb2, coreh,
+!! ... SITE
+     .  alabl, pos,vel,eula,vshft, ips,ipl,plv,irlx,ndelta,delta,mpole,dpole,
+!! ... Iterations
+     . ctrl_tol,vmix,iter_maxit,iter_mix,iter_amix,
+!! ... BZ
+     . bz_nabc, bz_lshft, bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,
+     . bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
+     . bz_semsh,zbak,bz_dosw,bz_lcond,bz_range, bz_lio1,bz_lio2,ctrl_lmet2, 
+     . ctrl_lmet4,ctrl_lmet8,ctrl_lqp1,ctrl_lqp2,
+!! ... Ewald
+     . lat_as,lat_tol,lat_rpad, lat_nkdmx,
+!! ... STR
+     . str_rmax, str_mxnbr,
+!! ... DYN
+     . sdmod, mdprm,lat_defm,sdprm,
+     . prmint,
+     . prmint_ts0,prmint_tol,gd_ct,
+     . move_kt,move_ts,move_tsequ,move_tstot,
+     . prmint_new,lbsprm,lsdyn,
+     . nitmv,prmint_mi,prmint_mx,prmint_nseq,
+     . gd_modt,gd_nmodt,
+c      character(1024):: mmham=' '
+c      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
+!! PW
+     . pwmode,npwpad,ncutovl,pwemax,pwemin,oveps,delta_stabilize !PW
+
 c      use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------

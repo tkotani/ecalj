@@ -318,7 +318,7 @@ C Heap
 
 ctakao
       integer:: ipl, ipz,iplx,iplv,ix
-      real(8):: qcc,qzz
+      real(8):: qcc,qzz, qvalv,qvaltot,qval
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
       stdo   = lgunit(1)
       stdl   = lgunit(2)
@@ -330,14 +330,14 @@ Changenglob      nsp    = nglob('nsp')
       lfrz   = 0
       lgrad  = lxcfun/10
 ctakao
-c      if(ipr>29) then
-c      print *
-c      do i = 1, nsp
-c      do l = 0, lmxa
-c      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
-c      enddo
-c      enddo
-c      endif
+      if(ipr>29) then
+      print *
+      do i = 1, nsp
+      do l = 0, lmxa
+      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+      enddo
+      enddo
+      endif
 
 C --- Get species data ----
       call dpzero(pl,2*n0)
@@ -346,54 +346,50 @@ C --- Get species data ----
       plplus=0d0
       qlplus=0d0
 
-      qatbk=qat
+      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
+c      qatbk=qat
       do  10  i = 1, nsp
         do  10  l = 0, lmxa
           pnul = pnu(l+1,i)
           pzl  = mod(pz(l+1,1),10d0)
-          if (pzl .ne. 0) then
-C         Make pz the valence state: hardwire qat
-            if (int(pnul-1) .eq. int(pzl)) then
-c$$$              if (qat(l+1,i) .ne. 0) then
-c$$$                write(6,"(/,10(a,/))")
-c$$$     &          ' ###### Why is Exit caused? #######################',
-c$$$     &          ' # This version can not treat two valence channels ',
-c$$$     &          ' # per l (Q for a l-channl is zero if the l is with PZ).',
-c$$$     &          ' # This causes a problem typically in Li; then we ',
-c$$$     &          ' # can not treat PZ=1.9 and P=2.2 as valence.',
-c$$$     &          ' # To avoid this, use Q=0,1 together. This trick supply an ',
-c$$$     &          ' # electron to p channel; this trick works fine.'
-c$$$                call fexit3(-1,111,
-c$$$     .          ' Exit -1 freeat, l=%i:  nonzero charge Q=%d not allowed'
-c$$$     .          //'  with sc PZ=%;3d',l,qat(l+1,i),pzl)
-c$$$              endif
-c              if (qat(l+1,i) .ne. 0) then !!feb2011
+          if(nsp==1) qvaltot = qat(l+1,1)
+          if(nsp==2) qvaltot = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
+          qval=qvaltot
+!!   Make pz the valence state:
 !! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
+!! plplus and qlplus are for P channel when PZ exits. too confusing.
 !!       feb2011
-                write(6,*)     '=== Two valence channels: P and PZ ==='
-                qlplus(l,i)= qatbk(l+1,1)/nsp !!For P channel. Preserve pl and ql to plplus,and qlplus.
-                plplus(l,i)= int(pnul) + .5d0
-                if( nsp==2 ) then !too confusing. should be simplified...
-                  qlplus(l,i) = qatbk(l+1,1)/2d0 - qatbk(l+1,2)/2d0*dble(2*i-3)
-                  if (pnul == 0) plplus(l+1,i) = plplus(l+1,1) 
-                endif  
-c             endif
-              pnul = pzl               !!For PZ channel.
-              qat(l+1,1) = 4*l+2
-              qat(l+1,2) = 0
+          if (pzl .ne. 0) then
+            if(int(pnul-1) .eq. int(pzl)) then
+               plplus(l,i)= int(pnul) + .5d0
+               if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1) 
+               ! plplus and qlplus are for P channel
+
+               if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) !for PZ We assume eigen(PZ) is deeper then eigen(P).
+               if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)   
+               qvalv=0d0
+               if(qvaltot-qval>0d0) qvalv = qvaltot-qval
+               qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus. too confusing...
+
+               pnul = pzl               !!For PZ channel.
             elseif (int(pnul+1) .ne. int(pzl)) then
               call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
-     .        'sc PZ=%d incompatible with valence P=%;3d',l,pzl,pnul)
+     .        'sc PZ=%d incompatible with valence (you may need to add P simultaneously.) P=%;3d',l,pzl,pnul)
             endif
           endif
+!! pl,ql are for PZ when PZ= nonzero exist... too confusing. Need to modify this...
           pl(l+1,i) = int(pnul) + .5d0
-          ql(1,l+1,i) = qat(l+1,1)/nsp
-          if (nsp .eq. 2) then
-            if (pnul .eq. 0) pl(l+1,i) = pl(l+1,1) 
-            ql(1,l+1,i) = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
-          endif
+          ql(1,l+1,i) = qval  
+          if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1) 
           ql(2,l+1,i) = 0d0
           ql(3,l+1,i) = 0d0
+          if(pzl/=0) then
+            if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l    :  Qtot Qpz Qv=',l, qvaltot,ql(1,l+1,i),qlplus(l,i)
+            if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp:  Qtot Qpz Qv=',l,isp, qvaltot,ql(1,l+1,i),qlplus(l,i)
+          else
+            if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l     : Qtot=Qv=    ',l, qvaltot,ql(1,l+1,i)
+            if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp : Qtot=Qv=    ',l,isp, qvaltot,ql(1,l+1,i)
+          endif  
    10 continue
 
 ctakao
@@ -401,26 +397,38 @@ ctakao
       write(stdo,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),
      &' : --- Table for atomic configuration ---'
       write(stdo,"(a)")'conf'//
-     &' When int(P)z .ne. int(P), Qval is charge for MTOcore(PZ) and MTO(P)'
+     &' When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
       write(stdo,"(a)")'conf:'//
-     &'  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf'
+     &'  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
+
+c      write(stdo,"(a)")'conf'//
+c     &' When int(P)z .ne. int(P), Qvalz:Q for MTOcore(PZ); Qvalz:MTO(P)'
+c      write(stdo,"(a)")'conf:'//
+c     &'  isp  l  int(P) int(P)z    Qval     Qvalz    Qcore   CoreConf'
+
 c      qtot=0d0
 c      qc  = 0d0
 c      amgm= 0d0
 c      qzz=0d0
       do i = 1, nsp
         do l = 0, lmxa
-          ipl  = int(pnu(l+1,i))
-          iplv = int(pl(l+1,i))
+          ipl  = int(pnu(l+1,i)) !valence
+          iplv = int(pl(l+1,i))  !Pz
           ipz = int(mod(pz(l+1,1),10d0))
           qcc= (iplv-l-1)*(4*l+2)/nsp
 c        qc = qc+qcc
 c        qzz=0d0
 c        if(ipz/=0.and.ipz<ipl) qzz=(4*l+2)/nsp
+
+
+!! plplus, qlplus for P
+!! ql for Pz
+c          write(stdo,"('conf: ', 
+c     &    i4,i3,3x,i5,i3,6x,f8.3,f8.3,1x,f8.3,' => ',10(i1,','))") 
+c     &    i,l,ipl,iplv,qlplus(l,i),ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
           write(stdo,"('conf: ', 
-     &    i4,i3,3x,i5,i3,2x,f11.3,f9.3,' => ',10(i1,','))") 
-c     &    i,l,ipl,iplv,ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
-     &    i,l,ipl,iplv,ql(1,l+1,i)+qlplus(l,i),qcc, (ix,ix=l+1,iplv-1)
+     &    i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") 
+     &    i,l,ipl,iplv,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
 
 c, qzz
 c     &   ,ql(1,l+1,i)+QZ, qcc-qzz
@@ -430,6 +438,7 @@ c        amgm=amgm +(3-2*i)*(qcc+ql(1,l+1,i))
         write(stdo,"(a)")
      &  'conf:-----------------------------------------------------'
       enddo
+
 cNov 2010 QvalCheck
       do i = 1, nsp
         do l = 0, lmxa
@@ -495,13 +504,14 @@ C     call poppr
      .'  eref=%,6;6d%?#n#  diff= %,6;6d',' ',80,stdo,ipr,sumev,etot,
      .eref,isw(eref.ne.0),etot-eref)
 
-      call dcopy(lmxa+1,ql,3,qat,1)
-      call dcopy(lmxa+1,ql(1,1,nsp),3,qat(1,2),1)
-      call awrit4('fa  Pl %n:-1d  Ql %n:-1d',
-     .' ',80,stdl,lmxa+1,pl,lmxa+1,qat)
-      if (nsp .eq. 2)
-     .call awrit4('fa  Pl2%n:-1d  Ql2%n:-1d',
-     .' ',80,stdl,lmxa+1,pl(1,nsp),lmxa+1,qat(1,nsp))
+!! june2012takao comment out followings. because confusing.
+c      call dcopy(lmxa+1,ql,3,qat,1)
+c      call dcopy(lmxa+1,ql(1,1,nsp),3,qat(1,2),1)
+c      call awrit4('fa  Pl %n:-1d  Ql %n:-1d',
+c     .' ',80,stdl,lmxa+1,pl,lmxa+1,qat)
+c      if (nsp .eq. 2)
+c     .call awrit4('fa  Pl2%n:-1d  Ql2%n:-1d',
+c     .' ',80,stdl,lmxa+1,pl(1,nsp),lmxa+1,qat(1,nsp))
 
       if (dabs(dq) .gt. 1d-5 .and. iprint() .ge. 10)
      .call awrit1(' freeat (warning) atom not neutral, Q=%d',
@@ -516,7 +526,8 @@ C .. Subtract core from density to make valence density
 
 C --- Renormalize atom density or potential ---
       call ivset(irchan,1,n0,0)
-      call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho)
+!! takao jun2012: rnatm is not tested ---> this is related to SPEC_ATOM_RCFA on.
+      call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho,plplus,qlplus)
 C     call prrmsh('starting total rho',rofi,rhot,nr,nr,nsp)
       do  isp = 1, nsp
         do  i = 1, nr

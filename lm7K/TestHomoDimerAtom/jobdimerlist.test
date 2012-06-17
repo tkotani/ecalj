@@ -1,8 +1,14 @@
-distance=-0.2;0.2@ fsmom=0@ rstar=0.8,0.9@ $H $H2dis $alatpath5
+# You can uncomment a few of these lines (alatpath5 =5angstrome
+# cell. This should be used for test)
+#distance=-0.2;0.2@ fsmom=0@ rstar=0.8,0.9@ $H $H2dis $alatpath5
+#distance=-0.2;0.2@  fsmom=6@ rstar=0.8,0.9@ $Fe $Fe2dis $alatpath5
+distance=0.1;0.1@  fsmom=2@ rstar=0.9@ $O $O2dis $alatpath5
+
 #distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $He $He2dis $alatpath10
 #distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $Li $Li2dis $alatpath10
 #distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $Be $Be2dis $alatpath10
 #distance=-0.4;0.6@  fsmom=2@ rstar=0.8,0.9,1.0@ $B $B2dis $alatpath10
+#distance=-0.4;0.6@  fsmom=2@ rstar=0.8,0.9@ $B $B2dis $alatpath10
 #distance=-0.4;0.6@  fsmom=4@ rstar=0.8,0.9,1.0@ $B $B2dis $alatpath10
 #distance=-0.4;0.1@  fsmom=0@ rstar=0.8,0.9,1.0@ $C $C2dis $alatpath10
 #distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $C $C2dis $alatpath10

@@ -81,10 +81,18 @@ C     Extrapolate gf to first point
         jx = 1
         call polint(ri(2),gf(2),nx,nn,ri,0d0,0,jx,gf,egf0)
         lerr = 1
-        if (iprint() .ge. 40 .and.
+c        if (iprint() .ge. 40 .and.
+        if (iprint() .ge. 50 .and. !takao. too noizy.  
      .      dabs(egf0) .gt. 1d-3*max(dabs(gf(1)),dabs(gf(2)))) then
           call info5(40,0,0,' gradfl (warning): uncertainty in grad'//
      .    ' f(r=0,L=%i):  f=%;3g  est err= %;3g',ilm,gf(1),egf0,0,0)
+          print *,'TAKAO: this warning is probably not a problem. If you like, plot ri.vs.gf as in gradfl.'
+cccccccccccccccccccccccccccccccccccccccccccccccc
+c          do ir=ir0,ir1
+c             print *,'rrrrr:',ri(ir),gf(ir)
+c          enddo
+c          stop 'rrrrrrrrrrrrrrrrrrrrr'
+cccccccccccccccccccccccccccccccccccccccccccccccc
         endif
       endif
       do  24  ip = 1, np
