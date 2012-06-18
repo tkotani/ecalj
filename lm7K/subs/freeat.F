@@ -357,8 +357,8 @@ c      qatbk=qat
           qval=qvaltot
 !!   Make pz the valence state:
 !! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
-!! plplus and qlplus are for P channel when PZ exits. too confusing.
-!!       feb2011
+!! plplus and qlplus are for P channel when PZ exits. 
+!!       jun2012 feb2011
           if (pzl .ne. 0) then
             if(int(pnul-1) .eq. int(pzl)) then
                plplus(l,i)= int(pnul) + .5d0
@@ -369,15 +369,14 @@ c      qatbk=qat
                if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)   
                qvalv=0d0
                if(qvaltot-qval>0d0) qvalv = qvaltot-qval
-               qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus. too confusing...
-
+               qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus. 
                pnul = pzl               !!For PZ channel.
             elseif (int(pnul+1) .ne. int(pzl)) then
               call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
      .        'sc PZ=%d incompatible with valence (you may need to add P simultaneously.) P=%;3d',l,pzl,pnul)
             endif
           endif
-!! pl,ql are for PZ when PZ= nonzero exist... too confusing. Need to modify this...
+!! pl,ql are for PZ when PZ= nonzero exist... somehow confusing.
           pl(l+1,i) = int(pnul) + .5d0
           ql(1,l+1,i) = qval  
           if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1) 

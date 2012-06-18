@@ -61,10 +61,22 @@ C ... Local parameters
       character*1 pqn(9),ang(6)
       integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit
       double precision deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax,
-     .rorim,slo,sum,tcore,val,vrho,kappa2
+     .rorim,slo,sumx,tcore,val,vrho,kappa2
 C ... Heap
       data pqn /'1','2','3','4','5','6','7','8','9'/
       data ang /'s','p','d','f','g','h'/
+      real(8),allocatable:: vaa(:,:)
+      logical oncewrite
+!! --- spin-averaged potential ---
+      if(oncewrite(6)) print *,'NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.'
+      if(oncewrite(7)) print *,'      We use spin-avaraged potential to calculate core density rhoc.'
+      if(oncewrite(8)) print *,'      Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F'
+      allocate(vaa(nr,nsp))
+      vaa=v
+      do ir=1,nr
+        vaa(ir,1:nsp)=sum(v(ir,1:nsp))/dble(nsp)
+      enddo
+!! -------------------------------
 
       stdo = lgunit(1)
       rmax  = rofi(nr)
@@ -93,25 +105,25 @@ C ... Heap
             ecor0 = ec(icore)
             val = 1d-30
             slo = -val
-            call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,v(1,isp),
-     .      g,sum,a,b,rofi,nr,nre)
+            call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,vaa(1,isp),
+     .      g,sumx,a,b,rofi,nr,nre)
             ecore = ecor0
 C     ... Correct core energy by using hankel bc's
-            kappa2 = ecor0 - v(nr,isp) + 2*z/rmax
+            kappa2 = ecor0 - vaa(nr,isp) + 2*z/rmax
             if (nre .eq. nr .and. kappa2 .lt. 0d0) then
               dlml = -1d0 - dsqrt(-kappa2)*rmax
               do  31  ll = 1, l
                 dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
    31         continue
               slo = val*(dlml+l+1)/rmax
-              call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,v(1,isp),
-     .        g,sum,a,b,rofi,nr,nre)
+              call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,vaa(1,isp),
+     .        g,sumx,a,b,rofi,nr,nre)
             endif
             ec(icore) = ecore
             if (isw .eq. 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
 
 C     --- Add to rho, make integral v*rho ---
-            call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v(1,isp),rho(1,isp),
+            call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp),
      .      deg,vrho,rorim)
             rhorim = rhorim + rorim
             tcore = ecore - vrho

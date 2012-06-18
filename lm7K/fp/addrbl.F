@@ -6,12 +6,6 @@ CSFCPP#define F90 1
      .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def , esmear 
      .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
      .     , sv_p_oeqkkl , f ) 
-
-
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Adds to the smooth and local output density and to eigval sum

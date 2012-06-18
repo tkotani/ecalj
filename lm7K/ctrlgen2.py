@@ -155,7 +155,7 @@ Lr  =" atomz=103@"
 
 #---------------------------------------------------
 def manip_argset(argset):
-    global nspin_val, xcfun_val, mmom_val,  systype_val,nk_val,showatomlist,showhelp #rlmchk,r_mul_val,
+#    global nspin_val, xcfun_val, mmom_val,  systype_val,nk_val,showatomlist,showhelp #rlmchk,r_mul_val,
     error_title="ARGUMENT ERROR"
     ierror=0
 # defalut setting
@@ -171,6 +171,8 @@ def manip_argset(argset):
 #    rlmchk=0
     showatomlist=0
     showhelp=0
+    metali=3
+    fsmom_val=0.0
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
 		nspinlist=arg.split("=")
@@ -184,6 +186,8 @@ def manip_argset(argset):
 		mmomlist=arg.split("=")
 		if len(mmomlist)==2:
 			mmom_val=mmomlist[1]
+        elif re.match("--insulator",arg)!=None:
+            metali=0
 #	elif re.match("--r_mul",arg)!=None:
 #                rlist=arg.split("=")
 #                if len(rlist)==2:
@@ -196,6 +200,10 @@ def manip_argset(argset):
                 syslist=arg.split("=")
                 if len(syslist)==2:
                         systype_val=syslist[1]
+	elif re.match("--fsmom",arg)!=None:
+                nklist=arg.split("=")
+                if len(nklist)==2:
+                        fsmom_val=nklist[1]
 #	elif arg=="--rlmchk":
 #		rlmchk=1
         elif arg=="--showatomlist":
@@ -213,6 +221,8 @@ def manip_argset(argset):
 	xcfun_val="103"
     elif xcfun_str.upper()=="VWN":
 	xcfun_val="1"
+    elif xcfun_str.upper()=="BH":
+	xcfun_val="2"
     else:
 	sys.stderr.write(error_title+", --xc="+xcfun_str+" : unknown\n")
 	ierror+=1
@@ -226,17 +236,10 @@ def manip_argset(argset):
         sys.stderr.write(error_title+", --systype="+systype_val+" : unknown\n")
         ierror+=1
 
-    show_it=1
-    if (show_it!=0):
-    	print "nspin_val=",nspin_val
-    	print "xcfun_val=",xcfun_val
-    	print "mmom_val=",mmom_val
-#    	print "r_mul_val=",r_mul_val," float=",float(r_mul_val)
-    	print "systype_val=",systype_val
-#    	print "readrmt=",readrmt
     if ierror!=0:
 	print "ABORT. Check names of args. Some are not defined."
 	sys.exit(-1)
+    return nspin_val,xcfun_val,xcfun_str,mmom_val,  systype_val,nk_val,showatomlist,showhelp,metali,fsmom_val #rlmchk,r_mul_val,
 
 #-------------------------------------------------------
 def  line2Token(linein):
@@ -377,30 +380,49 @@ def getdataa2(aaa,key):
 #===============================================================================
 #          MAIN 
 #===============================================================================
-systype_val="molecule"
 r_mul_val=0.9
 xcfun_val="103"
-nspin_val="2"
-mmom_val="0 0 2 0"
 nk_val="4"
 
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-manip_argset(argset) #set global argument defined at the top of mainp_argset.
+nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val, showatomlist, showhelp,metali,fsmom_val \
+= manip_argset(argset) #set global argument defined at the top of mainp_argset.
+
+showhelpw='Not exist'
+if(showhelp): showhelpw='given'
+showatomlistw='Not exist'
+if(showatomlist): showatomlistw='given'
+insulatorw='Not exist'
+if(metali==0): insulatorw='given'
 
 ### help sections ###
 if(showhelp==1):
     print \
 """ 
-tkotani and h.kino jun_2012:
-Purpose: Generate ctrl.{ext} file from ctrls.{ext} ;"
-     Usage  : ctrlgen {extension of ctrl file} [option]
-	        : [options] = --showatomlist
-
- You should have no SPEC if you use ATOM name shown by --helpatomname"
+ctrlgen2.py. tkotani and h.kino jun_2012 version :
+---------------
+Purpose: 
+     Generate a template of ctrl file ctrlgen2.ctrl.{ext}."
+     Before you run lmfa, you have to copy ctrlgen2.ctrl.{ext} to ctrl.{ext} and edit it.
+     Usage  : ctrlgen2 {extension of ctrl file} [option]
+	      [options] = INPUT arguments in the followings.
+              Your given arguments are shown at the begining of output.
 """
-    sys.exit()
+print " === INPUT arguments (--help gives default values) === "
+print "  --help  %s"      % showhelpw
+print "  --showatomlist  %s"      % showatomlistw
+print "  --nspin=%s"  % nspin_val
+print "  --nk=%s"         % nk_val
+print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str,xcfun_val
+print "  --systype=%s !(bulk,molecule)" % systype_val
+print "  --insulator  %s !(do not set for --systype=molecule)"    %  insulatorw
+print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule set this)"    %  fsmom_val
+#print "  --mmom=\'%s\'"   % mmom_val
+#print " mmom is the initial magnetic moment for each l-channel. now atom-independent MMOM"
+#print " --r_mul_val=%s"  % r_mul_val
+if(showhelp==1): sys.exit()
 
 
 ### readin atomlist ###
@@ -422,7 +444,7 @@ for line in alist:
 #    aaa=mat.group().split('"')[1]
 #    print keya,line.split("@")[2:-1]
 if(showatomlist==1):
-	print "--- This is atomlist in ctrlgen.py (not yet set after Kr) ---."
+	print "--- This is atomlist in ctrlgen2.py (not yet set after Kr) ---."
 	sys.exit()
 specstd=dicatom.keys()
 #print specstd
@@ -441,7 +463,7 @@ for ils in dicatom.keys():
 #### Read in ctrls #####
 ext=sys.argv[1]
 print 
-print "... Generate ctrl."+ext+" from ctrls."+ext + "..."
+print "... Generate ctrlgen2.ctrl."+ext+" from ctrls."+ext + " ..."
 ctrls = "ctrls." + ext
 f=open(ctrls,'rt')
 ctrlsdat = f.read() 
@@ -467,19 +489,19 @@ if(len(listspec)==0):
     #listspec = re.split('\n',specstd)  # SPEC standard if no SPEC is in ctrls.*
     #print specstd
     #sys.exit()
-    print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgen.py --showatomlist"
+    print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgen2.py --showatomlist"
     for ils in sitename:
         spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
         #specname=ils.split('ATOM=')[1].split(' ')[0]
         #specz=ils.split('Z=')[1].split(' ')[0]
         ##spec2z[specname]=specz
 else:
-    for ils in listspec[1:]:
+    for ils in listspec:
         specname=ils.split('ATOM=')[1].split(' ')[0]
         specz=ils.split('Z=')[1].split(' ')[0]
         spec2z[specname]=specz
-    #print ils,specname,specz
-print spec2z
+        print ils,specname,specz
+#print spec2z
 
 ansite = '%i' % len(sitename)
 anspec = '%i' % len(uniq(sitename))
@@ -502,7 +524,7 @@ for ispec in uniq(sitename):
 #    aaa=aaa+ ' R='+ '%6.3f' %
     try:
         rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177*r_mul_val
-        if(rrr>2.8): rrr=2.8 #upper limit of R
+        if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
     except:
         aaa= '    ATOM='+ispec +' Z='+ z +' R= and so on are not yet in atomlist xxxxx'
@@ -518,8 +540,10 @@ for ispec in uniq(sitename):
     aaa=aaa+ '      EH2='+ getdataa( dicatom[z2dicatom[z]],'eh2=')*4
     aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
 			    +'      KMXA={kmxa}  LMX=3 LMXA=4\n' \
-                            +'      MMOM=0 0 0 0'+'\n'+'      #Q= \n' \
-                            +'      #MMOM and Q are to set electron population. See conf: in lmfa output\n'
+                            +'      #MMOM=\n' \
+                            +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
+                            +'      #Q= \n' \
+                            +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
 
     specsec= specsec + aaa +'\n'
 
@@ -628,15 +652,11 @@ else:
 
 tail="""
 \n"""
-
-if (systype_val.upper()=="BULK") :
-	tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30 gmax=12 "
-else:
-	tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30 gmax=12 "
-tail = tail + "        nspin="+nspin_val+"\n"
-
-tail = tail + """BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
-      METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
+tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+"\n"
+tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
+            + "      METAL=%i\n" % metali +\
+"""
+                # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
 		#   (SAVDOS, DOS, NPTS gives no side effect for self-consitency calculaiton).
                 # 
@@ -651,38 +671,55 @@ tail = tail + """BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       #Setting for molecules. No tetrahedron integration. (Smearing))
       # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
 """
+
+tail =  tail + "%const bzw=0  fsmom="+str(fsmom_val)
 if (systype_val.upper()=="BULK") :
-	tail =  tail + """      #TETRA=0 
+	tail =  tail + \
+"""
+      #TETRA=0 
       #N=-1    #Negative is Fermi distribution function W= gives temperature.
       #W=0.001 #This corresponds to T=157K as shown in console output
                #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
                #Now you don't need to use NEVMX in double band-path method,
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
-"""
-else :
-	tail =  tail + """      TETRA=0 
-      N=-1    #Negative is Fermi distribution function W= gives temperature.
-      W=0.001 #This corresponds to T=157K as shown in console output
-               #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
-               #Now you don't need to use NEVMX in double band-path method,
-               #which obtain only eigenvalues in first-path to obtain integration weights
-               #, and accumulate eigenfunctions in second path.
-"""
-
-
-tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
-
-      #FSMOM=real number (fixed moment method)
+      #FSMOM={fsmom} real number (fixed moment method)
       #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
-      #
+      # NOTE: current version is for ferro magnetic case (total mag moment) only.
       #FSMOMMETHOD=0 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
       #  =0: original mode suitable for solids.(default)
       #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.
       #      Not allowed to use together with HAM_SO=1 (L.S). 
       #      It seems good enough to use W=0.001. Smaller W= may cause instability.
+"""
+else :
+	tail =  tail + \
+"""
+      TETRA=0 
+      N=-1     #Negative is Fermi distribution function W= gives temperature.
+      W={bzw}  #This corresponds to T=157K as shown in console output
+               #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
+               #Now you don't need to use NEVMX in double band-path method,
+               #which obtain only eigenvalues in first-path to obtain integration weights
+               #, and accumulate eigenfunctions in second path.
+      FSMOM={fsmom} (fixed moment method)
+      #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
+      #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
+      #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
+      # NOTE: current version is for ferro magnetic case (total mag moment) only.
+      #
+      FSMOMMETHOD=1 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
+      #  =0: original mode suitable for solids.(default)
+      #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.
+      #      Not allowed to use together with HAM_SO=1 (L.S). 
+      #      It seems good enough to use W=0.001. Smaller W= may cause instability.
+"""
+
+
+tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
+
 
       #For Total DOS.   DOS:range, NPTS:division. We need to set METAL=3 with default TETRA (no TETRA).
       #SAVDOS=T DOS=-1 1 NPTS=2001
@@ -738,7 +775,7 @@ tail = tail + "     XCFUN=" + xcfun_val + """
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
 """
-if (systype_val.upper()=="BULK") :
+if (False): #systype_val.upper()=="BULK") :
 	tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.
 """
 else :
@@ -748,7 +785,7 @@ else :
 tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
 
-      #FRZWF=T #to fix augmentation function. 
+      FRZWF=F #If T, fix augmentation function. This is worth to test in future.
       #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat
 
       #For LDA+U calculation, see http://titus.phy.qub.ac.uk/packages/LMTO/fp.html#ldaplusu
@@ -756,6 +793,12 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       #For QSGW. you have to set them. Better to get some samples.
       #RDSIG=
       #RSRNGE=
+
+      #SO=        default = 0
+      #Spin-orbit coupling (for REL=1)
+      #0 : no SO coupling
+      #1 : Add L.S to hamiltonian (but non-colinear density yet).
+      #2 : Add Lz.Sz only to hamiltonian
                
 OPTIONS PFLOAT=1 
         # Q=band (this is quit switch if you like to add)
@@ -770,8 +813,8 @@ OPTIONS PFLOAT=1
 #g = open("ctrl."+ext,'wt')
 #g.write(ctrlnospec+aaa+tail)
 #g.close()
-g = open("ctrlgen.ctrl."+ext,'wt')
+g = open("ctrlgen2.ctrl."+ext,'wt')
 g.write('\n'.join(listctrl)+tail)
 g.close()
-print "OK! A template of ctrl file, ctrlgen.ctrl."+ext+", is generated."
+print "OK! A template of ctrl file, ctrlgen2.ctrl."+ext+", is generated."
 sys.exit()
