@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py co2 --systype=molecule --nk=1 --nspin=2 --fsmom=6.0
+cp ctrlgen2.ctrl.co2 ctrl.co2
+lmfa co2 |tee llmfa
+lmf  co2 |tee llmf

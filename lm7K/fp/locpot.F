@@ -303,7 +303,7 @@ C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
         lfltwf = mod(job,1000) .ge. 100 .or.
      .  mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
 cccccccccccccc
-        print *,' i job kmax lfltwf=',i,job,kmax,lfltwf
+        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
 c        do i_spacks=is,is

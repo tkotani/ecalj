@@ -86,7 +86,7 @@ Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
 Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
 Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
-Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@" (same R with Sc)
+Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@" (same R with Sc) OK???
 Zr  =" atomz=40@"
 Nb  =" atomz=41@" 
 Mo  =" atomz=42@" 
@@ -104,7 +104,7 @@ I   =" atomz=53@"
 Xe  =" atomz=54@" 
 Cs  =" atomz=55@" 
 Ba  =" atomz=56@" 
-La  =" atomz=57@" 
+La  =" atomz=57@ pz='PZ=5.9,5.9'@ p=''@ eh=-0.1@ eh2=-2@        R=1.6@" ( R is just given for test) 
 Ce  =" atomz=58@" 
 Pr  =" atomz=59@" 
 Nd  =" atomz=60@" 
@@ -457,7 +457,13 @@ specstd=dicatom.keys()
 
 z2dicatom={}
 for ils in dicatom.keys():
-        z2dicatom[dicatom[ils].split('atomz=')[1].split('@')[0]]=ils
+    #print ils
+    if(re.search('\.',ils)): # skip SPECKEY.# (such as Co.2) in z2dicatomlist.
+        continue
+    #print ils
+    z2dicatom[dicatom[ils].split('atomz=')[1].split('@')[0]]=ils
+#print dicatom.keys()
+#sys.exit()
 
 
 #### Read in ctrls #####
@@ -485,23 +491,26 @@ print '### other ', listno
 
 ########### obtain mapping spec to Z dictionary spec2z ####
 spec2z={}
+zspec=False
 if(len(listspec)==0):
     #listspec = re.split('\n',specstd)  # SPEC standard if no SPEC is in ctrls.*
     #print specstd
     #sys.exit()
     print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgen2.py --showatomlist"
-    for ils in sitename:
-        spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
-        #specname=ils.split('ATOM=')[1].split(' ')[0]
-        #specz=ils.split('Z=')[1].split(' ')[0]
-        ##spec2z[specname]=specz
+    # for ils in sitename:
+    #     spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
+    #     #specname=ils.split('ATOM=')[1].split(' ')[0]
+    #     #specz=ils.split('Z=')[1].split(' ')[0]
+    #     ##spec2z[specname]=specz
 else:
+    zspec=True
     for ils in listspec:
         specname=ils.split('ATOM=')[1].split(' ')[0]
         specz=ils.split('Z=')[1].split(' ')[0]
         spec2z[specname]=specz
         print ils,specname,specz
 #print spec2z
+#sys.exit()
 
 ansite = '%i' % len(sitename)
 anspec = '%i' % len(uniq(sitename))
@@ -519,11 +528,17 @@ anspec = '%i' % len(uniq(sitename))
 #print 'xxxx',sitename	
 specsec=''
 for ispec in uniq(sitename):
-    z=spec2z[ispec]
     aaa=''
 #    aaa=aaa+ ' R='+ '%6.3f' %
+    if(zspec):
+        z=spec2z[ispec]
+        speckey=z2dicatom[z]
+    else:
+        speckey=ispec
+        z=dicatom[speckey].split('atomz=')[1].split('@')[0]
+
     try:
-        rrr = float(getdataa( dicatom[z2dicatom[z]],'R='))/0.529177*r_mul_val
+        rrr = float(getdataa( dicatom[speckey],'R='))/0.529177*r_mul_val
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
     except:
@@ -533,11 +548,11 @@ for ispec in uniq(sitename):
     rsize= '%6.2f' % rrr
     rsizeh= '%6.2f' % rrrh
     aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
-    aaa=aaa+  ' '+getdataa2( dicatom[z2dicatom[z]],'pz=')
-    aaa=aaa+  ' '+getdataa2( dicatom[z2dicatom[z]],'p=')+'\n'
-    aaa=aaa+ '      EH='+getdataa( dicatom[z2dicatom[z]],'eh=')*4
+    aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
+    aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
+    aaa=aaa+ '      EH='+getdataa( dicatom[speckey],'eh=')*4
     aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
-    aaa=aaa+ '      EH2='+ getdataa( dicatom[z2dicatom[z]],'eh2=')*4
+    aaa=aaa+ '      EH2='+ getdataa( dicatom[speckey],'eh2=')*4
     aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
 			    +'      KMXA={kmxa}  LMX=3 LMXA=4\n' \
                             +'      #MMOM=\n' \

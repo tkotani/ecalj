@@ -5,5 +5,5 @@
 # A possible choice is FRZWF=T (phi,phidot,philocalorbital fixed --->
 # This looks nice since our standard size of MT is rather small.
 STRUC   ALAT={alat} DALAT=0 PLAT=0.9 0 0 0 1 0 0 0 1.1 # Anisotropic cell
-SITE    ATOM=Fe POS={dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5
-        ATOM=Fe POS=-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5
+SITE    ATOM=Co POS={dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5
+        ATOM=Co POS=-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5

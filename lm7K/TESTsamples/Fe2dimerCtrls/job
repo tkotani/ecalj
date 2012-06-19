@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py fe2 --systype=molecule --nk=1 --nspin=2 --fsmom=6.0
+cp ctrlgen2.ctrl.fe2 ctrl.fe2
+lmfa fe2 |tee llmfa
+lmf  fe2 |tee llmf

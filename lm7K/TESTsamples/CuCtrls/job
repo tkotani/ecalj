@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py cu --systype=bulk --nk=6
+cp ctrlgen2.ctrl.cu ctrl.cu
+lmfa cu |tee llmfa
+lmf  cu |tee llmf
