@@ -130,10 +130,10 @@ C --- File WRITE ---
   891     format(
      .    '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
           do  11  i = 1, nsp
-            do  11  l = 0, lmax
-              dl = dtan(pi*(.5d0 - pl(l+1,i)))
-              if (dabs(dl) .gt. 9999) dl = 0
-              write(-ifi,100) l,pl(l+1,i),(ql(ii,l+1,i),ii=1,3),idmod(l),dl
+          do  11  l = 0, lmax
+            dl = dtan(pi*(.5d0 - pl(l+1,i)))
+            if (dabs(dl) .gt. 9999) dl = 0
+            write(-ifi,100) l,pl(l+1,i),(ql(ii,l+1,i),ii=1,3),idmod(l),dl
    11     continue
         endif
       endif
@@ -152,8 +152,8 @@ C --- handle read exception ---
      .  print *, 'AIOMOM, ATOM=',alabl,
      .  ':  spin 2 input missing; spin 1 moments split'
         do  40  l = 0, lmax
-          do  40  ii = 1, 3
-            ql(ii,l+1,1) = ql(ii,l+1,2)
+        do  40  ii = 1, 3
+          ql(ii,l+1,1) = ql(ii,l+1,2)
    40   continue
       else
         aiomom = .false.

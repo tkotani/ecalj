@@ -149,9 +149,9 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
-         integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+      integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     .   nlm , nsp , stdo , j1 , j2 , j3 
+     .   nlm , nsp , stdo , j1 , j2 , j3
 ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -167,7 +167,7 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
      .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 C ... Setup
@@ -183,14 +183,14 @@ Changenglob      nsp   = nglob('nsp')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
 
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 
@@ -210,12 +210,12 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
-ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
-ckino Dec.27.2011:          call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
-ckino Dec.28.2011:          call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2 
-        call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , k1 , k2 
-     .  , k3 , smrho , smpot , u00 ) 
+ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2
+ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2
+ckino Dec.27.2011:          call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2
+ckino Dec.28.2011:          call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2
+      call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , k1 , k2 
+     .  , k3 , smrho , smpot , u00 )
 
 
 
@@ -225,15 +225,15 @@ C ... Add estatic potential of compensating gaussians to smpot
 
       allocate(cgsum_zv(ng))
 
-ckino Dec.12.2011:           call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-ckino Dec.27.2011:           call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom , 
-         call vesgcm ( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom , 
-ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
-ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
-ckino Dec.27.2011:       .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+ckino Dec.12.2011:           call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom ,
+ckino Dec.27.2011:           call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom ,
+      call vesgcm ( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom ,
+ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
+ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
+ckino Dec.27.2011:       .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
 ckino Dec.28.2011:       .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
-     .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+     .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
 
 
 
@@ -242,12 +242,12 @@ ckino Dec.28.2011:       .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
-ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv 
-ckino Dec.27.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv 
-ckino Dec.28.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv 
-        call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
-     .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
+ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv
+ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv
+ckino Dec.27.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv
+ckino Dec.28.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv
+      call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
+     .  , cv_zv , k1 , k2 , k3 , smpot , vval )
 
 
 
@@ -295,9 +295,9 @@ C ... Adjust vbar, vval, gpot0 by vconst
         write (stdo,233)
   233   format(' average electrostatic potential at MT boundaries',
      .  ' after shift')
-         call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
+        call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
      .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
-     .   , iwdummy , iwdummy , iwdummy ) 
+     .   , iwdummy , iwdummy , iwdummy )
 
       endif
 

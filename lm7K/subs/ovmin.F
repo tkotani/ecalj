@@ -38,12 +38,12 @@ Cu   24 Nov 97  changed ovmin to call fovlp for fast execution
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-        integer:: nbas , nbasp , iprtbl 
-ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:) 
-        integer,allocatable :: iv_a_ontab(:) 
+      integer:: nbas , nbasp , iprtbl
+ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:)
+      integer,allocatable :: iv_a_ontab(:)
 
-ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:) 
-       integer,allocatable :: iv_a_oiax(:) 
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
+      integer,allocatable :: iv_a_oiax(:)
 
 C     integer ntab(nbas+1),iax(niax,1)
       double precision plat(3,3),pos(3,nbasp),rmax(1),rmt(1),z(1),alat
@@ -52,7 +52,7 @@ C     integer ntab(nbas+1),iax(niax,1)
       character sovmin*(*)
 C static:
       double precision alato,plato(9),xx
-        integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , novl 
+      integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , novl
 ckino Dec.14.2011 manual correction        integer,pointer :: iv_p_ontabo(:) =>NULL()
 
 ckino Dec.14.2011 manual correction       integer,pointer :: iv_p_oiaxo(:) =>NULL()
@@ -63,7 +63,7 @@ c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 
 C heap:
-       integer ::iwdummy 
+      integer ::iwdummy
 
 C Local parameters
       double precision fovl,xtol,gtol,dxmn,dxmx,fovmx
@@ -79,11 +79,11 @@ C --- Print out positions and overlaps ---
       call getpr(ipr)
       if (iprtbl .gt. 0) call ovlchk(nbas,nbasp,pos,alat,rmax,0d0,
      .dclabl,ips,mode,plat,fovmx,xx)
-ckino Dec.14.2011:          call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos , 
-ckino Dec.14.2011:          call fovlp ( 1 , nbas , iv_p_ontab , iv_a_oiax , plat , pos , 
-        call fovlp ( 1 , nbas , iv_a_ontab , iv_a_oiax , plat , pos , 
+ckino Dec.14.2011:          call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos ,
+ckino Dec.14.2011:          call fovlp ( 1 , nbas , iv_p_ontab , iv_a_oiax , plat , pos ,
+      call fovlp ( 1 , nbas , iv_a_ontab , iv_a_oiax , plat , pos , 
      .  ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , fovl 
-     .  , novl ) 
+     .  , novl )
 
 
       if (novl .eq. 0) novl = 1
@@ -209,8 +209,8 @@ ckino Dec.14.2011:       .  w_ormax,w_oips,modeo,iv_p_ontab,iv_a_oiax)
      .  w_ormax,w_oips,modeo,iv_a_ontab,iv_a_oiax)
 
         call pshpr(ipr-5)
- 22   call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
-     ., 1.0d0 , wk , isw , ir ) 
+ 22     call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
+     ., 1.0d0 , wk , isw , ir )
 
         xx = ovcall(n,0d0,w_op,ir,
      &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
@@ -232,11 +232,11 @@ C --- Print out updated positions and overlaps ---
         print '(/'' OVMIN:  updated site positions:'')'
         if (iprtbl .gt. 0) call ovlchk(nbas,nbasp,pos,alat,rmax,0d0,
      .  dclabl,ips,mode,plat,fovmx,xx)
-ckino Dec.14.2011:            call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos , 
-ckino Dec.14.2011:            call fovlp ( 1 , nbas , iv_p_ontab , iv_a_oiax , plat , pos , 
-          call fovlp ( 1 , nbas , iv_a_ontab , iv_a_oiax , plat , pos , 
+ckino Dec.14.2011:            call fovlp ( 1 , nbas , iv_p_ontab , iv_p_oiax , plat , pos ,
+ckino Dec.14.2011:            call fovlp ( 1 , nbas , iv_p_ontab , iv_a_oiax , plat , pos ,
+        call fovlp ( 1 , nbas , iv_a_ontab , iv_a_oiax , plat , pos , 
      .    ips , alat , rmax , z , 6d0 , 1d0 , .75d0 , .5d0 , fovmx , fovl 
-     .    , novl ) 
+     .    , novl )
 
 
         if (novl .eq. 0) novl = 1
@@ -262,13 +262,13 @@ C     implicit none
       double precision x,p(3*n)
 C static:
       double precision alato,plato(9)
-        integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , oposb , 
-     .  novl , novlp , novlm 
-ckino Dec.14.2011:          integer,pointer :: iv_p_ontabo(:) 
-        integer,allocatable :: iv_a_ontabo(:) 
+      integer:: nbaso , nbaspo , mxlst , nlst , modeo(3) , oposb , 
+     .  novl , novlp , novlm
+ckino Dec.14.2011:          integer,pointer :: iv_p_ontabo(:)
+      integer,allocatable :: iv_a_ontabo(:)
 
-ckino Dec.14.2011:         integer,pointer :: iv_p_oiaxo(:) 
-       integer,allocatable :: iv_a_oiaxo(:) 
+ckino Dec.14.2011:         integer,pointer :: iv_p_oiaxo(:)
+      integer,allocatable :: iv_a_oiaxo(:)
 
 cki
       real(8) :: w_ormax(:)
@@ -303,11 +303,11 @@ cki jul08 2010      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
 
       call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
      .w_oips,modeo,plato,fovl,xx)
-ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
-ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_a_oiaxo , plato , w_opos 
-        call fovlp ( 1 , nbaso , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
+ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
+ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
+      call fovlp ( 1 , nbaso , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .  , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-     .  , xx , fovl , novl ) 
+     .  , xx , fovl , novl )
 
 
 
@@ -326,39 +326,39 @@ C     .    alato,w_ormax,w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
 C ... Gradient of fovl wrt pos
       do  20  i = 1, nlst
         j = ilst(i)
-ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
-ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos 
-          call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
+ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
+ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
+        call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .    , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-     .    , xx , fov0 , novl0 ) 
+     .    , xx , fov0 , novl0 )
 
 
-        do  20  ix = 1, 3
-          val = p(3*i-3+ix)
-          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val+dx)
+      do  20  ix = 1, 3
+        val = p(3*i-3+ix)
+        call dvset(w_opos,3*j-3+ix,3*j-3+ix,val+dx)
 C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
 C     .    w_oips,modeo,plato,fovp,xx)
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos 
-            call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
+ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
+ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
+        call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-     .      , xx , fovp , novlp ) 
+     .      , xx , fovp , novlp )
 
 
-          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val-dx)
+        call dvset(w_opos,3*j-3+ix,3*j-3+ix,val-dx)
 C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
 C     .    w_oips,modeo,plato,fovm,xx)
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos 
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos 
-            call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
+ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
+ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
+        call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
-     .      , xx , fovm , novlm ) 
+     .      , xx , fovm , novlm )
 
 
-          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val)
-          fovp = fovl + 2*(fovp-fov0)
-          fovm = fovl + 2*(fovm-fov0)
-          p(n+3*i-3+ix) = dlog(fovp/fovm)/2/dx
+        call dvset(w_opos,3*j-3+ix,3*j-3+ix,val)
+        fovp = fovl + 2*(fovp-fov0)
+        fovm = fovl + 2*(fovm-fov0)
+        p(n+3*i-3+ix) = dlog(fovp/fovm)/2/dx
 *       print *, '... i,j,ix=',i,j,ix,fovp,fovm,p(n+3*i-3+ix)
    20 continue
       ovcall = ddot(n,p(n+1),1,p(2*n+1),1)

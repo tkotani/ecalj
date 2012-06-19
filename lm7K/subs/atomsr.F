@@ -4,7 +4,7 @@ c#define ONE_ATOM_UNIT 1
       module m_rhocor
       contains
       subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
-     .qcor,tol,ec,sumec,sumtc,rho,gcore,ipr)
+     .qcor,tol,ec,sumec,sumtc,rho,gcore,nmcore,ipr) !nmcore jun2012
 
 C- Generates the (spherical) charge density from the core states
 C ----------------------------------------------------------------------
@@ -48,14 +48,16 @@ Cu   19 Apr 01 core wave functions may be saved in gcore
 C  ---------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
+      integer:: isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
 #ifdef USEOPTIONAL
       double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
      .sumec(nsp),sumtc(nsp),v(nr,nsp),ec(*)
       real(8),optional:: gcore(nr,2,*)
+      integer,optional:: nmcore
 #else
       double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
      .sumec(nsp),sumtc(nsp),v(nr,nsp),gcore(nr,2,*),ec(*)
+      integer:: nmcore
 #endif
 C ... Local parameters
       character*1 pqn(9),ang(6)
@@ -68,14 +70,18 @@ C ... Heap
       real(8),allocatable:: vaa(:,:)
       logical oncewrite
 !! --- spin-averaged potential ---
-      if(oncewrite(6)) print *,'NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.'
-      if(oncewrite(7)) print *,'      We use spin-avaraged potential to calculate core density rhoc.'
-      if(oncewrite(8)) print *,'      Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F'
+c      print *,'rhocor: nmcore=',nmcore
       allocate(vaa(nr,nsp))
-      vaa=v
-      do ir=1,nr
-        vaa(ir,1:nsp)=sum(v(ir,1:nsp))/dble(nsp)
-      enddo
+      if(nmcore==1) then
+        if(oncewrite(6))print *,'NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.'
+        if(oncewrite(7)) print *,'      We use spin-avaraged potential to calculate core density rhoc.'
+        if(oncewrite(8)) print *,'      Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F'
+        do ir=1,nr
+          vaa(ir,1:nsp)=sum(v(ir,1:nsp))/dble(nsp)
+        enddo
+      else
+        vaa=v
+      endif
 !! -------------------------------
 
       stdo = lgunit(1)
@@ -95,44 +101,44 @@ C ... Heap
   757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
      .  4x,'nre',2x,'rho(rmax)')
         do  10  l = 0, lmax
-          do  10  konf = l, konfig(l)-2
-            deg = (2*(2*l+1))/nsp
-            if (konf+1.eq.kcor .and. l.eq.lcor) then
-              deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
-            endif
-            icore = icore+1
-            nodes = konf - l
-            ecor0 = ec(icore)
-            val = 1d-30
-            slo = -val
-            call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,vaa(1,isp),
+        do  10  konf = l, konfig(l)-2
+          deg = (2*(2*l+1))/nsp
+          if (konf+1.eq.kcor .and. l.eq.lcor) then
+            deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
+          endif
+          icore = icore+1
+          nodes = konf - l
+          ecor0 = ec(icore)
+          val = 1d-30
+          slo = -val
+          call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,vaa(1,isp),
      .      g,sumx,a,b,rofi,nr,nre)
-            ecore = ecor0
+          ecore = ecor0
 C     ... Correct core energy by using hankel bc's
-            kappa2 = ecor0 - vaa(nr,isp) + 2*z/rmax
-            if (nre .eq. nr .and. kappa2 .lt. 0d0) then
-              dlml = -1d0 - dsqrt(-kappa2)*rmax
-              do  31  ll = 1, l
-                dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
-   31         continue
-              slo = val*(dlml+l+1)/rmax
-              call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,vaa(1,isp),
+          kappa2 = ecor0 - vaa(nr,isp) + 2*z/rmax
+          if (nre .eq. nr .and. kappa2 .lt. 0d0) then
+            dlml = -1d0 - dsqrt(-kappa2)*rmax
+            do  31  ll = 1, l
+              dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
+   31       continue
+            slo = val*(dlml+l+1)/rmax
+            call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,vaa(1,isp),
      .        g,sumx,a,b,rofi,nr,nre)
-            endif
-            ec(icore) = ecore
-            if (isw .eq. 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
+          endif
+          ec(icore) = ecore
+          if (isw .eq. 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
 
 C     --- Add to rho, make integral v*rho ---
-            call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp),
+          call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp),
      .      deg,vrho,rorim)
-            rhorim = rhorim + rorim
-            tcore = ecore - vrho
-            qcore = qcore + deg
-            sumec(isp) = sumec(isp) + deg*ecore
-            sumtc(isp) = sumtc(isp) + deg*tcore
-            if (ipr.ge.2) write(stdo,758)
+          rhorim = rhorim + rorim
+          tcore = ecore - vrho
+          qcore = qcore + deg
+          sumec(isp) = sumec(isp) + deg*ecore
+          sumtc(isp) = sumtc(isp) + deg*tcore
+          if (ipr.ge.2) write(stdo,758)
      .      pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
-  758       format(1x,2a1,f8.2,3f15.6,i7,f9.5)
+  758     format(1x,2a1,f8.2,3f15.6,i7,f9.5)
    10   continue
         if (ipr.gt.0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
   230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
@@ -144,7 +150,7 @@ C     --- Add to rho, make integral v*rho ---
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
-     .job,niter,lfrz,plplus,qlplus)
+     .job,niter,lfrz,plplus,qlplus,nmcore)
 
       use m_globalvariables
 C- Makes an atomic sphere self-consistent and get atomic charges
@@ -261,6 +267,7 @@ C for Anderson mixing:
 
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
+
 c Heap allocation
 c      integer w(1)
 c      common /w/ w
@@ -269,6 +276,8 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       parameter (tolch=5d-5,tolrsq=1d-12)
       external lgunit
 
+      integer:: nmcore
+      print *,'atomsc nmcore=',nmcore
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
 Changenglob      lrel = nglob('lrel')
       lrel = globalvariables%lrel
@@ -303,8 +312,8 @@ C --- Guesses for core and valence eigenvalues ---
 ctakao probably not needed here
       if (ec(1) .eq. 0)
      .call getqvc(nsp,nl,lmax,z,pnu,qnu,ncmx,nvmx,kcor,lcor,qcor,qc,
-     .qtot,amgm,ec,ev) !only for core number check since we set ev and ev below. 
-                       !will be replace by simple code.
+     .qtot,amgm,ec,ev) !only for core number check since we set ev and ev below.
+      !will be replace by simple code.
       call radmsh(rmax,a,nr,rofi)
       call radwgt(rmax,a,nr,rofi(1,2))
 
@@ -341,7 +350,7 @@ c$$$      endif
 C --- Initial charge density ---
       if (job .eq. 'pot') then
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rhoin,rhoc,kcor,
-     .  lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000,plplus,qlplus)
+     .  lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000,plplus,qlplus,nmcore)
         if (niter .eq. 0) then
           call dcopy(nr*nsp,rhoin,1,rho,1)
 Cki#error, have return with len(w_varlist)>0 at line 189
@@ -409,7 +418,7 @@ C       Get rhrmx, exrmax
         if (last .and. iprint().ge.40) ipr1 = 1
         if (last .and. iprint().gt.40) ipr1 = 2
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc,
-     .  kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus)
+     .  kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus,nmcore)
         drho = 0
         sum = 0
         vrhoc = 0
@@ -514,7 +523,7 @@ C --- write out rho if requested ---
 
         call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
      .  rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu 
-     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus)
+     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus,nmcore)
 
         call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr , 
      .  nl * nsp )
@@ -536,8 +545,8 @@ C     implicit none
       if (rhozbk .eq. 0) return
       s = 16*datan(1d0)*scale*rhozbk
       do  10  isp = 1, nsp
-        do  10  ir = 2, nr
-          rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
+      do  10  ir = 2, nr
+        rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
    10 continue
       end subroutine addzbk
 
@@ -911,7 +920,7 @@ C         Exit point
 
 
       subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc,
-     .kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus)
+     .kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus,nmcore)
 !! ev is dummy now. feb2010 takao
 C- Makes spherical charge density for a spherical potential.
 C  ---------------------------------------------------
@@ -983,7 +992,7 @@ Cr     rho= q_0 phi*phi + 2 q_1 phi*phidot +
 Cr          q_2 (phidot*phidot + phi*phidotdot)
 C  ---------------------------------------------------
 C     implicit none
-      use m_rhocor
+      use m_rhocor,only:rhocor
 C Passed parameters
       logical lgdd,lfrz
       integer nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr
@@ -1000,7 +1009,7 @@ C Local parameters
 C     Speed of light, or infinity in nonrelativistic case
       common /cc/ c
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
-
+      integer::nmcore !jun2012
       call setcc(lrel)
 
       if (nr .gt. nrmx) call rxi(' newrho: increase nrx, need',nr)
@@ -1022,11 +1031,12 @@ C --- Calculate core density ---
         if (.not. lfrz) then
           call dpzero(rhoc,nr*nsp)
 #ifdef USEOPTIONAL
+c          print *,'goto rhocor nmcore=',nmcore
           call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
-     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,ipr=ipr)
+     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,nmcore=nmcore,ipr=ipr)
 #else
           call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
-     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,0d0,ipr)
+     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,0d0,nmcore=nmcore,ipr)
 #endif
         endif
         call dcopy(nr*nsp,rhoc,1,rho,1)
@@ -1041,19 +1051,19 @@ c          endif
       eval=-0.5d0 !initial condition. the same as getqvc
       do  20  isp = 1, nsp
         sumev(isp) = 0d0
-        do  20  l = 0, lmax
-        do  20  iz=0,1  !takao feb2011
-          if (nlr .eq. nl) lr = l+1
-          q0 = max(qnu(1,l+1,isp),0d0)
-          q1 = qnu(2,l+1,isp)
-          q2 = qnu(3,l+1,isp)
-          if (q0 .lt. 1d-6) goto 20
-          nn = int(pnu(l+1,isp)) - l - 1
-          val(1) = rmax
-          dl = dtan(pi*(0.5d0 - pnu(l+1,isp)))
-          slo(1) = dl + 1
+      do  20  l = 0, lmax
+      do  20  iz=0,1  !takao feb2011
+        if (nlr .eq. nl) lr = l+1
+        q0 = max(qnu(1,l+1,isp),0d0)
+        q1 = qnu(2,l+1,isp)
+        q2 = qnu(3,l+1,isp)
+        if (q0 .lt. 1d-6) goto 20
+        nn = int(pnu(l+1,isp)) - l - 1
+        val(1) = rmax
+        dl = dtan(pi*(0.5d0 - pnu(l+1,isp)))
+        slo(1) = dl + 1
 !! Setting when iz=1 override setting when iz=1
-          if(iz==1)then
+        if(iz==1)then
           if(plplus(l,isp)>0d0.and.qlplus(l,isp)>0d0) then
 c             print *,'vvvvvv', plplus(l,isp)
             q0=qlplus(l,isp)
@@ -1065,63 +1075,63 @@ c             print *,'vvvvvv', plplus(l,isp)
           else
             cycle
           endif
-          endif
+        endif
 
 ccccccccccccccccccccccc
 c          print *,'tttt:l nn iz q0 dl =',l,nn,iz, q0,dl
 cccccccccccccccccccccccc
 
-          if (free) val(1) = 1d-30
-          if (free) slo(1) = -val(1)
-          call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v(1,isp),g,
+        if (free) val(1) = 1d-30
+        if (free) slo(1) = -val(1)
+        call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v(1,isp),g,
      .    sum,a,b,rofi,nr,nre)
 c          ev(ival) = eval !takao think this is not necessary. ev is a dummy
 cfeb2010 just for initial condition.
-          sumev(isp) = sumev(isp) + eval*q0 + q1
-          ro = g(nr)**2
-          if (.not.free .and. ro .lt. rocrit) write(*,766) l,nn,nre,ro
-  766     format(' NEWRHO (warning): PHP,PHPP set to zero,l,nn,nre,rho=',
+        sumev(isp) = sumev(isp) + eval*q0 + q1
+        ro = g(nr)**2
+        if (.not.free .and. ro .lt. rocrit) write(*,766) l,nn,nre,ro
+  766   format(' NEWRHO (warning): PHP,PHPP set to zero,l,nn,nre,rho=',
      .    3i5,2f8.4)
-          if (free .or. ro .lt. rocrit) then
-            call dpzero(gp,8*nr)
-            p = 0
-          else
-            val(1) = val(1)/dsqrt(sum)
-            slo(1) = slo(1)/dsqrt(sum)
+        if (free .or. ro .lt. rocrit) then
+          call dpzero(gp,8*nr)
+          p = 0
+        else
+          val(1) = val(1)/dsqrt(sum)
+          slo(1) = slo(1)/dsqrt(sum)
 C          call phidot(z,l,v(1,isp),eval,a,b,rofi,nr,g,val,slo,tol,
 C     .                nn,gp,phi,dphi,phip,dphip,p)
-            call phidx(1,z,l,v(1,isp),0d0,0d0,rofi,nr,2,tol,eval,val,
+          call phidx(1,z,l,v(1,isp),0d0,0d0,rofi,nr,2,tol,eval,val,
      .      slo,nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
-          endif
-          fllp1 = l*(l+1)
+        endif
+        fllp1 = l*(l+1)
 C  ...  Case add q2 phi phidd rho
-          if (lgdd) then
-            k = 2*nr
-            do  21  ir = 2, nre
-              jr = ir + nr
-              r = rofi(ir)
-              tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
-              gfac = 1d0 + fllp1/(tmc*r)**2
-              rho(ir,lr,isp) =  rho(ir,lr,isp) +
+        if (lgdd) then
+          k = 2*nr
+          do  21  ir = 2, nre
+            jr = ir + nr
+            r = rofi(ir)
+            tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+            gfac = 1d0 + fllp1/(tmc*r)**2
+            rho(ir,lr,isp) =  rho(ir,lr,isp) +
      .        q0*(gfac*g(ir)**2 + g(jr)**2) +
      .        2*q1*(gfac*g(ir)*gp(ir) + g(jr)*gp(jr)) +
      .        q2*(gfac*(gp(ir)**2 + g(ir)*gp(ir+k)) +
      .        gp(jr)**2 + g(jr)*gp(jr+k))
-  21        continue
+  21      continue
 C  ...  Case add -p q2 phi phi into rho
-          else
-            q00 = q0-p*q2
-            do  22  ir = 2, nre
-              jr = ir + nr
-              r = rofi(ir)
-              tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
-              gfac = 1d0 + fllp1/(tmc*r)**2
-              rho(ir,lr,isp) = rho(ir,lr,isp) +
+        else
+          q00 = q0-p*q2
+          do  22  ir = 2, nre
+            jr = ir + nr
+            r = rofi(ir)
+            tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+            gfac = 1d0 + fllp1/(tmc*r)**2
+            rho(ir,lr,isp) = rho(ir,lr,isp) +
      .        q00*(gfac*g(ir)**2 + g(jr)**2) +
      .        2*q1*(gfac*g(ir)*gp(ir) + g(jr)*gp(jr)) +
      .        q2*(gfac*gp(ir)**2 + gp(jr)**2)
-   22       continue
-          endif
+   22     continue
+        endif
   20  continue
       end subroutine newrho
 

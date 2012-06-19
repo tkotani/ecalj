@@ -426,8 +426,8 @@ c 333   format(' hansz1:  not converged to tol=',1pe8.1)
               xi(ir,l) = cofl(nmaxl)
    53       continue
             do  54  m = nmaxl, 1, -1
-              do  54  ir = 1, nr
-                xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+            do  54  ir = 1, nr
+              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
    54       continue
           endif
         endif

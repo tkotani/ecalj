@@ -17,7 +17,7 @@ Cdelw1 undel [['undef', 'wvar', 'wref'], 'ojcg', 'vcdmel']
 Cdelw1 undel [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
       subroutine vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
-      use m_struc_def  
+      use m_struc_def
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -85,15 +85,15 @@ ckino Dec.12.2011:           real(8),pointer :: rv_p_ocy(:) =>NULL()
 
 ckino Dec.12.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
 
-       real(8) ,allocatable :: rofi_rv(:)
-       real(8) ,allocatable :: ul_rv(:)
-       real(8) ,allocatable :: sl_rv(:)
-       real(8) ,allocatable :: gz_rv(:)
-       real(8) ,allocatable :: ruu_rv(:)
-       real(8) ,allocatable :: rus_rv(:)
-       real(8) ,allocatable :: rss_rv(:)
-       real(8) ,allocatable :: g_rv(:)
-       real(8) ,allocatable :: s_rv(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: ul_rv(:)
+      real(8) ,allocatable :: sl_rv(:)
+      real(8) ,allocatable :: gz_rv(:)
+      real(8) ,allocatable :: ruu_rv(:)
+      real(8) ,allocatable :: rus_rv(:)
+      real(8) ,allocatable :: rss_rv(:)
+      real(8) ,allocatable :: g_rv(:)
+      real(8) ,allocatable :: s_rv(:)
 
       double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
@@ -105,17 +105,17 @@ C ... Heap
       ehl=0d0  !call dpzero(ehl,n0)
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 66
 Cdelw1 do not change ocg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
 
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
 Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
 Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
       do  i = 1, nsite
@@ -127,7 +127,7 @@ ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
         !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
         call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
 
         !i_copy_size=size(ssite(ib)%pz)
         !call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
@@ -147,7 +147,7 @@ ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
 Cdelw1         call defrr (orofi, nr)
         allocate(rofi_rv(nr))
 Cdelw1         call radmsh (rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rofi_rv ) 
+        call radmsh ( rmt , a , nr , rofi_rv )
 C   --- Augmented wave functions u,s
 Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
         allocate(ul_rv(nr*(lmxa+1)*nsp))
@@ -167,11 +167,11 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-ckino Dec.12.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
-ckino Dec.28.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr , 
-         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
+ckino Dec.12.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr ,
+ckino Dec.28.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr ,
+        call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
-     .   , ruu_rv , rus_rv , rss_rv ) 
+     .   , ruu_rv , rus_rv , rss_rv )
 
 
 C   --- Matrix elements of u,s with core
@@ -179,30 +179,30 @@ C   --- Matrix elements of u,s with core
         call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
      .  ' ',120,i1mach(2),ib,ncls,lcls)
 Cdelw1         call defrr(og,   nr*2)
-         allocate(g_rv(nr*2))
-         if (nr*2<0) g_rv(:)=0.0d0
+        allocate(g_rv(nr*2))
+        if (nr*2<0) g_rv(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
 Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
-ckino Dec.12.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a 
-ckino Dec.28.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a 
-         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a 
+ckino Dec.12.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a
+ckino Dec.28.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a
+        call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a 
      .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
-     .   0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
+     .   0 , 1 , i ) , sme ( 0 , 1 , i ) )
 
 
-Cdelw1 rlse name= orofi old_list= orofi oul osl ogz oruu orus orss og 
+Cdelw1 rlse name= orofi old_list= orofi oul osl ogz oruu orus orss og
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1         call rlse (orofi)
-         deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
+        deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
 c   10   continue
       enddo
 C --- Open CLS weights file and write first line
 Cdelw1       call defrr(os,3*ndimh*nsite*2)
-       allocate(s_rv(3*ndimh*nsite*2))
-       if (3*ndimh*nsite*2<0) s_rv(:)=0.0d0
+      allocate(s_rv(3*ndimh*nsite*2))
+      if (3*ndimh*nsite*2<0) s_rv(:)=0.0d0
 
       nl = sctrl%nl
       nfstg = 11
@@ -215,7 +215,7 @@ C     iomoms-compatible format ---
       do   iq = 1, nq
         do  isp = 1, nsp
 Cdelw1           call dpzero(w(os),3*ndimh*nsite*2)
-           call dpzero ( s_rv , 3 * ndimh * nsite * 2 ) 
+          call dpzero ( s_rv , 3 * ndimh * nsite * 2 )
 
           do  i = 1, nsite
             lcls = iclsl(i)
@@ -233,16 +233,16 @@ Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 137
 Cdelw1               call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,
 Cdelw1      .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
 Cdelw1      .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
-                  call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-     .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv 
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , iv_p_oidxcg , s_rv 
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
-ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv 
-ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
+              call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+     .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , iv_p_oidxcg , s_rv
+ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv
+ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv
+ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv
 ckino Dec.28.2011:       .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
      .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv 
-     .            ) 
+     .            )
 
 
 
@@ -251,23 +251,23 @@ ckino Dec.28.2011:       .            , isp , i ) , lcls , slat%rv_a_ocg , slat%
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..
 Cdelw1           call dscal(3*ndimh*nsite*2,1d2,w(os),1)
-           call dscal ( 3 * ndimh * nsite * 2 , 1d2 , s_rv , 1 ) 
+          call dscal ( 3 * ndimh * nsite * 2 , 1d2 , s_rv , 1 )
 
 Cdelw1           j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,1,1,ndimh,ndimh,
 Cdelw1      .    nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
-           j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
+          j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
      .     , 1 , 1 , ndimh , ndimh , nchan , nchan , ndimh , evl ( 1 , isp 
-     .     , iq ) , 0d0 , s_rv , 0d0 , 0d0 , 0d0 ) 
+     .     , iq ) , 0d0 , s_rv , 0d0 , 0d0 , 0d0 )
 
         enddo
       enddo
       iq = nq*nsp + 1
       j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
      .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
-Cdelw1 rlse name= os old_list= os 
+Cdelw1 rlse name= os old_list= os
 Cdelw1 rlse name= os new_list= (None)
 Cdelw1       call rlse(os)
-       if (allocated(s_rv)) deallocate(s_rv)
+      if (allocated(s_rv)) deallocate(s_rv)
 
       call fclose(ifi)
       call tcx ('vcdmel')
@@ -437,8 +437,8 @@ C     .              aus(mlm,ib,2),cg(icg),cxx
    11 continue
 
       do  20  k = 1, 3
-        do  20  ib = 1, ndimh
-          s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
+      do  20  ib = 1, ndimh
+        s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
      .    + s(k,isite,ib,2)*s(k,isite,ib,2)
    20 continue
 C  100 format (2x,'n',2x,'L(val)',1x,'L(r)',1x,'L(core)',11x,'au',25x,

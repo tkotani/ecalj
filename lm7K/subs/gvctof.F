@@ -58,15 +58,15 @@ C --- Get shortest mesh pts where ki .ne. 0, gmax is pi/(longest) ---
       h2 = 1d10
       h3 = 1d10
       do  20  k1 = -5, 5
-        do  20  k2 = -5, 5
-          do  20  k3 = -5, 5
-            do  22  m = 1, 3
-              g(m) = k1*plat1(m,1)+k2*plat1(m,2)+k3*plat1(m,3)
-   22       continue
-            gg = alat*dsqrt(g(1)**2+g(2)**2+g(3)**2)
-            if (k1 .ne. 0) h1 = dmin1(h1,gg)
-            if (k2 .ne. 0) h2 = dmin1(h2,gg)
-            if (k3 .ne. 0) h3 = dmin1(h3,gg)
+      do  20  k2 = -5, 5
+      do  20  k3 = -5, 5
+        do  22  m = 1, 3
+          g(m) = k1*plat1(m,1)+k2*plat1(m,2)+k3*plat1(m,3)
+   22   continue
+        gg = alat*dsqrt(g(1)**2+g(2)**2+g(3)**2)
+        if (k1 .ne. 0) h1 = dmin1(h1,gg)
+        if (k2 .ne. 0) h2 = dmin1(h2,gg)
+        if (k3 .ne. 0) h3 = dmin1(h3,gg)
    20 continue
       h0 = dmax1(h1,h2,h3)
       gmax = pi/h0
@@ -83,14 +83,14 @@ C --- Get shortest mesh pts where ki .ne. 0, gmax is pi/(longest) ---
 C --- Alternative: non-overlapping spheres on recip superlattice ---
       gbot = 1d10
       do  40  k1 = -5, 5
-        do  40  k2 = -5, 5
-          do  40  k3 = -5, 5
-            g1 = k1*qlat1(1,1)+k2*qlat1(1,2)+k3*qlat1(1,3) - pos(1)
-            g2 = k1*qlat1(2,1)+k2*qlat1(2,2)+k3*qlat1(2,3) - pos(2)
-            g3 = k1*qlat1(3,1)+k2*qlat1(3,2)+k3*qlat1(3,3) - pos(3)
-            if (k1.ne.0 .or. k2.ne.0 .or. k3.ne.0) then
-              gbot = dmin1(gbot,g1*g1+g2*g2+g3*g3)
-            endif
+      do  40  k2 = -5, 5
+      do  40  k3 = -5, 5
+        g1 = k1*qlat1(1,1)+k2*qlat1(1,2)+k3*qlat1(1,3) - pos(1)
+        g2 = k1*qlat1(2,1)+k2*qlat1(2,2)+k3*qlat1(2,3) - pos(2)
+        g3 = k1*qlat1(3,1)+k2*qlat1(3,2)+k3*qlat1(3,3) - pos(3)
+        if (k1.ne.0 .or. k2.ne.0 .or. k3.ne.0) then
+          gbot = dmin1(gbot,g1*g1+g2*g2+g3*g3)
+        endif
    40 continue
 
       gmax1 = 0.5d0 * tpiba*dsqrt(gbot)
@@ -111,18 +111,18 @@ C --- Count g-vectors within sphere of radius gmax ---
       nv1 = 0
       nv2 = 0
       do  60  k1 = 0, n1-1
-        do  60  k2 = 0, n2-1
-          do  60  k3 = 0, n3-1
-            g(1) = k1*qlat(1,1)+k2*qlat(1,2)+k3*qlat(1,3) - pos(1)
-            g(2) = k1*qlat(2,1)+k2*qlat(2,2)+k3*qlat(2,3) - pos(2)
-            g(3) = k1*qlat(3,1)+k2*qlat(3,2)+k3*qlat(3,3) - pos(3)
-            call shorbz(g,gs,qlat1,plat1)
+      do  60  k2 = 0, n2-1
+      do  60  k3 = 0, n3-1
+        g(1) = k1*qlat(1,1)+k2*qlat(1,2)+k3*qlat(1,3) - pos(1)
+        g(2) = k1*qlat(2,1)+k2*qlat(2,2)+k3*qlat(2,3) - pos(2)
+        g(3) = k1*qlat(3,1)+k2*qlat(3,2)+k3*qlat(3,3) - pos(3)
+        call shorbz(g,gs,qlat1,plat1)
 C        if (abs(gs(1)+7) .lt. tol .and. abs(gs(2)+1) .lt. tol) then
 C          print *, gs
 C        endif
-            gg = (tpiba*tpiba)*(gs(1)**2+gs(2)**2+gs(3)**2)
-            if (gg .le. gmax2) nv2 = nv2+1
-            nv1 = nv1+1
+        gg = (tpiba*tpiba)*(gs(1)**2+gs(2)**2+gs(3)**2)
+        if (gg .le. gmax2) nv2 = nv2+1
+        nv1 = nv1+1
    60 continue
       if (ipr .ge. ipr0) call awrit3(' Reciprocal lattice: use sphere'//
      .' of radius %;3d, keeping %i vectors of %i',' ',80,stdo,gmax,

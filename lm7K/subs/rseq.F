@@ -168,7 +168,7 @@ C --- Possible warning or error exit ---
 !(this number 7836 is not used anywhere else? takao).
           open(7836,file='RSEQ_ERROR')
           write(7836,816) l,nod,abs(de),e
-          close(7836) 
+          close(7836)
         endif
       endif
 C     ec = e

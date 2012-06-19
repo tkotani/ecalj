@@ -1,5 +1,5 @@
-       subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
-     . , vsum ) 
+      subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
+     . , vsum )
 
 
       use m_struc_def  !Cgetarg
@@ -28,8 +28,8 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: nbas 
-       type(s_rv1) :: sv_p_orhoat(3,*)
+      integer:: nbas
+      type(s_rv1) :: sv_p_orhoat(3,*)
 
       real(8):: qmom(1) , vsum
       type(s_site)::ssite(*)
@@ -92,9 +92,9 @@ C --- Loop over sites ---
 
         call radwgt ( rmt , a , nr , rwgt_rv )
 
-         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
+        call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , cofg , 
-     .   cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) ) 
+     .   cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) )
 
 
         if (ipr .ge. 40) then
@@ -107,10 +107,10 @@ C --- Loop over sites ---
   220   format(i13,i6,f12.6,f12.6,2f9.2)
   221   format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x,
      .  'Qc',8x,'Z')
-         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
+        call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( 
      .   j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2 
-     .   ) 
+     .   )
 
 
 

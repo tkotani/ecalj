@@ -1,7 +1,7 @@
       module m_unusedfid
       contains
 ckino  return: unusedfid>=start if success
-ckino                   =0  if failure 
+ckino                   =0  if failure
       integer function unusedfid(start,end)
       implicit none
       integer, optional:: start,end
@@ -41,32 +41,32 @@ ckino                   =0  if failure
 
       integer:: i1,i2,i3
 ckino find min max
-          i1=1;i2=1;i3=1
-          emin(1)=dreal(f(i1,i2,i3))
-          emin(2)=dimag(f(i1,i2,i3))
-          emax(1)=dreal(f(i1,i2,i3))
-          emax(2)=dimag(f(i1,i2,i3))
-          if (present(imagmax)) imagmax=abs(dimag(f(i1,i2,i3)))
-          if (present(imaxi)) imaxi=(/i1,i2,i3/)
-          if (present(norm)) norm=0.0d0
-          do i3=1,n3
-          do i2=1,n2
+      i1=1;i2=1;i3=1
+      emin(1)=dreal(f(i1,i2,i3))
+      emin(2)=dimag(f(i1,i2,i3))
+      emax(1)=dreal(f(i1,i2,i3))
+      emax(2)=dimag(f(i1,i2,i3))
+      if (present(imagmax)) imagmax=abs(dimag(f(i1,i2,i3)))
+      if (present(imaxi)) imaxi=(/i1,i2,i3/)
+      if (present(norm)) norm=0.0d0
+      do i3=1,n3
+        do i2=1,n2
           do i1=1,n1
-             if (emin(1)> dreal(f(i1,i2,i3))) emin(1)=dreal(f(i1,i2,i3))
-             if (emax(1)< dreal(f(i1,i2,i3))) emax(1)=dreal(f(i1,i2,i3))
-             if (emin(2)> dimag(f(i1,i2,i3))) emin(2)=dimag(f(i1,i2,i3))
-             if (emax(2)< dimag(f(i1,i2,i3))) emax(2)=dimag(f(i1,i2,i3))
-             if (present(imagmax) .and. present(imaxi) ) then
-               if (imagmax < abs(dimag(f(i1,i2,i3))) ) then
-                 imaxi=(/i1,i2,i3/)
-                 imagmax=abs(dimag(f(i1,i2,i3)))
-               endif
-             endif
-             if (present(norm)) norm=norm+dreal(f(i1,i2,i3))**2+dimag(f(i1,i2,i3))**2
+            if (emin(1)> dreal(f(i1,i2,i3))) emin(1)=dreal(f(i1,i2,i3))
+            if (emax(1)< dreal(f(i1,i2,i3))) emax(1)=dreal(f(i1,i2,i3))
+            if (emin(2)> dimag(f(i1,i2,i3))) emin(2)=dimag(f(i1,i2,i3))
+            if (emax(2)< dimag(f(i1,i2,i3))) emax(2)=dimag(f(i1,i2,i3))
+            if (present(imagmax) .and. present(imaxi) ) then
+              if (imagmax < abs(dimag(f(i1,i2,i3))) ) then
+                imaxi=(/i1,i2,i3/)
+                imagmax=abs(dimag(f(i1,i2,i3)))
+              endif
+            endif
+            if (present(norm)) norm=norm+dreal(f(i1,i2,i3))**2+dimag(f(i1,i2,i3))**2
           enddo
-          enddo
-          enddo
-       end subroutine psir_minmax
+        enddo
+      enddo
+      end subroutine psir_minmax
 
 Ckino this part is from ioden2
       subroutine w_psir_xcrysden(ifi,plat,alat,nbas,pos,z
@@ -80,50 +80,50 @@ ckino ,f0(k1,k2,k3)
       integer:: isp,i,i1,i2,i3
 
       character(10):: psiform='(6E15.5)'
-      
-          write(ifi,'("CRYSTAL")')
-          write(ifi,'("PRIMVEC")')
-          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
-     .    ,i2=1,3)
-          write(ifi,'("PRIMCOORD")')
-          write(ifi,'(2i5)') nbas,1
-          do i = 1, nbas
-            write(ifi,'(i4,2x,3f10.5)') int(z(i)),
-     .      (pos(i2,i)*alat*0.529177208,i2=1,3)
-          enddo
 
-          do isp=1,3
-          write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
-          write(ifi,'(" wavefunction_complex_",i1)') isp
-          write(ifi,'(" BEGIN_DATAGRID_3D_complex_",i1)') isp
-          write(ifi,'(3i4)') n1,n2,n3
-          write(ifi,'(3F10.5)') 0.,0.,0.
-          write(ifi,'(3F10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
+      write(ifi,'("CRYSTAL")')
+      write(ifi,'("PRIMVEC")')
+      write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
      .    ,i2=1,3)
-          if (isp.eq.1) then
-            do i3=1,n3
+      write(ifi,'("PRIMCOORD")')
+      write(ifi,'(2i5)') nbas,1
+      do i = 1, nbas
+        write(ifi,'(i4,2x,3f10.5)') int(z(i)),
+     .      (pos(i2,i)*alat*0.529177208,i2=1,3)
+      enddo
+
+      do isp=1,3
+        write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
+        write(ifi,'(" wavefunction_complex_",i1)') isp
+        write(ifi,'(" BEGIN_DATAGRID_3D_complex_",i1)') isp
+        write(ifi,'(3i4)') n1,n2,n3
+        write(ifi,'(3F10.5)') 0.,0.,0.
+        write(ifi,'(3F10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
+     .    ,i2=1,3)
+        if (isp.eq.1) then
+          do i3=1,n3
             do i2=1,n2
-            write(ifi,psiform) (dble(psi(i1,i2,i3)),i1=1,n1)
+              write(ifi,psiform) (dble(psi(i1,i2,i3)),i1=1,n1)
             enddo
-            enddo
-          elseif (isp.eq.2) then
-            do i3=1,n3
+          enddo
+        elseif (isp.eq.2) then
+          do i3=1,n3
             do i2=1,n2
-            write(ifi,psiform)  
+              write(ifi,psiform)  
      .      (dimag(psi(i1,i2,i3)),i1=1,n1)
             enddo
-            enddo
-          elseif (isp.eq.3) then
-            do i3=1,n3
+          enddo
+        elseif (isp.eq.3) then
+          do i3=1,n3
             do i2=1,n2
-            write(ifi,psiform)
+              write(ifi,psiform)
      .      (dimag(psi(i1,i2,i3))**2+dreal(psi(i1,i2,i3))**2,i1=1,n1)
             enddo
-            enddo
-          endif
-          write(ifi,'(" END_DATAGRID_3D")')
-          write(ifi,'("END_BLOCK_DATAGRID_3D")')
           enddo
+        endif
+        write(ifi,'(" END_DATAGRID_3D")')
+        write(ifi,'("END_BLOCK_DATAGRID_3D")')
+      enddo
 
 
 
@@ -150,7 +150,7 @@ Ci   isp  : spin index
 Ci   n_eiglist: number of  eiglist
 Ci   eiglist: eig list to print psir
 Ci   plat: lattice  vector
-Ci   alat: unit of plat 
+Ci   alat: unit of plat
 Ci   nbas: # of atoms
 Ci   pos: postion of atoms
 Ci   z:   atomic number of atoms
@@ -174,7 +174,7 @@ ckino      real(8),intent(in):: qlist(3,n_qlist)
 ckino      complex(8),intent(in):: f0(k1,k2,k3,nspc,nev)
 
 C ... Local parameters
-      character(6):: thisfunc='w_psir' 
+      character(6):: thisfunc='w_psir'
       integer i1,i2,i3,i,ispc,ieig,iq1,iq
       logical:: l_execute
       character(40):: fnamer,fnamei
@@ -187,11 +187,11 @@ C ... Local parameters
       real(8),parameter:: zero=0.0d0
 
       write(*,*) thisfunc,':start '
- 
+
 
       if (q(1).eq.zero .and. q(2).eq.zero .and. q(3).eq.zero ) then
-         l_rot=.true.
-         write(*,*)thisfunc,'rotation is done for gamma point'
+        l_rot=.true.
+        write(*,*)thisfunc,'rotation is done for gamma point'
       endif
 
 #if 0
@@ -205,11 +205,11 @@ C ... Local parameters
 #endif
 
 ckino get a free file descriptor
-      ifiler=unusedfid(100) 
+      ifiler=unusedfid(100)
       if (ifiler.eq.0) then
-          write(*,*) 'Error: failed to get a file descriptor in ',thisfunc,
+        write(*,*) 'Error: failed to get a file descriptor in ',thisfunc,
      .      ' but continue.'
-          return
+        return
       endif
 
 
@@ -221,9 +221,9 @@ ckino get a free file descriptor
           write(*,*)thisfunc,':open ',trim(fnamer),' for psi'
           open(ifiler,file=fnamer,status='unknown',iostat=stat,action='write')
           if (stat.ne.0) then
-             write(*,*)thisfunc,':Error: failed to open ',fnamer,'. in ',thisfunc,
+            write(*,*)thisfunc,':Error: failed to open ',fnamer,'. in ',thisfunc,
      .         ' but continue.'
-             return
+            return
           endif
 
           call gvputf(ng,1,kv,k1,k2,k3,psi(1,ispc,i),f)
@@ -237,37 +237,37 @@ ckino find min max
           write(*,'(a,a,3F15.7)') thisfunc,':real part, min,max and norm=',emin(1),emax(1),norm
           write(*,'(a,a,3F15.7)')thisfunc, ':imag part, min,max,|max|   =',emin(2),emax(2),imagmax
 
-         zphase=f( imaxi(1),imaxi(2),imaxi(3) )
-         if ( abs(dimag(zphase)) > abs(dreal(zphase))*1d-3 ) then
+          zphase=f( imaxi(1),imaxi(2),imaxi(3) )
+          if ( abs(dimag(zphase)) > abs(dreal(zphase))*1d-3 ) then
             zphase=dconjg(zphase)
-            zphase=zphase / abs(zphase) 
+            zphase=zphase / abs(zphase)
 ckino            write(*,'(a,2F15.5,a,2F15.5)') 'imagmax f=',
-ckino     .   f( imaxi(1),imaxi(2),imaxi(3) ), 
+ckino     .   f( imaxi(1),imaxi(2),imaxi(3) ),
 ckino     .   'rot f=',f( imaxi(1),imaxi(2),imaxi(3) )*zphase
             do i3=1,n3
-            do i2=1,n2
-            do i1=1,n1
-               f(i1,i2,i3)=f(i1,i2,i3)*zphase
-            enddo
-            enddo
+              do i2=1,n2
+                do i1=1,n1
+                  f(i1,i2,i3)=f(i1,i2,i3)*zphase
+                enddo
+              enddo
             enddo
 
-          call psir_minmax(n1,n2,n3, k1,k2,k3,
+            call psir_minmax(n1,n2,n3, k1,k2,k3,
      i   f, 
      o   emin,emax,norm,imagmax,imaxi)
-          write(*,'(a,a,4i4)') thisfunc,':isp,ispc,iq,ie=',isp,ispc,iq,i
-          write(*,'(a,a,3F15.7)') thisfunc,':rot real part, min,max and norm=',emin(1),emax(1),norm
-          write(*,'(a,a,3F15.7)') thisfunc,':rot imag part, min,max,|max|   =',emin(2),emax(2),imagmax
+            write(*,'(a,a,4i4)') thisfunc,':isp,ispc,iq,ie=',isp,ispc,iq,i
+            write(*,'(a,a,3F15.7)') thisfunc,':rot real part, min,max and norm=',emin(1),emax(1),norm
+            write(*,'(a,a,3F15.7)') thisfunc,':rot imag part, min,max,|max|   =',emin(2),emax(2),imagmax
 
-         endif
+          endif
 
-         write(ifiler,'(a,4i5,3F15.5)') '#isp,ispc,iq,ie,q=',isp,ispc,iq,i,q
-         call w_psir_xcrysden(ifiler,plat,alat,nbas,pos,z
+          write(ifiler,'(a,4i5,3F15.5)') '#isp,ispc,iq,ie,q=',isp,ispc,iq,i,q
+          call w_psir_xcrysden(ifiler,plat,alat,nbas,pos,z
      i  ,n1,n2,n3,k1,k2,k3, f 
      i  )
 
 
-         close(ifiler)
+          close(ifiler)
 
         enddo
       enddo
@@ -288,23 +288,23 @@ ckino      stop 'debug end: kino'
 
       n_listwf=0
       j2=0
-        j2=j2+1
-        if (sopts(j2:j2).eq.dc) return
-        j1=min(len(sopts),j2)
-        call nwordg(sopts,0,dc//' ',1,j1,j2)
-        if (j2.ge.j1) then
+      j2=j2+1
+      if (sopts(j2:j2).eq.dc) return
+      j1=min(len(sopts),j2)
+      call nwordg(sopts,0,dc//' ',1,j1,j2)
+      if (j2.ge.j1) then
 c           write(*,*)thisfunc,':j1,j2,sopts=',j1,j2,sopts(j1:j1+5)
-           if (sopts(j1:j1+5).eq.':band=' ) then
+        if (sopts(j1:j1+5).eq.':band=' ) then
 c              write(*,*)thisfunc,':sopts=',sopts(j1+6:j2),m_listwf
-              call mkils0(sopts(j1+6:j2),n_listwf,listwf(1))
-              if (n_listwf>m_listwf) then
+          call mkils0(sopts(j1+6:j2),n_listwf,listwf(1))
+          if (n_listwf>m_listwf) then
 c                 write(*,*)thisfunc,': parse error, opt=',trim(sopts)
-                 n_listwf=0
-                 return
-              endif
-              call mkilst(sopts(j1+6:j2),n_listwf,listwf)
-           endif
+            n_listwf=0
+            return
+          endif
+          call mkilst(sopts(j1+6:j2),n_listwf,listwf)
         endif
+      endif
 
       end subroutine w_psir_cmdopt
 

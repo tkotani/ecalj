@@ -1,6 +1,6 @@
-        subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+      subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
-     .  ) 
+     .  )
 
 
 
@@ -32,10 +32,10 @@ Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-        integer:: nbas , nxi(1) , nxi0 
-        type(s_rv1) :: sv_p_orhoat(3,nbas)
+      integer:: nbas , nxi(1) , nxi0
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
 
-       type(s_rv1) :: rv_a_orhofa(nbas)
+      type(s_rv1) :: rv_a_orhofa(nbas)
 
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
       type(s_lat)::slat
@@ -46,7 +46,7 @@ C ... Local parameters
       integer stdo !nrmx,nlmx,ktop0,stdo
 c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-     .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i 
+     .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i
 
 ckino Dec.12.2011:        integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:) =>NULL()
 ckino Dec.12.2011:        real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:) =>NULL()
@@ -84,10 +84,10 @@ Changenglob      nsp  = nglob('nsp')
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
-ckino Dec.12.2011:        rv_p_ocg    => slat%rv_p_ocg 
-ckino Dec.12.2011:        iv_p_ojcg   => slat%iv_p_ojcg 
-ckino Dec.12.2011:        iv_p_oidxcg => slat%iv_p_oidxcg 
-ckino Dec.12.2011:        rv_p_ocy    => slat%rv_p_ocy 
+ckino Dec.12.2011:        rv_p_ocg    => slat%rv_p_ocg
+ckino Dec.12.2011:        iv_p_ojcg   => slat%iv_p_ojcg
+ckino Dec.12.2011:        iv_p_oidxcg => slat%iv_p_oidxcg
+ckino Dec.12.2011:        rv_p_ocy    => slat%rv_p_ocy
 
 
 C --- Loop over sites where density is made ---
@@ -168,17 +168,17 @@ c          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
             rsmh = rsmfa(js)
             eh   = exi(je,js)
             nlmh = 1
-                call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+            call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
+ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
 ckino Dec.28.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
      .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy 
-     .          , slat , b ) 
+     .          , slat , b )
 
             allocate(b0(0:kmxv,nlmh))
             b0=0d0
@@ -191,12 +191,12 @@ c            call dpzero(b0,(kmxv+1)*nlmh)
           enddo
         enddo
 
-          call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi 
+        call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi
 c     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v 
      .    , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
-     .    ) 
+     .    )
 
 
 
@@ -222,14 +222,14 @@ C ... Combine sphere densities from separate threads
           lmxl=sspec(is)%lmxl
 
           nlml = (lmxl+1)**2
-           call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
-     .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
+          call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
+     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
 
-           call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
-     .     pid , 0 , 'ovlocr' , 'rhoat(1)' ) 
+          call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
+     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
 
-           call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
-     .     0 , 'ovlocr' , 'rhoat(1)' ) 
+          call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
+     .     0 , 'ovlocr' , 'rhoat(1)' )
 
 C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
 C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
@@ -417,9 +417,9 @@ c      if (kmxv .gt. kmx) call rx('ovlocr: increase kmx')
 C ... Make the true density in rho1, smooth density in rho2
       call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
       do  30  isp = 1, nsp
-        do  30  i = 1, nr
-          rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
-          rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
+      do  30  i = 1, nr
+        rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
+        rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
    30 continue
 
 C ... Do some integrals
@@ -429,12 +429,12 @@ C ... Do some integrals
       sumtr = 0d0
       qlc = 0d0
       do  40  isp = 1, nsp
-        do  40  i = 1, nr
-          sumfa = sumfa + rwgt(i)*rhofa(i,isp)
-          sumhd = sumhd + rwgt(i)*rhohd(i,isp)
-          sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
-          sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
-          qlc = qlc + rwgt(i)*rhoc(i,isp)
+      do  40  i = 1, nr
+        sumfa = sumfa + rwgt(i)*rhofa(i,isp)
+        sumhd = sumhd + rwgt(i)*rhohd(i,isp)
+        sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
+        sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
+        qlc = qlc + rwgt(i)*rhoc(i,isp)
    40 continue
       sumsm = sumsm*srfpi
       sumtr = sumtr*srfpi

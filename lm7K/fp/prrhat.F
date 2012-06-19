@@ -1,4 +1,4 @@
-       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat ) 
+      subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat )
 
 
       use m_struc_def  !Cgetarg
@@ -6,8 +6,8 @@
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
-       integer:: nbas 
-       type(s_rv1) :: sv_p_orhoat(3,nbas)
+      integer:: nbas
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
 
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -47,13 +47,13 @@ Changenglob      nsp  = nglob('nsp')
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
      .  '   nr=',i5,'   nlml=',i3)
-         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , rwgt_rv 
-     .   , sv_p_orhoat( 1 , ib )%v ) 
+        call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , rwgt_rv 
+     .   , sv_p_orhoat( 1 , ib )%v )
 
 
 
-         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv , 
-     .   rwgt_rv , sv_p_orhoat( 2 , ib )%v ) 
+        call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv , 
+     .   rwgt_rv , sv_p_orhoat( 2 , ib )%v )
 
 
 

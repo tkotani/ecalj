@@ -37,40 +37,40 @@ C Heap:
       ntet = 0
 C --- Start loop over microcells ----
       do  20  i3 = 1, n3
-        do  20  i2 = 1, n2
-          do  20  i1 = 1, n1
+      do  20  i2 = 1, n2
+      do  20  i1 = 1, n1
 C   ... Set up identifiers at 8 corners of microcell
-            do  1  k1 = 0, 1
-              j1 = mod(i1+k1-1,n1) + 1
-              do  1  k2 = 0, 1
-                j2 = mod(i2+k2-1,n2) + 1
-                do  1  k3 = 0, 1
-                  j3 = mod(i3+k3-1,n3) + 1
-                  imc(k1,k2,k3) = ipq(j1,j2,j3)
-    1       continue
+        do  1  k1 = 0, 1
+          j1 = mod(i1+k1-1,n1) + 1
+        do  1  k2 = 0, 1
+          j2 = mod(i2+k2-1,n2) + 1
+        do  1  k3 = 0, 1
+          j3 = mod(i3+k3-1,n3) + 1
+          imc(k1,k2,k3) = ipq(j1,j2,j3)
+    1   continue
 C   --- Start loop over tetrahedra ---
-            do  10  itet = 1, 6
-              do  2  ic = 1, 4
-                k1 = kcut(1,ic,itet)
-                k2 = kcut(2,ic,itet)
-                k3 = kcut(3,ic,itet)
-                iq(ic) = imc(k1,k2,k3)
-    2         continue
+        do  10  itet = 1, 6
+          do  2  ic = 1, 4
+            k1 = kcut(1,ic,itet)
+            k2 = kcut(2,ic,itet)
+            k3 = kcut(3,ic,itet)
+            iq(ic) = imc(k1,k2,k3)
+    2     continue
 C    ... Order the identifiers
-              do  3  j = 1, 3
-                do  3  i = 1, 4-j
-                  if (iq(i) .gt. iq(i+1)) then
-                    ii = iq(i)
-                    iq(i) = iq(i+1)
-                    iq(i+1) = ii
-                  endif
-    3         continue
-              ntet = ntet+1
-              idtet(0,ntet) = 1
-              do  6  i = 1, 4
-                idtet(i,ntet) = iq(i)
-    6         continue
-   10       continue
+          do  3  j = 1, 3
+          do  3  i = 1, 4-j
+            if (iq(i) .gt. iq(i+1)) then
+              ii = iq(i)
+              iq(i) = iq(i+1)
+              iq(i+1) = ii
+            endif
+    3     continue
+          ntet = ntet+1
+          idtet(0,ntet) = 1
+          do  6  i = 1, 4
+            idtet(i,ntet) = iq(i)
+    6     continue
+   10   continue
    20 continue
 
 C --- Eliminate duplicate tetrahedra ---
@@ -78,10 +78,10 @@ C --- Eliminate duplicate tetrahedra ---
 C ... Sort it with fast ivheap unless there is not enough memory
 c      call defask(i)
 c      if (i .gt. mtet*5) then
-        call ivheap(5,mtet,idtet,ipq,1)
-        allocate(iwk_iv(mtet*5))
-        call ivprm ( 5 , mtet , idtet , iwk_iv , ipq , .true. )
-        if (allocated(iwk_iv)) deallocate(iwk_iv)
+      call ivheap(5,mtet,idtet,ipq,1)
+      allocate(iwk_iv(mtet*5))
+      call ivprm ( 5 , mtet , idtet , iwk_iv , ipq , .true. )
+      if (allocated(iwk_iv)) deallocate(iwk_iv)
 
 *       call yprm('idtet',0,idtet,0,5,5,mtet)
 c      else

@@ -145,16 +145,16 @@ C     call mpibc1(ves,1,4,.false.,'aiopar','ves')
       else
         write(-ifi,21) alabl, lmax+1, nsp, ves
         do  11  i = 1, nsp
-          do  11  l = 0, lmax
-            xx = pp(3,l+1,i)
-            if (pp(4,l+1,i) .eq. 0) then
-              write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
+        do  11  l = 0, lmax
+          xx = pp(3,l+1,i)
+          if (pp(4,l+1,i) .eq. 0) then
+            write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
      .        0d0, (pp(k,l+1,i), k=5,6)
-              sw = .true.
-            else
-              write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
+            sw = .true.
+          else
+            write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
      .        1/dsqrt(pp(4,l+1,i)), (pp(k,l+1,i), k=5,6)
-            endif
+          endif
    11   continue
         if (iprint() .ge. 30  .and. sw)
      .  write(i1mach(2),*) 'aiopar: encountered p=0 ... wrote 1/p=0'

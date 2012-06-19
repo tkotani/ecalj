@@ -980,20 +980,20 @@ C     implicit none
       na = 1
       rms2 = 0
       do  11  isp = 1, nsp
-        do  11  ic = 1, nclass
-          if (lcnst) then
-            if (cnst(ic) .ne. 0) goto 11
-          endif
-          do  12  l = 0, lmx(ic)
+      do  11  ic = 1, nclass
+        if (lcnst) then
+          if (cnst(ic) .ne. 0) goto 11
+        endif
+        do  12  l = 0, lmx(ic)
 C       print *, pold(l+1,isp,ic) - a(na,0,2)
-            pnu(l+1,isp,ic) = a(na,0,2)
-            rms2 = rms2 + (qold(1,l+1,isp,ic) - a(na+1,0,2))**2
-            do  21  i = 1, 3
+          pnu(l+1,isp,ic) = a(na,0,2)
+          rms2 = rms2 + (qold(1,l+1,isp,ic) - a(na+1,0,2))**2
+          do  21  i = 1, 3
 C       print *, i, qold(i,l+1,isp,ic) -  a(na+i,0,2)
-              qnu(i,l+1,isp,ic) = a(na+i,0,2)
-   21       continue
-            na = na+4
-   12     continue
+            qnu(i,l+1,isp,ic) = a(na+i,0,2)
+   21     continue
+          na = na+4
+   12   continue
    11 continue
 
       call dcopy(nx,a(na,0,2),1,xnew,1)
@@ -1053,26 +1053,26 @@ C --- Copy p,q to a; calc. RMS error; read prior iter from ifi ---
       if (ifi .gt. 0) then
         na = 1
         do  10  isp = 1, nsp
-          do  10  ic = 1, nclass
-            if (lcnst) then
-              if (cnst(ic) .ne. 0) then
-                do  21  l = 0, lmx(ic)
-                  pnu(l+1,isp,ic) = pold(l+1,isp,ic)
-                  do  21  i = 1, 3
-                    qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
-   21           continue
-                goto 10
-              endif
+        do  10  ic = 1, nclass
+          if (lcnst) then
+            if (cnst(ic) .ne. 0) then
+              do  21  l = 0, lmx(ic)
+                pnu(l+1,isp,ic) = pold(l+1,isp,ic)
+              do  21  i = 1, 3
+                qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
+   21         continue
+              goto 10
             endif
-            do  11  l = 0, lmx(ic)
-              a(na,0,1) = pnu(l+1,isp,ic)
-              a(na,0,2) = pold(l+1,isp,ic)
-              do  20  i = 1, 3
-                a(na+i,0,1) = qnu(i,l+1,isp,ic)
-                a(na+i,0,2) = qold(i,l+1,isp,ic)
-   20         continue
-              na = na+4
-   11       continue
+          endif
+          do  11  l = 0, lmx(ic)
+            a(na,0,1) = pnu(l+1,isp,ic)
+            a(na,0,2) = pold(l+1,isp,ic)
+            do  20  i = 1, 3
+              a(na+i,0,1) = qnu(i,l+1,isp,ic)
+              a(na+i,0,2) = qold(i,l+1,isp,ic)
+   20       continue
+            na = na+4
+   11     continue
    10   continue
 
 C   ... Append extra vector to a

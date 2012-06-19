@@ -1,5 +1,5 @@
-       subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
-     . , qbyl , hbyl , f ) 
+      subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
+     . , qbyl , hbyl , f )
 
 
       use m_struc_def  !Cgetarg
@@ -37,8 +37,8 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
 C     implicit none
-       integer:: lf 
-       type(s_rv1) :: sv_p_orhoat(3,*)
+      integer:: lf
+      type(s_rv1) :: sv_p_orhoat(3,*)
 
       real(8):: f(*) , qbyl(*) , hbyl(*)
       type(s_site)::ssite(*)
@@ -61,19 +61,19 @@ Changenglob      nsp = nglob('nsp')
 
       call fftz30(n1,n2,n3,k1,k2,k3)
 
-       call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
-     . , qbyl , hbyl , f ) 
+      call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
+     . , qbyl , hbyl , f )
 
-       if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
-     . , sv_p_orhoat ) 
+      if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
+     . , sv_p_orhoat )
 
       call symsmr(slat,nsp,k1,k2,k3,smrho)
       call tcx('symrho')
       end subroutine symrho
 
 
-       subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
-     . sv_p_orhoat , qbyl , hbyl , f ) 
+      subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
+     . sv_p_orhoat , qbyl , hbyl , f )
 
 
       use m_struc_def  !Cgetarg
@@ -111,8 +111,8 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: nbas , nsp , n0 , lf 
-       type(s_rv1) :: sv_p_orhoat(3,nbas)
+      integer:: nbas , nsp , n0 , lf
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
 
       parameter (n0=10)
       real(8):: f(3,nbas) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas)
@@ -121,9 +121,9 @@ C ... Passed parameters
       type(s_lat)::slat
 
 C ... Local parameters
-             integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+      integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
-     .       mxint , ival 
+     .       mxint , ival
 ckino Dec.13.2011:             real(8),pointer :: rv_p_og(:) =>NULL()
 
 ckino Dec.12.2011:              integer,pointer :: iv_p_ojcg(:) =>NULL()
@@ -154,13 +154,13 @@ C ... Heap
       ipr = iprint()
 
 
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 
@@ -168,14 +168,14 @@ ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-ckino Dec.12.2011:         iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.12.2011:         iv_p_oistab => slat%iv_p_oistab
 
 
 
       ngrp=slat%nsgrp
-ckino Dec.13.2011:         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.13.2011:         rv_p_og => slat%rv_p_osymgr
 
-ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag 
+ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag
 
 
 
@@ -237,14 +237,14 @@ C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))
 
-ckino Dec.12.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
-ckino Dec.13.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , rv_p_og 
-ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_p_osymgr 
-ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_a_osymgr 
-             call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_a_oistab , slat%rv_a_osymgr 
-ckino Dec.12.2011:       .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+ckino Dec.12.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og
+ckino Dec.13.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , rv_p_og
+ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_p_osymgr
+ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_a_osymgr
+          call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_a_oistab , slat%rv_a_osymgr
+ckino Dec.12.2011:       .       , rv_p_oag , plat , qlat , pos_rv , sym_rv )
 ckino Dec.27.2011:       .       , slat%rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
-     .       , slat%rv_a_oag , plat , qlat , pos_rv , sym_rv ) 
+     .       , slat%rv_a_oag , plat , qlat , pos_rv , sym_rv )
 
 
 
@@ -254,12 +254,12 @@ C   ... Apply the projectors to rhoat
           if (lmxl .gt. -1) then
             allocate(rho_rv(nr*nlml*nsp))
 
-             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .       , rho_rv , sv_p_orhoat , 1 ) 
+            call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+     .       , rho_rv , sv_p_orhoat , 1 )
 
 
-             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .       , rho_rv , sv_p_orhoat , 2 ) 
+            call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
+     .       , rho_rv , sv_p_orhoat , 2 )
 
 
 
@@ -370,16 +370,16 @@ C ... Local parameters
       end subroutine psymrq
 
 
-       subroutine psymr1 ( nrclas , ipa , nr , nlml , nsp , nlmx , sym 
-     . , rho , sv_p_orhoat , icmp ) 
-       use m_struc_def, only: s_rv1
+      subroutine psymr1 ( nrclas , ipa , nr , nlml , nsp , nlmx , sym 
+     . , rho , sv_p_orhoat , icmp )
+      use m_struc_def, only: s_rv1
 
 C- Symmetrize density for one class of atoms
 C     implicit none
 C ... Passed parameters
       integer nrclas,nsp
-       integer:: ipa(nrclas) , nlmx , nr , nlml , icmp 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+      integer:: ipa(nrclas) , nlmx , nr , nlml , icmp
+      type(s_rv1) :: sv_p_orhoat(3,1)
 
       double precision sym(nlmx,nlmx,nrclas),rho(nr,nlml,nsp)
 C ... Local parameters
@@ -392,8 +392,8 @@ C ... Accumulate symmetrized true density on first site
       call dpzero(rho, nr*nlml*nsp)
       do  ia = 1, nrclas
         ib = ipa(ia)
-         call pxsmr1 ( 1d0 , nr , nlml , nsp , sym ( 1 , 1 , ia ) , sv_p_orhoat( icmp , ib )%v 
-     .   , rho , nn ) 
+        call pxsmr1 ( 1d0 , nr , nlml , nsp , sym ( 1 , 1 , ia ) , sv_p_orhoat( icmp , ib )%v 
+     .   , rho , nn )
 
       enddo
 
@@ -401,10 +401,10 @@ C ... Copy to all sites in class
       wgt = nrclas
       do  ia = 1, nrclas
         ib = ipa(ia)
-         call dpzero ( sv_p_orhoat( icmp , ib )%v , nr * nlml * nsp ) 
+        call dpzero ( sv_p_orhoat( icmp , ib )%v , nr * nlml * nsp )
 
-         call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
-     .   , sv_p_orhoat( icmp , ib )%v , nn ) 
+        call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
+     .   , sv_p_orhoat( icmp , ib )%v , nn )
 
       enddo
 
@@ -426,7 +426,7 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
-          integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp 
+      integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp
 ckino Dec.12.2011:            integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.12.2011:           real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -446,16 +446,16 @@ C ... Heap
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
 
 
 
       ngrp=slat%nsgrp
-ckino Dec.12.2011:         iv_p_oips0 => slat%iv_p_oips0 
+ckino Dec.12.2011:         iv_p_oips0 => slat%iv_p_oips0
 
-ckino Dec.12.2011:         zv_p_obgv => slat%zv_p_obgv 
+ckino Dec.12.2011:         zv_p_obgv => slat%zv_p_obgv
 
 
       if (ngrp .gt. 1) then
@@ -467,30 +467,30 @@ C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
-ckino Dec.12.2011:             call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
-ckino Dec.28.2011:             call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
-           call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
-     .     1 , 1 , isp ) , cv_zv ) 
+ckino Dec.12.2011:             call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 ,
+ckino Dec.28.2011:             call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smrho ( 1 ,
+          call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
+     .     1 , 1 , isp ) , cv_zv )
 
 
-ckino Dec.12.2011:               call gvsym ( ng , rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
-ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv , 
-ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
-ckino Dec.27.2011:               call gvsym ( ng , slat%rv_p_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
-ckino Dec.27.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv , 
-ckino Dec.28.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_a_obgv , cv_zv , 
-             call gvsym ( ng , slat%rv_a_ogv , slat%iv_a_oips0 , slat%zv_a_obgv , cv_zv , 
-     .       csym_zv ) 
+ckino Dec.12.2011:               call gvsym ( ng , rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv ,
+ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , zv_p_obgv , cv_zv ,
+ckino Dec.12.2011:               call gvsym ( ng , slat%rv_p_ogv , iv_p_oips0 , slat%zv_p_obgv , cv_zv ,
+ckino Dec.27.2011:               call gvsym ( ng , slat%rv_p_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv ,
+ckino Dec.27.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_p_obgv , cv_zv ,
+ckino Dec.28.2011:               call gvsym ( ng , slat%rv_a_ogv , slat%iv_p_oips0 , slat%zv_a_obgv , cv_zv ,
+          call gvsym ( ng , slat%rv_a_ogv , slat%iv_a_oips0 , slat%zv_a_obgv , cv_zv , 
+     .       csym_zv )
 
 
 
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
-ckino Dec.12.2011:             call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
-ckino Dec.28.2011:             call gvaddf ( ng , slat%iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
-           call gvaddf ( ng , slat%iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
-     .     ( 1 , 1 , 1 , isp ) ) 
+ckino Dec.12.2011:             call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho
+ckino Dec.28.2011:             call gvaddf ( ng , slat%iv_p_okv , k1 , k2 , k3 , csym_zv , smrho
+          call gvaddf ( ng , slat%iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
+     .     ( 1 , 1 , 1 , isp ) )
 
 
 C         call zprm3('smrho after poke',smrho,k1,k2,k3)
@@ -530,15 +530,15 @@ C ... Local parameters
       nneg = 0
       rmin = 999
       do  10  i3 = 1, n3
-        do  10  i2 = 1, n2
-          do  10  i1 = 1, n1
-            xx = dble(smrho(i1,i2,i3))
-            rmin = min(rmin,xx)
-            if (xx .lt. 0) then
-              nneg = nneg+1
-              xx = 1d-8
-            endif
-            smrho(i1,i2,i3) = xx
+      do  10  i2 = 1, n2
+      do  10  i1 = 1, n1
+        xx = dble(smrho(i1,i2,i3))
+        rmin = min(rmin,xx)
+        if (xx .lt. 0) then
+          nneg = nneg+1
+          xx = 1d-8
+        endif
+        smrho(i1,i2,i3) = xx
    10 continue
 
       if (nneg .gt. 0) write(stdo,333) nneg,rmin

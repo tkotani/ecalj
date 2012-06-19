@@ -194,9 +194,9 @@ C     ... Asymtotic case, r>>rsm
      .    call hanr(wk(n2,3),lmn,lmax,nrx,nr+1-n2,e,wk(n2,4))
 C     ... Poke into xi(lmn:lmax), with the original ordering of points
           do  30  l = lmn, lmax
-            do  30  ir = 1, nr
-              j = idx(ir,1)
-              xi(ir,l,ie) = wk(idx(ir,1),4+l-lmn)
+          do  30  ir = 1, nr
+            j = idx(ir,1)
+            xi(ir,l,ie) = wk(idx(ir,1),4+l-lmn)
    30     continue
         endif
    40 continue
@@ -206,11 +206,11 @@ C --- Scale by r**l if job nonzero ---
       if (.not. lscal) return
       do  62  ir = 1, nr
         rl0 = dsqrt(rsq(ir))
-        do  62  ie = 1, nxi
-          rl = rl0
-          do  62  l = 1, lxi(ie)
-            xi(ir,l,ie) = xi(ir,l,ie)*rl
-            rl = rl*rl0
+      do  62  ie = 1, nxi
+        rl = rl0
+      do  62  l = 1, lxi(ie)
+        xi(ir,l,ie) = xi(ir,l,ie)*rl
+        rl = rl*rl0
    62 continue
 
       end
@@ -330,8 +330,8 @@ C ---   Polynomial to nmaxl ---
               xi(ir,l) = cofl(nmaxl)
    53       continue
             do  54  m = nmaxl, 1, -1
-              do  54  ir = 1, nr
-                xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+            do  54  ir = 1, nr
+              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
    54       continue
           endif
         endif

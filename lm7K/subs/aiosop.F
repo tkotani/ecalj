@@ -54,49 +54,49 @@ C   ... read nl and nsp ... abort if missing
 C   ... read SO parms
         do  10  l = 1, lmxf
           do  11  is2 = 1, min(nsp,nsp2)
-            do  11  is1 = 1, min(nsp,nsp2)
-              if (l .le. lmx) then
-                read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=1,3)
-              else
-                read(ifi,*) k,ks1,ks2
-              endif
-              if (ks1 .ne. is1 .or. ks2 .ne. is2)
+          do  11  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=1,3)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
      .        call rx('aiosop: spin mismatch')
    11     continue
    10   continue
         read(ifi,'(a72)') s
         do  100  l = 0, lmxf
           do  111  is2 = 1, min(nsp,nsp2)
-            do  111  is1 = 1, min(nsp,nsp2)
-              if (l .le. lmx) then
-                read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=4,6)
-              else
-                read(ifi,*) k,ks1,ks2
-              endif
-              if (ks1 .ne. is1 .or. ks2 .ne. is2)
+          do  111  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=4,6)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
      .        call rxs('aiosop: spin mismatch, class ',nam)
   111     continue
   100   continue
         read(ifi,'(a72)') s
         do  110  l = 0, lmxf
           do  115  is2 = 1, min(nsp,nsp2)
-            do  115  is1 = 1, min(nsp,nsp2)
-              if (l .le. lmx) then
-                read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=7,9)
-              else
-                read(ifi,*) k,ks1,ks2
-              endif
-              if (ks1 .ne. is1 .or. ks2 .ne. is2)
+          do  115  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=7,9)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
      .        call rxs('aiosop: spin mismatch, class ',nam)
   115     continue
   110   continue
 
         if (nsp2 .lt. nsp) then
           do  12  j = 1, 9
-            do  12  is2 = 1, nsp
-              do  12  is1 = 1, nsp
-                do  12  l = 0, nl-1
-                  sop(l,is1,is2,j) = sop(l,1,1,j)
+          do  12  is2 = 1, nsp
+          do  12  is1 = 1, nsp
+          do  12  l = 0, nl-1
+            sop(l,is1,is2,j) = sop(l,1,1,j)
    12     continue
         endif
 
@@ -107,24 +107,24 @@ C   ... read SO parms
       else
         write(-ifi,21) alabl, lmax+1, nsp
         do  20  l = 1, lmax
-          do  20  is2 = 1, nsp
-            do  20  is1 = 1, nsp
-              write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=1,3)
-  333         format(i4,2i3,3f15.10)
+        do  20  is2 = 1, nsp
+        do  20  is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=1,3)
+  333     format(i4,2i3,3f15.10)
    20   continue
 C       write(-ifi,'(''   matrix elements of phi and phidot'')')
         write(-ifi,121)
         do  120  l = 0, lmax
-          do  120  is2 = 1, nsp
-            do  120  is1 = 1, nsp
-              write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=4,6)
+        do  120  is2 = 1, nsp
+        do  120  is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=4,6)
   120   continue
 C       write(-ifi,'(''   matrix elements of phi B phidot'')')
         write(-ifi,221)
         do  130  l = 0, lmax
-          do  130  is2 = 1, nsp
-            do  130  is1 = 1, nsp
-              write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=7,9)
+        do  130  is2 = 1, nsp
+        do  130  is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=7,9)
   130   continue
 
         aiosop = .true.

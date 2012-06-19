@@ -1,5 +1,5 @@
-       subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
-     . ) 
+      subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
+     . )
 
 
       use m_struc_def  !Cgetarg
@@ -38,8 +38,8 @@ Cu   21 Dec 04 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: nbas , nsp 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+      integer:: nbas , nsp
+      type(s_rv1) :: sv_p_orhoat(3,1)
 
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -84,11 +84,11 @@ C --- For each site and l, rotate the m-components ---
         nlml = (lmxl+1)**2
         if (nlml .gt. nl2) call rx('increase nl2 in pvsms2')
 
-         call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 1 , ib )%v 
-     .   ) 
+        call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 1 , ib )%v 
+     .   )
 
-         call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 2 , ib )%v 
-     .   ) 
+        call pvsms3 ( nr , nr , nlml , nsp , ryl , nl2 , sv_p_orhoat( 2 , ib )%v 
+     .   )
 
 
    10 continue

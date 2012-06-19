@@ -208,7 +208,7 @@ c
      &zz(nclass),
      &aa(nclass),  bb(nclass)
      &)
-      write(6,"(' allocation 1 end' )") 
+      write(6,"(' allocation 1 end' )")
 
 ! cphigeigmode=T stores cphi and geig into CphiGeig.
 ! This procedure can omit memory allocation of cphi and geig.
@@ -216,7 +216,7 @@ c
 c      if(cphigeigmode) then
       ificg=421
       open(ificg,file='CphiGeig',form='unformatted')
-c      else   
+c      else
 c        allocate(
 c     &  cphi_d(ldim2, nband, nqbze,nsp),
 c     &  geig_d(ngpmx, nband, nqbze,nsp)
@@ -250,7 +250,7 @@ c      write(6,'('' nband=ndimh (max) '',i5)') nbandmx
 c     &  zegf(nband,nband)
 c        read (ifigwb) zegf,evl, cphi
           evl =1d20
-          cphi=1d20 
+          cphi=1d20
           read (ifigwb) evl(1:nband), cphi(:,1:nband)
 
 C       call zprm('zegf',2,zegf,nband,nband,nband)
@@ -260,7 +260,7 @@ c        if(cphigeigmode) then
           write(ificg) cphi(1:ldim2,1:nbandmx)
 c        else
 c          cphi_d(:,:, ikp,isp) = cphi(:,1:nband)
-c        endif  
+c        endif
           evl_d (1:nband, ikp,isp) = evl (1:nband)
 
 c        do iband=1,nbandmx
@@ -323,7 +323,7 @@ c - check write
         enddo
       enddo
       print *,' rrr: xxxxxxxxxxxxxxxxxxxx'
-c      if(cphigeigmode) 
+c      if(cphigeigmode)
       close(ificg)
       deallocate( cphi,evl, vvv1,vvv2,vvv3)
 
@@ -641,14 +641,14 @@ c takao \sum_i g(i)*g(i) drdi
       SUM = 0D0
       DRDI = (A*B)*DEXP(A)
       DO  10  IR = 2, NR-1, 2
-      SUM = SUM + G1(IR)*G2(IR)*DRDI
-      DRDI = DRDI*EA2
+        SUM = SUM + G1(IR)*G2(IR)*DRDI
+        DRDI = DRDI*EA2
   10  CONTINUE
       SUM = SUM + SUM
       DRDI = (A*B)*EA2
       DO  11  IR = 3, NR-2, 2
-      SUM = SUM + G1(IR)*G2(IR)*DRDI
-      DRDI = DRDI*EA2
+        SUM = SUM + G1(IR)*G2(IR)*DRDI
+        DRDI = DRDI*EA2
   11  CONTINUE
       RMPB = B*DEXP(A*(NR-1))
       SUM = (2*SUM+ G1(1)*G2(1)*(A*B) + G1(NR)*G2(NR)*(A*RMPB))/3d0
@@ -1077,7 +1077,8 @@ C --- Match lunit with table.  matchu=-1 unless a match exists ---
       if (lunit .gt. 0) then
         do  110  i = 1, nnam
           matchu = i
-  110   if (tabuni(i) .eq. lunit) goto 111
+          if (tabuni(i) .eq. lunit) goto 111
+  110   continue
         matchu = -1
   111   continue
       endif
@@ -1089,7 +1090,8 @@ C --- If no match, get next available unit number => locuni ---
    12   locuni = locuni+1
         if (isopen(locuni,.false.)) goto 12
         do  14  i = 1, nnam
-   14   if (tabuni(i) .eq. locuni) goto 12
+          if (tabuni(i) .eq. locuni) goto 12
+   14   continue
       endif
 
 C --- Match pfnam with table, unless not needed ---
@@ -1097,7 +1099,8 @@ C --- Match pfnam with table, unless not needed ---
       if (matchu .le. 0 .or. bittst(mode1,4)) then
         do  30  i = 1, nnam
           matchn = i
-   30   if (tabnam(i) .eq. pfnam) goto 31
+          if (tabnam(i) .eq. pfnam) goto 31
+   30   continue
         matchn = -1
    31   continue
       endif
@@ -1244,7 +1247,8 @@ C     implicit none
 
       isopen = .true.
       do  10  i = nopen-1, 0, -1
-   10 if (unitab(i) .eq. unit) return
+        if (unitab(i) .eq. unit) return
+   10 continue
 
       isopen = .false.
       if (.not. sw) return
@@ -1279,7 +1283,8 @@ C     implicit none
    20 format(' FCLOSE: closing',i3)
 
       do  30  i = nopen-1, 0, -1
-   30 if (unitab(i) .eq. unit) unitab(i) = 999
+        if (unitab(i) .eq. unit) unitab(i) = 999
+   30 continue
       call ishell(nopen,unitab)
       if (nopen .eq. 0 .or. unitab(max(nopen-1,0)) .ne. 999) then
         if (iprint() .ge. 100)
@@ -1419,7 +1424,8 @@ C     implicit none
    12   continue
         bitand = 0
         do  20  i = n, 1, -1
-   20   bitand = bitand*2 + tf(i)
+          bitand = bitand*2 + tf(i)
+   20   continue
       endif
       end
 
@@ -1852,7 +1858,7 @@ c     &              zz,aa,bb,bas,alat,plat,
 c     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
 ccv2
 c     &              ,nindx,lindx,ibasindx
-c        endif  
+c        endif
       else
         stop 'gwinput: wrong ifi'
       endif
@@ -1914,11 +1920,11 @@ C       If passed ldim2>0, check that it matches file value
         nphimx = 0
 c        do  i = 1, ldim2
         nn = 0
-        do 
+        do
           read(ifi,'(a)',err=101,end=101) outs
           read(outs,*) ipqn,l,ib,ii
           do m=1,2*l+1
-            nn = nn+1 
+            nn = nn+1
             nindx   (nn) = ipqn
             lindx   (nn) = l
             ibasindx(nn) = ib
@@ -1940,13 +1946,13 @@ c! readin i0,i1,e1,e2; defaults value are 0.
       character(len=100):: recxxx=' '
       character(len=108):: recxxx2
       real(8)::d0e1
-      integer::i1 
+      integer::i1
       i0=999999
       e1=99999
-      read (ifi,"(a100)",err=1001,end=1001) recxxx 
+      read (ifi,"(a100)",err=1001,end=1001) recxxx
  1001 continue
       recxxx2 = recxxx//' 0 0'
-      read(recxxx2,*,err=1002,end=1002) i0 
+      read(recxxx2,*,err=1002,end=1002) i0
  1002 continue
       read(recxxx2,*,err=1003,end=1003) i0 ,e1
  1003 continue
@@ -1974,11 +1980,13 @@ C#elseC
 C      call awrit2('%% rows %i cols %i'//outs,' ',80,ifi,nr,nc)
 C#endif
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(1,i,j), j=1,nc)
+        write(ifi,fmt) (s(1,i,j), j=1,nc)
+   10 continue
       if (mod(icast,10) .gt. 1) then
         write(ifi,*)
         do  20  i = 1, nr
-   20   write(ifi,fmt) (s(2,i,j), j=1,nc)
+          write(ifi,fmt) (s(2,i,j), j=1,nc)
+   20   continue
       endif
       call fclose(ifi)
 C#ifdef NOAWRITE
@@ -2014,7 +2022,8 @@ C#elseC
 C      call awrit2('%% rows %i cols %i real',' ',80,ifi,nr,nc)
 C#endif
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(i,j,1), j=1,nc)
+        write(ifi,fmt) (s(i,j,1), j=1,nc)
+   10 continue
       write(ifi,*)
 C      do  12  i = 1, nr
 C   12 write(ifi,fmt) (s(i,j,2), j=1,nc)

@@ -96,34 +96,34 @@ C ... Make gradients using CGs for p functions
       enddo
 
       do  3  k = 0, kmax
-        do  3  jlm = 1, nlmh
-          do  3  ilm = 1, nlmg
-            s(ilm,jlm,k)    = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
+      do  3  jlm = 1, nlmh
+      do  3  ilm = 1, nlmg
+        s(ilm,jlm,k)    = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
     3 continue
 
 C --- Combine with Clebsch-Gordan coefficients ---
       do  11  ilg = 1, nlmg
         lg = ll(ilg)
-        do  11  ilh = 1, nlmh
-          lh = ll(ilh)
-          ii = max0(ilg,ilh)
-          indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-          do  11  icg = icg1, icg2
-            ilm = jcg(icg)
-            lm = ll(ilm)
-            k = (lg+lh-lm)/2
-            fac = (-1d0)**lg*cg(icg)
-            do  12  ip = 0, kmax
-              s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-              ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
-              ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
-              ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
-   12       continue
+      do  11  ilh = 1, nlmh
+        lh = ll(ilh)
+        ii = max0(ilg,ilh)
+        indx = (ii*(ii-1))/2 + min0(ilg,ilh)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
+      do  11  icg = icg1, icg2
+        ilm = jcg(icg)
+        lm = ll(ilm)
+        k = (lg+lh-lm)/2
+        fac = (-1d0)**lg*cg(icg)
+        do  12  ip = 0, kmax
+          s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
+          ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
+          ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
+          ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
+   12   continue
    11 continue
 
 CSFCPP#if F90

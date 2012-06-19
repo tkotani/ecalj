@@ -67,7 +67,7 @@ C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0
       if (lzero) rsq(1) = rsq(2)/100
 c      print *,'tailsm:xxx1'
-c      call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
+c      call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr ,
 c     .idx_rv , wk_rv , 0 , xi_rv )
       call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
      .idx_rv, 0 , xi_rv )

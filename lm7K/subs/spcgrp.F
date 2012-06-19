@@ -175,15 +175,15 @@ C ... Products with more than one sandwiched sigma-factor
         do  20  is = 2, 50
           nnew = 0
           do 21 n = ng+1,n2
-            do  21  m = m1, m2
-              call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
-              do  22  k = 1, nnow
-                if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
-   22         continue
-              nnew = nnew+1
-              nnow = nnow+1
-              if (nnow .gt. ngmx) goto 99
-              call spgcop(h,ah,g(1,nnow),ag(1,nnow))
+          do  21  m = m1, m2
+            call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
+            do  22  k = 1, nnow
+              if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
+   22       continue
+            nnew = nnew+1
+            nnow = nnow+1
+            if (nnow .gt. ngmx) goto 99
+            call spgcop(h,ah,g(1,nnow),ag(1,nnow))
    21     continue
           m1 = m2+1
           m2 = nnow
@@ -262,21 +262,21 @@ C     implicit none
      .g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3)
       integer i,j,k
       do 10 i=1,3
-        do 10 j=1,3
-          sum=0d0
-          do 11 k=1,3
-            sum=sum+g1(i,k)*g2(k,j)
-   11     continue
-          h(i,j)=sum
+      do 10 j=1,3
+        sum=0d0
+        do 11 k=1,3
+          sum=sum+g1(i,k)*g2(k,j)
+   11   continue
+        h(i,j)=sum
    10 continue
       do 13 j=1,3
-        do 13 i=1,3
-          g(i,j)=h(i,j)
+      do 13 i=1,3
+        g(i,j)=h(i,j)
    13 continue
       do 12 i=1,3
         ah(i)=a1(i)
-        do 12 j=1,3
-          ah(i)=ah(i)+g1(i,j)*a2(j)
+      do 12 j=1,3
+        ah(i)=ah(i)+g1(i,j)*a2(j)
    12 continue
       do 14 i=1,3
         a(i)=ah(i)
@@ -309,8 +309,8 @@ C      mode(3) = 2
       do  11  ka = 1, nrc
         do  2  m = 1, 3
           d(m) = ag(m) - pos(m,ia)
-          do  2  k = 1, 3
-            d(m) = d(m) + g(m,k)*pos(k,ka)
+        do  2  k = 1, 3
+          d(m) = d(m) + g(m,k)*pos(k,ka)
     2   continue
         call shorbz(d,d,rb,qb)
 C       call shorps(1,rb,mode,d,d)

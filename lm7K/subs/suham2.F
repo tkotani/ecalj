@@ -43,7 +43,7 @@ C ... Passed parameters
 C ... Local parameters
       integer nspec,lfp,nglob
 C ... Needed for
-       integer:: ng , i 
+      integer:: ng , i
 ckino Dec.14.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 
       double precision alat,tolgv,dum
@@ -62,15 +62,15 @@ C --- FP setup ---
         if (i .ge. 100) then
 
           ng=slat%ng
-ckino Dec.14.2011:             rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.14.2011:             rv_p_ogv => slat%rv_p_ogv
 
           alat=slat%alat
           tolgv=slat%tolft
 
-ckino Dec.14.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
-ckino Dec.27.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
-           call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
-     .     ) 
+ckino Dec.14.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv
+ckino Dec.27.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv
+          call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
+     .     )
 
         endif
       endif

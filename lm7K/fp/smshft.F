@@ -1,5 +1,5 @@
-       subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
-     . , smrho ) 
+      subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
+     . , smrho )
 
 
       use m_struc_def  !Cgetarg
@@ -46,7 +46,7 @@ Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       type(s_rv1) :: sv_p_orhoat(3,1)
+      type(s_rv1) :: sv_p_orhoat(3,1)
 
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -96,9 +96,9 @@ Changenglob      nbas = nglob('nbas')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
@@ -109,10 +109,10 @@ C ... Hold on to original smrho (cgr)
       allocate(cgr_zv(ng*nsp))
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
-       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv 
-     . ) 
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv
+      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv 
+     . )
 
 
 
@@ -122,10 +122,10 @@ C --- Shift in unscreened density at the two positions ---
       allocate(cwk_zv(ng))
 
       kmax = 0
-        call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-ckino Dec.12.2011:       .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+      call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng ,
+ckino Dec.12.2011:       .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
 ckino Dec.27.2011:       .  slat%rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
-     .  slat%rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
+     .  slat%rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
 
 
 
@@ -167,9 +167,9 @@ C       Compute elind if not given
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-ckino Dec.12.2011:           call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
-ckino Dec.27.2011:           call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv ) 
-         call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elind , cgs_zv ) 
+ckino Dec.12.2011:           call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv )
+ckino Dec.27.2011:           call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv )
+        call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elind , cgs_zv )
 
 
 C        call dscal(2*ng,.001d0,w(ocgs),1)
@@ -180,10 +180,10 @@ C        call dscal(2*ng,.001d0,w(ocgs),1)
       endif
 
 C ... Debugging: show delta smrho
-ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
-ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
-       call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho 
-     . ) 
+ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho
+ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho
+      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho 
+     . )
 
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
@@ -199,10 +199,10 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       enddo
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
-ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
-ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
-       call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho 
-     . ) 
+ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho
+ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho
+      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho 
+     . )
 
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
@@ -221,8 +221,8 @@ C --- Symmetrize the shifted density ---
       end subroutine smshft
 
 
-       subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
-     . , ng , gv , sv_p_orhoat , cwk , cg , job ) 
+      subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
+     . , ng , gv , sv_p_orhoat , cwk , cg , job )
 
 
       use m_struc_def  !Cgetarg
@@ -303,8 +303,8 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: nbas , nsp , ng , job 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+      integer:: nbas , nsp , ng , job
+      type(s_rv1) :: sv_p_orhoat(3,1)
 
       real(8):: gv(ng,3)
       type(s_site)::ssite(*)
@@ -400,19 +400,19 @@ C   --- Shift in mesh density, job 1 ---
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
-           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v 
-     .     , qloc ) 
+          call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v 
+     .     , qloc )
 
-           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v 
-     .     , sum ) 
+          call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v 
+     .     , sum )
 
           qloc = (qloc-sum)/y0
           qfat = 0d0
           do  12  i  = 1, nsp
-            do  12  ie = 1, nxi
-              gam  = 0.25d0*rsmfa**2
-              qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
-              qfat = qfat + hfc(ie,i)*qall
+          do  12  ie = 1, nxi
+            gam  = 0.25d0*rsmfa**2
+            qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
+            qfat = qfat + hfc(ie,i)*qall
    12     continue
           call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
 C         Excess sphere charge.  See Remarks above.
@@ -420,34 +420,34 @@ C         Excess sphere charge.  See Remarks above.
 
 C     ... Shift in smoothed free atom density
           do  14    i = 1, nsp
-            do  14  ixi = 1, nxi
-              e = exi(ixi)
-              do  15 ig = 1, ng
-                v(1) = gv(ig,1)*tpiba
-                v(2) = gv(ig,2)*tpiba
-                v(3) = gv(ig,3)*tpiba
-                v2 = v(1)**2+v(2)**2+v(3)**2
-                aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-                scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-                phase = dcmplx(dcos(scalp),dsin(scalp))
-                scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-                phase = phase - dcmplx(dcos(scalp),dsin(scalp))
-                cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-   15         continue
-   14     continue
-
-C     ... Add gaussian to conserve local charge; see Remarks
-          do  16   i = 1, nsp
-            do  16  ig = 1, ng
+          do  14  ixi = 1, nxi
+            e = exi(ixi)
+            do  15 ig = 1, ng
               v(1) = gv(ig,1)*tpiba
               v(2) = gv(ig,2)*tpiba
               v(3) = gv(ig,3)*tpiba
               v2 = v(1)**2+v(2)**2+v(3)**2
+              aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
               scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
               phase = dcmplx(dcos(scalp),dsin(scalp))
               scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
               phase = phase - dcmplx(dcos(scalp),dsin(scalp))
-              cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
+              cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
+   15       continue
+   14     continue
+
+C     ... Add gaussian to conserve local charge; see Remarks
+          do  16   i = 1, nsp
+          do  16  ig = 1, ng
+            v(1) = gv(ig,1)*tpiba
+            v(2) = gv(ig,2)*tpiba
+            v(3) = gv(ig,3)*tpiba
+            v2 = v(1)**2+v(2)**2+v(3)**2
+            scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
+            phase = dcmplx(dcos(scalp),dsin(scalp))
+            scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
+            phase = phase - dcmplx(dcos(scalp),dsin(scalp))
+            cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
    16     continue
 
 C   --- Shift in mesh density, job 12 ---
@@ -459,8 +459,8 @@ C     ... Core + valence at old position
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
 
-           call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
-     .     , kmax , ng , cwk ) 
+          call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+     .     , kmax , ng , cwk )
 
           call dscal(ng*2,-1d0,cwk,1)
 C     ... Core + valence at new position
@@ -468,8 +468,8 @@ C     ... Core + valence at new position
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
 
-           call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
-     .     , kmax , ng , cwk ) 
+          call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+     .     , kmax , ng , cwk )
 
 
 C     ... Add to cg

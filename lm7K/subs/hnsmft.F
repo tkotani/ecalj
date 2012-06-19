@@ -99,7 +99,7 @@ C     call prmx('f',f,nfmax,nf,1)
       if (info .ne. 0) call rx('hnsmft: normal matrix not pos def')
       call dsytrs('L',nf+1,1,s,nfmax,ipiv,f,nf+1,info)
 
-ctakao simple inversion 
+ctakao simple inversion
 c      call dsytrf('L',nf,s,nfmax,ipiv,wk,2*nfmax,info)
 c      if (info .ne. 0) call rx('hnsmft: normal matrix not pos def')
 c      call dsytrs('L',nf,1,s,nfmax,ipiv,f,nf,info)

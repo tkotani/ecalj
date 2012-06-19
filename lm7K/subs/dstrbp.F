@@ -47,26 +47,26 @@ C Local
       step = nblk
 ! Initialising arrays
       DO i=0,np-1
-      inode(i)=0
-      xnode(i)=0
+        inode(i)=0
+        xnode(i)=0
       END DO
       IF (step==1) THEN
-      CALL single(nloop,np,xnode,inode)
+        CALL single(nloop,np,xnode,inode)
       ELSE IF (step == 0) THEN
 ! Find optimum step nblk 6-16
-      CALL optimise(nloop,np,step,xnode,inode,nblk)
+        CALL optimise(nloop,np,step,xnode,inode,nblk)
       ELSE
-      CALL multiple(nloop,np,step,xnode,inode)
+        CALL multiple(nloop,np,step,xnode,inode)
       END IF
       DO i=0,np-1
-      index(i)=inode(i)+1
+        index(i)=inode(i)+1
       END DO
       index(np)=nloop+1
       if (iprint() .lt. 41) return
 ! Output indices
       WRITE (*,'(" DSTRBP: i   inode   xnode   block=",i5)') nblk
       DO i=0,np-1
-      WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
+        WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
       END DO
 #endif
       END SUBROUTINE dstrbp
@@ -94,27 +94,27 @@ C     .  ,'rem2=',rem2
 ! Even no. of kpts per node without remainder
       inode(0)=0
       DO i=1,np-1
-      inode(i)=inode(i-1)+times
+        inode(i)=inode(i-1)+times
       END DO
 ! Spread over the remainder
       IF (rem2 /= 0) THEN
-      DO i=1,rem2
-      DO j=0,np-1
-      IF (j>i) THEN
-      inode(j) = inode(j)+1
-      END IF
-      END DO
-      END DO
+        DO i=1,rem2
+          DO j=0,np-1
+            IF (j>i) THEN
+              inode(j) = inode(j)+1
+            END IF
+          END DO
+        END DO
       END IF
 ! Number of blocks in each node
       total = 0
       DO i=0,np-2
-      xnode(i) = inode(i+1)-inode(i)
-      total = total + xnode(i)
+        xnode(i) = inode(i+1)-inode(i)
+        total = total + xnode(i)
       END DO
       xnode(np-1) = nloop - total
       DO i=1,np-1
-      inode(i) = inode(i-1) + xnode(i-1)
+        inode(i) = inode(i-1) + xnode(i-1)
       END DO
 
       END SUBROUTINE single
@@ -137,9 +137,9 @@ C     .  ,'rem2=',rem2
 ! Optimises the block size
       size = stepmin
       DO i=stepmin+1,stepmax
-      IF ( ABS(MOD(nloop,i)) <= ABS(MOD(nloop,size))) THEN
-      size = i
-      END IF
+        IF ( ABS(MOD(nloop,i)) <= ABS(MOD(nloop,size))) THEN
+          size = i
+        END IF
       END DO
       rem = MOD(nloop,size)
 ! Split nloop into blocks
@@ -148,34 +148,34 @@ C     .  ,'rem2=',rem2
       if (iprint() .gt. 40) then
         WRITE(LGUNIT(1),*) 'size=',size,'nblock=',nblock,'rem2=',rem2
         IF (nblock < np) THEN
-        WRITE(LGUNIT(1),*) ""
-        WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
-        WRITE(LGUNIT(1),*) ""
+          WRITE(LGUNIT(1),*) ""
+          WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
+          WRITE(LGUNIT(1),*) ""
         END IF
       endif
 ! Even no. of kpts per block without remainder
       iblock(0)=0
       DO i=1,nblock-1
-      iblock(i)=iblock(i-1)+size
+        iblock(i)=iblock(i-1)+size
       END DO
 ! Spread over the remainder
       IF (rem2 /= 0) THEN
-      DO i=0,rem2-1
-      DO j=0,nblock-1
-      IF (j>i) THEN
-      iblock(j) = iblock(j)+1
-      END IF
-      END DO
-      END DO
+        DO i=0,rem2-1
+          DO j=0,nblock-1
+            IF (j>i) THEN
+              iblock(j) = iblock(j)+1
+            END IF
+          END DO
+        END DO
       END IF
 ! Number of nloop in each block
       DO i=0,nblock-2
-      xblock(i) = iblock(i+1)-iblock(i)
-      total = total + xblock(i)
+        xblock(i) = iblock(i+1)-iblock(i)
+        total = total + xblock(i)
       END DO
       xblock(nblock-1) = nloop - total
       DO i=1,nblock-1
-      iblock(i) = iblock(i-1) + xblock(i-1)
+        iblock(i) = iblock(i-1) + xblock(i-1)
       END DO
 ! Split blocks over nodes
       times = nblock/np
@@ -187,23 +187,23 @@ C     .  ,'rem2=',rem2
 ! Even no. of blocks per node without remainder
       inode(0)=iblock(0)
       DO i=1,np-1
-      inode(i)=iblock(i*times)
+        inode(i)=iblock(i*times)
       END DO
 ! Spread over the remainder
       IF (rem3 /= 0) THEN
-      DO i=0,rem3-2
-      DO j=np-1-i,np-1
-      inode(j) = inode(j)+size
-      END DO
-      END DO
+        DO i=0,rem3-2
+          DO j=np-1-i,np-1
+            inode(j) = inode(j)+size
+          END DO
+        END DO
       END IF
       if (iprint() .gt. 40) then
         DO i=0,np-1
-        WRITE(LGUNIT(1),*) 'inode(',i,')=',inode(i)
+          WRITE(LGUNIT(1),*) 'inode(',i,')=',inode(i)
         END DO
       endif
       DO i=0,np-2
-      xnode(i)=inode(i+1)-inode(i)
+        xnode(i)=inode(i+1)-inode(i)
       END DO
       xnode(np-1) = nloop-inode(np-1)
 
@@ -230,34 +230,34 @@ C     .  ,'rem2=',rem2
       if (iprint() .gt. 40) then
         WRITE(LGUNIT(1),*) 'size=',size,'nblock=',nblock,'rem2=',rem2
         IF (nblock < np) THEN
-        WRITE(LGUNIT(1),*) ""
-        WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
-        WRITE(LGUNIT(1),*) ""
+          WRITE(LGUNIT(1),*) ""
+          WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
+          WRITE(LGUNIT(1),*) ""
         END IF
       endif
 ! Even no. of kpts per block without remainder
       iblock(0)=0
       DO i=1,nblock-1
-      iblock(i)=iblock(i-1)+size
+        iblock(i)=iblock(i-1)+size
       END DO
 ! Spread over the remainder
       IF (rem2 /= 0) THEN
-      DO i=0,rem2-1
-      DO j=0,nblock-1
-      IF (j>i) THEN
-      iblock(j) = iblock(j)+1
-      END IF
-      END DO
-      END DO
+        DO i=0,rem2-1
+          DO j=0,nblock-1
+            IF (j>i) THEN
+              iblock(j) = iblock(j)+1
+            END IF
+          END DO
+        END DO
       END IF
 ! Number of nloop in each block
       DO i=0,nblock-2
-      xblock(i) = iblock(i+1)-iblock(i)
-      total = total + xblock(i)
+        xblock(i) = iblock(i+1)-iblock(i)
+        total = total + xblock(i)
       END DO
       xblock(nblock-1) = nloop - total
       DO i=1,nblock-1
-      iblock(i) = iblock(i-1) + xblock(i-1)
+        iblock(i) = iblock(i-1) + xblock(i-1)
       END DO
 ! Split blocks over nodes
       times = nblock/np
@@ -269,18 +269,18 @@ C     .  ,'rem2=',rem2
 ! Even no. of blocks per node without remainder
       inode(0)=iblock(0)
       DO i=1,np-1
-      inode(i)=iblock(i*times)
+        inode(i)=iblock(i*times)
       END DO
 ! Spread over the remainder
       IF (rem3 /= 0) THEN
-      DO i=0,rem3-2
-      DO j=np-1-i,np-1
-      inode(j) = inode(j)+size
-      END DO
-      END DO
+        DO i=0,rem3-2
+          DO j=np-1-i,np-1
+            inode(j) = inode(j)+size
+          END DO
+        END DO
       END IF
       DO i=0,np-2
-      xnode(i)=inode(i+1)-inode(i)
+        xnode(i)=inode(i+1)-inode(i)
       END DO
       xnode(np-1) = nloop-inode(np-1)
 

@@ -87,8 +87,8 @@ C --- Case Ef between e3,e4 ---
 C --- Bloechl correction ---
       do  40  m = 1, 4
         w2(m) = 0d0
-        do  40  n = 1, 4
-          w2(m) = w2(m) + (ec(n)-ec(m))*df/40
+      do  40  n = 1, 4
+        w2(m) = w2(m) + (ec(n)-ec(m))*df/40
    40 continue
 C ----------------------------------------------
       do  35  i = 1, 4

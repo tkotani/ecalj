@@ -1,8 +1,8 @@
-          subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+      subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
-     .    , vorb , nlibu , lmaxu , lldau , nsp,itest ) 
+     .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -314,11 +314,11 @@ C$$$          write(6,*) 'all smrho is positive for isp=',isp
 C$$$        endif
 C$$$       enddo
 C$$$       if(sum(smmin(1:nsp))/=0d0) then
-C$$$         srshift = minimumrho + maxval(abs(smmin(1:nsp))) 
+C$$$         srshift = minimumrho + maxval(abs(smmin(1:nsp)))
 C$$$         smrho(:,:,:,1:nsp) = smrho(:,:,:,1:nsp) + srshift
 C$$$         print *,'enforce positive smrho, to which we add srshift=',srshift
-C$$$       endif  
-C$$$      endif  
+C$$$       endif
+C$$$      endif
 
 
 C --- Printout for smooth background charge ---
@@ -330,8 +330,8 @@ C --- Printout for smooth background charge ---
       endif
 
 C --- Smooth electrostatic potential ---
-       call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum 
-     . ) 
+      call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum 
+     . )
 
       vconst = -vsum/vol
 C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
@@ -404,8 +404,8 @@ C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
 c        call pshpr(ipr-30)
 
 Ctakao2012feb --- comment out
-C$$$        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-C$$$     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy 
+C$$$        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2
+C$$$     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy
 C$$$     .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
 C$$$C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
 C$$$C     .    tmp,tmp(2))
@@ -417,8 +417,8 @@ C$$$        rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
 C   ... Smooth exchange-correlation potential
 c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
 c        call dpzero ( smexc_zv , k1 * k2 * k3 )
-        smvxc_zv=0d0 
-        smexc_zv=0d0 
+        smvxc_zv=0d0
+        smexc_zv=0d0
 
 cccccccccccccccccccccccc
 c      open(2021,file='smpot2.bk')
@@ -491,13 +491,13 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-          call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+      call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppn , hab , vab , sab , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .    lmaxu , vorb , lldau ) 
+     .    lmaxu , vorb , lldau )
 
 
 

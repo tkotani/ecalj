@@ -29,7 +29,7 @@ C ... Passed parameters
       double complex gkl(0:k0,nlm)
 C ... Local parameters
       double complex cfac,phase
-        integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m 
+      integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m
 ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
 ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
@@ -56,9 +56,9 @@ C ... Heap
 
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
 
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
 
 
@@ -72,18 +72,18 @@ C ... Shorten p, multiply by corresponding phase later
 C ... If the smoothing radius is larger than the Ewald parameter,
 C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
-ckino Dec.9.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
-ckino Dec.28.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_oqlv 
-         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_oqlv 
-     .   , nkq , vol , gkl ) 
+ckino Dec.9.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv
+ckino Dec.28.2011:           call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_oqlv
+        call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_oqlv 
+     .   , nkq , vol , gkl )
 
       else
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
-ckino Dec.9.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
-ckino Dec.27.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_odlv 
-         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_odlv 
-     .   , nkd , wk , gkl ) 
+ckino Dec.9.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv
+ckino Dec.27.2011:           call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_p_odlv
+        call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , slat%rv_a_odlv 
+     .   , nkd , wk , gkl )
 
         deallocate(wk)
 CSFCPP#else
@@ -97,10 +97,10 @@ CSFCPP#endif
       ilm = 0
       do  28  l = 0, lmax
         cfac = cfac*(0d0,-1d0)
-        do  28  m = 1, 2*l+1
-          ilm = ilm+1
-          do  28  k = 0, kmax
-            gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
+      do  28  m = 1, 2*l+1
+        ilm = ilm+1
+      do  28  k = 0, kmax
+        gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
    28 continue
 
       end subroutine gklbl
@@ -142,8 +142,8 @@ C ... Local parameters
       tpi = 8d0*datan(1d0)
       lmax = ll(nlm)
       do  10  ilm = 1, nlm
-        do  10  k = 0, kmax
-          gkl(k,ilm) = 0d0
+      do  10  k = 0, kmax
+        gkl(k,ilm) = 0d0
    10 continue
 
       do  20  ir = 1, nkd

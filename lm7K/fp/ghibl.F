@@ -71,9 +71,9 @@ CSFCPP      if (nlmx .gt. nlm0)  call rxi('ghibl: increase nlm0 to',nlmx)
 CSFCPP      if (ktop .gt. ktop0) call rxi('ghibl: increase ktop0 to',ktop)
 CSFCPP#endif
       do  3  k = 0, kmax
-        do  3  jlm = 1, nlmh
-          do  3  ilm = 1, nlmg
-            s(ilm,jlm,k) = dcmplx(0d0,0d0)
+      do  3  jlm = 1, nlmh
+      do  3  ilm = 1, nlmg
+        s(ilm,jlm,k) = dcmplx(0d0,0d0)
     3 continue
 
 C --- Loop over sequences of l with a common rsm,e ---
@@ -98,20 +98,20 @@ C   ... Combine with Clebsch-Gordan coefficients
         ee = dexp(gamg*(eg-e))
         do  11  ilg = 1, nlmg
           lg = ll(ilg)
-          do  11  ilh = ilm1, ilm2
-            lh = ll(ilh)
-            ii = max0(ilg,ilh)
-            indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-            icg1 = indxcg(indx)
-            icg2 = indxcg(indx+1)-1
-            do  11  icg = icg1, icg2
-              ilm = jcg(icg)
-              lm = ll(ilm)
-              k = (lg+lh-lm)/2
-              fac = ee*(-1d0)**lg*cg(icg)
-              do  12  ip = 0, kmax
-                s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-   12         continue
+        do  11  ilh = ilm1, ilm2
+          lh = ll(ilh)
+          ii = max0(ilg,ilh)
+          indx = (ii*(ii-1))/2 + min0(ilg,ilh)
+          icg1 = indxcg(indx)
+          icg2 = indxcg(indx+1)-1
+        do  11  icg = icg1, icg2
+          ilm = jcg(icg)
+          lm = ll(ilm)
+          k = (lg+lh-lm)/2
+          fac = ee*(-1d0)**lg*cg(icg)
+          do  12  ip = 0, kmax
+            s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
+   12     continue
    11   continue
    20 continue
 

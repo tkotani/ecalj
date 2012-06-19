@@ -81,12 +81,12 @@ C --- Create multiples of P ---
    15   continue
         nd = 0
         do  16  j1 = -j1max, j1max
-          do  16  j2 = -j2max, j2max
-            do  16  j3 = -j3max, j3max
-              nd = nd+1
-              do  17  i = 1, 3
-                dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
-   17         continue
+        do  16  j2 = -j2max, j2max
+        do  16  j3 = -j3max, j3max
+          nd = nd+1
+          do  17  i = 1, 3
+            dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
+   17     continue
    16   continue
       endif
 
@@ -145,8 +145,8 @@ C ... Case 10s digit mode is >=4
           else
             add = int(-xx(i)) + 1
           endif
-          do  30  ib = 1, nbas
-   32       pos2(i,ib) = pos2(i,ib) + add
+        do  30  ib = 1, nbas
+   32     pos2(i,ib) = pos2(i,ib) + add
    30   continue
       endif
 

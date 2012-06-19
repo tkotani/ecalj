@@ -181,28 +181,28 @@ C --- Try shortening by adding +/- basis vectors ---
       do  10  j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-        do  10  j2 = j2min, 1
-          j3min = -1
-          if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-          do  10  j3 = j3min, 1
+      do  10  j2 = j2min, 1
+        j3min = -1
+        if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
+      do  10  j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
 c
-            do  17  i = 1, 3
-              x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-   17       continue
-            a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-            ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
-            j = 0
-            if (a2 + 2*ap .lt. tol) j = 1
-            if (a2 - 2*ap .lt. tol) j = -1
-            if (j .ne. 0) then
-              pout(1) = pout(1) + j*x(1)
-              pout(2) = pout(2) + j*x(2)
-              pout(3) = pout(3) + j*x(3)
-              goto 15
-            endif
+        do  17  i = 1, 3
+          x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17   continue
+        a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+        ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
+        j = 0
+        if (a2 + 2*ap .lt. tol) j = 1
+        if (a2 - 2*ap .lt. tol) j = -1
+        if (j .ne. 0) then
+          pout(1) = pout(1) + j*x(1)
+          pout(2) = pout(2) + j*x(2)
+          pout(3) = pout(3) + j*x(3)
+          goto 15
+        endif
    10 continue
 
       end
@@ -280,28 +280,28 @@ C --- Try shortening by adding +/- basis vectors ---
       do  10  j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-        do  10  j2 = j2min, 1
-          j3min = -1
-          if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-          do  10  j3 = j3min, 1
+      do  10  j2 = j2min, 1
+        j3min = -1
+        if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
+      do  10  j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
 c
-            do  17  i = 1, 3
-              x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-   17       continue
-            a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-            ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
-            j = 0
-            if (a2 + 2*ap .lt. tol) j = 1
-            if (a2 - 2*ap .lt. tol) j = -1
-            if (j .ne. 0) then
-              pout(1) = pout(1) + j*x(1)
-              pout(2) = pout(2) + j*x(2)
-              pout(3) = pout(3) + j*x(3)
-              goto 15
-            endif
+        do  17  i = 1, 3
+          x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17   continue
+        a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+        ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
+        j = 0
+        if (a2 + 2*ap .lt. tol) j = 1
+        if (a2 - 2*ap .lt. tol) j = -1
+        if (j .ne. 0) then
+          pout(1) = pout(1) + j*x(1)
+          pout(2) = pout(2) + j*x(2)
+          pout(3) = pout(3) + j*x(3)
+          goto 15
+        endif
    10 continue
 
       end

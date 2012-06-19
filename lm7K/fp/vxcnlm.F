@@ -19,7 +19,7 @@
 
 cccccccccccccccccccccccccccc
 c  old document below. Kink can exist for (grad |grad rho|) (imagine a case with rho=x^2+1)
-c  
+c
 cccccccccccccccSpecifies GGA for old case
 Ci         :  0    LSDA
 Ci         :  1    Langreth-Mehl
@@ -87,156 +87,156 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
       n3= ngabc(3)
       if(abs(n1-k1)+abs(n2-k2)+abs(n3-k3)/=0) call rx('vxcnlm: ni/=ki')
       ng    = slat%ng
-ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv
       allocate(gv(ng,3))
 ckino Dec.12.2011:        call dcopy(3*ng,rv_p_ogv,1,gv,1)
 ckino Dec.27.2011:        call dcopy(3*ng,slat%rv_p_ogv,1,gv,1)
       call dcopy(3*ng,slat%rv_a_ogv,1,gv,1)
-ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
       alat  =slat%alat
       vol   =slat%vol
       np = n1*n2*n3 !k1*k2*k3
 
-       if(debug) print *,'vxcnlm: sum check smrho=',sum(abs(smrho))
+      if(debug) print *,'vxcnlm: sum check smrho=',sum(abs(smrho))
 !!== New mode start here ==
 !!== Obtain grho= \nabla smrho (on real mesh) ==
       if(newmode) then
-       if(debug) print * ,'goto newmode 111',smrho(1,1,1,1)
-       allocate(zgrho(np,3,nsp))
-       do  i = 1, nsp
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
+        if(debug) print * ,'goto newmode 111',smrho(1,1,1,1)
+        allocate(zgrho(np,3,nsp))
+        do  i = 1, nsp
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
           call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , dummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
-       enddo
-       allocate(grho(k1,k2,k3,3,nsp)) 
-       call dcopy(3*np*nsp,zgrho,2,grho,1) ! grho contains $\nabla$smrho in real space
-       deallocate(zgrho)
+        enddo
+        allocate(grho(k1,k2,k3,3,nsp))
+        call dcopy(3*np*nsp,zgrho,2,grho,1) ! grho contains $\nabla$smrho in real space
+        deallocate(zgrho)
 
 !! == grho2_updn = (\nabla smrho) **2 ==
-       if(debug) print * ,'newmode 222 nsp=',nsp
-       allocate(grho2_updn(n1,n2,n3,2*nsp-1) )
-       if(debug) print * ,'newmode 222aaa1'
-       if(debug) print *,'newmode333 init sum=',sum(abs(smrho))
-       do isp=1,nsp
-        do i1=1,n1
-        do i2=1,n2
-        do i3=1,n3
-          grho2_updn(i1,i2,i3,isp) = sum( grho(i1,i2,i3,:,isp)**2 )
-          if(nsp==2) grho2_updn(i1,i2,i3,3) = 
+        if(debug) print * ,'newmode 222 nsp=',nsp
+        allocate(grho2_updn(n1,n2,n3,2*nsp-1) )
+        if(debug) print * ,'newmode 222aaa1'
+        if(debug) print *,'newmode333 init sum=',sum(abs(smrho))
+        do isp=1,nsp
+          do i1=1,n1
+            do i2=1,n2
+              do i3=1,n3
+                grho2_updn(i1,i2,i3,isp) = sum( grho(i1,i2,i3,:,isp)**2 )
+                if(nsp==2) grho2_updn(i1,i2,i3,3) = 
      &    sum(grho(i1,i2,i3,1,:))**2 + sum(grho(i1,i2,i3,2,:))**2 + sum(grho(i1,i2,i3,3,:))**2
-        enddo  
-        enddo  
-        enddo  
-       enddo
-       if(debug) print * ,'newmode 222aaa2',k1,k2,k3,n1,n2,n3,nsp
+              enddo
+            enddo
+          enddo
+        enddo
+        if(debug) print * ,'newmode 222aaa2',k1,k2,k3,n1,n2,n3,nsp
 
 ccccccccccccccccccccccccccccc
 c      grho2_updn=0d0
 cccccccccccccccccccccccccccccc
 
 !!== call xcpbe in abinit ==
-       if(debug) print * ,'newmode 333 a',k1,k2,k3,nsp
-       allocate( vnl(k1,k2,k3,nsp) )
-       if(debug) print * ,'newmode 333 c'
-       allocate( enl(k1,k2,k3))
-       if(debug) print * ,'newmode 333xxx'
-       allocate( dvxcdgr(k1,k2,k3,3))
-       if(debug) print * ,'newmode 333 b'
-       fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
-       if(nsp==2) fac=1d0
-       if(debug) print * ,'newmode goto xcpbe'
+        if(debug) print * ,'newmode 333 a',k1,k2,k3,nsp
+        allocate( vnl(k1,k2,k3,nsp) )
+        if(debug) print * ,'newmode 333 c'
+        allocate( enl(k1,k2,k3))
+        if(debug) print * ,'newmode 333xxx'
+        allocate( dvxcdgr(k1,k2,k3,3))
+        if(debug) print * ,'newmode 333 b'
+        fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
+        if(nsp==2) fac=1d0
+        if(debug) print * ,'newmode goto xcpbe'
 cki
-       allocate(r_smrho(k1,k2,k3,nsp))
-       r_smrho=fac*dreal(smrho)
+        allocate(r_smrho(k1,k2,k3,nsp))
+        r_smrho=fac*dreal(smrho)
 c allocate for calling a subroutine
-       allocate(grho2_updn_forcall(n1,n2,n3,2*nsp-1))
-       do isp=1,2*nsp-1
-       do i3=1,n3
-       do i2=1,n2
-       do i1=1,n1
-           grho2_updn_forcall(i1,i2,i3,isp)=fac**2*grho2_updn(i1,i2,i3,isp)
-       enddo
-       enddo
-       enddo
-       enddo
-       call xcpbe(exci=enl,npts=n1*n2*n3,nspden=nsp,
+        allocate(grho2_updn_forcall(n1,n2,n3,2*nsp-1))
+        do isp=1,2*nsp-1
+          do i3=1,n3
+            do i2=1,n2
+              do i1=1,n1
+                grho2_updn_forcall(i1,i2,i3,isp)=fac**2*grho2_updn(i1,i2,i3,isp)
+              enddo
+            enddo
+          enddo
+        enddo
+        call xcpbe(exci=enl,npts=n1*n2*n3,nspden=nsp,
      &           option=2,!Choice of the functional =2:PBE-GGA
      &           order=1, !order=1 means we only calculate first derivative of rho*exc(rho,\nable rho).
 cki     &           rho_updn=fac*dreal(smrho),vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
      &           rho_updn=r_smrho,vxci=vnl,ndvxci=0,ngr2=2*nsp-1,nd2vxci=0,  !Mandatory Arguments
 c     &           dvxcdgr=dvxcdgr, grho2_updn=fac**2*grho2_updn)   !Optional Arguments
      &           dvxcdgr=dvxcdgr, grho2_updn=grho2_updn_forcall)   !Optional Arguments
-       deallocate(grho2_updn_forcall) ! deallocate temporary data
+        deallocate(grho2_updn_forcall) ! deallocate temporary data
 
-       deallocate(r_smrho)
+        deallocate(r_smrho)
 
 !!=== Output: converted to Ry.===
-       enl = 2d0*enl !in Ry.
-       vnl = 2d0*vnl !in Ry.
-       dvxcdgr= 2d0*dvxcdgr !in Ry.
-       if(debug) print * ,'newmode 333 111 end of xcpbe'
+        enl = 2d0*enl !in Ry.
+        vnl = 2d0*vnl !in Ry.
+        dvxcdgr= 2d0*dvxcdgr !in Ry.
+        if(debug) print * ,'newmode 333 111 end of xcpbe'
 
 
 !!== vxcnl is given ==
-       fac=1d0/2d0
-       if(nsp==2) fac=1d0
-       allocate(fg(ng,3),fn(k1,k2,k3), fgg(ng) )
-       allocate(fgrd(k1,k2,k3))
-       do isp=1,nsp
-         do j=1,3 !x,y,z components of grho.
-          fn(:,:,:) = fac*grho(:,:,:,j,isp)*dvxcdgr(:,:,:,isp)      !exchange part for spin density
-          do i1=1,n1
-          do i2=1,n2
-          do i3=1,n3
-           fn(i1,i2,i3) = fn(i1,i2,i3)  
+        fac=1d0/2d0
+        if(nsp==2) fac=1d0
+        allocate(fg(ng,3),fn(k1,k2,k3), fgg(ng) )
+        allocate(fgrd(k1,k2,k3))
+        do isp=1,nsp
+          do j=1,3 !x,y,z components of grho.
+            fn(:,:,:) = fac*grho(:,:,:,j,isp)*dvxcdgr(:,:,:,isp)      !exchange part for spin density
+            do i1=1,n1
+              do i2=1,n2
+                do i3=1,n3
+                  fn(i1,i2,i3) = fn(i1,i2,i3)  
      &     + sum(grho(i1,i2,i3,j,1:nsp)) * dvxcdgr(i1,i2,i3,3) !correlation part for total density
-           ! sum(grho(:,:,:,j,1:nsp),dim=5) means that a sum only for 1:nsp.-->this cause compile error in gfortran
-           !fn (complex)
+                  ! sum(grho(:,:,:,j,1:nsp),dim=5) means that a sum only for 1:nsp.-->this cause compile error in gfortran
+                  !fn (complex)
 c          print *,'sumcheck fn j =',sum(abs(fn))
-          enddo
-          enddo
-          enddo
-          call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
+                enddo
+              enddo
+            enddo
+            call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
 ckino Dec.12.2011:            call gvgetf(ng,1,iv_p_okv,k1,k2,k3,fn,fg(1,j))
 ckino Dec.28.2011:            call gvgetf(ng,1,slat%iv_p_okv,k1,k2,k3,fn,fg(1,j))
-          call gvgetf(ng,1,slat%iv_a_okv,k1,k2,k3,fn,fg(1,j))
+            call gvgetf(ng,1,slat%iv_a_okv,k1,k2,k3,fn,fg(1,j))
 c          print *,'sumcheck fg j =',sum(abs(fg(:,j)))
-         enddo  
+          enddo
 !!== make i G fg ---> FFT back ==
-         if(debug) print * ,'newmode 444'
+          if(debug) print * ,'newmode 444'
 c         print *, 'check xxx fg(1,1:3) sum =',sum(abs(gv(1,1:3) *fg(1,1:3)))
-         pi = 4d0*datan(1d0)
-         tpiba = 2d0*pi/alat
-         tpibai = dcmplx(0d0,1d0)*tpiba
-         do ig=1,ng
-           fgg(ig) =  tpibai*sum( gv(ig,1:3) * fg(ig,1:3))
+          pi = 4d0*datan(1d0)
+          tpiba = 2d0*pi/alat
+          tpibai = dcmplx(0d0,1d0)*tpiba
+          do ig=1,ng
+            fgg(ig) =  tpibai*sum( gv(ig,1:3) * fg(ig,1:3))
 c           print *, ig,abs(fgg(ig)),sum(gv(ig,1:3)**2),sum(fg(ig,1:3)**2)
-         enddo
+          enddo
 c         print *, 'check xxx fgg sum =',sum(abs(fgg)),ng,sum(abs(gv)),sum(abs(fg))
 ckino Dec.12.2011:           call gvputf(ng,1,iv_p_okv,k1,k2,k3,fgg,fgrd)
 ckino Dec.28.2011:           call gvputf(ng,1,slat%iv_p_okv,k1,k2,k3,fgg,fgrd)
-         call gvputf(ng,1,slat%iv_a_okv,k1,k2,k3,fgg,fgrd)
-         call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
-         vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
-       enddo
+          call gvputf(ng,1,slat%iv_a_okv,k1,k2,k3,fgg,fgrd)
+          call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
+          vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
+        enddo
 
 !!=== plottest check write for debug ===
         if(plottest) then
-        isp=1
-        do i1=1,1
-        do i2=1,n2
-        do i3=1,n3
-          write(8006,"(3i4,10e12.4)") i1,i2,i3,vxcnl(i1,i2,i3,isp) ,fgrd(i1,i2,i3)
-          write(9006,"(3i4,10e12.4)") i1,i2,i3,enl(i1,i2,i3) 
-        enddo
-          write(8006,*)
-          write(9006,*)
-        enddo
-        enddo
+          isp=1
+          do i1=1,1
+            do i2=1,n2
+              do i3=1,n3
+                write(8006,"(3i4,10e12.4)") i1,i2,i3,vxcnl(i1,i2,i3,isp) ,fgrd(i1,i2,i3)
+                write(9006,"(3i4,10e12.4)") i1,i2,i3,enl(i1,i2,i3)
+              enddo
+              write(8006,*)
+              write(9006,*)
+            enddo
+          enddo
 c        stop ' test end of plot 8006'
         endif
         deallocate(fgrd)
@@ -254,13 +254,13 @@ c        stop ' test end of plot 8006'
         vavgnl=0d0
         do  i = 1, nsp
           do i3 = 1, n3
-          do i2 = 1, n2
-          do i1 = 1, n1
-            repnl(i) = repnl(i) + dble(smrho(i1,i2,i3,i))*enl(i1,i2,i3)
-            rmunl(i) = rmunl(i) + dble(smrho(i1,i2,i3,i))*vxcnl(i1,i2,i3,i) !all total
-            vavgnl(i) = vavgnl(i) + vxcnl(i1,i2,i3,i)                       !all total
-          enddo
-          enddo
+            do i2 = 1, n2
+              do i1 = 1, n1
+                repnl(i) = repnl(i) + dble(smrho(i1,i2,i3,i))*enl(i1,i2,i3)
+                rmunl(i) = rmunl(i) + dble(smrho(i1,i2,i3,i))*vxcnl(i1,i2,i3,i) !all total
+                vavgnl(i) = vavgnl(i) + vxcnl(i1,i2,i3,i)                       !all total
+              enddo
+            enddo
           enddo
           repnl(i)  = repnl(i)*vol/(n1*n2*n3)
           rmunl(i)  = rmunl(i)*vol/(n1*n2*n3)
@@ -269,8 +269,8 @@ c        stop ' test end of plot 8006'
         if(plottest) then
           allocate(enlbk(k1,k2,k3))
           enlbk=enl
-        endif  
-         if(debug) print * ,'newmode 666'
+        endif
+        if(debug) print * ,'newmode 666'
 
         deallocate(grho,grho2_updn,dvxcdgr,vnl,enl)
 
@@ -292,13 +292,13 @@ c      print *,'vxcnlm xxx 000000',slat%nabc
 c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
       do  i = 1, nsp
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
-ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
-ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.27.2011:            call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.28.2011:            call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
+ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
+ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.27.2011:            call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.28.2011:            call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
+        call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
-     .    , i ) , zggrho ( 1 , i ) ) 
+     .    , i ) , zggrho ( 1 , i ) )
 C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
 C       call zprm3('grady smrho(isp=%i)',i,zgrho(1,2,i),n1,n2,n3)
 C       call zprm3('gradz smrho(isp=%i)',i,zgrho(1,3,i),n1,n2,n3)
@@ -336,12 +336,12 @@ C     Use zggrho as complex work array
         call dpzero(zggrho,np*2)
         call dcopy(np,agr(1,i),1,zggrho,2)
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2 
-ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2 
-          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
-     .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
+ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
+ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
+        call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
+     .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx )
 
 
 
@@ -430,24 +430,24 @@ C --- Make nonlocal reps, rmu ---
       enddo
 
 ccccccccccccccccccccccccccccccc
-        if(plottest) then
+      if(plottest) then
         isp=1
 c        smmin=0d0
         do i1=1,n1
-        do i2=1,n2
-        do i3=1,n3
-          write(8007,"(3i4,10e14.6)") i1,i2,i3,vxcnl(i1,i2,i3,isp)
-          write(9007,"(3i4,10e14.6)") i1,i2,i3,enl(i1,i2,i3) ,enlbk(i1,i2,i3) ,enl(i1,i2,i3)-enlbk(i1,i2,i3) 
+          do i2=1,n2
+            do i3=1,n3
+              write(8007,"(3i4,10e14.6)") i1,i2,i3,vxcnl(i1,i2,i3,isp)
+              write(9007,"(3i4,10e14.6)") i1,i2,i3,enl(i1,i2,i3) ,enlbk(i1,i2,i3) ,enl(i1,i2,i3)-enlbk(i1,i2,i3)
 c          sss=abs(enl(i1,i2,i3)-enlbk(i1,i2,i3) )
 c          if(sss>smmin)smmin=sss
-        enddo
-          write(8007,*)
-          write(9007,*)
-        enddo
+            enddo
+            write(8007,*)
+            write(9007,*)
+          enddo
         enddo
 c        print *,' max error=',smmin
 c        stop ' test end of plot 8007'
-        endif
+      endif
 ccccccccccccccccccccccccccccccc
       deallocate(rho,agr,gagr,ggr,enl,vnl)
       call tcx('vxcnlm')

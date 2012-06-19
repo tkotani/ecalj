@@ -349,7 +349,7 @@ C     integer os
       double complex hwk(ndhrs,ndhrs)
       complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
       integer ii,jj
 
@@ -461,9 +461,9 @@ C          call zprm('sq',2,sq,ndimh,ndimh,ndimh)
 C       Call bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
           if (.not. ltrans) i = i - 4000
-           call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
+          call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
      .     , iaxs , hrs , ndhrs , isp , nsp , ndimh , ndimh , 0 , ndimh 
-     .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy ) 
+     .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy )
 
 C        print *, 'iq=',iq1,'qp=',sngl(qp)
 C        call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
@@ -1067,7 +1067,7 @@ c        a(i,j)=a(i,j)/b(i,j)
 
 ckino:        subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
 ckino:       .lwsig)
-ckino:  
+ckino:
 ckino:        use m_struc_def  !Cgetarg
 ckino:        use m_hft2rs
 ckino:        use m_globalvariables
@@ -1240,7 +1240,7 @@ ckino:  C     integer osig(nbas),otau(nbas),oppi(nbas)
 ckino:        type(s_lat)::slat
 ckino:        type(s_ham)::sham
 ckino:        type(s_bz)::sbz
-ckino:  
+ckino:
 ckino:  C     double precision ssite(1),sspec(1)
 ckino:        double precision rsrnge
 ckino:  C ... Local parameters
@@ -1256,29 +1256,29 @@ ckino:       .ndims,ndimz,iq,n123(4),lcore,lhigh
 ckino:        parameter (niax=10)
 ckino:        equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
 ckino:  ckino Dec.14.2011:                   integer,pointer :: iv_p_ontabs(:) =>NULL()
-ckino:                   integer,allocatable :: iv_a_ontabs(:) 
-ckino:  
+ckino:                   integer,allocatable :: iv_a_ontabs(:)
+ckino:
 ckino:  ckino Dec.14.2011:                  integer,pointer :: iv_p_oiaxs(:) =>NULL()
-ckino:                  integer,allocatable :: iv_a_oiaxs(:) 
-ckino:  
+ckino:                  integer,allocatable :: iv_a_oiaxs(:)
+ckino:
 ckino:                 real(8),pointer :: rv_p_opos(:) =>NULL()
-ckino:  
+ckino:
 ckino:                real(8),pointer :: rv_p_og(:) =>NULL()
-ckino:  
+ckino:
 ckino:               real(8),pointer :: rv_p_oag(:) =>NULL()
-ckino:  
+ckino:
 ckino:              real(8),pointer :: rv_p_ohrs(:) =>NULL()
-ckino:  
+ckino:
 ckino:             integer,pointer :: iv_p_oistab(:) =>NULL()
-ckino:  
+ckino:
 ckino:            integer,pointer :: iv_p_oiprmb(:) =>NULL()
-ckino:  
+ckino:
 ckino:           real(8),pointer :: rv_p_oqsig(:) =>NULL()
-ckino:  
+ckino:
 ckino:          real(8),pointer :: rv_p_oqp(:) =>NULL()
-ckino:  
+ckino:
 ckino:         integer,pointer :: iv_p_ooffh(:) =>NULL()
-ckino:  
+ckino:
 ckino:        integer ,allocatable :: gstar_iv(:)
 ckino:        integer ,allocatable :: ipq_iv(:)
 ckino:        real(8) ,allocatable :: wgt_rv(:)
@@ -1288,7 +1288,7 @@ ckino:        complex(8) ,allocatable :: sigm_zv(:)
 ckino:        complex(8) ,allocatable :: sigm2_zv(:)
 ckino:        real(8) ,allocatable :: delt_rv(:)
 ckino:        integer ,allocatable :: istb2_iv(:)
-ckino:  
+ckino:
 ckino:        double precision tmp(3)
 ckino:        double complex ztmp(3)
 ckino:        real(8),allocatable:: evls(:),evlz(:),sigii(:)
@@ -1309,7 +1309,7 @@ ckino:        equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
 ckino:  C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
 ckino:        double precision qk
 ckino:        integer jj1,jj2,jj3,k
-ckino:  
+ckino:
 ckino:        real(8):: rv_dummy(1)
 ckino:        complex(8):: zv_dummy(1)
 ckino:  C.....titus
@@ -1319,9 +1319,9 @@ ckino:  C      parameter  (nkap0=3,n0H=5)
 ckino:  C      integer offH(n0H,nkap0,nbas)
 ckino:  C.....titus
 ckino:  C ... Heap
-ckino:         integer ::iwdummy 
-ckino:  
-ckino:  
+ckino:         integer ::iwdummy
+ckino:
+ckino:
 ckino:        real(8):: eseavr
 ckino:        integer:: debugmode,nhrss
 ckino:        real(8),allocatable::hrss(:)
@@ -1329,18 +1329,18 @@ ckino:  ccccccccccccccccccccccccccccccc
 ckino:  c      integer:: oss
 ckino:  ccccccccccccccccccccccccccccccc
 ckino:        logical:: isanrg, l_dummy_isanrg
-ckino:  
-ckino:  
-ckino:  
+ckino:
+ckino:
+ckino:
 ckino:        qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 ckino:       .(jj2*ifac(2)-1)*qb(k,2) +
 ckino:       .(jj3*ifac(3)-1)*qb(k,3)
-ckino:  
+ckino:
 ckino:  C --- Setup and printout ---
 ckino:        procid = mpipid(1)
 ckino:        master = 0
 ckino:        mlog = cmdopt('--mlog',6,0,outs)
-ckino:  
+ckino:
 ckino:  C     tolq is allowed fuzz in qp
 ckino:        tolq = 1d-6
 ckino:  Changenglob      stdo = nglob('stdo')
@@ -1354,12 +1354,12 @@ ckino:        alf(2) = 0
 ckino:        nscnts = 0
 ckino:        lqoffo = 0
 ckino:        lfbzout = .false.
-ckino:  
+ckino:
 ckino:  C     Switch flagging whether input file has symops or not
 ckino:        hreal = 0
 ckino:        if (lrsig .ge. 4) hreal = 1
 ckino:        if (lrsig .eq. 0) return
-ckino:  
+ckino:
 ckino:        ltrans = mod(mode/1000,10) .eq. 0
 ckino:        kcplx = 1
 ckino:        if (mod(mode/1000,10) .eq. 1) kcplx = 0
@@ -1367,27 +1367,27 @@ ckino:        lphase = mod(mode/1000,10) .eq. 0
 ckino:        lssym = mod(mode/10000,10)
 ckino:  Ckino isanrg is logical function,       call isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
 ckino:        l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
-ckino:  
+ckino:
 ckino:  C ... Command-line switches for input sigma and defaults
 ckino:  #ifdef USEOPTIONAL
-ckino:         call sigflg ( dc=' ' , sio='rsig' ,strn= ' '  
-ckino:       . , lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  ) 
+ckino:         call sigflg ( dc=' ' , sio='rsig' ,strn= ' '
+ckino:       . , lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  )
 ckino:  #else
-ckino:         call sigflg ( ' ' , 'rsig' , ' ' , iwdummy , iwdummy , iwdummy 
-ckino:       . , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+ckino:         call sigflg ( ' ' , 'rsig' , ' ' , iwdummy , iwdummy , iwdummy
+ckino:       . , lfbzin , iwdummy , lonesp , qoffi , iwdummy )
 ckino:  #endif
-ckino:  
+ckino:
 ckino:        if (cmdopt('--rsig',6,0,outs)) then
 ckino:          out2 = outs(7:)
 ckino:          dc = out2(1:1)
 ckino:  #ifdef USEOPTIONAL
-ckino:           call sigflg ( dc=dc , sio='rsig' ,strn= out2  
-ckino:       .   , lfbz=lfbzin  ,lonesp= lonesp , qpoff=qoffi  ) 
+ckino:           call sigflg ( dc=dc , sio='rsig' ,strn= out2
+ckino:       .   , lfbz=lfbzin  ,lonesp= lonesp , qpoff=qoffi  )
 ckino:  #else
-ckino:           call sigflg ( dc , 'rsig' , out2 , iwdummy , iwdummy , iwdummy 
-ckino:       .   , lfbzin , iwdummy , lonesp , qoffi , iwdummy ) 
+ckino:           call sigflg ( dc , 'rsig' , out2 , iwdummy , iwdummy , iwdummy
+ckino:       .   , lfbzin , iwdummy , lonesp , qoffi , iwdummy )
 ckino:  #endif
-ckino:  
+ckino:
 ckino:        endif
 ckino:  #if 1
 ckino:        if ( lfbzin .or. mod(lssym,2).eq.1 ) then
@@ -1398,7 +1398,7 @@ ckino:        endif
 ckino:  #else
 ckino:        lfbzin = lfbzin .or. mod(lssym,2)
 ckino:  #endif
-ckino:  
+ckino:
 ckino:        if (cmdopt('--mixsig=',9,0,outs)) then
 ckino:          j = 0
 ckino:          i = parg('--mixsig=',4,outs,j,len(outs),
@@ -1406,20 +1406,20 @@ ckino:       .  ', ',2,2,ifac,alf)
 ckino:          if (i .ne. 1 .and. i .ne. 2) call rx
 ckino:       .  ('rdsigm: failed to parse arguments to --mixsig=')
 ckino:        endif
-ckino:  
+ckino:
 ckino:        call info(10,1,0,' RDSIGM: read file sigm and create '//
 ckino:       .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
-ckino:  
+ckino:
 ckino:        i_copy_size=size(sham%ldham)
 ckino:        call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
-ckino:         iv_p_ooffh => sham%iv_p_ooffh 
-ckino:  
-ckino:         iv_p_oiprmb => sham%iv_p_oindxo 
-ckino:  
+ckino:         iv_p_ooffh => sham%iv_p_ooffh
+ckino:
+ckino:         iv_p_oiprmb => sham%iv_p_oindxo
+ckino:
 ckino:        i_copy_size=size(sham%sigp)
 ckino:        call dcopy(i_copy_size,sham%sigp,1,sigp,1)
 ckino:        rsstol=sham%rsstol
-ckino:  
+ckino:
 ckino:        modsgp = nint(sigp(1))
 ckino:        nmin   = nint(sigp(2))
 ckino:        nmax   = nint(sigp(4))
@@ -1462,13 +1462,13 @@ ckino:       .  'symmetrization suppressed##'//
 ckino:       .  '%?#(n==1)#%N%9fFile k-mesh is offset by:%3:2g#%j#'//
 ckino:       .  ' ',isw(lfbzin),isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi,0,0)
 ckino:        endif
-ckino:  
+ckino:
 ckino:        if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
 ckino:          call info5(30,0,0,
 ckino:       .  '%9fUse for sigma: %d*(file sigm)%?#n# + '//
 ckino:       .  '%d*(file sigm1)',alf(1),isw(alf(2).ne.0),alf(2),0,0)
 ckino:        endif
-ckino:  
+ckino:
 ckino:  C ... Setup for sigm transformation modes
 ckino:        if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
 ckino:          if (procid .eq. master) then
@@ -1478,10 +1478,10 @@ ckino:            dc = out2(1:1)
 ckino:            call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
 ckino:       .    lonesp,qoffo,rots)
 ckino:            lqoffo = isw(ddot(3,qoffo,1,qoffo,1) .ne. 0)
-ckino:  
+ckino:
 ckino:  C       Setup, sigm transformation modes
 ckino:            if (lwsig .ne. 0) then
-ckino:  
+ckino:
 ckino:              call info5(10,0,0,
 ckino:       .      '%9ftrans=%i:%19p'//
 ckino:       .      '%?#(n==-1)#transform sigm, LDA -> orbital'//
@@ -1496,10 +1496,10 @@ ckino:       .      '%?#(n==3)#make LDA eigenvalues, eigenvectors##%-1j'//
 ckino:       .      '%j%?#(n==1)#%N%19fshift k-mesh by%3:2g#%j#'//
 ckino:       .      '%?#(n==1)#%N%19fsigma in FBZ##'//
 ckino:       .      ' ',lwsig,lwsig,lqoffo,qoffo,isw(lfbzout))
-ckino:  
+ckino:
 ckino:  C     ... Transform sigm(lda)->sigm(orbital)
 ckino:              if (lwsig .eq. -1) then
-ckino:  
+ckino:
 ckino:  C         Read dimension of hamiltonian in evec file
 ckino:  C         Check that evec file contains LDA eigenvectors
 ckino:                call info0(30,0,0,'%9fchecking compatibility between '//
@@ -1520,15 +1520,15 @@ ckino:                rewind ifiz
 ckino:                if (lfbzin) nqp = nk1*nk2*nk3
 ckino:                call iosigh(3,3,i,ndimz,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
 ckino:       .        lshft(3),ifiz)
-ckino:  
+ckino:
 ckino:                allocate(evls(ndims),evlz(ndimz),sigii(ndimz))
 ckino:                allocate(siglda(ndims,ndims),z(ndimz,ndimz),sigo(ndimz,ndimz))
-ckino:  
+ckino:
 ckino:  C         Write header for sigm3
 ckino:                ifis2 = fopna('sigm3',-1,4)
 ckino:                call iosigh(0,0,nsp,ndimz,nk1,nk2,nk3,nqp,
 ckino:       .        lshft(1),lshft(2),lshft(3),-ifis2)
-ckino:  
+ckino:
 ckino:  C         For each qp, rotate sigm(lda)->sigm(orb)
 ckino:                do  iq = 1, nqp
 ckino:  C         Check that qp match
@@ -1552,13 +1552,13 @@ ckino:                    write(stdo,543) i, evlz(i), evls(i),  evlz(i)-evls(i),
 ckino:       .            dble(siglda(i,i)),asig+bsig*evlz(i)
 ckino:    543             format(i5,5f12.6)
 ckino:                  enddo
-ckino:  
+ckino:
 ckino:  C          print *, '!!'; sigp(2) = 2
-ckino:  
+ckino:
 ckino:  C         Determine lhigh = ndimz - ndims - lcore
 ckino:  C         sigp(4) = nmax = ndimz - lhigh = ndims + lcore
 ckino:                  sigp(4) = ndims + sigp(2)
-ckino:  
+ckino:
 ckino:  C          print *, '!!'; ndimz = ndimz+5
 ckino:  C          deallocate(evlz,sigii)
 ckino:  C          allocate(evlz(ndimz),sigii(ndimz))
@@ -1566,37 +1566,37 @@ ckino:  C          evlz = evls(ndims)+1
 ckino:  C          evlz(1:2) = -99
 ckino:  C          evlz(1+2:ndims+2) = evls(1:ndims)
 ckino:  C          evlz(ndimz) = 11
-ckino:  
+ckino:
 ckino:                  call dpzero(sigii,ndimz)
 ckino:                  call psigd(1,ndimz,ztmp,evlz,sigp,n123,sigii)
 ckino:                  lcore = nint(sigp(2))
 ckino:                  lhigh = ndimz - ndims - lcore
-ckino:                   call rotevs ( 1 , ndimz , ndims , lcore , lhigh , iwdummy , siglda 
-ckino:       .           , sigii , z , sigo ) 
-ckino:  
+ckino:                   call rotevs ( 1 , ndimz , ndims , lcore , lhigh , iwdummy , siglda
+ckino:       .           , sigii , z , sigo )
+ckino:
 ckino:                  ifis2 = fopna('sigm3',-1,4)
 ckino:                  write(ifis2) qp
 ckino:                  call dpdump(sigo,ndimh**2*2,-ifis2)
 ckino:                enddo
-ckino:  
+ckino:
 ckino:                deallocate(evls,evlz,sigii)
 ckino:                deallocate(siglda,z,sigo)
-ckino:  
+ckino:
 ckino:                call rx0('RDSIGM:  sigm(orbital basis) saved in file sigm3')
-ckino:  
+ckino:
 ckino:              endif
-ckino:  
+ckino:
 ckino:  C         No sigma for LDA eigenvectors; early exit
 ckino:              if (lwsig .eq. 3 .or. lwsig .eq. 4) return
-ckino:  
+ckino:
 ckino:            endif
 ckino:          endif
 ckino:        endif
-ckino:  
+ckino:
 ckino:        call tcn('rdsigm')
-ckino:  
+ckino:
 ckino:  C --- Read sigma(orbital basis) from file ---
-ckino:  
+ckino:
 ckino:  C ... Read k-mesh parameters
 ckino:        if (procid .eq. master) then
 ckino:  C       Require file contains sigm(orbital basis)
@@ -1607,7 +1607,7 @@ ckino:            call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
 ckino:       .    lshft(3),ifis)
 ckino:          endif
 ckino:        endif
-ckino:  
+ckino:
 ckino:        call mpibc1(i,1,2,.false.,'rdsigm','nsp')
 ckino:        call mpibc1(nkxyz,3,2,mlog,'rdsigm','nkxyz')
 ckino:        call mpibc1(nqp,1,2,mlog,'rdsigm','nqp')
@@ -1620,7 +1620,7 @@ ckino:       .  'rdsigm: sigm file spin polarized but calculation is not')
 ckino:        else
 ckino:          lsplts = .true.
 ckino:        endif
-ckino:  
+ckino:
 ckino:  C     Check for consistency in remaining ndimh, nqp
 ckino:  C     and set file sigma file pointer past header
 ckino:        if (procid .eq. master) then
@@ -1637,25 +1637,25 @@ ckino:       .' ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
 ckino:  C     Sanity checks
 ckino:        if (lsplts) call info0(30,0,0,
 ckino:       .'%9f(warning) sigm file not spin pol .. splitting spins')
-ckino:  
+ckino:
 ckino:        i_copy_size=size(slat%plat)
 ckino:        call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino:         rv_p_opos => slat%rv_p_opos 
-ckino:  
-ckino:  
-ckino:  
+ckino:         rv_p_opos => slat%rv_p_opos
+ckino:
+ckino:
+ckino:
 ckino:        nsgrp=slat%nsgrp
-ckino:         iv_p_oistab => slat%iv_p_oistab 
-ckino:  
-ckino:         rv_p_og => slat%rv_p_osymgr 
-ckino:  
-ckino:         rv_p_oag => slat%rv_p_oag 
-ckino:  
-ckino:  
+ckino:         iv_p_oistab => slat%iv_p_oistab
+ckino:
+ckino:         rv_p_og => slat%rv_p_osymgr
+ckino:
+ckino:         rv_p_oag => slat%rv_p_oag
+ckino:
+ckino:
 ckino:  C     Get leading dimension of hrs
-ckino:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
-ckino:       . ) 
-ckino:  
+ckino:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs
+ckino:       . )
+ckino:
 ckino:  C     Setup for FFT
 ckino:        call fftz30(nk1,nk2,nk3,k1,k2,k3)
 ckino:        if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
@@ -1674,26 +1674,26 @@ ckino:        call poppr
 ckino:        do  i = 1, 3
 ckino:          qoff(i) = qk(i,1,1,1) + qoffi(i)
 ckino:        enddo
-ckino:  
+ckino:
 ckino:  C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
 ckino:        i = 1000 + 10*hreal + 0
 ckino:  C      print *, '!!'; i = 1000*0 + 10*hreal + 0
 ckino:        if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
 ckino:        if (ltrans) i = i + 10000
 ckino:        if(debugmode()>0) print *,' go to hft2rs i=',i
-ckino:            call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
-ckino:       .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-ckino:  ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
-ckino:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs , 
-ckino:  ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy ) 
-ckino:       .    iv_a_oiaxs , ndhrs , rv_dummy ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
-ckino:         nttabs = ival ( iv_a_ontabs , nbas + 1 ) 
-ckino:  
+ckino:            call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
+ckino:       .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh
+ckino:  ckino Dec.14.2011:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs ,
+ckino:       .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_a_ontabs ,
+ckino:  ckino Dec.14.2011:       .    iv_p_oiaxs , ndhrs , rv_dummy )
+ckino:       .    iv_a_oiaxs , ndhrs , rv_dummy )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:  ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
+ckino:         nttabs = ival ( iv_a_ontabs , nbas + 1 )
+ckino:
 ckino:  C     Allocate memory for hrs
 ckino:        if (hreal .eq. 1) then
 ckino:           allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
@@ -1702,52 +1702,52 @@ ckino:        else
 ckino:           allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
 ckino:           rv_p_ohrs(:)=0d0
 ckino:        endif
-ckino:  
+ckino:
 ckino:  c      stop 'xxxxxxxxxxxxxxxx takao test1 in rdsigm.F xxxxxxxxxx'
-ckino:  
-ckino:  
-ckino:  
+ckino:
+ckino:
+ckino:
 ckino:  C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 ckino:        mxkp = nk1*nk2*nk3
 ckino:         allocate(rv_p_oqsig(abs(3*mxkp)))
 ckino:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
-ckino:  
+ckino:
 ckino:         allocate(rv_p_oqp(abs(3*mxkp)))
 ckino:         if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-ckino:  
+ckino:
 ckino:        allocate(gstar_iv(abs(-mxkp-1)))
 ckino:        if (-mxkp-1<0) gstar_iv(:)=0
-ckino:  
-ckino:        gstar_iv = - 2 
-ckino:  
+ckino:
+ckino:        gstar_iv = - 2
+ckino:
 ckino:        allocate(ipq_iv(mxkp))
 ckino:        if (mxkp<0) ipq_iv(:)=0
-ckino:  
+ckino:
 ckino:        allocate(wgt_rv(abs(-mxkp)))
 ckino:        if (-mxkp<0) wgt_rv(:)=0.0d0
-ckino:  
+ckino:
 ckino:        call info(20,1,0,
 ckino:       .' q-points in full BZ where sigma calculable ...',0,0)
-ckino:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-ckino:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy
+ckino:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 )
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:        sham%nqsig=nqsig
-ckino:         sham%rv_p_oqsig => rv_p_oqsig 
-ckino:  
-ckino:  
-ckino:        call dpzero ( wgt_rv , mxkp ) 
-ckino:  
+ckino:         sham%rv_p_oqsig => rv_p_oqsig
+ckino:
+ckino:
+ckino:        call dpzero ( wgt_rv , mxkp )
+ckino:
 ckino:        call info2(20,0,0,
 ckino:       .' Irr. qp for which sigma is calculated ...',0,0)
-ckino:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-ckino:       .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
-ckino:       .  , 0 ) 
-ckino:  
-ckino:  
-ckino:  
+ckino:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og
+ckino:       .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv
+ckino:       .  , 0 )
+ckino:
+ckino:
+ckino:
 ckino:  Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 ckino:        l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 ckino:  C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
@@ -1755,7 +1755,7 @@ ckino:        call info2(30,0,0,
 ckino:       .'%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//
 ckino:       .'relative to the above#%j#'//
 ckino:       .' ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
-ckino:  
+ckino:
 ckino:  C ... titus
 ckino:  CC     List of sites
 ckino:  C      call getoffH(w(ooffH),offH,n0H,nkap0,nbas)
@@ -1774,18 +1774,18 @@ ckino:  C      print*,'nlmaa',nlmaa
 ckino:  C      print*,'offH(4,1,ib)',offH(4,1,ib)
 ckino:  C      print*,'offH(4,1,ib+1)',offH(4,1,ib+1)
 ckino:  C ... titus
-ckino:  
+ckino:
 ckino:  C --- Generate hrs = sigma(T) from file sigma(k) ---
 ckino:  C ... Loop over spins, keeping sig in full BZ for only one spin
 ckino:        if (procid .eq. master) then
 ckino:          do  isp = 1, nsp
-ckino:  
+ckino:
 ckino:  C     If sigma file not spin polarized, use sigma from spin 1
 ckino:            if (isp .eq. 2 .and. lsplts) then
 ckino:              call iosigh(3,0,1,ndimh,nk1,nk2,nk3,nqp,
 ckino:       .      lshft(1),lshft(2),lshft(3),ifis)
 ckino:            endif
-ckino:  
+ckino:
 ckino:  C     If to mix in some other sigma file, set up ifis2
 ckino:            if (alf(2) .ne. 0) then
 ckino:              if (isp .eq. 1 .or. isp .eq. 2 .and. lsplts) then
@@ -1794,24 +1794,24 @@ ckino:                call iosigh(3,0,nsp,ndimh,nk1,nk2,nk3,nqp,
 ckino:       .        lshft(1),lshft(2),lshft(3),ifis2)
 ckino:              endif
 ckino:            endif
-ckino:  
+ckino:
 ckino:  C ... File sigma in irr BZ -> sigma in full BZ by rotations
 ckino:            allocate(sfz_zv(k1*k2*k3*ndimh**2))
 ckino:            if (k1*k2*k3*ndimh**2<0) sfz_zv(:)=0.0d0
-ckino:  
+ckino:
 ckino:  C ... titus
 ckino:  C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 ckino:  C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 ckino:  C ... titus
 ckino:            allocate(wk_zv(ndimh**2))
 ckino:            if (ndimh**2<0) wk_zv(:)=0.0d0
-ckino:  
+ckino:
 ckino:  Changenglob          nl = nglob('nl')
 ckino:            nl = globalvariables%nl
 ckino:            nspc = 1
 ckino:            allocate(sigm_zv(ndimh**2))
 ckino:            if (ndimh**2<0) sigm_zv(:)=0.0d0
-ckino:  
+ckino:
 ckino:  ccccccccccccccccccccccccc
 ckino:  ctakaox
 ckino:  c      call defcc(oss,ndimh**2)
@@ -1820,12 +1820,12 @@ ckino:            do  iq1 = 1, nqps
 ckino:              read(ifis) qp,  eseavr !june2009  add eseavr
 ckino:              print *,' uuu2 iq1 eseavr=',iq1,eseavr
 ckino:              call dpscop(qp,tmp,3,1,1,1d0)
-ckino:               call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 ) 
-ckino:  
+ckino:               call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
+ckino:
 ckino:              call dpsadd(tmp,qoffi,3,1,1,-1d0)
 ckino:              if (.not. latvec(1,tolq,plat,tmp)) then
-ckino:                 call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 ) 
-ckino:  
+ckino:                 call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
+ckino:
 ckino:                if (lssym .ge. 4) then
 ckino:                  call info5(20,0,0,' rdsigm (warning) qp %i : '//
 ckino:       .          'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
@@ -1840,13 +1840,13 @@ ckino:                endif
 ckino:              endif
 ckino:  C       File read sigma
 ckino:              if (nscnts .eq. 5) call dpdump(tmp,1,ifis)
-ckino:              call dpdump ( sigm_zv , ndimh * * 2 * 2 , ifis ) 
-ckino:  
+ckino:              call dpdump ( sigm_zv , ndimh * * 2 * 2 , ifis )
+ckino:
 ckino:  C        if (isp .eq. 2) then
 ckino:  C          print *, iq1,isp
 ckino:  C         call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
 ckino:  C        endif
-ckino:  
+ckino:
 ckino:  cccccccccccccccccccccccccccccccccccccc
 ckino:  ctakaox !see also bndfp.F and hambls.F
 ckino:  c        if(iq1==1) then
@@ -1857,20 +1857,20 @@ ckino:  c        call dpdump(w(oss),ndimh**2*2,ifio)
 ckino:  c        print *,'read ovlmat for iq1=',iq1
 ckino:  c        call divctakao(w(osigm),w(oss),ndimh)
 ckino:  ccccccccccccccccccccccccccccccccccccc
-ckino:  
+ckino:
 ckino:              if (alf(1) .ne. 1d0) then
-ckino:                call dscal ( ndimh * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 ) 
-ckino:  
+ckino:                call dscal ( ndimh * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
+ckino:
 ckino:              endif
 ckino:              if (alf(2) .ne. 0d0) then
 ckino:                read(ifis2) qp
 ckino:                call dpscop(qp,tmp,3,1,1,1d0)
-ckino:                 call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 ) 
-ckino:  
+ckino:                 call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
+ckino:
 ckino:                call dpsadd(tmp,qoffi,3,1,1,-1d0)
 ckino:                if (abs(tmp(1))+abs(tmp(2))+abs(tmp(3)) .gt. tolq) then
-ckino:                   call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 ) 
-ckino:  
+ckino:                   call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
+ckino:
 ckino:                  if (lssym .ge. 4) then
 ckino:                    call info5(20,0,0,' rdsigm (warning) qp %i : '//
 ckino:       .            'expected%3;8,4D read%3;8,4D (file sigm1)',iq1,tmp,qp,
@@ -1882,17 +1882,17 @@ ckino:                endif
 ckino:  C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
 ckino:                allocate(sigm2_zv(ndimh**2))
 ckino:                if (ndimh**2<0) sigm2_zv(:)=0.0d0
-ckino:  
-ckino:                call dpdump ( sigm2_zv , ndimh * * 2 * 2 , ifis2 ) 
-ckino:  
-ckino:                call daxpy ( ndimh * * 2 * 2 , alf ( 2 ) , sigm2_zv , 1 , 
-ckino:       .        sigm_zv , 1 ) 
-ckino:  
+ckino:
+ckino:                call dpdump ( sigm2_zv , ndimh * * 2 * 2 , ifis2 )
+ckino:
+ckino:                call daxpy ( ndimh * * 2 * 2 , alf ( 2 ) , sigm2_zv , 1 ,
+ckino:       .        sigm_zv , 1 )
+ckino:
 ckino:                if (allocated(sigm2_zv)) deallocate(sigm2_zv)
-ckino:  
+ckino:
 ckino:              endif
 ckino:  C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
-ckino:  
+ckino:
 ckino:              i = 100*kcplx + 00
 ckino:              if (lphase) i = i+40
 ckino:  C ... titus
@@ -1902,20 +1902,20 @@ ckino:  C     .    w(ogstar),ifac,lidim,ndimh,nlmaa,ndimh,nlmaa,nspc,qb,
 ckino:  C     .    w(osigm),w(owk),
 ckino:  C     .    w(owk),w(osfz),w(osfz1))
 ckino:  C ... titus
-ckino:                    call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , rv_p_opos 
-ckino:       .            , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
-ckino:       .            , rv_p_og , rv_p_oag , gstar_iv , ifac , ndimh , ndimh , ndimh 
-ckino:       .            , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                    call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , rv_p_opos
+ckino:       .            , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab
+ckino:       .            , rv_p_og , rv_p_oag , gstar_iv , ifac , ndimh , ndimh , ndimh
+ckino:       .            , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:            enddo
-ckino:  
-ckino:  
+ckino:
+ckino:
 ckino:  cccccccccccccccccccccccccccccccccccccccccccc
 ckino:  ctakaox !see also bndfp.F and hambls.F
 ckino:  c      print *,' end of iq1 loop'
@@ -1923,12 +1923,12 @@ ckino:  c      call fclose(ifio)
 ckino:  c      call rlse(oss)
 ckino:  c      print *,' end of iq1 loop xxxx'
 ckino:  cccccccccccccccccccccccccccccccccccccccccccc
-ckino:  
-ckino:  
-ckino:  
+ckino:
+ckino:
+ckino:
 ckino:  C      print *, 'one element of sigma(k)'
 ckino:  C      call pvtrod(w(osfz),k1,k2,k3,ndimh)
-ckino:  
+ckino:
 ckino:  C ... FT sfz and copy sfz(T) to hrs
 ckino:            i = 10*hreal + 1
 ckino:            if (ltrans) i = i + 10000
@@ -1938,29 +1938,29 @@ ckino:  C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 ckino:  C     .  w(opos),ontabs,
 ckino:  C     .  oiaxs,ndhrs,w(ohrs))
 ckino:  C ... titus
-ckino:                 call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
-ckino:       .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
-ckino:  ckino Dec.14.2011:       .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , iv_p_ontabs 
-ckino:       .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , iv_a_ontabs 
-ckino:  ckino Dec.14.2011:       .         , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
-ckino:       .         , iv_a_oiaxs , ndhrs , rv_p_ohrs ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                 call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
+ckino:       .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh
+ckino:  ckino Dec.14.2011:       .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , iv_p_ontabs
+ckino:       .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , iv_a_ontabs
+ckino:  ckino Dec.14.2011:       .         , iv_p_oiaxs , ndhrs , rv_p_ohrs )
+ckino:       .         , iv_a_oiaxs , ndhrs , rv_p_ohrs )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:  C      print *, 'print out sigma(T)'
 ckino:  C      call pvtrof(w(ohrs),ndhrs,nsp,nk1,nk2,nk3,w(oiaxs),1,
 ckino:  C     .  nttabs,w(osfz),ndimh)
 ckino:  C      stop
-ckino:  
+ckino:
 ckino:  C ... End loop over spins
 ckino:            if (allocated(sigm_zv)) deallocate(sigm_zv)
 ckino:            if (allocated(wk_zv)) deallocate(wk_zv)
 ckino:            if (allocated(sfz_zv)) deallocate(sfz_zv)
-ckino:  
+ckino:
 ckino:          enddo
 ckino:  C ... titus
 ckino:  C 100  continue
@@ -1969,22 +1969,22 @@ ckino:        endif
 ckino:        if (allocated(wgt_rv)) deallocate(wgt_rv)
 ckino:        if (allocated(ipq_iv)) deallocate(ipq_iv)
 ckino:        if (allocated(gstar_iv)) deallocate(gstar_iv)
-ckino:  
-ckino:  
-ckino:  
+ckino:
+ckino:
+ckino:
 ckino:        sham%ndhrs=ndhrs
-ckino:  ckino Dec.14.2011:         sham%iv_p_ontabs => iv_p_ontabs 
-ckino:  ckino Dec.14.2011:         sham%iv_a_ontabs => iv_a_ontabs 
+ckino:  ckino Dec.14.2011:         sham%iv_p_ontabs => iv_p_ontabs
+ckino:  ckino Dec.14.2011:         sham%iv_a_ontabs => iv_a_ontabs
 ckino:        call move_alloc(from= iv_a_ontabs ,to= sham%iv_a_ontabs )
-ckino:  
-ckino:  ckino Dec.14.2011:         sham%iv_p_oiaxs => iv_p_oiaxs 
-ckino:  ckino Dec.14.2011:         sham%iv_a_oiaxs => iv_a_oiaxs 
+ckino:
+ckino:  ckino Dec.14.2011:         sham%iv_p_oiaxs => iv_p_oiaxs
+ckino:  ckino Dec.14.2011:         sham%iv_a_oiaxs => iv_a_oiaxs
 ckino:        call move_alloc(from= iv_a_oiaxs ,to= sham%iv_a_oiaxs )
-ckino:  
-ckino:         sham%rv_p_ohrs => rv_p_ohrs 
-ckino:  
-ckino:  
-ckino:  
+ckino:
+ckino:         sham%rv_p_ohrs => rv_p_ohrs
+ckino:
+ckino:
+ckino:
 ckino:  C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
 ckino:  C     rsstol = 1d-6
 ckino:  C     print *, '!!'
@@ -1997,58 +1997,58 @@ ckino:          j1 = 0
 ckino:          if (lssym .ge. 4) j1 = 2
 ckino:          if (procid .eq. master) then
 ckino:            call dpzero(tmp,3)
-ckino:                 call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-ckino:  ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                 call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
+ckino:  ckino Dec.14.2011:       .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .         , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .         , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:          endif
 ckino:        endif
-ckino:  
-ckino:        if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( 
-ckino:       .'-wsig' , 5 , 0 , outs ) ) ) then 
+ckino:
+ckino:        if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt (
+ckino:       .'-wsig' , 5 , 0 , outs ) ) ) then
 ckino:           if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
-ckino:  
-ckino:        endif 
-ckino:  
-ckino:  
+ckino:
+ckino:        endif
+ckino:
+ckino:
 ckino:  C ... Broadcast R.S. sigma before symmetrization
 ckino:        if (hreal .eq. 1) then
-ckino:           call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
-ckino:       .   , 'rdsigm' , 'hrs' ) 
-ckino:  
+ckino:           call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog
+ckino:       .   , 'rdsigm' , 'hrs' )
+ckino:
 ckino:        else
-ckino:           call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
-ckino:       .   , mlog , 'rdsigm' , 'hrs' ) 
-ckino:  
+ckino:           call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4
+ckino:       .   , mlog , 'rdsigm' , 'hrs' )
+ckino:
 ckino:        endif
-ckino:  
+ckino:
 ckino:  C --- Symmetrize hrs ---
 ckino:  C     Best to use nsgrp here instead of nsgrps.
 ckino:  C     However, neighbor table was generated for nsgrps, and may be
 ckino:  C     increase if nsgrp>nsgrps.  This branch will fail in that case.
 ckino:        if (mod(lrsig,4) .ge. 2 .and. nsgrp .gt. 1) then
-ckino:  
+ckino:
 ckino:  cC       Allocate memory for hrs
 ckino:  c        if (hreal .eq. 1) then
 ckino:  c          call defdr(ohrss,ndhrs**2*nttabs*nsp)
 ckino:  cCchp1           call dcopy(ndhrs**2*nttabs*nsp*1,w(ohrs),1,w(ohrss),1)
-ckino:  c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 1 , rv_p_ohrs , 1 , 
-ckino:  c     .     w ( ohrss ) , 1 ) 
+ckino:  c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 1 , rv_p_ohrs , 1 ,
+ckino:  c     .     w ( ohrss ) , 1 )
 ckino:  c        else
 ckino:  c          call defdc(ohrss,ndhrs**2*nttabs*nsp)
 ckino:  cCchp1           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
-ckino:  c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 , 
-ckino:  c     .     w ( ohrss ) , 1 ) 
+ckino:  c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 ,
+ckino:  c     .     w ( ohrss ) , 1 )
 ckino:  c        endif
 ckino:          nhrss= size(rv_p_ohrs)
 ckino:          allocate(hrss(nhrss))
 ckino:          hrss = rv_p_ohrs
-ckino:  
+ckino:
 ckino:  Changenglob        mxorb = nglob('mxorb')
 ckino:          mxorb = globalvariables%mxorb
 ckino:  C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
@@ -2056,33 +2056,33 @@ ckino:  C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
 ckino:          i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
 ckino:          allocate(istb2_iv(nsgrp*nbas))
 ckino:          if (nsgrp*nbas<0) istb2_iv(:)=0
-ckino:  
-ckino:           call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
-ckino:  
-ckino:  
+ckino:
+ckino:           call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv )
+ckino:
+ckino:
 ckino:  Changenglob        nl = nglob('nl')
 ckino:          nl = globalvariables%nl
-ckino:                call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
-ckino:  ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
-ckino:  ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_a_oiaxs 
-ckino:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs 
-ckino:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas ,
+ckino:  ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs
+ckino:  ckino Dec.14.2011:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_a_oiaxs
+ckino:       .        rv_p_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs
+ckino:       .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs )
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:          if (allocated(istb2_iv)) deallocate(istb2_iv)
 ckino:  c        call rlse(ohrss)
 ckino:          deallocate(hrss)
-ckino:  
-ckino:  
+ckino:
+ckino:
 ckino:  C        Debugging
 ckino:  C        ifis2 = fopna('out',-1,0)
 ckino:  C        print *, 'hello',ndhrs,nttabs
 ckino:  C        call ywrm(0,'sig',2,ifis2,'(9f20.10)',w(ohrs),1,ndhrs**2,
 ckino:  C     .    ndhrs**2,nttabs*nsp)
 ckino:  C        call rx0('done')
-ckino:  
+ckino:
 ckino:  C   ... Check how well symmetrized FT replicates sigma(k) at file qp
 ckino:          if (procid .eq. master) then
 ckino:            rsstol = 0
@@ -2090,30 +2090,30 @@ ckino:            if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
 ckino:              call info0(20,0,0,' skipping check of symmetrized sigma'//
 ckino:       .      ' (sigma scaled) ')
 ckino:            else
-ckino:                  call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-ckino:  ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                  call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
+ckino:  ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:            endif
 ckino:          endif
-ckino:  
+ckino:
 ckino:  C   ... Broadcast R.S. sigma after symmetrization
 ckino:          if (hreal .eq. 1) then
-ckino:             call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog 
-ckino:       .     , 'rdsigm' , 'hrs' ) 
-ckino:  
+ckino:             call mpibc1 ( rv_p_ohrs , ndhrs * * 2 * nttabs * nsp , 4 , mlog
+ckino:       .     , 'rdsigm' , 'hrs' )
+ckino:
 ckino:          else
-ckino:             call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4 
-ckino:       .     , mlog , 'rdsigm' , 'hrs' ) 
-ckino:  
+ckino:             call mpibc1 ( rv_p_ohrs , 2 * ndhrs * * 2 * nttabs * nsp , 4
+ckino:       .     , mlog , 'rdsigm' , 'hrs' )
+ckino:
 ckino:          endif
-ckino:  
+ckino:
 ckino:        endif
-ckino:  
+ckino:
 ckino:  C ... lwsig=0 modes that internally transform sigma, save and exit
 ckino:        if (lwsig .eq. 0) then
 ckino:          if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
@@ -2125,90 +2125,90 @@ ckino:              if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
 ckino:              dc = out2(1:1)
 ckino:              call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
 ckino:       .      lonesp,qoffo,rots)
-ckino:  
+ckino:
 ckino:              if (lonesp .eq. 1) then
 ckino:                if (nsp .eq. 1) call rx(
 ckino:       .        'onesp option nonsensical unless sigma file is spin pol')
-ckino:                     call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
-ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
-ckino:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
-ckino:       .             ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                     call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh
+ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs
+ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs
+ckino:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs
+ckino:       .             )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:              endif
-ckino:  
+ckino:
 ckino:              if (ledit .eq. 1) then
-ckino:                     call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
-ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs 
-ckino:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs 
-ckino:       .             ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                     call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh
+ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs
+ckino:  ckino Dec.14.2011:       .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_a_oiaxs , rv_p_ohrs
+ckino:       .             , iv_p_oiprmb , hreal , iv_a_ontabs , iv_a_oiaxs , rv_p_ohrs
+ckino:       .             )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:              endif
-ckino:  
+ckino:
 ckino:  C       Handle case q-mesh for file output differs from file input
 ckino:  C       ltmp = true in cases where file symops artificially reduced
 ckino:  C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
 ckino:  C        if (lnwmsh .or. ltmp) then
 ckino:              if (lnwmsh) then
-ckino:  
+ckino:
 ckino:                i_copy_size=size(sbz%nkabc)
 ckino:                call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 ckino:                i_copy_size=size(sbz%lshft)
 ckino:                call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
 ckino:                nqp=sbz%nkp
-ckino:                 rv_p_oqp => sbz%rv_p_oqp 
-ckino:  
-ckino:  
-ckino:  
+ckino:                 rv_p_oqp => sbz%rv_p_oqp
+ckino:
+ckino:
+ckino:
 ckino:                mxkp = nk1*nk2*nk3
 ckino:                 allocate(rv_p_oqp(abs(3*mxkp)))
 ckino:                 if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-ckino:  
+ckino:
 ckino:                allocate(gstar_iv(abs(-mxkp-1)))
 ckino:                if (-mxkp-1<0) gstar_iv(:)=0
-ckino:  
-ckino:                gstar_iv = - 2 
-ckino:  
+ckino:
+ckino:                gstar_iv = - 2
+ckino:
 ckino:                allocate(ipq_iv(mxkp))
 ckino:                if (mxkp<0) ipq_iv(:)=0
-ckino:  
+ckino:
 ckino:                allocate(wgt_rv(abs(-mxkp)))
 ckino:                if (-mxkp<0) wgt_rv(:)=0.0d0
-ckino:  
+ckino:
 ckino:                do  i = 1, 3
 ckino:                  llshft(i) = lshft(i) .ne. 0
 ckino:                enddo
-ckino:                call dpzero ( wgt_rv , mxkp ) 
-ckino:  
+ckino:                call dpzero ( wgt_rv , mxkp )
+ckino:
 ckino:                if (lfbzout) then
 ckino:                  call info0(20,1,0,
 ckino:       .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-ckino:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-ckino:       .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
-ckino:  
-ckino:  
-ckino:  
+ckino:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy
+ckino:       .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
+ckino:
+ckino:
+ckino:
 ckino:                else
 ckino:                  call info0(20,1,0,
 ckino:       .          ' Creating sigma for new mesh (file sigm2) ...')
-ckino:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-ckino:       .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
-ckino:       .            , 0 ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og
+ckino:       .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv
+ckino:       .            , 0 )
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:                endif
-ckino:  
+ckino:
 ckino:              elseif (lfbzout) then
 ckino:  cki              oqp = oqsig
 ckino:                rv_p_oqp => rv_p_oqsig
@@ -2219,7 +2219,7 @@ ckino:              else
 ckino:                call info2(20,0,0,
 ckino:       .        ' Writing sigma for irr BZ, %i qp (file sigm2) ...',nqp,0)
 ckino:              endif
-ckino:  
+ckino:
 ckino:  C   ... Setup rotation matrix
 ckino:              if (rots .ne. ' ') then
 ckino:                call a2rotm(rots,.false.,0,rotm)
@@ -2230,39 +2230,39 @@ ckino:    350           format(3f11.6)
 ckino:                endif
 ckino:                lrot = lrot + 1
 ckino:              endif
-ckino:  
+ckino:
 ckino:  C   ... Setup phase matrix
 ckino:              if (lrot .ge. 2) then
 ckino:                allocate(delt_rv(abs(-3*nbas)))
 ckino:                if (-3*nbas<0) delt_rv(:)=0.0d0
-ckino:  
+ckino:
 ckino:                call info0(0,0,0,' Phase shift of sigma.  '//
 ckino:       .        'Translation vectors from shorps file:')
-ckino:                call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv ) 
-ckino:  
+ckino:                call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv )
+ckino:
 ckino:              endif
 ckino:  C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
-ckino:  
+ckino:
 ckino:              call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
 ckino:       .      lshft(1),lshft(2),lshft(3),-ifis2)
 ckino:              if (lqoffo .ne. 0) then
 ckino:  C         call prmx('qp',w(oqp),3,3,nqp)
 ckino:                do  i = 1, nqp
-ckino:                   call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
-ckino:       .           i - 2 , 1 , 1d0 ) 
-ckino:  
+ckino:                   call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 *
+ckino:       .           i - 2 , 1 , 1d0 )
+ckino:
 ckino:                enddo
 ckino:  C         call prmx('qp',w(oqp),3,3,nqp)
 ckino:              endif
-ckino:                  call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
-ckino:  ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs 
-ckino:       .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
-ckino:  
-ckino:  
-ckino:  
-ckino:  
-ckino:  
+ckino:                  call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
+ckino:  ckino Dec.14.2011:       .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .          , hreal , iv_p_oiprmb , nttabs , iv_a_oiaxs , rv_p_ohrs , ndhrs
+ckino:       .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
+ckino:
+ckino:
+ckino:
+ckino:
+ckino:
 ckino:              call fclose(ifis2)
 ckino:              call rx0('done writing sigma, file sigm2')
 ckino:  C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
@@ -2271,50 +2271,50 @@ ckino:  C        if (lfbzout) goto 99
 ckino:            endif
 ckino:          endif
 ckino:        endif
-ckino:  
+ckino:
 ckino:  C     Broadcast entire sham structure (shouldn't be needed)
 ckino:  C     call mpibc1(sham,i,4,mlog,'rdsigm','sham')
 ckino:  C     Broadcast neighbor table (shouldn't be needed)
 ckino:  C     call mpibc1(w(ontabs),nbas+1,2,mlog,'rdsigm','ntabs')
 ckino:  C     call mpibc1(w(oiaxs),niax*nttabs,2,mlog,'rdsigm','iaxs')
-ckino:  
+ckino:
 ckino:  C ... Transformations done by caller: write qp list to disk
 ckino:     99 continue
 ckino:        if (lwsig .ne. 0) then
-ckino:  
+ckino:
 ckino:          call info0(30,0,0,' ')
-ckino:  
+ckino:
 ckino:          if (lnwmsh) then
-ckino:  
+ckino:
 ckino:            i_copy_size=size(sbz%nkabc)
 ckino:            call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 ckino:            i_copy_size=size(sbz%lshft)
 ckino:            call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
 ckino:            nqp=sbz%nkp
-ckino:             rv_p_oqp => sbz%rv_p_oqp 
-ckino:  
-ckino:  
+ckino:             rv_p_oqp => sbz%rv_p_oqp
+ckino:
+ckino:
 ckino:            call info2(20,0,0,
 ckino:       .    ' Transform sigma on new k-mesh:  '//
 ckino:       .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
 ckino:          endif
-ckino:  
+ckino:
 ckino:          if (lfbzout) then
 ckino:            mxkp = nk1*nk2*nk3
 ckino:            call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
 ckino:             allocate(rv_p_oqp(abs(3*mxkp)))
 ckino:             if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-ckino:  
+ckino:
 ckino:            allocate(ipq_iv(mxkp))
 ckino:            if (mxkp<0) ipq_iv(:)=0
-ckino:  
+ckino:
 ckino:            allocate(wgt_rv(abs(-mxkp)))
 ckino:            if (-mxkp<0) wgt_rv(:)=0.0d0
-ckino:  
-ckino:  
+ckino:
+ckino:
 ckino:            i_copy_size=size(slat%plat)
 ckino:            call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino:  
+ckino:
 ckino:  C   ... Make is,ifac,qb,qlat
 ckino:            do   i = 1, 3
 ckino:              llshft(i) = lshft(i) .ne. 0
@@ -2322,45 +2322,45 @@ ckino:            enddo
 ckino:            call pshpr(0)
 ckino:            call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
 ckino:            call poppr
-ckino:              call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-ckino:       .      , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
-ckino:  
-ckino:  
-ckino:  
+ckino:              call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy
+ckino:       .      , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
+ckino:
+ckino:
+ckino:
 ckino:  C       call pack2('bz nkp oqp',sbz,nqp,oqp)
 ckino:            if (allocated(delt_rv)) deallocate(delt_rv)
 ckino:            if (allocated(wgt_rv)) deallocate(wgt_rv)
-ckino:  
+ckino:
 ckino:          endif
-ckino:  
+ckino:
 ckino:  C ... Write points to disk, shifting by qoffo
 ckino:          if (lqoffo .ne. 0) then
 ckino:  C       call prmx('qp',w(oqp),3,3,nqp)
 ckino:            do  i = 1, nqp
-ckino:               call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
-ckino:       .       i - 2 , 1 , 1d0 ) 
-ckino:  
+ckino:               call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 *
+ckino:       .       i - 2 , 1 , 1d0 )
+ckino:
 ckino:            enddo
 ckino:  C       call prmx('qp',w(oqp),3,3,nqp)
 ckino:          endif
-ckino:  
+ckino:
 ckino:          call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
 ckino:          ifiz = fopna('qpts',-1,0)
-ckino:            call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
-ckino:       .    , iwdummy , iwdummy ) 
-ckino:  
-ckino:  
-ckino:  
+ckino:            call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp
+ckino:       .    , iwdummy , iwdummy )
+ckino:
+ckino:
+ckino:
 ckino:          if (lfbzout) then
 ckino:            if (allocated(ipq_iv)) deallocate(ipq_iv)
-ckino:  
+ckino:
 ckino:          endif
-ckino:  
+ckino:
 ckino:        endif
-ckino:  
+ckino:
 ckino:        call tcx('rdsigm')
-ckino:  
+ckino:
 ckino:        if (allocated(gstar_iv)) deallocate(gstar_iv)
-ckino:  
+ckino:
 ckino:        end subroutine rdsigm
-ckino:  
+ckino:

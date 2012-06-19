@@ -91,7 +91,7 @@ C ... SPEC
       logical,allocatable:: mxcst1(:),mxcst2(:),mxcst4(:)
       integer,allocatable:: idxdn(:,:), grp(:),grp2(:),
      .idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
-     .kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:)
+     .kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
       real(8),allocatable:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
      .hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
      .dv(:), uh(:,:),jh(:,:),
@@ -1138,7 +1138,7 @@ C     endif
      .dv(nspec),grp(nspec),grp2(nspec),
      .mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .kmxt(nspec),kmxv(nspec),
-     .lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec))
+     .lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
 
 ctakao Sep2009
       mxcst1=F
@@ -1382,6 +1382,7 @@ C       rsmv(j) = rmt(j)*.5d0   !Not input
         rsmv(j) = 0d0           !Not input
         kmxt(j) = -1            !If sought, default will be set below
         lfoca(j) = 0            !If sought, default will be reset below
+        nmcore(j)=0
         lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
         lmxpb(j) = NULLI        !If sought, default will be set below
         lxi(j) = NULLI          !If sought, default will be set below
@@ -1458,7 +1459,7 @@ c            print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
             qnudefault=0d0
             iqnu=1
             if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
-            call defpq(z(j),lmxaj,1,pnudefault,qnudefault)  ! qnu is given here for default pnu. 
+            call defpq(z(j),lmxaj,1,pnudefault,qnudefault)  ! qnu is given here for default pnu.
             call defpq(z(j),lmxaj,1,pnu(1,1,j),qnudummy)  ! set pnu. qnu is kept (but not used here).
             if(iqnu==0) qnu(:,1,j)=qnudefault(:,1)
 !!
@@ -1475,6 +1476,11 @@ C         call snit
      .      '%N%2f See explanation for SPEC_ATOM_Q.')
           endif
 
+          nm='SPEC_ATOM_NMCORE'; call gtv(trim(nm),tksw(prgn,nm),nmcore(j), !takao jun2012
+     .    def_i4=0,cindx=jj,note='spin-averaged core: jun2012takao'//
+     .    '%N%3f0(default): spin-polarized core'//
+     .    '%N%3f1         : spin-averaged core density is from spin-averaged potential')
+
           nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgn,nm),
      .    pz(1:nlaj,1,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
      .    'Starting semicore log der. parameters'//
@@ -1485,16 +1491,28 @@ C         call snit
           endif
 
 !! correct qnu jun2012takao
+!! our four cases are
+!!  P=Pdefault      ! qnu
+!!  Pdefault < P    ! Pdefault is filled as core
+!!  Pz < P=Pdefault ! qnu + 2*(2l+1)
+!!  Pz=Pdefault < P ! qnu
           if(iqnu==0) then
-          do lx=0,lmxaj !correct valence number of electrons.
-            if(pz(lx+1,1,j)<1d-8) cycle 
+            do lx=0,lmxaj !correct valence number of electrons.
+              if(pz(lx+1,1,j)<1d-8) then! PZ(local orbital) not exist
+                if( int(pnudefault(lx+1,1)) < int(pnu(lx+1,1,j)) ) then
+                  qnu(lx+1,1,j)= 0d0 ! pnudefault is filled and no q for pnu. (core hole case or so)
+                endif
+              else !PZ exist
 c             print *,'qnu=',lx,qnu(lx+1,1,j)
-            if( int(pz(lx+1,1,j))<int(pnudefault(lx+1,1)) ) then
-              qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
-            endif
-          enddo
+                if( int(pz(lx+1,1,j))<int(pnudefault(lx+1,1)) ) then
+                  qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
+                endif
+              endif
+            enddo
+
+
           endif
-!!
+
 
           i0 = 1
           if (z(j) .le. 8) i0 = 0
@@ -1504,9 +1522,9 @@ c     .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
      .    def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):'
      .    //'=1(frozenCore). Default: 1 for z>8;0 for z<=8')     !takao Aug2010
           if(io_help==0) then
-          if(lfoca(j)/=0.and.lfoca(j)/=1) then
-            call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
-          endif
+            if(lfoca(j)/=0.and.lfoca(j)/=1) then
+              call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
+            endif
           endif
 
 C       call snot
@@ -3048,6 +3066,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_LMXA~")
       call tkadd(" SPEC_ATOM_LMXL~")
       call tkadd(" SPEC_ATOM_MMOM~")
+      call tkadd(" SPEC_ATOM_NMCORE~")
       call tkadd(" SPEC_ATOM_NR~")
       call tkadd(" SPEC_ATOM_P~")
       call tkadd(" SPEC_ATOM_PZ~")
@@ -3144,6 +3163,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_LMXL~")
       call tkadd(" SPEC_ATOM_LMXPB~")
       call tkadd(" SPEC_ATOM_MMOM~")
+      call tkadd(" SPEC_ATOM_NMCORE~")
       call tkadd(" SPEC_ATOM_NR~")
       call tkadd(" SPEC_ATOM_P~")
       call tkadd(" SPEC_ATOM_PBAS~")
@@ -3285,6 +3305,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_LMXA~")
       call tkadd(" SPEC_ATOM_LMXL~")
       call tkadd(" SPEC_ATOM_MMOM~")
+      call tkadd(" SPEC_ATOM_NMCORE~")
       call tkadd(" SPEC_ATOM_NR~")
       call tkadd(" SPEC_ATOM_P~")
       call tkadd(" SPEC_ATOM_PZ~")
@@ -3428,6 +3449,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_LMXA~")
       call tkadd(" SPEC_ATOM_MIX~")
       call tkadd(" SPEC_ATOM_MMOM~")
+      call tkadd(" SPEC_ATOM_NMCORE~")
       call tkadd(" SPEC_ATOM_NR~")
       call tkadd(" SPEC_ATOM_P~")
       call tkadd(" SPEC_ATOM_Q~")
@@ -3504,6 +3526,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_DV~")
       call tkadd(" SPEC_ATOM_LMX~")
       call tkadd(" SPEC_ATOM_MMOM~")
+      call tkadd(" SPEC_ATOM_NMCORE~")
       call tkadd(" SPEC_ATOM_NR~")
       call tkadd(" SPEC_ATOM_P~")
       call tkadd(" SPEC_ATOM_Q~")

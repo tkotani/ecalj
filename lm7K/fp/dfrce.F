@@ -1,6 +1,6 @@
-        subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
+      subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
-     .  , dfh ) 
+     .  , dfh )
 
 
       use m_struc_def  !Cgetarg
@@ -74,7 +74,7 @@ C ... Passed parameters
       double precision starttime, endtime
       logical mlog,cmdopt
 #endif
-        integer:: nvl , k1 , k2 , k3 
+      integer:: nvl , k1 , k2 , k3
       type(s_rv1) :: sv_p_orhat1(3,*)
       type(s_rv1) :: sv_p_orhoat(3,*)
       real(8):: dfh(3,*) , qmom(*)
@@ -88,7 +88,7 @@ C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-c        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
+c        integer:: ocdv , ocdn , ocdn0 , ocs , osn
 ckino Dec.9.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.9.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -159,9 +159,9 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-ckino Dec.9.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.9.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
@@ -208,19 +208,19 @@ C ... Set up for vectorized Y_lm and gaussians
 
       allocate(g_rv(ng*3))
 
-ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
-ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
-       call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
-     . ) 
+ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv
+ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv
+      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
+     . )
 
 
       if (allocated(g_rv)) deallocate(g_rv)
 
       allocate(iv_iv(ng*3))
 
-ckino Dec.9.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
-ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
-       call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv ) 
+ckino Dec.9.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv )
+ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv )
+      call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv )
 
 
 
@@ -238,10 +238,10 @@ c      call defrr(osn, ng)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
      ., - 1 )
 
-ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
-       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
-     . ) 
+ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv
+      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+     . )
 
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
      ., cs_ , sn_ , iv_iv , qlat , cvin_zv )
@@ -290,10 +290,10 @@ C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
      .0 , - 1 )
 
-ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
-       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , 
-     . cdvx_zv ) 
+ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv ,
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv ,
+      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , 
+     . cdvx_zv )
 
 
 
@@ -302,10 +302,10 @@ C --- Cnomi = (n0_out(q) - n0_in(q)) ---
      ., - 1 )
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
-       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
-     . ) 
+ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv
+      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+     . )
 
 
 C     dqsmo = vol*dval(w(ocnomi),1)
@@ -325,8 +325,8 @@ C --- Multipole moments of the output density ---
       allocate(qmout_rv(nvl))
 
       call pshpr(0)
-       call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , 
-     . vsum ) 
+      call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , 
+     . vsum )
 
 
       call poppr
@@ -339,9 +339,9 @@ C --- Lindhard dielectric function ---
         tpiba = 2*pi/alat
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-ckino Dec.9.2011:           call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
-ckino Dec.27.2011:           call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv ) 
-         call lindsc ( 3 , ng , slat%rv_a_ogv , tpiba , elind , ceps_zv ) 
+ckino Dec.9.2011:           call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv )
+ckino Dec.27.2011:           call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv )
+        call lindsc ( 3 , ng , slat%rv_a_ogv , tpiba , elind , ceps_zv )
 
 
       endif
@@ -443,17 +443,17 @@ c        ocdn = oicdn(ip)
 c        ocdn0 = oicdn0(ip)
 c        ocdv = oicdv(ip)
 
-c         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-c     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w ( 
-c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
-c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
-c     .   ) , fes1 , fes2 , fxc ) 
-          call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-ckino Dec.9.2011:       .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+c         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom
+c     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w (
+c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) ,
+c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib
+c     .   ) , fes1 , fes2 , fxc )
+        call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom
+ckino Dec.9.2011:       .    , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0
 ckino Dec.27.2011:       .    , qmout_rv , ng , slat%rv_p_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , qmout_rv , ng , slat%rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
-     .    ib ) , fes1 , fes2 , fxc ) 
+     .    ib ) , fes1 , fes2 , fxc )
 
 
 
@@ -510,8 +510,8 @@ C
 #endif
       call dpzero(avgdf,3)
       do  23  ib = 1, nbas
-        do  23  i = 1, 3
-          avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
+      do  23  i = 1, 3
+        avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
    23 continue
 
 C ... MPI printout
@@ -530,8 +530,8 @@ C ... MPI printout
 
 C ... Shift all forces to make avg correction zero
       do  24  ib = 1, nbas
-        do  24  i = 1, 3
-          dfh(i,ib) = dfh(i,ib) - avgdf(i)
+      do  24  i = 1, 3
+        dfh(i,ib) = dfh(i,ib) - avgdf(i)
    24 continue
       if (iprint() .ge. 30) write(stdo,331) (c*avgdf(m),m=1,3)
   331 format(' shift forces to make zero average correction:',8x,3f8.2)
@@ -552,9 +552,9 @@ c      call rlse(oicdn)
 c      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
 c     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
 c     .orhoat,fes1,fes2,fxc)
-       subroutine pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 
+      subroutine pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 
      . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
-     . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc ) 
+     . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
 
 
       use m_struc_def  !Cgetarg
@@ -590,8 +590,8 @@ Co   fes1,fes2,fxc
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3) 
-       type(s_rv1) :: sv_p_orhoat(3)
+      integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3)
+      type(s_rv1) :: sv_p_orhoat(3)
 
       real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , 
      .fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
@@ -680,26 +680,26 @@ c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
         if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
         call radwgt(rmt,a,nr,rwgt)
         nlml = (lmxl+1)**2
-         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v 
-     .   , qloc ) 
+        call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v 
+     .   , qloc )
 
-         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v 
-     .   , sum ) 
+        call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v 
+     .   , sum )
 
         qloc = (qloc-sum)/y0
         qfat = 0d0
         do  12  i  = 1, nsp
-          do  12  ie = 1, nxi
-            gam  = 0.25d0*rsmfa**2
-            qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
-            qfat = qfat + hfc(ie,i)*qall
+        do  12  ie = 1, nxi
+          gam  = 0.25d0*rsmfa**2
+          qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
+          qfat = qfat + hfc(ie,i)*qall
    12   continue
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
         qg = qval+qsc-qfat-qloc
 C   ... Shift in free atom density
         do  14    i = 1, nsp
-          do  14  ixi = 1, nxi
-            e = exi(ixi)
+        do  14  ixi = 1, nxi
+          e = exi(ixi)
 C       do  14  ig = 1, ng
 C         v(1) = gv(ig,1)*tpiba
 C         v(2) = gv(ig,2)*tpiba
@@ -710,11 +710,11 @@ C         scalp = -alat*(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
 C         phase = dcmplx(dcos(scalp),dsin(scalp))
 C         cdn0(ig) = cdn0(ig) + hfc(ixi,i)*aa*phase*y0/vol
 C     ... Vectorized version
-            cc = -4d0*pi*hfc(ixi,i)*y0/vol
-            do  15  ig = 1, ng
-              aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
-              cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
-   15       continue
+          cc = -4d0*pi*hfc(ixi,i)*y0/vol
+          do  15  ig = 1, ng
+            aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
+            cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
+   15     continue
    14   continue
 
 C   ... Add gaussian to conserve local charge
@@ -733,8 +733,8 @@ C  16   continue
 C   ... Vectorized version
         cc = qg/vol/nsp
         do  16  i = 1, nsp
-          do  16  ig = 1, ng
-            cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
+        do  16  ig = 1, ng
+          cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
    16   continue
       endif
 
@@ -850,12 +850,12 @@ C     fesdn(k)  = fesdn(k)*vol
 C --- Integral of grad g (output-input local charge) ves~ ---
       call dpzero(fesgg,3)
       do  39  k = 1, 3
-        do  39  ilm = 1, nlm
-          l = ll(ilm)
-          gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
+      do  39  ilm = 1, nlm
+        l = ll(ilm)
+        gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
 
 C       fesgg(k) = fesgg(k) + qmom(iv0+ilm)*gpot0(ilm,k)
-          fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
+        fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
    39 continue
 
 C      print 339, 'n0(out-in) * g dves ',fes1
@@ -1030,22 +1030,22 @@ C ... Restore rho+, rho-
 
 C ... Overwrite vxcp with df/drho
       do i = 1, nsp
-         do i3=1,n3
-         do i2=1,n2
-         do i1=1,n1
-          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
-          if (rrho .gt. 0) then
-            f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
-            f2 = vxcp(i1,i2,i3,i)*(rrho*(1+fac))**alfa
-            dfdr = (f2-f1)/(2d0*fac*rrho)
-            vxcp(i1,i2,i3,i) = dfdr
-          else
-            vxcp(i1,i2,i3,i) = 0d0
-          endif
-         enddo
-         enddo
-         enddo
-      enddo 
+        do i3=1,n3
+          do i2=1,n2
+            do i1=1,n1
+              rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
+              if (rrho .gt. 0) then
+                f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
+                f2 = vxcp(i1,i2,i3,i)*(rrho*(1+fac))**alfa
+                dfdr = (f2-f1)/(2d0*fac*rrho)
+                vxcp(i1,i2,i3,i) = dfdr
+              else
+                vxcp(i1,i2,i3,i) = 0d0
+              endif
+            enddo
+          enddo
+        enddo
+      enddo
 C$$$      do  i = 1, nsp
 C$$$        do i1 = 1,nn
 C$$$          rrho = (smrho(i1,1,1,1)+smrho(i1,1,1,nsp))/(3-nsp)
@@ -1071,18 +1071,18 @@ C ... vxcm = vxc (smrho)
 C ... dvxc/drho into dvxc
       do  i = 1, nsp
         do i3=1,n3
-        do i2=1,n2
-        do i1=1,n1
-          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
-          if (rrho .gt. 0) then
-            f = vxcm(i1,i2,i3,i) * rrho**alfa
-            dvdr = (vxcp(i1,i2,i3,i) - alfa*f/rrho) / rrho**alfa
-            dvxc(i1,i2,i3,i) = dvdr
-          else
-            dvxc(i1,i2,i3,i) = 0d0
-          endif
-        enddo
-        enddo
+          do i2=1,n2
+            do i1=1,n1
+              rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
+              if (rrho .gt. 0) then
+                f = vxcm(i1,i2,i3,i) * rrho**alfa
+                dvdr = (vxcp(i1,i2,i3,i) - alfa*f/rrho) / rrho**alfa
+                dvxc(i1,i2,i3,i) = dvdr
+              else
+                dvxc(i1,i2,i3,i) = 0d0
+              endif
+            enddo
+          enddo
         enddo
       enddo
 C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
@@ -1101,10 +1101,10 @@ C ... Local parameters
       integer i1,i2,i3,i
 
       do  10  i  = 1, nsp
-        do  10  i3 = 1, n3
-          do  10  i2 = 1, n2
-            do  10  i1 = 1, n1
-              dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
+      do  10  i3 = 1, n3
+      do  10  i2 = 1, n2
+      do  10  i1 = 1, n1
+        dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
    10 continue
 
 C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)

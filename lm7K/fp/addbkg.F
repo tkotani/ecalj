@@ -25,8 +25,8 @@ C     implicit none
       return
       end subroutine addbkgsm
 
-       subroutine adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , fac 
-     . , sspec , ssite ) 
+      subroutine adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , fac 
+     . , sspec , ssite )
 
 
       use m_struc_def  !Cgetarg
@@ -45,8 +45,8 @@ C----------------------------------------
 C     implicit none
       integer nrmx,nlmx,nlml,lmxl,nbas
       parameter (nrmx=1501,nlmx=64)
-       integer:: nsp 
-       type(s_rv1) :: sv_p_orhoat(3,nbas)
+      integer:: nsp
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
 
       real(8):: qbg , fac
       type(s_spec)::sspec(*)
@@ -73,8 +73,8 @@ C      nrml=nr*nlml
         call rxx(nr .gt. nrmx,  'addbkgloc: increase nrmx')
         call rxx(nlml .gt. nlmx,'addbkgloc: increase nlmx')
         call radmsh(rmt,a,nr,rofi)
-         call addbkgl ( sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
-     .   , rhobkg , nr , nsp , rofi , nlml ) 
+        call addbkgl ( sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
+     .   , rhobkg , nr , nsp , rofi , nlml )
 
    10   continue
       enddo

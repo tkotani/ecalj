@@ -31,7 +31,7 @@ C ... Passed parameters
 
       double complex hsm(1),hsmp(1)
 C ... Local parameters
-        integer:: nkd , nkq , ilm , l , m 
+      integer:: nkd , nkq , ilm , l , m
 ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
 ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
@@ -64,30 +64,30 @@ C      p1 = p
 
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
 
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
 
       rwald = 1d0/awald
       asm = 1d0/rsm
 
       if (rsm .lt. rwald) then
-ckino Dec.9.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
-ckino Dec.28.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv , 
-         call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_a_oqlv , 
-     .   nkq , vol , hsm , hsmp ) 
+ckino Dec.9.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv ,
+ckino Dec.28.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv ,
+        call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_a_oqlv , 
+     .   nkq , vol , hsm , hsmp )
 
-ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
-ckino Dec.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv 
-         call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_a_odlv 
-     .   , nkd , hsm , hsmp ) 
+ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv
+ckino Dec.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv
+        call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_a_odlv 
+     .   , nkd , hsm , hsmp )
 
       else
-ckino Dec.9.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 
-ckino Dec.28.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq 
-         call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_a_oqlv , nkq 
-     .   , vol , hsm , hsmp ) 
+ckino Dec.9.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq
+ckino Dec.28.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq
+        call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_a_oqlv , nkq 
+     .   , vol , hsm , hsmp )
 
       endif
 
@@ -96,10 +96,10 @@ C ... Multiply by phase to undo shortening
       ilm = 0
       do  28  l = 0, lmax
         cfac = cfac*dcmplx(0d0,-1d0)
-        do  28  m = 1, 2*l+1
-          ilm = ilm+1
-          hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
-          hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
+      do  28  m = 1, 2*l+1
+        ilm = ilm+1
+        hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
+        hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
    28 continue
       end subroutine hsmbl
 
@@ -155,9 +155,9 @@ C ... Local parameters
         call sylm(r,yl,lmax,r2)
         den0 = dexp(gamma*(e-r2))/(r2-e)
         den1 = den0/(r2-e)
-        do  26  ilm = 1, nlm
-          dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
-          dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+      do  26  ilm = 1, nlm
+        dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
+        dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
    26 continue
       do  35  ilm = 1, nlm
         dl(ilm)  = fpibv*dl(ilm)

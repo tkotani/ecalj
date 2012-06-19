@@ -3,7 +3,7 @@
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
-!! takao think this is too complicated... 
+!! takao think this is too complicated...
 !! I am not sure whether this is OK for PMT mode or not.
 !!
 C- Makes hamiltonian offsets and permutation indices
@@ -145,7 +145,7 @@ C Passed parameters
       integer nl,nkaph,ib1,ib2,nkap0,n0,n0H,ips(ib2),iprma(ib2)
       parameter (nkap0=3,n0=10,n0H=5)
       integer offh(n0H,nkap0,ib2+1),iprmb(*),ldham(4) !offh(n0H,nkap0,4) bugfix sep2010
-            ! offh(n0H,nkap0,5) : bug fix sep2010
+      ! offh(n0H,nkap0,5) : bug fix sep2010
 C Local parameters
       integer indx,iposn,l,m,iprior,j,lgunit,idxdn(n0,nkap0),is,ib,i,
      .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,mxorb,jb,
@@ -296,18 +296,18 @@ C       iposn = 0
           call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
 
           do  111 ik = 1, nkaph
-            do  111  l = 0, nl-1
-              lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
+          do  111  l = 0, nl-1
+            lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
      .        iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.
      .        iprior .gt. maxp
-              do  120  m = -l, l
-                iposn = iposn+1
-                if (lx) then
-                  indx = indx+1
-                  iprmb(iposn) = indx
-                  ndimi(iprior,ik) = ndimi(iprior,ik)+1
-                endif
-  120         continue
+            do  120  m = -l, l
+              iposn = iposn+1
+              if (lx) then
+                indx = indx+1
+                iprmb(iposn) = indx
+                ndimi(iprior,ik) = ndimi(iprior,ik)+1
+              endif
+  120       continue
   111     continue
   110   continue
         ldham(iprior) = indx

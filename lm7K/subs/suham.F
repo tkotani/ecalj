@@ -9,7 +9,7 @@ c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,q
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
 !!
-!!#Inputs 
+!!#Inputs
 Co all output is in m_hamindex
 C
 Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
@@ -31,9 +31,9 @@ c      enddo
       type(s_bz)::sbz
       type(s_ham)::sham
       integer iprmb(*),nl
-      integer:: nkap0 , n0 , ibas , k 
+      integer:: nkap0 , n0 , ibas , k
       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
-     . specw , fieldw , iorb , offsi , ib , is , norb 
+     . specw , fieldw , iorb , offsi , ib , is , norb
       character spid*8
       real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:)
@@ -114,16 +114,16 @@ c ... reverse maping of offset-index for hamiltonian
 
 !!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-      call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 ) 
-      call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 ) 
+      call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 )
+      call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 )
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       do ib=1,nbas
         iclasst(ib)=ssite(ib)%class
       enddo
 !!---- get space group information ----
 !!# translation informations also in miat tiat invgx, shtvg
-       call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
-     . , miat , tiat , invgx , shtvg ) 
+      call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
+     . , miat , tiat , invgx , shtvg )
 
 !!---- write SYMOPS ---- mar2012takao
       ifisym = fopnx('SYMOPS',2,2,-1)
@@ -143,7 +143,7 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
       print *,' end of rotdlmm'
 
 
-!! no GW-related part 
+!! no GW-related part
       if(.not.llmfgw.or.(llmfgw.and.jobgw==0)) then
         print *,'gen_hamindex: no GW related part. not readin QGpsi'
         return
@@ -153,13 +153,13 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
 C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
-         return
+        return
       endif
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi,imx !,nqibz
 
-      
+
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
 c$$$      if(allocated(qq)) deallocate(qq)
@@ -223,31 +223,31 @@ c$$$      enddo
       allocate(qtt(3,nqtt))
       qtt(:,1:nqtt)=qq(:,1:nqtt)
       do i=1,nqtt
-       qtarget(:)=qtt(:,i)
-       do iqi=1,nqi
-         q=qtti(:,iqi)
-         iqq=iqtt(iqi) 
-         iqi_=iqi
-       do ig=1,ngrp
+        qtarget(:)=qtt(:,i)
+        do iqi=1,nqi
+          q=qtti(:,iqi)
+          iqq=iqtt(iqi)
+          iqi_=iqi
+          do ig=1,ngrp
 c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
-        call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
-        if(sum(abs(qx))<1d-8) then
-          igg=ig
-          if(debug)print *,' q qtarget     =',q,qtarget,ig
-          if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
-          if(debug)print *
-          goto 2012
-        endif
-       enddo
-       enddo
-       write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
+            call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
+            if(sum(abs(qx))<1d-8) then
+              igg=ig
+              if(debug)print *,' q qtarget     =',q,qtarget,ig
+              if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
+              if(debug)print *
+              goto 2012
+            endif
+          enddo
+        enddo
+        write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
      & ' You may have to delete inconsistent QGpsi.',q,qtarget
-       call rx('gen_hamindex: qtarget can not found. You may have to delete inconsistent QGpsi.')
- 2012  continue
-       iqmap(i)=iqq
-       iqimap(i)=iqi_
-       igmap(i)=igg
-      enddo 
+        call rx('gen_hamindex: qtarget can not found. You may have to delete inconsistent QGpsi.')
+ 2012   continue
+        iqmap(i)=iqq
+        iqimap(i)=iqi_
+        igmap(i)=igg
+      enddo
       call writehamindex() !feb2012takao
 
 
@@ -411,14 +411,14 @@ C ... Local parameters
 
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
-       integer:: oalph , oiax , ontab , os , ng 
+      integer:: oalph , oiax , ontab , os , ng
 ckino Dec.14.2011 manual correction       real(8),pointer :: rv_p_ogv(:) =>NULL()
-       real(8),allocatable :: rv_a_ogv(:)
+      real(8),allocatable :: rv_a_ogv(:)
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
-          integer:: obas , oo , opp , oeula , opti , obs , omagf 
+      integer:: obas , oo , opp , oeula , opti , obs , omagf
 ckino Dec.8.2011:            integer,pointer :: iv_p_oipc(:) =>NULL()
 
 ckino Dec.8.2011:           integer,pointer :: iv_p_oips(:) =>NULL()
@@ -439,9 +439,9 @@ c      integer :: sigswitch
 
 C --- Setup ---
 
-ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips 
+ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips
 
-ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc 
+ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc
 
 
 
@@ -479,18 +479,18 @@ Changenglob      nkaph = nglob('nkaph')
       ndim = nbasp * nl**2 * nkaph
 ckino Dec.14.2011:         allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
 ckino Dec.28.2011:         allocate(sham%iv_p_ooffh(abs(-n0h*nkap0*(nbasp+1))))
-        if (allocated(sham%iv_a_ooffH)) deallocate(sham%iv_a_ooffH)
-       allocate(sham%iv_a_ooffH(abs(-n0h*nkap0*(nbasp+1))))
+      if (allocated(sham%iv_a_ooffH)) deallocate(sham%iv_a_ooffH)
+      allocate(sham%iv_a_ooffH(abs(-n0h*nkap0*(nbasp+1))))
 ckino Dec.14.2011:         if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
 ckino Dec.28.2011:         if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
-       if (-n0h*nkap0*(nbasp+1)<0) sham%iv_a_ooffH(:)=0
+      if (-n0h*nkap0*(nbasp+1)<0) sham%iv_a_ooffH(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oidxsh(abs(ndim+3)))
 ckino Dec.27.2011:         allocate(sham%iv_p_oindxo(abs(ndim+3)))
-       allocate(sham%iv_a_oindxo(abs(ndim+3)))
+      allocate(sham%iv_a_oindxo(abs(ndim+3)))
 ckino Dec.14.2011:         if (ndim+3<0) iv_p_oidxsh(:)=0
 ckino Dec.27.2011:         if (ndim+3<0) sham%iv_p_oindxo(:)=0
-       if (ndim+3<0) sham%iv_a_oindxo(:)=0
+      if (ndim+3<0) sham%iv_a_oindxo(:)=0
 
       stdo = lgunit(1)
 
@@ -515,14 +515,14 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
-ckino Dec.28.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips 
-           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_a_oips 
-ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham ) 
-ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham ) 
-ckino Dec.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham ) 
+ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips
+ckino Dec.28.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips
+        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_a_oips
+ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham )
+ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham )
+ckino Dec.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham )
 ckino Dec.28.2011:       .     , sham%iv_p_ooffh , sham%iv_a_oindxo , ldham ) 
-     .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham ) 
+     .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham )
 
 
 
@@ -541,9 +541,9 @@ C ... Make rest of ldham
       ldham(8) = nspx
 
       sham%ndofH=nbasp+1
-ckino Dec.14.2011:         sham%iv_p_ooffh => iv_p_offh 
+ckino Dec.14.2011:         sham%iv_p_ooffh => iv_p_offh
 
-ckino Dec.14.2011:         sham%iv_p_oindxo => iv_p_oidxsh 
+ckino Dec.14.2011:         sham%iv_p_oindxo => iv_p_oidxsh
 
       i_copy_size=size(sham%ldham)
       call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
@@ -603,15 +603,15 @@ C         Find largest lmxa
      .nvi,nvl,lmxax,0,0)
 
       ng=slat%ng
-ckino Dec.14.2011       rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.14.2011       rv_p_ogv => slat%rv_p_ogv
 
       alat=slat%alat
       tolgv=slat%tolft
 
-ckino Dec.14.2011       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
-ckino Dec.27.2011:         call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv 
-       call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
-     . ) 
+ckino Dec.14.2011       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv
+ckino Dec.27.2011:         call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv
+      call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
+     . )
 
 
 C   ... PW setup : estimate upper bound to number of G vectors
@@ -697,13 +697,13 @@ C    ...  Printout
 
 ckino Dec.14.2011 manual correction           allocate(rv_p_ogv(abs(3*npw)))
 ckino Dec.14.2011 manual correction           if (3*npw<0) rv_p_ogv(:)=0.0d0
-           allocate(rv_a_ogv(abs(3*npw))); rv_a_ogv(:)=0.0d0
+          allocate(rv_a_ogv(abs(3*npw))); rv_a_ogv(:)=0.0d0
 
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
-           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
+          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
 ckino Dec.14.2011 manual correction     .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
-     .     8 + 2 , npw , npw , kv_iv , rv_a_ogv , xx , igv2_iv ) 
+     .     8 + 2 , npw , npw , kv_iv , rv_a_ogv , xx , igv2_iv )
 
 
           call poppr
@@ -945,55 +945,55 @@ c
 c
 c trial shift vector tran
         do 20 ib1=1,nbas
-          do 20 ib2=1,nbas
-            tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
+        do 20 ib2=1,nbas
+          tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
 c
-            do 30 ibas=1,nbas
-              b1=am(1,1)*bas(1,ibas)
+          do 30 ibas=1,nbas
+            b1=am(1,1)*bas(1,ibas)
      &        +am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas)
      &        +tran(1)
 c     .        +( tr1*plat(1,1)+tr2*plat(1,2)+tr3*plat(1,3) )
-              b2=am(2,1)*bas(1,ibas)
+            b2=am(2,1)*bas(1,ibas)
      &        +am(2,2)*bas(2,ibas)+am(2,3)*bas(3,ibas)
      &        +tran(2)
 c     .        +( tr1*plat(2,1)+tr2*plat(2,2)+tr3*plat(2,3) )
-              b3=am(3,1)*bas(1,ibas)
+            b3=am(3,1)*bas(1,ibas)
      &        +am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas)
      &        +tran(3)
 c     .        +( tr1*plat(3,1)+tr2*plat(3,2)+tr3*plat(3,3) )
 c
-              do 40 mi=1,nbas
-                if( iclass(mi).ne.iclass(ibas) ) go to 40
+            do 40 mi=1,nbas
+              if( iclass(mi).ne.iclass(ibas) ) go to 40
 
-                do 50 i1=-3,3
-                  do 50 i2=-3,3
-                    do 50 i3=-3,3
-                      dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
-                      dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
-                      dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
+              do 50 i1=-3,3
+              do 50 i2=-3,3
+              do 50 i3=-3,3
+                dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
+                dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
+                dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
 
-                      t1 = b1 - (bas(1,mi)+dd1)
-                      t2 = b2 - (bas(2,mi)+dd2)
-                      t3 = b3 - (bas(3,mi)+dd3)
-                      if(abs(t1).le.ep.and.abs(t2).le.ep.and.
+                t1 = b1 - (bas(1,mi)+dd1)
+                t2 = b2 - (bas(2,mi)+dd2)
+                t3 = b3 - (bas(3,mi)+dd3)
+                if(abs(t1).le.ep.and.abs(t2).le.ep.and.
      &                abs(t3).le.ep) go to 60
-   50           continue
-   40         continue
+   50         continue
+   40       continue
 c seach failed, Not found mi and dd1. Try next (tr).
-              goto 20
+            goto 20
 
-   60         continue
-              miat(ibas,ig)  = mi
-              tiat(1,ibas,ig)= dd1
-              tiat(2,ibas,ig)= dd2
-              tiat(3,ibas,ig)= dd3
-              ires(1,ibas,ig)= i1
-              ires(2,ibas,ig)= i2
-              ires(3,ibas,ig)= i3
+   60       continue
+            miat(ibas,ig)  = mi
+            tiat(1,ibas,ig)= dd1
+            tiat(2,ibas,ig)= dd2
+            tiat(3,ibas,ig)= dd3
+            ires(1,ibas,ig)= i1
+            ires(2,ibas,ig)= i2
+            ires(3,ibas,ig)= i3
 c
-   30       continue
+   30     continue
 c When the do-30 loop has been completed, we get out of do-20 loop
-            goto 21
+          goto 21
    20   continue
         stop 'mptauof: Can not find miat and tiat'
 c
@@ -1041,8 +1041,8 @@ c-----------------------------------------------------------------
       print *; print *,' ROTDLMM:'
       do 10 ig =1,ng
         do 20 i=1,3
-          do 20 j=1,3
-            am(i,j) = symops(i+3*(j-1),ig)
+        do 20 j=1,3
+          am(i,j) = symops(i+3*(j-1),ig)
    20   continue
 c calculate determinant(signature)
         det= am(1,1)*am(2,2)*am(3,3)
@@ -1088,23 +1088,23 @@ c         print *,' calpha=',calpha
         if(sgamma.lt.0d0) gamma=-gamma
 c         print *,'alpha beta gamma det=',alpha,beta,gamma,det
         do 30 l =  0, nl-1
-          do 30 md= -l, l
-            do 30 m = -l, l
+        do 30 md= -l, l
+        do 30 m = -l, l
 c  from 'Ele theo. ang. mom. by M. E. Rose 5th 1967 Wisley and Sons.  p.52 (4.13)
-              fac1 = dsqrt( igann(l+m)*igann(l-m)*igann(l+md)*igann(l-md) )
-              fac2 = 0d0
-              do 40 ikap=0,2*l
-                if(l-md-ikap.ge.0 .and. l+m-ikap.ge.0
+          fac1 = dsqrt( igann(l+m)*igann(l-m)*igann(l+md)*igann(l-md) )
+          fac2 = 0d0
+          do 40 ikap=0,2*l
+            if(l-md-ikap.ge.0 .and. l+m-ikap.ge.0
      &          .and.ikap+md-m.ge.0) then
-                  add= dble((-1)**ikap)/( igann(l-md-ikap)*igann(l+m-ikap)
+              add= dble((-1)**ikap)/( igann(l-md-ikap)*igann(l+m-ikap)
      &            *igann(ikap+md-m)*igann(ikap) )
-                  if(2*l+m-md-2*ikap.ne.0) add=add*co2**(2*l+m-md-2*ikap)
-                  if(md-m+2*ikap.ne.0)     add=add*(-so2)**(md-m+2*ikap)
-                  fac2 = fac2+add
-                endif
-   40         continue
+              if(2*l+m-md-2*ikap.ne.0) add=add*co2**(2*l+m-md-2*ikap)
+              if(md-m+2*ikap.ne.0)     add=add*(-so2)**(md-m+2*ikap)
+              fac2 = fac2+add
+            endif
+   40     continue
 c l-th rep. is odd or even according to (det)**l
-              dlmmc(md,m,l,ig) = fac1*fac2*det**l*
+          dlmmc(md,m,l,ig) = fac1*fac2*det**l*
      &        cdexp( -Img*(alpha*md+gamma*m) )
    30   continue
 
@@ -1170,47 +1170,47 @@ c        if(iprint().ge.150) then
           write(6,1731) symops(3,is),symops(6,is),symops(9,is)
         endif
 c convert to cubic rep.
-        do 23   l =0,nl-1
-          do 33 m2=-l,l
-            do 33 m1= 1,l
-              dum(1)= dlmmc(m2, m1,l,is)
-              dum(2)= dlmmc(m2,-m1,l,is)
-              mx    = mod(m1,2)
-              dlmmc(m2,  m1,l,is)=
+      do 23   l =0,nl-1
+        do 33 m2=-l,l
+        do 33 m1= 1,l
+          dum(1)= dlmmc(m2, m1,l,is)
+          dum(2)= dlmmc(m2,-m1,l,is)
+          mx    = mod(m1,2)
+          dlmmc(m2,  m1,l,is)=
      &        dum(1)*msc(mx,1,1)
      &        +dum(2)*msc(mx,2,1)
-              dlmmc(m2, -m1,l,is)=
+          dlmmc(m2, -m1,l,is)=
      &        dum(1)*msc(mx,1,2)
      &        +dum(2)*msc(mx,2,2)
-   33     continue
-          do 43 m2=  1,l
-            do 43 m1= -l,l
-              dum(1)=dlmmc( m2, m1,l,is)
-              dum(2)=dlmmc(-m2, m1,l,is)
-              mx=mod(m2,2)
-              dlmmc( m2, m1,l,is)=
+   33   continue
+        do 43 m2=  1,l
+        do 43 m1= -l,l
+          dum(1)=dlmmc( m2, m1,l,is)
+          dum(2)=dlmmc(-m2, m1,l,is)
+          mx=mod(m2,2)
+          dlmmc( m2, m1,l,is)=
      &        mcs(mx,1,1)*dum(1)
      &        +mcs(mx,1,2)*dum(2)
-              dlmmc(-m2, m1,l,is)=
+          dlmmc(-m2, m1,l,is)=
      &        mcs(mx,2,1)*dum(1)
      &        +mcs(mx,2,2)*dum(2)
-   43     continue
-          do 53 m2=-l,l
-            do 53 m1=-l,l
-              dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
-              if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
+   43   continue
+        do 53 m2=-l,l
+        do 53 m1=-l,l
+          dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
+          if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
      &        ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12'
-   53     continue
+   53   continue
 ccccccccccccccccccccc
-          if(.false.) then
+        if(.false.) then
 c        if(.true.) then
 c        if(iprint().ge.41) then
-            print *; print *,'  points ops  ig, l=', is,l,' cubic   '
-            do m2=-l,l
-              write(6,"(28f10.5)")( dreal(dlmmc (m2, m1,l,is) ), m1=-l,l)
+          print *; print *,'  points ops  ig, l=', is,l,' cubic   '
+          do m2=-l,l
+            write(6,"(28f10.5)")( dreal(dlmmc (m2, m1,l,is) ), m1=-l,l)
 c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l)
-            enddo
-          endif
+          enddo
+        endif
 cccccccccccccccccccccc
    23 continue
       if(debugmode()>1) print *,' end of rotdlmm'

@@ -1,5 +1,5 @@
-       subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
-     . sv_p_orhoat , kmax , qkl ) 
+      subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
+     . sv_p_orhoat , kmax , qkl )
 
 
       use m_struc_def  !Cgetarg
@@ -40,8 +40,8 @@ Cu   19 Oct 01 Adapted from rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: ib1 , ib2 , nsp , mode , kmax 
-       type(s_rv1) :: sv_p_orhoat(3,1)
+      integer:: ib1 , ib2 , nsp , mode , kmax
+      type(s_rv1) :: sv_p_orhoat(3,1)
 
       real(8):: qkl(0:kmax,1)
       type(s_site)::ssite(*)
@@ -88,10 +88,10 @@ C --- Loop over sites ---
         call radmsh ( rmt , a , nr , rofi_rv )
         call radwgt ( rmt , a , nr , rwgt_rv )
         allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
-         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
+        call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
      .   , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
-     .   , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) ) 
-         deallocate(h_rv)
+     .   , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) )
+        deallocate(h_rv)
 
         if (ipr .ge. 40) then
           write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
@@ -112,9 +112,9 @@ C --- Loop over sites ---
 #if DEBUG
         if (ib .eq. 1) then
           print *, 'ib=',ib
-           call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
+          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
      .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
-     .     , qkl ( 0 , j1 ) ) 
+     .     , qkl ( 0 , j1 ) )
 
 
         endif
@@ -161,7 +161,7 @@ Ci   z     :nuclear charge
 Co Outputs
 Co   qkl  :expansion coefficients for rho
 Cw Workarea:
-Cw   pkl: 
+Cw   pkl:
 Cr Remarks
 Cr   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout
 Cr   The core spillout term is:

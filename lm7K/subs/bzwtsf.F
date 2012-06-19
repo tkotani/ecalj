@@ -3,7 +3,7 @@
 !! 1st step : Set initial bias magnetic field under assuming all eigenvalues are discrete.
 !!            Search elumo1,ehomo1 (for up spin) and elumo2,ehomo2 (for down spin) below.
 !! 2nd step : refine the bias field for given temperature.
-!!          
+!!
 !!  (Takao think this bzwtsf2 may need to be modified for solids).
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
@@ -118,7 +118,7 @@ C --- Make and print out magnetic moment ---
 
 
 !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
-      vhold= 0d0 
+      vhold= 0d0
       ef0  = efermi
 c      vnow=0d0
       call info0(41,1,0,' Seek potential shift for fixed-spin mom ...')
@@ -129,61 +129,61 @@ c      vnow=0d0
       quitvnow=.false.
       do 10 iter=1,itermx
 !! Potential shift
-       allocate(ebs(nevx,2,nkp))
-       if (nspc .eq. 2) then
-        ebs = eb + vnow/2*swtk
-       else
-        ebs(:,1,:) = eb(:,1,:) - vnow/2
-        ebs(:,2,:) = eb(:,2,:) + vnow/2
-       endif
+        allocate(ebs(nevx,2,nkp))
+        if (nspc .eq. 2) then
+          ebs = eb + vnow/2*swtk
+        else
+          ebs(:,1,:) = eb(:,1,:) - vnow/2
+          ebs(:,2,:) = eb(:,2,:) + vnow/2
+        endif
 !! Fermi level with dv shift
-       if(.not.quitvnow) call pshpr(ipr-50)
-       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
+        if(.not.quitvnow) call pshpr(ipr-50)
+        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
      .  sumev,wtkb,dosef,qval,ent)
-       if (iprint()>= 20) then
-        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
+        if (iprint()>= 20) then
+          call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
      .  amom)
-        write(stdo,922) amom
-       endif
-       deallocate(ebs)
-       if (.not.quitvnow) call poppr
-       if(quitvnow) exit
+          write(stdo,922) amom
+        endif
+        deallocate(ebs)
+        if (.not.quitvnow) call poppr
+        if(quitvnow) exit
 
 !!=== Magnetic moment ===
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-       if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
+        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+        if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
      . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
      . stdo,vnow,efermi,amom,fmom,vnow)
 !!takao for molecule Dec1 2010
-       agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
-       print *,'ttttt amom fmom=',amom,fmom,agreemom
+        agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
+        print *,'ttttt amom fmom=',amom,fmom,agreemom
 c      if(original_dvdos) then
         call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
-       if(agreemom) vhold(12)=0
+        if(agreemom) vhold(12)=0
 c      if (abs(dv) .lt. 1d-6) then
-       quitvnow=.false.
-       if (abs(dv).lt.1d-6 .or. agreemom) then 
+        quitvnow=.false.
+        if (abs(dv).lt.1d-6 .or. agreemom) then
 C       A root was found
-        if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
+          if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
      .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
-          if (ipr .ge. 10)
+            if (ipr .ge. 10)
      .    call awrit5('%N BZWTSF2: potential shift bracketed.'//
      .    '  Unconstrained efermi=%,6;6d.'//
      .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
      .    '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,ef0,
      .    fmom,amom,efermi,vnow)
-        quitvnow=.true.
-        endif
-       else if (iter .eq. itmax) then
-        if (ipr .ge. 10)
+            quitvnow=.true.
+          endif
+        else if (iter .eq. itmax) then
+          if (ipr .ge. 10)
      .  call awrit5('%N BZWTSF2: failed to converge potential shift'//
      .  ' after %i iterations.'//
      .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
      .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
      .  vnow)
-        quitvnow=.true.
-       endif
+          quitvnow=.true.
+        endif
  10   continue
 C--------------------------------------
 c
@@ -302,62 +302,62 @@ c      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
       itermx=100
       do 10 iter=1,itermx
 !!=== Magnetic moment ===
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-       if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
+        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+        if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
      . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
      . stdo,vnow,efermi,amom,fmom,vnow)
 !!takao for molecule Dec1 2010
-       agreemom= abs(amom-fmom) < 1d-3
-       print *,'ttttt amom fmom=',amom,fmom,agreemom
+        agreemom= abs(amom-fmom) < 1d-3
+        print *,'ttttt amom fmom=',amom,fmom,agreemom
 c      if(original_dvdos) then
         call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
-       if(agreemom) vhold(12)=0
+        if(agreemom) vhold(12)=0
 c      if (abs(dv) .lt. 1d-6) then
-       quitvnow=.false.
-       if (abs(dv).lt.1d-6 .or. agreemom) then 
+        quitvnow=.false.
+        if (abs(dv).lt.1d-6 .or. agreemom) then
 C       A root was found
-        if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
+          if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
      .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
-          if (ipr .ge. 10)
+            if (ipr .ge. 10)
      .    call awrit5('%N BZWTSF: potential shift bracketed.'//
      .    '  Unconstrained efermi=%,6;6d.'//
      .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
      .    '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,ef0,
      .    fmom,amom,efermi,vnow)
-        quitvnow=.true.
-        endif
-       else if (iter .eq. itmax) then
-        if (ipr .ge. 10)
+            quitvnow=.true.
+          endif
+        else if (iter .eq. itmax) then
+          if (ipr .ge. 10)
      .  call awrit5('%N BZWTSF: failed to converge potential shift'//
      .  ' after %i iterations.'//
      .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
      .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
      .  vnow)
-        quitvnow=.true.
-       endif
+          quitvnow=.true.
+        endif
 
 !! Potential shift
-       allocate(ebs(nevx,2,nkp))
-       if (nspc .eq. 2) then
-        ebs = eb + vnow/2*swtk
-       else
-        ebs(:,1,:) = eb(:,1,:) - vnow/2
-        ebs(:,2,:) = eb(:,2,:) + vnow/2
-       endif
+        allocate(ebs(nevx,2,nkp))
+        if (nspc .eq. 2) then
+          ebs = eb + vnow/2*swtk
+        else
+          ebs(:,1,:) = eb(:,1,:) - vnow/2
+          ebs(:,2,:) = eb(:,2,:) + vnow/2
+        endif
 
 !! Fermi level with dv shift
-       if(.not.quitvnow) call pshpr(ipr-50)
-       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
+        if(.not.quitvnow) call pshpr(ipr-50)
+        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
      .  sumev,wtkb,dosef,qval,ent)
-       if (iprint()>= 20) then
-        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
+        if (iprint()>= 20) then
+          call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
      .  amom)
-        write(stdo,922) amom
-       endif
-       deallocate(ebs)
-       if (.not.quitvnow) call poppr
-       if(quitvnow) exit
+          write(stdo,922) amom
+        endif
+        deallocate(ebs)
+        if (.not.quitvnow) call poppr
+        if(quitvnow) exit
  10   continue
 c
       ele1 = (zval+fmom)/2d0
@@ -482,59 +482,59 @@ c      dv0=0.1
         vnowmax=5d0
         vnowmin=vnow
       endif
-  
+
 !!== do loop for new guess at potential shift ==
 !!bisection method takao
 c      bzwtsf_bisection=.true.
       allocate(ebs(nevx,2,nkp))
       do 20 ix=1,3
-         if(ix==1) fmomx=fmom+1d0 !search vnow1 for fsmom to fsmom+1
-         if(ix==2) fmomx=fmom     !search vnow2 for fsmom-1 to fsmom
-         quitvnow=.false.
-      do 10 iter=1,itmax
-        vnow=(vnowmax+vnowmin)/2d0 !trial vnow bisection method. new mode if this exist
+        if(ix==1) fmomx=fmom+1d0 !search vnow1 for fsmom to fsmom+1
+        if(ix==2) fmomx=fmom     !search vnow2 for fsmom-1 to fsmom
+        quitvnow=.false.
+        do 10 iter=1,itmax
+          vnow=(vnowmax+vnowmin)/2d0 !trial vnow bisection method. new mode if this exist
 !!=== Potential shift ===
-        if (nspc .eq. 2) then
-         ebs = eb + vnow/2*swtk
-        else
-         ebs(:,1,:) = eb(:,1,:) - vnow/2d0
-         ebs(:,2,:) = eb(:,2,:) + vnow/2d0
-        endif
+          if (nspc .eq. 2) then
+            ebs = eb + vnow/2*swtk
+          else
+            ebs(:,1,:) = eb(:,1,:) - vnow/2d0
+            ebs(:,2,:) = eb(:,2,:) + vnow/2d0
+          endif
 !!=== Magnetic moment ===
-        if(.not.quitvnow) call pshpr(ipr-50)
+          if(.not.quitvnow) call pshpr(ipr-50)
 c        widthx=width
 c        if(.not.quitvnow) widthx=0.01d0
-        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
+          call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .   metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
      .   sumev,wtkb,dosef,qval,ent)
-        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-        if(.not.quitvnow) call poppr()
+          call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+          if(.not.quitvnow) call poppr()
 c       if (ipr .ge. 41) call awrit5(' dv=%;10,6D  yields '//
 c     . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
 c     . stdo,vnow,efermi,amom,fmom,vnow)
-        if(ix==3.or.iter==itmax) goto 11
-        if(amom>fmomx) then
-         vnowmax=vnow
-        else
-         vnowmin=vnow
-        endif
+          if(ix==3.or.iter==itmax) goto 11
+          if(amom>fmomx) then
+            vnowmax=vnow
+          else
+            vnowmin=vnow
+          endif
 !!takao for molecule Dec1 2010
-        print *,'ttttt iter fmomx amom=',iter,fmomx,amom,vnowmax,vnowmin
-        if(amom>fmomx-1d-12.and.amom<fmomx+1d-12) quitvnow=.true.
-        if(quitvnow) goto 11
- 10   continue
+          print *,'ttttt iter fmomx amom=',iter,fmomx,amom,vnowmax,vnowmin
+          if(amom>fmomx-1d-12.and.amom<fmomx+1d-12) quitvnow=.true.
+          if(quitvnow) goto 11
+ 10     continue
         call awrit5('%N BZWTSF: failed to converge potential shift'//
      .  ' after %i iterations.'//
      .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
      .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
      .  vnow)
- 11   continue
+ 11     continue
         if(ix==1) then
           vnow1  = vnow
           vnowmin= vnow-5d0
           vnowmax= vnow+0.1d0
         elseif(ix==2) then
-          vnow2  = vnow 
+          vnow2  = vnow
           vnowmax= vnow1
           vnowmin= vnow2
         endif

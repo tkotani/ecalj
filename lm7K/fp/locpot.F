@@ -1,10 +1,10 @@
-          subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+      subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
      .    , slat , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .    lmaxu , vorb , lldau ) 
+     .    lmaxu , vorb , lldau )
 
 
 
@@ -126,14 +126,14 @@ Cu   17 Jun 98 Adapted from DLN to run parallel on SGI
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-          integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp 
-          type(s_rv1) :: sv_p_orhoat(3,nbas)
+      integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp
+      type(s_rv1) :: sv_p_orhoat(3,nbas)
 
-         type(s_rv1) :: sv_p_oppi(3,nbas)
+      type(s_rv1) :: sv_p_oppi(3,nbas)
 
-        type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
 
-       type(s_rv1) :: sv_p_osig(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
 
       integer nlibu,lmaxu,lldau(nbas),iblu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -175,8 +175,8 @@ C ... for core hole
       real(8),allocatable:: wk(:),rhol1(:),rhol2(:),
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
       logical lfltwf
-           integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
+      integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml
 ckino Dec.12.2011:             real(8),pointer :: rv_p_ov01(:) =>NULL()
 
 ckino Dec.13.2011:            real(8),pointer :: rv_p_ov0(:) =>NULL()
@@ -257,9 +257,9 @@ C$&  MP_SCHEDTYPE=RUNTIME
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
 
-ckino Dec.12.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1 
+ckino Dec.12.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1
 
 
         i_copy_size=size(ssite(ib)%pz)
@@ -344,20 +344,20 @@ C$      j1 = iiv0(ib)+1
 
 C   ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
-           call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
-     .     , rofi , nr , nlml , nsp ) 
+          call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
+     .     , rofi , nr , nlml , nsp )
 
         endif
 
 C   --- Make potential and energy terms at this site ---
-         call locpt2 ( job , z , rmt , rg , a , nr , nsp , cofg , cofh 
+        call locpt2 ( job , z , rmt , rg , a , nr , nsp , cofg , cofh 
      .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
      .   , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , 
      .   sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es 
      .   , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , 
      .   rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc 
      .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
-     .   , rhobg , efg ( 1 , ib ) ) 
+     .   , rhobg , efg ( 1 , ib ) )
 
 
 C   ... Write true potential to file vtrue.ib
@@ -368,20 +368,20 @@ C   ... Write true potential to file vtrue.ib
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
-ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
-ckino Dec.28.2011:               call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
-             call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
-     .       * i , y0 ) 
+ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr
+ckino Dec.28.2011:               call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr
+            call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+     .       * i , y0 )
 
           enddo
         endif
 
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-ckino Dec.12.2011:             call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
-ckino Dec.28.2011:             call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr 
-           call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr 
-     .     * i , y0 ) 
+ckino Dec.12.2011:             call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr
+ckino Dec.28.2011:             call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr
+          call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr 
+     .     * i , y0 )
 
         enddo
 
@@ -451,29 +451,29 @@ C     ... Use effective potentials with modified xc
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
 
-ckino Dec.12.2011:             rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:             rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.12.2011:             iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:             iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.12.2011:             iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:             iv_p_oidxcg => slat%iv_p_oidxcg
 
 
-                 call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, iv_p_oidxcg 
+          call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
+ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg
+ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, iv_p_oidxcg
 ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, slat%iv_p_oidxcg
 ckino Dec.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_p_oidxcg
 ckino Dec.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
 ckino Dec.28.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
      .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_a_ojcg, slat%iv_a_oidxcg
-ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi ,
 ckino Dec.28.2011:       .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
      .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
-     .           , 1 , ib ) ) 
+     .           , 1 , ib ) )
 
 
 
@@ -933,7 +933,7 @@ C$$$          call dcopy(nr,rhochs,1,rhochs(1+nr),1)
 C$$$        endif
 C$$$c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
 C$$$!lm72 changed meanings of lxcfun switch.
-C$$$        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
+C$$$        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun,
 C$$$     .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
 C$$$     .  fl,qs)
 C$$$        if (ipr .ge. 40)

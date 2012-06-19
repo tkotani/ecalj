@@ -162,7 +162,7 @@ cccccccccccccccccccccccccccccccccccc
 c choice 2 takao. For deep semicore, to avoid error in rseq (Mg dimer in 10\A cubic cell).
         ei=ei/2d0 !In future, we have to use better solution.
 c      you may need to use ei/3.0 or better algolism
-c  I had a problem that it results in warning rseq, 
+c  I had a problem that it results in warning rseq,
 c  because two exponential solution makes huge changes due to slight difference of energy
 c  and node number can not be the same.
 c    ATOM= Mg Z= 12 R= 3.000

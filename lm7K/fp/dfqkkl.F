@@ -1,5 +1,5 @@
-       subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
-     . ) 
+      subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
+     . )
 
 
       use m_struc_def  !Cgetarg
@@ -32,8 +32,8 @@ Cu   22 Apr 00 Adapted from nfp df_qkkl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: nbas , numq 
-       type(s_rv1) :: sv_p_oqkkl(3,nbas)
+      integer:: nbas , numq
+      type(s_rv1) :: sv_p_oqkkl(3,nbas)
 
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -65,20 +65,20 @@ C --- Loop over sites, allocating qkkl for each site ---
 
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
-         allocate(sv_p_oqkkl(1,ib)%v(abs(nelt1*numq*nsp*nspc)))
-         if (nelt1*numq*nsp*nspc<0) sv_p_oqkkl(1,ib)%v(:)=0.0d0
+        allocate(sv_p_oqkkl(1,ib)%v(abs(nelt1*numq*nsp*nspc)))
+        if (nelt1*numq*nsp*nspc<0) sv_p_oqkkl(1,ib)%v(:)=0.0d0
 
 
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
-         allocate(sv_p_oqkkl(2,ib)%v(abs(nelt2*numq*nsp*nspc)))
-         if (nelt2*numq*nsp*nspc<0) sv_p_oqkkl(2,ib)%v(:)=0.0d0
+        allocate(sv_p_oqkkl(2,ib)%v(abs(nelt2*numq*nsp*nspc)))
+        if (nelt2*numq*nsp*nspc<0) sv_p_oqkkl(2,ib)%v(:)=0.0d0
 
 
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
-         allocate(sv_p_oqkkl(3,ib)%v(abs(nelt3*numq*nsp*nspc)))
-         if (nelt3*numq*nsp*nspc<0) sv_p_oqkkl(3,ib)%v(:)=0.0d0
+        allocate(sv_p_oqkkl(3,ib)%v(abs(nelt3*numq*nsp*nspc)))
+        if (nelt3*numq*nsp*nspc<0) sv_p_oqkkl(3,ib)%v(:)=0.0d0
 
 
 c|        write(6,836) nelt1,nelt3,nelt2

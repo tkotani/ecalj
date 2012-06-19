@@ -1,7 +1,7 @@
 c#define F90 1
-         subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+      subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
-     .   , igapw , h , hso , s ) 
+     .   , igapw , h , hso , s )
 
 
 
@@ -108,13 +108,13 @@ C ... Passed parameters
       character*120 strn
 #endif
 
-         integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
-     .   , iprmb(ndimh) 
-         type(s_rv1) :: sv_p_oppi(3,1)
+      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
+     .   , iprmb(ndimh)
+      type(s_rv1) :: sv_p_oppi(3,1)
 
-        type(s_rv1) :: sv_p_otau(3,1)
+      type(s_rv1) :: sv_p_otau(3,1)
 
-       type(s_rv1) :: sv_p_osig(3,1)
+      type(s_rv1) :: sv_p_osig(3,1)
 
       real(8):: q(3)
       type(s_site)::ssite(*)
@@ -132,7 +132,7 @@ c      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
 c#endif
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
-     .    , nlmha , nkaph , mode1 , nlmto 
+     .    , nlmha , nkaph , mode1 , nlmto
 ckino Dec.8.2011:        integer,pointer :: iv_p_ojcg(:) =>NULL()
 ckino Dec.8.2011:        integer,pointer :: iv_p_oidxcg(:) =>NULL()
 ckino Dec.8.2011:        real(8),pointer :: rv_p_ocy(:) =>NULL()
@@ -170,13 +170,13 @@ Changenglob      nkaph = nglob('nkaph')
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
 
-ckino Dec.8.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.8.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.8.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.8.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.8.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.8.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.8.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.8.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 
@@ -248,18 +248,18 @@ c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
 Ckino bstrux makes C_kl(=b).
-ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
-            call bstrux ( 0 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg 
-ckino Dec.8.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.8.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
+ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
+        call bstrux ( 0 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
+ckino Dec.8.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.8.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
 ckino Dec.28.2011:       .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
-            if(debug) print *,'end of bstrux'
+     .      kmax , nlma , ndimh , napw , igapw , b , xx )
+        if(debug) print *,'end of bstrux'
 
 C$$$#else
 C$$$C       Zero out strux to eliminate contributions from local orbitals
@@ -305,18 +305,18 @@ C$$$#endif
 C   --- Add 1-center and 2-center terms ---
 #if MPI
         if (lcplxp .eq. 0) then
-            call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s_zv , h_zv ) 
+     .      , nlmto , s_zv , h_zv )
 
 
 
         else
-            call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
      .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s_zv , h_zv , hso_zv ) 
+     .      , nlmto , s_zv , h_zv , hso_zv )
 
 
 
@@ -324,17 +324,17 @@ C   --- Add 1-center and 2-center terms ---
 #else
 #ifndef ALL3C
         if (lcplxp .eq. 0) then
-            call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s , h ) 
+     .      , nlmto , s , h )
 
 
         else
-            call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
      .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s , h , hso ) 
+     .      , nlmto , s , h , hso )
 
 
         endif
@@ -345,32 +345,32 @@ C   --- Add 1-center and 2-center terms ---
 
 C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
-         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
-     .   , b , s_zv ) 
+        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
+     .   , b , s_zv )
 
 
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-           call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h_zv ) 
+          call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
+     .     , b , h_zv )
 
 
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-           call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h_zv , hso_zv ) 
+          call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
+     .     , b , h_zv , hso_zv )
 
 
         endif
 #else
-         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
-     .   , b , s ) 
+        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
+     .   , b , s )
 
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-           call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h ) 
+          call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
+     .     , b , h )
 
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-           call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h , hso ) 
+          call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
+     .     , b , h , hso )
 
         endif
 #endif

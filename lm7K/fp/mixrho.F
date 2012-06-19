@@ -1,9 +1,9 @@
-        subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
+      subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
-     .  , smrnew , smrho ) 
-      use m_struc_def 
+     .  , smrnew , smrho )
+      use m_struc_def
       use m_globalvariables
-!!= Mix old and new charge densities = 
+!!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
 !!     Warn. For Co case, I found broyden mixing works wrong.
@@ -20,8 +20,8 @@
 !!i   k1,k2,k3 dimensions smrho
 !!
 !!i     qval  :total valence charge, used to estimate Lindhard parameter
-!!i     elind :default Lindhard screening parameter 
-!! 
+!!i     elind :default Lindhard screening parameter
+!!
 !!--- below is Mark's original documents.
 Cio Inputs/Outputs
 Cio   dmxp  :Default and other values of mixing parameters.
@@ -183,7 +183,7 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
-      integer:: nsp , k1 , k2 , k3 , iter , procid , master 
+      integer:: nsp , k1 , k2 , k3 , iter , procid , master
       type(s_rv1) :: sv_p_orhold(3,1)
       type(s_rv1) :: sv_p_orhnew(3,1)
       character*(*) mixmod
@@ -198,7 +198,7 @@ C ... Local parameters
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
-        integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl 
+      integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl
 ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -324,9 +324,9 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
@@ -405,7 +405,7 @@ C ... Initial charges
       fac = vol/(n1*n2*n3)
 
 !!== RMS differences screened and input sm density; count neg points ==
-      sumo = sum(dble(smrho)) 
+      sumo = sum(dble(smrho))
       sums = sum(dble(smrnew))
       summ = 0d0
       top = 0d0
@@ -413,8 +413,8 @@ C ... Initial charges
       nnnew = 0
       nnmix = 0
       do  i3 = 1, n3
-      do  i2 = 1, n2
-      do  i1 = 1, n1
+        do  i2 = 1, n2
+          do  i1 = 1, n1
             dif = dble(sum(smrnew(i1,i2,i3,1:nsp))-sum(smrho(i1,i2,i3,1:nsp)))
             rms = rms + dif*dif
             top = dmax1(top,dabs(dif))
@@ -422,8 +422,8 @@ C ... Initial charges
             if( sum(dble(smrnew(i1,i2,i3,1:nsp))) < 0) nnnew = nnnew+1
             if( dble(xxc) .lt. 0) nnmix = nnmix+1
             summ = summ + dble(xxc)
-      enddo
-      enddo
+          enddo
+        enddo
       enddo
       rms = dsqrt(fac*rms/vol)
 !!     Defer printout until after file read prior iterations; see '100' below
@@ -436,79 +436,79 @@ c        w_ocn=0d0
       else
 C --- Screen sm output rho; distribute screening rho over local rho ---
 C ... 1. Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
-       if (nsp .eq. 2) then
-        call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1,1,1,2),0,1)
-        call dsumdf(kkk*2,1d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-       endif
+        if (nsp .eq. 2) then
+          call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1,1,1,2),0,1)
+          call dsumdf(kkk*2,1d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
+        endif
 C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
-      dquns = 0
-      rmsuns = 0
-      do isp=1,nsp
-      do 12  i3 = 1, n3
-      do 12  i2 = 1, n2
-      do 12  i1 = 1, n1
-        dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
-        rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
-   12 continue
-      enddo
-      rmsuns = dsqrt(rmsuns/(n1*n2*n3))
+        dquns = 0
+        rmsuns = 0
+        do isp=1,nsp
+          do 12  i3 = 1, n3
+          do 12  i2 = 1, n2
+          do 12  i1 = 1, n1
+            dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
+            rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
+   12     continue
+        enddo
+        rmsuns = dsqrt(rmsuns/(n1*n2*n3))
 
 C ... 2. cn <- (smrnew - smrho)(G)
-      allocate(w_ocn(2*ng),w_owk(kkk))
-      call dcopy(kkk*2,smrnew,1,w_owk,1)
-      call dpadd(w_owk,smrho,1,kkk*2,-1d0)
-      call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk , 
-       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_owk , 
-     . w_ocn ) 
-       deallocate(w_owk)
+        allocate(w_ocn(2*ng),w_owk(kkk))
+        call dcopy(kkk*2,smrnew,1,w_owk,1)
+        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
+        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
+ckino Dec.12.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk ,
+ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk ,
+        call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_owk , 
+     . w_ocn )
+        deallocate(w_owk)
 C ... 3. Sum of local densities on Fourier mesh (up+down)
-      allocate(cg1_zv(ng))
-      allocate(cg2_zv(ng))
-      cg1_zv=0d0
-      cg2_zv=0d0
-       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhold 
-     . , kmxs , ng , cg1_zv ) 
-       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhnew 
-     . , kmxs , ng , cg2_zv ) 
+        allocate(cg1_zv(ng))
+        allocate(cg2_zv(ng))
+        cg1_zv=0d0
+        cg2_zv=0d0
+        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhold 
+     . , kmxs , ng , cg1_zv )
+        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhnew 
+     . , kmxs , ng , cg2_zv )
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
 C     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
 
 C ... Add output-input difference in gaussian rho to make total rho
-       call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
-       call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
-       deallocate(cg1_zv,cg2_zv)
+        call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
+        call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
+        deallocate(cg1_zv,cg2_zv)
 
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
-      tpiba = 2*pi/alat
-ckino Dec.12.2011:         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
-ckino Dec.27.2011:         call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elinl , w_ocn ) 
-       call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elinl , w_ocn ) 
+        tpiba = 2*pi/alat
+ckino Dec.12.2011:         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn )
+ckino Dec.27.2011:         call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elinl , w_ocn )
+        call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elinl , w_ocn )
 
 C ... 5. Add cn = screening charge into smrnew
 c      call defcc(owk,kkk)
-       allocate(w_owk(kkk))
-ckino Dec.12.2011:         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn , 
-ckino Dec.28.2011:         call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_ocn , 
-       call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_ocn , 
-     . w_owk ) 
+        allocate(w_owk(kkk))
+ckino Dec.12.2011:         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn ,
+ckino Dec.28.2011:         call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_ocn ,
+        call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_ocn , 
+     . w_owk )
 
-      call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
+        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('unscreened smrnew',0,smrnew,k1,k2,k3)
-      call dpadd(smrnew,w_owk,1,kkk*2,1d0)
+        call dpadd(smrnew,w_owk,1,kkk*2,1d0)
 c      call rlse(owk)
-      deallocate(w_owk)
+        deallocate(w_owk)
 C     call zprm3('screened smrnw, charge',0,smrnew,k1,k2,k3)
 C     call zprm3('screened smrnw, moment',0,smrnew(1,1,1,2),k1,k2,k3)
 
-    
+
 C ... 6. Restore smrho+, smrho-
-      if (nsp .eq. 2) then
-        call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)
-        call dsumdf(kkk*2,.5d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-      endif
+        if (nsp .eq. 2) then
+          call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)
+          call dsumdf(kkk*2,.5d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
+        endif
 C     call zprm3('smrnew',0,smrnew,k1,k2,k3)
       endif
 
@@ -518,11 +518,11 @@ C     call zprm3('smrnew',0,smrnew,k1,k2,k3)
 C --- 7. Project cn = screening density into local densities ---
         k0 = 20
         allocate(fkl_zv((k0+1)*nlm0*nbas))
-ckino Dec.12.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
-ckino Dec.27.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_p_ogv ,  
+ckino Dec.12.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,
+ckino Dec.27.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_p_ogv ,
         call ftlxp ( nbas , ssite , sspec , alat , ng , slat%rv_a_ogv ,  
-     .  w_ocn , k0 , nlm0 , fkl_zv) 
-      endif 
+     .  w_ocn , k0 , nlm0 , fkl_zv)
+      endif
 
 
       do  ib = 1, nbas
@@ -545,25 +545,25 @@ ckino Dec.27.2011:          call ftlxp ( nbas , ssite , sspec , alat , ng , slat
         if(.not.noelind()) then
 C       Overwrite rho+, rho- with rho, rho+ - rho-
           call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
-     .   sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v ) 
+     .   sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
 C   ... Add site-projected screening density to rhn1,rhn2
           call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv 
      .    , rwgt_rv , k0 , nlm0 , fkl_zv , iwdummy , sv_p_orhnew ( 1 , 
-     .    ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx ) 
+     .    ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx )
 C       Restore rho+, rho-
           call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , 
-     .    sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v ) 
-        endif    
+     .    sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
+        endif
 
 C   ...  Always work with rho1+rho2, rho1-rho2
 C        print *, 'ib=',ib
 C        call prrmsh('rhold1',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C        call prrmsh('rhold2',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 
-         call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhold( 1 , ib )%v 
-     .   , sv_p_orhold( 2 , ib )%v ) 
-         call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhnew( 1 , ib )%v 
-     .   , sv_p_orhnew( 2 , ib )%v ) 
+        call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhold( 1 , ib )%v 
+     .   , sv_p_orhold( 2 , ib )%v )
+        call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhnew( 1 , ib )%v 
+     .   , sv_p_orhnew( 2 , ib )%v )
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
         if (allocated(rofi_rv)) deallocate(rofi_rv)
 
@@ -596,60 +596,60 @@ C         and spherical part of rho1-rho2
       enddo
 
       if(mixrealsmooth()) then
-       ng02 = k1*k2*k3
-       ng2 = ng02
-       nda = nda + ng02
-       allocate(w_ocn(ng02*nsp),co_rv(ng02*nsp))
-       call dcopy(ng02*nsp,dreal(smrnew), 1, w_ocn,1)
-       call dcopy(ng02*nsp,dreal(smrho),  1, co_rv,1)
+        ng02 = k1*k2*k3
+        ng2 = ng02
+        nda = nda + ng02
+        allocate(w_ocn(ng02*nsp),co_rv(ng02*nsp))
+        call dcopy(ng02*nsp,dreal(smrnew), 1, w_ocn,1)
+        call dcopy(ng02*nsp,dreal(smrho),  1, co_rv,1)
 
 cccccccccccccccccccccccc
-       wgtsmooth=1d0/ng02**0.5d0 !try this relative weight. Not correct weight charge mixing. 
-       print *,'wgtsmooth=',wgtsmooth
+        wgtsmooth=1d0/ng02**0.5d0 !try this relative weight. Not correct weight charge mixing.
+        print *,'wgtsmooth=',wgtsmooth
 cccccccccccccccccccccccc
 
-       w_ocn= w_ocn*wgtsmooth !
-       co_rv= co_rv*wgtsmooth !
+        w_ocn= w_ocn*wgtsmooth !
+        co_rv= co_rv*wgtsmooth !
       else
 C ... 8. FFT smooth densities -> rho(G) for mixing
 C ... Find and include number of smooth mesh points.
-       allocate(ips0_iv(ng))
-ckino Dec.12.2011:         call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
-ckino Dec.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy ) 
-       call lgstar ( 0 , ng , 1 , slat%rv_a_ogv , ng0 , ips0_iv , iwdummy ) 
-       ng02= ng0*2
-       ng2=ng*2
-       nda = nda + ng02
-       allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
-       allocate(w_owk(kkk*nsp))
+        allocate(ips0_iv(ng))
+ckino Dec.12.2011:         call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy )
+ckino Dec.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy )
+        call lgstar ( 0 , ng , 1 , slat%rv_a_ogv , ng0 , ips0_iv , iwdummy )
+        ng02= ng0*2
+        ng2=ng*2
+        nda = nda + ng02
+        allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
+        allocate(w_owk(kkk*nsp))
 
-       call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, w_ocn) 
-ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
-ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn) 
-       call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , w_ocn) 
+        call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
+        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn)
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn)
+        call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, w_ocn)
+ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn)
+ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn)
+        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , w_ocn)
 
-       call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv) 
-       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, co_rv) 
-ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv) 
-ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv) 
-       call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , co_rv) 
-       deallocate(w_owk)
+        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
+        call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
+ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv)
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , w_owk, co_rv)
+        call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , w_owk, co_rv)
+ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv)
+ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv)
+        call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , co_rv)
+        deallocate(w_owk)
 
       endif
 c
-      
+
 
 
 c      call defrr(oa,-nda*nsp*(mxsav+2)*2)
-       allocate(w_oa(nda*nsp*(mxsav+2)*2))
-       w_oa=0d0
+      allocate(w_oa(nda*nsp*(mxsav+2)*2))
+      w_oa=0d0
 
 C ... Allocate memory for coffs to G_kL expansion of rho
 c      oqkl = 1
@@ -680,11 +680,11 @@ C --- 9. Read prior iterations from disk; update with current iter ---
 
 C     NB: For now, nx must be zero
       k9 = 10
-        call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
-     .  , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
+      call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
+     .  , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold
 ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , (/0/) , nda , w_oa , w_oqkl 
-     .  , rms2 , nmixr ) 
+     .  , rms2 , nmixr )
 
 C     debugging check
 C      ib = 1
@@ -705,11 +705,11 @@ C      stop
       rmsdel = rms2
       nmix = min(nmix,nmixr)
 C ... Write this and prior iterations onto disk
-        call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
-     .  locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
+      call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
+     .  locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold
 ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , (/0/) , nda , w_oa , w_oqkl 
-     .  , rms2 , nmixr ) 
+     .  , rms2 , nmixr )
 
 
 
@@ -741,9 +741,9 @@ C    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
   101 format(' mmom   ',2f14.6,28x,f14.6)
 
 C --- 10. Linear mixing of local densities  ---
-        call pvmix3 ( ssite , sspec , nbas , nsp , beta , locmix , wt 
+      call pvmix3 ( ssite , sspec , nbas , nsp , beta , locmix , wt 
      .  , kmxr , nlm0 , k9 , w_oqkl , sv_p_orhold , sv_p_orhnew , difx 
-     .  ) 
+     .  )
       difxu = difx
 
 
@@ -808,14 +808,14 @@ C      call prrmsh('rho2, ante 7',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 C ... 14. Poke mixed smooth and local densities into smrho,rhoold
 c      call defcc(owk,kkk)
       allocate(w_owk(kkk))
-         call pvmix7 ( ssite , sspec , nbas , nsp , nda , w_oa , n1 , 
-     .   n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl 
-ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk , 
-ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
-ckino Dec.27.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk , 
+      call pvmix7 ( ssite , sspec , nbas , nsp , nda , w_oa , n1 , 
+     .   n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl
+ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , w_owk ,
+ckino Dec.12.2011:       .   , ng , ng2, ng02 , iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk ,
+ckino Dec.27.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_p_ogv , co_rv , w_owk ,
 ckino Dec.28.2011:       .   , ng , ng2, ng02 , slat%iv_p_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
      .   , ng , ng2, ng02 , slat%iv_a_okv , ips0_iv , slat%rv_a_ogv , co_rv , w_owk , 
-     .   sv_p_orhold , smrho, wgtsmooth ) 
+     .   sv_p_orhold , smrho, wgtsmooth )
 
       deallocate(w_oqkl)
 
@@ -861,12 +861,12 @@ C ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
         call radmsh ( rmt , a , nr , rofi_rv)
         call radwgt ( rmt , a , nr , rwgt_rv)
 
-         call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , 
-     .   sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v ) 
+        call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , 
+     .   sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
 
 
-         call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , 
-     .   sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v ) 
+        call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , 
+     .   sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
 
 C       debugging
 C        print *, 'ib=',ib
@@ -878,12 +878,12 @@ C   ... Add net local charge to qmix
           off2 = 1 + nr*nlml*(i-1)
           allocate(wk1_rv(nr))
           allocate(wk2_rv(nr))
-           call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , 
-     .     1 , 1d0 ) 
+          call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , 
+     .     1 , 1d0 )
 
 
-           call dpscop ( sv_p_orhold( 2 , ib )%v , wk2_rv , nr , off2 , 
-     .     1 , 1d0 ) 
+          call dpscop ( sv_p_orhold( 2 , ib )%v , wk2_rv , nr , off2 , 
+     .     1 , 1d0 )
 
 
           qmx = srfpi * ( ddot ( nr , wk1_rv , 1 , rwgt_rv , 1) 
@@ -909,11 +909,11 @@ C     call rhopos(smrho,k1,k2,k3,n1,n2,n3)
 C ... Net interstitial charge and cell charge
       summ = 0
       do  60  i = 1, nsp
-        do  60  i3 = 1, n3
-          do  60  i2 = 1, n2
-            do  60  i1 = 1, n1
+      do  60  i3 = 1, n3
+      do  60  i2 = 1, n2
+      do  60  i1 = 1, n1
 C       smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + .001
-              summ = summ + dble(smrho(i1,i2,i3,i))
+        summ = summ + dble(smrho(i1,i2,i3,i))
    60 continue
 C     Net system charge
       qcell  = qval - summ*fac - qmix(1)
@@ -928,10 +928,10 @@ c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
       do  64  i  = 1, nsp
-        do  64  i3 = 1, n3
-          do  64  i2 = 1, n2
-            do  64  i1 = 1, n1
-              smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
+      do  64  i3 = 1, n3
+      do  64  i2 = 1, n2
+      do  64  i1 = 1, n1
+        smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
 C       summ = summ + dble(smrho(i1,i2,i3,i))
    64 continue
 C     qcell  = qval - summ*fac - qmix(1)
@@ -955,12 +955,12 @@ C ... Printout
      .'('' add q='',f10.6,'' to preserve neutrality'')') qcell
 
       if (ipr .ge. 30) then
-        if (elinl .ne. 0) then 
+        if (elinl .ne. 0) then
           write(stdo,450) ' unscreened ',rmsuns,difxu
           write(stdo,450) '   screened ',rms,difx,rmsdel
   450     format(a,'rms difference:  smooth',f10.6,'   local',f10.6:
      .   '   tot',f10.6)
-        endif  
+        endif
       elseif (ipr .ge. 20) then
         call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g',
      .  ' ',80,stdo,rms,difx,rmsdel)
@@ -1005,20 +1005,20 @@ cccccccccccccccccccccccccccccccccccc
         nnnx = 0
         smmin=1d0
         do i1=1,k1
-        do i2=1,k2
-        do i3=1,k3
+          do i2=1,k2
+            do i3=1,k3
 c         print *,i1,i2,i3,isp
 c         print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
-          sss=dreal(smrho(i1,i2,i3,isp))
-          if(sss<0d0) then
-            nnnx=nnnx+1
-            if(sss<smmin) then
-              smmin=sss
-            endif
+              sss=dreal(smrho(i1,i2,i3,isp))
+              if(sss<0d0) then
+                nnnx=nnnx+1
+                if(sss<smmin) then
+                  smmin=sss
+                endif
 c            smrho(i1,i2,i3,isp)=minimumrho
-          endif
-        enddo
-        enddo
+              endif
+            enddo
+          enddo
         enddo
         if(nnnx>0) then
           write(6,*) 'mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
@@ -1026,7 +1026,7 @@ c          print *,'enforce smrho >',minimumrho
         else
           write(6,*) 'mixrho: all smrho is positive for isp=',isp
         endif
-       enddo
+      enddo
 C$$$      nnnew=0
 C$$$c      open(1898,file='test3vvv')
 C$$$      do  i3 = 1, k3
@@ -1058,9 +1058,9 @@ ccccccccccccccccccccccccccccccccc
 
 
 
-        subroutine pvmix3 ( ssite , sspec , nbas , nsp , beta , locmix 
+      subroutine pvmix3 ( ssite , sspec , nbas , nsp , beta , locmix 
      .  , wt , kmxr , nlm0 , k9 , qkl , sv_p_orhold , sv_p_orhnew , difx 
-     .  ) 
+     .  )
 
 
 
@@ -1111,9 +1111,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,kmxr,nlm0,locmix,k9
-        type(s_rv1) :: sv_p_orhold(3,nbas)
+      type(s_rv1) :: sv_p_orhold(3,nbas)
 
-       type(s_rv1) :: sv_p_orhnew(3,nbas)
+      type(s_rv1) :: sv_p_orhnew(3,nbas)
 
 ckino wt(3)      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
       real(8):: difx , beta , wt(3) , qkl(0:kmxr,nlm0,nsp,4,nbas)
@@ -1198,11 +1198,11 @@ C        call pvmix8(i,nr,nlml,nsp,w(orsm(1)),w(orsm(2)))
 C        call pvmix8(i,nr,nlml,nsp,w(orsm(3)),w(orsm(4)))
 
 C   ... Linear mix, this site
-          call pvmix4 ( nr , nlml , nsp , ri_rv , locmix , wt , beta , 
+        call pvmix4 ( nr , nlml , nsp , ri_rv , locmix , wt , beta , 
      .    ib , w_orsm ( 1 , 1 ) , w_orsm ( 1 , 2 ) , w_orsm ( 1 , 3 ) , 
      .    w_orsm ( 1 , 4 ) , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v 
      .    , sv_p_orhold( 3 , ib )%v , sv_p_orhnew ( 1 , ib ) %v , sv_p_orhnew 
-     .    ( 2 , ib ) %v , sv_p_orhnew ( 3 , ib ) %v , rwgt_rv , difa ) 
+     .    ( 2 , ib ) %v , sv_p_orhnew ( 3 , ib ) %v , rwgt_rv , difa )
 
 
 
@@ -1364,10 +1364,10 @@ C       call prrmsh('rho2 after lin mix',ri,rho2,nr,nr,nlml*nsp)
       end subroutine pvmix4
 
 
-        subroutine pvmix5 ( nmix , mxsav , fnam , ifi , lbin , rmsdel 
+      subroutine pvmix5 ( nmix , mxsav , fnam , ifi , lbin , rmsdel 
      .  , locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold 
      .  , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 
-     .  , nmixr ) 
+     .  , nmixr )
 
 
 
@@ -1468,9 +1468,9 @@ C ... Passed parameters
       logical lbin
       integer ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:*),locmix,
      .k9,kmxr,nlm0
-        type(s_rv1) :: sv_p_orhold(3,1)
+      type(s_rv1) :: sv_p_orhold(3,1)
 
-       type(s_rv1) :: sv_p_orhnew(3,1)
+      type(s_rv1) :: sv_p_orhnew(3,1)
 
       double precision a(nda,nsp,mxsav+2,2),rms2,rmsdel
       real(8):: co(ng2,nsp) , cn(ng2,nsp) , qkl(0:kmxr,nlm0,nsp,4,1)
@@ -1536,12 +1536,12 @@ C   ... If site is constrained, freeze density at rhold (not checked)
             if (cnst(ib) .ne. 0) then
               do  i = 1, nsp
                 off = 1+nr*nlml*(i-1)
-                  call dpscop ( sv_p_orhold( 1 , ib )%v , sv_p_orhnew ( 1 , ib 
-     .            ) %v , nr , off , off , 1d0 ) 
+                call dpscop ( sv_p_orhold( 1 , ib )%v , sv_p_orhnew ( 1 , ib 
+     .            ) %v , nr , off , off , 1d0 )
 
 
-                  call dpscop ( sv_p_orhold( 2 , ib )%v , sv_p_orhnew ( 2 , ib 
-     .            ) %v , nr , off , off , 1d0 ) 
+                call dpscop ( sv_p_orhold( 2 , ib )%v , sv_p_orhnew ( 2 , ib 
+     .            ) %v , nr , off , off , 1d0 )
 
 
               enddo
@@ -1561,12 +1561,12 @@ C       NB: Increment na after all actions takend w/ local densities
 
 C         Scaling rho1+rho2, old and new densities
             k9l = k9 - mod(k9,10)
-             call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
-     .       sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v ) 
+            call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
+     .       sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
 
 
-             call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
-     .       sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v ) 
+            call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
+     .       sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
 
 
 C         call prrmsh('1 post',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
@@ -1574,17 +1574,17 @@ C         call prrmsh('2 post',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 C         Copy (scaled) spherical part of rho1+rho2, rho1-rho2 to a
             do  i = 1, nsp
               off = 1+nr*nlml*(i-1)
-               call dpscop ( sv_p_orhold( 1 , ib )%v , a ( na + 00 , i , 1 , 
-     .         2 ) , nr , off , 1 , 1d0 ) 
+              call dpscop ( sv_p_orhold( 1 , ib )%v , a ( na + 00 , i , 1 , 
+     .         2 ) , nr , off , 1 , 1d0 )
 
-               call dpscop ( sv_p_orhold( 2 , ib )%v , a ( na + nr , i , 1 , 
-     .         2 ) , nr , off , 1 , 1d0 ) 
+              call dpscop ( sv_p_orhold( 2 , ib )%v , a ( na + nr , i , 1 , 
+     .         2 ) , nr , off , 1 , 1d0 )
 
-               call dpscop ( sv_p_orhnew( 1 , ib )%v , a ( na + 00 , i , 1 , 
-     .         1 ) , nr , off , 1 , 1d0 ) 
+              call dpscop ( sv_p_orhnew( 1 , ib )%v , a ( na + 00 , i , 1 , 
+     .         1 ) , nr , off , 1 , 1d0 )
 
-               call dpscop ( sv_p_orhnew( 2 , ib )%v , a ( na + nr , i , 1 , 
-     .         1 ) , nr , off , 1 , 1d0 ) 
+              call dpscop ( sv_p_orhnew( 2 , ib )%v , a ( na + nr , i , 1 , 
+     .         1 ) , nr , off , 1 , 1d0 )
 
             enddo
 
@@ -1604,17 +1604,17 @@ C   ... locmix>=2 : Make G_kL expansion of rho; copy coffs to a
           if (locmix .ge. 2) then
             do  i = 1, nsp
               call pshpr(iprint()-30)
-               call rhogkl ( ib , ib , i , 2 , ssite , sspec , sv_p_orhold , 
-     .         kmxr , qkl ( 0 , 1 , i , 1 , ib ) ) 
+              call rhogkl ( ib , ib , i , 2 , ssite , sspec , sv_p_orhold , 
+     .         kmxr , qkl ( 0 , 1 , i , 1 , ib ) )
 
-               call rhogkl ( ib , ib , i , 3 , ssite , sspec , sv_p_orhold , 
-     .         kmxr , qkl ( 0 , 1 , i , 2 , ib ) ) 
+              call rhogkl ( ib , ib , i , 3 , ssite , sspec , sv_p_orhold , 
+     .         kmxr , qkl ( 0 , 1 , i , 2 , ib ) )
 
-               call rhogkl ( ib , ib , i , 2 , ssite , sspec , sv_p_orhnew , 
-     .         kmxr , qkl ( 0 , 1 , i , 3 , ib ) ) 
+              call rhogkl ( ib , ib , i , 2 , ssite , sspec , sv_p_orhnew , 
+     .         kmxr , qkl ( 0 , 1 , i , 3 , ib ) )
 
-               call rhogkl ( ib , ib , i , 3 , ssite , sspec , sv_p_orhnew , 
-     .         kmxr , qkl ( 0 , 1 , i , 4 , ib ) ) 
+              call rhogkl ( ib , ib , i , 3 , ssite , sspec , sv_p_orhnew , 
+     .         kmxr , qkl ( 0 , 1 , i , 4 , ib ) )
 
               call poppr
 C           Convert qkl for 2nd spin channel into 2nd channel only,
@@ -1654,12 +1654,12 @@ C         call prmx('qkl',qkl,1+kmxr,1+kmxr,nlm0*nsp)
 
 C       Undo scaling transformation of rho1+rho2
           if (locmix .le. 1 .or. locmix .eq. 3) then
-             call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
-     .       , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v ) 
+            call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
+     .       , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
 
 
-             call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
-     .       , sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v ) 
+            call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
+     .       , sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
 
 
 C         call prrmsh('1 rest',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
@@ -1903,10 +1903,10 @@ C     sqmix = (a(1,0,1) - sqmix)*vol
       end subroutine pvmix6
 
 
-       subroutine pvmix7 ( ssite , sspec , nbas , nsp , nda , a , n1 
+      subroutine pvmix7 ( ssite , sspec , nbas , nsp , nda , a , n1 
      . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , qkl 
      . , ng , ng2, ng02 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho 
-     . ,wgtsmooth) 
+     . ,wgtsmooth)
 
 
       use m_struc_def  !Cgetarg
@@ -1954,7 +1954,7 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer nsp,n1,n2,n3,k1,k2,k3,ng,ng02,nda,na,nr,nbas,locmix,k9,
      .kv(ng,3),ips0(ng),kmxr,nlm0,ng2
-       type(s_rv1) :: sv_p_orhold(3,1)
+      type(s_rv1) :: sv_p_orhold(3,1)
 
       real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) 
      ., rf , wt(2), wgtsmooth
@@ -1970,7 +1970,7 @@ C ... Local parameters
       integer ib,is,igetss,i,m,lmxl,nlml,off,np,k9l,orsm(2)
       double precision aat,rmt,rg,xx
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
       real(8),allocatable:: w_orsm(:,:)
       logical:: mixrealsmooth
@@ -1981,22 +1981,22 @@ C ... Restore mixed smoothed density
           call dscal(ng02,-1d0/wgtsmooth,crho(1,i),1)
           call daxpy(ng02,1d0/wgtsmooth,a(1,i),1,crho(1,i),1)
           call daxpy(k1*k2*k3,1d0,crho(1,i),1,smrho(1,1,1,i),2)
-        enddo  
-      else   
+        enddo
+      else
         do  i = 1, nsp
 C       Add difference of mixed, old to minimize perturbation
 ccccccccccccccccc
 c        print *,' vvv pvmix7 TEST!!! a=0 test'
 c        a=0d0
 ccccccccccccccc
-        call dscal(ng02,-1d0,crho(1,i),1)
-        call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
-        call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
-        call gvputf(ng,1,kv,k1,k2,k3,crho(1,i),wk)
-        call fftz3(wk,n1,n2,n3,k1,k2,k3,1,0,1)
-        call daxpy(2*k1*k2*k3,1d0,wk,1,smrho(1,1,1,i),1)
+          call dscal(ng02,-1d0,crho(1,i),1)
+          call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
+          call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
+          call gvputf(ng,1,kv,k1,k2,k3,crho(1,i),wk)
+          call fftz3(wk,n1,n2,n3,k1,k2,k3,1,0,1)
+          call daxpy(2*k1*k2*k3,1d0,wk,1,smrho(1,1,1,i),1)
         enddo
-      endif  
+      endif
 
 C ... Update local densities
       na = 1 + ng02
@@ -2020,8 +2020,8 @@ C ... Update local densities
 
 C       Scale rho1+rho2 to match scaled spherical parts and sm parts
 C       call prrmsh('1 mix7a',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-         call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
-     .   sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v ) 
+        call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , 
+     .   sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
 
 
 C       call prrmsh('1 mix7b',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
@@ -2029,13 +2029,13 @@ C       call prrmsh('1 mix7b',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
 C       Overwrite sph. rhold with scaled mixed rho; do not unscale
         if (locmix .le. 1 .or. locmix .eq. 3) then
           do  i = 1, nsp
-             off = 1+nr*nlml*(i-1)
+            off = 1+nr*nlml*(i-1)
 
-             call dpscop ( a ( na + 00 , i ) , sv_p_orhold( 1 , ib )%v , nr 
-     .       , 1 , off , 1d0 ) 
+            call dpscop ( a ( na + 00 , i ) , sv_p_orhold( 1 , ib )%v , nr 
+     .       , 1 , off , 1d0 )
 
-             call dpscop ( a ( na + nr , i ) , sv_p_orhold( 2 , ib )%v , nr 
-     .       , 1 , off , 1d0 ) 
+            call dpscop ( a ( na + nr , i ) , sv_p_orhold( 2 , ib )%v , nr 
+     .       , 1 , off , 1d0 )
 
 C            call pvmix9(k9l,-1,nr,1,off-1,rf,w(orofi),w(orhold(1,ib)),
 C     .        w(orhold(2,ib)))
@@ -2059,20 +2059,20 @@ c            call defrr(orsm(m),nr*nlml*nsp)
             i = 1001
             if (wt(1) .eq. 0) i = 11001
             if (wt(2) .eq. 0) i = 21001
-             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv , 
+            call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv , 
      .       rwgt_rv , kmxr , nlm0 , iwdummy , qkl ( 0 , 1 , 1 , m , ib ) 
-     .       , w_orsm ( 1 , m ) , iwdummy , xx ) 
+     .       , w_orsm ( 1 , m ) , iwdummy , xx )
 
           enddo
 C         Don't undo scaling of smoothed density since rho1+rho2 scaled
 C          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),
 C     .      w(orsm(1)),w(orsm(2)))
 C         Add to rhold(1,2)
-           call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 1 ) , 1 , sv_p_orhold( 1 , ib )%v 
-     .     , 1 ) 
+          call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 1 ) , 1 , sv_p_orhold( 1 , ib )%v 
+     .     , 1 )
 
-           call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 2 ) , 1 , sv_p_orhold( 2 , ib )%v 
-     .     , 1 ) 
+          call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 2 ) , 1 , sv_p_orhold( 2 , ib )%v 
+     .     , 1 )
 
           deallocate(w_orsm)
 c          call rlse(orsm(2))
@@ -2081,8 +2081,8 @@ c          call rlse(orsm(1))
         endif
 C       call prrmsh('1 mix7d',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
 
-         call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
-     .   , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v ) 
+        call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv 
+     .   , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
 
 
 

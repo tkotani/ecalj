@@ -72,21 +72,21 @@ C   --- Try shortening by adding +/- lattice vectors ---
    15   continue
         amin = 0
         do  16  j1 = -j1max, j1max
-          do  16  j2 = -j2max, j2max
-            do  16  j3 = -j3max, j3max
+        do  16  j2 = -j2max, j2max
+        do  16  j3 = -j3max, j3max
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
-              do  17  i = 1, 3
-                x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-   17         continue
-              a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-              ap = pout(1,ib)*x(1) + pout(2,ib)*x(2) + pout(3,ib)*x(3)
-              if (a2+2*ap .lt. amin) then
-                xmin(1) = x(1)
-                xmin(2) = x(2)
-                xmin(3) = x(3)
-                amin = a2+2*ap
-              endif
+          do  17  i = 1, 3
+            x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17     continue
+          a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+          ap = pout(1,ib)*x(1) + pout(2,ib)*x(2) + pout(3,ib)*x(3)
+          if (a2+2*ap .lt. amin) then
+            xmin(1) = x(1)
+            xmin(2) = x(2)
+            xmin(3) = x(3)
+            amin = a2+2*ap
+          endif
    16   continue
 c       if (amin .lt. 0) then
         if (amin .lt. -tol) then

@@ -39,10 +39,10 @@ SPEC
 %ifdef coref
        ATOM=Gd Z=64 R=2.77  LMX=3 LMXA=3 RSMH= {r1} {r1} 1 1 EH= -0.1 -0.1 -0.1 -0.1 A=0.03
        RSMH2= 1.7 1.7 0 0 EH2=-1.2 -1.2 0 0 EREF=-22527.214927
-       P=6.5,6.25,5.3,5.3 C-HOLE=4f C-HQ=-7,7 IDMOD= 0 0 0 1
+       P=6.5,6.25,5.3,5.3  IDMOD= 0 0 0 1 C-HOLE=4f C-HQ=-7,7
 %else
        ATOM=Gd Z=64 R=2.77  LMX=3 LMXA=3 RSMH= {r1} {r1} 1 1 EH= -0.1 -0.1 -0.1 -0.1 A=0.03
-       RSMH2= 1.7 1.7 0 0 EH2=-1.2 -1.2 0 0 EREF=-22527.214927 MMOM=0 0 0 7
+       RSMH2= 1.7 1.7 0 0 EH2=-1.2 -1.2 0 0 EREF=-22527.214927 MMOM=0 0 0 7 
        P=6.63,6.25
        IDMOD= 0 0 0 3
 % ifdef ldau

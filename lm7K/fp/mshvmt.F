@@ -216,7 +216,7 @@ C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-        integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas 
+      integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas
 ckino Dec.12.2011:          real(8),pointer :: rv_p_og(:) =>NULL()
 
 ckino Dec.12.2011:         real(8),pointer :: rv_p_oag(:) =>NULL()
@@ -232,9 +232,9 @@ C ... Heap
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       ngrp=slat%nsgrp
-ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr
 
-ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag 
+ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag
 
 
       i_copy_size=1;
@@ -273,12 +273,12 @@ C   ... Make nrclas,ipa,posc
 
             allocate(sym_rv(nlml*nlml*nrclas))
 
-ckino Dec.12.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_p_og 
-ckino Dec.28.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_p_osymgr 
-              call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_a_osymgr 
-ckino Dec.12.2011:       .        , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+ckino Dec.12.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_p_og
+ckino Dec.28.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_p_osymgr
+            call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_a_osymgr
+ckino Dec.12.2011:       .        , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn )
 ckino Dec.27.2011:       .        , slat%rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
-     .        , slat%rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+     .        , slat%rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn )
 
 
 

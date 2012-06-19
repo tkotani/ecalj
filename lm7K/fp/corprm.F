@@ -61,7 +61,7 @@ cki      type(s_spec)::sspec(*)
       type(s_spec)::sspec(is)
 
 C ... Local parameters
-       integer:: n0 , lfoc , lmxb , l 
+      integer:: n0 , lfoc , lmxb , l
 ckino Dec.8.2011:         real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
       parameter (n0=10)
@@ -83,7 +83,7 @@ C ... Extract parameters including qc and qsc
       ccof=sspec(is)%ctail
       ceh=sspec(is)%etail
       stc=sspec(is)%stc
-ckino Dec.8.2011:         rv_p_orhoca => sspec(is)%rv_p_orhoc 
+ckino Dec.8.2011:         rv_p_orhoca => sspec(is)%rv_p_orhoc
 
 
 

@@ -75,7 +75,7 @@ c      integer orhat
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
-        integer:: nsp 
+      integer:: nsp
 ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -113,9 +113,9 @@ C ... Heap
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng1=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv 
+ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
 
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
@@ -150,10 +150,10 @@ C --- Set up help arrays ---
       allocate(g_rv(ng*3))
 
 Ckino Set up vectors g, g2, yl from list of vectors gv
-ckino Dec.12.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
-ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv 
-       call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
-     . ) 
+ckino Dec.12.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv
+ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv
+      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
+     . )
 
 
       if (allocated(g_rv)) deallocate(g_rv)
@@ -162,9 +162,9 @@ ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv 
       allocate(iv_iv(ng*3))
 
 Ckino Setup for suphas: write each gv as linear combination of qlat.
-ckino Dec.12.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
-ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv ) 
-       call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv ) 
+ckino Dec.12.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv )
+ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv )
+      call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv )
 
 
       allocate(cs_rv(ng))
@@ -184,7 +184,7 @@ C --- Loop over sites ---
         lmxl=sspec(is)%lmxl
         rg=sspec(is)%rg
 
-Ckino label 10 is at the end of the 'ib' loop 
+Ckino label 10 is at the end of the 'ib' loop
         if (lmxl .eq. -1) goto 10
 Ckino corprm() returns parameters for smooth core+nucleus representation
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)

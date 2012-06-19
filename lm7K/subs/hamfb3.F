@@ -191,64 +191,64 @@ C     Temporary memory for roth
 C --- Copy gf for each qp in star of qp(iq) ---
       iq1 = 0
       do  12  i3 = 1, nk3
-        do  12  i2 = 1, nk2
-          do  12  i1 = 1, nk1
+      do  12  i2 = 1, nk2
+      do  12  i1 = 1, nk1
 
-            iq1 = iq1+1
+        iq1 = iq1+1
 C   ... skip this qp unless it is related to iq
-            if (ipq(iq1) .ne. iq) goto 12
+        if (ipq(iq1) .ne. iq) goto 12
 
 C   ... Make g by rotation of g(iq): symop relating iq1 to iq
-            ig = igstar(iq1)
+        ig = igstar(iq1)
 
 C   ... q into which h is rotated
-            q1(1) = qk(1,i1,i2,i3)
-            q1(2) = qk(2,i1,i2,i3)
-            q1(3) = qk(3,i1,i2,i3)
+        q1(1) = qk(1,i1,i2,i3)
+        q1(2) = qk(2,i1,i2,i3)
+        q1(3) = qk(3,i1,i2,i3)
 
-            if (nspc .ne. 1) call rx('hamfb3: check offsets for nspc')
+        if (nspc .ne. 1) call rx('hamfb3: check offsets for nspc')
 C   ... Copy hq into hw to preserve gii; use hw
-            call dcopy(2*lidimx**2,hq,1,hw,1)
-            offi = lidimx**2
-            if (kcplx .ne. 0) offi = lidimx
+        call dcopy(2*lidimx**2,hq,1,hw,1)
+        offi = lidimx**2
+        if (kcplx .ne. 0) offi = lidimx
 
 C   ... Rotate and copy
-            do  14  is = 1, nspc
-              do  14  js = 1, nspc
-                if (kcplx .eq. 0) then
-                  if (ig .ne. 1) then
-Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
-                    i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+        do  14  is = 1, nspc
+        do  14  js = 1, nspc
+          if (kcplx .eq. 0) then
+            if (ig .ne. 1) then
+Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab
+              i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
      .              lidim , wk_zv , hw ( 1 , is , 1 , js ) )
 
-                  endif
+            endif
 
-                  do  16  j  = 1, ldimb
-                    do  16  i  = 1, ldima
-                      gfbz(i1,i2,i3,i,is,j,js) =
+            do  16  j  = 1, ldimb
+            do  16  i  = 1, ldima
+              gfbz(i1,i2,i3,i,is,j,js) =
      .                dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
-   16             continue
-                else
-                  if (ig .ne. 1) then
-Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
-                    i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+   16       continue
+          else
+            if (ig .ne. 1) then
+Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab
+              i_dummy_roth=roth( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
      .              lidim , wk_zv , hw2 ( 1 , 1 , is , 1 , js ) )
 
-                  endif
+            endif
 
-                  do  18  j  = 1, ldimb
-                    do  18  i  = 1, ldima
-                      gfbz(i1,i2,i3,i,is,j,js) =
+            do  18  j  = 1, ldimb
+            do  18  i  = 1, ldima
+              gfbz(i1,i2,i3,i,is,j,js) =
      .                dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
-   18             continue
-                endif
+   18       continue
+          endif
 
 C         print 357,iq,i1,i2,i3,gfbz(i1,i2,i3,2,1,2,1)
 C 357     format(' hamfb3: iq=',i4,' filling i1,i2,i3=',3i4,2f12.5)
 
-   14       continue
+   14   continue
    12 continue
 
       if (allocated(wk_zv)) deallocate(wk_zv)

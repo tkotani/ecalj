@@ -59,7 +59,7 @@ c      lxcf2 = mod(lx,10)
 c      lxcg = lx/10
 clm72
 Changenglob      lxcfun = nglob('lxcf')
-       lxcf = mod(lxcfun,100)
+      lxcf = mod(lxcfun,100)
 c      lxcg = lxcfun/100
 c      if (nr .gt. nrmx) call rx('vxc0sp: nr > nrmx')
 
@@ -79,8 +79,8 @@ C --- Add background rho to calculate vxc ---
 !! === Make true rho ===
       do  20  isp = 1, nsp
         rp(1,isp) = rho0(isp)
-        do  20  ir = 2, nr
-          rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
+      do  20  ir = 2, nr
+        rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
    20 continue
 
 c      print *,'end of do 20'
@@ -88,42 +88,42 @@ c      print *,'end of do 20'
 c      print *,'end of do 20 xxxx lxcf2=',lxcf2
       if (lxcfun==103) then
         if(.not.newv) then
-         allocate(excx_rv(nr))
-         allocate(excc_rv(nr))
-         allocate(vxcx_rv(nr))
-         allocate(vxcc_rv(nr))
-         allocate(vx2(nr),vc2(nr))
-         call evxcp(rp,rp(1,2),nr,nsp,lxcf,excx_rv,excc_rv,exc,
+          allocate(excx_rv(nr))
+          allocate(excc_rv(nr))
+          allocate(vxcx_rv(nr))
+          allocate(vxcc_rv(nr))
+          allocate(vx2(nr),vc2(nr))
+          call evxcp(rp,rp(1,2),nr,nsp,lxcf,excx_rv,excc_rv,exc,
      .    vxcx_rv,vx2, vxcc_rv,vc2,vxc,vxc(1,2))
-         deallocate(vx2,vc2)
-         do isp = 1, nsp
-          vxc(1,isp) = (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
-         enddo  
-         deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
+          deallocate(vx2,vc2)
+          do isp = 1, nsp
+            vxc(1,isp) = (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
+          enddo
+          deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
         else
 
 c         np=1
 c         wp(1)=4d0*pi
 
-         nph=0
-         call fpiint(-4,nph,np,p,wp)
-         call dmcpy(p,1,3,p2,np,1,np,3)
-         call radwgt(rofi(nr),a,nr,rwgt)
-         lmax=0
-         nlm=(lmax+1)**2 !yl(l=1) is needed for gradfl called in vxcnls
-         allocate (yl(np*(lmax+2)**2),gyl(np*nlm,3)) !nlm=1 Only s channel. Sphelical atom.
-         call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
+          nph=0
+          call fpiint(-4,nph,np,p,wp)
+          call dmcpy(p,1,3,p2,np,1,np,3)
+          call radwgt(rofi(nr),a,nr,rwgt)
+          lmax=0
+          nlm=(lmax+1)**2 !yl(l=1) is needed for gradfl called in vxcnls
+          allocate (yl(np*(lmax+2)**2),gyl(np*nlm,3)) !nlm=1 Only s channel. Sphelical atom.
+          call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
 c         call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
-         gyl=0d0
+          gyl=0d0
 c         print *,'goto vxcnls only s channel',sum(abs(gyl))
 c         nlm=1
 c         allocate(rll(nr,nsp))
-c         rll(:,1:nsp)= 
+c         rll(:,1:nsp)=
 c         print *,'goto vxcnls',sum(rll)
-         call vxcnls(a,rofi,0,nr,np,nlm,nsp,
+          call vxcnls(a,rofi,0,nr,np,nlm,nsp,
      .   yl,gyl,rwgt,wp,sqrt(4d0*pi)*rp(:,1:nsp),lxcfun-100,  vxc,rep,rmu)
-         deallocate(yl,gyl)
-         vxc= vxc/sqrt(4d0*pi)
+          deallocate(yl,gyl)
+          vxc= vxc/sqrt(4d0*pi)
 c         deallocate(rll)
 
         endif
@@ -150,16 +150,16 @@ c         deallocate(rll)
 !! === Integrals ===
         do  14  i  = 1, nsp
 c        qs(i)  = 0d0
-        rep(i) = 0d0
-        rmu(i) = 0d0
-        do  12  ir = 1, nr
-          wgt = 2*(mod(ir+1,2)+1)/3d0
-          if (ir .eq. 1 .or. ir .eq. nr) wgt = 1d0/3d0
-          wgt = wgt * a*(rofi(ir)+b)
+          rep(i) = 0d0
+          rmu(i) = 0d0
+          do  12  ir = 1, nr
+            wgt = 2*(mod(ir+1,2)+1)/3d0
+            if (ir .eq. 1 .or. ir .eq. nr) wgt = 1d0/3d0
+            wgt = wgt * a*(rofi(ir)+b)
 c          qs(i)  = qs(i)  + wgt*rho(ir,i)
-          rep(i) = rep(i) + wgt*rho(ir,i)*exc(ir)
-          rmu(i) = rmu(i) + wgt*rho(ir,i)*vxc(ir,i)
-   12   continue
+            rep(i) = rep(i) + wgt*rho(ir,i)*exc(ir)
+            rmu(i) = rmu(i) + wgt*rho(ir,i)*vxc(ir,i)
+   12     continue
 c        repl(i) = rep(i)
 c        rmul(i) = rmu(i)
    14   continue
@@ -173,7 +173,7 @@ c        allocate(grh_rv(nrmx*nsp))
 c        allocate(ggrh_rv(nrmx*nsp))
 c        allocate(agrh_rv(nrmx*(3*nsp-2)))
 c        allocate(grgag_rv(nrmx*(2*nsp-1)))
-c        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
+c        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv
 c     .  , agrh_rv , grgag_rv , exc , vxc )
 c        deallocate(grgag_rv,agrh_rv,ggrh_rv,grh_rv)
 c        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , exc , vxc )

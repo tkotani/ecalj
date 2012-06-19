@@ -267,14 +267,14 @@ C --- Generate density point-wise through sphere ---
      .  rps(1,1,i),nr)
 
 cccccccccccccccccccccccccccc
-          do  ip = 1, np
-            do  ir = 1, nr
-              if (rps(ir,ip,i) .lt. 0d0) then
+        do  ip = 1, np
+          do  ir = 1, nr
+            if (rps(ir,ip,i) .lt. 0d0) then
 c                print *,'xxx vvv', ir,ip,rps(ir,ip,i)
-                ineg(i) = ineg(i) + 1
-              endif
-            enddo
+              ineg(i) = ineg(i) + 1
+            endif
           enddo
+        enddo
 cccccccccccccccccccccccccccc
 
 C   ... Counts number of points with negative density; reset to pos.
@@ -468,13 +468,15 @@ C              endif
 
 C --- Scale yl by wp for fast multiplication --- ---
       do  12  ilm = 1, nlm
-        do  12  ip = 1, np
-   12 ylwp(ip,ilm) = yl(ip,ilm)*wp(ip) ! it was yl=yl*wp
+      do  12  ip = 1, np
+        ylwp(ip,ilm) = yl(ip,ilm)*wp(ip) ! it was yl=yl*wp
+   12 continue
 
 C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
-   30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0,
+        call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0,
      .vl(1,1,i),nr)
+   30 continue
 
 
 C$$$ccccccccccccccccccccccc
@@ -543,20 +545,23 @@ C     implicit none
 C --- Scale rho by 1/r**2 ---
       if (isgn .eq. 1) then
         do  10  i = 1, nsp
-          do  10  ilm = 1, nlm
-            rl(1,ilm,i) = 0d0
-            do  10  ir = 2, nr
-   10   rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
+        do  10  ilm = 1, nlm
+          rl(1,ilm,i) = 0d0
+        do  10  ir = 2, nr
+          rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
+   10   continue
 C  ...  Extrapolate rho to origin
         do  20  i = 1, nsp
           rho2 = rl(2,1,i)
           rho3 = rl(3,1,i)
-   20   rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
+          rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
+   20   continue
       else
         do  110  i = 1, nsp
-          do  110  ilm = 1, nlm
-            do  110  ir = 1, nr
-  110   rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
+        do  110  ilm = 1, nlm
+        do  110  ir = 1, nr
+          rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
+  110   continue
       endif
       end
 

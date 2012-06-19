@@ -31,8 +31,8 @@ C ... Passed parameters
 
       double complex hkl(0:k0,nlm)
 C ... Local parameters
-        integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
-     .  , owk , oyl 
+      integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
+     .  , owk , oyl
 ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
 ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
@@ -82,9 +82,9 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
 
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
 
       nrx = max(nkd,nkq)
@@ -92,23 +92,23 @@ CSFCPP#if F90
 c      print *,'hklbl:aaa'
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
 c      print *,'hklbl:bbb'
-        call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
-ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , rv_p_odlv 
-ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv 
-ckino Dec.27.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv 
+      call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx
+ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , rv_p_odlv
+ckino Dec.9.2011:       .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv
+ckino Dec.27.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv
 ckino Dec.28.2011:       .  , nlm , wk , yl , awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv 
      .  , nlm , wk , yl , awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv 
-     .  , nkd , vol , hsm , hsmp ) 
+     .  , nkd , vol , hsm , hsmp )
 
 
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
       else
         job = 2
-         call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
-ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
+        call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat ,
+ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , hkl )
 ckino Dec.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
-     .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , hkl ) 
+     .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , hkl )
 
       endif
       deallocate(wk,yl)
@@ -146,10 +146,10 @@ C --- H_kL by recursion ---
       do  2  ilm = 1, nlm
         gklsav = hkl(0,ilm)
         hkl(0,ilm) = hsm(ilm)
-        do  2  k = 1, kmax
-          gklnew = hkl(k,ilm)
-          hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
-          gklsav = gklnew
+      do  2  k = 1, kmax
+        gklnew = hkl(k,ilm)
+        hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
+        gklsav = gklnew
     2 continue
 
 C ... Put in phase to undo shortening

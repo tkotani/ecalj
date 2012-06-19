@@ -40,7 +40,7 @@ C ... Passed parameters
 
       double complex cgh1(ng),cgh2(ng)
 C ... Local parameters
-       integer:: k0 , nlmx , kmax , ib , is , lfoc , i 
+      integer:: k0 , nlmx , kmax , ib , is , lfoc , i
 ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
 
       double precision tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh,
@@ -54,7 +54,7 @@ C     stdo = lgunit(1)
 
       alat=slat%alat
       vol=slat%vol
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
       kmax = 0
@@ -82,10 +82,10 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
-ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
-               call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
-     .         , gkl ) 
+ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy
+ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy
+              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
+     .         , gkl )
 
               cgh1(i) = cgh1(i) + cofh*gkl(0,1)/vol
             enddo
@@ -100,10 +100,10 @@ ccccccccccccccccccccccccccccccccc
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
-ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy 
-               call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
-     .         , gkl ) 
+ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy
+ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy
+              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
+     .         , gkl )
 
               cgh2(i) = cgh2(i) + cofh*gkl(0,1)/vol
             enddo

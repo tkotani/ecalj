@@ -194,7 +194,7 @@ cccccccccccccc
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
-     .sec,stc,v,etot)
+     .sec,stc,v,etot,nmcore)
 
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
@@ -306,28 +306,28 @@ Changenglob      nsp    = nglob('nsp')
 
 ctakao
 c      if(ipr>29) then
-        print *
-        do i = 1, nsp
-          do l = 0, lmxa
-            write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
-          enddo
+      print *
+      do i = 1, nsp
+        do l = 0, lmxa
+          write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
         enddo
+      enddo
 c     endif
 
 C --- Get species data ----
       call dpzero(pl,2*n0)
       call dpzero(ql,2*3*n0)
       do  10  i = 1, nsp
-        do  10  l = 0, lmxa
-          pnul = pnu(l+1,i)
-          pzl  = mod(pz(l+1,1),10d0)
-          if (pzl .ne. 0) then
+      do  10  l = 0, lmxa
+        pnul = pnu(l+1,i)
+        pzl  = mod(pz(l+1,1),10d0)
+        if (pzl .ne. 0) then
 C         Make pz the valence state: hardwire qat
 ctakao
-            if( int(pzl)<=l .and. pzl/=0d0) then
-              print *,' l  pz=',l,pzl
-              call rx(' Int(PZ) > angular momentum l should be.')
-            elseif (int(pnul-1) .eq. int(pzl)) then
+          if( int(pzl)<=l .and. pzl/=0d0) then
+            print *,' l  pz=',l,pzl
+            call rx(' Int(PZ) > angular momentum l should be.')
+          elseif (int(pnul-1) .eq. int(pzl)) then
 ctakao
 c          if (int(pnul-1) .eq. int(pzl)) then
 c            if (qat(l+1,i) .ne. 0) call fexit3(-1,111,
@@ -338,20 +338,20 @@ c            pnul = pzl
 c            qat(l+1,1) = 4*l+2
 c            if(i==1) qat(l+1,1) = 4*l+2 + qat(l+1,1)
 c            qat(l+1,2) = 0
-            elseif (int(pnul+1) .ne. int(pzl)) then
-              call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
+          elseif (int(pnul+1) .ne. int(pzl)) then
+            call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
      .        'sc PZ=%d incompatible with valence P=%;3d',l,pzl,pnul)
-            endif
+          endif
 
-          endif
-          pl(l+1,i) = int(pnul) + .5d0
-          ql(1,l+1,i) = qat(l+1,1)/nsp
-          if (nsp .eq. 2) then
-            if (pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
-            ql(1,l+1,i) = qat(l+1,1)/nsp - qat(l+1,2)/2*dble(2*i-3)
-          endif
-          ql(2,l+1,i) = 0d0
-          ql(3,l+1,i) = 0d0
+        endif
+        pl(l+1,i) = int(pnul) + .5d0
+        ql(1,l+1,i) = qat(l+1,1)/nsp
+        if (nsp .eq. 2) then
+          if (pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
+          ql(1,l+1,i) = qat(l+1,1)/nsp - qat(l+1,2)/2*dble(2*i-3)
+        endif
+        ql(2,l+1,i) = 0d0
+        ql(3,l+1,i) = 0d0
    10 continue
 
 ctakao
@@ -490,18 +490,18 @@ C --- Print charges within/outside MT sphere ---
         qvin = 0d0
         qcin = 0d0
         do  30  isp = 1, nsp
-          do  30  i = 1, nr
-            r = rofi(i)
-            wt0 = rofi(i+nr)
+        do  30  i = 1, nr
+          r = rofi(i)
+          wt0 = rofi(i+nr)
 C       wt0 = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
-            wt1 = wt0
-            if (i .gt. nrmt) wt1 = 0d0
-            if (i.eq.1 .or. i.eq.nrmt) wt1 = a*(r+b)/3d0
-            if (i.eq.1 .or. i.eq.nr)   wt0 = a*(r+b)/3d0
-            qvin = qvin + wt1*rho(i+(isp-1)*nr)
-            qcin = qcin + wt1*rhoc(i+(isp-1)*nr)
-            qvt = qvt + wt0*rho(i+(isp-1)*nr)
-            qct = qct + wt0*rhoc(i+(isp-1)*nr)
+          wt1 = wt0
+          if (i .gt. nrmt) wt1 = 0d0
+          if (i.eq.1 .or. i.eq.nrmt) wt1 = a*(r+b)/3d0
+          if (i.eq.1 .or. i.eq.nr)   wt0 = a*(r+b)/3d0
+          qvin = qvin + wt1*rho(i+(isp-1)*nr)
+          qcin = qcin + wt1*rhoc(i+(isp-1)*nr)
+          qvt = qvt + wt0*rho(i+(isp-1)*nr)
+          qct = qct + wt0*rhoc(i+(isp-1)*nr)
    30   continue
         qtt = qvt + qct
         qtin = qvin + qcin
@@ -638,21 +638,21 @@ C --- Core states ---
         call config(pl,lmaxa,z,konfg,lmaxc)
 
         do  40  konf = 1, 8
-          do  40  l = 0, min(konf-1,lmaxc)
-            konfig = konfg(l)
-            if (konf .ge. konfig) goto 40
-            nn = konf-l-1
-            ecor = -50d0
-            val = 1d-30
-            slo = -val
-            call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,
+        do  40  l = 0, min(konf-1,lmaxc)
+          konfig = konfg(l)
+          if (konf .ge. konfig) goto 40
+          nn = konf-l-1
+          ecor = -50d0
+          val = 1d-30
+          slo = -val
+          call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,
      .      nr,nre)
-            call gintsl(g,g,a,b,nr,rofi,sum)
-            call gintsl(g,g,a,b,nrmt,rofi,pmax)
-            sum = sum - pmax
-            call ppratf(ecor,z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
-            write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum
-  403       format(/' core:        ecore',7x,'node at',6x,'max at',
+          call gintsl(g,g,a,b,nr,rofi,sum)
+          call gintsl(g,g,a,b,nrmt,rofi,pmax)
+          sum = sum - pmax
+          call ppratf(ecor,z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
+          write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum
+  403     format(/' core:        ecore',7x,'node at',6x,'max at',
      .      7x,'c.t.p.   rho(r>rmt)')
   40    continue
 

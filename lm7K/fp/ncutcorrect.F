@@ -15,8 +15,8 @@ c      ncut0=ncut
       do i=1,n
         ni = ncut(i)
         if(ni>ng) then
-           ncut(i)=ng           !takao Sep2010 correct?
-           cycle
+          ncut(i)=ng           !takao Sep2010 correct?
+          cycle
         endif
         gg = sum(gv(ni,:)**2)
         do ig= ni+1,ng

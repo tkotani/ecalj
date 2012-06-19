@@ -95,7 +95,7 @@ C ... Local parameters
       integer idxdn(n0,nkap0),lp1,mode0,ik
       double precision orbp(n0,2,nkap0),pz(n0,2),dum
 
-       logical:: l_dummy_isanrg, isanrg
+      logical:: l_dummy_isanrg, isanrg
 
       mode0 = mod(mode,10)
       lmf = mod(mode/10,10) .eq. 1

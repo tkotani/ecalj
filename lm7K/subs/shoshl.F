@@ -184,9 +184,9 @@ C Local parameters
       parameter (niax=10)
       logical lves,leula,a2bin
       double precision avwsr,avw,range,xx,stdo,wdummy
-       integer:: olstc 
+      integer:: olstc
 ckino Dec.14.2011:         integer,pointer :: iv_p_ontab(:) =>NULL()
-       integer,allocatable :: iv_a_ontab(:) 
+      integer,allocatable :: iv_a_ontab(:)
 
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: rtab_rv(:)
@@ -195,16 +195,16 @@ ckino Dec.14.2011:         integer,pointer :: iv_p_ontab(:) =>NULL()
       real(8) ,allocatable :: dist_rv(:)
       real(8) ,allocatable :: mark_rv(:)
 
-       integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
+      integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
      . , ival , scrwid , ltab , nlstc , nlst1 , nlst2 , mxcsiz , iprint 
-     . , ifi , fopn , lgunit , ldisp , lnn 
+     . , ifi , fopn , lgunit , ldisp , lnn
 ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:) =>NULL()
-       integer,allocatable :: iv_a_oiax(:) 
+      integer,allocatable :: iv_a_oiax(:)
 
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 C --- Parse modifiers ---
@@ -277,15 +277,15 @@ C         print *, sopts(j1:j2)
             ltab = 1
 
           elseif (sopts(j1:j1+4) .eq. 'sites')  then
-             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , iwdummy , nlst1 , lst1_iv ) 
+            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , iwdummy , nlst1 , lst1_iv )
 
 
             j2 = j1+5+j-2
 
           elseif (sopts(j1:j1+4) .eq. 'pairs')  then
-             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , iwdummy , nlst2 , lst2_iv ) 
+            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , iwdummy , nlst2 , lst2_iv )
 
 
             j2 = j1+5+j-2
@@ -304,25 +304,25 @@ C --- Print neighbor table for each site ---
       if (ltab .ne. 0) then
         mxcsiz = 0
         call pshpr(iprint()-20)
-         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 * ( 1 + 
-     .   1d - 6 ) / ) , bas , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab 
-ckino Dec.14.2011:       .   , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+        call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 * ( 1 + 
+     .   1d - 6 ) / ) , bas , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab
+ckino Dec.14.2011:       .   , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .   , iv_p_ontab , iv_a_oiax , mxcsiz ) 
-     .   , iv_a_ontab , iv_a_oiax , mxcsiz ) 
+     .   , iv_a_ontab , iv_a_oiax , mxcsiz )
 
         call poppr
         allocate(rtab_rv(3*nttab))
 
-ckino Dec.14.2011:           call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas 
-         call mkrtab ( 000 , 1d0 , plat , bas , iv_a_oiax , nttab , bas 
-     .   , rtab_rv ) 
+ckino Dec.14.2011:           call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas
+        call mkrtab ( 000 , 1d0 , plat , bas , iv_a_oiax , nttab , bas 
+     .   , rtab_rv )
 
 
 C       if (ldisp .eq. 1) ltab = 2
-ckino Dec.14.2011:           call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab 
-         call psho1 ( ldisp * 10 + ltab , lnn , iv_a_oiax , nbas , nttab 
+ckino Dec.14.2011:           call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab
+        call psho1 ( ldisp * 10 + ltab , lnn , iv_a_oiax , nbas , nttab 
      .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat , bas , 
-     .   dist_rv , mark_rv , ipc , dclabl , ifi ) 
+     .   dist_rv , mark_rv , ipc , dclabl , ifi )
 
 
 

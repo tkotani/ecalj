@@ -21,7 +21,7 @@
 
       logical function enforce_positive_smrho()
 !      enforce smrho to positive in mkpot.F
-       enforce_positive_smrho=.true.
+      enforce_positive_smrho=.true.
       end
 
 c-----------
@@ -90,7 +90,7 @@ c  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(g
       if(id<1. or. id >100 ) call rx("oncewrite index out of range")
       oncewrite=.false.
       if( idx(id) ==1)  then
-         oncewrite=.true.
-         idx(id)=0
+        oncewrite=.true.
+        idx(id)=0
       endif
       end

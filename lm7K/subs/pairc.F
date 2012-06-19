@@ -210,7 +210,7 @@ ckino delete integer(4) def.      integer(4) :: ng
       integer :: ng
       real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
      &,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
-ckino delete integer(4) def.      integer(4) ::  
+ckino delete integer(4) def.      integer(4) ::
       integer ::  
      &n1max,n1min,n2max,n2min,n3max,n3min,
      &i1,i2,i3,ig,job
@@ -338,12 +338,12 @@ Co   w(oiax) :iax array; see pairc, below where it is generated
 Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
-        integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab 
-ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:) 
-        integer,allocatable :: iv_a_ontab(:) 
+      integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab
+ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:)
+      integer,allocatable :: iv_a_ontab(:)
 
 ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
-       integer,allocatable :: iv_a_oiax(:)
+      integer,allocatable :: iv_a_oiax(:)
 
       double precision alat,plat(9),rmax(1),baspp(3,1)
 C Local variables
@@ -362,17 +362,17 @@ C ... Estimate an upper bound to the size of the neighbor table
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
 ckino Dec.14.2011:         allocate(iv_p_ontab(abs(nbasp+1)))
-ckino Dec.27.2011: 
-       if (allocated(iv_a_ontab)) deallocate(iv_a_ontab)
-       allocate(iv_a_ontab(abs(nbasp+1)))
+ckino Dec.27.2011:
+      if (allocated(iv_a_ontab)) deallocate(iv_a_ontab)
+      allocate(iv_a_ontab(abs(nbasp+1)))
 ckino Dec.14.2011:         if (nbasp+1<0) iv_p_ontab(:)=0
-       if (nbasp+1<0) iv_a_ontab(:)=0
+      if (nbasp+1<0) iv_a_ontab(:)=0
 
 ckino Dec.14.2011:         allocate(iv_p_oiax(abs(-niax*mxnbr)))
-       if (allocated(iv_a_oiax)) deallocate(iv_a_oiax)
-       allocate(iv_a_oiax(abs(-niax*mxnbr)))
+      if (allocated(iv_a_oiax)) deallocate(iv_a_oiax)
+      allocate(iv_a_oiax(abs(-niax*mxnbr)))
 ckino Dec.14.2011:         if (-niax*mxnbr<0) iv_p_oiax(:)=0
-       if (-niax*mxnbr<0) iv_a_oiax(:)=0
+      if (-niax*mxnbr<0) iv_a_oiax(:)=0
 
       allocate(wk_rv(3*mxnbr))
 
@@ -384,24 +384,24 @@ ckino Dec.14.2011:         if (-niax*mxnbr<0) iv_p_oiax(:)=0
 C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
-        call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
+      call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat ,
 ckino Dec.14.2011:       .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
-     .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_a_ontab 
+     .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_a_ontab
 ckino Dec.14.2011:       .  , iv_p_oiax , wk_rv , mxcsiz ) 
-     .  , iv_a_oiax , wk_rv , mxcsiz ) 
+     .  , iv_a_oiax , wk_rv , mxcsiz )
 
 
 
 
 C ... Allocate iax to proper size
 ckino Dec.14.2011:         i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
-       i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
+      i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
 ckino Dec.14.2011:         iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
-       iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
+      iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
 ckino Dec.14.2011:         i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
-       i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
+      i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
 ckino Dec.14.2011:         iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-       iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
       if (allocated(wk_rv)) deallocate(wk_rv)
 
@@ -495,7 +495,7 @@ C Local variables
       real(8) ,allocatable :: ctr_rv(:)
 
       double precision r1,rr,qlat(3,3),p0(3)
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 C     call tcn('ppair1')
@@ -522,8 +522,8 @@ C ... Make r1 = 2*maximum range
       if (moder .eq. 0) r1 = 2*r1
       r1 = 2*r1
 C ... List of lattice vectors to add to pos(ib)-pos(jb)
-       call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy 
-     . ) 
+      call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy 
+     . )
 
       allocate(lat_rv(3*i))
 
@@ -576,8 +576,8 @@ C ... Shorten pos-ctr(ib)
         call shorps(nbasp,plat,mode2,pos,pos)
 C ... Undo shift -ctr(ib) to restore shortened pos to absolute pos
         do  16  jb = 1, nbasp
-          do  16  i = 1, 3
-            pos(i,jb) = pos(i,jb) + p0(i)
+        do  16  i = 1, 3
+          pos(i,jb) = pos(i,jb) + p0(i)
    16   continue
 
 C --- Find all sites in range of ctr ---
@@ -693,26 +693,26 @@ C --- For each pair, find matching pair, store in iax(6) ---
    74 continue
       if (mod(isw1,2) .eq. 0) then
         do  70  ib = ib1, ib2
-          do  70  it = ntab(ib)+1, ntab(ib+1)
-            if (iax(6,it) .ne. 0) goto 70
-            jb = iax(2,it)
+        do  70  it = ntab(ib)+1, ntab(ib+1)
+          if (iax(6,it) .ne. 0) goto 70
+          jb = iax(2,it)
 C   ... No matching pair for padded sites
-            if (jb .lt. ib1 .or. jb .gt. ib2) goto 70
-            do  72  jt = ntab(jb)+1, ntab(jb+1)
+          if (jb .lt. ib1 .or. jb .gt. ib2) goto 70
+          do  72  jt = ntab(jb)+1, ntab(jb+1)
 C         if (iax(2,jt) .eq. ib) then
 C         endif
-              if (iax(2,jt) .eq. ib .and.
+            if (iax(2,jt) .eq. ib .and.
      .        iax(3,it) .eq. -iax(3,jt) .and.
      .        iax(4,it) .eq. -iax(4,jt) .and.
      .        iax(5,it) .eq. -iax(5,jt))  then
-                iax(6,it) = jt
-                iax(6,jt) = it
-                goto 73
-              endif
-   72       continue
-            call fexit3(-1,1,' Exit -1 pairc: cannot find pair'//
+              iax(6,it) = jt
+              iax(6,jt) = it
+              goto 73
+            endif
+   72     continue
+          call fexit3(-1,1,' Exit -1 pairc: cannot find pair'//
      .      ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
-   73       continue
+   73     continue
    70   continue
       endif
       if (isw1 .eq. 4) return

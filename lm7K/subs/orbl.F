@@ -1,6 +1,6 @@
       subroutine orbl(ib,ldimp,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
       use m_globalvariables
- 
+
 C- Extract a list of l's in given hamiltonian block for one site
 C ----------------------------------------------------------------------
 Ci Inputs

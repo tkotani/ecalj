@@ -61,12 +61,12 @@ C ... Local parameters
       lmx2 = ll(nlm2)
 
       do  3  k = 0, kmax
-        do  3  jlm = 1, nlm2
-          do  3  ilm = 1, nlm1
-            s(ilm,jlm,k)    = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
-            ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
+      do  3  jlm = 1, nlm2
+      do  3  ilm = 1, nlm1
+        s(ilm,jlm,k)    = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
     3 continue
 
       l1t = -1
@@ -228,23 +228,23 @@ C ... Make gradients using CGs for p functions
 C ... Combine with Clebsch-Gordan coefficients
       do  11  ilm1 = mlm1, nlm1
         l1 = ll(ilm1)
-        do  11  ilm2 = mlm2, nlm2
-          l2 = ll(ilm2)
-          ii = max0(ilm1,ilm2)
-          indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-          do  11  icg = icg1, icg2
-            ilm = jcg(icg)
-            lm = ll(ilm)
-            k = (l1+l2-lm)/2
-            fac = fpi*(-1d0)**l1*cg(icg)
-            do  12  ip = 0, kmax
-              s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
-              ds(ilm1,ilm2,ip,1) = ds(ilm1,ilm2,ip,1) + fac*ghkl(k+ip,ilm,1)
-              ds(ilm1,ilm2,ip,2) = ds(ilm1,ilm2,ip,2) + fac*ghkl(k+ip,ilm,2)
-              ds(ilm1,ilm2,ip,3) = ds(ilm1,ilm2,ip,3) + fac*ghkl(k+ip,ilm,3)
-   12       continue
+      do  11  ilm2 = mlm2, nlm2
+        l2 = ll(ilm2)
+        ii = max0(ilm1,ilm2)
+        indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
+      do  11  icg = icg1, icg2
+        ilm = jcg(icg)
+        lm = ll(ilm)
+        k = (l1+l2-lm)/2
+        fac = fpi*(-1d0)**l1*cg(icg)
+        do  12  ip = 0, kmax
+          s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
+          ds(ilm1,ilm2,ip,1) = ds(ilm1,ilm2,ip,1) + fac*ghkl(k+ip,ilm,1)
+          ds(ilm1,ilm2,ip,2) = ds(ilm1,ilm2,ip,2) + fac*ghkl(k+ip,ilm,2)
+          ds(ilm1,ilm2,ip,3) = ds(ilm1,ilm2,ip,3) + fac*ghkl(k+ip,ilm,3)
+   12   continue
   11  continue
 
 C ... Extra term when e1 or e2 is zero (but not both)

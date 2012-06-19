@@ -134,7 +134,7 @@ C --- Start loop over atoms ---
         is = int(ssite(ib)%spec)
 
 
-ckino Dec.12.2011:           iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.12.2011:           iv_p_oiprmb => sham%iv_p_oindxo
 
 
 
@@ -182,13 +182,13 @@ C   --- Set up all radial head and tail functions, and their BC's
      .  , xp_rv , vp_rv , dp_rv )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-ckino Dec.12.2011:           call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
-ckino Dec.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh 
-         call pusq1 ( mode , ib , isp , nspc , sham%iv_a_oindxo , nlmax , lmxh 
+ckino Dec.12.2011:           call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh
+ckino Dec.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh
+        call pusq1 ( mode , ib , isp , nspc , sham%iv_a_oindxo , nlmax , lmxh 
      .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
-     .   1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) ) 
+     .   1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) )
 
 
         if (allocated(dp_rv)) deallocate(dp_rv)
@@ -309,18 +309,18 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
       call tcn ('pusq1')
 
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 
@@ -349,17 +349,17 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
 
-ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
-           call bstrux ( 2 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg 
-ckino Dec.12.2011:       .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.12.2011:       .     , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.27.2011:       .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
+ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
+      call bstrux ( 2 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
+ckino Dec.12.2011:       .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.12.2011:       .     , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.27.2011:       .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
 ckino Dec.28.2011:       .     , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy ) 
+     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
 
 
 

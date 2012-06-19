@@ -118,10 +118,10 @@ c
       bsig   = sigp(7)
 
       if(present(iout).and.iout==1) then
-         continue
+        continue
       else
-      if (mode .eq. 0) then
-        call info5(PRTE,1,0,
+        if (mode .eq. 0) then
+          call info5(PRTE,1,0,
      .  ' hambls: approximate sigma'//
      .  '%?#(n<0)# for energies E(lda)<%d; and%-2j#%-1j#'//
      .  '%?#(n>0)# for states %-1jn=%i and below; and##%j'//
@@ -129,18 +129,18 @@ c
      .  '%?#(n>0)# for states above %-1jn=%i##%j'//
      .  '%N  state    E(lda)%8fsig_ii%4fconstraint%6fuse',
      .  nmin,emin,nmax,emax,0)
-      elseif (mode .eq. 1) then
-        call info5(PRTE,1,0,
+        elseif (mode .eq. 1) then
+          call info5(PRTE,1,0,
      .  ' hambls: new diagonal sigma for:'//
      .  ' %?#(n>0)#%-1j %i DEEP states (E=%d)#%jno DEEP states# and'//
      .  ' %?#(n>0)#%-1j %i#no# HIGH states'//
      .  ' ',nmin,emin,ndimh-nmax,0,0)
-        if (nmin .le. 0 .and. nmax .ge. ndimh) return
-        call info0(PRTE,0,0,'  state    E(lda)%8fsig_ii')
-        stop 'for now'
-      else
-        call rxi('psigd: bad mode ',mode)
-      endif
+          if (nmin .le. 0 .and. nmax .ge. ndimh) return
+          call info0(PRTE,0,0,'  state    E(lda)%8fsig_ii')
+          stop 'for now'
+        else
+          call rxi('psigd: bad mode ',mode)
+        endif
       endif
 
       imin=ndimh
@@ -185,26 +185,26 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
 
 C       Printout
         if(present(iout).and.iout==1) then
-           continue
+          continue
         else
-         if (mode .eq. 1) then
-          if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
-            write(stdo,331) i,eval(i),dble(sigii)
-  331       format(i6,f12.6,2x,f12.6)
-          endif
-         else
-          if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
-            write(stdo,332)
+          if (mode .eq. 1) then
+            if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
+              write(stdo,331) i,eval(i),dble(sigii)
+  331         format(i6,f12.6,2x,f12.6)
+            endif
+          else
+            if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
+              write(stdo,332)
      .      i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
-  332       format(i6,f12.6,2x,f12.6,f7.2,',',f5.2,f12.6)
-          elseif (ipr .ge. PRTE .and. lhigh) then
-            write(stdo,333) i,eval(i),dble(sig(i,i)),siglin,dble(sigii)
-  333       format(i6,f12.6,2x,2f12.6,f13.6)
-          elseif (ipr .ge. PRTE) then
-            write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
-  334       format(i6,f12.6,2x,f12.6,12x,f13.6)
+  332         format(i6,f12.6,2x,f12.6,f7.2,',',f5.2,f12.6)
+            elseif (ipr .ge. PRTE .and. lhigh) then
+              write(stdo,333) i,eval(i),dble(sig(i,i)),siglin,dble(sigii)
+  333         format(i6,f12.6,2x,2f12.6,f13.6)
+            elseif (ipr .ge. PRTE) then
+              write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
+  334         format(i6,f12.6,2x,f12.6,12x,f13.6)
+            endif
           endif
-         endif
         endif
 
 C       Overwrite full sigma with diagonal matrix, or write to sigd

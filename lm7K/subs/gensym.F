@@ -101,7 +101,7 @@ C Local parameters:
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
 C heap:
-       integer ::iwdummy 
+      integer ::iwdummy
 
 C External calls:
 ckino del defdr,defi,rlse
@@ -132,8 +132,8 @@ C --- Symmetry group as given by input generators ---
 
 C ... Rotate the generators
       call pshpr(iprint()-11)
-       call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
-     . ) 
+      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
+     . )
 
       call poppr
       do  10  igen = 1, ngen
@@ -190,8 +190,8 @@ C       ngen = 0
         call groupg(0,ng,g,ag,plat,ngen,gen,agen,nwgens,nggen)
       else
         nggen = 0
-         call symtbl ( 0 , fptol , nbas , iwdummy , bas , g , ag , ng 
-     .   , qlat , istab ) 
+        call symtbl ( 0 , fptol , nbas , iwdummy , bas , g , ag , ng 
+     .   , qlat , istab )
 
       endif
 

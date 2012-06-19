@@ -33,7 +33,7 @@ C ... Passed parameters
 
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
 C ... Local parameters
-          integer:: kmax , kdim , ilm2 , ilm1 
+      integer:: kmax , kdim , ilm2 , ilm1
 ckino Dec.9.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
 ckino Dec.9.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
@@ -47,13 +47,13 @@ C ... Heap
       data q /0d0,0d0,0d0/
 
 
-ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
 
       vol=slat%vol
 
@@ -61,17 +61,17 @@ ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
       kdim = 0
       e2 = 0d0
 
-          call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg 
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg 
+      call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg
+ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg
 ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg 
-ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
-ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds ) 
-ckino Dec.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds ) 
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg
+ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds )
+ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds )
+ckino Dec.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds )
 ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , s , ds ) 
-     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , s , ds ) 
+     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , s , ds )
 
 
 

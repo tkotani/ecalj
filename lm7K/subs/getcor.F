@@ -1,5 +1,5 @@
       subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
-     .sumec,sumtc,rhoc,ncore,ecore,gcore)
+     .sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore)
       use m_globalvariables
 C- Generate the core density for one site
 C ----------------------------------------------------------------------
@@ -96,7 +96,7 @@ Changenglob      nsp = nglob('nsp')
       call dpzero(rhoc,   nr*nsp)
       b = rofi(nr)/(dexp(a*(nr-1))-1)
       call rhocor(mode,z,lmax,nsp,konf,a,b,nr,rofi,v0,g,kcor,lcor,
-     .qcor,tol,ec,smec,smtc,rhoc,gcore,jpr)
+     .qcor,tol,ec,smec,smtc,rhoc,gcore,nmcore,jpr)
       if (mode .eq. 1) call dcopy(ncore,ec,1,ecore,1)
 
       sumec = smec(1)

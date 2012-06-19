@@ -168,12 +168,12 @@ C --- Loop through g vectors, shorten, count and keep if within gmax ---
       if(fullmesh()) then !kino's path. Something wrong
         ! ---> Kino think this is OK even for fullmesh()=F.
         ! But this path did not go through make check.
-        noutmx=48 
+        noutmx=48
         call shortn3_initialize(qlat1) !initialization for shoten3
         allocate(nlatout(3,noutmx))
         do  21  j1 = 0, n1-1
-          do  21  j2 = 0, n2-1
-            do  21  j3 = 0, n3-1
+        do  21  j2 = 0, n2-1
+        do  21  j3 = 0, n3-1
 c              n_gslist=0
 c              do 21 if1=0,1
 c                do 21 if2=0,1
@@ -183,12 +183,12 @@ c                    qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
 c                    qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
 c                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
 
-                    qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
-                    qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /) 
-                    call shortn3(qpg, noutmx, nout,nlatout)
-                    gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
-                                                               !--->This may numerically break crystal symmetry (very slightly).
-                                                               !shortn3 requires shotn3_init in advance.
+          qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
+          qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /)
+          call shortn3(qpg, noutmx, nout,nlatout)
+          gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
+          !--->This may numerically break crystal symmetry (very slightly).
+          !shortn3 requires shotn3_init in advance.
 c                    call shorbzm(gsflags,qpg,gs,qlat1,plat1)
 c                    do i_gslist=1,n_gslist
 c                      if ( gs(1).eq.gslist(1,i_gslist) .and.
@@ -205,134 +205,134 @@ c        endif
 
 c        print 333, j1,j2,j3,gs !+tau(1),gs(2)+tau(2),gs(3)+tau(3)
 c  333   format(3i4,3f12.6)
-                    gg = (gs(1)**2+gs(2)**2+gs(3)**2)
-                    if (gg .le. gmax2) then
-                      ig = ig+1
+          gg = (gs(1)**2+gs(2)**2+gs(3)**2)
+          if (gg .le. gmax2) then
+            ig = ig+1
 
 C         if (abs(gs(1)+5) .lt.1d-4 .and. gs(3).lt.-10.8) then
 C           print *, j1,j2,j3
 C           print *, gs
 C         endif
 
-                      if (job0 .ne. 0) then
+            if (job0 .ne. 0) then
 
-                        if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
+              if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
 
-                        kv(ig,1) = j1+1
-                        kv(ig,2) = j2+1
-                        kv(ig,3) = j3+1
+              kv(ig,1) = j1+1
+              kv(ig,2) = j2+1
+              kv(ig,3) = j3+1
 
 C     ... Copy lattice vectors to gv,igv,igv2, depending on job
-                        if (ligv .or. ligv2 .or. .true.) then
-                          s1 = (gs(1)-q(1))*plat(1,1)
+              if (ligv .or. ligv2 .or. .true.) then
+                s1 = (gs(1)-q(1))*plat(1,1)
      .                    + (gs(2)-q(2))*plat(2,1)
      .                    + (gs(3)-q(3))*plat(3,1)
-                          s2 = (gs(1)-q(1))*plat(1,2)
+                s2 = (gs(1)-q(1))*plat(1,2)
      .                    + (gs(2)-q(2))*plat(2,2)
      .                    + (gs(3)-q(3))*plat(3,2)
-                          s3 = (gs(1)-q(1))*plat(1,3)
+                s3 = (gs(1)-q(1))*plat(1,3)
      .                    + (gs(2)-q(2))*plat(2,3)
      .                    + (gs(3)-q(3))*plat(3,3)
 c#if DEBUG
 c            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
 c     .        .gt. 1d-12) call rx('bug in gvlist')
 c#endif
-                          if (ligv) then
-                            igv(ig,1) = nint(s1)
-                            igv(ig,2) = nint(s2)
-                            igv(ig,3) = nint(s3)
-                          endif
-                          if (ligv2) then
-                            igv2(1,ig) = nint(s1)
-                            igv2(2,ig) = nint(s2)
-                            igv2(3,ig) = nint(s3)
-                          endif
-                        endif
+                if (ligv) then
+                  igv(ig,1) = nint(s1)
+                  igv(ig,2) = nint(s2)
+                  igv(ig,3) = nint(s3)
+                endif
+                if (ligv2) then
+                  igv2(1,ig) = nint(s1)
+                  igv2(2,ig) = nint(s2)
+                  igv2(3,ig) = nint(s3)
+                endif
+              endif
 
-                        if (lgv) then
-                          if (lgpq) then
-                            gv(ig,1) = gs(1)
-                            gv(ig,2) = gs(2)
-                            gv(ig,3) = gs(3)
-                          else
-                            gv(ig,1) = gs(1) - q(1)
-                            gv(ig,2) = gs(2) - q(2)
-                            gv(ig,3) = gs(3) - q(3)
-                          endif
-                        endif
+              if (lgv) then
+                if (lgpq) then
+                  gv(ig,1) = gs(1)
+                  gv(ig,2) = gs(2)
+                  gv(ig,3) = gs(3)
+                else
+                  gv(ig,1) = gs(1) - q(1)
+                  gv(ig,2) = gs(2) - q(2)
+                  gv(ig,3) = gs(3) - q(3)
+                endif
+              endif
 
-                      endif
-                    endif
+            endif
+          endif
    21   continue
         deallocate(nlatout)
       else
 
         do  20  j1 = 0, n1-1
-          do  20  j2 = 0, n2-1
-            do  20  j3 = 0, n3-1
-              qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
-              qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
-              qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
-              call shorbz(qpg,gs,qlat1,plat1)
+        do  20  j2 = 0, n2-1
+        do  20  j3 = 0, n3-1
+          qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
+          qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
+          qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
+          call shorbz(qpg,gs,qlat1,plat1)
 C        print 333, j1,j2,j3,gs(1)+tau(1),gs(2)+tau(2),gs(3)+tau(3)
 C  333   format(3i4,3f12.6)
-              gg = (gs(1)**2+gs(2)**2+gs(3)**2)
-              if (gg .le. gmax2) then
-                ig = ig+1
+          gg = (gs(1)**2+gs(2)**2+gs(3)**2)
+          if (gg .le. gmax2) then
+            ig = ig+1
 C         if (abs(gs(1)+5) .lt.1d-4 .and. gs(3).lt.-10.8) then
 C           print *, j1,j2,j3
 C           print *, gs
 C         endif
 
-                if (job0 .ne. 0) then
+            if (job0 .ne. 0) then
 
-                  if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
+              if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
 
-                  kv(ig,1) = j1+1
-                  kv(ig,2) = j2+1
-                  kv(ig,3) = j3+1
+              kv(ig,1) = j1+1
+              kv(ig,2) = j2+1
+              kv(ig,3) = j3+1
 
 C     ... Copy lattice vectors to gv,igv,igv2, depending on job
-                  if (ligv .or. ligv2 .or. .true.) then
-                    s1 = (gs(1)-q(1))*plat(1,1)
+              if (ligv .or. ligv2 .or. .true.) then
+                s1 = (gs(1)-q(1))*plat(1,1)
      .              + (gs(2)-q(2))*plat(2,1)
      .              + (gs(3)-q(3))*plat(3,1)
-                    s2 = (gs(1)-q(1))*plat(1,2)
+                s2 = (gs(1)-q(1))*plat(1,2)
      .              + (gs(2)-q(2))*plat(2,2)
      .              + (gs(3)-q(3))*plat(3,2)
-                    s3 = (gs(1)-q(1))*plat(1,3)
+                s3 = (gs(1)-q(1))*plat(1,3)
      .              + (gs(2)-q(2))*plat(2,3)
      .              + (gs(3)-q(3))*plat(3,3)
 c#if DEBUG
 c            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
 c     .        .gt. 1d-12) call rx('bug in gvlist')
 c#endif
-                    if (ligv) then
-                      igv(ig,1) = nint(s1)
-                      igv(ig,2) = nint(s2)
-                      igv(ig,3) = nint(s3)
-                    endif
-                    if (ligv2) then
-                      igv2(1,ig) = nint(s1)
-                      igv2(2,ig) = nint(s2)
-                      igv2(3,ig) = nint(s3)
-                    endif
-                  endif
-
-                  if (lgv) then
-                    if (lgpq) then
-                      gv(ig,1) = gs(1)
-                      gv(ig,2) = gs(2)
-                      gv(ig,3) = gs(3)
-                    else
-                      gv(ig,1) = gs(1) - q(1)
-                      gv(ig,2) = gs(2) - q(2)
-                      gv(ig,3) = gs(3) - q(3)
-                    endif
-                  endif
-
+                if (ligv) then
+                  igv(ig,1) = nint(s1)
+                  igv(ig,2) = nint(s2)
+                  igv(ig,3) = nint(s3)
+                endif
+                if (ligv2) then
+                  igv2(1,ig) = nint(s1)
+                  igv2(2,ig) = nint(s2)
+                  igv2(3,ig) = nint(s3)
                 endif
               endif
+
+              if (lgv) then
+                if (lgpq) then
+                  gv(ig,1) = gs(1)
+                  gv(ig,2) = gs(2)
+                  gv(ig,3) = gs(3)
+                else
+                  gv(ig,1) = gs(1) - q(1)
+                  gv(ig,2) = gs(2) - q(2)
+                  gv(ig,3) = gs(3) - q(3)
+                endif
+              endif
+
+            endif
+          endif
    20   continue
 
       endif
@@ -509,11 +509,11 @@ C     implicit none
       integer ig,i,j1,j2,j3
 
       do  10  i = 1, n
-        do  10  ig = 1, ng
-          j1 = kv(ig,1)
-          j2 = kv(ig,2)
-          j3 = kv(ig,3)
-          c0(ig,i) = c(j1,j2,j3,i)
+      do  10  ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        c0(ig,i) = c(j1,j2,j3,i)
    10 continue
       end
       subroutine gvgetf_test(ng,n,kv,k1,k2,k3,c,c0)
@@ -524,13 +524,13 @@ C     implicit none
       integer ig,i,j1,j2,j3
 
       do  10  i = 1, n
-        do  10  ig = 1, ng
-          j1 = kv(ig,1)
-          j2 = kv(ig,2)
-          j3 = kv(ig,3)
-          print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
-          c0(ig,i) = c(j1,j2,j3,i)
-          print *,'vvvvvvvvvvv xxx'
+      do  10  ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
+        c0(ig,i) = c(j1,j2,j3,i)
+        print *,'vvvvvvvvvvv xxx'
    10 continue
       end
 
@@ -543,11 +543,11 @@ C     implicit none
 
       call dpzero(c,2*k1*k2*k3*n)
       do  10  i = 1, n
-        do  10  ig = 1, ng
-          j1 = kv(ig,1)
-          j2 = kv(ig,2)
-          j3 = kv(ig,3)
-          c(j1,j2,j3,i) = c0(ig,i)
+      do  10  ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        c(j1,j2,j3,i) = c0(ig,i)
    10 continue
       end
       subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)

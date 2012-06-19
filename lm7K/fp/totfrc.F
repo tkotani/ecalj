@@ -30,8 +30,8 @@ C ... Passed parameters
       type(s_lat)::slat
 
 C ... Local parameters
-        integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
-     .  , isw 
+      integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
+     .  , isw
 ckino Dec.12.2011:          real(8),pointer :: rv_p_og(:) =>NULL()
 
 ckino Dec.12.2011:        integer,pointer :: iv_p_oistab(:) =>NULL()
@@ -111,21 +111,21 @@ C ... Heap
 C     Symmetrize forces to machine precision
 
       ng=slat%nsgrp
-ckino Dec.12.2011:         iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.12.2011:         iv_p_oistab => slat%iv_p_oistab
 
-ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr
 
 
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
         allocate(wk_rv(3*nbas))
 
-ckino Dec.12.2011:            call symfor ( nbas , 1 , rv_p_og , ng , iv_p_oistab , wk_rv , 
-ckino Dec.12.2011:            call symfor ( nbas , 1 , slat%rv_p_osymgr , ng , iv_p_oistab , wk_rv , 
-ckino Dec.28.2011:            call symfor ( nbas , 1 , slat%rv_p_osymgr , ng , slat%iv_p_oistab , wk_rv , 
-ckino Dec.28.2011:            call symfor ( nbas , 1 , slat%rv_a_osymgr , ng , slat%iv_p_oistab , wk_rv , 
-          call symfor ( nbas , 1 , slat%rv_a_osymgr , ng , slat%iv_a_oistab , wk_rv , 
-     .    f ) 
+ckino Dec.12.2011:            call symfor ( nbas , 1 , rv_p_og , ng , iv_p_oistab , wk_rv ,
+ckino Dec.12.2011:            call symfor ( nbas , 1 , slat%rv_p_osymgr , ng , iv_p_oistab , wk_rv ,
+ckino Dec.28.2011:            call symfor ( nbas , 1 , slat%rv_p_osymgr , ng , slat%iv_p_oistab , wk_rv ,
+ckino Dec.28.2011:            call symfor ( nbas , 1 , slat%rv_a_osymgr , ng , slat%iv_p_oistab , wk_rv ,
+        call symfor ( nbas , 1 , slat%rv_a_osymgr , ng , slat%iv_a_oistab , wk_rv , 
+     .    f )
 
 
 

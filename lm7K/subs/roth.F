@@ -716,13 +716,13 @@ C         When h is in l-diagonal form,  see comment above.
      .      h(offj+ofhi+1,k1),ldha,0d0,h0(offi+of0i+1,k1-ofb),ld0a)
           else
             do  22  k = k1, k2
-              do  22  i = 1, nlmi
-                h0(i+offi,k-ofb) = 0
-                h0(i+offi+of0i,k-ofb) = 0
-                do  22  j = 1, nlmi
-                  h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
+            do  22  i = 1, nlmi
+              h0(i+offi,k-ofb) = 0
+              h0(i+offi+of0i,k-ofb) = 0
+            do  22  j = 1, nlmi
+              h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
      .            rmat(i+offr,j+offr)*h(j+offj,k)
-                  h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
+              h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
      .            rmat(i+offr,j+offr)*h(j+offj+ofhi,k)
    22       continue
           endif
@@ -926,16 +926,16 @@ C         When h is in l-diagonal form,  see comment above.
      .      ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1+ofhi,offi+1),ldha)
           else
             do  21  i = 1, nlmi
-              do  21  k = k1, k2
-                h(k,i+offi) = 0
-                h(k+ofhi,i+offi) = 0
+            do  21  k = k1, k2
+              h(k,i+offi) = 0
+              h(k+ofhi,i+offi) = 0
    21       continue
             do  22  i = 1, nlmi
-              do  22  j = 1, nlmi
-                do  22  k = k1, k2
-                  h(k,i+offi) = h(k,i+offi) +
+            do  22  j = 1, nlmi
+            do  22  k = k1, k2
+              h(k,i+offi) = h(k,i+offi) +
      .            h0(k-ofa,j+offj)*rmat(i+offr,j+offr)
-                  h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
+              h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
      .            h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
    22       continue
           endif

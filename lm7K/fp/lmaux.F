@@ -3,7 +3,7 @@
 
       use m_struc_def  !Cgetarg
       use m_pairs
-      use m_ovmin , only: ovmin 
+      use m_ovmin , only: ovmin
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -95,21 +95,21 @@ C ... Local parameters
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .ngmx,nsgrp
-                             integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
-     .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
-                     real(8),allocatable:: eula(:,:)
+      integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
+     .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
+      real(8),allocatable:: eula(:,:)
 ckino Dec.14.2011:                               integer,pointer :: iv_p_ontab(:) =>NULL()
-                             integer,allocatable :: iv_a_ontab(:) 
+      integer,allocatable :: iv_a_ontab(:)
 
 ckino Dec.14.2011:                              integer,pointer :: iv_p_oiax(:) =>NULL()
-                            integer,allocatable :: iv_a_oiax(:) 
+      integer,allocatable :: iv_a_oiax(:)
 
 ckino Dec.8.2011:                             real(8),pointer :: rv_p_opos(:) =>NULL()
 
 ckino Dec.8.2011:                            integer,pointer :: iv_p_oipc(:) =>NULL()
 
 ckino Dec.8.2011                         real(8),pointer :: rv_p_og(:) =>NULL()
-                         real(8),allocatable :: rv_a_og(:) 
+      real(8),allocatable :: rv_a_og(:)
 
 ckino Dec.8.2011:                          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
@@ -192,13 +192,13 @@ C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
 c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 
-ckino Dec.8.2011:         iv_p_oinitc => sarray%iv_p_ohave 
+ckino Dec.8.2011:         iv_p_oinitc => sarray%iv_p_ohave
 
-ckino Dec.8.2011:         iv_p_oics => sarray%iv_p_oics 
+ckino Dec.8.2011:         iv_p_oics => sarray%iv_p_oics
 
-ckino Dec.8.2011:         rv_p_oclabl => sarray%rv_p_oclabl 
+ckino Dec.8.2011:         rv_p_oclabl => sarray%rv_p_oclabl
 
-ckino Dec.8.2011:         iv_p_onrc => sarray%iv_p_onrc 
+ckino Dec.8.2011:         iv_p_onrc => sarray%iv_p_onrc
 
 ccc
 
@@ -207,15 +207,15 @@ c       npadl=sarray%npadl
 c       npadr=sarray%npadr
       nclasp=sarray%nclasp
 c       opgfsl=sarray%opgfsl
-ckino Dec.8.2011       rv_p_ormax => sarray%rv_p_ormax 
+ckino Dec.8.2011       rv_p_ormax => sarray%rv_p_ormax
 
 
 
-ckino Dec.8.2011:         rv_p_opos => sarray%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => sarray%rv_p_opos
 
-ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc 
+ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc
 
-ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips 
+ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips
 
 
 
@@ -225,24 +225,24 @@ c       i_copy_size=size(sham%qss)
 c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 
-ckino Dec.8.2011:         rv_p_opnu => spot%rv_p_opnu 
+ckino Dec.8.2011:         rv_p_opnu => spot%rv_p_opnu
 
-ckino Dec.8.2011:         rv_p_oqnu => spot%rv_p_oqnu 
+ckino Dec.8.2011:         rv_p_oqnu => spot%rv_p_oqnu
 
-ckino Dec.8.2011:         rv_p_opp => spot%rv_p_opp 
+ckino Dec.8.2011:         rv_p_opp => spot%rv_p_opp
 
-ckino Dec.8.2011:         rv_p_oqc => spot%rv_p_oqc 
+ckino Dec.8.2011:         rv_p_oqc => spot%rv_p_oqc
 
-ckino Dec.8.2011:         rv_p_oqt => spot%rv_p_oqt 
+ckino Dec.8.2011:         rv_p_oqt => spot%rv_p_oqt
 
 
 
 cki      oaamom=spot%oaamom
-ckino Dec.8.2011:         rv_p_orhrmx => spot%rv_p_orhrmx 
+ckino Dec.8.2011:         rv_p_orhrmx => spot%rv_p_orhrmx
 
-ckino Dec.8.2011:         rv_p_oves => spot%rv_p_oves 
+ckino Dec.8.2011:         rv_p_oves => spot%rv_p_oves
 
-ckino Dec.8.2011:         rv_p_ovrmax => spot%rv_p_ovrmax 
+ckino Dec.8.2011:         rv_p_ovrmax => spot%rv_p_ovrmax
 
 
 
@@ -255,10 +255,10 @@ c       call dcopy(i_copy_size,slat%plat2,1,plat2,1)
 
 
       nkd=slat%nkd
-ckino Dec.8.2011:         rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.8.2011:         rv_p_odlv => slat%rv_p_odlv
 
       nkq=slat%nkq
-ckino Dec.8.2011:         rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.8.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
 
 
@@ -270,13 +270,13 @@ c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
 c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
 ckino 2012.Feb.13      allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
       allocate(lmxa(nclasp),z(nclasp))
-ckino Dec.8.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
-ckino Dec.8.2011:         call icopy ( nclasp , sarray%iv_p_oics , 1 , ics , 1 ) 
+ckino Dec.8.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 )
+ckino Dec.8.2011:         call icopy ( nclasp , sarray%iv_p_oics , 1 , ics , 1 )
 
 ckino 2012.Feb.13
 c      lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
 c      z   (1:nclasp) = sspec(ics(1:nclasp))%z
-ckino 2012.Feb.13 end 
+ckino 2012.Feb.13 end
       lmxa(1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%lmxa
       z   (1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%z
       print *,' lmxa=',lmxa
@@ -289,10 +289,10 @@ ckino 2012.Feb.13 end
 
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
-ckino Dec.8.2011:           call shorps ( nbasp , plat , modep , rv_p_opos , rv_p_opos ) 
-ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , sarray%rv_p_opos , sarray%rv_p_opos ) 
-ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , slat%rv_p_opos , slat%rv_p_opos ) 
-         call shorps ( nbasp , plat , modep , slat%rv_a_opos , slat%rv_a_opos ) 
+ckino Dec.8.2011:           call shorps ( nbasp , plat , modep , rv_p_opos , rv_p_opos )
+ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , sarray%rv_p_opos , sarray%rv_p_opos )
+ckino Jan.04.2012:           call shorps ( nbasp , plat , modep , slat%rv_p_opos , slat%rv_p_opos )
+        call shorps ( nbasp , plat , modep , slat%rv_a_opos , slat%rv_a_opos )
 
       endif
 
@@ -302,12 +302,12 @@ C ... Read from restart file
 
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
-            call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
-ckino Dec.8.2011:       .      rv_p_opnu , rv_p_oqnu , .false. , ifi ) 
-ckino Dec.8.2011:       .      rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
-ckino Dec.27.2011:       .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi ) 
+          call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz ,
+ckino Dec.8.2011:       .      rv_p_opnu , rv_p_oqnu , .false. , ifi )
+ckino Dec.8.2011:       .      rv_p_opnu , spot%rv_p_oqnu , .false. , ifi )
+ckino Dec.27.2011:       .      spot%rv_p_opnu , spot%rv_p_oqnu , .false. , ifi )
 ckino Dec.27.2011:       .      spot%rv_a_opnu , spot%rv_p_oqnu , .false. , ifi ) 
-     .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi ) 
+     .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi )
 
 
           call fclr('rsta',ifi)
@@ -341,13 +341,13 @@ C ... Get neighbor table iax for each atom in the cluster
         call pshpr(iprint()-20)
 c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
-ckino Dec.8.2011:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos 
-ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , sarray%rv_p_opos 
-ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_p_opos 
-         call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_a_opos 
-ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+ckino Dec.8.2011:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos
+ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , sarray%rv_p_opos
+ckino Jan.04.2012:           call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_p_opos
+        call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_a_opos
+ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
-     .   , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) 
+     .   , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
 
         call poppr
 
@@ -416,13 +416,13 @@ C       Initial estimate for sphere radii: overlapping atom potentials
           else
             call rx('LMAUX: not implemented for lpbc>1')
           endif
-ckino Dec.8.2011:              call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos , 
-ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , sarray%rv_p_opos , 
-ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_p_opos , 
-            call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_a_opos , 
-ckino Dec.8.2011:       .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+ckino Dec.8.2011:              call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos ,
+ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , sarray%rv_p_opos ,
+ckino Jan.04.2012:              call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_p_opos ,
+          call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_a_opos ,
+ckino Dec.8.2011:       .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv )
 ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
-     .      slabl , sarray%iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+     .      slabl , sarray%iv_a_oips , modep , lock_iv , zz_rv , rmt_rv )
 
 
 
@@ -434,14 +434,14 @@ C   ... Scale sphere radii satisfying constraints
           call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
           wsrmax=sctrl%wsrmax
 
-ckino Dec.8.2011:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos 
-ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , sarray%rv_p_opos 
-ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_p_opos 
-            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_a_opos 
-ckino Dec.8.2011:       .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+ckino Dec.8.2011:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos
+ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , sarray%rv_p_opos
+ckino Jan.04.2012:              call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_p_opos
+          call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_a_opos
+ckino Dec.8.2011:       .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax
 ckino Dec.28.2011:       .      , sarray%iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , sarray%iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
-     .      , omax1 , omax2 , rmt_rv ) 
+     .      , omax1 , omax2 , rmt_rv )
 
 
 
@@ -466,17 +466,17 @@ ckino 2012.Deb.13            rmax(i) =sspec(ics(i))%rmt
           enddo
 ckino Dec.8.2011           allocate(rv_p_ormax(abs(nclspp)))
 ckino Dec.27.2011:             allocate(sarray%rv_p_ormax(abs(nclspp)))
-           allocate(sarray%rv_a_ormax(abs(nclspp)))
+          allocate(sarray%rv_a_ormax(abs(nclspp)))
 ckino Dec.8.2011           if (nclspp<0) rv_p_ormax(:)=0.0d0
 ckino Dec.27.2011:             if (nclspp<0) sarray%rv_p_ormax(:)=0.0d0
-           if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
+          if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
 
-ckino Dec.8.2011           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
-ckino Dec.27.2011:             call dcopy ( nclspp , rmax , 1 , sarray%rv_p_ormax , 1 ) 
-           call dcopy ( nclspp , rmax , 1 , sarray%rv_a_ormax , 1 ) 
+ckino Dec.8.2011           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 )
+ckino Dec.27.2011:             call dcopy ( nclspp , rmax , 1 , sarray%rv_p_ormax , 1 )
+          call dcopy ( nclspp , rmax , 1 , sarray%rv_a_ormax , 1 )
 
 
-ckino Dec.8.2011           sarray%rv_p_ormax => rv_p_ormax 
+ckino Dec.8.2011           sarray%rv_p_ormax => rv_p_ormax
 
           ifx=1
         endif
@@ -484,9 +484,9 @@ ckino Dec.8.2011           sarray%rv_p_ormax => rv_p_ormax
 c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
-ckino Dec.8.2011           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
-ckino Dec.27.2011:             call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rmax , 1 ) 
-           call dcopy ( nclasp , sarray%rv_a_ormax , 1 , rmax , 1 ) 
+ckino Dec.8.2011           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 )
+ckino Dec.27.2011:             call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rmax , 1 )
+          call dcopy ( nclasp , sarray%rv_a_ormax , 1 , rmax , 1 )
 
         endif
 
@@ -498,22 +498,22 @@ C --- Show neighbors by shell ---
         j = 8
         if (cmdopt('--shell',j-1,0,outs)) then
 
-              allocate(eula(nbas,3))
-ckino Dec.8.2011:                 call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
-ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
-ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr , 
-               call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr , 
-ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves , 
-ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
-ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves , 
-ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-ckino Dec.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves , 
-ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves , 
+          allocate(eula(nbas,3))
+ckino Dec.8.2011:                 call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr ,
+ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr ,
+ckino Jan.04.2012:                 call shoshl ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr ,
+          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr ,
+ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves ,
+ckino Dec.8.2011:       .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves ,
+ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , iv_p_oipc , spot%rv_p_oves ,
+ckino Dec.8.2011:       .         z , slabl , sarray%rv_p_oclabl , iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves ,
+ckino Dec.27.2011:       .         z , slabl , sarray%rv_p_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves ,
+ckino Dec.27.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_p_oves ,
+ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_p_oipc , spot%rv_a_oves ,
 ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
      .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
-     .         eula  , nclass ) 
-              deallocate(eula)
+     .         eula  , nclass )
+          deallocate(eula)
 
 
 
@@ -523,13 +523,13 @@ ckino Dec.28.2011:       .         z , slabl , sarray%rv_a_oclabl , sarray%iv_p_
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
-ckino Dec.8.2011:              call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
-ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr , 
-ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr , 
-            call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr , 
-ckino Dec.8.2011:       .      slabl , iv_p_oips ) 
+ckino Dec.8.2011:              call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr ,
+ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , sarray%rv_p_opos , plat , mxnbr ,
+ckino Jan.04.2012:              call shoang ( outs ( j: ) , nbas , slat%rv_p_opos , plat , mxnbr ,
+          call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr ,
+ckino Dec.8.2011:       .      slabl , iv_p_oips )
 ckino Dec.28.2011:       .      slabl , sarray%iv_p_oips ) 
-     .      slabl , sarray%iv_a_oips ) 
+     .      slabl , sarray%iv_a_oips )
 
 
         endif
@@ -564,19 +564,19 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
 
 ckino Dec.8.2011           allocate(rv_p_og(abs(9*ngmx)))
 ckino Dec.8.2011           if (9*ngmx<0) rv_p_og(:)=0.0d0
-           allocate(rv_a_og(abs(9*ngmx)))
-           if (9*ngmx<0) rv_a_og(:)=0.0d0
+          allocate(rv_a_og(abs(9*ngmx)))
+          if (9*ngmx<0) rv_a_og(:)=0.0d0
 
-ckino Dec.8.2011           call symlat ( plat , ngrp , rv_p_og , j ) 
-           call symlat ( plat , ngrp , rv_a_og , j ) 
+ckino Dec.8.2011           call symlat ( plat , ngrp , rv_p_og , j )
+          call symlat ( plat , ngrp , rv_a_og , j )
 
-ckino Dec.8.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
-ckino Dec.28.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips 
-             j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips 
-ckino Dec.8.2011:       .       , rv_p_opos , ips2_iv , pos2_rv ) 
-ckino Jan.04.2012:       .       , sarray%rv_p_opos , ips2_iv , pos2_rv ) 
+ckino Dec.8.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips
+ckino Dec.28.2011:               j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_p_oips
+          j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips
+ckino Dec.8.2011:       .       , rv_p_opos , ips2_iv , pos2_rv )
+ckino Jan.04.2012:       .       , sarray%rv_p_opos , ips2_iv , pos2_rv )
 ckino Jan.04.2012:       .       , slat%rv_p_opos , ips2_iv , pos2_rv ) 
-     .       , slat%rv_a_opos , ips2_iv , pos2_rv ) 
+     .       , slat%rv_a_opos , ips2_iv , pos2_rv )
 
 
 
@@ -592,16 +592,16 @@ C ... Write positions in Cartesian coordinates and as multiples plat
 C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
-ckino Dec.8.2011:               call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
-ckino Jan.04.2012:               call dpscop ( sarray%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
-ckino Jan.04.2012:               call dpscop ( slat%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
-             call dpscop ( slat%rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
+ckino Dec.8.2011:               call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
+ckino Jan.04.2012:               call dpscop ( sarray%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
+ckino Jan.04.2012:               call dpscop ( slat%rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
+            call dpscop ( slat%rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
 
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-ckino Dec.8.2011:               ip = ival ( iv_p_oips , i ) 
-ckino Dec.28.2011:               ip = ival ( sarray%iv_p_oips , i ) 
-             ip = ival ( sarray%iv_a_oips , i ) 
+ckino Dec.8.2011:               ip = ival ( iv_p_oips , i )
+ckino Dec.28.2011:               ip = ival ( sarray%iv_p_oips , i )
+            ip = ival ( sarray%iv_a_oips , i )
 
             print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
   345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
@@ -616,27 +616,27 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         if (swtmp) i = 7
         j = 1
         if (iprint() .lt. 30) j = 0
-           call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-ckino Dec.8.2011:       .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
-ckino Dec.8.2011:       .     , rmax , sarray%rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
-ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
-ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_a_oiax , 
-ckino Dec.27.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
+        call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax
+ckino Dec.8.2011:       .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax ,
+ckino Dec.8.2011:       .     , rmax , sarray%rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax ,
+ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax ,
+ckino Dec.14.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_p_ontab , iv_a_oiax ,
+ckino Dec.27.2011:       .     , rmax , sarray%rv_p_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
 ckino Dec.28.2011:       .     , rmax , sarray%rv_a_oclabl , sarray%iv_p_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
-     .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax , 
-ckino Dec.8.2011:       .     rv_p_opos , j ) 
-ckino Jan.04.2012:       .     sarray%rv_p_opos , j ) 
+     .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
+ckino Dec.8.2011:       .     rv_p_opos , j )
+ckino Jan.04.2012:       .     sarray%rv_p_opos , j )
 ckino Jan.04.2012:       .     slat%rv_p_opos , j ) 
-     .     slat%rv_a_opos , j ) 
+     .     slat%rv_a_opos , j )
 
 
 
 C ... Write positions to file
-         if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0 
-ckino Dec.8.2011:       .   , outs ( 8: ) , nbasp , rv_p_opos ) 
-ckino Jan.04.2012:       .   , outs ( 8: ) , nbasp , sarray%rv_p_opos ) 
+        if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0
+ckino Dec.8.2011:       .   , outs ( 8: ) , nbasp , rv_p_opos )
+ckino Jan.04.2012:       .   , outs ( 8: ) , nbasp , sarray%rv_p_opos )
 ckino Jan.04.2012:       .   , outs ( 8: ) , nbasp , slat%rv_p_opos ) 
-     .   , outs ( 8: ) , nbasp , slat%rv_a_opos ) 
+     .   , outs ( 8: ) , nbasp , slat%rv_a_opos )
 
 
 C ... Inner products between Euler angles
@@ -815,13 +815,13 @@ C$$$      endif
 
 
 c takao give up empty sphere finder because we will throw away empty sphere in future.
-C$$$C --- Empty sphere finder --- 
+C$$$C --- Empty sphere finder ---
 C$$$      if (getdig(mode,7,2) .ne. 0) then
 C$$$        nsgrp=slat%nsgrp
 C$$$Cchp1         og=slat%osymgr
-C$$$         rv_p_og => slat%rv_p_osymgr 
+C$$$         rv_p_og => slat%rv_p_osymgr
 C$$$Cchp1         oag=slat%oag
-C$$$         rv_p_oag => slat%rv_p_oag 
+C$$$         rv_p_oag => slat%rv_p_oag
 C$$$        allocate(z_rv(nspec))
 C$$$Ctakao_ZeroClear_NotRequiered          if (nspec<0) z_rv(:)=0.0d0
 C$$$        i_copy_size=1;
@@ -832,13 +832,13 @@ C$$$        allocate(rmt_rv(nspec))
 C$$$Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
 C$$$        i_copy_size=1;
 C$$$        do i_spackv=1,nspec
-C$$$          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
+C$$$          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt
 C$$$     .    , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
 C$$$        enddo
 C$$$        allocate(lock_iv(abs(-nspec)))
 C$$$        if (-nspec<0) lock_iv(:)=0
 C$$$        do  i = 1, nspec
-C$$$          call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
+C$$$          call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i )
 C$$$     .    %mxcst ) , 2 ) )
 C$$$        enddo
 C$$$        allocate(zc_rv(mxclas))
@@ -853,26 +853,26 @@ C$$$Cchp1         call defi(onrc,mxclas)
 C$$$         allocate(iv_p_onrc(abs(mxclas)))
 C$$$         if (mxclas<0) iv_p_onrc(:)=0
 C$$$Cchp1         call icopy(nclass,w(owk),1,w(onrc),1)
-C$$$Cchp1          call icopy ( nclass , w ( owk ) , 1 , iv_p_onrc , 1 ) 
-C$$$          call icopy ( nclass , iv_p_owk , 1 , iv_p_onrc , 1 ) 
+C$$$Cchp1          call icopy ( nclass , w ( owk ) , 1 , iv_p_onrc , 1 )
+C$$$          call icopy ( nclass , iv_p_owk , 1 , iv_p_onrc , 1 )
 C$$$        if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
-C$$$        call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
+C$$$        call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv ,
 C$$$     .  z , zc_rv , lock_iv , lockc_rv )
-C$$$Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
-C$$$Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+C$$$Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl
+C$$$Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og )
 C$$$Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
-C$$$Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-C$$$Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-C$$$Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-C$$$Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-C$$$Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-C$$$Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-C$$$Cchp1            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-C$$$Cchp1      .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-C$$$Cchp1      .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
-C$$$c            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-C$$$c     .      , iv_p_onrc , mxclas , nsgrp , w(opos) , w(oipc) , plat , rv_p_og , 
-C$$$c     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+C$$$Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl
+C$$$Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og )
+C$$$Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+C$$$Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl
+C$$$Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og )
+C$$$Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+C$$$Cchp1            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl
+C$$$Cchp1      .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og )
+C$$$Cchp1      .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv )
+C$$$c            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl
+C$$$c     .      , iv_p_onrc , mxclas , nsgrp , w(opos) , w(oipc) , plat , rv_p_og ,
+C$$$c     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv )
 C$$$      endif
 
 ctakao

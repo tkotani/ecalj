@@ -76,7 +76,7 @@ C- Set io_show and io_help for m_gtv
       integer:: i,recln
       character*(*):: recrd
       do i = 1, recln
-         if(recrd(i:i)==char(9)) recrd(i:i)=' '
+        if(recrd(i:i)==char(9)) recrd(i:i)=' '
       enddo
       end subroutine
 
@@ -144,7 +144,7 @@ C       write(*,"(i4,a)") ioff, rcd(1:ioff2)
 ccccccccccccccccccccccccc
 c      print *,'rrrrrrrrrrrrrrrrrrrrrrrrcd=',trim(rcd)
 cccccccccccccccccccccccccc
-      
+
 C     print *, cpusec()
 C     print *, ioff2; stop
       ioff2 = ioff2+9

@@ -554,7 +554,7 @@ for ispec in uniq(sitename):
     aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
     aaa=aaa+ '      EH2='+ getdataa( dicatom[speckey],'eh2=')*4
     aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
-			    +'      KMXA={kmxa}  LMX=3 LMXA=4\n' \
+			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
                             +'      #MMOM=\n' \
                             +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
                             +'      #Q= \n' \

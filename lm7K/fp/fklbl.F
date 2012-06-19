@@ -29,8 +29,8 @@ C ... Passed parameters
 
       double complex fkl(0:k0,nlm)
 C ... Local parameters
-        integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job 
-     .  , ilm , k 
+      integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job 
+     .  , ilm , k
 ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
 
 ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
@@ -75,32 +75,32 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv 
+ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
 
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv 
+ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
 
 
       call shorbz(p,p1,plat,qlat)
       nrx = max(nkd,nkq)
 CSFCPP#if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
-        call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , 
-ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm 
-ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
-ckino Dec.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm 
+      call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl ,
+ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm
+ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm
+ckino Dec.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm
 ckino Dec.28.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
      .  awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
-     .  ) 
+     .  )
 
 
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
       else
         job = 2
-         call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
-ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
+        call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat ,
+ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl )
 ckino Dec.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
-     .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , fkl ) 
+     .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , fkl )
 
       endif
       deallocate(wk,yl)
@@ -123,10 +123,10 @@ C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
       do  2  ilm = 1, nlm
         gklsav = fkl(0,ilm)
         fkl(0,ilm) = fsm(ilm)
-        do  2  k = 1, kmax
-          gklnew = fkl(k,ilm)
-          fkl(k,ilm) = -fpi*gklsav
-          gklsav = gklnew
+      do  2  k = 1, kmax
+        gklnew = fkl(k,ilm)
+        fkl(k,ilm) = -fpi*gklsav
+        gklsav = gklnew
   2   continue
 
 C ... Add extra term to F(k=1,l=0)

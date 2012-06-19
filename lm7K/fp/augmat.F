@@ -1,12 +1,12 @@
-         subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
+      subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
      .   , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg 
      .   , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
      .   eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu , vorb , 
      .   lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl 
-     .   , hab , vab , sab ) 
+     .   , hab , vab , sab )
 
 
-       use m_struc_def, only: s_rv1
+      use m_struc_def, only: s_rv1
 C- Make augmentation matrices sig,tau,pi for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -315,12 +315,12 @@ C ... Passed parameters
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       parameter (n0=10,nkap0=3,nppn=12,nab=9)
       double precision z,rmt,rsma,a
-         integer:: jcg(1) , indxcg(1) , lh(nkap0) 
-         type(s_rv1) :: sv_p_oppi(3)
+      integer:: jcg(1) , indxcg(1) , lh(nkap0)
+      type(s_rv1) :: sv_p_oppi(3)
 
-        type(s_rv1) :: sv_p_otau(3)
+      type(s_rv1) :: sv_p_otau(3)
 
-       type(s_rv1) :: sv_p_osig(3)
+      type(s_rv1) :: sv_p_osig(3)
 
       double precision rofi(nr),rwgt(nr),v0(nr,nsp),cg(1),
      .pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2),
@@ -388,34 +388,34 @@ C     at this site and store in vumm
 C --- Augmentation matrices for cases P*P, H*H, H*P ---
 
 C ... Hsm*Hsm
-         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
      .   , sv_p_osig ( 3 ) %v , sv_p_otau ( 3 ) %v , nlmh , nlmh , sv_p_oppi( 3 )%v 
-     .   , lmaxu , vumm , lldau , idu ) 
+     .   , lmaxu , vumm , lldau , idu )
 
 
 
 
 C ... Pkl*Pkl
-         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
      .   fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
      .   , vp , dp , lmxa , sv_p_osig ( 1 ) %v , sv_p_otau ( 1 ) %v , 
-     .   nlma , nlma , sv_p_oppi( 1 )%v , lmaxu , vumm , lldau , idu ) 
+     .   nlma , nlma , sv_p_oppi( 1 )%v , lmaxu , vumm , lldau , idu )
 
 
 
 
 C ... Hsm*Pkl
-         call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 
      .   dp , lmxh , sv_p_osig ( 2 ) %v , sv_p_otau ( 2 ) %v , nlmh , 
-     .   nlma , sv_p_oppi( 2 )%v , lmaxu , vumm , lldau , idu ) 
+     .   nlma , sv_p_oppi( 2 )%v , lmaxu , vumm , lldau , idu )
 
 
 

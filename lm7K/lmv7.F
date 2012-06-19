@@ -5,7 +5,7 @@ C- Main program for lmf and so on.
       use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
 #if MPI | MPIK
-#if MPE 
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 #endif
@@ -70,9 +70,9 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_tb):: v_stb
 
 ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
-      type(s_spec),allocatable:: v_sspec(:) 
+      type(s_spec),allocatable:: v_sspec(:)
 ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
-      type(s_site),allocatable:: v_ssite(:) 
+      type(s_site),allocatable:: v_ssite(:)
 
       parameter (mxspec=256)
       character*8 slabl(mxspec)
@@ -117,17 +117,17 @@ cki      equivalence ( recrd, recrd_ )
       logical:: fileexist
 
 #if MPI|MPIK
-      integer  nsize, id 
+      integer  nsize, id
 c      include 'mpif.h'
-c      integer ierr, nsize, id 
+c      integer ierr, nsize, id
 c      character(14):: testbuf
       call mpi_init(ierr)
-cstart--- check mpi. You can delete this. 
+cstart--- check mpi. You can delete this.
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       write(*,*) 'mpi: size and id=',nsize,id
 cend-----
-#endif      
+#endif
 
 C --- Version ---
       call show_programinfo(6)
@@ -155,7 +155,7 @@ C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
 c     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
-     .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w 
+     .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
         call cexit(0,1)
@@ -371,7 +371,7 @@ C      call rx('done')
 C --- Read recrd ---
 c tkotani found nmap is not zero cleared.
 cccccccccccccccccc
-c      print *,' uuuu000 111 nmap=',int(v_sctrl%nmap) 
+c      print *,' uuuu000 111 nmap=',int(v_sctrl%nmap)
 c      v_sctrl%nmap=9999
 cccccccccccccccccc
 
@@ -409,9 +409,9 @@ C --- Generate symmetry operations; split species into classes  ---
 
 #ifndef LMFGWD
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
-      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 c this is equivalent to
-c       if ( v_sctrl%lqp==0 ) lc = lc+2 
+c       if ( v_sctrl%lqp==0 ) lc = lc+2
 #endif
 ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
@@ -429,14 +429,14 @@ C ... Patch for now ... maybe replace
 #ifndef LMFGWD
 Cgetarg       ltet = lgors('ctrl lmet,1',v_sctrl) .or.
 Cgetarg      .       lgors('ctrl ldos,4+2+1',v_sbz)
-      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0 
+      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
 
 C ... quit after SHOW
 Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
-      if ( int(v_sctrl%quit) .eq. 1 ) then 
+      if ( int(v_sctrl%quit) .eq. 1 ) then
 
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
@@ -569,7 +569,7 @@ C ... Local parameters
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
      .vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
-      end subroutine lmhelp 
+      end subroutine lmhelp
 
 
       subroutine sttmpd
@@ -611,7 +611,7 @@ C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
 Cgetarg       end
-      end subroutine sttmpd 
+      end subroutine sttmpd
 
 
 
@@ -624,5 +624,5 @@ Cgetarg       end
       enddo
  1010 continue
       rewind(nfilin)
-      end subroutine findctrlstart 
+      end subroutine findctrlstart
 

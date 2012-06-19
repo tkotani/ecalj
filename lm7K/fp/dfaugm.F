@@ -1,5 +1,5 @@
-         subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
-     .   , sv_p_otau , sv_p_oppi ) 
+      subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
+     .   , sv_p_otau , sv_p_oppi )
 
 
 
@@ -51,12 +51,12 @@ Cu   22 Apr 00 Adapted from nfp df_augm.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-         integer:: nbas , lcplxp , lso 
-         type(s_rv1) :: sv_p_oppi(3,nbas)
+      integer:: nbas , lcplxp , lso
+      type(s_rv1) :: sv_p_oppi(3,nbas)
 
-        type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
 
-       type(s_rv1) :: sv_p_osig(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
 
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -94,38 +94,38 @@ C       call upack('spec z rmt',sspec,is,z,rmt,0,0)
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
         nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc*nso
-         allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_osig(1,ib)%v(:)=0.0d0
+        allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_osig(1,ib)%v(:)=0.0d0
 
-         allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_otau(1,ib)%v(:)=0.0d0
+        allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_otau(1,ib)%v(:)=0.0d0
 
         if (lcplxp .eq. 0) then
-           allocate(sv_p_oppi(1,ib)%v(abs(nelt2)))
-           if (nelt2<0) sv_p_oppi(1,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(1,ib)%v(abs(nelt2)))
+          if (nelt2<0) sv_p_oppi(1,ib)%v(:)=0.0d0
 
         else
-           allocate(sv_p_oppi(1,ib)%v(abs(nelt2*2)))
-           if (nelt2*2<0) sv_p_oppi(1,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(1,ib)%v(abs(nelt2*2)))
+          if (nelt2*2<0) sv_p_oppi(1,ib)%v(:)=0.0d0
 
         endif
 
 C   ... Case Hsm*Hsm
         nelt1 = nkaph*nkaph*(lmxh+1)*nsp
         nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc*nso
-         allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_osig(3,ib)%v(:)=0.0d0
+        allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_osig(3,ib)%v(:)=0.0d0
 
-         allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_otau(3,ib)%v(:)=0.0d0
+        allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_otau(3,ib)%v(:)=0.0d0
 
         if (lcplxp .eq. 0) then
-           allocate(sv_p_oppi(3,ib)%v(abs(nelt2)))
-           if (nelt2<0) sv_p_oppi(3,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(3,ib)%v(abs(nelt2)))
+          if (nelt2<0) sv_p_oppi(3,ib)%v(:)=0.0d0
 
         else
-           allocate(sv_p_oppi(3,ib)%v(abs(nelt2*2)))
-           if (nelt2*2<0) sv_p_oppi(3,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(3,ib)%v(abs(nelt2*2)))
+          if (nelt2*2<0) sv_p_oppi(3,ib)%v(:)=0.0d0
 
         endif
 
@@ -133,19 +133,19 @@ C   ... Case Hsm*Pkl
         if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
         nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
         nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso
-         allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_osig(2,ib)%v(:)=0.0d0
+        allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_osig(2,ib)%v(:)=0.0d0
 
-         allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
-         if (nelt1<0) sv_p_otau(2,ib)%v(:)=0.0d0
+        allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
+        if (nelt1<0) sv_p_otau(2,ib)%v(:)=0.0d0
 
         if (lcplxp .eq. 0) then
-           allocate(sv_p_oppi(2,ib)%v(abs(nelt2)))
-           if (nelt2<0) sv_p_oppi(2,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(2,ib)%v(abs(nelt2)))
+          if (nelt2<0) sv_p_oppi(2,ib)%v(:)=0.0d0
 
         else
-           allocate(sv_p_oppi(2,ib)%v(abs(nelt2*2)))
-           if (nelt2*2<0) sv_p_oppi(2,ib)%v(:)=0.0d0
+          allocate(sv_p_oppi(2,ib)%v(abs(nelt2*2)))
+          if (nelt2*2<0) sv_p_oppi(2,ib)%v(:)=0.0d0
 
         endif
 

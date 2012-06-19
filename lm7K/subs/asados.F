@@ -111,7 +111,7 @@ ckino Dec.12.2011:            real(8),pointer :: rv_p_owtkp(:) =>NULL()
 ckino Dec.12.2011:           integer,pointer :: iv_p_oics(:) =>NULL()
 
 ckino Dec.16.2011:          real(8),pointer :: rv_p_oqp(:) =>NULL()
-        real(8),allocatable :: rv_a_oqp(:)
+      real(8),allocatable :: rv_a_oqp(:)
 
 ckino Dec.12.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
@@ -145,7 +145,7 @@ C     This is a site or class list
       character*8 clabl
       parameter (T=.true., F=.false., scrwid=80)
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
 ctakao
@@ -170,15 +170,15 @@ c       lham=sctrl%lham
 
 
       nclasp=sarray%nclasp
-ckino Dec.12.2011:         iv_p_oics => sarray%iv_p_oics 
+ckino Dec.12.2011:         iv_p_oics => sarray%iv_p_oics
 
-ckino Dec.12.2011:         iv_p_oipc => sarray%iv_p_oipc 
+ckino Dec.12.2011:         iv_p_oipc => sarray%iv_p_oipc
 
-ckino Dec.12.2011:         rv_p_ormax => sarray%rv_p_ormax 
+ckino Dec.12.2011:         rv_p_ormax => sarray%rv_p_ormax
 
 
 
-ckino Dec.12.2011:         rv_p_oclabl => sarray%rv_p_oclabl 
+ckino Dec.12.2011:         rv_p_oclabl => sarray%rv_p_oclabl
 
 
 
@@ -204,9 +204,9 @@ C ... Class-dependent arrays
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
 ckino 2012.Feb.13  delete ics    allocate(ics(nclasp),z(nclasp))
       allocate(z(nclasp))
-ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
-ckino Dec.27.2011:         call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 ) 
-ckino 2012.Feb.13       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 ) 
+ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 )
+ckino Dec.27.2011:         call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 )
+ckino 2012.Feb.13       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 )
 
       do i=1,nclasp
 ckino 2012 Feb.13        z(i)=sspec(ics(i))%z
@@ -370,10 +370,10 @@ C         DOS for a prescribed list of classes only
               else
                 j1 = m+2
               endif
-ckino Dec.12.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
-ckino Dec.27.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass 
-               call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_a_oclabl, z , nclass 
-     .         , nlstc , lsite ) 
+ckino Dec.12.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass
+ckino Dec.27.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass
+              call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_a_oclabl, z , nclass 
+     .         , nlstc , lsite )
 
             else
               goto 999
@@ -395,9 +395,9 @@ C     List of irreducible qp, tetrahedra, ipq
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-ckino Dec.12.2011:         iv_p_oidtet => sbz%iv_p_oidtet 
+ckino Dec.12.2011:         iv_p_oidtet => sbz%iv_p_oidtet
 
-ckino Dec.12.2011:         rv_p_owtkp => sbz%rv_p_owtkp 
+ckino Dec.12.2011:         rv_p_owtkp => sbz%rv_p_owtkp
 
 
 
@@ -446,13 +446,13 @@ C   ... Get BZ plane(s) and BZ sampling parameters
         if (-2*npln*nwmx<0) ew_rv(:)=0.0d0
 
 ckino Dec.16.2011:           allocate(rv_p_oqp(abs(3*nkp)))
-         allocate(rv_a_oqp(abs(3*nkp)))
+        allocate(rv_a_oqp(abs(3*nkp)))
 ckino Dec.16.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
-         if (3*nkp<0) rv_a_oqp(:)=0.0d0
+        if (3*nkp<0) rv_a_oqp(:)=0.0d0
 
-         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv 
+        call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv
 ckino Dec.16.2011:       .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
-     .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_a_oqp ) 
+     .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_a_oqp )
 
 
         wtbzm = 2d0 / nsp
@@ -480,9 +480,9 @@ C ... Open file containing bands and dos weights
       nfilem = fopno(wtfn)
 
 C ... Get dimensions (nsp,nspc,nband,nfstg); allocate memory for eband
-       call iomomq ( nfilem , 0 , nlf , nsp , nspc , ndum , nband , 
+      call iomomq ( nfilem , 0 , nlf , nsp , nspc , ndum , nband , 
      . nfstg , j , ndum , nchan , nchan , i , iwdummy , iwdummy , iwdummy 
-     . , iwdummy , efermi , vmtz ) 
+     . , iwdummy , efermi , vmtz )
 
 Ckino isanrg is logical function,       call isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
       l_dummy_isanrg=isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
@@ -571,15 +571,15 @@ C ... Make sure missing bands are high enough
 
 C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
       if (nchds .eq. nchan) then
-         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+        call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv , doswt_rv 
-     .   , iwdummy , efermi , vmtz ) 
+     .   , iwdummy , efermi , vmtz )
 
 
       else
-         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+        call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
-     .   , eband_rv , iwdummy , doswt_rv , iwdummy , efermi , vmtz ) 
+     .   , eband_rv , iwdummy , doswt_rv , iwdummy , efermi , vmtz )
 
 
       endif
@@ -669,34 +669,34 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-ckino Dec.16.2011:           rv_p_oqp => sbz%rv_p_oqp 
+ckino Dec.16.2011:           rv_p_oqp => sbz%rv_p_oqp
 
-ckino Dec.12.2011:           rv_p_owtkp => sbz%rv_p_owtkp 
+ckino Dec.12.2011:           rv_p_owtkp => sbz%rv_p_owtkp
 
-ckino Dec.12.2011:           iv_p_ogstar => sbz%iv_p_ostar 
+ckino Dec.12.2011:           iv_p_ogstar => sbz%iv_p_ostar
 
 
 
         ntet=sbz%ntet
-ckino Dec.12.2011:           iv_p_oidtet => sbz%iv_p_oidtet 
+ckino Dec.12.2011:           iv_p_oidtet => sbz%iv_p_oidtet
 
-ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq 
+ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq
 
 
         allocate(dos_rv(npts*nsp*nchan))
 
         if (nblst .eq. 0) nblst = nevmx
-            call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
-ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp 
+        call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz
+ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp
+ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp
 ckino Dec.28.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
-     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%rv_p_oqp 
-ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
-ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
-ckino Dec.27.2011:       .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%rv_p_oqp
+ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv
+ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv
+ckino Dec.27.2011:       .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv
 ckino Dec.27.2011:       .      , sbz%iv_a_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , sbz%iv_a_oipq, sbz%iv_a_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
-     .      , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+     .      , npts , emin , emax , lidos , wk_rv , dos_rv )
 
 
 
@@ -706,11 +706,11 @@ ckino Dec.27.2011:       .      , sbz%iv_a_oipq, sbz%iv_p_ostar, iblst , eband_r
 C --- make DOS or NOS ---
       else
         if (ltet) then
-           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
-ckino Dec.12.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
+          call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1
+ckino Dec.12.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv
 ckino Dec.28.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, eband_rv 
      .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, eband_rv 
-     .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+     .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv )
 
 
           del = 0d0
@@ -718,11 +718,11 @@ ckino Dec.28.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_o
 C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
-           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
-ckino Dec.12.2011:       .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
+          call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder ,
+ckino Dec.12.2011:       .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin
 ckino Dec.27.2011:       .     width , nkp , sbz%rv_p_owtkp, eband_rv , doswt_rv , npts , emin 
      .     width , nkp , sbz%rv_a_owtkp, eband_rv , doswt_rv , npts , emin 
-     .     , emax , lidos , wk_rv , dos_rv ) 
+     .     , emax , lidos , wk_rv , dos_rv )
 
 
           del = norder+width
@@ -766,15 +766,15 @@ C     Loop over all sites (or classes)
 
           if (nsite .ne. 0) then
             ib = i
-ckino Dec.12.2011:               ic = ival ( iv_p_oipc , ib ) 
-ckino Dec.28.2011:               ic = ival ( sarray%iv_p_oipc, ib ) 
-             ic = ival ( sarray%iv_a_oipc, ib ) 
+ckino Dec.12.2011:               ic = ival ( iv_p_oipc , ib )
+ckino Dec.28.2011:               ic = ival ( sarray%iv_p_oipc, ib )
+            ic = ival ( sarray%iv_a_oipc, ib )
 
           else
             ic = i
-ckino Dec.12.2011:               ib = iclbas ( i , iv_p_oipc ) 
-ckino Dec.28.2011:               ib = iclbas ( i , sarray%iv_p_oipc) 
-             ib = iclbas ( i , sarray%iv_a_oipc) 
+ckino Dec.12.2011:               ib = iclbas ( i , iv_p_oipc )
+ckino Dec.28.2011:               ib = iclbas ( i , sarray%iv_p_oipc)
+            ib = iclbas ( i , sarray%iv_a_oipc)
 
           endif
 

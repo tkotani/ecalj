@@ -73,7 +73,7 @@ c      if(fullmesh()) then
 c         print *,'full mesh mode'
 c         gmax=1d10
 c         ngmx=min0(m1*m2*m3,n1*n2*n3)
-c      endif   
+c      endif
       allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
       call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,
      .wdummy,wdummy)
@@ -114,30 +114,30 @@ C     implicit none
 C     call zprm3('initial mesh',0,f0,m1,m2,m3)
       f=0d0 !call dpzero(f,2*k1*k2*k3*n)
       do  10  i = 1, n
-        do  10  i3 = 1, (m3+1)/2
-          i3m = m3+1-i3
-          j3m = 2*m3+1-i3
+      do  10  i3 = 1, (m3+1)/2
+        i3m = m3+1-i3
+        j3m = 2*m3+1-i3
 
-          do  20  i2 = 1, (m2+1)/2
-            i2m = m2+1-i2
-            j2m = 2*m2+1-i2
+        do  20  i2 = 1, (m2+1)/2
+          i2m = m2+1-i2
+          j2m = 2*m2+1-i2
 
-            do  30  i1 = 1, (m1+1)/2
-              i1m = m1+1-i1
-              j1m = 2*m1+1-i1
+          do  30  i1 = 1, (m1+1)/2
+            i1m = m1+1-i1
+            j1m = 2*m1+1-i1
 
-              f(i1,i2,i3,i)   = f0(i1,i2,i3,i)
-              f(i1,i2,j3m,i)  = f0(i1,i2,i3m,i)
-              f(i1,j2m,i3,i)  = f0(i1,i2m,i3,i)
-              f(i1,j2m,j3m,i) = f0(i1,i2m,i3m,i)
-              f(j1m,i2,i3,i)  = f0(i1m,i2,i3,i)
-              f(j1m,i2,j3m,i) = f0(i1m,i2,i3m,i)
-              f(j1m,j2m,i3,i) = f0(i1m,i2m,i3,i)
-              f(j1m,j2m,j3m,i)= f0(i1m,i2m,i3m,i)
+            f(i1,i2,i3,i)   = f0(i1,i2,i3,i)
+            f(i1,i2,j3m,i)  = f0(i1,i2,i3m,i)
+            f(i1,j2m,i3,i)  = f0(i1,i2m,i3,i)
+            f(i1,j2m,j3m,i) = f0(i1,i2m,i3m,i)
+            f(j1m,i2,i3,i)  = f0(i1m,i2,i3,i)
+            f(j1m,i2,j3m,i) = f0(i1m,i2,i3m,i)
+            f(j1m,j2m,i3,i) = f0(i1m,i2m,i3,i)
+            f(j1m,j2m,j3m,i)= f0(i1m,i2m,i3m,i)
 
 
-   30       continue
-   20     continue
+   30     continue
+   20   continue
    10 continue
       end
 

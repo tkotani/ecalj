@@ -1,6 +1,6 @@
-        subroutine surho ( nbas , ssite , sspec , lmet , ldos , lrout 
+      subroutine surho ( nbas , ssite , sspec , lmet , ldos , lrout 
      .  , lekkl , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , smrout 
-     .  , ndos , dos , sumev , sumqv ) 
+     .  , ndos , dos , sumev , sumqv )
 
 
 
@@ -49,9 +49,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,ldos,lmet,lrout,lekkl,nbas,ndos,numq
-        type(s_rv1) :: sv_p_oeqkkl(3,nbas)
+      type(s_rv1) :: sv_p_oeqkkl(3,nbas)
 
-       type(s_rv1) :: sv_p_oqkkl(3,nbas)
+      type(s_rv1) :: sv_p_oqkkl(3,nbas)
 
       real(8):: sumev(2,3) , sumqv(3,2) , dos(ndos,2)
       type(s_site)::ssite(*)
@@ -89,25 +89,25 @@ C ... Reset coeffs of local density
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
 
         if (lrout .ne. 0) then
-           call dpzero ( sv_p_oqkkl( 1 , ib )%v , nelt1 * numq * nsp * nspc 
-     .     ) 
+          call dpzero ( sv_p_oqkkl( 1 , ib )%v , nelt1 * numq * nsp * nspc 
+     .     )
 
-           call dpzero ( sv_p_oqkkl( 2 , ib )%v , nelt2 * numq * nsp * nspc 
-     .     ) 
+          call dpzero ( sv_p_oqkkl( 2 , ib )%v , nelt2 * numq * nsp * nspc 
+     .     )
 
-           call dpzero ( sv_p_oqkkl( 3 , ib )%v , nelt3 * numq * nsp * nspc 
-     .     ) 
+          call dpzero ( sv_p_oqkkl( 3 , ib )%v , nelt3 * numq * nsp * nspc 
+     .     )
 
         endif
         if (lrout .ne. 0 .and. lekkl .ne. 0) then
-           call dpzero ( sv_p_oeqkkl( 1 , ib )%v , nelt1 * numq * nsp * 
-     .     nspc ) 
+          call dpzero ( sv_p_oeqkkl( 1 , ib )%v , nelt1 * numq * nsp * 
+     .     nspc )
 
-           call dpzero ( sv_p_oeqkkl( 2 , ib )%v , nelt2 * numq * nsp * 
-     .     nspc ) 
+          call dpzero ( sv_p_oeqkkl( 2 , ib )%v , nelt2 * numq * nsp * 
+     .     nspc )
 
-           call dpzero ( sv_p_oeqkkl( 3 , ib )%v , nelt3 * numq * nsp * 
-     .     nspc ) 
+          call dpzero ( sv_p_oeqkkl( 3 , ib )%v , nelt3 * numq * nsp * 
+     .     nspc )
 
         endif
 

@@ -454,44 +454,44 @@ c          write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
 c      evecout=9.99999d10
       if(nlmto/=0) then
-      ibaso=-999
-      do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
-        !Index of Hamiltonian is devided into these blocks.
-        ibas = ibastab(iorb)
-        if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
-        ibaso=ibas
-        l   = ltab(iorb)
-        k   = ktab(iorb)
-        init1 = offl(iorb)+1
-        iend1 = offl(iorb)+2*l+1
-        init2 = offlrev(miat(ibas,igg),l,k)+1
-        iend2 = init2+2*l+1
-        evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
+        ibaso=-999
+        do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
+          !Index of Hamiltonian is devided into these blocks.
+          ibas = ibastab(iorb)
+          if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
+          ibaso=ibas
+          l   = ltab(iorb)
+          k   = ktab(iorb)
+          init1 = offl(iorb)+1
+          iend1 = offl(iorb)+2*l+1
+          init2 = offlrev(miat(ibas,igg),l,k)+1
+          iend2 = init2+2*l+1
+          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
 c       sigmax(ix,  init1:iend1)= matmul(sigma(ix,init2:iend2),dlmm(-l:l,-l:l,igg))
 c    evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
-      enddo
+        enddo
       endif
 c
 c apw part
       if(napw_in/=0) then
-      ikt  = getikt(q)    !index for q
+        ikt  = getikt(q)    !index for q
 c      print *,' rotwv 000 ikt=',ikt
-      ikt2 = getikt(qtarget) !index for qtarget
+        ikt2 = getikt(qtarget) !index for qtarget
 c      print *,' rotwv 111 ikt2=',ikt2
-      if(napw_in /= napwk(ikt) ) then
-        call rx('rotwv: napw_in /= napw(ikt)')
-      endif
+        if(napw_in /= napwk(ikt) ) then
+          call rx('rotwv: napw_in /= napw(ikt)')
+        endif
 c      print *,' rotwv 222'
 
-      do ig = 1,napw_in
-        qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
-        qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
-        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+        do ig = 1,napw_in
+          qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
+          qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
+          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
 c       print *,ig,'nnn  ikt2=',nnn,ikt2
-        ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-        evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
+          ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
+          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
 c     sigmax(ix,nlmto+ig) =   sigma(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
-      enddo
+        enddo
       endif
 
 c      print *,' rotwv : ikt ikt2=',ikt,ikt2

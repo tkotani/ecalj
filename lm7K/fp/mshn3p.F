@@ -1,6 +1,6 @@
-       subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce 
+      subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce 
      . , qval , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
-     . k3 , smrho , sv_p_oqkkl , f , lrep ) 
+     . k3 , smrho , sv_p_oqkkl , f , lrep )
 
 
       use m_struc_def  !Cgetarg
@@ -55,9 +55,9 @@ Cu   22 May 00 Adapted from nfp ip_density.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer:: n1 , n2 , n3 , k1 , k2 , k3 , lmet , lfrce , lrout 
-     . , lrep , nbas 
-       type(s_rv1) :: sv_p_oqkkl(3,1)
+      integer:: n1 , n2 , n3 , k1 , k2 , k3 , lmet , lfrce , lrout 
+     . , lrep , nbas
+      type(s_rv1) :: sv_p_oqkkl(3,1)
 
       double precision def,ef0,qval
       real(8):: sumev(2,3) , sumqv(3,2) , f(3,nbas,*)
@@ -209,14 +209,14 @@ C   ... Case Pkl*Pkl, P*H, H*H
             nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
             nelt2 = (kmax+1)*nkaph*nlma*nlmh
             nelt3 = nkaph*nkaph*nlmh*nlmh
-             call mshn31 ( w1 , w2 , w3 , nelt1 , nsp , sv_p_oqkkl( 1 , ib )%v 
-     .       ) 
+            call mshn31 ( w1 , w2 , w3 , nelt1 , nsp , sv_p_oqkkl( 1 , ib )%v 
+     .       )
 
-             call mshn31 ( w1 , w2 , w3 , nelt2 , nsp , sv_p_oqkkl( 2 , ib )%v 
-     .       ) 
+            call mshn31 ( w1 , w2 , w3 , nelt2 , nsp , sv_p_oqkkl( 2 , ib )%v 
+     .       )
 
-             call mshn31 ( w1 , w2 , w3 , nelt3 , nsp , sv_p_oqkkl( 3 , ib )%v 
-     .       ) 
+            call mshn31 ( w1 , w2 , w3 , nelt3 , nsp , sv_p_oqkkl( 3 , ib )%v 
+     .       )
 
           endif
 

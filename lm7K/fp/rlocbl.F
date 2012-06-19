@@ -182,10 +182,10 @@ C ... Local parameters
 
 
 CSFCPP#define F90 1
-           subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+      subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
-     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f ) 
+     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
 
 
 
@@ -307,15 +307,15 @@ c      include "events.ins"
 c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
-           type(s_rv1) :: sv_p_oppi(3,1)
+      type(s_rv1) :: sv_p_oppi(3,1)
 
-          type(s_rv1) :: sv_p_otau(3,1)
+      type(s_rv1) :: sv_p_otau(3,1)
 
-         type(s_rv1) :: sv_p_osig(3,1)
+      type(s_rv1) :: sv_p_osig(3,1)
 
-        type(s_rv1) :: sv_p_oeqkkl(3,1)
+      type(s_rv1) :: sv_p_oeqkkl(3,1)
 
-       type(s_rv1) :: sv_p_oqkkl(3,1)
+      type(s_rv1) :: sv_p_oqkkl(3,1)
 
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
@@ -346,7 +346,7 @@ c      integer oib(npmx),oidb(npmx),oixf(npmx),o
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
-                integer:: ob , odb 
+      integer:: ob , odb
 ckino Jan.04.2012:                  real(8),pointer :: rv_p_oppihp(:) =>NULL()
 
 ckino Jan.04.2012:                 real(8),pointer :: rv_p_oppipp(:) =>NULL()
@@ -383,7 +383,7 @@ CSFCPP      double precision eh(n0,nkap0),rsmh(n0,nkap0)
 CSFCPP#endif
 C$    integer mp_numthreads,mp_my_threadnum
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
       integer:: iaini,iaend
       complex(8),allocatable::w_ob(:),w_odb(:),w_oxf(:)
@@ -415,13 +415,13 @@ C --- Setup ---
 Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
 
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 c      call defi(o,1)
@@ -474,7 +474,7 @@ C$    mp = mp_numthreads()
       if (lfrce .ne. 0) then
         allocate(w_oxf(3*nbas*numq))
         w_oxf=0d0
-      endif  
+      endif
 c      do  ip = 1, mp
 c        call defcc(oib(ip), ndimh*nlmax*(kmaxx+1))
 c        call defcc(oidb(ip),ndimh*nlmax*(kmaxx+1)*3)
@@ -549,17 +549,17 @@ c        odb = oidb(ip)
 c        oxf = oixf(ip)
 
 CSFCPP#if F90
-ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
-ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg 
-ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg 
-            call bstrux ( 1 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg 
-ckino Dec.12.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.12.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
+ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
+ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
+        call bstrux ( 1 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
+ckino Dec.12.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.12.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
+ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
 ckino Dec.28.2011:       .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb ) 
+     .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
 
 
 
@@ -630,41 +630,41 @@ C          endif
 
 C     ... Add to local density coefficients for one state
 #ifdef USEOPTIONAL
-              call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
+            call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
 ckino Jan.04.2012:       .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= rv_p_oqpp ) 
-     .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= OQPP ) 
+     .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= OQPP )
 
-              call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
+            call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
      .         nlmha=nlmha , kmax=kmax , nlma=nlma , 
      .         isp=ksp , cpkl=cpkl , nlmto=nlmto , 
-     .         evec=evec ( 1 , ispc , ivec ) , ewgt=ewgt ( 1 , ivec ) , 
-ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp ) 
+     .         evec=evec ( 1 , ispc , ivec ) , ewgt=ewgt ( 1 , ivec ) ,
+ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp )
 ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=OQHP ) 
-     .         numq=numq  , qhh=OQHH , qhp=OQHP ) 
+     .         numq=numq  , qhh=OQHH , qhp=OQHP )
 #else
-              call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+            call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1
 ckino Jan.04.2012:       .        , ivec ) , iwdummy , rv_p_oqpp ) 
-     .        , ivec ) , iwdummy , OQPP ) 
+     .        , ivec ) , iwdummy , OQPP )
 
-               call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-     .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp ) 
+            call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec
+ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp )
 ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , OQHP ) 
-     .         ) , numq , iwdummy , OQHH , OQHP ) 
+     .         ) , numq , iwdummy , OQHH , OQHP )
 #endif
 
 
 
             if (lekkl .eq. 1) then
-               call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1 
+              call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1
 ckino Jan.04.2012:       .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
-     .         , ivec ) , evl ( ivec , isp ) , OEQPP ) 
+     .         , ivec ) , evl ( ivec , isp ) , OEQPP )
 
-                call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-     .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec 
-ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp ) 
+              call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec
+ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp )
 ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , OEQHP ) 
-     .          ) , numq , evl ( ivec , isp ) , OEQHH , OEQHP ) 
+     .          ) , numq , evl ( ivec , isp ) , OEQHH , OEQHP )
 
 
             endif
@@ -684,16 +684,16 @@ CC#endif
 C     ... Contribution to forces
             if (lfrce .ne. 0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-                  call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
+              call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-     .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb 
-ckino Jan.04.2012:       .            , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , rv_p_oppihp 
-ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , rv_p_osigpp , rv_p_oppihp 
+     .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb
+ckino Jan.04.2012:       .            , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , rv_p_oppihp
+ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , rv_p_osigpp , rv_p_oppihp
 ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , OSIGPP , rv_p_oppihp 
-     .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP 
-ckino Jan.04.2012:       .            , rv_p_oppihp , rv_p_osighp , lcplxp , w_oxf ) 
+     .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP
+ckino Jan.04.2012:       .            , rv_p_oppihp , rv_p_osighp , lcplxp , w_oxf )
 ckino Jan.04.2012:       .            , OPPIHP , rv_p_osighp , lcplxp , w_oxf ) 
-     .            , OPPIHP , OSIGHP , lcplxp , w_oxf ) 
+     .            , OPPIHP , OSIGHP , lcplxp , w_oxf )
 
 
 
@@ -729,9 +729,9 @@ C ... end loop over ia
           nelt(2) = (kmax+1)*nkaph*nlma*nlmh
           nelt(3) = nkaph*nkaph*nlmh*nlmh
           do  i = 1, 3
-             call mpi_bcast ( sv_p_oqkkl( i , ia )%v , nelt ( i ) * numq * 
+            call mpi_bcast ( sv_p_oqkkl( i , ia )%v , nelt ( i ) * numq * 
      .       nsp * nspc , mpi_double_precision , pid , mpi_comm_world , ierr 
-     .       ) 
+     .       )
 
             if (mlog) then
               call gettime(datim)
@@ -744,9 +744,9 @@ C ... end loop over ia
      .        nelt(i)*numq*nsp*nspc,pid)
             endif
             if (lekkl .eq. 1) then
-               call mpi_bcast ( sv_p_oeqkkl( i , ia )%v , nelt ( i ) * numq 
+              call mpi_bcast ( sv_p_oeqkkl( i , ia )%v , nelt ( i ) * numq 
      .         * nsp * nspc , mpi_double_precision , pid , mpi_comm_world , 
-     .         ierr ) 
+     .         ierr )
 
               if (mlog) then
                 call gettime(datim)
@@ -785,7 +785,7 @@ c        call MPI_ALLREDUCE(w(oixf(1)),buffer,3*nbas*numq,
       if (lfrce .ne. 0) then
 ctakao think mp=1 is assumed in this routine 3rdJune2010
 c        do  ip = 1, mp
-          call daxpy(3*nbas*numq,1d0,w_oxf,1,f,1)
+        call daxpy(3*nbas*numq,1d0,w_oxf,1,f,1)
 c        enddo
       endif
 #endif

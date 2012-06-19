@@ -56,7 +56,8 @@ C --- Make true rho ---
         rho0(isp) = ub4pi*(rho2*rofi(3)-rho3*rofi(2))/(rofi(3)-rofi(2))
         rp(1+nr*(isp-1)) = rho0(isp)
         do  20  ir = 2, nr
-   20   rp(ir+nr*(isp-1)) = rho(ir,isp)*ub4pi/rofi(ir)**2
+          rp(ir+nr*(isp-1)) = rho(ir,isp)*ub4pi/rofi(ir)**2
+   20   continue
    10 continue
 
 C      print *, 'rl,l=0'

@@ -28,14 +28,14 @@ C local variables
 
 C --- Generate Madelung matrix ---
       do  10  ibas = 1, nbas
-        do  10  jbas = ibas, nbas
-          do  15  i = 1, 3
-            tau(i) = bas(i,jbas)-bas(i,ibas)
-   15     continue
-          call shortn(tau,tau,dlat,nkd)
-          call strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd,
+      do  10  jbas = ibas, nbas
+        do  15  i = 1, 3
+          tau(i) = bas(i,jbas)-bas(i,ibas)
+   15   continue
+        call shortn(tau,tau,dlat,nkd)
+        call strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd,
      .    dmad(ibas,jbas))
-          dmad(jbas,ibas) = dmad(ibas,jbas)
+        dmad(jbas,ibas) = dmad(ibas,jbas)
    10 continue
 
 C --- Printout ---

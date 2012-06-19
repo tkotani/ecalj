@@ -54,7 +54,7 @@ C ... External calls
       external dpcopy,info2,makrvl,radwgt,rseq,rx
       integer:: iz
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
-      
+
 C     call prrmsh('input rho',rofi,rho,nr,nr,nsp)
 
       if (rc(1) .eq. 0) return
@@ -81,38 +81,38 @@ Changenglob      stdo = nglob('stdo')
       do   isp = 1, nsp
         if (nsp .eq. 2) call info2(20,0,0,' Spin %i:',isp,0)
         do l = 0, lmax
-        do iz= 0,1
-          lp1 = l+1
-!! bug fix around here jun2012 
+          do iz= 0,1
+            lp1 = l+1
+!! bug fix around here jun2012
 !! but not tested yet since this routine is used only when 'SPEC_ATOM_RCFA'.
-          if(iz==1) qqq= ql(lp1,isp) 
-          if(iz==0) qqq= qlplus(l,isp) 
-          if (qqq .lt. 1d-6) goto 20
-          if(iz==1) konfig = pl(lp1,isp)
-          if(iz==0) konfig = plplus(l,isp)
-          sum1(lp1,isp) = 0d0
-          sum2(lp1,isp) = 0d0
-          call makrvl(z,l,a,b,nr,rofi,konfig,v(1,isp),ev,tol,rh1)
+            if(iz==1) qqq= ql(lp1,isp)
+            if(iz==0) qqq= qlplus(l,isp)
+            if (qqq .lt. 1d-6) goto 20
+            if(iz==1) konfig = pl(lp1,isp)
+            if(iz==0) konfig = plplus(l,isp)
+            sum1(lp1,isp) = 0d0
+            sum2(lp1,isp) = 0d0
+            call makrvl(z,l,a,b,nr,rofi,konfig,v(1,isp),ev,tol,rh1)
 C       call intrho(rh1,rofi,a,b,nr,sum1(lp1,isp))
-          sum1(lp1,isp) = qqq * ddot(nr,rwgt,1,rh1,1)
-          if (irchan(lp1) .eq. 0) then
-            do  ir = 1, nr
-              r = rofi(ir)
-              fac = 1d0/(dexp((r-dabs(rc(1)))/rcw) + 1)
-              rh2(ir) = rh1(ir)*fac
-            enddo
-          else
-            call dpcopy(rh1,rh2,1,nr,1d0)
-          endif
+            sum1(lp1,isp) = qqq * ddot(nr,rwgt,1,rh1,1)
+            if (irchan(lp1) .eq. 0) then
+              do  ir = 1, nr
+                r = rofi(ir)
+                fac = 1d0/(dexp((r-dabs(rc(1)))/rcw) + 1)
+                rh2(ir) = rh1(ir)*fac
+              enddo
+            else
+              call dpcopy(rh1,rh2,1,nr,1d0)
+            endif
 C       call intrho(rh2,rofi,a,b,nr,sum2(lp1,isp))
-          sum2(lp1,isp) = qqq* ddot(nr,rwgt,1,rh2,1)
-          fac = sum1(lp1,isp)/sum2(lp1,isp)
-          do  ir = 1, nr
-            rho(ir,isp) = rho(ir,isp) + qqq* (fac*rh2(ir)-rh1(ir))
+            sum2(lp1,isp) = qqq* ddot(nr,rwgt,1,rh2,1)
+            fac = sum1(lp1,isp)/sum2(lp1,isp)
+            do  ir = 1, nr
+              rho(ir,isp) = rho(ir,isp) + qqq* (fac*rh2(ir)-rh1(ir))
+            enddo
+            ltop = max(ltop,l)
+   20       continue
           enddo
-          ltop = max(ltop,l)
-   20     continue
-        enddo
         enddo
 
 C --- Printout ---

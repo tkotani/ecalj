@@ -44,9 +44,9 @@ CKi     *  v_smove,v_sstr,v_stb
       type(s_tb):: v_stb
 
 ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
-      type(s_spec),allocatable:: v_sspec(:) 
+      type(s_spec),allocatable:: v_sspec(:)
 ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
-      type(s_site),allocatable:: v_ssite(:) 
+      type(s_site),allocatable:: v_ssite(:)
 
 
       parameter (mxspec=256)
@@ -258,7 +258,7 @@ C --- Generate symmetry operations; split species into classes  ---
       lc = 20
 
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
-      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 
 
 
@@ -302,7 +302,7 @@ C ... Patch for now ... maybe replace
 
 C ... quit after SHOW
 Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
-      if ( int(v_sctrl%quit) .eq. 1 ) then 
+      if ( int(v_sctrl%quit) .eq. 1 ) then
 
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
@@ -312,7 +312,7 @@ ckino Jan.04.2012:        call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
 Cgetarg       end
-      end   
+      end
 
 
 
@@ -538,7 +538,7 @@ C     . disp#rcut#expr-center-list#expr-neighbor-list
      *vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
 Cgetarg       end
-      end subroutine lmhelp 
+      end subroutine lmhelp
 
       subroutine sttmpd
 
@@ -580,7 +580,7 @@ C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
 Cgetarg       end
-      end subroutine sttmpd 
+      end subroutine sttmpd
 
 
 
@@ -594,5 +594,5 @@ Cgetarg       end
  1010 continue
       rewind(nfilin)
 Cgetarg       end
-      end subroutine findctrlstart 
+      end subroutine findctrlstart
 

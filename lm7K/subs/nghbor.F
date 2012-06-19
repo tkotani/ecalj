@@ -42,21 +42,21 @@ C Note: range i +/-1 is not sufficient; test case of LaCuO
       npr(1) = 0
       do  100  iat2 = 1, nbas
         do  110  i = -i1-2, i1+2
-          do  110  j = -i2-2, i2+2
-            do  110  k = -i3-2, i3+2
-              dsqr = drr2(plat,bas(1,iat1),bas(1,iat2),i,j,k,dr)
-              if (dsqr .le. rmxsqr) then
-                npr(0) = npr(0) + 1
-                if (npr(0) .gt. mxnbr)
+        do  110  j = -i2-2, i2+2
+        do  110  k = -i3-2, i3+2
+          dsqr = drr2(plat,bas(1,iat1),bas(1,iat2),i,j,k,dr)
+          if (dsqr .le. rmxsqr) then
+            npr(0) = npr(0) + 1
+            if (npr(0) .gt. mxnbr)
      .          call fexit(-1,111,
      .          ' Exit -1 NGHBOR: too many pairs: npair=%i',npr)
-                iax(1,npr(0)) = 10000*dsqrt(dsqr)
-                iax(2,npr(0)) = iat2
-                iax(3,npr(0)) = i
-                iax(4,npr(0)) = j
-                iax(5,npr(0)) = k
-                if (dsqr .le. rmax1**2) npr(1) = npr(1) + 1
-              endif
+            iax(1,npr(0)) = 10000*dsqrt(dsqr)
+            iax(2,npr(0)) = iat2
+            iax(3,npr(0)) = i
+            iax(4,npr(0)) = j
+            iax(5,npr(0)) = k
+            if (dsqr .le. rmax1**2) npr(1) = npr(1) + 1
+          endif
   110   continue
   100 continue
 

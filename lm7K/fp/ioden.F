@@ -252,8 +252,8 @@ C --- Write the file ---
       end subroutine ioden2
       end module m_ioden2
 
-       subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
-     . , smrho ) 
+      subroutine ioden ( sopts , slat , ssite , sspec , sv_p_orhat 
+     . , smrho )
 
 
       use m_struc_def  !Cgetarg
@@ -363,7 +363,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
-       type(s_rv1) :: sv_p_orhat
+      type(s_rv1) :: sv_p_orhat
 
       double complex smrho(*)
 C ... Local parameters
@@ -382,7 +382,7 @@ ckino not complex but real      complex(8) ,allocatable :: wk_zv(:)
       double precision vol,xx0,xx,dval,plat(3,3),alat
       integer ib,is,igetss
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
       logical:: l_dummy_isanrg,isanrg
 
@@ -405,7 +405,7 @@ Changenglob      nbas = nglob('nbas')
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv 
+ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv
 
       vol=slat%vol
 
@@ -419,7 +419,7 @@ ccccccccccccccccccccccccccccc
 
 
       alat=slat%alat
-ckino Dec.9.2011:         rv_p_opos => slat%rv_p_opos 
+ckino Dec.9.2011:         rv_p_opos => slat%rv_p_opos
 
 
 c      call defrr(oz,nbas)
@@ -436,19 +436,19 @@ c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
 c     .ngabc,w,w,nwk,modrhg)
 Ckino  mode=0 checks format
 #ifdef USEOPTIONAL
-        call ioden2 ( mode=0 , sopts=sopts ,nsp= nsp ,plat= plat , 
-ckino Dec.9.2011:       .   alat=alat , nbas=nbas , pos=rv_p_opos 
+      call ioden2 ( mode=0 , sopts=sopts ,nsp= nsp ,plat= plat ,
+ckino Dec.9.2011:       .   alat=alat , nbas=nbas , pos=rv_p_opos
 ckino Jan.04.2012:       .   alat=alat , nbas=nbas , pos=slat%rv_p_opos 
      .   alat=alat , nbas=nbas , pos=slat%rv_a_opos 
      .  , z=sspec ( ssite ( 1:nbas ) %spec ) %z , k1=k1 , k2=k2 , k3=k3
      .   , ngabc=ngabc 
-     .  , nwk=nwk , modrhg=modrhg ) 
+     .  , nwk=nwk , modrhg=modrhg )
 #else
-ckino Dec.9.2011:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-ckino Jan.04.2012:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
-        call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
+ckino Dec.9.2011:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos
+ckino Jan.04.2012:          call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos
+      call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
      .  , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
-     .  , iwdummy , iwdummy , nwk , modrhg ) 
+     .  , iwdummy , iwdummy , nwk , modrhg )
 #endif
 
 
@@ -456,9 +456,9 @@ Ckino isanrg is logical function,       call isanrg(modrhg,-3,2,'ioden','core op
       l_dummy_isanrg=isanrg(modrhg,-3,2,'ioden','core option',.true.)
 
 C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
-Ckino  smrho is complex(8), dsumdf() is for real(8) 
-Ckino  so kkk*2 is necessary to use dsumdf(). 
-Ckino 
+Ckino  smrho is complex(8), dsumdf() is for real(8)
+Ckino  so kkk*2 is necessary to use dsumdf().
+Ckino
 Ckino  return values: smrho(:kkk)=spin(1)+spin(2)
 Ckino  and            smrho(kkk+1:kkk*2)=spin(1)-spin(2)
       if (nsp .eq. 2) then
@@ -476,10 +476,10 @@ Ckino smrho is complex(8) , so kkk*2 is necessary.
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      ., 0 , - 1 )
 
-ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , psrho_zv , 
-       call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , psrho_zv , 
-     . cn_zv ) 
+ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv ,
+ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , psrho_zv ,
+      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , psrho_zv , 
+     . cn_zv )
 Ckino now cn_zv(G,nsp)
 
 
@@ -510,8 +510,8 @@ Ckino                      -> cn_zv=0 if i==2
      .  , 1 )
 Ckino                      -> cn_zv=-cn_zv if i==3
 
-         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
-     .   , kmax , ng , cn_zv ) 
+        call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , sv_p_orhat 
+     .   , kmax , ng , cn_zv )
 
 
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
@@ -523,10 +523,10 @@ Ckino                      -> cn_zv=-cn_zv if i==3
 
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
-ckino Dec.9.2011:           call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
-ckino Dec.28.2011:           call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
-         call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
-     .   ) 
+ckino Dec.9.2011:           call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv
+ckino Dec.28.2011:           call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv
+        call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
+     .   )
 
 
         call awrit2('%N ioden : local densities + envelope density,'
@@ -562,12 +562,12 @@ ckino not complex but real,      allocate(wk_zv(nwk**2*nsp))
       allocate(wk_rv(nwk**2*nsp))
 
 Ckino mode=1 write smrho to the file
-ckino Dec.9.2011:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
-ckino Jan.04.2012:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos 
-       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
-     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+ckino Dec.9.2011:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos
+ckino Jan.04.2012:         call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_p_opos
+      call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , slat%rv_a_opos 
+     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc
 ckino not complex but real     . , psrho_zv , wk_zv , nwk , modrhg ) 
-     . , psrho_zv , wk_rv , nwk , modrhg ) 
+     . , psrho_zv , wk_rv , nwk , modrhg )
 
 
 ckino not complex but real      if (allocated(wk_zv)) deallocate(wk_zv)

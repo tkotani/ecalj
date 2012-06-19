@@ -18,7 +18,7 @@ cki
 cki      allocate(iwk_rv(ngs))
 ckiCtakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
 cki
-cki      call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs 
+cki      call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs
 cki     .) , ngb , w ( ogvb ) , w ( okvb ) )
 cki
 cki      if (allocated(iwk_rv)) deallocate(iwk_rv)

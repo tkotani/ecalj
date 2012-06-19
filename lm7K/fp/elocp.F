@@ -48,7 +48,7 @@ ckino Dec.9.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
      .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
      .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 C --- Setup ---
@@ -70,7 +70,7 @@ C --- Find val, slo, K.E. for all sites ---
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
 
 
 
@@ -96,11 +96,11 @@ ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
         eloc = .true.
 
         call radmsh(rmt,a,nr,rofi)
-         call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi 
-ckino Dec.9.2011:       .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+        call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi
+ckino Dec.9.2011:       .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib )
 ckino Dec.28.2011:       .   , ssite(ib)%rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
      .   , ssite(ib)%rv_a_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
-     .   , rsml , ehl ) 
+     .   , rsml , ehl )
 
    10   continue
       enddo
@@ -197,9 +197,9 @@ C   ... Make parameters for this species
         call dpzero(rsml,n0*2)
         call dpzero(ehl,n0*2)
         call radmsh(rmt,a,nr,rofi)
-         call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
+        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
      .   , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsml , ehl 
-     .   ) 
+     .   )
 
         call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
         call dcopy(n0,ehl, 1,eh(1,nkaph),1)

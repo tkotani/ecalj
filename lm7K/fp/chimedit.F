@@ -153,7 +153,7 @@ c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 c     .                    (jj2*ifac(2)-1)*qb(k,2) +
 c     .                    (jj3*ifac(3)-1)*qb(k,3)
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 Changenglob      if (nglob('nsp') .ne. 2)
@@ -164,16 +164,16 @@ C --- Setup ---
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos 
+ckino Dec.8.2011:         rv_p_opos => slat%rv_p_opos
 
 
 
       nsgrp=slat%nsgrp
-ckino Dec.8.2011:         iv_p_oistab => slat%iv_p_oistab 
+ckino Dec.8.2011:         iv_p_oistab => slat%iv_p_oistab
 
-ckino Dec.8.2011:         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.8.2011:         rv_p_og => slat%rv_p_osymgr
 
-ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag 
+ckino Dec.8.2011:         rv_p_oag => slat%rv_p_oag
 
 
 
@@ -182,9 +182,9 @@ C     should be from sgw?
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
-ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
-ckino Jan.04.2012:         call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos , 1 ) 
-       call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos , 1 ) 
+ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 )
+ckino Jan.04.2012:         call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos , 1 )
+      call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos , 1 )
 
       call pshpr(0)
       llshft = .false.
@@ -282,18 +282,18 @@ C ... Number of k-points
           if (-mxkp<0) wgt_rv(:)=0.0d0
 
           call info0(20,1,0,' q-points in full BZ ...')
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-     .     , 0 , ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 ) 
+          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+     .     , 0 , ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
 
 
           call dpzero ( wgt_rv , mxkp )
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-ckino Dec.8.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
-ckino Dec.28.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr 
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
-     .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 ) 
+ckino Dec.8.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og
+ckino Dec.28.2011:             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr
+          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
+     .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 )
 
 
           lqp = 4
@@ -509,10 +509,10 @@ c          enddo
           call stonerrsa(nq,ne,nmagf,qp,momsite,mmnorm,eiqrm,emesh,chi0)
 
           do 45 iq = 1, nq
-            do 45 j =1,ne
-              do 45 i1 = 1,nmbas
-                do 45 i2 = 1,nmbas
-                  chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
+          do 45 j =1,ne
+          do 45 i1 = 1,nmbas
+          do 45 i2 = 1,nmbas
+            chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
      .            chi0(i1,i2,iq,j)*momsite(i1)*momsite(i2)
      .            /mmnorm(i1) /mmnorm(i2)
  45       continue

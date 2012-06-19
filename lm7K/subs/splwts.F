@@ -88,7 +88,7 @@ C              endif
             wt = abs(wgts(iqp)) * (1d0 - s) / nsp
             bndwts(iband,isp,iqp) = wt
             if(0.1d0<wt.and.wt<0.9d0) then
-               fractional=.true.
+              fractional=.true.
             endif
             dosef = dosef + d*abs(wgts(iqp))/w/nsp
             wtot = wtot + wt

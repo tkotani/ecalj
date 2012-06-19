@@ -90,8 +90,8 @@ C ... Passed parameters
      .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
 C ... Local parameters
-         integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
-     .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
+      integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
+     .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp
 ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
 
 ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
@@ -105,9 +105,9 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
       double precision vol,sum1,sum2,vxcavg(2),x1,x2,alat
       character*180 outs
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
-      complex(8),allocatable ::smrho_w(:), smcor_w(:) 
+      complex(8),allocatable ::smrho_w(:), smcor_w(:)
       integer:: nnn,isp
       real(8):: sss ,srshift,swmin
       real(8),parameter:: minimumrho=1d-14
@@ -123,12 +123,12 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc = slat%nabc
       ng    = slat%ng
-ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv 
-ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv 
+ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv
+ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
       vol  = slat%vol
       alat = slat%alat
       vol  = slat%vol
-ckino Dec.12.2011:        rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.12.2011:        rv_p_ocy => slat%rv_p_ocy
 c      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
@@ -136,17 +136,17 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-ckino Dec.12.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv 
-ckino Dec.27.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv 
-       call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , cgh1_zv 
-     . , cgh2_zv , lfoc1 , lfoc2 ) 
+ckino Dec.12.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv
+ckino Dec.27.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv
+      call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , cgh1_zv 
+     . , cgh2_zv , lfoc1 , lfoc2 )
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if(lfoc1 .eq. 1) then
-ckino Dec.12.2011:          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
-ckino Dec.28.2011:          call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
-        call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w ) 
+ckino Dec.12.2011:          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
+ckino Dec.28.2011:          call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
+        call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -160,28 +160,28 @@ ckino Dec.28.2011:          call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 
       if(enforce_positive_smrho()) then
 !!== negative smrho check== This is also similar with what is done in mkpot.
 !! For GGA, we have to supply positive rho. See enforce_positive_smrho section in mkpot.
-       nnn=0
-       swmin=0d0
-       do i=1,k1*k2*k3*nsp
-         sss=dreal(smrho_w(i))
+        nnn=0
+        swmin=0d0
+        do i=1,k1*k2*k3*nsp
+          sss=dreal(smrho_w(i))
 c        if(sss<0d0) then
-         if(sss<minimumrho) then !25July 2011 for the case of He with alat =15Ang (even when all positive, we have NaN for vxc).
+          if(sss<minimumrho) then !25July 2011 for the case of He with alat =15Ang (even when all positive, we have NaN for vxc).
             nnn=nnn+1
             if(sss<swmin) then
               swmin=sss
             endif
-         endif
-       enddo
-       if(nnn>0) then
+          endif
+        enddo
+        if(nnn>0) then
 c         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
-         write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
-         srshift = minimumrho + abs(swmin) 
-         smrho_w = smrho_w + srshift
-         write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
-       else
-         write(6,*) 'smvxcm: all smrho_w is positive'
-       endif
-      endif 
+          write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
+          srshift = minimumrho + abs(swmin)
+          smrho_w = smrho_w + srshift
+          write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
+        else
+          write(6,*) 'smvxcm: all smrho_w is positive'
+        endif
+      endif
 
 C ... Force density strictly positive definite
 C      print *, 'density strictly pos def?'
@@ -195,9 +195,9 @@ C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
-         call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
+        call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
      .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  !, iwdummy 
-     .   , repsm , repsmx , repsmc , rmusm , vxcavg ) 
+     .   , repsm , repsmx , repsmc , rmusm , vxcavg )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
@@ -214,10 +214,10 @@ C --- Direct branch (lfoc2 .eq. 0) ---
 
 C --- Perturbation branch (lfoc2 .ne. 0) ---
       if (lfoc2 .ne. 0) then
-         call rx('smvxcm: not suppor perturbation branch now')
+        call rx('smvxcm: not suppor perturbation branch now')
 C$$$        allocate(dxcv_zv(k1*k2*k3*nsp))
-C$$$        call smvxc2 ( 1 , slat,nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-C$$$     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv 
+C$$$        call smvxc2 ( 1 , slat,nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2
+C$$$     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv
 C$$$     .  , repsm , repsmx , repsmc , rmusm , vxcavg )
 C$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
 C$$$        do  i = 1, nsp
@@ -231,10 +231,10 @@ C$$$C   ... Assemble core tails for linearized treatment on mesh
 C$$$C       w(osmcor) = portion of core treated perturbatively
 C$$$c        osmcor = osmrho
 C$$$        allocate(smcor_w(k1*k2*k3*nsp))
-C$$$Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
+C$$$Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv
 C$$$Cchp1      .  , smcor_w) !w ( osmcor ) )
-C$$$         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w 
-C$$$     .   ) 
+C$$$         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w
+C$$$     .   )
 C$$$        call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
 C$$$        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
 C$$$        call dpzero(focexc,2)
@@ -255,7 +255,7 @@ C$$$C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
 C$$$C     .      x1,x2)
 C$$$        enddo
 C$$$C       Peturbation correction to smvxc
-C$$$        call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
+C$$$        call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho
 C$$$     .  , smcor_w , dxcv_zv , smvxc , focvxc )
 C$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
 C$$$        if (iprint() .ge. 30) then
@@ -279,18 +279,18 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
-ckino Dec.28.2011:             call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
-           call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
-     .     ) 
+ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv
+ckino Dec.28.2011:             call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv
+          call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+     .     )
 
 
-ckino Dec.12.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy 
-ckino Dec.27.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy 
-            call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_a_ocy 
-ckino Dec.12.2011:       .      , ng , rv_p_ogv , cgh1_zv , f ) 
+ckino Dec.12.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy
+ckino Dec.27.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy
+          call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_a_ocy
+ckino Dec.12.2011:       .      , ng , rv_p_ogv , cgh1_zv , f )
 ckino Dec.27.2011:       .      , ng , slat%rv_p_ogv , cgh1_zv , f ) 
-     .      , ng , slat%rv_a_ogv , cgh1_zv , f ) 
+     .      , ng , slat%rv_a_ogv , cgh1_zv , f )
 
 
 
@@ -448,13 +448,13 @@ C     ... Exchange into smvxc
           endif
           if (mode1 .eq. 2) then
             do  i = 1, nsp
-            do  i1 = 1, n1
-              if (rho(i1).le.0 .or. rhos(i1,i).le.0) then
-                vxc1(1,i) = 0
-              endif
+              do  i1 = 1, n1
+                if (rho(i1).le.0 .or. rhos(i1,i).le.0) then
+                  vxc1(1,i) = 0
+                endif
+              enddo
             enddo
-          enddo
-        endif
+          endif
 
           do  i = 1, nsp
 c            call evxcv(rho,rhos(1,i),n1,nsp,lxcf,exc1,
@@ -521,14 +521,14 @@ c       newmode=.false.
         newmode=.true.
         if(newmode) then
           do i=1,nsp
-          rhoeps(i) =  repnl(i)
-          rhomu(i)  =  rmunl(i)
-          vxcavg(i) =  vavgnl(i)
-          repnl(i)  = 0d0
-          rmunl(i)  = 0d0
-          vavgnl(i) = 0d0
+            rhoeps(i) =  repnl(i)
+            rhomu(i)  =  rmunl(i)
+            vxcavg(i) =  vavgnl(i)
+            repnl(i)  = 0d0
+            rmunl(i)  = 0d0
+            vavgnl(i) = 0d0
           enddo
-        endif  
+        endif
 C        repnl = 0 ; rmunl = 0 ; vavgnl = 0; print *, '!!'
       endif
 C      do  i = 1, nsp

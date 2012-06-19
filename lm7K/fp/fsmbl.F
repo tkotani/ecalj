@@ -77,9 +77,9 @@ c#endif
 C ... Local parameters
       integer nlms,k0,n0,nkap0
       parameter (nlms=25, k0=1, n0=10, nkap0=3)
-          integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+      integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
      .    , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , nlm1 , 
-     .    nlm2 
+     .    nlm2
 ckino Dec.9.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
 
 ckino Dec.9.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
@@ -133,13 +133,13 @@ C --- Setup ---
 Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
 
-ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg 
+ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg
 
-ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg 
+ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg
 
-ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg 
+ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
 
-ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy 
+ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
 
 
 
@@ -198,19 +198,19 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
               nlm2 = (lh2(i2)+1)**2
               if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .        call rx('fsmbl: increase nlms')
-                  call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-     .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , 
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , 
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , 
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , 
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , 
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , 
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , 
+              call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
+ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy ,
+ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy ,
+ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy ,
+ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
+ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
+ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
+ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
 ckino Dec.28.2011:       .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy , 
      .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy , 
      .            slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 , 
-     .            i2 ) ) 
+     .            i2 ) )
 
 
 

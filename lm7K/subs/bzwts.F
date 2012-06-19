@@ -96,7 +96,7 @@ Changenglob      stdo = nglob('stdo')
 Changenglob      stdl = nglob('stdl')
       stdl = globalvariables%stdl
 #ifdef KINODEBUG
-       write(*,*) 'kino nevx,nsp',nevx,nsp
+      write(*,*) 'kino nevx,nsp',nevx,nsp
 #endif
       allocate(bot_rv(nevx*nsp))
 
@@ -170,7 +170,7 @@ C ... Pretend as though spin-pol bands are coupled to find E_f
 
         allocate(wk_rv(nevx*nsp))
 #ifdef KINODEBUG
-         write(*,*) 'kino allocate bmap_iv, wk_rv=',nevx*nsp*nkp/nbpw+1, nevx*nsp
+        write(*,*) 'kino allocate bmap_iv, wk_rv=',nevx*nsp*nkp/nbpw+1, nevx*nsp
 #endif
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 

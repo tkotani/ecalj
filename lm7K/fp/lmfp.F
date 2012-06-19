@@ -109,7 +109,7 @@ C     ... Local variables
      .     k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
-      integer:: o 
+      integer:: o
 ckino Dec.16.2011:  add allocatable
       real(8),allocatable:: rv_a_opos(:)
 ckino Dec.16.2011:        real(8),pointer :: rv_p_opos(:) =>NULL()
@@ -223,19 +223,19 @@ c     kino. Mark says nproc <= nbas should be for MPI.
 
 c     mpipic() is defined in slatsm
       if ( nbas < nproc ) then
-         if (procid == master ) then
-            write(6,*)
-            write(6,"(a,/,a,/,a,/,a)")
+        if (procid == master ) then
+          write(6,*)
+          write(6,"(a,/,a,/,a,/,a)")
      &           '# For lmf-MPI, process>NBAS is not allowed.',
      &           '# If you remove this sanity check, it will fail',
      &           '# at hsibl.F and smhsbl.F.',
      &           '# You may need a better MPI version for efficent use of CPUs.'
-         endif
+        endif
 c     call mpi_abort(MPI_COMM_WORLD,-1,ierr)
-         call mpi_finalize(ierr)
-         call exit(-1)
+        call mpi_finalize(ierr)
+        call exit(-1)
 c     ---------- '-1'  is the return code of the program
-         stop
+        stop
 c     ---------- may be stop is unnecessary.
       endif
 #endif
@@ -267,22 +267,22 @@ C     -------------------------- Total energy mode -------------------
 c     elseif (cmdopt('--etot',6,0,strn)) then
       if (cmdopt('--etot',6,0,strn)) then
 C     No forces or dynamics
-         call dpzero(mdprm,6)
+        call dpzero(mdprm,6)
 
-         sctrl%lfrce=0
-         i_copy_size=size(sctrl%mdprm)
-         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
+        sctrl%lfrce=0
+        i_copy_size=size(sctrl%mdprm)
+        call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 
 C     Suppress writing output density
 
-         call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
+        call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
 
 
-         call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
+        call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
 
 C     Exactly one iteration
 
-         sctrl%maxit=1
+        sctrl%maxit=1
 
 C     Suppress mixing of output density
 c     call lstra('strn mix',i,j,k)
@@ -366,7 +366,7 @@ C     l_dummy_isanrg=isanrg(lncol,0,0,'lmfp:','lncol',.true.)
 C     ... Printout properties of species
       if (ipr .ge. 30) then
 C     call pr_basis (sspec,0)
-         call praugm(sspec,0)
+        call praugm(sspec,0)
       endif
 
 C     ... Setup for no screening transformation
@@ -375,46 +375,46 @@ C     ... Setup for no screening transformation
 
 C     Shorten site positions
 
-         i_copy_size=size(slat%plat)
-         call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino Dec.16.2011:           rv_p_opos => slat%rv_p_opos 
+        i_copy_size=size(slat%plat)
+        call dcopy(i_copy_size,slat%plat,1,plat,1)
+ckino Dec.16.2011:           rv_p_opos => slat%rv_p_opos
 
 
-         if (.not. cmdopt('--shorten=no',12,0,strn)) then
+        if (.not. cmdopt('--shorten=no',12,0,strn)) then
 C     unpack from site structure
-            allocate(pos2_rv(3*nbas))
+          allocate(pos2_rv(3*nbas))
 
-            i_copy_size=size(ssite(1)%pos)
-            do i_spackv=1,nbas
-               call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
+            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
      .              , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
 
-            enddo
+          enddo
 
-            ix(1) = 2
-            ix(2) = 2
-            ix(3) = 2
-            call info0(50,1,0,' lmfp : shortening basis vectors ... ')
-ckino Dec.16.2011:              call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
-ckino Jan.04.2012:              call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
-            call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
+          ix(1) = 2
+          ix(2) = 2
+          ix(3) = 2
+          call info0(50,1,0,' lmfp : shortening basis vectors ... ')
+ckino Dec.16.2011:              call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos )
+ckino Jan.04.2012:              call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos )
+          call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
 
 
-            i_copy_size=size(ssite(1)%pos)
-            do i_spackv=1,nbaspp
-               call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbaspp
+            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
 ckino Jan.04.2012:       .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
-     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
+     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
 
-            enddo
+          enddo
 
 C     Debugging printout
 C     call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C     call prmx('shortened basis vectors',w(opos),3,3,nbas)
-            if (allocated(pos2_rv)) deallocate(pos2_rv)
+          if (allocated(pos2_rv)) deallocate(pos2_rv)
 
-         endif
+        endif
       endif
 
 C     ... Setup for charge mixing
@@ -437,10 +437,10 @@ C     ... Allocate memory for forces
       lfrce = int(sctrl%lfrce)
 
       if (lfrce .ne. 0) then
-         numq = 1
-         if ( int(sbz%lmet) .eq. 4 ) numq = 3
+        numq = 1
+        if ( int(sbz%lmet) .eq. 4 ) numq = 3
 
-         allocate(frc_rv(3*nbas*numq))
+        allocate(frc_rv(3*nbas*numq))
 
       endif
 
@@ -451,7 +451,7 @@ C     Initial shear was already folded into plat
 
       i_copy_size=size(slat%gam)
       call dcopy(i_copy_size,slat%gam,1,gam,1)
-ckino Dec.16.2011:        rv_p_opos => slat%rv_p_opos 
+ckino Dec.16.2011:        rv_p_opos => slat%rv_p_opos
 
 
       gam1 = gam(4)
@@ -471,68 +471,68 @@ c     ltb=sctrl%ltb
       lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
       if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
-         call rx('lmf not set up for MD yet')
+        call rx('lmf not set up for MD yet')
       endif
       if (nitrlx .gt. 0) then
 
-         i_copy_size=size(sctrl%mdprm)
-         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
+        i_copy_size=size(sctrl%mdprm)
+        call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 
 
 c     sctrl%ltb=bitor(ltb,16)
 
-         allocate(indrx_iv(6*nbas))
+        allocate(indrx_iv(6*nbas))
 
 C     Next lines in case lattice relaxation
-         if (lshr) then
-            if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
+        if (lshr) then
+          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
      .           'use of SHEAR= incompatible w/ lattice relaxation')
 
-            i_copy_size=size(slat%plat0)
-            call dcopy(i_copy_size,slat%plat0,1,plat0,1)
+          i_copy_size=size(slat%plat0)
+          call dcopy(i_copy_size,slat%plat0,1,plat0,1)
 
-         endif
-         call rlxstp ( sctrl , ssite , natrlx , nvrelx , indrx_iv , 
+        endif
+        call rlxstp ( sctrl , ssite , natrlx , nvrelx , indrx_iv , 
      .        xyzfrz , pdim )
 
 c     ki         if (allocated(indrx_iv)) deallocate(indrx_iv)
 
-         icom = 0
-         if (nvrelx .ne. 0) then
+        icom = 0
+        if (nvrelx .ne. 0) then
 C     ki The new indrx_iv uses the content of the old indrx_iv.
-            isize_iv_tmp=size(indrx_iv)
-            allocate( iv_tmp(isize_iv_tmp) )
-            iv_tmp(:)= indrx_iv(:)
-            deallocate(indrx_iv)
-            allocate(indrx_iv(2*natrlx))
-            isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
-            indrx_iv(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
-            deallocate(iv_tmp)
+          isize_iv_tmp=size(indrx_iv)
+          allocate( iv_tmp(isize_iv_tmp) )
+          iv_tmp(:)= indrx_iv(:)
+          deallocate(indrx_iv)
+          allocate(indrx_iv(2*natrlx))
+          isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
+          indrx_iv(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
+          deallocate(iv_tmp)
 
-            allocate(w_rv(nvrelx*nvrelx))
+          allocate(w_rv(nvrelx*nvrelx))
 
-            allocate(p_rv(pdim))
+          allocate(p_rv(pdim))
 
-         endif
-         alat = slat%alat
+        endif
+        alat = slat%alat
 
-         if (procid .eq. master) then
-            ifi = fopna('bsmv',-1,0)
-            allocate(pos2_rv(3*nbas))
+        if (procid .eq. master) then
+          ifi = fopna('bsmv',-1,0)
+          allocate(pos2_rv(3*nbas))
 
-            j = 1
-            call ivset(ix,1,3,j)
-ckino Dec.16.2011:              call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv ) 
-ckino Jan.04.2012:              call shorps ( nbas , plat , ix , slat%rv_p_opos , pos2_rv ) 
-            call shorps ( nbas , plat , ix , slat%rv_a_opos , pos2_rv ) 
+          j = 1
+          call ivset(ix,1,3,j)
+ckino Dec.16.2011:              call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv )
+ckino Jan.04.2012:              call shorps ( nbas , plat , ix , slat%rv_p_opos , pos2_rv )
+          call shorps ( nbas , plat , ix , slat%rv_a_opos , pos2_rv )
 
 
-            call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
+          call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
      .           , ifi )
 
-            if (allocated(pos2_rv)) deallocate(pos2_rv)
+          if (allocated(pos2_rv)) deallocate(pos2_rv)
 
-         endif
+        endif
       endif
 
 C     ... Re-entry for shear distortion
@@ -546,9 +546,9 @@ C     ... Potential setup
 
 C     ... Setup of hamiltonian, augmentation
       if (ipr .ge. 50) then
-         call info0(50,0,0,' lmfp : basis setup ... ')
+        call info0(50,0,0,' lmfp : basis setup ... ')
       else
-         call info0(30,0,0,' ')
+        call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
 
@@ -559,14 +559,14 @@ C     ... Setup of hamiltonian, augmentation
 C     ... Quit if --quit=ham given
       if ( int(sctrl%quit) .eq. 8 ) then
 
-         call rx0('quit = ham')
+        call rx0('quit = ham')
       endif
 
 C     --- Setup for iterations in a self-consistency cycle ---
 C     ... Unpack or allocate some permanent arrays
-c     kino Dec.8.2011:        sv_p_oorhat => spot%sv_p_oorhat 
-c     kino Dec.14.2011:        zv_p_osmrho => spot%zv_p_osmrho 
-c     kino Dec.8.2011:        zv_p_osmpot => spot%zv_p_osmpot 
+c     kino Dec.8.2011:        sv_p_oorhat => spot%sv_p_oorhat
+c     kino Dec.14.2011:        zv_p_osmrho => spot%zv_p_osmrho
+c     kino Dec.8.2011:        zv_p_osmpot => spot%zv_p_osmpot
 
       allocate(ftot_rv(3*nbas))
       ndham=sham%ndham
@@ -584,34 +584,34 @@ C     Whether to evaluate output density and/or KS energy
       leks = 1
       j = 6
       if (cmdopt('-leks=',j,0,strn)) then
-         if (.not. a2bin(strn,leks,2,0,' ',j,72))
+        if (.not. a2bin(strn,leks,2,0,' ',j,72))
      .        call rxs('failed to parse',strn)
       endif
       if (nevmx .eq. -1) then
-         lrout = 0
-         leks = 0
+        lrout = 0
+        leks = 0
 
-         sbz%nevmx=nevmx
+        sbz%nevmx=nevmx
 
       endif
 C     Whether to float pnu's
       lpnu = 1
 C     Sanity checks
       if (lrout .eq. 0 .and. lfrce .ne. 0) then
-         write(stdo,333) 'when forces sought'
- 333     format('lmfp (fatal): output density required ',a/
+        write(stdo,333) 'when forces sought'
+ 333    format('lmfp (fatal): output density required ',a/
      .        '      To make output density turn off HF=t and/or NEVMX<0')
-         call rx('incompatible input')
+        call rx('incompatible input')
       endif
 C     Sanity checks
       if (lrout .eq. 0 .and. cmdopt('--etot',6,0,strn)) then
-         write(stdo,333) 'with --etot switch.'
-         call rx('incompatible input')
+        write(stdo,333) 'with --etot switch.'
+        call rx('incompatible input')
       endif
       if (lrout.eq.0 .and. maxit.gt.1 .and. ipr.ge.20) then
-         call awrit1('%N lmfp (warning): %i iterations sought but no'//
+        call awrit1('%N lmfp (warning): %i iterations sought but no'//
      .        ' output rho ... do 1 iteration',' ',80,stdo,maxit)
-         maxit = 1
+        maxit = 1
       endif
 
 C...  LDA+U initialization
@@ -620,9 +620,9 @@ C...  LDA+U initialization
 C     Check for LDA+U ... return nlibu > 0 if any U blocks
       call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
       if (nlibu .gt. 0) then
-         i = nsp*nlibu*(lmaxu*2+1)**2
+        i = nsp*nlibu*(lmaxu*2+1)**2
       else
-         i = 1 
+        i = 1
       endif
       allocate(vorbdmat(i),dmatu(i),dmato(i))
       vorbdmat = 0d0
@@ -630,36 +630,36 @@ C     Check for LDA+U ... return nlibu > 0 if any U blocks
       dmato = 0d0
       if (nlibu > 0) then
 C     need group info to symmetrize site density matrix
-         ng=slat%nsgrp
-c     kino Dec.8.2011:          iv_p_oistab => slat%iv_p_oistab 
-c     kino Dec.8.2011:          rv_p_og => slat%rv_p_osymgr 
-         umix=smix%umix
-         tolu=smix%tolu
-         if (umix .eq. 0) umix = 1
+        ng=slat%nsgrp
+c     kino Dec.8.2011:          iv_p_oistab => slat%iv_p_oistab
+c     kino Dec.8.2011:          rv_p_og => slat%rv_p_osymgr
+        umix=smix%umix
+        tolu=smix%tolu
+        if (umix .eq. 0) umix = 1
 C     if (tolu .eq. 0d0) tolu = 1d-4
 C     initialize density matrix for LDA+U
-         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
-c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab , dmatu , vorbdmat ) 
-ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
+        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
+c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat )
+c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab , dmatu , vorbdmat )
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab , dmatu , vorbdmat )
 ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab , dmatu , vorbdmat ) 
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab , dmatu , vorbdmat ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab , dmatu , vorbdmat )
       endif
 C     end LDA+U  initialization section
 
 
 C     ... Invoke the restart editor
       if (cmdopt('--rsedit',8,0,strn)) then
-         call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz,
+        call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz,
      .        nbas,nat,nspec)
-         call rx0('lmfp from rsedit')
+        call rx0('lmfp from rsedit')
       endif
 
 C     ... Invoke the response function editor
       if (cmdopt('--chimedit',10,0,strn)) then
-         call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,
+        call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,
      .        nbas,nat,nspec)
-         call rx0('lmfp from chimedit')
+        call rx0('lmfp from chimedit')
       endif
 
 cccccccccccccccccc
@@ -694,101 +694,101 @@ C     3              read nothing (data already input)
  10   continue
 C     Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
-         call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg 
-c     kino Dec.8.2011:       .   , sv_p_oorhat ) 
+        call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg
+c     kino Dec.8.2011:       .   , sv_p_oorhat )
 ckino Dec.28.2011:       .        , spot%sv_p_oorhat ) 
-     .        , spot%sv_a_oorhat ) 
+     .        , spot%sv_a_oorhat )
 
-         nit1 = 0
+        nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
-         lbin = .not. bittst(irs(1),2)
-         k = -1
-         if (procid .eq. master) then
-            if (lbin) ifi = fopna('rst',-1,4)
-            if (.not. lbin) ifi = fopna('rsta',-1,0)
-         endif
-         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
+        lbin = .not. bittst(irs(1),2)
+        k = -1
+        if (procid .eq. master) then
+          if (lbin) ifi = fopna('rst',-1,4)
+          if (.not. lbin) ifi = fopna('rsta',-1,0)
+        endif
+        call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
 c     takao BZ_W is
 
-         bz_w=sbz%w
+        bz_w=sbz%w
 
 c     print *,'yyyyyyy goto iors osmrho=',spot%osmrho
-         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin , 
+        k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , nit1 , lbin ,
 ckino Dec.28.2011:       .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , nit1 , lbin , 
      .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , nit1 , lbin , 
-     .        ifi ) 
+     .        ifi )
 
 
 c     print *,'yyyyyyyyyy end of iors'
 c     takao
 
-         sbz%w=bz_w
+        sbz%w=bz_w
 
-         if (k .lt. 0 .and. nproc .gt. 0) then
+        if (k .lt. 0 .and. nproc .gt. 0) then
 C     irs(1) = irs(1) - mod(irs(1),4)
-            call rx('MPI: rst read failed. Restart with --rs=0')
-         endif
-         if (procid .eq. master) then
-            call fclose(ifi)
-         endif
-         call mpibc1(k,1,2,mlog,'lmfp','k')
+          call rx('MPI: rst read failed. Restart with --rs=0')
+        endif
+        if (procid .eq. master) then
+          call fclose(ifi)
+        endif
+        call mpibc1(k,1,2,mlog,'lmfp','k')
 
 C     ... Write positions array from site structure
 
-ckino Dec.16.2011:           rv_p_opos => slat%rv_p_opos 
+ckino Dec.16.2011:           rv_p_opos => slat%rv_p_opos
 
 
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbaspp
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbaspp
+          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
+ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
 ckino Jan.04.2012:       .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
+     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
 
-         enddo
+        enddo
 
 c     ki        call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
-         call mpibc1_s_lat(slat,.false.,'lmfp','slat')
-         if (k .lt. 0) then
-            irs(1) = 0
-            goto 10
-         endif
-         if (mod(irs(1),8) .ge. 4) then
+        call mpibc1_s_lat(slat,.false.,'lmfp','slat')
+        if (k .lt. 0) then
+          irs(1) = 0
+          goto 10
+        endif
+        if (mod(irs(1),8) .ge. 4) then
 C     If no force switch set, use default
-            k = int(sctrl%lfrce)
+          k = int(sctrl%lfrce)
 
-            if ( k .eq. 0 ) then
+          if ( k .eq. 0 ) then
 
-               sctrl%lfrce=1
-            endif
+            sctrl%lfrce=1
+          endif
 
-c     kino Dec.8.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
-ckino Dec.28.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
-            call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat 
-c     kino Dec.14.2011:       .      , zv_p_osmrho ) 
+c     kino Dec.8.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat
+ckino Dec.28.2011:              call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat
+          call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat
+c     kino Dec.14.2011:       .      , zv_p_osmrho )
 ckino Dec.28.2011:       .           , spot%zv_p_osmrho ) 
-     .           , spot%zv_a_osmrho ) 
+     .           , spot%zv_a_osmrho )
 
 
 C     Restore force switch
-            if ( k .eq. 0 ) then
+          if ( k .eq. 0 ) then
 
-               sctrl%lfrce=k
-            endif
+            sctrl%lfrce=k
+          endif
 
-         endif
-         if (mod(irs(1),16) .ge. 8) then
+        endif
+        if (mod(irs(1),16) .ge. 8) then
 C     call upack('lat dist',slat,xv,0,0,0,0)
 C     call pvsms2(ssite,sspec,xv,nbas,nsp,w(oorhat))
-            irs(1) = irs(1)-8
-            i = int(sctrl%lrs)
+          irs(1) = irs(1)-8
+          i = int(sctrl%lrs)
 
-            i = i-256
+          i = i-256
 
-            sctrl%lrs=i
+          sctrl%lrs=i
 
-         endif
+        endif
       endif
 
 cccccccccccccccccccccccccccccccccccccccccccccc
@@ -801,69 +801,69 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     ... Write positions after file read, and repack
       if (ipr .ge. 50) then
-         write(stdo,357) 'Basis, after reading restart file'
- 357     format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
+        write(stdo,357) 'Basis, after reading restart file'
+ 357    format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
      .        'pos (multiples of plat)')
-         call dinv33(plat,1,qlat,xv)
-         do  i = 1, nbas
+        call dinv33(plat,1,qlat,xv)
+        do  i = 1, nbas
 
-            j=ssite(i)%spec
-            i_copy_size=size(ssite(i)%pos)
-            call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
+          j=ssite(i)%spec
+          i_copy_size=size(ssite(i)%pos)
+          call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
 
-            do i_spacks=j,j
-               call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
-            enddo
+          do i_spacks=j,j
+            call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
+          enddo
 
-            call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-            write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
- 345        format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
-         enddo
+          call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
+          write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
+ 345      format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
+        enddo
       endif
 
 C     --- Optionally re-shorten basis vectors ---
       if (cmdopt('--shorps',8,0,strn)) then
-         allocate(pos2_rv(3*nbas))
+        allocate(pos2_rv(3*nbas))
 
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
+          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
      .           , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
 
-         enddo
+        enddo
 
-         ix(1) = 2
-         ix(2) = 2
-         ix(3) = 2
-ckino Dec.16.2011:           call shorps ( - nbas , plat , ix , pos2_rv , rv_p_opos ) 
-ckino Jan.04.2012:           call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
-         call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
+        ix(1) = 2
+        ix(2) = 2
+        ix(3) = 2
+ckino Dec.16.2011:           call shorps ( - nbas , plat , ix , pos2_rv , rv_p_opos )
+ckino Jan.04.2012:           call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_p_opos )
+        call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos )
 
 
-         call info0(20,1,-1,
+        call info0(20,1,-1,
      .        ' lmfp  : write shortening vectors to file shorps ...')
-ckino Dec.16.2011:           call iopos ( .true. , 1 , 'shorps' , nbas , rv_p_opos ) 
-ckino Jan.04.2012:           call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_p_opos ) 
-         call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos ) 
+ckino Dec.16.2011:           call iopos ( .true. , 1 , 'shorps' , nbas , rv_p_opos )
+ckino Jan.04.2012:           call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_p_opos )
+        call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos )
 
-ckino Dec.16.2011:           call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
-ckino Jan.04.2012:           call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos ) 
-         call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos ) 
+ckino Dec.16.2011:           call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos )
+ckino Jan.04.2012:           call shorps ( nbas , plat , ix , pos2_rv , slat%rv_p_opos )
+        call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
 
 
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbaspp
-            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbaspp
+          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
 ckino Jan.04.2012:       .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
+     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
 
-         enddo
+        enddo
 
 C     Debugging printout
 C     call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C     call prmx('shortened basis vectors',w(opos),3,3,nbas)
-         if (allocated(pos2_rv)) deallocate(pos2_rv)
+        if (allocated(pos2_rv)) deallocate(pos2_rv)
 
       endif
 
@@ -872,8 +872,8 @@ C     Hang on to previous site density matrix for this iteration
 c     i = nsp*nlibu*(lmaxu*2+1)**2
 c     call zcopy(i,w(odmatu),1,w(odmato),1)
 c     call dpzero(w(odmatu),2*i)
-         dmato=dmatu
-         dmatu=0d0
+        dmato=dmatu
+        dmatu=0d0
       endif
 
 C     --- Make and diagonalize hamiltonian, make new charge density ---
@@ -891,13 +891,13 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
 
 C     ... check convergence of dmatu and update it and vorbdmat if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
-         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-     .        , 0 , dmatu , dmato, vorbdmat, tolu , umix 
-c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
-c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab ) 
-ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab ) 
+        call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+     .        , 0 , dmatu , dmato, vorbdmat, tolu , umix
+c     kino Dec.8.2011:       .    , lldau_iv , ng , rv_p_og , iv_p_oistab )
+c     kino Dec.8.2011:       .    , lldau_iv , ng , slat%rv_p_osymgr , iv_p_oistab )
+ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_p_osymgr , slat%iv_p_oistab )
 ckino Dec.28.2011:       .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_p_oistab ) 
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab ) 
+     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab )
 
 
 
@@ -918,56 +918,56 @@ C     --- Write smoothed charge density for contour plotting ---
 
 C     kino ioden is called everytime! Isn't the location strange?
       if (procid .eq. master) then
-         if (cmdopt('--wden',6,0,strn)) then
-c     kino Dec.8.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat 
-ckino Dec.28.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat 
-            call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_a_oorhat 
-c     kino Dec.14.2011:       .      , zv_p_osmrho ) 
+        if (cmdopt('--wden',6,0,strn)) then
+c     kino Dec.8.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , sv_p_oorhat
+ckino Dec.28.2011:              call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_p_oorhat
+          call ioden ( strn ( 7: ) , slat , ssite , sspec , spot%sv_a_oorhat
+c     kino Dec.14.2011:       .      , zv_p_osmrho )
 ckino Dec.28.2011:       .           , spot%zv_p_osmrho ) 
-     .           , spot%zv_a_osmrho ) 
+     .           , spot%zv_a_osmrho )
 
 
-         endif
+        endif
 
 C     --- Write restart file (skip if --quit=band) ---
-         if ( int(sctrl%quit) .ne. 4 ) then
+        if ( int(sctrl%quit) .ne. 4 ) then
 
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
-            if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
+          if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
      .           irlxsh .eq. 0) then
 C     call p_dyn_ef(s_dyn, ef0,def,esmear)
-               lbin = irs(2) .ne. 2
-               if (lbin) fileid = 'rst'
-               if (.not. lbin) fileid = 'rsta'
-               if (irs(2) .eq. 3) then
-                  call word(fileid,1,i,j)
-                  j = j+1
-                  fileid(j:j) = '.'
-                  call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
-                  if (lbin) ifi = fopng(fileid,-1,8+4)
-                  if (.not. lbin) ifi = fopng(fileid,-1,8)
-                  call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
-               else
-                  if (lbin) ifi = fopna(fileid,-1,4)
-                  if (.not. lbin) ifi = fopna(fileid,-1,0)
-               endif
-               call upacks('strn jobid',i,j)
-               fileid = 'lmfp:  ' // sstrn(i:j)
-               k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin , 
+            lbin = irs(2) .ne. 2
+            if (lbin) fileid = 'rst'
+            if (.not. lbin) fileid = 'rsta'
+            if (irs(2) .eq. 3) then
+              call word(fileid,1,i,j)
+              j = j+1
+              fileid(j:j) = '.'
+              call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
+              if (lbin) ifi = fopng(fileid,-1,8+4)
+              if (.not. lbin) ifi = fopng(fileid,-1,8)
+              call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
+            else
+              if (lbin) ifi = fopna(fileid,-1,4)
+              if (.not. lbin) ifi = fopna(fileid,-1,0)
+            endif
+            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' // sstrn(i:j)
+            k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , lbin ,
 ckino Dec.28.2011:       .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , lbin , 
      .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , lbin , 
-     .              - ifi ) 
+     .              - ifi )
 
 
-               call fclose(ifi)
-c     
+            call fclose(ifi)
+c
 c     takao save rst file option
 c     if(cmdopt('--saveallrst',12,0,strn) then
 c     call fsystm('cp "//rst)
-               
-            endif
-         endif
+
+          endif
+        endif
       endif
       if (cmdopt('--window=',9,0,strn))
      .     call rx0('lmf : early exit (--window option)')
@@ -975,35 +975,35 @@ c     call fsystm('cp "//rst)
 C     --- Add to save file; decide on next iteration ---
       if (maxit .gt. 0) then
 
-         etot(1)=sham%ehf
-         etot(2)=sham%ehk
+        etot(1)=sham%ehf
+        etot(2)=sham%ehk
 
 C     ... Subtract reference energy
-         seref = sham%seref
+        seref = sham%seref
 
-         etot(1) = etot(1) - seref
-         if (etot(2) .ne. 0) etot(2) = etot(2) - seref
-         amom = sham%eterms(15)
+        etot(1) = etot(1) - seref
+        if (etot(2) .ne. 0) etot(2) = etot(2) - seref
+        amom = sham%eterms(15)
 
 C     The desired tolerances in q,e
-         qtol = sctrl%tol(1)
+        qtol = sctrl%tol(1)
 
-         etol = sctrl%tol(3)
+        etol = sctrl%tol(3)
 
 c     kino
 #if MPI|MPIK
-c     kino   to confirm that nwit() follows the previous messages. 
-         flush(6)
-         call mpi_barrier(MPI_COMM_WORLD,ierr)
+c     kino   to confirm that nwit() follows the previous messages.
+        flush(6)
+        call mpi_barrier(MPI_COMM_WORLD,ierr)
 #endif
 
-         if (procid .eq. master) then
-            rhosig = sham%eterms(19)
+        if (procid .eq. master) then
+          rhosig = sham%eterms(19)
 
-            i = 0
-            if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
+          i = 0
+          if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
 
-C     kino check whether SCF is achieved or not. 
+C     kino check whether SCF is achieved or not.
 C     kino
 C     kino nwit() Outputs
 C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
@@ -1011,151 +1011,151 @@ C     kino         :1 if not self-consistent, but encountered max. no. iter.
 C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 C     kino         :3 otherwise
 
-            call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
+          call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
      .           ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
      .           , amom , etot , lsc )
 
-         endif
-         call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
-         if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
-         if (lsc .eq. 1 .and. lrout .gt. 0  .or. lsc .eq. 3) then
-            call query('max it=',2,maxit)
-            if (iter .ge. maxit) lsc = 1
-            if (iter .lt. maxit) lsc = 3
-         endif
-         if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
+        endif
+        call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
+        if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
+        if (lsc .eq. 1 .and. lrout .gt. 0  .or. lsc .eq. 3) then
+          call query('max it=',2,maxit)
+          if (iter .ge. maxit) lsc = 1
+          if (iter .lt. maxit) lsc = 3
+        endif
+        if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
      .        )
 
-         iter = iter+1
+        iter = iter+1
 C     Continue iterations toward self-consistency
-         if (lsc .gt. 2) then
-            irs(1) = 3
-            goto 5
+        if (lsc .gt. 2) then
+          irs(1) = 3
+          goto 5
 C     kino      ---------------- SCF (iteration) loop end ---------------------
-         endif
+        endif
 
 C     ... Reset quantities for iterations towards self-consistency
-         if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then
-            iter = 1
-            dmxp(11) = 0
-         endif
+        if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then
+          iter = 1
+          dmxp(11) = 0
+        endif
 
 C     call upack('lat nsgrp oistab oag osymgr',slat,ng,oistab,oag,
 C     .  og,0)
 C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
 
 C     --- Molecular statics ---
-         if (nitrlx .gt. 0 .and. lsc .le. 2) then
-            call cppos(1,nbas,ssite)
+        if (nitrlx .gt. 0 .and. lsc .le. 2) then
+          call cppos(1,nbas,ssite)
 C     Buglet: this eats up a little memory.  Never released.
 ckino Dec.16.2011:              allocate(rv_p_opos(abs(3*nbas)))
-            if (allocated(rv_a_opos)) deallocate(rv_a_opos)
-            allocate(rv_a_opos(abs(3*nbas)))
+          if (allocated(rv_a_opos)) deallocate(rv_a_opos)
+          allocate(rv_a_opos(abs(3*nbas)))
 ckino Dec.16.2011:              if (3*nbas<0) rv_p_opos(:)=0.0d0
-            if (3*nbas<0) rv_a_opos(:)=0.0d0
+          if (3*nbas<0) rv_a_opos(:)=0.0d0
 
-            i_copy_size=size(ssite(1)%pos)
-            do i_spackv=1,nbas
-               call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
+            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
 ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos ) 
+     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
 
-            enddo
+          enddo
 
 
-            i_copy_size=size(sctrl%mdprm)
-            call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
+          i_copy_size=size(sctrl%mdprm)
+          call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
 
-            if (lshr) then
-c     kino etot(1)            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh , 
-               call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
+          if (lshr) then
+c     kino etot(1)            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh ,
+            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
      .              pletot , dist )
 
-               if (irlxsh .ne. 0) then
-                  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+            if (irlxsh .ne. 0) then
+              call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
 
-                  goto 98
-               else
-                  call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
+              goto 98
+            else
+              call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
      .                 , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
      .                 , icom )
 
-                  call dpzero(dist,6)
-                  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+              call dpzero(dist,6)
+              call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
 
-                  dist(7) = 1
-               endif
-
-            else
-               call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
-ckino Dec.16.2011:       .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_p_opos 
-     .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
-     .              , icom ) 
-
-
+              dist(7) = 1
             endif
 
+          else
+            call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv
+ckino Dec.16.2011:       .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_p_opos 
+     .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
+     .              , icom )
+
+
+          endif
+
 C     Restore lattice symmetry to machine precision
-            if (cmdopt('--fixpos',8,0,strn)) then
+          if (cmdopt('--fixpos',8,0,strn)) then
 
-               ng=slat%nsgrp
-c     kino Dec.8.2011:               iv_p_oistab => slat%iv_p_oistab 
+            ng=slat%nsgrp
+c     kino Dec.8.2011:               iv_p_oistab => slat%iv_p_oistab
 
-c     kino Dec.8.2011:               rv_p_oag => slat%rv_p_oag 
+c     kino Dec.8.2011:               rv_p_oag => slat%rv_p_oag
 
-c     kino Dec.8.2011:               rv_p_og => slat%rv_p_osymgr 
+c     kino Dec.8.2011:               rv_p_og => slat%rv_p_osymgr
 
 
 C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
-               j = 8+1
-               if (strn(9:13) .eq. ':tol=') then
-                  j = 13
-               endif
-               if (strn(9:9) .ne. ':' .or.
-     .              .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-c     kino Dec.8.2011:                  call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og 
-ckino Dec.16.2011:                 call fixpos ( rv_p_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
-ckino Dec.28.2011:                 call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr 
-               call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_a_osymgr 
-c     kino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab ) 
-c     kino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab ) 
-ckino Dec.27.2011:       .              , slat%rv_p_oag , slat%iv_p_oistab ) 
-ckino Dec.28.2011:       .              , slat%rv_a_oag , slat%iv_p_oistab ) 
-     .              , slat%rv_a_oag , slat%iv_a_oistab ) 
-
-
-
-
+            j = 8+1
+            if (strn(9:13) .eq. ':tol=') then
+              j = 13
             endif
+            if (strn(9:9) .ne. ':' .or.
+     .              .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
+c     kino Dec.8.2011:                  call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og
+ckino Dec.16.2011:                 call fixpos ( rv_p_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr
+ckino Dec.28.2011:                 call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_p_osymgr
+            call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_a_osymgr
+c     kino Dec.8.2011:       .          , rv_p_oag , iv_p_oistab )
+c     kino Dec.8.2011:       .          , slat%rv_p_oag , iv_p_oistab )
+ckino Dec.27.2011:       .              , slat%rv_p_oag , slat%iv_p_oistab )
+ckino Dec.28.2011:       .              , slat%rv_a_oag , slat%iv_p_oistab ) 
+     .              , slat%rv_a_oag , slat%iv_a_oistab )
+
+
+
+
+          endif
 
 C     Write updated positions to bsmv file
-            if (procid .eq. master .and. .not. lshr) then
-               ifi = fopna('bsmv',-1,0)
-               call poseof(ifi)
-               bstim = bstim+1
-               allocate(pos2_rv(3*nbas))
+          if (procid .eq. master .and. .not. lshr) then
+            ifi = fopna('bsmv',-1,0)
+            call poseof(ifi)
+            bstim = bstim+1
+            allocate(pos2_rv(3*nbas))
 
-               j = 1
-               call ivset(ix,1,3,j)
-ckino Dec.16.2011:                 call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv ) 
-               call shorps ( nbas , plat , ix , rv_a_opos , pos2_rv ) 
+            j = 1
+            call ivset(ix,1,3,j)
+ckino Dec.16.2011:                 call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv )
+            call shorps ( nbas , plat , ix , rv_a_opos , pos2_rv )
 
 
-               call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
+            call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
      .              , - ifi )
 
-               if (allocated(pos2_rv)) deallocate(pos2_rv)
+            if (allocated(pos2_rv)) deallocate(pos2_rv)
 
-               call fclose(ifi)
-            endif
+            call fclose(ifi)
+          endif
 C     repack updated positions in site structure
-            i_copy_size=size(ssite(1)%pos)
-            do i_spackv=1,nbas
-               call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
+            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
 ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos ) 
+     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
 
-            enddo
+          enddo
 
 
 C     if (icom .eq. 1) then
@@ -1163,187 +1163,187 @@ C     print *, '!!'
 C     endif
 
 C     ... Exit when relaxation converged or maximum number of iterations
-            if (icom .eq. 1) then
-               if (procid .eq. master) then
-                  k = int(sctrl%nvario)
+          if (icom .eq. 1) then
+            if (procid .eq. master) then
+              k = int(sctrl%nvario)
 
-                  flg = 'C67'
-                  call nwitsv(1+2,k,flg,nsp,amom,etot)
-               endif
-               call tcx('lmfp')
-               call fexit(0,111,
-     .              ' LMFP: relaxation converged after %i iteration(s)',itrlx)
-            else
-               call query('proceed with next relaxation step',-1,0)
+              flg = 'C67'
+              call nwitsv(1+2,k,flg,nsp,amom,etot)
             endif
+            call tcx('lmfp')
+            call fexit(0,111,
+     .              ' LMFP: relaxation converged after %i iteration(s)',itrlx)
+          else
+            call query('proceed with next relaxation step',-1,0)
+          endif
 
 C     ... Restore minimum gradient positions if this is last step
 C     if (itrlx .eq. nitrlx .and. icom .eq. -1) then
-            if (itrlx .eq. nitrlx) then
+          if (itrlx .eq. nitrlx) then
 
-               if (.not. lshr) then
-                  call info0(20,1,0,' lmfp: restore positions for minimum g')
+            if (.not. lshr) then
+              call info0(20,1,0,' lmfp: restore positions for minimum g')
 
 C     call prmx('initial positions',w(opos),3,3,nbas)
-                  call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , p_rv 
+              call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , p_rv
 ckino Dec.16.2011:       .                 , rv_p_opos ) 
-     .                 , rv_a_opos ) 
+     .                 , rv_a_opos )
 
 
 C     call prmx('minimum-g positions',w(opos),3,3,nbas)
-               else
-                  call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
+            else
+              call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
      .                 p_rv , dist0 )
 
-                  call dpzero(dist,6)
-                  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+              call dpzero(dist,6)
+              call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
 
-                  call info2(20,0,0,
+              call info2(20,0,0,
      .                 ' lmfp : strain of minimum gradient:'//
      .                 '%N   PDEF=%6;8,4D'//
      .                 '%N STRAIN=%6;8,4D',
      .                 dist0,dist)
-               endif
+            endif
 
 C     Repack updated positions in site structure
-               i_copy_size=size(ssite(1)%pos)
-               do i_spackv=1,nbas
-                  call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+            i_copy_size=size(ssite(1)%pos)
+            do i_spackv=1,nbas
+              call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
 ckino Dec.16.2011:       .                 , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .                 , i_copy_size , i_spackv + 1 - 1 , rv_a_opos ) 
+     .                 , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
 
-               enddo
+            enddo
 
 
-            endif
+          endif
 
 C     ... New density after atom shifts
 C     If explicitly told to read from atom files after atom movmment
-            if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
+          if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
 
-               irs(1) = 0
+            irs(1) = 0
 
 C     Else, use self-consistent
-            else if (.not. lshr) then
-               irs(1) = 3
-c     kino Dec.8.2011:                call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat 
-ckino Dec.28.2011:                 call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat 
-               call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat 
-c     kino Dec.14.2011:       .        , zv_p_osmrho ) 
+          else if (.not. lshr) then
+            irs(1) = 3
+c     kino Dec.8.2011:                call smshft ( ssite , sspec , slat , sctrl , sham , sv_p_oorhat
+ckino Dec.28.2011:                 call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_p_oorhat
+            call smshft ( ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat
+c     kino Dec.14.2011:       .        , zv_p_osmrho )
 ckino Dec.28.2011:       .              , spot%zv_p_osmrho ) 
-     .              , spot%zv_a_osmrho ) 
+     .              , spot%zv_a_osmrho )
 
 
-            endif
+          endif
 
 C     ... Write restart file (to include new positions)
-            if (procid .eq. master .and. .not. lshr) then
-               ifi = fopna('rst',-1,4)
-               call upacks('strn jobid',i,j)
-               fileid = 'lmfp:  ' // sstrn(i:j)
-               k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+          if (procid .eq. master .and. .not. lshr) then
+            ifi = fopna('rst',-1,4)
+            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' // sstrn(i:j)
+            k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+c     kino Dec.8.2011:       .        , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true.
 ckino Dec.28.2011:       .              , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
      .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
-     .              , - ifi ) 
+     .              , - ifi )
 
 
-               call fclose(ifi)
-            endif
+            call fclose(ifi)
+          endif
 
 C     ... Write positions to file
-            if (cmdopt('--wpos=',7,0,strn) .or.
+          if (cmdopt('--wpos=',7,0,strn) .or.
      .           cmdopt('--wpos:mode1:',13,0,strn)) then
 
-               i_copy_size=size(slat%gam)
-               call dcopy(i_copy_size,slat%gam,1,gam,1)
+            i_copy_size=size(slat%gam)
+            call dcopy(i_copy_size,slat%gam,1,gam,1)
 
-               allocate(wk_rv(3*nbas))
+            allocate(wk_rv(3*nbas))
 
-ckino Dec.16.2011:                 call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-               call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-     .              ) , gam ( 3 ) , 1 / gam1 ) 
+ckino Dec.16.2011:                 call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2
+            call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+     .              ) , gam ( 3 ) , 1 / gam1 )
 
 
-               call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
+            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 
 C     call fclr(strn(8:),-1)
-               if (allocated(wk_rv)) deallocate(wk_rv)
+            if (allocated(wk_rv)) deallocate(wk_rv)
 
-            endif
+          endif
 
 C     ... Remove mixing file
-            if (procid .eq. master) then
-               call info0(20,0,0,' Delete mixing and band weights files ...')
-               ifi = fopna('mixm',-1,4)
-               call dfclos(ifi)
-               ifi = fopna('wkp',-1,4)
-               call dfclos(ifi)
-            endif
+          if (procid .eq. master) then
+            call info0(20,0,0,' Delete mixing and band weights files ...')
+            ifi = fopna('mixm',-1,4)
+            call dfclos(ifi)
+            ifi = fopna('wkp',-1,4)
+            call dfclos(ifi)
+          endif
 C     reset mixing block
-            call parms0(0,0,0d0,0)
+          call parms0(0,0,0d0,0)
 
 C     ... Exit when maximum number of iterations encountered
-            if (itrlx .eq. nitrlx) then
-               if (procid .eq. master) then
-                  call tcx('lmfp')
-                  call fexit(1,111,
+          if (itrlx .eq. nitrlx) then
+            if (procid .eq. master) then
+              call tcx('lmfp')
+              call fexit(1,111,
      .                 ' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
-               else
-                  call tcx('lmfp')
-                  call fexit(1,111,' ',0)
-               endif
-            endif
-            itrlx = itrlx+1
-
-            if (lshr) then
-               goto 98
             else
-               goto 5
+              call tcx('lmfp')
+              call fexit(1,111,' ',0)
             endif
-         endif  ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
+          endif
+          itrlx = itrlx+1
+
+          if (lshr) then
+            goto 98
+          else
+            goto 5
+          endif
+        endif  ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
       endif  ! if (maxit.gt.0
 
 C     ... Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
      .     cmdopt('--wpos:mode1:',13,0,strn)) then
 ckino Dec.16.2011:           allocate(rv_p_opos(abs(3*nbas)))
-         if (allocated(rv_a_opos)) deallocate(rv_a_opos)
-         allocate(rv_a_opos(abs(3*nbas)))
+        if (allocated(rv_a_opos)) deallocate(rv_a_opos)
+        allocate(rv_a_opos(abs(3*nbas)))
 ckino Dec.16.2011:           if (3*nbas<0) rv_p_opos(:)=0.0d0
-         if (3*nbas<0) rv_a_opos(:)=0.0d0
+        if (3*nbas<0) rv_a_opos(:)=0.0d0
 
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
+          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
 ckino Dec.16.2011:       .           , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .           , i_copy_size , i_spackv + 1 - 1 , rv_a_opos ) 
+     .           , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
 
-         enddo
-
-
-         i_copy_size=size(slat%gam)
-         call dcopy(i_copy_size,slat%gam,1,gam,1)
-
-         allocate(wk_rv(3*nbas))
-
-ckino Dec.16.2011:           call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-         call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-     .        ) , gam ( 3 ) , 1 / gam1 ) 
+        enddo
 
 
-         if (cmdopt('--wpos:mode1:',13,0,strn)) then
-            call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
+        i_copy_size=size(slat%gam)
+        call dcopy(i_copy_size,slat%gam,1,gam,1)
+
+        allocate(wk_rv(3*nbas))
+
+ckino Dec.16.2011:           call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2
+        call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+     .        ) , gam ( 3 ) , 1 / gam1 )
+
+
+        if (cmdopt('--wpos:mode1:',13,0,strn)) then
+          call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
 
 C     call fclr(strn(14:),-1)
-         else
-            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
+        else
+          call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 
 C     call fclr(strn(8:),-1)
-         endif
-         if (allocated(wk_rv)) deallocate(wk_rv)
+        endif
+        if (allocated(wk_rv)) deallocate(wk_rv)
 ckino Dec.16.2011:           if (associated(rv_p_opos)) deallocate(rv_p_opos)
-         if (allocated(rv_a_opos)) deallocate(rv_a_opos)
+        if (allocated(rv_a_opos)) deallocate(rv_a_opos)
 
 
       endif ! if (cmdopt('--wpos='
@@ -1365,11 +1365,11 @@ c     if (allocated(evl_rv)) deallocate(evl_rv)
 C     --- Setup to start calculation at new shear ---
  98   continue
       if (procid .eq. master) then
-         call info0(20,0,0,' Delete mixing and band weights files ...')
-         ifi = fopna('mixm',-1,4)
-         call dfclos(ifi)
-         ifi = fopna('wkp',-1,4)
-         call dfclos(ifi)
+        call info0(20,0,0,' Delete mixing and band weights files ...')
+        ifi = fopna('mixm',-1,4)
+        call dfclos(ifi)
+        ifi = fopna('wkp',-1,4)
+        call dfclos(ifi)
       endif
 
 C     Restore plat, pos to their undistorted state:
@@ -1377,29 +1377,29 @@ C     undo original transformation = P P_0^-1
       allocate(pos2_rv(3*nbas))
 
       call dinv33(plat,0,xv,xv(10))
-ckino Dec.16.2011:        call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_p_opos 
+ckino Dec.16.2011:        call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_p_opos
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_a_opos 
-     .     , 3 , 0d0 , pos2_rv , 3 ) 
+     .     , 3 , 0d0 , pos2_rv , 3 )
 
 
 C     Simultaneously pack in lat->pos and site->pos
 
-ckino Dec.16.2011:        rv_p_opos => slat%rv_p_opos 
+ckino Dec.16.2011:        rv_p_opos => slat%rv_p_opos
 
 
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
-ckino Dec.16.2011:       .     , 3 , 0d0 , rv_p_opos , 3 ) 
+      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
+ckino Dec.16.2011:       .     , 3 , 0d0 , rv_p_opos , 3 )
 ckino Jan.04.2012:       .     , 3 , 0d0 , slat%rv_p_opos , 3 ) 
-     .     , 3 , 0d0 , slat%rv_a_opos , 3 ) 
+     .     , 3 , 0d0 , slat%rv_a_opos , 3 )
 
 
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-         call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-ckino Dec.16.2011:       .        , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+ckino Dec.16.2011:       .        , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
 ckino Jan.04.2012:       .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
-     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
+     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
 
       enddo
 
@@ -1435,26 +1435,26 @@ C     Remake qp
 
 C     ... Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
-         ifi = fopna('rst',-1,4)
-         call upacks('strn jobid',i,j)
-         fileid = 'lmfp:  ' // sstrn(i:j)
-         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
-c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true. 
+        ifi = fopna('rst',-1,4)
+        call upacks('strn jobid',i,j)
+        fileid = 'lmfp:  ' // sstrn(i:j)
+        k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+c     kino Dec.8.2011:       .    , nbas , nat , nspec , sv_p_oorhat , iwdummy , iter , .true.
 ckino Dec.28.2011:       .        , nbas , nat , nspec , spot%sv_p_oorhat , iwdummy , iter , .true. 
      .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
-     .        , - ifi ) 
+     .        , - ifi )
 
 
-         call fclose(ifi)
+        call fclose(ifi)
       endif
 
 C     Decide on what density to use
       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
 
-         irs(1) = 0
+        irs(1) = 0
 C     Else, use file density
       else
-         irs ( 1 ) = iand(7,int(sctrl%lrs))
+        irs ( 1 ) = iand(7,int(sctrl%lrs))
 
       endif
       goto 4
@@ -1481,15 +1481,15 @@ C     implicit none
       integer ib
 
       do  ib = ib1, ib2
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=ib,ib
-            call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
-         enddo
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=ib,ib
+          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
+        enddo
 
-         i_copy_size=size(ssite(1)%pos0)
-         do i_spackv=ib,ib
-            call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
-         enddo
+        i_copy_size=size(ssite(1)%pos0)
+        do i_spackv=ib,ib
+          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
+        enddo
 
       enddo
       end subroutine cppos
@@ -1511,23 +1511,23 @@ C     3 continue
 
 C     Get index for current shear and store energy for that shear
       if (irlxsh .gt. 0) then
-         iv = (irlxsh-1)/2 + 1
-         ipv = iv
+        iv = (irlxsh-1)/2 + 1
+        ipv = iv
 C     ipv = indrlx(iv)
-         ipm = mod((irlxsh-1),2) + 1
-         pletot(ipv,ipm) = etot
+        ipm = mod((irlxsh-1),2) + 1
+        pletot(ipv,ipm) = etot
       endif
 
 C     If this is last point, form gradient and exit
       if (irlxsh .eq. 2*nvrelx) then
-         do  iv = 1, nvrelx
+        do  iv = 1, nvrelx
 C     ipv = indrlx(iv)
-            ipv = iv
-            grad = (pletot(ipv,1) - pletot(ipv,2))/(2*alpha)
-            pletot(ipv,1) = grad
-         enddo
-         irlxsh = 0
-         return
+          ipv = iv
+          grad = (pletot(ipv,1) - pletot(ipv,2))/(2*alpha)
+          pletot(ipv,1) = grad
+        enddo
+        irlxsh = 0
+        return
       endif
 
 C     Get shear index for next shear and whether + or -

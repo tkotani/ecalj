@@ -200,8 +200,8 @@ C   ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
      .    wk(1,5),wk(1,lc))
         else
           do  49  l = 0, lx(ie)+1
-            do  49  ir = ir1, nDx
-              wk(ir,l+lc) = 0
+          do  49  ir = ir1, nDx
+            wk(ir,l+lc) = 0
    49     continue
         endif
         if (.not. dcmpre(rsmi,0d0)) then
@@ -217,8 +217,8 @@ C     ... Remake Y0 exp(-(r/rsm)**2) if rsm has changed
      .    wk(1,5),wk(1,ls))
 C         call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lx(ie)+2)
           do  39  l = 0, lx(ie)+1
-            do  39  ir = ir1, nDx
-              wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+          do  39  ir = ir1, nDx
+            wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
    39     continue
         endif
 
@@ -491,8 +491,8 @@ C ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
         call hansr5(wk,lmax,nrx,nDx,1/a,wk(1,6),wk(1,5),wk(1,lc))
       else
         do  49  l = 0, lmax+1
-          do  49  ir = ir1, nDx
-            wk(ir,l+lc) = 0
+        do  49  ir = ir1, nDx
+          wk(ir,l+lc) = 0
    49   continue
       endif
       if (.not. dcmpre(rsm,0d0)) then
@@ -504,8 +504,8 @@ C   ... Make Y0 exp(-(r/rsm)**2)
         call hansr5(wk,lmax,nrx,nDx,rsm,wk(1,2),wk(1,5),wk(1,ls))
 C       call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lmax+1)
         do  39  l = 0, lmax
-          do  39  ir = ir1, nDx
-            wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+        do  39  ir = ir1, nDx
+          wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
    39   continue
       endif
 

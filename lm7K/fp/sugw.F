@@ -4,7 +4,7 @@
       subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode) 
+     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
@@ -141,7 +141,7 @@ Cu   23 Apr 01 First created
 C ... Passed parameters
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
-      integer:: jobgw , lh(n0) 
+      integer:: jobgw , lh(n0)
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
@@ -236,7 +236,7 @@ c      common /w/ w
       integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode
 
-      integer(4):: nk1,nk2,nk3,   irr,nqi !feb2012takao
+      integer(4):: nk1,nk2,nk3,   irr,nqi, nmcore !feb2012takao
       complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
 C --- Setup ---
@@ -259,7 +259,7 @@ c      ngabc=
       gmax =slat%gmax
       npgrp =slat%npgrp
       nsgrp =slat%nsgrp
-ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr 
+ckino Dec.14.2011:         rv_p_og => slat%rv_p_osymgr
 
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
@@ -272,7 +272,7 @@ Changenglob      nspc = nglob('nspc')
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
 
       nqsig=sham%nqsig
-ckino Dec.14.2011:         rv_p_oqsig => sham%rv_p_oqsig 
+ckino Dec.14.2011:         rv_p_oqsig => sham%rv_p_oqsig
 
 
 cki      if (oqsig .eq. 0) oqsig = 1
@@ -338,7 +338,7 @@ Ckino isanrg is logical function,       call isanrg(job,0,5,'sugw:','job',.true.
       if (bandmode) lsig=0
       napw = 0
 
-ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
       ldim=ldham(1,1)
@@ -370,7 +370,7 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
       if (job .eq. 0) then
         call info(30,1,1,
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
-c         call wsymops ( slat%rv_a_osymgr , nsgrp ) 
+c         call wsymops ( slat%rv_a_osymgr , nsgrp )
 
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
@@ -385,10 +385,10 @@ C   ... Create file LATTC
           lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
-ckino Dec.14.2011:               call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
-ckino Dec.27.2011:               call orbl ( i , 0 , ldim , sham%iv_p_oindxo , norb , ltab , ktab , 
-             call orbl ( i , 0 , ldim , sham%iv_a_oindxo , norb , ltab , ktab , 
-     .       xx , offl , i1 ) 
+ckino Dec.14.2011:               call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab ,
+ckino Dec.27.2011:               call orbl ( i , 0 , ldim , sham%iv_p_oindxo , norb , ltab , ktab ,
+            call orbl ( i , 0 , ldim , sham%iv_a_oindxo , norb , ltab , ktab , 
+     .       xx , offl , i1 )
 
             write(ifi,"(3i10)") i1
           endif
@@ -495,7 +495,7 @@ C   ... Create file CLASS
         rewind i
         i = fopna('gw2',-1,4)
         rewind i
-        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi 
+        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
         allocate(ips(nbas),lmxa(nat),bas(3,nat))
         i_copy_size=1;
         do i_spackv=1,nbas
@@ -528,17 +528,16 @@ C   ... Determine nphimx
           i_copy_size=size(ssite(i)%pz)
           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
 
-
           a=sspec(is)%a
           nr=sspec(is)%nr
           z=sspec(is)%z
           rmt(i)=sspec(is)%rmt
-
           lmaxa = int(sspec(is)%lmxa)
+          nmcore=sspec(is)%nmcore
 
           if (lmaxa .gt. -1) then
             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,
-     .      ncore,konfig,ecore,w,w)
+     .      ncore,konfig,ecore,w,w,nmcore)
             nphimx = max(nphimx,i1)
           endif
         enddo
@@ -561,7 +560,7 @@ C   ... Atom data (gwa)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0
 
 
 
@@ -573,22 +572,22 @@ ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0
           lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
-             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
-ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+            call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
+ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w
 ckino Dec.28.2011:       .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , i1 , ncore , konfig , ecore , w 
      .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
-     .       , w ) 
+     .       , w ,nmcore)
 
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
-             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
-ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
+            call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
+ckino Dec.14.2011:       .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore
 ckino Dec.28.2011:       .       , rmt ( ib ) , z , ssite(ib)%rv_p_ov0 , nphimx , ncore , konfig , ecore 
      .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
-     .       , gcore , gval ) 
+     .       , gcore , gval ,nmcore)
 
 C         Header data for this atom
             b = rmt(ib)/(dexp(a*nr-a)-1d0)
@@ -777,8 +776,8 @@ c$$$     .  ' ',80,stdo,nqtot)
       iqibz=0
       do  iq = 1, nqtot
         read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
-          ! eigenfunction expansion at this q
-          ! expansion of the Coulomb interaction
+        ! eigenfunction expansion at this q
+        ! expansion of the Coulomb interaction
         if(irr==1) iqibz=iqibz+1
         lwvxc = lsig>0 .and. job==1 .and. (.not.bandmode).and. iqibz<=nqibz
         if (cmdopt('--novxc',7,0,strn)) lwvxc = .false.
@@ -793,7 +792,7 @@ c$$$     .  ' ',80,stdo,nqtot)
 c        read (ifiqgc) ngvecc
         if (job .ne. 1) deallocate(ngvecp) !takao feb2012 , ngvecc)
 !!calculate only for irr=1 case
-        if(irr==0) then 
+        if(irr==0) then
           if(allocated(ngvecp)) deallocate(ngvecp)
           cycle
         endif
@@ -873,15 +872,15 @@ c$$$        endif
         do  isp = 1, nsp
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
-             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w ) 
+     .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w )
           if(debug) print *,' goto hambl vxc '
 
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
-             call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
      .       , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w ) 
+     .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w )
           if(debug) print *,' goto hambl lda o '
 
 C   --- vxc <- LDA vxc ---
@@ -889,7 +888,7 @@ C   --- vxc <- LDA vxc ---
 
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
           if (lwvxc) then
-            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q 
+            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
             write(ifiv) ndimh
             write(ifiv) q,vxc
           endif
@@ -900,20 +899,20 @@ c          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
           lpdiag = 0
           i = lrsig*10 + 1
           if(sigmamode.and.newsigmasw()) then
-             allocate(sene(ndimh,ndimh))
-             call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,
+            allocate(sene(ndimh,ndimh))
+            call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,
      i       sfz(:,:,:,:,:,isp),ldim,ndimh, 
-     o       sene) 
-             ham=ham+sene
-             deallocate(sene)
-          else   
+     o       sene)
+            ham=ham+sene
+            deallocate(sene)
+          else
             ispc = min(isp,nspc)
             isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
-              call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+            call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
 ckino Dec.14.2011:       .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
      .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
      .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
-     .        , napw , igv2 , ham , ovl , isize_ham, i2 ) 
+     .        , napw , igv2 , ham , ovl , isize_ham, i2 )
           endif
           if (i .eq. -1) lpdiag = 2
           if(debug) print *,' end of generation of Hamiltonian'
@@ -923,7 +922,7 @@ C   --- Branch job = 1 : make cphi, matrix elements ---
 
 C   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-c            if (iprint() .ge. 30) 
+c            if (iprint() .ge. 30)
             call awrit3(
      .      ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
             if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
@@ -1137,11 +1136,11 @@ c            inn = qlatinv*(qp-q)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
-               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,  
-ckino Dec.14.2011:       .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
+              call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,
+ckino Dec.14.2011:       .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn
 ckino Dec.27.2011:       .         igv2 , sham%iv_p_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
      .         igv2 , sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
-     .         , ppovl , phovl ) 
+     .         , ppovl , phovl )
 
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
               if(debug) print *,'sss: phovl=',sum(abs(phovl))

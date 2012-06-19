@@ -54,80 +54,80 @@ c      goto (10,20,30) lstyle
 C -- lstyle=1 ---
 c   10 continue
       case(10)
-        call mkils0(strlst,nlist,i)
+      call mkils0(strlst,nlist,i)
 c        call defi(oilst, nlist)
-        allocate(ilst(nlist))
-        call mkilst(strlst,nlist,ilst) !w(oilst))
-        if (nlist .eq. 0) return
-        call ishell(nlist,ilst) !w(oilst))
-        list(1) = ilst(1) !w(oilst)
-        j = 1
-        do  i = 2, nlist
+      allocate(ilst(nlist))
+      call mkilst(strlst,nlist,ilst) !w(oilst))
+      if (nlist .eq. 0) return
+      call ishell(nlist,ilst) !w(oilst))
+      list(1) = ilst(1) !w(oilst)
+      j = 1
+      do  i = 2, nlist
 c          if (w(oilst+i-1) .gt. list(j)
 c     .    .and. w(oilst+i-1) .le. nspec) then
 c            j = j+1
 c            list(j) = w(oilst+i-1)
-          if (ilst(i) .gt. list(j)
+        if (ilst(i) .gt. list(j)
      .    .and. ilst(i) .le. nspec) then
-            j = j+1
-            list(j) = ilst(i)
-          endif
-        enddo
-        nlist = j
+          j = j+1
+          list(j) = ilst(i)
+        endif
+      enddo
+      nlist = j
 c        call rlse(oilst)
-        deallocate(ilst)
-        return
+      deallocate(ilst)
+      return
 
 C --- lstyle=2 ---
 c   20 continue
       case(20)
-        call numsyv(iv0)
-        nlist = 0
-        do  42  is = 1, nspec
-          call lodsyv('is',1,dble(is),ival)
-          call lodsyv('z',1,z(is),ival)
-          i = 0
-          if (a2bin(strlst,sw,0,0,strlst(ls:ls),i,ls)) then
-            if (sw) then
-              nlist = nlist+1
-              list(nlist) = is
-            endif
-C   ... Abort if a2bin can't parse expression
-          else
-            call rxs('slist: failed to parse',strlst)
+      call numsyv(iv0)
+      nlist = 0
+      do  42  is = 1, nspec
+        call lodsyv('is',1,dble(is),ival)
+        call lodsyv('z',1,z(is),ival)
+        i = 0
+        if (a2bin(strlst,sw,0,0,strlst(ls:ls),i,ls)) then
+          if (sw) then
+            nlist = nlist+1
+            list(nlist) = is
           endif
-   42   continue
-        call clrsyv(iv0)
-        return
+C   ... Abort if a2bin can't parse expression
+        else
+          call rxs('slist: failed to parse',strlst)
+        endif
+   42 continue
+      call clrsyv(iv0)
+      return
 
 C --- lstyle=3 ---
 c   30 continue
       case(30)
-        nlist = 0
-        j2 = -1
+      nlist = 0
+      j2 = -1
 C ... Return here to parses next species
-   31   continue
-        j1 = j2+2
-        call nwordg(strlst,1,', ',1,j1,j2)
-        if (j1 .gt. j2) return
-        alabl = strlst(j1:j2)
-        call tokmat(alabl,slabl,nspec,8,' ',is,i,.false.)
-        if (is .eq. -1 .or. is .ge. nspec)
+   31 continue
+      j1 = j2+2
+      call nwordg(strlst,1,', ',1,j1,j2)
+      if (j1 .gt. j2) return
+      alabl = strlst(j1:j2)
+      call tokmat(alabl,slabl,nspec,8,' ',is,i,.false.)
+      if (is .eq. -1 .or. is .ge. nspec)
      .  call rxs('slist: failed to parse species list ',strlst)
-        is = is+1
-        i = 0
-        call hunti(list,nlist,is,0,i)
-        if (i .ge. nlist .or. list(i+1) .ne. is) then
-          nlist = nlist+1
-          list(nlist) = is
-          call ishell(nlist,list)
-        endif
+      is = is+1
+      i = 0
+      call hunti(list,nlist,is,0,i)
+      if (i .ge. nlist .or. list(i+1) .ne. is) then
+        nlist = nlist+1
+        list(nlist) = is
+        call ishell(nlist,list)
+      endif
 C     print *, j1,j2,alabl,is,'   ',list(1:nlist)
-        goto 31
+      goto 31
 
       case default
-        call rxi('slist: bad style',lstyle)
-        return
+      call rxi('slist: bad style',lstyle)
+      return
 
       end select
       end

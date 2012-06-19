@@ -1,6 +1,6 @@
-          subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
+      subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
-     .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv ) 
+     .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
 
 
 
@@ -146,13 +146,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ndimh,lcplxp
-          type(s_rv1) :: sv_p_oppi(3,nbas)
+      type(s_rv1) :: sv_p_oppi(3,nbas)
 
-         type(s_rv1) :: sv_p_otau(3,1)
+      type(s_rv1) :: sv_p_otau(3,1)
 
-        type(s_rv1) :: sv_p_osig(3,1)
+      type(s_rv1) :: sv_p_osig(3,1)
 
-       type(s_rv1) :: sv_p_oqkkl(3,nbas)
+      type(s_rv1) :: sv_p_oqkkl(3,nbas)
 
       real(8):: sumev , sumtv , vconst
       type(s_site)::ssite(*)
@@ -216,7 +216,7 @@ Changenglob      nkaph = nglob('nkaph')
       vol=slat%vol
 
 
-ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo 
+ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo
 
 
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
@@ -256,10 +256,10 @@ C --- Integral rhout*veff, part from augmentation ---
 
         if (lmxa .eq. -1) goto 10
 
-ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
-ckino Dec.27.2011:           call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab 
-         call orbl ( ib , 0 , ndimh , sham%iv_a_oindxo , norb , ltab , ktab 
-     .   , xx , offl , xx ) 
+ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab
+ckino Dec.27.2011:           call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab
+        call orbl ( ib , 0 , ndimh , sham%iv_a_oindxo , norb , ltab , ktab 
+     .   , xx , offl , xx )
 
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
@@ -292,25 +292,25 @@ ckino Jan.04.2012:          rv_p_oppihp => sv_p_oppi(2,ib)%v
 ckino Jan.04.2012:          rv_p_oppipp => sv_p_oppi(1,ib)%v
 #define OPPIPP sv_p_oppi(1,ib)%v
 
-                    call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab 
-ckino Jan.04.2012:       .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh 
-ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , rv_p_osighh , rv_p_oppihh 
+        call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
+ckino Jan.04.2012:       .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh
+ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , rv_p_osighh , rv_p_oppihh
 ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , rv_p_oppihh 
-     .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH 
-ckino Jan.04.2012:       .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
-ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , rv_p_osighp , rv_p_oppihp , rv_p_oppihp 
-ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp 
+     .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
+ckino Jan.04.2012:       .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp
+ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , rv_p_osighp , rv_p_oppihp , rv_p_oppihp
+ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp
 ckino Jan.04.2012:       .              , OPPIHH , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp 
-     .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP 
-ckino Jan.04.2012:       .              , rv_p_otaupp , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp 
-ckino Jan.04.2012:       .              , OTAUPP , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp 
+     .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP
+ckino Jan.04.2012:       .              , rv_p_otaupp , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp
+ckino Jan.04.2012:       .              , OTAUPP , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp
 ckino Jan.04.2012:       .              , OTAUPP , OSIGPP , rv_p_oppipp , rv_p_oppipp , lcplxp 
-     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP , lcplxp 
-ckino Jan.04.2012:       .              , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
-ckino Jan.04.2012:       .              , lso , OQHH , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt 
+     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP , lcplxp
+ckino Jan.04.2012:       .              , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt
+ckino Jan.04.2012:       .              , lso , OQHH , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt
 ckino Jan.04.2012:       .              , lso , OQHH , OQHP , rv_p_oqpp , nsp , nspc , sumt 
      .              , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt 
-     .              , sumq , sumh ) 
+     .              , sumq , sumh )
 
 
 

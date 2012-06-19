@@ -53,7 +53,7 @@ C Local variables
       real(8) ,allocatable :: clctr_rv(:)
 
 C heap:
-       integer ::iwdummy 
+      integer ::iwdummy
 
 
 C ... Setup
@@ -103,7 +103,7 @@ C   ... Shift pos off axis by a tiny amount, avoiding boundary problems
 c       call prmx('plat',plat,3,3,3)
 c       call prmx('plate',plate,3,3,3)
 C   ... w(opos) = positions as multiples of plat
-         call prjpos ( 2 , ix , iwdummy , plat , nbas , pos , pos_rv ) 
+        call prjpos ( 2 , ix , iwdummy , plat , nbas , pos , pos_rv )
 
 
 C       call prmx('pos, units of plat',w(opos),3,3,nbas)
@@ -198,9 +198,9 @@ C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
         nskip = nbas/ncol
         if (ncol*(nbas/ncol) .ne. nbas) nskip = nskip+1
         outs = ' Old New   id'
-         call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
+        call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
      .   , nskip , '  | ' , clord , iwdummy , w_iv , iwdummy , iwdummy 
-     .   , iwdummy , iwdummy , iwdummy ) 
+     .   , iwdummy , iwdummy , iwdummy )
 
 
         if (allocated(w_iv)) deallocate(w_iv)
@@ -311,19 +311,19 @@ C --- Make cluster list cllst ---
 
 C --- Make cluster center of gravity ---
       do  20  ix = 1, 3
-        do  20  icl = 1, ncl
-          cg = 0
-          ncli = ncltab(icl+1) - ncltab(icl)
-          cg = 0
-          do  24  ib = ncltab(icl)+1, ncltab(icl+1)
-            kb = cllst(ib)
-            cg = cg + bas(ix,kb)
-   24     continue
-          cg = cg/ncli
-          do  26  ib = ncltab(icl)+1, ncltab(icl+1)
-            kb = cllst(ib)
-            ctr(ix,kb) = cg
-   26     continue
+      do  20  icl = 1, ncl
+        cg = 0
+        ncli = ncltab(icl+1) - ncltab(icl)
+        cg = 0
+        do  24  ib = ncltab(icl)+1, ncltab(icl+1)
+          kb = cllst(ib)
+          cg = cg + bas(ix,kb)
+   24   continue
+        cg = cg/ncli
+        do  26  ib = ncltab(icl)+1, ncltab(icl+1)
+          kb = cllst(ib)
+          ctr(ix,kb) = cg
+   26   continue
    20 continue
 
 C --- Printout ---

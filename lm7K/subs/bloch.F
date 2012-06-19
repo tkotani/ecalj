@@ -226,8 +226,8 @@ C       Any nonpositive site indices are excluded from sum
 
         TdotK = 0
         do  30  j = 1, 3
-          do  30  k = 1, 3
-            TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
+        do  30  k = 1, 3
+          TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
    30   continue
         if (mod(lblchi/100,10) .ge. 4) then
           TdotK = -TdotK

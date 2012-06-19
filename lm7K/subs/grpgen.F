@@ -74,14 +74,14 @@ C --- Products with more than one sandwiched sigma-factor ---
         m2 = nnow
         do  20  i = 2, 50
           do  21  n = ng+1, n2
-            do  21  m = m1, m2
-              call grpprd(symops(1,n),symops(1,m),h)
-              do  22  k = 1, nnow
-                if (grpeql(symops(1,k),h)) goto 21
-   22         continue
-              nnow = nnow+1
-              if (nnow .gt. ngmx) goto 99
-              call grpcop(h,symops(1,nnow))
+          do  21  m = m1, m2
+            call grpprd(symops(1,n),symops(1,m),h)
+            do  22  k = 1, nnow
+              if (grpeql(symops(1,k),h)) goto 21
+   22       continue
+            nnow = nnow+1
+            if (nnow .gt. ngmx) goto 99
+            call grpcop(h,symops(1,nnow))
    21     continue
           if (m2 .eq. nnow) goto 25
           m1 = m2 + 1
@@ -143,16 +143,16 @@ C     implicit none
       integer i,j,k
 
       do  10  i = 1, 3
-        do  10  j = 1, 3
-          sum = 0d0
-          do  11  k = 1, 3
-            sum = sum + g1(i,k)*g2(k,j)
-   11     continue
-          h(i,j) = sum
+      do  10  j = 1, 3
+        sum = 0d0
+        do  11  k = 1, 3
+          sum = sum + g1(i,k)*g2(k,j)
+   11   continue
+        h(i,j) = sum
    10 continue
       do  12  j = 1, 3
-        do  12  i = 1, 3
-          g1xg2(i,j) = h(i,j)
+      do  12  i = 1, 3
+        g1xg2(i,j) = h(i,j)
    12 continue
 
 

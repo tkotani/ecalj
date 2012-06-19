@@ -1,5 +1,5 @@
       subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0,
-     .nphimx,ncore,konfig,ecore,gcore,gval)
+     .nphimx,ncore,konfig,ecore,gcore,gval,nmcore)
 C- Make properties related to core for one sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,7 +61,7 @@ C ... Passed parameters
      .rsml(n0),ehl(n0)
 C ... Local parameters
       logical lpz
-      integer l,isp,konf,konfz,k,mode0,mode1
+      integer l,isp,konf,konfz,k,mode0,mode1,  nmcore
       double precision sumtc,sumec,e,ez,xx
 C     double precision hcrl,val(5),slo(5),pi,tol
 C     parameter (tol=1d-12)
@@ -171,7 +171,7 @@ C       call prrmsh('gval',rofi,gval,nr,nr,2*(1+lmxa))
 C --- Core eigenfunctions and eigenvalues ---
       if (mode0 .ge. 2) then
         call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,0d0,sumec,sumtc,
-     .  rhoc,ncore,ecore,gcore)
+     .  rhoc,ncore,ecore,gcore,nmcore) !nmcore jun2012
       endif
 
       end

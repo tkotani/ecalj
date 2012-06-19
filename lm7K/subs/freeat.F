@@ -67,29 +67,29 @@ ctakao
       nspec = globalvariables%nspec
       nsp   = globalvariables%nsp
       stdo  = lgunit(1)
-      hfct=0d0 
+      hfct=0d0
       pzsum=0d0
 
       do  is = 1, nspec
 c takao. I found tht Li requires -0.5 to have positive smooth rho.
-       if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
-       exi(1) = -0.5
-       exi(2) = -1
-       exi(3) = -2
-       exi(4) = -4
-       exi(5) = -6
-       exi(6) = -9
-       exi(7) = -15
-       nxi = 7
-       else           !this is original setting. For CrN. This is necessary (maybe long range cutoff is required).
-       exi(1) = -1
-       exi(2) = -2
-       exi(3) = -4
-       exi(4) = -6
-       exi(5) = -9
-       exi(6) = -15
-       nxi = 6
-       endif
+        if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
+          exi(1) = -0.5
+          exi(2) = -1
+          exi(3) = -2
+          exi(4) = -4
+          exi(5) = -6
+          exi(6) = -9
+          exi(7) = -15
+          nxi = 7
+        else           !this is original setting. For CrN. This is necessary (maybe long range cutoff is required).
+          exi(1) = -1
+          exi(2) = -2
+          exi(3) = -4
+          exi(4) = -6
+          exi(5) = -9
+          exi(6) = -15
+          nxi = 6
+        endif
 
 C       Unpack sctrl data
 
@@ -149,8 +149,8 @@ C       Unpack species data
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
-     .  ceh,sumec,sumtc,v,etot)
-        print *,'end of freats: spid=',spid
+     .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore)
+        print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
 C       Repack mesh parms, in case a mesh was selected by freats
 
         sspec(is)%z=z
@@ -217,7 +217,7 @@ ctakao
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
-     .sec,stc,v,etot)
+     .sec,stc,v,etot,nmcore)
       use m_globalvariables
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
@@ -283,7 +283,7 @@ Cu   01 Feb 06 Enables renormalized free atom density
 Cu   19 Apr 02 Redesigned input to avoid the use of structures
 Cu   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
 C ----------------------------------------------------------------------
-      use m_getqvc 
+      use m_getqvc
       implicit none
 C ... Passed parameters
       integer nrmx,nrmt,is,nxi0,nxi,nrmix(2),lwf,lxcfun,n0,kcor,lcor
@@ -314,12 +314,13 @@ C     double precision qz(n0,2)
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
 C Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 ctakao
-      integer:: ipl, ipz,iplx,iplv,ix
+      integer:: ipl, ipz,iplx,iplv,ix, nmcore
       real(8):: qcc,qzz, qvalv,qvaltot,qval
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
+
       stdo   = lgunit(1)
       stdl   = lgunit(2)
       ipr    = iprint()
@@ -331,12 +332,12 @@ Changenglob      nsp    = nglob('nsp')
       lgrad  = lxcfun/10
 ctakao
       if(ipr>29) then
-      print *
-      do i = 1, nsp
-      do l = 0, lmxa
-      write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
-      enddo
-      enddo
+        print *
+        do i = 1, nsp
+          do l = 0, lmxa
+            write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+          enddo
+        enddo
       endif
 
 C --- Get species data ----
@@ -349,46 +350,46 @@ C --- Get species data ----
       print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
 c      qatbk=qat
       do  10  i = 1, nsp
-        do  10  l = 0, lmxa
-          pnul = pnu(l+1,i)
-          pzl  = mod(pz(l+1,1),10d0)
-          if(nsp==1) qvaltot = qat(l+1,1)
-          if(nsp==2) qvaltot = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
-          qval=qvaltot
+      do  10  l = 0, lmxa
+        pnul = pnu(l+1,i)
+        pzl  = mod(pz(l+1,1),10d0)
+        if(nsp==1) qvaltot = qat(l+1,1)
+        if(nsp==2) qvaltot = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
+        qval=qvaltot
 !!   Make pz the valence state:
 !! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
-!! plplus and qlplus are for P channel when PZ exits. 
+!! plplus and qlplus are for P channel when PZ exits.
 !!       jun2012 feb2011
-          if (pzl .ne. 0) then
-            if(int(pnul-1) .eq. int(pzl)) then
-               plplus(l,i)= int(pnul) + .5d0
-               if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1) 
-               ! plplus and qlplus are for P channel
+        if (pzl .ne. 0) then
+          if(int(pnul-1) .eq. int(pzl)) then
+            plplus(l,i)= int(pnul) + .5d0
+            if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1)
+            ! plplus and qlplus are for P channel
 
-               if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) !for PZ We assume eigen(PZ) is deeper then eigen(P).
-               if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)   
-               qvalv=0d0
-               if(qvaltot-qval>0d0) qvalv = qvaltot-qval
-               qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus. 
-               pnul = pzl               !!For PZ channel.
-            elseif (int(pnul+1) .ne. int(pzl)) then
-              call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
+            if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) !for PZ We assume eigen(PZ) is deeper then eigen(P).
+            if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)
+            qvalv=0d0
+            if(qvaltot-qval>0d0) qvalv = qvaltot-qval
+            qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus.
+            pnul = pzl               !!For PZ channel.
+          elseif (int(pnul+1) .ne. int(pzl)) then
+            call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
      .        'sc PZ=%d incompatible with valence (you may need to add P simultaneously.) P=%;3d',l,pzl,pnul)
-            endif
           endif
+        endif
 !! pl,ql are for PZ when PZ= nonzero exist... somehow confusing.
-          pl(l+1,i) = int(pnul) + .5d0
-          ql(1,l+1,i) = qval  
-          if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1) 
-          ql(2,l+1,i) = 0d0
-          ql(3,l+1,i) = 0d0
-          if(pzl/=0) then
-            if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l    :  Qtot Qpz Qv=',l, qvaltot,ql(1,l+1,i),qlplus(l,i)
-            if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp:  Qtot Qpz Qv=',l,isp, qvaltot,ql(1,l+1,i),qlplus(l,i)
-          else
-            if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l     : Qtot=Qv=    ',l, qvaltot,ql(1,l+1,i)
-            if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp : Qtot=Qv=    ',l,isp, qvaltot,ql(1,l+1,i)
-          endif  
+        pl(l+1,i) = int(pnul) + .5d0
+        ql(1,l+1,i) = qval
+        if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
+        ql(2,l+1,i) = 0d0
+        ql(3,l+1,i) = 0d0
+        if(pzl/=0) then
+          if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l    :  Qtot Qpz Qv=',l, qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp:  Qtot Qpz Qv=',l,isp, qvaltot,ql(1,l+1,i),qlplus(l,i)
+        else
+          if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l     : Qtot=Qv=    ',l, qvaltot,ql(1,l+1,i)
+          if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp : Qtot=Qv=    ',l,isp, qvaltot,ql(1,l+1,i)
+        endif
    10 continue
 
 ctakao
@@ -422,8 +423,8 @@ c        if(ipz/=0.and.ipz<ipl) qzz=(4*l+2)/nsp
 
 !! plplus, qlplus for P
 !! ql for Pz
-c          write(stdo,"('conf: ', 
-c     &    i4,i3,3x,i5,i3,6x,f8.3,f8.3,1x,f8.3,' => ',10(i1,','))") 
+c          write(stdo,"('conf: ',
+c     &    i4,i3,3x,i5,i3,6x,f8.3,f8.3,1x,f8.3,' => ',10(i1,','))")
 c     &    i,l,ipl,iplv,qlplus(l,i),ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
           write(stdo,"('conf: ', 
      &    i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") 
@@ -445,11 +446,11 @@ cNov 2010 QvalCheck
             if(ql(1,l+1,i)<-1d-10) then
               call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM'//
      &        ' or Use --skip_qvalcheck')
-          endif
+            endif
           endif
         enddo
       enddo
-      
+
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
@@ -458,7 +459,7 @@ c     .            qc,qtot,amgm,w,w)
      . lcor , qcor , qc , qtot , amgm )
 #else
       call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
-     . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy ) 
+     . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy )
 #endif
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
@@ -494,7 +495,7 @@ C     call pshpr(min(iprint(),40))
       call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr,
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',
-     .nitmax,lfrz,plplus,qlplus)
+     .nitmax,lfrz,plplus,qlplus,nmcore)
       dq=dq+sum(qlplus(:,:)) !takao feb2011
 C     call poppr
 
@@ -559,7 +560,7 @@ C --- Optimise smooth-Hankel basis ---
           if (cmdopt('--norscnst',10,0,strn)) i = 0
           if (z .gt. 0) then
             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,
-     .      rofi,spid,itab,rtab,etab) 
+     .      rofi,spid,itab,rtab,etab)
 C   ... Fit value and slope of local orbitals
             call ftfalo(i,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,vmtz,
      .      nsp,v,rofi,spid)
@@ -573,18 +574,18 @@ C --- Print charges within/outside MT sphere ---
         qvin = 0d0
         qcin = 0d0
         do  30  isp = 1, nsp
-          do  30  i = 1, nr
-            r = rofi(i)
-            wt0 = rofi(i+nr)
+        do  30  i = 1, nr
+          r = rofi(i)
+          wt0 = rofi(i+nr)
 C       wt0 = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
-            wt1 = wt0
-            if (i .gt. nrmt) wt1 = 0d0
-            if (i.eq.1 .or. i.eq.nrmt) wt1 = a*(r+b)/3d0
-            if (i.eq.1 .or. i.eq.nr)   wt0 = a*(r+b)/3d0
-            qvin = qvin + wt1*rho(i+(isp-1)*nr)
-            qcin = qcin + wt1*rhoc(i+(isp-1)*nr)
-            qvt = qvt + wt0*rho(i+(isp-1)*nr)
-            qct = qct + wt0*rhoc(i+(isp-1)*nr)
+          wt1 = wt0
+          if (i .gt. nrmt) wt1 = 0d0
+          if (i.eq.1 .or. i.eq.nrmt) wt1 = a*(r+b)/3d0
+          if (i.eq.1 .or. i.eq.nr)   wt0 = a*(r+b)/3d0
+          qvin = qvin + wt1*rho(i+(isp-1)*nr)
+          qcin = qcin + wt1*rhoc(i+(isp-1)*nr)
+          qvt = qvt + wt0*rho(i+(isp-1)*nr)
+          qct = qct + wt0*rhoc(i+(isp-1)*nr)
    30   continue
         qtt = qvt + qct
         qtin = qvin + qcin
@@ -670,7 +671,7 @@ C ... Local parameters
 !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
 !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
 !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
-      real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp) 
+      real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
 
 Changenglob      stdo = nglob('stdo')
       stdo = globalvariables%stdo
@@ -690,7 +691,7 @@ C --- Valence states ---
         eb1 = -50d0
         eb2 =  50d0
         do  20  l = 0, lmaxa
-          do 20 iz= 0,1
+        do 20 iz= 0,1
           if(iz==1 .and. plplus(l,isp)<= 0d0) cycle !feb2011
           konfig = pl(l+1,isp)
           if(iz==1) konfig=plplus(l,isp)
@@ -729,21 +730,21 @@ C --- Core states ---
         call config(pl,lmaxa,z,konfg,lmaxc)
 
         do  40  konf = 1, 8
-          do  40  l = 0, min(konf-1,lmaxc)
-            konfig = konfg(l)
-            if (konf .ge. konfig) goto 40
-            nn = konf-l-1
-            ecor = -50d0
-            val = 1d-30
-            slo = -val
-            call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,
+        do  40  l = 0, min(konf-1,lmaxc)
+          konfig = konfg(l)
+          if (konf .ge. konfig) goto 40
+          nn = konf-l-1
+          ecor = -50d0
+          val = 1d-30
+          slo = -val
+          call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,
      .      nr,nre)
-            call gintsl(g,g,a,b,nr,rofi,sum)
-            call gintsl(g,g,a,b,nrmt,rofi,pmax)
-            sum = sum - pmax
-            call ppratf(ecor,z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
-            write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum
-  403       format(/' core:        ecore',7x,'node at',6x,'max at',
+          call gintsl(g,g,a,b,nr,rofi,sum)
+          call gintsl(g,g,a,b,nrmt,rofi,pmax)
+          sum = sum - pmax
+          call ppratf(ecor,z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
+          write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum
+  403     format(/' core:        ecore',7x,'node at',6x,'max at',
      .      7x,'c.t.p.   rho(r>rmt)')
   40    continue
 
@@ -969,12 +970,12 @@ c            print *,' ttt center e=',irep,eh,e2
 
 C     ... Vary rsm
 c            drsm = drsm0
-c            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi 
-c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+c            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi
+c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip
 c     .      , dphip , e3 , qrmt )
 c
-c            call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi 
-c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+c            call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi
+c     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip
 c     .      , dphip , e1 , qrmt )
 c
 c            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,

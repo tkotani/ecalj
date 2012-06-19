@@ -30,28 +30,28 @@ C ... Passed parameters
       type(s_lat)::slat
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
 !! ... Local parameters
-      integer:: kmax , kdim , ilm2 , ilm1 
+      integer:: kmax , kdim , ilm2 , ilm1
 ckino Dec.9.2011:        integer,pointer :: iv_p_ojcg(:) =>NULL()
 ckino Dec.9.2011:        integer,pointer :: iv_p_oidxcg(:) =>NULL()
 ckino Dec.9.2011:        real(8),pointer :: rv_p_ocy(:) =>NULL()
 ckino Dec.9.2011:        real(8),pointer :: rv_p_ocg(:) =>NULL()
-ckino Dec.9.2011:        rv_p_ocg    => slat%rv_p_ocg 
-ckino Dec.9.2011:        iv_p_ojcg   => slat%iv_p_ojcg 
-ckino Dec.9.2011:        iv_p_oidxcg => slat%iv_p_oidxcg 
-ckino Dec.9.2011:        rv_p_ocy    => slat%rv_p_ocy 
+ckino Dec.9.2011:        rv_p_ocg    => slat%rv_p_ocg
+ckino Dec.9.2011:        iv_p_ojcg   => slat%iv_p_ojcg
+ckino Dec.9.2011:        iv_p_oidxcg => slat%iv_p_oidxcg
+ckino Dec.9.2011:        rv_p_ocy    => slat%rv_p_ocy
       kmax = 0
       kdim = 0
-      call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
-ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
-ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
-ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy 
-ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
-ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy 
+      call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1
+ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy
+ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
+ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
+ckino Dec.9.2011:       .    , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
+ckino Dec.27.2011:       .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
 ckino Dec.28.2011:       .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
      .    , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy 
-     .    , slat , s , ds ) 
+     .    , slat , s , ds )
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1
           s(ilm1,ilm2)    = 2d0*s(ilm1,ilm2)

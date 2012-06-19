@@ -61,38 +61,38 @@ C   ... Switches flagging whether this plat in lattice vectors
 
 C --- Loop over all triples, paring out those within rmax ---
       do  20  i = -imx(1), imx(1)
-        do  20  j = -imx(2), imx(2)
-          do  20  k = -imx(3), imx(3)
-            v2 = 0
-            do  21  m = 1, 3
-              vj(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
-              v2 = v2 + vj(m)**2
-   21       continue
+      do  20  j = -imx(2), imx(2)
+      do  20  k = -imx(3), imx(3)
+        v2 = 0
+        do  21  m = 1, 3
+          vj(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
+          v2 = v2 + vj(m)**2
+   21   continue
 
 C   --- A lattice vector found ---
-            if (v2 .gt. rsqr) goto 20
+        if (v2 .gt. rsqr) goto 20
 
 C   ... Flag any plat in this vec as being present
-            if (iabs(i) + iabs(j) + iabs(k) .eq. 1) then
-              if (i .eq. 1) ivck(1) = 0
-              if (j .eq. 1) ivck(2) = 0
-              if (k .eq. 1) ivck(3) = 0
-            endif
+        if (iabs(i) + iabs(j) + iabs(k) .eq. 1) then
+          if (i .eq. 1) ivck(1) = 0
+          if (j .eq. 1) ivck(2) = 0
+          if (k .eq. 1) ivck(3) = 0
+        endif
 
 C   ... Increment nv and copy to vec(nv)
-            nv = nv+1
-            if (nv .gt. nvmax .and. mod(opts/10,10) .ne. 2) 
+        nv = nv+1
+        if (nv .gt. nvmax .and. mod(opts/10,10) .ne. 2) 
      .      call fexit(-1,111,' xlgen: too many vectors, n=%i',nv)
-            if (mod(opts/10,10) .eq. 2) then
-            elseif (mod(opts/100,10) .eq. 1) then
-              vecs(1,nv) = i
-              vecs(2,nv) = j
-              vecs(3,nv) = k
-            else
-              vecs(1,nv) = vj(1)
-              vecs(2,nv) = vj(2)
-              vecs(3,nv) = vj(3)
-            endif
+        if (mod(opts/10,10) .eq. 2) then
+        elseif (mod(opts/100,10) .eq. 1) then
+          vecs(1,nv) = i
+          vecs(2,nv) = j
+          vecs(3,nv) = k
+        else
+          vecs(1,nv) = vj(1)
+          vecs(2,nv) = vj(2)
+          vecs(3,nv) = vj(3)
+        endif
    20 continue
 
 C --- Add plat if ivck ne 0 ---

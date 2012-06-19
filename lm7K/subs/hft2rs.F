@@ -156,11 +156,11 @@ C ... Passed parameters
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1)
-ckino Dec.14.2011:          integer,pointer :: iv_p_oiax(:) 
-        integer,allocatable :: iv_a_oiax(:) 
+ckino Dec.14.2011:          integer,pointer :: iv_p_oiax(:)
+      integer,allocatable :: iv_a_oiax(:)
 
 ckino Dec.14.2011:         integer,pointer :: iv_p_ontab(:)
-       integer,allocatable :: iv_a_ontab(:)
+      integer,allocatable :: iv_a_ontab(:)
 
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp)
@@ -178,7 +178,7 @@ C ... Local parameters
       double precision tau(3)
 #endif
 C ... Heap
-       integer ::iwdummy 
+      integer ::iwdummy
 
 C ... External calls
 ckino      external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
@@ -206,11 +206,11 @@ C --- Mode 0 (setup) make and reduce iax table ---
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
-         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos 
-ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_p_oiax 
+        call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
+ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_p_oiax
 ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_a_oiax 
      .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax 
-     .   , mxcsiz ) 
+     .   , mxcsiz )
 
         call poppr
 
@@ -220,12 +220,12 @@ C   ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
-            call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
-     .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
-ckino Dec.14.2011:       .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
+          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+     .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
+ckino Dec.14.2011:       .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot
 ckino Dec.14.2011:       .      , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
-     .      , dmx ) 
+     .      , dmx )
 
 
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
@@ -239,10 +239,10 @@ C     ... Reduce iax table to elements on mesh in common with pairc
           allocate(iwk_iv((niax+1)*mxcsiz))
 
 C         nttabs = nttab
-ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab 
-ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_a_oiax , nttab 
-            call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab 
-     .      , mxcsiz ) 
+ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab
+ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_a_oiax , nttab
+          call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab 
+     .      , mxcsiz )
 
 
 
@@ -258,29 +258,29 @@ C   ... Add pairs so that any ri-rj has corresponding rj-ri
 C         nttabs = nttab
           nttab = nttab*3
 ckino Dec.14.2011:             i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
-           i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
+          i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
 ckino Dec.14.2011:             iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
-           iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
+          iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
 ckino Dec.14.2011:             i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
-           i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
+          i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
 ckino Dec.14.2011:             iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-           iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+          iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
           call pshpr(ipr)
-ckino Dec.14.2011:              call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab 
-            call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab 
+ckino Dec.14.2011:              call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab
+          call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab
 ckino Dec.14.2011:       .      , iv_p_oiax , nttab , mxcsiz ) 
-     .      , iv_a_oiax , nttab , mxcsiz ) 
+     .      , iv_a_oiax , nttab , mxcsiz )
 
 
           call poppr
 
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
-            call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+          call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
+ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
-     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) 
+     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
 
 
           call poppr
@@ -289,13 +289,13 @@ ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxc
 
 C   ... iax is now complete ... reallocate array
 ckino Dec.14.2011:           i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
-         i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
+        i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
 ckino Dec.14.2011:           iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
-         iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
+        iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
 ckino Dec.14.2011:           i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
-         i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
+        i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
 ckino Dec.14.2011:           iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-         iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+        iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 
 C       Printout of pairs table
@@ -303,10 +303,10 @@ C       ipr = 70
 C       call pshpr(ipr)
         if (ipr .gt. 40) then
           call pshpr(ipr-10)
-            call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+          call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
+ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
-     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) 
+     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
 
 
           call poppr
@@ -325,12 +325,12 @@ C       Scale by phase for offset k-mesh
 C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 
-          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
-     .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
-ckino Dec.14.2011:       .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
+        call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+     .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
+ckino Dec.14.2011:       .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot
 ckino Dec.14.2011:       .    , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
-     .    , dmx ) 
+     .    , dmx )
 
 
         call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
@@ -461,7 +461,7 @@ ckino     .poppr,pshpr,rlse
       external dinv33,dpsadd,dpscop,gvlist,hft2r2,
      .poppr,pshpr
 
-       logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg
 
 c      allocate(_rv(1))
 c      if (1<0) _rv(:)=0.0d0
@@ -636,8 +636,8 @@ c      external isanrg
 C --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
       do  40  is = is1, is2
-        do  40  ix = 1, 3
-          rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
+      do  40  ix = 1, 3
+        rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
      .    + plat(ix,1)*iax(3,is)
      .    + plat(ix,2)*iax(4,is)
      .    + plat(ix,3)*iax(5,is)
@@ -693,8 +693,8 @@ C            endif
 
                   TdotK = 0
                   do  50  j = 1, 3
-                    do  50  k = 1, 3
-                      TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
+                  do  50  k = 1, 3
+                    TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
    50             continue
                   phase = cdexp(dcmplx(0d0,TdotK))
 

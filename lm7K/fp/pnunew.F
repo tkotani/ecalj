@@ -55,8 +55,8 @@ cki      type(s_site)::ssite(*)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
-       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
-     . l , ipqn , m , isp , nr , nn , mxcst 
+      integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
+     . l , ipqn , m , isp , nr , nn , mxcst
 ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       real(8) ,allocatable :: g_rv(:)
@@ -88,7 +88,7 @@ C --- For each site, do ---
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
 
 
 
@@ -128,7 +128,7 @@ C         Initially set lfrzv,lfrzz to external constraints.
 c                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m,isp)
                 lsemicorepz = .true.
               endif
-            endif  
+            endif
 
 C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
@@ -143,10 +143,10 @@ C       ... Log derivative by direct num integration
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
-ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
-ckino Dec.28.2011:                 call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
-               call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
-     .         1 , 1d0 ) 
+ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
+ckino Dec.28.2011:                 call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
+              call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+     .         1 , 1d0 )
 
               if (mod(idmod(m),10) .eq. 3) then
                 val(1) = rmt
@@ -186,7 +186,7 @@ C             slo(1) = dl + 1d0
               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
      .         0 , 1d - 12 , ebar , val , slo , nn , g_rv , iwdummy , phi , 
      .         dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy 
-     .         , iwdummy ) 
+     .         , iwdummy )
               nnv=nn
 
 C           dphip = (slo(2)-phip)/rmt
@@ -205,7 +205,7 @@ c              elseif (ipr .ge. 10) then
                 dl = rmt*slo(1)/val(1) - 1
                 p1 = 0.5d0 - datan(dl)/pi
 c                print *,'zzzzzz p1=',p1,dl
-              endif  
+              endif
 
 C       ... Estimate new pnz for semicore state
               if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then

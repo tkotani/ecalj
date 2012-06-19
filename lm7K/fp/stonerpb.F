@@ -5,8 +5,8 @@ C=============================================================
 C ---  <~e| X | e~>  matrix calculation. by using X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   nq       : total number of q points in calculation of X(q,w)        
-Ci   nw       : total number of w points in calculation of X(q,w)        
+Ci   nq       : total number of q points in calculation of X(q,w)
+Ci   nw       : total number of w points in calculation of X(q,w)
 Ci   nmbas    : number of magnetic sites  = nmag
 Ci   qp       : qp(3,nq)  vector of each q
 Ci   momsite  : magnetic moment m

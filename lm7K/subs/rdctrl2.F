@@ -42,7 +42,7 @@ ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix
      .    rg,rsma,rfoca,
      .    rsmfa,rcfa,
      .    exi,rint,rcut,rmt,pz,
-     .    amom,spec_a,z,eref,rsmv,pb1,pb2, coreh,
+     .    amom,spec_a,z,eref,rsmv,pb1,pb2, coreh,nmcore,
 !! ... SITE
      .  alabl, pos,vel,eula,vshft, ips,ipl,plv,irlx,ndelta,delta,mpole,dpole,
 !! ... Iterations
@@ -215,8 +215,8 @@ Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_tb):: v_stb
-ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) 
-      type(s_spec),allocatable:: v_sspec(:) 
+ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:)
+      type(s_spec),allocatable:: v_sspec(:)
 ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:)
       type(s_site),allocatable:: v_ssite(:)
 
@@ -257,7 +257,7 @@ c     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
-      integer:: ib , ispec 
+      integer:: ib , ispec
 ckino Dec.14.2011:        real(8),pointer :: rv_p_opos(:) =>NULL()
 ckino Dec.14.2011:        integer,pointer :: iv_p_oips(:) =>NULL()
       integer,allocatable:: wowk(:)
@@ -777,7 +777,7 @@ c      nnn = size(smix)
 c      nnn = umix_size()
 c      call dcopy(nnn,vmix,1,v_smix,1)
       v_smix=vmix
-      
+
 
 C ... Allocate and initialize sordn
 Cki delete sordn
@@ -1078,217 +1078,189 @@ C        call spacks(1,'spec pb1',v_sspec,'        ',j,j)
 C        call spacks(1,'spec pb2',v_sspec,'        ',j,j)
 C        call spacks(1,'spec coreh',v_sspec,'        ',j,j)
 C      enddo
-      i_copy_size=1;
-      do i_spackv=1,nspec
+        i_copy_size=1;
+        do i_spackv=1,nspec
 ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
-        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
-      enddo
+          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
+        enddo
 
-      i_copy_size=1;
-      do i_spackv=1,nspec
+        i_copy_size=1;
+        do i_spackv=1,nspec
 ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
-        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
-      enddo
+          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+        enddo
 
-      i_copy_size=1;
-      do i_spackv=1,nspec
+        i_copy_size=1;
+        do i_spackv=1,nspec
 ckino Jan.04.2012:          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
-        call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
-      enddo
+          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+        enddo
 
-      i_copy_size=1;
-      do i_spackv=1,nspec
+        i_copy_size=1;
+        do i_spackv=1,nspec
 ckino Jan.04.2012:          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-        call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-      enddo
+          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
+        enddo
 
-      i_copy_size=1;
-      do i_spackv=1,nspec
+        i_copy_size=1;
+        do i_spackv=1,nspec
 ckino Jan.04.2012:          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
-        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
-      enddo
-
-
-      do  j = 1, nspec
-        slabl_(j) = slabl(j)
-        do i_spacks=j,j
-ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
-          call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
+          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
         enddo
 
-        do i_spacks=j,j
+        do  j = 1, nspec
+          slabl_(j) = slabl(j)
+          do i_spacks=j,j
 ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-          call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-        enddo
-
-        do i_spacks=j,j
-ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-          call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-        enddo
-
-        do i_spacks=j,j
-ckino Jan.04.2012:            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-          call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-        enddo
+            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
+            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
+            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
+            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
+          enddo
 
 
 ckino Jan.04.2012:          v_sspec(j)%a=spec_a(j)
-        v_sspec(j)%a=spec_a(j)
-ckino Jan.04.2012:          v_sspec(j)%nr=nr(j)
-        v_sspec(j)%nr=nr(j)
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%alpha)
-        i_copy_size=size(v_sspec(j)%alpha)
-ckino Jan.04.2012:          call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
-        call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%coreq)
-        i_copy_size=size(v_sspec(j)%coreq)
-ckino Jan.04.2012:          call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
-        call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
+          v_sspec(j)%nmcore=nmcore(j)
+          v_sspec(j)%a=spec_a(j)
+          v_sspec(j)%nr=nr(j)
 
+          i_copy_size=size(v_sspec(j)%alpha)
+          call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
+
+          i_copy_size=size(v_sspec(j)%coreq)
+          call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
 
 ckino Jan.04.2012:          v_sspec(j)%lxi=lxi(j)
-        v_sspec(j)%lxi=lxi(j)
-ckino Jan.04.2012:          v_sspec(j)%nxi=nxi(j)
-        v_sspec(j)%nxi=nxi(j)
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%exi)
-        i_copy_size=size(v_sspec(j)%exi)
-ckino Jan.04.2012:          call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
-        call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
+          v_sspec(j)%lxi=lxi(j)
+          v_sspec(j)%nxi=nxi(j)
+          i_copy_size=size(v_sspec(j)%exi)
+          call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
+          v_sspec(j)%group=grp(j)
+          v_sspec(j)%grp2=grp2(j)
 
+          i_copy_size=size(v_sspec(j)%hcr)
+          call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
 
-ckino Jan.04.2012:          v_sspec(j)%group=grp(j)
-        v_sspec(j)%group=grp(j)
-ckino Jan.04.2012:          v_sspec(j)%grp2=grp2(j)
-        v_sspec(j)%grp2=grp2(j)
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%hcr)
-        i_copy_size=size(v_sspec(j)%hcr)
-ckino Jan.04.2012:          call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
-        call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idmod)
-        i_copy_size=size(v_sspec(j)%idmod)
-ckino Jan.04.2012:          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
-        call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
+          i_copy_size=size(v_sspec(j)%idmod)
+          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
 
-
-ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%ehvl)
-        i_copy_size=size(v_sspec(j)%ehvl)
-ckino Jan.04.2012:          call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
-        call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
+          i_copy_size=size(v_sspec(j)%ehvl)
+          call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
 
 C       Set idxdn
-        call ivset(ix,1,n0*nkap0,1)
-        call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
+          call ivset(ix,1,n0*nkap0,1)
+          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
 
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idxdn)
-        i_copy_size=size(v_sspec(j)%idxdn)
+          i_copy_size=size(v_sspec(j)%idxdn)
 ckino Jan.04.2012:          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
-        call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
+          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%idu)
-        i_copy_size=size(v_sspec(j)%idu)
+          i_copy_size=size(v_sspec(j)%idu)
 ckino Jan.04.2012:          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
-        call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%jh)
-        i_copy_size=size(v_sspec(j)%jh)
+          i_copy_size=size(v_sspec(j)%jh)
 ckino Jan.04.2012:          call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
-        call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
+          call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%uh)
-        i_copy_size=size(v_sspec(j)%uh)
+          i_copy_size=size(v_sspec(j)%uh)
 ckino Jan.04.2012:          call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
-        call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
+          call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
 
 
 ckino Jan.04.2012:          v_sspec(j)%kmxt=kmxt(j)
-        v_sspec(j)%kmxt=kmxt(j)
+          v_sspec(j)%kmxt=kmxt(j)
 ckino Jan.04.2012:          v_sspec(j)%kmxv=kmxv(j)
-        v_sspec(j)%kmxv=kmxv(j)
+          v_sspec(j)%kmxv=kmxv(j)
 ckino Jan.04.2012:          v_sspec(j)%lfoca=lfoca(j)
-        v_sspec(j)%lfoca=lfoca(j)
+          v_sspec(j)%lfoca=lfoca(j)
 ckino Jan.04.2012:          v_sspec(j)%rsmv=rsmv(j)
-        v_sspec(j)%rsmv=rsmv(j)
+          v_sspec(j)%rsmv=rsmv(j)
 
 
 ckino Jan.04.2012:          v_sspec(j)%lmxa=lmxa(j)
-        v_sspec(j)%lmxa=lmxa(j)
+          v_sspec(j)%lmxa=lmxa(j)
 ckino Jan.04.2012:          v_sspec(j)%lmxb=lmxb(j)
-        v_sspec(j)%lmxb=lmxb(j)
+          v_sspec(j)%lmxb=lmxb(j)
 ckino Jan.04.2012:          v_sspec(j)%lmxl=lmxl(j)
-        v_sspec(j)%lmxl=lmxl(j)
+          v_sspec(j)%lmxl=lmxl(j)
 ckino Jan.04.2012:          v_sspec(j)%lmxpb=lmxpb(j)
-        v_sspec(j)%lmxpb=lmxpb(j)
+          v_sspec(j)%lmxpb=lmxpb(j)
 
 C       pack mxcst(j)
-        i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
+          i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 ccccccccccccccccccccccc
-        print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
+          print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
 c        i=0
 ccccccccccccccccccccccc
 C       pack orbp(j)
-        call dpzero(orbp,n0*2*nkap0)
-        call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
-        call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
-        call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
-        call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
+          call dpzero(orbp,n0*2*nkap0)
+          call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
+          call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
+          call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
+          call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
 
 ckino Jan.04.2012:          v_sspec(j)%mass=mass(j)
-        v_sspec(j)%mass=mass(j)
+          v_sspec(j)%mass=mass(j)
 ckino Jan.04.2012:          v_sspec(j)%mxcst=i
-        v_sspec(j)%mxcst=i
+          v_sspec(j)%mxcst=i
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%orbp)
-        i_copy_size=size(v_sspec(j)%orbp)
+          i_copy_size=size(v_sspec(j)%orbp)
 ckino Jan.04.2012:          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
-        call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
+          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
 C       Pack P,Q,PZ for both spins
-        call dpzero(orbp,n0*6)
-        call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
-        call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
-        call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
+          call dpzero(orbp,n0*6)
+          call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
+          call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
+          call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
 
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%p)
-        i_copy_size=size(v_sspec(j)%p)
+          i_copy_size=size(v_sspec(j)%p)
 ckino Jan.04.2012:          call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
-        call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
+          call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%pz)
-        i_copy_size=size(v_sspec(j)%pz)
+          i_copy_size=size(v_sspec(j)%pz)
 ckino Jan.04.2012:          call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
-        call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
+          call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%q)
-        i_copy_size=size(v_sspec(j)%q)
+          i_copy_size=size(v_sspec(j)%q)
 ckino Jan.04.2012:          call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
-        call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
+          call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
 ckino Jan.04.2012:          v_sspec(j)%z=z(j)
-        v_sspec(j)%z=z(j)
+          v_sspec(j)%z=z(j)
 
 
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%colxbs)
-        i_copy_size=size(v_sspec(j)%colxbs)
+          i_copy_size=size(v_sspec(j)%colxbs)
 ckino Jan.04.2012:          call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
-        call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
+          call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
 ckino Jan.04.2012:          v_sspec(j)%radxbs=radxbs(j)
-        v_sspec(j)%radxbs=radxbs(j)
+          v_sspec(j)%radxbs=radxbs(j)
 
 c        call pack5('spec rcfa rcut rfoca rg rham',v_sspec,j,
 
 ckino Jan.04.2012:          i_copy_size=size(v_sspec(j)%rcfa)
-        i_copy_size=size(v_sspec(j)%rcfa)
+          i_copy_size=size(v_sspec(j)%rcfa)
 ckino Jan.04.2012:          call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
-        call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
+          call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
 ckino Jan.04.2012:          v_sspec(j)%rcut=rcut(j)
-        v_sspec(j)%rcut=rcut(j)
+          v_sspec(j)%rcut=rcut(j)
 ckino Jan.04.2012:          v_sspec(j)%rfoca=rfoca(j)
-        v_sspec(j)%rfoca=rfoca(j)
+          v_sspec(j)%rfoca=rfoca(j)
 ckino Jan.04.2012:          v_sspec(j)%rg=rg(j)
-        v_sspec(j)%rg=rg(j)
+          v_sspec(j)%rg=rg(j)
 
 
 ckino Jan.04.2012:          v_sspec(j)%rmt=rmt(j)
-        v_sspec(j)%rmt=rmt(j)
+          v_sspec(j)%rmt=rmt(j)
 ckino Jan.04.2012:          v_sspec(j)%rs3=rs3(j)
-        v_sspec(j)%rs3=rs3(j)
+          v_sspec(j)%rs3=rs3(j)
 ckino Jan.04.2012:          v_sspec(j)%rsma=rsma(j)
-        v_sspec(j)%rsma=rsma(j)
+          v_sspec(j)%rsma=rsma(j)
 ckino Jan.04.2012:          v_sspec(j)%rsmfa=rsmfa(j)
-        v_sspec(j)%rsmfa=rsmfa(j)
+          v_sspec(j)%rsmfa=rsmfa(j)
 
 C$$$        if (ltbe) then
 C$$$Cgetarg...info...           NG:: iq1(1,j) , integer(8) :: v_sspec%iq1 4
@@ -1329,15 +1301,15 @@ C$$$          endif
 C$$$        endif
 
 ckino Jan.04.2012:          v_sspec(j)%dv=dv(j)
-        v_sspec(j)%dv=dv(j)
+          v_sspec(j)%dv=dv(j)
 ckino Jan.04.2012:          v_sspec(j)%eref=eref(j)
-        v_sspec(j)%eref=eref(j)
+          v_sspec(j)%eref=eref(j)
 ckino Jan.04.2012:          v_sspec(j)%rham=rham(j)
-        v_sspec(j)%rham=rham(j)
+          v_sspec(j)%rham=rham(j)
 ckino Jan.04.2012:          v_sspec(j)%rint=rint(j)
-        v_sspec(j)%rint=rint(j)
+          v_sspec(j)%rint=rint(j)
 
-      enddo
+        enddo
 C     call shstru('spec',v_sspec,1,nspec);stop
 cccccccccccccc
 c       call upack('spec p ',v_sspec,1,pnux,0,0,0)
@@ -1352,58 +1324,58 @@ CKi      call usite(v_ssite,-1,0,1,0,0,0)
 CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
 CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
 ckino Jan.04.2012:        allocate(v_ssite(nsite))
-      allocate(v_ssite(nsite))
+        allocate(v_ssite(nsite))
 ckino Jan.04.2012:        do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
-      do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
+        do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
 
 C     Old defaults
 C     call ivset(ix,1,n0*nkap0,1)
 C     call spackv(1,'site relax',v_ssite,1,nsite,ix)
-      do  j = 1, nsite
+          do  j = 1, nsite
 C       Pack spec into class in case spec info is sufficient
 C       and spid into class label
 
 ckino Jan.04.2012:          v_ssite(j)%spec=ips(j)
-        v_ssite(j)%spec=ips(j)
+            v_ssite(j)%spec=ips(j)
 ckino Jan.04.2012:          v_ssite(j)%class=ips(j)
-        v_ssite(j)%class=ips(j)
+            v_ssite(j)%class=ips(j)
 ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%dpole)
-        i_copy_size=size(v_ssite(j)%dpole)
+            i_copy_size=size(v_ssite(j)%dpole)
 ckino Jan.04.2012:          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
-        call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+            call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
 ckino Jan.04.2012:          v_ssite(j)%mpole=mpole(j)
-        v_ssite(j)%mpole=mpole(j)
+            v_ssite(j)%mpole=mpole(j)
 
-        do i_spacks=j,j
+            do i_spacks=j,j
 ckino Jan.04.2012:            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-          call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-        enddo
+              call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+            enddo
 
 
 ckino Jan.04.2012:          v_ssite(j)%pl=ipl(j)
-        v_ssite(j)%pl=ipl(j)
+            v_ssite(j)%pl=ipl(j)
 ckino Jan.04.2012:          v_ssite(j)%plv=plv(j)
-        v_ssite(j)%plv=plv(j)
+            v_ssite(j)%plv=plv(j)
 ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%pos)
-        i_copy_size=size(v_ssite(j)%pos)
+            i_copy_size=size(v_ssite(j)%pos)
 ckino Jan.04.2012:          call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
-        call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
+            call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
 ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%vel)
-        i_copy_size=size(v_ssite(j)%vel)
+            i_copy_size=size(v_ssite(j)%vel)
 ckino Jan.04.2012:          call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
-        call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
+            call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
 
 
 ckino Jan.04.2012:          v_ssite(j)%vshft=vshft(j)
-        v_ssite(j)%vshft=vshft(j)
+            v_ssite(j)%vshft=vshft(j)
 ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%relax)
-        i_copy_size=size(v_ssite(j)%relax)
+            i_copy_size=size(v_ssite(j)%relax)
 ckino Jan.04.2012:          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
-        call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+            call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
 ckino Jan.04.2012:          i_copy_size=size(v_ssite(j)%eula)
-        i_copy_size=size(v_ssite(j)%eula)
+            i_copy_size=size(v_ssite(j)%eula)
 ckino Jan.04.2012:          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
-        call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
+            call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
 
 C$$$        if (ltbe) then
 C$$$Cgetarg...info...           NG:: ndelta(j) , integer(8) :: v_ssite%ndelta 1
@@ -1418,26 +1390,26 @@ C$$$           i_copy_size=size(v_ssite(j)%delta)
 C$$$           call dcopy(i_copy_size,delta(1,j),1,v_ssite(j)%delta,1)
 
 C$$$        endif
-      enddo
+          enddo
 
 C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
-      j = len_trim(iter_amix)          ! Euler angle mixing amix
-      if (j .gt. 0) then
+          j = len_trim(iter_amix)          ! Euler angle mixing amix
+          if (j .gt. 0) then
 c        call lstra('strn amix',i,o,k)  ! o = index amix has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = iter_amix
-        call packs('strn amix',sstrn,iter_amix)
-        call upacks('strn amix',inix,iendx)
+            call packs('strn amix',sstrn,iter_amix)
+            call upacks('strn amix',inix,iendx)
 c         print *,'vvvvv ',sstrn(inix:iendx)
 c         stop 'xxxxxxxxxxxxxxx'
-      endif
-      j = len_trim(iter_mix)           ! density mixing mix
-      if (j .gt. 0) then
+          endif
+          j = len_trim(iter_mix)           ! density mixing mix
+          if (j .gt. 0) then
 c        call lstra('strn mix',i,o,k)   ! o = index mix has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = iter_mix
-        call packs('strn mix',sstrn,iter_mix)
-      endif
+            call packs('strn mix',sstrn,iter_mix)
+          endif
 c      j = len_trim(mmham)              ! micromagnetics hamiltonian
 c      if (j .gt. 0) then
 c        call lstra('strn mmham',i,o,k) ! o = index mmham has (see ustrn),
@@ -1445,13 +1417,13 @@ c        call ustrn(w,-o,1,i,k,j)       ! string should be copied to sstrn(i:j)
 c        sstrn(i:i+j-1) = mmham
 c         call packs('strn mmham',sstrn,mmham)
 c      endif
-      j = len_trim(header)             ! jobid
-      if (j .gt. 0) then
+          j = len_trim(header)             ! jobid
+          if (j .gt. 0) then
 c        call lstra('strn jobid',i,o,k) ! o = index jobid has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = header
-        call packs('strn jobid',sstrn,header)
-      endif
+            call packs('strn jobid',sstrn,header)
+          endif
 
 c      j = len_trim(gfopt)              ! Green's function gfopt
 c      if (j .gt. 0) then
@@ -1470,34 +1442,34 @@ c         call packs('strn sxopt',sstrn,sxopt)
 c      endif
 
 C ... Suppress symmetry operations for special circumstances
-      lstsym = 0
-      if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
-      !      =2: turn off symops
+          lstsym = 0
+          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
+          !      =2: turn off symops
 C     Switches that automatically turn of all symops
-      if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
+          if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
      .cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn)) then
-        symg = 'e'
-        lstsym = 2               !lstsym=2: turn off symops
-      endif
-C     Switches that turn off automatic finder, incl. inversion
-      if (lstsym .ne. 0) then
-        i = 1
-        do while (i .ne. 0)
-          i = index(symg,'find')
-          if (i .ne. 0) then
-            symg(i:i+3) = ' '
+            symg = 'e'
+            lstsym = 2               !lstsym=2: turn off symops
           endif
-        enddo
-        if (symg .eq. ' ') symg = 'e'  ! suppress ops if none explicit
-        lqp = lqp-bitand(lqp,1)+1
-      endif
-      j = len_trim(symg)               ! Symmetry group symg
-      if (j .gt. 0) then
+C     Switches that turn off automatic finder, incl. inversion
+          if (lstsym .ne. 0) then
+            i = 1
+            do while (i .ne. 0)
+              i = index(symg,'find')
+              if (i .ne. 0) then
+                symg(i:i+3) = ' '
+              endif
+            enddo
+            if (symg .eq. ' ') symg = 'e'  ! suppress ops if none explicit
+            lqp = lqp-bitand(lqp,1)+1
+          endif
+          j = len_trim(symg)               ! Symmetry group symg
+          if (j .gt. 0) then
 c        call lstra('strn symg',i,o,k)  ! o = index symg has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = symg
-        call packs('strn symg',sstrn,symg)
-      endif
+            call packs('strn symg',sstrn,symg)
+          endif
 C ... End of copy
 
 C$$$C --- Miscellaneous cleanup and initialization ---
@@ -1513,8 +1485,8 @@ C$$$        call gausq(nkap,xx(1),xx(2),ekap,xx(3),0,0)
 C$$$      endif
 
 C ... Read the basis from the atm file
-      if (cmdopt('--rdbasp',8,0,strn)) then
-         call rx('not support --rdbasp')
+          if (cmdopt('--rdbasp',8,0,strn)) then
+            call rx('not support --rdbasp')
 C$$$        fileid = 'basp'
 C$$$        if (strn(9:12) .eq. ':fn=') then
 C$$$          fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
@@ -1545,16 +1517,16 @@ C$$$          nlmax = int(v_sctrl%nl) * * 2
 
 C$$$          xx(1) = dglob('mxorb',dble(k)*nlmax,1)
 C$$$        endif
-      endif
+          endif
 
 C     Add dalat to alat
 
-CXX  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This 
+CXX  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This
 CXX  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 C     Replicate ctrl->lncol in ham->lncol
 
-      v_sham%lncol=lncol
+          v_sham%lncol=lncol
 
 c      lsx1 = mod(lsx,2)
 C$$$       if ( lasa32 ) then
@@ -1572,18 +1544,18 @@ c       endif
 
 
 C ... Dirac equation requires spin polarization
-      if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then
+          if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then
 
-        call rx('rdccat: Dirac equation requires NSPIN=2')
-      endif
+            call rx('rdccat: Dirac equation requires NSPIN=2')
+          endif
 
 C ... Suppress inversion when noncollinear magnetism, SX, NLO
 c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
 c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
-      if (lncol .ne. 0)
+          if (lncol .ne. 0)
      .lqp = lqp-bitand(lqp,1)+1
 
-      v_sctrl%lqp=lqp
+          v_sctrl%lqp=lqp
 
 
 C ... Special pgf initialization
@@ -1598,78 +1570,78 @@ C$$$      endif
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 c     j = iand(4,int(v_sctrl%lham)) /4
 c     j = 2*(1-j)
-      j= 2
+          j= 2
 
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
-      if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
+          if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
 
 C     nfp-style basis:
-      if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
+          if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
 
 Changenglob      call suidx(nglob('nkaph'),j,nspec,v_sspec)
 ckino Jan.04.2012:        call suidx(globalvariables%nkaph,j,nspec,v_sspec)
-      call suidx(globalvariables%nkaph,j,nspec,v_sspec)
+          call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
 C ... Set some global variables
 Changenglob      xx(1) = dglob('nspec',dble(nspec),1)
-      globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
+          globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
 Changenglob      xx(1) = dglob('nbas',dble(nbas),1)
-      globalvariables%nbas = dble(nbas); globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
+          globalvariables%nbas = dble(nbas); globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
 Changenglob      xx(1) = dglob('nbasp',dble(nbasp),1)
-      globalvariables%nbasp = dble(nbasp); globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
+          globalvariables%nbasp = dble(nbasp); globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
 Changenglob      xx(1) = dglob('nsp',dble(nsp),1)
-      globalvariables%nsp = dble(nsp); globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
+          globalvariables%nsp = dble(nsp); globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
 Changenglob      xx(1) = dglob('nl',dble(nl),1)
-      globalvariables%nl = dble(nl); globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
+          globalvariables%nl = dble(nl); globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
 Changenglob      xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
-      globalvariables%lrel = dble(avw); globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
+          globalvariables%lrel = dble(avw); globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
 
 Changenglob      xx(1) = dglob('lrel',dble(lrel),1)
-      globalvariables%lrel = dble(lrel); globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
-      lxcf = int(v_sctrl%lxcf)
+          globalvariables%lrel = dble(lrel); globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
+          lxcf = int(v_sctrl%lxcf)
 
 Changenglob      xx(1) = dglob('lxcf',dble(lxcf),1)
-      globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1; xx(1) = dble(lxcf)
+          globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1; xx(1) = dble(lxcf)
 Changenglob      xx(1) = dglob('stdo',dble(stdo),1)
-      globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; xx(1) = dble(stdo)
+          globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; xx(1) = dble(stdo)
 Changenglob      xx(1) = dglob('stdl',dble(stdl),1)
-      globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1; xx(1) = dble(stdl)
+          globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1; xx(1) = dble(stdl)
 Changenglob      xx(1) = dglob('stde',dble(stde),1)
-      globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1; xx(1) = dble(stde)
-      nspc = 1
+          globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1; xx(1) = dble(stde)
+          nspc = 1
 c      if (bitand(lncol,1+2+4) .ne. 0) nspc = 2
-      if (iand(lncol,4) .ne. 0) nspc = 2
+          if (iand(lncol,4) .ne. 0) nspc = 2
 Changenglob      xx(1) = dglob('nspc',dble(nspc),1)
-      globalvariables%nspc = dble(nspc); globalvariables%l_nspc = globalvariables%l_nspc +1; xx(1) = dble(nspc)
+          globalvariables%nspc = dble(nspc); globalvariables%l_nspc = globalvariables%l_nspc +1; xx(1) = dble(nspc)
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
-      if (procid .eq. master) then
-        nat = nbas
-        do  i = 1, nbas
+          if (procid .eq. master) then
+            nat = nbas
+            do  i = 1, nbas
 
 ckino Jan.04.2012:            j=v_ssite(i)%spec
-          j=v_ssite(i)%spec
+              j=v_ssite(i)%spec
 
 
 ckino Jan.04.2012:            l=v_sspec(j)%lmxa
-          l=v_sspec(j)%lmxa
+              l=v_sspec(j)%lmxa
 
-          if (l .eq. -1) nat = nat-1
-        enddo
-      endif
-      call mpibc1(nat,1,2,0,'rdctrl','nat')
+              if (l .eq. -1) nat = nat-1
+            enddo
+          endif
+          call mpibc1(nat,1,2,0,'rdctrl','nat')
 Changenglob      xx(1) = dglob('nat',dble(nat),1)
-      globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
+          globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
 
 C ... Set modep
-      ix(1) = 2
-      ix(2) = 2
-      ix(3) = 2
+          ix(1) = 2
+          ix(2) = 2
+          ix(3) = 2
 C$$$       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0
 
 
-      i_copy_size=size(v_sctrl%modep)
-      call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
+          i_copy_size=size(v_sctrl%modep)
+          call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
 
 
 c      v_sham%lxcf=lxcf
@@ -1677,34 +1649,34 @@ c      v_sham%lxcf=lxcf
 
 C ... Count LDA+U blocks (printout only)
 c      call defi(owk,-nbas)
-      allocate(wowk(nbas))
-      wowk=0
-      call pshpr(0)
+          allocate(wowk(nbas))
+          wowk=0
+          call pshpr(0)
 ckino Jan.04.2012:        call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
 ckino Jan.04.2012:        call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
-      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
-      v_sham%nlibu=nlibu
-      v_sham%lmaxu=k
-      call poppr
+          call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
+          v_sham%nlibu=nlibu
+          v_sham%lmaxu=k
+          call poppr
 c      call rlse(owk)
-      deallocate(wowk)
+          deallocate(wowk)
 
 C     Free arrays used to read input
-      deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+          deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
      .lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
-      deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
+          deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
 c      if (ltbe) deallocate(delta,ndelta)
 
 C      call rx0('done copying input to structures')
 
 C --- Printout ---
-      if (iprint() .ge. 20 .and. procid .eq. master) then
-        do  90  k = 1, 2
+          if (iprint() .ge. 20 .and. procid .eq. master) then
+            do  90  k = 1, 2
 
-          strn = '  '//prgnam
+              strn = '  '//prgnam
 C$$$        if (prgnam .eq. 'LMMC') then
 C$$$Cgetarg           call awrit4(
 C$$$Cgetarg      .    '%N %a:%12palat = %;5d  '//
@@ -1726,26 +1698,26 @@ C$$$     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nat , nbas-
 C$$$     .     , nbas-nsite , nsite , nspec )
 
 C$$$        endif
-          if (vn(2) .eq. 0) then
-            call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
+              if (vn(2) .eq. 0) then
+                call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
      .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
      .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-          else
-            call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
+              else
+                call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
      .      'verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
      .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
      .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-          endif
+              endif
 
 
-          lxcf=v_sctrl%lxcf
+              lxcf=v_sctrl%lxcf
 
 c         i = iand(256,int(v_sctrl%lham))
 
-          lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
+              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
 
 
-          call awrit8(' special:%10p'//
+              call awrit8(' special:%10p'//
      .    '%?;n; forces,;;'//
      .    '%?;n==2; Dirac equation,;;'//
      .    '%?;n; spherical-harmonics,;;'//
@@ -1761,7 +1733,7 @@ c     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,0, !ctrl_loptc,
 c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
      .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
-          if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
+              if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
 
 C$$$          ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.
 C$$$     .    prgnam.eq.'LMF' .or. prgnam.eq.'LMFGWD' .or.
@@ -1802,11 +1774,11 @@ c          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
 c     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
 c     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 clm72
-      if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
-        if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
-          call rx('only XCFUN=1,2,103 are allowed now')
-        endif
-      endif  
+              if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
+                if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
+                  call rx('only XCFUN=1,2,103 are allowed now')
+                endif
+              endif
 Ckino isanrg is logical function, C$$$        call isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
 C$$$        l_dummy_isanrg=isanrg(mod(lxcf,100),0,3,prgnam,'XC functional',.true.)
 Ckino isanrg is logical function, C$$$        call isanrg(lxcf/100,0,1,prgnam,'GGA functional',.true.)
@@ -1916,20 +1888,20 @@ C$$$     .      bitand(ltb,1024),bitand(ltb,2048),
 C$$$     .      bitand(lncol,4),bitand(ltb,2),bitand(ltb,4))
 C$$$        endif
 
-          if (prgnam(1:3) .eq. 'LMF') then
-            call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
+              if (prgnam(1:3) .eq. 'LMF') then
+                call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
      .      // '%b %b' , strn , scrwid , 0 , 0 )
 
-            if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-          endif
+                if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
+              endif
 
 c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
-          ltmp = prgnam.eq.'LM'   .or. 
+              ltmp = prgnam.eq.'LM'   .or. 
      .    prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
      .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
      .    prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
 
-          if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
+              if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
      .    // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
      .    // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
      .    // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
@@ -1939,11 +1911,11 @@ c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull)
      .    , isw ( v_sbz%fsmom .ne.0 ) )
 
 
-   90   continue
-      endif
+   90       continue
+          endif
 
 C --- Sanity checks and other initialization ---
-      if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
+          if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
      .) call rx ( 'inconsistent DOS options' )
 
 C$$$Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
@@ -1959,97 +1931,97 @@ C$$$     . , 'Stoner not compatible with ADNF' )
 
 C --- takao embed contents in susite here. This is only for lmf and lmfgw.
 c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
-      seref = 0d0
-      do ib = 1, nsite
+          seref = 0d0
+          do ib = 1, nsite
 ckino Jan.04.2012:          ispec = v_ssite(ib)%spec
-        ispec = v_ssite(ib)%spec
-        if (ispec <= 0) cycle
+            ispec = v_ssite(ib)%spec
+            if (ispec <= 0) cycle
 c         call spacks_copy('u',sspec(i)%name,i,i,spid,ispec)
 c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
 ckino Jan.04.2012:          v_ssite(ispec)%clabel = v_sspec(ispec)%name
 ckino Jan.04.2012:          v_ssite(ispec)%clabel = v_sspec(ispec)%name
-        v_ssite(ispec)%clabel = v_sspec(ispec)%name
+            v_ssite(ispec)%clabel = v_sspec(ispec)%name
 ckino Jan.04.2012:          seref = seref +     v_sspec(ispec)%eref
-        seref = seref +     v_sspec(ispec)%eref
-      enddo
-      v_sham%seref=seref
+            seref = seref +     v_sspec(ispec)%eref
+          enddo
+          v_sham%seref=seref
 c
 ckino Dec.14.2011:         allocate(rv_p_opos(abs(3*nsite)))
 ckino Jan.04.2012:         allocate(v_slat%rv_p_opos(abs(3*nsite)))
-       allocate(v_slat%rv_a_opos(abs(3*nsite)))
+          allocate(v_slat%rv_a_opos(abs(3*nsite)))
 ckino Dec.14.2011:         if (3*nsite<0) rv_p_opos(:)=0.0d0
 ckino Jan.04.2012:         if (3*nsite<0) v_slat%rv_p_opos(:)=0.0d0
-       if (3*nsite<0) v_slat%rv_a_opos(:)=0.0d0
+          if (3*nsite<0) v_slat%rv_a_opos(:)=0.0d0
 
 ckino Dec.14.2011:         allocate(iv_p_oips(abs(nsite)))
 ckino Dec.28.2011:         allocate(v_sarry%iv_p_oips(abs(nsite)))
-       if (allocated(v_sarry%iv_a_oips)) deallocate(v_sarry%iv_a_oips)
-       allocate(v_sarry%iv_a_oips(abs(nsite)))
+          if (allocated(v_sarry%iv_a_oips)) deallocate(v_sarry%iv_a_oips)
+          allocate(v_sarry%iv_a_oips(abs(nsite)))
 ckino Dec.14.2011:         if (nsite<0) iv_p_oips(:)=0
 ckino Dec.28.2011:         if (nsite<0) v_sarry%iv_p_oips(:)=0
-       if (nsite<0) v_sarry%iv_a_oips(:)=0
+          if (nsite<0) v_sarry%iv_a_oips(:)=0
 
-      do i_spackv=1,nsite
-        i_copy_size=3
-ckino Jan.04.2012:           call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
-         call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
-ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+          do i_spackv=1,nsite
+            i_copy_size=3
+ckino Jan.04.2012:           call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos
+            call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos
+ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos )
 ckino Jan.04.2012:       .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_p_opos ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos )
 
-        i_copy_size=1
-ckino Jan.04.2012:           call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
-         call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
-ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
+            i_copy_size=1
+ckino Jan.04.2012:           call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec
+            call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec
+ckino Dec.14.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips )
 ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_p_oips ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips ) 
+     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips )
 
-      enddo
-ckino Dec.14.2011:         v_slat%rv_p_opos => rv_p_opos 
+          enddo
+ckino Dec.14.2011:         v_slat%rv_p_opos => rv_p_opos
 
-ckino Dec.14.2011:         v_sarry%rv_p_opos => rv_p_opos 
+ckino Dec.14.2011:         v_sarry%rv_p_opos => rv_p_opos
 ckino Jan.04.2012:          v_sarry%rv_p_opos => v_slat%rv_p_opos
 
-ckino Dec.14.2011:         v_sarry%iv_p_oips => iv_p_oips 
+ckino Dec.14.2011:         v_sarry%iv_p_oips => iv_p_oips
 
 
 
 c       v_sham%lham=(int(v_sctrl%lham))
 
-      if (procid .eq. master) then
-        if (iprint() .ge. 20) then
-          if (lstsym .eq. 1) then
-            call upacks('strn symg',i,j)
-            write(stdo,357) sstrn(i:j)
-  357       format(/' Automatic symmetry finder turned off.  Use: ',a)
-          elseif (lstsym .eq. 2) then
-            write(stdo,358)
-  358       format(/' Symmetry operations suppressed')
+          if (procid .eq. master) then
+            if (iprint() .ge. 20) then
+              if (lstsym .eq. 1) then
+                call upacks('strn symg',i,j)
+                write(stdo,357) sstrn(i:j)
+  357           format(/' Automatic symmetry finder turned off.  Use: ',a)
+              elseif (lstsym .eq. 2) then
+                write(stdo,358)
+  358           format(/' Symmetry operations suppressed')
+              endif
+            endif
           endif
-        endif
-      endif
 C     Broadcast spec structure to fix floating orbitals case
 cki      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
-       do i_spec=1,nspec
+          do i_spec=1,nspec
 ckino Jan.04.2012:         call mpibc1_s_spec(v_sspec(i_spec),.false.,
-       call mpibc1_s_spec(v_sspec(i_spec),.false.,
+            call mpibc1_s_spec(v_sspec(i_spec),.false.,
      .'rdctrl','sspec')
-       enddo
-       
+          enddo
+
 
 C --- Debugging printout ---
-      if (io_help == 0 .and. io_show > 1) then
-        print *, '---------- contents of sstrn ------------'
-        call upacks('strn amix',i,j)
-        print *, 'amix:', sstrn(i:j)
-        call upacks('strn mix',i,j)
-        print *, 'mix:', sstrn(i:j)
+          if (io_help == 0 .and. io_show > 1) then
+            print *, '---------- contents of sstrn ------------'
+            call upacks('strn amix',i,j)
+            print *, 'amix:', sstrn(i:j)
+            call upacks('strn mix',i,j)
+            print *, 'mix:', sstrn(i:j)
 c        call upacks('strn gfopt',i,j)
 c        print *, 'gfopt:', sstrn(i:j)
 c        call upacks('strn mmham',i,j)
 c        print *, 'mmham:', sstrn(i:j)
-        call upacks('strn symg',i,j)
-        print *, 'symg:', sstrn(i:j)
+            call upacks('strn symg',i,j)
+            print *, 'symg:', sstrn(i:j)
 c        call upacks('strn sxopt',i,j)
 c        print *, 'sxopt:', sstrn(i:j)
 
@@ -2069,11 +2041,11 @@ C$$$        call shstru('str',v_sstr,0,0)
 C$$$        call shstru('tb',v_stb,0,0)
 C$$$        call shstru('spec',v_sspec,1,nspec)
 C$$$        call shstru('site',v_ssite,1,nsite)
-        call rx0('done show')
+            call rx0('done show')
 
-      endif
+          endif
 c      call rx0('done')
-      end subroutine rdctrl2
+          end subroutine rdctrl2
 
 C      subroutine string_replace(rcd,aaa,bbb)
 C      character*(*):: rcd,aaa,bbb
@@ -2085,4 +2057,4 @@ Cc      print *,'nrecsnrecs',ii, '!'//rcd(ii:ii+aaalen-1)//'!'
 C      rcd(ii:ii+lenaaa-1)=bbb
 C      end
 C
-      end module m_rdctrl2_func
+          end module m_rdctrl2_func
