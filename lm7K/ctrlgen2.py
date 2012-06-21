@@ -505,10 +505,13 @@ if(len(listspec)==0):
 else:
     zspec=True
     for ils in listspec:
-        specname=ils.split('ATOM=')[1].split(' ')[0]
-        specz=ils.split('Z=')[1].split(' ')[0]
-        spec2z[specname]=specz
-        print ils,specname,specz
+        atomsss=ils.split('ATOM=')
+        print len(atomsss),atomsss
+        if(len(atomsss)>1):
+            specname=atomsss[1].split(' ')[0]
+            specz=ils.split('Z=')[1].split(' ')[0]
+            spec2z[specname]=specz
+            print ils,specname,specz
 #print spec2z
 #sys.exit()
 
@@ -541,6 +544,7 @@ for ispec in uniq(sitename):
         rrr = float(getdataa( dicatom[speckey],'R='))/0.529177*r_mul_val
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
+        if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
     except:
         aaa= '    ATOM='+ispec +' Z='+ z +' R= and so on are not yet in atomlist xxxxx'
         specsec= specsec + aaa +'\n'

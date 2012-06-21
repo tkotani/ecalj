@@ -1457,6 +1457,7 @@ c            print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
             allocate(pnudefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp))
             pnudefault=0d0
             qnudefault=0d0
+            qnudummy=0d0
             iqnu=1
             if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
             call defpq(z(j),lmxaj,1,pnudefault,qnudefault)  ! qnu is given here for default pnu.
@@ -1509,10 +1510,7 @@ c             print *,'qnu=',lx,qnu(lx+1,1,j)
                 endif
               endif
             enddo
-
-
           endif
-
 
           i0 = 1
           if (z(j) .le. 8) i0 = 0
