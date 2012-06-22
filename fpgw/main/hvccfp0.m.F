@@ -700,12 +700,12 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       endif
 !! === open file Vcoud ===
 !! This contains E(\nu,I), given in PRB81,125102
-        ifvcoud = iopen('Vcoud',0,-1,0)
+      ifvcoud = iopen('Vcoud',0,-1,0)
 
 !! == main loop for iqx ==
       do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
-       write(*,"('#### do 1001 start iqx=',i5)")iqx
-       if(iqx > nqibz) then  !       iq = 1
+        write(*,"('#### do 1001 start iqx=',i5)")iqx
+        if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
           qq = 0d0
         else                  !       iq = iqx
@@ -1075,7 +1075,7 @@ c          nmx = 15
           write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
 
 !! === save zz === apr2012takao
-c          if( newaniso().and.iqx==1 ) then 
+c          if( newaniso().and.iqx==1 ) then
 c            if(sum(q**2)>1d-10) then
 c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
 c            endif
@@ -1092,10 +1092,10 @@ c$$$        do iy=1,ngb
 c$$$          aaaa=  sum(  dconjg(zz(1:ngb,ix))*matmul( oox,zz(1:ngb,iy))  )
 c$$$           if(ix==iy .and.  abs(aaaa-1d0) >1d-8 ) then
 c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif  
+c$$$           endif
 c$$$           if(ix/=iy .and.  abs(aaaa) >1d-8 ) then
 c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif  
+c$$$           endif
 c$$$        enddo
 c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1122,7 +1122,7 @@ c          qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
 c          write(6,'(" --- vcoul(exact) xxx =",d14.6," absq2=",d24.16)')
 c     &    fpi*voltot/(sum(tpiba**2*(qqx(1:3)**2)-eee))
 c     &             , (sum(tpiba**2*(qqx(1:3)**2)-eee))
-c          write(6,'(" --- vcoul(cal ) xxx =",2d14.6)') 
+c          write(6,'(" --- vcoul(cal ) xxx =",2d14.6)')
 c     &    sum( dconjg(zz(1:ngb,igc))*matmul( vcoul0,zz(1:ngb,igc)) )*voltot
 c          enddo
 cccccccccccccccccccccccccccccccccccccccccc

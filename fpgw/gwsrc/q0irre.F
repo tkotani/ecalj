@@ -35,10 +35,10 @@
       volinv  = (2*pi)**3/vol
       wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
 
-!! ==== discrete sum (except q=0) of auxially functions ==== 
+!! ==== discrete sum (except q=0) of auxially functions ====
       do iq = 2,nnn ! omit q=0 point iq=1
         call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
-     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq)) 
+     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq))
 c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
       enddo
       do lm=1,(lx+1)**2
@@ -65,7 +65,7 @@ C========== version 1 ==============
       integer :: nq0x,ngrp,nq0i,ik,i,j,ig,ix,ixx,jk,ixxin
       real(8) :: q0x(1:3,nq0x),q0i(1:3,nq0i),symops(3,3,ngrp),sym(3,3),q0xoi(3,nq0x)
       real(8) :: epinv(3,3,nq0x),emat(3,3),qr(3),fac,qnorm,wq0i(nq0x)
-      real(8),allocatable:: epinv_(:,:,:) 
+      real(8),allocatable:: epinv_(:,:,:)
 
       integer,parameter:: nxxx=9
       real(8):: zzz(nxxx,nxxx),UU(nxxx,nxxx),VT(nxxx,nxxx)
@@ -74,16 +74,16 @@ C========== version 1 ==============
 !! Generate invariant tensor for each q0x
       write(*,*) ' diele_invariant: nq0x=',nq0x
       allocate(epinv_(3,3,nq0x))
-      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ngrp= ===',ngrp 
+      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ngrp= ===',ngrp
       epinv_= 0d0
       do ik=1,nq0x
         do ig = 1,ngrp
           sym = symops(:,:,ig)
           qr=matmul(sym,q0x(:,ik))
           do i=1,3
-          do j=1,3
-            epinv_(i,j,ik) = epinv_(i,j,ik) + qr(i)*qr(j)
-          enddo  
+            do j=1,3
+              epinv_(i,j,ik) = epinv_(i,j,ik) + qr(i)*qr(j)
+            enddo
           enddo
 c          write(*,"(i20,3f19.14)")ig,epinv_(1,:,ik)
 c          write(*,"(i20,3f19.14)")ig,epinv_(2,:,ik)
@@ -98,16 +98,16 @@ c          write(*,*)
       enddo
 
 !! obtain independent epsinv_
-      write(*,*)'  === epinv: invariant tensor ===' 
+      write(*,*)'  === epinv: invariant tensor ==='
       epinv=0d0
       ixx=0
       do ik=1,nq0x
         ixxin=ixx
         call gsorth(9,ixx,epinv,epinv_(:,:,ik))
         if(ixx==ixxin+1) then
-         q0i(:,ixx)=q0x(:,ik)
-        endif 
-      enddo  
+          q0i(:,ixx)=q0x(:,ik)
+        endif
+      enddo
 c      do i=1,ixx
 c        write(6,"('epinv=',i3,9f9.4)")i,epinv(:,:,i)
 c      enddo
@@ -122,7 +122,7 @@ c$$$          fac= epinv_(1,1,ik)/epinv(1,1,ix)
 c$$$          if( sum(abs(epinv_(:,:,ik)-fac*epinv(:,:,ix))) < 1d-6*sum(abs(epinv_(:,:,ik))) ) then
 c$$$            goto 990
 c$$$          endif
-c$$$        enddo  
+c$$$        enddo
 c$$$        ixx=ixx+1
 c$$$        q0i(:,ixx)=q0x(:,ik)
 c$$$        qnorm=sum(q0x(:,ik)* matmul(epinv_(:,:,ik),q0x(:,ik)))/sum(q0x(:,ik)**2)
@@ -131,24 +131,24 @@ c$$$c        print *,' epinv=',epinv_(:,:,ik)
 c$$$        epinv(:,:,ix)=epinv_(:,:,ik)/qnorm
 c$$$  990   continue
 c$$$        wq0i(ix)=wq0i(ix)+1d0/nq0x
-c$$$      enddo  
+c$$$      enddo
 c$$$      nq0i = ixx
 
-!! clean zero 
+!! clean zero
       do ik = 1,nq0i
-         do i=1,3
-           if(abs(q0i(i,ik))<1d-6) then
-             q0i(i,ik)=0d0
-           endif 
-         enddo
-         do i=1,3
-         do j=1,3
-           if(abs(epinv(i,j,ik))<1d-6) then
-            epinv(i,j,ik)=0d0
-           endif 
-         enddo
-         enddo
-      enddo  
+        do i=1,3
+          if(abs(q0i(i,ik))<1d-6) then
+            q0i(i,ik)=0d0
+          endif
+        enddo
+        do i=1,3
+          do j=1,3
+            if(abs(epinv(i,j,ik))<1d-6) then
+              epinv(i,j,ik)=0d0
+            endif
+          enddo
+        enddo
+      enddo
 !!
       do ik=1,nq0i
         write(*,"(3d22.14)")epinv(1,:,ik)
@@ -157,14 +157,14 @@ c$$$      nq0i = ixx
         write(*,*)
       enddo
       do ik=1,nq0i
-      do jk=1,nq0i
-        sij=sum(epinv(:,:,ik)*epinv(:,:,jk))
-        if(ik==jk) sij=sij-1d0
-        if(abs(sij)>1d-10) then
-          write(*,"(2i3,3d22.14)")ik,jk,sij
-          stop 'epsinv_invariant: epsinv are not normalized'
-        endif
-      enddo
+        do jk=1,nq0i
+          sij=sum(epinv(:,:,ik)*epinv(:,:,jk))
+          if(ik==jk) sij=sij-1d0
+          if(abs(sij)>1d-10) then
+            write(*,"(2i3,3d22.14)")ik,jk,sij
+            stop 'epsinv_invariant: epsinv are not normalized'
+          endif
+        enddo
       enddo
       end
 
@@ -190,7 +190,7 @@ c       enddo
 ccccccccc
       irr=0
       if(ltrans) then
-       platt=transpose(plat)
+        platt=transpose(plat)
       endif
 
       wt=0d0
@@ -209,7 +209,7 @@ c            wt(ix) = wt(ix)+wt0(i)
         enddo
  980    continue
       enddo
-!!        
+!!
       do i = 1,nx06
         qt = q0(:,i)
 
@@ -228,13 +228,13 @@ c         if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-10) then
 c             write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
 c             write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
 c              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
-              wt(ix) = wt(ix)+wt0(i)
-              goto 990
-              endif  
+                wt(ix) = wt(ix)+wt0(i)
+                goto 990
+              endif
             else
               if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-6) then !2000 Nov.
-              wt(ix) = wt(ix)+wt0(i)
-              goto 990
+                wt(ix) = wt(ix)+wt0(i)
+                goto 990
               endif
             endif
           enddo
@@ -934,7 +934,7 @@ c      end
       real(8)::rrr(n)
       complex(8)::zzz(n)
       do i=1,n
-         zzz(i)=rrr(i)
+        zzz(i)=rrr(i)
       enddo
       end
 
@@ -955,4 +955,4 @@ c      aset(:,mx)=bout
       aset(:,mx)=bout/sqrt(sum(bout**2))
 c      print *,' mx bout=',mx,bout
       end
-      
+

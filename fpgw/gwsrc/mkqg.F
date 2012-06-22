@@ -43,7 +43,7 @@ c      logical :: readgwinput
       logical :: qreduce ,qreduce0 ,ibzqq
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:),qbzrr(:,:)
       integer:: imx,ifinin,il,nq0i0,ni,nq0i00,imx0
-      integer,allocatable :: ndiv(:),ngvecprev(:,:,:)
+      integer,allocatable :: ndiv(:),ngvecprev(:,:,:),ngveccrev(:,:,:)
 
       real(8):: ddq(3)
       logical :: offmesh=.false. ,offmeshg=.false.
@@ -52,7 +52,7 @@ c      logical :: readgwinput
 
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
-      integer(4):: nany,ifqpnt,ret,imxc,nnn3(3)
+      integer(4):: nany,ifqpnt,ret,imxc,nnn3(3),imx0c
       real(8):: deltaq,delta5,delta8,deltaq_scale=.1d0
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
@@ -303,39 +303,39 @@ c          nq0x = 8*abs (q0pchoice())
           print *,' TestNoQ0P=.true. '
           nq0i=0
         else
-         nmm=1
-         if(.not.timereversal()) nmm=2
-         allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm),norq0x(nq0x))
+          nmm=1
+          if(.not.timereversal()) nmm=2
+          allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm),norq0x(nq0x))
 ctakao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         if(newaniso() ) then
-          pi=4d0*atan(1d0)
-          deltaq=deltaq_scale*alat/(2*pi) !dq is 0.01 a.u.
-          if(nq00ix==3) then
-           nq00i=3
+          if(newaniso() ) then
+            pi=4d0*atan(1d0)
+            deltaq=deltaq_scale*alat/(2*pi) !dq is 0.01 a.u.
+            if(nq00ix==3) then
+              nq00i=3
 c           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
 c           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
 c           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
-           q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
-           q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
-           q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
-          elseif(nq00ix==6) then
+              q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
+              q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
+              q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
+            elseif(nq00ix==6) then
 !! six independent direction is required to calculate full dielectric matrix (symmetric -->six components).
-           nq00i=6
-           q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
-           q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
-           q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
-           norq0x(1)=sqrt(sum(q0x(:,1)**2))
-           norq0x(2)=sqrt(sum(q0x(:,2)**2))
-           norq0x(3)=sqrt(sum(q0x(:,3)**2))
-           q0x(:,4)= (q0x(:,1)-q0x(:,2))/2d0
-           q0x(:,5)= (q0x(:,2)-q0x(:,3))/2d0
-           q0x(:,6)= (q0x(:,3)-q0x(:,1))/2d0
-           norq0x(4)=sqrt(sum(q0x(:,4)**2))
-           norq0x(5)=sqrt(sum(q0x(:,5)**2))
-           norq0x(6)=sqrt(sum(q0x(:,6)**2))
-           q0x(:,4)= (q0x(:,1)-q0x(:,2))/norq0x(4)*(norq0x(1)+norq0x(2))/2d0
-           q0x(:,5)= (q0x(:,2)-q0x(:,3))/norq0x(5)*(norq0x(2)+norq0x(3))/2d0
-           q0x(:,6)= (q0x(:,3)-q0x(:,1))/norq0x(6)*(norq0x(3)+norq0x(1))/2d0
+              nq00i=6
+              q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale
+              q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale
+              q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale
+              norq0x(1)=sqrt(sum(q0x(:,1)**2))
+              norq0x(2)=sqrt(sum(q0x(:,2)**2))
+              norq0x(3)=sqrt(sum(q0x(:,3)**2))
+              q0x(:,4)= (q0x(:,1)-q0x(:,2))/2d0
+              q0x(:,5)= (q0x(:,2)-q0x(:,3))/2d0
+              q0x(:,6)= (q0x(:,3)-q0x(:,1))/2d0
+              norq0x(4)=sqrt(sum(q0x(:,4)**2))
+              norq0x(5)=sqrt(sum(q0x(:,5)**2))
+              norq0x(6)=sqrt(sum(q0x(:,6)**2))
+              q0x(:,4)= (q0x(:,1)-q0x(:,2))/norq0x(4)*(norq0x(1)+norq0x(2))/2d0
+              q0x(:,5)= (q0x(:,2)-q0x(:,3))/norq0x(5)*(norq0x(2)+norq0x(3))/2d0
+              q0x(:,6)= (q0x(:,3)-q0x(:,1))/norq0x(6)*(norq0x(3)+norq0x(1))/2d0
 c           q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
 c           q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
 c           q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
@@ -349,65 +349,65 @@ c           q0x(:,3)=(/0d0,    0d0, deltaq/)
 c           q0x(:,4)=(/0d0,   deltaq, deltaq/)
 c           q0x(:,5)=(/deltaq, 0d0,   deltaq/)
 c           q0x(:,6)=(/deltaq,deltaq, 0d0/)
-          elseif(nq00ix==12) then
+            elseif(nq00ix==12) then
 !! spherical design des.3.12.5
 !! des.3.12.5
-          nq00i=12
-          delta8=0.850650808352d0*deltaq
-          delta5=0.525731112119d0*deltaq
-          q0x(:,1)=(/delta8, 0d0, -delta5/)
-          q0x(:,2)=(/delta5, -delta8, 0d0/)
-          q0x(:,3)=(/0d0,-delta5, delta8/)
+              nq00i=12
+              delta8=0.850650808352d0*deltaq
+              delta5=0.525731112119d0*deltaq
+              q0x(:,1)=(/delta8, 0d0, -delta5/)
+              q0x(:,2)=(/delta5, -delta8, 0d0/)
+              q0x(:,3)=(/0d0,-delta5, delta8/)
 
-          q0x(:,4)=(/delta8, 0d0, delta5/)
-          q0x(:,5)=(/-delta5,-delta8,0d0/)
-          q0x(:,6)=(/0d0,delta5,-delta8/)
+              q0x(:,4)=(/delta8, 0d0, delta5/)
+              q0x(:,5)=(/-delta5,-delta8,0d0/)
+              q0x(:,6)=(/0d0,delta5,-delta8/)
 
-          q0x(:,7)=(/-delta8,0d0,-delta5/)
-          q0x(:,8)=(/-delta5,delta8,0d0/)
-          q0x(:,9)=(/0d0,delta5,delta8/)
+              q0x(:,7)=(/-delta8,0d0,-delta5/)
+              q0x(:,8)=(/-delta5,delta8,0d0/)
+              q0x(:,9)=(/0d0,delta5,delta8/)
 
-          q0x(:,10)=(/-delta8,0d0,delta5/)
-          q0x(:,11)=(/delta5,delta8,0d0/)
-          q0x(:,12)=(/0d0,-delta5,-delta8/)
-          else
-             stop 'mkqg: not implemented nq00i'
-          endif
+              q0x(:,10)=(/-delta8,0d0,delta5/)
+              q0x(:,11)=(/delta5,delta8,0d0/)
+              q0x(:,12)=(/0d0,-delta5,-delta8/)
+            else
+              stop 'mkqg: not implemented nq00i'
+            endif
 ccccccccccccccccccccccccccccc
-          do i=1,nq00i
-             write(*,'(" initial q0x=",i3,3f9.3)')i,q0x(:,i)
-          enddo   
+            do i=1,nq00i
+              write(*,'(" initial q0x=",i3,3f9.3)')i,q0x(:,i)
+            enddo
 ccccccccccccccccccccccccccccc
 
 
 !! ...  invariante dielectoric tensor.
-          allocate(epinv(3,3,nq0x))
-          call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
+            allocate(epinv(3,3,nq0x))
+            call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
 c          call diele_invariant_bk(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
 
 !! == To convert invariant tensor on YL representation (Y00 and Y2m) ==
-          lmxax=1
-          allocate( cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2) )
-          allocate( matxxl(3,3,(2*lmxax+1)**2) )
-          call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
-          xyz2lm( 2)=-1 !y
-          xyz2lm( 3)= 0 !z
-          xyz2lm( 1)= 1 !x
+            lmxax=1
+            allocate( cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2) )
+            allocate( matxxl(3,3,(2*lmxax+1)**2) )
+            call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg)
+            xyz2lm( 2)=-1 !y
+            xyz2lm( 3)= 0 !z
+            xyz2lm( 1)= 1 !x
 !! matxxl(i,j,L) = \int d\Omega x_i x_j  Y_L(\Omega), where x_i are nomlized.
-          do i=1,3
-          do j=1,3
-            matxxl(i,j,:) = cg(xyz2lm(i)+3,xyz2lm(j)+3,:)*4d0*pi/3d0 
-                               !sqrt(4*pi/3) comes from normalization of Y_l=1.
-          enddo
-          enddo
+            do i=1,3
+              do j=1,3
+                matxxl(i,j,:) = cg(xyz2lm(i)+3,xyz2lm(j)+3,:)*4d0*pi/3d0
+                !sqrt(4*pi/3) comes from normalization of Y_l=1.
+              enddo
+            enddo
 !! epinv is expanded as
 !!   <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat)
-          allocate(dmlx(nq0i,9))
-          do iq0i=1,nq0i
-          do lx=1,9 
-            dmlx(iq0i,lx)=sum(epinv(:,:,iq0i)*matxxl(:,:,lx))
-          enddo
-          enddo
+            allocate(dmlx(nq0i,9))
+            do iq0i=1,nq0i
+              do lx=1,9
+                dmlx(iq0i,lx)=sum(epinv(:,:,iq0i)*matxxl(:,:,lx))
+              enddo
+            enddo
 c$$$!! check xxxxxxxxxxxxxxxxxxxx
 c$$$          do lx=5,9
 c$$$             do i=2,4
@@ -442,34 +442,34 @@ c$$$          enddo
 
 !! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
 !! ===== generate YL for a test vector rrr (rrr is ehat above).=====
-          lx=2
-          allocate(cy((lx+1)**2),yl((lx+1)**2))
-          call sylmnc(cy,lx)
-          rrr=(/.5d0,-.1d0,-0.7d0/) !test data
-          rrr=rrr/sqrt(sum(rrr**2))
-          call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+            lx=2
+            allocate(cy((lx+1)**2),yl((lx+1)**2))
+            call sylmnc(cy,lx)
+            rrr=(/.5d0,-.1d0,-0.7d0/) !test data
+            rrr=rrr/sqrt(sum(rrr**2))
+            call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
 !! ===== check (rrr*emat*rrr = sum(dmlx* YL)
 c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm) ;   enddo
-          write(*,*)
-          write(*,"(  ' test: r=',3f10.5)") rrr
+            write(*,*)
+            write(*,"(  ' test: r=',3f10.5)") rrr
 
 !!
-          do iq0i=1,nq0i
-            write(*,"(' test: ylm   expansion=',i3,f10.5)") iq0i,sum(dmlx(iq0i,:)*cy(:)*yl(:))
-            emat=epinv(:,:,iq0i)
-            write(*,"(' test: epinv expansion=',i3,f10.5)") iq0i,sum(rrr*matmul(emat,rrr))
-          enddo  
-          write(*,*)
-          allocate( epinvq0i(nq0i,nq0i))
-          do i=1,nq0i
-          do j=1,nq0i  !epinvq0i= <q0i/|q0i|| epinv(:,:,iq0j)|q0i/|q0i|>
-            epinvq0i(i,j) = sum( q0i(:,i)* matmul(epinv(:,:,j),q0i(:,i)))/sum(q0i(:,i)**2)
+            do iq0i=1,nq0i
+              write(*,"(' test: ylm   expansion=',i3,f10.5)") iq0i,sum(dmlx(iq0i,:)*cy(:)*yl(:))
+              emat=epinv(:,:,iq0i)
+              write(*,"(' test: epinv expansion=',i3,f10.5)") iq0i,sum(rrr*matmul(emat,rrr))
+            enddo
+            write(*,*)
+            allocate( epinvq0i(nq0i,nq0i))
+            do i=1,nq0i
+              do j=1,nq0i  !epinvq0i= <q0i/|q0i|| epinv(:,:,iq0j)|q0i/|q0i|>
+                epinvq0i(i,j) = sum( q0i(:,i)* matmul(epinv(:,:,j),q0i(:,i)))/sum(q0i(:,i)**2)
 c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
-          enddo
-          enddo
-          lxklm=6
-          allocate(wklm((lxklm+1)**2))
-          call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,
+              enddo
+            enddo
+            lxklm=6
+            allocate(wklm((lxklm+1)**2))
+            call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,
      o      wklm)
 c          do i=1,(lxklm+1)**2
 c            write(6,'(" mkqg: i Wklm=",i3,f9.4)')i,wklm(i)
@@ -477,22 +477,22 @@ c          enddo
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ctest
-       do i=1,(lxklm+1)**2
-         if(abs(wklm(i))>1d-10) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
-       enddo
+            do i=1,(lxklm+1)**2
+              if(abs(wklm(i))>1d-10) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
+            enddo
 !! ==== true integal of auxially function ====
-      volinv  = (2*pi)**3/voltot
-      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
-!! ==== discrete sum (except q=0) of auxially functions ==== 
-      allocate(funa((lxklm+1)**2,nqbz),wsumau((lxklm+1)**2))
-      do iq = 2,nqbz ! omit q=0 point iq=1
-        call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
-     &             ngcx(iq),ngvect(1:3,1:ngcx(iq),iq),lxklm,funa(:,iq)) 
+            volinv  = (2*pi)**3/voltot
+            wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
+!! ==== discrete sum (except q=0) of auxially functions ====
+            allocate(funa((lxklm+1)**2,nqbz),wsumau((lxklm+1)**2))
+            do iq = 2,nqbz ! omit q=0 point iq=1
+              call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
+     &             ngcx(iq),ngvect(1:3,1:ngcx(iq),iq),lxklm,funa(:,iq))
 c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
-      enddo
-  
+            enddo
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! spherical design des.3.12.5 check. Because of angular momentum synsesize, 
+!! spherical design des.3.12.5 check. Because of angular momentum synsesize,
 !! des.3.12.5 gives correct normalization of product up to l=2 (lm<=9)
 c$$$      deallocate(cy,yl,q0x)
 c$$$      nq00i=12
@@ -548,7 +548,7 @@ c$$$        qg2     = sum(qg(1:3)**2)
 c$$$        alpqg2= alp* qg2
 c$$$        call sylm(qg/sqrt(qg2),yl,lxklm,r2s) !spherical factor Y( q+G )
 c$$$        funa(:,iq) = funa(:,iq) + exp(-alpqg2)*(1d0+1/(qg2+5d0))/qg2*cy(:)*yl(:) !cy*yl =Y_L(qg/|qg|)
-c$$$      enddo  
+c$$$      enddo
 c$$$      enddo
 c$$$c what is wtrue???
 c$$$ccccccccccccccccccccccccc
@@ -558,28 +558,28 @@ c$$$c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
 c$$$       if(lm==1) then
 c$$$        write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
 c$$$     &     lm,llxxx(lm),wklm(lm), wtrue00,wklm(lm)+wsumau(lm), wsumau(lm)!,wklm(lm)+wsumau(lm)-wtrue00
-c$$$       else    
+c$$$       else
 c$$$        write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
 c$$$     &     lm,llxxx(lm),wklm(lm), 0d0,  wklm(lm)+wsumau(lm), wsumau(lm)
-c$$$       endif 
-c$$$      enddo  
+c$$$       endif
+c$$$      enddo
 c$$$      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-          ifidmlx = iopen('EPSwklm',0,-1,0)
-          write(ifidmlx) nq0i,lxklm
-          write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
-          write(ifidmlx) wklm
-          ifidmlx = iclose(ifidmlx)
-          deallocate(cy,yl,epinvq0i,dmlx,wklm)
-         else
-          call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
+            ifidmlx = iopen('EPSwklm',0,-1,0)
+            write(ifidmlx) nq0i,lxklm
+            write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
+            write(ifidmlx) wklm
+            ifidmlx = iclose(ifidmlx)
+            deallocate(cy,yl,epinvq0i,dmlx,wklm)
+          else
+            call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
      o         q0x,wt0,nq00i)
 !! ... inequivalent q0x points ...
-          call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,0,irr)
-         endif
-         deallocate(irr)
+            call q0irre(qibz,0,q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt,plat,.false.,0,irr)
+          endif
+          deallocate(irr)
         endif
         write(6,"('i wt q0i=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
 c        print *,' xxxxxxx nq0i=',nq0i
@@ -862,29 +862,33 @@ c      close(ifix)
       if(verbose()>150) 
      &  write(6,*) ' *** q vector in 1st BZ + q0 shift.   ngp ***'
       imx=0
+      imxc=0
       do iq = 1, nqnum
         q = qq(1:3,iq)
         call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
         if(imx0>imx) imx=imx0
-        call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),dummy)
+        call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),imx0c)
+        if(imx0c>imxc) imxc=imx0c
         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
-      print *,' nqi=',nqi 
+      print *,' nqi=',nqi
 !! :nqi:   The number of irreducible points (including irr. of offset points).
 !! ::       We calcualte eigenfunction and Vxc for these points.
 !! :nqnum: total number of q points.
 !! :imx:   to allocate ngvecprev as follows.
       write(ifiqg ) nqnum,ngpmx,QpGcut_psi,nqbz,nqi,imx,nqibz
-      write(ifiqgc) nqnum,ngcmx,QpGcut_cou
+      write(ifiqgc) nqnum,ngcmx,QpGcut_cou,nqbz,nqi,imxc
       print *,'imx nqnum=',imx,nqnum
       write(6,*) ' --- Max number of G for psi =',ngpmx
       write(6,*) ' --- Max number of G for Cou =',ngcmx
 
 !! === Get G vector for given q. ===
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) ) !mar2012takao
+      allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc) ) !mar2012takao
       ngvecprev=9999
+      ngveccrev=9999
       do iq = 1, nqnum
         q = qq(1:3,iq)
         ngp = ngpn(iq)
@@ -903,11 +907,19 @@ c          print *,' ig ngvecp=',ig, nnn3
           ngvecprev( nnn3(1), nnn3(2),nnn3(3)) = ig
         enddo
         write (ifiqg)  ngvecp,ngvecprev !ngvecprev is added on mar2012takao
+
+        do ig = 1,ngc
+          nnn3 = ngvecc(1:3, ig)
+c          print *,' ig ngvecc=',ig, nnn3
+          ngveccrev( nnn3(1), nnn3(2),nnn3(3)) = ig
+        enddo
         write (ifiqgc) q, ngc
-        write (ifiqgc) ngvecc
+        write (ifiqgc) ngvecc,ngveccrev
+c        print *,' iq imxc=',iq,imxc
+c        write (ifiqgc) 
         deallocate(ngvecp,ngvecc)
       enddo
-      deallocate(ngpn,ngcn,ngvecprev)
+      deallocate(ngpn,ngcn,ngvecprev,ngveccrev)
       if(iq0pin==1) deallocate(ngvect)
       if(debug) print *,'end of mkqg'
       end

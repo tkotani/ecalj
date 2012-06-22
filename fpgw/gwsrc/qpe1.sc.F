@@ -118,10 +118,10 @@ c
           fwhm  =  2d0*csec(it,iq) * zfac(it,iq)  !takao multiply zfac  !sf..13May2002
           ehf   =  elda(it,iq) + sex(it,iq)+ sexcore(it,iq) - vxc(it,iq)
 
-          
+
           if(elda(it,iq)<1d20) then
             ehfx = ehf
-            dsenoz = eshift2 
+            dsenoz = eshift2
             if(abs(sex(it,iq))+abs(sexcore(it,iq))+abs(rsec(it,iq))==0d0) then
               dsenoz= 0d0
               ehfx  = 0d0

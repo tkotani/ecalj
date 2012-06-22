@@ -149,11 +149,11 @@ cccccccc
 c         if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <1d-10) then
 c            ikpx=ikp
 c            goto 100
-c          endif  
+c          endif
 !above block to find out ikpx is replaced (even when translational equivalent points)
           lfind=.false.
           if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <tolq) then
-             lfind=.true.
+            lfind=.true.
           else
             call rangedq( matmul(ginv,q(1:3,iq)-qqq(:,ikp)), qx)
             if(sum(abs(qx))< tolq) lfind=.true.
@@ -161,7 +161,7 @@ c          endif
           if(lfind) then
             ikpx=ikp
             goto 100
-          endif  
+          endif
 c
         enddo
         stop ' rsexx: not find ikp'
@@ -350,39 +350,39 @@ c-------------------------------------------------------------------
 !! Get weight for each k-points near 0.
 !! wgt0(irreducible-k, irotation)
       implicit none
-      logical allq0i !if true --> all rot. incl., even equivivalent 
-      !if false -> include only nonequivivalent rot. 
+      logical allq0i !if true --> all rot. incl., even equivivalent
+      !if false -> include only nonequivivalent rot.
       integer(4) :: ixx,ix,i, ngrp,ig,nq0i
       real(8)     :: q0(3,6),q0i(3,6),symops(3,3,ngrp),sym(3,3),
      &  sym2(3,3),qt(3), q0in(3,ngrp*nq0i), wgt0(nq0i,ngrp), wqt(nq0i)
-      wgt0 = 1d0                                                 
+      wgt0 = 1d0
       do i = 1,nq0i
-        ixx = 0                                                   
+        ixx = 0
         qt = q0i(:,i)
 c equivalence check
         do ig = 1,ngrp
           sym = symops(:,:,ig)
-          if (allq0i) then                                        
+          if (allq0i) then
             wgt0 (i,ig)  = wqt(i) /dble(ngrp)
-            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3,f12.5)')'allq0i=T ',i,ig, wgt0(i,ig) 
-          else                                                    
-            do ix = 1,ig-1                                        
-              sym2=symops(:,:,ix)            
+            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3,f12.5)')'allq0i=T ',i,ig, wgt0(i,ig)
+          else
+            do ix = 1,ig-1
+              sym2=symops(:,:,ix)
               if(sum(abs(  matmul(sym2,qt)- matmul(sym,qt)  ))<1d-6) then
                 wgt0(i,ig) = 0d0
-                goto 1111                                       
-              endif                                              
-            enddo                                                 
-            ixx = ixx+1                                            
-          endif                                                   
- 1111     continue                                                
+                goto 1111
+              endif
+            enddo
+            ixx = ixx+1
+          endif
+ 1111     continue
         enddo !ig
-        if (.not. allq0i) then                                    
-          do ig = 1, ngrp                                         
-            wgt0(i,ig) = wgt0(i,ig)*wqt(i)/dble(ixx)              
-            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3, f12.5)')'allq0i=F ',i,ig, wgt0(i,ig)  
-          enddo !ig                                               
-        endif                                                     
+        if (.not. allq0i) then
+          do ig = 1, ngrp
+            wgt0(i,ig) = wgt0(i,ig)*wqt(i)/dble(ixx)
+            if(wgt0(i,ig)/=0d0) write(6,'(a,2i3, f12.5)')'allq0i=F ',i,ig, wgt0(i,ig)
+          enddo !ig
+        endif
       enddo !i
 c      if (abs(sum(wgt0)-1d0) .gt. 1d-8) stop 'q0iwgt3: wrong wgt0'
 c      if (abs(sum(wqt)-1d0) .gt. 1d-8)  stop 'q0iwgt3: wrong wqt'

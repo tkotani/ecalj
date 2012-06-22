@@ -443,13 +443,13 @@ c
 ccccccccccccccccccccccccccccccccc
 
       if(newaniso()) then
-         continue
+        continue
       else
         if(bzcase()==1) then
-        kx = 1  ! qibz(:,1)=0 contribution for kcount
-        if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
+          kx = 1  ! qibz(:,1)=0 contribution for kcount
+          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
         endif
-      endif  
+      endif
 
       if (tote) exxq = 0.d0
 
@@ -498,7 +498,7 @@ c      print *,'dddddddd test iqend=',iqend
 cccccccccccccccccccccccccccccccccccc
 
 !! == Big loop for kx ==
-      do 1100 kx = iqini,iqend 
+      do 1100 kx = iqini,iqend
         print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
         if( kx <= nqibz ) then
           kr = irk(kx,irot) ! index for rotated k in the FBZ
@@ -521,57 +521,57 @@ c        ngc = ngcni(k)  ! k-points in IBZ
 !! ===Readin diagonalized Coulomb interaction===
         if(newaniso()) then
 cccccccccccccccccccccccccccccccccccccccc
-         print *,'ddddddddddddddd qibz_k dddddddd'
+          print *,'ddddddddddddddd qibz_k dddddddd'
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 cooo         qibz_k= qibz(:,kx)
 c          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         if(sum(abs(qxx))<1d-6) then
-          idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
-          ifvcoud = iopen('Vcoud',0,0,0)
-         endif  
-         print *,'uuuuuuuuuuuuuuuu3333333111222 nbloch ngc=',nbloch,ngc
-         do 
-          read(ifvcoud) ngb0
-          read(ifvcoud) qvv
-          print *,'readin qvv=',qvv
-          if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
-          allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
-          read(ifvcoud) vcoud
-          read(ifvcoud) zcousq
-          if(sum(abs(qvv-qxx))<1d-6) goto 1133
-          vcousq=sqrt(vcoud) 
-          deallocate(zcousq,vcousq,vcoud)
-         enddo 
-         if(sum(abs(qvv-qxx))>1d-6) then
-           print *,'qvv =',qvv
-           print *,'qxx=',qxx,kx
-           stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
-         endif   
- 1133    continue
-         if( ngb0/=ngb ) then !sanity check
-         print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
-         stop 'hsfp0.m.f:ngb0/=ngb'
-         endif 
-         print *,'uuuuuuuuuuuuuuuu111222 nbloch ngc=',nbloch,ngc
+          if(sum(abs(qxx))<1d-6) then
+            idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
+            ifvcoud = iopen('Vcoud',0,0,0)
+          endif
+          print *,'uuuuuuuuuuuuuuuu3333333111222 nbloch ngc=',nbloch,ngc
+          do
+            read(ifvcoud) ngb0
+            read(ifvcoud) qvv
+            print *,'readin qvv=',qvv
+            if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
+            allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
+            read(ifvcoud) vcoud
+            read(ifvcoud) zcousq
+            if(sum(abs(qvv-qxx))<1d-6) goto 1133
+            vcousq=sqrt(vcoud)
+            deallocate(zcousq,vcousq,vcoud)
+          enddo
+          if(sum(abs(qvv-qxx))>1d-6) then
+            print *,'qvv =',qvv
+            print *,'qxx=',qxx,kx
+            stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
+          endif
+ 1133     continue
+          if( ngb0/=ngb ) then !sanity check
+            print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
+            stop 'hsfp0.m.f:ngb0/=ngb'
+          endif
+          print *,'uuuuuuuuuuuuuuuu111222 nbloch ngc=',nbloch,ngc
 
 c$$$         if(sum(abs(qibz_k))<1d-6) then
 c$$$          idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
 c$$$          ifvcoud = iopen('Vcoud',0,0,0)
-c$$$         endif  
+c$$$         endif
 c$$$         read(ifvcoud) ngb0
 c$$$          if( ngb0/=ngb ) then
 c$$$            print *,' qibz_k=',qibz_k,ngb0,ngb
 c$$$            print *,' qibz_k=',qibz_k
 c$$$            stop 'hsfp0.m.f:ngb0/=ngb'
-c$$$          endif 
+c$$$          endif
 c$$$         read(ifvcoud) qvv
 c$$$         if(sum(abs(qvv-qibz_k))>1d-6) then
 c$$$           print *,'qvv =',qvv
 c$$$           print *,'qibz_k=',qibz_k,kx
 c$$$           stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
-c$$$         endif   
+c$$$         endif
 c$$$         if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
 c$$$         allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
 c$$$         read(ifvcoud) vcoud
@@ -584,11 +584,11 @@ c$$$         vcousq=sqrt(vcoud) !
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-         if(allocated(ppovl)) deallocate(ppovl,ppovlz)
-         allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-         call readppovl0(qibz_k,ngc,ppovl)
-         ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-         ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) 
+          if(allocated(ppovl)) deallocate(ppovl,ppovlz)
+          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+          call readppovl0(qibz_k,ngc,ppovl)
+          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
         endif
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -599,10 +599,10 @@ c$$$        do iy=1,ngb
 c$$$           aaaa=sum(dconjg(zcousq(:,ix))*ppovlz(:,iy))
 c$$$           if( ix/=iy.and.abs(aaaa) >1d-3 ) then
 c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif  
+c$$$           endif
 c$$$           if( ix==iy.and.abs(aaaa-1) >1d-3 ) then
 c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif  
+c$$$           endif
 c$$$        enddo
 c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -618,10 +618,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c --- exchange
         if(exchange) then
 cccccccccccccccccccccccccccccccc
-        if(testomitq0()) then
-        print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
-        if(allocated(vcoul)) deallocate(vcoul)
-        endif
+          if(testomitq0()) then
+            print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+            if(allocated(vcoul)) deallocate(vcoul)
+          endif
 cccccccccccccccccccccccccccccccc
           read(ifvcfpout) nn !oct2005
           allocate(vcoul(nn,nn))
@@ -652,8 +652,8 @@ c          print *,' kount out =',kount(k,ip)
         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(testomitq0())then
-        print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
-        if(kx==1.or.kx>nqibz) cycle
+          print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+          if(kx==1.or.kx>nqibz) cycle
         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -672,9 +672,9 @@ c      call vminv   (q,qbz(1,kr),3,qk)
         qk =  q - qbz_kr ! qbz(:,kr)
 
 c        if(debug) then
-          write(6,"(' q      =',3f13.5)") q
-          write(6,"(' qbz_kr =',3f13.5)") qbz_kr
-          write(6,"(' qk     =',3f13.5)") qk
+        write(6,"(' q      =',3f13.5)") q
+        write(6,"(' qbz_kr =',3f13.5)") qbz_kr
+        write(6,"(' qk     =',3f13.5)") qk
 c        endif
 
 c bring q-rk into the 1st BZ ==> qfbz labelled by kp
@@ -814,7 +814,7 @@ c-plane
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
-       if(debug)write(6,"('==goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)") qibz_k,ngc
+        if(debug)write(6,"('==goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)") qibz_k,ngc
 
         call drvmelp2( q,   ntp0, ! q in FBZ
      i                 q-qbz_kr, nbmax,  ! q-rk
@@ -824,8 +824,8 @@ c     i                k,          ! k in IBZ for e-product basis
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
      o       rmelt,cmelt)
-      if(debug) write(6,"('--end of drvmelp2 sum(zmelt)=',4d23.16)") sum(zzmel),sum(abs(zzmel))
-      if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
+        if(debug) write(6,"('--end of drvmelp2 sum(zmelt)=',4d23.16)") sum(zzmel),sum(abs(zzmel))
+        if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
 c zmel(I,ij) = dcmplx(rmelt, cmelt) = < psi_i psi^*_j | M_I>
 c oct2005
@@ -969,10 +969,10 @@ c
           endif
         else
           if(kx<= nqibz) then
-           wtt = wk(kr)                   !         wtx = 1d0
+            wtt = wk(kr)                   !         wtx = 1d0
           else
-           wtt = wk(1)*wgt0(kx-nqibz,irot)  !       wtx = wgt0(kx-nqibz,irot)
-         if(abs(wk(1)-1d0/dble(nqbz))>1d-10)stop'sxcf:wk(1)inconsistent'
+            wtt = wk(1)*wgt0(kx-nqibz,irot)  !       wtx = wgt0(kx-nqibz,irot)
+            if(abs(wk(1)-1d0/dble(nqbz))>1d-10)stop'sxcf:wk(1)inconsistent'
           endif
         endif
 
@@ -999,7 +999,7 @@ c            if(bzcase()==2) nrec= (kx-1)*nw+ix
 c            read(ifrcw,rec=nrec) zw  ! Readin W(0) - v
 c            vcoul = vcoul + zw(1:ngb,1:ngb) !c  screen test
 c          endif
-          allocate( zmel(ngb, nctot+nbmax, ntp0), w3p( nctot+nbmax,ntp0)) 
+          allocate( zmel(ngb, nctot+nbmax, ntp0), w3p( nctot+nbmax,ntp0))
           zmel  = dcmplx (rmelt,cmelt)
           if(.not.newaniso()) then
             allocate(vcoult(1:ngb,1:ngb), z1p(ngb,nctot+nbmax,ntp0))
@@ -1013,25 +1013,25 @@ c$$$      if(kx>=2 .and. kx <=nqibz) then !for testxxxxxx
 c$$$          print *,'test skip kx=',kx
 c$$$          do itp = 1,ntp0
 c$$$          do it  = 1,nctot+nbmax
-c$$$            w3p(it,itp) =0d0 
+c$$$            w3p(it,itp) =0d0
 c$$$          enddo
-c$$$          enddo 
+c$$$          enddo
 c$$$          deallocate(vcoult, zmel)
-c$$$      else 
+c$$$      else
 
-         if(newaniso()) then !apr2012takao
+          if(newaniso()) then !apr2012takao
             do itp = 1,ntp0
-            do it  = 1,nctot+nbmax
-             w3p(it,itp) = 0d0 
-             do ivc=1,ngb 
-              if(ivc==1.and.kx==1) then
-                vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)  
-                print *,'wklm(1) wk=',wklm(1),wk(kx)
-              else
-                vc= vcoud(ivc)
-              endif
-              zmelt1 =  sum( zmel(:,it,itp) *ppovlz(:,ivc) )
-              w3p(it,itp) = w3p(it,itp)+ vc * abs(zmelt1)**2
+              do it  = 1,nctot+nbmax
+                w3p(it,itp) = 0d0
+                do ivc=1,ngb
+                  if(ivc==1.and.kx==1) then
+                    vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
+                    print *,'wklm(1) wk=',wklm(1),wk(kx)
+                  else
+                    vc= vcoud(ivc)
+                  endif
+                  zmelt1 =  sum( zmel(:,it,itp) *ppovlz(:,ivc) )
+                  w3p(it,itp) = w3p(it,itp)+ vc * abs(zmelt1)**2
 ccccccccccccccccccccc test cccccccccccccccccccccccc
 c              if(ivc==1) w3p(it,itp) = 0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1051,30 +1051,30 @@ c$$$c     &                        matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,ivc))
 c$$$c     &                        *sqrt(voltot)
 c$$$c                print *,'it itp zmelt0 1 =',it,itq(itp),ekc(it),abs(zmelt0),abs(zmelt0+zmelt1)
 c$$$                print *,'it itp zmelttot =',it,itq(itp),ekc(it),abs(zmelt0)
-c$$$              endif   
 c$$$              endif
-             enddo
+c$$$              endif
+                enddo
+              enddo
             enddo
-            enddo
-         else   
+          else
 c          print *,' nctot nbmax=',nctot,nbmax
-           do itp = 1,ntp0
-           do it  = 1,nctot+nbmax
-              w3p(it,itp) = sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itp)
+            do itp = 1,ntp0
+              do it  = 1,nctot+nbmax
+                w3p(it,itp) = sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itp)
      .                     +      dimag(z1p(:,it,itp))*cmelt(:,it,itp) )
 cccccccccccccccccccccc
-              if(kx>nqibz) then
-              if(abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
-                print *,'zzz: it itp zmelt1 =',it,itq(itp), 
+                if(kx>nqibz) then
+                  if(abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
+                    print *,'zzz: it itp zmelt1 =',it,itq(itp), 
      &          sum( rmelt(1:nbloch,it,itp)**2 + cmelt(1:nbloch,it,itp)**2)
-              endif
-              endif
-cccccccccccccccccccccc  
-           enddo
-           enddo
-           deallocate(z1p)
-         endif   
-         deallocate(zmel)
+                  endif
+                endif
+cccccccccccccccccccccc
+              enddo
+            enddo
+            deallocate(z1p)
+          endif
+          deallocate(zmel)
 
 c DEBUG write
           if(debug) then
@@ -1185,12 +1185,12 @@ c--- The matrix elements zmel.
         print *,'ddddddddddddd original like mode ddddddddddddddddd'
         if(newaniso()) then
           do itp=1,ntp0
-          do it=1,nstate
+            do it=1,nstate
 cooo
-            zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
+              zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
+            enddo
           enddo
-          enddo
-        endif  
+        endif
 
         deallocate(rmelt,cmelt)
         if(debug) print *,' end of zmel'
@@ -1301,7 +1301,7 @@ c          print *,' ix nrec=',ix,niw,nrec
           if(debug) print *,' wvi nrec=',nrec
           read(ifrcwi,rec=nrec) zw  ! Readin W-v on imag axis
 ccccccccccccccccccccccccccccccccccccccc
-        print *,'kkkkkk sumcheck zwi=',kx,sum(abs(zw(1:ngb,1:ngb)))
+          print *,'kkkkkk sumcheck zwi=',kx,sum(abs(zw(1:ngb,1:ngb)))
 ccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccc
 c          write(6,"(' trans =',i4,2d13.6)") ix
@@ -1738,8 +1738,8 @@ c---------------------------------------------
 c-------------------------------
 c loop over w and t in SEc(qt,w)
 c-------------------------------
-       if(debug) print *,' sss ngb, nstate, ntp0=',ngb,nstate,ntp0
-       if(debug) print *,' sss zmel=',sum(abs(zmel(:,:,:)))
+        if(debug) print *,' sss ngb, nstate, ntp0=',ngb,nstate,ntp0
+        if(debug) print *,' sss zmel=',sum(abs(zmel(:,:,:)))
 
         if(verbose()>50) write(*,'("10 wfacx  iw,itp,it cycles ",$)')
         if(verbose()>50) call cputid(0)

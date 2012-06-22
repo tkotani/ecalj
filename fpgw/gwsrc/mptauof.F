@@ -1,61 +1,75 @@
       subroutine eibzsym(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,
-     o qeibz,neibz,nwgt,aik,aiktimer,ngrpt)
+     o qeibz,neibz,nwgt,aik,aiktimereversal,ngrpt,igx)
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
       implicit none
-      integer:: nqibz,ngrp,iqxini,iqxend,iq,ig,igx,neibzx,ieibz,ibz,nwgtsum,itimer,ntimer
-      integer:: ngrpt(iqxini:iqxend),neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),iqx,nqbz,
-     &  aiktimer(2*ngrp,iqxini:iqxend)
+      integer:: nqibz,ngrp,iqxini,iqxend,iq,ig,igxx,neibzx,ieibz,ibz,nwgtsum,itimer,ntimer
+      integer:: ngrpt(iqxini:iqxend),neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),ik,nqbz,
+     &  aiktimereversal(2*ngrp,iqxini:iqxend)
       logical:: timereversal
       real(8):: symgg(3,3,ngrp),qibze(3,iqxini:iqxend),qbz(3,nqbz),qeibz(3,nqbz,iqxini:iqxend),
-     &  aik(3,3,2*ngrp,iqxini:iqxend),q(3),qx(3),qlat(3,3),qdiff(3),ginv(3,3),qxx(3),ddd
+     &  aik(3,3,2*ngrp,iqxini:iqxend),q(3),qx(3),qlat(3,3),qdiff(3),ginv(3,3),qxx(3),ddd,
+     &  qout(3,nqbz,iqxini:iqxend,nqbz),sss(3,3),sumcheck1
+      integer:: igx(nqbz,iqxini:iqxend,nqbz) ! ieibz,iq,iw.
+
+!!    check if  symgg(:,:,1) 
+      sss(1,:)=(/1d0,0d0,0d0/)
+      sss(2,:)=(/0d0,1d0,0d0/)
+      sss(3,:)=(/0d0,0d0,1d0/)
+      sumcheck1= sum(abs(symgg(:,:,1)-sss))
+      if(sumcheck1>1d-8) stop 'eibzsym: symgg(:,:,1) is not E'
+
       write(6,"('eibzsym: TimeReversal ngrp= ',l,i3)") timereversal,ngrp
       nwgt=0
       do iq=iqxini,iqxend
-         q=qibze(:,iq) !q means k in eq.50 of PRB81,125102-9
-         igx=0
-         ntimer=1  
-         if(timereversal) ntimer=-1
-         do itimer=1,ntimer,-2
-         do ig=1,ngrp
-           if(sum(abs(dble(itimer)*matmul(symgg(:,:,ig),q)-q))<1d-8) then
-             igx = igx+1  
-             aik(:,:,igx,iq)=symgg(:,:,ig)
-             aiktimer(igx,iq)=itimer
-           endif
-         enddo
-         enddo
-         ngrpt(iq)=igx
+        q=qibze(:,iq) !q means k in eq.50 of PRB81,125102-9
+        igxx=0
+        ntimer=1
+        if(timereversal) ntimer=-1
+        do itimer=1,ntimer,-2
+          do ig=1,ngrp
+            if(sum(abs(dble(itimer)*matmul(symgg(:,:,ig),q)-q))<1d-8) then
+              igxx = igxx+1
+              aik(:,:,igxx,iq)=symgg(:,:,ig)
+              aiktimereversal(igxx,iq)=itimer
+            endif
+          enddo
+        enddo
+        ngrpt(iq)=igxx
 
-         neibzx=0
-         do ibz=1,nqbz
-           qx = qbz(:,ibz) !q means a candidate of q in EIBZ
-           do ieibz=1,neibzx
-           do igx=1,ngrpt(iq)
-              qdiff= - dble(aiktimer(igx,iq))*matmul(aik(:,:,igx,iq),qx) - qeibz(:,ieibz,iq)  
+        neibzx=0
+        do ibz=1,nqbz
+          qx = qbz(:,ibz) !q means a candidate of q in EIBZ
+          do ieibz=1,neibzx
+            do igxx=1,ngrpt(iq)
+              qdiff= - dble(aiktimereversal(igxx,iq))*matmul(aik(:,:,igxx,iq),qx) - qeibz(:,ieibz,iq)
               call rangedq(matmul(ginv,qdiff), qxx)
               if(sum(abs(qxx))<1d-8) then
                 nwgt(ieibz,iq)=nwgt(ieibz,iq)+1
+                qout(:,ieibz,iq, nwgt(ieibz,iq))=qx
+                igx(ieibz,iq, nwgt(ieibz,iq))=igxx !symmetrizer
                 goto 1012
               endif
-           enddo
-           enddo
-           neibzx = neibzx+1
-           nwgt(neibzx,iq)=1
-           qeibz(:,neibzx,iq)=qx
- 1012      continue
-         enddo   
-         neibz(iq)=neibzx
-         write(6,"('eibz: iq q ngrpt neibz nqbz= ',i3,3f10.4,3i3)") iq,q,ngrpt(iq),neibz(iq),nqbz
-c         do iqx=1,neibz(iq)
-c           write(6,"('      ',i3,3f10.4,i4)") iqx, qeibz(:,iqx,iq),nwgt(iqx,iq)
-c         enddo  
+            enddo
+          enddo
+          neibzx = neibzx+1
+          nwgt(neibzx,iq)=1
+          qeibz(:,neibzx,iq)=qx
+          igx(neibzx,iq,nwgt(ieibz,iq))=1 ! At the beginig of this routine, sumcheck1 shows 1 means E.
+ 1012     continue
+        enddo
+        neibz(iq)=neibzx
+        write(6,"('eibz: iq q ngrpt neibz nqbz= ',i3,3f10.4,3i3)") iq,q,ngrpt(iq),neibz(iq),nqbz
+         do ik=1,neibz(iq)
+           write(6,"('      ',i3,3f10.4,i4,2x,25i3)") ik, qeibz(:,ik,iq),nwgt(ik,iq)
+     &       ,igx(ieibz,iq, 1:nwgt(ik,iq))
+         enddo
       enddo
       nwgtsum = 0
       do iq = iqxini,iqxend
         if(iq>nqibz) cycle
         nwgtsum = nwgtsum + sum(nwgt(1:neibz(iq),iq))
-c        print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
+        print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
       enddo
       print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
      &   sum(neibz(iqxini:iqxend-1)), nwgtsum, nqbz*(iqxend-iqxini+1-1)

@@ -11,24 +11,24 @@ c obtain ntqxx for given q and isp
       real(8):: a,qin(3),ginv(*),qqq(3)
       integer:: isave=0,idummy,i,isp,ntqxx,ifi,ixx,iopen,iclose,indxq,iqindx,ispp,iii
       if(isave==0) then
-         ifi= iopen ('NBANDGW',1,0,0)
-         nn=0
-         do 
-         read(ifi, *,end=1011) a
-         nn=nn+1
-         enddo
- 1011    continue
+        ifi= iopen ('NBANDGW',1,0,0)
+        nn=0
+        do
+          read(ifi, *,end=1011) a
+          nn=nn+1
+        enddo
+ 1011   continue
 
-         rewind ifi
-         allocate(qq(3,nn,2),intqxx(nn,2))
-         do i=1,nn
-           read(ifi, *,end=1011) qqq,ispp,idummy,iii
-           qq(:,i,ispp)   = qqq
-           intqxx(i,ispp) = iii
-           write(6,*) 'xxx: ',i,qq(:,i,ispp),ispp,intqxx(i,ispp)
-         enddo
-         ixx= iclose('NBANDGW')
-         isave=1
+        rewind ifi
+        allocate(qq(3,nn,2),intqxx(nn,2))
+        do i=1,nn
+          read(ifi, *,end=1011) qqq,ispp,idummy,iii
+          qq(:,i,ispp)   = qqq
+          intqxx(i,ispp) = iii
+          write(6,*) 'xxx: ',i,qq(:,i,ispp),ispp,intqxx(i,ispp)
+        enddo
+        ixx= iclose('NBANDGW')
+        isave=1
       endif
 c
       print *,' qin indx=',qin
@@ -44,8 +44,8 @@ c
       integer:: nn,i,ispp(nn),isp
       do i=1,nn
         if(sum( abs(q(:,i)-qin(:)) ) <1d-8 .and. isp==ispp(i) ) then
-           indxq=i
-           return
+          indxq=i
+          return
         endif
       enddo
       stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'

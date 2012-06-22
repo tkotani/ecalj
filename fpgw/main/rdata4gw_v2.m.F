@@ -395,12 +395,12 @@ c
 !     ldim2 ->nRlma
 
 c      if(cphigeigmode) then
-        ificg=421
-        open(ificg,file='CphiGeig',form='unformatted')
+      ificg=421
+      open(ificg,file='CphiGeig',form='unformatted')
 c      else
 c        allocate(
-c     &        geig(ngpmx,  nband, nqtti,nsp), ! Coefficienets of eigenfunction for IPW.  
-c     &        cphi(ldim2, nband, nqtti,nsp) ! Coefficienets of eigenfunction 
+c     &        geig(ngpmx,  nband, nqtti,nsp), ! Coefficienets of eigenfunction for IPW.
+c     &        cphi(ldim2, nband, nqtti,nsp) ! Coefficienets of eigenfunction
 c     &        )
 c      endif
 
@@ -1227,14 +1227,14 @@ c     endif
       do 1200 ikp = 1,nqtti
         if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp
 C... determined nbandx, 1:nbandx is meaningful.
-        nbandx = nband 
+        nbandx = nband
         isp=1
         do iband=1,nband
 c         print *,' iband evl=',iband,evl
           if( evl(iband, ikp, isp )>1d10 ) then  !<--- See lmf2gw.F evl=1d20 when iband> nbandx
-          nbandx=iband-1
-          exit
-        endif
+            nbandx=iband-1
+            exit
+          endif
         enddo
         print *,' nbandx=',nbandx
         write(ifnband,"(2i12)")nbandx,ikp
@@ -1243,7 +1243,7 @@ c         print *,' iband evl=',iband,evl
 c
 c          if(cphigeigmode) then
 c            print *,'xxx1'
-            read(ificg) cphir(1:ldim2,1:nband)
+          read(ificg) cphir(1:ldim2,1:nband)
 c            print *,'xxx2'
 c          else
 c            cphir(:,:) = cphi(:,:, ikp,isp)
@@ -1461,12 +1461,12 @@ c     &        , abs(cphi(ix,iband,ikp,isp))**2
           endif
 c          if(cphigeigmode) then
 c     write(6,*) ' xxx2'
-            geigr(1:ngpmx,1:nband,isp)=0d0
-            read(ificg) ngp
+          geigr(1:ngpmx,1:nband,isp)=0d0
+          read(ificg) ngp
 ccccccccccccccccc
-            print *,'  ikp ngp=',ikp,ngp
+          print *,'  ikp ngp=',ikp,ngp
 ccccccccccccccccc
-            read(ificg) geigr(1:ngp,1:nband,isp)
+          read(ificg) geigr(1:ngp,1:nband,isp)
 c     write(6,*) ' xxx3 '
 
 c          endif
@@ -1520,12 +1520,12 @@ c     write(ifplane) ngvecp, ngvecc, geigr(1:ngp,1:nband,1:nsp)
 c     write(ifgeig) geigr(1:ngpmx,1:nband,isp) !geigr(1:ngp,1:nband,isp)
 cccccccccccccccccccccc
           if(verbose()>40) then
-             write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)') 
+            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)') 
      &       ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
-             do ix=1,nbandx
-               write(6,'("geig sumcheck ",i5,2d13.6)') 
+            do ix=1,nbandx
+              write(6,'("geig sumcheck ",i5,2d13.6)') 
      &         ix,sum(geigr(1:ngp,ix,isp))
-             enddo
+            enddo
           endif
 cccccccccccccccccccccc
         enddo
@@ -1609,7 +1609,7 @@ ccccccccccccccccccccccccccccccc
           deallocate(ppovl)
         endif
 c     nc---------------------------------------------
- 1200 continue 
+ 1200 continue
       print *,' end of eigensection-----'
       print *
 
@@ -1636,7 +1636,7 @@ c$$$                print *,' iqx=', iqx, ngveccf(:,igc,iqx)
 c$$$                stop 'ngveccf(:,iqx)/=ngveccf(:,1)'
 c$$$              endif
 c$$$            enddo
-c$$$          endif  
+c$$$          endif
 c$$$        enddo
 c$$$      endif
 
@@ -1756,11 +1756,11 @@ c     allocate( ppmt (2,ngcmx,(lmxax+1)**2,nbas))
 c     endif
 
       do ix= nqini, nqnumt
-      write(6,"(' qibze= ',3f10.4)") qibze(1:3,ix)
+        write(6,"(' qibze= ',3f10.4)") qibze(1:3,ix)
       enddo
       write(6,*)
       do ix=1,nqtti
-      write(6,"(' qtti  = ',3f10.4)") qtti(1:3,ix)
+        write(6,"(' qtti  = ',3f10.4)") qtti(1:3,ix)
       enddo
 
 
@@ -1773,9 +1773,9 @@ c     write(6,"(3f10.4)") qtti(1:3,ix)
 c     enddo
 ccccccccccccccccccccccccccccccccccccccccccc
         if( iqi <=nqibz.or.ngczero) then !jun2005 ngczero
-         iq = idxk (qibze(1:3,iqi), qtti,nqtti) !feb2012takao
+          iq = idxk (qibze(1:3,iqi), qtti,nqtti) !feb2012takao
         elseif( iqi > nqibz) then !     iq0=0 !iq0 is added on 8/18/2005
-         iq = idxk ((/0d0,0d0,0d0/), qtti,nqtti)! We use the G-vector(for Coul) at q=0 for q0i vector.
+          iq = idxk ((/0d0,0d0,0d0/), qtti,nqtti)! We use the G-vector(for Coul) at q=0 for q0i vector.
         endif
         if(debug) print *,'yyyyy222 nqtti,qx=',qx,iqi,iq
         ngc  = ngcx(iq)
@@ -1809,12 +1809,12 @@ c------------------
      o           ppovl)
         else
 c replaces with mkppovl2 2012may
-c          call mkppovl(alat,plat,qlat, qx, 
-c     &           ngc, ngveccf(1,1,iq), 
+c          call mkppovl(alat,plat,qlat, qx,
 c     &           ngc, ngveccf(1,1,iq),
-c     &           rmax, nbas,  bas, 2*lmxaa, 2*lmxax, ! 
+c     &           ngc, ngveccf(1,1,iq),
+c     &           rmax, nbas,  bas, 2*lmxaa, 2*lmxax, !
 c     o           ppovl)
-        call mkppovl2(alat,plat,qlat, 
+          call mkppovl2(alat,plat,qlat, 
      &        ngc,  ngveccf(1,1,iq ), 
      &        ngc,  ngveccf(1,1,iq), 
      &        nbas, rmax, bas,  

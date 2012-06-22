@@ -10,23 +10,23 @@ Ci ginv is the inverse of plat (premitive translation vector).
 c      print *, ' iqindx2 q=',q
 c      if(isave>nq.or.saveiq()==0) isave=0
       do ig=1,ngrp
-       q=matmul(sym(:,:,ig),qin)
-       if(isave>nq) isave=0
-       do iqx = isave+1,isave+nq
-        if(iqx > nq) then
-          iq = iqx -nq
-        else
-          iq = iqx
-        endif
-        call rangedq(matmul(ginv,q-qq(:,iq)), qx)
-        if(sum(abs(qx))< 1d-6) then
-          iqindx=iq
-          isave =iq
-          qu=qq(:,iq)
+        q=matmul(sym(:,:,ig),qin)
+        if(isave>nq) isave=0
+        do iqx = isave+1,isave+nq
+          if(iqx > nq) then
+            iq = iqx -nq
+          else
+            iq = iqx
+          endif
+          call rangedq(matmul(ginv,q-qq(:,iq)), qx)
+          if(sum(abs(qx))< 1d-6) then
+            iqindx=iq
+            isave =iq
+            qu=qq(:,iq)
 c          print *,"isave=",isave
-          return
-        endif
-       enddo
+            return
+          endif
+        enddo
       enddo
 ! error exit
       write(6,"(' q  =  ',3f13.5,' ginv*q=',3f13.5)")q, matmul(ginv,q)

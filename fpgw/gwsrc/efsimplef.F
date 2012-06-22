@@ -478,10 +478,10 @@ c---------------------------------------------------------------
         do kx = 1, nqbz
 c        call rwdd1 (ifev(isp), kx, nband, ekxxx(1:nband,kx,isp) )
           call readeval(qbz(:,kx), isp,ekxxx(1:nband,kx,isp) )
-         do i=1,nband
-           eee= ekxxx(i,kx,isp) 
-           if(eee>Emax.and.eee<1d9) Emax=eee
-         enddo
+          do i=1,nband
+            eee= ekxxx(i,kx,isp)
+            if(eee>Emax.and.eee<1d9) Emax=eee
+          enddo
         enddo
       enddo
 c      Emax = maxval(ekxxx(1:nband)

@@ -784,7 +784,7 @@ c     loop over spins
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &                 vxcfp(i,ip,is)
               if(eqx(i,ip,is) <1d20.and.vxcfp(i,ip,is)/=0d0) then  !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
-              write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
+                write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &                 '  eig=',f10.4,'  Sxc(LDA)=',f10.4)") 
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
      &                 vxcfp(i,ip,is)
@@ -1257,7 +1257,7 @@ c-------------------------
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &                 hartree*dreal(zsec(i,i,ip)) !sf 21May02
               if( eqx(i,ip,is)<1d20.and.abs(zsec(i,i,ip))/=0d0 ) then  !takao june2009
-              write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
+                write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &                 '  eig=',f10.4,'  Sx=',f10.4)")
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
      &                 hartree*dreal(zsec(i,i,ip)) !sf 21May02

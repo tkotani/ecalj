@@ -105,7 +105,7 @@ c      logical :: ifomit
 c----
       if(ifi>0) then
 c        if(ifomit) then
-          read(ifi)
+        read(ifi)
      &              iclass,lmxa,nr,konf,ncore,
      &              zz,aa,bb,bas,alat,plat,
      &              qtt,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
@@ -157,7 +157,7 @@ c
         write(6,*)'                 =', nphi, nphimx
 
 c        if(ifomit) then
-          write(-ifi)
+        write(-ifi)
      &              iclass,lmxa,nr,konf,ncore,
      &              zz,aa,bb,bas,alat,plat,
      &              qtt,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig

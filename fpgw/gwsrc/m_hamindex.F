@@ -2,7 +2,7 @@
 !! ==index for Hamiltonian !this should be the same as lm7K/fp/m_hamindex.F ==
       implicit none
       integer,parameter:: null=-999999
-      integer:: ngrp=null, lxx=null, kxx=null, norbt=null 
+      integer:: ngrp=null, lxx=null, kxx=null, norbt=null
       integer:: imx=null,nbas,ndimham=null
       integer:: nqtt,nqi, nqnum,ngpmx
       integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)

@@ -71,7 +71,7 @@ c     print *, ' ic lx=',ic, lx(ibas)
               lmb  = lb*lb + lb + mb + 1
 
 cccccccccccccccccc
-      write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
+              write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
 cccccccccccccccccc
 
 c loop over LMTO basis
@@ -243,7 +243,7 @@ c        cgr(lm1,lm2,lm,ig) = sumr
 
 c$$$c-------------------------------------------------------
 c$$$      subroutine drvmelp( iq, ntp0, kp,nt0, k,
-c$$$     i        ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itp0, 
+c$$$     i        ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itp0,
 c$$$     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
 c$$$     i       rmel, cmel, nbloch,noccx,nctot,
 c$$$     o       rmelt,cmelt)
@@ -253,17 +253,17 @@ c$$$c- Contributions to matrix elements <psi |psi Plane> from interstitial plane
 c$$$c  zmelpl
 c$$$c-----------------------------------------------------
 c$$$      implicit none
-c$$$      integer(4):: iq,kp,k,ngp1, ngp2, ngpmx,nqbz,nqibz, 
+c$$$      integer(4):: iq,kp,k,ngp1, ngp2, ngpmx,nqbz,nqibz,
 c$$$     &      ngcmx ,nctot,nband,
 c$$$     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
-c$$$     &             ngvecpB  (3,ngpmx,nqbz),  
+c$$$     &             ngvecpB  (3,ngpmx,nqbz),
 c$$$     &             ngveccBr (3,ngcmx,nqibz), itp0(ntp0),
 c$$$     &     nadd(3),ngpn(nqbz)
 c$$$      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
 c$$$      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
 c$$$     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
-c$$$     &         ,rmel(nbloch,noccx,ntp0) 
-c$$$     &         ,cmel(nbloch,noccx,ntp0) 
+c$$$     &         ,rmel(nbloch,noccx,ntp0)
+c$$$     &         ,cmel(nbloch,noccx,ntp0)
 c$$$     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
 c$$$     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
 c$$$     & ,pi=3.1415926535897932D0
@@ -299,8 +299,8 @@ c$$$      call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
 c$$$     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
 c$$$     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
 c$$$     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c$$$     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-c$$$     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas, 
+c$$$     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
+c$$$     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c$$$     o       zmelpl)
 c$$$c       endif
 c$$$      deallocate(geigq)
@@ -309,9 +309,9 @@ c$$$      cmelt=0d0
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      zmelpl=0d0
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$      rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
+c$$$      rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =
 c$$$     &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-c$$$      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
+c$$$      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =
 c$$$     &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      print *,' !!!!!! NO PLANE WAVE !!!'
@@ -383,7 +383,7 @@ c      geig2=0d0
 c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp1,q,qt      ,sum(abs(
 c     &       geig1(1:ngp1,itp0(1:ntp0)))), ntp0  ! q1=q    ---> iq ngp1 1:ntp0 q-point
 c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp2,q_rk,q_rkt,sum(abs(
-c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
+c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occupied
 cc      allocate( zmelpl(ngc,nt0,ntp0) )
 c      print *,'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -523,7 +523,7 @@ c     &     qrot + matmul(qbas, ngveccBr(1:3, igc, iq)) ))
 c        enddo
 cccccccccccccccc
 ccccccccccccccc
-      if(debug) print *," rotgvec: nmin nmax="
+        if(debug) print *," rotgvec: nmin nmax="
      & ,minval(ngveccBr(1:3, 1:ngcn(iq), iq))
      & ,maxval(ngveccBr(1:3, 1:ngcn(iq), iq))
 ccccccccccccccc
@@ -661,7 +661,7 @@ c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wav
 co zmelp
 cr use PPOVL through getppx in m_read_ppovl
 c-------------------------------------------------
-      use m_read_ppovl
+      use m_read_ppovl,only:getppx, ppx,ngc2,ngvecc2
       implicit none
       integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
      &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
@@ -691,7 +691,6 @@ c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
           geigq1_(itp,ig1)=geigq1(ig1,itp)
         enddo
       enddo
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,' melpln2 old sumcheck ngc2 ngvec ppx ='
 c     &  ,ngc2,sum(abs(ngvecc2(1:3,1:ngc2))),sum(abs(ppx(1:ngc,1:ngc2)))
@@ -732,12 +731,12 @@ c #ifdef EXPAND_MELPLN2
       allocate(gg(ngc2,nt0*ntp0),gg_(ntp0,nt0,ngc2)) !sf
       gg_=0d0 !sf
       do ig1 = 1,ngp1
-      do ig2 = 1,ngp2
-        nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
-        if(nn(1)<nxmin.or.nn(1)>nxmax) stop "melpln2:nn(1) out of range"
-        if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
-        if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
-      enddo
+        do ig2 = 1,ngp2
+          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
+          if(nn(1)<nxmin.or.nn(1)>nxmax) stop "melpln2:nn(1) out of range"
+          if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
+          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
+        enddo
       enddo
 
 
@@ -770,7 +769,7 @@ c #ifdef EXPAND_MELPLN2
 c      if(nomatm()==1) then !sep2009 for case to avoid bug in zgemm (called in matm)
 c        zmelp = matmul(ppx(1:ngc,1:ngc2),gg)
 c      else
-       call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0)
+      call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0) !ppx= matmul(ppovlinv(ngc,ngc),ppovl(ngc,ngc2)
 c      endif
       deallocate(ppx,gg,ngvecc2,ipp)
       zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >

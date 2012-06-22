@@ -17,8 +17,10 @@ c     i       ngvecpB,ngveccB,
      i      nqbze, nband,nqibz, 
      o      rcxq,
 c------------------------------------------
-     i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz,newanisox, !iepsmode,zzr, nmbas added Sep2006
-     o     rcxqmean)         
+     i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006
+     i     newanisox,
+     o     rcxqmean)
+c     i     qeibz,neibz,nwgt) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:getkeyvalue
@@ -93,15 +95,16 @@ c
       real(8) :: ppb(*)
 
       integer(4) :: mdim(natom)
-      complex(8),allocatable :: ppovl(:,:),ttx(:,:)
+      
+      complex(8),allocatable :: ttx(:,:)
       complex(8),allocatable::  z1p(:,:)
       integer(4) ::  nbnb(nqbz,npm), 
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
       integer(4)::imdim(natom),iatomp(natom)
-      logical:: debug=.false.,ipr
+      logical,parameter:: debug=.false.
 c---tetwt5
-      logical:: hist
+      logical:: hist      ,ipr
       integer(4):: nhwtot,
      &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
       real(8):: whw(nhwtot)
@@ -148,6 +151,14 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       logical :: newanisox, z1stcol
       complex(8) :: ppovlz(ngbb,ngbb),zzz(ngbb)
       integer:: igb
+
+!! jun2012takao
+c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 
+c      integer:: nwgt(1:neibz),  neibz !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
+!! nwgt(neibz
+      logical:: eibz4x0,checkbelong,eibzmode
+      complex(8):: ppovl(ngc,ngc),zcousq(ngbb,ngbb)
+      complex(8):: zmeltx(ngbb),zmelty(ngbb)
 c ------------------------------------------------
 
 
@@ -163,7 +174,7 @@ cooo end cccccccccccccccccccccccccccccccccccccccccccc
 
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
-      if(verbose()>=80) debug=.true.
+c      if(verbose()>=80) debug=.true.
 
       imdim(1) = 1
       do iatom = 1,natom
@@ -230,28 +241,31 @@ c$$$        enddo
 c$$$      endif
 c$$$ccccccccccccccccccccccccccccccccccccccc
 
-
+      eibzmode = .false. !eibz4x0().and.(.not.nolfco)
 
 C... loop over k-points
       qq=0d0
-ccccccccccccccccccccccccccccccccccccc
-c test
-c      if(negative_testtr()) then
-c      qq=q
-c      endif
-ccccccccccccccccccccccccccccccccccccc
       do 1000 k = 1,nqbz
         if(debug) write(*,'("1  begin k-cycle",$)')
         if(debug) call cputid(0)
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
-
         if(k<=5) then
           write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4,$)")k, rk(:,k)
           call cputid(0)
         elseif(mod(k,10)==1.or.k==nqbz) then
           write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4)")k, rk(:,k)
         endif
+c     
+c        nwgtieibz = 1
+c        if(eibzmode) then
+c          if( checkbelong(rk(:,k),qeibz,neibz,ieibz) ) then
+c            nwgtieibz = nwgt(ieibz) !number of equivalent k points for given q.
+c          else  
+c            cycle
+c          endif  
+c        endif
+
 
 C... Read cphi part of eigenfunctions for k and k+q
 c        kisp= isp + nsp*(k-1)
@@ -310,7 +324,6 @@ c        nkmax  = 0;  nkqmin = nband + nctot   ! for sanity check
 C --- calculate the matrix elements <psi(k+q,t') | psi(k,t) B(R,i)>
 C ... core
 c      write (*,*) 'matrix elements'
-        if(debug)  write(*,'("2  matrix elements",$)')
         if(debug)  call cputid(0)
 c        allocate( zzmel(nbloch,noccx,ntp0) )
 c                        q        k          q+k
@@ -324,6 +337,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(onceww(5) ) print *,' nctot ncc=',nctot,ncc
 c        stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
      i              cphik (1,nkmin),  
      i              cphikq(1,nkqmin), 
@@ -334,7 +348,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i              icore,ncore,nl,nnc,
      o              zzmel)
 C ... valence
-        if(debug) write(*,'("2.1 2nd matrix elements",$)')
         !call cputid(0)
         call psi2b_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
      i              cphik(1,nkmin), 
@@ -344,7 +357,6 @@ C ... valence
      i              imdim,iatomp,
      d              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      o              zzmel)
-        if(debug) write(*,'("3 after matrix elements",$)')
         if(debug) call cputid(0)
 
 C --- IPW set
@@ -358,7 +370,7 @@ c      ngp2 = ngpn(k)   ! k     np0  in FBZ
 
 c                        q       k        q+k
         allocate( zmelt(ngb,nctot+nt0,ncc+ntp0) )
-cooo 
+cooo
 c        allocate( zmelt1(ngb,nctot+nt0,ncc+ntp0) )
         allocate( z1p(ngb,ngb) )
 C ... read plane wave part of eigenfunction.
@@ -394,7 +406,6 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
-        if(debug) write(*,'("333 goto melpln2",$)')
         if(ngc/=0) then !Aug2005
           call melpln2(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
@@ -435,6 +446,7 @@ C...Feb2006 We have gotten zmelt until here. -------------------------------
 !    n1b,n2b has different ordering---core is after valence.
 !... --- end of matrix elements --------------------------------------------
         if(smbasis()) then !
+           stop ' not maintained recently need to check again' !takao for safe jun2012
 C... smoothed mixed basis !oct2005
 C This replace original zmelt with new zmelt based on smoothed mixed basis.
           if(nn /= ngbb) stop 'x0kf_v4h: ngb is not ngbb'
@@ -450,67 +462,49 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         endif
 
 !! === zmelt conversion === \mu-basis representation.
-        if(newanisox) then !.and.iq==1) then
+        if(newanisox.and.(.not.eibzmode)) then !.and.iq==1) then
           if(ngb/=ngbb) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
             stop 'x0kf_v4h: ngb/=ngbb'
           endif
           do it=1,nctot+nt0
-          do itp=1,ncc+ntp0
-!! See sxcf_fal2.F L933 around. zmelt1
+          do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
             zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
-Cooocase2
-c            do imb=1,ngb !max(nmbas1,nmbas2) 
-c              zzz(imb) =  sum( zmelt(1:ngb,it,itp)*ppovlz(1:ngb,imb) )
-c            enddo
-c            zmelt(:,it,itp) =  zzz(:)
-cooo test cccccccccccccccccccccccccccccccccccccc
-cooocase3
-c            do imb=1,ngb !max(nmbas1,nmbas2) 
-c              zzz(imb)=0d0
-c              do igb=1,ngb
-c              zzz(imb)=zzz(imb)+zmelt(igb,it,itp)*ppovlz(igb,imb) 
-c              enddo
-c            enddo 
-c            zmelt(:,it,itp) =  zzz(:)
-cooo end cccccccccccccccccccccccccccccccc
           enddo
           enddo
-       endif   
+        endif
+
 
 c$$$cooo test mode
 c$$$          do it=1,nctot+nt0
 c$$$          do itp=1,ncc+ntp0
-c$$$            do imb=1,ngb !max(nmbas1,nmbas2) 
+c$$$            do imb=1,ngb !max(nmbas1,nmbas2)
 c$$$              zzz(imb) =  sum( zmelt(1:ngb,it,itp)*ppovlzinv(1:ngb,imb) )
 c$$$            enddo
 c$$$            zmelt(:,it,itp) =  zzz(:)
 c$$$c            zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlzinv(:,:) )
-c$$$ 
-c$$$c            do imb=1,ngb !max(nmbas1,nmbas2) 
+c$$$
+c$$$c            do imb=1,ngb !max(nmbas1,nmbas2)
 c$$$c              zzz(imb)=0d0
 c$$$c              do igb=1,ngb
-c$$$c              zzz(imb)=zzz(imb)+zmelt(igb,it,itp)*ppovlzinv(igb,imb) 
+c$$$c              zzz(imb)=zzz(imb)+zmelt(igb,it,itp)*ppovlzinv(igb,imb)
 c$$$c              enddo
-c$$$c            enddo 
+c$$$c            enddo
 c$$$c            zmelt(:,it,itp) =  zzz(:)
 c$$$          enddo
 c$$$          enddo
-       
+
 !! New section Dec 2003.
         if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
           if(.not.newanisox) then
             do it=1,nctot+nt0
-            do itp=1,ncc+ntp0
-            do imb=1,max(nmbas1,nmbas2) 
-              zmelt(imb,it,itp) =  sum(zmelt(:,it,itp)*zzr(:,imb) )
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c              write(*,"('ppppp ',3i4,d13.6)")  k,it,itp,abs(zmelt(imb,it,itp))**2/sum(q**2)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+              do itp=1,ncc+ntp0
+                do imb=1,max(nmbas1,nmbas2)
+                  zmelt(imb,it,itp) =  sum(zmelt(:,it,itp)*zzr(:,imb) )
+                enddo
+              enddo
             enddo
-            enddo
-            enddo
-          endif  
+          endif
 
           do jpm  = 1,npm !
             do ibib = 1, nbnb(k,jpm) !---  ibib loop
@@ -548,12 +542,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 itp =       n2b(ibib,k,jpm) - itps + 1 - nband !core
               endif
 
-                do imb1=1,nmbas1
-                  zq01 = zmelt(imb1,it,itp) 
-                  z1stcol=(nmbas1==2.and.imb1==2.and.newanisox)
-                  if(z1stcol) zq01 = zmelt(1,it,itp)
+              do imb1=1,nmbas1
+                zq01 = zmelt(imb1,it,itp)
+                z1stcol=(nmbas1==2.and.imb1==2.and.newanisox) !a specical treatment 
+                                                              !not so clean takao jun2012 see hx0fp0.
+                if(z1stcol) zq01 = zmelt(1,it,itp)
                 do imb2=1,nmbas2
-                  zq02 = zmelt(imb2,it,itp) 
+                  zq02 = zmelt(imb2,it,itp)
                   zq0zq0 = dconjg(zq01)*zq02
                   if(z1stcol) zq0zq0 = dconjg(zq0zq0)
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
@@ -633,7 +628,7 @@ cc           z1p(1:ngb,ic) =
 cc     &     zmelt(ic,it,itp)*dconjg(zmelt(1:ngb,it,itp))
 cc         end do
 cc         ihww = ihw(ibib,k)
-
+cc
 c1ini------------
 cc         do iw = 1, nhw(ibib,k)
 cc           rviw = whw(jhw(ibib,k)+iw-1)
@@ -656,83 +651,56 @@ c2end --------------
 cc         else
 ccccccccccccccccccccccccc takao variant end
 
-          !.....................................................................sf 21May02
-ccccccccccccccccccccccccccccccc faleev variant begin,it about 15% faster for MnO case
-
-          do igb2=1, ngb !....................................
-cooo
+          if(newanisox.and.eibzmode) then
+            zmeltx(1:nbloch) =  zmelt(1:nbloch,it,itp)
+            zmeltx(nbloch+1:nbloch+ngc) =  matmul(zmelt(nbloch+1:nbloch+ngc,it,itp),ppovl )
+c$$$            z1p=0d0
+c$$$            do ieibzr =1, nwgtieibz !equivalent points for ieibz
+c$$$                                    !igx specifies space-group operation (including ID)
+c$$$c              call rotMPB(zcousq,igx(k?ibz or iibz,ieibzr), zcousqr) !zmelty= matmul(zmeltx ,Rotate_igx(zcousq) )
+c$$$              zmelty = matmul(zmelt,zcousqr)
+c$$$              do igb2=1, ngb !....................................
+c$$$                zmelt2 = zmelty(igb2)
+c$$$              do igb1=1,igb2
+c$$$                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
+c$$$              enddo
+c$$$              enddo
+c$$$            enddo  
+          else
+            do igb2=1, ngb !....................................
             zmelt2 = zmelt(igb2,it,itp)
-c            zmelt2 = zmelt1(igb2,it,itp)
-cooo end
-            ! if (abs(zmelt2) .lt. 1d-4) cycle
             do igb1=1,igb2
-              z1p(igb1,igb2) = 
-     &        dconjg(zmelt(igb1,it,itp)) * zmelt2
+              z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
             enddo
-          enddo
-c          write(6,"(a,2f10.6)")"zzz: z1p=",sum(abs(z1p)) 
-
-          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) then
-            stop "x0kf_v4hz: iw>nwt"
+            enddo
           endif
+
+          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
+
 !$OMP parallel do  private(imagweight) shared(rcxq)
-          do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-            !iiww=iw+ihw(ibib,k)-1
+          do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-            do igb2=1,ngb  !this part dominates cpu time...........
-              do igb1=1,igb2
+            do igb2=1,ngb  !this part dominates cpu time most time consuming...........
+            do igb1=1,igb2
 c     call zdaxpy(igb2,imagweight,z1p(1,igb2),zxq_(1,igb2,iiww))
                 rcxq(igb1,igb2,iw,jpm) =  !here we  sum over ibib (or n, n') and k.
+!!jun2012takao
      &         rcxq(igb1,igb2,iw,jpm) + z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
-              enddo !igb1
+c     &         rcxq(igb1,igb2,iw,jpm) + dble(nwgtieibz) *z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
+            enddo !igb1
             enddo !igb2
 ccccccccccccccccccccccccccccccccccccccccc
-            if(debug) write(6,*)" sum z1p imagweight=",sum(abs(z1p)),imagweight
-            if(debug) write(6,*)" sum jhw ihw=",jhw(ibib,k,jpm), ihw(ibib,k,jpm)
-            if(debug) write(6,*)" sum rcxq=",sum(abs(rcxq(:,:,iw,1)))
+c            if(debug) write(6,*)" sum z1p imagweight=",sum(abs(z1p)),imagweight
+c            if(debug) write(6,*)" sum jhw ihw=",jhw(ibib,k,jpm), ihw(ibib,k,jpm)
+c            if(debug) write(6,*)" sum rcxq=",sum(abs(rcxq(:,:,iw,1)))
 c           stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccccccccccc
           enddo ! iw
 !$OMP end parallel do
-c           do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
-c             if (iw .gt. nwt) stop "x0kf: iw > nwt"
-c              !iiww=iw+ihw(ibib,k)-1
-c             imagweight=whw(jhw(ibib,k)+iw-ihw(ibib,k))
-c             do igb2=1,ngb  !this part dominates cpu time...........
-c                   ! if (abs(zmelt(igb2,it,itp)) .lt. 1d-4) cycle
-c             do igb1=1,igb2
-cc     call zdaxpy(igb2,imagweight,z1p(1,igb2),zxq_(1,igb2,iiww))
-c               rcxq(igb1,igb2,iw)=  !here we  sum over ibib (or n, n') and k.
-c     &         rcxq(igb1,igb2,iw)+z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
-c             enddo !igb1
-c             enddo  !igb2
-c           enddo ! iw
-cc            endif
-cccccccccccccccccccccccccccccccccccccccccc faleev variant end
 
  25     continue
-        if(debug) write(*,'("6 mine cycles end",$)')
         if(debug) call cputid(0)
-
-        !write(*,'("2 after ibib",$)') !............................sf 21May02
-        ! call cputid(0)
-cc        if(.not.takao) then !......................sf 21May02
-c
-c        do iw=1,nwt
-c           write(*,*)iw,nwt,ngb
-c          !!!call  rcxq_zxq(rc1p,zxq_(1:ngb,1:ngb,iw),ngb,-1)
-c        do igb2=1,ngb
-c          do igb1=1,igb2
-c             rcxq(igb1,igb2,iw)=rcxq(igb1,igb2,iw)+ zxq_(igb1,igb2,iw)
-c                                             !rc1p(:,igb2)
-c           enddo
-c        enddo
-c        enddo !....................................sf 21May02
-cc        endif
         deallocate(zmelt,z1p)
-cooo
-c        deallocate(zmelt1)
-cooo end
 
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
@@ -778,11 +746,18 @@ c       endif
         !    call cputid(0)
  1000 continue
 
+
+!! symmetrized here in the case of eibz
+c     if(eibzmode) then
+
+
+
+
 c      print *,' x0kf_v4hz: 111'
 c      deallocate(zxq_) !...........................sf 21May02
-      deallocate(cphik,cphikq,geig1,geig2)
-      if(smbasis()) deallocate(pomat)
-      print *,' x0kf_v4hz: end'
+        deallocate(cphik,cphikq,geig1,geig2)
+        if(smbasis()) deallocate(pomat)
+        print *,' x0kf_v4hz: end'
 c$$$cccccccccccccccccccccccccccccccccccccccccccc
 c$$$        print *,' ---- trace chck ---- '
 c$$$        do jpm=1,npm
@@ -797,10 +772,10 @@ c$$$        enddo
 c$$$        enddo
 c$$$        stop 'xxxxxxxxxxxxxxxxxxxxxx'
 c$$$cccccccccccccccccccccccccccccccccccccccccccc
-      end
+        end
 
 C=====================================================================
-      subroutine dpsion5  (frhis,nwhis, freqr,nw_w, freqi,niwt, 
+        subroutine dpsion5  (frhis,nwhis, freqr,nw_w, freqi,niwt, 
      i                                 realomega,   imagomega,      !freqr ->frhis ...sf
      i                    rcxq, npm, nw_i,nmbas1,nmbas2,
      o    zxq,zxqi,
@@ -828,94 +803,94 @@ C! July2005: v3Add spin chipm mode
 C! July2005: This version alter rcxq----it is used as work area.
 C! sergey faleev Apr 2002 ; Rebuiled by takao
 C------------------------------------------------------------------
-      implicit none
-      integer(4):: nw_w,niwt,igb1,igb2, iw,iwp,nwhis,ix,npm,ifxx,nmbas1,nmbas2
-      real(8) :: freqi(niwt),pi,px,omp,om,om2,om1, !omg2max from hx0fp0
+        implicit none
+        integer(4):: nw_w,niwt,igb1,igb2, iw,iwp,nwhis,ix,npm,ifxx,nmbas1,nmbas2
+        real(8) :: freqi(niwt),pi,px,omp,om,om2,om1, !omg2max from hx0fp0
      &  frhis(nwhis+1), freqr(0:nw_w), aaa,d_omg
-      logical :: realomega, imagomega
-      complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) !sf 13June
+        logical :: realomega, imagomega
+        complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) !sf 13June
 c      logical   :: iepsmode
-      logical :: chipm
+        logical :: chipm
 
-      integer(4)::isp,ispx !, nmbas
+        integer(4)::isp,ispx !, nmbas
 c      complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
 C... ecut mode
-      real(8):: ecut,ecuts,wcut,wcutef,dee,schi
-      logical ::debug=.false.
-      real(8),allocatable :: his_L(:),his_R(:),his_C(:)
-      integer(4) it
-      real(8):: domega_r,domega_c,domega_l,delta_l,delta_r
-      real(8),allocatable ::rmat(:,:,:),rmati(:,:,:),rmatt(:,:,:),imatt(:,:,:)
-      complex(8),allocatable :: rmatiC(:,:,:),imattC(:,:,:)
-      complex(8) ::beta,wfac
-      complex(8):: zz
-      complex(8),allocatable :: zxqn(:,:),zxqn1(:,:,:),rx0mean1(:,:,:),rx0mean(:)
-      complex(8),allocatable:: rrr(:)
+        real(8):: ecut,ecuts,wcut,wcutef,dee,schi
+        logical ::debug=.false.
+        real(8),allocatable :: his_L(:),his_R(:),his_C(:)
+        integer(4) it
+        real(8):: domega_r,domega_c,domega_l,delta_l,delta_r
+        real(8),allocatable ::rmat(:,:,:),rmati(:,:,:),rmatt(:,:,:),imatt(:,:,:)
+        complex(8),allocatable :: rmatiC(:,:,:),imattC(:,:,:)
+        complex(8) ::beta,wfac
+        complex(8):: zz
+        complex(8),allocatable :: zxqn(:,:),zxqn1(:,:,:),rx0mean1(:,:,:),rx0mean(:)
+        complex(8),allocatable:: rrr(:)
 
-      integer(4)::nw_i,jpm,ipm,verbose,isgi
+        integer(4)::nw_i,jpm,ipm,verbose,isgi
 c      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
-      complex(8):: 
+        complex(8):: 
      o   zxq (nmbas1,nmbas2, nw_i: nw_w), !iw=0 means omg=0,
-      !iw=1:nw_w corresponds to iw's bit of the frequensy histogram 
+        !iw=1:nw_w corresponds to iw's bit of the frequensy histogram 
      o   zxqi(nmbas1,nmbas2,niwt),img !npm), img  !zxqi(...,npm) may2006
 
-      real(8),allocatable:: ebb(:)
-      integer(4):: ii,i,ibas1,ibas2
-      logical :: evaltest !,testtr
+        real(8),allocatable:: ebb(:)
+        integer(4):: ii,i,ibas1,ibas2
+        logical :: evaltest !,testtr
 
-      if(verbose()>89) debug=.true.
+c        if(verbose()>89) debug=.true.
 c ------------------------------------------------
-      write(*,'(" dpsion5: start...   ",$)')
-      write(*,"('  nw_w nwhis=',2i5)") nw_w,nwhis
-      if(debug) then
-        write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
-        write(6,*)' sumchk rcxq=', sum(abs(rcxq))
-      endif
-      pi  = 4d0*datan(1d0)
-      img = (0d0,1d0)
-      call cputid(0)
-      ispx = isp
-      if(schi<0) then
-        ispx = 3-isp !flip
-      endif
+        write(*,'(" dpsion5: start...   ",$)')
+        write(*,"('  nw_w nwhis=',2i5)") nw_w,nwhis
+        if(debug) then
+          write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
+          write(6,*)' sumchk rcxq=', sum(abs(rcxq))
+        endif
+        pi  = 4d0*datan(1d0)
+        img = (0d0,1d0)
+        call cputid(0)
+        ispx = isp
+        if(schi<0) then
+          ispx = 3-isp !flip
+        endif
 
 C... Check freqr=frhis_m.
 C... But I think now this is not necessary. You can supply any freqr(iw). But be careful.
-      if(realomega) then
-        if( nwhis <= nw_w ) then
-          print *,nwhis,nw_w
-          stop ' dpsion5: nwhis<=nw_w'
-        endif
-        if( freqr(0)/=0d0 ) stop ' dpsion5: freqr(0)/=0d0'
-        aaa = 0d0
-        if(nw_w>0) then
-          do iw = 1,nw_w
-            aaa = aaa + abs( freqr(iw) - (frhis(iw)+frhis(iw+1))/2d0 )
-            if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
+        if(realomega) then
+          if( nwhis <= nw_w ) then
+            print *,nwhis,nw_w
+            stop ' dpsion5: nwhis<=nw_w'
+          endif
+          if( freqr(0)/=0d0 ) stop ' dpsion5: freqr(0)/=0d0'
+          aaa = 0d0
+          if(nw_w>0) then
+            do iw = 1,nw_w
+              aaa = aaa + abs( freqr(iw) - (frhis(iw)+frhis(iw+1))/2d0 )
+              if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
      &     iw,freqr(iw),  (frhis(iw)+frhis(iw+1))/2d0
-          enddo
-          if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is not implimented yet'
-        endif
-      endif !realomega
+            enddo
+            if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is not implimented yet'
+          endif
+        endif !realomega
 
 C--------------------------------------------------------------
 ! Each bin  [his_Left, his_Right]  his_Center is middle.
 ! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-      if(debug) print *,' dpsion5: RRR 2222222222 '
-      allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
-      his_L(1:nwhis) = frhis(  1:  nwhis)
-      his_R(1:nwhis) = frhis(1+1:1+nwhis)
-      his_C(1:nwhis) = (his_L(1:nwhis) + his_R(1:nwhis) )/2d0
-      do iw= 1,nwhis
-        his_L(-iw) = -his_R(iw)
-        his_R(-iw) = -his_L(iw)
-        his_C(-iw) = -his_C(iw)
-      enddo
-      his_C(0) = 0d0; his_R(0)=-999; his_L(0)=-999
+        if(debug) print *,' dpsion5: RRR 2222222222 '
+        allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
+        his_L(1:nwhis) = frhis(  1:  nwhis)
+        his_R(1:nwhis) = frhis(1+1:1+nwhis)
+        his_C(1:nwhis) = (his_L(1:nwhis) + his_R(1:nwhis) )/2d0
+        do iw= 1,nwhis
+          his_L(-iw) = -his_R(iw)
+          his_R(-iw) = -his_L(iw)
+          his_C(-iw) = -his_C(iw)
+        enddo
+        his_C(0) = 0d0; his_R(0)=-999; his_L(0)=-999
 C
-      if(debug) write(6,*)'sumchk 111 rcxq=', sum(abs(rcxq))
+        if(debug) write(6,*)'sumchk 111 rcxq=', sum(abs(rcxq))
 
-      do iw= 1, nwhis
+        do iw= 1, nwhis
           if(ecut<1d9) then
             wfac= wcutef(his_C(iw), ecut,ecuts)
           else
@@ -927,174 +902,187 @@ C
             call dscal(2*nmbas1*nmbas2, -wfac/(his_r(iw)-his_l(iw)),rcxq(1,1,iw,jpm),1)
           enddo
 c         if(debug) print *, 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
-      enddo
-      if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
+        enddo
+        if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
 
 C... Temporary. maybe, we will have better procedure...
-      if(nmbas1==nmbas2) then !Is this required??? apr2012takao
-      do jpm=1,npm
-          do iw= 1, nwhis
-            do igb2= 1, nmbas2
-              do igb1= 1, igb2-1
-                rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+        if(nmbas1==nmbas2) then !Is this required??? apr2012takao
+          do jpm=1,npm
+            do iw= 1, nwhis
+              do igb2= 1, nmbas2
+                do igb1= 1, igb2-1
+                  rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+                enddo
               enddo
             enddo
           enddo
-      enddo
-      endif
-      if(debug) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
+        endif
+        if(debug) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
 
-      if(evaltest().and.nmbas1==nmbas2) then
-        write(6,"('hhh --- EigenValues for rcxq --------')")
-        allocate(ebb(nmbas1))
-        do jpm= 1,npm
-          do iw = 1, nwhis
-            call diagcvh2(rcxq(:,:,iw,jpm),nmbas1,ebb)
-            do ii=1,nmbas1
-              write(6,"('hhh1: xxxxxxxxxxxxxxxxx',2i4)") jpm,iw
-              if(abs(ebb(ii))>1d-8.and.ebb(ii)>0) 
+        if(evaltest().and.nmbas1==nmbas2) then
+          write(6,"('hhh --- EigenValues for rcxq --------')")
+          allocate(ebb(nmbas1))
+          do jpm= 1,npm
+            do iw = 1, nwhis
+              call diagcvh2(rcxq(:,:,iw,jpm),nmbas1,ebb)
+              do ii=1,nmbas1
+                write(6,"('hhh1: xxxxxxxxxxxxxxxxx',2i4)") jpm,iw
+                if(abs(ebb(ii))>1d-8.and.ebb(ii)>0) 
      &        write(6,"('hhh1: jpm iw eb=',2i4,d13.5)") jpm,iw,ebb(ii)
+              enddo
             enddo
           enddo
-        enddo
-        deallocate(ebb)
-      endif
+          deallocate(ebb)
+        endif
 
 C--- realomega case
-      if(realomega)then
-        write(6,*) " --- realomega --- "
-        if(npm==1) then
-          allocate( rmat(0:nw_w,-nwhis:nwhis,npm), rrr(-nwhis:nwhis))
-          rmat  = 0d0
-          do it =  0,nw_w
-            zz = freqr(it) !his_C(it)
-            call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
-            rmat(it,:,1) = dreal(rrr)
-          enddo ;   if(debug) print *, 'dpsion5: RRR 55555555555'
-          allocate( rmatt(0:nw_w,nwhis,npm) )
-          if(     chipm.and.ispx==1 ) then
-            rmatt(:,:,1) = rmat(:,1:nwhis,1)
-          elseif( chipm.and.ispx==2 ) then
-            do iw= 1,nwhis
-              rmatt(:,iw,1) = -rmat(:,-iw,1)
-            enddo
-          else
-            do iw= 1,nwhis
-              rmatt(:,iw,1) = rmat(:,iw,1) - rmat(:,-iw,1)
-            enddo
-          endif
-          deallocate(rmat,rrr)
-        else ! npm==2 case -------------------------------------------------
-          allocate( rmatt(-nw_w:nw_w,nwhis,npm), rrr(-nwhis:nwhis))
-          rmatt = 0d0
-          do it  =  -nw_w,nw_w
-            if(it<0) then
-              zz = -freqr(-it) !his_C(it)
-            else
+        if(realomega)then
+          write(6,*) " --- realomega --- "
+          if(npm==1) then
+            allocate( rmat(0:nw_w,-nwhis:nwhis,npm), rrr(-nwhis:nwhis))
+            rmat  = 0d0
+            do it =  0,nw_w
               zz = freqr(it) !his_C(it)
+              call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
+              rmat(it,:,1) = dreal(rrr)
+            enddo ;   if(debug) print *, 'dpsion5: RRR 55555555555'
+            allocate( rmatt(0:nw_w,nwhis,npm) )
+            if(     chipm.and.ispx==1 ) then
+              rmatt(:,:,1) = rmat(:,1:nwhis,1)
+            elseif( chipm.and.ispx==2 ) then
+              do iw= 1,nwhis
+                rmatt(:,iw,1) = -rmat(:,-iw,1)
+              enddo
+            else
+              do iw= 1,nwhis
+                rmatt(:,iw,1) = rmat(:,iw,1) - rmat(:,-iw,1)
+              enddo
             endif
-            call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
-            rmatt(it,:,1) =  dreal(rrr  (1:nwhis))
-            rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))
-          enddo ;   if(debug) print *, 'dpsion5: RRR2 55555555555'
-          deallocate(rrr)
-        endif
-        rmatt = rmatt/pi ; if(debug) print *,'dpsion5: RRR 6666'
+            deallocate(rmat,rrr)
+          else ! npm==2 case -------------------------------------------------
+            allocate( rmatt(-nw_w:nw_w,nwhis,npm), rrr(-nwhis:nwhis))
+            rmatt = 0d0
+            do it  =  -nw_w,nw_w
+              if(it<0) then
+                zz = -freqr(-it) !his_C(it)
+              else
+                zz = freqr(it) !his_C(it)
+              endif
+              call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
+              rmatt(it,:,1) =  dreal(rrr  (1:nwhis))
+              rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))
+            enddo ;   if(debug) print *, 'dpsion5: RRR2 55555555555'
+            deallocate(rrr)
+          endif
+          rmatt = rmatt/pi ; if(debug) print *,'dpsion5: RRR 6666'
 
 !! takao remove if(nolfc) block here.
-        write(6,*) " --- realomega dgemm--- "
+          write(6,*) " --- realomega dgemm--- "
 
 
 !! WARN! I think npm==2.and.chipm does not make sense. apr2012.
-!! 
+!!
           if(npm==2.and.chipm) 
      &      stop 'x0kf_v4h:npm==2.and.chipm is not meaningful probably'
 
 
 !! Note rcxq is negative now (converted at the top of this routine !!!
-        if(     chipm .and. ispx==2 ) then
-          !nothing here 
-          !Since the range of zxq is nw_i=0, we have no area to store negative energy part of chipm.
-        elseif( chipm               ) then
-          call zaxpy( nmbas1*nmbas2*nw_w, img, rcxq, 1, zxq(1,1,1), 1)
-        else
-          zxq = 0d0    ! not accumlating case.
-          call zaxpy( nmbas1*nmbas2*nw_w, img, rcxq(1,1,1,1), 1, zxq(1,1,1), 1)
-        endif
+          if(     chipm .and. ispx==2 ) then
+            !nothing here
+            !Since the range of zxq is nw_i=0, we have no area to store negative energy part of chipm.
+          elseif( chipm               ) then
+            call zaxpy( nmbas1*nmbas2*nw_w, img, rcxq, 1, zxq(1,1,1), 1)
+          else
+            zxq = 0d0    ! not accumlating case.
+            call zaxpy( nmbas1*nmbas2*nw_w, img, rcxq(1,1,1,1), 1, zxq(1,1,1), 1)
+          endif
 
-        if(npm==2) then
-          do iw=1,nw_w
-            call zaxpy( nmbas1*nmbas2, img, rcxq(1,1,iw,2),1, zxq(:,:,-iw),1)
-          enddo
-        endif
+          if(npm==2) then
+            do iw=1,nw_w
+              call zaxpy( nmbas1*nmbas2, img, rcxq(1,1,iw,2),1, zxq(:,:,-iw),1)
+            enddo
+          endif
 
-        if(npm==1) then
-          call dgemm('n','t',  2*nmbas1*nmbas2, nw_w+1, nwhis, 1d0, 
+          if(npm==1) then
+            call dgemm('n','t',  2*nmbas1*nmbas2, nw_w+1, nwhis, 1d0, 
      &              rcxq, 2*nmbas1*nmbas2,  rmatt, nw_w+1,
      &               1d0, zxq, 2*nmbas1*nmbas2 )
-        elseif(npm==2) then
-          call dgemm('n','t',  2*nmbas1*nmbas2,   npm*nw_w+1, nwhis, 1d0, 
+          elseif(npm==2) then
+            call dgemm('n','t',  2*nmbas1*nmbas2,   npm*nw_w+1, nwhis, 1d0, 
      &              rcxq(1,1,1,1), 2*nmbas1*nmbas2, rmatt(:,:,1), npm*nw_w+1,
      &               1d0, zxq, 2*nmbas1*nmbas2 )
-          call dgemm('n','t',  2*nmbas1*nmbas2,   npm*nw_w+1, nwhis, 1d0, 
+            call dgemm('n','t',  2*nmbas1*nmbas2,   npm*nw_w+1, nwhis, 1d0, 
      &              rcxq(1,1,1,2), 2*nmbas1*nmbas2, rmatt(:,:,2), npm*nw_w+1,
      &               1d0, zxq, 2*nmbas1*nmbas2 )
-        else
-           stop 'dpsion5: npm=1 or 2'
+          else
+            stop 'dpsion5: npm=1 or 2'
+          endif
+          deallocate(rmatt)
         endif
-        deallocate(rmatt)
-      endif
 
 !! === imagomega case      imatt(niwt -->niwt,npm may2005 ===
-      if(imagomega) then
-        allocate( rrr(-nwhis:nwhis))
-        if(npm==1) then
-          allocate( rmati (niwt,-nwhis:nwhis,npm))
-          rmati= 0d0
-        else
-          allocate( rmatiC(niwt,-nwhis:nwhis,npm))
-          rmatiC = 0d0
-        endif ;   if(debug) print *, 'dpsion5: III 111111155555555555'
-        do it =  1,niwt
-          zz = img*freqi(it) !his_C(it)
-          call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
+        if(imagomega) then
+          allocate( rrr(-nwhis:nwhis))
           if(npm==1) then
-            rmati (it,:,1) = dreal(rrr)
+            allocate( rmati (niwt,-nwhis:nwhis,npm))
+            rmati= 0d0
           else
-            rmatiC(it,:,1) = rrr
-          endif
-        enddo ;   if(debug) print *, 'dpsion5: III 55555555555'
+            allocate( rmatiC(niwt,-nwhis:nwhis,npm))
+            rmatiC = 0d0
+          endif ;   if(debug) print *, 'dpsion5: III 111111155555555555'
+          do it =  1,niwt
+            zz = img*freqi(it) !his_C(it)
+            call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
+            if(npm==1) then
+              rmati (it,:,1) = dreal(rrr)
+            else
+              rmatiC(it,:,1) = rrr
+            endif
+          enddo ;   if(debug) print *, 'dpsion5: III 55555555555'
 !! ==== npm=1 case ====
-        if(npm==1) then
-          allocate( imatt(niwt, nwhis,npm) )
-          do iw= 1,nwhis
-            imatt(:,iw,1) = rmati(:,iw,1) - rmati(:,-iw,1)
-          enddo
-          deallocate(rmati,rrr)
-          imatt = imatt/pi; if(debug) print *, 'dpsion5: III  '
-          call dgemm('n','t',  2*nmbas1*nmbas2, niwt, nwhis, 1d0, 
+          if(npm==1) then
+            allocate( imatt(niwt, nwhis,npm) )
+            do iw= 1,nwhis
+              imatt(:,iw,1) = rmati(:,iw,1) - rmati(:,-iw,1)
+            enddo
+            deallocate(rmati,rrr)
+            imatt = imatt/pi; if(debug) print *, 'dpsion5: III  '
+            call dgemm('n','t',  2*nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq, 2*nmbas1*nmbas2, imatt, niwt,
      &               0d0, zxqi, 2*nmbas1*nmbas2 )
-          deallocate(imatt)
+            deallocate(imatt)
 !! ==== npm=2 case ====
-        else
-          allocate( imattC(niwt, nwhis,npm) )
-          do iw= 1,nwhis
-            imattC(:,iw,1) =   rmatiC(:, iw,1)
-            imattC(:,iw,2) = - rmatiC(:,-iw,1)
-          enddo
-          deallocate(rmatiC,rrr)
-          imattC = imattC/pi; if(debug) print *, 'dpsion5: IIIc '
-          call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
+          else
+            allocate( imattC(niwt, nwhis,npm) )
+            do iw= 1,nwhis
+              imattC(:,iw,1) =   rmatiC(:, iw,1)
+              imattC(:,iw,2) = - rmatiC(:,-iw,1)
+            enddo
+            deallocate(rmatiC,rrr)
+            imattC = imattC/pi; if(debug) print *, 'dpsion5: IIIc '
+            call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq(1,1,1,1), nmbas1*nmbas2, imattC(1,1,1), niwt,
      &              0d0, zxqi,    nmbas1*nmbas2 )
-          call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
+            call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq(1,1,1,2), nmbas1*nmbas2, imattC(1,1,2), niwt,
      &              1d0, zxqi,    nmbas1*nmbas2 )
-          deallocate(imattC)
+            deallocate(imattC)
+          endif
         endif
-      endif
-      deallocate(his_L,his_C,his_R)
-      write(*,'("         end dpsion5 ",$)')
-      call cputid(0)
-      end
+        deallocate(his_L,his_C,his_R)
+        write(*,'("         end dpsion5 ",$)')
+        call cputid(0)
+        end
+        logical function checkbelong(qin, qall, nq,ieibz) !ieibz is also returned
+        integer:: nq,ieibz
+        real(8):: qin(3), qall(3,nq)
+        checkbelong=.false.
+        do i=1,nq
+           if(sum(abs(qin-qall(:,i)))<1d-8) then
+              ieibz=i
+              checkbelong=.true.
+              return
+           endif
+        enddo
+        end
+

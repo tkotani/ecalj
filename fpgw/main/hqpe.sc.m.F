@@ -212,8 +212,8 @@ c-----
       if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
       read(ifevec) ndimhx, nspx,nnnx
       nhq=ndimh
-      print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian. 
-                                                     !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao 
+      print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
+      !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
       if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
       if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
       if (ntq .ne. nhq)   stop 'hqpe: ntq/=nhq'
@@ -530,10 +530,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           write(6,*)
           write(6,"( ' ip ntq ntqxx=',3i5)")ip,ntq,ntqxx
           if(ip==1) then
-             ntqxxmin=ntqxx
+            ntqxxmin=ntqxx
           else
             if(ntqxx<ntqxxmin) ntqxxmin=ntqxx
-          endif  
+          endif
 
           do itp = 1,ntqxx
             do itpp= 1,ntqxx
@@ -559,20 +559,20 @@ ctakao 2009June. Add diagonal correction to se.
 c      eldaxc(ntq,nq)
 c e-weighted average
 c  eavr  : average of eigenvalues within threshold (itp<=ntqxx)
-c  eseavr: average of se*eigenvalue 
+c  eseavr: average of se*eigenvalue
           eavr  = 0d0
           eseavr0= 0d0
           iix=0
           do itp=1,ntqxx
 c             print *,'ppppp: ',itp,eldax(itp,ip),ef
-             eee = eldax(itp,ip) - rydberg()*ef 
-             if( eee > 1d-2 ) then 
-               eavr   = eavr   + eee
-               eseavr0 = eseavr0 + eee* se(itp,itp,ip)
-               iix=iix+1
-             endif
+            eee = eldax(itp,ip) - rydberg()*ef
+            if( eee > 1d-2 ) then
+              eavr   = eavr   + eee
+              eseavr0 = eseavr0 + eee* se(itp,itp,ip)
+              iix=iix+1
+            endif
           enddo
-          eseavr(ip,is) = eseavr0/eavr !now eseavr is 
+          eseavr(ip,is) = eseavr0/eavr !now eseavr is
 cccccccccccccccccccccccccccccccccccccccccccccc
 c          eseavr = 0d0
 cccccccccccccccccccccccccccccccccccccccccccc
@@ -580,7 +580,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
             se(itp,itp,ip) = eseavr(ip,is)
           enddo
 
-          eseavr(ip,is) = 2d0*eseavr(ip,is) !now eseavr is 
+          eseavr(ip,is) = 2d0*eseavr(ip,is) !now eseavr is
           write(6,*)
      & "### A correction takao2009June: find this in hqpe.se.m.F"
           write(6,*)"###   constant is added to sigm above threshold."
@@ -597,7 +597,7 @@ c     &         ntq,se_ev,ntq,(0d0,0d0), ev_se_ev ,ntq)
 
 ctakao May2009
 c    I don't know, but gfortran did not allow next line.
-c    So I made a replacement. to 
+c    So I made a replacement. to
 c        evec_invt= dconjg(transpose(evec_inv))  !this did not work for gfortran
           evec_invt= transpose(dconjg(evec_inv))  !this works for gfortran
 c

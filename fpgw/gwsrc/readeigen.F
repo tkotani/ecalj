@@ -1,11 +1,125 @@
+      module m_readqgcou
+!! this is duplicated with reqdqg.F---> need to be unified... jun2012takao
+!! ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp) is added on jun2012takao
+      implicit none
+      integer:: nqnum,nqbz,imxc,ngcmx,nqbz_
+      integer,allocatable:: ngc(:)
+      real(8),allocatable:: qtt_(:,:)
+      integer,allocatable:: ngvecc(:,:,:), ngveccrev(:,:,:,:)
+      contains
+!!--- Readin QGcou ---
+      subroutine readqgcou()
+      implicit none
+      integer:: ifiqg,iopen,nqi,ikp,nnnn,iclose
+      real(8):: QpGcut_cou
+      ifiqg  = iopen('QGcou',0,0,0)
+      read(ifiqg) nqnum , ngcmx, QpGcut_cou, nqbz_, nqi,imxc
+      write(6,*)'read(ifiqg)', nqnum , ngcmx, QpGcut_cou, nqbz_,nqi,imxc
+      allocate( qtt_(3,nqnum),ngc(nqnum) )
+      allocate( ngvecc(3,ngcmx,nqnum))
+      allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,nqnum) )
+      do ikp = 1,nqnum
+c         print *,' ikp=',ikp,imxc
+        read (ifiqg) qtt_(:,ikp), ngc(ikp)
+c        print *,' ngc=',ngc(ikp)
+        read (ifiqg) ngvecc(1:3, 1:ngc(ikp),ikp),ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp)
+      enddo
+      ifiqg=iclose('QGcou')
+      end subroutine
+      end module
+
+
+
+
+      module m_spacegrouprot
+      integer(4),allocatable :: invgx(:), miat(:,:)
+      real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
+      contains !-------------------------------------------
+      subroutine Spacegrouprot(symgg,ngrp,plat,natom,pos) !all input
+      implicit none
+      real(8)::symgg(*),plat(*),pos(*)
+      integer::ngrp,natom,ificlass,iopen,ibas,ibasx,iclose
+      integer,allocatable:: iclasst(:)
+!!  Get data for space-group transformation. See header of mptaouof.
+      ificlass   = iopen('CLASS',1,-1,0)
+      allocate(iclasst(natom))
+      print *,'  --- Spacegrouprot: Readingin true CLASS info ---'
+      do ibas = 1,natom
+        read(ificlass,*) ibasx, iclasst(ibas)
+        write(6, "(2i10)") ibasx, iclasst(ibas)
+      enddo
+      ificlass= iclose('CLASS')
+      allocate( invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
+     o     ,miat,tiat,invgx,shtvg )
+      end subroutine
+      end module 
+!! ------------
+
+      module m_pbindex !generate index table for product basis.
+      integer,parameter::NULLI=-9999999
+      integer:: norbt=NULLI !number of PB block. 
+      integer,allocatable:: 
+     &    ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
+      integer::
+     &    max_ibas_tbl=NULLI,max_l_tbl=NULLI,max_k_tbl=NULLI,max_offset_tbl=NULLI,mb
+      logical::init=.true.
+      contains !-----------------------------------------------
+      subroutine PBindex(natom,lx,l2nl,nx)
+      implicit none
+      integer::natom,l2nl,ibas,lb,nb,iorbt,kn,lx(natom),nx(0:l2nl,natom)
+      if(.not.init) return
+      init=.false.
+      iorbt=0
+      do ibas=1, natom
+      do lb  = 0, lx (ibas)
+      do nb  = 1, nx (lb,ibas)
+        iorbt=iorbt+1
+      enddo
+      enddo
+      enddo
+      norbt = iorbt !number of product basis block
+      print *,'norbt=',norbt
+      allocate( ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt) )
+      iorbt=0
+      offset_tbl(1)=0
+      do ibas=1, natom
+      do lb = 0, lx (ibas)
+      do kn = 1, nx (lb,ibas)
+          iorbt=iorbt+1
+          ibas_tbl(iorbt)=ibas
+          l_tbl(iorbt)=lb
+          k_tbl(iorbt)=kn
+          if(iorbt>0) offset_tbl(iorbt)=offset_tbl(iorbt-1)+2*lb+1
+c        do mb  = -lb, lb
+c          i = i+1  !The number of product basis is  =(i at the end of loop).
+c          write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,kn,mb
+c        enddo
+      enddo
+      enddo
+      enddo
+      max_ibas_tbl=natom
+      max_l_tbl=maxval(l_tbl(1:norbt))
+      max_k_tbl=maxval(k_tbl(1:norbt))
+      allocate(offset_rev_tbl(max_ibas_tbl,max_l_tbl,max_k_tbl))
+      do iorbt=1,norbt
+        ibas=ibas_tbl(iorbt)
+        lb= l_tbl(iorbt)
+        kn= k_tbl(iorbt)
+        offset_rev_tbl(ibas,lb,kn)=offset_tbl(iorbt)
+      enddo
+      end subroutine
+      end module 
+
+
       subroutine rotmto(qin,cphiin,nbloch,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offsetrev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,nbas,
      o  cphiout)
 !!== Rotation of a function of ProductBasis or MT part of wave function.
 !! (then MTO itself is rotated. a little diffent from here).
-!! See also mto part of lm7K/subs/rotwv.F 
-!!      
+!! See also mto part of lm7K/subs/rotwv.F
+!!
 !! qin  = qtti(:,iqi)
 !! cphiin cphi(1:ldim2,1:nband,iqi,isp) eigenfunction @ qtti(:,iqi)
 !! dlmm   dlmm(-l:l,-l:l,l,igg)
@@ -14,7 +128,7 @@
 !! shtvg  shtvg(:,igg)
 !! miat   miat(ibas,igg)
 !!
-!!  cphin (iqq) ---> cphiout (iq) 
+!!  cphin (iqq) ---> cphiout (iq)
       implicit none
       integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
       integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
@@ -27,13 +141,13 @@
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl
       integer::  offsetrev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
       qrot = matmul(sym,qin)
-      phaseq   = exp( -img2pi*sum(qrot*shtvg )) 
+      phaseq   = exp( -img2pi*sum(qrot*shtvg ))
       ibaso=-999
-      do iorb=1,norbt !orbital-blocks 
+      do iorb=1,norbt !orbital-blocks
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then !just for speed up
           phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) )
-        endif   
+        endif
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
@@ -49,16 +163,16 @@
      &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,imx,
      o  geigenout)
 !! == Rotation of Plane wave part. by sym==
-!! 
-!! Mapped from qtt(:,iqq) to qtt(:,iq) 
+!!
+!! Mapped from qtt(:,iqq) to qtt(:,iq)
 !!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
-!!  geigenin (iqq) ---> geigenout (iq) 
+!!  geigenin (iqq) ---> geigenout (iq)
       implicit none
       real(8):: sym(3,3),qlat(3,3),platt(3,3)
      &  ,shtvg(3)
       integer:: ngp,imx,nband,
      &          ngvecp(3,ngp), !,iqq),
-     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq) 
+     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
       real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
       integer:: ig,ig2,nnn(3)
       complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
@@ -106,7 +220,7 @@ ctm
 
       subroutine readeval(q,isp, ev)
 !! == return ev(1:nband) for given q(1:3) and isp ==
-!! * 
+!! *
       use m_hamindex, only: qtt,nqtt,iqimap
       implicit none
       integer(4):: isp,iq,iqindx,i
@@ -118,7 +232,7 @@ ctm
       iq = iqindx(q, ginv,qtt,nqtt)
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
       if(debug) then
-        print *,'iq iqimap(iq)=',iq,iqimap(iq) 
+        print *,'iq iqimap(iq)=',iq,iqimap(iq)
         write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
         write(6,"(9f9.4)")ev(1:9)
       endif
@@ -144,8 +258,8 @@ ctm
 c      do iq=1,nqtt
 c         write(*,*)iq,qtt(:,iq)
 c      enddo
-      iqq=iqmap(iq)  
-      iqi=iqimap(iq)  
+      iqq=iqmap(iq)
+      iqi=iqimap(iq)
       igg=igmap(iq)
       qtarget=qtt(:,iq) ! iqq is mapped to qtarget=qu=qtt(:,iq)
       if(debug) then
@@ -156,7 +270,7 @@ c      enddo
         print *,' ddddd qtarget=',qtarget
         print *,' ddddd q (iqq)=',qtt(:,iqq)
         print *,' nqp(iq) ngp(iqq)=',ngp(iq),ngp(iqq)
-      endif   
+      endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
       if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
@@ -181,7 +295,7 @@ c      enddo
 !! Followings are not used now...  june2012
 !! We can use the followings instead of rotipw (both should give the same result).
 !! ----------
-!! Rotation  See mto part of lm7K/subs/rotwv.F 
+!! Rotation  See mto part of lm7K/subs/rotwv.F
 !! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
 !! rotation wave
 c      ddd = shtvg(:,invgx(igg))
@@ -204,7 +318,7 @@ c      endif
 ccccccccccccccccccccccccccccccccccc
 cddd
 c        geigen(ig2,:)= geigenr(ig,:) * exp( img2pi*sum(qpg*ddd) )
-       geigen(ig2,:)= geigenr(ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
+        geigen(ig2,:)= geigenr(ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
 ccccccccccccccccccccccccccccccccccc
       enddo
       end subroutine readgeig
@@ -216,27 +330,27 @@ ccccccccccccccccccccccccccccccccccc
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
-     & ini1,ini2,iend1,iend2,igg,ig,iqi,i 
+     & ini1,ini2,iend1,iend2,igg,ig,iqi,i
       real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
       complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
       if(init2) stop 'readcphi: modele is not initialized yet'
 !! nqtt/2=nqnum. See lm7k/fp/suham.F
       call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
-!!  For given iq, iqq = iqmap(iq)  
+!!  For given iq, iqq = iqmap(iq)
 !! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))  and  qtt(:,iqq) = qtti(:,iqi)
-      igg=igmap(iq)  
-      iqq=iqmap(iq)  ! mapped from qtt(:,iqq) to qtt(:,iq); 
-                     ! qtt(:,iq)=matmul(sym(igg),qtt(:,iqq))+some Gvector(see iqindx2 above)
+      igg=igmap(iq)
+      iqq=iqmap(iq)  ! mapped from qtt(:,iqq) to qtt(:,iq);
+      ! qtt(:,iq)=matmul(sym(igg),qtt(:,iqq))+some Gvector(see iqindx2 above)
       iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See lqg4gw and lm7K/subs/suham.F:L200).
-                     ! qtt(:,iqq) = qtti(:,iqi) is satisfied. 
-                     ! qtti(:,iqi) are only when eigenfunctions are calculated).
+      ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
+      ! qtti(:,iqi) are only when eigenfunctions are calculated).
       if(keepeig) then
         cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
       else
         ikpisp= isp + nsp*(iqi-1)
         read(ifcphi, rec=ikpisp) cphifr(1:ldim2,1:nband)
-      endif 
+      endif
       if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbt,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
 !!
@@ -250,12 +364,12 @@ ccccccccccccccccccccccccccccccccccc
 !! Followings are not used now...  june2012
 !! We can use the followings instead of rotmto (both should give the same result).
 !! ----------
-!! Rotation  See mto part of lm7K/subs/rotwv.F 
+!! Rotation  See mto part of lm7K/subs/rotwv.F
 !! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
 !! (then MTO itself is rotated. a little diffent from here).
 !! qrot= symops(igg) qtt
       qrot=matmul(symops(:,:,igg),qtt(:,iqq)) !qrot-qtt(:,iq) is some G vector.
-      phaseq   = exp( -img2pi*sum( qrot*shtvg(:,igg)) ) 
+      phaseq   = exp( -img2pi*sum( qrot*shtvg(:,igg)) )
 cddd
 c      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -270,7 +384,7 @@ ccccccccccccccccccccccccccccccccccc
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
           phase = exp( -img2pi*sum(qrot*(tiat(:,ibas,igg)-shtvg(:,igg))) )
-        endif   
+        endif
         ibaso=ibas
         l   = l_tbl(iorb)
         k   = k_tbl(iorb)
@@ -281,11 +395,11 @@ ccccccccccccccccccccccccccccccccccc
         cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))
      &                       *phase*phaseq
         if(debug) then
-        write(6,*)ibaso,ibas,phase
-        write(6,*)ini1,iend1,ini2,iend2
-        write(6,*)'sumd  dlmm =',igg,l,sum(abs(dlmm(-l:l,-l:l,l,igg)))
-        write(6,*)'sumcr cphifr=',l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
-        write(6,*)'sumcf cphif=',l,k,igg,sum(abs(cphif(ini2:iend2,:)))
+          write(6,*)ibaso,ibas,phase
+          write(6,*)ini1,iend1,ini2,iend2
+          write(6,*)'sumd  dlmm =',igg,l,sum(abs(dlmm(-l:l,-l:l,l,igg)))
+          write(6,*)'sumcr cphifr=',l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
+          write(6,*)'sumcf cphif=',l,k,igg,sum(abs(cphif(ini2:iend2,:)))
         endif
       enddo
 ccccccccccccccccccccccccccccccccc
@@ -406,7 +520,7 @@ c      print *,' readgcphi_mlw: q=',q
 
 c------------------------------
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-      use m_hamindex
+      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,nsp_in, 
@@ -426,7 +540,7 @@ c      integer(4),allocatable:: ngvecp(:,:)
 c      write(6,*) 'init_readeigen:1'
 
 !!--- store requied index
-      call readhamindex() 
+      call readhamindex()
 c      write(*,*)ngrp,nbas,kxx,lxx
 c      write(*,*)'nqtt=',nqtt,nqi,nqnum
 c      write(*,*)'imx=',imx,ngpmx
@@ -444,7 +558,7 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
       do ikp = 1,nqnum
         read (ifiqg) qtt_(:,ikp), ngp(ikp)
-        read (ifiqg) ngvecp(1:3, 1:ngp(ikp),ikp),ngvecprev(-imx:imx,-imx:imx,-imx:imx,ikp) 
+        read (ifiqg) ngvecp(1:3, 1:ngp(ikp),ikp),ngvecprev(-imx:imx,-imx:imx,-imx:imx,ikp)
       enddo
       close(ifiqg)
       deallocate(qtt_)
@@ -462,11 +576,11 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       close(ifev)
       if(debug) then
         do is= 1,nsp
-        do ik= 1,nqi
-        do ib= 1,nband
-          write(6,"('ib ik e=',3i5,f13.5)") ib,ik,is,evud(ib,ik,is)
-        enddo
-        enddo
+          do ik= 1,nqi
+            do ib= 1,nband
+              write(6,"('ib ik e=',3i5,f13.5)") ib,ik,is,evud(ib,ik,is)
+            enddo
+          enddo
         enddo
         if(debug) print *,'init_readeigen:end'
       endif
@@ -476,7 +590,7 @@ c      ifev(1) = iopen('EVU', 0,0,mrece)
 c      if(nsp==2) ifev(2) = iopen('EVD', 0,0,mrece)
 C$$$      do is= 1,nsp
 C$$$        call rwdd (ifev(is),   !read eigenvalues
-C$$$     d              nband,nqi, 
+C$$$     d              nband,nqi,
 C$$$     o              evud(1,1,is))
 C$$$c        print *, 'evud is=',is,minval(evud(:,:,is))
 C$$$        if(debug) then
@@ -518,7 +632,7 @@ c this should be called after init_readgeigen
       read(ifoc,*)
       norbt=0
       write(*,*) ' goto readin @MNLA_CPHI: norbt=',norbt
-      do 
+      do
         read(ifoc,*,end=106) i1,i2,i3,i4,i5,iorb
         write(6,*) i1,i2,i3,i4,i5,iorb
         if(iorb>norbt) norbt=iorb
@@ -529,7 +643,7 @@ c this should be called after init_readgeigen
       read(ifoc,*)
       allocate(l_tbl(norbt),k_tbl(norbt),ibas_tbl(norbt),offset_tbl(norbt))
       iorbold=0
-      do 
+      do
         read(ifoc,*,end=107)i1,i2,i3,i4,i5,iorb
         if(iorbold/=iorb) then
           k_tbl(iorb)=i2
@@ -545,7 +659,7 @@ c this should be called after init_readgeigen
       do iorb=1,norbt
         offsetrev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
       enddo
-      write(*,*)'init_readeigen2: table for rotation of cphi' 
+      write(*,*)'init_readeigen2: table for rotation of cphi'
       do iorb=1,norbt
         write(*,*)ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb),
      &   offset_tbl(iorb),
@@ -573,7 +687,7 @@ c        read(ifcphi) cphi(1:ldim2,1:nband,ikp,is)
           ikpisp= is + nsp*(ikp-1)
           if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
 ccccccccccccccccccccccc
-c          if(verbose()>40) 
+c          if(verbose()>40)
 c     &       write(6,'("Readin geig sumcheck ",i5,3f9.4,"  ",i5,2d13.6)')
 c     &      ikp,qtti(:,ikp),ngp(ikp),sum(geig(1:ngp(ikp),1:nband,ikp,is))
 cccccccccccccccccccccc

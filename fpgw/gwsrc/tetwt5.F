@@ -263,7 +263,7 @@ ccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccc
 c          do ib=1,nband
 c          if(eigtet(ib,kx,isp1)>20) then
-c            write(6,"('eigtet=',3i5,f13.5)") 
+c            write(6,"('eigtet=',3i5,f13.5)")
 c     &      ib,kx,isp1,eigtet(ib,kx,isp1)
 c          endif
 c          enddo
@@ -400,16 +400,16 @@ ctakao Apr2009
           nbandmx_k   = nband
           nbandmx_kq  = nband
           do i=1,nband
-             if( maxval(ek_(i, 0:3)) >1d9) then
-                nbandmx_k = i-1
-                exit
-             endif
+            if( maxval(ek_(i, 0:3)) >1d9) then
+              nbandmx_k = i-1
+              exit
+            endif
           enddo
           do i=1,nband
-             if( maxval(ekq_(i, 0:3)) >1d9) then
-                nbandmx_kq = i-1
-                exit
-             endif
+            if( maxval(ekq_(i, 0:3)) >1d9) then
+              nbandmx_kq = i-1
+              exit
+            endif
           enddo
 
 c--------- ! write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
@@ -784,10 +784,10 @@ ccccccccccccc
 !! Corners of occupied states at the Fermi energy are kk(1:3,i+4) i=1,2,3.
 !! This makes a Fermi surface
         if(sum(abs(ea-eb))<1d-6) then
-         call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
-        endif  
+          call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
+        endif
 
-!! still developing 
+!! still developing
         call  inttetra6(kkv,kk,xx,ebf,(/4,1+4,2+4,3+4/),  ! k4,K1,K2,K3
      i         frhis,  nwhis,  
      o         wtthis )
@@ -799,8 +799,8 @@ ccccccccccccc
         call midk3(kk,ee,xx,ebf, 3,2,  kk(1,4+4),xx(4+4),ebf(4+4)) !K4
 
         if(sum(abs(ea-eb))<1d-6) then
-        call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
-        call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
+          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+          call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
         endif
 
         if(chkwrt) write(6,*) 'lindtet6: fig 2 xxx2'
@@ -824,7 +824,7 @@ c-----------
         call midk3(kk,ee,xx,ebf, 1,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
 
         if(sum(abs(ea-eb))<1d-6) then
-        call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
         endif
 
         call  inttetra6(kkv,kk,xx,ebf,(/3, 4,3+4, 2/),  ! k3,k4,K3,k2

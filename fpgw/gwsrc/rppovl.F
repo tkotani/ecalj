@@ -31,7 +31,7 @@ cccccccccccccccccccccccccccccccccccccccccc
       if(debug .and. allocated(ngvecc2_0_s)) then
         print *,' getppx :sumcheck ngvecc2_0= 3',ngc2_s(3),sum(abs(ngvecc2_0_s(1:3,1:ngc2_s(3),3)))
       endif
-ccccccccccccccccccccccccccccccccccccccccc  
+ccccccccccccccccccccccccccccccccccccccccc
 c--- KeepPPOVL=F to reduce memory usage.
       if(allocated(ppx)    ) deallocate(ppx)
       if(allocated(ngvecc2)) deallocate(ngvecc2)

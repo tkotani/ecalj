@@ -1,6 +1,9 @@
+      logical function eibz4x0()
+      eibz4x0=.true. !PRB125102(2010)
+      end
       logical function addbasnew()
       addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
-                       ! If false, use old version (less product basis set is added.) 
+      ! If false, use old version (less product basis set is added.)
       end
 
       logical function newaniso()
@@ -33,7 +36,7 @@ c===========================================================
 c============================================================
       logical function is_mix0vec()
 !is_mis0vec=.false. is original version. But it caused a problem at BZ bounday.
-      is_mix0vec=.true.  
+      is_mix0vec=.true.
       end
 
       logical function evaltest()

@@ -244,8 +244,8 @@ c        print *,' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
             ix = ix+1
 c          write(6,*)'is ix=',is,ix
 c          write(6,"(' --- qbz=',2i5,3f9.4)") iqi,is!,qbz(:,iqi)+ddq
-             call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
-             write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
+            call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
+            write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
           enddo
         enddo
         ldim  = nband
