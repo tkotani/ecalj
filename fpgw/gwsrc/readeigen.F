@@ -1,5 +1,61 @@
+      module m_pbindex !generate index table for product basis.
+      integer,parameter::NULLI=-9999999
+      integer:: norbt=NULLI !number of PB block. 
+      integer,allocatable:: 
+     &    ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
+      integer::
+     &    max_ibas_tbl=NULLI,max_l_tbl=NULLI,max_k_tbl=NULLI,max_offset_tbl=NULLI
+      logical::init=.true.
+      contains !-----------------------------------------------
+      subroutine PBindex(natom,lx,l2nl,nx)
+      implicit none
+      integer::natom,l2nl,ibas,lb,nb,iorbt,kn,lx(natom),nx(0:l2nl,natom),mb
+      if(.not.init) return
+      init=.false.
+      iorbt=0
+      do ibas=1, natom
+      do lb  = 0, lx (ibas)
+      do nb  = 1, nx (lb,ibas)
+        iorbt=iorbt+1
+      enddo
+      enddo
+      enddo
+      norbt = iorbt !number of product basis block
+      print *,'norbt=',norbt
+      allocate( ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt) )
+      iorbt=0
+      offset_tbl(1)=0
+      do ibas=1, natom
+      do lb = 0, lx (ibas)
+      do kn = 1, nx (lb,ibas)
+          iorbt=iorbt+1
+          ibas_tbl(iorbt)=ibas
+          l_tbl(iorbt)=lb
+          k_tbl(iorbt)=kn
+          if(iorbt<norbt) offset_tbl(iorbt+1)=offset_tbl(iorbt)+2*lb+1
+c        do mb  = -lb, lb
+c          i = i+1  !The number of product basis is  =(i at the end of loop).
+c          write(6,"(' === product basis index: iorbt ibas l n m',10i4)")iorbt,ic,lb,kn
+c        enddo
+      enddo
+      enddo
+      enddo
+      max_ibas_tbl=natom
+      max_l_tbl=maxval(l_tbl(1:norbt))
+      max_k_tbl=maxval(k_tbl(1:norbt))
+      allocate(offset_rev_tbl(max_ibas_tbl,0:max_l_tbl,max_k_tbl))
+      do iorbt=1,norbt
+        ibas=ibas_tbl(iorbt)
+        lb= l_tbl(iorbt)
+        kn= k_tbl(iorbt)
+        offset_rev_tbl(ibas,lb,kn)=offset_tbl(iorbt)
+        write(6,"(' === product basis index: iorbt ibas l n offset',10i4)")iorbt,ibas,lb,kn,offset_rev_tbl(ibas,lb,kn)
+      enddo
+      end subroutine
+      end module 
+
       module m_readqgcou
-!! this is duplicated with reqdqg.F---> need to be unified... jun2012takao
+!! this is somehow duplicated with reqdqg.F---> I hope they are unified... jun2012takao
 !! ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp) is added on jun2012takao
       implicit none
       integer:: nqnum,nqbz,imxc,ngcmx,nqbz_
@@ -28,92 +84,103 @@ c        print *,' ngc=',ngc(ikp)
       end subroutine
       end module
 
-
-
-
-      module m_spacegrouprot
-      integer(4),allocatable :: invgx(:), miat(:,:)
-      real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
-      contains !-------------------------------------------
-      subroutine Spacegrouprot(symgg,ngrp,plat,natom,pos) !all input
+!! == Mixed product basis rotator. ==
+      module m_rotMPB !WARN. rotMPB looks work OK. Used in eibz4x0()=T in switch.F  However,
+!! a curious strange segmention fault occurs in a Si444 case when we test a code qout= matmul(symops(:,:,igx),qin). 
+!! I don't know why. 
+!! This has developed for eibz mode jun2012, not tested completely. 
+!! In future, this routine can be for some application.
+!!takao2012jun
+      use m_pbindex,only: norbt, ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,
+     &    max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
+      use m_hamindex, only: qlat,plat,invgx,
+     &  miat,tiat,shtvg,symops,nbas,ngrp
+      use m_readqgcou,only: imxc,ngvecc,qtt_,nqnum,ngc,ngveccrev
+      integer:: lxxa
+      real(8),allocatable:: dlmm(:,:,:,:)
+!! --- 
+      contains
+      subroutine rotMPB(zcousq,nbloch,ngbb,qin,igx,igxt,ginv
+     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-2 means complex congugate(timereversal).
       implicit none
-      real(8)::symgg(*),plat(*),pos(*)
-      integer::ngrp,natom,ificlass,iopen,ibas,ibasx,iclose
-      integer,allocatable:: iclasst(:)
-!!  Get data for space-group transformation. See header of mptaouof.
-      ificlass   = iopen('CLASS',1,-1,0)
-      allocate(iclasst(natom))
-      print *,'  --- Spacegrouprot: Readingin true CLASS info ---'
-      do ibas = 1,natom
-        read(ificlass,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      ificlass= iclose('CLASS')
-      allocate( invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
-     o     ,miat,tiat,invgx,shtvg )
+      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
+      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
+      complex(8):: zcousq(ngbb,ngbb),zcousqr(ngbb,ngbb)
+      integer,save:: init=1
+      if(init==1) then
+        lxxa= 2*max_l_tbl
+        nl= lxxa +1 
+        allocate(dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa,ngrp))
+        call rotdlmm(symops,ngrp,nl,dlmm)
+        init=0
+      endif   
+      call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),nbas, 
+     o  zcousqr(1:nbloch,1:ngbb))
+c      print *,' end of rotmto '
+      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
+      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
+      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
+!!
+      ngcx=ngc(iqin)
+      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
+         print *,' ngbb qin  =',ngbb,qin
+         print *,' iqin iqout=',iqin,iqout
+         print *,' qout=',qout
+         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
+         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
+         print *,' ngc(iqout)=',ngc(iqout)
+         if(ngcx/=ngbb-nbloch) stop 'rotMPB:ngc(iqin)/=ngbb-nbloch'
+         stop 'rotMPB:ngc(iqin)/=ngc(iqout)'
+      endif   
+      platt=transpose(plat)
+c      print *,' iqin iqout igx=',iqin,iqout,igx
+c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
+c      print *,'qin  =',qin,iqin,igx
+c      print *,'qout =',qout,iqout
+c      print *,'ngcx ngbb=',ngcx,ngbb
+c      print *,'platt=',platt
+c      print *,' qlat=',qlat
+      call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
+     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),imxc,
+     o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
+      if(igxt<0) then !time-reversal
+        zcousqr = dconjg(zcousqr)
+      endif  
       end subroutine
-      end module 
-!! ------------
+      end module
 
-      module m_pbindex !generate index table for product basis.
-      integer,parameter::NULLI=-9999999
-      integer:: norbt=NULLI !number of PB block. 
-      integer,allocatable:: 
-     &    ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
-      integer::
-     &    max_ibas_tbl=NULLI,max_l_tbl=NULLI,max_k_tbl=NULLI,max_offset_tbl=NULLI,mb
-      logical::init=.true.
-      contains !-----------------------------------------------
-      subroutine PBindex(natom,lx,l2nl,nx)
-      implicit none
-      integer::natom,l2nl,ibas,lb,nb,iorbt,kn,lx(natom),nx(0:l2nl,natom)
-      if(.not.init) return
-      init=.false.
-      iorbt=0
-      do ibas=1, natom
-      do lb  = 0, lx (ibas)
-      do nb  = 1, nx (lb,ibas)
-        iorbt=iorbt+1
-      enddo
-      enddo
-      enddo
-      norbt = iorbt !number of product basis block
-      print *,'norbt=',norbt
-      allocate( ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt) )
-      iorbt=0
-      offset_tbl(1)=0
-      do ibas=1, natom
-      do lb = 0, lx (ibas)
-      do kn = 1, nx (lb,ibas)
-          iorbt=iorbt+1
-          ibas_tbl(iorbt)=ibas
-          l_tbl(iorbt)=lb
-          k_tbl(iorbt)=kn
-          if(iorbt>0) offset_tbl(iorbt)=offset_tbl(iorbt-1)+2*lb+1
-c        do mb  = -lb, lb
-c          i = i+1  !The number of product basis is  =(i at the end of loop).
-c          write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,kn,mb
-c        enddo
-      enddo
-      enddo
-      enddo
-      max_ibas_tbl=natom
-      max_l_tbl=maxval(l_tbl(1:norbt))
-      max_k_tbl=maxval(k_tbl(1:norbt))
-      allocate(offset_rev_tbl(max_ibas_tbl,max_l_tbl,max_k_tbl))
-      do iorbt=1,norbt
-        ibas=ibas_tbl(iorbt)
-        lb= l_tbl(iorbt)
-        kn= k_tbl(iorbt)
-        offset_rev_tbl(ibas,lb,kn)=offset_tbl(iorbt)
-      enddo
-      end subroutine
-      end module 
+
+
+c$$$      module m_spacegrouprot
+c$$$      integer(4),allocatable :: invgx(:), miat(:,:)
+c$$$      real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
+c$$$      contains !-------------------------------------------
+c$$$      subroutine Spacegrouprot(symgg,ngrp,plat,natom,pos) !all input
+c$$$      implicit none
+c$$$      real(8)::symgg(*),plat(*),pos(*)
+c$$$      integer::ngrp,natom,ificlass,iopen,ibas,ibasx,iclose
+c$$$      integer,allocatable:: iclasst(:)
+c$$$!!  Get data for space-group transformation. See header of mptaouof.
+c$$$      ificlass   = iopen('CLASS',1,-1,0)
+c$$$      allocate(iclasst(natom))
+c$$$      print *,'  --- Spacegrouprot: Readingin true CLASS info ---'
+c$$$      do ibas = 1,natom
+c$$$        read(ificlass,*) ibasx, iclasst(ibas)
+c$$$        write(6, "(2i10)") ibasx, iclasst(ibas)
+c$$$      enddo
+c$$$      ificlass= iclose('CLASS')
+c$$$      allocate( invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+c$$$      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
+c$$$     o     ,miat,tiat,invgx,shtvg )
+c$$$      end subroutine
+c$$$      end module 
+c$$$!! ------------
 
 
       subroutine rotmto(qin,cphiin,nbloch,nband,
-     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offsetrev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,nbas,
      o  cphiout)
 !!== Rotation of a function of ProductBasis or MT part of wave function.
@@ -139,22 +206,23 @@ c        enddo
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl
-      integer::  offsetrev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+      integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
       qrot = matmul(sym,qin)
       phaseq   = exp( -img2pi*sum(qrot*shtvg ))
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
+c         print *,'iorb=',iorb
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) then !just for speed up
-          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) )
-        endif
+        if(ibas/=ibaso) phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+c        print *,'phase'
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
         ini1 = offset_tbl(iorb)+1
         iend1 = ini1+2*l
-        ini2 = offsetrev_tbl(miat(ibas),l,k)+1
+        ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
+c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
         cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
       enddo
       end subroutine rotmto
@@ -182,13 +250,12 @@ c        enddo
         qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
         qpgr = matmul(sym,qpg)             !rotated q+G
         call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
         ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
         geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
       enddo
       end subroutine rotipw
 !! ------------------------------------------------------
-
-
       module m_readeigen
 !!-- Return eigenvalus and eigenfunctions for given q and isp.--
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
@@ -214,7 +281,7 @@ ctm
       logical,private:: debug=.false.
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
-     & ,offset_tbl(:),offsetrev_tbl(:,:,:)
+     & ,offset_tbl(:),offset_rev_tbl(:,:,:)
 !!--------------------------------------------------------------
       contains
 
@@ -355,7 +422,7 @@ ccccccccccccccccccccccccccccccccccc
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
 !!
       call rotmto(qtt(:,iqq),cphifr,ldim2,nband,
-     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offsetrev_tbl,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,
      i  maxval(ibas_tbl),maxval(l_tbl),maxval(k_tbl),
      i  ginv,symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),nbas, 
      o  cphif)
@@ -390,7 +457,7 @@ ccccccccccccccccccccccccccccccccccc
         k   = k_tbl(iorb)
         ini1 = offset_tbl(iorb)+1
         iend1 = ini1+2*l
-        ini2 = offsetrev_tbl(miat(ibas,igg),l,k)+1
+        ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
         iend2 = ini2+2*l
         cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))
      &                       *phase*phaseq
@@ -654,16 +721,16 @@ c this should be called after init_readgeigen
         endif
       enddo
  107  continue
-      allocate(offsetrev_tbl(maxval(ibas_tbl),0:maxval(l_tbl),maxval(k_tbl)))
-      offsetrev_tbl=-99999
+      allocate(offset_rev_tbl(maxval(ibas_tbl),0:maxval(l_tbl),maxval(k_tbl)))
+      offset_rev_tbl=-99999
       do iorb=1,norbt
-        offsetrev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
+        offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
       enddo
       write(*,*)'init_readeigen2: table for rotation of cphi'
       do iorb=1,norbt
         write(*,*)ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb),
      &   offset_tbl(iorb),
-     &  offsetrev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))
+     &  offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))
       enddo
       ifoc=iclose('@MNLA_CPHI')
 c      stop 'init2 xxxxxxxxxxxxx'

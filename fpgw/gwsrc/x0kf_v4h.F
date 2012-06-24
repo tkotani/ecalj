@@ -19,12 +19,12 @@ c     i       ngvecpB,ngveccB,
 c------------------------------------------
      i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006
      i     newanisox,
-     o     rcxqmean)
-c     i     qeibz,neibz,nwgt) !aik,aiktimereversal,ngrpt)
+     o     rcxqmean,
+     i     nwgt,igx,igxt,ngrp,eibzsym)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:getkeyvalue
-
+      use m_rotMPB,only: rotMPB
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
 
 C- Only the spectrum function (imaginary part) along the real axis.
@@ -154,11 +154,15 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
 
 !! jun2012takao
 c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 
-c      integer:: nwgt(1:neibz),  neibz !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
+      integer:: ngrp,nwgt(nqbz) !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
+      integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
 !! nwgt(neibz
       logical:: eibz4x0,checkbelong,eibzmode
-      complex(8):: ppovl(ngc,ngc),zcousq(ngbb,ngbb)
-      complex(8):: zmeltx(ngbb),zmelty(ngbb)
+      complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
+      complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:)
+      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
+      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden
+
 c ------------------------------------------------
 
 
@@ -241,11 +245,15 @@ c$$$        enddo
 c$$$      endif
 c$$$ccccccccccccccccccccccccccccccccccccccc
 
-      eibzmode = .false. !eibz4x0().and.(.not.nolfco)
+      eibzmode = eibz4x0().and.(.not.nolfco)
+      eibzmoden = 2
+      if(.not.eibzmode) eibzmoden=0
 
 C... loop over k-points
       qq=0d0
       do 1000 k = 1,nqbz
+        if(eibzmode.and.nwgt(k)==0 ) cycle
+
         if(debug) write(*,'("1  begin k-cycle",$)')
         if(debug) call cputid(0)
         ipr=(k<5.or.k==nqbz.or.debug)
@@ -257,14 +265,6 @@ C... loop over k-points
           write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4)")k, rk(:,k)
         endif
 c     
-c        nwgtieibz = 1
-c        if(eibzmode) then
-c          if( checkbelong(rk(:,k),qeibz,neibz,ieibz) ) then
-c            nwgtieibz = nwgt(ieibz) !number of equivalent k points for given q.
-c          else  
-c            cycle
-c          endif  
-c        endif
 
 
 C... Read cphi part of eigenfunctions for k and k+q
@@ -462,7 +462,17 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         endif
 
 !! === zmelt conversion === \mu-basis representation.
-        if(newanisox.and.(.not.eibzmode)) then !.and.iq==1) then
+        if(newanisox.and.eibzmode) then
+          if(ngb/=ngbb) then
+            print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
+            stop 'x0kf_v4h: ngb/=ngbb'
+          endif
+          do it=1,nctot+nt0
+          do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
+            zmelt(nbloch+1:nbloch+ngc,it,itp)=matmul(zmelt(nbloch+1:nbloch+ngc,it,itp),ppovl)
+          enddo
+          enddo
+        elseif(newanisox) then !.and.iq==1) then
           if(ngb/=ngbb) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
             stop 'x0kf_v4h: ngb/=ngbb'
@@ -651,21 +661,20 @@ c2end --------------
 cc         else
 ccccccccccccccccccccccccc takao variant end
 
-          if(newanisox.and.eibzmode) then
-            zmeltx(1:nbloch) =  zmelt(1:nbloch,it,itp)
-            zmeltx(nbloch+1:nbloch+ngc) =  matmul(zmelt(nbloch+1:nbloch+ngc,it,itp),ppovl )
-c$$$            z1p=0d0
-c$$$            do ieibzr =1, nwgtieibz !equivalent points for ieibz
-c$$$                                    !igx specifies space-group operation (including ID)
-c$$$c              call rotMPB(zcousq,igx(k?ibz or iibz,ieibzr), zcousqr) !zmelty= matmul(zmeltx ,Rotate_igx(zcousq) )
-c$$$              zmelty = matmul(zmelt,zcousqr)
-c$$$              do igb2=1, ngb !....................................
-c$$$                zmelt2 = zmelty(igb2)
-c$$$              do igb1=1,igb2
-c$$$                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
-c$$$              enddo
-c$$$              enddo
-c$$$            enddo  
+          if(newanisox.and.eibzmoden==1) then ! This is slow.
+            zmeltx =  zmelt(:,it,itp)
+            z1p=0d0
+            do ieqbz =1, nwgt(k) !equivalent points for ieibz
+                                 !igx specifies space-group operation (including ID)
+              call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqrx) !zcousqr=Rotate_igx(zcousq) 
+              zmelty = matmul(zmeltx,zcousqrx)
+              do igb2=1, ngb !....................................
+                zmelt2 = zmelty(igb2)
+              do igb1=1,igb2
+                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
+              enddo
+              enddo
+            enddo  
           else
             do igb2=1, ngb !....................................
             zmelt2 = zmelt(igb2,it,itp)
@@ -676,32 +685,22 @@ c$$$            enddo
           endif
 
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
-
 !$OMP parallel do  private(imagweight) shared(rcxq)
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+            if(eibzmoden==2) imagweight = nwgt(k)*imagweight  
             do igb2=1,ngb  !this part dominates cpu time most time consuming...........
             do igb1=1,igb2
-c     call zdaxpy(igb2,imagweight,z1p(1,igb2),zxq_(1,igb2,iiww))
-                rcxq(igb1,igb2,iw,jpm) =  !here we  sum over ibib (or n, n') and k.
-!!jun2012takao
-     &         rcxq(igb1,igb2,iw,jpm) + z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
-c     &         rcxq(igb1,igb2,iw,jpm) + dble(nwgtieibz) *z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
-            enddo !igb1
-            enddo !igb2
-ccccccccccccccccccccccccccccccccccccccccc
-c            if(debug) write(6,*)" sum z1p imagweight=",sum(abs(z1p)),imagweight
-c            if(debug) write(6,*)" sum jhw ihw=",jhw(ibib,k,jpm), ihw(ibib,k,jpm)
-c            if(debug) write(6,*)" sum rcxq=",sum(abs(rcxq(:,:,iw,1)))
-c           stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccccccccccc
+              rcxq(igb1,igb2,iw,jpm) =  !here we  sum over ibib (or n, n') and k.
+     &        rcxq(igb1,igb2,iw,jpm) + z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
+             enddo !igb1
+             enddo !igb2
           enddo ! iw
 !$OMP end parallel do
 
  25     continue
         if(debug) call cputid(0)
         deallocate(zmelt,z1p)
-
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c        if(ipr) then
@@ -730,7 +729,6 @@ c$$$          enddo
 c$$$c        endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-
 c       if(ipr) then
 c         do iw= 1,nwt
 c           aaa = 0d0
@@ -746,33 +744,68 @@ c       endif
         !    call cputid(0)
  1000 continue
 
+!! hermitianize. jun2012takao moved from dpsion5 
+      if(.not.nolfco) then
+        do jpm=1,npm
+        do iw= 1,nwt
+         do igb2= 1,ngb
+         do igb1= 1,igb2-1
+           rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+         enddo
+         enddo
+        enddo
+        enddo
+      endif
+!! eibz symmetrization.
+cmemo         rcxq(igb1,igb2)* ppovl(igb2,igb3)*zcousqr(igb3)
+cmemo         zmeltx(1:nbloch) =  zmelt(1:nbloch,it,itp)
+cmemo         zmeltx(nbloch+1:nbloch+ngc) =  matmul(zmelt(nbloch+1:nbloch+ngc,it,itp),ppovl )
+cmemo         call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqr) !zcousqr=Rotate_igx(zcousq) 
+cmemo         zmelty = matmul(zmeltx,zcousqr)
+cmemo         do igb2=1, ngb !....................................
+cmemo           zmelt2 = zmelty(igb2)
+cmemo           do igb1=1,igb2
+cmemo             z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
+cmemo           enddo
 
-!! symmetrized here in the case of eibz
-c     if(eibzmode) then
+c$$$!! symmetrizer of eibz
+      if(eibzmoden==2) then
+        print *,' --- goto zcousqrsum ---'
+        neibz=max(sum(eibzsym(:,1)),sum(eibzsym(:,-1)))
+        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb))
+        neibz=sum(eibzsym(:,1))!+sum(eibzsym(:,-1))
+        icc=0
+        do ig=1,ngrp
+          if(eibzsym(ig,1)==1) then !.or.eibzsym(ig,-1)==1) then
+            icc=icc+1
+            call rotMPB(zcousq,nbloch,ngb,q,ig,1,ginv,zcousqr(1,1,icc))
+          endif
+        enddo
+        do iw=1,nwt
+        do jpm=1,npm
+          rcxq0=0d0
+          icc=0
+          do ig=1,ngrp
+           if(eibzsym(ig,1)==1) then ! .or.eibzsym(ig,-1)==1) then
+            icc=icc+1
+            print *,'iq iw icc=',iq,iw,icc
+            rcxq00(:,:)=matmul(dconjg(transpose(zcousqr(:,:,icc))),matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
+            if(eibzsym(ig, 1)==1) rcxq0(:,:)= rcxq0(:,:)+ rcxq00(:,:)
+c            if(eibzsym(ig,-1)==1) rcxq0(:,:)= rcxq0(:,:)+ transpose(rcxq00(:,:))
+           endif
+          enddo
+          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
+        enddo
+        enddo
+        deallocate(zcousqr,rcxq0,rcxq00)
+      endif  
+      deallocate(cphik,cphikq,geig1,geig2)
+      if(smbasis()) deallocate(pomat)
+      print *,' x0kf_v4hz: end'
+      end subroutine x0kf_v4hz
 
 
 
-
-c      print *,' x0kf_v4hz: 111'
-c      deallocate(zxq_) !...........................sf 21May02
-        deallocate(cphik,cphikq,geig1,geig2)
-        if(smbasis()) deallocate(pomat)
-        print *,' x0kf_v4hz: end'
-c$$$cccccccccccccccccccccccccccccccccccccccccccc
-c$$$        print *,' ---- trace chck ---- '
-c$$$        do jpm=1,npm
-c$$$        do iw= 1,nwt
-c$$$        do ix=1,ngb
-c$$$        do iy=1,ngb
-c$$$          write(6,"(a,2i4,3f13.6)")' ttttt=',ix,iy,
-c$$$     &    sum(abs(rcxq(ix,iy,:,jpm)))
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$        stop 'xxxxxxxxxxxxxxxxxxxxxx'
-c$$$cccccccccccccccccccccccccccccccccccccccccccc
-        end
 
 C=====================================================================
         subroutine dpsion5  (frhis,nwhis, freqr,nw_w, freqi,niwt, 
@@ -906,17 +939,20 @@ c         if(debug) print *, 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
         if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
 
 C... Temporary. maybe, we will have better procedure...
-        if(nmbas1==nmbas2) then !Is this required??? apr2012takao
-          do jpm=1,npm
-            do iw= 1, nwhis
-              do igb2= 1, nmbas2
-                do igb1= 1, igb2-1
-                  rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
-                enddo
-              enddo
-            enddo
-          enddo
-        endif
+ctakao moved this to x0kv_v4h.F jun2012takao
+!! hermitianize.
+c        if(nmbas1==nmbas2) then !Is this required??? apr2012takao
+c          do jpm=1,npm
+c            do iw= 1, nwhis
+c              do igb2= 1, nmbas2
+c                do igb1= 1, igb2-1
+c                  rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+c                enddo
+c              enddo
+c            enddo
+c          enddo
+c        endif
+cccccccccccccccccccc
         if(debug) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
 
         if(evaltest().and.nmbas1==nmbas2) then

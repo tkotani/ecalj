@@ -1,14 +1,22 @@
       logical function eibz4x0()
-      eibz4x0=.true. !PRB125102(2010)
+      eibz4x0=.true. ! If T, use EIBZ mode in PRB125102(2010), however, in a little different algolism.
+                     ! So I have not seen a few factors of speed up in cases.
+                     ! I need to examine the algolism for eibz4x0=.true.
+                     ! === Cautions for eibz4x0=T ===
+                     ! (1) not tested well. especially eibz 
+                     !     (results of eibzsym in hx0fp0.m.F contains Time-reversal symmetrization. See console output.)
+                     ! (2) take tail of lsc_sf in gw_lmfh. I observed deneneracy of SEc is not perfect for degenerated bands.
+                     ! (3) I am not sure wether it give
       end
+
       logical function addbasnew()
       addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
       ! If false, use old version (less product basis set is added.)
       end
 
       logical function newaniso()
-      newaniso=.true.
-c      newaniso=.false.
+      newaniso=.true. !new GW mode. not the offset Gamma method.
+                      !combines methods by two Christoph. 
       end
 
       real(8) function screenfac()

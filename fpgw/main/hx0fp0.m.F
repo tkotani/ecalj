@@ -15,8 +15,9 @@
      &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
-      use m_spacegrouprot,only: Spacegrouprot
+c      use m_spacegrouprot,only: Spacegrouprot
       use m_readqgcou,only: readqgcou
+      use m_rotMPB,only: rotMPB
 C-------------------------------------------------
 C  Calculate x0, W-V, \epsilon
 Cr
@@ -221,8 +222,8 @@ c      integer :: nw2
       real(8):: eex(4),eey(4),qvv(3)
 !!
       logical :: newaniso,newaniso2 !apr2012
-      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx
-      complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:)
+      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig
+      complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)
       real(8),allocatable:: vcousq(:)
       real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
@@ -233,9 +234,9 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
       real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
-      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx
+      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
       complex(8):: vc1vc2
-      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:)
+      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
 
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
@@ -539,7 +540,7 @@ C --- Check PARALELL.X0. Recently, we have not checked parerell mode. So be care
       endif
       print *, ' nqibz nqibze=',nqibz,nqibze
 
-C ... initialization of readEigen
+C ... initialization of readEigen !readin m_hamindex
       call init_readeigen(ginv,nspin,nband,mrece) !
       ! EVU EVD are readin in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
@@ -1183,58 +1184,41 @@ c$$$ 1101  continue
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! === Use of symmetry. EIBZ procedure PRB81,125102(but a little difference) ===
-!! We simply re-organize nk points
-      if(eibz4x0()) then
-!! ==== index for product basis.  We will unify this system; still similar is used in ppbafp_v2. ===
-!! These will be stored in some module and stored somewhere, and used.
-!! for eibz
-        print *,' goto eibzsym: EIBZ data is not yet used... just show info'
-        allocate( qeibz(3,nqbz,iqxini:iqxend),neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),
-     &  aik(3,3,2*ngrp,iqxini:iqxend),aiktimer(2*ngrp,iqxini:iqxend),ngrpt(iqxini:iqxend),igx(nqbz,iqxini:iqxend,nqbz) )
-        call eibzsym(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal(),ginv,
-     o  qeibz,neibz,nwgt, aik,aiktimer,ngrpt,igx)
-c$$$! === rotation operator ===
-c$$$!!  |M_I> --> |M_J> pdrod(J,I,aik). See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
-c$$$!! Rotation of zcousq is tedidous; rotmto and rotipw in readeigen.F can be used to rotate zcousq. 
-c$$$!! Then zmel in x0kf_v4h can be rotated; zmel are rotated from generors of symmetry operation 
-c$$$!! igx(iqiebz, iq, 1:equivalent_iqibz).
-c$$$!! not yet implemented. PRB81, 125102, hopefully we can expect 2 to 3 times faster code.
-c$$$!!
-      endif
 
+!! === Use of symmetry. EIBZ procedure PRB81,125102(but a little difference) ===
+!!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
       if(eibz4x0()) then
-!! ==== index for product basis.  We will unify this system; still similar is used in ppbafp_v2. ===
-!! These will be stored in some module and stored somewhere, and used.
-!! for eibz
+        allocate( nwgt(nqbz,iqxini:nqibz), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
+     &    igx(ngrp*2,nqbz,iqxini:nqibz),igxt(ngrp*2,nqbz,iqxini:nqibz),
+     &    eibzsym(ngrp,-1:1,iqxini:nqibz))
+        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,
+     o  nwgt,igx,igxt,eibzsym)
         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
-        call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+            ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
         call readqgcou() !no input. Read QGcou and store date into variables.
+c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       endif
   
       allocate( llw(nw_i:nw,iqxini:iqxend), llwI(niw,iqxini:iqxend) )
-!! ---------------------------------------------------------
-!! === Calculate x0(q,iw) and W ===
-!! This is a main loop
-!!
       ifisk=iopen('WKcomponent',0,-1,0)
 
-      do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted when iqxini=2
+!! == Calculate x0(q,iw) and W == main loop for iq. 
+      do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
+!!
+
         call cputid (0)
         q = qibze(:,iq)
-        if(iq<=nqibz.or.ngczero) then ! iqx = iq
+        if(iq<=nqibz.or.ngczero) then  ! iqx = iq
           qq=q
-        else  !    iqx = 1            ! corresponding q=0
+        else  !    iqx = 1             ! corresponding q=0
           qq=0d0
         endif
         call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
-!! *sanity check
-        if( newaniso2.and.iq==1 ) then
+        if( newaniso2.and.iq==1 ) then ! *sanity check
           if(sum(q**2)>1d-10) then
             stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
           endif
         endif
-
 !! ==== readin Coulomb matrix ====
         if(chipm.and.(.not.legas).and.(.not.eiqr).or.newaniso2) then
           allocate(vcoul(1,1))!dummy
@@ -1281,14 +1265,6 @@ c           print *,'qvv sum vcousq ',igb1,vcousq(igb1)
 c         enddo
           read(ifvcoud) zcousq
           vcousq=sqrt(vcousq)
-          
-!! === IPW index for MPB is ngveccB ===
-c         if(eibz4x0()) then
-c           if(sum(abs(quu))>1d-8) stop 'QGcou sum of quu/=0'
-c!! reverse index for ngveccB as ngveccB_rev.
-cc            allocate(ngvecpBrev(-imx:imx,-imx:imx,-imx:imx)
-c          endif  
-
         endif
 
 !! ==== nolfco is overlaid ====
@@ -1344,8 +1320,6 @@ c                ppovlz(ix,iy)=ix*iy
 c             enddo
 c          enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
-!! generate zcousqr(I,\mu) rotated by igx(ieibz,iq, 1:nwgt(ieibz,iq) )
-c          nwgt
         endif
 
 !! ==== set up for epsilon mode =====
@@ -1797,7 +1771,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          endif
 c=======TetrahedronWeight_5 block end ==================4end
 
-
 c==============x0kf_v4hz block.  =========================5ini
 c Instead of wwk, you have to use whw(nwhtot).
 c You will need to pass these arrays to x0kf
@@ -1829,8 +1802,9 @@ c------------------------------------------------------------------
 cooo
 c     i    .false.,!for nolfco Add nmbas Sep2006
      i    newaniso2,!for nolfco Add nmbas Sep2006
-     o    rcxqmean)
-c     i    qeibz(:,:,iq),neibz(iq),nwgt(:,iq)) !,aik(:,:,2,iq),aiktimer(:,iq),ngrpt(iq))
+     o    rcxqmean,
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
+!) !,aik(:,:,2,iq),aiktimer(:,iq),ngrpt(iq))
 
 cooo          if(allocated(ppovlz)) deallocate(ppovlz)
 
