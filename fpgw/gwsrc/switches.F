@@ -1,12 +1,10 @@
       logical function eibz4x0()
-      eibz4x0=.true. ! If T, use EIBZ mode in PRB125102(2010), however, in a little different algolism.
-                     ! So I have not seen a few factors of speed up in cases.
-                     ! I need to examine the algolism for eibz4x0=.true.
-                     ! === Cautions for eibz4x0=T ===
-                     ! (1) not tested well. especially eibz 
-                     !     (results of eibzsym in hx0fp0.m.F contains Time-reversal symmetrization. See console output.)
-                     ! (2) take tail of lsc_sf in gw_lmfh. I observed deneneracy of SEc is not perfect for degenerated bands.
-                     ! (3) I am not sure wether it give
+      eibz4x0=.false.
+! If T, use EIBZ procedure in PRB125102(2010). Not completed yet... 
+!WARN: time-reversal is not included yet. (see hx0fp0.m.F L1195 call eibzgen).
+!      eibz. In addition, inefficient method of symmetrization at the bottom of x0kf_v4h
+!      call eibzgen generates EIBZ.
+!      Probably, it will make things easier to start from "inversion mesh for q point".
       end
 
       logical function addbasnew()

@@ -1191,7 +1191,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         allocate( nwgt(nqbz,iqxini:nqibz), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
      &    igx(ngrp*2,nqbz,iqxini:nqibz),igxt(ngrp*2,nqbz,iqxini:nqibz),
      &    eibzsym(ngrp,-1:1,iqxini:nqibz))
-        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,
+c        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,
+        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,.false.,ginv,
      o  nwgt,igx,igxt,eibzsym)
         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
             ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.

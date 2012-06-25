@@ -16,7 +16,7 @@
       ntimer=1
       if(timereversal) ntimer=-1
 ccccccccccccccccccccccccccccccccccccc
-      ntimer=1
+c      ntimer=1
 ccccccccccccccccccccccccccccccccccccc
       igx=-99999
       igxt=-9999
