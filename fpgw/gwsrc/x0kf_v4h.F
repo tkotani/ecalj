@@ -26,7 +26,7 @@ c------------------------------------------
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:  getkeyvalue
       use m_rotMPB,only:  rotMPB
-      use m_readqgcou,only: itimermap,qtt_,nqnum
+      use m_readqgcou,only: qtt_,nqnum !itimermap,
 
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
 
@@ -164,7 +164,7 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxqtr(:,:)
       complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
-      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j
+      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer
 
 c ------------------------------------------------
 
@@ -771,57 +771,54 @@ cmemo           do igb1=1,igb2
 cmemo             z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
 cmemo           enddo
 
+
 c$$$!! symmetrizer of eibz ccccccccccccccccccccccccccccccccccccccccccccc
       if(eibzmoden==2) then
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
-        print *,' --- goto zcousqrsum --- ikp =',ikp
-        neibz=max(sum(eibzsym(:,1)),sum(eibzsym(:,-1)))
-        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
+c        neibz=max(sum(eibzsym(:,1)),sum(eibzsym(:,-1)))
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1))
+        print *,' --- goto zcousqrsum --- ikp neibz=',ikp,neibz
+        call cputid2(' --- qqqqq1:',0)
+        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
         icc=0
+        do itimer=1,-1,-2
         do ig=1,ngrp
-          if(eibzsym(ig,1)==1.or.eibzsym(ig,-1)==1) then
+          if(eibzsym(ig,itimer)==1) then
             icc=icc+1
-            call rotMPB(zcousq,nbloch,ngb,q,ig,1,ginv,zcousqr(1,1,icc))
+            if(itimer==1) then
+              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+            else
+!! time reversal mapping ---
+              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+            endif
           endif
         enddo
+        enddo
+
+        call cputid2(' --- qqqqq2:',0)
         do iw=1,nwt
         do jpm=1,npm
           rcxq0=0d0
           icc=0
+c          do itimer=1,1 !1,-1,-2
+          do itimer=1,-1,-2
           do ig=1,ngrp
-           if(eibzsym(ig,1)==1.or.eibzsym(ig,-1)==1) then
-            icc=icc+1
-c            print *,'iq iw icc=',iq,iw,icc
-            if(eibzsym(ig, 1)==1) then
-              rcxq00(:,:)=matmul(dconjg(transpose(zcousqr(:,:,icc))),
-     &                            matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
-              rcxq0(:,:)= rcxq0(:,:)+ rcxq00(:,:)
-            endif   
-            if(eibzsym(ig,-1)==1) then
+            if(eibzsym(ig,itimer)==1) then
+             icc=icc+1
+             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
+     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
 !! time reversal mapping ---
-               print *,' inv rcxq00',icc
-               do i=1,ngb
-               do j=1,ngb
-                 ix=i
-                 iy=j
-                 if(i>nbloch) ix= itimermap(i-nbloch,ikp)
-                 if(j>nbloch) iy= itimermap(j-nbloch,ikp)  !time-reversal mapping
-                 rcxqtr(ix,iy)=rcxq(i,j,iw,jpm)
-               enddo
-               enddo
-               print *,' rot inv rcxq00'
-               rcxq00(:,:)=matmul(dconjg(transpose(zcousqr(:,:,icc))),
-     &                            matmul(transpose(rcxqtr),zcousqr(:,:,icc)))
-               rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
-            endif   
-           endif
+             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
+             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
+            endif
+          enddo
           enddo
           rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
         enddo
         enddo
         deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
+        call cputid2(' --- qqqqq3:',0)
       endif  
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)

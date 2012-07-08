@@ -26,7 +26,6 @@ c        print *,' ngc=',ngc(ikp)
         read (ifiqg) ngvecc(1:3, 1:ngc(ikp),ikp),ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp)
 !! time reversal mapping. only needed for time reversal case.
       enddo
-
 c takao is trying to a mapping for time-reversal. But not yet. it can be complicated
 c when we used current q-point mesh where -q do not exist in the list of q vector.
 c      do ikp=1,nqnum
@@ -42,10 +41,9 @@ c          itimermap(igc,ikp)= ngveccrev(-ngvecc(1,igc,ikp),-ngvecc(2,igc,ikp),-
 c          !ikp is mapped to itimermap
 c        enddo  
 c      enddo  
-
       ifiqg=iclose('QGcou')
-      end subroutine
-      end module
+      end subroutine readqgcou
+      end module m_readqgcou
 
       module m_pbindex !generate index table for product basis.
       integer,parameter::NULLI=-9999999
@@ -120,7 +118,7 @@ c        enddo
 !! --- 
       contains
       subroutine rotMPB(zcousq,nbloch,ngbb,qin,igx,igxt,ginv
-     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-2 means complex congugate(timereversal).
+     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
       implicit none
       real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
@@ -135,7 +133,7 @@ c        enddo
       endif   
       call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
-     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),nbas, 
+     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
      o  zcousqr(1:nbloch,1:ngbb))
 c      print *,' end of rotmto '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
@@ -162,7 +160,7 @@ c      print *,'ngcx ngbb=',ngcx,ngbb
 c      print *,'platt=',platt
 c      print *,' qlat=',qlat
       call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
-     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),imxc,
+     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
      o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
 c      if(igxt<0) then !time-reversal
 c        zcousqr = dconjg(zcousqr)
@@ -200,7 +198,7 @@ c$$$!! ------------
 
       subroutine rotmto(qin,cphiin,nbloch,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
-     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,nbas,
+     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
      o  cphiout)
 !!== Rotation of a function of ProductBasis or MT part of wave function.
 !! (then MTO itself is rotated. a little diffent from here).
@@ -224,15 +222,18 @@ c$$$!! ------------
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
-      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl
+      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
       integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
       qrot = matmul(sym,qin)
+      if(igxt==-1) qrot=-qrot !july2012takao
       phaseq   = exp( -img2pi*sum(qrot*shtvg ))
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
 c         print *,'iorb=',iorb
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+        if(ibas/=ibaso) then
+          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+        endif   
 c        print *,'phase'
         ibaso=ibas
         l = l_tbl(iorb)
@@ -247,7 +248,7 @@ c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,mi
       end subroutine rotmto
 !! ------------------------------------------------------
       subroutine rotipw(qin,qtarget,geigenin,ngp,nband,
-     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,imx,
+     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
      o  geigenout)
 !! == Rotation of Plane wave part. by sym==
 !!
@@ -261,13 +262,14 @@ c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,mi
      &          ngvecp(3,ngp), !,iqq),
      &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
       real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
-      integer:: ig,ig2,nnn(3)
+      integer:: ig,ig2,nnn(3),igxt
       complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
 !!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
       do ig = 1,ngp !ngp(iqq)
         qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
         qpgr = matmul(sym,qpg)             !rotated q+G
+        if(igxt==-1) qpgr=-qpgr !july2012
         call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
 c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
         ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
@@ -329,7 +331,7 @@ ctm
 !!-- return ev(1:nband) for given q(1:3) and isp --
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
       implicit none
-      integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi
+      integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt
       real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
       complex(8):: geigen(ngp_in,nband),geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
       img2pi=2d0*4d0*datan(1d0)*img
@@ -373,8 +375,9 @@ c      enddo
       endif
 !! new rotation of IPW. june2012
 !!   qinput: qtt(:,iqq)  ---> qtarget: qtt(:,iq) ( G-vector difference from symops*qtt(:,iqq) )
+      igxt=1 !not timereversal
       call rotipw(qtt(:,iqq),qtt(:,iq),geigenr(1:ngp(iqq),1:nband),ngp(iqq),nband,
-     &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),imx,
+     &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx,
      &  geigen(1:ngp(iq),1:nband))
       return
 
@@ -416,7 +419,7 @@ ccccccccccccccccccccccccccccccccccc
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
-     & ini1,ini2,iend1,iend2,igg,ig,iqi,i
+     & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
       real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
       complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
@@ -440,10 +443,11 @@ ccccccccccccccccccccccccccccccccccc
       if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbt,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
 !!
+      igxt=1 !not timereversal
       call rotmto(qtt(:,iqq),cphifr,ldim2,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,
      i  maxval(ibas_tbl),maxval(l_tbl),maxval(k_tbl),
-     i  ginv,symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),nbas, 
+     i  ginv,symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),igxt,nbas, 
      o  cphif)
       return
 

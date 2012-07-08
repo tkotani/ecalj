@@ -1,5 +1,5 @@
       logical function eibz4x0()
-      eibz4x0=.false.
+      eibz4x0=.true.
 ! If T, use EIBZ procedure in PRB125102(2010). Not completed yet... 
 !WARN: time-reversal is not included yet. (see hx0fp0.m.F L1195 call eibzgen).
 !      eibz. In addition, inefficient method of symmetrization at the bottom of x0kf_v4h

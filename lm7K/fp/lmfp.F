@@ -1051,49 +1051,49 @@ C     Buglet: this eats up a little memory.  Never released.
 ckino Dec.16.2011:              allocate(rv_p_opos(abs(3*nbas)))
           if (allocated(rv_a_opos)) deallocate(rv_a_opos)
           allocate(rv_a_opos(abs(3*nbas)))
+
 ckino Dec.16.2011:              if (3*nbas<0) rv_p_opos(:)=0.0d0
           if (3*nbas<0) rv_a_opos(:)=0.0d0
-
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
             call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
 ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
      .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
-
           enddo
 
 
           i_copy_size=size(sctrl%mdprm)
           call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
 
+ccccccccccccccccccccc
+           print *,' test molecular xxx1 lshr=',lshr
+ccccccccccccccccccccc
+
           if (lshr) then
 c     kino etot(1)            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh ,
             call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
      .              pletot , dist )
-
             if (irlxsh .ne. 0) then
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-
               goto 98
             else
               call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
      .                 , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
      .                 , icom )
-
               call dpzero(dist,6)
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-
               dist(7) = 1
             endif
-
           else
             call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv
 ckino Dec.16.2011:       .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_p_opos 
      .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
      .              , icom )
-
-
           endif
+ccccccccccccccccccccc
+           print *,' test molecular xxx2'
+ccccccccccccccccccccc
+
 
 C     Restore lattice symmetry to machine precision
           if (cmdopt('--fixpos',8,0,strn)) then

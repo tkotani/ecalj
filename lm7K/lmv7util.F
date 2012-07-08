@@ -702,7 +702,7 @@ ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 
 ckino Dec.27.2011:           call icopy ( nclspp , sarray%iv_p_oics , 1 , ics , 1 ) 
          call icopy ( nclspp , sarray%iv_a_oics , 1 , ics , 1 ) 
 
-        print *,' qqqqq ics=',ics
+        print *,' qqqqq ics nclspp=',ics,nclspp
 ckino Dec.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
 ckino Dec.27.2011:           allocate(sarray%rv_p_ormax(abs(nclspp)))
          allocate(sarray%rv_a_ormax(abs(nclspp)))

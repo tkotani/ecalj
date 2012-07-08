@@ -98,55 +98,9 @@ C ... Local parameters
       integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
       real(8),allocatable:: eula(:,:)
-ckino Dec.14.2011:                               integer,pointer :: iv_p_ontab(:) =>NULL()
       integer,allocatable :: iv_a_ontab(:)
-
-ckino Dec.14.2011:                              integer,pointer :: iv_p_oiax(:) =>NULL()
       integer,allocatable :: iv_a_oiax(:)
-
-ckino Dec.8.2011:                             real(8),pointer :: rv_p_opos(:) =>NULL()
-
-ckino Dec.8.2011:                            integer,pointer :: iv_p_oipc(:) =>NULL()
-
-ckino Dec.8.2011                         real(8),pointer :: rv_p_og(:) =>NULL()
       real(8),allocatable :: rv_a_og(:)
-
-ckino Dec.8.2011:                          real(8),pointer :: rv_p_odlv(:) =>NULL()
-
-ckino Dec.8.2011:                         real(8),pointer :: rv_p_oag(:) =>NULL()
-
-ckino Dec.8.2011                      real(8),pointer :: rv_p_ormax(:) =>NULL()
-
-ckino Dec.13.2011:                       integer,pointer :: iv_p_owk(:) =>NULL()
-
-ckino Dec.8.2011:                      integer,pointer :: iv_p_onrc(:) =>NULL()
-
-ckino Dec.8.2011:                     integer,pointer :: iv_p_oips(:) =>NULL()
-
-ckino Dec.8.2011:                    real(8),pointer :: rv_p_orhrmx(:) =>NULL()
-
-ckino Dec.8.2011:                   real(8),pointer :: rv_p_oqt(:) =>NULL()
-
-ckino Dec.8.2011:                  real(8),pointer :: rv_p_oqnu(:) =>NULL()
-
-ckino Dec.8.2011:                 real(8),pointer :: rv_p_oqc(:) =>NULL()
-
-ckino Dec.8.2011:                real(8),pointer :: rv_p_opp(:) =>NULL()
-
-ckino Dec.8.2011:               real(8),pointer :: rv_p_opnu(:) =>NULL()
-
-ckino Dec.8.2011:              integer,pointer :: iv_p_oinitc(:) =>NULL()
-
-ckino Dec.8.2011:             real(8),pointer :: rv_p_ovrmax(:) =>NULL()
-
-ckino Dec.8.2011:            real(8),pointer :: rv_p_oves(:) =>NULL()
-
-ckino Dec.8.2011:           real(8),pointer :: rv_p_oqlv(:) =>NULL()
-
-ckino Dec.8.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
-
-ckino Dec.8.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
-
       real(8) ,allocatable :: pos2_rv(:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
@@ -490,6 +444,10 @@ ckino Dec.27.2011:             call dcopy ( nclasp , sarray%rv_p_ormax , 1 , rma
 
         endif
 
+ccccccccccccccccccccccccccccccccccccccc
+c          print *,'xxxxxxxxx takao rmax=',nclasp,rmax(1:nclasp),sspec(1:2)%rmt
+c          print *,'xxxxxxxxx takao rmax=',sspec(sarray%iv_a_oics(1:nclasp))%rmt
+ccccccccccccccccccccccccccccccccccccccc
 c
 
 

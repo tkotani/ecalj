@@ -2562,6 +2562,7 @@ c      lncol16 = sdmod .ge. 0
      .note='Parameters for molecular statics')
       mdprm(1) = 0
       if (io_help .ne. 0 .or. ltmp) then
+        if(ctrl_lfrce==0) ctrl_lfrce=1 ! takao july2012
         nm='DYN_MSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note=
      .  '0: no relaxation  '//
