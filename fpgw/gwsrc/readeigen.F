@@ -165,7 +165,59 @@ c      print *,' qlat=',qlat
 c      if(igxt<0) then !time-reversal
 c        zcousqr = dconjg(zcousqr)
 c      endif  
-      end subroutine
+      end subroutine rotMPB
+!! ------------------------------------
+      subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
+     o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+      implicit none
+      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
+      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
+      complex(8):: zrotm(ngbb,ngbb)
+      integer,save:: init=1
+      if(init==1) then
+        lxxa= 2*max_l_tbl
+        nl= lxxa +1 
+        allocate(dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa,ngrp))
+        call rotdlmm(symops,ngrp,nl,dlmm)
+        init=0
+      endif   
+      zrotm=0d0
+      call rotmto2(qin,nbloch,ngbb,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
+     o  zrotm(1:nbloch,1:nbloch))
+c      print *,' end of rotmto2 '
+      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
+      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
+      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
+!!
+      ngcx=ngc(iqin)
+      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
+         print *,' ngbb qin  =',ngbb,qin
+         print *,' iqin iqout=',iqin,iqout
+         print *,' qout=',qout
+         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
+         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
+         print *,' ngc(iqout)=',ngc(iqout)
+         if(ngcx/=ngbb-nbloch) stop 'rotMPB2:ngc(iqin)/=ngbb-nbloch'
+         stop 'rotMPB2:ngc(iqin)/=ngc(iqout)'
+      endif   
+      platt=transpose(plat)
+c      print *,' iqin iqout igx=',iqin,iqout,igx
+c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
+c      print *,'qin  =',qin,iqin,igx
+c      print *,'qout =',qout,iqout
+c      print *,'ngcx ngbb=',ngcx,ngbb
+c      print *,'platt=',platt
+c      print *,' qlat=',qlat
+      call rotipw2(qin,qout,ngcx,ngbb,
+     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
+     o  zrotm(nbloch+1:nbloch+ngcx,nbloch+1:nbloch+ngcx) )
+c      if(igxt<0) then !time-reversal
+c        zcousqr = dconjg(zcousqr)
+c      endif  
+      end subroutine rotMPB2
+
       end module
 
 
@@ -218,7 +270,7 @@ c$$$!! ------------
       integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
       integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
       real(8):: tiat(3,nbas)
-      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase
+      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
@@ -244,9 +296,122 @@ c        print *,'phase'
         iend2 = ini2+2*l
 c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
         cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
-      enddo
+      enddo  
       end subroutine rotmto
 !! ------------------------------------------------------
+c      subroutine rotmto2(qin,cphiin,nbloch,nband,
+      subroutine rotmto2(qin,nbloch,nband,
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
+c     o  cphiout)
+     o  zrotm)
+!!== Rotation of a function of ProductBasis or MT part of wave function.
+!! (then MTO itself is rotated. a little diffent from here).
+!! See also mto part of lm7K/subs/rotwv.F
+!!
+!! qin  = qtti(:,iqi)
+!! cphiin cphi(1:ldim2,1:nband,iqi,isp) eigenfunction @ qtti(:,iqi)
+!! dlmm   dlmm(-l:l,-l:l,l,igg)
+!! sym   symops(:,:,igg)
+!! tiat   tiat(:,ibas,igg)
+!! shtvg  shtvg(:,igg)
+!! miat   miat(ibas,igg)
+!!
+!!  cphin (iqq) ---> cphiout (iq)
+      implicit none
+      integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
+      integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
+      integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
+      real(8):: tiat(3,nbas)
+c      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
+      complex(8):: phaseq,phase,ddd
+      real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
+      real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
+      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
+      integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl),m1,m2
+!!
+c      integer:: nrotm,irotm1(nrotmmx),irotm2(nrotmx)
+      integer:: nrotm,irotm1,irotm2
+      complex(8):: zrotm(nbloch,nbloch)
+
+      qrot = matmul(sym,qin)
+      if(igxt==-1) qrot=-qrot !july2012takao
+      phaseq   = exp( -img2pi*sum(qrot*shtvg ))
+      ibaso=-999
+      do iorb=1,norbt !orbital-blocks
+c         print *,'iorb=',iorb
+        ibas = ibas_tbl(iorb)
+        if(ibas/=ibaso) then
+          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+        endif   
+c        print *,'phase'
+        ibaso=ibas
+        l = l_tbl(iorb)
+        k = k_tbl(iorb)
+        ini1 = offset_tbl(iorb)+1
+        iend1 = ini1+2*l
+        ini2 = offset_rev_tbl(miat(ibas),l,k)+1
+        iend2 = ini2+2*l
+c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
+!! this is the case ofr rotmto
+c        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
+
+!! We can get rotated rcxq as
+!!      Rotated(rcxq)=  dconjg(chpiin(xx)) *  dconjg(zrotm)*rcxq(xx,irotm2) * zrotm(irotm2,irotm1)  * chpiin(irotm1)
+        do m1=-l,l
+        do m2=-l,l
+c          ddd = dlmm(m2,m1,l)*phase*phaseq
+c          if(abs(ddd)>1d-8) then
+c             ix=ix+1
+c             zrotm(ix) = ddd
+c             irotm1(ix)= ini1+m1+l
+c             irotm2(ix)= ini2+m2+l
+          irotm1= ini1+m1+l
+          irotm2= ini2+m2+l
+          zrotm(irotm2,irotm1) = dlmm(m2,m1,l)*phase*phaseq
+c          endif   
+        enddo
+        enddo
+      enddo
+c      nrotm=ix
+      end subroutine rotmto2
+!! --------------------------------
+c      subroutine rotipw2(qin,qtarget,geigenin,ngp,nband,
+      subroutine rotipw2(qin,qtarget,ngp,nband,
+     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
+c     o  geigenout)
+     o  zrotm)
+!! == Rotation of Plane wave part. by sym==
+!!
+!! Mapped from qtt(:,iqq) to qtt(:,iq)
+!!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
+!!  geigenin (iqq) ---> geigenout (iq)
+      implicit none
+      real(8):: sym(3,3),qlat(3,3),platt(3,3)
+     &  ,shtvg(3)
+      integer:: ngp,imx,nband,
+     &          ngvecp(3,ngp), !,iqq),
+     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
+      real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
+      integer:: ig,ig2,nnn(3),igxt
+c      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
+      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+      complex(8):: zrotm(ngp,ngp)
+!!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
+      do ig = 1,ngp !ngp(iqq)
+        qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
+        qpgr = matmul(sym,qpg)             !rotated q+G
+        if(igxt==-1) qpgr=-qpgr !july2012
+        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
+        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
+c        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
+        zrotm(ig2,ig)= exp( -img2pi*sum(qpgr*shtvg) )
+      enddo
+      end subroutine rotipw2
+!! ------------------------------------------------------
+!! --------------------------------
       subroutine rotipw(qin,qtarget,geigenin,ngp,nband,
      &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
      o  geigenout)

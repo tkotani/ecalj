@@ -25,7 +25,7 @@ c------------------------------------------
       use m_readqg,only :  readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:  getkeyvalue
-      use m_rotMPB,only:  rotMPB
+      use m_rotMPB,only:  rotMPB,rotMPB2
       use m_readqgcou,only: qtt_,nqnum !itimermap,
 
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
@@ -162,10 +162,13 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
 !! nwgt(neibz
       logical:: eibz4x0,checkbelong,eibzmode
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
-      complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxqtr(:,:)
-      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
+      complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:)
+c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
+      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer
-
+      integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc
+      integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
+      complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:)
 c ------------------------------------------------
 
 
@@ -772,52 +775,160 @@ cmemo             z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt
 cmemo           enddo
 
 
-c$$$!! symmetrizer of eibz ccccccccccccccccccccccccccccccccccccccccccccc
+!! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51)==
       if(eibzmoden==2) then
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
 c        neibz=max(sum(eibzsym(:,1)),sum(eibzsym(:,-1)))
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1))
-        print *,' --- goto zcousqrsum --- ikp neibz=',ikp,neibz
+        print *,' --- goto symmetrization --- ikp neibz=',ikp,neibz
         call cputid2(' --- qqqqq1:',0)
-        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
+        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb))
+        ntimer=1
+        if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
+        allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
+!! make efficient zrotm matrix too large
+!! zrotmt is the full symmetrization matrix
+c        zrotmt=0d0
         icc=0
-        do itimer=1,-1,-2
-        do ig=1,ngrp
-          if(eibzsym(ig,itimer)==1) then
-            icc=icc+1
-            if(itimer==1) then
-              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-            else
-!! time reversal mapping ---
-              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-            endif
-          endif
-        enddo
-        enddo
-
-        call cputid2(' --- qqqqq2:',0)
-        do iw=1,nwt
-        do jpm=1,npm
-          rcxq0=0d0
-          icc=0
-c          do itimer=1,1 !1,-1,-2
-          do itimer=1,-1,-2
+        do itimer=1,-1,-2 !itimer=-1 means time-reversal.
+          if(ntimer==1.and.itimer==-1) exit
+          if(itimer==1 ) itt=1
+          if(itimer==-1) itt=2
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
              icc=icc+1
-             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
-     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
-!! time reversal mapping ---
-             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
-             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
+             call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
+!! zrotm is the rotation matrix for a space-group operation for (symops(ig),itimer(=timereversal switch)).
+c            zrotmt(:,:,itt)=zrotmt(:,:,itt) + abs(zrotm(:,:,icc,itt))
+             irotm=0
+             do ix=1,ngb
+             do iy=1,ngb
+!! count number of non-zero elements
+              if(abs(zrotm(ix,iy))>1d-10) irotm=irotm+1
+             enddo
+             enddo
+             nrotm(icc)=irotm
+c             print *,'qqqq icc nrotm =',icc,nrotm(icc)
             endif
           enddo
+        enddo
+        call cputid2(' --- qqqqq1xx:',0)
+        nccc=icc
+        nrotmx = maxval(nrotm(1:nccc))
+        allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
+        i1=-99999
+        i2=-99999
+        zrr=-99999d0
+        zrrc=-99999d0
+        call cputid2(' --- qqqqq1xxxx:',0)
+        icc=0
+        do itimer=1,-1,-2
+          if(ntimer==1.and.itimer==-1) exit
+          if(itimer==1 ) itt=1
+          if(itimer==-1) itt=2
+          do ig=1,ngrp
+            if(eibzsym(ig,itimer)==1) then
+              icc=icc+1
+              call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
+!! zrotm is the rotation matrix for a space-group operation for (symops(ig),itimer(=timereversal switch)).
+              irotm=0
+              do ix=1,ngb
+              do iy=1,ngb
+                if(abs(zrotm(ix,iy))>1d-10) then
+                 irotm=irotm+1
+                 i1(irotm,icc)=ix
+                 i2(irotm,icc)=iy
+                 zrr(irotm,icc)=zrotm(ix,iy)
+                 zrrc(irotm,icc)=dconjg(zrr(irotm,icc))
+                endif   
+              enddo
+              enddo
+            endif
           enddo
-          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
+        enddo
+
+!! === main part to obtain symmetrized rcxq  ===
+c        call cputid(0)
+        call cputid2(' --- qqqqq222:',0)
+        do iw=1,nwt
+        do jpm=1,npm
+          rcxq000 = 0d0
+          icc=0
+          do itimer=1,-1,-2
+            if(itimer==1 ) itt=1
+            if(itimer==-1) itt=2
+            rcxq00 = 0d0
+            do ig=1,ngrp
+              if(eibzsym(ig,itimer)==1) then
+               icc=icc+1 
+               rcxq0 =0d0
+               do irotm = 1,nrotm(icc)
+               rcxq0(:,i2(irotm,icc)) =rcxq0(:,i2(irotm,icc)) + rcxq(:,i1(irotm,icc),iw,jpm)*zrr(irotm,icc)
+               enddo
+               do irotm = 1,nrotm(icc)
+               rcxq00(i2(irotm,icc),:)=rcxq00(i2(irotm,icc),:)+ zrrc(irotm,icc) * rcxq0(i1(irotm,icc),:)
+               enddo
+c$$$               do irotm = 1,nrotm(icc)
+c$$$c                iyy = i1(irotm,icc)
+c$$$c                iy  = i2(irotm,icc)
+c$$$                rcxq0(:,i2(irotm,icc))= rcxq0(:,i2(irotm,icc))+ rcxq(:,i1(irotm,icc),iw,jpm)* zrr(irotm,icc) 
+c$$$               enddo  
+c$$$               do irotm = 1,nrotm(icc)
+c$$$c                iyy = i1(irotm,icc)
+c$$$c                iy  = i2(irotm,icc)
+c$$$c                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrotm(iyy,iy,icc,itt)) * rcxq0(iyy,:)
+c$$$                rcxq00(i2(irotm,icc),:)= rcxq00(i2(irotm,icc),:)+ zrrc(irotm,icc) * rcxq0(i1(irotm,icc),:)
+c$$$               enddo
+              endif  
+            enddo  
+            if(itimer==1) then
+              rcxq000(:,:) = matmul(dconjg(transpose(zcousq)),matmul(rcxq00,zcousq))
+            else  
+              rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
+            endif
+          enddo    
+          rcxq(:,:,iw,jpm) = rcxq000/neibz
         enddo
         enddo
-        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
+        deallocate(rcxq00,rcxq0,zrotm,i1,i2)
+c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
+c$$$        icc=0
+c$$$        do itimer=1,-1,-2
+c$$$        do ig=1,ngrp
+c$$$          if(eibzsym(ig,itimer)==1) then
+c$$$            icc=icc+1
+c$$$            if(itimer==1) then
+c$$$              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+c$$$            else
+c$$$!! time reversal mapping ---
+c$$$              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+c$$$            endif
+c$$$          endif
+c$$$        enddo
+c$$$        enddo
+c$$$
+c$$$        do iw=1,nwt
+c$$$        do jpm=1,npm
+c$$$          rcxq0=0d0
+c$$$          icc=0
+c$$$c          do itimer=1,1 !1,-1,-2
+c$$$          do itimer=1,-1,-2
+c$$$          do ig=1,ngrp
+c$$$            if(eibzsym(ig,itimer)==1) then
+c$$$             icc=icc+1
+c$$$             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
+c$$$     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
+c$$$!! time reversal mapping ---
+c$$$             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
+c$$$             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
+c$$$            endif
+c$$$          enddo
+c$$$          enddo
+c$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
+c$$$        enddo
+c$$$        enddo
+c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
         call cputid2(' --- qqqqq3:',0)
       endif  
       deallocate(cphik,cphikq,geig1,geig2)
