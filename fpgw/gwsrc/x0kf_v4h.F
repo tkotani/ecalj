@@ -164,8 +164,8 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
-      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
-      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer
+      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb),zcousqc(ngbb,ngbb),rzc(ngbb,ngbb)
+      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:)
@@ -671,7 +671,7 @@ ccccccccccccccccccccccccc takao variant end
             zmeltx =  zmelt(:,it,itp)
             z1p=0d0
             do ieqbz =1, nwgt(k) !equivalent points for ieibz
-                                 !igx specifies space-group operation (including ID)
+                                 !igx,igxt specifies space-group operation (including ID)
               call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqrx) !zcousqr=Rotate_igx(zcousq) 
               zmelty = matmul(zmeltx,zcousqrx)
               do igb2=1, ngb !....................................
@@ -750,7 +750,7 @@ c       endif
         !    call cputid(0)
  1000 continue
 
-!! hermitianize. jun2012takao moved from dpsion5 
+!! ==== hermitianize. jun2012takao moved from dpsion5 ====
       if(.not.nolfco) then
         do jpm=1,npm
         do iw= 1,nwt
@@ -762,27 +762,14 @@ c       endif
         enddo
         enddo
       endif
-!! eibz symmetrization.
-cmemo         rcxq(igb1,igb2)* ppovl(igb2,igb3)*zcousqr(igb3)
-cmemo         zmeltx(1:nbloch) =  zmelt(1:nbloch,it,itp)
-cmemo         zmeltx(nbloch+1:nbloch+ngc) =  matmul(zmelt(nbloch+1:nbloch+ngc,it,itp),ppovl )
-cmemo         call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqr) !zcousqr=Rotate_igx(zcousq) 
-cmemo         zmelty = matmul(zmeltx,zcousqr)
-cmemo         do igb2=1, ngb !....................................
-cmemo           zmelt2 = zmelty(igb2)
-cmemo           do igb1=1,igb2
-cmemo             z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
-cmemo           enddo
 
-
-!! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51)==
+!! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
       if(eibzmoden==2) then
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
-c        neibz=max(sum(eibzsym(:,1)),sum(eibzsym(:,-1)))
-        neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1))
-        print *,' --- goto symmetrization --- ikp neibz=',ikp,neibz
-        call cputid2(' --- qqqqq1:',0)
+        neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
+        print *,' --- goto symmetrization --- ikp neibz q=',ikp,neibz,q
+        call cputid2(' --- qqqqq: xxxxxxxxxxstart symmetrization xxxxxxxxxxxxxxx ',0)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb))
         ntimer=1
         if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
@@ -797,6 +784,7 @@ c        zrotmt=0d0
           if(itimer==-1) itt=2
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
+             print *,' ig itimer=',ig,itimer
              icc=icc+1
              call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
 !! zrotm is the rotation matrix for a space-group operation for (symops(ig),itimer(=timereversal switch)).
@@ -813,7 +801,6 @@ c             print *,'qqqq icc nrotm =',icc,nrotm(icc)
             endif
           enddo
         enddo
-        call cputid2(' --- qqqqq1xx:',0)
         nccc=icc
         nrotmx = maxval(nrotm(1:nccc))
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
@@ -821,7 +808,7 @@ c             print *,'qqqq icc nrotm =',icc,nrotm(icc)
         i2=-99999
         zrr=-99999d0
         zrrc=-99999d0
-        call cputid2(' --- qqqqq1xxxx:',0)
+        call cputid2(' --- qqqqq111   :',0)
         icc=0
         do itimer=1,-1,-2
           if(ntimer==1.and.itimer==-1) exit
@@ -848,9 +835,11 @@ c             print *,'qqqq icc nrotm =',icc,nrotm(icc)
           enddo
         enddo
 
+
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
-        call cputid2(' --- qqqqq222:',0)
+        zcousqc=dconjg(transpose(zcousq))
+        call cputid2(' --- qqqqq222ini:',0)
         do iw=1,nwt
         do jpm=1,npm
           rcxq000 = 0d0
@@ -859,8 +848,11 @@ c        call cputid(0)
             if(itimer==1 ) itt=1
             if(itimer==-1) itt=2
             rcxq00 = 0d0
+            icount=0
             do ig=1,ngrp
               if(eibzsym(ig,itimer)==1) then
+                 icount=icount+1
+                 print *,' ig itimer=',ig,itimer
                icc=icc+1 
                rcxq0 =0d0
                do irotm = 1,nrotm(icc)
@@ -872,20 +864,23 @@ c        call cputid(0)
 c$$$               do irotm = 1,nrotm(icc)
 c$$$c                iyy = i1(irotm,icc)
 c$$$c                iy  = i2(irotm,icc)
-c$$$                rcxq0(:,i2(irotm,icc))= rcxq0(:,i2(irotm,icc))+ rcxq(:,i1(irotm,icc),iw,jpm)* zrr(irotm,icc) 
+c$$$                rcxq0(:,iy)= rcxq0(:,iy)+ rcxq(:,iyy,iw,jpm)* zrr(irotm,icc) 
 c$$$               enddo  
 c$$$               do irotm = 1,nrotm(icc)
 c$$$c                iyy = i1(irotm,icc)
 c$$$c                iy  = i2(irotm,icc)
-c$$$c                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrotm(iyy,iy,icc,itt)) * rcxq0(iyy,:)
-c$$$                rcxq00(i2(irotm,icc),:)= rcxq00(i2(irotm,icc),:)+ zrrc(irotm,icc) * rcxq0(i1(irotm,icc),:)
+c$$$                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrr(irotm,icc)) * rcxq0(iyy,:)
 c$$$               enddo
               endif  
             enddo  
             if(itimer==1) then
-              rcxq000(:,:) = matmul(dconjg(transpose(zcousq)),matmul(rcxq00,zcousq))
-            else  
-              rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
+              rcxq000(:,:) = matmul(zcousqc,matmul(rcxq00,zcousq))
+c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
+c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
+            elseif(icount>0) then  
+c              print *,'qqqqq icount=',icount
+c              rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
+              rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
             endif
           enddo    
           rcxq(:,:,iw,jpm) = rcxq000/neibz
@@ -929,7 +924,7 @@ c$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
 c$$$        enddo
 c$$$        enddo
 c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
-        call cputid2(' --- qqqqq3:',0)
+        call cputid2(' --- qqqqq222end:',0)
       endif  
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)

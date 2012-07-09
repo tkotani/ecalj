@@ -1,4 +1,4 @@
-      subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,
+      subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym)
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
@@ -11,15 +11,16 @@
      &  sss(3,3),sumcheck1 !qout(3,nqbz,iqxini:iqxend,nqbz),
       integer:: igx(ngrp*2,nqbz,iqxini:iqxend),igxt(ngrp*2,nqbz,iqxini:iqxend)
       integer:: eibzsym(ngrp,-1:1,iqxini:iqxend),ibzxi(nqbz),ibzx,eallow(ngrp,-1:1)
+      logical:: iprintx
 !!
-      write(6,"('eibzgen: TimeReversal ngrp= ',l,i3)") timereversal,ngrp
+      if(iprintx) write(6,"('eibzgen: RequiredTimeReversal ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1
 ccccccccccccccccccccccccccccccccccccc
 c      ntimer=1
 ccccccccccccccccccccccccccccccccccccc
-      igx=-99999
-      igxt=-9999
+      igx=99999
+      igxt=99999
 
 !!    check if  symgg(:,:,1) 
       sss(1,:)=(/1d0,0d0,0d0/)
@@ -39,7 +40,7 @@ ccccccccccccccccccccccccccccccccccccc
         do ig=1,ngrp
           qdiff= timer*matmul(symgg(:,:,ig),q) - q
           call rangedq(matmul(ginv,qdiff), qxx)
-c        print *,'ig qdiff',ig,qdiff,q,ginv,qxx
+c        if(iprintx) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
           if(sum(abs(qxx))<1d-8) then
             eallow(ig,it)=1
           endif  
@@ -71,7 +72,7 @@ c              qout(:,ibz,iq, nwgt(ieibz,iq))=qx
           enddo
           nwgt(ibz,iq)=1
           neibzx = neibzx + 1
-          print *,' ibz neibzx',ibz,neibzx
+c          if(iprintx) print *,' ibz neibzx',ibz,neibzx
           qeibz(:,neibzx,iq)=qx
           ibzxi(neibzx)=ibz
           igx (nwgt(ibz,iq),ibz,iq)=1 ! At the beginig of this routine, sumcheck1 shows 1 means E.
@@ -79,31 +80,42 @@ c              qout(:,ibz,iq, nwgt(ieibz,iq))=qx
 !! igx(icount, ieibz,iq) specify icount-th symgg(igx) for given ieibz,iq
  1012     continue
         enddo
-cccccccccccccccccccccccccccccccccccccccccc
-        eibzsym(:,:,iq)=eallow
-cccccccccccccccccccccccccccccccccccccccccc
 
+!! --- eibzsym is replacde by eallow -----
+        eibzsym(:,:,iq)=eallow
+!! ---------------------------------------
 
 !! used eibz sym is
-        write(6,"('iq=',i4,' # of EIBZ: Full=',i4, 
+        if(iprintx)write(6,"('iq=',i4,' # of EIBZ: Full=',i4, 
      &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
      &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
         neibz(iq)=neibzx !number of eibz for iq
-        write(6,"('eibz: iq neibz nqbz= ',i3,3f10.4,3i3)") iq,q,neibz(iq),nqbz
+        if(iprintx)write(6,"('eibz: iq neibz nqbz= ',i3,3f10.4,3i3)") iq,q,neibz(iq),nqbz
         do ik=1,nqbz
-           if(nwgt(ik,iq)/=0) write(6,"('      ',i3,3f10.4,i4,2x,25(i4,i2))") ik, qbz(:,ik),nwgt(ik,iq)
+           if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i3,3f10.4,i4,2x,25(i4,i2))") ik, qbz(:,ik),nwgt(ik,iq)
      &       ,(igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
         enddo
+cccccccccc
+c        do ig=1,ngrp
+c        do it=1,-1,-2
+c        if(eibzsym(ig,it,iq)==1) then
+c            write(6,"('eibz ig it=',i3,i3)")ig,it
+c        endif
+c        enddo
+c        enddo
+ccccccccc
       enddo
 !!
       nwgtsum = 0
       do iq = iqxini,iqxend
         if(iq>nqibz) cycle
         nwgtsum = nwgtsum + sum(nwgt(1:neibz(iq),iq))
-        print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
+        if(iprintx) print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
       enddo
-      print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
+      if(iprintx) print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
      &   sum(neibz(iqxini:iqxend-1)), nwgtsum, nqbz*(iqxend-iqxini+1-1)
+
+
       end
 
       subroutine mptauof(symops,ng,plat,nbas,bas,

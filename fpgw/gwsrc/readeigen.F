@@ -170,7 +170,7 @@ c      endif
       subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
      o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
       implicit none
-      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
+      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3),sss
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
@@ -189,7 +189,9 @@ c      endif
 c      print *,' end of rotmto2 '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
       if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
-      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
+      sss=1d0
+      if(igxt==-1) sss=-1d0
+      call iqindx2(sss*matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
 !!
       ngcx=ngc(iqin)
       if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
@@ -393,7 +395,7 @@ c     o  geigenout)
       integer:: ngp,imx,nband,
      &          ngvecp(3,ngp), !,iqq),
      &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
-      real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
+      real(8):: qin(3),qpg(3),qpgr(3),qtarget(3)
       integer:: ig,ig2,nnn(3),igxt
 c      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img

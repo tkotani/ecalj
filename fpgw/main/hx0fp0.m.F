@@ -241,7 +241,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
-      logical:: eibz4x0
+      logical:: eibz4x0,tiii,iprintx
 c      integer(4),allocatable :: iclasst(:)
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -1191,9 +1191,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         allocate( nwgt(nqbz,iqxini:nqibz), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
      &    igx(ngrp*2,nqbz,iqxini:nqibz),igxt(ngrp*2,nqbz,iqxini:nqibz),
      &    eibzsym(ngrp,-1:1,iqxini:nqibz))
-        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,
-c        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,.false.,ginv,
-     o  nwgt,igx,igxt,eibzsym)
+         iprintx=.false.
+         call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,iprintx,
+     o   nwgt,igx,igxt,eibzsym)
+!! Check timereversal is required for symmetrization operation or not. If not tiii=timereversal=F is used.
+        tiii=timereversal() 
+        if(minval(igxt)==1) tiii=.false.
+        iprintx=.true.
+        write(6,"('=== goto eibzgen === timereversal=',l1)")tiii
+        call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,tiii,ginv,iprintx,
+     o    nwgt,igx,igxt,eibzsym)
         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
             ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
         call readqgcou() !no input. Read QGcou and store date into variables.
