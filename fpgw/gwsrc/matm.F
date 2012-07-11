@@ -1,10 +1,96 @@
-      subroutine matm(a,b,c,n1,n2,n3)
+      subroutine matmmsparse(a,b,c,zout,n,etol,iele)
+      implicit none
+      integer::  n,nmax,i1x,i2x,iele,i,iy
+      complex(8) :: a(n,n),b(n,n), c(n,n),zout(n,n)
+      complex(8),allocatable:: zz(:),aa(:,:),cc(:,:)
+      real(8):: etol
+      integer,allocatable:: i1(:),i2(:)
+      nmax=n**2 !this is safe but loss of memory.
+      allocate(i1(nmax),i2(nmax),zz(nmax))
+      iele=0
+      do i1x=1,n
+      do i2x=1,n
+        if(abs(b(i1x,i2x))>etol) then
+         iele=iele+1
+         if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
+         i1(iele)=i1x
+         i2(iele)=i2x
+         zz(iele)=b(i1x,i2x)
+        endif
+      enddo
+      enddo
+      allocate(aa(n,iele),cc(n,iele))
+      do i=1,iele
+      aa(:,i)=a(:,i1(i))
+      cc(:,i)=c(i2(i),:)
+      enddo
+c      print *,'matmmsparse n iele=',n,iele
+      zout=0d0
+      do i=1,iele
+      do iy=1,n
+cc        zout(:,iy)= zout(:,iy) + a(:,i1(i))*zz(i)*c(i2(i),iy)
+        zout(:,iy)= zout(:,iy) + aa(:,i)*zz(i)*cc(iy,i)
+c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1) 
+      enddo
+      enddo
+      deallocate(i1,i2,zz)
+      end
+
+
+      subroutine matmsparse(a,b,c,n,isparse,etol)
+! not test yet.
+      integer::  n,nmax,i1x,i2x,iele,i
+      complex(8) :: a(n,n),b(n,n), c(n,n)
+      complex(8),allocatable:: zz(:)
+      integer,allocatable:: i1(:),i2(:)
+      nmax=10*n !this is a test case.
+      allocate(i1(nmax),i2(nmax),zz(nmax))
+      if(isparse==1) then
+         iele=0
+         do i1x=1,n
+         do i2x=1,n
+            if(abs(a(i1x,i2x))>etol) then
+               iele=iele+1
+               if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
+               i1(iele)=i1x
+               i2(iele)=i2x
+               zz(iele)=a(i1x,i2x)
+            endif
+         enddo
+         enddo
+         c=0d0
+         do i=1,iele
+           c(i1(i),:)= zz(i)*b(i2(i),:)
+         enddo
+      elseif(isparse==2) then
+         iele=0
+         do i1x=1,n
+         do i2x=1,n
+            if(abs(b(i1x,i2x))>etol) then
+               iele=iele+1
+               if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
+               i1(iele)=i1x
+               i2(iele)=i2x
+               zz(iele)=b(i1x,i2x)
+            endif
+         enddo
+         enddo
+         c=0d0
+         do i=1,iele
+           c(:,i2(i))= a(:,i1(i))*zz(i)
+         enddo
+      endif
+      deallocate(i1,i2,zz)
+      end
+
+
 c-- interface for matrix multiplication  c=a*b -------------------------
 c assumed size-array
 c
 c!!! takao 2000 Sep.  If you use this routine with cxml of zgemm(GOTO),
 c you might have to allocate a(n1,n2+1) to avoid the stack segmanation fault due to the complilar bug.
 c
+      subroutine matm(a,b,c,n1,n2,n3)
       integer(4)::  n1,n2,n3
       complex(8) :: a(n1,n2),b(n2,n3), c(n1,n3)
 c

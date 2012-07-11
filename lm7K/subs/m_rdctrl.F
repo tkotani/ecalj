@@ -1491,7 +1491,7 @@ C         call snit
             if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
           endif
 
-!! correct qnu jun2012takao
+!! correct qnu jun2012takao  2012july->mod(int(pz...,10)
 !! our four cases are
 !!  P=Pdefault      ! qnu
 !!  Pdefault < P    ! Pdefault is filled as core
@@ -1505,7 +1505,7 @@ C         call snit
                 endif
               else !PZ exist
 c             print *,'qnu=',lx,qnu(lx+1,1,j)
-                if( int(pz(lx+1,1,j))<int(pnudefault(lx+1,1)) ) then
+                if( mod(int(pz(lx+1,1,j)),10)<int(pnudefault(lx+1,1)) ) then
                   qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
                 endif
               endif

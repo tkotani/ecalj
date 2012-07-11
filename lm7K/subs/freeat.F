@@ -391,7 +391,6 @@ c      qatbk=qat
           if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp : Qtot=Qv=    ',l,isp, qvaltot,ql(1,l+1,i)
         endif
    10 continue
-
 ctakao
       print *
       write(stdo,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),

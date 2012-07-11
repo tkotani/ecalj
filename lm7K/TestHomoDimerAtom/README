@@ -30,29 +30,52 @@ The followings describes what job_run.bg does.
 3. Run
    > jobbgdimer.py jobdimerlist.test jobtemplate.bash 
    ,where jobqsubdimer.py calls jobmoldimer1
-   (use jobqsubdimer.py in the case of qsub).
+   (use jobqsubdimer.py in the cassub).
 
-You can use atomlist.10 or so. But it takes hours, roughly speaking,
-atomlist.10 (for all dimers) asks a day or so with 96 cores. 
-atomlist.15 requires one week; it looks too long (we have room to make it efficient ...).
+You can use jobdimerlist.10 instead of jobdimerlist.test. (or jobdimerlist.15). But roughly speaking,
+jobdimerlist.10 (for all dimers) requires 24 hours with 96 core machine.
+jobdiemrlist.15 requires one week; it looks too long (we have room to make it efficient ...).
 =======================================================
 
 === How it work ===.
-In Test.bg <work dir>, you see
-jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath5
-This is the main script to run a job for 
-magnetic mom=0; distance=-0.2+gaussian value; MT size=0.8*gaussian
-value; supercell is 5 angstrome cell.
+Please look into job_run.bg (or also job_run.qsub).
+It is the main script for dimer calculation systems.
 
-Main routinine is jobmoldimer1, which you copied to your bin.
-this generate ctrl files and invoke lmfa, and lmf, and make required
-directories.
+After it is finished, you can find
+  jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath5
+in Test.bg/. (mkdir Test.bg is in job_run.bg and "cd ${QSUB_WORKDIR}" in jobtemplete.bash)
+This is the main script to run a job for 
+  magnetic mom=0; distance=-0.2+gaussian value; MT size=0.8*gaussian
+value; supercell is 5 angstrome cell .
+This corresponds the setting in jobdimertest.list
+  distance=0.1;0.1@  fsmom=2@ rstar=0.9@ $O $O2dis $alatpath5
+. If you change $alatpath5 to $alatpath10, it mean 15 angstrome cell.
+(not a cubic cell, but a deformed cell to break symmetry).
+
 INIT.xxx/ is to generate initial contision.
 DimerSYMI.xxx/ is for main calculations...
+work.xxx/ is to workarea to generate ctrl files.
+
+Main routinine is jobmoldimer1 (called from
+jobqsubdimer.py/jobbgdimer.py), which you copied to your bin.
+this generate ctrl files and invoke lmfa, and lmf, and make required
+directories.
+
+job_molecule_dis.py called from jobdimer1 is
+the main part to generate ctrl file for molecules.
+
+---
+PWE control:
+In INIT.xxx/, we perform calculations to set up initial condition 
+(levels are smeared with Gaussian with bzw=0.001. Thus Bandweight
+files shows integration weights can be not 1.00(occupied) nor 0.00(unoccupied).
+This bz
+Then I do calculations with bzw=0 in DimerSYMI directory with bzw=0
+(this is in job_molecule_dis.py).
 
 
 === Plot ===
-To gather data and plot them, peform savedata command at /TEST.bg or /TEST.qsub  
+To gather data and plot them, perform 'savedata' command (at /TEST.bg or /TEST.qsub  )
 
 >savedata <2Sz> <Z>
 For example
@@ -60,9 +83,17 @@ For example
 for H_2.
 This gives a picture of gnuplot.
 Data for plot is in datg.savedata.0.1.
+(In cases savedatax works OK; this takes even unconverged cases).
 ======================================
 
 
 === ATOM in supercell ===
 Look into Atom/README.
+Essentially similar with dimr calculations, but with an atom in the cell.
 ======================================
+
+
+DATAdimerJuly1012.tar.gz
+Sample of save.dimer when you perform  DATAdimerJuly2012/job.
+After you expand it, try 'savedata 6 26' and 'savedata 8 26'.
+(calculation is on the way half).

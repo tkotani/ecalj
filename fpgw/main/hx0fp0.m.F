@@ -357,6 +357,9 @@ C ... files for RPA correlation energy mode.
       if(newaniso().and.ixc==11) then
         newaniso2=.true.
       endif
+!!
+      print *,'Timereversal=',Timereversal()
+      
 
 C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !--------readin data set when you call read_BZDATA ---------------
@@ -1192,13 +1195,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    igx(ngrp*2,nqbz,iqxini:nqibz),igxt(ngrp*2,nqbz,iqxini:nqibz),
      &    eibzsym(ngrp,-1:1,iqxini:nqibz))
          iprintx=.false.
+         write(6,"('TimeRevesal switch = ',l1)") timereversal()
          call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,timereversal(),ginv,iprintx,
      o   nwgt,igx,igxt,eibzsym)
 !! Check timereversal is required for symmetrization operation or not. If not tiii=timereversal=F is used.
+!! this is because the symmetrization is a little time-consuming.
         tiii=timereversal() 
         if(minval(igxt)==1) tiii=.false.
         iprintx=.true.
-        write(6,"('=== goto eibzgen === timereversal=',l1)")tiii
+ccccccccccccccccccccccccc
+c        tiii=.true.
+cccccccccccccccccccc
+        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
         call eibzgen(nqibz,symgg,ngrp,qibze,iqxini,nqibz,qbz,nqbz,tiii,ginv,iprintx,
      o    nwgt,igx,igxt,eibzsym)
         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.

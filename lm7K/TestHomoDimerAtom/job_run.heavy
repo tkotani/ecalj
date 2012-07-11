@@ -1,0 +1,8 @@
+#please look into jobtemplate.bash
+# it requies
+#source atomlist.bash
+#source homodimerdistance.bash
+#source extra.bash
+# jobqsubdimer8.py calls jobmoldimer8
+#
+jobqsubdimer8.py jobdimerlist.heavy jobtemplate.bash 
