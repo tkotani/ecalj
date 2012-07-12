@@ -51,9 +51,9 @@ Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"
 ##### I needed to add PZ 3s3p core for valence to keep orthogonalization to treat Fe bulk.
 #####  When we use 'PZ=3.9,3.9,13.9' (13.9 LoMTO for 3d) stops with 
 #####  Exit -1 : mtchre : failed to match phi'/phi=-5.612 to envelope, l=2.
-Fe=  " atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Co=  " atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Ni=  " atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
+Fe=  " atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+Co=  " atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+Ni=  " atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
 ### Fe,Co,Ni good for bulk ###
 Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
 Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
@@ -63,9 +63,9 @@ Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"
 Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
 Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
 ### PZ=3.9 (local orbital might be more stable than LoMTO)
-Cu=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
 ### I guess Cu with PZ=3.9,3.9,3.9 is required for solid ###
-Cu=  " atomz=29@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+Cu=  " atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
 Zn=  " atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
 Ga=  " atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
 Ge=  " atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
@@ -173,6 +173,7 @@ def manip_argset(argset):
     showhelp=0
     metali=3
     fsmom_val=0.0
+    touchingratio=-1.0
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
 		nspinlist=arg.split("=")
@@ -204,6 +205,11 @@ def manip_argset(argset):
                 nklist=arg.split("=")
                 if len(nklist)==2:
                         fsmom_val=nklist[1]
+	elif re.match("--tratio",arg)!=None:
+                ttt=arg.split("=")
+                if len(ttt)==2:
+                        touchingratio=ttt[1]
+                        touchingratio=float(touchingratio)
 #	elif arg=="--rlmchk":
 #		rlmchk=1
         elif arg=="--showatomlist":
@@ -239,7 +245,7 @@ def manip_argset(argset):
     if ierror!=0:
 	print "ABORT. Check names of args. Some are not defined."
 	sys.exit(-1)
-    return nspin_val,xcfun_val,xcfun_str,mmom_val,  systype_val,nk_val,showatomlist,showhelp,metali,fsmom_val #rlmchk,r_mul_val,
+    return nspin_val,xcfun_val,xcfun_str,mmom_val,  systype_val,nk_val,showatomlist,showhelp,metali,fsmom_val,touchingratio #rlmchk,r_mul_val,
 
 #-------------------------------------------------------
 def  line2Token(linein):
@@ -387,7 +393,7 @@ nk_val="4"
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val, showatomlist, showhelp,metali,fsmom_val \
+nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val, showatomlist, showhelp,metali,fsmom_val,touchingratio \
 = manip_argset(argset) #set global argument defined at the top of mainp_argset.
 
 showhelpw='Not exist'
@@ -419,6 +425,7 @@ print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str,xcfun_val
 print "  --systype=%s !(bulk,molecule)" % systype_val
 print "  --insulator  %s !(do not set for --systype=molecule)"    %  insulatorw
 print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule set this)"    %  fsmom_val
+print "  --tratio=%s (if positive, touching MT radius \\times this ratio. lmf --getwsr is called)" % touchingratio
 #print "  --mmom=\'%s\'"   % mmom_val
 #print " mmom is the initial magnetic moment for each l-channel. now atom-independent MMOM"
 #print " --r_mul_val=%s"  % r_mul_val
@@ -467,7 +474,11 @@ for ils in dicatom.keys():
 
 
 #### Read in ctrls #####
-ext=sys.argv[1]
+try:
+    ext=sys.argv[1]
+except:
+    print '=== Need ctrls file such as ctrls.si.  Run ctrlgen2 si [options] ==='
+    sys.exit()
 print 
 print "... Generate ctrlgen2.ctrl."+ext+" from ctrls."+ext + " ..."
 ctrls = "ctrls." + ext
@@ -518,18 +529,9 @@ else:
 ansite = '%i' % len(sitename)
 anspec = '%i' % len(uniq(sitename))
 
-#specdat = re.split('\WATOM=\W*',glist(listspec))[1:]
-#print  'specdat',specdat
-#specdic={}
-#for i in specdat:
-#	xx=re.split(' *',i)
-#	ii=re.sub("\n","",i)
-#	specdic[xx[0]]= '  ATOM='+ii +'\n'
-###############
-#print specdic
-#print sitename,'yyy',uniq(sitename)
-#print 'xxxx',sitename	
-specsec=''
+
+#### specsec0 for --getwsr (calculate touching MT radius) ###
+specsec0=''
 for ispec in uniq(sitename):
     aaa=''
 #    aaa=aaa+ ' R='+ '%6.3f' %
@@ -540,35 +542,13 @@ for ispec in uniq(sitename):
         speckey=ispec
         z=dicatom[speckey].split('atomz=')[1].split('@')[0]
 
-    try:
-        rrr = float(getdataa( dicatom[speckey],'R='))/0.529177*r_mul_val
-        if(rrr>3.0): rrr=3.0 #upper limit of R
-        rrrh = rrr/2.0
-        if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
-    except:
-        aaa= '    ATOM='+ispec +' Z='+ z +' R= and so on are not yet in atomlist xxxxx'
-        specsec= specsec + aaa +'\n'
-        continue
-    rsize= '%6.2f' % rrr
-    rsizeh= '%6.2f' % rrrh
-    aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
-    aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
-    aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
-    aaa=aaa+ '      EH='+getdataa( dicatom[speckey],'eh=')*4
-    aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
-    aaa=aaa+ '      EH2='+ getdataa( dicatom[speckey],'eh2=')*4
-    aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
-			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
-                            +'      #MMOM=\n' \
-                            +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
-                            +'      #Q= \n' \
-                            +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
+    aaa= '    ATOM='+ispec +' Z='+ z 
+    specsec0= specsec0 + aaa +'\n'
+    #print aaa
 
-    specsec= specsec + aaa +'\n'
+#print 'specsec0=\n',specsec0
 
-
-
-##################
+################################################################
 os.system("rm -rf llmchk_getwsr llmfa.tmp2")
 head="### This is generated by ctrlgen2.py from ctrls \n"
 head= head+ """
@@ -592,52 +572,122 @@ SYMGRP find   # 'find' evaluate space-group symmetry automatically.
 alltmp = head + glist(listno) \
 	 + glist(liststruc)  + "  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
 	 + glist(listsite) \
-	 + 'SPEC\n'+specsec
+	 + 'SPEC\n' #specsec
 f = open("ctrl.tmp",'wt')
-f.write(alltmp)
+f.write(alltmp+specsec0)
 f.close()
 
+
+
+#### Get touching MT radius and make rdic ########################
+rlmchk=0
+#print type(touchingratio)
+if touchingratio>0: rlmchk=1
 # ### Get R= by lmchk ###
-# if(rlmchk==1):
-# 	os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
-# 	f=open("exitcode",'rt')
-# 	iexit=int(f.read())
-# 	f.close()
-    
-# ### Read rmax, and make rdic ##############################################
+if(rlmchk==1):
+    os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
+    f=open("exitcode",'rt')
+    iexit=int(f.read())
+    f.close()
+    try:
+        listr = lineReadfile("rmt.tmp")
+    except:
+        print ' Error: Can not readin rmt.tmp! '
+        sys.exit()
+	
+    rdic={}
+    for i in listr:
+ 	xx=re.split(' *',i)
+ 	#print xx
+ 	#rdic[xx[0]]=xx[1]
+ 	rdic[xx[0]]= string.atof(xx[1])*string.atof(touchingratio) #r_mul_val)
+ 	rdic[xx[0]]= str(rdic[xx[0]])
+
+#print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
+    print
+    print ' rmt.tmp: --getwsr gives  R= -->', rdic
+    print '  note: we use R=3.0 if R is larger than 3.0'
+    print 'rdic',rdic
+################################################################### 
+
+#print dicatom
+print 'zspec=',zspec
+#specdat = re.split('\WATOM=\W*',glist(listspec))[1:]
+#print  'specdat',specdat
+#specdic={}
+#for i in specdat:
+#	xx=re.split(' *',i)
+#	ii=re.sub("\n","",i)
+#	specdic[xx[0]]= '  ATOM='+ii +'\n'
+###############
+#print specdic
+#print sitename,'yyy',uniq(sitename)
+#print 'xxxx',sitename	
+specsec=''
+for ispec in uniq(sitename):
+    aaa=''
+#    aaa=aaa+ ' R='+ '%6.3f' %
+    if(zspec):
+        z=spec2z[ispec]
+        speckey=z2dicatom[z]
+    else:
+        speckey=ispec
+        z=dicatom[speckey].split('atomz=')[1].split('@')[0]
+
+    try:
+#### in the case of touching MT
+        print ispec,touchingratio,speckey,ispec
+        if touchingratio >0:
+#            rrr = string.atof(rdic[speckey]) * touchingratio
+            rrr = string.atof(rdic[ispec]) * touchingratio
+        else:
+            rrr = float(getdataa( dicatom[speckey],'R='))/0.529177*r_mul_val
+        print rrr
+        if(rrr>3.0): rrr=3.0 #upper limit of R
+        rrrh = rrr/2.0
+        if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
+    except:
+        print 'ERROR: R are not set. need bug fix'
+        sys.exit(-1)
+
+
+    try:    
+        rsize= '%6.2f' % rrr
+        rsizeh= '%6.2f' % rrrh
+        aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
+        aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
+        aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
+        aaa=aaa+ '      EH='+getdataa( dicatom[speckey],'eh=')*4
+        aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
+        aaa=aaa+ '      EH2='+ getdataa( dicatom[speckey],'eh2=')*4
+        aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
+			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
+                            +'      #MMOM=\n' \
+                            +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
+                            +'      #Q= \n' \
+                            +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
+    except:
+        print 'ERROR this is probably because we have not yet set default values in ctrlgen2.py for a spec'
+        sys.exit(-1)
+    specsec= specsec + aaa +'\n'
+
+
+### Read in "ctrls."+ext ###################################################
 # try:
-# 	listr = lineReadfile("rmt.tmp")
+# 	listctrl  = lineReadfile("ctrl.tmp") 
 # except:
-# 	print ' Error: Can not readin rmt.tmp! '
+# 	print '---> no ctrl or some problem'
 # 	sys.exit()
-#	
-# rdic={}
-# for i in listr:
-# 	xx=re.split(' *',i)
-# 	#print xx
-# 	#rdic[xx[0]]=xx[1]
-# 	rdic[xx[0]]= string.atof(xx[1])*string.atof(r_mul_val)
-# 	rdic[xx[0]]= str(rdic[xx[0]])
-# #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
-# print 
-# print ' rmt.tmp: gives  R= -->', rdic
-# print ' we use R=3.0 if R is larger than 3.0'
-# #sys.exit()
-
-### Read in "ctrls."+ext ######################################################
-try:
-	listctrl  = lineReadfile("ctrl.tmp") 
-except:
-	print '---> no ctrl or some problem'
-	sys.exit()
-
 #print listctrl
 ### ctrl.tmp contains R=. Do lmfa to get mtopara.*
+#f.write('\n'.join(listctrl) +'\nHAM  XCFUN=')
 f = open("ctrl.tmp2",'wt')
-f.write('\n'.join(listctrl) +'\nHAM  XCFUN=')
+f.write(alltmp+specsec +'\nHAM  XCFUN=')
 f.write(xcfun_val+'\n')
 f.close()
 
+
+### check lmfa works OK or not #############################
 os.system("lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
 f=open("exitcode",'rt')
 iexit=int(f.read())
@@ -669,6 +719,8 @@ else:
 #     + ' '*5+'KMXA={kmxa} LMXA='+lll+'\n'+' '*5+'MMOM=0 0 0 0'
 
 
+
+#########################################
 tail="""
 \n"""
 tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+"\n"
@@ -833,7 +885,8 @@ OPTIONS PFLOAT=1
 #g.write(ctrlnospec+aaa+tail)
 #g.close()
 g = open("ctrlgen2.ctrl."+ext,'wt')
-g.write('\n'.join(listctrl)+tail)
+#g.write('\n'.join(listctrl)+tail)
+g.write(alltmp+specsec+tail)
 g.close()
 print "OK! A template of ctrl file, ctrlgen2.ctrl."+ext+", is generated."
 sys.exit()

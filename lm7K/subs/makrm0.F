@@ -171,7 +171,7 @@ C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix,0,
      .  lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,0d0,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1,
-     .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot)
+     .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1) !nmcore=1 july2012 
         call poppr
         b(is) = rmtl(is)/(dexp(a(is)*(nrmt-1)) - 1d0)
 C       Restore 4*pi*r**2*(total density) in array rho

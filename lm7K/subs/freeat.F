@@ -145,7 +145,6 @@ C       Unpack species data
         i_copy_size=size(sspec(is)%rcfa)
         call dcopy(i_copy_size,sspec(is)%rcfa,1,rcfa,1)
 
-
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
@@ -449,7 +448,8 @@ cNov 2010 QvalCheck
           endif
         enddo
       enddo
-
+cccccccccccccccccccccc
+c      print *,'tttttttttt11111'
 
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
@@ -467,9 +467,6 @@ c     .            qc,qtot,amgm,w,w)
      .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
      .  ' ',80,stdo,z,qc,rmt,qtot,nsp,amgm)
       endif
-cccccccccccccccccc
-c      stop 'xxxxxxxxxxxxxxxxxxxxx'
-cccccccccccccccccc
 
 C --- Set up radial mesh for free atom ---
       rmax = 50d0
@@ -491,6 +488,7 @@ C --- Make atom self-consistent ---
       nmix = -30
 C     call pshpr(min(iprint(),40))
       ec(1) = 0
+      print *,'goto atomc xxx'
       call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr,
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',

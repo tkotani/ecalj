@@ -151,8 +151,8 @@ C     --- Add to rho, make integral v*rho ---
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .job,niter,lfrz,plplus,qlplus,nmcore)
-
-      use m_globalvariables
+      use  m_globalvariables
+      use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------
 Ci Inputs
@@ -238,7 +238,6 @@ Cr     ekin = sumev + sumec + dsumec - rhovh - rhomu
 Cb Bugs
 Cb   Total energy terms need to be cleaned up and simplified.
 C ----------------------------------------------------------------
-      use m_getqvc
 C     implicit none
 C Passed parameters
       logical lfrz,lgdd
@@ -275,8 +274,8 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       double precision tolch,tl
       parameter (tolch=5d-5,tolrsq=1d-12)
       external lgunit
-
       integer:: nmcore
+
       print *,'atomsc nmcore=',nmcore
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
 Changenglob      lrel = nglob('lrel')
@@ -531,7 +530,6 @@ C --- write out rho if requested ---
         if (allocated(rho_rv)) deallocate(rho_rv)
 
       endif
-
       end subroutine atomsc
 
       subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
