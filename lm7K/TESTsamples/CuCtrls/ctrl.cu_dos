@@ -21,7 +21,7 @@ STRUC   ALAT={alat} DALAT={da}
   NBAS= 1  NSPEC=1
 SITE    ATOM=Cu POS=0 0 0
 SPEC
-    ATOM=Cu Z=29 R=1.92 PZ=3.9,3.9,3.9  P=0,0,4.2 
+    ATOM=Cu Z=29 R=1.92 PZ=0,3.9,3.9  P=0,0,4.2 
       EH=-0.1 -0.1 -0.1 -0.1  RSMH=0.96 0.96 0.96 0.96 
       EH2=-2 -2 -2 -2  RSMH2=0.96 0.96 0.96 0.96 
       KMXA={kmxa}  LMX=3 LMXA=4

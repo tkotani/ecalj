@@ -12,13 +12,23 @@ Cr      Search in and inv.
 Cr the key routine is x0k_v2.
 c
 c-------------------------------------------------
-      use m_readqg
+      use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
-      use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
-      use keyvalue
-      implicit none
+      use m_read_bzdata,only: read_bzdata,
+     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
+     &  dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
+     &  idtetf,ib1bz,idteti,
+     &  nstar,irk,nstbz
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
+     &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
+     &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
+     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
+      use keyvalue,only: getkeyvalue
 
+      implicit none
       integer(4)::iopen,maxocc2,iclose,
      & ixc,iqxini,iqxend,
      &   nw_input,

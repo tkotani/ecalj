@@ -19,11 +19,11 @@
 import os, sys, string, re
 
 atomlist="""
-### jun2012kotani
+### jun2012kotani. This is from atomlist.bash in the dimer paper. ###
 ### atom info. atomlist.bash homodimerdistance.bash R= is in angstrome.
-H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
 #### Kino's reference values of dimers (angstrome) ### Rare Gas -> in VWN LDA
-He=  " atomz=2@ pz='PZ=11.8'@ p='P=2.3'@ eh=-0.1@ eh2=-2@            R=1.17@"  
+H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
+He=  " atomz=2@ pz='PZ=1.8'@ p='P=2.3'@ eh=-0.1@ eh2=-2@            R=1.17@"  
 Li=  " atomz=3@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=1.37@"        
 Be=  " atomz=4@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=1.22@"        
 B=   " atomz=5@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=0.77@"      
@@ -31,57 +31,74 @@ C=   " atomz=6@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.66@"
 N=   " atomz=7@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.55@"      
 O=   " atomz=8@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.61@"      
 F=   " atomz=9@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.71@"      
-Ne=  " atomz=10@ pz='PZ=12.8,12.8'@ p='P=3.3,3.3'@ eh=-0.1@ eh2=-2@  R=1.28@"       
+Ne=  " atomz=10@ pz='PZ=2.8,2.8'@ p='P=3.3,3.3'@ eh=-0.1@ eh2=-2@  R=1.28@"       
+
 Na=  " atomz=11@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1@ eh2=-2@             R=1.55@"                 
 Mg=  " atomz=12@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1@ eh2=-2@             R=1.75@"                 
-Al=  " atomz=13@ pz='PZ=2.9,2.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.25@"                    
-Si=  " atomz=14@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.15@"                    
+Al=  " atomz=13@ pz='PZ=2.9,2.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.25@"
+Si=  " atomz=14@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.15@"
 P=   " atomz=15@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=0.96@"       
 S=   " atomz=16@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=0.97@"       
 Cl=  " atomz=17@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.03@"       
-Ar=  " atomz=18@ pz='PZ=13.9,13.9'@ p='P=4.3,4.3'@ eh=-0.1@ eh2=-2@  R=1.72@"       
+#In the paper we used, 'PZ=13.8,13.8'
+Ar=  " atomz=18@ pz='PZ=3.9,3.9'@ p='P=4.3,4.3'@ eh=-0.1@ eh2=-2@  R=1.72@"       
+
 K=   " atomz=19@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"       
 Ca=  " atomz=20@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
 Sc=  " atomz=21@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@"       
 Ti=  " atomz=22@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.95@"       
-V=   " atomz=23@  pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@            R=0.87@"       
+V=   " atomz=23@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.87@"       
 Cr=  " atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.80@"       
 Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"       
-##### Fe,Co,Ni works OK June2012. 
-##### I needed to add PZ 3s3p core for valence to keep orthogonalization to treat Fe bulk.
-#####  When we use 'PZ=3.9,3.9,13.9' (13.9 LoMTO for 3d) stops with 
-#####  Exit -1 : mtchre : failed to match phi'/phi=-5.612 to envelope, l=2.
-Fe=  " atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Co=  " atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Ni=  " atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
-### Fe,Co,Ni good for bulk ###
-Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
-Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
-Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.06@"        
-##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              
-Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
-### PZ=3.9 (local orbital might be more stable than LoMTO)
-Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-### I guess Cu with PZ=3.9,3.9,3.9 is required for solid ###
-Cu=  " atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-Zn=  " atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
-Ga=  " atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
-Ge=  " atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
-As=  " atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
-#### used for HomoDimer paper ###
-Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-Cu.3=  " atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-Zn.2=  " atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
-Ga.2=  " atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
-Ge.2=  " atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
-As.2=  " atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
-#Se.2 is not yet testd. probably better takao2012jun                                                    
-Se=" atomz=34@                      eh=-1@ eh2=-2@     R=1.10@"
-Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
-Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
-Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
+Fe= "  atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
+Co= "  atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
+Ni= "  atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.06@"
+Cu= "  atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.13@"
+Zn= "  atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
+Ga= "  atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
+Ge= "  atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
+As= "  atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
+Se= "  atomz=34@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.10@"
+Br= "  atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.16@"
+#In the paper we used, 'PZ=14.8,14.8'
+Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@ R=1.88@"
+
+
+# ##### Fe,Co,Ni works OK June2012. 
+# ##### I needed to add PZ 3s3p core for valence to keep orthogonalization to treat Fe bulk.
+# #####  When we use 'PZ=3.9,3.9,13.9' (13.9 LoMTO for 3d) stops with 
+# #####  Exit -1 : mtchre : failed to match phi'/phi=-5.612 to envelope, l=2.
+# Fe=  " atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+# Co=  " atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+# Ni=  " atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
+# ### Fe,Co,Ni good for bulk ###
+# Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
+# Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
+# Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.06@"        
+# ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              
+# Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+# Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+# Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
+# ### PZ=3.9 (local orbital might be more stable than LoMTO)
+# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+# ### I guess Cu with PZ=3.9,3.9,3.9 is required for solid ###
+# Cu=  " atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+# Zn=  " atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
+# Ga=  " atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
+# Ge=  " atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
+# As=  " atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
+# #### used for HomoDimer paper ###
+# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+# Cu.3=  " atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+# Zn.2=  " atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
+# Ga.2=  " atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
+# Ge.2=  " atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
+# As.2=  " atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
+# #Se.2 is not yet testd. probably better takao2012jun                                                    
+# Se=" atomz=34@                      eh=-1@ eh2=-2@     R=1.10@"
+# Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
+# Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
+# Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
 ######## These are given in a simple guess  ###########
 Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
@@ -817,7 +834,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       #   If you encounter this message set INVIT=F.
       #  T.Kotani think (this does not yet for lm7K).
     
-ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT={nit}
+ITER MIX=A2,b=.5,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 

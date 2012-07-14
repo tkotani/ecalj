@@ -66,7 +66,7 @@ for DD in Dimerdir:
 			#We do else: only when we have all key in a line in save.dimer.
  	 		for key in sys.argv[1:]: 
 				if key[0:6]=='order=': continue
-				if re.search(key,sline)==None : break
+				if re.search(key+' ',sline)==None : break
  	 		else:
 				if re.search('c ',sline): 
 					slinep=sline +' '#.split(' ')
