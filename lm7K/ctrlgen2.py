@@ -50,14 +50,22 @@ Ti=  " atomz=22@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.95@"
 V=   " atomz=23@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.87@"       
 Cr=  " atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.80@"       
 Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"       
+
 Fe= "  atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
 Co= "  atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
 Ni= "  atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.06@"
 Cu= "  atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.13@"
-Zn= "  atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
-Ga= "  atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
-Ge= "  atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
-As= "  atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
+#Zn= "  atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
+#Ga= "  atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
+#Ge= "  atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
+#As= "  atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
+#takao to stabilize convergence.
+# As for total energy for Zn2 dimer, total energy is gained for PZ=0,0,13.9 a few mRy, 
+# however, PZ=0,0,3.9 is better for stable convergence.
+Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
+Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
+Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
+As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
 Se= "  atomz=34@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.10@"
 Br= "  atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.16@"
 #In the paper we used, 'PZ=14.8,14.8'

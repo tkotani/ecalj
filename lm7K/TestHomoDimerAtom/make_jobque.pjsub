@@ -1,0 +1,10 @@
+#!/bin/bash
+# generate $work/jobque files to run. All related files are generated.
+cp savedata pldimer1 plmol.py ~/bin/   
+cp jobquescript.py jobmoldimer1.py ~/bin
+work="TEST.pjsub"
+if [ ! -x $work ]; then  mkdir $work;fi
+cp jobdimerlist.15 atomlist.bash extra.bash homodimerdistance.bash $work
+cd $work
+if [ -e "jobque" ]; then  mv "jobque" "jobque.bk" ;fi
+jobquescript.py jobdimerlist.15 --pjsub

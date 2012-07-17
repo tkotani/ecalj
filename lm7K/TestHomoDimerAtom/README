@@ -1,40 +1,48 @@
-=== How to perform test calculations here for H2 diatomic molecules. ===
+=== Dimer and atom calculations in supercell. ===
 
-> job_run.bg (for background job),
-    or job_run.qsub (for qsub system) 
-This perform all steps below. 
-This test (for H2) requires a few minutes or so with a corei5
-notebook.
+> make_jobque.bg
+> make_jobque.pjsub  for pj subsystem
+Please look into make_jobque.* files.
+These generate TEST.bg/ or TEST.pjsub/, where we have jobscript
+ jobque.bg or jobque.pjsub.
 
-For your convenience, we have pss in this directory; this shows job
-status. (and you can kill a submitted job of dimer calculation by "pss -KILL jobid").
+You can run all calculations with 
+>bash jobque.bg
+or so.
+
+For your convenience, we have pss in this directory; pss shows job
+status. pss 1 shows working directory.
+(you can kill a submitted job of dimer calculation by "pss -KILL jobid").
 
 ---
-The followings describes what job_run.bg does.
+The followings describes what make_jobque.bg does.
 ===================================================
-0. Edit 
-   jobtemplate.bash (for qsub)  or jobtemplate.bg.bash (for background job) for your system.
 1. Setup1. 
   We assume lmf and lmfa in your ~/bin
-  >cp job_molecule_dis.py jobmoldimer1 jobqsubdimer.py * ~/bin
-  >cp savedata pldimer1 plmol.py ~/bin/   
+  >cp jobquescript.py jobmoldimer1.py * ~/bin 
+  >cp savedata pldimer1 plmol.py ~/bin/   !these are utilities.
 
-  >cp pss ~/bin  (pss is just a utility)
+  >cp pss ~/bin  (pss is  a utility)
+
+  jobquescript.py: jobque and job file generator.
+  jobmoldimer1.py: ctrl file generator for dimers.
 
 2. Setup2.
-  Make working directory <work dir>.
-  >cp jobdimerlist.test jobtemplate.bash extra.bash homedimerdistance.bash <work dir>
+  Make working directory <work dir>. 
+  >cp jobdimerlist.15 extra.bash homedimerdistance.bash <work dir>
   <work dir> is TEST.bg in the case the job_run.bg.
-  I recommend to look into main code jobtemplate.bash, which uses other *.bash files.
 
-3. Run
-   > jobbgdimer.py jobdimerlist.test jobtemplate.bash 
-   ,where jobqsubdimer.py calls jobmoldimer1
-   (use jobqsubdimer.py in the cassub).
+3. Run 
+   jobquescript.py internally calls jobmoldimer1.
 
-You can use jobdimerlist.10 instead of jobdimerlist.test. (or jobdimerlist.15). But roughly speaking,
+The main purpose of make_jobque.bg is to generate required ctrl files,
+directories, job files to perform TEST.bg/jobque.
+Look into jobque.
+
+You can use jobdimerlist.10 instead of jobdimerlist.test. (or jobdimerlist.15).
 jobdimerlist.10 (for all dimers) requires 24 hours with 96 core machine.
-jobdiemrlist.15 requires one week; it looks too long (we have room to make it efficient ...).
+jobdiemrlist.15 requires one week; it looks too long (we have room to
+make it efficient ...).
 =======================================================
 
 === How it work ===.
@@ -43,35 +51,19 @@ It is the main script for dimer calculation systems.
 
 After it is finished, you can find
   jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath5
-in Test.bg/. (mkdir Test.bg is in job_run.bg and "cd ${QSUB_WORKDIR}" in jobtemplete.bash)
+in Test.bg/. 
 This is the main script to run a job for 
   magnetic mom=0; distance=-0.2+gaussian value; MT size=0.8*gaussian
 value; supercell is 5 angstrome cell .
-This corresponds the setting in jobdimertest.list
+This corresponds the setting in jobdimerlist.15
   distance=0.1;0.1@  fsmom=2@ rstar=0.9@ $O $O2dis $alatpath5
 . If you change $alatpath5 to $alatpath10, it mean 15 angstrome cell.
 (not a cubic cell, but a deformed cell to break symmetry).
 
-INIT.xxx/ is to generate initial contision.
-DimerSYMI.xxx/ is for main calculations...
-work.xxx/ is to workarea to generate ctrl files.
-
-Main routinine is jobmoldimer1 (called from
-jobqsubdimer.py/jobbgdimer.py), which you copied to your bin.
-this generate ctrl files and invoke lmfa, and lmf, and make required
-directories.
-
-job_molecule_dis.py called from jobdimer1 is
-the main part to generate ctrl file for molecules.
-
 ---
 PWE control:
-In INIT.xxx/, we perform calculations to set up initial condition 
-(levels are smeared with Gaussian with bzw=0.001. Thus Bandweight
-files shows integration weights can be not 1.00(occupied) nor 0.00(unoccupied).
-This bz
-Then I do calculations with bzw=0 in DimerSYMI directory with bzw=0
-(this is in job_molecule_dis.py).
+Initial condition is calculated with bzw=0.001. Then we use bzw=1d-6
+for main part of calculations. This gives integration zero or unity(occupied).
 
 
 === Plot ===
@@ -93,7 +85,3 @@ Essentially similar with dimr calculations, but with an atom in the cell.
 ======================================
 
 
-DATAdimerJuly1012.tar.gz
-Sample of save.dimer when you perform  DATAdimerJuly2012/job.
-After you expand it, try 'savedata 6 26' and 'savedata 8 26'.
-(calculation is on the way half).

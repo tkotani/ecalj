@@ -1,22 +1,9 @@
 #!/usr/bin/env python                            
-import sys                                      
-import string,re                                   
-import os    
+import sys,string,re,os,commands
 
-def replacer(setting, filein):
-	fileout=filein
-	for kkk in setting.keys():
-		rrr=string.lstrip(setting[kkk])
-		#print '# ',kkk,' --> ',rrr
-		fileout=string.replace(fileout,kkk,rrr)
-	return fileout
-
-def setout(setting, key):
-	return string.lstrip(setting[key])
-
-### TEPMLETE ctrltemplete for diatomic molecule ### (foobar___ are replaced in the main routine bewlo).
+### ctrltemplete for diatomic molecule ### (foobar___ are replaced in the main routine below).
 # The variable ctrltemple starting from """ ends with another """.  
-ctrltemplete="""
+ctrltemplete="""\
 #!/bin/bash
 fsmom=FSMOM___
 alat=ALAT___
@@ -29,7 +16,6 @@ nspin=NSPIN___
 bzw=BZW___
 rstar=RSTAR___
 dis=DIS___
-
 #echo ' distance center=' `echo "scale=3;${discenter}*0.529177"|bc` 'ang = ' `echo "scale=3;${discenter}"|bc` 'a.u.'
 #echo ' rmt(a.u.)=' $rmt
 
@@ -190,73 +176,163 @@ OPTIONS PFLOAT=1
 # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat
 """
 
-                                              
+def replacer(setting, filein):
+	fileout=filein
+	for kkk in setting.keys():
+		rrr=string.lstrip(setting[kkk])
+		#print '# ',kkk,' --> ',rrr
+		fileout=string.replace(fileout,kkk,rrr)
+	return fileout
+
+def setout(setting, key):
+	return string.lstrip(setting[key])
+
+def genctrl(readin,jobid):
+	setting={}
+	molset = readin #open(sys.argv[1],'rt').read()
+	molset= re.sub("@ ?",'\n',molset)
+	#jobid=sys.argv[2]
+	#print 'mmmmmmmmmmmmmmmmmmmmm init ',jobid
+	#print molset
+	#print 'mmmmmmmmmmmmmmmmmmmmm end'
+	exec(molset)
+	#sys.exit()
+
+	### They can be fixed in pmtmol paper ###
+	setting['REL___']=rel
+	setting['ATOM___']=atom
+	setting['PATH___']=path
+	setting['PLAT___']=plat
+	setting['MMOM___']=mmom
+	setting['PZ___']= pz
+	setting['P___']=  p
+	setting['SYMGRP___']=symgrp 
+	nspin =2 
+	if(fsmom == 0): nspin = 1
+	pwe_c='%3.2f' % pwe
+	setting['PWEMAX___']=pwe_c
+	setting['BZW___']= '%f' % bzw
+	setting['XCFUNC___']='%d' % xcfunc
+	setting['FSMOM___']='%d' % fsmom
+	setting['NSPIN___']='%d' % nspin
+	setting['ATOMZ___']='%d' % atomz
+	setting['ALAT___']= '%9.4f' % alat
+	setting['DISCENTER___']='%3.3f' % discenter
+	setting['DIS___']= '%9.3f' % dis
+	setting['RSTAR___']='%3.2f' % rstar
+	rmt = discenter/2.0*rstar
+	rsmh= rmt/2.0 
+	eh_c =' %3.1f'   % eh  # converted to char
+	eh2_c=' %3.1f'   % eh2
+	rsmh_c= ' %3.3f' % max(rsmh,0.5)
+	setting['RMT___']=' %3.3f' % rmt
+	setting['EH___']   =' EH='  +4*eh_c
+	setting['EH2___']  ='EH2='  +4*eh2_c
+	setting['RSMH___'] =' RSMH=' +4*rsmh_c
+	setting['RSMH2___']='RSMH2='+4*rsmh_c
+	#print 'nspin fsmon pwe=',nspin,fsmom,pwe_c
+
+	### replacement
+	ctrl0 = replacer(setting, ctrltemplete)
+        return ctrl0
+
+
+def getctrldir(readin,jobid):
+	setting={}
+	molset = readin #open(sys.argv[1],'rt').read()
+	molset= re.sub("@ ?",'\n',molset)
+	exec(molset)
+	setting['ATOM___']=atom
+	setting['PZ___']= pz
+	setting['FSMOM___']='%d' % fsmom
+	setting['ALAT___']= '%9.4f' % alat
+	rmt = discenter/2.0*rstar
+	rsmh= rmt/2.0 
+	eh_c =' %3.1f'   % eh  # converted to char
+	eh2_c=' %3.1f'   % eh2
+	rsmh_c= ' %3.3f' % max(rsmh,0.5)
+	setting['RMT___']=' %3.3f' % rmt
+	setting['EH___']   =' EH='  +4*eh_c
+	setting['EH2___']  ='EH2='  +4*eh2_c
+
+	dname1 = dirhead  + setout(setting,'ATOM___') \
+	    +',fsmom=' + setout(setting,'FSMOM___') \
+	    +',alat=' + setout(setting,'ALAT___')
+	dname2 = \
+	    'rmt='+ setout(setting,'RMT___') \
+	    + ',EH=' + string.lstrip(eh_c) +  ',EH2='+ string.lstrip(eh2_c) \
+	    + ',' + setout(setting,'PZ___')+','
+        return dname1,dname2
+
 ################ main ################################### 
-setting={}
-molset = open(sys.argv[1],'rt').read()
-molset= re.sub("@ ?",'\n',molset)
-jobid=sys.argv[2]
-#print 'mmmmmmmmmmmmmmmmmmmmm init ',jobid
-#print molset
-#sys.exit()
-#print 'mmmmmmmmmmmmmmmmmmmmm end'
-exec(molset)
+temp1_init="""
+plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
+symgrp= 'SYMGRP i'
+dirhead= 'DimerSYMI,dis,'
+setting['NIT___']= '%i' % 30
+setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
+setting['POS2___']= '-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5'
+setting['JOBLIST___']=\
+'''
+  echo ' INIT:distance_c=' `echo "scale=3;${discenter}*0.529177"|bc` 'ang = ' `echo "scale=3;${discenter}"|bc` 'a.u.'
+  echo ' rmt(a.u.)=' $rmt
+  #mv save.dimer save.dimer.bk
+  lmfa --noopt dimer $arguments0 > llmfa
+  rm -f {rst,mixm,moms}.dimer
+  #echo start ctrl dimer dis= $dis pwe= $pwe
+  lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe,init
+'''
+"""
 
-### They can be fixed in pmtmol paper ###
-setting['REL___']=rel
-setting['ATOM___']=atom
-setting['PATH___']=path
-setting['PLAT___']=plat
-setting['MMOM___']=mmom
-setting['PZ___']= pz
-setting['P___']=  p
-setting['SYMGRP___']=symgrp 
-nspin =2 
-if(fsmom == 0): nspin = 1
-pwe_c='%3.2f' % pwe
-setting['PWEMAX___']=pwe_c
-setting['BZW___']= '%f' % bzw
-setting['XCFUNC___']='%d' % xcfunc
-setting['FSMOM___']='%d' % fsmom
-setting['NSPIN___']='%d' % nspin
-setting['ATOMZ___']='%d' % atomz
-setting['ALAT___']= '%9.4f' % alat
-setting['DISCENTER___']='%3.3f' % discenter
-setting['DIS___']= '%9.3f' % dis
-setting['RSTAR___']='%3.2f' % rstar
-rmt = discenter/2.0*rstar
-rsmh= rmt/2.0 
-eh_c =' %3.1f'   % eh  # converted to char
-eh2_c=' %3.1f'   % eh2
-rsmh_c= ' %3.3f' % max(rsmh,0.5)
-setting['RMT___']=' %3.3f' % rmt
-setting['EH___']   =' EH='  +4*eh_c
-setting['EH2___']  ='EH2='  +4*eh2_c
-setting['RSMH___'] =' RSMH=' +4*rsmh_c
-setting['RSMH2___']='RSMH2='+4*rsmh_c
-#print 'nspin fsmon pwe=',nspin,fsmom,pwe_c
+temp2_init="""
+plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
+symgrp= 'SYMGRP i'
+dirhead= 'DimerSYMI,dis,'
+setting['NIT___']= '%i' % 20
+setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
+setting['POS2___']= '-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5'
+setting['JOBLIST___']=\
+'''
+  echo ' INIT:distance_c=' `echo "scale=3;${discenter}*0.529177"|bc` 'ang = ' `echo "scale=3;${discenter}"|bc` 'a.u.'
+  echo ' rmt(a.u.)=' $rmt
+  #mv save.dimer save.dimer.bk
+  #lmfa --noopt dimer $arguments0 > llmfa
+  rm -f {rst,mixm,moms}.dimer
+  #echo start ctrl dimer dis= $dis pwe= $pwe
+  lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe
+'''
+"""
 
-### replacement
-ctrl0 = replacer(setting, ctrltemplete)
-	
-### replace foobar in ctrltemplete ###
-ctrl = open('ctrl.dimer','wt')
-ctrl.write(ctrl0)
-ctrl.close()
+dist=sys.argv[1].split(",")[0]
+temp0_init=' '.join(sys.argv[2:])
+basename=os.path.basename(sys.argv[0]).split(".")[0]
+jobid =''.join(sys.argv[1:6])+basename
+jobid =string.replace(jobid,"'","")
+#print jobid
 
-dname1 = dirhead  + setout(setting,'ATOM___') \
-  +',fsmom=' + setout(setting,'FSMOM___') \
-  +',alat=' + setout(setting,'ALAT___')
-ddd = open('dname1.'+jobid,'wt')
-ddd.write(dname1)
-ddd.close()
-dname2 = \
-    'rmt='+ setout(setting,'RMT___') \
-  + ',EH=' + string.lstrip(eh_c) +  ',EH2='+ string.lstrip(eh2_c) \
-  + ',' + setout(setting,'PZ___')+','
-ddd = open('dname2.'+jobid,'wt')
-ddd.write(dname2)
-ddd.close()
-
+d1,d2=getctrldir(temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.001@ nit=30"+temp1_init,jobid)
+d0=d1+'/'+d2+'dis='+dist
+if ( not os.path.exists(d1)): os.mkdir(d1)
+if ( not os.path.exists(d0)): os.mkdir(d0)
+#print 'd0=',d0
+#print 'd1=',d1
+#print 'd2=',d2
+print 
+print '  --- Generate ctrl files in ',d0
+f=open('ctrldir','wt')
+f.write(d0)
+f.close()
+os.chdir(d0)
+print ' ',
+for pwex in [-1,2,3]: #,4,5,6,7,8]: #for initial condition generation
+    print 'pwex=',pwex,
+    if pwex==-1: lll=temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.001@ "+temp1_init
+    else:        lll=temp0_init+"pwe="+'%i' % pwex+"@ dis="+dist+"@ bzw=0.000001@ "+temp2_init
+    ctrl=genctrl(lll,jobid)
+    ## replace foobar in ctrltemplete ###
+    f=open('ctrl.dimer.'+'%i' % pwex,'wt')
+    f.write(ctrl)
+    f.close()
+print 
 sys.exit()
 

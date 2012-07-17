@@ -26,3 +26,7 @@ distance=-0.4;0.5@  fsmom=4@ rstar=0.8,0.9,1.0@ $Co $Co2dis $alatpath15
 distance=-0.4;0.5@  fsmom=2@ rstar=0.8,0.9,1.0@ $Ni $Ni2dis $alatpath15
 distance=-0.4;0.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Cu $Cu2dis $alatpath15
 
+distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $He $He2dis $alatpath15
+distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Ne $Ne2dis $alatpath15
+distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Ar $Ar2dis $alatpath15
+distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $Kr $Kr2dis $alatpath15

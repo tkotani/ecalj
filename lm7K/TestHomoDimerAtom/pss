@@ -2,11 +2,11 @@
 import commands,sys,re
 print sys.argv #,len(sys.argv)
 if(len(sys.argv)>=3 and sys.argv[1]=='-KILL'):
-	jobs=commands.getoutput('pgrep -fl "(jobatom|bin/jobmol)"')
+	jobs=commands.getoutput('pgrep -fl "(jobatom|jobmol)"')
 	joblines=jobs.split('\n')
 	for lll in joblines:
 	    llls=lll.split(' ')[:7]
-	    if(llls[4]=='pgrep'): continue
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
 	    #print llls
 	    if(llls[0]==sys.argv[2]):
 	    	    outx=commands.getoutput('pstree -p '+ llls[0])
@@ -17,12 +17,11 @@ if(len(sys.argv)>=3 and sys.argv[1]=='-KILL'):
  		    	ierr=commands.getoutput(killid)
 	    	    	print '    ',killid,ierr
 elif(len(sys.argv)<3):
-	jobs=commands.getoutput('pgrep -fl "(jobatom|bin/jobmol)"')
+	jobs=commands.getoutput('pgrep -fl "(jobatom|jobmol)"')
 	joblines=jobs.split('\n')
 	for lll in joblines:
-	    #print 'xxxxxxxx ',lll
 	    llls=lll.split(' ')[:7]
-	    if(llls[4]=='pgrep'): continue
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
 	    outx=commands.getoutput('pstree -p '+ llls[0])
 	    pids=re.findall(r'\((\d+)\)',outx)
 	    if len(sys.argv)<2: print '    ',(',').join(llls),2*' ',outx
