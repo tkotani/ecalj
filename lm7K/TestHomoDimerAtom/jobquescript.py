@@ -229,8 +229,7 @@ for comm in patt:
                 jobfile.close()
 
                 #job que file
-                if(mode=='bg') : jobque.write("bash "+jobname+" &\n")
-                if(mode=='pjsub') : jobque.write("pjsub "+jobname+" \n")
+                jobque.write("./"+jobname+" \n")
 
                 #jobquebgnrel.write("bash "+jobname+" &\n")
                 #jobqueqsub.write("qsub -f fai "+jobname+" &\n")
