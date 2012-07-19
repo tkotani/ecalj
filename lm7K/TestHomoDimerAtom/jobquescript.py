@@ -212,7 +212,7 @@ for comm in patt:
                     pwexx=string.split(ic,'ctrl.dimer.')[1]
                     cname= 'ctrl.dimer.'+pwexx
                     if int(pwexx) >= initic:
-                        clines= clines+'cp '+cname+' ctrl.dimer;bash ctrl.dimer; rm mixm.dimer\n'
+                        clines= clines+'cp '+cname+' ctrl.dimer;bash ctrl.dimer;rm mixm.dimer\n'
                 #print clines
 
                 # job file
@@ -229,7 +229,7 @@ for comm in patt:
                 jobfile.close()
 
                 #job que file
-                jobque.write("./"+jobname+" \n")
+                jobque.write("./"+jobname+"\n")
 
                 #jobquebgnrel.write("bash "+jobname+" &\n")
                 #jobqueqsub.write("qsub -f fai "+jobname+" &\n")

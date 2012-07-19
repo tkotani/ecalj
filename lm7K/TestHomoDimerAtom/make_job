@@ -2,6 +2,9 @@
 # generate $work/jobque files to run. All related files are generated.
 import string,sys,os,commands
 arg=' '.join(sys.argv)
+if '--copy' in sys.argv:
+  ccc='cp savedata pldimer1 plmol.py jobquescript.py jobmoldimer1.py jobatom1.py ~/bin'
+  os.system(ccc)
 
 if '--pjsub' in sys.argv:
   work="TEST.pjsub"
@@ -13,7 +16,7 @@ else:
   usage: make_job (required --bg or --pjsub): (optional --continue --nrel)
          You have to do
            cp savedata pldimer1 plmol.py jobquescript.py jobmoldimer1.py jobatom1.py ~/bin
-         in advance. 
+         in advance (this is done with mak_job --copy)
            For given jobdimerlist.15, you can obtain TEST.bg/ TEST.bg.atom/ and so on,
          jobque file is the main script. You need to edit jobdimerlist.15 to specify dimers/atoms.
  """

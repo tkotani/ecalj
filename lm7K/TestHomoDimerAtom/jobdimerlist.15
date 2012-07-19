@@ -1,3 +1,6 @@
+### C fsmom=2 at dis=-0.1 is not converged well...
+### V fsmom=0 at dis=-0.4:-0.2 are not converged well...
+
 distance=-0.3;-0.3@  fsmom=2@ rstar=0.8,0.9@ $Sc $Sc2dis $alatpath15
 distance=-0.4;-0.2@  fsmom=4@ rstar=0.9,1.0@ $Sc $Sc2dis $alatpath15
 
@@ -10,8 +13,11 @@ distance=-0.4;-0.2@  fsmom=4@ rstar=0.9,1.0@ $Sc $Sc2dis $alatpath15
 # distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $Be $Be2dis $alatpath15
 # distance=-0.4;0.6@  fsmom=2@ rstar=0.8,0.9,1.0@ $B $B2dis $alatpath15
 # distance=-0.4;0.6@  fsmom=4@ rstar=0.8,0.9,1.0@ $B $B2dis $alatpath15
+
 # distance=-0.4;-0.1@  fsmom=0@ rstar=0.8,0.9,1.0@ $C $C2dis $alatpath15
 # distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $C $C2dis $alatpath15
+
+
 # distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $N $N2dis $alatpath15
 # distance=-0.4;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $O $O2dis $alatpath15
 # distance=-0.4;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $F $F2dis $alatpath15
