@@ -310,7 +310,7 @@ jobid =''.join(sys.argv[1:6])+basename
 jobid =string.replace(jobid,"'","")
 #print jobid
 
-d1,d2=getctrldir(temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.001@ nit=30"+temp1_init,jobid)
+d1,d2=getctrldir(temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.01@ nit=30"+temp1_init,jobid)
 d0=d1+'/'+d2+'dis='+dist
 if ( not os.path.exists(d1)): os.mkdir(d1)
 if ( not os.path.exists(d0)): os.mkdir(d0)
@@ -324,10 +324,10 @@ f.write(d0)
 f.close()
 os.chdir(d0)
 print ' ',
-for pwex in [-1,2,3]: #,4,5,6,7,8]: #for initial condition generation
+for pwex in [-1,2,3,4,5,6,7,8]: #for initial condition generation
     print 'pwex=',pwex,
-    if pwex==-1: lll=temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.001@ "+temp1_init
-    else:        lll=temp0_init+"pwe="+'%i' % pwex+"@ dis="+dist+"@ bzw=0.000001@ "+temp2_init
+    if pwex==-1: lll=temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.01@ "+temp1_init
+    else:        lll=temp0_init+"pwe="+'%i' % pwex+"@ dis="+dist+"@ bzw=0.0001@ "+temp2_init
     ctrl=genctrl(lll,jobid)
     ## replace foobar in ctrltemplete ###
     f=open('ctrl.dimer.'+'%i' % pwex,'wt')

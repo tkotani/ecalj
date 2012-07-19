@@ -1,39 +1,57 @@
 === Dimer and atom calculations in supercell. ===
 
-> make_jobque.bg
-> make_jobque.pjsub  for pj subsystem
-Please look into make_jobque.* files.
-These generate TEST.bg/ or TEST.pjsub/, where we have jobscript
+We can generates job scipcts and required ctrl files by
+  >make_job --bg
+  >make_job --pjsub  !for pj subsystem
+  >make_job --bg --nrel
+  >make_job --pjsub --nrel
+
+Extentions .nrel. means non-relativistic cases.
+Please look into make_jobque.* files at first.
+These generate TEST.bg/ or TEST.pjsub/, where we have scripts
  jobque.bg or jobque.pjsub.
 
-You can run all calculations with 
->bash jobque.bg
-or so.
+TEST.atom.bg and so on are files for atom.
+
+You can start all calculations with 
+  >bash jobque
+, and so on, in principle (however, it can be a very expensive job).
+Look into jobdimerlist.15, which specify dimers (or atoms) we will calculate.
 
 For your convenience, we have pss in this directory; pss shows job
-status. pss 1 shows working directory.
-(you can kill a submitted job of dimer calculation by "pss -KILL jobid").
+status.  "pss 1" shows working directory also.
+(you can kill a background job (including child processes) by "pss -KILL jobid").
+
+--
+  >make_job --bg --continue
+gives job files (jobque and jobscript in TEST.bg or so on) to restart
+calculations. These jobscript are to look into the end of save file to
+restart calculations.
+
 
 ---
-The followings describes what make_jobque.bg does.
+The followings describe what make_jobque.bg does.
 ===================================================
 1. Setup1. 
-  We assume lmf and lmfa in your ~/bin
   >cp jobquescript.py jobmoldimer1.py * ~/bin 
-  >cp savedata pldimer1 plmol.py ~/bin/   !these are utilities.
+  >cp savedata pldimer1 plmol.py ~/bin/   !these are utilities (data
+  gathered, and plot tool) after calculation are finished.
+  I assumed you have ~/bin directory in $PATH.
 
-  >cp pss ~/bin  (pss is  a utility)
+  >cp pss ~/bin  (pss is  a utility explained already)
 
-  jobquescript.py: jobque and job file generator.
-  jobmoldimer1.py: ctrl file generator for dimers.
+  Important files to set computational conditions are
+    jobquescript.py:  jobque and job file generator.
+    jobmoldimer1.py:  ctrl file generator for dimers.
+    jobdimerlist.15:  specify dimers for which, we will generate job files.
 
 2. Setup2.
-  Make working directory <work dir>. 
-  >cp jobdimerlist.15 extra.bash homedimerdistance.bash <work dir>
-  <work dir> is TEST.bg in the case the job_run.bg.
+    Make working directory <work dir>. 
+    >cp jobdimerlist.15 extra.bash homedimerdistance.bash <work dir>
+    <work dir> is TEST.bg in the case the make_jobque.bg
 
 3. Run 
-   jobquescript.py internally calls jobmoldimer1.
+   jobquescript.py internally calls jobmoldimer1.py (or jobatom1.py)
 
 The main purpose of make_jobque.bg is to generate required ctrl files,
 directories, job files to perform TEST.bg/jobque.
@@ -41,33 +59,30 @@ Look into jobque.
 
 You can use jobdimerlist.10 instead of jobdimerlist.test. (or jobdimerlist.15).
 jobdimerlist.10 (for all dimers) requires 24 hours with 96 core machine.
-jobdiemrlist.15 requires one week; it looks too long (we have room to
-make it efficient ...).
+jobdiemrlist.15 requires one week; it looks too long 
+(we have room to make it efficient ...).
 =======================================================
 
-=== How it work ===.
-Please look into job_run.bg (or also job_run.qsub).
-It is the main script for dimer calculation systems.
 
-After it is finished, you can find
-  jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath5
-in Test.bg/. 
-This is the main script to run a job for 
+
+After make_jobque.bg is finished, you can find
+  jobmoldimer1_-0.20,_fsmom=0@_rstar=0.8@__H_H2dis_alatpath15
+in Test.bg/. This is the main script to run a job for 
   magnetic mom=0; distance=-0.2+gaussian value; MT size=0.8*gaussian
-value; supercell is 5 angstrome cell .
+value; supercell size is embedded in alatpath variable .
 This corresponds the setting in jobdimerlist.15
-  distance=0.1;0.1@  fsmom=2@ rstar=0.9@ $O $O2dis $alatpath5
-. If you change $alatpath5 to $alatpath10, it mean 15 angstrome cell.
-(not a cubic cell, but a deformed cell to break symmetry).
+  distance=0.1;0.1@  fsmom=2@ rstar=0.9@ $O $O2dis $alatpath15
+. If you change $alatpath15 to $alatpath10, it mean 10 angstrome cell 
+(exactly speaking, not cubic cell, but a deformed cell to break symmetry).
 
 ---
 PWE control:
-Initial condition is calculated with bzw=0.001. Then we use bzw=1d-6
-for main part of calculations. This gives integration zero or unity(occupied).
+Initial condition is calculated with bzw=0.01 with pwe=2. Then we use bzw=0.00001
+for main part of calculations. 
 
 
 === Plot ===
-To gather data and plot them, perform 'savedata' command (at /TEST.bg or /TEST.qsub  )
+To gather data and plot them, perform 'savedata' command (at /TEST.bg or so on ).
 
 >savedata <2Sz> <Z>
 For example
@@ -79,9 +94,5 @@ Data for plot is in datg.savedata.0.1.
 ======================================
 
 
-=== ATOM in supercell ===
-Look into Atom/README.
-Essentially similar with dimr calculations, but with an atom in the cell.
-======================================
 
 

@@ -1,7 +1,0 @@
-=== atom calculation in supercell ===
-job_run_atom do all in background mode. 
-Look into it.
-find save.dimer file (because of histrocal reasons, *.dimer even for
-atom...)
-
-Results are in TEST/DimerSYMI,dis,Cr,fsmom=6,alat=9.4486/*/save*

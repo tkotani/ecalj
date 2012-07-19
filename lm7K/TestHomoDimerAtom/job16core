@@ -1,0 +1,30 @@
+#!/bin/env python
+import os
+header='''\
+#!/bin/bash
+#PJM -L "rscgrp=fx-single"
+#PJM -L "node=1"
+#PJM -L "elapse=08:00:00"
+#PJM -j
+#PJM -X
+#PJM --no-stging
+'''
+aaa=''
+ic=0
+ijob=open("jobque",'r').read().split('\n')
+ijx=0
+for ix in ijob:
+    print ix
+    ic=ic+1
+    aaa=aaa+ix
+    if( ic==16):
+      ijx=ijx+1
+      jobf="jobque"+ '%i' % ijx
+      f=open(jobf,'w')
+      f.write(header+'\n'+aaa+'\n')
+      f.close()
+      os.system('pjsub '+jobf)
+      aaa=''
+      ic=0
+    else:
+      aaa= aaa+' &\n'

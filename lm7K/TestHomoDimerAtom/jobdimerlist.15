@@ -1,5 +1,8 @@
-distance=-0.4;-0.4@ fsmom=0@ rstar=0.8@ $H $H2dis $alatpath5
-distance=-0.2;-0.1@  fsmom=0@ rstar=1.0@ $Be $Be2dis $alatpath5
+distance=-0.3;-0.3@  fsmom=2@ rstar=0.8,0.9@ $Sc $Sc2dis $alatpath15
+distance=-0.4;-0.2@  fsmom=4@ rstar=0.9,1.0@ $Sc $Sc2dis $alatpath15
+
+#distance=-0.4;-0.4@ fsmom=0@ rstar=0.8@ $H $H2dis $alatpath5
+#distance=-0.2;-0.1@  fsmom=0@ rstar=1.0@ $Be $Be2dis $alatpath5
 
 # distance=-0.4;0.4@ fsmom=0@ rstar=0.8,0.9,1.0@ $H $H2dis $alatpath15
 # distance=-0.4;1.5@  fsmom=0@ rstar=0.8,0.9,1.0@ $He $He2dis $alatpath15
