@@ -129,7 +129,7 @@ c ... reverse maping of offset-index for hamiltonian
       ifisym = fopnx('SYMOPS',2,2,-1)
       write(ifisym,*) ngrp
       do ig = 1,ngrp
-        write(ifisym,*) ig, invgx(ig), shtvg(1:3,ig)
+        write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
         do i=1,3
           write(ifisym,"(3e24.16)") symops(i,1:3,ig)
         enddo
