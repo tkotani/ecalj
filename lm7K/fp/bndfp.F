@@ -1823,7 +1823,8 @@ C   ... Diagonalize and add to density
 #ifndef MPIK
             call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
      .      '%?#n#   ndimh = %i##',
-     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
+c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
+     .      iq,nkp,qp,1,ndimh)
 #endif
             nmx = min(nevmx,ndimhx)
             nmx = max(nmx,nevec) !nevec is given in the case of double path formalism
