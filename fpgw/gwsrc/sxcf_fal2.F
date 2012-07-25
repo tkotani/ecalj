@@ -473,7 +473,7 @@ c     if(smbasis()) ifpomat = iopen('POmat',0,-1,0) !oct2005
       iqini=2
       if(bzcase()==2) iqini=1
       iqend=nqibz+nq0i
-      print *,'ddddddddddd  original mode like dddddddddd'
+c      print *,'ddddddddddd  original mode like dddddddddd'
       if(newaniso()) then !takao2012apr
         iqini=1
         iqend=nqibz !no sum for offset-Gamma points.
@@ -499,7 +499,7 @@ cccccccccccccccccccccccccccccccccccc
 
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend
-        print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
+c        print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
         if( kx <= nqibz ) then
           kr = irk(kx,irot) ! index for rotated k in the FBZ
           qibz_k= qibz(:,kx)
@@ -516,12 +516,12 @@ c        ngb = nbloch + ngcni(k)
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
 c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc !oct2005
-        print *,'uuuuuuuuuuuuuuuu111 nbloch ngc=',nbloch,ngc,kx,kr
+c        print *,'uuuuuuuuuuuuuuuu111 nbloch ngc=',nbloch,ngc,kx,kr
 
 !! ===Readin diagonalized Coulomb interaction===
         if(newaniso()) then
 cccccccccccccccccccccccccccccccccccccccc
-          print *,'ddddddddddddddd qibz_k dddddddd'
+c          print *,'ddddddddddddddd qibz_k dddddddd'
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 cooo         qibz_k= qibz(:,kx)
@@ -531,11 +531,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
             idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
             ifvcoud = iopen('Vcoud',0,0,0)
           endif
-          print *,'uuuuuuuuuuuuuuuu3333333111222 nbloch ngc=',nbloch,ngc
+c          print *,'uuuuuuuuuuuuuuuu3333333111222 nbloch ngc=',nbloch,ngc
           do
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
-            print *,'readin qvv=',qvv
+c            print *,'readin qvv=',qvv
             if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
             allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
             read(ifvcoud) vcoud
@@ -554,7 +554,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
             print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
             stop 'hsfp0.m.f:ngb0/=ngb'
           endif
-          print *,'uuuuuuuuuuuuuuuu111222 nbloch ngc=',nbloch,ngc
+c          print *,'uuuuuuuuuuuuuuuu111222 nbloch ngc=',nbloch,ngc
 
 c$$$         if(sum(abs(qibz_k))<1d-6) then
 c$$$          idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
@@ -642,7 +642,7 @@ c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
 c          deallocate(vcoul)
 c          cycle
 c          print *,' kount out =',kount(k,ip)
-          print *,'kp ip kount nstar=',kx,ip,kount(kx,ip),nstar(kx)
+c          print *,'kp ip kount nstar=',kx,ip,kount(kx,ip),nstar(kx)
           if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
         else
           if( wgt0(kx-nqibz,irot) == 0d0 ) then
@@ -671,11 +671,11 @@ c the irreducible BZ
 c      call vminv   (q,qbz(1,kr),3,qk)
         qk =  q - qbz_kr ! qbz(:,kr)
 
-c        if(debug) then
+        if(debug) then
         write(6,"(' q      =',3f13.5)") q
         write(6,"(' qbz_kr =',3f13.5)") qbz_kr
         write(6,"(' qk     =',3f13.5)") qk
-c        endif
+        endif
 
 c bring q-rk into the 1st BZ ==> qfbz labelled by kp
 c         call fbz2(qk, ginv,index_qbz,n_index_qbz, qbz,nqbz, !qbz=rk
@@ -739,7 +739,7 @@ c-------------
         endif
         nstate = nctot + nbmax ! = nstate for the case of correlation
 ccccccccccccccccccccc
-        print *,'uuuuuu: nbmax',nbmax,nt0p,nctot
+c        print *,'uuuuuu: nbmax',nbmax,nt0p,nctot
 ccccccccccccccccccccc
 
 
@@ -1026,7 +1026,7 @@ c$$$      else
                 do ivc=1,ngb
                   if(ivc==1.and.kx==1) then
                     vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
-                    print *,'wklm(1) wk=',wklm(1),wk(kx)
+c                    print *,'wklm(1) wk=',wklm(1),wk(kx)
                   else
                     vc= vcoud(ivc)
                   endif
@@ -1182,7 +1182,7 @@ c--------------------------------------------------------------------------
 c--- The matrix elements zmel.
         allocate( zmel (ngb, nstate, ntp0) )
         zmel = dcmplx (rmelt,-cmelt)
-        print *,'ddddddddddddd original like mode ddddddddddddddddd'
+c        print *,'ddddddddddddd original like mode ddddddddddddddddd'
         if(newaniso()) then
           do itp=1,ntp0
             do it=1,nstate
@@ -1224,7 +1224,7 @@ ccccccccccccccccccccccccccccccccccccccccccc faleev cccccccccccccccccccccc
         if(debug) print *,' wvr nrec kx nw nw_i ix=',nrec,kx,nw,nw_i,ix
         read(ifrcw,rec=nrec) zw  ! direct access read Wc(0) = W(0) - v
 ccccccccccccccccccccccccccccccccccccccc
-        print *,'kkkkkk sumcheck zw=',kx,sum(abs(zw(1:ngb,1:ngb)))
+c        print *,'kkkkkk sumcheck zw=',kx,sum(abs(zw(1:ngb,1:ngb)))
 ccccccccccccccccccccccccccccccccccccc
 c1
 c1        call matzwz( zw(1:ngb,1:ngb), zmel, ntp0,nstate,ngb,
@@ -1301,7 +1301,7 @@ c          print *,' ix nrec=',ix,niw,nrec
           if(debug) print *,' wvi nrec=',nrec
           read(ifrcwi,rec=nrec) zw  ! Readin W-v on imag axis
 ccccccccccccccccccccccccccccccccccccccc
-          print *,'kkkkkk sumcheck zwi=',kx,sum(abs(zw(1:ngb,1:ngb)))
+c          print *,'kkkkkk sumcheck zwi=',kx,sum(abs(zw(1:ngb,1:ngb)))
 ccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccc
 c          write(6,"(' trans =',i4,2d13.6)") ix
@@ -1914,7 +1914,7 @@ cccccccccccccccccccccccccccccccccccccccc
       if(newaniso()) ifvcoud =iclose('Vcoud')
 
 c     if(smbasis()) isx = iclose("POmat")
-      if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)")sum(abs(zsec))
+c      if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)")sum(abs(zsec))
 
 c      call rlse (iwr1)
 ccccccccccccccccccccccccccccc

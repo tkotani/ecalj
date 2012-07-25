@@ -413,7 +413,7 @@ c ... Frequencies
      & " Number of frequencies along Im axis. "//
      & "  Used for integration to get SEC* in hsfp0"
       write(ifigwin,"(i10,a)") niw,
-     & "     ! =niw  Try at least niw=6 and niw=12 "
+     & "     ! =niw  Try at least niw=6,10, or 12 "
 
       write(ifigwin,"(a)") 
      & ' Broadening of x0. negative means tetrahedron method;'

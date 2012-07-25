@@ -71,7 +71,7 @@ c     print *, ' ic lx=',ic, lx(ibas)
               lmb  = lb*lb + lb + mb + 1
 
 cccccccccccccccccc
-              write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
+c              write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
 cccccccccccccccccc
 
 c loop over LMTO basis

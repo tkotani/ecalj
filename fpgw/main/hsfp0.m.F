@@ -902,7 +902,7 @@ c-------------------------
 c     - takao Vxc is readin from VXCFP
       if(ixc==1) then
         allocate(  vxcfp(ntq,nq,nspin) )
-        call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
+        call rsexx2(nspin,itq,q,ntq,nq, ginv, symgg,ngrp, vxcfp) !add ginv july2011
 c     loop over spins
         do is = 1,nspinmx
           write (ifxc(is),*) '==================================='
@@ -1037,7 +1037,7 @@ c
 
 c     loop over rotations -------------------------------
         do 1000 irot = 1,ngrp
-          print *,'uuuuuuuu takao do 1000 ',sum(abs( irk(:,irot) )),sum(abs( wgt0(:,irot)))
+c          print *,'uuuuuuuu takao do 1000 ',sum(abs( irk(:,irot) )),sum(abs( wgt0(:,irot)))
           if( sum(abs( irk(:,irot) )) ==0 .and.
      &           sum(abs( wgt0(:,irot))) == 0d0 ) then
             cycle

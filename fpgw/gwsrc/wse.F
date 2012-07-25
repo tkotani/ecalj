@@ -105,6 +105,77 @@ c
 c      return
 c      end
 c--------------------------------------------------------------------
+      subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, !crystal symmetry operation. july2012takao
+     o                 vxco)
+      implicit real*8 (a-h,o-z)
+      dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
+      real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
+      logical ::nocore,lfind
+      real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
+
+c      if (nspin == 2) stop 'nspin=2 require some change!'
+c
+      inquire(file='NoCore',exist=nocore)
+      if(nocore) then
+        ifvxcfp  = iopen('VXCFPV',0,0,0)
+        print *,' OPEN VXCFPV = valence only Vxc'
+      else
+        print *,' OPEN VXCFP '
+        ifvxcfp  = iopen('VXCFP',0,0,0)
+      endif
+      read(ifvxcfp) ldim,nqbz
+      print *,' rsexx ldim,nqbz',ldim,nqbz
+      allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
+      do ikp = 1,nqbz
+c        read(ifvxcfp) qqq(1:3,ikp),(vxcfpx(i,ikp),i=1,ldim)
+        read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
+cccccccccccccccccccccccccccccccccc
+        write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
+cccccccccccccccccccccccccccccccccc
+      enddo
+      if(nocore) then
+        isx = iclose('VXCFPV')
+      else
+        isx = iclose('VXCFP')
+      endif
+c
+      do iq=1,nq
+        do ikp=1,nqbz
+        do ig = 1,ng
+          sym = symgg(:,:,ig)
+c          qr= qqq(1:3,ikp)
+          qr=matmul(sym,qqq(1:3,ikp))
+
+cccccccc
+c          write(6,"('ikp qqq q=',i5,3d12.4,3x,3d12.4)") ikp,qqq(1:3,ikp),q(1:3,iq)
+cccccccc
+
+c         if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <1d-10) then
+c            ikpx=ikp
+c            goto 100
+c          endif
+!above block to find out ikpx is replaced (even when translational equivalent points)
+          lfind=.false.
+          if(sum( (qr-q(1:3,iq))**2) <tolq) then
+            lfind=.true.
+          else
+            call rangedq( matmul(ginv,q(1:3,iq)-qr), qx)
+            if(sum(abs(qx))< tolq) lfind=.true.
+          endif
+          if(lfind) then
+            ikpx=ikp
+            goto 100
+          endif
+c
+        enddo
+        enddo
+        stop ' rsexx: not find ikp'
+ 100    continue
+        vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
+      enddo
+      end
+
+
 c------------------------------------------------------------------------
       subroutine rsexx (nspin, itq, q, ntq,nq,ginv, 
      o                 vxco)

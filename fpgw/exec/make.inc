@@ -5,6 +5,7 @@
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
 #FC = ifort -132 -cm -w90 -w95
+# FC= ifort -132 -check bobunds -traceback !for check array bound
 FC = f95 
 
 # -cm is supress all comment.

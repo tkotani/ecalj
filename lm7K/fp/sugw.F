@@ -923,8 +923,9 @@ C   --- Branch job = 1 : make cphi, matrix elements ---
 C   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
 c            if (iprint() .ge. 30)
-            call awrit3(
-     .      ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
+c            call awrit3(
+c     .      ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
+            write(6,"(' sugw:  kpt=',i4,' of ', i4, ' k= ',3f9.5, ' ndimh= ',i5)") iq,nqtot,qp,ndimh
             if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
               if (nspc .eq. 2) then
@@ -1374,6 +1375,7 @@ C       evl should contain e(lda+sigma-vxc)
             allocate(testc(ndimh,ndimh))
             call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
      .      evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
+c            print *,'vvvvvvv writing evl...'
             do  i1 = 1, ndimh
               do  i2 = 1, ndimh
                 evl(i1,isp) = evl(i1,isp) - testc(i1,i2) * evec(i2,i1)

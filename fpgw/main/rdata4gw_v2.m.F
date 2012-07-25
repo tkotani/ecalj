@@ -425,7 +425,7 @@ c
 c     &     cphigeigmode)
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
       print *,' dummy iclass=',iclass
-      print *,' nqtti',nqtti
+      print *,' nqtti nbas',nqtti,nbas
       do iq=1,nqtti
         write(*,"(' qtti=',i4,3f9.5)")iq, qtti(1:3,iq)
       enddo
@@ -626,6 +626,7 @@ c
 c$$$      if(nocore) then; ifv= iopen('VXCFPV',0,-1,0) ! Vxc by LDA
 c$$$      else           ; ifv= iopen('VXCFP',0,-1,0)
 c$$$      endif
+      print *,'goto VXCFP writing...'
       ifv= iopen('VXCFP',0,-1,0)
       write(ifv) nband,nqi      !mar2012takao
 c      write(ifv) nband,nqtti    !feb2012takao
@@ -1556,6 +1557,10 @@ c     if(ikp>nnnn) cycle
 c     if(ikp>nqbz) cycle
         write(ifv) qtti(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
 
+c        do iband=1,nband
+c        write(6,"('qtti vxclda=',3f8.4,2f10.5)") qtti(1:3,ikp), vxclda(iband,ikp,1:nsp)
+c        enddo
+
 c     nc takao normalization check cccccccccccccccccccccccccccccccccc
         if(checknorm) then
           xx=0d0
@@ -1646,10 +1651,6 @@ c$$$      endif
       write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
       ifi = 6661
 
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
 C --- Make q-points in IBZ.
 c     mxkp   = n1q*n2q*n3q
 c     allocate(qibz(3,mxkp),IPQ(mxkp),WGT(mxkp))
@@ -1685,6 +1686,7 @@ c
       write(ifnqibz,"(3i10,'   ! nqibz nq0i nqibz+nq0i')") 
      &     nqibz,nq0i,nqibz+nq0i
       close(ifnqibz)
+
 
 C --- make <IPW|IPW> ------------------------------------------------
 !     generate ngc2 ngveccc2
@@ -1726,7 +1728,7 @@ c     endif
 
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         qx  = qibze(1:3,iqi)
-        call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy)
+        call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo
       ngc2mx = maxval(ngc2x(1:nqnumt))
@@ -1852,6 +1854,7 @@ c
       enddo
       close(ippovl)
       if(ippovlinv_test)  close(ippovlinv)
+      print *,'vvvvvvv1 nbas=',nbas
 c
 c     if(smbasis()) deallocate(ppmt)
 

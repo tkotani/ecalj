@@ -96,7 +96,7 @@ c        enddo
         lb= l_tbl(iorbt)
         kn= k_tbl(iorbt)
         offset_rev_tbl(ibas,lb,kn)=offset_tbl(iorbt)
-        write(6,"(' === product basis index: iorbt ibas l n offset',10i4)")iorbt,ibas,lb,kn,offset_rev_tbl(ibas,lb,kn)
+c        write(6,"(' === product basis index: iorbt ibas l n offset',10i4)")iorbt,ibas,lb,kn,offset_rev_tbl(ibas,lb,kn)
       enddo
       end subroutine
       end module 

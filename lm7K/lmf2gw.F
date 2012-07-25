@@ -286,8 +286,7 @@ c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
 c        endif
           deallocate( geig,ngvecp)!takao feb2012 ,ngvecc )
 
-c          if(ikp>nqbz) goto 888
-          if(iq>nqbz) goto 888
+cc          if(iq>nqbz) goto 888 !comment out this line July2012takao
 
 
 c --- VXCFP
@@ -300,6 +299,10 @@ c          write(ifvxcfpv) qqq, vvv3(1:nband)-vvv2(1:nband) !Vxc valence only vx
           else
             vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
 c          write(ifvxcfp ) qqq, vvv1(1:nband)-vvv2(1:nband) !Vxc              vxcfp(1:nband)
+           
+c           do iband=1,nband
+c             write(6,"('ib vxclda=',i4,f10.5)")iband,vvv1(iband)-vvv2(iband) 
+c           enddo
           endif
 
 c - check write
