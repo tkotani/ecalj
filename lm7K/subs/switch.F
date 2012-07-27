@@ -35,7 +35,7 @@ Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
 
       logical function newsigmasw()
 ! newsigmasw: in this case, we only use emax_sigm in hqpe.sc.m.F when we construct sigma.
-c        T: newsigma rotation, and interpolation.
+!!        T: newsigma rotation, and interpolation. !this is still problematic
 c        O: old version
 c      newsigmasw=.true.
       newsigmasw=.false.
@@ -66,7 +66,7 @@ c      sigswitch=0
       end
 
       logical function fullmesh()
-c      fullmesh=.true.
+c      fullmesh=.true. !including all G vector to expand charge density. I think this did not work well.
       fullmesh=.false.
       end
 

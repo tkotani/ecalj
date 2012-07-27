@@ -1278,7 +1278,7 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
         nbasp=sctrl%nbasp
         nl=sctrl%nl
 ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
-        if(llmfgw) then
+c        if(llmfgw) then
           print *,'goto gen_hamindex nkp=',nkp
           call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
 ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode)
@@ -1286,7 +1286,7 @@ ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , sig
 ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode)
 c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
      .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw,jobgw)
-        endif
+c        endif
 #if 1
 Ckino ib=atom index
 Ckino ltab=L
@@ -1333,7 +1333,11 @@ c      lwsig=0
         !stop 'xxx'
         rsrnge = sham%rsrnge
         print *,'rsrnge=',rsrnge
-        write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
+        if (mod(pwmode,10) ==0) then
+          write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
+        else
+          write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
+        endif   
         if (ldim .ne. ndham) then !june2009 takao
           write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
         endif

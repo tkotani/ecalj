@@ -102,7 +102,6 @@ c
       print *,'psigd',present(iout)
       print *,' iout=',iout
 
-
       call getpr(ipr)
       stdo = lgunit(1)
       call ivset(n123,1,3,0)
@@ -182,17 +181,32 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
           endif
         endif
 
+        if(llow .or. lhigh) then
+          if(present(iout).and.iout==1) then
+            inquire(file='ESEAVR',number=ifiese)
+            rewind ifiese
+            do iii=1,3
+              read(ifiese,*) sigiir,ispx
+              sigii=sigiir
+              siglin=sigiir
+              if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
+              if(isp==ispx) goto 898
+            enddo
+            stop 'psigd: can not find ESEAVR for given isp'
+ 898        continue
+          endif
+        endif  
 
-C       Printout
-        if(present(iout).and.iout==1) then
-          continue
-        else
-          if (mode .eq. 1) then
+!!      Printout
+c        if(present(iout).and.iout==1) then
+c          continue
+c        else
+        if (mode .eq. 1) then
             if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
               write(stdo,331) i,eval(i),dble(sigii)
   331         format(i6,f12.6,2x,f12.6)
             endif
-          else
+        else
             if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
               write(stdo,332)
      .      i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
@@ -204,37 +218,18 @@ C       Printout
               write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
   334         format(i6,f12.6,2x,f12.6,12x,f13.6)
             endif
-          endif
         endif
 
 C       Overwrite full sigma with diagonal matrix, or write to sigd
-c
-c        takao
         if (llow .or. lhigh) then
-c
-          if(present(iout).and.iout==1) then
-            inquire(file='ESEAVR',number=ifiese)
-            rewind ifiese
-            do iii=1,3
-              read(ifiese,*) sigiir,ispx
-              sigii=sigiir
-              if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
-              if(isp==ispx) goto 898
-            enddo
-            stop 'psigd: can not find ESEAVR for given isp'
- 898        continue
-          endif
-
           if (mode .eq. 0) then
-            call zscal(ndimh,zer,sig(1,i),1)     !sig(i,:)=0d0
-            call zscal(ndimh,zer,sig(i,1),ndimh) !sig(:,i)=0d0
+            sig(i,:)=0d0 !call zscal(ndimh,zer,sig(1,i),1)     
+            sig(:,i)=0d0 !call zscal(ndimh,zer,sig(i,1),ndimh) 
             sig(i,i) = sigii
           else
             sigd(i) = sigii
           endif
-
         endif
-
         if(.not.llow) then
           if(i<imin) imin=i
         endif

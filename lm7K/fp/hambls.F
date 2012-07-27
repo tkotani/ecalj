@@ -653,7 +653,7 @@ c new psigd (defined in rdsigm.F)
         else
           if(oncewrite(1)) print *,
      &    ' sigswitch()=1: a*e+b interpolation formula is not used.'//
-     &    ' or Use asig=(average of ESEAVR), bsig=0'
+     &    ' ---> Use asig=(average of ESEAVR), bsig=0'
           call psigd(0,ndimh,s(1,1,ispc),e,sigp,n123,wk, q=q,isp=isp,iout=1,iprx=1) !this version read ESEAVR (constant. Not use a*e+b interpolation formula).
         endif
 

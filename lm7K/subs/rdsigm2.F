@@ -192,33 +192,9 @@ C ... Local parameters
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer:: ohrss
-ckino Dec.14.2011:                   integer,pointer :: iv_p_ontabs(:) =>NULL()
-ckino Dec.27.2011:                   integer,allocatable :: iv_a_ontabs(:)
-
-ckino Dec.14.2011:                  integer,pointer :: iv_p_oiaxs(:) =>NULL()
-ckino Dec.27.2011:                  integer,allocatable :: iv_a_oiaxs(:)
-
-ckino Dec.22.2011:                 real(8),pointer :: rv_p_opos(:) =>NULL()
-
-ckino Dec.22.2011:                real(8),pointer :: rv_p_og(:) =>NULL()
-
-ckino Dec.22.2011:               real(8),pointer :: rv_p_oag(:) =>NULL()
-
-ckino Dec.22.2011:              real(8),pointer :: rv_p_ohrs(:) =>NULL()
-
-ckino Dec.22.2011:           integer,pointer :: iv_p_oistab(:) =>NULL()
-
-ckino Dec.22.2011:            integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
-ckino Dec.22.2011:           real(8),pointer :: rv_p_oqsig(:) =>NULL()
-
       real(8),pointer :: rv_p_oqp(:) =>NULL()
 ckino Jan.4.2012
       real(8),allocatable,target :: rv_a_oqp(:)
-
-
-ckino Dec.22.2011:         integer,pointer :: iv_p_ooffh(:) =>NULL()
-
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -247,48 +223,27 @@ C     integer os
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       double precision qk
       integer jj1,jj2,jj3,k
-C.....titus
-C      integer ib,ib1,ib2,nlmaa,lidim,ldh,osfz1,nsp1
-C      integer nkap0,n0H
-C      parameter  (nkap0=3,n0H=5)
-C      integer offH(n0H,nkap0,nbas)
-C.....titus
-C ... Heap
       integer ::iwdummy
-
-
       real(8):: eseavr
       integer:: napw_in
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
-
-
       real(8):: qin(3)
 ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
       integer:: ndhamx,debugmode
-      complex(8):: sene(ndimh,ndimh)
-
-      complex(8):: zv_dummy(1)
+      complex(8):: sene(ndimh,ndimh),zv_dummy(1)
       real(8):: rv_dummy(1)
-
       integer:: i_copy_size,nhrss
       real(8),allocatable::hrss(:)
-
       logical:: l_dummy_isanrg, isanrg, debug=.false.
-ccccccccccccccccccccccccccccccc
-c      integer:: oss
-ccccccccccccccccccccccccccccccc
+!!
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
      .(jj2*ifac(2)-1)*qb(k,2) +
      .(jj3*ifac(3)-1)*qb(k,3)
-
-
 c
       print *
-      print *,'seneinterp:'
+      print *,'seneinterp: start'
       mode=12 !lrsig=12
       lwsig=0
-
-
 
 C --- Setup and printout ---
       procid = mpipid(1)
@@ -1521,16 +1476,11 @@ Cu   14 Aug 02 Added option to orthogonalize sigm.
 Cu   27 Jul 02 first created
 C ------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer mode,ifis,ndimh,lwsig, nbas_dummy!nbas,
-C     integer osig(nbas),otau(nbas),oppi(nbas)
       type(s_lat)::slat
       type(s_ham)::sham
       type(s_bz)::sbz
-
-C     double precision ssite(1),sspec(1)
       double precision rsrnge
-C ... Local parameters
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
       integer parg,isw,lonesp
@@ -1543,35 +1493,12 @@ C ... Local parameters
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer:: ohrss , osigm2 , odelt , oistb2
-ckino Dec.14.2011:                  integer,pointer :: iv_p_ontabs(:)
-ckino Dec.27.2011:                  integer,allocatable :: iv_a_ontabs(:)
-
-ckino Dec.14.2011:                 integer,pointer :: iv_p_oiaxs(:)
-ckino Dec.27.2011:                 integer,allocatable :: iv_a_oiaxs(:)
-
-ckino Dec.22.2011:                real(8),pointer :: rv_p_opos(:)
-
-ckino Dec.22.2011:               real(8),pointer :: rv_p_og(:)
-
-ckino Dec.22.2011:              real(8),pointer :: rv_p_oag(:)
-
-ckino Dec.22.2011:             real(8),pointer :: rv_p_ohrs(:)
-
-ckino Dec.22.2011:           integer,pointer :: iv_p_oistab(:)
-
-ckino Dec.22.2011:           integer,pointer :: iv_p_oiprmb(:)
-
-ckino Dec.22.2011:          real(8),pointer :: rv_p_oqsig(:)
-
-ckino Dec.22.2011:         integer,pointer :: iv_p_ooffh(:)
-
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: qp_rv(:)
       real(8) ,allocatable :: wgt_rv(:)
       complex(8) ,allocatable :: wk_zv(:)
       complex(8) ,allocatable :: sigm_zv(:)
-
       double precision tmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
       complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
@@ -1597,24 +1524,16 @@ C      integer nkap0,n0H
 C      parameter  (nkap0=3,n0H=5)
 C      integer offH(n0H,nkap0,nbas)
 C.....titus
-C ... Heap
       integer ::iwdummy
-
-
       real(8):: eseavr,qsmesh(3,nk1,nk2,nk3)
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
       integer:: i_copy_size
-
       logical:: isanrg, l_dummy_isanrg,debug=.false.
-ccccccccccccccccccccccccccccccc
-c      integer:: oss
-ccccccccccccccccccccccccccccccc
 c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 c     .                    (jj2*ifac(2)-1)*qb(k,2) +
 c     .                    (jj3*ifac(3)-1)*qb(k,3)
 
-c
       print *
       print *,'rdsigm2:'
       mode=12
@@ -1624,7 +1543,6 @@ C --- Setup and printout ---
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,outs)
-
 C     tolq is allowed fuzz in qp
       tolq = 1d-6
 Changenglob      stdo = nglob('stdo')
@@ -1790,21 +1708,16 @@ c        if (lfbzin) nqp = nk1*nk2*nk3
       call info5(30,0,0,'%9fsigm file has %i irreducible QP: nk ='//
      .' ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
 
-C     Sanity checks
 
 c      i_copy_size=size(slat%plat)
 c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      print *,'zzzzzzzzzz xxxx plat=',plat
 ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos
-
-
-
-      nsgrp=slat%nsgrp
 ckino Dec.22.2011:         iv_p_oistab => slat%iv_p_oistab
-
 ckino Dec.22.2011:         rv_p_og => slat%rv_p_osymgr
-
 ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag
 
+      nsgrp=slat%nsgrp
       if(debug) print *,'rdsigm2: debug AAAAAAAAAAAAAAAA'
 
 C     Get leading dimension of hrs
@@ -1824,9 +1737,9 @@ C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
         llshft(i) = lshft(i) .ne. 0
       enddo
-      call pshpr(0)
+c      call pshpr(0)
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
-      call poppr
+c      call poppr
 
 c.takao qmesh
       do i1=1,nk1

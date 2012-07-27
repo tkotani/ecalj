@@ -105,7 +105,7 @@ c
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
       integer(4)::imdim(natom),iatomp(natom)
-      logical,parameter:: debug=.false.
+      logical,parameter:: debug=.true.
 c---tetwt5
       logical:: hist      ,ipr
       integer(4):: nhwtot,
@@ -435,13 +435,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc      nt0=4
 c$$$cc      ntp0=22
 c$$$cc      itps=5
-c$$$      write(6,"('uuu scheck= ',6f9.4, 7i4, 4d13.6)")
-c$$$     & q+rk(:,k),rk(:,k),
-c$$$     &  ngb,ngc,nctot,nt0,ntp0,ngp1,ngp2
-c$$$     & ,sum(abs(geig1(1:ngp1, itps:itps+ntp0-1)))
-c$$$     &, sum(abs(geig2(1:ngp2, 1:nt0     )))
-c$$$     & ,sum(abs(zmelt(1:ngb,1:nctot+nt0,1:ntp0)))
-c$$$cc     & ,sum(abs(zmelt(1:ngb,1:nctot+nt0,5:26)))
+c      write(6,"('uuu scheck= ',6f9.4, 8i4, 4d13.6)")
+c     & q+rk(:,k),rk(:,k),
+c     &  ngb,ngc,nctot,nt0,ntp0,ngp1,ngp2,itps
+c     & ,sum(abs(geig1(1:ngp1, itps:itps+ntp0-1)))
+c     & ,sum(abs(geig2(1:ngp2, 1:nt0     )))
+c     & ,sum(abs(zmelt(1:ngb,1:nctot+nt0,1:ntp0)))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C...Feb2006 We have gotten zmelt until here. -------------------------------

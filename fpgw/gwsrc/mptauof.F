@@ -1,3 +1,153 @@
+c ------------------------------------------------------------------------------
+      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0)
+!! == Obtain effective screened Coulomnb interaction W-V at q=0 ==
+!! Output
+!!     w0(ii:ie), others are inputs.
+!! INPUT
+!! ii: start index of iw
+!! iw: end index of iw
+      implicit none
+      integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw,ll,lm1x,lm2x
+      complex(8):: llw(ii:ie,nq0i),w0(ii:ie)
+      complex(8):: llwyl(9,ii:ie),llw_invr(ii:ie,1:nq0i)
+      real(8):: epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i),dmlx(nq0i,9)
+      real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2)
+      complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2),sss,sss2
+      real(8):: wklm((lmxax+1)**2),ylm,wbz,rrr2(3)
+      real(8):: fpi,pi,epinv(3,3,nq0i),q0i(3,nq0i),  r2s,emat(3,3),rrr(3),qnorm2(nq0i)
+      integer:: nlmm,lx,iq0i,iq0x
+      real(8),allocatable:: cy(:),yl(:),yl2(:)
+      pi  = 4d0*datan(1d0)
+      fpi = 4d0*pi
+      nlklm=(lmxax+1)**2
+      epinvq0i_m1=epinvq0i
+      write(6,"(' getw0 start:',4i3,d13.6)") nq0i,lmxax,ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      nlm=(lmxax+1)**2
+c      do lm=1,nlm
+c        if(abs(wklm(lm))>1d-10) write(6,*)lm,ll(lm),wklm(lm)
+c      enddo
+c      stop 'test end vvvvvvvvvvvvvvvvvvvvvv'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      call matinv(nq0i,epinvq0i_m1)
+      llwyl=0d0
+      do iw= ii,ie
+        llw_invr(iw,1:nq0i) = matmul (epinvq0i_m1, llw(iw,1:nq0i))
+        ! llw_invr: representation in a linear combination of invariat tensor of epsilon.
+        lm=1
+        llwyl(lm,iw) = sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
+        do lm=5,9
+          llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
+        enddo
+c       write(*,"('pppp2 iw llw',i3,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
+      enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
+!! ===== generate YL for a test vector rrr (rrr is ehat above).=====
+c$$$      lx=2
+c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2),yl2((lx+1)**2))
+c$$$      call sylmnc(cy,lx)
+c$$$      rrr=(/-0.36d0,0.20d0,0.4d0/)
+c$$$      rrr=rrr/sqrt(sum(rrr**2))
+c$$$      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$      write(*,"(  ' testttt: r=',3f10.5)") rrr
+c$$$      do iw= ii,ie
+c$$$        sss=0d0
+c$$$        do iq0i=1,nq0i
+c$$$          sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+c$$$        enddo
+c$$$        write(*,"(' testttt: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,
+c$$$     &    llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))
+c$$$      enddo
+c$$$      stop 'getw0: xxxxxx test end xxx for given test rrr(1:3) xxxxxxxxx'
+c
+c$$$      do iw= ii,ie
+c$$$        do iq0x=1,nq0i
+c$$$        sss=0d0
+c$$$        do iq0i=1,nq0i
+c$$$            sss= sss  + llw_invr(iw,iq0i)*sum(q0i(:,iq0x)*matmul(epinv(:,:,iq0i),q0i(:,iq0x)))
+c$$$     &                 /sum(q0i(:,iq0x)**2)
+c$$$        enddo
+c$$$        write(*,"(' testttt: epinv expansion=',2i3,4f10.5)") iq0x,iw,sss
+c$$$        enddo
+c$$$        write(*,*)
+c$$$      enddo
+c$$$      stop 'test: reproduce llw at q0i'
+Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
+!! ==== for a test case of rrr ====
+      lx=lmxax
+      if(allocated(cy)) deallocate(cy)
+      if(allocated(yl)) deallocate(yl)
+      allocate(cy((lx+1)**2),yl((lx+1)**2))
+      call sylmnc(cy,lx)
+      rrr=(/-0.36d0,0.20d0,0.4d0/)
+      rrr=rrr/sqrt(sum(rrr**2))
+      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+      write(*,"(  ' test input: q=',3f10.5)") rrr
+!! ---
+
+      w0=0d0
+      do iw =ii,ie
+        lm2x=0
+        cgllw=0d0
+        do lm2=1,nlklm
+          if(mod(ll(lm2),2)==1) cycle  !only even l
+          lm2x=lm2x+1
+          lm1x=0
+          do lm1=1,nlklm
+            if(mod(ll(lm1),2)==1) cycle !only even l
+            lm1x=lm1x+1
+            cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
+          enddo
+        enddo
+!! === inversion of 1 = \sum_L1 llwyl(L1)Y_L1 * \sum_L2 K_L2 Y_L2===
+!! Both sides are multipled by Y_L and spherically integraled.
+!! warn: Klm should be not confused with wklm
+!! Klm is defeined in Christoph's paper PRB 125102-8
+        call matcinv(lm2x,cgllw(1:lm2x,1:lm2x))
+        cgllw(1:lm2x,1:lm2x)= sqrt(fpi)*cgllw(1:lm2x,1:lm2x)
+        !sqrt(fpi) comes from \int d\Omega Y_0 (right hand side of inversion eq).
+!! for check write
+        sss=0d0
+        lm2x=0
+        do lm2=1,nlklm
+          if(mod(ll(lm2),2)==1) cycle  !only even l
+          lm2x=lm2x+1
+          sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
+        enddo
+        sss2=0d0
+        do iq0i=1,nq0i
+          sss2 = sss2 + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+        enddo
+        write(*,"(' epinv inversion test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,1d0/sss2,
+     &    1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
+
+!! === spherical integral of Klm ===
+        lm1x=0
+        do lm1=1, nlklm
+          if(mod(ll(lm1),2)==1) cycle
+          lm1x=lm1x+1
+          w0(iw)= w0(iw)+ wklm(lm1)* fpi* cgllw(lm1x,1)/wbz      ! Klm=cgllw(:,1)
+          if(lm1==1) w0(iw)= w0(iw) - wklm(lm1)*fpi**1.5d0/wbz   ! fpi**1.5 --> subtract Coulomb
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz !test case of llw at q0i(:,iq0i=1).
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+        enddo
+      enddo
+      do iw=ii,ie
+        write(6,"('w0 & w0(1:nq0i)=',2d13.5,10(1x,2d13.5))")
+     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
+      enddo
+      end
+
+      integer function ll(ilm)
+      integer:: lla(169)
+      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6,15*7,17*8,19*9,21*10,23*11,25*12 /
+      ll=lla(ilm)
+      end
+
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym)
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===

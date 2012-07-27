@@ -28,8 +28,7 @@ c
      i omega,iwini,iwend,
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
-c     i pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012 !wklm apr2012takao
-     i pos,wklm,lxklm,ngb0, !mar2012 !wklm apr2012takao
+     i   wklm,lxklm, !mar2012 !wklm apr2012takao
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi
@@ -265,7 +264,7 @@ c
      &  qbasinv(3,3), det,qdiff(3),add(3),symope(3,3),
      &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
      &   ppb(1), !pdb(1),dpb(1),ddb(1), !*
-     &  coh(ntq,nq)   , pos(3,natom)
+     &  coh(ntq,nq)   !, pos(3,natom)
       complex(8)::   alagr3zz,wintz !geigB  (ngpmx,nband,nqbz),
 
 c
@@ -279,7 +278,7 @@ c for exchange --------------------
      &   w1p(:,:,:),w2p(:,:,:),w3p(:,:)
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
 
-c- debug write ---------------------
+c- debugwrite ---------------------
       logical :: debug=.false. ,onceww
 
 cccccccccccccc
@@ -370,18 +369,16 @@ C...
       integer(4):: ii,iq
       logical ::evaltest !, imgonly
 
-      integer:: lxklm,ngb0,ivc,ifvcoud,idummy,iy
+      integer:: lxklm,ivc,ifvcoud,idummy,iy,ngb0
       real(8):: wklm((lxklm+1)**2),pi,fpi,vc,qvv(3),aaaa
       complex(8)::zmelt1,zmelt0
       real(8)::voltot
       logical :: newaniso,testomitq0
       complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:)
       real(8),allocatable::vcoud(:),vcousq(:)
-
+c--------------------------------------------------------------------
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
-c      imgonly=.false.
-c--------------------------------------------------------------------
       debug=.false.
       if(verbose()>=90) debug=.true.
 
@@ -509,29 +506,17 @@ c        print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
           qibz_k= 0d0
           qbz_kr= 0d0
         endif
-c        ngc = ngcni(k)  ! k-points in IBZ
-c        print *, ' k ngc=',k,ngc
-c        ngb = nbloch + ngcni(k)
-
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
-c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc !oct2005
-c        print *,'uuuuuuuuuuuuuuuu111 nbloch ngc=',nbloch,ngc,kx,kr
 
 !! ===Readin diagonalized Coulomb interaction===
         if(newaniso()) then
-cccccccccccccccccccccccccccccccccccccccc
-c          print *,'ddddddddddddddd qibz_k dddddddd'
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-cooo         qibz_k= qibz(:,kx)
-c          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
           if(sum(abs(qxx))<1d-6) then
             idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
             ifvcoud = iopen('Vcoud',0,0,0)
           endif
-c          print *,'uuuuuuuuuuuuuuuu3333333111222 nbloch ngc=',nbloch,ngc
           do
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
@@ -554,8 +539,6 @@ c            print *,'readin qvv=',qvv
             print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
             stop 'hsfp0.m.f:ngb0/=ngb'
           endif
-c          print *,'uuuuuuuuuuuuuuuu111222 nbloch ngc=',nbloch,ngc
-
 c$$$         if(sum(abs(qibz_k))<1d-6) then
 c$$$          idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
 c$$$          ifvcoud = iopen('Vcoud',0,0,0)
@@ -577,8 +560,6 @@ c$$$         allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
 c$$$         read(ifvcoud) vcoud
 c$$$         read(ifvcoud) zcousq
 c$$$         vcousq=sqrt(vcoud) !
-
-
 
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
@@ -608,14 +589,7 @@ c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        print *,'dddddddddddddddd kx==1 cycle dddddddddddddddd'
-c        if(kx==1) cycle
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
-c --- exchange
+!! --- exchange
         if(exchange) then
 cccccccccccccccccccccccccccccccc
           if(testomitq0()) then
@@ -627,8 +601,6 @@ cccccccccccccccccccccccccccccccc
           allocate(vcoul(nn,nn))
           read(ifvcfpout) vcoul(1:nn,1:nn)
         endif
-
-
 
 c- weight check for cycle or not.
         if( kx <= nqibz ) then
@@ -1001,6 +973,17 @@ c            vcoul = vcoul + zw(1:ngb,1:ngb) !c  screen test
 c          endif
           allocate( zmel(ngb, nctot+nbmax, ntp0), w3p( nctot+nbmax,ntp0))
           zmel  = dcmplx (rmelt,cmelt)
+
+cccccccccccccccccccccccccccccc
+          if(debug) then
+          do it=1,nctot+nbmax
+             write(6,"('wwwww0 ',i5,2f10.4)") it,sum(abs(zmel(:,it,1)))
+          enddo
+          write(6,*)'sumcheck ppovlz=',sum(abs(ppovlz(:,:)))
+          write(6,*)'sumcheck vcoud=',sum(abs(vcoud(:)))
+          endif
+ccccccccccccccccccccccccccccc
+
           if(.not.newaniso()) then
             allocate(vcoult(1:ngb,1:ngb), z1p(ngb,nctot+nbmax,ntp0))
             vcoult= transpose(vcoul)
@@ -1026,7 +1009,7 @@ c$$$      else
                 do ivc=1,ngb
                   if(ivc==1.and.kx==1) then
                     vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
-c                    print *,'wklm(1) wk=',wklm(1),wk(kx)
+c                    print *,'wklm(1) vc=',wklm(1),vc
                   else
                     vc= vcoud(ivc)
                   endif
@@ -1039,7 +1022,7 @@ c              if(kx==1.and. ivc==1.and.abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) t
 c              voltot=270.01139400000000
 c              print *,'zzzzzz abszmelt=',abs(zmelt1)**2*voltot
 c              endif
-
+c
 c$$$!! may2012takao test mode. this is useful to see what zmel means
 c$$$!! be careful for complex conjugate...  zmel(ib,it,itp)= <psi_itp psi_it|ib>
 c$$$              if(.false.) then
@@ -1061,14 +1044,14 @@ c          print *,' nctot nbmax=',nctot,nbmax
             do itp = 1,ntp0
               do it  = 1,nctot+nbmax
                 w3p(it,itp) = sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itp)
-     .                     +      dimag(z1p(:,it,itp))*cmelt(:,it,itp) )
+     .                     +        dimag(z1p(:,it,itp))*cmelt(:,it,itp) )
 cccccccccccccccccccccc
-                if(kx>nqibz) then
-                  if(abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
-                    print *,'zzz: it itp zmelt1 =',it,itq(itp), 
-     &          sum( rmelt(1:nbloch,it,itp)**2 + cmelt(1:nbloch,it,itp)**2)
-                  endif
-                endif
+c                if(kx>nqibz) then
+c                  if(abs(ekc(it)- eq(itq(itp),ip)) < 1d-6 ) then
+c                    print *,'zzz: it itp zmelt1 =',it,itq(itp), 
+c     &          sum( rmelt(1:nbloch,it,itp)**2 + cmelt(1:nbloch,it,itp)**2)
+c                  endif
+c                endif
 cccccccccccccccccccccc
               enddo
             enddo
@@ -1076,44 +1059,13 @@ cccccccccccccccccccccc
           endif
           deallocate(zmel)
 
-c DEBUG write
           if(debug) then
             do  it  = 1,nctot+nbmax
-              do  itp = 1,ntp0
-                write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp)
-              enddo
+            do  itp = 1,ntp0
+              write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp)
+            enddo
             enddo
           endif
-
-ctetra
-c          if(tetraex) then
-cccccccccccccccccccccccccccccccccccccc
-cc           stop 'tetraex is not implimented yet ...'
-cccccccccccccccccccccccccccccccccccccc
-c           if (.not.tote) then
-c            do itp = 1,ntp0  !S[j=1,nbloch]  z1p(j,t,t') <B(rk,j) psi(q-rk,n) |psi(q,t')>
-c            zsec(-1,itp,ip)  = zsec(-1,itp,ip)
-c     &      - wtt*sum( w3p(1:nctot,itp))
-c     &      - wtx*sum(wtetef(1:nbmax,irkp)*w3p(nctot+1:nctot+nbmax,itp))
-ccccc electron number check
-cccc     &        - wtt*sum(wtetef(1:nbmax,irkp))/rydberg()
-ccccc
-c            enddo
-c           else
-c            do itp = 1,ntp0
-c              wfac = wtetef(itq(itp),ip)
-c              if(ixc==5) then
-c                if(nctot/=0) stop ' sxcf_v2z: nctot/=0'
-c                exxq = exxq  -wfac*wtx*
-c     &          sum( wtetef(1:nbmax,irkp)*w3p(nctot+1:nctot+nbmax,itp))
-c              elseif(ixc==6) then
-c                exxq = exxq - wfac*wtt*sum( w3p(1:nctot,itp))
-c              endif
-c            enddo
-c           endif
-c           deallocate( z1p,w3p,rmelt,cmelt,vcoul)
-c           cycle
-c          endif
 
 c Write the Spectrum function for exchange May. 2001
           if(ifexsp/=0) then
@@ -1125,15 +1077,7 @@ c Write the Spectrum function for exchange May. 2001
             enddo
           endif
 
-ccccccccccccccccccccccccccccccccccccccc
-caaaaa
-c          if(kx>nqibz) then
-c             cycle
-c          endif
-ccccccccccccccccccccccccccccccccccccccccc
-
-
-c--- Correct weigts wfac for valence by esmr
+!! --- Correct weigts wfac for valence by esmr
           do it = nctot+1, nctot+nbmax
 cgaussian
             wfac = wfacx(-1d99, ef, ekc(it), esmr)
@@ -1141,7 +1085,7 @@ cgaussian
             w3p(it,1:ntp0) = wfac * w3p(it,1:ntp0)
           enddo
 
-          if (.not.tote) then
+          if (.not.tote) then !total energy mode tote
             do itp = 1,ntp0  !S[j=1,nbloch]  z1p(j,t,t') <B(rk,j) psi(q-rk,n) |psi(q,t')>
               zsec(iwini,itp,ip) = zsec(iwini,itp,ip) 
      &        - wtt * sum( w3p(:,itp) )
@@ -1154,27 +1098,11 @@ cgaussian
               exxq = exxq - wtt * sum( w3p(:,itp) )
             enddo
           endif
-cccccccccccccccccccccccccc
-c      if(kx>nqibz) then
-c         do ix= 1,ngb
-c           write(666,*)ix,rmelt(ix, 1,1)
-c         enddo
-c         do itp = 1,ntp0  !S[j=1,nbloch]  z1p(j,t,t') <B(rk,j) psi(q-rk,n) |psi(q,t')>
-c           zsec(iwini,itp,ip) = zsec(iwini,itp,ip)
-c     &     - wtt *sum(abs(dcmplx(rmelt(:,1,itp),cmelt(:,1,itp))))
-c         enddo
-c      endif
-cccccccccccccccccccccccccc
-cccccccccccccccccccccccc
-c      do itp=1,ntp0
-c        write(6,"(2i3,3d13.6)") itp,ip,zsec(iwini,itp,ip),sum( w3p(:,itp) )
-c      enddo
-cccccccccccccccccccccccc
-          if(debug) write(6,*) "goto dealloc w3p.."
           deallocate( w3p,rmelt,cmelt,vcoul)
           cycle
         endif
 c-- End of exchange section --------------
+
 
 c--------------------------------------------------------------------------
 c--- correlation section --------------------------------------------------

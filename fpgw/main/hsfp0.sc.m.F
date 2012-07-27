@@ -192,6 +192,13 @@ c     integer(4):: nbmx
       integer(4):: nw_i
       logical:: exonly
       real(8):: wex
+
+!! newaniso mode
+      real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
+      complex(8),allocatable:: zcousq(:,:)
+      logical:: newaniso
+      integer:: ifvcoud,lxklm,ifidmlx
+
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -873,6 +880,23 @@ c     ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
 c     deltax0 = 0d0
 c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
 
+
+!! === readin Vcoud and EPSwklm for newaniso()=T ===
+      if(newaniso()) then
+        ifidmlx = iopen('EPSwklm',0,0,0)
+        read(ifidmlx) nq0ix,lxklm
+        if(nq0i/=nq0ix) then
+          print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+          stop 'nq0i from EPSwklm /= nq0i'
+        endif
+        allocate( dmlx(nq0i,9))
+        allocate( epinvq0i(nq0i,nq0i) )
+        allocate( wklm((lxklm+1)**2))
+        read(ifidmlx) dmlx, epinvq0i
+        read(ifidmlx) wklm
+        ifidmlx = iclose(ifidmlx)
+      endif
+
 c---------------------------------------------
       if(tetra) then
 c     --- get tetrahedron
@@ -1153,7 +1177,9 @@ c     i     shtw,
      i              omega,iSigma_en, ! iwini,iwend,            !sf 21May02
      i              nbmx,ebmx,  !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
+     i    wklm,lxklm, !mar2012
      o              zsec,coh)   ! acuumulation variable
+
 ccccccccccccccccccccccfaleev 21May02 we use general mesh in sxcf_fal1, so
 ccccccccccccccccccccccwe do not need sxce_v2
 c     else

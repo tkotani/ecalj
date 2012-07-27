@@ -161,7 +161,7 @@ c     logical :: imgonly=.false.
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
       logical:: newaniso
-      integer:: ngb0,ifvcoud,lxklm,ifidmlx
+      integer:: ifvcoud,lxklm,ifidmlx
 
 C...  mode switch. --------------
       if(cohtest) then
@@ -1128,7 +1128,7 @@ c     i     shtw,
      i              nbmx(2),ebmx(2), !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
 c     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
-     i    pos,wklm,lxklm,ngb0, !mar2012
+     i    wklm,lxklm, !mar2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
 
