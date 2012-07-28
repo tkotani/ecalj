@@ -118,7 +118,7 @@ BZ    NKABC=1 1 1  # division of BZ for q points.
       #   If you encounter this message set INVIT=F.
       #  T.Kotani think (this does not yet for lm7K).
     
-ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT={nit}
+ITER MIX=A2,b=.5,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 
@@ -297,7 +297,7 @@ setting['JOBLIST___']=\
   echo ' rmt(a.u.)=' $rmt
   #mv save.dimer save.dimer.bk
   #lmfa --noopt dimer $arguments0 > llmfa
-  #rm -f {rst,mixm,moms}.dimer
+  rm -f {mixm,moms}.dimer
   #echo start ctrl dimer dis= $dis pwe= $pwe
   lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe
 '''
@@ -314,15 +314,18 @@ d1,d2=getctrldir(temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.01@ nit=30"+temp1_init,j
 d0=d1+'/'+d2+'dis='+dist
 if ( not os.path.exists(d1)): os.mkdir(d1)
 if ( not os.path.exists(d0)): os.mkdir(d0)
-#print 'd0=',d0
+#print 'xxxxxxxxxx d0=',d0
 #print 'd1=',d1
 #print 'd2=',d2
-print 
-print '  --- Generate ctrl files in ',d0
 f=open('ctrldir','wt')
 f.write(d0)
 f.close()
 os.chdir(d0)
+if 'noctrlgen=1@' in sys.argv:
+	#print '=== Not generate ctrl file'
+	sys.exit()
+print 
+print '  --- Generate ctrl files in ',d0
 print ' ',
 for pwex in [-1,2,3,4,5,6,7,8]: #for initial condition generation
     print 'pwex=',pwex,

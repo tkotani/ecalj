@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import string,sys,os,commands
+import string,sys,os,commands,re
 def keydata(comm,key,sep):
     ppp=string.split(comm,key)
     ppp2=string.split(ppp[1],'@')[0]
@@ -116,7 +116,8 @@ REPLACEHERE___
 """
 
 #open(sys.argv[2],'rt').read() #open('jobtemplate','rt').read()
-print sys.argv
+print
+print '===== Go into jobquescript.py with ',sys.argv,'=====',
 if '--bg' in sys.argv:
     mode='bg'
     print ##### Generate jobque files for backgound mode #####'
@@ -140,13 +141,15 @@ if '--nrel' in sys.argv:
     if(mode=='bg'): mode='bgnrel'
     if(mode=='pjsub'): mode='pjsubnrel'
 else :
-    print 'rel mode'
+    print 'rela mode'
     nrel=0
+
 if '--continue' in sys.argv:
     cont=1
 else:
     cont=0
 
+print 'continue mode=',cont
 
 patt    = string.split( open(sys.argv[1],'rt').read(),'\n') 
 for comm in patt:
@@ -161,8 +164,9 @@ for comm in patt:
     rstars = keydata(comm, 'rstar=',',')
     enddat = enddata(comm)
     print 
-    print '=== ',distance,' ',fsmoms,' ',rstars,' ',enddat
-    print comm
+    print '=== distance=',distance,' fsmom=',fsmoms,' R*=',rstars,' ',enddat
+    print '  '+comm
+#    print 
     jjj='jobque'
     if cont==1: jjj=jjj+'.continue'
     jobque     = open(jjj,'a')
@@ -173,15 +177,17 @@ for comm in patt:
             for rstar in rstars:
                 if(atom==1): command='jobatom1.py '+dis+', fsmom='+fsmom+'@ rstar='+rstar+'@ '+enddat
                 if(atom==0): command='jobmoldimer1.py '+dis+', fsmom='+fsmom+'@ rstar='+rstar+'@ '+enddat
-
+                #print 'ccc=', command
                 # Generate ctrl files
-                if cont==0:
-                    jobfile = open('jobtempexec','w')
-                    fff=string.replace(jobtemp,'REPLACEHERE___',command)
-                    jobfile.write(fff)
-                    jobfile.close()
-                    os.system("bash jobtempexec")
-                    os.system("rm jobtempexec")
+                noctrl=''
+                if cont==1: noctrl=' noctrlgen=1@ '
+                jobfile = open('jobtempexec','w')
+                fff=string.replace(jobtemp,'REPLACEHERE___','../'+command+ noctrl)
+                jobfile.write(fff)
+                jobfile.close()
+                os.system("bash jobtempexec")
+                os.system("rm jobtempexec")
+
                 # directory name for working (where we have ctrl files).
                 f=open('ctrldir','r')
                 ddd=f.read()
@@ -190,18 +196,24 @@ for comm in patt:
                 f.close()
 
                 # Check previous calculations. tail save.dimer, and findout where we restart.
+                aaatail=''
                 if cont==1:
                     initic=-1
                     tailsave=commands.getstatusoutput('tail -1 '+ddd+'/save.dimer')
+                    #print 'tailsave=',ddd
                     if tailsave[0]==0: 
-                        print 'tail savedimer=',tailsave[1]
                         pwe=tailsave[1].split('pwemax=')[1].split(' ')[0]
                         bzw=tailsave[1].split('bzw=')[1].split(' ')[0]
-                        print 'pwe bzw from the end of save.dimer=',pwe,bzw
+                        conv=' Notconv:'
+                        pwadd=0
+                        if(re.match(r'^c ',tailsave[1])) : 
+                            conv='conv'
+                            pwadd=1
+                        aaatail= '  save.dimer-> '+conv+' pwe='+pwe+' bzw='+bzw
                         if(pwe==2 and bzw==.01):
                             initic=1
                         else:
-                            initic=int(pwe)
+                            initic=int(pwe)+pwadd
                 else:
                     initic=-9999
 
@@ -218,7 +230,7 @@ for comm in patt:
                 # job file
                 jobname=string.replace(string.replace(command,' ','_'),'$','')
                 if cont==1: jobname=jobname+'.continue'
-                print '  jobfile=',jobname
+                print '  jobfile=',jobname+aaatail
                 jobfile = open(jobname,'w')
                 if(mode=='bg'):    jobtempmmm=jobtempbg
                 if(mode=='pjsub'): jobtempmmm=jobtemppjsub

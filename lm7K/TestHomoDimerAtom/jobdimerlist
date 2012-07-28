@@ -1,0 +1,27 @@
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $B $B2dis $alatpath15
+distance=-0.3;0.4@  fsmom=4@ rstar=0.9@ $B $B2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $C $C2dis $alatpath15
+distance=-0.3;0.4@  fsmom=0@ rstar=0.8,0.9,1.0@ $N $N2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.8,0.9,1.0@ $O $O2dis $alatpath15
+distance=-0.3;0.4@  fsmom=0@ rstar=0.9@ $F $F2dis $alatpath15
+
+distance=-0.3;0.4@  fsmom=0@ rstar=0.9@ $P  $P2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $S  $S2dis $alatpath15
+distance=-0.3;0.4@  fsmom=0@ rstar=0.9@ $Cl $Cl2dis $alatpath15
+
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $Sc $Sc2dis $alatpath15
+distance=-0.3;0.4@  fsmom=4@ rstar=0.9@ $Sc $Sc2dis $alatpath15
+distance=-0.4;0.4@  fsmom=2@ rstar=0.9@ $Ti $Ti2dis $alatpath15
+distance=-0.1;0.4@  fsmom=0@ rstar=0.9@ $V  $V2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $V  $V2dis $alatpath15
+distance=-0.3;0.4@  fsmom=0@ rstar=0.9@ $Cr $Cr2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $Cr $Cr2dis $alatpath15
+distance=-0.3;0.4@  fsmom=4@ rstar=0.9@ $Cr $Cr2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $Mn $Mn2dis $alatpath15
+distance=-1.5;2.2@  fsmom=10@ rstar=0.9@ $Mn $Mn2dis $alatpath15
+distance=-0.3;0.4@  fsmom=6@ rstar=0.8,0.9,1.0@ $Fe $Fe2dis $alatpath15
+distance=-0.3;0.4@  fsmom=8@ rstar=0.8,0.9,1.0@ $Fe $Fe2dis $alatpath15
+distance=-0.3;0.4@  fsmom=4@ rstar=0.9@ $Co $Co2dis $alatpath15
+distance=-0.3;0.4@  fsmom=2@ rstar=0.9@ $Ni $Ni2dis $alatpath15
+distance=-0.3;0.4@  fsmom=0@ rstar=0.9@ $Cu $Cu2dis $alatpath15
+

@@ -232,7 +232,7 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
       integer:: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh),zv_dummy(1)
       real(8):: rv_dummy(1)
-      integer:: i_copy_size,nhrss
+      integer:: i_copy_size,nhrss,sigswitch
       real(8),allocatable::hrss(:)
       logical:: l_dummy_isanrg, isanrg, debug=.false.
 !!
@@ -339,7 +339,9 @@ ckino Dec.22.2011:         iv_p_oiprmb => sham%iv_p_oindxo
      .'%?#(n==2)#Perturbation for higher kappa blocks##%-1j'//
      .'%?#(n==3)#Interpolation from known points##%-1j'//
      .' ',moditp,0)
+
       if (moditp .eq. 1 .or. moditp .eq. 2) then
+        if( sigswitch()==0 ) then
         call info5(30,0,0,
      .  '%9fApproximate sigma '//
      .  '%?#(n<0)#for energies E(lda)<%d; and %-2j#%-1j#'//
@@ -361,9 +363,11 @@ ckino Dec.22.2011:         iv_p_oiprmb => sham%iv_p_oindxo
      .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
      .  '%?#(n==3)# and E(lda)<%d'//
      .  ' ',efit,modsgp,emax,0,0)
+        endif
 Ckino isanrg is logical function,         call isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
         l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
       endif
+
       if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
         call info5(30,0,0,
      .  '%?#(n==1)#%9fFile sigm in saved in FBZ: '//

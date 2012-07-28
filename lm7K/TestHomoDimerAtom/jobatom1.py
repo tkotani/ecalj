@@ -314,12 +314,16 @@ if ( not os.path.exists(d0)): os.mkdir(d0)
 #print 'd0=',d0
 #print 'd1=',d1
 #print 'd2=',d2
-print 
-print '  --- Generate ctrl files in ',d0
 f=open('ctrldir','wt')
 f.write(d0)
 f.close()
 os.chdir(d0)
+#print sys.argv
+if 'noctrlgen=1@' in sys.argv:
+	#print '=== Not generate ctrl file'
+	sys.exit()
+print 
+print '  --- Generate ctrl files in ',d0
 print ' ',
 for pwex in [-1,2,3,4,5,6,7,8]: #for initial condition generation
     print 'pwex=',pwex,
