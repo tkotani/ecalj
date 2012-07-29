@@ -966,14 +966,14 @@ Cki  ifiese default value is not set.  set it to 0
      &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
         open(ifiese,file='ESEAVR',status='old',err=127)
         goto 128
+ 127    continue
+        print *
+        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
+        print *,' You may use a dummy ESEAVR file (two lines) such as'
+        print *,' 0.0 1'
+        print *,' 0.0 2'
+        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
       endif
- 127  continue
-      print *
-      print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
-      print *,' You may use a dummy ESEAVR file (two lines) such as'
-      print *,' 0.0 1'
-      print *,' 0.0 2'
-      stop '=== No ESEAVR file (given by hqpe_sc)! ==='
 
  128  continue
 
