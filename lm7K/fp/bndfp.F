@@ -1,3 +1,9 @@
+!! Memo july2012takao
+!! lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
+!! This should be modified in future.
+!! ---> zhev_tk part can be improved. (only occupied states are required.)
+!! "goto 99" mechanism should be avoided.
+!!
 #define USEOPTIONAL 1
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
@@ -221,7 +227,7 @@ c#endif
       parameter ( nbx=512, n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
-      real(8):: dmxp(33),frc(3,nbas)
+      real(8):: dmxp(33),frc(3,*)
 ctakao
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -256,20 +262,9 @@ ckino lswtk must be 0 initially.
      ., lekkl
       real(8) ,allocatable :: dos_rv(:)
       integer:: os , osoptc
-ckino change rv_p_owtkb allocatable
-ckino              real(8),pointer :: rv_p_owtkb(:,:,:)=>NULL()
-ckino Dec.8.2011:                real(8),allocatable :: rv_p_owtkb(:,:,:)
       real(8),allocatable :: rv_a_owtkb(:,:,:)
-ckino change rv_p_oswtk allocatable             real(8),pointer :: rv_p_oswtk(:)=>NULL()
-ckino Dec.8.2011:               real(8),allocatable :: rv_p_oswtk(:)
       real(8),allocatable :: rv_a_oswtk(:)
 
-ckino Dec.16.2011:              integer,pointer :: iv_p_oidtet(:)=>NULL()
-ckino Dec.8.2011:             type(s_rv1),pointer :: sv_p_oorhat(:)=>NULL()
-ckino Dec.8.2011:            complex(8),pointer :: zv_p_osmrho(:)=>NULL()
-ckino Dec.8.2011:           complex(8),pointer :: zv_p_osmpot(:)=>NULL()
-ckino Dec.8.2011:          real(8),pointer :: rv_p_owtkp(:)=>NULL()
-ckino Dec.8.2011:         real(8),pointer :: rv_p_oqp(:)=>NULL()
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
@@ -307,23 +302,18 @@ ckino Dec.8.2011:         real(8),pointer :: rv_p_oqp(:)=>NULL()
       type(s_rv1) :: sv_p_otaux(3,nbx)
       type(s_rv1) :: sv_p_osigx(3,nbx)
 
-ckino, used for dummy allocations
-ckino Dec.8.2011:         logical:: l_temp_rv_p_oswtk=.false., l_temp_rv_p_owtkb=.false.,
-ckino Dec.8.2011:         logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_p_owtkb=.false.,
       logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.,
-ckino Dec.28.2011:       .    l_temp_iv_p_oidtet=.false.
      &  l_temp_iv_a_oidtet=.false.
-ckino end
+
       double precision sigp(10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      !equivalence (nk1,nkabc(1)), (nk2,nkabc(2)), (nk3,nkabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
-     .sev00,sev1,sumtv,alfa,vconst,qbg,ebot,pi,def,ef0,ehar,eks,
-     .dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
-     .sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
-     .ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
+     . sev00,sev1,sumtv,alfa,vconst,qbg,ebot,pi,def,ef0,ehar,eks,
+     . dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
+     . sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
+     . ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
-!!      For now: PW basis
+!!    PW basis
       integer,allocatable:: igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
       integer pwmode,napw
@@ -380,33 +370,24 @@ C #endif
 
 C For self-energy
       integer nqsig
-ckino Dec.8.2011:         real(8),pointer :: rv_p_oqsig(:) =>NULL()
       integer:: nbasp
-ckino Dec.8.2011:         integer,pointer :: iv_p_oidxsh(:) =>NULL()
-C     Data statements
       data T /.true./ F /.false./
       integer,allocatable:: nevls(:,:)
-
 ctakao
       integer :: ifiogw,ifiese,oag,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-ckino Dec.8.2011:         real(8),pointer :: rv_p_opos(:) =>NULL()
-
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
       integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
       real(8),allocatable:: range(:,:),pos(:,:)
-
       integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
-
-c      complex(8)::sss
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
       logical:: noshorbz,siginit,bzwtsf_bisection
@@ -417,7 +398,7 @@ c      complex(8)::sss
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:)
 
-      integer:: nevec,idummy
+      integer:: idummy
       real(8):: epsnevec
       logical:: onlyonce=.true.
 
@@ -435,11 +416,10 @@ ckino
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
+      integer,save:: nevec
 !! -----------------------------------------
-
 ckino begin
-
-      nevec=0
+c      nevec=0  !takao think nevec can be saved for next iteration.
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -453,7 +433,6 @@ C ... MPI setup
       call strcop(shortname(procid),name,10,'.',i)
       namelen(procid) = i-1
 #endif
-
 
 !! === Setup ===
       call tcn ('bndfp')
@@ -524,8 +503,6 @@ CKI      enddo
 CKI      deallocate(sspecv)
 c      stop 'xxxxxxxxxxxxxxx aaaaaaaaaaa'
 c      print *,'ttt fxstsigm=',fxst('sigm')
-
-
 
       if (procid .eq. master) then
         if (lrsig .ne. 0 .and. fxst('sigm') .ne. 1) then
@@ -688,7 +665,6 @@ C     Switch to plot bands at specified qp
         numq = 1
         allocate(ifbls_iv(ndham*nspc*2))
         ifbls_iv(:)=0
-
       else
         plbnd = 0
       endif
@@ -863,19 +839,15 @@ c      call defrr(oevlall, ndham*nsp*nkp)
 
 C --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
-
 cccccccccccccccccccccc
 c         print *,'nsp,nspc,nkp,nkp=',nsp,nspc,nkp,nkp
 cccccccccccccccccccccc
-
-
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
 c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
 ckino Dec.8.2011:       .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,
 ckino Dec.8.2011:       .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .  nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .  dabs(esmear-mpsord))
-
         if (lwtkb .eq. -1)
      .  call info(20,0,0,' Start first of two band passes ...',0,0)
         if (lwtkb .eq. 1) then
@@ -974,8 +946,8 @@ Cki  ifiese default value is not set.  set it to 0
         print *,' 0.0 2'
         stop '=== No ESEAVR file (given by hqpe_sc)! ==='
       endif
-
  128  continue
+
 
 C --- Start loop over k points; also, re-entry for second band pass ---
    99 continue
@@ -984,33 +956,25 @@ C --- Start loop over k points; also, re-entry for second band pass ---
      .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
      .  ndos , dos_rv , sumev , sumqv )
 
-
-
       if (lfrce .gt. 0) then
         call dpzero(frc, 3*nbas*numq)
-        call dpzero ( fh_rv , 3 * nbas )
-
+        fh_rv=0d0 !call dpzero ( fh_rv , 3 * nbas )
       endif
-
 
       if (lswtk .eq. 1) then
         efmax = 1d3
         nevmx = ndhamx
-ckino Dec.8.2011:           call dpzero ( rv_p_oswtk , ndhamx * nkp )
         call dpzero ( rv_a_oswtk , ndhamx * nkp )
-
       endif
 
 C --- Setup moments file : write header ---
       nl = int(sctrl%nl)
-
       nfilem = 0
       if (procid .eq. master) then
         nfilem = fopna('moms',-1,4)
       endif
 C     if (cmdopt('--mull',6,0,strn)) nfilem = fopna('moms',-1,4)
 C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
-
       if(debug) print *,'vvvvv 000aaa 22222222qqq '
       if (nfilem .gt. 0) then
         rewind nfilem
@@ -1018,17 +982,13 @@ C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
 C   ... If switch '--mull'; get sites, number of channels
         if (cmdopt('--mull',6,0,strn)) then
           mulopt = strn(7:)
-
           ng=slat%nsgrp
-
           efmax = 1d3
           nevmx = ndhamx
           nchmx = min(1024,nbas*nl**2)
           allocate(chan0_iv(nchmx))
-
           call sumlst ( 1 , nchmx , nbas , ng , ssite , sspec , mulopt 
      .    , moddos , nsites , lsites , lmxch , nchan , chan0_iv, 0 )
-
           if(allocated(chan_iv)) deallocate(chan_iv)
           allocate(chan_iv(nchan))
           chan_iv=chan0_iv(1:nchan)
@@ -1837,10 +1797,10 @@ C   ... Diagonalize and add to density
 c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
      .      iq,nkp,qp,1,ndimh)
 #endif
-            nmx = min(nevmx,ndimhx)
-            nmx = max(nmx,nevec) !nevec is given in the case of double path formalism
-            !Nov25 2010.
-            if (lwtkb .eq. -1) nmx = -1
+            nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
+            nmx = max(nmx,nevec)    !nevec is kept for next iteration. july2012
+            if (lwtkb .eq. -1) nmx = -1 
+
 C       Need all eigenvalues if 'fat bands' plotting mode
             if (nfbn(1) .gt. 0) then
               nmx = ndimhx
@@ -1907,31 +1867,39 @@ c                call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                 call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
               endif
               if(debug)  print *,' vvv zzzzz 555'
-              allocate(ww_rv(11*ndimhx))
 #ifdef KINODEBUG
               write(*,*) 'allocate ww_rv', 11*ndimhx
 #endif
-              if(napw == 0) then
-c               call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
-c                print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
-                call zhev ( ndimhx , hamm , ovlm , t , t , nmx , efmax , nev 
-     .          , ww_rv , f , - 1 , evl ( 1 , jsp ) , t_zv )
-c                print *,'end of zhev'
-                nevl = ndimhx
-              else
-                nevl = -1
-                ww_rv(1)=99999d0
+
+c              if(napw == 0) then
+c                allocate(ww_rv(11*ndimhx))
+cc               call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
+cc                print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
+c                call zhev ( ndimhx , hamm , ovlm , t , t , nmx , efmax , nev 
+c     .          , ww_rv , f , - 1 , evl ( 1 , jsp ) , t_zv )
+cc                print *,'end of zhev'
+c                nevl = ndimhx
+c              else
+c                nevl = -1
+c                ww_rv(1)=99999d0
 c                call dvset ( ww_rv , 1 , 1 , 99999d0 )
 c               call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
 c     .         nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
 !! takao's version of diagonization.
-                call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
-     .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
-     .          , t_zv, iq==1, sham%delta_stabilize)
+
+!!=== case1 safe setting to check overlapmatrix.===
+c              allocate(ww_rv(11*ndimhx))
+c                call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
+c     .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
+c     .          , t_zv, iq==1, sham%delta_stabilize)
+c              deallocate(ww_rv)
+!! === faster case not check ovarlapmatrix.
+                call zhev_tk2 ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
+     .          evl ( 1 , jsp ), t_zv, iq==1) !nmx is not effective now.
+                nevl=ndimhx
 c                print *,'end of zhev_tk'
 c                eomin = dval ( ww_rv , 1 )
-              endif
-              deallocate(ww_rv)
+c              endif
             endif
 
 !!       Pad evals between ndimh and ndham with a large positive number
@@ -2185,14 +2153,8 @@ C       Even if no output rho, still call addrbl to make DOS when lmet=4
 C         dum=frc(3,1)
                 if(debug) print *,'goto addrbl nevl=',nevl
                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
-ckino Dec.8.2011:       .          , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
-ckino Dec.27.2011:       .          , qp , sbz%rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
      .          , qp , sbz%rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
-ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_p_oswtk , iq , lfrce , ldos
-ckino Dec.8.2011:       .          , lwtkb , rv_p_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos 
      .          , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
-ckino Dec.8.2011:       .          , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau
-ckino Dec.28.2011:       .          , lekkl , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
      .          , lekkl , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
 c    .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl 
      .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev

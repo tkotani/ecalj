@@ -53,40 +53,13 @@ Cr  Remarks
 Cr    On the Apollo: time (in 4 microsecond units) is
 Cr    (time(1)*65536 + time(2))*65536 + time(3)
 C ----------------------------------------------------------------------
-#if APOLLO
-      integer time(3)
-      integer*2 t2(3)
-      call proc1_$get_cput(t2)
-      time(1) = t2(1)
-      time(2) = t2(2)
-      time(3) = t2(3)
-      if (time(1) .lt. 0) time(1) = time(1) + 65536
-      if (time(2) .lt. 0) time(2) = time(2) + 65536
-      if (time(3) .lt. 0) time(3) = time(3) + 65536
-      cpusec = 4d-6 * 
-     .((dble(time(1))*65536 + dble(time(2)))*65536 + dble(time(3)))
-#elif AIX
-      integer mclock
-      cpusec = dble(mclock())/100
-#elif CRAY | HASSECOND
-      real(4):: second 
-c           ---- not real::second
-      cpusec = second()
-#elif VANILLA
-      cpusec = 0
-#else
-      real(4):: tarray(2),timet
-c            --------- not real:: tarray(2),timet
-      real etime
-      real etime_
-      tarray(2)=0.0
-#if POWER_PC
-      timet = etime_(tarray)
-#elif HASETIME
-      timet = etime(tarray)
-#endif
-      timet = tarray(1)
-      cpusec = dble(timet)
-#endif
+      implicit real*8(a-h,o-z)
+      real*4 cpuetime, etw(2), etime
+      data cpu0 /-1.d0/
+      save cpu0
+      cpuetime = etime(etw)
+      if (cpu0 .lt. 0.d0) cpu0 = cpuetime
+      cpusec   = cpuetime - cpu0
+      cpumin   = cpusec/60.d0
       end
 

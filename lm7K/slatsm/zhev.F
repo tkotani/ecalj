@@ -805,7 +805,7 @@ CSFCPP#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk(nlmto,n,h,s,nmx, epsovl,ncut,
-     &nevl,nev,e,eo,lz,z,ipr,delta_stabilize)
+     &  nevl,nev,e,eo,lz,z,ipr,delta_stabilize)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -865,18 +865,6 @@ C Local parameters
       character*1 jobz
 c
       call tcn('zhev_tk')
-ccccccccccccccccccccccccccccc
-c      do i=1,n
-c      do j=1,n
-c        if(i<5) print *,' 444 sss=',j,i,abs(s(j,i))
-c      enddo
-c      enddo
-ccccccccccccccccccccccccccc
-
-
-! if mode 2. For mode 1, comment 'goto 100'
-c      goto 100
-
 
 C --- mode 1. Remove poor linear dependency. All basis are treated on the same footing.
 C ... rescale omat
@@ -889,7 +877,6 @@ c      omat2=s
 
 c This scaling is to keep the Hilbert space of MTO.
       scale(1:nlmto)=scale(1:nlmto)*100d0
-
       do i=1,n
         do j=1,n
 c        omat(i,j)=scale(i)*scale(j)*omat(i,j) !this is based on  1d0/scale*|basis>
@@ -897,57 +884,6 @@ c        omat(i,j)=scale(i)*scale(j)*omat(i,j) !this is based on  1d0/scale*|bas
           h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
         enddo
       enddo
-c$$$cccccccccccccccccccccccccccc
-c$$$      do i=1,n
-c$$$         ddd=0d0
-c$$$         do j=1,n
-c$$$          if(i<=5.and.j<=5) 
-c$$$     &    write(6,"('mmm: sss=',2i5,f18.8)") j,i,abs(s(j,i))
-c$$$          if(j==i) then
-c$$$c            write(6,"(a,2i4,f9.3,i4,f9.3)")'mmm: diag ',i,i,abs(s(j,i))
-c$$$            cycle
-c$$$          endif
-c$$$          if(abs(omat(j,i) )>ddd) then
-c$$$              ddd=abs(omat(j,i))
-c$$$              ik=j
-c$$$          endif
-c$$$         enddo
-c$$$         ddd2=0d0
-c$$$         do j=1,n
-c$$$          if(j==i) cycle
-c$$$          if(ddd>abs(omat(j,i)).and.abs(omat(j,i))>ddd2) then
-c$$$              ddd2=abs(omat(j,i))
-c$$$              ik2=j
-c$$$          endif
-c$$$         enddo
-c$$$         write(6,"(a,2i4,f19.13,i4,f19.13)")'mmm: max '
-c$$$     &   , i, ik,ddd,ik2,ddd2
-c$$$      enddo
-
-cccccccccccccccccccccccccccc
-c      do j=1,n
-c      print *,'qqq =',j,omat(1,j)
-c      enddo
-c      do i=2,n
-c      do j=2,n
-c         if (i/=j) omat(i,j)=0d0
-c         if (i==j) omat(i,j)=0.00d0
-c      enddo
-c      enddo
-c      do j=150,n
-c         omat(1,j)=0d0
-c         omat(j,1)=0d0
-c      enddo
-c      print *,'xxx sum abs=',sum(abs(omat(2:n,2:n)))
-c      print *,'xxx sum abs=',sum(abs(omat(2:n,1)))
-c      print *,'xxx sum abs=',sum(abs(omat(1,2:n)))
-c      print *,'xxx sum abs=',abs(omat(1,1))
-cc      s=omat
-c      omat(2:nlmto,nlmto+1:n)=0d0
-c      omat(nlmto+1:n,1)=0d0
-c      stop 
-ccccccccccccccccccccccccccc
-
 
 !! ... eigenvalue of s (omat)
       allocate(omat(n,n))
@@ -1056,6 +992,8 @@ C$$$      endif
       endif
 
 
+
+
 ccbug in gfortran?
 cc      do j=1,n
 cc      do i=1,n
@@ -1114,8 +1052,6 @@ C ... We solve solution in the Hilbert space spanned by zz (dimension = nm)
         zz(:,ix-ni+1) = omat(:,ix)/sqrt(eo(ix))
       enddo
 
-
-
 C ... Hamiltonian  <zz|H|zz>
       allocate(hh(nm,nm),hhm(nm,n))
 c This failed in ifort when hm >600 or so.-->maybe need ulimit -s unlimited.
@@ -1129,20 +1065,14 @@ c     &       matmul(dconjg(transpose(zz)),matmul(h,zz))-hh))
 
 
       e=99.d0 !initialization
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      do ix=1,nm
-c        write(6,"('hh dia',i5,2f13.4)") ix,hh(ix,ix)
-c      enddo
-c      print *,'nm=',nm
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-C ... diagonalize
+!! === diagonalize ===
       if (nmx .le. 0) then
         jobz = 'N'
         lwork = 4*nm
         allocate(wk11(lwork),rwork(max(1,3*nm-2)))
+        call tcn('zheeveonly')
         call zheev(jobz,'U',nm,hh,nm,e,wk11,lwork,rwork,ier)
+        call tcx('zheeveonly')
         deallocate(wk11, rwork)
         nev = 0
       else
@@ -1150,7 +1080,9 @@ C ... diagonalize
         nev = min(nmx,nevl)
         lwork = nevl*4 ! nevl*nev ---> bug when Hydrogen case with nev=1
         allocate(wk11(lwork),rwork(max(1,3*nevl-2)))
+        call tcn('zheevz')
         call zheev(jobz,'U',nm,hh,nm,e,wk11,lwork,rwork,ier)
+        call tcx('zheevz')
         deallocate(wk11,rwork)
         z=1d99
         do i=1,min(nmx,nm)
@@ -1160,47 +1092,9 @@ C ... diagonalize
         enddo
         nev = min(nmx,nm)
       endif
-c      nev=nm
-c      deallocate(wk11,rwork) ! move to the line after calling zheev 
       deallocate(omat,scale,zz,hh)
-
-c$$$cccccccccccccccccccccccccccccccccccccccc
-c$$$c takao test for singlet O.
-c$$$      print *,'vvv zhev: takao special test for O singlet'
-c$$$      if(abs(e(3)-e(4))<0.01) then
-c$$$         eee= e(2)
-c$$$         e(2)= e(3)
-c$$$         e(3)= e(4)
-c$$$         e(4)= eee+1d0
-c$$$         allocate(zzz(n))
-c$$$         zzz   = z(:,2)
-c$$$         z(:,2)= z(:,3)
-c$$$         z(:,3)= z(:,4)
-c$$$         z(:,4)= zzz
-c$$$         deallocate(zzz)
-c$$$      endif
-c$$$ccccccccccccccccccccccccccccccccccccccccc
-
-
-c      do i=1,nev
-c      do j=1,nev
-c        if(abs(sum( dconjg(z(:,i))*matmul(omat2,z(:,j)) ))>1d-10) then
-c        write(6,"(' matooo ',2i4,2d13.6)")  i,j,
-c     &   sum( dconjg(z(:,i))*matmul(omat2,z(:,j)) )
-c        endif
-c      enddo
-c      enddo
-
-cccccccccccccccccccccccc
-c      do i=1,nm
-c        write(6,"(a,i5,12d13.5)") 'eee=',i,e(i)
-c      enddo
-c      stop ' --- vvv:zhev --- '
-ccccccccccccccccccccccccc
       call rxx(ier.ne.0,'zhev: zhegv cannot find all evals 111')
       goto 999 !exit
-
-
 
 
 C$$$C --- mode 2. rescpect MTO --- a branch. not good.
@@ -1293,5 +1187,93 @@ C$$$c      stop 'xxxxxxxxxxxxxxxxxxx'
 C$$$! exit 
  999  continue
       call tcx('zhev_tk')
+      end
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C we assume LAPACK and F90
+      subroutine zhev_tk2(nlmto,n,h,s,nmx,nev, e,z,ipr)
+C- Eigenvalues and/or some eigenvectors of a Hermitian matrix
+C ----------------------------------------------------------------
+Ci Inputs:
+Ci   nlmto: not used (dimension of MTO)
+Ci   n:    dimension of h
+Ci   h,n:  hermitian matrix, dimensioned h(n,n)
+Ci   s:    hermitian overlap matrix, 
+Ci   nmx:  maximum number of eigenvectors to be found <--- now ineffective all are calculated.
+Ci   ipr :print switch
+Co Outputs:
+Co   e:    eigenvalues
+Co   nev:  number of eigenvectors found
+Co   z:    eigenvectors (1..nev)  (declared as z(n,*)
+Cr Remarks:
+Cr   z must be at least of dimension z(n,n), even though nev<n.
+Cr   h and s are destroyed on exit.
+Cr   Aborts on exit
+Cp Procedures used:
+Cp   (lapack)  zhegv
+C ----------------------------------------------------------------
+      implicit none
+C Passed parameters
+      integer n,nev,nmx,ltime,ngv,nevl,ncut
+      logical ipr 
+      double precision e(n),wk(1),emx,eee,fac
+      complex(8):: h(n,n),s(n,n),z(n,n)
+      complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
+     &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
+     &hhm(:,:),zzz(:),omatinv(:,:),oxx(:,:),work(:)
+      integer:: i,j,nlmto,ni,ik,ik2,k
+      real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
+      real(8),allocatable:: scale(:),rwork(:)
+      real(8):: eo(n) ,delta_stabilize
+      integer :: epsovl_mode=1
+C Local parameters
+      integer ier,lwork,ix
+      character*1 jobz
+!! ---
+      call tcn('zhev_tk2')
+      allocate(scale(n))
+      do i=1,n
+        scale(i)= 1d0/sqrt(s(i,i))  
+      enddo
+!! ... This scaling is to keep the Hilbert space of MTO.
+      scale(1:nlmto)=scale(1:nlmto)*100d0
+      do i=1,n
+        do j=1,n
+          s(i,j)= scale(i)*scale(j)*s(i,j)
+          h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
+        enddo
+      enddo
+!! === diagonalize ===
+      if (nmx .le. 0) then
+        jobz = 'N'
+        lwork = max(1,2*n-1)
+        allocate(work(lwork),rwork(max(1,3*n-2)))
+        call tcn('zhegv_e')
+        call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
+        call tcx('zhegv_e')
+        call rxx(ier.ne.0,'zhegv: zhegv_e cannot find all evals')
+        deallocate(work, rwork)
+        nev = 0
+      else
+        jobz = 'V'
+        nev = min(nmx,nevl)
+        lwork = max(1,2*n-1)
+        allocate(work(lwork),rwork(max(1,3*n-2)))
+        call tcn('zhegv_z')
+        call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
+        call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
+        call tcx('zhegv_z')
+        deallocate(work,rwork)
+        do i=1,min(nmx,n)
+          do j=1,n
+            z(j,i) = scale(j)*h(j,i)  !this is eigenfunction for original problem.
+          enddo
+        enddo
+        nev = min(nmx,n)
+      endif
+      deallocate(scale)
+      call tcx('zhev_tk2')
       end
 

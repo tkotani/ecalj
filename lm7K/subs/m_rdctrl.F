@@ -494,11 +494,13 @@ c      if (ltmp) call wkprnt(1)
      .note='Turns CPU timing log.  Value sets tree depth.'//
      .'%N   Optional 2nd arg prints CPU times as routines execute.'//
      .'%N   Args may be set through command-line: --time=#1[,#2]',
-     .def_i4v=(/0,0/),nmin=2,nout=i0)
+     .def_i4v=(/1,1/),nmin=1,nout=i0)
+      if(i0==1) io_tim(2)=io_tim(1)
 C     Override with '--time=' commmand-line arg
       if ( cmdopt('--time=',7,0,a) ) then
         i = 7
-        i = a2vec(a,len(a),i,2,', ',2,2,2,it,io_tim)
+!!  '--time did not work because a2vec did not work. Set IO_TIM=3,5 for example.'
+        i = a2vec(a,len(a),i,2,', ',2,2,2,it,io_tim) !this does not work...
         if (i .lt. 0) call rxs('error parsing switch ',a)
         i0 = max(i0,i)
       endif
