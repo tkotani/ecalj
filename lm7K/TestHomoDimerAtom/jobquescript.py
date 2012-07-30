@@ -211,7 +211,7 @@ for comm in patt:
                             pwadd=1
                         aaatail= '  save.dimer-> '+conv+' pwe='+pwe+' bzw='+bzw
                         if(pwe==2 and bzw==.01):
-                            initic=1
+                            initic=-9999
                         else:
                             initic=int(pwe)+pwadd
                 else:

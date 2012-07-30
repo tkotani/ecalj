@@ -19,7 +19,7 @@
 import os, sys, string, re
 
 atomlist="""
-### jun2012kotani. This is from atomlist.bash in the dimer paper. ###
+### Aug2012kotani. This is from atomlist.bash in the dimer paper. ###
 ### atom info. atomlist.bash homodimerdistance.bash R= is in angstrome.
 #### Kino's reference values of dimers (angstrome) ### Rare Gas -> in VWN LDA
 H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
@@ -51,17 +51,15 @@ V=   " atomz=23@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.87@"
 Cr=  " atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.80@"       
 Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"       
 
-Fe= "  atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
-Co= "  atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
-Ni= "  atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.06@"
-Cu= "  atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.13@"
-#Zn= "  atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
-#Ga= "  atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
-#Ge= "  atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
-#As= "  atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
-#takao to stabilize convergence.
-# As for total energy for Zn2 dimer, total energy is gained for PZ=0,0,13.9 a few mRy, 
-# however, PZ=0,0,3.9 is better for stable convergence.
+##It is stable to use PZ=3.9 instead of PZ=13.9 as for Fe2 dimer
+## however, PZ=0,0,3.9 is better for stable convergence.
+## Takao think PZ=13.9 algolism (automatic determination of EH for 3rd MTO)
+## can introduce some unsystematic behevior.
+##
+Fe= "  atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
+Co= "  atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
+Ni= "  atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.06@"
+Cu= "  atomz=29@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.13@"
 Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
 Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
 Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
@@ -70,7 +68,6 @@ Se= "  atomz=34@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.10@"
 Br= "  atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.16@"
 #In the paper we used, 'PZ=14.8,14.8'
 Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@ R=1.88@"
-
 
 # ##### Fe,Co,Ni works OK June2012. 
 # ##### I needed to add PZ 3s3p core for valence to keep orthogonalization to treat Fe bulk.
@@ -83,8 +80,8 @@ Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@ R=1.88@"
 # Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
 # Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
 # Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.06@"        
-# ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              
-# Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
+
+# ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              # Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
 # Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
 # Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
 # ### PZ=3.9 (local orbital might be more stable than LoMTO)
@@ -107,7 +104,8 @@ Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@ R=1.88@"
 # Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
 # Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
 # Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
-######## These are given in a simple guess  ###########
+
+######## These are given in a simple guess. Reference radius are  ###########
 Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
 Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
@@ -582,7 +580,7 @@ head= head+ """
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
 VERS    LM=7 FP=7        # version check. Fixed.
-IO      SHOW=T VERBOS=35
+IO      SHOW=T VERBOS=35 TIM=3,3
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
 	     # larger VERBOSE gives more detailed console output.
@@ -752,7 +750,10 @@ tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+
 tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
             + "      METAL=%i\n" % metali +\
 """
-                # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
+                # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).
+                # METAL=2 is faster but weights for integration is from previous iteration 
+                #   (it can be a little unstable)
+                # For insulator, METAL=0 is good enough. 
 		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
 		#   (SAVDOS, DOS, NPTS gives no side effect for self-consitency calculaiton).
                 # 
