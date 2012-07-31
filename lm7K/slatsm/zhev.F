@@ -1199,13 +1199,14 @@ C$$$! exit
 !!     n:    dimension of h
 !!   h,n:  hermitian matrix, dimensioned h(n,n)
 !!   s:    hermitian overlap matrix, 
-!!   nmx:  requested number of eigenvectors and eigenvalues to be found. If nmx>n, nmx is taken to be n.
+!!   nmx:  requested number of eigenvectors to be found (and eigenvalues). If nmx>n, nmx is taken to be n.
+!!         if nmx=0, nev=n (see NOTE below).
 !!   ipr :print switch
 !!   ifig: eigenfunctions should be saved, or get.
 !!   savez,getz
 !! Outputs:
 !!   e:    eigenvalues
-!!   nev:  number of eigenvectors found
+!!   nev:  number of eigenvectors (=nmx) or (=n if nmx=0)
 !!   z:    eigenvectors (1..nev)  (declared as z(n,*)
 !!   h and s are destroyed on exit.
 !!   july2012takao
@@ -1213,6 +1214,7 @@ C$$$! exit
 !!      When savez=T and getz=F, eigenfunctions are saved to a file with ifig
 !!      When savez=F and getz=T, eigenfunctions are returned. Read from afile with ifig
 !! NOTE: this can be called in the loop of ikp,isp loop. Then data are appended to a file ifig.
+!!   If nmx==0, all eigenvalues are returned but without eigenfunctions.
 !! -----------------------------------------------------------------------
       implicit none
       integer n,nev,nmx,ltime,ngv,ncut
@@ -1227,9 +1229,10 @@ C$$$! exit
       logical ::savez,getz,nexist
 !! ---
       if(getz) then !temporary fix to acceralate
-        read(ifig) nev
-        read(ifig) e(1:nev),z(1:n,1:nev)
-        if(min(nmx,n)>=nev) goto 901
+        read(ifig) nev,nmx
+        read(ifig) e(1:nev)
+        read(ifig) z(1:n,1:nmx)
+c        if(min(nmx,n)>=nev) goto 901
         return
       endif  
  901  continue
@@ -1250,26 +1253,30 @@ c        enddo
 c      enddo
 !! === diagonalize ===
       jobz = 'V'
-      if(nmx==0) jobz='N'
-      nev=min(nmx,n)
+      if(nmx==0) then
+         jobz='N'
+         nev=n
+      else
+        nev=nmx
+      endif
       lwork = max(1,2*n-1)
       allocate(work(lwork),rwork(max(1,3*n-2)))
       call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
       call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
       deallocate(work,rwork)
 c!! ==== scale back to the eigenfuntion in original problem ====
-      do i=1,nev
+      do i=1,nmx
 c        do j=1,n
 c          z(j,i) = scale(j)*h(j,i)  !this is eigenfunction for original problem.
           z(:,i) = h(:,i)  !this is eigenfunction for original problem.
 c        enddo
        enddo
 c      deallocate(scale)
-      z(1:n,1:nev) = h(1:n,1:nev)
-      if(savez.and.nev>0) then
-        write(ifig) nev
-        write(ifig) e(1:nev),z(1:n,1:nev)
-c        write(ifig) e(1:nev),h(1:n,1:nev)
+      z(1:n,1:nmx) = h(1:n,1:nmx)
+      if(savez) then
+        write(ifig) nev,nmx
+        write(ifig) e(1:nev)
+        write(ifig) z(1:n,1:nmx)
       endif  
       call tcx('zhev_tk2')
       end

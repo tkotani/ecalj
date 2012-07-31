@@ -592,7 +592,6 @@ C- Write or store the energy bands to file for this qp
         else
           call rx('bug in suqlsw')
         endif
-
       elseif (mode .eq. 2) then
         if (fmlong .and. nblst .eq. 0) then
           prfmt = '(3f15.10,i6/(5f15.10))'

@@ -1793,14 +1793,6 @@ C #endif
 
 
 C   ... Diagonalize and add to density
-            if (lpdiag==0.or.lpdiag==2) then
-              if (allocated(t_zv)) deallocate(t_zv)
-              allocate(t_zv(ndimhx**2))
-            endif
-#ifdef KINODEBUG
-            write(*,*)'kino, allocate t_zv' ,ndimhx**2
-#endif
-
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
 #ifndef MPIK
             call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
@@ -1808,15 +1800,13 @@ C   ... Diagonalize and add to density
 c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
      .      iq,nkp,qp,1,ndimh)
 #endif
-c            print *,'goto nmx nevmx,ndimhx=',nevmx,ndimhx
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
-c            nmx = max(nmx,nevec)    !nevec is unused now.. 
 c            if (lwtkb .eq. -1) nmx = -1 
                !  this was used to calculate eigenvalue only in zhev in first-path 
                ! (only for integration weight)-->current version store all eigenfunctions in the 1st-path. 2nd path
                ! just unpack the eigenfunctions stored in the 1st path 
 
-C       Need all eigenvalues if 'fat bands' plotting mode
+!!   Need all eigenvalues if 'fat bands' plotting mode
             if (nfbn(1) .gt. 0) then
               nmx = ndimhx
               efmax = 99999
@@ -1827,10 +1817,18 @@ C       Need all eigenvalues if 'fat bands' plotting mode
                 stop 'bndfp: lpdiag-PW mode with OVNCUT/=0 is not yet'
               endif
             endif
-            if(debug) print *,'lpdiag=',lpdiag
-            if(lpdiag .eq. 1) then
-              call rx('parallel diag is not yet.'//
-     &                'Need to implement. See bndfp.F.')
+
+!!
+            if (lpdiag==0.or.lpdiag==2) then
+              if (allocated(t_zv)) deallocate(t_zv)
+              if(lpdiag==2) allocate(t_zv(ndimhx**2))
+              if(lpdiag==0) allocate(t_zv(ndimhx*nmx))
+            endif
+            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx**2
+
+            if(debug) print *,'paralell diagonalization switch lpdiag=',lpdiag
+            if(lpdiag==1) then
+              call rx('parallel diag is not yet. Need to implement. See bndfp.F.')
 C$$$          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
 C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_START_PZHEV,procid,"pzhev")
@@ -1846,7 +1844,7 @@ C$$$          nevl = ndimh
 C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
 C$$$#endif
-            elseif (lpdiag .eq. 2) then
+            elseif (lpdiag==2) then
               call dcopy ( ndimhx * * 2 * 2 , ovlm , 1 , t_zv , 1 )
               nev = ndimhx
               nmx = ndimhx
@@ -1875,45 +1873,26 @@ ckino Dec.27.2011:       .            , plat , qp , lwtkb , qval - qbg , iq , sb
                 deallocate(ww_zv)
               endif
               if(debug) print *,'vvv2 lwtkb=',lwtkb
-            else
+            else ! lpdiag=0
               if(nspc .eq. 2) then
 c                call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                 call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                 call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
               endif
-              if(debug)  print *,' vvv zzzzz 555'
 #ifdef KINODEBUG
               write(*,*) 'allocate ww_rv', 11*ndimhx
 #endif
 
-c              if(napw == 0) then
-c                allocate(ww_rv(11*ndimhx))
-cc               call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
-cc                print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
-c                call zhev ( ndimhx , hamm , ovlm , t , t , nmx , efmax , nev 
-c     .          , ww_rv , f , - 1 , evl ( 1 , jsp ) , t_zv )
-cc                print *,'end of zhev'
-c                nevl = ndimhx
-c              else
-c                nevl = -1
-c                ww_rv(1)=99999d0
-c                call dvset ( ww_rv , 1 , 1 , 99999d0 )
-c               call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
-c     .         nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
-!! takao's version of diagonization.
-
-
-
-!!=== case1 safe setting to check overlapmatrix.===
+!! === previous version before Aug2012 ===
 c              allocate(ww_rv(11*ndimhx))
 c                call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
 c     .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
 c     .          , t_zv, iq==1, sham%delta_stabilize)
 c              deallocate(ww_rv)
 
-
-!! === faster case not check ovarlapmatrix.! this is a temporary fix
+!! === Aug2012 diagonalization ===
 !! It is better to clean up lwtkb-algolism in this routine. !!!!
+!! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
               savez=.false.
               getz=.false.
               if(gotosecondpass) then
@@ -1929,20 +1908,21 @@ c              deallocate(ww_rv)
                   initiqisp=.false.
                 endif  
               endif 
-c              savez=.false.
-c              getz=.false.
 c              print *,'savez getz=',savez,getz,iq,iqini,isp,nmx
 !! In principle, we only need to calculate bands up to nmx. But cuttent version (june2011)
 !! calculate all bands.  nmx= maximum number of eigenvalue. subzi can give nmx larger than ndimhx
               call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
-     .          evl ( 1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
+     .          evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
-              nevl=ndimhx !is this OK?
 
-c                print *,'end of zhev_tk'
-c                eomin = dval ( ww_rv , 1 )
-c              endif
+!! nmx: number of eigenfunctions
+!! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
+                nevl=nev    !ndimhx    this OK? why nevl and nev???
+ccccccccccccccccccccccccccccccccccccc
+                evl(nevl+1:ndimhx,jsp)=1d99
+ccccccccccccccccccccccccccccccccccccc
             endif
+
 
 !!       Pad evals between ndimh and ndham with a large positive number
 !!       to avoid mixing up integration routines
@@ -1960,20 +1940,15 @@ c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g.  '//
 c     .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
 c     .        eomin,ndimhx-nevl,ndimhx,nevl,0)
 c            endif
-            call prtev ( t_zv , nevl , evl ( 1 , jsp ) , nmx , efmax , 
-     .      nev )
-
+            call prtev ( t_zv , ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
             if(debug) print *,' end of print ev'
             if (iprint() .ge. 110) then
               call yprm('evals',1,evl(1,jsp),1,ndhamx,nevl,1)
-              if ( nev .gt. 0 ) call zprm ( 'evecs' , 2 , t_zv , ndimhx 
-     .        , ndimhx , nev )
-
+              if ( nev .gt. 0 ) call zprm ( 'evecs' , 2 , t_zv , ndimhx , ndimhx ,nmx) ! nev )
             endif
 #endif
             if (mod(iq,10) .ne. 1) call poppr
-
-C ...  In k-parallel mode, defer this section until all qp available
+!! ...  In k-parallel mode, defer this section until all qp available
 #ifndef MPIK
             ebot = dmin1(ebot,evl(1,jsp))
             i = max(1,nint(qval-qbg)/(3-nspc))
@@ -2038,13 +2013,9 @@ c     .          ) , 1d0 )
 c
 c              endif
 c#endif
-
               if( debug) print *, 'tttttttttt 22222'
-
 C        call prmx('ev',evlall,ndham,ndham,isqp+2)
 C        call prmx('ev',evlall,ndham,ndham,nkp*nsp)
-
-
 
 
 
@@ -2057,21 +2028,15 @@ C   --- Orbital magnetic moment (requires lso) ---
                 write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
 #endif
                 auso_zv(:)=0.0d0
-
                 call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
      .          0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .          nspc , jsp , 1 , qp , t_zv , ppnl_rv , auso_zv )
-
                 call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
 ckino Dec.8.2011:       .           , nev , rv_p_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
      .           , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
      .           , orbtm_rv )
-
-
                 deallocate(auso_zv)
-
               endif
-
               if( debug) print *, 'tttttttttt 333'
 
 C   --- Mulliken analysis and partial DOS ---
@@ -2085,100 +2050,69 @@ C   --- Mulliken analysis and partial DOS ---
                     call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
                     allocate(doswt_rv(nchan*nevmx*nspc))
                     doswt_rv(:)=0.0d0
-
-
-ckino Dec.8.2011:                       iv_p_oiprmb => sham%iv_p_oindxo
-
-
-ckino Dec.8.2011:                       call mullmf ( nbas , ssite , sspec , iv_p_oiprmb , t_zv , ndimh
-ckino Dec.27.2011:                       call mullmf ( nbas , ssite , sspec , sham%iv_p_oindxo , t_zv , ndimh
                     call mullmf ( nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
      .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
      .               , chan_iv , lmdim , ndham , doswt_rv )
-
-
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
      .              nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
      .              , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-
                     if (allocated(doswt_rv)) deallocate(doswt_rv)
-
                   elseif (cmdopt('--pdos',6,0,strn)) then
 #if MPIK
                     call rx('PDOS not k-parallel.')
 #endif
                     call rxx(nspc.ne.1,
-     &              'pdos not implemented in noncoll case')
-                    i = nlmax*ndham*3*nsp*nbas
-                    allocate(ausp_zv(i))
-                    ausp_zv(:)=0.0d0
-
+     &               'pdos not implemented in noncoll case')
+                     i = nlmax*ndham*3*nsp*nbas
+                     allocate(ausp_zv(i))
+                     ausp_zv(:)=0.0d0
                     call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .              0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .              nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
-
-                    allocate(doswt_rv(nchan*ndimhx*nspc))
-                    doswt_rv(:)=0.0d0
-
+     .               0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
+     .               nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
+                     allocate(doswt_rv(nchan*ndimhx*nspc))
+                     doswt_rv(:)=0.0d0
                     call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
-     .              , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
-     .              , doswt_rv )
-
+     .               , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
+     .               , doswt_rv )
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
 #if MPIK
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
-     .              i , 1 , iq , isp , ndham , ndimh , nchan , nchan , nev , evl 
-     .              ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-
+     .               i , 1 , iq , isp , ndham , ndimh , nchan , nchan , nev , evl 
+     .               ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #else
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
-     .              , 1 , 1 , ndham , ndimh , nchan , nchan , nev , evl ( 1 , jsp 
-     .              ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-
+     .               , 1 , 1 , ndham , ndimh , nchan , nchan , nev , evl ( 1 , jsp 
+     .               ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #endif
                     if (allocated(doswt_rv)) deallocate(doswt_rv)
-
                     if (allocated(ausp_zv)) deallocate(ausp_zv)
-
                   elseif (nfilem .gt. 0) then
                     write (nfilem) 0, ndimhx
                     call dpdump(evl(1,jsp),ndimhx,-nfilem)
                   endif
                 endif
 
-                if( debug) print *, 'tttttttttt 5555'
-
-C   ... Make new density matrix dmatu for LDA+U
+!!   ... Make new density matrix dmatu for LDA+U (implementation of LDA+U is a little complicated).
                 if (nlibu .gt. 0 .and. nev .gt. 0) then
                   if (lwtkb .eq. 0)
      .            call rx('metal weights required for LDA+U calculation')
                   nl = int(sctrl%nl)
-
                   nlmax = nl*nl
                   allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
 #ifdef KINODEBUG
                   write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
 #endif
                   ausu_rv(:)=0.0d0
-
                   call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
      .            0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .            nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausu_rv )
-
-ckino Dec.8.2011:                     call mkdmtu ( ssite , sspec , rv_p_owtkb , jsp , iq , nsp , nspc
                   call mkdmtu ( ssite , sspec , rv_a_owtkb , jsp , iq , nsp , nspc 
      .             , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , dmatu , nlibu 
      .             , lmaxu , lldau )
-
-
                   if (allocated(ausu_rv)) deallocate(ausu_rv)
-
                 endif
               endif
-
-
-              if( debug) print *, 'tttttttttt 666666'
 
 C   ... for core-level spectroscopy
               if (icls .ne. 0 .and. lwtkb .ne. -1) then
@@ -2213,29 +2147,25 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
 
 ckino
               write(*,*)  'case plbnd.ne.0 (no MPIK)'
-
-ckino             nfbn(1)>0 means fat band mode => nmx=ndimh, all the evec are calculated
-ckino             n_listwf>0 means listwf is set by --writewf
               if (nfbn(1)>0 .and. n_listwf>0) then
-
                 call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
-ckino Dec.27.2011:       .          ,  napw,igv2x,sham%iv_p_oindxo,nev,t_zv,k1,k2,k3
      .          ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
      .          ,  n_listwf,listwf    )
-
               endif
-
               i = nsp
               if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
 c          call suqlsw(nevl,jsp,i,evl(1,jsp))
+c              call suqlsw2(nevl,jsp,i,evl(1,jsp),qpo) !takao
+c              print *,'zzzzzzzzz2aaaaaa1',jsp,i,qpo
+c              print *,'zzzzzzzzz2aaaaaa2',evl(1:nevl,jsp)
               call suqlsw2(nevl,jsp,i,evl(1,jsp),qpo) !takao
+c              print *,'zzzzzzzzz2'
               if (nfbn(1) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .          call rx('color weights not implemented when '//
      .          'nevl < hamiltonian dimension')
                 call suqlse ( ndimhx , jsp , i , ndimhx , 1 , nfbn , ifbls_iv 
      .          , ndhamx , t_zv , evl )
-
               endif
               if (nfbn(2) .ne. 0) then
                 if (ndimhx .ne. nevl)

@@ -167,6 +167,10 @@ ckino Dec.28.2011:           if (ndham*nsp*nkp<0) rv_p_oswtk(:)=0.0d0
         if (lmet .ne. 0) nevmx = max(nevmx+nevmx/2,9)
         nevmx = min(nevmx,ndham)
         if (nspc .eq. 2) nevmx = 2*nevmx
+ctakao's correction. In the case of Te, I observed
+c     print *,'nevmx=',nevmx,lmet,zval,ndham,nspc
+c     gives nevmx=   9   0   18.000000000000000   90      1
+        nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
       endif
 
 C ... Printout
