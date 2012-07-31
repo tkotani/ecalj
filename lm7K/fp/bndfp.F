@@ -1918,9 +1918,7 @@ c              print *,'savez getz=',savez,getz,iq,iqini,isp,nmx
 !! nmx: number of eigenfunctions
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
                 nevl=nev    !ndimhx    this OK? why nevl and nev???
-ccccccccccccccccccccccccccccccccccccc
-                evl(nevl+1:ndimhx,jsp)=1d99
-ccccccccccccccccccccccccccccccccccccc
+                evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
             endif
 
 

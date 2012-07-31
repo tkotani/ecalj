@@ -1222,9 +1222,10 @@ C$$$! exit
       complex(8) :: h(n,n),s(n,n),z(n,*)
       complex(8),allocatable:: work(:)
       integer:: i,j,nlmto,ni,ik,ik2,k
-      real(8):: epsovl,epsx,e(n),emx,eee,fac
+      real(8):: epsovl,epsx,e(n),emx,eee,fac,vldummy,vudummy,abstol
       real(8),allocatable:: rwork(:) 
-      integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0
+      integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0,ifail(n),nevx
+      integer,allocatable:: iwork(:)
       character*1:: jobz
       logical ::savez,getz,nexist
 !! ---
@@ -1252,27 +1253,34 @@ c          h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated 
 c        enddo
 c      enddo
 !! === diagonalize ===
-      jobz = 'V'
       if(nmx==0) then
          jobz='N'
          nev=n
       else
+        jobz = 'V'
         nev=nmx
       endif
-      lwork = max(1,2*n-1)
-      allocate(work(lwork),rwork(max(1,3*n-2)))
-      call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
-      call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
-      deallocate(work,rwork)
+
+c      lwork = max(1,2*n-1)
+c      allocate(work(lwork),rwork(max(1,3*n-2)))
+c      call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
+c      call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
+c      deallocate(work,rwork)
+c      do i=1,nmx
+c          z(:,i) = h(:,i)  !this is eigenfunction for original problem.
+c       enddo
+c      z(1:n,1:nmx) = h(1:n,1:nmx)
+c      print *,'nev n=',nev,n
+      abstol=1d-10 ! OK?
+      lwork=max(1,2*n) !OK? efficient?
+      allocate(work(lwork),rwork(7*n),iwork(5*n))
+      call zhegvx(1,jobz,'I','U',n,h,n,s,n,vldummy,vudummy,1,nev,abstol,nevx,e,z,n,work,lwork,rwork,iwork,ifail,ier)
+      call rxx(nev/=nevx,'zhev_tk2: nev /=nevx something wrong. ')
+      call rxx(ier.ne.0, 'zhev_tk2: zhegvx cannot find all eigen.')
+      deallocate(work,iwork,rwork)
+
+
 c!! ==== scale back to the eigenfuntion in original problem ====
-      do i=1,nmx
-c        do j=1,n
-c          z(j,i) = scale(j)*h(j,i)  !this is eigenfunction for original problem.
-          z(:,i) = h(:,i)  !this is eigenfunction for original problem.
-c        enddo
-       enddo
-c      deallocate(scale)
-      z(1:n,1:nmx) = h(1:n,1:nmx)
       if(savez) then
         write(ifig) nev,nmx
         write(ifig) e(1:nev)
