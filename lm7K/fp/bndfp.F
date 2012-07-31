@@ -1,8 +1,11 @@
 !! Memo july2012takao
-!! lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
-!! This should be modified in future.
-!! ---> zhev_tk part can be improved. (only occupied states are required.)
-!! "goto 99" mechanism should be avoided.
+!! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
+!!   This makes this code too complicated.
+!!   (second path formalism; 1st path for weight, second path for integration for density)
+!!   "goto 99" mechanism should be avoided.
+!!
+!! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
+!!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
 #define USEOPTIONAL 1
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
@@ -402,24 +405,24 @@ ctakao
       real(8):: epsnevec
       logical:: onlyonce=.true.
 
-      logical:: isanrg, l_dummy_isanrg,oncewrite
+      logical:: isanrg, l_dummy_isanrg,oncewrite, savez,getz,gotosecondpass,initiqisp
 
-      integer:: getef, i_dummy_getef
+      integer:: getef, i_dummy_getef,ifig
 
 ckino
       integer:: n_listwf
       integer, allocatable:: listwf(:)
 
-      integer(4):: ntqxx,ispx
+      integer:: ntqxx,ispx,ix99 !,nevec unused.
       real(8)::eseavrmean
-
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
-      integer,save:: nevec
 !! -----------------------------------------
 ckino begin
-c      nevec=0  !takao think nevec can be saved for next iteration.
+c      nevec=0  
+      savez=.false.
+      getz=.false.
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -950,7 +953,14 @@ Cki  ifiese default value is not set.  set it to 0
 
 
 C --- Start loop over k points; also, re-entry for second band pass ---
+      gotosecondpass =.false.
+      if(plbnd==0) then
+       gotosecondpass = (lmet >=0 .and. (lmet /=4 .or. ltet) .and. lrout>0 ) !this covers limited cases.
+       !this judges going through second pass or not.
+      endif 
+      ix99=0
    99 continue
+      ix99=ix99+1 !ix99=2 for second pass
       ebot = 1000d0
       call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
      .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
@@ -1449,6 +1459,7 @@ c      nsmidb = ndham
       iqend=nkp
 #endif
 
+      initiqisp=.true.
       do 2010 iq = iqini, iqend
 #if MPIK
 #ifdef KINODEBUG
@@ -1797,9 +1808,13 @@ C   ... Diagonalize and add to density
 c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
      .      iq,nkp,qp,1,ndimh)
 #endif
+c            print *,'goto nmx nevmx,ndimhx=',nevmx,ndimhx
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
-            nmx = max(nmx,nevec)    !nevec is kept for next iteration. july2012
-            if (lwtkb .eq. -1) nmx = -1 
+c            nmx = max(nmx,nevec)    !nevec is unused now.. 
+c            if (lwtkb .eq. -1) nmx = -1 
+               !  this was used to calculate eigenvalue only in zhev in first-path 
+               ! (only for integration weight)-->current version store all eigenfunctions in the 1st-path. 2nd path
+               ! just unpack the eigenfunctions stored in the 1st path 
 
 C       Need all eigenvalues if 'fat bands' plotting mode
             if (nfbn(1) .gt. 0) then
@@ -1887,16 +1902,43 @@ c               call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
 c     .         nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
 !! takao's version of diagonization.
 
+
+
 !!=== case1 safe setting to check overlapmatrix.===
 c              allocate(ww_rv(11*ndimhx))
 c                call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
 c     .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
 c     .          , t_zv, iq==1, sham%delta_stabilize)
 c              deallocate(ww_rv)
-!! === faster case not check ovarlapmatrix.
-                call zhev_tk2 ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
-     .          evl ( 1 , jsp ), t_zv, iq==1) !nmx is not effective now.
-                nevl=ndimhx
+
+
+!! === faster case not check ovarlapmatrix.! this is a temporary fix
+!! It is better to clean up lwtkb-algolism in this routine. !!!!
+              savez=.false.
+              getz=.false.
+              if(gotosecondpass) then
+                if(ix99==1) then
+                  savez=.true.  ;  getz=.false.
+                else
+                  savez=.false. ;  getz=.true.
+                endif
+                if(initiqisp) then
+                  ifig = fopna('eigze',-1,4)
+                  call fclose(ifig)
+                  ifig = fopna('eigze',-1,4)
+                  initiqisp=.false.
+                endif  
+              endif 
+c              savez=.false.
+c              getz=.false.
+c              print *,'savez getz=',savez,getz,iq,iqini,isp,nmx
+!! In principle, we only need to calculate bands up to nmx. But cuttent version (june2011)
+!! calculate all bands.  nmx= maximum number of eigenvalue. subzi can give nmx larger than ndimhx
+              call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
+     .          evl ( 1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
+!! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
+              nevl=ndimhx !is this OK?
+
 c                print *,'end of zhev_tk'
 c                eomin = dval ( ww_rv , 1 )
 c              endif
@@ -1918,7 +1960,6 @@ c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g.  '//
 c     .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
 c     .        eomin,ndimhx-nevl,ndimhx,nevl,0)
 c            endif
-            if(debug) print *,' goto print nevl nev nmx=',nevl,nev,nmx
             call prtev ( t_zv , nevl , evl ( 1 , jsp ) , nmx , efmax , 
      .      nev )
 
@@ -1956,6 +1997,7 @@ C ...  In k-parallel mode, defer this section until all qp available
      .              call info0(10,1,1,
      .              ' ... Fermi level reset in second spin'//
      .              ' channel ... restart band pass')
+                    gotosecondpass=.false.
                     goto 99
                   endif
                 endif
@@ -1982,6 +2024,7 @@ c                endif
 #endif
 c##### !MPIK
 
+             print *,' nmx nev=',nmx,nev
             if( debug) print *, 'tttttttttt 11111 plbnd=',plbnd
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
@@ -2238,6 +2281,8 @@ C end loop over iq (main loop in parallel mode)
 c      enddo
         deallocate(hamm,ovlm)!,hamsom)
  2010 continue
+      inquire(unit=ifig,opened=nexist)
+      if(nexist) call fclose(ifig)
 
       if( debug) print *, 'tttttttttt 9999999999999999999 3',procid,iq
 
@@ -2702,15 +2747,15 @@ C         Store val charge & magnetic moment in sumqv(1..2)
             sumqv(1,1) = sumqv(1,2)
             sumqv(2,1) = sumqv(2,2)
           endif
-!!=== takao automatic search for nevmx (this can be just outside of endif below? I failed why?) ===
-!!Nov25 2010
-          if(allocated(rv_a_owtkb)) then
-            do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
-              nevec = i
-              if (maxval(rv_a_owtkb(i,:,:)) .gt. epsnevec()) exit
-            enddo
-c          call getnevec(ndham,nsp,nkp,nev,rv_p_owtkb, nevec)
-          endif
+c!!=== takao automatic search for nevmx (this can be just outside of endif below? I failed why?) ===
+c!!Nov25 2010
+c          if(allocated(rv_a_owtkb)) then
+c            do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
+c              nevec = i
+c              if (maxval(rv_a_owtkb(i,:,:)) .gt. epsnevec()) exit
+c            enddo
+cc          call getnevec(ndham,nsp,nkp,nev,rv_p_owtkb, nevec)
+c          endif
         endif
 !!
         if (lmet .ne. 4) then

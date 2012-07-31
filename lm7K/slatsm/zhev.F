@@ -1190,90 +1190,87 @@ C$$$! exit
       end
 
 
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C we assume LAPACK and F90
-      subroutine zhev_tk2(nlmto,n,h,s,nmx,nev, e,z,ipr)
-C- Eigenvalues and/or some eigenvectors of a Hermitian matrix
-C ----------------------------------------------------------------
-Ci Inputs:
-Ci   nlmto: not used (dimension of MTO)
-Ci   n:    dimension of h
-Ci   h,n:  hermitian matrix, dimensioned h(n,n)
-Ci   s:    hermitian overlap matrix, 
-Ci   nmx:  maximum number of eigenvectors to be found <--- now ineffective all are calculated.
-Ci   ipr :print switch
-Co Outputs:
-Co   e:    eigenvalues
-Co   nev:  number of eigenvectors found
-Co   z:    eigenvectors (1..nev)  (declared as z(n,*)
-Cr Remarks:
-Cr   z must be at least of dimension z(n,n), even though nev<n.
-Cr   h and s are destroyed on exit.
-Cr   Aborts on exit
-Cp Procedures used:
-Cp   (lapack)  zhegv
-C ----------------------------------------------------------------
+!!-----------------------------------
+      subroutine zhev_tk2(nlmto,n,h,s,nmx,nev, e,z,ipr,  savez,getz,ifig)
+!!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
+!! ----------------------------------------------------------------
+!! Inputs:
+!!   nlmto:dimension of MTO space of 1:nlmto i respected when diagonalization.
+!!     n:    dimension of h
+!!   h,n:  hermitian matrix, dimensioned h(n,n)
+!!   s:    hermitian overlap matrix, 
+!!   nmx:  requested number of eigenvectors and eigenvalues to be found. If nmx>n, nmx is taken to be n.
+!!   ipr :print switch
+!!   ifig: eigenfunctions should be saved, or get.
+!!   savez,getz
+!! Outputs:
+!!   e:    eigenvalues
+!!   nev:  number of eigenvectors found
+!!   z:    eigenvectors (1..nev)  (declared as z(n,*)
+!!   h and s are destroyed on exit.
+!!   july2012takao
+!! Saved data:
+!!      When savez=T and getz=F, eigenfunctions are saved to a file with ifig
+!!      When savez=F and getz=T, eigenfunctions are returned. Read from afile with ifig
+!! NOTE: this can be called in the loop of ikp,isp loop. Then data are appended to a file ifig.
+!! -----------------------------------------------------------------------
       implicit none
-C Passed parameters
-      integer n,nev,nmx,ltime,ngv,nevl,ncut
+      integer n,nev,nmx,ltime,ngv,ncut
       logical ipr 
-      double precision e(n),wk(1),emx,eee,fac
-      complex(8):: h(n,n),s(n,n),z(n,n)
-      complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
-     &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
-     &hhm(:,:),zzz(:),omatinv(:,:),oxx(:,:),work(:)
+      complex(8) :: h(n,n),s(n,n),z(n,*)
+      complex(8),allocatable:: work(:)
       integer:: i,j,nlmto,ni,ik,ik2,k
-      real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl,epsx
-      real(8),allocatable:: scale(:),rwork(:)
-      real(8):: eo(n) ,delta_stabilize
-      integer :: epsovl_mode=1
-C Local parameters
-      integer ier,lwork,ix
-      character*1 jobz
+      real(8):: epsovl,epsx,e(n),emx,eee,fac
+      real(8),allocatable:: rwork(:) 
+      integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0
+      character*1:: jobz
+      logical ::savez,getz,nexist
 !! ---
+      if(getz) then !temporary fix to acceralate
+        read(ifig) nev
+        read(ifig) e(1:nev),z(1:n,1:nev)
+        if(min(nmx,n)>=nev) goto 901
+        return
+      endif  
+ 901  continue
       call tcn('zhev_tk2')
-      allocate(scale(n))
-      do i=1,n
-        scale(i)= 1d0/sqrt(s(i,i))  
-      enddo
-!! ... This scaling is to keep the Hilbert space of MTO.
-      scale(1:nlmto)=scale(1:nlmto)*100d0
-      do i=1,n
-        do j=1,n
-          s(i,j)= scale(i)*scale(j)*s(i,j)
-          h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
-        enddo
-      enddo
+c!! --- calculation
+c      allocate(scale(n))
+c      scale=1d0
+c      do i=1,n
+c        scale(i)= 1d0 !/sqrt(s(i,i))  
+c      enddo
+!! ==== This scaling is to keep the Hilbert space of MTO. ====
+c      scale(1:nlmto)=scale(1:nlmto)*100d0
+c      do i=1,n
+c        do j=1,n
+c          s(i,j)= scale(i)*scale(j)*s(i,j)
+c          h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
+c        enddo
+c      enddo
 !! === diagonalize ===
-      if (nmx .le. 0) then
-        jobz = 'N'
-        lwork = max(1,2*n-1)
-        allocate(work(lwork),rwork(max(1,3*n-2)))
-        call tcn('zhegv_e')
-        call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
-        call tcx('zhegv_e')
-        call rxx(ier.ne.0,'zhegv: zhegv_e cannot find all evals')
-        deallocate(work, rwork)
-        nev = 0
-      else
-        jobz = 'V'
-        nev = min(nmx,nevl)
-        lwork = max(1,2*n-1)
-        allocate(work(lwork),rwork(max(1,3*n-2)))
-        call tcn('zhegv_z')
-        call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
-        call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
-        call tcx('zhegv_z')
-        deallocate(work,rwork)
-        do i=1,min(nmx,n)
-          do j=1,n
-            z(j,i) = scale(j)*h(j,i)  !this is eigenfunction for original problem.
-          enddo
-        enddo
-        nev = min(nmx,n)
-      endif
-      deallocate(scale)
+      jobz = 'V'
+      if(nmx==0) jobz='N'
+      nev=min(nmx,n)
+      lwork = max(1,2*n-1)
+      allocate(work(lwork),rwork(max(1,3*n-2)))
+      call zhegv(1,jobz,'U',n,h,n,s,n,e,work,lwork,rwork,ier)
+      call rxx(ier.ne.0,'zhegv: zhegv cannot find all evals 111')
+      deallocate(work,rwork)
+c!! ==== scale back to the eigenfuntion in original problem ====
+      do i=1,nev
+c        do j=1,n
+c          z(j,i) = scale(j)*h(j,i)  !this is eigenfunction for original problem.
+          z(:,i) = h(:,i)  !this is eigenfunction for original problem.
+c        enddo
+       enddo
+c      deallocate(scale)
+      z(1:n,1:nev) = h(1:n,1:nev)
+      if(savez.and.nev>0) then
+        write(ifig) nev
+        write(ifig) e(1:nev),z(1:n,1:nev)
+c        write(ifig) e(1:nev),h(1:n,1:nev)
+      endif  
       call tcx('zhev_tk2')
       end
 
