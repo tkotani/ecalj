@@ -1,0 +1,11 @@
+PW only DATA calculated for PMT paper (not for PRB version.)
+==========================================================
+pwe 8 nk 12 da -0.15 ndimh 56 dim 56 nlmto 1 ehk -.1236244
+pwe 8 nk 12 da -0.1 ndimh 56 dim 56 nlmto 1 ehk -.1238175
+pwe 8 nk 12 da -0.05 ndimh 56 dim 56 nlmto 1 ehk -.1239274
+pwe 8 nk 12 da -0.025 ndimh 56 dim 56 nlmto 1 ehk -.1239526
+pwe 8 nk 12 da 0 ndimh 56 dim 56 nlmto 1 ehk -.1239586
+pwe 8 nk 12 da 0.025 ndimh 56 dim 56 nlmto 1 ehk -.123946
+pwe 8 nk 12 da 0.05 ndimh 56 dim 56 nlmto 1 ehk -.1239152
+pwe 8 nk 12 da 0.1 ndimh 56 dim 56 nlmto 1 ehk -.1238014
+pwe 8 nk 12 da 0.15 ndimh 56 dim 56 nlmto 1 ehk -.1236209

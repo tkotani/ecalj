@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py h --systype=molecule --nk=1 --nspin=2 --fsmom=1.0
+cp ctrlgen2.ctrl.h ctrl.h
+lmfa h |tee llmfa
+lmf  h |tee llmf

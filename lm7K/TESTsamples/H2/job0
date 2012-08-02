@@ -1,0 +1,2 @@
+#!/bin/bash
+ctrlgen2.py h2 --systype=molecule --nk=1 --nspin=2 --fsmom=0

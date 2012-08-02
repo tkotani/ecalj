@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py ni2 --systype=molecule --nk=1 --nspin=2 --fsmom=2.0
+cp ctrlgen2.ctrl.ni2 ctrl.ni2
+lmfa ni2 |tee llmfa
+lmf  ni2 |tee llmf

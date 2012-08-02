@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py srtio3 --systype=bulk --nk=2 --nspin=1
+cp ctrlgen2.ctrl.srtio3 ctrl.srtio3
+lmfa srtio3 |tee llmfa
+lmf  srtio3 |tee llmf

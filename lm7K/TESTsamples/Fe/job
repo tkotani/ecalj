@@ -1,0 +1,6 @@
+#!/bin/bash
+ctrlgen2.py fe --systype=bulk --nk=6 --nspin=2
+cp ctrlgen2.ctrl.fe ctrl.fe.0
+sed -e 's/#MMOM=/MMOM=0 0 2/' ctrl.fe.0 >ctrl.fe
+lmfa fe |tee llmfa
+lmf  fe |tee llmf

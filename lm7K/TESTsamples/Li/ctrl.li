@@ -1,0 +1,23 @@
+% const verb=35 kmxa=7 pwemax=3 dalat=0 nk=8
+VERS    LM=7 FP=7
+IO      SHOW=t HELP=F VERBOS=31,30
+STRUC   NBAS=1 NSPEC=1 NL=6
+        ALAT=6.35 PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5
+        DALAT={dalat}
+        #SHEAR=0 0 1 1+dist
+
+OPTIONS PFLOAT=1
+BZ      NKABC={nk} BZJOB=bzj  METAL=3 
+
+
+SITE    ATOM=Li POS= 0 0 0
+SPEC    ATOM=Li Z=3 R=2.4
+        LMXA=5 KMXA={kmxa}
+        RSMH=1.6,1.6 EH=-.1,-.1 PZ=11.9 P=2.6 Q=0,1.000
+
+ITER    CONV=1e-6 CONVC=1e-6 NIT=nit
+HAM     FORCES=0 XCFUN=2 
+        FTMESH=15 15 15
+        NSPIN=1 REL=T
+        PWMODE=11  PWEMAX={pwemax}
+
