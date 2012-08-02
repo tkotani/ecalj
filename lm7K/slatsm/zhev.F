@@ -1228,6 +1228,7 @@ C$$$! exit
       integer,allocatable:: iwork(:)
       character*1:: jobz
       logical ::savez,getz,nexist
+      integer,save:: lworksave
 !! ---
       if(getz) then !temporary fix to acceralate
         read(ifig) nev,nmx
@@ -1271,10 +1272,13 @@ c          z(:,i) = h(:,i)  !this is eigenfunction for original problem.
 c       enddo
 c      z(1:n,1:nmx) = h(1:n,1:nmx)
 c      print *,'nev n=',nev,n
+
       abstol=1d-10 ! OK?
-      lwork=max(1,2*n) !OK? efficient?
+      lwork=max(1,2*n,lworksave) !OK? efficient?
       allocate(work(lwork),rwork(7*n),iwork(5*n))
       call zhegvx(1,jobz,'I','U',n,h,n,s,n,vldummy,vudummy,1,nev,abstol,nevx,e,z,n,work,lwork,rwork,iwork,ifail,ier)
+      lworksave= WORK(1)  !this is optimum lwork
+c      print *,'nev nevx n=',nev,nevx,n
       call rxx(nev/=nevx,'zhev_tk2: nev /=nevx something wrong. ')
       call rxx(ier.ne.0, 'zhev_tk2: zhegvx cannot find all eigen.')
       deallocate(work,iwork,rwork)

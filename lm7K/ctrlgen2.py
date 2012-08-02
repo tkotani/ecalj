@@ -769,7 +769,7 @@ tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
       # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
 """
 
-tail =  tail + "%const bzw=0  fsmom="+str(fsmom_val)
+tail =  tail + "%const bzw=1e-4  fsmom="+str(fsmom_val)
 if (systype_val.upper()=="BULK") :
 	tail =  tail + \
 """
