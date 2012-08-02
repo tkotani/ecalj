@@ -1,30 +1,44 @@
 #!/bin/env python
+### generate test.sh for mpifork or for bg jobs ###
 import os
 header='''\
 #!/bin/bash
-#PJM -L "rscgrp=fx-single"
-#PJM -L "node=1"
-#PJM -L "elapse=08:00:00"
-#PJM -j
-#PJM -X
-#PJM --no-stging
+'''
+# aaa=''
+# ic=0
+# ijob=open("jobque",'r').read().split('\n')
+# ijx=0
+# for ix in ijob:
+#     print ix
+#     ic=ic+1
+#     aaa=aaa+ix
+#     if( ic==16):
+#       ijx=ijx+1
+#       jobf="jobque"+ '%i' % ijx
+#       f=open(jobf,'w')
+#       f.write(header+'\n'+aaa+'\n')
+#       f.close()
+#       os.system('pjsub '+jobf)
+#       aaa=''
+#       ic=0
+#     else:
+#       aaa= aaa+' &\n'
+#!/bin/env python
+import os
+header='''\
+#!/bin/bash
 '''
 aaa=''
 ic=0
 ijob=open("jobque",'r').read().split('\n')
-ijx=0
 for ix in ijob:
-    print ix
+    if len(ix)==0: continue
     ic=ic+1
-    aaa=aaa+ix
-    if( ic==16):
-      ijx=ijx+1
-      jobf="jobque"+ '%i' % ijx
-      f=open(jobf,'w')
-      f.write(header+'\n'+aaa+'\n')
-      f.close()
-      os.system('pjsub '+jobf)
-      aaa=''
-      ic=0
-    else:
-      aaa= aaa+' &\n'
+    #aaa=aaa+ix
+    aaa= aaa+ 'if [ $1 == '+ '%i' % ic +' ]; then\n' + ix+ '\n'+'fi\n'
+jobf="test.sh"
+f=open(jobf,'w')
+f.write(header+'\n'+aaa+'\n')
+f.close()
+os.system('chmod +x '+jobf)
+#os.system('pjsub '+jobf)

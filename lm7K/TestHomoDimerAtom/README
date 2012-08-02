@@ -28,7 +28,6 @@ gives job files (jobque and jobscript in TEST.bg or so on) to restart
 calculations. These jobscript are to look into the end of save file to
 restart calculations.
 
-
 ---
 The followings describe what make_jobque.bg does.
 ===================================================
@@ -95,4 +94,16 @@ Data for plot is in datg.savedata.0.1.
 
 
 
-
+UTILITY:
+job16core: you can modify this to generate test.sh or some automatic
+           job submitter for background or pjsub. test.sh can be used
+	   for mpifork
+ecalj/TOOLS/mpifork contains mpi-fork system (Y.Yoshimoto),
+         to submit hhundreds of jobs as a mpi job.
+         >pjsub  q-sub
+         ,where q-sub is the mainjobscript which calls test.sh ($id
+	 gives different machines).
+         
+         In the case of dimers, we do
+         >pjsub jobsub
+         , where jobsub contains test.sh which is given by job16core.

@@ -266,7 +266,7 @@ def getctrldir(readin,jobid):
 ################ main ################################### 
 temp1_init="""
 plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
-symgrp= 'SYMGRP i'
+symgrp= 'SYMGRP e'
 dirhead= 'DimerSYMI,dis,'
 setting['NIT___']= '%i' % 30
 setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
@@ -284,7 +284,7 @@ setting['JOBLIST___']=\
 
 temp2_init="""
 plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
-symgrp= 'SYMGRP i'
+symgrp= 'SYMGRP e'
 dirhead= 'DimerSYMI,dis,'
 setting['NIT___']= '%i' % 20
 setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'

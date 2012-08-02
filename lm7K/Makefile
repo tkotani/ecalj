@@ -24,6 +24,7 @@
 ######################################################################################################
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
+#PLATFORM=fujitsufortran.fx10
 #PLATFORM=fujitsufortran
 #PLATFORM=fujitsufortran_mpik
 

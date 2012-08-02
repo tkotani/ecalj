@@ -31,13 +31,13 @@ if not os.path.exists(work): os.mkdir(work)
 ccc='cp jobdimerlist atomlist.bash extra.bash homodimerdistance.bash '+work
 os.system(ccc)
 
-#---
+#--- dimer section
 os.chdir(work)
 if os.path.exists("jobque"): os.rename("jobque", "jobque.bk")
 os.system('../jobquescript.py jobdimerlist '+' '.join(sys.argv))
 os.system("chmod +x jobmol*")
 
-#-----
+#----- atom section.
 os.chdir('..')
 work= work+'.atom'
 if not os.path.exists(work): os.mkdir(work)
