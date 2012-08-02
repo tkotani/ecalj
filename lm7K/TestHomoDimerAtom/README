@@ -98,7 +98,8 @@ UTILITY:
 job16core: you can modify this to generate test.sh or some automatic
            job submitter for background or pjsub. test.sh can be used
 	   for mpifork
-ecalj/TOOLS/mpifork contains mpi-fork system (Y.Yoshimoto),
+
+NOTE: ecalj/TOOLS/mpifork contains mpi-fork system (Y.Yoshimoto),
          to submit hhundreds of jobs as a mpi job.
          >pjsub  q-sub
          ,where q-sub is the mainjobscript which calls test.sh ($id

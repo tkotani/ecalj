@@ -1,23 +1,25 @@
 === ecalj package ===
-
-The first principle electronic structure calculations.
-Complied mainly by T.Kotani and H.Kino.
+(this document is checked on 2ndAug2012.)
+https://github.com/tkotani/ecalj
 
 (1)All electron full potential PMT method (LAPW+LMTO)
    Related source codes are in ecalj/lm7K/ 
-(2)GW method, especially, 
-   Quasi particle self-consistent GW method (QSGW),
-   dielectric functions, spin fluctions.
-   Related source codes are in ecalj/fpgw/
 
+(2)GW method, especially, 
+   Quasiparticle self-consistent GW method (QSGW),
+   dielectric functions, spin fluctions.
+   GW-related codes are in ecalj/fpgw/
+   
+   Recently, I renewed some part of algolism of GW/QSGW calculations
+   (mainly in PRB.81,125102(2010) and Copmuter Physics Comm. 176(2007)1-13).
+   ---> this may mess up some methods which was available in previous
+   version. Then use old version in ecalj.git (gitk --all and check it out).
+ 
 QSGW is still difficult to handle (only work with LMTO now).
-PMT method is still under developing.  
 
 ====================================================
 Our home page is at http://pmt.sakura.ne.jp/wiki/,
-(not so much documents in English yet).
-Here is minimum instruction for installation and its tests.
-See the wiki page about its details.
+(not so much documents in English yet). But not well-organized yet...
 ====================================================
 
 --- lm7K -------
@@ -25,14 +27,14 @@ See the wiki page about its details.
 Let us assume you use linux like ubuntu. 
 
 >sudo apt-get install gfortran      # GFORTRAN
->sudo apt-get install mpich2        # MPI
->sudo apt-get install libfftw3-3    # FFTW
->sudo apt-get install libblas3gf    # BLAS
->sudo apt-get install liblapack3gf  # LAPACK
+>sudo apt-get install mpich2        # MPI 
+>sudo apt-get install libfftw3-3    or something else # FFTW
+>sudo apt-get install libblas3gf    or something else # BLAS
+>sudo apt-get install liblapack3gf  or something else  # LAPACK
 
 Check PLATFORM=gfortran at the head of ecalj/lm7K/Makefile.
 ecalj/lm7K/MAKEINC/Make.ing.gfortran is used for PLATFORM=gfortran.
-Check LIBLOC in Make.ing.gfortran when you use different math libraries.
+Set LIBLOC in Make.inc.gfortran when you use different math libraries.
 
 you may have to modify lm7K/MAKEINK/Make.inc.gfortran, compile options
 and so on (but usually, only modify math library LIBLOC).
@@ -51,19 +53,16 @@ You can make both binaries with gfortran and with ifort at lm7K.
 Then you have to do "make clean" at ecalj/lm7K, before you make
 binaries. (e.g You first make binaries with gfortan. Then move binaries to
 your another directories, then do make clean, and set PLATFORM=ifort,
-and so make for ifort.
+and so on to make nbinaries by ifort.)
 
 ---
 *Test for lm7K
-You first have to make your bin directory at your_name/bin/.
-Then you do 
->make install
-at ecalj/lm7K 
-This only copy several binanries to your /bin. No changed to systems.
-Then do 
 >make check
 at ecalj/lm7K. It may take five minutes or so. 
 If you see "All test passed" finally, your installation is OK.
+
+>make install
+at ecalj/lm7K just moves all requied binaries to your ~bin.
 
 
 --------------------
@@ -75,6 +74,8 @@ At fpgw/exec/ directory, you have to run
 . Before this, you have to set blas and lapack in fpge/exec/make.inc.
 --------------------
 *Installation test for fpgw/
+
+===== We are fixing tests now... =====
 At fpgw/TESTInstallGW/, run
 >./testgw.py
 (it pauses once and you need to push return again).
@@ -84,7 +85,6 @@ It makes temp_* directories under TESTinstallGW/.
 shows help.
 (The tests are not maintained well now Aug2011. In a few cases it
 fails, even though fpgw works OK).
-
 
 ---------------------------
 * Other points

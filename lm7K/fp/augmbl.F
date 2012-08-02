@@ -2,10 +2,6 @@ c#define F90 1
       subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 #if MPE
