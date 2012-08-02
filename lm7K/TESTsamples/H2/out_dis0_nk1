@@ -1,0 +1,2116 @@
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc バージョン 4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-22-generic #36-Ubuntu SMP Tue Jun 12 17:37:42 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/master
+HOST_INFORMATION git commit: e04ead70b24ae95e97f81bc5faa4a5e3c5e2eb6d
+HOST_INFORMATION linked at: Thu Aug  2 14:01:25 JST 2012
+ -----------------------  START LMF      -----------------------
+ ptenv() is called with EXT=h2
+ ptenv() not supported, but continue.
+#rf 20:
+  Var       Name                 Val
+   1        t                   1.0000    
+   2        f                   0.0000    
+   3        pi                  3.1416    
+   4        nk                  1.0000    
+   5        dis                 0.0000    
+   6        kmxa                5.0000    
+ ---- character variables:
+   1  progname              lmf                                                                                                                     
+   2  ext                                                                                                                                           
+ IO_HELP           opt    i4       1,  1,   *,  1       0
+ VERS_LM           reqd   r8       1,  1,   1, --       7
+  Expected Input style version: 7 ... found in file: 7
+ VERS_FP           reqd   r8       1,  1,   1, --       7
+  Expected Program version: 7 ... found in file: 7
+ CMD               opt    chr      1,  0,   *
+ CONST             opt    chr      1,  0,   *
+ HEADER            opt    chr      1,  0,   *
+ IO_VERBOS         opt    i4v      5,  1,   1,  0       35
+ IO_IACTIV         opt    i4       1,  1,   *,  1       0
+ IO_TIM            opt    i4v      2,  1,   2,  0       3 3
+
+ --- Parameters for crystal structure ---
+ STRUC_FILE        opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       10
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0.9 0 0 0 1 0 0 0 1.1
+ STRUC_NSPEC       opt    i4       1,  1,   1, --       2
+ STRUC_DALAT       opt    r8       1,  1,   1,  0       0
+ STRUC_NL          opt    i4       1,  1,   *,  1       3
+ STRUC_SHEAR       opt    r8v      4,  4,   *, --
+ STRUC_ROT         opt    chr      1,  0,   *
+ STRUC_DEFGRD      opt    r8v      9,  9,   *, --
+ STRUC_STRAIN      opt    r8v      6,  6,   *, --
+
+ --- Program Options ---
+ OPTIONS_HF        opt    lg       1,  1,   *,  1       F
+ OPTIONS_Q         opt    chr      1,  0,   *
+ OPTIONS_PFLOAT    opt    i4       1,  1,   1,  0       1
+
+ --- Parameters for hamiltonian ---
+ HAM_NSPIN         opt    i4       1,  1,   1,  0       2
+ HAM_REL           opt    i4       1,  1,   1,  0       1
+ HAM_SO            opt    i4       1,  1,   *,  1       0
+ HAM_GMAX          reqd   r8       1,  1,   1, --       12
+ HAM_TOL           opt    r8       1,  1,   *,  1       1e-6
+ HAM_FRZWF         opt    lg       1,  1,   1,  0       F
+ HAM_FORCES        opt    i4       1,  1,   1,  0       0
+ HAM_ELIND         opt    r8       1,  1,   1,  0       0
+ HAM_XCFUN         opt    i4       1,  1,   1,  0       103
+ HAM_GGA           opt    i4       1,  1,   *,  1       0
+ HAM_RDSIG         opt    i4       1,  1,   *,  1       0
+ HAM_RSRNGE        opt    r8       1,  1,   *,  1       5
+ HAM_RSSTOL        opt    r8       1,  1,   *,  1       5e-6
+ HAM_EWALD         opt    lg       1,  1,   *,  1       F
+ HAM_PMIN          opt    r8v     10,  1,   *, 10       0 0 0 0 0 0 0 0 0 0
+ HAM_PMAX          opt    r8v     10,  1,   *, 10       0 0 0 0 0 0 0 0 0 0
+ HAM_OVEPS         opt    r8       1,  1,   *,  1       0
+ HAM_STABILIZE     opt    r8       1,  1,   *,  1       -1
+ HAM_PWMODE        opt    i4       1,  1,   1,  0       1
+ HAM_PWEMIN        opt    r8       1,  1,   *,  1       0
+ HAM_PWEMAX        opt    r8       1,  1,   1,  0       3
+ HAM_NPWPAD        opt    i4       1,  1,   *,  1       -1
+ HAM_SIGP          opt    ---                           missing
+ HAM_SIGP_MODE     opt    i4       1,  1,   *,  1       3
+ HAM_SIGP_A        opt    r8       1,  1,   *,  1       0.02
+ HAM_SIGP_B        opt    r8       1,  1,   *,  1       0.06
+ HAM_SIGP_NMIN     opt    i4       1,  1,   *,  1       0
+ HAM_SIGP_EMIN     opt    r8       1,  1,   *,  1       0
+ HAM_SIGP_NMAX     opt    i4       1,  1,   *,  1       0
+ HAM_SIGP_EMAX     opt    r8       1,  1,   *,  1       2
+ HAM_SIGP_EFIT     opt    r8       1,  1,   *,  1       0
+
+ --- Symmetry group operations ---
+ SYMGRP            opt    chr      1,  0,   1           e
+
+ --- Parameters for species data ---
+ SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
+ SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_OMAX2        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_WSRMAX       opt    r8       1,  1,   *,  1       0
+ ... Species 1
+ SPEC_ATOM         reqd   chr      1,  0,   1           H1
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       1
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       0.65
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       145
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    reqd   r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH      reqd   r8v      4,  4,   4, --       -0.1 -0.1 -0.1 -0.1
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH2     reqd   r8v      4,  4,   4, --       -2 -2 -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ DEFPQ, z=1: P=  1.76  2.30  3.16  4.11  5.10
+        z=1: Q=  1.00  0.00  0.00  0.00  0.00
+ DEFPQ, z=1: P=  1.76  2.30  3.16  4.11  5.10
+        z=1: Q=  1.00  0.00  0.00  0.00  0.00
+ SPEC_ATOM_MMOM    opt    r8v      5,  5,   3,  2       1 0 0 0 0
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       0
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       0.5
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_HCR     opt    r8v      4,  4,   *, --
+ SPEC_ATOM_HCR/R   opt    r8v      4,  4,   *,  4       0.7 0.7 0.7 0.7
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+ ... Species 2
+ SPEC_ATOM         reqd   chr      1,  0,   1           H2
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       1
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       0.65
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       145
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    reqd   r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH      reqd   r8v      4,  4,   4, --       -0.1 -0.1 -0.1 -0.1
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   4,  0       0.5 0.5 0.5 0.5
+ SPEC_ATOM_EH2     reqd   r8v      4,  4,   4, --       -2 -2 -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ DEFPQ, z=1: P=  1.76  2.30  3.16  4.11  5.10
+        z=1: Q=  1.00  0.00  0.00  0.00  0.00
+ DEFPQ, z=1: P=  1.76  2.30  3.16  4.11  5.10
+        z=1: Q=  1.00  0.00  0.00  0.00  0.00
+ SPEC_ATOM_MMOM    opt    r8v      5,  5,   3,  2       -1 0 0 0 0
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       0
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       0.5
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_HCR     opt    r8v      4,  4,   *, --
+ SPEC_ATOM_HCR/R   opt    r8v      4,  4,   *,  4       0.7 0.7 0.7 0.7
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+
+ --- Parameters for site data ---
+ SITE_FILE         opt    chr      1,  0,   *
+ ... Site 1
+ SITE_ATOM         reqd   chr      1,  0,   1           H1
+ H1       xxx            1           1
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.0404145 0.0404145 0.0404145
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 2
+ SITE_ATOM         reqd   chr      1,  0,   1           H2
+ H2       xxx            2           2
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       -0.0404145 -0.0404145 -0.0404145
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+
+ --- Parameters for structure constants ---
+ STR_RMAXS         opt    r8       1,  1,   *, --
+ STR_RMAX          opt    r8       1,  1,   *,  1       0
+
+ --- Parameters for Brillouin zone integration ---
+ BZ_GETQP          opt    lg       1,  1,   *,  1       F
+ BZ_NKABC          reqd   i4v      3,  1,   3, --       1 1 1
+ BZ_PUTQP          opt    lg       1,  1,   *,  1       F
+ BZ_BZJOB          opt    i4v      3,  1,   1,  0       0
+ BZ_METAL          opt    i4       1,  1,   1,  0       3
+ BZ_TETRA          opt    lg       1,  1,   1,  0       F
+ BZ_N              opt    i4       1,  1,   1,  0       -1
+ BZ_W              opt    r8       1,  1,   1,  0       0
+ BZ_EF0            opt    r8       1,  1,   *,  1       0
+ BZ_DELEF          opt    r8       1,  1,   *,  1       0.05
+ BZ_ZBAK           opt    r8       1,  1,   *,  1       0
+ BZ_SAVDOS         opt    i4       1,  1,   *,  1       0
+ BZ_DOS            opt    r8v      2,  1,   *,  2       -1 0
+ BZ_NPTS           opt    i4       1,  1,   *,  1       1001
+ BZ_EFMAX          opt    r8       1,  1,   *,  1       5
+ BZ_NEVMX          opt    i4       1,  1,   *,  1       0
+ BZ_ZVAL           opt    r8       1,  1,   *,  1       0
+ BZ_NOINV          opt    lg       1,  1,   *,  1       F
+ BZ_FSMOM          opt    r8       1,  1,   1,  0       0
+ BZ_FSMOMMETHOD    opt    i4       1,  1,   1,  0       1
+ BZ_INVIT          opt    lg       1,  1,   *,  1       T
+ BZ_MULL           opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for Ewald sums ---
+ EWALD_AS          opt    r8       1,  1,   *,  1       2
+ EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
+ EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
+ EWALD_RPAD        opt    r8       1,  1,   *,  1       0
+
+ --- Parameters for iterations ---
+ ITER_NIT          opt    i4       1,  1,   1,  0       30
+ ITER_NRMIX        opt    i4v      2,  1,   *,  2       80 2
+ ITER_MIX          opt    chr      1,  0,   1           A2,b=.5,n=3
+ mixing: mode=A  nmix=2  nit=3  beta=.5
+ ITER_AMIX         opt    chr      1,  0,   *
+ ITER_CONV         opt    r8       1,  1,   1,  0       1e-5
+ ITER_CONVC        opt    r8       1,  1,   1,  0       1e-5
+ ITER_UMIX         opt    r8       1,  1,   *,  1       1
+ ITER_TOLU         opt    r8       1,  1,   *,  1       0
+ ITER_NITU         opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for dynamics and statics ---
+ DYN_NIT           opt    i4       1,  1,   *,  1       1
+ DYN_MSTAT         opt    ---                           missing
+ DYN_MD            opt    ---                           missing
+
+ rdctrl: reset global max nl from 3 to 5
+  mxcst switch =           1           0 F F F
+  mxcst switch =           2           0 F F F
+  LMF  vn 7.00(LMF 7.0)  verb 35
+ special:  APW basis
+ bz:       metal(3), invit 
+ goto setcg
+ lattic:
+
+                Plat                                  Qlat
+   0.900000   0.000000   0.000000        1.111111   0.000000   0.000000
+   0.000000   1.000000   0.000000        0.000000   1.000000   0.000000
+   0.000000   0.000000   1.100000        0.000000   0.000000   0.909091
+  Cell vol= 990.000000
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat=10.00000   awald= 0.201
+         r1=  2.738   nkd=  87      q1=  3.253   nkg= 145
+
+ Generator 1 already in group as element 1
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
+ zzz nclass=           2
+ 
+ lstar xxx=          -2
+ BZMESH:  1 irreducible QP from 1 ( 1 1 1 )  shift= F F F
+ lstar xxx=          -2
+ warnig in mkqp: sbz%iv_a_oidtet is not allocated. but continue.
+ >> level: 1  CPUsec=      0.03  enter lmfp
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ H1       0.650  0.260    4    5         4  0.163  0.325    15    0   0.260
+ H2       0.650  0.260    4    5         4  0.163  0.325    15    0   0.260
+
+ MSHSIZ: mesh has 36 x 40 x 44 divisions; length 0.250, 0.250, 0.250
+         generated from gmax = 12.0 a.u. : 28855 vectors of 63360 (45%)
+
+ gvlist: cutoff radius  12.000 gives  28855   recips of max  63360
+ SGVSYM: 28855 symmetry stars found for 28855 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 64 0 36 0
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      32     0    18    32    50       0
+   2      32     0    18    32    50       0
+  all     64     0    36    64   100       0
+ suham :  50 augmentation channels, 50 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  H1       0*   0.50  -0.10  14.868    1.23E-04   28855*
+  H1       1*   0.50  -0.10  16.301    1.48E-03   28855*
+  H1       2*   0.50  -0.10  17.691    1.78E-02   28855*
+  H1       3    0.50  -0.10  19.039    2.13E-01   28855*
+  H1       0*   0.50  -2.00  14.868    1.23E-04   28855*
+  H1       1*   0.50  -2.00  16.301    1.48E-03   28855*
+  H1       2*   0.50  -2.00  17.691    1.78E-02   28855*
+  H1       3    0.50  -2.00  19.039    2.13E-01   28855*
+  H2       0*   0.50  -0.10  14.868    1.23E-04   28855*
+  H2       1*   0.50  -0.10  16.301    1.48E-03   28855*
+  H2       2*   0.50  -0.10  17.691    1.78E-02   28855*
+  H2       3    0.50  -0.10  19.039    2.13E-01   28855*
+  H2       0*   0.50  -2.00  14.868    1.23E-04   28855*
+  H2       1*   0.50  -2.00  16.301    1.48E-03   28855*
+  H2       2*   0.50  -2.00  17.691    1.78E-02   28855*
+  H2       3    0.50  -2.00  19.039    2.13E-01   28855*
+ suham:  PW basis with  0 < E < 3  =>  npw = 87,  ndham = 151
+
+ iors  : read restart file (binary, mesh density) 
+         use from  restart file: ef window, pnu 
+         ignore in restart file: positions 
+ >> level: 2  CPUsec=      0.08  enter bndfp
+
+ --- BNDFP:  begin iteration 1 of 30 ---
+ ttt nevmx w=           0   0.0000000000000000     
+ >> level: 3  CPUsec=      0.08  enter mkpot
+
+ avg es pot at rmt=-1.224711  avg sphere pot= 0.000340  vconst= 1.224711
+
+ smooth rhoves      6.611222   charge     1.977977
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.374928 (  -0.687464,  -0.687464)
+         rhomu =   -1.765597 (  -0.882799,  -0.882799)
+       avg vxc =   -0.146269 (  -0.146269,  -0.146269)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.049266
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.049266
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -1.094134        -0.268524        -1.362658
+   rhoval*ves              0.531751        -0.084784         0.446967
+   psnuc*ves              12.690693       -19.721518        -7.030825
+   utot                    6.611222        -9.903151        -3.291929
+   rho*exc                -1.374928        -0.033563        -1.408491
+   rho*vxc                -1.765597        -0.044028        -1.809625
+   valence chg             1.977977         0.022023         2.000000
+   valence mag            -0.000000         0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>      0.73   exit  mkpot           0.65
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0)  ef0=0.902291
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ goto gen_hamindex nkp=           1
+  gen_hamindex: --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   H1
+  1  1  1      2    4   H1
+  1  2  1      5    9   H1
+  1  3  1     10   16   H1
+  1  0  2     17   17   H1
+  1  1  2     18   20   H1
+  1  2  2     21   25   H1
+  1  3  2     26   32   H1
+  2  0  1     33   33   H2
+  2  1  1     34   36   H2
+  2  2  1     37   41   H2
+  2  3  1     42   48   H2
+  2  0  2     49   49   H2
+  2  1  2     50   52   H2
+  2  2  2     53   57   H2
+  2  3  2     58   64   H2
+ MPTAUOf: search miat tiat for wave function rotation
+
+  ROTDLMM:
+  end of rotdlmm
+ gen_hamindex: no GW related part. not readin QGpsi
+
+  --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   H1
+  1  1  1      2    4   H1
+  1  2  1      5    9   H1
+  1  3  1     10   16   H1
+  1  0  2     17   17   H1
+  1  1  2     18   20   H1
+  1  2  2     21   25   H1
+  1  3  2     26   32   H1
+  2  0  1     33   33   H2
+  2  1  1     34   36   H2
+  2  2  1     37   41   H2
+  2  3  1     42   48   H2
+  2  0  2     49   49   H2
+  2  1  2     50   52   H2
+  2  2  2     53   57   H2
+  2  3  2     58   64   H2
+  ngrp=           1
+ >> level: 3  CPUsec=      0.73  enter hambls
+ >>      1.23   exit  hambls          0.50
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      1.23  enter zhev_tk2
+ >>      1.25   exit  zhev_tk2        0.02
+  0.4995  1.1945  1.3421  1.4332  1.4803  1.5110  1.5552  1.6986  1.7315
+  1.7926  1.8125  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89978
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      1.25  enter hambls
+ >>      1.74   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      1.74  enter zhev_tk2
+ >>      1.76   exit  zhev_tk2        0.02
+  0.4995  1.1945  1.3421  1.4332  1.4803  1.5110  1.5552  1.6986  1.7315
+  1.7926  1.8125  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89978
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      1.76  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499523  1.000000
+        2  0.499523  1.000000
+        3  1.194498  0.000000
+        4  1.194498  0.000000
+        5  1.342140  0.000000
+        6  1.342140  0.000000
+        7  1.433151  0.000000
+        8  1.433151  0.000000
+        9  1.480268  0.000000
+       10  1.480268  0.000000
+       11  1.510951  0.000000
+     ... 
+ T=0K, E_F=0.849587, sumev=0.999047, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      1.76   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.499523278415580   1.194497586051113   0.694974307635533
+bzwtsf2: HOMOdn LUMOdn Diff=   0.499523278382546   1.194497586023708   0.694974307641161
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000030219
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.694021.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.880987  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      1.76  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499523  1.000000
+        2  0.499523  1.000000
+        3  1.194498  0.000000
+        4  1.194498  0.000000
+        5  1.342140  0.000000
+        6  1.342140  0.000000
+        7  1.433151  0.000000
+        8  1.433151  0.000000
+        9  1.480268  0.000000
+       10  1.480268  0.000000
+       11  1.510951  0.000000
+     ... 
+ T=0K, E_F=0.880987, sumev=0.999047, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      1.76   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000030219
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=      1.76  enter hambls
+ >>      2.26   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.4995  1.1945  1.3421  1.4332  1.4803  1.5110  1.5552  1.6986  1.7315
+  1.7926  1.8125  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89978
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      2.26  enter addrbl
+ >>      2.30   exit  addrbl          0.04
+ >> level: 3  CPUsec=      2.30  enter hambls
+ >>      2.79   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.4995  1.1945  1.3421  1.4332  1.4803  1.5110  1.5552  1.6986  1.7315
+  1.7926  1.8125  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89978
+ (warning) DOS window (-1,0) reset to (-0.0005,1.3810)
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      2.79  enter addrbl
+ >>      2.83   exit  addrbl          0.04
+ >> level: 3  CPUsec=      2.83  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499523  1.000000
+        2  0.499523  1.000000
+        3  1.194498  0.000000
+        4  1.194498  0.000000
+        5  1.342140  0.000000
+        6  1.342140  0.000000
+        7  1.433151  0.000000
+        8  1.433151  0.000000
+        9  1.480268  0.000000
+       10  1.480268  0.000000
+       11  1.510951  0.000000
+     ... 
+ T=0K, E_F=0.849587, sumev=0.999047, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      2.84   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.499523278415580   1.194497586051113   0.694974307635533
+bzwtsf2: HOMOdn LUMOdn Diff=   0.499523278382546   1.194497586023708   0.694974307641161
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000030219
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.694021.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.880987  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      2.84  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499523  1.000000
+        2  0.499523  1.000000
+        3  1.194498  0.000000
+        4  1.194498  0.000000
+        5  1.342140  0.000000
+        6  1.342140  0.000000
+        7  1.433151  0.000000
+        8  1.433151  0.000000
+        9  1.480268  0.000000
+       10  1.480268  0.000000
+       11  1.510951  0.000000
+     ... 
+ T=0K, E_F=0.880987, sumev=0.999047, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      2.84   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000030219
+
+ Saved qp weights ...
+ >> level: 3  CPUsec=      2.84  enter mkrout
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    0.212699    0.202700    0.009999      0.000011    0.000011    0.000000
+       contr. to mm extrapolated for r>rmt:   0.000037 est. true mm = 0.000049
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+ NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.
+       We use spin-avaraged potential to calculate core density rhoc.
+       Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.212699    0.202700    0.009999     -0.000011   -0.000011   -0.000000
+       contr. to mm extrapolated for r>rmt:  -0.000037 est. true mm =-0.000049
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+ >>      2.85   exit  mkrout          0.02
+ >> level: 3  CPUsec=      2.85  enter symrho
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+ >>      2.85   exit  symrho          0.00
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.105110    0.499523    1.666397    1.665405    1.500000    1.665405
+ spn 2 0    0.105098    0.499523    1.666384    1.665399    1.500000    1.665399
+ 1     0    0.001175    0.499523    2.289072    2.288692    2.250000    2.288692
+ spn 2 0    0.001175    0.499523    2.289067    2.288690    2.250000    2.288690
+ 2     0    0.000065    0.499523    3.156772    3.156679    3.147584    3.156679
+ spn 2 0    0.000065    0.499523    3.156771    3.156679    3.147584    3.156679
+ 3     0    0.000005    0.499523    4.105667    4.105634    4.102416    4.105634
+ spn 2 0    0.000005    0.499523    4.105667    4.105634    4.102416    4.105634
+ 4     0    0.000001    0.499523    5.079463    5.079448    5.077979    5.079448
+ spn 2 0    0.000001    0.499523    5.079463    5.079448    5.077979    5.079448
+
+ site    2   species   2:H2      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.105098    0.499523    1.666384    1.665399    1.500000    1.665399
+ spn 2 0    0.105110    0.499523    1.666397    1.665405    1.500000    1.665405
+ 1     0    0.001175    0.499523    2.289067    2.288690    2.250000    2.288690
+ spn 2 0    0.001175    0.499523    2.289072    2.288692    2.250000    2.288692
+ 2     0    0.000065    0.499523    3.156771    3.156679    3.147584    3.156679
+ spn 2 0    0.000065    0.499523    3.156772    3.156679    3.147584    3.156679
+ 3     0    0.000005    0.499523    4.105667    4.105634    4.102416    4.105634
+ spn 2 0    0.000005    0.499523    4.105667    4.105634    4.102416    4.105634
+ 4     0    0.000001    0.499523    5.079463    5.079448    5.077979    5.079448
+ spn 2 0    0.000001    0.499523    5.079463    5.079448    5.077979    5.079448
+
+ Harris energy:
+ sumev=        0.999047  val*vef=      -1.362658   sumtv=       2.361705
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.408491     utot=      -3.291929    ehar=      -2.338715
+
+ srhov:     -0.958203     -0.244279     -1.202482 sumev=    0.999047   sumtv=    2.201528
+ >> level: 3  CPUsec=      2.86  enter mkpot
+
+ avg es pot at rmt=-1.303096  avg sphere pot= 0.000340  vconst= 1.303096
+
+ smooth rhoves      6.712938   charge     1.980002
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.326079 (  -0.663039,  -0.663039)
+         rhomu =   -1.702849 (  -0.851425,  -0.851425)
+       avg vxc =   -0.152419 (  -0.152419,  -0.152419)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.891352        -0.243296        -1.134648
+   rhoval*ves              0.684065        -0.077191         0.606874
+   psnuc*ves              12.741811       -19.714554        -6.972743
+   utot                    6.712938        -9.895873        -3.182934
+   rho*exc                -1.326079        -0.029669        -1.355748
+   rho*vxc                -1.702849        -0.038673        -1.741522
+   valence chg             1.980002         0.019998         2.000000
+   valence mag             0.000000        -0.000000         0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>      3.44   exit  mkpot           0.58
+
+ Kohn-Sham energy:
+ sumtv=        2.201528  sumtc=         0.000000   ekin=        2.201528
+ rhoep=       -1.355748   utot=        -3.182934   ehks=       -2.337154
+ mag. mom=     0.000000  (bands)        0.000000  (output rho)
+ >> level: 3  CPUsec=      3.44  enter mixrho
+ mixrho: sum smrho  init = 0.632953D+02-0.139690D-15 0.632953D+02       0
+ mixrho: sum smrnew new  = 0.633601D+02-0.235099D-15 0.633601D+02       0
+  
+ mixing: mode=A  nmix=2  it 1 of 3  beta=.5
+ mixrho: dqsum rmsuns=  0.20453D-05  0.75710D-03  0.17690D-19
+ mixrealsmooth= T
+ wgtsmooth=  3.97276078852330100E-003
+ mixrho:  sought 2 iter from file mixm; read 3.  RMS DQ=1.23e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.977977      1.980002      1.980002      0.001071      1.978990
+ mmom        -0.000000      0.000000                                 -0.000000
+ site    1    0.011011      0.009999      0.009999      0.000401      0.010505
+ mmom         0.000002      0.000000                                  0.000001
+ site    2    0.011011      0.009999      0.009999      0.000401      0.010505
+ mmom        -0.000002     -0.000000                                 -0.000001
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=129680  beta=0.5  tm=5  rmsdel=6.15e-5
+   tj: 1.00669
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -3.88561793851494031E-010 -1.96243330228027274E-013
+ >>      3.57   exit  mixrho          0.13
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+ >>      3.57   exit  bndfp           3.49
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  1  of 30    ehf=      -2.338715   ehk=      -2.337154
+i nk=1 dis=0 mmom=0 ehf=-2.3387151 ehk=-2.3371543
+ >> level: 2  CPUsec=      3.58  enter bndfp
+
+ --- BNDFP:  begin iteration 2 of 30 ---
+ ttt nevmx w=           0   0.0000000000000000     
+ >> level: 3  CPUsec=      3.58  enter mkpot
+
+ avg es pot at rmt=-1.224842  avg sphere pot= 0.000340  vconst= 1.224842
+
+ smooth rhoves      6.611418   charge     1.977922
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.374750 (  -0.687375,  -0.687375)
+         rhomu =   -1.765364 (  -0.882682,  -0.882682)
+       avg vxc =   -0.146366 (  -0.146366,  -0.146366)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.049765
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.049765
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -1.093192        -0.268968        -1.362160
+   rhoval*ves              0.532112        -0.084741         0.447371
+   psnuc*ves              12.690723       -19.721457        -7.030734
+   utot                    6.611418        -9.903099        -3.291682
+   rho*exc                -1.374750        -0.033651        -1.408402
+   rho*vxc                -1.765364        -0.044167        -1.809531
+   valence chg             1.977922         0.022078         2.000000
+   valence mag            -0.000000        -0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>      4.21   exit  mkpot           0.63
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0)  ef0=0.880987
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=      4.21  enter hambls
+ >>      4.69   exit  hambls          0.48
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      4.69  enter zhev_tk2
+ >>      4.71   exit  zhev_tk2        0.02
+  0.4996  1.1945  1.3422  1.4332  1.4803  1.5110  1.5553  1.6987  1.7315
+  1.7927  1.8126  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89981
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      4.71  enter hambls
+ >>      5.19   exit  hambls          0.48
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      5.19  enter zhev_tk2
+ >>      5.20   exit  zhev_tk2        0.02
+  0.4996  1.1945  1.3422  1.4332  1.4803  1.5110  1.5553  1.6987  1.7315
+  1.7927  1.8126  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89981
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      5.20  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499596  1.000000
+        2  0.499596  1.000000
+        3  1.194530  0.000000
+        4  1.194530  0.000000
+        5  1.342181  0.000000
+        6  1.342181  0.000000
+        7  1.433192  0.000000
+        8  1.433192  0.000000
+        9  1.480303  0.000000
+       10  1.480303  0.000000
+       11  1.510994  0.000000
+     ... 
+ T=0K, E_F=0.84965, sumev=0.999192, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      5.20   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.499595933633241   1.194530097363148   0.694934163729907
+bzwtsf2: HOMOdn LUMOdn Diff=   0.499595933633643   1.194530097336182   0.694934163702539
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000013282
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.694126.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.849650  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      5.20  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499596  1.000000
+        2  0.499596  1.000000
+        3  1.194530  0.000000
+        4  1.194530  0.000000
+        5  1.342181  0.000000
+        6  1.342181  0.000000
+        7  1.433192  0.000000
+        8  1.433192  0.000000
+        9  1.480303  0.000000
+       10  1.480303  0.000000
+       11  1.510994  0.000000
+     ... 
+ T=0K, E_F=0.84965, sumev=0.999192, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      5.20   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000013282
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=      5.20  enter hambls
+ >>      5.70   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.4996  1.1945  1.3422  1.4332  1.4803  1.5110  1.5553  1.6987  1.7315
+  1.7927  1.8126  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89981
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      5.70  enter addrbl
+ >>      5.74   exit  addrbl          0.04
+ >> level: 3  CPUsec=      5.74  enter hambls
+ >>      6.22   exit  hambls          0.48
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.4996  1.1945  1.3422  1.4332  1.4803  1.5110  1.5553  1.6987  1.7315
+  1.7927  1.8126  1.8514  1.8881  1.8998
+nev nmx ndim evl(nev)=   14   14  151     1.89981
+ (warning) DOS window (-1,0) reset to (-0.0004,1.3497)
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      6.22  enter addrbl
+ >>      6.26   exit  addrbl          0.04
+ >> level: 3  CPUsec=      6.26  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499596  1.000000
+        2  0.499596  1.000000
+        3  1.194530  0.000000
+        4  1.194530  0.000000
+        5  1.342181  0.000000
+        6  1.342181  0.000000
+        7  1.433192  0.000000
+        8  1.433192  0.000000
+        9  1.480303  0.000000
+       10  1.480303  0.000000
+       11  1.510994  0.000000
+     ... 
+ T=0K, E_F=0.84965, sumev=0.999192, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      6.26   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.499595933633241   1.194530097363148   0.694934163729907
+bzwtsf2: HOMOdn LUMOdn Diff=   0.499595933633643   1.194530097336182   0.694934163702539
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000013282
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.694126.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.849650  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      6.26  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.499596  1.000000
+        2  0.499596  1.000000
+        3  1.194530  0.000000
+        4  1.194530  0.000000
+        5  1.342181  0.000000
+        6  1.342181  0.000000
+        7  1.433192  0.000000
+        8  1.433192  0.000000
+        9  1.480303  0.000000
+       10  1.480303  0.000000
+       11  1.510994  0.000000
+     ... 
+ T=0K, E_F=0.84965, sumev=0.999192, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      6.26   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000013282
+
+ Saved qp weights ...
+ >> level: 3  CPUsec=      6.26  enter mkrout
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    0.212706    0.202571    0.010135      0.000020    0.000019    0.000001
+       contr. to mm extrapolated for r>rmt:   0.000065 est. true mm = 0.000085
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.212706    0.202571    0.010135     -0.000020   -0.000019   -0.000001
+       contr. to mm extrapolated for r>rmt:  -0.000065 est. true mm =-0.000085
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+ >>      6.28   exit  mkrout          0.02
+ >> level: 3  CPUsec=      6.28  enter symrho
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+ >>      6.28   exit  symrho          0.00
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.105118    0.499596    1.665405    1.664973    1.500000    1.664973
+ spn 2 0    0.105097    0.499596    1.665399    1.664964    1.500000    1.664964
+ 1     0    0.001175    0.499596    2.288692    2.288394    2.250000    2.288394
+ spn 2 0    0.001175    0.499596    2.288690    2.288391    2.250000    2.288391
+ 2     0    0.000065    0.499596    3.156679    3.156587    3.147584    3.156587
+ spn 2 0    0.000065    0.499596    3.156679    3.156586    3.147584    3.156586
+ 3     0    0.000005    0.499596    4.105634    4.105595    4.102416    4.105595
+ spn 2 0    0.000005    0.499596    4.105634    4.105595    4.102416    4.105595
+ 4     0    0.000001    0.499596    5.079448    5.079428    5.077979    5.079428
+ spn 2 0    0.000001    0.499596    5.079448    5.079428    5.077979    5.079428
+
+ site    2   species   2:H2      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.105097    0.499596    1.665399    1.664964    1.500000    1.664964
+ spn 2 0    0.105118    0.499596    1.665405    1.664973    1.500000    1.664973
+ 1     0    0.001175    0.499596    2.288690    2.288391    2.250000    2.288391
+ spn 2 0    0.001175    0.499596    2.288692    2.288394    2.250000    2.288394
+ 2     0    0.000065    0.499596    3.156679    3.156586    3.147584    3.156586
+ spn 2 0    0.000065    0.499596    3.156679    3.156587    3.147584    3.156587
+ 3     0    0.000005    0.499596    4.105634    4.105595    4.102416    4.105595
+ spn 2 0    0.000005    0.499596    4.105634    4.105595    4.102416    4.105595
+ 4     0    0.000001    0.499596    5.079448    5.079428    5.077979    5.079428
+ spn 2 0    0.000001    0.499596    5.079448    5.079428    5.077979    5.079428
+
+ Harris energy:
+ sumev=        0.999192  val*vef=      -1.362160   sumtv=       2.361352
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.408402     utot=      -3.291682    ehar=      -2.338732
+
+ srhov:     -0.957022     -0.245580     -1.202602 sumev=    0.999192   sumtv=    2.201794
+ >> level: 3  CPUsec=      6.28  enter mkpot
+
+ avg es pot at rmt=-1.303135  avg sphere pot= 0.000340  vconst= 1.303135
+
+ smooth rhoves      6.711778   charge     1.979730
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.325693 (  -0.662846,  -0.662846)
+         rhomu =   -1.702358 (  -0.851179,  -0.851179)
+       avg vxc =   -0.152419 (  -0.152419,  -0.152419)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.890199        -0.244679        -1.134878
+   rhoval*ves              0.683002        -0.076349         0.606653
+   psnuc*ves              12.740554       -19.713636        -6.973081
+   utot                    6.711778        -9.894992        -3.183214
+   rho*exc                -1.325693        -0.030057        -1.355749
+   rho*vxc                -1.702358        -0.039173        -1.741531
+   valence chg             1.979730         0.020270         2.000000
+   valence mag            -0.000000         0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>      6.86   exit  mkpot           0.58
+
+ Kohn-Sham energy:
+ sumtv=        2.201794  sumtc=         0.000000   ekin=        2.201794
+ rhoep=       -1.355749   utot=        -3.183214   ehks=       -2.337170
+ mag. mom=     0.000000  (bands)       -0.000000  (output rho)
+ >> level: 3  CPUsec=      6.86  enter mixrho
+ mixrho: sum smrho  init = 0.632935D+02-0.873577D-15 0.632935D+02       0
+ mixrho: sum smrnew new  = 0.633514D+02 0.241950D-15 0.633514D+02       0
+  
+ mixing: mode=A  nmix=2  it 2 of 3  beta=.5
+ mixrho: dqsum rmsuns=  0.18256D-05  0.76695D-03  0.21273D-19
+ mixrealsmooth= T
+ wgtsmooth=  3.97276078852330100E-003
+ mixrho:  sought 2 iter from file mixm; read 3.  RMS DQ=1.24e-4  last it=1.23e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.977922      1.979730      1.979730      0.001085      1.978826
+ mmom         0.000000     -0.000000                                  0.000000
+ site    1    0.011039      0.010135      0.010135      0.000363      0.010587
+ mmom         0.000004      0.000001                                  0.000002
+ site    2    0.011039      0.010135      0.010135      0.000363      0.010587
+ mmom        -0.000004     -0.000001                                 -0.000002
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: Reducing nmix to  0: t_j exceeds tm: tj=  6.03169
+ AMIX: nmix=0 mmix=8  nelts=129680  beta=0.5  tm=5  rmsdel=6.18e-5
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -3.70638485180929678E-010 -1.87191154131782650E-013
+ >>      6.99   exit  mixrho          0.13
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+ >>      6.99   exit  bndfp           3.42
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  2  of 30    ehf=      -2.338732   ehk=      -2.337170
+ From last iter    ehf=      -2.338715   ehk=      -2.337154
+ diffe(q)= -0.000017 (0.000124)    tol= 0.000010 (0.000010)   more=T
+i nk=1 dis=0 mmom=-0 ehf=-2.3387316 ehk=-2.3371697
+ >> level: 2  CPUsec=      7.00  enter bndfp
+
+ --- BNDFP:  begin iteration 3 of 30 ---
+ ttt nevmx w=           0   0.0000000000000000     
+ >> level: 3  CPUsec=      7.00  enter mkpot
+
+ avg es pot at rmt=-1.263989  avg sphere pot= 0.000340  vconst= 1.263989
+
+ smooth rhoves      6.660748   charge     1.978826
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.349815 (  -0.674908,  -0.674908)
+         rhomu =   -1.733338 (  -0.866669,  -0.866669)
+       avg vxc =   -0.149560 (  -0.149560,  -0.149560)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.042414
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.042414
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.992857        -0.256817        -1.249674
+   rhoval*ves              0.605858        -0.080539         0.525319
+   psnuc*ves              12.715639       -19.717547        -7.001908
+   utot                    6.660748        -9.899043        -3.238294
+   rho*exc                -1.349815        -0.031843        -1.381658
+   rho*vxc                -1.733338        -0.041655        -1.774992
+   valence chg             1.978826         0.021174         2.000000
+   valence mag             0.000000         0.000000         0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>      7.64   exit  mkpot           0.64
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0)  ef0=0.84965
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=      7.65  enter hambls
+ >>      8.14   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      8.14  enter zhev_tk2
+ >>      8.15   exit  zhev_tk2        0.02
+  0.5163  1.2298  1.3745  1.4677  1.5168  1.5449  1.5916  1.7343  1.7653
+  1.8279  1.8486  1.8862  1.9247  1.9357
+nev nmx ndim evl(nev)=   14   14  151     1.93572
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      8.15  enter hambls
+ >>      8.64   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=      8.64  enter zhev_tk2
+ >>      8.66   exit  zhev_tk2        0.01
+  0.5163  1.2298  1.3745  1.4677  1.5168  1.5449  1.5916  1.7343  1.7653
+  1.8279  1.8486  1.8862  1.9247  1.9357
+nev nmx ndim evl(nev)=   14   14  151     1.93572
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      8.66  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.516290  1.000000
+        2  0.516290  1.000000
+        3  1.229850  0.000000
+        4  1.229850  0.000000
+        5  1.374515  0.000000
+        6  1.374515  0.000000
+        7  1.467673  0.000000
+        8  1.467673  0.000000
+        9  1.516840  0.000000
+       10  1.516840  0.000000
+       11  1.544941  0.000000
+     ... 
+ T=0K, E_F=1.226007, sumev=1.03258, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      8.66   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.516290216594210   1.229849979140656   0.713559762546446
+bzwtsf2: HOMOdn LUMOdn Diff=   0.516290216561589   1.229849979132316   0.713559762570727
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000020481
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.746140.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.897754  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      8.66  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.516290  1.000000
+        2  0.516290  1.000000
+        3  1.229850  0.000000
+        4  1.229850  0.000000
+        5  1.374515  0.000000
+        6  1.374515  0.000000
+        7  1.467673  0.000000
+        8  1.467673  0.000000
+        9  1.516840  0.000000
+       10  1.516840  0.000000
+       11  1.544941  0.000000
+     ... 
+ T=0K, E_F=0.897754, sumev=1.03258, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      8.66   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000020481
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=      8.66  enter hambls
+ >>      9.15   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5163  1.2298  1.3745  1.4677  1.5168  1.5449  1.5916  1.7343  1.7653
+  1.8279  1.8486  1.8862  1.9247  1.9357
+nev nmx ndim evl(nev)=   14   14  151     1.93572
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      9.15  enter addrbl
+ >>      9.19   exit  addrbl          0.04
+ >> level: 3  CPUsec=      9.19  enter hambls
+ >>      9.70   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5163  1.2298  1.3745  1.4677  1.5168  1.5449  1.5916  1.7343  1.7653
+  1.8279  1.8486  1.8862  1.9247  1.9357
+nev nmx ndim evl(nev)=   14   14  151     1.93572
+ (warning) DOS window (-1,0) reset to (0.0163,1.3978)
+  nmx nev=          14          14
+ >> level: 3  CPUsec=      9.70  enter addrbl
+ >>      9.74   exit  addrbl          0.04
+ >> level: 3  CPUsec=      9.74  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.516290  1.000000
+        2  0.516290  1.000000
+        3  1.229850  0.000000
+        4  1.229850  0.000000
+        5  1.374515  0.000000
+        6  1.374515  0.000000
+        7  1.467673  0.000000
+        8  1.467673  0.000000
+        9  1.516840  0.000000
+       10  1.516840  0.000000
+       11  1.544941  0.000000
+     ... 
+ T=0K, E_F=1.226007, sumev=1.03258, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      9.74   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.516290216594210   1.229849979140656   0.713559762546446
+bzwtsf2: HOMOdn LUMOdn Diff=   0.516290216561589   1.229849979132316   0.713559762570727
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000020481
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.746140.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.897754  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=      9.74  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.516290  1.000000
+        2  0.516290  1.000000
+        3  1.229850  0.000000
+        4  1.229850  0.000000
+        5  1.374515  0.000000
+        6  1.374515  0.000000
+        7  1.467673  0.000000
+        8  1.467673  0.000000
+        9  1.516840  0.000000
+       10  1.516840  0.000000
+       11  1.544941  0.000000
+     ... 
+ T=0K, E_F=0.897754, sumev=1.03258, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>      9.74   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000020481
+
+ Saved qp weights ...
+ >> level: 3  CPUsec=      9.74  enter mkrout
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    0.215625    0.205382    0.010243      0.000014    0.000013    0.000001
+       contr. to mm extrapolated for r>rmt:   0.000044 est. true mm = 0.000057
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.215625    0.205382    0.010243     -0.000014   -0.000013   -0.000001
+       contr. to mm extrapolated for r>rmt:  -0.000044 est. true mm =-0.000057
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+ >>      9.75   exit  mkrout          0.02
+ >> level: 3  CPUsec=      9.75  enter symrho
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+ >>      9.75   exit  symrho          0.00
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.106530    0.516290    1.664973    1.665557    1.500000    1.665557
+ spn 2 0    0.106516    0.516290    1.664964    1.665551    1.500000    1.665551
+ 1     0    0.001217    0.516290    2.288394    2.288640    2.250000    2.288640
+ spn 2 0    0.001217    0.516290    2.288391    2.288638    2.250000    2.288638
+ 2     0    0.000067    0.516290    3.156587    3.156652    3.147584    3.156652
+ spn 2 0    0.000067    0.516290    3.156586    3.156652    3.147584    3.156652
+ 3     0    0.000005    0.516290    4.105595    4.105621    4.102416    4.105621
+ spn 2 0    0.000005    0.516290    4.105595    4.105621    4.102416    4.105621
+ 4     0    0.000001    0.516290    5.079428    5.079440    5.077979    5.079440
+ spn 2 0    0.000001    0.516290    5.079428    5.079440    5.077979    5.079440
+
+ site    2   species   2:H2      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.106516    0.516290    1.664964    1.665551    1.500000    1.665551
+ spn 2 0    0.106530    0.516290    1.664973    1.665557    1.500000    1.665557
+ 1     0    0.001217    0.516290    2.288391    2.288638    2.250000    2.288638
+ spn 2 0    0.001217    0.516290    2.288394    2.288640    2.250000    2.288640
+ 2     0    0.000067    0.516290    3.156586    3.156652    3.147584    3.156652
+ spn 2 0    0.000067    0.516290    3.156587    3.156652    3.147584    3.156652
+ 3     0    0.000005    0.516290    4.105595    4.105621    4.102416    4.105621
+ spn 2 0    0.000005    0.516290    4.105595    4.105621    4.102416    4.105621
+ 4     0    0.000001    0.516290    5.079428    5.079440    5.077979    5.079440
+ spn 2 0    0.000001    0.516290    5.079428    5.079440    5.077979    5.079440
+
+ Harris energy:
+ sumev=        1.032580  val*vef=      -1.249674   sumtv=       2.282254
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.381658     utot=      -3.238294    ehar=      -2.337698
+
+ srhov:     -0.957165     -0.248449     -1.205613 sumev=    1.032580   sumtv=    2.238194
+ >> level: 3  CPUsec=      9.76  enter mkpot
+
+ avg es pot at rmt=-1.285519  avg sphere pot= 0.000340  vconst= 1.285519
+
+ smooth rhoves      6.688182   charge     1.979514
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.337036 (  -0.668518,  -0.668518)
+         rhomu =   -1.716964 (  -0.858482,  -0.858482)
+       avg vxc =   -0.150485 (  -0.150485,  -0.150485)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.939427        -0.248027        -1.187454
+   rhoval*ves              0.647126        -0.077829         0.569297
+   psnuc*ves              12.729237       -19.715053        -6.985816
+   utot                    6.688182        -9.896441        -3.208259
+   rho*exc                -1.337036        -0.030513        -1.367549
+   rho*vxc                -1.716964        -0.039787        -1.756751
+   valence chg             1.979514         0.020486         2.000000
+   valence mag            -0.000000         0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>     10.34   exit  mkpot           0.58
+
+ Kohn-Sham energy:
+ sumtv=        2.238194  sumtc=         0.000000   ekin=        2.238194
+ rhoep=       -1.367549   utot=        -3.208259   ehks=       -2.337614
+ mag. mom=     0.000000  (bands)       -0.000000  (output rho)
+ >> level: 3  CPUsec=     10.34  enter mixrho
+ mixrho: sum smrho  init = 0.633224D+02-0.101846D-14 0.633224D+02       0
+ mixrho: sum smrnew new  = 0.633444D+02 0.163307D-27 0.633444D+02       0
+  
+ mixing: mode=A  nmix=2  it 3 of 3  beta=.5
+ mixrho: dqsum rmsuns=  0.69472D-06  0.28698D-03  0.45352D-19
+ mixrealsmooth= T
+ wgtsmooth=  3.97276078852330100E-003
+ mixrho:  sought 2 iter from file mixm; read 3.  RMS DQ=4.34e-5  last it=1.24e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.978826      1.979514      1.979514      0.000406      1.979170
+ mmom         0.000000     -0.000000                                 -0.000000
+ site    1    0.010587      0.010243      0.010243      0.000136      0.010415
+ mmom         0.000002      0.000001                                  0.000002
+ site    2    0.010587      0.010243      0.010243      0.000136      0.010415
+ mmom        -0.000002     -0.000001                                 -0.000002
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=129680  beta=0.5  tm=5  rmsdel=2.17e-5
+   tj:-0.54179
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -3.84717264989564711E-010 -1.94301648984628612E-013
+ >>     10.46   exit  mixrho          0.13
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+ >>     10.46   exit  bndfp           3.47
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  3  of 30    ehf=      -2.337698   ehk=      -2.337614
+ From last iter    ehf=      -2.338732   ehk=      -2.337170
+ diffe(q)=  0.001033 (0.000043)    tol= 0.000010 (0.000010)   more=T
+i nk=1 dis=0 mmom=-0 ehf=-2.3376981 ehk=-2.3376144
+ >> level: 2  CPUsec=     10.47  enter bndfp
+
+ --- BNDFP:  begin iteration 4 of 30 ---
+ ttt nevmx w=           0   0.0000000000000000     
+ >> level: 3  CPUsec=     10.47  enter mkpot
+
+ avg es pot at rmt=-1.280586  avg sphere pot= 0.000340  vconst= 1.280586
+
+ smooth rhoves      6.681829   charge     1.979356
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.339922 (  -0.669961,  -0.669961)
+         rhomu =   -1.720663 (  -0.860332,  -0.860332)
+       avg vxc =   -0.150275 (  -0.150275,  -0.150275)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.036744
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.036744
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.951750        -0.250039        -1.201789
+   rhoval*ves              0.637536        -0.078449         0.559087
+   psnuc*ves              12.726122       -19.715624        -6.989503
+   utot                    6.681829        -9.897037        -3.215208
+   rho*exc                -1.339922        -0.030817        -1.370739
+   rho*vxc                -1.720663        -0.040213        -1.760877
+   valence chg             1.979356         0.020644         2.000000
+   valence mag            -0.000000         0.000000         0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>     11.16   exit  mkpot           0.69
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0)  ef0=0.897754
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=     11.16  enter hambls
+ >>     11.67   exit  hambls          0.51
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=     11.67  enter zhev_tk2
+ >>     11.68   exit  zhev_tk2        0.01
+  0.5233  1.2455  1.3886  1.4828  1.5330  1.5598  1.6076  1.7500  1.7803
+  1.8434  1.8644  1.9016  1.9409  1.9516
+nev nmx ndim evl(nev)=   14   14  151     1.95157
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     11.68  enter hambls
+ >>     12.16   exit  hambls          0.48
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=     12.16  enter zhev_tk2
+ >>     12.18   exit  zhev_tk2        0.01
+  0.5233  1.2455  1.3886  1.4828  1.5330  1.5598  1.6076  1.7500  1.7803
+  1.8434  1.8644  1.9016  1.9409  1.9516
+nev nmx ndim evl(nev)=   14   14  151     1.95157
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     12.18  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.523258  1.000000
+        2  0.523258  1.000000
+        3  1.245479  0.000000
+        4  1.245479  0.000000
+        5  1.388647  0.000000
+        6  1.388647  0.000000
+        7  1.482803  0.000000
+        8  1.482803  0.000000
+        9  1.532967  0.000000
+       10  1.532967  0.000000
+       11  1.559815  0.000000
+     ... 
+ T=0K, E_F=1.237415, sumev=1.046516, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     12.18   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.523258096629611   1.245479386250274   0.722221289620664
+bzwtsf2: HOMOdn LUMOdn Diff=   0.523258096652285   1.245479386182071   0.722221289529786
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000022765
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.768737.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.904722  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=     12.18  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.523258  1.000000
+        2  0.523258  1.000000
+        3  1.245479  0.000000
+        4  1.245479  0.000000
+        5  1.388647  0.000000
+        6  1.388647  0.000000
+        7  1.482803  0.000000
+        8  1.482803  0.000000
+        9  1.532967  0.000000
+       10  1.532967  0.000000
+       11  1.559815  0.000000
+     ... 
+ T=0K, E_F=0.904722, sumev=1.046516, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     12.18   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000022765
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=     12.18  enter hambls
+ >>     12.67   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5233  1.2455  1.3886  1.4828  1.5330  1.5598  1.6076  1.7500  1.7803
+  1.8434  1.8644  1.9016  1.9409  1.9516
+nev nmx ndim evl(nev)=   14   14  151     1.95157
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     12.67  enter addrbl
+ >>     12.71   exit  addrbl          0.04
+ >> level: 3  CPUsec=     12.71  enter hambls
+ >>     13.20   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5233  1.2455  1.3886  1.4828  1.5330  1.5598  1.6076  1.7500  1.7803
+  1.8434  1.8644  1.9016  1.9409  1.9516
+nev nmx ndim evl(nev)=   14   14  151     1.95157
+ (warning) DOS window (-1,0) reset to (0.0233,1.4047)
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     13.20  enter addrbl
+ >>     13.23   exit  addrbl          0.04
+ >> level: 3  CPUsec=     13.23  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.523258  1.000000
+        2  0.523258  1.000000
+        3  1.245479  0.000000
+        4  1.245479  0.000000
+        5  1.388647  0.000000
+        6  1.388647  0.000000
+        7  1.482803  0.000000
+        8  1.482803  0.000000
+        9  1.532967  0.000000
+       10  1.532967  0.000000
+       11  1.559815  0.000000
+     ... 
+ T=0K, E_F=1.237415, sumev=1.046516, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     13.23   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.523258096629611   1.245479386250274   0.722221289620664
+bzwtsf2: HOMOdn LUMOdn Diff=   0.523258096652285   1.245479386182071   0.722221289529786
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000022765
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.768737.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.904722  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=     13.23  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.523258  1.000000
+        2  0.523258  1.000000
+        3  1.245479  0.000000
+        4  1.245479  0.000000
+        5  1.388647  0.000000
+        6  1.388647  0.000000
+        7  1.482803  0.000000
+        8  1.482803  0.000000
+        9  1.532967  0.000000
+       10  1.532967  0.000000
+       11  1.559815  0.000000
+     ... 
+ T=0K, E_F=0.904722, sumev=1.046516, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     13.24   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000022765
+
+ Saved qp weights ...
+ >> level: 3  CPUsec=     13.24  enter mkrout
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    0.216917    0.206655    0.010262      0.000007    0.000006    0.000000
+       contr. to mm extrapolated for r>rmt:   0.000022 est. true mm = 0.000029
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.216917    0.206655    0.010262     -0.000007   -0.000006   -0.000000
+       contr. to mm extrapolated for r>rmt:  -0.000022 est. true mm =-0.000029
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+ >>     13.26   exit  mkrout          0.02
+ >> level: 3  CPUsec=     13.26  enter symrho
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+ >>     13.26   exit  symrho          0.00
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.107154    0.523258    1.665557    1.665857    1.500000    1.665857
+ spn 2 0    0.107147    0.523258    1.665551    1.665853    1.500000    1.665853
+ 1     0    0.001234    0.523258    2.288640    2.288792    2.250000    2.288792
+ spn 2 0    0.001235    0.523258    2.288638    2.288791    2.250000    2.288791
+ 2     0    0.000068    0.523258    3.156652    3.156696    3.147584    3.156696
+ spn 2 0    0.000068    0.523258    3.156652    3.156696    3.147584    3.156696
+ 3     0    0.000005    0.523258    4.105621    4.105638    4.102416    4.105638
+ spn 2 0    0.000005    0.523258    4.105621    4.105638    4.102416    4.105638
+ 4     0    0.000001    0.523258    5.079440    5.079449    5.077979    5.079449
+ spn 2 0    0.000001    0.523258    5.079440    5.079449    5.077979    5.079449
+
+ site    2   species   2:H2      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.107147    0.523258    1.665551    1.665853    1.500000    1.665853
+ spn 2 0    0.107154    0.523258    1.665557    1.665857    1.500000    1.665857
+ 1     0    0.001235    0.523258    2.288638    2.288791    2.250000    2.288791
+ spn 2 0    0.001234    0.523258    2.288640    2.288792    2.250000    2.288792
+ 2     0    0.000068    0.523258    3.156652    3.156696    3.147584    3.156696
+ spn 2 0    0.000068    0.523258    3.156652    3.156696    3.147584    3.156696
+ 3     0    0.000005    0.523258    4.105621    4.105638    4.102416    4.105638
+ spn 2 0    0.000005    0.523258    4.105621    4.105638    4.102416    4.105638
+ 4     0    0.000001    0.523258    5.079440    5.079449    5.077979    5.079449
+ spn 2 0    0.000001    0.523258    5.079440    5.079449    5.077979    5.079449
+
+ Harris energy:
+ sumev=        1.046516  val*vef=      -1.201789   sumtv=       2.248305
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.370739     utot=      -3.215208    ehar=      -2.337641
+
+ srhov:     -0.958489     -0.249331     -1.207821 sumev=    1.046516   sumtv=    2.254337
+ >> level: 3  CPUsec=     13.26  enter mkpot
+
+ avg es pot at rmt=-1.277762  avg sphere pot= 0.000340  vconst= 1.277762
+
+ smooth rhoves      6.678062   charge     1.979476
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.342134 (  -0.671067,  -0.671067)
+         rhomu =   -1.723528 (  -0.861764,  -0.861764)
+       avg vxc =   -0.149607 (  -0.149607,  -0.149607)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.961279        -0.249223        -1.210502
+   rhoval*ves              0.631646        -0.078668         0.552978
+   psnuc*ves              12.724477       -19.715881        -6.991404
+   utot                    6.678062        -9.897275        -3.219213
+   rho*exc                -1.342134        -0.030634        -1.372768
+   rho*vxc                -1.723528        -0.039952        -1.763480
+   valence chg             1.979476         0.020524         2.000000
+   valence mag             0.000000        -0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>     13.94   exit  mkpot           0.67
+
+ Kohn-Sham energy:
+ sumtv=        2.254337  sumtc=         0.000000   ekin=        2.254337
+ rhoep=       -1.372768   utot=        -3.219213   ehks=       -2.337644
+ mag. mom=     0.000000  (bands)       -0.000000  (output rho)
+ >> level: 3  CPUsec=     13.94  enter mixrho
+ mixrho: sum smrho  init = 0.633394D+02-0.744430D-15 0.633394D+02       0
+ mixrho: sum smrnew new  = 0.633432D+02-0.235099D-15 0.633432D+02       0
+  
+ mixing: mode=A  nmix=2  it 4 of 6  beta=.5
+ mixrho: dqsum rmsuns=  0.12062D-06  0.44035D-04  0.39457D-19
+ mixrealsmooth= T
+ wgtsmooth=  3.97276078852330100E-003
+ mixrho:  sought 2 iter from file mixm; read 3.  RMS DQ=2.38e-6  last it=4.34e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.979356      1.979476      1.979476      0.000062      1.979416
+ mmom        -0.000000      0.000000                                  0.000000
+ site    1    0.010322      0.010262      0.010262      0.000023      0.010292
+ mmom         0.000001      0.000000                                  0.000001
+ site    2    0.010322      0.010262      0.010262      0.000023      0.010292
+ mmom        -0.000001     -0.000000                                 -0.000001
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=129680  beta=0.5  tm=5  rmsdel=1.19e-6
+   tj:-0.04594
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -3.83776191381635101E-010 -1.93826359283654059E-013
+ >>     14.07   exit  mixrho          0.14
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+ >>     14.07   exit  bndfp           3.60
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  4  of 30    ehf=      -2.337641   ehk=      -2.337644
+ From last iter    ehf=      -2.337698   ehk=      -2.337614
+ diffe(q)=  0.000057 (0.000002)    tol= 0.000010 (0.000010)   more=T
+i nk=1 dis=0 mmom=-0 ehf=-2.3376414 ehk=-2.3376444
+ >> level: 2  CPUsec=     14.08  enter bndfp
+
+ --- BNDFP:  begin iteration 5 of 30 ---
+ ttt nevmx w=           0   0.0000000000000000     
+ >> level: 3  CPUsec=     14.08  enter mkpot
+
+ avg es pot at rmt=-1.279377  avg sphere pot= 0.000340  vconst= 1.279377
+
+ smooth rhoves      6.680201   charge     1.979427
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.340920 (  -0.670460,  -0.670460)
+         rhomu =   -1.721957 (  -0.860979,  -0.860979)
+       avg vxc =   -0.149940 (  -0.149940,  -0.149940)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.035771
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           5 T
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=T
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:   -0.035771
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.956067        -0.249503        -1.205569
+   rhoval*ves              0.634971        -0.078530         0.556441
+   psnuc*ves              12.725431       -19.715728        -6.990297
+   utot                    6.680201        -9.897129        -3.216928
+   rho*exc                -1.340920        -0.030705        -1.371625
+   rho*vxc                -1.721957        -0.040053        -1.762011
+   valence chg             1.979427         0.020573         2.000000
+   valence mag             0.000000        -0.000000        -0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>     14.74   exit  mkpot           0.66
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  Fermi distribution (T=0)  ef0=0.904722
+
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=     14.74  enter hambls
+ >>     15.23   exit  hambls          0.49
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=     15.23  enter zhev_tk2
+ >>     15.25   exit  zhev_tk2        0.02
+  0.5227  1.2446  1.3878  1.4819  1.5321  1.5590  1.6067  1.7492  1.7794
+  1.8425  1.8636  1.9008  1.9400  1.9507
+nev nmx ndim evl(nev)=   14   14  151     1.95070
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     15.25  enter hambls
+ >>     15.76   exit  hambls          0.51
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+ >> level: 3  CPUsec=     15.76  enter zhev_tk2
+ >>     15.77   exit  zhev_tk2        0.02
+  0.5227  1.2446  1.3878  1.4819  1.5321  1.5590  1.6067  1.7492  1.7794
+  1.8425  1.8636  1.9008  1.9400  1.9507
+nev nmx ndim evl(nev)=   14   14  151     1.95070
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     15.77  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.522670  1.000000
+        2  0.522670  1.000000
+        3  1.244616  0.000000
+        4  1.244616  0.000000
+        5  1.387833  0.000000
+        6  1.387833  0.000000
+        7  1.481942  0.000000
+        8  1.481942  0.000000
+        9  1.532072  0.000000
+       10  1.532072  0.000000
+       11  1.558962  0.000000
+     ... 
+ T=0K, E_F=1.236684, sumev=1.045339, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     15.77   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.522669738475955   1.244615505609570   0.721945767133616
+bzwtsf2: HOMOdn LUMOdn Diff=   0.522669738469130   1.244615505563287   0.721945767094158
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000026554
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.767285.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.904134  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=     15.78  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.522670  1.000000
+        2  0.522670  1.000000
+        3  1.244616  0.000000
+        4  1.244616  0.000000
+        5  1.387833  0.000000
+        6  1.387833  0.000000
+        7  1.481942  0.000000
+        8  1.481942  0.000000
+        9  1.532072  0.000000
+       10  1.532072  0.000000
+       11  1.558962  0.000000
+     ... 
+ T=0K, E_F=0.904134, sumev=1.045339, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     15.78   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000026554
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.000   0.000   0.000
+ sigmamode= F
+ >> level: 3  CPUsec=     15.78  enter hambls
+ >>     16.28   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5227  1.2446  1.3878  1.4819  1.5321  1.5590  1.6067  1.7492  1.7794
+  1.8425  1.8636  1.9008  1.9400  1.9507
+nev nmx ndim evl(nev)=   14   14  151     1.95070
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     16.28  enter addrbl
+ >>     16.32   exit  addrbl          0.04
+ >> level: 3  CPUsec=     16.32  enter hambls
+ >>     16.81   exit  hambls          0.50
+ bndfp:  kpt 1 of 1, k=  0.00000  0.00000  0.00000   ndimh = 151
+  0.5227  1.2446  1.3878  1.4819  1.5321  1.5590  1.6067  1.7492  1.7794
+  1.8425  1.8636  1.9008  1.9400  1.9507
+nev nmx ndim evl(nev)=   14   14  151     1.95070
+ (warning) DOS window (-1,0) reset to (0.0227,1.4041)
+  nmx nev=          14          14
+ >> level: 3  CPUsec=     16.81  enter addrbl
+ >>     16.85   exit  addrbl          0.04
+ >> level: 3  CPUsec=     16.85  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.522670  1.000000
+        2  0.522670  1.000000
+        3  1.244616  0.000000
+        4  1.244616  0.000000
+        5  1.387833  0.000000
+        6  1.387833  0.000000
+        7  1.481942  0.000000
+        8  1.481942  0.000000
+        9  1.532072  0.000000
+       10  1.532072  0.000000
+       11  1.558962  0.000000
+     ... 
+ T=0K, E_F=1.236684, sumev=1.045339, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     16.85   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2: zval fmom nmon1 nmom2=  2.00000000  0.00000000    1  1
+bzwtsf2: HOMOup LUMOup Diff=   0.522669738475955   1.244615505609570   0.721945767133616
+bzwtsf2: HOMOdn LUMOdn Diff=   0.522669738469130   1.244615505563287   0.721945767094158
+bzwtsf2: Set Bias initial cond. -Vup+Vdn=   0.000000000026554
+ ttttt amom fmom=   0.0000000000000000        0.0000000000000000      T
+
+ BZWTSF2: potential shift bracketed.  Unconstrained efermi=1.767285.
+ constraint fmom=0.000000  actual mmom=0.000000  ef=0.904134  -Vup+Vdn=0.000000
+ >> level: 3  CPUsec=     16.85  enter bzwts
+
+ BZWTS : --- Brillouin Zone sampling; N=-1, W=0 ---
+ SPLWTS: band weights .. 
+       eval      weight
+        1  0.522670  1.000000
+        2  0.522670  1.000000
+        3  1.244616  0.000000
+        4  1.244616  0.000000
+        5  1.387833  0.000000
+        6  1.387833  0.000000
+        7  1.481942  0.000000
+        8  1.481942  0.000000
+        9  1.532072  0.000000
+       10  1.532072  0.000000
+       11  1.558962  0.000000
+     ... 
+ T=0K, E_F=0.904134, sumev=1.045339, TS=0, 2 electrons
+ Entropy S=NUL k_B,  specific heat TdS/dT=0 k_B (Fermi-Dirac)
+ >>     16.85   exit  bzwts           0.00
+         Mag. moment:       0.000000
+bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=   0.000000000026554
+
+ Saved qp weights ...
+ >> level: 3  CPUsec=     16.85  enter mkrout
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    0.216873    0.206617    0.010256      0.000004    0.000004    0.000000
+       contr. to mm extrapolated for r>rmt:   0.000014 est. true mm = 0.000018
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   2    0.216873    0.206617    0.010256     -0.000004   -0.000004   -0.000000
+       contr. to mm extrapolated for r>rmt:  -0.000014 est. true mm =-0.000018
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 1:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ spin 2:
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+ >>     16.87   exit  mkrout          0.02
+ >> level: 3  CPUsec=     16.87  enter symrho
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+ >>     16.87   exit  symrho          0.00
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:H1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.107132    0.522670    1.665857    1.665834    1.500000    1.665834
+ spn 2 0    0.107128    0.522670    1.665853    1.665832    1.500000    1.665832
+ 1     0    0.001233    0.522670    2.288792    2.288788    2.250000    2.288788
+ spn 2 0    0.001233    0.522670    2.288791    2.288787    2.250000    2.288787
+ 2     0    0.000068    0.522670    3.156696    3.156696    3.147584    3.156696
+ spn 2 0    0.000068    0.522670    3.156696    3.156696    3.147584    3.156696
+ 3     0    0.000005    0.522670    4.105638    4.105638    4.102416    4.105638
+ spn 2 0    0.000005    0.522670    4.105638    4.105638    4.102416    4.105638
+ 4     0    0.000001    0.522670    5.079449    5.079449    5.077979    5.079449
+ spn 2 0    0.000001    0.522670    5.079449    5.079449    5.077979    5.079449
+
+ site    2   species   2:H2      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.107128    0.522670    1.665853    1.665832    1.500000    1.665832
+ spn 2 0    0.107132    0.522670    1.665857    1.665834    1.500000    1.665834
+ 1     0    0.001233    0.522670    2.288791    2.288787    2.250000    2.288787
+ spn 2 0    0.001233    0.522670    2.288792    2.288788    2.250000    2.288788
+ 2     0    0.000068    0.522670    3.156696    3.156696    3.147584    3.156696
+ spn 2 0    0.000068    0.522670    3.156696    3.156696    3.147584    3.156696
+ 3     0    0.000005    0.522670    4.105638    4.105638    4.102416    4.105638
+ spn 2 0    0.000005    0.522670    4.105638    4.105638    4.102416    4.105638
+ 4     0    0.000001    0.522670    5.079449    5.079449    5.077979    5.079449
+ spn 2 0    0.000001    0.522670    5.079449    5.079449    5.077979    5.079449
+
+ Harris energy:
+ sumev=        1.045339  val*vef=      -1.205569   sumtv=       2.250909
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=       0.000000
+ rhoeps=      -1.371625     utot=      -3.216928    ehar=      -2.337643
+
+ srhov:     -0.959265     -0.249184     -1.208449 sumev=    1.045339   sumtv=    2.253789
+ >> level: 3  CPUsec=     16.87  enter mkpot
+
+ avg es pot at rmt=-1.278024  avg sphere pot= 0.000340  vconst= 1.278024
+
+ smooth rhoves      6.678448   charge     1.979488
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -1.341978 (  -0.670989,  -0.670989)
+         rhomu =   -1.723327 (  -0.861663,  -0.861663)
+       avg vxc =   -0.149636 (  -0.149636,  -0.149636)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  1  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           5 F
+
+ site  2  z=  1.0  rmt= 0.65000  nr=145   a=0.015  nlml=25  rg=0.163  Vfloat=F
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -0.960591        -0.249131        -1.209722
+   rhoval*ves              0.632209        -0.078680         0.553530
+   psnuc*ves              12.724686       -19.715896        -6.991211
+   utot                    6.678448        -9.897288        -3.218840
+   rho*exc                -1.341978        -0.030615        -1.372593
+   rho*vxc                -1.723327        -0.039925        -1.763252
+   valence chg             1.979488         0.020512         2.000000
+   valence mag             0.000000         0.000000         0.000000
+   core charge             0.000000         0.000000         0.000000
+
+ Charges:  valence     2.00000   cores     0.00000   nucleii    -2.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+ >>     17.45   exit  mkpot           0.58
+
+ Kohn-Sham energy:
+ sumtv=        2.253789  sumtc=         0.000000   ekin=        2.253789
+ rhoep=       -1.372593   utot=        -3.218840   ehks=       -2.337644
+ mag. mom=     0.000000  (bands)        0.000000  (output rho)
+ >> level: 3  CPUsec=     17.45  enter mixrho
+ mixrho: sum smrho  init = 0.633417D+02-0.870307D-15 0.633417D+02       0
+ mixrho: sum smrnew new  = 0.633436D+02 0.954098D-16 0.633436D+02       0
+  
+ mixing: mode=A  nmix=2  it 5 of 6  beta=.5
+ mixrho: dqsum rmsuns=  0.61330D-07  0.19232D-04  0.71503D-19
+ mixrealsmooth= T
+ wgtsmooth=  3.97276078852330100E-003
+ mixrho:  sought 2 iter from file mixm; read 3.  RMS DQ=1.02e-6  last it=2.38e-6
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       1.979427      1.979488      1.979488      0.000027      1.979458
+ mmom         0.000000     -0.000000                                 -0.000000
+ site    1    0.010286      0.010256      0.010256      0.000012      0.010271
+ mmom         0.000001      0.000000                                  0.000000
+ site    2    0.010286      0.010256      0.010256      0.000012      0.010271
+ mmom        -0.000001     -0.000000                                 -0.000000
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=129680  beta=0.5  tm=5  rmsdel=5.09e-7
+   tj:-0.65982
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho= -3.83324382652316942E-010 -1.93598173056725710E-013
+ >>     17.59   exit  mixrho          0.14
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+ >>     17.59   exit  bndfp           3.51
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  5  of 30    ehf=      -2.337643   ehk=      -2.337644
+ From last iter    ehf=      -2.337641   ehk=      -2.337644
+ diffe(q)= -0.000002 (0.000001)    tol= 0.000010 (0.000010)   more=F
+c nk=1 dis=0 mmom=0 ehf=-2.3376434 ehk=-2.3376444
+ >>     17.60   exit  lmfp           17.57
+ Exit 0 LMF 
+ CPU time:   17.597s     Thu Aug  2 20:12:18 2012   on TT4
+
+  ==== workspace ====     calls      == cpu time ===   depth 3
+  entry   mxin  mxout                per call  total
+      0      0      0        1      17.60      17.60   main
+      0      0      0        1      17.57      17.57   `--lmfp
+      0      0      0        5       3.50      17.48      `--bndfp
+      0      0      0       10       0.63       6.26         |--mkpot
+      0      0      0       20       0.49       9.87         |--hambls
+      0      0      0       10       0.01       0.15         |--zhev_tk2
+      0      0      0       30       0.00       0.02         |--bzwts
+      0      0      0       10       0.04       0.38         |--addrbl
+      0      0      0        5       0.02       0.09         |--mkrout
+      0      0      0        5       0.00       0.00         |--symrho
+      0      0      0        5       0.13       0.66         `--mixrho

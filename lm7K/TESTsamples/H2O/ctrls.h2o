@@ -1,0 +1,5 @@
+%const alat=10.0 anga=1.0/.529177/alat d1=3.0*anga/alat
+STRUC ALAT={alat} DALAT=0 PLAT=1 0 0 0 1 0 0 0 1
+SITE  ATOM=H POS=0  -0.689440*{anga}   -0.578509*{anga}
+      ATOM=H POS=0   0.689440*{anga}   -0.578509*{anga}
+      ATOM=O POS=0 0 0

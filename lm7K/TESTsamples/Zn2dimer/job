@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py zn2 --systype=molecule --nk=1 --nspin=1 --fsmom=0.0
+cp ctrlgen2.ctrl.zn2 ctrl.zn2
+lmfa zn2 |tee llmfa
+lmf  zn2 |tee llmf

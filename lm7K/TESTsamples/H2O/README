@@ -1,0 +1,7 @@
+Look into job and jobrelax
+jobrelax use ctrl.relax.h2o as ctrl file.
+It gives structure relaxiation.
+
+Final position is in log.h2o file. (also included in rst.h2o file--->
+this may be a little problematic since structure is taken from rst
+file). Do lmf --help to set where we read structure.

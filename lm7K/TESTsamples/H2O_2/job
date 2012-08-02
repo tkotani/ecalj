@@ -1,0 +1,5 @@
+#!/bin/bash
+ctrlgen2.py h2o_2 --systype=molecule --nk=1 --nspin=1 --fsmom=0.0
+cp ctrlgen2.ctrl.h2o_2 ctrl.h2o_2
+lmfa h2o_2 |tee llmfa
+lmf  h2o_2 |tee llmf

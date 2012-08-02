@@ -1,0 +1,4 @@
+#!/bin/bash
+cp ctrl.relax.h2o ctrl.h2o
+lmfa h2o |tee llmfa
+lmf  h2o |tee llmf

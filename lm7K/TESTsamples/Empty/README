@@ -1,0 +1,5 @@
+Not working ...(2ndAug2012).
+
+It is necessay to avoid nev/=nevx near zhev_tk2 in bndfp.F.
+Previous version worked for emty band. But not now .
+Need to fix it. It should be easy...
