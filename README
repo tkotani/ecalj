@@ -2,6 +2,8 @@
 (this document is checked on 2ndAug2012.)
 https://github.com/tkotani/ecalj
 
+ecalj is a firts-principle electronic structure calculation package in f90.
+
 (1)All electron full potential PMT method (LAPW+LMTO)
    Related source codes are in ecalj/lm7K/ 
 
@@ -15,7 +17,8 @@ https://github.com/tkotani/ecalj
    ---> this may mess up some methods which was available in previous
    version. Then use old version in ecalj.git (gitk --all and check it out).
  
-QSGW is still difficult to handle (only work with LMTO now).
+NOTE:
+1)QSGW is still difficult to handle (only work with LMTO now).
 
 ====================================================
 Our home page is at http://pmt.sakura.ne.jp/wiki/,

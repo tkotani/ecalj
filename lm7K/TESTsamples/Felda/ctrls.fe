@@ -1,6 +1,0 @@
-% const  dalat=0 a=2.76/0.529177 
-STRUC   NBAS=1 NSPEC=1
-        ALAT={a} DALAT={dalat}
-        PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
-  NBAS= 1  NSPEC=1
-SITE    ATOM=Fe POS= 0 0 0

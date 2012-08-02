@@ -1,5 +1,0 @@
-% const verb=35 so=0 kmxa=5 pwemax=5 lmxa=5 dalat=0 a=2.76/0.529177 
-STRUC   NBAS=1 NSPEC=1
-        ALAT={a} DALAT={dalat}
-        PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
-SITE    ATOM=Fe POS= 0 0 0

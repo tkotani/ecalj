@@ -1,5 +1,0 @@
-#!/bin/bash
-ctrlgen2.py fe --systype=bulk --nk=6 --nspin=2
-cp ctrlgen2.ctrl.fe ctrl.fe
-#lmfa fe |tee llmfa
-#lmf  fe |tee llmf

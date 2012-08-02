@@ -1,6 +1,0 @@
-#!/bin/bash
-ddd=gas
-lmdir=../..
-$lmdir/lmfa li  |tee llmfa
-rm rst.* mix.* moms.* 
-$lmdir/lmf li   |tee llmf

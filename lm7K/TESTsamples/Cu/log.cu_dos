@@ -1,175 +1,58 @@
- -----------------------  START LMF      -----------------------
- HEADER Cu
-
- LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
- special:  APW basis
- pot:      XC:BH
- bz:       metal(3), tetra, invit 
-bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837648  loc   7.162352  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9739976  rexc      -129.9211315  rves   -6533.9681142
-fp pot  rex       -124.8966256  rec         -5.0245059
-fp pot  rvvxcv     -20.6144209  rvexcv     -15.7140643
-fp pot  rvexv      -14.2361274  rvecv       -1.4779369
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016061  sev -2.748468  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016061  sev -2.748468  zval 11.0 qval 11.0
-fp Har: U   -6533.968114  T    3359.125937  sev     -2.748468  EH   -3304.763309
-fp qvl  11.000000  sm   3.836154  loc   7.163846  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9813444  rexc      -129.9266759  rves   -6534.0137996
-fp pot  rex       -124.9020268  rec         -5.0246491
-fp pot  rvvxcv     -20.6192592  rvexcv     -15.7177203
-fp pot  rvexv      -14.2396685  rvecv       -1.4780519
-fp KS: U   -6534.0137996 T    3359.1771706 Exc   -129.9266759 EKS  -3304.7633049
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.54e-5  mx loc 6.66e-5  dq 1.01e-4
- CPU time:    3.140s     Wed Mar 18 11:12:27 2009   on  
- wkinfo:  used  1013 K  workspace of 80000 K   in  43 K calls
- -----------------------  START LMF      -----------------------
- HEADER Cu
-
- LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
- special:  APW basis
- pot:      XC:BH
- bz:       metal(3), tetra, invit 
-bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837648  loc   7.162352  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9739976  rexc      -129.9211315  rves   -6533.9681142
-fp pot  rex       -124.8966256  rec         -5.0245059
-fp pot  rvvxcv     -20.6144209  rvexcv     -15.7140643
-fp pot  rvexv      -14.2361274  rvecv       -1.4779369
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016061  sev -2.748468  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016061  sev -2.748468  zval 11.0 qval 11.0
-fp Har: U   -6533.968114  T    3359.125937  sev     -2.748468  EH   -3304.763309
-fp qvl  11.000000  sm   3.836154  loc   7.163846  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9813444  rexc      -129.9266759  rves   -6534.0137996
-fp pot  rex       -124.9020268  rec         -5.0246491
-fp pot  rvvxcv     -20.6192592  rvexcv     -15.7177203
-fp pot  rvexv      -14.2396685  rvecv       -1.4780519
-fp KS: U   -6534.0137996 T    3359.1771706 Exc   -129.9266759 EKS  -3304.7633049
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.54e-5  mx loc 6.66e-5  dq 1.01e-4
- wkinfo:  used  1013 K  workspace of 80000 K   in  43 K calls
- -----------------------  START LMF      -----------------------
- HEADER Cu
-
- LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
- special:  APW basis
- pot:      XC:BH
- bz:       metal(3), tetra, invit 
-bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837675  loc   7.162325  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9738955  rexc      -129.9210545  rves   -6533.9673468
-fp pot  rex       -124.8965504  rec         -5.0245041
-fp pot  rvvxcv     -20.6143564  rvexcv     -15.7140155
-fp pot  rvexv      -14.2360801  rvecv       -1.4779355
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016085  sev -2.748815  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016085  sev -2.748815  zval 11.0 qval 11.0
-fp Har: U   -6533.967347  T    3359.125092  sev     -2.748815  EH   -3304.763309
-fp qvl  11.000000  sm   3.836043  loc   7.163957  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9817017  rexc      -129.9269454  rves   -6534.0165088
-fp pot  rex       -124.9022899  rec         -5.0246554
-fp pot  rvvxcv     -20.6194843  rvexcv     -15.7178904
-fp pot  rvexv      -14.2398335  rvecv       -1.4780569
-fp KS: U   -6534.0165088 T    3359.1801488 Exc   -129.9269454 EKS  -3304.7633053
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.64e-5  mx loc 7.22e-5  dq 1.09e-4
- wkinfo:  used  1013 K  workspace of 80000 K   in  43 K calls
- -----------------------  START LMF      -----------------------
- HEADER Cu
-
- LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
- special:  APW basis
- pot:      XC:BH
- bz:       metal(3), tetra, invit 
-bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837675  loc   7.162325  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9738955  rexc      -129.9210545  rves   -6533.9673468
-fp pot  rex       -124.8965504  rec         -5.0245041
-fp pot  rvvxcv     -20.6143564  rvexcv     -15.7140155
-fp pot  rvexv      -14.2360801  rvecv       -1.4779355
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016085  sev -2.748815  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016085  sev -2.748815  zval 11.0 qval 11.0
-fp Har: U   -6533.967347  T    3359.125092  sev     -2.748815  EH   -3304.763309
-fp qvl  11.000000  sm   3.836043  loc   7.163957  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9817017  rexc      -129.9269454  rves   -6534.0165088
-fp pot  rex       -124.9022899  rec         -5.0246554
-fp pot  rvvxcv     -20.6194843  rvexcv     -15.7178904
-fp pot  rvexv      -14.2398335  rvecv       -1.4780569
-fp KS: U   -6534.0165088 T    3359.1801488 Exc   -129.9269454 EKS  -3304.7633053
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.64e-5  mx loc 7.22e-5  dq 1.09e-4
- wkinfo:  used  1013 K  workspace of 80000 K   in  43 K calls
- -----------------------  START LMF      -----------------------
- HEADER Cu
-  LMF  vn 7.00(LMF 7.0)  verb 31,20
+  LMF  vn 7.00(LMF 7.0)  verb 35
  special:  APW basis
  bz:       metal(3), tetra, invit, fixed-spin-mom 
 bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837618  loc   7.162382  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9740422  rexc      -129.9211652  rves   -6533.9682842
-fp pot  rex       -124.8966583  rec         -5.0245069
+dm  L 41 ( 16 16 9 )  I 0 ( 0 0 0 )  H 18 ( 9 9 0 )  N 16
+fp qvl  19.000000  sm   5.130266  loc  13.869734  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -175.8374967  rexc      -135.3035686  rves   -6542.1702139
+fp pot  rex         -3.3269407  rec         -0.5300716
 fp pot  rvvxcv       0.0000000  rvexcv       0.0000000
 fp pot  rvexv        0.0000000  rvecv        0.0000000
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016047  sev -2.748263  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016047  sev -2.748263  zval 11.0 qval 11.0
-fp Har: U   -6533.968284  T    3359.126186  sev     -2.748263  EH   -3304.763263
-fp qvl  11.000000  sm   3.836199  loc   7.163801  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9811626  rexc      -129.9265388  rves   -6534.0123981
-fp pot  rex       -124.9018928  rec         -5.0246460
+fp evl -8.0229 -4.8851 -4.8851 -4.8851 -0.4456  0.0300  0.0300  0.0300
+fp evl  0.0935  0.0935  1.9248  2.1256  2.1256  2.1256  2.3046  2.3046
+fp evl  2.3046  2.5934  2.9627  2.9627
+nv nkp   72  ebot  -8.0229   qval   19.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef 0.259896  sev -45.055420  zval 19.0 qval 19.0
+fp evl -8.0229 -4.8851 -4.8851 -4.8851 -0.4456  0.0300  0.0300  0.0300
+fp evl  0.0935  0.0935  1.9248  2.1256  2.1256  2.1256  2.3046  2.3046
+fp evl  2.3046  2.5934  2.9627  2.9627
+nv nkp   72  ebot  -8.0229   qval   19.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef 0.259896  sev -45.055420  zval 19.0 qval 19.0
+fp Har: U   -6542.170214  T    3367.507043  sev    -45.055420  EH   -3309.966739
+fp qvl  19.000000  sm   5.123876  loc  13.876124  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -175.8600669  rexc      -135.3206715  rves   -6542.3106593
+fp pot  rex         -3.3230787  rec         -0.5294120
 fp pot  rvvxcv       0.0000000  rvexcv       0.0000000
 fp pot  rvexv        0.0000000  rvecv        0.0000000
-fp KS: U   -6534.0123981 T    3359.1756770 Exc   -129.9265388 EKS  -3304.7632599
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.47e-5  mx loc 6.38e-5  dq 8.95e-5
- -----------------------  START LMF      -----------------------
- HEADER Cu
-  LMF  vn 7.00(LMF 7.0)  verb 31,20
+fp KS: U   -6542.3106593 T    3367.6646210 Exc   -135.3206715 EKS  -3309.9667097
+fp 4g  ;Anderson n 0 beta 0.5  sm-dq 1.26e-4  mx loc 3.23e-4  dq 2.97e-4
+ CPU time:    3.028s     Thu Aug  2 18:42:14 2012   on  
+  LMF  vn 7.00(LMF 7.0)  verb 35
  special:  APW basis
  bz:       metal(3), tetra, invit, fixed-spin-mom 
 bz  nq 72 ( 12 12 12 )  shift  F F F
-dm  L 9  I 0  H 27  N 0 
-fp qvl  11.000000  sm   3.837618  loc   7.162382  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9740422  rexc      -129.9211652  rves   -6533.9682842
-fp pot  rex       -124.8966583  rec         -5.0245069
+dm  L 41 ( 16 16 9 )  I 0 ( 0 0 0 )  H 18 ( 9 9 0 )  N 16
+fp qvl  19.000000  sm   5.130266  loc  13.869734  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -175.8374967  rexc      -135.3035686  rves   -6542.1702139
+fp pot  rex         -3.3269407  rec         -0.5300716
 fp pot  rvvxcv       0.0000000  rvexcv       0.0000000
 fp pot  rvexv        0.0000000  rvecv        0.0000000
-fp evl
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016047  sev -2.748263  zval 11.0 qval 11.0
-fp evl -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605
-fp evl  1.8605
-nv nkp   72  ebot  -0.7177   qval   11.0000  qbg  0.0000  smr  0.0050
-bz met T  tet T  ef -0.016047  sev -2.748263  zval 11.0 qval 11.0
-fp Har: U   -6533.968284  T    3359.126186  sev     -2.748263  EH   -3304.763263
-fp qvl  11.000000  sm   3.836199  loc   7.163801  qbg   0.000000 dQ   0.000000
-fp pot  rvxc      -171.9811626  rexc      -129.9265388  rves   -6534.0123981
-fp pot  rex       -124.9018928  rec         -5.0246460
+fp evl -8.0229 -4.8851 -4.8851 -4.8851 -0.4456  0.0300  0.0300  0.0300
+fp evl  0.0935  0.0935  1.9248  2.1256  2.1256  2.1256  2.3046  2.3046
+fp evl  2.3046  2.5934  2.9627  2.9627
+nv nkp   72  ebot  -8.0229   qval   19.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef 0.259896  sev -45.055420  zval 19.0 qval 19.0
+fp evl -8.0229 -4.8851 -4.8851 -4.8851 -0.4456  0.0300  0.0300  0.0300
+fp evl  0.0935  0.0935  1.9248  2.1256  2.1256  2.1256  2.3046  2.3046
+fp evl  2.3046  2.5934  2.9627  2.9627
+nv nkp   72  ebot  -8.0229   qval   19.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef 0.259896  sev -45.055420  zval 19.0 qval 19.0
+fp Har: U   -6542.170214  T    3367.507043  sev    -45.055420  EH   -3309.966739
+fp qvl  19.000000  sm   5.123876  loc  13.876124  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -175.8600669  rexc      -135.3206715  rves   -6542.3106593
+fp pot  rex         -3.3230787  rec         -0.5294120
 fp pot  rvvxcv       0.0000000  rvexcv       0.0000000
 fp pot  rvexv        0.0000000  rvecv        0.0000000
-fp KS: U   -6534.0123981 T    3359.1756770 Exc   -129.9265388 EKS  -3304.7632599
-fp 4g  ;Anderson n 0 beta 1  sm-dq 4.47e-5  mx loc 6.38e-5  dq 8.95e-5
+fp KS: U   -6542.3106593 T    3367.6646210 Exc   -135.3206715 EKS  -3309.9667097
+fp 4g  ;Anderson n 0 beta 0.5  sm-dq 1.26e-4  mx loc 3.23e-4  dq 2.97e-4
+ CPU time:    3.072s     Thu Aug  2 18:42:17 2012   on  

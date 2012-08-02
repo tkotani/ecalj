@@ -1,4 +1,0 @@
-rm save.li
-tcsh ctrl.li
-job_to_dat >dat
-ggg_plottest
