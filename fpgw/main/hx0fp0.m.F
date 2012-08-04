@@ -1,3 +1,5 @@
+!! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
+!! (only epsPP_lmf_chipm mode works).
       program hx0fp0
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
@@ -242,6 +244,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
       logical:: eibz4x0,tiii,iprintx
+      real(8):: qread(3)
 c      integer(4),allocatable :: iclasst(:)
 !! -------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -306,7 +309,8 @@ c        iepsmode=203
         omitqbz=.true.
 ! Total energy modes
       elseif(ixc==12) then
-        write(6,*) " OK ixc=12 Miyake's total energy Sergey"
+        write(6,*) " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
+        stop " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
         imagonly=.true.
         ecorr_on=901
 !     -- chipm mode NoLFC
@@ -314,7 +318,7 @@ c        iepsmode=203
         write(6,*) " OK ixc=222    chipm sergey's "
         realonly=.true.
         omitqbz=.true.
-        eiqr =.true.
+        eiqr =.false. ! .true. aug2012
 !     -- chipm mode NoLFC
 c      elseif(ixc==10222) then
 c        write(6,*) " OK ixc=10222  <q|chipm_0|q> sergey"
@@ -324,7 +328,8 @@ c        omitqbz=.true.
 c        eiqr =.true.
 !     -- eps mode with LFC
       elseif(ixc==223) then
-        write(6,*) " OK ixc=223  chipm with LFC sergey's  "
+        write(6,*) " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary."
+        stop " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary."
         realonly=.true.
         omitqbz=.true.
         eiqr =.true.
@@ -1119,7 +1124,8 @@ c      endif
         allocate( rcxqmean(1,1,1,1)) !dummy
       endif
 
-      if(chipm) allocate(eiqrm(nmbas))
+
+c      if(chipm) allocate(eiqrm(nmbas)) 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cctakao
@@ -1220,7 +1226,7 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 
       allocate( llw(nw_i:nw,iqxini:iqxend), llwI(niw,iqxini:iqxend) )
       ifisk=iopen('WKcomponent',0,-1,0)
-      ifvcoud = iopen('Vcoud',0,0,0)
+      if(.not.chipm) ifvcoud = iopen('Vcoud',0,0,0)
 
 !! == Calculate x0(q,iw) and W == main loop for iq. 
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
@@ -1229,51 +1235,59 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
         q = qibze(:,iq)
         if(iq<=nqibz.or.ngczero) then  ! iqx = iq
           qq=q
-        elseif(ixc==11) then !    iqx = 1             ! corresponding q=0
-          qq=0d0
-        else
-          qq=q 
+        else !(ixc==11) then !    iqx = 1             ! corresponding q=0
+          qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0
         endif
         call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
+!! Caution : confusing point
+!!  ngc by QGcou is shown at the bottom of lqg4gw.
+!!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
+!!
         if( newaniso2.and.iq==1 ) then ! *sanity check
           if(sum(q**2)>1d-10) then
             stop ' hx0fp0: sanity check. |q(iqx)| /= 0'
           endif
         endif
 !! ==== readin Coulomb matrix ====
-        if((chipm.and.(.not.legas).and.(.not.eiqr)).or.newaniso2) then
-          allocate(vcoul(1,1))!dummy
+c        if((chipm.and.(.not.legas).and.(.not.eiqr)).or.newaniso2) then
+c          allocate(vcoul(1,1))!dummy
           ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
-        else
-          read(ifvcfpout) ngb       ! oct2005 !I added ngb to VCCFP
-          allocate(vcoul(ngb,ngb))
-          read(ifvcfpout) vcoul,qx  ! coulomb matrix
-          if(sum(q**2)<1d-10) then
-            if(sum(qx**2) >1d-7)stop'qx=0 xxx See hvccfp0'
-          elseif(sum(abs(q-qx))>1d-10) then
-            write(6,"('iq q=',i5,3d15.7,' qx(VCCFP)=',3d15.7)")iq,q,qx
-            stop 'hx0fp0: VCCFP is not compatible'
-          endif
+c        else
+c          read(ifvcfpout) ngb       ! oct2005 !I added ngb to VCCFP
+c          allocate(vcoul(ngb,ngb))
+c          read(ifvcfpout) vcoul,qx  ! coulomb matrix
+c          if(sum(q**2)<1d-10) then
+c            if(sum(qx**2) >1d-7)stop'qx=0 xxx See hvccfp0'
+c          elseif(sum(abs(q-qx))>1d-10) then
+c            write(6,"('iq q=',i5,3d15.7,' qx(VCCFP)=',3d15.7)")iq,q,qx
+c            stop 'hx0fp0: VCCFP is not compatible'
+c          endif
 c         if(sum(abs(q-qx))>1d-10) then
 c         write(6,"('iq q=',i5,3f9.4,' qx(VCCFP)=',3f9.4)")iq,q,qx
 c         stop 'hx0fp0: VCCFP is not compatible'
 c         endif
-        endif
+c        endif
         write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
         print *,'nbloch ngb ngc=',nbloch,ngb,ngc
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
 
-        if(newaniso2) then
+
 !! qq is used.
-          if(sum(abs(qq))<1d-6) then !reopen Vcoud
+        if(ixc==11) then
+          qread=qq
+        else
+          qread=q
+        endif   
+        if(newaniso2.and.(.not.chipm)) then
+          if(sum(abs(qread))<1d-6) then !reopen Vcoud
             idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
             ifvcoud = iopen('Vcoud',0,0,0)
           endif
           read(ifvcoud) ngb0
           read(ifvcoud) qvv
 c         print *,'qvv=',qvv
-          if(sum(abs(qvv-qq))>1d-10) then
+          if(sum(abs(qvv-qread))>1d-10) then
             print *,'qvv =',qvv
             stop 'hx0fp0: qvv/=0 hvcc is not consistent'
           endif
@@ -1287,7 +1301,8 @@ c         enddo
           read(ifvcoud) zcousq
           vcousq=sqrt(vcousq)
         endif
-
+        print *,'zzzzzzzzzzz1'
+      
 !! ==== nolfco is overlaid ====
         if(newaniso2.and. iq>nqibz.and.ixc==11  ) then !for mmmw
 cc        if(.false.) then !comment out for mmmz
@@ -1300,10 +1315,10 @@ cc        if(.false.) then !comment out for mmmz
           nmbas2 = ngb
           if(allocated(rcxqmean)) deallocate(rcxqmean)
 c          if(allocated(x0mean)  ) deallocate(x0mean)
-          if(allocated(zzr))      deallocate(zzr)
+c          if(allocated(zzr))      deallocate(zzr)
           allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
 c          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
-          allocate( zzr(ngb,ngb) )
+c          allocate( zzr(ngb,ngb) )
           rcxqmean= 0d0
         elseif(newaniso2.and.ixc==11) then !.and.iq==1) then
           nmbas1=ngb !meaningful in dpsion5, not used in x0kf_v4h.
@@ -1316,16 +1331,17 @@ c          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
           nmbas2=ngb
         endif
 
-        if(newaniso2) then
+        if(chipm.and.nolfco) then
+        elseif(newaniso2) then
           if(allocated(ppovlz)) deallocate(ppovlz)
           if(allocated(ppovlzinv)) deallocate(ppovlzinv)
           if(allocated(ppovl)) deallocate(ppovl)
           allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
-          call readppovl0(qq,ngc,ppovl)
+          call readppovl0(qread,ngc,ppovl)
           ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
           ppovlz(nbloch+1:nbloch+ngc,:) 
      &      = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-          if(allocated(zzr)) zzr = ppovlz
+c          if(allocated(zzr)) zzr = ppovlz
 c          deallocate(ppovl)
           write(*,*)'nnnnn',nbloch+ngc,ngb
 ccccccccccccccccccccccccccccccccccccccccccccc
@@ -1337,65 +1353,65 @@ c          enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
         endif
 
+
 !! ==== set up for epsilon mode =====
         if(epsmode) then !iepsmode/=0) then      ! only calculate iq>nqibz
-          if(iq<=nqibz) then
-            deallocate(vcoul)
-            cycle  !Cycle here
-          endif
+           print *,'vvvvvvvv goto epsmode xxxxxxxxx'
+c          if(iq<=nqibz) then
+c            deallocate(vcoul)
+c            cycle  !Cycle here
+c          endif
           iqixc2 = iq- (nqibz+nq0ix)
 
-! Readin Mix0vec for any eps mode.
-!          if((.not.chipm).or.legas.or.eiqr) then
-          read(ifgb0vec,*) qgbin(1:3),ngbin,igc0dummy,dnorm
-          if(sum(abs(q))==0d0) then
-            if(sum(qgbin**2) >1d-7)stop'qgbin=0 xxx See hvccfp0'
-          elseif(sum(abs(qgbin(1:3)-q)) >1d-8)then
-            stop 'qgbin inconsistent'
-          endif
-! zzr and gbvec
-          write(6,"(' --- Readin Mix0vec: ',3d13.6,2i5,d18.8)") qgbin(1:3),ngbin
-          if(ngb/=ngbin) stop 'hx0fp0: ngb/=ngbgin'
-          write(6,"(' ngb nwp niw=',3i8)")ngb,nwp,niw
-          allocate( gbvec(ngb),zzr(ngb,1),x0mean(nw_i:nw,1,1))
-          x0mean=0d0
-          do i=1,ngb
-            read(ifgb0vec,"(4d24.15)") zz1,zz2,zz3,zz4
-! /dnorm at 14June2008
-! gbvec and zzr do not change because we avoid /dnorm in hvccfp0.
-! This measn that we changed the definition of gbvec and zzr. See hvccfp0
-! dcmplx(zz3,zz4) is zzr defined in hvccfp0; this equals <eiqr|B_I>.
-! NOTE: dnorm = \sum_I <eiqr|I><I|eiqr> = volume of unit cell (or sum of MT volume if no IPW).
-            gbvec(i)= dcmplx(zz1,zz2)/dnorm
-            zzr(i,1)= dcmplx(zz3,zz4)/dnorm
-          enddo
-          write(6,"(' normchk=',255d23.15)") sum( dconjg(gbvec)*zzr(:,1) )
-     &        ,sum(abs(gbvec(:))), sum(abs(zzr(:,1)))
+c! Readin Mix0vec for any eps mode.
+c!          if((.not.chipm).or.legas.or.eiqr) then
+c          read(ifgb0vec,*) qgbin(1:3),ngbin,igc0dummy,dnorm
+c          if(sum(abs(q))==0d0) then
+c            if(sum(qgbin**2) >1d-7)stop'qgbin=0 xxx See hvccfp0'
+c          elseif(sum(abs(qgbin(1:3)-q)) >1d-8)then
+c            stop 'qgbin inconsistent'
+c          endif
+c! zzr and gbvec
+c          write(6,"(' --- Readin Mix0vec: ',3d13.6,2i5,d18.8)") qgbin(1:3),ngbin
+c          print *,'ngb ngbin=',ngb,ngbin
+c          if(ngb/=ngbin) stop 'hx0fp0: ngb/=ngbgin'
+c          write(6,"(' ngb nwp niw=',3i8)")ngb,nwp,niw
+c          if(allocated(zzr0))      deallocate(zzr0)
+c          allocate( gbvec(ngb),zzr0(ngb))
+          if((.not.chipm).and.nolfco) then
+            allocate( x0mean(nw_i:nw,1,1) )
+            x0mean=0d0
+          endif  
 
-! this is for chipm
-          if(chipm) then
-            ii=0
-            do imb=1,nmbas
-              ibas= imbas(imb) !dec26 2006 bug: imb--->ibas
-              if(ibas>1) i= sum(nblocha(1:ibas-1))
-! *dnorm at 14June2008
-!  Before it, eiqrm is a little wrong when no PW is included (normlzimation error).
-              eiqrm(imb)= sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb) *dnorm
-!  mmnorm is moved to trr
-              write(6,"(' <eiqr|m>/|m| =',255d23.15)") eiqrm(imb)
-              if( imbas_s(imb)<-1) eiqrm(imb)= -eiqrm(imb)
-c              if( imbas_s(imb)<-1) zzr(i+1:i+nblocha(ibas), 1)= -zzr( i+1:i+nblocha(ibas), 1)
-            enddo
-          endif
-! This override zzr
+c          do i=1,ngb
+c            read(ifgb0vec,"(4d24.15)") zz1,zz2,zz3,zz4
+c! /dnorm at 14June2008
+c! gbvec and zzr0 do not change because we avoid /dnorm in hvccfp0.
+c! This measn that we changed the definition of gbvec and zzr. See hvccfp0
+c! dcmplx(zz3,zz4) is zzr defined in hvccfp0; this equals <eiqr|B_I>.
+c! NOTE: dnorm = \sum_I <eiqr|I><I|eiqr> = volume of unit cell (or sum of MT volume if no IPW).
+c            gbvec(i)= dcmplx(zz1,zz2)/dnorm
+c            zzr0(i) = dcmplx(zz3,zz4)/dnorm
+c          enddo
+c          write(6,"(' normchk=',255d23.15)") sum( dconjg(gbvec)*zzr0(:) )
+!!
+c          if(chipm) then
+c            ii=0
+c            do imb=1,nmbas
+c              ibas= imbas(imb) !dec26 2006 bug: imb--->ibas
+c              if(ibas>1) i= sum(nblocha(1:ibas-1))
+c              eiqrm(imb)= sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb) *dnorm
+c              write(6,"(' <eiqr|m>/|m| =',255d23.15)") eiqrm(imb)
+c              if( imbas_s(imb)<-1) eiqrm(imb)= -eiqrm(imb)
+c           enddo
+c          endif
+
+!! zzr is only for chipm.and.nolfco mode
           if(chipm .and.nolfco) then
-            deallocate(zzr,x0mean)
             allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,nmbas))
             x0mean=0d0
             zzr   =0d0
             zzr(1:nbloch,1:nmbas) = svec(1:nbloch,1:nmbas)
-cc            print *,' zzr=cvec mode'
-cc            zzr(1:nbloch,1:nmbas) = cvec(1:nbloch,1:nmbas)
           endif
 
           if( wqt(iq-nqibz)==0d0.and.chipm ) then
@@ -1406,13 +1422,14 @@ c            ifchipmn=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.dat',1,3,0)
             write(ifchipmn_mat,"(255i5)") imbas(1:nmbas)
             write(ifchipmn_mat,"(255d23.15)") momsite(1:nmbas)
             write(ifchipmn_mat,"(255d23.15)")  mmnorm(1:nmbas)
-            write(ifchipmn_mat,"(255d23.15)")  eiqrm(1:nmbas)
+c            write(ifchipmn_mat,"(255d23.15)") eiqrm(1:nmbas)!if necessary, fix code to give eiqrm. takaoAug2012
+            write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')") 
             if(.not.nolfco) then
               ifchipm_fmat=iopen('ChiPM'//charnum4(iqixc2)//'.fmat',0,3,0)
               write(ifchipm_fmat) nbloch, natom,nmbas, iqxini,iqxend, nw_i,nw
               write(ifchipm_fmat) imbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
               write(ifchipm_fmat) nblocha(1:natom),svec(1:nbloch,1:nmbas)
-              write(ifchipm_fmat) zzr(1:nbloch,1)
+              write(ifchipm_fmat) zzr0(1:nbloch) !zzr(1:nbloch,1)
             endif
           elseif(wqt(iq-nqibz)==0d0.and.(.not.chipm)) then
 !! ... Open EPS* file
@@ -1428,6 +1445,8 @@ c            ifchipmn=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.dat',1,3,0)
             endif
           endif
         endif
+
+           print *,'vvvvvvvv goto epsmode xxxxxxxxx222222222'
 
         if(epsmode.and.nolfco) then !iepsmode==202) then
 c          allocate( rcxq(1,1,1,npm) )

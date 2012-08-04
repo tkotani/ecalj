@@ -452,13 +452,14 @@ c        eee = eees()
       else
         eee=0d0
       endif
+
 !! for eps_lmf and epsPP_lmf mode, 
 !! even the small eee=1d-4 can affect to dielectric function near q=0 when its values is large as one-hundred or more.
 !! Thus we set eee=0d0 to avoid this.
       if(imode==202) then !
          eee=0d0
       endif
-ccccccccccccccccccc
+
       write(6,"(' Coulomb is exp(sqrt(-eee)*r)/r. eee=',d13.6,d13.6)")eee
 
 C--- bessel and hankel for the expansion of exp(-r/r_0)/r.
@@ -720,9 +721,9 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
           qq = q
         endif
 cccccccccccccccccccccccc
-        if(imode==202) then !for iqx>nqibz
-           qq=q
-        endif
+c        if(imode==202) then !for iqx>nqibz
+c           qq=q
+c        endif
 cccccccccccccccccccccccc
 
         if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012

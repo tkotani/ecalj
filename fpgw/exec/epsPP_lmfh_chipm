@@ -67,7 +67,7 @@ echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
 echo 1|$nfpgw/heftet      >leftet
 
 echo 8|$nfpgw/hbasfp0 >lbas
-echo 202|$nfpgw/hvccfp0        >lvcc	
+#echo 202|$nfpgw/hvccfp0        >lvcc	
 
 echo 222|$nfpgw/hx0fp0  >lx0
 
