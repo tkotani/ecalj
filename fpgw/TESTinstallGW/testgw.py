@@ -131,11 +131,11 @@ commands.append(['lmfa gas > llmfa','lmf gas>llmf','epsPP_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
 ef1='EPS0001.nlfc.dat '
 ef3='EPS0003.nlfc.dat '
-ef5='EPS0005.nlfc.dat '
+ef4='EPS0004.nlfc.dat '
 comp1= 'diffnum '+ef1+ datadir+ef1+comparekey
 comp3= 'diffnum '+ef3+ datadir+ef3+comparekey
-comp5= 'diffnum '+ef5+ datadir+ef5+comparekey
-testcommand.append([comp1,comp3,comp5 ])
+comp4= 'diffnum '+ef4+ datadir+ef4+comparekey
+testcommand.append([comp1,comp3,comp4 ])
 
 #
 testn='fe_epsPP_lmfh_chipm'

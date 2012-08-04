@@ -1,4 +1,4 @@
-Chi_RegQbz off
+!Chi_RegQbz off ---> this is not allowed now (aug2012)
 !BZmesh     2    ! Offset Gamma point mesh
 
 ! Text following "!" are comments
@@ -16,17 +16,17 @@ NormChk    0    ! 1,2 writes norm check files (diagonal or full)
 
 ! ##### From GWIN0 ################
 n1n2n3  2 2 2 
-QpGcut_psi 5.0   !|q+G| cutoff for eigenfunction
-QpGcut_cou 3.5   !|q+G| cutoff for coulomb int.
+QpGcut_psi 4.0   !|q+G| cutoff for eigenfunction
+QpGcut_cou 3.0   !|q+G| cutoff for coulomb int.
 unit_2pioa on   ! off --> units of 2 preceding Gcut are a.u.; on--> units are 2*pi/alat
 alpha_OffG 1    !(a.u.) parameter in the auxiliary function in the offset-Gamma 
 !nband_chi0 999 !nband cutoff for chi0  (Optional)
 !emax_chi0 999. !emax  cutoff for chi0, Ry  (Optional)
 !nband_sigm 999 !nband cutoff for Sigma (Optional)
 emax_sigm 3   ! Energy cutoff for Sigma, Ry (Optional)
-dw       0.001  !mesh spacing along Real axis (Ry)
+dw       0.01  !mesh spacing along Real axis (Ry)
 !omg_c   0.04   !Used in S. Faleev's real-axis mode
-omg_c    .3     !Used in S. Faleev's real-axis mode
+omg_c    .05    !Used in S. Faleev's real-axis mode
 iSigMode 3      !scGW mode switch (scGW only)
 niw      6      !# freq. on Im axis; used for integration to make Sigma_c
 delta    -1e-8  !delta-function broadening for calc. x0, a.u.. delta<0-->tetrahedron
@@ -42,7 +42,7 @@ GaussSmear on   !on --> broadening of poles in G(LDA) by Gaussian
   tolerance = minimum eigenvalue in PB overlap
    1.00000E-03
   lcutmx(atom) = l-cutoff for the product basis
-  4  4  3  3
+  2 2 2 2  #4 4 3 3 
   atom   l  nnvv  nnc ! nnvv: num. radial functions (valence) for augmentation-waves. nnc = num. for core.
     1    0    2    3
     1    1    2    2
@@ -152,7 +152,7 @@ GaussSmear on   !on --> broadening of poles in G(LDA) by Gaussian
 
 <QforEPSL>
 0d0 0d0 0d0   .1d0   0d0  0d0 2
-0d0 0d0 0d0   .1d0  .1d0  0d0 2
+0d0 0d0 0d0   .1d0  .1d0  0d0 1
 </QforEPSL>
 
 

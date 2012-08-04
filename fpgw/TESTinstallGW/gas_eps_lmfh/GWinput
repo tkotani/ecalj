@@ -1,4 +1,4 @@
-Chi_RegQbz off
+!Chi_RegQbz off ---> this is not allowed now (aug2012)
 !BZmesh     2    ! Offset Gamma point mesh
 
 ! Text following "!" are comments
