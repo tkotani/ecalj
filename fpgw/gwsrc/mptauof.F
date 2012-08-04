@@ -240,9 +240,9 @@ c          if(iprintx) print *,' ibz neibzx',ibz,neibzx
      &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
      &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
         neibz(iq)=neibzx !number of eibz for iq
-        if(iprintx)write(6,"('eibz: iq neibz nqbz= ',i3,3f10.4,3i3)") iq,q,neibz(iq),nqbz
+        if(iprintx)write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i3)") iq,q,neibz(iq),nqbz
         do ik=1,nqbz
-           if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i3,3f10.4,i4,2x,25(i4,i2))") ik, qbz(:,ik),nwgt(ik,iq)
+           if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") ik, qbz(:,ik),nwgt(ik,iq)
      &       ,(igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
         enddo
 cccccccccc
@@ -263,9 +263,7 @@ ccccccccc
         if(iprintx) print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
       enddo
       if(iprintx) print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
-     &   sum(neibz(iqxini:iqxend-1)), nwgtsum, nqbz*(iqxend-iqxini+1-1)
-
-
+     &   sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1-1)
       end
 
       subroutine mptauof(symops,ng,plat,nbas,bas,

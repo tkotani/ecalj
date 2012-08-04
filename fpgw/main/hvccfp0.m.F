@@ -106,14 +106,14 @@ C --- paralell or not
       call cputid (0)
       if(imode==202 ) then
         write(6,*)' hvccfp0: imode=',imode
-      elseif(imode==101) then
-        write(6,*)' hvccfp0: imode=',imode
-        write(6,*)' remove_r0c is effective'
-        write(6,*)' Generate VCCFP = VCCFP.ORG - new_VCCFP'
-        ifvcfporg = iopen( "VCCFP.ORG",0,-1,0)
-      elseif(imode==102) then
-        write(6,*)' hvccfp0: imode=',imode
-        write(6,*)' remove_r0c is effective'
+c      elseif(imode==101) then
+c        write(6,*)' hvccfp0: imode=',imode
+c        write(6,*)' remove_r0c is effective'
+c        write(6,*)' Generate VCCFP = VCCFP.ORG - new_VCCFP'
+c        ifvcfporg = iopen( "VCCFP.ORG",0,-1,0)
+c      elseif(imode==102) then
+c        write(6,*)' hvccfp0: imode=',imode
+c        write(6,*)' remove_r0c is effective'
       elseif(imode==0) then
       else
         stop 'hvccfp0: now hvccfp0 support just normal mode=0 202 101'
@@ -447,8 +447,8 @@ cccccccccccccccccccccccccccccccccccccc
 C... readin r0c
       if(newaniso()) then
         eee=screenfac() !takao feb2012
-      elseif(imode==101.or.imode==102) then
-        eee = eees()
+c      elseif(imode==101.or.imode==102) then
+c        eee = eees()
       else
         eee=0d0
       endif
@@ -492,7 +492,7 @@ c      ngb = nbloch + ngcn(1)
       ngb = nbloch + ngc0
       if(allochk) write(*,*) 'allocate( vcoul)'
       allocate( vcoul(nblochpmx,nblochpmx) )
-      if(imode==101) allocate( vcoul_org(nblochpmx,nblochpmx) )
+c      if(imode==101) allocate( vcoul_org(nblochpmx,nblochpmx) )
 
       vcoul  = 0d0
 
@@ -534,23 +534,23 @@ c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
         iqxini = 1
       endif
 !!
-      if(newaniso()) then
+      if(newaniso().and.imode==0) then
         iqxini=1
         iqxend=nqibz
       endif
-
+      print *,'iqxini iqxend=',iqxini,iqxend
 c qibz loop
 c      epsx =  0.01d0
       if(bzcase()==1) then
         if(abs(sum(qibz(:,1)**2))/=0d0) stop 'hvccfp0: sum(q**2)==0d0'
       endif
       write(ifvcfpout) nqbz, nblochpmx
-      if(imode==101) then
-        read(ifvcfporg) nqbz_in, nblochpmx_in
-        if(nqbz /= nqbz_in) stop 'nqbz /= nqbz_in VCCFP.ORG'
-        if(nblochpmx /= nblochpmx_in) 
-     &     stop 'nblochpmx /= nblochpmx_in VCCFP.ORG'
-      endif
+c      if(imode==101) then
+c        read(ifvcfporg) nqbz_in, nblochpmx_in
+c        if(nqbz /= nqbz_in) stop 'nqbz /= nqbz_in VCCFP.ORG'
+c        if(nblochpmx /= nblochpmx_in) 
+c     &     stop 'nblochpmx /= nblochpmx_in VCCFP.ORG'
+c      endif
 
 
 
@@ -712,6 +712,12 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
           q  = qibz(:,iqx)
           qq = q
         endif
+cccccccccccccccccccccccc
+        if(imode==202) then !for iqx>nqibz
+           qq=q
+        endif
+
+
         if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
           if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
         endif
@@ -1014,17 +1020,17 @@ C... Write out vcoul ----------------------
           deallocate(vcoulnn)
         endif
 
-        if(imode==101) then
-          read(ifvcfporg) ngb_in
-          if(ngb_in/=ngb) stop 'hvccfp0: readin ngb_in /=ngb'
-          read(ifvcfporg) vcoul_org(1:ngb,1:ngb),q_org
-          call checkagree(q,q_org,' q/=q_org in VCCFP.ORG')
-          write(ifvcfpout) ngb
-          write(ifvcfpout) vcoul_org(1:ngb,1:ngb)-vcoul(1:ngb,1:ngb),q
-        else
+c        if(imode==101) then
+c          read(ifvcfporg) ngb_in
+c          if(ngb_in/=ngb) stop 'hvccfp0: readin ngb_in /=ngb'
+c          read(ifvcfporg) vcoul_org(1:ngb,1:ngb),q_org
+c          call checkagree(q,q_org,' q/=q_org in VCCFP.ORG')
+c          write(ifvcfpout) ngb
+c          write(ifvcfpout) vcoul_org(1:ngb,1:ngb)-vcoul(1:ngb,1:ngb),q
+c        else
           write(ifvcfpout) ngb
           write(ifvcfpout) vcoul(1:ngb,1:ngb),q
-        endif
+c        endif
 c
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
@@ -1219,11 +1225,11 @@ c2---------------------
 
       deallocate(ngvecc)
       idummy=iclose('Vcoud')
-      if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
-      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
-      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
       call cputid(0)
-      stop ' OK! hvccfp0 '
+      if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
+c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
+c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
+      if(imode==0) stop ' OK! hvccfp0 imode=0'
       end
 
       subroutine checkagree(a,b,char)

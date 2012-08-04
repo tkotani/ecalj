@@ -1340,7 +1340,7 @@ c$$$
      i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,
 cooo
 c     i    .false.,!for nolfco Add nmbas Sep2006
-     i    newaniso2,!for nolfco Add nmbas Sep2006
+     i    newaniso2,newaniso2,!for nolfco Add nmbas Sep2006
      o    rcxqmean,
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
           print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))

@@ -873,6 +873,9 @@ c      close(ifix)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
+cccccccccccccccccccccccccccccc
+c      nqi=nqnum
+cccccccccccccccccccccccccccccc
       print *,' nqi=',nqi
 !! :nqi:   The number of irreducible points (including irr. of offset points).
 !! ::       We calcualte eigenfunction and Vxc for these points.
@@ -893,6 +896,9 @@ c      close(ifix)
         q = qq(1:3,iq)
         ngp = ngpn(iq)
         ngc = ngcn(iq)
+ccccccccccccccccccccccccccccccccc
+c        irr=1
+cccccccccccccccccccccccccccccccc
         write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2)")
      &  iq, q, ngp, ngc, irr(iq)
         allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) !larger than 1. Aug2005

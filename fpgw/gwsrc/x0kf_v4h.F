@@ -19,7 +19,7 @@ c     i       ngvecpB,ngveccB,
      o      rcxq,
 c------------------------------------------
      i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006
-     i     newanisox,
+     i     newanisox,z1offd,
      o     rcxqmean,
      i     nwgt,igx,igxt,ngrp,eibzsym)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :  readqg
@@ -151,7 +151,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       logical :: onceww !testtr,negative_testtr
 
 !! takao apr2012
-      logical :: newanisox, z1stcol
+      logical :: newanisox, z1stcol,z1offd
       complex(8) :: ppovlz(ngbb,ngbb),zzz(ngbb)
       integer:: igb
 
@@ -261,8 +261,7 @@ C... loop over k-points
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
 
-        if(debug) write(*,'("1  begin k-cycle",$)')
-        if(debug) call cputid(0)
+        if(debug) write(*,'("do 1000  k=",i4)')k
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
         if(k<=5) then
@@ -337,7 +336,6 @@ c                        q        k          q+k
         if(debug)  write(6,*)nbloch,nctot,nt0,ncc,ntp0
         allocate( zzmel(nbloch, nctot+nt0, ncc+ntp0) )
         if(debug)  then
-          write(*,'("2xx")')
           write(6,"('zzzw nkmin nkqmin=',2i5)") nkmin,nkqmin
         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -561,8 +559,7 @@ c$$$          enddo
 
               do imb1=1,nmbas1
                 zq01 = zmelt(imb1,it,itp)
-                z1stcol=(nmbas1==2.and.imb1==2.and.newanisox) !a specical treatment 
-                                                              !not so clean takao jun2012 see hx0fp0.
+                z1stcol=(nmbas1==2.and.imb1==2.and.z1offd) !a specical treatment 
                 if(z1stcol) zq01 = zmelt(1,it,itp)
                 do imb2=1,nmbas2
                   zq02 = zmelt(imb2,it,itp)
@@ -668,28 +665,28 @@ c2end --------------
 cc         else
 ccccccccccccccccccccccccc takao variant end
 
-          if(newanisox.and.eibzmoden==1) then ! This is slow.
-            zmeltx =  zmelt(:,it,itp)
-            z1p=0d0
-            do ieqbz =1, nwgt(k) !equivalent points for ieibz
-                                 !igx,igxt specifies space-group operation (including ID)
-              call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqrx) !zcousqr=Rotate_igx(zcousq) 
-              zmelty = matmul(zmeltx,zcousqrx)
-              do igb2=1, ngb !....................................
-                zmelt2 = zmelty(igb2)
-              do igb1=1,igb2
-                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
-              enddo
-              enddo
-            enddo  
-          else
+c$$$          if(newanisox.and.eibzmoden==1) then ! This is slow.
+c$$$            zmeltx =  zmelt(:,it,itp)
+c$$$            z1p=0d0
+c$$$            do ieqbz =1, nwgt(k) !equivalent points for ieibz
+c$$$                                 !igx,igxt specifies space-group operation (including ID)
+c$$$              call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqrx) !zcousqr=Rotate_igx(zcousq) 
+c$$$              zmelty = matmul(zmeltx,zcousqrx)
+c$$$              do igb2=1, ngb !....................................
+c$$$                zmelt2 = zmelty(igb2)
+c$$$              do igb1=1,igb2
+c$$$                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
+c$$$              enddo
+c$$$              enddo
+c$$$            enddo  
+c$$$          else
             do igb2=1, ngb !....................................
-            zmelt2 = zmelt(igb2,it,itp)
+              zmelt2 = zmelt(igb2,it,itp)
             do igb1=1,igb2
               z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
             enddo
             enddo
-          endif
+c$$$        endif
 
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
 !$OMP parallel do  private(imagweight) shared(rcxq)
@@ -766,11 +763,12 @@ c       endif
 
 !! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
       if(eibzmoden==2) then
+        print *,'eibzmoden=2 goto iqindx2'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
-        print *,' --- goto symmetrization --- ikp neibz q=',ikp,neibz,q
-        call cputid2(' --- qqqqq: xxxxxxxxxxstart symmetrization xxxxxxxxxxxxxxx ',0)
+        write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
+        call cputid2(' --- qqqqq: start symmetrization  ',0)
 
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
         ntimer=1
@@ -779,7 +777,6 @@ c       endif
 !!
         zcousqinv=zcousq
         call matcinv(ngb,zcousqinv)
-
         nrotmx = 10000 !trial value
  1011   continue !only when nrotmx overflow.
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)

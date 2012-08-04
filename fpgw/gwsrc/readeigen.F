@@ -188,10 +188,13 @@ c      endif
      o  zrotm(1:nbloch,1:nbloch))
 c      print *,' end of rotmto2 '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
+c      print *,' end of iqindx2rotmto2 '
       if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
       sss=1d0
       if(igxt==-1) sss=-1d0
+c      print *,' iqindx2 111111111111 sss=',sss
       call iqindx2(sss*matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
+c      print *,' iqindx2 111111111111222222222222'
 !!
       ngcx=ngc(iqin)
       if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
