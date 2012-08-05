@@ -1,4 +1,20 @@
-number of ngc (plane wave for Coulomb matrix) is given as the
-console out put of qg4gw. butused ngc for  iq>nqibz is ngc for q=0
+  number of ngc (plane wave for Coulomb matrix) is given as the
+  console out put of qg4gw. b
+  However used ngc for iq>nqibz is ngc for q=0 (rdata4gw_v2).
+  So ngc read from readqg('QGpsi') and getppx can be diffent.
+  We need to clean it up.
 
+---
+  To develop sigma-interpolation for QSGW in MTO+APW, PWMODE=1 should be used;
+  then number of APW is not q-dependent.
+
+---
+  As we use small MT, we may be able to fix phi and phidot. Then we
+  can reduce compuational time so much. However, problem in GW is we
+  may need to use large mixed basid for PW part by enlarged QpGcut_cou
+  (also for psi). It may be better to re-consider smoothe mixed basis
+  for the expantion of products of "phi and phi" for Coulomb
+  interaction.
+
+ 
 

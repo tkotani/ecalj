@@ -364,7 +364,7 @@ C ... files for RPA correlation energy mode.
       endif
 
 !! naraga says this cause a stop in ifort --->why???
-      print *,'Timereversal=',Timereversal()
+c      print *,'Timereversal=',Timereversal()
       
 
 C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f

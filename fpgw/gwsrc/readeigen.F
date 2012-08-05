@@ -1982,7 +1982,7 @@ c taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
       implicit none
       integer::ii(n),i,n
-      real(8):: a(n),eps=1d-8,aa
+      real(8):: a(n),eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
         if(a(i)>0) then
           aa = a(i)
