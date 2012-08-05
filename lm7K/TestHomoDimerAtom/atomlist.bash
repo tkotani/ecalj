@@ -1,4 +1,4 @@
-# 2011
+# July2nd 2011
 # atom info. atomlist.bash
 
 H="  atom='H'@   atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
@@ -33,18 +33,19 @@ Cr=" atom='Cr'@ atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@"
 Mn=" atom='Mn'@ atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@"
 #######################################
 ######## Fe,Co,Ni with PZ
-Fe=" atom='Fe'@ atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
-Co=" atom='Co'@ atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
-Ni=" atom='Ni'@ atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
+#Fe=" atom='Fe'@ atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
+#Co=" atom='Co'@ atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
+#Ni=" atom='Ni'@ atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@"
 # I saw so large difference of total energy between PZ=13.9 and PZ=3.9 for Co.
-#Fe=" atom='Fe'@ atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-#Co=" atom='Co'@ atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-#Ni=" atom='Ni'@ atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-Cu=" atom='Cu'@ atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-Zn=" atom='Zn'@ atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-Ga=" atom='Ga'@ atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
-Ge=" atom='Ge'@ atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@"
-As=" atom='As'@ atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@"
+Fe=" atom='Fe'@ atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+Co=" atom='Co'@ atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+Ni=" atom='Ni'@ atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+Cu=" atom='Cu'@ atomz=29@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+
+Zn=" atom='Zn'@ atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+Ga=" atom='Ga'@ atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@"
+Ge=" atom='Ge'@ atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@"
+As=" atom='As'@ atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@"
 Se=" atom='Se'@ atomz=34@ pz=''@ p=''@ eh=-1@ eh2=-2@"
 Br=" atom='Br'@ atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@"
 
