@@ -117,55 +117,55 @@ c        write(6,"(' === product basis index: iorbt ibas l n offset',10i4)")iorb
       real(8),allocatable:: dlmm(:,:,:,:)
 !! --- 
       contains
-      subroutine rotMPB(zcousq,nbloch,ngbb,qin,igx,igxt,ginv
-     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
-      implicit none
-      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
-      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
-      complex(8):: zcousq(ngbb,ngbb),zcousqr(ngbb,ngbb)
-      integer,save:: init=1
-      if(init==1) then
-        lxxa= 2*max_l_tbl
-        nl= lxxa +1 
-        allocate(dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa,ngrp))
-        call rotdlmm(symops,ngrp,nl,dlmm)
-        init=0
-      endif   
-      call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
-     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
-     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
-     o  zcousqr(1:nbloch,1:ngbb))
-c      print *,' end of rotmto '
-      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
-      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
-      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
-!!
-      ngcx=ngc(iqin)
-      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
-         print *,' ngbb qin  =',ngbb,qin
-         print *,' iqin iqout=',iqin,iqout
-         print *,' qout=',qout
-         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
-         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
-         print *,' ngc(iqout)=',ngc(iqout)
-         if(ngcx/=ngbb-nbloch) stop 'rotMPB:ngc(iqin)/=ngbb-nbloch'
-         stop 'rotMPB:ngc(iqin)/=ngc(iqout)'
-      endif   
-      platt=transpose(plat)
-c      print *,' iqin iqout igx=',iqin,iqout,igx
-c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
-c      print *,'qin  =',qin,iqin,igx
-c      print *,'qout =',qout,iqout
-c      print *,'ngcx ngbb=',ngcx,ngbb
-c      print *,'platt=',platt
-c      print *,' qlat=',qlat
-      call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
-     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
-     o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
-c      if(igxt<0) then !time-reversal
-c        zcousqr = dconjg(zcousqr)
-c      endif  
-      end subroutine rotMPB
+c$$$      subroutine rotMPB(zcousq,nbloch,ngbb,qin,igx,igxt,ginv
+c$$$     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+c$$$      implicit none
+c$$$      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
+c$$$      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
+c$$$      complex(8):: zcousq(ngbb,ngbb),zcousqr(ngbb,ngbb)
+c$$$      integer,save:: init=1
+c$$$      if(init==1) then
+c$$$        lxxa= 2*max_l_tbl
+c$$$        nl= lxxa +1 
+c$$$        allocate(dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa,ngrp))
+c$$$        call rotdlmm(symops,ngrp,nl,dlmm)
+c$$$        init=0
+c$$$      endif   
+c$$$      call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
+c$$$     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+c$$$     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
+c$$$     o  zcousqr(1:nbloch,1:ngbb))
+c$$$c      print *,' end of rotmto '
+c$$$      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
+c$$$      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
+c$$$      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
+c$$$!!
+c$$$      ngcx=ngc(iqin)
+c$$$      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
+c$$$         print *,' ngbb qin  =',ngbb,qin
+c$$$         print *,' iqin iqout=',iqin,iqout
+c$$$         print *,' qout=',qout
+c$$$         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
+c$$$         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
+c$$$         print *,' ngc(iqout)=',ngc(iqout)
+c$$$         if(ngcx/=ngbb-nbloch) stop 'rotMPB:ngc(iqin)/=ngbb-nbloch'
+c$$$         stop 'rotMPB:ngc(iqin)/=ngc(iqout)'
+c$$$      endif   
+c$$$      platt=transpose(plat)
+c$$$c      print *,' iqin iqout igx=',iqin,iqout,igx
+c$$$c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
+c$$$c      print *,'qin  =',qin,iqin,igx
+c$$$c      print *,'qout =',qout,iqout
+c$$$c      print *,'ngcx ngbb=',ngcx,ngbb
+c$$$c      print *,'platt=',platt
+c$$$c      print *,' qlat=',qlat
+c$$$      call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
+c$$$     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
+c$$$     o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
+c$$$c      if(igxt<0) then !time-reversal
+c$$$c        zcousqr = dconjg(zcousqr)
+c$$$c      endif  
+c$$$      end subroutine rotMPB
 !! ------------------------------------
       subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
      o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.

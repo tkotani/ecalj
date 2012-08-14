@@ -161,11 +161,7 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
       subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
      .   , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .   , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
-     .   , napw , igvapw , h , s ,isize_h, ismidb )
-
-
-
-
+     .   , napw , igvapw , h , s ,isize_h, ismidb  ,ndimsig)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_psigd
@@ -347,7 +343,7 @@ Cu   25 Jun 03 Update to incorporate sigp mode 3
 Cu   24 May 03 New interpolation modes
 Cu   10 Jan 03 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,nbas,isp,ispc,k1,k2,k3,lcplxp,ndimh,nqsig,lso,ismidb
       integer napw,igvapw(3,napw)
@@ -408,10 +404,12 @@ ctakaox
       complex(8),allocatable:: ss(:,:)
       integer:: sigswitch,debugmode
       logical:: pmtsig
-      logical:: debug=.false.
+      logical:: debug=.true.
       logical:: l_dummy_isanrg,isanrg,oncewrite
+      integer:: ndimsig !dimension of sigma
+      complex(8),allocatable:: sigmat(:,:,:)
+      complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
 
-      if(debugmode()>0) debug=.true.
       call tcn('hambls')
       if(debug) print *, ' mode napw',mode,napw
 C --- LDA hamiltonian ---
@@ -450,58 +448,34 @@ c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 C ... Setup for Bloch transform
       if(debug) print *,' goto set up bloch transformation'
       ndhrs=sham%ndhrs
-ckino Dec.9.2011:         iv_p_ontabs => sham%iv_p_ontabs
-
-ckino Dec.9.2011:         iv_p_oiaxs => sham%iv_p_oiaxs
-
-ckino Dec.9.2011:         rv_p_ohrs => sham%rv_p_ohrs
-
-ckino Dec.9.2011:         iv_p_ooffh => sham%iv_p_ooffh
-
-      if(debug) print *,' hambles:eee 111'
-
 C     hreal=1 -> sig(T) is real
       hreal = 0
       if (lrsig .ge. 4) hreal = 1
-Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
-Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
-ckino Dec.9.2011:        if(debug) print *,' hambles:eee 111222 iv_p_ontabs=',iv_p_ontabs
-ckino Dec.14.2011:        if(debug) print *,' hambles:eee 111222 sham%iv_p_ontabs=',sham%iv_p_ontabs
-      if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
-ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
-ckino Dec.14.2011:         nttabs = ival ( sham%iv_p_ontabs , nbas + 1 )
       nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
-
-      if(debug) print *,' hambles:eee 111333'
-Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'hambl:','isp',T)
       l_dummy_isanrg=isanrg(isp,1,nsp,'hambl:','isp',T)
-
-      if(debug) print *,' hambles:eee 222'
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      plat=slat%plat
       call dinv33(plat,1,qlat,swt)
-      if(debug) print *,' hambles:eee 333'
-
-ckino Dec.9.2011:         iv_p_oiprmb => sham%iv_p_oindxo
-
-      i_copy_size=size(sham%sigp)
-      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
+      if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
+c      i_copy_size=size(sham%sigp)
+c      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
+      sigp=sham%sigp
       if(debug) print *,' hambles: eeeee1111'
 
 
 ctakao simplified case for the PMT method.
       if (pmtsig()) then
         print *,'new pmtsig=',pmtsig()
+        stop 'xxxxxxxx NEED to FIX ss(ndimh --> ndimx=ndimsig in bndfp.F'
 C       In this branch, sigq is just a work array
 c        allocate(zqi(ndimh,ndimh))
 c        allocate(z0(ndimh,ndimh))
 c        allocate(e(ndimh))
-        allocate(ss(ndimh,ndimh))
+        allocate(ss(ndimsig,ndimsig))
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
@@ -512,10 +486,10 @@ ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , nd
 ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
 ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
 ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
      .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      )
-        h(:,:,ispc) = h(:,:,ispc) + ss
+        h(:,:,ispc) = h(:,:,ispc) + ss ! NEED to FIX! dimensiton of ss(ndimsig) h(ndimh) 
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
 C      .    z0,F,e,ndimh,zqi)
 C         s(:,:,ispc) = zqi
@@ -535,27 +509,9 @@ c        deallocate(zqi,z0,e,ss)
       endif
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       moditp = mod(mode/100,10)
       mxitrp = mod(mode/1000,10)
       if (mxitrp .eq. 0) mxitrp = 4
-
 C --- Interpolate sigma keeping higher energy LDA eigenvectors ---
       if(debugmode()>0) print *,' moditp mxitrp=',moditp,mxitrp
       if (moditp .eq. 1) then
@@ -570,53 +526,34 @@ C   ... zqi <- evecs, evals of LDA hamiltonian = Z.lda
 C       This is step A in Remarks
 *       call zprm('hamiltonian, LDA',2,h,ndimh,ndimh,ndimh)
 *       call zprm('overlap',2,s,ndimh,ndimh,ndimh)
-
-cccccccccccccccccccccccccc
-ctakaox
-c        ss(:,:,ispc) = s(:,:,ispc)
-cccccccccccccccccccccccccc
         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
      .  z0,F,e,ndimh,zqi)
+!!
+        allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+        ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
+        call matcinv(ndimsig,ovlmtoi)
+        ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
+        deallocate(ovlmtoi)
 
-C       call zprm('evecs, LDA',2,zqi,ndimh,ndimh,ndimh)
-C       i = fopna('out',-1,0)
-C       call ywrm(0,'lda evecs',2,i,'(9f20.10)',zqi,1,ndimh,ndimh,ndimh)
-C       call ywrm(0,'lda eval',1,i,'(9f20.10)',e,1,ndimh,ndimh,1)
-C       call rx0('done')
 
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
-ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
+
+c        call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
+c     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+c     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , iwdummy )
+
+        print *,'goto bloch sigmat ndimsig=',ndimsig
+        allocate(sigmat(ndimsig,ndimsig,isize_h(3)))
         call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , 
-     .      iwdummy )
+     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig
+     .      , 0 , ndimsig , 0 , ndimsig , 0 , sigmat( 1 , 1 , ispc ) , iwdummy , iwdummy )
+
+        s(:,:,ispc)= matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:,ispc),ovliovl))
+        deallocate(sigmat,ovliovl)
 
 
-
-
-
-ccccccccccccccccccc
-ctakaox
-c        do ii=1,ndimh
-c        do jj=1,ndimh
-c        s(ii,jj,ispc) = s(ii,jj,ispc)*ss(ii,jj,ispc)
-c        enddo
-c        enddo
-ccccccccccccccccccc
-
-C        call zprm('sigm, orb bas',2,s(1,1,ispc),ndimh,ndimh,ndimh)
-C        i = fopna('out',-1,0)
-C        print *, 'hambls',ndhrs,q
-C        call ywrm(0,'sig(k)',3,i,'(9f20.10)',s(1,1,ispc),1,ndimh,ndimh,
-C     .    ndimh)
-C        call rx0('done')
 
 C       LDA evals in h
         if (lwsig .ge. 2 .and. lwsig .le. 4) then
@@ -724,7 +661,6 @@ c        call phmbls(8+4,ndimh,e0,ipm,sigq,xx,s(1,1,ispc),s(1,1,ispc),xx)
 c        deallocate(ipm)
 
 
-
 C   ... Overwrite h with eigenvalues
         call dpzero(h(1,1,ispc),ndimh**2*2)
         do  i = 1, ndimh
@@ -785,304 +721,304 @@ C         Replace h with evals on the diagonal
           call dpzero(h,ndimhx**2*2)
           call dcopy(ndimhx,e0,1,h,2*ndimhx+2)
 *         call zprm('evals of h+sig+L.S.',2,h,ndimhx,ndimhx,ndimhx)
-
         endif
-
-C   ... Cleanup
    99   mode = -1
         deallocate(sigq,zqi,z0,e,e0)
 
-C --- Interpolate sigma via evecs h+sig, 1st LMTO kappa block ---
-C     Define     z^1 = evecs of 1st LMTO kappa block
-C     subscript _L -> LDA evec ; subscript S -> GW evec
-C     This branch estimates z = z_L z_L^1 S^1 Z^1_S
-C     where S^1 is overlap matrix of 1st LMTO kappa block.
-      elseif (moditp .eq. 2) then
 
-        call rx('interp mode not fully checked')
-
-CC#ifdef F90
-C        allocate(hqi(ndimh,ndimh,1))
-CC       In this branch, sigq is just a work array
-C        allocate(sigq(ndimh,ndimh))
-C        allocate(sqi(ndimh,ndimh,1))
-C        allocate(zqi(ndimh,ndimh))
-C        allocate(z0(ndimh,ndimh))
-C        allocate(z0g(ndimh,ndimh))
-C        allocate(e(ndimh))
-C        allocate(e0(ndimh))
-C        allocate(ipm(ndimh))
-CC#endif
-C
-CC   ... z0 <- Evecs of small LDA hamiltonian = Z1.lda
-CC       call zprm('h before permutation',2,h,ndimh,ndimh,ndimh)
-CC       call zprm('s before permutation',2,s,ndimh,ndimh,ndimh)
-C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
-CC       call zprm('h after permutation',2,hqi,ndimh,ndimh,ndimh)
-C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
-CC       z0 used here as a work array
-C        call zhevx(ndim1,ndimh,hqi,sqi,1,T,ndim1,9d9,i,sigq,F,e,ndimh,
-C     .    z0)
-CC       call zprm('LDA evecs of small h',2,zqi,ndimh,ndim1,ndim1)
-C
-CC   ... zqi <- Evecs of large LDA hamiltonian = Z.lda
-CC       Also e = LDA eigenvalues
-CC       call zprm('h before permutation',2,h(1,1,ispc),ndimh,ndimh,ndimh)
-C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
-CC       call zprm('h after permutation',2,hqi,ndimh,ndimh,ndimh)
-C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
-CC       z0 used here as a work array
-C        call zhevx(ndimh,ndimh,hqi,sqi,1,T,ndimh,9d9,i,sigq,F,e,ndimh,
-C     .    zqi)
-CC        call zprm('LDA evecs of entire h',2,zqi,ndimh,ndimh,ndimh)
-CC        call permhk(4,nbas,ndimh,w(ooffH),zqi,hqi,ndim1)
-CC        call zprm('permuted z',2,hqi,ndimh,ndimh,ndimh)
-CC        zqi = 0
-CC        call permhk(5,nbas,ndimh,w(ooffH),zqi,hqi,ndim1)
-CC        call zprm('restore permuted z',2,zqi,ndimh,ndimh,ndimh)
-CC
-CC   ... sigq <- Evecs of small GW hamiltonian = Z1.gw
-CC       Call to bloch : 104110=perm orb, transpose, add, c*16
-C        i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
-C        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-C     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-C     .    h(1,1,ispc),w,w)
-CC       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
-C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
-C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
-C        call zhevx(ndim1,ndimh,hqi,sqi,1,T,ndim1,9d9,i,sigq,F,e0,ndimh,
-C     .    z0g)
-CC       call zprm('GW evecs of small h',2,sigq,ndimh,ndim1,ndim1)
-C
-CC   ... sigq <- (Z1.lda)+ S11 Z1.sig
-C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
-C        call zgemm('C','N',ndim1,ndim1,ndim1,one,z0,ndimh,sqi,ndimh,
-C     .    zer,hqi,ndimh)
-C        call zgemm('N','N',ndim1,ndim1,ndim1,one,hqi,ndimh,z0g,ndimh,
-C     .    zer,sigq,ndimh)
-CC        call zprm('z1(lda)+ S z1(sig)',2,sigq,ndimh,ndim1,ndim1)
-C
-CC   ... z0 <- Z.lda (Z1.lda)+ S11 Z1.sig
-C        call zgemm('N','N',ndimh,ndim1,ndim1,one,zqi,ndimh,sigq,ndimh,
-C     .    zer,z0,ndimh)
-C        call zmscop(0,ndimh,ndimh-ndim1,ndimh,ndimh,0,ndim1,0,ndim1,
-C     .    zqi,z0)
-C
-CC   ... zqi <- Z.lda (Z1.lda)+ S11 Z1.sig in original orbital order
-C        call permhk(5,nbas,ndimh,w(ooffH),zqi,z0,ndim1)
-CC       call zprm('z in original orbital order',2,zqi,ndimh,ndimh,ndimh)
-C
-CC   ... subtract sigma from h to restore LDA h; also s <- z+ sig z
-CC       Call to bloch : 104110=perm orb, transpose, no add, c*16
-C        i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-C        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-C     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sigq,w,w)
-C        call daxpy(ndimh**2*2,-1d0,sigq,1,h(1,1,ispc),1)
-C        call phmbls(3,ndimh,e0,ipm,z0,sigq,zqi,zqi,s(1,1,ispc))
-C        if (ddot(3,q,4,q,4) .lt. tol**2 .or. .true.) then
-C          call phmbl3(2,ndimh,0,e,e0,sigp,fasig,fbsig)
-CC          call info5(30,0,0,' hambls: fit sigma for e>%d :'//
-CC     .      ' sig = %,4;4d + %,4;4d * elda (q=%3:1,5;5d)',
-CC     .      emax,fasig,fbsig,q,0)
-C        endif
-C
-CC   ... Overwrite z+ sigma z for high-lying energies
-C        call psigd(0,ndimh,s(1,1,ispc),e,sigp,n123,wk)
-C
-CC   ... h <- z+ h(lda) z + z+ sigma z
-C        call phmbls(1,ndimh,e0,ipm,z0,h(1,1,ispc),zqi,zqi,h(1,1,ispc))
-C        call daxpy(ndimh**2,1d0,s(1,1,ispc),1,h(1,1,ispc),1)
-C
-CC   ... h <- z+ h z ; s <- z ; reorder evecs,h in ascending eval order
-C        call phmbls(31-1,ndimh,e,ipm,sigq,h(1,1,ispc),zqi,zqi,
-C     .    h(1,1,ispc))
-C        call zcopy(ndimh**2,zqi,1,s(1,1,ispc),1)
-C        mode = -1
-C
-CC#ifdef F90
-C        deallocate(hqi,sigq,sqi,zqi,z0,z0g,e,e0,ipm)
-CC#endif
-
-C --- Interpolate sigma using eigenvectors ---
-      elseif (moditp .eq. 0 .or. moditp .eq. 3) then
-
-C ... Get qpi = four k-points in BZ of sigma matrix nearest to qp
-        do  i = 1, nqsig
-          do  j = 1, 3
-            qpi(j,1) = qsig(j,i) - q(j)
-          enddo
-          call shorbz(qpi,qloc(1,i),qlat,plat)
-        enddo
-        call dvheap(3,nqsig,qloc,iprm,tol,11)
-        do  i = 1, 4
-          call dcopy(3,qloc(1,iprm(i)),1,qpi(1,i),1)
-        enddo
-
-C --- If qpi(1) = q, Bloch transform sigma at q and exit ---
-C     if (ddot(3,qpi,4,qpi,4) .lt. tol**2) then
-        if (ddot(3,qpi,1,qpi,1) .lt. tol**2 .or. moditp .eq. 0) then
-
-C       Standard interpolation.  Too bad it doesn't work well!
-C       call zprm('h(lda)',2,h,ndimh,ndimh,ndimh)
-C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
-C       Call to bloch : 104110=perm orb, transpose, add, c*16
-          i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
-ckino Dec.9.2011:                call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
-ckino Dec.27.2011:                call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
-          call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.14.2011:       .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-ckino Dec.28.2011:       .        , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .        , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
-     .        iwdummy )
-
-
-
-
-C       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
-          goto 999
-        endif
-
-C ... Find weights for each of four points:
-C     nsim = # independent pts; wt = weights for points
-C  99 continue
-        do  i = mxitrp, 1, -1
-          nsim = i
-C       Transpose of qpi into norm
-          call dmcpy(qpi,1,3,norm(1,2),4,1,4,3)
-          call dvset(norm,1,4,1d0)
-C       call dcopy(16,qpi,1,norm,1)
-C       call dvset(norm(1,2),1,12,1d0)
-C       call prmx('norm',norm,4,4,4)
-c          j = dinv(' ',i,4,norm)
-          call matinv2(i,norm(1:i,1:i),j) !takao May2010
-C       If inversion failed, reduce the number of points
-          if (j .ne. 0) goto 10
-C       If any weight exceeds 1 or swt<>1, reduce the number of points
-          swt = 0
-          do  j = 1, i
-            if (norm(1,j) .gt. 5) then
-              goto 10
-            endif
-            swt = swt + norm(1,j)
-          enddo
-          if (abs(swt-1) .gt. tol) goto 10
-C       All tests passed ... use this set of points
-          goto 20
-   10     continue
-        enddo
-   20   continue
-C     call prmx('inverse',norm,4,nsim,nsim)
-C     norm(1,1..nsim) are weights
-
-C     for debugging
-C     qpi(1,1) = 0.75d0 - q(1)
-C     qpi(2,1) = 0.00d0 - q(2)
-C     qpi(3,1) = 0.00d0 - q(3)
-
-C     Assign weights to each qp; compute sum-of-weights as check
-        swt = 0
-        j = nsim
-        do  i = nsim, 1, -1
-          wt(i) = norm(1,i)
-          if (abs(wt(i)) .lt. tol .and. j .eq. i) j=j-1
-          if (j .ge. i) swt = swt + wt(i)
-        enddo
-        nsim = j
-        if (abs(swt-1) .gt. tol) then
-          call info5(0,0,0,' hambls failed for q=%3:1,5;5d, '//
-     .    'wt=%n:1,5;5d',q,nsim,wt,0,0)
-C       goto 99
-          call rx1('hambls:  interpol. weights'//
-     .    ' should sum to 1; actual sum=%d',swt)
-        endif
-
-CSFCPP#if F90
-        allocate(hqi(ndimh,ndimh,nsim))
-        allocate(sqi(ndimh,ndimh,nsim))
-        allocate(zqi(ndimh,ndimh))
-        allocate(z0(ndimh,ndimh))
-CSFCPP#else
-CSFCPP        if (nsim .gt. 1) call rx('compile hambls with F90 option')
-CSFCPP#endif
-
-C ... Inverse z0^-1, where z0 = eigenvectors at desired q
-        call zcopy(ndimh**2,h(1,1,ispc),1,hqi,1)
-        call zcopy(ndimh**2,s(1,1,ispc),1,sqi,1)
-C      call zprm('h(lda)',2,hqi,ndimh,ndimh,ndimh)
-C      call zprm('s(lda)',2,sqi,ndimh,ndimh,ndimh)
-        call zhev(ndimh,hqi,sqi,T,T,ndimh,9d9,nev,wk,F,-1,evl,z0)
-C     call zprm('z(lda)',2,z0,ndimh,ndimh,ndimh)
-        call zgetrf(ndimh,ndimh,z0,ndimh,ipiv,i)
-        if (i .eq. 0) call zgetri(ndimh,z0,ndimh,ipiv,hqi,ndimh**2,i)
-        call rxx(i.ne.0,'hambls: failed to invert eigenvectors')
-C     call zprm('z(lda)^-1',2,z0,ndimh,ndimh,ndimh)
-
-C ... For each qpi(1..nsim), add wt(qpi) * sigma(qpi)
-        call info5(36,0,0,' Interp SE for q=%3:1,5;5d, '//
-     .  'wt=%n:1,5;5d',q,nsim,wt,0,0)
-
-        do  j = 1, nsim
-          dq = dsqrt(ddot(3,qpi(1,j),1,qpi(1,j),1))
-          call daxpy(3,1d0,q,1,qpi(1,j),1)
-          call info5(50,0,0,' qi(%i) = %3:-1,6;6d  |qi-q|=%,6;6d',
-     .    j,qpi(1,j),dq,0,0)
-          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
-     .        ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
-     .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
-     .        , iwdummy )
-
-
-
-
-C       call zprm('h(lda)',2,hqi,ndimh,ndimh,ndimh)
-C       call zprm('s(lda)',2,sqi,ndimh,ndimh,ndimh)
-          call zhev(ndimh,hqi,sqi,T,T,ndimh,9d9,nev,wk,F,-1,evl,zqi)
-C       call zprm('z(lda)',2,zqi,ndimh,ndimh,ndimh)
-
-C       hqi <- z(qpi) z(q)^-1
-          call zgemm('N','N',ndimh,ndimh,ndimh,(1d0,0d0),zqi,
-     .    ndimh,z0,ndimh,(0d0,0d0),hqi,ndimh)
-
-C       sqi <- sigma(qpi)
-C       Call to bloch : 104010=perm orb, transpose, c*16
-          i = 100000 + 4000 + 40*(1-hreal) + 10
-ckino Dec.9.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb
-ckino Dec.27.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo
-          call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_a_oindxo
-ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh
-ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh
-ckino Dec.14.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh
-ckino Dec.28.2011:       .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
-     .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh 
-     .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
-     .        )
-
-
-
-
-C       call zprm('sig at qpi',2,sqi,ndimh,ndimh,ndimh)
-
-C       zqi <- (z(qpi) z(q)^-1)+ sigma(qpi)
-          call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
-     .    hqi,ndimh,sqi,ndimh,(0d0,0d0),zqi,ndimh)
-
-C       sqi <- (z(qpi) z(q)^-1)+ sigma(qpi) (z(qpi) z(q)^-1)
-          call zgemm('N','N',ndimh,ndimh,ndimh,(1d0,0d0),
-     .    zqi,ndimh,hqi,ndimh,(0d0,0d0),sqi,ndimh)
-
-C       call zprm('sig(from qpi)',2,sqi,ndimh,ndimh,ndimh)
-
-C       Add wt(qpi) sigma(translated from qpi) to hamiltonian
-          call daxpy(ndimh**2*2,wt(j),sqi,1,h(1,1,ispc),1)
-
-        enddo
-
-CSFCPP#if F90
-        deallocate(hqi,sqi,zqi,z0)
-CSFCPP#endif
+c$$$C --- Interpolate sigma via evecs h+sig, 1st LMTO kappa block ---
+c$$$C     Define     z^1 = evecs of 1st LMTO kappa block
+c$$$C     subscript _L -> LDA evec ; subscript S -> GW evec
+c$$$C     This branch estimates z = z_L z_L^1 S^1 Z^1_S
+c$$$C     where S^1 is overlap matrix of 1st LMTO kappa block.
+c$$$      elseif (moditp .eq. 2) then
+c$$$
+c$$$        call rx('interp mode not fully checked')
+c$$$
+c$$$CC#ifdef F90
+c$$$C        allocate(hqi(ndimh,ndimh,1))
+c$$$CC       In this branch, sigq is just a work array
+c$$$C        allocate(sigq(ndimh,ndimh))
+c$$$C        allocate(sqi(ndimh,ndimh,1))
+c$$$C        allocate(zqi(ndimh,ndimh))
+c$$$C        allocate(z0(ndimh,ndimh))
+c$$$C        allocate(z0g(ndimh,ndimh))
+c$$$C        allocate(e(ndimh))
+c$$$C        allocate(e0(ndimh))
+c$$$C        allocate(ipm(ndimh))
+c$$$CC#endif
+c$$$C
+c$$$CC   ... z0 <- Evecs of small LDA hamiltonian = Z1.lda
+c$$$CC       call zprm('h before permutation',2,h,ndimh,ndimh,ndimh)
+c$$$CC       call zprm('s before permutation',2,s,ndimh,ndimh,ndimh)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
+c$$$CC       call zprm('h after permutation',2,hqi,ndimh,ndimh,ndimh)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
+c$$$CC       z0 used here as a work array
+c$$$C        call zhevx(ndim1,ndimh,hqi,sqi,1,T,ndim1,9d9,i,sigq,F,e,ndimh,
+c$$$C     .    z0)
+c$$$CC       call zprm('LDA evecs of small h',2,zqi,ndimh,ndim1,ndim1)
+c$$$C
+c$$$CC   ... zqi <- Evecs of large LDA hamiltonian = Z.lda
+c$$$CC       Also e = LDA eigenvalues
+c$$$CC       call zprm('h before permutation',2,h(1,1,ispc),ndimh,ndimh,ndimh)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
+c$$$CC       call zprm('h after permutation',2,hqi,ndimh,ndimh,ndimh)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
+c$$$CC       z0 used here as a work array
+c$$$C        call zhevx(ndimh,ndimh,hqi,sqi,1,T,ndimh,9d9,i,sigq,F,e,ndimh,
+c$$$C     .    zqi)
+c$$$CC        call zprm('LDA evecs of entire h',2,zqi,ndimh,ndimh,ndimh)
+c$$$CC        call permhk(4,nbas,ndimh,w(ooffH),zqi,hqi,ndim1)
+c$$$CC        call zprm('permuted z',2,hqi,ndimh,ndimh,ndimh)
+c$$$CC        zqi = 0
+c$$$CC        call permhk(5,nbas,ndimh,w(ooffH),zqi,hqi,ndim1)
+c$$$CC        call zprm('restore permuted z',2,zqi,ndimh,ndimh,ndimh)
+c$$$CC
+c$$$CC   ... sigq <- Evecs of small GW hamiltonian = Z1.gw
+c$$$CC       Call to bloch : 104110=perm orb, transpose, add, c*16
+c$$$C        i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
+c$$$C        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+c$$$C     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+c$$$C     .    h(1,1,ispc),w,w)
+c$$$CC       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),h(1,1,ispc),hqi,ndim1)
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
+c$$$C        call zhevx(ndim1,ndimh,hqi,sqi,1,T,ndim1,9d9,i,sigq,F,e0,ndimh,
+c$$$C     .    z0g)
+c$$$CC       call zprm('GW evecs of small h',2,sigq,ndimh,ndim1,ndim1)
+c$$$C
+c$$$CC   ... sigq <- (Z1.lda)+ S11 Z1.sig
+c$$$C        call permhk(0,nbas,ndimh,w(ooffH),s(1,1,ispc),sqi,ndim1)
+c$$$C        call zgemm('C','N',ndim1,ndim1,ndim1,one,z0,ndimh,sqi,ndimh,
+c$$$C     .    zer,hqi,ndimh)
+c$$$C        call zgemm('N','N',ndim1,ndim1,ndim1,one,hqi,ndimh,z0g,ndimh,
+c$$$C     .    zer,sigq,ndimh)
+c$$$CC        call zprm('z1(lda)+ S z1(sig)',2,sigq,ndimh,ndim1,ndim1)
+c$$$C
+c$$$CC   ... z0 <- Z.lda (Z1.lda)+ S11 Z1.sig
+c$$$C        call zgemm('N','N',ndimh,ndim1,ndim1,one,zqi,ndimh,sigq,ndimh,
+c$$$C     .    zer,z0,ndimh)
+c$$$C        call zmscop(0,ndimh,ndimh-ndim1,ndimh,ndimh,0,ndim1,0,ndim1,
+c$$$C     .    zqi,z0)
+c$$$C
+c$$$CC   ... zqi <- Z.lda (Z1.lda)+ S11 Z1.sig in original orbital order
+c$$$C        call permhk(5,nbas,ndimh,w(ooffH),zqi,z0,ndim1)
+c$$$CC       call zprm('z in original orbital order',2,zqi,ndimh,ndimh,ndimh)
+c$$$C
+c$$$CC   ... subtract sigma from h to restore LDA h; also s <- z+ sig z
+c$$$CC       Call to bloch : 104110=perm orb, transpose, no add, c*16
+c$$$C        i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
+c$$$C        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+c$$$C     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sigq,w,w)
+c$$$C        call daxpy(ndimh**2*2,-1d0,sigq,1,h(1,1,ispc),1)
+c$$$C        call phmbls(3,ndimh,e0,ipm,z0,sigq,zqi,zqi,s(1,1,ispc))
+c$$$C        if (ddot(3,q,4,q,4) .lt. tol**2 .or. .true.) then
+c$$$C          call phmbl3(2,ndimh,0,e,e0,sigp,fasig,fbsig)
+c$$$CC          call info5(30,0,0,' hambls: fit sigma for e>%d :'//
+c$$$CC     .      ' sig = %,4;4d + %,4;4d * elda (q=%3:1,5;5d)',
+c$$$CC     .      emax,fasig,fbsig,q,0)
+c$$$C        endif
+c$$$C
+c$$$CC   ... Overwrite z+ sigma z for high-lying energies
+c$$$C        call psigd(0,ndimh,s(1,1,ispc),e,sigp,n123,wk)
+c$$$C
+c$$$CC   ... h <- z+ h(lda) z + z+ sigma z
+c$$$C        call phmbls(1,ndimh,e0,ipm,z0,h(1,1,ispc),zqi,zqi,h(1,1,ispc))
+c$$$C        call daxpy(ndimh**2,1d0,s(1,1,ispc),1,h(1,1,ispc),1)
+c$$$C
+c$$$CC   ... h <- z+ h z ; s <- z ; reorder evecs,h in ascending eval order
+c$$$C        call phmbls(31-1,ndimh,e,ipm,sigq,h(1,1,ispc),zqi,zqi,
+c$$$C     .    h(1,1,ispc))
+c$$$C        call zcopy(ndimh**2,zqi,1,s(1,1,ispc),1)
+c$$$C        mode = -1
+c$$$C
+c$$$CC#ifdef F90
+c$$$C        deallocate(hqi,sigq,sqi,zqi,z0,z0g,e,e0,ipm)
+c$$$CC#endif
+c$$$
+c$$$C --- Interpolate sigma using eigenvectors ---
+c$$$      elseif (moditp .eq. 0 .or. moditp .eq. 3) then
+c$$$
+c$$$        call rxi('not checked well %i',moditp)
+c$$$
+c$$$C ... Get qpi = four k-points in BZ of sigma matrix nearest to qp
+c$$$        do  i = 1, nqsig
+c$$$          do  j = 1, 3
+c$$$            qpi(j,1) = qsig(j,i) - q(j)
+c$$$          enddo
+c$$$          call shorbz(qpi,qloc(1,i),qlat,plat)
+c$$$        enddo
+c$$$        call dvheap(3,nqsig,qloc,iprm,tol,11)
+c$$$        do  i = 1, 4
+c$$$          call dcopy(3,qloc(1,iprm(i)),1,qpi(1,i),1)
+c$$$        enddo
+c$$$
+c$$$C --- If qpi(1) = q, Bloch transform sigma at q and exit ---
+c$$$C     if (ddot(3,qpi,4,qpi,4) .lt. tol**2) then
+c$$$        if (ddot(3,qpi,1,qpi,1) .lt. tol**2 .or. moditp .eq. 0) then
+c$$$
+c$$$C       Standard interpolation.  Too bad it doesn't work well!
+c$$$C       call zprm('h(lda)',2,h,ndimh,ndimh,ndimh)
+c$$$C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
+c$$$C       Call to bloch : 104110=perm orb, transpose, add, c*16
+c$$$          i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
+c$$$ckino Dec.9.2011:                call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
+c$$$ckino Dec.27.2011:                call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
+c$$$          call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
+c$$$ckino Dec.9.2011:       .        , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
+c$$$ckino Dec.9.2011:       .        , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
+c$$$ckino Dec.14.2011:       .        , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
+c$$$ckino Dec.28.2011:       .        , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+c$$$     .        , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+c$$$     .        , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , iwdummy , 
+c$$$     .        iwdummy )
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$C       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
+c$$$          goto 999
+c$$$        endif
+c$$$
+c$$$C ... Find weights for each of four points:
+c$$$C     nsim = # independent pts; wt = weights for points
+c$$$C  99 continue
+c$$$        do  i = mxitrp, 1, -1
+c$$$          nsim = i
+c$$$C       Transpose of qpi into norm
+c$$$          call dmcpy(qpi,1,3,norm(1,2),4,1,4,3)
+c$$$          call dvset(norm,1,4,1d0)
+c$$$C       call dcopy(16,qpi,1,norm,1)
+c$$$C       call dvset(norm(1,2),1,12,1d0)
+c$$$C       call prmx('norm',norm,4,4,4)
+c$$$c          j = dinv(' ',i,4,norm)
+c$$$          call matinv2(i,norm(1:i,1:i),j) !takao May2010
+c$$$C       If inversion failed, reduce the number of points
+c$$$          if (j .ne. 0) goto 10
+c$$$C       If any weight exceeds 1 or swt<>1, reduce the number of points
+c$$$          swt = 0
+c$$$          do  j = 1, i
+c$$$            if (norm(1,j) .gt. 5) then
+c$$$              goto 10
+c$$$            endif
+c$$$            swt = swt + norm(1,j)
+c$$$          enddo
+c$$$          if (abs(swt-1) .gt. tol) goto 10
+c$$$C       All tests passed ... use this set of points
+c$$$          goto 20
+c$$$   10     continue
+c$$$        enddo
+c$$$   20   continue
+c$$$C     call prmx('inverse',norm,4,nsim,nsim)
+c$$$C     norm(1,1..nsim) are weights
+c$$$
+c$$$C     for debugging
+c$$$C     qpi(1,1) = 0.75d0 - q(1)
+c$$$C     qpi(2,1) = 0.00d0 - q(2)
+c$$$C     qpi(3,1) = 0.00d0 - q(3)
+c$$$
+c$$$C     Assign weights to each qp; compute sum-of-weights as check
+c$$$        swt = 0
+c$$$        j = nsim
+c$$$        do  i = nsim, 1, -1
+c$$$          wt(i) = norm(1,i)
+c$$$          if (abs(wt(i)) .lt. tol .and. j .eq. i) j=j-1
+c$$$          if (j .ge. i) swt = swt + wt(i)
+c$$$        enddo
+c$$$        nsim = j
+c$$$        if (abs(swt-1) .gt. tol) then
+c$$$          call info5(0,0,0,' hambls failed for q=%3:1,5;5d, '//
+c$$$     .    'wt=%n:1,5;5d',q,nsim,wt,0,0)
+c$$$C       goto 99
+c$$$          call rx1('hambls:  interpol. weights'//
+c$$$     .    ' should sum to 1; actual sum=%d',swt)
+c$$$        endif
+c$$$
+c$$$CSFCPP#if F90
+c$$$        allocate(hqi(ndimh,ndimh,nsim))
+c$$$        allocate(sqi(ndimh,ndimh,nsim))
+c$$$        allocate(zqi(ndimh,ndimh))
+c$$$        allocate(z0(ndimh,ndimh))
+c$$$CSFCPP#else
+c$$$CSFCPP        if (nsim .gt. 1) call rx('compile hambls with F90 option')
+c$$$CSFCPP#endif
+c$$$
+c$$$C ... Inverse z0^-1, where z0 = eigenvectors at desired q
+c$$$        call zcopy(ndimh**2,h(1,1,ispc),1,hqi,1)
+c$$$        call zcopy(ndimh**2,s(1,1,ispc),1,sqi,1)
+c$$$C      call zprm('h(lda)',2,hqi,ndimh,ndimh,ndimh)
+c$$$C      call zprm('s(lda)',2,sqi,ndimh,ndimh,ndimh)
+c$$$        call zhev(ndimh,hqi,sqi,T,T,ndimh,9d9,nev,wk,F,-1,evl,z0)
+c$$$C     call zprm('z(lda)',2,z0,ndimh,ndimh,ndimh)
+c$$$        call zgetrf(ndimh,ndimh,z0,ndimh,ipiv,i)
+c$$$        if (i .eq. 0) call zgetri(ndimh,z0,ndimh,ipiv,hqi,ndimh**2,i)
+c$$$        call rxx(i.ne.0,'hambls: failed to invert eigenvectors')
+c$$$C     call zprm('z(lda)^-1',2,z0,ndimh,ndimh,ndimh)
+c$$$
+c$$$C ... For each qpi(1..nsim), add wt(qpi) * sigma(qpi)
+c$$$        call info5(36,0,0,' Interp SE for q=%3:1,5;5d, '//
+c$$$     .  'wt=%n:1,5;5d',q,nsim,wt,0,0)
+c$$$
+c$$$        do  j = 1, nsim
+c$$$          dq = dsqrt(ddot(3,qpi(1,j),1,qpi(1,j),1))
+c$$$          call daxpy(3,1d0,q,1,qpi(1,j),1)
+c$$$          call info5(50,0,0,' qi(%i) = %3:-1,6;6d  |qi-q|=%,6;6d',
+c$$$     .    j,qpi(1,j),dq,0,0)
+c$$$          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qpi 
+c$$$     .        ( 1 , j ) , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+c$$$     .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapw , hqi , sqi 
+c$$$     .        , iwdummy )
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$C       call zprm('h(lda)',2,hqi,ndimh,ndimh,ndimh)
+c$$$C       call zprm('s(lda)',2,sqi,ndimh,ndimh,ndimh)
+c$$$          call zhev(ndimh,hqi,sqi,T,T,ndimh,9d9,nev,wk,F,-1,evl,zqi)
+c$$$C       call zprm('z(lda)',2,zqi,ndimh,ndimh,ndimh)
+c$$$
+c$$$C       hqi <- z(qpi) z(q)^-1
+c$$$          call zgemm('N','N',ndimh,ndimh,ndimh,(1d0,0d0),zqi,
+c$$$     .    ndimh,z0,ndimh,(0d0,0d0),hqi,ndimh)
+c$$$
+c$$$C       sqi <- sigma(qpi)
+c$$$C       Call to bloch : 104010=perm orb, transpose, c*16
+c$$$          i = 100000 + 4000 + 40*(1-hreal) + 10
+c$$$ckino Dec.9.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb
+c$$$ckino Dec.27.2011:                call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_p_oindxo
+c$$$          call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , sham%iv_a_oindxo
+c$$$ckino Dec.9.2011:       .        , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh
+c$$$ckino Dec.9.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh
+c$$$ckino Dec.14.2011:       .        , 1 , nttabs , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh
+c$$$ckino Dec.28.2011:       .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+c$$$     .        , 1 , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh 
+c$$$     .        , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , iwdummy , iwdummy 
+c$$$     .        )
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$C       call zprm('sig at qpi',2,sqi,ndimh,ndimh,ndimh)
+c$$$
+c$$$C       zqi <- (z(qpi) z(q)^-1)+ sigma(qpi)
+c$$$          call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
+c$$$     .    hqi,ndimh,sqi,ndimh,(0d0,0d0),zqi,ndimh)
+c$$$
+c$$$C       sqi <- (z(qpi) z(q)^-1)+ sigma(qpi) (z(qpi) z(q)^-1)
+c$$$          call zgemm('N','N',ndimh,ndimh,ndimh,(1d0,0d0),
+c$$$     .    zqi,ndimh,hqi,ndimh,(0d0,0d0),sqi,ndimh)
+c$$$
+c$$$C       call zprm('sig(from qpi)',2,sqi,ndimh,ndimh,ndimh)
+c$$$
+c$$$C       Add wt(qpi) sigma(translated from qpi) to hamiltonian
+c$$$          call daxpy(ndimh**2*2,wt(j),sqi,1,h(1,1,ispc),1)
+c$$$
+c$$$        enddo
+c$$$
+c$$$CSFCPP#if F90
+c$$$        deallocate(hqi,sqi,zqi,z0)
+c$$$CSFCPP#endif
       else
         call rxi('unknown interpolation mode %i',moditp)
       endif
@@ -1291,8 +1227,9 @@ C  ...  Make weights for d.c. sum
         endif
 C  ...  Contribution to d.c. sum for this qp
 
-        i_copy_size=size(sham%eterms)
-        call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+c        i_copy_size=size(sham%eterms)
+c        call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+        eterms=sham%eterms
 
         if (iq .eq. 1 .and. ksp .eq. 1) then
           rhosig = 0
@@ -1303,8 +1240,10 @@ C  ...  Contribution to d.c. sum for this qp
           rhosig = rhosig + ewgt(i)*zsz(i)
         enddo
 
-        i_copy_size=size(sham%eterms)
-        call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+c        i_copy_size=size(sham%eterms)
+c        call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+        sham%eterms=eterms
+        
 
 C  ...  Sanity check
 C       print *, 'iq=',iq,'swgt=',swgt,'rhosig=',rhosig

@@ -77,9 +77,9 @@ c
       endif
       end
 
+!!== Obtain q parameter for given qin(3) ==
       subroutine qparam(qin,qsmesh,nk1,nk2,nk3,plat,  ikc,qpara,igshift)
-C- Obtain q parameter for given qin(3)
-C  This find eight corners of a cube (each corner is one of the qsmesh). qin is within the cube.
+!!  This find eight corners of a cube (each corner is one of the qsmesh). qin is within the cube.
 Ci qsmesh(3,ik1,ik2,ik3); we assume it orders well; this routine should work even for regular mesh or off-gamma mesh.
 Ci
 Co ikc(1:3) ,qpara, igshift
@@ -91,7 +91,7 @@ Cr
      &nx(0:1),ny(0:1),nz(0:1), mx(0:1), my(0:1), mz(0:1),ix1,ix2,ix3,
      &igshift(3,0:1,0:1,0:1), ikc(3,0:1,0:1,0:1)
       real(8):: qsmesh(3,nk1,nk2,nk3), qpara(3),qqq(3),qin(3),plat(3,3)
-      real(8):: eps=1d-10, qmesh(3), qmeshm(3,0:1,0:1,0:1),qmin(3),qmax(3),qx(3),qqqm(3)
+      real(8):: eps=1d-6, qmesh(3), qmeshm(3,0:1,0:1,0:1),qmin(3),qmax(3),qx(3),qqqm(3)
 c      real(8),allocatable:: qmesh(:,:,:,:)
 
 c Get projected q.-> ik1, ik2 ik3 for given q.
@@ -278,7 +278,7 @@ c find symops(3,3,ig),
 
 c ddd=ddd2 is not necessary. There is ambiguity. takao feb2011
 c      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
-      ddd2 = shtvg(:,invgx(igg))
+c      ddd2 = shtvg(:,invgx(igg))
 ctakao think this is not necessary feb2012
 c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
 c$$$         print *,'aaa: ddd ddd2=',ddd,ddd2
@@ -286,8 +286,8 @@ c$$$         print *,'rotsig: ddd/=ddd2'
 c$$$         stop 'rotsig: ddd/=ddd2'
 c$$$      endif
 ccccccccccccccccccccccc
-      print *,'takao test 111 ddd=ddd2'
-      ddd=ddd2
+c      print *,'takao test 111 ddd=ddd2'
+c      ddd=ddd2
 ccccccccccccccccccccccc
 
       allocate(sigx(ndimh,ndimh))
@@ -297,7 +297,7 @@ c      nlmto = ndimh-napw_in
       nlmto=ldim
       if(debugmode()>0) then
         print *,' tttt: invgx =',invgx(igg),shtvg(:,igg)
-        print *,' tttt: ',ddd,ddd2
+c        print *,' tttt: ',ddd !,ddd2
         print *,' tttt: ntorb napwin',norbt,ndimh,napw_in,nlmto
       endif
 
@@ -343,7 +343,8 @@ c apw part ------------
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
 c      evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
           do ix=1,ndimh
-            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
+!            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
+            sigx(ix,nlmto+ig2) =   sig(ix,nlmto+ig) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
           enddo
         enddo
       endif
@@ -388,7 +389,8 @@ c apw part ------------
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
 c       evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
           do ix=1,ndimh
-            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp( img2pi*sum(qpg*ddd) ))
+c            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp( img2pi*sum(qpg*ddd) ))
+            sigout(nlmto+ig2,ix) =   sigx(nlmto+ig,ix) * dconjg(exp(-img2pi*sum(qpgr*shtvg(:,igg)))) !aug2012takao corrected
           enddo
         enddo
         if(debugmode()>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2

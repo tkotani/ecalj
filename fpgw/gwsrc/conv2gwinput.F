@@ -128,7 +128,7 @@ c
       write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) mesh width along real axis.'
       write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) Only for Sergey mode.'
       write(ifi,"(a)")         '  !  coaser mesh for higher energy. Width get to be doubled at omg_c.'
-      write(ifi,"(a,i5,a)")    'iSigMode ', iSigMode,' ! sscGW mode switch. Required only in sscGW.'
+      write(ifi,"(a,i5,a)")    'iSigMode ', iSigMode,' ! QSGW mode switch for gwsc. use =3.'
       write(ifi,"(a,i5,a)")    'niw      ', niw,' ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
       write(ifi,"(a)")         '  ! E.g. try niw=6 and niw=12'
       write(ifi,"(a,d10.2,a)") 'delta    ', delta, ' !(a.u.)  Broadening of x0. negative means tetrahedron method.'

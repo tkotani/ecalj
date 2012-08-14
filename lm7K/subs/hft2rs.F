@@ -192,6 +192,8 @@ ckino     .ppair1,pshpr,redfi,rlse,tcn,tcx
       mode1 = mod(mode/10,10)
       mode2 = mod(mode/100,10)
       mode3 = mod(mode/1000,10)
+      print *,'hft2rs: mode 0,1,2,3=',mode,mode0,mode1,mode2,mode3
+
 Ckino isanrg is logical function,       call isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
       l_dummy_isanrg=isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
 Ckino isanrg is logical function,       call isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
@@ -216,7 +218,7 @@ ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_
 
 C   ... Standard Bloch transform doesn't require mapping to mesh
         if (mode2 .eq. 0) then
-
+           print *,' mode mode2=',mode,mode2
 C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
@@ -226,30 +228,19 @@ ckino Dec.14.2011:       .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , 
 ckino Dec.14.2011:       .      , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .      , dmx )
-
-
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
      .    ' of %i possible for FFT',nviax,nvtot)
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        stop 'test end xxxxxxxxxxxxxxxxxxxxxx111222'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 C     ... Reduce iax table to elements on mesh in common with pairc
           allocate(iwk_iv((niax+1)*mxcsiz))
-
 C         nttabs = nttab
 ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab
 ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_a_oiax , nttab
           call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab 
      .      , mxcsiz )
-
-
-
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
           if (allocated(iwk_iv)) deallocate(iwk_iv)
-
         endif
+
 
 C   ... Add pairs so that any ri-rj has corresponding rj-ri
         if (mode3 .ne. 0) then
@@ -257,22 +248,13 @@ C   ... Add pairs so that any ri-rj has corresponding rj-ri
           if (mode3 .eq. 2) i = 111
 C         nttabs = nttab
           nttab = nttab*3
-ckino Dec.14.2011:             i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
           i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-ckino Dec.14.2011:             iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
           iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-ckino Dec.14.2011:             i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
           i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-ckino Dec.14.2011:             iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
           iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-
           call pshpr(ipr)
-ckino Dec.14.2011:              call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab
           call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab
-ckino Dec.14.2011:       .      , iv_p_oiax , nttab , mxcsiz ) 
      .      , iv_a_oiax , nttab , mxcsiz )
-
-
           call poppr
 
 C     ... Fill out iax(6,7,10)
@@ -281,7 +263,6 @@ C     ... Fill out iax(6,7,10)
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
      .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
-
 
           call poppr
         endif
@@ -307,12 +288,11 @@ C       call pshpr(ipr)
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
 ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
      .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
-
-
           call poppr
         endif
         goto 999
       endif
+
 
 C ... hq to real-space representation by FFT; copy hq to hrs
       if (mode0 .eq. 1 .and. mode2 .eq. 0) then
@@ -324,15 +304,12 @@ C       call yprm('hfbz(FT)',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 C       Scale by phase for offset k-mesh
 C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
-
         call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
 ckino Dec.14.2011:       .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot
 ckino Dec.14.2011:       .    , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , dmx )
-
-
         call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
       elseif (mode0 .eq. 1 .and. mode2 .eq. 1) then
@@ -342,7 +319,6 @@ C     .    w(oidxsh),1,nitab,w(oiax),ldim,ldim,w(oh2),w(osigr),nl**2)
       else
         call rxi('hft2rs: bad mode',mode)
       endif
-
   999 continue
       call tcx('hft2rs')
 
@@ -628,6 +604,7 @@ c      external isanrg
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       ltrans = mod(mode/10000,10) .ne. 0
+      print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
       dimx = 0
       dimy = 0
       offx = is1-1

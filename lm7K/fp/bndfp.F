@@ -349,7 +349,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       integer:: i_copy_size, i_spackv, i_spacks
       integer ::iwdummy
 
-      logical :: debug=.false. !debug is only for check write. However, it can cause error
+      logical :: debug=.true. !debug is only for check write. However, it can cause error
       !for 'make check',
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK
@@ -382,8 +382,8 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
+      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:)!,hamsom(:,:)
       integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
@@ -407,7 +407,7 @@ ctakao
 
       logical:: isanrg, l_dummy_isanrg,oncewrite, savez,getz,gotosecondpass,initiqisp
 
-      integer:: getef, i_dummy_getef,ifig
+      integer:: getef, i_dummy_getef,ifig, ndimx
 
 ckino
       integer:: n_listwf
@@ -415,6 +415,11 @@ ckino
 
       integer:: ntqxx,ispx,ix99 !,nevec unused.
       real(8)::eseavrmean
+      
+cccccccccccccccccccccccccccccccccccc
+      real(8):: qsfz(3,100)
+      integer:: nqps
+cccccccccccccccccccccccccccccccccccc
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
@@ -1068,23 +1073,17 @@ C       suqlst in MPIK mode; returns cumulative number of k-points
         i = nsp
         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
 C       In parallel mode, suqlst call only serves to generate nkp
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(debug) print *,'vvvvv nkp=',nkp
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ckino plotting wavefunction
         write(*,*)'allocate listwf , size=',ndham
         if (allocated(listwf))  deallocate(listwf)
         allocate(listwf(ndham))
         n_listwf=ndham; listwf=0
-
         if (procid .eq. master) then
-ckino
           write(*,*) 'calling suqlst'
           call suqlst ( plbopt , iopq , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp )
-
 ckino       fat band and write psi
           n_listwf=0
 ckino           write(*,*)'checking --writewf option'
@@ -1105,12 +1104,10 @@ ckino
             write(*,*)'--writewf option, ndham,n_listwf=',ndham,n_listwf
             write(*,'(8I5)')  listwf(1:n_listwf)
           endif
-
         endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
+
         if(debug) print *,'vvvvv nkp222=',nkp,iopq
-c        stop 'xxxxxxxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
         call mpibc1(nkp,1,2,mlog,'bndfp','nkp')
         if (nkp .le. 0) call rx0('bndfp')
         call mpibc1(nfbn,2,2,mlog,'bndfp','nfbn')
@@ -1121,6 +1118,7 @@ ckino plotting wavefunction
         if (n_listwf>0) then
           call mpibc1(listwf,n_listwf,2, mlog,'bndfp','listwf')
         endif
+
 
 C MPIK: Setup to assemble all k-points into single list with qp table
 #if MPIK
@@ -1156,7 +1154,6 @@ C       iq = running index to big qp list, i1 = index to current line
           call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , i2 , qp , onesp )
 
-
           call poppr
           if (i2 .gt. 0) then
             call pshpr(0)
@@ -1164,7 +1161,6 @@ C       iq = running index to big qp list, i1 = index to current line
               iq = iq+1
               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
      .         , ifbls_iv , i2 , qp , onesp )
-
 
 ckino Dec.8.2011:                 call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
               call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
@@ -1176,9 +1172,7 @@ ckino Dec.8.2011:                 call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq -
           endif
         endif
 ckino Dec.8.2011:           call mpibc1 ( rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'
-        call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp' 
-     .   )
-
+        call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 #endif
       endif
 
@@ -1267,7 +1261,8 @@ ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit,
 ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode)
 ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode)
 c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
-     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw,jobgw)
+c     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw,jobgw)
+     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
 c        endif
 #if 1
 Ckino ib=atom index
@@ -1300,6 +1295,7 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         !enddo
       endif
 
+
 c --- generate \Sigma for q points on all the mesh points. takao
 c      nhmax = ldim + napwmx !napwmx is in m_hamindex
 c      lwsig=0
@@ -1325,12 +1321,30 @@ c      lwsig=0
         endif
 c        if(ndham/=ndham) stop "we now assume ndham = ndmam"
         write(6,*)"Now we go into rdsigm2 for PMT mode...lrsig=" ,lrsig
-
+cccccccccccccccccc
         call rdsigm2(nbas,nsp,ndham,slat,sham,sbz,ifi,
-     &  nk1,nk2,nk3,ldim,qsmesh,sfz) !sfz is the self-energy roteted in the full BZ.
+     &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps) !sfz is the self-energy roteted in the full BZ.
+                  !qsfz is for test
+cccccccccccccccccccc
         ! rdsigm2 use m_hamindex (napwk
 c        deallocate(sfz)
         call fclose(ifi)
+        print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
+
+cccccccccccccccccccccccccccccccccccccccc
+        ndimx= ndham !ndimx=ldim   !ndimx=ndham It was ndham before aug2012
+                      ! ndimx is the dimension of the self-energy. 
+                      ! ndimx=ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
+        if(ndham/=ndimx) then
+          allocate(sfzmto(nk1,nk2,nk3,ndimx,ndimx,nsp))
+          sfzmto = sfz(:,:,:,1:ndimx,1:ndimx,:)
+          deallocate(sfz)
+          allocate(sfz(nk1,nk2,nk3,ndimx,ndimx,nsp))
+          sfz=sfzmto
+          deallocate(sfzmto)
+        endif  
+cccccccccccccccccccccccccccccccccccccccccccc
+
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls
@@ -1373,12 +1387,6 @@ c      call pairtakao(2,pos,nbas,plat,nknknk,npair, npairmx,range, nlat,qwgt)
 c      deallocate(range)
 c
         allocate(npair(nbas,nbas),pos(3,nbas))
-
-ckino Dec.8.2011:           rv_p_opos => slat%rv_p_opos
-
-
-ckino Dec.8.2011:           call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 )
-ckino Jan.04.2012:           call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 1 )
         call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
         npairmx=nk1*nk2*nk3*2
         do
@@ -1388,19 +1396,24 @@ ckino Jan.04.2012:           call dcopy ( nbas * 3 , slat%rv_p_opos , 1 , pos , 
           if(ok) exit
           deallocate( nlat, qwgt )
         enddo
-C... This is needed only for hambls.F case (store ohrs)
-        if(.not.newsigmasw()) then
-          allocate( sfzx(nk1,nk2,nk3,ndham,ndham,nsp) )
+        print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
+!! When ndimx=ldim, we modify use rdsigm2 projected on MTO.
+!! Aug2012  newsigmasw()=F is the current version.
+!! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
+        if(.not.newsigmasw()) then 
+          allocate( sfzx(nk1,nk2,nk3,ndimx,ndimx,nsp) ) 
           sfzx=sfz
           ifi = 1
           if (procid .eq. master) ifi = fopna('sigm',-1,4)
-          call seneinterp(nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,
+c          call seneinterp(nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,
+          call seneinterp(nbas,nsp,ndimx,slat,sham,sbz,ifi,rsrnge, !aug2012takao
      &    nk1,nk2,nk3,sfzx) !,qp,isp,sene)
           call fclose(ifi)
           deallocate(sfzx)
         endif
         siginit=.false.
       endif !end of sigmamode if
+
 
 
 C--- GW driver must be after rdsigm2 for sigm mode
@@ -1411,10 +1424,12 @@ c       osgw=spot%osgw
 C ... Modes 0..4
 ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot
 ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot
+cccccccccccccccc
+        if(newsigmasw()) stop 'goto sugw xxxxxxxxxxxxxxxx need to fix sugw for PMT mode (note ndimx) xxxxxxxxxxxx'
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
-     .         ,nk1,nk2,nk3,sfz,sigmamode)
+     .         ,nk1,nk2,nk3,sfz,sigmamode,ndimx)
         deallocate(spotx)
 c        call rlse(oqmom)
 C      if (jobgw .eq. 1) then
@@ -1429,7 +1444,6 @@ C      endif
 
 !! === do loop for iq and isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
-ctakao
       if(allocated(nevls)) deallocate(nevls)
       allocate(nevls(nkp,nsp))
       nevls=0
@@ -1499,6 +1513,18 @@ ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1
 
 #endif
 
+ccccccccccccccccccccccccccccccccccccccccccccccc
+        if(iq==1) qp=0d0
+        if(iq==2) qp= (/ -0.25000, -0.25000,  0.75000/)
+        if(iq==3) qp= (/-0.50000,  0.50000,  0.50000/)
+        if(iq==4) qp= (/0.250000,  0.250000,  0.250000/)
+        print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
+ccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -1516,10 +1542,14 @@ C       isp=1 generates just the 11 block
         do  isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
-ctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
-            if(.not.noshorbz()) then
-              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
-            endif
+
+             print *,' test run ------> temporarly comment out shorbz'
+cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
+c            if(.not.noshorbz()) then
+c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
+c            endif
+
+
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
 C   ... For this qp, G vectors for PW basis and hamiltonian dimension
@@ -1610,37 +1640,74 @@ c              ifio = fopna('ovlmat',-1,4)
 c        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-! Determine interpolated self-energy sene at qp from sfz
-            if(sigmamode) then
-              if(debug) print *,' goto seneinterp2: qp=',qp
-              allocate(sene(ndimh,ndimh))
-              call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
-     o        sene)
-            endif
 
-C cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
-C C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-C           ! sene=0d0
-C           write(6,"(a,3f13.5)")'    qp=',qp
-C           do ik1=1,nk1
-C           do ik2=1,nk2
-C           do ik3=1,nk3
-C              write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
-C              if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
-C           enddo
-C           enddo
-C           enddo
-C           stop 'xxxxx not qp=qsmesh xxxx'
-C  1013    continue
-C           do j1=1,ndimh !ldim+napw
-C           do j2=1,ndimh !ldim+napw
-C             if(j1<=ldim.and.j2<=ldim) cycle
-C             sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-C           enddo
-C           enddo
-C C cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
+!! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
+c$$$         if(sigmamode.and.newsigmasw()) then
+c$$$           if(debug) print *,' goto seneinterp2: qp=',qp
+c$$$           if(ndimx/=ndimh) stop 'xxxxxx need to generate sene(ndimh,ndimh) from sfz(ndimx,ndimx) xxx '
+c$$$           allocate(sene(ndimh,ndimh))
+c$$$           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c$$$c     i        sfz(:,:,:,:,:,isp),ndimx,ndimx, !ldim,ndimh, 
+c$$$     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
+c$$$     o        sene) 
+c$$$         endif
+
+c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nk1
+c$$$          do ik2=1,nk2
+c$$$          do ik3=1,nk3
+c$$$             write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
+c$$$             if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          enddo
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
+c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
+c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
+c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
+c     &      ,sum(abs(sene-senex))
+c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
+c          deallocate(senex)
+c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+
+C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
+C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c          allocate(senex(ndimh,ndimh))
+          allocate(sene(ndimh,ndimh))
+c          senex=0d0
+          write(6,"(a,3f13.5)")'    qp=',qp
+          do ik1=1,nqps
+             write(6,"(a,3f13.5)")' qsfz=',qsfz(1:3,ik1)
+             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
+          enddo
+          stop 'xxxxx not qp=qsmesh xxxx'
+ 1013    continue
+          do j1=1,ndimh !ldim+napw
+          do j2=1,ndimh !ldim+napw
+c            if(j1<=ldim.and.j2<=ldim) cycle
+c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+            sene(j1,j2)= sfz(1,1,ik1,j1,j2,isp)
+          enddo
+          enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
 
 Ckino hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 Ckino finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
@@ -1659,7 +1726,7 @@ ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vcon
      .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
-              if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc)+sene
+              if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc) + sene
               if(sigmamode) deallocate(sene)
 ccccc     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
 c      endif
@@ -1682,24 +1749,16 @@ c        deallocate(z0,zqi,e)
 cc        goto 999
 c      endif
 c      if (lrsig .eq. 0) goto 999
+
             else
 C ... Interpolation of sene= \Sigm-Vxc at given q.
 ckino                    isize_hamm(3)=size(hamm)
               isize_hamm(3)=size(hamm,dim=3)
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
-ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot ,
-ckino Dec.8.2011:       .             ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , spot%zv_p_osmpot ,
-ckino Dec.28.2011:       .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_p_osmpot , 
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
-     .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa 
-     .             , ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb )
-
-
-
-
-
+     .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
+     .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimx)
 c        nsmidb = min(nsmidb,ismidb) !????
-              if(sigmamode) deallocate(sene)
               if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
 

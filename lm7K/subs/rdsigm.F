@@ -144,7 +144,6 @@ Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SI
 
       subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp,
      .lshft1,lshft2,lshft3,ifi)
-
 C- Read/write header information in sigma file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -241,23 +240,23 @@ Ckino isanrg is logical function,           call isanrg(modef,mode,mode,'iosigh:
 C       Assign header parameters or check with file correspondence
         if (mod(optio,2) .ne. 0) then
           read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
-Ckino isanrg is logical function,           call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
           l_dummy_isanrg=isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
-Ckino isanrg is logical function,           call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
           l_dummy_isanrg=isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
+Ckino isanrg is logical function,           call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
+Ckino isanrg is logical function,           call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
 Ckino isanrg is logical function,           call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
-          l_dummy_isanrg=isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
 Ckino isanrg is logical function,           call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
-          l_dummy_isanrg=isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
 Ckino isanrg is logical function,           call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
-          l_dummy_isanrg=isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
 Ckino isanrg is logical function,           call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
-          l_dummy_isanrg=isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
 Ckino isanrg is logical function,           call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
-          l_dummy_isanrg=isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
 Ckino isanrg is logical function,           call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
-          l_dummy_isanrg=isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
 Ckino isanrg is logical function,           call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
+          l_dummy_isanrg=isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
+          l_dummy_isanrg=isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
+          l_dummy_isanrg=isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
+          l_dummy_isanrg=isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
+          l_dummy_isanrg=isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
+          l_dummy_isanrg=isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
           l_dummy_isanrg=isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
         else
           read(ifi,err=99,end=99)
@@ -265,7 +264,6 @@ Ckino isanrg is logical function,           call isanrg(i9,lshft3,lshft3,'iosigh
         endif
       endif
       return
-
    99 continue
       call rx('iosigh: failed to read header from file')
       end subroutine iosigh
@@ -352,6 +350,9 @@ C ... Heap
       integer ::iwdummy
 
       integer ii,jj
+      integer:: ndimhr !Read from sigm. This can be different from ndimh in the case of PMT, 
+                       ! that is, ndimh< ndimhr=nlmto+napw !apr2012takao
+      complex(8),allocatable:: sqr(:,:)
 
       call getpr(ipr)
       stdo = lgunit(1)
@@ -415,10 +416,10 @@ C             call zprm('U S U+',2,hrs(1,1,isp,is),ndhrs,ndhrs,ndhrs)
 C ... Read header data
       lsplts = .false.
       if (opt01 .eq. 0) then
-        call iosigh(0,nscnts,i,ndimh,nk1,nk2,nk3,nqp,
+        call iosigh(0,nscnts,i,ndimhr,nk1,nk2,nk3,nqp,
      .  lshft(1),lshft(2),lshft(3),ifis)
         if (nscnts .ne. 0 .and. nscnts .ne. 5) then
-          call iosigh(2,0,i,ndimh,nk1,nk2,nk3,nqp,
+          call iosigh(2,0,i,ndimhr,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
         endif
 
@@ -437,7 +438,7 @@ C ... Read header data
 
 C     If sigma file not spin polarized, use sigma from spin 1
         if (isp .eq. 2 .and. lsplts) then
-          call iosigh(1,nscnts,1,ndimh,nk1,nk2,nk3,nqp,
+          call iosigh(1,nscnts,1,ndimhr,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
         endif
 
@@ -451,7 +452,14 @@ C       print *, 'starting iq=',iq1
             read(ifis) qp
             if (opt0 .eq. 2) call dcopy(3,qplst(1,iq1),1,qp,1)
             if (nscnts .eq. 5) call dpdump(xx,1,ifis)
-            call dpdump(sq,ndimh**2*2,ifis)
+!! readin sq
+c            call dpdump(sq,ndimh**2*2,ifis)
+            allocate(sqr(ndimhr,ndimhr))
+            if(ndimhr<ndimh) call rx('chksgr :ndimhr<ndimh')
+            call dpdump(sqr,ndimhr**2*2,ifis)
+            sq = sqr(1:ndimh,1:ndimh)
+            deallocate(sqr)
+!!
             call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,kcplx,1)
 C          print *, iq1
 C          call zprm('sq',2,sq,ndimh,ndimh,ndimh)

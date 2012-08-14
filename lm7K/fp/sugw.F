@@ -4,7 +4,7 @@
       subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode)
+     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode,ndimsig)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
@@ -239,6 +239,7 @@ c      common /w/ w
       integer(4):: nk1,nk2,nk3,   irr,nqi, nmcore !feb2012takao
       complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
+      integer:: ndimsig
 C --- Setup ---
       call tcn ('sugw')
       print *,'sugw:'
@@ -912,7 +913,7 @@ c          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
 ckino Dec.14.2011:       .        ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
      .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
      .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
-     .        , napw , igv2 , ham , ovl , isize_ham, i2 )
+     .        , napw , igv2 , ham , ovl , isize_ham, i2, ndimsig )
           endif
           if (i .eq. -1) lpdiag = 2
           if(debug) print *,' end of generation of Hamiltonian'

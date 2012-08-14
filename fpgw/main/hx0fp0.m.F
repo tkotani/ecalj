@@ -19,7 +19,7 @@
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
 c      use m_spacegrouprot,only: Spacegrouprot
       use m_readqgcou,only: readqgcou
-      use m_rotMPB,only: rotMPB
+c      use m_rotMPB,only: rotMPB
 C-------------------------------------------------
 C  Calculate x0, W-V, \epsilon
 Cr

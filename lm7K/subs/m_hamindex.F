@@ -16,7 +16,7 @@
       contains
 
       integer function getikt(qin)
-      integer::i,nqnum
+      integer::i
       real(8):: qin(3)
 c      if(debug) print *,'nkt=',nkt
       do i=1, nqnum !*2 !nkt
@@ -26,7 +26,10 @@ c      if(debug) print *,'nkt=',nkt
           return
         endif
       enddo
-      print *,' getikt: error qin=',qin
+      print *,' getikt: xxx error nqnum qin=',nqnum,qin
+      do i=1, nqnum !*2 !nkt
+        write(*,"('i qq=',i3,3f11.5)")i, qq(:,i)
+      enddo  
       stop ' getikt can not find ikt for given q'
       end function
 

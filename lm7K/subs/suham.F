@@ -1,3 +1,4 @@
+!! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
@@ -41,7 +42,7 @@ c      enddo
       integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
-      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3)
+      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
       integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ !imx,
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
@@ -285,8 +286,8 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       print *,' goto APW part pwmode=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
       allocate( napwk(nkt))
-      if(pwmode<10) then
-        !'gen_hamindex: takao assumes pwmode>=10 so this may not work well '
+!! takao is 
+      if(mod(pwmode,10)==0) then ! MTO basis only 
         return
       endif
       pwgmax = dsqrt(pwemax)
@@ -297,7 +298,11 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
         !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
         !print *,' 111 alat plat=',alat,plat
         !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
-        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+ccccccccccccccccccccccccccccccccc !aug2012takao
+        qqx=qq(:,ikt)
+        if(pwmode<10) qqx=0d0  !Is this call below to gvlst2 is consistent with other part?
+cccccccccccccccccccccccccccccccccc
+        call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
      .  0,0,napwx,dum,dum,dum,dum)
         !print *,' 111x   =',napwmx
         napwk(ikt) = napwx
@@ -309,7 +314,11 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       !print *,'zzzzzzzzzz2'
       do ikt = 1,nkt
         print *,' 222 ikt=',ikt
-        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+cccccccccccccccccccccccccccccccc !Aug2012takao
+        qqx=qq(:,ikt)
+        if(pwmode<10) qqx=0d0
+cccccccccccccccccccccccccccccccc
+        call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
      .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
       enddo
       deallocate(kv)

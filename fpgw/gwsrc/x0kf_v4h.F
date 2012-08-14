@@ -25,7 +25,7 @@ c------------------------------------------
       use m_readqg,only :  readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:  getkeyvalue
-      use m_rotMPB,only:  rotMPB,rotMPB2
+      use m_rotMPB,only:  rotMPB2 !rotMPB,
       use m_readqgcou,only: qtt_,nqnum !itimermap,
 
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
