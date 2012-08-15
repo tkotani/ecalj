@@ -1394,7 +1394,12 @@ C.....titus
       integer:: i_copy_size
       logical:: isanrg, l_dummy_isanrg,debug=.false.
 
+
+ccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,*)
+      integer:: ii1,ii2,ii4
+      sfz=1d99
+
 C     --- Read sigma(orbital basis) from file ---
       call tcn('rdsigm2')
       print *
@@ -1553,7 +1558,6 @@ c ... scalced sigm. alf(1:2)
             endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
-            write(6,"(a,13f13.5)")' Goto hamfb3k  xxx input qp=', qp
             if(ldim==ndimh) then
               napw_in=0
               ikt=-9999
@@ -1561,13 +1565,18 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
               ikt = getikt(qp)
               napw_in= napwk(ikt)
             endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-            if(iq1<=2) then
-            sfz(1,1,iq1,1:ndimh,1:ndimh,isp)= sigm_zv(:,:)
-            qsfz(:,iq1)=qp
-            endif
-            cycle
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c            ii1=mod(iq1,2)+1
+c            ii2=mod(iq1/2,2)+1
+c            ii4=mod(iq1/4,2)+1
+c            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
+c            sfz(ii4,ii2,ii1,1:ndimh,1:ndimh,isp)= sigm_zv(:,:)
+c            qsfz(:,iq1)=qp
+c            cycle
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+            write(6,"(a,13f13.5)")' Goto hamfb3k  xxx input qp=', qp
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv
      .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
      .      ifac , gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp  ) )

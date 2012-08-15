@@ -380,7 +380,7 @@ ctakao
       integer :: ifiogw,ifiese,oag,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
-      integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
+      integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:)!,hamsom(:,:)
@@ -418,7 +418,7 @@ ckino
       
 cccccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,100)
-      integer:: nqps
+      integer:: nqps,ii1,ii2,ii4,iq1
 cccccccccccccccccccccccccccccccccccc
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
@@ -1321,12 +1321,9 @@ c      lwsig=0
         endif
 c        if(ndham/=ndham) stop "we now assume ndham = ndmam"
         write(6,*)"Now we go into rdsigm2 for PMT mode...lrsig=" ,lrsig
-cccccccccccccccccc
         call rdsigm2(nbas,nsp,ndham,slat,sham,sbz,ifi,
      &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps) !sfz is the self-energy roteted in the full BZ.
                   !qsfz is for test
-cccccccccccccccccccc
-        ! rdsigm2 use m_hamindex (napwk
 c        deallocate(sfz)
         call fclose(ifi)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
@@ -1513,17 +1510,7 @@ ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1
 
 #endif
 
-ccccccccccccccccccccccccccccccccccccccccccccccc
-        if(iq==1) qp=0d0
-        if(iq==2) qp= (/ -0.25000, -0.25000,  0.75000/)
-        if(iq==3) qp= (/-0.50000,  0.50000,  0.50000/)
-        if(iq==4) qp= (/0.250000,  0.250000,  0.250000/)
         print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
-ccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -1545,9 +1532,9 @@ C       isp=1 generates just the 11 block
 
              print *,' test run ------> temporarly comment out shorbz'
 cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
-c            if(.not.noshorbz()) then
-c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
-c            endif
+            if(.not.noshorbz()) then
+              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
+            endif
 
 
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
@@ -1640,20 +1627,18 @@ c              ifio = fopna('ovlmat',-1,4)
 c        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
-c$$$         if(sigmamode.and.newsigmasw()) then
-c$$$           if(debug) print *,' goto seneinterp2: qp=',qp
-c$$$           if(ndimx/=ndimh) stop 'xxxxxx need to generate sene(ndimh,ndimh) from sfz(ndimx,ndimx) xxx '
-c$$$           allocate(sene(ndimh,ndimh))
-c$$$           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-c$$$c     i        sfz(:,:,:,:,:,isp),ndimx,ndimx, !ldim,ndimh, 
-c$$$     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
-c$$$     o        sene) 
-c$$$         endif
+         if(sigmamode.and.newsigmasw()) then
+           if(debug) print *,' goto seneinterp2: qp=',qp
+           if(ndimx/=ndimh) stop 'xxxxxx need to generate sene(ndimh,ndimh) from sfz(ndimx,ndimx) xxx '
+           allocate(sene(ndimh,ndimh))
+           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c     i        sfz(:,:,:,:,:,isp),ndimx,ndimx, !ldim,ndimh, 
+     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
+     o        sene) 
+         endif
 
 c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
@@ -1686,25 +1671,31 @@ c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
 c          deallocate(senex)
 c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 
-C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
-C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-c          allocate(senex(ndimh,ndimh))
-          allocate(sene(ndimh,ndimh))
-c          senex=0d0
-          write(6,"(a,3f13.5)")'    qp=',qp
-          do ik1=1,nqps
-             write(6,"(a,3f13.5)")' qsfz=',qsfz(1:3,ik1)
-             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
-          enddo
-          stop 'xxxxx not qp=qsmesh xxxx'
- 1013    continue
-          do j1=1,ndimh !ldim+napw
-          do j2=1,ndimh !ldim+napw
-c            if(j1<=ldim.and.j2<=ldim) cycle
-c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-            sene(j1,j2)= sfz(1,1,ik1,j1,j2,isp)
-          enddo
-          enddo
+c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nqps
+c$$$             write(6,"(a,i3,3f13.5)")' ik1 qsfz=',ik1,qsfz(1:3,ik1)
+c$$$             iq1=ik1
+c$$$            ii1=mod(iq1,2)+1
+c$$$            ii2=mod(iq1/2,2)+1
+c$$$            ii4=mod(iq1/4,2)+1
+c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
+c$$$             print *,' xxxxxxxxxxx this shows shorbz problem... xxxxxxxxx'
+c$$$             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ii4,ii2,ii1,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 

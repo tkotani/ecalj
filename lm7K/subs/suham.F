@@ -203,7 +203,8 @@ cccccccccccccccccccccccccccccc
 !! we have two set of data for original qxx in QGpsi and their shortened.
 c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
-      nqtt=nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
+!! aug2012 we are removing shorbz
+      nqtt=nqnum !nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
       nkt=nqtt
       allocate( qtti(3,nqi), qq(3,nqtt),iqtt(nqtt) )
 c      allocate( ngvecp(3,ngpmx,nqnum))
@@ -221,19 +222,14 @@ c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
         read(ifiqg)
 c        read(ifiqg) ngvecp(1:3,1:ngp,iq), ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
         qq(:,iq)=qxx
-        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
-        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
+cc comment out aug2012takao
+cc        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
+cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
+        write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
       enddo
       call fclr(' ',ifiqg) !close file
 
-c$$$      print *
-c$$$      do iq = nqnum+1, nqnum+nkp
-c$$$        qq(:,iq) = qplist(:,iq-nqnum)
-c$$$        call shorbz(qq(:,iq),qq(:,iq+nqnum+nkp),qlat,plat)
-c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum+nkp)
-c$$$      enddo
 !! ==== Generate info for rotwv and write ====
-      nqtt = nqnum*2
       print *,' nqtt nqi=',nqtt,nqi
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       platt= transpose(plat) !this is inverse of qlat
