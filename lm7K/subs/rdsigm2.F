@@ -9,17 +9,17 @@
 
 !! == Give \Sigma-Vxc for given qp from sfz (this does not work well)==
       subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-     i  sfz,ldim,ndimh, 
+     i  sfz,ldim,ndimx, 
      o  sene)
       use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
       use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
       implicit none
-      integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimh,
+      integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimx,
      &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
      &  j1x,j2x,ix1,ix2,ix3,ikt,ig,nkk(3),igvecc0(3),iktm,igvecc(3),j1,j2
 c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
-      complex(8):: sfz(nk1,nk2,nk3,ndimh,ndimh), 
-     &  pi2i,sene(ndimh,ndimh),sss
+      complex(8):: sfz(nk1,nk2,nk3,ndimx,ndimx), 
+     &  pi2i,sene(ndimx,ndimx),sss
       complex(8),allocatable:: wgtq(:,:,:,:,:)
       real(8)::rrr(3),plat(3,3) !,qsmesh(3,nk1,nk2,nk3)
       logical:: oncewrite,debug=.false.
@@ -64,7 +64,7 @@ c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
       enddo
       deallocate(wgtq)
 !!--- return when no APW
-      if(ldim==ndimh) then
+      if(ldim==ndimx) then
         return
       endif
 
@@ -91,7 +91,7 @@ c      endif
       call interparam(qpara, wgc)
       print *,' --- end of interparam ---'
 !!... obtain G index for eight corners of a cube. qp is in the cube.
-      allocate( igx(ndimh,0:1,0:1,0:1) )
+      allocate( igx(napwmx,0:1,0:1,0:1) )
 
 c      ikt=getikt(qp) ! index for qp
 c      print *,'ikt qp=',ikt,qp
@@ -144,8 +144,8 @@ c      print *,'ikt qp=',ikt,qp
       enddo
       enddo
 
-      do j1=1,ndimh
-        do j2=1,ndimh
+      do j1=1,ndimx
+        do j2=1,ndimx
           if(j1<=ldim.and.j2<=ldim) cycle
           sss=0d0
           www=0d0

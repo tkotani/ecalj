@@ -383,7 +383,7 @@ ctakao
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:)!,hamsom(:,:)
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) !,hamsom(:,:)
       integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
@@ -1329,7 +1329,7 @@ c        deallocate(sfz)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
 
 cccccccccccccccccccccccccccccccccccccccc
-        ndimx= ndham !ldim   !ndimx=ldim   !ndimx=ndham It was ndham before aug2012
+        ndimx= ldim   !ldim   !ndimx=ldim   !ndimx=ndham It was ndham before aug2012
                       ! ndimx is the dimension of the self-energy. 
                       ! ndimx=ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
         if(ndham/=ndimx) then
@@ -1510,14 +1510,18 @@ ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1
 
 #endif
         print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
+        if(iq==1) qp=(/-0.350,      -0.3500,       0.3500/)
+        if(iq==2) qp=(/ 0.6000,      -0.5000,       0.5000/)
+        if(iq==3) qp=(/-0.25000,  0.25000,  0.2500/)
+        if(iq==4) qp=(/ 0.2500,    0.2500,       0.2500/)
 c        if(iq==1) qp=(/-0.2500,      -0.2500,       0.7500/)
 c        if(iq==2) qp=(/ 0.5000,      -0.5000,       0.5000/)
 c        if(iq==3) qp=(/-0.5000,       0.5000,       0.5000/)
 c        if(iq==4) qp=(/ 0.2500,       0.2500,       0.2500/)
-        if(iq==1) qp=(/ 0.0000,       0.0000,       0.0000/)
-        if(iq==2) qp=(/ 0.7500,      -0.2500,      -0.2500/)
-        if(iq==3) qp=(/-0.2500,       0.7500,      -0.2500/)
-        if(iq==4) qp=(/ 0.5000,       0.5000,      -0.5000/)
+c        if(iq==1) qp=(/ 0.0000,       0.0000,       0.0000/)
+c        if(iq==2) qp=(/ 0.7500,      -0.2500,      -0.2500/)
+c        if(iq==3) qp=(/-0.2500,       0.7500,      -0.2500/)
+c        if(iq==4) qp=(/ 0.5000,       0.5000,      -0.5000/)
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -1640,12 +1644,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
          if(sigmamode.and.newsigmasw()) then
-           if(debug) print *,' goto seneinterp2: qp=',qp
-           if(ndimx/=ndimh) stop 'xxxxxx need to generate sene(ndimh,ndimh) from sfz(ndimx,ndimx) xxx '
+           if(debug) print *,' goto seneinterp2: qp=',qp,ispc,ndimx,ndimh
            allocate(sene(ndimx,ndimx))
            call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ndimx,ndimx, !ldim,ndimh, 
-     i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
+     i        sfz(:,:,:,:,:,isp),ldim,ndimx, 
      o        sene) 
          endif
 c$$$
@@ -1727,8 +1730,19 @@ ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vcon
      .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
-              if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc) + sene
-              if(sigmamode) deallocate(sene)
+              if(sigmamode) then
+                allocate( ovlmtoi(ndimx,ndimx),ovliovl(ndimx,ndimh))
+                ovlmtoi = ovlm(1:ndimx,1:ndimx,ispc)
+                call matcinv(ndimx,ovlmtoi)
+                ovliovl = matmul(ovlmtoi,ovlm(1:ndimx,1:ndimh,ispc))
+                deallocate(ovlmtoi)
+                allocate(senex(ndimh,ndimh))
+                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
+                deallocate(ovliovl,sene)
+                hamm(:,:,ispc) = hamm(:,:,ispc) + senex
+                deallocate(senex)
+              endif
+
 ccccc     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
 c      endif
 c      lrsig = mod(mode/10,10)
