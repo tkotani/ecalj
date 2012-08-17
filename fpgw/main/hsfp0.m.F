@@ -1092,7 +1092,7 @@ c     call rwdd1 (ifev(is),iq, nband,eq)
             endif
 
 c     if(sergeys) then
-            if(debug) print *,'### goto sxcf_fal3z ###'
+            if(debug) print *,'### goto sxcf_fal3z ### nlmto=',nlmto
             call sxcf_fal3z (kount, ip,q(1,ip),irot,itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
 c     v2
@@ -1131,7 +1131,7 @@ c     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
      i    wklm,lxklm, !mar2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
-
+            print *,' end of sxcf_fal3z xxxxxxxxxxxxxxx'
 
 c     else                                                 !june2002 add esmr2 takao
 c     call sxcf_v2z (kount, ip,q(1,ip),irot,itq,ntq,ef,ef2,esmr,esmr2,

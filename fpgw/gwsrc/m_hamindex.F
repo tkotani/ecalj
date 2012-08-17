@@ -63,7 +63,7 @@ c      allocate( offlrev(nbas,0:lxx,kxx))
 c      read(ifi)ibastab,ltab,ktab,offl,offlrev,dlmm
 c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
 c      allocate( ngvecp(3,ngpmx,nqnum) )
-      allocate( qq(3,nqnum*2))
+      allocate( qq(3,nqnum)) !this was qq(3,nqnum*2) until Aug2012 when shorbz had been used.
       read(ifi)qq !,ngvecp,ngvecprev
       read(ifi)plat,qlat
       close(ifi)

@@ -1144,7 +1144,9 @@ c     print *, 'nblochpmx=',nblochpmx
               deallocate(ecore)
               allocate(ecore(1,2)) !this is dummry
             endif
-c     write(6,*) "goto sxcf_fal3_scz"
+cccccccccccccccccccccccccccccccc
+        write(6,*) "goto sxcf_fal3_scz"
+ccccccccccccccccccccccccccccccc
             call sxcf_fal3_scz (kount, ip,q(1,ip),irot,itq,ntq,ef,esmr,
      i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
 c     v2
@@ -1179,6 +1181,9 @@ c     i     shtw,
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i    wklm,lxklm, !mar2012
      o              zsec,coh)   ! acuumulation variable
+cccccccccccccccccccccccccccccccc
+        write(6,*) "end of sxcf_fal3_scz"
+ccccccccccccccccccccccccccccccc
 
 ccccccccccccccccccccccfaleev 21May02 we use general mesh in sxcf_fal1, so
 ccccccccccccccccccccccwe do not need sxce_v2

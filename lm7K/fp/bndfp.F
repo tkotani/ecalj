@@ -1299,7 +1299,7 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
 c --- generate \Sigma for q points on all the mesh points. takao
 c      nhmax = ldim + napwmx !napwmx is in m_hamindex
 c      lwsig=0
-      if(sigmamode.and.siginit) then
+      if(sigmamode.and.siginit.and. (.not.(llmfgw.and.jobgw==0)) ) then
         ifi = 1
         if (procid .eq. master) ifi = fopna('sigm',-1,4)
         read(ifi,err=99,end=99) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
@@ -1422,7 +1422,7 @@ C ... Modes 0..4
 ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot
 ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot
 cccccccccccccccc
-        if(newsigmasw()) stop 'goto sugw xxxxxxxxxxxxxxxx need to fix sugw for PMT mode (note ndimsig) xxxxxxxxxxxx'
+c        if(newsigmasw()) stop 'goto sugw xxxxxxxxxxxxxxxx need to fix sugw for PMT mode (note ndimsig) xxxxxxxxxxxx'
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 

@@ -1861,7 +1861,6 @@ ccccccccccccccccccccccccccccc
 c      print *," end kount ip irot=", irot, ip, sum(kount(:,ip))
 c       print *," sumkount 1=",irot,ip,sum(kount(:,:))
 cccccccccccccccccccccccccccc
-      return
       if (allocated(rmelt)) deallocate(rmelt)
       if (allocated(cmelt)) deallocate(cmelt)
       if (allocated(zz)) deallocate(zz)
@@ -1887,5 +1886,6 @@ c      if (allocated(zw2)) deallocate(zw2)
       if (allocated(zmel2)) deallocate(zmel2)
       if (allocated(zw3)) deallocate(zw3)
       if (allocated(uaa)) deallocate(uaa)
+      return
       end
 

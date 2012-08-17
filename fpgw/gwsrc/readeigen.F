@@ -509,8 +509,9 @@ ctm
       if(init2) then
         stop 'readgeig: modele is not initialized yet'
       endif
-!! nqtt/2=nqnum. See lm7k/fp/suham.F
-      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
+!! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
+c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
+      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu is a G vector.
 
       if(debug) print *,' readgeig:xxx iq=',iq
 c      do iq=1,nqtt
@@ -594,8 +595,9 @@ ccccccccccccccccccccccccccccccccccc
       complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
       complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
       if(init2) stop 'readcphi: modele is not initialized yet'
-!! nqtt/2=nqnum. See lm7k/fp/suham.F
-      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
+!! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
+c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
+      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
 !!  For given iq, iqq = iqmap(iq)
 !! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))  and  qtt(:,iqq) = qtti(:,iqi)
       igg=igmap(iq)
