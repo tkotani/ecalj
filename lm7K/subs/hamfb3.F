@@ -51,9 +51,9 @@ c        write(6,"(a,i4)") 'symops',ig
 c        write(6,"(3f10.5)")symops(1,:,ig)
 c        write(6,"(3f10.5)")symops(2,:,ig)
 c        write(6,"(3f10.5)")symops(3,:,ig)
-c        write(6,"(a,3f13.5)")' input          qin = ', qin
-c        write(6,"(a,3f13.5)")' target a        q1 = ', q1   ! qin = g(:,:,ig)^{-1}*q1
-c       write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
+        write(6,"(a,3f13.5)")' input          qin = ', qin
+        write(6,"(a,3f13.5)")' target a        q1 = ', q1   ! qin = g(:,:,ig)^{-1}*q1
+c        write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
 c       write(6,"(a,3f13.5)")
 c            call rotsig(qin,q1,ndimh,napw_in,plat,qlat,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
             call rotsig(qin,q1,ndimh,napw_in,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)

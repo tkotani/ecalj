@@ -1565,7 +1565,7 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
               ikt = getikt(qp)
               napw_in= napwk(ikt)
             endif
-
+            print *,'ikt qp napw_in=',ikt,qp,napw_in
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c            ii1=mod(iq1,2)+1
 c            ii2=mod(iq1/2,2)+1

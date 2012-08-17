@@ -249,7 +249,8 @@ Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by 
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
 
-c find symops(3,3,ig),
+!! find symops(3,3,ig),
+!!    <base|sigma(qin)|base(qin)> = <g(base)|sigma |g(basis)>.   qtarget=qin= g(q=qout)
       if(debugmode()>0) print *,' rotsig: qin qout=',qin,qout
       qtarget= qin
       q      = qout  ! we find q
@@ -344,7 +345,7 @@ c apw part ------------
 c      evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
           do ix=1,ndimh
 !            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
-            sigx(ix,nlmto+ig2) =   sig(ix,nlmto+ig) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
+            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpgr*shtvg(:,igg)) )
           enddo
         enddo
       endif
@@ -390,7 +391,7 @@ c apw part ------------
 c       evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
           do ix=1,ndimh
 c            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp( img2pi*sum(qpg*ddd) ))
-            sigout(nlmto+ig2,ix) =   sigx(nlmto+ig,ix) * dconjg(exp(-img2pi*sum(qpgr*shtvg(:,igg)))) !aug2012takao corrected
+            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp(img2pi*sum(qpgr*shtvg(:,igg)))) !aug2012takao corrected
           enddo
         enddo
         if(debugmode()>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2

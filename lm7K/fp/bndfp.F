@@ -1329,7 +1329,7 @@ c        deallocate(sfz)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
 
 cccccccccccccccccccccccccccccccccccccccc
-        ndimx= ndham !ndimx=ldim   !ndimx=ndham It was ndham before aug2012
+        ndimx= ndham !ldim   !ndimx=ldim   !ndimx=ndham It was ndham before aug2012
                       ! ndimx is the dimension of the self-energy. 
                       ! ndimx=ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
         if(ndham/=ndimx) then
@@ -1509,8 +1509,15 @@ ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1
         call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
 
 #endif
-
         print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
+c        if(iq==1) qp=(/-0.2500,      -0.2500,       0.7500/)
+c        if(iq==2) qp=(/ 0.5000,      -0.5000,       0.5000/)
+c        if(iq==3) qp=(/-0.5000,       0.5000,       0.5000/)
+c        if(iq==4) qp=(/ 0.2500,       0.2500,       0.2500/)
+        if(iq==1) qp=(/ 0.0000,       0.0000,       0.0000/)
+        if(iq==2) qp=(/ 0.7500,      -0.2500,      -0.2500/)
+        if(iq==3) qp=(/-0.2500,       0.7500,      -0.2500/)
+        if(iq==4) qp=(/ 0.5000,       0.5000,      -0.5000/)
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -1627,19 +1634,21 @@ c              ifio = fopna('ovlmat',-1,4)
 c        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
          if(sigmamode.and.newsigmasw()) then
            if(debug) print *,' goto seneinterp2: qp=',qp
            if(ndimx/=ndimh) stop 'xxxxxx need to generate sene(ndimh,ndimh) from sfz(ndimx,ndimx) xxx '
-           allocate(sene(ndimh,ndimh))
+           allocate(sene(ndimx,ndimx))
            call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ndimx,ndimx, !ldim,ndimh, 
      i        sfz(:,:,:,:,:,isp),ldim,ndimh, 
      o        sene) 
          endif
-
+c$$$
 c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
 c$$$c          allocate(senex(ndimh,ndimh))
@@ -1663,13 +1672,14 @@ c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
 c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
 c$$$          enddo
 c$$$          enddo
-c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
-c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
-c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
-c     &      ,sum(abs(sene-senex))
-c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
-c          deallocate(senex)
-c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+c$$$c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
+c$$$c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
+c$$$c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
+c$$$c     &      ,sum(abs(sene-senex))
+c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
+c$$$c          deallocate(senex)
+c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+
 
 c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.

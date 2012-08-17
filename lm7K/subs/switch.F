@@ -40,6 +40,7 @@ c        O: old version
 c      newsigmasw=.true.
 !! in future, I like to modify the interpolation scheme, but not yet.
       newsigmasw=.true.
+c      newsigmasw=.false.
       end
 
       logical function pmtsig()
@@ -79,7 +80,7 @@ c      end
       logical function noshorbz()
 !! shorbz is confusing (pull back k vector to 1st BZ). Especially, in the case of PMT, where we use exp(i (q+G)r).
 !! It is better to use different algolism in future if required.
-      noshorbz=.true.
+      noshorbz=.true. !.false. before aug2012
       end
 
       integer function matmul_pwhovl()
