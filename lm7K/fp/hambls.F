@@ -407,11 +407,10 @@ ctakaox
       logical:: debug=.true.
       logical:: l_dummy_isanrg,isanrg,oncewrite
       integer:: ndimsig !dimension of sigma
-      complex(8),allocatable:: sigmat(:,:,:)
+      complex(8),allocatable:: sigmat(:,:)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
 
       call tcn('hambls')
-      if(debug) print *, ' mode napw',mode,napw
 C --- LDA hamiltonian ---
       if (mod(mode,10) .eq. 0) then
         j = 0
@@ -426,7 +425,9 @@ C --- LDA hamiltonian ---
       ismidb = 0
 Ckino isanrg is logical function,       call isanrg(lwsig,0,5,'hambls:','lwsig',T)
       l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
-
+ccccccccccccccccc
+      if(debug) print *, ' mode napw lwsig',mode,napw,lwsig
+cccccccccccccc
 C ... Store LDA eigenvectors, eigenvalues in s and h and exit
       if (lwsig .eq. 1) then
         allocate(zqi(ndimh,ndimh))
@@ -469,8 +470,7 @@ c      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
 
 ctakao simplified case for the PMT method.
       if (pmtsig()) then
-        print *,'new pmtsig=',pmtsig()
-        stop 'xxxxxxxx NEED to FIX ss(ndimh --> ndimx=ndimsig in bndfp.F'
+        print *,'hambles:  xxxxxxxxxx new pmtsig=',pmtsig()
 C       In this branch, sigq is just a work array
 c        allocate(zqi(ndimh,ndimh))
 c        allocate(z0(ndimh,ndimh))
@@ -487,9 +487,15 @@ ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp
 ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
 ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
      .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
-     .      , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
+     .      , 0 , ndimsig, 0 , ndimsig , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy 
      .      )
-        h(:,:,ispc) = h(:,:,ispc) + ss ! NEED to FIX! dimensiton of ss(ndimsig) h(ndimh) 
+        allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+        ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
+        call matcinv(ndimsig,ovlmtoi)
+        ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
+        deallocate(ovlmtoi)
+        h(:,:,ispc) = h(:,:,ispc) + matmul(transpose(dconjg(ovliovl)), matmul(ss(:,:),ovliovl))
+        deallocate(ss,ovliovl)
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
 C      .    z0,F,e,ndimh,zqi)
 C         s(:,:,ispc) = zqi
@@ -508,7 +514,6 @@ c        deallocate(zqi,z0,e,ss)
         return
       endif
 
-
       moditp = mod(mode/100,10)
       mxitrp = mod(mode/1000,10)
       if (mxitrp .eq. 0) mxitrp = 4
@@ -522,38 +527,34 @@ C       In this branch, sigq is just a work array
         allocate(e(ndimh))
         allocate(e0(ndimh))
 
-C   ... zqi <- evecs, evals of LDA hamiltonian = Z.lda
-C       This is step A in Remarks
-*       call zprm('hamiltonian, LDA',2,h,ndimh,ndimh,ndimh)
-*       call zprm('overlap',2,s,ndimh,ndimh,ndimh)
-        call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
-     .  z0,F,e,ndimh,zqi)
-!!
+!! === conversion matrix from sigma(1:ndimsig,1:ndimsig) to sigma(1:ndimh,1:ndimh). ===
         allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
         ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
         call matcinv(ndimsig,ovlmtoi)
         ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
         deallocate(ovlmtoi)
 
+!!  === zqi <- evecs, evals of LDA hamiltonian = Z.lda ===
+C       This is step A in Remarks
+*       call zprm('hamiltonian, LDA',2,h,ndimh,ndimh,ndimh)
+*       call zprm('overlap',2,s,ndimh,ndimh,ndimh)
+        call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
+     .  z0,F,e,ndimh,zqi)
 
-C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
+C   ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-
 c        call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
 c     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 c     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , iwdummy )
-
         print *,'goto bloch sigmat ndimsig=',ndimsig
-        allocate(sigmat(ndimsig,ndimsig,isize_h(3)))
+        allocate(sigmat(ndimsig,ndimsig))
         call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
      .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig
-     .      , 0 , ndimsig , 0 , ndimsig , 0 , sigmat( 1 , 1 , ispc ) , iwdummy , iwdummy )
-
-        s(:,:,ispc)= matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:,ispc),ovliovl))
+     .      , 0 , ndimsig , 0 , ndimsig , 0 , sigmat( 1 , 1  ) , iwdummy , iwdummy )
+!! sigma (s) is moved back to s in ndimh.
+        s(:,:,ispc)= matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:),ovliovl))
         deallocate(sigmat,ovliovl)
-
-
 
 C       LDA evals in h
         if (lwsig .ge. 2 .and. lwsig .le. 4) then
@@ -1043,7 +1044,6 @@ C     pgf90 6.0-2 on x86-64 Linux  !!
 
       subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
      .lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_phmbls
@@ -1128,17 +1128,7 @@ C ... Heap
       call tcn('blsig')
 
 C ... Setup for Bloch transform
-
       ndhrs=sham%ndhrs
-ckino Dec.9.2011:         iv_p_ontabs => sham%iv_p_ontabs
-
-ckino Dec.9.2011:         iv_p_oiaxs => sham%iv_p_oiaxs
-
-ckino Dec.9.2011:         rv_p_ohrs => sham%rv_p_ohrs
-
-ckino Dec.9.2011:         iv_p_oiprmb => sham%iv_p_oindxo
-
-
 C     hreal=1 -> sig(T) is real
       hreal = 0
       if (lrsig .ge. 4) hreal = 1
@@ -1176,9 +1166,6 @@ ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp
      .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
      .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
      .      iwdummy )
-
-
-
 
       enddo
 C     Convert sig to full matrix with zero off-diagonal spin blocks

@@ -39,8 +39,8 @@ Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
 c        O: old version
 c      newsigmasw=.true.
 !! in future, I like to modify the interpolation scheme, but not yet.
-      newsigmasw=.true.
-c      newsigmasw=.false.
+c      newsigmasw=.true.
+      newsigmasw=.false.
       end
 
       logical function pmtsig()

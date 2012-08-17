@@ -63,7 +63,8 @@ c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
         enddo
       enddo
       deallocate(wgtq)
-!!--- return when no APW
+
+!!--- return when no APW part of self-energy.
       if(ldim==ndimx) then
         return
       endif
@@ -74,6 +75,10 @@ c      if(oncewrite(4)) print *,' napw=0 skip napw part '
 c        return
 c      endif
 
+
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+c follwings are not so meaningful, although it returns correct Sigma on regular mesh points.
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 !!--- APW part of interpolarion sigm(i,j)
 !!... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
