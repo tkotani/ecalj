@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# back ground job mantener.
+import commands,sys,re,time,datetime
+if(len(sys.argv)<2):
+	print ' ---ps and kill all child process for jobmol*--- '
+	print '   usage: pss jobhead -->'
+	print '          pss jobhead --> (show out working dir)'
+	print '          pss jobhead -KILL jobid'
+	print '  jobhead can be such as (jobatom|jobmol)'
+	sys.exit()
+f=open('/home/takao/pss.log','a')
+f.write('\n')
+print sys.argv  #,len(sys.argv)
+jobhead=sys.argv[1] # jobhead='"(jobatom|jobmol)"'
+if(len(sys.argv)>=3 and sys.argv[2]=='-KILL'):
+	jobs=commands.getoutput('pgrep -fl '+jobhead)
+	joblines=jobs.split('\n')
+	for lll in joblines:
+	    llls=lll.split(' ')[:7]
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
+	    #print llls
+	    if(llls[0]==sys.argv[3]):
+	    	    outx=commands.getoutput('pstree -p '+ llls[0])
+	    	    pids=re.findall(r'\((\d+)\)',outx)
+		    print '    ',outx
+		    for idx in pids:
+	    	        killid='kill -KILL '+idx
+ 		    	ierr=commands.getoutput(killid)
+	    	    	print '    ',killid,ierr
+elif(len(sys.argv)<4):
+	jobs=commands.getoutput('pgrep -fl '+jobhead)
+	joblines=jobs.split('\n')
+	for lll in joblines:
+	    llls=lll.split(' ')[:7]
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
+	    outx=commands.getoutput('pstree -p '+ llls[0])
+            if 'pstree' in outx: continue
+	    pids=re.findall(r'\((\d+)\)',outx)
+	    if len(sys.argv)<3: 
+		    print '    ',(',').join(llls),2*' ',outx,datetime.datetime.now()
+		    aaa=','.join(llls)+2*' '+ outx + str(datetime.datetime.now())
+		    f.write(aaa)
+		    f.write(commands.getoutput('pwdx '+llls[0])+'\n')
+	    if len(sys.argv)>2: 
+		    print '    ',commands.getoutput('pwdx '+llls[0])
+	    #print '          ',' '.join(commands.getoutput('pwdx '+llls[0]).split(' ')[1:])
+sys.exit()
+

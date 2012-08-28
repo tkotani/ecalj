@@ -1,0 +1,12 @@
+#!/bin/bash
+#PJM -L "rscgrp=small"
+#PJM -L "node=72"
+#PJM --mpi "proc=285"
+#PJM -L "elapse=48:00:00"
+#PJM -j
+#PJM -X
+#PJM --no-stging
+
+#cd $HOME/mpifork
+
+mpiexec ./mpifork ./test.sh

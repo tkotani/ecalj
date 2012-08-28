@@ -18,32 +18,37 @@ else:
   Main program of job script and ctrl file generator
   usage: To copy savedata pldimer1 plmol.py to your ~/bin. Do make_job --copy (these are utilities for data analysis).
 
-         make_job (required --bg or --pjsub): (optional --continue --nrel)
-           For given jobdimerlist, you can obtain TEST.bg/ TEST.bg.atom/ and so on,
-         jobque file is the main script. You need to edit jobdimerlist to specify dimers/atoms to calculate.
+         make_job (required --bg or --pjsub, --atom or --dimer): (optional --continue --nrel)
+           For given jobatomlist(--atom) or jobdimerlist(--dimer), 
+         you can obtain TEST.bg/ TEST.bg.atom/ and so on,
+         jobque file is the main script. You need to edit jobdimerlist to specify dimers/atoms to calculate. 
  """
   sys.exit()
+
+
+#----------
 if '--nrel' in sys.argv:
   work=work+'.nrel'
-if not os.path.exists(work): os.mkdir(work)
 
-#---
-ccc='cp jobdimerlist atomlist.bash extra.bash homodimerdistance.bash '+work
-os.system(ccc)
-
+if '--dimer' in sys.argv:
 #--- dimer section
-os.chdir(work)
-if os.path.exists("jobque"): os.rename("jobque", "jobque.bk")
-os.system('../jobquescript.py jobdimerlist '+' '.join(sys.argv))
-os.system("chmod +x jobmol*")
+  if not os.path.exists(work): os.mkdir(work)
+  ccc='cp jobdimerlist atomlist.bash extra.bash extra_nrel.bash homodimerdistance.bash '+work 
+  os.system(ccc)
+  os.chdir(work)
+  if os.path.exists("jobque"): os.rename("jobque", "jobque.bk")
+  #os.system('echo ../jobquescript.py jobdimerlist '+' '.join(sys.argv))
+  os.system('../jobquescript.py jobdimerlist '+' '.join(sys.argv[1:]))
+  os.system("chmod +x jobmol*")
 
 #----- atom section.
-os.chdir('..')
-work= work+'.atom'
-if not os.path.exists(work): os.mkdir(work)
-ccc='cp jobdimerlist atomlist.bash extra.bash homodimerdistance.bash '+work
-os.system(ccc)
-os.chdir(work)
-if os.path.exists("jobque"): os.rename("jobque", "jobque.bk")
-os.system('../jobquescript.py jobdimerlist --atom '+' '.join(sys.argv))
-os.system('chmod +x jobatom*')
+if '--atom' in sys.argv:
+  work= work+'.atom'
+  if not os.path.exists(work): os.mkdir(work)
+  ccc='cp jobatomlist atomlist.bash extra.bash extra_nrel.bash homodimerdistance.bash '+work
+  os.system(ccc)
+  os.chdir(work)
+  if os.path.exists("jobque"): os.rename("jobque", "jobque.bk")
+  #os.system('echo xxxxxxxx ../jobquescript.py jobatomlist --atom '+' '.join(sys.argv[1:]))
+  os.system('../jobquescript.py jobatomlist --atom '+' '.join(sys.argv[1:]))
+  os.system('chmod +x jobatom*')

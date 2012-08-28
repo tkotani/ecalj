@@ -22,7 +22,9 @@ def rangereal(ini,end,step):
             break
     return dat
 
-### template file for job script ###
+
+
+### template file for job script ###############################################
 jobtempbg = """\
 #!/bin/bash
 #@$-lP 1
@@ -34,10 +36,6 @@ jobtempbg = """\
 #LD_LIBRARY_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_LIBRARY_PATH
 #LD_RUN_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_RUN_PATH
 #PATH=${HOME}/bin:${HOME}/local/bin:$PATH
-source atomlist.bash
-source homodimerdistance.bash
-source extra.bash
-#source extra_nrel.bash
 REPLACEHERE___
 """
 
@@ -49,9 +47,6 @@ jobtemppjsub = """\
 #PJM -X
 #PJM --no-stging
 PATH=${HOME}/bin:${HOME}/local/bin:$PATH
-source atomlist.bash
-source homodimerdistance.bash
-source extra.bash
 REPLACEHERE___
 """
 
@@ -63,10 +58,6 @@ jobtemppjsubnrel = """\
 #PJM -X
 #PJM --no-stging
 PATH=${HOME}/bin:${HOME}/local/bin:$PATH
-source atomlist.bash
-source homodimerdistance.bash
-#source extra.bash
-source extra_nrel.bash
 REPLACEHERE___
 """
 
@@ -81,10 +72,6 @@ jobtempbgnrel = """\
 #LD_LIBRARY_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_LIBRARY_PATH
 #LD_RUN_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_RUN_PATH
 #PATH=${HOME}/bin:${HOME}/local/bin:$PATH
-source atomlist.bash
-source homodimerdistance.bash
-#source extra.bash
-source extra_nrel.bash
 REPLACEHERE___
 """
 
@@ -99,21 +86,20 @@ cd ${QSUB_WORKDIR}
 LD_LIBRARY_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_LIBRARY_PATH
 LD_RUN_PATH=/home/usr5/f70205a/local/lib:/home/usr5/f70205a/local/lib64:$LD_RUN_PATH
 PATH=${HOME}/bin:${HOME}/local/bin:$PATH
-source atomlist.bash
-source homodimerdistance.bash
-source extra.bash
-#source extra_nrel.bash
 REPLACEHERE___
 """
 
-### main from here ###    
+
+
+### main from here #######################################################    
+relswitch='source extra.bash\n'
+if '--nrel' in sys.argv: relswitch='source extra_nrel.bash\n'
+
 jobtemp = """#!/bin/bash
 source atomlist.bash
-source homodimerdistance.bash
-source extra.bash
-#source extra_nrel.bash
-REPLACEHERE___
-"""
+source homodimerdistance.bash\n"""
+jobtemp=jobtemp+relswitch +"REPLACEHERE___\n"
+
 
 #open(sys.argv[2],'rt').read() #open('jobtemplate','rt').read()
 print
@@ -150,16 +136,19 @@ else:
     cont=0
 
 print 'continue mode=',cont
+print 'mode =',mode
 
 patt    = string.split( open(sys.argv[1],'rt').read(),'\n') 
 for comm in patt:
     if len(comm) <5 : continue
     if comm[0]=='#': continue
 # distance
-    dat = keydata(comm, 'distance=',';')
-    distance = rangereal(float(dat[0]),float(dat[1]),0.1)
+    if(atom==1): 
+        distance=['0.0']
+    else:    
+        dat = keydata(comm, 'distance=',';')
+        distance = rangereal(float(dat[0]),float(dat[1]),0.1)
 #    print distance
-    if(atom==1): distance=['0.0']
     fsmoms = keydata(comm, 'fsmom=',',')
     rstars = keydata(comm, 'rstar=',',')
     enddat = enddata(comm)
@@ -185,6 +174,7 @@ for comm in patt:
                 fff=string.replace(jobtemp,'REPLACEHERE___','../'+command+ noctrl)
                 jobfile.write(fff)
                 jobfile.close()
+                #print 'jobtempexec=',fff
                 os.system("bash jobtempexec")
                 os.system("rm jobtempexec")
 
@@ -232,9 +222,9 @@ for comm in patt:
                 if cont==1: jobname=jobname+'.continue'
                 print '  jobfile=',jobname+aaatail
                 jobfile = open(jobname,'w')
-                if(mode=='bg'):    jobtempmmm=jobtempbg
-                if(mode=='pjsub'): jobtempmmm=jobtemppjsub
-                if(mode=='bgnrel'):jobtempmmm=jobtempbgnrel
+                if(mode=='bg'):       jobtempmmm=jobtempbg
+                if(mode=='pjsub'):    jobtempmmm=jobtemppjsub
+                if(mode=='bgnrel'):   jobtempmmm=jobtempbgnrel
                 if(mode=='pjsubnrel'):jobtempmmm=jobtemppjsubnrel
                 fff=string.replace(jobtempmmm,'REPLACEHERE___','cd '+ddd+'\n'+clines)
                 jobfile.write(fff)

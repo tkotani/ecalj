@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+import commands,sys,re
+print sys.argv #,len(sys.argv)
+if(len(sys.argv)>=3 and sys.argv[1]=='-KILL'):
+	jobs=commands.getoutput('pgrep -fl "(jobatom|jobmol|gw)"')
+	joblines=jobs.split('\n')
+	for lll in joblines:
+	    llls=lll.split(' ')[:7]
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
+	    #print llls
+	    if(llls[0]==sys.argv[2]):
+	    	    outx=commands.getoutput('pstree -p '+ llls[0])
+	    	    pids=re.findall(r'\((\d+)\)',outx)
+		    print '    ',outx
+		    for idx in pids:
+	    	        killid='kill -KILL '+idx
+ 		    	ierr=commands.getoutput(killid)
+	    	    	print '    ',killid,ierr
+elif(len(sys.argv)<3):
+	jobs=commands.getoutput('pgrep -fl "(jobatom|jobmol|gw)"')
+	joblines=jobs.split('\n')
+	for lll in joblines:
+	    llls=lll.split(' ')[:7]
+	    if(len(llls)>5 and llls[4]=='pgrep'): continue
+	    outx=commands.getoutput('pstree -p '+ llls[0])
+	    pids=re.findall(r'\((\d+)\)',outx)
+	    if len(sys.argv)<2: print '    ',(',').join(llls),2*' ',outx
+	    if len(sys.argv)>1: print '    ',commands.getoutput('pwdx '+llls[0])
+	    #print '          ',' '.join(commands.getoutput('pwdx '+llls[0]).split(' ')[1:])
+else:
+	print ' ---ps and kill all child process for jobmol*--- '
+	print '   usage: pss (no argugments)'
+	print '          pss 0 (show out working dir)'
+	print '          pss -KILL jobmol* id'
+sys.exit()
+
