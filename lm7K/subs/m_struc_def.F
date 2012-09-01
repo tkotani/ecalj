@@ -1122,7 +1122,7 @@ C 23  37  4         wc  1
       real(8)   ::   bv
       real(8)   ::   elind
       real(8)   ::   fn !string
-      integer(8)   ::   kill
+      integer(4)   ::   kill
       integer(8)   ::   lxpot
       integer(8)   ::   mmix
       integer(8)   ::   mode
