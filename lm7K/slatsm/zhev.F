@@ -1228,7 +1228,7 @@ C$$$! exit
       integer,allocatable:: iwork(:)
       character*1:: jobz
       logical ::savez,getz,nexist
-      integer,save:: lworksave
+      integer,save:: lworksave=0
 !! ---
       if(getz) then !temporary fix to acceralate
         read(ifig) nev,nmx

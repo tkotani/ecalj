@@ -1,3 +1,4 @@
+#define GNUPLOT 1
       program plbnds
 C- Band plotter using bnds file in standard format for lmto programs.
 C ----------------------------------------------------------------------
@@ -42,6 +43,13 @@ C Heap allocation
       integer fopna,fopnx,lgcmd,fopng,lenf,awrite
       integer iarg
 
+#ifdef GNUPLOT
+      character(3):: str='' 
+      real(8):: dx =0.0d0
+      logical:: lgnuplot 
+      integer::iqstart=0
+#endif
+
 C --- Setup and defaults ---
       xnfmt = '%;4d'
       ynfmt = '%;4d'
@@ -56,6 +64,11 @@ C --- Setup and defaults ---
         datnam = 'dat'
       endif
       call dpzero(csw,8)
+
+#ifdef GNUPLOT
+      lgnuplot= cmdopt('-gnuplot',8,0,s) 
+      write(*,*) 'gnuplot=',lgnuplot
+#endif
 
       ls1 = cmdopt('-spin1',6,0,s)
       ls2 = cmdopt('-spin2',6,0,s)
@@ -290,6 +303,7 @@ C     If new merge file is to be created, write number of points on line
       if (nq1 .le. 0) goto 90
       if ((ls1 .or. ls2) .and. mod(nq1,2) .ne. 0) then
         call setpr(30)
+        write(*,*)'ls1,ls2=',ls1,ls2,' nq1=',nq1
         call rx('plbnds: spin pol case needs even number of bands')
       endif
       if (ls1 .or. ls2 .or. ifm .ne. 0) nq1 = nq1/2
@@ -437,7 +451,15 @@ C     gtoxcm = 5
       endif
 
 C --- Make data files in format suitable for fplot ---
+#ifdef GNUPLOT
+      if (lgnuplot) write(*,*) 'GNUPLOT MODE'
+#endif
       if (cmdopt('-fplot',6,0,s)) then
+#ifdef GNUPLOT
+      ls1 = cmdopt('-spin1',6,0,s)
+      ls2 = cmdopt('-spin2',6,0,s)
+       write(*,*)'spin output=',ls1,ls2
+#endif
         lgcmd = fopng('plot.plbnds',-1,0)
 C   ... Assign line type to character variable
         if (ltype .ne. ' ') then
@@ -446,6 +468,7 @@ C   ... Assign line type to character variable
         endif
         outs(1) = 'fplot '
         nq1 = 0
+ckino2012Aug12 comment k-path loop 
         do  40  iline = 1, nline+1
           call awrit5('%a'//
      .    '%?#n==1#%N%% var ymin=%;3d ymax=%;3d%N#%2j#'//
@@ -492,12 +515,58 @@ C         Open band file for this panel
             endif
           endif
 
+#ifdef GNUPLOT
+          if (lgnuplot) then
+             if (ncolwt>0) then
+                if (ncolwt>17) then 
+c              ---       format xq,xq,energy,weight(1: )
+c              ---          max. number of all the data is 20 now.
+c              ---       then max. number of weight data is 17 now.
+                      write(*,*)'Error, please increase format string in writng ebw'
+                endif
+             endif
+          endif
+
+#endif
+
 C         Two distinct spin channels: write them both out
           if (cmdopt('-fplot:s',8,0,ss)) then
-            if (mod(nql(iline),2) .ne. 0)
-     .      call rx('spin pol bands should have even nq')
+            if (ls1 .or. ls2) then
+               write(*,*)  "Error: This is both spin mode. You can't apply -spin1 or -spin2"
+               stop
+            endif
+            if (mod(nql(iline),2) .ne. 0) then
+              write(*,*) 'nql=', nql(iline)
+              call rx('spin pol bands should have even nq')
+            endif
             j = 2*(ib2-ib1+1)
             if (ncolwt .ne. 0) j = j*(ncolwt+1)
+C#ifdef GNUPLOT
+         if (lgnuplot) then 
+           if (ncolwt.ne.0) then
+              write(*,*)'error, ncolwt.ne.0, color weight plot is not supported'
+              stop 
+           endif
+           iqstart=0
+           if (ls1) then; iqstart=0; elseif (ls2) then; iqstart=1;endif
+           do ib=ib1,ib2
+              do iq=1+nq1+iqstart,  nql(iline)+nq1,2
+               if (ncolwt>0) then
+                write(10,'(20F20.10)') 
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        xq(iq),
+     .        eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
+               else
+                write(10,'(3F20.10)') 
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        xq(iq),
+     .        eb(ib,iq)
+               endif
+              enddo 
+             write(10,*) ''
+           enddo
+         else  !--- lgnuplot 
+C#else
             call awrit2('%% rows %i cols %i',' ',80,10,nql(iline)/2,1+j)
             do  36  iq = 1+nq1, nql(iline)+nq1,2
               write(10,333)
@@ -509,11 +578,33 @@ C         Two distinct spin channels: write them both out
                 enddo
               endif
    36       continue
+        endif   !---- lgnuplot
+C#endif
 
 C         Write out bands and optional weights
           else
             j = ib2-ib1+1
             if (ncolwt .ne. 0) j = j*(ncolwt+1)
+C#ifdef GNUPLOT
+          if (lgnuplot)then
+            do ib=ib1,ib2
+              do iq=1+nq1, nql(iline)+nq1
+                 if (ncolwt>0) then
+                 write(10,'(20f20.10)')
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        xq(iq),
+     .        eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
+                 else
+                 write(10,'(3f20.10)')
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        xq(iq),
+     .        eb(ib,iq)
+                 endif
+              enddo
+              write(10,*)''
+            enddo
+          else ! lgnuplot
+C#else
             call awrit2('%% rows %i cols %i',' ',80,10,nql(iline),1+j)
             do  35  iq = 1+nq1, nql(iline)+nq1
               write(10,333)
@@ -525,6 +616,8 @@ C         Write out bands and optional weights
                 enddo
               endif
    35       continue
+C#endif
+          endif ! lgnuplot 
           endif
 C         Build up mc command for color merge
           if (lcol3 .and. ncolwt .ne. 0) then
@@ -587,6 +680,77 @@ C     ... Symmetry label, if there is one
           iouts = iiouts(outs,iouts,louts+10)
           if (iouts .gt. nouts) call rx('plbnd output string too long')
    40   continue
+ckino 2012Aug12 comment iloop , k-path loop end
+
+C#ifdef GNUPLOT
+       if (lgnuplot) then
+        write(*,*)'write bnds.gnu'
+        write(*,*)'GNUPLOT MODE: add xtics and/or modify labels in bnds.gnu'
+        write(*,*)''
+        open(20,file='bnds.gnu',status='unknown')
+        nq1=0
+        write(20,'(a,F12.5,a)')'set ylab "Energy(Ry*',scl,')"'
+        write(20,'(a,$)') 'set xtics ('
+        do iline=1,nline+1
+          dx=xq(1+nq1) 
+          nq1=nq1+nql(iline)
+          write(20,'(a,F20.10,a)') ' "" ',dx,',\'
+          if (iline.eq.nline+1) then
+          dx=xq(nq1)
+          write(20,'(a,F20.10,a)') ' "" ',dx, ')'
+          endif
+        enddo
+ 
+        if (ncolwt.eq.0) then  ! normal band mode
+
+        nq1=0
+        write(20,*) 'plot \'
+        do iline=1,nline+1
+          dx=xq(1+nq1) 
+          write(str,'(i3)') iline
+          str=adjustl(str) 
+          if (iline.ne.nline+1) then
+            write(20,'(a,a,a)')   ' "bnd',trim(str),'.dat" u 2:3 lt 1 pt 1 not w l,\'
+          else 
+            write(20,'(a,a,a)')   ' "bnd',trim(str),'.dat" u 2:3 lt 1 pt 1 not w l'
+          endif 
+          nq1=nq1+nql(iline)
+        enddo 
+        write(20,*)'pause -1'
+
+        else ! ncolwt
+c              ncolwt >0 , fatband mode
+
+         write(20,*)'set  palette model RGB'
+         write(20,*)'set pal def (0 "black" , 1 "red")'
+
+
+            do j=1,ncolwt
+         write(20,'(a,i3,a)')'set title "icol=',j,'"'
+        nq1=0
+        write(20,*) 'plot \'
+        do iline=1,nline+1
+          dx=xq(1+nq1) 
+          write(str,'(i3)') iline
+          str=adjustl(str) 
+          if (iline.eq.nline+1) then
+            write(20,'(a,a,a,i3,a)')   ' "bnd',trim(str),'.dat" u 2:3:',3+j,' not w l palet lw 2'
+          else 
+            write(20,'(a,a,a,i3,a)')   ' "bnd',trim(str),'.dat" u 2:3:',3+j,' not w l palet lw 2,\'
+          endif 
+          nq1=nq1+nql(iline)
+        enddo  ! iline
+
+        write(20,*)'pause -1'
+            enddo ! j
+
+        endif ! ncolwt 
+
+
+        close(20)
+       endif !--- lgnuplot 
+C#endif 
+
 C   ... Last symmetry label, if there is one
         if (nline+2 .le. nlab) then
           iouts = iiouts(outs,iouts,louts+30)
@@ -691,6 +855,9 @@ C --- Error exit ---
       print 998, '-spin1    plots only spin-1 bands'
       print 998, '-spin2    plots only spin-1 bands'
       print 998, '-fast     '
+      print 998, '-gnuplot  also apply -fplot if you use this option'
+      print 998,'           e.g., -gnuplot -fplot if paramagnetic'
+      print 998,'           e.g., -gnuplot -fplot -spin1 if ferromagnetic and spin=1'
       print 998, '-lbl      plbnds prompts for symmetry labels'//
      .' and title'
       print 998, '-lbl=CCC.. supply labels through this switch'
@@ -743,6 +910,7 @@ Co       On output, nbfil = number actually read
       integer nw,j,j1,j2,ix(4),a2vec,i
       double precision fac(4)
       logical rdstrn
+
 
 C     Check whether format contains number of bands to read
       if (.not. rdstrn(ifi,strn,len(strn),.false.)) goto 99

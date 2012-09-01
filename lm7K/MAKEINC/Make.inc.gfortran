@@ -7,10 +7,8 @@
 ############# Libraries BLAS LAPACK FFTW 
 
 ### kino's case
-LIB1=  -lfftw3 \
- $(HOME)/kit/LAPACK/lapack_linuxgfortran.a \
- $(HOME)/kit/LAPACK/blas_linuxgfortran.a \
- $(HOME)/kit/LAPACK/tmglib_linuxgfortran.a
+LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
+ -L/opt/acml4.4.0/gfortran64/lib -lacml 
 
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -33,14 +31,14 @@ LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 # ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
 LIBubuntu11= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
-LIBLOC=$(LIBubuntu11)
+LIBLOC=$(LIBkino)
 
 
 ############ Fortran compiler
 #FC = mpif90
 #LK = mpif90
-FC = f95
-LK = f95
+FC = gfortran
+LK = gfortran
 result_fc_version =$(shell tail -1 .fc_version )
 
 make_fc_version:
