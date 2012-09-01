@@ -418,6 +418,9 @@ ckino
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
+
+c for mpi and mpik, parallel write
+      character(10):: strprocid 
 !! -----------------------------------------
 ckino begin
 c      nevec=0  
@@ -435,6 +438,8 @@ C ... MPI setup
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       call strcop(shortname(procid),name,10,'.',i)
       namelen(procid) = i-1
+      write(strprocid,'(i10)') procid
+      strprocid=adjustl(strprocid) 
 #endif
 
 !! === Setup ===
@@ -1902,9 +1907,18 @@ c              deallocate(ww_rv)
                   savez=.false. ;  getz=.true.
                 endif
                 if(initiqisp) then
+#if (MPI|MPIK)
+c  for parallel write, and eigze is used only in this subroutine. 
+c  gfortran v4.7 add _{procid} at the end of the filename
+c  then how can I share the same file among the different processes? 
+                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
+                  call fclose(ifig)
+                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
+#else
                   ifig = fopna('eigze',-1,4)
                   call fclose(ifig)
                   ifig = fopna('eigze',-1,4)
+#endif
                   initiqisp=.false.
                 endif  
               endif 
