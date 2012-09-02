@@ -45,7 +45,7 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -J$(moddir) -I$(moddir)
 #
-FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132 $(CPP_SW) $(module)
 FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
 FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
 FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)

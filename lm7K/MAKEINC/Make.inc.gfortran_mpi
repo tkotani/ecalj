@@ -7,10 +7,8 @@
 ############# Libraries BLAS LAPACK FFTW 
 
 ### kino's case
-LIB1= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
+LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
+ -L/opt/acml4.4.0/gfortran64/lib  -lacml 
 
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -27,7 +25,7 @@ LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
         /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
         /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-LIBLOC=$(LIB2)
+LIBLOC=$(LIBkino)
 
 
 ############################################
