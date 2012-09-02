@@ -414,8 +414,16 @@ C --- Get dimensions for plot ---
       emax = etop
 C     gtoxcm = 5
       htcm = 10
-   93 print '('' emin, emax, width(cm), height(cm) ?'')'
-      read(5,*)  emin,emax,widcm,htcm
+   93 continue
+      if (lgnuplot) then
+        print '('' emin, emax ?'')'
+        read(5,*)  emin,emax
+        widcm=10
+        htcm= 10
+      else
+        print '('' emin, emax, width(cm), height(cm) ?'')'
+        read(5,*)  emin,emax,widcm,htcm
+      endif
       if (widcm+2d0 .gt. 25d0) then
         call awrit1(' Total width (%1;1dcm) cannot exceed 23cm',
      .  ' ',80,i1mach(2),widcm)
@@ -768,8 +776,14 @@ C         call cwrite(outs(ib),0,i,1)
           print *, ' ... to merge another color from file tmp:'
           print '(a)', trim(scol3)
         endif
-        print *, ' ... to plot, invoke:'
-        print *, ' fplot -disp -f plot.plbnds'
+        if (lgnuplot)then 
+          write(*,*) 'bnd?.dat are made.'
+          write(*,*) '... to plot, invoke'
+          write(*,*) 'gnuplot bnds.gnu' 
+        else 
+          print *, ' ... to plot, invoke:'
+          print *, ' fplot -disp -f plot.plbnds'
+        endif
         call fclose(lgcmd)
         call cexit(0,1)
    99   call rx(' file open error, file='//s(1:lenf))
