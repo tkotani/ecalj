@@ -53,6 +53,14 @@ c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
 
+#if (MPI|MPIK)
+c2012Sep02 kino, add for 
+       include 'mpif.h'
+       integer:: procid=0,ier=0
+       integer,parameter::master=0
+       call mpi_comm_rank(mpi_comm_world,procid,ier)
+#endif
+
 !!--- setup ---
       if(.not.siginit) return
       nbas=nbas_in
@@ -126,7 +134,11 @@ c ... reverse maping of offset-index for hamiltonian
      . , miat , tiat , invgx , shtvg )
 
 !!---- write SYMOPS ---- mar2012takao
-      ifisym = fopnx('SYMOPS',2,2,-1)
+#if (MPI|MPIK)
+      if (procid.eq.master) then
+#endif
+ckino2012Sep02      ifisym = fopnx('SYMOPS',2,2,-1) ! open as new, it causes a stop.
+      ifisym = fopnx('SYMOPS',2,0,-1) ! open as unknown
       write(ifisym,*) ngrp
       do ig = 1,ngrp
         write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
@@ -134,7 +146,11 @@ c ... reverse maping of offset-index for hamiltonian
           write(ifisym,"(3e24.16)") symops(i,1:3,ig)
         enddo
       enddo
-      call fclr(' ',ifisym)
+ckino2012Sep02      call fclr(' ',ifisym)
+      call fclose(ifisym)
+#if (MPI|MPIK)
+      endif
+#endif
 
 c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
