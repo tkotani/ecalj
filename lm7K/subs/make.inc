@@ -1,4 +1,7 @@
 subs_list:=\
+        m_globalvariables.o \
+	m_rdctrl.o \
+	m_toksw.o \
 	m_psigd.o \
 	m_hamindex.o \
 	m_sstrnsname.o \
@@ -232,8 +235,6 @@ subs_list:=\
 	xxxdif.o \
 	ylmrtg.o \
 	rdctrl2.o\
-	m_rdctrl.o \
-	m_toksw.o \
 	writebasis.o \
 	spackv_array_copy.o \
 	struc_strn.o \
@@ -249,6 +250,5 @@ subs_list:=\
         radgra.o \
  	xcfunc.o \
 	xcpbe.o \
-        m_globalvariables.o \
 	vxcnls.o \
 	vxc0gc.o

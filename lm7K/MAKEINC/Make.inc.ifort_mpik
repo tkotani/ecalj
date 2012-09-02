@@ -31,17 +31,9 @@
 #  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
 ##-lsvml
 #
-### kino's case
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
-# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
-# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+
+LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
+  -L/opt/acml4.4.0/gfortran64/lib -lacml 
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -65,7 +57,9 @@
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
 
-LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+#LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+
+LIBLOC = $(LIBkino)
 
 
 ############################################
