@@ -1,16 +1,19 @@
-====================================================
+==================================================================
 Our home page is at http://pmt.sakura.ne.jp/wiki/,
-(not so much documents in English yet). But not well-organized yet...
-====================================================
+(not so much documents in English yet). not well-organized yet...
+===================================================================
 
 === ecalj package ===
-(this document is checked on 2ndAug2012.)
+(this document is checked at 3rdSep2012.)
 https://github.com/tkotani/ecalj
 
-ecalj is a firts-principle electronic structure calculation package in f90.
+ecalj is a firts-principle electronic structure calculation package in
+f90, version control by git. 
 
 (1)All electron full potential PMT method (LAPW+LMTO)
    Related source codes are in ecalj/lm7K/ 
+   ctrlgen2.py can set up 'standard input file(ctrl file)' just from
+   the given crystal structure.
 
 (2)GW method, especially, 
    Quasiparticle self-consistent GW method (QSGW),
@@ -19,31 +22,41 @@ ecalj is a firts-principle electronic structure calculation package in f90.
    
    Recently, I renewed some part of algolism of GW/QSGW calculations
    (mainly in PRB.81,125102(2010) and Copmuter Physics Comm. 176(2007)1-13).
-   ---> this may mess up some methods which was available in previous
-   version. Then use old version in ecalj.git (gitk --all and check it out).
+   ---> this is better than old versions; speed, memory (file size),
+   and accuracy for anisortopic systems.
+   For comparison, you can use old version in ecalj.git (gitk --all and check it out).
  
 NOTE:
-1)QSGW is still difficult to handle 
-  (only work with LMTO mode, not for LAPW mode).
-  We need to give better way to do 'sigma-interpolarion in BZ'
+PMT-QSGW is developing now. Within a few month, we can pack it.
+
 
 
 ################## Install and test of lm7K ########################
 *Installation for lm7K
-Let us assume you use ubuntu. 
 
+---Let us assume you use ubuntu. ---
+>sudo apt-get install git  #version control and to get source from github)
+>sudo apt-get install gitk #git gui 'gitk --all' is useful. do it at ecal/.
 >sudo apt-get install gfortran      # GFORTRAN
->sudo apt-get install mpich2        # MPI 
->sudo apt-get install libfftw3-3    or something else # FFTW
->sudo apt-get install libblas3gf    or something else # BLAS
->sudo apt-get install liblapack3gf  or something else  # LAPACK
+>sudo apt-get install openmpi-bin openmpi-dev     # MPI 
+(or you may use mpich2 as >sudo apt-get install mpich2, but I failed...)
+>sudo apt-get install libfftw3-3     or something else # FFTW
+>sudo apt-get install libblas3gf     or something else # BLAS
+>sudo apt-get install liblapack3gf   or something else  # LAPACK
+
+>git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
+
 
 Check PLATFORM=gfortran at the head of ecalj/lm7K/Makefile.
-ecalj/lm7K/MAKEINC/Make.ing.gfortran is used for PLATFORM=gfortran.
+ecalj/lm7K/MAKEINC/Make.ing.gfortran is used when you choose
+PLATFORM=gfortran. (Commnet out this line in Makefile, or do "make PLATFORM=gfortran".)
 Set LIBLOC in Make.inc.gfortran when you use different math libraries.
 
-you may have to modify lm7K/MAKEINK/Make.inc.gfortran, compile options
+You may also have to modify lm7K/MAKEINK/Make.inc.gfortran, compile options
 and so on (but usually, only modify math library LIBLOC).
+
+Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
+but not with failed with FFLAGS=-O3.
 
 Parallel make as
 prompt>make -j4
@@ -72,7 +85,8 @@ at ecalj/lm7K just moves all requied binaries to your ~bin.
 
 
 
-########### Install and test for fpgw ################3
+
+################## Install and test for fpgw ####################### 
 *Installation for fpgw/
 At fpgw/exec/ directory, you have to run 
 >make
