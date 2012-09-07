@@ -28,7 +28,7 @@
 #PLATFORM=fujitsufortran
 #PLATFORM=fujitsufortran_mpik
 
-#PLATFORM=gfortran
+PLATFORM=gfortran
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik

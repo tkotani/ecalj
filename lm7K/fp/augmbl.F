@@ -318,7 +318,7 @@ C   --- Add 1-center and 2-center terms ---
 
         endif
 #else
-#ifndef ALL3C
+c#ifndef ALL3C
         if (lcplxp .eq. 0) then
           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
@@ -334,7 +334,7 @@ C   --- Add 1-center and 2-center terms ---
 
 
         endif
-#endif
+c#endif
 #endif
 
         if(debug) print *,'augg 1111111'

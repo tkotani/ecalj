@@ -226,12 +226,12 @@ C       Loop over blocks of envelope functions
               call rxi('bfactor: bad mode',mode)
             endif
 
-#ifndef ALL3C
+c#ifndef ALL3C
             if (ib .eq. ia) then
               call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
               call paugq2(kmax,nlmh,nlma,bos,b0)
             endif
-#endif
+c#endif
 
 C         Note: indices of b are ordered differently by mode (see Outputs)
             if (mode .eq. 0) then
