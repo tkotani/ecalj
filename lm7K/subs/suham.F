@@ -161,7 +161,7 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
 
 
 !! no GW-related part
-      if(.not.llmfgw.or.(llmfgw.and.jobgw==0)) then
+      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
         print *,'gen_hamindex: no GW related part. not readin QGpsi'
         return
       endif

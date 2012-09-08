@@ -80,7 +80,8 @@ c      end
       logical function noshorbz()
 !! shorbz is confusing (pull back k vector to 1st BZ). Especially, in the case of PMT, where we use exp(i (q+G)r).
 !! It is better to use different algolism in future if required.
-      noshorbz=.true. !.false. before aug2012
+      noshorbz=.false. 
+c      noshorbz=.true. <--- i think this is better in future.
       end
 
       integer function matmul_pwhovl()

@@ -865,11 +865,9 @@ tail = tail + "     XCFUN=" + xcfun_val + """
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=1  # 0: MTO basis only (LMTO) PW basis is not used.
+      PWMODE=11 # 0: MTO basis only (LMTO) PW basis is not used.
                 # 1: APW+MTO        (PMT)
                 # 2: APW basis only (LAPW) MTO basis is not used.
-                # NOTE: q-independent number of APW (determined at q=0).
-                #       This will be important for QSGW case.
                 #
                 # ===  +10 means q-dependent number of APW, that is, ===
                 # 11: PMT   

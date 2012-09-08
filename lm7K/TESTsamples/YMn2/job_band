@@ -1,0 +1,20 @@
+#!/bin/bash
+ddd=ymn2
+lmdir=../..
+rm -rf wkp.$ddd
+$lmdir/lmf $ddd --quit=band    |tee llmf_ef
+$lmdir/lmf --band:fn=syml $ddd  |tee llmf_band
+
+for spin in spin1 spin2
+do
+  echo -15,15,15,15|$lmdir/plbnds -fplot -ef=0 -scl=13.605 -$spin $ddd
+  for xxx in bnd*.dat
+  do
+      echo $spin $xxx
+      cp $xxx $xxx.$spin
+      sed -e "s/.dat/.dat.$spin/g" plot.plbnds > plot.plbnds.$ddd.$spin
+  done
+  $lmdir/fplot -f plot.plbnds.$ddd.$spin ; mv ps.dat ps.band.$ddd.$spin
+done
+echo 'Check ps.band*(postscript)!'
+
