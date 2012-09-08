@@ -1509,7 +1509,7 @@ ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1
         call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
 
 #endif
-        print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
+c        print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
 c        if(iq==1) qp=(/0d0,0d0,0d0/)
 c        if(iq==2) qp=(/ 0.6000,      -0.5000,       0.5000/)
 c        if(iq==3) qp=(/-0.25000,  0.25000,  0.2500/)
