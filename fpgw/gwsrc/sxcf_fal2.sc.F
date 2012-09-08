@@ -51,7 +51,7 @@ c
       stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
       end function
 
-      end module
+      end module m_nbandgw
 
 
 C----------------------------------------------------------------------------
@@ -92,13 +92,16 @@ c
       use keyvalue
       use m_nbandgw,only: getnbandgw
 
-C- Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ---------------------
-Ci  exchange=T : Calculate the exchange self-energy
-Ci          =F : Calculate correlated part of the self-energy
-Co zsec: S_ij= <i|Re[S](e_i)|j>
-Co       Note that S_ij itself is not Hermite becasue it includes e_i.
-Co       i and j are band indexes
-Co coh : this is dummy now
+!! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==
+!!  exchange=T : Calculate the exchange self-energy
+!!            =F : Calculate correlated part of the self-energy
+!! output
+!!  zsec: S_ij= <i|Re[S](e_i)|j>
+!!        Note that S_ij itself is not Hermite becasue it includes e_i.
+!!        i and j are band indexes
+!!
+!! coh : this is dummy now
+!! ---------------------------------------------------------------------
 !--- from Jan2006!
 ! "zsec from im-axis integral part"  had been symmetrized as
 !    &        wtt*.5d0*(   sum(zwzi(:,itp,itpp))+ !S_{ij}(e_i)
@@ -119,8 +122,9 @@ Cr 2000 takao kotani. This sxcf is starting from sec.f F.Aryasetiawan.
 C----------------------------------------------------------------------
 
 
-
-c---- original document for sce.f (correlation case) by ferdi.Aryasetiawan.
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! original document for sce.f (correlation case) is kept. This is by F.Aryasetiawan.
+!! Current GW code is very different now, but kept here as a reference.
 c 92.02.24
 c 93.10.18 from sec.f modified to take into account equivalent atoms
 c calculates the correlated part of the self-energy SE
@@ -797,67 +801,28 @@ c>> valence
      d              natom,nclass,
      o             zzzmel)
         if(verbose()>50) call timeshow("4 after psi2bc1")
-ccccccccccccccccccccccccccccccccccccccccccc
-c test rmel cmel=0
-c      rmel=0d0
-c      cmel=0d0
-ccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccc
-c      do  it  = 1,nstate
-c      it=32
-c      itp=1
-c     do  itp = 1,ntq
-c      do  ibl  = 1,nbloch
-c        write(6,"(' rmel cmel  =',3i4,2d14.6)")it,itp,ibl
-c     & ,rmel(ibl,it,itp),cmel(ibl,it,itp)
-c      enddo
-c      enddo
-c     enddo
-c      stop " *** TEST END *** "
-cccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug2) write(6,"('sum of zmel abszmel=',4d23.16)")
-     &                 sum(zzzmel),sum(abs(zzzmel) )
+        if(debug2) write(6,"('sum of zmel abszmel=',4d23.16)") sum(zzzmel),sum(abs(zzzmel) )
 
-c-plane
+!! -- IPW part.
         allocate( rmelt(ngb, nctot+nbmax, ntqxx), ! nstate= nctot+nband
      &          cmelt(ngb, nctot+nbmax, ntqxx))
         if(debug) print *, ' sxcf_fal1: goto drvmelp'
-
-c        call drvmelp( iq,   ntqxx, ! q in FBZ
-c     i                kp, nbmax,  ! q-rk
-c     i                k,          ! k in IBZ for e-product basis
-c     i       ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itq,
-c     i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
-c     o       rmelt,cmelt)
-
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-c        rmelt=1d0
-c        cmelt=1d0
-c        goto 1110
-cccccccccccccccccccccccccccccccccccccccccccccccccc
         call drvmelp2( q,             ntqxx,  ! q in FBZ
      i                 q-qbz_kr,  nbmax,  ! q-rk
      i                 qibz_k,            ! k in IBZ for e-product basis
      i         isp,ginv,
-c     i       ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itq, 
      i       ngc,ngcmx, ngpmx,nband,itq, 
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-c     i       rmel, cmel, nbloch, nt,nctot,
      i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
      o       rmelt,cmelt)
-
-c 1110   continue
         if(verbose()>50) call timeshow("5 after drvmelp")
-! need pomatr, nnr, nor
-c oct2005
         if(nbcut/=0.and.(.not.exchange)) then
           do it= nctot+1,nctot+min(nbcut,nbmax)
             rmelt(:, it,:) =0d0
             cmelt(:, it,:) =0d0
           enddo
         endif
-
+!! smbasis 
         if(smbasis()) then !
           ntp0= ntqxx
           nn= nnr(kx)

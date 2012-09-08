@@ -12,7 +12,7 @@ foreach  xxx (`find . -name "normchk.*"|grep -v head`)
     rm $xxx
 end
 
-foreach  xxx (v_xc evec VCC PLN WVR WVI EVU EVD PPB BAS fort BAS VXCFPV PPOVL DATA4GW gwa gwb gw1 gw2 gw3 PHI HVCCIN CPHI CphiGeig GEIG QGpsi QGcou mixm mixsigma sigma vxc moms Vcoud EPS0inv)
+foreach  xxx (v_xc evec VCC PLN WVR WVI EVU EVD PPB BAS fort BAS VXCFPV PPOVL DATA4GW gwa gwb gw1 gw2 gw3 PHI HVCCIN CPHI CphiGeig GEIG mixm mixsigma sigma vxc moms Vcoud EPS0inv)
 echo 'cleaning--- ', "$xxx*" '----------------------'
 find . -name "$xxx*"
 rm -f `find . -name "$xxx*"`
