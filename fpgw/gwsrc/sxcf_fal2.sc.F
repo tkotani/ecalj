@@ -989,8 +989,8 @@ ccccccccccccccccccccccccccccc
           endif  
 
           if(newaniso()) then
-            do itpp= 1,ntqxx
-            do itp = 1,ntqxx
+            do 992 itpp= 1,ntqxx
+            do 993 itp = 1,ntqxx
               do it  = 1,nctot+nbmax
                 w3p(it,itp,itpp) = 0d0
                 do ivc=1,ngb
@@ -1005,8 +1005,8 @@ c                    print *,'wklm(1) vc=',wklm(1),vc
                   w3p(it,itp,itpp) = w3p(it,itp,itpp)+ vc * zmelt1*dconjg(zmelt2)
                 enddo
               enddo
-            enddo
-            enddo
+ 993        continue
+ 992        continue
           else
             do itpp= 1,ntqxx
             do itp = 1,ntqxx
@@ -1382,9 +1382,9 @@ c----------------------------------------------------------
 
 C... frequency integration along the imaginary axis, s. wint.f
 c for each e(q-rk,n) and w in SEc(qt,w)
-        do     itpp= 1,ntqxx
-          do     itp = 1,ntqxx
-            do      it = 1,nstate
+        do 1385   itpp= 1,ntqxx
+        do 1386    itp = 1,ntqxx
+          do 1387  it = 1,nstate
               if (iSigma_en==0 .or. iSigma_en==1.or.iSigma_en==4) then
                 omega0=ef
               elseif (iSigma_en==2) then
@@ -1448,9 +1448,9 @@ c     &      wintzsg_npm (npm, zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
      &      wintzav ( zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
      &              ,freqx,wx,ua_,expa_,we,nx, esmrx)
               endif
-            enddo !it
-          enddo !itp
-        enddo !itpp
+ 1387     continue  !it
+ 1386   continue  !itp
+ 1385   continue  !itpp
 c sum over both occupied and unoccupied states and multiply by weight
         do     itpp= 1,ntqxx
           do     itp = 1,ntqxx
@@ -1787,15 +1787,15 @@ c     this contribution to zsec_nn is real (hermitean)
                   enddo !itpp
                 enddo !igb2
               enddo !ix
-              do itpp=1,ntqxx
+              do 2021 itpp=1,ntqxx
                 if(npm==1) then
                   zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .        + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)
+     .            + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)
                 else
                   zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .        + wfac*alagr3z(we,freq_r(ixs-1),zwz4(1,itpp))
+     .            + wfac*alagr3z(we,freq_r(ixs-1),zwz4(1,itpp))
                 endif
-              enddo !itpp
+ 2021         continue           !itpp
               deallocate(zwz4)
             endif  ! inner iSigma_en=1 or 3
 c     this contribution to zsec_nn' is not hermitean because W(e_n)

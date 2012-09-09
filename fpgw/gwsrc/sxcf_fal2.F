@@ -1003,8 +1003,8 @@ c$$$          deallocate(vcoult, zmel)
 c$$$      else
 
           if(newaniso()) then !apr2012takao
-            do itp = 1,ntp0
-              do it  = 1,nctot+nbmax
+            do 992 itp = 1,ntp0
+            do 993 it  = 1,nctot+nbmax
                 w3p(it,itp) = 0d0
                 do ivc=1,ngb
                   if(ivc==1.and.kx==1) then
@@ -1037,8 +1037,8 @@ c$$$                print *,'it itp zmelttot =',it,itq(itp),ekc(it),abs(zmelt0)
 c$$$              endif
 c$$$              endif
                 enddo
-              enddo
-            enddo
+ 993        continue
+ 992        continue
           else
 c          print *,' nctot nbmax=',nctot,nbmax
             do itp = 1,ntp0
@@ -1373,8 +1373,8 @@ ccccccccccccccccccccccccccccccccccccc
         do      iw = iwini,iwend
 c frequency integration along the imaginary axis, s. wint.f
 c for each e(q-rk,n) and w in SEc(qt,w)
-          do     itp = 1,ntq
-            do      it = 1,nstate
+          do 1385  itp = 1,ntq
+            do 1387 it = 1,nstate
               we =.5d0*( omega(itp,iw) -ekc(it)) != .5d0*( eq(itq(itp),ip)+2d0*(dble(iw)-shtw)*deltaw-ekc(it))
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 ctest imx
@@ -1436,7 +1436,7 @@ c Gaussian smearing
                 if(npm==2) 
      &        stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
                 zwzi(it,itp) = 
-     &      wintzav( zwzs,zwz0(it,itp),freqx,wx,ua_,expa_,we,nx, esmrx)
+     &          wintzav( zwzs,zwz0(it,itp),freqx,wx,ua_,expa_,we,nx, esmrx)
               endif
 c    .    wintz (zwz(1,it,itp),zwz0(it,itp),freqx,wx,ua,expa,we,nx)
 ccccccccccccccccccccccccccccccc
@@ -1448,8 +1448,8 @@ c          if(icc==10) stop 'test end'
 c          endif
 c          endif
 cccccccccccccccccccccccccccccc
-            enddo
-          enddo
+ 1387       continue
+ 1385     continue
 
 c sum over both occupied and unoccupied states and multiply by weight
           do     itp = 1,ntq
