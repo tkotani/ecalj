@@ -558,13 +558,6 @@ c        if(exchange) iqend=nqibz
 
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        if( kx > nqibz ) then
-c           print *," WWW: noQ0P test. See sxcf*.F xxxxxxxxxxxxxxxx"
-c                 !this is for noQ0P
-c           exit
-c         endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
         if(timemix) call timeshow("11111 k-cycle")
         if(debug) write(*,"('k, ip, irot=',3i5)") kx, ip,irot
@@ -585,6 +578,12 @@ c        ngc = ngcni(k)  ! k-points in IBZ
         if(debug) print *, ' sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
+!! note sep102012takao
+!!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
+!!  A possible choice for paralellization is "Vcoud.ID" files where ID=kx
+!!  Vould file is written in hvccfp0.m.F.
+!! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
+!! These can be also separeted into WVR.ID and WVI.ID files.
         if(newaniso()) then
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
@@ -596,13 +595,11 @@ c        ngc = ngcni(k)  ! k-points in IBZ
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
 c            print *,'readin qvv=',qvv
-            if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
-            allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
+            if(allocated(vcoud)) deallocate(vcoud)
+            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
             read(ifvcoud) vcoud
             read(ifvcoud) zcousq
             if(sum(abs(qvv-qxx))<1d-6) goto 1133
-            vcousq=sqrt(vcoud)
-            deallocate(zcousq,vcousq,vcoud)
           enddo
           if(sum(abs(qvv-qxx))>1d-6) then
             print *,'qvv =',qvv
@@ -640,18 +637,21 @@ c$$$         vcousq=sqrt(vcoud) !
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-          if(allocated(ppovl)) deallocate(ppovl,ppovlz)
+          if(allocated(ppovlz)) deallocate(ppovlz)
           allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
           call readppovl0(qibz_k,ngc,ppovl)
           ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+          deallocate(zcousq,ppovl)
         endif
 
 !! --- exchange
         if(exchange) then
-          read(ifvcfpout) nn !oct2005
-          allocate(vcoul(nn,nn))
-          read(ifvcfpout) vcoul(1:nn,1:nn)
+          if(.not.newaniso()) then 
+            read(ifvcfpout) nn !oct2005
+            allocate(vcoul(nn,nn))
+            read(ifvcfpout) vcoul(1:nn,1:nn)
+          endif
 c          allocate(vcoul(ngb,ngb))
 c          read(ifvcfpout) vcoul(1:ngb,1:ngb)
         endif
@@ -660,7 +660,7 @@ c          read(ifvcfpout) vcoul(1:ngb,1:ngb)
 c- weight check for cycle or not.
         if( kx <= nqibz ) then
           if (kr == 0)    then
-            if(exchange) deallocate(vcoul)
+            if(exchange.and.(.not.newaniso())) deallocate(vcoul)
             cycle
           endif
           kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
@@ -674,7 +674,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
           if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
         else
           if( wgt0(kx-nqibz,irot) == 0d0 ) then
-            if(exchange) deallocate(vcoul)
+            if(exchange.and.(.not.newaniso())) deallocate(vcoul)
             cycle
           endif
         endif
@@ -1056,7 +1056,8 @@ cgaussian
      &      - wtt * sum( w3p(:,itp,itpp) )
             enddo
           enddo
-          deallocate( w3p,rmelt,cmelt,vcoul)
+          deallocate( w3p,rmelt,cmelt)
+          if(.not.newaniso()) deallocate(vcoul)
           cycle
 
         endif !exchange

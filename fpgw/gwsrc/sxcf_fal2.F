@@ -521,13 +521,11 @@ c        print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
 c            print *,'readin qvv=',qvv
-            if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
-            allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
+            if(allocated(vcoud)) deallocate(vcoud)
+            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
             read(ifvcoud) vcoud
             read(ifvcoud) zcousq
             if(sum(abs(qvv-qxx))<1d-6) goto 1133
-            vcousq=sqrt(vcoud)
-            deallocate(zcousq,vcousq,vcoud)
           enddo
           if(sum(abs(qvv-qxx))>1d-6) then
             print *,'qvv =',qvv
@@ -570,6 +568,7 @@ c$$$         vcousq=sqrt(vcoud) !
           call readppovl0(qibz_k,ngc,ppovl)
           ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+          deallocate(zcousq)
         endif
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccc
