@@ -1542,7 +1542,7 @@ C       isp=1 generates just the 11 block
         do  isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
-             print *,' test run ------> temporarly comment out shorbz'
+c             print *,' test run ------> temporarly comment out shorbz'
 cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
 c            if(.not.noshorbz()) then
 c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)

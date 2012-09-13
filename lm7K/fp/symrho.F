@@ -236,36 +236,17 @@ C --- Start loop over classes ---
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))
-
-ckino Dec.12.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og
-ckino Dec.13.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , rv_p_og
-ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_p_osymgr
-ckino Dec.28.2011:               call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_p_oistab , slat%rv_a_osymgr
           call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_a_oistab , slat%rv_a_osymgr
-ckino Dec.12.2011:       .       , rv_p_oag , plat , qlat , pos_rv , sym_rv )
-ckino Dec.27.2011:       .       , slat%rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
      .       , slat%rv_a_oag , plat , qlat , pos_rv , sym_rv )
-
-
-
-
-
 C   ... Apply the projectors to rhoat
           if (lmxl .gt. -1) then
             allocate(rho_rv(nr*nlml*nsp))
-
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 1 )
-
-
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 2 )
-
-
-
 C   ... Symmetrize site charges and eigval sum
             call psymrq ( nrclas , nsp , ipa_iv , lmxa , qbyl , hbyl )
-
           endif
 
 C   ... Symmetrize the forces
@@ -346,15 +327,18 @@ C ... Local parameters
         enddo
       enddo
 
-      if (iprint() .ge. 40) then
+      if (iprint() .ge. 35) then
+        write(stdo,"(a)")' psymrq: symmetrized l-charge qbyl, hbyl and ebar     '
+        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
         write(stdo,770) (ipa(ia),ia = 1,nrclas)
-  770   format(' symmetrized qbyl,hbyl for class containing ib=',20i3)
+c  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3)
+  770   format(' atom site ib=',255i3)
         if (nsp .eq. 1) write(stdo,780)
-     .  (l,qsum(l+1,1),hsum(l+1,1), l=0,lmxa)
+     .  (l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
         if (nsp .eq. 2) write(stdo,781)
-     .  (l,(qsum(l+1,isp),hsum(l+1,isp),isp=1,nsp), l=0,lmxa)
-  780   format(i5,2f12.6)
-  781   format(i5,2f12.6,'   spin 2',2f12.6)
+     .  (l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,1)/qsum(l+1,1),isp=1,nsp), l=0,lmxa)
+  780   format(' l=',i5,3f12.6)
+  781   format(' l=',i5,3f12.6,'   spin 2',3f12.6)
       endif
 
       do  ia = 1, nrclas

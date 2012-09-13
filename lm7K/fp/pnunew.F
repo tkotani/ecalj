@@ -74,11 +74,19 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
       real(8):: eferm,eee
       logical:: lsemicorepz
 
-      call info(30,1,0,' Make new boundary conditions for phi,phidot..',
-     .0,0)
-      stdo = lgunit(1)
-      call getpr(ipr)
       pi = 4d0*datan(1d0)
+      stdo = lgunit(1)
+      call info(30,1,0,' Make new boundary conditions for phi,phidot..',0,0)
+      call getpr(ipr)
+      if(ipr>=30) then
+         print *, ' ebar: '
+         print *, '   without lo    : ebar = center of gravity of occupied states'
+         print *, '   with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.'
+         print *, '                   ebar for valence is at the center of gravity of occ. states.'
+         print *, '   with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ'
+         print *, '                   ebar for valence is at the Fermi energy.'
+         print *, ' idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.'
+      endif   
 
 C --- For each site, do ---
       do  ib = 1, nbas
@@ -88,9 +96,6 @@ C --- For each site, do ---
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-
 
         lmxa=sspec(is)%lmxa
         rmt=sspec(is)%rmt
@@ -133,7 +138,6 @@ c                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m
 C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
-
 C       ... Log derivative by direct num integration
               is=ssite(ib)%spec
               z=sspec(is)%z
@@ -179,15 +183,22 @@ C             slo(1) = dl + 1d0
 
 !! takao Sep24 2010
               if(lsemicorepz)then
-                print *,' pnunew: valence with semicore ebar=efermi'
                 ebar=eferm
+                write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
+
+cccccccccccccccccc
+c              print *,' xxxxxx',l,ebar,mod(idmod(m),10)
+ccccccccccccccccc
 
               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr , 
      .         0 , 1d - 12 , ebar , val , slo , nn , g_rv , iwdummy , phi , 
      .         dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy 
      .         , iwdummy )
               nnv=nn
+cccccccccccccccccc
+c              print *,' yyyy',l,ebar,mod(idmod(m),10)
+ccccccccccccccccc
 
 C           dphip = (slo(2)-phip)/rmt
               if (nn .eq. int(pnu(m,1))-l-1) then
@@ -322,8 +333,8 @@ C         ... Permit pnu no lower than free electron value
      .        l,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
               if (ipr .ge. 20 .and. isp .eq. 2) write(stdo,620)
      .        idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-  520         format(i2,i6,'    sc      ',6f12.6)
-  620         format(' spn 2',i2,'    sc      ',6f12.6)
+  520         format(i2,i6,'      ---   ',6f12.6)
+  620         format(' spn 2',i2,'      ---   ',6f12.6)
 
             elseif (lpz) then
             endif
