@@ -2,7 +2,6 @@
       module m_mkrou3
       contains
       subroutine mkrou3(mode,lmxa,nlml,nsp,pnz,dmatl,hab,sab,qsum,hsum)
-
 C- l-decomposed charges and eigenvalue sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,8 +27,7 @@ Cr   u has val=1, slo=1 at rmax, s has val=0, slo=1
 Cu Updates
 Cu   28 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer mode,lmxa,n0,nab,nlml,nsp
       parameter (n0=10,nab=9)
 #ifdef USEOPTIONAL
@@ -41,24 +39,18 @@ C ... Passed parameters
      .qsum(n0,nsp),hsum(n0,nsp),
      .dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
 #endif
-
-C ... Local parameters
       integer l,isp,m
       double precision pi,srfpi,qz,hz
-
       if (mode .eq. 0) return
 C     call tcn('mkrou3')
-
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
-
       do  isp = 1, nsp
         do  l = 0, lmxa
           if (mode .ge. 1) qsum(l+1,isp) = 0d0
           if (mode .ge. 2) hsum(l+1,isp) = 0d0
         enddo
       enddo
-
       do  isp = 1, nsp
         do  l = 0, lmxa
           m = l+1
@@ -82,6 +74,8 @@ C         ... uz, sz, zu, zs, zz terms
      .      + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi
      .      + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi
      .      + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
+! 13sep2012takao add qz and hz
+            qsum(m,isp) = qsum(m,isp) + qz  !qsum is including local orbital 13sep2012takao
             if (mode .ge. 2) then
               hz =
      .        + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi
@@ -89,14 +83,14 @@ C         ... uz, sz, zu, zs, zz terms
      .        + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi
      .        + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi
      .        + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
+! 13sep2012takao add qz and hz
+              hsum(m,isp)=hsum(m,isp)+hz  !hsum is including local orbital 13sep2012takao     
             endif
           endif
 
         enddo
       enddo
-
 C     call tcx('mkrou3')
-
       end subroutine mkrou3
       end module m_mkrou3
 
@@ -104,10 +98,6 @@ C     call tcx('mkrou3')
       subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .   , sab , qbyl , hbyl , lrout )
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_mkrou3
@@ -161,51 +151,21 @@ Cu   28 Aug 01 Extended to local orbitals.
 Cu   18 Jun 00 spin polarized
 Cu   20 May 00 adapted from nfp mk_dens2
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer:: n0 , nab , nbas , nsp , lekkl , nlmto , lrout
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-
       type(s_rv1) :: sv_p_oeqkkl(3,nbas)
-
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-
       parameter (n0=10,nab=9)
       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
      ., hab(nab,n0,nsp,nbas)
-cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
-cki      type(s_spec)::sspec(*)
       type(s_spec)::sspec(nbas)
       type(s_ham)::sham
       type(s_lat)::slat
-
-C ... Local parameters
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      .           nr , ncore , stdo , igetss
-ckino Jan.04.2012:                   real(8),pointer :: rv_p_oqpp(:) =>NULL()
-
-ckino Jan.04.2012:                  real(8),pointer :: rv_p_oqhp(:) =>NULL()
-
-ckino Jan.04.2012:                 real(8),pointer :: rv_p_oqhh(:) =>NULL()
-
-ckino Dec.13.2011:                real(8),pointer :: rv_p_orhoca(:) =>NULL()
-
-ckino Dec.13.2011:  ckino Dec.13.2011:               real(8),pointer :: rv_p_ov01(:) =>NULL()
-
-ckino Dec.13.2011:              real(8),pointer :: rv_p_ov0(:) =>NULL()
-
-ckino Dec.13.2011:             integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.13.2011:            integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.13.2011:           real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.13.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
-
-ckino Dec.13.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)
       real(8) ,allocatable :: dp_rv(:)
@@ -226,11 +186,8 @@ ckino Dec.13.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       real(8) ,allocatable :: chh_rv(:)
       real(8) ,allocatable :: chp_rv(:)
       real(8) ,allocatable :: cpp_rv(:)
-
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
-     .sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,
-     .rsml(n0),ehl(n0)
-C ... For basis
+     .sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
       integer nkap0,nkapi,nkape,nkaph,nglob
       parameter (nkap0=3)
       integer lh(nkap0)
@@ -243,9 +200,7 @@ C     this ordering must match sham->eterms; see uham
       equivalence (eterms(8),sumec)
       equivalence (eterms(9),sumtc)
       equivalence (eterms(12),sumt0)
-C ... Heap
-      integer ::iwdummy
-
+      integer ::iwdummy,i_copy_size
 
 C ... Setup
       stdo = lgunit(1)
@@ -256,22 +211,8 @@ Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       sums1 = 0
       call tcn('mkrout')
-
-ckino Dec.13.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.13.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.13.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.13.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-
-ckino Dec.13.2011:         iv_p_oiprmb => sham%iv_p_oindxo
-
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
-
 
 C --- Start loop over atoms ---
       sumtc = 0d0
@@ -281,12 +222,10 @@ C --- Start loop over atoms ---
         if (nsp .eq. 1) write(stdo,201)
         if (nsp .eq. 2) write(stdo,202)
   201   format(/' mkrout:  Qtrue      sm,loc       local')
-  202   format(/' mkrout:  Qtrue      sm,loc       local',8x,
-     .  'true mm   smooth mm    local mm')
+  202   format(/' mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')
       endif
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
 
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
@@ -295,38 +234,22 @@ C --- Start loop over atoms ---
 
         if (lmxa .eq. -1) goto 10
 
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
-ckino Dec.13.2011:           rv_p_orhoca => sspec(is)%rv_p_orhoc
-
-
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-ckino Dec.13.2011:           call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab
-ckino Dec.27.2011:           call orbl ( ib , 0 , nlmto , sham%iv_p_oindxo , norb , ltab , ktab
         call orbl ( ib , 0 , nlmto , sham%iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
-
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-ckino Dec.13.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1
-
-
-
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
@@ -337,104 +260,63 @@ ckino Dec.13.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1
         allocate(rofi_rv(nr))
 
         allocate(rwgt_rv(nr))
-
         call radmsh ( rmt , a , nr , rofi_rv )
-
         call radwgt ( rmt , a , nr , rwgt_rv )
 
         if (lrout .ne. 0) then
-ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
-#define OQHH sv_p_oqkkl(3,ib)%v
-ckino Jan.04.2012:            rv_p_oqhp => sv_p_oqkkl(2,ib)%v
-#define OQHP sv_p_oqkkl(2,ib)%v
-ckino Jan.04.2012:            rv_p_oqpp => sv_p_oqkkl(1,ib)%v
-#define OQPP sv_p_oqkkl(1,ib)%v
           call dpzero ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp )
-
           call dpzero ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp )
-
 
 C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(fh_rv(nr*(lmxh+1)*nkaph))
-
           allocate(xh_rv(nr*(lmxh+1)*nkaph))
-
           allocate(vh_rv((lmxh+1)*nkaph))
-
           allocate(dh_rv((lmxh+1)*nkaph))
-
-          call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rofi_rv 
-     .    , fh_rv , xh_rv , vh_rv , dh_rv )
-
+          call fradhd ( nkaph , eh, rsmh , lh, lmxh , nr, rofi_rv, fh_rv , xh_rv , vh_rv , dh_rv )
           allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
-
           allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
-
           allocate(vp_rv((lmxa+1)*(kmax+1)))
-
           allocate(dp_rv((lmxa+1)*(kmax+1)))
-
-          call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
-     .    , xp_rv , vp_rv , dp_rv )
-
+          call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv, xp_rv , vp_rv , dp_rv )
 
 C   ... Augmented wave functions
           allocate(ul_rv(nr*(lmxa+1)*nsp))
-
           allocate(sl_rv(nr*(lmxa+1)*nsp))
-
           allocate(gz_rv(nr*(lmxa+1)*nsp))
-
           allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
-
           allocate(rus_rv(nr*(lmxa+1)*2*nsp))
-
           allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
-ckino Dec.13.2011:             call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr ,
-ckino Dec.28.2011:             call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr ,
           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv )
 
-
-
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
           k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
           allocate(chh_rv(k))
-          chh_rv(:)=0d0
+          chh_rv=0d0
           allocate(chp_rv(k))
-          chp_rv(:)=0d0
+          chp_rv=0d0
           allocate(cpp_rv(k))
-          cpp_rv(:)=0d0
+          cpp_rv=0d0
           allocate(dmatl_rv((lmxa+1)**2*nlml*nsp*9))
-          dmatl_rv(:)=0d0
-ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg
-ckino Dec.13.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , slat%iv_p_ojcg
-ckino Dec.27.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_p_ocg , slat%iv_p_ojcg
-ckino Dec.28.2011:            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_p_ojcg
+          dmatl_rv=0d0
+ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
+c #define OQHH sv_p_oqkkl(3,ib)%v
+c #define OQHP sv_p_oqkkl(2,ib)%v
+c #define OQPP sv_p_oqkkl(1,ib)%v
           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
-ckino Dec.13.2011:       .     , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh
-ckino Dec.27.2011:       .     , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh
-ckino Jan.04.2012:       .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH
-ckino Jan.04.2012:       .     , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv
-ckino Jan.04.2012:       .     , OQHP , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-     .     , OQHP , OQPP , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+     .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks  
+c     &     , OQHH, OQHP , OQPP , 
+     &     , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v 
+     &     , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .     , chp_rv , cpp_rv , dmatl_rv )
-
-
-
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
-     .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v 
-     .     )
-
-
+     .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v )
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
 C       call pshpr(40)
 C       call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),w(orofi),nr,
@@ -444,77 +326,46 @@ C       call poppr
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-     .     , nkaph , nkaph , fh_rv , lmxh , chh_rv , sv_p_orhoat( 2 , ib )%v 
-     .     )
-
-
+     .     , nkaph , nkaph , fh_rv , lmxh , chh_rv , sv_p_orhoat( 2 , ib )%v  )
 C       H Pkl product
           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-     .     , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , sv_p_orhoat( 2 , ib )%v 
-     .     )
-
-
+     .     , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , sv_p_orhoat( 2 , ib )%v   )
 C       Pkl Pkl product
           call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , 
-     .     lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v 
-     .     )
-
-
+     .     lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v   )
 C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
+!! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
           call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , dmatl_rv , hab 
-     .    ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , ib ) , qbyl ( 1 , 1 , 
-     .    ib ) , hbyl ( 1 , 1 , ib ) )
+     .    ( 1 , 1 , 1 , ib ) , sab (1 , 1 , 1 , ib ) , qbyl (1 , 1 ,ib ) , hbyl ( 1 , 1 , ib ) )
 
-C       Remake hbyl from energy-weighted density matrix
-          if (lekkl .ne. 0) then
+!! Remake hbyl from energy-weighted density matrix
+!! This is because above codes to give hbyl is wrong. So, we need to go though anothe pass with lekkl=1
+!! (OPTION_PFLOAT=1). In future, code above to generate hbyl will be removed.
 ckino Jan.04.2012:              rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
-#define OQHH sv_p_oeqkkl(3,ib)%v
-ckino Jan.04.2012:              rv_p_oqhp => sv_p_oeqkkl(2,ib)%v
-#define OQHP sv_p_oeqkkl(2,ib)%v
-ckino Jan.04.2012:              rv_p_oqpp => sv_p_oeqkkl(1,ib)%v
-#define OQPP sv_p_oeqkkl(1,ib)%v
+c #define OQHH sv_p_oeqkkl(3,ib)%v,  #define OQHP sv_p_oeqkkl(2,ib)%v,  #define OQPP sv_p_oeqkkl(1,ib)%v
+          if(lekkl .ne. 0) then
             nlml1 = 1
-            call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
-     .      * 9 )
-
+            call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp * 9 )
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
             call dpzero ( chh_rv , k )
-
             call dpzero ( chp_rv , k )
-
             call dpzero ( cpp_rv , k )
-
-ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg
-ckino Dec.13.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , slat%iv_p_ojcg
-ckino Dec.27.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_p_ocg , slat%iv_p_ojcg
-ckino Dec.28.2011:                    call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_p_ojcg
             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
-ckino Dec.13.2011:       .            , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh
-ckino Dec.27.2011:       .            , slat%iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh
-ckino Jan.04.2012:       .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , rv_p_oqhh 
-     .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , OQHH
-ckino Jan.04.2012:       .            , rv_p_oqhp , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv
-ckino Jan.04.2012:       .            , OQHP , rv_p_oqpp , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-     .            , OQHP , OQPP , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
-     .            , chp_rv , cpp_rv , dmatl_rv )
-
-
-
-
-
-
+     .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks 
+c     &            , OQHH , OQHP , OQPP, 
+     &            , sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v 
+     &            , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
+     .            , chp_rv , cpp_rv , dmatl_rv )!dmatl_rv is energy weighted. c.f. previous call to mkrou1.
 #ifdef USEOPTIONAL
             call mkrou3 ( mode=1 , lmxa=lmxa , nlml=nlml1 , nsp=nsp 
-     .       ,pnz= pnz , dmatl=dmatl_rv 
+     .       , pnz= pnz , dmatl=dmatl_rv 
      .       , sab=sab ( 1 , 1 , 1 , ib ) , qsum=hbyl ( 1 , 1 , ib )  )
 #else
             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , iwdummy 
      .       , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , iwdummy )
 #endif
-
-
           endif
 
 C   --- Print charges for information ---
@@ -522,7 +373,6 @@ C   --- Print charges for information ---
      .     , sum1 )
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 2 , ib )%v 
      .     , sum2 )
-
 ccccccccccccccccccccc
 c          print *,'ddd sum1 sum2=',sum1,sum(abs(sv_p_orhoat( 1 , ib )%v))
 c     &    ,size(sv_p_orhoat( 1 , ib )%v),nr*nlml*nsp
@@ -530,28 +380,18 @@ ccccccccccccccccccccc
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
-            sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v 
-     .       , 1 ) / y0
-
-
-            sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 2 , ib )%v 
-     .       , 1 ) / y0
-
-
+            sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v, 1 ) / y0
+            sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 2 , ib )%v, 1 ) / y0
           endif
-          if (ipr.ge.30 .and. nsp .eq. 1)
-     .    write(stdo,200) ib,sum1,sum2,sum1-sum2
+          if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
           if (ipr.ge.30 .and. nsp .eq. 2)
-     .    write(stdo,200) ib,sum1,sum2,sum1-sum2,
-     .    -sums1,-sums2,-sums1+sums2
+     .      write(stdo,200) ib,sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2
   200     format(i4,3f12.6,2x,3f12.6)
         endif
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity
         call mkrou6 ( rofi_rv , sv_p_orhoat( 1 , ib )%v , nr , nlml , 
      .   nsp , xx , xx , res )
-
-
         if (ipr.ge.30 .and. res .ne. 0) then
           write(stdo,211) res,res-sums1
   211     format(7x,'contr. to mm extrapolated for r>rmt:',f11.6,
