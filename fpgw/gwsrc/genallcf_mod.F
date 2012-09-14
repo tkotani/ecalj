@@ -95,8 +95,9 @@ c--- rgwinf ---
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
-      call rmvbl (symgrpt,120,j)
-      symgrp = '  '//symgrpt(j+1:120)
+c      call rmvbl (symgrpt,120,j)
+c      symgrp = '  '//symgrpt(j+1:120)
+      symgrp='  '//trim(adjustl(symgrpt))
       print *,' symgrp=', symgrp
 
       read(ifi,*)

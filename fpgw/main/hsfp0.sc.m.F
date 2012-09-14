@@ -20,11 +20,11 @@ c     !mode= 4: plot spectrum function ---See manual
 c
 c     iSigma_en parameter which determines approximation for  self-energy,
 c     stored in GWIN_V2.
-c     iSigma_en==0 SE_nn'(ef)+image integr:delta_nn'(SE_nn(e_n)-SE_nn(ef))
-c     iSigma_en==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
-c     iSigma_en==2 SE_nn'((e_n+e_n')/2)
-c     iSigma_en==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2
-c     iSigma_en==5 delta_nn' SE_nn(e_n)
+c       iSigma_en==0 SE_nn'(ef)+image integr:delta_nn'(SE_nn(e_n)-SE_nn(ef))
+c       iSigma_en==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
+c       iSigma_en==2 SE_nn'((e_n+e_n')/2)
+c     iSigma_en==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2  <--- this is mainly used
+c       iSigma_en==5 delta_nn' SE_nn(e_n)
 c     output file should contain hermitean part of SE for energies to be real
 c     (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
 c
@@ -34,11 +34,12 @@ c------------------------------------------------------------
       use keyvalue
       use m_readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
-      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
+     &   ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
+     &   ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
       use m_genallcf_v3
       implicit none
-c     real(8),parameter ::
-c     &  ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
+c     real(8),parameter :: ua  = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
 c------------------------------------
 c     test switches to calculate the self-energy based on an another separation of \Sigma.
 !     \Sigma = \Sigma_{sx} + \Sigma_{coh} + \Sigma_{img axis} + \Sigma_{pole} by Hedin PR(1965)A785
@@ -51,8 +52,8 @@ c
 c     &  , tetra  = .false.  ! test switch for tetrahedron method test.
 c     ! tetra=T is only effective for exchange=T case.
 c     ! Tetrahedron mehod for correlation is a bit
-      ! difficult and I gave up.
-c     ! If you want to calculate with tetra=T for exchange, you
+      ! difficult and I gave up for a while.
+      ! If you want to calculate with tetra=T for exchange, you
       ! have to uncomment tetra related part in
       ! sxcf.f, and a part calling sxcf in this routine. Note wtet wtetef!
       ! They sometimes cause array destruction if you run tetra=T without comment them.
@@ -77,11 +78,10 @@ c     o   imagw,niw,nw,ifreq,
      &     ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
      &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
-     &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
+     &     nlnx4,irot,invr,invrot,ivsum, ifoutsec, !niwx,
 c
-c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2)
-c     &    ifev(2),
-     &     ifsec(2)             !ifcphi
+c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ifev(2),
+     &     ifsec(2)             
      &     ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      &     ifsex2(2),ifsec2(2), !out S_nn'
      &     ifsecomg(2),ndble=8
@@ -503,31 +503,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c----------------------------------------------
       call pshprt(60)
 
-c------------
-c     open files
-c------------
-c     > input files
-c     ifqpnt    = iopen('QPNT'//xt(nz),1,0,0)
-
-c     screened exchange
-      if(.not.exchange.or.(exchange.and.screen)) then
-        !screened exchange
-c     direct access files WVR and WVI which include W-V.
-        ifwd      = iopen('WV.d',1,-1,0)
+!! WVR, WVI
+      if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
+        ifwd = iopen('WV.d',1,-1,0)
         read (ifwd,*) nprecx,mrecl,nblochpmx,nwt,niwt, nqnum,nw_i
-        write(6,"(' Readin WV.d =', 10i5)") 
-     &        nprecx,mrecl,nblochpmx,nwt,niwt, nqnum, nw_i
-c     nblochpmx from WV.d oct2005
+        ifwd = iclose('WV.d')
+        write(6,"(' Readin WV.d =', 10i5)") nprecx,mrecl,nblochpmx,nwt,niwt, nqnum, nw_i
         call checkeq(nprecx,ndble)
-        nw=nwt
-        if (niwt /= niw) stop 'hsfp0: wrong niw'
-        ifrcw     = iopen('WVR',0,-1,mrecl)
-        if(.not.exchange) ifrcwi = iopen('WVI',0,-1,mrecl)
+        nw = nwt
+        if(niwt /= niw) stop 'hsfp0: wrong niw'
+c!!  direct access files WVR and WVI which include W-V.
+c        if(.not.exchange) then
+c         ifrcw  = iopen('WVR',0,-1,mrecl)
+c         ifrcwi = iopen('WVI',0,-1,mrecl)
+c        endif 
       endif
-
-c     eigen functions
-c     ifev(1)   = iopen('EVU', 0,0,mrece)
-c     if (nspin == 2) ifev(2) = iopen('EVD', 0,0,mrece)
 
 c-------------------------
       if(tetra) goto 201
@@ -627,9 +617,6 @@ c     endif
 c-------------------------
  201  continue
 c-------------------------
-
-c     ifcphi  = iopen('CPHI',0,0,mrecb)
-
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 
 c     the coulomb matrix for exchange.
@@ -736,31 +723,18 @@ c
       endif
  889  continue
 
-c------------'
-      allocate(omega(ntq))      !sf 21May02
-cccccccccccccccccccccccccccccccccfaleev 21May02 do not use ixc==4
-c     if(ixc==4) then
-c     do iw = iwini,iwend
-c     omega(1:ntq,iw) =  dwplot* iw + ef
-c     enddo
-c     endif
-
-c     --- read LDA eigenvalues
-c     ntp0=ntq
+      allocate(omega(ntq))
+!! read LDA eigenvalues
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
-      do      is = 1,nspin
-        do      ip = 1,nq
-c     iq       = idxk (q(1,ip),qbz,nqbz)
-c     call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
+      do is = 1,nspin
+        do ip = 1,nq
           call readeval(q(1,ip),is,eqt)
           eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
           eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
         enddo
       enddo
       deallocate(eqt)
-c     --- info
-      call winfo(6,nspin,nq,ntq,is,nbloch
-     &     ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
+      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
 c-------------------------
 c     LDA exchange-correlation
@@ -769,20 +743,17 @@ c     - takao Vxc is readin from VXCFP
       if(ixc==1) then
         allocate(  vxcfp(ntq,nq,nspin) )
         call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
-c     loop over spins
         do is = 1,nspinmx
           write (ifxc(is),*) '==================================='
           write (ifxc(is),"(' LDA exchange-correlation : is=',i3)")is
           write (ifxc(is),*) '==================================='
           call winfo(ifxc(is),nspin,nq,ntq,is,nbloch
      &           ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
-
           write (ifxc(is),*)' ***'
           write (ifxc(is),"(a)") ' jband   iq ispin                  
      &           qvec 
      &           eigen-Ef (in eV)
      &           LDA XC (in eV)'
-
           ifoutsex = ifxc(is)
           write(6,*)
           do ip = 1,nq
@@ -798,23 +769,11 @@ c     loop over spins
               endif
             end do
           end do
-c     end of spin-loop
           if(is==1) isx = iclose('XCU'//xt(nz))
           if(is==2) isx = iclose('XCD'//xt(nz))
-        end do
+        enddo !     end of spin-loop
         deallocate(vxcfp)
       endif
-c
-
-
-c---  takao not modifed weights -----------------
-ccccccccccccccccccccccccccccccccccccc
-c     call defi    (ikfbz,ngrp)
-c     call modwt02 (w(iwbz),w(iqbz),w(iqibz),qbas,w(iirk),w(instar),
-c     w              w(ikfbz),
-c     d              nqibz,nqbz,ngrp)
-ccccccccccccccccccccccccccccccccccccc
-
 
 c     q near zero
       print *, 'reading QOP'
@@ -867,10 +826,6 @@ c     call defi    (iimdim,natom)
      o     imdim )
       if(niw/=0) then
 c     generate gaussian frequencies x between (0,1) and w=(1-x)/x
-c     call defdr   (ifreqx,niw)
-c     call defdr   (ifreqw,niw)
-c     call defdr   (iwx,niw)
-c     call defdr   (iexpa,niw)
         allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
         call freq01x  (niw,    !ua,
      o        freqx,freqw,wwx)  !,expa)
@@ -1034,7 +989,7 @@ c     calculate the correlated part of the self-energy SEc(qt,w)
 c-----------------------------------------------------------
 c     arrays for sxcf.f
       nlnx4    = nlnx**4
-      niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
+c      niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
      &     eq(nband), 
      &     kount(nqibz,nq),zsec(ntq,ntq,nq), 
@@ -1082,75 +1037,23 @@ c     initialise secq and kount
         zsec  = 0d0
         coh   = 0d0
         kount = 0
-c
+!! ip is for to specify k point for which we calculate \Sigma.
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 
-c     loop over rotations -------------------------------
-        do 1000 irot = 1,ngrp
-          if( sum(abs( irk(:,irot) )) ==0 .and.
-     &           sum(abs( wgt0(:,irot))) == 0d0 ) then
-            cycle
-          endif
-          write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
-          call cputid (0)
-c     if (irot == 1 .or. irot == ngrp) then
-c     call cputid(0); write(*,*)' ppba '
-c     endif
-
-c     rotate atomic positions invrot*R = R' + T
-          invr       = invrot (irot,invg,ngrp)
-c     call rotra   (invr,w(igrp),w(ipos),plat,w(iiclass),
-c     d              natom,ngrp,
-c     o              w(itr),w(iiatomp) )
-
-
-c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-          call ppbafp_v2 (irot,ngrp,is,nspin,
-     i           il,in,im,nlnm, !w(i_mnl),
-     d           nl,nn,nclass,nlnmx,
-     i           mdimx,lx,nx,nxx, !Bloch wave    
-     i           cgr, nl-1,     !rotated CG
-     i           ppbrd,         !radial integrals
-     o           ppb)
-
-c     c -- Rotated gvecc
-c     c        call rotgvec(symgg(:,:,irot), nqibz,
-c     c     i    ngcmx,ngcni,qbas,ngveccB,
-c     c     o    ngveccBr)
-
-c------------------------------------------------------
-c     calculate the correlated part of the self-energy within GW
-          ntqx = 0
-          if(tetra.and.(.not.exchange)) then
-            ntqx =3*ntq
-          endif
-c     loop over q
-          do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
-ccc   if(ixc==2) then
-c     iq  = idxk (q(1,ip),qbz,nqbz)
-c     call rwdd1 (ifev(is),iq, nband,eq)
+        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
             call readeval(q(1,ip),is,eq)
-            ! do iw = iwini,iwend     !sf 21May02
             do i  = 1,ntq
-              omega(i) = eq(itq(i)) !sf 21May02     + 2d0*(dble(iw)-shtw)*deltaw
+              omega(i) = eq(itq(i)) !sf 21May02 + 2d0*(dble(iw)-shtw)*deltaw
             enddo
-            ! enddo
-ccc   endif
-c     if(sergeys) then   !sf 21May02
-c     call sxcf_fal2_scy (kount, ip,q(1,ip),irot,itq,ntq,ef,esmr,
-c     print *, 'nblochpmx=',nblochpmx
-
             if(nctot==0) then !this is to override -Mbounds check
               deallocate(ecore)
               allocate(ecore(1,2)) !this is dummry
             endif
-cccccccccccccccccccccccccccccccc
-        write(6,*) "goto sxcf_fal3_scz"
-ccccccccccccccccccccccccccccccc
-            call sxcf_fal3_scz (kount, ip,q(1,ip),irot,itq,ntq,ef,esmr,
-     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
+c            if(debug) write(6,*) "goto sxcf_fal3_scz"
+            call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
+     i              tiat,miat,
 c     v2
-     i              nspin,is,   ! ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is), 12jan2004
+     i              nspin,is,   
      i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz ,wbz, nstbz, !iindxk,
      i              nstar,irk,  !kount,
@@ -1171,8 +1074,8 @@ c     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx, !12jan2004
      i              nblochpmx, ngpmx,ngcmx,
 c     i     geigB(1,1,1,is), ngvecpB,ngveccBr, !12jan2004
 c     i     ngveccBr,
-     i              wgt0,nq0i,q0i, symgg(:,:,irot),alat,
-     i              matmul(symgg(:,:,irot),shtvg(:,invr)),nband,
+     i              wgt0,nq0i,q0i,symgg,alat,
+     i              shtvg,nband,
      i              ifvcfpout,
 c     i     shtw, 
      i              exchange, screen, cohtest, ifexsp(is),
@@ -1180,50 +1083,10 @@ c     i     shtw,
      i              nbmx,ebmx,  !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i    wklm,lxklm, !mar2012
+     i    invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      o              zsec,coh)   ! acuumulation variable
-cccccccccccccccccccccccccccccccc
-        write(6,*) "end of sxcf_fal3_scz"
-ccccccccccccccccccccccccccccccc
-
-ccccccccccccccccccccccfaleev 21May02 we use general mesh in sxcf_fal1, so
-ccccccccccccccccccccccwe do not need sxce_v2
-c     else
-c     call sxcf_v2 (kount, ip,q(1,ip),irot,itq,ntq,ef,esmr,
-c     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
-c     v2
-c     i              ifev(is),ifcphi,nspin,is, !ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
-c     i              ifrcw,ifrcwi,
-c     i              qbas,ginv,w(iqibz),w(iqbz),w(iwbz),iindxk,
-c     i              w(instar),w(iirk),     !kount,
-c     1
-c     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
-c     i              ppb, ! pdb,dpb,ddb,
-c     i              w(ifreq),w(ifreqx),w(iwx),w(iexpa),
-c     i              ua,dw,  !deltaw,
-c     i              ecore(:,is),
-c     1
-c     d              n1,n2,n3,nlmto,nqibz,nqbz,nctot,
-c     d              nl,nnc,nclass,natom,
-c     d              nlnmx,mdimx,nbloch,ngrp,nw,niw,niwx,nq,
-c     1
-c     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx,
-c     i     geigB(1,1,1,is), ngvecpB,ngveccBr,
-c     i     wgt0,nq0i,q0i, symope(:,:,irot),alat,
-c     i     matmul(symope(:,:,irot),shtvg(:,invr)),nband,
-c     i     ifvcfpout,
-c     1     i     shtw,
-c     i     exchange, screen, cohtest, ifexsp(is),
-c     i        omega, iwini,iwend,
-c     o        zsec,coh) ! acuumulation variable
-c     endif
-cccccccccccccccccccccccccccccccccccccccccc
-c     iii = ivsum(kount,nqibz*nq)
-c     print *," sumkount 2=",nqibz,nq,iii
-c     stop "--- kcount test end --- "
-cccccccccccccccccccccccccccccccccccccccccc
- 1001     continue            !end of q-loop
- 1000   continue               !end of rotation-loop
-
+c          if(debug) write(6,*) "end of sxcf_fal3_scz"
+ 1001   continue            !end of q-loop
 
 c     check that all k { FBZ have been included
 c     if (ivsum(kount,nqibz*nq) /= nqbz*nq) then

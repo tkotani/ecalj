@@ -55,7 +55,7 @@ c
 
 
 C----------------------------------------------------------------------------
-      subroutine sxcf_fal3_scz(kount,ip,q,irot,itq,ntq,ef,esmr,tr,iatomp,
+      subroutine sxcf_fal3_scz(kount,ip,q,itq,ntq,ef,esmr,tiat,miat,
 c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
      i                  ifrcw,ifrcwi, 
@@ -75,7 +75,7 @@ c     i          index_qbz, n_index_qbz, !12jan2004
 c
 c     &     nblochpmx ,ngpn,ngcni,ngpmx,ngcmx,geigB,ngvecpB,ngveccBr, !12jan2004
      &     nblochpmx ,ngpmx,ngcmx,!ngveccBr,
-     &     wgt0,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout,
+     &     wgt0,nq0i,q0i,symgg, alat, shtvg,nband, ifvcfpout,
 c     &     shtw,  
      &     exchange,screen,cohtest, ifexsp,
 ctetra
@@ -86,6 +86,7 @@ c
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i wklm,lxklm, !mar2012 !wklm apr2012takao
+     i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
      o zsec,coh)
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
@@ -309,7 +310,7 @@ c secq(t) = <psi(q,t) |SEc| psi(q,t)>
 c----------------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
       implicit none
-      integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
+      integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,
      &   irot,  iqisp,ikpisp,isp,nsp,  nlnmx,
 c     &  iq, idxk,iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
@@ -320,69 +321,37 @@ c     &  iq, idxk,iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      &  kp,nt0,nocc, nt0p,nt0m,irkp,i,j,nt0org,nmax,nt,
      &  nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,ixs,ixsmx,
      &  mdimx, 
-     &  itq(ntq),iatomp(natom),      
+     &  itq(ntq),iatomp(natom),miat(natom,ngrp),
      &  nstar(nqibz),irk(nqibz,ngrp),kount(nqibz,nq),  ntqxx
 c
-      real(8) :: q(3),qbas(3*3),ginv(3*3),tr(3,natom),
+      real(8) :: q(3),qbas(3*3),ginv(3*3),tiat(3,natom,ngrp),tr(3,natom),
      &  wk(nqbz),qibz(3,nqibz),qbz(3,nqbz),
      &  freqx(niw),wx(niw),expa_(niw),
-     &  ekq(nband), ekc(nctot+nband),  ! eq(nband,nq), <---omega(ntq)
-c     &  rbq (nlmto,ntq),rbkq (nlmto,nband),
-c     &  cbq (nlmto,ntq),cbkq (nlmto,nband),
-c     &  rhbq(nlmto,ntq),rhbkq(nlmto,nband),
-c     &  chbq(nlmto,ntq),chbkq(nlmto,nband),
+     &  ekq(nband), ekc(nctot+nband),
      &  tpi,ef,esmr,efp,efm,wfac,wfacx,we,esmrx,ua_,
-     &  dw,wtt,wexx,www         , wfacx2,weavx2
-c      complex(8) :: zsec(-1:1,ntq,nq)
-c      real(8)    ::  shtw
-c                       ! This shft is  to avoid some artificial resonance effects.
-c                       ! shtw can be zero for esmr/=0 given by takao.
-c
-      integer(4):: ngpmx, ngcmx, ngpn(nqbz), !ngcni(nqibz), 
+     &  dw,wtt,wexx,www , wfacx2,weavx2
+
+      integer :: ngpmx, ngcmx, ngpn(nqbz), !ngcni(nqibz), 
      &  ngvecpB(3,ngpmx,nqbz), igc, !ngveccBr(3,ngcmx,nqibz),
      &  nadd(3)
       real(8) :: wgt0(nq0i,ngrp),qk(3),qfbz(3),
-     &  qbasinv(3,3), det,qdiff(3),add(3),symope(3,3),
-     &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
-     &   ppb(1), !pdb(1),dpb(1),ddb(1), !*
+     &  qbasinv(3,3), det,qdiff(3),add(3),symgg(3,3,ngrp),symope(3,3),
+     &  qxx(3),q0i(1:3,1:nq0i),shtvg(3,ngrp),shtv(3),alat,ecore(nctot),
+     &   ppb(*), !pdb(1),dpb(1),ddb(1), !*
      &  coh(ntq,nq)
-      complex(8):: geigB  (ngpmx,nband,nqbz),  alagr3z2,wintz,alagr3z
+      complex(8):: geigB(ngpmx,nband,nqbz),  alagr3z2,wintz,alagr3z
 c
-      real(8),allocatable:: !rmel(:,:,:),cmel(:,:,:),
-     &                      rmelt(:,:,:),cmelt(:,:,:)
-      complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
-     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:) !sf 22May02
-     & ,  zwm(:,:)
-ccccccccccccccc
-c      complex(8), allocatable :: zw4(:,:)! takao
-c      complex(4), allocatable :: zw4(:,:)! 10 Oct02
-ccccccccccccccc
-
-c for exchange --------------------
       logical :: exchange,screen,cohtest
       real(8),allocatable:: freq_r(:),
      &   w1p(:,:,:),w2p(:,:,:) !,w3p(:,:)   !sf 22May02
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
       complex(8),allocatable ::w3p(:,:,:)    !sf 22may02
-c- debug write ---------------------
-      logical :: debug, debugp,debug2=.false., initp=.true.
+      logical :: debug, debugp,debug2=.false.,initp=.true.
 
-cccccccccccccc
-c tetra
-c      integer(4) :: ntqx
-c      integer(4) :: ibzx(nqbz)
-c      real(8)    :: wtet  (nband,nqibz,1:ntqx), wtetef(nband,nqibz)
-c                ! where the last index is 3*itq+iw-1,itq=1,ntq,iw=-1,1
-c     logical    :: tetra
-cccccczzcccccc
-
+      real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:)
+      complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
+     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:)
       complex(8) :: wintzav,wintzsg_npm
-
-c worksize in megabytes (1 word = 4 bytes)
-c      parameter (mbytes=60)
-c      parameter (iwksize=mbytes * 1000 *1000/4)
-c      integer w
-c      common /w/ w(iwksize)
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen,npm
       integer(4),save::ifzwz=-999
@@ -392,10 +361,9 @@ c      common /w/ w(iwksize)
       complex(8) :: zsec(ntq,ntq,nq)           !sf 22May02
       complex(8),allocatable:: expikt(:)
       complex(8):: img=(0d0,1d0)
-ctakao
+
       complex(8):: cphiq(nlmto,nband), cphikq(nlmto,nband)
-cccccccccccccccccccccccccccccccccccccccccccccccc faleev 2002
-      integer(4) :: nt_max, igb1,igb2,iigb, itpp,ix0 !sf 22May02
+      integer(4) :: nt_max, igb1,igb2,iigb, itpp,ix0 
       complex(8),allocatable:: zmel_(:,:,:),zmel1(:),zmel3(:)
       complex(8), allocatable :: zw_(:,:),zzmel(:,:)
       complex(8), allocatable :: zwz2(:,:),zw2(:,:,:),zmel2(:,:)
@@ -454,6 +422,12 @@ C...
       logical :: newaniso,testomitq0
       complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:)
       real(8),allocatable::vcoud(:),vcousq(:)
+      integer:: invg(ngrp),invrot,invr
+
+      integer:: il(*),in(*),im(*),nlnm(*),nn_,lx(*),nx_(*),nxx_
+      real(8)::  cgr(*),ppbrd(*)
+
+      integer:: nprecx,mrecl,ifwd
 c--------------------------------------------------------------------
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -534,16 +508,16 @@ c        print *, 'test1 bbb'
 c===============================
 c loop over irreducible k-points
 c===============================
-      if(newaniso()) then
-        continue
-      else
-        if(bzcase()==1) then
-c         print *, 'test1 bbb2'
-           kx = 1  ! qibz(:,1)=0 contribution for kcount
-c          print *, 'test1 bbb3'
-          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
-        endif
-      endif
+c      if(newaniso()) then
+c        continue
+c      else
+c        if(bzcase()==1) then
+cc         print *, 'test1 bbb2'
+cc           kx = 1  ! qibz(:,1)=0 contribution for kcount
+cc          print *, 'test1 bbb3'
+cc          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
+c        endif
+c      endif
 
 c --- main loop start
       iqini=2
@@ -556,26 +530,29 @@ c        print *, 'test1 bbb4'
 c        if(exchange) iqend=nqibz
       endif
 
+
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
+         print *, ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
+        if( kx <= nqibz ) then
+          qibz_k= qibz(:,kx)
+        else
+          qibz_k= 0d0
+        endif
         if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
         if(timemix) call timeshow("11111 k-cycle")
-        if(debug) write(*,"('k, ip, irot=',3i5)") kx, ip,irot
-
-        if( kx <= nqibz ) then
-          kr = irk(kx,irot) ! index for rotated k in the FBZ
-          qibz_k= qibz(:,kx)
-          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
-        else
-          kr=-99999 !for sanity check
-          qibz_k= 0d0
-          qbz_kr= 0d0
-        endif
-
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
 c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc
         if(debug) print *, ' sxcf: ngb=',ngb,nbloch
+
+        if(kx==iqini.and.(.not.exchange)) then
+         ifwd = iopen('WV.d',1,-1,0)
+         read (ifwd,*) nprecx,mrecl
+         ifwd = iclose('WV.d')
+         ifrcw  = iopen('WVR',0,-1,mrecl)
+         ifrcwi = iopen('WVI',0,-1,mrecl)
+        endif 
 
 !! ===Readin diagonalized Coulomb interaction===
 !! note sep102012takao
@@ -644,6 +621,55 @@ c$$$         vcousq=sqrt(vcoud) !
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
           deallocate(zcousq,ppovl)
         endif
+          
+c     loop over rotations -------------------------------
+      do 1000 irot = 1,ngrp
+         write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
+
+        if( kx <= nqibz ) then
+          kr = irk(kx,irot) ! index for rotated k in the FBZ
+c          qibz_k= qibz(:,kx)
+          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
+        else
+          kr=-99999 !for sanity check
+          qibz_k= 0d0
+          qbz_kr= 0d0
+        endif
+
+c          if( sum(abs( irk(:,irot) )) ==0 .and.
+c     &           sum(abs( wgt0(:,irot))) == 0d0 ) then
+c            cycle
+c          endif
+c          call cputid (0)
+c     if (irot == 1 .or. irot == ngrp) then
+c     call cputid(0); write(*,*)' ppba '
+c     endif
+
+c     rotate atomic positions invrot*R = R' + T
+        invr  = invrot (irot,invg,ngrp)
+        tr    = tiat(:,:,invr)
+        iatomp= miat(:,invr)
+        symope= symgg(:,:,irot)
+        shtv  = matmul(symope,shtvg(:,invr))
+
+c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+        call ppbafp_v2 (irot,ngrp,isp,nsp,
+     i           il,in,im,nlnm, !w(i_mnl),
+     d           nl,nn_,nclass,nlnmx,
+     i           mdimx,lx,nx_,nxx_, !Bloch wave    
+     i           cgr, nl-1,     !rotated CG
+     i           ppbrd,         !radial integrals
+     o           ppb)
+
+c------------------------------------------------------
+c     calculate the correlated part of the self-energy within GW
+c        ntqx = 0
+c        if(tetra.and.(.not.exchange)) then
+c            ntqx =3*ntq
+c        endif
+
+
+
 
 !! --- exchange
         if(exchange) then
@@ -663,7 +689,7 @@ c- weight check for cycle or not.
             if(exchange.and.(.not.newaniso())) deallocate(vcoul)
             cycle
           endif
-          kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
+c          kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
           ! appears in the 1st BZ
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
@@ -671,7 +697,7 @@ c          deallocate(vcoul)
 c          cycle
 c          print *,' kount out =',kount(k,ip)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
-          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
+c          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
         else
           if( wgt0(kx-nqibz,irot) == 0d0 ) then
             if(exchange.and.(.not.newaniso())) deallocate(vcoul)
@@ -680,7 +706,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
         endif
 
         if(debug) print *, ' sxcf: 1100b'
-
 
 c qk = q - rk, rk is inside 1st BZ, not restricted to
 c the irreducible BZ
@@ -994,7 +1019,7 @@ ccccccccccccccccccccccccccccc
               do it  = 1,nctot+nbmax
                 w3p(it,itp,itpp) = 0d0
                 do ivc=1,ngb
-                  if(ivc==1.and.kx==1) then
+                  if(ivc==1.and.kx==iqini) then
                     vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
 c                    print *,'wklm(1) vc=',wklm(1),vc
                   else
@@ -1814,7 +1839,14 @@ c     and must be made hermitean when zsec will be written on disc
         endif
         deallocate(zmel1,zmel1_)
         deallocate(freq_r)
-1100  continue  ! end of k-loop
+ 1000 continue
+      print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
+      if(kx==iqend.and. (.not.exchange)) then
+        ifrcw  = iclose('WVR')
+        ifrcwi = iclose('WVI')
+      endif   
+1100  continue  ! end of kx-loop
+
       if(newaniso()) ifvcoud =iclose('Vcoud')
       if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
 c      call rlse (iwr1)

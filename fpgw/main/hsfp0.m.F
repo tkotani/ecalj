@@ -63,7 +63,7 @@ c------------------------------------
      &     ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
      &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
-     &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
+     &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,
      &     ifsec(2)             !,ifcphi
      &     ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      &     ifsecomg(2),ifexx,ndble=8
@@ -994,7 +994,6 @@ c-----------------------------------------------------------
 c     loop over spin ----------------------------------------------------
       if (tote) exx = 0d0
       do 2000 is = 1,nspinmx
-
         if((exchange).and.(.not.tote)) then
           write(ifsex(is),*) '======================================='
           write(ifsex(is),"('Self-energy exchange SEx(q,t): is=',i3)") is
@@ -1035,46 +1034,9 @@ c
 !make dummy SEXcore
         if(ixc==3.and.nctot==0) goto 2001
 
-c     loop over rotations -------------------------------
-        do 1000 irot = 1,ngrp
-c          print *,'uuuuuuuu takao do 1000 ',sum(abs( irk(:,irot) )),sum(abs( wgt0(:,irot)))
-          if( sum(abs( irk(:,irot) )) ==0 .and.
-     &           sum(abs( wgt0(:,irot))) == 0d0 ) then
-            cycle
-          endif
-          write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
-          call cputid (0)
-c     if (irot == 1 .or. irot == ngrp) then
-c     call cputid(0); write(*,*)' ppba '
-c     endif
-
-c     rotate atomic positions invrot*R = R' + T
-          invr       = invrot (irot,invg,ngrp)
-
-c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-          if(debug) print *,'### goto ppbafp_v2 ###'
-          call ppbafp_v2 (irot,ngrp,is,nspin,
-     i           il,in,im, nlnm,
-     d           nl,nn,nclass,nlnmx,
-     i           mdimx,lx,nx,nxx, !Bloch wave    
-     i           cgr, nl-1,     !rotated CG
-     i           ppbrd,         !radial integrals
-     o           ppb)
-
-c     c -- Rotated gvecc
-c     call rotgvec(symgg(:,:,irot), nqibz,
-c     i    ngcmx,ngcni,qbas,ngveccB,
-c     o    ngveccBr)
-
-c------------------------------------------------------
-c     calculate the correlated part of the self-energy within GW
-c     ntqx = 0
-c     if(tetra.and.(.not.exchange)) then
-c     ntqx =3*ntq
-c     endif
-c     loop over q
-          do 1001 ip = 1,nq   !
-            if(debug) write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+!
+        do 1001 ip = 1,nq   
+            write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
             if(ixc==2) then
 c     iq  = idxk (q(1,ip),qbz,nqbz)
 c     call rwdd1 (ifev(is),iq, nband,eq)
@@ -1091,10 +1053,9 @@ c     call rwdd1 (ifev(is),iq, nband,eq)
               allocate(ecore(1,2)) !this is dummry
             endif
 
-c     if(sergeys) then
-            if(debug) print *,'### goto sxcf_fal3z ### nlmto=',nlmto
-            call sxcf_fal3z (kount, ip,q(1,ip),irot,itq,ntq,ef,ef2,esmr,esmr2,
-     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
+            print *,'### goto sxcf_fal3z ### nlmto=',nlmto
+            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
+     i              tiat,miat,
 c     v2
      i              nspin,is,   !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
      i              ifrcw,ifrcwi,
@@ -1119,8 +1080,8 @@ c     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx,
      i              nblochpmx,ngpmx,ngcmx,
 c     i     geigB(1,1,1,is), ngvecpB,ngveccBr,
 c     i     ngveccBr,
-     i              wgt0,nq0i,q0i, symgg(:,:,irot),alat,
-     i              matmul(symgg(:,:,irot),shtvg(:,invr)),nband,
+     i              wgt0,nq0i,q0i, symgg,alat,
+     i              shtvg,nband,
      i              ifvcfpout,
 c     i     shtw, 
      i              exchange, tote, screen, cohtest, ifexsp(is),
@@ -1129,47 +1090,13 @@ c     i     shtw,
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
 c     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
      i    wklm,lxklm, !mar2012
+     i    invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
             !oct2005 for pomat 
      o              zsec,coh,exx) ! acuumulation variable
             print *,' end of sxcf_fal3z xxxxxxxxxxxxxxx'
-
-c     else                                                 !june2002 add esmr2 takao
-c     call sxcf_v2z (kount, ip,q(1,ip),irot,itq,ntq,ef,ef2,esmr,esmr2,
-c     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr),
-c     i              nspin,is, !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
-c     i              ifrcw,ifrcwi,
-c     i              qbas,ginv,qibz,qbz,wbz,nstbz, wibz,
-c     i              nstar,  irk,     !iindxk,kount,
-c     i        iclass,nblocha,nlnmv, nlnmc, !w(i_mnlv),w(i_mnlc)
-c     i        icore,ncore, imdim,
-c     i              ppb, ! pdb,dpb,ddb,
-c     i              freq, freqx, wwx, expa,
-c     i              ua,dw,  !deltaw,
-c     i              ecore(:,is),
-c     d        nlmto,nqibz,nqbz,nctot,
-c     d              nl,nnc,nclass,natom,
-c     d              nlnmx,mdimx,nbloch,ngrp,nwp,niw,niwx,nq,
-c     i     nblochpmx,ngpmx,ngcmx,
-c     i     wgt0,nq0i,q0i, symgg(:,:,irot),alat,
-c     i     matmul(symgg(:,:,irot),shtvg(:,invr)),nband,
-c     i     ifvcfpout,
-c     i     exchange, tote, screen, cohtest, ifexsp(is),
-c     &     wtet(:,is,:,0),
-c     &     ibzx,tetraex,
-c     &     ixc,
-c     c
-c     i        omega, iwini,iwend,
-c     i     nbmx,ebmx, !takao 18June2003
-c     o        zsec,coh,exx) ! acuumulation variable
-c     endif
-cccccccccccccccccccccccccccccccccccccccccc
-c     iii = ivsum(kount,nqibz*nq)
-c     print *," sumkount 2=",nqibz,nq,iii
-c     stop "--- kcount test end --- "
-cccccccccccccccccccccccccccccccccccccccccc
  1001     continue            !end of q-loop
  1000   continue               !end of rotation-loop
-cccccccccccccccccccccccc
+
 
 c     check that all k { FBZ have been included
 c     if (ivsum(kount,nqibz*nq) /= nqbz*nq) then

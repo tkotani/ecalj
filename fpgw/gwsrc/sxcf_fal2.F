@@ -1,5 +1,6 @@
-      subroutine sxcf_fal3z(kount,ip,q,irot,itq, ntq,ef,ef2,esmr,esmr2,tr,
-     i          iatomp,nsp,isp, !ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
+      subroutine sxcf_fal3z(kount,ip,q,itq, ntq,ef,ef2,esmr,esmr2,
+     i          tiat,miat,
+     i          nsp,isp, !ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
      i                  ifrcw,ifrcwi, 
      i                  qbas,ginv,
      i         qibz,qbz,wk,nstbz,wik,nstar,irk,  !koun,,iindxk
@@ -18,7 +19,7 @@ c     i          index_qbz, n_index_qbz,  !jan2004
 ! See freq_r
 c     &     nblochpmx ,ngpn,ngcni,ngpmx,ngcmx,geigB,ngvecpB,ngveccBr,
      &     nblochpmx ,ngpmx,ngcmx, !ngveccBr,!Jan2004
-     &     wgt0,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout,
+     &     wgt0,nq0i,q0i,symgg,alat, shtvg,nband, ifvcfpout,
 c     &     shtw,  
      &     exchange,tote,screen,cohtest, ifexsp,
 ctetra
@@ -29,6 +30,7 @@ c
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
      i   wklm,lxklm, !mar2012 !wklm apr2012takao
+     i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi
@@ -231,7 +233,7 @@ c secq(t) = <psi(q,t) |SEc| psi(q,t)>
 c----------------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
       implicit none
-      integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
+      integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,
      &   irot,  iqisp,ikpisp,isp,nsp,  nlnmx, !iq, idxk,
 c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
@@ -242,10 +244,10 @@ c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      &  kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0,
      &  nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, !iwp sf 21May02
      &  mdimx, nwx,niwx,
-     &  itq(ntq),iatomp(natom),      
+     &  itq(ntq),iatomp(natom),miat(natom,ngrp),
      &  nstar(nqibz),irk(nqibz,ngrp),kount(nqibz,nq)
 c
-      real(8) :: q(3),qbas(3*3),ginv(3*3),tr(3,natom),
+      real(8) :: q(3),qbas(3*3),ginv(3*3),tiat(3,natom,ngrp),tr(3,natom),
      &  wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),
      &  freqx(niw),wx(niw),!expa(niw),
      &  eq(nband,nq), 
@@ -261,8 +263,8 @@ c
      &   igc, !ngvecpB(3,ngpmx,nqbz),ngveccBr(3,ngcmx,nqibz),
      &  nadd(3)
       real(8) :: wgt0(nq0i,ngrp),qk(3), !qfbz(3),
-     &  qbasinv(3,3), det,qdiff(3),add(3),symope(3,3),
-     &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
+     &  qbasinv(3,3), det,qdiff(3),add(3),symgg(3,3,ngrp),symope(3,3),
+     &  qxx(3),q0i(1:3,1:nq0i),shtvg(3,ngrp),shtv(3),alat,ecore(nctot),
      &   ppb(1), !pdb(1),dpb(1),ddb(1), !*
      &  coh(ntq,nq)   !, pos(3,natom)
       complex(8)::   alagr3zz,wintz !geigB  (ngpmx,nband,nqbz),
@@ -277,6 +279,9 @@ c for exchange --------------------
       real(8),allocatable:: 
      &   w1p(:,:,:),w2p(:,:,:),w3p(:,:)
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
+      integer:: invg(ngrp),invrot,invr
+      integer:: il(*),in(*),im(*),nlnm(*),nn_,lx(*),nx_(*),nxx_
+      real(8)::  cgr(*),ppbrd(*)
 
 c- debugwrite ---------------------
       logical :: debug=.false. ,onceww
@@ -381,7 +386,7 @@ c--------------------------------------------------------------------
       fpi = 4d0*pi
       debug=.false.
       if(verbose()>=90) debug=.true.
-
+      print *,'sxcf_fal3z'
 c oct2005
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
@@ -443,8 +448,8 @@ ccccccccccccccccccccccccccccccccc
         continue
       else
         if(bzcase()==1) then
-          kx = 1  ! qibz(:,1)=0 contribution for kcount
-          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
+c          kx = 1  ! qibz(:,1)=0 contribution for kcount
+c          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
         endif
       endif
 
@@ -494,20 +499,20 @@ c      iqend=nqibz
 c      print *,'dddddddd test iqend=',iqend
 cccccccccccccccccccccccccccccccccccc
 
+
+
 !! == Big loop for kx ==
+!! kx is for irreducible k points, kr=irk(kx,irot) runs all k points in the full BZ.
       do 1100 kx = iqini,iqend
-c        print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
         if( kx <= nqibz ) then
-          kr = irk(kx,irot) ! index for rotated k in the FBZ
           qibz_k= qibz(:,kx)
-          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
-        else !!   k = 1  ! corresponds to q=0
-          kr=-99999 !for sanity check
+        else
           qibz_k= 0d0
-          qbz_kr= 0d0
         endif
+        if(verbose()>=40)  print *, ' sxcf_fal3z: loop 1100 kx=',kx
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
         ngb = nbloch + ngc !oct2005
+        if(debug) print *, ' sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
         if(newaniso()) then
@@ -558,7 +563,6 @@ c$$$         allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0) )
 c$$$         read(ifvcoud) vcoud
 c$$$         read(ifvcoud) zcousq
 c$$$         vcousq=sqrt(vcoud) !
-
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
@@ -570,6 +574,93 @@ c$$$         vcousq=sqrt(vcoud) !
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
           deallocate(zcousq)
         endif
+!! --- exchange
+        if(exchange) then
+          if(testomitq0()) then
+            print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+            if(allocated(vcoul)) deallocate(vcoul)
+          endif
+          if(.not.newaniso()) then 
+            read(ifvcfpout) nn !oct2005
+            allocate(vcoul(nn,nn))
+            read(ifvcfpout) vcoul(1:nn,1:nn)
+          endif  
+        endif
+
+c     loop over rotations -------------------------------
+      do 1000 irot = 1,ngrp
+         write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
+        if( kx <= nqibz ) then
+          kr = irk(kx,irot) ! index for rotated k in the FBZ
+          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
+        else
+          kr=-99999 !for sanity check
+          qbz_kr= 0d0
+        endif
+
+
+c- weight check for cycle or not.
+        if( kx <= nqibz ) then
+          if (kr == 0)    then
+c            if(exchange.and.(.not.newaniso())) deallocate(vcoul)
+            cycle
+          endif
+c          kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
+          ! appears in the 1st BZ
+c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
+c          deallocate(vcoul)
+c          cycle
+c          print *,' kount out =',kount(k,ip)
+c          print *,'kp ip kount nstar=',kx,ip,kount(kx,ip),nstar(kx)
+c          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
+        else
+          if( wgt0(kx-nqibz,irot) == 0d0 ) then
+c            if(exchange) deallocate(vcoul)
+            cycle
+          endif
+        endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+        if(testomitq0())then
+          print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+          if(kx==1.or.kx>nqibz) cycle
+        endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+c          if( sum(abs( irk(:,irot) )) ==0 .and.
+c     &           sum(abs( wgt0(:,irot))) == 0d0 ) then
+c            cycle
+c          endif
+c          call cputid (0)
+c     if (irot == 1 .or. irot == ngrp) then
+c     call cputid(0); write(*,*)' ppba '
+c     endif
+
+c     rotate atomic positions invrot*R = R' + T
+        invr  = invrot (irot,invg,ngrp)
+        tr    = tiat(:,:,invr)
+        iatomp= miat(:,invr)
+        symope= symgg(:,:,irot)
+        shtv  = matmul(symope,shtvg(:,invr))
+        if(debug) print *,'goto ppbafp_v2'
+c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+        call ppbafp_v2 (irot,ngrp,isp,nsp,
+     i           il,in,im,nlnm, !w(i_mnl),
+     d           nl,nn_,nclass,nlnmx,
+     i           mdimx,lx,nx_,nxx_, !Bloch wave    
+     i           cgr, nl-1,     !rotated CG
+     i           ppbrd,         !radial integrals
+     o           ppb)
+
+        if(debug) print *, ' sxcf: dddddddd nqibz goto loop kx ip irot=',kx,ip,irot
+c        if( kx <= nqibz ) then
+c          kr = irk(kx,irot) ! index for rotated k in the FBZ
+c          qibz_k= qibz(:,kx)
+c          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
+c        else !!   k = 1  ! corresponds to q=0
+c          kr=-99999 !for sanity check
+c          qibz_k= 0d0
+c          qbz_kr= 0d0
+c        endif
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! check zcousq^* * ppovl * zcousq gives delta function ---> I needed to replace mkppolv2 in rdata4gw_v2. (takao2012may).
@@ -587,46 +678,6 @@ c$$$        enddo
 c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
-!! --- exchange
-        if(exchange) then
-cccccccccccccccccccccccccccccccc
-          if(testomitq0()) then
-            print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
-            if(allocated(vcoul)) deallocate(vcoul)
-          endif
-cccccccccccccccccccccccccccccccc
-          read(ifvcfpout) nn !oct2005
-          allocate(vcoul(nn,nn))
-          read(ifvcfpout) vcoul(1:nn,1:nn)
-        endif
-
-c- weight check for cycle or not.
-        if( kx <= nqibz ) then
-          if (kr == 0)    then
-            if(exchange) deallocate(vcoul)
-            cycle
-          endif
-          kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
-          ! appears in the 1st BZ
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
-c          deallocate(vcoul)
-c          cycle
-c          print *,' kount out =',kount(k,ip)
-c          print *,'kp ip kount nstar=',kx,ip,kount(kx,ip),nstar(kx)
-          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
-        else
-          if( wgt0(kx-nqibz,irot) == 0d0 ) then
-            if(exchange) deallocate(vcoul)
-            cycle
-          endif
-        endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(testomitq0())then
-          print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
-          if(kx==1.or.kx>nqibz) cycle
-        endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
@@ -1097,7 +1148,8 @@ cgaussian
               exxq = exxq - wtt * sum( w3p(:,itp) )
             enddo
           endif
-          deallocate( w3p,rmelt,cmelt,vcoul)
+          if(.not.newaniso()) deallocate(vcoul)
+          deallocate( w3p,rmelt,cmelt)
           cycle
         endif
 c-- End of exchange section --------------
@@ -1837,6 +1889,7 @@ cccccccccccccccccccccccccccccccccccccccc
         else
           deallocate(zwz)
         endif
+ 1000 continue
  1100 continue  ! end of k-loop
       if(newaniso()) ifvcoud =iclose('Vcoud')
 
