@@ -2,16 +2,7 @@
 # python 2
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #
-import os
-import sys
-import string
-import re
-import glob
-import shutil
-import time
-import resource
-import os.path
-import filecmp
+import os, sys, string, re, glob, shutil, time, resource, os.path, filecmp
 
 def cpu_time_child():
 	return resource.getrusage(resource.RUSAGE_CHILDREN)[0]
@@ -97,7 +88,7 @@ commands=[]
 startfile=[]
 testcommand=[]
 
-
+testcput={}
 ###########
 
 
@@ -106,6 +97,7 @@ comparekey="' '"
 #
 testn='gas_eps_lmfh'
 testname.append(testn)
+testcput[testn]='--> require 30 sec'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas>llmf','eps_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -126,6 +118,7 @@ testcommand.append([comp1,comp3,comp4,comp1a,comp3a,comp4a ])
 #
 testn='gas_epsPP_lmfh'
 testname.append(testn)
+testcput[testn]='--> require 26 sec'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas>llmf','epsPP_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -140,6 +133,7 @@ testcommand.append([comp1,comp3,comp4 ])
 #
 testn='fe_epsPP_lmfh_chipm'
 testname.append(testn)
+testcput[testn]='--> require 32 sec'
 startfile.append('ctrl.fe GWinput')
 commands.append(['lmfa fe > llmfa','lmf fe>llmf','epsPP_lmfh_chipm fe'])
 datadir  = testdir+ '/' + testn+'/'
@@ -158,6 +152,7 @@ testcommand.append([comp1,comp2,comp3,comp4,comp5 ])
 #
 testn='si_gw_lmfh'
 testname.append(testn)
+testcput[testn]='--> require 12 sec'
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa','lmf si > llmf_lda','gw_lmfh si'])
 datadir  = testdir+ '/' + testn+'/'
@@ -166,6 +161,7 @@ testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 #
 testn='gas_pw_gw_lmfh'
 testname.append(testn)
+testcput[testn]='--> require 30 sec'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas > llmf_lda','gw_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -174,6 +170,7 @@ testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 #
 comparekey=" 'fp pot' 'fp evl'"
 testn='si_gwsc'
+testcput[testn]='--> require 160 sec'
 testname.append(testn)
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa','gwsc1shot si'])
@@ -183,6 +180,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'
 
 #
 testn='gas_gwsc'
+testcput[testn]='--> require 160 sec'
 testname.append(testn)
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','gwsc1shot gas'])
@@ -194,6 +192,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.ga
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
 #
 testn='nio_gwsc'
+testcput[testn]='--> require 915 sec'
 testname.append(testn)
 startfile.append('ctrl.nio GWinput')
 commands.append(['lmfa nio > llmfa','gwsc1shot nio'])
@@ -215,12 +214,16 @@ if (nargv ==0 or '--help' in argset):
 	print '   options:'
 	print '     --help   :  this help'
 	print '     --enforce:  remove temp_* directories at first even if they exists'
-	print '     --all    :  test all cases (no testname is needed)'
+	print '     --all    :  test all cases (not need to set testname)'
 	print '     --show   :  show all test name defined in this routine'
 	print '     --deletetemp: delete temp_* directory if tests are succeeded'
-	print '   testname :  testname, e.g. si_gw_lmfh as shown below'
+	print '   testname :  testname, e.g. si_gw_lmfh as shown below and estimated required time'
 	for i in range(len(testname)):
-		print '            :', testname[i]
+		try:
+			rtime=testcput[testname[i]]
+		except:
+			rtime=' not known'
+		print '            :', testname[i],'\t ',rtime
 	sys.exit()
 if ('--enforce' in  argset):
 	enforce=1

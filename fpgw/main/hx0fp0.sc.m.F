@@ -857,8 +857,8 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       endif
 c      stop 'xxxxxxxxxxxxxxxxxx'
 
-      allocate( llw(nw_i:nw,iqxini:iqxend), llwI(niw,iqxini:iqxend) )
-      ifisk=iopen('WKcomponent',0,-1,0)
+      allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
+c      ifisk=iopen('WKcomponent',0,-1,0)
 
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
@@ -945,7 +945,7 @@ c         enddo
           endif
           nolfco =.true.
           nmbas_in=ngb
-          nmbas1 = 2  !nmbas1=2 is for P\mu\nu (\mu=1 or \nu=1) components.
+          nmbas1 = 1 !nmbas1=1 is for P\mu\nu (\mu=1) components. (nmbas1=2 was tested for \nu=1, but need trick after x0kf_v4h)
           nmbas2 = ngb
           if(allocated(rcxqmean)) deallocate(rcxqmean)
           if(allocated(zzr))      deallocate(zzr)
@@ -1281,13 +1281,13 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
           print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-c          z1offd=newaniso2
-          if(nolfco) then
-             nmbas1x = nmbas1
-          else
-            nmbas1x = 1
-          endif  
-          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
+cc          z1offd=newaniso2
+c          if(nolfco) then
+c             nmbas1x = nmbas1
+c          else
+c            nmbas1x = 1
+c          endif  
+c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -1303,15 +1303,17 @@ c          z1offd=newaniso2
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq,     ! rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,
+c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,
+     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,
      i    newaniso2, !z1offd,!for nolfco Add nmbas Sep2006
-     o    rcxqmean(:,:,1:nmbas1x,:), ! output in the case of nolfco
+     o    rcxqmean, ! output in the case of nolfco
+c     o    rcxqmean(:,:,1:nmbas1x,:), ! output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
           print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-!! complex conjugate part
-          if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
-            rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
-          endif
+c!! complex conjugate part
+c          if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
+c            rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
+c          endif
 
 c$$$ccccccccccccccccccc
 c$$$          if(nolfco.and.z1offd) then
@@ -1448,17 +1450,17 @@ c          endif
 !! prepare for iq0.
           iq0 = iq - nqibz
           if(newaniso2) then
-            if( iq==1 ) then
-              ifepstinv = iopen('EPS0inv',0,-1,0)
-              write(ifepstinv) ngb
-            endif  
-            if(iq0>0) then
-              write(ifisk) ngb,nw_i,nw,niw
-              allocate( sk( ngb),  sks(ngb), w_k(ngb), w_ks(ngb) )
-              allocate( skI( ngb),  sksI(ngb), w_kI(ngb), w_ksI(ngb) )
-              ifepstinv = iopen('EPS0inv',0,0,0)
-              read(ifepstinv) ngb
-            endif
+c$$$            if( iq==1 ) then
+c$$$              ifepstinv = iopen('EPS0inv',0,-1,0)
+c$$$              write(ifepstinv) ngb
+c$$$            endif  
+c$$$            if(iq0>0) then
+c$$$              write(ifisk) ngb,nw_i,nw,niw
+c$$$              allocate( sk( ngb),  sks(ngb), w_k(ngb), w_ks(ngb) )
+c$$$              allocate( skI( ngb),  sksI(ngb), w_kI(ngb), w_ksI(ngb) )
+c$$$              ifepstinv = iopen('EPS0inv',0,0,0)
+c$$$              read(ifepstinv) ngb
+c$$$            endif
             allocate(epstilde(ngb,ngb))
             allocate(epstinv(ngb,ngb))
           endif
@@ -1540,7 +1542,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                     if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
                 enddo
-                if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+c                if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
                 zw(1:ngb,1:ngb) = zw0
                 write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
                 call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -1564,20 +1566,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
 
             if(newaniso2.and.iq>nqibz) then
-                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
-                if(iw/=iwx) stop 'hx0fp0: iw/=iwx'  !sanity check
-                sk  (1:ngb)= zxq(1,1:ngb,iw)
-                sks (1:ngb)= zxq(2,1:ngb,iw)
-cc                sk(  1:ngb)= zxq(1,1:ngb,iw)
-cc                sks( 1:ngb)= zxq(1:ngb,1,iw)
-                w_k(1) =0d0
-                w_ks(1)=0d0
+c$$$                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+c$$$                if(iw/=iwx) stop 'hx0fp0: iw/=iwx'  !sanity check
+c$$$                sk  (1:ngb)= zxq(1,1:ngb,iw)
+c$$$                sks (1:ngb)= zxq(2,1:ngb,iw)
+c$$$cc                sk(  1:ngb)= zxq(1,1:ngb,iw)
+c$$$cc                sks( 1:ngb)= zxq(1:ngb,1,iw)
+c$$$                w_k(1) =0d0
+c$$$                w_ks(1)=0d0
                 vcou1= fourpi/sum(q**2*tpioa**2) !test --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-                vcou1sq= sqrt(vcou1)   ! only vcousq(1) should be replaced.
-                w_k( 2:ngb)= vcou1sq*matmul( sk(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
-                w_ks(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sks(2:ngb)*vcousq(2:ngb))
+c$$$                vcou1sq= sqrt(vcou1)   ! only vcousq(1) should be replaced.
+c$$$                w_k( 2:ngb)= vcou1sq*matmul( sk(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
+c$$$                w_ks(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sks(2:ngb)*vcousq(2:ngb))
 cmmm epsPP mode - vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
-                llw(iw,iq0)=  1d0 -vcou1*sk(1) !- vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
+c$$$                llw(iw,iq0)=  1d0 -vcou1*sk(1) !- vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
+                llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) !- vcou1sq*sum( sk(2:ngb) * w_ks(2:ngb)*vcousq(2:ngb) )
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm
 c                write(*,"('mmmw0  ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(1,2:10:3,iw),zxq(1,63:70:3,iw)
@@ -1587,10 +1590,10 @@ c     &                  w_k(2:10:3)/llw(iw,iq0),w_k(63:70:3)/llw(iw,iq0)
 c                write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                write(*,*) 'epsPP iq iw',iq,iw, 1d0 - fourpi* sk(1)/sum(q**2*tpioa**2)
+                write(*,*) 'epsPP iq iw',iq,iw, 1d0 - fourpi* zxq(1,1,iw)/sum(q**2*tpioa**2)
 c                write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
-                write(ifisk) iw,iq0,q
-                write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
+c                write(ifisk) iw,iq0,q
+c                write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
             endif
 
             if(.not.newaniso2) then               ! Original mode
@@ -1621,9 +1624,9 @@ c                write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
 c                call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 c            endif
  1015     continue  !iw
-          if(newaniso2) then
-            if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
-          endif
+c          if(newaniso2) then
+c            if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
+c          endif
           if( allocated(zzr) ) deallocate(zzr)
         endif 
 !! === RealOmega end ===
@@ -1669,7 +1672,7 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
                   if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                 enddo
               enddo
-              if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+c              if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
 
               zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
               write(ifrcwi, rec= iw)  zw    !  WP = vsc-v
@@ -1677,28 +1680,27 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
             endif
 cmmm3
             if( newaniso2.and.iq>nqibz) then
-              read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
-              if(iw/=iwx) then
-                print *,'iw iwx=',iw,iwx
-                stop 'hx0fp0: iw/=iwx' !sanity check
-              endif
+c              read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+c              if(iw/=iwx) then
+c                print *,'iw iwx=',iw,iwx
+c                stop 'hx0fp0: iw/=iwx' !sanity check
+c              endif
 cc                skI  (1:ngb)= zxqi(1,1:ngb,iw)
 cc                sksI (1:ngb)= zxqi(1:ngb,1,iw)
-              skI  (1:ngb)= zxqi(1,1:ngb,iw)
-              sksI (1:ngb)= zxqi(2,1:ngb,iw)
-              w_kI(1) = 0d0
-              w_ksI(1)= 0d0
+c$$$              skI  (1:ngb)= zxqi(1,1:ngb,iw)
+c$$$              sksI (1:ngb)= zxqi(2,1:ngb,iw)
+c$$$              w_kI(1) = 0d0
+c$$$              w_ksI(1)= 0d0
               vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee)
               vcou1sq= sqrt(vcou1)
-c                w_kI( 2:ngb)= vcou1*vcousq(2:ngb)*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
-c                w_ksI(2:ngb)= vcou1*vcousq(2:ngb)*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb))
-              w_kI( 2:ngb)= vcou1sq*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
-              w_ksI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb))
+c$$$              w_kI( 2:ngb)= vcou1sq*matmul( skI(2:ngb)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
+c$$$              w_ksI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb)*vcousq(2:ngb))
 cmmm epsPP mode ---> no - vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
-              llwI(iw,iq0)=  1d0 -vcou1*skI(1) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+c$$$          llwI(iw,iq0)=  1d0 -vcou1*skI(1) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+              llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
               write(*,*) 'iq iw llwI',iq,iw,llwI(iw,iq0)
-              write(ifisk) iw,iq0,q
-              write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
+c              write(ifisk) iw,iq0,q
+c              write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
             endif
 
             if(.not.newaniso2) then  
@@ -1715,11 +1717,11 @@ c            endif
  1016    continue
 
           if(newaniso2) then
-            if(iq==1)    ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
-            if(iq>nqibz) ifepstinv = iclose('EPS0inv') !iq>nqibz --> readin mode
+c           if(iq==1)    ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
+c           if(iq>nqibz) ifepstinv = iclose('EPS0inv') !iq>nqibz --> readin mode
             deallocate(epstinv)
             if(allocated(epstilde)) deallocate(epstilde)
-            if(allocated(skI)) deallocate(skI,sksI,w_kI,w_ksI)
+c            if(allocated(skI)) deallocate(skI,sksI,w_kI,w_ksI)
           endif
         endif 
 !! === ImagOmega end ===
@@ -1740,7 +1742,7 @@ c=======================================================================
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
       if(newaniso2) then
-        ifisk = iclose('WKcomponent')
+c        ifisk = iclose('WKcomponent')
 c        ifisk = iopen('WKcomponent',0,-1,0)
         print *
         print *,' ==== newaniso2 mode W(0) divergent part ==== '
