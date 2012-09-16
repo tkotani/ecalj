@@ -164,6 +164,7 @@ c 1033 format(' iclose: namn fnamn iunit=',i5,i5,' ',a32)
 c
           close (iclose)
           if(verbose()>91) write(6,"(' closed : ',i5,1x,a)") iclose,namt
+c          write(6,"(' closed : ',i5,1x,a)") iclose,namt
           return
         endif
       end do

@@ -1,44 +1,48 @@
-      program hsfp0_v2_sc
-c-------------------------------------------------------------
-c     Calculates the  self-energy \Sigma within the
-c     GW approximation at the LDA energy and two neighbouring points:
+      program hsfp0_sc
+      use m_readqg,only: readqg,readngmx
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
+      use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
+     &   ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
+     &   ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
+     &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
+     &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
+     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
+      use keyvalue,only: getkeyvalue
+      implicit none
+!! =  Calculates the  self-energy \Sigma in GW approximation, including Off-diagonal components. =
+!!
+c     SEx(q,itp,itpp) = <psi(q,itp) |SEx| psi(q,itpp)>
+c     SEc(q,itp,itpp) = <psi(q,itp) |SEc| psi(q,itpp)>
 c
-c     SEx(q,t,t) = <psi(q,t) |SEx| psi(q,t)>
-c     SEc(q,t,t) = <psi(q,t) |SEc| psi(q,t)>
+c     where, SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
 c
-c     SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
-c     See details in sxcf_v2.f
-c
-c     This routine requirs an input from standard IO.
-c     In scripts, you can do it like, prompt>echo mode|../exec/hsfp0 >lsc,
-c     where mode is 1 or 2.
+c     This routine requirs a number from standard Input.
+c     Look into script calling this routine ecalj/fpgw/exec/gwsc. E.g, this gwsc calls echo 2|../exec/hsfp0_sc >lsc when mode=2.
 c
 c     mode= 1: exchange    mode SEx, the exchange part of the self-energy
 c     mode= 2: correlation mode SEc, the correlated part of the self-energy
 c     mode= 3: core exchange mode SEXcore
-c     !mode= 4: plot spectrum function ---See manual
+c     !mode= 4: plot spectrum function ---See manual ---> this is in hsfp0.
 c
-c     iSigma_en parameter which determines approximation for  self-energy,
-c     stored in GWIN_V2.
-c       iSigma_en==0 SE_nn'(ef)+image integr:delta_nn'(SE_nn(e_n)-SE_nn(ef))
-c       iSigma_en==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
-c       iSigma_en==2 SE_nn'((e_n+e_n')/2)
-c     iSigma_en==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2  <--- this is mainly used
-c       iSigma_en==5 delta_nn' SE_nn(e_n)
+c     iSigMode parameter which determines approximation for self-energy is given by GWinput file as iSigMode.
+c     iSigMode=iSigMode
+c       iSigMode==0 SE_nn'(ef)+image integr:delta_nn'(SE_nn(e_n)-SE_nn(ef))
+c       iSigMode==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
+c       iSigMode==2 SE_nn'((e_n+e_n')/2)
+c     iSigMode==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2  <--- this is mainly used
+c       iSigMode==5 delta_nn' SE_nn(e_n)
 c     output file should contain hermitean part of SE for energies to be real
 c     (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
 c
 c     Apr 2002 takao kotani. multiple argumentation wave per l.
 c     This hsfp0 is build from hsec10.f by F.Aryasetiawan.
+!! -----------------------------------------------------------------------------------
+
 c------------------------------------------------------------
-      use keyvalue
-      use m_readqg
-      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
-      use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
-     &   ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     &   ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
-      use m_genallcf_v3
-      implicit none
 c     real(8),parameter :: ua  = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
 c------------------------------------
 c     test switches to calculate the self-energy based on an another separation of \Sigma.
@@ -59,7 +63,7 @@ c     ! Tetrahedron mehod for correlation is a bit
       ! They sometimes cause array destruction if you run tetra=T without comment them.
 c------------------------------------
       real(8) :: shtw
-c     integer(4) :: mxclass,ngnmax,mbytes,mwords,iwksize,
+c     integer :: mxclass,ngnmax,mbytes,mwords,iwksize,
 c     &   natom,nclass,ipos,ngrp,igrp,
 c     &   iinvg,
 c     o   nspin,nl,nn,nnv,nnc,
@@ -71,11 +75,11 @@ c     o   iilv,iinv,iimv,iilnmv,i_mnlv,
 c     o   iilc,iinc,iimc,iilnmc,i_mnlc,
 c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,
-      integer(4)::
+      integer::
      &     ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &     ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &     nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
-     &     ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
+     &     noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq, !ifrcw,ifrcwi,  
      &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &     nlnx4,irot,invr,invrot,ivsum, ifoutsec, !niwx,
@@ -97,7 +101,6 @@ ccc   qbas(3,3),ginv(3,3) plat(3,3),
 
       logical lqall,laf
 c     character*120 symgrp
-
 c     class parameters
 c     parameter (mxclass=100)
 c     character*6 clabl(mxclass)
@@ -105,11 +108,11 @@ c     symmetry group
 c     parameter (ngnmax=10)
 c     real(8) :: gen(9,ngnmax)
 c
-      integer(4),allocatable :: itq(:)
+      integer,allocatable :: itq(:)
       real(8),allocatable    :: q(:,:)
 
 c     takao
-      integer(4),allocatable :: ngvecpB(:,:,:), !ngveccB(:,:,:),
+      integer,allocatable :: ngvecpB(:,:,:), !ngveccB(:,:,:),
      &     ngvecp(:,:), ngvecc(:,:),iqib(:), !ngcni(:),
      &     kount(:,:), nx(:,:),nblocha(:),lx(:) !,ngveccBr(:,:,:)
       real(8),allocatable:: vxcfp(:,:,:),
@@ -126,83 +129,70 @@ c
       logical ::nocore
 
 c     space group infermation
-      integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
+      integer,allocatable :: iclasst(:), invgx(:), miat(:,:)
       real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
 
 c     tetra
       real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:),
      &     eband(:,:,:), ene(:) !,ecore(:,:)
-      integer(4),allocatable ::idtetx(:,:),idtet(:,:),ipq(:)
+      integer,allocatable ::idtetx(:,:),idtet(:,:),ipq(:)
      &     ,iene(:,:,:),ibzx(:) !,nstar(:)
 c     real(8) :: qbasmc(3,3)
-
-c     worksize in megabytes (1 word = 4 bytes)
-c     parameter (mbytes=60)
-c     parameter (mwords=mbytes/4)
-c     parameter (iwksize=mwords * 1000 *1000)
-c     integer w
-c     common /w/ w(iwksize)
-
-      integer(4) ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
+      integer ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
 c
       real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)
-      integer(4),allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
+      integer,allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
       real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
-      integer(4) :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
+      integer :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
      &     ,ifexspxx ,ifefsm, nq0ix,ifemesh,nz
       character(3)  :: charnum3
       character(12) :: filenameex
       logical :: exspwrite=.false.
       character*8 xt
 
-      integer(4) :: iSigma_en,ifinin ,idummy !iwini,iwend       !sf 21May02
+      integer :: iSigMode,ifinin ,idummy !iwini,iwend       !sf 21May02
 
       real(8),allocatable:: omega(:) !sf 21May02
 c     real(8) ::  omegamax,dwplot,omegamaxin
 c     logical :: sergeys     !sf 21may02
 
 c     real(8)   :: ebmx
-c     integer(4):: nbmx
+c     integer:: nbmx
       real(8)   :: ebmx(2)
-      integer(4):: nbmx(2)
+      integer:: nbmx(2)
 
       real(8):: volwgt
 
-      integer(4)::nwin, incwfin
+      integer::nwin, incwfin
       real(8)::efin
-      integer(4),allocatable::imdim(:)
+      integer,allocatable::imdim(:)
       real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
 
-      integer(4):: bzcase,  ngpn1,mrecg,ngcn1
+      integer:: bzcase,  ngpn1,mrecg,ngcn1
       real(8)   :: wgtq0p,quu(3)
 
       character(2):: soflag
-      integer(4):: ifianf
-
+      integer:: ifianf
 
       logical ::smbasis
-      integer(4):: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no
+      integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no
       real(8):: q_r(3)
       real(8),allocatable:: qrr(:,:)
-      integer(4),allocatable:: nnr(:),nor(:)
+      integer,allocatable:: nnr(:),nor(:)
       complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
-
-      logical allq0i            !S.F.Jan06
-
-      integer(4):: nw_i
+      logical allq0i       
+      integer:: nw_i
       logical:: exonly
       real(8):: wex
-
 !! newaniso mode
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
       logical:: newaniso
       integer:: ifvcoud,lxklm,ifidmlx
-
 c---------------------------------------
       hartree=2d0*rydberg()
 
-c     mode switch. --------------
+!!     mode switch. --------------
       if(cohtest) then
         screen = .true.
         ixc = 2; nz=0
@@ -218,31 +208,25 @@ c     mode switch. --------------
       write(6,*) ' ixc nz=',ixc, nz
       if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
 
-c---  readin BZDATA. See gwsrc/rwbzdata.f
+!! ===  readin BZDATA. See gwsrc/rwbzdata.f ===
+!! See use m_read_bzdata,only: at the top of this routine
 c--------readin data set when you call read_BZDATA ---------------
-c     integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
-c     !  &   ,n_index_qbz
-c     integer(4):: n1,n2,n3
+c     integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
+c     integer:: n1,n2,n3
 c     real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3)
 c     real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
 c     &    ,wibz(:),qbzw(:,:)
-c     integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-c     &    ,nstar(:),irk(:,:),nstbz(:)           !,index_qbz(:,:,:)
+c     integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
+c     &    ,nstar(:),irk(:,:),nstbz(:)    
 c-----------------------------------------------------------------
       call read_BZDATA()
       print *,' nqbz =',nqbz
-c     print *,  qbz
       print *,' nqibz ngrp=',nqibz,ngrp2
-c     print *,' irk=',irk
-c     print *,' #### idtetf: ####'
-c     print *, idtetf
-
-c
-c     set up work array
-c     call wkinit (iwksize)
       call pshprt(60)
+!! -----------------------------------------------------------
 
-C---  readin GWIN and LMTO, then allocate and set datas.
+!! === readin GWIN and LMTO, then allocate and set datas. ===
+!! See use m_genallcf_v3,only: at the top of this routine
       nwin   = 0                !Readin nw from NW file
       efin=-999d0               !not readin EFERMI
       if(ixc==3) then; incwfin= -2 !core exchange mode
@@ -251,12 +235,12 @@ C---  readin GWIN and LMTO, then allocate and set datas.
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
 c---  These are allocated and setted by genallcf_v3
-c     integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+c     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
 c     real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
 c     character(120):: symgrp
 c     character(6),allocatable :: clabl(:)
-c     integer(4),allocatable:: iclass(:)
+c     integer,allocatable:: iclass(:)
 c     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
 c     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
 c     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
@@ -267,34 +251,11 @@ c     &   ,occc(:,:,:),unoccc(:,:,:),
 c     o    nocc(:,:,:),nunocc(:,:,:)
 c     real(8), allocatable::
 c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
-c-----------------------------------------------------------------------
-c     call genallcf_v2x(
-c     c> structure
-c     o                   plat,alat,natom,nclass,ipos,
-c     c> symmetry
-c     o                   symgrp,gen,ngnmax,ngrp,igrp,
-c
-c     o                   iinvg,ef,
-c
-c>>   l,n and dimensions
-c     o                   clabl,nspin,nl,nn,nnv,nnc,
-c     o                   inindx,inindxv,inindxc,iiclass,
-c     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-c     c z value
-c     o                   iz,
-c>>   l,n,m indices for Phi
-c     o                   iil,iin,iim,   iilnm  ,i_mnl,
-c     o                   iilv,iinv,iimv,iilnmv ,i_mnlv,
-c     o                   iilc,iinc,iimc,iilnmc ,i_mnlc,
-c>>   core
-c     o                   incwf,iecore,ikonf,iicore,incore,nctot,
-c     > frequency
-c     o                   imagw,niw,diw,nw,dw,delta,deltaw,esmr,ifreq )
+!! -----------------------------------------------------------
 
 
-c-----------reading self-energy mode parameter from file 'GWIN_V2'
-      call readd_iSigma_en(ifinin,iSigma_en) !sf..21May02
-
+!! reading self-energy mode parameter from file 'GWinput'
+      call readd_iSigma_en(ifinin,iSigMode) 
 c     allocate(ecore(nctot,nspin)) !core energies
 c     do is = 1,nspin
 c     if (nctot > 0) call catch1 (w(iecore),is,nctot,2,ecore(:,is)) !core energies
@@ -303,26 +264,23 @@ c     enddo
 c---  Get maximums takao 18June03
       call getnemx8(nbmx,ebmx)
       write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
-!     See sxcf_fal2z--------
-!     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
-!     nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
+!!     See sxcf_fal2z--------
+!!     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
+!!     nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
 
 c-------------------------------------------------------------------
 c     if (nclass > mxclass) stop ' hsfp0: increase mxclass'
-c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
+!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       print *,' hsfp0: end of genallcf_v3'
-c
+
       call pshprt(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
-
-      shtw = 0d0
-      if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe)
-c
       call dinv33(plat,1,xxx,vol)
       voltot = dabs(vol)*(alat**3)
-
+      shtw = 0d0
+c      if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe) !I had this until sep2012
       tetra= tetra_hsfp0()
 
 c---  ef is taken as rs for the empty-sphere test case of legas=T case -------------
@@ -344,7 +302,6 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
         if(tetra) stop 'legas You have to give ef of  tetrahedron'
       endif
 
-c
       ifexsp=0
       if(ixc==1) then
         exchange=.true.
@@ -509,6 +466,7 @@ c----------------------------------------------
         read (ifwd,*) nprecx,mrecl,nblochpmx,nwt,niwt, nqnum,nw_i
         ifwd = iclose('WV.d')
         write(6,"(' Readin WV.d =', 10i5)") nprecx,mrecl,nblochpmx,nwt,niwt, nqnum, nw_i
+        ifwd =iclose('WV.d')
         call checkeq(nprecx,ndble)
         nw = nwt
         if(niwt /= niw) stop 'hsfp0: wrong niw'
@@ -620,7 +578,7 @@ c-------------------------
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 
 c     the coulomb matrix for exchange.
-      if(exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
+      if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
 
 c     read q-points and states
@@ -1054,7 +1012,7 @@ c            if(debug) write(6,*) "goto sxcf_fal3_scz"
      i              tiat,miat,
 c     v2
      i              nspin,is,   
-     i              ifrcw,ifrcwi,
+c     i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz ,wbz, nstbz, !iindxk,
      i              nstar,irk,  !kount,
 c
@@ -1079,7 +1037,7 @@ c     i     ngveccBr,
      i              ifvcfpout,
 c     i     shtw, 
      i              exchange, screen, cohtest, ifexsp(is),
-     i              omega,iSigma_en, ! iwini,iwend,            !sf 21May02
+     i              omega,iSigMode, ! iwini,iwend,            !sf 21May02
      i              nbmx,ebmx,  !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i    wklm,lxklm, !mar2012

@@ -60,7 +60,7 @@ c
       integer(4) ::igc,igc0,ifgb0vec,ifgb0vec1,ix, iy
 
       integer(4) :: iqxini, iqxend,imode
-      logical :: paralellx0=.true., allochk=.false.
+      logical :: allochk=.false. !paralellx0=.true., 
 
       complex(8),allocatable:: hh1(:,:),oo1(:,:)
       integer(4):: bzcase, nqnumc,ifiqgc
@@ -79,11 +79,11 @@ c---
       integer(4):: ifvcfporg,nqbz_in,nblochpmx_in
       complex(8),allocatable:: vcoul_org(:,:)
 
-
       logical :: smbasis,debug=.false.,smbb
       integer(4)   :: ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew,
      &  nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2
       character(3) :: charnum3
+      character(5) :: charnum5
       character(11):: filenamep
       integer(4),allocatable:: nx_r(:), ibl(:,:,:,:)
      &  ,imatcho(:),imatchn(:),imatcho_q(:),imatchn_q(:)
@@ -94,14 +94,14 @@ c---
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
-      logical:: is_mix0vec,newaniso
-
+      logical:: is_mix0vec,newaniso,wvcc
+      character(128):: vcoudfile
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
 
-C --- paralell or not
       write(6,"(' mode(now only =0)? +(pararell iqxini iqxend ?)')")
-      call readin5(imode,iqxini,iqxend)
+c      call readin5(imode,iqxini,iqxend)
+      read(5,*) imode
       call headver('hvccfp0: start',imode)
       call cputid (0)
       if(imode==202 ) then
@@ -118,11 +118,11 @@ c        write(6,*)' remove_r0c is effective'
       else
         stop 'hvccfp0: now hvccfp0 support just normal mode=0 202 101'
       endif
-      if(iqxini< 2) paralellx0=.false.
-      if(paralellx0) then
-        write(6,"(' PARALELL.X0 mode: iqxini iqxend=',2i3)")
-     &  iqxini, iqxend
-      endif
+c      if(iqxini< 2) paralellx0=.false.
+c      if(paralellx0) then
+c        write(6,"(' PARALELL.X0 mode: iqxini iqxend=',2i3)")
+c     &  iqxini, iqxend
+c      endif
 
 C --- q, nqbz, alat, qlat, nbas, bas
       ifhvccfp = iopen('HVCCIN',0,-1,0)
@@ -518,23 +518,25 @@ C... q near zero
 
 C --- Check PARALELL.X0
 c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
+      wvcc=.true.
+      if(newaniso()) wvcc=.false.
       write(6,'(a)') " Mix0vec.XXX is not empty only when"
      &   //" the corresponding q is in Q0P with zero weight."
-      if(paralellx0) then
-        ifvcfpout = iopen( "VCCFP." //xxt(iqxini,iqxend),0,-1,0)
-        ifgb0vec = iopen ( "Mix0vec."//xxt(iqxini,iqxend),1,3,0)
-        ifgb0vec1 = iopen ( "Mix0vec1."//xxt(iqxini,iqxend),1,3,0)
-      else
+c      if(paralellx0) then
+c        if(wvcc) ifvcfpout = iopen( "VCCFP." //xxt(iqxini,iqxend),0,-1,0)
+c        ifgb0vec = iopen ( "Mix0vec."//xxt(iqxini,iqxend),1,3,0)
+c        ifgb0vec1 = iopen ( "Mix0vec1."//xxt(iqxini,iqxend),1,3,0)
+c      else
         iqxend = nqibz + nq0i
-        ifvcfpout = iopen('VCCFP',0,-1,0)
+        if(wvcc) ifvcfpout = iopen('VCCFP',0,-1,0)
         ifgb0vec = iopen ( "Mix0vec",1,3,0)
         ifgb0vec1 = iopen ( "Mix0vec1",1,3,0)
-      endif
+c      endif
 
       if(imode==202) then
         iqxini= nqibz + 1
-      elseif(paralellx0) then
-     &  !skip
+c      elseif(paralellx0) then
+c     &  !skip
       elseif(bzcase()==1) then
 !        iqxini = 2
         iqxini = 1 !oct2005
@@ -552,7 +554,7 @@ c      epsx =  0.01d0
       if(bzcase()==1) then
         if(abs(sum(qibz(:,1)**2))/=0d0) stop 'hvccfp0: sum(q**2)==0d0'
       endif
-      write(ifvcfpout) nqbz, nblochpmx
+      if(wvcc) write(ifvcfpout) nqbz, nblochpmx
 c      if(imode==101) then
 c        read(ifvcfporg) nqbz_in, nblochpmx_in
 c        if(nqbz /= nqbz_in) stop 'nqbz /= nqbz_in VCCFP.ORG'
@@ -708,11 +710,12 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       endif
 !! === open file Vcoud ===
 !! This contains E(\nu,I), given in PRB81,125102
-      ifvcoud = iopen('Vcoud',0,-1,0)
 
 !! == main loop for iqx ==
       do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
         write(*,"('#### do 1001 start iqx=',i5)")iqx
+        vcoudfile='Vcoud.'//charnum5(iqx)  !this is closed at the end of do 1001
+        ifvcoud = iopen(trim(vcoudfile),0,-1,0)
         if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
           qq = 0d0
@@ -956,7 +959,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ccccccccccccccccccccccccccc
           if(.false.) then
-            open(3011,file='oontest'//charnum3(iqx))
+            open(3011,file='oontest'//charnum5(iqx))
             do ix=nbln+1,nn
               igc=ix-nbln
               qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
@@ -1017,7 +1020,7 @@ C... Store matching matrix
           cycle
         endif
 
-C... Write out vcoul ----------------------
+!! == Write out VCCFP ==
         if(debug) write(6,*) 'write out vcoul'
         if(smbasis()) then
           ngb= nn
@@ -1027,19 +1030,10 @@ C... Write out vcoul ----------------------
           vcoul(1:ngb,1:ngb)= vcoulnn
           deallocate(vcoulnn)
         endif
-
-c        if(imode==101) then
-c          read(ifvcfporg) ngb_in
-c          if(ngb_in/=ngb) stop 'hvccfp0: readin ngb_in /=ngb'
-c          read(ifvcfporg) vcoul_org(1:ngb,1:ngb),q_org
-c          call checkagree(q,q_org,' q/=q_org in VCCFP.ORG')
-c          write(ifvcfpout) ngb
-c          write(ifvcfpout) vcoul_org(1:ngb,1:ngb)-vcoul(1:ngb,1:ngb),q
-c        else
+        if(wvcc) then
           write(ifvcfpout) ngb
           write(ifvcfpout) vcoul(1:ngb,1:ngb),q
-c        endif
-c
+        endif  
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
 c Mix0vec ---------------------------------
@@ -1229,10 +1223,10 @@ c phasex ---just to clean. this is irrelevant
           deallocate(ppovl)
 c2---------------------
         endif
+        idummy=iclose(trim(vcoudfile))
  1001 continue
 
       deallocate(ngvecc)
-      idummy=iclose('Vcoud')
       call cputid(0)
       if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
 c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'

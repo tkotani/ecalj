@@ -1,10 +1,8 @@
-C----------------------------------------------------------------------------
       module m_nbandgw
       real(8),allocatable,private:: qq(:,:,:)
       integer,allocatable,private:: ispp(:),intqxx(:,:)
       integer,private::nn
       contains
-
       subroutine getnbandgw(qin,isp,ginv,ntqxx) !june2009
 c obtain ntqxx for given q and isp
       implicit none
@@ -18,7 +16,6 @@ c obtain ntqxx for given q and isp
           nn=nn+1
         enddo
  1011   continue
-
         rewind ifi
         allocate(qq(3,nn,2),intqxx(nn,2))
         do i=1,nn
@@ -30,15 +27,11 @@ c obtain ntqxx for given q and isp
         ixx= iclose('NBANDGW')
         isave=1
       endif
-c
       print *,' qin indx=',qin
       ixx = iqindx(qin, ginv,qq(:,:,isp),nn)
       ntqxx = intqxx( ixx,isp)
       print *,' intqxx  ntqxx=',ntqxx,ixx
       end subroutine
-
-
-
       integer function indxq(qin,isp, q,ispp,nn)
       real(8):: qin(3),q(3,nn)
       integer:: nn,i,ispp(nn),isp
@@ -50,15 +43,13 @@ c
       enddo
       stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
       end function
-
       end module m_nbandgw
 
-
-C----------------------------------------------------------------------------
+!! ----------------------------------------------------------------------------
       subroutine sxcf_fal3_scz(kount,ip,q,itq,ntq,ef,esmr,tiat,miat,
 c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
-     i                  ifrcw,ifrcwi, 
+c     i                  ifrcw,ifrcwi, 
      i                  qbas,ginv,
      i         qibz,qbz,wk,nstbz,nstar,irk,  !kount,
 c
@@ -88,10 +79,12 @@ c
      i wklm,lxklm, !mar2012 !wklm apr2012takao
      i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
      o zsec,coh)
+
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
       use m_nbandgw,only: getnbandgw
+      implicit none
 
 !! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==
 !!  exchange=T : Calculate the exchange self-energy
@@ -309,7 +302,6 @@ c
 c secq(t) = <psi(q,t) |SEc| psi(q,t)>
 c----------------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
-      implicit none
       integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,
      &   irot,  iqisp,ikpisp,isp,nsp,  nlnmx,
@@ -428,6 +420,8 @@ C...
       real(8)::  cgr(*),ppbrd(*)
 
       integer:: nprecx,mrecl,ifwd
+      character(5):: charnum5
+
 c--------------------------------------------------------------------
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -477,7 +471,7 @@ c b and hb of states {t} at q
       endif
 
 c-----
-      if(exchange) then
+      if(exchange.and.(.not.newaniso())) then
         rewind  ifvcfpout
         read(ifvcfpout) ndummy1, ndummy2
       endif
@@ -496,7 +490,7 @@ c --- gauss_img : interpolation gaussion for W(i \omega).
         enddo
       endif
 c      print *,' ua_auto ua_=',ua_auto,ua_
-      if(newaniso()) ifvcoud = iopen('Vcoud',0,0,0)
+c      if(newaniso()) ifvcoud = iopen('Vcoud',0,0,0)
 
       if(debug) then
         do ix = 1,niw
@@ -530,6 +524,12 @@ c        print *, 'test1 bbb4'
 c        if(exchange) iqend=nqibz
       endif
 
+      if(.not.exchange) then
+         ifwd = iopen('WV.d',1,-1,0)
+         read (ifwd,*) nprecx,mrecl
+         ifwd = iclose('WV.d')
+      endif 
+
 
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
@@ -546,13 +546,6 @@ c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc
         if(debug) print *, ' sxcf: ngb=',ngb,nbloch
 
-        if(kx==iqini.and.(.not.exchange)) then
-         ifwd = iopen('WV.d',1,-1,0)
-         read (ifwd,*) nprecx,mrecl
-         ifwd = iclose('WV.d')
-         ifrcw  = iopen('WVR',0,-1,mrecl)
-         ifrcwi = iopen('WVI',0,-1,mrecl)
-        endif 
 
 !! ===Readin diagonalized Coulomb interaction===
 !! note sep102012takao
@@ -564,10 +557,8 @@ c        ngc = ngcni(k)  ! k-points in IBZ
         if(newaniso()) then
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-          if(sum(abs(qxx))<1d-6) then
-            idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
-            ifvcoud = iopen('Vcoud',0,0,0)
-          endif
+          ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
+
           do
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
@@ -621,6 +612,13 @@ c$$$         vcousq=sqrt(vcoud) !
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
           deallocate(zcousq,ppovl)
         endif
+
+!! === open WVR,WVI ===
+        if(.not.exchange) then
+        ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
+        ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
+        endif
+
           
 c     loop over rotations -------------------------------
       do 1000 irot = 1,ngrp
@@ -1183,9 +1181,11 @@ c$$$ccccccccccccccccccccccccccccccccccccccccccc
         if(timemix) call timeshow("bbb33333 k-cycle")
 
         ix = 1 - nw_i !at omega=0
-        nrec=(kx-iqini)*(nw-nw_i+1) + ix !2 -->iqini newaniso
-        if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) + ix
-        if(debug) print *,' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
+        nrec=ix
+c        nrec=(kx-iqini)*(nw-nw_i+1) + ix !2 -->iqini newaniso
+c        if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) + ix
+c        if(debug) print *,' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
+
         read(ifrcw,rec=nrec) zw  ! direct access read Wc(0) = W(0) - v
 c        zw=(zw+dconjg(transpose(zw)))/2d0
 
@@ -1298,8 +1298,9 @@ cccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccc variant ccccccccccccccccccccccccccccccccc
 c      zwz=0d0
         do ix=1,nx
-          nrec=(kx-iqini)*niw+ix
-          if(bzcase()==2) nrec= (kx-1)*niw+ix
+          nrec=ix
+c          nrec=(kx-iqini)*niw+ix
+c          if(bzcase()==2) nrec= (kx-1)*niw+ix
           read(ifrcwi,rec=nrec) zw  ! direct access read Wc(0) = W(0) - v
 c       read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
 
@@ -1692,8 +1693,10 @@ C... Find nt_max ------------------------------------
         allocate( zw3(ngb,ngb,nwxi:nwx))
         do      ix = nwxi,nwx
 c          read(ifrcw,rec=((kx-2)*nw+ix)) zw
-          nrec=(kx-iqini)*(nw+1-nw_i) + ix-nw_i+1
-          if(bzcase()==2) nrec=(kx-1)*(nw+1-nw_i) + ix-nw_i+1
+
+          nrec= ix-nw_i+1
+c          nrec=(kx-iqini)*(nw+1-nw_i) + ix-nw_i+1
+c          if(bzcase()==2) nrec=(kx-1)*(nw+1-nw_i) + ix-nw_i+1
           read(ifrcw,rec=nrec) zw  ! direct access read Wc(0) = W(0) - v
 
           do igb2=1,ngb
@@ -1841,9 +1844,10 @@ c     and must be made hermitean when zsec will be written on disc
         deallocate(freq_r)
  1000 continue
       print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
-      if(kx==iqend.and. (.not.exchange)) then
-        ifrcw  = iclose('WVR')
-        ifrcwi = iclose('WVI')
+      if(newaniso()) ifvcoud =iclose('Vcoud.'//charnum5(kx))
+      if(.not.exchange) then
+        ifrcw  = iclose('WVR.'//charnum5(kx))
+        ifrcwi = iclose('WVI.'//charnum5(kx))
       endif   
 1100  continue  ! end of kx-loop
 
