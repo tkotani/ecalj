@@ -72,8 +72,7 @@ c
      &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
      &  qbze(:,:),qibze(:,:)  !,ecore(:,:)
 c     &  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
-      complex(8),allocatable :: rcxq(:,:,:,:)
-     & ,rcxqmean(:,:,:,:) !takao sep2006
+      complex(8),allocatable :: rcxq(:,:,:,:),rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:)
 
 c  tetra
       logical :: tetra,tmpwwk=.false.! If tmpwwk=.true., this use a temporary file tmp.wwk
@@ -159,8 +158,8 @@ C... Feb2006 time-reversal=off case
 c      logical :: negative_testtr,testtr
 
 !!
-      logical :: newaniso,newaniso2,z1offd
-      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig
+      logical :: newaniso,newaniso2 !,z1offd
+      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)
       real(8),allocatable:: vcousq(:)
       real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
@@ -916,7 +915,6 @@ c        write(6,"(' q vec =',3f14.6)") q
 !! qq is used.
           iqqv=iq
           if(sum(abs(qq))<1d-6) iqqv=1
-             
 c            idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
 c            ifvcoud = iopen('Vcoud',0,0,0)
 c          endif
@@ -942,19 +940,16 @@ c         enddo
         endif
 !!
         if(newaniso2.and. iq>nqibz  ) then !for mmmw
-cc        if(.false.) then !comment out for mmmz
           if( ngb0/=ngb ) then
             stop 'hx0fp0.m.f:ngb0/=ngb'
           endif
           nolfco =.true.
           nmbas_in=ngb
-          nmbas1 = 2  !nmbas1=2 is for nolfco.and.z1offd modes. Only P\mu\nu (\mu=1 or \nu=1) components.
+          nmbas1 = 2  !nmbas1=2 is for P\mu\nu (\mu=1 or \nu=1) components.
           nmbas2 = ngb
           if(allocated(rcxqmean)) deallocate(rcxqmean)
-c          if(allocated(x0mean)  ) deallocate(x0mean)
           if(allocated(zzr))      deallocate(zzr)
           allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
-c          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
           allocate( zzr(ngb,ngb) )
           rcxqmean= 0d0
         elseif(newaniso2) then !.and.iq==1) then
@@ -972,11 +967,9 @@ c          allocate(   x0mean(nw_i:nw,  nmbas1,nmbas2) )
           ppovlz(nbloch+1:nbloch+ngc,:) 
      &      = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
           if(allocated(zzr)) zzr = ppovlz
-c          deallocate(ppovl)
           write(*,*)'nnnnn',nbloch+ngc,ngb
         endif
-  
-
+ 
 c$$$        if(ixc==11) then
 c$$$          print *," xxx2: memsize 8*ngb*ngb*nwhis=", 8*ngb*ngb*nwhis,' ngb nwhis=',ngb,nwhis
 c$$$          allocate( rcxq(ngb,ngb,nwhis,npm) )
@@ -1000,20 +993,17 @@ c        if(nolfco) then
 c          if(allocated(rcxq)) deallocate(rcxq)
 c          if(allocated(zxq) ) deallocate(zxq)
 c          if(allocated(zxqi) ) deallocate(zxqi)
-          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
 c          allocate( zxq (nmbas1,nmbas2,nw_i:nw), zxqi (nmbas1,nmbas2,niw))
 c        else
-          allocate( zw0(ngb,ngb)) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
 c        endif
 c        zxq=0d0;  zxqi=0d0;  
+
+        allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
+        allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
         rcxq = 0d0
-
-
-c============ loop over spin============================================
-ccccccccccccccccccccccccccccccccccccccccccc
-c      nspinmx=1 !test
-ccccccccccccccccccccccccccccccccccccccccccc
-c=======================================================================
+!! ---------------------------------------------------------------
+!! === loop over spin=== =========================================
+!! ---------------------------------------------------------------
         do 1003 is = 1,nspinmx
           write(6,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')") 
      &    iq, is, nqibz + nq0i,nspin
@@ -1291,7 +1281,13 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
           print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          z1offd=newaniso2
+c          z1offd=newaniso2
+          if(nolfco) then
+             nmbas1x = nmbas1
+          else
+            nmbas1x = 1
+          endif  
+          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -1307,27 +1303,31 @@ c------------------------------------------------------------------
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq,     ! rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,
-     i    newaniso2,z1offd,!for nolfco Add nmbas Sep2006
-     o    rcxqmean, ! output in the case of nolfco
+     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,
+     i    newaniso2, !z1offd,!for nolfco Add nmbas Sep2006
+     o    rcxqmean(:,:,1:nmbas1x,:), ! output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
           print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-
-ccccccccccccccccccc
-          if(nolfco.and.z1offd) then
-             print *,' pppppppp check start ',npm,nwhis,nmbas2
-             do jpm=1,npm
-             do iw=1,nwhis
-             do imb2=1,nmbas2
-             if(abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8) then
-                stop 'abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8'
-             endif
-             enddo
-             enddo
-             enddo
-             print *,' pppppppp check rcxqmean npm nwhis nmbas2=',npm,nwhis,nmbas2
+!! complex conjugate part
+          if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
+            rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
           endif
-ccccccccccccccccccc
+
+c$$$ccccccccccccccccccc
+c$$$          if(nolfco.and.z1offd) then
+c$$$             print *,' pppppppp check start ',npm,nwhis,nmbas2
+c$$$             do jpm=1,npm
+c$$$             do iw=1,nwhis
+c$$$             do imb2=1,nmbas2
+c$$$             if(abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8) then
+c$$$                stop 'abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8'
+c$$$             endif
+c$$$             enddo
+c$$$             enddo
+c$$$             enddo
+c$$$             print *,' pppppppp check rcxqmean npm nwhis nmbas2=',npm,nwhis,nmbas2
+c$$$          endif
+c$$$ccccccccccccccccccc
 
 
 c=========== Check write mode4 block ixc==4 ============6ini
@@ -1456,9 +1456,6 @@ c          endif
               write(ifisk) ngb,nw_i,nw,niw
               allocate( sk( ngb),  sks(ngb), w_k(ngb), w_ks(ngb) )
               allocate( skI( ngb),  sksI(ngb), w_kI(ngb), w_ksI(ngb) )
-c            allocate( s_vc(ngb-1))
-            endif
-            if( iq0 > 0 ) then
               ifepstinv = iopen('EPS0inv',0,0,0)
               read(ifepstinv) ngb
             endif
@@ -1466,7 +1463,6 @@ c            allocate( s_vc(ngb-1))
             allocate(epstinv(ngb,ngb))
           endif
 
-c          write (6,"(' end of anfx0k... q='3f10.4)") q(1),q(2),q(3)
           write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
           do 1015 iw  = nwmin,nwmax
             frr= dsign(freq_r(abs(iw)),dble(iw))
@@ -1568,16 +1564,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
 
             if(newaniso2.and.iq>nqibz) then
-cmmm3
                 read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
-c                print *,'sumcheck epstinv=',sum(abs(epstinv(2:ngb,2:ngb)))
                 if(iw/=iwx) stop 'hx0fp0: iw/=iwx'  !sanity check
-cmmm3
                 sk  (1:ngb)= zxq(1,1:ngb,iw)
                 sks (1:ngb)= zxq(2,1:ngb,iw)
 cc                sk(  1:ngb)= zxq(1,1:ngb,iw)
 cc                sks( 1:ngb)= zxq(1:ngb,1,iw)
-
                 w_k(1) =0d0
                 w_ks(1)=0d0
                 vcou1= fourpi/sum(q**2*tpioa**2) !test --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -1748,6 +1740,8 @@ c=======================================================================
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
       if(newaniso2) then
+        ifisk = iclose('WKcomponent')
+c        ifisk = iopen('WKcomponent',0,-1,0)
         print *
         print *,' ==== newaniso2 mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
@@ -1771,8 +1765,6 @@ c       print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 c       print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !! === w0,w0i are stored to zw for q=0 ===
 !! === w_ks*wk are stored to zw for iq >nqibz ===
-        ifisk = iclose('WKcomponent')
-        ifisk = iopen('WKcomponent',0,-1,0)
         do iq = 1,1 !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
           q = qibze(:,iq)
           do ircw=1,2
@@ -1799,6 +1791,7 @@ c              write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1
           enddo
         enddo
       endif
+
       is = iclose('hbe.d')
       call cputid(0)
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
