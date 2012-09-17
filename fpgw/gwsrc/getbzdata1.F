@@ -32,7 +32,7 @@ c---for multipuled tetrahedron.
       real(8)::qout(3),qx(3),kvec(3,3),det33,  kkvec(3,0:3)
 c          integer(4),allocatable:: index_qbzm(:,:,:)
       real(8):: hf
-
+      integer:: iqi,igrp,iccc
 c         logical:: testtr !invert qibz
 
       hf=0d0
@@ -85,6 +85,21 @@ c          print *, ginv
      w              iw1,
      d              nqibz,nqbz,ngrp,
      o              nstar,irk )
+
+cccccccccccccccccccccccccccccccccccccccc
+      iccc=0
+      do iqi=1,nqibz
+         print *
+      do igrp=1,ngrp
+         if(irk(iqi,igrp)/=0) then
+            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
+            iccc=iccc+1
+         endif
+      enddo
+      enddo
+      write(6,*)'getbzdata1: total count=',iccc
+cccccccccccccccccccccccccccccccccccccccccc
+
       ntetf=-1
       nteti=-1
       nqbzw=-1

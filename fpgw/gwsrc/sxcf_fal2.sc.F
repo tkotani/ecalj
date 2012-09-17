@@ -46,7 +46,8 @@ c obtain ntqxx for given q and isp
       end module m_nbandgw
 
 !! ----------------------------------------------------------------------------
-      subroutine sxcf_fal3_scz(kount,ip,q,itq,ntq,ef,esmr,tiat,miat,
+c      subroutine sxcf_fal3_scz(kount,ip,q,itq,ntq,ef,esmr,tiat,miat,
+      subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,tiat,miat,
 c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
 c     i                  ifrcw,ifrcwi, 
@@ -73,7 +74,8 @@ ctetra
 ctetra     &     wtet,wtetef,
 ctetra    &     ntqx,ibzx,tetra,
 c
-     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
+c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
+     i     iSigma_en, !iwini,iwend,  !sf 22May02
      i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i wklm,lxklm, !mar2012 !wklm apr2012takao
@@ -422,17 +424,14 @@ C...
       integer:: nprecx,mrecl,ifwd
       character(5):: charnum5
 
+      real(8):: eq(nband),qip(3,*)
 c--------------------------------------------------------------------
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
       if(verbose()>=90) debug=.true.
-
-c      print *, ' sxcf_fal3_scz:'
-c oct2005
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
-
       if(debug) then
         print *, ' sxcf_fal3_scz:'
         if(GaussSmear()) then
@@ -442,12 +441,28 @@ c oct2005
           write(6,*)' sxcf_fal3_scz: new version: gaussian smearing=',gass
         endif
       endif
-      tpi         = 8d0*datan(1.d0)
-c      iq          = idxk (q,qbz,nqbz) ! index for q
+      tpi         = 8d0*datan(1d0)
       ekc(1:nctot)= ecore(1:nctot)  ! core
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
       call dinv33(qbas,0,qbasinv,det)
+
+
+!!== ip loop to spedify external q ==
+      do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+c        call readeval(q(1,ip),isp,eq)
+        q(1:3)= qip(1:3,ip)
+        call readeval(q,isp,eq)
+        do i  = 1,ntq
+          omega(i) = eq(itq(i)) !sf 21May02 + 2d0*(dble(iw)-shtw)*deltaw
+        enddo
+c       if(nctot==0) then !this is to override -Mbounds check
+c          deallocate(ecore)
+c          allocate(ecore(1)) !this is dummry
+c        endif
+c            if(debug) write(6,*) "goto sxcf_fal3_scz"
+c      print *, ' sxcf_fal3_scz:'
+c      iq          = idxk (q,qbz,nqbz) ! index for q
 
       if(debug) print *, ' sxcf: 1'
       allocate(expikt(natom))
@@ -1850,7 +1865,6 @@ c     and must be made hermitean when zsec will be written on disc
         ifrcwi = iclose('WVI.'//charnum5(kx))
       endif   
 1100  continue  ! end of kx-loop
-
       if(newaniso()) ifvcoud =iclose('Vcoud')
       if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
 c      call rlse (iwr1)
@@ -1881,6 +1895,7 @@ c         if (allocated(zw3))deallocate(zw3)
 c         if (allocated(zwz4))deallocate(zwz4)
 c         if (allocated(zmel_))deallocate(zmel_)
 c         if (allocated(zwz))deallocate(zwz)
+ 1001 continue
       end
 
 

@@ -962,66 +962,50 @@ c
 !make dummy SEXcore
         if(ixc==3.and.nctot==0) goto 2001
 
-        do 1001 ip = 1,nq   
-            write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
-            if(ixc==2) then
-c     iq  = idxk (q(1,ip),qbz,nqbz)
-c     call rwdd1 (ifev(is),iq, nband,eq)
-              call readeval(q(1,ip),is,eq)
-              do iw = iwini,iwend
-                do i  = 1,ntq
-                  omega(i,iw) = eq(itq(i)) + 2d0*(dble(iw)-shtw)*deltaw
-                enddo
-              enddo
-            endif
+c$$$        do 1001 ip = 1,nq   
+c$$$            write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+c$$$            if(ixc==2) then
+c$$$c     iq  = idxk (q(1,ip),qbz,nqbz)
+c$$$c     call rwdd1 (ifev(is),iq, nband,eq)
+c$$$              call readeval(q(1,ip),is,eq)
+c$$$              do iw = iwini,iwend
+c$$$                do i  = 1,ntq
+c$$$                  omega(i,iw) = eq(itq(i)) + 2d0*(dble(iw)-shtw)*deltaw
+c$$$                enddo
+c$$$              enddo
+c$$$            endif
 
             if(nctot==0) then
               deallocate(ecore)
               allocate(ecore(1,2)) !this is dummry
             endif
 
-            print *,'### goto sxcf_fal3z ### nlmto=',nlmto
-            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
-     i              tiat,miat,
-c     v2
-     i              nspin,is,   !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
+            print *,'### goto sxcf_fal3z ### '
+c            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
+            call sxcf_fal3z (kount, ixc,deltaw,shtw,q,itq,ntq,ef,ef2,esmr,esmr2,
+     i              tiat,miat, nspin,is, 
 c     i              ifrcw,ifrcwi,
-     i              qbas,ginv,qibz,qbz,wbz,nstbz, wibz, !iindxk,
-     i              nstar,irk,  !kount,
-c
-c     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
+     i              qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
+     i              nstar,irk,
      i              iclass,nblocha,nlnmv, nlnmc, !w(i_mnlv),w(i_mnlc)
      i              icore,ncore, imdim,
-     i              ppb,        ! pdb,dpb,ddb,
+     i              ppb,        
      i              freq_r,freqx, wwx, !expa,ua,
-     i              dw,         !deltaw,
-     i              ecore(:,is),
-c     
-     d              nlmto,nqibz,nqbz,nctot,
-c     i        index_qbz, n_index_qbz,
+     i              dw, ecore(:,is),
+     d            nlmto,nqibz,nqbz,nctot,
      d              nl,nnc,nclass,natom,
      d              nlnmx,mdimx,nbloch,ngrp, nw_i,nw,  niw,niwx,nq,
-!     nw_i,nw instead of nwp feb2006
-c
-c     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx,
-     i              nblochpmx,ngpmx,ngcmx,
-c     i     geigB(1,1,1,is), ngvecpB,ngveccBr,
-c     i     ngveccBr,
-     i              wgt0,nq0i,q0i, symgg,alat,
-     i              shtvg,nband,
-     i              ifvcfpout,
-c     i     shtw, 
-     i              exchange, tote, screen, cohtest, ifexsp(is),
-     i              omega, iwini,iwend,
-     i              nbmx(2),ebmx(2), !takao 18June2003 
-     i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly,
-c     i    pos,wklm,lxklm,zcousq,vcoud,ngb0, !mar2012
-     i    wklm,lxklm, !mar2012
-     i    invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
-            !oct2005 for pomat 
-     o              zsec,coh,exx) ! acuumulation variable
-            print *,' end of sxcf_fal3z xxxxxxxxxxxxxxx'
- 1001   continue         !end of q-loop
+     i    nblochpmx,ngpmx,ngcmx,
+     i    wgt0,nq0i,q0i, symgg,alat, shtvg,nband, ifvcfpout,
+     i    exchange, tote, screen, cohtest, ifexsp(is),
+     i    iwini,iwend,
+     i    nbmx(2),ebmx(2),
+     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
+     i   wklm,lxklm, !mar2012
+     i  invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
+     o  zsec,coh,exx) ! acuumulation variable
+        print *,'### end of sxcf_fal3z ### '
+c 1001   continue         !end of q-loop
 
 
 c     check that all k { FBZ have been included

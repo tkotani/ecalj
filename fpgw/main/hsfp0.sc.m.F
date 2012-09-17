@@ -903,7 +903,6 @@ c     -end of tetra section --------------------------------------------
 
 
 
-
 C...  Read pomatr
       if(smbasis()) then
         print *,' smooth mixed basis : augmented zmel'
@@ -936,59 +935,36 @@ C...  Read pomatr
         nomx =1
         allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
       endif
-
-
 c-------------------------------------
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
-
 c-----------------------------------------------------------
 c     calculate the correlated part of the self-energy SEc(qt,w)
 c-----------------------------------------------------------
-c     arrays for sxcf.f
-      nlnx4    = nlnx**4
-c      niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
+      nlnx4    = nlnx**4  ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
-     &     eq(nband), 
-     &     kount(nqibz,nq),zsec(ntq,ntq,nq), 
-     &     coh(ntq,nq) )
-
-
+     &      kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) ) !eq(nband),
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
-
         if(exchange) then
           write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
           write(ifsex(is),*) '======================================='
           write(ifsex(is),"('Self-energy exchange SEx(q,t): is=',i3)") is
           write(ifsex(is),*) '======================================='
-
-          call winfo(ifsex(is),nspin,nq,ntq,is,nbloch
-     &           ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
-
+          call winfo(ifsex(is),nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
           write (ifsex(is),*)' *** '
-          write (ifsex(is),"(a)") ' jband   iq ispin                  
-     &           qvec 
-     &           eigen-Ef (in eV)
-     &           exchange (in eV)'
-
+          write (ifsex(is),"(a)") ' jband   iq ispin                  '//
+     &    '           qvec            eigen-Ef (in eV)           exchange (in eV)'
         elseif(ixc==2) then
           write(ifsec2(is)) nspin, nq, ntq ,nqbz,nqibz  ,n1,n2,n3
           write(ifsec(is),*) '=========================================='
-          write(ifsec(is),"('Self-energy correlated SEc(qt,w): is=',i3)")
-     &           is
+          write(ifsec(is),"('Self-energy correlated SEc(qt,w): is=',i3)") is
           write(ifsec(is),*) '=========================================='
-
-          call winfo(ifsec(is),nspin,nq,ntq,is,nbloch
-     &           ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
-
+          call winfo(ifsec(is),nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
           write (ifsec(is),*)' *** '
-          write (ifsec(is),"(a)") ' jband   iq ispin                  
-     &           qvec 
-     &           eigen-Ef (in eV)
-     &           Re(Sc) 3-points (in eV)                        
-     &           In(Sc) 3-points (in eV)     
-     &           Zfactor(=1)'   !sf 21May02
+          write (ifsec(is),"(a)") ' jband   iq ispin                  '//
+     &'           qvec            eigen-Ef (in eV)           Re(Sc) 3-points (in eV)                        '//
+     &'           In(Sc) 3-points (in eV)                Zfactor(=1)'
         endif
 
 c     initialise secq and kount
@@ -998,17 +974,18 @@ c     initialise secq and kount
 !! ip is for to specify k point for which we calculate \Sigma.
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 
-        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
-            call readeval(q(1,ip),is,eq)
-            do i  = 1,ntq
-              omega(i) = eq(itq(i)) !sf 21May02 + 2d0*(dble(iw)-shtw)*deltaw
-            enddo
-            if(nctot==0) then !this is to override -Mbounds check
-              deallocate(ecore)
-              allocate(ecore(1,2)) !this is dummry
-            endif
+c$$$        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+c$$$            call readeval(q(1,ip),is,eq)
+c$$$            do i  = 1,ntq
+c$$$              omega(i) = eq(itq(i)) !sf 21May02 + 2d0*(dble(iw)-shtw)*deltaw
+c$$$            enddo
+c$$$            if(nctot==0) then !this is to override -Mbounds check
+c$$$              deallocate(ecore)
+c$$$              allocate(ecore(1,2)) !this is dummry
+c$$$            endif
 c            if(debug) write(6,*) "goto sxcf_fal3_scz"
-            call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
+c            call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
+            call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i              tiat,miat,
 c     v2
      i              nspin,is,   
@@ -1037,14 +1014,15 @@ c     i     ngveccBr,
      i              ifvcfpout,
 c     i     shtw, 
      i              exchange, screen, cohtest, ifexsp(is),
-     i              omega,iSigMode, ! iwini,iwend,            !sf 21May02
+c     i              omega,iSigMode, ! iwini,iwend,            
+     i              iSigMode, ! iwini,iwend,            sep2012takao
      i              nbmx,ebmx,  !takao 18June2003 
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i    wklm,lxklm, !mar2012
      i    invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      o              zsec,coh)   ! acuumulation variable
 c          if(debug) write(6,*) "end of sxcf_fal3_scz"
- 1001   continue            !end of q-loop
+c 1001   continue            !end of q-loop
 
 c     check that all k { FBZ have been included
 c     if (ivsum(kount,nqibz*nq) /= nqbz*nq) then

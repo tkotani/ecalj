@@ -1,34 +1,23 @@
-      subroutine sxcf_fal3z(kount,ip,q,itq, ntq,ef,ef2,esmr,esmr2,
-     i          tiat,miat,
-     i          nsp,isp, !ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
-c     i                  ifrcw,ifrcwi, 
+      subroutine sxcf_fal3z(kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2,
+     i          tiat,miat, nsp,isp, 
+c     i          ifrcw,ifrcwi, 
      i                  qbas,ginv,
-     i         qibz,qbz,wk,nstbz,wik,nstar,irk,  !koun,,iindxk
-c
+     i                  qibz,qbz,wk,nstbz,wik,  
+     i                  nstar,irk,  
      i                  iclass,mdim,nlnmv,nlnmc,
      i                  icore,ncore,imdim,
-     i                  ppb, !pdb,dpb,ddb,
-     i                  freq_r,freqx,wx, !expa,ua, !deltaw,freq
+     i                  ppb, 
+     i                  freq_r,freqx,wx, 
      i                  dw,ecore, 
      d                nlmto,nqibz,nqbz,nctot,
-c     i          index_qbz, n_index_qbz,  !jan2004
      d                  nl,nnc,nclass,natom,
      d                  nlnmx,mdimx,nbloch,ngrp, nw_i,nw ,niw,niwx,nq,
-      ! nw_i,nw feb2006
-      ! before  feb2006, nw has the meaning of nw+1
-! See freq_r
-c     &     nblochpmx ,ngpn,ngcni,ngpmx,ngcmx,geigB,ngvecpB,ngveccBr,
-     &     nblochpmx ,ngpmx,ngcmx, !ngveccBr,!Jan2004
+     &     nblochpmx ,ngpmx,ngcmx, 
      &     wgt0,nq0i,q0i,symgg,alat, shtvg,nband, ifvcfpout,
-c     &     shtw,  
      &     exchange,tote,screen,cohtest, ifexsp,
-ctetra
-ctetra     &     wtet,wtetef,
-ctetra    &     ntqx,ibzx,tetraex,
-c
-     i omega,iwini,iwend,
-     i     nbmx,ebmx, !takao 18June2003 
-     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !imgonly, !oct2005 for pomat !imgonly jan2008
+     i     iwini,iwend,
+     i     nbmx,ebmx, 
+     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i   wklm,lxklm, !mar2012 !wklm apr2012takao
      i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
      o zsec,coh,exx)
@@ -383,30 +372,31 @@ C...
       real(8),allocatable::vcoud(:),vcousq(:)
       integer:: mrecl,nprecx,ifwd
       character(5):: charnum5
+
+      integer:: ixc
+      real(8):: qip(3,*),deltaw,shtw,eqx(nband)
 c--------------------------------------------------------------------
+
+      print *,'sxcf_fal3z'
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
       if(verbose()>=90) debug=.true.
-      print *,'sxcf_fal3z'
 !!
       if(.not.exchange) then !screened exchange
       ifwd = iopen('WV.d',1,-1,0)
       read (ifwd,*) nprecx,mrecl
       ifwd =iclose('WV.d')
       endif
-
 c oct2005
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
-
       if(debug) then
         gass=GaussSmear()
         write(6,"(' sxcf_fal2z: q  =',3f8.4)")q
         write(6,*)' sxcf_fal2z: new version: gaussian smearing=',gass
         print *,' wintzsg wfacx weavx are related parts...'
       endif
-
       tpi         = 8d0*datan(1.d0)
 c      iq         = idxk (q,qbz,nqbz) ! index for q
 c      write(6,"(' iq q  =',i4,3f8.4)")iq,q
@@ -415,10 +405,23 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
       call dinv33(qbas,0,qbasinv,det)
-
-c work arrays for psi2br.f
-      if(debug) print *, ' sxcf: 1'
       allocate(expikt(natom))
+
+
+!!== ip loop to spedify external q ==
+      do 1001 ip = 1,nq   
+        q = qip(1:3,ip) 
+            write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+            if(ixc==2) then
+c     iq  = idxk (q(1,ip),qbz,nqbz)
+c     call rwdd1 (ifev(is),iq, nband,eq)
+              call readeval(q,isp,eqx)
+              do iw = iwini,iwend
+                do i  = 1,ntq
+                  omega(i,iw) = eqx(itq(i)) + 2d0*(dble(iw)-shtw)*deltaw
+                enddo
+              enddo
+            endif
 
 c read eval and eigen
       call readeval(q, isp, eq(1,ip))
@@ -1953,7 +1956,6 @@ cccccccccccccccccccccccccccc
       if (allocated(z1p)) deallocate(w1p)
       if (allocated(vcoul)) deallocate(vcoul)
       if (allocated(vcoult)) deallocate(vcoul)
-      if (allocated(expikt)) deallocate(expikt)
       if (allocated(zmel1)) deallocate(zmel1)
       if (allocated(zmel3)) deallocate(zmel3)
       if (allocated(zw_)) deallocate(zw_)
@@ -1962,6 +1964,7 @@ c      if (allocated(zw2)) deallocate(zw2)
       if (allocated(zmel2)) deallocate(zmel2)
       if (allocated(zw3)) deallocate(zw3)
       if (allocated(uaa)) deallocate(uaa)
-      return
+ 1001 continue
+      if (allocated(expikt)) deallocate(expikt)
       end
 
