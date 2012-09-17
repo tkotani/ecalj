@@ -188,7 +188,9 @@ c     integer:: nbmx
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
       logical:: newaniso
-      integer:: ifvcoud,lxklm,ifidmlx
+      integer:: ifvcoud,lxklm,ifidmlx,iqq
+
+      integer,allocatable:: irkip(:,:,:)
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -974,6 +976,17 @@ c     initialise secq and kount
 !! ip is for to specify k point for which we calculate \Sigma.
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 
+
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+!! == irkip is to use EIBZ in future. ==
+        if(allocated(irkip)) deallocate(irkip)
+        allocate(irkip(nqibz,ngrp,nq))
+        do iqq=1,nq
+          irkip(:,:,iqq)=irk
+        enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+
+   
 c$$$        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
 c$$$            call readeval(q(1,ip),is,eq)
 c$$$            do i  = 1,ntq
@@ -991,7 +1004,7 @@ c     v2
      i              nspin,is,   
 c     i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz ,wbz, nstbz, !iindxk,
-     i              nstar,irk,  !kount,
+     i              nstar,irkip,  !kount,
 c
 c     i       iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i              iclass,nblocha,nlnmv,nlnmc, !w(i_mnlv),w(i_mnlc)

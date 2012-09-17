@@ -159,7 +159,9 @@ c     logical :: imgonly=.false.
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
       logical:: newaniso
-      integer:: ifvcoud,lxklm,ifidmlx
+      integer:: ifvcoud,lxklm,ifidmlx,iqq
+
+      integer,allocatable:: irkip(:,:,:)
 
 C...  mode switch. --------------
       if(cohtest) then
@@ -975,10 +977,20 @@ c$$$                enddo
 c$$$              enddo
 c$$$            endif
 
-            if(nctot==0) then
-              deallocate(ecore)
-              allocate(ecore(1,2)) !this is dummry
-            endif
+c            if(nctot==0) then
+c              deallocate(ecore)
+c              allocate(ecore(1,2)) !this is dummry
+c            endif
+
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+!! == irkip is to use EIBZ in future. ==
+        if(allocated(irkip)) deallocate(irkip)
+        allocate(irkip(nqibz,ngrp,nq))
+        do iqq=1,nq
+          irkip(:,:,iqq)=irk
+        enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
             print *,'### goto sxcf_fal3z ### '
 c            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
@@ -986,7 +998,7 @@ c            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat,miat, nspin,is, 
 c     i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
-     i              nstar,irk,
+     i              nstar,irkip,
      i              iclass,nblocha,nlnmv, nlnmc, !w(i_mnlv),w(i_mnlc)
      i              icore,ncore, imdim,
      i              ppb,        

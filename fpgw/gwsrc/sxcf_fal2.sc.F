@@ -337,9 +337,9 @@ c
 c
       logical :: exchange,screen,cohtest
       real(8),allocatable:: freq_r(:),
-     &   w1p(:,:,:),w2p(:,:,:) !,w3p(:,:)   !sf 22May02
+     &   w1p(:,:,:),w2p(:,:,:) !,w3p(:,:)   
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
-      complex(8),allocatable ::w3p(:,:,:)    !sf 22may02
+      complex(8),allocatable ::w3p(:,:,:)   
       logical :: debug, debugp,debug2=.false.,initp=.true.
 
       real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:)
@@ -350,9 +350,9 @@ c
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen,npm
       integer(4),save::ifzwz=-999
 
-      integer(4) :: ia,iSigma_en !iwini, iwend !sf 22May02
-      real(8)    :: omg, omega(ntq),omega0    !sf 22May02
-      complex(8) :: zsec(ntq,ntq,nq)           !sf 22May02
+      integer(4) :: ia,iSigma_en 
+      real(8)    :: omg, omega(ntq),omega0    
+      complex(8) :: zsec(ntq,ntq,nq)          
       complex(8),allocatable:: expikt(:)
       complex(8):: img=(0d0,1d0)
 
@@ -442,10 +442,13 @@ c--------------------------------------------------------------------
         endif
       endif
       tpi         = 8d0*datan(1d0)
-      ekc(1:nctot)= ecore(1:nctot)  ! core
+      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot)  ! core
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
       call dinv33(qbas,0,qbasinv,det)
+
+      if(debug) print *, ' sxcf: 1'
+      allocate(expikt(natom))
 
 
 !!== ip loop to spedify external q ==
@@ -463,9 +466,6 @@ c        endif
 c            if(debug) write(6,*) "goto sxcf_fal3_scz"
 c      print *, ' sxcf_fal3_scz:'
 c      iq          = idxk (q,qbz,nqbz) ! index for q
-
-      if(debug) print *, ' sxcf: 1'
-      allocate(expikt(natom))
 
 c direct access read e,b and hb at q
 c      iqisp =isp + nsp*(iq-1)
@@ -490,7 +490,6 @@ c-----
         rewind  ifvcfpout
         read(ifvcfpout) ndummy1, ndummy2
       endif
-
 
 c --- gauss_img : interpolation gaussion for W(i \omega).
       call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
@@ -561,7 +560,6 @@ c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc
         if(debug) print *, ' sxcf: ngb=',ngb,nbloch
 
-
 !! ===Readin diagonalized Coulomb interaction===
 !! note sep102012takao
 !!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
@@ -573,7 +571,6 @@ c        ngc = ngcni(k)  ! k-points in IBZ
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
           ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
-
           do
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
@@ -627,27 +624,47 @@ c$$$         vcousq=sqrt(vcoud) !
           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
           deallocate(zcousq,ppovl)
         endif
+!! read Coulomb interaction for exchange for newaniso=F
+        if(exchange) then
+c          if(testomitq0()) then
+c            print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+c            if(allocated(vcoul)) deallocate(vcoul)
+c          endif
+          if(.not.newaniso()) then 
+            read(ifvcfpout) nn !oct2005
+            allocate(vcoul(nn,nn))
+            read(ifvcfpout) vcoul(1:nn,1:nn)
+          endif  
+        endif
 
 !! === open WVR,WVI ===
         if(.not.exchange) then
         ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
         ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
         endif
-
           
-c     loop over rotations -------------------------------
+!! === loop 1000 over rotations irot ===
       do 1000 irot = 1,ngrp
-         write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
-
-        if( kx <= nqibz ) then
-          kr = irk(kx,irot) ! index for rotated k in the FBZ
-c          qibz_k= qibz(:,kx)
-          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
+        if( kx <= nqibz) then
+          kr = irk(kx,irot) ! index for rotated kr in the FBZ
+          if(kr==0) cycle
+          qbz_kr= qbz (:,kr) 
         else
           kr=-99999 !for sanity check
-          qibz_k= 0d0
           qbz_kr= 0d0
+          if( wgt0(kx-nqibz,irot)==0d0 ) cycle
         endif
+        write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
+
+c$$$        if( kx <= nqibz ) then
+c$$$          kr = irk(kx,irot) ! index for rotated k in the FBZ
+c$$$c          qibz_k= qibz(:,kx)
+c$$$          if(kr/=0) qbz_kr= qbz (:,kr) !feb2006
+c$$$        else
+c$$$          kr=-99999 !for sanity check
+c$$$          qibz_k= 0d0
+c$$$          qbz_kr= 0d0
+c$$$        endif
 
 c          if( sum(abs( irk(:,irot) )) ==0 .and.
 c     &           sum(abs( wgt0(:,irot))) == 0d0 ) then
@@ -674,51 +691,6 @@ c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
      i           ppbrd,         !radial integrals
      o           ppb)
 
-c------------------------------------------------------
-c     calculate the correlated part of the self-energy within GW
-c        ntqx = 0
-c        if(tetra.and.(.not.exchange)) then
-c            ntqx =3*ntq
-c        endif
-
-
-
-
-!! --- exchange
-        if(exchange) then
-          if(.not.newaniso()) then 
-            read(ifvcfpout) nn !oct2005
-            allocate(vcoul(nn,nn))
-            read(ifvcfpout) vcoul(1:nn,1:nn)
-          endif
-c          allocate(vcoul(ngb,ngb))
-c          read(ifvcfpout) vcoul(1:ngb,1:ngb)
-        endif
-        if(debug) print *, ' sxcf: 1100a'
-
-c- weight check for cycle or not.
-        if( kx <= nqibz ) then
-          if (kr == 0)    then
-            if(exchange.and.(.not.newaniso())) deallocate(vcoul)
-            cycle
-          endif
-c          kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
-          ! appears in the 1st BZ
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
-c          deallocate(vcoul)
-c          cycle
-c          print *,' kount out =',kount(k,ip)
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-c          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
-        else
-          if( wgt0(kx-nqibz,irot) == 0d0 ) then
-            if(exchange.and.(.not.newaniso())) deallocate(vcoul)
-            cycle
-          endif
-        endif
-
-        if(debug) print *, ' sxcf: 1100b'
 
 c qk = q - rk, rk is inside 1st BZ, not restricted to
 c the irreducible BZ
@@ -1029,7 +1001,7 @@ ccccccccccccccccccccccccccccc
           if(newaniso()) then
             do 992 itpp= 1,ntqxx
             do 993 itp = 1,ntqxx
-              do it  = 1,nctot+nbmax
+              do 994 it  = 1,nctot+nbmax
                 w3p(it,itp,itpp) = 0d0
                 do ivc=1,ngb
                   if(ivc==1.and.kx==iqini) then
@@ -1042,7 +1014,7 @@ c                    print *,'wklm(1) vc=',wklm(1),vc
                   zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                   w3p(it,itp,itpp) = w3p(it,itp,itpp)+ vc * zmelt1*dconjg(zmelt2)
                 enddo
-              enddo
+ 994          continue
  993        continue
  992        continue
           else
@@ -1872,7 +1844,6 @@ ccccccccccccccccccccccccccccc
 c      print *," end kount ip irot=", irot, ip, sum(kount(:,ip))
 c      print *," sumkount 1=",irot,ip,sum(kount(:,:))
 cccccccccccccccccccccccccccc
-      if (allocated(expikt))deallocate(expikt)
       if (allocated(vcoul))deallocate(vcoul)
 c         if (allocated(zzzmel))deallocate(zzzmel)
 c         if (allocated(rmelt))deallocate(rmelt)
@@ -1896,6 +1867,7 @@ c         if (allocated(zwz4))deallocate(zwz4)
 c         if (allocated(zmel_))deallocate(zmel_)
 c         if (allocated(zwz))deallocate(zwz)
  1001 continue
+      if (allocated(expikt))deallocate(expikt)
       end
 
 
