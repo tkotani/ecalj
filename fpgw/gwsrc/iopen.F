@@ -40,10 +40,11 @@ c check that file is not already opened oct2005
       endif
 
 c skip leading blanks
-      namt       = nam
-      i          = 0
-      call rmvbl (namt,32,i)
-      namt       = namt(i+1:32)
+c      namt       = nam
+c      i          = 0
+c      call rmvbl (namt,32,i)
+c      namt       = namt(i+1:32)
+       namt= trim(adjustl(nam))
 
 c check that file is not already opened
       do       i = 1,namnmax
@@ -70,6 +71,9 @@ c        print *,' namnxxx=',namn,namnx,fnamn(namn)
       fnamn(namn)= namt
       iunit(namn)= 9 + namn
       if(namn>namnmax) namnmax=namn
+cccccccccccc
+c      print *,'namn,namnmax=',namn,namnmax
+ccccccccccccccc
 ctakao
       if(debug) then
         do ix=9+1,namnmax
@@ -111,10 +115,11 @@ c identify the file unit for the given file name >>nam<<
       entry ifile (nam)
 
 c skip leading blanks
-      namt       = nam
-      i          = 0
-      call rmvbl (namt,32,i)
-      namt       = namt(i+1:32)
+c      namt       = nam
+c      i          = 0
+c      call rmvbl (namt,32,i)
+c      namt       = namt(i+1:32)
+      namt=trim(adjustl(namt))
 
 c identify file unit
       ifile      = 0
@@ -133,21 +138,23 @@ c close file unit for the given file name >>nam<<
 c check that file is not already opened oct2005
       if(debug) then
         write(6,*) '------iclosestart ---------'
+        print *,'namn,namnmax=',namn,namnmax
         write (6,"(' ',a)") nam
         do   i = 1,namnmax
-          write (6,"(i3,' ',a)") i+9,fnamn(i)
+          write (6,"(2i3,' ',a)") i+9,iunit(i),fnamn(i)
         enddo
       endif
 
 c skip leading blanks
-      namt       = nam
-      i          = 0
-      call rmvbl (namt,32,i)
-      namt       = namt(i+1:32)
+c      namt       = nam
+c      i          = 0
+c      call rmvbl (namt,32,i)
+c      namt       = namt(i+1:32)
+      namt = trim(adjustl(nam))
 
 c identify file unit
       iclose     = 0
-      do       i = 1,namn
+      do       i = 1,namnmax !takao fix sep2012. it was
         if(namt .eq. fnamn(i))then
 ctakao
 c      write(6,1033) i,iunit(i),fnamn(i)
@@ -157,6 +164,7 @@ c 1033 format(' iclose: namn fnamn iunit=',i5,i5,' ',a32)
 c
           close (iclose)
           if(verbose()>91) write(6,"(' closed : ',i5,1x,a)") iclose,namt
+c          write(6,"(' closed : ',i5,1x,a)") iclose,namt
           return
         endif
       end do
@@ -165,13 +173,13 @@ c     if(iclose .eq. 0)stop 'iclose: cannot find the file'
       end
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ctaken from system.f
-      subroutine rmvbl(t,nt,i)
-C- Parses string T(I) for blanks
-      integer nt,i
-      character*1 t(0:nt)
-   99 if (t(i) .ne. ' ') return
-      i = i + 1
-      if (i .ge. nt) return
-      goto 99
-      end
+cctaken from system.f
+c      subroutine rmvbl(t,nt,i)
+cC- Parses string T(I) for blanks
+c      integer nt,i
+c      character*1 t(0:nt)
+c   99 if (t(i) .ne. ' ') return
+c      i = i + 1
+c      if (i .ge. nt) return
+c      goto 99
+c      end

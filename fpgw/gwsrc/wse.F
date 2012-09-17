@@ -384,9 +384,10 @@ c-----------------------------------------------------------------
       do 10 i = 1,n
         read(ifil,'(a72)')rchar
 c      print *, rchar
-        j       = 0
-        call rmvbl (rchar,72,j)
-        rchar      = rchar(j+1:72)
+c        j       = 0
+c        call rmvbl (rchar,72,j)
+c        rchar      = rchar(j+1:72)
+        rchar=trim(adjustl(rchar))
         if(rchar(1:5) .eq. '*****') return
         if(rchar(1:5) .eq. '#####') return
    10 continue

@@ -5,8 +5,9 @@ c-----------------------------------------------------------------
       do 10 i = 1,n
         read(ifil,5000)rchar
         j       = 0
-        call rmvbl (rchar,72,j)
-        rchar      = rchar(j+1:72)
+c        call rmvbl (rchar,72,j)
+c        rchar      = rchar(j+1:72)
+        rchar=trim(adjustl(rchar))
 
         if(rchar(1:3) .eq. '***')return
         if(rchar(1:3) .eq. '###')return

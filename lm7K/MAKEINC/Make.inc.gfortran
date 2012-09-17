@@ -64,7 +64,7 @@ FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 #
 # safer option (debug)
-#
+#  -pg for profiling??? how to use gprof
 #FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
 #FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
 #FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
