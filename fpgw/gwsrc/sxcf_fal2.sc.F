@@ -52,7 +52,7 @@ c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
 c     i                  ifrcw,ifrcwi, 
      i                  qbas,ginv,
-     i         qibz,qbz,wk,nstbz,nstar,irk,  !kount,
+     i         qibz,qbz,wk,nstbz,nstar,irkip,  !kount,
 c
      i                  iclass,mdim,nlnmv,nlnmc,
      i                  icore, ncore,imdim,
@@ -277,7 +277,7 @@ c wk      = weight for each k-point in the FBZ
 c indexk  = k-point index
 c qbz     = k-points in the 1st BZ
 c nstar   = no. stars for each k
-c irk(k,R) = gives index in the FBZ with k{IBZ, R=rotation
+c irkip(k,R,nq) = gives index in the FBZ with k{IBZ, R=rotation
 c mdim    = dimension of B(R,i) for each atom R
 c work arrays:
 c rbq,cbq     = real and imaginary part of b(q)
@@ -316,7 +316,7 @@ c     &  iq, idxk,iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      &  nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,ixs,ixsmx,
      &  mdimx, 
      &  itq(ntq),iatomp(natom),miat(natom,ngrp),
-     &  nstar(nqibz),irk(nqibz,ngrp),kount(nqibz,nq),  ntqxx
+     &  nstar(nqibz),irkip(nqibz,ngrp,nq),kount(nqibz,nq),  ntqxx
 c
       real(8) :: q(3),qbas(3*3),ginv(3*3),tiat(3,natom,ngrp),tr(3,natom),
      &  wk(nqbz),qibz(3,nqibz),qbz(3,nqbz),
@@ -453,6 +453,7 @@ c--------------------------------------------------------------------
 
 !!== ip loop to spedify external q ==
       do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+        if(sum(irkip(:,:,ip))==0) cycle
 c        call readeval(q(1,ip),isp,eq)
         q(1:3)= qip(1:3,ip)
         call readeval(q,isp,eq)
@@ -547,6 +548,7 @@ c        if(exchange) iqend=nqibz
 
 !! == Big loop for kx ==
       do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
+        if(sum(irkip(kx,:,ip))==0) cycle
          print *, ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
         if( kx <= nqibz ) then
           qibz_k= qibz(:,kx)
@@ -646,7 +648,7 @@ c          endif
 !! === loop 1000 over rotations irot ===
       do 1000 irot = 1,ngrp
         if( kx <= nqibz) then
-          kr = irk(kx,irot) ! index for rotated kr in the FBZ
+          kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
           if(kr==0) cycle
           qbz_kr= qbz (:,kr) 
         else

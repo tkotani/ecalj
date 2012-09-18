@@ -409,6 +409,7 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
 
 !! == ip loop to spedify external q ==
       do 1001 ip = 1,nq   
+        if(sum(irkip(:,:,ip))==0) cycle
         q = qip(1:3,ip) 
         write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
         if(ixc==2) then
@@ -484,6 +485,8 @@ ccccccccccccccccccccccccccccccccc
 !! == Big loop for kx ==
 !! kx is for irreducible k points, kr=irk(kx,irot) runs all k points in the full BZ.
       do 1100 kx = iqini,iqend
+        if(sum(irkip(kx,:,ip))==0) cycle
+        print *, ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
         if( kx <= nqibz ) then
           qibz_k= qibz(:,kx)
         else

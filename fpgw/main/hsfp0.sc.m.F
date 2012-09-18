@@ -190,7 +190,9 @@ c     integer:: nbmx
       logical:: newaniso
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
-      integer,allocatable:: irkip(:,:,:)
+      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
+      integer:: irank,nrank
+
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -940,9 +942,33 @@ C...  Read pomatr
 c-------------------------------------
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
+
 c-----------------------------------------------------------
-c     calculate the correlated part of the self-energy SEc(qt,w)
+c     calculate the the self-energy SEx(ip) or SEc(ip)
 c-----------------------------------------------------------
+
+!! == irkip control paralellization  ==
+!! We have to distribute non-zero irkip_all into processes (nrank).
+!! When irkip_all(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
+!! for each job of (iqibz,igrp,iq,isp) is almost the same.
+!! Our pupose is to calculate zsec(itp,itpp,iq).
+!! Thus we need to set up communicator (grouping) MPI_COMM_iqisp(iq,isp) to do all_reduce.
+!! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
+!! ---
+!! NOTE: in future, we will further extend irkip for itp and itpp
+      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
+      do is = 1,nspinmx
+      do iqq=1,nq
+        irkip_all(is,:,:,iqq)=irk
+      enddo
+      enddo
+
+      nrank=1 !total number of rank
+      irank=0 !rank for local process
+      allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
+      call MPI_sxcf_rankdivider(nrank,nspinmx,nqibz,ngrp,nq,irkip_all, irank,irkip)
+!! ----------------------------------------
+
       nlnx4    = nlnx**4  ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
      &      kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) ) !eq(nband),
@@ -976,17 +1002,7 @@ c     initialise secq and kount
 !! ip is for to specify k point for which we calculate \Sigma.
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 
-
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-!! == irkip is to use EIBZ in future. ==
-        if(allocated(irkip)) deallocate(irkip)
-        allocate(irkip(nqibz,ngrp,nq))
-        do iqq=1,nq
-          irkip(:,:,iqq)=irk
-        enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-
-   
+  
 c$$$        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
 c$$$            call readeval(q(1,ip),is,eq)
 c$$$            do i  = 1,ntq
@@ -1003,8 +1019,8 @@ c            call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
 c     v2
      i              nspin,is,   
 c     i              ifrcw,ifrcwi,
-     i              qbas,ginv,qibz,qbz ,wbz, nstbz, !iindxk,
-     i              nstar,irkip,  !kount,
+     i              qbas,ginv,qibz,qbz ,wbz, nstbz, 
+     i              nstar,irkip(is,:,:,:),
 c
 c     i       iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i              iclass,nblocha,nlnmv,nlnmc, !w(i_mnlv),w(i_mnlc)

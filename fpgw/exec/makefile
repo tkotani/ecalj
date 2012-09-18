@@ -450,6 +450,7 @@ eout2: $(EO2)
  $(nfpsrc)cross.o
 
  GW0 = \
+ $(gwsrc)MPI_fpgw.o \
  $(gwsrc)m_hamindex.o\
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \

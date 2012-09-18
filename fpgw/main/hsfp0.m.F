@@ -161,7 +161,8 @@ c     logical :: imgonly=.false.
       logical:: newaniso
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
-      integer,allocatable:: irkip(:,:,:)
+      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
+      integer:: irank,nrank
 
 C...  mode switch. --------------
       if(cohtest) then
@@ -911,15 +912,38 @@ c     write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
         allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
       endif
 
+
 c-----------------------------------------------------------
-c     calculate the correlated part of the self-energy SEc(qt,w)
+c     calculate the the self-energy SEx(ip) or SEc(ip)
 c-----------------------------------------------------------
+
+!! == irkip control paralellization  ==
+!! We have to distribute non-zero irkip into processes (nrank).
+!! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
+!! for each job of (iqibz,igrp,iq,isp) is almost the same.
+!! Our pupose is to calculate zsec(itp,itpp,iq).
+!! Thus we need to set up communicator (grouping) MPI_COMM_iqisp(iq,isp) to do all_reduce.
+!! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
+!! ---
+!! NOTE: in future, we will further extend irkip for itp and itpp
+      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+      do is = 1,nspinmx
+      do iqq=1,nq
+        irkip_all(is,:,:,iqq)=irk
+      enddo
+      enddo
+
+      nrank=1 !total number of rank
+      irank=0 !rank for local process
+      allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
+      call MPI_sxcf_rankdivider(nrank,nspinmx,nqibz,ngrp,nq,irkip_all, irank,irkip)
+!! ----------------------------------------
+
       nlnx4    = nlnx**4
       niwx     = max0 (nw+1,niw)
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nband), 
      &     kount(nqibz,nq), zsec(iwini:iwend,ntq,nq),  
      &     coh(ntq,nq) )
-
 
 c     loop over spin ----------------------------------------------------
       if (tote) exx = 0d0
@@ -982,23 +1006,13 @@ c              deallocate(ecore)
 c              allocate(ecore(1,2)) !this is dummry
 c            endif
 
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-!! == irkip is to use EIBZ in future. ==
-        if(allocated(irkip)) deallocate(irkip)
-        allocate(irkip(nqibz,ngrp,nq))
-        do iqq=1,nq
-          irkip(:,:,iqq)=irk
-        enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
             print *,'### goto sxcf_fal3z ### '
 c            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
             call sxcf_fal3z (kount, ixc,deltaw,shtw,q,itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat,miat, nspin,is, 
 c     i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
-     i              nstar,irkip,
+     i              nstar,irkip(is,:,:,:),  
      i              iclass,nblocha,nlnmv, nlnmc, !w(i_mnlv),w(i_mnlc)
      i              icore,ncore, imdim,
      i              ppb,        
