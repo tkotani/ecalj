@@ -230,17 +230,20 @@ cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:
       call fclr(' ',ifiqg) !close file
 
 !! ==== Generate info for rotwv and write ====
-      print *,' nqtt nqi=',nqtt,nqi
+c     print *,' nqtt nqi=',nqtt,nqi
+c     print *, ' symops=',symops
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       platt= transpose(plat) !this is inverse of qlat
       allocate(qtt(3,nqtt))
       qtt(:,1:nqtt)=qq(:,1:nqtt)
       do i=1,nqtt
         qtarget(:)=qtt(:,i)
+c        print *,' i in nqtt=',i,qtarget
         do iqi=1,nqi
           q=qtti(:,iqi)
           iqq=iqtt(iqi)
           iqi_=iqi
+c          print *,' xxxxx qtti=',q
           do ig=1,ngrp
 c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
@@ -254,15 +257,19 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
           enddo
         enddo
         write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
-     & ' You may have to delete inconsistent QGpsi.',q,qtarget
-        call rx('gen_hamindex: qtarget can not found. You may have to delete inconsistent QGpsi.')
+     & ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
+        call rx('gen_hamindex: qtarget can not found by SYMOPS')
  2012   continue
         iqmap(i)=iqq
         iqimap(i)=iqi_
         igmap(i)=igg
       enddo
-      call writehamindex() !feb2012takao
 
+ccccccccccccccccccccccccccccccccccc
+c      stop 'xxxxxxxxxxxxxxxxzzzzzzzzzz'
+ccccccccccccccccccccccccccccccccc
+
+      call writehamindex() !feb2012takao
 
 !! === rotation of APW. (not the IPW part for GW).===
 c$$$ 1012 continue

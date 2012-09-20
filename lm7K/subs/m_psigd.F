@@ -185,8 +185,8 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
           if(present(iout).and.iout==1) then
             inquire(file='ESEAVR',number=ifiese)
             rewind ifiese
-            do iii=1,3
-              read(ifiese,*) sigiir,ispx
+            do iii=1,2
+              read(ifiese,*,err=898) sigiir,ispx !error means we use sigii for isp=1 for isp=2 !sep2012takao
               sigii=sigiir
               siglin=sigiir
               if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx

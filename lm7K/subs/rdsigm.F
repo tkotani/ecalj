@@ -137,13 +137,10 @@ Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SI
   999     call rxs('rdsigm: failed to parse wsig option', strn)
         endif
       endif
-
       end subroutine sigflg
       end module m_sigflg
 
-
-      subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp,
-     .lshft1,lshft2,lshft3,ifi)
+      subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp, lshft1,lshft2,lshft3,ifi)
 C- Read/write header information in sigma file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -195,8 +192,7 @@ Cu   27 Jun 08 Revised mode, and input checking.  Old optio=1 -> optio=3
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3,ifi,optio,
-     .mode
+      integer nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3,ifi,optio, mode
 C ... Local parameters
       integer jfi,i1,i2,i3,i4,i5,i6,i7,i8,i9,ivsn,modef
       logical:: isanrg, l_dummy_isanrg
@@ -242,15 +238,6 @@ C       Assign header parameters or check with file correspondence
           read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
           l_dummy_isanrg=isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
           l_dummy_isanrg=isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
-Ckino isanrg is logical function,           call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
-Ckino isanrg is logical function,           call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
-Ckino isanrg is logical function,           call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
-Ckino isanrg is logical function,           call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
-Ckino isanrg is logical function,           call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
-Ckino isanrg is logical function,           call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
-Ckino isanrg is logical function,           call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
-Ckino isanrg is logical function,           call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
-Ckino isanrg is logical function,           call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
           l_dummy_isanrg=isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
           l_dummy_isanrg=isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
           l_dummy_isanrg=isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)

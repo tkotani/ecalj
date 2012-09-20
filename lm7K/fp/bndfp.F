@@ -415,6 +415,7 @@ ckino
 
       integer:: ntqxx,ispx,ix99 !,nevec unused.
       real(8)::eseavrmean
+      logical:: mtosigmaonly
       
 cccccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,100)
@@ -1285,7 +1286,6 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
      &    offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
         enddo
 #endif
-
         write(6,*) ' ngrp=', ngrp
         !do ig = 1, ngrp
         !write(6,*) ig
@@ -1295,20 +1295,24 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         !enddo
       endif
 
-
-c --- generate \Sigma for q points on all the mesh points. takao
+!! === generate \Sigma for q points on all the mesh points. ===
 c      nhmax = ldim + napwmx !napwmx is in m_hamindex
 c      lwsig=0
       if(sigmamode.and.siginit.and. (.not.(llmfgw.and.jobgw==0)) ) then
         ifi = 1
         if (procid .eq. master) ifi = fopna('sigm',-1,4)
         read(ifi,err=99,end=99) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
-        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
+c        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
+        allocate( qsmesh(3,nk1,nk2,nk3) )
+        if(mtosigmaonly()) then
+          ndimsig= ldim   !ldim  
+                      ! ndimsig is the dimension of the self-energy. 
+                      ! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
+          allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
+        else
+          stop 'mtosigmaonly()=T is needed in the current version sep2012'
+        endif
         rewind ifi
-        !rsrnge = dgets('ham rsrnge',sham) !Real-space range
-        !print *,'rsrnge=',rsrnge
-        !print *,'vvv',nk1,nk2,nk3,ndham,ndham,nsp
-        !stop 'xxx'
         rsrnge = sham%rsrnge
         print *,'rsrnge=',rsrnge
         if (mod(pwmode,10) ==0) then
@@ -1319,28 +1323,18 @@ c      lwsig=0
         if (ldim .ne. ndham) then !june2009 takao
           write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
         endif
-c        if(ndham/=ndham) stop "we now assume ndham = ndmam"
+
         write(6,*)"Now we go into rdsigm2 for PMT mode...lrsig=" ,lrsig
-        call rdsigm2(nbas,nsp,ndham,slat,sham,sbz,ifi,
-     &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps) !sfz is the self-energy roteted in the full BZ.
+        call rdsigm2(nbas,nsp,slat,sham,sbz,ifi,  !ndham is removed sep2012 (read from sigma file )
+     &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
                   !qsfz is for test
-c        deallocate(sfz)
+c       deallocate(sfz)
         call fclose(ifi)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
 
-cccccccccccccccccccccccccccccccccccccccc
-        ndimsig= ldim   !ldim   !ndimsig=ldim   !ndimsig=ndham It was ndham before aug2012
-                      ! ndimsig is the dimension of the self-energy. 
-                      ! ndimsig=ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
-        if(ndham/=ndimsig) then
-          allocate(sfzmto(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
-          sfzmto = sfz(:,:,:,1:ndimsig,1:ndimsig,:)
-          deallocate(sfz)
-          allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
-          sfz=sfzmto
-          deallocate(sfzmto)
-        endif  
-cccccccccccccccccccccccccccccccccccccccccccc
+c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1))!,sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+        print *,' sumcheck sfz up-down=',sum( sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1411,31 +1405,16 @@ c          call seneinterp(nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,
         siginit=.false.
       endif !end of sigmamode if
 
-
-
-C--- GW driver must be after rdsigm2 for sigm mode
+!! == GW driver must be after rdsigm2 for sigm mode ==
       if(llmfgw) then
-C --- GW driver ---
-c       osgw=spot%osgw
         nchan=spot%nlma
-C ... Modes 0..4
-ckino Dec.8.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot
-ckino Dec.28.2011:                 call sugw ( ssite , sspec , slat , sham , nbas , ndham , spot%zv_p_osmpot
-cccccccccccccccc
-c        if(newsigmasw()) stop 'goto sugw xxxxxxxxxxxxxxxx need to fix sugw for PMT mode (note ndimsig) xxxxxxxxxxxx'
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .         ,nk1,nk2,nk3,sfz,sigmamode,ndimsig)
         deallocate(spotx)
-c        call rlse(oqmom)
-C      if (jobgw .eq. 1) then
-C        jobgw = 2
-C        call info(20,1,0,' ... Remake potential without vxc',0,0)
-C        goto 10
-C      endif
         call tcx('bndfp')
-        call rx0('bndfp')
+        call rx0('bndfp') !exit program here normally.
       endif
 
 

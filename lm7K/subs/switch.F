@@ -1,3 +1,6 @@
+      logical function mtosigmaonly()
+      mtosigmaonly=.true.
+      end
       real(8) function epsnevec()
       epsnevec=1d-8 !it was 1d-6
       end
