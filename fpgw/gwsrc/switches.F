@@ -1,6 +1,6 @@
-c      logical function eibz4sig()
-c      eibz4sig=.true.
-c      end
+      logical function eibz4sig()
+      eibz4sig=.true.
+      end
 
       logical function mtosigmaonly() !this is also in lm7k/subs/switches.F
       mtosigmaonly=.true.

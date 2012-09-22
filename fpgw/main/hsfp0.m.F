@@ -158,11 +158,16 @@ c     logical :: imgonly=.false.
 !! newaniso mode
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
-      logical:: newaniso
+      logical:: newaniso, eibz4sig
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
-      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
       integer:: irank,nrank
+!!
+      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:),nrkip_all(:,:,:,:)
+      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+      integer:: iqxend,iqxini
+      integer:: l2nl,igrp,kx,kr
+      logical :: iprintx,tiii,timereversal
 
 C...  mode switch. --------------
       if(cohtest) then
@@ -917,6 +922,35 @@ c-----------------------------------------------------------
 c     calculate the the self-energy SEx(ip) or SEc(ip)
 c-----------------------------------------------------------
 
+!! EIBZ symmetrization
+      if(eibz4sig()) then
+        allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq),igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
+         iprintx=.false.
+         write(6,"('TimeRevesal switch = ',l1)") timereversal()
+         iqxini=1
+         iqxend=nq
+         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
+     o   nwgt,igx,igxt,eibzsym)
+!! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
+!! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
+        tiii=timereversal() 
+        if(minval(igxt)==1) tiii=.false.
+        iprintx=.true.
+cccccccccccccccccccc
+        tiii=.false. !time reversal not yet...
+        print *,' NOTE:Time reversal is not yet implemented for EIBZ'
+cccccccccccccccccccc
+        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+        call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
+     o    nwgt,igx,igxt,eibzsym)
+c        call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
+            ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+c        call readqgcou() !no input. Read QGcou and store date into variables.
+c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+      endif
+ccccccccccccccccccc
+
+
 !! == irkip control paralellization  ==
 !! We have to distribute non-zero irkip into processes (nrank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
@@ -927,12 +961,102 @@ c-----------------------------------------------------------
 !! ---
 !! NOTE: in future, we will further extend irkip for itp and itpp
       allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
-      do is = 1,nspinmx
+      allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+      nrkip_all=0
+      is=1
       do iqq=1,nq
         irkip_all(is,:,:,iqq)=irk
-      enddo
-      enddo
+        do kx=1,nqibz
+        do igrp=1,ngrp
+          kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+          if(nwgt(kr,iqq)==0) then
+             irkip_all(is,kx,igrp,iqq)= 0 !skip. EIBZ is only for nwgt/=0
+          else
+             nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
+          endif   
+        enddo
+        enddo
+      enddo  
+      do iqq=1,nq
+        print *,'xxxxxxxxxxxxxxxxxxxxxxxx hsfp0 xxxxxxxxxxxxxx'
+        write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iqq,
+     &     sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
+        write(6,"('eibz: iqq neibz nqbz= ',i3,3f11.5,3i3)") iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
+        do kx=1,nqibz
+        do igrp=1,ngrp
+           kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+           if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") kr, qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
+     &       ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
+        enddo
+        enddo
+        print *,' probably partical group symmetrization is enough'
+      enddo  
+      if(nspinmx==2) then
+         irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
+         nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
+      endif   
+!! symmetrize zsec for eibz4sig mode-----------------
+!!       zsec(itp,ip) rotation.
+!!    
+      open(UNIT=3008,file='evec',form='UNFORMATTED',status='OLD')
+      open(UNIT=3009,file='vxc' ,form='UNFORMATTED',status='OLD')
+      ifevec=3008
+      ifvxc =3009
+      read(ifvxc)
+      read(ifevec)
+      allocate(eqt(nband))
+      do iq=1,nq
+      do isp=1,nspinmx
+        zsect=0d0
+        read(ifvxc)  nz,nlmto,qp !qp is shortened
+        read(ifvxc)  
+        read(ifevec) qqqx(1:3), evec(1:nz,1:nz)
+        if(sum(abs(qqqx-q(:,ip))) !note qqqx is un-shortened.
+        if(tiii) stop 'timereversal is not yet implemented'
+        call readeval(q(:,ip), isp, eval)
+        allocate( evec_inv(nz,nz) ,evec_invt(nz,nz))
+        evec_inv(1:nz,1:nz)=evec(1:nz,1:nz,ikpx,is)
+        call zgetrf(nz,nz,evec_inv,nz,ipiv,info)  !nhq is leading dimension of evec_inv
+        if (info /= 0)  stop 'hqpe: zgetrf info/=0'
+        call zgetri(nz,evec_inv,nz,ipiv,work,nhq**2,info)
+        if (info /= 0)  stop 'hqpe: zgetri info/=0'
+        evec_invt=tranpose(evec_inv)
+        nsym = sum(eibzsym(:,:,iq))
+        do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
+        do igrp=1,ngrp           !A-rotator
+          if( eibzsym(igrp,it,iq)/=1) cycle
+          !evecout= symgg(ig)*evec
+          !       
+          !degeneracy check for eigenvalue for evec. block rotation!
+!! degeneracy devider for t
+          allocate(iblki(nband),iblke(nband))
+          nblk=0
+          iblki(1)=1
+          tolry=1d-4 !degeneracy check. if this is large, it becomes inefficient (but not to be wrong.)
+          do iband=2,nband
+            if(eqt(iband) > eqt(iband-1)+tolry ) then
+              nblk=nblk+1
+              if(nblk>=2) iblki(nblk)=iblke(nlbk-1)+1
+              iblke(nblk)=iband
+            endif
+          enddo
+          do iblk=1,nblk  !block rotation evec(:,iblock) --->evecrot(:,iblock) by symgg(ig)
+            ii=iblki(iblk)
+            ie=iblke(iblk) 
+            ne=ie-ii-1
+            allocate(rmat(ne,ne))
+            rmat = sum(evec_invt(ii:ie,:)*evecrot(:,ii:ie))
+            zsect(ii:ie,ii:ie) =  zsect(ii:ie,ii:ie) + matmul(dconjg(transpose(rmat), matmul(zsec(ii:ie,ii:ie),rmat))
+          enddo
+       enddo
+       enddo
+       zsec = zsect/dble(nsym)
+       stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
 
+
+
+    
+!! == job devider for MPI ==
       nrank=1 !total number of rank
       irank=0 !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
