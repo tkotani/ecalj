@@ -368,7 +368,7 @@ c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) print *,' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
-      call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
+      call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp1,q,qt      ,sum(abs(ngvecpB1(:,1:ngp1)))
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(ngvecpB2(:,1:ngp2)))

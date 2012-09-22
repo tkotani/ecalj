@@ -55,7 +55,7 @@ c----------------------------------------------
       real(8):: anfvec(3)
       character(2):: soflag
       real(8) :: wex
-      logical :: exonly
+      logical :: exonly,mtosigmaonly
       integer(4):: ret
 
 
@@ -63,7 +63,7 @@ c----------------------------------------------
       real(8),allocatable:: eseavr(:,:),eseavr_in(:,:)
 
       integer,allocatable:: nhqx(:,:)
-      integer:: nz,ntqmin
+      integer:: nz,ntqmin, nmto,ndimsig,ndimsig2
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c     logical :: core3ptest=.false. ! This is for test for NiO_bigbas
@@ -156,6 +156,8 @@ c     > output file
       iftote(1)  = iopenxx ('TOTE.UP')
       iftote2(1) = iopenxx ('TOTE2.UP')
 
+
+
 C     3 Feb 2004 read sigma and pass to mixing routine
       INQUIRE (FILE='sigm', EXIST = lsigin)
       open(UNIT=3009, file='sigm',form='UNFORMATTED') !sf
@@ -163,7 +165,8 @@ C     3 Feb 2004 read sigma and pass to mixing routine
       if (lsigin) then
         rewind ifse_out
         print *, ' ... reading input sigma from file sigm'
-        read(ifse_out) nspin,nhqin,n1,n2,n3,nqx
+c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
+        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
         if (nqx .ne. nq) then
           print 368, nqx,nq
  368      format (6x,' (warning) file mismatch : file nq=',i4,
@@ -171,11 +174,12 @@ C     3 Feb 2004 read sigma and pass to mixing routine
           lsigin = .false.
         else
           rewind ifse_out
-          allocate(sigin(nhqin,nhqin,nq,nspin),qqqx_m(3,nq,nspin))
-          call rwsigma(ifse_out,sigin,qqqx_m,nspin,nhqin,n1,n2,n3,nq,eseavr_in)
+          allocate(sigin(ndimsigin,ndimsigin,nq,nspin),qqqx_m(3,nq,nspin))
+          call rwsigma(ifse_out,sigin,qqqx_m,nspin,ndimsigin,n1,n2,n3,nq,eseavr_in)
           deallocate(qqqx_m)
         endif
       endif
+
       rewind ifse_out
       !sf
       if (nspin == 2) then
@@ -212,6 +216,7 @@ c-----
       if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
       read(ifevec) ndimhx, nspx,nnnx
       nhq=ndimh
+
       print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
       if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
@@ -228,7 +233,7 @@ c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
 c     print *,' nnn =',nnn
       do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
         do is=1,nspin
-          read(ifv_xc) nz    !june209 takao nhqx is true dimension which is dependent on q.
+          read(ifv_xc) nz,nmto    !june209 takao nhqx is true dimension which is dependent on q. nmto(not iq,is is dependent) is MTO dimension.!2012sep
           print *, ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
           read(ifv_xc) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
@@ -238,7 +243,19 @@ c     print *,' nnn =',nnn
      &           stop 'hqpe: qqq/=qqqx'
         enddo
       enddo                     !sf.end
-      allocate(sigmv(nhq,nhq,nq))
+
+c      allocate(sigmv(nhq,nhq,nq))
+      if(mtosigmaonly()) then
+           ndimsig = nmto
+      else
+           ndimsig = nhq
+      endif
+      if (lsigin .and. ndimsigin .ne. ndimsig) then
+          deallocate(sigin)
+          print *, '... input sigma dimension mismatch ... discarding'
+          lsigin = .false.
+      endif
+      allocate(sigmv(ndimsig,ndimsig,nq))
 
 
 c----------------------------------------
@@ -399,13 +416,12 @@ c     o              w(ieqp),w(iwqp))
 
         if(jin==-101) cycle
 
-
 !------------------------------------------------------------------------------
 ccccccbegin making SE_ij-VXC_ij, ij are 'basis functions' indexes !sf..3June
 !------------------------------------------------------------------------------
         allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq)
      &        ,evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
-        allocate(ev_se_ev(nhq,nhq)) !se_ev(ntq,nhq),
+        allocate(ev_se_ev(ndimsig,ndimsig)) !  sep2012     allocate(ev_se_ev(nhq,nhq)) 
         if(evec0ex) allocate(evec00inv(nhq,nhq))
         do ip=1,nq
           do itp=1,ntq
@@ -443,7 +459,7 @@ c     print *,' xxx1'
           enddo
         enddo
 
-        if (is == 1) write(ifse_out) nspin,ndimh,n1,n2,n3,nq,0,0,0
+        if (is == 1) write(ifse_out) nspin,ndimsig,n1,n2,n3,nq,0,0,0
 cccccccccccccccccccccccccc
 c        print *,' nnn=',nnn
 c        do ikp=1,nnn
@@ -529,6 +545,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           enddo
           write(6,*)
           write(6,"( ' ip ntq ntqxx=',3i5)")ip,ntq,ntqxx
+!!
           if(ip==1) then
             ntqxxmin=ntqxx
           else
@@ -601,15 +618,17 @@ c    So I made a replacement. to
 c        evec_invt= dconjg(transpose(evec_inv))  !this did not work for gfortran
           evec_invt= transpose(dconjg(evec_inv))  !this works for gfortran
 c
-
-          ev_se_ev = matmul(evec_invt(1:nz,1:ntq)
-     &           ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:nz)))
-
-c     print *,' zzz3'
+          if(mtosigmaonly()) then
+             ndimsig2= nmto
+          else
+             ndimsig2 = nz
+          endif   
+          ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntq)
+     &    ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:ndimsig2)))
 
 c     - write SE_ij-Vxc_ij where ij are basis function indices
-          do itp=1,nz
-            do itpp=1,nz
+          do itp=1,ndimsig2
+            do itpp=1,ndimsig2
               if( abs(ev_se_ev(itpp,itp) - dconjg(ev_se_ev(itp,itpp)) )
      &                 .gt. 1d-8  ) then
                 print *,itp,itpp
@@ -672,65 +691,35 @@ c     &    (2d0*ev_se_ev(1:nhq,1:nhq)-v_xc(1:nhq,1:nhq,ikpx,is)) !in rydberg
 c     endif
 
           sigmv(:,:,ip) = 1d20
-          sigmv(1:nz,1:nz,ip) =  2d0*ev_se_ev(1:nz,1:nz)
+          sigmv(1:ndimsig2,1:ndimsig2,ip) =  2d0*ev_se_ev(1:ndimsig2,1:ndimsig2)
           write(ifse_out) sigmv(:,:,ip)
 
-c     c       2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
+!!      2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
 c     endif !mixing_factor
 
-c--   check diagonal elements (SE-Vxc)_nn, where n is band index
-          allocate(sen(nhq,nhq),sen2(nhq,nhq),evec0(nhq,nhq))
-          evec0(1:nz,1:nz)=evec(1:nz,1:nz,ikpx,is)
-          do itp =1,nz
-            do itpp=1,nz
-              sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
-c     takao
-c     if(isigma_en==5) then
-c     sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
-c     else
-c     sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree  -
-c     &      v_xc(itpp,itp,ikpx,is)*rydberg()
-c     endif
-c     sen(itpp,itp)=ev_se_ev(itpp,itp)*hartree
-c     !v_xc is from sugw.f and was defined there in rydbergs
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-            enddo
-          enddo
-          call zgemm('n','n',nz,nz,nz,(1d0,0d0),sen,
-     &           nhq,evec0,nhq,(0d0,0d0), sen2 ,nhq)
-          call zgemm('c','n',nz,nz,nz,(1d0,0d0),evec0,
-     &           nhq,sen2,nhq,(0d0,0d0), sen ,nhq)
-          do i=1,ntq
-            del=abs(rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)-
-     &              sen(i,i))
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     takao
-c
-c            write(*,*)'S1nn=',rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)
-c            write(*,*)'S2nn=',dreal(sen(i,i)),dimag(sen(i,i))
-c            write(*,*)
-c
-c     write(*,*)'Se  =',dreal(se(i,i,ip))*hartree
-c     &                    ,dimag(se(i,i,ip))*hartree
-c     &     ,sen(i,i)/(rsec(i,ip)+sex(i,ip)+sexcore(i,ip))
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccc
-c     if (del .gt. 1d-8) then
-c     write(*,*)'n=',i,'ip=', ip
-c     write(*,*)'S1nn=',rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)
-c     write(*,*)'S2nn=',sen(i,i)
-c     print *,' S1nn/=S2nn'
-c     takao
-c     stop 'hqpe: S1nn/=S2nn'
-c     endif
-          enddo               !i
-          deallocate(sen,sen2,evec0)
-c--   end check diagonal elements
+c$$$c--   check diagonal elements (SE-Vxc)_nn, where n is band index
+c$$$          allocate(sen(nhq,nhq),sen2(nhq,nhq),evec0(nhq,nhq))
+c$$$          evec0(1:ndimsig,1:ndimsig)=evec(1:ndimsig,1:ndimsig,ikpx,is)
+c$$$          do itp =1,ndimsig
+c$$$            do itpp=1,ndimsig
+c$$$              sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
+c$$$            enddo
+c$$$          enddo
+c$$$          call zgemm('n','n',ndimsig,ndimsig,ndimsig,(1d0,0d0),sen,
+c$$$     &           nhq,evec0,nhq,(0d0,0d0), sen2 ,nhq)
+c$$$          call zgemm('c','n',ndimsig,ndimsig,ndimsig,(1d0,0d0),evec0,
+c$$$     &           nhq,sen2,nhq,(0d0,0d0), sen ,nhq)
+c$$$          do i=1,ntq
+c$$$            del=abs(rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)-
+c$$$     &              sen(i,i))
+c$$$          enddo               !i
+c$$$          deallocate(sen,sen2,evec0)
+c$$$c--   end check diagonal elements
         enddo                  !ip
+        write(6,*)
+        write(6,*)
 
-        write(6,*)
-        write(6,*)
-c     - ANFcond case  ---------------------------------
+!!     - ANFcond case. We will make this an independent program ---
         if(laf) then
           print *, ' Find ANFcond --- Call anfsig.'
           ildima = 211
@@ -794,10 +783,10 @@ c     goto 101
 c     endif
 c     enddo !ikp
             sigmv(:,:,ip)=1d20
-            call anfsig( natom, ldima, pos, nz,
+            call anfsig( natom, ldima, pos, ndimsig2,
      i              qx(1:3,1,ip),           
      i              anfvec, ibasf, ! these are antiferro informations.
-     i              sigmv(1:nz,1:nz,ip)) ! i/o
+     i              sigmv(1:ndimsig2,1:ndimsig2,ip)) ! i/o
             write(ifse_out) qx(1:3,1,ip),eseavr(ip,is) !june2009 add eseavr
             write(ifse_out) sigmv(:,:,ip)
           enddo
@@ -853,12 +842,12 @@ c-----------------------------------------------------------------
 C     --- mixing sigma -------------------------------------
 C     ... Once readin sigma
       open(UNIT=ifse_out, file='sigm',form='UNFORMATTED')
-      allocate(sigma_m(nhq,nhq,nq,nspin),qqqx_m(3,nq,nspin))
+      allocate(sigma_m(ndimsig,ndimsig,nq,nspin),qqqx_m(3,nq,nspin))
       print *,"========= Sigma mixing section using mixsigma ======="
-      call rwsigma (ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq,eseavr_in)
+      call rwsigma (ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq,eseavr_in)
 C     print *,"==== Have read sigm and goto mixsigma ===="
 C     MvS Feb 04 Allocate sigin if not already done so
-      if (lsigin .and. nhqin .ne. nhq) then
+      if (lsigin .and. ndimsigin .ne. ndimsig) then
         deallocate(sigin)
         print *, '... input sigma dimension mismatch ... discarding'
         lsigin = .false.
@@ -867,18 +856,18 @@ C     MvS Feb 04 Allocate sigin if not already done so
         allocate(sigin(1,1,1,1))
         sigin = 0d0
       endif
-      call mixsigma(sigma_m, lsigin, sigin, 2*nhq**2*nq*nspin)
+      call mixsigma(sigma_m, lsigin, sigin, 2*ndimsig**2*nq*nspin)
 
 C     ... write sigm Binary format ---------------------------------------
       write(6,*)
       write(6,*) "=== Write sigma to files (Binary and ASCII) ========"
       rewind ifse_out
-      call rwsigma (-ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq,eseavr)
+      call rwsigma (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq,eseavr)
       close(ifse_out)
 
 C     ... Write sigma ASCII format ---------------------------------------
       open(UNIT=ifse_out, file='sigma')
-      call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq,eseavr)
+      call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq,eseavr)
       close(ifse_out)
  9999 stop ' OK! hqpe_sc '
       end

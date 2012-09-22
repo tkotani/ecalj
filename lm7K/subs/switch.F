@@ -1,4 +1,4 @@
-      logical function mtosigmaonly()
+      logical function mtosigmaonly() !this is also in fpgw/gwsrc/switches.
       mtosigmaonly=.true.
       end
       real(8) function epsnevec()

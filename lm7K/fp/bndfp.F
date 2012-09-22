@@ -1330,12 +1330,8 @@ c        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
                   !qsfz is for test
 c       deallocate(sfz)
         call fclose(ifi)
-        print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp',nk1,nk2,nk3,ndham,nsp
-
-c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1))!,sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+        print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
 c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
-        print *,' sumcheck sfz up-down=',sum( sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls

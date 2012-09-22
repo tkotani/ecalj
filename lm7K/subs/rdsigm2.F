@@ -1447,7 +1447,7 @@ Changenglob          nl = nglob('nl')
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
           do  iq1 = 1, nqps
             read(ifis) qp !,  eseavr !june2009  add eseavr
-            print *,'readin sigm qp isp=',qp,isp
+            print *,'readin sigm qp isp ndimsig_r=',qp,isp,ndimsig_r
 
             if(debugmode()>0) print *,' uuu2 iq1=',iq1 !,eseavr
             call dpscop(qp,tmp,3,1,1,1d0)
@@ -1514,6 +1514,7 @@ c      endif ! exit of MPI master loop
       if (allocated(ipq_iv)) deallocate(ipq_iv)
       if (allocated(qp_rv)) deallocate(qp_rv)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
+      print *,'xxxxxxx end rdsigm2 xxxx'
       end subroutine rdsigm2
 
 

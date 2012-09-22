@@ -895,7 +895,7 @@ C   --- vxc <- LDA vxc ---
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
           if (lwvxc) then
             write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
-            write(ifiv) ndimh
+            write(ifiv) ndimh, ldim,qp !Add ldim sep2012
             write(ifiv) q,vxc
           endif
 
