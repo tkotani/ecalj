@@ -234,7 +234,7 @@ c      common /w/ w
       complex(8),allocatable:: evecout(:,:),evecr(:,:)
       real(8),allocatable:: qzz(:,:)
       integer,allocatable:: igv2(:,:)
-      logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode,noshorbz
+      logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
 
       integer(4):: nk1,nk2,nk3,   irr,nqi, nmcore !feb2012takao
       complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
@@ -800,16 +800,17 @@ c        read (ifiqgc) ngvecc
 
  1021   continue
 
-        if(.not.noshorbz()) then
-          call shorbz(q,qp,qlat,plat)
-        else
-           qp=q
-        endif
+c$$$        if(.not.noshorbz()) then
+c$$$          call shorbz(q,qp,qlat,plat)
+c$$$        else
+c$$$           qp=q
+c$$$        endif
+        qp=q
 
-        if(ipr > 41) then
-          write(stdo,*)
-          write(stdo,"(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)") iq,q,qp
-        endif
+c$$$        if(ipr > 41) then
+c$$$          write(stdo,*)
+c$$$          write(stdo,"(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)") iq,q,qp
+c$$$        endif
 
 
 ccccccccccccccccccc
@@ -1038,12 +1039,12 @@ c                call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,i
                 enddo
                 rewind 1012
 
-                if(.not.noshorbz()) then
-                  call shorbz(qtarget,qxxx,qlat,plat)
-                else
-                  qxxx=qtarget
-                endif
-
+c$$$                if(.not.noshorbz()) then
+c$$$                  call shorbz(qtarget,qxxx,qlat,plat)
+c$$$                else
+c$$$                  qxxx=qtarget
+c$$$                endif
+                qxxx=qtarget
                 write(1013,"(i10)") 11111
                 write(1013,"(3f8.3,i10)") qtarget,ndimh
 c           write(1013,"(i10,3f8.3,i10)") 11111,qout,ndimh

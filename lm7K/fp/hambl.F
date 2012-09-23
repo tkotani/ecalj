@@ -95,11 +95,12 @@ C ----------------------------------------------------------------------
 
 !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
       qlatinv = transpose(plat)
-      call shorbz(qin,q,plat,qlat)
+      call shorbz(qin,q,qlat,plat)
       call rtoint(matmul(qlatinv,qin-q),inn,3)
       do ig=1,napw
         igvapw(:,ig) = inn + igvapwin(:,ig)
       enddo  
+
 
 C ... Initialization of quantities to be computed
       if (mode0 .eq. 0) call dpzero(h,ndimh*ndimh*2)

@@ -867,15 +867,12 @@ tail = tail + "     XCFUN=" + xcfun_val + """
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=11 # 0: MTO basis only (LMTO) PW basis is not used.
-                # 1: APW+MTO        (PMT)
-                # 2: APW basis only (LAPW) MTO basis is not used.
+      PWMODE=11 # 0:  MTO basis only (LMTO)
+                # 11: APW+MTO        (PMT)
+                # 12: APW basis only (LAPW)
                 #
-                # ===  +10 means q-dependent number of APW, that is, ===
-                # 11: PMT   
-                # 12: LAPW: 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
-                      # about overcompleteness. See GetStarted.
+                      # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
 """
 if (False): #systype_val.upper()=="BULK") :
 	tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.

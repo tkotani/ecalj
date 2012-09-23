@@ -959,7 +959,7 @@ c$$$ccccccccccccccccccc
 !! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
 !! ---
 !! NOTE: in future, we will further extend irkip for itp and itpp
-c$$$      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+          allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
 c$$$      allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
 c$$$      nrkip_all=0
           is=1

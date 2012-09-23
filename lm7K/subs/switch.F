@@ -80,12 +80,14 @@ c      logical function nomshsiz()
 c      nomshsiz=.true.
 c      end
 
-      logical function noshorbz()
-!! shorbz is confusing (pull back k vector to 1st BZ). Especially, in the case of PMT, where we use exp(i (q+G)r).
-!! It is better to use different algolism in future if required.
-      noshorbz=.false. 
-c      noshorbz=.true. <--- i think this is better in future.
-      end
+
+!! we now use 'noshorbz=T' mode. (exactly speaking, shorbz is now embedded in hamble.F.)
+c$$$      logical function noshorbz()
+c$$$!! shorbz is confusing (pull back k vector to 1st BZ). Especially, in the case of PMT, where we use exp(i (q+G)r).
+c$$$!! It is better to use different algolism in future if required.
+c$$$c      noshorbz=.false. 
+c$$$      noshorbz=.true. !<--- i think this is better in future.
+c$$$      end
 
       integer function matmul_pwhovl()
 c switch used in gwd/pwmat.F

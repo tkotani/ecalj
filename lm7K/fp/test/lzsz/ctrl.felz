@@ -1,7 +1,6 @@
 HEADER  Fe test spin pol, f-orbitals for cls and mull
 TESTSZ  lmfa -vrel=1 -vnit=1 -vso=0 felz
-        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1
-        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 -voveps=1e-7
+        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=11
         rm -f mixm.felz
         lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz
 #         mpix -np=9 lmf-MPIK -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1
@@ -41,7 +40,7 @@ EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
 # for version 7
 ITER    MIX=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc NIT=nit
 MIX     MODE=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc
-% const pwmode=0 pwemin=1 pwemax=3 oveps=0
+% const pwmode=0 pwemin=0 pwemax=3 
 HAM     OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 GMAX=gmax
-        PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
+        PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} 
 START   NIT=nit

@@ -393,9 +393,9 @@ ctakao
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
-      logical:: noshorbz,siginit,bzwtsf_bisection
+      logical:: siginit,bzwtsf_bisection !noshorbz,
       real(8),allocatable:: qplist(:,:)
-      real(8):: qpo(3),qpx(3)
+      real(8):: qpx(3) !qpo(3),
 
       integer:: iqini,iqend
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
@@ -1511,8 +1511,8 @@ C   ... Loop over majority, minority spins
 C       In the SO case, still a loop isp=1..2
 C       isp=1 generates just the 11 block
         if(debug) print *,'goto spin loop nsp=',nsp
-        qpo=qp !moved here on mar2012 only for band plot
-        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
+c$$$        qpo=qp !moved here on mar2012 only for band plot
+c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
 
         do  isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
@@ -2219,7 +2219,7 @@ c          call suqlsw(nevl,jsp,i,evl(1,jsp))
 c              call suqlsw2(nevl,jsp,i,evl(1,jsp),qpo) !takao
 c              print *,'zzzzzzzzz2aaaaaa1',jsp,i,qpo
 c              print *,'zzzzzzzzz2aaaaaa2',evl(1:nevl,jsp)
-              call suqlsw2(nevl,jsp,i,evl(1,jsp),qpo) !takao
+              call suqlsw2(nevl,jsp,i,evl(1,jsp),qp) !takao
 c              print *,'zzzzzzzzz2'
               if (nfbn(1) .ne. 0) then
                 if (ndimhx .ne. nevl)
@@ -2486,9 +2486,9 @@ C     Repeat loop for printout.  Put evals back into local array
 !        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
         qp=qplist(:,iq)
 
-        if(.not.noshorbz()) then
-          call shorbz(qp,qp,qlat,plat)
-        endif
+c$$$        if(.not.noshorbz()) then
+c$$$          call shorbz(qp,qp,qlat,plat)
+c$$$        endif
         do  isp = 1, nsp
           ispc = min(isp,nspc)
 C       jsp=isp in the collinear case; jsp=1 in the noncollinear
