@@ -348,11 +348,8 @@ C ... Passed parameters
       integer mode,nbas,isp,ispc,k1,k2,k3,lcplxp,ndimh,nqsig,lso,ismidb
       integer napw,igvapw(3,napw)
       type(s_rv1) :: sv_p_oppi(3,nbas)
-
       type(s_rv1) :: sv_p_otau(3,nbas)
-
       type(s_rv1) :: sv_p_osig(3,nbas)
-
       double precision qsig(3,nqsig),alfa
       real(8):: q(3) , vconst
       type(s_site)::ssite(*)
@@ -368,16 +365,6 @@ C ... Local parameters
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
-ckino Dec.9.2011:             integer,pointer :: iv_p_ontabs(:) =>NULL()
-
-ckino Dec.9.2011:            integer,pointer :: iv_p_oiaxs(:) =>NULL()
-
-ckino Dec.9.2011:           real(8),pointer :: rv_p_ohrs(:) =>NULL()
-
-ckino Dec.9.2011:          integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
-ckino Dec.9.2011:         integer,pointer :: iv_p_ooffh(:) =>NULL()
-
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
       integer hreal,nl,nglob,mxorb,nttabs,ival,nsp,ndhrs,nsim,moditp,
      .mxitrp,n123(4),off1,nspc,ndimhx,lwsig
@@ -425,9 +412,7 @@ C --- LDA hamiltonian ---
       ismidb = 0
 Ckino isanrg is logical function,       call isanrg(lwsig,0,5,'hambls:','lwsig',T)
       l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
-ccccccccccccccccc
       if(debug) print *, ' mode napw lwsig',mode,napw,lwsig
-cccccccccccccc
 C ... Store LDA eigenvectors, eigenvalues in s and h and exit
       if (lwsig .eq. 1) then
         allocate(zqi(ndimh,ndimh))
