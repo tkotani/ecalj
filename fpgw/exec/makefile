@@ -14,6 +14,7 @@ nfpsrc  = ../nfpsrc/
 slatsmlib  = ../slatsmlib/
 tote = ../tote/
 maxloc = ../Miyake/maxloc/
+srcshare = ../../srcshare/
 # tag directory
 tags   = ../
 
@@ -451,7 +452,7 @@ eout2: $(EO2)
 
  GW0 = \
  $(gwsrc)MPI_fpgw.o \
- $(gwsrc)m_hamindex.o\
+ $(srcshare)m_hamindex.o\
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
  $(gwsrc)rppovl.o \

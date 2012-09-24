@@ -193,6 +193,18 @@ c     integer:: nbmx
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
       integer:: irank,nrank
 
+!!
+      integer,allocatable:: nrkip_all(:,:,:,:)
+      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+      integer:: iqxend,iqxini
+      integer:: l2nl,igrp,kx,kr
+      logical :: iprintx,tiii,timereversal, eibz4sig
+
+      integer:: ifevec,ifvxc,nsym,ne,nhdim,it,nblk,iband,iblk,napw,ldim,ii,ie,ierr
+      integer,allocatable::iblki(:),iblke(:)
+      complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:)
+      real(8),allocatable::evaliq(:)
+      real(8)::tolry=1d-4,qqqx(3),qtarget(3)
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -943,26 +955,82 @@ c-------------------------------------
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
 
+
 c-----------------------------------------------------------
 c     calculate the the self-energy SEx(ip) or SEc(ip)
 c-----------------------------------------------------------
+!! EIBZ symmetrization
+      if(eibz4sig()) then
+        allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq),igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
+         iprintx=.false.
+         write(6,"('TimeRevesal switch = ',l1)") timereversal()
+         iqxini=1
+         iqxend=nq
+         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
+     o   nwgt,igx,igxt,eibzsym)
+!! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
+!! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
+        tiii=timereversal() 
+        if(minval(igxt)==1) tiii=.false.
+        iprintx=.true.
+cccccccccccccccccccc
+        tiii=.false. !time reversal not yet...
+        print *,' NOTE:Time reversal is not yet implemented for EIBZ'
+cccccccccccccccccccc
+        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+        call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
+     o    nwgt,igx,igxt,eibzsym)
+c        call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
+            ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+c        call readqgcou() !no input. Read QGcou and store date into variables.
+c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+      endif
 
 !! == irkip control paralellization  ==
-!! We have to distribute non-zero irkip_all into processes (nrank).
-!! When irkip_all(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
+!! We have to distribute non-zero irkip into processes (nrank).
+!! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
 !! for each job of (iqibz,igrp,iq,isp) is almost the same.
 !! Our pupose is to calculate zsec(itp,itpp,iq).
 !! Thus we need to set up communicator (grouping) MPI_COMM_iqisp(iq,isp) to do all_reduce.
 !! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
 !! ---
 !! NOTE: in future, we will further extend irkip for itp and itpp
-      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
-      do is = 1,nspinmx
+      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+      allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+      nrkip_all=0
+          is=1
+          do iqq=1,nq
+            irkip_all(is,:,:,iqq)=irk
+        do kx=1,nqibz
+        do igrp=1,ngrp
+          kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+          if(nwgt(kr,iqq)==0) then
+             irkip_all(is,kx,igrp,iqq)= 0 !skip. EIBZ is only for nwgt/=0
+          else
+             nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
+          endif   
+        enddo
+        enddo
+      enddo  
       do iqq=1,nq
-        irkip_all(is,:,:,iqq)=irk
-      enddo
-      enddo
-
+        print *,'xxxxxxxxxxxxxxxxxxxxxxxx hsfp0_sc xxxxxxxxxxxxxxxxxxxxxxxxx'
+        write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iqq,
+     &     sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
+        write(6,"('eibz: iqq neibz nqbz= ',i3,3f11.5,3i3)") iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
+        do kx=1,nqibz
+        do igrp=1,ngrp
+           kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+           if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") kr, qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
+     &       ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
+        enddo
+        enddo
+        print *,' probably partical group symmetrization is enough'
+      enddo  
+      if(nspinmx==2) then
+         irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
+         nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
+      endif   
+!!
       nrank=1 !total number of rank
       irank=0 !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
@@ -1197,6 +1265,83 @@ c     end do
 c     end do
         endif                  !ixc
  2000 continue                  !end of spin-loop
+
+
+!! --- symmetrize zsec for eibz4sig mode -----------------
+!!       zsec(itp,ip) rotation.
+!! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
+c      allocate( zsect(iwini:iwend,ntq,nq))
+      ifevec=3008
+      ifvxc =3009
+      open(UNIT=ifevec,file='evec',form='UNFORMATTED',status='OLD')
+      open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
+      read(ifvxc)
+      read(ifevec)
+      allocate(evaliq(nband))
+      do 3020 iq=1,nq
+      do 3030 is=1,nspinmx
+c        zsect = 0d0
+        read(ifvxc) nhdim,ldim
+        read(ifvxc)  
+         print *,'iq is=',iq,is,nhdim,ldim
+        allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
+        read(ifevec) qqqx(1:3), evec(1:nhdim,1:nhdim)
+        if(sum(abs(qqqx-q(:,iq)))>1d-8) stop 'hsfp0:qqqx/=q' 
+        if(tiii) stop 'timereversal is not yet implemented'
+        call readeval(q(:,iq), is, evaliq)
+        evec_inv = evec
+        call matcinv(nhdim,evec_inv)
+        nsym = sum(eibzsym(:,:,iq))
+        do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
+        do igrp=1,ngrp           !A-rotator
+          if( eibzsym(igrp,it,iq)/=1) cycle
+          print *,' igrp in nsym=',igrp,nsym
+          !evecout= symgg(ig)*evec
+          !  degeneracy check for eigenvalue for evec. block rotation!
+!! degeneracy devider for evaliq
+          allocate(iblki(nband),iblke(nband))
+          nblk=0
+          iblki(1)=1
+          tolry=1d-4 !degeneracy tol. if tolry is large, it is inefficient (but not to be wrong.)
+          do iband=2,nband
+            if(evaliq(iband) > evaliq(iband-1)+tolry ) then
+              nblk=nblk+1
+              if(nblk>=2) iblki(nblk)=iblke(nblk-1)+1
+              iblke(nblk)=iband-1
+            endif
+          enddo
+c          do iblk=1,nblk  
+c            ii=iblki(iblk)
+c            ie=iblke(iblk) 
+c            write(6,"(' eval block iblk ini iend= ',3i3,25f9.4)") iblk,iblki(iblk),iblke(iblk),evaliq(ii:ie)
+c          enddo  
+          do iblk=1,nblk  
+!! block rotation evec(:,iblock) at qp (note G-index igv2x) ---> evecrot(:,iblock) by symgg(ig)
+c            print *,' eval block iblk ini end=',iblk,iblki(iblk),iblke(iblk)
+            qtarget=q(:,iq)
+            napw=nhdim-ldim
+            ii=iblki(iblk)
+            ie=iblke(iblk) 
+            ne=ie-ii+1
+            allocate(rmatjj(ne,ne))
+c            print *,'--- goto rotwvigg iq igrp q ---',iq,igrp,q(:,iq)
+            call rotwvigg(igrp,q(:,iq),q(:,iq),nhdim,napw,ne,evec(:,ii:ie),evecrot(:,ii:ie),ierr )
+c            print *,'end rotwvigg ---'
+            rmatjj = matmul(evec_inv(ii:ie,:),evecrot(:,ii:ie))
+c            zsect(ii:ie,ii:ie) =  zsect(ii:ie,ii:ie) + matmul(dconjg(transpose(rmat), matmul(zsec(ii:ie,ii:ie),rmat))
+            deallocate(rmatjj)
+          enddo
+          deallocate(iblki,iblke)
+        enddo
+        enddo
+        deallocate(evec, evec_inv, evecrot)
+ 3030  continue
+ 3020 continue
+      deallocate(evaliq)
+c       zsec = zsect/dble(nsym)
+c      stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 c------------
 c     close files
