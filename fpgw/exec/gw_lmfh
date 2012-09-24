@@ -47,6 +47,8 @@ if(-e QPD) then
  echo "QPD is moved to QPD.old"
 endif
      
+ln -s -f vxc.$argv[1]  v_xc
+ln -s -f evec.$argv[1] evec
 
 ############## preparatoy gw stage ################
 echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00

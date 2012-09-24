@@ -1138,21 +1138,22 @@ C         Old convention: call pwmat
 c          if (mod(loldpw,2) .eq. 0) then
               allocate(phovl(ngp,ndimh))
 
-!!  We have  q+G(igvx; internal in pwmat) = qp + G(igv2)
+!!  We have  q+G(igvx; internal in pwmat) = qp + G(igv2)  
 !!  Thus, we have
 !!           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
 !!            inn = qlatinv*(qp-q)
-              call dinv33(qlat,0,qlatinv,dum)
-              call rtoint(matmul(qlatinv,qp-q),inn,3)
+!!!! NOTE: from 20Sep2012, we set qp=q (shorbz is in hambl.F. In other words, q supplied to hambl
+!!!! do not need to be short enough).
+c              call dinv33(qlat,0,qlatinv,dum)
+c              call rtoint(matmul(qlatinv,qp-q),inn,3)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
-
-              call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,
-ckino Dec.14.2011:       .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn
-ckino Dec.27.2011:       .         igv2 , sham%iv_p_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
-     .         igv2 , sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn 
-     .         , ppovl , phovl )
-
+              if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
+              inn=0
+!!
+              call pwmat ( slat , ssite , sspec , nbas , ndimh , napw,
+     .          igv2, sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
+     .          ppovl, phovl )
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
               if(debug) print *,'sss: phovl=',sum(abs(phovl))
               if(debug) print *,'sss: evec =',sum(abs(evec))

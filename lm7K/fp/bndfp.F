@@ -13,8 +13,8 @@
      .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, !evl,
      . frc,
      .dmatu,vorb,llmfgw)
-      use m_hamindex, only: napwmx,ngrp,norbt,ibastab,ltab,ktab,offl
-c     &  ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
+      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl
+c     &  ngrp, norbmto, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
 c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
       use m_globalvariables, only: globalvariables
@@ -1272,7 +1272,7 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         write(6,*)
         write(6,*) ' --- Hamiltonian index ---'
         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-        do  iorb = 1, norbt
+        do  iorb = 1, norbmto
           ib = ibastab(iorb)
 
           is=ssite(ib)%spec
