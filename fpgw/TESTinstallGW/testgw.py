@@ -279,7 +279,7 @@ if failed!='':
 	print '=== Failed test cases are ==='
 	print failed
 else:
-	print '=== OK! All test below are passed ==='
+	print '=== OK! All test below are passed (if nothing shown, no test done. Wrong args?)==='
 	print success
 	
 sys.exit()
