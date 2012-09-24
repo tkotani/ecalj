@@ -158,16 +158,11 @@ c     logical :: imgonly=.false.
 !! newaniso mode
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
-      logical:: newaniso, eibz4sig
+      logical:: newaniso
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
+      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
       integer:: irank,nrank
-!!
-      integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:),nrkip_all(:,:,:,:)
-      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-      integer:: iqxend,iqxini
-      integer:: l2nl,igrp,kx,kr
-      logical :: iprintx,tiii,timereversal
 
 C...  mode switch. --------------
       if(cohtest) then
@@ -637,6 +632,7 @@ c     endif
 c     ifcphi  = iopen('CPHI',0,0,mrecb)
 
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+!Note that nlmto is the size of @MNLA_CPHI.
 
 c     the coulomb matrix for exchange.
       if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
@@ -917,148 +913,26 @@ c     write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
         allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
       endif
 
-
 c-----------------------------------------------------------
 c     calculate the the self-energy SEx(ip) or SEc(ip)
 c-----------------------------------------------------------
-c$$$!! EIBZ symmetrization
-c$$$      if(eibz4sig()) then
-c$$$        allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq),igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
-c$$$         iprintx=.false.
-c$$$         write(6,"('TimeRevesal switch = ',l1)") timereversal()
-c$$$         iqxini=1
-c$$$         iqxend=nq
-c$$$         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
-c$$$     o   nwgt,igx,igxt,eibzsym)
-c$$$!! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
-c$$$!! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-c$$$        tiii=timereversal() 
-c$$$        if(minval(igxt)==1) tiii=.false.
-c$$$        iprintx=.true.
-c$$$cccccccccccccccccccc
-c$$$        tiii=.false. !time reversal not yet...
-c$$$        print *,' NOTE:Time reversal is not yet implemented for EIBZ'
-c$$$cccccccccccccccccccc
-c$$$        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
-c$$$        call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
-c$$$     o    nwgt,igx,igxt,eibzsym)
-c$$$c        call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
-c$$$            ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
-c$$$c        call readqgcou() !no input. Read QGcou and store date into variables.
-c$$$c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
-c$$$      endif
-c$$$ccccccccccccccccccc
-
-
 !! == irkip control paralellization  ==
-!! We have to distribute non-zero irkip into processes (nrank).
-!! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
+!! We have to distribute non-zero irkip_all into processes (nrank).
+!! When irkip_all(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
 !! for each job of (iqibz,igrp,iq,isp) is almost the same.
 !! Our pupose is to calculate zsec(itp,itpp,iq).
 !! Thus we need to set up communicator (grouping) MPI_COMM_iqisp(iq,isp) to do all_reduce.
 !! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
 !! ---
 !! NOTE: in future, we will further extend irkip for itp and itpp
-          allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
-c$$$      allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
-c$$$      nrkip_all=0
-          is=1
-          do iqq=1,nq
-            irkip_all(is,:,:,iqq)=irk
-c$$$        do kx=1,nqibz
-c$$$        do igrp=1,ngrp
-c$$$          kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
-c$$$          if(nwgt(kr,iqq)==0) then
-c$$$             irkip_all(is,kx,igrp,iqq)= 0 !skip. EIBZ is only for nwgt/=0
-c$$$          else
-c$$$             nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
-c$$$          endif   
-c$$$        enddo
-c$$$        enddo
-          enddo  
-c$$$      do iqq=1,nq
-c$$$        print *,'xxxxxxxxxxxxxxxxxxxxxxxx hsfp0 xxxxxxxxxxxxxx'
-c$$$        write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iqq,
-c$$$     &     sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
-c$$$        write(6,"('eibz: iqq neibz nqbz= ',i3,3f11.5,3i3)") iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
-c$$$        do kx=1,nqibz
-c$$$        do igrp=1,ngrp
-c$$$           kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
-c$$$           if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") kr, qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
-c$$$     &       ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
-c$$$        enddo
-c$$$        enddo
-c$$$        print *,' probably partical group symmetrization is enough'
-c$$$      enddo  
-      if(nspinmx==2) then
-         irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
-c$$$         nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
-      endif   
-c$$$!! symmetrize zsec for eibz4sig mode-----------------
-c$$$!!       zsec(itp,ip) rotation.
-c$$$!!    
-c$$$      open(UNIT=3008,file='evec',form='UNFORMATTED',status='OLD')
-c$$$      open(UNIT=3009,file='vxc' ,form='UNFORMATTED',status='OLD')
-c$$$      ifevec=3008
-c$$$      ifvxc =3009
-c$$$      read(ifvxc)
-c$$$      read(ifevec)
-c$$$      allocate(eqt(nband))
-c$$$      do iq=1,nq
-c$$$      do isp=1,nspinmx
-c$$$        zsect=0d0
-c$$$        read(ifvxc)  nz,nlmto,qp !qp is shortened
-c$$$        read(ifvxc)  
-c$$$        read(ifevec) qqqx(1:3), evec(1:nz,1:nz)
-c$$$        if(sum(abs(qqqx-q(:,ip))) !note qqqx is un-shortened.
-c$$$        if(tiii) stop 'timereversal is not yet implemented'
-c$$$        call readeval(q(:,ip), isp, eval)
-c$$$        allocate( evec_inv(nz,nz) ,evec_invt(nz,nz))
-c$$$        evec_inv(1:nz,1:nz)=evec(1:nz,1:nz,ikpx,is)
-c$$$        call zgetrf(nz,nz,evec_inv,nz,ipiv,info)  !nhq is leading dimension of evec_inv
-c$$$        if (info /= 0)  stop 'hqpe: zgetrf info/=0'
-c$$$        call zgetri(nz,evec_inv,nz,ipiv,work,nhq**2,info)
-c$$$        if (info /= 0)  stop 'hqpe: zgetri info/=0'
-c$$$        evec_invt=tranpose(evec_inv)
-c$$$        nsym = sum(eibzsym(:,:,iq))
-c$$$        do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
-c$$$        do igrp=1,ngrp           !A-rotator
-c$$$          if( eibzsym(igrp,it,iq)/=1) cycle
-c$$$          !evecout= symgg(ig)*evec
-c$$$          !       
-c$$$          !degeneracy check for eigenvalue for evec. block rotation!
-c$$$!! degeneracy devider for t
-c$$$          allocate(iblki(nband),iblke(nband))
-c$$$          nblk=0
-c$$$          iblki(1)=1
-c$$$          tolry=1d-4 !degeneracy check. if this is large, it becomes inefficient (but not to be wrong.)
-c$$$          do iband=2,nband
-c$$$            if(eqt(iband) > eqt(iband-1)+tolry ) then
-c$$$              nblk=nblk+1
-c$$$              if(nblk>=2) iblki(nblk)=iblke(nlbk-1)+1
-c$$$              iblke(nblk)=iband
-c$$$            endif
-c$$$          enddo
-c$$$          do iblk=1,nblk  
-c$$$
-c$$$  xxx  block rotation evec(:,iblock) at qp (note G-index igv2x) ---> evecrot(:,iblock) by symgg(ig)
-c$$$
-c$$$            ii=iblki(iblk)
-c$$$            ie=iblke(iblk) 
-c$$$            ne=ie-ii-1
-c$$$            allocate(rmat(ne,ne))
-c$$$            rmat = sum(evec_invt(ii:ie,:)*evecrot(:,ii:ie))
-c$$$            zsect(ii:ie,ii:ie) =  zsect(ii:ie,ii:ie) + matmul(dconjg(transpose(rmat), matmul(zsec(ii:ie,ii:ie),rmat))
-c$$$          enddo
-c$$$       enddo
-c$$$       enddo
-c$$$       zsec = zsect/dble(nsym)
-c$$$       stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
-c$$$
-
-
+      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
+      do is = 1,nspinmx
+      do iqq=1,nq
+        irkip_all(is,:,:,iqq)=irk
+      enddo
+      enddo
     
-!! == job devider for MPI ==
+!! == job divider for MPI ==
       nrank=1 !total number of rank
       irank=0 !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
@@ -1105,15 +979,12 @@ c     loop over spin ----------------------------------------------------
      &           In(Sc) 3-points (in eV)     
      &           Zfactor'
         endif
-
 c     initialise secq and kount
         zsec  = 0d0
         coh   = 0d0
         kount = 0
-c
 !make dummy SEXcore
         if(ixc==3.and.nctot==0) goto 2001
-
 c$$$        do 1001 ip = 1,nq   
 c$$$            write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
 c$$$            if(ixc==2) then
@@ -1126,14 +997,12 @@ c$$$                  omega(i,iw) = eq(itq(i)) + 2d0*(dble(iw)-shtw)*deltaw
 c$$$                enddo
 c$$$              enddo
 c$$$            endif
-
 c            if(nctot==0) then
 c              deallocate(ecore)
 c              allocate(ecore(1,2)) !this is dummry
 c            endif
-
+c           call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
             print *,'### goto sxcf_fal3z ### '
-c            call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
             call sxcf_fal3z (kount, ixc,deltaw,shtw,q,itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat,miat, nspin,is, 
 c     i              ifrcw,ifrcwi,
@@ -1156,20 +1025,12 @@ c     i              ifrcw,ifrcwi,
      i   wklm,lxklm, !mar2012
      i  invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      o  zsec,coh,exx) ! acuumulation variable
+
         print *,'### end of sxcf_fal3z ### '
 c 1001   continue         !end of q-loop
-
-
-c     check that all k { FBZ have been included
-c     if (ivsum(kount,nqibz*nq) /= nqbz*nq) then
-c     iii = ivsum(kount,nqibz*nq)
-c     print *," ivsum=",iii, nqbz*nq
-c     stop 'hsfp0: missing k-pts'
-c     endif
-
 c---------------------------------
 c     electron gas bare exchange (exact)
-        if (legas.and.exchange.and.(.not.tote)) then
+         if (legas.and.exchange.and.(.not.tote)) then
           efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
           pi         = 4.d0*datan(1.d0)
           tpia       = 2.d0*pi/alat
@@ -1200,10 +1061,9 @@ ccc   write (6,6600) qreal(1),qreal(2),qreal(3),xsex
 ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
             write (663,"(2f14.6)") qm/qfermi, qfermi
           end do
-        endif
-
+         endif
  2001   continue
-c---------------------------------
+
 
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
@@ -1315,6 +1175,9 @@ c     write(ifoutsec,*)
           close(ifoutsec)
         endif
  2000 continue                  !end of spin-loop
+
+
+
 
       if (tote) then
         write(ifexx,*) '======================================='

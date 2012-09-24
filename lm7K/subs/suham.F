@@ -3,9 +3,10 @@
 c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
-     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbt,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
+     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
      &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
-     &  nkt,napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
+     &  napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
+
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
@@ -16,7 +17,7 @@ C
 Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
 Cr     it is converted into clean indexing for Hamiltonian block.
 Cr As you see in subroutine rotwv, the index for Hamiltonian reads as;
-c      do iorb=1,norbt             !orbital-blocks are specified by ibas, l, and k.
+c      do iorb=1,norbmto             !orbital-blocks are specified by ibas, l, and k.
 c        ibas  = ibastab(iorb)
 c         l    = ltab(iorb)
 c         k    = ktab(iorb)        !kappa (diffent MTO index for each l)
@@ -53,7 +54,7 @@ c      real(8):: qplist(3,nkp)
 c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
-
+      integer::nkt
 #if (MPI|MPIK)
 c2012Sep02 kino, add for 
        include 'mpif.h'
@@ -73,8 +74,8 @@ c2012Sep02 kino, add for
       write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
       write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!--- MTO part ---
-!!---- obtain norbt, lxx,kxx ----
-      norbt=0
+!!---- obtain norbmto, lxx,kxx ----
+      norbmto=0
       kxx=-1
       lxx=-1
       ndimham = 0 !dimension of mto part of hamiltonian
@@ -82,7 +83,7 @@ c2012Sep02 kino, add for
         is=ssite(ib)%spec
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do iorb = 1, norb
-          norbt = norbt+1
+          norbmto = norbmto+1
           if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
           if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib)
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
@@ -90,8 +91,8 @@ c2012Sep02 kino, add for
       enddo
 !!--- make index table ---
       allocate( ibasindex(ndimham))
-      allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
-      norbt=0
+      allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
+      norbmto=0
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
         is=ssite(ib)%spec
@@ -100,21 +101,21 @@ c2012Sep02 kino, add for
         enddo
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
-          norbt=norbt+1
-          ibastab(norbt)= ib
-          ltab(norbt)   = ltabx(iorb,ib)
-          ktab(norbt)   = ktabx(iorb,ib)
-          offl(norbt)   = offlx(iorb,ib)
+          norbmto=norbmto+1
+          ibastab(norbmto)= ib
+          ltab(norbmto)   = ltabx(iorb,ib)
+          ktab(norbmto)   = ktabx(iorb,ib)
+          offl(norbmto)   = offlx(iorb,ib)
           nini = ndimham+ 1
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
           ibasindex(nini:ndimham) = ib
           write(6,"(3i3,2x,2i5,3x,a)") 
-     &    ib,ltab(norbt),ktab(norbt), offl(norbt)+1,offl(norbt)+2*ltab(norbt)+1,trim(spid)
+     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
         enddo
       enddo
 c ... reverse maping of offset-index for hamiltonian
       allocate(offlrev(nbas,0:lxx,kxx))
-      do iorb=1,norbt
+      do iorb=1,norbmto
         ibas = ibastab(iorb)
         l   = ltab(iorb)
         k   = ktab(iorb)
@@ -269,8 +270,6 @@ ccccccccccccccccccccccccccccccccccc
 c      stop 'xxxxxxxxxxxxxxxxzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccc
 
-      call writehamindex() !feb2012takao
-
 !! === rotation of APW. (not the IPW part for GW).===
 c$$$ 1012 continue
       pwmode=sham%pwmode
@@ -282,9 +281,11 @@ c     pwemin=sham%pwemin
         napwk=0
         napwmx=0
         print *,'pwmode=0 writehamindex'
+        call writehamindex() !sep2012takao
         return
       endif
 
+!! for APW rotation.
 C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       print *,' goto APW part pwmode=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
@@ -325,7 +326,6 @@ cccccccccccccccccccccccccccccccc
      .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
       enddo
       deallocate(kv)
-
 C ... Reverse table of igv2 --->igv2rev
       imx=-999
       do ikt = 1,nkt
@@ -342,8 +342,8 @@ C ... Reverse table of igv2 --->igv2rev
           !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
         enddo
       enddo
-      print *,' ---- nkt,napwmx = ',nkt,napwmx
-      call writehamindex() !feb2012takao
+      print *,' ---- nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+      call writehamindex() !sep2012takao
       end subroutine gen_hamindex
 
 
