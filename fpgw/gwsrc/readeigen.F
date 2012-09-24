@@ -627,67 +627,67 @@ c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector
      o  cphif)
       return
 
-!! Followings are not used now...  june2012
-!! We can use the followings instead of rotmto (both should give the same result).
-!! ----------
-!! Rotation  See mto part of lm7K/subs/rotwv.F
-!! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
-!! (then MTO itself is rotated. a little diffent from here).
-!! qrot= symops(igg) qtt
-      qrot=matmul(symops(:,:,igg),qtt(:,iqq)) !qrot-qtt(:,iq) is some G vector.
-      phaseq   = exp( -img2pi*sum( qrot*shtvg(:,igg)) )
-cddd
-c      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
-cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-cccccccccccccccccccccccccccccccccc
-c      print *,' xddddd1= ', sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )
-c      print *,' xddddd2= ',-sum( qrot*shtvg(:,igg))
-c      print *,' xddddd diff=   ',sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )+sum( qrot*shtvg(:,igg))
-ccccccccccccccccccccccccccccccccccc
-      ibaso=-999
-      do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
-        !Index of Hamiltonian is devided into these blocks.
-        ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) then
-          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas,igg)-shtvg(:,igg))) )
-        endif
-        ibaso=ibas
-        l   = l_tbl(iorb)
-        k   = k_tbl(iorb)
-        ini1 = offset_tbl(iorb)+1
-        iend1 = ini1+2*l
-        ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
-        iend2 = ini2+2*l
-        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))
-     &                       *phase*phaseq
-        if(debug) then
-          write(6,*)ibaso,ibas,phase
-          write(6,*)ini1,iend1,ini2,iend2
-          write(6,*)'sumd  dlmm =',igg,l,sum(abs(dlmm(-l:l,-l:l,l,igg)))
-          write(6,*)'sumcr cphifr=',l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
-          write(6,*)'sumcf cphif=',l,k,igg,sum(abs(cphif(ini2:iend2,:)))
-        endif
-      enddo
-ccccccccccccccccccccccccccccccccc
-c       write(6,"('readcphi:: xxxx sum of cphifr=',2i4,4d23.16)")ldim2_in,ldim2,
-c     &                sum(cphif(1:ldim2,1:nband)),sum(abs(cphif(1:ldim2,1:nband)))
-c       stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccc
-c      write(6,"('rrcc0:',i3,3f8.4)")iq,qu
-c      do i=1,1
-c      write(6,"('rrccb:',5(2x,2f8.4))")
-c     &  cphif(14,i)/cphif(1,i) !*abs(cphif(1,i))
-c      enddo
-c      cphif(5:13, :)=0d0
-c      cphif(14,:)=0d0
-c      cphif(18:26,:)=0d0
-
-c      cphif(1:8,:)=0d0
-c      cphif(19:26,:)=0d0
-c      cphif(1,:)=0d0
-c      cphif(19,:)=0d0
-cccccccccccccccccccccccccccccccccccc
+c$$$!! Followings are not used now...  june2012
+c$$$!! We can use the followings instead of rotmto (both should give the same result).
+c$$$!! ----------
+c$$$!! Rotation  See mto part of lm7K/subs/rotwv.F
+c$$$!! NOTE that qrot = matmul(symops(:,:,igg),qtt(:,iqq))
+c$$$!! (then MTO itself is rotated. a little diffent from here).
+c$$$!! qrot= symops(igg) qtt
+c$$$      qrot=matmul(symops(:,:,igg),qtt(:,iqq)) !qrot-qtt(:,iq) is some G vector.
+c$$$      phaseq   = exp( -img2pi*sum( qrot*shtvg(:,igg)) )
+c$$$cddd
+c$$$c      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
+c$$$cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$c      print *,' xddddd1= ', sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )
+c$$$c      print *,' xddddd2= ',-sum( qrot*shtvg(:,igg))
+c$$$c      print *,' xddddd diff=   ',sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )+sum( qrot*shtvg(:,igg))
+c$$$ccccccccccccccccccccccccccccccccccc
+c$$$      ibaso=-999
+c$$$      do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
+c$$$        !Index of Hamiltonian is devided into these blocks.
+c$$$        ibas = ibas_tbl(iorb)
+c$$$        if(ibas/=ibaso) then
+c$$$          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas,igg)-shtvg(:,igg))) )
+c$$$        endif
+c$$$        ibaso=ibas
+c$$$        l   = l_tbl(iorb)
+c$$$        k   = k_tbl(iorb)
+c$$$        ini1 = offset_tbl(iorb)+1
+c$$$        iend1 = ini1+2*l
+c$$$        ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
+c$$$        iend2 = ini2+2*l
+c$$$        cphif(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),cphifr(ini1:iend1,:))
+c$$$     &                       *phase*phaseq
+c$$$        if(debug) then
+c$$$          write(6,*)ibaso,ibas,phase
+c$$$          write(6,*)ini1,iend1,ini2,iend2
+c$$$          write(6,*)'sumd  dlmm =',igg,l,sum(abs(dlmm(-l:l,-l:l,l,igg)))
+c$$$          write(6,*)'sumcr cphifr=',l,k,igg,sum(abs(cphifr(ini1:iend1,:)))
+c$$$          write(6,*)'sumcf cphif=',l,k,igg,sum(abs(cphif(ini2:iend2,:)))
+c$$$        endif
+c$$$      enddo
+c$$$ccccccccccccccccccccccccccccccccc
+c$$$c       write(6,"('readcphi:: xxxx sum of cphifr=',2i4,4d23.16)")ldim2_in,ldim2,
+c$$$c     &                sum(cphif(1:ldim2,1:nband)),sum(abs(cphif(1:ldim2,1:nband)))
+c$$$c       stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx takao test xxxxxxxxxxxxxxxxx'
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$ccccccccccccccccccccccc
+c$$$c      write(6,"('rrcc0:',i3,3f8.4)")iq,qu
+c$$$c      do i=1,1
+c$$$c      write(6,"('rrccb:',5(2x,2f8.4))")
+c$$$c     &  cphif(14,i)/cphif(1,i) !*abs(cphif(1,i))
+c$$$c      enddo
+c$$$c      cphif(5:13, :)=0d0
+c$$$c      cphif(14,:)=0d0
+c$$$c      cphif(18:26,:)=0d0
+c$$$
+c$$$c      cphif(1:8,:)=0d0
+c$$$c      cphif(19:26,:)=0d0
+c$$$c      cphif(1,:)=0d0
+c$$$c      cphif(19,:)=0d0
+c$$$cccccccccccccccccccccccccccccccccccc
       end subroutine readcphi
 
 

@@ -1,5 +1,4 @@
-../gwsrc/readeigen.o:../../srcshare/m_hamindex.o
-
+../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../main/h_uumatrix.m.o:../gwsrc/rwbzdata.o

@@ -10,7 +10,7 @@ setenv LMJOB $argv[1]
 rm -f NoCore QPU* >& /dev/null
 
 ### Get LATTC and SYMOPS
-echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
+echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
 
 ### Add  two q points (0.05 0 0 ) (0.1 0 0) to Q0P file.  -----------------
 echo 2|$nfpgw/qg4gw  >lqg4gw02
@@ -18,11 +18,11 @@ echo 2|$nfpgw/qg4gw  >lqg4gw02
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
+  echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
   mv eigval eigmtet
 endif
 
-echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
+echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 set exinfo = $?
 

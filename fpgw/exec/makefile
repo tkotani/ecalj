@@ -452,7 +452,7 @@ eout2: $(EO2)
 
  GW0 = \
  $(gwsrc)MPI_fpgw.o \
- $(srcshare)m_hamindex.o\
+ $(gwsrc)m_hamindex.o\
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
  $(gwsrc)rppovl.o \
