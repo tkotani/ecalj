@@ -1,9 +1,10 @@
-!! this is in ecalj/srcshare/ softlinked.
       module m_hamindex
-!! ==index for Hamiltonian !this should be the same as lm7K/fp/m_hamindex.F ==
+!! == this is in lm7K/subs/m_hamindex.F and in fpgw/gwsrc/m_hamindex.F ==
+!! We will need to unify make system and source code in fpgw and lmf.
       implicit none
       integer,parameter:: null=-999999
-      integer:: ngrp=null, lxx=null, kxx=null,norbmto=null,norbtx
+      integer:: ngrp=null, lxx=null, kxx=null,norbmto=null,norbtx=null
+!! norbtx is given in gwsrc/readeigen.F init_readeigen2
       integer:: imx=null,nbas,ndimham=null
       integer:: nqtt,nqi, nqnum,ngpmx
       integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)

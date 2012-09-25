@@ -202,7 +202,7 @@ c-----------reading self-energy mode parameter from file 'GWIN_V2'
       if(isigma_en==5) then     !.or.core3ptest) then
 c     inquire(file='evec0',exist=evec0ex)
 cccccccccccccccccccccccccc
-        evec0ex=.false.        !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
+        evec0ex=.false.    !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
 cccccccccccccccccccccccccc
         if(evec0ex) then
           ifevec0 =3018

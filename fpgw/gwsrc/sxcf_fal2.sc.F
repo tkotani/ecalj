@@ -52,7 +52,7 @@ c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
 c     i                  ifrcw,ifrcwi, 
      i                  qbas,ginv,
-     i         qibz,qbz,wk,nstbz,nstar,irkip,  !kount,
+     i         qibz,qbz,wk,nstbz,nstar,irkip,nrkip,  !irkip,nrkip 25Sep2012
 c
      i                  iclass,mdim,nlnmv,nlnmc,
      i                  icore, ncore,imdim,
@@ -80,7 +80,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i wklm,lxklm, !mar2012 !wklm apr2012takao
      i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
-     o zsec,coh)
+     o zsec,coh,nbandmx)
 
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
@@ -316,7 +316,7 @@ c     &  iq, idxk,iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      &  nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,ixs,ixsmx,
      &  mdimx, 
      &  itq(ntq),iatomp(natom),miat(natom,ngrp),
-     &  nstar(nqibz),irkip(nqibz,ngrp,nq),kount(nqibz,nq),  ntqxx
+     &  nstar(nqibz),irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq),kount(nqibz,nq),  ntqxx
 c
       real(8) :: q(3),qbas(3*3),ginv(3*3),tiat(3,natom,ngrp),tr(3,natom),
      &  wk(nqbz),qibz(3,nqibz),qbz(3,nqbz),
@@ -425,6 +425,9 @@ C...
       character(5):: charnum5
 
       real(8):: eq(nband),qip(3,*)
+
+      logical ::eibz4sig
+      integer::nbandmx(nq) !sep2012 number of bands for calcualted self-energy.
 c--------------------------------------------------------------------
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -762,6 +765,16 @@ c-----------
 c ntqxx is number of bands for <i|sigma|j>.
         ntqxx = nocc (omega,ebmx(1),.true.,ntq)
         ntqxx = min(ntqxx, nbmx(1))
+        if(ntqxx<nband) then
+          do i=ntqxx,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012
+           if(omega(i+1)-omega(i)<1d-2) then
+            ntqxx=i-1
+           else
+            exit
+           endif
+          enddo
+        endif  
+        nbandmx(ip)=ntqxx  !number of bands to be calculated Sep2012.
 
 c override these by takao jun 2009
 c        call getnbandgw(q,isp,ginv,ntqxx) !june2009
@@ -952,7 +965,10 @@ c           wtx = wgt0(kx-nqibz,irot)
             if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
           endif
         endif
-
+!!
+        if(eibz4sig()) then
+           wtt=wtt*nrkip(kx,irot,ip) !25sep2012
+        endif   
 !!--------------------------------------------------------
 !! --- exchange section ---
 !!--------------------------------------------------------

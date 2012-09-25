@@ -194,17 +194,19 @@ c     integer:: nbmx
       integer:: irank,nrank
 
 !!
-      integer,allocatable:: nrkip_all(:,:,:,:)
+      integer,allocatable:: nrkip_all(:,:,:,:),nrkip(:,:,:,:)
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       integer:: iqxend,iqxini
       integer:: l2nl,igrp,kx,kr
       logical :: iprintx,tiii,timereversal, eibz4sig
 
-      integer:: ifevec,ifvxc,nsym,ne,nhdim,it,nblk,iband,iblk,napw,ldim,ii,ie,ierr
-      integer,allocatable::iblki(:),iblke(:)
-      complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:)
+      integer:: ifevec,ifvxc,nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
+     &  ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2
+      integer,allocatable::iblki(:),iblke(:),nbandmx(:,:)
+      complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
       real(8)::tolry=1d-4,qqqx(3),qtarget(3)
+      complex(8),allocatable::zsect(:,:)
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -998,68 +1000,77 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       if(eibz4sig()) then
        allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
        allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+       allocate(nrkip(nspinmx,nqibz,ngrp,nq)) !this is global 
        nrkip_all=0
-       is=1
+       irkip_all=0
+       is=1 ! not spin dependent
        do iqq=1,nq
-            irkip_all(is,:,:,iqq)=irk
+c        irkip_all(is,:,:,iqq)=irk
         do kx=1,nqibz
         do igrp=1,ngrp
-          kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
-          if(nwgt(kr,iqq)==0) then
-             irkip_all(is,kx,igrp,iqq)= 0 !skip. EIBZ is only for nwgt/=0
-          else
-             nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
+          kr = irk(kx,igrp) !ip_all(is,kx,igrp,iqq) !kr is index for qbz (for example, nonzero # of kr is 64 for 4x4x4)
+          if(kr==0) cycle
+          if(nwgt(kr,iqq)/=0) then
+            irkip_all(is,kx,igrp,iqq)= irk(kx,igrp)
+            nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
           endif   
+c          print *,' iqq kr irk =',iqq,kr,irkip_all(is,kx,igrp,iqq),nrkip_all(is,kx,igrp,iqq)
         enddo
         enddo
        enddo  
+c
        do iqq=1,nq
         print *,'xxxxxxxxxxxxxxxxxxxxxxxx hsfp0_sc xxxxxxxxxxxxxxxxxxxxxxxxx'
         write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iqq,
      &     sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
-        write(6,"('eibz: iqq neibz nqbz= ',i3,3f11.5,3i3)") iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
+        write(6,"('eibz: iqq sum(nrkip_all)=nqbz  ',i3,3f11.5,3i3)") iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
         do kx=1,nqibz
         do igrp=1,ngrp
-           kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
-           if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") kr, qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
-     &       ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
+          kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+          if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))") kr,qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
+     &    ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
         enddo
         enddo
-        print *,' probably partical group symmetrization is enough'
+!!   Probably partial group symmetrization is enough. But it may not reduce computational time so much.
        enddo  
        if(nspinmx==2) then
          irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
          nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
        endif
+!! not eibz4sig
       else 
        do is = 1,nspinmx
        do iqq=1,nq
-        irkip_all(is,:,:,iqq)=irk
+         irkip_all(is,:,:,iqq)=irk
        enddo
        enddo
       endif
+cccccccccccccccccccccccccccccccccccccccc
+c        do is = 1,nspinmx
+c        do iqq=1,nq
+c         irkip_all(is,:,:,iqq)=irk
+c         nrkip_all(is,:,:,iqq)=1
+c        enddo
+c        enddo
+c        nrkip=nrkip_all
+cccccccccccccccccccccccccccccccccccccccc
+c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx111'
 
 
- 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      do is = 1,nspinmx
-      do iqq=1,nq
-        irkip_all(is,:,:,iqq)=irk
-      enddo
-      enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-!!
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! test for single rank case
       nrank=1 !total number of rank
       irank=0 !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
       call MPI_sxcf_rankdivider(nrank,nspinmx,nqibz,ngrp,nq,irkip_all, irank,irkip)
-!! ----------------------------------------
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!! nrkip is weight correspoinding to irkip for a node.
+      nrkip = nrkip_all !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
+!! ----------------------------------------
       nlnx4    = nlnx**4  ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
-     &      kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) ) !eq(nband),
+     &      kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) ) !eq(nband),
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
         if(exchange) then
@@ -1082,15 +1093,12 @@ c     loop over spin ----------------------------------------------------
      &'           qvec            eigen-Ef (in eV)           Re(Sc) 3-points (in eV)                        '//
      &'           In(Sc) 3-points (in eV)                Zfactor(=1)'
         endif
-
 c     initialise secq and kount
         zsec  = 0d0
         coh   = 0d0
         kount = 0
 !! ip is for to specify k point for which we calculate \Sigma.
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
-
-  
 c$$$        do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
 c$$$            call readeval(q(1,ip),is,eq)
 c$$$            do i  = 1,ntq
@@ -1108,7 +1116,7 @@ c     v2
      i              nspin,is,   
 c     i              ifrcw,ifrcwi,
      i              qbas,ginv,qibz,qbz ,wbz, nstbz, 
-     i              nstar,irkip(is,:,:,:),
+     i              nstar,irkip(is,:,:,:),nrkip(is,:,:,:),
 c
 c     i       iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i              iclass,nblocha,nlnmv,nlnmc, !w(i_mnlv),w(i_mnlc)
@@ -1137,7 +1145,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i              pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i    wklm,lxklm, !mar2012
      i    invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
-     o              zsec,coh)   ! acuumulation variable
+     o              zsec,coh,nbandmx(1,is))   ! acuumulation variable
 c          if(debug) write(6,*) "end of sxcf_fal3_scz"
 c 1001   continue            !end of q-loop
 
@@ -1147,7 +1155,6 @@ c     iii = ivsum(kount,nqibz*nq)
 c     print *," ivsum=",iii, nqbz*nq
 c     stop 'hsfp0: missing k-pts'
 c     endif
-
 c---------------------------------
 c     electron gas bare exchange (exact)
         if (legas.and.exchange) then
@@ -1182,9 +1189,121 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
             write (663,"(2f14.6)") qm/qfermi, qfermi
           end do
         endif
-
  2001   continue
-c---------------------------------
+
+!! --- symmetrize zsec for eibz4sig mode. Sep2012 -----------------
+!!     Rotate zsec(itp,itp)
+!! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
+!! zsec(ntq,ntq,nq)
+      allocate( zsect(ntq,ntq))
+      ifevec=3008
+      ifvxc =3009
+      open(UNIT=ifevec,file='evec',form='UNFORMATTED',status='OLD')
+      open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
+      allocate(evaliq(nband),iblki(nband),iblke(nband))
+      read(ifevec)  !ndimhx, nspx,nnnx  !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
+      read(ifvxc)   !ndimh, nsp,nnn
+      do 3020 iq=1,nq   
+      do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
+        if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
+          read(ifvxc)  nhdim,ldim
+          read(ifvxc)
+          print *,'iq is nhdim ldim nband ntp=',iq,is,nhdim,ldim,nband,ntq
+          allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
+          read(ifevec) qqqx(1:3), evec(1:nhdim,1:nhdim)
+          zsect = 0d0
+        else !skip isx/=is. Need to get access sequential files evec and v_xc.
+          read(ifvxc)  
+          read(ifvxc)  
+          read(ifevec)
+          cycle
+        endif  
+        if(sum(abs(qqqx-q(:,iq)))>1d-8) stop 'hsfp0:qqqx/=q' 
+        if(tiii) stop 'timereversal is not yet implemented'
+        call readeval(q(:,iq), is, evaliq)
+        evec_inv = evec
+        call matcinv(nhdim,evec_inv)
+        nsym = sum(eibzsym(:,:,iq))
+        do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
+        do igrp=1,ngrp           !A-rotator
+          if( eibzsym(igrp,it,iq)==0) cycle
+          print *,' igrp in nsym=',igrp,nsym
+          !evecout= symgg(ig)*evec
+          nblk=0
+          iblki=0
+          iblke=0
+          iblki(1)=1
+!! degeneracy divider for evaliq. See How to apply EIBZ to 
+!! Is this procedure really make speed up so much?
+          tolry=0.2d0 !Degeneracy tol. if tolry is large, 
+                      !larger tolry is safer, although a little inefficient.
+                      !If tolry is too small to divide degenerated values to different blocks --> then we have wrong results.
+                      !(NOTE that Hamiltonian can be not so symmetric in some reasons) 
+          nbsizemx=0
+          do iband=2,nbandmx(iq,is)  ! nbandmx is the number of bands for which we calculate self-energy.
+                                     ! We assume nbandmx(iq,is) is well separated for degeneracy.
+            if(evaliq(iband) > evaliq(iband-1)+tolry .or.iband==nbandmx(iq,is)) then
+              nblk=nblk+1
+              if(nblk>=2) iblki(nblk)=iblke(nblk-1)+1
+              if(iband==nbandmx(iq,is)) then
+                 iblke(nblk)=iband
+              else
+                iblke(nblk)=iband-1
+              endif  
+              nbsize = iblke(nblk)- iblki(nblk)+1
+              if( nbsize>nbsizemx ) nbsizemx = nbsize
+            endif
+          enddo
+
+ccccccccccccccccccccccccccccccccc
+!! this is for block conversion. If 
+c         do iblk1=1,nblk  
+c           ii1=iblki(iblk1)
+c           ie1=iblke(iblk1) 
+c           write(6,"(' eval block iblk ini iend= ',3i3,25f9.4)") iblk1,ii1,ie1,evaliq(ii1:ie1)
+c         enddo  
+ccccccccccccccccccccccccccccccccc
+
+!! rotation of evec. Generate evecrot. (Within degenerated block, evec are mapped).
+          allocate(rmatjj(nbsizemx,nbsizemx,nblk))
+          napw=nhdim-ldim
+          do iblk1=1,nblk  
+            ii1=iblki(iblk1)
+            ie1=iblke(iblk1) 
+            ne1=ie1-ii1+1
+            call rotwvigg(igrp,q(:,iq),q(:,iq),nhdim,napw,ne1,evec(:,ii1:ie1),evecrot(:,ii1:ie1),ierr )
+            rmatjj(1:ne1,1:ne1,iblk1) = matmul(evec_inv(ii1:ie1,:),evecrot(:,ii1:ie1))
+          enddo  
+          do iblk1=1,nblk  
+          do iblk2=1,nblk  
+            ii1=iblki(iblk1)
+            ie1=iblke(iblk1) 
+            ne1=ie1-ii1+1
+            ii2=iblki(iblk2)
+            ie2=iblke(iblk2) 
+            ne2=ie2-ii2+1
+            zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) 
+     &        + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), 
+     &          matmul(zsec(ii1:ie1,ii2:ie2,iq), rmatjj(1:ne2,1:ne2,iblk2)) )
+          enddo
+          enddo
+          deallocate(rmatjj)
+        enddo
+        enddo
+        deallocate(evec, evec_inv, evecrot)
+        zsec(:,:,iq) = zsect/dble(nsym)
+ 3030  continue
+ 3020 continue
+      close(UNIT=ifevec)
+      close(UNIT=ifvxc)
+      deallocate(iblki,iblke)
+      deallocate(evaliq)
+      deallocate(zsect)
+c      stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
 
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
@@ -1287,81 +1406,6 @@ c     end do
  2000 continue                  !end of spin-loop
 
 
-
-!! --- symmetrize zsec for eibz4sig mode -----------------
-!!       zsec(itp,ip) rotation.
-!! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
-c      allocate( zsect(iwini:iwend,ntq,nq))
-      ifevec=3008
-      ifvxc =3009
-      open(UNIT=ifevec,file='evec',form='UNFORMATTED',status='OLD')
-      open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
-      read(ifvxc)
-      read(ifevec)
-      allocate(evaliq(nband))
-      do 3020 iq=1,nq
-      do 3030 is=1,nspinmx
-c        zsect = 0d0
-        read(ifvxc) nhdim,ldim
-        read(ifvxc)  
-         print *,'iq is=',iq,is,nhdim,ldim
-        allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
-        read(ifevec) qqqx(1:3), evec(1:nhdim,1:nhdim)
-        if(sum(abs(qqqx-q(:,iq)))>1d-8) stop 'hsfp0:qqqx/=q' 
-        if(tiii) stop 'timereversal is not yet implemented'
-        call readeval(q(:,iq), is, evaliq)
-        evec_inv = evec
-        call matcinv(nhdim,evec_inv)
-        nsym = sum(eibzsym(:,:,iq))
-        do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
-        do igrp=1,ngrp           !A-rotator
-          if( eibzsym(igrp,it,iq)/=1) cycle
-          print *,' igrp in nsym=',igrp,nsym
-          !evecout= symgg(ig)*evec
-          !  degeneracy check for eigenvalue for evec. block rotation!
-!! degeneracy devider for evaliq
-          allocate(iblki(nband),iblke(nband))
-          nblk=0
-          iblki(1)=1
-          tolry=1d-4 !degeneracy tol. if tolry is large, it is inefficient (but not to be wrong.)
-          do iband=2,nband
-            if(evaliq(iband) > evaliq(iband-1)+tolry ) then
-              nblk=nblk+1
-              if(nblk>=2) iblki(nblk)=iblke(nblk-1)+1
-              iblke(nblk)=iband-1
-            endif
-          enddo
-c          do iblk=1,nblk  
-c            ii=iblki(iblk)
-c            ie=iblke(iblk) 
-c            write(6,"(' eval block iblk ini iend= ',3i3,25f9.4)") iblk,iblki(iblk),iblke(iblk),evaliq(ii:ie)
-c          enddo  
-          do iblk=1,nblk  
-!! block rotation evec(:,iblock) at qp (note G-index igv2x) ---> evecrot(:,iblock) by symgg(ig)
-c            print *,' eval block iblk ini end=',iblk,iblki(iblk),iblke(iblk)
-            qtarget=q(:,iq)
-            napw=nhdim-ldim
-            ii=iblki(iblk)
-            ie=iblke(iblk) 
-            ne=ie-ii+1
-            allocate(rmatjj(ne,ne))
-c            print *,'--- goto rotwvigg iq igrp q ---',iq,igrp,q(:,iq)
-            call rotwvigg(igrp,q(:,iq),q(:,iq),nhdim,napw,ne,evec(:,ii:ie),evecrot(:,ii:ie),ierr )
-c            print *,'end rotwvigg ---'
-            rmatjj = matmul(evec_inv(ii:ie,:),evecrot(:,ii:ie))
-c            zsect(ii:ie,ii:ie) =  zsect(ii:ie,ii:ie) + matmul(dconjg(transpose(rmat), matmul(zsec(ii:ie,ii:ie),rmat))
-            deallocate(rmatjj)
-          enddo
-          deallocate(iblki,iblke)
-        enddo
-        enddo
-        deallocate(evec, evec_inv, evecrot)
- 3030  continue
- 3020 continue
-      deallocate(evaliq)
-c       zsec = zsect/dble(nsym)
-c      stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 c------------

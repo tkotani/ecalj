@@ -2109,7 +2109,8 @@ c------------------------------------------------------
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
      &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
       implicit none
-!! == wave function rotator by symops(:,:,igg). evec at q to evecout at qg=g(q).==
+!! == wave function rotator by symops(:,:,igg). evec at q to evecout at qg=g(q). ==
+!! Active rotation of coefficients on PMT basis. See rotsig in lm7K/fp/rotwv.F
       integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
       real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
@@ -2155,7 +2156,7 @@ c      print *,' ibastab=',ibastab
 ccccccccccccccccc
 c             print *,' iorb=',iorb,ibas,l,k,'init end=',init1,iend1,init2,iend2
 ccccccccccccccccc
-          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
+          evecout(init1:iend1,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init2:iend2,:))*phase
         enddo
       endif
 c      print *,'rotwvigg :napw_in=',napw_in
@@ -2171,8 +2172,7 @@ c      print *,'rotwvigg :napw_in=',napw_in
           qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-c          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
-          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
+          evecout(nlmto+ig,:)= evec(nlmto+ig2,:) * exp( img2pi*sum(qpgr*shtvg(:,igg)) )
         enddo
       endif
       ierr=0

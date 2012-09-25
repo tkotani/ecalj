@@ -258,12 +258,13 @@ ccccccccc
 !!
       nwgtsum = 0
       do iq = iqxini,iqxend
-        if(iq>nqibz) cycle
-        nwgtsum = nwgtsum + sum(nwgt(1:neibz(iq),iq))
-        if(iprintx) print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
+c        if(iq>nqibz) cycle
+        nwgtsum = nwgtsum + sum(nwgt(1:nqbz,iq))
+c        if(iprintx) print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
+        if(iprintx) print *,'iq neibz sum(nwgt)=',iq, neibz(iq),sum(nwgt(1:nqbz,iq))
       enddo
       if(iprintx) print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
-     &   sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1-1)
+     &  sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) ! why it was (iqxend-iqxini+1-1). 25sep2012
       end
 
       subroutine mptauof(symops,ng,plat,nbas,bas,
