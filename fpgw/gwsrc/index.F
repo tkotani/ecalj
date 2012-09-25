@@ -245,10 +245,10 @@ c indxb(n1,lm1,n2,lm2) = 0 ==> not allowed
      o          in1(nallow),il1(nallow),im1(nallow),
      o          in2(nallow),il2(nallow),im2(nallow)
 
-c write to  file PRODUCT if it exists
-      ifprod     = ifile('PRODUCT')
-      if (ifprod .gt. 0)
-     .write (ifprod,*)'lbas,n1,l1,im1,n2,l2,im2'
+c$$$c write to  file PRODUCT if it exists
+c$$$      ifprod     = ifile('PRODUCT')
+c$$$      if (ifprod .gt. 0)
+c$$$     .write (ifprod,*)'lbas,n1,l1,im1,n2,l2,im2'
 
 c initialise indxb
       call iinit   (indxb,nn*nn*nl**4)
@@ -282,8 +282,8 @@ c temporary
         in2(lbas)  = n2
         il2(lbas)  = l2
         im2(lbas)  = m2 - l2 - 1
-        if (ifprod .gt. 0)
-     .write (ifprod,*)lbas,n1,l1,im1(lbas),n2,l2,im2(lbas)
+c$$$        if (ifprod .gt. 0)
+c$$$     .write (ifprod,*)lbas,n1,l1,im1(lbas),n2,l2,im2(lbas)
    10 continue
       if(lbas .ne. nallow)stop 'indxbas: lbas .ne. nallow'
 

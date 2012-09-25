@@ -702,7 +702,11 @@ C#ifdef GNUPLOT
         do iline=1,nline+1
           dx=xq(1+nq1) 
           nq1=nq1+nql(iline)
+#ifdef DOUBLEBACKSLASH
+          write(20,'(a,F20.10,a)') ' "" ',dx,',\\' ! MIZUHO-IR
+#else
           write(20,'(a,F20.10,a)') ' "" ',dx,',\'
+#endif
           if (iline.eq.nline+1) then
           dx=xq(nq1)
           write(20,'(a,F20.10,a)') ' "" ',dx, ')'
@@ -712,13 +716,21 @@ C#ifdef GNUPLOT
         if (ncolwt.eq.0) then  ! normal band mode
 
         nq1=0
+#ifdef DOUBLEBACKSLASH
+        write(20,*) 'plot \\' ! MIZUHO-IR
+#else
         write(20,*) 'plot \'
+#endif
         do iline=1,nline+1
           dx=xq(1+nq1) 
           write(str,'(i3)') iline
           str=adjustl(str) 
           if (iline.ne.nline+1) then
+#ifdef DOUBLEBACKSLASH
+            write(20,'(a,a,a)')   ' "bnd',trim(str),'.dat" u 2:3 lt 1 pt 1 not w l,\\' ! MIZUHO-IR
+#else
             write(20,'(a,a,a)')   ' "bnd',trim(str),'.dat" u 2:3 lt 1 pt 1 not w l,\'
+#endif
           else 
             write(20,'(a,a,a)')   ' "bnd',trim(str),'.dat" u 2:3 lt 1 pt 1 not w l'
           endif 
@@ -736,7 +748,11 @@ c              ncolwt >0 , fatband mode
             do j=1,ncolwt
          write(20,'(a,i3,a)')'set title "icol=',j,'"'
         nq1=0
+#ifdef DOUBLEBACKSLASH
+        write(20,*) 'plot \\' ! MIZUHO-IR
+#else
         write(20,*) 'plot \'
+#endif
         do iline=1,nline+1
           dx=xq(1+nq1) 
           write(str,'(i3)') iline
@@ -744,7 +760,11 @@ c              ncolwt >0 , fatband mode
           if (iline.eq.nline+1) then
             write(20,'(a,a,a,i3,a)')   ' "bnd',trim(str),'.dat" u 2:3:',3+j,' not w l palet lw 2'
           else 
+#ifdef DOUBLEBACKSLASH
+            write(20,'(a,a,a,i3,a)')   ' "bnd',trim(str),'.dat" u 2:3:',3+j,' not w l palet lw 2,\\' ! MIZUHO-IR
+#else
             write(20,'(a,a,a,i3,a)')   ' "bnd',trim(str),'.dat" u 2:3:',3+j,' not w l palet lw 2,\'
+#endif
           endif 
           nq1=nq1+nql(iline)
         enddo  ! iline

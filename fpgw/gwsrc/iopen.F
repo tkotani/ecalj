@@ -110,26 +110,26 @@ c formats
  6000 format(a)
       return
 
-c----------------------------------------------------------------------
-c identify the file unit for the given file name >>nam<<
-      entry ifile (nam)
-
-c skip leading blanks
-c      namt       = nam
-c      i          = 0
-c      call rmvbl (namt,32,i)
-c      namt       = namt(i+1:32)
-      namt=trim(adjustl(namt))
-
-c identify file unit
-      ifile      = 0
-      do       i = 1,namn
-        if(namt .eq. fnamn(i))then
-          ifile      = iunit(i)
-          return
-        endif
-      end do
-c     if(ifile .eq. 0)stop 'ifile: cannot find the file'
+c$$$c----------------------------------------------------------------------
+c$$$c identify the file unit for the given file name >>nam<<
+c$$$      entry ifile (namt) !comment out Sep201(related to 'KPNT' and 'PRODUCT').
+c$$$
+c$$$c skip leading blanks
+c$$$c      namt       = nam
+c$$$c      i          = 0
+c$$$c      call rmvbl (namt,32,i)
+c$$$c      namt       = namt(i+1:32)
+c$$$      namt=trim(adjustl(namt))
+c$$$
+c$$$c identify file unit
+c$$$      ifile      = 0
+c$$$      do       i = 1,namn
+c$$$        if(namt .eq. fnamn(i))then
+c$$$          ifile      = iunit(i)
+c$$$          return
+c$$$        endif
+c$$$      end do
+c$$$c     if(ifile .eq. 0)stop 'ifile: cannot find the file'
 
 c----------------------------------------------------------------------
 c close file unit for the given file name >>nam<<

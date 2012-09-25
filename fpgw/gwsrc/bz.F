@@ -829,147 +829,143 @@ c check that the sum of stars equal to the no. k{FBZ
         enddo
         stop 'nkstar: wrong no. stars'
       endif
-c write k { IBZ and no. stars to file KPNT
-      ifkpnt     = ifile('KPNT')
-      if (ifkpnt .gt. 0) then
-        write (ifkpnt,*) 'irreducible k-points and no. stars'
-        write (ifkpnt,*) 'k, k-vector, nstar '
-        do       k = 1,nqibz
-          write(ifkpnt,"(1x,i5,3f8.5,i3)")k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
-        end do
-      endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      stop 'test end'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c write k { IBZ and no. stars to file KPNT
+c$$$      ifkpnt     = ifile('KPNT')
+c$$$      if (ifkpnt .gt. 0) then
+c$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
+c$$$        write (ifkpnt,*) 'k, k-vector, nstar '
+c$$$        do       k = 1,nqibz
+c$$$          write(ifkpnt,"(1x,i5,3f8.5,i3)")k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
+c$$$        end do
+c$$$      endif
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c      stop 'test end'
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
-
-
-
-
-
-
-c------------------------------------------------------------------
-      subroutine nkstar_old (qibz,qbz,grp,ginv,
-     w iw1,
-     d nqibz,nqbz,ngrp,
-     o nstar,irotk)
-
-c 92.02.22
-c generates the no. stars of k
-c i.e. the no. times k appears in the FBZ
-
-c qibz  = k { IBZ
-c qbz   = k { FBZ
-c grp   = rotation matrices
-c nqibz = no. k { IBZ
-c nqbz  = no. k { FBZ
-c ngrp  = no. rotation matrices
-
-c nstar(k) = no. times k appears in the FBZ
-c irotk(k{IBZ,R) = index to k{FBZ
-
-      implicit real*8 (a-h,o-z)
-      dimension qibz(3,nqibz),qbz(3,nqbz),grp(9,ngrp),ginv(9),
-     w          iw1(nqbz)
-      dimension nstar(nqibz),irotk(nqibz,ngrp)
-      dimension w1(3),w2(3),w3(3)
-      data      tol/1.d-5/
-
-c initialise index
-      call iinit   (irotk,nqibz*ngrp)
-      call iinit   (iw1,nqbz)
-      call iinit   (nstar,nqibz)
-
-c loop over  k { IBZ
-      do       k = 1,nqibz
-ccccccccccccccccccccccccccccccccccccccc
-c         print *,' k =',k,' qibz=',qibz(:,k)
-ccccccccccccccccccccccccccccccccccccccc
-
-c loop over rotations
-        do      ir = 1,ngrp
-
-cccccccccccccccccccccccc
-c         print *,' grp='
-c         print *, grp(:,ir)
-cccccccccccccccccccccccc
-
-c rotate k { IBZ
-          call mv      (grp(1,ir),qibz(1,k),
-     d              3,3,3,
-     o              w1)
-
-c identify the rotated k with k { FBZ
-          kp         = 0
-
-c> check if k{FBZ has not been identified
- 1111     kp         = kp + 1
-          if (iw1(kp) .eq. 0) then
-cccccccccccccccccccccccccccccccccc
-c         print *,' k ir kp=',k,ir,kp,' qibz=',qibz(:,k)
-c         print *,' grp='
-c         print *, grp(:,ir)
-c         print *,' ginv '
-c         print *, ginv
-c         print *,' qbz '
-c         print *, qbz(:,kp)
-cccccccccccccccccccccccccccccccccc
-c> check if the rotated k is connected to k{FBZ by a G
-            call vminv   (qbz(1,kp),w1,3,w2)
-            call mv      (ginv,w2,
-     d              3,3,3, 
-     o              w3)
-            xsign      = .001d0*dsign(1.d0,w3(1))
-            ysign      = .001d0*dsign(1.d0,w3(2))
-            zsign      = .001d0*dsign(1.d0,w3(3))
-            w2(1)      = w3(1) - dble(idint((w3(1)+xsign)))
-            w2(2)      = w3(2) - dble(idint((w3(2)+ysign)))
-            w2(3)      = w3(3) - dble(idint((w3(3)+zsign)))
-
-            if ( vdv(w2,w2,3) .lt. tol ) then
-              nstar(k)   = nstar(k) + 1
-              irotk(k,ir)= kp
-              iw1(kp)    = 1
-            endif
-          endif
-cccccccccccccccccccccccccccccccccccc
-c      print *,' qbz='
-c      print *, qbz(:,kp)
-c      print *,' w3='
-c      print *, w3
-c      print *,' w2='
-c      print *, w2
-cccccccccccccccccccccccccccccccccccc
-          if (kp .lt. nqbz) goto 1111
-
-c end of rotation-loop
-cccccccccccccccccccccccccccc
-c      print *,' nstar(k) =',nstar(k)
-cccccccccccccccccccccccccccc
-        end do
-
-c end of k { IBZ -loop
-      end do
-
-c check that the sum of stars equal to the no. k{FBZ
-      nsum       = ivsum (nstar,nqibz)
-      if (nsum .ne. nqbz) stop 'nkstar: wrong no. stars'
-
-c write k { IBZ and no. stars to file KPNT
-      ifkpnt     = ifile('KPNT')
-      if (ifkpnt .gt. 0) then
-        write (ifkpnt,*) 'irreducible k-points and no. stars'
-        write (ifkpnt,*) 'k, k-vector, nstar '
-        do       k = 1,nqibz
-          write (ifkpnt,6000) k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
-        end do
-      endif
-
-c formats
- 6000 format (1x,i5,3f8.5,i3)
-
-      return
-      end
-
+c$$$
+c$$$
+c$$$c------------------------------------------------------------------
+c$$$      subroutine nkstar_old (qibz,qbz,grp,ginv,
+c$$$     w iw1,
+c$$$     d nqibz,nqbz,ngrp,
+c$$$     o nstar,irotk)
+c$$$
+c$$$c 92.02.22
+c$$$c generates the no. stars of k
+c$$$c i.e. the no. times k appears in the FBZ
+c$$$
+c$$$c qibz  = k { IBZ
+c$$$c qbz   = k { FBZ
+c$$$c grp   = rotation matrices
+c$$$c nqibz = no. k { IBZ
+c$$$c nqbz  = no. k { FBZ
+c$$$c ngrp  = no. rotation matrices
+c$$$
+c$$$c nstar(k) = no. times k appears in the FBZ
+c$$$c irotk(k{IBZ,R) = index to k{FBZ
+c$$$
+c$$$      implicit real*8 (a-h,o-z)
+c$$$      dimension qibz(3,nqibz),qbz(3,nqbz),grp(9,ngrp),ginv(9),
+c$$$     w          iw1(nqbz)
+c$$$      dimension nstar(nqibz),irotk(nqibz,ngrp)
+c$$$      dimension w1(3),w2(3),w3(3)
+c$$$      data      tol/1.d-5/
+c$$$
+c$$$c initialise index
+c$$$      call iinit   (irotk,nqibz*ngrp)
+c$$$      call iinit   (iw1,nqbz)
+c$$$      call iinit   (nstar,nqibz)
+c$$$
+c$$$c loop over  k { IBZ
+c$$$      do       k = 1,nqibz
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$c         print *,' k =',k,' qibz=',qibz(:,k)
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$
+c$$$c loop over rotations
+c$$$        do      ir = 1,ngrp
+c$$$
+c$$$cccccccccccccccccccccccc
+c$$$c         print *,' grp='
+c$$$c         print *, grp(:,ir)
+c$$$cccccccccccccccccccccccc
+c$$$
+c$$$c rotate k { IBZ
+c$$$          call mv      (grp(1,ir),qibz(1,k),
+c$$$     d              3,3,3,
+c$$$     o              w1)
+c$$$
+c$$$c identify the rotated k with k { FBZ
+c$$$          kp         = 0
+c$$$
+c$$$c> check if k{FBZ has not been identified
+c$$$ 1111     kp         = kp + 1
+c$$$          if (iw1(kp) .eq. 0) then
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$c         print *,' k ir kp=',k,ir,kp,' qibz=',qibz(:,k)
+c$$$c         print *,' grp='
+c$$$c         print *, grp(:,ir)
+c$$$c         print *,' ginv '
+c$$$c         print *, ginv
+c$$$c         print *,' qbz '
+c$$$c         print *, qbz(:,kp)
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$c> check if the rotated k is connected to k{FBZ by a G
+c$$$            call vminv   (qbz(1,kp),w1,3,w2)
+c$$$            call mv      (ginv,w2,
+c$$$     d              3,3,3, 
+c$$$     o              w3)
+c$$$            xsign      = .001d0*dsign(1.d0,w3(1))
+c$$$            ysign      = .001d0*dsign(1.d0,w3(2))
+c$$$            zsign      = .001d0*dsign(1.d0,w3(3))
+c$$$            w2(1)      = w3(1) - dble(idint((w3(1)+xsign)))
+c$$$            w2(2)      = w3(2) - dble(idint((w3(2)+ysign)))
+c$$$            w2(3)      = w3(3) - dble(idint((w3(3)+zsign)))
+c$$$
+c$$$            if ( vdv(w2,w2,3) .lt. tol ) then
+c$$$              nstar(k)   = nstar(k) + 1
+c$$$              irotk(k,ir)= kp
+c$$$              iw1(kp)    = 1
+c$$$            endif
+c$$$          endif
+c$$$cccccccccccccccccccccccccccccccccccc
+c$$$c      print *,' qbz='
+c$$$c      print *, qbz(:,kp)
+c$$$c      print *,' w3='
+c$$$c      print *, w3
+c$$$c      print *,' w2='
+c$$$c      print *, w2
+c$$$cccccccccccccccccccccccccccccccccccc
+c$$$          if (kp .lt. nqbz) goto 1111
+c$$$
+c$$$c end of rotation-loop
+c$$$cccccccccccccccccccccccccccc
+c$$$c      print *,' nstar(k) =',nstar(k)
+c$$$cccccccccccccccccccccccccccc
+c$$$        end do
+c$$$
+c$$$c end of k { IBZ -loop
+c$$$      end do
+c$$$
+c$$$c check that the sum of stars equal to the no. k{FBZ
+c$$$      nsum       = ivsum (nstar,nqibz)
+c$$$      if (nsum .ne. nqbz) stop 'nkstar: wrong no. stars'
+c$$$
+c$$$c write k { IBZ and no. stars to file KPNT
+c$$$      ifkpnt     = ifile('KPNT')
+c$$$      if (ifkpnt .gt. 0) then
+c$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
+c$$$        write (ifkpnt,*) 'k, k-vector, nstar '
+c$$$        do       k = 1,nqibz
+c$$$          write (ifkpnt,6000) k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
+c$$$        end do
+c$$$      endif
+c$$$
+c$$$c formats
+c$$$ 6000 format (1x,i5,3f8.5,i3)
+c$$$
+c$$$      return
+c$$$      end
+c$$$

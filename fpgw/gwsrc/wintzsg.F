@@ -11,7 +11,7 @@ c
      & omd,omd2,rup,rdn,sss,sig2,omd2w
       complex(8) ::v(npm*nx),v0,sum,   wintzsg1  !, wintzsg2,sum2
       complex(8) :: wwz,wintz_npm, img=(0d0,1d0)
-      real(8)    :: esmr,wintsf,errsum=0d0,derfcx
+      real(8)    :: esmr,wintsf,errsum=0d0,derfcx,derfc
       integer(4) :: ie,nav = 2000
       real(8)    :: pi=3.1415926535897932d0, rmax=2d0
       !rmax =2 is by ferdi. Is it optimum? See wintz
@@ -317,7 +317,7 @@ c up to x <rmax<15 which is limited by the range of derfc(x).
       implicit none
       integer:: ix
       integer,parameter:: nd=2001
-      real(8) :: polinta, rmax=14.9d0,rdn,rup,sumx,x,x0,xm
+      real(8) :: polinta, rmax=14.9d0,rdn,rup,sumx,x,x0,xm,derfc
       real(8),save :: eeint(nd),xval(nd)
       logical :: init=.true.
 c--------------

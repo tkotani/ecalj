@@ -278,8 +278,10 @@ for i in range(len(testname)):
 if failed!='': 
 	print '=== Failed test cases are ==='
 	print failed
+elif success=='':
+	print 'No tests are performed! You may specify unrecognized tests or options.'
 else:
-	print '=== OK! All test below are passed (if nothing shown, no test done. Wrong args?)==='
+	print '=== OK! All tests shown below are passed ==='
 	print success
 	
 sys.exit()

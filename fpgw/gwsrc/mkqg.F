@@ -570,7 +570,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             write(ifidmlx) nq0i,lxklm
             write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
             write(ifidmlx) wklm
-            ifidmlx = iclose(ifidmlx)
+            ifidmlx = iclose('EPSwklm')
             deallocate(cy,yl,epinvq0i,dmlx,wklm)
           else
             call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,

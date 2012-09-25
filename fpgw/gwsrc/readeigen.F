@@ -281,9 +281,15 @@ c$$$!! ------------
       complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
-      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
+      
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
       integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+
+      complex(8):: img2pi ! MIZUHO-IR
+      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
       phaseq   = exp( -img2pi*sum(qrot*shtvg ))
@@ -335,13 +341,17 @@ c      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,
       complex(8):: phaseq,phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
-      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
       integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl),m1,m2
 !!
 c      integer:: nrotm,irotm1(nrotmmx),irotm2(nrotmx)
       integer:: nrotm,irotm1,irotm2
       complex(8):: zrotm(nbloch,nbloch)
+
+      complex(8):: img2pi ! MIZUHO-IR
+      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
 
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
@@ -404,8 +414,13 @@ c     o  geigenout)
       real(8):: qin(3),qpg(3),qpgr(3),qtarget(3)
       integer:: ig,ig2,nnn(3),igxt
 c      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
-      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
       complex(8):: zrotm(ngp,ngp)
+
+      complex(8):: img2pi ! MIZUHO-IR
+      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+
 !!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
       do ig = 1,ngp !ngp(iqq)
         qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
@@ -437,7 +452,12 @@ c        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
       real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
       integer:: ig,ig2,nnn(3),igxt
       complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
-      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
+
+      complex(8):: img2pi ! MIZUHO-IR
+      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+
 !!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
       do ig = 1,ngp !ngp(iqq)
         qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
@@ -512,7 +532,7 @@ ctm
       if(init2) then
         stop 'readgeig: modele is not initialized yet'
       endif
-!! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/subs.F
+!! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
       call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu is a G vector.
 
@@ -596,7 +616,13 @@ ccccccccccccccccccccccccccccccccccc
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
       real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
       complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
-      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img
+!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
+
+      complex(8):: img2pi ! MIZUHO-IR
+      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+
+
       if(init2) stop 'readcphi: modele is not initialized yet'
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
@@ -2013,7 +2039,7 @@ Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by 
       integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
       real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
-      img2pi=2*4d0*datan(1d0)*img
+      img2pi=2d0*4d0*datan(1d0)*img
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
 c find symops(3,3,ig), which map q to qtarget.
