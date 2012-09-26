@@ -238,9 +238,15 @@ c
 c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
      &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
-C- sigma rotator. sig at qin to sig at qout.
-Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
+!!=== sigma rotator. sig at qin to sig at qout. ===
+!! obtain sigout for qout.
+!! a little confusing since qin=symops(qout), and basis rotation. Need to clean up.
+!! Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex 
+!! (read from QGpsi).
+!! Used idea is   <base(qin)|sigma(qin)|base(qin)> = <g(base)|sigma |g(base)>.   
+!! where qin=g(qout).  qtarget=qin= g(q=qout)
+
       integer   :: ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
       real(8):: qin(3),qout(3)
       real(8)   :: q(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !plat(3,3),qlat(3,3)
@@ -254,7 +260,6 @@ Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by 
       platt=transpose(plat) !this is inverse of qlat
 
 !! find symops(3,3,ig),
-!!    <base|sigma(qin)|base(qin)> = <g(base)|sigma |g(basis)>.   qtarget=qin= g(q=qout)
       if(debugmode()>0) print *,' rotsig: qin qout=',qin,qout
       qtarget= qin
       q      = qout  ! we find q
@@ -306,11 +311,9 @@ c        print *,' tttt: ',ddd !,ddd2
         print *,' tttt: ntorb napwin',norbmto,ndimh,napw_in,nlmto
       endif
 
-
 c mto part ---
 c          write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
-c      evecout=9.99999d10
       if(nlmto/=0 )then
         ibaso=-999
         do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
@@ -324,16 +327,16 @@ c      evecout=9.99999d10
           iend1 = offl(iorb)+ 2*l+1
           init2 = offlrev(miat(ibas,igg),l,k)+ 1
           iend2 = offlrev(miat(ibas,igg),l,k)+ 2*l+1
-c        write(6,"('ttt: ',25i5)")ibas,l,k,init1,iend1,init2,iend2
-c        evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
-          do ix=1,ndimh
+          do ix=1,ndimh 
             sigx(ix,init1:iend1)= matmul(sig(ix,init2:iend2),dlmm(-l:l,-l:l,l,igg))*phase
           enddo
         enddo
       endif
-c      print *,' end of 1st mto part'
 c apw part ------------
       if(napw_in/=0) then
+        stop ' Probably OK-->Remove this stop to use this branch.'
+     &   //' But need to confirm two apw sections in this routines.(phase factors) '
+     &   //' Idea of this routine: <i|\sigma|j>_qout= <g(i)|\sigma|g(i)>_qin, where qin=g(qout)'
         ikt  = getikt(q)    !index for q
         ikt2 = getikt(qtarget) !index for qtarget
         print *,' rotsig ikt ikt2=',ikt,ikt2
@@ -346,23 +349,20 @@ c apw part ------------
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           print *,ig,'nnn  ikt2=',nnn,ikt2
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-c      evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
+          phase= exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
           do ix=1,ndimh
-!            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
-            sigx(ix,nlmto+ig) =   sig(ix,nlmto+ig2) * exp( img2pi*sum(qpgr*shtvg(:,igg)) )
+            sigx(ix,nlmto+ig) = sig(ix,nlmto+ig2) * phase
           enddo
         enddo
       endif
       if(debugmode()>0) print *,' apw part end 111: ikt ikt2=',ikt,ikt2
-
-
 c mto part ------
       if(nlmto/=0) then
         ibaso=-999
         do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
           !Index of Hamiltonian is devided into these blocks.
           ibas = ibastab(iorb)
-          if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
+          if(ibas/=ibaso) phase = exp( img2pi*sum(qtarget*tiat(:,ibas,igg)) )
           ibaso=ibas
           l   = ltab(iorb)
           k   = ktab(iorb)
@@ -370,11 +370,9 @@ c mto part ------
           iend1 = offl(iorb)+ 2*l+1
           init2 = offlrev(miat(ibas,igg),l,k)+ 1
           iend2 = offlrev(miat(ibas,igg),l,k)+ 2*l+1
-c        evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
           do ix=1,ndimh
-            sigout( init1:iend1,ix)= matmul( dconjg(transpose(dlmm(-l:l,-l:l,l,igg))*phase), sigx(init2:iend2,ix))
+          sigout(init1:iend1,ix)= phase * matmul(transpose(dlmm(-l:l,-l:l,l,igg)),sigx(init2:iend2,ix))
           enddo
-c    evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
         enddo
       endif
       if(debugmode()>0) print *,' end of 2nd mto part q=',q
@@ -392,15 +390,13 @@ c apw part ------------
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           if(debugmode()>0) print *,ig,'nnn  ikt2=',nnn,ikt2
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-c       evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
+          phase=exp(img2pi*sum(qpgr*shtvg(:,igg))) 
           do ix=1,ndimh
-c            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp( img2pi*sum(qpg*ddd) ))
-            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * dconjg(exp(img2pi*sum(qpgr*shtvg(:,igg)))) !aug2012takao corrected
+            sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * phase
           enddo
         enddo
         if(debugmode()>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2
       endif
-c
       ierr=0
       if(debugmode()>0) print *,' goto deallcate sigx'
       deallocate(sigx)

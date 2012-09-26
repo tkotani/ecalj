@@ -278,7 +278,7 @@ c$$$!! ------------
       integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
       integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
       real(8):: tiat(3,nbas)
-      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
+      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
@@ -292,15 +292,13 @@ c$$$!! ------------
 
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
-      phaseq   = exp( -img2pi*sum(qrot*shtvg ))
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
 c         print *,'iorb=',iorb
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
-          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+          phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
         endif   
-c        print *,'phase'
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
@@ -309,7 +307,7 @@ c        print *,'phase'
         ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
 c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
-        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
+        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase
       enddo  
       end subroutine rotmto
 !! ------------------------------------------------------
@@ -338,7 +336,7 @@ c     o  cphiout)
       integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
       real(8):: tiat(3,nbas)
 c      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
-      complex(8):: phaseq,phase,ddd
+      complex(8):: phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
@@ -355,15 +353,12 @@ c      integer:: nrotm,irotm1(nrotmmx),irotm2(nrotmx)
 
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
-      phaseq   = exp( -img2pi*sum(qrot*shtvg ))
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
-c         print *,'iorb=',iorb
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
-          phase = exp( -img2pi*sum(qrot*(tiat(:,ibas)-shtvg)) ) 
+          phase = exp( -img2pi*sum(qrot*tiat(:,ibas)) ) 
         endif   
-c        print *,'phase'
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
@@ -379,16 +374,9 @@ c        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*p
 !!      Rotated(rcxq)=  dconjg(chpiin(xx)) *  dconjg(zrotm)*rcxq(xx,irotm2) * zrotm(irotm2,irotm1)  * chpiin(irotm1)
         do m1=-l,l
         do m2=-l,l
-c          ddd = dlmm(m2,m1,l)*phase*phaseq
-c          if(abs(ddd)>1d-8) then
-c             ix=ix+1
-c             zrotm(ix) = ddd
-c             irotm1(ix)= ini1+m1+l
-c             irotm2(ix)= ini2+m2+l
           irotm1= ini1+m1+l
           irotm2= ini2+m2+l
-          zrotm(irotm2,irotm1) = dlmm(m2,m1,l)*phase*phaseq
-c          endif   
+          zrotm(irotm2,irotm1) = dlmm(m2,m1,l)*phase
         enddo
         enddo
       enddo
@@ -615,7 +603,7 @@ ccccccccccccccccccccccccccccccccccc
       integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
       real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
-      complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseq,phaseatom !takao 1->*->nband
+      complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseatom !takao 1->*->nband
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
 
@@ -2025,118 +2013,22 @@ c taken from lm7k/subs/rotwv.F
         if(abs(ii(i)-a(i))>eps)stop'conv2int: a is not close to integer'
       enddo
       end subroutine conv2int
-c
-
-
-!! ----------------------------------------------------------------------
-      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
-c      subroutine rotwv(q,qtarget,ndimh,napw_in,nband,plat,qlat,evec,evecout,ierr)
-      use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
-     &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
-C- wave function rotator. evec at q to evecout at qg=g(q).
-Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
-      implicit none
-      integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
-      real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
-      complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
-      img2pi=2d0*4d0*datan(1d0)*img
-      ierr=1
-      platt=transpose(plat) !this is inverse of qlat
-c find symops(3,3,ig), which map q to qtarget.
-ccccccccccccccccccccccccccccc
-      stop 'need to test again. See rotwvigg'
-ccccccccccccccccccccccccccc
-
-      do igx=1,ngrp
-c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
-        call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igx),q)) ), qx)
-        if(sum(abs(qx))<1d-8) then
-          igg=igx
-          print *,' q      =',q
-          print *,' qtarget=',qtarget
-          print *,' matmul q =',matmul(symops(:,:,igx),q)
-          print *,' rotwv: OK! igg=',igg
-          print *
-          goto 1012
-        endif
-      enddo
-      write(6,"(a,3f7.3,2x,3f7.3)")'  rotwv: qtarget is not a star of q',q,qtarget
-      print *
-      return
- 1012 continue
-
-c      ddd = - matmul(symops(:,:,invgx(igg)),shtvg(:,igg))
-c      ddd2 = shtvg(:,invgx(igg))
-c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
-c$$$         print *,'bbb: ddd ddd2=',ddd,ddd2
-c$$$         print *,'rotwv: ddd/=ddd2'
-c$$$         stop 'rotwv: ddd/=ddd2'
-c$$$      endif
-ccccccccccccccccccccccc
-c      print *,'takao test ddd=ddd2'
-c      ddd=ddd2
-ccccccccccccccccccccccc
-c      ddd=shtvg(:,invgx(igg))
-      evecout=0d0
-      nlmto = ndimh-napw_in
-
-c mto part
-c          write(6,"(3i3,2x,2i5,3x,a)")
-c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
-c      evecout=9.99999d10
-      if(nlmto/=0) then
-        ibaso=-999
-        do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
-          !Index of Hamiltonian is devided into these blocks.
-          ibas = ibastab(iorb)
-          if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
-          ibaso=ibas
-          l   = ltab(iorb)
-          k   = ktab(iorb)
-          init1 = offl(iorb)+1
-          iend1 = offl(iorb)+2*l+1
-          init2 = offlrev(miat(ibas,igg),l,k)+1
-          iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
-          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
-c       sigmax(ix,  init1:iend1)= matmul(sigma(ix,init2:iend2),dlmm(-l:l,-l:l,igg))
-c    evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
-        enddo
-      endif
-c
-c apw part
-      if(napw_in/=0) then
-        ikt  = getikt(q)    !index for q
-c      print *,' rotwv 000 ikt=',ikt
-        ikt2 = getikt(qtarget) !index for qtarget
-c      print *,' rotwv 111 ikt2=',ikt2
-        if(napw_in /= napwk(ikt) ) then
-          call rx_('rotwv: napw_in /= napw(ikt)')
-        endif
-c      print *,' rotwv 222'
-
-        do ig = 1,napw_in
-          qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
-          qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
-          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
-c       print *,ig,'nnn  ikt2=',nnn,ikt2
-          ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
-c          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( img2pi*sum(qpg*ddd) )
-c     sigmax(ix,nlmto+ig) =   sigma(ix,nlmto+ig2) * exp( img2pi*sum(qpg*ddd) )
-        enddo
-      endif
-
-c      print *,' rotwv : ikt ikt2=',ikt,ikt2
-      ierr=0
-      end
 
 c------------------------------------------------------
       subroutine rotwvigg(igg,q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
      &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
       implicit none
-!! == wave function rotator by symops(:,:,igg). evec at q to evecout at qg=g(q). ==
-!! Active rotation of coefficients on PMT basis. See rotsig in lm7K/fp/rotwv.F
+!! == Wave function rotator evec to evectout by symops(:,:,igg). ===
+!! INPUT:
+!!  need to supply qtarget=sym*q for check (you can modify this code to skip this.
+!! OUTPUT evecout, ierr 
+!! NOTE:
+!! rotation of coefficients on PMT basis. 
+!!  phi(r) = \sum_i evec(i,iband) |F_i> ==> Roteta[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
+!!  Rotate[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
+!!  miat tiat are atom-mapping table. mptauo.F
+!! c.f. rotsig in lm7K/fp/rotwv.F also.
       integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
       real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
@@ -2149,18 +2041,8 @@ c------------------------------------------------------
         write(6,"(a,3f7.3,2x,3f7.3)")'  rotwvigg: qtarget is not a star of q',q,qtarget
         stop 'rotwvigg: qtarget is not symops(:,:,ig)*q'
       endif  
-c      ddd = shtvg(:,invgx(igg))
-c$$$      if(sum(abs(ddd-ddd2))>1d-8) then
-c$$$         print *,'bbb: ddd ddd2=',ddd,ddd2
-c$$$         print *,'rotwv: ddd/=ddd2'
-c$$$         stop 'rotwv: ddd/=ddd2'
-c$$$      endif
-ccccccccccccccccccccccc
-c      print *,'takao test ddd=ddd2'
-c      ddd=ddd2
-ccccccccccccccccccccccc
-        evecout=0d0
-        nlmto = ndimh-napw_in
+      evecout=0d0
+      nlmto = ndimh-napw_in
 !! mto part
 c          write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
@@ -2179,13 +2061,9 @@ c      print *,' ibastab=',ibastab
           iend1 = offl(iorb)+2*l+1
           init2 = offlrev(miat(ibas,igg),l,k)+1
           iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
-ccccccccccccccccc
-c             print *,' iorb=',iorb,ibas,l,k,'init end=',init1,iend1,init2,iend2
-ccccccccccccccccc
-          evecout(init1:iend1,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init2:iend2,:))*phase
+          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase
         enddo
       endif
-c      print *,'rotwvigg :napw_in=',napw_in
 !! apw part
       if(napw_in/=0) then
         ikt  = getikt(q)    !index for q
@@ -2198,7 +2076,7 @@ c      print *,'rotwvigg :napw_in=',napw_in
           qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-          evecout(nlmto+ig,:)= evec(nlmto+ig2,:) * exp( img2pi*sum(qpgr*shtvg(:,igg)) )
+          evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
         enddo
       endif
       ierr=0

@@ -1045,6 +1045,8 @@ c
        enddo
        enddo
       endif
+
+
 cccccccccccccccccccccccccccccccccccccccc
 c        do is = 1,nspinmx
 c        do iqq=1,nq
@@ -1055,6 +1057,8 @@ c        enddo
 c        nrkip=nrkip_all
 cccccccccccccccccccccccccccccccccccccccc
 c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx111'
+
+
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1191,6 +1195,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
         endif
  2001   continue
 
+
 !! --- symmetrize zsec for eibz4sig mode. Sep2012 -----------------
 !!     Rotate zsec(itp,itp)
 !! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
@@ -1235,7 +1240,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
           iblki(1)=1
 !! degeneracy divider for evaliq. See How to apply EIBZ to 
 !! Is this procedure really make speed up so much?
-          tolry=0.2d0 !Degeneracy tol. if tolry is large, 
+          tolry= 0.2d0 !Degeneracy tol. if tolry is large, 
                       !larger tolry is safer, although a little inefficient.
                       !If tolry is too small to divide degenerated values to different blocks --> then we have wrong results.
                       !(NOTE that Hamiltonian can be not so symmetric in some reasons) 
