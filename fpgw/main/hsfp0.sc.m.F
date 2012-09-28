@@ -201,7 +201,7 @@ c     integer:: nbmx
       logical :: iprintx,tiii,timereversal, eibz4sig
 
       integer:: ifevec,ifvxc,nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
-     &  ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2
+     &  ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx,nnnx
       integer,allocatable::iblki(:),iblke(:),nbandmx(:,:)
       complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
@@ -1206,9 +1206,10 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
       open(UNIT=ifevec,file='evec',form='UNFORMATTED',status='OLD')
       open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
       allocate(evaliq(nband),iblki(nband),iblke(nband))
-      read(ifevec)  !ndimhx, nspx,nnnx  !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
+      read(ifevec)  ndimhx, nspx,nnnx  !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
+      if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
       read(ifvxc)   !ndimh, nsp,nnn
-      do 3020 iq=1,nq   
+      do 3020 iq=1,nq   !nq is the irreducible k points . The same as that given in evec v_xc.
       do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
         if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
           read(ifvxc)  nhdim,ldim
@@ -1223,15 +1224,22 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
           read(ifevec)
           cycle
         endif  
-        if(sum(abs(qqqx-q(:,iq)))>1d-8) stop 'hsfp0:qqqx/=q' 
+        do i=1,nq  !qqqx from evec v_xc.
+          if(sum(abs(qqqx-q(:,i)))<1d-6) then
+            iqxx=i
+            goto 3011
+          endif  
+        enddo  
+        stop 'hsfp0_sc: bug:qqqx can not find ...'
+ 3011   continue
         if(tiii) stop 'timereversal is not yet implemented'
-        call readeval(q(:,iq), is, evaliq)
+        call readeval(q(:,iqxx), is, evaliq)
         evec_inv = evec
         call matcinv(nhdim,evec_inv)
-        nsym = sum(eibzsym(:,:,iq))
+        nsym = sum(eibzsym(:,:,iqxx))
         do it=1,1 !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
         do igrp=1,ngrp           !A-rotator
-          if( eibzsym(igrp,it,iq)==0) cycle
+          if( eibzsym(igrp,it,iqxx)==0) cycle
           print *,' igrp in nsym=',igrp,nsym
           !evecout= symgg(ig)*evec
           nblk=0
@@ -1245,12 +1253,12 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                       !If tolry is too small to divide degenerated values to different blocks --> then we have wrong results.
                       !(NOTE that Hamiltonian can be not so symmetric in some reasons) 
           nbsizemx=0
-          do iband=2,nbandmx(iq,is)  ! nbandmx is the number of bands for which we calculate self-energy.
-                                     ! We assume nbandmx(iq,is) is well separated for degeneracy.
-            if(evaliq(iband) > evaliq(iband-1)+tolry .or.iband==nbandmx(iq,is)) then
+          do iband=2,nbandmx(iqxx,is)  ! nbandmx is the number of bands for which we calculate self-energy.
+                                     ! We assume nbandmx(iqxx,is) is well separated for degeneracy.
+            if(evaliq(iband) > evaliq(iband-1)+tolry .or.iband==nbandmx(iqxx,is)) then
               nblk=nblk+1
               if(nblk>=2) iblki(nblk)=iblke(nblk-1)+1
-              if(iband==nbandmx(iq,is)) then
+              if(iband==nbandmx(iqxx,is)) then
                  iblke(nblk)=iband
               else
                 iblke(nblk)=iband-1
@@ -1276,7 +1284,7 @@ ccccccccccccccccccccccccccccccccc
             ii1=iblki(iblk1)
             ie1=iblke(iblk1) 
             ne1=ie1-ii1+1
-            call rotwvigg(igrp,q(:,iq),q(:,iq),nhdim,napw,ne1,evec(:,ii1:ie1),evecrot(:,ii1:ie1),ierr )
+            call rotwvigg(igrp,q(:,iqxx),q(:,iqxx),nhdim,napw,ne1,evec(:,ii1:ie1),evecrot(:,ii1:ie1),ierr )
             rmatjj(1:ne1,1:ne1,iblk1) = matmul(evec_inv(ii1:ie1,:),evecrot(:,ii1:ie1))
           enddo  
           do iblk1=1,nblk  
@@ -1289,14 +1297,14 @@ ccccccccccccccccccccccccccccccccc
             ne2=ie2-ii2+1
             zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) 
      &        + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), 
-     &          matmul(zsec(ii1:ie1,ii2:ie2,iq), rmatjj(1:ne2,1:ne2,iblk2)) )
+     &          matmul(zsec(ii1:ie1,ii2:ie2,iqxx), rmatjj(1:ne2,1:ne2,iblk2)) )
           enddo
           enddo
           deallocate(rmatjj)
         enddo
         enddo
         deallocate(evec, evec_inv, evecrot)
-        zsec(:,:,iq) = zsect/dble(nsym)
+        zsec(:,:,iqxx) = zsect/dble(nsym)
  3030  continue
  3020 continue
       close(UNIT=ifevec)

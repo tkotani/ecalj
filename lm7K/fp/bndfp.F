@@ -1295,13 +1295,14 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         !enddo
       endif
 
+      if(debug) print *,' --- goto rdsigm2 section ---'
 !! === generate \Sigma for q points on all the mesh points. ===
 c      nhmax = ldim + napwmx !napwmx is in m_hamindex
 c      lwsig=0
       if(sigmamode.and.siginit.and. (.not.(llmfgw.and.jobgw==0)) ) then
         ifi = 1
         if (procid .eq. master) ifi = fopna('sigm',-1,4)
-        read(ifi,err=99,end=99) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
+        read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
 c        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
         allocate( qsmesh(3,nk1,nk2,nk3) )
         if(mtosigmaonly()) then
@@ -3151,6 +3152,9 @@ cki       if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
 #endif
 c      call rlse(oevlall)
       deallocate(evlall)
+      return
+ 9995 continue
+      call rx('bndfp: readin error on sigm file')
       end subroutine bndfp
 
 
