@@ -21,12 +21,13 @@ c-----------------------------------------------------
       implicit none
       integer(4):: ngc,ngcmx, ngc2mx, nqibznq0i, iqi,ngcx,ippovl = 9221,idxk
       real(8)::qbas(3,3),qi(3),symope(3,3),qx(3)
-      complex(8),allocatable :: ppxs(:,:,:)
+      complex(8),allocatable :: ppxs(:,:,:),ppxread(:,:)
       integer(4),allocatable :: ngvecc2s(:,:,:),ngvecc2s0(:,:,:),
-     &   ngcs(:), ngc2s(:),ngvecc2_0(:,:)
+     &   ngcs(:), ngc2s(:),ngvecc2_0(:,:),nread(:,:)
       real(8),allocatable :: qxs(:,:)
       logical :: KeepPPOVL
       integer:: verbose
+c      print *,'getppx:'
 cccccccccccccccccccccccccccccccccccccccccc
       if(debug .and. allocated(ngvecc2_0_s)) then
         print *,' getppx :sumcheck ngvecc2_0= 3',ngc2_s(3),sum(abs(ngvecc2_0_s(1:3,1:ngc2_s(3),3)))
@@ -92,7 +93,15 @@ cccccccccccccccccccccccccccc
 c           print *, ' qx ngcx ngc2=', qx_s(:,iqi), ngcx,ngc2
 cccccccccccccccccccccccccccccc
             if(ngcx/=0) then !Aug2005
-              read(ippovl) ngvecc2_0_s(1:3,1:ngc2,iqi),ppx_s(1:ngcx,1:ngc2,iqi)
+              print *,' reading ppx_s'
+              allocate(nread(1:3,ngc2), ppxread(ngcx,ngc2))
+              read(ippovl) nread, ppxread
+              ngvecc2_0_s(1:3,1:ngc2,iqi)=nread
+              ppx_s(1:ngcx,1:ngc2,iqi)=ppxread
+              deallocate(nread,ppxread)
+c              read(ippovl) ngvecc2_0_s(1:3,1:ngc2,iqi),ppx_s(1:ngcx,1:ngc2,iqi)
+              
+              print *,' reading ppx_s finished'
             endif
           enddo
           ppovlclosed =.false.

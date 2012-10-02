@@ -357,12 +357,13 @@ c-----------------------------------------------------
      &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
      & ,pi=3.1415926535897932D0
 !      complex(8) :: geigB  (ngpmx_in,nband,nqbz)
-      complex(8):: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
+      complex(8),allocatable::geig1(:,:),geig2(:,:)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
       integer(4)::verbose
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 
+      allocate( geig1(ngpmx_in,nband),geig2(ngpmx_in,nband))
 c
 c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) print *,' drvmelp2:'
@@ -667,7 +668,7 @@ c-------------------------------------------------
      &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
      &     nadd(3)   !ngvecc(3,ngc)
       complex(8):: geigq1(ngp1,ntp0), geigq1_(ntp0,ngp1),
-     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0*ntp0),  !it was zmelp(ngc,nt0,ntp0); but no effect sep2009.
+     &          geigq2(ngp2,nt0),ge2,  !it was zmelp(ngc,nt0,ntp0); but no effect sep2009.
      &             img=(0d0,1d0) ,phas         ,phase2
       real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
      & ,pi=3.1415926535897932D0, symope(3,3)   ,qx(3)
@@ -676,12 +677,16 @@ c-------------------------------------------------
       integer(4) :: iqi,igc2,ngcx,nn(1:3),
      &       nxmin,nymin,nzmin,nxmax,nymax,nzmax,ix,iy
       integer(4)::verbose,nomatm
+c      complex(8),allocatable ::zmelp(:,:)
+c      allocate(zmelp(ngc,nt0*ntp0))
+      complex(8):: zmelp(ngc,nt0*ntp0)
 
 c------------------------------
-      if(verbose()>=100) print *,' melpln2: '
+      if(verbose()>=90) print *,' melpln2: '
 c- Get ppx and ngvecc2
 c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
       call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
+      if(verbose()>=90) print *,' melpln2: 000111'
       if(ngc/=ngcx) then
         print *, qi, ngcx, ngc
         stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
@@ -696,6 +701,7 @@ c      print *,' melpln2 old sumcheck ngc2 ngvec ppx ='
 c     &  ,ngc2,sum(abs(ngvecc2(1:3,1:ngc2))),sum(abs(ppx(1:ngc,1:ngc2)))
 c      stop 'test end'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      if(verbose()>=90) print *,' melpln2: aaa'
       nxmin =minval(ngvecc2(1,1:ngc2)) ;nxmax=maxval(ngvecc2(1,1:ngc2))
       nymin =minval(ngvecc2(2,1:ngc2)) ;nymax=maxval(ngvecc2(2,1:ngc2))
       nzmin =minval(ngvecc2(3,1:ngc2)) ;nzmax=maxval(ngvecc2(3,1:ngc2))
@@ -707,6 +713,7 @@ c      print *," nxmin:nxmax,nymin:nymax,nzmin:nzmax=",
 c     & nxmin,nxmax,nymin,nymax,nzmin,nzmax
       allocate(ipp(nxmin:nxmax,nymin:nymax,nzmin:nzmax))
       ipp = -10000000
+      if(verbose()>=90) print *,' melpln2: bbb'
       do igc2 =1,ngc2
         ipp(ngvecc2(1,igc2),ngvecc2(2,igc2),ngvecc2(3,igc2))=igc2
 c        nn(1:3) = ngvecc2(1:3,igc2)
@@ -718,7 +725,7 @@ c     &     *sqrt(sum( (qi(1:3)+ matmul(qbas, nn(1:3)))**2 ) )
 
 c      inum =0
 c
-c      print *,' melpln2: sht nadd=',shtv,nadd
+      if(verbose()>=90) print *,' melpln2: sht nadd=',shtv,nadd
 c      do igc = 1,ngc
 c        qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, ngvecc(1:3,igc)))
 c        phase(igc) = exp(-img*sum(qg*shtv))
@@ -730,6 +737,7 @@ c #ifdef EXPAND_MELPLN2
 
       allocate(gg(ngc2,nt0*ntp0),gg_(ntp0,nt0,ngc2)) !sf
       gg_=0d0 !sf
+      if(verbose()>=90) print *,' melpln2: dddd'
       do ig1 = 1,ngp1
         do ig2 = 1,ngp2
           nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd

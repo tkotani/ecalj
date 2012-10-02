@@ -61,6 +61,9 @@
 #LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
 
 
+# fukazawa rcgw
+#LIBLOC= -mkl -L/home/fukazawa/fftw/lib/libfftw3.a
+
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1

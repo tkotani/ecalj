@@ -7,6 +7,7 @@
 #FC = ifort -132 -cm -w90 -w95
 # FC= ifort -132 -check bobunds -traceback !for check array bound
 FC = f95 
+#FC=gfortran44
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
@@ -120,10 +121,11 @@ tet5_g = .o
 # it caused segmentation fault during lmf. (just after BNDFP: started).
 #LIBMATH= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
 
-# ubuntu 9.10
+# ubuntu 
 #LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
 
-#LIBLOC= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
+#LIBLOC= /opt/acml4.4.0/gfortran64/lib/libacml.a /usr/lib64/libfftw3.so.3
+
 LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
 
@@ -167,7 +169,7 @@ LIBMATH= $(LIBLOC)
 ###for sr8k
 #LKFLAGS2 = $(COMMON) $(ECAL)/slatsm/slatsm.a  -lblas -llapack -lpl -parallel  -lm
 
-LK = f95
+LK = $(FC) 
 #LK= ifort -parallel 
 
 LKFLAGS2 = $(LIBMATH) 

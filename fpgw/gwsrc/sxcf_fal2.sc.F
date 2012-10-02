@@ -342,7 +342,7 @@ c
       complex(8),allocatable ::w3p(:,:,:)   
       logical :: debug, debugp,debug2=.false.,initp=.true.
 
-      real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:)
+      real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:),drealzzzmel(:,:,:),dimagzzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
      &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:)
       complex(8) :: wintzav,wintzsg_npm
@@ -831,15 +831,21 @@ c>> valence
 !! -- IPW part.
         allocate( rmelt(ngb, nctot+nbmax, ntqxx), ! nstate= nctot+nband
      &          cmelt(ngb, nctot+nbmax, ntqxx))
-        if(debug) print *, ' sxcf_fal1: goto drvmelp'
+        if(debug) print *, ' sxcf_fal1: goto drvmelp2 xxx111'
+        allocate(drealzzzmel(nbloch,nt,ntqxx),dimagzzzmel(nbloch,nt,ntqxx))
+        drealzzzmel=dreal(zzzmel)
+        dimagzzzmel=dimag(zzzmel)
         call drvmelp2( q,             ntqxx,  ! q in FBZ
      i                 q-qbz_kr,  nbmax,  ! q-rk
      i                 qibz_k,            ! k in IBZ for e-product basis
      i         isp,ginv,
      i       ngc,ngcmx, ngpmx,nband,itq, 
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
+c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
+     i       drealzzzmel, dimagzzzmel, nbloch, nt,nctot,
      o       rmelt,cmelt)
+        if(debug) print *, ' sxcf_fal1: end of drvmelp2'
+        deallocate(drealzzzmel,dimagzzzmel)
         if(verbose()>50) call timeshow("5 after drvmelp")
         if(nbcut/=0.and.(.not.exchange)) then
           do it= nctot+1,nctot+min(nbcut,nbmax)
@@ -892,7 +898,7 @@ c 1113 continue
           no=ngb
         endif
         if( oncew() ) then
-          write(6,"('ngb nn=',3i4)") ngb,nn,no
+          write(6,"('ngb nn no=',3i6)") ngb,nn,no
         endif
 
         if(timemix) call timeshow("22222 k-cycle")

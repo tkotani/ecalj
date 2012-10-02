@@ -260,7 +260,7 @@ c
 
 c
       real(8),allocatable:: !rmel(:,:,:),cmel(:,:,:),
-     &                      rmelt(:,:,:),cmelt(:,:,:)
+     &                      rmelt(:,:,:),cmelt(:,:,:),drealzzmel(:,:,:),dimagzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzmel(:,:,:),
      &     zw (:,:), zwz(:,:,:), zwz0(:,:),zwzi(:,:),zwz00(:,:)
 c for exchange --------------------
@@ -790,15 +790,19 @@ c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
         if(debug)write(6,"('==goto drvmelp2 qibz_k ngc=',3f9.4,'  ',i5)") qibz_k,ngc
-
+        allocate(drealzzmel(nbloch,nt,ntq),dimagzzmel(nbloch,nt,ntq))
+        drealzzmel=dreal(zzmel)
+        dimagzzmel=dimag(zzmel)
         call drvmelp2( q,   ntp0, ! q in FBZ
      i                 q-qbz_kr, nbmax,  ! q-rk
      i                 qibz_k,           ! k in IBZ for e-product basis
      i                 isp,ginv,   
      i       ngc,ngcmx,ngpmx,nband,itq, 
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
+     i       drealzzmel, dimagzzmel, nbloch, nt,nctot,
+c     i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
      o       rmelt,cmelt)
+        deallocate(drealzzmel,dimagzzmel)
         if(debug) write(6,"('--end of drvmelp2 sum(zmelt)=',4d23.16)") sum(zzmel),sum(abs(zzmel))
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
@@ -876,7 +880,7 @@ c 1113 continue
         endif
 
         if( oncew() ) then
-          write(6,"('  ngb nn=',3i4)") ngb,nn,no
+          write(6,"('  ngb nn no=',3i6)") ngb,nn,no
         endif
 
 ccccccccccccccccccccccccccccccccccccccccc
