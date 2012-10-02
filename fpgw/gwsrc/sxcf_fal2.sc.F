@@ -414,14 +414,14 @@ C...
       complex(8)::zmelt1,zmelt0,zmelt2
       real(8)::voltot
       logical :: newaniso,testomitq0
-      complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:)
+      complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:),zmeltt(:,:,:)
       real(8),allocatable::vcoud(:),vcousq(:)
       integer:: invg(ngrp),invrot,invr
 
       integer:: il(*),in(*),im(*),nlnm(*),nn_,lx(*),nx_(*),nxx_
       real(8)::  cgr(*),ppbrd(*)
 
-      integer:: nprecx,mrecl,ifwd
+      integer:: nprecx,mrecl,ifwd,nrot
       character(5):: charnum5
 
       real(8):: eq(nband),qip(3,*)
@@ -647,6 +647,20 @@ c          endif
         ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
         ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
         endif
+
+        nrot=0
+        do irot = 1,ngrp
+        if( kx <= nqibz) then
+          kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
+          if(kr==0) cycle
+          qbz_kr= qbz (:,kr) 
+        else
+          kr=-99999 !for sanity check
+          qbz_kr= 0d0
+          if( wgt0(kx-nqibz,irot)==0d0 ) cycle
+        endif
+        nrot=nrot+1
+        enddo  
           
 !! === loop 1000 over rotations irot ===
       do 1000 irot = 1,ngrp
@@ -659,7 +673,8 @@ c          endif
           qbz_kr= 0d0
           if( wgt0(kx-nqibz,irot)==0d0 ) cycle
         endif
-        write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
+c        write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
+        write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,nrot
 
 c$$$        if( kx <= nqibz ) then
 c$$$          kr = irk(kx,irot) ! index for rotated k in the FBZ
@@ -1023,6 +1038,15 @@ ccccccccccccccccccccccccccccc
           endif  
 
           if(newaniso()) then
+            allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
+            do itp= 1,ntqxx
+            do it = 1,nctot+nbmax
+            do ivc=1,ngb
+              zmeltt(it,itp,ivc) =  sum( zmel(:,it,itp)* ppovlz(:,ivc) )
+            enddo
+            enddo
+            enddo
+
             do 992 itpp= 1,ntqxx
             do 993 itp = 1,ntqxx
               do 994 it  = 1,nctot+nbmax
@@ -1034,13 +1058,15 @@ c                    print *,'wklm(1) vc=',wklm(1),vc
                   else
                     vc= vcoud(ivc)
                   endif
-                  zmelt1 =  sum( zmel(:,it,itp)  *ppovlz(:,ivc) )
-                  zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
-                  w3p(it,itp,itpp) = w3p(it,itp,itpp)+ vc * zmelt1*dconjg(zmelt2)
+c                  zmelt1 =  sum( zmel(:,it,itp)  *ppovlz(:,ivc) )
+c                  zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
+                  w3p(it,itp,itpp) = w3p(it,itp,itpp)
+     &               + vc * zmeltt(it,itp,ivc)*dconjg(zmeltt(it,itpp,ivc))
                 enddo
  994          continue
  993        continue
  992        continue
+            deallocate(zmeltt)
           else
             do itpp= 1,ntqxx
             do itp = 1,ntqxx
