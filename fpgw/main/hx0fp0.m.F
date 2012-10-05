@@ -2892,7 +2892,7 @@ cc        ifisk = iopen('WKcomponent',0,-1,0)
         allocate( wklm(nlxklm))
         read(ifidmlx) dmlx, epinv,epinvq0i
         read(ifidmlx) wklm
-        ifidmlx = iclose(ifidmlx)
+        ifidmlx = iclose('EPSwklm')
 !! starting from llw(iw,iq0),llwI(iw,iq0)
 !! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
         allocate(w0(nw_i:nw),w0i(niw))

@@ -825,7 +825,7 @@ c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
         allocate( wklm((lxklm+1)**2))
         read(ifidmlx) dmlx, epinvq0i
         read(ifidmlx) wklm
-        ifidmlx = iclose(ifidmlx)
+        ifidmlx = iclose('EPSwklm')
       endif
 
 c---------------------------------------------
