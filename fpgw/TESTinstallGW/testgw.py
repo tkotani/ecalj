@@ -97,7 +97,7 @@ comparekey="' '"
 #
 testn='gas_eps_lmfh'
 testname.append(testn)
-testcput[testn]='--> require 30 sec'
+testcput[testn]=' eps_lmfh gas --> OK!  UsedCPUotime= 21.521345'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas>llmf','eps_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -118,7 +118,7 @@ testcommand.append([comp1,comp3,comp4,comp1a,comp3a,comp4a ])
 #
 testn='gas_epsPP_lmfh'
 testname.append(testn)
-testcput[testn]='--> require 26 sec'
+testcput[testn]=' epsPP_lmfh gas --> OK!  UsedCPUtime= 13.392837'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas>llmf','epsPP_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -133,7 +133,7 @@ testcommand.append([comp1,comp3,comp4 ])
 #
 testn='fe_epsPP_lmfh_chipm'
 testname.append(testn)
-testcput[testn]='--> require 32 sec'
+testcput[testn]=' epsPP_lmfh_chipm fe --> OK!  UsedCPUtime= 10.280643'
 startfile.append('ctrl.fe GWinput')
 commands.append(['lmfa fe > llmfa','lmf fe>llmf','epsPP_lmfh_chipm fe'])
 datadir  = testdir+ '/' + testn+'/'
@@ -152,7 +152,7 @@ testcommand.append([comp1,comp2,comp3,comp4,comp5 ])
 #
 testn='si_gw_lmfh'
 testname.append(testn)
-testcput[testn]='--> require 12 sec'
+testcput[testn]=' gw_lmfh si --> OK!  UsedCPUtime= 9.980624'
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa','lmf si > llmf_lda','gw_lmfh si'])
 datadir  = testdir+ '/' + testn+'/'
@@ -161,7 +161,7 @@ testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 #
 testn='gas_pw_gw_lmfh'
 testname.append(testn)
-testcput[testn]='--> require 30 sec'
+testcput[testn]=' gw_lmfh gas --> OK!  UsedCPUtime= 24.929558'
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas > llmf_lda','gw_lmfh gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -170,7 +170,7 @@ testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 #
 comparekey=" 'fp pot' 'fp evl'"
 testn='si_gwsc'
-testcput[testn]='--> require 160 sec'
+testcput[testn]=' gwsc1shot si --> OK!  UsedCPUtime= 46.974936'
 testname.append(testn)
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa','gwsc1shot si'])
@@ -180,7 +180,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'
 
 #
 testn='gas_gwsc'
-testcput[testn]='--> require 160 sec'
+testcput[testn]= ' gwsc1shot gas --> OK!  UsedCPUtime= 71.964497'
 testname.append(testn)
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','gwsc1shot gas'])
@@ -192,7 +192,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.ga
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
 #
 testn='nio_gwsc'
-testcput[testn]='--> require 915 sec'
+testcput[testn]=' gwsc1shot nio --> OK!  UsedCPUtime= 225.150071'
 testname.append(testn)
 startfile.append('ctrl.nio GWinput')
 commands.append(['lmfa nio > llmfa','gwsc1shot nio'])

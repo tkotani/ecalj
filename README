@@ -28,16 +28,13 @@ ecalj is a firts-principle electronic structure calculation package in f90.
 Version ctrl by git. In cases, we use python.
 
 NOTE:
-PMT-QSGW is still under alpha version (not tested well). 
-This maps self-energy onto MTO basis. Thus they should be localized well.
-"EH=-1 and EH2=-2" is a choice; it seems works fine for NiO case.
+*PMT-QSGW is still under test phase, although it works fine for
+limited cases until now, such as GaAs, NiO, CuGaSe2,...
+PMT-QSGW maps self-energy onto MTO basis. Thus MTO's should be localized
+well. This means, we use "EH=-1 and EH2=-2" as a choice.
 
-It is still under reserch about how to manage input file.
-In addition, some clean up for source code and changes of algolism for
-interpolation of sigma is expected (this problem is carried from LMTO-QSGW).
-
-ecalj/fpgw/GWsamplesW contains some samples. 
-(nio_PMT444 is not finished yet.)
+*In addition, some clean up for source code and changes of algolism for
+interpolation of sigma is expected (This problem is carried from LMTO-QSGW).
 
 
 ################## Install and test of lm7K ########################
@@ -96,24 +93,31 @@ at ecalj/lm7K just moves all requied binaries to your ~bin.
 
 ################## Install and test for fpgw ####################### 
 *Installation for fpgw/
-At fpgw/exec/ directory, you have to run 
+At fpgw/exec/ directory, you have to edit make.inc.
+Especially note option, -heap-arrays for ifort
+(to avoid Segmentation fault due to stacksize limit (ulimit -a), it is
+required. Or you can set ulimit -s unimited).
+ 
+
+Then you have to run 
 >make
 >make install
 >make install2
-. Before this, you have to set blas and lapack in fpge/exec/make.inc.
---------------------
+Before this, you have to set blas and lapack in fpge/exec/make.inc.
+
+-------------
 *Installation test for fpgw/
 
-At fpgw/TESTInstallGW/, run
->./testgw.py --all
-(nio_gwsc may fail. not maintaied yet...)
+At fpgw/exec/
+>make check
+(this is equivalent to cd ../TESTinstallGW;./testgw.py --enforce --all) 
 
-It makes temp_* directories under TESTinstallGW/.
+It makes temp_* directories under fpgw/TESTinstallGW/.
+At the directory, 
 >./testgw.py --help
-shows help.
+shows help for the test controller testgw.py
 
-ni_gwsc take 1000sec or so.
-just type ./testgw.py shows help
+All tests will require ~10min.  (nio_gwsc takes ~300sec)
 
 ---------------------------
 * Other points

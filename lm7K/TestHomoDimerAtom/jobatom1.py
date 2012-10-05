@@ -294,7 +294,7 @@ setting['JOBLIST___']=\
   echo ' rmt(a.u.)=' $rmt
   #mv save.dimer save.dimer.bk
   #lmfa --noopt dimer $arguments0 > llmfa
-  rm -f {rst,mixm,moms}.dimer
+  rm -f {mixm,moms}.dimer
   #echo start ctrl dimer dis= $dis pwe= $pwe
   lmf --rs=1,1,1,0,0 dimer -vdis=$dis -vpwemax=$pwe $arguments0  > llmf,dis=$dis,pwe=$pwe
 '''

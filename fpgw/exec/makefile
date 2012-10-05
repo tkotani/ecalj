@@ -694,6 +694,9 @@ eout2: $(EO2)
  kino_input_test:	$(kino_input_test) $(GW0)
 	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GW0) $(LKFLAGS2) -o $@
 
+check:
+	(cd ../TESTinstallGW;./testgw.py --enforce --all) 
+
 ################################ test
 #
 # test_genallcf:	$(test_genallcf) 

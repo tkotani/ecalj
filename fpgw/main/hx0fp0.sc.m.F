@@ -1461,8 +1461,13 @@ c$$$              allocate( skI( ngb),  sksI(ngb), w_kI(ngb), w_ksI(ngb) )
 c$$$              ifepstinv = iopen('EPS0inv',0,0,0)
 c$$$              read(ifepstinv) ngb
 c$$$            endif
-            allocate(epstilde(ngb,ngb))
-            allocate(epstinv(ngb,ngb))
+           if(iq==1) then
+             ix=1
+            else
+             ix=0
+            endif
+            allocate(epstilde(ix+1:ngb,ix+1:ngb))
+            allocate( epstinv(ix+1:ngb,ix+1:ngb))
           endif
 
           write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
@@ -1477,7 +1482,6 @@ c$$$            endif
                 else
                   ix=0
                 endif
-
 !!  Eqs.(37),(38) in PRB81 125102
                 do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
@@ -1486,7 +1490,7 @@ c$$$            endif
                 enddo
                 enddo
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+                call matcinv(ngb-ix,epstinv) ! =epstinv(ix+1:ngb,ix+1:ngb))
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cmmm direct inversion vs. block inversion
 c$$$                if(iq>nqibz) then
@@ -1665,7 +1669,7 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
                 enddo
               enddo
               epstinv=epstilde
-              call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+              call matcinv(ngb-ix,epstinv) ! = epstinv(ix+1:ngb,ix+1:ngb)
               do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
                   zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)

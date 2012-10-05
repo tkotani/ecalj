@@ -164,14 +164,16 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
-      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb),zcousqc(ngbb,ngbb)
-     & ,rzc(ngbb,ngbb),zrrx(ngbb,ngbb),zcousqinv(ngbb,ngbb),cmat(ngbb,ngbb)
+c      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqc(ngbb,ngbb),zcousqrx(ngbb,ngbb)
+c     & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb)
+      complex(8),allocatable:: zrrx(:,:),zcousqinv(:,:) 
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:)
+      complex(8),allocatable::geig1_(:,:),geig2_(:,:),zmelt_(:,:,:)
 c ------------------------------------------------
-
+      allocate(zrrx(ngbb,ngbb),zcousqinv(ngbb,ngbb))
 
 cooo ccccccccccccccccccccccccccccc
 c      complex(8),allocatable :: ppovlzinv(:,:)
@@ -412,15 +414,25 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
         if(ngc/=0) then !Aug2005
+          allocate( geig1_(1:ngp1, itps:itps+ntp0-1) )
+          allocate( geig2_(1:ngp2, 1:nt0) )
+          allocate( zmelt_(nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0) )
+          geig1_= geig1(1:ngp1, itps:itps+ntp0-1) 
+          geig2_= geig2(1:ngp2, 1:nt0     )
           call melpln2(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
 c     &           , ngc,  ngveccB,  nadd,
      &           , ngc,  nadd,
-     &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
-     &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
+c     &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
+c     &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
+     &       geig1_, ntp0, ! q1=q+k  ; kp
+     &       geig2_,  nt0, ! q2=k    ; k
      i       shtv,  q, q,  symope,qbas,
 C... extensiton to nbloch+ngc       
-     o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
+c     o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
+     o       zmelt_)
+          zmelt(nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0) =zmelt_
+          deallocate(zmelt_,geig1_,geig2_)
         endif
         zmelt(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0) = 
      &  zzmel(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0)
@@ -841,7 +853,7 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
 
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
-        zcousqc=dconjg(transpose(zcousq))
+c        zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
         do iw=1,nwt
         do jpm=1,npm
