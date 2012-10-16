@@ -334,9 +334,10 @@ c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
       endif
 c apw part ------------
       if(napw_in/=0) then
-        stop ' Probably OK-->Remove this stop to use this branch.'
+        write(*,*) ' Probably OK-->Remove this stop to use this branch.'
      &   //' But need to confirm two apw sections in this routines.(phase factors) '
      &   //' Idea of this routine: <i|\sigma|j>_qout= <g(i)|\sigma|g(i)>_qin, where qin=g(qout)'
+        stop 'abort'
         ikt  = getikt(q)    !index for q
         ikt2 = getikt(qtarget) !index for qtarget
         print *,' rotsig ikt ikt2=',ikt,ikt2
