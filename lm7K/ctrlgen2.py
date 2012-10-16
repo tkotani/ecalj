@@ -890,10 +890,11 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       #For LDA+U calculation, see http://titus.phy.qub.ac.uk/packages/LMTO/fp.html#ldaplusu
 
       #For QSGW. you have to set them. Better to get some samples.
-      #RDSIG=
-      #RSRNGE=
+      #RDSIG=12
+      #SIGP[MODE=3 EMAX=1.5]
+      ## RSRNGE=6.0 
 
-      #SO=        default = 0
+      #SO=1       default = 0
       #Spin-orbit coupling (for REL=1)
       #0 : no SO coupling
       #1 : Add L.S to hamiltonian (but non-colinear density yet).

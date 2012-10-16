@@ -186,6 +186,19 @@ C       A root was found
         endif
  10   continue
 C--------------------------------------
+
+cccccccccccccccccccccccccccccccccc
+!! weitht modification by hand for Vanadium atom.
+c      wtkb(8,1,1)=0d0                                                            
+c      wtkb(9,1,1)=1d0                                                            
+c      wtkb(10,1,1)=1d0                                                           
+c      do ie=1,20                                                                 
+c       write(*,"('vvvvvv up:',i3,f13.6,' ',2f13.4)")ie,eb(ie,1,1),wtkb(ie,1,1)   
+c      enddo                                                                      
+c      do ie=1,20                                                                 
+c       write(*,"('vvvvvv dn:',i3,f13.6,' ',2f13.4)")ie,eb(ie,2,1),wtkb(ie,2,1)   
+c      enddo                                                                      
+ccccccccccccccccccccccccccccccccccc              
 c
       ele1 = (zval+amom)/2d0
       ele2 = (zval-amom)/2d0

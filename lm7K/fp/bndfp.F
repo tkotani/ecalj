@@ -1975,6 +1975,46 @@ c  then how can I share the same file among the different processes?
 c              print *,'savez getz=',savez,getz,iq,iqini,isp,nmx
 !! In principle, we only need to calculate bands up to nmx. But cuttent version (june2011)
 !! calculate all bands.  nmx= maximum number of eigenvalue. subzi can give nmx larger than ndimhx
+cccccccccccccccccccccccccccccccccccccccccccc
+c$$$              hamm(5:9,1:4,:)=0d0
+c$$$              hamm(5:9,10:,:)=0d0
+c$$$              hamm(1:4,5:9,:)=0d0
+c$$$              hamm(10:,5:9,:)=0d0
+c$$$              ovlm(5:9,1:4,:)=0d0
+c$$$              ovlm(5:9,10:,:)=0d0
+c$$$              ovlm(1:4,5:9,:)=0d0
+c$$$              ovlm(10:,5:9,:)=0d0
+c              hamm(5:9,:,:)=0d0
+c              hamm(:,5:9,:)=0d0
+c              ovlm(5:9,:,:)=0d0
+c              ovlm(:,5:9,:)=0d0
+c              do i=5,9
+c                 ovlm(i,i,:)=1d0
+c              enddo
+c              hamm(21:25,:,:)=0d0
+c              hamm(:,21:25,:)=0d0
+c              ovlm(21:25,:,:)=0d0
+c              ovlm(:,21:25,:)=0d0
+c              do i=21,25
+c                 ovlm(i,i,:)=1d0
+c              enddo
+c$$$              hamm(1:4,:,:)=0d0
+c$$$              hamm(:,10:,:)=0d0
+c$$$              ovlm(1:4,:,:)=0d0
+c$$$              ovlm(:,10:,:)=0d0
+c$$$              do i=1,4
+c$$$                 ovlm(i,i,:)=1d0
+c$$$              enddo
+c$$$              do i=10,ndimhx
+c$$$                 ovlm(i,i,:)=1d0
+c$$$              enddo
+c$$$              do i=1,4
+c$$$                 hamm(i,i,:)=1d0
+c$$$              enddo
+c$$$              do i=10,ndimhx
+c$$$                 hamm(i,i,:)=1d0
+c$$$              enddo
+ccccccccccccccccccccccccccccccccccccccccccccc
               call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
      .          evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.

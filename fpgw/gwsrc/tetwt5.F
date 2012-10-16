@@ -860,7 +860,7 @@ Cr wtthis is accumulated
       implicit none
       integer(4):: itetx(4),ix,i,ieaord(4),isig,n,itmp
       real(8) ::  kk_(3,1:8),xx_(1:8),       !Kx_(3,1:4),xKx_(1:4),ebfKx(1:4), 
-     &    kk(3,1:8),xx(1:8),ebf(1:4),ebfin(1:8) ,ee(4)  ,kin(3,4), xin(4)
+     &    kk(3,1:8),xx(1:8),ebf(1:8),ebfin(1:8) ,ee(4)  ,kin(3,4), xin(4) !ebf(1:8) bugfix oct2012nagara
       integer(4):: nwhis
       real(8):: frhis(nwhis+1),wtthis(nwhis,4)
       logical :: chkwrt=.false.

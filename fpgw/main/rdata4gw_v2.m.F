@@ -1728,6 +1728,7 @@ c     endif
 
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         qx  = qibze(1:3,iqi)
+        ngc2x(iqi)=1 !this is not to cause error for -checkbound.
         call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo

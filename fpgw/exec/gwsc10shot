@@ -36,7 +36,7 @@ endif
 
 
 ##########################################################################
-foreach i2x (0 1 2 3 4 5 6 7 8 9 )
+foreach i2x (0 )
 foreach i1x (0 1 2 3 4 5 6 7 8 9 )
 @ ix = $i2x * 10 + $i1x
 ### itteration loop start #################################################
@@ -134,6 +134,12 @@ echo 0|$nfpgw/hvccfp0  >lvcc
 echo 1|$nfpgw/hsfp0_sc   >lsx
 
 # -- Sergey.F the screened coulom interaction 
+if(-e WVI) then
+  rm -f WVI 
+endif
+if(-e WVR) then
+  rm -f WVR 
+endif
 echo 11|$nfpgw/hx0fp0_sc  >lx0
 
 #########################################################
@@ -147,23 +153,16 @@ echo 2|$nfpgw/hsfp0_sc   >lsc
 # -- Make summary 
 echo 0|$nfpgw/hqpe_sc    >lqpe
 
-
 ### end of itteration loop #########################################################
 cp evec.$argv[1] evec_prev_iter
 ln -s -f sigm sigm.$argv[1]
 mv SEX* SEC* XC* SEBK
-
-
-#### exit only for a loop
-$nfpgw/lmf $argv[1] > llmf_final
-exit
-
-
-
 foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
   if(-e $file) cp $file $file.${ix}run
 end
 echo $ix 'iteration over'
 end
 end
+$nfpgw/lmf $argv[1] > llmf_final
+
 exit

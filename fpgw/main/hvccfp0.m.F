@@ -1136,7 +1136,7 @@ c          enddo
 cccccccccccccccccccccccccccccccccccccccccc
           deallocate(vcoul0)
 
-          if(wqt(iqx-nqibz)==0d0) then
+          if(iqx>nqibz.and.wqt(iqx-nqibz)==0d0) then
 
 C --- To get the vector <Mixed basis| q=0> --------------
 cki            if(is_mix0vec()==0) then     !used original befor oct2006

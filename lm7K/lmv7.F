@@ -1,20 +1,24 @@
-C For lmf, lmfgw. Single core, MPI, and MPIK modes.
       program lmf
-C- Main program for lmf and so on.
-      use m_struc_def
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_tb,s_spec,s_site
       use m_rdctrl2_func, only: rdctrl2
-      use m_globalvariables
+c      use m_globalvariables
 #if MPI | MPIK
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 #endif
       implicit none
+!! == Main program for lmf and so on. ==
+!! For lmf, lmfgw. Single core, MPI, and MPIK modes.
+!! ============================
       integer procid, master, mpipid, nproc
 #if MPI | MPIK
       include "mpif.h"
 #if MPE
       include "mpef.h"
+#endif
+#if MPI | MPIK
+      integer fext
 #endif
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -32,19 +36,6 @@ c      include "fp/events.ins"
 c#endif MPE
 #endif
 
-cC Heap allocation
-c      integer wksize
-c#if MPI | MPIK
-c      parameter(wksize= 300 000 000)
-c#else
-c      parameter(wksize= 300 000 000)
-c#endif
-c      integer w(wksize)
-cC     Next two lines guarantee w is aligned along a d.p. boundary
-c      double precision ws
-c      equivalence (ws,w(1))
-c      common /w/ w
-
 C ... Controls for IO
       integer lstrn
       parameter (lstrn=20000)
@@ -56,8 +47,6 @@ C ... Structure for strings
 C ... For structures
       logical lgors
       integer mxspec
-CKi      integer v_sbz,v_sctrl,v_slat,v_sham,v_spot,v_smix,v_sspec,v_ssite,v_sarry,
-CKi     .  v_smove,v_sstr,v_stb
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_lat):: v_slat
@@ -68,15 +57,10 @@ CKi     .  v_smove,v_sstr,v_stb
       type(s_move):: v_smove
       type(s_str):: v_sstr
       type(s_tb):: v_stb
-
-ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
       type(s_spec),allocatable:: v_sspec(:)
-ckino Jan.04.2012:        type(s_site),pointer:: v_ssite(:) =>NULL()
       type(s_site),allocatable:: v_ssite(:)
-
       parameter (mxspec=256)
       character*8 slabl(mxspec)
-
 C ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
@@ -84,11 +68,6 @@ C ... miscellaneous local variables
       double precision vn(2),vn2(2),dglob
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
-
-#if MPI | MPIK
-      integer fext
-#endif
-
 C ... Program-dependent name and help
 #if LMFGWD
       data prgnam /'LMFGWD'/
@@ -97,30 +76,19 @@ C ... Program-dependent name and help
 #elif  LMDOS
       data prgnam /'LMDOS'/
 #endif
-
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
       parameter (mxrecs=10000,recln0=120)
       character*8 alabl
-c      character*1 recrd(0:1)
-c      equivalence( recrd(0),w(1))
-CKi      character*1,allocatable:: recrd(:)
-cki      character:: recrd_(0:mxrecs*recln0-1)
       character*(mxrecs*recln0):: recrd
-cki      equivalence ( recrd, recrd_ )
-
-
       real(8),parameter::    NULLR =-99999
       real(8)::pwmode,pwemin,pwemax
-
       integer::ic
       real(8):: bz_w,dval!test
       logical:: fileexist
+!! =================================================================
 
 #if MPI|MPIK
       integer  nsize, id
-c      include 'mpif.h'
-c      integer ierr, nsize, id
-c      character(14):: testbuf
       call mpi_init(ierr)
 cstart--- check mpi. You can delete this.
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
@@ -131,7 +99,6 @@ cend-----
 
 C --- Version ---
       call show_programinfo(6)
-
       vrsion(1) = 'LM'
       vrsion(2) = ' '
       vn(1) = 7.00d0
@@ -214,36 +181,21 @@ c      call poppr
       call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
       if (procid .eq. master) then
 #if MPE
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RDCTRL,EVENT_END_RDCTRL,
-     .  "rdctrl","pink")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_UGCOMP,EVENT_END_UGCOMP,
-     .  "ugcomp","maroon")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_FSMBL,EVENT_END_FSMBL,
-     .  "fsmbl","aquamarine")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_PZHEV,EVENT_END_PZHEV,
-     .  "pzhev","brown")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_KLOOP,EVENT_END_KLOOP,
-     .  "k-loop","brown")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_MIXRHO,EVENT_END_MIXRHO,
-     .  "mixrho","orange")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_SMHSBL,EVENT_END_SMHSBL,
-     .  "smhsbl","blue")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_AUGMBL,EVENT_END_AUGMBL,
-     .  "augmbl","cyan")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_HSIBL,EVENT_END_HSIBL,
-     .  "hsibl","gray")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RSIBL,EVENT_END_RSIBL,
-     .  "rsibl","red")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RLOCBL,EVENT_END_RLOCBL,
-     .  "rlocbl","green")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_DFRCE,EVENT_END_DFRCE,
-     .  "dfrce","magenta")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_BCAST,EVENT_END_BCAST,
-     .  "broadcast","coral")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_ALLRED,EVENT_END_ALLRED,
-     .  "allreduce","purple")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER,
-     .  "barrier","yellow")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_RDCTRL,EVENT_END_RDCTRL,"rdctrl","pink")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_UGCOMP,EVENT_END_UGCOMP,"ugcomp","maroon")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_FSMBL,EVENT_END_FSMBL,  "fsmbl","aquamarine")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_PZHEV,EVENT_END_PZHEV,  "pzhev","brown")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_KLOOP,EVENT_END_KLOOP,  "k-loop","brown")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_MIXRHO,EVENT_END_MIXRHO,"mixrho","orange")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_SMHSBL,EVENT_END_SMHSBL,"smhsbl","blue")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_AUGMBL,EVENT_END_AUGMBL,"augmbl","cyan")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_HSIBL,EVENT_END_HSIBL,  "hsibl","gray")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_RSIBL,EVENT_END_RSIBL,  "rsibl","red")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_RLOCBL,EVENT_END_RLOCBL, "rlocbl","green")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_DFRCE,EVENT_END_DFRCE,  "dfrce","magenta")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_BCAST,EVENT_END_BCAST,  "broadcast","coral")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_ALLRED,EVENT_END_ALLRED, "allreduce","purple")
+        ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER, "barrier","yellow")
 #endif
         call gettime(datim)
         if (mlog) i = fopn('MLOG')
@@ -287,7 +239,6 @@ c      call poppr
       if (ext(j:j) .eq. '.') j=j-1
       if (j .ge. i) call ptenv('EXT='//ext(i:j))
 #endif
-
 
 C ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
@@ -345,8 +296,7 @@ c        call shosyv(0,-1,0,6)
           i = 60
           if (cmdopt('--show',6,0,strn)) then
             i = 1
-            call info0(i,0,0,' ------------------------ End '//
-     .      'of input file ----------------------')
+            call info0(i,0,0,' ------------------------ End of input file ----------------------')
           endif
           call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
      .    ' input file',nrecs,0)
@@ -368,18 +318,10 @@ C      enddo
 C      write(stdo,*)' --- end of rdfile --- '
 C      call rx('done')
 
-C --- Read recrd ---
-c tkotani found nmap is not zero cleared.
-cccccccccccccccccc
-c      print *,' uuuu000 111 nmap=',int(v_sctrl%nmap)
-c      v_sctrl%nmap=9999
-cccccccccccccccccc
-
+!! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .v_sarry,v_smove,v_stb,sstrn)
+     . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     . v_sarry,v_smove,v_stb,sstrn)
 
 #if MPI | MPIK
 #if MPE
@@ -391,68 +333,49 @@ ckino Jan.04.2012:       .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspe
       ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
 #endif
 #endif
-
-
-
 C --- Lattice setup ---
       print *,'goto setcg'
       call setcg(v_slat,8,12)
-ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       call upacks('strn symg',i,j)
       if (j .ge. i) strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 10
-
 #ifndef LMFGWD
-Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
-c this is equivalent to
-c       if ( v_sctrl%lqp==0 ) lc = lc+2
 #endif
-ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
-
       if (cmdopt('--sfill',7,0,strn)) then
         call rx('no --sfill option in lm7K')
       endif
 
 C ... Set default values for species data
-ckino Jan.04.2012:        call defspc(v_sspec)
       call defspc(v_sspec)
 
 C ... Patch for now ... maybe replace
 #if LMF
 #ifndef LMFGWD
-Cgetarg       ltet = lgors('ctrl lmet,1',v_sctrl) .or.
-Cgetarg      .       lgors('ctrl ldos,4+2+1',v_sbz)
       ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+!! iand(4+1,i) = 1,0,0,4,5,5,4,0,  1,0,0,4,5,5,4,...
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
 
 C ... quit after SHOW
-Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
-      if ( int(v_sctrl%quit) .eq. 1 ) then
-
+      if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
 
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-ckino Jan.04.2012:       .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
-ckino Jan.04.2012:       .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
      .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif
-
-
-C -------------- End of program -------------
+!! -------------- End of program -------------
  1000 continue
 #if MPI | MPIK
 #if MPE
@@ -471,7 +394,6 @@ C -------------- End of program -------------
 #else
       call rx0(prgnam)
 #endif
-
 #if MPI|MPIK
       call mpi_finalize(ierr)
 #endif

@@ -318,7 +318,7 @@ c$$$        call pack5('ctrl lasa',v_sctrl,lasa,0,0,0,0)
 c$$$        return
 c$$$      endif
 
-C --- Read input parameters from contents of rcd ---
+!! --- Read input parameters from contents of rcd ---
       call readctrl(prgnam,vrsion(1),vn(1))
       if (io_help > 0) then
         call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,

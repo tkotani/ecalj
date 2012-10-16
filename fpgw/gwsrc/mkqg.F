@@ -261,6 +261,7 @@ c        endif
         allocate( ngcx(nqbz) )
         do iq = 1, nqbz
           q   = qbz(1:3,iq)
+          ngcx(iq)=1 !to avoid array boundary check fails.
           call getgv2(alat,plat,qlat,q, QpGcut, 1, ngcx(iq),  dummy)
         enddo
         ngcxx = maxval(ngcx)
@@ -301,7 +302,7 @@ c          nq0x = 8*abs (q0pchoice())
         if(noq0p) then
           nq00i=0
           print *,' TestNoQ0P=.true. '
-          nq0i=0
+          nq0i=1 ! we use 1 (it can be 1 in principle) to avoid array boundary check failure.
         else
           nmm=1
           if(.not.timereversal()) nmm=2
@@ -865,8 +866,10 @@ c      close(ifix)
       imxc=0
       do iq = 1, nqnum
         q = qq(1:3,iq)
+         ngpn(iq)=1 !to avoid array boundary check fails.
         call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
         if(imx0>imx) imx=imx0
+         ngcn(iq)=1 !to avoid array boundary check fails.
         call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),imx0c)
         if(imx0c>imxc) imxc=imx0c
         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)

@@ -59,12 +59,14 @@ for f0 in Rule.keys():
 
 	fin = f0
 	for fout in Rule[fin]:
+		if(fin==fout): continue
 		print ' rule: ', fin,fout
 		i=i+1
 		RuleN[i]= [ fin,fout ]
 		fin2 = fout
 		if(Rule.has_key(fin2)):
 			for fout2 in Rule[fin2]:
+				if(fin2==fout2): continue
 				nn=5
 				print nn*" "+' rule: ', fin2,fout2
 				i=i+1
@@ -74,6 +76,7 @@ for f0 in Rule.keys():
 				fin3 = fout2
 				if(Rule.has_key(fin3)):
 					for fout3 in Rule[fin3]:
+						if(fin3==fout3): continue
 						nn=10
 						print nn*" "+' rule: ', fin3,fout3
 						i=i+1
@@ -83,6 +86,7 @@ for f0 in Rule.keys():
 						fin4 = fout3
 						if(Rule.has_key(fin4)):
 							for fout4 in Rule[fin4]:
+								if(fin4==fout4): continue
 								nn=15
 								print nn*" "+' rule: ', fin4,fout4
 								i=i+1
@@ -93,6 +97,7 @@ for f0 in Rule.keys():
 								if(Rule.has_key(fin5)):
 									for fout5 in Rule[fin5]:
 										nn=15
+										if(fin5==fout5): continue
 										print nn*" "+' rule: ', fin5,fout5
 										i=i+1
 										RuleN[i]=[fin5,fout5]
