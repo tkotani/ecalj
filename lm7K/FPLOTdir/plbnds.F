@@ -698,6 +698,7 @@ C#ifdef GNUPLOT
         open(20,file='bnds.gnu',status='unknown')
         nq1=0
         write(20,'(a,F12.5,a)')'set ylab "Energy(Ry*',scl,')"'
+        write(20,'(a,F12.5,a,F12.5,a)') 'set yra [',emin,':',emax,']'
         write(20,'(a,$)') 'set xtics ('
         do iline=1,nline+1
           dx=xq(1+nq1) 

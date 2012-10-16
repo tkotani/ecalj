@@ -1149,6 +1149,7 @@ C       Use i2 in place of nkp to preserve nkp
 C       iq = running index to big qp list, i1 = index to current line
           iq = 0
           i2 = 0
+ckino2012Oct15 comment loop_start-----------------
   199     continue
           i = 1
           call pshpr(0)
@@ -1163,7 +1164,6 @@ C       iq = running index to big qp list, i1 = index to current line
               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
      .         , ifbls_iv , i2 , qp , onesp )
 
-ckino Dec.8.2011:                 call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
               call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
 
             enddo
@@ -1171,8 +1171,8 @@ ckino Dec.8.2011:                 call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq -
             call suqlsm(i)
             if (i .ne. 3) goto 199
           endif
+ckino2012Oct15 comment loop_end-----------------
         endif
-ckino Dec.8.2011:           call mpibc1 ( rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'
         call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 #endif
       endif
@@ -1220,6 +1220,9 @@ C       endif
 C --- Get qplist. This is only for no MPI mode yet...
       if(allocated(qplist)) deallocate(qplist)
       allocate(qplist(3,nkp))
+#if MPIK
+      call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
+#else
       do iq = 1, nkp
         if (plbnd .ne. 0) then
           i = nsp
@@ -1227,16 +1230,26 @@ C --- Get qplist. This is only for no MPI mode yet...
           call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp )
         else
-ckino Dec.8.2011:             call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
           call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
         endif
         qplist(:,iq)=qp
       enddo
+#endif 
+c#if MPIK end 
+      if (procid.eq.master) then
       print *,'-------- qplist --------'
       do iq=1,nkp
         write(6,"(i5,3f8.3)")iq,qplist(:,iq)
       enddo
+      endif 
+#if MPIK
+      call mpi_barrier(MPI_COMM_WORLD,ierr) 
 
+c allocate evlall 
+      if (allocated(evlall)) deallocate(evlall); 
+      allocate(evlall(ndham,nsp,nkp)) ; evlall=0.0d0
+
+#endif
 
 !! --- New sigma inerpolation mode. Simplified.
       if(debug) print *,'vvv: new sigma=',newsigmasw()
@@ -2208,7 +2221,7 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
             elseif (plbnd .ne. 0) then
 
 ckino
-              write(*,*)  'case plbnd.ne.0 (no MPIK)'
+              write(*,*)  'case plbnd.ne.0 (no MPIK) iq=',iq
               if (nfbn(1)>0 .and. n_listwf>0) then
                 call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
      .          ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
@@ -2238,10 +2251,13 @@ c              print *,'zzzzzzzzz2'
 
               endif
 #else
+cif MPIK 
 C   ... Save evals for this qp
             elseif (plbnd .ne. 0) then
 ckino
-              write(*,*)  'case plbnd.ne.0 (no MPIK)'
+              if (procid.eq.master) then
+              write(*,*)  'case plbnd.ne.0 (MPIK),iq=',iq
+              endif
 
               call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
@@ -2446,12 +2462,18 @@ C     iq = running index to big qp list, i1 = index to current line
           i = nsp
           if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
 !      call suqlst(plbopt,0,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,onesp)
-          if (i2 .le. 0) call rx0('bndfp')
+          call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .     , ifbls_iv , i2 , qp , onesp )
+
+!          if (i2 .le. 0) call rx0('bndfp')
+          if (i2>0) then
           do  i1 = 1, i2
             iq = iq+1
             isqp = nsp*(iq-1)
 !        call suqlst(plbopt,1,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,onesp)
-            qp=qplist(:,iq)
+c            qp=qplist(:,iq)
+         call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .     , ifbls_iv , i2 , qp , onesp )
 !        call dpscop(qp,w(oqp),3,1,3*iq-2,1d0)
             do  isp = 1, nsp
               ispc = min(isp,nspc)
@@ -2472,11 +2494,13 @@ C         isp serves as a flag for the noncollinear case
 ctakao
 c            call suqlsw(ndimhx,jsp,i,evl(1,jsp))
                 print *,'nevls(iq,jsp)=',iq,jsp,nevls(iq,jsp)
-                call suqlsw2(nevls(iq,jsp),jsp,i,evl(1,jsp),qp)
+ckino                call suqlsw2(nevls(iq,jsp),jsp,i,evl(1,jsp),qp)
+                call suqlsw2(nevls(iq,jsp),jsp,i,evlall(1,jsp,iq),qp)
               endif
-            enddo
-          enddo
+            enddo ! isp
+          enddo ! i1
           if (i .ne. 3) goto 299
+          endif 
         endif
         call rx0('done')
       endif
