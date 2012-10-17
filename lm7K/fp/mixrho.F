@@ -922,11 +922,16 @@ C     Add constant to smrho to force charge neutrality
       xx = qcell/(vol*nsp)
       summ = 0
 
+
+
 cccccccccccccccccccccccccc
       write(6,*)'smrho qcell: add correction to smrho=',qcell,xx
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
+
+
+
       do  64  i  = 1, nsp
       do  64  i3 = 1, n3
       do  64  i2 = 1, n2

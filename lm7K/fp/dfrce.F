@@ -1,14 +1,11 @@
       subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
      .  , dfh )
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 #if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
-
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -121,20 +118,12 @@ c      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
       integer pid,jb
 #endif
       integer::ibini,ibend
-C ... for SGI parallel
-C$    integer nbmx,mp_my_threadnum,mp_numthreads
-C$     parameter (nbmx=512)
-C$    integer iiv0(nbmx)
-C     double precision dqsmo,dval
       character*40 strn
-C ... Heap
       real(8),allocatable:: cs_(:),sn_(:)
 
       job = int(sctrl%lfrce)
-
       if (job .le. 0) return
       call tcn('dfrce')
-
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -154,102 +143,51 @@ C ... Heap
 #endif
 
 C --- Setup ---
-
 c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc=slat%nabc
       ng=slat%ng
-ckino Dec.9.2011:         rv_p_ogv => slat%rv_p_ogv
-
-ckino Dec.9.2011:         iv_p_okv => slat%iv_p_okv
-
       vol=slat%vol
-
-
       alat=slat%alat
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       plat=slat%plat
       qlat=slat%qlat
-
       c = 1000
       stdo = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-Changenglob      nbas = nglob('nbas')
       nbas = globalvariables%nbas
-Changenglob      nspec= nglob('nspec')
       nspec= globalvariables%nspec
       nn   = k1*k2*k3
-
 C ... Arrays needed for pvdf1
       allocate(ceps_zv(ng))
-
       allocate(cnomi_zv(ng))
-
       allocate(cvin_zv(ng))
-
       allocate(cdvx_zv(ng*nsp))
-
 
 C ... Set up for vectorized Y_lm and gaussians
       ltop = 0
       do   is = 1, nspec
         lmxl = int(sspec(is)%lmxl)
-
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
       allocate(yl_rv(ng*nlmtop))
-
       allocate(g2_rv(ng))
-
       allocate(g_rv(ng*3))
-
-ckino Dec.9.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv
-ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv
-      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
-     . )
-
-
+      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv )
       if (allocated(g_rv)) deallocate(g_rv)
-
       allocate(iv_iv(ng*3))
-
-ckino Dec.9.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv )
-ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv )
       call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv )
-
-
 
 C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
-
-c      call defrr(ocs, ng)
-c      call defrr(osn, ng)
       allocate(cs_(ng), sn_(ng))
       call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
-
-      if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 
-     .2 ) , 1 , 2 * nn , 1d0 )
-
-      call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
-     ., - 1 )
-
-ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv
-      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
-     . )
-
-      call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
-     ., cs_ , sn_ , iv_iv , qlat , cvin_zv )
-
-C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocvin),w(osmro))
-C     call zprm3('ves(input rho)',0,w(osmro),k1,k2,k3)
+      if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 ,2 ) , 1 , 2 * nn , 1d0 )
+      call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
+      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
+      call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv, cs_ , sn_ , iv_iv , qlat , cvin_zv )
       if (allocated(smro_zv)) deallocate(smro_zv)
-c      call rlse(ocs)
       deallocate(cs_,sn_)
 
 C --- Make dVxc(in)/dn ---
@@ -270,49 +208,25 @@ C --- Make dVxc(in)/dn ---
       deallocate(vxcm_zv)
       deallocate(vxcp_zv)
 
-
 C --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
 C     Use total n0_out-n0_in but keep vxc spin polarized
       call dpzero ( smro_zv , 2 * nn )
-
       do  i = 1, nsp
         call dpadd ( smro_zv , smrout ( 1 , 1 , 1 , i ) , 1 , 2 * 
      .  nn , 1d0 )
-
         call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2 * nn 
      .  , - 1d0 )
-
       enddo
 C     call zprm3('drho',0,w(osmro),k1,k2,k3)
-      call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , 
-     .dvxc_zv )
-
-      call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
-     .0 , - 1 )
-
-ckino Dec.9.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv ,
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , dvxc_zv ,
-      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , 
-     . cdvx_zv )
-
-
-
+      call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , dvxc_zv )
+      call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 0 , - 1 )
+      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , cdvx_zv )
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
-      call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
-     ., - 1 )
-
-c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-ckino Dec.9.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv
-      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
-     . )
-
-
+      call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
+      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv )
 C     dqsmo = vol*dval(w(ocnomi),1)
-
       if (allocated(smro_zv)) deallocate(smro_zv)
       if (allocated(dvxc_zv)) deallocate(dvxc_zv)
-
 
 C ... Debugging slot smrho(out) for out-in
 C      print *, '*** debugging ... subs smrout for out-in'
@@ -323,27 +237,16 @@ C      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
 
 C --- Multipole moments of the output density ---
       allocate(qmout_rv(nvl))
-
       call pshpr(0)
-      call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , 
-     . vsum )
-
-
+      call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , vsum )
       call poppr
       call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
-
 
 C --- Lindhard dielectric function ---
       if (job .gt. 10) then
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
-C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
-C     .    tpiba,elind,w,w,w,w)
-ckino Dec.9.2011:           call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv )
-ckino Dec.27.2011:           call lindsc ( 3 , ng , slat%rv_p_ogv , tpiba , elind , ceps_zv )
         call lindsc ( 3 , ng , slat%rv_a_ogv , tpiba , elind , ceps_zv )
-
-
       endif
 
 C --- For each site, get correction to force ---

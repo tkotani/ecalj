@@ -72,8 +72,8 @@ c      sigswitch=0
       end
 
       logical function fullmesh()
-c      fullmesh=.true. !including all G vector to expand charge density. I think this did not work well.
-      fullmesh=.false.
+      fullmesh=.true. !including all G vector to expand charge density. I think this did not work well.
+c      fullmesh=.false.
       end
 
 c      logical function nomshsiz()

@@ -89,7 +89,7 @@ Cu   07 Feb 01 changed gmax tolerance to be consistent with gvlst2
 Cu   10 Jun 00 added extra argument to gvgetf and gvputf
 Cu    2 Sep 98 Adapted from nfp gvlist.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer job,n1,n2,n3,ng,ngmx,kv(ngmx,3),igv(ngmx,3),igv2(3,*)
       double precision alat,gmax,gv(ngmx,3),plat(3,3),tau(3)
@@ -117,13 +117,13 @@ cccccccccccccc
       integer:: n_gslist,i_gslist,if1,if2,if3
       double precision:: gslist(3,m_gslist)
       integer:: gsflags(3)
-      logical:: fullmesh
+c      logical:: fullmesh
       real(8) ,allocatable :: gg_rv(:)
-      real(8) ,allocatable :: kk_rv(:)
-      real(8) ,allocatable :: iwk_rv(:)
+      integer ,allocatable :: kk(:), iwk(:)
       integer,allocatable:: nlatout(:,:)
 
-      logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg,newshortn=.true.
+      integer:: noutmx,nout,nnn(3)
 cccccccccccccc
 
 C ... Setup
@@ -160,68 +160,50 @@ C ... Basis vectors for real-space mesh and recip-space supercell
         qlat1(m,2) = qlat(m,2)*n2
         qlat1(m,3) = qlat(m,3)*n3
    10 continue
-
+cccccccccccccccccccccc
+c      print *,'qlat=',qlat
+c      print *,'qlat1=',qlat1
+ccccccccccccccccccccc
 C --- Loop through g vectors, shorten, count and keep if within gmax ---
       ig = 0
       gmax2 = (gmax-tol)**2/tpiba**2
 
-      if(fullmesh()) then !kino's path. Something wrong
-        ! ---> Kino think this is OK even for fullmesh()=F.
-        ! But this path did not go through make check.
-        noutmx=48
-        call shortn3_initialize(qlat1) !initialization for shoten3
-        allocate(nlatout(3,noutmx))
-        do  21  j1 = 0, n1-1
-        do  21  j2 = 0, n2-1
-        do  21  j3 = 0, n3-1
-c              n_gslist=0
-c              do 21 if1=0,1
-c                do 21 if2=0,1
-c                  do 21 if3=0,1
-c                    gsflags=(/if1,if2,if3/)
-c                    qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
-c                    qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
-c                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
 
-          qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
-          qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /)
-          call shortn3(qpg, noutmx, nout,nlatout)
-          gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
+      newshortn=.false.   !oct2012 newshotn block looks to be works OK when called from supot.F. but fails probably somewhere else.
+      if(newshortn) then  ! for non zero q case???
+         print *,' gvlist n1,n2,n3=',n1,n2,n3
+        noutmx=48
+        call shortn3_initialize(qlat) !initialization for shoten3. pin+nlatout in the qlat coodinate
+        nnn=(/n1,n2,n3/)
+        allocate(nlatout(3,noutmx))
+        do  21  j1 = -n1/2,-n1/2+n1-1 !0, n1-1
+        do  21  j2 = -n2/2,-n2/2+n2-1 !0, n2-1
+        do  21  j3 = -n3/2,-n3/2+n3-1 !0, n3-1
+          qpg= (/j1, j2, j3/) + matmul(q,plat(:,:)) !in qlat coordinate
+          qpg= qpg/nnn  !supercell of qlat1 is scaled reduced to be qlat. This is for shortn3.
+          call shortn3(qpg, noutmx, nout,nlatout) !find shortest qpg+nlatout within qlat cell.
+c          if(nout/=1) stop 'gvlst: shortn3 nout/=1'
+c          gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
+          gs= matmul(qlat(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
+          gs= gs*nnn
           !--->This may numerically break crystal symmetry (very slightly).
           !shortn3 requires shotn3_init in advance.
-c                    call shorbzm(gsflags,qpg,gs,qlat1,plat1)
-c                    do i_gslist=1,n_gslist
-c                      if ( gs(1).eq.gslist(1,i_gslist) .and.
-c     .                gs(2).eq.gslist(2,i_gslist) .and.
-c     .                gs(3).eq.gslist(3,i_gslist) ) then
-c                        goto 21
-c                      endif
-c                    enddo
-c                    n_gslist=n_gslist+1
-c                    gslist(1:3,n_gslist)=gs(1:3)
-c        if (n_gslist>1)then
-c                    write(6,'(a,i5,3f15.5)')'new gs=',n_gslist,gs
-c        endif
-
 c        print 333, j1,j2,j3,gs !+tau(1),gs(2)+tau(2),gs(3)+tau(3)
 c  333   format(3i4,3f12.6)
           gg = (gs(1)**2+gs(2)**2+gs(3)**2)
           if (gg .le. gmax2) then
             ig = ig+1
-
-C         if (abs(gs(1)+5) .lt.1d-4 .and. gs(3).lt.-10.8) then
-C           print *, j1,j2,j3
-C           print *, gs
-C         endif
-
             if (job0 .ne. 0) then
-
               if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
-
-              kv(ig,1) = j1+1
-              kv(ig,2) = j2+1
-              kv(ig,3) = j3+1
-
+c              kv(ig,1) = j1+1
+c              kv(ig,2) = j2+1
+c              kv(ig,3) = j3+1
+              kv(ig,:) = (/j1, j2, j3/)+ nnn*nlatout(:,1)
+              write(*,*)
+              write(*,"('        : ', i5,10(' ',3i3))")  ig, (/j1, j2, j3/)
+              write(*,"('nlatout : ', i5,10(' ',3i3))")  ig, ( nlatout(:,i), i=1,nout) 
+              write(*,"('G (qlat): ', i5,10(' ',3i3))")  ig, ( (/j1, j2, j3/)+ nnn*nlatout(:,i), i=1,nout) 
+              write(*,"('G vector: ', i5,10(' ',3f6.2))")ig, ( matmul(qlat(:,:), (/j1, j2, j3/)+ nnn*nlatout(:,i)), i=1,nout)
 C     ... Copy lattice vectors to gv,igv,igv2, depending on job
               if (ligv .or. ligv2 .or. .true.) then
                 s1 = (gs(1)-q(1))*plat(1,1)
@@ -364,15 +346,15 @@ c      call defrr(ogg,   ng)
 c      call defrr(okk,   ng)
 c      call defrr(oiwk,  ng)
       allocate(gg_rv(ng))
-      allocate(kk_rv(ng))
-      allocate(iwk_rv(ng))
+      allocate(kk(ng))
+      allocate(iwk(ng))
       if (lgpq) q=0 !call dpzero(q,3)
 c      call pvglst(w(ogg),w(okk),w(oiwk),q,ngmx,ng,ligv,ligv2,gv,kv,igv,
 c     .  igv2)
-      call pvglst ( gg_rv , kk_rv , iwk_rv , q , ngmx , ng 
+      call pvglst ( gg_rv , kk , iwk , q , ngmx , ng 
      ., ligv , ligv2 , gv , kv , igv , igv2 )
 c      call rlse(ogg)
-      deallocate(gg_rv,kk_rv,iwk_rv)
+      deallocate(gg_rv,kk,iwk)
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      if(job==509) print *,'509q=',q

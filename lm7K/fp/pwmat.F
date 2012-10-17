@@ -2,13 +2,16 @@
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
       use m_struc_def  !Cgetarg
       implicit none
+!! == Matrix elements (IPW,IPW) and (IPW,envelope function) ==
+!!
+!! I think we now assume qp=q, that is, inn=0; noshorbz in swithch.F sep2012.)
+!!
 !! inn:  takao added 27 Apr2009
 !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
 !!  (because qp(shortedned q)  is used when w(oigv2)=igapw is generated. igapw is used in  hambls).
 !!   Thus, we need to uss
 !!           igv(internally in pwmat) = igapw + inn, where inn = qlatinv*(qp-q).
 
-C- Matrix elements (IPW,IPW) and (IPW,envelope function)
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   slat  :struct containing information about the lattice

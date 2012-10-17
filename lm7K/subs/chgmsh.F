@@ -48,7 +48,7 @@ c      common /w/ w
       real(8),allocatable:: gv1(:),gv2(:)
       integer,allocatable:: kv1(:),kv2(:)
       integer:: wdummy
-c      logical:: fullmesh !not yet for full mesh mode.
+c      logical:: fullmesh 
       print *,' chgmsh: iopt=',iopt
 
       tau=0d0 !call dpzero(tau,3)
@@ -69,11 +69,6 @@ C ... Lists of vectors for old and target mesh
       call gvctof(iopt,1d0,plat,tau,n1,n2,n3,gmax2,ng2)
       gmax = dmin1(gmax1,gmax2)
       ngmx = min0(ng1,ng2)
-c      if(fullmesh()) then
-c         print *,'full mesh mode'
-c         gmax=1d10
-c         ngmx=min0(m1*m2*m3,n1*n2*n3)
-c      endif
       allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
       call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,
      .wdummy,wdummy)

@@ -48,6 +48,7 @@ C     parameter (fmax=360,tolg=1d0,PRTG=30)
       stdo = lgunit(1)
       call dpzero(q,3)
 
+      print *,'mshsiz: gmax=',gmax
 C ... If input gmax is zero assume n1..n3 available, and return w/ gmax
       if (gmax .eq. 0) then
         call pshpr(iprint()-20)
@@ -123,7 +124,7 @@ c 18   continue
         gmax=1d10
         ng=ngabc(1)*ngabc(2)*ngabc(3)
 c       print *,' zzz mshsiz ngn=',ngn
-        goto 21
+c        goto 21
       endif
 
 
@@ -157,7 +158,7 @@ C ... Check if fmax is too small
  301  format(/1x,79('*')/)
 
 C ... Printout
-      if (iprint() .ge. PRTG) then
+c      if (iprint() .ge. PRTG) then
         s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/i1
         s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/i2
         s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/i3
@@ -168,8 +169,8 @@ C ... Printout
      .  ' a.u. : %i vectors of %i (%i%%)',
      .  outs,len(outs),0,gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
         call awrit0('%a',outs,len(outs),-stdo)
-      endif
-
+c      endif
+        print *,'end of mshsiz: ng i1i2i3=',ng,i1*i2*i3
       end
 
       subroutine gtpfac(npfac,pfac)

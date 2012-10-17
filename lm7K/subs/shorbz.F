@@ -1,15 +1,14 @@
       subroutine shortn3(pin,noutmx, nout,nlatout)
-C- Find shortest pin + nlatout \in  [ pin + any integer linear-combination of (rlat(:,1),rlat(:,2),rlat(:,3)) ].
+C- Find shortest pin + nlatout \in  [ pin + any integer linear-combination ].
 Cr You first have to call shorn3_initialize, then you can call shortn3 for given rlat.
 C
-Cio init
-Ci pin is on the rlat coodinate.
-Cr rlat(3,i) i-th vertor for modulo
-Ci rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
-Ci noutmax: upper limit of nlatout
-Co
-Co nlatout
-C
+!! INPUT:
+!!   pin
+!!   noutmax: upper limit of nlatout
+!! note: pin and nlatout are on the rlat coodinate.
+!! rlat(3,i) i-th vertor. Real pin+nlatout is given as v(:)= \sum_i(pin(i)+nlatout(i))*rlat(:,i))
+!! rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
+!!
 Cr  length = sum_i sum_j pin(i)*rlatp(i,j)*pin(j)
 Cr  pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors. We may have multiple nlatout (# is nout).
 c
