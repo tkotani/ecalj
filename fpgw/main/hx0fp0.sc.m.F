@@ -181,7 +181,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       logical:: eibz4x0,tiii,iprintx,chipm=.false.
       real(8)::qvv(3),ecut,ecuts,hartree,rydberg,pi
       character(128):: vcoudfile
-      
+
+      integer:: icount
 c      integer,allocatable :: iclasst(:)
 !-------------------------------------------------------------------------
       hartree=2d0*rydberg()
@@ -864,7 +865,9 @@ c      ifisk=iopen('WKcomponent',0,-1,0)
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
 !! (or need to modify do 1001 loop).
-      do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
+      print *,'iqxini,iqxend=',iqxini,iqxend
+      do 1001 iq = iqxini,iqxend 
+         print *,'tttt do1001 iq=',iq
         ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
         ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
 
@@ -953,6 +956,7 @@ c         enddo
           allocate( zzr(ngb,ngb) )
           rcxqmean= 0d0
         elseif(newaniso2) then !.and.iq==1) then
+          nolfco =.false.
           nmbas1=ngb !meaningful in dpsion5, not used in x0kf_v4h.
           nmbas2=ngb !
         endif
