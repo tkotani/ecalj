@@ -1,6 +1,6 @@
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
-      use m_struc_def  !Cgetarg
+      use m_struc_def,only:s_site,s_spec,s_lat
       implicit none
 !! == Matrix elements (IPW,IPW) and (IPW,envelope function) ==
 !!
@@ -11,7 +11,6 @@
 !!  (because qp(shortedned q)  is used when w(oigv2)=igapw is generated. igapw is used in  hambls).
 !!   Thus, we need to uss
 !!           igv(internally in pwmat) = igapw + inn, where inn = qlatinv*(qp-q).
-
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   slat  :struct containing information about the lattice
@@ -64,89 +63,81 @@ Cu   25 Aug 04 Adapted to extended local orbitals
 Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu   09 Apr 01 Adapted from Kotani's pplmat2
 C ----------------------------------------------------------------------
-      integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
-     .napw,igapw(3,napw)
+      integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),napw,igapw(3,napw)
       real(8):: q(3) , GcutH
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-
       double complex ppovl(ngp,ngp), pwhovl(ngp,ndimh)
-C ... Local parameters
-      integer ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga,
-     .ifindiv2
+      integer ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga,ifindiv2
       double precision alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx,
-     .tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
+     .  tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
       integer n0,nkap0
       parameter (n0=10, nkap0=3)
       integer lh(nkap0),nkapi
       integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
-     .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
-
+     .  offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double complex phase,img,fach,mimgl(0:n0)
       integer,allocatable:: igvx(:,:),kv(:,:)
       double precision,allocatable:: yl(:)
       double complex,allocatable:: pwh(:,:),ppovlx(:,:)
-
       integer :: inn(3),matmul_pwhovl
-      logical:: debug=.false.
-
-      integer:: i_copy_size, i_spackv, i_spacks
-C --- Setup ---
-
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      vol=slat%vol
-
+      logical:: debug=.true.
+      integer:: i_copy_size, ibas
+      call tcn('pwmat')
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
+      img = dcmplx(0d0,1d0)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      alat= slat%alat
       tpiba = 2*pi/alat
+      plat= slat%plat
+      qlat= slat%qlat
+      vol=  slat%vol
       vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       srvol = dsqrt(vol)
-      img = dcmplx(0d0,1d0)
       mimgl(0) = 1
       do  l = 1, n0
         mimgl(l) = (-img)**l
       enddo
 C     Create bas,ips,rmax
-      i_copy_size=size(ssite(1)%pos)
-      do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
-      enddo
-
-      i_copy_size=1;
-      do i_spackv=1,nbas
-        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-      enddo
-
-      do  ib = 1, nbas
-        is = int(ssite(ib)%spec)
-
-        rmax ( ib ) = (sspec(is)%rmt)
-
+c      i_copy_size=size(ssite(1)%pos)
+c      do i_spackv=1,nbas
+c        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+c      enddo
+c      do i_spackv=1,nbas
+c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+c      enddo
+      do ibas=1,nbas
+        bas(:,ibas) = ssite(ibas)%pos
+        rmax(ibas)  = sspec( ssite(ibas)%spec )%rmt
+c        ips(ibas)   = ssite(ibas)%spec
       enddo
       nlmto = ndimh-napw
-
+      if(debug) print *,' pwmat1111111',gcutH
 C --- Overlaps between IPW's ---
       call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)
-C     call zprm('ppovl',2,ppovl,ngp,ngp,ngp)
-
 C ... G vectors for the envelope (smooth hankel) functions
-      call iinit(iwk,3)
+      iwk=0
       call pshpr(0)
 C     Find ngmx = number of G's in PW expansion of basis for this qp:
 C     ngmx dimensions igvx,pwh.
       call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,100,1,
      .ngmx,xx,xx,xx,xx)
+      if(debug) print *,' pwmat22222222'
+
       allocate(igvx(3,ngmx),kv(3,ngmx))
-      call iinit(iwk,3)
+c      call iinit(iwk,3)
+      iwk=0
       call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,102,1,
      .ngmx,kv,xx,xx,igvx)
+
       call poppr
+      if(debug) print *,' pwmat333333333 sum=',sum(abs(igvx(:,1:ngmx)))
 
 C ... Patch: use igv for igvx
 C     deallocate(igvx)
@@ -161,6 +152,7 @@ C     ig is index to igvx
       lmxax = ll(nlmax)
 C ... Fourier coefficients of smoothed hankels for all LMTOs
 C     Could be optimized, ala hsibl, but not a critical step for GW.
+      if(debug) print *,' pwmat444444444'
       do  ig = 1, ngmx
         qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
@@ -191,6 +183,7 @@ C           offh = hamiltonian offset to this block
           enddo
         enddo
       enddo
+      if(debug) print *,' pwmat5555555555'
 
 C ... Fourier coefficients to APWs
 C     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
@@ -201,12 +194,14 @@ c        ig = ifindiv2(igapw(1,iga),igvx,ngmx)
         ig = ifindiv2(igapw(1:3,iga)+inn(1:3),igvx,ngmx)
         pwh(ig,iga+nlmto) = 1d0/srvol
       enddo
+      if(debug) print *,' pwmat6666666666'
 
 C     call zprm('pwh',2,pwh,ngmx,ngmx,ndimh)
 
 C --- Matrix elements between each (IPW,envelope function) pair ---
 C     See Remarks
       allocate(ppovlx(ngp,ngmx))
+      if(debug) print *,' pwmat7777777777'
       call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
 
       if(debug) print *,'sss:  pwmat ppovlx=',sum(abs(ppovlx))
@@ -231,6 +226,7 @@ C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)
 C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
 
+      call tcx('pwmat')
       end subroutine pwmat
 
 
@@ -387,7 +383,6 @@ C           offh = hamiltonian offset to this block
           enddo
         enddo
       enddo
-
 C ... Fourier coefficients to APWs
 C     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
       do  iga = 1, napw
@@ -395,18 +390,13 @@ C       Index to igv that corresponds to igapw
         ig = ifindiv2(igapw(1,iga),igv,ngp)
         pwh(ig,iga+nlmto) = 1d0/srvol
       enddo
-
 C     call zprm('pwh',2,pwh,ngp,ngp,ndimh)
-
 C --- Cleanup ---
       deallocate(yl)
-
       end subroutine pwmat2
 
 
-      subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas,
-     .rmax,bas,ppovl)
-
+      subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas,rmax,bas,ppovl)
 C- Overlap matrix elements between interstitial plane waves
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -475,13 +465,11 @@ C ... For each G2*G1, poke integral into ppovl
           ppovl(ig1,ig2) = ppox(nx(1),nx(2),nx(3) )
         enddo
       enddo
-
       deallocate(ppox)
       end subroutine ipwovl
 
 
       subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
-
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   alat  :length scale of lattice and basis vectors, a.u.

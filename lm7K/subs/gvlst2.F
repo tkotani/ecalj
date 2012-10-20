@@ -128,6 +128,7 @@ C --- Compute range n1min,n1max for each direction vector n1,n2,n3 ---
       n3l = nn
       if (mod(job,1000) .ge. 100) n3 = nn
 
+      print *,'gvlst2: n1 n2 n3=', n1min,n1max,n2min,n2max,n3min,n3max
 C --- Count number, get list of vectors ---
       ig = 0
       gmax2 = (gmax0-tol)**2

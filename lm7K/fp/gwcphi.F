@@ -1,9 +1,8 @@
       subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,
      .ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
-
-      use m_struc_def  !Cgetarg
-
-C- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
+      use m_struc_def,only:s_site,s_spec
+      implicit none
+!! == Project (phi,phidot) onto MT sphere, Kotani's GW conventions ==
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite
@@ -116,46 +115,31 @@ Cu             Altered argument list.
 Cu   19 Feb 02 Extended to local orbitals.
 Cu   28 Mar 01 written by MvS.
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas),
-     .nlindx(3,0:lmxax,nbas)
+      integer isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas),nlindx(3,0:lmxax,nbas)
       integer n0,nppn
       parameter (n0=10,nppn=12)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-
       double precision ppnl(nppn,n0,nsp,*),cphin(2,nev)
       double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
-C ... Local parameters
       double precision lmat(3,3),pnu(n0,2),pnz(n0,2)
       integer lmxa,ichan,ib,is,igetss,iv,ilm,l,im,k,ia
       double precision s00,s11,szz,s0z,s1z,D
       double complex au,as,az,sqrsz(3)
-
-      call dpzero(lmat,9)
-      call dpzero(cphin,2*nev)
-C     ichan0 = 0
+      call tcn ('gwcphi')
+      lmat =0    
+      cphin=0d0 
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         ia = ipb(ib)
-
-        i_copy_size=size(sspec(is)%p)
-        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-        lmxa=sspec(is)%lmxa
-
-        if (lmxa .eq. -1) goto 10
-
+        call dcopy(size(sspec(is)%p),  sspec(is)%p, 1,pnu,1)
+        call dcopy(size(sspec(is)%pz), sspec(is)%pz,1,pnz,1)
+        lmxa = sspec(is)%lmxa
+        if (lmxa .eq. -1) cycle
         do  iv = 1, nev
-C         ichan = ichan0
           ilm = 0
           do  l = 0, lmxa
-
             k = l+1
-
             s00 = ppnl(2,k,isp,ib)
             s11 = ppnl(7,k,isp,ib)
             lmat(1,1) = sqrt(s00)
@@ -169,21 +153,16 @@ C         ichan = ichan0
               lmat(3,2) = s1z/sqrt(s11)
               lmat(3,3) = D
             else
-              lmat(3,1) = 0
-              lmat(3,2) = 0
-              lmat(3,3) = 0
+              lmat(3,:) = 0
             endif
-
             if (.not. (pnz(k,1) .eq. 0 .eqv. nlindx(3,l,ia) .eq. -1)) then
               call rx('gwcphi: nlindx mismatch')
             endif
-
             do  im = 1, 2*l+1
               ilm = ilm+1
               au = aus(ilm,iv,1,isp,ib)
               as = aus(ilm,iv,2,isp,ib)
               az = aus(ilm,iv,3,isp,ib)
-
               sqrsz(1) = lmat(1,1)*au + lmat(3,1)*az
               sqrsz(2) = lmat(2,2)*as + lmat(3,2)*az
               sqrsz(3) =                lmat(3,3)*az
@@ -193,11 +172,6 @@ C         ichan = ichan0
      .        dconjg(sqrsz(3))*sqrsz(3)
               cphin(2,iv) = cphin(2,iv) +
      .        dconjg(sqrsz(1))*sqrsz(1)
-
-C            cphin(2,iv) = cphin(2,iv) +
-C     .                    dconjg(lmat(1,1)*au)*lmat(1,1)*au
-
-C           ichan = ichan+1
               ichan = nlindx(1,l,ia) + im
               cphi(ichan,iv) = au
               ichan = nlindx(2,l,ia) + im
@@ -206,15 +180,11 @@ C           ichan = ichan+1
                 ichan = nlindx(3,l,ia) + im
                 cphi(ichan,iv) = az
               endif
-
             enddo
           enddo
         enddo
-C       ichan0 = ichan
-
-   10   continue
       enddo
-
+      call tcx ('gwcphi')
       end subroutine gwcphi
 
 

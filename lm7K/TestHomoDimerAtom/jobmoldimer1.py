@@ -330,7 +330,7 @@ print ' ',
 for pwex in [-1,2,3,4,5,6,7,8]: #for initial condition generation
     print 'pwex=',pwex,
     if pwex==-1: lll=temp0_init+"pwe=2@ dis="+dist+"@ bzw=0.01@ "+temp1_init
-    else:        lll=temp0_init+"pwe="+'%i' % pwex+"@ dis="+dist+"@ bzw=0.0001@ "+temp2_init
+    else:        lll=temp0_init+"pwe="+'%i' % pwex+"@ dis="+dist+"@ bzw=0.001@ "+temp2_init
     ctrl=genctrl(lll,jobid)
     ## replace foobar in ctrltemplete ###
     f=open('ctrl.dimer.'+'%i' % pwex,'wt')

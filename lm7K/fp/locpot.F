@@ -979,7 +979,7 @@ C --- Integrals involving the full nonspherical potential ---
           rvsm(isp) = 0d0
           do  i = 2, nr
             vtr = v1(i,ilm,isp)
-            if (ilm .eq. 1) vtr = vtr - srfpi*2*z/rofi(i)
+            if (ilm .eq. 1) vtr = vtr - srfpi*2d0*z/rofi(i)
             rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
             rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
           enddo

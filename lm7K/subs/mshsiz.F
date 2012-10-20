@@ -1,4 +1,4 @@
-      subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
+      subroutine mshsiz(alat,plat,job,gmax,ngabc,ng,gmaxf)
 C- Finds dimensions for a mesh of G vectors that satisfy a cutoff
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -31,7 +31,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ngabc(3),ng,job
-      double precision alat,plat(3,3),gmax
+      double precision alat,plat(3,3),gmax,gmaxf
 C ... Local parameters
       logical change
       integer npfac,pfac(10),fmax,i,indx,iprint,stdo,
@@ -121,15 +121,17 @@ ctakao
 c 18   continue
       if(fullmesh()) then
         ngabc=ngabcn
-        gmax=1d10
+        gmaxf=1d10
         ng=ngabc(1)*ngabc(2)*ngabc(3)
 c       print *,' zzz mshsiz ngn=',ngn
 c        goto 21
+      else
+         gmaxf=gmax
       endif
 
 
 C ... Count the number of G vectors for (smaller) trial n1..n3
-      call gvlist(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3),gmax,000,
+      call gvlist(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3),gmaxf,000,
      .0,ngn,xx,xx,xx,xx)
 c      print *,' mshsiz ngn=',ngn
 C     If the G vector count doesn't fall by more than tolg, use trial
@@ -165,9 +167,9 @@ c      if (iprint() .ge. PRTG) then
         call awrit6('%x%N MSHSIZ: mesh has %i x %i x %i'//
      .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
      .  len(outs),0,i1,i2,i3,s1,s2,s3)
-        call awrit4('%a%N%9fgenerated from gmax = %,1;3d'//
+        call awrit4('%a%N%9fgenerated from gmaxf = %,1;3d'//
      .  ' a.u. : %i vectors of %i (%i%%)',
-     .  outs,len(outs),0,gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
+     .  outs,len(outs),0,gmaxf,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
         call awrit0('%a',outs,len(outs),-stdo)
 c      endif
         print *,'end of mshsiz: ng i1i2i3=',ng,i1*i2*i3

@@ -1,3 +1,8 @@
+
+
+
+
+
 c#define FP 1
       subroutine supot(mode,sctrl,slat,spot)
       use m_struc_def  !Cgetarg
@@ -30,7 +35,7 @@ C ... Local parameters
       integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
      .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      double precision awald,alat,vol,plat(3,3),gmax,xx
+      double precision awald,alat,vol,plat(3,3),gmax,xx,gmaxf
       integer ::iwdummy
 
       call info0(50,1,0,' supot : potential setup ... ')
@@ -65,8 +70,8 @@ c        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 C   ... Generate energy cutoff gmax or n1..n3
 c        call pshpr(iprint()-0)
         print *,'goto mshsiz'
-        call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
 
+        call mshsiz(alat,plat,0,gmax,ngabc,ngmx, gmaxf) !gmaxf=1d10 for fullmesh()=T
 cccccccccccccccccccccccccccccccccc
 c        gmax=1d10
 c        n1=11
@@ -82,10 +87,10 @@ C   ... Make list of lattice vectors within cutoff
         if (allocated(slat%iv_a_okv)) deallocate(slat%iv_a_okv)
         allocate(slat%iv_a_okv(abs(ngmx*3)))
 
-        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8
+        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmaxf , 8  !NOTE gmaxf is used
      .     , ngmx , ng , slat%iv_a_okv , slat%rv_a_ogv , xx , xx )
         if (ng .ne. ngmx) call rx('supot: bug in gvlist')
-
+        print *,' supot: # of Gvectors for charge: ng=',ng
         slat%ng=ng
         slat%gmax=gmax
 c        i_copy_size=size(slat%nabc)

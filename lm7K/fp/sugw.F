@@ -1127,7 +1127,8 @@ C       Overlap of IPW and eigenfunction:
 C         PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
 C         PZOVL = O * PWZ (matrix form) <--- old
 C         Note: pzovl is only used as an intermediate construction, old branch
-            if (ngp .gt. 0) then
+            print *,' ngp=',ngp
+            if (ngp > 0) then
               allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
 C         Pass qx to pwmat (or pwmat2):
 C         qx = (unshortened) q if 2s digit loldpw = 0
@@ -1150,7 +1151,6 @@ c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
               if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
               inn=0
-!!
               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw,
      .          igv2, sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
      .          ppovl, phovl )

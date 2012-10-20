@@ -117,7 +117,6 @@ cccccccccccccc
       integer:: n_gslist,i_gslist,if1,if2,if3
       double precision:: gslist(3,m_gslist)
       integer:: gsflags(3)
-c      logical:: fullmesh
       real(8) ,allocatable :: gg_rv(:)
       integer ,allocatable :: kk(:), iwk(:)
       integer,allocatable:: nlatout(:,:)

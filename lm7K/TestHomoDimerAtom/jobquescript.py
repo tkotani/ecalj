@@ -92,12 +92,12 @@ REPLACEHERE___
 
 
 ### main from here #######################################################    
-relswitch='source extra.bash\n'
-if '--nrel' in sys.argv: relswitch='source extra_nrel.bash\n'
+relswitch='source ./extra.bash\n'
+if '--nrel' in sys.argv: relswitch='source ./extra_nrel.bash\n'
 
 jobtemp = """#!/bin/bash
-source atomlist.bash
-source homodimerdistance.bash\n"""
+source ./atomlist.bash
+source ./homodimerdistance.bash\n"""
 jobtemp=jobtemp+relswitch +"REPLACEHERE___\n"
 
 

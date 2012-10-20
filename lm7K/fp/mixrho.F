@@ -926,8 +926,8 @@ C     Add constant to smrho to force charge neutrality
 
 cccccccccccccccccccccccccc
       write(6,*)'smrho qcell: add correction to smrho=',qcell,xx
-c       print *,'vvv no xx test'
-c       xx=0d0
+c      print *,'vvv no xx test'
+c      xx=0d0
 ccccccccccccccccccccccccc
 
 

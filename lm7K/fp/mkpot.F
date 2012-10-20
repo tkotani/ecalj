@@ -3,9 +3,9 @@
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      implicit none
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -165,7 +165,6 @@ C 5. change locpot so that rvvxcv etc is make only if appropriate
 C    1000s job bit set.
 C 6. Make <vxc_nn> and compare to integrals made here.
 C    If problems, Maybe even look at sm part only, or local part only.
-C     implicit none
 C ... Passed parameters
       integer nbas,job,lfrce,lcplxp,k1,k2,k3,n0,nppn,nab,i1,i2,i3
       integer nlibu,lmaxu,lldau(nbas)
@@ -274,13 +273,9 @@ c      nsp  = globalvariables%nsp
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
-
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      vol=slat%vol
-
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+      ngabc= slat%nabc
+      vol  = slat%vol
+      eterms=sham%eterms
 
 C$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
 C$$$      if(enforce_positive_smrho()) then
@@ -552,7 +547,7 @@ ccccccccccccccc
       valftr = valvfa + sgp0
       valfsm = valfsm + fcvxc0(1)
       valftr = valftr - fcvxca(1)
-      valvef = valfsm + valftr
+      valvef = valfsm  + valftr
 cccccccccccccccccc
 c      print *,'vvv takao valvef valvfsm valvtr valvfa',valvef,valfsm,valftr,valvfa
 cccccccccccccccccc
@@ -647,9 +642,9 @@ c------------------
       if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
      .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
-
+c      i_copy_size=size(sham%eterms)
+c      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+      sham%eterms=eterms
 
       call tcx('mkpot')
 

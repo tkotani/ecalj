@@ -48,7 +48,6 @@ c      common /w/ w
       real(8),allocatable:: gv1(:),gv2(:)
       integer,allocatable:: kv1(:),kv2(:)
       integer:: wdummy
-c      logical:: fullmesh 
       print *,' chgmsh: iopt=',iopt
 
       tau=0d0 !call dpzero(tau,3)
