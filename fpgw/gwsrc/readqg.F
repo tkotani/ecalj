@@ -54,7 +54,7 @@ c--------------------------
 c- Get ngv and ngvec(3,ngv) for given qin(3)
 cr key=='QGcou' or 'QGpsi'
       implicit none
-      integer(4):: ngv, ngvec(3,1), ifi, iq,verbose
+      integer(4):: ngv, ngvec(3,*), ifi, iq,verbose
       real(8):: qin(3),qu(3),ginv(3,3)
       character*(*) key
       if    (key=='QGpsi') then

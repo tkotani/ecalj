@@ -51,9 +51,9 @@ c ---
       implicit none
 C ... Passed parameters
       integer mode,ndim,nlma,nlmh
-      integer indxcg(1),jcg(1),nkd,nkq
-      double precision p(3),q(3),alat,awald,vol,e,cg(1),
-     .  dlv(1),qlv(1)
+      integer indxcg(*),jcg(*),nkd,nkq
+      double precision p(3),q(3),alat,awald,vol,e,cg(*), ! MIZUHO-IR
+     .  dlv(*),qlv(*) ! MIZUHO-IR
       double complex s(ndim,nlmh),sd(ndim,nlmh)
 C ... Local parameters
       integer lmxx,nrxmx,nlm0

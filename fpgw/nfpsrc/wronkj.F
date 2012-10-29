@@ -3,7 +3,7 @@ c  wronskians for hankels and bessels on one sphere.
 c  fxy is continuous as e1-->e1.
 c  fkk,fjj are symmetric in e1,e2.  fkj(e1,e2)=fjk(e2,e1).
       implicit real*8 (a-h,p-z), integer(o)
-      dimension fkk(1),fkj(1),fjk(1),fjj(1),ak1(200),aj1(200),
+      dimension fkk(*),fkj(*),fjk(*),fjj(*),ak1(200),aj1(200), ! MIZUHO-IR
      .   ak2(200),aj2(200),dk2(200),dj2(200),dk1(200),dj1(200)
 c ------ first: special case e1=e2=0 -------------
       if(dabs(e1).le.1.d-6.and.dabs(e2).le.1.d-6) then
@@ -50,7 +50,7 @@ c --------------------------------------------------------
 c  radial parts of spherical hankels and bessels.
 c  job=0: makes values and slopes. job=1: makes energy derivatives.
       implicit real*8 (a-h,p-z), integer(o)
-      dimension ak(1),aj(1),dk(1),dj(1),phi(200),psi(200),php(200),psp(200)
+      dimension ak(*),aj(*),dk(*),dj(*),phi(200),psi(200),php(200),psp(200) ! MIZUHO-IR
       er2=e*r*r
       if(job.eq.0) then
         call bessl(er2,lmax+1,phi,psi)

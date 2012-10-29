@@ -18,8 +18,7 @@ Cr   smoothed hankels, i.e. the infinite unsmoothed part is discarded.
 C ---------------------------------------------------------------
 C     implicit none
       integer nrx,nr,lmax
-c      double precision rsq(1),e,chi(nrx,-1:0),rsm,wk(nr),wk2(nr)
-      double precision rsq(1),e,chi(nrx,-1:lmax),rsm,wk(nr),wk2(nr)
+      double precision rsq(*),e,chi(nrx,-1:lmax),rsm,wk(nr),wk2(nr) ! MIZUHO-IR
 C Local variables
       integer l,ir,ir1
       double precision sre,r2,xx,ra,h0,arsm,earsm

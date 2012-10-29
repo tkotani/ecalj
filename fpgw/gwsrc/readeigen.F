@@ -514,9 +514,7 @@ ctm
       implicit none
       integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt
       real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
-      complex(8):: geigen(ngp_in,nband),img=(0d0,1d0),img2pi
-      complex(8),allocatable:: geigenr(:,:),geigen_in(:,:),geigen_out(:,:)
-      if(debug) print *,'readgeig:'
+      complex(8):: geigen(ngp_in,nband),geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
       img2pi=2d0*4d0*datan(1d0)*img
       platt=transpose(plat) !this is inverse of qlat
       if(init2) then
@@ -547,33 +545,22 @@ c      enddo
       if(ngp(iq)==0) return
       if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
       if(debug) print *,' ngp=',ngp(iq)
-      if(ngpmx < ngp(iq)) then
-        print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
-        stop 'readgeig: ngpmx<ngp(iq)'
-      endif
-      allocate(geigenr(ngpmx,nband)) !readin geigen
       if(keepeig) then
         geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
       else
         ikpisp= isp + nsp*(iqi-1)
         read(ifgeig, rec=ikpisp) geigenr(1:ngpmx,1:nband)
       endif
+      if(ngp_in < ngp(iq)) then
+        print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+        stop 'readgeig: ngpmx<ngp(iq)'
+      endif
 !! new rotation of IPW. june2012
 !!   qinput: qtt(:,iqq)  ---> qtarget: qtt(:,iq) ( G-vector difference from symops*qtt(:,iqq) )
       igxt=1 !not timereversal
-      allocate(geigen_in(ngp(iqq),nband),geigen_out(ngp(iqq),nband))
-      geigen_in = geigenr(1:ngp(iqq),1:nband)
-      deallocate(geigenr)
-      if(debug) print *,'goto rotipw'
-c      call rotipw(qtt(:,iqq),qtt(:,iq),geigenr(1:ngp(iqq),1:nband),ngp(iqq),nband,
-c     &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx,
-c     &  geigen(1:ngp(iq),1:nband))
-      call rotipw(qtt(:,iqq),qtt(:,iq),geigen_in,ngp(iqq),nband,
+      call rotipw(qtt(:,iqq),qtt(:,iq),geigenr(1:ngp(iqq),1:nband),ngp(iqq),nband,
      &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx,
-     &  geigen_out)
-      geigen(1:ngp(iqq),1:nband)=geigen_out
-      deallocate(geigen_out)
-      if(debug) print *,'end of rotipw'
+     &  geigen(1:ngp(iq),1:nband))
       return
 
 !! Followings are not used now...  june2012
@@ -912,6 +899,7 @@ c this should be called after init_readgeigen
      & iopen,iclose,isx,mrecb_in,ikpisp,mrecg_in,verbose,ifoc,
      & i1,i2,i3,i4,i5,iorb,iorbold
       logical :: keepeigen
+
       mrecb = mrecb_in
       ldim2 = ldim2_in
       mrecg = mrecg_in
@@ -924,17 +912,20 @@ c this should be called after init_readgeigen
       read(ifoc,*)
       norbtx=0
       write(*,*) ' goto readin @MNLA_CPHI: norbtx=',norbtx
+
       do
         read(ifoc,*,end=106) i1,i2,i3,i4,i5,iorb
         write(6,*) i1,i2,i3,i4,i5,iorb
         if(iorb>norbtx) norbtx=iorb
       enddo
  106  continue
+
       write(*,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
       rewind ifoc
       read(ifoc,*)
       allocate(l_tbl(norbtx),k_tbl(norbtx),ibas_tbl(norbtx),offset_tbl(norbtx))
       iorbold=0
+
       do
         read(ifoc,*,end=107)i1,i2,i3,i4,i5,iorb
         if(iorbold/=iorb) then
@@ -946,6 +937,7 @@ c this should be called after init_readgeigen
         endif
       enddo
  107  continue
+
       allocate(offset_rev_tbl(maxval(ibas_tbl),0:maxval(l_tbl),maxval(k_tbl)))
       offset_rev_tbl=-99999
       do iorb=1,norbtx
@@ -959,11 +951,9 @@ c this should be called after init_readgeigen
       enddo
       ifoc=iclose('@MNLA_CPHI')
 c      stop 'init2 xxxxxxxxxxxxx'
-
 c --- Readin CPHI and GEIG
       if(Keepeig     ) print *,' KeepEigen=T; readin geig and cphi into m_readeigen'
       if(.not.Keepeig) print *,' KeepEigen=F; not keep geig and cphi in m_readeigen'
-
       ifgeig = iopen('GEIG',0,0,mrecg)
       ifcphi = iopen('CPHI',0,0,mrecb) ! Coeeficients of eigenfunction
       print *,' ifgeig ifcphi=',ifgeig,ifcphi

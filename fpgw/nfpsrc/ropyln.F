@@ -2,7 +2,7 @@
 C- Normalized spheric harmonic polynomials (vectorizes).
 C- Also returns squares of points in rsq.
       implicit real*8 (a-h,p-z), integer (o)
-      dimension x(1),y(1),z(1),yl(nd,1),rsq(1)
+      dimension x(*),y(*),z(*),yl(nd,*),rsq(*)
 c      real w(1)
       real(8),allocatable:: cx(:),wocm(:),wosm(:),woq(:),woh(:)
 
@@ -118,7 +118,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
 c --- ropynx
       subroutine ropynx(m,l,kk,n,q,cm,sm,nd,yl)
       implicit real*8 (a-h,p-z), integer (o)
-      dimension q(n,2),cm(n),sm(n),yl(nd,1)
+      dimension q(n,2),cm(n),sm(n),yl(nd,*) ! MIZUHO-IR
       lav=l*(l+1)+1
       do 1 i=1,n
         yl(i,lav+m)=cm(i)*q(i,kk)

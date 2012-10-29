@@ -1,7 +1,7 @@
       subroutine lgen(bas,bmax,nv,nvmax,vecs,work)
 c  generates lattice vectors.
       implicit real*8 (a-h,p-z), integer(o)
-      dimension bas(3,3),v(3),vecs(3,1),work(1)
+      dimension bas(3,3),v(3),vecs(3,*),work(*) ! MIZUHO-IR
       call latlim(bas,bmax,imax,jmax,kmax)
       bmax2=bmax*bmax
       nv=0

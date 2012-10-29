@@ -1975,7 +1975,7 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer lmx
-      double precision c(1)
+      double precision c(*) ! MIZUHO-IR
 C Local parameters
       integer i,i1,i2,l,lav,lp1,m,n1,n2,n3
       double precision fn2,fpi,tlp1,tpi,y0

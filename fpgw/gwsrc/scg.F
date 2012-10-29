@@ -2,8 +2,8 @@
 c  computes clebsch-gordan coefficients (formerly s104 in asw)
 c  but here all is doubleprecision
       implicit real*8 (a-h,p-z), integer(o)
-      integer s1,s2,s3,t1,t2,t3,cindx(1),js(1)
-      double precision fac(161),c(1)
+      integer s1,s2,s3,t1,t2,t3,cindx(*),js(*)
+      double precision fac(161),c(*)
       fs(i)=dfloat(1+4*(i/2)-2*i)
       mb = 999999
       srpi = dsqrt(4*datan(1d0))

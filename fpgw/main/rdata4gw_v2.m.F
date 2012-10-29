@@ -1728,7 +1728,6 @@ c     endif
 
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         qx  = qibze(1:3,iqi)
-        ngc2x(iqi)=1 !this is not to cause error for -checkbound.
         call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo
@@ -1946,7 +1945,7 @@ ccccccccccccccccccccccccccccccc
      o          gn )
       implicit none
       integer(4):: nro,nrn,ir
-      real(8):: polinta,rofio(1),rofin(1),go(1),gn(1)
+      real(8):: polinta,rofio(*),rofin(*),go(*),gn(*) ! MIZUHO-IR
       do ir=1, nrn
         gn(ir) = polinta(rofin(ir), rofio,go,nro)
       enddo

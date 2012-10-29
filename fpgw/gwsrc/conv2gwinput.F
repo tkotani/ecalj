@@ -53,7 +53,7 @@ c ... GWIN0
       nband_chi0=9999
       emax_chi0 =9999
       nband_sigm=9999
-      emax_sigm =2.0 !9999
+      emax_sigm =9999
       emax_sigm2=9999
       nband_sigm2=9999
 
@@ -105,7 +105,7 @@ c
      &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)'
 
 c ... GWIN_V2
-      omg_c   = 0.1d0
+      omg_c   = 0.04d0
       iSigMode= 3
       read(ifig,*)
       read(ifig,*)

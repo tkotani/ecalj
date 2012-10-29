@@ -2,7 +2,7 @@
 c  normalization constants for the spherical harmonics
 c  use together with sylm (from asw package)
       implicit real*8 (a-h,p-z), integer(o)
-      dimension c(1)
+      dimension c(*) ! MIZUHO-IR
       tpi=8.d0*datan(1.d0)
       fpi=2.d0*tpi
       y0=1.d0/dsqrt(fpi)

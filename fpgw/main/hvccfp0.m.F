@@ -12,6 +12,7 @@ c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
       use m_readqg
       use keyvalue
+      use m_mpi
       implicit none
       integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,
      &  nband, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,
@@ -96,12 +97,22 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
       logical:: is_mix0vec,newaniso,wvcc
       character(128):: vcoudfile
+
+
+      call MPI__Initialize
+
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
 
       write(6,"(' mode(now only =0)? +(pararell iqxini iqxend ?)')")
 c      call readin5(imode,iqxini,iqxend)
-      read(5,*) imode
+
+      if( mpi__root ) then
+         read(5,*) imode
+      end if
+
+      call MPI__Broadcast(imode)
+
       call headver('hvccfp0: start',imode)
       call cputid (0)
       if(imode==202 ) then
@@ -712,7 +723,9 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
 !! This contains E(\nu,I), given in PRB81,125102
 
 !! == main loop for iqx ==
-      do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
+      call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
+      do 1001 iqx = mpi__iini, mpi__iend ! q=(0,0,0) is omitted!
+c$$$      do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
         write(*,"('#### do 1001 start iqx=',i5)")iqx
         vcoudfile='Vcoud.'//charnum5(iqx)  !this is closed at the end of do 1001
         ifvcoud = iopen(trim(vcoudfile),0,-1,0)
@@ -1136,7 +1149,8 @@ c          enddo
 cccccccccccccccccccccccccccccccccccccccccc
           deallocate(vcoul0)
 
-          if(iqx>nqibz.and.wqt(iqx-nqibz)==0d0) then
+          if( iqx-nqibz>=1 ) then
+             if( wqt(iqx-nqibz)==0d0) then ! MIZUHO-IR
 
 C --- To get the vector <Mixed basis| q=0> --------------
 cki            if(is_mix0vec()==0) then     !used original befor oct2006
@@ -1217,6 +1231,7 @@ c phasex ---just to clean. this is irrelevant
             write (ifgb0vec_b,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
             write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
           endif
+          endif ! MIZUHO-IR
           if(allochk) !bugfix ---this was in inside or above if 7Feb2006
      &    write(*,*)'deallocate(hh,oo,zz,eb,oox,zzr)'
           deallocate(hh,oo,zz,eb,oox,zzr)
@@ -1228,10 +1243,14 @@ c2---------------------
 
       deallocate(ngvecc)
       call cputid(0)
+
+      call MPI__Finalize
+
       if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
 c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
 c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
       if(imode==0) stop ' OK! hvccfp0 imode=0'
+
       end
 
       subroutine checkagree(a,b,char)

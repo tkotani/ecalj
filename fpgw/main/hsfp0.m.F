@@ -14,6 +14,7 @@
      &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
      &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
       use keyvalue,only: getkeyvalue
+      use m_mpi
       implicit none
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
 !!
@@ -825,7 +826,7 @@ c     --- info
         allocate( wklm((lxklm+1)**2))
         read(ifidmlx) dmlx, epinvq0i
         read(ifidmlx) wklm
-        ifidmlx = iclose('EPSwklm')
+        ifidmlx = iclose(ifidmlx)
       endif
 
 c-------------------------
@@ -936,7 +937,8 @@ c-----------------------------------------------------------
       nrank=1 !total number of rank
       irank=0 !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
-      call MPI_sxcf_rankdivider(nrank,nspinmx,nqibz,ngrp,nq,irkip_all, irank,irkip)
+c$$$      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq)
+      irkip=irkip_all
 !! ----------------------------------------
 
       nlnx4    = nlnx**4
