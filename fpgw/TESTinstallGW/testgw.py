@@ -2,7 +2,7 @@
 # python 2
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #
-import os, sys, string, re, glob, shutil, time, resource, os.path, filecmp
+import os, sys, string, re, glob, shutil, time, resource, os.path, filecmp,copy
 
 def cpu_time_child():
 	return resource.getrusage(resource.RUSAGE_CHILDREN)[0]
@@ -67,6 +67,22 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 	return ret+rett
 
 ##### main routine ##########################
+### check number of MPI nodes
+mpisize=1
+gwsc1shot='gwsc1shot'
+for i in range(len(sys.argv)):
+	iarg='-np'
+	if sys.argv[i]=='-np':
+		mpisize=sys.argv[i+1]
+		try:
+			checki=string.atoi(mpisize)
+		except:	
+			print '-np is not followed by integer'
+			sys.exit(-1)
+		print 'MPISIZE=', mpisize
+		gwsc1shot='gwsc1shot_mpi -np '+mpisize+ ' '
+		break
+
 testdir = os.getcwd()
 ecaldir = os.path.dirname(os.path.dirname(testdir)) #+'/ecal'
 exe= ecaldir+'/fpgw/exec/'
@@ -170,20 +186,20 @@ testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 #
 comparekey=" 'fp pot' 'fp evl'"
 testn='si_gwsc'
-testcput[testn]=' gwsc1shot si --> OK!  UsedCPUtime= 46.974936'
+testcput[testn]= gwsc1shot+' si --> OK!  UsedCPUtime= 46.974936'
 testname.append(testn)
 startfile.append('ctrl.si GWinput')
-commands.append(['lmfa si > llmfa','gwsc1shot si'])
+commands.append(['lmfa si > llmfa', gwsc1shot+' si'])
 datadir  = testdir+ '/' + testn+'/'
 testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'+comparekey])
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.si '+datadir+'log.si'])
 
 #
 testn='gas_gwsc'
-testcput[testn]= ' gwsc1shot gas --> OK!  UsedCPUtime= 71.964497'
+testcput[testn]= gwsc1shot+' gas --> OK!  UsedCPUtime= 71.964497'
 testname.append(testn)
 startfile.append('ctrl.gas GWinput')
-commands.append(['lmfa gas > llmfa','gwsc1shot gas'])
+commands.append(['lmfa gas > llmfa',gwsc1shot+' gas'])
 datadir  = testdir+ '/' + testn+'/'
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.gas '+datadir+'log.gas'])
 testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
@@ -192,13 +208,61 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.ga
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
 #
 testn='nio_gwsc'
-testcput[testn]=' gwsc1shot nio --> OK!  UsedCPUtime= 225.150071'
+testcput[testn]= gwsc1shot+' nio --> OK!  UsedCPUtime= 225.150071'
 testname.append(testn)
 startfile.append('ctrl.nio GWinput')
-commands.append(['lmfa nio > llmfa','gwsc1shot nio'])
+commands.append(['lmfa nio > llmfa',gwsc1shot+' nio'])
 datadir  = testdir+ '/' + testn+'/'
 testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.nio '+datadir+'log.nio'])
+
+##############################
+### test for --all
+testall = copy.copy(testname)
+#############################
+
+# This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
+#
+testn='nio_gwsc444'
+testcput[testn]= gwsc1shot+' nio --> OK! '
+testname.append(testn)
+startfile.append('ctrl.nio GWinput')
+commands.append(['lmfa nio > llmfa',gwsc1shot+' nio'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
+
+#
+testn='yh3fcc_gwsc666'
+testcput[testn]= gwsc1shot+' yh3fcc '
+testname.append(testn)
+startfile.append('ctrl.yh3 GWinput')
+commands.append(['lmfa yh3 > llmfa',gwsc1shot+' yh3'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.yh3 '+datadir+'log.yh3'+comparekey])
+
+testn='gas_gwsc666'
+testcput[testn]= gwsc1shot+' gas  '
+testname.append(testn)
+startfile.append('ctrl.gas GWinput')
+commands.append(['lmfa gas > llmfa',gwsc1shot+' gas'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
+
+testn='pdo_gwsc443'
+testcput[testn]= gwsc1shot+' pdo '
+testname.append(testn)
+startfile.append('ctrl.pdo GWinput')
+commands.append(['lmfa pdo > llmfa',gwsc1shot+' pdo'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.pdo '+datadir+'log.pdo'+comparekey])
+
+testn='cugase2'
+testcput[testn]= gwsc1shot+' cugase2 '
+testname.append(testn)
+startfile.append('ctrl.cugase2 GWinput')
+commands.append(['lmfa cugase2 > llmfa',gwsc1shot+' cugase2'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.cugase2 '+datadir+'log.cugase2'+comparekey])
 
 
 ### Readin flags ####################################
@@ -214,16 +278,22 @@ if (nargv ==0 or '--help' in argset):
 	print '   options:'
 	print '     --help   :  this help'
 	print '     --enforce:  remove temp_* directories at first even if they exists'
-	print '     --all    :  test all cases (not need to set testname)'
+	print '     --all    :  test all cases (only small cases. Not need to set testname)'
 	print '     --show   :  show all test name defined in this routine'
 	print '     --deletetemp: delete temp_* directory if tests are succeeded'
+	print 
+	print '     -np #:MPI test for example, if #=3, we use three ranks of MPI.'
+	print
 	print '   testname :  testname, e.g. si_gw_lmfh as shown below and estimated required time'
 	for i in range(len(testname)):
 		try:
 			rtime=testcput[testname[i]]
 		except:
 			rtime=' not known'
-		print '            :', testname[i],'\t ',rtime
+		if testname[i] in testall:
+			print '            :', testname[i],'\t ',rtime
+		else:	
+			print '              :', testname[i],'\t ',rtime,'\t  (not for --all)'
 	sys.exit()
 if ('--enforce' in  argset):
 	enforce=1
@@ -253,6 +323,11 @@ if(not ecaldir+'/lm7K/lmf2gw',commanddir+'lmf2gw'):
 	shutil.copy(ecaldir+'/lm7K/lmf2gw',  commanddir)
 if(not ecaldir+'/TOOLS/diffnum',commanddir+'diffnum'):
 	shutil.copy(ecaldir+'/TOOLS/diffnum',  commanddir)
+
+if(not ecaldir+'/lm7K/lmf-MPIK',commanddir+'lmf-MPIK'):
+	shutil.copy(ecaldir+'/lm7K/lmf-MPIK',  commanddir)
+if(not ecaldir+'/lm7K/lmfgw-MPIK',commanddir+'lmfgw-MPIK'):
+	shutil.copy(ecaldir+'/lm7K/lmfgw-MPIK',  commanddir)
 print
 
 
@@ -265,7 +340,10 @@ for i in range(len(testname)):
 			pass
 		else:
 			continue
-			
+	if all==1:
+		if testname[i] not in testall:
+			continue
+
 	print '=== '+ testname[i]+' ========================================'
 	dir        = testname[i]+'/'
 	datadir    = testdir+ '/' + dir

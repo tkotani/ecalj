@@ -55,10 +55,10 @@ if($ix == 0 ) then
   if(-e sigm.$TARGET) continue
   echo "No sigm ---> LDA caculation for eigenfunctions "
 #  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
-  $nfpgw/lmf $TARGET > llmf_lda
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --rs=0 $TARGET > llmf_lda
   cp rst.$TARGET rst.$TARGET.lda
 else
-  $nfpgw/lmf $TARGET > llmf
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
 endif
 
 
@@ -74,7 +74,7 @@ if(-e Qmtet) then
   mv eigval eigmtet
 endif
 
-echo 1 |$nfpgw/lmfgw  $TARGET > llmfgw01
+echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 set exinfo = $?
 
 
