@@ -3,6 +3,7 @@
 # $lmdir, which is defined in Makefile in ./ and in other 
 # directories, should point at this root directory.
 #
+# We need gfortran4.7 for -O3
 ######################################################
 ############# Libraries BLAS LAPACK FFTW 
 

@@ -232,7 +232,7 @@ c---------------------------------------
 
          call MPI__Broadcast(ixc)
          call MPI__Broadcast(nz)
-         call MPI__Broadcast(idummy)
+c         call MPI__Broadcast(idummy)
 
          ! END   MIZUHO-IR
       endif

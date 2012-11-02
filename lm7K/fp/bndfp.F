@@ -736,7 +736,7 @@ ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , sp
 c          call rlse(osmrox)
         endif
 C --- readin job switch
-        if (jobgw .eq. -999 ) then
+        if (jobgw .eq. -999 .and. procid==master) then
           write(stdo,*) ' lmfgw: input one of the following jobs:'
 c        write(stdo,*) '  -1 : creates files',
 c     .    ' GWinput, QIBZ, KPTin1BZ'
@@ -748,6 +748,11 @@ c     .    ' GWinput, QIBZ, KPTin1BZ'
           write(stdo,*) ' job?'
           read (5,*) jobgw
         endif
+#if MPI|MPIK
+        call mpi_barrier(MPI_comm_world,ierr)
+        call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
+#endif        
+
 C ... Mode -1 ... only after mkpot because qval made in mkpot
 c      if (jobgw .eq. -1) then
 c        call sugwin(ssite,sspec,slat,sham,w(osgw),sbz,nbas,qval)
@@ -1827,7 +1832,7 @@ C       isp serves as a flag for the noncollinear case
             jsp = isp
             if (ispc .eq. 2) jsp = 1
             if (i .eq. -1) lpdiag = 2
-            if(debug) print *,'bndfp: lpdiag=',lpdiag
+            print *,'bndfp: lpdiag=',lpdiag
 
 Ccomment out this test block takao
 C C   ... debugging ... test of trotwf
@@ -2028,6 +2033,7 @@ c$$$              do i=10,ndimhx
 c$$$                 hamm(i,i,:)=1d0
 c$$$              enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
+              print *,' goto zhev_tk2 nmx=',nmx
               call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
      .          evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
@@ -2593,7 +2599,7 @@ c        ---  pidorigin node has data
 c        ---   bcast
             call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq')
             ndimhx_iq = work_mpi(1)
-            nev_iq = work_mpi(1)
+            nev_iq = work_mpi(2) !1nov2012
 
 cki this causes SEGV, delete Jul08, 2010
 cki            if (procid.eq.master) then

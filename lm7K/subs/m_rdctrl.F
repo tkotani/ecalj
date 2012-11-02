@@ -429,6 +429,9 @@ C --- CONST ---
         if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
 
+!! begining of log file.
+      if (stdl>0 .and. iprint()>0) call headl2(prgn,0,stdl)
+
 C --- Header ---
 C Token ordering: HEADER
 C   10 continue
@@ -436,7 +439,6 @@ C   10 continue
      .'Contents displayed at beginning of program execution',
      .nout=nout)
       if (nout .gt. 0) then
-        if (stdl>0 .and. iprint()>0) call headl2(prgn,0,stdl)
         outs  = 'HEADER '//trim(header)
         if (procid .eq. master) then
           if (io_show .ne. 0) write(stdo,'(1x)')
