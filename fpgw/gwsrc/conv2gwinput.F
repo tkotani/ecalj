@@ -53,7 +53,7 @@ c ... GWIN0
       nband_chi0=9999
       emax_chi0 =9999
       nband_sigm=9999
-      emax_sigm =9999
+      emax_sigm = 2.0
       emax_sigm2=9999
       nband_sigm2=9999
 
@@ -97,15 +97,20 @@ c
       if(ixx==0)write(ifi,"(a)")'unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat '
       if(ixx==1)write(ifi,"(a)")'unit_2pioa on  ! on--> unit of QpGcut_* are in 2*pi/alat; off --> a.u.'
       write(ifi,"(a,f8.3,a)")   'alpha_OffG ', alpha_offG,' !(a.u.) Used in auxially function in the offset-Gamma method.'
-      write(ifi,"(a,i8,a)")     'nband_chi0 ', nband_chi0,' !    nband cutoff for chi0  (Optional)'
-      write(ifi,"(a,f10.3,a)")  'emax_chi0  ', emax_chi0, ' !(Ry) emax cutoff for chi0  (Optional)'
-      write(ifi,"(a,2i8,a)")     'nband_sigm ', nband_sigm
-     &      ,nband_sigm2,' !    nband cutoff for Sigma  (Optional) (1st:num in sigma; 2nd: num of G used in hsfp0)'
-      write(ifi,"(a,2f10.3,a)")  'emax_sigm  ', emax_sigm ,
-     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)'
+c      write(ifi,"(a,i8,a)")     'nband_chi0 ', nband_chi0,' !    nband cutoff for chi0  (Optional)'
+c      write(ifi,"(a,2i8,a)")     'nband_sigm ', nband_sigm
+c     &      ,nband_sigm2,' !    nband cutoff for Sigma  (Optional) (1st:num in sigma; 2nd: num of G used in hsfp0)'
+c      write(ifi,"(a,2f10.3,a)")  'emax_sigm  ', emax_sigm ,
+c     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)'
+c      write(ifi,"(a,2i8,a)")     'nband_sigm ', nband_sigm
+c     &      ,nband_sigm2,' !    nband cutoff for Sigma  (Optional) (1st:num in sigma; 2nd: num of G used in hsfp0)'
+c     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)'
+
+      write(ifi,"(a,f10.3,a)") '!emax_chi0  ', emax_chi0,' !(Ry) emax cutoff for chi0  (Optional)'
+      write(ifi,"(a,f10.3,a)") 'emax_sigm  ', emax_sigm,' !(Ry)  emax cutoff for Sigma'
 
 c ... GWIN_V2
-      omg_c   = 0.04d0
+      omg_c   = 0.1d0
       iSigMode= 3
       read(ifig,*)
       read(ifig,*)

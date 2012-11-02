@@ -14,7 +14,7 @@
      &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
      &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
       use keyvalue,only: getkeyvalue
-      use m_mpi
+C$$$      use m_mpi
       implicit none
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
 !!

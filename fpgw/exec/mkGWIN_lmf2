@@ -38,12 +38,12 @@ cat <<EOF >GWIN0
 n1 n2 n3
  $n1 $n2 $n3
 cut
- 3.0 2.5 
+ 3.2 2.7 
 alpha
  1
 Number of bands
- 999 999.0 
- 999 999.0 
+ 999 99999.0 
+ 999 2.0 
 EOF
 echo 0 | $nfpgw/lmfgw $argv[1]     > llmfgw00
 echo 1 | $nfpgw/gwinit   #This changes the <QPNT> setting.

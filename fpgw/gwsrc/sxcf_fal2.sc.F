@@ -86,7 +86,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
       use m_nbandgw,only: getnbandgw
-      use m_mpi
+C$$$      use m_mpi
       implicit none
 
 !     ! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==

@@ -295,6 +295,12 @@ c     enddo
 
 c---  Get maximums takao 18June03
       call getnemx8(nbmx,ebmx)
+
+ccccccccccccccccccccccccccccc
+!! forget ebmx2 nbmx2 
+      nbmx(2)=9999999
+      ebmx(2)=1d10
+ccccccccccccccccccccccccccccc
       write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 !     !     See sxcf_fal2z--------
 !     !     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
