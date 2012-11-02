@@ -739,6 +739,8 @@ eout2: $(EO2)
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 
+check:
+	(cd ../TESTinstallGW;./testgw.py --enforce --all) 
 
 # test for f90 dependency
 #../main/hvccfp0.m.o	:	../main/hx0fp0.m.o
@@ -746,7 +748,6 @@ eout2: $(EO2)
 #../main/hvccfp0.m.o	:	../main/hbasfp0.m.o
 
 include moduledepends.inc
-
 
 
 
