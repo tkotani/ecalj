@@ -1126,6 +1126,8 @@ c     initialise secq and kount
          zsec  = 0d0
          coh   = 0d0
          kount = 0
+         nbandmx(:,is) = 0 ! MIZUHO-IR  moved here for nctot=0 3rdNov2012
+
 !     ! ip is for to specify k point for which we calculate \Sigma.
          if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 c$$$  do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
@@ -1138,8 +1140,6 @@ c$$$  deallocate(ecore)
 c$$$  allocate(ecore(1,2)) !this is dummry
 c$$$  endif
 c     if(debug) write(6,*) "goto sxcf_fal3_scz"
-
-      nbandmx(:,is) = 0 ! MIZUHO-IR
 
 c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,

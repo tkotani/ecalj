@@ -256,7 +256,7 @@ commands.append(['lmfa pdo > llmfa',gwsc1shot+' pdo'])
 datadir  = testdir+ '/' + testn+'/'
 testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.pdo '+datadir+'log.pdo'+comparekey])
 
-testn='cugase2'
+testn='cugase2_gwsc222'
 testcput[testn]= gwsc1shot+' cugase2 '
 testname.append(testn)
 startfile.append('ctrl.cugase2 GWinput')
