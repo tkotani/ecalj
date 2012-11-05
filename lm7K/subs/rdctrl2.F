@@ -1908,7 +1908,8 @@ c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
      .    ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
 c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
      .    , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
-     .    , isw ( v_sbz%fsmom .ne.0 ) )
+c     .    , isw ( v_sbz%fsmom .ne.0 ) )
+     .    , isw ( v_sbz%fsmom .ne.NULLR ) )
 
 
    90       continue
