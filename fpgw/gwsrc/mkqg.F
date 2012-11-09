@@ -468,7 +468,7 @@ c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
               enddo
             enddo
             lxklm=6
-            allocate(wklm((lxklm+1)**2))
+            allocate(wklm((lxklm+1)**2)) ! See bottom of page7. Computer Phys. Comm 176(1007)1-13
             call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,
      o      wklm)
 c          do i=1,(lxklm+1)**2
