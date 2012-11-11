@@ -107,9 +107,9 @@ C     offz(i) = i if real; offz(i) = 2*i-1 if complex
 C ... ix-th component of connecting vector of pair i
       dx(ix,i) = pos(ix,iax(2,i)) - pos(ix,iax(1,i)) +
      .plat(ix,1)*iax(3,i) + plat(ix,2)*iax(4,i) + plat(ix,3)*iax(5,i)
-#if MPI | MPIK
-      integer, dimension(:),allocatable :: igproc
-#endif
+c$$$#if MPI | MPIK
+c$$$      integer, dimension(:),allocatable :: igproc
+c$$$#endif
       integer procid, master, mpipid, numprocs,igini,igend
       logical mlog,cmdopt
       character strn*120
@@ -170,31 +170,31 @@ C      if (scplx .eq. 0) call prmx('sr',syms(1,1,ksp,is),nds,nds,nds)
 C      if (scplx .eq. 1) call zprm('sz',2,syms(1,1,ksp,is),nds,nds,nds)
 
 C --- For each symmetry operation, do ---
-#if MPI | MPIK
-      allocate (igproc(0:max(numprocs,1)))
-C      call pshpr(ipr-10)
-      call dstrbp(ng,numprocs,1,igproc)
-C     Alternatively, distribute loops over pairs.  Doesn't improve speed.
-C     Probably need to reverse order of ng, isite
-C      call dstrbp(is2-is1+1,numprocs,1,igproc)
-C      do  isite = 0, numprocs
-C        igproc(isite) = igproc(isite) + is1-1
-C      enddo
-C      call poppr
-#endif
-
-#if MPI | MPIK
-c      do ig = max(igproc(procid),2), igproc(procid+1)-1
-      igini = max(igproc(procid),2)
-      igend = igproc(procid+1)-1
-#else
+c$$$#if MPI | MPIK
+c$$$      allocate (igproc(0:max(numprocs,1)))
+c$$$C      call pshpr(ipr-10)
+c$$$      call dstrbp(ng,numprocs,1,igproc)
+c$$$C     Alternatively, distribute loops over pairs.  Doesn't improve speed.
+c$$$C     Probably need to reverse order of ng, isite
+c$$$C      call dstrbp(is2-is1+1,numprocs,1,igproc)
+c$$$C      do  isite = 0, numprocs
+c$$$C        igproc(isite) = igproc(isite) + is1-1
+c$$$C      enddo
+c$$$C      call poppr
+c$$$#endif
+c$$$
+c$$$#if MPI | MPIK
+c$$$c      do ig = max(igproc(procid),2), igproc(procid+1)-1
+c$$$      igini = max(igproc(procid),2)
+c$$$      igend = igproc(procid+1)-1
+c$$$#else
 c      do  ig = 2, ng
       igini = 2
       igend = ng
-#endif
+c$$$#endif
 
       do ig=igini,igend
-
+c         print *,'zzzzzz proc',procid,ig,igini,igend
 C   ... Rotation matrix for this ig
         call ylmrtg(nlm,g(1,ig),rmat)
 C       call prmx('rmat',rmat,nlm,nlm,nlm)
@@ -451,9 +451,10 @@ C          endif
         enddo
       enddo
 
-C ... Combine contributions to syms from separate threads
-      call mpibc2(syms(1,1,1,offz(scplx,is1)),
-     .nds*nds*(is2-is1+1)*(1+scplx)*nsp,4,mlog,'rsmsym','syms')
+c$$$cfor MPI
+c$$$C ... Combine contributions to syms from separate threads
+c$$$      call mpibc2(syms(1,1,1,offz(scplx,is1)),
+c$$$     .nds*nds*(is2-is1+1)*(1+scplx)*nsp,4,mlog,'rsmsym','syms')
 
 C --- Scale by 1/ng ---
       call dscal(nds*nds*(is2-is1+1)*(1+scplx)*nsp,1d0/ng,

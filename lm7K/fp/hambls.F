@@ -451,7 +451,7 @@ c      i_copy_size=size(sham%sigp)
 c      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
       sigp=sham%sigp
       if(debug) print *,' hambles: eeeee1111'
-
+      print *,'qqqqq ndimsig = ',ndimsig
 
 ctakao simplified case for the PMT method.
       if (pmtsig()) then

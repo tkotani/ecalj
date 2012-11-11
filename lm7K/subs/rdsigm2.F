@@ -25,7 +25,7 @@ c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
       logical:: oncewrite,debug=.false.
       integer(4),allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3),qmm(3),qqq(3),www,qp(3) !,qwgt(npairmx,nbas,nbas)
-
+      call tcn('seneinterp2')
       if(debug) print *,' seneinterp2: qp=',qp,nk1,nk2,nk3
       sene=0d0
 ! --- Generate interpolation weight wgtq.
@@ -185,6 +185,7 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       enddo
       deallocate(igx)
  1019 continue
+      call tcx('seneinterp2')
       end subroutine seneinterp2
 
 
@@ -258,7 +259,6 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
      .(jj3*ifac(3)-1)*qb(k,3)
 c
       call tcn('seneinterp')
-      print *
       print *,'seneinterp: startxxx'
       mode=12 !lrsig=12
       lwsig=0

@@ -205,10 +205,11 @@ c      call poppr
      .    //shortname(procid)(1:namelen(procid))//' is master',' ',
      .    256,lgunit(3),procid,nproc)
         endif
-      else
-        call strcat(ext,20,' ','_',1,' ',i)
+      else !for procid !=0
+        call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
         call bin2a(' ',0,0,procid,2,0,20,ext,i)
         ierr = fext(ext(1:i+1))
+        print *,' xxxx file extension: ',procid,ext(1:i+1)
         if (mlog) ierr = fopn('MLOG')
         ierr = fextg(ext)
         call gettime(datim)

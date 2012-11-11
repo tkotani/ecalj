@@ -1006,47 +1006,19 @@ C 43 121  4        vol  1
       integer(8)   ::   nkqmx
       integer(8)   ::   npgrp
       integer(8)   ::   nsgrp
-CCHSTRUC       integer(8)   ::   oag
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oag (:) =>NULL()
       real(8) , allocatable ::  rv_a_oag (:)
-CCHSTRUC       integer(8)   ::   obgv
-ckino Dec.27.2011:         complex(8) , pointer ::  zv_p_obgv (:) =>NULL()
       complex(8) , allocatable ::  zv_a_obgv (:)
-CCHSTRUC       integer(8)   ::   ocg
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_ocg (:) =>NULL()
       real(8) , allocatable ::  rv_a_ocg (:)
-CCHSTRUC       integer(8)   ::   ocy
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_ocy (:) =>NULL()
       real(8) , allocatable ::  rv_a_ocy (:)
-CCHSTRUC       integer(8)   ::   odlv
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_odlv (:) =>NULL()
       real(8) , allocatable ::  rv_a_odlv (:)
-CCHSTRUC       integer(8)   ::   ogv
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_ogv (:) =>NULL()
       real(8) , allocatable ::  rv_a_ogv (:)
-CCHSTRUC       integer(8)   ::   oidxcg
-ckino Dec.27.2011:         integer , pointer ::  iv_p_oidxcg (:) =>NULL()
       integer , allocatable ::  iv_a_oidxcg (:)
-CCHSTRUC       integer(8)   ::   oips0
-ckino Dec.28.2011:         integer , pointer ::  iv_p_oips0 (:) =>NULL()
       integer , allocatable ::  iv_a_oips0 (:)
-CCHSTRUC       integer(8)   ::   oistab
-ckino Dec.28.2011:         integer , pointer ::  iv_p_oistab (:) =>NULL()
       integer , allocatable ::  iv_a_oistab (:)
-CCHSTRUC       integer(8)   ::   ojcg
-ckino Dec.28.2011:         integer , pointer ::  iv_p_ojcg (:) =>NULL()
       integer , allocatable ::  iv_a_ojcg (:)
-CCHSTRUC       integer(8)   ::   okv
-ckino Dec.28.2011:         integer , pointer ::  iv_p_okv (:) =>NULL()
       integer , allocatable ::  iv_a_okv (:)
-cki      integer(8)   ::   opos
-ckino Jan.4.2012       real(8), pointer :: rv_p_opos(:) =>NULL()
       real(8), allocatable :: rv_a_opos(:)
-CCHSTRUC       integer(8)   ::   oqlv
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_oqlv (:) =>NULL()
       real(8) , allocatable ::  rv_a_oqlv (:)
-CCHSTRUC       integer(8)   ::   osymgr
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_osymgr (:) =>NULL()
       real(8) , allocatable ::  rv_a_osymgr (:)
       real(8)   ::   plat(3,3)
       real(8)   ::   plat0(3,3)

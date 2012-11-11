@@ -349,7 +349,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       integer:: i_copy_size, i_spackv, i_spacks
       integer ::iwdummy
 
-      logical :: debug=.false. !debug is only for check write. However, it can cause error
+      logical :: debug=.true. !debug is only for check write. However, it can cause error
       !for 'make check',
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK
@@ -421,13 +421,25 @@ cccccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,100)
       integer:: nqps,ii1,ii2,ii4,iq1
 cccccccccccccccccccccccccccccccccccc
+
+
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
 
 c for mpi and mpik, parallel write
       character(10):: strprocid 
+
+      integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
 !! -----------------------------------------
+cccccccccccccccccccccccccccccccccccc
+c      i = fopna('ovlmat',-1,4)
+c      print *,' wwwwwwww 11111111',procid
+c      call mpi_barrier(MPI_COMM_WORLD,ierr) 
+c      call mpi_finalize(ierr)
+c      stop ' wwwwwwwwwww'
+cccccccccccccccccccccccccccccccccccc
+
 ckino begin
 c      nevec=0  
       savez=.false.
@@ -815,7 +827,7 @@ ctakao test mkekin repeat
 c       print *,'vvv takao mkekin repeat init 02 ---'
 c       call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
 c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
-c          stop 'xxxxxxxxxxxxxxxx 111'
+c          stop 'xxxxxxxxxxxxxxxx  111'
 ccccccccccccccccccccccccc
 
 
@@ -1240,21 +1252,21 @@ C --- Get qplist. This is only for no MPI mode yet...
         qplist(:,iq)=qp
       enddo
 #endif 
-c#if MPIK end 
+
       if (procid.eq.master) then
       print *,'-------- qplist --------'
       do iq=1,nkp
         write(6,"(i5,3f8.3)")iq,qplist(:,iq)
       enddo
       endif 
+
 #if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
-
-c allocate evlall 
       if (allocated(evlall)) deallocate(evlall); 
       allocate(evlall(ndham,nsp,nkp)) ; evlall=0.0d0
 
 #endif
+
 
 !! --- New sigma inerpolation mode. Simplified.
       if(debug) print *,'vvv: new sigma=',newsigmasw()
@@ -1313,27 +1325,26 @@ Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
         !enddo
       endif
 
-      if(debug) print *,' --- goto rdsigm2 section ---'
 !! === generate \Sigma for q points on all the mesh points. ===
 c      nhmax = ldim + napwmx !napwmx is in m_hamindex
 c      lwsig=0
+      if(debug) print *,' --- goto rdsigm2 section ---'
       if(sigmamode.and.siginit.and. (.not.(llmfgw.and.jobgw==0)) ) then
-        ifi = 1
-        if (procid .eq. master) ifi = fopna('sigm',-1,4)
-        read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
-c        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
-        allocate( qsmesh(3,nk1,nk2,nk3) )
-        if(mtosigmaonly()) then
-          ndimsig= ldim   !ldim  
+       if(mtosigmaonly()) ndimsig= ldim 
                       ! ndimsig is the dimension of the self-energy. 
                       ! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
+       rsrnge = sham%rsrnge
+       print *,'rsrnge=',rsrnge
+       if(procid==master) then
+        ifi = fopna('sigm',-1,4)
+        read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
+        allocate( qsmesh(3,nk1,nk2,nk3) )
+        if(mtosigmaonly()) then
           allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
         else
           stop 'mtosigmaonly()=T is needed in the current version sep2012'
         endif
         rewind ifi
-        rsrnge = sham%rsrnge
-        print *,'rsrnge=',rsrnge
         if (mod(pwmode,10) ==0) then
           write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
         else
@@ -1342,8 +1353,6 @@ c        allocate( sfz(nk1,nk2,nk3,ndham,ndham,nsp),qsmesh(3,nk1,nk2,nk3) )
         if (ldim .ne. ndham) then !june2009 takao
           write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
         endif
-
-        write(6,*)"Now we go into rdsigm2 for PMT mode...lrsig=" ,lrsig
         call rdsigm2(nbas,nsp,slat,sham,sbz,ifi,  !ndham is removed sep2012 (read from sigma file )
      &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
                   !qsfz is for test
@@ -1351,7 +1360,6 @@ c       deallocate(sfz)
         call fclose(ifi)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
 c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls
 c$$$cc rdsigm2+seneinterp is equivalent with rdsigm.
@@ -1381,7 +1389,7 @@ c$$$         call phmbl3(1,0,0,0,0,0,0,0)
 c$$$         endif
 c$$$         print *,'lwsig=',lwsig
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+c
 c --- pair-table and weight generator
 c      nknknk = nk1*nk2*nk3
 c      allocate(npair(nbas,nbas),range(nbas,nbas),pos(3,nbas))
@@ -1402,25 +1410,69 @@ c
           if(ok) exit
           deallocate( nlat, qwgt )
         enddo
+        deallocate(pos,npair)
         print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
+
 !! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
 !! Aug2012  newsigmasw()=F is the current version.
 !! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
         if(.not.newsigmasw()) then 
           allocate( sfzx(nk1,nk2,nk3,ndimsig,ndimsig,nsp) ) 
           sfzx=sfz
-          ifi = 1
           if (procid .eq. master) ifi = fopna('sigm',-1,4)
-c          call seneinterp(nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,
+          ifi = fopna('sigm',-1,4)
           call seneinterp(nbas,nsp,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
      &    nk1,nk2,nk3,sfzx) !,qp,isp,sene)
           call fclose(ifi)
-          deallocate(sfzx)
+          deallocate(sfzx,sfz)
         endif
         siginit=.false.
+        deallocate(qsmesh,nlat,qwgt)
+       endif ! procid==master
+
+#ifdef MPIK
+!! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
+      if(procid==master) then
+        nsizeohrs  = size( sham%rv_a_ohrs )
+        nsizeoiaxs = size( sham%iv_a_oiaxs )
+        nsizeontabs= size(sham%iv_a_ontabs)
+        noqsig = size(sham%rv_p_oqsig)
+        print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
+      endif
+      call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
+      call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
+      call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
+      call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
+      call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
+      if(procid/=master) then
+         print *,' allocate procid=',procid
+        if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
+        allocate( sham%rv_a_ohrs(nsizeohrs) )
+        if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
+        allocate( sham%iv_a_oiaxs(nsizeoiaxs))       
+        if(allocated(sham%iv_a_ontabs)) deallocate(sham%iv_a_ontabs)
+        allocate( sham%iv_a_ontabs(nsizeontabs))       
+        if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
+        allocate(sham%rv_p_oqsig(noqsig))
+      endif 
+      print *,' m1111 procid=',procid
+      call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
+      call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
+      call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
+      call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','ontabs')
+      print *,' m2222 procid=',procid
+#endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       endif !end of sigmamode if
+c      print *,' wwwwwwww 11111111',procid
+c      call mpi_barrier(MPI_COMM_WORLD,ierr) 
+c      call mpi_finalize(ierr)
+c      stop ' wwwwwwwwwww'
 
 !! == GW driver must be after rdsigm2 for sigm mode ==
+!! lmfgw-MPIK does not make sense "just parelell do 
+!!   ---> we need job divider. Then we also have to modify 
+!!
       if(llmfgw) then
         nchan=spot%nlma
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
@@ -1551,7 +1603,7 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
               call pshpr(1)
               call dpzero(xv,3)
               if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xv,1,3,1d0)
-              !print *,'xxx xxx 1111'
+              !print *,'xxx xxx  1111'
               call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
      .        0,napw,napw,dum,dum,dum,dum)
               call poppr
@@ -1634,6 +1686,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
@@ -1676,8 +1730,7 @@ c$$$c     &      ,sum(abs(sene-senex))
 c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
 c$$$c          deallocate(senex)
 c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-
-
+c
 c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
 c$$$c          allocate(senex(ndimh,ndimh))
@@ -1767,6 +1820,12 @@ ckino                    isize_hamm(3)=size(hamm)
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
+
+
+c      print *,' wwwwwwww 11111111 xxxxx ',procid
+c      call mpi_finalize(ierr)
+c      stop ' wwwwwwwwwwwqqqqqqqqqqqqzzzzzz'
+
 c        nsmidb = min(nsmidb,ismidb) !????
               if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
@@ -2845,10 +2904,11 @@ ckino Dec.8.2011:               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , r
         endif
       endif
 
-!! ... release sigma-related things.
-      if(sigmamode) then
-        deallocate(sfz,qsmesh,npair,pos,nlat,qwgt)
-      endif
+c!! ... release sigma-related things.
+      if(allocated(sfz)) deallocate(sfz)
+c      if(sigmamode) then
+c        deallocate(sfz,qsmesh,pos,nlat,qwgt)
+c      endif
 
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -3089,7 +3149,7 @@ ctakao test mkekin repeat
 c         print *,'vvv takao mkekin repeat 000 --- oldpot x oldrho'
 c         call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
 c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
-c       stop 'xxxxxxxxxxxxxxxx 111aaa'
+c       stop 'xxxxxxxxxxxxxxxx  111aaa'
 ccccccccccccccccccccccccc
 
 ccccccccccccccccccccc
