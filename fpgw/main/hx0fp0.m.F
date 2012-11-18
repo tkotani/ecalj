@@ -1352,7 +1352,7 @@ cc        if(.false.) then !comment out for mmmz
           if(allocated(ppovlzinv)) deallocate(ppovlzinv)
           if(allocated(ppovl)) deallocate(ppovl)
           allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
-          call readppovl0(qread,ngc,ppovl)
+          call readppovl0(q,ngc,ppovl)
           ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
           ppovlz(nbloch+1:nbloch+ngc,:) 
      &      = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
