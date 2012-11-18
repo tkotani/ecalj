@@ -178,7 +178,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
-      integer:: l2nl, nmbas_in,schi=-9999 , iqxendx,iqqv,imb2
+      integer:: l2nl, nmbas_in,schi=-9999 , iqxendx,imb2 !iqqv,
       logical:: eibz4x0,tiii,iprintx,chipm=.false.
       real(8)::qvv(3),ecut,ecuts,hartree,rydberg,pi
       character(128):: vcoudfile
@@ -887,13 +887,16 @@ c     ifisk=iopen('WKcomponent',0,-1,0)
 
          call cputid (0)
          q = qibze(:,iq)
-         if(iq<=nqibz) then
-            qq=q
-         else                   ! iqx = 1    corresponding q=0
-            qq=0d0  
-         endif
-         write(6,"(' qq vec =',3f14.6)") qq
-         call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
+ccccccccccccccccccccccc
+c         qq=q
+c         if(iq<=nqibz) then
+c            qq=q
+c         else                   ! iqx = 1    corresponding q=0
+c            qq=0d0  
+c         endif
+c         write(6,"(' qq vec =',3f14.6)") qq
+c         call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
+         call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
 !     ! Caution : confusing point
 !     !  ngc by QGcou is shown at the bottom of lqg4gw.
 !     !  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -921,7 +924,8 @@ c     stop 'hx0fp0_sc: can not find q in VCCFP'
 c     1006     continue
 c     endif  
 c     write(6,"(' q vec =',3f14.6)") q
-         write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
+c         write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
+         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
          print *,'nbloch ngb ngc=',nbloch,ngb,ngc
 
 
@@ -929,18 +933,17 @@ c     write(6,"(' q vec =',3f14.6)") q
 !     ! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
 
          if(newaniso2) then
-!     ! qq is used.
-            iqqv=iq
-            if(sum(abs(qq))<1d-6) iqqv=1
+c            iqqv=iq
+c            if(sum(abs(qq))<1d-6) iqqv=1 ! comment out at 18nov2012
 c     idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
 c     ifvcoud = iopen('Vcoud',0,0,0)
 c     endif
-            vcoudfile='Vcoud.'//charnum5(iqqv) !this is closed at the end of do 1001
+            vcoudfile='Vcoud.'//charnum5(iq) ! iq was iqqv this is closed at the end of do 1001
             ifvcoud = iopen(trim(vcoudfile),0,-1,0)
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
 c     print *,'qvv=',qvv
-            if(sum(abs(qvv-qq))>1d-10) then
+            if(sum(abs(qvv-q))>1d-10) then
                print *,'qvv =',qvv
                stop 'hx0fp0: qvv/=0 hvcc is not consistent'
             endif
@@ -980,7 +983,7 @@ c     enddo
             if(allocated(ppovlzinv)) deallocate(ppovlzinv)
             if(allocated(ppovl)) deallocate(ppovl)
             allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
-            call readppovl0(qq,ngc,ppovl)
+            call readppovl0(q,ngc,ppovl) !q was qq
             ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
             ppovlz(nbloch+1:nbloch+ngc,:) 
      &           = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
@@ -1044,10 +1047,10 @@ c     ekxx1  for rk
 c     ekxx2 for q+rk See tetwt4
                do kx = 1, nqbz
 c     call rwdd1 (ifev(is), kx, nband, ekxx1(1:nband, kx) )
-                  call readeval(qbz(:,kx)-qqq,  is, ekxx1(1:nband, kx) )
+                  call readeval(qbz(:,kx),  is, ekxx1(1:nband, kx) ) !this was qbz(:,kx)-qqq
                enddo
                do kx = 1, nqbz
-                  call readeval(q+qbz(:,kx)-qqq,is, ekxx2(1:nband, kx) )
+                  call readeval(q+qbz(:,kx), is, ekxx2(1:nband, kx) ) !this was q+qbz(:,kx)-qqq
                enddo
 
 c     if(iq<=nqibz) then

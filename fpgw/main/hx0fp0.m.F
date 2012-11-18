@@ -133,7 +133,7 @@ c      integer :: nw2
       real(8)::efin
 
       integer:: bzcase, ngc,mrecg
-      real(8):: qq(3),quu(3), deltaq(3) !,qqq(3)=0d0
+      real(8):: quu(3), deltaq(3) !,qqq(3)=0d0,qq(3)
       logical:: omitqbz=.false., noq0p
 
       logical,allocatable :: iwgt(:,:,:,:)
@@ -148,7 +148,7 @@ c      integer :: nw2
       real(8) :: erpaqw, trpvqw, trlogqw,rydberg,hartree
      &   ,pi,efz,qfermi,alpha,rs,voltot,ecelgas,efx,valn
       integer:: iqbz,iqindx,iflegas,nmx
-     &   ,ifcor,nqitot,isx,ntot,ieclog,iww,iqq,ieceig,ecorr_on=-1,iqqv
+     &   ,ifcor,nqitot,isx,ntot,ieclog,iww,iqq,ieceig,ecorr_on=-1 !,iqqv
       real(8) :: eclda_bh,eclda_pz,wk4ec,faca
       logical ::legas
 
@@ -938,19 +938,23 @@ c     &  !skip
 
 C... check write 1st part for Ec mode to ecorr.chk Nov2004
       if(ecorr_on>0) then
+ccccccccccccccccccccccccccccccccc
+         stop ' need to check subroutine getwk and so on'
+ccccccccccccccccccccccccccccccccc
         if(ecorr_on >0.and. (.not.imagomega) ) 
      &    stop ' hx0fp0: ecorr_on .and. (.not.imagomega)'
         write(ieclog,
      &          "('   iq                q                       wk')")
         do iqq = iqxini,iqxend
-          if(iqq<=nqibz) then
-            qq = qibze(:,iqq)
-          else
-            qq = 0d0
-          endif
+c          if(iqq<=nqibz) then
+c            qq = qibze(:,iqq)
+c          else
+c            qq = 0d0
+c          endif
           call getwk(iqq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
           write(ieclog,"(i5,3x,3f12.8, f15.5)")
-     &          iqq, qq, wk4ec
+c     &          iqq, qq, wk4ec
+     &          iqq, q, wk4ec
         enddo
         write(ieclog,*)
         write(ieclog,"('   iw omega(Ry)       wiw')")
@@ -1252,12 +1256,13 @@ c      ifiss=iopen('SkSks',0,-1,0)
 !!
         call cputid (0)
         q = qibze(:,iq)
-        if(iq<=nqibz.or.ngczero) then  ! iqx = iq
-          qq=q
-        else !(ixc==11) then !    iqx = 1             ! corresponding q=0
-          qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0
-        endif
-        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
+c        qq=q
+c        if(iq<=nqibz.or.ngczero) then  ! iqx = iq
+c          qq=q
+c        else !(ixc==11) then !    iqx = 1             ! corresponding q=0
+c          qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0
+c        endif
+        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) !qq to q 18nov2012
 !! Caution : confusing point
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
 !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -1287,33 +1292,20 @@ c         write(6,"('iq q=',i5,3f9.4,' qx(VCCFP)=',3f9.4)")iq,q,qx
 c         stop 'hx0fp0: VCCFP is not compatible'
 c         endif
 c        endif
-        write(6,"('do 1001: iq q=',i5,3f9.4,' qq=',3f9.4)")iq,q,qq
+        write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q !qq
         print *,'nbloch ngb ngc=',nbloch,ngb,ngc
 
 
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
 
-
-!! qq is used.
-        if(ixc==11) then
-          qread=qq
-        else
-          qread=q
-        endif   
         if(newaniso2.and.(.not.chipm)) then
-c          if(sum(abs(qread))<1d-6) then !reopen Vcoud
-c            idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
-c            ifvcoud = iopen('Vcoud',0,0,0)
-c          endif
-          iqqv=iq
-          if(sum(abs(qread))<1d-6) iqqv=1 ! for q=(0,0,0)
-          vcoudfile='Vcoud.'//charnum5(iqqv)  !this is closed at the end of do 1001
+          vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
           ifvcoud = iopen(trim(vcoudfile),0,-1,0)
           read(ifvcoud) ngb0
           read(ifvcoud) qvv
 c         print *,'qvv=',qvv
-          if(sum(abs(qvv-qread))>1d-10) then
+          if(sum(abs(qvv-q))>1d-10) then
             print *,'qvv =',qvv
             stop 'hx0fp0: qvv/=0 hvcc is not consistent'
           endif

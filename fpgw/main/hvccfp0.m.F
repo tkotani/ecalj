@@ -557,7 +557,7 @@ c     &  !skip
 !!
       if(newaniso().and.imode==0) then
         iqxini=1
-        iqxend=nqibz
+c        iqxend=nqibz ! comment out at 18nov2012
       endif
       print *,'iqxini iqxend=',iqxini,iqxend
 c qibz loop
