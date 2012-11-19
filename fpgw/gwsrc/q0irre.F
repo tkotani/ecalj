@@ -1,4 +1,5 @@
       subroutine auxfunlm(q, alp, alat, qlat, ngc, ngvect,lx,  auxfun)
+!!  Give auxfun(L) = \sum_G  exp(-alp*(q+G)**2)*Y_L(q+G)
       implicit none
       real(8) :: alat,q(3),tpiba,aucfun,qg(3),qlat(3,3),qg2
      & ,pi=3.1415926535897932D0,alp
@@ -32,8 +33,10 @@
       real(8),allocatable:: funa(:,:),wsumau(:)
       allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2))
 !! ==== true integal of auxially function ====
+!! integral \int d^3k/vol * exp(-alp*k**2) *Y_0
       volinv  = (2*pi)**3/vol
-      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
+c     wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
+      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp) /sqrt(4d0*pi) !1/sqrt(4pi)=Y00. !bugfix 19nov2012. alp
 
 !! ==== discrete sum (except q=0) of auxially functions ====
       do iq = 2,nnn ! omit q=0 point iq=1
