@@ -15,7 +15,7 @@ c ------------------------------------------------------------------------------
       complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2),sss,sss2
       real(8):: wklm((lmxax+1)**2),ylm,wbz,rrr2(3)
       real(8):: fpi,pi,epinv(3,3,nq0i),q0i(3,nq0i),  r2s,emat(3,3),rrr(3),qnorm2(nq0i)
-      integer:: nlmm,lx,iq0i,iq0x
+      integer:: nlmm,lx,iq0i,iq0x, i
       real(8),allocatable:: cy(:),yl(:),yl2(:)
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -47,20 +47,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      lx=2
 c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2),yl2((lx+1)**2))
 c$$$      call sylmnc(cy,lx)
-c$$$      rrr=(/-0.36d0,0.20d0,0.4d0/)
-c$$$      rrr=rrr/sqrt(sum(rrr**2))
-c$$$      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
-c$$$      write(*,"(  ' testttt: r=',3f10.5)") rrr
-c$$$      do iw= ii,ie
-c$$$        sss=0d0
-c$$$        do iq0i=1,nq0i
-c$$$          sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
-c$$$        enddo
-c$$$        write(*,"(' testttt: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,
-c$$$     &    llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))
+c$$$      do i=1,3
+c$$$         if(i==1) rrr =(/0.025d0,0.025d0,0d0/)
+c$$$         if(i==2) rrr =(/0.025d0,-0.025d0,0d0/)
+c$$$         if(i==3) rrr =(/0d0,0d0,0.025d0/)
+c$$$         rrr = rrr/sqrt(sum(rrr**2))
+c$$$c         call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$         write(*,"(' testttt: r=',3f10.5)") rrr
+c$$$         do iw= ii,ie
+c$$$           sss=0d0
+c$$$           do iq0i=1,nq0i
+c$$$             sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+c$$$           enddo
+c$$$           write(*,"(' testvvvv: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,llw(iw,i)
+c$$$c           write(*,"(' testttt: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,
+c$$$c     &      llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))
+c$$$         enddo
 c$$$      enddo
-c$$$      stop 'getw0: xxxxxx test end xxx for given test rrr(1:3) xxxxxxxxx'
-c
+cccccccccccccccccccccccccccccccc
 c$$$      do iw= ii,ie
 c$$$        do iq0x=1,nq0i
 c$$$        sss=0d0
@@ -102,6 +106,7 @@ Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
           enddo
         enddo
+
 !! === inversion of 1 = \sum_L1 llwyl(L1)Y_L1 * \sum_L2 K_L2 Y_L2===
 !! Both sides are multipled by Y_L and spherically integraled.
 !! warn: Klm should be not confused with wklm
@@ -109,20 +114,21 @@ Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call matcinv(lm2x,cgllw(1:lm2x,1:lm2x))
         cgllw(1:lm2x,1:lm2x)= sqrt(fpi)*cgllw(1:lm2x,1:lm2x)
         !sqrt(fpi) comes from \int d\Omega Y_0 (right hand side of inversion eq).
-!! for check write
-        sss=0d0
-        lm2x=0
-        do lm2=1,nlklm
-          if(mod(ll(lm2),2)==1) cycle  !only even l
-          lm2x=lm2x+1
-          sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
-        enddo
-        sss2=0d0
-        do iq0i=1,nq0i
-          sss2 = sss2 + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
-        enddo
-        write(*,"(' epinv inversion test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,1d0/sss2,
-     &    1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
+
+c$$$!! for check write
+c$$$        sss=0d0
+c$$$        lm2x=0
+c$$$        do lm2=1,nlklm
+c$$$          if(mod(ll(lm2),2)==1) cycle  !only even l
+c$$$          lm2x=lm2x+1
+c$$$          sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
+c$$$        enddo
+c$$$        sss2=0d0
+c$$$        do iq0i=1,nq0i
+c$$$          sss2 = sss2 + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+c$$$        enddo
+c$$$        write(*,"(' epinv inversion test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,1d0/sss2,
+c$$$     &    1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
 
 !! === spherical integral of Klm ===
         lm1x=0
@@ -137,7 +143,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
       enddo
       do iw=ii,ie
-        write(6,"('w0 & w0(1:nq0i)=',2d13.5,10(1x,2d13.5))")
+        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
      &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
       enddo
       end

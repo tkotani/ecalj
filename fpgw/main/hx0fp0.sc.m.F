@@ -879,6 +879,10 @@ c     ifisk=iopen('WKcomponent',0,-1,0)
 !     ! (or need to modify do 1001 loop).
 
       call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
+ccccccccccccccccccccccccccccccccc
+c      print *,'vvvvvvv test xxxxxxxx'
+c      iqxini=nqibz+1
+ccccccccccccccccccccccccccccccccc
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
          if( .not. mpi__task(iq) ) cycle
 
@@ -1789,6 +1793,10 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !     ! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
+ccccccccccccccccccccccc
+c            stop 'vvvvvvvvv test end xxxxxxxxxxxxxxxx'
+cccccccccccccccccccccc
+
 c     print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !     ! === w0,w0i are stored to zw for q=0 ===
 !     ! === w_ks*wk are stored to zw for iq >nqibz ===
