@@ -19,7 +19,7 @@ c     i       ngvecpB,ngveccB,
      o      rcxq,
 c------------------------------------------
      i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006
-     i     newanisox, !z1offd,
+     i     newanisox, z1offd,
      o     rcxqmean,
      i     nwgt,igx,igxt,ngrp,eibzsym)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :  readqg
@@ -151,7 +151,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       logical :: onceww !testtr,negative_testtr
 
 !! takao apr2012
-      logical :: newanisox !, z1stcol,z1offd
+      logical :: newanisox , z1stcol,z1offd
       complex(8) :: ppovlz(ngbb,ngbb),zzz(ngbb)
       integer:: igb
 
@@ -559,12 +559,16 @@ c$$$          enddo
 
               do imb1=1,nmbas1
                 zq01 = zmelt(imb1,it,itp)
-c                z1stcol=(nmbas1==2.and.imb1==2.and.z1offd) !a specical treatment 
-c                if(z1stcol) zq01 = zmelt(1,it,itp)
+cccccccccccccccccccccccccccccc
+                z1stcol= (imb1==2.and.z1offd) !a specical treatment 
+                if(z1stcol) zq01 = zmelt(1,it,itp)
+cccccccccccccccccccccccccccccc
                 do imb2=1,nmbas2
                   zq02 = zmelt(imb2,it,itp)
                   zq0zq0 = dconjg(zq01)*zq02
-c                  if(z1stcol) zq0zq0 = dconjg(zq0zq0)
+cccccccccccccccccccccccccccccc
+                  if(z1stcol) zq0zq0 = dconjg(zq0zq0)
+cccccccccccccccccccccccccccc
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
                     if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
                     !iiww=iw+ihw(ibib,k)-1

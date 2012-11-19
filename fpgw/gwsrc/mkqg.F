@@ -59,12 +59,12 @@ c      logical :: readgwinput
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
      &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:),norq0x(:)
       integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix
-      real(8):: rrr(3),r2s,emat(3,3)
-
+      real(8):: rrr(3),r2s,emat(3,3),qxx(3)
 ccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: llxxx,lm1,lm2
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
       real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
+      character*7:: q0pf !nov2012
 c------------------------------------------------
       qreduce0 = qreduce()
       if(iq0pin == 3) then
@@ -865,17 +865,21 @@ c      close(ifix)
       imxc=0
       do iq = 1, nqnum
         q = qq(1:3,iq)
-        call getgv2(alat,plat,qlat, q, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
+        qxx=q !use q for Q0P points.
+        do i=1,nq0i
+          if(sum(abs(q0i(:,i)-qxx))<1d-6) then
+            qxx=(/0d0,0d0,0d0/)
+            exit
+          endif
+        enddo
+        call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
         if(imx0>imx) imx=imx0
-        call getgv2(alat,plat,qlat, q, QpGcut_Cou,1,ngcn(iq),imx0c)
+        call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx0c)
         if(imx0c>imxc) imxc=imx0c
         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
-cccccccccccccccccccccccccccccc
-c      nqi=nqnum
-cccccccccccccccccccccccccccccc
       print *,' nqi=',nqi
 !! :nqi:   The number of irreducible points (including irr. of offset points).
 !! ::       We calcualte eigenfunction and Vxc for these points.
@@ -894,16 +898,22 @@ cccccccccccccccccccccccccccccc
       ngveccrev=9999
       do iq = 1, nqnum
         q = qq(1:3,iq)
+        qxx=q
+        q0pf=''
+        do i=1,nq0i
+          if(sum(abs(q0i(:,i)-qxx))<1d-8) then
+            qxx=(/0d0,0d0,0d0/)
+            q0pf=' <--QOP'
+            exit
+          endif
+        enddo
         ngp = ngpn(iq)
         ngc = ngcn(iq)
-ccccccccccccccccccccccccccccccccc
-c        irr=1
-cccccccccccccccccccccccccccccccc
-        write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2)")
-     &  iq, q, ngp, ngc, irr(iq)
+        write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)")
+     &  iq, q, ngp, ngc, irr(iq),q0pf
         allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) !larger than 1. Aug2005
-        call getgv2(alat,plat,qlat, q, QpGcut_psi, 2, ngp,  ngvecp)  ! for eigenfunction
-        call getgv2(alat,plat,qlat, q, QpGcut_Cou, 2, ngc,  ngvecc)  ! for Coulomb
+        call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp)  ! for eigenfunction
+        call getgv2(alat,plat,qlat, qxx, QpGcut_Cou, 2, ngc,  ngvecc)  ! for Coulomb
         write (ifiqg) q, ngp, irr(iq)
 !!  *Reverse table of ngvecp ---> ngvecprev
 c        print *,' goto nnn3 determine ngvecprev'

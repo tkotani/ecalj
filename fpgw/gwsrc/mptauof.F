@@ -142,10 +142,10 @@ c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz !test case of llw at
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
       enddo
-      do iw=ii,ie
-        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
-     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
-      enddo
+c      do iw=ii,ie
+c        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
+c     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
+c      enddo
       end
 
       integer function ll(ilm)

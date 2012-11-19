@@ -34,7 +34,7 @@
       real(8) function screenfac()
 c      srceenfac=0d0
 c      screenfac=-1d-8 !NaN for GaAs222 test. This gives negative eigenvalue of Vcoul for q=0
-      screenfac=-1d-4
+      screenfac=-1d-5 
       end
 
 !! testmode

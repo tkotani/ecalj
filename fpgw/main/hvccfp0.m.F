@@ -67,7 +67,7 @@ c
       integer(4):: bzcase, nqnumc,ifiqgc
 c      character(5)  :: charnum5
 c      integer(4),allocatable:: iqok(:)
-      real(8):: qqq(3),QpGcut_Cou       ,qq(3)
+      real(8):: qqq(3),QpGcut_Cou       !,qq(3)
 
       integer(4),allocatable:: ngvecc0(:,:)
       integer(4):: ngc0
@@ -731,10 +731,10 @@ c$$$      do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
         ifvcoud = iopen(trim(vcoudfile),0,-1,0)
         if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
-          qq = 0d0
+c          qq = 0d0
         else                  !       iq = iqx
           q  = qibz(:,iqx)
-          qq = q
+c          qq = q
         endif
 cccccccccccccccccccccccc
 c        if(imode==202) then !for iqx>nqibz
@@ -746,7 +746,7 @@ cccccccccccccccccccccccc
           if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
         endif
 !! ==== q+G vector ====
-        call readqg('QGcou',qq,ginv,  quu,ngc, ngvecc )
+        call readqg('QGcou',q,ginv,  quu,ngc, ngvecc ) !qq-->q
         ngb = nbloch + ngc  !it was ngcnn(iq)
         write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
 

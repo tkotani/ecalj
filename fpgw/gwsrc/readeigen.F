@@ -177,6 +177,8 @@ c$$$      end subroutine rotMPB
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
+      logical ::debug=.true.
+      if(debug) print *,' rotMPB2:'
       if(init==1) then
         lxxa= 2*max_l_tbl
         nl= lxxa +1 
@@ -189,15 +191,15 @@ c$$$      end subroutine rotMPB
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
      o  zrotm(1:nbloch,1:nbloch))
-c      print *,' end of rotmto2 '
+      if(debug) print *,' end of rotmto2 '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
-c      print *,' end of iqindx2rotmto2 '
+      if(debug) print *,' end of iqindx2rotmto2 '
       if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
       sss=1d0
       if(igxt==-1) sss=-1d0
-c      print *,' iqindx2 111111111111 sss=',sss
+      if(debug) print *,' iqindx2 111111111111 sss=',sss,igx,qin
       call iqindx2(sss*matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
-c      print *,' iqindx2 111111111111222222222222'
+      if(debug) print *,' iqindx2 111111111111222222222222'
 !!
       ngcx=ngc(iqin)
       if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then

@@ -1834,7 +1834,7 @@ c------------------------------------------------------------------
           newanisox=newaniso2
           if(chipm.and.nolfco) newanisox=.false.
           print *, ' --- goto x0kf_v4hz ---- newaniso iq nqibz ixc= ',newanisox,iq,nqibz,ixc
-c          z1offd=newanisox
+          z1offd=.false.
 c          if(nolfco) then
 c             nmbas1x = nmbas1
 c          else
@@ -1858,7 +1858,7 @@ c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
      o    rcxq,   !  rcxq is the accumulating variable for spins 
 c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,  
      i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,  
-     i    newanisox, !z1offd,!for nolfco Add nmbas Sep2006
+     i    newanisox, z1offd,!for nolfco Add nmbas Sep2006
 c     o    rcxqmean(:,:,1:nmbas1x,:), !output in the case of nolfco
      o    rcxqmean, !output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
