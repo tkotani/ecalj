@@ -1621,14 +1621,14 @@ cvvvvvvvvvvvvvvvvvv
                      enddo
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-                     llw(iw,iq0)= 1d0/epstinv(1,1)
+c                     llw(iw,iq0)= 1d0/epstinv(1,1)
 
 cccccccccccccccccccccccccccccccccccc
                      sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
                      sks (1:ngb,iw,iq0)= zxq(1:ngb,1,iw)
 c                     sks (1:ngb,iw,iq0)= zxq(2,1:ngb,iw) !nmbas1=2 see z1stcol in x0kf_v4h.
                      vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-c                     llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
+                     llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm 
@@ -1759,7 +1759,7 @@ c                     sksI (1:ngb,iw,iq0)= zxqi(2,1:ngb,iw) !nmbas1=2 see z1stco
                      vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee)
                      vcou1sq= sqrt(vcou1)
 !! llwI without LFC. LFC contribution is added in 
-c                     llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+                     llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 
                      write(*,*) 'xxx llwI(noLFC) iq iw',iq,iw,llwI(iw,iq0)
@@ -1818,8 +1818,9 @@ c=======================================================================
             idummy=iclose(trim(vcoudfile))
             vcousq=sqrt(vcousq)
             allocate(epstinv(ngb0,ngb0),w_k(ngb0),w_ks(ngb0),w_kI(ngb0),w_ksI(ngb0),eemat(ngb0,ngb0))
+
             do iq0=1,nq0i
-              iq=iq0+nqibz
+              iq = iq0 + nqibz
               q = qibze(:,iq)
 
               vcoudfile='Vcoud.'//charnum5(iq)
@@ -1830,49 +1831,56 @@ c=======================================================================
                print *,'qvv =',qvv
                stop 'hx0fp0: qvv/=0 hvcc is not consistent'
               endif
-              if(allocated(zcousq))    deallocate( zcousq)
-              if(allocated(vcoudummy)) deallocate(vcoudummy)
-              allocate( zcousq(ngb0,ngb0),vcoudummy(ngb0))
-              read(ifvcoud) vcoudummy
+              if(allocated(zcousq)) deallocate(zcousq)
+              if(allocated(vcousq)) deallocate(vcousq)
+              allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
+              read(ifvcoud) vcousq
               read(ifvcoud) zcousq
               idummy=iclose(trim(vcoudfile))
-              eemat =matmul(transpose(dconjg(zcousq0)),zcousq)   !<E_mu k=0| E_mu k>
+              vcousq=sqrt(vcousq)
+
               ifepstinv = iopen('EPS0inv',0,0,0)
               read(ifepstinv) ngb
 
-              write(*,*)
-              do iw=nwmin,nwmax
-               read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
-c               epstinv(2:ngb,2:ngb)=matmul( transpose(dconjg(eemat(2:ngb,2:ngb))),
-c     &                                matmul(epstinv(2:ngb,2:ngb),eemat(2:ngb,2:ngb)) )
-               if(iw/=iwx) then
-                print *,'iw iwx=',iw,iwx
-                stop 'hx0fp0_sc: iw/=iwx'
-               endif
+               ngc=ngb-nbloch
+               if(allocated(ppovlz)) deallocate(ppovlz)
+               if(allocated(ppovl)) deallocate(ppovl)
+               allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+               call readppovl0(q,ngc,ppovl) !q was qq
+               ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+               ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+
+!  eemat: Z\mu_i(\bfk=0)^* <i|j> Z\nu_j(\bfk) 
+               eemat =matmul(transpose(dconjg(zcousq0)),matmul(ppovlz,zcousq))
                vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee)
                vcou1sq = vcou1**.5
-c            w_k( 2:ngb)= vcou1sq*matmul( sk(2:ngb,iw,iq0)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
-               w_ks(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sks(2:ngb,iw,iq0)*vcousq(2:ngb))
-               epslfc = -vcou1sq*sum( sk(2:ngb,iw,iq0) * w_ks(2:ngb) *vcousq(2:ngb) )
-c              print *,'vvvvvvvv sum', vcou1sq,sum(abs(sks(2:ngb,iw,iq0))),sum(abs(w_ks(2:ngb)))
-c               llw(iw,iq0) = llw(iw,iq0)  + epslfc
-               write(6,"('eps(on real) iq iw',2i4,2f9.3,2x,2f9.3)") iq0,iw, llw(iw,iq0),llw(iw,iq0)-epslfc
-              enddo
-              do iw=1,niw
-               read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
-               if(iw/=iwx) then
+               write(*,*)
+
+              do iw=nwmin,nwmax
+                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+                epstinv(2:ngb,2:ngb) = matmul( transpose(dconjg(eemat(2:ngb,2:ngb))),
+     &                                matmul(epstinv(2:ngb,2:ngb),eemat(2:ngb,2:ngb)) )
+                if(iw/=iwx) then
                 print *,'iw iwx=',iw,iwx
                 stop 'hx0fp0_sc: iw/=iwx'
-               endif
-               vcou1  = fourpi/sum(q**2*tpioa**2) 
-               vcou1sq = vcou1**.5
-c             w_kI( 2:ngb)= vcou1sq*matmul( skI(2:ngb,iw,iq0)*vcousq(2:ngb), epstinv(2:ngb,2:ngb) )
-               w_ksI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), sksI(2:ngb,iw,iq0)*vcousq(2:ngb))
-               epslfc=- vcou1sq*sum( skI(2:ngb,iw,iq0)* w_ksI(2:ngb)*vcousq(2:ngb) )
-c               llwI(iw,iq0)= llwI(iw,iq0)+epslfc 
-               write(6,"('eps(on img ) iq iw',2i4,2f9.3,2x,2f9.3)")iq0,iw, llwI(iw,iq0),llwI(iw,iq0)-epslfc
-            enddo
-            ifepstinv = iclose('EPS0inv')
+                endif
+                w_k(2:ngb) = vcou1sq*matmul( epstinv(2:ngb,2:ngb), sk(2:ngb,iw,iq0)*vcousq(2:ngb))
+                epslfc = -vcou1sq*sum( sks(2:ngb,iw,iq0) * w_k(2:ngb) *vcousq(2:ngb) )
+                llw(iw,iq0) = llw(iw,iq0)  + epslfc
+                write(6,"('eps(on real) iq iw',2i4,2f9.3,2x,2f9.3)") iq0,iw, llw(iw,iq0)-epslfc,llw(iw,iq0)
+              enddo
+              do iw=1,niw
+                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
+                if(iw/=iwx) then
+                 print *,'iw iwx=',iw,iwx
+                 stop 'hx0fp0_sc: iw/=iwx'
+                endif
+                w_kI(2:ngb)= vcou1sq*matmul( epstinv(2:ngb,2:ngb), skI(2:ngb,iw,iq0)*vcousq(2:ngb))
+                epslfc=- vcou1sq*sum( sksI(2:ngb,iw,iq0)* w_kI(2:ngb)*vcousq(2:ngb) )
+                llwI(iw,iq0)= llwI(iw,iq0)+epslfc 
+                write(6,"('eps(on img ) iq iw',2i4,2f9.3,2x,2f9.3)")iq0,iw, llwI(iw,iq0)-epslfc,llwI(iw,iq0)
+              enddo
+              ifepstinv = iclose('EPS0inv')
            enddo
          endif
 
