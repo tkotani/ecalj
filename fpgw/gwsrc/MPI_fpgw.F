@@ -8,7 +8,8 @@
       logical :: mpi__root
       integer :: mpi__iini, mpi__iend
       logical, allocatable ::  mpi__task(:)
-
+      integer,allocatable :: mpi__ranktab(:)
+      integer:: ista(MPI_STATUS_SIZE )
       contains
 
       
@@ -39,7 +40,6 @@ c$$$      end if
 c$$$      if( .not. mpi__root ) then
 c$$$         close(unit=6)
 c$$$      end if
-
 
       return
       end subroutine MPI__Initialize
@@ -100,6 +100,32 @@ c$$$      end if
       return
       end subroutine MPI__Broadcast
 
+
+      subroutine MPI__REAL8send(data,n,dest)
+      implicit none
+      real(8):: data(n)
+      integer :: n,dest,ierr
+      call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end
+      subroutine MPI__REAL8recv(data,n,src)
+      implicit none
+      real(8):: data(n)
+      integer :: n,src,ierr
+      call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
+      end
+
+      subroutine MPI__DbleCOMPLEXsend(data,n,dest)
+      implicit none
+      complex(8):: data(n)
+      integer :: n,dest,ierr
+      call MPI_Send(data,n,MPI_COMPLEX16,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end
+      subroutine MPI__DbleCOMPLEXrecv(data,n,src)
+      implicit none
+      complex(8):: data(n)
+      integer :: n,src,ierr
+      call MPI_Recv(data,n,MPI_COMPLEX16,src,src, MPI_COMM_WORLD,ista,ierr)
+      end
 
       subroutine MPI__AllreduceSum( data, size )
       implicit none
@@ -212,28 +238,35 @@ c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,i
       return
       end subroutine MPI__sxcf_rankdivider
 
-
+!!
       subroutine MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
       implicit none
       integer, intent(in) :: iqxini, iqxend, nqibz
 
       integer :: iq
-      allocate( mpi__task(1:iqxend) )
+      allocate( mpi__task(1:iqxend),mpi__ranktab(1:iqxend) )
       
       if( mpi__size == 1 ) then
          mpi__task(:) = .true.
+         mpi__ranktab(iq) = mpi__rank
          return
       end if
-
+!!
       mpi__task(:) = .false.
       do iq=iqxini, iqxend
-         if( mpi__rank == 0 ) then
+        if(iq==1.or. iq>nqibz) then
+           mpi__ranktab(iq) = 0
+        else
+           mpi__ranktab(iq) = mod(iq,mpi__size-1)+1
+        endif  
+!!
+        if( mpi__rank == 0 ) then
             if( iq == 1 .or. iq>nqibz ) then
                mpi__task(iq) = .true.
             else
                mpi__task(iq) = .false.
             end if
-         else
+        else
             if( iq == 1 .or. iq>nqibz ) then
                mpi__task(iq) = .false.
             else
@@ -243,10 +276,36 @@ c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,i
                   mpi__task(iq) = .false.
                end if
             end if
-         end if
+        end if
       end do
 
       return
       end subroutine MPI__hx0fp0_rankdivider
+
+
+      subroutine MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+      implicit none
+      integer, intent(in) :: iqxini, iqxend
+      integer :: iq,i
+      allocate( mpi__task(1:iqxend),mpi__ranktab(1:iqxend) )
+      mpi__task(:) = .false.
+      mpi__ranktab(1:iqxend)=999999
+      if( mpi__size == 1 ) then
+         mpi__task(:) = .true.
+         mpi__ranktab(iq) = mpi__rank
+         return
+      end if
+      if(mpi__rank==0) write(6,*) "MPI_hx0fp0_rankdivider2:"
+      do iq=iqxini, iqxend
+         mpi__ranktab(iq) = mod(iq-1,mpi__size)  !rank_table for given iq. iq=1 must give rank=0
+         if( mpi__ranktab(iq) == mpi__rank) then
+            mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
+         endif
+         if(mpi__rank==0) then
+           write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
+         endif
+      enddo   
+      return
+      end subroutine MPI__hx0fp0_rankdivider2
 
       end module m_mpi

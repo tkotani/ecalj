@@ -177,7 +177,7 @@ c$$$      end subroutine rotMPB
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
-      logical ::debug=.true.
+      logical ::debug=.false.
       if(debug) print *,' rotMPB2:'
       if(init==1) then
         lxxa= 2*max_l_tbl

@@ -676,7 +676,7 @@ c        write(1101,"(i5,a)") nq0i," ---This is readin Q0P --- "
         close(1101)
       endif
 cccccccccccccccccccc
-      print *,' end fo writing QOP'
+      print *,' end fo writing Q0P'
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -866,12 +866,14 @@ c      close(ifix)
       do iq = 1, nqnum
         q = qq(1:3,iq)
         qxx=q !use q for Q0P points.
-        do i=1,nq0i
+        if(iq0pin==1) then
+          do i=1,nq0i
           if(sum(abs(q0i(:,i)-qxx))<1d-6) then
             qxx=(/0d0,0d0,0d0/)
             exit
           endif
-        enddo
+          enddo
+        endif
         call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
         if(imx0>imx) imx=imx0
         call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx0c)
@@ -900,13 +902,17 @@ c      close(ifix)
         q = qq(1:3,iq)
         qxx=q
         q0pf=''
-        do i=1,nq0i
-          if(sum(abs(q0i(:,i)-qxx))<1d-8) then
+c        print *,'qxx=',iq,qxx
+        if(iq0pin==1) then
+          do i=1,nq0i
+          if(sum(abs(q0i(:,i)-qxx))<1d-6) then
             qxx=(/0d0,0d0,0d0/)
-            q0pf=' <--QOP'
+            q0pf=' <--Q0P'
             exit
           endif
-        enddo
+          enddo
+        endif
+
         ngp = ngpn(iq)
         ngc = ngcn(iq)
         write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)")

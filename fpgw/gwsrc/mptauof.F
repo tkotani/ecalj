@@ -156,9 +156,9 @@ c      enddo
 
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym)
+      implicit none
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
-      implicit none
       integer:: nqibz,ngrp,iqxini,iqxend,iq,ig,igxx,neibzx,ieibz,ibz,nwgtsum,itimer,ntimer
       integer:: neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),ik,nqbz,i,it
       logical:: timereversal

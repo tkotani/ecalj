@@ -1774,6 +1774,8 @@ c     do ix=1,nqtti
 c     write(6,"(3f10.4)") qtti(1:3,ix)
 c     enddo
 ccccccccccccccccccccccccccccccccccccccccccc
+
+c nov 2012 these if below are not necessary.
         if( iqi <=nqibz.or.ngczero) then !jun2005 ngczero
           iq = idxk (qibze(1:3,iqi), qtti,nqtti) !feb2012takao
         elseif( iqi > nqibz) then !     iq0=0 !iq0 is added on 8/18/2005
