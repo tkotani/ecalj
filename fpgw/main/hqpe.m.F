@@ -22,13 +22,18 @@ c local data
      &    qc(:,:,:),eldac(:,:),sex(:,:),sexcore(:,:),
      &    qx(:,:,:),eldax(:,:),rsec(:,:,:),csec(:,:,:),zfac(:,:)
 
-      integer(4):: ret
+      integer:: ret,iix
 c      logical:: readgwinput
+      logical :: nozmode=.false.
 
 
 c shift quasiparticle energies (eV)
       write (*,*)' q+band index for zero?'
       read (*,*)jin
+      if(jin>=1000) then
+         jin=jin-1000
+         nozmode=.true.
+      endif
       call headver('hqpe',jin)
 
 c open files
@@ -144,12 +149,21 @@ c
      &                  ,rsec(3,ntq,nq),csec(3,ntq,nq),zfac(ntq,nq))
         call readx   (ifsec(is),50)
         read(ifsec(is),*)
+        rsec=0d0
+        csec=0d0
         do ip = 1,nq
           do i  = 1,ntq
+          if(nozmode) then
+            read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,3d24.16,
+     &     3x,3d24.16,3x,d24.16)")
+     &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
+     &     rsec(2,i,ip),csec(2,i,ip),zfac(i,ip)
+          else
             read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,3d24.16,
      &     3x,3d24.16,3x,d24.16)")
      &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
      &     rsec(1:3,i,ip),csec(1:3,i,ip),zfac(i,ip)
+          endif  
 c
 c      print *," itc=",itc(i)
           enddo

@@ -190,9 +190,9 @@ c      integer :: nw2
       complex(8)::x0mx
       complex(8),allocatable:: UU0(:,:),VT0(:,:)
 
-      logical :: ngczero=.false., sergeyv=.true., chipm=.false.,nolfco=.false. !sergeyv only
+      logical ::  sergeyv=.true., chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
      &  ,epsmode=.false.,normalm=.false., eiqr=.false.
-      integer::  ife, idum4 !ingczero,ifchipmn,ifchipm,
+      integer::  ife, idum4 !ifchipmn,ifchipm,
       real(8):: qs,qt,ww,muu, ddq(3)
       character*11 ::ttt
 
@@ -265,7 +265,7 @@ c takao keeps only the Sergey mode.
       write(6,"(a)") '    223 : chi^+- Sergey'
       write(6,"(a)") '    12  : total energy Miyake Sergey'
       write(6,"(a)") '    -9999: just show version num'
-      write(6,"(a)") ' #2=iqxini   #3=iqxend' !    #4=ngczero or not'
+c      write(6,"(a)") ' #2=iqxini   #3=iqxend' '
 c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
       write(6,"(a)") 
      &      '-------------------------------------------------------'
@@ -1252,7 +1252,7 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !!
         call cputid (0)
         q = qibze(:,iq)
-        if(iq<=nqibz.or.ngczero) then  ! iqx = iq
+        if(iq<=nqibz) then !.or.ngczero) then  ! iqx = iq
           qq=q
         else !(ixc==11) then !    iqx = 1             ! corresponding q=0
           qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0

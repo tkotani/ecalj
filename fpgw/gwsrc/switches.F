@@ -1,3 +1,7 @@
+      logical function localfieldcorrectionllw()
+      localfieldcorrectionllw=.true.
+      end
+
       logical function eibz4sig()
       eibz4sig=.true.
       end

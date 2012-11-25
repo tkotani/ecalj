@@ -181,12 +181,13 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl, nmbas_in,schi=-9999 , iqxendx,imb2 !iqqv,
-      logical:: eibz4x0,tiii,iprintx,chipm=.false.,iqinit
+      logical:: eibz4x0,tiii,iprintx,chipm=.false.,iqinit,localfieldcorrectionllw
       real(8)::qvv(3),ecut,ecuts,hartree,rydberg,pi
       character(128):: vcoudfile
       integer :: iqeibz
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
+      integer:: ifw0w0i
 !-------------------------------------------------------------------------
       call MPI__Initialize
 
@@ -229,6 +230,8 @@ c     ixc= 11
 c     imagonly=.true.
 c     if    (ixc==1)  then; write(6,*) ' OK ixc=1. normal mode'
       if(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
+      elseif(ixc==111) then
+         write(6,*) 'OK ixc=111 W0W0I only'
       else
          print *,'we only allow ixc==11. given ixc=',ixc
          stop 'error:we only allow ixc==11.'
@@ -281,7 +284,7 @@ c     print *, idtetf
 C     --- readin compuational conditions
 c     call wkinit (iwksize)
       nwin   = 0                !Readin nw from NW file
-      if(ixc/=1.and.ixc/=11) nwin = -999 !Not readin NW file
+c      if(ixc/=1.and.ixc/=11) nwin = -999 !Not readin NW file
       incwfin= 0                !use ForX0 for core in GWIN
       efin =  0d0               !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
@@ -835,10 +838,14 @@ c      call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
 c      print *,'rrr mpiranktab=',mpi__ranktab
 
       iqinit=.true.
+      if(ixc==111) then
+         iqxini = nqibz+1
+      endif
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
          if( .not. mpi__task(iq) ) cycle
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
+!!
          call cputid (0)
          q = qibze(:,iq)
          call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) ! q was qq
@@ -903,21 +910,21 @@ c     print *,'qvv=',qvv
          endif
 
 c commentout block inversion
-c$$$         if(newaniso2.and. iq>nqibz  ) then !for mmmw
-c$$$            if( ngb0/=ngb ) then
-c$$$               stop 'hx0fp0.m.f:ngb0/=ngb'
-c$$$            endif
-c$$$            nolfco =.true.
-c$$$            nmbas_in=ngb
-c$$$            nmbas1 = 2  ! Why nmbas1=2.==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
-c$$$            nmbas2 = ngb
-c$$$            if(allocated(rcxqmean)) deallocate(rcxqmean)
-c$$$            if(allocated(zzr))      deallocate(zzr)
-c$$$            allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
-c$$$            allocate( zzr(ngb,ngb) )
-c$$$            rcxqmean= 0d0
-c$$$         elseif(newaniso2) then !.and.iq==1) then
-         if(newaniso2) then !.and.iq==1) then
+         if(newaniso2.and. iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then !for mmmw
+            if( ngb0/=ngb ) then
+               stop 'hx0fp0.m.f:ngb0/=ngb'
+            endif
+            nolfco =.true.
+            nmbas_in=ngb
+            nmbas1 = 1  ! If nmbas1=2 and nmbas2=ngb, we calculate wing elements.
+                        ! ==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
+            nmbas2 = 1  ! 
+            if(allocated(rcxqmean)) deallocate(rcxqmean)
+            if(allocated(zzr))      deallocate(zzr)
+            allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
+            allocate( zzr(ngb,ngb) )
+            rcxqmean= 0d0
+         elseif(newaniso2) then !.and.iq==1) then
             nolfco = .false.
             nmbas1=ngb          !meaningful in dpsion5, not used in x0kf_v4h.
             nmbas2=ngb          !
@@ -1049,7 +1056,7 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
      i              ihw,nhw,jhw, ! job=1    not-used
      o              whw,        ! job=1    not-used
      i              iq,is,is,nqibz) ! new input for devided-tetrahedron method.
-               if(ixc==1) deallocate(demin,demax) !sf 21May02
+c               if(ixc==1) deallocate(demin,demax) !sf 21May02
                nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
                if(debug) print *,' nbnbx=',nbnbx
                allocate(  n1b(nbnbx,nqbz,npm)
@@ -1247,6 +1254,7 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
             print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
+            z1offd=.false.
             if(nolfco.and.newaniso2.and.nmbas1==2) z1offd = .true.
 c     if(nolfco) then
 c     nmbas1x = nmbas1
@@ -1533,8 +1541,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                   if(newaniso2.and.iq>nqibz) then
 !! Full inversion to calculalte eps with LFC.
+                   vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
+                   if(localfieldcorrectionllw()) then
                      ix=0
-                     vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
                      do igb1=ix+1,ngb
                        do igb2=ix+1,ngb
                          if(igb1==1.and.igb2==1) then
@@ -1550,13 +1559,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                      llw(iw,iq0)= 1d0/epstinv(1,1)
-
+                   else
 c commentout block inversion
 c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
 c$$$                     sks (1:ngb,iw,iq0)= zxq(1:ngb,1,iw)
 c$$$c                     sks (1:ngb,iw,iq0)= zxq(2,1:ngb,iw) !nmbas1=2 see z1stcol in x0kf_v4h.
 c$$$                     vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-c$$$                     llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
+                     llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
+                   endif 
 c$$$
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1603,6 +1613,7 @@ c     write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
 c     call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 c     endif
  1015          continue         !iw
+
 c     if(newaniso2) then
 c     if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
 c     endif
@@ -1660,9 +1671,10 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
 cmmm  3
                   if( newaniso2.and.iq>nqibz) then
 !! Full inversion to calculalte eps with LFC.
-                     ix=0
-                     vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-                     do igb1=ix+1,ngb
+                      vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
+                     if(localfieldcorrectionllw()) then
+                      ix=0
+                      do igb1=ix+1,ngb
                        do igb2=ix+1,ngb
                          if(igb1==1.and.igb2==1) then
                            epstilde(igb1,igb2)= 1d0 - vcou1*zxqi(1,1,iw)
@@ -1673,11 +1685,11 @@ cmmm  3
                            epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
                          endif   
                        enddo
-                     enddo
-                     epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-                     call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-                     llwI(iw,iq0)= 1d0/epstinv(1,1)
-
+                      enddo
+                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+                      llwI(iw,iq0)= 1d0/epstinv(1,1)
+                     else
 c commentout block inversion
 c$$$                     skI  (1:ngb,iw,iq0)= zxqi(1,1:ngb,iw)
 c$$$c                     sksI (1:ngb,iw,iq0)= zxqi(2,1:ngb,iw) !nmbas1=2 see z1stcol in x0kf_v4h.
@@ -1685,8 +1697,8 @@ c$$$                     sksI (1:ngb,iw,iq0)= zxqi(1:ngb,1,iw) !nmbas1=2 see z1s
 c$$$                     vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee)
 c$$$                     vcou1sq= sqrt(vcou1)
 c$$$!! llwI without LFC. LFC contribution is added in 
-c$$$c                     llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
-
+                      llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+                     endif  
                      write(*,*) 'iq iw_img  eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
 c     write(ifisk) iw,iq0,q
 c     write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
@@ -1705,9 +1717,9 @@ c     call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nb
 c     endif
  1016          continue
                if(newaniso2) then
-                  if(iq==1) ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
-                  deallocate(epstinv)
-                  if(allocated(epstilde)) deallocate(epstilde)
+                 if(iq==1) ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
+                 deallocate(epstinv)
+                 if(allocated(epstilde)) deallocate(epstilde)
                endif
             endif 
 !     ! === ImagOmega end ===
@@ -1866,6 +1878,16 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !     ! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
+            ifw0w0i = iopen('W0W0I',0,-1,0)
+            write(ifw0w0i) w0(nw_i:nw),w0i(1:niw)
+            do i=nw_i,nw
+               write(*,"('w0 =',i4,2f13.4)")i,w0(i)
+            enddo   
+            do i=1,niw
+               write(*,"('w0i=',i4,2f13.4)")i,w0i(i)
+            enddo   
+            ifw0w0i = iclose('W0W0I')
+            if(ixc==111) goto 999
 c     print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !     ! === w0,w0i are stored to zw for q=0 ===
 !     ! === w_ks*wk are stored to zw for iq >nqibz ===
@@ -1900,9 +1922,11 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
             end do
          end if
       is = iclose('hbe.d')
+ 999  continue
       call cputid(0)
       call MPI__Finalize
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
+      if(ixc==111) stop ' OK! hx0fp0_sc ixc=111 W0W0Ionly'
       end
 
 

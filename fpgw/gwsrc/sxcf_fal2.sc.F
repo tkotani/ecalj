@@ -80,6 +80,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
      i     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i     wklm,lxklm,          !mar2012 !wklm apr2012takao
      i     invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
+     i    diagonly,
      o     zsec,coh,nbandmx)
 
       use m_readqg
@@ -429,6 +430,8 @@ C...
 
       logical ::eibz4sig
       integer::nbandmx(nq)      !sep2012 number of bands for calcualted self-energy.
+
+      logical:: diagonly
 c--------------------------------------------------------------------
 
       pi  = 4d0*datan(1d0)
@@ -1042,6 +1045,7 @@ ccccccccccccccccccccccccccccc
                      enddo
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
+                           if(diagonly.and.(itpp/=itp)) cycle
                            do 994 it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) = 0d0
                               do ivc=1,ngb
@@ -1063,6 +1067,7 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                   else
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
+                           if(diagonly.and.(itpp/=itp)) cycle
                            do it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) =dcmplx(
      &                             sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itpp)
@@ -1104,6 +1109,7 @@ c     gaussian
 
                   do itpp=1,ntqxx
                      do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
+                        if(diagonly.and.(itpp/=itp)) cycle
                         zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
      &                       - wtt * sum( w3p(:,itp,itpp) )
                      enddo
@@ -1441,6 +1447,8 @@ C...  frequency integration along the imaginary axis, s. wint.f
 c     for each e(q-rk,n) and w in SEc(qt,w)
                do 1385   itpp= 1,ntqxx
                   do 1386    itp = 1,ntqxx
+                     if(diagonly.and.(itpp/=itp)) cycle
+
                      do 1387  it = 1,nstate
                         if (iSigma_en==0 .or. iSigma_en==1.or.iSigma_en==4) then
                            omega0=ef
@@ -1512,6 +1520,8 @@ c     &      wintzsg_npm (npm, zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
 c     sum over both occupied and unoccupied states and multiply by weight
                do     itpp= 1,ntqxx
                   do     itp = 1,ntqxx
+                     if(diagonly.and.(itpp/=itp)) cycle
+
                      if ((iSigma_en==1 .or. iSigma_en==0) .and. itp==itpp) then
                      else
                         zsec(itp,itpp,ip)  = zsec(itp,itpp,ip) + !sf 22may02
@@ -1849,6 +1859,8 @@ c     this contribution to zsec_nn is real (hermitean)
                            enddo !igb2
                         enddo   !ix
                         do 2021 itpp=1,ntqxx
+                           if(diagonly.and.(itpp/=itp)) cycle
+
                            if(npm==1) then
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
      .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)

@@ -208,9 +208,12 @@ c     integer:: nbmx
       real(8),allocatable::evaliq(:)
       real(8)::tolry=1d-4,qqqx(3),qtarget(3)
       complex(8),allocatable::zsect(:,:)
+
+      logical :: selectqp=.false.,diagonly=.false.
+      integer:: ret
 c---------------------------------------
 
-      call MPI__Initialize ! MIZUHO-IR
+      call MPI__Initialize      ! MIZUHO-IR
 
       hartree=2d0*rydberg()
 
@@ -223,13 +226,18 @@ c---------------------------------------
          write(6,*) ' --- Choose modes below ------------'
          write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
          write(6,*) '  [option --- (+ QPNT.{number} ?)] '
+         write(6,*) ' Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
          write(6,*) ' --- Put number above ! ------------'
-
-         ! BEGIN MIZUHO-IR
+! BEGIN MIZUHO-IR
          if( mpi__root ) then
             call readin5(ixc,nz,idummy)
          end if
 
+         if(ixc>1000) then      !selected QP
+            ixc=mod(ixc,1000)
+            selectqp=.true.
+            diagonly=.true.
+         endif
          call MPI__Broadcast(ixc)
          call MPI__Broadcast(nz)
 c         call MPI__Broadcast(idummy)
@@ -614,96 +622,69 @@ c-------------------------
  201  continue
 c-------------------------
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
-
 c     the coulomb matrix for exchange.
       if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
-
-c     read q-points and states
-cccccccccccccccccccccccccccccccccfaleev 21May02 do not use ixc==4
-c     if(ixc==4) then
-c     call readxx(ifqpnt) !skip to ***** for q point for spectrum function.
-c     omegamaxin = 1d70
-c     read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
-c     2038   continue
-c     omegamax = (nw-2)*2d0*dw - 0.5d0*esmr !This is in Ry.
-c     if(omegamaxin < omegamax) then
-c     write(6,*) ' --- Use readin dwplot and omegamaxin from QPNT.'
-c     omegamax = omegamaxin
-c     else
-c     2          write(6,*) ' --- omegamax by hx0fp >omegamaxin'
-c     write(6,*) ' --- Use dwplot from QPNT and omegamax by hx0fp.'
-c     endif
-c     if( omegamax <0) stop 'hsfp0 :strange omegamax <0 '
-c     iwini =  -int( omegamax / dwplot )
-c     iwend =   int( omegamax/  dwplot )
-c     print *,' Readin dwplot from QPNT: iwini iwend',iwini,iwend
-c     2        dwidth = nw*dw
-c     else
-ccccccccccccccccccccccccccccccfaleev 21May02 do not use iwini, iwend
-c     iwini= -1
-c     iwend= 1
-c     endif
-c     ---
-c     lqall      = .false.
-c     laf        = .false.
-c     call readx   (ifqpnt,10)
-c     read (ifqpnt,*) iqall,iaf
-c     if (iqall == 1) lqall = .true.
-c     if (iaf   == 1)   laf = .true.
-c     call readx   (ifqpnt,100)
-!     states
-c     read (ifqpnt,*) ntq
-c     if (ntq<0) then ! all states !takao May 2003
-      ntq =  min(nbmx(1),nband) !takao 19June2003 nband
-      allocate (itq(ntq))
-      do i = 1, ntq
-         itq(i) = i
-      enddo
-c     else              ! number states from GWIN0
-c     allocate( itq(ntq) )
-c     read (ifqpnt,*) (itq(i),i=1,ntq)
-c     endif
-
-!     q-points
-c     if (lqall) then !all q-points case
+c$$$!!    read q-points and states
+c$$$      if(selectqp) then
+c$$$         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+c$$$         lqall      = .false.
+c$$$         laf        = .false.
+c$$$         call readx   (ifqpnt,10)
+c$$$         read (ifqpnt,*) iqall,iaf
+c$$$         if (iqall == 1) lqall = .true.
+c$$$         if (iaf   == 1)   laf = .true.
+c$$$         call readx   (ifqpnt,100)
+c$$$         read (ifqpnt,*) ntq
+c$$$c         allocate( itq(ntq) )
+c$$$c         read (ifqpnt,*) (itq(i),i=1,ntq)
+c$$$         if (lqall) then        !all q-points case
+c$$$            nq         = nqibz
+c$$$            allocate(q(3,nq))
+c$$$            call dcopy   (3*nqibz,qibz,1,q,1)
+c$$$         else
+c$$$            call readx   (ifqpnt,100)
+c$$$            read (ifqpnt,*) nq
+c$$$            allocate(q(3,nq))
+c$$$            do       k = 1,nq
+c$$$               read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
+c$$$            enddo
+c$$$         endif
+c$$$         nspinmx = nspin
+c$$$         if (laf) nspinmx =1
+c$$$         close(ifqpnt)
+c$$$      else
+c$$$!     q-points
       if(bzcase()==1)then
          nq = nqibz
          allocate(q(3,nq))
          call dcopy   (3*nqibz,qibz,1,q,1)
       else
-c     nq = nqibz+nqibz_r
-c     allocate(q(3,nq))
-c     do iq= 1,nqibz_r
-c     q(:,iq) = qibz_r(:,iq)
-c     enddo
-c     do iq= 1,nqibz
-c     q(:,iq+nqibz_r)=qibz(:,iq)
-c     enddo
          nq = nqibz_r
          allocate(q(3,nq))
          do iq= 1,nqibz_r
             q(:,iq)=qibz_r(:,iq)
          enddo
       endif
+
       do iq=1,nq
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
-c     else
-c     call readx   (ifqpnt,100)
-c     read (ifqpnt,*) nq
-c     allocate(q(3,nq))
-c     do       k = 1,nq
-c     read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
-c     write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
-c     enddo
-c     endif
-cccc  if (ntq /= nband) stop 'hsfp0: SC GW: ntq /= nband'
-cccc  if (nq /= nqibz)  stop 'hsfp0: SC GW: nq /= nqibz'
-cccc  last statement should be commented if  less then nqibz
-cccc  momentums in output SEU(D) wanted
-c     
-c     
+c$$$  endif
+      do iq=1,nq
+         write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
+      enddo
+
+!! q-point ntq
+      ntq =  min(nbmx(1),nband) !takao 19June2003 nband
+      allocate (itq(ntq))
+      do i = 1, ntq
+         itq(i) = i
+      enddo
+      print *,' ntq=',ntq
+      write(6,"('ntq: itq(1:ntq) =',i3,':  ',100i3)")ntq,itq(1:ntq)
+
+!
       nspinmx = nspin
       inquire(file='ANFcond',EXIST=laf)
       if(laf) then
@@ -1177,6 +1158,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i        wklm,lxklm,       !mar2012
      i        invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
+     i      diagonly, !nov2012
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
@@ -1239,9 +1221,9 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
          open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
          allocate(evaliq(nband),iblki(nband),iblke(nband))
          read(ifevec)  ndimhx, nspx,nnnx !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
-         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
+c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
          read(ifvxc)            !ndimh, nsp,nnn
-         do 3020 iq=1,nq        !nq is the irreducible k points . The same as that given in evec v_xc.
+         do 3020 iq=1,nnnx !nq        !nq is the irreducible k points . The same as that given in evec v_xc.
             do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
                if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
                   read(ifvxc)  nhdim,ldim
@@ -1256,12 +1238,14 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                   read(ifevec)
                   cycle
                endif  
-               do i=1,nq        !qqqx from evec v_xc.
+               do i=1,nnnx  !nq     !qqqx from evec v_xc.
                   if(sum(abs(qqqx-q(:,i)))<1d-6) then
                      iqxx=i
                      goto 3011
                   endif  
                enddo  
+               deallocate(evec,evec_inv,evecrot)
+               cycle
                stop 'hsfp0_sc: bug:qqqx can not find ...'
  3011          continue
                if(tiii) stop 'timereversal is not yet implemented'
