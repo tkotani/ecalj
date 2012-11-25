@@ -188,6 +188,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
       integer:: ifw0w0i
+      logical :: readw0w0i
 !-------------------------------------------------------------------------
       call MPI__Initialize
 
@@ -230,8 +231,8 @@ c     ixc= 11
 c     imagonly=.true.
 c     if    (ixc==1)  then; write(6,*) ' OK ixc=1. normal mode'
       if(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
-      elseif(ixc==111) then
-         write(6,*) 'OK ixc=111 W0W0I only'
+      elseif(ixc==1011) then
+         write(6,*) 'OK ixc=1011 Add W0W0I part at q=0'
       else
          print *,'we only allow ixc==11. given ixc=',ixc
          stop 'error:we only allow ixc==11.'
@@ -828,6 +829,10 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       llw=1d99
       llwI=1d99
 
+      if(ixc==1011) then
+         goto 1191
+      endif
+
 !     ! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !     ! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !     ! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
@@ -838,9 +843,6 @@ c      call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
 c      print *,'rrr mpiranktab=',mpi__ranktab
 
       iqinit=.true.
-      if(ixc==111) then
-         iqxini = nqibz+1
-      endif
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
 ccccccccccccccccccccccc
 c         if(iq<=nqibz) cycle
@@ -1860,6 +1862,18 @@ c$$$         endif
 
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
+ 1191    continue
+         if(ixc==1011) then !this is only for test.
+            ifw0w0i = iopen('W0W0I',0,-1,0) 
+            read(ifw0w0i) nw_i,nw,niw,nq0i
+            print *,'w0w0i: n=',nw_i,nw,niw,nq0i
+            read(ifw0w0i) llw(nw_i:nw,1:nq0i)
+            read(ifw0w0i) llwI(1:niw,1:nq0i)
+c            read(ifw0w0i) w0(nw_i:nw)
+c            read(ifw0w0i) w0i(1:niw)
+            ifw0w0i = iclose('W0W0I')
+          endif  
+         
          if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
             print *
             print *,' ==== newaniso2 mode W(0) divergent part ==== '
@@ -1881,6 +1895,7 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !     ! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
+
             ifw0w0i = iopen('W0W0I',0,-1,0)
             write(ifw0w0i) nw_i,nw,niw,nq0i
             write(ifw0w0i) llw(nw_i:nw,1:nq0i)
@@ -1888,13 +1903,13 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
             write(ifw0w0i) w0(nw_i:nw)
             write(ifw0w0i) w0i(1:niw)
             ifw0w0i = iclose('W0W0I')
+
             do i=nw_i,nw
                write(*,"('w0 =',i4,2f13.4)")i,w0(i)
             enddo   
             do i=1,niw
                write(*,"('w0i=',i4,2f13.4)")i,w0i(i)
             enddo   
-            if(ixc==111) goto 999
 c     print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !     ! === w0,w0i are stored to zw for q=0 ===
 !     ! === w_ks*wk are stored to zw for iq >nqibz ===
@@ -1933,7 +1948,7 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
       call cputid(0)
       call MPI__Finalize
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
-      if(ixc==111) stop ' OK! hx0fp0_sc ixc=111 W0W0Ionly'
+c      if(ixc==111) stop ' OK! hx0fp0_sc ixc=111 W0W0Ionly'
       end
 
 
