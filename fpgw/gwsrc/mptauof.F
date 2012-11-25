@@ -81,17 +81,17 @@ Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
 !! ==== for a test case of rrr ====
-      lx=lmxax
-      if(allocated(cy)) deallocate(cy)
-      if(allocated(yl)) deallocate(yl)
-      allocate(cy((lx+1)**2),yl((lx+1)**2))
-      call sylmnc(cy,lx)
-      rrr=(/-0.36d0,0.20d0,0.4d0/)
-      rrr=rrr/sqrt(sum(rrr**2))
-      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
-      write(*,"(  ' test input: q=',3f10.5)") rrr
-!! ---
+c$$$      lx=lmxax
+c$$$      if(allocated(cy)) deallocate(cy)
+c$$$      if(allocated(yl)) deallocate(yl)
+c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2))
+c$$$      call sylmnc(cy,lx)
+c$$$      rrr=(/-0.36d0,0.20d0,0.4d0/)
+c$$$      rrr=rrr/sqrt(sum(rrr**2))
+c$$$      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$      write(*,"(  ' test input: q=',3f10.5)") rrr
 
+!! ---
       w0=0d0
       do iw =ii,ie
         lm2x=0

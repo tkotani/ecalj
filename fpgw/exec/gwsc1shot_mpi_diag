@@ -1,0 +1,177 @@
+#!/bin/tcsh
+# --------------------------------
+# self-consistent GW itteration using MPI.
+#---------------------------------
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ rm -f QP[UD]
+endif
+
+if(! -e SEBK) then
+ mkdir SEBK
+endif
+
+if($# != 3 || $argv[1] != "-np" ) then
+    echo "an example of usage: gwsc1shot_mpi -np 4 si"
+    exit
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+echo "MPI size: " $MPI_SIZE
+echo $TARGET
+
+## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
+## sigm is prior to simg.$TARGET.
+if(-e sigm) then
+  if(-e sigm.$TARGET) mv sigm.$TARGET sigm.$TARGET.bakup 
+  ln -s -f sigm sigm.$TARGET 
+  echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
+else
+  if(-e sigm.$TARGET) then
+    mv sigm.$TARGET sigm
+    ln -s -f sigm sigm.$TARGET 
+    echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
+  else
+    echo '--- No sigm nor sigm.$TARGET files for starting ---'
+  endif
+endif 
+
+
+##########################################################################
+foreach i2x (0 1 2 3 4 5 6 7 8 9 )
+foreach i1x (0 1 2 3 4 5 6 7 8 9 )
+@ ix = $i2x * 10 + $i1x
+### itteration loop start #################################################
+
+#### self-consistent calculation with given sigma ###
+echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
+if($ix == 0 ) then
+  if(-e sigm.$TARGET) continue
+  echo "No sigm ---> LDA caculation for eigenfunctions "
+#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --rs=0 $TARGET > llmf_lda
+  cp rst.$TARGET rst.$TARGET.lda
+else
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
+endif
+
+
+######## preparatoy gw stage ################
+echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
+echo 1 |$nfpgw/qg4gw           > lqg4gw
+
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+  echo 5 |$nfpgw/lmfgw  $TARGET > llmfgw_eigval
+  mv eigval eigmtet
+endif
+
+echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
+set exinfo = $?
+
+
+ln -s -f vxc.$TARGET  v_xc
+ln -s -f evec.$TARGET evec
+#cp sigm.$TARGET sigm_in
+#@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
+#echo $exinfo
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $TARGET
+  echo `tail -3 llmfgw01 `
+  exit
+endif
+
+echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+
+
+############## main gw stage ################
+echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+
+if($ix == 0) then
+  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
+endif
+
+if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond
+
+
+# -- get EFERMI for hx0fp0
+echo 1|$nfpgw/heftet      >leftet
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+echo 1|$nfpgw/hchknw         >lchknw
+
+
+### Core1 exchange self-energy 
+# -- product basis for core
+echo 3|$nfpgw/hbasfp0 >lbasC
+# -- Coulobm matrix
+echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
+
+###################################################
+#mkdir core
+#cp BASFP* PPBR* VCCFP core
+###################################################
+
+
+# -- the self energy from core1
+echo 1003| mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsxC
+
+
+###################################################
+#echo ' --- end of test gw_lmf2 --- '
+#exit 
+###################################################
+
+
+### Valence part of the self-energy
+echo 0|$nfpgw/hbasfp0  >lbas
+# -- Coulobm matrix
+echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc	
+
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+echo 1001|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
+
+# -- Sergey.F the screened coulom interaction 
+echo 11|mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc  >lx0
+
+#########################################################
+#mkdir val
+#cp BASFP* PPBR* VCCFP NW WV* val
+##########################################################
+
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+echo 1002|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsc
+
+# -- Make summary 
+echo 1000|$nfpgw/hqpe    >lqpe
+exit
+
+### end of itteration loop #########################################################
+cp evec.$TARGET evec_prev_iter
+ln -s -f sigm sigm.$TARGET
+mv SEX* SEC* XC* SEBK
+
+
+#### exit only for a loop
+$nfpgw/lmf $TARGET > llmf
+exit
+
+
+
+foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
+  if(-e $file) cp $file $file.${ix}run
+end
+echo $ix 'iteration over'
+end
+end
+exit

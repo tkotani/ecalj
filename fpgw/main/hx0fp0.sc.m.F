@@ -842,6 +842,9 @@ c      print *,'rrr mpiranktab=',mpi__ranktab
          iqxini = nqibz+1
       endif
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
+ccccccccccccccccccccccc
+c         if(iq<=nqibz) cycle
+ccccccccccccccccccccccc
          if( .not. mpi__task(iq) ) cycle
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
@@ -1879,14 +1882,18 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
             ifw0w0i = iopen('W0W0I',0,-1,0)
-            write(ifw0w0i) w0(nw_i:nw),w0i(1:niw)
+            write(ifw0w0i) nw_i,nw,niw,nq0i
+            write(ifw0w0i) llw(nw_i:nw,1:nq0i)
+            write(ifw0w0i) llwI(1:niw,1:nq0i)
+            write(ifw0w0i) w0(nw_i:nw)
+            write(ifw0w0i) w0i(1:niw)
+            ifw0w0i = iclose('W0W0I')
             do i=nw_i,nw
                write(*,"('w0 =',i4,2f13.4)")i,w0(i)
             enddo   
             do i=1,niw
                write(*,"('w0i=',i4,2f13.4)")i,w0i(i)
             enddo   
-            ifw0w0i = iclose('W0W0I')
             if(ixc==111) goto 999
 c     print *,'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !     ! === w0,w0i are stored to zw for q=0 ===

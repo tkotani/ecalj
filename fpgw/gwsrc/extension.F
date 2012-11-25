@@ -108,13 +108,17 @@ C- Readin nbmx ebmx for hscfp0
       real(8)::ebmx(2)
       integer (4)::nbmx(2)
 c      character(len=100):: recxxx=' '
-      call getkeyvalue("GWinput","nband_sigm",nbmx,2, default=(/9999999,999999/),status=ret)
-      if(ret<0) call getkeyvalue("GWinput","nband_sigm",nbmx(1), default=9999999)
+      call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
       print *,' status 1=',ret
-      call getkeyvalue("GWinput","emax_sigm", ebmx,2, default=(/1d10,1d10/),status=ret)
+      call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
       print *,' status 2=',ret
-      if(ret<0) call getkeyvalue("GWinput","emax_sigm",ebmx(1), default=1d10)
-      print *,' status 3=',ret
+c$$$      call getkeyvalue("GWinput","nband_sigm",nbmx,2, default=(/9999999,999999/),status=ret)
+c$$$      if(ret<0) call getkeyvalue("GWinput","nband_sigm",nbmx(1), default=9999999)
+c$$$      print *,' status 1=',ret
+c$$$      call getkeyvalue("GWinput","emax_sigm", ebmx,2, default=(/1d10,1d10/),status=ret)
+c$$$      print *,' status 2=',ret
+c$$$      if(ret<0) call getkeyvalue("GWinput","emax_sigm",ebmx(1), default=1d10)
+c$$$      print *,' status 3=',ret
       return
       end
 
