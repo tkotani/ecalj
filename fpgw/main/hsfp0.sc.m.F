@@ -625,52 +625,52 @@ c-------------------------
 c     the coulomb matrix for exchange.
       if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
-c$$$!!    read q-points and states
-c$$$      if(selectqp) then
-c$$$         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-c$$$         lqall      = .false.
-c$$$         laf        = .false.
-c$$$         call readx   (ifqpnt,10)
-c$$$         read (ifqpnt,*) iqall,iaf
-c$$$         if (iqall == 1) lqall = .true.
-c$$$         if (iaf   == 1)   laf = .true.
-c$$$         call readx   (ifqpnt,100)
-c$$$         read (ifqpnt,*) ntq
-c$$$c         allocate( itq(ntq) )
-c$$$c         read (ifqpnt,*) (itq(i),i=1,ntq)
-c$$$         if (lqall) then        !all q-points case
-c$$$            nq         = nqibz
-c$$$            allocate(q(3,nq))
-c$$$            call dcopy   (3*nqibz,qibz,1,q,1)
-c$$$         else
-c$$$            call readx   (ifqpnt,100)
-c$$$            read (ifqpnt,*) nq
-c$$$            allocate(q(3,nq))
-c$$$            do       k = 1,nq
-c$$$               read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
-c$$$            enddo
-c$$$         endif
-c$$$         nspinmx = nspin
-c$$$         if (laf) nspinmx =1
-c$$$         close(ifqpnt)
-c$$$      else
-c$$$!     q-points
-      if(bzcase()==1)then
-         nq = nqibz
-         allocate(q(3,nq))
-         call dcopy   (3*nqibz,qibz,1,q,1)
+!!    read q-points and states
+      if(selectqp) then
+         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+         lqall      = .false.
+         laf        = .false.
+         call readx   (ifqpnt,10)
+         read (ifqpnt,*) iqall,iaf
+         if (iqall == 1) lqall = .true.
+         if (iaf   == 1)   laf = .true.
+         call readx   (ifqpnt,100)
+         read (ifqpnt,*) ntq
+c         allocate( itq(ntq) )
+c         read (ifqpnt,*) (itq(i),i=1,ntq)
+         if (lqall) then        !all q-points case
+            nq         = nqibz
+            allocate(q(3,nq))
+            call dcopy   (3*nqibz,qibz,1,q,1)
+         else
+            call readx   (ifqpnt,100)
+            read (ifqpnt,*) nq
+            allocate(q(3,nq))
+            do       k = 1,nq
+               read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
+            enddo
+         endif
+         nspinmx = nspin
+         if (laf) nspinmx =1
+         close(ifqpnt)
       else
-         nq = nqibz_r
-         allocate(q(3,nq))
-         do iq= 1,nqibz_r
-            q(:,iq)=qibz_r(:,iq)
+!     q-points
+         if(bzcase()==1)then
+            nq = nqibz
+            allocate(q(3,nq))
+            call dcopy   (3*nqibz,qibz,1,q,1)
+         else
+            nq = nqibz_r
+            allocate(q(3,nq))
+            do iq= 1,nqibz_r
+               q(:,iq)=qibz_r(:,iq)
+            enddo
+         endif
+
+         do iq=1,nq
+            write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
          enddo
       endif
-
-      do iq=1,nq
-         write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
-      enddo
-c$$$  endif
       do iq=1,nq
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
