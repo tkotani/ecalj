@@ -1,4 +1,4 @@
-      subroutine auxfunlm(q, alp, alat, qlat, ngc, ngvect,lx,  auxfun)
+      subroutine auxfunlm(q, alp, alat, qlat, ngc, ngvect,lx,  auxfun,skipg0)
 !!  Give auxfun(L) = \sum_G  exp(-alp*(q+G)**2)*Y_L(q+G)
       implicit none
       real(8) :: alat,q(3),tpiba,aucfun,qg(3),qlat(3,3),qg2
@@ -6,11 +6,13 @@
       integer(4) :: ig, ngc, ngvect(3,ngc),lx
       real(8):: r2s, auxfun((lx+1)**2),alpqg2
       real(8),allocatable:: cy(:),yl(:)
+      logical:: skipg0
       allocate(cy((lx+1)**2),yl((lx+1)**2))
       call sylmnc(cy,lx)
       tpiba  = 2d0*pi/alat
       auxfun = 0d0
       do ig = 1,ngc
+        if(skipg0.and.sum(ngvect(1:3,ig)**2)==0) cycle
         qg(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvect(1:3,ig)))
         qg2     = sum(qg(1:3)**2)
         alpqg2= alp* qg2
@@ -30,8 +32,9 @@
       real(8)    :: alp, alat,qbz(3,nnn),vol,volinv,
      &      qlat(3,3) ,plat(3,3),wtrue00,
      &  pi=3.1415926535897932D0, wklm((lx+1)**2)
-      real(8),allocatable:: funa(:,:),wsumau(:)
-      allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2))
+      real(8),allocatable:: funa(:,:),wsumau(:),funac(:)
+      logical ::skipg0
+      allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2),funac((lx+1)**2))
 !! ==== true integal of auxially function ====
 !! integral \int d^3k/vol * exp(-alp*k**2) *Y_0
       volinv  = (2*pi)**3/vol
@@ -39,19 +42,29 @@ c     wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt
       wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp) /sqrt(4d0*pi) !1/sqrt(4pi)=Y00. !bugfix 19nov2012. alp
 
 !! ==== discrete sum (except q=0) of auxially functions ====
+c constant part
+      skipg0=.true.
+      iq=1
+      call auxfunlm((/0d0,0d0,0d0/), alp,alat, qlat, 
+     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funac(:),skipg0)
+
+
       do iq = 2,nnn ! omit q=0 point iq=1
+         skipg0=.false.
         call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
-     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq))
+     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq),skipg0)
 c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
+        funa(:,iq)= funa(:,iq)-funac(:)
       enddo
+
       do lm=1,(lx+1)**2
         wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
 c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
       enddo
       lm=1
-      wklm(lm)          = wtrue00 - wsumau(lm)
+      wklm(lm)          = wtrue00-funac(1) - wsumau(lm)
       write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00,wsumau(lm)
-      wklm(2:(lx+1)**2) = 0d0 - wsumau(2:(lx+1)**2)
+      wklm(2:(lx+1)**2) = 0d0 -funac(2:(lx+1)**2) - wsumau(2:(lx+1)**2)
       deallocate(funa)
       end
 

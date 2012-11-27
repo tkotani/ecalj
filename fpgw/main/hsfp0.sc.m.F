@@ -210,7 +210,7 @@ c     integer:: nbmx
       complex(8),allocatable::zsect(:,:)
 
       logical :: selectqp=.false.,diagonly=.false.
-      integer:: ret
+      integer:: ret,dest
 c---------------------------------------
 
       call MPI__Initialize      ! MIZUHO-IR
@@ -626,7 +626,7 @@ c     the coulomb matrix for exchange.
       if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
 !!    read q-points and states
-      if(selectqp) then
+      if(selectqp.and. mpi__root) then
          call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
          lqall      = .false.
          laf        = .false.
@@ -666,14 +666,21 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
                q(:,iq)=qibz_r(:,iq)
             enddo
          endif
-
-         do iq=1,nq
-            write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
-         enddo
       endif
+!
+      call MPI__Broadcast(nq)
+      if(mpi__root) then
+        do dest=1,mpi__size-1
+          call MPI__REAL8send(q,3*nq,dest)
+        enddo
+      else  
+        call MPI__REAL8recv(q,3*nq,0)
+      endif  
+
       do iq=1,nq
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
+
 
 !! q-point ntq
       ntq =  min(nbmx(1),nband) !takao 19June2003 nband
@@ -1341,7 +1348,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-
+         if(mpi__root) then
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
          if(exchange) then
@@ -1440,6 +1447,7 @@ c     write(6,*)
 c     end do
 c     end do
          endif                  !ixc
+         endif
  2000 continue                  !end of spin-loop
 
 
