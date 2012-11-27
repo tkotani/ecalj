@@ -1230,8 +1230,11 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
          read(ifevec)  ndimhx, nspx,nnnx !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
 c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
          read(ifvxc)            !ndimh, nsp,nnn
-         do 3020 iq=1,nnnx !nq        !nq is the irreducible k points . The same as that given in evec v_xc.
+!
+         do 3020 iq=1,nq !nq means iq for which we will calculate sigma
+c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given in evec v_xc.
             do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
+
                if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
                   read(ifvxc)  nhdim,ldim
                   read(ifvxc)
@@ -1252,14 +1255,17 @@ c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not eq
                   endif  
                enddo  
                deallocate(evec,evec_inv,evecrot)
-               cycle
+c               cycle !takao think this should be commented out 26mov2012
                stop 'hsfp0_sc: bug:qqqx can not find ...'
+
  3011          continue
+
                if(tiii) stop 'timereversal is not yet implemented'
                call readeval(q(:,iqxx), is, evaliq)
                evec_inv = evec
                call matcinv(nhdim,evec_inv)
                nsym = sum(eibzsym(:,:,iqxx))
+
                do it=1,1        !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
                   do igrp=1,ngrp !A-rotator
                      if( eibzsym(igrp,it,iqxx)==0) cycle
@@ -1301,6 +1307,10 @@ c     write(6,"(' eval block iblk ini iend= ',3i3,25f9.4)") iblk1,ii1,ie1,evaliq
 c     enddo  
 ccccccccccccccccccccccccccccccccc
 
+ccccccccccccccccccccccccccccccccccccccccc
+c               print *,'mpi__rank ispx=',mpi__rank,iq,ispx,igrp
+ccccccccccccccccccccccccccccccccccccccccc
+
 !     ! rotation of evec. Generate evecrot. (Within degenerated block, evec are mapped).e
                      allocate(rmatjj(nbsizemx,nbsizemx,nblk))
                      napw=nhdim-ldim
@@ -1330,12 +1340,17 @@ ccccccccccccccccccccccccccccccccc
                      deallocate(rmatjj)
                   enddo         ! igrp
                enddo            ! it
-
                deallocate(evec, evec_inv, evecrot)
-               zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
+ccccccccccccccccccccccccccc
+c            print *,'test cycle'
+c            cycle
+ccccccccccccccccccccccccccccc
 
+
+               zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
                call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
  3030       continue            ! ispx
+
  3020    continue               ! iq
 
          close(UNIT=ifevec)
@@ -1343,10 +1358,9 @@ ccccccccccccccccccccccccccccccccc
          deallocate(iblki,iblke)
          deallocate(evaliq)
          deallocate(zsect)
+
 c     stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
 
          if(mpi__root) then
 c     write SEx(q,t)
