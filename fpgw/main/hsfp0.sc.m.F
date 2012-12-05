@@ -211,7 +211,7 @@ c     integer:: nbmx
 
       logical :: selectqp=.false.,diagonly=.false.
       integer:: ret,dest,nnn,ifiwqfac
-      real(8),allocatable :: qbzwww(:,:),wqfac(:)
+      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
 c---------------------------------------
 
       call MPI__Initialize      ! MIZUHO-IR
@@ -1146,18 +1146,18 @@ c     if(debug) write(6,*) "goto sxcf_fal3_scz"
 
 
 
-!! 9dec2012 multipy integration weight!
-         wbz(1:nqbz) = wbz(1:nqbz) * wqfac(1:nqbz) 
-
-
-
 c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
+
+!! 9dec2012 multipy integration weight!
+         wbzz(1:nqbz) = wbz(1:nqbz) * wqfac(1:nqbz) 
+
+
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2
      i        nspin,is,   
 c     i              ifrcw,ifrcwi,
-     i        qbas,ginv,qibz,qbz ,wbz, nstbz, 
+     i        qbas,ginv,qibz,qbz ,wbzz, nstbz, 
      i        nstar,irkip(is,:,:,:),nrkip(is,:,:,:),
 c     
 c     i       iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
