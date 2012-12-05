@@ -21,8 +21,8 @@
       enddo
       end
 !! -----------------------------------------------------------------------------
-      subroutine getwklm(alat,vol,plat,qlat,alp,qbz,nnn,ngc,ngcmx,ngvect,lx,
-     o    wklm)
+      subroutine getwklm(alat,vol,plat,qlat,alp,qbz,nnn,ngc,ngcmx,ngvect,lx,n1q,n2q,n3q,
+     o    wklm,wqfac)
 !! == spherical integration weight Klm with reference auxially functions ==
 !! Output
 !!   wklm: K_lm is defined around Eq.35 in Copmuter Physics Comm. 176(2007)1-13.
@@ -34,12 +34,54 @@
      &  pi=3.1415926535897932D0, wklm((lx+1)**2)
       real(8),allocatable:: funa(:,:),wsumau(:),funac(:)
       logical ::skipg0
+      integer:: iii,n1q,n2q,n3q,ndiv,iq1,iq2,iq3,lxx
+      real(8):: fcenter,fmean,fout(1),qmic(3,3),qx(3),fsum,wg,ftot,ftotc
+      real(8):: wqfac(nnn)
+
+!! ----------------
+!! discrete sum problem. Central value v.s. Mean value for each cell. 
+      ndiv=1
+      print *,' getwklm n12 n2q n3q 2*ndiv',n1q,n2q,n3q,2*ndiv
+      skipg0=.false.
+      lxx=0
+      ftotc=0d0
+      ftot=0d0
+      do iq = 2,nnn ! omit q=0 point iq=1
+         fsum=0d0
+         qmic(:,1)=qlat(:,1)/(n1q*ndiv*2)
+         qmic(:,2)=qlat(:,2)/(n2q*ndiv*2)
+         qmic(:,3)=qlat(:,3)/(n3q*ndiv*2)
+         do iq1=-ndiv,ndiv
+         do iq2=-ndiv,ndiv
+         do iq3=-ndiv,ndiv
+c            print *,'iq1 ',iq1,iq2,iq3
+            qx=matmul(qmic,(/iq1,iq2,iq3/)) + qbz(1:3,iq)
+            call auxfunlm(qx, alp,alat, qlat, 
+     &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lxx,fout,skipg0)
+            wg=1d0
+            if(mod(iq1+ndiv,2*ndiv)==0) wg=0.5d0
+            if(mod(iq2+ndiv,2*ndiv)==0) wg=wg*0.5d0
+            if(mod(iq3+ndiv,2*ndiv)==0) wg=wg*0.5d0
+            fsum = fsum + wg*fout(1)
+            if(iq1==0 .and.iq2==0.and.iq3==0 ) fcenter=fout(1)
+         enddo
+         enddo
+         enddo
+         fmean=fsum/(8d0*ndiv**3)
+         ftot = ftot+fmean
+         ftotc= ftotc+fcenter
+         wqfac(iq) =fmean/fcenter
+         write(*,"('iq q fcenter fmean ratio=',i4,3f7.3,2x,3f8.4)")
+     &   iq,qbz(1:3,iq),fcenter,fmean,fmean/fcenter
+      enddo
+      write(*,"('ftot ftotc ftot/ftotc: ',2f13.4)") ftot/(nnn-1),ftotc/(nnn-1),ftot/ftotc
+
       allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2),funac((lx+1)**2))
 !! ==== true integal of auxially function ====
 !! integral \int d^3k/vol * exp(-alp*k**2) *Y_0
       volinv  = (2*pi)**3/vol
 c     wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
-      wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp) /sqrt(4d0*pi) !1/sqrt(4pi)=Y00. !bugfix 19nov2012. alp
+      wtrue00 = 4d0*pi/volinv *sqrt(pi)/2d0/sqrt(alp)/sqrt(4d0*pi)!1/sqrt(4pi)=Y00. !bugfix 19nov2012. alp
 
 !! ==== discrete sum (except q=0) of auxially functions ====
 c constant part
@@ -47,24 +89,35 @@ c constant part
       iq=1
       call auxfunlm((/0d0,0d0,0d0/), alp,alat, qlat, 
      &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funac(:),skipg0)
-
+      do lm=1,(lx+1)**2
+        if(abs(funac(lm))>1d-6) print *,' xxx lm funac =',lm,funac(lm)
+      enddo
 
       do iq = 2,nnn ! omit q=0 point iq=1
          skipg0=.false.
         call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
      &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq),skipg0)
 c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
-        funa(:,iq)= funa(:,iq)-funac(:)
+c        funa(1,iq)= funa(1,iq) - funac(1)    !*funa(1,iq)/funac(1)
+c        funa(2:,iq)= funa(2:,iq)             !*funa(1,iq)/funac(1)
+c        funa(1,iq)= funa(1,iq) - funac(1)
+        funa(:,iq)= funa(:,iq) - funac(:)
       enddo
 
       do lm=1,(lx+1)**2
-        wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
-c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
+c        wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
+        wsumau(lm) = sum(wqfac(2:nnn)*funa(lm,2:nnn))/dble(nnn)
+        if(lm==1.or.lm==7.or.lm==43) then
+           do iii=2,nnn
+           print *,' zzz lm iii funa=',lm,iii,qbz(1:3,iii),funa(lm,iii)
+           enddo
+        endif   
+        if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm),funac(lm)
       enddo
       lm=1
-      wklm(lm)          = wtrue00-funac(1) - wsumau(lm)
-      write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00,wsumau(lm)
-      wklm(2:(lx+1)**2) = 0d0 -funac(2:(lx+1)**2) - wsumau(2:(lx+1)**2)
+      wklm(lm)          = wtrue00- wsumau(lm)  -funac(1) 
+      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2)  -funac(2:(lx+1)**2)
+      write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
       deallocate(funa)
       end
 

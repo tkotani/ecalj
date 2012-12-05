@@ -1704,7 +1704,7 @@ c$$$                     vcou1sq= sqrt(vcou1)
 c$$$!! llwI without LFC. LFC contribution is added in 
                       llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
                      endif  
-                     write(*,*) 'iq iw_img  eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+                     write(*,*) 'iq iw_img  eps(withLFC) eps(woLFC)',iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
 c     write(ifisk) iw,iq0,q
 c     write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
                   endif
@@ -1861,9 +1861,13 @@ c$$$           enddo
 c$$$         endif
 
 
+
+
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191    continue
-         if(ixc==1011) then !this is only for test.
+         if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
+
+            if(ixc==1011) then !this is only for test.
             ifw0w0i = iopen('W0W0I',0,-1,0) 
             read(ifw0w0i) nw_i,nw,niw,nq0i
             print *,'w0w0i: n=',nw_i,nw,niw,nq0i
@@ -1872,9 +1876,8 @@ c$$$         endif
 c            read(ifw0w0i) w0(nw_i:nw)
 c            read(ifw0w0i) w0i(1:niw)
             ifw0w0i = iclose('W0W0I')
-          endif  
+            endif  
          
-         if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
             print *
             print *,' ==== newaniso2 mode W(0) divergent part ==== '
 !     ! == W(0) divergent part ==
@@ -1893,6 +1896,7 @@ c            read(ifw0w0i) w0i(1:niw)
             allocate(w0(nw_i:nw),w0i(niw))
 c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !     ! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
+c            print *,'wbz=',wbz
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
 

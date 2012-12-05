@@ -210,7 +210,8 @@ c     integer:: nbmx
       complex(8),allocatable::zsect(:,:)
 
       logical :: selectqp=.false.,diagonly=.false.
-      integer:: ret,dest
+      integer:: ret,dest,nnn,ifiwqfac
+      real(8),allocatable :: qbzwww(:,:),wqfac(:)
 c---------------------------------------
 
       call MPI__Initialize      ! MIZUHO-IR
@@ -1079,6 +1080,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!! 9dec2012
+            ifiwqfac = iopen('WQFAC',0,-1,0)
+            read(ifiwqfac) nnn
+            if(nnn/=nqbz) stop 'hsfp0_sc: readin nnn WQFAC/= nqbz'
+            allocate( wqfac(nnn),qbzwww(3,nnn) )
+            read(ifiwqfac) wqfac,qbzwww
+            ifiwqfac = iclose('WQFAC')
+            do i=1,nqbz !! check          
+               if(sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6) then
+                  stop 'hsfp0_sc:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
+               endif
+            enddo
+
+
 !     ! nrkip is weight correspoinding to irkip for a node.
       nrkip = nrkip_all         !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
 !     ! ----------------------------------------
@@ -1128,6 +1143,13 @@ c$$$  deallocate(ecore)
 c$$$  allocate(ecore(1,2)) !this is dummry
 c$$$  endif
 c     if(debug) write(6,*) "goto sxcf_fal3_scz"
+
+
+
+!! 9dec2012 multipy integration weight!
+         wbz(1:nqbz) = wbz(1:nqbz) * wqfac(1:nqbz) 
+
+
 
 c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
