@@ -40,7 +40,7 @@
 
 !! ----------------
 !! discrete sum problem. Central value v.s. Mean value for each cell. 
-      ndiv=1
+      ndiv=20
       print *,' getwklm n12 n2q n3q 2*ndiv',n1q,n2q,n3q,2*ndiv
       skipg0=.false.
       lxx=0
@@ -116,7 +116,8 @@ c        wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
       enddo
       lm=1
       wklm(lm)          = wtrue00- wsumau(lm)  -funac(1) 
-      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2)  -funac(2:(lx+1)**2)
+      wklm(2:(lx+1)**2) = 0d0    
+c      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2)  -funac(2:(lx+1)**2)
       write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
       deallocate(funa)
       end

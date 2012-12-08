@@ -47,7 +47,7 @@ c     obtain ntqxx for given q and isp
 
 !     ! ----------------------------------------------------------------------------
 c     subroutine sxcf_fal3_scz(kount,ip,q,itq,ntq,ef,esmr,tiat,miat,
-      subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,tiat,miat,
+      subroutine sxcf_fal3_scz(wqfac,kount,qip,itq,ntq,ef,esmr,tiat,miat,
 c     i                  ifev, !removed at Jan2004
      i     nsp,isp,             !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
 c     i                  ifrcw,ifrcwi, 
@@ -432,6 +432,8 @@ C...
       integer::nbandmx(nq)      !sep2012 number of bands for calcualted self-energy.
 
       logical:: diagonly
+      real(8)::wqfac(nqbz)
+      integer:: irot2
 c--------------------------------------------------------------------
 
       pi  = 4d0*datan(1d0)
@@ -589,6 +591,22 @@ c     print *,'readin qvv=',qvv
                   if(allocated(vcoud)) deallocate(vcoud)
                   allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
                   read(ifvcoud) vcoud
+
+
+cccccccccccccccccccccccccccccccccccccccccccccc
+                  if(sum(abs(qxx(1:2)))<1d-4) then
+                  do irot2 = 1,ngrp
+                     kr = irkip(kx,irot2,ip) ! index for rotated kr in the FBZ
+                     if(kr==0) cycle ! next irot
+                     vcoud(1) =vcoud(1)*wqfac(kr)
+                     exit
+                  enddo
+                  print *,'wwwwwwwwwww why here ?wwwwwwwwww'
+                  endif
+cccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
                   read(ifvcoud) zcousq
                   if(sum(abs(qvv-qxx))<1d-6) goto 1133
                enddo
@@ -1223,6 +1241,20 @@ c     if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) + ix
 c     if(debug) print *,' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
 
                read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+
+cccccccccccccccccccccccccccccccccccccccccccccc
+                  if(sum(abs(qxx(1:2)))<1d-4) then
+                  do irot2 = 1,ngrp
+                     kr = irkip(kx,irot2,ip) ! index for rotated kr in the FBZ
+                     if(kr==0) cycle ! next irot
+                     zw(1,1) = zw(1,1)*wqfac(kr)
+                     exit
+                  enddo
+                  print *,'wwwwwwwwwww why here ?wwwwwwwwww11111111'
+                  endif
+cccccccccccccccccccccccccccccccccccccccccccccc
+
+
 c     zw=(zw+dconjg(transpose(zw)))/2d0
 
                call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
@@ -1339,6 +1371,22 @@ c     nrec=(kx-iqini)*niw+ix
 c     if(bzcase()==2) nrec= (kx-1)*niw+ix
                   read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
 c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
+
+
+cccccccccccccccccccccccccccccccccccccccccccccc
+                  if(sum(abs(qxx(1:2)))<1d-4) then
+                  do irot2 = 1,ngrp
+                     kr = irkip(kx,irot2,ip) ! index for rotated kr in the FBZ
+                     if(kr==0) cycle ! next irot
+                     zw(1,1) = zw(1,1)*wqfac(kr)
+                     exit
+                  enddo
+                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
+                  endif
+cccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
 
                   call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
      o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
@@ -1740,6 +1788,20 @@ c     read(ifrcw,rec=((kx-2)*nw+ix)) zw
 c     nrec=(kx-iqini)*(nw+1-nw_i) + ix-nw_i+1
 c     if(bzcase()==2) nrec=(kx-1)*(nw+1-nw_i) + ix-nw_i+1
                   read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+
+
+cccccccccccccccccccccccccccccccccccccccccccccc
+                  if(sum(abs(qxx(1:2)))<1d-4) then
+                  do irot2 = 1,ngrp
+                     kr = irkip(kx,irot2,ip) ! index for rotated kr in the FBZ
+                     if(kr==0) cycle ! next irot
+                     zw(1,1) = zw(1,1)*wqfac(kr)
+                     exit
+                  enddo
+                  print *,'wwwwwwwwwww why here ?wwwwwwwwww333333333333'
+                  endif
+cccccccccccccccccccccccccccccccccccccccccccccc
+
 
                   do igb2=1,ngb
                      do igb1=1,ngb

@@ -1149,10 +1149,11 @@ c     if(debug) write(6,*) "goto sxcf_fal3_scz"
 c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
 
 !! 9dec2012 multipy integration weight!
-         wbzz(1:nqbz) = wbz(1:nqbz) * wqfac(1:nqbz) 
+         allocate(wbzz(nqbz))
+         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
+         
 
-
-         call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
+         call sxcf_fal3_scz (wqfac,kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2
      i        nspin,is,   
@@ -1189,7 +1190,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i        invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      i      diagonly, !nov2012
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
-
+         deallocate(wbzz)
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 
 
