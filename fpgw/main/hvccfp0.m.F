@@ -97,7 +97,9 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
       logical:: is_mix0vec,newaniso,wvcc
       character(128):: vcoudfile
-
+      real(8),allocatable:: wqfac(:),qbzwww(:,:)
+      integer:: ifiwqfac,iqbz,iqbzx,nnn
+!!------------------------------------------------------------
 
       call MPI__Initialize
 
@@ -155,6 +157,15 @@ c      print *," xxx=",alat, plat,qlat, nqbz, nbas, nband
 c      print *," xxx=",qbz,bas,rmax
 c      print *," xxx=",rmax
 c      is = iclose ('HVCCIN')
+
+c$$$!!! 9dec2012
+c$$$      ifiwqfac = iopen('WQFAC',0,-1,0)
+c$$$      read(ifiwqfac) nnn
+c$$$      print *,'nnn nqbz=',nnn,nqbz
+c$$$c      if(nnn/=nqbz) stop 'hvccfp0_sc: readin nnn WQFAC/= nqbz'
+c$$$      allocate( wqfac(nnn),qbzwww(3,nnn) )
+c$$$      read(ifiwqfac) wqfac,qbzwww
+c$$$      ifiwqfac = iclose('WQFAC')
 
 c$$$c-----------------------------------------------------
 c$$$      iqibzx =0
@@ -1095,7 +1106,26 @@ c          nmx = 15
           enddo
           write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
 
-!! === save zz === apr2012takao
+c$$$!! Modify -eb
+c$$$          if(iqx<=nqibz) then
+c$$$             do iqbz=1,nqbz     !! check          
+c$$$                if(sum(abs(qbzwww(:,iqbz)-q))<1d-6) then
+c$$$                   iqbzx=iqbz
+c$$$                   goto 888
+c$$$                endif
+c$$$             enddo
+c$$$             stop 'hvccfp0:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
+c$$$ 888         continue
+c$$$             if(abs((-eb(1)+eb(2))/eb(2))<1d-2) then
+c$$$!! Center. touching case. Respect smoothness when we change n1n2n3 division.
+c$$$                eb(1)=eb(1)*wqfac(iqbzx)
+c$$$                eb(2)=eb(2)*wqfac(iqbzx)
+c$$$             else
+c$$$                eb(1)=eb(1)*wqfac(iqbzx)
+c$$$             endif   
+c$$$          endif
+
+!     ! === save zz === apr2012takao
 c          if( newaniso().and.iqx==1 ) then
 c            if(sum(q**2)>1d-10) then
 c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
@@ -1104,7 +1134,6 @@ c            endif
           write(ifvcoud) q
           write(ifvcoud) -eb
           write(ifvcoud) zz
-ccccccccccccccccccccccccccccccccccccccc
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        print *,' dddddddddddddddd q=',q

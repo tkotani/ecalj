@@ -829,7 +829,7 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       llw=1d99
       llwI=1d99
 
-      if(ixc==1011) then
+      if(ixc==1011) then ! ixc==11 is a debug mode to test contribution at \Gamma point.
          goto 1191
       endif
 
@@ -1861,8 +1861,6 @@ c$$$           enddo
 c$$$         endif
 
 
-
-
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191    continue
          if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
@@ -1882,6 +1880,8 @@ c            read(ifw0w0i) w0i(1:niw)
             print *,' ==== newaniso2 mode W(0) divergent part ==== '
 !     ! == W(0) divergent part ==
 !     ! getw0 routine...
+!     !NOTE: we usually only use lxklm=1 --> this should be stable.
+!     !  EPSwklm is generated in gwsrc/mkqg.F
             ifidmlx = iopen('EPSwklm',0,0,0)
             read(ifidmlx) nq0i,lxklm
             allocate( dmlx(nq0i,9))
@@ -1954,7 +1954,7 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
       call cputid(0)
       call MPI__Finalize
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
-c      if(ixc==111) stop ' OK! hx0fp0_sc ixc=111 W0W0Ionly'
+      if(ixc==1011) stop ' OK! hx0fp0_sc ixc=1011 W0W0Ionly'
       end
 
 

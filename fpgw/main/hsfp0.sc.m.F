@@ -210,8 +210,8 @@ c     integer:: nbmx
       complex(8),allocatable::zsect(:,:)
 
       logical :: selectqp=.false.,diagonly=.false.
-      integer:: ret,dest,nnn,ifiwqfac
-      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
+      integer:: ret,dest,nnn !,ifiwqfac
+c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
 c---------------------------------------
 
       call MPI__Initialize      ! MIZUHO-IR
@@ -1080,19 +1080,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! 9dec2012
-            ifiwqfac = iopen('WQFAC',0,-1,0)
-            read(ifiwqfac) nnn
-            if(nnn/=nqbz) stop 'hsfp0_sc: readin nnn WQFAC/= nqbz'
-            allocate( wqfac(nnn),qbzwww(3,nnn) )
-            read(ifiwqfac) wqfac,qbzwww
-            ifiwqfac = iclose('WQFAC')
-            do i=1,nqbz !! check          
-               if(sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6) then
-                  stop 'hsfp0_sc:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
-               endif
-            enddo
-
+c$$$!! 9dec2012
+c$$$            ifiwqfac = iopen('WQFAC',0,-1,0)
+c$$$            read(ifiwqfac) nnn
+c$$$            if(nnn/=nqbz) stop 'hsfp0_sc: readin nnn WQFAC/= nqbz'
+c$$$            allocate( wqfac(nnn),qbzwww(3,nnn) )
+c$$$            read(ifiwqfac) wqfac,qbzwww
+c$$$            ifiwqfac = iclose('WQFAC')
+c$$$            do i=1,nqbz !! check          
+c$$$               if(sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6) then
+c$$$                  stop 'hsfp0_sc:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
+c$$$               endif
+c$$$            enddo
+c$$$
 
 !     ! nrkip is weight correspoinding to irkip for a node.
       nrkip = nrkip_all         !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
@@ -1144,21 +1144,19 @@ c$$$  allocate(ecore(1,2)) !this is dummry
 c$$$  endif
 c     if(debug) write(6,*) "goto sxcf_fal3_scz"
 
-
-
 c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
 
 !! 9dec2012 multipy integration weight!
-         allocate(wbzz(nqbz))
-         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
+c         allocate(wbzz(nqbz))
+c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
          
 
-         call sxcf_fal3_scz (wqfac,kount,q,itq,ntq,ef,esmr,
+         call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2
      i        nspin,is,   
 c     i              ifrcw,ifrcwi,
-     i        qbas,ginv,qibz,qbz ,wbzz, nstbz, 
+     i        qbas,ginv,qibz,qbz ,wbz, nstbz, 
      i        nstar,irkip(is,:,:,:),nrkip(is,:,:,:),
 c     
 c     i       iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
@@ -1190,7 +1188,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i        invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      i      diagonly, !nov2012
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
-         deallocate(wbzz)
+c         deallocate(wbzz)
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 
 

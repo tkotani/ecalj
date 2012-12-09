@@ -57,8 +57,8 @@ c      logical :: readgwinput
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
-     &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:),norq0x(:),wqfac(:)
-      integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix,ifiwqfac
+     &  dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:),norq0x(:) !,wqfac(:)
+      integer:: xyz2lm(3),ifidmlx,iclose,iopen,nq00ix !,ifiwqfac
       real(8):: rrr(3),r2s,emat(3,3),qxx(3)
 ccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: llxxx,lm1,lm2
@@ -439,7 +439,6 @@ c$$$            write(*,"(' iq0i lx dmlx=',2i3,f9.3)")iq0i,lx,dmlx(iq0i,lx)
 c$$$          enddo
 c$$$          enddo
 
-
 !! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
 !! ===== generate YL for a test vector rrr (rrr is ehat above).=====
             lx=2
@@ -466,27 +465,23 @@ c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl
 c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
               enddo
             enddo
-            lxklm=6
+            deallocate(cy,yl)
+
+!! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13
+!! can be not so useful in practice. Thus we rather follow procedure given by PRB81 125102(2010).
+!! Thus we use lxklm=0.
+!! We may use lxklm=6 ---> this can result in negative weight for it. It is maybe dangerous?
+        lxklm=6  
+!! wqfac is to test "averaged v_coulomb in the microcell" ---> but it looks not so stable.
+c            lxklm=0
             nnn=n1q*n2q*n3q
-            allocate(wqfac(nnn)) !9dec2012
-            allocate(wklm((lxklm+1)**2)) ! See bottom of page7. Computer Phys. Comm 176(1007)1-13
+c            allocate(wqfac(nnn)) !9dec2012
+            allocate(wklm((lxklm+1)**2))    ! wklm -->Klm in Computer Phys. Comm 176(1007)1-13
             call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,n1q,n2q,n3q,
-     o      wklm,wqfac)
+     o      wklm)!,wqfac)
             do i=1,(lxklm+1)**2
-               if(abs(wklm(i))>1d-10) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
+              if(abs(wklm(i))>1d-6 ) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
             enddo
-
-c$$$!! ==== true integal of auxially function ====
-c$$$            volinv  = (2*pi)**3/voltot
-c$$$            wtrue00  = 4*pi/volinv *sqrt(pi)/2d0/sqrt(alp**3) /sqrt(4d0*pi) ! 1d0/sqrt(4pi) is Y00.
-c$$$!! ==== discrete sum (except q=0) of auxially functions ====
-c$$$            allocate(funa((lxklm+1)**2,nqbz),wsumau((lxklm+1)**2))
-c$$$            do iq = 2,nqbz ! omit q=0 point iq=1
-c$$$              call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
-c$$$     &             ngcx(iq),ngvect(1:3,1:ngcx(iq),iq),lxklm,funa(:,iq))
-c$$$c        write(6,"('  fnua=',i3,8f10.5)") iq,funa(28:30,iq)
-c$$$            enddo
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! spherical design des.3.12.5 check. Because of angular momentum synsesize,
 !! des.3.12.5 gives correct normalization of product up to l=2 (lm<=9)
@@ -568,13 +563,13 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             write(ifidmlx) wklm
             ifidmlx = iclose('EPSwklm')
 
-            ifiwqfac = iopen('WQFAC',0,-1,0)
-            wqfac(1)=1d0
-            write(ifiwqfac) nnn
-            write(ifiwqfac) wqfac,qbz
-            ifiwqfac = iclose('WQFAC')
+c$$$            ifiwqfac = iopen('WQFAC',0,-1,0)
+c$$$            wqfac(1)=1d0
+c$$$            write(ifiwqfac) nnn
+c$$$            write(ifiwqfac) wqfac,qbz
+c$$$            ifiwqfac = iclose('WQFAC')
+c$$$            deallocate(epinvq0i,dmlx,wklm,wqfac)
 
-            deallocate(cy,yl,epinvq0i,dmlx,wklm,wqfac)
           else
             call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i         ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
@@ -585,7 +580,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           deallocate(irr)
         endif
         write(6,"('i wt q0i=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
-c        print *,' xxxxxxx nq0i=',nq0i
 cccccccccccccccccccccccccccccccccccccccccccc
 c takao test
 c        q0i=q0i*0.0125
