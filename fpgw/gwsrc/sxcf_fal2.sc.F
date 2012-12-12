@@ -305,7 +305,6 @@ c     nw      = no. frequencies along the real axis
 c     
 c     secq(t) = <psi(q,t) |SEc| psi(q,t)>
 c----------------------------------------------------------------------
-c     implicit real*8(a-h,o-z)
       integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      &     nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,
      &     irot,  iqisp,ikpisp,isp,nsp,  nlnmx,
@@ -467,7 +466,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     !== ip loop to spedify external q ==
       do 1001 ip = 1,nq         !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
          if(sum(irkip(:,:,ip))==0) cycle ! next ip
-
 c     call readeval(q(1,ip),isp,eq)
          q(1:3)= qip(1:3,ip)
          call readeval(q,isp,eq)
@@ -570,6 +568,15 @@ c     if(exchange) iqend=nqibz
             else
                qibz_k= 0d0
             endif
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c test
+c            if(kx/=iqini) cycle
+c            if(abs(qibz_k(3))>1d-3) then
+c               cycle
+c            endif
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
             if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
             if(timemix) call timeshow("11111 k-cycle")
             call readqg0('QGcou',qibz_k,ginv,  quu,ngc)

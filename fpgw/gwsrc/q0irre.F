@@ -137,7 +137,7 @@ c         wsumau(lm) = sum(wqfac(2:nnn)*funa(lm,2:nnn))/dble(nnn)
 
       lm=1
       wklm(lm)          = wtrue00- wsumau(lm)  -funac(1) 
-      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2)  -funac(2:(lx+1)**2)
+      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2) -funac(2:(lx+1)**2)
 !! takao think nagative wklm may cause some problem (break some positive definiteness or so).
       write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
       deallocate(funa)

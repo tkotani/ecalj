@@ -39,32 +39,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         do lm=5,9
           llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
         enddo
-c       write(*,"('pppp2 iw llw',i3,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
+c   write(*,"('qqq iw llw',i3,3(2d12.4,x),3x,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
       enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
-!! ===== generate YL for a test vector rrr (rrr is ehat above).=====
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
+
+
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      lx=2
 c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2),yl2((lx+1)**2))
 c$$$      call sylmnc(cy,lx)
-c$$$      do i=1,3
-c$$$         if(i==1) rrr =(/0.025d0,0.025d0,0d0/)
-c$$$         if(i==2) rrr =(/0.025d0,-0.025d0,0d0/)
-c$$$         if(i==3) rrr =(/0d0,0d0,0.025d0/)
-c$$$         rrr = rrr/sqrt(sum(rrr**2))
-c$$$c         call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
-c$$$         write(*,"(' testttt: r=',3f10.5)") rrr
-c$$$         do iw= ii,ie
-c$$$           sss=0d0
-c$$$           do iq0i=1,nq0i
-c$$$             sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
-c$$$           enddo
-c$$$           write(*,"(' testvvvv: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,llw(iw,i)
-c$$$c           write(*,"(' testttt: epinv expansion=',i3,2f10.5,2x,2f10.5)") iw,sss,
-c$$$c     &      llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))
-c$$$         enddo
-c$$$      enddo
-cccccccccccccccccccccccccccccccc
 c$$$      do iw= ii,ie
 c$$$        do iq0x=1,nq0i
 c$$$        sss=0d0
@@ -72,15 +55,38 @@ c$$$        do iq0i=1,nq0i
 c$$$            sss= sss  + llw_invr(iw,iq0i)*sum(q0i(:,iq0x)*matmul(epinv(:,:,iq0i),q0i(:,iq0x)))
 c$$$     &                 /sum(q0i(:,iq0x)**2)
 c$$$        enddo
-c$$$        write(*,"(' testttt: epinv expansion=',2i3,4f10.5)") iq0x,iw,sss
+c$$$          write(*,"(' ttt: epinv expansion=',2i4,2f10.5,2x,2d13.5)") iq0x,iw,sss,sss-llw(iw,iq0x)
 c$$$        enddo
 c$$$        write(*,*)
 c$$$      enddo
-c$$$      stop 'test: reproduce llw at q0i'
-Ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$      stop '---- ttt test1: reproduce llw at q0i -----------------------'
 
-      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
-!! ==== for a test case of rrr ====
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$!! === test for one r vector as for <ehat| epinv|ehat> = \sum_lm dmlx(iq0i,lm) *Y_lm(ehat) ===
+c$$$!! ===== generate YL for a test vector rrr (rrr is ehat above).=====
+c$$$      lx=2
+c$$$      allocate(cy((lx+1)**2),yl((lx+1)**2),yl2((lx+1)**2))
+c$$$      call sylmnc(cy,lx)
+c$$$      do i=1,3
+c$$$         if(i==1) rrr =(/1d0,1d0,0d0/)
+c$$$         if(i==2) rrr =(/1d0,-1d0,0d0/)
+c$$$         if(i==3) rrr =(/0d0,0d0,1d0/)
+c$$$         rrr = rrr/sqrt(sum(rrr**2))
+c$$$c     write(*,"(' testttt: r=',3f10.5)") rrr
+c$$$         call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$         do iw= ii,ie
+c$$$            sss=0d0
+c$$$            do iq0i=1,nq0i
+c$$$               sss = sss + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
+c$$$            enddo
+c$$$c            if(abs(llwyl(1,iw)*cy(1)*yl(1)+sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))-sss)>1d-12) then
+c$$$            write(*,"(' ttt: epinv expansion=',i3,2f10.5,2x,4d13.5)") iw,sss,
+c$$$     &      llwyl(1,iw)*cy(1)*yl(1)+sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9))-sss, llw(iw,i)-sss
+c$$$c            endif
+c$$$         enddo
+c$$$      enddo
+c$$$      stop '---- ttt testxxx: reproduce llw at q0i -----------------------'
+
 c$$$      lx=lmxax
 c$$$      if(allocated(cy)) deallocate(cy)
 c$$$      if(allocated(yl)) deallocate(yl)
@@ -115,21 +121,6 @@ c$$$      write(*,"(  ' test input: q=',3f10.5)") rrr
         cgllw(1:lm2x,1:lm2x)= sqrt(fpi)*cgllw(1:lm2x,1:lm2x)
         !sqrt(fpi) comes from \int d\Omega Y_0 (right hand side of inversion eq).
 
-c$$$!! for check write
-c$$$        sss=0d0
-c$$$        lm2x=0
-c$$$        do lm2=1,nlklm
-c$$$          if(mod(ll(lm2),2)==1) cycle  !only even l
-c$$$          lm2x=lm2x+1
-c$$$          sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
-c$$$        enddo
-c$$$        sss2=0d0
-c$$$        do iq0i=1,nq0i
-c$$$          sss2 = sss2 + llw_invr(iw,iq0i)*sum(rrr*matmul(epinv(:,:,iq0i),rrr))
-c$$$        enddo
-c$$$        write(*,"(' epinv inversion test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,1d0/sss2,
-c$$$     &    1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
-
 !! === spherical integral of Klm ===
         lm1x=0
         do lm1=1, nlklm
@@ -141,11 +132,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz !test case of llw at q0i(:,iq0i=1).
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
+
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$        lx=lmxax
+c$$$        print *,' lx=',lx
+c$$$        if(allocated(cy)) deallocate(cy)
+c$$$        if(allocated(yl)) deallocate(yl)
+c$$$        allocate(cy((lx+1)**2),yl((lx+1)**2))
+c$$$        call sylmnc(cy,lx)
+c$$$        rrr=(/1d0,1d0,0d0/)
+c$$$c        rrr=(/1d0,-1d0,0d0/)
+c$$$c        rrr=(/0d0,0d0,1d0/)
+c$$$        rrr=rrr/sqrt(sum(rrr**2))
+c$$$        call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
+c$$$c        write(*,"(  ' qqq test input: q=',3f10.5)") rrr
+c$$$        sss=0d0
+c$$$        lm2x=0
+c$$$        do lm2=1,nlklm
+c$$$           if(mod(ll(lm2),2)==1) cycle !only even l
+c$$$           lm2x=lm2x+1
+c$$$           sss= sss + cgllw(lm2x,1) *cy(lm2)*yl(lm2)
+c$$$        enddo
+c$$$        write(*,"(' qqq ep test:',i3,2f10.5,2x,2f10.5,2x,2f10.5)") iw,sss,
+c$$$     &       1d0/llw(iw,1)
+c$$$c     &      1d0/(llwyl(1,iw)*cy(1)*yl(1) + sum(llwyl(5:9,iw)*cy(5:9)*yl(5:9)))
+c$$$      stop ' --- test3 ttt vvvvvvvvvvvvvvvvv test end vvvvvvvvvvvvvvvvv ---'
       enddo
-c      do iw=ii,ie
-c        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
-c     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
-c      enddo
+c$$$      do iw=ii,ie
+c$$$        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
+c$$$     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
+c$$$      enddo
       end
 
       integer function ll(ilm)

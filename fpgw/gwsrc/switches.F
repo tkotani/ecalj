@@ -1,5 +1,11 @@
       logical function localfieldcorrectionllw()
-      localfieldcorrectionllw=.true.
+      use keyvalue,only: getkeyvalue
+      logical,save:: init=.true.,ttt
+      if(init) then
+        call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.false.)
+        init=.false.
+      endif
+      localfieldcorrectionllw=ttt
       end
 
       logical function eibz4sig()

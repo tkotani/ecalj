@@ -1899,7 +1899,6 @@ c     print *,' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 c            print *,'wbz=',wbz
             call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
             call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
-
             if(ixc/=1011) then
             ifw0w0i = iopen('W0W0I',0,-1,0)
             write(ifw0w0i) nw_i,nw,niw,nq0i
