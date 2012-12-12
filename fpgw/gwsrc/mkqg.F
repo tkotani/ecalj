@@ -467,21 +467,22 @@ c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
             enddo
             deallocate(cy,yl)
 
-!! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13
-!! can be not so useful in practice. Thus we rather follow procedure given by PRB81 125102(2010).
-!! Thus we use lxklm=0.
-!! We may use lxklm=6 ---> this can result in negative weight for it. It is maybe dangerous?
-!! wqfac is to test "averaged v_coulomb in the microcell" ---> but it looks not so stable.
             lxklm=6  !this is used for inversion procedure in hx0fp0.sc.m.f
             nnn=n1q*n2q*n3q
 c     allocate(wqfac(nnn)) !9dec2012
             allocate(wklm((lxklm+1)**2)) ! wklm -->Klm in Computer Phys. Comm 176(1007)1-13
             call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,n1q,n2q,n3q,
      o           wklm)          !,wqfac)
-!! I finally think wklm for lxklm>1 components are dangeours.
-!!  Set wklm=0 except lxklm=1
-            wklm(2:)=0d0
-            print *,' lxklm=',lxklm
+
+!! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
+!! (in our version with auxially function) can be numerically prorematic.
+!! We only keep wklm only up to l=2. (I observed high wklm(lm) components are largely negative --->it may cause numerical error).
+!!
+!! From the begining, we can only excpect "virtual convergence on Nz" for NxNyNz for Si100 slab model in the paper.
+!! (I still not understand why it does not show divergent behevior in the anisotropic case).
+!!
+            wklm(10:)=0d0
+            print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
             do i=1,(lxklm+1)**2
                if(abs(wklm(i))>1d-6 ) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
             enddo

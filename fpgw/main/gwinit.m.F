@@ -433,6 +433,10 @@ c ... Frequencies
       write(ifigwin,"(d14.5,a)") esmr,' GaussSmear ! =esmr(Ry)  used by hsfp0.'//
      &' Keep esmr as it is (smaller than band gap) for insulator'
 
+      write(ifigwin,"(a)") 'LFC@Gamma on !(on is default)'//
+     & ' if on, eps with Local field correction is used at Gamma point'
+
+ 
       write(ifigwin,"(a)") "   ------------ dummy line ----------- "
       write(ifigwin,"(a)") "   ------------ dummy line ----------- "
 
