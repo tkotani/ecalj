@@ -466,7 +466,7 @@ c         do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl
 c            print *,' i j epinvq0i(i,j)',i,j,epinvq0i(i,j)
               enddo
             enddo
-            lxklm=6
+            lxklm=2
             nnn=n1q*n2q*n3q
             allocate(wqfac(nnn)) !9dec2012
             allocate(wklm((lxklm+1)**2)) ! See bottom of page7. Computer Phys. Comm 176(1007)1-13

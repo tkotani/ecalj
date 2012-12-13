@@ -38,19 +38,72 @@
       real(8):: fcenter,fmean,fout(1),qmic(3,3),qx(3),fsum,wg,ftot,ftotc
       real(8):: wqfac(nnn)
 
+      real(8),allocatable:: q0x(:,:),yl(:),cy(:),yll(:)
+      real(8):: qg(3),delta5,delta8,tpiba,kmax(6),qcell1(3),qcell2(3),qcell3(3),r2s
+      integer:: nq00i,ll
 !! ----------------
+!!
+!! spherical design des.3.12.5 !thus up to lxklm=2 for integration.
+!! des.3.12.5
+      nq00i=12
+      allocate(q0x(3,nq00i))
+      delta8=0.850650808352d0
+      delta5=0.525731112119d0
+      q0x(:,1)=(/delta8, 0d0, -delta5/)
+      q0x(:,2)=(/delta5, -delta8, 0d0/)
+      q0x(:,3)=(/0d0,-delta5, delta8/)
+
+      q0x(:,4)=(/delta8, 0d0, delta5/)
+      q0x(:,5)=(/-delta5,-delta8,0d0/)
+      q0x(:,6)=(/0d0,delta5,-delta8/)
+
+      q0x(:,7)=(/-delta8,0d0,-delta5/)
+      q0x(:,8)=(/-delta5,delta8,0d0/)
+      q0x(:,9)=(/0d0,delta5,delta8/)
+
+      q0x(:,10)=(/-delta8,0d0,delta5/)
+      q0x(:,11)=(/delta5,delta8,0d0/)
+      q0x(:,12)=(/0d0,-delta5,-delta8/)
+!!
+      qcell1=qlat(:,1)/(n1q*2d0)
+      qcell2=qlat(:,2)/(n2q*2d0)
+      qcell3=qlat(:,3)/(n3q*2d0)
+      tpiba = 2d0*pi/alat
+      wklm = 0d0
+      allocate(cy((lx+1)**2),yl((lx+1)**2))
+      call sylmnc(cy,lx)
+      nq00i=12
+      do iq = 1,nq00i
+        qg(1:3) = q0x(:,iq)
+        call sylm(qg/sum(qg**2),yl,lx,r2s) !spherical factor Y( q+G )
+c take distance from six planes. We have to take smallest and positive
+        call distancecrossplane(qg, qcell1,qcell2,qcell3,kmax(1))
+        call distancecrossplane(qg,-qcell1,qcell2,qcell3,kmax(2))
+        call distancecrossplane(qg, qcell2,qcell3,qcell1,kmax(3))
+        call distancecrossplane(qg,-qcell2,qcell3,qcell1,kmax(4))
+        call distancecrossplane(qg, qcell3,qcell1,qcell2,kmax(5))
+        call distancecrossplane(qg,-qcell3,qcell1,qcell2,kmax(6))
+        print *,'distance=',iq,minval(kmax)
+        wklm(lm) = wklm(lm) + cy(lm)*yl(lm)* minval(kmax) !minval(kmax)-->kmax(Omega) !Eq.(34)
+      enddo  
+      wklm= tpiba**3* wklm/nq00i
+      do i=1,(lx+1)**2
+         if(abs(wklm(i))>1d-10) write(6,'(" getwklm: l lm Wklm=",2i3,f9.4)')ll(i),i,wklm(i)
+      enddo
+      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+
 !! discrete sum problem. Central value v.s. Mean value for each cell. 
       ndiv=10
-      print *,' getwklm n12 n2q n3q 2*ndiv',n1q,n2q,n3q,2*ndiv
+      print *,' getwklm: n1q n2q n3q 2*ndiv',n1q,n2q,n3q,2*ndiv
       skipg0=.false.
       lxx=0
       ftotc=0d0
       ftot=0d0
+      qmic(:,1)=qlat(:,1)/(n1q*ndiv*2)
+      qmic(:,2)=qlat(:,2)/(n2q*ndiv*2)
+      qmic(:,3)=qlat(:,3)/(n3q*ndiv*2)
       do iq = 2,nnn ! omit q=0 point iq=1
          fsum=0d0
-         qmic(:,1)=qlat(:,1)/(n1q*ndiv*2)
-         qmic(:,2)=qlat(:,2)/(n2q*ndiv*2)
-         qmic(:,3)=qlat(:,3)/(n3q*ndiv*2)
          do iq1=-ndiv,ndiv
          do iq2=-ndiv,ndiv
          do iq3=-ndiv,ndiv
@@ -75,6 +128,9 @@ c            print *,'iq1 ',iq1,iq2,iq3
      &   iq,qbz(1:3,iq),fcenter,fmean,fmean/fcenter
       enddo
       write(*,"('ftot ftotc ftot/ftotc: ',2f13.4)") ftot/(nnn-1),ftotc/(nnn-1),ftot/ftotc
+
+
+
 
       allocate(funa((lx+1)**2,nnn),wsumau((lx+1)**2),funac((lx+1)**2))
 !! ==== true integal of auxially function ====
@@ -1021,5 +1077,27 @@ c      bout=bout/sqrt(sum(bout**2))
 c      aset(:,mx)=bout
       aset(:,mx)=bout/sqrt(sum(bout**2))
 c      print *,' mx bout=',mx,bout
+      end
+
+
+
+      subroutine distancecrossplane(qinr,qmic1,qmic2,qmic3,kmax)
+      real(8):: qin(3),qmic1(3),qmic2(3),qmic3(3),ipx,qinr(3),kmax
+      real(8):: qlat(3,3),plat(3,3),p,q,x,xx
+      qin=qinr/(sum(qinr**2))**.5
+      qlat(:,1)=qmic1
+      qlat(:,2)=qmic2
+      qlat(:,3)=qmic3
+      call dinv33x (qlat,plat) 
+      xx = sum(qin*plat(:,1))
+      if(xx<1d-3) then
+         kmax=1d10 !
+         return
+      else
+         x=1d0/xx
+      endif
+      p = x/sum(qin*plat(:,2))
+      q = x/sum(qin*plat(:,3))
+      kmax=(sum((x*qmic1+p*qmic2+q*qmic3)**2))**.5
       end
 

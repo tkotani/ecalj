@@ -1115,6 +1115,7 @@ c          nmx = 15
              enddo
              stop 'hvccfp0:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
  888         continue
+             print *,'wqfac scaled =',wqfac(iqbzx)
              if(abs((-eb(1)+eb(2))/eb(2))<1d-2) then
 !! Center. touching case. Respect smoothness when we change n1n2n3 division.
                 eb(1)=eb(1)* ((wqfac(iqbzx)-1d0)*.5 + 1d0)
