@@ -98,12 +98,12 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       logical:: is_mix0vec,newaniso,wvcc
       character(128):: vcoudfile
 
-
+      real(8),allocatable:: wqfac(:),qbzwww(:,:)
+      integer:: ifiwqfac,iqbz,iqbzx,nnn
+!!------------------------------------------------------------
       call MPI__Initialize
-
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
-
       write(6,"(' mode(now only =0)? +(pararell iqxini iqxend ?)')")
 c      call readin5(imode,iqxini,iqxend)
 
@@ -155,6 +155,16 @@ c      print *," xxx=",alat, plat,qlat, nqbz, nbas, nband
 c      print *," xxx=",qbz,bas,rmax
 c      print *," xxx=",rmax
 c      is = iclose ('HVCCIN')
+
+!!! 9dec2012
+      ifiwqfac = iopen('WQFAC',0,-1,0)
+      read(ifiwqfac) nnn
+      print *,'nnn nqbz=',nnn,nqbz
+c      if(nnn/=nqbz) stop 'hvccfp0_sc: readin nnn WQFAC/= nqbz'
+      allocate( wqfac(nnn),qbzwww(3,nnn) )
+      read(ifiwqfac) wqfac,qbzwww
+      ifiwqfac = iclose('WQFAC')
+
 
 c$$$c-----------------------------------------------------
 c$$$      iqibzx =0
@@ -1094,6 +1104,25 @@ c          nmx = 15
             write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
           enddo
           write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
+
+!! Modify -eb
+          if(iqx<=nqibz) then
+             do iqbz=1,nqbz     !! check          
+                if(sum(abs(qbzwww(:,iqbz)-q))<1d-6) then
+                   iqbzx=iqbz
+                   goto 888
+                endif
+             enddo
+             stop 'hvccfp0:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
+ 888         continue
+             if(abs((-eb(1)+eb(2))/eb(2))<1d-2) then
+!! Center. touching case. Respect smoothness when we change n1n2n3 division.
+                eb(1)=eb(1)* ((wqfac(iqbzx)-1d0)*.5 + 1d0)
+                eb(2)=eb(2)* ((wqfac(iqbzx)-1d0)*.5 + 1d0)
+             else
+                eb(1)=eb(1)* wqfac(iqbzx)
+             endif   
+          endif
 
 !! === save zz === apr2012takao
 c          if( newaniso().and.iqx==1 ) then

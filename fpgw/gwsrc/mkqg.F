@@ -569,7 +569,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ifidmlx = iclose('EPSwklm')
 
             ifiwqfac = iopen('WQFAC',0,-1,0)
-            wqfac(1)=1d0
+            wqfac(1)=1d0 !but unused.
             write(ifiwqfac) nnn
             write(ifiwqfac) wqfac,qbz
             ifiwqfac = iclose('WQFAC')

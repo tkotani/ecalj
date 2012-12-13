@@ -1145,13 +1145,9 @@ c$$$  endif
 c     if(debug) write(6,*) "goto sxcf_fal3_scz"
 
 
-
-c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
-
 !! 9dec2012 multipy integration weight!
          allocate(wbzz(nqbz))
          wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
-         
 
          call sxcf_fal3_scz (wqfac,kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
