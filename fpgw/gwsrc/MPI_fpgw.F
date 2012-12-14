@@ -106,39 +106,40 @@ c$$$      end if
       real(8):: data(n)
       integer :: n,dest,ierr
       call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-      end
+      end subroutine MPI__REAL8send
+
       subroutine MPI__REAL8recv(data,n,src)
       implicit none
       real(8):: data(n)
       integer :: n,src,ierr
       call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
-      end
+      end subroutine MPI__REAL8recv
 
       subroutine MPI__DbleCOMPLEXsend(data,n,dest)
       implicit none
       complex(8):: data(n)
       integer :: n,dest,ierr
       call MPI_Send(data,n,MPI_COMPLEX16,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-      end
+      end subroutine MPI__DbleCOMPLEXsend
       subroutine MPI__DbleCOMPLEXrecv(data,n,src)
       implicit none
       complex(8):: data(n)
       integer :: n,src,ierr
       call MPI_Recv(data,n,MPI_COMPLEX16,src,src, MPI_COMM_WORLD,ista,ierr)
-      end
+      end subroutine MPI__DbleCOMPLEXrecv
 
-      subroutine MPI__AllreduceSum( data, size )
+      subroutine MPI__AllreduceSum( data, sizex )
       implicit none
-      complex(8), intent(inout) :: data(size)
-      integer, intent(in) :: size
+      integer, intent(in) :: sizex
+      complex(8), intent(inout) :: data(sizex)
       complex(8), allocatable   :: mpi__data(:) 
 
       if( mpi__size == 1 ) return
 
-      allocate(mpi__data(size))
+      allocate(mpi__data(sizex))
       mpi__data = data
 
-      call MPI_Allreduce( mpi__data, data, size,
+      call MPI_Allreduce( mpi__data, data, sizex,
      &     MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD, mpi__info )
 
       deallocate( mpi__data )
@@ -147,18 +148,18 @@ c$$$      end if
       end subroutine MPI__AllreduceSum
 
 
-      subroutine MPI__AllreduceMax( data, size )
+      subroutine MPI__AllreduceMax( data, sizex )
       implicit none
-      integer, intent(inout) :: data(size)
-      integer, intent(in) :: size
+      integer, intent(in) :: sizex
+      integer, intent(inout) :: data(sizex)
       integer, allocatable   :: mpi__data(:) 
 
       if( mpi__size == 1 ) return
 
-      allocate(mpi__data(size))
+      allocate(mpi__data(sizex))
       mpi__data = data
 
-      call MPI_Allreduce( mpi__data, data, size,
+      call MPI_Allreduce( mpi__data, data, sizex,
      &     MPI_INTEGER, MPI_MAX, MPI_COMM_WORLD, mpi__info )
 
       deallocate( mpi__data )
