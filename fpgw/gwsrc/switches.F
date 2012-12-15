@@ -2,7 +2,8 @@
       use keyvalue,only: getkeyvalue
       logical,save:: init=.true.,ttt
       if(init) then
-        call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.false.)
+        call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
+        print *,'LFC@Gamma=',ttt
         init=.false.
       endif
       localfieldcorrectionllw=ttt

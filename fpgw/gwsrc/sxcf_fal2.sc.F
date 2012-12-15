@@ -571,8 +571,24 @@ c     if(exchange) iqend=nqibz
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c test
-c            if(kx/=iqini) cycle
+c            if(kx/=iqini) then
+c             cycle !Gamma only test.
+c             print *,'Gamma onlytest skip kx=',kx
+c            endif
+c
 c            if(abs(qibz_k(3))>1d-3) then
+c               cycle
+c               print *,' z-axis only skip kx=',kx,qibz_k
+c            endif
+c
+c
+c            if(abs(qibz_k(1))+abs(qibz_k(2))<1d-3) then
+c               print *,' z-axis skip kx=',kx,qibz_k
+c               cycle
+c            endif
+c
+c            if(abs(qibz_k(1))+abs(qibz_k(2))><1d-3) then
+c               print *,' z-axis skip kx=',kx,qibz_k
 c               cycle
 c            endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc

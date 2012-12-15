@@ -481,8 +481,10 @@ c     allocate(wqfac(nnn)) !9dec2012
 !! From the begining, we can only excpect "virtual convergence on Nz" for NxNyNz for Si100 slab model in the paper.
 !! (I still not understand why it does not show divergent behevior in the anisotropic case).
 !!
-            wklm(10:)=0d0
-            print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
+cccccccccccccccccccccccccccccc
+c            wklm(1:)=0d0
+cccccccccccccccccccccccccccccc
+c            print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
             do i=1,(lxklm+1)**2
                if(abs(wklm(i))>1d-6 ) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
             enddo
