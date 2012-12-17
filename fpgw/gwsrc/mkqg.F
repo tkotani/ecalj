@@ -53,7 +53,7 @@ c      logical :: readgwinput
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3),imx0c
-      real(8):: deltaq,delta5,delta8,deltaq_scale=.1d0 !.1d0 
+      real(8):: deltaq,delta5,delta8,deltaq_scale=1d0/3.0**.5d0 !=.1d0 
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),

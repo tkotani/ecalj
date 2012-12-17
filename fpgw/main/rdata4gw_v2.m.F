@@ -1697,7 +1697,8 @@ C --- make <IPW|IPW> ------------------------------------------------
         nqibz=0
       endif
 
-      QpGcut_psi2 = (2d0+1d-6)*QpGcut_psi
+      QpGcut_psi2 = (2d0+1d-2)*QpGcut_psi
+c      QpGcut_psi2 = (2d0+0.1d0)*QpGcut_psi !dec2012
       allocate(qibze(3,nqibz + nq0i+iadd),ngc2x(nqibz + nq0i+iadd)) !nq0i+1 is for gamma point
       !          for bzcase==2
       do iqi =1,nqibz + nq0i
@@ -1728,6 +1729,9 @@ c     endif
 
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         qx  = qibze(1:3,iqi)
+        if(iqi>nqibz) then !dec2012
+          qx=0d0
+        endif
         call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo
@@ -1738,8 +1742,15 @@ c     endif
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         if(debug)  write(6,"(' job2 iqi qx=',i5,3f8.3)") iqi,qx
         qx  = qibze(1:3,iqi)
+        if(iqi>nqibz) then !dec2012
+          qx=0d0
+        endif
         call getgv2( alat,plat,qlat,qx, QpGcut_psi2, 2,
      &        ngc2x(iqi),ngvecc2(1,1,iqi)) ! for Coulomb
+           print *,' minval ngvecc2',
+     &       minval(ngvecc2(1,1:ngc2x(iqi),iqi)),minval(ngvecc2(2,1:ngc2x(iqi),iqi)),minval(ngvecc2(3,1:ngc2x(iqi),iqi))
+           print *,' maxval ngvecc2',
+     &       maxval(ngvecc2(1,1:ngc2x(iqi),iqi)),maxval(ngvecc2(2,1:ngc2x(iqi),iqi)),maxval(ngvecc2(3,1:ngc2x(iqi),iqi))
       enddo
 
 C ... IPW(interstitial-plane-wave) overlap matrix

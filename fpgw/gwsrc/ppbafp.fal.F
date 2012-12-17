@@ -438,7 +438,7 @@ c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
 ccccccccccccccccccccccccccccccccccc
 
 
-      call melpln2( ngp1, ngvecpB1
+      call melpln2(ngp1, ngvecpB1
      &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,
      &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
@@ -653,6 +653,7 @@ ccccccccccccccccccccccccccccccccccccc
 c--------------------------------------------------------------------
       subroutine melpln2
      &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd,
+c     &       (qu1,qu2, ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd,
      &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
      &       geigq2, nt0,  ! q2=q-rk ---> kp 1:nt0  occupied                        
      i       shtv,q, qi, symope, qbas,
@@ -676,7 +677,7 @@ c-------------------------------------------------
       integer(4) :: iqi,igc2,ngcx,nn(1:3),
      &       nxmin,nymin,nzmin,nxmax,nymax,nzmax,ix,iy
       integer(4)::verbose,nomatm
-
+c      real(8):: qu1(3),qu2(3)
 c------------------------------
       if(verbose()>=100) print *,' melpln2: '
 c- Get ppx and ngvecc2
@@ -733,7 +734,20 @@ c #ifdef EXPAND_MELPLN2
       do ig1 = 1,ngp1
         do ig2 = 1,ngp2
           nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
-          if(nn(1)<nxmin.or.nn(1)>nxmax) stop "melpln2:nn(1) out of range"
+          if(nn(1)<nxmin.or.nn(1)>nxmax) then
+ccccccccccccccccccccccccc
+             do igc2 =1,ngc2
+                print *,'ttt ngvecc2:',ngvecc2(1:3,igc2)
+             enddo
+             print *,'ttt ngc2=',ngc2
+             print *,'ttt mepln2: nn=',nn(1),nxmin,nxmax,ngp1,ngp2
+c             print *,'ttt qu1=',qu1,ngvecp1(1:3,ig1)
+c             print *,'ttt qu2=',qu2,ngvecp2(1:3,ig2)
+             print *,'ttt qi =',qi
+             print *,'ttt nadd=',nadd
+cccccccccccccccccccccccccc
+             stop "melpln2:nn(1) out of range"
+          endif   
           if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
           if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
         enddo
