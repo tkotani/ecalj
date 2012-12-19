@@ -243,10 +243,11 @@ c
       integer:: nqtt,igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso
-      integer:: ngcB,iqx,iqindx
-      real(8):: quu(3)
+      integer:: ngcB,iqx,iqindx,iq0i
+      real(8):: quu(3),pi,dQpG,abq0i
       integer,allocatable:: ngveccB(:,:)
-
+      
+      pi         = 4d0*datan(1d0)
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
 
@@ -1697,7 +1698,12 @@ C --- make <IPW|IPW> ------------------------------------------------
         nqibz=0
       endif
 
-      QpGcut_psi2 = (2d0+1d-2)*QpGcut_psi
+      dQpG=0d0
+      do iq0i =1,nq0i
+        abq0i= sum(q0i(1:3,iq0i)**2)**.5
+        if(abq0i>dQpG ) dQpG=abq0i
+      enddo
+      QpGcut_psi2 = (2d0+1d-2)*QpGcut_psi + 2d0*pi/alat*dQpG !dec2012
 c      QpGcut_psi2 = (2d0+0.1d0)*QpGcut_psi !dec2012
       allocate(qibze(3,nqibz + nq0i+iadd),ngc2x(nqibz + nq0i+iadd)) !nq0i+1 is for gamma point
       !          for bzcase==2

@@ -412,9 +412,8 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
         if(ngc/=0) then !Aug2005
-          call melpln2(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
+          call melpln2(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
-c     &           , ngc,  ngveccB,  nadd,
      &           , ngc,  nadd,
      &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
