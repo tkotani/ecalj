@@ -442,8 +442,8 @@ c ... Frequencies
 
 c ... PRODUCT BASIS -------------------------
       write(ifigwin,*)
-      write(ifigwin,"(a)") 
-     & "PRODUCT BASIS--------------------------------------------------"
+c      write(ifigwin,"(a)") 
+c     & "PRODUCT BASIS--------------------------------------------------"
       write(ifigwin,"(a)") 
      & " tolerance to remove products due to poor linear-independency"
       tolopt =1d-2
