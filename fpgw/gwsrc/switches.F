@@ -1,3 +1,18 @@
+      real(8) function deltaq_scale()
+! qzerolimit. Use Q0Pscale 0.1d0 (not too small because of numerical reason.
+!             It is somehow related to the truncation scale of screenfac.
+! 1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
+      use keyvalue,only: getkeyvalue
+      real(8),save :: ttt
+      logical,save:: init=.true.
+      if(init) then
+        call getkeyvalue("GWinput","Q0Pscale",ttt,default=1d0/3.0**.5d0)
+        print *,'Q0Pscale=',ttt
+        init=.false.
+      endif
+      deltaq_scale=ttt
+      end
+c
       logical function localfieldcorrectionllw()
       use keyvalue,only: getkeyvalue
       logical,save:: init=.true.,ttt
@@ -8,15 +23,15 @@
       endif
       localfieldcorrectionllw=ttt
       end
-
+c
       logical function eibz4sig()
       eibz4sig=.true.
       end
-
+c
       logical function mtosigmaonly() !this is also in lm7k/subs/switches.F
       mtosigmaonly=.true.
       end
-
+c
       logical function eibz4x0()
       use keyvalue,only: getkeyvalue
       logical,save:: init=.true.,eibzmode
@@ -43,9 +58,19 @@
       end
 
       real(8) function screenfac()
-c      srceenfac=0d0
-c      screenfac=-1d-8 !NaN for GaAs222 test. This gives negative eigenvalue of Vcoul for q=0
-      screenfac=-1d-5 
+c The Coulomb interaction is given as exp(- screeenfac()*r)/r (see hvccfp0.m.F)
+c Formally scrennfac=0d0 is correct, however, we can not choose too small screenfac 
+c in out current implementation. For example,
+c screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of Vcoul for q=0
+      use keyvalue,only: getkeyvalue
+      real(8),save :: ttt
+      logical,save:: init=.true.
+      if(init) then
+        call getkeyvalue("GWinput","Vkappa",ttt,default=1d-5)
+        print *,'Vkappa=',ttt
+        init=.false.
+      endif
+      screenfac= -ttt  !note negative sign
       end
 
 !! testmode
