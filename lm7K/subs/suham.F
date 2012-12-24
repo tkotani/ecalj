@@ -935,7 +935,7 @@ c
       data ep/1.0d-3/
 c      data ep/1.0d-7/
 c
-      write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
+      if(iprint()>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
 
       do 10 ig=1,ng
         do igd=1,ng
@@ -955,7 +955,7 @@ c seach for inverse  ig->igd
         end do
  16     continue
 c
-        if(iprint() .ge.41) then
+        if(iprint() .ge.46) then
           print *,' '
           print *,' '
           print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
@@ -1029,7 +1029,7 @@ c
         delta(:,ig) = tran          ! r' = am(3,3) r +  delta  !Jun 2000
 
 c- have gotten the translation-> check write --------------------
-        if(iprint().ge.40) then
+        if(iprint().ge.46) then
 c          write(6,4658)tr1,tr2,tr3
           write(6,4658)tran
  4658     format('  Obtained translation operation=',3d12.4)

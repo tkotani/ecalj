@@ -363,7 +363,7 @@ comment      .     sarray%iv_a_oics , sarray%iv_p_onrc )
 
 
 ccccccccccc
-      print *,'zzz nclass=',nclass
+c      print *,'zzz nclass=',nclass
 cccccccccc
 
 c       npadl=sarray%npadl

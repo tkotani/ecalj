@@ -1950,7 +1950,7 @@ C ... Site data, one pass for each atom
 c             print *, alabl,' xxx ', slabl(i)
             if (trim(alabl) == trim(slabl(i)) ) then
               ips(j) = i
-              print *, alabl,' xxx ', i,ips(j)
+c              print *, alabl,' xxx ', i,ips(j)
               goto 881
             endif
           enddo

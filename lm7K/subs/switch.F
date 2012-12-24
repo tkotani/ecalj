@@ -4,8 +4,9 @@
       real(8) function epsnevec()
       epsnevec=1d-8 !it was 1d-6
       end
+
       logical function mixrealsmooth()
-      mixrealsmooth=.true.
+      logical,save :: init=.true.
 ! Takao think mixrho should give a correct guess from informations
 ! of |rho_in - f(rho_in)|**2
 ! In our procedure now, takao think the weight from smooth part is rather small.
@@ -13,7 +14,12 @@
 ! This works OK but may be not best...
 !   How to choose wgtsmooth? or it will be better to take correct weighting for
 !   mixing.
-      print *,'mixrealsmooth=',mixrealsmooth
+      mixrealsmooth=.false.
+c      mixrealsmooth=.true.
+      if(init) then
+        print *,'mixrealsmooth=',mixrealsmooth
+        init=.false.
+      endif
       end
 
       logical function noelind()

@@ -265,7 +265,7 @@ c        endif
 c      close(1898)
 c      print *,'vvv'
 c      print *,'mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+c      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 c---
       nnnew=0
 c      open(1898,file='test2vvv_smrnew')
@@ -283,7 +283,7 @@ c        endif
       enddo
 c      close(1898)
 c      print *,'mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
-      write(6,"(a,3d13.6,i8)")' mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
+c      write(6,"(a,3d13.6,i8)")' mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
 ccccccccccccccccccccccccccccccccccccc
 
 
@@ -399,9 +399,9 @@ C ... Initial charges
 
 
 !!== difference in smooth part ==
-      write(6,"(a,3d13.5)") ' mixrho: dqsum rmsuns='
-     &  , dreal(sum((smrnew-smrho)/(n1*n2*n3)))
-     &  , sqrt( sum((smrnew-smrho)**2)/(n1*n2*n3) )
+c      write(6,"(a,3d13.5)") ' mixrho: dqsum rmsuns='
+c     &  , dreal(sum((smrnew-smrho)/(n1*n2*n3)))
+c     &  , sqrt( sum((smrnew-smrho)**2)/(n1*n2*n3) )
       fac = vol/(n1*n2*n3)
 
 !!== RMS differences screened and input sm density; count neg points ==
@@ -602,12 +602,10 @@ C         and spherical part of rho1-rho2
         allocate(w_ocn(ng02*nsp),co_rv(ng02*nsp))
         call dcopy(ng02*nsp,dreal(smrnew), 1, w_ocn,1)
         call dcopy(ng02*nsp,dreal(smrho),  1, co_rv,1)
-
 cccccccccccccccccccccccc
         wgtsmooth=1d0/ng02**0.5d0 !try this relative weight. Not correct weight charge mixing.
         print *,'wgtsmooth=',wgtsmooth
 cccccccccccccccccccccccc
-
         w_ocn= w_ocn*wgtsmooth !
         co_rv= co_rv*wgtsmooth !
       else
@@ -622,7 +620,6 @@ ckino Dec.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0
         nda = nda + ng02
         allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
         allocate(w_owk(kkk*nsp))
-
         call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
         call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, w_ocn)
@@ -631,7 +628,6 @@ ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3
 ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn)
 ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , w_ocn)
         call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , w_ocn)
-
         call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
         call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk, co_rv)
@@ -641,7 +637,6 @@ ckino Dec.12.2011:         call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv ,
 ckino Dec.27.2011:         call lgstar ( 1 , ng , nsp , slat%rv_p_ogv , i , ips0_iv , co_rv)
         call lgstar ( 1 , ng , nsp , slat%rv_a_ogv , i , ips0_iv , co_rv)
         deallocate(w_owk)
-
       endif
 c
 

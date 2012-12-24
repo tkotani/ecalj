@@ -5,11 +5,6 @@
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .    lmaxu , vorb , lldau )
-
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Make the potential at the atomic sites and augmentation matrices.
@@ -867,12 +862,12 @@ Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
 
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
-      write(6,'(a)')' === rho1 valence true density ==='
+      if(debug) write(6,'(a)')' === rho1 valence true density ==='
       call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if(debug) print *,'locpt2: 55551111aaaa'
 
-      write(6,'(a)')' === rho2 valence counter density ==='
+      if(debug) write(6,'(a)')' === rho2 valence counter density ==='
       call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
@@ -893,7 +888,7 @@ Changenglob      lxcfun = nglob('lxcf')
       call dpzero(focec,2)
       call dpzero(focvxc,2)
       call info0(30,0,0,' Exchange for true density:')
-      write(6,'(a)')' === rhol1 valence+core density ==='
+      if(debug) write(6,'(a)')' === rhol1 valence+core density ==='
       call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
@@ -910,7 +905,7 @@ Changenglob      lxcfun = nglob('lxcf')
 
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
-      write(6,'(a)')' === rho2 ->valence+smooth core density ==='
+      if(debug)write(6,'(a)')' === rho2 ->valence+smooth core density ==='
       if (lfoc .eq. 0) then
         call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)

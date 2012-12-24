@@ -349,7 +349,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       integer:: i_copy_size, i_spackv, i_spacks
       integer ::iwdummy
 
-      logical :: debug=.true. !debug is only for check write. However, it can cause error
+      logical :: debug=.false. !debug is only for check write. However, it can cause error
       !for 'make check',
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK
