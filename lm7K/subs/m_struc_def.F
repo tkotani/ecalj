@@ -893,6 +893,7 @@ CCHSTRUC       integer(8)   ::   oqsig
       real(8)   ::   sigp(10)
       real(8)   ::   thrpv
       integer(8)   ::   udiag
+      real(8):: scaledsigma
       end type s_ham
 
 Cr --- explanation of  ulat ---

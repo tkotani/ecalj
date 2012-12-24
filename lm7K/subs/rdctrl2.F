@@ -15,7 +15,7 @@ ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,nmto,lrsig,
-     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,kmto,rsrnge,vmtz,
+     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,kmto,rsrnge,vmtz,scaledsigma,
      &  alfsi,dabc,rsstol,pmin,pmax,
      &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
      &    sigp_mode,sigp_nmin,sigp_nmax,
@@ -737,6 +737,7 @@ C     Mop up integer parts of sigp
       v_sham%rsrnge=rsrnge
       v_sham%rsstol=rsstol
       v_sham%udiag=ham_udiag
+      v_sham%scaledsigma=scaledsigma
 
 C     Parameters for APW
 

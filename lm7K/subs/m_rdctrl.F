@@ -22,7 +22,7 @@ C ... HAM
      .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
 c      logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
-      real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz
+      real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz, scaledsigma 
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
       real(8):: pmin(n0),pmax(n0)
 C     sigp holds parameters for approximating self-energy sigma
@@ -882,6 +882,10 @@ c      call packk('ctrl zbak',sctrl,dqval)
       nm='HAM_RSSTOL'; call gtv(trim(nm),tksw(prgn,nm),
      .rsstol, def_r8=5d-6, note=
      .'Max tolerance in Bloch sum error for r.s. sigma ')
+
+      nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgn,nm),scaledsigma,
+     .def_r8=1d0, note='\alpha for Scaled sigma. \alpha \times (Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian')
+
 c      call packk('ham rsrnge',sham,rsrnge)
 c      call packk('ham rsstol',sham,rsstol)
 
@@ -3262,6 +3266,7 @@ C     call tkadd(" START~")
       call tkadd(" HAM_RDSIG~")
       call tkadd(" HAM_RSRNGE~")
       call tkadd(" HAM_RSSTOL~")
+      call tkadd(" HAM_ScaledSigma~")
       call tkadd(" HAM_SIGP~")
       call tkadd(" HAM_TOL~")
       call tkadd(" HAM_XCFUN~")
@@ -3408,6 +3413,7 @@ ctakao
       call tkadd(" HAM_RDSIG~")
       call tkadd(" HAM_RSRNGE~")
       call tkadd(" HAM_RSSTOL~")
+      call tkadd(" HAM_ScaledSigma~")
       call tkadd(" HAM_SIGP~")
       call tkadd(" HAM_TOL~")
       call tkadd(" HAM_XCFUN~")

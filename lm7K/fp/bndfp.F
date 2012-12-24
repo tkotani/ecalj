@@ -1356,9 +1356,13 @@ c      lwsig=0
         call rdsigm2(nbas,nsp,slat,sham,sbz,ifi,  !ndham is removed sep2012 (read from sigma file )
      &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
                   !qsfz is for test
-c       deallocate(sfz)
         call fclose(ifi)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
+!! for sclaedsigma
+        if(sham%scaledsigma/=1d0) then
+           sfz = sham%scaledsigma * sfz
+        endif   
+
 c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls
