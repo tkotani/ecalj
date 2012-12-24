@@ -1290,7 +1290,7 @@ c               cycle !takao think this should be commented out 26mov2012
                do it=1,1        !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
                   do igrp=1,ngrp !A-rotator
                      if( eibzsym(igrp,it,iqxx)==0) cycle
-                     print *,' igrp in nsym=',igrp,nsym
+c                     print *,' igrp in nsym=',igrp,nsym
                                 !evecout= symgg(ig)*evec
                      nblk=0
                      iblki=0

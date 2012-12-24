@@ -105,7 +105,7 @@ c
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
       integer(4)::imdim(natom),iatomp(natom)
-      logical,parameter:: debug=.true.
+      logical,parameter:: debug=.false.
 c---tetwt5
       logical:: hist      ,ipr
       integer(4):: nhwtot,

@@ -3,14 +3,21 @@
 !             It is somehow related to the truncation scale of screenfac.
 ! 1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
       use keyvalue,only: getkeyvalue
-      real(8),save :: ttt
+      integer,save :: ttt
       logical,save:: init=.true.
       if(init) then
-        call getkeyvalue("GWinput","Q0Pscale",ttt,default=1d0/3.0**.5d0)
-        print *,'Q0Pscale=',ttt
+        call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
+        print *,'Q0Pchoice=',ttt
         init=.false.
       endif
-      deltaq_scale=ttt
+      if(ttt==1) then
+        deltaq_scale=0.1d0 !this is essentially q to zero limit.
+      elseif(ttt==2) then  
+        deltaq_scale=1d0/3.0**.5d0
+      else
+        stop 'Use Q0pchoice = 1 or 2 (=1 is default)'
+      endif
+         
       end
 c
       logical function localfieldcorrectionllw()

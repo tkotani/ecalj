@@ -115,7 +115,7 @@ c constant part
       call auxfunlm((/0d0,0d0,0d0/), alp,alat, qlat, 
      &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funac(:),skipg0)
       do lm=1,(lx+1)**2
-        if(abs(funac(lm))>1d-6) print *,' xxx lm funac =',lm,funac(lm)
+        if(abs(funac(lm))>1d-6) print *,'getwklm: lm funac =',lm,funac(lm)
       enddo
 
       do iq = 2,nnn ! omit q=0 point iq=1
@@ -127,12 +127,12 @@ c constant part
 
       do lm=1,(lx+1)**2
          wsumau(lm) = sum(funa(lm,2:nnn))/dble(nnn)
-c         wsumau(lm) = sum(wqfac(2:nnn)*funa(lm,2:nnn))/dble(nnn)
-         print *
-         do iii=2,nnn
-            print *,' zzz lm iii funa=',lm,iii,qbz(1:3,iii),funa(lm,iii)
-         enddo
-         if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm),funac(lm)
+cc        wsumau(lm) = sum(wqfac(2:nnn)*funa(lm,2:nnn))/dble(nnn)
+c         print *
+c         do iii=2,nnn
+c            print *,' zzz lm iii funa=',lm,iii,qbz(1:3,iii),funa(lm,iii)
+c         enddo
+c         if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm),funac(lm)
       enddo
 
       lm=1

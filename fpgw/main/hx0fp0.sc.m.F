@@ -562,7 +562,7 @@ C     ... for frhis_m
                                 ! used in subroutine alagr3z in  sxcf.f.
          omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
 cccccccccccccccccc
-         print *,'iw omg2=',iw,omg2,dw,nw_input
+c         print *,'iw omg2=',iw,omg2,dw,nw_input
 cccccccccccccccccc
          if (omg2 > dw*(nw_input-3)) then
             nw=iw

@@ -287,7 +287,7 @@ c     pwemin=sham%pwemin
 
 !! for APW rotation.
 C ... Get igv2(3,iapw,ikt). pwmode>=10 only
-      print *,' goto APW part pwmode=',pwmode,pwemax !pwemin
+      print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
       allocate( napwk(nkt))
 !! takao is 
@@ -317,7 +317,7 @@ cccccccccccccccccccccccccccccccccc
       allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
       !print *,'zzzzzzzzzz2'
       do ikt = 1,nkt
-        print *,' 222 ikt=',ikt
+c        print *,' 222 ikt=',ikt
 cccccccccccccccccccccccccccccccc !Aug2012takao
         qqx=qq(:,ikt)
         if(pwmode<10) qqx=0d0
@@ -335,15 +335,14 @@ C ... Reverse table of igv2 --->igv2rev
       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
       igv2rev=999999
       do ikt = 1,nkt
-        print *
         do ig  = 1,napwk( ikt )
           nnn  = igv2(1:3, ig, ikt)
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
           !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
         enddo
       enddo
-      print *,' ---- nkt,napwmx norbmto= ',nkt,napwmx,norbmto
       call writehamindex() !sep2012takao
+      print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
       end subroutine gen_hamindex
 
 

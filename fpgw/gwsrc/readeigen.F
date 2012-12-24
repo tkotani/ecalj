@@ -913,15 +913,13 @@ c this should be called after init_readgeigen
       ifoc = iopen('@MNLA_CPHI',1,0,0)
       read(ifoc,*)
       norbtx=0
-      write(*,*) ' goto readin @MNLA_CPHI: norbtx=',norbtx
-
+c      write(*,*) ' goto readin @MNLA_CPHI: norbtx=',norbtx
       do
         read(ifoc,*,end=106) i1,i2,i3,i4,i5,iorb
-        write(6,*) i1,i2,i3,i4,i5,iorb
+c        write(6,*) i1,i2,i3,i4,i5,iorb
         if(iorb>norbtx) norbtx=iorb
       enddo
  106  continue
-
       write(*,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
       rewind ifoc
       read(ifoc,*)
@@ -946,11 +944,11 @@ c this should be called after init_readgeigen
         offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
       enddo
       write(*,*)'init_readeigen2: table for rotation of cphi'
-      do iorb=1,norbtx
-        write(*,*)ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb),
-     &   offset_tbl(iorb),
-     &  offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))
-      enddo
+c      do iorb=1,norbtx
+c        write(*,*)ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb),
+c     &   offset_tbl(iorb),
+c     &  offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))
+c      enddo
       ifoc=iclose('@MNLA_CPHI')
 c      stop 'init2 xxxxxxxxxxxxx'
 c --- Readin CPHI and GEIG

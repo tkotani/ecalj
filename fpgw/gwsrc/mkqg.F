@@ -875,11 +875,12 @@ c     ifix=1101
 c     open (ifix,form='unformatted',file='ROTWVinfo')
       call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr)
 c     close(ifix)
-      write(6,*)
-      write(6,*)' --- Irreducible qpoint --- nqi=',nqi
-      write(6,*)
-     &     '             qx             qy             qz          count'
-      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
+
+c      write(6,*)
+c      write(6,*)' --- Irreducible qpoint --- nqi=',nqi
+c      write(6,*)
+c     &     '             qx             qy             qz          count'
+c      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
 !     !
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(verbose()>150) 
