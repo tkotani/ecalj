@@ -1441,7 +1441,7 @@ c
         nsizeoiaxs = size( sham%iv_a_oiaxs )
         nsizeontabs= size(sham%iv_a_ontabs)
         noqsig = size(sham%rv_p_oqsig)
-        print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
+c        print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
       endif
       call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
       call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
@@ -1449,7 +1449,7 @@ c
       call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
       call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
       if(procid/=master) then
-         print *,' allocate procid=',procid
+c         print *,' allocate procid=',procid
         if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
         allocate( sham%rv_a_ohrs(nsizeohrs) )
         if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
@@ -1459,12 +1459,12 @@ c
         if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
         allocate(sham%rv_p_oqsig(noqsig))
       endif 
-      print *,' m1111 procid=',procid
+c      print *,' m1111 procid=',procid
       call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
       call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
       call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
       call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','ontabs')
-      print *,' m2222 procid=',procid
+c      print *,' m2222 procid=',procid
 #endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       endif !end of sigmamode if
@@ -1895,7 +1895,7 @@ C       isp serves as a flag for the noncollinear case
             jsp = isp
             if (ispc .eq. 2) jsp = 1
             if (i .eq. -1) lpdiag = 2
-            print *,'bndfp: lpdiag=',lpdiag
+c            print *,'bndfp: lpdiag=',lpdiag
 
 Ccomment out this test block takao
 C C   ... debugging ... test of trotwf
@@ -2183,7 +2183,7 @@ c                endif
 #endif
 c##### !MPIK
 
-             print *,' nmx nev=',nmx,nev
+c             print *,' nmx nev=',nmx,nev
             if( debug) print *, 'tttttttttt 11111 plbnd=',plbnd
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then

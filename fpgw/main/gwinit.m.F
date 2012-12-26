@@ -433,17 +433,11 @@ c ... Frequencies
       write(ifigwin,"(d14.5,a)") esmr,' GaussSmear ! =esmr(Ry)  used by hsfp0.'//
      &' Keep esmr as it is (smaller than band gap) for insulator'
 
-      write(ifigwin,"(a)") 'LFC@Gamma on !(on is default)'//
-     & ' if on, eps with Local field correction is used at Gamma point'
-
- 
       write(ifigwin,"(a)") "   ------------ dummy line ----------- "
       write(ifigwin,"(a)") "   ------------ dummy line ----------- "
 
 c ... PRODUCT BASIS -------------------------
-      write(ifigwin,*)
-c      write(ifigwin,"(a)") 
-c     & "PRODUCT BASIS--------------------------------------------------"
+      write(ifigwin,"(a)") "PRODUCT BASIS--------------------------------------------------"
       write(ifigwin,"(a)") 
      & " tolerance to remove products due to poor linear-independency"
       tolopt =1d-2

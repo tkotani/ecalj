@@ -528,9 +528,9 @@ C     implicit none
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
-        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
+c        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
         c0(ig,i) = c(j1,j2,j3,i)
-        print *,'vvvvvvvvvvv xxx'
+c        print *,'vvvvvvvvvvv xxx'
    10 continue
       end
 

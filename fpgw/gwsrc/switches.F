@@ -1,7 +1,6 @@
       real(8) function deltaq_scale()
-! qzerolimit. Use Q0Pscale 0.1d0 (not too small because of numerical reason.
-!             It is somehow related to the truncation scale of screenfac.
-! 1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
+! Q0Pset=1: qzerolimit. (not too small because of numerical reason.)
+! Q0Pset=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
       use keyvalue,only: getkeyvalue
       integer,save :: ttt
       logical,save:: init=.true.

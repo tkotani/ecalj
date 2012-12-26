@@ -85,10 +85,11 @@ c
       write(ifi,"(a)" )'!!! Each lines consists of "keyword value(s)"  !!! '
       write(ifi,"(a)" )'!!! Each tag section in <...>... </...> has its own format. !!! '
       write(ifi,"(a)" )'!Verbose    0  ! 0-->default; 100--->debug '
-      write(ifi,"(a)" )'!Q0P_Choice 0  ! 0-->along plat(default);  1--> along Ex Ey Ez. '
+      write(ifi,"(a)") '!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point'
+      write(ifi,"(a)" )'!Q0Pset 1 !1(default):qzerolimit(in practice, not zero.See generated Q0P),2:1/q^2 average in Gamma region'
       write(ifi,"(a)" )'!CoreOrth  off  ! off  --> Not enforce core to be orthogonalized with valence (default)'
       write(ifi,"(a)" )'                ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).'
-      write(ifi,"(a)" )'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron'
+      write(ifi,"(a)" )'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
 c
       write(ifi,"(a)" )'! ##### From GWIN0 ################ '
       write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW '
@@ -147,7 +148,8 @@ c
 
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '
-      write(ifi,"(a)")'<PRODUCT_BASIS> ! This is the product basis block as exactly in GWIN_V2.'
+      write(ifi,"(a)")'<PRODUCT_BASIS> '
+      write(ifi,"(a)")" tolerance to remove products due to poor linear-independency"
       do
         read(ifig,"(a)",end=755) pppx
         call cuttail(pppx,n)

@@ -99,8 +99,8 @@ ctakao
 
       logical:: isanrg, l_dummy_isanrg,oncewrite
 c
-      print *,'psigd',present(iout)
-      print *,' iout=',iout
+c     print *,'psigd:',present(iout)
+c      print *,' iout=',iout
 
       call getpr(ipr)
       stdo = lgunit(1)

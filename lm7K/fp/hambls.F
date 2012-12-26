@@ -391,7 +391,7 @@ ctakaox
       complex(8),allocatable:: ss(:,:)
       integer:: sigswitch,debugmode
       logical:: pmtsig
-      logical:: debug=.true.
+      logical:: debug=.false.
       logical:: l_dummy_isanrg,isanrg,oncewrite
       integer:: ndimsig !dimension of sigma
       complex(8),allocatable:: sigmat(:,:)
@@ -451,7 +451,7 @@ c      i_copy_size=size(sham%sigp)
 c      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
       sigp=sham%sigp
       if(debug) print *,' hambles: eeeee1111'
-      print *,'qqqqq ndimsig = ',ndimsig
+c      print *,'qqqqq ndimsig = ',ndimsig
 
 ctakao simplified case for the PMT method.
       if (pmtsig()) then
@@ -532,7 +532,7 @@ C       Call to bloch : 104110=perm orb, transpose, no add, c*16
 c        call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
 c     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
 c     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , iwdummy )
-        print *,'goto bloch sigmat ndimsig=',ndimsig
+c        print *,'goto bloch sigmat ndimsig=',ndimsig
         allocate(sigmat(ndimsig,ndimsig))
         call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
      .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig

@@ -437,17 +437,17 @@ ckino     .poppr,pshpr,rlse
       external dinv33,dpsadd,dpscop,gvlist,hft2r2,
      .poppr,pshpr
 
-      logical:: isanrg, l_dummy_isanrg
+      logical:: isanrg, l_dummy_isanrg,debug=.false.
 
 c      allocate(_rv(1))
 c      if (1<0) _rv(:)=0.0d0
 
       id = offH(1,1,ia2+1)-offH(1,1,ia1)
-      print *,'idim id=',idim,id
+      if(debug) print *,'idim id=',idim,id
 Ckino isanrg is logical function,       call isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
       l_dummy_isanrg=isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
       jd = offH(1,1,ib2+1) - offH(1,1,ib1)
-      print *,'idim jd=',jdim,jd
+      if(debug) print *,'idim jd=',jdim,jd
 Ckino isanrg is logical function,       call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       l_dummy_isanrg=isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       ltrans = mod(mode/10000,10) .ne. 0
@@ -598,13 +598,14 @@ C ... Local parameters
       double complex phase
 C     character*20 strn
       parameter (tol=1d-5)
+      logical:: debug=.false.
 C ... External calls
 c      external isanrg
 
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       ltrans = mod(mode/10000,10) .ne. 0
-      print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
+      if(debug) print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
       dimx = 0
       dimy = 0
       offx = is1-1

@@ -601,7 +601,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
           write(6,*)
      & "### A correction takao2009June: find this in hqpe.se.m.F"
           write(6,*)"###   constant is added to sigm above threshold."
-          write(6,*)"###   the constant (e-weighted average Ry)= ",eseavr(ip,is)
+          write(6,*)"###   the constant (ESEAVR=e-weighted average Ry)= ",eseavr(ip,is)
 
 
 c     print *,' zzz1'

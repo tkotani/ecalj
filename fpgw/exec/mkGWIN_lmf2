@@ -43,7 +43,7 @@ alpha
  1
 Number of bands
  999 99999.0 
- 999 2.0 
+ 999 3.0 
 EOF
 echo 0 | $nfpgw/lmfgw $argv[1]     > llmfgw00
 echo 1 | $nfpgw/gwinit   #This changes the <QPNT> setting.

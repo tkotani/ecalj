@@ -484,7 +484,7 @@ C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
 C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
-      print *,' rrrrrrrrrr go to hft2rs i=',i
+      if(debug) print *,' rrrrrrrrrr go to hft2rs i=',i
       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
      .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_a_ooffH
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_a_opos , sham%iv_a_ontabs ,
@@ -793,7 +793,7 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
         if (lssym .ge. 4) j1 = 2
 c        if (procid .eq. master) then
           call dpzero(tmp,3)
-          print *,'a8 22222222222 goto chksgr'
+          if(debug) print *,'a8 22222222222 goto chksgr'
           call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
      .      , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
@@ -1494,7 +1494,7 @@ c            qsfz(:,iq1)=qp
 c            cycle
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-            write(6,"(a,13f13.5)")' Goto hamfb3k  xxx input qp=', qp
+            write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
 
 c            call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv
 c     .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
