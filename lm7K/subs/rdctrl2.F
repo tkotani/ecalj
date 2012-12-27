@@ -1444,7 +1444,8 @@ c      endif
 
 C ... Suppress symmetry operations for special circumstances
           lstsym = 0
-          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
+c takao comment out next line. !! dec 2012
+c          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
           !      =2: turn off symops
 C     Switches that automatically turn of all symops
           if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   

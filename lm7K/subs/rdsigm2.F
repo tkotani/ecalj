@@ -1483,7 +1483,7 @@ C       call zprm('sigm',2,w(osigm),ndimsig_r,ndimsig_r,ndimsig_r)
               ikt = getikt(qp)
               napw_in= napwk(ikt)
             endif
-            print *,'ikt qp mtosigmalnly napw_in=',ikt,qp,mtosigmaonly, napw_in
+c            print *,'ikt qp mtosigmalnly napw_in=',ikt,qp,mtosigmaonly, napw_in
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c            ii1=mod(iq1,2)+1
 c            ii2=mod(iq1/2,2)+1
@@ -1494,7 +1494,7 @@ c            qsfz(:,iq1)=qp
 c            cycle
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-            write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
+c            write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
 
 c            call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv
 c     .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
