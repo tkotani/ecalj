@@ -198,7 +198,7 @@ def manip_argset(argset):
     showhelp=0
     metali=3
     fsmom_val=0.0
-    touchingratio=-1.0
+    touchingratio=1.0 #default value was -1.0 
     eh1set=0
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
@@ -453,8 +453,11 @@ print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str,xcfun_val
 print "  --systype=%s !(bulk,molecule)" % systype_val
 print "  --insulator  %s !(do not set for --systype=molecule)"    %  insulatorw
 print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule set this)"    %  fsmom_val
-print "  --tratio=%s (if positive, touching MT radius \\times this ratio. lmf --getwsr is called)" % touchingratio
-print "   --eh1 ! if this exists, all EH =-1 for PMT-QSGW calculation"
+print "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio
+print "               if negative, we use use defalut MT radius in ctrlgen2.py)"
+print "  --eh1 ! if this exists, all EH =-1 for PMT-QSGW calculation"
+print 
+print
 #print "  --mmom=\'%s\'"   % mmom_val
 #print " mmom is the initial magnetic moment for each l-channel. now atom-independent MMOM"
 #print " --r_mul_val=%s"  % r_mul_val
@@ -507,6 +510,7 @@ try:
     ext=sys.argv[1]
 except:
     print '=== Need ctrls file such as ctrls.si.  Run ctrlgen2 si [options] ==='
+    print " Example: ctrlgen2.py si --nk=8 --eh1 --tratio=0.9 --insulator "
     sys.exit()
 print 
 print "... Generate ctrlgen2.ctrl."+ext+" from ctrls."+ext + " ..."

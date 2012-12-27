@@ -416,6 +416,7 @@ ckino
       integer:: ntqxx,ispx,ix99 !,nevec unused.
       real(8)::eseavrmean
       logical:: mtosigmaonly
+      real(8)::scaledsigma
       
 cccccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,100)
@@ -1279,50 +1280,37 @@ c      if(sigmamode.and.iter==1) then
 c      if(iter==1.and.onlyonce.and.sham%pwmode.ge.10) then
 c      if(iter==1.and.(onlyonce.or.plbnd/=0)) then
       if(iter==1.and.onlyonce) then
-        onlyonce=.false.
-c takao to get all qp. I think suqlst looks too complicated...
-c this block is just to get list of qp. suqlst should be cleaned up in future.
-        nbasp=sctrl%nbasp
-        nl=sctrl%nl
-ckino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
-c        if(llmfgw) then
-          print *,'goto gen_hamindex nkp=',nkp
-          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
-ckino Dec.8.2011:       .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit, .not.sigmamode)
-ckino Dec.27.2011:      .   nbasp , sham%iv_p_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode)
-ctakao feb2012          .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit, .not.sigmamode)
-c     .   nbasp , sham%iv_a_oindxo , ldim , qplist , nkp , siginit)
-c     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw,jobgw)
-     .   nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
-c        endif
-#if 1
-Ckino ib=atom index
-Ckino ltab=L
-Ckino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
-        write(6,*)
-        write(6,*) ' --- Hamiltonian index ---'
-        write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-        do  iorb = 1, norbmto
-          ib = ibastab(iorb)
-
-          is=ssite(ib)%spec
-
-          do i_spacks=is,is
-            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-          enddo
-
-          write(6,"(3i3,2x,2i5,3x,a)") 
-     &    ib,ltab(iorb),ktab(iorb), 
-     &    offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
-        enddo
-#endif
-        write(6,*) ' ngrp=', ngrp
-        !do ig = 1, ngrp
-        !write(6,*) ig
-        !do i=1,3
-        !  write(6,"(3f13.5,3x,f13.5)") symops(i,1:3,ig),ag(i,ig)
-        !enddo
-        !enddo
+         onlyonce=.false.
+c     takao to get all qp. I think suqlst looks too complicated...
+c     this block is just to get list of qp. suqlst should be cleaned up in future.
+         nbasp=sctrl%nbasp
+         nl=sctrl%nl
+c     kino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
+         print *,'xxx goto gen_hamindex nkp=',nkp,llmfgw
+         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
+     .        nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
+C     kino ib=atom index
+C     kino ltab=L
+C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
+         write(6,*)
+         write(6,*) ' --- Hamiltonian index ---'
+         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+         do  iorb = 1, norbmto
+            ib = ibastab(iorb)
+            is=ssite(ib)%spec
+            do i_spacks=is,is
+               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+            enddo
+            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
+     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+         enddo
+         write(6,*) ' ngrp=', ngrp
+!do ig = 1, ngrp
+!write(6,*) ig
+!do i=1,3
+!  write(6,"(3f13.5,3x,f13.5)") symops(i,1:3,ig),ag(i,ig)
+!enddo
+!enddo
       endif
 
 !! === generate \Sigma for q points on all the mesh points. ===
@@ -1358,12 +1346,15 @@ c      lwsig=0
                   !qsfz is for test
         call fclose(ifi)
         print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
-!! for sclaedsigma
-        if(sham%scaledsigma/=1d0) then
-           sfz = sham%scaledsigma * sfz
-        endif   
+c!! for sclaedsigma
+c        if(sham%scaledsigma/=1d0) then
+c           print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+c           scaledsigma=sham%scaledsigma
+c           sfz = scaledsigma* sfz
+c        endif   
 
-c        print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+c       print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+       print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,:)),sum(abs(sfz(:,:,:,:,:,:)))
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls
 c$$$cc rdsigm2+seneinterp is equivalent with rdsigm.
@@ -1425,6 +1416,7 @@ c
           sfzx=sfz
           if (procid .eq. master) ifi = fopna('sigm',-1,4)
           ifi = fopna('sigm',-1,4)
+!! note that sigm file is read again, and compared with FFT-sfzx.
           call seneinterp(nbas,nsp,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
      &    nk1,nk2,nk3,sfzx) !,qp,isp,sene)
           call fclose(ifi)
@@ -1790,7 +1782,10 @@ ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vcon
                 allocate(senex(ndimh,ndimh))
                 senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
                 deallocate(ovliovl,sene)
-                hamm(:,:,ispc) = hamm(:,:,ispc) + senex
+                if(sham%scaledsigma/=1d0) then
+                  print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+                endif   
+                hamm(:,:,ispc) = hamm(:,:,ispc) + sham%scaledsigma * senex
                 deallocate(senex)
               endif
 

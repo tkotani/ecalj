@@ -396,7 +396,6 @@ ctakaox
       integer:: ndimsig !dimension of sigma
       complex(8),allocatable:: sigmat(:,:)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
-
       call tcn('hambls')
 C --- LDA hamiltonian ---
       if (mod(mode,10) .eq. 0) then
@@ -479,6 +478,13 @@ ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp
         call matcinv(ndimsig,ovlmtoi)
         ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
         deallocate(ovlmtoi)
+!
+!! for sclaedsigma dec2012
+        if(sham%scaledsigma/=1d0) then
+          print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
+          ss = sham%scaledsigma* ss
+        endif   
+
         h(:,:,ispc) = h(:,:,ispc) + matmul(transpose(dconjg(ovliovl)), matmul(ss(:,:),ovliovl))
         deallocate(ss,ovliovl)
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
@@ -540,6 +546,12 @@ c        print *,'goto bloch sigmat ndimsig=',ndimsig
 !! sigma (s) is moved back to s in ndimh.
         s(:,:,ispc)= matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:),ovliovl))
         deallocate(sigmat,ovliovl)
+
+!! for sclaedsigma dec2012
+        if(sham%scaledsigma/=1d0) then
+          if(oncewrite(9)) print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
+          s = sham%scaledsigma* s
+        endif   
 
 C       LDA evals in h
         if (lwsig .ge. 2 .and. lwsig .le. 4) then

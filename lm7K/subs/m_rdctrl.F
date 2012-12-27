@@ -884,7 +884,7 @@ c      call packk('ctrl zbak',sctrl,dqval)
      .'Max tolerance in Bloch sum error for r.s. sigma ')
 
       nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgn,nm),scaledsigma,
-     .def_r8=1d0, note='\alpha for Scaled sigma. \alpha \times (Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian')
+     .def_r8=1d0, note='=\alpha_Q for QSGW-LDA hybrid. \alpha \times (\Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian.')
 
 c      call packk('ham rsrnge',sham,rsrnge)
 c      call packk('ham rsstol',sham,rsstol)

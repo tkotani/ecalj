@@ -131,15 +131,15 @@ c ... GWIN_V2
 c
       write(ifi,*)
       write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
-      write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) mesh width along real axis.'
-      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) Only for Sergey mode.'
+      write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) energy-mesh (bin width size) along real axis.'
+      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced at omg_c'
       write(ifi,"(a)")         '  !  coaser mesh for higher energy. Width get to be doubled at omg_c.'
       write(ifi,"(a,i5,a)")    'iSigMode ', iSigMode,' ! QSGW mode switch for gwsc. use =3.'
       write(ifi,"(a,i5,a)")    'niw      ', niw,' ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
       write(ifi,"(a)")         '  ! E.g. try niw=6 and niw=12'
       write(ifi,"(a,d10.2,a)") 'delta    ', delta, ' !(a.u.)  Broadening of x0. negative means tetrahedron method.'
       write(ifi,"(a)")         '  ! used by hx0fp0. You get smeard x0 witth abs(delta).'
-      write(ifi,"(a,f10.6,a)") 'deltaw   ', deltaw,' !(a.u.)   Mesh for numerical derivative to get the Z factor'
+      write(ifi,"(a,f10.6,a)") 'deltaw   ', deltaw,' !(a.u.) Mesh for numerical derivative to get the Z factor'
       write(ifi,"(a,f10.6,a)") 'esmr     ', esmr,  ' !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
       write(ifi,"(a)")         '  ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
       write(ifi,"(a)")         '  ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
