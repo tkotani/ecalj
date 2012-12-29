@@ -169,6 +169,7 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
 C- Hamiltonian and overlap of LDA+(sigma-vxc) for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
+cccc mode is output. When sigma mode, mode=-1 is returned.
 Ci   mode  :1s digit specifies LDA matrix elements
 Ci         :  0 compute LDA hamiltonian and overlap
 Ci         :    If the self-energy is not to be added, return with h,s
@@ -406,6 +407,7 @@ C --- LDA hamiltonian ---
      .     , lcplxp , alfa , ndimh , napw , igvapw , h ( 1 , 1 , ispc ) 
      .     , s ( 1 , 1 , ispc ) , h ( 1 , 1 , 3 ) )
       endif
+
       lrsig = mod(mode/10,10)
       lwsig = mod(mode/1000,10)
       ismidb = 0
@@ -429,6 +431,7 @@ Changenglob      nspc = nglob('nspc')
       nspc = globalvariables%nspc
       ndimhx = ndimh * nspc
 c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
+
 
 C ... Setup for Bloch transform
       if(debug) print *,' goto set up bloch transformation'
@@ -550,7 +553,7 @@ c        print *,'goto bloch sigmat ndimsig=',ndimsig
 !! for sclaedsigma dec2012
         if(sham%scaledsigma/=1d0) then
           if(oncewrite(9)) print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
-          s = sham%scaledsigma* s
+          s(:,:,ispc) = sham%scaledsigma* s(:,:,ispc)
         endif   
 
 C       LDA evals in h
@@ -669,17 +672,22 @@ C        call zprm('evecs of h+sig',2,s(1,1,ispc),ndimh,ndimh,ndimh)
 
 ctakaox
         if(debugmode()>0) then
-          do  i = 1, ndimh
-            write(6,"('hhh:',i3,d13.5,2x,l,2x,l,2d13.5)") i,e0(i)
-          enddo
+           if(ispc==1) then
+              do  i = 1, ndimh
+                 write(6,"('ddd hhh:',2i4,12d13.5)") ispc,i,e0(i),sum(abs(s(:,i,1)))
+              enddo
+           elseif(ispc==2) then
+              do  i = 1, ndimh
+                 write(6,"('ddd hhh:',2i4,12d13.5)") ispc,i,e0(i),sum(abs(s(:,i,1))),sum(abs(s(:,i,2)))
+              enddo
+           endif  
         endif
 
 
 C   ... Add off-diagonal spin-orbit hamiltonian to h; re-diagonalize
         if (lso .eq. 1 .and. ispc .eq. 2) then
-
-C          print *, '!! zero out SO'
-C          h(1:ndimh,1:ndimh,3) = 0
+c          print *, '!! zero out SO ndimh ndimhx',ndimh,ndimhx
+          h(1:ndimh,1:ndimh,3) = 0
 
 C         Effective hamiltonian of h+sig, orbital basis
 *         call zprm('z11',2,s(1,1,1),ndimh,ndimh,ndimh)
@@ -696,16 +704,17 @@ C         Effective hamiltonian of h+sig, orbital basis
           deallocate(z0,zqi,e0)
           allocate(z0(ndimhx,ndimhx),zqi(ndimhx,ndimhx),e0(ndimhx))
 
-C         zqi <- evecs of H w/out SO in orbital basis, spin-coupled form
+!         zqi <- evecs of H w/out SO in orbital basis, spin-coupled form
           call sopert(1,ndimh,nspc,z0,s,zqi)
-C         h <- full hamiltonian in zqi basis, spin-coupled form
+!         h <- full hamiltonian in zqi basis, spin-coupled form
           call sopert(0,ndimh,nspc,z0,h,h)
-*         call zprm('h+sig+SO, evec repsn',2,h,ndimhx,ndimhx,ndimhx)
-C         Diagonalize h in this representation
+
+c         call zprm('h+sig+SO, evec repsn',2,h,ndimhx,ndimhx,ndimhx)
+!         Diagonalize h in this representation
           call zhevx(ndimhx,ndimhx,h,xx,0,T,ndimhx,9d9,
      .    i,s,F,e0,ndimhx,z0)
-*         call yprm('evals',1,e0,1,ndimhx,ndimhx,1)
-*         call zprm('evecs',2,z0,ndimhx,ndimhx,ndimhx)
+c*         call yprm('evals',1,e0,1,ndimhx,ndimhx,1)
+c*         call zprm('evecs',2,z0,ndimhx,ndimhx,ndimhx)
 
 C         Rotate evecs to orbital basis = z(so) z(orbital)
 C         Given zqi = evecs w/out L.S (orbital basis)

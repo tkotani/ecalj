@@ -590,7 +590,7 @@ head= head+ """
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
 VERS    LM=7 FP=7        # version check. Fixed.
-IO      SHOW=T VERBOS=35 TIM=3,3
+IO      SHOW=T VERBOS=35 TIM=2,2
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
 	     # larger VERBOSE gives more detailed console output.
@@ -757,11 +757,12 @@ else:
 
 
 #########################################
+metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=4 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+"\n"
+tail = tail+ "% const pwemax=4 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0\n"
 tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
-            + "      METAL=%i\n" % metali +\
+            + "      METAL={metal}"\
 """
                 # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).
                 # METAL=2 is faster but weights for integration is from previous iteration 
@@ -906,7 +907,7 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       #RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
       #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
 
-      #SO=1   #default = 0 
+      SO={so}   #default = 0 
       #Spin-orbit coupling (for REL=1)
       #0 : no SO coupling
       #1 : Add L.S to hamiltonian (but non-colinear density yet).

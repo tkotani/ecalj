@@ -1650,6 +1650,7 @@ cki            if (oqsig .eq. 0) oqsig = 1
             endif
 
             i = lrsig*10
+c            print *,' i lrsig=',i,lrsig
 C Commented by takao lwsig should be renewed.
 C C       lwsig=-1: sigm LDA -> orbital basis
 C C       lwsig= 1: sigm orbital -> LDA basis
@@ -1815,10 +1816,13 @@ c      if (lrsig .eq. 0) goto 999
 C ... Interpolation of sene= \Sigm-Vxc at given q.
 ckino                    isize_hamm(3)=size(hamm)
               isize_hamm(3)=size(hamm,dim=3)
+c            print *,' hhhhzzz in  i =',i
+!! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
+c            print *,' hhhhzzz out i =',i
 
 
 c      print *,' wwwwwwww 11111111 xxxxx ',procid
@@ -1880,7 +1884,7 @@ C           endif
 C           goto 30
 C         endif
 
-C   ... In the noncollinear case, this marks the end of looping over
+C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
 C       jsp=isp in the collinear case; jsp=1 in the noncollinear
@@ -1890,7 +1894,7 @@ C       isp serves as a flag for the noncollinear case
             jsp = isp
             if (ispc .eq. 2) jsp = 1
             if (i .eq. -1) lpdiag = 2
-c            print *,'bndfp: lpdiag=',lpdiag
+c            print *,'bndfp: lpdiag i=',lpdiag,i
 
 Ccomment out this test block takao
 C C   ... debugging ... test of trotwf
@@ -1973,7 +1977,7 @@ C$$$          nevl = ndimh
 C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
 C$$$#endif
-            elseif (lpdiag==2) then
+            elseif (lpdiag==2) then !this is used for SO=1
               call dcopy ( ndimhx * * 2 * 2 , ovlm , 1 , t_zv , 1 )
               nev = ndimhx
               nmx = ndimhx
@@ -2003,7 +2007,6 @@ ccccccccccccccc takao think this is not nesessary cccccccccccccccccccccccccccccc
               endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if(debug) print *,'vvv2 lwtkb=',lwtkb
-
             else ! lpdiag=0
               if(nspc .eq. 2) then
 c                call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
@@ -2100,6 +2103,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
                 nevl=nev    !ndimhx    this OK? why nevl and nev???
                 evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
+
             endif
 
 
@@ -3062,26 +3066,17 @@ ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%
 ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_p_oorhat
         call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_a_oorhat 
      .    , qbyl_rv , hbyl_rv , frc )
-
-
-
         goto 999
       endif
       call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
      ., lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      ., qbyl_rv , hbyl_rv , lrout )
-
-
       if( debug) print *, 'tttttttttt 9999999999999999999 7'
-
-
 C
       if (lrout .ne. 0) then
 C   ... Symmetrize output density and forces
         call symrho ( ssite , sspec , slat , lfrce , srout_zv , sv_p_orhat1 
      .   , qbyl_rv , hbyl_rv , frc )
-
-
 
 C   ... New boundary conditions pnu for phi and phidot
 C       call pshpr(iprint()-12)

@@ -440,7 +440,8 @@ c ... PRODUCT BASIS -------------------------
       write(ifigwin,"(a)") "PRODUCT BASIS--------------------------------------------------"
       write(ifigwin,"(a)") 
      & " tolerance to remove products due to poor linear-independency"
-      tolopt =1d-2
+c      tolopt =1d-2
+      tolopt =1d-4
       write(ifigwin,"(d14.6,a)") tolopt, 
      & " ! =tolopt; larger gives smaller num. of product basis."//
      & " See lbas and lbasC, which are output of hbasfp0."

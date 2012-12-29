@@ -150,8 +150,8 @@ C       jt1 = it
 
       if (iprint() .gt. 0) write (ifi,800) lpr
   800 format(/
-     .'  ==== workspace ====     calls      == cpu time ===   depth',i2/
-     .'  entry   mxin  mxout                per call  total')
+     .'  ==== xxxxxxxxx ====     calls      == cpu time ===   depth',i2/
+     .'  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)')
 
       it = 1000*cpusec()
       tm = (it-jt0)/1000d0

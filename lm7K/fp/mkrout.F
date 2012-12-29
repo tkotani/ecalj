@@ -315,6 +315,7 @@ c     &     , OQHH, OQHP , OQPP ,
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
+
           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
      .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v )
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
@@ -374,14 +375,16 @@ C   --- Print charges for information ---
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 2 , ib )%v 
      .     , sum2 )
 ccccccccccccccccccccc
-c          print *,'ddd sum1 sum2=',sum1,sum(abs(sv_p_orhoat( 1 , ib )%v))
-c     &    ,size(sv_p_orhoat( 1 , ib )%v),nr*nlml*nsp
+c          print *,'ddddd nsp=',nsp
+c          print *,'ddddd sum1 up =',sum1/y0,
+c     &      ddot ( nr, rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v, 1) / y0
+c          ,sum(abs(sv_p_orhoat( 1 , ib )%v)) ,size(sv_p_orhoat( 1 , ib )%v),nr*nlml*nsp
 ccccccccccccccccccccc
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
-            sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v, 1 ) / y0
-            sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 2 , ib )%v, 1 ) / y0
+            sums1 = sum1 - 2d0 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v, 1 ) / y0
+            sums2 = sum2 - 2d0 * ddot ( nr , rwgt_rv , 1 , sv_p_orhoat( 2 , ib )%v, 1 ) / y0
           endif
           if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
           if (ipr.ge.30 .and. nsp .eq. 2)
