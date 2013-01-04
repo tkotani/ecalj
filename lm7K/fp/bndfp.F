@@ -1,3 +1,4 @@
+c#define KINODEBUG
 !! Memo july2012takao
 !! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
 !!   This makes this code too complicated.
@@ -634,7 +635,7 @@ ckino Dec.16.2011:         iv_p_oidtet => sbz%iv_p_oidtet
       efmax=sbz%efmax
       fsmom=sbz%fsmom
 
-      print *,'ttt nevmx w=',nevmx,esmear
+      if(debug) print *,'ttt nevmx w=',nevmx,esmear
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
       mpsord = int(dabs(esmear))
@@ -925,7 +926,7 @@ C --- More k-point independent local arrays ---
         allocate(fes2_rv(3*nbas))
       endif
       call suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
-      print *,'end of suham2'
+c      print *,'end of suham2'
 
 C --- Options for core level specta (CLS) ---
 C     Allocate aus for all qp
@@ -1268,11 +1269,10 @@ C --- Get qplist. This is only for no MPI mode yet...
 
 #endif
 
-
 !! --- New sigma inerpolation mode. Simplified.
       if(debug) print *,'vvv: new sigma=',newsigmasw()
       sigmamode = mod(lrsig,10) .ne. 0
-      print *,'sigmamode=',sigmamode
+      if(procid==master) print *,'sigmamode=',sigmamode
 c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
@@ -1286,25 +1286,25 @@ c     this block is just to get list of qp. suqlst should be cleaned up in futur
          nbasp=sctrl%nbasp
          nl=sctrl%nl
 c     kino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
-         print *,'xxx goto gen_hamindex nkp=',nkp,llmfgw
+c         print *,'xxx goto gen_hamindex nkp=',nkp,llmfgw
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
      .        nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
 C     kino ib=atom index
 C     kino ltab=L
 C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
-         write(6,*)
-         write(6,*) ' --- Hamiltonian index ---'
-         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+c         write(6,*)
+c         write(6,*) ' --- Hamiltonian index ---'
+c         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
          do  iorb = 1, norbmto
             ib = ibastab(iorb)
             is=ssite(ib)%spec
             do i_spacks=is,is
                call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
-            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
-     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+c            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
+c     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
          enddo
-         write(6,*) ' ngrp=', ngrp
+c         write(6,*) ' ngrp=', ngrp
 !do ig = 1, ngrp
 !write(6,*) ig
 !do i=1,3
@@ -1313,157 +1313,162 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
 !enddo
       endif
 
-!! === generate \Sigma for q points on all the mesh points. ===
-c      nhmax = ldim + napwmx !napwmx is in m_hamindex
-c      lwsig=0
+!     ! === generate \Sigma for q points on all the mesh points. ===
+c     nhmax = ldim + napwmx !napwmx is in m_hamindex
+c     lwsig=0
       if(debug) print *,' --- goto rdsigm2 section ---'
       if(sigmamode.and.siginit.and. (.not.(llmfgw.and.jobgw==0)) ) then
-       if(mtosigmaonly()) ndimsig= ldim 
-                      ! ndimsig is the dimension of the self-energy. 
-                      ! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
-       rsrnge = sham%rsrnge
-       print *,'rsrnge=',rsrnge
-       if(procid==master) then
-        ifi = fopna('sigm',-1,4)
-        read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
-        allocate( qsmesh(3,nk1,nk2,nk3) )
-        if(mtosigmaonly()) then
-          allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
-        else
-          stop 'mtosigmaonly()=T is needed in the current version sep2012'
-        endif
-        rewind ifi
-        if (mod(pwmode,10) ==0) then
-          write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
-        else
-          write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
-        endif   
-        if (ldim .ne. ndham) then !june2009 takao
-          write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
-        endif
-        call rdsigm2(nbas,nsp,slat,sham,sbz,ifi,  !ndham is removed sep2012 (read from sigma file )
-     &  nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
-                  !qsfz is for test
-        call fclose(ifi)
-        print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
-c!! for sclaedsigma
-c        if(sham%scaledsigma/=1d0) then
-c           print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
-c           scaledsigma=sham%scaledsigma
-c           sfz = scaledsigma* sfz
-c        endif   
+         if(mtosigmaonly()) ndimsig= ldim 
+! ndimsig is the dimension of the self-energy. 
+! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
+         rsrnge = sham%rsrnge
+         if(procid==master) then
+            if(oncewrite(9)) print *,'rsrnge procid=',rsrnge,procid
+            ifi = fopna('sigm',-1,4)
+            read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
+            allocate( qsmesh(3,nk1,nk2,nk3) )
+            if(mtosigmaonly()) then
+               allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp))
+            else
+               stop 'mtosigmaonly()=T is needed in the current version sep2012'
+            endif
+            rewind ifi
+            if (mod(pwmode,10) ==0) then
+               write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
+            else
+               write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
+            endif   
+            if (ldim .ne. ndham) then !june2009 takao
+               write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
+            endif
+            call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, !ndham is removed sep2012 (read from sigma file )
+     &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
+!     qsfz is for test
+            call fclose(ifi)
+c            print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
+c!!   for sclaedsigma
+c     if(sham%scaledsigma/=1d0) then
+c     print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+c     scaledsigma=sham%scaledsigma
+c     sfz = scaledsigma* sfz
+c     endif   
 
-c       print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
-       print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,:)),sum(abs(sfz(:,:,:,:,:,:)))
+c     print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,1)),sum(sfz(:,:,:,:,:,2)), sum(sfz(:,:,:,:,:,1)-sfz(:,:,:,:,:,2))
+c            print *,' sumcheck sfz up-down=',sum(sfz(:,:,:,:,:,:)),sum(abs(sfz(:,:,:,:,:,:)))
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$cc This is original version for readin sigm--->ohrs or so are used in hambls
-c$$$cc rdsigm2+seneinterp is equivalent with rdsigm.
-c$$$c --- original
-c$$$C ... Read and store self-energy addition to LDA potential
-c$$$C     Read lwsig: special modes that write sig, Z to disk.
-c$$$         lwsig = 0
-c$$$         if (mod(lrsig,10) .ne. 0) then
-c$$$C       Real-space range
-c$$$         rsrnge = dgets('ham rsrnge',sham)
-c$$$         ifi = 1
-c$$$         if (procid .eq. master) ifi = fopna('sigm',-1,4)
-c$$$         if (ldim .ne. ndham) then !june2009 takao
-c$$$           write(6,*)"ldim(dim of lmto)  ndham(max of ham dimension)=",ldim,ndham
-c$$$           write(6,*)"go to rdsigm for PMT mode..."
-c$$$           call rx('rdsigm not ready for PW basis')
-c$$$         endif
-c$$$         call rdsigm(lrsig,nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,lwsig)
-c$$$         if (lwsig .ne. 0) then
-c$$$          lrout = 0
-c$$$          lfrce = 0
-c$$$          lwtkb = 0
-c$$$          call rxx(plbnd.ne.0,'incompatible options, lwsig and plbnd')
-c$$$         endif
-c$$$         call fclose(ifi)
-c$$$         call phmbl3(1,0,0,0,0,0,0,0)
-c$$$         endif
-c$$$         print *,'lwsig=',lwsig
+c$$$  cc This is original version for readin sigm--->ohrs or so are used in hambls
+c$$$  cc rdsigm2+seneinterp is equivalent with rdsigm.
+c$$$  c --- original
+c$$$  C ... Read and store self-energy addition to LDA potential
+c$$$  C     Read lwsig: special modes that write sig, Z to disk.
+c$$$  lwsig = 0
+c$$$  if (mod(lrsig,10) .ne. 0) then
+c$$$  C       Real-space range
+c$$$  rsrnge = dgets('ham rsrnge',sham)
+c$$$  ifi = 1
+c$$$  if (procid .eq. master) ifi = fopna('sigm',-1,4)
+c$$$  if (ldim .ne. ndham) then !june2009 takao
+c$$$  write(6,*)"ldim(dim of lmto)  ndham(max of ham dimension)=",ldim,ndham
+c$$$  write(6,*)"go to rdsigm for PMT mode..."
+c$$$  call rx('rdsigm not ready for PW basis')
+c$$$  endif
+c$$$  call rdsigm(lrsig,nbas,nsp,ndham,slat,sham,sbz,ifi,rsrnge,lwsig)
+c$$$  if (lwsig .ne. 0) then
+c$$$  lrout = 0
+c$$$  lfrce = 0
+c$$$  lwtkb = 0
+c$$$  call rxx(plbnd.ne.0,'incompatible options, lwsig and plbnd')
+c$$$  endif
+c$$$  call fclose(ifi)
+c$$$  call phmbl3(1,0,0,0,0,0,0,0)
+c$$$  endif
+c$$$  print *,'lwsig=',lwsig
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c
-c --- pair-table and weight generator
-c      nknknk = nk1*nk2*nk3
-c      allocate(npair(nbas,nbas),range(nbas,nbas),pos(3,nbas))
-c      call upack2('lat opos',slat,opos,0)
-c      call dcopy(nbas*3,w(opos),1,pos,1)
-c      call pairtakao(1,pos,nbas,plat,nknknk,npair, npairmx,range) !,nlat,qwgt)
-c      allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas))
-c      call pairtakao(2,pos,nbas,plat,nknknk,npair, npairmx,range, nlat,qwgt)
-c      deallocate(range)
-c
-        allocate(npair(nbas,nbas),pos(3,nbas))
-        call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
-        npairmx=nk1*nk2*nk3*2
-        do
-          npairmx= npairmx + nk1*nk2*nk3*.5
-          allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
-          call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
-          if(ok) exit
-          deallocate( nlat, qwgt )
-        enddo
-        deallocate(pos,npair)
-        print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
+c     
+c     --- pair-table and weight generator
+c     nknknk = nk1*nk2*nk3
+c     allocate(npair(nbas,nbas),range(nbas,nbas),pos(3,nbas))
+c     call upack2('lat opos',slat,opos,0)
+c     call dcopy(nbas*3,w(opos),1,pos,1)
+c     call pairtakao(1,pos,nbas,plat,nknknk,npair, npairmx,range) !,nlat,qwgt)
+c     allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas))
+c     call pairtakao(2,pos,nbas,plat,nknknk,npair, npairmx,range, nlat,qwgt)
+c     deallocate(range)
+c     
+            allocate(npair(nbas,nbas),pos(3,nbas))
+            call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
+            npairmx=nk1*nk2*nk3*2
+            do
+               npairmx= npairmx + nk1*nk2*nk3*.5
+               allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
+               call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
+               if(ok) exit
+               deallocate( nlat, qwgt )
+            enddo
+            deallocate(pos,npair)
+            print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
 
-!! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
-!! Aug2012  newsigmasw()=F is the current version.
-!! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
-        if(.not.newsigmasw()) then 
-          allocate( sfzx(nk1,nk2,nk3,ndimsig,ndimsig,nsp) ) 
-          sfzx=sfz
-          if (procid .eq. master) ifi = fopna('sigm',-1,4)
-          ifi = fopna('sigm',-1,4)
-!! note that sigm file is read again, and compared with FFT-sfzx.
-          call seneinterp(nbas,nsp,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
-     &    nk1,nk2,nk3,sfzx) !,qp,isp,sene)
-          call fclose(ifi)
-          deallocate(sfzx,sfz)
-        endif
-        siginit=.false.
-        deallocate(qsmesh,nlat,qwgt)
-       endif ! procid==master
+!     ! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
+!     ! Aug2012  newsigmasw()=F is the current version.
+!     ! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
+            if(.not.newsigmasw()) then 
+               allocate( sfzx(nk1,nk2,nk3,ndimsig,ndimsig,nsp) ) 
+               sfzx=sfz
+               if (procid .eq. master) ifi = fopna('sigm',-1,4)
+               ifi = fopna('sigm',-1,4)
+!     ! note that sigm file is read again, and compared with FFT-sfzx.
+               call seneinterp(nbas,nsp,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
+     &              nk1,nk2,nk3,sfzx) !,qp,isp,sene)
+               call fclose(ifi)
+               deallocate(sfzx,sfz)
+            endif
+            deallocate(qsmesh,nlat,qwgt)
+         endif                  ! procid==master
 
 #ifdef MPIK
-!! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
-      if(procid==master) then
-        nsizeohrs  = size( sham%rv_a_ohrs )
-        nsizeoiaxs = size( sham%iv_a_oiaxs )
-        nsizeontabs= size(sham%iv_a_ontabs)
-        noqsig = size(sham%rv_p_oqsig)
-c        print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
-      endif
-      call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
-      call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
-      call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
-      call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
-      call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
-      if(procid/=master) then
-c         print *,' allocate procid=',procid
-        if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
-        allocate( sham%rv_a_ohrs(nsizeohrs) )
-        if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
-        allocate( sham%iv_a_oiaxs(nsizeoiaxs))       
-        if(allocated(sham%iv_a_ontabs)) deallocate(sham%iv_a_ontabs)
-        allocate( sham%iv_a_ontabs(nsizeontabs))       
-        if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
-        allocate(sham%rv_p_oqsig(noqsig))
-      endif 
-c      print *,' m1111 procid=',procid
-      call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
-      call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
-      call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
-      call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','ontabs')
-c      print *,' m2222 procid=',procid
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$         print *,'wwwwww 111111111b ix99 procid',ix99,procid,siginit
+c$$$         if(ix99==2) then
+c$$$            call mpi_barrier(MPI_comm_world,ierr)
+c$$$            call mpi_finalize(ierr)
+c$$$            stop 'xxxxxxxxxxxxxb'
+c$$$         endif
+c$$$cccccccccccccccccccccccccccccccccccccccccccccc
+!     ! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
+         if(procid==master) then
+            nsizeohrs  = size( sham%rv_a_ohrs )
+            nsizeoiaxs = size( sham%iv_a_oiaxs )
+            nsizeontabs= size(sham%iv_a_ontabs)
+            noqsig = size(sham%rv_p_oqsig)
+c     print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
+         endif
+         call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
+         call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
+         call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
+         call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
+         call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
+         if(procid/=master) then
+c     print *,' allocate procid=',procid
+            if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
+            allocate( sham%rv_a_ohrs(nsizeohrs) )
+            if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
+            allocate( sham%iv_a_oiaxs(nsizeoiaxs))       
+            if(allocated(sham%iv_a_ontabs)) deallocate(sham%iv_a_ontabs)
+            allocate( sham%iv_a_ontabs(nsizeontabs))       
+            if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
+            allocate(sham%rv_p_oqsig(noqsig))
+         endif 
+c     print *,' m1111 procid=',procid
+         call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
+         call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
+         call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
+         call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','ontabs')
+c     print *,' m2222 procid=',procid
 #endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      endif !end of sigmamode if
-c      print *,' wwwwwwww 11111111',procid
-c      call mpi_barrier(MPI_COMM_WORLD,ierr) 
-c      call mpi_finalize(ierr)
-c      stop ' wwwwwwwwwww'
+         siginit=.false.
+      endif                     !end of sigmamode if
+
+
 
 !! == GW driver must be after rdsigm2 for sigm mode ==
 !! lmfgw-MPIK does not make sense "just parelell do 
@@ -2094,7 +2099,7 @@ c$$$              do i=10,ndimhx
 c$$$                 hamm(i,i,:)=1d0
 c$$$              enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
-              print *,' goto zhev_tk2 nmx=',nmx
+c              print *,' goto zhev_tk2 nmx=',nmx
               call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
      .          evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
@@ -2321,6 +2326,7 @@ c    .          , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl
                 !Nov25 2010 nev should contain calculated number of eigenvectors.
      .          , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
      .          , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
+ccc                print *,'end of addrbl sumcheck srtout_zv=',sum(abs(srout_zv))
 C          print 399,iq,frc(3,1),frc(3,1)-dum
 C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
               endif
@@ -2408,7 +2414,6 @@ c      call mpi_finalize(ierr)
 c      stop 'xxxxxxxxxxxxxx BBBBB'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
 c takao
 cccccccccccccccccccccccccc
 ctakaox
@@ -2467,6 +2472,7 @@ C     You can't do this until you have all the evals.
       call info0(20,0,-1,' ... Sharing data between processes...')
       sttime = MPI_WTIME()
 
+
 C     Share bands among all processors
       call xmpbnd(kpproc,ndham,nkp,nsp,evlall)
 c      if (epsovl .ne. 0) then
@@ -2486,6 +2492,7 @@ ctakao
       call mpi_barrier(MPI_comm_world,ierr)
       write(*,*)'kino afeter mpibc2 nevls'
 #endif
+
 
 ckino 05Feb09, use kpproc later, move it.
 c      deallocate(kpproc, stat=ierr)
@@ -2508,12 +2515,9 @@ Changenglob        nkaph = nglob('nkaph')
         nkaph = globalvariables%nkaph
         do  ib = 1, nbas
           is = int(ssite(ib)%spec)
-
-
           lmxa=sspec(is)%lmxa
           lmxh=sspec(is)%lmxb
           kmax=sspec(is)%kmxt
-
           nlma = (lmxa+1)**2
           nlmh = (lmxh+1)**2
           if (lmxa .gt. -1) then
@@ -2523,7 +2527,6 @@ Changenglob        nkaph = nglob('nkaph')
             do  i = 1, 3
               call mpibc2 ( sv_p_oqkkl( i , ib )%v , nelt ( i ) * numq * nsp 
      .         * nspc , 4 , mlog , 'bndfp' , 'qkkl' )
-
 ctakao March1-2009
               if ( lekkl .eq. 1 ) call mpibc2 ( sv_p_oeqkkl( i , ib )%v , nelt 
      .         ( i ) * numq * nsp * nspc , 4 , mlog , 'bndfp' , 'eqkkl' )
@@ -2531,6 +2534,7 @@ ctakao March1-2009
             enddo
           endif
         enddo
+
 C     Allreduce DOS, forces, dmatu, orbtm
         if ( ndos .gt. 0 ) call mpibc2 ( dos_rv , ndos * 2 * nsp , 
      .  4 , mlog , 'bndfp' , 'dos' )
@@ -2541,23 +2545,27 @@ C     Allreduce DOS, forces, dmatu, orbtm
      .  call mpibc2(dmatu,nsp*nlibu*(lmaxu*2+1)**2,6,mlog,'bndfp','dmatu')
         if ( lso .ne. 0 .and. lwtkb .ne. - 1 ) call mpibc2 ( orbtm_rv 
      .  , nl * nsp * nbas , 4 , mlog , 'bndfp' , 'orbtm' )
-
       endif
-      if (lpdiag .eq. 2 .and. plbnd .eq. 0) then
 
+!! eterms are alwasy broadcasted. comment out if conditions jan2012
+c      if (lpdiag .eq. 2 .and. plbnd .eq. 0) then
         i_copy_size=size(sham%eterms)
         call dcopy(i_copy_size,sham%eterms,1,eterms,1)
-
         call mpibc2(eterms(19),1,4,mlog,'bndfp','rhosig')
-
-        i_copy_size=size(sham%eterms)
         call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+c      endif
+ccccccccccccccccccccccccccccccccccccccccccccccc
+c      print *,'wwwwww 22222222c ix99 procid',ix99,procid,siginit,plbnd,lpdiag
+c      call mpi_barrier(MPI_comm_world,ierr)
+c      call mpi_finalize(ierr)
+cccccccccccccccccccccccccccccccccccccccccccccc
 
-      endif
+
 
       entime = MPI_WTIME()
       call info2(20,0,0,' MPI broadcast took %;1d sec',
      .(entime-sttime),0)
+
 
 C     Write bands in bands-plotting case: loop over qp getting evals from array
       if (plbnd .ne. 0) then
@@ -3014,8 +3022,6 @@ c           call rlse(oqp) --->wrong rlse. Break some arrays
 
         endif
       endif
-
-
       if( debug) print *, 'tttttttttt 9999999999999999999 7'
 
 
@@ -3117,26 +3123,17 @@ ckino Dec.28.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_r
      .     , spot%sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
      .     srout_zv , fh_rv )
 
-
-
-
-
 C   ... Evaluate KS total energy and output magnetic moment
         eks = 0d0
         if (leks .ge. 1) then
           call togpr()
 c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
+c          print *,'goto mkein procid=',procid
           call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
      .         , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
 ckino Dec.8.2011:       .         , vconst , zv_p_osmpot , srout_zv , sev , sumtv )
 ckino Dec.28.2011:       .         , vconst , spot%zv_p_osmpot , srout_zv , sev , sumtv ) 
      .         , vconst , spot%zv_a_osmpot , srout_zv , sev , sumtv )
-
-
-
-
-
-
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -3156,6 +3153,7 @@ ctakao sep2009
 c          call pshpr(ipr-4)
 Ckino mkpot calls locpot. and locpot calls augmat.
 Ckino augmat calculates sig,tau,ppi.
+c          print *,'goto mkpot procid=',procid
           call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
 ckino Dec.8.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot
 ckino Dec.28.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_p_osmpot 
@@ -3163,11 +3161,6 @@ ckino Dec.28.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orh
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
-
-
-
-
-
 
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -3187,6 +3180,7 @@ c          call poppr()
 c          call pshpr(ipr-20)
 c          print *,'vvv takao goto mkehfk mode2'
           call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
+c          print *,'gogo mkehkf procid=',procid,ipr,eks
           call togpr()
         endif
 
@@ -3216,14 +3210,9 @@ cc1          call dcopy(k1*k2*k3*4,w(osmrho),1,smrhobk,1)
 cc2          call dcopy(k1*k2*k3*2,srout_zv,1,smrhobk,1)
 ccccccccccccccccccccccc
         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2
-ckino Dec.8.2011:       .     ) , qval - qbg , elind , sv_p_orhat1 , sv_p_oorhat , k1 , k2
-ckino Dec.28.2011:       .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_p_oorhat , k1 , k2 
      .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_a_oorhat , k1 , k2
-ckino Dec.8.2011:       .     , k3 , dmxp , srout_zv , zv_p_osmrho )
-ckino Dec.28.2011:       .     , k3 , dmxp , srout_zv , spot%zv_p_osmrho ) 
      .     , k3 , dmxp , srout_zv , spot%zv_a_osmrho )
 ccccccccccccccc
-
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -3339,11 +3328,8 @@ C ... Heap
       call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
      .( procid ) , mpi_double_precision , buf_rv , length , offset 
      ., mpi_double_precision , mpi_comm_world , ierr )
-
       call dcopy ( ndham * nsp * nkp , buf_rv , 1 , eb , 1 )
-
       if (allocated(buf_rv)) deallocate(buf_rv)
-
 
       deallocate(offset, stat=ierr)
       deallocate(length, stat=ierr)

@@ -93,7 +93,7 @@ C ... Program-dependent name and help
 cstart--- check mpi. You can delete this.
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
-      write(*,*) 'mpi: size and id=',nsize,id
+      if(id==0) write(*,*) 'mpi size=',nsize
 cend-----
 #endif
 
@@ -209,7 +209,7 @@ c      call poppr
         call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
         call bin2a(' ',0,0,procid,2,0,20,ext,i)
         ierr = fext(ext(1:i+1))
-        print *,' xxxx file extension: ',procid,ext(1:i+1)
+c        print *,' xxxx file extension: ',procid,ext(1:i+1)
         if (mlog) ierr = fopn('MLOG')
         ierr = fextg(ext)
         call gettime(datim)
@@ -335,7 +335,7 @@ C      call rx('done')
 #endif
 #endif
 C --- Lattice setup ---
-      print *,'goto setcg'
+c      print *,'goto setcg'
       call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 C --- Generate symmetry operations; split species into classes  ---

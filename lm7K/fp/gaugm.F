@@ -256,6 +256,7 @@ C     for now, ppi is complex only if S.O coupling
 C     Spherical part of the smooth potential
         call dpcopy(vsm(1,1,i),vsms,1,nr,y0)
 
+
 C --- Make sig, tau, ppi0 = spherical part of ppi ---
 C     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
         call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2,
@@ -263,6 +264,12 @@ C     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
 C     print *, '!! zero ppi0 (sm), sig(sm)'
 C     ppi0 = 0
 C     sig(1:nf1,1:nf2,0:lmux,i) = 0
+
+cccccccccccccccccccccccccccccccccccccccccccccccc
+!! this means adding kinetic energy for 2nd component (like gauge fixing term).
+!! jan2013takao
+c      tau(:,:,:,i)=0.999999*tau(:,:,:,i)
+cccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
 C     for orbitals constructed out of (u,s)
@@ -285,6 +292,8 @@ C     Symmetrize tau,sig,ppi0 (debugging)
 C     call pvagm4(nf1,lx1,nf2,lx2,tau(1,1,0,i))
 C     call pvagm4(nf1,lx1,nf2,lx2,sig(1,1,0,i))
 C     call pvagm4(nf1,lx1,nf2,lx2,ppi0)
+
+
 
 C --- Contribution to ppi from non-spherical potential ---
         call dpzero(ppi(1,1,1,1,i,1),nf1*nf2*nlx1*nlx2)

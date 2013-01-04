@@ -113,6 +113,16 @@ C ... Heap
       real(8),parameter:: minimumrho=1d-14
       logical::enforce_positive_smrho
 
+      logical:: iprx=.true.
+#if (MPI|MPIK)
+       include 'mpif.h'
+       integer:: procid=0,ier=0
+       integer,parameter::master=0
+       call mpi_comm_rank(mpi_comm_world,procid,ier)
+       iprx=.false.
+       if(procid==master) iprx=.true.
+#endif
+
       stdo = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
@@ -174,12 +184,12 @@ c        if(sss<0d0) then
         enddo
         if(nnn>0) then
 c         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
-          write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
+          if(iprx) write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
           srshift = minimumrho + abs(swmin)
           smrho_w = smrho_w + srshift
-          write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
+          if(iprx) write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
         else
-          write(6,*) 'smvxcm: all smrho_w is positive'
+          if(iprx) write(6,*) 'smvxcm: all smrho_w is positive'
         endif
       endif
 

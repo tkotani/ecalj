@@ -24,158 +24,161 @@ atomlist="""
 ### Aug2012kotani. This is from atomlist.bash in the dimer paper. ###
 ### atom info. atomlist.bash homodimerdistance.bash R= is in angstrome.
 #### Kino's reference values of dimers (angstrome) ### Rare Gas -> in VWN LDA
-H=   " atomz=1@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                        R=0.38@" 
-He=  " atomz=2@ pz='PZ=1.8'@ p='P=2.3'@ eh=-0.1@ eh2=-2@             R=1.17@"  
-Li=  " atomz=3@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=1.37@"        
-Be=  " atomz=4@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=1.22@"        
-B=   " atomz=5@ pz='PZ=1.9'@ p=''@ eh=-0.1@ eh2=-2@                  R=0.77@"      
-C=   " atomz=6@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.66@"       
-N=   " atomz=7@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.55@"      
-O=   " atomz=8@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.61@"      
-F=   " atomz=9@ pz=''@ p=''@ eh=-1@ eh2=-2@                          R=0.71@"      
-Ne=  " atomz=10@ pz='PZ=2.8,2.8'@ p='P=3.3,3.3'@ eh=-0.1@ eh2=-2@  R=1.28@"       
+H=   " atomz=1@ pz=''@ p=''@            eh=-0.1*3@ eh2=-2*2@           R=0.38@" 
+He=  " atomz=2@ pz='PZ=1.8'@ p='P=2.3'@ eh=-0.1*3@ eh2=-2*2@             R=1.17@"  
+Li=  " atomz=3@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=1.37@"        
+Be=  " atomz=4@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=1.22@"        
+B=   " atomz=5@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=0.77@"      
+C=   " atomz=6@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.66@"       
+N=   " atomz=7@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.55@"      
+O=   " atomz=8@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@             R=0.61@"      
+F=   " atomz=9@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.71@"      
+Ne=  " atomz=10@ pz='PZ=2.8,2.8'@ p='P=3.3,3.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.28@"       
 
-Na=  " atomz=11@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1@ eh2=-2@             R=1.55@"                 
-Mg=  " atomz=12@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1@ eh2=-2@             R=1.75@"                 
-Al=  " atomz=13@ pz='PZ=2.9,2.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.25@"
-Si=  " atomz=14@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.15@"
-P=   " atomz=15@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=0.96@"       
-S=   " atomz=16@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=0.97@"       
-Cl=  " atomz=17@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.03@"       
+Na=  " atomz=11@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.55@"                 
+Mg=  " atomz=12@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.75@"                 
+Al=  " atomz=13@ pz='PZ=2.9,2.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.25@"
+Si=  " atomz=14@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=1.15@"
+P=   " atomz=15@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=0.96@"       
+S=   " atomz=16@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=0.97@"       
+Cl=  " atomz=17@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=1.03@"       
 #In the paper we used, 'PZ=13.8,13.8'
-Ar=  " atomz=18@ pz='PZ=3.9,3.9'@ p='P=4.3,4.3'@ eh=-0.1@ eh2=-2@  R=1.72@"       
+Ar=  " atomz=18@ pz='PZ=3.9,3.9'@ p='P=4.3,4.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.72@"       
 
-K=   " atomz=19@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"       
-Ca=  " atomz=20@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
-Sc=  " atomz=21@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@"       
-Ti=  " atomz=22@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.95@"       
-V=   " atomz=23@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.87@"       
-Cr=  " atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.80@"       
-Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@             R=0.82@"       
+K=   " atomz=19@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=2.00@"       
+Ca=  " atomz=20@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=2.08@"       
+Sc=  " atomz=21@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.31@"       
+Ti=  " atomz=22@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.95@"       
+V=   " atomz=23@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.87@"       
+Cr=  " atomz=24@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.80@"       
+Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.82@"       
 
 ##It is stable to use PZ=3.9 instead of PZ=13.9 as for Fe2 dimer
-## however, PZ=0,0,3.9 is better for stable convergence.
+## however, using 3.9 (like PZ=0,0,3.9) is better for stable convergence.
 ## Takao think PZ=13.9 algolism (automatic determination of EH for 3rd MTO)
 ## can introduce some unsystematic behevior.
 ##
-Fe= "  atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
-Co= "  atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.00@"
-Ni= "  atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.06@"
-Cu= "  atomz=29@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.13@"
-Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.60@"
-Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
-Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.21@"
-As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@   R=1.06@"
-Se= "  atomz=34@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.10@"
-Br= "  atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                      R=1.16@"
+Fe= "  atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
+Co= "  atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
+Ni= "  atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.06@"
+Cu= "  atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.13@"
+Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.60@"
+Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.37@"
+Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
+As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
+Se= "  atomz=34@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.10@"
+Br= "  atomz=35@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.16@"
 #In the paper we used, 'PZ=14.8,14.8'
-Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@ R=1.88@"
+Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1*4@ eh2=-2*3@ R=1.88@"
 
 # ##### Fe,Co,Ni works OK June2012. 
 # ##### I needed to add PZ 3s3p core for valence to keep orthogonalization to treat Fe bulk.
 # #####  When we use 'PZ=3.9,3.9,13.9' (13.9 LoMTO for 3d) stops with 
 # #####  Exit -1 : mtchre : failed to match phi'/phi=-5.612 to envelope, l=2.
-# Fe=  " atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-# Co=  " atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-# Ni=  " atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
+# Fe=  " atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.00@"       
+# Co=  " atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.00@"       
+# Ni=  " atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.06@"       
 # ### Fe,Co,Ni good for bulk ###
-# Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"          
-# Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.00@"        
-# Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1@ eh2=-2@                       R=1.06@"        
-
-# ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                              # Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-# Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.00@"       
-# Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.06@"       
+# Fe.2=" atomz=26@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@                       R=1.00@"          
+# Co.2=" atomz=27@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@                       R=1.00@"        
+# Ni.2=" atomz=28@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@                       R=1.06@"        
+#
+# ##### Fe,Co,Ni with PZ are good for dimer calculations (but not for bulk) ###                          #    
+# Fe.3=  " atomz=26@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.00@"       
+# Co.3=  " atomz=27@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.00@"       
+# Ni.3=  " atomz=28@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.06@"       
 # ### PZ=3.9 (local orbital might be more stable than LoMTO)
-# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
+# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.13@"       
 # ### I guess Cu with PZ=3.9,3.9,3.9 is required for solid ###
-# Cu=  " atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-# Zn=  " atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
-# Ga=  " atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
-# Ge=  " atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
-# As=  " atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
+# Cu=  " atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.13@"       
+# Zn=  " atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.60@"       
+# Ga=  " atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.37@"
+# Ge=  " atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@     R=1.21@"
+# As=  " atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@     R=1.06@"
 # #### used for HomoDimer paper ###
-# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-# Cu.3=  " atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.13@"       
-# Zn.2=  " atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.60@"       
-# Ga.2=  " atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@   R=1.37@"
-# Ge.2=  " atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.21@"
-# As.2=  " atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.06@"
+# Cu.2=  " atomz=29@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.13@"       
+# Cu.3=  " atomz=29@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.13@"       
+# Zn.2=  " atomz=30@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.60@"       
+# Ga.2=  " atomz=31@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@   R=1.37@"
+# Ge.2=  " atomz=32@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@     R=1.21@"
+# As.2=  " atomz=33@ pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@     R=1.06@"
 # #Se.2 is not yet testd. probably better takao2012jun                                                    
-# Se=" atomz=34@                      eh=-1@ eh2=-2@     R=1.10@"
-# Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1@ eh2=-2@     R=1.10@"
-# Br=  " atomz=35@ pz=''@ p=''@ eh=-1@ eh2=-2@                         R=1.16@"
-# Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1@ eh2=-2@  R=1.88@"
+# Se=" atomz=34@                      eh=-1*4@ eh2=-2*3@     R=1.10@"
+# Se.2=" atomz=34@ pz='PZ=0,0, 3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@     R=1.10@"
+# Br=  " atomz=35@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=1.16@"
+# Kr=  " atomz=36@ pz='PZ=14.8,14.8'@ p='P=5.3,5.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.88@"
+
 
 ######## These are given in a simple guess. Reference radius are  ###########
-Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.00@"
+Rb  =" atomz=37@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
-Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=2.08@"       
-Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1@ eh2=-2@             R=1.31@" (same R with Sc) OK???
-Zr  =" atomz=40@ R=?(not given yet)@"
-Nb  =" atomz=41@ R=?(not given yet)@" 
-Mo  =" atomz=42@ R=?(not given yet)@" 
-Tc  =" atomz=43@ R=?(not given yet)@" 
-Ru  =" atomz=44@ R=?(not given yet)@" 
-Rh  =" atomz=45@ R=?(not given yet)@" 
-Pd  =" atomz=46@ R=?(not given yet)@" 
-Ag  =" atomz=47@ R=?(not given yet)@" 
-Cd  =" atomz=48@ R=?(not given yet)@" 
-In= "  atomz=49@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1@ eh2=-2@ R=1.37@"
-Sn  =" atomz=50@ R=?(not given yet)@" 
-Sb  =" atomz=51@ R=?(not given yet)@" 
-Te  =" atomz=52@ R=?(not given yet)@" 
-I   =" atomz=53@ R=?(not given yet)@" 
-Xe  =" atomz=54@ R=?(not given yet)@" 
-Cs  =" atomz=55@ R=?(not given yet)@" 
-Ba  =" atomz=56@ R=?(not given yet)@" 
-La  =" atomz=57@ pz='PZ=5.9,5.9'@ p=''@ eh=-0.1@ eh2=-2@  R=1.6@" ( R is just given for test) 
-Ce  =" atomz=58@ R=?(not given yet)@" 
-Pr  =" atomz=59@ R=?(not given yet)@" 
-Nd  =" atomz=60@ R=?(not given yet)@" 
-Pm  =" atomz=61@ R=?(not given yet)@" 
-Sm  =" atomz=62@ R=?(not given yet)@" 
-Eu  =" atomz=63@ R=?(not given yet)@" 
-Gd  =" atomz=64@ R=?(not given yet)@" 
-Tb  =" atomz=65@ R=?(not given yet)@" 
-Dy  =" atomz=66@ R=?(not given yet)@" 
-Ho  =" atomz=67@ R=?(not given yet)@" 
-Er  =" atomz=68@ R=?(not given yet)@" 
-Tm  =" atomz=69@ R=?(not given yet)@" 
-Yb  =" atomz=70@ R=?(not given yet)@" 
-Lu  =" atomz=71@ R=?(not given yet)@" 
-Hf  =" atomz=72@ R=?(not given yet)@" 
-Ta  =" atomz=73@ R=?(not given yet)@" 
-W   =" atomz=74@ R=?(not given yet)@" 
-Re  =" atomz=75@ R=?(not given yet)@" 
-Os  =" atomz=76@ R=?(not given yet)@" 
-Ir  =" atomz=77@ R=?(not given yet)@" 
-Pt  =" atomz=78@ R=?(not given yet)@" 
-Au  =" atomz=79@ R=?(not given yet)@" 
-Hg  =" atomz=80@ R=?(not given yet)@" 
-Tl  =" atomz=81@ R=?(not given yet)@" 
-Pb  =" atomz=82@ R=?(not given yet)@" 
-Bi  =" atomz=83@ R=?(not given yet)@" 
-Po  =" atomz=84@ R=?(not given yet)@" 
-At  =" atomz=85@ R=?(not given yet)@" 
-Rn  =" atomz=86@ R=?(not given yet)@" 
-Fr  =" atomz=87@ R=?(not given yet)@" 
-Ra  =" atomz=88@ R=?(not given yet)@" 
-Ac  =" atomz=89@ R=?(not given yet)@" 
-Th  =" atomz=90@ R=?(not given yet)@" 
-Pa  =" atomz=91@ R=?(not given yet)@" 
-U   =" atomz=92@ R=?(not given yet)@" 
-Np  =" atomz=93@ R=?(not given yet)@" 
-Pu  =" atomz=94@ R=?(not given yet)@" 
-Am  =" atomz=95@ R=?(not given yet)@" 
-Cm  =" atomz=96@ R=?(not given yet)@" 
-Bk  =" atomz=97@ R=?(not given yet)@" 
-Cf  =" atomz=98@ R=?(not given yet)@"
-Es  =" atomz=99@ R=?(not given yet)@"
-Fm  =" atomz=100@ R=?(not given yet)@"
-Md  =" atomz=101@ R=?(not given yet)@"
-No  =" atomz=102@ R=?(not given yet)@"
-Lr  =" atomz=103@ R=?(not given yet)@"
+Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.08@"       
+Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
+Zr  =" atomz=40@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@"
+Nb  =" atomz=41@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@" 
+Mo  =" atomz=42@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@" 
+Tc  =" atomz=43@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@" 
+Ru  =" atomz=44@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Rh  =" atomz=45@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Pd  =" atomz=46@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Ag  =" atomz=47@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Cd  =" atomz=48@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+In= "  atomz=49@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.37@"
+Sn  =" atomz=50@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Sb  =" atomz=51@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Te  =" atomz=52@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+I   =" atomz=53@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Xe  =" atomz=54@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Cs  =" atomz=55@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Ba  =" atomz=56@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+La  =" atomz=57@ pz='PZ=5.9,5.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
+
+Ce  =" atomz=58@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pr  =" atomz=59@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Nd  =" atomz=60@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pm  =" atomz=61@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Sm  =" atomz=62@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Eu  =" atomz=63@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Gd  =" atomz=64@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tb  =" atomz=65@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Dy  =" atomz=66@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ho  =" atomz=67@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Er  =" atomz=68@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tm  =" atomz=69@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Yb  =" atomz=70@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Lu  =" atomz=71@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hf  =" atomz=72@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ta  =" atomz=73@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+W   =" atomz=74@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Re  =" atomz=75@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pb  =" atomz=82@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bi  =" atomz=83@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Po  =" atomz=84@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+At  =" atomz=85@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Rn  =" atomz=86@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Fr  =" atomz=87@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ra  =" atomz=88@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ac  =" atomz=89@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Th  =" atomz=90@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pa  =" atomz=91@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+U   =" atomz=92@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Np  =" atomz=93@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pu  =" atomz=94@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Am  =" atomz=95@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cm  =" atomz=96@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bk  =" atomz=97@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cf  =" atomz=98@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+Es  =" atomz=99@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+Fm  =" atomz=100@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+Md  =" atomz=101@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+No  =" atomz=102@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+Lr  =" atomz=103@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 """
 
 #---------------------------------------------------
@@ -198,7 +201,7 @@ def manip_argset(argset):
     showhelp=0
     metali=3
     fsmom_val=0.0
-    touchingratio=1.0 #default value was -1.0 
+    touchingratio=.95 #default value was -1.0 
     eh1set=0
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
@@ -414,7 +417,7 @@ def getdataa2(aaa,key):
 #===============================================================================
 #          MAIN 
 #===============================================================================
-r_mul_val=0.9
+#r_mul_val=0.9
 xcfun_val="103"
 nk_val="4"
 
@@ -633,7 +636,7 @@ if(rlmchk==1):
  	xx=re.split(' *',i)
  	#print xx
  	#rdic[xx[0]]=xx[1]
- 	rdic[xx[0]]= string.atof(xx[1])*string.atof(touchingratio) #r_mul_val)
+ 	rdic[xx[0]]= string.atof(xx[1]) #*string.atof(touchingratio) #r_mul_val)
  	rdic[xx[0]]= str(rdic[xx[0]])
 
 #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
@@ -683,24 +686,29 @@ for ispec in uniq(sitename):
         print 'ERROR: R are not set. need bug fix'
         sys.exit(-1)
 
-
     try:    
-        eh1value = getdataa( dicatom[speckey],'eh=')
-        eh2value= getdataa( dicatom[speckey],'eh2=')
+        eh1data= getdataa( dicatom[speckey],'eh=')
+        eh1value= eh1data.split('*')[0]+' '
+        eh1count= string.atoi(eh1data.split('*')[1])
+
+        eh2data= getdataa( dicatom[speckey],'eh2=')
+        eh2value= eh2data.split('*')[0]+' '
+        eh2count= string.atoi(eh2data.split('*')[1])
+
         if eh1set==1: eh1value='-1 '
         rsize= '%6.2f' % rrr
         rsizeh= '%6.2f' % rrrh
         aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
-        aaa=aaa+ '      EH='+  eh1value*4
-        aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*4+'\n'
-        aaa=aaa+ '      EH2='+ eh2value*4
-        aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*4+'\n' \
+        aaa=aaa+ '      EH='+  eh1value*eh1count
+        aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*eh1count+'\n'
+        aaa=aaa+ '      EH2='+ eh2value*eh2count
+        aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*eh2count+'\n' \
 			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
-                            +'      #MMOM=\n' \
+                            +'      #MMOM=0 0 1 0 #s,p,d,f initial condition\n' \
                             +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
-                            +'      #Q= \n' \
+                            +'      #Q=0 0.5 1 0 #s,p,d,f initial condition \n' \
                             +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
     except:
         print 'ERROR this is probably because we have not yet set default values in ctrlgen2.py for a spec'
@@ -760,7 +768,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=4 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0\n"
+tail = tail+ "% const pwemax=4 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0 xcfun="+xcfun_val+"\n"
 tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
@@ -873,7 +881,7 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # It shows required gmax for given tolelance HAM_TOL.
       REL=T     # T:Scaler relativistic, F:non rela.
 """
-tail = tail + "     XCFUN=" + xcfun_val + """
+tail = tail + "      XCFUN={xcfun}"+ """
           # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
@@ -904,7 +912,7 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
       SIGP[MODE=3 EMAX=2.5]
-      #RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
+      RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
       #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
 
       SO={so}   #default = 0 

@@ -189,7 +189,7 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
               read(ifiese,*,err=898) sigiir,ispx !error means we use sigii for isp=1 for isp=2 !sep2012takao
               sigii=sigiir
               siglin=sigiir
-              if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
+              if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")' ESEAVR: ',sigii,ispx
               if(isp==ispx) goto 898
             enddo
             stop 'psigd: can not find ESEAVR for given isp'

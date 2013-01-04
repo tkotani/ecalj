@@ -1,11 +1,6 @@
       subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
-
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Evaluate the valence kinetic energy
@@ -201,6 +196,15 @@ C ... Heap
 #if DEBUG
       integer fopna
 #endif
+#if (MPI|MPIK)
+c2012Sep02 kino, add for 
+       include 'mpif.h'
+       integer:: procid=0,ier=0
+       integer,parameter::master=0
+       call mpi_comm_rank(mpi_comm_world,procid,ier)
+       iprx=.false.
+       if(procid==master) iprx=.true.
+#endif
 
       stdo = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
@@ -232,7 +236,9 @@ C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
 
 C --- Integral n0(out) (Ves0~ + Vxc0), contribution from mesh ---
 C     Note that it does not include the term (n0~-n0) Ves0~
+c      print *,' mkekin: procid sumsmpot sumsmrho sum1 sum2=',procid,sum(abs(smpot)),sum(abs(smrho)),sum1,sum2
       call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smpot,smrho,sum1,sum2)
+
       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,qum1,qum2)
       srmesh = sum1 + vconst*qum1
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -248,12 +254,9 @@ C --- Integral rhout*veff, part from augmentation ---
       sraugm = 0d0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
-
         lmxa=sspec(is)%lmxa
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
-
         if (lmxa .eq. -1) goto 10
 
 ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab
@@ -313,16 +316,6 @@ ckino Jan.04.2012:       .              , lso , OQHH , OQHP , rv_p_oqpp , nsp , 
      .              , sumq , sumh )
 
 
-
-
-
-
-
-
-
-
-
-
 C       Add site augmentation contribution to rhout * (ham - ke)
         sraugm = sraugm + sumh - sumt
    10   continue
@@ -330,8 +323,8 @@ C       Add site augmentation contribution to rhout * (ham - ke)
 
       srhov = srmesh + sraugm
       sumtv = sumev - srhov
-      if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
-  340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
+      if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv,procid
+  340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6,' procid=',i5)
 
       end subroutine mkekin
 

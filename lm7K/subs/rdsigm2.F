@@ -534,14 +534,14 @@ ckino end
       allocate(ipq_iv(mxkp))
       allocate(wgt_rv(abs(-mxkp)))
       if (-mxkp<0) wgt_rv(:)=0.0d0
-      print *,'seneinterp: debug HHHHH'
+c      print *,'seneinterp: debug HHHHH'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, sham%rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
 ckino Dec.22.2011:       .  , 0 , ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
 ckino Dec.22.2011:         sham%rv_p_oqsig => rv_p_oqsig
 ckino Dec.22.2011:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og
 ckino Dec.28.2011:          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_p_osymgr
-      print *,'seneinterp: debug IIIIIIII'
+c      print *,'seneinterp: debug IIIIIIII'
       sham%nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
@@ -1447,7 +1447,7 @@ Changenglob          nl = nglob('nl')
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
           do  iq1 = 1, nqps
             read(ifis) qp !,  eseavr !june2009  add eseavr
-            print *,'readin sigm qp isp ndimsig_r=',qp,isp,ndimsig_r
+c            print *,'readin sigm qp isp ndimsig_r=',qp,isp,ndimsig_r
 
             if(debugmode()>0) print *,' uuu2 iq1=',iq1 !,eseavr
             call dpscop(qp,tmp,3,1,1,1d0)

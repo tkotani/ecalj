@@ -79,6 +79,7 @@ C --- Taken from ASW ---
 
       if (lxcf .gt. 1) goto 200
 C --- Vosko-Ceperley-Alder, spin polarized case ---
+      if(i==1) write(*,*)'vwn isp=2' !this is to avoid problem for ifort (probably optimization bug)
       if (nsp .eq. 2) then
         do  i = 1, n
           if (rho(i) .gt. rmin) then

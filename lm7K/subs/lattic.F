@@ -59,7 +59,7 @@ ckino     .redfrr,spackv,upack,upack1,upack2
 ckino del defps2,defrr,pack1,pack5,redfrr,spackv,upack,upack1,upack2
       external daxpy,dcopy,lattc,lattdf,rdistn
 
-      print *,'lattic:'
+c      print *,'lattic:'
 C     call info(30,1,0,' Real and recip space lattices:',0,0)
 
       alat=slat%alat

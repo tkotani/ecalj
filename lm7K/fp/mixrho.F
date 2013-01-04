@@ -918,7 +918,7 @@ C     Add constant to smrho to force charge neutrality
       summ = 0
 
 cccccccccccccccccccccccccc
-      write(6,*)'smrho qcell: add correction to smrho=',qcell,xx
+      write(6,"(a,d13.5,d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
@@ -994,7 +994,6 @@ c       smrho(i1,i2,i3) = xxc
         enddo
       enddo
 
-
 cccccccccccccccccccccccccccccccccccc
       do isp=1,nsp
         nnnx = 0
@@ -1016,10 +1015,10 @@ c            smrho(i1,i2,i3,isp)=minimumrho
           enddo
         enddo
         if(nnnx>0) then
-          write(6,*) 'mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
+          write(6,"(a,2i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
 c          print *,'enforce smrho >',minimumrho
         else
-          write(6,*) 'mixrho: all smrho is positive for isp=',isp
+          write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
         endif
       enddo
 C$$$      nnnew=0

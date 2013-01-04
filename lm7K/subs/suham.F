@@ -55,12 +55,15 @@ c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
       integer::nkt
+      logical:: iprx=.true.
 #if (MPI|MPIK)
 c2012Sep02 kino, add for 
        include 'mpif.h'
        integer:: procid=0,ier=0
        integer,parameter::master=0
        call mpi_comm_rank(mpi_comm_world,procid,ier)
+       iprx=.false.
+       if(procid==master) iprx=.true.
 #endif
 
 !!--- setup ---
@@ -71,8 +74,8 @@ c2012Sep02 kino, add for
       qlat=slat%qlat
       alat=slat%alat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
-      write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
-      write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
+      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!--- MTO part ---
 !!---- obtain norbmto, lxx,kxx ----
       norbmto=0
@@ -109,7 +112,7 @@ c2012Sep02 kino, add for
           nini = ndimham+ 1
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
           ibasindex(nini:ndimham) = ib
-          write(6,"(3i3,2x,2i5,3x,a)") 
+          if(iprx)write(6,"(3i3,2x,2i5,3x,a)") 
      &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
         enddo
       enddo
@@ -158,12 +161,12 @@ c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
-      print *,' end of rotdlmm'
+c      print *,' end of rotdlmm'
 
 
 !! no GW-related part
       if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
-        print *,'gen_hamindex: no GW related part. not readin QGpsi'
+        if(iprx) print *,'gen_hamindex: no GW related part. not readin QGpsi'
         return
       endif
 
@@ -210,8 +213,8 @@ c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxx
       allocate( qtti(3,nqi), qq(3,nqtt),iqtt(nqtt) )
 c      allocate( ngvecp(3,ngpmx,nqnum))
 c      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
-      print *
-      print *,'gen_hamindex: Readin QGpsi. nqnum=',nqnum
+      if(iprx) print *
+      if(iprx) print *,'gen_hamindex: Readin QGpsi. nqnum=',nqnum
       iqi=0
       do  iq = 1, nqnum
         read(ifiqg)  qxx,ngp,irr  ! q, and number of G vectors for
@@ -226,7 +229,7 @@ c        read(ifiqg) ngvecp(1:3,1:ngp,iq), ngvecprev(-imx:imx,-imx:imx,-imx:imx,
 cc comment out aug2012takao
 cc        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
 cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
-        write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
+        if(iprx)write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
       enddo
       call fclr(' ',ifiqg) !close file
 
@@ -257,7 +260,7 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
             endif
           enddo
         enddo
-        write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
+        if(iprx)write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
      & ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
         call rx('gen_hamindex: qtarget can not found by SYMOPS')
  2012   continue
@@ -287,7 +290,7 @@ c     pwemin=sham%pwemin
 
 !! for APW rotation.
 C ... Get igv2(3,iapw,ikt). pwmode>=10 only
-      print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax !pwemin
+      if(iprx) print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
       allocate( napwk(nkt))
 !! takao is 
@@ -342,7 +345,7 @@ C ... Reverse table of igv2 --->igv2rev
         enddo
       enddo
       call writehamindex() !sep2012takao
-      print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+      if(iprx) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
       end subroutine gen_hamindex
 
 
@@ -1045,7 +1048,6 @@ c---------------------------------------------------
 
 
       subroutine rotdlmm(symops,ng,nl ,dlmm)
-
 c- Generate rotation matrix D^l_{m,m'} for L-representaiton, corresponding
 c  to points group operations.
 Ci symops(9,ng),ng; point ops.
@@ -1065,7 +1067,7 @@ c-----------------------------------------------------------------
      &,dum(2)
       parameter(Img=(0d0,1d0))
       integer:: debugmode
-      print *; print *,' ROTDLMM:'
+c      print *; print *,' ROTDLMM:'
       do 10 ig =1,ng
         do 20 i=1,3
         do 20 j=1,3

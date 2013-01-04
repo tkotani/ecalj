@@ -1192,7 +1192,7 @@ ckino Jan.04.2012:          v_sspec(j)%lmxpb=lmxpb(j)
 C       pack mxcst(j)
           i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 ccccccccccccccccccccccc
-          print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
+c          print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
 c        i=0
 ccccccccccccccccccccccc
 C       pack orbp(j)

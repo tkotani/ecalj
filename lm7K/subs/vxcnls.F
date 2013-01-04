@@ -69,7 +69,7 @@ ckino Dec.12.2011 delete drp_drl      real(8),pointer:: drp_drl(:,:) =>NULL()
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical:: newmode=.true.,
-     &  debug=.false.,plotstop=.false.,grpzerotest=.false.
+     &  debug=.false.,plotstop=.false., grpzerotest=.false.
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       real(8),allocatable:: dvxcdgr_dr(:,:,:),nabla_dvxcdgr(:,:,:,:),vxcnlnp(:,:,:)
