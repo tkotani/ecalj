@@ -323,8 +323,8 @@ C       Add site augmentation contribution to rhout * (ham - ke)
 
       srhov = srmesh + sraugm
       sumtv = sumev - srhov
-      if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv,procid
-  340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6,' procid=',i5)
+      if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
+  340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
 
       end subroutine mkekin
 

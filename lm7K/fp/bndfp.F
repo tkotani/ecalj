@@ -216,7 +216,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 #endif
 #if MPIK
 ckino 05Feb09
-      integer:: pidorigin, ndimhx_iq, nev_iq
+      integer:: pidorigin, ndimhx_iq, nev_iq,idx
       integer:: work_mpi(10)  ! use only 1 and 2 now
 #endif
 c#if MPE
@@ -1426,14 +1426,6 @@ c
          endif                  ! procid==master
 
 #ifdef MPIK
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$         print *,'wwwwww 111111111b ix99 procid',ix99,procid,siginit
-c$$$         if(ix99==2) then
-c$$$            call mpi_barrier(MPI_comm_world,ierr)
-c$$$            call mpi_finalize(ierr)
-c$$$            stop 'xxxxxxxxxxxxxb'
-c$$$         endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !     ! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
          if(procid==master) then
             nsizeohrs  = size( sham%rv_a_ohrs )
@@ -1468,12 +1460,11 @@ c     print *,' m2222 procid=',procid
          siginit=.false.
       endif                     !end of sigmamode if
 
-
-
 !! == GW driver must be after rdsigm2 for sigm mode ==
 !! lmfgw-MPIK does not make sense "just parelell do 
 !!   ---> we need job divider. Then we also have to modify 
 !!
+      print *,'procid llmfgw=',procid,llmfgw
       if(llmfgw) then
         nchan=spot%nlma
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
@@ -1827,23 +1818,12 @@ c            print *,' hhhhzzz in  i =',i
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
-c            print *,' hhhhzzz out i =',i
-
-
-c      print *,' wwwwwwww 11111111 xxxxx ',procid
-c      call mpi_finalize(ierr)
-c      stop ' wwwwwwwwwwwqqqqqqqqqqqqzzzzzz'
-
 c        nsmidb = min(nsmidb,ismidb) !????
               if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
-
 ccccccccccccccccccccccccccccccccccc
-c        print *,'xxxxxxxxxxxxxxx AAAAAAAAAAQQQQQQQQQ'
 c        goto 2011
 cccccccccccccccccccccccccccccccccccc
-
-
 C       call zprm('evec, LDA',2,w(os),ndimh,ndimh,ndimh)
 
 cccccccccccccccccc
@@ -2472,7 +2452,6 @@ C     You can't do this until you have all the evals.
       call info0(20,0,-1,' ... Sharing data between processes...')
       sttime = MPI_WTIME()
 
-
 C     Share bands among all processors
       call xmpbnd(kpproc,ndham,nkp,nsp,evlall)
 c      if (epsovl .ne. 0) then
@@ -2493,6 +2472,8 @@ ctakao
       write(*,*)'kino afeter mpibc2 nevls'
 #endif
 
+
+cxxxxxxxxxxxxxxx
 
 ckino 05Feb09, use kpproc later, move it.
 c      deallocate(kpproc, stat=ierr)
@@ -2560,8 +2541,6 @@ c      call mpi_barrier(MPI_comm_world,ierr)
 c      call mpi_finalize(ierr)
 cccccccccccccccccccccccccccccccccccccccccccccc
 
-
-
       entime = MPI_WTIME()
       call info2(20,0,0,' MPI broadcast took %;1d sec',
      .(entime-sttime),0)
@@ -2620,126 +2599,151 @@ ckino                call suqlsw2(nevls(iq,jsp),jsp,i,evl(1,jsp),qp)
         endif
         call rx0('done')
       endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      print *,'wwwwww33333333ix99procid',ix99,procid,siginit,numprocs
+c      print *,'kpproc',kpproc(0:numprocs)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-C     Repeat loop for printout.  Put evals back into local array
+!     !     Repeat loop for printout.  Put evals back into local array
       do  iq = 1, nkp
-        isqp = nsp*(iq-1)
-!        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
-        qp=qplist(:,iq)
-
-c$$$        if(.not.noshorbz()) then
-c$$$          call shorbz(qp,qp,qlat,plat)
-c$$$        endif
-        do  isp = 1, nsp
-          ispc = min(isp,nspc)
-C       jsp=isp in the collinear case; jsp=1 in the noncollinear
-C       Thus jsp should be used in place of isp
-C       isp serves as a flag for the noncollinear case
-          if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
-            jsp = isp
-            if (ispc .eq. 2) jsp = 1
-            call dpscop(evlall,evl(1,jsp),ndhamx,
-     .      1+ndham*(jsp-1+isqp),1,1d0)
-c            if (epsovl .ne. 0) then
-c              call dpscop ( eomin_rv , eomin , 1 , 1 + ( jsp - 1 + isqp
+         isqp = nsp*(iq-1)
+!     call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
+         qp=qplist(:,iq)
+c$$$  if(.not.noshorbz()) then
+c$$$  call shorbz(qp,qp,qlat,plat)
+c$$$  endif
+         do isp = 1, nsp
+            ispc = min(isp,nspc)
+C     jsp=isp in the collinear case; jsp=1 in the noncollinear
+C     Thus jsp should be used in place of isp
+C     isp serves as a flag for the noncollinear case
+            if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
+               jsp = isp
+               if (ispc .eq. 2) jsp = 1
+               call dpscop(evlall,evl(1,jsp),ndhamx, 1+ndham*(jsp-1+isqp),1,1d0)
+c     if (epsovl .ne. 0) then
+c     call dpscop ( eomin_rv , eomin , 1 , 1 + ( jsp - 1 + isqp
 c     .        ) , 1 , 1d0 )
-c            endif
-            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-            call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d',
-     .      iq,nkp,qp,0,0)
-c            if (epsovl .ne. 0) then
-c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g',
-c     .        eomin,0,0,0,0)
-c            endif
-ckino start, set origin  for bcast, 05Feb09
-c        --- use ndimhx_iq and nev_iq below
-c        --- I am afraid that this part can't execute correctly in the case of MPIK.
-c        --- I fix wrong values of ndimhx and nev for iq.
-            pidorigin=0
-            if (kpproc(procid)<=iq .and. iq<= kpproc(procid+1)-1) then
-              pidorigin=procid
-            endif
-c        ---  allreduce
-            call mpibc2(pidorigin,1,2,mlog,'bndfp','pidorigin')
-c        ---  pidorigin node has data
-            if (procid.eq.pidorigin) then
-              work_mpi(1) =  ndimhx
-              work_mpi(2) =  nev
-            endif
-c        ---   bcast
-            call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq')
-            ndimhx_iq = work_mpi(1)
-            nev_iq = work_mpi(2) !1nov2012
+c     endif
+               if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
+               call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d', iq,nkp,qp,0,0)
+c     if (epsovl .ne. 0) then
+c     call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g', eomin,0,0,0,0)
+c     endif
 
-cki this causes SEGV, delete Jul08, 2010
-cki            if (procid.eq.master) then
-cki              call prtev(w(1),ndimhx_iq,evl(1,jsp),nevmx,efmax,nev_iq)
-cki            endif
-cki end
-ckino       call prtev(w(1),ndimhx,evl(1,jsp),nevmx,efmax,nev)
-ckino end
 
-            if (mod(iq,10) .ne. 1) call poppr
-            ebot = dmin1(ebot,evl(1,jsp))
-            i = max(1,nint(qval-qbg)/(3-nspc))
-            evtop = max(evtop,evl(i,jsp))
-            ecbot = min(ecbot,evl(i+1,jsp))
-            if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
-            if (plbnd .eq. 0) then
-              if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
-     .        write (stdl,712) (evl(i,jsp),i=1,nev_iq)
-ckino 05Feb09     .    write (stdl,712) (evl(i,jsp),i=1,nev)
-  712         format('fp evl',8f8.4)
-              if (lwtkb .ne. -1 .and. .not. lwndow) then
-                if (iq .eq. 1 .and. jsp .eq. nsp .and.
-     .          .not. cmdopt('--no-fixef0',11,0,strn)) then
-                  ef00 = ef0
-                  call fixef0(qval-qbg,jsp,1,ndimh,ndham,evl,dosw,ef0)
-                  if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
-     .            lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-                    if (procid .eq. master) call info0(10,1,1,
-     .              ' ... Fermi level reset in second spin'//
-     .              ' channel ... restart band pass')
-                    goto 99
-                  endif
-                endif
-C         Check for cases when nevmx is too small : i=2 => fatal error
-                i = 0
-                if (nevmx.ge.0 .and. lmet .ne. 0) then
-                  dum = evl(max(nev_iq,1),jsp)
-ckino 05Feb09            dum = evl(max(nev,1),jsp)
-C           if (ef0 .ge. dum) i = 2
-                  if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
-                  if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
-                endif
-                if (i .eq. 2) then
-                  call awrit3('%N evl(nev=%i)=%;3d but '//
-     .            'ef0=%;3d ... restart with larger efmax or nevmx',
-     .            ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
-ckino 05Feb09     .        ' ',80,stdo,nev,evl(max(nev,1),jsp),ef0)
-                  call rx('bndfp')
-                endif
+c$$$c     kino start, set origin  for bcast, 05Feb09
+c$$$c     --- use ndimhx_iq and nev_iq below
+c$$$c     --- I am afraid that this part can't execute correctly in the case of MPIK.
+c$$$c     --- I fix wrong values of ndimhx and nev for iq.
+c$$$               pidorigin=0
+c$$$               if (kpproc(procid)<=iq .and. iq<= kpproc(procid+1)-1) then
+c$$$                  pidorigin=procid
+c$$$               endif
+c$$$c     ---  allreduce
+c$$$               call mpibc2(pidorigin,1,2,mlog,'bndfp','pidorigin')
+               pidorigin=-999
+               do idx=0,numprocs-1
+                 if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
+                   pidorigin=idx
+                   exit
+                 endif
+              enddo   
+c              print *,' pidorigin=',iq,pidorigin, procid 
+c     ---  allreduce
+c               print *,' 1111 iq pidorigin procid=',iq,pidorigin,procid
+c               call mpibc2(pidorigin,1,2,mlog,'bndfp','pidorigin')
+c     ---  pidorigin node has data
+              if (procid==pidorigin) then
+                 work_mpi(1) =  ndimhx
+                 work_mpi(2) =  nev
               endif
+c              print *,' 22222 iq pidorigin procid=',iq,pidorigin,procid
+c     ---   bcast
+               call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq')
+               ndimhx_iq = work_mpi(1)
+               nev_iq = work_mpi(2) !1nov2012
+c               print *,'uuuuuuuu ndimhx_iq nev_iq',iq,procid,ndimhx_iq,nev_iq
+
+c     ki this causes SEGV, delete Jul08, 2010
+c     ki            if (procid.eq.master) then
+c     ki              call prtev(w(1),ndimhx_iq,evl(1,jsp),nevmx,efmax,nev_iq)
+c     ki            endif
+c     ki end
+c     kino       call prtev(w(1),ndimhx,evl(1,jsp),nevmx,efmax,nev)
+c     kino end
+
+               if (mod(iq,10) .ne. 1) call poppr
+               ebot = dmin1(ebot,evl(1,jsp))
+               i = max(1,nint(qval-qbg)/(3-nspc))
+               evtop = max(evtop,evl(i,jsp))
+               ecbot = min(ecbot,evl(i+1,jsp))
+               if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
+               if (plbnd .eq. 0) then
+                  if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
+     .                 write (stdl,712) (evl(i,jsp),i=1,nev_iq)
+c     kino 05Feb09     .    write (stdl,712) (evl(i,jsp),i=1,nev)
+ 712              format('fp evl',8f8.4)
+                  if (lwtkb .ne. -1 .and. .not. lwndow) then
+                     if (iq .eq. 1 .and. jsp .eq. nsp .and.
+     .                    .not. cmdopt('--no-fixef0',11,0,strn)) then
+                        ef00 = ef0
+! jan2013takao bug fix for fixef0
+c               print *,'zzzzzzz',iq, procid,jsp,ndimh,ndham
+c                        call fixef0(qval-qbg,jsp,1,ndimh,ndham,evl,dosw,ef0)
+                        call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
+                        if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
+     .                       lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
+                           if (procid .eq. master) call info0(10,1,1,
+     .                          ' ... Fermi level reset in second spin'//
+     .                          ' channel ... restart band pass')
+                           goto 99
+                        endif
+                     endif
+
+C     Check for cases when nevmx is too small : i=2 => fatal error
+                     i = 0
+                     if (nevmx.ge.0 .and. lmet .ne. 0) then
+                        dum = evl(max(nev_iq,1),jsp)
+c     kino 05Feb09            dum = evl(max(nev,1),jsp)
+C     if (ef0 .ge. dum) i = 2
+                        if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
+                        if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
+                     endif
+                     if (i .eq. 2) then
+                        call awrit3('%N evl(nev=%i)=%;3d but '//
+     .                       'ef0=%;3d ... restart with larger efmax or nevmx',
+     .                       ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
+c     kino 05Feb09     .        ' ',80,stdo,nev,evl(max(nev,1),jsp),ef0)
+                        call rx('bndfp')
+                     endif
+                  endif
+               endif
+C     end second loop over isp
             endif
-C end second loop over isp
-          endif
-        enddo
-C end second loop over iq
+         enddo
+C     end second loop over iq
       enddo
-ckino 05Feb09
+c     kino 05Feb09
       if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
 #endif
-ctakao
+c     takao
       deallocate(nevls)
-c###### second loop over qp (parallel k-points mode)
+!     ! == second loop over qp (parallel k-points mode) ==
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccc
+c         if(ix99==2) then
+c            call mpi_barrier(MPI_comm_world,ierr)
+c            call mpi_finalize(ierr)
+c            stop 'xxxxxxxxxxxxxvvvvvvvvvvvv'
+c         endif
+cccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
       if( debug) print *, 'tttttttttt 9999999999999999999 4'
-
-
-
-C     For now, SO by site, not by class
+!!     For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
         allocate(ips_iv(nbas))
 

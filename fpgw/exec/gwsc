@@ -42,8 +42,9 @@ else
   endif
 endif 
 
+
 ##########################################################################
-foreach i2x (0 1)
+foreach i2x (0 1 2)
 foreach i1x (0 1 2 3 4 5 6 7 8 9)
 @ ix = $i2x * 10 + $i1x
 ### itteration loop start #################################################
@@ -69,11 +70,11 @@ echo 1 |$nfpgw/qg4gw           > lqg4gw
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  $TARGET > llmfgw_eigval
+  echo 5 |$nfpgw/lmfgw  $TARGET > llmfgw_eigval
   mv eigval eigmtet
 endif
 
-echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
+echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 set exinfo = $?
 
 

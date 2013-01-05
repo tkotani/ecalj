@@ -58,10 +58,10 @@ Mn=  " atomz=25@ pz='PZ=3.9,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.82@
 ## Takao think PZ=13.9 algolism (automatic determination of EH for 3rd MTO)
 ## can introduce some unsystematic behevior.
 ##
-Fe= "  atomz=26@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
-Co= "  atomz=27@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
-Ni= "  atomz=28@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.06@"
-Cu= "  atomz=29@ pz='PZ=0,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.13@"
+Fe= "  atomz=26@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
+Co= "  atomz=27@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.00@"
+Ni= "  atomz=28@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.06@"
+Cu= "  atomz=29@ pz='PZ=3.9,3.9,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.13@"
 Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.60@"
 Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.37@"
 Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
