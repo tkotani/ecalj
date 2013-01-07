@@ -213,7 +213,7 @@ c     call readin5(ixc,iqxini,iqxend)
       call headver('hx0fp0_sc',ixc)
 
       call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
-      write(6,"(' ScaledGapX0=',f5.3)") sciss
+      write(6,"(' ScaledGapX0=',f8.3)") sciss
 
 !     print *, xt(iqxini), 'to',xt(iqxend); print *, xxt(iqxini,iqxend), 'xxt '
 c     if    (ixc==1) then; write(6,*) ' OK ixc=1. normal mode'
@@ -1745,34 +1745,38 @@ c=======================================================================
 
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
+ccccccccccccccccccccccccccc
+         print *,' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
          if(mpi__size/=1) then
-          do iq=nqibz+1,iqxend
-           iq0 = iq - nqibz
-c           print *,' mpi__ranktab=',iq,mpi__ranktab(iq),mpi__rank
-c           print *,' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
-           if(mpi__ranktab(iq) == mpi__rank) then
-c             print *,' mpi_send iq from',iq,mpi__ranktab(iq)
-c             print *,' send llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
-c             do i=nw_i,nw
-c                write(*,*)'sendxxx',i,llw(i,iq0)
-c             enddo   
-c             print *,' send llwI sum=',sum(abs(llwI(:,iq0))),niw
-             dest=0
-             call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
-             call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
-           elseif(mpi__root) then
-c             print *,' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
-             src=mpi__ranktab(iq)
-             call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
-             call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
-c             do i=nw_i,nw
-c                write(*,*)'recivxxx',i,llw(i,iq0)
-c             enddo   
-c             print *,' recv llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
-c             print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
-           endif
-          enddo  
+            do iq=nqibz+1,iqxend
+               iq0 = iq - nqibz
+c     print *,' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
+               if(mpi__ranktab(iq)/=0) then !jan2012
+               if(mpi__ranktab(iq) == mpi__rank) then
+c     print *,' mpi_send iq from',iq,mpi__ranktab(iq)
+c     print *,' send llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
+c     do i=nw_i,nw
+c     write(*,*)'sendxxx',i,llw(i,iq0)
+c     enddo   
+c     print *,' send llwI sum=',sum(abs(llwI(:,iq0))),niw
+                  dest=0
+                  call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
+                  call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
+               elseif(mpi__root) then
+c     print *,' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
+                  src=mpi__ranktab(iq)
+                  call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
+                  call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
+c     do i=nw_i,nw
+c     write(*,*)'recivxxx',i,llw(i,iq0)
+c     enddo   
+c     print *,' recv llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
+c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
+               endif
+               endif
+            enddo  
          endif
+         print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
 
 
 c commentout block inversion
