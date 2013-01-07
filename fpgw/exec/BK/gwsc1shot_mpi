@@ -14,7 +14,7 @@ if(! -e SEBK) then
 endif
 
 if($# != 3 || $argv[1] != "-np" ) then
-    echo "an example of usage: gwsc -np 4 si"
+    echo "an example of usage: gwsc1shot_mpi -np 4 si"
     exit
 endif
 
@@ -115,7 +115,7 @@ echo 1|$nfpgw/hchknw         >lchknw
 # -- product basis for core
 echo 3|$nfpgw/hbasfp0 >lbasC
 # -- Coulobm matrix
-echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
+echo 3|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
 
 ###################################################
 #mkdir core
@@ -142,12 +142,6 @@ echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc
 echo 1|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
 
 # -- Sergey.F the screened coulom interaction 
-if(-e WVI) then
-  rm -f WVI 
-endif
-if(-e WVR) then
-  rm -f WVR 
-endif
 echo 11|mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc  >lx0
 
 #########################################################
@@ -161,10 +155,19 @@ echo 2|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsc
 # -- Make summary 
 echo 0|$nfpgw/hqpe_sc    >lqpe
 
+
 ### end of itteration loop #########################################################
 cp evec.$TARGET evec_prev_iter
 ln -s -f sigm sigm.$TARGET
 mv SEX* SEC* XC* SEBK
+
+
+#### exit only for a loop
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
+exit
+
+
+
 foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
   if(-e $file) cp $file $file.${ix}run
 end

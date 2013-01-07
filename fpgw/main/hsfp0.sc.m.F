@@ -212,40 +212,36 @@ c     integer:: nbmx
       logical :: selectqp=.false.,diagonly=.false.
       integer:: ret,dest,nnn !,ifiwqfac
 c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
+      character(128) :: ixcc
 c---------------------------------------
-
-      call MPI__Initialize      ! MIZUHO-IR
-
+      call MPI__Initialize()      ! MIZUHO-IR
       hartree=2d0*rydberg()
-
 !     !     mode switch. --------------
       if(cohtest) then
          screen = .true.
          ixc = 2; nz=0
          open(671,file='COH')
-      else
+      elseif(mpi__root) then
          write(6,*) ' --- Choose modes below ------------'
          write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
          write(6,*) '  [option --- (+ QPNT.{number} ?)] '
          write(6,*) ' Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
          write(6,*) ' --- Put number above ! ------------'
-! BEGIN MIZUHO-IR
-         if( mpi__root ) then
-            call readin5(ixc,nz,idummy)
-         end if
-
+         call readin5(ixc,nz,idummy)
          if(ixc>1000) then      !selected QP
             ixc=mod(ixc,1000)
             selectqp=.true.
             diagonly=.true.
          endif
-         call MPI__Broadcast(ixc)
-         call MPI__Broadcast(nz)
-c         call MPI__Broadcast(idummy)
-
-         ! END   MIZUHO-IR
       endif
-      call headver('hsfp0_sc',ixc)
+      call MPI__Broadcast(ixc)
+      call MPI__Broadcast(nz)
+c     call MPI__Broadcast(idummy)
+
+! END   MIZUHO-IR
+      if(mpi__root) call headver('hsfp0_sc',ixc)
+      write(ixcc,"('.mode=',i4.4)")ixc
+      call MPI__consoleout('hsfp0_sc'//trim(ixcc))
       write(6,*) ' ixc nz=',ixc, nz
       if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
 

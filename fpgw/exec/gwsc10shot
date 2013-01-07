@@ -115,7 +115,7 @@ echo 1|$nfpgw/hchknw         >lchknw
 # -- product basis for core
 echo 3|$nfpgw/hbasfp0 >lbasC
 # -- Coulobm matrix
-echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
+echo 3|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
 
 ###################################################
 #mkdir core
@@ -142,11 +142,8 @@ echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc
 echo 1|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
 
 # -- Sergey.F the screened coulom interaction 
-if(-e WVI) then
-  rm -f WVI 
-endif
-if(-e WVR) then
-  rm -f WVR 
+if(-e WV.d) then
+  rm -f WV* 
 endif
 echo 11|mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc  >lx0
 

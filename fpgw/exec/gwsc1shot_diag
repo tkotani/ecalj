@@ -1,6 +1,6 @@
 #!/bin/tcsh
 # --------------------------------
-# self-consistent GW itteration .
+# self-consistent GW itteration using MPI.
 #---------------------------------
 if(-e NoCore) then
   rm -f NoCore 
@@ -13,84 +13,91 @@ if(! -e SEBK) then
  mkdir SEBK
 endif
 
+if($# != 3 || $argv[1] != "-np" ) then
+    echo "an example of usage: gwsc -np 4 si"
+    exit
+endif
+
 set n = $0
 set nfpgw = ${n:h}
-echo $nfpgw
-echo $argv[1]
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+echo "MPI size: " $MPI_SIZE
+echo $TARGET
 
-## mv sigm or simg.$argv[1] to sigm. And make softlink to simg.$argv[1].
-## sigm is prior to simg.$argv[1].
+## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
+## sigm is prior to simg.$TARGET.
 if(-e sigm) then
-  if(-e sigm.$argv[1]) mv sigm.$argv[1] sigm.$argv[1].bakup 
-  ln -s -f sigm sigm.$argv[1] 
-  echo '--- sigm is used. sigm.$argv[1] is softlink to it  ---'
+  if(-e sigm.$TARGET) mv sigm.$TARGET sigm.$TARGET.bakup 
+  ln -s -f sigm sigm.$TARGET 
+  echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
 else
-  if(-e sigm.$argv[1]) then
-    mv sigm.$argv[1] sigm
-    ln -s -f sigm sigm.$argv[1] 
-    echo '--- sigm.$argv[1] is moved to sigm. sigm.$argv[1] is softlink now.  ---'
+  if(-e sigm.$TARGET) then
+    mv sigm.$TARGET sigm
+    ln -s -f sigm sigm.$TARGET 
+    echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
   else
-    echo '--- No sigm nor sigm.$argv[1] files for starting ---'
+    echo '--- No sigm nor sigm.$TARGET files for starting ---'
   endif
 endif 
 
 
 ##########################################################################
-foreach i2x (0 1 2 3 4 5 6 7 8 9 )
-foreach i1x (0 1 2 3 4 5 6 7 8 9 )
+foreach i2x (0)
+foreach i1x (0)
 @ ix = $i2x * 10 + $i1x
 ### itteration loop start #################################################
 
 #### self-consistent calculation with given sigma ###
 echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
 if($ix == 0 ) then
-  if(-e sigm.$argv[1]) continue
+  if(-e sigm.$TARGET) continue
   echo "No sigm ---> LDA caculation for eigenfunctions "
-#  $nfpgw/lmf -vsig=0 $argv[1] > llmf_lda
-  $nfpgw/lmf $argv[1] > llmf_lda
-  cp rst.$argv[1] rst.$argv[1].lda
+#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --rs=0 $TARGET > llmf_lda
+  cp rst.$TARGET rst.$TARGET.lda
 else
-  $nfpgw/lmf $argv[1] > llmf
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
 endif
 
 
 ######## preparatoy gw stage ################
-echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
 echo 1 |$nfpgw/qg4gw           > lqg4gw
 
 
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
+  echo 5 |$nfpgw/lmfgw  $TARGET > llmfgw_eigval
   mv eigval eigmtet
 endif
 
-echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 set exinfo = $?
 
 
-ln -s -f vxc.$argv[1]  v_xc
-ln -s -f evec.$argv[1] evec
-#cp sigm.$argv[1] sigm_in
+ln -s -f vxc.$TARGET  v_xc
+ln -s -f evec.$TARGET evec
+#cp sigm.$TARGET sigm_in
 #@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
 #echo $exinfo
 if($exinfo == 0 ) then
   echo " OK! lmfgw mode=1 "
 else
-  echo Error in echo 1\|lmfgw $argv[1]
+  echo Error in echo 1\|lmfgw $TARGET
   echo `tail -3 llmfgw01 `
   exit
 endif
 
-echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
 
 
 ############## main gw stage ################
 echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
 
 if($ix == 0) then
-  cp evec.$argv[1] evec0  # this is used in hqpe_sc for isigma_en==5
+  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
 endif
 
 if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond
@@ -107,34 +114,24 @@ echo 1|$nfpgw/hchknw         >lchknw
 # -- product basis for core
 echo 3|$nfpgw/hbasfp0 >lbasC
 # -- Coulobm matrix
-echo 0|$nfpgw/hvccfp0        >lvccC
-
-###################################################
-#mkdir core
-#cp BASFP* PPBR* VCCFP core
-###################################################
-
+echo 3|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
 
 # -- the self energy from core1
-echo 1003|$nfpgw/hsfp0_sc   >lsxC
-
-
-###################################################
-#echo ' --- end of test gw_lmf2 --- '
-#exit 
-###################################################
-
+echo 1003| mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsxC
 
 ### Valence part of the self-energy
 echo 0|$nfpgw/hbasfp0  >lbas
 # -- Coulobm matrix
-echo 0|$nfpgw/hvccfp0  >lvcc	
+echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc	
 
 # -- Sergey.F the exchange self energy from valence core2+valence elctrons 
-echo 1001|$nfpgw/hsfp0_sc   >lsx
+echo 1001|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
 
 # -- Sergey.F the screened coulom interaction 
-echo 11|$nfpgw/hx0fp0_sc  >lx0
+if(-e WV.d) then
+  rm -f WV* 
+endif
+echo 11|mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc  >lx0
 
 #########################################################
 #mkdir val
@@ -142,18 +139,10 @@ echo 11|$nfpgw/hx0fp0_sc  >lx0
 ##########################################################
 
 # -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
-echo 1002|$nfpgw/hsfp0_sc   >lsc
+echo 1002|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsc
 
 # -- Make summary 
 echo 1000|$nfpgw/hqpe    >lqpe
 exit
 
 
-
-foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
-  if(-e $file) cp $file $file.${ix}run
-end
-echo $ix 'iteration over'
-end
-end
-exit

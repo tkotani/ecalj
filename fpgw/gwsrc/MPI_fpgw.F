@@ -13,10 +13,9 @@
       contains
 
       
-      subroutine MPI__Initialize
+      subroutine MPI__Initialize()
       implicit none
       character(1024*4) :: cwd, stdout
-
       call getcwd(cwd)          ! get current working directory
 
       call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
@@ -31,18 +30,35 @@
 
       if( mpi__root ) then
          call chdir(cwd)        ! recover current working directory
-      end if
-
-c$$$      if( mpi__size > 1 ) then
-c$$$         write(stdout,"('output-console.s',i3.3)") mpi__rank
-c$$$         open(unit=6,file=stdout)
-c$$$      end if
-c$$$      if( .not. mpi__root ) then
-c$$$         close(unit=6)
-c$$$      end if
-
+      endif
+c! console-output from different nodes to different files
+c      if( mpi__size > 1 ) then
+c        if(mpi__root )write(*,*)'MPI console outputs to following files.'
+c        write(*,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+c        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
+c        open(unit=6,file=trim(stdout))
+c        write(*,"(a,i3)")" ### console output for rank=",mpi__rank
+c      endif
+c      if(mpi__root ) then
+c        close(unit=6)
+c      endif
       return
       end subroutine MPI__Initialize
+
+      subroutine MPI__consoleout(idn)
+      implicit none
+      character(1024*4) :: cwd, stdout
+      character*(*):: idn
+! console-output from different nodes to different files
+      if( mpi__size > 1 ) then
+        if(mpi__root )write(*,*)'MPI console outputs to following files.'
+        write(*,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
+        open(unit=6,file=trim(stdout))
+        write(*,"(a,i3)")" ### console output for rank=",mpi__rank
+      endif
+      return
+      end subroutine MPI__consoleout
 
 
       subroutine MPI__Barrier

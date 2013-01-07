@@ -12,7 +12,10 @@ c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
       use m_readqg
       use keyvalue
-      use m_mpi
+      use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
+     &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
+     &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
+
       implicit none
       integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,
      &  nband, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,
@@ -99,22 +102,19 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
       integer:: ifiwqfac,iqbz,iqbzx,nnn
+      character(128) :: ixcc
 !!------------------------------------------------------------
-
-      call MPI__Initialize
-
+      call MPI__Initialize()
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
-
-      write(6,"(' mode(now only =0)? +(pararell iqxini iqxend ?)')")
+      if(mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
 c      call readin5(imode,iqxini,iqxend)
-
       if( mpi__root ) then
          read(5,*) imode
       end if
-
       call MPI__Broadcast(imode)
-
+      write(ixcc,"('.mode=',i4.4)")imode
+      call MPI__consoleout('hvccfp0'//trim(ixcc))
       call headver('hvccfp0: start',imode)
       call cputid (0)
       if(imode==202 ) then
@@ -128,8 +128,9 @@ c      elseif(imode==102) then
 c        write(6,*)' hvccfp0: imode=',imode
 c        write(6,*)' remove_r0c is effective'
       elseif(imode==0) then
+      elseif(imode==3) then
       else
-        stop 'hvccfp0: now hvccfp0 support just normal mode=0 202 101'
+        stop 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101'
       endif
 c      if(iqxini< 2) paralellx0=.false.
 c      if(paralellx0) then
@@ -1279,6 +1280,7 @@ c2---------------------
 c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
 c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
       if(imode==0) stop ' OK! hvccfp0 imode=0'
+      if(imode==3) stop ' OK! hvccfp0 imode=3'
 
       end
 

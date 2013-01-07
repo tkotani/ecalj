@@ -18,7 +18,7 @@
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
-     &   mpi__ranktab
+     &   mpi__ranktab,MPI__consoleout
       implicit none
 c     use m_spacegrouprot,only: Spacegrouprot
 c     use m_rotMPB,only: rotMPB
@@ -190,7 +190,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ifw0w0i
       logical :: readw0w0i
 !-------------------------------------------------------------------------
-      call MPI__Initialize
+      call MPI__Initialize()
+      call MPI__consoleout('hx0fp0_sc')
 
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
