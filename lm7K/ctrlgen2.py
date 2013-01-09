@@ -911,7 +911,7 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
 
       #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
-      SIGP[MODE=3 EMAX=2.5]
+      SIGP[MODE=3 EMAX=2.0]
       RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
       #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
 

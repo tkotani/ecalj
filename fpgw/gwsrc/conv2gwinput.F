@@ -111,19 +111,25 @@ c     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the n
       write(ifi,"(a,f10.3,a)") 'emax_sigm  ', emax_sigm,' !(Ry)  emax cutoff for Sigma'
 
 c ... GWIN_V2
-      omg_c   = 0.1d0
+      dw = 0.005d0
+      omg_c = 0.04d0
       iSigMode= 3
+      niw = 10      !niw =10
+      delta  = -1d-6
+      deltaw = 0.02d0
+      esmr   = 0.003d0 ! 0.01d0
+
       read(ifig,*)
       read(ifig,*)
-      read(ifig,*,err=655) dw, omg_c, iSigMode
- 655  read(ifig,*)
-      read(ifig,*) niw
       read(ifig,*)
-      read(ifig,*) delta
       read(ifig,*)
-      read(ifig,*) deltaw
+      read(ifig,*) 
       read(ifig,*)
-      read(ifig,*) esmr,esmr_char
+      read(ifig,*) 
+      read(ifig,*)
+      read(ifig,*) 
+      read(ifig,*)
+      read(ifig,*) 
       read(ifig,*)
       read(ifig,*)
       read(ifig,*)
@@ -143,8 +149,9 @@ c
       write(ifi,"(a,f10.6,a)") 'esmr     ', esmr,  ' !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
       write(ifi,"(a)")         '  ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
       write(ifi,"(a)")         '  ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
-      if(esmr_char==eeg) write(ifi,"(a)") 'GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
-      if(esmr_char/=eeg) write(ifi,"(a)") 'GaussSmear off ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
+      write(ifi,"(a)") 'GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
+c      if(esmr_char==eeg) write(ifi,"(a)") 'GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
+c      if(esmr_char/=eeg) write(ifi,"(a)") 'GaussSmear off ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
 
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '

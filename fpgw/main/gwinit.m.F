@@ -393,55 +393,54 @@ c Required inputs lmxa(1:ibas)       : lmax for argumantation.
 c                 konf(lmxa(ic),ic)  : number of cores
 c--------------------------
       ifigwin = 888
-      dw = 0.005d0  !dw =0.02
-      niw = 10      !niw =10
-      delta  = -1d-6
-      deltaw = 0.02d0
-      esmr   = 0.003d0 ! 0.01d0
-
       open (ifigwin,file='GWIN_V2.tmp')
-c ... Frequencies
       write(ifigwin,*) 
-     & "FREQUENCIES----------------------------------------------------"
-      write(ifigwin,"(a)") 
-     & " Mesh size along Re axis: "//
-     & ' !  (Num. of mesh is in NW given by hchknw.)'
-      write(ifigwin,"(f13.5,a)") dw
-     &,'  ! =dw(a.u.)  Try at least dw=0.04 and dw=0.02 '
-
-      write(ifigwin,"(a)") 
-     & " Number of frequencies along Im axis. "//
-     & "  Used for integration to get SEC* in hsfp0"
-      write(ifigwin,"(i10,a)") niw,
-     & "     ! =niw  Try at least niw=6,10, or 12 "
-
-      write(ifigwin,"(a)") 
-     & ' Broadening of x0. negative means tetrahedron method;'
-      write(ifigwin,"(d14.5,a)")delta,' ! =delta(a.u.) ;used by hx0fp0.'
-     &  //' You get smeard x0 with abs(delta). '
-
-      write(ifigwin,"(a)") 
-     & ' Mesh for numerical derivative to get the Z factor'
-      write(ifigwin,"(d14.5,a)")deltaw,
-     &  ' ! =deltaw(a.u.); used by hsfp0.'
-     & //' Check errors on Z--->See two Z values shown in SEC*'
-
-      write(ifigwin,"(a)") 
-     & ' Poles of G^LDA are treated as if they have width '//
-     & 'esmr in hsfp0. Change esmr for metals. '//
-     & ' See DOSACC*---especailly around Ef.'
-      write(ifigwin,"(d14.5,a)") esmr,' GaussSmear ! =esmr(Ry)  used by hsfp0.'//
-     &' Keep esmr as it is (smaller than band gap) for insulator'
-
-      write(ifigwin,"(a)") "   ------------ dummy line ----------- "
-      write(ifigwin,"(a)") "   ------------ dummy line ----------- "
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+      write(ifigwin,*) 
+c$$$      write(ifigwin,"(a)") 
+c$$$     & " Mesh size along Re axis: "//
+c$$$     & ' !  (Num. of mesh is in NW given by hchknw.)'
+c$$$      write(ifigwin,"(a)") 
+c$$$     & '  ! =dw(a.u.)  Try at least dw=0.04 and dw=0.02 ' !dw is given in conv2gwinput.F
+c$$$      write(ifigwin,"(a)") 
+c$$$     & " Number of frequencies along Im axis. "//
+c$$$     & "  Used for integration to get SEC* in hsfp0"
+c$$$      write(ifigwin,"(a)") 
+c$$$     & "     ! =niw  Try at least niw=6,10, or 12 "
+c$$$      write(ifigwin,"(a)") 
+c$$$     & ' Broadening of x0. negative means tetrahedron method;'
+c$$$      write(ifigwin,"(a)") ' ! =delta(a.u.) ;used by hx0fp0.'
+c$$$     &  //' You get smeard x0 with abs(delta). '
+c$$$      write(ifigwin,"(a)") 
+c$$$     & ' Mesh for numerical derivative to get the Z factor'
+c$$$      write(ifigwin,"(a)") 
+c$$$     &  ' ! =deltaw(a.u.); used by hsfp0.'
+c$$$     & //' Check errors on Z--->See two Z values shown in SEC*'
+c$$$      write(ifigwin,"(a)") 
+c$$$     & ' Poles of G^LDA are treated as if they have width '//
+c$$$     & 'esmr in hsfp0. Change esmr for metals. '//
+c$$$     & ' See DOSACC*---especailly around Ef.'
+c$$$      write(ifigwin,"(d14.5,a)") ' GaussSmear ! =esmr(Ry)  used by hsfp0.'//
+c$$$     &' Keep esmr as it is (smaller than band gap) for insulator'
+c$$$      write(ifigwin,"(a)") "   ------------ dummy line ----------- "
+c$$$      write(ifigwin,"(a)") "   ------------ dummy line ----------- "
 
 c ... PRODUCT BASIS -------------------------
       write(ifigwin,"(a)") "PRODUCT BASIS--------------------------------------------------"
       write(ifigwin,"(a)") 
      & " tolerance to remove products due to poor linear-independency"
 c      tolopt =1d-2
-      tolopt =1d-4
+      tolopt =1d-3
       write(ifigwin,"(d14.6,a)") tolopt, 
      & " ! =tolopt; larger gives smaller num. of product basis."//
      & " See lbas and lbasC, which are output of hbasfp0."

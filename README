@@ -4,15 +4,18 @@ Our home page is at http://pmt.sakura.ne.jp/wiki/,
 ===================================================================
 
 === ecalj package ===
-(this document is checked at 9thSep2012.)
+(this document is checked at Jan2013)
 https://github.com/tkotani/ecalj
 
 ecalj is a firts-principle electronic structure calculation package in f90.
+Version ctrl by git. In cases, we use python.
 
 (1)All electron full-potential PMT method (LAPW+LMTO)
    Related source codes are in ecalj/lm7K/ 
    ctrlgen2.py can set up 'standard input file(ctrl file)' just from
-   the given crystal structure.
+   the given crystal structure file (ctrls file). 
+   A converter between POSCAR(VASP) and ctrls file will be included in
+   ecalj soon.
 
 (2)GW method, especially, PMT-SQGW method
    Quasiparticle self-consistent GW method (QSGW),
@@ -20,21 +23,29 @@ ecalj is a firts-principle electronic structure calculation package in f90.
    GW-related codes are in ecalj/fpgw/
    
    Recently, I renewed some part of algolism of GW/QSGW calculations
-   (mainly in PRB.81,125102(2010) and Copmuter Physics Comm. 176(2007)1-13).
+   (some ideas are taken from from PRB.81,125102(2010) and Copmuter Physics Comm. 176(2007)1-13).
    ---> this is better than old versions; speed, memory (file size),
    and accuracy for anisortopic systems.
    For comparison, you can use old version in .git (gitk --all and check it out).
- 
-Version ctrl by git. In cases, we use python.
+
+(3) We use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc,
+   although we have room to improve it.
+
+Usage minimum.
+(1) Write ctrls file (or use converter from POSCAR).
+(2) convert ctrls to ctrl file by ctrlgen2.py. Then you have default ctrl file.
+(3) Run lda/gga calculations by scripts.
+(4) For gwsc, make GWinput file by mkGWIN_v2. Then run a script. 
+
 
 NOTE:
-*PMT-QSGW is still under test phase, although it works fine for
-limited cases until now, such as GaAs, NiO, CuGaSe2,...
-PMT-QSGW maps self-energy onto MTO basis. Thus MTO's should be localized
-well. This means, we use "EH=-1 and EH2=-2" as a choice.
+*PMT-QSGW is tested. It looks OK. Although defaults parameters can
+give reasonable results generally, you may need to check 
+convergence carefully by changing parameters 
+(use --eh1 option when we invoke ctrlgen2.py).
 
-*In addition, some clean up for source code and changes of algolism for
-interpolation of sigma is expected (This problem is carried from LMTO-QSGW).
+*In addition, we still have a room to make interpolation of sigma 
+(This problem is carried from LMTO-QSGW).
 
 
 ################## Install and test of lm7K ########################
@@ -49,16 +60,18 @@ interpolation of sigma is expected (This problem is carried from LMTO-QSGW).
 >sudo apt-get install libblas3gf     or something else # BLAS
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
 
+python 2.x is also assumed (usually already in ubuntu).
+
 >git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
 
-
-Check PLATFORM=gfortran at the head of ecalj/lm7K/Makefile.
+Check PLATFORM=foobar at the head of ecalj/lm7K/Makefile.
 ecalj/lm7K/MAKEINC/Make.ing.gfortran is used when you choose
 PLATFORM=gfortran. (Commnet out this line in Makefile, or do "make PLATFORM=gfortran".)
 Set LIBLOC in Make.inc.gfortran when you use different math libraries.
 
-You may also have to modify lm7K/MAKEINK/Make.inc.gfortran, compile options
-and so on (but usually, only modify math library LIBLOC).
+You may also have to modify compile options
+and so on (but usually, only modify math library LIBLOC)
+in lm7K/MAKEINC/Make.inc.gfortran. 
 
 Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
 but not with failed with FFLAGS=-O3.
@@ -67,12 +80,19 @@ Parallel make as
 prompt>make -j4 PLATFORM=gfortran
 may speed it up for multicore machines. But in cases it stops because
 of dependency is not well-described in Makefile. 
-In such case, repeat it without -j4.
+In such case, repeat it a few times, or repeat it without -j4.
+and then
+prompt>make PLATFORM=gfortran install
+. This just copy required files to your ~/bin.
+Messages ": warning: ignoring old commands for target `/vxcnls.o'" is
+just because of problem of Makefile. you can neglect this.
 
+lmf-MPI is now needed for gwsc. to make it with
+propmt>make PLATFORM=gfortran_mpik
+lmf-MPIK is also generated, but it do not work now (9thjan2013. need to fix it)
 
-*For ifort.
-You can set PLATFORM=ifort. Then ecalj/lm7K/MAKEINC/Make.inc.ifort is
-used --- you need to set math libraries in it.
+For ifort, set PLATFORM=ifort, and PLATFORM=ifort_mpik. 
+Then ecalj/lm7K/MAKEINC/Make.inc.ifort is used --- you need to set math libraries in it.
 
 You can make both binaries with gfortran and with ifort at lm7K. 
 Then you have to do "make clean" at ecalj/lm7K, before you make
@@ -98,12 +118,12 @@ Especially note option, -heap-arrays for ifort
 (to avoid Segmentation fault due to stacksize limit (ulimit -a), it is
 required. Or you can set ulimit -s unimited).
  
-
 Then you have to run 
 >make
 >make install
 >make install2
 Before this, you have to set blas and lapack in fpge/exec/make.inc.
+make install copy requied files to your ~/bin.
 
 -------------
 *Installation test for fpgw/
