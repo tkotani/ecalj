@@ -825,7 +825,7 @@ c-------------
                if(debug) print *, ' sxcf: 1100c'
 c-----------
 c     ntqxx is number of bands for <i|sigma|j>.
-               ntqxx = nocc (omega,ebmx(1),.true.,ntq)
+               ntqxx = nocc (omega-ef,ebmx(1),.true.,ntq) !bug -ef is added jan2013
                ntqxx = min(ntqxx, nbmx(1))
                if(ntqxx<nband) then
                   do i=ntqxx,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012
@@ -839,7 +839,8 @@ c     ntqxx is number of bands for <i|sigma|j>.
                nbandmx(ip)=ntqxx !number of bands to be calculated Sep2012.
 c     override these by takao jun 2009
 c     call getnbandgw(q,isp,ginv,ntqxx) !june2009
-c     if(debug) write(6,"( ' ntq ntqxx=',2i5)")ntq,ntqxx
+c     if(debug) 
+               write(6,"( ' ntq ntqxx=',3i15,2f8.3)") ntq,ntqxx,nbmx(1), ebmx(1)
 c-----------
                if(debug) print *,' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
                nstate = nctot + nbmax ! = nstate for the case of correlation

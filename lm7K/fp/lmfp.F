@@ -725,10 +725,11 @@ c     takao
 
         sbz%w=bz_w
 
-        if (k .lt. 0 .and. nproc .gt. 0) then
-C     irs(1) = irs(1) - mod(irs(1),4)
-          call rx('MPI: rst read failed. Restart with --rs=0')
-        endif
+c takao comment out jan2013
+c        if (k .lt. 0 .and. nproc .gt. 0) then
+cC     irs(1) = irs(1) - mod(irs(1),4)
+c          call rx('MPI: rst read failed. Restart with --rs=0')
+c        endif
         if (procid .eq. master) then
           call fclose(ifi)
         endif

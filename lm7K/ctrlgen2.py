@@ -480,6 +480,7 @@ for line in alist:
     aused.write(aaa+'\n')
 #for ikey in dicatom.keys():
 #    print ikey,dicatom[ikey]
+#sys.exit()
 #
 #line.split("atomz=")[1].split('@')[0]
 #    mat=re.search('\".*\"',line)
@@ -544,11 +545,12 @@ if(len(listspec)==0):
     #print specstd
     #sys.exit()
     print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgen2.py --showatomlist"
-    # for ils in sitename:
-    #     spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
-    #     #specname=ils.split('ATOM=')[1].split(' ')[0]
-    #     #specz=ils.split('Z=')[1].split(' ')[0]
-    #     ##spec2z[specname]=specz
+#    for ils in sitename:
+#        print 'site=',ils
+#         spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
+#         specname=ils.split('ATOM=')[1].split(' ')[0]
+#         specz=ils.split('Z=')[1].split(' ')[0]
+#         spec2z[specname]=specz
 else:
     zspec=True
     for ils in listspec:
@@ -672,12 +674,13 @@ for ispec in uniq(sitename):
 
     try:
 #### in the case of touching MT
-        print ispec,touchingratio,speckey,ispec
+#        print ispec,speckey,'tratio=',touchingratio
+        print 'from atomlist= ', dicatom[speckey]
         if touchingratio >0:
 #            rrr = string.atof(rdic[speckey]) * touchingratio
             rrr = string.atof(rdic[ispec]) * touchingratio
         else:
-            rrr = float(getdataa( dicatom[speckey],'R='))/0.529177*r_mul_val
+            rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
         print rrr
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0

@@ -623,7 +623,7 @@ c     the coulomb matrix for exchange.
       if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
 !!    read q-points and states
-      if(selectqp.and. mpi__root) then
+      if(selectqp .and. mpi__root) then
          call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
          lqall      = .false.
          laf        = .false.
@@ -632,7 +632,7 @@ c     the coulomb matrix for exchange.
          if (iqall == 1) lqall = .true.
          if (iaf   == 1)   laf = .true.
          call readx   (ifqpnt,100)
-         read (ifqpnt,*) ntq
+c         read (ifqpnt,*) ntq 
 c         allocate( itq(ntq) )
 c         read (ifqpnt,*) (itq(i),i=1,ntq)
          if (lqall) then        !all q-points case
@@ -674,21 +674,35 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
         call MPI__REAL8recv(q,3*nq,0)
       endif  
 
-      do iq=1,nq
-         write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
-      enddo
-
-
-!! q-point ntq
-      ntq =  min(nbmx(1),nband) !takao 19June2003 nband
+!! ntq ! jan2013. See ntqxx in sxcf_fal.sc.F
+c     ntq = nocc (omega-ef,ebmx(1),.true.,ntq) 
+      if(mpi__root) then
+         allocate(eqt(nband))
+         ntq=0
+         do is = 1,nspin
+            do ip = 1,nq
+               call readeval(qibz(1,ip),is, eqt)
+               do iband=1,nband
+                  ntq = max(iband,ntq)
+                  if(eqt(ip)-ef>ebmx(1)) exit
+               enddo  
+            enddo
+         enddo
+         ntq = min(ntq, nbmx(1))
+         deallocate(eqt)
+      endif
+      call MPI__Broadcast(ntq)
+!!
       allocate (itq(ntq))
       do i = 1, ntq
          itq(i) = i
       enddo
       print *,' ntq=',ntq
-      write(6,"('ntq: itq(1:ntq) =',i3,':  ',100i3)")ntq,itq(1:ntq)
-
-!
+      do iq=1,nq
+         write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
+      enddo
+c     write(6,"('ntq: itq(1:ntq) =',i3,':  ',100i3)")ntq,itq(1:ntq)
+c
       nspinmx = nspin
       inquire(file='ANFcond',EXIST=laf)
       if(laf) then
@@ -1146,6 +1160,7 @@ c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
 c         allocate(wbzz(nqbz))
 c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
          
+c         print *,'ntq=',ntq
 
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
