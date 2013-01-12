@@ -1,7 +1,7 @@
-      subroutine conv2gwinput(iq0pin)
+      subroutine conv2gwinput()
       use keyvalue
       implicit none
-      integer(4) :: ifigw0,ifi,i,ig,iq0pin
+      integer(4) :: ifigw0,ifi,i,ig
       real(8) :: QpGcut_psi, QpGcut_Cou
       real(8) ::  dw,delta,deltaw,esmr
       logical :: gwin0exist
@@ -24,9 +24,9 @@ c'
       pi= 4d0* atan(1d0)
 
 c -----------
-      inquire(file='GWinput',exist= gwinputexist)
-      write(*,*) 'gwinputexist=', gwinputexist
-      if(gwinputexist) return
+c      inquire(file='GWinput',exist= gwinputexist)
+c      write(*,*) 'gwinputexist=', gwinputexist
+c      if(gwinputexist) return
 
 c      if(gwinputexist) then
 c        call getkeyvalue("GWinput","n1n2n3",nnn,3)

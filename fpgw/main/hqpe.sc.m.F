@@ -221,7 +221,7 @@ c-----
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
       if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
       if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
-      if (ntq .ne. nhq)   stop 'hqpe: ntq/=nhq'
+c      if (ntq .ne. nhq)   stop 'hqpe: ntq/=nhq' !comment out jan2013
 c     if (ntq .ne. ndimh)   stop 'hqpe: SC ndimh/= ntq v_xc'
 c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
       if (ndimhx /= ndimh)   stop 'hqpe: SC ndimhx/= ndimx'

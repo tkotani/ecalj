@@ -31,21 +31,37 @@ Version ctrl by git. In cases, we use python.
 (3) We use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc,
    although we have room to improve it.
 
-Usage minimum.
-(1) Write ctrls file (or use converter from POSCAR).
-(2) convert ctrls to ctrl file by ctrlgen2.py. Then you have default ctrl file.
-(3) Run lda/gga calculations by scripts.
-(4) For gwsc, make GWinput file by mkGWIN_v2. Then run a script. 
+
+Usage minimum. (e.g, PMT-QSGW(gwsc) for si)
+-------------------------------------------
+(1) Write structure file ctrls.si by hand 
+    (you can use our converter between POSCAR(VASP) and ctrls).
+(2) convert ctrls.si to ctrl.si by ctrlgen2.py si --eh1 --nk=6 --tratio=1.0 
+   (do -help). --eh1 is required for PMT-QSGW. Then you have default
+   ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
+   Modify it if reqiured. We don't need empty sphere
+   now. pwemax specify number of APW. It is recommended to know
+   meanings of parameters in the generated ctrl.si. 
+   You may need to modify ctrl.si, especially for magnetic cases.
+   For examle, you need to set MMOM for nspin=2 
+   (initial condition of magnetic moment distribution).
+(3) Run "lmfa si" to prepare atom.
+(4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si 
+    (just put BZ division n1 n2 n3). Edit GWinput.tmp and rename it as GWinput.
+(5) Then run a script gwsc, e.g. "gwsc 5 si -np 5" (5+1 iteration with
+    6 nodes).
+(6) To reproduce final results of gwsc, run lmf si with ctrl.si rst.si QGpsi ESEAVR sigm.si.
+-------------------------------------------
 
 
 NOTE:
-*PMT-QSGW is tested. It looks OK. Although defaults parameters can
+*PMT-QSGW looks OK. Although defaults parameters can
 give reasonable results generally, you may need to check 
 convergence carefully by changing parameters 
 (use --eh1 option when we invoke ctrlgen2.py).
-
-*In addition, we still have a room to make interpolation of sigma 
+*We still have a room to make interpolation of sigma 
 (This problem is carried from LMTO-QSGW).
+Need further bug check and make it robust more...
 
 
 ################## Install and test of lm7K ########################

@@ -80,9 +80,11 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
      i     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i     wklm,lxklm,          !mar2012 !wklm apr2012takao
      i     invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
-     i    diagonly,
+     i    diagonly, eftrue,
      o     zsec,coh,nbandmx)
-
+!! jan2013 eftrue is added.
+!! ef=eftrue(true fermi energy) for valence exchange and correlation mode.
+!! but ef is not the true fermi energy for core-exchange mode.
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
@@ -433,6 +435,7 @@ C...
       logical:: diagonly
 c      real(8)::wqfac(nqbz)
       integer:: irot2
+      real(8):: eftrue
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
@@ -825,7 +828,9 @@ c-------------
                if(debug) print *, ' sxcf: 1100c'
 c-----------
 c     ntqxx is number of bands for <i|sigma|j>.
-               ntqxx = nocc (omega-ef,ebmx(1),.true.,ntq) !bug -ef is added jan2013
+               ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
+                             !bug -ef is added jan2013
+                             !previous version do not give wrong results, but inefficient.
                ntqxx = min(ntqxx, nbmx(1))
                if(ntqxx<nband) then
                   do i=ntqxx,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012

@@ -87,9 +87,10 @@ c --- mode
       endif
 
 c--- If GWinput is not exist, GWIN0 GWIN_V2 and QPNT are converted to GWinput.
-c      if(readgwinput()) then
-      call conv2gwinput(iq0pin)
-      if(iq0pin==-100) stop ' OK! qg4gw mode=-100 for GWinput'
+      if(iq0pin==-100) then
+         call conv2gwinput()
+         stop ' OK! qg4gw mode=-100 to generate GWinput'
+      endif   
 c      else
 c        if(iq0pin==-100) stop
 c      endif

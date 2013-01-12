@@ -213,6 +213,7 @@ c     integer:: nbmx
       integer:: ret,dest,nnn !,ifiwqfac
 c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       character(128) :: ixcc
+      real(8):: eftrue,esmref !jan2013
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       hartree=2d0*rydberg()
@@ -289,7 +290,7 @@ c     o    nocc(:,:,:),nunocc(:,:,:)
 c     real(8), allocatable::
 c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
 !     ! -----------------------------------------------------------
-
+      esmref=esmr
 
 !     ! reading self-energy mode parameter from file 'GWinput'
       call readd_iSigma_en(ifinin,iSigMode) 
@@ -520,17 +521,27 @@ c     ifrcwi = iopen('WVI',0,-1,mrecl)
 c     endif 
       endif
 
-c-------------------------
       if(tetra) goto 201
-c-------------------------
 
+!! == Determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.==
+!!    When esmr is negative, esmr is geven automatically by efsimplef.
+      call efsimplef2a(nspin,wibz,qibz,ginv, 
+     i     nband,nqibz
+     i     ,konf,z,nl,natom,iclass,nclass
+     i     ,valn, legas, esmref,  !!! valn is input for legas=T, output otherwise.
+     i     qbz,nqbz             ! index_qbz, n_index_qbz,
+     o     ,efnew)
+      if(ixc/=3) ef = efnew
+      eftrue = efnew
+!! ==== check total ele number =====
+      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
+      print *,' ef    =',ef
+      print *,' esmr  =',esmr
+      print *,' valn  =',valn
+      print *,' ntot  =',ntot
+!! == Core-exchange case. ef means just below the valence eigenvalue (to take only core in sxcf).==
       if(ixc==3) then
-c     ef = lowesteb(ifev,nspin, nband,nqbz)-1d-3
-c     ef = lowesteigen(nspin, nband,qbz,nqbz)-1d-3
          ef = lowesteval() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
-
-c-------------------
-!     exonly 03June2006
          call getkeyvalue("GWinput","EXonly",wex,default=0d0)
          if(wex==0d0) then
             exonly=.false.
@@ -539,7 +550,6 @@ c-------------------
             print *,' exonly=T ecore shift: ecore---> ecore-100'
             ecore = ecore-100.0
          endif
-
          if(maxval(ecore(:,1:nspin))>ef) then
             print *,' ef nspin=',ef,nspin,nctot
             do is=1,nspin
@@ -548,72 +558,9 @@ c-------------------
                   write(6,"(i4,d13.5)") ix,ecore(ix, is)
                enddo
             enddo
-            stop 'hsfp0 ixc=3:  ecore>evalence '
+            stop 'hsfp0 ixc=3: ecore>evalence. '
          endif
-c     
-      else                      ! if(esmr/=0d0) then
-c     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-!     When esmr is negative, esmr is geven automatically by efsimplef.
-         call efsimplef2a(nspin,wibz,qibz,ginv, 
-     i        nband,nqibz
-     i        ,konf,z,nl,natom,iclass,nclass
-     i        ,valn, legas, esmr, !!! valn is input for legas=T, output otherwise.
-c     
-     i        qbz,nqbz          ! index_qbz, n_index_qbz,
-     o        ,efnew)
-
-c     call efsimplef(ifev,nspin,w(iwibz),w(iindxk),w(iqibz)
-c     i       ,n1,n2,n3,qbas,ginv, nband,nqibz
-c     i       ,w(ikonf),w(iz),nl,natom,w(iiclass),nclass
-c     i       ,valn, legas, esmr  !!! valn is input for legas=T, output otherwise.
-c     o       ,efnew)
-c     
-c     print *,' end of efsimple'
-         ef = efnew
-c     - check total ele number -------
-         ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
-         print *,' ef    =',ef
-         print *,' esmr  =',esmr
-         print *,' valn  =',valn
-         print *,' ntot  =',ntot
-c     
-c     if(ixc==1) then
-c     ifefsm  = iopen('EFERMI.hsfp0.mode1',1,-1,0)
-c     write(ifefsm,*) ef,'!ef by smearing. by hsfp0'
-c     ifefsm  = iclose('EFERMI.hsfp0.mode1')
-c     elseif(ixc==2) then
-c     ifefsm  = iopen('EFERMI.hsfp0.mode2',1,-1,0)
-c     write(ifefsm,*) ef,'!ef by smearing. by hsfp0'
-c     ifefsm  = iclose('EFERMI.hsfp0.mode2')
-c     endif
-c     c
-c     c        if(abs(valn-ntot)>1d-6) stop ' abs(valn-ntot)>1d-6'  !20001 May
-c     c
-cxx   elseif(legas) then
-cxx   ef = efx
       endif
-
-cccccccccccccccccccccccccccccccccccccc
-c     ef=-0.22
-c     print *, " !!! test fermi energy=",ef
-cccccccccccccccccccccccccccccccccccccc
-
-c--   
-c     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
-!     maxocc seems to give (the maxmum number of occ + 1).
-!     
-c     noccx  = noccxv + nctot
-c     write(6,"(' --- noccx = noccxv + nctot    =',3i4)")
-c     &          noccx,noccxv, nctot
-
-c     write(6,"(' --- Total number of electrons =',d24.16)") ntot
-c     
-c     if(legas) then
-c     efx   = (ntot*3*pi**2/voltot)**(2d0/3d0)
-c     qfermi= dsqrt(efx)
-c     alpha = (9*pi/4d0)**(1d0/3d0)
-c     write (6,*)' -g-  density parameter rs = ', alpha/qfermi
-c     endif
 
 c-------------------------
  201  continue
@@ -674,8 +621,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
         call MPI__REAL8recv(q,3*nq,0)
       endif  
 
-!! ntq ! jan2013. See ntqxx in sxcf_fal.sc.F
-c     ntq = nocc (omega-ef,ebmx(1),.true.,ntq) 
+!! == Determine ntq.  See also ntqxx in sxcf_fal.sc.F ntq should be common for all ixc modes.==
       if(mpi__root) then
          allocate(eqt(nband))
          ntq=0
@@ -684,25 +630,25 @@ c     ntq = nocc (omega-ef,ebmx(1),.true.,ntq)
                call readeval(qibz(1,ip),is, eqt)
                do iband=1,nband
                   ntq = max(iband,ntq)
-                  if(eqt(ip)-ef>ebmx(1)) exit
+                  if(eqt(iband)-eftrue>ebmx(1)) exit
                enddo  
             enddo
          enddo
          ntq = min(ntq, nbmx(1))
          deallocate(eqt)
+         write(*,"(' nband ntq ef eftrue=', 2i5,2f9.4)")nband,ntq,ef,eftrue
       endif
       call MPI__Broadcast(ntq)
-!!
+
       allocate (itq(ntq))
       do i = 1, ntq
-         itq(i) = i
+         itq(i) = i !itq is used also in hsfp0.m.F
       enddo
-      print *,' ntq=',ntq
       do iq=1,nq
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
-c     write(6,"('ntq: itq(1:ntq) =',i3,':  ',100i3)")ntq,itq(1:ntq)
-c
+
+!! ANF mode ---> not so much used now... need to revise it in future.
       nspinmx = nspin
       inquire(file='ANFcond',EXIST=laf)
       if(laf) then
@@ -718,6 +664,7 @@ c
       endif
  889  continue
 
+!!
       allocate(omega(ntq))
 !     ! read LDA eigenvalues
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
@@ -725,7 +672,7 @@ c
          do ip = 1,nq
             call readeval(q(1,ip),is,eqt)
             eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
-            eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
+            eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- eftrue)
          enddo
       enddo
       deallocate(eqt)
@@ -1197,7 +1144,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i        wklm,lxklm,       !mar2012
      i        invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
-     i      diagonly, !nov2012
+     i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 c         deallocate(wbzz)
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
