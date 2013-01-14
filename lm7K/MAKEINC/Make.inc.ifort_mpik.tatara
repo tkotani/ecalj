@@ -60,6 +60,7 @@ LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
 #LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
 
 LIBLOC = $(LIBkino)
+LIBLOC= -mkl -L/usr/local/fftw/3.3.2/lib/libfftw3.a 
 
 
 ############################################

@@ -10,9 +10,10 @@ TESTLMF lmfa gdn
         rm -f rst.gdn wkp.gdn mixm.gdn
         lmfa gdn -vcoref=t
         lmf  gdn -vcoref=t
+#NOTE lmf --nosym  is required because "SYMOPS find is effective even for SO=1. rdctrl2.F"(9e96c 2012-12-27 23:).
 TESTCLS cp rst-save.gdn rst.gdn
         cp dmats-save.gdn dmats.gdn
-        lmf gdn --mull:mode=1 -vnk=2 -vnit=1 -vso=t
+        lmf --nosym gdn --mull:mode=1 -vnk=2 -vnit=1 -vso=t
         mv dos.gdn tdos.gdn
         lmdos --nosym -vso=t --mull:mode=1 --dos:fpdos:npts=1001:window=-1,1 -vnk=2 gdn
         mv dos.gdn dos-mull.gdn

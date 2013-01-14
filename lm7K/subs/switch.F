@@ -14,8 +14,12 @@
 ! This works OK but may be not best...
 !   How to choose wgtsmooth? or it will be better to take correct weighting for
 !   mixing.
-      mixrealsmooth=.false.
-c      mixrealsmooth=.true.
+c      mixrealsmooth=.false.
+!===================
+!mixrealsmooth=T is added on 28Aug2010 --> 
+!mixrealsmooth=F on 24dec2012 (why?) -->
+!mixrealsmooth=T (move it back) on 16Jan2013.
+      mixrealsmooth=.true. !
       if(init) then
         print *,'mixrealsmooth=',mixrealsmooth
         init=.false.

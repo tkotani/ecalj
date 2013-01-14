@@ -68,7 +68,8 @@
 ### fftw3 is from http://www.fftw.org/download.html
 ### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
 
-LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+#LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+LIBLOC= -mkl -L/usr/local/fftw/3.3.2/lib/libfftw3.a 
 
 
 ############################################
