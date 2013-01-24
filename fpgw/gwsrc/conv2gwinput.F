@@ -81,15 +81,15 @@ c ... GWIN0
       close(ifigw0)
 c
       ifi = ifigwinp
-      write(ifi,"(a)" )'!!! Starting from ! (or nonkeyword) is comment line !!! '
-      write(ifi,"(a)" )'!!! Each lines consists of "keyword value(s)"  !!! '
-      write(ifi,"(a)" )'!!! Each tag section in <...>... </...> has its own format. !!! '
-      write(ifi,"(a)" )'!Verbose    0  ! 0-->default; 100--->debug '
-      write(ifi,"(a)") '!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point'
-      write(ifi,"(a)" )'!Q0Pset 1 !1(default):qzerolimit(in practice, not zero.See generated Q0P),2:1/q^2 average in Gamma region'
-      write(ifi,"(a)" )'!CoreOrth  off  ! off  --> Not enforce core to be orthogonalized with valence (default)'
-      write(ifi,"(a)" )'                ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).'
-      write(ifi,"(a)" )'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
+      write(ifi,"(a)")'!!! Starting from ! (or nonkeyword) is comment line !!! '
+      write(ifi,"(a)")'!!! Each lines consists of "keyword value(s)"  !!! '
+      write(ifi,"(a)")'!!! Each tag section in <...>... </...> has its own format. !!! '
+      write(ifi,"(a)")'!Verbose    0  ! 0-->default; 100--->debug '
+      write(ifi,"(a)")'!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point'
+      write(ifi,"(a)")'!Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region'
+      write(ifi,"(a)")'!CoreOrth  off  ! off  --> Not enforce core to be orthogonalized with valence (default)'
+      write(ifi,"(a)")'                ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).'
+      write(ifi,"(a)")'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
 c
       write(ifi,"(a)" )'! ##### From GWIN0 ################ '
       write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW '
