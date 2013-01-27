@@ -1,6 +1,6 @@
       real(8) function deltaq_scale()
-! Q0Pset=1: qzerolimit. (not too small because of numerical reason.)
-! Q0Pset=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
+! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
+! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
       use keyvalue,only: getkeyvalue
       integer,save :: ttt
       logical,save:: init=.true.
@@ -14,7 +14,7 @@
       elseif(ttt==2) then  
         deltaq_scale=1d0/3.0**.5d0
       else
-        stop 'Use Q0pchoice = 1 or 2 (=1 is default)'
+        stop 'Use Q0Pchoice = 1 or 2 (=1 is default)'
       endif
          
       end

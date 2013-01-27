@@ -836,7 +836,7 @@ c-----------------------------------------------------------------
         write(if_eseavr,"(d23.15,i3,i8)")eseavrmean/nqbz,is ,ntqxxmin
       enddo
       write(if_eseavr,"(a)")' e-weighted average of self-energy for unoccupied bands. ispin ntqxxmin'
-      isx= iclose(if_eseavr)
+      close(if_eseavr) !bugfix jan2012
 
 
 C     --- mixing sigma -------------------------------------
