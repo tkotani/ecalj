@@ -180,7 +180,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
-      integer:: l2nl, nmbas_in,schi=-9999 , iqxendx,imb2 !iqqv,
+      integer:: l2nl, nmbas_in , iqxendx,imb2 !iqqv,
       logical:: eibz4x0,tiii,iprintx,chipm=.false.,iqinit,localfieldcorrectionllw
       real(8)::qvv(3),ecut,ecuts,hartree,rydberg,pi
       character(128):: vcoudfile
@@ -189,6 +189,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: src,dest
       integer:: ifw0w0i
       logical :: readw0w0i
+      real(8):: schi=-9999 !dummy
 !-------------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')

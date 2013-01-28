@@ -42,8 +42,8 @@ cccccccccccccccccccccccccccccccccccc
       IF (JOB .NE. 1 .AND. JOB .NE. 2) STOP '*** BAD JOB IN BZINTS2x'
 c      IF (JOB .EQ. 1) call dinit(dos,2*nr)
 c takao
-      IF (JOB .EQ. 1) call dinit(dos,nr)
-      IF (JOB .EQ. 2) call dinit(wp,nband*nsp*nq)
+      IF (JOB .EQ. 1) dos=0d0 !call dinit(dos,nr)
+      IF (JOB .EQ. 2) wp=0d0  !call dinit(wp,nband*nsp*nq)
       SEV1 = 0.D0
       SEV2 = 0.D0
 c      volwgt = (3.d0 - nsp) / (n1*n2*n3*6.d0)

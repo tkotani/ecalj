@@ -19,7 +19,7 @@ c      enddo
       subroutine diagcv(s,h,t,n,evl,nmx,emx,nev)
 C  diagonalizes and returns the nev lowest eigenstates
 C  eigenvecs are returned for i.lt.nmx. emx is dummy
-C     implicit none
+      implicit none
       integer n,nmx,nev
       double precision emx,evl(n),abstol,dlamch
       complex*16 s(n,n),h(n,n),t(n,n)
@@ -28,6 +28,8 @@ C     implicit none
       complex(8),allocatable:: work(:),s_(:,:),h_(:,:)
       integer(4),allocatable:: iwork(:),ifail(:)
       real(8),allocatable:: rwork(:)
+      real(8):: vl,vu  !bugfix (whis was not decleared) jan2013
+      integer:: lwork,info
 c
 c      print *,'diagcv in diagcv2:'
       abstol= 2d0*DLAMCH('S')

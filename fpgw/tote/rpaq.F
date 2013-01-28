@@ -430,25 +430,86 @@ c---------------------------------------------------------------------
 
       return
       end
-c---------------------------------------------------------------------
-      subroutine chhermat (rmat,cmat,ldim)
+c$$$c---------------------------------------------------------------------
+c$$$      subroutine chhermat (rmat,cmat,ldim)
+c$$$
+c$$$      implicit double precision (a-h,o-z)
+c$$$
+c$$$      dimension   rmat(ldim,ldim),cmat(ldim,ldim)
+c$$$      data tol /1.d-8/
+c$$$
+c$$$      do i = 1,ldim
+c$$$        do j = 1,ldim
+c$$$          w1   = rmat(i,j) - rmat(j,i)
+c$$$          w2   = cmat(i,j) + cmat(j,i)
+c$$$          if ((dabs(w1).gt.tol).or.(dabs(w2).gt.tol)) then
+c$$$            write(*,*)i,j,w1,w2
+c$$$            pause 'chhermat: non-hermite!'
+c$$$          endif
+c$$$        end do
+c$$$      end do
+c$$$
+c$$$      return
+c$$$      end
+c$$$c---------------------------------------------------------------------
+      subroutine mmulc (ra,ca,lda,
+     i                  rb,cb,ldb,
+     i                  nrow,nmul,ncol,ldc,
+     o rc,cc)
+
+c 91.11.29
+c multiply two complex matrices a b = c
+
+c ra,ca = real and imaginary parts of a
+c rb,cb =                             b
+c lda,ldb,ldc = leading dimensions of a,b and c
+c nrow,ncol   = no. rows and coulmns of c
+c nmul  = no. contractions
+
+c rc,cc = real and imaginary parts of c
 
       implicit double precision (a-h,o-z)
 
-      dimension   rmat(ldim,ldim),cmat(ldim,ldim)
-      data tol /1.d-8/
+      dimension ra(lda,1),ca(lda,1),
+     i          rb(ldb,1),cb(ldb,1)
+      dimension rc(ldc,1),cc(ldc,1)
 
-      do i = 1,ldim
-        do j = 1,ldim
-          w1   = rmat(i,j) - rmat(j,i)
-          w2   = cmat(i,j) + cmat(j,i)
-          if ((dabs(w1).gt.tol).or.(dabs(w2).gt.tol)) then
-            write(*,*)i,j,w1,w2
-            pause 'chhermat: non-hermite!'
-          endif
+      if(nrow .gt. lda) stop 'mmulc: lda too small'
+      if(nmul .gt. ldb) stop 'mmulc: ldb too small'
+      if(nmul .gt. ldc) stop 'mmulc: ldc too small'
+c     do      ir = 1,nrow
+c     do      ic = 1,ncol
+c     rsum       = 0.d0
+c     csum       = 0.d0
+c     do       i = 1,nmul
+c     rsum       = rsum + ra(ir,i)*rb(i,ic)
+c    .                  - ca(ir,i)*cb(i,ic)
+c     csum       = csum + ra(ir,i)*cb(i,ic)
+c    .                  + ca(ir,i)*rb(i,ic)
+c     end do
+c     rc(ir,ic)  = rsum
+c     cc(ir,ic)  = csum
+c     end do
+c     end do
+
+      do      ic = 1,ncol
+
+        do      ir = 1,nrow
+          rc(ir,ic)  = 0.d0
+          cc(ir,ic)  = 0.d0
+        enddo
+
+        do       i = 1,nmul
+          rbic       = rb(i,ic)
+          cbic       = cb(i,ic)
+          do      ir = 1,nrow
+            rc(ir,ic)  = rc(ir,ic) + rbic*ra(ir,i) - cbic*ca(ir,i)
+            cc(ir,ic)  = cc(ir,ic) + cbic*ra(ir,i) + rbic*ca(ir,i)
+          end do
         end do
+
       end do
 
       return
       end
-c---------------------------------------------------------------------
+

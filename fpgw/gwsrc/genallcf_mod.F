@@ -319,8 +319,10 @@ c      call defi    (inlnm,nclass)
       call nolnma  (nindx,nl,nclass,
      o              nlnm )
 c takao
-      i=0
-      CALL SKIPBL(symgrp,120,I)
+c      i=0
+c      CALL SKIPBL(symgrp,120,I)
+c     
+      i=2 !see previous definition of symgrp
       if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
         stop " Not: UseSYMOPSfile in LMTO file"
       endif

@@ -93,7 +93,7 @@ c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ifev(2),
 c     
 c     real(8) :: alat,ef,diw,dw,delta,pi,tpia,vol,voltot,rs,alpha,
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
-     &     qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,
+     &     qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      &     zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
 c     
 c     &   lowesteval !defined in readeigen
@@ -848,7 +848,7 @@ c     enddo
          volwgt = (3d0 - nspin) / ntetf ! ntetf was =6*n1*n2*n3
          call bzints2x(volwgt,eband,wtet(:,:,:,0),nqibz,nband,nband,
 c     ,dum,nkp,ldim,nbmax,
-     .        nspin,edummy,edummy,edummy,1,ef,2,nteti,idteti)
+     .        nspin,edummy,edummy,edummyd,1,ef,2,nteti,idteti)
 
 c     
          ntot= sum(wtet)

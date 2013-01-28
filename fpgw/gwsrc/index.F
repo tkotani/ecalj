@@ -251,8 +251,8 @@ c$$$      if (ifprod .gt. 0)
 c$$$     .write (ifprod,*)'lbas,n1,l1,im1,n2,l2,im2'
 
 c initialise indxb
-      call iinit   (indxb,nn*nn*nl**4)
-
+c      call iinit   (indxb,nn*nn*nl**4)
+      indxb = 0
       lbas       = 0
       do 10   l1 = 0,nl-1
         ll1        = l1*l1
@@ -322,8 +322,8 @@ c     write(ifkp,*)' nG1,nG2,nG3, qx,qy,qz, index '
 c     endif
 
 c initialise indk
-      call iinit(indk,(2*n1+1)*(2*n2+1)*(2*n3+1))
-
+c      call iinit(indk,(2*n1+1)*(2*n2+1)*(2*n3+1))
+      indk=0
 c invert qbas
       call dinv33(qbas,0,ginv,det)
 
@@ -409,7 +409,8 @@ c ilna(l1,n1,l2,n2) = 0 ==> not allowed
       dimension il1a(nlna),in1a(nlna),
      o          il2a(nlna),in2a(nlna),ilna(0:nl-1,nn,0:nl-1,nn)
 
-      call iinit   (ilna,nl*nl*nn*nn)
+c      call iinit   (ilna,nl*nl*nn*nn)
+      ilna=0
       lbas       = 0
       do 10   l1 = 0,nl-1
       do 10   n1 = 1,nindx(l1)
@@ -692,9 +693,10 @@ c all vectors are in units of 2*pi/a
      .          indxk(-n1:n1,-n2:n2,-n3:n3)
 
 c initialise indxr and indxk
-      call iinit(indxr,(2*n1+1)*(2*n2+1)*(2*n3+1))
-      call iinit(indxk,(2*n1+1)*(2*n2+1)*(2*n3+1))
-
+c      call iinit(indxr,(2*n1+1)*(2*n2+1)*(2*n3+1))
+c      call iinit(indxk,(2*n1+1)*(2*n2+1)*(2*n3+1))
+      indxr=0
+      indxk=0
 c invert qbas
       call dinv33(qbas,0,ginv,det)
 
@@ -798,7 +800,8 @@ c nallow    = number of allowed product basis
 
       if(nl-1 .gt. lmax) stop 'nallow: increase lmax'
       if(nn .gt. nnx) stop 'nallow: increase nnx'
-      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
+c      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
+      icheck=0
       do      l1 = 0,nl-1
         do      n1 = 1,nindx(l1)
           do      l2 = 0,nl-1
@@ -850,8 +853,8 @@ c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
 
       if (nl-1 .gt. lmax) stop 'nalwln: increase lmax'
       if (nn .gt. nnx) stop 'nalwln: increase nnx'
-      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
-
+c      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
+      icheck=0
       nalwln     = 0
       do 10   l1 = 0,nl-1
       do 10   n1 = 1,nindx(l1)

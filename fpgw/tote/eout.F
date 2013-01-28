@@ -3,25 +3,21 @@ c-------------------------------------------------------------
 c Gather datas from files and write final output.
 c------------------------------------------------------------
       implicit none
-      integer(4) :: ifx
+      integer(4) :: ifx,ierr
       real(8) :: rydberg,eks, rhoexc, rhoexc2, exc_lda,exc_lda2,
      &    alat,etot,ex, exxcc, exxcv, exxvv, ecorr, ex_lda, ec_lda
-
-      call getexx('TEEXXcc',exxcc)
-      call getexx('TEEXXcv',exxcv)
-      call getexx('TEEXXvv',exxvv)
-      call getexx('TEECORR',ecorr)
-
+      call getexx('TEEXXcc',exxcc,ierr)
+      call getexx('TEEXXcv',exxcv,ierr)
+      call getexx('TEEXXvv',exxvv,ierr)
+      call getexx('TEECORR',ecorr,ierr)
       ifx = 101
       open(ifx,file='LATTC')
       read(ifx,*)alat
       close(ifx)
-
       open(ifx,file='ETOTLDA')
       read(ifx,*) eks
       read(ifx,*) exc_lda
       close(ifx)
-
       open(ifx,file='RoVxcLDA')
       read(ifx,*) exc_lda2
       read(ifx,*) ex_lda

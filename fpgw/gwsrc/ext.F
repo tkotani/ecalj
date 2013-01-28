@@ -1,395 +1,395 @@
-C --- Simple FORTRAN dynamic memory allocation ---
-C Memory is allocated from a single heap.  The heap is declared as
-C an integer array in common block W by the main program.  Its size
-C is fixed by the size of W as declared by the main program.  It
-C is possible to allocated memory from the top of the heap, and to
-C free memory already allocated from the top of the heap.  It is
-C not possible to free memory allocated from the middle of the heap.
-C
-C To use these routines, first call WKINIT with NSIZE = size of W.
-C
-C Character, integer, real, double precision, complex or double
-C complex arrays can then be allocated by calling DEFCH, DEFI,
-C DEFR, DEFDR, DEFC or DEFDC with an index IPNAME and LENGTH the
-C desired length.  IPNAME is returned as the effective offset of
-C the integer array W.  If it is desired that the array be
-C initialized to zero, pass LENGTH as the negative of the desired
-C length.
-C
-C Allocated memory can be freed by calling RLSE(IPNAME) where
-C IPNAME must one of the indices from a previous allocation.  All
-C blocks of memory allocated after IPNAME are also released.
-C
-C WKPRNT turns on or off a trace that prints a message each time
-C        memory is allocated or released.  Also when turned on,
-C        runs through links each time RLSE is called.
-C DEFASK returns the amount of memory remaining in the pool
-C WKSAV  sets an internal switch so that a heap allocation request
-C        returns the the negative of length of the request in IPNAME
-C        when not enough memory is available, rather than aborting.
-C        In this case, no memory is allocated and no other internal
-C        variables are changed.
-C WKINFO prints information about the arrays allocated
-C WKCHK  runs through links to see if any array was overwritten
-C        call wkchk(string), where string terminated by '$'
-C ----------------------------------------------------------------
-      SUBROUTINE WKINIT(NSIZE)
-C- Initialize conditions for the 'common pool' data W
-ca !!!!!!!!!!!
-ca    INTEGER W(2)
-      INTEGER W(1)
-      CHARACTER*1 STRING(60),STR(60)
-      logical lopt,lerr
-      SAVE
-      COMMON /W/ W
-
-      IRND(I) = (I+499)/1000
-
-C ----- DEFINE STORAGE SIZE ------
-C  START OF FIRST ARRAY AND MAX NUMBER TO BE DEFINED:
-      IP0 = 5
-      NDEFMX = 100
-      LIMIT = NSIZE
-      IPMAX = 0
-      NDFDMX = 0
-      NDFSUM = 0
-      JPR = 0
-      IPFREE = 5
-      lerr = .false.
-      WRITE(*,*) 'WKINIT:  size=',IRND(NSIZE),'K'
-      WRITE(*,*) ' '
-      RETURN
-      ENTRY WKPRNT(JPRINT)
-C- Set debug switch for heap management
-      if (jprint .eq. 2) then
-        jpr = 1-jpr
-      else
-        JPR = JPRINT
-      endif
-      RETURN
-      entry wksav(lopt)
-      lerr = lopt
-      return
-C ------ SUBROUTINES TO DEFINE ARRAYS OF VARIOUS TYPES -----
-      ENTRY DEFCH(IPNAME,LENG)
-C- Allocate character array
-      LENGTH = (LENG+3)/4
-      GOTO 10
-      ENTRY DEFI(IPNAME,LENG)
-C- Allocate integer array
-      LENGTH = LENG
-      JOPT = 1
-      GOTO 10
-      ENTRY DEFR(IPNAME,LENG)
-C- Allocate single precision real array
-      LENGTH = LENG*I1MACH(17)
-      JOPT = 2
-      GOTO 10
-      ENTRY DEFRR(IPNAME,LENG)
-      ENTRY DEFDR(IPNAME,LENG)
-C- Allocate double precision real array
-      LENGTH = LENG*I1MACH(18)
-      JOPT = 3
-      GOTO 10
-      ENTRY DEFC(IPNAME,LENG)
-C- Allocate single precision complex array
-      LENGTH = LENG*2*I1MACH(17)
-      JOPT = 4
-      GOTO 10
-      ENTRY DEFCC(IPNAME,LENG)
-      ENTRY DEFDC(IPNAME,LENG)
-C- Allocate double precision complex array
-      LENGTH = LENG*2*I1MACH(18)
-      JOPT = 5
-   10 IOPT = 0
-      IF (LENGTH .LT. 0) THEN
-        IOPT = 1
-        LENGTH = -LENGTH
-      ENDIF
-      IF (LENGTH .EQ. 0) LENGTH = 1
-      IMOD = 1
-      GOTO 83
-   84 IPNAME = IPFREE
-      if (lerr .and. ipfree+length+2 .gt. limit) then
-        ipname = -LENGTH
-        if (jpr .gt. 0)  print *,
-     .    'ALLOC: heap storage exceeded; returning -LENGTH=',-LENGTH
-        return
-      endif
-      IPFREE = IPFREE + LENGTH + 1
-      IPFREE = 4*((IPFREE+2)/4)+1
-      IPMAX = MAX0(IPMAX,IPFREE)
-      W(IPNAME-1)=IPFREE
-      NDEFD = NDEFD + 1
-      NDFDMX = MAX0(NDFDMX,NDEFD)
-      NDFSUM = NDFSUM + LENGTH
-      IF (JPR .GT. 0) WRITE(*,100) NDEFD,LENG,LENGTH,IPNAME,IPFREE-1
-  100 FORMAT(' define array',I4,':   els=',I8,'   length=',I8,',',
-     .   I8,'  to',I8)
-      IF (IPFREE .LE. LIMIT) THEN
-c takao apl9 2008
-c        IF (IOPT .NE. 0) GOTO (201,202,203,204,205) JOPT
-        IF (IOPT .NE. 0) then
-          if(JOPT==1)  GOTO 201
-          if(JOPT==2)  GOTO 202
-          if(JOPT==3)  GOTO 203
-          if(JOPT==4)  GOTO 204
-          if(JOPT==5)  GOTO 205
-        ENDIF
-
-        RETURN
-  201   CALL IINIT(W(IPNAME),-LENG)
-        RETURN
-  202   CALL AINIT(W(IPNAME),-LENG)
-        RETURN
-  203   CALL DINIT(W(IPNAME),-LENG)
-        RETURN
-  204   CALL CINIT(W(IPNAME),-LENG)
-        RETURN
-  205   CALL ZINIT(W(IPNAME),-LENG)
-        RETURN
-      ENDIF
-      WRITE(*,101) IPFREE
-  101 FORMAT(' ALLOC: WORKSPACE OVERFLOW, NEED AT LEAST',I8)
-      STOP
-C- Release data up to pointer
-      ENTRY RLSE(IPNAME)
-      IF (IPNAME .GT. LIMIT) STOP 'RLSE: release pointer exceeds limit'
-      IF (IPNAME .LT. 3) STOP 'RLSE: release pointer less than 3'
-      IF (JPR .eq. 0) goto 82
-      imod = 3
-      goto 83
-   87 WRITE(*,*) 'RLSE from: ',IPNAME
-   82 IPFREE = IPNAME
-      return
-      ENTRY DEFASK(LREST)
-C- Return number of words left in common pool
-      LREST = LIMIT - IPFREE - 2
-      IF (JPR .GT. 0) WRITE(*,*) 'SPACE LEFT=',LREST,'  SINGLE WORDS'
-      RETURN
-      ENTRY WKINFO()
-C- Output workspace information
-      IMOD = 2
-      GOTO 83
-  81  WRITE(*,601) IRND(LIMIT),IRND(NDFSUM),IRND(IPMAX-1),
-     .             IRND(IPFREE-1),NDFDMX,NDEFD
-  601 FORMAT(
-     .  /'  total workspace size =',I5,' K',
-     .  /'  total space allocated=',I5,' K',
-     .  /'  workspace used:    max',I5,' K   now',I4,' K',
-     .  /'  arrays defined:    max',I7,  '   now',I6)
-      IF (IPFREE .EQ. IP0) RETURN
-      if (jpr .gt. 0) WRITE(*,602)
-  602 FORMAT(/'  array',6X,'begin',7X,'end',7X,'length')
-      IPX = IP0
-      DO  30  I = 1, NDEFMX
-        IPY = W(IPX-1)
-        IF (IPX .EQ. IPFREE) RETURN
-        IF (IPY .LT. IP0 .OR. IPY .GT. LIMIT) WRITE(*,*) '   . . . . . '
-        IF (IPY .LT. IP0 .OR. IPY .GT. LIMIT) RETURN
-        IF (JPR .GT. 0) WRITE(*,603) I,IPX,IPY,IPY-IPX
-  603   FORMAT(4(I6,5X))
-        IPX = IPY
-   30 CONTINUE
-      RETURN
-      ENTRY WKCHK(STRING)
-C- Run through links to see if any dynamic array was overwritten
-      IMOD = 0
-      DO  88  I = 1, 60
-        STR(I)=STRING(I)
-        NSTR = I-1
-        IF (STRING(I) .EQ. '$') GOTO 89
-   88 continue
-   89 WRITE(*,*) 'WKCHK: ',(STR(I),I = 1,NSTR)
-   83 NDEFD = 0
-      IPX = IP0
-      IPPLOC = -999
-      DO  35  I = 1, NDEFMX
-        IF (IPX .LT. IP0 .OR. IPX .GT. LIMIT) THEN
-          WRITE(*,888) NDEFD,IPX,IPPLOC
-  888     FORMAT(' ALLOC: LINK DESTROYED AT START OF ARRAY',I3,
-     .     ',  PTR=',I8,' AT',I8)
-          STOP
-        ENDIF
-        IF (IPX .EQ. IPFREE) GOTO 86
-        NDEFD = NDEFD + 1
-        IPPLOC = IPX - 1
-        IPX = W(IPPLOC)
-   35 continue
-  86  CONTINUE
-c apr9 2008
-c      GOTO (84,81,87), imod
-      if(imod==1) goto 84
-      if(imod==2) goto 81
-      if(imod==3) goto 87
-
-      WRITE(*,360) NDEFD,IPFREE-1
-  360 FORMAT('     LINKS OK   NDEFD=',I3,'   SPACE USED=',I7)
-      RETURN
-      END
-      SUBROUTINE CINIT(ARRAY,LENG)
-C- Initializes complex array to zero
-      INTEGER LENG
-      REAL ARRAY(2*LENG)
-      CALL AINIT(ARRAY,LENG+LENG)
-      RETURN
-      END
-      SUBROUTINE ZINIT(ARRAY,LENG)
-C- Initializes complex array to zero
-      INTEGER LENG
-      DOUBLE PRECISION ARRAY(2*LENG)
-      CALL DINIT(ARRAY,LENG+LENG)
-      RETURN
-      END
-      SUBROUTINE IINIT(ARRAY,LENG)
-C- Initializes integer array to zero
-      INTEGER LENG
-      INTEGER ARRAY(LENG)
-      DO 10 I=1,LENG
-        ARRAY(I)=0
-   10 CONTINUE
-      RETURN
-      END
-      SUBROUTINE AINIT(ARRAY,LENG)
-C- Initializes real array to zero
-      INTEGER LENG
-      REAL ARRAY(LENG)
-      DO 10 I=1,LENG
-        ARRAY(I)=0.
-   10 CONTINUE
-      RETURN
-      END
-      SUBROUTINE DINIT(ARRAY,LENG)
-C- Initializes double precision array to zero
-      INTEGER LENG
-      DOUBLE PRECISION ARRAY(LENG)
-      DO 10 I=1,LENG
-        ARRAY(I)=0.D0
-   10 CONTINUE
-      RETURN
-      END
-      FUNCTION RVAL(ARRAY,INDEX)
-C- Returns the real value of ARRAY(INDEX)
-      REAL ARRAY(INDEX)
-      RVAL=ARRAY(INDEX)
-      RETURN
-      END
-      DOUBLE PRECISION FUNCTION DRVAL(ARRAY,INDEX)
-C- Returns the double precision value of ARRAY(INDEX)
-      DOUBLE PRECISION ARRAY(INDEX)
-      DRVAL=ARRAY(INDEX)
-      RETURN
-      END
-      INTEGER FUNCTION IVAL(ARRAY,INDEX)
-C- Returns the integer value of ARRAY(INDEX)
-      INTEGER ARRAY(INDEX)
-      IVAL=ARRAY(INDEX)
-      RETURN
-      END
-      COMPLEX FUNCTION CVAL(ARRAY,INDEX)
-C- Returns the complex value of ARRAY(INDEX)
-      COMPLEX ARRAY(INDEX)
-      CVAL=ARRAY(INDEX)
-      RETURN
-      END
-
-
-
-      SUBROUTINE DMADD(A,NCA,NRA,SCALEA,B,NCB,NRB,SCALEB,C,NCC,NRC,N,M)
-C- general matrix addition
-C ----------------------------------------------------------------
-Ci Inputs:
-Ci   a,nca,nra is the left matrix and respectively the number of
-Ci      elements separating columns and rows.
-Ci   b,ncb,nrb is the right matrix and respectively the number of
-Ci      elements separating columns and rows.
-Ci   c,ncc,nrc is the result matrix and respectively the number of
-Ci      elements separating columns and rows.
-Ci   n,m: the number of rows and columns, respectively, to calculate
-Co Outputs:
-Co   result matrix stored in c
-Cr Remarks:
-Cr   This is a general-purpose matrix linear combination routine,
-Cr   adding a subblock of matrix a to a subblock of matrix b.
-Cr   Normally matrix nc{a,b,c} is the row dimension of matrix {a,b,c}
-Cr   and nr{a,b,c} is 1.  Reverse nr and nc for a transposed matrix.
-Cr   Arrays are locally one-dimensional so as to optimize inner loop.
-Cr
-Cr   Destination matrix c can coincide with either a or b, provided that
-Cr   the transpose of the coincident matrix is not taken.
-Cr   Example: Add 3-by-2 block of (transpose of a - .5*b) into c
-Cr     call dmadd(a,1,na,1.d0,b,nb,0,-.5d0,c,nc,1,3,2)
-Cr     OLD call dmadd(a,na,1,b,nb,0,-.5d0,c,nc,3,2)
-C ----------------------------------------------------------------
-C
-      INTEGER NCA,NRA,NCB,NRB,NCC,NRC,N,M
-      DOUBLE PRECISION A(0:1), B(0:1), C(0:1), SCALEA, SCALEB
-      INTEGER I,J,IA,IB,IC
-
-      DO  200  I = N-1, 0, -1
-        IA = I*NRA+M*NCA
-        IB = I*NRB+M*NCB
-        IC = I*NRC+M*NCC
-      DO  200  J = M-1, 0, -1
-        IA = IA-NCA
-        IB = IB-NCB
-        IC = IC-NCC
-        C(IC) = A(IA)*SCALEA + B(IB)*SCALEB
-  200 CONTINUE
-      RETURN
-      END
-      subroutine dpmpy(a,b,nscb,nsrb,c,nscc,nsrc,nr,nc,l)
-C- matrix multiplication, (packed) (normal) -> (normal)
-C ----------------------------------------------------------------
-Ci Inputs:
-Ci   a is the left matrix (packed)
-Ci   b,nscb,nsrb is the right matrix and respectively the spacing
-Ci      between column elements and row elements.
-Ci   c,nscc,nsrc is the product matrix and respectively the number of
-Ci      elements separating columns and rows.
-Ci   nr,nc: the number of rows and columns, respectively, to calculate
-Ci   l:   length of vector for matrix multiply
-Co Outputs:
-Co   product matrix stored in c
-Cr Remarks:
-Cr   This is a general-purpose matrix multiplication routine,
-Cr   multiplying a subblock of matrix a by a subblock of matrix b.
-Cr   Normally matrix nc{a,b,c} is the row dimension of matrix {a,b,c}
-Cr   and nr{a,b,c} is 1.  Reverse nr and nc for a transposed matrix.
-Cr   Arrays are locally one-dimensional so as to optimize inner loop,
-Cr   which is executed nr*nc*l times.  No attempt is made to optimize
-Cr   the outer loops, executed nr*nc times.
-Cr     Examples: product of (nr,l) subblock of a into (l,nc) subblock of
-Cr   call dmpy(a,nrowa,1,b,nrowb,1,c,nrowc,1,nr,nc,l)
-Cr     nrowa, nrowb, and nrowc are the leading dimensions of a, b and c.
-Cr     To generate the tranpose of that product, use:
-Cr   call dmpy(a,nrowa,1,b,nrowb,1,c,1,nrowc,nr,nc,l)
-C ----------------------------------------------------------------
-C Passed Parameters
-      integer nscb,nsrb,nscc,nsrc,nr,nc,l
-      double precision a(0:*), b(0:*), c(0:*)
-C Local parameters
-      double precision sum
-      integer i,j,k,offa,offb
-
-      do  20  i = 0, nr-1
-      do  20  j = 0, nc-1
-        sum = 0
-        offa = (i*(i+1))/2
-        offb = nscb*j
-        do  21  k = 0, i-1
-          sum = sum + a(offa)*b(offb)
-          offa = offa + 1
-          offb = offb + nsrb
-   21   continue
-        do  22  k = i, l-1
-          sum = sum + a(offa)*b(offb)
-          offa = offa + k+1
-          offb = offb + nsrb
-   22   continue
-        c(i*nsrc+j*nscc) = sum
-   20 continue
-      end
+c$$$C --- Simple FORTRAN dynamic memory allocation ---
+c$$$C Memory is allocated from a single heap.  The heap is declared as
+c$$$C an integer array in common block W by the main program.  Its size
+c$$$C is fixed by the size of W as declared by the main program.  It
+c$$$C is possible to allocated memory from the top of the heap, and to
+c$$$C free memory already allocated from the top of the heap.  It is
+c$$$C not possible to free memory allocated from the middle of the heap.
+c$$$C
+c$$$C To use these routines, first call WKINIT with NSIZE = size of W.
+c$$$C
+c$$$C Character, integer, real, double precision, complex or double
+c$$$C complex arrays can then be allocated by calling DEFCH, DEFI,
+c$$$C DEFR, DEFDR, DEFC or DEFDC with an index IPNAME and LENGTH the
+c$$$C desired length.  IPNAME is returned as the effective offset of
+c$$$C the integer array W.  If it is desired that the array be
+c$$$C initialized to zero, pass LENGTH as the negative of the desired
+c$$$C length.
+c$$$C
+c$$$C Allocated memory can be freed by calling RLSE(IPNAME) where
+c$$$C IPNAME must one of the indices from a previous allocation.  All
+c$$$C blocks of memory allocated after IPNAME are also released.
+c$$$C
+c$$$C WKPRNT turns on or off a trace that prints a message each time
+c$$$C        memory is allocated or released.  Also when turned on,
+c$$$C        runs through links each time RLSE is called.
+c$$$C DEFASK returns the amount of memory remaining in the pool
+c$$$C WKSAV  sets an internal switch so that a heap allocation request
+c$$$C        returns the the negative of length of the request in IPNAME
+c$$$C        when not enough memory is available, rather than aborting.
+c$$$C        In this case, no memory is allocated and no other internal
+c$$$C        variables are changed.
+c$$$C WKINFO prints information about the arrays allocated
+c$$$C WKCHK  runs through links to see if any array was overwritten
+c$$$C        call wkchk(string), where string terminated by '$'
+c$$$C ----------------------------------------------------------------
+c$$$      SUBROUTINE WKINIT(NSIZE)
+c$$$C- Initialize conditions for the 'common pool' data W
+c$$$ca !!!!!!!!!!!
+c$$$ca    INTEGER W(2)
+c$$$      INTEGER W(1)
+c$$$      CHARACTER*1 STRING(60),STR(60)
+c$$$      logical lopt,lerr
+c$$$      SAVE
+c$$$      COMMON /W/ W
+c$$$
+c$$$      IRND(I) = (I+499)/1000
+c$$$
+c$$$C ----- DEFINE STORAGE SIZE ------
+c$$$C  START OF FIRST ARRAY AND MAX NUMBER TO BE DEFINED:
+c$$$      IP0 = 5
+c$$$      NDEFMX = 100
+c$$$      LIMIT = NSIZE
+c$$$      IPMAX = 0
+c$$$      NDFDMX = 0
+c$$$      NDFSUM = 0
+c$$$      JPR = 0
+c$$$      IPFREE = 5
+c$$$      lerr = .false.
+c$$$      WRITE(*,*) 'WKINIT:  size=',IRND(NSIZE),'K'
+c$$$      WRITE(*,*) ' '
+c$$$      RETURN
+c$$$      ENTRY WKPRNT(JPRINT)
+c$$$C- Set debug switch for heap management
+c$$$      if (jprint .eq. 2) then
+c$$$        jpr = 1-jpr
+c$$$      else
+c$$$        JPR = JPRINT
+c$$$      endif
+c$$$      RETURN
+c$$$      entry wksav(lopt)
+c$$$      lerr = lopt
+c$$$      return
+c$$$C ------ SUBROUTINES TO DEFINE ARRAYS OF VARIOUS TYPES -----
+c$$$      ENTRY DEFCH(IPNAME,LENG)
+c$$$C- Allocate character array
+c$$$      LENGTH = (LENG+3)/4
+c$$$      GOTO 10
+c$$$      ENTRY DEFI(IPNAME,LENG)
+c$$$C- Allocate integer array
+c$$$      LENGTH = LENG
+c$$$      JOPT = 1
+c$$$      GOTO 10
+c$$$      ENTRY DEFR(IPNAME,LENG)
+c$$$C- Allocate single precision real array
+c$$$      LENGTH = LENG*I1MACH(17)
+c$$$      JOPT = 2
+c$$$      GOTO 10
+c$$$      ENTRY DEFRR(IPNAME,LENG)
+c$$$      ENTRY DEFDR(IPNAME,LENG)
+c$$$C- Allocate double precision real array
+c$$$      LENGTH = LENG*I1MACH(18)
+c$$$      JOPT = 3
+c$$$      GOTO 10
+c$$$      ENTRY DEFC(IPNAME,LENG)
+c$$$C- Allocate single precision complex array
+c$$$      LENGTH = LENG*2*I1MACH(17)
+c$$$      JOPT = 4
+c$$$      GOTO 10
+c$$$      ENTRY DEFCC(IPNAME,LENG)
+c$$$      ENTRY DEFDC(IPNAME,LENG)
+c$$$C- Allocate double precision complex array
+c$$$      LENGTH = LENG*2*I1MACH(18)
+c$$$      JOPT = 5
+c$$$   10 IOPT = 0
+c$$$      IF (LENGTH .LT. 0) THEN
+c$$$        IOPT = 1
+c$$$        LENGTH = -LENGTH
+c$$$      ENDIF
+c$$$      IF (LENGTH .EQ. 0) LENGTH = 1
+c$$$      IMOD = 1
+c$$$      GOTO 83
+c$$$   84 IPNAME = IPFREE
+c$$$      if (lerr .and. ipfree+length+2 .gt. limit) then
+c$$$        ipname = -LENGTH
+c$$$        if (jpr .gt. 0)  print *,
+c$$$     .    'ALLOC: heap storage exceeded; returning -LENGTH=',-LENGTH
+c$$$        return
+c$$$      endif
+c$$$      IPFREE = IPFREE + LENGTH + 1
+c$$$      IPFREE = 4*((IPFREE+2)/4)+1
+c$$$      IPMAX = MAX0(IPMAX,IPFREE)
+c$$$      W(IPNAME-1)=IPFREE
+c$$$      NDEFD = NDEFD + 1
+c$$$      NDFDMX = MAX0(NDFDMX,NDEFD)
+c$$$      NDFSUM = NDFSUM + LENGTH
+c$$$      IF (JPR .GT. 0) WRITE(*,100) NDEFD,LENG,LENGTH,IPNAME,IPFREE-1
+c$$$  100 FORMAT(' define array',I4,':   els=',I8,'   length=',I8,',',
+c$$$     .   I8,'  to',I8)
+c$$$      IF (IPFREE .LE. LIMIT) THEN
+c$$$c takao apl9 2008
+c$$$c        IF (IOPT .NE. 0) GOTO (201,202,203,204,205) JOPT
+c$$$        IF (IOPT .NE. 0) then
+c$$$          if(JOPT==1)  GOTO 201
+c$$$          if(JOPT==2)  GOTO 202
+c$$$          if(JOPT==3)  GOTO 203
+c$$$          if(JOPT==4)  GOTO 204
+c$$$          if(JOPT==5)  GOTO 205
+c$$$        ENDIF
+c$$$
+c$$$        RETURN
+c$$$  201   CALL IINIT(W(IPNAME),-LENG)
+c$$$        RETURN
+c$$$  202   CALL AINIT(W(IPNAME),-LENG)
+c$$$        RETURN
+c$$$  203   CALL DINIT(W(IPNAME),-LENG)
+c$$$        RETURN
+c$$$  204   CALL CINIT(W(IPNAME),-LENG)
+c$$$        RETURN
+c$$$  205   CALL ZINIT(W(IPNAME),-LENG)
+c$$$        RETURN
+c$$$      ENDIF
+c$$$      WRITE(*,101) IPFREE
+c$$$  101 FORMAT(' ALLOC: WORKSPACE OVERFLOW, NEED AT LEAST',I8)
+c$$$      STOP
+c$$$C- Release data up to pointer
+c$$$      ENTRY RLSE(IPNAME)
+c$$$      IF (IPNAME .GT. LIMIT) STOP 'RLSE: release pointer exceeds limit'
+c$$$      IF (IPNAME .LT. 3) STOP 'RLSE: release pointer less than 3'
+c$$$      IF (JPR .eq. 0) goto 82
+c$$$      imod = 3
+c$$$      goto 83
+c$$$   87 WRITE(*,*) 'RLSE from: ',IPNAME
+c$$$   82 IPFREE = IPNAME
+c$$$      return
+c$$$      ENTRY DEFASK(LREST)
+c$$$C- Return number of words left in common pool
+c$$$      LREST = LIMIT - IPFREE - 2
+c$$$      IF (JPR .GT. 0) WRITE(*,*) 'SPACE LEFT=',LREST,'  SINGLE WORDS'
+c$$$      RETURN
+c$$$      ENTRY WKINFO()
+c$$$C- Output workspace information
+c$$$      IMOD = 2
+c$$$      GOTO 83
+c$$$  81  WRITE(*,601) IRND(LIMIT),IRND(NDFSUM),IRND(IPMAX-1),
+c$$$     .             IRND(IPFREE-1),NDFDMX,NDEFD
+c$$$  601 FORMAT(
+c$$$     .  /'  total workspace size =',I5,' K',
+c$$$     .  /'  total space allocated=',I5,' K',
+c$$$     .  /'  workspace used:    max',I5,' K   now',I4,' K',
+c$$$     .  /'  arrays defined:    max',I7,  '   now',I6)
+c$$$      IF (IPFREE .EQ. IP0) RETURN
+c$$$      if (jpr .gt. 0) WRITE(*,602)
+c$$$  602 FORMAT(/'  array',6X,'begin',7X,'end',7X,'length')
+c$$$      IPX = IP0
+c$$$      DO  30  I = 1, NDEFMX
+c$$$        IPY = W(IPX-1)
+c$$$        IF (IPX .EQ. IPFREE) RETURN
+c$$$        IF (IPY .LT. IP0 .OR. IPY .GT. LIMIT) WRITE(*,*) '   . . . . . '
+c$$$        IF (IPY .LT. IP0 .OR. IPY .GT. LIMIT) RETURN
+c$$$        IF (JPR .GT. 0) WRITE(*,603) I,IPX,IPY,IPY-IPX
+c$$$  603   FORMAT(4(I6,5X))
+c$$$        IPX = IPY
+c$$$   30 CONTINUE
+c$$$      RETURN
+c$$$      ENTRY WKCHK(STRING)
+c$$$C- Run through links to see if any dynamic array was overwritten
+c$$$      IMOD = 0
+c$$$      DO  88  I = 1, 60
+c$$$        STR(I)=STRING(I)
+c$$$        NSTR = I-1
+c$$$        IF (STRING(I) .EQ. '$') GOTO 89
+c$$$   88 continue
+c$$$   89 WRITE(*,*) 'WKCHK: ',(STR(I),I = 1,NSTR)
+c$$$   83 NDEFD = 0
+c$$$      IPX = IP0
+c$$$      IPPLOC = -999
+c$$$      DO  35  I = 1, NDEFMX
+c$$$        IF (IPX .LT. IP0 .OR. IPX .GT. LIMIT) THEN
+c$$$          WRITE(*,888) NDEFD,IPX,IPPLOC
+c$$$  888     FORMAT(' ALLOC: LINK DESTROYED AT START OF ARRAY',I3,
+c$$$     .     ',  PTR=',I8,' AT',I8)
+c$$$          STOP
+c$$$        ENDIF
+c$$$        IF (IPX .EQ. IPFREE) GOTO 86
+c$$$        NDEFD = NDEFD + 1
+c$$$        IPPLOC = IPX - 1
+c$$$        IPX = W(IPPLOC)
+c$$$   35 continue
+c$$$  86  CONTINUE
+c$$$c apr9 2008
+c$$$c      GOTO (84,81,87), imod
+c$$$      if(imod==1) goto 84
+c$$$      if(imod==2) goto 81
+c$$$      if(imod==3) goto 87
+c$$$
+c$$$      WRITE(*,360) NDEFD,IPFREE-1
+c$$$  360 FORMAT('     LINKS OK   NDEFD=',I3,'   SPACE USED=',I7)
+c$$$      RETURN
+c$$$      END
+c$$$      SUBROUTINE CINIT(ARRAY,LENG)
+c$$$C- Initializes complex array to zero
+c$$$      INTEGER LENG
+c$$$      REAL ARRAY(2*LENG)
+c$$$      CALL AINIT(ARRAY,LENG+LENG)
+c$$$      RETURN
+c$$$      END
+c$$$      SUBROUTINE ZINIT(ARRAY,LENG)
+c$$$C- Initializes complex array to zero
+c$$$      INTEGER LENG
+c$$$      DOUBLE PRECISION ARRAY(2*LENG)
+c$$$      CALL DINIT(ARRAY,LENG+LENG)
+c$$$      RETURN
+c$$$      END
+c$$$      SUBROUTINE IINIT(ARRAY,LENG)
+c$$$C- Initializes integer array to zero
+c$$$      INTEGER LENG
+c$$$      INTEGER ARRAY(LENG)
+c$$$      DO 10 I=1,LENG
+c$$$        ARRAY(I)=0
+c$$$   10 CONTINUE
+c$$$      RETURN
+c$$$      END
+c$$$      SUBROUTINE AINIT(ARRAY,LENG)
+c$$$C- Initializes real array to zero
+c$$$      INTEGER LENG
+c$$$      REAL ARRAY(LENG)
+c$$$      DO 10 I=1,LENG
+c$$$        ARRAY(I)=0.
+c$$$   10 CONTINUE
+c$$$      RETURN
+c$$$      END
+c$$$      SUBROUTINE DINIT(ARRAY,LENG)
+c$$$C- Initializes double precision array to zero
+c$$$      INTEGER LENG
+c$$$      DOUBLE PRECISION ARRAY(LENG)
+c$$$      DO 10 I=1,LENG
+c$$$        ARRAY(I)=0.D0
+c$$$   10 CONTINUE
+c$$$      RETURN
+c$$$      END
+c$$$      FUNCTION RVAL(ARRAY,INDEX)
+c$$$C- Returns the real value of ARRAY(INDEX)
+c$$$      REAL ARRAY(INDEX)
+c$$$      RVAL=ARRAY(INDEX)
+c$$$      RETURN
+c$$$      END
+c$$$      DOUBLE PRECISION FUNCTION DRVAL(ARRAY,INDEX)
+c$$$C- Returns the double precision value of ARRAY(INDEX)
+c$$$      DOUBLE PRECISION ARRAY(INDEX)
+c$$$      DRVAL=ARRAY(INDEX)
+c$$$      RETURN
+c$$$      END
+c$$$      INTEGER FUNCTION IVAL(ARRAY,INDEX)
+c$$$C- Returns the integer value of ARRAY(INDEX)
+c$$$      INTEGER ARRAY(INDEX)
+c$$$      IVAL=ARRAY(INDEX)
+c$$$      RETURN
+c$$$      END
+c$$$      COMPLEX FUNCTION CVAL(ARRAY,INDEX)
+c$$$C- Returns the complex value of ARRAY(INDEX)
+c$$$      COMPLEX ARRAY(INDEX)
+c$$$      CVAL=ARRAY(INDEX)
+c$$$      RETURN
+c$$$      END
+c$$$
+c$$$
+c$$$
+c$$$      SUBROUTINE DMADD(A,NCA,NRA,SCALEA,B,NCB,NRB,SCALEB,C,NCC,NRC,N,M)
+c$$$C- general matrix addition
+c$$$C ----------------------------------------------------------------
+c$$$Ci Inputs:
+c$$$Ci   a,nca,nra is the left matrix and respectively the number of
+c$$$Ci      elements separating columns and rows.
+c$$$Ci   b,ncb,nrb is the right matrix and respectively the number of
+c$$$Ci      elements separating columns and rows.
+c$$$Ci   c,ncc,nrc is the result matrix and respectively the number of
+c$$$Ci      elements separating columns and rows.
+c$$$Ci   n,m: the number of rows and columns, respectively, to calculate
+c$$$Co Outputs:
+c$$$Co   result matrix stored in c
+c$$$Cr Remarks:
+c$$$Cr   This is a general-purpose matrix linear combination routine,
+c$$$Cr   adding a subblock of matrix a to a subblock of matrix b.
+c$$$Cr   Normally matrix nc{a,b,c} is the row dimension of matrix {a,b,c}
+c$$$Cr   and nr{a,b,c} is 1.  Reverse nr and nc for a transposed matrix.
+c$$$Cr   Arrays are locally one-dimensional so as to optimize inner loop.
+c$$$Cr
+c$$$Cr   Destination matrix c can coincide with either a or b, provided that
+c$$$Cr   the transpose of the coincident matrix is not taken.
+c$$$Cr   Example: Add 3-by-2 block of (transpose of a - .5*b) into c
+c$$$Cr     call dmadd(a,1,na,1.d0,b,nb,0,-.5d0,c,nc,1,3,2)
+c$$$Cr     OLD call dmadd(a,na,1,b,nb,0,-.5d0,c,nc,3,2)
+c$$$C ----------------------------------------------------------------
+c$$$C
+c$$$      INTEGER NCA,NRA,NCB,NRB,NCC,NRC,N,M
+c$$$      DOUBLE PRECISION A(0:1), B(0:1), C(0:1), SCALEA, SCALEB
+c$$$      INTEGER I,J,IA,IB,IC
+c$$$
+c$$$      DO  200  I = N-1, 0, -1
+c$$$        IA = I*NRA+M*NCA
+c$$$        IB = I*NRB+M*NCB
+c$$$        IC = I*NRC+M*NCC
+c$$$      DO  200  J = M-1, 0, -1
+c$$$        IA = IA-NCA
+c$$$        IB = IB-NCB
+c$$$        IC = IC-NCC
+c$$$        C(IC) = A(IA)*SCALEA + B(IB)*SCALEB
+c$$$  200 CONTINUE
+c$$$      RETURN
+c$$$      END
+c$$$      subroutine dpmpy(a,b,nscb,nsrb,c,nscc,nsrc,nr,nc,l)
+c$$$C- matrix multiplication, (packed) (normal) -> (normal)
+c$$$C ----------------------------------------------------------------
+c$$$Ci Inputs:
+c$$$Ci   a is the left matrix (packed)
+c$$$Ci   b,nscb,nsrb is the right matrix and respectively the spacing
+c$$$Ci      between column elements and row elements.
+c$$$Ci   c,nscc,nsrc is the product matrix and respectively the number of
+c$$$Ci      elements separating columns and rows.
+c$$$Ci   nr,nc: the number of rows and columns, respectively, to calculate
+c$$$Ci   l:   length of vector for matrix multiply
+c$$$Co Outputs:
+c$$$Co   product matrix stored in c
+c$$$Cr Remarks:
+c$$$Cr   This is a general-purpose matrix multiplication routine,
+c$$$Cr   multiplying a subblock of matrix a by a subblock of matrix b.
+c$$$Cr   Normally matrix nc{a,b,c} is the row dimension of matrix {a,b,c}
+c$$$Cr   and nr{a,b,c} is 1.  Reverse nr and nc for a transposed matrix.
+c$$$Cr   Arrays are locally one-dimensional so as to optimize inner loop,
+c$$$Cr   which is executed nr*nc*l times.  No attempt is made to optimize
+c$$$Cr   the outer loops, executed nr*nc times.
+c$$$Cr     Examples: product of (nr,l) subblock of a into (l,nc) subblock of
+c$$$Cr   call dmpy(a,nrowa,1,b,nrowb,1,c,nrowc,1,nr,nc,l)
+c$$$Cr     nrowa, nrowb, and nrowc are the leading dimensions of a, b and c.
+c$$$Cr     To generate the tranpose of that product, use:
+c$$$Cr   call dmpy(a,nrowa,1,b,nrowb,1,c,1,nrowc,nr,nc,l)
+c$$$C ----------------------------------------------------------------
+c$$$C Passed Parameters
+c$$$      integer nscb,nsrb,nscc,nsrc,nr,nc,l
+c$$$      double precision a(0:*), b(0:*), c(0:*)
+c$$$C Local parameters
+c$$$      double precision sum
+c$$$      integer i,j,k,offa,offb
+c$$$
+c$$$      do  20  i = 0, nr-1
+c$$$      do  20  j = 0, nc-1
+c$$$        sum = 0
+c$$$        offa = (i*(i+1))/2
+c$$$        offb = nscb*j
+c$$$        do  21  k = 0, i-1
+c$$$          sum = sum + a(offa)*b(offb)
+c$$$          offa = offa + 1
+c$$$          offb = offb + nsrb
+c$$$   21   continue
+c$$$        do  22  k = i, l-1
+c$$$          sum = sum + a(offa)*b(offb)
+c$$$          offa = offa + k+1
+c$$$          offb = offb + nsrb
+c$$$   22   continue
+c$$$        c(i*nsrc+j*nscc) = sum
+c$$$   20 continue
+c$$$      end
 
 C       REAL FUNCTION R1MACH(I)
 C C

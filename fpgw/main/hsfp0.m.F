@@ -69,7 +69,7 @@ c------------------------------------
      &     ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      &     ifsecomg(2),ifexx,ndble=8
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
-     &     qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,
+     &     qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      &     zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
       logical lqall,laf
       integer,allocatable :: itq(:)
@@ -491,7 +491,7 @@ c     .               nspin,edummy,edummy,edummy,1,ef,2,ntet,idtet)
         volwgt = (3d0 - nspin) / ntetf ! ntetf was =6*n1*n2*n3
         call bzints2x(volwgt,eband,wtet(:,:,:,0),nqibz,nband,nband,
 c     ,dum,nkp,ldim,nbmax,
-     .        nspin,edummy,edummy,edummy,1,ef,2,nteti,idteti)
+     .        nspin,edummy,edummy,edummyd,1,ef,2,nteti,idteti)
 
         ntot= sum(wtet)
         if(legas) then
@@ -826,7 +826,7 @@ c     --- info
         allocate( wklm((lxklm+1)**2))
         read(ifidmlx) dmlx, epinvq0i
         read(ifidmlx) wklm
-        ifidmlx = iclose(ifidmlx)
+        ifidmlx = iclose('EPSwklm') !jan2013 bugfix ifidmlx)
       endif
 
 c-------------------------

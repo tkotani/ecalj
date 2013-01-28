@@ -52,7 +52,7 @@ c     logical :: readgwinput
 
       logical ::anyq                , caca,newaniso,debug=.true.
       real(8),allocatable:: qany(:,:)
-      integer(4):: nany,ifqpnt,ret,imxc,nnn3(3),imx0c
+      integer(4):: nany,ifqpnt,ret,imxc,nnn3(3),imx0c,imx11(1,1)
       real(8):: deltaq,delta5,delta8,deltaq_scale!=1d0/3.0**.5d0 
 
       integer:: nqi,ifix,ig,lmxax,lx,iq0i,lm,lxklm
@@ -65,6 +65,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
       real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
       character*7:: q0pf        !nov2012
+      integer:: dummyia(1,1)
 c------------------------------------------------
       
       qreduce0 = qreduce()
@@ -262,7 +263,7 @@ c     endif
          allocate( ngcx(nqbz) )
          do iq = 1, nqbz
             q   = qbz(1:3,iq)
-            call getgv2(alat,plat,qlat,q, QpGcut, 1, ngcx(iq),  dummy)
+            call getgv2(alat,plat,qlat,q, QpGcut, 1, ngcx(iq),  dummyia)
          enddo
          ngcxx = maxval(ngcx)
          allocate( ngvect(3,ngcxx,nqbz) )
@@ -898,9 +899,11 @@ c      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
                endif
             enddo
          endif
-         call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx0) !imx mar2012takao
+         call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx11) !imx11
+         imx0=imx11(1,1)
          if(imx0>imx) imx=imx0
-         call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx0c)
+         call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx11) !imx11 to avoid warning.
+         imx0c=imx11(1,1)
          if(imx0c>imxc) imxc=imx0c
          if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
       enddo

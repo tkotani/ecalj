@@ -73,8 +73,9 @@ C ----------------------------------------------------------------------
 c
       real(8):: qlat(3,3),qp(3)
       integer(4):: nnn,ifkpt,i1,nlinemax=50,ifsyml,nline,iopenxx,nqs
-      integer(4),allocatable:: nqq(:),symlon(:)
-      real(8),allocatable:: qbz(:,:),qbzs(:,:),wbz(:),qq1(:,:),qq2(:,:),nstbz(:)
+      integer(4),allocatable:: nqq(:),symlon(:),nstbz(:)
+      real(8),allocatable:: qbz(:,:),qbzs(:,:),wbz(:),qq1(:,:),qq2(:,:) 
+                 !bugfix jan2013 nstbz was here..., but it gave no effects to previous results.
       logical :: extsyml
       integer(4)::checksymlon
 

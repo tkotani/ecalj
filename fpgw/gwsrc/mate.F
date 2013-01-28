@@ -772,407 +772,407 @@ c full = full matrix in double precision
 
       return
       end
-c-------------------------------------------------------------------
-      subroutine minv(s,ldim,n,
-     w                work,ipvt,
-     o si)
-
-c invert a real (symmetric ?) matrix s
-
-c s    = matrix to be inverted
-c ldim = leading dimension of s
-c n    = dimension of the problem
-c work,ipvt = work arrays
-
-c si   = inverse of s
-
-      implicit real*8(a-h,o-z)
-      dimension s(ldim,n),
-     w          work(n),ipvt(n)
-      dimension si(n,n)
-      dimension det(2)
-
-      do         i = 1,n
-        call dcopy   (n,s(1,i),1,si(1,i),1)
-      end do
-
-      call dgefa   (si,n,n,ipvt,info)
-      call dgedi   (si,n,n,ipvt,det,work,01)
-
-      return
-      end
-c-------------------------------------------------------------------
-      subroutine minvc (r,c,
-     d                  ldim,n,
-     w                  work,ipvt,w1,w2,
-     o ri,ci )
-
-c 91.11.29
-c invert a complex matrix
-
-c r,c   = real and imaginary parts of the matrix
-c ldim  = leading dimension of matrix
-c n     = dimension of the problem
-c work,ipvt,w1,w2 = work arrays
-
-c ri,ci = real and imaginary parts of the inverse matrix
-
-      implicit double precision (a-h,o-z)
-      dimension r(ldim,n),c(ldim,n),
-     w          work(n),ipvt(n),w1(n,n),w2(n,n)
-      dimension ri(n,n),ci(n,n)
-
-c invert real part
-      call minv    (r,ldim,n,
-     w              work,ipvt,
-     o              w1)
-
-c real part of inverse
-      call mmul    (c,ldim,w1,n,n,n,n,n,
-     o              w2 )
-      call mmul    (w2,n,c,ldim,n,n,n,n,
-     o              ri )
-      call madd    (ri,n,r,ldim,n,n,n,
-     o              ci )
-      call minv    (ci,n,n,
-     w              work,ipvt,
-     o              ri )
-
-c imaginary part of inverse
-      call mmul    (ri,n,w2,n,n,n,n,n,
-     o              ci )
-      call cv      (-1.d0,ci,n*n,
-     o              ci )
-
-      return
-      end
-c-------------------------------------------------------------------
-      subroutine mms (a,lda,b,ldb,nr,nm,nc,ldc,
-     o c)
-
-c single precision matrix multiplication
-c  c = a b
-c lda = leading dimension of a
-c ldb = leading dimension of b
-c ldc = leading dimension of c
-c nr  = no. rows of c
-c nc  = no. columns of c
-c nm  = summed dimension
-
-      implicit real*8(a-h,o-z)
-      real*4    a(lda,nm),b(ldb,nc),c(ldc,nc),tem
-
-      if(nr .gt. lda)stop 'mms: row of a too large'
-      if(nm .gt. ldb)stop 'mms: row of b too large'
-      if(nr .gt. ldc)stop 'mms: row of c too large'
-
-      do 10   i = 1,nr
-      do 10   j = 1,nc
-        tem       = 0.0
-        do 20   k = 1,nm
-          tem       = tem + a(i,k)*b(k,j)
-   20   continue
-        c(i,j)    = tem
-   10 continue
-
-      return
-      end
-c------------------------------------------------------------------
-      subroutine mmul(a,lda,b,ldb,nr,nm,nc,ldc,
-     o c)
-
-c matrix multiplication
-c  c = a b
-c lda = leading dimension of a
-c ldb = leading dimension of b
-c ldc = leading dimension of c
-c nr  = no. rows of c
-c nc  = no. columns of c
-c nm  = summed dimension
-
-      implicit real*8(a-h,o-z)
-      dimension a(lda,nm),b(ldb,nc),c(ldc,nc)
-
-      if(nr .gt. lda)stop 'mmul: row of a too large'
-      if(nm .gt. ldb)stop 'mmul: row of b too large'
-      if(nr .gt. ldc)stop 'mmul: row of c too large'
-
-c     do 10   i = 1,nr
-c     do 10   j = 1,nc
-c     tem       = 0.d0
-c     do 20   k = 1,nm
-c  20 tem       = tem + a(i,k)*b(k,j)
-c  10 c(i,j)    = tem
-
-      do      j = 1,nc
-
-        do      i = 1,nr
-          c(i,j)    = 0.d0
-        enddo
-
-        do      k = 1,nm
-          bkj       = b(k,j)
-          do      i = 1,nr
-            c(i,j)    = c(i,j) + bkj*a(i,k)
-          enddo
-        enddo
-
-      enddo
-
-      return
-      end
-c------------------------------------------------------------------
-      subroutine mmulc (ra,ca,lda,
-     i                  rb,cb,ldb,
-     i                  nrow,nmul,ncol,ldc,
-     o rc,cc)
-
-c 91.11.29
-c multiply two complex matrices a b = c
-
-c ra,ca = real and imaginary parts of a
-c rb,cb =                             b
-c lda,ldb,ldc = leading dimensions of a,b and c
-c nrow,ncol   = no. rows and coulmns of c
-c nmul  = no. contractions
-
-c rc,cc = real and imaginary parts of c
-
-      implicit double precision (a-h,o-z)
-
-      dimension ra(lda,1),ca(lda,1),
-     i          rb(ldb,1),cb(ldb,1)
-      dimension rc(ldc,1),cc(ldc,1)
-
-      if(nrow .gt. lda) stop 'mmulc: lda too small'
-      if(nmul .gt. ldb) stop 'mmulc: ldb too small'
-      if(nmul .gt. ldc) stop 'mmulc: ldc too small'
-c     do      ir = 1,nrow
-c     do      ic = 1,ncol
-c     rsum       = 0.d0
-c     csum       = 0.d0
-c     do       i = 1,nmul
-c     rsum       = rsum + ra(ir,i)*rb(i,ic)
-c    .                  - ca(ir,i)*cb(i,ic)
-c     csum       = csum + ra(ir,i)*cb(i,ic)
-c    .                  + ca(ir,i)*rb(i,ic)
-c     end do
-c     rc(ir,ic)  = rsum
-c     cc(ir,ic)  = csum
-c     end do
-c     end do
-
-      do      ic = 1,ncol
-
-        do      ir = 1,nrow
-          rc(ir,ic)  = 0.d0
-          cc(ir,ic)  = 0.d0
-        enddo
-
-        do       i = 1,nmul
-          rbic       = rb(i,ic)
-          cbic       = cb(i,ic)
-          do      ir = 1,nrow
-            rc(ir,ic)  = rc(ir,ic) + rbic*ra(ir,i) - cbic*ca(ir,i)
-            cc(ir,ic)  = cc(ir,ic) + cbic*ra(ir,i) + rbic*ca(ir,i)
-          end do
-        end do
-
-      end do
-
-      return
-      end
-
-c------------------------------------------------------------------
-      subroutine mv (a,v,
-     d               ldima,nc,nr,
-     o               av)
-
-c 92.02.12
-c matrix * vector
-c av(m) = sum(n=1,nc) a(m,n)*v(n) ,m=1,nr
-
-c a  = matrix to be multiplied
-c v  = vector to be multiplied
-c ldima = leading dimension of a
-c nc = dimension summed
-c nr = dimension of output vector
-
-c av = resulting vector
-
-      implicit real*8(a-h,o-z)
-      dimension a(ldima,nc),v(nc),av(nr)
-
-      if(nr .gt. ldima)stop 'mv: row of a too large'
-      do 10    m = 1,nr
-        tem        = 0.d0
-        do 20    n = 1,nc
-          tem        = tem + a(m,n)*v(n)
-   20   continue
-        av(m)      = tem
-   10 continue
-
-      return
-      end
-c-----------------------------------------------------------------
-      subroutine ord2in(i,j,io)
-
-c order two  integers in increasing magnitude
-
-      implicit real*8(a-h,o-z)
-      dimension io(2)
-
-      io(2)       = max0(i,j)
-      io(1)       = i + j - io(2)
-
-      return
-      end
-c--------------------------------------------------------------------
-      subroutine ord3in(i,j,k,io)
-
-c order three integers in increasing magnitude
-
-      implicit real*8(a-h,o-z)
-      dimension io(3)
-
-      maxij       = max0(i,j)
-      minij       = i + j - maxij
-      io(3)       = max0(maxij,k)
-      maxl        = maxij + k - io(3)
-      io(1)       = min0(minij,maxl)
-      io(2)       = minij + maxl - io(1)
-
-      return
-      end
-c--------------------------------------------------------------------
-      subroutine ord4in(i,j,k,l,io)
-
-c order four integers in increasing magnitude
-
-      implicit real*8(a-h,o-z)
-      dimension io(4)
-
-      maxij       = max0(i,j)
-      minij       = i + j - maxij
-      maxkl       = max0(k,l)
-      minkl       = k + l - maxkl
-      io(4)       = max0(maxij,maxkl)
-      maxl        = maxij + maxkl - io(4)
-      io(1)       = min0(minij,minkl)
-      minl        = minij + minkl - io(1)
-      io(3)       = max0(maxl,minl)
-      io(2)       = maxl + minl - io(3)
-
-      return
-      end
-c--------------------------------------------------------------------
-      subroutine ordna(ldim,frac,v,ov,indx)
-      implicit real*8(a-h,o-z)
-
-c order a set of numbers in decreasing values
-c input:
-c ldim  = dimension of v
-c v     = array where the numbers are stored
-c vo    = ordered array
-c indx(old index)  = new index
-
-      dimension v(ldim),ov(ldim),indx(ldim)
-
-      do 20    i = 1,ldim
-        indx(i)    = 0
-   20 continue
-c     ov(1)      = -1.d-30
-      ic         = 0
- 1111 ymax       = -1.d30
-      do 10    i = 1,ldim
-        if(indx(i) .ne. 0)goto 10
-        if(v(i) .gt. ymax)then
-          ymax       = v(i)
-          imax       = i
-        endif
-   10 continue
-c     if(ymax .lt. frac*ov(1))return
-      ic         = ic + 1
-      indx(imax) = ic
-      ov(ic)     = ymax
-      if(ic .lt. ldim)goto 1111
-      return
-      end
-c---------------------------------------------------------------------
-      subroutine ordnai(ldim,v,ov,indx)
-
-c order a set of numbers in increasing values
-
-c ldim  = dimension of v
-c v     = array where the numbers are stored
-
-c ov    = ordered array
-c indx(old index)  = new index
-
-      implicit real*8(a-h,o-z)
-      dimension v(ldim),ov(ldim),indx(ldim)
-
-      do 20    i = 1,ldim
-        indx(i)    = 0
-   20 continue
-
-      ic         = 0
- 1111 ymin       = 1.d30
-      do 10    i = 1,ldim
-        if(indx(i) .ne. 0)goto 10
-        if(v(i) .lt. ymin)then
-          ymin       = v(i)
-          imin       = i
-        endif
-   10 continue
-      ic         = ic + 1
-      indx(imin) = ic
-      ov(ic)     = ymin
-      if(ic .lt. ldim)goto 1111
-
-      return
-      end
-c----------------------------------------------------------------------
-      subroutine ordnai1 (v,
-     d                    ldim,
-     o ov,indx,indxn)
-
-c 92.01.22
-c order a set of numbers in increasing values
-
-c ldim  = dimension of v
-c v     = array where the numbers are stored
-
-c ov    = ordered array
-c indx(old index)  = new index
-c indxn(new) = old
-
-      implicit real*8(a-h,o-z)
-      dimension v(ldim)
-      dimension ov(ldim),indx(ldim),indxn(ldim)
-
-      do 20    i = 1,ldim
-        indxn(i)   = 0
-        indx(i)    = 0
-   20 continue
-
-      ic         = 0
- 1111 ymin       = 1.d30
-      do 10    i = 1,ldim
-        if(indx(i) .ne. 0)goto 10
-        if(v(i) .lt. ymin)then
-          ymin       = v(i)
-          imin       = i
-        endif
-   10 continue
-      ic         = ic + 1
-      indx(imin) = ic
-      indxn(ic)  = imin
-      ov(ic)     = ymin
-      if(ic .lt. ldim)goto 1111
-
-      return
-      end
+c$$$c-------------------------------------------------------------------
+c$$$      subroutine minv(s,ldim,n,
+c$$$     w                work,ipvt,
+c$$$     o si)
+c$$$
+c$$$c invert a real (symmetric ?) matrix s
+c$$$
+c$$$c s    = matrix to be inverted
+c$$$c ldim = leading dimension of s
+c$$$c n    = dimension of the problem
+c$$$c work,ipvt = work arrays
+c$$$
+c$$$c si   = inverse of s
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension s(ldim,n),
+c$$$     w          work(n),ipvt(n)
+c$$$      dimension si(n,n)
+c$$$      dimension det(2)
+c$$$
+c$$$      do         i = 1,n
+c$$$        call dcopy   (n,s(1,i),1,si(1,i),1)
+c$$$      end do
+c$$$
+c$$$      call dgefa   (si,n,n,ipvt,info)
+c$$$      call dgedi   (si,n,n,ipvt,det,work,01)
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-------------------------------------------------------------------
+c$$$      subroutine minvc (r,c,
+c$$$     d                  ldim,n,
+c$$$     w                  work,ipvt,w1,w2,
+c$$$     o ri,ci )
+c$$$
+c$$$c 91.11.29
+c$$$c invert a complex matrix
+c$$$
+c$$$c r,c   = real and imaginary parts of the matrix
+c$$$c ldim  = leading dimension of matrix
+c$$$c n     = dimension of the problem
+c$$$c work,ipvt,w1,w2 = work arrays
+c$$$
+c$$$c ri,ci = real and imaginary parts of the inverse matrix
+c$$$
+c$$$      implicit double precision (a-h,o-z)
+c$$$      dimension r(ldim,n),c(ldim,n),
+c$$$     w          work(n),ipvt(n),w1(n,n),w2(n,n)
+c$$$      dimension ri(n,n),ci(n,n)
+c$$$
+c$$$c invert real part
+c$$$      call minv    (r,ldim,n,
+c$$$     w              work,ipvt,
+c$$$     o              w1)
+c$$$
+c$$$c real part of inverse
+c$$$      call mmul    (c,ldim,w1,n,n,n,n,n,
+c$$$     o              w2 )
+c$$$      call mmul    (w2,n,c,ldim,n,n,n,n,
+c$$$     o              ri )
+c$$$      call madd    (ri,n,r,ldim,n,n,n,
+c$$$     o              ci )
+c$$$      call minv    (ci,n,n,
+c$$$     w              work,ipvt,
+c$$$     o              ri )
+c$$$
+c$$$c imaginary part of inverse
+c$$$      call mmul    (ri,n,w2,n,n,n,n,n,
+c$$$     o              ci )
+c$$$      call cv      (-1.d0,ci,n*n,
+c$$$     o              ci )
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-------------------------------------------------------------------
+c$$$      subroutine mms (a,lda,b,ldb,nr,nm,nc,ldc,
+c$$$     o c)
+c$$$
+c$$$c single precision matrix multiplication
+c$$$c  c = a b
+c$$$c lda = leading dimension of a
+c$$$c ldb = leading dimension of b
+c$$$c ldc = leading dimension of c
+c$$$c nr  = no. rows of c
+c$$$c nc  = no. columns of c
+c$$$c nm  = summed dimension
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      real*4    a(lda,nm),b(ldb,nc),c(ldc,nc),tem
+c$$$
+c$$$      if(nr .gt. lda)stop 'mms: row of a too large'
+c$$$      if(nm .gt. ldb)stop 'mms: row of b too large'
+c$$$      if(nr .gt. ldc)stop 'mms: row of c too large'
+c$$$
+c$$$      do 10   i = 1,nr
+c$$$      do 10   j = 1,nc
+c$$$        tem       = 0.0
+c$$$        do 20   k = 1,nm
+c$$$          tem       = tem + a(i,k)*b(k,j)
+c$$$   20   continue
+c$$$        c(i,j)    = tem
+c$$$   10 continue
+c$$$
+c$$$      return
+c$$$      end
+c$$$c------------------------------------------------------------------
+c$$$      subroutine mmul(a,lda,b,ldb,nr,nm,nc,ldc,
+c$$$     o c)
+c$$$
+c$$$c matrix multiplication
+c$$$c  c = a b
+c$$$c lda = leading dimension of a
+c$$$c ldb = leading dimension of b
+c$$$c ldc = leading dimension of c
+c$$$c nr  = no. rows of c
+c$$$c nc  = no. columns of c
+c$$$c nm  = summed dimension
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension a(lda,nm),b(ldb,nc),c(ldc,nc)
+c$$$
+c$$$      if(nr .gt. lda)stop 'mmul: row of a too large'
+c$$$      if(nm .gt. ldb)stop 'mmul: row of b too large'
+c$$$      if(nr .gt. ldc)stop 'mmul: row of c too large'
+c$$$
+c$$$c     do 10   i = 1,nr
+c$$$c     do 10   j = 1,nc
+c$$$c     tem       = 0.d0
+c$$$c     do 20   k = 1,nm
+c$$$c  20 tem       = tem + a(i,k)*b(k,j)
+c$$$c  10 c(i,j)    = tem
+c$$$
+c$$$      do      j = 1,nc
+c$$$
+c$$$        do      i = 1,nr
+c$$$          c(i,j)    = 0.d0
+c$$$        enddo
+c$$$
+c$$$        do      k = 1,nm
+c$$$          bkj       = b(k,j)
+c$$$          do      i = 1,nr
+c$$$            c(i,j)    = c(i,j) + bkj*a(i,k)
+c$$$          enddo
+c$$$        enddo
+c$$$
+c$$$      enddo
+c$$$
+c$$$      return
+c$$$      end
+c$$$c------------------------------------------------------------------
+c$$$      subroutine mmulc (ra,ca,lda,
+c$$$     i                  rb,cb,ldb,
+c$$$     i                  nrow,nmul,ncol,ldc,
+c$$$     o rc,cc)
+c$$$
+c$$$c 91.11.29
+c$$$c multiply two complex matrices a b = c
+c$$$
+c$$$c ra,ca = real and imaginary parts of a
+c$$$c rb,cb =                             b
+c$$$c lda,ldb,ldc = leading dimensions of a,b and c
+c$$$c nrow,ncol   = no. rows and coulmns of c
+c$$$c nmul  = no. contractions
+c$$$
+c$$$c rc,cc = real and imaginary parts of c
+c$$$
+c$$$      implicit double precision (a-h,o-z)
+c$$$
+c$$$      dimension ra(lda,1),ca(lda,1),
+c$$$     i          rb(ldb,1),cb(ldb,1)
+c$$$      dimension rc(ldc,1),cc(ldc,1)
+c$$$
+c$$$      if(nrow .gt. lda) stop 'mmulc: lda too small'
+c$$$      if(nmul .gt. ldb) stop 'mmulc: ldb too small'
+c$$$      if(nmul .gt. ldc) stop 'mmulc: ldc too small'
+c$$$c     do      ir = 1,nrow
+c$$$c     do      ic = 1,ncol
+c$$$c     rsum       = 0.d0
+c$$$c     csum       = 0.d0
+c$$$c     do       i = 1,nmul
+c$$$c     rsum       = rsum + ra(ir,i)*rb(i,ic)
+c$$$c    .                  - ca(ir,i)*cb(i,ic)
+c$$$c     csum       = csum + ra(ir,i)*cb(i,ic)
+c$$$c    .                  + ca(ir,i)*rb(i,ic)
+c$$$c     end do
+c$$$c     rc(ir,ic)  = rsum
+c$$$c     cc(ir,ic)  = csum
+c$$$c     end do
+c$$$c     end do
+c$$$
+c$$$      do      ic = 1,ncol
+c$$$
+c$$$        do      ir = 1,nrow
+c$$$          rc(ir,ic)  = 0.d0
+c$$$          cc(ir,ic)  = 0.d0
+c$$$        enddo
+c$$$
+c$$$        do       i = 1,nmul
+c$$$          rbic       = rb(i,ic)
+c$$$          cbic       = cb(i,ic)
+c$$$          do      ir = 1,nrow
+c$$$            rc(ir,ic)  = rc(ir,ic) + rbic*ra(ir,i) - cbic*ca(ir,i)
+c$$$            cc(ir,ic)  = cc(ir,ic) + cbic*ra(ir,i) + rbic*ca(ir,i)
+c$$$          end do
+c$$$        end do
+c$$$
+c$$$      end do
+c$$$
+c$$$      return
+c$$$      end
+c$$$
+c$$$c------------------------------------------------------------------
+c$$$      subroutine mv (a,v,
+c$$$     d               ldima,nc,nr,
+c$$$     o               av)
+c$$$
+c$$$c 92.02.12
+c$$$c matrix * vector
+c$$$c av(m) = sum(n=1,nc) a(m,n)*v(n) ,m=1,nr
+c$$$
+c$$$c a  = matrix to be multiplied
+c$$$c v  = vector to be multiplied
+c$$$c ldima = leading dimension of a
+c$$$c nc = dimension summed
+c$$$c nr = dimension of output vector
+c$$$
+c$$$c av = resulting vector
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension a(ldima,nc),v(nc),av(nr)
+c$$$
+c$$$      if(nr .gt. ldima)stop 'mv: row of a too large'
+c$$$      do 10    m = 1,nr
+c$$$        tem        = 0.d0
+c$$$        do 20    n = 1,nc
+c$$$          tem        = tem + a(m,n)*v(n)
+c$$$   20   continue
+c$$$        av(m)      = tem
+c$$$   10 continue
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-----------------------------------------------------------------
+c$$$      subroutine ord2in(i,j,io)
+c$$$
+c$$$c order two  integers in increasing magnitude
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension io(2)
+c$$$
+c$$$      io(2)       = max0(i,j)
+c$$$      io(1)       = i + j - io(2)
+c$$$
+c$$$      return
+c$$$      end
+c$$$c--------------------------------------------------------------------
+c$$$      subroutine ord3in(i,j,k,io)
+c$$$
+c$$$c order three integers in increasing magnitude
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension io(3)
+c$$$
+c$$$      maxij       = max0(i,j)
+c$$$      minij       = i + j - maxij
+c$$$      io(3)       = max0(maxij,k)
+c$$$      maxl        = maxij + k - io(3)
+c$$$      io(1)       = min0(minij,maxl)
+c$$$      io(2)       = minij + maxl - io(1)
+c$$$
+c$$$      return
+c$$$      end
+c$$$c--------------------------------------------------------------------
+c$$$      subroutine ord4in(i,j,k,l,io)
+c$$$
+c$$$c order four integers in increasing magnitude
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension io(4)
+c$$$
+c$$$      maxij       = max0(i,j)
+c$$$      minij       = i + j - maxij
+c$$$      maxkl       = max0(k,l)
+c$$$      minkl       = k + l - maxkl
+c$$$      io(4)       = max0(maxij,maxkl)
+c$$$      maxl        = maxij + maxkl - io(4)
+c$$$      io(1)       = min0(minij,minkl)
+c$$$      minl        = minij + minkl - io(1)
+c$$$      io(3)       = max0(maxl,minl)
+c$$$      io(2)       = maxl + minl - io(3)
+c$$$
+c$$$      return
+c$$$      end
+c$$$c--------------------------------------------------------------------
+c$$$      subroutine ordna(ldim,frac,v,ov,indx)
+c$$$      implicit real*8(a-h,o-z)
+c$$$
+c$$$c order a set of numbers in decreasing values
+c$$$c input:
+c$$$c ldim  = dimension of v
+c$$$c v     = array where the numbers are stored
+c$$$c vo    = ordered array
+c$$$c indx(old index)  = new index
+c$$$
+c$$$      dimension v(ldim),ov(ldim),indx(ldim)
+c$$$
+c$$$      do 20    i = 1,ldim
+c$$$        indx(i)    = 0
+c$$$   20 continue
+c$$$c     ov(1)      = -1.d-30
+c$$$      ic         = 0
+c$$$ 1111 ymax       = -1.d30
+c$$$      do 10    i = 1,ldim
+c$$$        if(indx(i) .ne. 0)goto 10
+c$$$        if(v(i) .gt. ymax)then
+c$$$          ymax       = v(i)
+c$$$          imax       = i
+c$$$        endif
+c$$$   10 continue
+c$$$c     if(ymax .lt. frac*ov(1))return
+c$$$      ic         = ic + 1
+c$$$      indx(imax) = ic
+c$$$      ov(ic)     = ymax
+c$$$      if(ic .lt. ldim)goto 1111
+c$$$      return
+c$$$      end
+c$$$c---------------------------------------------------------------------
+c$$$      subroutine ordnai(ldim,v,ov,indx)
+c$$$
+c$$$c order a set of numbers in increasing values
+c$$$
+c$$$c ldim  = dimension of v
+c$$$c v     = array where the numbers are stored
+c$$$
+c$$$c ov    = ordered array
+c$$$c indx(old index)  = new index
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension v(ldim),ov(ldim),indx(ldim)
+c$$$
+c$$$      do 20    i = 1,ldim
+c$$$        indx(i)    = 0
+c$$$   20 continue
+c$$$
+c$$$      ic         = 0
+c$$$ 1111 ymin       = 1.d30
+c$$$      do 10    i = 1,ldim
+c$$$        if(indx(i) .ne. 0)goto 10
+c$$$        if(v(i) .lt. ymin)then
+c$$$          ymin       = v(i)
+c$$$          imin       = i
+c$$$        endif
+c$$$   10 continue
+c$$$      ic         = ic + 1
+c$$$      indx(imin) = ic
+c$$$      ov(ic)     = ymin
+c$$$      if(ic .lt. ldim)goto 1111
+c$$$
+c$$$      return
+c$$$      end
+c$$$c----------------------------------------------------------------------
+c$$$      subroutine ordnai1 (v,
+c$$$     d                    ldim,
+c$$$     o ov,indx,indxn)
+c$$$
+c$$$c 92.01.22
+c$$$c order a set of numbers in increasing values
+c$$$
+c$$$c ldim  = dimension of v
+c$$$c v     = array where the numbers are stored
+c$$$
+c$$$c ov    = ordered array
+c$$$c indx(old index)  = new index
+c$$$c indxn(new) = old
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$      dimension v(ldim)
+c$$$      dimension ov(ldim),indx(ldim),indxn(ldim)
+c$$$
+c$$$      do 20    i = 1,ldim
+c$$$        indxn(i)   = 0
+c$$$        indx(i)    = 0
+c$$$   20 continue
+c$$$
+c$$$      ic         = 0
+c$$$ 1111 ymin       = 1.d30
+c$$$      do 10    i = 1,ldim
+c$$$        if(indx(i) .ne. 0)goto 10
+c$$$        if(v(i) .lt. ymin)then
+c$$$          ymin       = v(i)
+c$$$          imin       = i
+c$$$        endif
+c$$$   10 continue
+c$$$      ic         = ic + 1
+c$$$      indx(imin) = ic
+c$$$      indxn(ic)  = imin
+c$$$      ov(ic)     = ymin
+c$$$      if(ic .lt. ldim)goto 1111
+c$$$
+c$$$      return
+c$$$      end
 c----------------------------------------------------------------------
       double precision function pilrntz(x,delta)
 

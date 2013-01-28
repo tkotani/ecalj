@@ -1135,138 +1135,140 @@ C   14 continue
 C      write(*,'(1x,/,t4,a,3f12.6,/)') 'actual',pi,4.0*pi/3.0,0.5*(pi**
 C      end
 C#endif
-      integer function amix_notused(wk,nelts,nmix,mmix,beta,norm,t,kpvt,ipr,tm,
-     .                      rmsdel)
-C- Anderson mixing of a vector
-C ----------------------------------------------------------------
-Ci Inputs
-Ci   nmix: number of previous iterations to fold into mix
-Ci         nmix = 0 => linear mixing (x* = x0)
-Ci         Practical experience for LMTO programs shows that nmix>2
-Ci         does not work well.
-Ci   mmix: maximum number of previous iterations to fold into mix
-Ci         (used for dimensioning of work array)
-Ci   nelts:number of elements to mix
-Ci   wk:   array of dimension (nelts,1+mmix,2) where:
-Ci         wk(*,i,1) holds f(xi) (see remarks)
-Ci         wk(*,i,2) holds   xi  (see remarks)
-Ci   beta: new x is beta f(x*) + (1-beta) x*
-Ci   tm:   upper limit to any tj:  if any tj exceeds tm, effective
-Ci         nmix is set to zero.
-Co Outputs
-Co   f(x_i) => f(x_i+1); x_i => x_i+1
-Co   wk(*,1,2): new x = beta f(x*) + (1 - beta) x*
-Co   rmsdel:rms difference between x_0 and f(x_0)
-Co   amix:  returns effective nmix (see input tm)
-Cr Remarks
-Cr   Given a vector function f(x), where x is some
-Cr   vector, we want to find x* such that f(x*) = x*.  We want to find
-Cr   x* with the minimum number of computations of f(x).  Supposing
-Cr   that we have x0,f(x0); x1,f(x1); x2,f(x2); ...; x_n+1,f(x_n+1).
-Cr   (Usually x_j corresponds to x at the jth previous iteration.)
-Cr   We take a linear combination x* of x_0, x_1, x_2, ... x_n that
-Cr   minimizes <(x* - f(x*))^2>.  We then seek t_1, t_2, ... t_n in
-Cr     x* = x_0 -
-Cr   To evaluate f(x*) we linearize d(x) = f(x)-x as
-Cr     f(x*)-x*  =  d*  =  d_0  -
-Cr   Then
-Cr     < (d_0 -
-Cr   constitute a set of n simultaneous equations in the n unknowns t_k.
-Cr   Note that d's enter into these equations, not the f's.
-Cr   The d's are stored on disk, unit n1; the x's on unit n2.
-Cr   Given the t_k's, x* can be estimated from (2).  To dampen
-Cr   instablities, a linear combination of (1) and (2) is taken as
-Cr       beta f(x*)  +  (1-beta) x*  = beta d*  +  x*           (4)
-Cr   beta is an input parameter, which can usually be taken to be 1.
-C ----------------------------------------------------------------
-C     implicit none
-C Passed parameters
-      integer nelts,mmix,nmix,kpvt(1),ipr
-      double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
-     .  beta,tm,rmsdel
-C Local parameters
-      integer i,j,nwk,jmix
-      character*1 mixis0
-      double precision dsqrt,ddot
 
-      nwk = nelts*(mmix+2)
 
-C --- d_0 = f-x  =>  wk(*,0,1) ---
-      call daxpy(nelts,-1d0,wk(1,0,2),1,wk,1)
-
-C --- Copy x_0 and d_0 to end of wk:  x*, d* constructed here ---
-      call dmcpy(wk,nwk,1,wk(1,mmix+1,1),nwk,1,nelts,2)
-
-C --- Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  ---
-      do  20  i = 1, nmix
-        t(i) = ddot(nelts,wk(1,0,1),1,wk(1,0,1),1) -
-     .         ddot(nelts,wk(1,0,1),1,wk(1,i,1),1)
-      do  20  j = 1, nmix
-        norm(i,j) =  ddot(nelts,wk(1,0,1),1,wk(1,0,1),1)
-     .             - ddot(nelts,wk(1,0,1),1,wk(1,j,1),1)
-     .             - ddot(nelts,wk(1,i,1),1,wk(1,0,1),1)
-     .             + ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
-   20 continue
-
-C --- Solve the simultaneous equations ---
-      call dsifa(norm,mmix,nmix,kpvt,i)
-      if (i .ne. 0) then
-        if (ipr .ge. 20) print *,  'AMIX: normal eqns singular'
-      else
-        call dsisl(norm,mmix,nmix,kpvt,t)
-      endif
-
-C --- Set jmix = effective nmix to zero if any t_j exceeds tm ---
-      jmix = nmix
-      mixis0 = ' '
-      do  30  j = 1, nmix
-        if (dabs(t(j)) .gt. dabs(tm)) jmix = 0
-   30 continue
-      if (jmix .ne. nmix) mixis0 = '*'
-      amix_notused = jmix
-
-C --- Make (d,x)* = (d,x)_0 -
-      do  40  j = 1, jmix
-        call dscal(nelts,1-t(j),wk(1,mmix+1,1),1)
-        call daxpy(nelts,t(j),wk(1,j,1),1,wk(1,mmix+1,1),1)
-        call dscal(nelts,1-t(j),wk(1,mmix+1,2),1)
-        call daxpy(nelts,t(j),wk(1,j,2),1,wk(1,mmix+1,2),1)
-   40 continue
-
-C --- Copy arrays to new positions ---
-      do  50  i = mmix, 1, -1
-        call dmcpy(wk(1,i-1,1),nwk,1,wk(1,i,1),nwk,1,nelts,2)
-   50 continue
-
-C --- x* + beta d* ---
-   10 call daxpy(nelts,beta,wk(1,mmix+1,1),1,wk(1,mmix+1,2),1)
-
-C --- Calculate rms change ---
-      rmsdel = dsqrt(ddot(nelts,wk,1,wk,1)/nelts)
-
-C --- Printout ---
-      if (ipr .lt. 20) goto 60
-ca    write(*,133) nmix,mixis0,mmix,nelts,beta,tm,rmsdel
-      write(*,133) nmix,mixis0,mmix,nelts,beta,rmsdel
-ca133 format(/' AMIX:  nmix=',i1,a1,' mmix=',i1,'  nelts=',i3,
-ca   .        '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
-  133 format(/' AMIX:  nmix=',i1,a1,' mmix=',i1,'  nelts=',i3,
-     .        '  beta=',f7.5,'  rmsdel=',1pd8.2)
-      if (nmix .gt. 0) write(*,134) (t(j), j=1,nmix)
-  134 format(3x,'tj:',7(f8.5,2x))
-
-      if (ipr .le. 30) goto 60
-      write(*,110)
-      do  12  i = 1, nelts
-        if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) .ge. 5.d-7)
-     .  write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),
-     .                 wk(i,0,1),wk(i,mmix+1,2)
-   12 continue
-
-C --- Restore d* and x* + beta d* from end of wk ---
-   60 call dmcpy(wk(1,mmix+1,1),nwk,1,wk,nwk,1,nelts,2)
-
-  104 format(1p,4d18.11)
-  111 format(i5,4f14.6)
-  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
-      end
+c$$$      integer function amix_notused(wk,nelts,nmix,mmix,beta,norm,t,kpvt,ipr,tm,
+c$$$     .                      rmsdel)
+c$$$C- Anderson mixing of a vector
+c$$$C ----------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   nmix: number of previous iterations to fold into mix
+c$$$Ci         nmix = 0 => linear mixing (x* = x0)
+c$$$Ci         Practical experience for LMTO programs shows that nmix>2
+c$$$Ci         does not work well.
+c$$$Ci   mmix: maximum number of previous iterations to fold into mix
+c$$$Ci         (used for dimensioning of work array)
+c$$$Ci   nelts:number of elements to mix
+c$$$Ci   wk:   array of dimension (nelts,1+mmix,2) where:
+c$$$Ci         wk(*,i,1) holds f(xi) (see remarks)
+c$$$Ci         wk(*,i,2) holds   xi  (see remarks)
+c$$$Ci   beta: new x is beta f(x*) + (1-beta) x*
+c$$$Ci   tm:   upper limit to any tj:  if any tj exceeds tm, effective
+c$$$Ci         nmix is set to zero.
+c$$$Co Outputs
+c$$$Co   f(x_i) => f(x_i+1); x_i => x_i+1
+c$$$Co   wk(*,1,2): new x = beta f(x*) + (1 - beta) x*
+c$$$Co   rmsdel:rms difference between x_0 and f(x_0)
+c$$$Co   amix:  returns effective nmix (see input tm)
+c$$$Cr Remarks
+c$$$Cr   Given a vector function f(x), where x is some
+c$$$Cr   vector, we want to find x* such that f(x*) = x*.  We want to find
+c$$$Cr   x* with the minimum number of computations of f(x).  Supposing
+c$$$Cr   that we have x0,f(x0); x1,f(x1); x2,f(x2); ...; x_n+1,f(x_n+1).
+c$$$Cr   (Usually x_j corresponds to x at the jth previous iteration.)
+c$$$Cr   We take a linear combination x* of x_0, x_1, x_2, ... x_n that
+c$$$Cr   minimizes <(x* - f(x*))^2>.  We then seek t_1, t_2, ... t_n in
+c$$$Cr     x* = x_0 -
+c$$$Cr   To evaluate f(x*) we linearize d(x) = f(x)-x as
+c$$$Cr     f(x*)-x*  =  d*  =  d_0  -
+c$$$Cr   Then
+c$$$Cr     < (d_0 -
+c$$$Cr   constitute a set of n simultaneous equations in the n unknowns t_k.
+c$$$Cr   Note that d's enter into these equations, not the f's.
+c$$$Cr   The d's are stored on disk, unit n1; the x's on unit n2.
+c$$$Cr   Given the t_k's, x* can be estimated from (2).  To dampen
+c$$$Cr   instablities, a linear combination of (1) and (2) is taken as
+c$$$Cr       beta f(x*)  +  (1-beta) x*  = beta d*  +  x*           (4)
+c$$$Cr   beta is an input parameter, which can usually be taken to be 1.
+c$$$C ----------------------------------------------------------------
+c$$$C     implicit none
+c$$$C Passed parameters
+c$$$      integer nelts,mmix,nmix,kpvt(1),ipr
+c$$$      double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
+c$$$     .  beta,tm,rmsdel
+c$$$C Local parameters
+c$$$      integer i,j,nwk,jmix
+c$$$      character*1 mixis0
+c$$$      double precision dsqrt,ddot
+c$$$
+c$$$      nwk = nelts*(mmix+2)
+c$$$
+c$$$C --- d_0 = f-x  =>  wk(*,0,1) ---
+c$$$      call daxpy(nelts,-1d0,wk(1,0,2),1,wk,1)
+c$$$
+c$$$C --- Copy x_0 and d_0 to end of wk:  x*, d* constructed here ---
+c$$$      call dmcpy(wk,nwk,1,wk(1,mmix+1,1),nwk,1,nelts,2)
+c$$$
+c$$$C --- Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  ---
+c$$$      do  20  i = 1, nmix
+c$$$        t(i) = ddot(nelts,wk(1,0,1),1,wk(1,0,1),1) -
+c$$$     .         ddot(nelts,wk(1,0,1),1,wk(1,i,1),1)
+c$$$      do  20  j = 1, nmix
+c$$$        norm(i,j) =  ddot(nelts,wk(1,0,1),1,wk(1,0,1),1)
+c$$$     .             - ddot(nelts,wk(1,0,1),1,wk(1,j,1),1)
+c$$$     .             - ddot(nelts,wk(1,i,1),1,wk(1,0,1),1)
+c$$$     .             + ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
+c$$$   20 continue
+c$$$
+c$$$C --- Solve the simultaneous equations ---
+c$$$      call dsifa(norm,mmix,nmix,kpvt,i)
+c$$$      if (i .ne. 0) then
+c$$$        if (ipr .ge. 20) print *,  'AMIX: normal eqns singular'
+c$$$      else
+c$$$        call dsisl(norm,mmix,nmix,kpvt,t)
+c$$$      endif
+c$$$
+c$$$C --- Set jmix = effective nmix to zero if any t_j exceeds tm ---
+c$$$      jmix = nmix
+c$$$      mixis0 = ' '
+c$$$      do  30  j = 1, nmix
+c$$$        if (dabs(t(j)) .gt. dabs(tm)) jmix = 0
+c$$$   30 continue
+c$$$      if (jmix .ne. nmix) mixis0 = '*'
+c$$$      amix_notused = jmix
+c$$$
+c$$$C --- Make (d,x)* = (d,x)_0 -
+c$$$      do  40  j = 1, jmix
+c$$$        call dscal(nelts,1-t(j),wk(1,mmix+1,1),1)
+c$$$        call daxpy(nelts,t(j),wk(1,j,1),1,wk(1,mmix+1,1),1)
+c$$$        call dscal(nelts,1-t(j),wk(1,mmix+1,2),1)
+c$$$        call daxpy(nelts,t(j),wk(1,j,2),1,wk(1,mmix+1,2),1)
+c$$$   40 continue
+c$$$
+c$$$C --- Copy arrays to new positions ---
+c$$$      do  50  i = mmix, 1, -1
+c$$$        call dmcpy(wk(1,i-1,1),nwk,1,wk(1,i,1),nwk,1,nelts,2)
+c$$$   50 continue
+c$$$
+c$$$C --- x* + beta d* ---
+c$$$   10 call daxpy(nelts,beta,wk(1,mmix+1,1),1,wk(1,mmix+1,2),1)
+c$$$
+c$$$C --- Calculate rms change ---
+c$$$      rmsdel = dsqrt(ddot(nelts,wk,1,wk,1)/nelts)
+c$$$
+c$$$C --- Printout ---
+c$$$      if (ipr .lt. 20) goto 60
+c$$$ca    write(*,133) nmix,mixis0,mmix,nelts,beta,tm,rmsdel
+c$$$      write(*,133) nmix,mixis0,mmix,nelts,beta,rmsdel
+c$$$ca133 format(/' AMIX:  nmix=',i1,a1,' mmix=',i1,'  nelts=',i3,
+c$$$ca   .        '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
+c$$$  133 format(/' AMIX:  nmix=',i1,a1,' mmix=',i1,'  nelts=',i3,
+c$$$     .        '  beta=',f7.5,'  rmsdel=',1pd8.2)
+c$$$      if (nmix .gt. 0) write(*,134) (t(j), j=1,nmix)
+c$$$  134 format(3x,'tj:',7(f8.5,2x))
+c$$$
+c$$$      if (ipr .le. 30) goto 60
+c$$$      write(*,110)
+c$$$      do  12  i = 1, nelts
+c$$$        if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) .ge. 5.d-7)
+c$$$     .  write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),
+c$$$     .                 wk(i,0,1),wk(i,mmix+1,2)
+c$$$   12 continue
+c$$$
+c$$$C --- Restore d* and x* + beta d* from end of wk ---
+c$$$   60 call dmcpy(wk(1,mmix+1,1),nwk,1,wk,nwk,1,nelts,2)
+c$$$
+c$$$  104 format(1p,4d18.11)
+c$$$  111 format(i5,4f14.6)
+c$$$  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
+c$$$      end

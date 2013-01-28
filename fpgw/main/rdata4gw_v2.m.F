@@ -246,7 +246,7 @@ c
       integer:: ngcB,iqx,iqindx,iq0i
       real(8):: quu(3),pi,dQpG,abq0i
       integer,allocatable:: ngveccB(:,:)
-      
+      integer:: idummy11(1,1)
       pi         = 4d0*datan(1d0)
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
@@ -1738,7 +1738,7 @@ c     endif
         if(iqi>nqibz) then !dec2012
           qx=0d0
         endif
-        call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), dummy) 
+        call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), idummy11) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo
       ngc2mx = maxval(ngc2x(1:nqnumt))

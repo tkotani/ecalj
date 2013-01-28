@@ -20,6 +20,7 @@ tags   = ../
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
+
 progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 # hmaxloc1D
 progs2 = $(progs) $(tags)TAGS 
@@ -109,8 +110,6 @@ $(gwsrc)index.o \
 $(gwsrc)idxk.o \
 $(gwsrc)maxnn.o \
 $(gwsrc)reindx.o \
-$(gwsrc)pointops.o \
-$(gwsrc)iolib.o \
 $(gwsrc)iprint.o \
 $(gwsrc)bz.o \
 $(gwsrc)bzmesh.o \
@@ -489,8 +488,6 @@ eout2: $(EO2)
  $(gwsrc)idxk.o \
  $(gwsrc)maxnn.o \
  $(gwsrc)reindx.o \
- $(gwsrc)pointops.o \
- $(gwsrc)iolib.o \
  $(gwsrc)iprint.o \
  $(gwsrc)bz.o \
  $(gwsrc)bzmesh.o \

@@ -74,7 +74,9 @@ c     .  wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),efac(0:lmxx)
 #else
       integer(4)::ll
 #endif
-
+!!    to avoid warinig jan2013takao
+      integer ::lmax_(1)
+      real(8):: e_(1),rsm_(1)
 C ... Setup
       ldot = .false.
       lmax = ll(nlma)+ll(nlmh)
@@ -101,9 +103,13 @@ C --- Reduced structure constants ---
       phase = dcmplx(dcos(sp),dsin(sp))
       job = 0
       if( sum(abs(p))<1d-10 ) job = 10
+!! 
+      lmax_(1)=lmax
+      e_(1)=e
+      rsm_(1)=0d0
 c      print *," goto hsm e=",e
       if (e .lt. 0) then
-        call hsmq(1,0,lmax,e,0d0,job,q,p1,nrx,nlm0,wk,yl,
+        call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl,
      .    awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
       else
         call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl,

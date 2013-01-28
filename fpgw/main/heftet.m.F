@@ -92,7 +92,7 @@ c
       logical :: metal      ,qbzreg
       integer(4) ::ldim,nbmax,nsp,nkp,
      &    itt,ifief ,imode,iftote,it
-      real(8) :: zval,elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg
+      real(8) :: zval,elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)
      &    ,tol=1d-10
 
       real(8)::volwgt
@@ -374,19 +374,20 @@ cccccccccccccccccccccccccccccccccccccccccccc
         volwgt = (3.d0 - nsp) / ntetf ! ntetf was =6*n1*n2*n3
         write (6,"(1x,'heftet : ---- Tetrahedron Integration ---- ')")
         do itt = 1, 10
-          call bzints2x(volwgt,eband,dum,nkp,ldim,nbmax,
+          call bzints2x(volwgt,eband,dum111,nkp,ldim,nbmax,
      .              nsp,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
           call fermi(zval,dos,nptdos,e1,e2,efermi,e1,e2,dosef)
 c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
           if(e2 - e1 < tol) goto 4
         enddo
-        call
-     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
+        write(*,*) 'heftet:bug in fermi level finder or tol too small'
+        stop       'heftet:bug in fermi level finder or tol too small'
+c        call
+c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
     4   continue
         deallocate(dos)
         bandgap=0d0
-        write(ifief,"(2d23.15,a)") efermi,bandgap,
-     &  " ! This efermi bandgap are obtained by heftet"
+        write(ifief,"(2d23.15,a)") efermi,bandgap," ! This efermi bandgap are obtained by heftet"
       endif
       close(201)
 

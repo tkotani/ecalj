@@ -120,304 +120,304 @@ cccccccccccc
       end
 C-------------------------------------------------------------------------
 
-      subroutine pplmat2(s_lat, q, ng, ngvec, rmax, 
-     &       bmat,kmaxx, nlmax, nbas, ndimh, bas, lmxa, lmxax,
-     &       lh1,lh2,rsmh, eh,ntorb,ntorbx, kmax,
-     &       plhd, plpkl, QpGcutHankel, 
-     o       ppovl,ppsh)
-c <P^q1_G1 | P^q2_G2 > matrix where P^q1_G1 denotes projected plane wave, zero within sphere.
-c <P^q1_G1 | smooth Hankel > matrix
-c
-c Mar-2001 from pplmat
-      implicit none
-      integer(4) ::  nbas, ndimh, ng,kmaxx,nlmax,lmxax,ntorbx
-     &       ,ig1,ig2,ibas,ih,la,ihoff,itorb,k,lma,lmh,lh,ntorb(nbas)
-     &      , ngvec(3,ng),lmxa(nbas),kmax(nbas),
-     &      lh1(ntorbx,nbas),lh2(ntorbx,nbas)
-      real(8)    :: absqg1,absqg2,tripl,rmax(nbas),pi4,
-     &              rsmh(ntorbx,nbas), eh(ntorbx,nbas),r2s,denom,gan
-      complex(8) :: bmat(0:kmaxx, nlmax, nbas, ndimh)
-      real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qg(3,ng)    ,facl
-     & ,pi,alat,tpiba,cost,voltot,plegn,qg1(3),qg2(3),absqg(ng),qqq(3),
-     &  bas(3,nbas), fkk(0:lmxax),fkj(0:lmxax),fjk(0:lmxax),fjj(0:lmxax)
-      complex(8) :: img =(0d0,1d0),phase
-c
-      complex(8) ::  plhd (ng, ndimh)        ! integral plane \times head ???
-     &             , plpkl(ng, nlmax, 0:kmaxx,nbas)  ! integral plane \times poly ???
-      complex(8) :: ppovl(ng,ng), ppsh(ng,ndimh)
-      real(8),allocatable::cy(:),yl(:),yl1(:),yl2(:)
-      integer(4),allocatable :: ngvecx(:,:)
-      complex(8),allocatable :: ppshx(:,:),ppox(:,:,:)
-      complex(8),allocatable :: ppovlx(:,:)
-      real(8) :: gv1(3),gv1x(3),QpGcutHankel,dummy,tpibaqlat(3,3)
-      integer(4) :: ngmx,ig1x,nx(3),n1x,n2x,n3x,n1m,n2m,n3m
-#ifdef COMMONLL
-      integer(4):: ll(51**2)
-      common/llblock/ll
-#else
-      integer(4)::ll
-#endif
-c-----------------------------------------------------------------------
-      print *,' pplmat2:'
-      pi  = 4d0*datan(1d0)
-      pi4 = 16d0*datan(1d0)
-      call u_lat_vecs(s_lat,alat,plat,qlat)
-      tpiba  = 2*pi/alat
-      tpibaqlat = tpiba *qlat
-      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      allocate(cy((lmxax+1)**2),yl((lmxax+1)**2) )
-      call sylmnc(cy,lmxax)
-
-ccc      goto 1201 ! if you want to use old version ---
-c
-c <P^q_G1 | P^q_G2 >
-ccctest      call mkppovl2test(alat,plat,qlat,
-      call mkppovl2(alat,plat,qlat, 
-     &    ng, ngvec, !G1
-     &    ng, ngvec, !G2
-     &    nbas, rmax, bas,  
-     o    ppovl)
-
-ccccccccccccccccccccccccccccccccccccccc
-c      write(3001,"('q=',3d16.8)") q
-c      do ig1 = 1, ng
-c      do ig2 = 1, ng
-c        write(3001,"(2i3,'  ',2d16.8)") ig1,ig2,ppovl(ig1,ig2)
-c      enddo
-c      enddo
-c      stop 'test1 end'
-ccccccccccccccccccccccccccccccccccccccc
-
-c Get ngvecx for the interstitial part of the smooth hankel function.
-      call getgv2(alat,plat,qlat, q, QpGcutHankel, 1, ngmx,dummy)
-      allocate( ngvecx(3,ngmx),ppshx(ngmx,ndimh) )
-      call getgv2(alat,plat,qlat, q, QpGcutHankel, 2, ngmx, ngvecx)  ! for eigenfunction
-      print *,  ' pplmat2: ngmx=',ngmx
-
-c Expansion coefficients of |P^q_G1x> in the expansion .. |Smooth Hankel>
-c ---> ppshx(igx1,ndimh) matrix
-      ppshx = 0d0
-      do ig1x = 1, ngmx
-        qg1(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvecx(1:3,ig1x)))
-        absqg1   = sqrt(sum(qg1(1:3)**2))
-        if(absqg1==0d0) then
-          qqq = (/0d0,0d0,1d0/)
-        else
-          qqq = qg1/absqg1
-        endif
-        call sylm(qqq,yl,lmxax,r2s) !spherical factor Y( q+G )
-        ihoff = 0
-        do ibas = 1,nbas
-          if(ibas >=2) then
-            ihoff  = ihoff  
-     &      +  sum ( (  lh2(1:ntorb(ibas-1),ibas-1)+1)**2 
-     &              - lh1(1:ntorb(ibas-1),ibas-1)**2   )
-          endif
-          ih = ihoff
-          phase = exp( -img*sum( qg1*bas(:,ibas)*alat )  )
-          do itorb = 1,ntorb(ibas)
-            do lmh   = lh1(itorb,ibas)**2+1, (lh2(itorb,ibas)+1)**2
-              lh = ll(lmh)
-              ih = ih + 1
-              denom = eh(itorb,ibas)-absqg1**2
-              gan   = 1d0/4d0*rsmh(itorb,ibas)**2
-              ppshx(ig1x,ih) = - pi4/denom
-     &      * (-img)**lh * facl(absqg1,lh)
-     &      * cy(lmh)* yl(lmh)* exp( gan*denom)
-     &      * phase  /voltot
-            enddo
-          enddo
-        enddo
-      enddo
-c
-      allocate(ppovlx(ng,ngmx))
-ccctest      call mkppovl2test(alat,plat,qlat,
-      call mkppovl2(alat,plat,qlat, 
-     &    ng,   ngvec,  !G1
-     &    ngmx, ngvecx, !G1x
-     &    nbas, rmax, bas,  
-     o    ppovlx)
-      call matm(ppovlx,ppshx,ppsh,ng,ngmx,ndimh)
-      deallocate( ppovlx )
-      if (allocated(cy)) deallocate(cy)
-      if (allocated(yl)) deallocate(yl)
-      if (allocated(ngvecx)) deallocate(ngvecx)
-      if (allocated(ppshx)) deallocate(ppshx)
-      return
-
-c <P^q_G1 | Smooth Hankel > = ppsh matrix
-c     n1x = maxval( ngvecx(1,:)) - minval( ngvec(1,:))
-c     n1m = minval( ngvecx(1,:)) - maxval( ngvec(1,:))
-c     n2x = maxval( ngvecx(2,:)) - minval( ngvec(2,:))
-c     n2m = minval( ngvecx(2,:)) - maxval( ngvec(2,:))
-c     n3x = maxval( ngvecx(3,:)) - minval( ngvec(3,:))
-c     n3m = minval( ngvecx(3,:)) - maxval( ngvec(3,:))
-c      allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
-c      ppox = 1d99
-c   <G1|G1X>
-c      do ig1  = 1, ng
-c      do ig1x = 1, ngmx
-c       nx(1:3) = ngvecx(1:3,ig1x) -ngvec(1:3,ig1)
-c        if( ppox(nx(1),nx(2),nx(3))==1d99 ) then
-c          call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
-c     i    nx(1:3), ! G1x -G1
-c     o    ppox( nx(1),nx(2),nx(3)))
-c       endif
-c      enddo
-c     enddo
-c      ppsh = 0d0
-c      do ih   = 1, ndimh
-c      do ig1  = 1, ng
-c      do ig1x = 1, ngmx
-c       nx(1:3) = ngvecx(1:3,ig1x) - ngvec(1:3,ig1)
-c       ppovlx  = ppox( nx(1),nx(2),nx(3))
-c       ppsh(ig1,ih) = ppsh(ig1,ih) + ppovlx * ppshx(ig1x,ih)
-c      enddo
-c     enddo
-c     enddo
-c      deallocate( ppox )
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
-
-c=======================================================================
- 1201 continue
-c      print *,  ' pplmat: xxx voltot=',voltot
-c <P^q_G1 | P^q_G2 > matrix
-      do ig1 = 1,ng
-        qg(1:3,ig1) = tpiba * (q(1:3)+ matmul(qlat, ngvec(1:3,ig1)))
-        absqg(ig1)  = sqrt(sum(qg(1:3,ig1)**2))
-      enddo
-
-c --- OLD codes from here ----------------------------------------------
-      ppovl = 0d0
-      do ig1 = 1,ng
-        ppovl(ig1,ig1)= voltot
-      enddo
-
-cyy      allocate(yl1((lmxax+1)**2),yl2((lmxax+1)**2) )
-
-      do ig1 =1,ng
-        qg1(1:3) = qg(1:3,ig1)
-        absqg1   = absqg(ig1)
-cyy        call sylm(qg1/absqg1,yl1,lmxax,r2s) !spherical factor Y( q+G )
-        do ig2 =1,ng
-          qg2(1:3) = qg(1:3,ig2)
-          absqg2   = absqg(ig2)
-cyy        call sylm(qg2/absqg2,yl2,lmxax,r2s) !spherical factor Y( q+G )
-
-          if( absqg1*absqg2 == 0d0) then
-            cost = 1d0
-          else
-            cost = sum(qg1*qg2)/absqg1/absqg2
-          endif
-
-          do ibas = 1,nbas
-            call wronkj( absqg1**2, absqg2**2, rmax(ibas),
-     &                 lmxa(ibas),fkk,fkj,fjk,fjj)
-
-cyy        do lma  = 1,(lmxa(ibas)+1)**2
-cyy          la = ll(lma)
-cyy          ppovl(ig1,ig2) = ppovl(ig1,ig2)
-cyy     &      - exp( img* sum((qg2-qg1)*bas(1:3,ibas))*alat )  !???
-cyy     &       * pi4* pi4 * cy(lma)**2*yl1(lma)*yl2(lma)
-cyy     &       * (-fjj(la))*(absqg1*absqg2)**la  ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
-
-            do la  = 0,lmxa(ibas)
-              ppovl(ig1,ig2) = ppovl(ig1,ig2)   
-     &      - exp( img* sum((qg2-qg1)*bas(1:3,ibas))*alat )  !???
-     &        * pi4 *(2*la+1d0) * plegn(la,cost) 
-     &        * (-fjj(la))  *facl(absqg1*absqg2,la)
-              !*(absqg1*absqg2)**la  ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
-cxxx     &      * ajaj(ig1,ig2,la,ibas)        ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
-
-cccccccccccc
-c        if( abs(absqg1)==0d0)
-c     &    write(1126,'(4i3,2d15.6,3x,d15.6)')ig1,ig2,la,ibas
-c     &    , -fjj(la),ajaj(ig1,ig2,la,ibas)
-c     &    , fjj(la) +ajaj(ig1,ig2,la,ibas)
-cccccccccccc
-            enddo
-          enddo
-        enddo
-      enddo
-
-ccccccccccccccccccccccccccccccccccccccc
-c      write(3002,"('q=',3d16.8)") q
-c      do ig1 = 1, ng
-c      do ig2 = 1, ng
-c        write(3002,"(2i3,'  ',2d16.8)") ig1,ig2,ppovl(ig1,ig2)
-c      enddo
-c      enddo
-c      stop 'test2 end'
-ccccccccccccccccccccccccccccccccccccccc
-
-cccccccccccccc
-c      do ig1=1,ng-1
-c       ig2=ig1+1
-c        write(6,"(' old ppovl(ig1,ig2)=',i4,2d13.6)")ig1,ppovl(ig1,ig2)
-c      enddo
-c     stop "------testen--------d"
-cccccccccccccc
-
- 1111 continue
-c <P^q_G1 | Smooth Hankel > = ppsh matrix
-      ppsh=0d0
-      do ig1 = 1, ng
-        qg1(1:3) = qg(1:3,ig1)
-        absqg1   = absqg(ig1)
-        if(absqg1==0d0) then
-          qqq = (/0d0,0d0,1d0/)
-        else
-          qqq = qg1/absqg1
-        endif
-        call sylm(qqq,yl,lmxax,r2s) !spherical factor Y( q+G )
-
-        ihoff  = 0
-        do ibas = 1,nbas
-          if(ibas >=2) then
-            ihoff  = ihoff  
-     &      +  sum ( (  lh2(1:ntorb(ibas-1),ibas-1)+1)**2 
-     &                - lh1(1:ntorb(ibas-1),ibas-1)**2   )
-          endif
-c from head
-          phase = exp( -img*sum( qg1*bas(:,ibas)*alat )  )
-          ih = ihoff
-          do itorb = 1,ntorb(ibas)
-            do lmh   = lh1(itorb,ibas)**2+1, (lh2(itorb,ibas)+1)**2
-              lh = ll(lmh)
-              ih = ih + 1
-c           print *,ibas,ip,itorb,lmh,ias,ih,lh
-c           print *,lmh,lh
-              denom = eh(itorb,ibas)-absqg1**2
-              gan   = 1d0/4d0*rsmh(itorb,ibas)**2
-              ppsh(ig1,ih) = ppsh(ig1,ih) - pi4/denom
-c     &         * (-img*absqg1)**lh * cy(lmh)* yl(lmh)* exp( gan*denom)
-     &         * (-img)**lh * facl(absqg1,lh)
-     &         * cy(lmh)* yl(lmh)* exp( gan*denom)
-     &         * phase
-     &         - phase * plhd(ig1, ih)  ! integral of plane \times hd
-            enddo
-          enddo
-c from tail
-          do lma= 1, (lmxa(ibas)+1)**2
-            do k  = 0, kmax(ibas)
-              la  = ll(lma)
-c           print *, ibas,ip,lma,k
-              ppsh(ig1,1:ndimh) = ppsh(ig1,1:ndimh)  
-     &        - phase * plpkl(ig1, lma, k,ibas)
-     &                * bmat(k, lma, ibas, 1:ndimh) ! integral of plane \times hd
-            enddo
-          enddo
-        enddo
-      enddo
-      if (allocated(cy)) deallocate(cy)
-      if (allocated(yl)) deallocate(yl)
-      if (allocated(ngvecx)) deallocate(ngvecx)
-      if (allocated(ppshx)) deallocate(ppshx)
-      end
+c$$$      subroutine pplmat2(s_lat, q, ng, ngvec, rmax, 
+c$$$     &       bmat,kmaxx, nlmax, nbas, ndimh, bas, lmxa, lmxax,
+c$$$     &       lh1,lh2,rsmh, eh,ntorb,ntorbx, kmax,
+c$$$     &       plhd, plpkl, QpGcutHankel, 
+c$$$     o       ppovl,ppsh)
+c$$$c <P^q1_G1 | P^q2_G2 > matrix where P^q1_G1 denotes projected plane wave, zero within sphere.
+c$$$c <P^q1_G1 | smooth Hankel > matrix
+c$$$c
+c$$$c Mar-2001 from pplmat
+c$$$      implicit none
+c$$$      integer(4) ::  nbas, ndimh, ng,kmaxx,nlmax,lmxax,ntorbx
+c$$$     &       ,ig1,ig2,ibas,ih,la,ihoff,itorb,k,lma,lmh,lh,ntorb(nbas)
+c$$$     &      , ngvec(3,ng),lmxa(nbas),kmax(nbas),
+c$$$     &      lh1(ntorbx,nbas),lh2(ntorbx,nbas)
+c$$$      real(8)    :: absqg1,absqg2,tripl,rmax(nbas),pi4,
+c$$$     &              rsmh(ntorbx,nbas), eh(ntorbx,nbas),r2s,denom,gan
+c$$$      complex(8) :: bmat(0:kmaxx, nlmax, nbas, ndimh)
+c$$$      real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qg(3,ng)    ,facl
+c$$$     & ,pi,alat,tpiba,cost,voltot,plegn,qg1(3),qg2(3),absqg(ng),qqq(3),
+c$$$     &  bas(3,nbas), fkk(0:lmxax),fkj(0:lmxax),fjk(0:lmxax),fjj(0:lmxax)
+c$$$      complex(8) :: img =(0d0,1d0),phase
+c$$$c
+c$$$      complex(8) ::  plhd (ng, ndimh)        ! integral plane \times head ???
+c$$$     &             , plpkl(ng, nlmax, 0:kmaxx,nbas)  ! integral plane \times poly ???
+c$$$      complex(8) :: ppovl(ng,ng), ppsh(ng,ndimh)
+c$$$      real(8),allocatable::cy(:),yl(:),yl1(:),yl2(:)
+c$$$      integer(4),allocatable :: ngvecx(:,:)
+c$$$      complex(8),allocatable :: ppshx(:,:),ppox(:,:,:)
+c$$$      complex(8),allocatable :: ppovlx(:,:)
+c$$$      real(8) :: gv1(3),gv1x(3),QpGcutHankel,dummy,tpibaqlat(3,3)
+c$$$      integer(4) :: ngmx,ig1x,nx(3),n1x,n2x,n3x,n1m,n2m,n3m
+c$$$#ifdef COMMONLL
+c$$$      integer(4):: ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4)::ll
+c$$$#endif
+c$$$c-----------------------------------------------------------------------
+c$$$      print *,' pplmat2:'
+c$$$      pi  = 4d0*datan(1d0)
+c$$$      pi4 = 16d0*datan(1d0)
+c$$$      call u_lat_vecs(s_lat,alat,plat,qlat)
+c$$$      tpiba  = 2*pi/alat
+c$$$      tpibaqlat = tpiba *qlat
+c$$$      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+c$$$      allocate(cy((lmxax+1)**2),yl((lmxax+1)**2) )
+c$$$      call sylmnc(cy,lmxax)
+c$$$
+c$$$ccc      goto 1201 ! if you want to use old version ---
+c$$$c
+c$$$c <P^q_G1 | P^q_G2 >
+c$$$ccctest      call mkppovl2test(alat,plat,qlat,
+c$$$      call mkppovl2(alat,plat,qlat, 
+c$$$     &    ng, ngvec, !G1
+c$$$     &    ng, ngvec, !G2
+c$$$     &    nbas, rmax, bas,  
+c$$$     o    ppovl)
+c$$$
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$c      write(3001,"('q=',3d16.8)") q
+c$$$c      do ig1 = 1, ng
+c$$$c      do ig2 = 1, ng
+c$$$c        write(3001,"(2i3,'  ',2d16.8)") ig1,ig2,ppovl(ig1,ig2)
+c$$$c      enddo
+c$$$c      enddo
+c$$$c      stop 'test1 end'
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$
+c$$$c Get ngvecx for the interstitial part of the smooth hankel function.
+c$$$      call getgv2(alat,plat,qlat, q, QpGcutHankel, 1, ngmx,dummy)
+c$$$      allocate( ngvecx(3,ngmx),ppshx(ngmx,ndimh) )
+c$$$      call getgv2(alat,plat,qlat, q, QpGcutHankel, 2, ngmx, ngvecx)  ! for eigenfunction
+c$$$      print *,  ' pplmat2: ngmx=',ngmx
+c$$$
+c$$$c Expansion coefficients of |P^q_G1x> in the expansion .. |Smooth Hankel>
+c$$$c ---> ppshx(igx1,ndimh) matrix
+c$$$      ppshx = 0d0
+c$$$      do ig1x = 1, ngmx
+c$$$        qg1(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvecx(1:3,ig1x)))
+c$$$        absqg1   = sqrt(sum(qg1(1:3)**2))
+c$$$        if(absqg1==0d0) then
+c$$$          qqq = (/0d0,0d0,1d0/)
+c$$$        else
+c$$$          qqq = qg1/absqg1
+c$$$        endif
+c$$$        call sylm(qqq,yl,lmxax,r2s) !spherical factor Y( q+G )
+c$$$        ihoff = 0
+c$$$        do ibas = 1,nbas
+c$$$          if(ibas >=2) then
+c$$$            ihoff  = ihoff  
+c$$$     &      +  sum ( (  lh2(1:ntorb(ibas-1),ibas-1)+1)**2 
+c$$$     &              - lh1(1:ntorb(ibas-1),ibas-1)**2   )
+c$$$          endif
+c$$$          ih = ihoff
+c$$$          phase = exp( -img*sum( qg1*bas(:,ibas)*alat )  )
+c$$$          do itorb = 1,ntorb(ibas)
+c$$$            do lmh   = lh1(itorb,ibas)**2+1, (lh2(itorb,ibas)+1)**2
+c$$$              lh = ll(lmh)
+c$$$              ih = ih + 1
+c$$$              denom = eh(itorb,ibas)-absqg1**2
+c$$$              gan   = 1d0/4d0*rsmh(itorb,ibas)**2
+c$$$              ppshx(ig1x,ih) = - pi4/denom
+c$$$     &      * (-img)**lh * facl(absqg1,lh)
+c$$$     &      * cy(lmh)* yl(lmh)* exp( gan*denom)
+c$$$     &      * phase  /voltot
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$c
+c$$$      allocate(ppovlx(ng,ngmx))
+c$$$ccctest      call mkppovl2test(alat,plat,qlat,
+c$$$      call mkppovl2(alat,plat,qlat, 
+c$$$     &    ng,   ngvec,  !G1
+c$$$     &    ngmx, ngvecx, !G1x
+c$$$     &    nbas, rmax, bas,  
+c$$$     o    ppovlx)
+c$$$      call matm(ppovlx,ppshx,ppsh,ng,ngmx,ndimh)
+c$$$      deallocate( ppovlx )
+c$$$      if (allocated(cy)) deallocate(cy)
+c$$$      if (allocated(yl)) deallocate(yl)
+c$$$      if (allocated(ngvecx)) deallocate(ngvecx)
+c$$$      if (allocated(ppshx)) deallocate(ppshx)
+c$$$      return
+c$$$
+c$$$c <P^q_G1 | Smooth Hankel > = ppsh matrix
+c$$$c     n1x = maxval( ngvecx(1,:)) - minval( ngvec(1,:))
+c$$$c     n1m = minval( ngvecx(1,:)) - maxval( ngvec(1,:))
+c$$$c     n2x = maxval( ngvecx(2,:)) - minval( ngvec(2,:))
+c$$$c     n2m = minval( ngvecx(2,:)) - maxval( ngvec(2,:))
+c$$$c     n3x = maxval( ngvecx(3,:)) - minval( ngvec(3,:))
+c$$$c     n3m = minval( ngvecx(3,:)) - maxval( ngvec(3,:))
+c$$$c      allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
+c$$$c      ppox = 1d99
+c$$$c   <G1|G1X>
+c$$$c      do ig1  = 1, ng
+c$$$c      do ig1x = 1, ngmx
+c$$$c       nx(1:3) = ngvecx(1:3,ig1x) -ngvec(1:3,ig1)
+c$$$c        if( ppox(nx(1),nx(2),nx(3))==1d99 ) then
+c$$$c          call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
+c$$$c     i    nx(1:3), ! G1x -G1
+c$$$c     o    ppox( nx(1),nx(2),nx(3)))
+c$$$c       endif
+c$$$c      enddo
+c$$$c     enddo
+c$$$c      ppsh = 0d0
+c$$$c      do ih   = 1, ndimh
+c$$$c      do ig1  = 1, ng
+c$$$c      do ig1x = 1, ngmx
+c$$$c       nx(1:3) = ngvecx(1:3,ig1x) - ngvec(1:3,ig1)
+c$$$c       ppovlx  = ppox( nx(1),nx(2),nx(3))
+c$$$c       ppsh(ig1,ih) = ppsh(ig1,ih) + ppovlx * ppshx(ig1x,ih)
+c$$$c      enddo
+c$$$c     enddo
+c$$$c     enddo
+c$$$c      deallocate( ppox )
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$c=======================================================================
+c$$$ 1201 continue
+c$$$c      print *,  ' pplmat: xxx voltot=',voltot
+c$$$c <P^q_G1 | P^q_G2 > matrix
+c$$$      do ig1 = 1,ng
+c$$$        qg(1:3,ig1) = tpiba * (q(1:3)+ matmul(qlat, ngvec(1:3,ig1)))
+c$$$        absqg(ig1)  = sqrt(sum(qg(1:3,ig1)**2))
+c$$$      enddo
+c$$$
+c$$$c --- OLD codes from here ----------------------------------------------
+c$$$      ppovl = 0d0
+c$$$      do ig1 = 1,ng
+c$$$        ppovl(ig1,ig1)= voltot
+c$$$      enddo
+c$$$
+c$$$cyy      allocate(yl1((lmxax+1)**2),yl2((lmxax+1)**2) )
+c$$$
+c$$$      do ig1 =1,ng
+c$$$        qg1(1:3) = qg(1:3,ig1)
+c$$$        absqg1   = absqg(ig1)
+c$$$cyy        call sylm(qg1/absqg1,yl1,lmxax,r2s) !spherical factor Y( q+G )
+c$$$        do ig2 =1,ng
+c$$$          qg2(1:3) = qg(1:3,ig2)
+c$$$          absqg2   = absqg(ig2)
+c$$$cyy        call sylm(qg2/absqg2,yl2,lmxax,r2s) !spherical factor Y( q+G )
+c$$$
+c$$$          if( absqg1*absqg2 == 0d0) then
+c$$$            cost = 1d0
+c$$$          else
+c$$$            cost = sum(qg1*qg2)/absqg1/absqg2
+c$$$          endif
+c$$$
+c$$$          do ibas = 1,nbas
+c$$$            call wronkj( absqg1**2, absqg2**2, rmax(ibas),
+c$$$     &                 lmxa(ibas),fkk,fkj,fjk,fjj)
+c$$$
+c$$$cyy        do lma  = 1,(lmxa(ibas)+1)**2
+c$$$cyy          la = ll(lma)
+c$$$cyy          ppovl(ig1,ig2) = ppovl(ig1,ig2)
+c$$$cyy     &      - exp( img* sum((qg2-qg1)*bas(1:3,ibas))*alat )  !???
+c$$$cyy     &       * pi4* pi4 * cy(lma)**2*yl1(lma)*yl2(lma)
+c$$$cyy     &       * (-fjj(la))*(absqg1*absqg2)**la  ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
+c$$$
+c$$$            do la  = 0,lmxa(ibas)
+c$$$              ppovl(ig1,ig2) = ppovl(ig1,ig2)   
+c$$$     &      - exp( img* sum((qg2-qg1)*bas(1:3,ibas))*alat )  !???
+c$$$     &        * pi4 *(2*la+1d0) * plegn(la,cost) 
+c$$$     &        * (-fjj(la))  *facl(absqg1*absqg2,la)
+c$$$              !*(absqg1*absqg2)**la  ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
+c$$$cxxx     &      * ajaj(ig1,ig2,la,ibas)        ! radjjint =\int_0^a r^2 dr j_l(absqg1 r) j_l(absqg2 r)
+c$$$
+c$$$cccccccccccc
+c$$$c        if( abs(absqg1)==0d0)
+c$$$c     &    write(1126,'(4i3,2d15.6,3x,d15.6)')ig1,ig2,la,ibas
+c$$$c     &    , -fjj(la),ajaj(ig1,ig2,la,ibas)
+c$$$c     &    , fjj(la) +ajaj(ig1,ig2,la,ibas)
+c$$$cccccccccccc
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$c      write(3002,"('q=',3d16.8)") q
+c$$$c      do ig1 = 1, ng
+c$$$c      do ig2 = 1, ng
+c$$$c        write(3002,"(2i3,'  ',2d16.8)") ig1,ig2,ppovl(ig1,ig2)
+c$$$c      enddo
+c$$$c      enddo
+c$$$c      stop 'test2 end'
+c$$$ccccccccccccccccccccccccccccccccccccccc
+c$$$
+c$$$cccccccccccccc
+c$$$c      do ig1=1,ng-1
+c$$$c       ig2=ig1+1
+c$$$c        write(6,"(' old ppovl(ig1,ig2)=',i4,2d13.6)")ig1,ppovl(ig1,ig2)
+c$$$c      enddo
+c$$$c     stop "------testen--------d"
+c$$$cccccccccccccc
+c$$$
+c$$$ 1111 continue
+c$$$c <P^q_G1 | Smooth Hankel > = ppsh matrix
+c$$$      ppsh=0d0
+c$$$      do ig1 = 1, ng
+c$$$        qg1(1:3) = qg(1:3,ig1)
+c$$$        absqg1   = absqg(ig1)
+c$$$        if(absqg1==0d0) then
+c$$$          qqq = (/0d0,0d0,1d0/)
+c$$$        else
+c$$$          qqq = qg1/absqg1
+c$$$        endif
+c$$$        call sylm(qqq,yl,lmxax,r2s) !spherical factor Y( q+G )
+c$$$
+c$$$        ihoff  = 0
+c$$$        do ibas = 1,nbas
+c$$$          if(ibas >=2) then
+c$$$            ihoff  = ihoff  
+c$$$     &      +  sum ( (  lh2(1:ntorb(ibas-1),ibas-1)+1)**2 
+c$$$     &                - lh1(1:ntorb(ibas-1),ibas-1)**2   )
+c$$$          endif
+c$$$c from head
+c$$$          phase = exp( -img*sum( qg1*bas(:,ibas)*alat )  )
+c$$$          ih = ihoff
+c$$$          do itorb = 1,ntorb(ibas)
+c$$$            do lmh   = lh1(itorb,ibas)**2+1, (lh2(itorb,ibas)+1)**2
+c$$$              lh = ll(lmh)
+c$$$              ih = ih + 1
+c$$$c           print *,ibas,ip,itorb,lmh,ias,ih,lh
+c$$$c           print *,lmh,lh
+c$$$              denom = eh(itorb,ibas)-absqg1**2
+c$$$              gan   = 1d0/4d0*rsmh(itorb,ibas)**2
+c$$$              ppsh(ig1,ih) = ppsh(ig1,ih) - pi4/denom
+c$$$c     &         * (-img*absqg1)**lh * cy(lmh)* yl(lmh)* exp( gan*denom)
+c$$$     &         * (-img)**lh * facl(absqg1,lh)
+c$$$     &         * cy(lmh)* yl(lmh)* exp( gan*denom)
+c$$$     &         * phase
+c$$$     &         - phase * plhd(ig1, ih)  ! integral of plane \times hd
+c$$$            enddo
+c$$$          enddo
+c$$$c from tail
+c$$$          do lma= 1, (lmxa(ibas)+1)**2
+c$$$            do k  = 0, kmax(ibas)
+c$$$              la  = ll(lma)
+c$$$c           print *, ibas,ip,lma,k
+c$$$              ppsh(ig1,1:ndimh) = ppsh(ig1,1:ndimh)  
+c$$$     &        - phase * plpkl(ig1, lma, k,ibas)
+c$$$     &                * bmat(k, lma, ibas, 1:ndimh) ! integral of plane \times hd
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$      if (allocated(cy)) deallocate(cy)
+c$$$      if (allocated(yl)) deallocate(yl)
+c$$$      if (allocated(ngvecx)) deallocate(ngvecx)
+c$$$      if (allocated(ppshx)) deallocate(ppshx)
+c$$$      end
 
 
 c--------------------------------------------------------------
