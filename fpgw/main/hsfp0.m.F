@@ -247,6 +247,11 @@ c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),fre
 
 !! Get maximums 
       call getnemx8(nbmx,ebmx)
+ccccccccccccccccccccccccccccc
+!! forget ebmx2 nbmx2 
+      nbmx(2)=9999999
+      ebmx(2)=1d10
+ccccccccccccccccccccccccccccc
       write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 !! WARN!!! WE ASSUME iclass(iatom)= iatom ! this should be improved in future.
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.

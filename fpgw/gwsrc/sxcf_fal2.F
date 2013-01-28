@@ -1728,7 +1728,10 @@ c three-point interpolation for Wc(we)
               if(freq_r(iwp)>we) exit
             enddo
             if(nw_i==0) then
-              if(ixs+1>nwx) stop ' sxcf: ixs+1>nwx xxx2'
+              if(ixs+1>nwx) then
+                 print *,' ixs,nwx, we =',ixs,nwx,we
+                 stop ' sxcf: ixs+1>nwx xxx2'
+              endif   
             else !   write(6,*)" ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
               if(omg >=ef .and. ixs+1> nwx ) then
                 write(6,*)'ixs+1 nwx=',ixs+1,nwx

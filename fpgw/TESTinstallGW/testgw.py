@@ -69,7 +69,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 ##### main routine ##########################
 ### check number of MPI nodes
 mpisize=1
-gwsc1shot='gwsc1shot'
+gwsc1shot='gwsc 0 -np 1 '
 for i in range(len(sys.argv)):
 	iarg='-np'
 	if sys.argv[i]=='-np':
@@ -80,7 +80,7 @@ for i in range(len(sys.argv)):
 			print '-np is not followed by integer'
 			sys.exit(-1)
 		print 'MPISIZE=', mpisize
-		gwsc1shot='gwsc1shot_mpi -np '+mpisize+ ' '
+		gwsc1shot='gwsc 0 -np '+mpisize+ ' '
 		break
 
 testdir = os.getcwd()

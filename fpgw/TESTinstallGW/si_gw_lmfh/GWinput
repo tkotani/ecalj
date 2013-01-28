@@ -1,3 +1,6 @@
+!Q0Pchoice 2
+!LFC@Gamma off
+
 !!! Starting from ! (or nonkeyword) is comment line !!! 
 !!! Each lines consists of "keyword value(s)"  !!! 
 !!! Each tag section in <...>... </...> has its own format. !!! 
