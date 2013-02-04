@@ -350,15 +350,16 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
       if(ixc==1) then
          exchange=.true.
          write(6,*) ' --- Exchange mode --- '
-         ifxc(1)  = iopen('XCU'//xt(nz),1,-1,0)
-         ifsex(1) = iopen('SEXU'//xt(nz),1,-1,0)
-         ifsex2(1)= iopen('SEX2U',0,-1,0) !out SEX_nn'
-         if (nspin == 2) then
-            ifxc(2)  = iopen('XCD'//xt(nz),1,-1,0)
-            ifsex(2) = iopen('SEXD'//xt(nz),1,-1,0)
-            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
+         if(mpi__root) then
+            ifxc(1)  = iopen('XCU'//xt(nz),1,-1,0)
+            ifsex(1) = iopen('SEXU'//xt(nz),1,-1,0)
+            ifsex2(1)= iopen('SEX2U',0,-1,0) !out SEX_nn'
+            if (nspin == 2) then
+               ifxc(2)  = iopen('XCD'//xt(nz),1,-1,0)
+               ifsex(2) = iopen('SEXD'//xt(nz),1,-1,0)
+               ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
+            endif
          endif
-
          INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
          if(exspwrite) then
             print *,'--- Find EXspTEST ExspectrumWrite=',exspwrite
@@ -372,21 +373,25 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
          exchange=.false.
          write(6,*) ' --- Correlation mode --- '
          if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
-         ifsec(1)   = iopen('SECU'//xt(nz),1,-1,0) ! output files
-         ifsec2(1)= iopen('SEC2U',0,-1,0) !out SEC_nn'
-         if (nspin == 2) 
-     .        ifsec(2)   = iopen('SECD'//xt(nz),1,-1,0)
-         ifsec2(2)= iopen('SEC2D',0,-1,0) !out SEC_nn'
+         if(mpi__root) then
+            ifsec(1)   = iopen('SECU'//xt(nz),1,-1,0) ! output files
+            ifsec2(1)= iopen('SEC2U',0,-1,0) !out SEC_nn'
+            if (nspin == 2) 
+     .           ifsec(2)   = iopen('SECD'//xt(nz),1,-1,0)
+            ifsec2(2)= iopen('SEC2D',0,-1,0) !out SEC_nn'
+         endif
       elseif(ixc==3) then
          exchange=.true.
          esmr=0d0
          write(6,*) ' --- CORE Exchange mode --- '
-         ifsex(1)   = iopen('SEXcoreU'//xt(nz),1,-1,0)
-         ifsex2(1)= iopen('SEXcore2U',0,-1,0) !out SEXcore_nn'
-         if (nspin == 2) then
-            ifsex(2)   = iopen('SEXcoreD'//xt(nz),1,-1,0)
-            ifsex2(2)= iopen('SEXcore2D',0,-1,0) !out SEXcore_nn'
-         endif
+         if(mpi__root) then
+            ifsex(1)   = iopen('SEXcoreU'//xt(nz),1,-1,0)
+            ifsex2(1)= iopen('SEXcore2U',0,-1,0) !out SEXcore_nn'
+            if (nspin == 2) then
+               ifsex(2)   = iopen('SEXcoreD'//xt(nz),1,-1,0)
+               ifsex2(2)= iopen('SEXcore2D',0,-1,0) !out SEXcore_nn'
+            endif
+         endif   
 ccccccccccccccccccccccccccccccccccccccccccfaleev 21May02 do not use ixc==4
 c     elseif(ixc==4) then
 c     write(6,*) ' --- Spectrum function Sigma(\omega) mode --- '
@@ -685,6 +690,7 @@ c     - takao Vxc is readin from VXCFP
       if(ixc==1) then
          allocate(  vxcfp(ntq,nq,nspin) )
          call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
+         if(mpi__root) then
          do is = 1,nspinmx
             write (ifxc(is),*) '==================================='
             write (ifxc(is),"(' LDA exchange-correlation : is=',i3)")is
@@ -714,6 +720,7 @@ c     - takao Vxc is readin from VXCFP
             if(is==1) isx = iclose('XCU'//xt(nz))
             if(is==2) isx = iclose('XCD'//xt(nz))
          enddo                  !     end of spin-loop
+         endif !mpi__root
          deallocate(vxcfp)
       endif
 
@@ -1059,6 +1066,7 @@ c$$$
      &     kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) ) !eq(nband),
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
+         if(mpi__root) then
          if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
             write(ifsex(is),*) '======================================='
@@ -1081,6 +1089,7 @@ c     loop over spin ----------------------------------------------------
      &           '           qvec            eigen-Ef (in eV)           '//
      &           'Re(Sc) 3-points (in eV)                        '//
      &           '           In(Sc) 3-points (in eV)                Zfactor(=1)'
+         endif
          endif
 c     initialise secq and kount
          zsec  = 0d0
@@ -1440,7 +1449,7 @@ c     write(6,*)
 c     end do
 c     end do
          endif                  !ixc
-         endif
+         endif  !mpi__root
  2000 continue                  !end of spin-loop
 
 
