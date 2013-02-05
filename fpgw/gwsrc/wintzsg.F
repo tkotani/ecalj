@@ -663,7 +663,7 @@ CCC!$OMP end parallel do
       !call cputid(0)
 
       deallocate(CC)
-      end
+      end subroutine matzwz2
 
 c--------------------------------------------------------------------
       complex(8) function alagr3z2(x,xi,fi,i,j)  !sf 24 May02

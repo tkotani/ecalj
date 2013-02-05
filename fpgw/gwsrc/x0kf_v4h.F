@@ -801,7 +801,7 @@ c       endif
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
         call cputid2(' --- qqqqq: start symmetrization  ',0)
 
-        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
+c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
         ntimer=1
         if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
@@ -878,6 +878,9 @@ c        call cputid(0)
         write(*,*)'kino: nwt=',nwt 
         zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
+!$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
+        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
+!$OMP do 
         do iw=1,nwt
         do jpm=1,npm
           rcxq000 = 0d0
@@ -962,8 +965,12 @@ c$$$           endif
           rcxq(:,:,iw,jpm) = rcxq000/neibz
         enddo
         enddo
+!$OMP end  do 
+        deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
+!$OMP end parallel 
 !TIME1 "after sym rcxq"
-        deallocate(rcxq00,rcxq000,rcxq0,zrotm,i1,i2,rcxqwww)
+        deallocate(zrotm,i1,i2)
+
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
 c$$$        icc=0
 c$$$        do itimer=1,-1,-2

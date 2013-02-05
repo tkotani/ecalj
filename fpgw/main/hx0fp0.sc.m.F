@@ -634,7 +634,7 @@ c     write(3111,*)freq_r(iw)
 c     enddo
 c     close(3111)
 !     ...
-      if(realomega) then
+      if(realomega .and. mpi__root) then
          open(UNIT=3111,file='freq_r') !write number of frequency
                                 !points nwp and frequensies in 'freq_r' file
          write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
