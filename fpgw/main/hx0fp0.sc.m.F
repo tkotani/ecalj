@@ -268,6 +268,9 @@ C     --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !-----------------------------------------------------------------
       call read_BZDATA()
 
+!TIME1 "after readbzdata"
+!TIME0 
+
 c---  Use regular mesh even for bzcase==2 and qbzreg()=T
 c     off-regular mesh for bzcase==1 and qbzreg()=F
       if( ( bzcase()==2.and.qbzreg() )       .or.
@@ -369,6 +372,9 @@ c     if(ixc==1.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p))
 c     &  stop ' wqtsum of Q0P /=1 '
       endif 
 
+!TIME1 "before readngmx"
+!TIME0
+
 c     --- readin by rdpp ; Radial integrals ppbrd and plane wave part
 c     call getsrdpp( nclass,nl,
 c     o               ngpmx,ngcmx,nxx )
@@ -419,6 +425,8 @@ c     ifev(1)    = iopen('EVU', 0,0,mrece)
 c     if(nspin == 2) then
 c     ifev(2)    = iopen('EVD', 0,0,mrece)
 c     endif
+!TIME1 "before initreadeigen"
+!TIME0
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
                                 ! EVU EVD are readin in init_readeigen
@@ -535,6 +543,9 @@ c     call findemaxmin(ifev,nband,nqbz,nspin
       print *,' omega2max=',omg2max
 !     if (.false.) then
 
+!TIME1 "before histogram division"
+!TIME0 
+
 ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
 
       nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
@@ -634,6 +645,8 @@ c     write(3111,*)freq_r(iw)
 c     enddo
 c     close(3111)
 !     ...
+!TIME1 "before realomega write3111"
+!TIME0
       if(realomega .and. mpi__root) then
          open(UNIT=3111,file='freq_r') !write number of frequency
                                 !points nwp and frequensies in 'freq_r' file
@@ -681,7 +694,7 @@ c     ... maximum no. occupied valence states
       noccx      = noccxv + nctot
 
 c     c --- write energy mesh ---
-      ifemesh = iopen('emesh.hx0fp0',1,-1,0)
+c      ifemesh = iopen('emesh.hx0fp0',1,-1,0)
 c     call writeemesh(ifemesh,freq_i,niw,freq_r,nwp,delta)
 
 c     ... ppb
@@ -702,6 +715,8 @@ C...  This is just to get nblochpmx
       endif
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
 
+!TIME1 "before open WVd"
+!TIME0
 C     --- open WV* files
       ifwd   = iopen('WV.d',1,-1,0)
 
@@ -710,6 +725,8 @@ C     --- open WV* files
      &     nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
+!TIME1 "after write ifwd"
+!TIME0
 
 c     --- READIN ANFcond------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
@@ -766,6 +783,8 @@ c     endif
       enddo
 
       print *, ' end of ppbafp_v2'
+!TIME1 "endo of ppbafp_v2"
+!TIME0
 
 C     ---- these are used in x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
