@@ -507,7 +507,7 @@ ccccccccccccccccccccccccccccccc faleev variant begin,it about 15% faster for MnO
           enddo
 
           if (ihw(ibib,k)+nhw(ibib,k)-1 >nwt) stop "x0kf_v2hz: iw>nwt"
-!$OMP parallel do  private(imagweight) shared(rcxq)
+CCC!$OMP parallel do  private(imagweight) shared(rcxq)
           do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1
             !iiww=iw+ihw(ibib,k)-1
             imagweight=whw(jhw(ibib,k)+iw-ihw(ibib,k))
@@ -519,7 +519,7 @@ c     call zdaxpy(igb2,imagweight,z1p(1,igb2),zxq_(1,igb2,iiww))
               enddo !igb1
             enddo !igb2
           enddo ! iw
-!$OMP end parallel do
+CCC!$OMP end parallel do
 c           do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
 c             if (iw .gt. nwt) stop "x0kf: iw > nwt"
 c              !iiww=iw+ihw(ibib,k)-1

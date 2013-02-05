@@ -583,7 +583,7 @@ ccccccccccccccccccccccccccccccc faleev variant begin,it about 15% faster for MnO
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) then
             stop "x0kf_v3hz: iw>nwt"
           endif
-!$OMP parallel do  private(imagweight) shared(rcxq)
+CCC!$OMP parallel do  private(imagweight) shared(rcxq)
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
             !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
@@ -598,7 +598,7 @@ ccccccccccccccccccccccccccccccccccccccccc
 c          write(6,*)" sum rcxq=",sum(abs(rcxq(:,:,iw,1)))
 ccccccccccccccccccccccccccccccccccccccccc
           enddo ! iw
-!$OMP end parallel do
+CCC!$OMP end parallel do
 c           do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
 c             if (iw .gt. nwt) stop "x0kf: iw > nwt"
 c              !iiww=iw+ihw(ibib,k)-1

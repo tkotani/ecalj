@@ -51,8 +51,8 @@ c      ppb=1d99;pdb=1d99;dpb=1d99;ddb=1d99
 cccccccccccccccccccc
 
 c loop over class  ! nclass=nbas
-!$OMP parallel do  private ( ic,ibas, i, ib,nb,mb, lmb, i2,np,kp,mp, lmp)
-!$OMP& private( i1,n,l,m,lm, lp )
+CCC!$OMP parallel do  private ( ic,ibas, i, ib,nb,mb, lmb, i2,np,kp,mp, lmp)
+CCC!$OMP& private( i1,n,l,m,lm, lp )
       do ic  = 1, nclass
         ibas = ic
 c        do ip1=1,2
@@ -131,7 +131,7 @@ ccccccccccccccccccc
           enddo
         enddo
       enddo
-!$OMP end parallel do
+CCC!$OMP end parallel do
 cccccccccccccccccccccccccccccccccccccccccccc
 c      pdb =0d0
 c     dpb =0d0
@@ -363,6 +363,7 @@ c-----------------------------------------------------
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 
+!TIME0
 c
 c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) print *,' drvmelp2:'
@@ -375,6 +376,7 @@ c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(n
       if(debug) print *,'drvmelp2: goto readgeig'
       call readgeig(q,    ngpmx_in, isp, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
+!TIME1 "after readgeig q q_rk"
       if(debug) print *,'drvmelp2: endof readgeig'
 c      qu1=qt
 c      qu2=q_rkt
@@ -777,8 +779,8 @@ c$$$cccccccccccccccccccccccccc
       enddo
       if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd
 
+!$OMP parallel private(nn,igc2,qg,phas,ge2)
       do ig1 = 1,ngp1
-!$OMP parallel do private(ig2, nn,igc2,qg, it, ge2 , itp ,phas) shared(gg_)
         do ig2 = 1,ngp2
 c$$$cccccccccccccccccccc
 c$$$          if(ig1==2) then
@@ -791,6 +793,7 @@ c$$$cccccccccccccccccccc
           igc2    = ipp(nn(1),nn(2),nn(3))
           qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
           phas = exp(-img*sum(qg*shtv))
+!$OMP do 
           do it =1,nt0
             ge2=dconjg(geigq2(ig2,it)) *phas
             do itp=1,ntp0
@@ -798,9 +801,11 @@ c$$$cccccccccccccccccccc
      &        +  geigq1_(itp,ig1)*ge2
             enddo
           enddo
+!$OMP end do 
         enddo
-!$OMP end parallel do
       enddo
+!$OMP end parallel 
+
       if(debug) print *,'melpln2: 444444444444444 '
       do itp=1,ntp0
         do it =1,nt0
@@ -817,7 +822,7 @@ c      else
 c      endif
       deallocate(ppx,gg,ngvecc2,ipp,geigq1_)
       zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >
-      end
+      end subroutine melpln2 
 
 
 ccccccccccccccccccccccccccccccccc

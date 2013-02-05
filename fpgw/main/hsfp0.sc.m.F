@@ -216,6 +216,9 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       real(8):: eftrue,esmref !jan2013
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
+!$      call omp_set_nested(1)
+!TIME0
+!TIME0 
       hartree=2d0*rydberg()
 !     !     mode switch. --------------
       if(cohtest) then
@@ -1064,6 +1067,7 @@ c$$$
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
      &     kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) ) !eq(nband),
+!TIME1 "before 2000 loop"
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
          if(mpi__root) then
@@ -1118,6 +1122,7 @@ c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz)
          
 c         print *,'ntq=',ntq
 
+!TIME0
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2
@@ -1156,6 +1161,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 c         deallocate(wbzz)
+!TIME1 "after sxcf_fal3_scz"
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 
 
@@ -1219,6 +1225,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
          read(ifvxc)            !ndimh, nsp,nnn
 !
+!TIME0
          do 3020 iq=1,nq !nq means iq for which we will calculate sigma
 c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given in evec v_xc.
             do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
@@ -1340,6 +1347,7 @@ ccccccccccccccccccccccccccccc
  3030       continue            ! ispx
 
  3020    continue               ! iq
+!TIME1 "end 3020 loop"
 
          close(UNIT=ifevec)
          close(UNIT=ifvxc)
@@ -1473,6 +1481,7 @@ c     isx = iclose ('CHBD')
 c     isx = iclose ('EVD')
 c     isx = iclose ('CPHI')
 
+!TIME0 
 C     --- EXspectrum ----------------------------------------------------
 c     This section is similar with efsimplef.f
       if(sum(ifexsp(1:nspin))/=0) then
@@ -1556,12 +1565,15 @@ c
          enddo
          print *,' End of ExSpectrum section ---'
       endif
+!TIME1 "end of exspectrum"
 c-------------------------------------------------------------------------------
 
 c     formats
 c     6500 format (' spin =',i2,'   nbloch =',i4,'  deltaw =',f7.4,' a.u.',
 c     .'   ef=',f10.5,' Rydberg' )
 c     
+!TIME1 "end program"
+!TIMESHOW 
       call cputid(0)
 
       call MPI__Finalize ! MIZUHO-IR
@@ -1575,5 +1587,5 @@ c     if(ixc==4 ) stop ' OK! hsfp0: spectrum mode'
 
 
 
-      end
+      end program hsfp0_sc 
 

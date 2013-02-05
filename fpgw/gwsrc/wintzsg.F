@@ -635,6 +635,7 @@ c-------------------------------------------------------------------
       !call cputid(0)
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
+CCC!$OMP parallel do 
         do itp = 1,ntq
           do  it = 1,nstate
 c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
@@ -642,7 +643,9 @@ c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
      &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
           enddo
         enddo
+CCC!$OMP end parallel do 
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
+CCC!$OMP parallel do 
         do itpp= 1,ntq
           do itp = 1,ntq
             do  it = 1,nstate
@@ -652,6 +655,7 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
             enddo
           enddo
         enddo
+CCC!$OMP end parallel do 
       else
         stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
       endif

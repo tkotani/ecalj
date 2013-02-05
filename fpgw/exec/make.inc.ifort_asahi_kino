@@ -1,4 +1,4 @@
-FC = mpif90 -g -debug all -par-report #-openmp
+FC = mpif90 -g -debug all -par-report -openmp
 
 CPPSWITCH_INTELLINUXIFC  = \
 -DEXPAND_ISWAP  -DEXPAND_VDV   -DCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
@@ -17,7 +17,7 @@ tet5_g = .o
 LIBLOC = -lfftw3 -mkl=sequential  
 LIBMATH= $(LIBLOC)
 
-LK = mpif90 -g -debug all #-openmp
+LK = mpif90 -g -debug all -openmp
 LKFLAGS2 = $(LIBMATH) 
 
 #ECAL   = $(HOME)/ecal

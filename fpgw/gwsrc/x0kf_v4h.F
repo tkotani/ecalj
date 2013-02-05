@@ -181,7 +181,7 @@ c      call matcinv(ngbb,ppovlzinv)
 cooo end cccccccccccccccccccccccccccccccccccccccccccc
 
 
-      
+!TIME0 "start xkf_v4hz      
 
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
@@ -204,6 +204,8 @@ C ---- overlaid ntp0 ---------- kq 21Jun2003 takao
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       call getnemx(nbmx,ebmx,7,.true.)
 
+!TIME1 "before if smbasis"
+!TIME0 
       if(smbasis()) then
 ccccccccccccccccccccccccccccccccc
         if(ncc/=0) then
@@ -236,7 +238,8 @@ c          write(6,"('ttt: q_r=',3f12.5)") q_r
         endif
         isx = iclose('POmat')
       endif
-
+!TIME1 "after if smbasis"
+!TIME0 
 c$$$ccccccccccccccccccccccccccccccccccccccc
 c$$$      if(testtr()) then
 c$$$        allocate(ngvecc(3,ngc))
@@ -260,7 +263,7 @@ C... loop over k-points
       qq=0d0
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
-
+!TIME0 "start do 1000"
         if(debug) write(*,'("do 1000  k=",i4)')k
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
@@ -343,6 +346,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!TIME1 "before psicb_v3"
+!TIME0 
+
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
      i              cphik (1,nkmin),  
      i              cphikq(1,nkqmin), 
@@ -363,6 +369,9 @@ C ... valence
      d              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      o              zzmel)
         if(debug) call cputid(0)
+
+!TIME1 "after psicb_v3"
+!TIME0 
 
 C --- IPW set
         call readqg('QGpsi',q+rk(:,k)-qq,ginv, qu1x, ngp1, ngvecpB1)
@@ -411,6 +420,8 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
+!TIME1 "before melpln2"
+!TIME0  
         if(ngc/=0) then !Aug2005
           call melpln2(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
@@ -427,6 +438,9 @@ C... extensiton to nbloch+ngc
         deallocate(zzmel)
         if(debug) write(*,'("4 z1pp definitions begin",3d13.6,$)') sum(abs(zmelt))
         if(debug) call cputid(0)
+
+!TIME1 "after melpln2"
+!TIME0 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc      nt0=4
@@ -481,13 +495,17 @@ c        elseif(newanisox) then !.and.iq==1) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
             stop 'x0kf_v4h: ngb/=ngbb'
           endif
+!$OMP parallel do 
           do it=1,nctot+nt0
           do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
             zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
           enddo
           enddo
+!$OMP end parallel do 
         endif
 
+!TIME1  "after matmul zmelt"
+!TIME0 
 
 c$$$cooo test mode
 c$$$          do it=1,nctot+nt0
@@ -584,6 +602,9 @@ c                    print *,'rrrrr: ',k,iw,imagweight,zq0zq0
           deallocate(zmelt,z1p)
           cycle
         endif
+
+!TIME1 "before jpm ibib loop"
+!TIME0
 
 c----------------------------
 c  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
@@ -683,16 +704,19 @@ c$$$              enddo
 c$$$              enddo
 c$$$            enddo  
 c$$$          else
+          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
+!$OMP parallel private(zmelt2,imagweight)
+!$OMP do 
             do igb2=1, ngb !....................................
               zmelt2 = zmelt(igb2,it,itp)
             do igb1=1,igb2
               z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
             enddo
             enddo
+!$OMP end do 
 c$$$        endif
 
-          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
-!$OMP parallel do  private(imagweight) shared(rcxq)
+!$OMP do 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
             if(eibzmoden==2) imagweight = nwgt(k)*imagweight  
@@ -700,12 +724,15 @@ c$$$        endif
             do igb1=1,igb2
               rcxq(igb1,igb2,iw,jpm) =  !here we  sum over ibib (or n, n') and k.
      &        rcxq(igb1,igb2,iw,jpm) + z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
-             enddo !igb1
-             enddo !igb2
+            enddo !igb1
+            enddo !igb2
           enddo ! iw
-!$OMP end parallel do
+!$OMP end do 
+!$OMP end parallel 
 
  25     continue
+
+!TIME1 "after rcxq"
         if(debug) call cputid(0)
         deallocate(zmelt,z1p)
 
@@ -751,6 +778,7 @@ c       endif
         !    call cputid(0)
  1000 continue
 
+!TIME0
 !! ==== hermitianize. jun2012takao moved from dpsion5 ====
       if(.not.nolfco) then
         do jpm=1,npm
@@ -842,8 +870,12 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
           enddo
         enddo
 
+!TIME1 "after nrotm"
+!TIME0
+
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
+        write(*,*)'kino: nwt=',nwt 
         zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
         do iw=1,nwt
@@ -930,6 +962,7 @@ c$$$           endif
           rcxq(:,:,iw,jpm) = rcxq000/neibz
         enddo
         enddo
+!TIME1 "after sym rcxq"
         deallocate(rcxq00,rcxq000,rcxq0,zrotm,i1,i2,rcxqwww)
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
 c$$$        icc=0

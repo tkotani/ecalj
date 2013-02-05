@@ -193,7 +193,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !-------------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')
-
+!TIME0 
+!TIME0 
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
       fourpi=4d0*pi
@@ -844,12 +845,14 @@ c      call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
       call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
 c      print *,'rrr mpiranktab=',mpi__ranktab
 
+!TIME1 "before 1001 loop"
       iqinit=.true.
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
 ccccccccccccccccccccccc
 c         if(iq<=nqibz) cycle
 ccccccccccccccccccccccc
          if( .not. mpi__task(iq) ) cycle
+!TIME0 
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
 !!
@@ -981,10 +984,12 @@ c     zxq=0d0;  zxqi=0d0;
          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
          allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
          rcxq = 0d0
+!TIME1 "before 1003 loop"
 !     ! ---------------------------------------------------------------
 !     ! === loop over spin=== =========================================
 !     ! ---------------------------------------------------------------
          do 1003 is = 1,nspinmx
+!TIME0 
             write(6,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')") 
      &           iq, is, nqibz + nq0i,nspin
             if(debug) print *,' niw nw=',niw,nw
@@ -1269,6 +1274,8 @@ c     else
 c     nmbas1x = 1
 c     endif  
 
+!TIME1 "before x0kf_v2hz"
+!TIME0 
 c     if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
             iqeibz=iq
             call x0kf_v4hz(npm,ncc,   
@@ -1297,6 +1304,7 @@ c!!   complex conjugate part
 c     if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
 c     rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
 c     endif
+!TIME1 "x0vk_v4h"
 
 c$$$  ccccccccccccccccccc
 c$$$  if(nolfco.and.z1offd) then
@@ -1359,7 +1367,7 @@ c     if(tetra.and.ixc==1) deallocate(wwk)
  1003       continue;print *, 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
 c=======================================================================
-
+!TIME0 
 
 !     ! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
 c$$$  if(ixc==11) then
@@ -1409,8 +1417,10 @@ c$$$  endif
             print *,' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
             if(allocated(rcxq) ) deallocate(rcxq)
 
+!TIME1 "before real omega"
 
 !     ! ===  RealOmega ===
+!TIME0 
             if (realomega) then
                if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
                nwmax = nw
@@ -1446,6 +1456,7 @@ c     endif
                  allocate(epstinv(ngb,ngb))
                endif
 
+!TIME0 
                write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
                do 1015 iw  = nwmin,nwmax
                   frr= dsign(freq_r(abs(iw)),dble(iw))
@@ -1620,6 +1631,7 @@ c     write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
 c     call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 c     endif
  1015          continue         !iw
+!TIME1 "end 1015 loop"
 
 c     if(newaniso2) then
 c     if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
@@ -1627,9 +1639,11 @@ c     endif
                if( allocated(zzr) ) deallocate(zzr)
             endif 
 !     ! === RealOmega end ===
+!TIME1 "real omega"
 
 
 !     ! === ImagOmega ===
+!TIME0 
             if (imagomega) then
                print *,' goto imag omega'
                if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
@@ -1730,6 +1744,7 @@ c     endif
                endif
             endif 
 !     ! === ImagOmega end ===
+!TIME1 "imag omega"
 
 c     1002 continue  ! end of frequency block-loop
             if(allocated(vcoul)) deallocate(vcoul)
@@ -1743,7 +1758,7 @@ c     1002 continue  ! end of frequency block-loop
  1001    continue
 c============end of loop over q point =================================
 c=======================================================================
-
+!TIME0
 
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
@@ -1780,6 +1795,7 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
          endif
          print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
 
+!TIME1 "end eeeeeee"
 
 c commentout block inversion
 c$$$!! Add LFC (local field correction) to llw and llwI
@@ -1869,6 +1885,7 @@ c$$$         endif
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191    continue
+!TIME0 
          if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
 
             if(ixc==1011) then !this is only for test.
@@ -1954,13 +1971,16 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
                enddo
             end do
          end if
+!TIME1 "before closing hbe.d"
       is = iclose('hbe.d')
  999  continue
+!TIME1 "end program"
+!TIMESHOW
       call cputid(0)
       call MPI__Finalize
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
       if(ixc==1011) stop ' OK! hx0fp0_sc ixc=1011 W0W0Ionly'
-      end
+      end program hx0fp0_sc 
 
 
 C===================================================================
