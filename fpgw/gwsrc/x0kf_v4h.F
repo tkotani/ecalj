@@ -610,6 +610,7 @@ c----------------------------
 c  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 c  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 c        write(6,*)" nkmax ",nkmax,nkqmax,itps
+!$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
           if(n1b(ibib,k,jpm) <= nband) then
@@ -705,18 +706,17 @@ c$$$              enddo
 c$$$            enddo  
 c$$$          else
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
-!$OMP parallel private(zmelt2,imagweight)
-!$OMP do 
+!$OMP single 
             do igb2=1, ngb !....................................
               zmelt2 = zmelt(igb2,it,itp)
             do igb1=1,igb2
               z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
             enddo
             enddo
-!$OMP end do 
+!$OMP end single 
 c$$$        endif
 
-!$OMP do 
+!$OMP do private(imagweight) 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
             if(eibzmoden==2) imagweight = nwgt(k)*imagweight  
@@ -728,9 +728,9 @@ c$$$        endif
             enddo !igb2
           enddo ! iw
 !$OMP end do 
-!$OMP end parallel 
 
  25     continue
+!$OMP end parallel 
 
 !TIME1 "after rcxq"
         if(debug) call cputid(0)
@@ -791,11 +791,15 @@ c       endif
         enddo
         enddo
       endif
+!TIME1 "before eibzmoden=2"
 
 !! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
       if(eibzmoden==2) then
+!TIME0 
         print *,'eibzmoden=2 goto iqindx2'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
+!TIME1 "after iqindx2"
+!TIME0
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
@@ -809,7 +813,9 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         zcousqinv=zcousq
         call matcinv(ngb,zcousqinv)
         nrotmx = 10000 !trial value
+!TIME1 "before 1011"
  1011   continue !only when nrotmx overflow.
+!TIME0 
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)
         nccc=ngrp*2
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
@@ -818,6 +824,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         zrr=-99999d0
         zrrc=-99999d0
         call cputid2(' --- qqqqq111   :',0)
+!TIME1 "call cputid2 qqqqq11"
 !!
         icc=0
         do itimer=1,-1,-2
@@ -826,6 +833,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
           if(itimer==-1) itt=2
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
+!TIME0
               icc=icc+1
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
 !!this is time-consuming. we may reduce compuatational time by sparse matrix multiplication.
@@ -838,6 +846,8 @@ c                zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
                 call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
 c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
               endif  
+!TIME1 "end matmmsparse"
+!TIME0
 
               i1(:,icc)=0
               i2(:,icc)=0
@@ -859,6 +869,8 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
                 endif   
               enddo
               enddo
+!TIME1 "before iagain=1"
+!TIME0
               if(iagain==1) then
                 nrotmx=irotm+10000 !enlarge allocation and do things again.
                 print *,' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
@@ -866,16 +878,15 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
               endif   
               nrotm(icc)=irotm
               print *,'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
+!TIME1 "end ig itimer icc, nrotm"
             endif
           enddo
         enddo
 
-!TIME1 "after nrotm"
 !TIME0
 
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
-        write(*,*)'kino: nwt=',nwt 
         zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)

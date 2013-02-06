@@ -1463,6 +1463,7 @@ c     endif
                iq0 = iq - nqibz
                if(newaniso2) then
                  if( iq==1 ) then 
+                    write(*,*)'open EPS0inv mpi=',mpi__rank 
                    ifepstinv = iopen('EPS0inv',0,-1,0)
                    write(ifepstinv) ngb
                  endif  
@@ -1476,11 +1477,14 @@ c     endif
                endif
 
 !TIME0 
+!TIME0 
                write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
+!TIME1 "after write trace msg"
                do 1015 iw  = nwmin,nwmax
                   frr= dsign(freq_r(abs(iw)),dble(iw))
                   imode = 1
                   if(newaniso2.and.iq<=nqibz) then !for mmmw
+!TIME0 
                      if(iq==1) then
                         ix=1
                         zw0(:,1)=0d0
@@ -1498,6 +1502,9 @@ c     endif
                      enddo
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+!TIME1 "after matcinv"
+!TIME0
+
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$  cmmm direct inversion vs. block inversion
 c$$$  if(iq>nqibz) then
@@ -1555,8 +1562,11 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      enddo
                      if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
                      zw(1:ngb,1:ngb) = zw0
+!TIME1  "after zw=zw0"
+!TIME0
                      write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
                      call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
+!TIME1 "end of tr_chkwrite"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm 
 c     if(iq>nqibz) then
@@ -1593,9 +1603,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                          endif   
                        enddo
                      enddo
+!TIME0
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                      llw(iw,iq0)= 1d0/epstinv(1,1)
+!TIME1 "end of matcinv,llw=1/epstinv"
                    else
 c commentout block inversion
 c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
@@ -1615,7 +1627,9 @@ c     &                  w_k(2:10:3)/llw(iw,iq0),w_k(63:70:3)/llw(iw,iq0)
 c     write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!TIME0 
                      write(*,*) 'iq iw_real eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+!TIME1 "write iq iwreal"
 
 c     write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
 c     write(ifisk) iw,iq0,q
@@ -1782,6 +1796,8 @@ c=======================================================================
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
 ccccccccccccccccccccccccccc
+!$OMP parallel 
+!$OMP master
          print *,' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
          if(mpi__size/=1) then
             do iq=nqibz+1,iqxend
@@ -1813,6 +1829,8 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
             enddo  
          endif
          print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
+!$OMP end master
+!$OMP end parallel 
 
 !TIME1 "end eeeeeee"
 

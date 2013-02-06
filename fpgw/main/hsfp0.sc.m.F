@@ -1363,10 +1363,10 @@ ccccccccccccccccccccccccccccc
 c     stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!TIME0 
          if(mpi__root) then
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
-!TIME0 
          if(exchange) then
 c     do       ip = 1,nq
 c     call wsex2 (ifsex(is),q(1:3,ip),itq(1:ntq),eqx(1:ntq,ip,is),

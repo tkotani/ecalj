@@ -696,7 +696,11 @@ c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c- Get ppx and ngvecc2
 c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
+ccc!$OMP parallel
+ccc!$OMP master
       call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
+ccc!$OMP end master
+ccc!$OMP end parallel 
       if(ngc/=ngcx) then
         print *, qi, ngcx, ngc
         stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
@@ -779,7 +783,7 @@ c$$$cccccccccccccccccccccccccc
       enddo
       if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd
 
-!$OMP parallel private(nn,igc2,qg,phas,ge2)
+!$OMP parallel private(nn,igc2,qg,phas,ge2) 
       do ig1 = 1,ngp1
         do ig2 = 1,ngp2
 c$$$cccccccccccccccccccc
