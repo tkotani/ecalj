@@ -1070,6 +1070,7 @@ c$$$
 !TIME1 "before 2000 loop"
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
+!TIME0 
          if(mpi__root) then
          if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
@@ -1121,7 +1122,7 @@ c         allocate(wbzz(nqbz))
 c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
          
 c         print *,'ntq=',ntq
-
+!TIME1 "before sxcf_fal3_scz"
 !TIME0
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
@@ -1162,6 +1163,7 @@ c     i              omega,iSigMode, ! iwini,iwend,
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 c         deallocate(wbzz)
 !TIME1 "after sxcf_fal3_scz"
+!TIME0 
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 
 
@@ -1225,6 +1227,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
          read(ifvxc)            !ndimh, nsp,nnn
 !
+!TIME1 "end of allocate zsect"
 !TIME0
          do 3020 iq=1,nq !nq means iq for which we will calculate sigma
 c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given in evec v_xc.
@@ -1361,6 +1364,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(mpi__root) then
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
+!TIME0 
          if(exchange) then
 c     do       ip = 1,nq
 c     call wsex2 (ifsex(is),q(1:3,ip),itq(1:ntq),eqx(1:ntq,ip,is),
@@ -1458,8 +1462,8 @@ c     end do
 c     end do
          endif                  !ixc
          endif  !mpi__root
+!TIME1 "before 2000 continue"
  2000 continue                  !end of spin-loop
-
 
 
 
