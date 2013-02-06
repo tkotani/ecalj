@@ -348,6 +348,7 @@ c
       real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:),drealzzzmel(:,:,:),dimagzzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
      &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:)
+      complex(8),allocatable:: zwnx(:,:,:) 
       complex(8) :: wintzav,wintzsg_npm
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen,npm
@@ -1446,16 +1447,21 @@ cccccccccccccccccccccccccccccccccccc
 !TIME1 "before ccc333 k-cycle"
 ccccccccccccccccccccccccvariant ccccccccccccccccccccccccccccccccc
 c     zwz=0d0
-               do ix=1,nx
 !TIME0 
+               allocate( zwnx (nblochpmx,nblochpmx,nx)) 
+               do ix=1,nx
                   nrec=ix
 c     nrec=(kx-iqini)*niw+ix
 c     if(bzcase()==2) nrec= (kx-1)*niw+ix
 
-                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+c                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+                  read(ifrcwi,rec=nrec) zwnx(:,:,ix) ! direct access read Wc(0) = W(0) - v
 c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
+               enddo
 !TIME1 "matzwz2 read zw"
 !TIME0
+!$OMP parallel do 
+               do ix=1,nx 
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c$$$                  if(sum(abs(qxx(1:2)))<1d-4) then
@@ -1469,13 +1475,16 @@ c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+                  call matzwz2(2, zwnx(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
      o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
 ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
-!TIME1 "end do xxx33333 k-cycle"
                enddo ! ix
+!$OMP end parallel do 
+               deallocate(zwnx) 
+!TIME1 "end do xxx33333 k-cycle"
                if(timemix) call timeshow("xxx33333 k-cycle")
 !TIME0
 

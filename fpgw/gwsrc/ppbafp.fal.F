@@ -389,7 +389,7 @@ c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occup
 cc      allocate( zmelpl(ngc,nt0,ntp0) )
 c      print *,'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+!TIME0
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
       if(debug) print *,' drvmelp2:end of read geig '
@@ -438,8 +438,8 @@ ccccccccccccccccccc
 c      print *, 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
 c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
 ccccccccccccccccccccccccccccccccccc
-
-
+!TIME1 "before drv melpln2"
+!TIME0 
       call melpln2(ngp1, ngvecpB1
      &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,
@@ -447,6 +447,8 @@ ccccccccccccccccccccccccccccccccccc
      &       geig2(1:ngp2,1:nt0), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
      i       shtv, matmul(symope,qik),qik, symope, qbas, 
      o       zmelpl)
+!TIME1 "after drv melpln2"
+!TIME0 
       if(debug) print *,'end of melpln2'
 
  8888 continue
@@ -464,6 +466,7 @@ cc extensiton to nbloch+ngc
      & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       deallocate(zmelpl)
       if(debug) print *,'end of drvmelp2'
+!TIME1 "end drvmelpln2"
       end
 
 
