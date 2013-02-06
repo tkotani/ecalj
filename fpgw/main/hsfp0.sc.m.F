@@ -1165,7 +1165,7 @@ c         deallocate(wbzz)
 !TIME1 "after sxcf_fal3_scz"
 !TIME0 
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
-
+!TIME1 "reduction nbandmx end"
 
 c     if(debug) write(6,*) "end of sxcf_fal3_scz"
 c     1001   continue            !end of q-loop
@@ -1178,6 +1178,7 @@ c     stop 'hsfp0: missing k-pts'
 c     endif
 c---------------------------------
 c     electron gas bare exchange (exact)
+!TIME0
          if (legas.and.exchange) then
             efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
             pi         = 4.d0*datan(1.d0)
@@ -1210,9 +1211,10 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                write (663,"(2f14.6)") qm/qfermi, qfermi
             end do
          endif
+!TIME1 "end legas exchange"
  2001    continue
 
-
+!TIME0 
 !     ! --- symmetrize zsec for eibz4sig mode. Sep2012 -----------------
 !     !     Rotate zsec(itp,itp)
 !     ! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg

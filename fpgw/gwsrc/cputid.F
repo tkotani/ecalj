@@ -142,10 +142,12 @@ c ifile = 0 ==> screen
       end subroutine realtimediff
 
       subroutine print_realtimediff()
-      use m_mpi, only: mpi__rank 
+      use m_mpi, only: mpi__rank ,mpi__size
       use m_realtimediff
-      integer:: i,j
+      integer:: i,j,isize
       character(30):: str
+      do isize=0,mpi__size-1
+         if (mpi__rank.eq.isize) then 
       do i=1,nmax
          if (i1(i).ne.0 ) then 
            str=msg(i)
@@ -154,6 +156,8 @@ c ifile = 0 ==> screen
            enddo
            write(*,'(a,i3,1x,i4,1x,a,1x,F10.2)')'mpi=',mpi__rank,i,trim(str),elapse(i) 
          endif 
+      enddo
+         endif
       enddo
       end subroutine print_realtimediff
 
