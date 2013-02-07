@@ -118,7 +118,7 @@ c ifile = 0 ==> screen
       if (len_trim(msg0)>0) mode=1 
 
       if (mode.eq.0) then
-        i1(id)=1
+        i1(id)=i1(id)+1
         start(id)=mpi_wtime()
       else
         diff=mpi_wtime()
@@ -154,7 +154,7 @@ c ifile = 0 ==> screen
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
-           write(*,'(a,i3,1x,i4,1x,a,1x,F10.2)')'mpi=',mpi__rank,i,trim(str),elapse(i) 
+           write(*,'(a,i3,1x,i4,1x,a,1x,F10.2,1x,i5)')'mpi=',mpi__rank,i,trim(str),elapse(i) ,i1(i)
          endif 
       enddo
          endif
