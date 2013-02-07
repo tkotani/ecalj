@@ -1000,6 +1000,8 @@ c     else
 c     endif
 c     zxq=0d0;  zxqi=0d0;  
 
+         write(*,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',
+     &      nmbas1,nmbas2,nwhis,npm
          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
          allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
          rcxq = 0d0
@@ -1796,8 +1798,8 @@ c=======================================================================
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
 ccccccccccccccccccccccccccc
-!$OMP parallel 
-!$OMP master
+CYY!$OMP parallel 
+CYY!$OMP master
          print *,' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
          if(mpi__size/=1) then
             do iq=nqibz+1,iqxend
@@ -1829,8 +1831,8 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
             enddo  
          endif
          print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
-!$OMP end master
-!$OMP end parallel 
+CYY!$OMP end master
+CYY!$OMP end parallel 
 
 !TIME1 "end eeeeeee"
 

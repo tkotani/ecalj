@@ -214,8 +214,13 @@ c     integer:: nbmx
 c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       character(128) :: ixcc
       real(8):: eftrue,esmref !jan2013
+      real(4):: time_red1,time_red2
+      integer:: timevalues(8) 
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
+      call date_and_time(values=timevalues)
+      write(*,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
+
 !$      call omp_set_nested(1)
 !TIME0
 !TIME0 
@@ -1163,9 +1168,14 @@ c     i              omega,iSigMode, ! iwini,iwend,
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 c         deallocate(wbzz)
 !TIME1 "after sxcf_fal3_scz"
+      call date_and_time(values=timevalues)
+      write(*,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
+      call cpu_time(time_red1)
 !TIME0 
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
+      call cpu_time(time_red2)
 !TIME1 "reduction nbandmx end"
+      write(*,*)'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c     if(debug) write(6,*) "end of sxcf_fal3_scz"
 c     1001   continue            !end of q-loop

@@ -1110,8 +1110,8 @@ ccccccccccccccccccccccccccccc
 
                   if(newaniso()) then
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
-!$OMP parallel  private(vc) 
-!$OMP do 
+CYY!$OMP parallel  private(vc) 
+CYY!$OMP do 
                      do itp= 1,ntqxx
                         do it = 1,nctot+nbmax
                            do ivc=1,ngb
@@ -1119,8 +1119,8 @@ ccccccccccccccccccccccccccccc
                            enddo
                         enddo
                      enddo
-!$OMP end do 
-!$OMP do 
+CYY!$OMP end do 
+CYY!$OMP do 
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1141,11 +1141,11 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
  994                       continue
  993                    continue
  992                 continue
-!$OMP end do 
-!$OMP end parallel 
+CYY!$OMP end do 
+CYY!$OMP end parallel 
                      deallocate(zmeltt)
                   else
-!$OMP parallel do 
+CYY!$OMP parallel do 
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1158,7 +1158,7 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                            enddo
                         enddo
                      enddo
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                      deallocate(z1p)
                   endif  
                   deallocate(zmel)
@@ -1213,8 +1213,8 @@ c--------------------------------------------------------------------------
 c---  correlation section --------------------------------------------------
 c--------------------------------------------------------------------------
 c---  reading general energy mesh from file 'freq_r'
-!$OMP parallel 
-!$OMP master 
+CYY!$OMP parallel 
+CYY!$OMP master 
                open(UNIT=3111,file='freq_r')
                read(3111,*)nwp,nw_i !nwp=nw+1
                nw=nwp-1
@@ -1223,8 +1223,8 @@ c---  reading general energy mesh from file 'freq_r'
                   read(3111,*) freq_r(iw)
                enddo
                close(3111)
-!$OMP end master
-!$OMP end parallel 
+CYY!$OMP end master
+CYY!$OMP end parallel 
 !TIME1 "end reading 3111"
 !TIME0 
 C...  Check freq_r for nw_i case.
@@ -1244,13 +1244,15 @@ c---  The matrix elements zmel.
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
                if(newaniso()) then
-!$OMP parallel do 
+!$OMP parallel 
+!$OMP do 
                   do itp=1,ntqxx
                      do it=1,nstate
                         zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
                      enddo
                   enddo
-!$OMP end parallel do 
+!$OMP end do nowait 
+!$OMP end parallel
                endif  
                deallocate(rmelt,cmelt)
 !TIME1 "matmul zmel ppovlz"
@@ -1460,7 +1462,7 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
                enddo
 !TIME1 "matzwz2 read zw"
 !TIME0
-!$OMP parallel do 
+CYY!$OMP parallel do 
                do ix=1,nx 
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
@@ -1482,7 +1484,7 @@ c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
 ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
                enddo ! ix
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                deallocate(zwnx) 
 !TIME1 "end do xxx33333 k-cycle"
                if(timemix) call timeshow("xxx33333 k-cycle")
@@ -2000,7 +2002,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                      if (iSigma_en == 1.or.iSigma_en==5) then
                         zwz3=(0d0,0d0)
-!$OMP parallel do private(ix,zz2)
+CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=2,ngb !**** most time consuming part for iSigma_en=1 ******
@@ -2011,7 +2013,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                            zwz3(ix0)=2d0*dreal(zwz3(ix0))+
      &                          zmel1(1)*zw3(1,1, iir*ix)*zmel(1,it,itp)
                         enddo   !ix
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                         if(npm==1) then
                            zsec(itp,itp,ip) = zsec(itp,itp,ip) 
      .                          + wfac*alagr3z2(we,freq_r(ixs-1),zwz3,itp,itp)
@@ -2023,7 +2025,7 @@ c     this contribution to zsec_nn is real (hermitean)
                      elseif(iSigma_en == 3) then
                         allocate(zwz4(3,ntqxx))
                         zwz4=(0d0,0d0)
-!$OMP parallel do private(ix,zz2)
+CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=1,ngb !**** most time consuming part for iSigma_en=3 ******
@@ -2033,7 +2035,7 @@ c     this contribution to zsec_nn is real (hermitean)
                               enddo !itpp
                            enddo !igb2
                         enddo   !ix
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                         do 2021 itpp=1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
 
@@ -2074,7 +2076,6 @@ c     and must be made hermitean when zsec will be written on disc
             endif   
 !TIME1 "end of 1100 loop"
  1100    continue               ! end of kx-loop
-!TIME0 
          if(newaniso()) ifvcoud =iclose('Vcoud')
          if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
 c     call rlse (iwr1)
@@ -2107,7 +2108,6 @@ c     if (allocated(zwz))deallocate(zwz)
  1001 continue ! end do ip
 
       if (allocated(expikt))deallocate(expikt)
-!TIME1 "last proc in sxcf_fal2_scz"
 !TIME1 "end of sxcf_fal2_scz"
       end subroutine sxcf_fal3_scz
 
