@@ -142,22 +142,46 @@ c ifile = 0 ==> screen
       end subroutine realtimediff
 
       subroutine print_realtimediff()
-      use m_mpi, only: mpi__rank ,mpi__size
+      use m_mpi
       use m_realtimediff
       integer:: i,j,isize
       character(30):: str
-      do isize=0,mpi__size-1
-         if (mpi__rank.eq.isize) then 
-      do i=1,nmax
-         if (i1(i).ne.0 ) then 
+
+      call flush()
+      call mpi__barrier()
+
+      isize=0
+      if ( mpi__rank.eq.0 ) then 
+         do i=1,nmax
+           if (i1(i).ne.0 ) then 
            str=msg(i)
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
            write(*,'(a,i3,1x,i4,1x,a,1x,F10.2,1x,i5)')'mpi=',mpi__rank,i,trim(str),elapse(i) ,i1(i)
+           endif 
+         enddo
+      endif
+
+      do isize=1,mpi__size-1
+          if (mpi__rank.eq.isize) then 
+                 call mpi__send(i1,0)
+                 call mpi__send(elapse,0)
+          else if (mpi__rank.eq.0) then 
+                 call mpi__recv(i1,isize)
+                 call mpi__recv(elapse,isize)
+           do i=1,nmax
+           if (i1(i).ne.0 ) then
+           str=msg(i)
+           do j=1,30
+             if (str(j:j).eq.' ') str(j:j)='_'
+           enddo
+           write(*,'(a,i3,1x,i4,1x,a,1x,F10.2,1x,i5)')'mpi=',isize,i,trim(str),elapse(i) ,i1(i)
+           endif
+           enddo 
          endif 
       enddo
-         endif
-      enddo
+      call flush()
+      call mpi__barrier()
       end subroutine print_realtimediff
 
