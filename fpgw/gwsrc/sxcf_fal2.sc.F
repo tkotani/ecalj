@@ -1108,9 +1108,10 @@ ccccccccccccccccccccccccccccc
 !TIME0
 
                   if(newaniso()) then
+                   write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
-CYY!$OMP parallel  private(vc) 
-CYY!$OMP do 
+!$OMP parallel  private(vc) 
+!$OMP do 
                      do itp= 1,ntqxx
                         do it = 1,nctot+nbmax
                            do ivc=1,ngb
@@ -1118,8 +1119,8 @@ CYY!$OMP do
                            enddo
                         enddo
                      enddo
-CYY!$OMP end do 
-CYY!$OMP do 
+!$OMP end do 
+!$OMP do 
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1140,11 +1141,11 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
  994                       continue
  993                    continue
  992                 continue
-CYY!$OMP end do 
-CYY!$OMP end parallel 
+!$OMP end do 
+!$OMP end parallel 
                      deallocate(zmeltt)
                   else
-CYY!$OMP parallel do 
+!$OMP parallel do 
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1157,7 +1158,7 @@ CYY!$OMP parallel do
                            enddo
                         enddo
                      enddo
-CYY!$OMP end parallel do 
+!$OMP end parallel do 
                      deallocate(z1p)
                   endif  
                   deallocate(zmel)
@@ -1212,8 +1213,6 @@ c--------------------------------------------------------------------------
 c---  correlation section --------------------------------------------------
 c--------------------------------------------------------------------------
 c---  reading general energy mesh from file 'freq_r'
-CYY!$OMP parallel 
-CYY!$OMP master 
                open(UNIT=3111,file='freq_r')
                read(3111,*)nwp,nw_i !nwp=nw+1
                nw=nwp-1
@@ -1222,8 +1221,6 @@ CYY!$OMP master
                   read(3111,*) freq_r(iw)
                enddo
                close(3111)
-CYY!$OMP end master
-CYY!$OMP end parallel 
 !TIME1 "end reading 3111"
 !TIME0 
 C...  Check freq_r for nw_i case.
@@ -1239,6 +1236,8 @@ C...  Check freq_r for nw_i case.
 
 !TIME1 "end check freq_r"
 c---  The matrix elements zmel.
+               write(*,'(a,9i7)')'kino: ngb,nstate,ntqxx,size(ppovlz)=',
+     &             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
 !TIME0 
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
@@ -1448,6 +1447,7 @@ cccccccccccccccccccccccccccccccccccc
 !TIME1 "before ccc333 k-cycle"
 ccccccccccccccccccccccccvariant ccccccccccccccccccccccccccccccccc
 c     zwz=0d0
+               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstate,ntqxx
 !TIME0 
                do ix=1,nx
                   nrec=ix
@@ -1923,6 +1923,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                endif
 
 !TIME1 "before 2001"
+               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
 !TIME0 
 !     May2006 simplified version ===================================================
                do 2001 itp = 1,ntqxx ! loop over states (q-k,n)
@@ -1991,7 +1992,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                      if (iSigma_en == 1.or.iSigma_en==5) then
                         zwz3=(0d0,0d0)
-CYY!$OMP parallel do private(ix,zz2)
+!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=2,ngb !**** most time consuming part for iSigma_en=1 ******
@@ -2002,7 +2003,7 @@ CYY!$OMP parallel do private(ix,zz2)
                            zwz3(ix0)=2d0*dreal(zwz3(ix0))+
      &                          zmel1(1)*zw3(1,1, iir*ix)*zmel(1,it,itp)
                         enddo   !ix
-CYY!$OMP end parallel do 
+!$OMP end parallel do 
                         if(npm==1) then
                            zsec(itp,itp,ip) = zsec(itp,itp,ip) 
      .                          + wfac*alagr3z2(we,freq_r(ixs-1),zwz3,itp,itp)

@@ -505,6 +505,8 @@ c        elseif(newanisox) then !.and.iq==1) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
             stop 'x0kf_v4h: ngb/=ngbb'
           endif
+          write(*,'(a,5i7)')'kino: nctot+nt0,ncc+ntp0,size=',
+     &         nctot+nt0,ncc+ntp0,size(zmelt,dim=1),size(ppovlz,dim=2)
 !$OMP parallel do 
           do it=1,nctot+nt0
           do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
@@ -619,9 +621,12 @@ c----------------------------
 c  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 c  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 c        write(6,*)" nkmax ",nkmax,nkqmax,itps
+        write(*,'(a,i4)')'kino: npm=',npm
 !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
+          write(*,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
+     &      ngb,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
             if(it > nctot + nkmax ) cycle
@@ -894,6 +899,7 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
 
 !TIME0
 
+        write(*,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
         zcousqc=dconjg(transpose(zcousq))

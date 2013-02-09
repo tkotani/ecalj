@@ -696,14 +696,12 @@ c$$$      endif
 c$$$      if(debug) print *,'melpln2: qu1',qu1
 c$$$      if(debug) print *,'melpln2: qu2',qu2
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      write(*,'(a,5i10)')'kino: melpln2 nt0,ntp0,ngc2,ngp1,ngp2=', 
+     .   nt0,ntp0,ngc2,ngp1,ngp2
 
 c- Get ppx and ngvecc2
 c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
-ccc!$OMP parallel
-ccc!$OMP master
       call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
-ccc!$OMP end master
-ccc!$OMP end parallel 
       if(ngc/=ngcx) then
         print *, qi, ngcx, ngc
         stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
