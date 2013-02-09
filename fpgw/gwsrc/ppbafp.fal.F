@@ -786,7 +786,7 @@ c$$$cccccccccccccccccccccccccc
       enddo
       if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd
 
-CYY!$OMP parallel private(nn,igc2,qg,phas,ge2) 
+!$OMP parallel private(nn,igc2,qg,phas,ge2) 
       do ig1 = 1,ngp1
         do ig2 = 1,ngp2
 c$$$cccccccccccccccccccc
@@ -800,7 +800,7 @@ c$$$cccccccccccccccccccc
           igc2    = ipp(nn(1),nn(2),nn(3))
           qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
           phas = exp(-img*sum(qg*shtv))
-CYY!$OMP do 
+!$OMP do 
           do it =1,nt0
             ge2=dconjg(geigq2(ig2,it)) *phas
             do itp=1,ntp0
@@ -808,10 +808,10 @@ CYY!$OMP do
      &        +  geigq1_(itp,ig1)*ge2
             enddo
           enddo
-CYY!$OMP end do 
+!$OMP end do 
         enddo
       enddo
-CYY!$OMP end parallel 
+!$OMP end parallel 
 
       if(debug) print *,'melpln2: 444444444444444 '
       do itp=1,ntp0

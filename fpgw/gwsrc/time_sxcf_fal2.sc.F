@@ -1244,15 +1244,15 @@ c---  The matrix elements zmel.
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
                if(newaniso()) then
-CYY!$OMP parallel 
-CYY!$OMP do 
+!$OMP parallel 
+!$OMP do 
                   do itp=1,ntqxx
                      do it=1,nstate
                         zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
                      enddo
                   enddo
-CYY!$OMP end do nowait 
-CYY!$OMP end parallel
+!$OMP end do nowait 
+!$OMP end parallel
                endif  
                deallocate(rmelt,cmelt)
        call realtimediff(128, "matmul zmel ppovlz")
