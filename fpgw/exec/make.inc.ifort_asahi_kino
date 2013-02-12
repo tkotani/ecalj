@@ -1,4 +1,4 @@
-FC = mpif90 -g -debug all -par-report -openmp
+FC = mpif90 -g -debug all -par-report -heap-arrays 1 -openmp 
 
 CPPSWITCH_INTELLINUXIFC  = \
 -DEXPAND_ISWAP  -DEXPAND_VDV   -DCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \

@@ -91,14 +91,16 @@ c!!! takao 2000 Sep.  If you use this routine with cxml of zgemm(GOTO),
 c you might have to allocate a(n1,n2+1) to avoid the stack segmanation fault due to the complilar bug.
 c
       subroutine matm(a,b,c,n1,n2,n3)
+      use m_mpi , only : mpi__rank 
       integer(4)::  n1,n2,n3
       complex(8) :: a(n1,n2),b(n2,n3), c(n1,n3)
 c
 c      print *,"sumcheck=",sum(a),sum(b),n1,n2,n3
-      call ZGEMM ( "N", "N", n1, n3, n2, (1d0,0d0), 
+!KINO      write(6,'(i3,a,10i7)') mpi__rank, 'matm', n1,n2,n2,n3,n1,n3
+      call ZGEMM ( "N", "N", n1, n3, n2, dcmplx(1d0,0d0), 
      &             a, n1, 
      &             b, n2,
-     &             (0d0,0d0), c, n1 )
+     &             dcmplx(0d0,0d0), c, n1 )
       end
 
       subroutine matcinv(n,a)

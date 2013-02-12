@@ -1000,8 +1000,7 @@ c     else
 c     endif
 c     zxq=0d0;  zxqi=0d0;  
 
-         write(*,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',
-     &      nmbas1,nmbas2,nwhis,npm
+!KINO         write(*,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',nmbas1,nmbas2,nwhis,npm
          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
          allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
          rcxq = 0d0
@@ -1478,7 +1477,7 @@ c     endif
                  allocate(epstinv(ngb,ngb))
                endif
 
-               write(*,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
+!KINO               write(*,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
 !TIME0 
 !TIME0 
                write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax

@@ -89,7 +89,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
       use m_nbandgw,only: getnbandgw
-C$$$      use m_mpi
+      use m_mpi, only: mpi__rank 
       implicit none
 
 !     ! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==
@@ -347,7 +347,8 @@ c
 
       real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:),drealzzzmel(:,:,:),dimagzzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
-     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:)
+     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:),zwix(:,:,:) ,
+     &     zwzix(:,:,:) 
       complex(8) :: wintzav,wintzsg_npm
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen,npm
@@ -436,6 +437,8 @@ C...
 c      real(8)::wqfac(nqbz)
       integer:: irot2
       real(8):: eftrue
+
+      integer::ierr,omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
@@ -741,7 +744,7 @@ c     endif
                   end if
                endif
 c     write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
-               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',2i4)") ip,kx,irot, iqend,nrot
+               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',3i4)") ip,kx,irot, iqend,nrot,ngrp
 
 c$$$  if( kx <= nqibz ) then
 c$$$  kr = irk(kx,irot) ! index for rotated k in the FBZ
@@ -1108,7 +1111,7 @@ ccccccccccccccccccccccccccccc
 !TIME0
 
                   if(newaniso()) then
-                   write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
+!KINO                   write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
 !$OMP parallel  private(vc) 
 !$OMP do 
@@ -1236,8 +1239,8 @@ C...  Check freq_r for nw_i case.
 
 !TIME1 "end check freq_r"
 c---  The matrix elements zmel.
-               write(*,'(a,9i7)')'kino: ngb,nstate,ntqxx,size(ppovlz)=',
-     &             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
+!KINO               write(*,'(a,9i7)')'kino: ngb,nstate,ntqxx,size(ppovlz)=',
+!KINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
 !TIME0 
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
@@ -1447,16 +1450,36 @@ cccccccccccccccccccccccccccccccccccc
 !TIME1 "before ccc333 k-cycle"
 ccccccccccccccccccccccccvariant ccccccccccccccccccccccccccccccccc
 c     zwz=0d0
-               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstate,ntqxx
+!KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstate,ntqxx
 !TIME0 
+              allocate( zwix(nblochpmx,nblochpmx,nx),stat=ierr )
+              if (ierr.ne.0) then 
+                 write(6,'(i3,a,i3,a,i5)')
+     &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2*nx; call flush(6) 
+                 call mpi_abort()
+                 stop 
+              endif
                do ix=1,nx
                   nrec=ix
 c     nrec=(kx-iqini)*niw+ix
 c     if(bzcase()==2) nrec= (kx-1)*niw+ix
 
-                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+c                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
+                  read(ifrcwi,rec=nrec) zwix(:,:,ix)  ! direct access read Wc(0) = W(0) - v
 c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
+               enddo
 
+!$OMP parallel  private(zwzix) 
+               write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
+               allocate(zwzix(1:nstate,1:ntqxx,1:ntqxx),stat=ierr)
+               if (ierr.ne.0) then 
+                  write(6,'(2i5,a,i5,a,i7)')mpi__rank,omp_get_thread_num(),
+     &  'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2; call flush(6)
+                  call mpi_abort()
+                  stop
+               endif
+!$OMP do               
+               do ix=1,nx
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c$$$                  if(sum(abs(qxx(1:2)))<1d-4) then
 c$$$                  do irot2 = 1,ngrp
@@ -1469,12 +1492,22 @@ c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
+     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
+c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
+     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+c     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
+                  zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
 ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
                enddo ! ix
+!$OMP end  do 
+               deallocate(zwzix) 
+!$OMP end parallel 
+               deallocate(zwix) 
 !TIME1 "end do xxx33333 k-cycle"
                if(timemix) call timeshow("xxx33333 k-cycle")
 !TIME0
@@ -1923,7 +1956,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                endif
 
 !TIME1 "before 2001"
-               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
+!KINO               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
 !TIME0 
 !     May2006 simplified version ===================================================
                do 2001 itp = 1,ntqxx ! loop over states (q-k,n)
