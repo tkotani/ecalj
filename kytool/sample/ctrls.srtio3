@@ -1,0 +1,12 @@
+%const da=0 au=0.529177
+%const d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+% show vars
+HEADER  SrTiO3 cubic 
+STRUC   ALAT={a1} DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+SITE
+  ATOM=Sr POS=1/2 1/2 1/2
+  ATOM=Ti POS= 0   0   0+0
+  ATOM=O  POS=1/2  0   0
+  ATOM=O  POS= 0  1/2  0
+  ATOM=O  POS= 0   0  1/2
