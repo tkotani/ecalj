@@ -363,7 +363,7 @@ c-----------------------------------------------------
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 
-!TIME0
+       call realtimediff(200,'')
 c
 c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) print *,' drvmelp2:'
@@ -376,7 +376,7 @@ c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(n
       if(debug) print *,'drvmelp2: goto readgeig'
       call readgeig(q,    ngpmx_in, isp, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
-!TIME1 "after readgeig q q_rk"
+       call realtimediff(200, "after readgeig q q_rk")
       if(debug) print *,'drvmelp2: endof readgeig'
 c      qu1=qt
 c      qu2=q_rkt
@@ -389,7 +389,7 @@ c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occup
 cc      allocate( zmelpl(ngc,nt0,ntp0) )
 c      print *,'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0
+       call realtimediff(202,'')
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
       if(debug) print *,' drvmelp2:end of read geig '
@@ -438,8 +438,8 @@ ccccccccccccccccccc
 c      print *, 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
 c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
 ccccccccccccccccccccccccccccccccccc
-!TIME1 "before drv melpln2"
-!TIME0 
+       call realtimediff(202, "before drv melpln2")
+       call realtimediff(204,'')
       call melpln2(ngp1, ngvecpB1
      &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,
@@ -447,8 +447,8 @@ ccccccccccccccccccccccccccccccccccc
      &       geig2(1:ngp2,1:nt0), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
      i       shtv, matmul(symope,qik),qik, symope, qbas, 
      o       zmelpl)
-!TIME1 "after drv melpln2"
-!TIME0 
+       call realtimediff(204, "after drv melpln2")
+       call realtimediff(206,'')
       if(debug) print *,'end of melpln2'
 
  8888 continue
@@ -466,7 +466,7 @@ cc extensiton to nbloch+ngc
      & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       deallocate(zmelpl)
       if(debug) print *,'end of drvmelp2'
-!TIME1 "end drvmelpln2"
+       call realtimediff(206, "end drvmelpln2")
       end
 
 
@@ -696,12 +696,14 @@ c$$$      endif
 c$$$      if(debug) print *,'melpln2: qu1',qu1
 c$$$      if(debug) print *,'melpln2: qu2',qu2
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!KINO      write(*,'(a,5i10)')'kino: melpln2 nt0,ntp0,ngc2,ngp1,ngp2=', 
-!KINO&   nt0,ntp0,ngc2,ngp1,ngp2
 
 c- Get ppx and ngvecc2
 c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
+ccc!$OMP parallel
+ccc!$OMP master
       call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
+ccc!$OMP end master
+ccc!$OMP end parallel 
       if(ngc/=ngcx) then
         print *, qi, ngcx, ngc
         stop 'melpln2: ngc/= ngcx by getppx:PPOVL'

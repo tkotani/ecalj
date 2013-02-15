@@ -5,6 +5,7 @@
      i             qbz,nqbz, !index_qbz, n_index_qbz,
      o             ef)
       use m_readeigen, only: readeval,readcphi,readgeig
+      use m_mpi, only: mpi__root 
 !!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
 !! You need to call init_reaeigen before you call this.
 !! user readeval (readeigen.f) to get eigenvalues.
@@ -99,8 +100,10 @@ c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
 c
-      open(8301,file = "DOSACC.lda")
-      open(8302,file = "DOSACC2.lda")
+      if (mpi__root) then 
+        open(8301,file = "DOSACC.lda")
+        open(8302,file = "DOSACC2.lda")
+      endif
       wwg = 0d0
       wwg2= 0d0
       eee2= -1d99
@@ -111,7 +114,9 @@ c
 c---
         if(eee2 +1d-4< ektx(ieaord(ik)).or.ik==nne ) then
 ! degeneracy check
-          if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+          if (mpi__root) then 
+            if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+          endif 
           wwg2 = wgtx(ieaord(ik))
           eee2 = ektx(ieaord(ik))
           ikini =ik
@@ -122,8 +127,10 @@ c---
         wwg = wwg + wgtx(ieaord(ik))
         if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
 c
-        write(8301,"(2i6,3d23.15)")
-     &  ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
+        if (mpi__root) then 
+          write(8301,"(2i6,3d23.15)")
+     &    ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
+        endif 
 c
         if( wwg>valn-1d-8.and.ierr==1 ) then
           write(6,*)
@@ -172,10 +179,13 @@ ccc gaussian
       enddo
       ef = 0.5d0*(ew1+ew2)
 c
- 8891 write(8301,*) " ef=",ef
-      close(8301)
-      write(8302,*) " ef=",ef
-      close(8302)
+ 8891 continue 
+      if (mpi__root) then 
+        write(8301,*) " ef=",ef
+        close(8301)
+        write(8302,*) " ef=",ef
+        close(8302)
+      endif 
 
 c      print *,' esmr        =',esmr
 c      print *,' determined ef =',ef
@@ -232,6 +242,7 @@ c efm< e(iband) < efp : occupation is wfacef.
 c efp< e(iband)       : occupation is zero
 c
 c
+      use m_mpi, only: mpi__root 
       implicit none
       integer(4):: is,iq,ispin,nqibz,ik,isig,kpx,nband,ifev(2)
       integer(4):: ieaord(nband*nqibz*ispin),mbytes,mwords,iwksize,
@@ -312,8 +323,10 @@ c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
 c
-      open(8301,file = "DOSACC.lda")
-      open(8302,file = "DOSACC2.lda")
+      if (mpi__root) then 
+        open(8301,file = "DOSACC.lda")
+        open(8302,file = "DOSACC2.lda")
+      endif 
       wwg = 0d0
       wwg2= 0d0
       eee2= -1d99
@@ -324,7 +337,9 @@ c
 c---
         if(eee2 +1d-4< ektx(ieaord(ik)).or.ik==nne ) then
 ! degeneracy check
-          if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+          if (mpi__root) then 
+            if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+          endif 
           wwg2 = wgtx(ieaord(ik))
           eee2 = ektx(ieaord(ik))
           ikini =ik
@@ -385,10 +400,13 @@ ccc gaussian
       enddo
       ef = 0.5d0*(ew1+ew2)
 c
- 8891 write(8301,*) " ef=",ef
-      close(8301)
-      write(8302,*) " ef=",ef
-      close(8302)
+ 8891 continue 
+      if (mpi__root) then 
+        write(8301,*) " ef=",ef
+        close(8301)
+        write(8302,*) " ef=",ef
+        close(8302)
+      endif
 
 c      print *,' esmr        =',esmr
 c      print *,' determined ef =',ef

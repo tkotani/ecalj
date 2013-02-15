@@ -193,8 +193,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !-------------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')
-!TIME0 
-!TIME0 
+       call realtimediff(1,'')
+       call realtimediff(3,'')
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
       fourpi=4d0*pi
@@ -268,8 +268,8 @@ C     --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !-----------------------------------------------------------------
       call read_BZDATA()
 
-!TIME1 "after readbzdata"
-!TIME0 
+       call realtimediff(3, "after readbzdata")
+       call realtimediff(5,'')
 
 c---  Use regular mesh even for bzcase==2 and qbzreg()=T
 c     off-regular mesh for bzcase==1 and qbzreg()=F
@@ -372,8 +372,8 @@ c     if(ixc==1.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p))
 c     &  stop ' wqtsum of Q0P /=1 '
       endif 
 
-!TIME1 "before readngmx"
-!TIME0
+       call realtimediff(5, "before readngmx")
+       call realtimediff(7,'')
 
 c     --- readin by rdpp ; Radial integrals ppbrd and plane wave part
 c     call getsrdpp( nclass,nl,
@@ -425,8 +425,8 @@ c     ifev(1)    = iopen('EVU', 0,0,mrece)
 c     if(nspin == 2) then
 c     ifev(2)    = iopen('EVD', 0,0,mrece)
 c     endif
-!TIME1 "before initreadeigen"
-!TIME0
+       call realtimediff(7, "before initreadeigen")
+       call realtimediff(9,'')
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
                                 ! EVU EVD are readin in init_readeigen
@@ -543,8 +543,8 @@ c     call findemaxmin(ifev,nband,nqbz,nspin
       print *,' omega2max=',omg2max
 !     if (.false.) then
 
-!TIME1 "before histogram division"
-!TIME0 
+       call realtimediff(9, "before histogram division")
+       call realtimediff(11,'')
 
 ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
 
@@ -645,8 +645,8 @@ c     write(3111,*)freq_r(iw)
 c     enddo
 c     close(3111)
 !     ...
-!TIME1 "before realomega write3111"
-!TIME0
+       call realtimediff(11, "before realomega write3111")
+       call realtimediff(13,'')
       if(realomega .and. mpi__root) then
          open(UNIT=3111,file='freq_r') !write number of frequency
                                 !points nwp and frequensies in 'freq_r' file
@@ -715,8 +715,8 @@ C...  This is just to get nblochpmx
       endif
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
 
-!TIME1 "before open WVd"
-!TIME0
+       call realtimediff(13, "before open WVd")
+       call realtimediff(15,'')
 C     --- open WV* files
       ifwd   = iopen('WV.d',1,-1,0)
 
@@ -725,8 +725,8 @@ C     --- open WV* files
      &     nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
-!TIME1 "after write ifwd"
-!TIME0
+       call realtimediff(15, "after write ifwd")
+       call realtimediff(17,'')
 
 c     --- READIN ANFcond------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
@@ -783,8 +783,8 @@ c     endif
       enddo
 
       print *, ' end of ppbafp_v2'
-!TIME1 "endo of ppbafp_v2"
-!TIME0
+       call realtimediff(17, "endo of ppbafp_v2")
+       call realtimediff(19,'')
 
 C     ---- these are used in x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
@@ -864,14 +864,14 @@ c      call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
       call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
 c      print *,'rrr mpiranktab=',mpi__ranktab
 
-!TIME1 "before 1001 loop"
+       call realtimediff(19, "before 1001 loop")
       iqinit=.true.
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
 ccccccccccccccccccccccc
 c         if(iq<=nqibz) cycle
 ccccccccccccccccccccccc
          if( .not. mpi__task(iq) ) cycle
-!TIME0 
+       call realtimediff(21,'')
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
 !!
@@ -1000,16 +1000,17 @@ c     else
 c     endif
 c     zxq=0d0;  zxqi=0d0;  
 
-!KINO         write(*,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',nmbas1,nmbas2,nwhis,npm
+         write(*,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',
+     &      nmbas1,nmbas2,nwhis,npm
          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
          allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
          rcxq = 0d0
-!TIME1 "before 1003 loop"
+       call realtimediff(21, "before 1003 loop")
 !     ! ---------------------------------------------------------------
 !     ! === loop over spin=== =========================================
 !     ! ---------------------------------------------------------------
          do 1003 is = 1,nspinmx
-!TIME0 
+       call realtimediff(23,'')
             write(6,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')") 
      &           iq, is, nqibz + nq0i,nspin
             if(debug) print *,' niw nw=',niw,nw
@@ -1294,8 +1295,8 @@ c     else
 c     nmbas1x = 1
 c     endif  
 
-!TIME1 "before x0kf_v2hz"
-!TIME0 
+       call realtimediff(23, "before x0kf_v2hz")
+       call realtimediff(25,'')
 c     if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
             iqeibz=iq
             call x0kf_v4hz(npm,ncc,   
@@ -1324,7 +1325,7 @@ c!!   complex conjugate part
 c     if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
 c     rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
 c     endif
-!TIME1 "x0vk_v4h"
+       call realtimediff(25, "x0vk_v4h")
 
 c$$$  ccccccccccccccccccc
 c$$$  if(nolfco.and.z1offd) then
@@ -1387,7 +1388,7 @@ c     if(tetra.and.ixc==1) deallocate(wwk)
  1003       continue;print *, 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
 c=======================================================================
-!TIME0 
+       call realtimediff(27,'')
 
 !     ! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
 c$$$  if(ixc==11) then
@@ -1437,10 +1438,10 @@ c$$$  endif
             print *,' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
             if(allocated(rcxq) ) deallocate(rcxq)
 
-!TIME1 "before real omega"
+       call realtimediff(27, "before real omega")
 
 !     ! ===  RealOmega ===
-!TIME0 
+       call realtimediff(29,'')
             if (realomega) then
                if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
                nwmax = nw
@@ -1477,16 +1478,16 @@ c     endif
                  allocate(epstinv(ngb,ngb))
                endif
 
-!KINO               write(*,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
-!TIME0 
-!TIME0 
+               write(*,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
+       call realtimediff(31,'')
+       call realtimediff(33,'')
                write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
-!TIME1 "after write trace msg"
+       call realtimediff(33, "after write trace msg")
                do 1015 iw  = nwmin,nwmax
                   frr= dsign(freq_r(abs(iw)),dble(iw))
                   imode = 1
                   if(newaniso2.and.iq<=nqibz) then !for mmmw
-!TIME0 
+       call realtimediff(35,'')
                      if(iq==1) then
                         ix=1
                         zw0(:,1)=0d0
@@ -1504,8 +1505,8 @@ c     endif
                      enddo
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-!TIME1 "after matcinv"
-!TIME0
+       call realtimediff(35, "after matcinv")
+       call realtimediff(37,'')
 
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$  cmmm direct inversion vs. block inversion
@@ -1564,11 +1565,11 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      enddo
                      if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
                      zw(1:ngb,1:ngb) = zw0
-!TIME1  "after zw=zw0"
-!TIME0
+       call realtimediff(37,  "after zw=zw0")
+       call realtimediff(39,'')
                      write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
                      call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
-!TIME1 "end of tr_chkwrite"
+       call realtimediff(39, "end of tr_chkwrite")
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm 
 c     if(iq>nqibz) then
@@ -1605,11 +1606,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                          endif   
                        enddo
                      enddo
-!TIME0
+       call realtimediff(41,'')
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                      llw(iw,iq0)= 1d0/epstinv(1,1)
-!TIME1 "end of matcinv,llw=1/epstinv"
+       call realtimediff(41, "end of matcinv,llw=1/epstinv")
                    else
 c commentout block inversion
 c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
@@ -1629,9 +1630,9 @@ c     &                  w_k(2:10:3)/llw(iw,iq0),w_k(63:70:3)/llw(iw,iq0)
 c     write(*,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0 
+       call realtimediff(43,'')
                      write(*,*) 'iq iw_real eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
-!TIME1 "write iq iwreal"
+       call realtimediff(43, "write iq iwreal")
 
 c     write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
 c     write(ifisk) iw,iq0,q
@@ -1666,7 +1667,7 @@ c     write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
 c     call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 c     endif
  1015          continue         !iw
-!TIME1 "end 1015 loop"
+       call realtimediff(31, "end 1015 loop")
 
 c     if(newaniso2) then
 c     if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
@@ -1674,11 +1675,11 @@ c     endif
                if( allocated(zzr) ) deallocate(zzr)
             endif 
 !     ! === RealOmega end ===
-!TIME1 "real omega"
+       call realtimediff(29, "real omega")
 
 
 !     ! === ImagOmega ===
-!TIME0 
+       call realtimediff(45,'')
             if (imagomega) then
                print *,' goto imag omega'
                if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
@@ -1779,7 +1780,7 @@ c     endif
                endif
             endif 
 !     ! === ImagOmega end ===
-!TIME1 "imag omega"
+       call realtimediff(45, "imag omega")
 
 c     1002 continue  ! end of frequency block-loop
             if(allocated(vcoul)) deallocate(vcoul)
@@ -1793,7 +1794,7 @@ c     1002 continue  ! end of frequency block-loop
  1001    continue
 c============end of loop over q point =================================
 c=======================================================================
-!TIME0
+       call realtimediff(47,'')
 
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
@@ -1834,7 +1835,7 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
 CYY!$OMP end master
 CYY!$OMP end parallel 
 
-!TIME1 "end eeeeeee"
+       call realtimediff(47, "end eeeeeee")
 
 c commentout block inversion
 c$$$!! Add LFC (local field correction) to llw and llwI
@@ -1924,7 +1925,7 @@ c$$$         endif
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191    continue
-!TIME0 
+       call realtimediff(49,'')
          if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
 
             if(ixc==1011) then !this is only for test.
@@ -2010,11 +2011,11 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
                enddo
             end do
          end if
-!TIME1 "before closing hbe.d"
+       call realtimediff(49, "before closing hbe.d")
       is = iclose('hbe.d')
  999  continue
-!TIME1 "end program"
-!TIMESHOW
+       call realtimediff(1, "end program")
+       call print_realtimediff()
       call cputid(0)
       call MPI__Finalize
       if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'

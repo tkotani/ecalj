@@ -181,7 +181,7 @@ c      call matcinv(ngbb,ppovlzinv)
 cooo end cccccccccccccccccccccccccccccccccccccccccccc
 
 
-!TIME0 "start xkf_v4hz      
+       call realtimediff(100,'')
 
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
@@ -204,8 +204,8 @@ C ---- overlaid ntp0 ---------- kq 21Jun2003 takao
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       call getnemx(nbmx,ebmx,7,.true.)
 
-!TIME1 "before if smbasis"
-!TIME0 
+       call realtimediff(100, "before if smbasis")
+       call realtimediff(102,'')
       if(smbasis()) then
 ccccccccccccccccccccccccccccccccc
         if(ncc/=0) then
@@ -238,7 +238,7 @@ c          write(6,"('ttt: q_r=',3f12.5)") q_r
         endif
         isx = iclose('POmat')
       endif
-!TIME1 "after if smbasis"
+       call realtimediff(102, "after if smbasis")
 c$$$ccccccccccccccccccccccccccccccccccccccc
 c$$$      if(testtr()) then
 c$$$        allocate(ngvecc(3,ngc))
@@ -259,13 +259,13 @@ c$$$ccccccccccccccccccccccccccccccccccccccc
       if(.not.eibzmode) eibzmoden=0
 
 ckino
-!KINO      it=0
-!KINO      do k=1,nqbz
-!KINO        if(eibzmode.and.nwgt(k)==0 ) cycle
-!KINO        if(sum(nbnb(k,1:npm))==0) cycle
-!KINO        it=it+1
-!KINO      enddo
-!KINO      write(*,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
+      it=0
+      do k=1,nqbz
+        if(eibzmode.and.nwgt(k)==0 ) cycle
+        if(sum(nbnb(k,1:npm))==0) cycle
+        it=it+1
+      enddo
+      write(*,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
 ckinoend
  
 
@@ -276,7 +276,7 @@ C... loop over k-points
         if(debug) write(*,'("do 1000  k=",i4)')k
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
-!TIME0 "start do 1000"
+       call realtimediff(104,'')
         if(k<=5) then
           write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4,$)")k, rk(:,k)
           call cputid(0)
@@ -356,8 +356,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!TIME1 "before psicb_v3"
-!TIME0 
+       call realtimediff(104, "before psicb_v3")
+       call realtimediff(106,'')
 
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
      i              cphik (1,nkmin),  
@@ -380,8 +380,8 @@ C ... valence
      o              zzmel)
         if(debug) call cputid(0)
 
-!TIME1 "after psicb_v3"
-!TIME0 
+       call realtimediff(106, "after psicb_v3")
+       call realtimediff(108,'')
 
 C --- IPW set
         call readqg('QGpsi',q+rk(:,k)-qq,ginv, qu1x, ngp1, ngvecpB1)
@@ -430,8 +430,8 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
-!TIME1 "before melpln2"
-!TIME0  
+       call realtimediff(108, "before melpln2")
+       call realtimediff(110,'')
         if(ngc/=0) then !Aug2005
           call melpln2(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
@@ -449,8 +449,8 @@ C... extensiton to nbloch+ngc
         if(debug) write(*,'("4 z1pp definitions begin",3d13.6,$)') sum(abs(zmelt))
         if(debug) call cputid(0)
 
-!TIME1 "after melpln2"
-!TIME0 
+       call realtimediff(110, "after melpln2")
+       call realtimediff(112,'')
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cc      nt0=4
@@ -505,19 +505,16 @@ c        elseif(newanisox) then !.and.iq==1) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
             stop 'x0kf_v4h: ngb/=ngbb'
           endif
-!KINO          write(*,'(a,5i7)')'kino: nctot+nt0,ncc+ntp0,size=',
-!KINO&         nctot+nt0,ncc+ntp0,size(zmelt,dim=1),size(ppovlz,dim=2)
 !$OMP parallel do 
           do it=1,nctot+nt0
           do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
             zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
           enddo
           enddo
-!$OMP end parallel do 
         endif
 
-!TIME1  "after matmul zmelt"
-!TIME0 
+       call realtimediff(112,  "after matmul zmelt")
+       call realtimediff(114,'')
 
 c$$$cooo test mode
 c$$$          do it=1,nctot+nt0
@@ -615,19 +612,16 @@ c                    print *,'rrrrr: ',k,iw,imagweight,zq0zq0
           cycle
         endif
 
-!TIME1 "before jpm ibib loop"
-!TIME0
+       call realtimediff(114, "before jpm ibib loop")
+       call realtimediff(116,'')
 
 c----------------------------
 c  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 c  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 c        write(6,*)" nkmax ",nkmax,nkqmax,itps
-!KINO        write(*,'(a,i4)')'kino: npm=',npm
 !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
-!KINO          write(*,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
-!KINO&      ngb,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
             if(it > nctot + nkmax ) cycle
@@ -747,7 +741,7 @@ c$$$        endif
  25     continue
 !$OMP end parallel 
 
-!TIME1 "after rcxq"
+       call realtimediff(116, "after rcxq")
         if(debug) call cputid(0)
         deallocate(zmelt,z1p)
 
@@ -793,7 +787,7 @@ c       endif
         !    call cputid(0)
  1000 continue
 
-!TIME0
+       call realtimediff(118,'')
 !! ==== hermitianize. jun2012takao moved from dpsion5 ====
       if(.not.nolfco) then
         do jpm=1,npm
@@ -806,15 +800,15 @@ c       endif
         enddo
         enddo
       endif
-!TIME1 "before eibzmoden=2"
+       call realtimediff(118, "before eibzmoden=2")
 
 !! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
       if(eibzmoden==2) then
-!TIME0 
+       call realtimediff(120,'')
         print *,'eibzmoden=2 goto iqindx2'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-!TIME1 "after iqindx2"
-!TIME0
+       call realtimediff(120, "after iqindx2")
+       call realtimediff(122,'')
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
@@ -828,9 +822,9 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         zcousqinv=zcousq
         call matcinv(ngb,zcousqinv)
         nrotmx = 10000 !trial value
-!TIME1 "before 1011"
+       call realtimediff(122, "before 1011")
  1011   continue !only when nrotmx overflow.
-!TIME0 
+       call realtimediff(124,'')
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)
         nccc=ngrp*2
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
@@ -839,7 +833,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         zrr=-99999d0
         zrrc=-99999d0
         call cputid2(' --- qqqqq111   :',0)
-!TIME1 "call cputid2 qqqqq11"
+       call realtimediff(124, "call cputid2 qqqqq11")
 !!
         icc=0
         do itimer=1,-1,-2
@@ -848,7 +842,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
           if(itimer==-1) itt=2
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
-!TIME0
+       call realtimediff(126,'')
               icc=icc+1
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
 !!this is time-consuming. we may reduce compuatational time by sparse matrix multiplication.
@@ -861,8 +855,8 @@ c                zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
                 call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
 c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
               endif  
-!TIME1 "end matmmsparse"
-!TIME0
+       call realtimediff(126, "end matmmsparse")
+       call realtimediff(128,'')
 
               i1(:,icc)=0
               i2(:,icc)=0
@@ -884,8 +878,8 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
                 endif   
               enddo
               enddo
-!TIME1 "before iagain=1"
-!TIME0
+       call realtimediff(128, "before iagain=1")
+       call realtimediff(130,'')
               if(iagain==1) then
                 nrotmx=irotm+10000 !enlarge allocation and do things again.
                 print *,' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
@@ -893,14 +887,13 @@ c                zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
               endif   
               nrotm(icc)=irotm
               print *,'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-!TIME1 "end ig itimer icc, nrotm"
+       call realtimediff(130, "end ig itimer icc, nrotm")
             endif
           enddo
         enddo
 
-!TIME0
+       call realtimediff(132,'')
 
-!KINO        write(*,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
 !! === main part to obtain symmetrized rcxq  ===
 c        call cputid(0)
         zcousqc=dconjg(transpose(zcousq))
@@ -995,7 +988,7 @@ c$$$           endif
 !$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
 !$OMP end parallel 
-!TIME1 "after sym rcxq"
+       call realtimediff(132, "after sym rcxq")
         deallocate(zrotm,i1,i2)
 
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))

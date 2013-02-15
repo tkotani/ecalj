@@ -1167,7 +1167,7 @@ c2
 c        allocate(zmel1(ngb))
 !! this loop looks complicated but just in order to get zwz0=zmel*zwz0*zmel
 !! Is this really efficient???
-!$OMP parallel do private(itp,it,igb2,zz2)
+CCC!$OMP parallel do private(itp,it,igb2,zz2)
         do itp=1,ntp0
           do it=1,nstate
 c          zmel1(:)=dconjg(zmel(:,it,itp))
@@ -1181,7 +1181,7 @@ c            zz2 = sum( zmel1(1:igb2-1)*zw(1:igb2-1,igb2) )
      &    dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
           enddo !it
         enddo !itp
-!$OMP end parallel do
+CCC!$OMP end parallel do
         zwz0 = dreal(zwz0)
 c2end
 
@@ -1260,7 +1260,7 @@ c               zz2 = sum( zmel1(1:igb2-1)*zw(1:igb2-1,igb2) )
      &       dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
               enddo !it
             enddo!itp
-!$OMP end parallel do
+CCC!$OMP end parallel do
 c2end
           else !we need to use mode2 because zwz is not real now.
             call matzwz( zw(1:ngb,1:ngb), zmel, ntp0,nstate,ngb, 
@@ -1761,7 +1761,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(zwz3mode) then
               zwz3=(0d0,0d0)
-!$OMP parallel do private( ix,igb2,zz2)
+CCC!$OMP parallel do private( ix,igb2,zz2)
               if(debug) write(6,"('wwwwwww ixs=',10i4)"),ixs,igb2,it,itp
               if(debug) print *,'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
 
@@ -1775,7 +1775,7 @@ c                  print *,' zmel=',sum(dconjg(zmel(1:2,it,itp)))
                   zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
                 enddo !igb2
               enddo !ix
-!$OMP end parallel do
+CCC!$OMP end parallel do
               if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)"),ixs
               if(debug) print *,zwz3(1:3)          !,freq_r(ixs-1),zwz3(1:3)
               if(debug) print *,'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)

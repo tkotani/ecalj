@@ -1288,9 +1288,9 @@ c      write(6,*) sum(sgbb(:,:,:,2))
 c      write(6,*) sum(sgbb(:,:,:,3))
 c      write(6,*) sum(sgbb(:,:,:,4))
 
-!$OMP parallel do private( ibl1, ibas1,n1,l1,m1,lm1,ibl2)
-!$OMP& private( ibas2, n2,l2, m2,lm2)
-!$OMP& reduction(+:vcoul)
+CCC!$OMP parallel do private( ibl1, ibas1,n1,l1,m1,lm1,ibl2)
+CCC!$OMP& private( ibas2, n2,l2, m2,lm2)
+CCC!$OMP& reduction(+:vcoul)
       do ibl1= 1, nbloch
         ibas1= ibasbl(ibl1)
         n1   = nbl (ibl1)
@@ -1312,13 +1312,13 @@ c      write(6,*) sum(sgbb(:,:,:,4))
           endif
         enddo
       enddo
-!$OMP end parallel do
+CCC!$OMP end parallel do
 
 c <P_G|v|B>
       write(6,*)' vcoulq: pgvb block'
 
-!$OMP parallel do private( ibl2, ibas2, n2,l2,m2, lm2, ig1,ipl1, ibas1, lm1 )
-!$OMP& reduction(+:vcoul)
+CCC!$OMP parallel do private( ibl2, ibas2, n2,l2,m2, lm2, ig1,ipl1, ibas1, lm1 )
+CCC!$OMP& reduction(+:vcoul)
       do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
@@ -1342,7 +1342,7 @@ c <P_G|v|B>
           enddo
         enddo
       enddo
-!$OMP end parallel do
+CCC!$OMP end parallel do
 
 c <P_G|v|P_G>
       write(6,*)' vcoulq: pgvpg block'
@@ -1353,7 +1353,7 @@ c <P_G|v|P_G>
         rojpstrx = 0d0
         do ibas1= 1, nbas
           do lm1  = 1, (lx(ibas1)+1)**2
-!$OMP parallel do  private(ibas2,lm2)  shared(rojpstrx)
+CCC!$OMP parallel do  private(ibas2,lm2)  shared(rojpstrx)
             do ibas2= 1, nbas
               do lm2  = 1, (lx(ibas2)+1)**2
                 rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+
@@ -1363,7 +1363,7 @@ c <P_G|v|P_G>
           enddo
         enddo
 
-!$OMP parallel do private(ig2,ipl2,ibas2,lm2)  shared(vcoul)
+CCC!$OMP parallel do private(ig2,ipl2,ibas2,lm2)  shared(vcoul)
         do ig2 = 1,ig1
           ipl2 = nbloch + ig2
 

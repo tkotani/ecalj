@@ -10,6 +10,19 @@
       logical, allocatable ::  mpi__task(:)
       integer,allocatable :: mpi__ranktab(:)
       integer:: ista(MPI_STATUS_SIZE )
+
+      interface MPI__Send 
+      module procedure
+     &  MPI__Send_i,  MPI__Send_iv, 
+     &  MPI__Send_d,  MPI__Send_dv
+      end interface
+
+      interface MPI__Recv
+      module procedure
+     &  MPI__Recv_i,  MPI__Recv_iv, 
+     &  MPI__Recv_d,  MPI__Recv_dv 
+      end interface
+
       contains
 
       
@@ -115,6 +128,71 @@ c      endif
 
       return
       end subroutine MPI__Broadcast
+
+
+      subroutine MPI__send_d(data,dest)
+      implicit none
+      real(8):: data
+      integer :: n,dest,ierr
+      n=1
+      call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end subroutine MPI__send_d
+
+      subroutine MPI__recv_d(data,src)
+      implicit none
+      real(8):: data
+      integer :: n,src,ierr
+      n=1
+      call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
+      end subroutine MPI__recv_d
+
+      subroutine MPI__send_dv(data,dest)
+      implicit none
+      real(8):: data(:)
+      integer :: n,dest,ierr
+      n=size(data)
+      call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end subroutine MPI__send_dv
+
+      subroutine MPI__recv_dv(data,src)
+      implicit none
+      real(8):: data(:)
+      integer :: n,src,ierr
+      n=size(data)
+      call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
+      end subroutine MPI__recv_dv
+
+      subroutine MPI__send_i(data,dest)
+      implicit none
+      integer:: data
+      integer :: n,dest,ierr
+      n=1
+      call MPI_Send(data,n,MPI_INTEGER,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end subroutine MPI__send_i
+
+      subroutine MPI__recv_i(data,src)
+      implicit none
+      integer:: data
+      integer :: n,src,ierr
+      n=1
+      call MPI_Recv(data,n,MPI_INTEGER,src,src, MPI_COMM_WORLD,ista,ierr)
+      end subroutine MPI__recv_i
+
+      subroutine MPI__send_iv(data,dest)
+      implicit none
+      integer:: data(:)
+      integer :: n,dest,ierr
+      n=size(data)
+      call MPI_Send(data,n,MPI_INTEGER,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+      end subroutine MPI__send_iv
+
+      subroutine MPI__recv_iv(data,src)
+      implicit none
+      integer:: data(:)
+      integer :: n,src,ierr
+      n=size(data)
+      call MPI_Recv(data,n,MPI_INTEGER,src,src, MPI_COMM_WORLD,ista,ierr)
+      end subroutine MPI__recv_iv
 
 
       subroutine MPI__REAL8send(data,n,dest)

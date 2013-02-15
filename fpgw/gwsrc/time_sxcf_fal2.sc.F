@@ -89,7 +89,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
       use m_nbandgw,only: getnbandgw
-      use m_mpi, only: mpi__rank 
+C$$$      use m_mpi
       implicit none
 
 !     ! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==
@@ -347,8 +347,8 @@ c
 
       real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:),drealzzzmel(:,:,:),dimagzzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
-     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:),zwix(:,:,:) ,
-     &     zwzix(:,:,:) 
+     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:)
+      complex(8),allocatable:: zwnx(:,:,:) 
       complex(8) :: wintzav,wintzsg_npm
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen,npm
@@ -437,15 +437,13 @@ C...
 c      real(8)::wqfac(nqbz)
       integer:: irot2
       real(8):: eftrue
-
-      integer::ierr,omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
 c      wklm=0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0 
-!TIME0 
+       call realtimediff(100,'')
+       call realtimediff(102,'')
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
@@ -470,13 +468,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if(debug) print *, ' sxcf: 1'
       allocate(expikt(natom))
 
-!TIME1 "before 1001"
+       call realtimediff(102, "before 1001")
 
 !     !== ip loop to spedify external q ==
       do 1001 ip = 1,nq         !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
          if(sum(irkip(:,:,ip))==0) cycle ! next ip
 c     call readeval(q(1,ip),isp,eq)
-!TIME0 
+       call realtimediff(104,'')
          q(1:3)= qip(1:3,ip)
          call readeval(q,isp,eq)
          do i  = 1,ntq
@@ -569,12 +567,12 @@ c     if(exchange) iqend=nqibz
          endif 
 
 
-!TIME1 "before 1100"
+       call realtimediff(104, "before 1100")
 
 !     ! == Big loop for kx ==
          do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
             if(sum(irkip(kx,:,ip))==0) cycle ! next kx
-!TIME0 
+       call realtimediff(106,'')
             print *, ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
             if( kx <= nqibz ) then
                qibz_k= qibz(:,kx)
@@ -725,11 +723,11 @@ c     endif
                nrot=nrot+1
             enddo  
 
-!TIME1 "before 1000"
+       call realtimediff(106, "before 1000")
             
 !     ! === loop 1000 over rotations irot ===
             do 1000 irot = 1,ngrp
-!TIME0
+       call realtimediff(108,'')
                if( kx <= nqibz) then
                   kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) then
@@ -744,7 +742,7 @@ c     endif
                   end if
                endif
 c     write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
-               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',3i4)") ip,kx,irot, iqend,nrot,ngrp
+               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',2i4)") ip,kx,irot, iqend,nrot
 
 c$$$  if( kx <= nqibz ) then
 c$$$  kr = irk(kx,irot) ! index for rotated k in the FBZ
@@ -770,8 +768,8 @@ c     rotate atomic positions invrot*R = R' + T
                iatomp= miat(:,invr)
                symope= symgg(:,:,irot)
                shtv  = matmul(symope,shtvg(:,invr))
-!TIME1 "before ppbafp_v2"
-!TIME0 
+       call realtimediff(108, "before ppbafp_v2")
+       call realtimediff(110,'')
 c     -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
                call ppbafp_v2 (irot,ngrp,isp,nsp,
      i              il,in,im,nlnm, !w(i_mnl),
@@ -865,8 +863,8 @@ c-----------
                if(debug) print *,' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
                nstate = nctot + nbmax ! = nstate for the case of correlation
 
-!TIME1 "before expikt"
-!TIME0
+       call realtimediff(110, "before expikt")
+       call realtimediff(112,'')
 c====================================================
 c     matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
 c     including the phase factor exp(ik.T)
@@ -913,8 +911,8 @@ c>>   valence
                if(debug2) then
                   write(6,"('sum of zmel abszmel=',4d23.16)") sum(zzzmel),sum(abs(zzzmel) )
                end if
-!TIME1 "bfore psi2b_v2"
-!TIME0
+       call realtimediff(112, "bfore psi2b_v2")
+       call realtimediff(114,'')
 !     ! -- IPW part.
                allocate( rmelt(ngb, nctot+nbmax, ntqxx), ! nstate= nctot+nband
      &              cmelt(ngb, nctot+nbmax, ntqxx))
@@ -940,8 +938,8 @@ c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
                      cmelt(:, it,:) =0d0
                   enddo
                endif
-!TIME1 "after drvmelp2"
-!TIME0
+       call realtimediff(114, "after drvmelp2")
+       call realtimediff(116,'')
 !     ! smbasis 
                if(smbasis()) then !
                   ntp0= ntqxx
@@ -1063,7 +1061,7 @@ c     wtx = wgt0(kx-nqibz,irot)
 !     !--------------------------------------------------------
 !     ! --- exchange section ---
 !     !--------------------------------------------------------
-!TIME1 "end exchange section"
+       call realtimediff(116, "end exchange section")
 c     
 c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
 c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
@@ -1088,7 +1086,7 @@ c     vcoul = vcoul + zw(1:ngb,1:ngb) !c  screen test
 c     deallocate(zw)
 c     endif
 c     
-!TIME0
+       call realtimediff(118,'')
                   allocate( zmel (ngb, nctot+nbmax, ntqxx),w3p(nctot+nbmax,ntqxx,ntqxx))
                   zmel  = dcmplx (rmelt,cmelt)
 cccccccccccccccccccccccccccccc
@@ -1107,14 +1105,13 @@ ccccccccccccccccccccccccccccc
                      call matm( vcoult, zmel, z1p, ngb,ngb,(nctot+nbmax)*ntqxx )
                      deallocate(vcoult) !, zmel)
                   endif  
-!TIME1 "end of matm vcoult"
-!TIME0
+       call realtimediff(118, "end of matm vcoult")
+       call realtimediff(120,'')
 
                   if(newaniso()) then
-!KINO                   write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
-!$OMP parallel  private(vc) 
-!$OMP do 
+CYY!$OMP parallel  private(vc) 
+CYY!$OMP do 
                      do itp= 1,ntqxx
                         do it = 1,nctot+nbmax
                            do ivc=1,ngb
@@ -1122,8 +1119,8 @@ ccccccccccccccccccccccccccccc
                            enddo
                         enddo
                      enddo
-!$OMP end do 
-!$OMP do 
+CYY!$OMP end do 
+CYY!$OMP do 
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1144,11 +1141,11 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
  994                       continue
  993                    continue
  992                 continue
-!$OMP end do 
-!$OMP end parallel 
+CYY!$OMP end do 
+CYY!$OMP end parallel 
                      deallocate(zmeltt)
                   else
-!$OMP parallel do 
+CYY!$OMP parallel do 
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1161,7 +1158,7 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                            enddo
                         enddo
                      enddo
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                      deallocate(z1p)
                   endif  
                   deallocate(zmel)
@@ -1174,8 +1171,8 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                         enddo
                      enddo
                   endif
-!TIME1 "end of write ifsexsp"
-!TIME0 
+       call realtimediff(120, "end of write ifsexsp")
+       call realtimediff(122,'')
                   if(debug) then
                      do  it  = 1,nctot+nbmax
                         do  itp = 1,ntqxx
@@ -1203,19 +1200,21 @@ c     gaussian
 
                   deallocate( w3p,rmelt,cmelt)
                   if(.not.newaniso()) deallocate(vcoul)
-!TIME1 "endo of zsec wtt sum"
+       call realtimediff(122, "endo of zsec wtt sum")
                   cycle         ! next irot
 
                endif            !exchange
 c--   End of exchange section --------------
                if(timemix) call timeshow("33333 k-cycle")
-!TIME0
+       call realtimediff(124,'')
 
 
 c--------------------------------------------------------------------------
 c---  correlation section --------------------------------------------------
 c--------------------------------------------------------------------------
 c---  reading general energy mesh from file 'freq_r'
+CYY!$OMP parallel 
+CYY!$OMP master 
                open(UNIT=3111,file='freq_r')
                read(3111,*)nwp,nw_i !nwp=nw+1
                nw=nwp-1
@@ -1224,8 +1223,10 @@ c---  reading general energy mesh from file 'freq_r'
                   read(3111,*) freq_r(iw)
                enddo
                close(3111)
-!TIME1 "end reading 3111"
-!TIME0 
+CYY!$OMP end master
+CYY!$OMP end parallel 
+       call realtimediff(124, "end reading 3111")
+       call realtimediff(126,'')
 C...  Check freq_r for nw_i case.
 !     We assume freq_r(i) == -freq_r(-i) in this code. feb2006
                if(nw_i/=0) then
@@ -1237,11 +1238,9 @@ C...  Check freq_r for nw_i case.
 !     Note this program assumes freq_r(iw)=freq_r(-iw). feb2006
 !     So freq_r(iw <0) is a little redundant because of the above relation.
 
-!TIME1 "end check freq_r"
+       call realtimediff(126, "end check freq_r")
 c---  The matrix elements zmel.
-!KINO               write(*,'(a,9i7)')'kino: ngb,nstate,ntqxx,size(ppovlz)=',
-!KINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
-!TIME0 
+       call realtimediff(128,'')
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
                if(newaniso()) then
@@ -1256,8 +1255,8 @@ c---  The matrix elements zmel.
 !$OMP end parallel
                endif  
                deallocate(rmelt,cmelt)
-!TIME1 "matmul zmel ppovlz"
-!TIME0
+       call realtimediff(128, "matmul zmel ppovlz")
+       call realtimediff(130,'')
                if(debug) print *,' end of zmel'
 c================================================================
 c     The correlated part of the self-energy:
@@ -1320,8 +1319,8 @@ c$$$  ccccccccccccccccccccccccccccccccccccccccccc
 c     nrec=(kx-iqini)*(nw-nw_i+1) + ix !2 -->iqini newaniso
 c     if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) + ix
 c     if(debug) print *,' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
-!TIME1 "before read frcw zw"
-!TIME0 
+       call realtimediff(130, "before read frcw zw")
+       call realtimediff(132,'')
                read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
@@ -1336,14 +1335,14 @@ c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww11111111'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-!TIME1 "read ifrwc zw before matzwz2"
-!TIME0
+       call realtimediff(132, "read ifrwc zw before matzwz2")
+       call realtimediff(134,'')
 c     zw=(zw+dconjg(transpose(zw)))/2d0
 
                call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
      o              zwz0)       ! zwz0 = zmel*(W(0)-v)*zmel
-!TIME1 "after matzwz2"
-!TIME0
+       call realtimediff(134, "after matzwz2")
+       call realtimediff(136,'')
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz0) ! zwz0 = zmel*(W(0)-v)*zmel
 c     print *,'sum check2---',sum(abs(zwz0))
@@ -1447,39 +1446,25 @@ C     endif
 C     ********************** END 1 ***********************************************
 cccccccccccccccccccccccccccccccccccc
                if(timemix) call timeshow("ccc33333 k-cycle")
-!TIME1 "before ccc333 k-cycle"
+       call realtimediff(136, "before ccc333 k-cycle")
 ccccccccccccccccccccccccvariant ccccccccccccccccccccccccccccccccc
 c     zwz=0d0
-!KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstate,ntqxx
-!TIME0 
-              allocate( zwix(nblochpmx,nblochpmx,nx),stat=ierr )
-              if (ierr.ne.0) then 
-                 write(6,'(i3,a,i3,a,i5)')
-     &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2*nx; call flush(6) 
-                 call mpi_abort()
-                 stop 
-              endif
+       call realtimediff(138,'')
+               allocate( zwnx (nblochpmx,nblochpmx,nx)) 
                do ix=1,nx
                   nrec=ix
 c     nrec=(kx-iqini)*niw+ix
 c     if(bzcase()==2) nrec= (kx-1)*niw+ix
 
 c                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
-                  read(ifrcwi,rec=nrec) zwix(:,:,ix)  ! direct access read Wc(0) = W(0) - v
+                  read(ifrcwi,rec=nrec) zwnx(:,:,ix) ! direct access read Wc(0) = W(0) - v
 c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
                enddo
+       call realtimediff(138, "matzwz2 read zw")
+       call realtimediff(140,'')
+CYY!$OMP parallel do 
+               do ix=1,nx 
 
-!$OMP parallel  private(zwzix) 
-               write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
-               allocate(zwzix(1:nstate,1:ntqxx,1:ntqxx),stat=ierr)
-               if (ierr.ne.0) then 
-                  write(6,'(2i5,a,i5,a,i7)')mpi__rank,omp_get_thread_num(),
-     &  'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2; call flush(6)
-                  call mpi_abort()
-                  stop
-               endif
-!$OMP do               
-               do ix=1,nx
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c$$$                  if(sum(abs(qxx(1:2)))<1d-4) then
 c$$$                  do irot2 = 1,ngrp
@@ -1492,25 +1477,18 @@ c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
-     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
 c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
-     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-c     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
-                  zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
+                  call matzwz2(2, zwnx(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
+     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
 ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
                enddo ! ix
-!$OMP end  do 
-               deallocate(zwzix) 
-!$OMP end parallel 
-               deallocate(zwix) 
-!TIME1 "end do xxx33333 k-cycle"
+CYY!$OMP end parallel do 
+               deallocate(zwnx) 
+       call realtimediff(140, "end do xxx33333 k-cycle")
                if(timemix) call timeshow("xxx33333 k-cycle")
-!TIME0
+       call realtimediff(142,'')
 
 *********************************BEGIN 3 ********************************
 cccccccccccccccccfaleev 22May02 we do not use BEGIN 3
@@ -1604,8 +1582,8 @@ c----------------------------------------------------------
                if(iSigma_en==5) goto 2005
 c----------------------------------------------------------
 
-!TIME1 "before 1385"
-!TIME0
+       call realtimediff(142, "before 1385")
+       call realtimediff(144,'')
 
 C...  frequency integration along the imaginary axis, s. wint.f
 c     for each e(q-rk,n) and w in SEc(qt,w)
@@ -1686,8 +1664,8 @@ c     &      wintzsg_npm (npm, zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
  1386             continue      !itp
  1385          continue         !itpp
                deallocate(zwzs)
-!TIME1 "end 1385 loop"
-!TIME0
+       call realtimediff(144, "end 1385 loop")
+       call realtimediff(146,'')
 c     sum over both occupied and unoccupied states and multiply by weight
                do     itpp= 1,ntqxx
                   do     itp = 1,ntqxx
@@ -1716,8 +1694,8 @@ c     we use that zwz(itp,itpp)=dconjg( zwz(itpp,itp) )
                   enddo         !itp
                enddo            !itpp
                if(timemix) call timeshow("yyy33333 k-cycle")
-!TIME1 "end yyy333 k-cycle"
-!TIME0
+       call realtimediff(146, "end yyy333 k-cycle")
+       call realtimediff(148,'')
 
 cccccccccccccccccccccccccccccccccccccc
                if(iSigma_en==4) then
@@ -1808,8 +1786,8 @@ c     end of SEc w-loop
 
                deallocate(zwzs)
 
-!TIME1 "end of deallocate zmel zmel1"
-!TIME0
+       call realtimediff(148, "end of deallocate zmel zmel1")
+       call realtimediff(150,'')
 ccccccccccccccccccccccccccccccccccccc
 c     if(onlyimagaxis()) then
 c     print *,' sxcf_fal2: onlyimagaxis cycle'
@@ -1870,8 +1848,8 @@ c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                      endif
  3011             continue
  3001          continue         !end of SEc w and qt -loop
-!TIME1 "end of 3001"
-!TIME0
+       call realtimediff(150, "end of 3001")
+       call realtimediff(152,'')
                if(nw_i==0) then
                   nwxi = 0
                   nwx  = max(ixsmx+1,ixsmin+1)
@@ -1904,8 +1882,8 @@ C...  Find nt_max ------------------------------------
                   endif
  4001          continue         !end of  w and qt -loop
 
-!TIME1 "end of 4001"
-!TIME0
+       call realtimediff(152, "end of 4001")
+       call realtimediff(154,'')
 ****************************iSigma_en =1,3  begin ************************
                if(timemix) call timeshow("444444 k-cycle")
                if (iSigma_en == 1 .or. iSigma_en == 3.or.iSigma_en==5) then
@@ -1955,9 +1933,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                   deallocate(zw3x)
                endif
 
-!TIME1 "before 2001"
-!KINO               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
-!TIME0 
+       call realtimediff(154, "before 2001")
+       call realtimediff(156,'')
 !     May2006 simplified version ===================================================
                do 2001 itp = 1,ntqxx ! loop over states (q-k,n)
                   omg = omega(itp)
@@ -2025,7 +2002,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                      if (iSigma_en == 1.or.iSigma_en==5) then
                         zwz3=(0d0,0d0)
-!$OMP parallel do private(ix,zz2)
+CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=2,ngb !**** most time consuming part for iSigma_en=1 ******
@@ -2036,7 +2013,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                            zwz3(ix0)=2d0*dreal(zwz3(ix0))+
      &                          zmel1(1)*zw3(1,1, iir*ix)*zmel(1,it,itp)
                         enddo   !ix
-!$OMP end parallel do 
+CYY!$OMP end parallel do 
                         if(npm==1) then
                            zsec(itp,itp,ip) = zsec(itp,itp,ip) 
      .                          + wfac*alagr3z2(we,freq_r(ixs-1),zwz3,itp,itp)
@@ -2076,8 +2053,8 @@ c     this contribution to zsec_nn' is not hermitean because W(e_n)
 c     and must be made hermitean when zsec will be written on disc
  2011             continue
  2001          continue         !itp
-!TIME1 "end 2001 loop"
-!TIME0 
+       call realtimediff(156, "end 2001 loop")
+       call realtimediff(158,'')
                deallocate(zw3, zmel)
                if(verbose()>50)call timeshow("11after alagr3z iw,itp,it cycles")
                if(debug) print *,' end of do 2001 or 2002 '
@@ -2097,7 +2074,7 @@ c     and must be made hermitean when zsec will be written on disc
                ifrcw  = iclose('WVR.'//charnum5(kx))
                ifrcwi = iclose('WVI.'//charnum5(kx))
             endif   
-!TIME1 "end of 1100 loop"
+       call realtimediff(158, "end of 1100 loop")
  1100    continue               ! end of kx-loop
          if(newaniso()) ifvcoud =iclose('Vcoud')
          if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
@@ -2131,7 +2108,7 @@ c     if (allocated(zwz))deallocate(zwz)
  1001 continue ! end do ip
 
       if (allocated(expikt))deallocate(expikt)
-!TIME1 "end of sxcf_fal2_scz"
+       call realtimediff(100, "end of sxcf_fal2_scz")
       end subroutine sxcf_fal3_scz
 
 

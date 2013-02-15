@@ -693,7 +693,7 @@ ccccccccccccccccccccccccc takao variant end
           endif
 
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
-!$OMP parallel do  private(imagweight) shared(rcxq)
+CCC!$OMP parallel do  private(imagweight) shared(rcxq)
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
             if(eibzmoden==2) imagweight = nwgt(k)*imagweight  
@@ -704,7 +704,7 @@ ccccccccccccccccccccccccc takao variant end
              enddo !igb1
              enddo !igb2
           enddo ! iw
-!$OMP end parallel do
+CCC!$OMP end parallel do
 
  25     continue
         if(debug) call cputid(0)

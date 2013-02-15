@@ -622,6 +622,7 @@ c        ua_ = ua_min
 
 c-------------------------------------------------------------------
       subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz) !sf 23May02
+      use m_mpi, only: mpi__rank
       implicit none
       integer(4) :: nstate,ntq,itp,itpp,it,ngb,iSigma_en
       complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
@@ -630,11 +631,14 @@ c-------------------------------------------------------------------
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
       !call cputid(0)
+      write(6,'(i3,a,10i7)')mpi__rank,'matzwz2 enter',ngb,ngb,ngb,nstate*ntq,ngb,nstate*ntq
       call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
+      write(6,*)mpi__rank,'matzwz2 after matm'
       !write(*,'("10.2 matzwz after matm ",$)')
       !call cputid(0)
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
+CYY!$OMP parallel  do
         do itp = 1,ntq
           do  it = 1,nstate
 c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
@@ -642,7 +646,9 @@ c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
      &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
           enddo
         enddo
+CYY!$OMP end parallel  do
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
+CYY!$OMP parallel do
         do itpp= 1,ntq
           do itp = 1,ntq
             do  it = 1,nstate
@@ -652,6 +658,7 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
             enddo
           enddo
         enddo
+CYY!$OMP end parallel  do
       else
         stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
       endif
@@ -659,7 +666,8 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
       !call cputid(0)
 
       deallocate(CC)
-      end
+      write(6,*)mpi__rank,'matzwz2 end'
+      end subroutine matzwz2
 
 c--------------------------------------------------------------------
       complex(8) function alagr3z2(x,xi,fi,i,j)  !sf 24 May02

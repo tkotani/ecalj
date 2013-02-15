@@ -222,8 +222,8 @@ c---------------------------------------
       write(*,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
 
 !$      call omp_set_nested(1)
-!TIME0
-!TIME0 
+       call realtimediff(1,'')
+       call realtimediff(3,'')
       hartree=2d0*rydberg()
 !     !     mode switch. --------------
       if(cohtest) then
@@ -1072,10 +1072,10 @@ c$$$
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass),
      &     kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) ) !eq(nband),
-!TIME1 "before 2000 loop"
+       call realtimediff(3, "before 2000 loop")
 c     loop over spin ----------------------------------------------------
       do 2000 is = 1,nspinmx
-!TIME0 
+       call realtimediff(5,'')
          if(mpi__root) then
          if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
@@ -1127,8 +1127,8 @@ c         allocate(wbzz(nqbz))
 c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
          
 c         print *,'ntq=',ntq
-!TIME1 "before sxcf_fal3_scz"
-!TIME0
+       call realtimediff(5, "before sxcf_fal3_scz")
+       call realtimediff(7,'')
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2
@@ -1167,14 +1167,14 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 c         deallocate(wbzz)
-!TIME1 "after sxcf_fal3_scz"
+       call realtimediff(7, "after sxcf_fal3_scz")
       call date_and_time(values=timevalues)
       write(*,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
       call cpu_time(time_red1)
-!TIME0 
+       call realtimediff(9,'')
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
       call cpu_time(time_red2)
-!TIME1 "reduction nbandmx end"
+       call realtimediff(9, "reduction nbandmx end")
       write(*,*)'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c     if(debug) write(6,*) "end of sxcf_fal3_scz"
@@ -1188,7 +1188,7 @@ c     stop 'hsfp0: missing k-pts'
 c     endif
 c---------------------------------
 c     electron gas bare exchange (exact)
-!TIME0
+       call realtimediff(11,'')
          if (legas.and.exchange) then
             efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
             pi         = 4.d0*datan(1.d0)
@@ -1221,10 +1221,10 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                write (663,"(2f14.6)") qm/qfermi, qfermi
             end do
          endif
-!TIME1 "end legas exchange"
+       call realtimediff(11, "end legas exchange")
  2001    continue
 
-!TIME0 
+       call realtimediff(13,'')
 !     ! --- symmetrize zsec for eibz4sig mode. Sep2012 -----------------
 !     !     Rotate zsec(itp,itp)
 !     ! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
@@ -1239,8 +1239,8 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
          read(ifvxc)            !ndimh, nsp,nnn
 !
-!TIME1 "end of allocate zsect"
-!TIME0
+       call realtimediff(13, "end of allocate zsect")
+       call realtimediff(15,'')
          do 3020 iq=1,nq !nq means iq for which we will calculate sigma
 c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given in evec v_xc.
             do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
@@ -1362,7 +1362,7 @@ ccccccccccccccccccccccccccccc
  3030       continue            ! ispx
 
  3020    continue               ! iq
-!TIME1 "end 3020 loop"
+       call realtimediff(15, "end 3020 loop")
 
          close(UNIT=ifevec)
          close(UNIT=ifvxc)
@@ -1373,7 +1373,7 @@ ccccccccccccccccccccccccccccc
 c     stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!TIME0 
+       call realtimediff(17,'')
          if(mpi__root) then
 c     write SEx(q,t)
 c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
@@ -1474,7 +1474,7 @@ c     end do
 c     end do
          endif                  !ixc
          endif  !mpi__root
-!TIME1 "before 2000 continue"
+       call realtimediff(17, "before 2000 continue")
  2000 continue                  !end of spin-loop
 
 
@@ -1497,7 +1497,7 @@ c     isx = iclose ('CHBD')
 c     isx = iclose ('EVD')
 c     isx = iclose ('CPHI')
 
-!TIME0 
+       call realtimediff(19,'')
 C     --- EXspectrum ----------------------------------------------------
 c     This section is similar with efsimplef.f
       if(sum(ifexsp(1:nspin))/=0) then
@@ -1581,15 +1581,15 @@ c
          enddo
          print *,' End of ExSpectrum section ---'
       endif
-!TIME1 "end of exspectrum"
+       call realtimediff(19, "end of exspectrum")
 c-------------------------------------------------------------------------------
 
 c     formats
 c     6500 format (' spin =',i2,'   nbloch =',i4,'  deltaw =',f7.4,' a.u.',
 c     .'   ef=',f10.5,' Rydberg' )
 c     
-!TIME1 "end program"
-!TIMESHOW 
+       call realtimediff(1, "end program")
+       call print_realtimediff()
       call cputid(0)
 
       call MPI__Finalize ! MIZUHO-IR
