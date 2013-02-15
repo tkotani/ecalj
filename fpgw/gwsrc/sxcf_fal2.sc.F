@@ -438,7 +438,7 @@ c      real(8)::wqfac(nqbz)
       integer:: irot2
       real(8):: eftrue
 
-      integer::ierr,omp_get_thread_num
+      integer::ierr !,omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
@@ -1473,8 +1473,10 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
                write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
                allocate(zwzix(1:nstate,1:ntqxx,1:ntqxx),stat=ierr)
                if (ierr.ne.0) then 
-                  write(6,'(2i5,a,i5,a,i7)')mpi__rank,omp_get_thread_num(),
-     &  'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2; call flush(6)
+                  write(6,'(i5,a,i5,a,i7)') mpi__rank,
+     &  'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2
+!$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
+                  call flush(6)
                   call mpi_abort()
                   stop
                endif

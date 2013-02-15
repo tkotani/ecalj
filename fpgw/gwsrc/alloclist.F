@@ -49,7 +49,7 @@
       do i=1, var_total
          total=total+var_size(i)  
       enddo
-      write(6,'(a,i4,1x,a,a20,a,i10,a,i10,a,i)')
+      write(6,'(a,i4,1x,a,a20,a,i10,a,i10,a,i1)')
      &  'mpi=',mpi__rank,  
      & 'add_alloc_list name=',trim(name),
      & ' size=',isize/var_unit,'(MB) total=',total/var_unit ,'(MB)',iadd
@@ -77,7 +77,7 @@
       do i= 1,var_total
          total=total+var_size(i)  
       enddo
-      write(6,'(a,i4,1x,a,a20,a,i10,a,i)')
+      write(6,'(a,i4,1x,a,a20,a,i10,a,i1)')
      & 'mpi=',mpi__rank,
      & 'delete_alloc_list name=', trim(name),' total=',total/var_unit ,'(MB)',idel
 
