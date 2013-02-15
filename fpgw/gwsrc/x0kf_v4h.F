@@ -513,6 +513,7 @@ c        elseif(newanisox) then !.and.iq==1) then
             zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
           enddo
           enddo
+!$OMP end parallel do 
         endif
 
 !TIME1  "after matmul zmelt"
