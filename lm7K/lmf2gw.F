@@ -30,7 +30,7 @@ C     implicit real*8 (a-h,o-z)
      .ncore,ndimh,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
       real(8) qlat(3,3),ovv(20),ef0,qpgcut_phi,qpgcut_cou,z,
      .a_a,b_a,rofi_anr
-      character*120  ext0*8, ext*8
+      character*120  ext0*256, ext*256
       real(8):: qqq(3),plat(3,3)
       integer:: ifi,ifefclass,fopnx,fopna,fext,icors(2)
       complex(8),allocatable:: zegf(:,:) ,geig(:,:)
@@ -100,11 +100,8 @@ cccccccccccccccccccccccccccccccc
 
       print *, 'extension=?'
       ext0 = ' '
-      read(*,'(a8)') ext0
-      call strip(ext0,i1,i2)
-      ext = '.' // ext0(i1:i2)
-      ifi = fext(ext)
-
+      read(*,'(a256)') ext
+      ifi = fext('.'//trim(ext))
       call show_programinfo(6)
 
 c- OPEN *.gwb
