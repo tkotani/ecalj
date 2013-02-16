@@ -54,7 +54,7 @@ if($ix == 0 ) then
   if(-e sigm.$TARGET) continue
   echo "No sigm ---> LDA caculation for eigenfunctions "
 #  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
-  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --rs=0 $TARGET > llmf_lda
+  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_lda
   cp rst.$TARGET rst.$TARGET.lda
 else
   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
