@@ -1,5 +1,6 @@
 kytool is a converter between ctrl(or ctrls) and POSCAR.
 Just treat crystal structure part of ctrl file.
+If you see something wrong or inconvenient, let t.kotnai know it.
 
 ========
 INSTALL:
@@ -10,24 +11,25 @@ INSTALL:
  At the begining of viewvesta.py. Set VESTA path.
 
 ========
-Samples:
- There are samples in sample/ directories.
- Crystal structure files *.cif are taken from http://staff.aist.go.jp/nomura-k/japanese/itscgallary.htm
-
-========
 Usage:
-We now have three commands below. These command uses functions in
-convert/, so relative path is important.
+We now have three commands below. These command uses functions in convert/, so relative path is important.
 
 *vasp2ctrl.py
-　Convert POSCAR to ctrl file. 
-  For help, type this command without arguments.
-   E.g: ../vasp2ctrl.py ctrl.nio --Cartesian
+　Convert POSCAR to ctrl file. For help, type this command without
+  arguments.
+  E.g: 
+    mkdir TEST
+    cd TEST
+    cp ../sample/ctrl.nio .
+    ../vasp2ctrl.py ctrl.nio 
 　
 *ctrl2vasp.py
-  ctrl file to POSCAR file. 
-  Note that you have to supply --Direct or Cartesian.
-   E.g: ../ctrl2vasp.py ctrl.nio --Cartesian
+  ctrl file to POSCAR file. (current version is for Cartesian, but not so difficult if you like Direct).
+  E.g: 
+    mkdir TEST
+    cd TEST
+    cp ../sample/10-Opal.cif.vasp POSCAR_opal
+    ../vasp2ctrl.py POSCAR_opal
 
 *viewvesta.py
   this is to see POSCAR by VESTA. VESTA is poor for external control.
@@ -35,13 +37,8 @@ convert/, so relative path is important.
   Currently, this is a very simple program just to invole VESTA for
   given file.
 
-
-You can test it in your new directory with some files in sample/
-directory.
-
-====
-this kytool/ is by Kazuyoshi Yamamoto, and modified by t.kotani.
-Let me know if you find something wrong.
+You can test it in your new directory with some files in sample/ directory.
+Crystal structure files *.cif are taken from http://staff.aist.go.jp/nomura-k/japanese/itscgallary.htm
 
 
 

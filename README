@@ -68,13 +68,14 @@ Need further bug check and make it robust more...
 *Installation for lm7K
 
 ---Let us assume you use ubuntu. ---
->sudo apt-get install git  #version control and to get source from github)
+>sudo apt-get install git  gitk #version control and to get source from github)
 >sudo apt-get install gitk #git gui 'gitk --all' is useful. do it at ecal/.
 >sudo apt-get install gfortran      # GFORTRAN
 >sudo apt-get install openmpi-bin openmpi-dev     # MPI 
 >sudo apt-get install libfftw3-3     or something else # FFTW
 >sudo apt-get install libblas3gf     or something else # BLAS
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
+>sudo apt-get install etags csh bash
 
 python 2.x is also assumed (usually already in ubuntu).
 
