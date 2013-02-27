@@ -1067,6 +1067,7 @@ c-----------------------------------------------------------------
      &,dum(2)
       parameter(Img=(0d0,1d0))
       integer:: debugmode
+      real(8):: ep=1d-3 !ep was 1d-8 before feb2013
 c      print *; print *,' ROTDLMM:'
       do 10 ig =1,ng
         do 20 i=1,3
@@ -1147,15 +1148,15 @@ c l-th rep. is odd or even according to (det)**l
         am(3,2)= sin(beta)*sin(gamma)
         am(3,3)= cos(beta)
 
-        if(abs(am(1,1)*det-symops(1,ig)).gt.1.0d-8.or.
-     &  abs(am(2,1)*det-symops(2,ig)).gt.1.0d-8.or.
-     &  abs(am(3,1)*det-symops(3,ig)).gt.1.0d-8.or.
-     &  abs(am(1,2)*det-symops(4,ig)).gt.1.0d-8.or.
-     &  abs(am(2,2)*det-symops(5,ig)).gt.1.0d-8.or.
-     &  abs(am(3,2)*det-symops(6,ig)).gt.1.0d-8.or.
-     &  abs(am(1,3)*det-symops(7,ig)).gt.1.0d-8.or.
-     &  abs(am(2,3)*det-symops(8,ig)).gt.1.0d-8.or.
-     &  abs(am(3,3)*det-symops(9,ig)).gt.1.0d-8) then
+        if(abs(am(1,1)*det-symops(1,ig))>ep.or.
+     &  abs(am(2,1)*det-symops(2,ig))>ep.or.
+     &  abs(am(3,1)*det-symops(3,ig))>ep.or.
+     &  abs(am(1,2)*det-symops(4,ig))>ep.or.
+     &  abs(am(2,2)*det-symops(5,ig))>ep.or.
+     &  abs(am(3,2)*det-symops(6,ig))>ep.or.
+     &  abs(am(1,3)*det-symops(7,ig))>ep.or.
+     &  abs(am(2,3)*det-symops(8,ig))>ep.or.
+     &  abs(am(3,3)*det-symops(9,ig))>ep) then
           print *,' rotdlmm: not agree. symgrp and one by eular angle'
           stop
         endif
