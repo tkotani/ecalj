@@ -1,0 +1,371 @@
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc version 4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-26-generic #43-Ubuntu SMP Tue Sep 25 17:19:22 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/master
+HOST_INFORMATION git commit: fff0037557c4e6685a8553222660abf10a5b7fdb
+HOST_INFORMATION linked at: Mon Jan 28 21:49:24 JST 2013
+ -----------------------  START LMCHK    -----------------------
+ ptenv() is called with EXT=tmp
+ ptenv() not supported, but continue.
+ IO_HELP           opt    i4       1,  1,   *,  1       0
+ VERS_LM           reqd   r8       1,  1,   1, --       7
+  Expected Input style version: 7 ... found in file: 7
+ CMD               opt    chr      1,  0,   *
+ CONST             opt    chr      1,  0,   *
+ HEADER            opt    chr      1,  0,   *
+ IO_VERBOS         opt    i4v      5,  1,   1,  0       35
+ IO_IACTIV         opt    i4       1,  1,   *,  1       0
+ IO_TIM            opt    i4v      2,  1,   2,  0       2 2
+
+ --- Parameters for crystal structure ---
+ STRUC_FILE        opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       1.88973
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       10
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       3.00591 0 0 0 3.00591 0 0 0 39.7867
+ STRUC_NSPEC       opt    i4       1,  1,   1, --       4
+ STRUC_DALAT       opt    r8       1,  1,   *,  1       0
+ STRUC_NL          opt    i4       1,  1,   *,  1       3
+ STRUC_SHEAR       opt    r8v      4,  4,   *, --
+ STRUC_ROT         opt    chr      1,  0,   *
+ STRUC_DEFGRD      opt    r8v      9,  9,   *, --
+ STRUC_STRAIN      opt    r8v      6,  6,   *, --
+
+ --- Program Options ---
+ OPTIONS_RMINES    opt    r8       1,  1,   *,  1       1
+ OPTIONS_RMAXES    opt    r8       1,  1,   *,  1       2
+ OPTIONS_NESABC    opt    i4v      3,  3,   *,  3       100 100 100
+ OPTIONS_Q         opt    chr      1,  0,   *
+ HAM_NSPIN         opt    i4       1,  1,   *,  1       1
+ ### ---> ENFORCE nsp=1 for LMCHK ###
+ HAM_XCFUN         opt    i4       1,  1,   *,  1       2
+
+ --- Symmetry group operations ---
+ SYMGRP            opt    chr      1,  0,   1           find
+
+ --- Parameters for species data ---
+ SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
+ SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_OMAX2        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_WSRMAX       opt    r8       1,  1,   *,  1       0
+ ... Species 1
+ SPEC_ATOM         reqd   chr      1,  0,   1           Mg
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       12
+ SPEC_ATOM_R       opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/W     opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/A     opt    r8       1,  1,   *, --
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       51
+ SPEC_ATOM_LMX     opt    i4       1,  1,   *,  1       2
+ ... Species 2
+ SPEC_ATOM         reqd   chr      1,  0,   1           O
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       8
+ SPEC_ATOM_R       opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/W     opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/A     opt    r8       1,  1,   *, --
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       51
+ SPEC_ATOM_LMX     opt    i4       1,  1,   *,  1       2
+ ... Species 3
+ SPEC_ATOM         reqd   chr      1,  0,   1           Co
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       27
+ SPEC_ATOM_R       opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/W     opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/A     opt    r8       1,  1,   *, --
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       51
+ SPEC_ATOM_LMX     opt    i4       1,  1,   *,  1       2
+ ... Species 4
+ SPEC_ATOM         reqd   chr      1,  0,   1           Pt
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       78
+ SPEC_ATOM_R       opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/W     opt    r8       1,  1,   *, --
+ SPEC_ATOM_R/A     opt    r8       1,  1,   *, --
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       51
+ SPEC_ATOM_LMX     opt    i4       1,  1,   *,  1       2
+
+ --- Parameters for site data ---
+ SITE_FILE         opt    chr      1,  0,   *
+ ... Site 1
+ SITE_ATOM         reqd   chr      1,  0,   1           Mg
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 0
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 2
+ SITE_ATOM         reqd   chr      1,  0,   1           Mg
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       1.50296 1.50296 2.17232
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 3
+ SITE_ATOM         reqd   chr      1,  0,   1           O
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       1.50296 1.50296 0
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 4
+ SITE_ATOM         reqd   chr      1,  0,   1           O
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 2.10324
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 5
+ SITE_ATOM         reqd   chr      1,  0,   1           Co
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 4.16928
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 6
+ SITE_ATOM         reqd   chr      1,  0,   1           Co
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       1.50296 1.50296 5.25899
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 7
+ SITE_ATOM         reqd   chr      1,  0,   1           Pt
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 6.8311
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 8
+ SITE_ATOM         reqd   chr      1,  0,   1           Pt
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       1.50296 1.50296 8.67333
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 9
+ SITE_ATOM         reqd   chr      1,  0,   1           Pt
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 10.4304
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+ ... Site 10
+ SITE_ATOM         reqd   chr      1,  0,   1           Pt
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       1.50296 1.50296 12.1456
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_ROT     opt    chr      1,  0,   *
+ SITE_ATOM_PL      opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for structure constants ---
+ STR_RMAXS         opt    r8       1,  1,   *, --
+ STR_RMAX          opt    r8       1,  1,   *,  1       0
+ STR_MXNBR         opt    i4       1,  1,   *,  1       0
+
+ --- Parameters for Ewald sums ---
+ EWALD_AS          opt    r8       1,  1,   *,  1       2
+ EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
+ EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
+ EWALD_RPAD        opt    r8       1,  1,   *,  1       0
+  LMCHK  vn 7.00  verb 35
+
+                Plat                                  Qlat
+   3.005911   0.000000   0.000000        0.332678   0.000000   0.000000
+   0.000000   3.005911   0.000000        0.000000   0.332678   0.000000
+   0.000000   0.000000  39.786720        0.000000   0.000000   0.025134
+  Cell vol= 2425.981548
+
+ xlgen: added missing plat: ivck= 0 0 1  rmax=  18.488  rpad*rmax=   0.000
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 1.88973   awald= 0.149
+         r1= 18.488   nkd= 363      q1=  0.428   nkg= 119
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is tetragonal with 16 symmetry operations.
+ SYMCRY: crystal invariant under 8 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         r4z m(1,1,-0)
+         r4z m(1,1,-0)
+ MKSYM:  found 8 space group operations; adding inversion generated 16 ops
+
+ SPLCLS:  4 species split into 10 classes
+ Species  Class      Sites...
+ Mg       1:Mg       1
+          5:Mg2      2
+ O        2:O        3
+          6:O2       4
+ Co       3:Co       5
+          7:Co2      6
+ Pt       4:Pt       7
+          8:Pt2      8
+          9:Pt3      9
+         10:Pt4      10
+  qqqqq ics nclspp=           1           2           3           4           1           2           3           4           4           4          10
+  lmaux:
+  lmxa=          -1          -1          -1          -1          -1          -1          -1          -1          -1          -1
+  z   =   12.000000000000000        8.0000000000000000        27.000000000000000        78.000000000000000        12.000000000000000        8.0000000000000000        27.000000000000000        78.000000000000000        78.000000000000000        78.000000000000000     
+ Use default rmaxs = 10.446 a.u. = 2.7*avw = 5.528*alat
+
+ ... Make sphere radii
+ makrm0:
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   0.000   0.000
+=== Charge for l     : Qtot=Qv=     2   0.000   0.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+
+conf:SPEC_ATOM= Mg : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       3  3         2.000    4.000 => 1,2,
+conf:    1  1       3  3         0.000    6.000 => 2,
+conf:    1  2       3  3         0.000    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:-----------------------------------------------------
+ goto atomc xxx
+ atomsc nmcore=           1
+ NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.
+       We use spin-avaraged potential to calculate core density rhoc.
+       Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F
+ tailsm: init
+ tailsm: end
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   4.000   4.000
+=== Charge for l     : Qtot=Qv=     2   0.000   0.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+
+conf:SPEC_ATOM= O : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       2  2         2.000    2.000 => 1,
+conf:    1  1       2  2         4.000    0.000 => 
+conf:    1  2       3  3         0.000    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:-----------------------------------------------------
+ goto atomc xxx
+ atomsc nmcore=           1
+ tailsm: init
+ tailsm: end
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   0.000   0.000
+=== Charge for l     : Qtot=Qv=     2   7.000   7.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+
+conf:SPEC_ATOM= Co : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  4         2.000    6.000 => 1,2,3,
+conf:    1  1       4  4         0.000   12.000 => 2,3,
+conf:    1  2       3  3         7.000    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:-----------------------------------------------------
+ goto atomc xxx
+ atomsc nmcore=           1
+ tailsm: init
+ tailsm: end
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   1.000   1.000
+=== Charge for l     : Qtot=Qv=     1   0.000   0.000
+=== Charge for l     : Qtot=Qv=     2   9.000   9.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+
+conf:SPEC_ATOM= Pt : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       6  6         1.000   10.000 => 1,2,3,4,5,
+conf:    1  1       6  6         0.000   24.000 => 2,3,4,5,
+conf:    1  2       5  5         9.000   20.000 => 3,4,
+conf:    1  3       5  5         0.000   14.000 => 4,
+conf:-----------------------------------------------------
+ goto atomc xxx
+ atomsc nmcore=           1
+ tailsm: init
+ tailsm: end
+
+ pairc, ib=  1:  71 neighbors in range  6.879 13.000
+ pairc:     71 pairs total   71 is max cluster size
+
+ pairc, ib=  2:  83 neighbors in range  6.879 13.000
+ pairc:     83 pairs total   83 is max cluster size
+
+ pairc, ib=  3:  30 neighbors in range  4.022  7.600
+ pairc:     30 pairs total   30 is max cluster size
+
+ pairc, ib=  4:  40 neighbors in range  4.022  7.600
+ pairc:     40 pairs total   40 is max cluster size
+
+ pairc, ib=  5:  60 neighbors in range  5.334 10.080
+ pairc:     60 pairs total   60 is max cluster size
+
+ pairc, ib=  6:  63 neighbors in range  5.334 10.080
+ pairc:     63 pairs total   63 is max cluster size
+
+ pairc, ib=  7:  64 neighbors in range  6.096 11.520
+ pairc:     64 pairs total   64 is max cluster size
+
+ pairc, ib=  8:  59 neighbors in range  6.096 11.520
+ pairc:     59 pairs total   59 is max cluster size
+
+ pairc, ib=  9:  50 neighbors in range  6.096 11.520
+ pairc:     50 pairs total   50 is max cluster size
+
+ pairc, ib= 10:  38 neighbors in range  6.096 11.520
+ pairc:     38 pairs total   38 is max cluster size
+
+ makrm0: initial MT radii from first estat potential maximum
+  site   spec            rmt       rmt-       rmt-       rold   lock
+                                  <spec avg>  spec-min
+    1    1:Mg           2.1739    -0.0143     0.0000     0.0000    
+    2    1:Mg           2.2026     0.0143     0.0287     0.0000    
+    3    2:O            1.8105     0.0406     0.0812     0.0000    
+    4    2:O            1.7293    -0.0406     0.0000     0.0000    
+    5    3:Co           2.1744    -0.0409     0.0000     0.0000    
+    6    3:Co           2.2563     0.0409     0.0818     0.0000    
+    7    4:Pt           2.5695    -0.0145     0.0000     0.0000    
+    8    4:Pt           2.6049     0.0209     0.0354     0.0000    
+    9    4:Pt           2.5816    -0.0024     0.0121     0.0000    
+   10    4:Pt           2.5798    -0.0041     0.0103     0.0000    
+ SCLWSR:  vol = 2425.98 a.u..   Initial sphere packing = 21.2%  scaled to 21.1%
+ constr omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+ actual omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+
+ spec  name        old rmax    new rmax     ratio
+   1   Mg          2.188206    2.240625    1.023955
+   2   O           1.769890    1.733919    0.979676
+   3   Co          2.215371    2.170346    0.979676
+   4   Pt          2.583943    2.580642    0.998723
+  zzzz nclspp=          10
+
+   Site     Spec            Rmax                Position
+    1      1  Mg          2.240625   0.000000   0.000000   0.000000
+    2      5  Mg2         2.240625   1.502955   1.502955   2.172317
+    3      2  O           1.733919   1.502955   1.502955   0.000000
+    4      6  O2          1.733919   0.000000   0.000000   2.103237
+    5      3  Co          2.170346   0.000000   0.000000   4.169284
+    6      7  Co2         2.170346   1.502955   1.502955   5.258992
+    7      4  Pt          2.580642   0.000000   0.000000   6.831103
+    8      8  Pt2         2.580642   1.502955   1.502955   8.673331
+    9      9  Pt3         2.580642   0.000000   0.000000  10.430370
+   10     10  Pt4         2.580642   1.502955   1.502955  12.145563
+
+ Cell volume= 2425.98155   Sum of sphere volumes= 511.51579 (0.21085)
+
+ ib jb  cl1     cl2        Pos(jb)-Pos(ib)      Dist  sumrs   Ovlp    %
+  1  3  Mg      O         2.840  2.840  0.000  4.017  3.975  -0.04  -1.0 
+  1  4  Mg      O2        0.000  0.000  3.975  3.975  3.975   0.00   0.0*
+  2  3  Mg2     O         0.000  0.000 -4.105  4.105  3.975  -0.13  -3.2 
+  2  4  Mg2     O2       -2.840 -2.840 -0.131  4.019  3.975  -0.04  -1.1 
+  4  5  O2      Co        0.000  0.000  3.904  3.904  3.904   0.00   0.0*
+  5  6  Co      Co2       2.840  2.840  2.059  4.514  4.341  -0.17  -3.8 
+  5  7  Co      Pt        0.000  0.000  5.030  5.030  4.751  -0.28  -5.5 
+  6  7  Co2     Pt       -2.840 -2.840  2.971  4.996  4.751  -0.24  -4.9 
+  7  7  Pt      Pt       -5.680  0.000  0.000  5.680  5.161  -0.52  -9.1 
+  7  8  Pt      Pt2       2.840  2.840  3.481  5.315  5.161  -0.15  -2.9 
+  8  8  Pt2     Pt2      -5.680  0.000  0.000  5.680  5.161  -0.52  -9.1 
+  8  9  Pt2     Pt3      -2.840 -2.840  3.320  5.211  5.161  -0.05  -1.0 
+  9  9  Pt3     Pt3      -5.680  0.000  0.000  5.680  5.161  -0.52  -9.1 
+  9 10  Pt3     Pt4       2.840  2.840  3.241  5.161  5.161   0.00   0.0*
+ 10 10  Pt4     Pt4      -5.680  0.000  0.000  5.680  5.161  -0.52  -9.1 
+
+ OVMIN:     fovl = 1.19851e-94   <ovlp> = 0%   max ovlp = 0%
+ Exit 0 LMCHK 
+ CPU time:    0.476s     Wed Feb 13 21:53:52 2013   on  
+
+  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 2
+  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
+      0      0      0        1       0.48       0.48   main

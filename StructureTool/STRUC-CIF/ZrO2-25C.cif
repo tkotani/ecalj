@@ -1,0 +1,35 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+_pd_phase_name                         'ZrO2'
+_cell_length_a                         5.1501(2)
+_cell_length_b                         5.2077(2)
+_cell_length_c                         5.3171(2)
+_cell_angle_alpha                      90
+_cell_angle_beta                       99.224(2)
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'P 21/c  '
+_symmetry_Int_Tables_number            14
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, -z'
+   '-x, y+1/2, -z+1/2'
+   'x, -y+1/2, z+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_thermal_displace_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Zr       1    0.2746(3)    0.0407(3)    0.2078(2)   Biso 0.313   Zr
+   O1       1    0.0705(3)    0.3327(3)    0.3447(3)   Biso 0.328   O
+   O2       1    0.4499(3)    0.7588(3)    0.4793(3)   Biso 0.151   O

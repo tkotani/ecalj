@@ -1,0 +1,54 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+_pd_phase_name                         'FeS2'
+_cell_length_a                         5.4281(1)
+_cell_length_b                         5.4281(1)
+_cell_length_c                         5.4281(1)
+_cell_angle_alpha                      90
+_cell_angle_beta                       90
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'P a -3 '
+_symmetry_Int_Tables_number            205
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, -z'
+   '-x+1/2, -y, z+1/2'
+   'x+1/2, y, -z+1/2'
+   '-x, y+1/2, -z+1/2'
+   'x, -y+1/2, z+1/2'
+   'x+1/2, -y+1/2, -z'
+   '-x+1/2, y+1/2, z'
+   'z, x, y'
+   '-z, -x, -y'
+   'z+1/2, -x+1/2, -y'
+   '-z+1/2, x+1/2, y'
+   '-z+1/2, -x, y+1/2'
+   'z+1/2, x, -y+1/2'
+   '-z, x+1/2, -y+1/2'
+   'z, -x+1/2, y+1/2'
+   'y, z, x'
+   '-y, -z, -x'
+   '-y, z+1/2, -x+1/2'
+   'y, -z+1/2, x+1/2'
+   'y+1/2, -z+1/2, -x'
+   '-y+1/2, z+1/2, x'
+   '-y+1/2, -z, x+1/2'
+   'y+1/2, z, -x+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_thermal_displace_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Fe       1    0             0             0            Biso  0.25  Fe
+   S        1    0.38504(5)    0.38504(5)    0.38504(5)   Biso  0.30  S

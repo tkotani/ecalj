@@ -1,0 +1,52 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+
+
+
+_pd_phase_name                         'SiO2 a-Cristobalite, 30C'
+_cell_length_a                         4.96937(3)
+_cell_length_b                         4.96937(3)
+_cell_length_c                         6.92563(8)
+_cell_angle_alpha                      90
+_cell_angle_beta                       90
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'P 41 21 2'
+_symmetry_Int_Tables_number            92
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, z+1/2'
+   '-y+1/2, x+1/2, z+1/4'
+   'y+1/2, -x+1/2, z+3/4'
+   '-x+1/2, y+1/2, -z+1/4'
+   'x+1/2, -y+1/2, -z+3/4'
+   'y, x, -z'
+   '-y, -x, -z+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Si1      1.0    0.3006(2)    0.30060      0           Biso  0.163  Si
+   O1       1.0    0.2392(2)    0.1049(2)    0.1789(1)   Biso  0.258  O
+
+loop_
+   _atom_site_aniso_label
+   _atom_site_aniso_U_11
+   _atom_site_aniso_U_22
+   _atom_site_aniso_U_33
+   _atom_site_aniso_U_12
+   _atom_site_aniso_U_13
+   _atom_site_aniso_U_23
+   Si1	 0.02642  0.02642  0.06955 -0.00247 -0.00344 -0.00585
+   O1	 0.06544  0.02914  0.09881 -0.00025  0.01239  0.00206

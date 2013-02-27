@@ -1,0 +1,52 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+
+
+
+_pd_phase_name                         'b-PbO'
+_cell_length_a                         5.8931(1)
+_cell_length_b                         5.4904(1)
+_cell_length_c                         4.7528(1)
+_cell_angle_alpha                      90
+_cell_angle_beta                       90
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'P b c m'
+_symmetry_Int_Tables_number            57
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, -z'
+   '-x, -y, z+1/2'
+   'x, y, -z+1/2'
+   '-x, y+1/2, -z+1/2'
+   'x, -y+1/2, z+1/2'
+   'x, -y+1/2, -z'
+   '-x, y+1/2, z'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Pb1      1.0    0.2297(2)   -0.0116(3)    0.25000     Biso  1.07   Pb
+   O1       1.0   -0.1347(3)    0.0917(3)    0.25000     Biso  1.14   O
+
+loop_
+   _atom_site_aniso_label
+   _atom_site_aniso_U_11
+   _atom_site_aniso_U_22
+   _atom_site_aniso_U_33
+   _atom_site_aniso_U_12
+   _atom_site_aniso_U_13
+   _atom_site_aniso_U_23
+   Pb1	 0.29867  0.26226  0.24170 -0.04530  0.00000  0.00000
+   O1	 0.31950  0.32857  0.20782 -0.00324  0.00000  0.00000

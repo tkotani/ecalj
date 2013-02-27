@@ -1,0 +1,58 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+_pd_phase_name                         'Be3Al2Si6O18(H2O)0.48'
+_cell_length_a                         9.218(2)
+_cell_length_b                         9.218(2)
+_cell_length_c                         9.197(2)
+_cell_angle_alpha                      90
+_cell_angle_beta                       90
+_cell_angle_gamma                      120
+_symmetry_space_group_name_H-M         'P 6/m c c'
+_symmetry_Int_Tables_number            192
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, -z'
+   '-y, x-y, z'
+   'y, -x+y, -z'
+   '-x+y, -x, z'
+   'x-y, x, -z'
+   '-x, -y, z'
+   'x, y, -z'
+   'y, -x+y, z'
+   '-y, x-y, -z'
+   'x-y, x, z'
+   '-x+y, -x, -z'
+   'y, x, -z+1/2'
+   '-y, -x, z+1/2'
+   'x-y, -y, -z+1/2'
+   '-x+y, y, z+1/2'
+   '-x, -x+y, -z+1/2'
+   'x, x-y, z+1/2'
+   '-y, -x, -z+1/2'
+   'y, x, z+1/2'
+   '-x+y, y, -z+1/2'
+   'x-y, -y, z+1/2'
+   'x, x-y, -z+1/2'
+   '-x, -x+y, z+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_thermal_displace_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Be       1    0.5          0            0.25        Biso  0.45  Be
+   Al       1    0.66667      0.33333      0.25        Biso  0.21  Al
+   Si       1    0.38735(4)   0.11563(4)   0           Biso  0.24  Si
+   O1       1    0.3099(1)    0.2365(1)    0           Biso  0.80  O
+   O2       1    0.4986(1)    0.1454(1)    0.1452(1)   Biso  0.47  O
+   O3       1    0            0            0.25        Biso  8.5   O

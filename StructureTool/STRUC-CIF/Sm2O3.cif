@@ -1,0 +1,44 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+_pd_phase_name                         'Sm2O3'
+_cell_length_a                         14.1975(9)
+_cell_length_b                         3.6273(3)
+_cell_length_c                         8.8561(5)
+_cell_angle_alpha                      90
+_cell_angle_beta                       99.986(5)
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'C 2/m  '
+_symmetry_Int_Tables_number            12
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, -z'
+   '-x, y, -z'
+   'x, -y, z'
+   'x+1/2, y+1/2, z'
+   '-x+1/2, -y+1/2, -z'
+   '-x+1/2, y+1/2, -z'
+   'x+1/2, -y+1/2, z'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_thermal_displace_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Sm1      1    0.13463(4)   0.5       0.49003(6)  Biso  0.59  Sm
+   Sm2      1    0.18996(4)   0.5       0.13782(6)  Biso  0.57  Sm
+   Sm3      1    0.46627(4)   0.5       0.18794(6)  Biso  0.75  Sm
+   O1       1    0.1289(6)    0         0.2864(8)   Biso  0.85  O
+   O2       1    0.3250(6)    0.5       0.0265(8)   Biso  0.83  O
+   O3       1    0.2984(6)    0.5       0.3738(9)   Biso  1.2   O
+   O4       1    0.4741(6)    0         0.3438(8)   Biso  0.84  O
+   O5       1    0            0.5       0           Biso  0.89  O
