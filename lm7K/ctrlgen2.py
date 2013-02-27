@@ -202,7 +202,7 @@ def manip_argset(argset):
     metali=3
     fsmom_val=0.0
     touchingratio=.95 #default value was -1.0 
-    eh1set=0
+    eh1set=1
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
 		nspinlist=arg.split("=")
@@ -239,8 +239,8 @@ def manip_argset(argset):
                 if len(ttt)==2:
                         touchingratio=ttt[1]
                         touchingratio=float(touchingratio)
-	elif re.match("--eh1",arg)!=None:
-                eh1set=1
+	elif re.match("--ehmol",arg)!=None:
+                eh1set=0
 #	elif arg=="--rlmchk":
 #		rlmchk=1
         elif arg=="--showatomlist":
@@ -458,7 +458,7 @@ print "  --insulator  %s !(do not set for --systype=molecule)"    %  insulatorw
 print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule set this)"    %  fsmom_val
 print "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio
 print "               if negative, we use use defalut MT radius in ctrlgen2.py)"
-print "  --eh1 ! if this exists, all EH =-1 for PMT-QSGW calculation"
+print "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)"
 print 
 print
 #print "  --mmom=\'%s\'"   % mmom_val
@@ -514,7 +514,7 @@ try:
     ext=sys.argv[1]
 except:
     print '=== Need ctrls file such as ctrls.si.  Run ctrlgen2 si [options] ==='
-    print " Example: ctrlgen2.py si --nk=8 --eh1 --tratio=0.9 --insulator "
+    print " Example: ctrlgen2.py si --nk=8 --tratio=0.9 --insulator "
     sys.exit()
 print 
 print "... Generate ctrlgen2.ctrl."+ext+" from ctrls."+ext + " ..."
