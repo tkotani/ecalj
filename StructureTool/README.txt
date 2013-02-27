@@ -22,11 +22,19 @@ INSTALL:
 Usage:
 We now have three commands below. These command uses functions in convert/, so relative path is important.
 
-*viewvesta.py
-  this is to see POSCAR by VESTA. VESTA is poor for external control.
-  probably, it is better to use another kinds of viewer in future.
-  Currently, this is a very simple program just to invole VESTA for given file.
-  See instruction below for ctrl2vasp.py
+*viewvesta.py 
+  A simple utility to invoke VESTA with POSCAR_foo, ctrl.* and ctrls*. 
+
+  You MUST have to set VESTA path at the begining of viewvesta.py
+  as VESTA='~/VESTA-x86_64/VESTA'. You can replace VESTA with any
+  command of a viewer. (VESTA is a little inconvenient because of its GUI).
+
+  E.g,
+    cp -r sample sample.backup
+    cd sample
+    ../viewvesta.py ctrl.nio
+    ../viewvesta.py ctrl.cu2gase2
+    (this calls ctrl2.vasp internally; thus POSCAR_cu2gase2 is generated).
 
 *vasp2ctrl.py
 　Convert POSCAR to ctrl file. For help, type this command without

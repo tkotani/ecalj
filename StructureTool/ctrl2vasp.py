@@ -46,7 +46,8 @@ ALATone[0][1] = eval(ALATone[0][1])
 angstrom = 0.529177
 ALAT = ALATone[0][1]*angstrom # ALAT in angstrom
 PLAT_list = convctrl.plat(perfectopen,keyword_name)
-#print 'plat=',PLAT_list
+print 'plat=',PLAT_list
+
 for line_ing in range(len(PLAT_list)):
 	PLAT_list[line_ing] = eval(PLAT_list[line_ing])
 
@@ -61,6 +62,7 @@ for line_all in range(len(atomlist)):
 			atomlist[line_all][line_each] = atomlist[line_all][line_each]*ALAT
 #		elif coordinates=='Direct' :
 #			atomlist[line_all][line_each] = atomlist[line_all][line_each]
+#		print atomlist[line_all][line_each]
 
 
 savefile = convctrl.savefile(ALAT,PLAT_list,atomlist,titleinput,coordinates)

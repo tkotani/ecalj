@@ -105,11 +105,12 @@ def alat(perfectopen,keyword_name): #get alat (unit)
 def plat(perfectopen,keyword_name): #---get PLAT
 	fileall=''
 	for ix in perfectopen:
-		fileall +=ix
+		fileall +=ix+' '
 #	print fileall	
 #	print perfectopen.connect()
 #	plat_temp = perfectopen[i].split('PLAT=')
 	plat_temp = fileall.split('PLAT=')
+#	print plat_temp[1]
 	PLAT_list = plat_temp[1].split()[0:9]
 #	print PLAT_list
 #	sys.exit()
@@ -170,13 +171,27 @@ def savefile(ALAT,PLAT_list,atomlist,titleinput,coordinates):
 		writefile.write(outputlist2)
 		if (j+1)%3 == 0: 
 			writefile.write('\n')
+	atomo=''
 	for i in range(len(atomlist)):
-		outputlist3 = atomlist[i][0]+' ' 
-		writefile.write(outputlist3)
+		if atomo != atomlist[i][0]:		
+			outputlist3 = atomlist[i][0]+' ' 
+			writefile.write(outputlist3)
+		atomo=atomlist[i][0]
 	writefile.write('\n')
+	natom=0
+	atomo=atomlist[0][0]
 	for k in range(len(atomlist)):
-		outputlist4 = '1'+' '
+		natom=natom+1
+		if atomo != atomlist[k][0]:
+			natomx= natom-1
+			outputlist4 = '%i ' % natomx
+			writefile.write(outputlist4)
+			natom=1
+		atomo=atomlist[k][0]
+	if natom >0:
+		outputlist4 = '%i ' % natom
 		writefile.write(outputlist4)
+
 	outputlist5 = '\n'+coordinates+'\n' #---direct,cartesian
 	writefile.write(outputlist5)
 	for j in range(len(atomlist)):
