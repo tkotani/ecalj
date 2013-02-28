@@ -16,11 +16,18 @@ if (argc != 2 or '--help' in argvs):
 	sys.exit(-1)
 
 fname=argvs[1]
+ix=0
 if argvs[1][0:5]=='ctrls':
 	fname = re.sub('ctrls.','POSCAR_',argvs[1])+'.vasp'
+	ix=1
 elif argvs[1][0:4]=='ctrl':
 	fname = re.sub('ctrl.','POSCAR_',argvs[1])+'.vasp'
-os.system(rootpath+'/ctrl2vasp.py '+argvs[1])
+	ix=1
+if ix==1:
+	if os.path.isfile(rootpath+'/ctrl2vasp.py'):
+		os.system(rootpath+'/ctrl2vasp.py '+argvs[1])
+	else:
+		os.system(rootpath+'/ctrl2vasp '+argvs[1])
 
 print fname
 vestaopen= VESTA + ' '+os.getcwd()+'/'+fname
