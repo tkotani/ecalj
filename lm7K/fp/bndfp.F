@@ -415,7 +415,7 @@ ckino
       integer, allocatable:: listwf(:)
 
       integer:: ntqxx,ispx,ix99 !,nevec unused.
-      real(8)::eseavrmean
+c      real(8)::eseavrmean
       logical:: mtosigmaonly
       real(8)::scaledsigma
       
@@ -433,6 +433,7 @@ c for mpi and mpik, parallel write
       character(10):: strprocid 
 
       integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
+      integer:: ifis2
 !! -----------------------------------------
 cccccccccccccccccccccccccccccccccccc
 c      i = fopna('ovlmat',-1,4)
@@ -963,23 +964,25 @@ c      if(nexist)
 c     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
 c      open(ifiogw,file='NBANDGW')
 Cki  ifiese default value is not set.  set it to 0
-      ifiese=0
-      if(lrsig/=0) then
-        ifiese=9039
-        inquire(unit=ifiese,opened=nexist)
-        if(nexist) 
-     &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
-        open(ifiese,file='ESEAVR',status='old',err=127)
-        goto 128
- 127    continue
-        print *
-        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
-        print *,' You may use a dummy ESEAVR file (two lines) such as'
-        print *,' 0.0 1'
-        print *,' 0.0 2'
-        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
-      endif
- 128  continue
+
+! ESEAVR is readin m_psigd
+c$$$      ifiese=0
+c$$$      if(lrsig/=0) then
+c$$$        ifiese=9039
+c$$$        inquire(unit=ifiese,opened=nexist)
+c$$$        if(nexist) 
+c$$$     &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
+c$$$        open(ifiese,file='ESEAVR',status='old',err=127)
+c$$$        goto 128
+c$$$ 127    continue
+c$$$        print *
+c$$$        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
+c$$$        print *,' You may use a dummy ESEAVR file (two lines) such as'
+c$$$        print *,' 0.0 1'
+c$$$        print *,' 0.0 2'
+c$$$        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
+c$$$      endif
+c$$$ 128  continue
 
 
 C --- Start loop over k points; also, re-entry for second band pass ---
@@ -1044,6 +1047,7 @@ C   ... If switch '--pdos'; get sites, number of channels
           ng=slat%nsgrp
 
           nchmx = min(1024,nbas*nl**2)
+          if (allocated(chan_iv)) deallocate(chan_iv)
           allocate(chan_iv(nchmx))
 
           nll = 0
@@ -1343,8 +1347,25 @@ c     lwsig=0
             endif
             call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, !ndham is removed sep2012 (read from sigma file )
      &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
-!     qsfz is for test
             call fclose(ifi)
+
+            if(cmdopt('--wsig',6,0,strn)) then
+               write(6,*)' write sigm_fbz in full bz'
+               ifis2 = fopna('sigm_fbz',-1,4)
+               write(ifis2) nsp,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+               do is=1,nsp
+                  do ik1=1,nk1
+                     do ik2=1,nk2
+                        do ik3=1,nk3
+                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3)
+                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is),0
+                        enddo
+                     enddo
+                  enddo
+               enddo
+               call fclose(ifis2)
+            endif
+
 c            print *,'end of rdsigm2 nk1 nk2 nk3 ndham nsp ndimsig',nk1,nk2,nk3,ndham,nsp,ndimsig
 c!!   for sclaedsigma
 c     if(sham%scaledsigma/=1d0) then
@@ -2951,7 +2972,6 @@ c      endif
 
         endif
       endif
-      if (allocated(chan_iv)) deallocate(chan_iv)
 
 !! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
@@ -3260,7 +3280,7 @@ c       call rlse(oqp) !release all the w(oxxx) array allocated within this rout
 ctakaox june2009
 c      close(ifiogw)
 Cki
-      if ( ifiese>0 ) close(ifiese)
+c      if ( ifiese>0 ) close(ifiese)
 c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
 #if MPIK

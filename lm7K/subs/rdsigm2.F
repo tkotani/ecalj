@@ -876,120 +876,120 @@ C   ... Broadcast R.S. sigma after symmetrization
       endif
       if(debug) print *,' a8 6666666666666'
 
-C ... lwsig=0 modes that internally transform sigma, save and exit
-      if (lwsig .eq. 0) then
-        if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
-c          if (procid .eq. master) then
-            ifis2 = fopna('sigm2',-1,4)
-            rsstol = 0
-            out2 = outs(7:)
-            if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
-            dc = out2(1:1)
-            call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
-     .      lonesp,qoffo,rots)
-
-            if (lonesp .eq. 1) then
-              if (nsp .eq. 1) call rx(
-     .        'onesp option nonsensical unless sigma file is spin pol')
-              call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
-     .           , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
-            endif
-            if (ledit .eq. 1) then
-              call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
-     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
-            endif
-
-C       Handle case q-mesh for file output differs from file input
-C       ltmp = true in cases where file symops artificially reduced
-C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
-C        if (lnwmsh .or. ltmp) then
-c              i_copy_size=size(sbz%nkabc)
-c              call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-c              i_copy_size=size(sbz%lshft)
-c              call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
-ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%rv_p_oqp
-ckino Jan.4.2012               allocate(rv_p_oqp(abs(3*mxkp)))
-            if (lnwmsh) then
-              lshft=sbz%lshft
-              nkxyz=sbz%nkabc
-              nqp=sbz%nkp
-              mxkp = nk1*nk2*nk3
-              allocate(rv_a_oqp(abs(3*mxkp)))
-              rv_p_oqp=>rv_a_oqp
-              if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-              allocate(gstar_iv(abs(-mxkp-1)))
-              if (-mxkp-1<0) gstar_iv(:)=0
-              gstar_iv = - 2
-              allocate(ipq_iv(mxkp))
-              allocate(wgt_rv(abs(-mxkp)))
-              if (-mxkp<0) wgt_rv(:)=0.0d0
-              do  i = 1, 3
-                llshft(i) = lshft(i) .ne. 0
-              enddo
-              call dpzero ( wgt_rv , mxkp )
-              if (lfbzout) then
-                call info0(20,1,0,
-     .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-     .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
-              else
-                call info0(20,1,0,
-     .          ' Creating sigma for new mesh (file sigm2) ...')
-                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
-     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
-     .            , 0 )
-              endif
-            elseif (lfbzout) then
-              rv_p_oqp => sham%rv_p_oqsig
-              nqp = nqsig
-              call info2(20,1,0,
-     .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
-            else
-              call info2(20,0,0,
-     .        ' Writing sigma for irr BZ, %i qp (file sigm2) ...',nqp,0)
-            endif
-C   ... Setup rotation matrix
-            if (rots .ne. ' ') then
-              call a2rotm(rots,.false.,0,rotm)
-              if (iprint() .ge. 20) then
-                call info0(20,0,0,' Rotate sigma by rotation matrix:')
-                write (stdo,350) ((rotm(i,j),j=1,3),i=1,3)
-  350           format(3f11.6)
-              endif
-              lrot = lrot + 1
-            endif
-
-C   ... Setup phase matrix
-            if (lrot .ge. 2) then
-              allocate(delt_rv(abs(-3*nbas)))
-              if (-3*nbas<0) delt_rv(:)=0.0d0
-              call info0(0,0,0,' Phase shift of sigma.  '//
-     .        'Translation vectors from shorps file:')
-              call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv )
-            endif
-C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
-            call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
-     .      lshft(1),lshft(2),lshft(3),-ifis2)
-            if (lqoffo .ne. 0) then
-C         call prmx('qp',w(oqp),3,3,nqp)
-              do  i = 1, nqp
-                call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
-     .           i - 2 , 1 , 1d0 )
-
-              enddo
-C         call prmx('qp',w(oqp),3,3,nqp)
-            endif
-            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
-     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
-     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
-            call fclose(ifis2)
-            call rx0('done writing sigma, file sigm2')
-C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
-C        if (lfbzout) call info0(20,0,0,' ')
-C        if (lfbzout) goto 99
-c          endif
-        endif
-      endif
+c$$$C ... lwsig=0 modes that internally transform sigma, save and exit
+c$$$      if (lwsig .eq. 0) then
+c$$$        if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
+c$$$c          if (procid .eq. master) then
+c$$$            ifis2 = fopna('sigm2',-1,4)
+c$$$            rsstol = 0
+c$$$            out2 = outs(7:)
+c$$$            if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
+c$$$            dc = out2(1:1)
+c$$$            call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
+c$$$     .      lonesp,qoffo,rots)
+c$$$
+c$$$            if (lonesp .eq. 1) then
+c$$$              if (nsp .eq. 1) call rx(
+c$$$     .        'onesp option nonsensical unless sigma file is spin pol')
+c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
+c$$$     .           , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
+c$$$            endif
+c$$$            if (ledit .eq. 1) then
+c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
+c$$$     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
+c$$$            endif
+c$$$
+c$$$C       Handle case q-mesh for file output differs from file input
+c$$$C       ltmp = true in cases where file symops artificially reduced
+c$$$C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
+c$$$C        if (lnwmsh .or. ltmp) then
+c$$$c              i_copy_size=size(sbz%nkabc)
+c$$$c              call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+c$$$c              i_copy_size=size(sbz%lshft)
+c$$$c              call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
+c$$$ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%rv_p_oqp
+c$$$ckino Jan.4.2012               allocate(rv_p_oqp(abs(3*mxkp)))
+c$$$            if (lnwmsh) then
+c$$$              lshft=sbz%lshft
+c$$$              nkxyz=sbz%nkabc
+c$$$              nqp=sbz%nkp
+c$$$              mxkp = nk1*nk2*nk3
+c$$$              allocate(rv_a_oqp(abs(3*mxkp)))
+c$$$              rv_p_oqp=>rv_a_oqp
+c$$$              if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+c$$$              allocate(gstar_iv(abs(-mxkp-1)))
+c$$$              if (-mxkp-1<0) gstar_iv(:)=0
+c$$$              gstar_iv = - 2
+c$$$              allocate(ipq_iv(mxkp))
+c$$$              allocate(wgt_rv(abs(-mxkp)))
+c$$$              if (-mxkp<0) wgt_rv(:)=0.0d0
+c$$$              do  i = 1, 3
+c$$$                llshft(i) = lshft(i) .ne. 0
+c$$$              enddo
+c$$$              call dpzero ( wgt_rv , mxkp )
+c$$$              if (lfbzout) then
+c$$$                call info0(20,1,0,
+c$$$     .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
+c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
+c$$$     .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
+c$$$              else
+c$$$                call info0(20,1,0,
+c$$$     .          ' Creating sigma for new mesh (file sigm2) ...')
+c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
+c$$$     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
+c$$$     .            , 0 )
+c$$$              endif
+c$$$            elseif (lfbzout) then
+c$$$              rv_p_oqp => sham%rv_p_oqsig
+c$$$              nqp = nqsig
+c$$$              call info2(20,1,0,
+c$$$     .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
+c$$$            else
+c$$$              call info2(20,0,0,
+c$$$     .        ' Writing sigma for irr BZ, %i qp (file sigm2) ...',nqp,0)
+c$$$            endif
+c$$$C   ... Setup rotation matrix
+c$$$            if (rots .ne. ' ') then
+c$$$              call a2rotm(rots,.false.,0,rotm)
+c$$$              if (iprint() .ge. 20) then
+c$$$                call info0(20,0,0,' Rotate sigma by rotation matrix:')
+c$$$                write (stdo,350) ((rotm(i,j),j=1,3),i=1,3)
+c$$$  350           format(3f11.6)
+c$$$              endif
+c$$$              lrot = lrot + 1
+c$$$            endif
+c$$$
+c$$$C   ... Setup phase matrix
+c$$$            if (lrot .ge. 2) then
+c$$$              allocate(delt_rv(abs(-3*nbas)))
+c$$$              if (-3*nbas<0) delt_rv(:)=0.0d0
+c$$$              call info0(0,0,0,' Phase shift of sigma.  '//
+c$$$     .        'Translation vectors from shorps file:')
+c$$$              call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv )
+c$$$            endif
+c$$$C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
+c$$$            call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
+c$$$     .      lshft(1),lshft(2),lshft(3),-ifis2)
+c$$$            if (lqoffo .ne. 0) then
+c$$$C         call prmx('qp',w(oqp),3,3,nqp)
+c$$$              do  i = 1, nqp
+c$$$                call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
+c$$$     .           i - 2 , 1 , 1d0 )
+c$$$
+c$$$              enddo
+c$$$C         call prmx('qp',w(oqp),3,3,nqp)
+c$$$            endif
+c$$$            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
+c$$$     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
+c$$$     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
+c$$$            call fclose(ifis2)
+c$$$            call rx0('done writing sigma, file sigm2')
+c$$$C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
+c$$$C        if (lfbzout) call info0(20,0,0,' ')
+c$$$C        if (lfbzout) goto 99
+c$$$c          endif
+c$$$        endif
+c$$$      endif
 
 C     Broadcast entire sham structure (shouldn't be needed)
 C     call mpibc1(sham,i,4,mlog,'rdsigm','sham')
@@ -1304,7 +1304,7 @@ C.....titus
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
       integer::  ndimsig !sep2012
       complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp)
-      integer:: i_copy_size
+      integer:: i_copy_size,ix
       logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly
 
 
@@ -1441,20 +1441,30 @@ C     If to mix in some other sigma file, set up ifis2
           endif
 
           allocate(wk_zv(ndimsig_r**2))
-Changenglob          nl = nglob('nl')
           nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
-          do  iq1 = 1, nqps
-            read(ifis) qp !,  eseavr !june2009  add eseavr
-c            print *,'readin sigm qp isp ndimsig_r=',qp,isp,ndimsig_r
 
-            if(debugmode()>0) print *,' uuu2 iq1=',iq1 !,eseavr
+!! we now not expect ordered data on qp feb2013
+          do  iq1 = 1, nqps
+             do ix=0,1
+                do 
+                   read(ifis,end=468) qp 
+                   call dpdump ( sigm_zv , ndimsig_r * * 2 * 2 , ifis )
+                   call dpscop(qp,tmp,3,1,1,1d0)
+                   call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
+                   if (latvec(1,tolq,plat,tmp)) goto 460
+                enddo
+ 468            continue
+                rewind ifis
+                read(ifis)
+             enddo
+!! error exit
             call dpscop(qp,tmp,3,1,1,1d0)
             call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
 c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
             !tmp= qp - w((oqp(3*(iq1-1)+1:3*(iq1-1)+3))+qoffi)
-            if (.not. latvec(1,tolq,plat,tmp)) then
+c            if (.not. latvec(1,tolq,plat,tmp)) then
               call dpscop ( qp_rv , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
               if (lssym .ge. 4) then
                 call info5(20,0,0,' rdsigm (warning) qp %i : '//
@@ -1467,12 +1477,13 @@ c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
      .          '     File qp=',3f12.6)
                 call rx(' incompatible q-mesh')
               endif
-            endif
-            call dpdump ( sigm_zv , ndimsig_r * * 2 * 2 , ifis )
+c            endif
+ 460       continue
 
 c ... scalced sigm. alf(1:2)
             if (alf(1) .ne. 1d0) then
-              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
+               call rx('not use alf. use ScaledSigma in ctrl file')
+c              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
             endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimsig_r,ndimsig_r,ndimsig_r)
