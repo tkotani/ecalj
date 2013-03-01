@@ -1,0 +1,6 @@
+#!/bin/bash
+ddd=li
+ctrlgen2.py $ddd --systype=bulk --nk=8
+cp ctrlgen2.ctrl.$ddd ctrl.$ddd
+lmfa $ddd |tee llmfa
+lmf  $ddd |tee llmf

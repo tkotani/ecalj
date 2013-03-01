@@ -2,19 +2,24 @@
 ddd=ymn2
 lmdir=../..
 rm -rf wkp.$ddd
+### next is to determine the fermi energy. Not needed but safer ###
 $lmdir/lmf $ddd --quit=band    |tee llmf_ef
 $lmdir/lmf --band:fn=syml $ddd  |tee llmf_band
 
+### We get bnds.fe which contains eigenvalues and the fermi energy.
+
+### plbnds just devide bnds.fe into bnd*.dat for band plot.
+### Thus you can use bnds.fe or bnd*.dat to obtain bandgap, effective mass, and so on.
 for spin in spin1 spin2
 do
-  echo -15,15,15,15|$lmdir/plbnds -fplot -ef=0 -scl=13.605 -$spin $ddd
+  echo -15,15,15,15|$lmdir/plbnds -fplot -gnuplot -ef=0 -scl=13.605 -$spin $ddd
   for xxx in bnd*.dat
   do
       echo $spin $xxx
       cp $xxx $xxx.$spin
-      sed -e "s/.dat/.dat.$spin/g" plot.plbnds > plot.plbnds.$ddd.$spin
   done
-  $lmdir/fplot -f plot.plbnds.$ddd.$spin ; mv ps.dat ps.band.$ddd.$spin
+  sed -e "s/pause -1//g" bnds.gnu > bnds.gnu.$ddd.$spin
+  gnuplot -persist bnds.gnu.$ddd.$spin 
 done
-echo 'Check ps.band*(postscript)!'
+echo If you like, run 'gnuplot -persist bnds.gnu.* again.'
 

@@ -1,6 +1,0 @@
-#!/bin/bash
-ctrlgen2.py es --systype=bulk --nk=1
-exit
-cp ctrlgen2.ctrl.es ctrl.es
-lmfa es |tee llmfa
-lmf  es |tee llmf

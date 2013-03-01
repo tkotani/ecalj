@@ -1,0 +1,2 @@
+STRUC   ALAT=7.35 PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5
+SITE    ATOM=Li POS= 0 0 0

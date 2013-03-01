@@ -5,7 +5,7 @@
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
 VERS    LM=7 FP=7        # version check. Fixed.
-IO      SHOW=T VERBOS=35 TIM=2,2
+IO      SHOW=T VERBOS=35 TIM=3,3
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
 	     # larger VERBOSE gives more detailed console output.
@@ -14,43 +14,35 @@ SYMGRP find   # 'find' evaluate space-group symmetry automatically.
 	      # because of numerical problem.
               # Do lmchk to check how it is evaluated.
               # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat
-%const kmxa=5  # kmxa=5 is good for pwemax \sim 4 or less.
+%const kmxa=5  # kmxa=5 is good for pwemax=3 or lower.
                # larger kmxa is better but time-consuming. A rule of thumb: kmxa>pwemax in Ry.
 
-% const a=14.51000
-STRUC	ALAT={a} DLAT=0
-	PLAT= 0.00000  0.50000  0.50000 0.50000  0.00000  0.50000 0.50000  0.50000  0.00000
-  NBAS= 6  NSPEC=2
-SITE	ATOM= Y POS=   0.00000    0.00000    0.00000
-	ATOM= Y POS=   3.62750/{a}    3.62750/{a}    3.62750/{a}
-	ATOM=Mn POS=   1.81375/{a}    1.81375/{a}   -5.44125/{a}
-	ATOM=Mn POS=  -1.81375/{a}    1.81375/{a}    5.44125/{a}
-	ATOM=Mn POS=  -1.81375/{a}   -1.81375/{a}   -5.44125/{a}
-	ATOM=Mn POS=   1.81375/{a}   -1.81375/{a}    5.44125/{a}
+%show vars
+%const dis=0.1
+%const alat=12.0 discenter=4.0 dd=(discenter+dis)/alat
+# for real super cell calculations, it is bette to use alat=15/.529177 or so
+# A possible choice is FRZWF=T (phi,phidot,philocalorbital fixed --->
+# This looks nice since our standard size of MT is rather small.
+STRUC   ALAT={alat} DALAT=0 PLAT=0.9 0 0 0 1 0 0 0 1.1 # Anisotropic cell
+  NBAS= 2  NSPEC=1
+SITE    ATOM=Fe POS={dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5
+        ATOM=Fe POS=-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5
 SPEC
-    ATOM=Y Z=39 R=2.98    
-      EH=-1 -1 -1 -1  RSMH=1.49 1.49 1.49 1.49 
-      EH2=-2 -2 -2  RSMH2=1.49 1.49 1.49 
+    ATOM=Fe Z=26 R=1.70 PZ=3.9,3.9,3.9  P=0,0,4.2 
+      EH=-0.1 -0.1 -0.1 -0.1  RSMH=0.85 0.85 0.85 0.85 
+      EH2=-2 -2 -2 -2  RSMH2=0.85 0.85 0.85 0.85 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
-      #MMOM=0 0 1 0 #s,p,d,f initial condition
+      #MMOM=
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
-      #Q=0 0.5 1 0 #s,p,d,f initial condition 
-      #MMOM and Q are to set electron population. grep conf: in lmfa output
-
-    ATOM=Mn Z=25 R=2.44    
-      EH=-1 -1 -1 -1  RSMH=1.22 1.22 1.22 1.22 
-      EH2=-2 -2 -2  RSMH2=1.22 1.22 1.22 
-      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
-      #MMOM=0 0 1 0 #s,p,d,f initial condition
-      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
-      #Q=0 0.5 1 0 #s,p,d,f initial condition 
+      #Q= 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
 
 
-% const pwemax=3 nk=4 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=103
+% const pwemax=3 nk=1 nit=30  gmax=12  nspin=2
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
-      METAL={metal}
+      METAL=3
+
                 # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).
                 # METAL=2 is faster but weights for integration is from previous iteration 
                 #   (it can be a little unstable)
@@ -68,20 +60,21 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
 
       #Setting for molecules. No tetrahedron integration. (Smearing))
       # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
-%const bzw=1e-4  fsmom=0.0
-      #TETRA=0 
-      #N=-1    #Negative is Fermi distribution function W= gives temperature.
-      #W=0.001 #This corresponds to T=157K as shown in console output
+%const bzw=0  fsmom=6.0
+      TETRA=0 
+      N=-1     #Negative is Fermi distribution function W= gives temperature.
+      W={bzw}  #This corresponds to T=157K as shown in console output
                #W=0.01 is T=1573K. It makes stable nonvergence for molecule. 
                #Now you don't need to use NEVMX in double band-path method,
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
-      #FSMOM={fsmom} real number (fixed moment method)
+      FSMOM={fsmom} (fixed moment method)
       #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
       # NOTE: current version is for ferro magnetic case (total mag moment) only.
-      #FSMOMMETHOD=0 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
+      #
+      FSMOMMETHOD=1 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
       #  =0: original mode suitable for solids.(default)
       #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.
       #      Not allowed to use together with HAM_SO=1 (L.S). 
@@ -129,18 +122,23 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # Look into sugcut: shown at the top of console output. 
                 # It shows required gmax for given tolelance HAM_TOL.
       REL=T     # T:Scaler relativistic, F:non rela.
-      XCFUN={xcfun}
+     XCFUN=103
           # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=11 # 0:  MTO basis only (LMTO)
-                # 11: APW+MTO        (PMT)
-                # 12: APW basis only (LAPW)
+      PWMODE=1  # 0: MTO basis only (LMTO) PW basis is not used.
+                # 1: APW+MTO        (PMT)
+                # 2: APW basis only (LAPW) MTO basis is not used.
+                # NOTE: q-independent number of APW (determined at q=0).
+                #       This will be important for QSGW case.
                 #
+                # ===  +10 means q-dependent number of APW, that is, ===
+                # 11: PMT   
+                # 12: LAPW: 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
-                      # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
+                      # about overcompleteness. See GetStarted.
       ELIND=0    # this is to accelarate convergence. Not affect to the final results.
                  # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
@@ -151,23 +149,17 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
       #For LDA+U calculation, see http://titus.phy.qub.ac.uk/packages/LMTO/fp.html#ldaplusu
 
       #For QSGW. you have to set them. Better to get some samples.
-      RDSIG=12
-      SIGP[MODE=3 EMAX=2.0]
-      RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
-      #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
+      #RDSIG=
+      #RSRNGE=
 
-      SO={so}   #default = 0 
+      #SO=        default = 0
       #Spin-orbit coupling (for REL=1)
       #0 : no SO coupling
       #1 : Add L.S to hamiltonian (but non-colinear density yet).
       #2 : Add Lz.Sz only to hamiltonian
-      #
-      # For QSGW with SO=1 pertubation, run SO=1 with --rs=2,0 with NIT=1,
-      #  starting from converged rst.* sigm.*  ESEAVR, and
-      #  QpGpsi (it is easily generated by echo 1|qg4gw if you lost it).
                
 OPTIONS PFLOAT=1 
-      # Q=band (this is quit switch if you like to add)
+        # Q=band (this is quit switch if you like to add)
 
 # Relaxiation sample
 #DYN     MSTAT[MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015]  NIT=20

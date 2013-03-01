@@ -1,0 +1,20 @@
+We have done homo nuclear dimers (and) atoms from H2 through Kr2.
+It works well. However, to get accurate results, it is better 
+to use larger basis set, because it requires small MTs.
+
+Considering efficiency, current version of ctrlgen2.py uses
+somehow smaller basis set for atoms (smaller number of EH,EH2 and less
+number of local orbitals). For example, we set
+"s,p,d + s,p" basis for Oxygen (three EH and two EH2) in current
+version of ctrlgen2.py, however, "s,p,d,f" + "s,p,d" gives better
+(lower) total energy.
+
+In addition, for some atoms, we skip local oribtals.
+This can cause core spliout problems: 
+since we use frozen core approximation for cores,
+rigid core charged added to total electron density can be too large. 
+This can cause poor total energy.
+In addition, without local orbitals with very small MT, 
+we can have an instability of convergence because 
+core-valence otrhogonality is not kept well.
+

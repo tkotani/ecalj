@@ -1,0 +1,862 @@
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc version 4.6.2 (Ubuntu/Linaro 4.6.2-10ubuntu1~11.10.1) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-26-generic #43-Ubuntu SMP Tue Sep 25 17:19:22 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/master
+HOST_INFORMATION git commit: 8ac4fdaffede41a00e9a05445f60adbd0259fd9f
+HOST_INFORMATION linked at: Thu Feb 28 23:12:35 JST 2013
+ -----------------------  START LMFA     -----------------------
+ ptenv() is called with EXT=srtio3
+ ptenv() not supported, but continue.
+#rf 22:
+  Var       Name                 Val
+   1        t                   1.0000    
+   2        f                   0.0000    
+   3        pi                  3.1416    
+   4        kmxa                5.0000    
+   5        da                  0.0000    
+   6        au                 0.52918    
+   7        d0                  3.6850    
+   8        a0                  7.3699    
+   9        v0                  400.30    
+  10        vfrac               1.0000    
+  11        v                   400.30    
+  12        a1                  7.3699    
+ ---- character variables:
+   1  progname              lmfa                                                                                                                    
+   2  ext                                                                                                                                           
+ IO_HELP           opt    i4       1,  1,   *,  1       0
+ VERS_LM           reqd   r8       1,  1,   1, --       7
+  Expected Input style version: 7 ... found in file: 7
+ CMD               opt    chr      1,  0,   *
+ CONST             opt    chr      1,  0,   *
+ HEADER            opt    chr      1,  0,   1           SrTiO3 cubic
+
+ HEADER SrTiO3 cubic
+
+ IO_VERBOS         opt    i4v      5,  1,   1,  0       35
+ IO_IACTIV         opt    i4       1,  1,   *,  1       0
+ IO_TIM            opt    i4v      2,  1,   2,  0       2 2
+
+ --- Parameters for crystal structure ---
+ STRUC_FILE        opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       7.36993
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       5
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       1 0 0 0 1 0 0 0 1
+ STRUC_NSPEC       opt    i4       1,  1,   1, --       3
+ STRUC_DALAT       opt    r8       1,  1,   1,  0       0
+ STRUC_NL          opt    i4       1,  1,   *,  1       3
+ STRUC_SHEAR       opt    r8v      4,  4,   *, --
+ STRUC_ROT         opt    chr      1,  0,   *
+ STRUC_DEFGRD      opt    r8v      9,  9,   *, --
+ STRUC_STRAIN      opt    r8v      6,  6,   *, --
+
+ --- Program Options ---
+ OPTIONS_HF        opt    lg       1,  1,   *,  1       F
+ OPTIONS_Q         opt    chr      1,  0,   *
+
+ --- Parameters for hamiltonian ---
+ HAM_NSPIN         opt    i4       1,  1,   1,  0       1
+ HAM_REL           opt    i4       1,  1,   1,  0       1
+ HAM_XCFUN         opt    i4       1,  1,   1,  0       103
+ HAM_GGA           opt    i4       1,  1,   *,  1       0
+
+ --- Symmetry group operations ---
+ SYMGRP            opt    chr      1,  0,   1           find
+
+ --- Parameters for species data ---
+ SPEC_SCLWSR       opt    r8       1,  1,   *,  1       0
+ SPEC_OMAX1        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_OMAX2        opt    r8v      3,  1,   *,  3       0 0 0
+ SPEC_WSRMAX       opt    r8       1,  1,   *,  1       0
+ ... Species 1
+ SPEC_ATOM         reqd   chr      1,  0,   1           Sr
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       38
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       3
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       727
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    opt    r8v      4,  4,   4,  0       1.5 1.5 1.5 1.5
+ SPEC_ATOM_EH      opt    r8v      4,  4,   4, --       -1 -1 -1 -1
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   3,  1       1.5 1.5 1.5 0
+ SPEC_ATOM_EH2     reqd   r8v      4,  3,   3, --       -2 -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ DEFPQ, z=38: P=  5.73  5.36  4.40  4.13  5.10
+        z=38: Q=  2.00  0.00  0.00  0.00  0.00
+ DEFPQ, z=38: P=  5.73  5.36  4.40  4.13  5.10
+        z=38: Q=  2.00  0.00  0.00  0.00  0.00
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       1
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RCFA    opt    r8v      2,  2,   *,  2       0 0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       0.5
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+ ... Species 2
+ SPEC_ATOM         reqd   chr      1,  0,   1           Ti
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       22
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       1.99
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       601
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    opt    r8v      4,  4,   4,  0       0.99 0.99 0.99 0.99
+ SPEC_ATOM_EH      opt    r8v      4,  4,   4, --       -1 -1 -1 -1
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   3,  1       0.99 0.99 0.99 0
+ SPEC_ATOM_EH2     reqd   r8v      4,  3,   3, --       -2 -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ DEFPQ, z=22: P=  4.66  4.40  3.62  4.13  5.10
+        z=22: Q=  2.00  0.00  2.00  0.00  0.00
+ DEFPQ, z=22: P=  4.66  4.40  3.62  4.13  5.10
+        z=22: Q=  2.00  0.00  2.00  0.00  0.00
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       1
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RCFA    opt    r8v      2,  2,   *,  2       0 0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       0.5
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+ ... Species 3
+ SPEC_ATOM         reqd   chr      1,  0,   1           O
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       8
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       1.52
+ SPEC_ATOM_A       opt    r8       1,  1,   *,  1       0.015
+ SPEC_ATOM_NR      opt    i4       1,  1,   *,  1       439
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_RSMH    opt    r8v      4,  4,   3,  1       0.76 0.76 0.76 0
+ SPEC_ATOM_EH      opt    r8v      4,  3,   3, --       -1 -1 -1
+ SPEC_ATOM_RSMH2   opt    r8v      4,  4,   2,  2       0.76 0.76 0 0
+ SPEC_ATOM_EH2     reqd   r8v      4,  2,   2, --       -2 -2
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_LMXL    opt    i4       1,  1,   *,  1       4
+ SPEC_ATOM_P       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ SPEC_ATOM_Q       opt    r8v      5,  1,   *,  5       0 0 0 0 0
+ DEFPQ, z=8: P=  2.92  2.86  3.18  4.11  5.10
+        z=8: Q=  2.00  4.00  0.00  0.00  0.00
+ DEFPQ, z=8: P=  2.92  2.86  3.18  4.11  5.10
+        z=8: Q=  2.00  4.00  0.00  0.00  0.00
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_LFOCA   opt    i4       1,  1,   *,  1       0
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_RSMA    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMG    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RFOCA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RSMFA   opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_RCFA    opt    r8v      2,  2,   *,  2       0 0
+ SPEC_ATOM_RS3     opt    r8       1,  1,   *,  1       0.5
+ SPEC_ATOM_IDXDN   opt    i4v      4,  4,   *,  4       1 1 1 1
+ SPEC_ATOM_IDMOD   opt    i4v      5,  5,   *,  5       0 0 0 0 0
+ SPEC_ATOM_MIX     opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_CSTRMX  opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_FRZWF   opt    lg       1,  1,   *,  1       F
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_UH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_JH      opt    r8v      4,  1,   *,  4       0 0 0 0
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ SPEC_ATOM_C-HQ    opt    r8v      2,  2,   *,  2       -1 0
+ SPEC_ATOM_EREF    opt    r8       1,  1,   *,  1       0
+ SPEC_ATOM_AMASS   opt    r8       1,  1,   *, --
+
+ --- Parameters for site data ---
+ SITE_FILE         opt    chr      1,  0,   *
+ ... Site 1
+ SITE_ATOM         reqd   chr      1,  0,   1           Sr
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.5 0.5 0.5
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 2
+ SITE_ATOM         reqd   chr      1,  0,   1           Ti
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 0
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 3
+ SITE_ATOM         reqd   chr      1,  0,   1           O
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.5 0 0
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 4
+ SITE_ATOM         reqd   chr      1,  0,   1           O
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0.5 0
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+ ... Site 5
+ SITE_ATOM         reqd   chr      1,  0,   1           O
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0 0 0.5
+ SITE_ATOM_DPOS    opt    r8v      3,  1,   *,  3       0 0 0
+ SITE_ATOM_RELAX   opt    i4v      3,  1,   *,  3       1 1 1
+
+ --- Parameters for Ewald sums ---
+ EWALD_AS          opt    r8       1,  1,   *,  1       2
+ EWALD_TOL         opt    r8       1,  1,   *,  1       1e-8
+ EWALD_NKDMX       opt    i4       1,  1,   *,  1       800
+ EWALD_RPAD        opt    r8       1,  1,   *,  1       0
+
+ --- Parameters for iterations ---
+ ITER_NRMIX        opt    i4v      2,  1,   *,  2       80 2
+
+ rdctrl: reset global max nl from 3 to 5
+  LMFA  vn 7.00(LMFA 7.0)  verb 35
+ end of rdctrl2 in imfav7
+
+                Plat                                  Qlat
+   1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
+   0.000000   1.000000   0.000000        0.000000   1.000000   0.000000
+   0.000000   0.000000   1.000000        0.000000   0.000000   1.000000
+  Cell vol= 400.304932
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 7.36993   awald= 0.271
+         r1=  2.885   nkd=  93      q1=  3.426   nkg= 171
+ goto mksym
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3d r2(-0,1,1)
+         i*r3d r2(-0,1,1)
+ MKSYM:  found 48 space group operations ... includes inversion
+ end of mksym x
+ goto defspc
+ end of defspc
+ goto freeat
+
+ttt: pnu qat=  1  0     5.730     2.000
+ttt: pnu qat=  1  1     5.360     0.000
+ttt: pnu qat=  1  2     4.400     0.000
+ttt: pnu qat=  1  3     4.130     0.000
+ttt: pnu qat=  1  4     5.100     0.000
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   0.000   0.000
+=== Charge for l     : Qtot=Qv=     2   0.000   0.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+=== Charge for l     : Qtot=Qv=     4   0.000   0.000
+
+conf:SPEC_ATOM= Sr : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       5  5         2.000    8.000 => 1,2,3,4,
+conf:    1  1       5  5         0.000   18.000 => 2,3,4,
+conf:    1  2       4  4         0.000   10.000 => 3,
+conf:    1  3       4  4         0.000    0.000 => 
+conf:    1  4       5  5         0.000    0.000 => 
+conf:-----------------------------------------------------
+
+ Species Sr:  Z=38  Qc=36  R=3.000000  Q=0
+ mesh:   rmt=3.000000  rmax=48.843914  a=0.015  nr=727  nr(rmax)=913
+ goto atomc xxx
+ atomsc nmcore=           1
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+ >> level: 1  CPUsec=      0.04  enter vxcnls
+ >>      0.04   exit  vxcnls          0.00
+ NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.
+       We use spin-avaraged potential to calculate core density rhoc.
+       Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F
+    1   38.000000   1.148E+04      190.0000    0.1890E+03      -76.3983   0.30
+ >> level: 1  CPUsec=      0.04  enter vxcnls
+ >>      0.04   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.04  enter vxcnls
+ >>      0.05   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.05  enter vxcnls
+ >>      0.05   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.06  enter vxcnls
+ >>      0.06   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.06  enter vxcnls
+ >>      0.06   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.06  enter vxcnls
+ >>      0.06   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.07  enter vxcnls
+ >>      0.07   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.07  enter vxcnls
+ >>      0.07   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.08  enter vxcnls
+ >>      0.08   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.08  enter vxcnls
+ >>      0.08   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.09  enter vxcnls
+ >>      0.09   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.09  enter vxcnls
+ >>      0.09   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.10  enter vxcnls
+ >>      0.10   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.10  enter vxcnls
+ >>      0.10   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.10  enter vxcnls
+ >>      0.11   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.11  enter vxcnls
+ >>      0.11   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.11  enter vxcnls
+ >>      0.12   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.12  enter vxcnls
+ >>      0.12   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.12  enter vxcnls
+ >>      0.12   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.12  enter vxcnls
+ >>      0.13   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.13  enter vxcnls
+ >>      0.13   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.13  enter vxcnls
+ >>      0.14   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.14  enter vxcnls
+ >>      0.14   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.14  enter vxcnls
+ >>      0.14   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.14  enter vxcnls
+ >>      0.15   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.15  enter vxcnls
+ >>      0.15   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.16  enter vxcnls
+ >>      0.16   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.16  enter vxcnls
+ >>      0.16   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.16  enter vxcnls
+ >>      0.17   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.17  enter vxcnls
+ >>      0.17   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.18  enter vxcnls
+ >>      0.18   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.18  enter vxcnls
+ >>      0.18   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.18  enter vxcnls
+ >>      0.18   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.19  enter vxcnls
+ >>      0.19   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.19  enter vxcnls
+ >>      0.19   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.20  enter vxcnls
+ >>      0.20   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.20  enter vxcnls
+ >>      0.20   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.20  enter vxcnls
+ >>      0.20   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.20  enter vxcnls
+ >>      0.21   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.21  enter vxcnls
+ >>      0.21   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.21  enter vxcnls
+ >>      0.22   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.22  enter vxcnls
+ >>      0.22   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.22  enter vxcnls
+ >>      0.22   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.22  enter vxcnls
+ >>      0.23   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.23  enter vxcnls
+ >>      0.23   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.24  enter vxcnls
+ >>      0.24   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.24  enter vxcnls
+ >>      0.24   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.24  enter vxcnls
+ >>      0.24   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.24  enter vxcnls
+ >>      0.25   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.25  enter vxcnls
+ >>      0.25   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.25  enter vxcnls
+ >>      0.26   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.26  enter vxcnls
+ >>      0.26   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.26  enter vxcnls
+ >>      0.26   exit  vxcnls          0.00
+   54   38.000000   4.265E-05      403.7546    0.9238E+05     -291.4208   0.30
+ >> level: 1  CPUsec=      0.26  enter vxcnls
+ >>      0.26   exit  vxcnls          0.00
+
+
+ sumev=-0.518307  etot=-6358.981880  eref=0.000000
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)
+   5s      -0.25915         1.651       3.701       5.469     0.816205
+   5p      -0.09438         1.964       4.852       8.588     0.944906
+   4d      -0.09430         0.653       2.116       8.591     0.523941
+   4f       0.01793         0.000      35.409      48.844*    1.000000
+   5g       0.02529         0.000      36.908      48.844*    1.000000
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s   -1170.96663         0.000       0.026       0.052     0.000000
+   2s    -158.53608         0.052       0.145       0.226     0.000000
+   2p    -140.83908         0.000       0.116       0.243     0.000000
+   3s     -24.52333         0.210       0.436       0.630     0.000000
+   3p     -18.81711         0.188       0.431       0.718     0.000000
+   3d      -9.40541         0.000       0.377       1.004     0.000000
+   4s      -3.00555         0.594       1.192       1.706     0.005019
+   4p      -1.67691         0.613       1.327       2.179     0.023931
+
+ Optimise free-atom basis for species Sr, rmt=3
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  11   1.500  -0.100       0.0   1198.4   -0.16640  -0.25915    5.54   2.00
+ 1  11   1.500  -0.100       0.0  -5181.5    0.17666  -0.09438    5.22   0.00
+ 2  11   1.500  -0.100       0.0   -293.1   -0.05804  -0.09430    4.81   0.00
+ eigenvalue sum:  exact  -0.51831    opt basis  -0.33281    error 0.18550
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 3.00000, rsm= 1.50000
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000    -15.0000
+ C:    5.219615    -7.54653    -273.148    1485.630    -2766.11    -39482.7
+        r          rho         fit         diff
+    3.000000    0.004277    0.004278   -0.000001
+    3.485512    0.003739    0.003739    0.000000
+    4.049596    0.002720    0.002720    0.000000
+    4.704968    0.001646    0.001645    0.000001
+    5.466402    0.000821    0.000821   -0.000000
+    6.351063    0.000337    0.000336    0.000000
+    7.378891    0.000114    0.000113    0.000001
+    8.573057    0.000031    0.000031    0.000000
+    9.960481    0.000007    0.000007   -0.000000
+   11.572436    0.000001    0.000001   -0.000000
+    q(fit):     1.632413    rms diff:   0.000005
+    fit: r>rmt  1.632413   r<rmt  0.170904   qtot  1.803317
+    rho: r>rmt  1.632413   r<rmt  0.367587   qtot  2.000000
+ tailsm: end
+
+ coretail: q=0.0396, rho(rmt)=0.154.  Fit with Hankel e=-6.8517  coeff=305.9
+      r            rhoc          fit
+    3.000000    0.35671474    0.35671474
+    3.138086    0.26007584    0.25994954
+    3.382498    0.14789379    0.14778011
+    3.645945    0.07998961    0.07992876
+    3.929911    0.04097690    0.04096990
+    4.235993    0.01978768    0.01981915
+    4.565914    0.00895908    0.00900751
+    4.921531    0.00378059    0.00382749
+    5.304844    0.00147776    0.00151265
+    5.718012    0.00053191    0.00055287
+    6.163359    0.00017534    0.00018575
+    6.643391    0.00005264    0.00005699
+    7.160810    0.00001431    0.00001586
+    7.718528    0.00000350    0.00000397
+    8.319683    0.00000076    0.00000089
+    8.967659    0.00000015    0.00000018
+    9.666102    0.00000002    0.00000003
+ end of freats: spid nmcore=Sr                 1
+
+ttt: pnu qat=  1  0     4.660     2.000
+ttt: pnu qat=  1  1     4.400     0.000
+ttt: pnu qat=  1  2     3.620     2.000
+ttt: pnu qat=  1  3     4.130     0.000
+ttt: pnu qat=  1  4     5.100     0.000
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   0.000   0.000
+=== Charge for l     : Qtot=Qv=     2   2.000   2.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+=== Charge for l     : Qtot=Qv=     4   0.000   0.000
+
+conf:SPEC_ATOM= Ti : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  4         2.000    6.000 => 1,2,3,
+conf:    1  1       4  4         0.000   12.000 => 2,3,
+conf:    1  2       3  3         2.000    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:    1  4       5  5         0.000    0.000 => 
+conf:-----------------------------------------------------
+
+ Species Ti:  Z=22  Qc=18  R=1.990000  Q=0
+ mesh:   rmt=1.990000  rmax=49.316222  a=0.015  nr=601  nr(rmax)=815
+ goto atomc xxx
+ atomsc nmcore=           1
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+ >> level: 1  CPUsec=      0.29  enter vxcnls
+ >>      0.29   exit  vxcnls          0.00
+    1   22.000000   5.119E+03      110.0000    0.1094E+03      -44.2305   0.30
+ >> level: 1  CPUsec=      0.29  enter vxcnls
+ >>      0.30   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.30  enter vxcnls
+ >>      0.30   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.30  enter vxcnls
+ >>      0.30   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.30  enter vxcnls
+ >>      0.31   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.31  enter vxcnls
+ >>      0.31   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.31  enter vxcnls
+ >>      0.32   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.32  enter vxcnls
+ >>      0.32   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.32  enter vxcnls
+ >>      0.32   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.32  enter vxcnls
+ >>      0.33   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.33  enter vxcnls
+ >>      0.33   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.33  enter vxcnls
+ >>      0.34   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.34  enter vxcnls
+ >>      0.34   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.34  enter vxcnls
+ >>      0.34   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.34  enter vxcnls
+ >>      0.34   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.35  enter vxcnls
+ >>      0.35   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.35  enter vxcnls
+ >>      0.35   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.36  enter vxcnls
+ >>      0.36   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.36  enter vxcnls
+ >>      0.36   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.36  enter vxcnls
+ >>      0.36   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.37  enter vxcnls
+ >>      0.37   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.37  enter vxcnls
+ >>      0.38   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.38  enter vxcnls
+ >>      0.38   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.38  enter vxcnls
+ >>      0.38   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.38  enter vxcnls
+ >>      0.39   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.39  enter vxcnls
+ >>      0.39   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.39  enter vxcnls
+ >>      0.39   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.40  enter vxcnls
+ >>      0.40   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.40  enter vxcnls
+ >>      0.40   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.40  enter vxcnls
+ >>      0.40   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.41  enter vxcnls
+ >>      0.41   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.41  enter vxcnls
+ >>      0.41   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.41  enter vxcnls
+ >>      0.42   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.42  enter vxcnls
+ >>      0.42   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.42  enter vxcnls
+ >>      0.42   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.42  enter vxcnls
+ >>      0.42   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.43  enter vxcnls
+ >>      0.43   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.43  enter vxcnls
+ >>      0.44   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.44  enter vxcnls
+ >>      0.44   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.44  enter vxcnls
+ >>      0.44   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.44  enter vxcnls
+ >>      0.44   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.45  enter vxcnls
+ >>      0.45   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.45  enter vxcnls
+ >>      0.45   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.46  enter vxcnls
+ >>      0.46   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.46  enter vxcnls
+ >>      0.46   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.46  enter vxcnls
+ >>      0.46   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.47  enter vxcnls
+ >>      0.47   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.47  enter vxcnls
+ >>      0.47   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.48  enter vxcnls
+ >>      0.48   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.48  enter vxcnls
+ >>      0.48   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.48  enter vxcnls
+ >>      0.48   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.48  enter vxcnls
+ >>      0.49   exit  vxcnls          0.00
+   52   22.000000   4.068E-05      184.5845    0.9348E+04     -197.7724   0.30
+ >> level: 1  CPUsec=      0.49  enter vxcnls
+ >>      0.49   exit  vxcnls          0.00
+
+
+ sumev=-1.282773  etot=-1707.128700  eref=0.000000
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)
+   4s      -0.32829         1.243       2.920       4.399     0.910827
+   4p      -0.10775         1.388       3.812       7.321     0.969498
+   3d      -0.31310         0.000       0.981       4.487     0.264892
+   4f       0.01762         0.000      35.785      49.316*    1.000000
+   5g       0.02480         0.000      37.264      49.316*    1.000000
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s    -357.79963         0.000       0.046       0.092     0.000000
+   2s     -39.45609         0.094       0.269       0.422     0.000000
+   2p     -32.64250         0.000       0.220       0.471     0.000000
+   3s      -4.60280         0.400       0.870       1.272     0.017505
+   3p      -2.85555         0.369       0.902       1.563     0.040166
+
+ Optimise free-atom basis for species Ti, rmt=1.99
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  11   0.995  -0.100       0.0   -163.7   -0.10250  -0.32829    4.31   2.00
+ 1  11   0.995  -0.100       0.0  -4509.6    0.16026  -0.10775    4.16   0.00
+ 2  11   0.995  -0.100       0.0    149.5   -0.30662  -0.31310    3.85   2.00
+ l=4  increase Pnu=   5.097  to    5.100
+ eigenvalue sum:  exact  -1.28277    opt basis  -0.81824    error 0.46453
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 1.99000, rsm= 0.99500
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000    -15.0000
+ C:    1.109298    15.32266    -184.230    590.4055    -1078.88    1973.817
+        r          rho         fit         diff
+    1.990000    0.018953    0.018946    0.000008
+    2.312090    0.014325    0.014323    0.000002
+    2.686305    0.010402    0.010402    0.000000
+    3.121081    0.006946    0.006946    0.000000
+    3.626218    0.004126    0.004123    0.000002
+    4.213104    0.002128    0.002129   -0.000000
+    4.894969    0.000939    0.000940   -0.000000
+    5.687182    0.000352    0.000350    0.000002
+    6.607603    0.000110    0.000109    0.000001
+    7.676979    0.000028    0.000028   -0.000000
+    8.919416    0.000006    0.000006   -0.000001
+    q(fit):     2.351455    rms diff:   0.000012
+    fit: r>rmt  2.351455   r<rmt  1.196648   qtot  3.548103
+    rho: r>rmt  2.351455   r<rmt  1.648545   qtot  4.000000
+ tailsm: end
+
+ coretail: q=0.213, rho(rmt)=0.276.  Fit with Hankel e=-12.262  coeff=451.36
+      r            rhoc          fit
+    1.990000    0.84526723    0.84526723
+    2.113070    0.58472419    0.58329801
+    2.277664    0.35404904    0.35330724
+    2.455077    0.20452460    0.20460622
+    2.646307    0.11246930    0.11289405
+    2.852432    0.05869277    0.05912519
+    3.074610    0.02895779    0.02927246
+    3.314093    0.01345012    0.01364047
+    3.572227    0.00585338    0.00595434
+    3.850466    0.00237432    0.00242250
+    4.150376    0.00089264    0.00091356
+    4.473643    0.00030922    0.00031746
+    4.822088    0.00009810    0.00010101
+    5.197672    0.00002833    0.00002922
+    5.602507    0.00000740    0.00000763
+    6.038873    0.00000173    0.00000178
+    6.509224    0.00000036    0.00000037
+    7.016209    0.00000007    0.00000007
+    7.562680    0.00000001    0.00000001
+ end of freats: spid nmcore=Ti                 1
+
+ttt: pnu qat=  1  0     2.920     2.000
+ttt: pnu qat=  1  1     2.860     4.000
+ttt: pnu qat=  1  2     3.180     0.000
+ttt: pnu qat=  1  3     4.110     0.000
+ttt: pnu qat=  1  4     5.100     0.000
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l     : Qtot=Qv=     0   2.000   2.000
+=== Charge for l     : Qtot=Qv=     1   4.000   4.000
+=== Charge for l     : Qtot=Qv=     2   0.000   0.000
+=== Charge for l     : Qtot=Qv=     3   0.000   0.000
+=== Charge for l     : Qtot=Qv=     4   0.000   0.000
+
+conf:SPEC_ATOM= O : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       2  2         2.000    2.000 => 1,
+conf:    1  1       2  2         4.000    0.000 => 
+conf:    1  2       3  3         0.000    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:    1  4       5  5         0.000    0.000 => 
+conf:-----------------------------------------------------
+
+ Species O:  Z=8  Qc=2  R=1.520000  Q=0
+ mesh:   rmt=1.520000  rmax=24.779756  a=0.015  nr=439  nr(rmax)=625
+ goto atomc xxx
+ atomsc nmcore=           1
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+ >> level: 1  CPUsec=      0.51  enter vxcnls
+ >>      0.51   exit  vxcnls          0.00
+    1    8.000000   1.260E+03       40.0000    0.3979E+02      -16.0847   0.30
+ >> level: 1  CPUsec=      0.51  enter vxcnls
+ >>      0.52   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.52  enter vxcnls
+ >>      0.52   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.52  enter vxcnls
+ >>      0.52   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.52  enter vxcnls
+ >>      0.52   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.52  enter vxcnls
+ >>      0.53   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.53  enter vxcnls
+ >>      0.53   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.53  enter vxcnls
+ >>      0.53   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.53  enter vxcnls
+ >>      0.54   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.54  enter vxcnls
+ >>      0.54   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.54  enter vxcnls
+ >>      0.54   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.54  enter vxcnls
+ >>      0.54   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.54  enter vxcnls
+ >>      0.54   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.55  enter vxcnls
+ >>      0.55   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.55  enter vxcnls
+ >>      0.55   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.55  enter vxcnls
+ >>      0.55   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.56  enter vxcnls
+ >>      0.56   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.56  enter vxcnls
+ >>      0.56   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.56  enter vxcnls
+ >>      0.56   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.56  enter vxcnls
+ >>      0.56   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.56  enter vxcnls
+ >>      0.57   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.57  enter vxcnls
+ >>      0.57   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.57  enter vxcnls
+ >>      0.57   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.57  enter vxcnls
+ >>      0.57   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.58  enter vxcnls
+ >>      0.58   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.58  enter vxcnls
+ >>      0.58   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.58  enter vxcnls
+ >>      0.58   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.58  enter vxcnls
+ >>      0.58   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.58  enter vxcnls
+ >>      0.59   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.59  enter vxcnls
+ >>      0.59   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.59  enter vxcnls
+ >>      0.59   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.59  enter vxcnls
+ >>      0.60   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.60  enter vxcnls
+ >>      0.60   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.60  enter vxcnls
+ >>      0.60   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.60  enter vxcnls
+ >>      0.60   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.60  enter vxcnls
+ >>      0.60   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.60  enter vxcnls
+ >>      0.61   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.61  enter vxcnls
+ >>      0.61   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.61  enter vxcnls
+ >>      0.61   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.61  enter vxcnls
+ >>      0.62   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.62  enter vxcnls
+ >>      0.62   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.62  enter vxcnls
+ >>      0.62   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.62  enter vxcnls
+ >>      0.62   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.62  enter vxcnls
+ >>      0.62   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.63  enter vxcnls
+ >>      0.63   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.63  enter vxcnls
+ >>      0.63   exit  vxcnls          0.00
+ >> level: 1  CPUsec=      0.63  enter vxcnls
+ >>      0.63   exit  vxcnls          0.00
+   47    8.000000   4.577E-05       44.5167    0.3226E+03      -49.5057   0.30
+ >> level: 1  CPUsec=      0.64  enter vxcnls
+ >>      0.64   exit  vxcnls          0.00
+
+
+ sumev=-6.176975  etot=-150.003664  eref=0.000000
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)
+   2s      -1.76110         0.276       0.871       1.404     0.199990
+   2p      -0.66370         0.000       0.819       2.126     0.285611
+   3d       0.04767         0.000      17.196      24.780*    0.999997
+   4f       0.07176         0.000      18.316      24.780*    0.999999
+   5g       0.09922         0.000      19.077      24.780*    0.999999
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s     -37.82854         0.000       0.129       0.260     0.000000
+
+ Optimise free-atom basis for species O, rmt=1.52
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0   4   0.760  -1.175       0.0    129.5   -1.76001  -1.76110    2.87   2.00
+ 1   9   0.760  -0.312       0.0    410.8   -0.66220  -0.66370    2.85   4.00
+ l=4  increase Pnu=   5.087  to    5.100
+ eigenvalue sum:  exact  -6.17698    opt basis  -6.16881    error 0.00817
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 1.52000, rsm= 0.76000
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000    -15.0000
+ C:    -0.13327    2.576262    -31.1880    155.8934    -295.905    409.7474
+        r          rho         fit         diff
+    1.520000    0.085448    0.085298    0.000149
+    1.766333    0.043437    0.043459   -0.000022
+    2.052532    0.020204    0.020179    0.000025
+    2.385047    0.008588    0.008604   -0.000016
+    2.771375    0.003327    0.003334   -0.000007
+    3.220223    0.001167    0.001159    0.000008
+    3.741711    0.000366    0.000365    0.000001
+    4.347593    0.000100    0.000106   -0.000006
+    5.051528    0.000023    0.000027   -0.000004
+    5.869384    0.000005    0.000005   -0.000000
+    q(fit):     1.542467    rms diff:   0.000055
+    fit: r>rmt  1.542467   r<rmt  4.007630   qtot  5.550098
+    rho: r>rmt  1.542467   r<rmt  4.457533   qtot  6.000000
+ tailsm: end
+ end of freats: spid nmcore=O                  1
+
+  Write mtopara.* ...
+
+ Sum of reference energies: 0
+ Exit 0 LMFA 
+ CPU time:    0.648s     Thu Feb 28 23:29:29 2013   on  
+
+  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 2
+  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
+      0      0      0        1       0.65       0.65   main
+      0      0      0      156       0.00       0.30   `--vxcnls

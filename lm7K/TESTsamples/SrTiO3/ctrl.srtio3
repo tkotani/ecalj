@@ -17,29 +17,41 @@ SYMGRP find   # 'find' evaluate space-group symmetry automatically.
 %const kmxa=5  # kmxa=5 is good for pwemax \sim 4 or less.
                # larger kmxa is better but time-consuming. A rule of thumb: kmxa>pwemax in Ry.
 
-% const a=14.51000
-STRUC	ALAT={a} DLAT=0
-	PLAT= 0.00000  0.50000  0.50000 0.50000  0.00000  0.50000 0.50000  0.50000  0.00000
-  NBAS= 6  NSPEC=2
-SITE	ATOM= Y POS=   0.00000    0.00000    0.00000
-	ATOM= Y POS=   3.62750/{a}    3.62750/{a}    3.62750/{a}
-	ATOM=Mn POS=   1.81375/{a}    1.81375/{a}   -5.44125/{a}
-	ATOM=Mn POS=  -1.81375/{a}    1.81375/{a}    5.44125/{a}
-	ATOM=Mn POS=  -1.81375/{a}   -1.81375/{a}   -5.44125/{a}
-	ATOM=Mn POS=   1.81375/{a}   -1.81375/{a}    5.44125/{a}
+%const da=0 au=0.529177
+%const d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+% show vars
+HEADER  SrTiO3 cubic 
+STRUC   ALAT={a1} DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+  NBAS= 5  NSPEC=3
+SITE
+  ATOM=Sr POS=1/2 1/2 1/2
+  ATOM=Ti POS= 0   0   0+0
+  ATOM=O  POS=1/2  0   0
+  ATOM=O  POS= 0  1/2  0
+  ATOM=O  POS= 0   0  1/2
 SPEC
-    ATOM=Y Z=39 R=2.98    
-      EH=-1 -1 -1 -1  RSMH=1.49 1.49 1.49 1.49 
-      EH2=-2 -2 -2  RSMH2=1.49 1.49 1.49 
+    ATOM=Sr Z=38 R=3.00    
+      EH=-1 -1 -1 -1  RSMH=1.50 1.50 1.50 1.50 
+      EH2=-2 -2 -2  RSMH2=1.50 1.50 1.50 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
       #MMOM=0 0 1 0 #s,p,d,f initial condition
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
       #Q=0 0.5 1 0 #s,p,d,f initial condition 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
-    ATOM=Mn Z=25 R=2.44    
-      EH=-1 -1 -1 -1  RSMH=1.22 1.22 1.22 1.22 
-      EH2=-2 -2 -2  RSMH2=1.22 1.22 1.22 
+    ATOM=Ti Z=22 R=1.99    
+      EH=-1 -1 -1 -1  RSMH=0.99 0.99 0.99 0.99 
+      EH2=-2 -2 -2  RSMH2=0.99 0.99 0.99 
+      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
+      #MMOM=0 0 1 0 #s,p,d,f initial condition
+      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
+      #Q=0 0.5 1 0 #s,p,d,f initial condition 
+      #MMOM and Q are to set electron population. grep conf: in lmfa output
+
+    ATOM=O Z=8 R=1.52    
+      EH=-1 -1 -1  RSMH=0.76 0.76 0.76 
+      EH2=-2 -2  RSMH2=0.76 0.76 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
       #MMOM=0 0 1 0 #s,p,d,f initial condition
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
@@ -48,7 +60,7 @@ SPEC
 
 
 
-% const pwemax=3 nk=4 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=103
+% const pwemax=3 nk=2 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=103
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
       METAL={metal}
                 # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).

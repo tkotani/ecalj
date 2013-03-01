@@ -5,7 +5,7 @@
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
 VERS    LM=7 FP=7        # version check. Fixed.
-IO      SHOW=T VERBOS=35 TIM=1,1
+IO      SHOW=T VERBOS=35 TIM=2,2
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
 	     # larger VERBOSE gives more detailed console output.
@@ -14,7 +14,7 @@ SYMGRP find   # 'find' evaluate space-group symmetry automatically.
 	      # because of numerical problem.
               # Do lmchk to check how it is evaluated.
               # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat
-%const kmxa=5  # kmxa=5 is good for pwemax=3 or lower.
+%const kmxa=5  # kmxa=5 is good for pwemax \sim 4 or less.
                # larger kmxa is better but time-consuming. A rule of thumb: kmxa>pwemax in Ry.
 
 % const a=14.51000
@@ -28,29 +28,29 @@ SITE	ATOM= Y POS=   0.00000    0.00000    0.00000
 	ATOM=Mn POS=  -1.81375/{a}   -1.81375/{a}   -5.44125/{a}
 	ATOM=Mn POS=   1.81375/{a}   -1.81375/{a}    5.44125/{a}
 SPEC
-    ATOM=Y Z=39 R=2.54 PZ=4.9,4.9   
-      EH=-0.1 -0.1 -0.1 -0.1  RSMH=1.27 1.27 1.27 1.27 
-      EH2=-2 -2 -2 -2  RSMH2=1.27 1.27 1.27 1.27 
+    ATOM=Y Z=39 R=2.98    
+      EH=-1 -1 -1 -1  RSMH=1.49 1.49 1.49 1.49 
+      EH2=-2 -2 -2  RSMH2=1.49 1.49 1.49 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
-      #MMOM=
+      #MMOM=0 0 1 0 #s,p,d,f initial condition
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
-      #Q= 
+      #Q=0 0.5 1 0 #s,p,d,f initial condition 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
-    ATOM=Mn Z=25 R=2.08 PZ=3.9,3.9   
-      EH=-0.1 -0.1 -0.1 -0.1  RSMH=1.04 1.04 1.04 1.04 
-      EH2=-2 -2 -2 -2  RSMH2=1.04 1.04 1.04 1.04 
+    ATOM=Mn Z=25 R=2.44    
+      EH=-1 -1 -1 -1  RSMH=1.22 1.22 1.22 1.22 
+      EH2=-2 -2 -2  RSMH2=1.22 1.22 1.22 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
-      MMOM=0 0 5 
+      MMOM=0 0 5
+      #MMOM=0 0 1 0 #s,p,d,f initial condition
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
-      #Q= 
+      #Q=0 0.5 1 0 #s,p,d,f initial condition 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
 
-% const pwemax=3 nk=4 nit=30  gmax=12  nspin=2
+% const pwemax=3 nk=8 nit=30  gmax=12  nspin=2 metal=3 so=0 xcfun=103
 BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
-      METAL=3
-
+      METAL={metal}
                 # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).
                 # METAL=2 is faster but weights for integration is from previous iteration 
                 #   (it can be a little unstable)
@@ -129,23 +129,18 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # Look into sugcut: shown at the top of console output. 
                 # It shows required gmax for given tolelance HAM_TOL.
       REL=T     # T:Scaler relativistic, F:non rela.
-     XCFUN=103
+      XCFUN={xcfun}
           # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=1  # 0: MTO basis only (LMTO) PW basis is not used.
-                # 1: APW+MTO        (PMT)
-                # 2: APW basis only (LAPW) MTO basis is not used.
-                # NOTE: q-independent number of APW (determined at q=0).
-                #       This will be important for QSGW case.
+      PWMODE=11 # 0:  MTO basis only (LMTO)
+                # 11: APW+MTO        (PMT)
+                # 12: APW basis only (LAPW)
                 #
-                # ===  +10 means q-dependent number of APW, that is, ===
-                # 11: PMT   
-                # 12: LAPW: 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
-                      # about overcompleteness. See GetStarted.
+                      # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
       ELIND=0    # this is to accelarate convergence. Not affect to the final results.
                  # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
@@ -156,17 +151,23 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
       #For LDA+U calculation, see http://titus.phy.qub.ac.uk/packages/LMTO/fp.html#ldaplusu
 
       #For QSGW. you have to set them. Better to get some samples.
-      #RDSIG=
-      #RSRNGE=
+      RDSIG=12
+      SIGP[MODE=3 EMAX=2.0]
+      RSRNGE=6.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
+      #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
 
-      #SO=        default = 0
+      SO={so}   #default = 0 
       #Spin-orbit coupling (for REL=1)
       #0 : no SO coupling
       #1 : Add L.S to hamiltonian (but non-colinear density yet).
       #2 : Add Lz.Sz only to hamiltonian
+      #
+      # For QSGW with SO=1 pertubation, run SO=1 with --rs=2,0 with NIT=1,
+      #  starting from converged rst.* sigm.*  ESEAVR, and
+      #  QpGpsi (it is easily generated by echo 1|qg4gw if you lost it).
                
 OPTIONS PFLOAT=1 
-        # Q=band (this is quit switch if you like to add)
+      # Q=band (this is quit switch if you like to add)
 
 # Relaxiation sample
 #DYN     MSTAT[MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015]  NIT=20

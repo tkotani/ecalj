@@ -1,0 +1,6 @@
+run jobs
+
+job      (for self-consistency).
+job_tdos (for Total DOS plot after converged).
+job_band (for band plot. We need syml.fe file).
+
