@@ -622,15 +622,15 @@ c         print *,'stdl=',stdl
   710   format('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
      .  '  qbg',f11.6,' dQ',f11.6)
         if (nsp .eq. 2) write (stdl,711) smag+saloc,smag,saloc
-  711   format('fp mag',f11.5,'  sm',f11.5,'  loc',f11.5)
+  711   format('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)
         write (stdl,720) rhovxc,rhoexc,utot
-  720   format('fp pot  rvxc',f18.7,'  rexc',f18.7,'  rves',f16.7)
+  720   format('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)
         write (stdl,721) rhoex,rhoec
-  721   format('fp pot  rex ',f18.7,'  rec',f19.7)
+  721   format('fp pot  rex ',f18.7,'  rec ',f19.7)
         write (stdl,722) rvvxcv(1),rvepsv(1)
-  722   format('fp pot  rvvxcv',f16.7,'  rvexcv',f16.7)
+  722   format('fp pot  rvvxcv ',f16.7,'  rvexcv ',f16.7)
         write (stdl,723) rvexv(1),rvecv(1)
-  723   format('fp pot  rvexv',f17.7,'  rvecv',f17.7)
+  723   format('fp pot  rvexv ',f17.7,'  rvecv ',f17.7)
 c
 
 c------------------

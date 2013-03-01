@@ -415,7 +415,7 @@ ckino
       integer, allocatable:: listwf(:)
 
       integer:: ntqxx,ispx,ix99 !,nevec unused.
-c      real(8)::eseavrmean
+      real(8)::eseavrmean
       logical:: mtosigmaonly
       real(8)::scaledsigma
       
@@ -817,12 +817,6 @@ ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spo
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
 
-
-
-
-
-
-
       call togpr()
 
 ccccccccccccccccccccccccc
@@ -966,23 +960,23 @@ c      open(ifiogw,file='NBANDGW')
 Cki  ifiese default value is not set.  set it to 0
 
 ! ESEAVR is readin m_psigd
-c$$$      ifiese=0
-c$$$      if(lrsig/=0) then
-c$$$        ifiese=9039
-c$$$        inquire(unit=ifiese,opened=nexist)
-c$$$        if(nexist) 
-c$$$     &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
-c$$$        open(ifiese,file='ESEAVR',status='old',err=127)
-c$$$        goto 128
-c$$$ 127    continue
-c$$$        print *
-c$$$        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
-c$$$        print *,' You may use a dummy ESEAVR file (two lines) such as'
-c$$$        print *,' 0.0 1'
-c$$$        print *,' 0.0 2'
-c$$$        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
-c$$$      endif
-c$$$ 128  continue
+      ifiese=0
+      if(lrsig/=0) then
+        ifiese=9039
+        inquire(unit=ifiese,opened=nexist)
+        if(nexist) 
+     &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
+        open(ifiese,file='ESEAVR',status='old',err=127)
+        goto 128
+ 127    continue
+        print *
+        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
+        print *,' You may use a dummy ESEAVR file (two lines) such as'
+        print *,' 0.0 1'
+        print *,' 0.0 2'
+        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
+      endif
+ 128  continue
 
 
 C --- Start loop over k points; also, re-entry for second band pass ---
@@ -3280,7 +3274,7 @@ c       call rlse(oqp) !release all the w(oxxx) array allocated within this rout
 ctakaox june2009
 c      close(ifiogw)
 Cki
-c      if ( ifiese>0 ) close(ifiese)
+      if ( ifiese>0 ) close(ifiese)
 c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
 #if MPIK

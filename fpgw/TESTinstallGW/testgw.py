@@ -184,9 +184,9 @@ datadir  = testdir+ '/' + testn+'/'
 testcommand.append(['dqpu QPU '+ datadir+ 'QPU'])
 
 #
-comparekey=" 'fp pot' 'fp evl'"
+comparekey=" 'fp evl'"
 testn='si_gwsc'
-testcput[testn]= gwsc1shot+' si --> OK!  UsedCPUtime= 46.974936'
+testcput[testn]= gwsc1shot+' si --> OK!  UsedCPUtime= 36sec'
 testname.append(testn)
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa', gwsc1shot+' si'])
@@ -196,7 +196,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'
 
 #
 testn='gas_gwsc'
-testcput[testn]= gwsc1shot+' gas --> OK!  UsedCPUtime= 71.964497'
+testcput[testn]= gwsc1shot+' gas --> OK!  UsedCPUtime= 49sec'
 testname.append(testn)
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa',gwsc1shot+' gas'])
@@ -208,7 +208,7 @@ testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.ga
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
 #
 testn='nio_gwsc'
-testcput[testn]= gwsc1shot+' nio --> OK!  UsedCPUtime= 225.150071'
+testcput[testn]= gwsc1shot+' nio --> OK!  UsedCPUtime= 220sec'
 testname.append(testn)
 startfile.append('ctrl.nio GWinput')
 commands.append(['lmfa nio > llmfa',gwsc1shot+' nio'])
