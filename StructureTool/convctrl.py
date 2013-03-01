@@ -41,6 +41,9 @@ def vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3):
 	for atom1 in range(len(atom_list)):
 		atom_list[atom1]= [float(atom_list[atom1][i]) for i in range(3)]
 		#print 'xxxxxxxxxxxxx',vaspread[7],atom_list[atom1]
+		if vaspread[7]=='Cartesian':
+			for ix in range(3):
+				atom_list[atom1][ix] = atom_list[atom1][ix]/alat_val/.529177
 		if vaspread[7]=='Direct':
 			for ix in range(3):
 				atom_list[atom1][ix] = atom_list[atom1][0]*plat1[ix] \
