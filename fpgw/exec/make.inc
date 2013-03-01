@@ -33,17 +33,22 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 #(3) Compilar options ###################
 # 
-### INTEL FORTRAN PENTIUM4 LINUX ###
+### INTEL FORTRAN ###
 #FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
-#FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
+#FFLAGS_x   = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
 #FFLAGS=-O3 -cm -WB
 
-#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+#FFLAGS = -O2 -xHost -WB  -cpp $(CPPSWITCH_INTELLINUXIFC) -132 
 
 
+### gfortran ###
 # Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed
 # older verion OR no -Osomething options. (only for sxcf.*.F)
+#FFLAGSg= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+
 FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+
+
 
 
 #

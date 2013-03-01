@@ -737,7 +737,7 @@ C#ifdef GNUPLOT
           endif 
           nq1=nq1+nql(iline)
         enddo 
-        write(20,*)'pause -1'
+        write(20,*)'# pause -1 (instead, gnuplot -p ThisScript)'
 
         else ! ncolwt
 c              ncolwt >0 , fatband mode
