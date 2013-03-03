@@ -49,6 +49,7 @@ PLAT_list = convctrl.plat(perfectopen,keyword_name)
 print 'plat=',PLAT_list
 
 for line_ing in range(len(PLAT_list)):
+	PLAT_list[line_ing] = re.sub('/','/1.0/',PLAT_list[line_ing])
 	PLAT_list[line_ing] = eval(PLAT_list[line_ing])
 
 atomlist = convctrl.atom(perfectopen,keyword_name)
