@@ -3,8 +3,8 @@ POSCAR_lagao
 1 0 0 
 0 1.41659070191 0 
 0 0 1.00692798541 
-Ga Ga Ga Ga La La La La O O O O O O O O O O O O 
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+Ga La O 
+4 4 12 
 Cartesian
 0.0 0.0 2.7615
 2.7425 3.885 0.0
