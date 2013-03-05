@@ -1,26 +1,29 @@
-==================================================================
-Our home page is at http://pmt.sakura.ne.jp/wiki/,
-(not so much documents in English yet). not well-organized yet...
-===================================================================
-
-=== ecalj package ===
-(this document is checked at Jan2013)
-https://github.com/tkotani/ecalj
+=== ecalj package === (this document is checked at mar2013)
 
 ecalj is a firts-principle electronic structure calculation package in f90.
-Version ctrl by git. In cases, we use python.
+Version ctrl by git. Python2.x is used.
+==================================================================
+homepage is at http://pmt.sakura.ne.jp/wiki/,
+  (not so much documents in English yet. not well-organized yet...)
+https://github.com/tkotani/ecalj
+===================================================================
+
+##### What we can do by ecalj package.#####
 
 (1)All electron full-potential PMT method (LAPW+LMTO)
-   Related source codes are in ecalj/lm7K/ 
-   ctrlgen2.py can set up 'standard input file(ctrl file)' just from
-   the given crystal structure file (ctrls file). 
-   A converter between POSCAR(VASP) and ctrls file will be included in
-   ecalj soon.
+   Related source codes are in ecalj/lm7K/ .
+   A command ecalj/lm7K/ctrlgen2.py can generate 'standard input file (ctrl file)' 
+   from a given crystal structure file, named as ctrls file. 
+   Relaxiation of atomic possistion is possible. GGA/LDA  and LDA+U are implemented.
+   A converter between POSCAR(VASP) and ctrls is included in ~/ecalj/StructureTool/.
+   We have lmf-MPIK (MPI k-parelell verion).
 
-(2)GW method, especially, PMT-SQGW method
-   Quasiparticle self-consistent GW method (QSGW),
-   dielectric functions, spin fluctions.
-   GW-related codes are in ecalj/fpgw/
+(2)GW method, especially, PMT-QSGW method.
+   That is, the Quasiparticle self-consistent GW method (QSGW) based
+   on the PMT method. 
+   In addion, we can calculate dielectric functions, spin fluctions,
+   spectrum function of the Green's functions and so on.
+   GW-related codes are in ecalj/fpgw/.
    
    Recently, I renewed some part of algolism of GW/QSGW calculations
    (some ideas are taken from from PRB.81,125102(2010) and Copmuter Physics Comm. 176(2007)1-13).
@@ -32,40 +35,20 @@ Version ctrl by git. In cases, we use python.
    although we have room to improve it.
 
 
-Usage minimum. (e.g, PMT-QSGW(gwsc) for si)
--------------------------------------------
-(1) Write structure file ctrls.si by hand 
-    (you can use our converter between POSCAR(VASP) and ctrls).
-(2) convert ctrls.si to ctrl.si by ctrlgen2.py si --eh1 --nk=6 --tratio=1.0 
-   (do -help). --eh1 is required for PMT-QSGW. Then you have default
-   ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
-   Modify it if reqiured. We don't need empty sphere
-   now. pwemax specify number of APW. It is recommended to know
-   meanings of parameters in the generated ctrl.si. 
-   You may need to modify ctrl.si, especially for magnetic cases.
-   For examle, you need to set MMOM for nspin=2 
-   (initial condition of magnetic moment distribution).
-(3) Run "lmfa si" to prepare atom.
-(4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si 
-    (just put BZ division n1 n2 n3). Edit GWinput.tmp and rename it as GWinput.
-(5) Then run a script gwsc, e.g. "gwsc 5 si -np 5" (5+1 iteration with
-    6 nodes).
-(6) To reproduce final results of gwsc, run lmf si with ctrl.si rst.si QGpsi ESEAVR sigm.si.
--------------------------------------------
+##### Install #####
+we have four steps
+(0) get ecalj package and get tools.
+Then we do three make procedure,
+that is, (1) for single-core LDA part, (2) for MPIK LDA part, (3) for MPIK GW part.
+In the followings, we assume gfortran in ubuntu, although with
+instructions for ifort, and others.
 
-
-NOTE:
-*PMT-QSGW looks OK. Although defaults parameters can
-give reasonable results generally, you may need to check 
-convergence carefully by changing parameters 
-(use --eh1 option when we invoke ctrlgen2.py).
-*We still have a room to make interpolation of sigma 
-(This problem is carried from LMTO-QSGW).
-Need further bug check and make it robust more...
-
-
-################## Install and test of lm7K ########################
-*Installation for lm7K
+---
+(0) Take requied tools and ecalj source.
+Get ecalj package by
+>git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
+or get it in *.zip from the page https://github.com/tkotani/ecalj
+(push zip button).
 
 ---Let us assume you use ubuntu. ---
 >sudo apt-get install git  gitk #version control and to get source from github)
@@ -76,61 +59,67 @@ Need further bug check and make it robust more...
 >sudo apt-get install libblas3gf     or something else # BLAS
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
 >sudo apt-get install etags csh bash
-
 python 2.x is also assumed (usually already in ubuntu).
 
->git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
 
-Check PLATFORM=foobar at the head of ecalj/lm7K/Makefile.
-ecalj/lm7K/MAKEINC/Make.ing.gfortran is used when you choose
-PLATFORM=gfortran. (Commnet out this line in Makefile, or do "make PLATFORM=gfortran".)
+(1) For single core LDA part (it is in ecalj/lm7K/)
+Move to ecalj/lm7K/, then do "make PLATFORM=gfortran". Then make process start.
+The main makefile is lm7K/Makefile, and it includes lm7K/MAKEINC/Make.inc.gfortran.
 Set LIBLOC in Make.inc.gfortran when you use different math libraries.
+For other cases, run "make PLATFORM=foobar" where foobar can be ifort
+or something else. foobar corresponds to the include file 
+lm7K/MAKEINC/Make.inc.foobar. For ifort, there are several MAKEINC/Make.inc.ifort*
+(not _mpik*) with which we installed to machines. 
+You can choose one of them or you can set your own Make.inc.ifort.*
+(compilar, compilar options, math library).
+I recommend "make PLATFORM=ifort.simple" for ifort. But you may need
+to add -heap-arrays 1 (for large calculations. Because we use large stacksize).
 
-You may also have to modify compile options
-and so on (but usually, only modify math library LIBLOC)
-in lm7K/MAKEINC/Make.inc.gfortran. 
-
-Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
-but not with failed with FFLAGS=-O3.
-
-Parallel make as
-prompt>make -j4 PLATFORM=gfortran
-may speed it up for multicore machines. But in cases it stops because
-of dependency is not well-described in Makefile. 
-In such case, repeat it a few times, or repeat it without -j4.
-and then
-prompt>make PLATFORM=gfortran install
-. This just copy required files to your ~/bin.
-Messages ": warning: ignoring old commands for target `/vxcnls.o'" is
+Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
 just because of problem of Makefile. you can neglect this.
 
-lmf-MPI is now needed for gwsc. to make it with
-propmt>make PLATFORM=gfortran_mpik
-lmf-MPIK is also generated, but it do not work now (9thjan2013. need to fix it)
+Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
+but failed with FFLAGS=-O3.
 
-For ifort, set PLATFORM=ifort, and PLATFORM=ifort_mpik. 
-Then ecalj/lm7K/MAKEINC/Make.inc.ifort is used --- you need to set math libraries in it.
+Parallel make as
+>make -j4 PLATFORM=gfortran
+may speed it up for multicore machines. But it stops because
+of dependency is not well-described in current Makefile. 
+In such case, repeat it a few times, or repeat it without -j4.
 
-You can make both binaries with gfortran and with ifort at lm7K. 
-Then you have to do "make clean" at ecalj/lm7K, before you make
-binaries. (e.g You first make binaries with gfortan. Then move binaries to
-your another directories, then do make clean, and set PLATFORM=ifort,
-and so on to make nbinaries by ifort.)
+Then do "make PLATFORM=gfortran install"
+This just copy required files to your ~/bin.
+
+
+(2) For MPI LDA part.
+lmf-MPIK is now needed for gwsc. To make it, do
+"make PLATFORM=gfortran_mpik". lmfgw-MPIK is also generated, but it do
+not work now (9thjan2013. need to fix it; but not problem to do calculations).
+For ifort, set PLATFORM=ifort_mpik.simple
+Then ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple is used.
+You may need to add -heap-arrays 1 (for large calculations. Because we
+use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple
+
+Clean up:
+If something wrong. do "make clean" or "make cleanall" and start over.
+Look into Makefile if you like to know what they do.
+"make cleanall" removes all *.o *.a modules, and binaries.
 
 ---
-*Test for lm7K
+*Installation test for lm7K
 >make check
 at ecalj/lm7K. It may take five minutes or so. 
 If you see "All test passed" finally, your installation is OK.
 
+* Move binaries to your bin by 
 >make install
-at ecalj/lm7K just moves all requied binaries to your ~bin.
+at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
+In advance, you have to make your bin, and add ~/bin to  your path
+(e.g. export PATH=$HOME/bin:$PATH in .bashrc. then login again or source .bashrc)
 
 
-
-################## Install and test for fpgw ####################### 
-*Installation for fpgw/
-At fpgw/exec/ directory, you have to edit make.inc.
+(3) Installation for fpgw/
+At ecalj/fpgw/exec/ directory, you have to edit make.inc.
 Especially note option, -heap-arrays for ifort
 (to avoid Segmentation fault due to stacksize limit (ulimit -a), it is
 required. Or you can set ulimit -s unimited).
@@ -140,8 +129,8 @@ Then you have to run
 >make install
 >make install2
 Before this, you have to set blas and lapack in fpge/exec/make.inc.
-make install copy requied files to your ~/bin.
-
+(for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
+"make install" copy requied files to your ~/bin.
 -------------
 *Installation test for fpgw/
 
@@ -155,8 +144,36 @@ At the directory,
 shows help for the test controller testgw.py
 
 All tests will require ~10min.  (nio_gwsc takes ~300sec)
+In cases, nio_gwsc fails. However, as long as the difference is small,
+not need to care its fail sign. (a minor bug in test).
 
----------------------------
-* Other points
->make cleanall 
-This removes all *.o *.a and binaries except original source.
+
+#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si) ###################
+-------------------------------------------
+(1) Write structure file ctrls.si by hand 
+    (you can have ctrls from POSCAR(VASP) with vasp2ctrl in ecalj/StructureTool/.)
+(2) conver ctrls.si to ctrl.si by ctrlgen2.py si --eh1 --nk=6 --tratio=1.0 
+   (do -help). Then you have default ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
+   Modify it if reqiured. We don't need empty sphere now. 
+   pwemax specify number of APW. It is recommended to know
+   meanings of parameters in the generated ctrlgen2.ctr.si. 
+   You may need to modify ctrl.si, especially initial condition for magnetic cases.
+   For examle, you set MMOM=0,0,1.5,0 for Niup, and MMOM=0,0,-1.5 for
+   Nidn for nspin=2 (antiferromagnetic case). 
+   (initial condition of magnetic moment distribution. unit is the
+   difference of number of electrons n_up-n_down).
+(3) Run "lmfa si" to prepare atom.
+(4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si 
+    (just put BZ division n1n2n3). Edit GWinput.tmp and rename it as GWinput.
+(5) Then run a script gwsc, e.g. "gwsc 5 si -np 5" (5+1 iteration with
+    6 nodes).
+(6) To continue calculation do gwsc 5 si -np 5 again.
+    (you have to have ctrl.si rst.si QGpsi ESEAVR sigm.si)
+    (Then 0th iteration is skipped---thus e have just five iteration).
+
+(7) For band plot and tdos plot, please look into samples in
+    job_band and job_tdos in ecalj/CMD22sample/*. 
+    For qsub, you have to edit test.sh for your machine.
+-------------------------------------------
+
+

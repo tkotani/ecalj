@@ -10,6 +10,8 @@ echo $nfpgw
 echo $argv[1]
 
 echo "== Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! =="
+echo "== For QSGW, this is reflected in n1n2n3 in GWinput.tmp You can "
+echo "== change it by hand (not need to repeat this). =="
 echo -n ' n1= '
 set n1 = $<
 echo -n ' n2= '
