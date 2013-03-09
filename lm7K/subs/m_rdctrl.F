@@ -1031,11 +1031,6 @@ C --- Symmetry group ---
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .note='Generators for symmetry group')
 c
-!! mar2013takao
-      if(cmdopt('--pdos',6,0,a)) then
-         write(*,*) 'SYMGRP is overwritten by e due to --pdos mode'
-         symg='e'
-      endif
    
 C$$$C --- Crystal Green's function ---
 C$$$      if (tksw(prgn,'GF') == 2) goto 269

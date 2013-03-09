@@ -1808,7 +1808,7 @@ c            if (lwtkb .eq. -1) nmx = -1
                ! just unpack the eigenfunctions stored in the 1st path 
 
 !!   Need all eigenvalues if 'fat bands' plotting mode
-            if (nfbn(1) .gt. 0) then
+            if (nfbn(1) .gt. 0 .or. cmdopt('--pdos',6,0,strn)) then
               nmx = ndimhx
               efmax = 99999
             endif

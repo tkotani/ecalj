@@ -345,7 +345,8 @@ C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       call upacks('strn symg',i,j)
       if (j .ge. i) strn = sstrn(i:j+1)
-      if (cmdopt('--nosym',7,0,outs)) strn = ' '
+!! mar2013 --pdos
+      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
       lc = 10
 #ifndef LMFGWD
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
