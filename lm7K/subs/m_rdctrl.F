@@ -661,6 +661,8 @@ C     .  'third for graphical output')
      .cmdopt('--quit=band',11,0,a)) then; quit=4
       elseif (outs=='HAM' .or. outs=='ham' .or.
      .cmdopt('--quit=ham',10,0,a)) then; quit=8
+!! pdos mode exit at --quit=band
+      elseif (cmdopt('--pdos',6,0,a)) then; quit=4
       elseif (outs==' ') then
       else
         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
@@ -1028,7 +1030,13 @@ C --- Symmetry group ---
      .call info0(1,1,0,' --- Symmetry group operations ---')
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .note='Generators for symmetry group')
-
+c
+!! mar2013takao
+      if(cmdopt('--pdos',6,0,a)) then
+         write(*,*) 'SYMGRP is overwritten by e due to --pdos mode'
+         symg='e'
+      endif
+   
 C$$$C --- Crystal Green's function ---
 C$$$      if (tksw(prgn,'GF') == 2) goto 269
 C$$$      if (io_show+io_help/=0) call info0(1,1,

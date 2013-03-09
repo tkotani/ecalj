@@ -31,6 +31,7 @@ c     &  igv2,napwk,igv2rev
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
+
 !! == One band pass, full-potential hamiltonian ==
 !! ;Inputs
 Ci   nbas  :size of basis
@@ -232,26 +233,17 @@ c#endif
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
-ctakao
+
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-
-c     .  spot(1),sbz(1),sham(1),slat(1),sctrl(1)
-
-c      double precision ssite(1),sspec(1)
       type(s_ham):: sham
       type(s_ctrl):: sctrl
       type(s_lat)::  slat
       type(s_pot)::  spot
       type(s_bz)  ::  sbz
-c      type(s_site):: ssitev(nbas)
-CKI      type(s_spec),allocatable:: sspecv(:)
 
-
-C ... Local parameters
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-c      real(8) ,allocatable :: eomin_rv(:)
 
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
@@ -410,7 +402,6 @@ ctakao
 
       integer:: getef, i_dummy_getef,ifig, ndimsig
 
-ckino
       integer:: n_listwf
       integer, allocatable:: listwf(:)
 
@@ -418,39 +409,22 @@ ckino
       real(8)::eseavrmean
       logical:: mtosigmaonly
       real(8)::scaledsigma
-      
-cccccccccccccccccccccccccccccccccccc
-      real(8):: qsfz(3,100)
-      integer:: nqps,ii1,ii2,ii4,iq1
-cccccccccccccccccccccccccccccccccccc
 
+      real(8):: qsfz(3,100)
+      integer:: nqps,ii1,ii2,ii4,iq1 , fxsts
 
 #if !defined(__INTEL_COMPILER)
       integer:: unlink
 #endif
 
-c for mpi and mpik, parallel write
+!! for mpi and mpik, parallel write
       character(10):: strprocid 
-
       integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       integer:: ifis2
-!! -----------------------------------------
-cccccccccccccccccccccccccccccccccccc
-c      i = fopna('ovlmat',-1,4)
-c      print *,' wwwwwwww 11111111',procid
-c      call mpi_barrier(MPI_COMM_WORLD,ierr) 
-c      call mpi_finalize(ierr)
-c      stop ' wwwwwwwwwww'
-cccccccccccccccccccccccccccccccccccc
 
-ckino begin
-c      nevec=0  
-      savez=.false.
-      getz=.false.
-C     call wkfast(.false.)
-      if (maxit .eq. 0) return
-
-C ... MPI setup
+!! === Setup ===
+      call tcn ('bndfp')
+!! ... MPI setup
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
@@ -463,23 +437,20 @@ C ... MPI setup
       strprocid=adjustl(strprocid) 
 #endif
 
-!! === Setup ===
-      call tcn ('bndfp')
+      savez=.false.
+      getz=.false.
+      if (maxit .eq. 0) return
       siginit=.true.
       napw = 0
       ipr  = iprint()
       ipl  = ipr
-Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-Changenglob      nspc = nglob('nspc')
       nspc = globalvariables%nspc
-C     npqn = nglob('npqn')
-      lso = isw ( iand(4,int(sctrl%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 
-     .) + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
-
+      lso =      isw ( iand(4,int(sctrl%lncol))  .ne.0 ) 
+     &     + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 )
+     &     + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
       lcplxp = 0
       lekkl = int(sctrl%pfloat)
-
       if (lso .ne. 0) lcplxp = 1
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
       ndhamx = ndham*nspc
@@ -493,32 +464,24 @@ ctakao sep2010 !complicated.
 c      I think nspc=2 for non-colinear case.
 c      allocate(evl(ndham,2))
       allocate(evl(ndhamx,nspx))
-
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
-      pwmode=sham%pwmode
-      pwemin=sham%pwemin
-      pwemax=sham%pwemax
-
+      pwmode =sham%pwmode
+      pwemin =sham%pwemin
+      pwemax =sham%pwemax
       onesp = 0
       nfbn(1) = 0
       nfbn(2) = 0
       stdo = lgunit(1)
       stdl = lgunit(2)
-
-c ipr and stdl are processor dependent in mpi modes.
-c      print *,'zzzzzzzzzz =',ipl,stdl,lgunit(1),lgunit(2),lgunit(3)
       ldos = iand(1,int(sctrl%ldos))
       lrsig = int(sham%lsig)
       lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 )
-c      print *,'xxx' ,lfrzw,sctrl%lbas
-c      print *,'ttt1: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
-c      print *,'ttt: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
-c      print *,'ttt: sham%lsig       =',sham%lsig
+      nspec= sctrl%nspec
+
       if(ldos - mod(sctrl%ldos/1, 2)/=0) stop 'ttt xxx111'
       if(lfrzw- mod(sctrl%lbas/16,2)/=0) stop 'ttt xxx222'
       if(lrsig- sham%lsig/=0) stop 'ttt xxx333'
-      nspec= sctrl%nspec
 
 CKI!      allocate(sspecv(nspec+1)) ! I don't know why but nspec+1 is necessary to avoid run time error.
 CKI      allocate(sspecv(nspec+1)) !+1 makes it safer. (see below)
@@ -530,16 +493,18 @@ CKI         call dcopy(uspec_size(),sspec(1+(i-1)*uspec_size()),1,sspecv(i),1)
 CKI         if(debug) print *,'ttt: sspecv%idmod=',i,sspecv(i)%nr,sspecv(i)%a
 CKI      enddo
 CKI      deallocate(sspecv)
-c      stop 'xxxxxxxxxxxxxxx aaaaaaaaaaa'
 c      print *,'ttt fxstsigm=',fxst('sigm')
 
       if (procid .eq. master) then
-        if (lrsig .ne. 0 .and. fxst('sigm') .ne. 1) then
+        if(cmdopt('--pdos',6,0,strn)) then
+          fxsts= fxst('sigm_fbz')
+        else
+          fxsts= fxst('sigm')
+        endif  
+        if (lrsig .ne. 0 .and. fxsts/=1) then
           call info0(1,1,0,' bndfp (warning): '//
      .    'no sigm file found ... LDA calculation only')
-
           sham%lsig=0
-
           lrsig = 0
         endif
       endif
@@ -547,7 +512,6 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
       call mpibc1(lrsig,1,2,mlog,'rdsigm','lrsig')
       jobgw= -999
       epsovl = sham%oveps
-
       lpdiag = isw(cmdopt('--pdiag',7,0,strn))
 
 #if MPIK
@@ -560,24 +524,12 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
      .    rxs2('BNDFP: failed to parse "',strn(1:30),'%a"')
         endif
       endif
-
-
-ckino Dec.8.2011:         sv_p_oorhat => spot%sv_p_oorhat
-
-ckino Dec.8.2011:         zv_p_osmrho => spot%zv_p_osmrho
-
-ckino Dec.8.2011:         zv_p_osmpot => spot%zv_p_osmpot
-
-c       osoptc=spot%osoptc
-
-C     icls = igets('optic cls',w(osoptc))
       pi = 4d0*datan(1d0)
       if (iprint() .ge. 20) call awrit2('%N --- BNDFP:  '//
      .'begin iteration %i of %i ---',' ',80,stdo,iter,maxit)
       if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       if (ndham.le.0)
      .call rx('bndfp: hamiltonian matrix has zero dimension')
-c
 
 #if MPI
 C MPI Process configuration
@@ -601,59 +553,40 @@ C MPI Process configuration
       eterms(19) = 0d0
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,eterms,1,sham%eterms,1)
-      nvl=spot%nlml
+      nvl  =spot%nlml
       nchan=spot%nlma
       eks = 0
-
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      alat=slat%alat
-      plat=slat%plat
-      qlat=slat%qlat
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      alat =slat%alat
+      plat =slat%plat
+      qlat =slat%qlat
+      ngabc=slat%nabc
       vol = slat%vol
-
 c      call fftz30(n1,n2,n3,k1,k2,k3)
       k1 = n1
       k2 = n2
       k3 = n3
 
-
-C ... for BZ integration
-      i_copy_size=size(sbz%nkabc)
-      call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1)
-      nkp=sbz%nkp
-      ntet=sbz%ntet
-ckino Dec.16.2011:         iv_p_oidtet => sbz%iv_p_oidtet
-
-      lmet=sbz%lmet
+!! ... for BZ integration
+      nkabc= sbz%nkabc
+      nkp=   sbz%nkp
+      ntet=  sbz%ntet
+      lmet=  sbz%lmet
       mpsord=sbz%n
       esmear=sbz%w
-      nevmx=sbz%nevmx
-      efmax=sbz%efmax
-      fsmom=sbz%fsmom
-
+      nevmx= sbz%nevmx
+      efmax= sbz%efmax
+      fsmom= sbz%fsmom
       if(debug) print *,'ttt nevmx w=',nevmx,esmear
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
 
-
       ndos=sbz%ndos
       i_copy_size=size(sbz%dosw)
       call dcopy(i_copy_size,sbz%dosw,1,dosw,1)
       ef0=sbz%ef
       def=sbz%def
-
-
-ckino Dec.8.2011:         rv_p_oqp => sbz%rv_p_oqp
-
-ckino Dec.8.2011:         rv_p_owtkp => sbz%rv_p_owtkp
-
 
       ltet = ntet .gt. 0
       lwndow = cmdopt('--window=',9,0,strn)
@@ -681,7 +614,6 @@ ckino Dec.8.2011:         rv_p_owtkp => sbz%rv_p_owtkp
 C     Always need DOS if just sampling
       if (lmet .ne. 0 .and. .not. ltet) ldos=1
       qbg = sctrl%zbak(1)
-
       alfa = 0
 
 C     Switch to plot bands at specified qp
@@ -697,14 +629,11 @@ C     Switch to plot bands at specified qp
       else
         plbnd = 0
       endif
-
-C     Sanity checks
       if (lmet .eq. 1) call rx('bndfp: lmet=1 not implemented')
-Ckino isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
+!! isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
       l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 
-C --- Define local arrays used in the generation of the potential ---
-C  10 continue
+!! --- Define local arrays used in the generation of the potential ---
       lnoxc = 0
       if (jobgw .eq. 2) lnoxc = 1
       allocate(qmom_rv(nvl))
@@ -716,45 +645,33 @@ C  10 continue
       allocate(ppnl_rv(nppn*n0*nsp*nbas))
       allocate(fes1_rv(3*nbas))
 
-Ckino dfaugm alllocates and initializes variables
+!! dfaugm alllocates and initializes variables
       call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
      .   , sv_p_otau , sv_p_oppi )
 
-
-C --- Make the potential sans XC part ---
+!! --- Make the potential sans XC part ---
       if(llmfgw) then
         if(jobgw .eq. 1 .or. jobgw .eq. -999) then
           call info(20,1,0,' Make potential without XC part ...',0,0)
           call togpr()
           i = 1 + 10*lfrzw + 100
-Ckino dfaugm alllocates and initializes variables
+!! dfaugm alllocates and initializes variables
           call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
      .       , sv_p_otaux , sv_p_oppix )
-
-c          call defcc(ospotx, -k1*k2*k3*nsp)
           allocate(spotx(k1,k2,k3,nsp))
           spotx=0d0
-c          call defcc(osmrox, -k1*k2*k3*nsp)
-c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
-Ckino mkpot calls locpot. and locpot calls augmat.
-Ckino augmat calculates sig,tau,ppi.
+!! mkpot calls locpot. and locpot calls augmat.
+!! augmat calculates sig,tau,ppi.
           call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 ,
-ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , spotx
-ckino Dec.8.2011:       .         lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx
-ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spotx
-ckino Dec.28.2011:       .         lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_p_oorhat , qbg , spotx 
      .     lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
      .     , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .     , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .     , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
           call togpr()
-c          call rlse(osmrox)
         endif
-C --- readin job switch
+!! --- readin job switch
         if (jobgw .eq. -999 .and. procid==master) then
           write(stdo,*) ' lmfgw: input one of the following jobs:'
-c        write(stdo,*) '  -1 : creates files',
-c     .    ' GWinput, QIBZ, KPTin1BZ'
           write(stdo,*) '   0 : init mode; creates files',
      .    ' SYMOPS, LATTC, CLASS, NLAindx, ldima'
           write(stdo,*) '   1 : GW setup mode'
@@ -767,19 +684,9 @@ c     .    ' GWinput, QIBZ, KPTin1BZ'
         call mpi_barrier(MPI_comm_world,ierr)
         call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
 #endif        
-
-C ... Mode -1 ... only after mkpot because qval made in mkpot
-c      if (jobgw .eq. -1) then
-c        call sugwin(ssite,sspec,slat,sham,w(osgw),sbz,nbas,qval)
-c        call rx0('lmfgw, job -1')
-c      endif
       endif
 
-
-
 c xxxxxxxxxxx new sigma block
-
-
 
 C --- Make the potential and total energy terms ---
       i = 1 + 10*lfrzw + 100*lnoxc
@@ -791,9 +698,6 @@ C --- Make the potential and total energy terms ---
 
       if(llmfgw) i = i + 10000
 
-ctakao sep2009
-c      print *,'vvv'
-
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat init 01 ---'
@@ -802,23 +706,15 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
 c          stop 'xxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccc
 
+!! mkpot calls locpot. and locpot calls augmat.
+!! augmat calculates sig,tau,ppi.
       call togpr()
-Ckino mkpot calls locpot. and locpot calls augmat.
-Ckino augmat calculates sig,tau,ppi.
       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
-ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , sv_p_oorhat , qbg , zv_p_osmpot
-ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot
-ckino Dec.8.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , zv_p_osmpot
-ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_p_osmpot
-ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_p_osmrho , spot%sv_p_oorhat , qbg , spot%zv_a_osmpot
-ckino Dec.28.2011:       .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_p_oorhat , qbg , spot%zv_a_osmpot 
      .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
-
       call togpr()
-
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c       print *,'vvv takao mkekin repeat init 02 ---'
@@ -826,7 +722,6 @@ c       call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
 c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
 c          stop 'xxxxxxxxxxxxxxxx  111'
 ccccccccccccccccccccccccc
-
 
 C Commented by takao lwsig should be renewed. July2009
 C C     lwsig0 = isign(1,lwsig) * mod(iabs(lwsig),10)
@@ -857,23 +752,13 @@ C         goto 50
 C       endif
 
       elind = sham%elind
-
-      if (elind .lt. 0d0)
-     .elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
+      if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
-
-c      call defrr(oevlall, ndham*nsp*nkp)
       allocate( evlall(ndham,nsp,nkp))
 
 C --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
-cccccccccccccccccccccc
-c         print *,'nsp,nspc,nkp,nkp=',nsp,nspc,nkp,nkp
-cccccccccccccccccccccc
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
-c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
-ckino Dec.8.2011:       .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,
-ckino Dec.8.2011:       .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .  nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .  dabs(esmear-mpsord))
         if (lwtkb .eq. -1)
@@ -883,12 +768,6 @@ ckino Dec.8.2011:       .  nevmx,lwtkb,eferm,rv_p_owtkb,numq,lswtk,rv_a_oswtk,ef
      .    call info(20,0,1,'%8pReplace ef0 with file ef=%;6d',eferm,0)
           ef0 = eferm
         endif
-c#if MPIK
-c        if (epsovl .ne. 0) then
-c          allocate(eomin_rv(nsp*nkp))
-c
-c        endif
-c#endif
       else
         nkp = 0
         ldos = 0
@@ -912,10 +791,8 @@ C --- More k-point independent local arrays ---
       allocate(dos_rv(ndos*2*nsp))
       if (lrout .ne. 0) then
         call dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
-
         if ( lekkl .eq. 1 ) call dfqkkl ( nbas , ssite , sspec , numq 
      .   , sv_p_oeqkkl )
-
         allocate(srout_zv(k1*k2*k3*numq*nsp))
         allocate(fh_rv(3*nbas))
         allocate(fes2_rv(3*nbas))
@@ -971,15 +848,14 @@ Cki  ifiese default value is not set.  set it to 0
  127    continue
         print *
         print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
-        print *,' You may use a dummy ESEAVR file (two lines) such as'
-        print *,' 0.0 1'
-        print *,' 0.0 2'
+        print *,' You can use a dummy ESEAVR file (two lines) such as'
+        print *,' 0.0 1 0'
+        print *,' 0.0 2 0'
         stop '=== No ESEAVR file (given by hqpe_sc)! ==='
       endif
  128  continue
 
-
-C --- Start loop over k points; also, re-entry for second band pass ---
+!! == Start loop over k points; also, re-entry for second band pass ==
       gotosecondpass =.false.
       if(plbnd==0) then
        gotosecondpass = (lmet >=0 .and. (lmet /=4 .or. ltet) .and. lrout>0 ) !this covers limited cases.
@@ -995,7 +871,7 @@ C --- Start loop over k points; also, re-entry for second band pass ---
 
       if (lfrce .gt. 0) then
         call dpzero(frc, 3*nbas*numq)
-        fh_rv=0d0 !call dpzero ( fh_rv , 3 * nbas )
+        fh_rv=0d0 ! 3 * nbas 
       endif
 
       if (lswtk .eq. 1) then
@@ -1037,7 +913,6 @@ C   ... If switch '--mull'; get sites, number of channels
 C   ... If switch '--pdos'; get sites, number of channels
         if (cmdopt('--pdos',6,0,strn)) then
           mulopt = strn(7:)
-
           ng=slat%nsgrp
 
           nchmx = min(1024,nbas*nl**2)
@@ -1053,11 +928,6 @@ C   ... If switch '--pdos'; get sites, number of channels
           if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
      .    call info(20,0,0,' PDOS: %iMb memory for aus: nlmax=%i',
      .    i/1000000,nlmax)
-c           allocate(ausp_zv(i))
-c           if (i<0) ausp_zv(:)=0.0d0
-
-c           if (allocated(ausp_zv)) deallocate(ausp_zv)
-
           if (cmdopt('--mull',6,0,strn))
      .    call rx('--pdos and --mull not allowed in conjunction')
           if (cmdopt('--cls',5,0,strn))
@@ -1068,7 +938,6 @@ c           if (allocated(ausp_zv)) deallocate(ausp_zv)
         if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
      .  ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
       endif
-
       if(debug) print *,'vvvvv 22222222qqq '
 
 C ... Case only generate bands at supplied qp: setup
@@ -1125,7 +994,6 @@ ckino
         endif
 
         if(debug) print *,'vvvvv nkp222=',nkp,iopq
-
         call mpibc1(nkp,1,2,mlog,'bndfp','nkp')
         if (nkp .le. 0) call rx0('bndfp')
         call mpibc1(nfbn,2,2,mlog,'bndfp','nfbn')
@@ -1137,7 +1005,6 @@ ckino plotting wavefunction
           call mpibc1(listwf,n_listwf,2, mlog,'bndfp','listwf')
         endif
 
-
 C MPIK: Setup to assemble all k-points into single list with qp table
 #if MPIK
         if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
@@ -1146,18 +1013,10 @@ C MPIK: Setup to assemble all k-points into single list with qp table
 
         call suqlsm(i)
 C       Re-allocate qp and evl arrays
-ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
-ckino Jan.4.2012
         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-        allocate(sbz%rv_p_oqp(abs(3*nkp)))
-ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
-        if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
+        allocate(sbz%rv_p_oqp(3*nkp))
+        sbz%rv_p_oqp(:)=0.0d0
 
-c        call defrr(oevlall, ndham*nsp*nkp)
-
-c        if (epsovl .ne. 0) then
-c          allocate(eomin_rv(nsp*nkp))
-c        endif
         call info2(20,1,1,
      .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
 C       Loop through all qp; accumulate vector of qp.
@@ -1180,9 +1039,7 @@ ckino2012Oct15 comment loop_start-----------------
               iq = iq+1
               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
      .         , ifbls_iv , i2 , qp , onesp )
-
               call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-
             enddo
             call poppr
             call suqlsm(i)
@@ -1322,7 +1179,12 @@ c     lwsig=0
          rsrnge = sham%rsrnge
          if(procid==master) then
             if(oncewrite(9)) print *,'rsrnge procid=',rsrnge,procid
-            ifi = fopna('sigm',-1,4)
+            if(cmdopt('--pdos',6,0,strn)) then
+               ifi = fopna('sigm_fbz',-1,4)
+            else
+               ifi = fopna('sigm',-1,4)
+            endif   
+
             read(ifi,err=9995,end=9995) nsp_dummy,ndimh_dummy,nk1,nk2,nk3
             allocate( qsmesh(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
@@ -1339,11 +1201,13 @@ c     lwsig=0
             if (ldim .ne. ndham) then !june2009 takao
                write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
             endif
-            call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, !ndham is removed sep2012 (read from sigma file )
-     &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) !sfz is the self-energy roteted in the full BZ.
-            call fclose(ifi)
 
-            if(cmdopt('--wsig',6,0,strn)) then
+!! sfz is the self-energy roteted in the full BZ.
+! ndham is removed sep2012 (read from sigma file )
+            call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, 
+     &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
+            call fclose(ifi)
+            if(.not.cmdopt('--no-wsig_fbz',13,0,strn).and.oncewrite(10)) then
                write(6,*)' write sigm_fbz in full bz'
                ifis2 = fopna('sigm_fbz',-1,4)
                write(ifis2) nsp,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
@@ -1429,8 +1293,11 @@ c
             if(.not.newsigmasw()) then 
                allocate( sfzx(nk1,nk2,nk3,ndimsig,ndimsig,nsp) ) 
                sfzx=sfz
-               if (procid .eq. master) ifi = fopna('sigm',-1,4)
-               ifi = fopna('sigm',-1,4)
+               if(cmdopt('--pdos',6,0,strn)) then
+                  ifi = fopna('sigm_fbz',-1,4)
+               else
+                  ifi = fopna('sigm',-1,4)
+               endif   
 !     ! note that sigm file is read again, and compared with FFT-sfzx.
                call seneinterp(nbas,nsp,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
      &              nk1,nk2,nk3,sfzx) !,qp,isp,sene)
@@ -1474,6 +1341,7 @@ c     print *,' m2222 procid=',procid
 #endif
          siginit=.false.
       endif                     !end of sigmamode if
+
 
 !! == GW driver must be after rdsigm2 for sigm mode ==
 !! lmfgw-MPIK does not make sense "just parelell do 
@@ -1696,7 +1564,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
          if(sigmamode.and.newsigmasw()) then
@@ -2233,40 +2101,43 @@ C   --- Mulliken analysis and partial DOS ---
                     call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
                     allocate(doswt_rv(nchan*nevmx*nspc))
                     doswt_rv(:)=0.0d0
-                    call mullmf ( nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
+                    call mullmf(nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
      .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
      .               , chan_iv , lmdim , ndham , doswt_rv )
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
-     .              nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
-     .              , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+     .                   nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
+     .                   , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
                     if (allocated(doswt_rv)) deallocate(doswt_rv)
                   elseif (cmdopt('--pdos',6,0,strn)) then
+                    write(*,*) 'goto pdos mode moddos=',moddos
 #if MPIK
                     call rx('PDOS not k-parallel.')
 #endif
-                    call rxx(nspc.ne.1,
-     &               'pdos not implemented in noncoll case')
-                     i = nlmax*ndham*3*nsp*nbas
-                     allocate(ausp_zv(i))
-                     ausp_zv(:)=0.0d0
+                    call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
+                    i = nlmax*ndham*3*nsp*nbas
+                    allocate(ausp_zv(i))
+                    ausp_zv(:)=0.0d0
                     call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .               0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .               nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
-                     allocate(doswt_rv(nchan*ndimhx*nspc))
-                     doswt_rv(:)=0.0d0
+     .                   0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
+     .                   nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
+                    allocate(doswt_rv(nchan*ndimhx*nspc))
+                    doswt_rv(:)=0.0d0
                     call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
-     .               , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
-     .               , doswt_rv )
+     .                   , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
+     .                   , doswt_rv )
+cccccccccccccccccccccccccccccc
+
+cccccccccccccccccccccccccccccc
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
 #if MPIK
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
-     .               i , 1 , iq , isp , ndham , ndimh , nchan , nchan , nev , evl 
-     .               ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+     .                   i , 1 , iq , isp, ndham , ndimh , nchan , nchan , nev , evl 
+     .                   ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #else
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
-     .               , 1 , 1 , ndham , ndimh , nchan , nchan , nev , evl ( 1 , jsp 
-     .               ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+     .                   , 1 , 1 , ndham , ndimh , nchan , nchan , nev, evl ( 1 , jsp 
+     .                   ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #endif
                     if (allocated(doswt_rv)) deallocate(doswt_rv)
                     if (allocated(ausp_zv)) deallocate(ausp_zv)
@@ -2788,7 +2659,7 @@ C ... End of k point loop
 
 C     call zprm3('smrho after k-point loop',0,w(osrout),k1,k2,k3)
 
-C --- Interpolate density to Fermi energy ---
+!! --- Interpolate density to Fermi energy ---
       sev = sumev(1,1)
       if (lmet .eq. 4) then
         call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
@@ -2833,7 +2704,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         endif
       endif
 
-C --- BZ integration for fermi level, band sum and qp weights ---
+!! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
         if (lwndow) then
           allocate(ww_rv(ndham*nsp*nkp))
@@ -2893,7 +2764,7 @@ ckino Dec.8.2011:                 l_temp_rv_p_oswtk=.false.
             deallocate(sbz%iv_a_oidtet);
             l_temp_iv_a_oidtet=.false.
           endif
-C         Store val charge & magnetic moment in sumqv(1..2)
+!!         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
             sumqv(1,1) = sumqv(1,2)
             sumqv(2,1) = sumqv(2,2)
@@ -2917,7 +2788,6 @@ c          endif
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
-ckino Dec.8.2011:               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_p_owtkb , -ifi )
             i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
             call fclr('wkp',ifi)
           endif
@@ -2982,83 +2852,52 @@ c      endif
         enddo
       endif
 
-C --- Generate DOS on disk ---
-      if (.not. lwndow) then
-
-        ndos0=sbz%ndos
-
+!! --- Generate DOS on disk ---
+      if(.not. lwndow) then
+        ndos0 = sbz%ndos
         if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
-
-c          allocate(dos_rv(3*ndos))
-
           if (iprint()>=30) call awrit1('%x%N ... Generating %?#n<0#'
      .    //'integrated#total# DOS',' ',80,lgunit(1),ndos0)
           if (ltet) then
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .       , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-ckino Dec.16.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum ,
-ckino Dec.28.2011:       .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_p_oidtet , dum , 
      .       2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , 
      .       dum )
-
-
             if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .      , nspx , 0 , dos_rv )
-
             del = 0d0
           else
-            if (mpsord .ge. 100) mpsord = mod(mpsord,100)
+            if ( mpsord .ge. 100) mpsord = mod(mpsord,100)
             if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
-ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord )
-ckino Dec.27.2011:       .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-
-
             if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
-ckino Dec.8.2011:       .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord )
-ckino Dec.27.2011:       .       , sbz%rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-
-
             del = mpsord+dabs(esmear-mpsord)
           endif
           if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
-
+!! dos file io
           call dosio ( dos_rv , ndos , nspx , ndos , 1 , dosw ( 1 ) 
-     .    , dosw ( 2 ) , nspx , eferm , del , 1 , - fopn ( 'DOS' ) )
-
-          call fclose(fopn('DOS'))
+     .    , dosw ( 2 ) , nspx , eferm , del , 1 , - fopn ( 'dos' ) )
+          call fclose(fopn('dos'))
           if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-c           if (allocated(ausc_zv)) deallocate(ausc_zv)
-c           if (allocated(fes2_rv)) deallocate(fes2_rv)
-c           if (allocated(fh_rv)) deallocate(fh_rv)
-c           if (allocated(srout_zv)) deallocate(srout_zv)
           if (allocated(dos_rv)) deallocate(dos_rv)
-c           call rlse(oqp) --->wrong rlse. Break some arrays
-
         endif
       endif
-      if( debug) print *, 'tttttttttt 9999999999999999999 7'
 
-
-C --- Core-level spectroscopy ---
+!! --- Core-level spectroscopy ---
       if (icls .ne. 0) then
         if (procid .eq. master) then
-
           eferm=sbz%ef
-
           call vcdmel ( sctrl , ssite , sspec , slat , nlmax , ndham , 
      .    ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
      .    nsites , isite , iclsl , iclsn )
-
           call rx0('done generating core level spectra')
         else
           call fexit(0,0,' ',0)
         endif
       endif
-
 C --- Assemble output density ---
       call dfratm ( nbas , ssite , sspec , sv_p_orhat1 )
 
@@ -3070,87 +2909,50 @@ C --- Assemble output density ---
 C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim
-ckino Dec.8.2011:       .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_oorhat , hab_rv , sab_rv
-ckino Dec.28.2011:       .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_p_oorhat , hab_rv , sab_rv 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_a_oorhat , hab_rv , sab_rv 
      .     , qbyl_rv , hbyl_rv , lrout )
-
-
-
-
-ckino Dec.8.2011:           call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_p_osmrho
-ckino Dec.28.2011:           call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_p_osmrho
-        call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_a_osmrho 
+        call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_a_osmrho 
      .   , 1 )
-
-
-ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , sv_p_oorhat
-ckino Dec.8.2011:            call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , spot%sv_p_oorhat
-ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%zv_p_osmrho , spot%sv_p_oorhat
-ckino Dec.28.2011:            call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_p_oorhat
-        call symrho ( ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_a_oorhat 
+        call symrho(ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_a_oorhat 
      .    , qbyl_rv , hbyl_rv , frc )
         goto 999
       endif
       call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
      ., lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      ., qbyl_rv , hbyl_rv , lrout )
-      if( debug) print *, 'tttttttttt 9999999999999999999 7'
 C
       if (lrout .ne. 0) then
 C   ... Symmetrize output density and forces
         call symrho ( ssite , sspec , slat , lfrce , srout_zv , sv_p_orhat1 
      .   , qbyl_rv , hbyl_rv , frc )
-
 C   ... New boundary conditions pnu for phi and phidot
 C       call pshpr(iprint()-12)
         if (lpnu .gt. 0) then
-
           i_copy_size=size(sham%pmin)
           call dcopy(i_copy_size,sham%pmin,1,xv,1)
-
-
           i_copy_size=size(sham%pmax)
           call dcopy(i_copy_size,sham%pmax,1,xv(11),1)
-
           call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
      .    , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
-
         endif
 C       call poppr
       endif
-
-
       if( debug) print *, 'tttttttttt 9999999999999999999 8'
 
-C --- Evaluate Harris energy ---
-c      call pshpr(ipr-10) !this was needed to go through test.fp (just for check write.) Why? --> but no problem... sep2009
-c      print *,'vvv takao goto mkehfk mode1'
+!! --- Evaluate Harris energy ---
       call mkehkf(1,sham,sev,sumqv(2,1),sumtv,ehar)
-c      call poppr()
-
-C --- Evaluate KS total energy, correction to Harris force ---
+!! --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
-
-C   ... Correction to harris force
+!!   ... Correction to harris force
         call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl
-ckino Dec.8.2011:       .     , sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho ,
-ckino Dec.8.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_p_osmrho ,
-ckino Dec.28.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_p_osmrho ,
-ckino Dec.28.2011:       .     , spot%sv_p_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
      .     , spot%sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
      .     srout_zv , fh_rv )
-
-C   ... Evaluate KS total energy and output magnetic moment
+!!   ... Evaluate KS total energy and output magnetic moment
         eks = 0d0
         if (leks .ge. 1) then
           call togpr()
-c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
-c          print *,'goto mkein procid=',procid
           call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
      .         , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
-ckino Dec.8.2011:       .         , vconst , zv_p_osmpot , srout_zv , sev , sumtv )
-ckino Dec.28.2011:       .         , vconst , spot%zv_p_osmpot , srout_zv , sev , sumtv ) 
      .         , vconst , spot%zv_a_osmpot , srout_zv , sev , sumtv )
 
 ccccccccccccccccccccccccc
@@ -3167,15 +2969,12 @@ c          call defdc(osmpotbk,k1*k2*k3*2)
 c          call dcopy(k1*k2*k3*4,w(osmpot),1,w(osmpotbk),1)
 ccccccccccccccccccccc
 
-ctakao sep2009
 c          call pshpr(ipr-4)
 Ckino mkpot calls locpot. and locpot calls augmat.
 Ckino augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
           call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
-ckino Dec.8.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , zv_p_osmpot
-ckino Dec.28.2011:       .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_p_osmpot 
-     .         , lcplxp , k1 , k2 , k3 , srout_zv , sv_p_orhat1 , qbg , spot%zv_a_osmpot 
+     .         , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , spot%zv_a_osmpot 
      .         , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .         , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .         , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
@@ -3201,22 +3000,18 @@ c          print *,'vvv takao goto mkehfk mode2'
 c          print *,'gogo mkehkf procid=',procid,ipr,eks
           call togpr()
         endif
-
         if( debug) print *, 'tttttttttt 9999999999999999999 9'
 
-C   --- Add together force terms ---
+!!   --- Add together force terms ---
         if ( lfrce .gt. 0 ) call totfrc ( nbas , ssite , slat , leks 
      .  , fes1_rv , fes2_rv , fh_rv , frc )
 
-
-C   --- Mix input and output densities ---
+!!   --- Mix input and output densities ---
         allocate(qm1_rv(nvl))
-
         allocate(qm2_rv(nvl))
 #ifdef KINODEBUG
         write(*,*) 'kino allocate qm2_rv',nvl
 #endif
-
         call upacks('strn mix',i1,i2)
 #if MPE
         ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
@@ -3279,21 +3074,16 @@ c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
 #if MPIK
 cki       if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
-
 #endif
-c      call rlse(oevlall)
       deallocate(evlall)
       return
  9995 continue
-      call rx('bndfp: readin error on sigm file')
+      call rx('bndfp: readin error on sigm or sigm_fbz(--pdos) file')
       end subroutine bndfp
-
-
 
 
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
-
 C- Collect eb from various processors (MPI)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -3303,34 +3093,21 @@ Ci   nkp   :number of irreducible k-points (bzmesh.f)
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   eb    :energy bands; alias eband
 Co Outputs
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   10 Jul 06
 C ----------------------------------------------------------------------
       implicit none
       include "mpif.h"
-C ... Passed parameters
       integer kpproc(0:*),ndham,nkp,nsp
       double precision eb(ndham,*)
-C ... Local parameters
       integer i,ista,iend
       integer procid,master
       integer numprocs, ierr
       integer, dimension(:),allocatable :: offset,length
       real(8) ,allocatable :: buf_rv(:)
-
-C ... Heap
-
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-
       allocate (offset(0:numprocs), stat=ierr)
       allocate (length(0:numprocs), stat=ierr)
       offset(0) = 0
-
       do  i = 0, numprocs-1
         ista = kpproc(i)
         iend = kpproc(i+1)-1
@@ -3342,23 +3119,16 @@ C ... Heap
 #ifdef KINODEBUG
       write(*,*)'kino allocate bug_rv',ndham*nkp*nsp
 #endif
-
       call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
      .( procid ) , mpi_double_precision , buf_rv , length , offset 
      ., mpi_double_precision , mpi_comm_world , ierr )
       call dcopy ( ndham * nsp * nkp , buf_rv , 1 , eb , 1 )
       if (allocated(buf_rv)) deallocate(buf_rv)
-
       deallocate(offset, stat=ierr)
       deallocate(length, stat=ierr)
-
-C      if (procid .eq. master) then
-C        print *, procid,eb(1,1),eb(1,nsp*nkp)
-C      endif
-C      call rx('done')
       end subroutine xmpbnd
-
 #endif
+
 c      subroutine xxxbfp
 c
 c      end subroutine xxxbfp
@@ -3373,4 +3143,3 @@ c        nevec = i
 c        if (maxval(wtkb(i,:,:)) .gt. 1d-6) exit
 c      enddo
 c      end
-

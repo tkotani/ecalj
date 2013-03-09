@@ -306,7 +306,7 @@ ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
 c #define OQHH sv_p_oqkkl(3,ib)%v
 c #define OQHP sv_p_oqkkl(2,ib)%v
 c #define OQPP sv_p_oqkkl(1,ib)%v
-          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
+          call mkrou1(nsp, nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
      .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks  
 c     &     , OQHH, OQHP , OQPP , 
      &     , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v 
@@ -315,7 +315,6 @@ c     &     , OQHH, OQHP , OQPP ,
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
-
           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
      .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v )
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
@@ -326,20 +325,20 @@ C       call poppr
 
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
-          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
+          call mkrou5( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
      .     , nkaph , nkaph , fh_rv , lmxh , chh_rv , sv_p_orhoat( 2 , ib )%v  )
 C       H Pkl product
-          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
+          call mkrou5( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
      .     , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , sv_p_orhoat( 2 , ib )%v   )
 C       Pkl Pkl product
-          call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , 
-     .     lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v   )
+          call mkrou5( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , 
+     .     lmxa, kmax+1, kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v   )
 C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
 !! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
-          call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , dmatl_rv , hab 
-     .    ( 1 , 1 , 1 , ib ) , sab (1 , 1 , 1 , ib ) , qbyl (1 , 1 ,ib ) , hbyl ( 1 , 1 , ib ) )
+          call mkrou3(2 , lmxa , nlml , nsp , pnz , dmatl_rv , hab 
+     .    (1, 1,1,ib), sab(1, 1, 1, ib ) , qbyl (1 , 1 ,ib ) , hbyl ( 1 , 1 , ib ) )
 
 !! Remake hbyl from energy-weighted density matrix
 !! This is because above codes to give hbyl is wrong. So, we need to go though anothe pass with lekkl=1
@@ -350,10 +349,10 @@ c #define OQHH sv_p_oeqkkl(3,ib)%v,  #define OQHP sv_p_oeqkkl(2,ib)%v,  #define 
             nlml1 = 1
             call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp * 9 )
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
-            call dpzero ( chh_rv , k )
-            call dpzero ( chp_rv , k )
-            call dpzero ( cpp_rv , k )
-            call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
+            call dpzero(chh_rv , k )
+            call dpzero(chp_rv , k )
+            call dpzero(cpp_rv , k )
+            call mkrou1(nsp, nlmh, nlma, nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
      .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks 
 c     &            , OQHH , OQHP , OQPP, 
      &            , sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v 

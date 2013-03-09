@@ -1,9 +1,7 @@
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .aus)
-
       use m_struc_def  !Cgetarg
-
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs

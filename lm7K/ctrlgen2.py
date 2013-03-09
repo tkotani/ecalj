@@ -792,19 +792,25 @@ tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
                 # METAL=2 is faster but weights for integration is from previous iteration 
                 #   (it can be a little unstable)
                 # For insulator, METAL=0 is good enough. 
-		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
-		#   (SAVDOS, DOS, NPTS gives no side effect for self-consitency calculaiton).
+
+      #SAVDOS=T DOS=-1 1 NPTS=2001     
+		# When you plot dos, set SAVDOS=T METAL=3, and with
+		# DOS=-1 1 (range) NPTS=2001 (division) even for
+		# insulator to get a smooth plot. You may need to
+		# enlarge NKABC to get a better plot.
+                #
+                # When you enlarge NKABC do
+                #   >lmf --no-fixef0 --quit=band si > llmfdos  
+                # This --quit=band do not perform self-consistent
+                # calculations. Quit right after the eigenvalue calculations.
                 # 
                 #BUG: For a hydrogen in a large cell, I(takao) found that METAL=0 for
                 #(NSPIN=2 MMOM=1 0 0) results in non-magnetic solution. Use METAL=3 for a while in this case.
                 # 
 
-      BZJOB=0	# BZJOB=0 (including Gamma point) or =1 (not including Gamma point).
-		#  In cases , BZJOB=1 makes calculation efficient.
-
-
-      #Setting for molecules. No tetrahedron integration. (Smearing))
-      # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
+      # Following TETRA=0 N=-1 W=0.001 FSMOM 
+      #  are for molecules. No tetrahedron integration. (Smearing))
+      #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
 """
 
 tail =  tail + "%const bzw=1e-4  fsmom="+str(fsmom_val)
@@ -819,10 +825,11 @@ if (systype_val.upper()=="BULK") :
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
       #FSMOM={fsmom} real number (fixed moment method)
-      #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
+      #  FSMOM is for he fixed-spin moment method. 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
       # NOTE: current version is for ferro magnetic case (total mag moment) only.
+    
       #FSMOMMETHOD=0 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
       #  =0: original mode suitable for solids.(default)
       #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.

@@ -1,8 +1,6 @@
       subroutine mkpdos(mode,ssite,sspec,isp,nsp,nlmax,ndham,nev,
      .nchan,npd,lsite,nsite,ppnl,aus,doswt)
-
       use m_struc_def  !Cgetarg
-
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -54,11 +52,9 @@ C ... Local parameters
      .suma,sum,rmt
       double complex au,as,az
       logical:: l_dummy_isanrg,isanrg
-
 Ckino isanrg is logical function,       call isanrg(mode,0,5,' mkpdos','mode',.true.)
       l_dummy_isanrg=isanrg(mode,0,5,' mkpdos','mode',.true.)
       lmxax = ll(nlmax)
-
       ichan = 0
       do  i = 1, nsite
         if (lsite(1) .le. 0) then
@@ -66,12 +62,9 @@ Ckino isanrg is logical function,       call isanrg(mode,0,5,' mkpdos','mode',.t
         else
           ib = lsite(i)
         endif
-        is = int(ssite(ib)%spec)
-
-
-        lmxa=sspec(is)%lmxa
-        rmt=sspec(is)%rmt
-
+        is  = ssite(ib)%spec
+        lmxa= sspec(is)%lmxa
+        rmt = sspec(is)%rmt
         lmxa = min(lmxa,lmxax)
         if (lmxa .eq. -1) goto 10
 
@@ -86,10 +79,8 @@ C       Decompose by Rlm
         elseif (mode .eq. 2 .or. mode .eq. 5) then
           lmdim = nlma
         endif
-
 C       call pp2hvs(1,nsp,lmxa,ppnl(1,1,1,ib),rmt,sab,sab,sab)
 C       call phvsfp(1,nsp,lmxa,ppnl(1,1,1,ib),rmt,sab,sab,sab)
-
         do  iv = 1, nev
           call dpzero(suml,1+lmxa)
           suma = 0
@@ -101,12 +92,12 @@ C       call phvsfp(1,nsp,lmxa,ppnl(1,1,1,ib),rmt,sab,sab,sab)
               au = aus(ilm,iv,1,isp,ib)
               as = aus(ilm,iv,2,isp,ib)
               az = aus(ilm,iv,3,isp,ib)
-
+c
 C           If (au,as) are coefficients to (u,s), use this
 C           s11 = dconjg(au)*au*sab(1,l+1,isp)
 C           s12 = 2*dconjg(au)*as*sab(2,l+1,isp)
 C           s22 = dconjg(as)*as*sab(4,l+1,isp)
-
+c
 C           If (au,as) are coefficients to (phi,phidot), use this
               s11 = dconjg(au)*au*ppnl(2,l+1,isp,ib)
               s22 = dconjg(as)*as*ppnl(7,l+1,isp,ib)
@@ -125,10 +116,8 @@ C            endif
               suma = suma + sum
               suml(l+1) = suml(l+1) + sum
               summ(ilm) = sum
-
             enddo
           enddo
-
           if (lmdim .eq. 1) then
             call dcopy(1,suma,1,doswt(1+ichan,1,iv),1)
           else if (lmdim .eq. 1+lmxa) then
@@ -136,7 +125,6 @@ C            endif
           else
             call dcopy(nlma,summ,1,doswt(1+ichan,1,iv),1)
           endif
-
         enddo
         ichan = ichan + lmdim
    10   continue

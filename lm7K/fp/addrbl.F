@@ -107,24 +107,16 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_ham)::sham
-
       type(s_rv1) :: sv_p_oppi(3,1)
-
       type(s_rv1) :: sv_p_otau(3,1)
-
       type(s_rv1) :: sv_p_osig(3,1)
-
       type(s_rv1) :: sv_p_oeqkkl(3,1)
-
       type(s_rv1) :: sv_p_oqkkl(3,1)
-
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
      .smpot(k1,k2,k3,isp)
 C ... Local parameters
       integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig
-ckino Dec.9.2011:         integer,pointer :: iv_p_oidxsh(:) =>NULL()
-
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 CSFCPP#if F90
@@ -142,15 +134,11 @@ CSFCPP      parameter(ndimx=1000)
 CSFCPP      double precision ewgt(3,ndimx)
 CSFCPP#endif
 
-
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
-C     call wkprnt(1)
-Changenglob      nbas = nglob('nbas')
       nbas = globalvariables%nbas
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
-
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
@@ -158,11 +146,7 @@ CSFCPP#if ! (F90 | AUTO_ARRAY)
 CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 CSFCPP#endif
 
-ckino Dec.9.2011:         iv_p_oidxsh => sham%iv_p_oindxo
-
-
 C     Setup for PW part of basis
-
       alat=slat%alat
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
@@ -170,12 +154,8 @@ C     Setup for PW part of basis
 C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
       do  i = 1, nbas
-
         k=ssite(i)%spec
-
-
         lmxa=sspec(k)%lmxa
-
         lmxax = max(lmxax,lmxa)
       enddo
       nlmax=(lmxax+1)**2
@@ -205,24 +185,16 @@ C ... Case band weights not passed: make sampling weights
         call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def,esmear,numq,
      .  nevec,ewgt,sumev,sumqv(1,isp))
         call dscal(nevec*numq,wgt,ewgt,1)
-
 C ... Case band weights are passed
       else
         if (numq .ne. 1) call rx('addbrl: incompatible numq')
         call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
         do  10  i = nevl, 1, -1
           nevec = i
-c          if (abs(wtkb(i,isp,iq)) .gt. neveceps()1d-6) goto 12
           if (abs(wtkb(i,isp,iq)) .gt. epsnevec()) goto 12
    10   continue
    12   continue
       endif
-ccccccccccccc
-c      print *,'ttt:addrbl nevec=',nevec
-c      do i=1,nevl
-c        print *,i,wtkb(i,isp,iq)
-c      enddo
-ccccccccccccc
 
 C ... Add to sampling dos
       if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
@@ -238,11 +210,8 @@ C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
           call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh ,
-ckino Dec.9.2011:       .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec ,
-ckino Dec.27.2011:       .     nlmto , sham%iv_p_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     nlmto , sham%iv_a_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f )
-
         endif
 C        print *, 'after fsmbl'
 C        do  i = 1, 3
@@ -251,15 +220,10 @@ C  543     format(1p3e15.7)
 C        enddo
 
         if (napw .gt. 0) then
-
           vol=slat%vol
-
-ckino Dec.9.2011:             call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh
-ckino Dec.27.2011:             call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_p_oindxo
           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_a_oindxo 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
-
 C        print *, 'after fsmblpw'
 C        do  i = 1, 3
 C          print 543, f(:,i)
@@ -267,16 +231,11 @@ C        enddo
         endif
       endif
 
-C     print *, '!!'; call dpzero(f,9)
-
 C ... Add to smooth density
       if (lrout .gt. 0) then
         call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
-ckino Dec.9.2011:       .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec
-ckino Dec.27.2011:       .   iq , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
      .   iq , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
-
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       endif
 C      print *, 'after rsibl'
@@ -287,17 +246,9 @@ C      enddo
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
         call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
-ckino Dec.9.2011:       .        ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec
-ckino Dec.27.2011:       .        ndham , ndimh , nspc , napw , igapw , sham%iv_p_oindxo , numq , nevec 
      .        ndham , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-
-
-
-
-
-
 C       call zprm3('smrho after rlocbl',0,smrho,k1,k2,k3)
       endif
 

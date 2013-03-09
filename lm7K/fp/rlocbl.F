@@ -3,7 +3,6 @@
       contains
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
      .nlmto,evec,ewgt,numq,evl,qhh,qhp)
-
 C- Add one and two-center terms to density coeffs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -175,9 +174,7 @@ C ... Local parameters
         enddo
       enddo
       call tcx('prlcb3')
-
       end subroutine prlcb3
-
       end module m_prlcb
 
 
@@ -186,11 +183,6 @@ CSFCPP#define F90 1
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-
-
-
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_prlcb
@@ -308,15 +300,10 @@ c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
       type(s_rv1) :: sv_p_oppi(3,1)
-
       type(s_rv1) :: sv_p_otau(3,1)
-
       type(s_rv1) :: sv_p_osig(3,1)
-
       type(s_rv1) :: sv_p_oeqkkl(3,1)
-
       type(s_rv1) :: sv_p_oqkkl(3,1)
-
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -333,40 +320,11 @@ C ... Local parameters or process-shared variables
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
-ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
-c      integer oib(npmx),oidb(npmx),oixf(npmx),o
       double precision alat,qlat(3,3)
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
      .lmxha,nlmha,nkaph,ispc,ksp
       integer:: ob , odb
-ckino Jan.04.2012:                  real(8),pointer :: rv_p_oppihp(:) =>NULL()
-
-ckino Jan.04.2012:                 real(8),pointer :: rv_p_oppipp(:) =>NULL()
-
-ckino Jan.04.2012:                real(8),pointer :: rv_p_osighp(:) =>NULL()
-
-ckino Jan.04.2012:               real(8),pointer :: rv_p_osigpp(:) =>NULL()
-
-ckino Jan.04.2012:              real(8),pointer :: rv_p_oeqhh(:) =>NULL()
-
-ckino Jan.04.2012:             real(8),pointer :: rv_p_oeqhp(:) =>NULL()
-
-ckino Jan.04.2012:            real(8),pointer :: rv_p_oeqpp(:) =>NULL()
-
-ckino Jan.04.2012:           real(8),pointer :: rv_p_oqhh(:) =>NULL()
-
-ckino Jan.04.2012:          real(8),pointer :: rv_p_oqhp(:) =>NULL()
-
-ckino Jan.04.2012:         real(8),pointer :: rv_p_oqpp(:) =>NULL()
-
       double precision pa(3),rsma,pi,tpiba
 CSFCPP#if F90
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
@@ -506,104 +464,31 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
         endif
 #endif
         ip=1
-C$      ip=mp_my_threadnum()+1
-
         isa=ssite(ia)%spec
-c        i_copy_size=size(ssite(ia)%pos)
-c        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
         pa=ssite(ia)%pos(1:3)
-
         lmxa=sspec(isa)%lmxa
         lmxha=sspec(isa)%lmxb
         kmax=sspec(isa)%kmxt
         rsma=sspec(isa)%rsma
-
         nlmha = (lmxha+1)**2
         nlma  = (lmxa+1)**2
         if (lmxa .eq. -1) goto 10
 
-ckino Jan.04.2012:          rv_p_oqpp => sv_p_oqkkl(1,ia)%v
 #define OQPP sv_p_oqkkl(1,ia)%v
-ckino Jan.04.2012:          rv_p_oqhp => sv_p_oqkkl(2,ia)%v
 #define OQHP sv_p_oqkkl(2,ia)%v
-ckino Jan.04.2012:          rv_p_oqhh => sv_p_oqkkl(3,ia)%v
 #define OQHH sv_p_oqkkl(3,ia)%v
-ckino Jan.04.2012:          rv_p_oeqpp => sv_p_oeqkkl(1,ia)%v
 #define OEQPP sv_p_oeqkkl(1,ia)%v
-ckino Jan.04.2012:          rv_p_oeqhp => sv_p_oeqkkl(2,ia)%v
 #define OEQHP sv_p_oeqkkl(2,ia)%v
-ckino Jan.04.2012:          rv_p_oeqhh => sv_p_oeqkkl(3,ia)%v
 #define OEQHH sv_p_oeqkkl(3,ia)%v
-ckino Jan.04.2012:          rv_p_oppipp => sv_p_oppi(1,ia)%v
 #define OPPIPP sv_p_oppi(1,ia)%v
-ckino Jan.04.2012:          rv_p_osigpp => sv_p_osig(1,ia)%v
 #define OSIGPP sv_p_osig(1,ia)%v
-ckino Jan.04.2012:          rv_p_oppihp => sv_p_oppi(2,ia)%v
 #define OPPIHP sv_p_oppi(2,ia)%v
-ckino Jan.04.2012:          rv_p_osighp => sv_p_osig(2,ia)%v
 #define OSIGHP sv_p_osig(2,ia)%v
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-c        ob = oib(ip)
-c        odb = oidb(ip)
-c        oxf = oixf(ip)
-
-CSFCPP#if F90
-ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
-ckino Dec.12.2011:              call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:              call bstrux ( 1 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
         call bstrux ( 1 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
-ckino Dec.12.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.12.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.28.2011:       .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
-
-
-
-
-CSFCPP#else
-CSFCPPC       Zero out strux to eliminate contributions from local orbitals
-CSFCPP        call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)
-CSFCPP        call dpzero(w(odb),(kmax+1)*nlma*ndimh*2*3)
-CSFCPP        do  ib = 1, nbas
-CSFCPP
-CSFCPP          is=ssite(ib)%spec
-CSFCPP          i_copy_size=size(ssite(ib)%pos)
-CSFCPP          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
-CSFCPP
-CSFCPPC         This line augments no local orbitals
-CSFCPPC         ik = 1
-CSFCPPC         This line augments onsite extended local orbitals only
-CSFCPPC         if (ia .eq. ib) ik = 2
-CSFCPPC         This line augments extended local orbitals all sites
-CSFCPP          ik = 2
-CSFCPP          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
-CSFCPPC         Position in h; l,k indices for orbitals connected w/ ib
-CSFCPP          call orbl(ib,0,ndimh,iprmb,norb,ltab,ktab,xx,offl,xx)
-CSFCPPC         Get list of blocks with envelope functions
-CSFCPPC         call gtbsl1(8+16,norb,ltab,ktab,xx,xx,ntab,blks)
-CSFCPPC         Loop over blocks of envelope functions
-CSFCPP          do  ik = 1, nkapi
-CSFCPP            nlmhb = (lh(ik)+1)**2
-CSFCPP            if (nlmhb .gt. nlmbx) call rxi('rlocbl: need nlmbx',nlmhb)
-CSFCPP            if (nlmhb .gt. nlma .and. ia.eq.ib)
-CSFCPP     .      call rx('rlocbl: nlmh .gt. nlma')
-CSFCPP
-CSFCPP            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,nlma,
-CSFCPP     .      kmax,nlmbx,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0,
-CSFCPP     .      db0)
-CSFCPP            if (ib .eq. ia) then
-CSFCPP              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,kmax,bos)
-CSFCPP              call paugq2(kmax,nlmhb,nlma,bos,b0)
-CSFCPP            endif
-CSFCPP            call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,
-CSFCPP     .      kmax,b0,db0,w(ob),w(odb))
-CSFCPP          enddo
-CSFCPP        enddo
-CSFCPP#endif
 
 C   --- Loop over eigenstates ---
 C       In noncollinear case, isp=1 always => need internal ispc=1..2
@@ -614,61 +499,31 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
         do  ivec = 1, nevec
           do  ispc = 1, nspc
             ksp = max(ispc,isp)
-
 C     ... Pkl expansion of eigenvector
             call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w_ob,cPkL)
-
-C      ... needed for off-diagonal density matrix ... comment out now
-C          if (nspc .eq. 2 .and. ispc .eq. 1) then
-CC#ifdef F90
-C            allocate(cPkL1((kmax+1)*nlma))
-C            call zcopy((kmax+1)*nlma,cPkL,1,cPkL1,1)
-CC#elseC
-CC            call rx('rlocbl: noncoll mode requires f90')
-CC#endif
-C          endif
-
 C     ... Add to local density coefficients for one state
 #ifdef USEOPTIONAL
             call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
-ckino Jan.04.2012:       .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= rv_p_oqpp ) 
      .        cpkl=cpkl , numq=numq , ewgt=ewgt ( 1 , ivec ) , qpp= OQPP )
-
             call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
      .         nlmha=nlmha , kmax=kmax , nlma=nlma , 
      .         isp=ksp , cpkl=cpkl , nlmto=nlmto , 
      .         evec=evec ( 1 , ispc , ivec ) , ewgt=ewgt ( 1 , ivec ) ,
-ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=rv_p_oqhp )
-ckino Jan.04.2012:       .         numq=numq  , qhh=rv_p_oqhh , qhp=OQHP ) 
      .         numq=numq  , qhh=OQHH , qhp=OQHP )
 #else
             call prlcb3 ( 0 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1
-ckino Jan.04.2012:       .        , ivec ) , iwdummy , rv_p_oqpp ) 
      .        , ivec ) , iwdummy , OQPP )
-
             call prlcb2 ( 0 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
      .         ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec
-ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , rv_p_oqhp )
-ckino Jan.04.2012:       .         ) , numq , iwdummy , rv_p_oqhh , OQHP ) 
      .         ) , numq , iwdummy , OQHH , OQHP )
 #endif
-
-
-
             if (lekkl .eq. 1) then
-              call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1
-ckino Jan.04.2012:       .         , ivec ) , evl ( ivec , isp ) , rv_p_oeqpp ) 
-     .         , ivec ) , evl ( ivec , isp ) , OEQPP )
-
-              call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
-     .          ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec
-ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , rv_p_oeqhp )
-ckino Jan.04.2012:       .          ) , numq , evl ( ivec , isp ) , rv_p_oeqhh , OEQHP ) 
-     .          ) , numq , evl ( ivec , isp ) , OEQHH , OEQHP )
-
-
+               call prlcb3 ( 1 , kmax , nlma , ksp , cpkl , numq , ewgt ( 1
+     .              , ivec ) , evl ( ivec , isp ) , OEQPP )
+               call prlcb2 ( 1 , ia , nkaph , iprmb , nlmha , kmax , nlma , 
+     .              ksp , cpkl , nlmto , evec ( 1 , ispc , ivec ) , ewgt ( 1 , ivec
+     .              ) , numq , evl ( ivec , isp ) , OEQHH , OEQHP )
             endif
-
 C          ... needed for off-diagonal density matrix ... comment out now
 CC#ifdef F90
 C          if (nspc .eq. 2 .and. ispc .eq. 2) then
@@ -687,17 +542,8 @@ C     ... Contribution to forces
               call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
      .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb
-ckino Jan.04.2012:       .            , da , wk , rv_p_oppipp , rv_p_oppipp , rv_p_osigpp , rv_p_oppihp
-ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , rv_p_osigpp , rv_p_oppihp
-ckino Jan.04.2012:       .            , da , wk , OPPIPP , OPPIPP , OSIGPP , rv_p_oppihp 
      .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP
-ckino Jan.04.2012:       .            , rv_p_oppihp , rv_p_osighp , lcplxp , w_oxf )
-ckino Jan.04.2012:       .            , OPPIHP , rv_p_osighp , lcplxp , w_oxf ) 
      .            , OPPIHP , OSIGHP , lcplxp , w_oxf )
-
-
-
-
             endif
           enddo
         enddo
@@ -717,12 +563,9 @@ C ... end loop over ia
       do  pid = 0, numprocs-1
         do  ia = bproc(pid), bproc(pid+1)-1
           is = int(ssite(ia)%spec)
-
-
           lmxa=sspec(is)%lmxa
           lmxh=sspec(is)%lmxb
           kmax=sspec(is)%kmxt
-
           nlma = (lmxa+1)**2
           nlmh = (lmxh+1)**2
           nelt(1) = (kmax+1)*(kmax+1)*nlma*nlma
@@ -789,7 +632,6 @@ c        do  ip = 1, mp
 c        enddo
       endif
 #endif
-
 CSFCPP#if F90
       deallocate(cPkL,da,wk)
 CSFCPP#endif

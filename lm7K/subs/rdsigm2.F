@@ -441,18 +441,6 @@ c      call mpibc1(nqp,1,2,mlog,'rdsigm','nqp')
 c      call mpibc1(lshft,3,2,mlog,'rdsigm','lshft')
       call info5(30,0,0,'%9fsigm file has %i irreducible QP: nk = ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
       if (lsplts) call info0(30,0,0,'%9f(warning) sigm file not spin pol .. splitting spins') !sanity check
-
-ctakao feb2012
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-ckino Dec.22.2011:         rv_p_opos => slat%rv_p_opos
-ckino Dec.22.2011:         iv_p_oistab => slat%iv_p_oistab
-ckino Dec.22.2011:         rv_p_og => slat%rv_p_osymgr
-ckino Dec.22.2011:         rv_p_oag => slat%rv_p_oag
-C     Get leading dimension of hrs
-ckino Dec.22.2011:         call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs
-ckino Dec.27.2011:         call offshp ( sham%iv_p_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs
-
       if(debug) print *,'seneinterp: debug EEEEEEEEEE'
       plat = slat%plat
       nsgrp= slat%nsgrp
@@ -490,23 +478,6 @@ C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_a_opos , sham%iv_a_ontabs ,
      .    sham%iv_a_oiaxs , ndhrs , rv_dummy )
       if(debug) print *,'seneinterp: debug FFFFFFF size iv_p_ontabls ndhrs=',size(sham%iv_a_ontabs),ndhrs
-
-ckino Dec.14.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
-ckino Dec.27.2011:         nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
-C     Allocate memory for hrs
-ckino Dec.22.2011:           allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
-ckino Dec.28.2011:           allocate(sham%rv_p_ohrs(ndhrs**2*nttabs*nsp))
-ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
-ckino Dec.28.2011:           sham%rv_p_ohrs(:)=0d0
-ckino Dec.22.2011:           allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
-ckino Dec.28.2011:           allocate(sham%rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
-ckino Dec.22.2011:           rv_p_ohrs(:)=0d0
-ckino Dec.28.2011:           sham%rv_p_ohrs(:)=0d0
-ckino Dec.22.2011:         allocate(rv_p_oqsig(abs(3*mxkp)))
-ckino Jan.4.2012
-ckino Dec.22.2011:         if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
-ckino Jan.4.2012       allocate(rv_p_oqp(abs(3*mxkp)))
-
       nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
       if(debug) print *,'nttabs=',nttabs
       if(hreal .eq. 1) then

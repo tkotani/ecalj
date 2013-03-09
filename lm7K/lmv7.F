@@ -309,6 +309,9 @@ c        call shosyv(0,-1,0,6)
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
 #endif
+      if( cmdopt('--pdos',6,0,strn)) then
+        write(*,*) ' --pdos: Enforce SYMGRP e. Read sigm_fbz for RDSIG. Set --quit=band.'
+      endif
 
 C      write(stdo,*)' === TEST out recrd === '
 C      j = 0
