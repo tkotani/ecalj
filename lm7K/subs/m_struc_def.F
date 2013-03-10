@@ -92,6 +92,7 @@ C 30  48  4       zval  1
       real(8)  ::   size
       real(8)   ::   def
       real(8)   ::   dosw(2)
+      real(8):: dosmax !mar2013
       real(8)   ::   ef
       real(8)   ::   efmax
       real(8)   ::   fsmom

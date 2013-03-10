@@ -67,7 +67,7 @@ C ... Heap
         doso(2) = dosw(2)
         dosw(1) = evl(1) - 0.5d0
         dosw(2) = ef0  + 0.5d0
-        if (ipr.ge.10) call awrit4(' (warning) DOS window (%;3d,%;3d)'//
+        if (ipr.ge.10) call awrit4(' DOS window (%;3d,%;3d)'//
      .  ' reset to (%,4;4d,%,4;4d)',' ',80,stdo,doso(1),doso(2),
      .  dosw(1),dosw(2))
       endif

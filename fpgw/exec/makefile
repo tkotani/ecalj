@@ -27,7 +27,7 @@ progs2 = $(progs) $(tags)TAGS
 #checkmod 
 
 #script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp mkG*
-script = cleargw* dqpu eps* gw* mkG*
+script = cleargw* dqpu eps* gw* mkG* job*
 
 #### You can choose these options. all is default.
 

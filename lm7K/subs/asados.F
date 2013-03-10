@@ -1,8 +1,7 @@
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
-
-      use m_struc_def  !Cgetarg
+      use m_struc_def  
       use m_globalvariables
-C- Partial density-of-states generator
+!! = Partial density-of-states generator. This works for lmf. =
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   prgnam:string labelling name of caller (for printout)
@@ -91,31 +90,12 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
       type(s_ham)::sham
-
 C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .lcond,lrange,lidos,lfp
-ckino Dec.12.2011:                 integer,pointer :: iv_p_oipc(:) =>NULL()
-
-ckino Dec.12.2011:                integer,pointer :: iv_p_ogstar(:) =>NULL()
-
-ckino Dec.12.2011:               integer,pointer :: iv_p_oidtet(:) =>NULL()
-
-ckino Dec.12.2011:              real(8),pointer :: rv_p_ormax(:) =>NULL()
-
-ckino Dec.12.2011:             integer,pointer :: iv_p_oipq(:) =>NULL()
-
-ckino Dec.12.2011:            real(8),pointer :: rv_p_owtkp(:) =>NULL()
-
-ckino Dec.12.2011:           integer,pointer :: iv_p_oics(:) =>NULL()
-
-ckino Dec.16.2011:          real(8),pointer :: rv_p_oqp(:) =>NULL()
       real(8),allocatable :: rv_a_oqp(:)
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
-
-      real(8) ,allocatable :: dos_rv(:)
+      real(8) ,allocatable :: dos_rv(:,:,:)
       real(8) ,allocatable :: doswt_rv(:)
       real(8) ,allocatable :: eband_rv(:)
       real(8) ,allocatable :: ew_rv(:)
@@ -128,7 +108,6 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
       real(8) ,allocatable :: y_rv(:)
       real(8) ,allocatable :: z_rv(:)
       integer ,allocatable :: chan_iv(:)
-
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
      .iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
      .lncol,lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp,
@@ -144,50 +123,29 @@ C     This is a site or class list
       character*40 modstr(0:4),strn*120,strn2*120
       character*8 clabl
       parameter (T=.true., F=.false., scrwid=80)
-C ... Heap
       integer ::iwdummy
-
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
-ctakao
-ckino 2021.Feb.13 integer,allocatable:: ics(:)
       real(8),allocatable:: z(:)
-
       logical:: isanrg, l_dummy_isanrg
-
+      character*3::charnum3
+      character*100::filenm(2)
+      integer:: ichan,isp,ipts,iblstx(1000,2),jx(2)
+      real(8):: eee
 C --- Setup ---
 Changenglob      stdo = nglob('stdo')
       stdo = globalvariables%stdo
-
       nbas=sctrl%nbas
       nclass=sctrl%nclass
       nl=sctrl%nl
       nspec=sctrl%nspec
-
-
       lncol=sctrl%lncol
 c       lham=sctrl%lham
       ldos=sctrl%ldos
-
-
       nclasp=sarray%nclasp
-ckino Dec.12.2011:         iv_p_oics => sarray%iv_p_oics
-
-ckino Dec.12.2011:         iv_p_oipc => sarray%iv_p_oipc
-
-ckino Dec.12.2011:         rv_p_ormax => sarray%rv_p_ormax
-
-
-
-ckino Dec.12.2011:         rv_p_oclabl => sarray%rv_p_oclabl
-
-
-
       avw=slat%avw
       alat=slat%alat
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-
-
       norder=sbz%n
       width=sbz%w
       efmax=sbz%efmax
@@ -195,31 +153,18 @@ ckino Dec.12.2011:         rv_p_oclabl => sarray%rv_p_oclabl
       call dcopy(i_copy_size,sbz%lcond,1,cvec,1)
       i_copy_size=size(sbz%dosw)
       call dcopy(i_copy_size,sbz%dosw,1,drange,1)
-
       norder = isign(1,norder) * mod(iabs(norder),100)
 C     For now... until input in rdccat is patched
       call dcopy(3,cvec(1),1,cvec(4),1)
 C ... Class-dependent arrays
 
-c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
-ckino 2012.Feb.13  delete ics    allocate(ics(nclasp),z(nclasp))
       allocate(z(nclasp))
-ckino Dec.12.2011:         call icopy ( nclasp , iv_p_oics , 1 , ics , 1 )
-ckino Dec.27.2011:         call icopy ( nclasp , sarray%iv_p_oics, 1 , ics , 1 )
-ckino 2012.Feb.13       call icopy ( nclasp , sarray%iv_a_oics, 1 , ics , 1 )
-
       do i=1,nclasp
-ckino 2012 Feb.13        z(i)=sspec(ics(i))%z
         z(i)=sspec(sarray%iv_a_oics(i))%z
       enddo
-
-c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
-C     call sp2cls('spec idxdn',sspec,w(oics),nl,1,nclass,oidxdn)
 C ... Other initialization
       lmet = iand(1,int(sctrl%lmet)) .ne.0
-
       ltet = iand(2,int(sctrl%lmet)) .ne.0
-
       icond = nint(cvec(0))
       bzmap = bittst(ldos,8)
       call subasi(sctrl,sspec,sham)
@@ -242,13 +187,9 @@ C     ldos is not set properly when asados is called, so make assumptions
         endif
         nchmx = nbas*nl**2
         allocate(chan_iv(nchmx))
-
         call sumlst ( lopt , nchmx , nbas , 1 , ssite , sspec , strn 
-     .  ( 7: ) , moddos , nsite , lsite , lmxch , nchan , chan_iv 
-     .  , nll )
-
+     .  ( 7: ) , moddos , nsite , lsite , lmxch , nchan , chan_iv , nll )
         if (allocated(chan_iv)) deallocate(chan_iv)
-
         if (moddos .eq. 0 .or. moddos .eq. 3) ldos = 0
         if (moddos .eq. 1 .or. moddos .eq. 4) ldos = 2
         if (moddos .eq. 2 .or. moddos .eq. 5) ldos = 4
@@ -370,36 +311,24 @@ C         DOS for a prescribed list of classes only
               else
                 j1 = m+2
               endif
-ckino Dec.12.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass
-ckino Dec.27.2011:                 call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_p_oclabl, z , nclass
-              call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_a_oclabl, z , nclass 
-     .         , nlstc , lsite )
-
+              call clist ( lstyle , sopts ( j1:j2 ) , sarray%rv_a_oclabl, z , nclass , nlstc , lsite )
             else
               goto 999
             endif
             goto 10
           endif
         endif
-
       endif
 
 C --- Post-options initialization ---
 C     lcond=T when contet branch is needed
       lcond = lcond .or. icond .ne. 0 .or. totdos .or. nblst .ne. 0
-
 C     List of irreducible qp, tetrahedra, ipq
       call mkqp(sctrl,sbz,slat,ltet,lcond,1,0)
-
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-ckino Dec.12.2011:         iv_p_oidtet => sbz%iv_p_oidtet
-
-ckino Dec.12.2011:         rv_p_owtkp => sbz%rv_p_owtkp
-
-
 
 C ... bzmap setup
       if (bzmap) then
@@ -429,39 +358,20 @@ C   ... Determine number of planes and energy windows for BZ map
    98   call rxx(nkp .eq. 0,prgnam//': empty or badly formed BZPL file')
 C   ... Get BZ plane(s) and BZ sampling parameters
         allocate(nw_iv(npln))
-
         allocate(nq_iv(2*npln))
-
         allocate(vx_rv(3*npln))
-
         allocate(vy_rv(3*npln))
-
         allocate(x_rv(2*npln))
-
         allocate(y_rv(2*npln))
-
         allocate(z_rv(npln))
-
         allocate(ew_rv(abs(-2*npln*nwmx)))
         if (-2*npln*nwmx<0) ew_rv(:)=0.0d0
-
-ckino Dec.16.2011:           allocate(rv_p_oqp(abs(3*nkp)))
         allocate(rv_a_oqp(abs(3*nkp)))
-ckino Dec.16.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
         if (3*nkp<0) rv_a_oqp(:)=0.0d0
-
         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv
-ckino Dec.16.2011:       .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
      .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_a_oqp )
-
-
         wtbzm = 2d0 / nsp
-C        if (preskp) then
-C          call defdr(owtkp,nkp)
-C          call dcopy(nkp,wtbzm*nsp,0,w(owtkp),1)
-C        endif
       endif
-
       if (.not. ltet) call info2(20,1,1,' Integration by'//
      .' Methfessel-Paxton sampling,  order=%i  width=%d',norder,width)
 
@@ -502,7 +412,6 @@ C     Empirical TB stores stuff a little differently
       nbandx = nband*nspc
       allocate(eband_rv(nband*nsp*nkp))
 
-
 C ... Determine number of DOS channels (nchan=0 -> total dos only)
       read (nfilem) nchan,ndum
       call info2(20,0,0,'         file has %i channel(s)',nchan,0)
@@ -526,16 +435,24 @@ C     No decomposition of dos; nl is no longer relevant
 
 C ... Read npts, emin, emax if not already available
       if (.not. bzmap) then
-        emin = drange(1)
-        emax = drange(2)
-        if (npts .eq. 0 .or. .not. lrange) then
-          if (npts .eq. 0) npts = 501
-          i = awrite(' Enter npts (def=%i), emin and emax (def='//
-     .    '%;3d,%;3d): ',outs,80,0,npts,emin,emax,0,0,0,0,0)
-          call cwrite(outs,0,i-1,0)
-          read (*,*) npts, emin, emax
-        endif
+c        emin = drange(1)
+c        emax = drange(2)
+        emax= sbz%dosmax  !mar2012takao
+        print *,'dosmax=',sbz%dosmax
+        npts= sbz%ndos              !mar2012takao 
+        ifid= fopno( 'ewindow' )
+        read(ifid,*) emin
+        call fclose( 'ewindow')
+c        if (npts .eq. 0 .or. .not. lrange) then
+c          if (npts .eq. 0) npts = 501
+c          i = awrite(' Enter npts (def=%i), emin and emax (def='//
+c     .    '%;3d,%;3d): ',outs,80,0,npts,emin,emax,0,0,0,0,0)
+c          call cwrite(outs,0,i-1,0)
+c          read (*,*) npts, emin, emax
+c        endif
       endif
+c
+
 
 C ... Allocate arrays for dos and moms if tetrahedron
       if (ltet) then
@@ -557,13 +474,10 @@ C       Suppress projection of unity into parts for total dos
         nfstg = 1
       endif
       if (bzmap) then
-        allocate(dos_rv(nqmx*nsp*nchds*nwmx*npln))
-
+        allocate(dos_rv(nqmx,nsp,nchds*nwmx*npln))
       else
         allocate(wk_rv(npts))
-
-        allocate(dos_rv(npts*nsp*nchds))
-
+        allocate(dos_rv(npts,nsp,nchds))
       endif
 
 C ... Make sure missing bands are high enough
@@ -574,15 +488,15 @@ C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv , doswt_rv 
      .   , iwdummy , efermi , vmtz )
-
-
       else
         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
      .   , eband_rv , iwdummy , doswt_rv , iwdummy , efermi , vmtz )
-
-
       endif
+      emax=emax+efermi(1)
+      write(*,"(' dos window relative to ef. emin,emax=',3f13.5)")emin,emax-efermi(1)
+      write(*,"(' efermi=',f13.5)") efermi(1)
+
 C     call dfdump(w(oeband),nband*nsp*nkp,-66)
       if (j .ne. nkp) call rx(prgnam//': moments file missing qpts')
       if (efmax-.2d0 .lt. emax) call info2(10,1,0,' ASADOS'//
@@ -631,7 +545,6 @@ C --- Make BZ maps (integrated DOS vs k) ---
         call nosbzm ( nfilem , nbandx , nsp , nspc , nchan , lmet , norder 
      .  , width , nkp , wtbzm , eband_rv , doswt_rv , npln , nwmx 
      .  , nqmx , nw_iv , ew_rv , nq_iv , dos_rv )
-
         call bzmio ( dos_rv , nchan * nsp , npln , nwmx , nqmx , nw_iv 
      .  , ew_rv , nq_iv , vx_rv , vy_rv , x_rv , y_rv 
      .  , z , nkp , nspd , lmet , norder , width , wtbzm , efermi , - 
@@ -645,7 +558,6 @@ C --- Ballistic conductivity ---
 C   ... To save memory, allocate dos later
         if (allocated(wk_rv)) deallocate(wk_rv)
         if (allocated(dos_rv)) deallocate(dos_rv)
-
 C   ... for debugging
 C        call upack('bz nkp oqp',sbz,nkp,oqp,0,0,0)
 C        iblst(1) = 0
@@ -659,97 +571,53 @@ C        nspx = 1
 C        call snot(w(oqp),nkp,w(oeband),plat)
 C   ... Remake qp with reduced symmetry; assume no grp ops for now
         npgrp = 1
-
         slat%npgrp=npgrp
-
         call awrit2('          remake qp with %i symop%?#n>1#s##',
      .  ' ',80,stdo,npgrp,npgrp)
         call mkqp(sctrl,sbz,slat,ltet,F,0,2)
-
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-ckino Dec.16.2011:           rv_p_oqp => sbz%rv_p_oqp
-
-ckino Dec.12.2011:           rv_p_owtkp => sbz%rv_p_owtkp
-
-ckino Dec.12.2011:           iv_p_ogstar => sbz%iv_p_ostar
-
-
-
         ntet=sbz%ntet
-ckino Dec.12.2011:           iv_p_oidtet => sbz%iv_p_oidtet
-
-ckino Dec.12.2011:           iv_p_oipq => sbz%iv_p_oipq
-
-
-        allocate(dos_rv(npts*nsp*nchan))
-
+        allocate(dos_rv(npts,nsp,nchan))
         if (nblst .eq. 0) nblst = nevmx
         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz
-ckino Dec.12.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp
-ckino Dec.16.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, rv_p_oqp
-ckino Dec.28.2011:       .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, sbz%rv_p_oqp 
      .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%rv_p_oqp
-ckino Dec.12.2011:       .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv
-ckino Dec.12.2011:       .      , iv_p_oipq , sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv
-ckino Dec.27.2011:       .      , sbz%iv_p_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv
-ckino Dec.27.2011:       .      , sbz%iv_a_oipq, sbz%iv_p_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , sbz%iv_a_oipq, sbz%iv_a_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , npts , emin , emax , lidos , wk_rv , dos_rv )
-
-
-
-
-
         del = 0d0
 C --- make DOS or NOS ---
       else
         if (ltet) then
           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1
-ckino Dec.12.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv
-ckino Dec.28.2011:       .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_p_oidtet, eband_rv 
      .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, eband_rv 
      .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv )
-
-
           del = 0d0
-
 C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder ,
-ckino Dec.12.2011:       .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin
-ckino Dec.27.2011:       .     width , nkp , sbz%rv_p_owtkp, eband_rv , doswt_rv , npts , emin 
      .     width , nkp , sbz%rv_a_owtkp, eband_rv , doswt_rv , npts , emin 
      .     , emax , lidos , wk_rv , dos_rv )
-
-
           del = norder+width
         endif
-        if ( nspd .gt. nsp ) call dscal ( npts * nsp * nchan , .5d0 , 
-     .  dos_rv , 1 )
-
+        if ( nspd .gt. nsp ) call dscal ( npts * nsp * nchan , .5d0 , dos_rv , 1 )
       endif
       if (.not. bzmap) then
         i = nsp
         if (lncol .gt. 0) i = 1
         call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchds , npts 
-     .  , nchds , emin , emax , i , efermi , del , 1 , - fopnn ( 'DOS' 
-     .  ) )
-
+     .  , nchds , emin , emax , i , efermi , del , 1 , - fopnn ('DOS') )
       endif
-      if (allocated(dos_rv)) deallocate(dos_rv)
+c      if (allocated(dos_rv)) deallocate(dos_rv)
       if (allocated(doswt_rv)) deallocate(doswt_rv)
 
-
 C --- List channels in DOS file ---
-      if (iprint() .ge. 30 .and. .not. totdos .and.
-     ..not. cmdopt('--cls',5,0,strn)) then
+      if (iprint() .ge. 30 .and. .not. totdos .and. .not.cmdopt('--cls',5,0,strn)) then
         if (nsp .eq. 1) print 332
         if (nsp .eq. 2) print 332, 'spin-2'
   332   format(/' Channels in dos file generated by LMDOS:'
-     .  /' site class label   spin-1':23x,a)
+     .  /' site class label   spin-1':14x,a)
         if (nsite .ne. 0) then
           imax = nbas
         else
@@ -763,52 +631,40 @@ C     Loop over all sites (or classes)
           if (lsite(1) .ne. -1) then
             if (i .ne. lsite(il)) goto 40
           endif
-
           if (nsite .ne. 0) then
             ib = i
-ckino Dec.12.2011:               ic = ival ( iv_p_oipc , ib )
-ckino Dec.28.2011:               ic = ival ( sarray%iv_p_oipc, ib )
             ic = ival ( sarray%iv_a_oipc, ib )
-
           else
             ic = i
-ckino Dec.12.2011:               ib = iclbas ( i , iv_p_oipc )
-ckino Dec.28.2011:               ib = iclbas ( i , sarray%iv_p_oipc)
             ib = iclbas ( i , sarray%iv_a_oipc)
-
           endif
-
 C       Make a new nlo if channels are site-dependent
           if (lfp) then
 C         Global upper bound to lmax
             nl = nll
-
             is=ssite(ib)%spec
-
             lmax = int(sspec(is)%lmxa)
-
             if ( cmdopt ( '--mull' , 6 , 0 , strn ) ) lmax = int(sspec(is)%lmxb)
-
             nll = min(lmax+1,nl)
             nlo = nll
             if (ldos .eq. 0) nlo = 1
             if (ldos .eq. 2) nlo = nll
             if (ldos .eq. 4) nlo = nll*nll
           endif
-
           do i_spacks=ib,ib
             call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
           enddo
-
           outs = ' '
           write(outs,333) i, ic, clabl
   333     format(2i5,3x,a8)
           j = 0
           do  43  l = 0, nlo-1
             j = j+1
-            iblst(j) = ichds+nsp*l+1
+            iblstx(j,1) = ichds+nsp*l+1
    43     continue
-          call ilst2a(iblst,j,outs(21:))
+          jx(1)=j
+          call ilst2a(iblstx(:,1),j,outs(21:))
+
 C        do  44  l = 0, nlo-1
 C   44   call awrit1('%a%i,',outs(21:),80,0,ichds+nsp*l+1)
 C        call awrit0('%a%b ',outs(21:),80,0)
@@ -816,19 +672,32 @@ C        call awrit0('%a%b ',outs(21:),80,0)
             j = 0
             do  45 l = 0, nlo-1
               j = j+1
-              iblst(j) = ichds+nsp*l+2
+              iblstx(j,2) = ichds+nsp*l+2
    45       continue
-            call ilst2a(iblst,j,outs(50:))
-C          do  46  l = 0, nlo-1
-C   46     call awrit1('%a%i,',outs(50:),80,0,ichds+nsp*l+2)
-C          call awrit0('%a%b ',outs(50:),80,0)
+            jx(2)=j
+            call ilst2a(iblstx(:,2),j,outs(41:))
+c            call ilst2a(iblstx(:,2),j,outs(50:))
           endif
-          call awrit0('%a',outs,80,-stdo)
-          il = il+1
+c          call awrit0('%a',outs,80,-stdo)
 
+!     ! file pdos file mar2013takao
+          do isp=1,nsp
+c             print *, 'isp,nhcan,npts,nsp=',nchan,npts,nsp,nlo,ichds
+             filenm(isp)='dos.isp'//char(48+isp)//'.site'//charnum3(i)
+             ifi=fopnn(trim(filenm(isp)))
+             write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi')")
+             do ipts=1,npts
+                eee=emin+ (ipts-1d0)*(emax-emin)/(npts-1d0)-efermi(1)
+                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp,ichds/nsp+l),l=1,nlo)
+             enddo
+             call fclose(ifi)
+          enddo
+          write(stdo,"(a,2x,2(2x,a))")outs(1:55),(trim(filenm(isp)),isp=1,nsp)
+          il = il+1
           ichds = ichds + nlo*nsp
    40   continue
       endif
+      print *,"Check the positions os sites by lmchk."
 Cki#error, have return with len(w_varlist)>0 at line 771
       if (allocated(eband_rv)) deallocate(eband_rv)
       if (allocated(ew_rv)) deallocate(ew_rv)
@@ -840,11 +709,10 @@ Cki#error, have return with len(w_varlist)>0 at line 771
       if (allocated(nq_iv)) deallocate(nq_iv)
       if (allocated(nw_iv)) deallocate(nw_iv)
       return
-
-
   999 continue
       call rxs('asados: failed to parse dos options:',sopts)
       end subroutine asados
+
 
 C      subroutine snot(qp,nkp,eband,plat)
 C      implicit none
@@ -863,4 +731,10 @@ CC  333   format(i5,6f12.6,2x,f12.6)
 C      enddo
 C      end
 
-
+      character(3) function charnum3(num)
+      integer(4) ::num
+      charnum3 = 
+     &           char(48+mod(num/100,10))//
+     &           char(48+mod(num/10,10))//
+     &           char(48+mod(num,10))
+      end

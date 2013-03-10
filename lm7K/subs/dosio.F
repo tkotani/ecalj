@@ -9,7 +9,7 @@ C     nld:  number dos for i/o for each spin channel
 C Passed parameters
       integer ifile,ifmt,ndmx,ndos,nemx,nld,nspin
       double precision del,eferm,emax,emin
-      double precision dos(nemx,1)
+      double precision dos(nemx,*)
 C Local parameters
       integer ie,ild,iedum
 

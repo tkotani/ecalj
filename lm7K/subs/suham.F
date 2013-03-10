@@ -262,7 +262,9 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
         enddo
         if(iprx)write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
      & ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
-        call rx('gen_hamindex: qtarget can not found by SYMOPS')
+
+        print *,'gen_hamindex: qtarget can not found by SYMOPS.' 
+        call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
  2012   continue
         iqmap(i)=iqq
         iqimap(i)=iqi_

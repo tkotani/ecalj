@@ -51,7 +51,7 @@ ckino Jan.04.2012:       .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix
      . bz_nabc, bz_lshft, bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,
      . bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
      . bz_semsh,zbak,bz_dosw,bz_lcond,bz_range, bz_lio1,bz_lio2,ctrl_lmet2, 
-     . ctrl_lmet4,ctrl_lmet8,ctrl_lqp1,ctrl_lqp2,
+     . ctrl_lmet4,ctrl_lmet8,ctrl_lqp1,ctrl_lqp2,bz_dosmax,
 !! ... Ewald
      . lat_as,lat_tol,lat_rpad, lat_nkdmx,
 !! ... STR
@@ -369,6 +369,7 @@ ctakao Kino's Cki error
       v_sbz%def=bz_def
       i_copy_size=size(v_sbz%dosw)
       call dcopy(i_copy_size,bz_dosw,1,v_sbz%dosw,1)
+      v_sbz%dosmax=bz_dosmax
       v_sbz%ef=bz_ef
       v_sbz%efmax=bz_efmax
       v_sbz%fsmom=bz_fsmom

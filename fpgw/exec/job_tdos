@@ -1,0 +1,32 @@
+#!/bin/bash
+ddd=$1
+lmf $ddd --tdos    |tee llmf_tdos
+num=`head -2 dos.tot.$ddd |tail -n 1|wc -w`
+
+ufileg=tdos.${ddd}.gnu
+echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
+echo set title \"Total DOS\" >> ${ufileg}
+echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
+echo set ylabel \" number of states/\(cell Ry\)\" >> ${ufileg}
+
+if [ $num == '3' ]; then
+    echo 'spin=2'
+    echo set yrange [-50:50] >> ${ufileg}
+    cat <<EOF >>${ufileg}
+plot 'dos.tot.${ddd}' u (\$1*13.605):2 w l, '' u (\$1*13.605):(-\$3) w l
+EOF
+else
+    echo 'spin=1'
+    echo set yrange [0:50] >> ${ufileg}
+    cat <<EOF >>${ufileg}
+plot 'dos.tot.${ddd}' u (\$1*13.605):2 w l
+EOF
+fi
+
+gnuplot -persist ${ufileg}
+echo To repeat, gnuplot -persist ${ufileg}
+
+exit
+
+
+

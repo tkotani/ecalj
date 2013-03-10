@@ -297,7 +297,6 @@ CSFCPP#endif
 
 
       subroutine addsds(ndimh,evl,wgt,emin,emax,esmear,ndos,dos)
-
 C- Add to sampling dos
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -331,7 +330,6 @@ C ... Passed parameters
 C ... Local parameters
       integer nord,ie,i1,i2,i
       double precision width,de,eigval,ei,sn,dn,fn,x
-
       width = dabs(esmear) - int(dabs(esmear))
       nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
       de = (emax-emin)/(ndos-1)

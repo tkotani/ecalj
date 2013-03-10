@@ -608,17 +608,24 @@ head= head+ """
 ### Do lmf --input to see all effective category and token ###
 ### It will be not so difficult to edit ctrlge.py for your purpose ###
 VERS    LM=7 FP=7        # version check. Fixed.
+
 IO      SHOW=T VERBOS=35 TIM=2,2
              # SHOW=T shows readin data (and default setting at the begining of console output)
 	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
 	     # larger VERBOSE gives more detailed console output.
-SYMGRP find   # 'find' evaluate space-group symmetry automatically.
+
+SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automatically.
+              #
               # Usually 'find is OK', but lmf may use lower symmetry
-	      # because of numerical problem.
-              # Do lmchk to check how it is evaluated.
+	      # if you did not supply accurate structure.
+              # 'lmchk foobar --pr60' shows, what symmetry is recognized.
               # See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat
-%const kmxa=5  # kmxa=5 is good for pwemax \sim 4 or less.
+              # To read its results.
+
+%const kmxa=5  # =radial degree of freedom to expand eigenfuncitons in tail sites.
+               #  kmxa=5 is good for pwemax \sim 4 or less.
                # larger kmxa is better but time-consuming. A rule of thumb: kmxa>pwemax in Ry.\n
+               # Enlarge this, when your enlarge pwemax, and check little dependence on kmxa. 
 """
 alltmp = head + glist(listno) \
 	 + glist(liststruc)  + "  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
@@ -788,25 +795,31 @@ tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+
 tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
-                # METAL=3 is safe setting (double path; 1st for weight, 2nd for integration).
-                # METAL=2 is faster but weights for integration is from previous iteration 
-                #   (it can be a little unstable)
-                # For insulator, METAL=0 is good enough. 
+                # METAL=3 is safe setting (double path method), no problem even for insulator.
+                # For insulator, METAL=0 may be a little faster.
 
-      #SAVDOS=T DOS=-1 1 NPTS=2001     
-		# When you plot dos, set SAVDOS=T METAL=3, and with
-		# DOS=-1 1 (range) NPTS=2001 (division) even for
-		# insulator to get a smooth plot. You may need to
-		# enlarge NKABC to get a better plot.
+              DOSMAX=1.5 NPTS=2001
+                # These are used to plot total dos, and pdos.
+                # DOSMAX: is the maximum of the total dos plot. It is relative to the Fermi energy.
+                #   Corresponding mimimum is automatically chosen to cover all valence states.
+                # NPTS: division of plots. To get a high-energy resolution plot, use large NPTS.
                 #
-                # When you enlarge NKABC do
-                #   >lmf --no-fixef0 --quit=band si > llmfdos  
-                # This --quit=band do not perform self-consistent
-                # calculations. Quit right after the eigenvalue calculations.
-                # 
-                #BUG: For a hydrogen in a large cell, I(takao) found that METAL=0 for
-                #(NSPIN=2 MMOM=1 0 0) results in non-magnetic solution. Use METAL=3 for a while in this case.
-                # 
+		# To get better plot, Use large NKABC (even after converged).
+                # Larger NKABC may give smoother plot. Use large enough NKABC.
+                #
+                # ---TOTAL DOS plot---      
+                # you can use job_tdos_nspin*.
+                # It just do lmf --tdos foobar; then you have dos.tot.foobar, and we can plot it.
+                #  
+                # --- PDOS plot --
+                # you can do folloings by job_pdos_nspin*
+                # run lmf --pdos foobar  (this stops quickly, or write SYMOPS (only e) in it by hand.)
+                #     echo 1| qg4gw      (this is needed to generate QGpsi for no symmetry).
+                #     lmf --pdos foobar  (it is a little time-consuming since we do not use symmetry).
+                #     lmdos --pdos foobar
+
+             # KNOWN BUG: For a hydrogen in a large cell, METAL=0 for (NSPIN=2 MMOM=1 0 0) 
+             # results in non-magnetic solution. Use METAL=3 for a while in this case.
 
       # Following TETRA=0 N=-1 W=0.001 FSMOM 
       #  are for molecules. No tetrahedron integration. (Smearing))
@@ -861,12 +874,6 @@ else :
 
 
 tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
-
-
-      #For Total DOS.   DOS:range, NPTS:division. We need to set METAL=3 with default TETRA (no TETRA).
-      #SAVDOS=T DOS=-1 1 NPTS=2001
-
-      #EFMAX= (not implemented yet, but maybe not so difficult).            
 
 
       #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat for tokens below.

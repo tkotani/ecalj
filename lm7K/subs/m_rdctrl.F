@@ -120,7 +120,7 @@ C ... BZ
       integer:: bz_nabc(3)=NULLI,bz_lshft(3)=0,
      .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod
       real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
-     .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0
+     .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0,bz_dosmax
       logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
      .ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_lqp1,ctrl_lqp2
 
@@ -661,8 +661,8 @@ C     .  'third for graphical output')
      .cmdopt('--quit=band',11,0,a)) then; quit=4
       elseif (outs=='HAM' .or. outs=='ham' .or.
      .cmdopt('--quit=ham',10,0,a)) then; quit=8
-!! pdos mode exit at --quit=band
-      elseif (cmdopt('--pdos',6,0,a)) then; quit=4
+!! --pdos --tdos mode exit at --quit=band
+      elseif (cmdopt('--pdos',6,0,a).or.cmdopt('--tdos',6,0,a)) then; quit=4
       elseif (outs==' ') then
       else
         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
@@ -2192,9 +2192,13 @@ C --- Brillouin Zone ---
      .'0 assume insulator; 1 save evecs on disk; '//
      .'2 use wgt from prior iter%N%3f3 always make two band passes;'//
      .' 4 BZ integration with 3-point scheme')
-
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lmet2,
      .def_lg=T,note='Tetrahedron integration')
+      if( cmdopt('--tdos',6,0,a).or.cmdopt('--pdos',6,0,a)) then
+         print *,' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=1'
+         bz_lmet=3
+         ctrl_lmet2=.true.
+      endif
 
       nm='BZ_N'; call gtv(trim(nm),tksw(prgn,nm),bz_n,
      .def_i4=0,note=
@@ -2221,6 +2225,9 @@ C --- Brillouin Zone ---
      .(/-1d0,0d0/),note='Energy window over which DOS accumulated')
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgn,nm),bz_ndos,def_i4=1001,
      .note='No. DOS points (sampling integration, and lmdos)')
+!! mar2013
+      nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgn,nm),bz_dosmax,def_r8=1.5d0,
+     & note='Maximum energy to which DOS accumulated, relative to Efermi')
 
       xx = 5d0
 c      if (ltbe) xx = 5d0
@@ -3221,6 +3228,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_DELEF~")
       call tkadd(" BZ_DMAT~")
       call tkadd(" BZ_DOS~")
+      call tkadd(" BZ_DOSMAX~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
@@ -3363,6 +3371,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_DELEF~")
       call tkadd(" BZ_DMAT~")
       call tkadd(" BZ_DOS~")
+      call tkadd(" BZ_DOSMAX~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
@@ -3486,6 +3495,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" BZ_DELEF~")
       call tkadd(" BZ_DMAT~")
       call tkadd(" BZ_DOS~")
+      call tkadd(" BZ_DOSMAX~")
       call tkadd(" BZ_EF0~")
       call tkadd(" BZ_EFMAX~")
       call tkadd(" BZ_FSMOM~")
