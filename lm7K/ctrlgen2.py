@@ -798,7 +798,7 @@ tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
                 # METAL=3 is safe setting (double path method), no problem even for insulator.
                 # For insulator, METAL=0 may be a little faster.
 
-              DOSMAX=1.5 NPTS=2001
+              DOSMAX=1.5 NPTS=2001 SAVDOS=T
                 # These are used to plot total dos, and pdos.
                 # DOSMAX: is the maximum of the total dos plot. It is relative to the Fermi energy.
                 #   Corresponding mimimum is automatically chosen to cover all valence states.
