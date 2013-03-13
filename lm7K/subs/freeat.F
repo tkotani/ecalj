@@ -321,6 +321,8 @@ ctakao
       real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
 
+c      print *,'0000111 ifives=',ifives
+
       stdo   = lgunit(1)
       stdl   = lgunit(2)
       ipr    = iprint()
@@ -494,7 +496,11 @@ C     call pshpr(min(iprint(),40))
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',
      .nitmax,lfrz,plplus,qlplus,nmcore,vsum)
+      print *,'end of atomsc xxxxx'
+      print *,'vsum=',vsum,is
+      print *,'ifives=',ifives
       write(ifives,"(f23.15,i5,a)") vsum,is, ' !spatical integral of electrostatic potential' 
+      print *,' write end of ifives'
       dq=dq+sum(qlplus(:,:)) !takao feb2011
 C     call poppr
 
