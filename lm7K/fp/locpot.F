@@ -171,19 +171,7 @@ C ... for core hole
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
       logical lfltwf
       integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml
-ckino Dec.12.2011:             real(8),pointer :: rv_p_ov01(:) =>NULL()
-
-ckino Dec.13.2011:            real(8),pointer :: rv_p_ov0(:) =>NULL()
-
-ckino Dec.12.2011:           integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.12.2011:          integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
-C$    integer iiv0(nbas),nvl
-C ... Heap
+     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
 
 C --- Setup ---
       call tcn('locpot')
@@ -247,6 +235,7 @@ C$&  REDUCTION(sqlocc,sqloc,saloc,qval,qsc,focvxc,focexc,
 C$&            xcore,rvepsv,rvvxcv,valvef,rhovxc,rhoexc,cpnvsa,vvesat)
 C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
+      ifivesint=fopna('vesintloc',-1,2)
       do  ib = 1, nbas
 
         is=ssite(ib)%spec
@@ -352,7 +341,7 @@ C   --- Make potential and energy terms at this site ---
      .   , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , 
      .   rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc 
      .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
-     .   , rhobg , efg ( 1 , ib ) )
+     .   , rhobg , efg ( 1 , ib ),ifivesint )
 
 
 C   ... Write true potential to file vtrue.ib
@@ -481,6 +470,8 @@ ckino Dec.28.2011:       .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gp
         j1 = j1+nlml
    10   continue
       enddo
+      call fclose('vesintloc')
+
 C     Electric field gradient
       if (ipr .gt. 40) then
         call elfigr(nbas,stdo,zz,efg)
@@ -488,7 +479,6 @@ C     Electric field gradient
       deallocate(efg,zz)
       deallocate(wk,rhol1,rhol2,v1,v2,v1es,v2es)
       call tcx('locpot')
-
       end subroutine locpot
 
 
@@ -496,7 +486,7 @@ C     Electric field gradient
      .nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
      .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
-     .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg)
+     .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
 
       use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
@@ -651,6 +641,8 @@ C ... Local parameters
       real(8), allocatable :: fl(:,:,:)
       logical:: debug=.false.
 
+      real(8):: ves1int,ves2int
+      integer:: ifivesint
 C     print *, 'zero vval'
 C     call dpzero(vval,nlml)
 
@@ -816,13 +808,23 @@ C --- Electrostatic integrals involving spherical terms only ---
       vesc2 = 0d0
       vesc1 = 0d0
       vnucl = 0d0
+      ves1int=0d0
+      ves2int=0d0
       do  i = 2, nr
         ves1 = y0*v1(i,1,1) - 2*z/rofi(i)
         vesc1 = vesc1 + rwgt(i)*rhoc(i,1)*ves1
         vesn2 = vesn2 + rwgt(i)*rhonsm(i)*y0*v2(i,1,1)
         vesc2 = vesc2 + rwgt(i)*rhocsm(i)*y0*v2(i,1,1)
         vnucl = vnucl + rwgt(i)*rhol1(i,1,1)*(1d0/rofi(i)-1d0/rmt)
+
+        ves1int = ves1int + rwgt(i)*y0*v1(i,1,1)*rofi(i)**2
+        ves2int = ves2int + rwgt(i)*y0*v2(i,1,1)*rofi(i)**2
       enddo
+c
+      ves1int = 4d0*pi*(ves1int - z*rofi(nr)**2)
+      ves2int = 4d0*pi*ves2int 
+      write(ifivesint,"(3f23.15,a)") ves1int-ves2int, ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
+
       vnucl = 2*srfpi*vnucl + 2*z/rmt + y0*vval(1)
       vesn1 = -z*vnucl
 

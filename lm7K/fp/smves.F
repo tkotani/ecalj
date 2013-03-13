@@ -148,16 +148,9 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
-C ... Local parameters
       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
      .   nlm , nsp , stdo , j1 , j2 , j3
-ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
-
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -166,43 +159,26 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
      .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
-C ... Heap
-      integer ::iwdummy
-
-
+      integer ::iwdummy, ifivsmconst,fopna
 C ... Setup
       call tcn('smves')
       ipr   = iprint()
       stdo  = lgunit(1)
-Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi
-
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
-
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
-
       vol=slat%vol
-
-
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
 
 C     Electrostatics depend only on total spin density
       if (nsp .eq. 2) then
         call daxpy(k1*k2*k3*2,1d0,smrho(1,1,1,2),1,smrho,1)
       endif
-
       allocate(cv_zv(ng))
-
       call dpzero(f, 3*nbas)
-
 C ... FT of smooth density to reciprocal space
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,-1)
 
@@ -210,51 +186,24 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2
-ckino Dec.12.2011:          call vesft ( slat , ng , rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2
-ckino Dec.27.2011:          call vesft ( slat , ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , k1 , k2
-ckino Dec.28.2011:          call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , k1 , k2
       call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 )
 
-
-
-
 C ... Add estatic potential of compensating gaussians to smpot
       allocate(cg1_zv(ng))
-
       allocate(cgsum_zv(ng))
-
-ckino Dec.12.2011:           call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom ,
-ckino Dec.27.2011:           call vesgcm ( nbas , ssite , sspec , slat , slat%rv_p_ocy , qmom ,
       call vesgcm ( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom ,
-ckino Dec.12.2011:       .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
-ckino Dec.12.2011:       .   ng , rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
-ckino Dec.27.2011:       .   ng , slat%rv_p_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2
-ckino Dec.28.2011:       .   ng , slat%rv_a_ogv , slat%iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
-
-
-
-
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv
-ckino Dec.12.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , slat%iv_p_okv
-ckino Dec.27.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , slat%iv_p_okv
-ckino Dec.28.2011:          call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_p_okv
       call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval )
-
-
-
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
       if (allocated(cgsum_zv)) deallocate(cgsum_zv)
       if (allocated(cg1_zv)) deallocate(cg1_zv)
-
 C     call zprm3('smpot',0,smpot,n1,n2,n3)
 
 C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
@@ -262,27 +211,26 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       sbar = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         rmt = (sspec(is)%rmt)
-
         vbar = vbar + rmt**2 * vrmt(ib)
         sbar = sbar + rmt**2
       enddo
       vbar = vbar/sbar
       vcnsto = vconst
       if (mode .ne. 0) vconst = -vbar
-
       if (ipr .ge. 20) write (stdo,232) vbar,vcnsto,vconst
-  232 format(/' avg es pot at rmt=',f9.6,
+  232 format(/' vvvvves: avg es pot at rmt=',f9.6,
      .'  avg sphere pot=',f9.6,'  vconst=',f9.6)
+      if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
+      ifivsmconst = fopna('vessm',-1,2)
+      write(ifivsmconst,"(d23.15)") vconst
+      call fclose('vessm')
 
 C ... Adjust vbar, vval, gpot0 by vconst
       iv0 = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         lmxl = int(sspec(is)%lmxl)
-
         if (lmxl .gt. -1) then
           nlm = (lmxl+1)**2
           vrmt(ib) = vrmt(ib) + vconst
@@ -298,7 +246,6 @@ C ... Adjust vbar, vval, gpot0 by vconst
         call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
      .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
      .   , iwdummy , iwdummy , iwdummy )
-
       endif
 
 C ... Back transform of density and potential to real-space mesh

@@ -403,6 +403,11 @@ ctakao
       integer:: ifis2,ipts,ifid
       real(8):: eee
       logical :: tdos,pdos
+      integer:: ifves,ifvesintatm,ifvesintloc,ispec
+      real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc
+      real(8),allocatable::vesatm(:)
+c---
+
 !! === Setup ===
       call tcn ('bndfp')
       tdos=cmdopt('--tdos',6,0,strn)
@@ -2958,9 +2963,36 @@ ccccccccccccccccccccccccc
 
       sham%ehf=ehar
       sham%ehk=eks
-
-
   999 continue
+
+!!
+      ifves=fopna('vessm',-1,1)
+      rewind ifves
+      read(ifves,*) vessm
+      ifvesintatm=fopna('vesintatm',-1,1)
+      rewind ifvesintatm
+      ifvesintloc=fopna('vesintloc',-1,1)
+      rewind ifvesintloc
+      allocate(vesatm(nspec))
+      do ispec=1,nspec
+        read(ifvesintatm,*) vesatm(ispec)
+      enddo
+      sumvesloc=0d0
+      sumvesatm=0d0
+      do ib=1,nbas
+         read(ifvesintloc,*) vesloc
+         sumvesloc = sumvesloc + vesloc
+         sumvesatm = sumvesatm + vesatm(ssite(ib)%spec)
+      enddo   
+      deallocate(vesatm)
+      vref= sumvesatm/vol - vessm -sumvesloc/vol
+      write(*,"('### Add vref to eigenvalues to get relative to vaccum',f12.6)"),vref
+      write(*,"('###    VBM relative to vaccum=',f12.6,' Ry=',f12.6,' eV')")evtop+vref,(evtop+vref)*13.605
+      write(*,"('###    CBM relative to vaccum=',f12.6,' Ry=',f12.6,' eV')")ecbot+vref,(ecbot+vref)*13.605
+      call fclose('vessm')
+      call fclose('vesintatm')
+      call fclose('vesintloc')
+c---
       if (allocated(qm2_rv)) deallocate(qm2_rv)
       if (allocated(qm1_rv)) deallocate(qm1_rv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)

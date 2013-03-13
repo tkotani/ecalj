@@ -60,7 +60,7 @@ C ... Local parameters
 ctakao
       logical ixx,ioorbp
       real(8):: pzsum
-      integer:: i_copy_size,i_spacks
+      integer:: i_copy_size,i_spacks,ifives
 
       ifi = fopna('atm',-1,0)
       rewind ifi
@@ -70,6 +70,7 @@ ctakao
       hfct=0d0
       pzsum=0d0
 
+      ifives = fopna('vesintatm',-1,0)
       do  is = 1, nspec
 c takao. I found tht Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
@@ -148,7 +149,7 @@ C       Unpack species data
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
-     .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore)
+     .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
 C       Repack mesh parms, in case a mesh was selected by freats
 
@@ -210,13 +211,14 @@ ctakao
      .  seref)
       endif
 
+      call fclose('vesintatm')
       end subroutine freeat
 
 
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
-     .sec,stc,v,etot,nmcore)
+     .sec,stc,v,etot,nmcore,ifives)
       use m_globalvariables
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
@@ -312,12 +314,11 @@ C     double precision qz(n0,2)
 
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
-C Heap
       integer ::iwdummy
 
 ctakao
-      integer:: ipl, ipz,iplx,iplv,ix, nmcore
-      real(8):: qcc,qzz, qvalv,qvaltot,qval
+      integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives
+      real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
 
       stdo   = lgunit(1)
@@ -492,7 +493,8 @@ C     call pshpr(min(iprint(),40))
       call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr,
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',
-     .nitmax,lfrz,plplus,qlplus,nmcore)
+     .nitmax,lfrz,plplus,qlplus,nmcore,vsum)
+      write(ifives,"(f23.15,i5,a)") vsum,is, ' !spatical integral of electrostatic potential' 
       dq=dq+sum(qlplus(:,:)) !takao feb2011
 C     call poppr
 

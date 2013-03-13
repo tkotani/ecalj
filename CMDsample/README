@@ -112,3 +112,13 @@ sigm_fbz.nio. (If not do "lmf nio" again with sigm.nio).
 
 After qsgw is converged, you can use job_band, job_tdos, job_pdos,
 as in the same manner of GGA/LDA calculations.
+
+
+------------
+NOTE:
+to restart QSGW, you have to keep
+rst.* ESEAVR, QGpsi, ctrl.* sigm.*
+If you lost QGpsi, you have to do
+echo 0|lmfgw
+echo 1|qg4gw
+to get QGpsi.

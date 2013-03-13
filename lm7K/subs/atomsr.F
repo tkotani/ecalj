@@ -150,7 +150,7 @@ C     --- Add to rho, make integral v*rho ---
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
-     .job,niter,lfrz,plplus,qlplus,nmcore)
+     .job,niter,lfrz,plplus,qlplus,nmcore,vsum)
       use  m_globalvariables
       use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
@@ -645,6 +645,7 @@ C --- Add constant to get v(nr) = vhrmax ---
    27 continue
 
 C --- Integral vh and  rho * vh ---
+      vhint=0d0
       rhovh(1) = 0d0
       rhovh(nsp) = 0d0
       vsum = 0d0
