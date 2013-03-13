@@ -228,13 +228,13 @@ c$$$      nq0i = ixx
 !! clean zero
       do ik = 1,nq0i
         do i=1,3
-          if(abs(q0i(i,ik))<1d-6) then
+          if(abs(q0i(i,ik))<1d-8) then !it was 1d-6 until mar2013
             q0i(i,ik)=0d0
           endif
         enddo
         do i=1,3
           do j=1,3
-            if(abs(epinv(i,j,ik))<1d-6) then
+            if(abs(epinv(i,j,ik))<1d-8) then !it was 1d-6 until mar2013
               epinv(i,j,ik)=0d0
             endif
           enddo
@@ -250,6 +250,7 @@ c$$$      nq0i = ixx
       do ik=1,nq0i
         do jk=1,nq0i
           sij=sum(epinv(:,:,ik)*epinv(:,:,jk))
+c          print *,ik,jk,sij
           if(ik==jk) sij=sij-1d0
           if(abs(sij)>1d-10) then
             write(*,"(2i3,3d22.14)")ik,jk,sij
@@ -257,6 +258,7 @@ c$$$      nq0i = ixx
           endif
         enddo
       enddo
+c      stop 'xxxxxxxxx test end q0irre diele'
       end
 
 
