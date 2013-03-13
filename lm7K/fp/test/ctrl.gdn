@@ -27,7 +27,7 @@ OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f HF=f SO={so} PFLOAT=0
 .SYMGRP  R4Z M(1,1,0) R3D
 SYMGRP  find
 BZ      METAL=2 TETRA=t NEVMX=50 EFMAX=3 NKABC={nk} {nk} {nk} BZJOB=f
-        DOS=-1 1 SAVDOS=T
+        DOSMAX=1  SAVDOS=T DOS=-1 1.01719 #note DOS is for backword compatibility.
 STR     RMAX=3.02
 CONST     a=4.977/0.529177249 fv=1 tet=1.0
 % const  r1=2 r2=1
