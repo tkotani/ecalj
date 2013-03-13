@@ -807,6 +807,7 @@ tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
 		# To get better plot, Use large NKABC (even after converged).
                 # Larger NKABC may give smoother plot. Use large enough NKABC.
                 #
+                # NOTE: current version automatically enfoce TETRA=T and MEAL=3 for --pdos and --tdos
                 # ---TOTAL DOS plot---      
                 # you can use job_tdos_nspin*.
                 # It just do lmf --tdos foobar; then you have dos.tot.foobar, and we can plot it.
