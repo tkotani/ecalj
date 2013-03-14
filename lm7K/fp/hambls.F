@@ -166,6 +166,7 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
       use m_globalvariables
       use m_psigd
       use m_phmbls
+!!NOTE mode is returned to be -1 when diagonalized within this routine.
 C- Hamiltonian and overlap of LDA+(sigma-vxc) for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs

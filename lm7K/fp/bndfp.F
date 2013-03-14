@@ -241,7 +241,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
-     ., i , iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
+     ., imode,iss,ibb,ixx, iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
      ., lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
      ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
      ., lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
@@ -391,6 +391,7 @@ ctakao
       integer:: ifis2,ipts,ifid
       real(8):: eee
       logical :: tdos,pdos
+      integer,allocatable:: ndimhx_(:),nev_(:)
 !! === Setup ===
       call tcn ('bndfp')
       tdos=cmdopt('--tdos',6,0,strn)
@@ -403,8 +404,8 @@ ctakao
 #if MPI | MPIK
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
+      call strcop(shortname(procid),name,10,'.',iss)
+      namelen(procid) = iss-1
       write(strprocid,'(i10)') procid
       strprocid=adjustl(strprocid) 
 #endif
@@ -486,9 +487,9 @@ CKI      deallocate(sspecv)
       lpdiag = 0
 #endif
       if(llmfgw) then
-        i = 7
-        if (cmdopt('-jobgw=',i,0,strn)) then
-          if (.not. a2bin(strn,jobgw,2,0,' ',i,-1)) call
+        imode = 7
+        if (cmdopt('-jobgw=',imode,0,strn)) then
+          if (.not. a2bin(strn,jobgw,2,0,' ',imode,-1)) call
      .    rxs2('BNDFP: failed to parse "',strn(1:30),'%a"')
         endif
       endif
@@ -564,7 +565,7 @@ c      call fftz30(n1,n2,n3,k1,k2,k3)
           call rx(' bndfp: restart with TETRA=T for --window')
         endif
         iq = 0
-        i = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
+        idummy = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
         call info2(20,0,0,' BNDFP: generating density in energy window %2:1d',dosw,0)
         lfrce = 0
         lpnu = 0
@@ -619,7 +620,7 @@ C     Switch to plot bands at specified qp
         if(jobgw .eq. 1 .or. jobgw .eq. -999) then
           call info(20,1,0,' Make potential without XC part ...',0,0)
           call togpr()
-          i = 1 + 10*lfrzw + 100
+          imode = 1 + 10*lfrzw + 100
 !! dfaugm alllocates and initializes variables
           call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
      .       , sv_p_otaux , sv_p_oppix )
@@ -631,7 +632,7 @@ C     Switch to plot bands at specified qp
      .     lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
      .     , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .     , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .     , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .     , vval_rv , fes1_rv , imode , vorb , nlibu , lmaxu , lldau , nsp,0 )
           call togpr()
         endif
 !! --- readin job switch
@@ -654,13 +655,13 @@ C     Switch to plot bands at specified qp
 c xxxxxxxxxxx new sigma block
 
 C --- Make the potential and total energy terms ---
-      i = 1 + 10*lfrzw + 100*lnoxc
+      imode = 1 + 10*lfrzw + 100*lnoxc
       if (cmdopt('--wrhomt',8,0,strn)) then
-        i = i + 10000
+        imode = imode + 10000
       else if (cmdopt('--wpotmt',8,0,strn)) then
-        i = i + 20000
+        imode = imode + 20000
       endif
-      if(llmfgw) i = i + 10000
+      if(llmfgw) imode = imode + 10000
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -677,7 +678,7 @@ ccccccccccccccccccccccccc
      .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .      , vval_rv , fes1_rv , imode , vorb , nlibu , lmaxu , lldau , nsp,0 )
       call togpr()
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -826,7 +827,7 @@ C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
       if(debug) print *,'vvvvv 000aaa 22222222qqq '
       if (nfilem .gt. 0) then
         rewind nfilem
-        i = 1
+        imode = 1
 C   ... If switch '--mull'; get sites, number of channels
         if (cmdopt('--mull',6,0,strn)) then
           mulopt = strn(7:)
@@ -841,7 +842,7 @@ C   ... If switch '--mull'; get sites, number of channels
           allocate(chan_iv(nchan))
           chan_iv=chan0_iv(1:nchan)
           deallocate(chan0_iv)
-          call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+          call iomomn(.true.,2,.false.,1,nspc,1,1,imode)
         endif
         if(debug) print *,'vvvvv 111aaa 22222222qqq '
 
@@ -859,19 +860,19 @@ C   ... If  '--pdos'; get sites, number of channels
      .     , moddos , nsites , lsites , lmxch , nchan , iwdummy , nll )
 
           nlmax = (lmxch+1)**2
-          i = nlmax*ndham*3*nsp*nbas
-          if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
+          imode = nlmax*ndham*3*nsp*nbas
+          if (16*imode*nkp/1000000 .gt. 24 .and. procid .eq. master)
      .    call info(20,0,0,' PDOS: %iMb memory for aus: nlmax=%i',
-     .    i/1000000,nlmax)
+     .    imode/1000000,nlmax)
           if (cmdopt('--mull',6,0,strn))
      .    call rx('--pdos and --mull not allowed in conjunction')
           if (cmdopt('--cls',5,0,strn))
      .    call rx('--pdos and --cls not allowed in conjunction')
-          call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+          call iomomn(.true.,2,.false.,1,nspc,1,1,imode)
         endif
         if(debug) print *,'vvvvv 22222222qqq111 '
-        if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
-     .  ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
+        if (procid .eq. master) imode = iomoms(-nfilem,nl,nsp,nspc,nkp,
+     .  ndham,imode,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
       endif
       if(debug) print *,'vvvvv 22222222qqq '
 
@@ -892,11 +893,10 @@ C       suqlst in MPIK mode; returns cumulative number of k-points
         iopq = 2
 #endif
         if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
-        i = nsp
-        if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+        iss = nsp
+        if (onesp .ne. 0 .or. nspc .eq. 2) iss = 1
 C       In parallel mode, suqlst call only serves to generate nkp
         if(debug) print *,'vvvvv nkp=',nkp
-
 ckino plotting wavefunction
         write(*,*)'allocate listwf , size=',ndham
         if (allocated(listwf))  deallocate(listwf)
@@ -904,7 +904,7 @@ ckino plotting wavefunction
         n_listwf=ndham; listwf=0
         if (procid .eq. master) then
           write(*,*) 'calling suqlst'
-          call suqlst ( plbopt , iopq , ndhamx , ef0 , i , iwdummy , nfbn 
+          call suqlst ( plbopt , iopq , ndhamx , ef0 , iss , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp )
 ckino       fat band and write psi
           n_listwf=0
@@ -946,14 +946,14 @@ C MPIK: Setup to assemble all k-points into single list with qp table
           call rx('Cannot use color weights with MPIK')
         endif
 
-        call suqlsm(i)
+        call suqlsm(imode)
 C       Re-allocate qp and evl arrays
         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
         allocate(sbz%rv_p_oqp(3*nkp))
         sbz%rv_p_oqp(:)=0.0d0
 
         call info2(20,1,1,
-     .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
+     .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',imode,nkp)
 C       Loop through all qp; accumulate vector of qp.
 C       Use i2 in place of nkp to preserve nkp
         if (procid .eq. master) then
@@ -962,9 +962,9 @@ C       iq = running index to big qp list, i1 = index to current line
           i2 = 0
 ckino2012Oct15 comment loop_start-----------------
   199     continue
-          i = 1
+          imode = 1
           call pshpr(0)
-          call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
+          call suqlst ( plbopt , 1 , ndhamx , ef0 , imode , iwdummy , nfbn 
      .     , ifbls_iv , i2 , qp , onesp )
 
           call poppr
@@ -972,13 +972,13 @@ ckino2012Oct15 comment loop_start-----------------
             call pshpr(0)
             do  i1 = 1, i2
               iq = iq+1
-              call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
+              call suqlst ( plbopt , 1 , ndhamx , ef0 , imode , iwdummy , nfbn 
      .         , ifbls_iv , i2 , qp , onesp )
               call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
             enddo
             call poppr
-            call suqlsm(i)
-            if (i .ne. 3) goto 199
+            call suqlsm(imode)
+            if (imode .ne. 3) goto 199
           endif
 ckino2012Oct15 comment loop_end-----------------
         endif
@@ -1034,9 +1034,9 @@ C --- Get qplist. This is only for no MPI mode yet...
 #else
       do iq = 1, nkp
         if (plbnd .ne. 0) then
-          i = nsp
-          if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-          call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
+          iss = nsp
+          if (onesp .ne. 0 .or. nspc .eq. 2) iss = 1
+          call suqlst ( plbopt , 0 , ndhamx , ef0 , iss , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp )
         else
           call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
@@ -1312,6 +1312,10 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 #endif
 
       initiqisp=.true.
+      allocate(ndimhx_(nkp),nev_(nkp))
+      ndimhx_=0
+      nev_   =0
+
       do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
 #ifdef KINODEBUG
@@ -1410,7 +1414,7 @@ C   ... Make Hamiltonian and overlap matrices
               ovlm=0d0
             endif
 
-            i = lrsig*10
+            imode = lrsig*10
 c            print *,' i lrsig=',i,lrsig
 C Commented by takao lwsig should be renewed.
 C C       lwsig=-1: sigm LDA -> orbital basis
@@ -1517,7 +1521,7 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
 
 
 !! == Set up hamiltonian. ==
-            if(debug) print *,' mode ispc=',i,ispc
+            if(debug) print *,' mode ispc=',imode,ispc
             if( newsigmasw() ) then
               print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
@@ -1560,12 +1564,12 @@ c      if (lrsig .eq. 0) goto 999
 !!  Interpolation of sene= \Sigm-Vxc at given q.
               isize_hamm(3)=size(hamm,dim=3)
 !! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
-              call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
+              call hambls ( imode , nbas , ssite , sspec , slat , sham , isp ,
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
 c        nsmidb = min(nsmidb,ismidb) !????
-              if(oncewrite(3)) print *,' end of hambls mode=',i
+              if(oncewrite(3)) print *,' end of hambls mode=',imode
             endif
 
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
@@ -1577,8 +1581,8 @@ C       isp serves as a flag for the noncollinear case
             if (ispc .ne. nspc) goto 30
             jsp = isp
             if (ispc .eq. 2) jsp = 1
-            if (i .eq. -1) lpdiag = 2
-c            print *,'bndfp: lpdiag i=',lpdiag,i
+            if (imode .eq. -1) lpdiag = 2
+c            print *,'bndfp: lpdiag imode=',lpdiag,imode
 
 
 
@@ -1648,6 +1652,7 @@ C$$$#endif
      .         , iwdummy , iwdummy , iwdummy , hamm )
 #endif
               if(debug) print *,'vvv2 lwtkb=',lwtkb
+              if(debug) print *,'iq lpdiag=',iq,lpdiag,nev,nmx,nevl
             else ! lpdiag=0
                if(nspc .eq. 2) then
 c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
@@ -1657,6 +1662,7 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
 #ifdef KINODEBUG
                write(*,*) 'allocate ww_rv', 11*ndimhx
 #endif
+
 !     ! === Aug2012 diagonalization ===
 !     ! It is better to clean up lwtkb-algolism in this routine. !!!!
 !     ! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
@@ -1719,18 +1725,21 @@ c            endif
             endif
 #endif
             if (mod(iq,10) .ne. 1) call poppr
+
+
+
 !! ...  In k-parallel mode, defer this section until all qp available
 #ifndef MPIK
             ebot = dmin1(ebot,evl(1,jsp))
-            i = max(1,nint(qval-qbg)/(3-nspc))
-            evtop = max(evtop,evl(i,jsp))
-            ecbot = min(ecbot,evl(i+1,jsp))
+            ibb = max(1,nint(qval-qbg)/(3-nspc))
+            evtop = max(evtop,evl(ibb,jsp))
+            ecbot = min(ecbot,evl(ibb+1,jsp))
             if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
             if (plbnd .eq. 0) then
 #if ! (MPI | MPIK | MPE)
               if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
-     .        write (stdl,712) (evl(i,jsp),i=1,nev)
-  712         format('fp evl',8f8.4)
+     .        write (stdl,712) (evl(ibb,jsp),ibb=1,nev)
+  712         format('fp evl ',8f8.4)
 #endif
               if (lwtkb .ne. -1 .and. .not.lwndow) then
                 if (iq .eq. 1 .and. jsp .eq. nsp) then
@@ -1774,7 +1783,6 @@ c                endif
 #endif
 c##### !MPIK
 
-c             print *,' nmx nev=',nmx,nev
             if( debug) print *, 'tttttttttt 11111 plbnd=',plbnd
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
@@ -1827,8 +1835,8 @@ C   --- Mulliken analysis and partial DOS ---
                     call mullmf(nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
      .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
      .               , chan_iv , lmdim , ndham , doswt_rv )
-                    call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-                    i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
+                    call iomomn(.true.,2,.false.,1,nspc,1,1,imode)
+                    i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , imode , 
      .                   nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
      .                   , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
                     if (allocated(doswt_rv)) deallocate(doswt_rv)
@@ -1838,8 +1846,8 @@ C   --- Mulliken analysis and partial DOS ---
                     call rx('PDOS not k-parallel.')
 #endif
                     call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
-                    i = nlmax*ndham*3*nsp*nbas
-                    allocate(ausp_zv(i))
+                    imode = nlmax*ndham*3*nsp*nbas
+                    allocate(ausp_zv(imode))
                     ausp_zv(:)=0.0d0
                     call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
      .                   0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
@@ -1849,13 +1857,13 @@ C   --- Mulliken analysis and partial DOS ---
                     call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
      .                   , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
      .                   , doswt_rv )
-                    call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+                    call iomomn(.true.,2,.false.,1,nspc,1,1,imode)
 #if MPIK
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
-     .                   i , 1 , iq , isp, ndham , ndimh , nchan , nchan , nev , evl 
+     .                   imode , 1 , iq , isp, ndham , ndimh , nchan , nchan , nev , evl 
      .                   ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #else
-                    i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
+                    i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , imode , 1 
      .                   , 1 , 1 , ndham , ndimh , nchan , nchan , nev, evl ( 1 , jsp 
      .                   ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
 #endif
@@ -1926,21 +1934,21 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
      .          ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
      .          ,  n_listwf,listwf    )
               endif
-              i = nsp
-              if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-              call suqlsw2(nevl,jsp,i,evl(1,jsp),qp) !takao
+              iss = nsp
+              if (onesp .ne. 0 .or. nspc .eq. 2) iss = 1
+              call suqlsw2(nevl,jsp,iss,evl(1,jsp),qp) !takao
               if (nfbn(1) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .          call rx('color weights not implemented when '//
      .          'nevl < hamiltonian dimension')
-                call suqlse ( ndimhx , jsp , i , ndimhx , 1 , nfbn , ifbls_iv 
+                call suqlse ( ndimhx , jsp , iss , ndimhx , 1 , nfbn , ifbls_iv 
      .          , ndhamx , t_zv , evl )
               endif
               if (nfbn(2) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .          call rx('color weights not implemented when '//
      .          'nevl < hamiltonian dimension')
-                call suqlse ( ndimhx , jsp , i , ndimhx , 2 , nfbn , ifbls_iv 
+                call suqlse ( ndimhx , jsp , iss , ndimhx , 2 , nfbn , ifbls_iv 
      .          , ndhamx , t_zv , evl )
               endif
 #else
@@ -1951,21 +1959,30 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
               call dpscop(evl(1,jsp),evlall,ndhamx,1,1+ndham*(jsp-1+isqp),1d0)
 #endif
             endif
-
             if ( lpdiag = = 0.or.lpdiag = = 2 ) then
               if (allocated(t_zv)) deallocate(t_zv)
             endif
 !! == end loop over isp (main loop in parallel mode)==
    30       continue
             deallocate(igv2x)
+
           endif
+
  2005   continue
         if(debug) print *, 'tttttttttt 9999999999999999999 2',procid,iq
         deallocate(hamm,ovlm)
+
+        ndimhx_(iq)=ndimh !added mar2013takao
+        nev_(iq)   =nev
  2010 continue
       inquire(unit=ifig,opened=nexist)
       if(nexist) call fclose(ifig)
       if( debug) print *, 'tttttttttt 9999999999999999999 3',procid,iq
+
+#if MPIK
+       call mpibc2(ndimhx_,nkp,2,mlog,'bndfp','mdimhx_') !all reduce may be not necessary.
+       call mpibc2(nev_,  nkp,2,mlog,'bndfp','nev_')
+#endif
 
 C Commented by takao lwsig should be renewed july 2009
 C C Second pass over iq for second spin when writing sigma
@@ -2019,14 +2036,9 @@ C     You can't do this until you have all the evals.
 
 C     Share bands among all processors
       call xmpbnd(kpproc,ndham,nkp,nsp,evlall)
-c      if (epsovl .ne. 0) then
-c        call xmpbnd ( kpproc , 1 , nkp , nsp , eomin_rv )
-c      endif
       if (icls .ne. 0 .and. lwtkb .ne. -1) then
-        call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-        call xmpbnd ( kpproc , nlmax * ndham * 3 * nsites , nkp , nsp 
-     .  , ausc_zv )
-
+         call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+         call xmpbnd ( kpproc , nlmax * ndham * 3 * nsites , nkp , nsp , ausc_zv )
       endif
       call mpibc2(nevls,nkp*nsp,2,mlog,'bndfp','nevls')
 
@@ -2059,11 +2071,11 @@ C     Allreduce qkkl
             nelt(1) = (kmax+1)*(kmax+1)*nlma*nlma
             nelt(2) = (kmax+1)*nkaph*nlma*nlmh
             nelt(3) = nkaph*nkaph*nlmh*nlmh
-            do  i = 1, 3
-              call mpibc2 ( sv_p_oqkkl( i , ib )%v , nelt ( i ) * numq * nsp 
+            do  ixx = 1, 3
+              call mpibc2 ( sv_p_oqkkl( ixx , ib )%v , nelt ( ixx ) * numq * nsp 
      .         * nspc , 4 , mlog , 'bndfp' , 'qkkl' )
-              if ( lekkl .eq. 1 ) call mpibc2 ( sv_p_oeqkkl( i , ib )%v , nelt 
-     .         ( i ) * numq * nsp * nspc , 4 , mlog , 'bndfp' , 'eqkkl' )
+              if ( lekkl .eq. 1 ) call mpibc2 ( sv_p_oeqkkl( ixx , ib )%v , nelt 
+     .         ( ixx ) * numq * nsp * nspc , 4 , mlog , 'bndfp' , 'eqkkl' )
             enddo
           endif
         enddo
@@ -2091,15 +2103,15 @@ C     Allreduce qkkl
             iq = 0
             i2 = 0
  299        continue
-            i = nsp
-            if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-            call suqlst( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
+            iss = nsp
+            if (onesp .ne. 0 .or. nspc .eq. 2) iss = 1
+            call suqlst( plbopt , 0 , ndhamx , ef0 , iss , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
             if (i2>0) then
                do  i1 = 1, i2
                   iq = iq+1
                   isqp = nsp*(iq-1)
 c     qp=qplist(:,iq)
-                  call suqlst(plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
+                  call suqlst(plbopt , 0 , ndhamx , ef0 , iss , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
                   do  isp = 1, nsp
                      ispc = min(isp,nspc)
 C     jsp=isp in the collinear case; jsp=1 in the noncollinear
@@ -2112,18 +2124,21 @@ C     isp serves as a flag for the noncollinear case
                         if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
                         call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d', i1,nkp,qp,0,0)
                         if (mod(i1,10) .ne. 1) call poppr
-                        i = nsp
-                        if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+                        iss = nsp
+                        if (onesp .ne. 0 .or. nspc .eq. 2) iss = 1
                         print *,'nevls(iq,jsp)=',iq,jsp,nevls(iq,jsp)
-                        call suqlsw2(nevls(iq,jsp),jsp,i,evlall(1,jsp,iq),qp)
+                        call suqlsw2(nevls(iq,jsp),jsp,iss,evlall(1,jsp,iq),qp)
                      endif
                   enddo         ! isp
                enddo            ! i1
-               if (i .ne. 3) goto 299
+               if (iss .ne. 3) goto 299
             endif 
          endif
          call rx0('done')
       endif
+
+
+
 
 
 !!     Repeat loop for printout.  Put evals back into local array
@@ -2177,15 +2192,15 @@ c               print *,' 1111 iq pidorigin procid=',iq,pidorigin,procid
 c               call mpibc2(pidorigin,1,2,mlog,'bndfp','pidorigin')
 c     ---  pidorigin node has data
               if (procid==pidorigin) then
-                 work_mpi(1) =  ndimhx
-                 work_mpi(2) =  nev
+                 work_mpi(1) =  ndimhx_(iq)
+                 work_mpi(2) =  nev_(iq)
               endif
 c              print *,' 22222 iq pidorigin procid=',iq,pidorigin,procid
 c     ---   bcast
                call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq')
                ndimhx_iq = work_mpi(1)
                nev_iq = work_mpi(2) !1nov2012
-c               print *,'uuuuuuuu ndimhx_iq nev_iq',iq,procid,ndimhx_iq,nev_iq
+               if(debug) print *,'uuuuuuuu ndimhx_iq nev_iq',iq,procid,ndimhx_iq,nev_iq
 
 c     ki this causes SEGV, delete Jul08, 2010
 c     ki            if (procid.eq.master) then
@@ -2197,15 +2212,15 @@ c     kino end
 
                if (mod(iq,10) .ne. 1) call poppr
                ebot = dmin1(ebot,evl(1,jsp))
-               i = max(1,nint(qval-qbg)/(3-nspc))
-               evtop = max(evtop,evl(i,jsp))
-               ecbot = min(ecbot,evl(i+1,jsp))
+               ibb = max(1,nint(qval-qbg)/(3-nspc))
+               evtop = max(evtop,evl(ibb,jsp))
+               ecbot = min(ecbot,evl(ibb+1,jsp))
                if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
                if (plbnd .eq. 0) then
                   if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
-     .                 write (stdl,712) (evl(i,jsp),i=1,nev_iq)
+     .                 write (stdl,712) (evl(ibb,jsp),ibb=1,nev_iq)
 c     kino 05Feb09     write (stdl,712) (evl(i,jsp),i=1,nev)
- 712              format('fp evl',8f8.4)
+ 712              format('fp evl ',8f8.4)
                   if (lwtkb .ne. -1 .and. .not. lwndow) then
                      if (iq .eq. 1 .and. jsp .eq. nsp ) then !
 !! comment out mar2013takao
@@ -2226,15 +2241,15 @@ c     .                  .and.  .not. cmdopt('--no-fixef0',11,0,strn)) then
                      endif
 
 C     Check for cases when nevmx is too small : i=2 => fatal error
-                     i = 0
+                     ibb = 0
                      if (nevmx.ge.0 .and. lmet .ne. 0) then
                         dum = evl(max(nev_iq,1),jsp)
 c     kino 05Feb09            dum = evl(max(nev,1),jsp)
 C     if (ef0 .ge. dum) i = 2
-                        if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
-                        if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
+                        if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) ibb=2
+                        if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)ibb=2
                      endif
-                     if (i .eq. 2) then
+                     if (ibb .eq. 2) then
                         call awrit3('%N evl(nev=%i)=%;3d but '//
      .                       'ef0=%;3d ... restart with larger efmax or nevmx',
      .                       ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
@@ -2423,7 +2438,7 @@ c          endif
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
-            i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
+            idummy = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
             call fclr('wkp',ifi)
           endif
         endif
@@ -2455,14 +2470,14 @@ c      endif
         endif
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-          i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
+          idummy = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
           call fclr('wkp',ifi)
         endif
       endif
 
 !! ... Cleanup asa-style moments file, print table of DOS channels
       if (nfilem .gt. 0) then
-        i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
+        idummy = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
      .  ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
         call fclose(nfilem)
         if (iprint() .ge. 10 .and. cmdopt('--mull',6,0,strn)) then
@@ -2476,14 +2491,14 @@ c      endif
       if (lfrce .ne. 0 .and. napw .ne. 0) then
         call dpzero(xv,3)
         do  i1 = 1, nbas
-          do  i = 1, 3
-            xv(i) = xv(i) + frc(i,i1)/nbas
-          enddo
+c          do  i = 1, 3
+            xv(1:3) = xv(1:3) + frc(1:3,i1)/nbas
+c          enddo
         enddo
         do  i1 = 1, nbas
-          do  i = 1, 3
-            frc(i,i1) = frc(i,i1) - xv(i)
-          enddo
+c          do  i = 1, 3
+            frc(1:3,i1) = frc(1:3,i1) - xv(1:3)
+c          enddo
         enddo
       endif
 
