@@ -33,7 +33,7 @@ c     &  igv2,napwk,igv2rev
       use m_events !Event numbers: include "events.ins"
 #endif
 
-!! followings are taken from origitanl lm7beta for reference.
+!! ==== followings are taken from origitanl lm7beta for reference. ====
 Ci   nbas  :size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -128,7 +128,7 @@ Cl         :also used when usual loop order (iq=1..nq, isp=1..2)
 Cl         :needs to be reversed, as it does, e.g. when transforming
 Cl         :sigma matrix.  Then onesp plays the role of spin index
 Cl   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
-Cl   lwsig :special modes to handling reading/writing of sigma or evecs
+Cl   lwsig :special modes to handling reading/writing of sigma or evecs <---most of all are commented out
 Cl         :1  Rotates sigm to LDA basis; saves in file sigm2
 Cl         :-1 reads sigm (assumed to be written in the LDA basis),
 Cl         :   rotates it to orbital basis, stores the result in file sigm2
@@ -338,18 +338,6 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       double precision sttime,entime
 #endif
 
-C      for debugging and testing
-C      integer ocg,ojcg,oidxcg,ocy
-C      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-C      call thxpbl(slat,w(ocg),w(oidxcg),w(ojcg),w(ocy))
-C #if TESTRWF
-C       integer ooffH,oidxsh,oistab,oag,og
-C       integer nk1,nk2,nk3,ogstar,is(3),ifac(3),nsgrp
-C       double precision rb(9),qb(9)
-C       logical llshft(3)
-C       integer oipq
-C #endif
-
 C For self-energy
       integer nqsig
       integer:: nbasp
@@ -362,7 +350,7 @@ ctakao
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) !,hamsom(:,:)
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer:: isize_hamm(3)
       real(8):: rrr(3)
       complex(8):: pi2i
@@ -562,8 +550,6 @@ c      call fftz30(n1,n2,n3,k1,k2,k3)
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
       ndos=sbz%ndos
-c      i_copy_size=size(sbz%dosw)
-c      call dcopy(i_copy_size,sbz%dosw,1,dosw,1)
       dosw= sbz%dosw
       ef0 = sbz%ef
       def = sbz%def
@@ -701,34 +687,6 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
 c          stop 'xxxxxxxxxxxxxxxx  111'
 ccccccccccccccccccccccccc
 
-C Commented by takao lwsig should be renewed. July2009
-C C     lwsig0 = isign(1,lwsig) * mod(iabs(lwsig),10)
-C C     lwsig1 = iabs(lwsig/10)
-C       if (cmdopt('--evec',6,0,strn)) then
-C         if (lwsig .ne. 0) call rxi('bandfp: --evec not allowed with '
-C      .      //'--wsig:trans=',i)
-C         strn2 = strn(7:)
-C         dc = strn2(1:1)
-C         call evcflg(dc,strn2,i,shftqp)
-C         if (i .gt. 10) lwsig = 2 + mod(i,10)
-C       endif
-C
-C
-C C     Transformation modes: read qp and jump to start
-C       if (lwsig .ne. 0) then
-Ckino isanrg is logical function, C         call isanrg(lwsig,-1,5,'BNDFP:','lwsig',.true.)
-C         l_dummy_isanrg=isanrg(lwsig,-1,5,'BNDFP:','lwsig',.true.)
-C         onesp = 0
-C         lwtkb = 0
-C
-C         ifi = fopna('qpts',-1,0)
-C         call getqp(0,ifi,nkp,nkabc,lshft,i,w,w,w)
-C         call defrr(oqp,3*nkp)
-C         call getqp(1,ifi,nkp,nkabc,lshft,i,w(oqp),w,w)
-C
-C         goto 50
-C       endif
-
       elind = sham%elind
       if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
@@ -792,7 +750,6 @@ C     Allocate aus for all qp
      .  isite,iclsl,iclsn,nsites)
         efmax = 1d3
         nevmx = ndhamx
-Changenglob        nlmax = nglob('mxorb') / nglob('nkaph')
         nlmax = globalvariables%mxorb / globalvariables%nkaph
         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid
      .  .eq. master)
@@ -1118,8 +1075,6 @@ c     takao to get all qp. I think suqlst looks too complicated...
 c     this block is just to get list of qp. suqlst should be cleaned up in future.
          nbasp=sctrl%nbasp
          nl=sctrl%nl
-c     kino Dec.8.2011:          iv_p_oidxsh => sham%iv_p_oindxo
-c         print *,'xxx goto gen_hamindex nkp=',nkp,llmfgw
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
      .        nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
 C     kino ib=atom index
@@ -1137,13 +1092,6 @@ c         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 c            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
 c     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
          enddo
-c         write(6,*) ' ngrp=', ngrp
-!do ig = 1, ngrp
-!write(6,*) ig
-!do i=1,3
-!  write(6,"(3f13.5,3x,f13.5)") symops(i,1:3,ig),ag(i,ig)
-!enddo
-!enddo
       endif
 
 !     ! === generate \Sigma for q points on all the mesh points. ===
@@ -1358,24 +1306,13 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       call dstrbp(nkp,numprocs,1,kpproc(0))
       iqini = kpproc(procid)
       iqend = kpproc(procid+1)-1
-c      do 2010 iq = kpproc(procid), kpproc(procid+1)-1
-c        if (iq .eq. kpproc(procid)) then
-c          if (mlog) then
-c            call gettime(datim)
-c            call awrit4(' bndfp '//datim//' Process %i of %i on '
-c     .        //shortname(procid)(1:namelen(procid))//
-c     .        ' starting k-points %i to %i',' ',256,lgunit(3),
-c     .        procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
-c          endif
-c        endif
 #else
-c      nsmidb = ndham
       iqini=1
       iqend=nkp
 #endif
 
       initiqisp=.true.
-      do 2010 iq = iqini, iqend
+      do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
 #ifdef KINODEBUG
         write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
@@ -1392,35 +1329,12 @@ c      nsmidb = ndham
 #endif
         isqp = nsp*(iq-1)
 C       Get qp either from qp list or read from suqlst
-
 #ifndef MPIK
-c        if (plbnd .ne. 0) then
-c          i = nsp
-c          if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-c          call suqlst(plbopt,0,ndhamx,ef0,i,w,nfbn,w(oifbls),nkp,qp,
-c     .      onesp)
-c        else
-c          call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
-c        endif
         qp=qplist(:,iq)
 #else
-ckino Dec.8.2011:           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
         call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
 
 #endif
-c        print *,' do2010 start xxxxxxxxxxxxxx iq qp=',iq,qp
-c        if(iq==1) qp=(/0d0,0d0,0d0/)
-c        if(iq==2) qp=(/ 0.6000,      -0.5000,       0.5000/)
-c        if(iq==3) qp=(/-0.25000,  0.25000,  0.2500/)
-c        if(iq==4) qp=(/ 0.2500,    0.2500,       0.2500/)
-c        if(iq==1) qp=(/-0.2500,      -0.2500,       0.7500/)
-c        if(iq==2) qp=(/ 0.5000,      -0.5000,       0.5000/)
-c        if(iq==3) qp=(/-0.5000,       0.5000,       0.5000/)
-c        if(iq==4) qp=(/ 0.2500,       0.2500,       0.2500/)
-c        if(iq==1) qp=(/ 0.0000,       0.0000,       0.0000/)
-c        if(iq==2) qp=(/ 0.7500,      -0.2500,      -0.2500/)
-c        if(iq==3) qp=(/-0.2500,       0.7500,      -0.2500/)
-c        if(iq==4) qp=(/ 0.5000,       0.5000,      -0.5000/)
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -1437,8 +1351,7 @@ C       isp=1 generates just the 11 block
         if(debug) print *,'goto spin loop nsp=',nsp
 c$$$        qpo=qp !moved here on mar2012 only for band plot
 c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
-
-        do  isp = 1, nsp
+        do 2005 isp = 1, nsp
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
 c             print *,' test run ------> temporarly comment out shorbz'
@@ -1449,29 +1362,22 @@ c            endif
 
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
-C   ... For this qp, G vectors for PW basis and hamiltonian dimension
+!! === For this qp, G vectors for PW basis and hamiltonian dimension ===
             if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
               pwgmin = dsqrt(pwemin)
               pwgmax = dsqrt(pwemax)
               call pshpr(1)
               call dpzero(xv,3)
               if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xv,1,3,1d0)
-              !print *,'xxx xxx  1111'
               call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
      .        0,napw,napw,dum,dum,dum,dum)
               call poppr
-c              call defi(oigv2,3*napw)
               allocate(igv2x(3,napw))
               allocate(kv_iv(3*napw))
-
               call pshpr(iprint()-10)
-              !print *,'xxx xxx 2222'
               call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
      .        , 0 , 2 , napw , napw , kv_iv , dum , dum , igv2x )
-
-              !print *,'xxx xxx 3333'
               deallocate(kv_iv)
-
               call poppr
               ndimh = ldim + napw  !ndimh is iq-dependent.
               if (mod(pwmode,10) .eq. 2) ndimh = napw
@@ -1489,8 +1395,6 @@ c              call defi(oigv2,3*napw)
 
 C   ... Make Hamiltonian and overlap matrices
             nqsig=sham%nqsig
-ckino Dec.8.2011:               rv_p_oqsig => sham%rv_p_oqsig
-cki            if (oqsig .eq. 0) oqsig = 1
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
             !nspc=1
             if(debug) print *,'zzzzzzzzzzzzz11111111'
@@ -1530,13 +1434,6 @@ C           i = i + 6000
 C         elseif (lwsig .eq. 5) then
 C           i = i + 5000
 C         endif
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ctakaox
-c        if(iq==1) then
-c              ifio = fopna('ovlmat',-1,4)
-c        endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
@@ -1618,16 +1515,14 @@ Ckino hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 Ckino finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
 
-C --- Set up hamiltonian.
-ccccc     if (mod(mode,10) .eq. 0) then
+
+!! == Set up hamiltonian. ==
             if(debug) print *,' mode ispc=',i,ispc
             if( newsigmasw() ) then
               print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
               if (lso == 1) jx = 10
               call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
-ckino Dec.8.2011:       .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau
-ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
@@ -1647,14 +1542,6 @@ ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vcon
                 deallocate(senex)
               endif
 
-ccccc     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
-c      endif
-c      lrsig = mod(mode/10,10)
-c      lwsig = mod(mode/1000,10)
-c      ismidb = 0
-Ckino isanrg is logical function, c      call isanrg(lwsig,0,5,'hambls:','lwsig',T)
-c      l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
-
 C ... Store LDA eigenvectors, eigenvalues in s and h and exit
 c      if (lwsig .eq. 1) then
 c        allocate(zqi(ndimh,ndimh))
@@ -1670,10 +1557,8 @@ c      endif
 c      if (lrsig .eq. 0) goto 999
 
             else
-C ... Interpolation of sene= \Sigm-Vxc at given q.
-ckino                    isize_hamm(3)=size(hamm)
+!!  Interpolation of sene= \Sigm-Vxc at given q.
               isize_hamm(3)=size(hamm,dim=3)
-c            print *,' hhhhzzz in  i =',i
 !! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
@@ -1682,53 +1567,6 @@ c            print *,' hhhhzzz in  i =',i
 c        nsmidb = min(nsmidb,ismidb) !????
               if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
-ccccccccccccccccccccccccccccccccccc
-c        goto 2011
-cccccccccccccccccccccccccccccccccccc
-C       call zprm('evec, LDA',2,w(os),ndimh,ndimh,ndimh)
-
-cccccccccccccccccc
-ctakaox test
-c        if(iq==1) then
-c              ifio = fopna('ovlmat',-1,4)
-c        endif
-c        call dpdump(w(os),ndimh**2*2,-ifio)
-ccccccccccccccccc
-
-C Commented by takao lwsig should be renewed july 2009 takao
-C C   ... Mode to write sigma or evecs to file
-C         if (lwsig .ne. 0) then
-C C         Write header information
-C           call upack('bz lshft',sbz,lshft,0,0,0,0)
-C           if (iq .eq. 1 .and. isp .eq. 1) then
-C             if (lwsig .eq. 1 .or. lwsig .eq. 2 .or. lwsig .eq. 5) then
-C               ifi = fopna('sigm2',-1,4)
-C             elseif (lwsig .eq. 3 .or. lwsig .eq. 4) then
-C               ifi = fopna('evec',-1,4)
-C             endif
-C             rewind ifi
-C             call iosigh(0,lwsig,nsp,ndimh,nk1,nk2,nk3,nkp,
-C      .        lshft(1),lshft(2),lshft(3),-ifi)
-C           endif
-C
-C C         lwsig=1,2 : dump sigma(LDA basis) into file sigm2
-C C         lwsig=3,4 : dump LDA eigenvectors into file evec
-C C         lwsig=5   : dump sigma(orb basis) into file sigm2
-C           if (lwsig .ge. 1 .and. lwsig .le. 5) then
-C             if (lwsig .eq. 1 .or. lwsig .eq. 2 .or. lwsig .eq. 5) then
-C               ifi = fopna('sigm2',-1,4)
-C             else
-C               ifi = fopna('evec',-1,4)
-C             endif
-C             write(ifi) qp
-C             call dpdump(w(oh),ndimh,-ifi)
-C             call dpdump(w(os),ndimh**2*2,-ifi)
-C
-C           elseif (lwsig .ne. 0) then
-C             call rxi('BNDFP: band mode lwsig=',lwsig)
-C           endif
-C           goto 30
-C         endif
 
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
@@ -1742,36 +1580,9 @@ C       isp serves as a flag for the noncollinear case
             if (i .eq. -1) lpdiag = 2
 c            print *,'bndfp: lpdiag i=',lpdiag,i
 
-Ccomment out this test block takao
-C C   ... debugging ... test of trotwf
-C #if TESTRWF
-C         call upack('ham ldham ooffH oindxo',sham,ldham,ooffH,oidxsh,0,0)
-C         call upack('lat plat oistab oag osymgr nsgrp',slat,plat,oistab,
-C      .    oag,og,nsgrp)
-C         call upack('bz oqp owtkp oipq ostar',sbz,oqp,owtkp,oipq,ogstar,
-C      .    0)
-C         call upack('bz nkp nkabc lshft',sbz,nkp,nkabc,lshft,0,0)
-C C   ... Make is,ifac,qb,qlat
-C         do  8  i = 1, 3
-C     8   llshft(i) = lshft(i) .ne. 0
-C         call pshpr(0)
-C         call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
-C         call poppr
-C
-C         rsrnge = dgets('ham rsrnge',sham)
-C         call trothf(nl,nbas,jsp,nsp,w(ooffH),w(oidxsh),w(oistab),nk1,
-C      .    nk2,nk3,w(oipq),nkp,w(oqp),w(owtkp),rsrnge,ndimh,0,slat,ssite,
-C      .    sspec,sham,w(osmpot),osig,otau,oppi,vconst,w(og),w(oag),nsgrp,
-C      .    w(ogstar),lshft,ifac,qb)
-C C        call trotwf(ssite,sspec,slat,sham,w(osmpot),vconst,osig,otau,
-C C     .    oppi,nl,nbas,jsp,w(ooffH),w(oidxsh),w(oistab),nk1,nk2,nk3,
-C C     .    w(oipq),nkp,w(oqp),ndimh,plat,w(og),w(oag),w(ogstar),
-C C     .    ifac,qb)
-C         call rx('done')
-C #endif
 
 
-C   ... Diagonalize and add to density
+!! === Diagonalize and add to density ===
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
 #ifndef MPIK
             call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
@@ -1780,12 +1591,11 @@ c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
      .      iq,nkp,qp,1,ndimh)
 #endif
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
-c            if (lwtkb .eq. -1) nmx = -1 
-               !  this was used to calculate eigenvalue only in zhev in first-path 
-               ! (only for integration weight)-->current version store all eigenfunctions in the 1st-path. 2nd path
-               ! just unpack the eigenfunctions stored in the 1st path 
+            !  this was used to calculate eigenvalue only in zhev in first-path 
+            ! (only for integration weight)-->current version (takao2013mar)store all eigenfunctions
+            !  in the 1st-path. 2nd path just unpack the eigenfunctions stored in the 1st path 
 
-!!   Need all eigenvalues if 'fat bands' plotting mode
+!!  Calculate all eigenvalues for 'fat bands' plotting mode, pdos, tdos modes.
             if (nfbn(1) .gt. 0 .or. pdos.or.tdos) then
               nmx = ndimhx
               efmax = 99999
@@ -1806,6 +1616,8 @@ c            if (lwtkb .eq. -1) nmx = -1
             if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx**2
 
             if(debug) print *,'paralell diagonalization switch lpdiag=',lpdiag
+
+!! lpdiag selection
             if(lpdiag==1) then
               call rx('parallel diag is not yet. Need to implement. See bndfp.F.')
 C$$$          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
@@ -1835,123 +1647,53 @@ C$$$#endif
               call phmbls ( 2 , ndimhx , evl ( 1 , jsp ) , iwdummy , iwdummy 
      .         , iwdummy , iwdummy , iwdummy , hamm )
 #endif
-ccccccccccccccc takao think this is not nesessary ccccccccccccccccccccccccccccccccccccccccccccc
-!! blsig (comparaed with hambls.F) shows how to make interpolation of self-energy.
-              if(.false.) then
-                write(6,*)"bndfp: 1 + lrsig * 10=",1 + lrsig * 10
-                if(lwtkb .ne. -1) then
-                  allocate(ww_zv(ndimhx**2*2))
-#ifdef KINODEBUG
-                  write(*,*)'kino allocate ww_zv', ndimhx**2*2
-#endif
-                  if (ldim .ne. ndham) call rx('blsig needs separate dim for wtkp,evec')
-                  call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc
-     .            , plat , qp , lwtkb , qval - qbg , iq , sbz%rv_a_owtkp , rv_a_owtkb 
-     .            , ndimh , t_zv , ww_zv )
-                  deallocate(ww_zv)
-                endif
-              endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if(debug) print *,'vvv2 lwtkb=',lwtkb
             else ! lpdiag=0
-              if(nspc .eq. 2) then
-c                call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
-                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
-                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
-              endif
+               if(nspc .eq. 2) then
+c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
+                  call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
+                  call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
+               endif
 #ifdef KINODEBUG
-              write(*,*) 'allocate ww_rv', 11*ndimhx
+               write(*,*) 'allocate ww_rv', 11*ndimhx
 #endif
-
-!! === previous version before Aug2012 ===
-c              allocate(ww_rv(11*ndimhx))
-c                call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
-c     .          , ncutovl , nevl , nev , evl ( 1 , jsp ) , ww_rv , ndimhx 
-c     .          , t_zv, iq==1, sham%delta_stabilize)
-c              deallocate(ww_rv)
-
-!! === Aug2012 diagonalization ===
-!! It is better to clean up lwtkb-algolism in this routine. !!!!
-!! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
-              savez=.false.
-              getz=.false.
-              if(gotosecondpass) then
-                if(ix99==1) then
-                  savez=.true.  ;  getz=.false.
-                else
-                  savez=.false. ;  getz=.true.
-                endif
-                if(initiqisp) then
+!     ! === Aug2012 diagonalization ===
+!     ! It is better to clean up lwtkb-algolism in this routine. !!!!
+!     ! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
+               savez=.false.
+               getz=.false.
+               if(gotosecondpass) then
+                  if(ix99==1) then
+                     savez=.true.  ;  getz=.false.
+                  else
+                     savez=.false. ;  getz=.true.
+                  endif
+                  if(initiqisp) then
 #if (MPI|MPIK)
-c  for parallel write, and eigze is used only in this subroutine. 
-c  gfortran v4.7 add _{procid} at the end of the filename
-c  then how can I share the same file among the different processes? 
-                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
-                  call fclose(ifig)
-                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
+c     for parallel write, and eigze is used only in this subroutine. 
+c     gfortran v4.7 add _{procid} at the end of the filename
+c     then how can I share the same file among the different processes? 
+                     ifig = fopna('eigze_'//trim(strprocid),-1,4)
+                     call fclose(ifig)
+                     ifig = fopna('eigze_'//trim(strprocid),-1,4)
 #else
-                  ifig = fopna('eigze',-1,4)
-                  call fclose(ifig)
-                  ifig = fopna('eigze',-1,4)
+                     ifig = fopna('eigze',-1,4)
+                     call fclose(ifig)
+                     ifig = fopna('eigze',-1,4)
 #endif
-                  initiqisp=.false.
-                endif  
-              endif 
-c              print *,'savez getz=',savez,getz,iq,iqini,isp,nmx
-!! In principle, we only need to calculate bands up to nmx. But cuttent version (june2011)
-!! calculate all bands.  nmx= maximum number of eigenvalue. subzi can give nmx larger than ndimhx
-cccccccccccccccccccccccccccccccccccccccccccc
-c$$$              hamm(5:9,1:4,:)=0d0
-c$$$              hamm(5:9,10:,:)=0d0
-c$$$              hamm(1:4,5:9,:)=0d0
-c$$$              hamm(10:,5:9,:)=0d0
-c$$$              ovlm(5:9,1:4,:)=0d0
-c$$$              ovlm(5:9,10:,:)=0d0
-c$$$              ovlm(1:4,5:9,:)=0d0
-c$$$              ovlm(10:,5:9,:)=0d0
-c              hamm(5:9,:,:)=0d0
-c              hamm(:,5:9,:)=0d0
-c              ovlm(5:9,:,:)=0d0
-c              ovlm(:,5:9,:)=0d0
-c              do i=5,9
-c                 ovlm(i,i,:)=1d0
-c              enddo
-c              hamm(21:25,:,:)=0d0
-c              hamm(:,21:25,:)=0d0
-c              ovlm(21:25,:,:)=0d0
-c              ovlm(:,21:25,:)=0d0
-c              do i=21,25
-c                 ovlm(i,i,:)=1d0
-c              enddo
-c$$$              hamm(1:4,:,:)=0d0
-c$$$              hamm(:,10:,:)=0d0
-c$$$              ovlm(1:4,:,:)=0d0
-c$$$              ovlm(:,10:,:)=0d0
-c$$$              do i=1,4
-c$$$                 ovlm(i,i,:)=1d0
-c$$$              enddo
-c$$$              do i=10,ndimhx
-c$$$                 ovlm(i,i,:)=1d0
-c$$$              enddo
-c$$$              do i=1,4
-c$$$                 hamm(i,i,:)=1d0
-c$$$              enddo
-c$$$              do i=10,ndimhx
-c$$$                 hamm(i,i,:)=1d0
-c$$$              enddo
-ccccccccccccccccccccccccccccccccccccccccccccc
-c              print *,' goto zhev_tk2 nmx=',nmx
-              call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
-     .          evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig)   !stock eigenfunctions z
-!! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
+                     initiqisp=.false.
+                  endif  
+               endif 
+c     print *,' goto zhev_tk2 nmx=',nmx
+               call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
+     .              evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
+!     ! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
 
-!! nmx: number of eigenfunctions
-!! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
-                nevl=nev    !ndimhx    this OK? why nevl and nev???
-                evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
-
-            endif
-
+!     ! nmx: number of eigenfunctions
+!     ! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
+               nevl=nev         !ndimhx    this OK? why nevl and nev???
+               evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
+            endif 
 
 !!       Pad evals between ndimh and ndham with a large positive number
 !!       to avoid mixing up integration routines
@@ -2065,7 +1807,6 @@ C   --- Orbital magnetic moment (requires lso) ---
      .          0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .          nspc , jsp , 1 , qp , t_zv , ppnl_rv , auso_zv )
                 call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
-ckino Dec.8.2011:       .           , nev , rv_p_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
      .           , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
      .           , orbtm_rv )
                 deallocate(auso_zv)
@@ -2218,9 +1959,9 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
    30       continue
             deallocate(igv2x)
           endif
-        enddo
+ 2005   continue
         if(debug) print *, 'tttttttttt 9999999999999999999 2',procid,iq
-        deallocate(hamm,ovlm)!,hamsom)
+        deallocate(hamm,ovlm)
  2010 continue
       inquire(unit=ifig,opened=nexist)
       if(nexist) call fclose(ifig)
@@ -2625,7 +2366,6 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb )
           else
 ckino       maybe a switch for these is lmet.ne.0
-ckino Dec.8.2011:                 l_temp_rv_p_oswtk=.false.
             l_temp_rv_a_oswtk=.false.
             if (.not.allocated(rv_a_oswtk)) then
               allocate(rv_a_oswtk(1))
