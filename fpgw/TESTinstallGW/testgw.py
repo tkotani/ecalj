@@ -213,7 +213,8 @@ testname.append(testn)
 startfile.append('ctrl.nio GWinput')
 commands.append(['lmfa nio > llmfa',gwsc1shot+' nio'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
+testcommand.append(['diffnum log.nio '+datadir+'log.nio'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.nio '+datadir+'log.nio'])
 
 ##############################
