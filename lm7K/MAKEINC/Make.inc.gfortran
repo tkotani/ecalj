@@ -1,3 +1,36 @@
+FC = gfortran
+LK = gfortran
+
+FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
+#gcc ?: -O3, -O2, -O1, -O0
+#gcc 4.6.0: -O2, -O2, -O1, -O0
+FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
+FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
+# safer option (debug)
+#FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
+
+
+##### MATH libraries FFTW,BLAS LAPACK ###
+# ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
+LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+
+
+
+
+
+#############################################################
+#####   you usually don't need to touch followings      #####
+#############################################################
+LIBLOC= $(LIBMATH)
+
 ######################################################
 #
 # $lmdir, which is defined in Makefile in ./ and in other 
@@ -5,42 +38,26 @@
 #
 # We need gfortran4.7 for -O3
 ######################################################
-############# Libraries BLAS LAPACK FFTW 
-
-### kino's case
-LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
- -L/opt/acml4.4.0/gfortran64/lib -lacml 
-
-#LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
-#LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
-#  I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
-#LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
-#  I had a problem in zgemm in pwmat. Wrong normchk.dia
-#LIBLOC= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
-
-# ubuntu 9.10 apt-get install
-LIB2= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
-# ubuntu 10.04 apt-get install
-LIB5= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
-
-# centos yum install. Zgemm did not work for larger size of matrix.
-LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
-        /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
-        /usr/lib64/atlas/libatlas.so.3 -lfftw3
-LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
-
-# ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
-LIBubuntu11= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-
-#LIBLOC=$(LIBkino)
-LIBLOC=$(LIBubuntu11)
+# ############# Libraries BLAS LAPACK FFTW 
+# LIBkino= -L$(HOME)/local.gfortran/lib -lfftw3 \
+#  -L/opt/acml4.4.0/gfortran64/lib -lacml 
+# #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+# #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
+# #  I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
+# #LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
+# #  I had a problem in zgemm in pwmat. Wrong normchk.dia
+# #LIBLOC= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
+# # ubuntu 9.10 apt-get install
+# LIB2= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
+# # ubuntu 10.04 apt-get install
+# LIB5= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
+# # centos yum install. Zgemm did not work for larger size of matrix.
+# LIB3= -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
+#         /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
+#         /usr/lib64/atlas/libatlas.so.3 -lfftw3
+# LIB4 = /opt/acml4.4.0/gfortran64/lib/libacml.a -lfftw3
 
 
-############ Fortran compiler
-#FC = mpif90
-#LK = mpif90
-FC = gfortran
-LK = gfortran
 result_fc_version =$(shell tail -1 .fc_version )
 
 make_fc_version:
@@ -50,28 +67,6 @@ make_fc_version:
 ############# where is modules?
 moddir = MODDIR/$(obj_path)
 module = -J$(moddir) -I$(moddir)
-
-############# Fortran compiler switch
-FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
-
-#gcc ?: -O3, -O2, -O1, -O0
-#gcc 4.6.0: -O2, -O2, -O1, -O0
-
-FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
-FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
-FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
-#
-# safer option (debug)
-#  -pg for profiling??? how to use gprof
-#FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
-#FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
-#FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
-#FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
-#FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
-
 
 
 ############# CPP switch 
