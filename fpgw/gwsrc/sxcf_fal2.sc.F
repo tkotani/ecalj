@@ -438,7 +438,8 @@ c      real(8)::wqfac(nqbz)
       integer:: irot2
       real(8):: eftrue
 
-      integer::ierr !,omp_get_thread_num
+      integer::ierr 
+!$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
@@ -1494,13 +1495,13 @@ c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
-                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
-     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
+!KINO                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
+!KINO     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
 c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
                   call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
      o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
 c     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
+!KINO                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
                   zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel

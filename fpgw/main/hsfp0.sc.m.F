@@ -1248,7 +1248,7 @@ c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given
                if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
                   read(ifvxc)  nhdim,ldim
                   read(ifvxc)
-                  print *,'iq is nhdim ldim nband ntp=',iq,is,nhdim,ldim,nband,ntq
+!KINO                  print *,'iq is nhdim ldim nband ntp=',iq,is,nhdim,ldim,nband,ntq
                   allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
                   read(ifevec) qqqx(1:3), evec(1:nhdim,1:nhdim)
                   zsect = 0d0
@@ -1279,7 +1279,7 @@ c               cycle !takao think this should be commented out 26mov2012
                do it=1,1        !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
                   do igrp=1,ngrp !A-rotator
                      if( eibzsym(igrp,it,iqxx)==0) cycle
-                     print *,' igrp in nsym=',igrp,nsym !this line was requied to avoid (probably bug in ifort12).
+!KINO                     print *,' igrp in nsym=',igrp,nsym !this line was requied to avoid (probably bug in ifort12).
                                 !evecout= symgg(ig)*evec
                      nblk=0
                      iblki=0

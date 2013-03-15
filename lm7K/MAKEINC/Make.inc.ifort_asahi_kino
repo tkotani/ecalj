@@ -6,8 +6,8 @@ LIBLOC= -lfftw3 -mkl
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
-FC = ifort -mcmodel=medium -heap-arrays 100
-LK = ifort -parallel -mcmodel=medium -heap-arrays 100
+FC = ifort -mcmodel=medium -heap-arrays 1
+LK = ifort -parallel -mcmodel=medium -heap-arrays 1
 
 # -heap-array puts automatic and temporary arrays on the heap instead of stack
 # -mcmodel=medium uses data area beyound 2GB. 
