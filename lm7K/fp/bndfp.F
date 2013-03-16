@@ -403,9 +403,12 @@ ctakao
       integer:: ifis2,ipts,ifid
       real(8):: eee
       logical :: tdos,pdos
-      integer:: ifves,ifvesintatm,ifvesintloc,ispec
-      real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc
+      integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm
+      real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
       real(8),allocatable::vesatm(:)
+
+      real(8):: rydberg=13.6058d0
+      logical:: lfill=.false.
 c---
 
 !! === Setup ===
@@ -2627,7 +2630,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb )
+     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill)
           else
 ckino       maybe a switch for these is lmet.ne.0
 ckino Dec.8.2011:                 l_temp_rv_p_oswtk=.false.
@@ -2650,7 +2653,7 @@ ckino Dec.8.2011:                 l_temp_rv_p_oswtk=.false.
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb )
+     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill)
           endif
           if (l_temp_rv_a_oswtk) then
             deallocate(rv_a_oswtk)
@@ -2965,7 +2968,7 @@ ccccccccccccccccccccccccc
       sham%ehk=eks
   999 continue
 
-!!
+!! === VBM CBM section. Mar2013takao === just output
       ifves=fopna('vessm',-1,1)
       rewind ifves
       read(ifves,*) vessm
@@ -2986,9 +2989,18 @@ ccccccccccccccccccccccccc
       enddo   
       deallocate(vesatm)
       vref= sumvesatm/vol - vessm -sumvesloc/vol
-      write(*,"('### Add vref to eigenvalues to get relative to vaccum',f12.6)"),vref
-      write(*,"('###    VBM relative to vaccum=',f12.6,' Ry=',f12.6,' eV')")evtop+vref,(evtop+vref)*13.605
-      write(*,"('###    CBM relative to vaccum=',f12.6,' Ry=',f12.6,' eV')")ecbot+vref,(ecbot+vref)*13.605
+      write(*,"('### Add vref to eigenvalues to get relative to vaccum',f12.6)") vref
+      if(lfill) then
+         evbm=(evtop+vref)*rydberg
+         ecbm=(ecbot+vref)*rydberg
+      else
+         evbm=(eferm+vref)*rydberg
+         ecbm=(eferm+vref)*rydberg
+      endif   
+      ifvbm = fopna('vbmcbm',-1,2)
+      write(*,    "('### VBM= ',f12.6,' eV  CBM= ',f12.6,' eV')")  evbm,ecbm
+      write(ifvbm,"('### VBM= ',f12.6,' eV  CBM= ',f12.6,' eV')")  evbm,ecbm
+      call fclose('ifvbm')
       call fclose('vessm')
       call fclose('vesintatm')
       call fclose('vesintloc')

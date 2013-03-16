@@ -1,6 +1,6 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
-     .wtkb,dosef,qval,ent)
+     .wtkb,dosef,qval,ent,lfill)
       use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------

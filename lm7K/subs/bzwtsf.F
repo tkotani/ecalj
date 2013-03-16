@@ -7,7 +7,7 @@
 !!  (Takao think this bzwtsf2 may need to be modified for solids).
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
-     .swtk,efermi,sumev,wtkb,qval,lwtkb)
+     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill)
       use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -73,12 +73,12 @@ C Local variables
       real(8),allocatable:: ebs(:,:,:)
       real(8):: ele1,ele2
       integer:: itermx
-      logical:: quitvnow
+      logical:: quitvnow,lfill
 
 C --- Fermi level without spin constraint ---
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
-     .sumev,wtkb,dosef,qval,ent)
+     .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
       call getpr(ipr)
@@ -140,7 +140,7 @@ c      vnow=0d0
         if(.not.quitvnow) call pshpr(ipr-50)
         call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
-     .  sumev,wtkb,dosef,qval,ent)
+     .  sumev,wtkb,dosef,qval,ent,lfill)
         if (iprint()>= 20) then
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
      .  amom)
@@ -214,7 +214,7 @@ c
 !!== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
-     .swtk,efermi,sumev,wtkb,qval,lwtkb)
+     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill)
       use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -278,12 +278,12 @@ C Local variables
       logical:: agreemom
       real(8),parameter::    NULLR =-99999
       real(8),allocatable:: ebs(:,:,:)
-      logical:: quitvnow
+      logical:: quitvnow,lfill
 
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
-     .sumev,wtkb,dosef,qval,ent)
+     .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
       call getpr(ipr)
@@ -362,7 +362,7 @@ C       A root was found
         if(.not.quitvnow) call pshpr(ipr-50)
         call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
-     .  sumev,wtkb,dosef,qval,ent)
+     .  sumev,wtkb,dosef,qval,ent,lfill)
         if (iprint()>= 20) then
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
      .  amom)
@@ -453,7 +453,7 @@ c      integer:: itermx
       logical:: agreemom
       real(8),parameter::    NULLR =-99999
       real(8),allocatable:: ebs(:,:,:)
-      logical:: quitvnow
+      logical:: quitvnow,lfill
       real(8):: vnowmin,vnowmax,widthx,vnow1,vnow2
       integer:: ix
       call tcn('bzwtsf3')
@@ -463,7 +463,7 @@ c      integer:: itermx
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
-     .sumev,wtkb,dosef,qval,ent)
+     .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
 !!== Make and print out magnetic moment ==
@@ -519,7 +519,7 @@ c        widthx=width
 c        if(.not.quitvnow) widthx=0.01d0
           call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .   metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
-     .   sumev,wtkb,dosef,qval,ent)
+     .   sumev,wtkb,dosef,qval,ent,lfill)
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
           if(.not.quitvnow) call poppr()
 c       if (ipr .ge. 41) call awrit5(' dv=%;10,6D  yields '//
