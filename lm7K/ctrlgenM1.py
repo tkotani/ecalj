@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# CAUTION; R here is in Angstrom, converted to a.u. in ctrlgen2.ctrl.* 
+# CAUTION; R here is in Angstrom, converted to a.u. in ctrlgenM1.ctrl.* 
 #########################################################################
 # Generate a temprate of ctrl file from ctrls.
 # Work with python 2.5 or so.
@@ -34,9 +34,11 @@ Ne=  " atomz=10@ pz='PZ=2.8,2.8'@ p='P=3.3,3.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.28@"
 #Na=  " atomz=11@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.55@"                 
 #Mg=  " atomz=12@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.75@"                 
 #Al=  " atomz=13@ pz='PZ=2.9,2.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.25@"
-Na=  " atomz=11@ pz='PZ=0,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.55@"                 
-Mg=  " atomz=12@ pz='PZ=0,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.75@"                 
-Al=  " atomz=13@ pz='PZ=0,2.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.25@"
+Na=  " atomz=11@ pz='PZ=0,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.55@"   
+#Mg=  " atomz=12@ pz='PZ=0,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.75@"                 
+#Al=  " atomz=13@ pz='PZ=0,2.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.25@"
+Mg=  " atomz=12@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.75@"                 
+Al=  " atomz=13@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.25@"
 Si=  " atomz=14@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=1.15@"
 P=   " atomz=15@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=0.96@"       
 S=   " atomz=16@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                         R=0.97@"       
@@ -73,8 +75,10 @@ Ni= "  atomz=28@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=1.06@"
 Cu= "  atomz=29@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=1.13@"
 Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.60@"
 Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.37@"
-Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
-As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
+#Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
+#As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.2'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
+Ge= "  atomz=32@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.21@"
+As= "  atomz=33@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.06@"
 Se= "  atomz=34@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.10@"
 Br= "  atomz=35@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.16@"
 Kr= "  atomz=36@ pz='PZ=4.8,4.8'@ p='P=5.3,5.3'@ eh=-0.1*4@ eh2=-2*3@ R=1.88@"
@@ -135,7 +139,8 @@ Ag  =" atomz=47@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@"
 Cd  =" atomz=48@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 In= "  atomz=49@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=1.37@"
 Sn  =" atomz=50@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
-Sb  =" atomz=51@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+#Sb  =" atomz=51@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Sb  =" atomz=51@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 Te  =" atomz=52@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 I   =" atomz=53@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 Xe  =" atomz=54@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
@@ -157,7 +162,7 @@ Er  =" atomz=68@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Tm  =" atomz=69@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Yb  =" atomz=70@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Lu  =" atomz=71@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hf  =" atomz=72@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hf  =" atomz=72@  pz='PZ=0,0,0,4.9'@ p='0,0,0,5.2'@ eh=-0.1*5@ eh2=-2*4@  R=?@" 
 Ta  =" atomz=73@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 W   =" atomz=74@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Re  =" atomz=75@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -165,10 +170,10 @@ Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hg  =" atomz=80@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pb  =" atomz=82@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Bi  =" atomz=83@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Pb  =" atomz=82@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 Po  =" atomz=84@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 At  =" atomz=85@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Rn  =" atomz=86@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -203,19 +208,23 @@ def manip_argset(argset):
     nspin_val="1"
     xcfun_str="pbe"
     xcfun_val=103
-    mmom_val="0 0 0 0"
-#    r_mul_val="1.0"
-#    systype_val="molecule"
+    mmom_val="#MMOM=0,0,0,0"
     systype_val="bulk"
-    nk_val="4"
-#    readrmt=0
-#    rlmchk=0
+    nk_val1="4"
+    nk_val2="-999999"
+    nk_val3="-999999"
+    mmom_val='#MMOM=0 0 1 0'
     showatomlist=0
     showhelp=0
     metali=3
     fsmom_val=0.0
     touchingratio=.95 #default value was -1.0 
     eh1set=1
+#    readrmt=0
+#    rlmchk=0
+#    r_mul_val="1.0"
+#    systype_val="molecule"
+
     for arg in argset:
 	if re.match("--nspin",arg)!=None:
 		nspinlist=arg.split("=")
@@ -235,10 +244,18 @@ def manip_argset(argset):
 #                rlist=arg.split("=")
 #                if len(rlist)==2:
 #                        r_mul_val=rlist[1]
-	elif re.match("--nk",arg)!=None:
+	elif re.match("--nk1",arg)!=None:
                 nklist=arg.split("=")
                 if len(nklist)==2:
-                        nk_val=nklist[1]
+                        nk_val1=nklist[1]
+	elif re.match("--nk2",arg)!=None:
+                nklist=arg.split("=")
+                if len(nklist)==2:
+                        nk_val2=nklist[1]
+	elif re.match("--nk3",arg)!=None:
+                nklist=arg.split("=")
+                if len(nklist)==2:
+                        nk_val3=nklist[1]
         elif re.match("--systype",arg)!=None:
                 syslist=arg.split("=")
                 if len(syslist)==2:
@@ -279,7 +296,9 @@ def manip_argset(argset):
 
     if systype_val.upper()=="MOLECULE":
         do_nothing=0
-        nk_val="1"
+        nk_val1="1"
+        nk_val2="1"
+        nk_val3="1"
     elif systype_val.upper()=="BULK":
         do_nothing=0
     else:
@@ -289,7 +308,8 @@ def manip_argset(argset):
     if ierror!=0:
 	print "ABORT. Check names of args. Some are not defined."
 	sys.exit(-1)
-    return nspin_val,xcfun_val,xcfun_str,mmom_val,  systype_val,nk_val,showatomlist,showhelp,metali,fsmom_val,touchingratio,eh1set #rlmchk,r_mul_val,
+    return nspin_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set 
+
 
 #-------------------------------------------------------
 def  line2Token(linein):
@@ -430,15 +450,16 @@ def getdataa2(aaa,key):
 #===============================================================================
 #          MAIN 
 #===============================================================================
-#r_mul_val=0.9
-xcfun_val="103"
-nk_val="4"
 
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set \
+nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set \
 = manip_argset(argset) #set global argument defined at the top of mainp_argset.
+
+manip_argset(argset) #set global argument defined at the top of mainp_argset.
+if nk_val2=="-999999":nk_val2=nk_val1
+if nk_val3=="-999999":nk_val3=nk_val1
 
 showhelpw='Not exist'
 if(showhelp): showhelpw='given'
@@ -447,36 +468,41 @@ if(showatomlist): showatomlistw='given'
 insulatorw='Not exist'
 if(metali==0): insulatorw='given'
 
+
 ### help sections ###
 if(showhelp==1):
     print \
 """ 
-ctrlgen2.py. tkotani and h.kino jun_2012 version :
+ctrlgenM1.py. tkotani and h.kino march_2013 version :
 ---------------
-Purpose: 
-     Generate a template of ctrl file ctrlgen2.ctrl.{ext}."
-     Before you run lmfa, you have to copy ctrlgen2.ctrl.{ext} to ctrl.{ext} and edit it.
-     Usage  : ctrlgen2 {extension of ctrl file} [option]
-	      [options] = INPUT arguments in the followings.
-              Your given arguments are shown at the begining of output.
+ Purpose: 
+     Generate a template of ctrl file names as ctrlgenM1.ctrl.{ext}."
+     Before you run lmfa, you have to copy ctrlgenM1.ctrl.{ext} to ctrl.{ext} and edit it.
+ Usage  : ctrlgenM1 {extension of ctrl file} [option]
+          [options] = INPUT arguments in the followings.
+          Your given options (also defaults when not specified) are shown at the begining of console output.
+ Example: 
+       After you write ctrls.si, run
+       >ctrlgenM1.py si --nk1=8 --nk2=8 --nk3=8 --tratio=1.0  --xcfun=vwn
 """
-print " === INPUT arguments (--help gives default values) === "
+print 
+print " === INPUT options (shown values are default) === "
 print "  --help  %s"      % showhelpw
 print "  --showatomlist  %s"      % showatomlistw
 print "  --nspin=%s"  % nspin_val
-print "  --nk=%s"         % nk_val
+print "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1
+print "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2
+print "  --nk3=%s   (if not give, nk3=nk1) along b-axis"   % nk_val3
 print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str,xcfun_val
-print "  --systype=%s !(bulk,molecule)" % systype_val
-print "  --insulator  %s !(do not set for --systype=molecule)"    %  insulatorw
-print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule set this)"    %  fsmom_val
+#print "  --mmom='%s\' ! mmom is the initial magnetic moment for each spec,l-channel. Effective for --nspin=2" % mmom_val
+print " +++ Followings are for expart to change +++"
 print "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio
-print "               if negative, we use use defalut MT radius in ctrlgen2.py)"
+print "               if negative, we use use defalut MT radius in ctrlgenM1.py)"
+print "  --systype=%s !(bulk,molecule)" % systype_val
+print "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw
+print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val
 print "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)"
 print 
-print
-#print "  --mmom=\'%s\'"   % mmom_val
-#print " mmom is the initial magnetic moment for each l-channel. now atom-independent MMOM"
-#print " --r_mul_val=%s"  % r_mul_val
 if(showhelp==1): sys.exit()
 
 
@@ -500,7 +526,7 @@ for line in alist:
 #    aaa=mat.group().split('"')[1]
 #    print keya,line.split("@")[2:-1]
 if(showatomlist==1):
-	print "--- This is atomlist in ctrlgen2.py (not yet set after Kr) ---."
+	print "--- This is atomlist in ctrlgenM1.py (not yet set after Kr) ---."
 	sys.exit()
 specstd=dicatom.keys()
 #print specstd
@@ -526,11 +552,9 @@ for ils in dicatom.keys():
 try:
     ext=sys.argv[1]
 except:
-    print '=== Need ctrls file such as ctrls.si.  Run ctrlgen2 si [options] ==='
-    print " Example: ctrlgen2.py si --nk=8 --tratio=0.9 --insulator "
     sys.exit()
 print 
-print "... Generate ctrlgen2.ctrl."+ext+" from ctrls."+ext + " ..."
+print "... Generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ..."
 ctrls = "ctrls." + ext
 f=open(ctrls,'rt')
 ctrlsdat = f.read() 
@@ -552,34 +576,39 @@ print '### other ', listno
 
 ########### obtain mapping spec to Z dictionary spec2z ####
 spec2z={}
+specextra={}
 zspec=False
 if(len(listspec)==0):
     #listspec = re.split('\n',specstd)  # SPEC standard if no SPEC is in ctrls.*
     #print specstd
     #sys.exit()
-    print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgen2.py --showatomlist"
+    print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgenM1.py --showatomlist"
 #    for ils in sitename:
 #        print 'site=',ils
 #         spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
 #         specname=ils.split('ATOM=')[1].split(' ')[0]
 #         specz=ils.split('Z=')[1].split(' ')[0]
 #         spec2z[specname]=specz
+    specextradata=False
 else:
     zspec=True
     for ils in listspec:
         atomsss=ils.split('ATOM=')
-        print len(atomsss),atomsss
+        print 'readin spec=',len(atomsss),atomsss
         if(len(atomsss)>1):
             specname=atomsss[1].split(' ')[0]
             specz=ils.split('Z=')[1].split(' ')[0]
             spec2z[specname]=specz
+            sss =re.split(r'Z\s*=\s*[0-9]+\s',' '.join(atomsss))[-1].strip()
+            specextra[specname]= sss
             print ils,specname,specz
+    specextradata=True
+
 #print spec2z
 #sys.exit()
 
 ansite = '%i' % len(sitename)
 anspec = '%i' % len(uniq(sitename))
-
 
 #### specsec0 for --getwsr (calculate touching MT radius) ###
 specsec0=''
@@ -601,7 +630,7 @@ for ispec in uniq(sitename):
 
 ################################################################
 os.system("rm -rf llmchk_getwsr llmfa.tmp2")
-head="### This is generated by ctrlgen2.py from ctrls \n"
+head="### This is generated by ctrlgenM1.py from ctrls \n"
 head= head+ """
 ### For tokens, See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html. 
 ### However, lm7K is now a little different from Mark's lmf package in a few points.
@@ -721,20 +750,22 @@ for ispec in uniq(sitename):
         if eh1set==1: eh1value='-1 '
         rsize= '%6.2f' % rrr
         rsizeh= '%6.2f' % rrrh
+        #print ispec,specextra[ispec]
         aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
+        if specextradata: aaa=aaa+ ' '*6+specextra[ispec] +'\n'  #mar2013
         aaa=aaa+ '      EH='+  eh1value*eh1count
         aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*eh1count+'\n'
         aaa=aaa+ '      EH2='+ eh2value*eh2count
         aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*eh2count+'\n' \
 			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
-                            +'      #MMOM=0 0 1 0 #s,p,d,f initial condition\n' \
+                            +'      '+mmom_val+' #s,p,d,f initial condition\n' \
                             +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
                             +'      #Q=0 0.5 1 0 #s,p,d,f initial condition \n' \
                             +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
     except:
-        print 'ERROR this is probably because we have not yet set default values in ctrlgen2.py for a spec'
+        print 'ERROR this is probably because we have not yet set default values in ctrlgenM1.py for a spec'
         sys.exit(-1)
     specsec= specsec + aaa +'\n'
 
@@ -791,8 +822,8 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=3 nk="+nk_val+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0 xcfun="+xcfun_val+"\n"
-tail = tail + "BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.\n"\
+tail = tail+ "% const pwemax=4 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0 xcfun="+xcfun_val+"\n"
+tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
                 # METAL=3 is safe setting (double path method), no problem even for insulator.
@@ -969,9 +1000,9 @@ OPTIONS PFLOAT=1
 #g = open("ctrl."+ext,'wt')
 #g.write(ctrlnospec+aaa+tail)
 #g.close()
-g = open("ctrlgen2.ctrl."+ext,'wt')
+g = open("ctrlgenM1.ctrl."+ext,'wt')
 #g.write('\n'.join(listctrl)+tail)
 g.write(alltmp+specsec+tail)
 g.close()
-print "OK! A template of ctrl file, ctrlgen2.ctrl."+ext+", is generated."
+print "OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated."
 sys.exit()

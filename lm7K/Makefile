@@ -327,4 +327,4 @@ checkgw:
 
 
 install: 
-	cp $(programs) $(fplotprogs) ctrlgen2.py ~/bin
+	cp $(programs) $(fplotprogs) ctrlgenM1.py ~/bin

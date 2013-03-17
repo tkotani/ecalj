@@ -2989,7 +2989,8 @@ ccccccccccccccccccccccccc
       enddo   
       deallocate(vesatm)
       vref= sumvesatm/vol - vessm -sumvesloc/vol
-      write(*,"('### Add vref to eigenvalues to get relative to vaccum',f12.6)") vref
+      write(*,"('### Add vref to eigenvalues to get relative to vaccum=',f12.6)") vref
+      write(*,"('### mean estatic potential by superposition of atoms =',f12.6)") sumvesatm/vol
       if(lfill) then
          evbm=(evtop+vref)*rydberg
          ecbm=(ecbot+vref)*rydberg
@@ -2998,8 +2999,10 @@ ccccccccccccccccccccccccc
          ecbm=(eferm+vref)*rydberg
       endif   
       ifvbm = fopna('vbmcbm',-1,2)
-      write(*,    "('### VBM= ',f12.6,' eV  CBM= ',f12.6,' eV')")  evbm,ecbm
-      write(ifvbm,"('### VBM= ',f12.6,' eV  CBM= ',f12.6,' eV')")  evbm,ecbm
+      write(*,    "('### VBM= ',f12.6,' eV CBM= ',f12.6,' eV estatic_pot=',f12.6,' eV')")  
+     &  evbm, ecbm, sumvesatm/vol*rydberg
+      write(ifvbm,"('### VBM= ',f12.6,' eV CBM= ',f12.6,' eV estatic_pot=',f12.6,' eV')")  
+     &  evbm, ecbm, sumvesatm/vol*rydberg
       call fclose('ifvbm')
       call fclose('vessm')
       call fclose('vesintatm')

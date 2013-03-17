@@ -1,5 +1,4 @@
-import re
-import sys
+import re,sys,string
 def vasp2ctrl_alat(vaspread): #read alat from VASP file
 	alat_list = vaspread[1].split()
 	alat_val = float( alat_list[0] )/0.529177 # convert it to a.u. from angstrome.
@@ -15,17 +14,26 @@ def vasp2ctrl_atomcount(vaspread): # set atom namet in all_atom[]
 	NBAS_val = len(all_atom)
 	return all_atom,NBAS_val
 
-def vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom):
+def vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom,ratioa):
 	outputname = titleinput+'.vasp2ctrl'
 	ctrlwrite = open(outputname,'w')
 	tes = all_atom
-	outputlist1 = 'STRUC'+'\n'+' '*5+'ALAT='+str(alat_val)+'\n' \
-	+' '*5+'PLAT='+vaspread[2]+'\n'+' '*10+vaspread[3]+'\n'+' '*10+vaspread[4]+'\n' \
+	avec= [string.atof(x)/ratioa for x in re.split(r'[\s+]',vaspread[2]) if x!='']
+	bvec= [string.atof(x)/ratioa for x in re.split(r'[\s+]',vaspread[3]) if x!='']
+	cvec= [string.atof(x)/ratioa for x in re.split(r'[\s+]',vaspread[4]) if x!='']
+	avecs = ' '.join(['%18.11f ' % x for x in avec])
+	bvecs = ' '.join(['%18.11f ' % x for x in bvec])
+	cvecs = ' '.join(['%18.11f ' % x for x in cvec])
+	plats = 'PLAT=  '+ avecs +' \n' +' '*12+ bvecs +'\n'+' '*12+ cvecs +'\n'
+	outputlist1 = 'STRUC'+'\n'+' '*5+'ALAT=' + str(alat_val*ratioa) +'\n' \
+	+' '*5+ plats \
 	+' '*2+'NBAS='+str(NBAS_val)+'\n'+'SITE'+'\n'
 	ctrlwrite.write(outputlist1)
 	for sort in range(len(tes)):
-		outputlist2 = ' '*5+'ATOM='+tes[sort]+' '+'POS='+str(atom_list[sort][0]) \
-		+' '+str(atom_list[sort][1])+' '+str(atom_list[sort][2])+'\n'
+		position  = [x/ratioa for x in atom_list[sort][0:3] ]
+		positions = ' '.join(['%18.11f ' % x for x in position])
+		atoms = '%s' % tes[sort]
+		outputlist2 = ' '*5+'ATOM='+atoms+' '+'POS='+positions +'\n'
 		ctrlwrite.write(str(outputlist2))
 	ctrlwrite.close()
 
