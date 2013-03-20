@@ -686,8 +686,13 @@ ctakaox
 
 C   ... Add off-diagonal spin-orbit hamiltonian to h; re-diagonalize
         if (lso .eq. 1 .and. ispc .eq. 2) then
-c          print *, '!! zero out SO ndimh ndimhx',ndimh,ndimhx
-          h(1:ndimh,1:ndimh,3) = 0
+
+c$$$!! TEST of skip spin-off diagonal
+c$$$!! If you set this true, SO=1 becomes SO=2 because no LxSx+LySy is skiped.
+c$$$         print *, '!! zero out SO ndimh ndimhx',ndimh,ndimhx
+c$$$         h(1:ndimh,1:ndimh,3) = 0 
+
+
 
 C         Effective hamiltonian of h+sig, orbital basis
 *         call zprm('z11',2,s(1,1,1),ndimh,ndimh,ndimh)
@@ -700,19 +705,19 @@ C         Effective hamiltonian of h+sig, orbital basis
      .    h(1,1,3),s(1,1,1),s(1,1,2),h(1,1,3))
 #endif
 *         call zprm('S.O, evec repsn',2,h(1,1,3),ndimh,ndimh,ndimh)
-
           deallocate(z0,zqi,e0)
           allocate(z0(ndimhx,ndimhx),zqi(ndimhx,ndimhx),e0(ndimhx))
 
-!         zqi <- evecs of H w/out SO in orbital basis, spin-coupled form
-          call sopert(1,ndimh,nspc,z0,s,zqi)
-!         h <- full hamiltonian in zqi basis, spin-coupled form
-          call sopert(0,ndimh,nspc,z0,h,h)
+!!     zqi <- evecs of H w/out SO in orbital basis, spin-coupled form 
+!!     h <- full hamiltonian in zqi basis, spin-coupled form
+          call sopert(1,ndimh,nspc,z0,s,zqi) !z0 work array.
+          call sopert(0,ndimh,nspc,z0,h,h)   !z0 work array
 
 c         call zprm('h+sig+SO, evec repsn',2,h,ndimhx,ndimhx,ndimhx)
-!         Diagonalize h in this representation
-          call zhevx(ndimhx,ndimhx,h,xx,0,T,ndimhx,9d9,
-     .    i,s,F,e0,ndimhx,z0)
+!!         Diagonalize h in the representation of zqi.
+!!         h_ij= <zqi(:,i)|h|zqi(:,j)>, call zhevx with lov=0 means no overlap matrix.
+          call zhevx(ndimhx,ndimhx,h,xx,0,T,ndimhx,9d9, 
+     .    i,s,F,e0,ndimhx,z0) !z0 contains evec in the zqi basis.
 c*         call yprm('evals',1,e0,1,ndimhx,ndimhx,1)
 c*         call zprm('evecs',2,z0,ndimhx,ndimhx,ndimhx)
 

@@ -1634,8 +1634,6 @@ ccccc     if (mod(mode,10) .eq. 0) then
               jx = 0
               if (lso == 1) jx = 10
               call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
-ckino Dec.8.2011:       .            qp , k1 , k2 , k3 , zv_p_osmpot , vconst , sv_p_osig , sv_p_otau
-ckino Dec.28.2011:      .            qp , k1 , k2 , k3 , spot%zv_p_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
@@ -2537,19 +2535,13 @@ cccccccccccccccccccccccccccccccccccccccccccccc
 !!     For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
         allocate(ips_iv(nbas))
-
         i_copy_size=1;
         do i_spackv=1,nbas
           call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
      .    , i_copy_size , i_spackv + 1 - 1 , ips_iv )
-
         enddo
-
-        call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv 
-     .  )
-
+        call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
         if (allocated(ips_iv)) deallocate(ips_iv)
-
       endif
 
       if( debug) print *, 'tttttttttt 9999999999999999999 5'

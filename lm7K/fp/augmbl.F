@@ -625,6 +625,9 @@ Cr  The column dimension of b is permuted in iprmb order.
 Cr  The ppihh(i,i,i,i,3), ppihh(i,i,i,i,4) are the head-head matrix
 Cr  elements of LxSx+LySy. The ppihp(i,i,i,i,3), ppihp(i,i,i,i,4) are
 Cr  the corresponding head-tail elements.
+c
+!!takao  NOTE: LzSz is alreay added h by locpot-augmat-gaugm
+c
 Cr  The 2c term has the form h_{i,j} = Sum_kL(conjg(b_{i;k,L})*p_{j;k,L})+
 Cr   Sum_kL(p_{i;k,L}*p_{j;k,L}); To get the second term for spin orbit
 Cr   we rely on the hermicity of the ppi_{LxSx+LySy} block.
@@ -692,7 +695,8 @@ C         Loop over basis functions 1..ndimh from all sites
                 s(j,i1) = s(j,i1) + dconjg(cadd)
                 do  ilma = 1, nlma
                   cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-C           ... Make 2c term LxSx+LySy part of SO
+C           ... Make 2c term LxSx+LySy part of SO 
+!! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
                   if (mode1 .eq. 1) then
                     do  jsp = 1, 2
                       if (isp .ne. jsp) then
@@ -720,6 +724,7 @@ C     ... One-center terms
                 i2 = i2+1
                 h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
 C        ...  Make 1c LxSx+LySy part of SO
+!! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
                 if (mode1 .eq. 1 .and. isp .eq. 2) hso(i1,i2) = hso(i1,i2)
      .          + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
                 if (ilm1 .eq. ilm2) s(i1,i2) = s(i1,i2)
