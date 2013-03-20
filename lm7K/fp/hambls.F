@@ -688,7 +688,7 @@ ctakaox
 C   ... Add off-diagonal spin-orbit hamiltonian to h; re-diagonalize
         if (lso .eq. 1 .and. ispc .eq. 2) then
 c          print *, '!! zero out SO ndimh ndimhx',ndimh,ndimhx
-          h(1:ndimh,1:ndimh,3) = 0
+c          h(1:ndimh,1:ndimh,3) = 0
 
 C         Effective hamiltonian of h+sig, orbital basis
 *         call zprm('z11',2,s(1,1,1),ndimh,ndimh,ndimh)
