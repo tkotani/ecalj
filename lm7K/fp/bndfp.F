@@ -409,8 +409,7 @@ ctakao
 
       real(8):: rydberg=13.6058d0
       logical:: lfill=.false.
-c---
-
+      integer,allocatable:: ndimhx_(:),nev_(:)
 !! === Setup ===
       call tcn ('bndfp')
       tdos=cmdopt('--tdos',6,0,strn)
@@ -1383,7 +1382,12 @@ c      nsmidb = ndham
 #endif
 
       initiqisp=.true.
-      do 2010 iq = iqini, iqend
+      if(allocated(ndimhx_)) deallocate(ndimhx_)
+      if(allocated(nev_)) deallocate(nev_)
+      allocate(ndimhx_(nkp),nev_(nkp))
+      ndimhx_=0
+      nev_   =0
+      do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
 #ifdef KINODEBUG
         write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
@@ -2226,11 +2230,18 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
           endif
         enddo
         if(debug) print *, 'tttttttttt 9999999999999999999 2',procid,iq
-        deallocate(hamm,ovlm)!,hamsom)
+        deallocate(hamm,ovlm)
+        ndimhx_(iq)=ndimh !added mar2013takao
+        nev_(iq)   =nev
  2010 continue
       inquire(unit=ifig,opened=nexist)
       if(nexist) call fclose(ifig)
       if( debug) print *, 'tttttttttt 9999999999999999999 3',procid,iq
+
+#if MPIK
+       call mpibc2(ndimhx_,nkp,2,mlog,'bndfp','mdimhx_') !all reduce may be not necessary.
+       call mpibc2(nev_,  nkp,2,mlog,'bndfp','nev_')
+#endif
 
 C Commented by takao lwsig should be renewed july 2009
 C C Second pass over iq for second spin when writing sigma
@@ -2391,7 +2402,9 @@ C     isp serves as a flag for the noncollinear case
       endif
 
 
-!!     Repeat loop for printout.  Put evals back into local array
+
+
+!! ===   Repeat loop for printout.  Put evals back into local array ===
       do  iq = 1, nkp
          isqp = nsp*(iq-1)
 !     call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
@@ -2417,8 +2430,6 @@ c     endif
 c     if (epsovl .ne. 0) then
 c     call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g', eomin,0,0,0,0)
 c     endif
-
-
 c$$$c     kino start, set origin  for bcast, 05Feb09
 c$$$c     --- use ndimhx_iq and nev_iq below
 c$$$c     --- I am afraid that this part can't execute correctly in the case of MPIK.
@@ -2442,8 +2453,8 @@ c               print *,' 1111 iq pidorigin procid=',iq,pidorigin,procid
 c               call mpibc2(pidorigin,1,2,mlog,'bndfp','pidorigin')
 c     ---  pidorigin node has data
               if (procid==pidorigin) then
-                 work_mpi(1) =  ndimhx
-                 work_mpi(2) =  nev
+                 work_mpi(1) =  ndimhx_(iq)
+                 work_mpi(2) =  nev_(iq)
               endif
 c              print *,' 22222 iq pidorigin procid=',iq,pidorigin,procid
 c     ---   bcast
@@ -2459,7 +2470,6 @@ c     ki            endif
 c     ki end
 c     kino       call prtev(w(1),ndimhx,evl(1,jsp),nevmx,efmax,nev)
 c     kino end
-
                if (mod(iq,10) .ne. 1) call poppr
                ebot = dmin1(ebot,evl(1,jsp))
                i = max(1,nint(qval-qbg)/(3-nspc))
@@ -2489,7 +2499,6 @@ c     .                  .and.  .not. cmdopt('--no-fixef0',11,0,strn)) then
                            goto 99
                         endif
                      endif
-
 C     Check for cases when nevmx is too small : i=2 => fatal error
                      i = 0
                      if (nevmx.ge.0 .and. lmet .ne. 0) then
@@ -2517,8 +2526,7 @@ c     kino 05Feb09
       if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
 #endif
 c     takao
-      deallocate(nevls)
-!     ! == second loop over qp (parallel k-points mode) ==
+!! == second loop over qp (parallel k-points mode) ==
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccc
