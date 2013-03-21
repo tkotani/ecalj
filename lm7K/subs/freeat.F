@@ -122,10 +122,7 @@ C       Unpack species data
         a=sspec(is)%a
         nrmt=sspec(is)%nr
 
-        if (z .eq. 0 .and. rmt .eq. 0) then
-           write(ifives,"(f23.15,i5,a)") 0d0,is
-           goto 10
-        endif   
+        if (z .eq. 0 .and. rmt .eq. 0) goto 10 !floating orbital
         call dpzero(qat,n0*2)
 
         i_copy_size=size(sspec(is)%p)

@@ -271,8 +271,7 @@ c        enddo
         lmxb=sspec(is)%lmxb
 
         zz(ib)=z
-        if (lmxa .eq. -1) goto 10
-
+        if (lmxa .eq. -1) goto 10 !floating orbital
 
         i_copy_size=size(sspec(is)%idu)
         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)

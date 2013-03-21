@@ -5,6 +5,9 @@
 
 # ---- Machine-specific compiler flags ---
 include make.inc.ifort_asahi_kino 
+#include make.inc.thinkpad_gfortran_tkotani
+
+
 
 #-------------------------------------------------------
 # src directories
@@ -746,7 +749,6 @@ check:
 #../main/hvccfp0.m.o	:	../main/hbasfp0.m.o
 
 include moduledepends.inc
-
 
 addtime=script/addtime.awk 
 septhen=script/then_separate.awk

@@ -69,7 +69,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 ##### main routine ##########################
 ### check number of MPI nodes
 mpisize=1
-gwsc1shot='gwsc 0 -np 8 '
+gwsc1shot='gwsc 0 -np 2 '
 for i in range(len(sys.argv)):
 	iarg='-np'
 	if sys.argv[i]=='-np':
