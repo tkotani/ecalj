@@ -69,7 +69,7 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 ##### main routine ##########################
 ### check number of MPI nodes
 mpisize=1
-gwsc1shot='gwsc 0 -np 1 '
+gwsc1shot='gwsc 0 -np 8 '
 for i in range(len(sys.argv)):
 	iarg='-np'
 	if sys.argv[i]=='-np':
@@ -191,7 +191,7 @@ testname.append(testn)
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa', gwsc1shot+' si'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.si '+datadir+'log.si'])
 
 #
@@ -202,7 +202,7 @@ startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa',gwsc1shot+' gas'])
 datadir  = testdir+ '/' + testn+'/'
 #testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.gas '+datadir+'log.gas'])
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
@@ -230,7 +230,8 @@ testname.append(testn)
 startfile.append('ctrl.nio GWinput')
 commands.append(['lmfa nio > llmfa',gwsc1shot+' nio'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 #
 testn='yh3fcc_gwsc666'
@@ -239,7 +240,8 @@ testname.append(testn)
 startfile.append('ctrl.yh3 GWinput')
 commands.append(['lmfa yh3 > llmfa',gwsc1shot+' yh3'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.yh3 '+datadir+'log.yh3'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.yh3 '+datadir+'log.yh3'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 testn='gas_gwsc666'
 testcput[testn]= gwsc1shot+' gas  '
@@ -247,7 +249,8 @@ testname.append(testn)
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa',gwsc1shot+' gas'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 testn='pdo_gwsc443'
 testcput[testn]= gwsc1shot+' pdo '
@@ -255,7 +258,8 @@ testname.append(testn)
 startfile.append('ctrl.pdo GWinput')
 commands.append(['lmfa pdo > llmfa',gwsc1shot+' pdo'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.pdo '+datadir+'log.pdo'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.pdo '+datadir+'log.pdo'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 testn='cugase2_gwsc222'
 testcput[testn]= gwsc1shot+' cugase2 '
@@ -263,7 +267,8 @@ testname.append(testn)
 startfile.append('ctrl.cugase2 GWinput')
 commands.append(['lmfa cugase2 > llmfa',gwsc1shot+' cugase2'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.cugase2 '+datadir+'log.cugase2'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.cugase2 '+datadir+'log.cugase2'+comparekey])
+testcommand.append(['dqpu QPU '+datadir+'QPU'])
 
 
 ### Readin flags ####################################

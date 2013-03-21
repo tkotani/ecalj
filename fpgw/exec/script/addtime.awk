@@ -8,7 +8,7 @@ BEGIN {
             printf("       call realtimediff(%i,%s)\n",i,$0);next }
 /^\!TIMESHOW/ { 
             print  "       call print_realtimediff()" ; next}
-/^\!KINO/{ gsub("\!KINO","     "); print; next }
+#/^\!KINO/{ gsub("\!KINO","     "); print; next }
 { print }
 func push(x) {
    list[poplist]=x 
