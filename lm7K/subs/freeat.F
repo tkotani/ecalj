@@ -318,7 +318,7 @@ C     Parameters for optimized free-atom wave functions
 
 ctakao
       integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives
-      real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum
+      real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
 
 c      print *,'0000111 ifives=',ifives
@@ -440,6 +440,9 @@ c        amgm=amgm +(3-2*i)*(qcc+ql(1,l+1,i))
      &  'conf:-----------------------------------------------------'
       enddo
 
+      write(6,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
+
+
 cNov 2010 QvalCheck
       do i = 1, nsp
         do l = 0, lmxa
@@ -492,10 +495,11 @@ C --- Make atom self-consistent ---
 C     call pshpr(min(iprint(),40))
       ec(1) = 0
       print *,'goto atomc xxx'
+      qelectron = z+qtot     !total number of electrons. 22mar2013
       call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr,
      .rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc,
      .sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue',
-     .nitmax,lfrz,plplus,qlplus,nmcore,vsum)
+     .nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
       print *,'end of atomsc xxxxx'
       print *,'vsum=',vsum,is
       print *,'ifives=',ifives

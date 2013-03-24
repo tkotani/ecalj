@@ -1454,6 +1454,7 @@ C        call snit
      &    '%N%2f To avoid this, use Q=0,1 together.'//
      &    ' This trick supply an '//
      &    '%N%2f electron to 2p channel; this trick works fine.')
+
 !! ==== Reset default P,Q in absence of explicit specification ====
           if (io_help == 0) then
             if (io_show .ne. 0) call pshpr(50)

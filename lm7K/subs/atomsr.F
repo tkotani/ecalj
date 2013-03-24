@@ -150,7 +150,7 @@ C     --- Add to rho, make integral v*rho ---
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
-     .job,niter,lfrz,plplus,qlplus,nmcore,vsum)
+     .job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
       use  m_globalvariables
       use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
@@ -238,7 +238,7 @@ Cr     ekin = sumev + sumec + dsumec - rhovh - rhomu
 Cb Bugs
 Cb   Total energy terms need to be cleaned up and simplified.
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       logical lfrz,lgdd
       character job*3
@@ -262,7 +262,7 @@ C  Local parameters
 C for Anderson mixing:
       integer:: amix , nmix
       real(8) ,allocatable :: rho_rv(:)
-      real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
+      real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp),qelectron
 
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
@@ -275,10 +275,8 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       parameter (tolch=5d-5,tolrsq=1d-12)
       external lgunit
       integer:: nmcore
-
       print *,'atomsc nmcore=',nmcore
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
-Changenglob      lrel = nglob('lrel')
       lrel = globalvariables%lrel
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
@@ -397,7 +395,18 @@ C --- Start self-consistency loop ---
         tl = tolrsq
 C       Hartree potential
         call addzbk(rofi,nr,nsp,rhoin,rhozbk,-1d0)
+
+!! 22mar2013
+        if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
+        vhrmax=2d0*(qelectron-z)/rmax
+        print *,'vvv vh=',vhrmax
         call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp)
+
+!! 22march2013 !z is replaced by qelectron
+        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
+        vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
+        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
+
 C       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
 
         call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
@@ -579,6 +588,7 @@ C ----------------------------------------------------------------------
      .r,srdrdi,g,f,y2,y3,y4,ro,vnow,wgt,a2b4,vhrmax,vsum,vhat0
       integer ir,isp
 
+      real(8):: qtotxxx
       pi = 4d0*datan(1d0)
       ea = dexp(a)
       rpb = b
@@ -662,12 +672,12 @@ C --- Integral vh and  rho * vh ---
           ro = ro + rho(ir,isp)
    31   continue
         vhat0 = vhat0 + wgt*drdi*ro*(1d0/r - 1d0/rmax)
-        vsum = vsum + wgt*drdi*r*r*(v(ir,1) - vhrmax)
+        vsum = vsum + wgt*drdi*r*r*v(ir,1) 
    30 continue
+c      vsum = 4d0*pi*(vsum - z*rmax*rmax)
       vsum = 4d0*pi*(vsum - z*rmax*rmax)
       vhat0 = 2d0*vhat0 + 2d0*z/rmax + vhrmax
       v(1,1) = vhat0
-
 C --- Copy to second spin channel if spin polarized ---
       if (nsp .eq. 1) return
       do  84  ir = 1, nr
