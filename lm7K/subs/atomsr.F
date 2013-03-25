@@ -399,13 +399,13 @@ C       Hartree potential
 !! 22mar2013
         if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
         vhrmax=2d0*(qelectron-z)/rmax
-        print *,'vvv vh=',vhrmax
+c        print *,'vvv vh=',vhrmax
         call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp)
 
 !! 22march2013 !z is replaced by qelectron
-        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
+c        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
         vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
-        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
+c        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
 
 C       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
 
