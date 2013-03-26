@@ -160,6 +160,7 @@ C ... Passed parameters
      .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
       integer ::iwdummy, ifivsmconst,fopna
+      logical master_mpi
 C ... Setup
       call tcn('smves')
       ipr   = iprint()
@@ -222,9 +223,12 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
   232 format(/' vvvvves: avg es pot at rmt=',f9.6,
      .'  avg sphere pot=',f9.6,'  vconst=',f9.6)
       if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
+
+      if(master_mpi()) then
       ifivsmconst = fopna('vessm',-1,2)
       write(ifivsmconst,"(d23.15)") vconst
       call fclose('vessm')
+      endif
 
 C ... Adjust vbar, vval, gpot0 by vconst
       iv0 = 0

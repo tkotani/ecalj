@@ -172,6 +172,7 @@ C ... for core hole
       logical lfltwf
       integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
+      logical master_mpi,master_mpiset
 
 C --- Setup ---
       call tcn('locpot')
@@ -235,7 +236,8 @@ C$&  REDUCTION(sqlocc,sqloc,saloc,qval,qsc,focvxc,focexc,
 C$&            xcore,rvepsv,rvvxcv,valvef,rhovxc,rhoexc,cpnvsa,vvesat)
 C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
-      ifivesint=fopna('vesintloc',-1,2)
+      ifivesint=-999
+      if(master_mpi()) ifivesint=fopna('vesintloc',-1,2)
       do  ib = 1, nbas
 
         is=ssite(ib)%spec
@@ -469,7 +471,7 @@ ckino Dec.28.2011:       .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gp
         j1 = j1+nlml
    10   continue
       enddo
-      call fclose('vesintloc')
+      if(master_mpi()) call fclose('vesintloc')
 
 C     Electric field gradient
       if (ipr .gt. 40) then
@@ -822,7 +824,9 @@ C --- Electrostatic integrals involving spherical terms only ---
 c
       ves1int = 4d0*pi*(ves1int - z*rofi(nr)**2)
       ves2int = 4d0*pi*ves2int 
+      if(ifivesint>0) then
       write(ifivesint,"(3f23.15,a)") ves1int-ves2int, ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
+      endif
 
       vnucl = 2*srfpi*vnucl + 2*z/rmt + y0*vval(1)
       vesn1 = -z*vnucl
