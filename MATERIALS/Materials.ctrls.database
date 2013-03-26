@@ -190,7 +190,7 @@ DATASECTION:
 C  DIA: @1=C  a= 3.56683/bohr   --nk1=8 
 Si DIA: @1=Si a= 5.43095/bohr   --nk1=8
 Ge DIA: @1=Ge a= 5.64613/bohr   --nk1=8
-alphaSn DIA: @1=Sn a= 6.48920/bohr  #gray tin 
+Sn DIA: @1=Sn a= 6.48920/bohr  --nk1=8 #gray tin alpha-tin
 
 #takao from J.App Physics Reviw89  5815(2001), 
 GaAs ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8
@@ -210,7 +210,7 @@ zAlN ZB: @1=Al @2=N  a=4.38/bohr     --nk1=8
 zInN ZB: @1=In @2=N  a=4.98/bohr     --nk1=8
 
 #-----------------------------------
-MgO  NACL: @1=Mg @2=O a=7.96
+MgO  NACL: @1=Mg @2=O a=7.96 --nk1=8
 ZnO  WZ:   @1=Zn @2=O a=6.14933837 q=1.603 --nk1=6 --nk2=6 --nk3=4
 CdO  NACL: @1=Cd @2=O a=8.92        --nk1=8
 HgO  HGO:                           --nk1=3 --nk2=3 --nk3=6

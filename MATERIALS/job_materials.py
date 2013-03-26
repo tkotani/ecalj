@@ -116,7 +116,7 @@ for matr in choosedmaterials:
     aaa = aaa+  stot
     ext=string.lower(matr)
     ctrlsnm = "ctrls."+ext
-    ctrlgenc= 'ctrlgenM1.py '+ext+' ' + option 
+    ctrlgenc= './ctrlgenM1so.py '+ext+' ' + option 
 
     print '==='+matr+' /  ',ctrlsnm,' '+option+ ' ==='
     print ' command=',ctrlgenc
@@ -129,8 +129,8 @@ for matr in choosedmaterials:
     os.system(ctrlgenc)
     os.system('mkdir '+matr)
     os.system('cp ctrlgenM1.ctrl.'+ext+' ctrl.'+ext)
-    os.system('mv *.'+ext +' '+matr)
-    os.system('rm *tmp*')
+    os.system('cp RSEQ* *.'+ext +' '+matr)
+    os.system('rm *tmp* RSEQ*')
     rdir=os.path.dirname(os.path.abspath(sys.argv[0]))
     wdir= os.path.dirname(os.path.abspath(sys.argv[0]))+'/'+matr
 

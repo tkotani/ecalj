@@ -399,13 +399,13 @@ C       Hartree potential
 !! 22mar2013
         if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
         vhrmax=2d0*(qelectron-z)/rmax
-        print *,'vvv vh=',vhrmax
+c        print *,'vvv vh=',vhrmax
         call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp)
 
 !! 22march2013 !z is replaced by qelectron
-        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
+c        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
         vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
-        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
+c        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
 
 C       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
 
@@ -1020,6 +1020,7 @@ C     Speed of light, or infinity in nonrelativistic case
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
       integer::nmcore !jun2012
       call setcc(lrel)
+       call tcn('newrho')
 
       if (nr .gt. nrmx) call rxi(' newrho: increase nrx, need',nr)
       lr = 1
@@ -1142,6 +1143,7 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
+      call tcx('newrho')
       end subroutine newrho
 
 
