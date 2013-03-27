@@ -1,0 +1,79 @@
+SiO2 cubic-cristobalite test
+This constains huge empty regions.
+Thus this can be a good example to test basis set.
+
+
+--------------------------------------------------
+In this case, it is efficient to use doubled EH EH2 up to f channel
+for faster convergence of total energy.
+Used basis is shown at the beginign of console out put as
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Si       0*   0.77  -1.00   9.654    1.03E-06    9409 
+  Si       1*   0.77  -1.00  10.442    1.07E-06   11935 
+  Si       2*   0.77  -1.00  11.217    1.01E-06   14841 
+...
+
+NOTE: number of basis is controlled by the number of RSMH, and
+RSMH2, even if you use larger numbers of EH and EH2.
+
+-----------------------------------------------
+Si: spdf,spdf
+O:  spdf,spdf
+pwemax=4 Ry
+i ehf=-1762.7822181 ehk=-1762.7822164  (almost converged)
+gap=5.66086 eV
+Good result. (if pwemax=16 -1762.788. See results bewlow).
+------------------------------------------------
+
+-------------------
+Si: spdf, spd  
+O:  spd   sp
+pwemax=4
+c ehf=-1762.7530824 ehk=-1762.7530736
+Remove basis...
+* Not good enough. 
+------------------------
+Si: spdf, spd
+O:  spd, spd   
+pwemax=4
+c ehf=-1762.7549296 ehk=-1762.7549226  
+* little impoved so much.
+------------------------
+Si: spdf, spd
+O:  spdf, spd   <==== f is added
+pwemax=4
+i ehf=-1762.7725107 ehk=-1762.772511  (almost converged)
+* Oxygen f give some effect in this case.
+------------------------
+
+
+== Changing APWs ==
+------------------------
+Si: spdf,spdf
+O:  spdf,spdf
+pwemax=0 Ry
+i pwemax=0 ehf=-1762.7374386 ehk=-1762.737409
+gap= 8.69754 eV
+* too bad. Requie APWs.
+------------------------
+Si: spdf,spdf
+O:  spdf,spdf
+pwemax=0 Ry
+gap=5.652 eV
+c pwemax=2 ehf=-1762.7765083 ehk=-1762.7765017
+Even pwemax=2, it is very effective.
+Band gap improved well, and becomes better even with pwemax=2
+------------------------
+Si: spdf,spdf
+O:  spdf,spdf
+gap=5.657
+pwemax=10 Ry  --->large dim as ndimh=523
+i pwemax=10 kmxa=10 ehf=-1762.7871476 ehk=-1762.7871569 (almost converged)
+------------------------
+Si: spdf,spdf
+O:  spdf,spdf
+pwemax=16 Ry  --->large dim as ndimh=837
+gap=5.656 eV
+i pwemax=16 kmxa=16 ehf=-1762.7888693 ehk=-1762.7888205 (almost converged)
+---------------------------
+
