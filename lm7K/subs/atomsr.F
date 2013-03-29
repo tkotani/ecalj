@@ -1075,6 +1075,8 @@ c          endif
 !! Setting when iz=1 override setting when iz=1
         if(iz==1)then
           if(plplus(l,isp)>0d0.and.qlplus(l,isp)>0d0) then
+!!  note this is a case of Qv(lower principle quantum number). 
+!!  Search "=== Charge for l" in freeat.F, and NOTE: above it.
 c             print *,'vvvvvv', plplus(l,isp)
             q0=qlplus(l,isp)
             q1=0d0

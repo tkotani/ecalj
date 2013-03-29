@@ -60,7 +60,10 @@ C ... Local parameters
 ctakao
       logical ixx,ioorbp
       real(8):: pzsum
-      integer:: i_copy_size,i_spacks,ifives
+      integer:: i_copy_size,i_spacks,ifives,ifiwv
+
+      character strn*120
+      logical cmdopt
 
       ifi = fopna('atm',-1,0)
       rewind ifi
@@ -71,6 +74,7 @@ ctakao
       pzsum=0d0
 
       ifives = fopna('vesintatm',-1,0)
+      ifiwv  = fopna('veswavatm',-1,0)
       do  is = 1, nspec
 c takao. I found tht Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
@@ -149,7 +153,7 @@ C       Unpack species data
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
-     .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives)
+     .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
 C       Repack mesh parms, in case a mesh was selected by freats
 
@@ -218,7 +222,7 @@ ctakao
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
-     .sec,stc,v,etot,nmcore,ifives)
+     .sec,stc,v,etot,nmcore,ifives,ifiwv)
       use m_globalvariables
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
@@ -317,7 +321,7 @@ C     Parameters for optimized free-atom wave functions
       integer ::iwdummy
 
 ctakao
-      integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives
+      integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv
       real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
 
@@ -386,11 +390,12 @@ c      qatbk=qat
         ql(2,l+1,i) = 0d0
         ql(3,l+1,i) = 0d0
         if(pzl/=0) then
-          if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l    :  Qtot Qpz Qv=',l, qvaltot,ql(1,l+1,i),qlplus(l,i)
-          if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp:  Qtot Qpz Qv=',l,isp, qvaltot,ql(1,l+1,i),qlplus(l,i)
+c          print *,'qvaltot=',qvaltot
+          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
         else
-          if(nsp==1) write(6,"(a,i2,3f8.3)")'=== Charge for l     : Qtot=Qv=    ',l, qvaltot,ql(1,l+1,i)
-          if(nsp==2) write(6,"(a,2i2,3f8.3)")'=== Charge for l isp : Qtot=Qv=    ',l,isp, qvaltot,ql(1,l+1,i)
+          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
+          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
         endif
    10 continue
 ctakao
@@ -502,9 +507,15 @@ C     call pshpr(min(iprint(),40))
      .nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
       print *,'end of atomsc xxxxx'
       print *,'vsum=',vsum,is
+
+
+      if(ifives>0) then
       print *,'ifives=',ifives
       write(ifives,"(f23.15,i5,a)") vsum,is, ' !spatical integral of electrostatic potential' 
       print *,' write end of ifives'
+      endif
+      if(ifiwv>0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
+
       dq=dq+sum(qlplus(:,:)) !takao feb2011
 C     call poppr
 
@@ -549,14 +560,11 @@ C --- Print info about free-atom wavefunctions ---
       if (lwf .ne. 0) then
         if (ipr .gt. 30) then
           allocate(g_rv(nr*2))
-
           allocate(psi_rv(nr*(lmxa+1)*nsp))
-
           lplawv = 0
           if (ipr .ge. 50) lplawv = 1
           call pratfs ( spid , lplawv , z , a , nr , rmax , nrmt , lmxa 
-     .    , pl , nsp , v , rofi , g_rv , psi_rv, plplus,qlplus)
-
+     .    , pl , nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
           deallocate(psi_rv)
           deallocate(g_rv)
         endif
@@ -632,15 +640,13 @@ C       call prrmsh('rho-fa',rofi,rho,nr,nr,1)
         call dpzero(hfc, nxi0*nsp)
         call dpzero(hfct, nxi0*nsp)
       endif
-
 C --- Fit analytical expression to tail of core density ---
       call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh)
-
       end subroutine freats
 
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
-     .rofi,g,psi,plplus,qlplus)
+     .rofi,g,psi,plplus,qlplus,ifiwv)
       use m_globalvariables
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -676,13 +682,13 @@ C ... Local parameters
      .pmax,ctp,ecor,rmt
       character*1 lsym(0:n0-1), cc, str*15, spid*8
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
-      integer::iz
+      integer::iz,ifiwv
 !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
 !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
 !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
       real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
-
-Changenglob      stdo = nglob('stdo')
+      real(8):: sumr !mar2013
+      
       stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
@@ -692,8 +698,10 @@ Changenglob      stdo = nglob('stdo')
       write(stdo,580)
   580 format(/' Free-atom wavefunctions:')
 
-      do  80  isp = 1, nsp
+c      allocate(qinrmt(0:lmxa),
 
+      if(ifiwv>0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
+      do  80  isp = 1, nsp
 C --- Valence states ---
         if (isp .eq. 1) write(stdo,401)
         if (isp .eq. 2) write(stdo,'(/'' spin 2:'')')
@@ -718,6 +726,8 @@ C --- Valence states ---
           call gintsl(g,g,a,b,nr,rofi,sum)
           call gintsl(g,g,a,b,nrmt,rofi,pmax)
           sum = sum - pmax
+          sumr=pmax
+          
           call ppratf(ev(l),z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
           cc = ' '
           if (dabs(ctp-rmax) .lt. 1d-3) cc = '*'
@@ -725,7 +735,7 @@ C --- Valence states ---
   400     format(i4,a1,f14.5,2x,3f12.3,a,f12.6)
   401     format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,
      .    'c.t.p.   rho(r>rmt)')
-
+          if(ifiwv>0) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
 C   ... Copy valence wavefunction to psi
           do  24  i = 1, nr
             psi(i,l,isp) = g(i)
@@ -758,6 +768,7 @@ C --- Core states ---
   40    continue
 
   80  continue
+      if(ifiwv>0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
 
 C --- Write file with valence wavefunctions
       if (lplawv .eq. 1) then
@@ -775,6 +786,15 @@ C --- Write file with valence wavefunctions
    50   continue
         call fclr(str,ifi)
       endif
+
+c!! print out qbyl
+c      ifqbyl = fopna('qinrmt',-1,2)
+c      do  ib = 1, nbas
+c        ispec=ssite(ib)%spec
+c        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
+c      enddo  
+c      call fclose(ifqbyl)
+          
 
       end subroutine pratfs
 

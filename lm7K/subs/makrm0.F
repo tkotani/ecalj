@@ -148,7 +148,6 @@ C --- Densities and potentials for each species ---
       nrmix(1) = 80
       nrmix(2) = 2
       lxcfun = 1
-      ifives = fopna('vesintatm',-1,0)
       do  is = 1, nspec
 
 C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
@@ -173,7 +172,7 @@ C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix,0,
      .  lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,0d0,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1,
-     .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1,ifives) !nmcore=1 july2012 
+     .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, -1,-1) !nmcore=1 july2012 !last -1 -1 means not write ves* files.
         call poppr
         b(is) = rmtl(is)/(dexp(a(is)*(nrmt-1)) - 1d0)
 C       Restore 4*pi*r**2*(total density) in array rho

@@ -333,7 +333,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK
       integer obuf,oqptr
-      integer igetss,lmxa,lmxh,nlma,nlmh,nelt(3),nkaph,kmax
+      integer igetss,lmxh,nlma,nlmh,nelt(3),nkaph,kmax
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
 #endif
@@ -393,27 +393,92 @@ ctakao
       logical :: tdos,pdos
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
       real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
-      real(8),allocatable::vesatm(:)
+      real(8),allocatable::vesatm(:),qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
 
-      real(8):: rydberg=13.6058d0
+      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold
       logical:: lfill=.false.,ixx,master_mpi,master_mpiset
       integer,allocatable:: ndimhx_(:),nev_(:)
       character(120):: vbmlll
+      integer:: npri,ibas,ifiqb,ifiwv,lmxa
+      
+
+      call tcn ('bndfp')
 !! === MPI setup ===
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
-!! === Setup ===
-      call tcn ('bndfp')
+
+!! computational modes
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
-!!
       if(cmdopt('--vbmonly',9,0,strn)) then
          print *,'--vbmonly mode'
          vol = slat%vol
          goto 8888
       endif   
 
+
+
+!! getq mode  Current version is not for spin dependent nor many restrictions.
+!! spin symmetic (or nspin=1, not 2 channell binded and so on...
+      if(cmdopt('--getq',6,0,strn)) then
+         print *,'get Q from ql given by lmf'
+         print *,'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
+         nspec=sctrl%nspec
+         lmxa = maxval(sspec(1:nspec)%lmxa)
+         allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
+         qrmt= -1d-10
+         ifiwv  = fopna('veswavatm',-1,1)
+         do is=1,nspec
+            read(ifiwv,*) qatot(is)
+            print *,'qatom tot=',qatot(is)
+            read(ifiwv,*)
+            do 
+               read(ifiwv,*)isp,il,npri,evll,qrmtx
+               if(isp==9) exit !find terminator line for each atom in veswavatm file
+               if( isp > 1) cycle
+               if(evll<0d0) then
+                  if (qrmt(il,is) >1d-2) then
+                     call rx('not yet implemented when two per l (eg. 3d and 4d) are bounded')
+                  else     
+                     qrmt(il,is)=qrmtx
+                  endif
+               endif
+            enddo
+            do il=0,lmxa
+               if(qrmt(il,is)>0d0) print *, is,il,qrmt(il,is)
+            enddo   
+         enddo  
+!! WARN. not averaged yet for given specs...
+         ifiqb  = fopna('qbyl',-1,1)
+         read(ifiqb,*)
+         allocate(ql(0:lmxa,nspec))
+         do ib=1,nbas
+            read(ifiqb,*)ibas,isp,idummy,qlx(0:lmxa)
+            is = ssite(ib)%spec
+            ql(0:lmxa,is)=qlx(0:lmxa)
+            write(6,"(' ibas ql=',i3,20f12.6)") ib,ql(0:lmxa,is)
+         enddo
+         do is=1,nspec
+            qsetsum=0d0
+            do il=0,lmxa
+               if(qrmt(il,is)<0d0) then
+                  qset(il,is)=0d0
+               else
+                  qset(il,is)= ql(il,is)/qrmt(il,is)
+                  qsetsum = qsetsum+qset(il,is)
+c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is)
+               endif
+            enddo  
+            write(*,"('not renormalized ',i3,' Q=',12f12.4)")is, qset(0:lmxa,is)
+            qset = qatot(is)* qset/qsetsum
+            write(*,"('   renormalizedQ=',12f10.6)") qset(0:lmxa,is)
+         enddo
+         call rx0('--getq mode done')
+      endif
+
+
+!! === MPI Setup continue===
 #if MPI | MPIK
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -2606,9 +2671,10 @@ C       call poppr
 
 !! print out qbyl
       ifqbyl = fopna('qbyl',-1,2)
+      write(ifqbyl,"(i5)")nbas
       do  ib = 1, nbas
         ispec=ssite(ib)%spec
-        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,sspec(ispec)%lmxa+1)
+        write(ifqbyl,"(i4, i3,i2,10f12.6)")ib, ispec, sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,sspec(ispec)%lmxa+1)
       enddo  
       call fclose(ifqbyl)
 
@@ -2760,11 +2826,13 @@ ccccccccccccccccccccccccc
          if(cmdopt('--vbmonly',9,0,strn)) then
             ifvbm = fopna('vbmcbm',-1,1)
             read(ifvbm,"(a)") vbmlll
-            print *,vbmlll
+            print *,'readin vbmbm--> ',vbmlll
             read(vbmlll(9:),*)evbm
             read(vbmlll(30:),*)ecbm
-            write(*,*) evbm
-            write(*,*) ecbm
+            read(vbmlll(59:),*)esold
+            write(*,*)evbm,ecbm,esold
+            evbm= evbm +sumvesatm/vol*rydberg-esold
+            ecbm= ecbm +sumvesatm/vol*rydberg-esold
          elseif(lfill) then
             evbm=(evtop+vref)*rydberg
             ecbm=(ecbot+vref)*rydberg
