@@ -58,15 +58,17 @@ nargv = len(sys.argv) -1
 args=sys.argv[1:]
 argset= set(sys.argv[1:])
 #print argset
+
 if ('--all' in  argset):
 	choosedmaterials=AllMaterials
 elif(nargv==0 or '--help' in argset):
       print
       print " PURPOSE: perform GGA/LDA calculations for sysmtems in Materials.ctrl.database"
       print " USAGE:   job_materials.py [options] "
-      print "   [options] are material names above separeted by space"
-      print "   or --all for all calculations. (in an hour now.)"
-      print
+      print "   [options] are material names above separeted by space."
+      print "      --all : all materials are specified (in an hour now.)"
+      print "      --noexec: not do lmf. Just generates directories and ctrl files"
+
       sys.exit(-1)
 else:
     choosedmaterials=args
@@ -84,11 +86,14 @@ for matr in choosedmaterials:
     #print  matdat
     constdat=''
     option=''
+    optionlmf=''
     for ii in matdat:
         if re.match(r'@[0-9]+=',ii):
             pass
         elif re.match(r'--\w*',ii):
             option=option +' ' + ii
+        elif re.match(r'lmf-+\w*',ii):
+            optionlmf=optionlmf +' ' + ii.lstrip('lmf')
         else:
             constdat=constdat+' '+ii
         
@@ -116,7 +121,7 @@ for matr in choosedmaterials:
     aaa = aaa+  stot
     ext=string.lower(matr)
     ctrlsnm = "ctrls."+ext
-    ctrlgenc= './ctrlgenM1so.py '+ext+' ' + option 
+    ctrlgenc= 'ctrlgenM1.py '+ext+' ' + option 
 
     print '==='+matr+' /  ',ctrlsnm,' '+option+ ' ==='
     print ' command=',ctrlgenc
@@ -129,15 +134,20 @@ for matr in choosedmaterials:
     os.system(ctrlgenc)
     os.system('mkdir '+matr)
     os.system('cp ctrlgenM1.ctrl.'+ext+' ctrl.'+ext)
-    os.system('cp RSEQ* *.'+ext +' '+matr)
-    os.system('rm *tmp* RSEQ*')
+    os.system('cp -f RSEQ* *.'+ext +' '+matr)
+    os.system('rm -f *tmp* RSEQ*')
     rdir=os.path.dirname(os.path.abspath(sys.argv[0]))
     wdir= os.path.dirname(os.path.abspath(sys.argv[0]))+'/'+matr
 
     os.chdir(wdir)
     os.system('pwd')
-    os.system('lmfa '+ext+' >llmfa')
-    os.system('lmf  '+ext+' >llmf')
+    os.system('lmfa '+ext+optionlmf+' >llmfa')
+    joblmf='lmf  '+ext+optionlmf+' >llmf'
+    os.system('echo '+joblmf +'>joblmf')
+    if ('--noexec' in  argset):
+        pass
+    else:
+        os.system(joblmf)
     os.chdir(rdir)
     os.system('pwd')
 

@@ -1,4 +1,11 @@
 #!/bin/bash
+#!/bin/bash
+if [ $# -ne 1 ]; then
+  echo "this is for PDOS plot. tdos.*.glt for gnuplot is generated."
+  echo "Usage: >job_tdos material_id" 1>&2
+  exit 1
+fi
+
 ddd=$1
 cat <<EOF >SYMOPS
           48
@@ -44,7 +51,7 @@ EOF
 for ufile in `ls dos.isp1.site*.${ddd}`
 do
   dfile=`echo $ufile |sed -e 's/isp1/isp2/g'`
-  ufileg=pdos.`echo $ufile |sed -e 's/dos.isp1.//g'`.gnu
+  ufileg=pdos.`echo $ufile |sed -e 's/dos.isp1.//g'`.glt
   echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
 
   echo $ufile 

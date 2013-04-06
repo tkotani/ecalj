@@ -24,11 +24,11 @@ H=   " atomz=1@ pz=''@ p=''@            eh=-0.1*3@ eh2=-2*2@             R=0.38@
 He=  " atomz=2@ pz='PZ=1.8'@ p='P=2.3'@ eh=-0.1*3@ eh2=-2*2@             R=1.17@"  
 Li=  " atomz=3@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=1.37@"        
 Be=  " atomz=4@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=1.22@"        
-B=   " atomz=5@ pz='PZ=1.9'@ p=''@      eh=-0.1*3@ eh2=-2*2@             R=0.77@"      
-C=   " atomz=6@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.66@"       
-N=   " atomz=7@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.55@"      
-O=   " atomz=8@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.61@"      
-F=   " atomz=9@ pz=''@ p=''@            eh=-1*3@ eh2=-2*2@               R=0.71@"      
+B=   " atomz=5@ pz='PZ=1.9'@ p=''@      eh=-0.1*4@ eh2=-2*3@             R=0.77@"      
+C=   " atomz=6@ pz=''@ p=''@            eh=-1*4@ eh2=-2*3@               R=0.66@"       
+N=   " atomz=7@ pz=''@ p=''@            eh=-1*4@ eh2=-2*3@               R=0.55@"      
+O=   " atomz=8@ pz=''@ p=''@            eh=-1*4@ eh2=-2*3@               R=0.61@"      
+F=   " atomz=9@ pz=''@ p=''@            eh=-1*4@ eh2=-2*3@               R=0.71@"      
 Ne=  " atomz=10@ pz='PZ=2.8,2.8'@ p='P=3.3,3.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.28@"       
 #------------------------------
 #Na=  " atomz=11@ pz='PZ=2.8,2.8'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.55@"                 
@@ -206,6 +206,7 @@ def manip_argset(argset):
     ierror=0
 # defalut setting
     nspin_val="1"
+    so_val="0"
     xcfun_str="pbe"
     xcfun_val=103
     mmom_val="#MMOM=0,0,0,0"
@@ -230,6 +231,11 @@ def manip_argset(argset):
 		nspinlist=arg.split("=")
 		if len(nspinlist)==2:
 			nspin_val=nspinlist[1]
+	elif re.match("--so",arg)!=None:
+		nsolist=arg.split("=")
+		if len(nsolist)==2:
+			so_val=nsolist[1]
+                        nspin_val='2'
 	elif re.match("--xcfun",arg)!=None:
 		xclist=arg.split("=")
 		if len(xclist)==2:
@@ -308,7 +314,7 @@ def manip_argset(argset):
     if ierror!=0:
 	print "ABORT. Check names of args. Some are not defined."
 	sys.exit(-1)
-    return nspin_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set 
+    return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set 
 
 
 #-------------------------------------------------------
@@ -454,9 +460,10 @@ def getdataa2(aaa,key):
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-nspin_val, xcfun_val,xcfun_str, mmom_val, systype_val, nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set \
+nspin_val, so_val,xcfun_val,xcfun_str, mmom_val, systype_val, nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set \
 = manip_argset(argset) #set global argument defined at the top of mainp_argset.
 
+if(so_val !='0' and nspin_val !='2'): sys.exit("Error: so is not zero but with nspin=1")
 manip_argset(argset) #set global argument defined at the top of mainp_argset.
 if nk_val2=="-999999":nk_val2=nk_val1
 if nk_val3=="-999999":nk_val3=nk_val1
@@ -490,6 +497,7 @@ print " === INPUT options (shown values are default) === "
 print "  --help  %s"      % showhelpw
 print "  --showatomlist  %s"      % showatomlistw
 print "  --nspin=%s"  % nspin_val
+print "  --so=%s"     % so_val
 print "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1
 print "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2
 print "  --nk3=%s   (if not give, nk3=nk1) along b-axis"   % nk_val3
@@ -825,7 +833,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=4 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=0 xcfun="+xcfun_val+"\n"
+tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+"\n"
 tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
