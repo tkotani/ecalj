@@ -905,6 +905,7 @@ c          print *,'ndham ndimh=',ndham,ndimh
 c          if(ndham/=ndimh) call rx('sugw: ndham/=ndimh')
           lpdiag = 0
           i = lrsig*10 + 1
+c          print *,'mmmm mode=',i
           if(sigmamode.and.newsigmasw()) then
             allocate(sene(ndimh,ndimh))
             call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,

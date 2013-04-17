@@ -288,7 +288,7 @@ temp2_init="""
 plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
 symgrp= 'SYMGRP i'
 dirhead= 'DimerSYMI,dis,'
-setting['NIT___']= '%i' % 20
+setting['NIT___']= '%i' % 40
 setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
 setting['POS2___']= '-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5'
 setting['JOBLIST___']=\

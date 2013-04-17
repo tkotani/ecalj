@@ -117,7 +117,7 @@ BZ    NKABC=1 1 1  # division of BZ for q points.
       #   If you encounter this message set INVIT=F.
       #  T.Kotani think (this does not yet for lm7K).
     
-ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT={nit}
+ITER MIX=A2,b=.5,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 
@@ -286,7 +286,7 @@ temp2_init="""
 plat='PLAT=0.9 0 0 0 1 0 0 0 1.1'
 symgrp= 'SYMGRP e'
 dirhead= 'DimerSYMI,dis,'
-setting['NIT___']= '%i' % 20
+setting['NIT___']= '%i' % 40
 setting['POS1___']= '{dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5'
 setting['JOBLIST___']=\
 '''

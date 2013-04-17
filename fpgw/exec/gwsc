@@ -77,7 +77,8 @@ if(-e Qmtet) then
   mv eigval eigmtet
 endif
 
-echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
+#echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
+echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
 set exinfo = $?
 ln -s -f vxc.$TARGET  v_xc
 ln -s -f evec.$TARGET evec

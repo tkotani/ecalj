@@ -556,8 +556,8 @@ CKI      deallocate(sspecv)
           lrsig = 0
         endif
       endif
-
-      call mpibc1(lrsig,1,2,mlog,'rdsigm','lrsig')
+      call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
+      call mpibc1(sham%lsig,1,2,mlog,'bndfp','sham%lsig') !bugfix apr2013. this is needed for lmfgw-MPIK
       jobgw= -999
       epsovl = sham%oveps
       lpdiag = isw(cmdopt('--pdiag',7,0,strn))
@@ -1338,11 +1338,11 @@ c     print *,' allocate procid=',procid
             if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
             allocate(sham%rv_p_oqsig(noqsig))
          endif 
-c     print *,' m1111 procid=',procid
+c         print *,' m1111 procid=',procid
          call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
          call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
          call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
-         call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','ontabs')
+         call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
 c     print *,' m2222 procid=',procid
 #endif
          siginit=.false.
