@@ -72,6 +72,7 @@ mpisize=1
 gwsc1shot='gwsc 0 -np 2 '
 epsPP1   ='epsPP_lmfh -np 2 '
 eps1   ='eps_lmfh -np 2 '
+epsPP1chipm='epsPP_lmfh_chipm -np 2 '
 for i in range(len(sys.argv)):
 	iarg='-np'
 	if sys.argv[i]=='-np':
@@ -84,6 +85,7 @@ for i in range(len(sys.argv)):
 		print 'MPISIZE=', mpisize
 		gwsc1shot='gwsc 0 -np '+mpisize+ ' '
  		epsPP1='epsPP_lmfh -np '+mpisize+ ' '
+ 		epsPP1chipm='epsPP_lmfh_chipm -np '+mpisize+ ' '
  		eps1='eps_lmfh -np '+mpisize+ ' '
 		break
 
@@ -138,7 +140,7 @@ testcommand.append([comp1,comp3,comp4,comp1a,comp3a,comp4a ])
 #
 testn='gas_epsPP_lmfh'
 testname.append(testn)
-testcput[testn]= epsPP1 + 'gas --> OK!  '
+testcput[testn]= epsPP1 + ' gas --> OK!  '
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','lmf gas>llmf',epsPP1+' gas'])
 datadir  = testdir+ '/' + testn+'/'
@@ -153,9 +155,9 @@ testcommand.append([comp1,comp3,comp4 ])
 #
 testn='fe_epsPP_lmfh_chipm'
 testname.append(testn)
-testcput[testn]=' epsPP_lmfh_chipm fe --> OK! '
+testcput[testn]= epsPP1chipm +' fe --> OK! '
 startfile.append('ctrl.fe GWinput')
-commands.append(['lmfa fe > llmfa','lmf fe>llmf','epsPP_lmfh_chipm fe'])
+commands.append(['lmfa fe > llmfa','lmf fe>llmf',epsPP1chipm+' fe'])
 datadir  = testdir+ '/' + testn+'/'
 ef1='ChiPM0001.nlfc.mat '
 ef2='ChiPM0002.nlfc.mat '

@@ -2,7 +2,7 @@
 ### MPI version 
 if($# != 3 |$argv[1] != "-np" ) then
   echo "  An example of usage: epsPP_lmfh -np 4 si"
-  echo "  === NOTE:current version only uses lmfgw-MPIK. Not yet MPI for hx0fp"
+  echo "  k paralell for lmfgw-MPIK and hx0fp0"
   exit
 endif
 
@@ -56,9 +56,9 @@ echo 1|$nfpgw/heftet  >leftet
 
 # mode 4 is for ptest !!!!!!!!!!
 echo 4|$nfpgw/hbasfp0 >lbas
-echo 202|$nfpgw/hvccfp0 >lvcc	
+echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
 
-echo 202|$nfpgw/hx0fp0  >lx0
+echo 202|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
 #mkdir EpsP$qqq
 #mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
  

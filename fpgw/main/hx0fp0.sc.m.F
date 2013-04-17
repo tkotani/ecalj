@@ -135,7 +135,7 @@ c     integer ::iepsmode=0
       complex(8) :: x0meann     !dummy
 
       integer:: bzcase, isp1,isp2, ngc,mrecg
-      real(8)::  qq(3),quu(3),deltaq(3),qqq(3)=0d0
+      real(8)::  quu(3),deltaq(3),qqq(3)=0d0 !
 
       logical,allocatable :: iwgt(:,:,:,:)
       complex(8),allocatable:: wgt(:,:,:)
@@ -867,9 +867,6 @@ c      print *,'rrr mpiranktab=',mpi__ranktab
 !TIME1 "before 1001 loop"
       iqinit=.true.
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
-ccccccccccccccccccccccc
-c         if(iq<=nqibz) cycle
-ccccccccccccccccccccccc
          if( .not. mpi__task(iq) ) cycle
 !TIME0 
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)

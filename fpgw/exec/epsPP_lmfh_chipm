@@ -1,11 +1,21 @@
-#!/bin/tcsh -f
-######## \epsilon calculation.
+#!/bin/tcsh 
+### MPI version 
+if($# != 3 |$argv[1] != "-np" ) then
+  echo "  An example of usage: eps_lmfh_chipm -np 4 si"
+  echo "  k paralell for lmfgw-MPIK and hx0fp0"
+  exit
+endif
+
 set n = $0
 set nfpgw = ${n:h}
-echo $nfpgw
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
-echo $argv[1]
-setenv LMJOB $argv[1]
+######## \epsilon calculation.
+echo $nfpgw
+echo $TARGET
+setenv LMJOB $TARGET
 
 rm -f NoCore QPU* >& /dev/null
 
@@ -18,7 +28,7 @@ rm -f NoCore QPU* >& /dev/null
 #endif 
 
 ### Get LATTC and SYMOPS
-echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
+echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
 
 
 ### Add  two q points (0.05 0 0 ) (0.1 0 0) to Q0P file.  -----------------
@@ -36,7 +46,7 @@ echo 2|$nfpgw/qg4gw  >lqg4gw02
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
+  echo 5 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw_eigval
   mv eigval eigmtet
 endif
 
@@ -44,7 +54,7 @@ endif
 #echo 1 | $nfpgw/ng0  >lng01
 #echo 2 | $nfpgw/ng0  >lng02
 #$nfpgw/nfp4gw        >lnfp4gw
-echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
+echo 1 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 #echo $?
 #set exinfo = `echo $?`
@@ -54,11 +64,11 @@ set exinfo = $?
 if($exinfo == 0 ) then
   echo " OK! lmfgw mode=1 "
 else
-  echo Error in echo 1\|lmfgw $argv[1]
+  echo Error in echo 1\|lmfgw $TARGET
   echo  `tail -3 llmfgw01 `
   exit
 endif
-echo $argv[1]|$nfpgw/lmf2gw   > llmf2gw
+echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
 
 
 echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
@@ -69,7 +79,7 @@ echo 1|$nfpgw/heftet      >leftet
 echo 8|$nfpgw/hbasfp0 >lbas
 #echo 202|$nfpgw/hvccfp0        >lvcc	
 
-echo 222|$nfpgw/hx0fp0  >lx0
+echo 222|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
 
 
 

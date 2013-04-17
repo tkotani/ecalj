@@ -18,6 +18,9 @@
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
+      use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
+     &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
+     &   mpi__ranktab,MPI__consoleout
       implicit none
 c      use m_spacegrouprot,only: Spacegrouprot
 c      use m_rotMPB,only: rotMPB
@@ -247,7 +250,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8):: qread(3)
 c      integer,allocatable :: iclasst(:)
       character(128):: vcoudfile
+      integer:: src,dest
+
 !! -------------------------------------------------------------------
+      call MPI__Initialize()
+      call MPI__consoleout('hx0fp0')
       hartree=2d0*rydberg()
       pi         = 4d0*datan(1d0)
       fourpi=4d0*pi
@@ -269,27 +276,21 @@ c      write(6,"(a)") ' #2=iqxini   #3=iqxend' '
 c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
       write(6,"(a)") 
      &      '-------------------------------------------------------'
-! Test mode   write(6,"(a)") '   tettest(4) Realtetwt4(5) Realtetwt5(6) '
-c      call readin6(ixc,iqxini,iqxend, idum4 ) !ingczero)
-      read(5,*) ixc
+
+      if( mpi__root ) then
+c     call readin5(ixc,iqxini,iqxend)
+         read(5,*) ixc
+      end if
+
+      call MPI__Broadcast(ixc)
+
       call headver('hx0fp0',ixc)
       call cputid(0)
-c      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
-c      if(iqxini ==0 ) then
-c        paralellx0=.false.
-        write(6,"(' ixc = ',i4)") ixc
-c      else
-c        paralellx0=.true.
-c        write(6,"(' PARALELL mode: ixc iqxini iqxend =',3i5)")
-c     &  ixc, iqxini, iqxend
-c      endif
+      write(6,"(' ixc = ',i4)") ixc
 
       if(ixc<=6.or.ixc==22.or.ixc==23.or.ixc==101) then
         write(*,*)'these modes are removed now'
         stop 'these modes are not supported'
-c! test mode
-c      elseif(ixc==6) then
-c        write(6,*) ' OK ixc=6. Real-axis tetwt5 mode'
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
         normalm=.true.
@@ -340,10 +341,6 @@ c        eiqr =.true.
         if(mod(ixc,200)==22.or.mod(ixc,200)==23) chipm =.true.
         if(mod(ixc,10)==2)                       nolfco=.true.
       endif
-
-c      if(epsmode) then
-c        if(chipm) ifchipmlog = iopen ('ChiPM.log',1,3,0)
-c      endif
 
 C ... files for RPA correlation energy mode.
       if(ecorr_on > 0) then
@@ -746,7 +743,7 @@ c        endif
 c        print *, ' read end of Mix0vec'
       endif
 ! ...
-      if(realomega) then
+      if(realomega.and.mpi__root) then
         open(UNIT=3111,file='freq_r') !write number of frequency
         !points nwp and frequensies in 'freq_r' file
         write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
@@ -1242,7 +1239,12 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
 !! (or need to modify do 1001 loop).
 !! iq>nqibz for ixc=11 is not time-consuming.
+
+      call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
+        if( .not. mpi__task(iq) ) cycle
+
         if(ixc==101.or.normalm) then
           ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
         endif  
@@ -2863,6 +2865,46 @@ c      ifiss=iclose('SkSks')
 !! == end of loop 1001 for q point ==
 
 
+
+!! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
+c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
+ccccccccccccccccccccccccccc
+CYY!$OMP parallel 
+CYY!$OMP master
+         print *,' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
+         if(mpi__size/=1) then
+            do iq=nqibz+1,iqxend
+               iq0 = iq - nqibz
+c     print *,' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
+               if(mpi__ranktab(iq)/=0) then !jan2012
+               if(mpi__ranktab(iq) == mpi__rank) then
+c     print *,' mpi_send iq from',iq,mpi__ranktab(iq)
+c     print *,' send llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
+c     do i=nw_i,nw
+c     write(*,*)'sendxxx',i,llw(i,iq0)
+c     enddo   
+c     print *,' send llwI sum=',sum(abs(llwI(:,iq0))),niw
+                  dest=0
+                  call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
+                  call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
+               elseif(mpi__root) then
+c     print *,' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
+                  src=mpi__ranktab(iq)
+                  call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
+                  call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
+c     do i=nw_i,nw
+c     write(*,*)'recivxxx',i,llw(i,iq0)
+c     enddo   
+c     print *,' recv llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
+c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
+               endif
+               endif
+            enddo  
+         endif
+         print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
+CYY!$OMP end master
+CYY!$OMP end parallel 
+
 c$$$      deallocate( llw, llwI )
 c$$$!! == generate llw and llwI ==
 c$$$      ifiss=iopen('SkSks',0,-1,0)
@@ -2907,7 +2949,7 @@ c$$$ 1501   continue
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
 !!   Note that this is only for q=0 -->iq=1
-      if(newaniso2.and.ixc==11) then
+      if(newaniso2.and.ixc==11.and.mpi__rank==0) then
         print *
         print *,' ==== newaniso2 mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
@@ -3000,11 +3042,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          if(iq>nqibz) deallocate(vw_k,vw_ks)
         enddo
       endif
-
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c 1034  continue
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! --- legas mode is not working now. Need fixing... voltot ntot are not given.
@@ -3124,6 +3161,7 @@ C...close files
 c        close(ifdpin)
       is = iclose('hbe.d')
       call cputid(0)
+      call MPI__Finalize
       if(ixc==101) stop ' OK! hx0fp0 mode=101 Ecor '
 c      if(ixc==1)   stop ' OK! hx0fp0 mode=1 normal'
 c      if(ixc==2)   stop ' OK! hx0fp0 mode=2  eps NoLFC'
