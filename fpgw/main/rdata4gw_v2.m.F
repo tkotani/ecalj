@@ -115,8 +115,8 @@ c     implicit real*8 (a-h,o-z)
       character*4,allocatable:: clablx(:)
       real(8),allocatable:: rofi(:)
       integer(4),allocatable:: lmxaa(:),nncx(:,:),nrGG(:)
-     &     ,ngvecp(:,:),ngvecc(:,:),ngveccf(:,:,:),indxk(:),ipq(:)
-     &     ,ngvecc2(:,:,:),ngcx(:),ngc2x(:),lcutmx(:)
+     &     ,ngvecp(:,:),ngvecc(:,:),indxk(:),ipq(:)
+     &     ,ngvecc2(:,:,:),ngc2x(:),lcutmx(:) !,ngcx(:),ngveccf(:,:,:)
       real(8),allocatable :: rmax(:),gen(:,:),wgt(:)
      &     ,symgr(:,:,:),qibze(:,:)
       integer(4) :: idxk,nword
@@ -185,7 +185,7 @@ c
       integer(4),allocatable:: ifcore(:)
 
 c     nc takao
-      integer(4),allocatable::ngvecpf(:,:,:),ngpcx(:),ngpx(:)
+c      integer(4),allocatable::ngvecpf(:,:,:),ngpcx(:) ,ngpx(:)
       real(8)::xx(5)
 !     for normcheck on eigenfunctions.
       real(8),allocatable:: sumc(:,:,:)
@@ -250,29 +250,13 @@ c
       pi         = 4d0*datan(1d0)
 c---------------------------------------------------
       if(verbose()>50 ) debug=.true.
-
-c     complex(8),allocatable::ppmt(:,:,:),ppdmt(:,:,:)
-c     integer(4):: ippmt
-c     logical :: smbasis
-cccccccccc
-
       if(zvztest()==1) then
         ippovlinv_test = .true.
       endif
-      if(ippovlinv_test) 
-     &     open (ippovlinv,form='unformatted',file='PPOVLinv')
-cccccccccc
-      if(ppovl0l)  open (ippovl0,form='unformatted',file='PPOVL0')
-
+      if(ippovlinv_test) open (ippovlinv,form='unformatted',file='PPOVLinv')
+      if(ppovl0l)        open (ippovl0,form='unformatted',file='PPOVL0')
       call readin6(ix1,idum2,idum3,idum4) ! ingczero)
       call headver('rdata4gw_v2',ix1)
-c     if(ingczero==1) then
-c     ngczero=.true.
-c     endif
-c     print *,' ngczero=',ngczero
-c     print *,' ixc,iqxini,iqxend, ingczero=', idum1,idum2,idum3, ingczero
-c     stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-
       mmm=normcheck()
       if(mmm==0) then
         checknorm=.false.
@@ -284,30 +268,10 @@ c     stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
         checkdia=.false.
       endif
 
-c     ------------------------------------------
-c     dimension work space
-c     integer(4),parameter :: nsize= 1 000 000
-c     real w(nsize)
-c     common /w/ w
-
-c     Readin GWIN0. nx ny nz for k-points for GW calculations.
-c     if(readgwinput()) then
-      call getkeyvalue("GWinput", "n1n2n3", nnn,3)
+      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW calculations from "GWinput" file
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
 
-c      cphigeigmode=cphigeig_mode()
-!     cphigeigmode
-!     call getkeyvalue("GWinput", "CphiGeigmode", cphigeigmode,default='on')
-
-c     else
-c     ifigw0 = 100
-c     open(ifigw0,file='GWIN0',status="old")
-c     write(6,*) 'Reading GWIN0'
-c     read(ifigw0,*)
-c     read(ifigw0,*) n1q,n2q,n3q !GWIN0
-c     endif
-
-!!--- Readin QGpsi and QGcou ---
+!! --- Readin QGpsi and QGcou ---
       ifiqg  = 101
       ifiqgc = 102
       open(ifiqg ,file='QGpsi',form='unformatted')
@@ -322,15 +286,14 @@ c     endif
         write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
       enddo
 
-
-!!---- rewind QGpsi ----
+!! ---- rewind QGpsi ----
       rewind ifiqg
       read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn,nqi,imx,nqibz
 
       write(6,*) 'QpGcut_psi QpGcutCou nnnn nqi from QGpsi QGcou='
      &     , QpGcut_psi,QpGcut_Cou ,nnnn,nqi
 
-C --- Readin Q0P
+!! --- Readin Q0P
       print *, 'reading QOP'
       open (103,file='Q0P')
       read (103,*) nq0i,iq0pin
@@ -338,13 +301,9 @@ C --- Readin Q0P
       read (103,*) ( wt(i),q0i(1:3,i),i=1,nq0i)
       close(103)
 
-C --- Readin DATA4GW_V2
-      print *, 'reading DATA4GW_V2'
+!! --- Readin DATA4GW_V2
       ifi = 104
       open(ifi,file='DATA4GW_V2',form='unformatted')
-c     call gwinput0(ifi,
-c     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-c     &              lmxamx,ngpmx,  nband,  ldim,   nqtti    )
       call gwinput0_v2(ifi,
      &     nsp,   nbas,   nclass, nrmx,   ncoremx,
      &     lmxamx,ngpmx,  nband,  ldim2,   nqtti, !ldim2
@@ -353,7 +312,7 @@ c     &              lmxamx,ngpmx,  nband,  ldim,   nqtti    )
       write(6,*)'                =',lmxamx,ngpmx,  nband,  ldim2,  nqtti
       write(6,*)'                =',nphi,nphimx
 
-C -- allocate ------------------------
+!! -- allocate ------------------------
       allocate(
      &     iclass(nbas),        ! class is starting from 1.
      &     lmxa  (nclass),      ! Maximum l number for each atom for augmentation.
@@ -395,25 +354,10 @@ c
 !     nphi is the number of different augmentation functions= nRla
 !     ldim2 ->nRlma
 
-c      if(cphigeigmode) then
       ificg=421
       open(ificg,file='CphiGeig',form='unformatted')
-c      else
-c        allocate(
-c     &        geig(ngpmx,  nband, nqtti,nsp), ! Coefficienets of eigenfunction for IPW.
-c     &        cphi(ldim2, nband, nqtti,nsp) ! Coefficienets of eigenfunction
-c     &        )
-c      endif
 
 C --- readin ---
-c     call gwinput(ifi,
-c     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
-c     &  lmxamx,ngpmx,  nband,  ldim,   nqtti ,
-c
-c     &  iclass,lmxa,nr,konf,ncore,
-c     &  zz,aa,bb,bas,alat,plat,
-c     &  qtti,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore )
-c     v2
       call gwinput_v2x(ifi,
      &     nsp,   nbas,   nclass, nrmx,   ncoremx,
      &     lmxamx,ngpmx,  nband,  ldim2,  nqtti , !ldim2
@@ -423,7 +367,6 @@ c
      &     iclass,lmxa,nr,konf,ncore,
      &     zz,aa,bb,bas,alat,plat,
      &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,cphi,geig,nocore)
-c     &     cphigeigmode)
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
       print *,' dummy iclass=',iclass
       print *,' nqtti nbas',nqtti,nbas
@@ -481,30 +424,23 @@ c     &               2*nband*nqtti*nsp*(2*lxx+1))
 c
 c     endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 c$$$      if(nocore) then           ! NoCore or not? inquire(file='NoCore',exist=nocore)
 c$$$        write(6,"(a)")' NoCore case. So we use Vxc(nvalence)'
 c$$$      endif
+c     write(6,*) ' smooth mixed basis=',smbasis()
+
       call dinv33 ( plat,1,qlat,volumxx )
       call dinv33(qlat,0,ginv,det)
-
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
 
-C ...  info
-c     write(6,*) ' smooth mixed basis=',smbasis()
 
-C --- Make index-file @MLNA  ------------------------------------
-c     if(2*ldim /= ldim2 ) stop ' rdata4xxx" 2*ldim/=ldim2)'
+!! --- Make index-file @MLNA  ------------------------------------
       nxx= -999; lxx= -999; ibxx=-999
-c
-      allocate(nrad(nbas),
-     &     nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
+      allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
       nrad = 0
-c
       ifnlax = iopen('@MNLA_core',1,-1,0)
-      write(ifnlax,"(a)") 
-     &     '    m    n    l  icore ibas   ' ! Index for core
+      write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
       write(ifnlax,'(" ------- core ------------")')
       inum = 0
       do ibas = 1,nbas;  ic  = iclass(ibas)
@@ -514,11 +450,9 @@ c
           !Mark use 10th digit for local orbital
         enddo
       enddo
-
       do ibas = 1,nbas
-        ic   = iclass(ibas)
-C --- core
-        icore = 0
+        ic   = iclass(ibas) 
+        icore = 0                ! --- core
         do l   = 0, lmxa(ic)
           kkkmx = vkonf(l,ic) - 1
           do kkk = l+1,kkkmx  ! kkkmx is the principle quantum number for core.
@@ -530,10 +464,6 @@ C --- core
               write(ifnlax,'(10i5)')
      &                 mmm, n, l, icore, ibas
             enddo
-c     do isp=1,nsp
-c     write(ifphi) ic1,l,n,isp
-c     write(ifphi) gcore(1:nr(ic),icore,ic,isp)
-c     enddo
           enddo
         enddo
         if(ncore(ic)/=icore) then
@@ -541,40 +471,29 @@ c     enddo
           stop ' rdata xxx1: ncore(ic)/=icore'
         endif
       enddo
-c     -------------------------------------------------------------
-      inum=0
-c     write(ifnlax,'(" ------- valence ------------")')
+!! -------------------------------------------------------------
+      inum=0  !    write(ifnlax,'(" ------- valence ------------")')
       allocate(mindx(ldim2))
       do ix = 1,ldim2
-        if(ix>1.and. 
-     &        nxx == nindx(ix) .and.
-     &        lxx == lindx(ix) .and.
-     &        ibxx== ibasindx(ix)) then
+        if(ix>1.and. nxx == nindx(ix) .and. lxx == lindx(ix) .and. ibxx== ibasindx(ix)) then
           mmm=mmm+1
         else
           lxx = lindx(ix)
           ibxx= ibasindx(ix)
           nxx = nindx(ix)
-c
           nrad(ibxx)  = nrad(ibxx)+1
           irr = nrad(ibxx)
           nindx_r(irr,ibxx) = nxx
           lindx_r(irr,ibxx) = lxx
-
           mmm = -lxx
-c     write(6,*)
         endif
         mindx(ix) = mmm
         inum = inum+1
-c     write(ifnlax,'(10i5)')
-c     &  mmm, nxx, lxx, ibasindx(ix), inum
       enddo
-c-------------------------------
+!! -------------------------------
 
 
-
-
-C --- radial function indexing  ----
+!! --- radial function indexing  ----
       nradmx= maxval(nrad)
       write(6,*)
       write(6,*) " --- Radial function indexing --- "
@@ -586,30 +505,18 @@ C --- radial function indexing  ----
      &           irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
         enddo
       enddo
-c
-
-C ... hbe.d
+!! ... hbe.d
       ifhbed = iopen('hbe.d',1,-1,0)
       nqbz  = n1q*n2q*n3q
       ndble = 8
 c     nword = 4
       write(6,'( " ldim2 nband=",3i5)') ldim2, nband
-c
       mrecb = 2*ldim2*nband *ndble/nword()
       mrece = nband         *ndble/nword()
       mrecg = 2*ngpmx*nband *ndble/nword()
-
       write(ifhbed,"(1x,i3,6i8)") ndble,mrecb,mrece,ldim2,nqbz,nband,mrecg
-      write(ifhbed,*)
-     .     ' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nband mrecg'
+      write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nband mrecg'
       close(ifhbed)
-
-C --- open files ---------------------------------------------------
-!     Coefficients of Eigenfunctions'
-c      ifev(1)    = iopen('EVU',  0,-1,mrece) !Eigencalues
-c      if(nsp == 2) then
-c        ifev(2)   = iopen('EVD',  0,-1,mrece) !Eigencalues
-c      endif
 
 !!--- save eigenvalues to EValue, qtti, nqtti also ---
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
@@ -617,39 +524,16 @@ c      endif
       write(ifev) qtti(1:3,1:nqtti) !qtti
       write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
       close(ifev)
-
-
+!!
       ifec   = iopen('ECORE', 1,-1,0) ! Core eigenvalues
       ifphi  = iopen('PHIVC', 0,-1,0) ! PHIV+PHIC  valence augmentation radial function and core
       ife0   = iopen('eig0.chk', 1,-1,0) ! chech write for eigenfunction at gamma.
-c
-
-c$$$      if(nocore) then; ifv= iopen('VXCFPV',0,-1,0) ! Vxc by LDA
-c$$$      else           ; ifv= iopen('VXCFP',0,-1,0)
-c$$$      endif
-      print *,'goto VXCFP writing...'
-      ifv= iopen('VXCFP',0,-1,0)
-      write(ifv) nband,nqi      !mar2012takao
-c      write(ifv) nband,nqtti    !feb2012takao
-
-c
-c     ifplane = iopen('PLN',0,-1,0)             ! plane wave part
-
       ifcphi = iopen('CPHI', 0,-1,mrecb) !  the augmentation wave.
       ifgeig = iopen('GEIG', 0,-1,mrecg) ! Coefficienets of eigenfunction for q+G wave.
-c     ifcphi = iopen('CPHI', 0,-1,0) !  the augmentation wave.
-c     ifgeig = iopen('GEIG', 0,-1,0)     ! Coefficienets of eigenfunction for q+G wave.
-      ! All required indexes in QGpsi
-c     write(ifplane) ngpmx, ngcmx
+      ifv    = iopen('VXCFP',0,-1,0)
+      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
 
-c----
-c     write(ifnla,"(i10,'! total sum of augmentation')")ldim2
-c     do ix = 1, ldim2
-c     write(ifnla,"(3i8, ' ! =  n l ibas  ')")
-c     &    nindx(ix), lindx(ix), ibasindx(ix)
-c     enddo
-
-C --- augmentation wave numbering--- idxnlmc in index.f order
+!! --- augmentation wave numbering--- idxnlmc in index.f order
 !     m,n,l,ic order. On the other hand, fplmto gives m l n ic  for valence!
 !     This ordering is important for psi2b_v2 and psibc_v2 in x0kf_v2 and sxcf_v2, and so on.
       ifoc = iopen('@MNLA_CPHI',1,-1,0)
@@ -684,14 +568,6 @@ C --- augmentation wave numbering--- idxnlmc in index.f order
         print *,ix,ldim2
         stop 'rdata4gw_v2:ix/=ldim2'
       endif
-c--------------------
-c     class check ; Jun2006 !commented 29Jan2008
-c     icold=0
-c     do ibas = 1,nclass
-c     ic   = iclass(ibas)
-c     if(ic >icold+1) stop 'radata4gw: Strange CLASS!'
-c     icold= ic
-c     enddo
 
 C --- Mesh refining  ! nov2005
 !     Get new
@@ -704,9 +580,7 @@ C --- Mesh refining  ! nov2005
 !     we can deternie required nr(ic), a(ic), b(ic).
       if(rmeshrefine()) then
         print *,'rmeshrefine:'
-!
         delr = delrset()       !delr is dr/di at rmax in a.u.
-!
         print *,' delr nclass=',delr,nclass
         allocate(nrnn(nclass),aann(nclass))
         do ic = 1,nclass
@@ -731,12 +605,10 @@ C --- Mesh refining  ! nov2005
         do ic = 1,nclass
           if(minval(abs(iclass-ic))/=0) cycle !jan2008
           write(6,"('  input  nr a b =',i5,3d13.6)") nr(ic),aa(ic),bb(ic)
-
           allocate(rofi(nr(ic)))
           do ir=1,nr(ic)
             rofi(ir) = bb(ic)*(exp((ir-1)*aa(ic))-1d0)
           enddo
-c
           nr_n = nrnn(ic)
           aa_n = aann(ic)
           bb_n = rofi(nr(ic))/(exp(aa_n*(nr_n-1))-1d0)
@@ -766,11 +638,6 @@ c
           nr(ic) = nr_n
           deallocate(rofi,rofi_n)
           write(6,"(' output  nr a b =',i5,3d13.6)") nr(ic),aa(ic),bb(ic)
-cccccccccccccccccccccccccccc
-c     do ir=1,nr_n
-c     write(6,"(' ir r=',i5,d13.5)") ir,bb_n*(exp((ir-1)*aa_n)-1d0)
-c     enddo
-cccccccccccccccccccccccccccc
         enddo
         deallocate( gcore )
         deallocate( gx_raw)
@@ -780,7 +647,6 @@ cccccccccccccccccccccccccccc
         gcore  = gcore_n
         print *,'rmeshrefine: end'
       endif
-!
       allocate(
      &     gx_in  (nrmx, 0:lmxamx, nphimx, nclass,nsp), !scaled gx_raw to avoid degeneracy of overalp mat.
      &     gx_orth(nrmx, 0:lmxamx, nphimx, nclass,nsp)  ) ! OrthoNormalized
@@ -1208,11 +1074,11 @@ C ... norm check
 
 c-------------------------------------------------------------------------------
       write(6,*) '########## goto Eigfun part ############## '
-      allocate( ngveccf(3,ngcmx,nqtti) ,ngcx(nqtti),cphix(ldim2,nband),
+      allocate( cphix(ldim2,nband), !ngveccf(3,ngcmx,nqtti) ,ngcx(nqtti),
      &     cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
 
 !     nc normalization check
-      allocate( ngvecpf(3,ngpmx,nqtti) ,ngpx(nqtti))
+c      allocate( ngvecpf(3,ngpmx,nqtti) ,ngpx(nqtti))
 
 c---
 c     if(ifgeigb()) then
@@ -1226,7 +1092,10 @@ c     endif
       ifnband = iopen('NBANDikp',1,-1,0)
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
-      do 1200 ikp = 1,nqtti
+
+
+!!----------------------------------------------------------------------
+      do 1200 ikp = 1,nqtti  !irreducible points.
         if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp
 C... determined nbandx, 1:nbandx is meaningful.
         nbandx = nband
@@ -1478,8 +1347,8 @@ c          endif
 
 !!--- Plane wave part ---
         iread=0
-        do !irr is the flag to judge to check irreducible point or not.
-          read (ifiqg, err=1012) qqqa, ngp !, irr
+        do           !irr is the flag to judge to check irreducible point or not.
+          read (ifiqg, err=1012,end=1012) qqqa, ngp !, irr
           read (ifiqgc         ) qqqb, ngc
 c          print *,'zzzz qqqa=',qqqa
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
@@ -1496,44 +1365,31 @@ c          print *,'zzzz qqqa=',qqqa
           read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
           read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
         enddo
-ccccccccccccccccc
+c        ngcx (ikp) = ngc
+c        ngveccf (1:3,1:ngc, ikp) = ngvecc
+c        ngpx (ikp) = ngp
+c        ngvecpf (1:3,1:ngp, ikp) = ngvecp
+        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGphi?'
+        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGcou?'
         if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
-ccccccccccccccccc
-
+c-------
 
 !!#feb2012takao
 !!  qtti: irreducible q point only(eigenvalue, eigenfunctions are given).
 !!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
 !! thus the following check before feb2012 should not now.
-        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGphi?'
-        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGcou?'
-
-c     write(ifplane) ngp,ngc
-c        if(.not.cphigeigmode) then
-c          geigr(1:ngp,1:nband,1:nsp)= geig(1:ngp,1:nband,ikp,1:nsp)
-c        endif
-c     write(ifplane) ngvecp, ngvecc, geigr(1:ngp,1:nband,1:nsp)
-
         do isp=1,nsp
           ikpisp= isp + nsp*(ikp-1)
           if(ngpmx/=0) write(ifgeig, rec=ikpisp) geigr(1:ngpmx,1:nband,isp)
-c     write(ifgeig) geigr(1:ngpmx,1:nband,isp) !geigr(1:ngp,1:nband,isp)
-cccccccccccccccccccccc
           if(verbose()>40) then
-            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)') 
-     &       ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
+            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
             do ix=1,nbandx
-              write(6,'("geig sumcheck ",i5,2d13.6)') 
-     &         ix,sum(geigr(1:ngp,ix,isp))
+            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
             enddo
           endif
-cccccccccccccccccccccc
         enddo
-
-        ngcx (ikp) = ngc
-        ngveccf (1:3,1:ngc, ikp) = ngvecc
 
 c---  geigB mode
 c     if(ifgeigB()) then
@@ -1548,12 +1404,6 @@ c     write(iffg(iffx)) ikp
 c     write(iffg(iffx)) geigr(1:ngp,1:nband,1:nsp)
 c     endif
 
-
-c     nc takao normalization check
-        ngpx (ikp) = ngp
-        ngvecpf (1:3,1:ngp, ikp) = ngvecp
-c-------
-        deallocate( ngvecp,ngvecc )
 c     if(ikp>nnnn) cycle
 c     if(ikp>nqbz) cycle
         write(ifv) qtti(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
@@ -1565,23 +1415,26 @@ c        enddo
 c     nc takao normalization check cccccccccccccccccccccccccccccccccc
         if(checknorm) then
           xx=0d0
-          ngp  = ngpx(ikp)
+c          ngp  = ngpx(ikp)
           qx   = qtti(1:3,ikp)
           allocate(ppovl(ngp,ngp))
-
 !     ppovl = <exp (i (q+G')) | exp (i (q+G))>
 !     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
 !     Thus we need to use mkppovl2 for normalization check.
           if(version()==-1) then
             call mkppovl(alat,plat,qlat, qx, 
-     &              ngp, ngvecpf(1,1,ikp), 
-     &              ngp, ngvecpf(1,1,ikp), 
+c     &              ngp, ngvecpf(1,1,ikp), 
+c     &              ngp, ngvecpf(1,1,ikp), 
+     &              ngp, ngvecp, 
+     &              ngp, ngvecp, 
      &              rmax, nbas,  bas, lmxaa, lmxax,  
      o              ppovl)
           else
             call mkppovl2(alat,plat,qlat, !22April2004 
-     &              ngp, ngvecpf(1,1,ikp), 
-     &              ngp, ngvecpf(1,1,ikp), 
+c     &              ngp, ngvecpf(1,1,ikp), 
+c     &              ngp, ngvecpf(1,1,ikp), 
+     &              ngp, ngvecp, 
+     &              ngp, ngvecp, 
      &              nbas, rmax, bas,  
      o              ppovl)
           endif
@@ -1614,6 +1467,7 @@ ccccccccccccccccccccccccccccccc
           write(inormo,*)
           deallocate(ppovl)
         endif
+        deallocate( ngvecp,ngvecc )
 c     nc---------------------------------------------
  1200 continue
       print *,' end of eigensection-----'
@@ -1673,15 +1527,14 @@ C ... Readin qibz form QIBZ
       write(6,"( ' --- Readin QIBZ --- ')")
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
       close(ifiqibz)
-
-c     c---
+!!
       write(ifhvccfp) nqibz
       write(ifhvccfp) qibz(1:3,1:nqibz)
       write(6,*)
       write(6,"( '  ngrp  = ',i3)")ngrp
       write(6,"( ' symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-c
+!!
       ifnqibz = 888
       open(ifnqibz,file='NQIBZ')
       write(ifnqibz,"(3i10,'   ! nqibz nq0i nqibz+nq0i')") 
@@ -1713,6 +1566,7 @@ c      QpGcut_psi2 = (2d0+0.1d0)*QpGcut_psi !dec2012
         elseif( iqi > nqibz) then
           qibze(1:3,iqi)  = q0i (1:3,iqi-nqibz)
         endif
+        write(6,"('iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
       enddo
       if(bzcase()==2) qibze(1:3,nqibz+nq0i+iadd)=0d0
       nqnumt= nqibz+nq0i+iadd
@@ -1733,11 +1587,14 @@ c     nqnumt = imx !nqnumt is changed
 c     deallocate(qsave)
 c     endif
 
+
+!!
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         qx  = qibze(1:3,iqi)
-        if(iqi>nqibz) then !dec2012
-          qx=0d0
-        endif
+ccommented out at apr2013takao
+c        if(iqi>nqibz) then !dec2012
+c          qx=0d0
+c        endif
         call getgv2( alat,plat,qlat,qx, QpGcut_psi2,1,ngc2x(iqi), idummy11) 
         write(6,"(' job1 iqi qx ngc2x=',i5,3f8.3,i8)") iqi,qx,ngc2x(iqi)
       enddo
@@ -1747,33 +1604,25 @@ c     endif
       if(debug)print *,' end of  allocate(ngvecc2(3,ngc2mx,nqnumt))'
       do iqi =1, nqnumt         !nqibz + nq0i +iadd
         if(debug)  write(6,"(' job2 iqi qx=',i5,3f8.3)") iqi,qx
-        qx  = qibze(1:3,iqi)
-        if(iqi>nqibz) then !dec2012
-          qx=0d0
-        endif
-        call getgv2( alat,plat,qlat,qx, QpGcut_psi2, 2,
-     &        ngc2x(iqi),ngvecc2(1,1,iqi)) ! for Coulomb
-           print *,' minval ngvecc2',
+        qx = qibze(1:3,iqi)
+ccommented out at apr2013takao
+c        if(iqi>nqibz) then !dec2012
+c          qx=0d0
+c        endif
+        call getgv2( alat,plat,qlat,qx, QpGcut_psi2, 2, ngc2x(iqi),ngvecc2(1,1,iqi)) ! for Coulomb
+        print *,' minval ngvecc2',
      &       minval(ngvecc2(1,1:ngc2x(iqi),iqi)),minval(ngvecc2(2,1:ngc2x(iqi),iqi)),minval(ngvecc2(3,1:ngc2x(iqi),iqi))
-           print *,' maxval ngvecc2',
+        print *,' maxval ngvecc2',
      &       maxval(ngvecc2(1,1:ngc2x(iqi),iqi)),maxval(ngvecc2(2,1:ngc2x(iqi),iqi)),maxval(ngvecc2(3,1:ngc2x(iqi),iqi))
       enddo
 
-C ... IPW(interstitial-plane-wave) overlap matrix
+!! ... IPW(interstitial-plane-wave) overlap matrix
       nqini =1
       if(iq0pin==2) nqini=nqibz+1
       if(debug) print *,' goto PPOVL section'
       ippovl = 221
       open(ippovl,file= "PPOVL",form='unformatted')
       write(ippovl ) ngcmx, ngc2mx, nqnumt-nqini+1 !nqibz + nq0i+iadd
-c
-c     if(smbasis()) then
-c     ippmt = 222
-c     open(ippmt,file= "PPMT",form='unformatted')
-c     write(ippmt ) ngcmx, lmxa,nqnumt-nqini+1
-c     allocate( ppmt (2,ngcmx,(lmxax+1)**2,nbas))
-c     endif
-
       do ix= nqini, nqnumt
         write(6,"(' qibze= ',3f10.4)") qibze(1:3,ix)
       enddo
@@ -1783,33 +1632,56 @@ c     endif
       enddo
 
 
-      do iqi = nqini, nqnumt    !nqibz + nq0i + iadd
+!! ==  New version. apr2013takao . Not use ngveccf. ==
+      rewind ifiqg
+      rewind ifiqgc
+      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
+      read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
+!! 
+      do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
         qx  = qibze(1:3,iqi)
-ccccccccccccccccccccccccccccccccccccccccccc
-        write(6,"(i4,' ',3f10.4)") iqi,qx
-c     do ix=1,nqtti
-c     write(6,"(3f10.4)") qtti(1:3,ix)
-c     enddo
-ccccccccccccccccccccccccccccccccccccccccccc
+!!      iq is removed at apr2013takao   --> iq=idxk(qibze(1:3,iqi), qtti,nqtti) !feb2012takao
+        iread=0
+!!      do loop to readin ngc,ngp,ngvecp,ngvecc for give qx. apr2013takao
+        do           !irr is the flag to judge to check irreducible point or not.
+          read (ifiqg, err=1013,end=1013) qqqa, ngp !, irr
+          read (ifiqgc         ) qqqb, ngc
+          allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
+          read (ifiqg ) ngvecp
+          read (ifiqgc) ngvecc
+          if(sum(abs(qx-qqqa))<1d-8) exit
+          deallocate(ngvecp,ngvecc)
+          cycle
+ 1013     continue
+          if(iread==1) call rx('rdata4gw_v2:readin error on QGpsi QGcou 22222')
+          iread=1
+          rewind ifiqg
+          rewind ifiqgc
+          read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
+          read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
+        enddo
+        if(sum(abs(qx-qqqa))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGphi?'
+        if(sum(abs(qx-qqqb))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGcou?'
+c        ngcx (ikp) = ngc
+c        ngveccf (1:3,1:ngc, ikp) = ngvecc
+c        ngpx (ikp) = ngp
+c        ngvecpf (1:3,1:ngp, ikp) = ngvecp
 
-c nov 2012 these if below are not necessary.
-        if( iqi <=nqibz.or.ngczero) then !jun2005 ngczero
-          iq = idxk (qibze(1:3,iqi), qtti,nqtti) !feb2012takao
-        elseif( iqi > nqibz) then !     iq0=0 !iq0 is added on 8/18/2005
-          iq = idxk ((/0d0,0d0,0d0/), qtti,nqtti)! We use the G-vector(for Coul) at q=0 for q0i vector.
-        endif
-        if(debug) print *,'yyyyy222 nqtti,qx=',qx,iqi,iq
-        ngc  = ngcx(iq)
+c apr2013takao nov 2012 these if below are not necessary.
+c        if( iqi <=nqibz.or.ngczero) then !jun2005 ngczero
+c        iq = idxk (qibze(1:3,iqi), qtti,nqtti) !feb2012takao
+c        elseif( iqi > nqibz) then !     iq0=0 !iq0 is added on 8/18/2005
+c          iq = idxk ((/0d0,0d0,0d0/), qtti,nqtti)! We use the G-vector(for Coul) at q=0 for q0i vector.
+c        endif
+
+c        ngc  = ngcx(iq)
         ngc2 = ngc2x(iqi)
-        write(ippovl) qx, ngc,ngc2
-        write(6,"('   qx iqi iq ngc ngc2=',3f7.4,4i5)" ) qx,iqi,iq, ngc,ngc2
+        write(ippovl) qx, ngc,ngc2 
+        write(6,"('   iqi qx ngc ngc2=',i5,3f7.4,4i5)" ) iqi,qx,ngc,ngc2
         if(ippovlinv_test)  write(ippovlinv) qx,ngc
         if(ppovl0l       )  write(ippovl0)   qx,ngc
-!     Aug2005
         if(ngc==0) cycle
-c     allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc+1)) !+1 is for matm bug due to GoToBlas.
         allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
-        ! This was before "if(ngc==0) cycle": moved to here at 15Apr2008.
 
 !     oct2005
 c     if(smbasis()) then
@@ -1821,39 +1693,32 @@ c     ! ppmt(lmxaa,nbas),ppdmt(lmxaa,nbas)
 c     write(ippmt) ppmt
 c     endif
 c------------------
-
         if(version()==-1) then
           call mkppovl(alat,plat,qlat, qx, 
-     &           ngc, ngveccf(1,1,iq), 
-     &           ngc, ngveccf(1,1,iq), 
+c     &           ngc, ngveccf(1,1,iq), 
+c     &           ngc, ngveccf(1,1,iq), 
+     &           ngc, ngvecc,
+     &           ngc, ngvecc, 
      &           rmax, nbas,  bas, lmxaa, lmxax,
      o           ppovl)
         else
-c replaces with mkppovl2 2012may
-c          call mkppovl(alat,plat,qlat, qx,
-c     &           ngc, ngveccf(1,1,iq),
-c     &           ngc, ngveccf(1,1,iq),
-c     &           rmax, nbas,  bas, 2*lmxaa, 2*lmxax, !
-c     o           ppovl)
           call mkppovl2(alat,plat,qlat, 
-     &        ngc,  ngveccf(1,1,iq ), 
-     &        ngc,  ngveccf(1,1,iq), 
+c     &        ngc,  ngveccf(1,1,iq ), 
+c     &        ngc,  ngveccf(1,1,iq), 
+     &        ngc,  ngvecc, 
+     &        ngc,  ngvecc, 
      &        nbas, rmax, bas,  
      o        ppovl)
         endif
         if(debug) print *,' ttt: end of mkppovl ...'
-
         if(ippovlinv_test)  write(ippovlinv) ppovl(1:ngc,1:ngc)
         if(ppovl0l       )  write(ippovl0)   ppovl(1:ngc,1:ngc)
-
-        if(debug) print *,' ttt2x ...'
 !     replace cinvrx(no pvot version) with matcinv !oct2005
 !     call cinvrx(ppovl,ppovlinv,ngc,1,1)   ! inverse of ppovl
 !     Note the size of ppovlinv and ppovl are the same
         ppovlinv=ppovl
         if(debug) print *,' ttt222 ...'
         call matcinv(ngc,ppovlinv)
-
         if(debug) print *,' ttt3 ...'
         if(ippovlinv_test) write(ippovlinv) ppovlinv(1:ngc,1:ngc)
         deallocate(ppovl)
@@ -1862,7 +1727,8 @@ c
         allocate(ppovl(ngc,ngc2),ppx(ngc,ngc2))
         if(debug) print *,' ttt5 ...'
         call mkppovl2(alat,plat,qlat, 
-     &        ngc,  ngveccf(1,1,iq ), 
+c     &        ngc,  ngveccf(1,1,iq ), 
+     &        ngc,  ngvecc, 
      &        ngc2, ngvecc2(1,1,iqi), 
      &        nbas, rmax, bas,  
      o        ppovl)
@@ -1870,17 +1736,17 @@ c
         if(debug)print *,' writing ppovl(ngc ngc2) ...'
         write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppx !iqi added at 18Aug2005
         deallocate(ppovl,ppx,ppovlinv)
-      enddo
+        deallocate(ngvecc,ngvecp)
+ 2010 continue
       close(ippovl)
       if(ippovlinv_test)  close(ippovlinv)
-      print *,'vvvvvvv1 nbas=',nbas
-c
+c      print *,'vvvvvvv1 nbas=',nbas
 c     if(smbasis()) deallocate(ppmt)
 
 
-      write(6,*) "Write LMTO file(crystal structure and so)..."
-C  ---  Write LMTO file ----------------
+!! ===  Write LMTO file ===
 !     > SYMMETRY
+      write(6,*) "Write LMTO file(crystal structure and so)..."
       ifigwin=888
       open (ifigwin,file='LMTO')
       write(ifigwin,*)"SYMMETRY---------------------------------------"
@@ -1918,33 +1784,26 @@ c     LMTO
      &     " Maximum number radial functions"//
      &     " per l-channel (nnv nnc)"
       write(ifigwin,*) nnv, nnc
-
       write(ifigwin,*)" max. number of radial mesh (nrx)"
       write(ifigwin,*) nrmx
       write(ifigwin,*)"atom          z                   nr "
-
 !     ibas = ic
       do ibas =1,nbas
         write(ifigwin,*) "'"//clablx(ibas)//"'"
      &        ,zz(iclass(ibas)),nr(iclass(ibas))
       enddo
-
-c     write(ifigwin,*)"     atom        iclass"
-c     do ibas=1,nbas
-c     write(ifigwin,*) ibas, ibas
-c     enddo
       write(ifigwin,*)
 c     BZ
       write(ifigwin,*)"BZ----------------------------------------------"
       write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
       write(ifigwin,"(4i5)") n1q,n2q,n3q
       close(ifigwin)
-
       print *, " OK! end of rdata4gw_v2 "
       stop ' OK! rdata4gw_v2'
       end
 
-ccccccccccccccccccccccccccccccc
+
+!! #######################################################################3
       subroutine xychange(x,y,n)
       real(8):: x(n),y(n),z(n)
       z=x
@@ -1957,8 +1816,6 @@ ccccccccccccccccccccccccccccccc
       x=y
       y=z
       end
-
-
       subroutine rrefine(rofio,nro,rofin,nrn,
      i          go,
      o          gn )
@@ -1969,7 +1826,7 @@ ccccccccccccccccccccccccccccccc
         gn(ir) = polinta(rofin(ir), rofio,go,nro)
       enddo
       end
-
+!! ########################
       subroutine getab( nr_n, nr,
 C- determie a and b, for give ab nr rmax
      i       a ,b)

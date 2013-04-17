@@ -133,7 +133,7 @@ c      integer :: nw2
       real(8)::efin
 
       integer:: bzcase, ngc,mrecg
-      real(8):: quu(3), deltaq(3),qq(3) !,qqq(3)=0d0
+      real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
       logical:: omitqbz=.false., noq0p
 
       logical,allocatable :: iwgt(:,:,:,:)
@@ -946,11 +946,11 @@ ccccccccccccccccccccccccccccccccc
         write(ieclog,
      &          "('   iq                q                       wk')")
         do iqq = iqxini,iqxend
-          if(iqq<=nqibz) then
-            qq = qibze(:,iqq)
-          else
-            qq = 0d0
-          endif
+c          if(iqq<=nqibz) then
+c            qq = qibze(:,iqq)
+c          else
+c            qq = 0d0
+c          endif
           call getwk(iqq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
           write(ieclog,"(i5,3x,3f12.8, f15.5)")
 c     &          iqq, qq, wk4ec
@@ -1252,12 +1252,13 @@ c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !!
         call cputid (0)
         q = qibze(:,iq)
-        if(iq<=nqibz) then !.or.ngczero) then  ! iqx = iq
-          qq=q
-        else !(ixc==11) then !    iqx = 1             ! corresponding q=0
-          qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0
-        endif
-        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB) 
+c        if(iq<=nqibz) then !.or.ngczero) then  ! iqx = iq
+c          qq=q
+c        else !(ixc==11) then !    iqx = 1             ! corresponding q=0
+c          qq=0d0  !see rdata4gw_v2. All ngc for iq>nqibz are ngc for q=0
+c        endif
+c        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB) 
+        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
 !! Caution : confusing point
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
 !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0

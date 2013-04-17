@@ -233,6 +233,15 @@ cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:
       enddo
       call fclr(' ',ifiqg) !close file
 
+cccccccccccccccccc
+c        do iqi=1,nqi
+c          q=qtti(:,iqi)
+c          print *,' qtti=',iqi,q
+c        enddo
+c        stop 'xxxxxxxxxxxxxxxx'
+ccccccccccccccccccccc
+          
+
 !! ==== Generate info for rotwv and write ====
 c     print *,' nqtt nqi=',nqtt,nqi
 c     print *, ' symops=',symops

@@ -500,10 +500,10 @@ print "  --nspin=%s"  % nspin_val
 print "  --so=%s"     % so_val
 print "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1
 print "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2
-print "  --nk3=%s   (if not give, nk3=nk1) along b-axis"   % nk_val3
+print "  --nk3=%s   (if not give, nk3=nk1) along c-axis"   % nk_val3
 print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str,xcfun_val
 #print "  --mmom='%s\' ! mmom is the initial magnetic moment for each spec,l-channel. Effective for --nspin=2" % mmom_val
-print " +++ Followings are for expart to change +++"
+print " +++ Followings are for experts to change +++"
 print "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio
 print "               if negative, we use use defalut MT radius in ctrlgenM1.py)"
 print "  --systype=%s !(bulk,molecule)" % systype_val
@@ -511,7 +511,7 @@ print "  --insulator  %s !not set this if you are not expert. (do not set for --
 print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val
 print "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)"
 print 
-if(showhelp==1): sys.exit()
+if(showhelp==1): sys.exit('--- end of help ---')
 
 
 ### readin atomlist ###
