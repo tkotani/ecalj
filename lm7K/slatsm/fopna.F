@@ -421,7 +421,7 @@ c #else
 c #endif
 C Save list of filenames
       integer mxnam
-      parameter (mxnam=30)
+      parameter (mxnam=1000)
       character*(maxsiz) tabnam(mxnam),pfnam,fnam,spfnam
       character*(extlen) ext
       character*(plen) path
@@ -683,7 +683,7 @@ C     implicit none
       logical sw
       integer i,iprint
       integer maxfil
-      parameter (maxfil=15)
+      parameter (maxfil=1000)
       integer unitab(0:maxfil-1),nopen
       common /funits/ unitab,nopen
 
@@ -716,7 +716,7 @@ C     implicit none
       integer i,iprint
       character*6 clstat
       integer maxfil
-      parameter (maxfil=15)
+      parameter (maxfil=1000)
       integer unitab(0:maxfil-1),nopen
       common /funits/ unitab,nopen
 

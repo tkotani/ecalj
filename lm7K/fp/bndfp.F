@@ -2846,10 +2846,10 @@ ccccccccccccccccccccccccc
      &        evbm, ecbm, sumvesatm/vol*rydberg
          write(ifvbm,"('### VBM= ',f12.6,' eV CBM= ',f12.6,' eV estatic_pot=',f12.6,' eV')")  
      &        evbm, ecbm, sumvesatm/vol*rydberg
-         call fclose('ifvbm')
-         call fclose('vessm')
-         call fclose('vesintatm')
-         call fclose('vesintloc')
+         call fclose(ifvbm)
+         call fclose(ifves)
+         call fclose(ifvesintatm)
+         call fclose(ifvesintloc)
  9898    continue
          print *,' not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.'
          if(cmdopt('--vbmonly',9,0,strn)) call rx0('end of --vbmonly mode vrefolny')

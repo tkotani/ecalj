@@ -173,7 +173,8 @@ C ... for core hole
       integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
       logical master_mpi,master_mpiset
-
+      logical :: cmdopt
+      character*20::strib
 C --- Setup ---
       call tcn('locpot')
 Changenglob      stdo = nglob('stdo')
@@ -335,7 +336,7 @@ C   ... Write true density to file rhoMT.ib
         endif
 
 C   --- Make potential and energy terms at this site ---
-        call locpt2 ( job , z , rmt , rg , a , nr , nsp , cofg , cofh 
+        call locpt2 (job , z , rmt , rg , a , nr , nsp , cofg , cofh 
      .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
      .   , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , 
      .   sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es 
@@ -344,6 +345,26 @@ C   --- Make potential and energy terms at this site ---
      .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
      .   , rhobg , efg ( 1 , ib ),ifivesint )
 
+!! write density 1st(true) component and counter components.
+        if(cmdopt('--density',9,0,strn)) then
+           write(strib,'(i10)') ib
+           ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
+           do isp=1,nsp
+              do ir=1,nr
+c                 k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
+                 write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),( rhol1(ir + (lm-1)*nr + (isp-1)*nr*nlml), lm=1,nlml)
+              enddo
+           enddo
+           call fclose('rho1MT.'//trim(adjustl(strib)))
+           ibx= fopna('rho2MT.'//trim(adjustl(strib)),-1,0)
+           do isp=1,nsp
+              do ir=1,nr
+c                 k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
+                 write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),( rhol2(ir + (lm-1)*nr + (isp-1)*nr*nlml), lm=1,nlml)
+              enddo
+           enddo
+           call fclose('rho2MT.'//trim(adjustl(strib)))
+        endif
 
 C   ... Write true potential to file vtrue.ib
         if (mod(job/10000,10) .eq. 2 .or. mod(job/10000,10) .eq. 3) then
