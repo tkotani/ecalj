@@ -1,4 +1,6 @@
 #!/bin/csh -f
+#for tatara in kyushu-u This is neglected in other cases.
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 ######## \epsilon calculation.
 set n = $0
 set nfpgw = ${n:h}

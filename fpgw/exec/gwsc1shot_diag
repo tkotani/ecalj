@@ -2,6 +2,8 @@
 # --------------------------------
 # self-consistent GW itteration using MPI.
 #---------------------------------
+#for tatara in kyushu-u This is neglected in other cases.
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 if(-e NoCore) then
   rm -f NoCore 
 endif

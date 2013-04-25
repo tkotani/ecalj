@@ -4,6 +4,8 @@
 # Required inputs are 
 #   ctrl.si rst.si GWinput (ANFcond)
 #---------------------------------------------
+#for tatara in kyushu-u This is neglected in other cases.
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 set n = $0
 set nfpgw = ${n:h}
 if ($#argv != 1) goto usage

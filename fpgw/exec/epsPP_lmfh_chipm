@@ -1,4 +1,6 @@
 #!/bin/tcsh 
+#for tatara in kyushu-u This is neglected in other cases.
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 ### MPI version 
 if($# != 3 |$argv[1] != "-np" ) then
   echo "  An example of usage: eps_lmfh_chipm -np 4 si"

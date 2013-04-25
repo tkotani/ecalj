@@ -3,7 +3,7 @@
 # self-consistent GW itteration using MPI.
 #---------------------------------
 #for tatara in kyushu-u This is neglected in other cases.
-#if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 if($# != 4 ) then
   echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
   exit

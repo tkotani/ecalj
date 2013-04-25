@@ -294,9 +294,9 @@ c$$$                     write(*,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,
             end do
          end do
       end do
+      write(6,"('MPI__sxcf_rankdivider: nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
       
       allocate( vtotal(0:mpi__size-1) )
-
       vtotal(:) = total/mpi__size
 
       do p=1, mod(total,mpi__size)
