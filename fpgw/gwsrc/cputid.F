@@ -181,7 +181,8 @@ c ifile = 0 ==> screen
            enddo 
          endif 
       enddo
-      call flush()
+!! flush here is commented because tatara@kyushu-u cause seg fault. apr2013takao
+c      call flush()
       call mpi__barrier()
       end subroutine print_realtimediff
 
