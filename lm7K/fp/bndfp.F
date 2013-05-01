@@ -203,7 +203,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 #if MPE
       include "mpef.h"
 #endif
-      integer numprocs, ierr, status(MPI_STATUS_SIZE)
+      integer ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
       integer resultlen
@@ -399,7 +399,7 @@ ctakao
       logical:: lfill=.false.,ixx,master_mpi,master_mpiset
       integer,allocatable:: ndimhx_(:),nev_(:)
       character(120):: vbmlll
-      integer:: npri,ibas,ifiqb,ifiwv,lmxa
+      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs
       
 
       call tcn ('bndfp')
@@ -479,6 +479,7 @@ c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is
 
 
 !! === MPI Setup continue===
+      numprocs=1 !when no MPI
 #if MPI | MPIK
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -1359,7 +1360,7 @@ c     print *,' m2222 procid=',procid
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
      .         , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .         , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
-     .         ,nk1,nk2,nk3,sfz,sigmamode,ndimsig)
+     .         ,nk1,nk2,nk3,sfz,sigmamode,ndimsig, numprocs,procid,master)
         deallocate(spotx)
         call tcx('bndfp')
         call rx0('bndfp') !exit program here normally.

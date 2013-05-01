@@ -65,6 +65,12 @@ c----------------------------------------------
       integer,allocatable:: nhqx(:,:)
       integer:: nz,ntqmin, nmto,ndimsig,ndimsig2
 
+      integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_
+      character*256:: extn,ext
+      character*256,allocatable:: extp(:)
+      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+c-----------------------------------------------------------------------
+
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c     logical :: core3ptest=.false. ! This is for test for NiO_bigbas
 c     ! Project out the 3p(LDA) part from Sigma-Vxc.
@@ -193,10 +199,6 @@ c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
 
       if(jin == -101) goto 9998
 
-      open(UNIT=3007,file='v_xc',form='UNFORMATTED',status='OLD') !sf.beg
-      ifv_xc=3007
-      open(UNIT=3008,file='evec',form='UNFORMATTED',status='OLD')
-      ifevec=3008               !sf.end
 c-----------reading self-energy mode parameter from file 'GWIN_V2'
       call readd_iSigma_en(ifinin,iSigma_en) !sf..21May02
       if(isigma_en==5) then     !.or.core3ptest) then
@@ -211,10 +213,49 @@ cccccccccccccccccccccccccc
           if(isigma_en==5) open(ifevecchk,file='evecfix.chk')
         endif
       endif
-c-----
-      read(ifv_xc) ndimh, nsp,nnn !sf.beg
+
+
+!! === readin lmfgw_kdivider, and get extensions === apr2013
+      ifiproc=4001
+      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
+      read(ifiproc,*) ext
+      read(ifiproc,*) nqixx, nspxx, nrank
+      allocate(iprocq(nqixx,nspxx))
+      do isp=1,nspxx
+      do iqq=1,nqixx
+        read(ifiproc,*) iqqxx, ispxx, ixxx
+        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+        if(ispxx/=isp) stop 'ispxx/=isp'
+        iprocq(iqq,isp) = ixxx
+        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+      enddo
+      enddo
+      close(ifiproc)
+!! for multiple files
+      allocate(extp(0:nrank-1),ifvxc__(0:nrank-1),ifevec__(0:nrank-1))
+      extp(0) = trim(ext)
+      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+      do procid=1,nrank-1
+        write(extn,"(i10)") procid
+        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+      enddo
+      ixx=5001 
+      do procid=0,nrank-1
+        ixx=ixx+1
+        open(ixx,file='vxc'//extp(procid),form='unformatted')
+        ifvxc__(procid)=ixx
+        ixx=ixx+1
+        open(ixx,file='evec'//extp(procid),form='unformatted')
+        ifevec__(procid)=ixx
+      enddo
+!!---------------------------------------------------------------------
+
+      ifvxc_ = ifvxc__(0)
+      ifevec_= ifevec__(0)
+      read(ifvxc_) ndimh, nsp,nnn !sf.beg
       if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
-      read(ifevec) ndimhx, nspx,nnnx
+      read(ifevec_) ndimhx, nspx,nnnx
       nhq=ndimh
 
       print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
@@ -231,13 +272,21 @@ c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
       if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
       allocate(nhqx(nnn,nspin))
 c     print *,' nnn =',nnn
+
+      iqq=0
       do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
+        iqq=iqq+1
         do is=1,nspin
-          read(ifv_xc) nz,nmto    !june209 takao nhqx is true dimension which is dependent on q. nmto(not iq,is is dependent) is MTO dimension.!2012sep
+!!
+          ifvxc_  = ifvxc__ (iprocq(iqq,is)) 
+          ifevec_ = ifevec__(iprocq(iqq,is)) 
+
+          read(ifvxc_) nz,nmto    ! june209 takao nhqx is true dimension which is dependent on q. 
+                                  ! nmto(not iq,is is dependent) is MTO dimension.!2012sep
           print *, ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
-          read(ifv_xc) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
-          read(ifevec) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
+          read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
+          read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
           if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
      &           stop 'hqpe: qqq/=qqqx'

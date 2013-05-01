@@ -2,8 +2,7 @@
 # --------------------------------
 # self-consistent GW itteration using MPI.
 #---------------------------------
-#for tatara in kyushu-u This is neglected in other cases.
-if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh ##for tatara in kyushu-u This is neglected in other cases.
 if($# != 4 ) then
   echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
   exit
@@ -23,6 +22,7 @@ echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 if(-e NoCore) then #backword compatibility not so meaningful now.
   rm -f NoCore 
 endif
+
 if(-e QPU) then
  rm -f QP[UD]
 endif
@@ -80,8 +80,6 @@ endif
 #echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
 set exinfo = $?
-ln -s -f vxc.$TARGET  v_xc
-ln -s -f evec.$TARGET evec
 if($exinfo == 0 ) then
   echo " OK! lmfgw mode=1 "
 else
@@ -90,7 +88,8 @@ else
   exit
 endif
 
-echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+#echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+$nfpgw/lmf2gw    > llmf2gw
 
 ############## main gw stage fpgw/exec ################
 echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
@@ -112,7 +111,6 @@ echo 1|$nfpgw/hchknw         >lchknw
 echo 3|$nfpgw/hbasfp0 >lbasC
 # -- Coulobm matrix
 echo 3|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
-
 # -- the self energy from core1
 echo 3| mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsxC
 
@@ -120,10 +118,8 @@ echo 3| mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsxC
 echo 0|$nfpgw/hbasfp0  >lbas
 # -- Coulobm matrix
 echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc	
-
 # -- Sergey.F the exchange self energy from valence core2+valence elctrons 
 echo 1|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
-
 # -- Sergey.F the screened coulom interaction 
 if(-e WV.d) then
   rm -f WV* 

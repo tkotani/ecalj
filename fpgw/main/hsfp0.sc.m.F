@@ -192,7 +192,6 @@ c     integer:: nbmx
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
-      integer:: irank,nrank
 
 !     !
       integer,allocatable:: nrkip_all(:,:,:,:),nrkip(:,:,:,:)
@@ -216,6 +215,14 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       real(8):: eftrue,esmref !jan2013
       real(4):: time_red1,time_red2
       integer:: timevalues(8) 
+
+      integer:: procid,nrankv,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_,ifiproc,iqqxx,
+     &  isp,ixx,ixxx,nqixx,nspxx,ispxx
+      character*256:: extn,ext
+      character*256,allocatable:: extp(:)
+      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+c-----------------------------------------------------------------------
+
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -1003,7 +1010,6 @@ c     print *,' iqq kr irk =',iqq,kr,irkip_all(is,kx,igrp,iqq),nrkip_all(is,kx,i
          enddo  
 c     
          do iqq=1,nq
-            print *,'xxxxxxxxxxxxxxxxxxxxxxxx hsfp0_sc xxxxxxxxxxxxxxxxxxxxxxxxx'
             write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")
      &           iqq,sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
             write(6,"('eibz: iqq sum(nrkip_all)=nqbz  ',i3,3f11.5,3i3)")
@@ -1031,7 +1037,6 @@ c
          enddo
       endif
 
-
 cccccccccccccccccccccccccccccccccccccccc
 c     do is = 1,nspinmx
 c     do iqq=1,nq
@@ -1041,30 +1046,9 @@ c     enddo
 c     enddo
 c     nrkip=nrkip_all
 cccccccccccccccccccccccccccccccccccccccc
-c     stop 'xxxxxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx111'
 
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!     ! test for single rank case
-      nrank=1                   !total number of rank
-      irank=0                   !rank for local process
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c$$$!! 9dec2012
-c$$$            ifiwqfac = iopen('WQFAC',0,-1,0)
-c$$$            read(ifiwqfac) nnn
-c$$$            if(nnn/=nqbz) stop 'hsfp0_sc: readin nnn WQFAC/= nqbz'
-c$$$            allocate( wqfac(nnn),qbzwww(3,nnn) )
-c$$$            read(ifiwqfac) wqfac,qbzwww
-c$$$            ifiwqfac = iclose('WQFAC')
-c$$$            do i=1,nqbz !! check          
-c$$$               if(sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6) then
-c$$$                  stop 'hsfp0_sc:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
-c$$$               endif
-c$$$            enddo
-c$$$
 
 !     ! nrkip is weight correspoinding to irkip for a node.
       nrkip = nrkip_all         !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
@@ -1101,32 +1085,12 @@ c     loop over spin ----------------------------------------------------
      &           '           In(Sc) 3-points (in eV)                Zfactor(=1)'
          endif
          endif
-c     initialise secq and kount
          zsec  = 0d0
          coh   = 0d0
          kount = 0
          nbandmx(:,is) = 0 ! MIZUHO-IR  moved here for nctot=0 3rdNov2012
-
-!     ! ip is for to specify k point for which we calculate \Sigma.
          if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
-c$$$  do 1001 ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
-c$$$  call readeval(q(1,ip),is,eq)
-c$$$  do i  = 1,ntq
-c$$$  omega(i) = eq(itq(i)) !sf 21May02 + 2d0*(dble(iw)-shtw)*deltaw
-c$$$  enddo
-c$$$  if(nctot==0) then !this is to override -Mbounds check
-c$$$  deallocate(ecore)
-c$$$  allocate(ecore(1,2)) !this is dummry
-c$$$  endif
-c     if(debug) write(6,*) "goto sxcf_fal3_scz"
 
-c     call sxcf_fal3_scz (kount, ip,q(1,ip),itq,ntq,ef,esmr,
-
-!! 9dec2012 multipy integration weight!
-c         allocate(wbzz(nqbz))
-c         wbzz(1:nqbz) = wbz(1:nqbz) !* wqfac(1:nqbz) 
-         
-c         print *,'ntq=',ntq
 !TIME1 "before sxcf_fal3_scz"
 !TIME0
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
@@ -1177,18 +1141,9 @@ c         deallocate(wbzz)
 !TIME1 "reduction nbandmx end"
       write(*,*)'time(MPI__AllreduceMax)=',time_red2-time_red1
 
-c     if(debug) write(6,*) "end of sxcf_fal3_scz"
-c     1001   continue            !end of q-loop
-
-c     check that all k { FBZ have been included
-c     if (ivsum(kount,nqibz*nq) /= nqbz*nq) then
-c     iii = ivsum(kount,nqibz*nq)
-c     print *," ivsum=",iii, nqbz*nq
-c     stop 'hsfp0: missing k-pts'
-c     endif
 c---------------------------------
-c     electron gas bare exchange (exact)
 !TIME0
+!!     electron gas bare exchange (exact)
          if (legas.and.exchange) then
             efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
             pi         = 4.d0*datan(1.d0)
@@ -1210,7 +1165,6 @@ c     electron gas bare exchange (exact)
                write (6,"(' === diff     =',2f14.6)") 
      &              rydberg()*(qm**2-efz)-eqx(1,ip,is)
      &              , xsex - hartree*dreal(zsec(1,1,ip)) !sf 21May02
-
                write (661,"(' qm True qm-ef Sx=',3f14.6)") 
      &              qm,rydberg()*(qm**2-efz), xsex
                write (662,"(' qm Num  qm-ef Sx=',3f14.6)") 
@@ -1223,39 +1177,77 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
          endif
 !TIME1 "end legas exchange"
  2001    continue
-
 !TIME0 
+
 !     ! --- symmetrize zsec for eibz4sig mode. Sep2012 -----------------
 !     !     Rotate zsec(itp,itp)
-!     ! init_readeigen init_readeigen2 are already called.--> we can use rotwvigg
-!     ! zsec(ntq,ntq,nq)
          allocate( zsect(ntq,ntq))
-         ifevec=3008
-         ifvxc =3009
-         open(UNIT=ifevec,file='evec',form='UNFORMATTED',status='OLD')
-         open(UNIT=ifvxc,file='v_xc' ,form='UNFORMATTED',status='OLD')
+
+
+!! === readin lmfgw_kdivider, and get extensions === apr2013
+         ifiproc=4001
+         open(unit=ifiproc,file='lmfgw_kdivider',status='old')
+         read(ifiproc,*) ext
+         read(ifiproc,*) nqixx, nspxx, nrankv
+         if(allocated(iprocq)) deallocate(iprocq)
+         allocate(iprocq(nqixx,nspxx))
+         do isp=1,nspxx
+            do iqq=1,nqixx
+               read(ifiproc,*) iqqxx, ispxx, ixxx
+               if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+               if(ispxx/=isp) stop 'ispxx/=isp'
+               iprocq(iqq,isp) = ixxx
+               write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+            enddo
+         enddo
+         close(ifiproc)
+!! for multiple files.
+         if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
+         allocate(extp(0:nrankv-1),ifvxc__(0:nrankv-1),ifevec__(0:nrankv-1))
+         extp(0) = trim(ext)
+         write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+         do procid=1,nrankv-1
+            write(extn,"(i10)") procid
+            extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+            write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+         enddo
+         ixx=5001 
+         do procid=0,nrankv-1
+            ixx=ixx+1
+            open(ixx,file='vxc'//extp(procid),form='unformatted')
+            ifvxc__(procid)=ixx
+            ixx=ixx+1
+            open(ixx,file='evec'//extp(procid),form='unformatted')
+            ifevec__(procid)=ixx
+         enddo
+!!-----------------------------------------------------------
+
+
+         ifvxc_ = ifvxc__(0)  !0 is root
+         ifevec_= ifevec__(0)
+         read(ifevec_)  ndimhx, nspx,nnnx 
+         read(ifvxc_)            !skip ndimh, nsp,nnn
          allocate(evaliq(nband),iblki(nband),iblke(nband))
-         read(ifevec)  ndimhx, nspx,nnnx !See hqpe.sc.m.F and GW-driver in lm7K/fp/sugw.F
-c         if(nnnx/=nq) stop 'hsfp0_sc: readin number of qibz from evec is not equal to nq.'
-         read(ifvxc)            !ndimh, nsp,nnn
-!
+
 !TIME1 "end of allocate zsect"
 !TIME0
+         iqq=0  !iqq is to read multiple vxc.* evec.*
          do 3020 iq=1,nq !nq means iq for which we will calculate sigma
-c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given in evec v_xc.
-            do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
-
-               if(ispx==is) then !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
-                  read(ifvxc)  nhdim,ldim
-                  read(ifvxc)
-!KINO                  print *,'iq is nhdim ldim nband ntp=',iq,is,nhdim,ldim,nband,ntq
+            iqq=iqq+1
+         do 3030 ispx=1,nspinmx !ispx loop is to find isx=is
+            ifvxc_  = ifvxc__ (iprocq(iqq,ispx)) 
+            ifevec_ = ifevec__(iprocq(iqq,ispx)) 
+               if(ispx==is) then 
+                 !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
+                  read(ifvxc_)  nhdim,ldim
+                  read(ifvxc_)
                   allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
-                  read(ifevec) qqqx(1:3), evec(1:nhdim,1:nhdim)
+                  read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim)
                   zsect = 0d0
                else             !skip isx/=is. Need to get access sequential files evec and v_xc.
-                  read(ifvxc)  
-                  read(ifvxc)  
-                  read(ifevec)
+                  read(ifvxc_)  
+                  read(ifvxc_)  
+                  read(ifevec_)
                   cycle
                endif  
                do i=1,nnnx  !nq     !qqqx from evec v_xc.
@@ -1265,9 +1257,7 @@ c         do 3020 iq=1,nnnx is the irreducible k points . The same as that given
                   endif  
                enddo  
                deallocate(evec,evec_inv,evecrot)
-c               cycle !takao think this should be commented out 26mov2012
                stop 'hsfp0_sc: bug:qqqx can not find ...'
-
  3011          continue
 
                if(tiii) stop 'timereversal is not yet implemented'
@@ -1279,20 +1269,19 @@ c               cycle !takao think this should be commented out 26mov2012
                do it=1,1        !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
                   do igrp=1,ngrp !A-rotator
                      if( eibzsym(igrp,it,iqxx)==0) cycle
-!KINO                     print *,' igrp in nsym=',igrp,nsym !this line was requied to avoid (probably bug in ifort12).
-                                !evecout= symgg(ig)*evec
                      nblk=0
                      iblki=0
                      iblke=0
                      iblki(1)=1
-!     ! degeneracy divider for evaliq. See How to apply EIBZ to 
-!     ! Is this procedure really make speed up so much?
+!!  degeneracy divider for evaliq. See How to apply EIBZ to 
+!! Is this procedure really make speed up so much?
                      tolry= 0.2d0 !Degeneracy tol. if tolry is large, 
-                                !larger tolry is safer, although a little inefficient.
-                                !If tolry is too small to divide degenerated values to different blocks --> then we have wrong results.
+!! larger tolry is safer, although a little inefficient.
+!! If tolry is too small to divide degenerated values to different blocks --> then we have wrong results.
                                 !(NOTE that Hamiltonian can be not so symmetric in some reasons) 
                      nbsizemx=0
-                     do iband=2,nbandmx(iqxx,is) ! nbandmx is the number of bands for which we calculate self-energy.
+                     do iband=2,nbandmx(iqxx,is) 
+                                ! nbandmx is the number of bands for which we calculate self-energy.
                                 ! We assume nbandmx(iqxx,is) is well separated for degeneracy.
                         if(evaliq(iband) > evaliq(iband-1)+tolry 
      &                       .or.iband==nbandmx(iqxx,is)) then
@@ -1307,20 +1296,6 @@ c               cycle !takao think this should be commented out 26mov2012
                            if( nbsize>nbsizemx ) nbsizemx = nbsize
                         endif
                      enddo      ! iband
-
-ccccccccccccccccccccccccccccccccc
-!     ! this is for block conversion. If 
-c     do iblk1=1,nblk  
-c     ii1=iblki(iblk1)
-c     ie1=iblke(iblk1) 
-c     write(6,"(' eval block iblk ini iend= ',3i3,25f9.4)") iblk1,ii1,ie1,evaliq(ii1:ie1)
-c     enddo  
-ccccccccccccccccccccccccccccccccc
-
-ccccccccccccccccccccccccccccccccccccccccc
-c               print *,'mpi__rank ispx=',mpi__rank,iq,ispx,igrp
-ccccccccccccccccccccccccccccccccccccccccc
-
 !     ! rotation of evec. Generate evecrot. (Within degenerated block, evec are mapped).e
                      allocate(rmatjj(nbsizemx,nbsizemx,nblk))
                      napw=nhdim-ldim
@@ -1351,40 +1326,26 @@ ccccccccccccccccccccccccccccccccccccccccc
                   enddo         ! igrp
                enddo            ! it
                deallocate(evec, evec_inv, evecrot)
-ccccccccccccccccccccccccccc
-c            print *,'test cycle'
-c            cycle
-ccccccccccccccccccccccccccccc
-
-
                zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
                call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
  3030       continue            ! ispx
-
  3020    continue               ! iq
 !TIME1 "end 3020 loop"
 
-         close(UNIT=ifevec)
-         close(UNIT=ifvxc)
-         deallocate(iblki,iblke)
-         deallocate(evaliq)
-         deallocate(zsect)
-
-c     stop 'xxxxxxxxxxxxxxxxx test end eibz hsfp0 xxxxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ixx=5001
+      do procid=0,nrankv-1
+        ixx=ixx+1
+        close(unit=ixx)
+        ixx=ixx+1
+        close(unit=ixx)
+      enddo
+      deallocate(iblki,iblke)
+      deallocate(evaliq)
+      deallocate(zsect)
 
 !TIME0 
          if(mpi__root) then
-c     write SEx(q,t)
-c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
          if(exchange) then
-c     do       ip = 1,nq
-c     call wsex2 (ifsex(is),q(1:3,ip),itq(1:ntq),eqx(1:ntq,ip,is),
-c     &              hartree*dreal(zsec(-1,1:ntq,ip)), !sexq(1:ntq,ip),
-c     d              ntq)
-c     end do
-c     
-c-------------------------
             ifoutsex=ifsex(is)
             write(6,*)
             do ip = 1,nq
@@ -1401,32 +1362,10 @@ c-------------------------
                end do
                write(ifsex2(is)) is, q(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
             end do
-c-------------------------
          elseif(ixc==2) then
-c     write SEc(qt,w)
-c     write (ifsec(is),*)' '
-c     write (ifsec(is),6500) is,nbloch,deltaw,ef
-c     do      ip = 1,nq
-c     call wsec2 (ifsec(is),is,q(1,ip),itq(1:ntq),
-c     i              eqx(1:ntq,ip,is),deltaw,nbloch,
-c     i              dreal(zsec(:,:,ip)), dimag(zsec(:,:,ip)),
-c     d              3,ntq,nband)
-c     end do
-c     
-c-------------------------
             ifoutsec=ifsec(is)
             do ip = 1,nq
                do i  = 1,ntq
-ccccccccccccccccccccccccccccccfaleev 21May02
-c     dscdw1  = (dreal(zsec(1,i,ip)) - dreal(zsec(0,i,ip)))
-c     &             /deltaw
-c     zfac1   = 1d0/(1d0-dscdw1)
-c     dscdw2  = (dreal(zsec(0,i,ip)) - dreal(zsec(-1,i,ip)))
-c     &             /deltaw
-c     zfac2   = 1d0/(1d0-dscdw2)
-c     dscdw  = (dreal(zsec(1,i,ip)) - dreal(zsec(-1,i,ip)))
-c     &             /(2d0*deltaw)
-c     zfac   = 1d0/(1d0-dscdw)
                   if( eqx(i,ip,is)<1d20.and.abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
                      write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &                    '  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") !sf 21May02
@@ -1434,71 +1373,20 @@ c     zfac   = 1d0/(1d0-dscdw)
      &                    hartree*dreal(zsec(i,i,ip)), !sf 21May02
      &                    hartree*dimag(zsec(i,i,ip)) !,zfac,zfac1,zfac2  !sf 21May02
                   endif
-                  write(ifoutsec,"(3i5,3d24.16,3x,d24.16,3x,d24.16, 
-     &                 3x,d24.16)")
+                  write(ifoutsec,"(3i5,3d24.16,3x,d24.16,3x,d24.16, 3x,d24.16)")
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &                 hartree*dreal(zsec(i,i,ip)), !sf 21May02
      &                 hartree*dimag(zsec(i,i,ip)) !,zfac,zfac1,zfac2  !sf 21May02
-cccccccccccccccccccccfaleev 21May02
-c     if(cohtest) then
-c     write(671,"( i3,i4,i2, 3f8.4,
-c     &     '  eig=',f8.4,'  coh =',f10.4)")
-c     &     itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
-c     &     hartree*coh(i,ip)
-c     endif
-ccccccccccccccccccccc
                end do
                write(ifsec2(is)) is, q(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
             end do
-c-------------------------
-cccccccccccccccccccccccccfaleev 21May02 do not use ixc==4
-c     elseif(ixc==4) then !spectrum mode
-c     ifoutsec=ifsecomg(is)
-c     do ip = 1,nq
-c     do i  = 1,ntq
-c     write(6,"(' --- j iq isp=' i3,i4,i2,' q=',3f8.4,
-c     &     ' eig=',f8.4)")
-c     &      itq(i),ip,is, q(1:3,ip), eqx(i,ip,is)
-c     do iw = iwini,iwend
-c     write(6,"(' omega-ef=',f8.4,'  Sc=',2f8.4)")
-c     &     (omega(i,iw)-ef)*rydberg(), hartree*zsec(iw,i,ip)
-c     
-c     write(ifoutsec,"(4i5,3d24.16,3x,d24.16,
-c     &     2x,d24.16,x,2d24.16)")
-c     &     iw,itq(i),ip,is, q(1:3,ip), eqx(i,ip,is)
-c     &     ,(omega(i,iw)-ef)*rydberg(),  hartree*zsec(iw,i,ip)
-c     end do
-c     write(ifoutsec,*)
-c     write(6,*)
-c     end do
-c     end do
          endif                  !ixc
          endif  !mpi__root
 !TIME1 "before 2000 continue"
  2000 continue                  !end of spin-loop
 
-
-
-c------------
-c     close files
-c------------
-      isx = iclose ('wc.d')
-      isx = iclose ('wci.d')
-      isx = iclose ('hbe.d')
-c     isx = iclose ('RBU')
-c     isx = iclose ('CBU')
-c     isx = iclose ('RHBU')
-c     isx = iclose ('CHBU')
-c     isx = iclose ('EVU')
-c     isx = iclose ('RBD')
-c     isx = iclose ('CBD')
-c     isx = iclose ('RHBD')
-c     isx = iclose ('CHBD')
-c     isx = iclose ('EVD')
-c     isx = iclose ('CPHI')
-
 !TIME0 
-C     --- EXspectrum ----------------------------------------------------
+!!   --- EXspectrum ----------------------------------------------------
 c     This section is similar with efsimplef.f
       if(sum(ifexsp(1:nspin))/=0) then
          do is = 1,nspin
@@ -1582,26 +1470,15 @@ c
          print *,' End of ExSpectrum section ---'
       endif
 !TIME1 "end of exspectrum"
-c-------------------------------------------------------------------------------
-
-c     formats
-c     6500 format (' spin =',i2,'   nbloch =',i4,'  deltaw =',f7.4,' a.u.',
-c     .'   ef=',f10.5,' Rydberg' )
-c     
 !TIME1 "end program"
 !TIMESHOW 
+      isx = iclose ('wc.d')
+      isx = iclose ('wci.d')
+      isx = iclose ('hbe.d')
       call cputid(0)
-
-      call MPI__Finalize ! MIZUHO-IR
-
-c     if(ixc==1.and.sergeys)stop " OK! hsfp0: Sergey's Exchange mode"
-c     if(ixc==2.and.sergeys)stop " OK! hsfp0: Sergey's Correlation mode"
+      call MPI__Finalize 
       if(ixc==1 ) stop ' OK! hsfp0_sc: Exchange mode'
       if(ixc==2 ) stop ' OK! hsfp0_sc: Correlation mode'
       if(ixc==3 ) stop ' OK! hsfp0_sc: Core-exchange mode'
-c     if(ixc==4 ) stop ' OK! hsfp0: spectrum mode'
-
-
-
       end program hsfp0_sc 
 

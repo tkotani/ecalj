@@ -77,13 +77,6 @@ endif
 
 echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 set exinfo = $?
-
-
-ln -s -f vxc.$TARGET  v_xc
-ln -s -f evec.$TARGET evec
-#cp sigm.$TARGET sigm_in
-#@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
-#echo $exinfo
 if($exinfo == 0 ) then
   echo " OK! lmfgw mode=1 "
 else
