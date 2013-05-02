@@ -48,7 +48,7 @@ echo 2|$nfpgw/qg4gw  >lqg4gw02
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw_eigval
+  echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
   mv eigval eigmtet
 endif
 
@@ -56,7 +56,7 @@ endif
 #echo 1 | $nfpgw/ng0  >lng01
 #echo 2 | $nfpgw/ng0  >lng02
 #$nfpgw/nfp4gw        >lnfp4gw
-echo 1 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw01
+echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 #echo $?
 #set exinfo = `echo $?`

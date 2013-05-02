@@ -313,7 +313,7 @@ ccccccccccccccccccccccccccccc
 c> check completeness of optimal product basis
       read(ifi,6000)blank
       read(ifi,*)lcutmx
-      print *,' --- prod section: tolbas lcutmx=',tolbas,lcutmx
+      write(6,"(' --- prod section: lcutmx tolbas='i3,100d11.3)") lcutmx,tolbas
 c      print *,' nclass nl-1=',nclass,nl-1
 c> n index for valence and core
       read(ifi,6000)blank

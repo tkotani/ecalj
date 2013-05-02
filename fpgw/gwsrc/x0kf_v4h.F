@@ -278,10 +278,11 @@ C... loop over k-points
         if(sum(nbnb(k,1:npm))==0) cycle
 !TIME0 "start do 1000"
         if(k<=5) then
-          write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4,$)")k, rk(:,k)
+          write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
-        elseif(mod(k,10)==1.or.k==nqbz) then
-          write(6,"(' x0kf_v4hz: k rk=',i4,3f10.4)")k, rk(:,k)
+        elseif(mod(k,max(10,nqbz/20))==1.or.k==nqbz) then
+          write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
+          call cputid(0)
         endif
 c     
 
@@ -336,9 +337,9 @@ c        nkmax  = 0;  nkqmin = nband + nctot   ! for sanity check
 ! There is a little confusion. n1b index contains cores are after valence.
 ! You can see codes to treat the confusion.
 
-        if(ipr) then
-          write(6,"(' nkRange  nkqRange=',2i6,2x,2i6)") nkmin,nkmax,nkqmin,nkqmax
-        endif
+c        if(ipr) then
+c          write(6,"(' nkRange  nkqRange=',2i6,2x,2i6)") nkmin,nkmax,nkqmin,nkqmax
+c        endif
 
 C --- calculate the matrix elements <psi(k+q,t') | psi(k,t) B(R,i)>
 C ... core
@@ -788,7 +789,7 @@ c         write(6,"(' diag sum iw rcxq=',i5,2d13.5)") iw,aaa
 c         enddo
 c       endif
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
-        if(ipr) write(6,*)
+c        if(ipr) write(6,*)
         !write(*,'("2 after ibib",$)') !..............sf 21May02
         !    call cputid(0)
  1000 continue
@@ -1039,7 +1040,7 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
       endif  
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)
-      print *,' x0kf_v4hz: end'
+      write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
 
 
@@ -1111,7 +1112,7 @@ c      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
 
 c        if(verbose()>89) debug=.true.
 c ------------------------------------------------
-        write(*,'(" dpsion5: start...   ",$)')
+        write(*,'(" -- dpsion5: start...   ",$)')
         write(*,"('  nw_w nwhis=',2i5)") nw_w,nwhis
         if(debug) then
           write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
@@ -1251,7 +1252,7 @@ C--- realomega case
           rmatt = rmatt/pi ; if(debug) print *,'dpsion5: RRR 6666'
 
 !! takao remove if(nolfc) block here.
-          write(6,*) " --- realomega dgemm--- "
+c          write(6,*) " --- realomega dgemm--- "
 
 
 !! WARN! I think npm==2.and.chipm does not make sense. apr2012.

@@ -1290,8 +1290,9 @@ c         write(6,"('iq q=',i5,3f9.4,' qx(VCCFP)=',3f9.4)")iq,q,qx
 c         stop 'hx0fp0: VCCFP is not compatible'
 c         endif
 c        endif
-        write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q !qq
-        print *,'nbloch ngb ngc=',nbloch,ngb,ngc
+        print *
+        write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
+        write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 
 
 !! === readin diagonalized Coulomb interaction ===
@@ -1318,7 +1319,6 @@ c         enddo
           idummy=iclose(trim(vcoudfile))
           vcousq=sqrt(vcousq)
         endif
-        print *,'zzzzzzzzzzz1'
       
 !! ==== nolfco is overlaid ====
 c commentout block inversion
@@ -1371,7 +1371,6 @@ ccccccccccccccccccccccccccccccccccccccccccccc
 
 !! ==== set up for epsilon mode =====
         if(epsmode) then !iepsmode/=0) then      ! only calculate iq>nqibz
-           print *,'vvvvvvvv goto epsmode xxxxxxxxx'
 c          if(iq<=nqibz) then
 c            deallocate(vcoul)
 c            cycle  !Cycle here
@@ -1461,10 +1460,7 @@ c            write(ifchipmn_mat,"(255d23.15)") eiqrm(1:nmbas)!if necessary, fix 
           endif
         endif
 
-           print *,'vvvvvvvv goto epsmode xxxxxxxxx222222222'
-
         if(epsmode.and.nolfco) then !iepsmode==202) then
-c          allocate( rcxq(1,1,1,npm) )
           rcxqmean=0d0
         else
           write(6,*) "rcxq alloc ngb nwhis npm ---",ngb,nwhis,npm
@@ -1487,8 +1483,7 @@ c          allocate( rcxq(1,1,1,npm) )
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
         do 1003 is = 1,nspinmx
-          write(6,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')") 
-     &    iq, is, nqibz + nq0i,nspin
+          write(6,"(' ***** ',2i4,' out of nqibz+n0qi nsp=',2i4,' ******** ')")iq, is, nqibz + nq0i,nspin
           if(debug) print *,' niw nw=',niw,nw
 !! ==== spin chi_charge or chi_+- ====
           isf=is
@@ -1508,7 +1503,7 @@ C ---  tetraini block tetra==.true.===============================1ini
 !  jb=n2b  : band index for unocc. 1\ge n2b \ge nband
 !  wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
           if(tetra) then
-            write(6,"(' tetra mode niw nw nwhis=',3i5)") niw,nw,nwhis
+            write(6,"('  tetra mode niw nw nwhis=',3i5)") niw,nw,nwhis
 C ... kqxx(kx) ekxx ---
 !    ekxx1  for  rk
 !    ekxx2  for q+rk.  See tetwt4
@@ -1721,14 +1716,14 @@ C --- METHOD (tetwt5) for the tetrahedron weight
 !     nwp=nw+1; frhis(1)=0
 ! takao-feb/2002
           if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
-          write(6,*)' --- Frequency  histogram  sections (a.u.)---- '
+c          write(6,*)' --- Frequency  histogram  sections (a.u.)---- '
           if(onceww(1)) then
             do ihis= 1, nwhis
               write(6,"(' ihis Init  End=', i4,2f13.6)")
      &        ihis,frhis(ihis),frhis(ihis+1)
             enddo
           endif
-          write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
+          write(6,"(' nbnbx nqbz= ',2i8)") nbnbx,nqbz
 C ... make index sets
           allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
           jhwtot = 1
@@ -1833,7 +1828,7 @@ c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
           newanisox=newaniso2
           if(chipm.and.nolfco) newanisox=.false.
-          print *, ' --- goto x0kf_v4hz ---- newaniso iq nqibz ixc= ',newanisox,iq,nqibz,ixc
+          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
           z1offd=.false.
 c          if(nolfco) then
 c             nmbas1x = nmbas1
@@ -1862,7 +1857,7 @@ c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,
 c     o    rcxqmean(:,:,1:nmbas1x,:), !output in the case of nolfco
      o    rcxqmean, !output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
-          print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
+c          print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !! complex conjugate part
 c          if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
 c            rcxqmean(:,:,2,:) =dconjg(rcxqmean(:,:,1,:))
@@ -1952,8 +1947,8 @@ c$$$c=========== Check write mode4 block end  ==============6end
 !! sergeyv=T only feb2012
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then
-            write(6,'("goto dpsion5: "
-     &        //"nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
+c            write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') 
+c        &   nwhis,nw_i,nw,niw,nmbas1,nmbas2
 c              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
 !! rcxqmean--->rcxq index conversion
             if(nolfco) then
@@ -1964,7 +1959,7 @@ c              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
               enddo
             endif
 !! nolfco mode in dpsion5 is removed.
-            print *,' -------- nmbas1,nmbas2=', nmbas1,nmbas2
+            write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
      i        rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
      o        zxq, zxqi,
@@ -1980,7 +1975,6 @@ c     o        x0mean)  ! x0mean is removed. zxq,zxqi are accumlating veriable f
           endif
           if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean   ',sum(abs(x0mean))
           if(epsmode.and.nolfco) print *,' end of dpsion5 sum x0mean11 ',sum(abs(x0mean(:,1,1)))
-
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
 !=======================================================================
@@ -2059,9 +2053,9 @@ c         write (ifrx) rxq,cxq
               write(6,*) '--- chi0_{+-}}^{-1}      --- '//ttt
             else
               write(6,*) '--- dielectric constant --- '//ttt
+              write(6, *)" trace check for W-V"
             endif
 c          elseif(ixc==1.or.sergeyv) then
-            write(6, *)" trace check for W-V"
           endif
 
 c C ... Get O^{1/2}= sqrt(ovlp)
@@ -2871,7 +2865,6 @@ c         print *,'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,
 ccccccccccccccccccccccccccc
 CYY!$OMP parallel 
 CYY!$OMP master
-         print *,' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
          if(mpi__size/=1) then
             do iq=nqibz+1,iqxend
                iq0 = iq - nqibz
@@ -2901,7 +2894,6 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
                endif
             enddo  
          endif
-         print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
 CYY!$OMP end master
 CYY!$OMP end parallel 
 
