@@ -884,7 +884,7 @@ c      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
          enddo
          ngp = ngpn(iq)
          ngc = ngcn(iq)
-         write(6,"(' iq=',i5,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)")
+         write(6,"(' iq=',i8,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)")
      &        iq, q, ngp, ngc, irr(iq),q0pf
          allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) !larger than 1. Aug2005
          call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunction

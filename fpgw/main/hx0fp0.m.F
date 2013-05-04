@@ -748,10 +748,10 @@ c        print *, ' read end of Mix0vec'
         !points nwp and frequensies in 'freq_r' file
         write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
         do iw= nw_i,-1
-          write(3111,"(d23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
+          write(3111,"(e23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
         enddo
         do iw= 0,nw
-          write(3111,"(d23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
+          write(3111,"(e23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
         enddo
         close(3111)
       endif
@@ -1103,8 +1103,8 @@ c     &    '    mcm(all)'
 c         endif
           mmnorm (imb) = sqrt(sum(svec(:,imb)**2))
           momsite(imb) = chg1-chg2
-c        write(6,"(' svecsum=',d23.15)") sum(svec(:,imb)**2
-c          write(ifchipmlog,"(2d23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
+c        write(6,"(' svecsum=',e23.15)") sum(svec(:,imb)**2
+c          write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
         enddo
 c        ifx= iclose('ChiPM.log')
@@ -1160,12 +1160,12 @@ c$$$            read(ifgb0vec,"(4d24.15)") zz1,zz2,zz3,zz4
 c$$$            gbvec(i)= dcmplx(zz1,zz2)
 c$$$            zzr(i,1)= dcmplx(zz3,zz4)
 c$$$          enddo
-c$$$          write(6,"(' normchk=',255d23.15)") sum( dconjg(gbvec)*zzr(:,1) )
+c$$$          write(6,"(' normchk=',255e23.15)") sum( dconjg(gbvec)*zzr(:,1) )
 c$$$     &        ,sum(abs(gbvec(:))), sum(abs(zzr(:,1)))
 c$$$            allocate(eiqrm(nmbas))
 c$$$            do imb=1,nmbas
 c$$$            eiqrm(imb)= sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )
-c$$$            write(6,"(' <eiqr|m> =',255d23.15)") eiqrm(imb)
+c$$$            write(6,"(' <eiqr|m> =',255e23.15)") eiqrm(imb)
 c$$$            if( imbas_s(imb)<-1) eiqrm(imb)= -eiqrm(imb)
 c$$$            enddo
 c$$$            write(6,"('<eiqr|m>:Set \pm in GWinput(for stuggard chi)')")
@@ -1178,7 +1178,7 @@ c$$$              ifchipm2=iopen(
 c$$$     &                 'ChiPM'//charnum4(iqixc2)//'.nolfc.mat',1,3,0)
 c$$$              do iw=1,10
 c$$$              read(ifchipm2,
-c$$$     &        '(36x,2x,20x,2x,255d23.15)') x0meanx(:,:)
+c$$$     &        '(36x,2x,20x,2x,255e23.15)') x0meanx(:,:)
 c$$$              write(6,'("xxx x0mat=",255d13.5)') x0meanx
 c$$$              x0matinv=x0meanx
 c$$$              call matcinv(nmbas,x0matinv)
@@ -1193,7 +1193,7 @@ c$$$
 c$$$              call matcinv(nmbas,x0mat) !this is full x0_+-
 c$$$              trr = sum( eiqrm*matmul(x0mat,dconjg(eiqrm)) ) !*mmnorm
 c$$$              write(6,
-c$$$     &        '("ttt",3f12.8,2x,f10.5,2x,2d23.15,2x,2d23.15)') q, 2*schi*frr, trr,1d0/trr
+c$$$     &        '("ttt",3f12.8,2x,f10.5,2x,2e23.15,2x,2e23.15)') q, 2*schi*frr, trr,1d0/trr
 c$$$              enddo
 c$$$            ifx=iclose(ifchipm2)
 c$$$ 1101  continue
@@ -1407,7 +1407,7 @@ c! NOTE: dnorm = \sum_I <eiqr|I><I|eiqr> = volume of unit cell (or sum of MT vol
 c            gbvec(i)= dcmplx(zz1,zz2)/dnorm
 c            zzr0(i) = dcmplx(zz3,zz4)/dnorm
 c          enddo
-c          write(6,"(' normchk=',255d23.15)") sum( dconjg(gbvec)*zzr0(:) )
+c          write(6,"(' normchk=',255e23.15)") sum( dconjg(gbvec)*zzr0(:) )
 !!
 c          if(chipm) then
 c            ii=0
@@ -1415,7 +1415,7 @@ c            do imb=1,nmbas
 c              ibas= imbas(imb) !dec26 2006 bug: imb--->ibas
 c              if(ibas>1) i= sum(nblocha(1:ibas-1))
 c              eiqrm(imb)= sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb) *dnorm
-c              write(6,"(' <eiqr|m>/|m| =',255d23.15)") eiqrm(imb)
+c              write(6,"(' <eiqr|m>/|m| =',255e23.15)") eiqrm(imb)
 c              if( imbas_s(imb)<-1) eiqrm(imb)= -eiqrm(imb)
 c           enddo
 c          endif
@@ -1434,9 +1434,9 @@ c            ifchipmn=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.dat',1,3,0)
             ifchipmn_mat=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.mat',1,3,0)
             write(ifchipmn_mat,"(255i5)") nmbas
             write(ifchipmn_mat,"(255i5)") imbas(1:nmbas)
-            write(ifchipmn_mat,"(255d23.15)") momsite(1:nmbas)
-            write(ifchipmn_mat,"(255d23.15)")  mmnorm(1:nmbas)
-c            write(ifchipmn_mat,"(255d23.15)") eiqrm(1:nmbas)!if necessary, fix code to give eiqrm. takaoAug2012
+            write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
+            write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
+c            write(ifchipmn_mat,"(255e23.15)") eiqrm(1:nmbas)!if necessary, fix code to give eiqrm. takaoAug2012
             write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')") 
             if(.not.nolfco) then
               ifchipm_fmat=iopen('ChiPM'//charnum4(iqixc2)//'.fmat',0,3,0)
@@ -2326,10 +2326,10 @@ c              print *,'ppppp sumcheck zxq=',sum(abs(zxq)),sum(abs(zzr)),sum(abs
 c               vcmean = fourpi/sum(q**2*tpioa**2) !aug2012
                 vcmean=vcousq(1)**2
                 epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
-                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2d23.15,3x, 2d23.15,
-     &          " vcmean x0mean =", 2d23.15,3x, 2d23.15)') iqixc2,iw,2*frr,
+                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15,
+     &          " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr,
      &          1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxq(1,1,iw)!x0mean(iw,1,1)
-                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2d23.15,2x,2d23.15)') 
+                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
      &          q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
                 if(.not.nolfco) then
                   ix=0
@@ -2347,10 +2347,10 @@ c               vcmean = fourpi/sum(q**2*tpioa**2) !aug2012
                   call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                   epsi(iw,iqixc2)= epstinv(1,1)
                   write(6,'( " iq iw omega eps epsi  wLFC="
-     &           ,2i6,f8.3,2d23.15,3x, 2d23.15)') 
+     &           ,2i6,f8.3,2e23.15,3x, 2e23.15)') 
      &            iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
                   write(6,*)
-                  write(ifepsdat,'(3f12.8,2x,d12.4,2d23.15,2x,2d23.15)') 
+                  write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
      &            q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
                 endif
               else   
@@ -2360,10 +2360,10 @@ c$$$                if(.not.nolfco) then
 c$$$                 x0mean(iw,1,1) = sum( dconjg(zzr(:,1))* matmul(zxq(:,:,iw),zzr(:,1)))
 c$$$                endif
 c$$$                epsi(iw,iqixc2) = 1d0/(1- vcmean * x0mean(iw,1,1))
-c$$$                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2d23.15,3x, 2d23.15,
-c$$$     &          " vcmean x0mean =", 2d23.15,3x, 2d23.15)') iqixc2,iw,2*frr,
+c$$$                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15,
+c$$$     &          " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr,
 c$$$     &          1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean,x0mean(iw,1,1)
-c$$$                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2d23.15,2x,2d23.15)') 
+c$$$                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
 c$$$     &          q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
 c$$$                if(.not.nolfco) then ! With LFC
 c$$$                  imode=2
@@ -2371,10 +2371,10 @@ c$$$                  call wcf( ngb, vcoul, zxq(1,1,iw), imode,
 c$$$     &                zw0) !  write(6,"('ssschk1=',3d13.5)") sum(abs(zw0)) sum(abs(gbvec))
 c$$$                  epsi(iw,iqixc2)= sum( dconjg(gbvec) * matmul(zw0,zzr(:,1)) )
 c$$$                  write(6,'( " iq iw omega eps epsi  wLFC="
-c$$$     &            ,2i6,f8.3,2d23.15,3x, 2d23.15)') 
+c$$$     &            ,2i6,f8.3,2e23.15,3x, 2e23.15)') 
 c$$$     &            iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
 c$$$                  write(6,*)
-c$$$                  write(ifepsdat,'(3f12.8,2x,d12.4,2d23.15,2x,2d23.15)') 
+c$$$                  write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
 c$$$     &            q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
 c$$$                endif   
               endif
@@ -2386,7 +2386,7 @@ C --- ChiPM mode
                    stop ' hx0fp0.m.F need to implement thigs here if required'
 ! --- three lines below may work for test purpose for legas. But not sure.
 c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
-c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2d23.15)')
+c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
 c     &            q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
                 else
                   x0meanx = x0mean(iw,:,:)/2d0  !in Ry unit.
@@ -2409,7 +2409,7 @@ C ... ChiPM mode with LFC... NoLFC part
      &            x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
                 enddo
               enddo
-              write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255d23.15)')q, 2*schi*frr, x0meanx(:,:)
+              write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')q, 2*schi*frr, x0meanx(:,:)
               if(.not.nolfco) write(ifchipm_fmat) q, 2*schi*frr, zxq(1:nbloch,1:nbloch,iw)
 
 c! These lines commented by "c! ' are histories ---> For Takao's memo. Maybe not so useful for others.
@@ -2432,9 +2432,9 @@ c!                   write(6,'(" eval(iw=0)=",i5,f15.5)') i1, -evall(i1)
 c!                 enddo
 c!                 jzero2 = minval(-evall)
 c!                 deallocate(evall)
-c!                 write(ifx,"(d23.15)")  jzero2
+c!                 write(ifx,"(e23.15)")  jzero2
 c!                 do imb=1,nmbas !temporary
-c!                   write(ifx,"(d23.15,' ! tttt temporary... U_mm in eV')")
+c!                   write(ifx,"(e23.15,' ! tttt temporary... U_mm in eV')")
 c!      &            rydberg()*jzero2*mmnorm(imb)**2/momsite(imb)**2
 c!                 enddo
 c!               elseif(iw==0) then
@@ -2459,7 +2459,7 @@ c!               enddo
 c!               call matcinv(nmbas,x0mat) !this is full x0_+-
 c!               trr = sum( eiqrm*matmul(x0mat,dconjg(eiqrm)) )
 c!               write(ifchipmn,
-c!      &        '(3f12.8,2x,f20.15,2x,2d23.15,2x,2d23.15)') q, 2*schi*frr, trr,1d0/trr
+c!      &        '(3f12.8,2x,f20.15,2x,2e23.15,2x,2e23.15)') q, 2*schi*frr, trr,1d0/trr
 c!               deallocate( x0mat,x0matinv)
 c!
 c! C--- With LFC ! save or read Istoner
@@ -2487,12 +2487,12 @@ c! c     i            nbloch, zxq(1:nbloch,1:nbloch,iw),
 c! c     o            SS0,UU0,VT0)
 c! c                  Istoner = -sum(UU0(:,1)*VT0(1,:))/ss0(1)
 c! c!                  do ii= 1,nbloch
-c! c!                    write(ifstoner,'(4d23.15)') UU0(ii,1),VT0(1,ii)
+c! c!                    write(ifstoner,'(4e23.15)') UU0(ii,1),VT0(1,ii)
 c! c!                  enddo
-c!                   write(ifstoner,"(d23.15)")
+c!                   write(ifstoner,"(e23.15)")
 c!      &             Istoner
 c!                   do imb=1,nmbas
-c!                     write(ifstoner,"(d23.15,'!tttt temporary U_mm in eV')")
+c!                     write(ifstoner,"(e23.15,'!tttt temporary U_mm in eV')")
 c!      &            Istoner*rydberg()*mmnorm(imb)**2/momsite(imb)**2
 c!                   enddo
 c!                 elseif(iw==0) then
@@ -2506,7 +2506,7 @@ c!                   mmat(i,i) = mmat(i,i) + 1d0
 c!                 enddo
 c! c                trr0 = sum( dconjg(zzr(1:nbloch,1))*
 c! c     &                      matmul( mmat,zzr(1:nbloch,1) )  )
-c! c                write(6,"(' <eiqr| 1 + I chi0^+-|eiqr> =',255d23.15)") trr0
+c! c                write(6,"(' <eiqr| 1 + I chi0^+-|eiqr> =',255e23.15)") trr0
 c!                 do i=1,nbloch
 c!                   mmat(i,i) = mmat(i,i)+ img*1d-30 ! to avoid inversion error.
 c!                 enddo
@@ -2563,7 +2563,7 @@ c! c---            mmat = matmul( sproj,matmul(mmat,sproj) )
 c!                 trr  = sum( dconjg(zzr(1:nbloch,1)) *
 c!      &                     matmul(mmat,zzr(1:nbloch,1)) )
 c!                 write(ifchipm,
-c!      &         '(3f12.8,2x,f20.15,2x,2d23.15,2x,4d23.15)')
+c!      &         '(3f12.8,2x,f20.15,2x,2e23.15,2x,4e23.15)')
 c!      &              q,   2*schi*frr,  trr, 1d0/trr
 c!               endif
               deallocate(x0meanx)
@@ -3079,7 +3079,7 @@ c          if(iq>nqibz) deallocate(vw_k,vw_ks)
             vcmmmm= 4*pi/qt**2
             epsi(iw,iqixc2) = 1d0/(1- vcmmmm * x0mx)
 c            epsi(iw,iqixc2) = 1d0/(1- vcmmm(iq) * x0meanx)
-            write(ife,'(3f12.8,2x,d12.4,2d23.15,2x,2d23.15)') 
+            write(ife,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
      &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
           enddo
         enddo
@@ -3098,7 +3098,7 @@ C--- Write TEECOR ecorr_on mode
           write(ifcor,*) 'Correlation energy Erpa (eV)'
           write(ifcor,*) '============================'
           write(ifcor,*)' *** '
-          write(ifcor,"(5d23.15)") 
+          write(ifcor,"(5e23.15)") 
      &     totexc(iecut)*hartree,trpv(iecut)*hartree,trlog(iecut)*hartree
      &    ,ecut(iecut),ecuts(iecut)
         enddo
