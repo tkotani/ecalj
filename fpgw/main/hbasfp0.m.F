@@ -1,7 +1,7 @@
       program hbasfp0_v2
 c-- Generates orthonormal optimal product basis and required radial integrals in each MT.
 c input files
-c  GWIN_V2   : input data for GW
+c  GWinput : input data for GW
 c  LMTO   : fundamental data for crystal
 c  PHICV  : radial functions Valence and Core
 c
@@ -10,7 +10,6 @@ c  BASFP//ibas :: product basis for each ibas
 c  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
 c
 c The main part of this routine is in the subroutine basnfp_v2
-c-takao Apr 2002 -----
       use m_rgwinf_v3,only:rgwinf_v3, alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
      &     nindxv,occv,unoccv,occc,unoccc,iclass
       use keyvalue,only: getkeyvalue
@@ -27,14 +26,10 @@ c-takao Apr 2002 -----
       logical :: ptest=.false. !See ptest in hvccfp0.f
       real(8),allocatable :: bb(:),zz(:), phic(:,:)
       integer(4) :: ndat
-      integer(4),allocatable:: ncindx(:,:),
-     &           lcindx(:,:),
-     &           nrad(:),
-     &           nindx_r(:,:),
-     &           lindx_r(:,:),
+      integer(4),allocatable:: ncindx(:,:),lcindx(:,:),
+     &           nrad(:), nindx_r(:,:), lindx_r(:,:),
      &           nc_max(:,:),ncore(:)
-      real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:)
-     &                     ,phitotr(:,:,:,:,:)
+      real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:)
       character*11 :: ffaln
       integer(4)::incwfin,ret
       integer(4),allocatable:: idid(:),ibasf(:)
@@ -77,20 +72,18 @@ c--------------------------------------------------------------------------
      &            ' and <rho_spin |B(I)> ### ')")
         incwfin = 0
       else
-        print *,' hbasfp: Input must be 0 or 3 or 4'
-        stop    ' hbasfp: Input must be 0 or 3 or 4'
+        print *,' hbasfp: input is out of range'
+        stop    ' hbasfp: input is out of range'
       endif
 
+!! read data in m_rgwinf_v3
+!! Output are allocated and data are setted as above.
       iflmto     = iopen('LMTO',1,0,0)
       if (iflmto <= 0) stop 'unit file for LMTO <= 0'
-!!
-      call rgwinf_v3 (iflmto,ifinin,incwfin) !these are inputs.
+      call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
       nsp=nspin
-      ! read data in m_rgwinf_v3
-      ! Output are allocated and data are setted as above.
       print *,'end of rgwinf'
-
-c-- readin lcutmxa ------------
+!! readin lcutmxa ------------
       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifinin,status=ret)
       allocate(lcutmxa(1:natom))
       do
@@ -107,11 +100,11 @@ c          write(6, '(" lcutmxa=",20i3)' ) lcutmxa(1:natom)
       close(ifinin)
       write(6,"(' lcutmxa=',$)")
       write(6,'(20i3)') lcutmxa(1:natom)
-
       lmx        = 2*(nl-1)
       lmx2       = (lmx+1)**2
       nn         = maxnn (nindxv,nindxc,nl,nclass)
       nphi       = nrx*nl*nn*nclass
+
 
 c -optimal orthonormal product basis
 c> reindex nocc,nunocc,nindx
@@ -129,10 +122,8 @@ c> reindex nocc,nunocc,nindx
 ! nocc
 ! nunocc
 ! nindx
-      allocate( nocc(nl*nn,nclass),nunocc(nl*nn,nclass),
-     &          nindx(nl,nclass) )
-      call reindx  (occv,unoccv,nindxv,
-     i              occc,unoccc,nindxc,
+      allocate( nocc(nl*nn,nclass), nunocc(nl*nn,nclass), nindx(nl,nclass) )
+      call reindx  (occv,unoccv,nindxv,   occc,unoccc,nindxc,
      d              nl,nn,nnv,nnc,nclass,
      o              nocc,nunocc,nindx)
       print *,' --- end of reindx ---'
@@ -151,10 +142,8 @@ c----------
      &        phitoto(nrx,0:nl-1,nn,nbas,nsp),
      &        phitotr(nrx,0:nl-1,nn,nbas,nsp),
      &        nc_max(0:nl-1,nbas),ncore(nbas) )
-
       read(ifphi) nrad(1:nbas)
       read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
-c
       nc_max=0
       do ibas=1,nbas
         write(6,*)' --- read PHIVC of ibas=',ibas
@@ -167,35 +156,27 @@ c
           stop 'hbasfp0: ic/=icx'
         endif
         read(ifphi) rr(1:nrofi(ic),ic)
-
         do isp = 1, nsp
           write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
           do icore = 1, ncore(ic)
             l =  lcindx(icore,ic)
             n =  ncindx(icore,ic)
-c           read(ifphi) gcore(1:nrofi(ic),icore, ic,isp)   !core
             read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp)   !core orthogonal
             phitotr(1:nrofi(ic),l,n, ic,isp)=              !core raw= core orthgonal
      &      phitoto(1:nrofi(ic),l,n, ic,isp)               !
-c            print *,' sss1c=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
             if(n>nc_max(l,ic)) nc_max(l,ic)=n
           enddo
-
           do irad = 1, nrad(ic)
             l = lindx_r (irad,ic)
             n = nindx_r (irad,ic) + nc_max(l,ic)
-c           read(ifphi) gx(1:nrofi(ic),l, n, ic,isp)
             read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal
             read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
-c            print *,' sss1=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
-c            print *,' sss2=',sum(abs(phitotr(1:nrofi(ic),l,n, ic,isp)))
           enddo
         enddo
       enddo
 c-----------
 
-
-c-----check write
+!! check write
       ffaln ='PHIV.chk'
       ifaln = iopen(ffaln,1,-1,0)
       do ibas = 1,nbas
@@ -207,24 +188,11 @@ c-----check write
           do ir=1,nrofi(ic)
             write(ifaln,"(3d24.15)")rr(ir,ic), phitotr(ir,l,n,ic,1:nsp)
           enddo
-c        ifaln = iclose(ffaln)
-
-cccccccccccccccccccccccccc
-c check write
-c        if(ibas==1.and.l==2) then
-c        write(2001,"(a,5i5)")'- - - --- ibas l n =',ibas,l,n
-c        do ir=1,nrofi(ic)
-c          write(2001,"(3d24.15)")rr(ir,ic), phitoto(ir,l,n,ic,1:nsp),
-c     &                                      phitotr(ir,l,n,ic,1:nsp)
-c        enddo
-c        endif
-ccccccccccccccccccccccccc
-
         enddo
       enddo
       ifaln = iclose(ffaln)
 
-C ...  excore mode ---------
+!!  excore mode ---------
       if(ix==5 ) then
         call excore(nrx,nl,nnc,nclass,nsp,natom,
      &   phitotr(1:nrx,0:nl-1,1:nnc,1:nclass,1:nsp),   !core     
@@ -234,7 +202,7 @@ C ...  excore mode ---------
       endif
 
 
-C ... READIN ANFcond ------------------------------------
+!! READIN ANFcond ------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
       print *,' ANFcond exist? =',anfexist
       if(anfexist) then
@@ -251,8 +219,7 @@ C ... READIN ANFcond ------------------------------------
           write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
         enddo
         close(ifianf)
-
-C ... Check iclass =ibas ; CLASS file contains true classs information.
+!! Check iclass =ibas ; CLASS file contains true classs information.
         do ibas=1,natom
           if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ibas: '
         enddo
@@ -270,28 +237,13 @@ C ... Check iclass =ibas ; CLASS file contains true classs information.
         print *,' end of readin ANFcond:'
       endif
 
-ccccc
-c      allocate( phitot(nrx,nl,nn,nclass, 2,nsp))
-c      call dcopy(nphi,w(iphi(1)),1,    phitot(1,1,1,1,1,1),1)
-c      call dcopy(nphi,w(iphidot(1)),1, phitot(1,1,1,1,2,1),1)
-c      if(nsp==2) then
-c        call dcopy(nphi,w(iphi(2)),1,    phitot(1,1,1,1,1,2),1)
-c        call dcopy(nphi,w(iphidot(2)),1, phitot(1,1,1,1,2,2),1)
-c      endif
-c
-c------------------------------
-c      call genbasnfp  (
-c     i              w(inindx),w(inocc),w(inunocc),nl,nn,nclass,
-c     i              w(ia),w(inrofi),w(ir),nrx,
-c     i              phitot,nsp
-c     i   ,cutbase,lcutmxa)
-c------------------------------
+!! override cutbase to make epsPP_lmfh safer. may2013takao
+      if(ix==4) then
+         write(6,*)' !!! set tolerance for PB to be 1d-6 ---'
+         cutbase=1d-6
+      endif
+
       do ic = 1,nclass
-c        nr  = nrofi(ic)
-c        ac  = aa(ic)
-c        rws = rr(nr,ic)
-c        xmt = dble(nr-1)*ac
-c        b   = rws/( dexp(xmt) - 1.d0 )
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
      &    phitoto,phitotr,nsp,nclass,
