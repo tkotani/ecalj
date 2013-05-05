@@ -5,79 +5,64 @@
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sfz,sigmamode,ndimsig, numproc,procid,master)
-      use m_struc_def  !Cgetarg
-      use m_globalvariables
-      use m_phmbls
-!! == Driver to set up GW ==
-Ci Inputs
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pnu pz ov0
-Ci     Stored:    *
-Ci     Passed to: hambl hambls makusq gwcphi pwmat
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: lmxa pz p idxdn a nr z rmt
-Ci     Stored:    *
-Ci     Passed to: hambl hambls makusq gwcphi pwmat
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: alat plat qlat nabc gmax npgrp nsgrp osymgr
-Ci                (oistab oag)
-Ci     Stored:    *
-Ci     Passed to: hambl hambls makusq pwmat
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: lsig nqsig oqsig ldham oindxo
-Ci     Stored:    *
-Ci     Passed to: hambl hambls makusq
-Ci   nbas  :size of basis
-Ci   smpot :smooth potential on uniform mesh (mkpot.f)
-Ci   vconst:constant to be added to potential
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
-Ci   osig,otau,oppi  augmentation matrices
-Ci   ppn   :potential parameters, nmto style
-Ci   vrmt  :electrostatic potential at MT boundaries
-Ci   jobgw :-999 prompt for and read jobgw from stdin
-Ci         :0 create files SYMOPS,LATTC,CLASS,NLAindx
-Ci         :1 create files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk
-Cixxxx         :2 create file  gw2. !mar2012 removed.
-Co Outputs
-Co   Files written according to jobgw
-Co   The following shows what files are written for jobgw=1
-Co   and the records stored in each file.
-Co   gw1:  evals of Hlda+sigma-vxc
-Co        *for each q-point and spin:
-Co         q, evl(i:ndimh)
-Co   gw2:  evals of Hlda+sigma-vxc-vxc
-Co        *for each q-point and spin
-Co         q, evl(i:ndimh)
-Co   gwb:  Information about eigenfunctions, matrix elements
-Co         nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum
-Co         lmxa(1:nat), bas(1:3,1:nat)
-Co         ngpmx,ngcmx  -- largest number of G vectors for psi, vcoul
-Co        *for each q-point and spin:
-Co           q, ndimh
-Co           evec, evl, cphi
-Co           ngp, ngc
-Co           ngvecp, ngvecc, pwz  (G vectors for psi,vcou; PW expansion of z)
-Co   gwa:  site data.
-Co        *for each site:
-Co           z, nr, a, b, rmt, lmaxa, nsp, ncore
-Co           konfig(0:lmaxa) : note
-Co           rofi
-Co          *for each l, spin isp
-Co             l, isp
-Co             radial w.f. gval: phi
-Co             radial w.f. gval: phidot
-Co             radial w.f. gval: phiz    written if konfig(l)>10
-Co             *for each l, spin, konf
-Co                icore, l, isp, konf, ecore(icore)+vshft
-Co                gcore(1:nr,1,icore)
-Co   evec: eigenvectors.
-Co         ndham, nsp, nnn, nqnum
-Co        *for each q-point and spin:
-Co           q, evec(1:ndimh,1:ndimh)
-Co   vxc:  matrix elements of XC potential
-Co         ndham, nsp, nnn
-Co        *for each q-point and spin:
-Co           q, vxc
+      use m_struc_def,only:  s_rv1, s_lat, s_ham, s_spec, s_site
+      use m_globalvariables,only: globalvariables
+      use m_phmbls,only: phmbls
+      implicit none
+!! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
+!! NOTE: following documents are not carefully examined. Not believe everything.
+!!i Inputs
+!!i   ssite,sspec,slat,sham :struct defined in m_struc_def.
+!!i   osig,otau,oppi  augmentation matrices, s_rv1
+!!i   nbas  :size of basis
+!!i   smpot :smooth potential on uniform mesh (mkpot.f)
+!!i   vconst:constant to be added to potential
+!!i   lcplxp:0 if ppi is real; 1 if ppi is complex
+!!i   ppn   :potential parameters, nmto style
+!!i   vrmt  :electrostatic potential at MT boundaries
+!!i   jobgw :-999 prompt for and read jobgw from stdin
+!!i         :0 create files SYMOPS,LATTC,CLASS,NLAindx
+!!i         :1 create files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk
+!!o Outputs
+!!o   Files written according to jobgw
+!!o   The following shows what files are written for jobgw=1
+!!o   and the records stored in each file.
+!!o   gw1:  evals of Hlda+sigma-vxc
+!!o        *for each q-point and spin:
+!!o         q, evl(i:ndimh)
+!!o   gw2:  evals of Hlda+sigma-vxc-vxc
+!!o        *for each q-point and spin
+!!o         q, evl(i:ndimh)
+!!o   gwb:  Information about eigenfunctions, matrix elements
+!!o         nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum
+!!o         lmxa(1:nat), bas(1:3,1:nat)
+!!o         ngpmx,ngcmx  -- largest number of G vectors for psi, vcoul
+!!o        *for each q-point and spin:
+!!o           q, ndimh
+!!o           evec, evl, cphi, ngp, ngc
+!!o           ngvecp, ngvecc, pwz  (G vectors for psi,vcou; PW expansion of z)
+!!o   gwa:  site data.
+!!o        *for each site:
+!!o           z, nr, a, b, rmt, lmaxa, nsp, ncore
+!!o           konfig(0:lmaxa) : note
+!!o           rofi: radial mesh
+!!o          *for each l, spin isp
+!!o             l, isp
+!!o             radial w.f. gval: phi
+!!o             radial w.f. gval: phidot
+!!o             radial w.f. gval: phiz    written if konfig(l)>10
+!!o             *for each l, spin, konf
+!!o                icore, l, isp, konf, ecore(icore)+vshft
+!!o                gcore(1:nr,1,icore)
+!!o   evec: eigenvectors.
+!!o         ndham, nsp, nnn, nqnum
+!!o        *for each q-point and spin:
+!!o           q, evec(1:ndimh,1:ndimh)
+!!o   vxc:  matrix elements of XC potential
+!!o         ndham, nsp, nnn
+!!o        *for each q-point and spin:
+!!o           q, vxc
+!! --------------------------------------------------------------------------
 Cl Local variables
 Cl   lsig  :switch to create files vxc and evec for making sigma
 Cl   lwvxc :T, write to evec and vxc files
@@ -136,9 +121,7 @@ Cu   25 Oct 01 (T. Kotani) split functions into parts, with job
 Cu             Binary files imcompatible with prior versions.
 Cu   23 Apr 01 First created
 !! ----------------------------------------------------------------------
-      implicit none
       integer:: i_copy_size,i_spackv
-C ... Passed parameters
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
       integer:: jobgw , lh(n0)
@@ -148,12 +131,11 @@ C ... Passed parameters
       type(s_rv1) :: sv_p_oppix(3,nbas)
       type(s_rv1) :: sv_p_otaux(3,nbas)
       type(s_rv1) :: sv_p_osigx(3,nbas)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
-      type(s_lat)::slat
-      type(s_ham)::sham
+      type(s_site):: ssite(nbas)
+      type(s_spec):: sspec(*)
+      type(s_lat):: slat
+      type(s_ham):: sham
       real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas)
-
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
       integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
@@ -190,7 +172,6 @@ C ... Passed parameters
 #if SIGNN
       complex(8),allocatable:: sig(:,:)
 #endif
-
 C ... For PW basis
 c      integer:: oigv2
       integer ,allocatable :: kv_iv(:)
@@ -214,9 +195,6 @@ C      integer,allocatable::  ngvecp_(:,:),ngvecc_(:,:)
 C      real(8),allocatable:: evl_(:,:)
 C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
 
-C ... Heap
-c      integer w(1)
-c      common /w/ w
       integer:: w(1) !! dummy
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii
@@ -231,7 +209,7 @@ c      common /w/ w
 
       integer:: ndimsig
       
-      integer:: procid,master,nbalance,numproc,iqq,nrr,ifiproc,iproc,iadd
+      integer:: procid,master,nbalance,numproc,iqq,nrr,ifiproc,iproc,iadd,ldw
       logical:: rank0
       integer,allocatable:: iprocq(:,:)
       character*256:: ext
@@ -304,9 +282,9 @@ C     for now
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
       ldim=ldham(1,1)
-      pwmode=sham%pwmode
-      pwemin=sham%pwemin
-      pwemax=sham%pwemax
+      pwmode= sham%pwmode
+      pwemin= sham%pwemin
+      pwemax= sham%pwemax
       allocate(evl(ndham,nsp))
 !! ndima
       ndima = 0
@@ -344,7 +322,7 @@ C     for now
         lmxax = mxint(nbas,lmxa)
         allocate(konft(0:lmxax,nbas,nsp))
         do ib = 1, nbas
-           is =ssite(ib)%spec
+           is = ssite(ib)%spec
            call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
            call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
            do  isp = 1, nsp
@@ -706,7 +684,7 @@ C   ... Read SYML file
         endif  
 !!
         qp = q
-        write(stdo,"(' procid:  iq=',2i4,'  q=',3f7.3)") procid, iq,qp
+c        write(stdo,"(' procid:  iq=',2i4,'  q=',3f7.3)") procid, iq,qp
 !! keep comment for noshorbz case.
 c$$$        if(.not.noshorbz()) then
 c$$$          call shorbz(q,qp,qlat,plat)
@@ -771,7 +749,7 @@ c$$$        endif
           vxc = ham - vxc
 !!   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
           if (lwvxc) then
-            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
+c            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
             write(ifiv) ndimh, ldim,qp !Add ldim sep2012
             write(ifiv) q,vxc
           endif
@@ -797,9 +775,10 @@ c$$$        endif
           if(debug) print *,' end of generation of Hamiltonian'
 
 !!   --- Branch job = 1 : make cphi, matrix elements ---
-          if (job .eq. 1) then !   --- Diagonalize ---
+          if(job .eq. 1) then !   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-            write(6,"(' sugw:  kpt=',i4,' of ', i4, ' k= ',3f9.5, ' ndimh= ',i5)") iq,nqtot,qp,ndimh
+            write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
+     &      ' irank=',i4, ' lwvxc=',l)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc
             if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
               if (nspc .eq. 2) then
@@ -817,8 +796,7 @@ c$$$        endif
      .          , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
      .          evec )
                 eomin = dval ( ww_rv , 1 )
-                call info5(30,0,0,
-     .          ' Overlap''s smallest eigenvalue: %;3g.  '//
+                call info5(30,0,0, ' Overlap''s smallest eigenvalue: %;3g.  '//
      .          '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
      .          eomin,ndimh-nevl,ndimh,nevl,0)
               endif
@@ -846,7 +824,7 @@ C       to avoid mixing up integration routines
               cycle
             endif
             if (mod(iq,10) .ne. 1) call poppr
-            write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
+c            write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
             if (lwvxc) then
               ifievec = fopna('evec',-1,4)
               write(ifievec) q, evec(1:ndimh,1:ndimh)
@@ -972,6 +950,7 @@ C       Overlap of IPW and eigenfunction:
 C         PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
 C         PZOVL = O * PWZ (matrix form) <--- old
 C         Note: pzovl is only used as an intermediate construction, old branch
+c            print *,'ngp=',ngp
             if (ngp .gt. 0) then
               allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
               allocate(phovl(ngp,ndimh))
@@ -1008,13 +987,10 @@ c          if (mod(loldpw,2) .eq. 0) then
                   ppovld(i) = ppovl(i,i)
                 enddo
               endif
-              allocate(wk(ngp,129))
-              call zqinvb('hl',ppovl,ngp,ngp,ndimh,wk,ngp,wk,pwz,ngp,
-     .        ierr)
+              call zqinvb('h',ppovl,ngp,ngp,ndimh, pwz,ngp, ierr)
               if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
-              deallocate(wk)
             endif
-
+            if(debug) print *,' goto gwb write...'
 C   --- File output, job=1 ---
             ifigwb = fopna('gwb',-1,4)
             write (ifigwb) q, ndimh, iq
@@ -1199,6 +1175,7 @@ c$$$
       endif
       call tcx('sugw')
       end subroutine sugw
+
 
 
       subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx,ifi)

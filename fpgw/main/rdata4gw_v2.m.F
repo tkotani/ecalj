@@ -1557,6 +1557,7 @@ C --- make <IPW|IPW> ------------------------------------------------
         if(abq0i>dQpG ) dQpG=abq0i
       enddo
       QpGcut_psi2 = (2d0+1d-2)*QpGcut_psi + 2d0*pi/alat*dQpG !dec2012
+      if(QpGcut_psi<1d-9) QpGcut_psi2=0d0 !may2013
 c      QpGcut_psi2 = (2d0+0.1d0)*QpGcut_psi !dec2012
       allocate(qibze(3,nqibz + nq0i+iadd),ngc2x(nqibz + nq0i+iadd)) !nq0i+1 is for gamma point
       !          for bzcase==2
@@ -1600,21 +1601,23 @@ c        endif
       enddo
       ngc2mx = maxval(ngc2x(1:nqnumt))
       print *,' ngc2mx nqnumt=',ngc2mx,nqnumt
-      allocate(ngvecc2(3,ngc2mx,nqnumt)) !nqibz + nq0i+iadd))
-      if(debug)print *,' end of  allocate(ngvecc2(3,ngc2mx,nqnumt))'
-      do iqi =1, nqnumt         !nqibz + nq0i +iadd
-        if(debug)  write(6,"(' job2 iqi qx=',i5,3f8.3)") iqi,qx
-        qx = qibze(1:3,iqi)
-ccommented out at apr2013takao
-c        if(iqi>nqibz) then !dec2012
-c          qx=0d0
-c        endif
-        call getgv2( alat,plat,qlat,qx, QpGcut_psi2, 2, ngc2x(iqi),ngvecc2(1,1,iqi)) ! for Coulomb
-        print *,' minval ngvecc2',
-     &       minval(ngvecc2(1,1:ngc2x(iqi),iqi)),minval(ngvecc2(2,1:ngc2x(iqi),iqi)),minval(ngvecc2(3,1:ngc2x(iqi),iqi))
-        print *,' maxval ngvecc2',
-     &       maxval(ngvecc2(1,1:ngc2x(iqi),iqi)),maxval(ngvecc2(2,1:ngc2x(iqi),iqi)),maxval(ngvecc2(3,1:ngc2x(iqi),iqi))
-      enddo
+      if(ngc2mx>0) then !may2013
+         allocate(ngvecc2(3,ngc2mx,nqnumt)) !nqibz + nq0i+iadd))
+         if(debug)print *,' end of  allocate(ngvecc2(3,ngc2mx,nqnumt))'
+         do iqi =1, nqnumt      !nqibz + nq0i +iadd
+            if(debug)  write(6,"(' job2 iqi qx=',i5,3f8.3)") iqi,qx
+            qx = qibze(1:3,iqi)
+c     commented out at apr2013takao
+c     if(iqi>nqibz) then !dec2012
+c     qx=0d0
+c     endif
+            call getgv2( alat,plat,qlat,qx, QpGcut_psi2, 2, ngc2x(iqi),ngvecc2(1,1,iqi)) ! for Coulomb
+            print *,' minval ngvecc2',
+     &           minval(ngvecc2(1,1:ngc2x(iqi),iqi)),minval(ngvecc2(2,1:ngc2x(iqi),iqi)),minval(ngvecc2(3,1:ngc2x(iqi),iqi))
+            print *,' maxval ngvecc2',
+     &           maxval(ngvecc2(1,1:ngc2x(iqi),iqi)),maxval(ngvecc2(2,1:ngc2x(iqi),iqi)),maxval(ngvecc2(3,1:ngc2x(iqi),iqi))
+         enddo
+      endif
 
 !! ... IPW(interstitial-plane-wave) overlap matrix
       nqini =1
@@ -1639,6 +1642,7 @@ c        endif
       read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
 !! 
       do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
+c        print *,'init do 2010'
         qx  = qibze(1:3,iqi)
 !!      iq is removed at apr2013takao   --> iq=idxk(qibze(1:3,iqi), qtti,nqtti) !feb2012takao
         iread=0
@@ -1646,6 +1650,7 @@ c        endif
         do           !irr is the flag to judge to check irreducible point or not.
           read (ifiqg, err=1013,end=1013) qqqa, ngp !, irr
           read (ifiqgc         ) qqqb, ngc
+c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
           read (ifiqg ) ngvecp
           read (ifiqgc) ngvecc
@@ -1680,7 +1685,10 @@ c        ngc  = ngcx(iq)
         write(6,"('   iqi qx ngc ngc2=',i5,3f7.4,4i5)" ) iqi,qx,ngc,ngc2
         if(ippovlinv_test)  write(ippovlinv) qx,ngc
         if(ppovl0l       )  write(ippovl0)   qx,ngc
-        if(ngc==0) cycle
+        if(ngc==0) then
+          deallocate(ngvecc,ngvecp)
+          cycle
+        endif  
         allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
 
 !     oct2005
@@ -1737,6 +1745,7 @@ c     &        ngc,  ngveccf(1,1,iq ),
         write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppx !iqi added at 18Aug2005
         deallocate(ppovl,ppx,ppovlinv)
         deallocate(ngvecc,ngvecp)
+c        print *,'end do 2010'
  2010 continue
       close(ippovl)
       if(ippovlinv_test)  close(ippovlinv)

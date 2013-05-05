@@ -57,7 +57,7 @@ C ----------------------------------------------------------------------
       integer(4):: version,verbose,q0pchoice,bzcase,wgtq0p,normcheck
       logical:: keepppovl,GaussSmear,KeepEigen,core_orth,ldummy
 
-      integer(4):: iii
+      integer(4):: iii, iq0pinxxx !may2013 
 ccccccccccccccccccccccccccccccccc
 c NaN test See NaNdble().
 c      real(8) :: NaNdble,zzz
@@ -79,7 +79,7 @@ c --- mode
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
-      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3) then
+      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4) then
         continue
       else
         print *,'qg4gw do not allow iq0pin=',iq0pin
@@ -250,13 +250,20 @@ c      endif
 C --- Open output files QGpsi QGcou
       ifiqg  = 401
       ifiqgc = 402
+      iq0pinxxx=iq0pin
+      if(iq0pin==4) then
+         iq0pinxxx=2
+         QpGcut_psi=0d0
+         QpGcut_Cou=0d0
+      endif
       open(ifiqg ,file='QGpsi',form='unformatted')
       open(ifiqgc,file='QGcou',form='unformatted')
-      call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pin,
+      call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx,
      &  QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'
       if(iq0pin ==2) stop ' OK! qg4gw mode=2 Readin Q0P mode'
       if(iq0pin ==3) stop ' OK! qg4gw mode=3 band-plot mode'
+      if(iq0pin ==4) stop ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0'
       end
 

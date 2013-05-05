@@ -21,29 +21,15 @@ setenv LMJOB $TARGET
 
 rm -f NoCore QPU* >& /dev/null
 
-### Check the existence of EPScond
-#if (! -e EPScond) then
-#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
-#   echo ' Now I made a sample of EPScond.tmp'
-#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
-#   exit 1
-#endif 
-
 ### Get LATTC and SYMOPS
 echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
 
 
-### Add  two q points (0.05 0 0 ) (0.1 0 0) to Q0P file.  -----------------
-#echo 1|$nfpgw/qg4gw  >lqg4gw01
-#cp Q0P Q0P0
-#gawk ' {if(NF==1){print $1 +2  ;}else{print $0;}}' Q0P0 >Q0P
-#echo ' 0d0 0.05d0 0d0 0d0 ' >> Q0P
-#echo ' 0d0 0.10d0 0d0 0d0 ' >> Q0P
-#echo 2|$nfpgw/qg4gw  >lqg4gw02
-
 ### Add q points  to Q0P file.  -----------------
 # read <QforEPS> in GWinput
-echo 2|$nfpgw/qg4gw  >lqg4gw02
+#echo 2|$nfpgw/qg4gw  >lqg4gw02
+echo 4|$nfpgw/qg4gw  >lqg4gw02  #new mode may2014. Just set QGcou=QGpsi=0
+
 
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
@@ -52,10 +38,6 @@ if(-e Qmtet) then
   mv eigval eigmtet
 endif
 
-###
-#echo 1 | $nfpgw/ng0  >lng01
-#echo 2 | $nfpgw/ng0  >lng02
-#$nfpgw/nfp4gw        >lnfp4gw
 echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 #echo $?
