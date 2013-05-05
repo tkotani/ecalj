@@ -337,7 +337,7 @@ c        eiqr =.true.
       endif
 
       if(ixc==202.or.ixc==203.or.ixc==222.or.ixc==223) then
-        epsmode=.true.
+        epsmode = .true.
         if(mod(ixc,200)==22.or.mod(ixc,200)==23) chipm =.true.
         if(mod(ixc,10)==2)                       nolfco=.true.
       endif
@@ -360,7 +360,6 @@ C ... files for RPA correlation energy mode.
 
 !! naraga says this cause a stop in ifort --->why???
 c      print *,'Timereversal=',Timereversal()
-      
 
 C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !--------readin data set when you call read_BZDATA ---------------
@@ -374,8 +373,8 @@ C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !     &    ,nstar(:),irk(:,:),nstbz(:)
 !c  ,index_qbz(:,:,:)
 !-----------------------------------------------------------------
+!! read bzdata; See use m_read_bzdata,only:
       call read_BZDATA()
-
 
 C --- Use regular mesh even for bzcase==2 and qbzreg()=T
 ! A little confusing...
@@ -390,14 +389,13 @@ C --- Use regular mesh even for bzcase==2 and qbzreg()=T
           qbz(:,i) = qbz(:,i) - dq_bzcase2
         enddo
       endif
-      do i=1,nqbz
-        write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
-      enddo
-      print *,' nqbz nqibz =',nqbz,nqibz
-c      print *,  qbz
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+      if(mpi__root) then
+         do i=1,nqbz
+            if(i<10.or.i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
+            if(i==10.and.nqbz>18) write(6,"('... ')")
+         enddo
+         print *,' nqbz nqibz =',nqbz,nqibz
+      endif
 
 !- oct2005 not implimented cases.
       if(smbasis().and.chipm) then
@@ -1204,34 +1202,35 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
 !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
       if(eibz4x0()) then
-c commentout block inversion Use iqxendx=iqxend because of full inversion
-c         iqxendx=nqibz
+!! commentout block inversion Use iqxendx=iqxend because of full inversion
+c     iqxendx=nqibz
          iqxendx=iqxend
-
          if(epsmode) iqxendx=iqxend
-        allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
-     &    igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
-     &    eibzsym(ngrp,-1:1,iqxini:iqxendx))
+         allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
+     &        igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
+     &        eibzsym(ngrp,-1:1,iqxini:iqxendx))
          iprintx=.false.
          write(6,"('TimeRevesal switch = ',l1)") timereversal()
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
-     o   nwgt,igx,igxt,eibzsym)
+     o        nwgt,igx,igxt,eibzsym)
 !! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
 !! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-        tiii=timereversal() 
-        if(minval(igxt)==1) tiii=.false.
-        iprintx=.true.
+         tiii=timereversal() 
+         if(minval(igxt)==1) tiii=.false.
+         if(mpi__root) iprintx=.true.
 cccccccccccccccccccc
-c        tiii=.false.
+c     tiii=.false.
 cccccccccccccccccccc
-        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
-        call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
-     o    nwgt,igx,igxt,eibzsym)
-        call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
-            ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
-        call readqgcou() !no input. Read QGcou and store date into variables.
-c       call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
+     o        nwgt,igx,igxt,eibzsym)
+         call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in arrays in m_pbindex.
+! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+         call readqgcou()       !no input. Read QGcou and store date into variables.
+c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       endif
+
+
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
 
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
@@ -1719,7 +1718,7 @@ C --- METHOD (tetwt5) for the tetrahedron weight
 c          write(6,*)' --- Frequency  histogram  sections (a.u.)---- '
           if(onceww(1)) then
             do ihis= 1, nwhis
-              write(6,"(' ihis Init  End=', i4,2f13.6)")
+              write(6,"(' ihis Init  End=', i5,2f13.6)")
      &        ihis,frhis(ihis),frhis(ihis+1)
             enddo
           endif
