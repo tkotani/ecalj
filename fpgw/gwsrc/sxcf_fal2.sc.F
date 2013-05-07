@@ -690,9 +690,9 @@ c$$$  vcousq=sqrt(vcoud) !
                allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
                call readppovl0(qibz_k,ngc,ppovl)
 c nnnnnnnnnnn comment out mulipled by ppovl. 
-c               ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-c               ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) !may2013takao not ppovl inlcuded.
-               ppovlz(1:nbloch+ngc,:) = zcousq(1:nbloch+ngc,:) !may2013takao not ppovl inlcuded.
+               ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+               ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) !may2013takao not ppovl inlcuded.
+c               ppovlz(1:nbloch+ngc,:) = zcousq(1:nbloch+ngc,:) !may2013takao not ppovl inlcuded.
                deallocate(zcousq,ppovl)
             endif
 !     ! read Coulomb interaction for exchange for newaniso=F

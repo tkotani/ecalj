@@ -1741,12 +1741,11 @@ c     &        ngc,  ngveccf(1,1,iq ),
      &        nbas, rmax, bas,  
      o        ppovl)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        call matm(ppovlinv,ppovl,ppx,ngc,ngc,ngc2) !may2013. this  chanes definition of zmelt
-c        if(debug)print *,' writing ppovl(ngc ngc2) ...'
-c        write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppx !iqi added at 18Aug2005
-c        call matm(ppovlinv,ppovl,ppx,ngc,ngc,ngc2) !may2013. this  chanes definition of zmelt
+        call matm(ppovlinv,ppovl,ppx,ngc,ngc,ngc2) !may2013. this  chanes definition of zmelt
         if(debug)print *,' writing ppovl(ngc ngc2) ...'
-        write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppovl !iqi added at 18Aug2005
+        write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppx !iqi added at 18Aug2005
+c        if(debug)print *,' writing ppovl(ngc ngc2) ...'
+c        write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppovl !iqi added at 18Aug2005
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         deallocate(ppovl,ppx,ppovlinv)

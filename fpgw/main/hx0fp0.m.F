@@ -246,7 +246,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
-      logical:: eibz4x0,tiii,iprintx
+      logical:: eibz4x0,tiii,iprintx,symmetrize
       real(8):: qread(3)
 c      integer,allocatable :: iclasst(:)
       character(128):: vcoudfile
@@ -1238,12 +1238,9 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
 !! (or need to modify do 1001 loop).
 !! iq>nqibz for ixc=11 is not time-consuming.
-
       call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
-
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if( .not. mpi__task(iq) ) cycle
-
         if(ixc==101.or.normalm) then
           ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
         endif  
@@ -1293,10 +1290,8 @@ c        endif
         write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
         write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 
-
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
-
         if(newaniso2.and.(.not.chipm)) then
           vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
           ifvcoud = iopen(trim(vcoudfile),0,-1,0)
@@ -1322,8 +1317,8 @@ c         enddo
           vcousq=sqrt(vcousq)
 
           if(allocated(zzr)) deallocate(zzr)
-          allocate(zzr(ngb0,1))
-          zzr(:,1)=zcousq(:,1)
+          allocate(zzr(1,1)) !dummy
+          zzr=0d0
         endif
       
 !! ==== nolfco is overlaid ====
@@ -1832,8 +1827,8 @@ c   whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ib
 c     : histogram weights for given ib,jb,kx for histogram sections
 c       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
-          newanisox=newaniso2
-          if(chipm.and.nolfco) newanisox=.false.
+c          newanisox=newaniso2
+c          if(chipm.and.nolfco) newanisox=.false.
           write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
 c          z1offd=.false.
 c          if(nolfco) then
@@ -1842,11 +1837,12 @@ c          else
 c            nmbas1x = 1
 c          endif  
 c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
+          symmetrize=(is==nspinmx)
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
-     i              nspin,is,isf,
+     i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
      i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
      i              ppb(1,is), 
@@ -1859,7 +1855,7 @@ c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
      o    rcxq,   !  rcxq is the accumulating variable for spins 
 c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,  
      i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,  
-     i    newanisox, !z1offd,!for nolfco Add nmbas Sep2006
+     i    chipm, !z1offd,!for nolfco Add nmbas Sep2006
 c     o    rcxqmean(:,:,1:nmbas1x,:), !output in the case of nolfco
 c     o    rcxqmean, !output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))

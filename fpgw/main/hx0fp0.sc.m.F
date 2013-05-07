@@ -124,7 +124,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
       integer:: ifw0w0i
-      logical :: readw0w0i
+      logical :: readw0w0i,symmetrize
       real(8):: schi=-9999 !dummy
 
 !-------------------------------------------------------------------------
@@ -132,6 +132,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       call MPI__consoleout('hx0fp0_sc')
 !TIME0 
 !TIME0 
+      allocate( zzr(1,1)) !dummy
       hartree=2d0*rydberg()
       pi = 4d0*datan(1d0)
       fourpi=4d0*pi
@@ -168,7 +169,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !     ! naraga says this cause a stop in ifort --->why???
 c     print *,'Timereversal=',Timereversal()
 
-C     --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
+!! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
+      call read_BZDATA()
 !--------readin data set when you call read_BZDATA ---------------
 !     integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,
 !     c     &   n_index_qbz
@@ -180,8 +182,6 @@ C     --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !     &    ,nstar(:),irk(:,:),nstbz(:)
 !     c  ,index_qbz(:,:,:)
 !-----------------------------------------------------------------
-      call read_BZDATA()
-
 !TIME1 "after readbzdata"
 !TIME0 
 
@@ -197,10 +197,6 @@ c     off-regular mesh for bzcase==1 and qbzreg()=F
       endif
       print *,' nqbz qbz =',nqbz
       print *,' nqibz ngrp=',nqibz,ngrp
-c     print *,  qbz
-c     print *,' irk=',irk
-c     print *,' #### idtetf: ####'
-c     print *, idtetf
 
 C     --- readin compuational conditions
 c     call wkinit (iwksize)
@@ -502,13 +498,7 @@ C     ... for frhis_m
 
       delta=0d0                 !only for writeemesh
 
-C---------Apr2007
-c     write(6,"(' ixc=11: niw nw nwhis=',3i5)") niw,nw,nwhis
-c     stop 'xxxxxxxxxxxxxxx'
-
-c     endif
-
-C     ... timereversal=F is implimented only for tetra=T and sergeyv=T
+!!     ... timereversal=F is implimented only for tetra=T and sergeyv=T
       npm=1
       nw_i=0
       if(.not.timereversal()) then
@@ -518,7 +508,6 @@ C     ... timereversal=F is implimented only for tetra=T and sergeyv=T
          if(.not.tetra)      stop ' tetra=T for timereversal=off'
       endif
       print *,'Timereversal=',Timereversal()
-
 
 !     ...
 c     if (realomega.and.ixc==1) then
@@ -849,9 +838,7 @@ c commentout block inversion
                         ! ==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
             nmbas2 = 1  ! 
 c            if(allocated(rcxqmean)) deallocate(rcxqmean)
-            if(allocated(zzr))      deallocate(zzr)
 c            allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
-            allocate( zzr(ngb,ngb) )
 c            rcxqmean= 0d0
          elseif(newaniso2) then !.and.iq==1) then
             nolfco = .false.
@@ -868,7 +855,7 @@ c            rcxqmean= 0d0
             ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
             ppovlz(nbloch+1:nbloch+ngc,:) 
      &           = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-            if(allocated(zzr)) zzr = ppovlz
+c            if(allocated(zzr)) zzr = ppovlz
             write(*,*)'nnnnn',nbloch+ngc,ngb
          endif
          
@@ -1154,7 +1141,7 @@ c     : histogram weights for given ib,jb,kx for histogram sections
 c     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c------------------------------------------------------------------
                                 !if(ixc==6.or.ixc==11) then    !ixc==11   !sf 21May02
-            print *, ' goto x0kf_v3hz'
+c            print *, ' goto x0kf_v3hz'
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1196,13 +1183,13 @@ c     endif
 
 !TIME1 "before x0kf_v2hz"
 !TIME0 
-c     if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
             iqeibz=iq
+            symmetrize=(is==nspinmx)
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
      i           q,  
-     i           nspin,is,isf,
+     i           nspin,is,isf, symmetrize, !
      i           qbas,ginv,  qbz,wbz, 
      i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
      i           ppb(1,is), 
@@ -1213,35 +1200,11 @@ c     if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
      i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i           nqbze,nband,nqibz, 
      o           rcxq,          ! rcxq is the accumulating variable for spins 
-c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,
      i           nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,
-     i           newaniso2,  !z1offd,
-c     o           rcxqmean,      ! output in the case of nolfco
-c     o    rcxqmean(:,:,1:nmbas1x,:), ! output in the case of nolfco
+     i           chipm,  !z1offd,
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
             print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-c!!   complex conjugate part
-c     if(newaniso2.and. iq>nqibz.and.ixc==11  ) then
-c     rcxqmean(:,:,2,:) = dconjg(rcxqmean(:,:,1,:))
-c     endif
 !TIME1 "x0vk_v4h"
-
-c$$$  ccccccccccccccccccc
-c$$$  if(nolfco.and.z1offd) then
-c$$$  print *,' pppppppp check start ',npm,nwhis,nmbas2
-c$$$  do jpm=1,npm
-c$$$  do iw=1,nwhis
-c$$$  do imb2=1,nmbas2
-c$$$  if(abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8) then
-c$$$  stop 'abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8'
-c$$$  endif
-c$$$  enddo
-c$$$  enddo
-c$$$  enddo
-c$$$  print *,' pppppppp check rcxqmean npm nwhis nmbas2=',npm,nwhis,nmbas2
-c$$$  endif
-c$$$  ccccccccccccccccccc
-
 
 c===========Check write mode4 block ixc==4 ============6ini
 ccccccccccccccccccfaleev 21May02 ixc==4 not used
@@ -1279,10 +1242,7 @@ c     print *,' This code is a routine to test tetwt5.'
 c     stop ' ixc==4  Weight Histgram check. wwk vs.whw'
 c     endif  ! end of if(tetra)
 c===========Check write mode4 block end  ==============6end
-
-c     if(ixc==11) 
             deallocate(ihw,nhw,jhw, whw,ibjb )
-c     if(tetra.and.ixc==1) deallocate(wwk)
             if(tetra)            deallocate( n1b,n2b)
  1003       continue;print *, 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
@@ -1290,45 +1250,10 @@ c=======================================================================
 !TIME0 
 
 !     ! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
-c$$$  if(ixc==11) then
-c$$$  write(6,'(" xxx4: allocate zxq zxqi"//
-c$$$  &    " =16*ngb*ngb*(nwp+niw)=",i8," ngb nwp niw=",3i7)')
-c$$$  &    16*ngb*ngb*(1+nwp+niw), ngb, nwp, niw
-c$$$  zxq =0d0
-c$$$  zxqi=0d0
-c$$$  nw_w=nw
-c$$$  if(iSigma_en==0) nw_w=0 !i think this is ok , but not tested... feb2006
-c$$$  write(6,*)"goto dpsion4 nwhis nw_i nw_w=",nwhis,nw_i,nw
-c$$$  call dpsion4(frhis,nwhis, freq_r, nw_w, freq_i,niw, realomega, imagomega, 
-c$$$  i        ngb, rcxq, npm,nw_i,  ! rcxq is alterd---used as work
-c$$$  o        zxq, zxqi, 
-c$$$  i        nolfco,.false., 0d0,is, rcxqmean,1d50,1d50, 
-c$$$  o        x0mean)  !zxq x0mean is accumlating veriable for chipm mode
-c$$$  c          call dpsion3(frhis,nwhis, freq_r, nw_w, freq_i,niw,
-c$$$  c     i                             realomega,    imagomega,
-c$$$  c     i    ngb, rcxq,
-c$$$  c     o    zxq, zxqi, ! zxq... are Not the accumulating variable for spins
-c$$$  c     i    nolfco,.false.,0d0,is, rcxqmean,   1d50,1d50,
-c$$$  c     o    x0mean)
-c$$$  cc         do iw=1,nwp
-c$$$  cc         write(6,"(a,i5,2d13.5)")' zzz=',iw,sum(zxq(:,5,iw))
-c$$$  cc         enddo
-c$$$  endif
-
             if(allocated(zxq) ) deallocate(zxq,zxqi)
             allocate(zxq (nmbas1,nmbas2,nw_i:nw), zxqi(nmbas1,nmbas2,niw))
             write(6,'("goto dpsion5: "
      &           //"nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-!     !              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
-c!     ! rcxqmean--->rcxq index conversion
-c            if(nolfco) then
-c               do iw=1,nwhis
-c                  do jpm=1,npm
-c                     rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
-c                  enddo
-c               enddo
-c            endif
-!     ! nolfco mode in dpsion5 was removed.
             print *,' -------- nmbas1,nmbas2=', nmbas1,nmbas2
             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
      i           rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
@@ -1336,7 +1261,6 @@ c            endif
      i           chipm, schi,is,  ecut,ecuts)
             print *,' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
             if(allocated(rcxq) ) deallocate(rcxq)
-
 !TIME1 "before real omega"
 
 !     ! ===  RealOmega ===
@@ -1345,11 +1269,6 @@ c            endif
                if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
                nwmax = nw
                nwmin = nw_i
-c     if(ixc==11) nwmax=nwp
-c     if(iSigma_en==0) then
-c     nwmin=0
-c     nwmax=0
-c     endif
                if (anfexist) then !Antiferro accelaration.
                   do iw  = nwmin,nwmax
                      call anfx0k(natom,nclass,nblocha,iclass,pos
@@ -1359,7 +1278,6 @@ c     endif
      i                    zxq(1,1,iw)) ! i/o
                   enddo
                endif
-
 !     ! prepare for iq0.
                iq0 = iq - nqibz
                if(newaniso2) then
@@ -1376,7 +1294,6 @@ c     endif
                  allocate(epstilde(ngb,ngb))
                  allocate(epstinv(ngb,ngb))
                endif
-
 !KINO               write(*,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
 !TIME0 
 !TIME0 
