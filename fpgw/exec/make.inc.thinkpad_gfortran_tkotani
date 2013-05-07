@@ -7,7 +7,7 @@
 #FC = ifort -132 -cm -w90 -w95
 # FC= ifort -132 -check bobunds -traceback !for check array bound
 #FC = f95 
-FC = mpif90 
+FC = mpif90 -g
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.

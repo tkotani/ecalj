@@ -19,14 +19,20 @@ c     i       ngvecpB,ngveccB,
      o      rcxq,
 c------------------------------------------
      i     nolfco,zzr,nmbas,nmbas1,nmbas2, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006
-     i     newanisox, z1offd,
-     o     rcxqmean,
+     i     newanisox, !z1offd,
+c     o     rcxqmean,
      i     nwgt,igx,igxt,ngrp,eibzsym)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :  readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:  getkeyvalue
       use m_rotMPB,only:  rotMPB2 !rotMPB,
       use m_readqgcou,only: qtt_,nqnum !itimermap,
+!! NOTE:
+!! ppovl= <I|J>, V_IJ=<I|v|J>
+!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
+!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
+!! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
+!! ppovlz= O Zcousq
 
 !! when nmbas1=2, this works in a special manner for nolfco=T and newanisox=T. mar2012takao
 
@@ -84,8 +90,9 @@ c
      &  ,jpm,ibib,itps,nt0,ntp0,ngp1,ngp2,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
-      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
-      complex(8) :: imag=(0d0,1d0),trc,phase(natom)
+c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
+      complex   (8):: rcxq (nmbas1,nmbas2,nwt,npm)
+      complex(8) :: imag=(0d0,1d0),trc,phase(natom),aaa
       complex(8),allocatable:: cphik(:,:),cphikq(:,:),geig1(:,:),geig2(:,:)
       integer(4):: ngpmx, ngcmx, nqbze, nband,
      &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
@@ -129,7 +136,7 @@ c---for iepsmode
       complex(8):: zq01,zq02,zzr(ngbb,nmbas)
 c      real(8)   :: zq0zq0
       complex(8)   :: zq0zq0 !This is a bug for the case of two atoms per cell!!! oct2006
-      complex(8):: rcxqmean(nwt,npm,nmbas1,nmbas2)
+c      complex(8):: rcxqmean(nwt,npm,nmbas1,nmbas2)
 
       real(8):: qu1(3),qu2(3),qu1x(3),qu2x(3),quu(3),tolqu=1d-4
 
@@ -151,7 +158,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       logical :: onceww !testtr,negative_testtr
 
 !! takao apr2012
-      logical :: newanisox , z1stcol,z1offd
+      logical :: newanisox ,z1offd !, z1stcol
       complex(8) :: ppovlz(ngbb,ngbb),zzz(ngbb)
       integer:: igb
 
@@ -255,8 +262,8 @@ c$$$      endif
 c$$$ccccccccccccccccccccccccccccccccccccccc
 
       eibzmode = eibz4x0().and.(.not.nolfco)
-      eibzmoden = 2
-      if(.not.eibzmode) eibzmoden=0
+c      eibzmoden = 2
+c      if(.not.eibzmode) eibzmoden=0
 
 ckino
 !KINO      it=0
@@ -443,6 +450,9 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
 C... extensiton to nbloch+ngc       
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
         endif
+!! May5th2013  zmel contains no O^-1=<I|J>^-1 factor. zzmel(J,it,itp) = zmel(phi_it phi_itp J) = <phi phi|I> 
+!! Warn! Before may5th2013, zmel contained O^-1=<I|J>^-1 factor. It was zzmel(J,it,itp)= \sum_J <phi phi|I> O^-1_IJ
+!!
         zmelt(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0) = 
      &  zzmel(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0)
 !                         k            q+k
@@ -489,6 +499,7 @@ C This replace original zmelt with new zmelt based on smoothed mixed basis.
 c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         endif
 
+
 !! === zmelt conversion === \mu-basis representation.
 c        if(newanisox.and.eibzmode) then
 c          if(ngb/=ngbb) then
@@ -501,24 +512,30 @@ c            zmelt(nbloch+1:nbloch+ngc,it,itp)=matmul(zmelt(nbloch+1:nbloch+ngc,
 c          enddo
 c          enddo
 c        elseif(newanisox) then !.and.iq==1) then
-        if(newanisox) then !.and.iq==1) then
-          if(ngb/=ngbb) then
-            print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
-            stop 'x0kf_v4h: ngb/=ngbb'
-          endif
-!KINO          write(*,'(a,5i7)')'kino: nctot+nt0,ncc+ntp0,size=',
-!KINO&         nctot+nt0,ncc+ntp0,size(zmelt,dim=1),size(ppovlz,dim=2)
-!$OMP parallel do 
-          do it=1,nctot+nt0
-          do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
-            zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
-          enddo
-          enddo
-!$OMP end parallel do 
-        endif
+cnnnnnnnnnnnnnnnnnnnnn
+c$$$        if(.false.) then
+c$$$           if(newanisox) then   !.and.iq==1) then
+c$$$           if(ngb/=ngbb) then
+c$$$           print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
+c$$$           stop 'x0kf_v4h: ngb/=ngbb'
+c$$$           endif
+c$$$!     KINO          write(*,'(a,5i7)')'kino: nctot+nt0,ncc+ntp0,size=',
+c$$$!     KINO&         nctot+nt0,ncc+ntp0,size(zmelt,dim=1),size(ppovlz,dim=2)
+c$$$!     $OMP parallel do 
+c$$$           do it=1,nctot+nt0
+c$$$           do itp=1,ncc+ntp0 !! See sxcf_fal2.F L933 around. zmelt1
+c$$$           zmelt(:,it,itp) =  matmul( zmelt(:,it,itp),ppovlz(:,:) )
+c$$$           enddo
+c$$$           enddo
+c$$$!     $OMP end parallel do 
+c$$$           endif
+c$$$        endif
 
 !TIME1  "after matmul zmelt"
 !TIME0 
+
+
+
 
 c$$$cooo test mode
 c$$$          do it=1,nctot+nt0
@@ -541,16 +558,13 @@ c$$$          enddo
 
 !! New section Dec 2003.
         if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
-          if(.not.newanisox) then
-            do it=1,nctot+nt0
-              do itp=1,ncc+ntp0
+          do it=1,nctot+nt0 !this loop, for any case.
+             do itp=1,ncc+ntp0
                 do imb=1,max(nmbas1,nmbas2)
-                  zmelt(imb,it,itp) =  sum(zmelt(:,it,itp)*zzr(:,imb) )
+                   zmelt(imb,it,itp) =  sum(zmelt(:,it,itp)*zzr(:,imb) )
                 enddo
-              enddo
-            enddo
-          endif
-
+             enddo
+          enddo
           do jpm  = 1,npm !
             do ibib = 1, nbnb(k,jpm) !---  ibib loop
               if(jpm==1) then
@@ -589,24 +603,24 @@ c$$$          enddo
 
               do imb1=1,nmbas1
                 zq01 = zmelt(imb1,it,itp)
-cccccccccccccccccccccccccccccc
-                z1stcol= (imb1==2.and.z1offd) !a specical treatment 
-                if(z1stcol) zq01 = zmelt(1,it,itp)
-cccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccc
+c                z1stcol= (imb1==2.and.z1offd) !a specical treatment 
+c                if(z1stcol) zq01 = zmelt(1,it,itp)
+ccccccccccccccccccccccccccccccc
                 do imb2=1,nmbas2
                   zq02 = zmelt(imb2,it,itp)
                   zq0zq0 = dconjg(zq01)*zq02
-cccccccccccccccccccccccccccccc
-                  if(z1stcol) zq0zq0 = dconjg(zq0zq0)
+ccccccccccccccccccccccccccccccc
+c                  if(z1stcol) zq0zq0 = dconjg(zq0zq0)
 cccccccccccccccccccccccccccc
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
                     if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
                     !iiww=iw+ihw(ibib,k)-1
                     imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                    rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
-     &              rcxqmean(iw,jpm,imb1,imb2) 
-     &              + zq0zq0*imagweight !sum over spin in hx0fp0
-c                    print *,'rrrrr: ',k,iw,imagweight,zq0zq0
+c                    rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
+c     &              rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight
+                    rcxq(imb1,imb2,iw,jpm) =  ! here we  sum over ibib (or n, n') and k.
+     &              rcxq(imb1,imb2,iw,jpm) + zq0zq0*imagweight !sum over spin in hx0fp0
                   enddo ! iw
                 enddo ! imb2
               enddo ! imb1
@@ -735,7 +749,7 @@ c$$$        endif
 !$OMP do private(imagweight) 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-            if(eibzmoden==2) imagweight = nwgt(k)*imagweight  
+            if(eibzmode) imagweight = nwgt(k)*imagweight  
             do igb2=1,ngb  !this part dominates cpu time most time consuming...........
             do igb1=1,igb2
               rcxq(igb1,igb2,iw,jpm) =  !here we  sum over ibib (or n, n') and k.
@@ -794,9 +808,12 @@ c        if(ipr) write(6,*)
         !    call cputid(0)
  1000 continue
 
+
+      if(nolfco) goto 9999
+
+
 !TIME0
-!! ==== hermitianize. jun2012takao moved from dpsion5 ====
-      if(.not.nolfco) then
+!! ==== Hermitianize. jun2012takao moved from dpsion5 ====
         do jpm=1,npm
         do iw= 1,nwt
          do igb2= 1,ngb
@@ -806,13 +823,16 @@ c        if(ipr) write(6,*)
          enddo
         enddo
         enddo
-      endif
-!TIME1 "before eibzmoden=2"
+!TIME1 "before eibzmode"
 
-!! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
-      if(eibzmoden==2) then
+
+
+!! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
+!! === zmelt conversion === \mu-basis representation multipled by zcousq
+
+      if(eibzmode) then
 !TIME0 
-        print *,'eibzmoden=2 goto iqindx2'
+c        print *,'eibzmoden=2 goto iqindx2'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1 "after iqindx2"
 !TIME0
@@ -826,8 +846,17 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
 !!
-        zcousqinv=zcousq
-        call matcinv(ngb,zcousqinv)
+
+cccccccccccccccccccccccccccccccccccccccc 
+c        zcousqinv=zcousq
+c        call matcinv(ngb,zcousqinv)
+        zcousqinv = 0d0
+        do i=1,ngb
+           zcousqinv(i,i) = 1d0
+        enddo
+ccccccccccccccccccccccccccccccccccccccccccc
+
+
         nrotmx = 10000 !trial value
 !TIME1 "before 1011"
  1011   continue !only when nrotmx overflow.
@@ -1038,6 +1067,8 @@ c$$$        enddo
 c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
         call cputid2(' --- qqqqq222end:',0)
       endif  
+
+ 9999 continue
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)
       write(6,"(' --- x0kf_v4hz: end')")

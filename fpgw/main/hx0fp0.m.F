@@ -67,7 +67,7 @@ C-------------------------------------------------
      &  qbze(:,:),qibze(:,:)  !,ecore(:,:)
 c     &  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       complex(8),allocatable :: trwv(:),trwv2(:),rcxq(:,:,:,:)
-     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:)
+c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:)
 
 !  tetrahedron method
       logical :: tetra,tmpwwk=.true.! If tmpwwk=.true., this use a temporary file tmp.wwk
@@ -226,7 +226,7 @@ c      integer :: nw2
      &    asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
       real(8):: eex(4),eey(4),qvv(3)
 !!
-      logical :: newaniso,newaniso2,newanisox ,z1offd
+      logical :: newaniso,newaniso2,newanisox !,z1offd
       integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x,ifiss,iq0x
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)
       real(8),allocatable:: vcousq(:)
@@ -1121,12 +1121,12 @@ c      endif
       else
         nmbas_in = 1
       endif
-      if(epsmode.and.nolfco) then
-        allocate( rcxqmean(nwhis,npm,nmbas_in,nmbas_in))
-        if(debug) write(6,"('fff:',3i5)") nwhis,npm,nmbas_in
-      else
-        allocate( rcxqmean(1,1,1,1)) !dummy
-      endif
+c      if(epsmode.and.nolfco) then
+c        allocate( rcxqmean(nwhis,npm,nmbas_in,nmbas_in))
+c        if(debug) write(6,"('fff:',3i5)") nwhis,npm,nmbas_in
+c      else
+c        allocate( rcxqmean(1,1,1,1)) !dummy
+c      endif
 
 
 c      if(chipm) allocate(eiqrm(nmbas)) 
@@ -1301,6 +1301,9 @@ c        endif
           vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
           ifvcoud = iopen(trim(vcoudfile),0,-1,0)
           read(ifvcoud) ngb0
+          if( ngb0/=ngb ) then
+            stop 'hx0fp0.m.f:ngb0/=ngb'
+          endif
           read(ifvcoud) qvv
 c         print *,'qvv=',qvv
           if(sum(abs(qvv-q))>1d-10) then
@@ -1317,6 +1320,10 @@ c         enddo
           read(ifvcoud) zcousq
           idummy=iclose(trim(vcoudfile))
           vcousq=sqrt(vcousq)
+
+          if(allocated(zzr)) deallocate(zzr)
+          allocate(zzr(ngb0,1))
+          zzr(:,1)=zcousq(:,1)
         endif
       
 !! ==== nolfco is overlaid ====
@@ -1460,7 +1467,7 @@ c            write(ifchipmn_mat,"(255e23.15)") eiqrm(1:nmbas)!if necessary, fix 
         endif
 
         if(epsmode.and.nolfco) then !iepsmode==202) then
-          rcxqmean=0d0
+c          rcxqmean=0d0
         else
           write(6,*) "rcxq alloc ngb nwhis npm ---",ngb,nwhis,npm
           allocate( rcxq(ngb,ngb,nwhis,npm) )
@@ -1491,7 +1498,7 @@ c            write(ifchipmn_mat,"(255e23.15)") eiqrm(1:nmbas)!if necessary, fix 
             if(is==1) isf=2
             if(is==2) isf=1
             rcxq=0d0
-            if(epsmode.and.nolfco) rcxqmean=0d0
+c            if(epsmode.and.nolfco) rcxqmean=0d0
           endif
 
 C ---  tetraini block tetra==.true.===============================1ini
@@ -1828,7 +1835,7 @@ c------------------------------------------------------------------
           newanisox=newaniso2
           if(chipm.and.nolfco) newanisox=.false.
           write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
-          z1offd=.false.
+c          z1offd=.false.
 c          if(nolfco) then
 c             nmbas1x = nmbas1
 c          else
@@ -1852,9 +1859,9 @@ c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
      o    rcxq,   !  rcxq is the accumulating variable for spins 
 c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,  
      i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,  
-     i    newanisox, z1offd,!for nolfco Add nmbas Sep2006
+     i    newanisox, !z1offd,!for nolfco Add nmbas Sep2006
 c     o    rcxqmean(:,:,1:nmbas1x,:), !output in the case of nolfco
-     o    rcxqmean, !output in the case of nolfco
+c     o    rcxqmean, !output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
 c          print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !! complex conjugate part
@@ -1950,13 +1957,13 @@ c            write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)')
 c        &   nwhis,nw_i,nw,niw,nmbas1,nmbas2
 c              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
 !! rcxqmean--->rcxq index conversion
-            if(nolfco) then
-              do iw=1,nwhis
-                do jpm=1,npm
-                  rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
-                enddo
-              enddo
-            endif
+c            if(nolfco) then
+c              do iw=1,nwhis
+c                do jpm=1,npm
+c                  rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
+c                enddo
+c              enddo
+c            endif
 !! nolfco mode in dpsion5 is removed.
             write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 

@@ -1,4 +1,4 @@
-FC = gfortran
+FC = gfortran -g
 LK = gfortran
 
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
