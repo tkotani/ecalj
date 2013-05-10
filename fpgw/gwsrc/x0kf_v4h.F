@@ -461,73 +461,74 @@ c           if(newanisox) then   !.and.iq==1) then
 !TIME0 
 
 
-!! No LocalFieldCorrection mode
-        if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
-          do jpm  = 1,npm !
-            do ibib = 1, nbnb(k,jpm) !---  ibib loop
-              if(jpm==1) then
-                if( n1b(ibib,k,jpm) <= nbcut.and. n2b(ibib,k,jpm)>nbcut2) then !oct2005
-                  if(iww2) then
-                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                    iww2=.false.
-                  endif
-                  cycle
-                endif
-              else
-                if( n2b(ibib,k,jpm) <= nbcut.and. n1b(ibib,k,jpm)>nbcut2) then !oct2005
-                  if(iww2) then
-                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                    iww2=.false.
-                  endif
-                  cycle
-                endif
-              endif
+!!march2013--> this if branch of nolfco is now unified to do 25 
+c$$$!! No LocalFieldCorrection mode 
+c$$$        if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
+c$$$          do jpm  = 1,npm !
+c$$$            do ibib = 1, nbnb(k,jpm) !---  ibib loop
+c$$$              if(jpm==1) then
+c$$$                if( n1b(ibib,k,jpm) <= nbcut.and. n2b(ibib,k,jpm)>nbcut2) then !oct2005
+c$$$                  if(iww2) then
+c$$$                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+c$$$                    iww2=.false.
+c$$$                  endif
+c$$$                  cycle
+c$$$                endif
+c$$$              else
+c$$$                if( n2b(ibib,k,jpm) <= nbcut.and. n1b(ibib,k,jpm)>nbcut2) then !oct2005
+c$$$                  if(iww2) then
+c$$$                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+c$$$                    iww2=.false.
+c$$$                  endif
+c$$$                  cycle
+c$$$                endif
+c$$$              endif
+c$$$
+c$$$              if( jpm==1.and.n2b(ibib,k,jpm) > nbmx) cycle
+c$$$              if( jpm==2.and.n1b(ibib,k,jpm) > nbmx) cycle
+c$$$
+c$$$              if( n1b(ibib,k,jpm) <= nband) then
+c$$$                it = nctot + n1b(ibib,k,jpm) !valence
+c$$$              else
+c$$$                it = n1b(ibib,k,jpm) - nband !core
+c$$$              endif
+c$$$
+c$$$              if( n2b(ibib,k,jpm) <= nband) then
+c$$$                itp = ncc + n2b(ibib,k,jpm) - itps + 1 !val
+c$$$                if(itp > ncc + nkqmax-itps+1 ) cycle
+c$$$              else
+c$$$                itp =       n2b(ibib,k,jpm) - itps + 1 - nband !core
+c$$$              endif
+c$$$
+c$$$              do imb2=1,nmbas
+c$$$                zq02 = zmelt(imb2,it,itp)
+c$$$                do imb1=1,imb2
+c$$$                  zq01 = zmelt(imb1,it,itp)
+c$$$                  zq0zq0 = dconjg(zq01)*zq02
+c$$$                  do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
+c$$$                    if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
+c$$$                    !iiww=iw+ihw(ibib,k)-1
+c$$$                    imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+c$$$                    if(eibzmode) imagweight = nwgt(k)*imagweight  
+c$$$c                    rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
+c$$$c     &              rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight
+c$$$                    rcxq(imb1,imb2,iw,jpm) =  ! here we  sum over ibib (or n, n') and k.
+c$$$     &              rcxq(imb1,imb2,iw,jpm) + zq0zq0*imagweight !sum over spin in hx0fp0
+c$$$                  enddo ! iw
+c$$$                enddo ! imb1
+c$$$              enddo ! imb2
+c$$$            enddo ! ----- ibib loop
+c$$$          enddo ! ----- jpm loop
+c$$$          deallocate(zmelt,z1p)
+c$$$          cycle !cycye do 1000 here
+c$$$        endif  
+c$$$!TIME1 "before jpm ibib loop"
+c$$$!TIME0
 
-              if( jpm==1.and.n2b(ibib,k,jpm) > nbmx) cycle
-              if( jpm==2.and.n1b(ibib,k,jpm) > nbmx) cycle
-
-              if( n1b(ibib,k,jpm) <= nband) then
-                it = nctot + n1b(ibib,k,jpm) !valence
-              else
-                it = n1b(ibib,k,jpm) - nband !core
-              endif
-
-              if( n2b(ibib,k,jpm) <= nband) then
-                itp = ncc + n2b(ibib,k,jpm) - itps + 1 !val
-                if(itp > ncc + nkqmax-itps+1 ) cycle
-              else
-                itp =       n2b(ibib,k,jpm) - itps + 1 - nband !core
-              endif
-
-              do imb2=1,nmbas
-                zq02 = zmelt(imb2,it,itp)
-                do imb1=1,imb2
-                  zq01 = zmelt(imb1,it,itp)
-                  zq0zq0 = dconjg(zq01)*zq02
-                  do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-                    if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
-                    !iiww=iw+ihw(ibib,k)-1
-                    imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                    if(eibzmode) imagweight = nwgt(k)*imagweight  
-c                    rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
-c     &              rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight
-                    rcxq(imb1,imb2,iw,jpm) =  ! here we  sum over ibib (or n, n') and k.
-     &              rcxq(imb1,imb2,iw,jpm) + zq0zq0*imagweight !sum over spin in hx0fp0
-                  enddo ! iw
-                enddo ! imb1
-              enddo ! imb2
-            enddo ! ----- ibib loop
-          enddo ! ----- jpm loop
-          deallocate(zmelt,z1p)
-          cycle !cycye do 1000 here
-        endif  
-!TIME1 "before jpm ibib loop"
-!TIME0
 
 c----------------------------
-c  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-c  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-c        write(6,*)" nkmax ",nkmax,nkqmax,itps
+!!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+!!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 !KINO        write(*,'(a,i4)')'kino: npm=',npm
 !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
@@ -653,6 +654,7 @@ c$$$  endif
  25     continue
 !$OMP end parallel 
 !TIME1 "after rcxq"
+
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c        if(ipr) then
 c$$$          do jpm=1,npm
@@ -684,14 +686,12 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
  1000 continue
 
-
-!! not need to be symmetrized
-      if(nolfco.and. nmbas==1) then
+!! Not need to be symmetrized
+      if(nolfco .and. nmbas==1) then
          goto 9999
       endif
-
-
 !TIME0
+
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
       if(eibzmode) then
         do jpm=1,npm
@@ -712,7 +712,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !! === zmelt conversion === \mu-basis representation multipled by zcousq
       if(eibzmode.and.symmetrize) then
 !TIME0 
-c        print *,'eibzmoden=2 goto iqindx2'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1 "after iqindx2"
 !TIME0
@@ -730,16 +729,17 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         call matcinv(ngb,zcousqinv)
 
 
-!! == Rotantion matrx block. 
-!! zrrx is sparse. It is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)"
-!! See folloings: matmul(rcxqwww,zrrx) is given as
+!! == Assemble rotantion matrx zrr,zrrc ==
+!! Rotation matrix zrrx is a sparse matrix. 
+!! Thus it is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)".
+!! See folloings: matmul(rcxqwww,zrrx) is given by
 !!     do irotm1 = 1,nrotm(icc)
 !!       rcxq0(:,i2(irotm1,icc)) = rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,i2(irotm1,icc))
 
         allocate(zrrx(nmbas,nmbas))
         nrotmx = 10000 !trial value
 !TIME1 "before 1011"
-        do 1011  !this loop is only to set large enough ntormx.
+        do 1011  !this loop is only in order to to set large enough nrotmx.
 !TIME0 
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
         nccc=ngrp*2
@@ -748,8 +748,6 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         i2=-99999
         zrr=-99999d0
         zrrc=-99999d0
-c        zrr_=-99999d0
-c        zrrc_=-99999d0
         call cputid2(' --- qqqqq111   :',0)
 !TIME1 "call cputid2 qqqqq11"
 !!
@@ -763,24 +761,30 @@ c        zrrc_=-99999d0
               icc=icc+1
 !TIME0
 
-!! Get rotation matrix zrrx. It can be sparse matrix.
+!! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
+              call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
               if(nolfco.and.chipmzzr) then 
-                 stop 'x0kf_v4h: xxxxxxxxx developing now.... 1111 xxxxxxxxxxxxxx'
+!! NOTE: we assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
+!!        If IPW part exist, we may have to calculate 
+!! svec --> zzr
+                if(itimer==1) then
+                  zrrx= matmul(transpose(dconjg(zzr)), matmul(zrotm, zzr)) 
+                else  
+                  zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr)) ! T-Rev case. Is this correct?
+                endif 
               elseif(nolfco) then 
-                 stop 'x0kf_v4h: xxxxxxxxx developing now.... 2222 xxxxxxxxxxxxxx'
+                 stop 'x0kf_v4h: this case is not implemented xxxxxxxxxxxxxx'
               else   
 !! zrrx are rotation matrix for \mu based representaion of mixed basis. PRB.81,125102(2010) Eq.(51)
 !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
-                call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
                 if(itimer==1) then
                   call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
                   ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq)) 
                 else  
-                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
+                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) !T-Rev case. Is this correct?
                   ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
                 endif 
               endif
-
 c              zrr_(:,:,icc)=zrrx
 c              zrrc_(:,:,icc)=transpose(dconjg(zrrx))
 !TIME1 "end matmmsparse"
@@ -821,12 +825,12 @@ c              zrrc_(:,:,icc)=transpose(dconjg(zrrx))
 !TIME0
         exit
  1011   continue !only when nrotmx overflow.
-
-
-
 !KINO        write(*,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
+
+
 !! === main part to obtain symmetrized rcxq  ===
-c        call cputid(0)
+!! neibz is total number of symmetrization operation. 
+!!      rcxq is rotated and accumulated; finally divied by neibz
 c        zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
@@ -868,7 +872,7 @@ c$$$               enddo
 c$$$               enddo
 c$$$               endif
 
-!!  Followings are equiv with
+!!  Followings are equivalent with
 !!            rcxq00= rcxq00 + matmul(zrrc_(:,:,icc),matmul(rcxqwww,zrr_(:,:,icc)))
                do irotm1 = 1,nrotm(icc)
                  if(abs(zrr(irotm1,icc))<1d-8) cycle

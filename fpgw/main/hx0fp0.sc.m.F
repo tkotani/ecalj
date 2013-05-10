@@ -826,31 +826,19 @@ c     print *,'qvv=',qvv
             idummy=iclose(trim(vcoudfile))
             vcousq=sqrt(vcousq)
          endif
-
-c commentout block inversion
+!!
          if(newaniso2.and. iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then !for mmmw
             if( ngb0/=ngb ) then
                stop 'hx0fp0.m.f:ngb0/=ngb'
             endif
             nolfco =.true.
-            nmbas_in=1 !ngb
-c            nmbas1 = 1  ! If nmbas1=2 and nmbas2=ngb, we calculate wing elements.
-c                        ! ==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
-c            nmbas2 = 1  ! 
-c            if(allocated(rcxqmean)) deallocate(rcxqmean)
-c            allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
-c            rcxqmean= 0d0
+            nmbas_in = 1 
          elseif(newaniso2) then !.and.iq==1) then
             nolfco = .false.
             nmbas_in = ngb
-c            nmbas1=ngb          !meaningful in dpsion5, not used in x0kf_v4h.
-c            nmbas2=ngb          !
          endif
          nmbas1 = nmbas_in
          nmbas2 = nmbas1
-
-
-
 
          if(newaniso2) then
             if(allocated(ppovlz)) deallocate(ppovlz)
@@ -1191,7 +1179,7 @@ c     endif
 !TIME1 "before x0kf_v4hz"
 !TIME0 
             iqeibz=iq
-            eibzmode = eibz4x0().and.(.not.nolfco)
+            eibzmode = eibz4x0() !.and.(.not.nolfco)
             symmetrize=(is==nspinmx)
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5

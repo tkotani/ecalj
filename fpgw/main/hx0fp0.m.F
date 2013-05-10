@@ -1850,7 +1850,7 @@ c          else
 c            nmbas1x = 1
 c          endif  
 c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
-          eibzmode = eibz4x0().and.(.not.nolfco)
+          eibzmode = eibz4x0() !.and.(.not.nolfco)
           symmetrize=(is==nspinmx)
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
