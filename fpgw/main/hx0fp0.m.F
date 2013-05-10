@@ -246,7 +246,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
-      logical:: eibz4x0,tiii,iprintx,symmetrize
+      logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
       real(8):: qread(3)
 c      integer,allocatable :: iclasst(:)
       character(128):: vcoudfile
@@ -1115,12 +1115,12 @@ cc        allocate(jcoup(nw_i:nw,neps))
 c        mmnorm=1d0
 c      endif
 
-! nmbas_in is for rcxqmean
-      if(chipm .and. nolfco) then !.and. ix/=10222) then
-        nmbas_in = nmbas
-      else
-        nmbas_in = 1
-      endif
+c! nmbas_in is for rcxqmean
+c      if(chipm .and. nolfco) then !.and. ix/=10222) then
+c        nmbas_in = nmbas
+c      else
+c        nmbas_in = 1
+c      endif
 c      if(epsmode.and.nolfco) then
 c        allocate( rcxqmean(nwhis,npm,nmbas_in,nmbas_in))
 c        if(debug) write(6,"('fff:',3i5)") nwhis,npm,nmbas_in
@@ -1336,17 +1336,30 @@ c$$$          if(allocated(rcxqmean)) deallocate(rcxqmean)
 c$$$          allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
 c$$$          rcxqmean= 0d0
 c$$$        elseif(newaniso2.and.ixc==11) then !.and.iq==1) then
-        if(newaniso2.and.ixc==11) then !.and.iq==1) then
-          nmbas1=ngb !meaningful in dpsion5, not used in x0kf_v4h.
-          nmbas2=ngb !
-        elseif(nolfco) then
-          nmbas1=nmbas_in
-          nmbas2=nmbas_in
-        else
-          nmbas1=ngb
-          nmbas2=ngb
-        endif
 
+!! nmbas_in is for rcxqmean
+        if(chipm .and. nolfco) then !.and. ix/=10222) then
+          nmbas_in = nmbas
+        elseif(nolfco) then
+          nmbas_in = 1
+        else
+          nmbas_in = ngb
+        endif
+        nmbas1 = nmbas_in
+        nmbas2 = nmbas1
+c$$$
+c$$$        if(newaniso2.and.ixc==11) then !.and.iq==1) then
+c$$$          nmbas1=ngb !meaningful in dpsion5, not used in x0kf_v4h.
+c$$$          nmbas2=ngb !
+c$$$        elseif(nolfco) then
+c$$$          nmbas1=nmbas_in
+c$$$          nmbas2=nmbas_in
+c$$$        else
+c$$$          nmbas1=ngb
+c$$$          nmbas2=ngb
+c$$$        endif
+c$$$ccccccccccccccccccccccccc
+ccccccccccccccccccccccccccc
         if(chipm.and.nolfco) then
         elseif(newaniso2) then
           if(allocated(ppovlz)) deallocate(ppovlz)
@@ -1837,6 +1850,7 @@ c          else
 c            nmbas1x = 1
 c          endif  
 c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
+          eibzmode = eibz4x0().and.(.not.nolfco)
           symmetrize=(is==nspinmx)
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
@@ -1854,8 +1868,8 @@ c          if(newaniso2.and. iq>nqibz.and.ixc==11) nmbas1x=1
      i    nqbze,nband,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
 c     i    nolfco,zzr,nmbas_in,nmbas1x,nmbas2, ppovlz, ppovl,zcousq,  
-     i    nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,  
-     i    chipm, !z1offd,!for nolfco Add nmbas Sep2006
+     i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
+     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
 c     o    rcxqmean(:,:,1:nmbas1x,:), !output in the case of nolfco
 c     o    rcxqmean, !output in the case of nolfco
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))

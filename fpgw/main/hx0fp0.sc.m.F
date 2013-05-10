@@ -124,7 +124,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
       integer:: ifw0w0i
-      logical :: readw0w0i,symmetrize
+      logical :: readw0w0i,symmetrize,eibzmode
       real(8):: schi=-9999 !dummy
 
 !-------------------------------------------------------------------------
@@ -833,18 +833,24 @@ c commentout block inversion
                stop 'hx0fp0.m.f:ngb0/=ngb'
             endif
             nolfco =.true.
-            nmbas_in=ngb
-            nmbas1 = 1  ! If nmbas1=2 and nmbas2=ngb, we calculate wing elements.
-                        ! ==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
-            nmbas2 = 1  ! 
+            nmbas_in=1 !ngb
+c            nmbas1 = 1  ! If nmbas1=2 and nmbas2=ngb, we calculate wing elements.
+c                        ! ==> See z1stcol in x0kf_v4h. 2nd row is for 1st-columun vector.
+c            nmbas2 = 1  ! 
 c            if(allocated(rcxqmean)) deallocate(rcxqmean)
 c            allocate( rcxqmean(nwhis,npm,nmbas1,nmbas2) )
 c            rcxqmean= 0d0
          elseif(newaniso2) then !.and.iq==1) then
             nolfco = .false.
-            nmbas1=ngb          !meaningful in dpsion5, not used in x0kf_v4h.
-            nmbas2=ngb          !
+            nmbas_in = ngb
+c            nmbas1=ngb          !meaningful in dpsion5, not used in x0kf_v4h.
+c            nmbas2=ngb          !
          endif
+         nmbas1 = nmbas_in
+         nmbas2 = nmbas1
+
+
+
 
          if(newaniso2) then
             if(allocated(ppovlz)) deallocate(ppovlz)
@@ -1181,9 +1187,11 @@ c     else
 c     nmbas1x = 1
 c     endif  
 
-!TIME1 "before x0kf_v2hz"
+
+!TIME1 "before x0kf_v4hz"
 !TIME0 
             iqeibz=iq
+            eibzmode = eibz4x0().and.(.not.nolfco)
             symmetrize=(is==nspinmx)
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
@@ -1200,11 +1208,12 @@ c     endif
      i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i           nqbze,nband,nqibz, 
      o           rcxq,          ! rcxq is the accumulating variable for spins 
-     i           nolfco,zzr,nmbas_in,nmbas1,nmbas2, ppovlz, ppovl,zcousq,
-     i           chipm,  !z1offd,
+     i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
+     i           chipm,eibzmode,  !z1offd,
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
             print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
+
 
 c===========Check write mode4 block ixc==4 ============6ini
 ccccccccccccccccccfaleev 21May02 ixc==4 not used
