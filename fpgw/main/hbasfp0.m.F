@@ -98,6 +98,12 @@ c          write(6, '(" lcutmxa=",20i3)' ) lcutmxa(1:natom)
       lcutmxa=lcutmx
   990 continue
       close(ifinin)
+
+      if(ix==8) then
+         print *,' Enfoece lcutmx=0 for all atoms'
+         lcutmxa=0
+      endif
+
       write(6,"(' lcutmxa=',$)")
       write(6,'(20i3)') lcutmxa(1:natom)
       lmx        = 2*(nl-1)
@@ -243,6 +249,7 @@ c-----------
          cutbase=1d-6
       endif
 
+
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
@@ -255,7 +262,7 @@ c-----------
       if(ix==4) stop ' OK! hbasfp0 ix=4 ptest mode  '
       if(ix==6) stop ' OK! hbasfp0 ix=6 Exx core-val mode  '
       if(ix==7) stop ' OK! hbasfp0 ix=7 Exx val-val mode  '
-      if(ix==8) stop ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den> '
+      if(ix==8) stop ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.'
  998  if(ix==5) stop ' OK! hbasfp0 ix=5 ex core mode  '
       end
 

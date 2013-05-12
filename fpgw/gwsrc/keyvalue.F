@@ -392,7 +392,7 @@ c              read(buf(nkey+1:),*,end=2000,err=2000) i(1:n)
           buf= adjustl(buf)
 c
           call input_septoken(buf,n,i,noutx) !takao sep2006
-          write(6,*) 'readin nout=',noutx
+c          write(6,*) 'readin nout=',noutx
           if(present(nout)) nout=noutx
           if (printlevel.ge.1) then
             write(output,*)'characterv:', key(:len_trim(key)), (i(j),j=1,noutx)
@@ -526,7 +526,7 @@ c ---
 c            successfully read, then convert
 c            read(..., end) is done in input_characterv()
         read(str,*,err=2000,end=3000) (i(j),j=1,nout) !takao sep2006
-        write(6,*)" aaaaaaaaaaa success",nout,success
+c        write(6,*)" aaaaaaaaaaa success",nout,success
         if (present(success)) then
           if(success/=-9999) then
             if(n/=nout) goto 3000

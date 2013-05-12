@@ -434,8 +434,7 @@ c Write energy mesh along imag axis and real axis. -----------------------
         fff = img * freqi(iw)            ! along img axis
         write(ifi,"(i3,2d15.6)")iw,fff*2d0
       enddo
-      write(ifi,"('  0   0.000000D+00   0.000000D+00
-     &   ! This line is a dummy not in niw.')")
+      write(ifi,"('  0   0.000000D+00   0.000000D+00  ! This line is a dummy not in niw.')")
       write(ifi,"(' iw   omega(Ry) on Real-axis  nw=', i8)") nnw
       do iw= 0,nnw-1
         fff = freqr(iw) + img*delta ! delta is in a.u.  ! along real axis

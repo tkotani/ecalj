@@ -170,8 +170,22 @@ c$$$c        zcousqr = dconjg(zcousqr)
 c$$$c      endif  
 c$$$      end subroutine rotMPB
 !! ------------------------------------
+
       subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
      o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+!! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
+!! See Eq.(51) around in PRB81 125102(2010). 
+!! Eq. (51) can be written as
+!!   P_IJ= \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P'_I'J' zrom_i(J'J) ],
+!! where P'_I'J' is ths sum not yet symmetrized. 
+
+!!
+!! Eexactrly speaking, we insert conversion matrix  between Enu basis and M_I basis.
+!! It is zcousq(or zzr) in x0kf_v4h.F
+!!
+!! input qin = q
+!! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
+!! Note that k= \hat{A}^k_i(k) (S_A^k)
       implicit none
       real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3),sss
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j

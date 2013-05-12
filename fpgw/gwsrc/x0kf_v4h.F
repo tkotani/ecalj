@@ -259,7 +259,7 @@ ckinoend
         if(k<=5) then
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
-        elseif(mod(k,max(10,nqbz/20))==1.or.k==nqbz) then
+        elseif(mod(k,max(10,nqbz/20))==1.or.k>nqbz-10) then
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
         endif
@@ -688,6 +688,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
 !! Not need to be symmetrized
       if(nolfco .and. nmbas==1) then
+         print *,' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
 !TIME0
@@ -708,15 +709,26 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! ------------------------------------------------------------------------
-!! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
-!! === zmelt conversion === \mu-basis representation multipled by zcousq
+!! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
+!! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
+!! We do \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P_I'J' zrom_i(J'J) ] 
+!! (exactrly speaking, we insert conversion matrix between Enu basis and M_I basis).
+!!
+!! input qin = q
+!! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
+!! Note that k= \hat{A}^k_i(k) (S_A^k)
+!! See Eq.(51) around in PRB81 125102(2010)
+
+!! === zmelt conversion === 
+!! \mu-basis representation multipled by zcousq
       if(eibzmode.and.symmetrize) then
 !TIME0 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1 "after iqindx2"
 !TIME0
         if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
-        neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
+        neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
+             !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
         call cputid2(' --- qqqqq: start symmetrization  ',0)
 
@@ -764,24 +776,26 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
 !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
               if(nolfco.and.chipmzzr) then 
-!! NOTE: we assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
-!!        If IPW part exist, we may have to calculate 
-!! svec --> zzr
-                if(itimer==1) then
+!!   We assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
+!!   If IPW part exist, we may have to take into account <IPW|IPW> matrix, e.g. as in ppovlz. 
+!!   svec --> zzr
+               if(itimer==1) then
                   zrrx= matmul(transpose(dconjg(zzr)), matmul(zrotm, zzr)) 
                 else  
-                  zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr)) ! T-Rev case. Is this correct?
+                  zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr)) 
                 endif 
               elseif(nolfco) then 
                  stop 'x0kf_v4h: this case is not implemented xxxxxxxxxxxxxx'
               else   
-!! zrrx are rotation matrix for \mu based representaion of mixed basis. PRB.81,125102(2010) Eq.(51)
+!! zrotm(J,J') is the rotation matrix = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>
+!! See rotMPB2 defined in readeigen.F.
 !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
+!! zrrx is very sparse matrix. Size is \sim ngb or something.
                 if(itimer==1) then
                   call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
                   ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq)) 
                 else  
-                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) !T-Rev case. Is this correct?
+                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) 
                   ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
                 endif 
               endif

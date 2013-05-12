@@ -188,13 +188,9 @@ c$$$      enddo
       if(iprintx) write(6,"('eibzgen: RequiredTimeReversal ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1
-ccccccccccccccccccccccccccccccccccccc
-c      ntimer=1
-ccccccccccccccccccccccccccccccccccccc
       igx=99999
       igxt=99999
-
-!!    check if  symgg(:,:,1) 
+!!
       sss(1,:)=(/1d0,0d0,0d0/)
       sss(2,:)=(/0d0,1d0,0d0/)
       sss(3,:)=(/0d0,0d0,1d0/)
@@ -258,16 +254,16 @@ c          if(iprintx) print *,' ibz neibzx',ibz,neibzx
 !! ---------------------------------------
 
 !! used eibz sym is
-        if(iprintx)write(6,"('iq=',i8,' # of EIBZ: Full=',i8, 
-     &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
-     &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
+c        if(iprintx)write(6,"('iq=',i8,' # of EIBZ: Full=',i8, 
+c     &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
+c     &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
         neibz(iq)=neibzx !number of eibz for iq
         if(iprintx) then
            write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i3)") iq,q,neibz(iq),nqbz
-           do ik=1,nqbz
-              if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i8,3f11.5,i4,2x,25(i4,i2))") 
-     &             ik, qbz(:,ik),nwgt(ik,iq), (igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
-           enddo
+c           do ik=1,nqbz
+c              if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i8,3f11.5,i4,2x,25(i4,i2))") 
+c     &             ik, qbz(:,ik),nwgt(ik,iq), (igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
+c           enddo
         endif
 cccccccccc
 c        do ig=1,ngrp
@@ -284,8 +280,7 @@ ccccccccc
       do iq = iqxini,iqxend
 c        if(iq>nqibz) cycle
         nwgtsum = nwgtsum + sum(nwgt(1:nqbz,iq))
-c        if(iprintx) print *, iq, neibz(iq),sum(nwgt(1:neibz(iq),iq))
-        if(iprintx) print *,'iq neibz sum(nwgt)=',iq, neibz(iq),sum(nwgt(1:nqbz,iq))
+c        if(iprintx) print *,'iq neibz sum(nwgt)=',iq, neibz(iq),sum(nwgt(1:nqbz,iq))
       enddo
       if(iprintx) print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
      &  sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) ! why it was (iqxend-iqxini+1-1). 25sep2012
