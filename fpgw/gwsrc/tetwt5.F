@@ -5,13 +5,13 @@
      i    nctot,ecore,  idtetf,qbzw,ib1bz,
 c
      i   job,
-     o   iwgt,nwgt,           !job=0
+     o   iwgt,nbnb,           !job=0
      o   demin, demax,       !job=0   Note these are real(4)
 c
      i          frhis,nwhis,
      i          nbnbx,ibjb,nhwtot, ihw,nhw,jhw, !job=1
      o          whw,                            !job=1
-     i   iq,isp1,isp2,nqibz) ! new input for mtett
+     i   iq,isp1,isp2,nqibz,eibzmode,nwgt) ! new input for mtett
       use keyvalue
 C- Obtain weights for Dielectric function by tetrahedron method.
 Cr This version tetwt5x_dtet4 Feb2006 works for timereversal=off (npm=2 case)
@@ -37,7 +37,7 @@ Ci nqbz    = number of k-points in the 1st BZ
 Ci
 c
 c ------------------------------------------------------------
-c job=0 is to get  wgt,nwgt, demin,demax.
+c job=0 is to get  wgt,nbnb, demin,demax.
 c   They are just for the allocation of arrays and set up required indexes.
 c   wgt is now used only for counting nonzero pairs of ib(occupied) jb(unoccupied)
 c   demin demax is maximum and minimum possible values of the excitation energies.
@@ -87,7 +87,7 @@ c feb2006
 
 c---in out -------------------------------
       integer(4) :: nband,nqbz,nctot,ntetf,nqbzw,
-     &   idtetf(0:3,ntetf),ib1bz(nqbzw), nwgt(nqbz,npm)
+     &   idtetf(0:3,ntetf),ib1bz(nqbzw), nbnb(nqbz,npm)
       real(8) :: q(3),
      &   eband1(nband,nqbz), eband2(nband,nqbz),
      &   qbas(3,3),ginv(3,3),efermi,
@@ -169,18 +169,20 @@ c-devided tet
 
       integer :: nbandmx_kq,nbandmx_k
       real(8):: fermi_dS(3,3) !not yet used...
+
+      logical:: eibzmode
+      integer:: nwgt(nqbz)
+
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
-      if(verbose()>=150) chkwrt=.true.
-
+c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
       fermi_dS=0d0
       if(job==0) iwgt = .false.
 
-c--- devided-tetrahedron method.
+!! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       mtet=(/1,1,1/)
-c      if(readgwinput())
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       if(sum(abs(mtet))/=3) then
         mtett=.true.
@@ -190,6 +192,7 @@ c      if(readgwinput())
         mtett=.false.
       endif
 
+!! read mtet or not.
       if(mtett) then
         ifmtet=501
         open (ifmtet, file='mtet',form='unformatted')
@@ -230,9 +233,7 @@ c      if(readgwinput())
         wtet=0.25d0
       endif
 
-      if(verbose()>150) print *,' xxx1'
-c-----------------------------------------------------------------------
-c      allocate( wgt1(nband+nctot,nband) )
+!!
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -243,15 +244,9 @@ c      allocate( wgt1(nband+nctot,nband) )
         ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
       enddo
 
-ccccccccccccccccccccccccccccccccccc
-c              print *, 'sumcheck zzz=',sum(abs(ekxx2)),sum(abs(eband2))
-ccccccccccccccccccccccccccccccccccc
-
-      if(verbose()>150) print *,' xxx2'
-
-! eigenvalues at q and q+k ---------------------------------------
-!  ekzz1 for k
-!  ekzz2 for q+k.
+!! Read eigenvalues at q and q+k ---------------------------------------
+!!  ekzz1 for k
+!!  ekzz2 for q+k.
       allocate( ekzz1(nband+nctot,nqbzm),ekzz2(nband+nctot,nqbzm))
       if(mtett) then
         print *, ' mtett mode nqbzm nqibz=',nqbzm,nqibz
@@ -259,32 +254,10 @@ ccccccccccccccccccccccccccccccccccc
           ekzz1( 1:nband, kx)              = eigtet(1:nband,kx,isp1)
           ekzz1( nband+1: nband+nctot, kx) = ecore(1:nctot)
           ekzz2( nband+1: nband+nctot, kx) = ecore(1:nctot)
-
-ccccccccccccccccccccc
-c          do ib=1,nband
-c          if(eigtet(ib,kx,isp1)>20) then
-c            write(6,"('eigtet=',3i5,f13.5)")
-c     &      ib,kx,isp1,eigtet(ib,kx,isp1)
-c          endif
-c          enddo
-ccccccccccccccccccccc
-
         enddo
-
         if(iq<=nqibz) then
           do kx = 1, nqbzm
-!          q(1:3)+qbzm(1:3,kx) ----> kqxxm
-c      print *,' xxx3 ginv=',ginv
-c      print *,' q+qbzm= ', q(1:3) + qbzm(1:3,kx)
-c          call fbz2 ( q(1:3) + qbzm(1:3,kx),
-c     i      ginv ,index_qbzm,n_index_qbzm,qbzm,nqbzm,
-c     o      qdummy,kqxxm)
             kqxxm = iqindx(q(1:3)+qbzm(1:3,kx),ginv,qbzm,nqbzm)
-c          write(6,*) 'kqxxm2 kqxxm=',kqxxm2,kqxxm
-c          if(kqxxm/=kqxxm2) then
-c             print *,' q=',q
-c             stop 'kqxxm/=kqxxm2'
-c          endif
             ekzz2(1:nband, kx) = eigtet(1:nband,kqxxm,isp2) !ekzz1(1:nband, kqxxm)
           enddo
         else
@@ -292,11 +265,6 @@ c          endif
             kp  = nqbzm *(iq - nqibz) + kx
             ekzz2(1:nband, kx)= eigtet(1:nband,kp,isp2)
           enddo
-cccccccccccccccccccccccccccccccccccccccc
-C        print *, 'sumcheck ssssss1=',sum(abs(ekzz2(1:nband,1:nqbzm)))
-C        kp  = nqbzm *(iq - nqibz) + 1
-C        print *,'sumcheck ssssss2=',sum(abs(eigtet(1:nband,kp:kp+nqbzm-1,isp)))
-cccccccccccccccccccccccccccccccccccccccc
         endif
         deallocate( eigtet)!,index_qbzm)
       else
@@ -304,7 +272,8 @@ cccccccccccccccccccccccccccccccccccccccc
         ekzz2=ekxx2
       endif
 
-c--- 2004dec
+!! Add eigenvalue shift. scissors_x0() is defined in switch.F
+!!         call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
       if(scissors_x0()/=0d0) then
         call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm, 
      o   ekzz1)
@@ -312,21 +281,7 @@ c--- 2004dec
      o   ekzz2)
       endif
 
-c--------------------------------------------------------------------
-c      call cputid  (0)
-c      print *, ' *** q=',q(1:3)
-c      print *, ' qbas ='; write(6,"(3f10.5)")(qbas(1:3,i),i=1,3)
-c      print *, ' vol tot    =',voltot
-c      print *, ' vol of tet =',det33(qbas)/(n1*n2*n3*6)
-c      print *, ' efermi=',efermi
-c      print *, ' nctot nband =',nctot,nband
-c      print *, ' nqbz  =',nqbz
-c      do i=1,nctot
-c      write(6,"('  ecore=',i3,f10.5)")i, ecore(i)
-c      enddo
-
-c      if(mtett) then
-C- Check
+!! Check
       volt = 0d0
       do itet = 1, ntetf
         do im   = 1, nmtet
@@ -335,68 +290,31 @@ C- Check
             kvec(1:3,i) = kvec(1:3,i) - kvec(1:3,0)
           enddo
           volt = volt + abs(det33(kvec(1:3,1:3))/6d0)
-cccccccccccccccc
 c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
-cccccccccccccc
         enddo
       enddo
-c      print *,' xxx4 volt voltot=',volt,voltot
       if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
-c      endif
-
-
-C- kqxx(kx)   ekxx
-c      do kx = 1, nqbz
-c        qk  (1:3) =  rk(1:3,kx) + q(1:3)
-c        qkm (1:3) = -qk(1:3)                     ! qkm = -k-q
-c        call fbz (qk,  n1,n2,n3,qbas,ginv,indexk,
-c     o     qbz,  kqxx(kx) )
-c       write(1212,*) kx, kqxx(kx)
-c      write(6,*)' ekkdf chk=',
-c     & sum(ekxx1( 1:nband, kqxx(kx)) - ekxx2( 1:nband, kx)),
-c     & sum(ekxx1( 1:nband, kx))
-c      enddo
-ccccccccc
-c      do kx = 1, nqbz
-c        call rwdd1 (ifev, kx, nband, ekxx(1:nband, kx))
-c        ekxx1(nband+1: nband+nctot, kx) = ecore(1:nctot)
-c      enddo
 
       if(job==0) then
         demin=  1d10
         demax= - 1d10
       endif
-C- Loop over tetrahedron
-cccccccccccccccccccccccccccccccccccccccccccccc
-c      ntetmx=ntet; ntetmin=1
-c      if(job/=0) then
-c        ntetmin=13
-c        ntetmx =13
-c      endif
-c      do 1000 itet = ntetmin, ntetmx
-ccccccccccccccccccccccccccccccccccccccccccccccc
-c
-      if(verbose()>150) print *,' xxx5'
 
+!! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
-c
-        if(mod(itet,1000)==1.and.verbose()>=150) 
-     &   write(6,*)'  ****** tetwt5: itet out of ntetf=',itet ,ntetf
-        kk (0:3)      = ib1bz( idtetf(0:3,itet) )     !  k
+        kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
+!! may2013 for eizbmode 
+        if(eibzmode.and. sum(nwgt(kk(0:3)))==0) cycle 
         kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
+c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out of ntetf=',itet ,ntetf
         do 1100 im = 1,nmtet
-c       kq (0:3)        = kqxx (kk(0:3))                 !  k+q in micro-tet
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
-
-c        ek  ( 1:nband,       0:3) = ekzz1( 1:nband,       kkm(0:3)) ! k
-c        ekq ( 1:nband,       0:3) = ekzz2( 1:nband,       kkm(0:3)) ! k+q
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-          noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  !the highest number of occupied states (HNOS)
+          noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
+                    !the highest number of occupied states (HNOS)
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
-
-ctakao Apr2009
           nbandmx_k   = nband
           nbandmx_kq  = nband
           do i=1,nband
@@ -411,8 +329,7 @@ ctakao Apr2009
               exit
             endif
           enddo
-
-c--------- ! write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
+c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
           do jpm = 1,npm !feb2006
             if(jpm==1) then
               ibxmx = noccx_k + nctot
@@ -434,7 +351,7 @@ c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 else
                   jb = jbx - noccx_kq + nband
                 endif
-
+!! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
                 if(jpm==1) then
 c           ibxmx = noccx_k + nctot
 c           jbxmx = nband
@@ -521,17 +438,18 @@ c                   endif
               enddo
             enddo
           enddo
-
  1100   continue
  1000 continue
       deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
 
-c      print *, 'sumcheck wgt=', sum(wgt)
 
-C- Symmetrization of wgt and whw  ! We need special cares for degenerate cases.
-c      print *,' tetwt5:Goto symmetrization section'
+!! === Symmetrization of wgt and whw   ===
+!! NOTE: We just enforce the same weight for degenerated bands. 
+!!       In the previous do loop 1000, we judged band connectivity just by the band index.
+!!       If they are degenerated, we have some unbiguity. 
+!!       (which band connedt to which in the microtetrahedron).
       do kx = 1, nqbz     ! ipr = .false.; if(ipr)  print *,' kx =',kx
-c        if(mod(kx,1000)==1) print *,' tetwt5:sym  kx=',kx
+        if(eibzmode.and.nwgt(kx)==0) cycle 
         call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
         call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
         nrankc1 = 0
@@ -557,10 +475,7 @@ c       if(ipr) print *,' kx nrank =',kx,nrank1,nrank2,nrankc
             do irnk2 = 1, nrank2 + nnn2
               ixi1  = ini1(irnk1);  ixe1 = ied1(irnk1)
               ixi2  = ini2(irnk2);  ixe2 = ied2(irnk2)
-
               if(job==0) then
-c            wmean = sum( wgt(ixi1:ixe1,ixi2:ixe2, kx ) )
-c     &            / ((ixe1-ixi1+1)*(ixe2-ixi2+1) )
                 wxx=.false.
                 if( count(iwgt(ixi1:ixe1,ixi2:ixe2,kx,jpm))>0 ) wxx=.true.
                 iwgt(ixi1:ixe1,ixi2:ixe2, kx,jpm ) =  wxx
@@ -569,7 +484,7 @@ c     &            / ((ixe1-ixi1+1)*(ixe2-ixi2+1) )
                 deminn = minval(demin(ixi1:ixe1,ixi2:ixe2, kx,jpm ) )
                 demin(ixi1:ixe1,ixi2:ixe2, kx,jpm ) = deminn
               else
-!--- skip for no data section
+!! --- skip for no data section
                 isum=0
                 do ib = ixi1,ixe1
                   do jb = ixi2,ixe2
@@ -580,7 +495,7 @@ c     &            / ((ixe1-ixi1+1)*(ixe2-ixi2+1) )
                   stop 'tetwt5: isum srrange---1'
                 endif
                 if(isum==0) cycle
-! --- Get symmetrized whw
+!! --- Get symmetrized whw
                 wtthis=0d0
                 do ib = ixi1,ixe1
                   do jb = ixi2,ixe2
@@ -609,11 +524,10 @@ c     &            / ((ixe1-ixi1+1)*(ixe2-ixi2+1) )
  1120   continue
       enddo ! end of kx loop
 
-c---
       if(job==0) then
         do jpm =1, npm
           do ik  =1, nqbz
-            nwgt(ik,jpm) = 0
+            nbnb(ik,jpm) = 0
             if(jpm==1) then
               nnni=nctot
               nnnj=0
@@ -626,26 +540,23 @@ c---
 c        if(abs(wgt(i,j,ik) )>0d0 .and. j>nband) stop 'tetwt5: bug ?' ! bug checker
 c        if(abs(wgt(i,j,ik) )>eps ) then
                 if(iwgt(i,j,ik,jpm)) then
-                  nwgt(ik,jpm) = nwgt(ik,jpm)+1
+                  nbnb(ik,jpm) = nbnb(ik,jpm)+1
 cc          write(56,"(3i4,2d13.6)") i,j,ik, wgt(i,j,ik)
 c          if(abs(wgt(i,j,ik) )>0.1d0 )
 c     &      write(6,"(' k i ik=',3i4,'  wgt= ',2d13.6)")
 c     &      i,j,ik, wgt(i,j,ik)
                 endif
               enddo
-            enddo !;  write(6,*)' ik=',ik,' num of nonzero wgt=',nwgt(ik)
+            enddo !;  write(6,*)' ik=',ik,' num of nonzero wgt=',nbnb(ik)
           enddo
         enddo
-c       write(6,*)' max num of nonzero wgt(k)=',maxval(nwgt)
-c       write(6,*)' tot num of nonzero wgt   =',sum(nwgt)
+c       write(6,*)' max num of nonzero wgt(k)=',maxval(nbnb)
+c       write(6,*)' tot num of nonzero wgt   =',sum(nbnb)
 c       write(6,*)' sum of wgt   =',sum(wgt)
 c       write(6,*)' tetwt4: end '; call cputid  (0)
-        write(6,"('  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=',2i8
-     &         ,' count(iwgt) =',i10)") maxval(nwgt),sum(nwgt),count(iwgt) !,sum(wgt)
+        write(6,"('  tetwt5_dtet3: maxval(nbnb(1:nqbz,1:npm)) sum(nbnb)=',2i8
+     &         ,' count(iwgt) =',i10)") maxval(nbnb),sum(nbnb),count(iwgt) !,sum(wgt)
       endif
-
-c      deallocate(wgt1)
-c      deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
       if (allocated(idtetfm)) deallocate(idtetfm)
       if (allocated(ib1bzm)) deallocate(ib1bzm)
       if (allocated(qbzm)) deallocate(qbzm)
@@ -668,6 +579,7 @@ c      deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
       if (allocated(wtet)) deallocate(wtet)
       end
 c------------------------------------------------------------------------
+
 
 
 

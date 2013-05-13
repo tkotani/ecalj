@@ -1326,7 +1326,7 @@ c          rcxqmean=0d0
      i          nbnbx,ibjb,nhwtot,  ! job=1    not-used !bug:kino-fix  nhwtot was missing though it was dummy
      i          ihw,nhw,jhw,   ! job=1    not-used
      o          whw,           ! job=1    not-used
-     i        iq,is,isf,nqibz)
+     i        iq,is,isf,nqibz, eibzmode,nwgt(:,iq))
 c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
             nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
             if(debug) print *,' nbnbx=',nbnbx
@@ -1549,7 +1549,7 @@ c            write(6,*) 'goto tetwt5x_dtet4 job=',job
      i          nbnbx,ibjb,nhwtot, ! job=1
      i          ihw,nhw,jhw,       ! job=1
      o          whw,               ! job=1
-     i   iq,is,isf,nqibz)
+     i   iq,is,isf,nqibz, eibzmode,nwgt(:,iq))
 !! ======TetrahedronWeight_5 block end =========
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$            print *,' nqbz=',nqbz

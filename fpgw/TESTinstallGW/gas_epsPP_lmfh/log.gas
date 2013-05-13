@@ -9,7 +9,7 @@ fa op 0   7  1.155 -0.562  stf     0   370  ev -1.08378 -1.08659  pq  4.87  2.00
 fa op 1  11  1.155 -0.100  stf     0  3088  ev -0.38438 -0.39922  pq  4.81  3.00
 fa op sumev   -3.37085   opt basis   -3.32068   err  0.05017
 fa Z  33.0   rm  49.26  qc 28.00  qspl 0.01887  dq 0.00000  Etot   -4515.355064
- CPU time:    0.348s     Sun May  5 01:56:19 2013   on  
+ CPU time:    0.292s     Mon May 13 16:29:27 2013   on  
  -----------------------  START LMF      -----------------------
   LMF  vn 7.00(LMF 7.0)  verb 41,20
  special:  forces
@@ -290,7 +290,7 @@ fp ib   2  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
 fp ib   3  fh     0.00   -0.00   -0.00   fks     0.00   -0.00   -0.00
 fp ib   4  fh     0.00   -0.00   -0.00   fks     0.00   -0.00   -0.00
 fp elind 0.8489  Anderson n 1 beta 0.7  sm-dq 3.17e-7  mx loc 6.32e-7  dq 4.19e|
- CPU time:   14.709s     Sun May  5 01:56:33 2013   on  
+ CPU time:   12.297s     Mon May 13 16:29:40 2013   on  
  -----------------------  START LMFGWD   -----------------------
   LMFGWD  vn 7.00(LMFGWD 7.0)  verb 41,20
  special:  forces
@@ -321,4 +321,4 @@ fp pot  rvxc      -406.6577423  rexc       -307.1032990  rves   -16663.6034178
 fp pot  rex       -295.8799073  rec         -11.2233917
 fp pot  rvvxcv        0.0000000  rvexcv        0.0000000
 fp pot  rvexv         0.0000000  rvecv         0.0000000
- CPU time:    5.812s     Sun May  5 01:56:40 2013   on TT4
+ CPU time:    4.920s     Mon May 13 16:29:45 2013   on TT4

@@ -22,6 +22,31 @@ C- just to get the maximum size of ngb (mized basis size) from POmat
       isx = iclose('POmat')
       end
 
+c$$$      subroutine qqsave2 (qq,nqnum,qi,nmax,ginv, qsave,qsavel,imx)
+c$$$C---accumulate q into qsave imx
+c$$$c        if(allocated(qsave)) deallocate(qsave)
+c$$$c        allocate( qsave(3,nmax))
+c$$$c        imx=0
+c$$$      real(8):: qi(3),qsave(3,nmax),qx(3),ginv(3,3)
+c$$$     . ,tolq=1d-5,tolq2=1d-4
+c$$$      do iq=1,nqnum
+c$$$         qql(iq) = sum(abs(qq(1:3,iq)**2))
+c$$$      enddo
+c$$$
+c$$$      do iq=1,nqnum
+c$$$         qi = qq(1:3,iq)
+c$$$         do i = 1,imx
+c$$$            if(abs(qql(iq)-qsavel(i))<tolq) cycle
+c$$$            if(sum(abs(qi-qsave(:,i)))<tolq) cycle
+c$$$            call rangedq( matmul(ginv,qi-qsave(:,i)), qx)
+c$$$            if(sum(abs(qx))< tolq) cycle
+c$$$         enddo
+c$$$         imx = imx+1
+c$$$         if(imx>nmax) stop ' qqsave: imx>=nmax'
+c$$$         qsave(:,imx) = qi
+c$$$         qsavel(:,imx) = sum(qi**2)
+c$$$      enddo
+c$$$      end
 
       subroutine qqsave (qi,nmax,ginv, qsave,imx)
 C---accumulate q into qsave imx

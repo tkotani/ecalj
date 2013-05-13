@@ -73,9 +73,9 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccc
 
       pi= 4d0* atan(1d0)
+      call cputid (0)
 c --- mode
-      write(6,*)
-     & ' qg4gw: Generate Q0P->1; Readin Q0P ->2; band mode ->3;'
+      write(6,*) ' qg4gw: Generate Q0P->1; Readin Q0P ->2; band mode ->3; SW(chipm) ->4'
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
@@ -256,9 +256,10 @@ C --- Open output files QGpsi QGcou
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
+
       open(ifiqg ,file='QGpsi',form='unformatted')
       open(ifiqgc,file='QGcou',form='unformatted')
-      call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx,
+      call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
      &  QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'

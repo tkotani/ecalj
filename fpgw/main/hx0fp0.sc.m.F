@@ -603,10 +603,6 @@ C     ---- these are used in x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
-
-C     --- Calculate x0(q,iw) and W ------------------------------------------
-c============loop over q point ========================================
-c=======================================================================
       if(newaniso2) then
          iqxini=1
       elseif(bzcase()==1) then
@@ -615,10 +611,10 @@ c=======================================================================
          iqxini = 1
       endif
 
-
+      eibzmode = eibz4x0() !.and.(.not.nolfco)
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
 !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
-      if(eibz4x0()) then
+      if(eibzmode) then
 !! commentout block inversion Use iqxendx=iqxend because of full inversion
 c        iqxendx=nqibz
          iqxendx=iqxend
@@ -654,18 +650,14 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
          goto 1191
       endif
 
+      call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+!TIME1 "before 1001 loop"
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
 !! (or need to modify do 1001 loop).
-
-c      call MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
-      call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
-c      print *,'rrr mpiranktab=',mpi__ranktab
-
-!TIME1 "before 1001 loop"
 !! ---------------------------------------------------------------
-!! === loop over iq ============================================
+!! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
       iqinit=.true.
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
@@ -816,8 +808,7 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
      i              nbnbx,ibjb,nhwtot, ! job=1    not-used
      i              ihw,nhw,jhw, ! job=1    not-used
      o              whw,        ! job=1    not-used
-     i              iq,is,is,nqibz) ! new input for devided-tetrahedron method.
-c               if(ixc==1) deallocate(demin,demax) !sf 21May02
+     i              iq,is,is,nqibz, eibzmode,nwgt(:,iq)) 
                nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
                if(debug) print *,' nbnbx=',nbnbx
                allocate(  n1b(nbnbx,nqbz,npm)
@@ -854,13 +845,6 @@ c
                deallocate(iwgt)
             endif
 c=========end of tetraini block==========================================1end
-
-
-
-c     c=======TetrahedronWeight_4 block. tettwt4  ixc==1 ==============2ini
-c     if(tetra.and.ixc==1) then
-c     stop 'hx0fp0sc: ixc==1 tetra is not impliemented'
-c     endif !ixc==1
 
 
 
@@ -920,7 +904,7 @@ C     ... Generate the histogram weights whw
      i           nbnbx,ibjb,nhwtot, ! job=1
      i           ihw,nhw,jhw,   ! job=1
      o           whw,           ! job=1
-     i           iq,is,is,nqibz) ! new input for devided-tetrahedron method.
+     i           iq,is,is,nqibz, eibzmode,nwgt(:,iq)) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     do ik   = 1,nqbz
 c     do ibib = 1,nbnb(ik)
@@ -965,7 +949,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
             print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             iqeibz=iq
-            eibzmode = eibz4x0() !.and.(.not.nolfco)
             symmetrize=(is==nspinmx)
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5

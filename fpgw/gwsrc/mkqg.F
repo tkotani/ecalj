@@ -8,16 +8,17 @@
      &     irk, nstar, nstbz,
      &     qbzm, qbzwm
       use keyvalue,only: getkeyvalue
-C     - Make required q and G in the expantion of GW.
-c     |q+G| < QpGcut_psi for eigenfunction psi.
-c     |q+G| < QpGcut_Cou for coulomb interaction
-c     output
-c     file handle= ifiqg,  which contains q and G points for eigenfunction psi.
-c     file handle= ifiqgc, which contains q and G points for Coulomb
-c     Q0P
-c     
-c     o    QIBZ       : q points in the IBZ of iq0pin==1 or 2
-c---------------------------------------------------
+!! == Make required q and G in the expantion of GW. ==
+!!     |q+G| < QpGcut_psi for eigenfunction psi.
+!!     |q+G| < QpGcut_Cou for coulomb interaction
+!!
+!! OUTPUT
+!!     file handle= ifiqg,  which contains q and G points for eigenfunction psi. --> QGpsi
+!!     file handle= ifiqgc, which contains q and G points for Coulomb            --> QGcou
+!!
+!!     QGpsi(ifiqg), QGcou(ifiqgc), Q0P are written.
+!!     See the end of console output.
+!! ---------------------------------------------------
       implicit none
       integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,nnn,ngcxx,nx0,
      &     ngrp,nq0i,i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,
@@ -65,11 +66,12 @@ c     logical :: readgwinput
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
       real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
       character*7:: q0pf        !nov2012
-      integer:: dummyia(1,1),iimx,irradd
-      real(8):: epstol=1d-8
+      integer:: dummyia(1,1),iimx,irradd,nmax
+      real(8):: epstol=1d-8,tolq=1d-6,qx(3)
 c------------------------------------------------
-      qreduce0 = qreduce()
+      print *,' mkqg: '
 
+      qreduce0 = qreduce()
 !!     band case --- iq0pin == 3
 !!     nqq(is),qq1(1:3,is),qq2(1:3,is),is =1,nline
       if(iq0pin == 3) then
@@ -112,7 +114,8 @@ c------------------------------------------------
          goto 2001
       endif
 
-C     --- Ordinary case --- iq0pin == 1 or 2
+
+!! --- Ordinary case --- iq0pin == 1 or 2
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       call dinv33x (plat,qlat)  !it was dinv33(plat,1,qlat) by Ferdi
       call getkeyvalue("GWinput","delta",aaa)
@@ -125,7 +128,7 @@ C     --- Ordinary case --- iq0pin == 1 or 2
       endif
       tetrai = .true.           !used in heftet tetra_hsfp0()
 
-c---  See indxk in index.f \in genbz2 \in genallc_v2
+!! ---  See indxk in index.f \in genbz2 \in genallc_v2
       call dinv33(qlat,0,ginv,det)
       write(6,*)'=== plat ==='
       write(6,"(3d23.15)") plat
@@ -162,6 +165,9 @@ c     &   ,qbzw(:,:) ,qbasmc(3,3),dq_bzcase2(3),qibz_r(:,:)
 c     integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &   ,irk(:,:),nstar(:),nstbz(:)
 c     real(8),allocatable:: qbzm(:,:),qbzwm(:,:)
+      print *
+      print *,'goto getbzdata1...'
+      call cputid (0)
       call getbzdata1(bzcase(),plat,qlat,ginv,n1q,n2q,n3q
      &     ,symops,ngrp,tetrai,tetraf,mtet) !all are inputs.
 
@@ -170,6 +176,8 @@ C     ... Write BZDATA
       open (ifbz, file='BZDATA')
       write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nqibz_r
       write(ifbz,"(10i10)")  n1q,n2q,n3q
+      print *,' writing BZDATA...'
+      call cputid (0)
       call rwbzdata(ifbz,-1,
      &     ngrp,qlat, ginv, qbasmc,
      i     qbz, wbz, nstbz,  nqbz, 
@@ -181,6 +189,7 @@ C     ... Write BZDATA
       write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
 
 C     ... Write QIBZ
+      write(6,*)' qibz are written in QIBZ file...'
       ifiqibz = 6661
       open (ifiqibz, file='QIBZ') !write q-points in IBZ.
       write(ifiqibz,"(i10)") nqibz
@@ -201,16 +210,18 @@ C     ... Write QBZ
 C     ... Write to file KPNTin1BZ
       ifkpt = 335
       open(ifkpt,file='KPTin1BZ.mkqg.chk')
+      write(ifkpt,*)"  qbz --> shoten(qbz)"
       do      i1 = 1,nqbz
          call shorbz(qbz(1,i1),qp,qlat,plat)
-         write (ifkpt,"(1x,i4,4f10.5,2x,3f10.5)") 
+         write (ifkpt,"(1x,i7,4f10.5,'   ',3f10.5)") 
      &        i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
       end do
       close (ifkpt)
       write(6,*) ' --- TOTAL num of q =',nqbz
       write(6,*)
       write(6,"( '  ngrp  = ',i3)")ngrp
-      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+      write(6,'("  qibz=",i6,3f12.5)')(i,qibz(1:3,i),i=1,min(10,nqibz))
+      write(6,*)" ... QIBZ is written in QIBZ file ..."
 c     
       call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
       alpv(:)=alp
@@ -596,6 +607,7 @@ c     &  " ! Zero-weight lines used  for \eps calculation.
 c     &   To make it effective, enlarge nq0i and do echo 2|qg4gw!"
 c     ... end of get q0x
 
+
       elseif(iq0pin==2) then
          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
          if(ibzqq) then
@@ -667,13 +679,15 @@ c     write(1101,"(i5,a)") nq0i," ---This is readin Q0P --- "
          close(1101)
       endif
 cccccccccccccccccccc
+
       print *,' end fo writing Q0P'
+      call cputid (0)
 
 
 !! === AnyQ mechanism. ===
       call getkeyvalue("GWinput","AnyQ",anyq,default=.false.)
-      print *,'AnyQ=',anyq
-      if(anyq) then
+      if(anyq.and.iq0pin==1) then
+         print *,'AnyQ (read <QPNT> section =T'
 !!     read q-points and states
          call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
          call readx   (ifqpnt,10)
@@ -725,6 +739,26 @@ cccccccccccccccccccc
       nqnum = 0
       if(regmesh) nqnum = nqnum + nqbz
       if(offmesh) nqnum = nqnum + nqbz
+
+!! We check wether all q0i \in qbz or not. may2013 
+      nqnum = nqbz
+      allocate( qq(1:3,nqnum),irr(nqnum) )
+      qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
+      do iq0i=1,nq0i
+         do iq=1,nqbz
+            if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolq) goto 2112
+            call rangedq( matmul(ginv,q0i(:,iq0i)-qq(:,iq)), qx)
+            if(sum(abs(qx))< tolq) goto 2112
+         enddo
+         goto 2111
+ 2112    continue
+      enddo
+      print *,' --- We find all q0i in qbz. Skip qreduce.'
+      goto 2001
+ 2111 continue
+
+!!
+      deallocate(qq,irr)
       nqnum = nqnum + nqbz*nq0i
       nqnum = nqnum + 1         !add Gamma
       allocate( qq(1:3,nqnum),irr(nqnum) )
@@ -773,7 +807,6 @@ C...  Shifted mesh
 !!     Add gamma point for anycase.
       ix=ix+1
       qq(1:3,ix)=0d0
-
 C...  Get qqm; q point for eigenvalues. Saved to Qmtet. Not so much used now... Maybe we need check.
       if(sum(abs(mtet))/=3) then
          nqnumm= nqbzm * (nq0i+1)
@@ -799,24 +832,32 @@ C...  Get qqm; q point for eigenvalues. Saved to Qmtet. Not so much used now... 
          deallocate(qqm)
       endif
 
+
 !! == Reduce number of q. by modulo of translational symmetry ==
- 2001 continue
       if( qreduce0 ) then       !June2005 remove duplicated qqm
-         allocate(qsave(3,nqnum))
+         print *,'goto qqsave nq0i nqnum',nq0i,nqnum
+         call cputid (0)
+         nmax=nq0i+nqnum
+         allocate(qsave(3,nmax)) !,qsavel(nmax))
          imx=0
          if(iq0pin /=1) then
-         do iq=1,nq0i
-           call qqsave(q0i(1:3,iq),nqnum,ginv,qsave,imx)
-         enddo
+            do iq=1,nq0i
+               call qqsave(q0i(1:3,iq),nmax,ginv,qsave,imx)
+            enddo
+c         call qqsave2(q0i,nq0i,nmax,ginv,qsave,qsavel,imx)
          endif
          do iq=1,nqnum
-            call qqsave(qq(1:3,iq),nqnum,ginv,qsave,imx)
+            call qqsave(qq(1:3,iq),nmax,ginv,qsave,imx)
          enddo
+c         call qqsave2(qq,nqnum,nmax,ginv,qsave,qsavel,imx)
          nqnum = imx
          qq(:,1:imx)=qsave(:,1:imx)
          deallocate(qsave)
       endif
-!!
+ 2001 continue
+
+
+!! ------------------------------------------
       if(allocated(wt0)) deallocate(wt0)
       allocate(wt0(nqnum+nq0i),qi(3,nqnum+nq0i),wti(nqnum+nq0i))
       wt0=1d0

@@ -177,3 +177,10 @@ not need to care its fail sign. (a minor bug in test).
 -------------------------------------------
 
 
+MAKEFILE backup: --------------------------------
+mbackup: 
+   backup your customized Makefile MAKEINC/* fpgw/exec/make* into
+   ecalj/MKbackup
+mkrestore:
+   cp back MKbakcup/* to original dirs.
+-------------------------------------------------

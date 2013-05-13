@@ -38,7 +38,7 @@ c         logical:: testtr !invert qibz
       hf=0d0
       if(icase==2) hf=0.5d0
 c-------------------------------------------------------
-      write(6,*)'-getbzdata1: in m_getbzdata1'
+      write(6,*)'getbzdata1: in m_getbzdata1'
       write(6,"(' mkqg: ibzcase()=',i3,'-------------------' )") icase
       if(icase>2) stop 'mkqg: wrong bzcase'
       print *,' mkqg: CASE1:', n1q,n2q,n3q
@@ -89,10 +89,10 @@ c          print *, ginv
 cccccccccccccccccccccccccccccccccccccccc
       iccc=0
       do iqi=1,nqibz
-         print *
+c         print *
       do igrp=1,ngrp
          if(irk(iqi,igrp)/=0) then
-            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
+c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
             iccc=iccc+1
          endif
       enddo
