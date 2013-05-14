@@ -741,7 +741,7 @@ cccccccccccccccccccc
       if(offmesh) nqnum = nqnum + nqbz
 
 !! We check wether all q0i \in qbz or not. may2013 
-      nqnum = nqbz
+      nqnum = nqbz 
       allocate( qq(1:3,nqnum),irr(nqnum) )
       qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
       do iq0i=1,nq0i
@@ -752,6 +752,7 @@ cccccccccccccccccccc
          enddo
          goto 2111
  2112    continue
+         qq(:,iq) = q0i(:,iq0i) !replaced with equivalent q0i.
       enddo
       print *,' --- We find all q0i in qbz. Skip qreduce.'
       goto 2001

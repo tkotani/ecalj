@@ -165,13 +165,13 @@ c      print *,' end of rotdlmm'
 
 
 !! no GW-related part
-      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
-        if(iprx) print *,'gen_hamindex: no GW related part. not readin QGpsi'
+c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
+      if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
+        if(iprx) print *,'gen_hamindex: not readin QGpsi.'
         return
       endif
 
-
-C --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
+!! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
         return

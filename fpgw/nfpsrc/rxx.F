@@ -15,11 +15,11 @@ c  routine for error exit
       character*(*) string
       write(6,892) string
       write(6,890)
-  890 format(' ---- Error exit')
+  890 format(' ---- ERROR EXIT! ')
   892 format(/' ---- ',a)
 c ... write to log file also
-      write(71,710) string
-  710 format('++ ',a)
+      write(0,710) string
+  710 format('ERROR EXIT! ',a)
       call exit(-1)
       end
 
@@ -30,11 +30,11 @@ c  error exit with extra string message
       call strip(msg,i1,i2)
       write(6,892) string,msg(i1:i2)
       write(6,890)
-  890 format(' ---- Error exit')
+  890 format(' ERROR EXIT! ')
   892 format(/' ---- ',a,a)
 c ... write to log file also
-      write(71,710) string,msg(i1:i2)
-  710 format('++ ',a,a)
+      write(0,710) string,msg(i1:i2)
+  710 format('ERROR EXIT! ',a,a)
       call exit(-1)
       end
 
@@ -44,9 +44,9 @@ c  error exit with printout of one integer
       write(6,892) string,i
       write(6,890)
   892 format(/' ---- ',a,i8)
-  890 format(' ---- Error exit')
-      write(71,710) string,i
-  710 format('++ ',a,i8)
+  890 format(' ERROR EXIT! ')
+      write(0,710) string,i
+  710 format('ERROR EXIT! ',a,i8)
       call exit(-1)
       end
 
@@ -58,8 +58,8 @@ c  error exit with printout of one float
       write(6,890)
   892 format(/' ---- ',a,f15.8)
   890 format(' ---- Error exit')
-      write(71,710) string,a
-  710 format('++ ',a,f15.8)
+      write(0,710) string,a
+  710 format('ERROR EXIT! ',a,f15.8)
       call exit(-1)
       end
 
@@ -70,8 +70,8 @@ c  write extra information before error exit in standard format
       call strip(msg,i1,i2)
       write(6,892) string,msg(i1:i2)
   892 format(/' ---- ',a,a)
-      write(71,710) string,msg(i1:i2)
-  710 format('++ ',a,a)
+      write(0,710) string,msg(i1:i2)
+  710 format('ERROR EXIT! ',a,a)
       end
 
       subroutine rx00(string,msg)
@@ -79,8 +79,8 @@ c  write extra information to log but not to listing
       character*(*) string
       character*(*) msg
       call strip(msg,i1,i2)
-      write(71,710) string,msg(i1:i2)
-  710 format('++ ',a,a)
+      write(0,710) string,msg(i1:i2)
+  710 format('ERROR EXIT! ',a,a)
       end
 
 c --- subs to write warning messages
@@ -89,7 +89,7 @@ C- write warning to listing and log
       character*(*) string
       write(6,892) string
   892 format(' ---- warning: ',a)
-      write(71,710) string
+      write(0,710) string
   710 format('== ',a)
       end
 
@@ -98,7 +98,7 @@ C- write warning to listing and log
       character*(*) string,msg
       write(6,892) string,msg
   892 format(' ---- warning: ',a,a)
-      write(71,710) string,msg
+      write(0,710) string,msg
   710 format('== ',a,a)
       end
 
@@ -107,7 +107,7 @@ C- write warning to listing and log with one integer
       character*(*) string
       write(6,892) string,i
   892 format(' ---- warning: ',a,i8)
-      write(71,710) string,i
+      write(0,710) string,i
   710 format('== ',a,i8)
       end
 
@@ -118,7 +118,7 @@ C- write warning to listing and log with one float
       real*8 a
       write(6,892) string,a
   892 format(' ---- warning: ',a,f15.8)
-      write(71,710) string,a
+      write(0,710) string,a
   710 format('== ',a,f15.8)
       end
 
