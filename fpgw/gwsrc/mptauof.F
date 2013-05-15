@@ -259,7 +259,7 @@ c     &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
 c     &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
         neibz(iq)=neibzx !number of eibz for iq
         if(iprintx) then
-           write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i3)") iq,q,neibz(iq),nqbz
+           write(6,"('eibz: iq neibz nqbz= ',i7,3f11.5,' ',3i7)") iq,q,neibz(iq),nqbz
 c           do ik=1,nqbz
 c              if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i8,3f11.5,i4,2x,25(i4,i2))") 
 c     &             ik, qbz(:,ik),nwgt(ik,iq), (igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
