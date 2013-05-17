@@ -1,4 +1,2 @@
 cp  MKbackup/MAKEINC/* lm7K/MAKEINC/
-cp  MKbackup/Makefile lm7K/Makefile
-cp  MKbackup/make.inc.* fpgw/exec
-cp  MKbackup/makefile fpgw/exec/makefile
+cp  MKbackup/make.inc* fpgw/exec

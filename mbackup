@@ -1,5 +1,8 @@
+#!/bin/bash
+
 mkdir MKbackup/
 cp -r lm7K/MAKEINC/ MKbackup/
 cp  lm7K/Makefile MKbackup/
 cp  fpgw/exec/make.inc* MKbackup/
+cp  fpgw/exec/make.inc  MKbackup/
 cp  fpgw/exec/makefile  MKbackup/

@@ -755,6 +755,9 @@ addtime=script/addtime.awk
 septhen=script/then_separate.awk
 alloclist=script/add_alloclist.awk
 
+
+################################################################################
+##### You can comment out these blocks to commnet out memory and time check (verbose output)
 $(main)hsfp0.sc.m.o:  $(main)hsfp0.sc.m.F
 	gawk -f $(addtime) -vSTART=1 $(main)hsfp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hsfp0.sc.m.F
 	$(FC) $(FFLAGS) $(main)time_hsfp0.sc.m.F -c -o $*.o
@@ -774,7 +777,7 @@ $(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
 $(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
 	gawk -f $(addtime) -vSTART=200 $(gwsrc)ppbafp.fal.F > $(gwsrc)time_ppbafp.fal.F
 	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
-
+###################################################################################
 
 
 

@@ -1049,8 +1049,7 @@ c!! ----------------------------------------------
       if(eibzmode) then
 !! commentout block inversion Use iqxendx=iqxend because of full inversion
 c     iqxendx=nqibz
-        call cputid(0)
-        print *,'goto eibzmode block 1111111'
+         call cputid(0)
          iqxendx=iqxend
          if(epsmode) iqxendx=iqxend
          allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
@@ -1058,34 +1057,29 @@ c     iqxendx=nqibz
      &        eibzsym(ngrp,-1:1,iqxini:iqxendx))
          iprintx=.false.
          print *
-         write(6,"('TimeRevesal switch = ',l1)") timereversal()
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
+         tiii=timereversal() 
+         write(6,"('TimeRevesal switch = ',l1)") tiii
+         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii
+     &        ,ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym)
-         print *,' eibzmode block 2222222'
-         call cputid(0)
 !! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
 !! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-         tiii=timereversal() 
          if(minval(igxt)==1) tiii=.false.
+         write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
          if(mpi__root) iprintx=.true.
-cccccccccccccccccccc
-c     tiii=.false.
-cccccccccccccccccccc
          write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym)
-         print *,' eibzmode block 3333333'
+         print *,' end of eibzgen '
          call cputid(0)
          call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in arrays in m_pbindex.
 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
-         print *,' eibzmode block 4444444'
          call cputid(0)
          call readqgcou()       !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       endif
 
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
-
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
@@ -1310,6 +1304,7 @@ c          rcxqmean=0d0
 !     the pairs are not dependent on the energy omega
 !     in the denominator of the dielectric function.
             write(6,"(' -- First tetwt5 is to get size of array --')")
+            call cputid(0)
             job = 0
             if(npm==1) then
               ncc=0
@@ -1348,6 +1343,7 @@ c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
             noccxv = maxval(noccxvx)
             noccx  = nctot + noccxv
             print *,' Tetra mode: nctot onoccxv= ',nctot,noccxv
+            call cputid(0)
             deallocate(iwgt)
           endif
 C --- end of tetraini block==========================================1end
@@ -1545,7 +1541,8 @@ C ... make index sets
           enddo
 C ... Generate the histogram weights whw
           job=1
-c            write(6,*) 'goto tetwt5x_dtet4 job=',job
+          write(6,*) 'goto tetwt5x_dtet4 job=',job
+          call cputid(0)
           call tetwt5x_dtet4(  npm,ncc,
      i           q, ekxx1, ekxx2, qbas,ginv,ef, 
      d          ntetf,nqbzw, nband,nqbz,
@@ -1605,6 +1602,7 @@ c          endif
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
           write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
+          call cputid(0)
           symmetrize=(is==nspinmx)
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5

@@ -178,9 +178,28 @@ not need to care its fail sign. (a minor bug in test).
 
 
 MAKEFILE backup: --------------------------------
+For version up, it is convenient to keep your Makefiles...
 mbackup: 
    backup your customized Makefile MAKEINC/* fpgw/exec/make* into
    ecalj/MKbackup
+   CAUTION: this overwirte these ones;
+            I recommend you do take git diff >foobar as backup.
+            Not too much dependent on mbackup.
 mkrestore:
    cp back MKbakcup/* to original dirs.
+
+---------------------
+How to do version up?
+---------------------
+>cd ecalj
+>./mbackup
+>git diff > gitdiff_backup   !This is to save your changes for save.
+>git checkout -f             ! CAUTION: this delete your changes
+>git pull                    !This overwirte makefile and so on. 
+>./mrestore                  ! Look into this script. 
+                             ! This copy make.inc* and MAKEINC/* to original directory
+
+--> Then start make procedure again.
+
 -------------------------------------------------
+
