@@ -304,7 +304,9 @@ c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/
       do 1000 itet = 1, ntetf !;
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
 !! may2013 for eizbmode 
-        if(eibzmode.and. sum(nwgt(kk(0:3)))==0) cycle 
+        if(eibzmode) then
+           if(sum(nwgt(kk(0:3)))==0) cycle 
+        endif
         kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
 c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out of ntetf=',itet ,ntetf
         do 1100 im = 1,nmtet
@@ -449,7 +451,9 @@ c                   endif
 !!       If they are degenerated, we have some unbiguity. 
 !!       (which band connedt to which in the microtetrahedron).
       do kx = 1, nqbz     ! ipr = .false.; if(ipr)  print *,' kx =',kx
-        if(eibzmode.and.nwgt(kx)==0) cycle 
+        if(eibzmode) then
+           if(nwgt(kx)==0) cycle 
+        endif
         call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
         call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
         nrankc1 = 0

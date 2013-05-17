@@ -179,11 +179,15 @@ c$$$      enddo
       integer:: neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),ik,nqbz,i,it
       logical:: timereversal
       real(8):: symgg(3,3,ngrp),qibze(3,iqxini:iqxend),qbz(3,nqbz),qeibz(3,nqbz,iqxini:iqxend),
-     &  q(3),qx(3),qlat(3,3),qdiff(3),ginv(3,3),qxx(3),ddd,timer,
-     &  sss(3,3),sumcheck1 !qout(3,nqbz,iqxini:iqxend,nqbz),
-      integer:: igx(ngrp*2,nqbz,iqxini:iqxend),igxt(ngrp*2,nqbz,iqxini:iqxend)
-      integer:: eibzsym(ngrp,-1:1,iqxini:iqxend),ibzxi(nqbz),ibzx,eallow(ngrp,-1:1)
+     &  q(3),qx(3),qlat(3,3),qdiff(3),ginv(3,3),qxx(3),ddd,timer,qxi(3) ,
+     &  sss(3,3),sumcheck1 !qout(3,nqbz,iqxini:iqxend,nqbz)
+      integer:: igx(ngrp*2,nqbz,iqxini:iqxend),igxt(ngrp*2,nqbz,iqxini:iqxend),imm,im
+      integer:: eibzsym(ngrp,-1:1,iqxini:iqxend),ibzxi(nqbz),ibzx,eallow(ngrp,-1:1),immxx
       logical:: iprintx
+
+      integer,allocatable:: immx(:),mqbz(:)
+      integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
+      real(8)::    epdigit=1d-5
 !!
       if(iprintx) write(6,"('eibzgen: RequiredTimeReversal ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
@@ -197,11 +201,12 @@ c$$$      enddo
       sumcheck1= sum(abs(symgg(:,:,1)-sss))
       if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is not E'
 !!
-      eibzsym=0
-      nwgt=0
-      do iq=iqxini,iqxend
+      eibzsym = 0
+      nwgt = 0
+      do iq = iqxini,iqxend
+c        write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
         q = qibze(:,iq) !q means k in eq.50 of PRB81,125102-9
-!!
+!! Allowed operation to keep q,   eallow(ig,it) \in EIBZ(q)
         eallow=0d0
         do it=1,ntimer,-2
           timer=dble(it)
@@ -214,77 +219,95 @@ c        if(iprintx) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
           endif  
         enddo
         enddo
-!!---
-        eibzsym(1,1,iq)=1 ! identity matrix.
-        neibzx=0
+        eibzsym(:,:,iq)=eallow ! === eibzsym is eallow -----
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c        print *,'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+!! === Generate all nxx (integered q with epditit) generated from ibz. ===
+        allocate(nxx(3,nqbz,ngrp*2),immx(nqbz)) !,nww(nbz,ngrp*2))
+        allocate(igx_(ngrp*2,nqbz),igxt_(ngrp*2,nqbz))
+        immxx=0
         do ibz=1,nqbz
-          qx = qbz(:,ibz) !q means a candidate of q in EIBZ
-          do ieibz=1,neibzx
-            ibzx=ibzxi(ieibz)
-          do it=1,ntimer,-2
-            timer=dble(it)
+          imm=0
+          do it=1,ntimer,-2 !ntimer is 1 or -1.
+            timer = dble(it)
           do ig=1,ngrp
-            if(eallow(ig,it)/=1) cycle
-            qdiff= timer*matmul(symgg(:,:,ig),qeibz(:,ieibz,iq)) - qx
-            call rangedq(matmul(ginv,qdiff), qxx)
-            if(sum(abs(qxx))<1d-8) then
-              nwgt(ibzx,iq)=nwgt(ibzx,iq)+1
-c              qout(:,ibz,iq, nwgt(ieibz,iq))=qx
-              igx (nwgt(ibzx,iq),ibzx,iq)=ig  !symmetrizer
-              igxt(nwgt(ibzx,iq),ibzx,iq)=it  !symmetrizer
-              eibzsym(ig,it,iq)=1
-              goto 1012
-            endif
+            if(eallow(ig,it)/=1) cycle !eallow=1 keeps q invariant. Allowed operation of EIBZ(q)
+            qx = timer*matmul(symgg(:,:,ig),qbz(:,ibz))
+            qxi= matmul(ginv,qx)
+            call rangedq(qxi, qxx) ! qxx(i) takes from 0 to 1.
+            do im=1,imm
+              if(sum(abs(nxx(:,ibz,im) - qxx(:)/epdigit)) <2) then
+c                 nww(ibz,im) = nww(ibz,im)+1
+                 goto 3012      !<2 for safe
+              endif   
+            enddo
+            imm=imm+1
+            nxx(:,ibz,imm)= qxx/epdigit  !integer nxx(i) takes from 0 to 1/epdigit.
+            igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
+            igxt_(imm,ibz) = it  !
+c            write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
+!! inversion table:
+!!             ibz<---from qbzrid
+!! we can skip such ibz.
+ 3012       continue
           enddo
           enddo
-          enddo
-          nwgt(ibz,iq)=1
-          neibzx = neibzx + 1
-c          if(iprintx) print *,' ibz neibzx',ibz,neibzx
-          qeibz(:,neibzx,iq)=qx
-          ibzxi(neibzx)=ibz
-          igx (nwgt(ibz,iq),ibz,iq)=1 ! At the beginig of this routine, sumcheck1 shows 1 means E.
-          igxt(nwgt(ibz,iq),ibz,iq)=1  !symmetrizer
-!! igx(icount, ieibz,iq) specify icount-th symgg(igx) for given ieibz,iq
- 1012     continue
+          immx(ibz)=imm
+          if(imm>immxx) immxx=imm
         enddo
 
-!! --- eibzsym is replacde by eallow -----
-        eibzsym(:,:,iq)=eallow
-!! ---------------------------------------
+c        print *,'eibz aaaaaaa'
+c        call cputid(0)
 
-!! used eibz sym is
-c        if(iprintx)write(6,"('iq=',i8,' # of EIBZ: Full=',i8, 
-c     &    ' Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")iq,sum(abs(eallow(:,:))),
-c     &     sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq))
-        neibz(iq)=neibzx !number of eibz for iq
-        if(iprintx) then
-           write(6,"('eibz: iq neibz nqbz= ',i7,3f11.5,' ',3i7)") iq,q,neibz(iq),nqbz
-c           do ik=1,nqbz
-c              if(nwgt(ik,iq)/=0.and.iprintx) write(6,"('      ',i8,3f11.5,i4,2x,25(i4,i2))") 
-c     &             ik, qbz(:,ik),nwgt(ik,iq), (igx(i,ik,iq),igxt(i,ik,iq),i=1,nwgt(ik,iq))
-c           enddo
+!! === Search other ibz generated from ibz. ===
+!!   ibznxx(ibz,imm) means "ibz rotated by igx(imm,ibz,iq),igxt(imm,ibz,iq)"
+        allocate(mqbz(nqbz))
+        do ibzx=1,nqbz
+          do ibz=1,ibzx !search equivalent (ibzx,1) with first appeard (ibz,im) .
+          do im=1,immx(ibz) 
+             if(sum(abs(nxx(:,ibzx,1) - nxx(:,ibz,im))) <2) then
+               nwgt(ibz,iq) = nwgt(ibz,iq) +  1
+               igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
+               igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
+               goto 3312
+             endif  
+          enddo
+          enddo 
+ 3312     continue
+        enddo
+
+c        print *,'eibz bbbbbb'
+c        call cputid(0)
+!
+        neibzx=0
+        do ibz=1,nqbz
+           if(nwgt(ibz,iq) /=0) then
+              neibzx=neibzx+1
+              qeibz(:,neibzx,iq)=qbz(:,ibz)
+c              write(6,"('   ibz qeibz =',i7,3f10.5, ' nwgt=',i7)")ibz,qeibz(:,neibzx,iq),nwgt(ibz,iq)
+           endif
+        enddo   
+        neibz(iq) = neibzx !number of eibz for iq
+        if( iprintx ) then
+          write(6,"('iq=',i8,' # of EIBZ: Full=',i8, 
+     &      ' Used(TimeR 1 or -1)=',i3,'=',i2,'+',i2,' neibz= ',i7)")iq,sum(abs(eallow(:,:))),
+     &      sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq)),neibz(iq)
+c          write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i7)") iq,q,neibz(iq),nqbz
         endif
-cccccccccc
-c        do ig=1,ngrp
-c        do it=1,-1,-2
-c        if(eibzsym(ig,it,iq)==1) then
-c            write(6,"('eibz ig it=',i3,i3)")ig,it
-c        endif
-c        enddo
-c        enddo
-ccccccccc
+        deallocate(igx_,igxt_)
+        deallocate(nxx,immx,mqbz)
       enddo
 !!
-      nwgtsum = 0
-      do iq = iqxini,iqxend
-c        if(iq>nqibz) cycle
-        nwgtsum = nwgtsum + sum(nwgt(1:nqbz,iq))
-c        if(iprintx) print *,'iq neibz sum(nwgt)=',iq, neibz(iq),sum(nwgt(1:nqbz,iq))
-      enddo
-      if(iprintx) print *,' sum(neibz(iq)) sum(ngwt)=sum(nqbz)= ',
-     &  sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) ! why it was (iqxend-iqxini+1-1). 25sep2012
+      nwgtsum = sum(nwgt(1:nqbz,iqxini:iqxend))
+      if(iprintx) then
+        write(6,"(' nqbz,  sum(neibz(iq)), sum(ngwt)=sum(nqbz)= ',10i7)")
+     &  nqbz,sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) 
+      endif  
       end
+
 
       subroutine mptauof(symops,ng,plat,nbas,bas,
      &             iclass,miat,tiat,invg,delta)

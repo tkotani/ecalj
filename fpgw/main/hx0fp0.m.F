@@ -1049,6 +1049,8 @@ c!! ----------------------------------------------
       if(eibzmode) then
 !! commentout block inversion Use iqxendx=iqxend because of full inversion
 c     iqxendx=nqibz
+        call cputid(0)
+        print *,'goto eibzmode block 1111111'
          iqxendx=iqxend
          if(epsmode) iqxendx=iqxend
          allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
@@ -1059,6 +1061,8 @@ c     iqxendx=nqibz
          write(6,"('TimeRevesal switch = ',l1)") timereversal()
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym)
+         print *,' eibzmode block 2222222'
+         call cputid(0)
 !! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
 !! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
          tiii=timereversal() 
@@ -1070,8 +1074,12 @@ cccccccccccccccccccc
          write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym)
+         print *,' eibzmode block 3333333'
+         call cputid(0)
          call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in arrays in m_pbindex.
 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+         print *,' eibzmode block 4444444'
+         call cputid(0)
          call readqgcou()       !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       endif

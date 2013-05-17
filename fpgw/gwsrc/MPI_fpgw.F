@@ -343,7 +343,7 @@ c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,i
       
       if( mpi__size == 1 ) then
          mpi__task(:) = .true.
-         mpi__ranktab(iq) = mpi__rank
+         mpi__ranktab(:) = mpi__rank
          return
       end if
 !!
@@ -387,7 +387,7 @@ c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,i
       mpi__ranktab(1:iqxend)=999999
       if( mpi__size == 1 ) then
          mpi__task(:) = .true.
-         mpi__ranktab(iq) = mpi__rank
+         mpi__ranktab(:) = mpi__rank
          return
       end if
       if(mpi__rank==0) write(6,*) "MPI_hx0fp0_rankdivider2:"
