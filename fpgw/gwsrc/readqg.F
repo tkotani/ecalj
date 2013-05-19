@@ -240,7 +240,7 @@ c      print *,'kk1=',kk1
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-      print *,' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
+c      print *,' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
       enddo
       deallocate(qxx)
       end subroutine init_readqg

@@ -622,20 +622,32 @@ c        iqxendx=nqibz
      &        igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
      &        eibzsym(ngrp,-1:1,iqxini:iqxendx))
          iprintx=.false.
-         write(6,"('TimeRevesal switch = ',l1)") timereversal()
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
-!! Check timereversal is required for symmetrization operation or not. If not tiii=timereversal=F is used.
-!! this is because the symmetrization is a little time-consuming.
-         tiii=timereversal() 
-         if(minval(igxt)==1) tiii=.false.
-         iprintx=.true.
-cccccccccccccccccccc
-c     tiii=.true.
-cccccccccccccccccccc
-         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
+
+         print *
+         write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
+         if(mpi__root) iprintx=.true.
+         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
+     i        timereversal(),ginv,iprintx,
+     o        nwgt,igx,igxt,eibzsym,tiii)
+         write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
+         call cputid(0)
+
+c$$$
+c$$$         write(6,"('TimeRevesal switch = ',l1)") timereversal()
+c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
+c$$$     o        nwgt,igx,igxt,eibzsym)
+c$$$!! Check timereversal is required for symmetrization operation or not. If not tiii=timereversal=F is used.
+c$$$!! this is because the symmetrization is a little time-consuming.
+c$$$         tiii=timereversal() 
+c$$$         if(minval(igxt)==1) tiii=.false.
+c$$$         iprintx=.true.
+c$$$cccccccccccccccccccc
+c$$$c     tiii=.true.
+c$$$cccccccccccccccccccc
+c$$$         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
+c$$$     o        nwgt,igx,igxt,eibzsym)
+
          call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
                                 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou()       !no input. Read QGcou and store date into variables.

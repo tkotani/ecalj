@@ -187,22 +187,67 @@ c$$$      enddo
 
       integer,allocatable:: immx(:),mqbz(:)
       integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
-      real(8)::    epdigit=1d-5
+
+      real(8)::    epd=1d-5
+      integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix
+      integer,allocatable:: ieord(:)
+      integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
+      real(8),allocatable:: qbzl(:,:)
+      logical :: inotime
 !!
       if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1
-      igx=99999
-      igxt=99999
-!!
       sss(1,:)=(/1d0,0d0,0d0/)
       sss(2,:)=(/0d0,1d0,0d0/)
       sss(3,:)=(/0d0,0d0,1d0/)
       sumcheck1= sum(abs(symgg(:,:,1)-sss))
       if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is not E'
-!!
+
+!!=== Get key and nkey for each ix. (similar with those in readqg,readeigen) ===
+      allocate(qbzl(3,nqbz),key(3,nqbz),ieord(nqbz))
+      do ibz=1,nqbz
+        call rangedq(matmul(ginv,qbz(:,ibz)), qbzl(1,ibz))
+      enddo
+      do ix =1,3
+         call sortea(qbzl(ix,:),ieord,nqbz,isig)
+         ik=0
+         do i=1,nqbz
+            kkk= ( qbzl(ix,ieord(i))+0.5*epd )/epd  !kkk is digitized by 1/epd
+            if(i==1.or.key(ix,ik)<kkk) then
+               ik=ik+1
+               key(ix,ik) = kkk
+               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
+            elseif (key(ix,ik)>kkk) then
+               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
+               stop 'iqindx: bug not sorted well'
+            endif
+         enddo
+         nkey(ix)=ik
+      enddo
+      deallocate(ieord)
+!!  key is reallocated. inverse mattping, iqkkk
+      allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
+      kk1(:) = key(1,1:nkey(1))
+      kk2(:) = key(2,1:nkey(2))
+      kk3(:) = key(3,1:nkey(3))
+      deallocate(key)
+      allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
+c      print *,' initqqq nqtt=',nqtt
+      do i=1,nqbz
+         kkk3= (qbzl(:,i)+0.5*epd)/epd !kkk is digitized by 1/epd
+         call tabkk(kkk3(1), kk1,nkey(1), ik1)
+         call tabkk(kkk3(2), kk2,nkey(2), ik2)
+         call tabkk(kkk3(3), kk3,nkey(3), ik3)
+         iqkkk(ik1,ik2,ik3)=i
+c         print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+      enddo
+      deallocate(qbzl)
+!! -----------------------------------------------------------
+
+
+!! ===  main iq loop ===
       eibzsym = 0
-      nwgt = 0
       do iq = iqxini,iqxend
 c        write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
         q = qibze(:,iq) !q means k in eq.50 of PRB81,125102-9
@@ -223,6 +268,7 @@ c        if(iprintx) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        print *,'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !! === Generate all nxx (integered q with epditit) generated from ibz. ===
@@ -239,13 +285,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             qxi= matmul(ginv,qx)
             call rangedq(qxi, qxx) ! qxx(i) takes from 0 to 1.
             do im=1,imm
-              if(sum(abs(nxx(:,ibz,im) - qxx(:)/epdigit)) <2) then
+              if(sum(abs(nxx(:,ibz,im) - (qxx(:)+.5*epd)/epd)) <2) then
 c                 nww(ibz,im) = nww(ibz,im)+1
                  goto 3012      !<2 for safe
               endif   
             enddo
             imm=imm+1
-            nxx(:,ibz,imm)= qxx/epdigit  !integer nxx(i) takes from 0 to 1/epdigit.
+            nxx(:,ibz,imm)= (qxx+.5*epd)/epd  !integer nxx(i) takes from 0 to 1/epd.
             igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
             igxt_(imm,ibz) = it  !
 c            write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
@@ -262,22 +308,61 @@ c            write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(
 c        print *,'eibz aaaaaaa'
 c        call cputid(0)
 
-!! === Search other ibz generated from ibz. ===
-!!   ibznxx(ibz,imm) means "ibz rotated by igx(imm,ibz,iq),igxt(imm,ibz,iq)"
-        allocate(mqbz(nqbz))
-        do ibzx=1,nqbz
-          do ibz=1,ibzx !search equivalent (ibzx,1) with first appeard (ibz,im) .
-          do im=1,immx(ibz) 
-             if(sum(abs(nxx(:,ibzx,1) - nxx(:,ibz,im))) <2) then
-               nwgt(ibz,iq) = nwgt(ibz,iq) +  1
-               igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
-               igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
-               goto 3312
-             endif  
+!! inequivalent points.
+          allocate(mqbz(nqbz))
+          inotime=.true.
+          do ix=1,2 !try no time reversal for ix=1
+             mqbz=0
+             nwgt(:,iq)=0
+             igx=99999
+             igxt=99999
+             do ibz=1,nqbz
+                if(mqbz(ibz)==1) cycle
+                do im=1,immx(ibz) 
+                   if(inotime) then
+                      if(igxt_(im,ibz) ==-1) cycle 
+                   endif   
+                   kkk3 = nxx(:,ibz,im)
+                   call tabkk(kkk3(1), kk1,nkey(1), ik1)
+                   call tabkk(kkk3(2), kk2,nkey(2), ik2)
+                   call tabkk(kkk3(3), kk3,nkey(3), ik3)
+                   ibzx=iqkkk(ik1,ik2,ik3)
+                   if(mqbz(ibzx)==1) then
+                      cycle
+                   else  
+                      mqbz(ibzx)=1
+                      nwgt(ibz,iq)= nwgt(ibz,iq) + 1
+                      igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
+                      igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
+                   endif   
+                enddo
+             enddo
+             if(sum(nwgt(:,iq))==nqbz) then
+                if(ix==1) eibzsym(:,-1,iq)=0
+                goto 1202
+             endif   
+             inotime=.false.
           enddo
-          enddo 
- 3312     continue
-        enddo
+          stop 'eibzgen: bug. nwgt sum is not nqbz'
+ 1202     continue
+
+c          print *,' nwgt(ibz,iq),nqbz=',sum(nwgt(:,iq))
+c$$$!! === Search other ibz generated from ibz. ===
+c$$$!!   ibznxx(ibz,imm) means "ibz rotated by igx(imm,ibz,iq),igxt(imm,ibz,iq)"
+c$$$        allocate(mqbz(nqbz))
+c$$$        do ibzx=1,nqbz
+c$$$          do ibz=1,ibzx !search equivalent (ibzx,1) with first appeard (ibz,im) .
+c$$$          do im=1,immx(ibz) 
+c$$$             if(sum(abs(nxx(:,ibzx,1) - nxx(:,ibz,im))) <2) then
+c$$$               nwgt(ibz,iq) = nwgt(ibz,iq) +  1
+c$$$               igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
+c$$$               igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
+c$$$               goto 3312
+c$$$             endif  
+c$$$          enddo
+c$$$          enddo 
+c$$$ 3312     continue
+c$$$        enddo
 
 c        print *,'eibz bbbbbb'
 c        call cputid(0)
@@ -309,7 +394,42 @@ c          write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i7)") iq,q,neibz(iq),nqb
         write(6,"(' nqbz,  sum(neibz(iq)), sum(ngwt)=sum(nqbz)= ',10i7)")
      &  nqbz,sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) 
       endif  
-      end
+c      stop 'test stop -------- end of eibzgen ----------'
+      end subroutine eibzgen
+!! -------------------------------------------------
+      subroutine tabkk(kkin, kktable,n, nout)
+      integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
+      i1=1
+      i2=n
+      if(kkin==kktable(1)) then
+         nout=1
+         return
+      elseif(kkin==kktable(n)) then
+         nout=n
+         return
+      endif
+      do i=1,n
+         mm=(i1+i2)/2
+         if(kkin==kktable(mm)) then
+            nout=mm
+            return
+         elseif(kkin>kktable(mm)) then
+            i1=mm
+         else
+            i2=mm
+         endif
+      enddo
+c$$$      do i=1,n                                                                                  
+c$$$         if(kkin==kktable(i)) then                                                              
+c$$$            nout=i                                                                              
+c$$$            return                                                                              
+c$$$         endif                                                                                  
+c$$$      enddo                                                                                     
+      print *, i1,i2,kkin
+      print *, kktable(i1),kktable(i2)
+      stop 'takk: error'
+      end subroutine tabkk
+    
 
 
       subroutine mptauof(symops,ng,plat,nbas,bas,
@@ -458,3 +578,6 @@ c          write(6,4658)tr1,tr2,tr3
 c---------------------------------------------------
    10 continue
       end
+
+
+
