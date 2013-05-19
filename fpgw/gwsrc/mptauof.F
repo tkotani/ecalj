@@ -171,7 +171,7 @@ c$$$      enddo
       end
 
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
-     o nwgt,igx,igxt,eibzsym)
+     o nwgt,igx,igxt,eibzsym,timerout)
       implicit none
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
@@ -183,13 +183,13 @@ c$$$      enddo
      &  sss(3,3),sumcheck1 !qout(3,nqbz,iqxini:iqxend,nqbz)
       integer:: igx(ngrp*2,nqbz,iqxini:iqxend),igxt(ngrp*2,nqbz,iqxini:iqxend),imm,im
       integer:: eibzsym(ngrp,-1:1,iqxini:iqxend),ibzxi(nqbz),ibzx,eallow(ngrp,-1:1),immxx
-      logical:: iprintx
+      logical:: iprintx,timerout
 
       integer,allocatable:: immx(:),mqbz(:)
       integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
       real(8)::    epdigit=1d-5
 !!
-      if(iprintx) write(6,"('eibzgen: RequiredTimeReversal ngrp= ',l,i3)") timereversal,ngrp
+      if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1
       igx=99999
@@ -302,6 +302,9 @@ c          write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i7)") iq,q,neibz(iq),nqb
       enddo
 !!
       nwgtsum = sum(nwgt(1:nqbz,iqxini:iqxend))
+      timerout=timereversal
+      if(minval(igxt)==1) timerout=.false.
+
       if(iprintx) then
         write(6,"(' nqbz,  sum(neibz(iq)), sum(ngwt)=sum(nqbz)= ',10i7)")
      &  nqbz,sum(neibz(iqxini:iqxend)), nwgtsum, nqbz*(iqxend-iqxini+1) 

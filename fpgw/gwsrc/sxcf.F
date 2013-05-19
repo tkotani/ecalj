@@ -324,7 +324,6 @@ c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       integer(4)::verbose,nstbz(nqbz),bzcase,iqini,iqend
       real(8):: wgtq0p
 
-      integer(4):: iqindx
       real(8)::quu(3),qibz_k(3),qbz_kr(3)
       integer(4):: nrec
       logical :: test_omitq0p

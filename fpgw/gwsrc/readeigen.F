@@ -1,6 +1,4 @@
-!! See  lm7k/subs/rotwv.F. We will share the same code in fpgw and lm7k for maitenance.
-!! now rotwv rotwvip is only in this file. But it was in lm7K/subs/rotwv.F
-
+!!--------------------------------
       module m_readqgcou
 !! this is somehow duplicated with reqdqg.F---> I hope they are unified... jun2012takao
 !! ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp) is added on jun2012takao
@@ -48,6 +46,7 @@ c      enddo
       end subroutine readqgcou
       end module m_readqgcou
 
+!! ===================================================
       module m_pbindex !generate index table for product basis.
       integer,parameter::NULLI=-9999999
       integer:: norbt=NULLI !number of PB block. 
@@ -102,10 +101,12 @@ c        enddo
 c        write(6,"(' === product basis index: iorbt ibas l n offset',10i4)")iorbt,ibas,lb,kn,offset_rev_tbl(ibas,lb,kn)
       enddo
       end subroutine
-      end module 
+      end module m_pbindex
 
-!! == Mixed product basis rotator. ==
+!! ===================================================
       module m_rotMPB !WARN. rotMPB looks work OK. Used in eibz4x0()=T in switch.F  However,
+!!---------------------------------------------------
+!! == Mixed product basis rotator. ==
 !! a curious strange segmention fault occurs in a Si444 case when we test a code qout= matmul(symops(:,:,igx),qin). 
 !! I don't know why. 
 !! This has developed for eibz mode jun2012, not tested completely. 
@@ -170,7 +171,6 @@ c$$$c        zcousqr = dconjg(zcousqr)
 c$$$c      endif  
 c$$$      end subroutine rotMPB
 !! ------------------------------------
-
       subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
      o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
 !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
@@ -188,7 +188,7 @@ c$$$      end subroutine rotMPB
 !! Note that k= \hat{A}^k_i(k) (S_A^k)
       implicit none
       real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3),sss
-      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
+      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,nl,i,j
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
       logical ::debug=.false.
@@ -206,7 +206,7 @@ c$$$      end subroutine rotMPB
      i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
      o  zrotm(1:nbloch,1:nbloch))
       if(debug) print *,' end of rotmto2 '
-      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
+      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu) !iqindx2 is slow. If required, speed it up in a manner as iqindx2_.
       if(debug) print *,' end of iqindx2rotmto2 '
       if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
       sss=1d0
@@ -241,8 +241,7 @@ c      if(igxt<0) then !time-reversal
 c        zcousqr = dconjg(zcousqr)
 c      endif  
       end subroutine rotMPB2
-
-      end module
+      end module m_rotMPB 
 
 
 
@@ -473,6 +472,128 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
         geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
       enddo
       end subroutine rotipw
+
+!! --------------------------------------------------------
+      module m_iqindx_qtt
+      use m_hamindex, only: qtt,nqtt
+      integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
+      real(8),private:: epsd=1d-7
+      integer,private:: nkey(3)
+      real(8),private:: ginv(3,3)
+      contains
+!!---------------------------------------------------------
+      subroutine iqindx2_(q,  iqindx,qu)
+!!=== Find index as q=qq(:,iq) with modulo of premitive vector.===
+!! ginv is the inverse of plat (premitive translation vector).
+!! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
+      implicit none
+      integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3
+      real(8):: q(3),qx(3),qu(3),qzz(3)
+      logical::debug=.false.
+      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
+      call rangedq(matmul(ginv,q), qzz)
+      kkk3 = (qzz+0.5*epsd)/epsd
+c      print *,'kkk3=',kkk3
+c      print *,'nkey=',nkey
+c      print *,'kk1=',kk1
+      call tabkk(kkk3(1), kk1,nkey(1), ik1)
+      call tabkk(kkk3(2), kk2,nkey(2), ik2)
+      call tabkk(kkk3(3), kk3,nkey(3), ik3)
+c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
+      iqindx = iqkkk(ik1,ik2,ik3)
+      qu =qtt(:,iqindx)
+      end subroutine
+!!----
+      subroutine init_iqindx_qtt(ginv_)
+!! === mapping of qtt ===
+!! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
+!!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
+!!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
+      real(8):: ginv_(3,3)
+      real(8),allocatable:: qxx(:,:)
+      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3
+      integer,allocatable:: ieord(:)
+      ginv=ginv_
+      allocate(ieord(nqtt))
+      allocate(key(3,nqtt),qxx(3,nqtt))
+      key=-99999
+      do iq=1,nqtt
+         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
+      enddo
+!! get key and nkey for each ix.
+      do ix =1,3
+         call sortea(qxx(ix,:),ieord,nqtt,isig)
+         ik=0
+         do i=1,nqtt
+            kkk=(qxx(ix,ieord(i))+0.5*epsd)/epsd  !kkk is digitized by 1/epsd
+            if(i==1.or.key(ix,ik)<kkk) then
+               ik=ik+1
+               key(ix,ik) = kkk
+               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+            elseif (key(ix,ik)>kkk) then
+               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+               stop 'iqindx: bug not sorted well'
+            endif
+         enddo
+         nkey(ix)=ik
+      enddo
+      deallocate(ieord)
+!!  key is reallocated. inverse mattping, iqkkk
+      allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
+      kk1(:) = key(1,1:nkey(1))
+      kk2(:) = key(2,1:nkey(2))
+      kk3(:) = key(3,1:nkey(3))
+      deallocate(key)
+      allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
+c      print *,' initqqq nqtt=',nqtt
+      do i=1,nqtt
+         kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
+         call tabkk(kkk3(1), kk1,nkey(1), ik1)
+         call tabkk(kkk3(2), kk2,nkey(2), ik2)
+         call tabkk(kkk3(3), kk3,nkey(3), ik3)
+         iqkkk(ik1,ik2,ik3)=i
+c         print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+      enddo
+      deallocate(qxx)
+      end subroutine
+
+!! ---
+      subroutine tabkk(kkin, kktable,n, nout)
+      integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
+      i1=1
+      i2=n
+      if(kkin==kktable(1)) then
+         nout=1
+         return
+      elseif(kkin==kktable(n)) then
+         nout=n
+         return
+      endif
+      do i=1,n
+         mm=(i1+i2)/2
+         if(kkin==kktable(mm)) then
+            nout=mm
+            return
+         elseif(kkin>kktable(mm)) then
+            i1=mm
+         else
+            i2=mm
+         endif
+      enddo
+c$$$      do i=1,n                                                                                  
+c$$$         if(kkin==kktable(i)) then                                                              
+c$$$            nout=i                                                                              
+c$$$            return                                                                              
+c$$$         endif                                                                                  
+c$$$      enddo                                                                                     
+      print *, i1,i2,kkin
+      print *, kktable(i1),kktable(i2)
+      stop 'takk: error'
+      end subroutine
+      end module
+
+
+
 !! ------------------------------------------------------
       module m_readeigen
 !!-- Return eigenvalus and eigenfunctions for given q and isp.--
@@ -482,9 +603,10 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 !!
 !!* we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
+      use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
       implicit none
-c      integer(4),private :: nqtt
-c      real(8),allocatable,private:: qtt(:,:)
+c      integer(4),private :: nqtt  
+c      real(8),allocatable,private:: qtt(:,:) <---this is in m_hamindex
       real(8),allocatable,private:: evud(:,:,:), ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
@@ -493,34 +615,50 @@ c      real(8),allocatable,private:: qtt(:,:)
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
 ctm
-      integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw
+      integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
       logical,private:: debug=.false.
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)
-!!--------------------------------------------------------------
       contains
-
+!!--------------------------------------------------------------------------
       subroutine readeval(q,isp, ev)
 !! == return ev(1:nband) for given q(1:3) and isp ==
 !! *
       use m_hamindex, only: qtt,nqtt,iqimap
       implicit none
       integer(4):: isp,iq,iqindx,i
-      real(8):: q(3)
+      real(8):: q(3),qu(3)
       real(8):: ev(nband)
       if(init) then
         stop 'readeigen: modele is not initialized yet'
       endif
-      iq = iqindx(q, ginv,qtt,nqtt)
+c      iq = iqindx(q, ginv,qtt,nqtt)
+       call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
       if(debug) then
         print *,'iq iqimap(iq)=',iq,iqimap(iq)
         write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
         write(6,"(9f9.4)")ev(1:9)
       endif
+      end subroutine
+
+      subroutine findemaxmin_r(emax,emin)
+      implicit none
+      real(8):: emax,emin,eee
+      integer:: ib,iq,isp
+      emax=-1d9
+      do ib=1,nband
+         do iq=1,nqixx
+            do isp=1,nsp
+               eee= evud(ib,iq,isp)
+               if(eee>Emax.and.eee<1d9) Emax=eee
+            enddo
+         enddo
+      enddo
+      emin = minval(evud)
       end subroutine
 
 !!-----------------------------------------------
@@ -538,7 +676,7 @@ ctm
       endif
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu is a G vector.
+      call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
 
       if(debug) print *,' readgeig:xxx iq=',iq
 c      do iq=1,nqtt
@@ -630,7 +768,7 @@ ccccccccccccccccccccccccccccccccccc
       if(init2) stop 'readcphi: modele is not initialized yet'
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
+      call iqindx2_(q, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
 !!  For given iq, iqq = iqmap(iq)
 !! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))  and  qtt(:,iqq) = qtti(:,iqi)
       igg=igmap(iq)
@@ -776,7 +914,7 @@ c------------------------------
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
 c      print *,' readgeig: q=',q
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
+      call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
 
       if(ngp_in < ngp(iq)) then
         print *,'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
@@ -803,7 +941,7 @@ c------------------------------
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
 c      print *,' readgcphi_mlw: q=',q
-      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
+      call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
 
       if(keepeig) then
         cphif(1:ldim2,1:nwf) = cphi(1:ldim2,1:nwf,iq,isp)
@@ -813,9 +951,10 @@ c      print *,' readgcphi_mlw: q=',q
       endif
       end subroutine
 
-c------------------------------
+ccccccccccccccccccccccccccc
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum
+      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt,nqtt
+
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,nsp_in, 
@@ -825,6 +964,7 @@ c      integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
       integer:: ifev,nband_ev, nqi_, nsp_ev !,nqnum
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
+
       write(6,*) 'init_readeigen:'
       allocate(ginv(3,3))
       ginv  = ginv_in
@@ -843,6 +983,9 @@ c      do iq=1,nqtt
 c        write(*,*) qtt(:,iq)
 c      enddo
 c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
+
+      call init_iqindx_qtt(ginv)
+
 !!--- Readin QGpsi ---
       ifiqg  = 101
       open(ifiqg ,file='QGpsi',form='unformatted')
@@ -865,6 +1008,7 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
       if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
       if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
+      nqixx=nqi
       allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
       read(ifev) qtti_(1:3,1:nqi_) !qtti
       read(ifev) evud(1:nband, 1:nqi, 1:nsp )

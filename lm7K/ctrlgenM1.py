@@ -144,11 +144,11 @@ Sb  =" atomz=51@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-0.1*4@ eh2=-2*3@ R=?@"
 Te  =" atomz=52@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 I   =" atomz=53@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 Xe  =" atomz=54@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
-Cs  =" atomz=55@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
-Ba  =" atomz=56@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Cs  =" atomz=55@ pz='PZ=0,5.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
+Ba  =" atomz=56@ pz='PZ=0,5.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@ R=?@" 
 #La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
-La  =" atomz=57@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
-Ce  =" atomz=58@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
+Ce  =" atomz=58@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*4@ R=2.80@" 
 Pr  =" atomz=59@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Nd  =" atomz=60@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pm  =" atomz=61@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 

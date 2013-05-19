@@ -532,6 +532,8 @@ C ... frhis
         write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
       endif
       call findemaxmin(nband,qbze,nqbze,nspin ,emax,emin)
+c      call findemaxmin_r(emax,emin)
+
 c$$$ Even if we neglect this section, result is not so bad---anyway we may need to
 c$$$ fix this block if necessary. Oct2005
 c$$$        if(bzcase()==2) then
@@ -1049,28 +1051,22 @@ c!! ----------------------------------------------
       if(eibzmode) then
 !! commentout block inversion Use iqxendx=iqxend because of full inversion
 c     iqxendx=nqibz
-         call cputid(0)
+        call cputid(0)
+        print *,' ---goto eibzmode block ---'
          iqxendx=iqxend
          if(epsmode) iqxendx=iqxend
          allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
      &        igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
      &        eibzsym(ngrp,-1:1,iqxini:iqxendx))
-         iprintx=.false.
-         print *
-         tiii=timereversal() 
-         write(6,"('TimeRevesal switch = ',l1)") tiii
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii
-     &        ,ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
 !! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
 !! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-         if(minval(igxt)==1) tiii=.false.
-         write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
+         print *
+         write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
          if(mpi__root) iprintx=.true.
-         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
-         print *,' end of eibzgen '
+         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
+     i        timereversal(),ginv,iprintx,
+     o        nwgt,igx,igxt,eibzsym,tiii)
+         write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
          call cputid(0)
          call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in arrays in m_pbindex.
 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.

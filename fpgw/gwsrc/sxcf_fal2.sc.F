@@ -1,49 +1,49 @@
-      module m_nbandgw
-      real(8),allocatable,private:: qq(:,:,:)
-      integer,allocatable,private:: ispp(:),intqxx(:,:)
-      integer,private::nn
-      contains
-      subroutine getnbandgw(qin,isp,ginv,ntqxx) !june2009
-c     obtain ntqxx for given q and isp
-      implicit none
-      real(8):: a,qin(3),ginv(*),qqq(3)
-      integer:: isave=0,idummy,i,isp,ntqxx,ifi,ixx,iopen,iclose,indxq,iqindx,ispp,iii
-      if(isave==0) then
-         ifi= iopen ('NBANDGW',1,0,0)
-         nn=0
-         do
-            read(ifi, *,end=1011) a
-            nn=nn+1
-         enddo
- 1011    continue
-         rewind ifi
-         allocate(qq(3,nn,2),intqxx(nn,2))
-         do i=1,nn
-            read(ifi, *,end=1011) qqq,ispp,idummy,iii
-            qq(:,i,ispp)   = qqq
-            intqxx(i,ispp) = iii
-            write(6,*) 'xxx: ',i,qq(:,i,ispp),ispp,intqxx(i,ispp)
-         enddo
-         ixx= iclose('NBANDGW')
-         isave=1
-      endif
-      print *,' qin indx=',qin
-      ixx = iqindx(qin, ginv,qq(:,:,isp),nn)
-      ntqxx = intqxx( ixx,isp)
-      print *,' intqxx  ntqxx=',ntqxx,ixx
-      end subroutine
-      integer function indxq(qin,isp, q,ispp,nn)
-      real(8):: qin(3),q(3,nn)
-      integer:: nn,i,ispp(nn),isp
-      do i=1,nn
-         if(sum( abs(q(:,i)-qin(:)) ) <1d-8 .and. isp==ispp(i) ) then
-            indxq=i
-            return
-         endif
-      enddo
-      stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
-      end function
-      end module m_nbandgw
+c$$$      module m_nbandgw
+c$$$      real(8),allocatable,private:: qq(:,:,:)
+c$$$      integer,allocatable,private:: ispp(:),intqxx(:,:)
+c$$$      integer,private::nn
+c$$$      contains
+c$$$      subroutine getnbandgw(qin,isp,ginv,ntqxx) !june2009
+c$$$c     obtain ntqxx for given q and isp
+c$$$      implicit none
+c$$$      real(8):: a,qin(3),ginv(*),qqq(3)
+c$$$      integer:: isave=0,idummy,i,isp,ntqxx,ifi,ixx,iopen,iclose,indxq,iqindx,ispp,iii
+c$$$      if(isave==0) then
+c$$$         ifi= iopen ('NBANDGW',1,0,0)
+c$$$         nn=0
+c$$$         do
+c$$$            read(ifi, *,end=1011) a
+c$$$            nn=nn+1
+c$$$         enddo
+c$$$ 1011    continue
+c$$$         rewind ifi
+c$$$         allocate(qq(3,nn,2),intqxx(nn,2))
+c$$$         do i=1,nn
+c$$$            read(ifi, *,end=1011) qqq,ispp,idummy,iii
+c$$$            qq(:,i,ispp)   = qqq
+c$$$            intqxx(i,ispp) = iii
+c$$$            write(6,*) 'xxx: ',i,qq(:,i,ispp),ispp,intqxx(i,ispp)
+c$$$         enddo
+c$$$         ixx= iclose('NBANDGW')
+c$$$         isave=1
+c$$$      endif
+c$$$      print *,' qin indx=',qin
+c$$$      ixx = iqindx(qin, ginv,qq(:,:,isp),nn)
+c$$$      ntqxx = intqxx( ixx,isp)
+c$$$      print *,' intqxx  ntqxx=',ntqxx,ixx
+c$$$      end subroutine
+c$$$      integer function indxq(qin,isp, q,ispp,nn)
+c$$$      real(8):: qin(3),q(3,nn)
+c$$$      integer:: nn,i,ispp(nn),isp
+c$$$      do i=1,nn
+c$$$         if(sum( abs(q(:,i)-qin(:)) ) <1d-8 .and. isp==ispp(i) ) then
+c$$$            indxq=i
+c$$$            return
+c$$$         endif
+c$$$      enddo
+c$$$      stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
+c$$$      end function
+c$$$      end module m_nbandgw
 
 !     ! ----------------------------------------------------------------------------
 c      subroutine sxcf_fal3_scz(wqfac,kount,qip,itq,ntq,ef,esmr,tiat,miat,
@@ -88,7 +88,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue
-      use m_nbandgw,only: getnbandgw
+c      use m_nbandgw,only: getnbandgw
       use m_mpi, only: mpi__rank 
       implicit none
 
@@ -384,7 +384,7 @@ c     integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 
       integer(4)::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
 
-      integer(4):: iqindx,bzcase,iqini,nstbz(nqbz),iqend
+      integer(4):: bzcase,iqini,nstbz(nqbz),iqend
       real(8):: wgtq0p
 
       real(8)::quu(3),qibz_k(3),qbz_kr(3)

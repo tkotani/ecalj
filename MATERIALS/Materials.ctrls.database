@@ -305,6 +305,7 @@ Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5 a=3.524/bohr  --nk1=12  --nspin=2
 NiO NIOAF2: @1=Niup @2=Nidn @3=O  @11=28 @12=28 @13=8  @101=1.2 a=7.88 --nspin=2 --nk1=6 --nk2=6 --nk3=6
 HfO2 HFO2:  @1=Hf @2=O  a=6.700 --nk1=6 --nk2=6 --nk3=4
 ZrO2 ZRO2:  @1=Zr @2=O  a=6.726 --nk1=6 --nk2=6 --nk3=4
+Ce FCC: @1=Ce a=9.052 --nk1=12 
 
 #-------------
 SrTiO3 PEROVSKITE: @1=Sr @2=Ti @3=O a=7.37   --nk1=6

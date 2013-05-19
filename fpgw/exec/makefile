@@ -751,33 +751,33 @@ check:
 
 include moduledepends.inc
 
-addtime=script/addtime.awk 
-septhen=script/then_separate.awk
-alloclist=script/add_alloclist.awk
 
 
-################################################################################
-##### You can comment out these blocks to commnet out memory and time check (verbose output)
-$(main)hsfp0.sc.m.o:  $(main)hsfp0.sc.m.F
-	gawk -f $(addtime) -vSTART=1 $(main)hsfp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hsfp0.sc.m.F
-	$(FC) $(FFLAGS) $(main)time_hsfp0.sc.m.F -c -o $*.o
+# ################################################################################
+# ##### You can comment out these blocks to commnet out memory and time check (verbose output)
+# addtime=script/addtime.awk 
+# septhen=script/then_separate.awk
+# alloclist=script/add_alloclist.awk
+# $(main)hsfp0.sc.m.o:  $(main)hsfp0.sc.m.F
+# 	gawk -f $(addtime) -vSTART=1 $(main)hsfp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hsfp0.sc.m.F
+# 	$(FC) $(FFLAGS) $(main)time_hsfp0.sc.m.F -c -o $*.o
 
-$(main)hx0fp0.sc.m.o: $(main)hx0fp0.sc.m.F
-	gawk -f $(addtime) -vSTART=1 $(main)hx0fp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hx0fp0.sc.m.F
-	$(FC) $(FFLAGS) $(main)time_hx0fp0.sc.m.F -c -o $*.o
+# $(main)hx0fp0.sc.m.o: $(main)hx0fp0.sc.m.F
+# 	gawk -f $(addtime) -vSTART=1 $(main)hx0fp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hx0fp0.sc.m.F
+# 	$(FC) $(FFLAGS) $(main)time_hx0fp0.sc.m.F -c -o $*.o
 
-$(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
-	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
-	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
+# $(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
+# 	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
+# 	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
 
-#$(gwsrc)x0kf_v4h$(x0kf_g): $(gwsrc)x0kf_v4h.F 
-#	gawk -f $(addtime) -vSTART=100 $(gwsrc)x0kf_v4h.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_x0kf_v4h.F
-#	$(FC) $(FFLAGS) $(gwsrc)time_x0kf_v4h.F -c -o $*.o
+# #$(gwsrc)x0kf_v4h$(x0kf_g): $(gwsrc)x0kf_v4h.F 
+# #	gawk -f $(addtime) -vSTART=100 $(gwsrc)x0kf_v4h.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_x0kf_v4h.F
+# #	$(FC) $(FFLAGS) $(gwsrc)time_x0kf_v4h.F -c -o $*.o
 
-$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
-	gawk -f $(addtime) -vSTART=200 $(gwsrc)ppbafp.fal.F > $(gwsrc)time_ppbafp.fal.F
-	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
-###################################################################################
+# $(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
+# 	gawk -f $(addtime) -vSTART=200 $(gwsrc)ppbafp.fal.F > $(gwsrc)time_ppbafp.fal.F
+# 	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
+# ###################################################################################
 
 
 
