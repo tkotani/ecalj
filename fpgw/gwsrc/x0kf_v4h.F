@@ -942,7 +942,6 @@ c$$$           endif
           enddo
 
           rcxq(:,:,iw,jpm) = rcxq000/neibz
-          write(6,*)
         enddo
         enddo
 !$OMP end  do 
