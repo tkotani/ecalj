@@ -200,7 +200,7 @@ c     &     nqnumc, ngcmx, QpGcut_cou
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
                stop 'iqindx: bug not sorted well'
@@ -367,13 +367,13 @@ c sorting of ea
           exit
         enddo
       enddo
-      end
+      end subroutine
 #ifndef EXPAND_ISWAP
       subroutine iswap(i,j)
       iwork = j
       j = i
       i = iwork
-      end
+      end subroutine
 #endif
 c---------------------------------------------------------
       end module m_readQG

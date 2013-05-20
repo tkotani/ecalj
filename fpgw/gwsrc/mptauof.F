@@ -217,7 +217,7 @@ c$$$      enddo
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
+c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
                stop 'iqindx: bug not sorted well'

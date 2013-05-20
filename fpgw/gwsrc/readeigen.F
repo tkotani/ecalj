@@ -529,7 +529,7 @@ c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
                stop 'iqindx: bug not sorted well'
