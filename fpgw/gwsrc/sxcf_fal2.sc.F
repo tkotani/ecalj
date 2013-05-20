@@ -474,8 +474,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME1 "before 1001"
 
 !     !== ip loop to spedify external q ==
-      do 1001 ip = 1,nq         !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
+      do 1001 ip = 1,nq         
          if(sum(irkip(:,:,ip))==0) cycle ! next ip
+         write (*,*) ip,'  out of ',nq,'  k-points(extrnal q) ' ! call cputid  (0)
 c     call readeval(q(1,ip),isp,eq)
 !TIME0 
          q(1:3)= qip(1:3,ip)
@@ -747,7 +748,7 @@ c     endif
                   end if
                endif
 c     write(*,"('ip,kx irot=',3i5, 'out of',2i4)") ip,kx,irot, iqend,ngrp
-               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',3i4)") ip,kx,irot, iqend,nrot,ngrp
+c               write(*,"('ip,kx irot=',3i5, ' out of(ipend,nrot)',3i4)") ip,kx,irot, iqend,nrot,ngrp
 
 c$$$  if( kx <= nqibz ) then
 c$$$  kr = irk(kx,irot) ! index for rotated k in the FBZ
@@ -863,7 +864,7 @@ c     ntqxx is number of bands for <i|sigma|j>.
 c     override these by takao jun 2009
 c     call getnbandgw(q,isp,ginv,ntqxx) !june2009
 c     if(debug) 
-               write(6,"( ' ntq ntqxx=',3i15,2f8.3)") ntq,ntqxx,nbmx(1), ebmx(1)
+c               write(6,"( ' ntq ntqxx=',3i15,2f8.3)") ntq,ntqxx,nbmx(1), ebmx(1)
 c-----------
                if(debug) print *,' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
                nstate = nctot + nbmax ! = nstate for the case of correlation
@@ -2096,7 +2097,7 @@ c     and must be made hermitean when zsec will be written on disc
                deallocate(freq_r)
  1000       continue ! end do irot
 
-            print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
+c            print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
             if(newaniso()) ifvcoud =iclose('Vcoud.'//charnum5(kx))
             if(.not.exchange) then
                ifrcw  = iclose('WVR.'//charnum5(kx))

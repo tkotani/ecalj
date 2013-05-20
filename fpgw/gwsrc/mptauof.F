@@ -311,11 +311,11 @@ c        call cputid(0)
 !! inequivalent points.
           allocate(mqbz(nqbz))
           inotime=.true.
-          do ix=1,2 !try no time reversal for ix=1
+          do ix=1,ntimer,-2 !try no time reversal for ix=1
              mqbz=0
              nwgt(:,iq)=0
-             igx=99999
-             igxt=99999
+             igx(:,:,iq) =999991
+             igxt(:,:,iq)=999992
              do ibz=1,nqbz
                 if(mqbz(ibz)==1) cycle
                 do im=1,immx(ibz) 
@@ -323,6 +323,7 @@ c        call cputid(0)
                       if(igxt_(im,ibz) ==-1) cycle 
                    endif   
                    kkk3 = nxx(:,ibz,im)
+c                   print *,' ibz,im kkk3=',ibz,im,kkk3
                    call tabkk(kkk3(1), kk1,nkey(1), ik1)
                    call tabkk(kkk3(2), kk2,nkey(2), ik2)
                    call tabkk(kkk3(3), kk3,nkey(3), ik3)
@@ -342,11 +343,20 @@ c        call cputid(0)
                 goto 1202
              endif   
              inotime=.false.
+             print *,' mptauo: we need time reversal'
           enddo
           stop 'eibzgen: bug. nwgt sum is not nqbz'
  1202     continue
 
-c          print *,' nwgt(ibz,iq),nqbz=',sum(nwgt(:,iq))
+C cccccccccccccccccccccccccccccccccc
+C         do ibz=1,200 !nqbz
+C           if(nwgt(ibz,iq)/=0) then
+C             write(6,"('yyy0: ',i8,2x,25(i3,i2))") ibz,(igx(i,ibz,iq),igxt(i,ibz,iq),i=1,nwgt(ibz,iq))
+C           endif
+C         enddo
+C cccccccccccccccccccccccccccccccccc
+
+c          print *,'pppppp nwgt(ibz,iq),nqbz=',iq,sum(nwgt(:,iq)),nqbz
 c$$$!! === Search other ibz generated from ibz. ===
 c$$$!!   ibznxx(ibz,imm) means "ibz rotated by igx(imm,ibz,iq),igxt(imm,ibz,iq)"
 c$$$        allocate(mqbz(nqbz))
@@ -363,6 +373,7 @@ c$$$          enddo
 c$$$          enddo 
 c$$$ 3312     continue
 c$$$        enddo
+        deallocate(igx_,igxt_)
 
 c        print *,'eibz bbbbbb'
 c        call cputid(0)
@@ -382,7 +393,6 @@ c              write(6,"('   ibz qeibz =',i7,3f10.5, ' nwgt=',i7)")ibz,qeibz(:,n
      &      sum(eibzsym(:,:,iq)),sum(eibzsym(:,1,iq)),sum(eibzsym(:,-1,iq)),neibz(iq)
 c          write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i7)") iq,q,neibz(iq),nqbz
         endif
-        deallocate(igx_,igxt_)
         deallocate(nxx,immx,mqbz)
       enddo
 !!

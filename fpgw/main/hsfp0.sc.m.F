@@ -198,7 +198,7 @@ c     integer:: nbmx
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       integer:: iqxend,iqxini
       integer:: l2nl,igrp,kx,kr
-      logical :: iprintx,tiii,timereversal, eibz4sig
+      logical :: iprintx,tiii,timereversal, eibz4sig,tiiiout
 
       integer:: ifevec,ifvxc,nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
      &     ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx,nnnx
@@ -214,10 +214,10 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       character(128) :: ixcc
       real(8):: eftrue,esmref !jan2013
       real(4):: time_red1,time_red2
-      integer:: timevalues(8) 
+      integer:: timevalues(8) ,ibz
 
       integer:: procid,nrankv,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_,ifiproc,iqqxx,
-     &  isp,ixx,ixxx,nqixx,nspxx,ispxx
+     &  isp,ixx,ixxx,nqixx,nspxx,ispxx,iqbz
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
@@ -952,30 +952,35 @@ c-----------------------------------------------------------
       if(eibz4sig()) then
          allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq))
          allocate(igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
-         iprintx=.false.
-         write(6,"('TimeRevesal switch = ',l1)") timereversal()
          iqxini=1
          iqxend=nq
-         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
-     &        iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
+c         write(6,"('TimeRevesal switch = ',l1)") timereversal()
+c         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
+c     &        iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
+c     o        nwgt,igx,igxt,eibzsym,tiii)
 !     ! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
 !     ! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-         tiii=timereversal() 
-         if(minval(igxt)==1) tiii=.false.
-         iprintx=.true.
 cccccccccccccccccccc
-         tiii=.false.           !time reversal not yet...
-         print *,' NOTE:Time reversal is not yet implemented for EIBZ'
-cccccccccccccccccccc
+         tiii=.false.    !Enforce no time reversal. time reversal not yet...
+         print *,'NOTE:TimeReversal not yet implemented in hsfp0.sc.m.F'
          write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+         iprintx=.false.
+         if(mpi__root) iprintx=.true.
          call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
      &        iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym)
+     o        nwgt,igx,igxt,eibzsym,tiiiout)
 c     call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
                                 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
 c     call readqgcou() !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+
+C         do iq=iqxini,iqxini
+C         do ibz=1,200
+C           if(nwgt(ibz,iq)/=0) then
+C             write(6,"('yyy1: ',i8,2x,25(i3,i2))") ibz,(igx(i,ibz,iq),igxt(i,ibz,iq),i=1,nwgt(ibz,iq))
+C           endif
+C         enddo
+C         enddo
       endif
 
 !     ! == irkip control paralellization  ==
@@ -1008,22 +1013,21 @@ c     print *,' iqq kr irk =',iqq,kr,irkip_all(is,kx,igrp,iqq),nrkip_all(is,kx,i
                enddo
             enddo
          enddo  
-c     
-         do iqq=1,nq
-            write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")
-     &           iqq,sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
-            write(6,"('eibz: iqq sum(nrkip_all)=nqbz  ',i3,3f11.5,3i3)")
-     &           iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
-            do kx=1,nqibz
-               do igrp=1,ngrp
-                  kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
-                  if(kr/=0) write(6,"('      ',i3,3f11.5,i4,2x,25(i4,i2))")
-     &                 kr,qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
-     &                 ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
-               enddo
-            enddo
-!     !   Probably partial group symmetrization is enough. But it may not reduce computational time so much.
-         enddo  
+C          do iqq=1,nq
+C             write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")
+C      &           iqq,sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
+C             write(6,"('eibz: iqq sum(nrkip_all)=nqbz  ',i3,3f11.5,3i8)")
+C      &           iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
+C             do kx=1,nqibz
+C                do igrp=1,ngrp
+C                   kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+C                   if(kr/=0) write(6,"('      ',i8,3f11.5,i8,2x,25(i4,i2))")
+C      &                 kr,qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
+C      &                 ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
+C                enddo
+C             enddo
+C!     !   Probably partial group symmetrization is enough. But it may not reduce computational time so much.
+C         enddo  
          if(nspinmx==2) then
             irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
             nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
