@@ -1,0 +1,25 @@
+         The cdte test illustrates the LDA+U implementation in various modes:
+
+         It begins with a self-consistent LDA+U calculation with U=4 eV on Cd d, FLL limit.
+         The main effects are:
+           * to push down the Cd d levels by 2 eV relative to the LDA
+           * reduce total energy is about 20mRy less binding relative to LDA (-0.389970 Ry)
+             (there is presumably a corresponding shift in the free atom energy, but
+             no attempt was made to calculate it)
+           * increase the bandgap by 0.1 eV relative to LDA (0.52 eV) to 0.62 eV
+
+         Starting from this density and density-matrix, three one-shot calculations are performed.
+
+         1. A potential shift -2 eV on Cd d (IDU=4) is used in place of U=4 eV.
+            The test verifies that both the total energy and the bandgap are unchanged,
+            and that the density is almost self-consistent.
+
+         2. An additional potential shift +1 eV on Cd s (IDU=4) is included.
+            It has the effect of increasing the gap to 0.99 eV, and reducing the energy by 70 mRy.
+            Ueff is determined to be 0.337 Ry to generate this potential shift.
+            (Note that this pass somewhat reduces the Cd s density-matrix)
+
+         3. A normal LDA+U is included on the Cd s orbital, U=0.337 in the FLL.
+            The test verifies that the gap, small change in output density, and EHK
+            are essentially identical to the results of test 2.
+        

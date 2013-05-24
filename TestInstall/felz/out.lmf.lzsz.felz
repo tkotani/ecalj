@@ -1,0 +1,2237 @@
+rdcmd:  lmfa -vrel=1 -vnit=1 -vso=0 felz
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc バージョン 4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-26-generic #42-Ubuntu SMP Wed Sep 5 08:37:08 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/eibz4sig_developing
+HOST_INFORMATION git commit: 3cff819b95c662afa44e9d3dcb6e8dbcaeeb533c
+HOST_INFORMATION linked at: Sun Sep 23 13:53:49 JST 2012
+ -----------------------  START LMFA     -----------------------
+ ptenv() is called with EXT=felz
+ ptenv() not supported, but continue.
+ HEADER Fe test spin pol, f-orbitals for cls and mull
+ Fe       xxx            1           1
+
+ rdctrl: reset global max nl from 5 to 4
+  mxcst switch =           1           0 F F F
+  LMFA  vn 7.00(LMFA 7.0)  verb 30
+ end of rdctrl2 in imfav7
+ lattic:
+
+                Plat                                  Qlat
+   0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
+   0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
+   0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
+  Cell vol= 79.765082
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
+         r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
+ goto mksym
+
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
+ zzz nclass=           1
+ end of mksym x
+ goto defspc
+ end of defspc
+ goto freeat
+
+ttt: pnu qat=  1  0     4.660     2.000
+ttt: pnu qat=  1  1     4.410     0.000
+ttt: pnu qat=  1  2     3.800     6.000
+ttt: pnu qat=  1  3     4.130     0.000
+ttt: pnu qat=  2  0     4.660     0.000
+ttt: pnu qat=  2  1     4.410     0.000
+ttt: pnu qat=  2  2     3.800    -2.200
+ttt: pnu qat=  2  3     4.130     0.000
+ NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
+=== Charge for l isp : Qtot=Qv=     0 0   1.000   1.000
+=== Charge for l isp : Qtot=Qv=     1 0   0.000   0.000
+=== Charge for l isp : Qtot=Qv=     2 0   1.900   1.900
+=== Charge for l isp : Qtot=Qv=     3 0   0.000   0.000
+=== Charge for l isp : Qtot=Qv=     0 0   1.000   1.000
+=== Charge for l isp : Qtot=Qv=     1 0   0.000   0.000
+=== Charge for l isp : Qtot=Qv=     2 0   4.100   4.100
+=== Charge for l isp : Qtot=Qv=     3 0   0.000   0.000
+
+conf:SPEC_ATOM= Fe : --- Table for atomic configuration ---
+conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  4         1.000    3.000 => 1,2,3,
+conf:    1  1       4  4         0.000    6.000 => 2,3,
+conf:    1  2       3  3         1.900    0.000 => 
+conf:    1  3       4  4         0.000    0.000 => 
+conf:-----------------------------------------------------
+conf:    2  0       4  4         1.000    3.000 => 1,2,3,
+conf:    2  1       4  4         0.000    6.000 => 2,3,
+conf:    2  2       3  3         4.100    0.000 => 
+conf:    2  3       4  4         0.000    0.000 => 
+conf:-----------------------------------------------------
+
+ Species Fe:  Z=26  Qc=18  R=2.324967  Q=0  mom=-2.2
+ mesh:   rmt=2.324967  rmax=49.589065  a=0.03  nr=321  nr(rmax)=423
+ goto atomc xxx
+ atomsc nmcore=           0
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+    1   26.000000   3.315E+03      130.0000    0.1293E+03      -52.2170   0.30
+   52   26.000000   3.819E-05      234.0125    0.1701E+05     -160.8066   0.30
+
+
+ sumev=-4.368331  etot=-2540.381937  eref=0.000000
+
+ Optimise free-atom basis for species Fe, rmt=2.324967
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  11   1.162  -0.100       0.0   8437.2   -0.35849  -0.39279    4.72   1.00
+ 1  11   1.162  -0.100       0.0  -3491.7    0.14426  -0.10589    4.52   0.00
+ 2   7   1.162  -0.511       0.0     27.4   -0.49140  -0.49359    3.89   1.90
+ eigenvalue sum:  exact  -1.33060    opt basis  -1.29214    error 0.03846
+
+ Optimise free-atom basis for species Fe, rmt=2.324967
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  10   1.162  -0.111       0.0   7615.3   -0.39398  -0.42490    4.74   1.00
+ 1  11   1.162  -0.100       0.0  -2918.1    0.10372  -0.11679    4.55   0.00
+ 2   3   1.162  -0.804       0.0     14.7   -0.63518  -0.63727    3.89   4.10
+ eigenvalue sum:  exact  -3.03773    opt basis  -2.99820    error 0.03953
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 2.32497, rsm= 1.16248
+    q(fit):     0.830270    rms diff:   0.000002
+    fit: r>rmt  0.830270   r<rmt  1.057458   qtot  1.887728
+    rho: r>rmt  0.830270   r<rmt  2.069730   qtot  2.900000
+
+ tailsm: spin 2 ...
+    q(fit):     0.896639    rms diff:   0.000008
+    fit: r>rmt  0.896639   r<rmt  1.888174   qtot  2.784813
+    rho: r>rmt  0.896639   r<rmt  4.203361   qtot  5.100000
+ tailsm: end
+
+ coretail: q=0.011, rho(rmt)=0.0147.  Fit with Hankel e=-19.588  coeff=750.85
+ end of freats: spid nmcore=Fe                 0
+
+  Write mtopara.* ...
+ Exit 0 LMFA 
+ CPU time:    0.204s     Sun Sep 23 14:04:21 2012   on TT4
+
+  ==== workspace ====     calls      == cpu time ===   depth 1
+  entry   mxin  mxout                per call  total
+      0      0      0        1       0.20       0.20   main
+rdcmd:  lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=11
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc バージョン 4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-26-generic #42-Ubuntu SMP Wed Sep 5 08:37:08 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/eibz4sig_developing
+HOST_INFORMATION git commit: 3cff819b95c662afa44e9d3dcb6e8dbcaeeb533c
+HOST_INFORMATION linked at: Sun Sep 23 13:53:49 JST 2012
+ -----------------------  START LMF      -----------------------
+ ptenv() is called with EXT=felz
+ ptenv() not supported, but continue.
+ HEADER Fe test spin pol, f-orbitals for cls and mull
+ Fe       xxx            1           1
+
+ rdctrl: reset global max nl from 5 to 4
+  mxcst switch =           1           0 F F F
+  LMF  vn 7.00(LMF 7.0)  verb 30
+ special:  APW basis
+ bz:       metal(3), tetra, invit, fixed-spin-mom 
+
+ Automatic symmetry finder turned off.  Use: i*i
+ goto setcg
+ lattic:
+
+                Plat                                  Qlat
+   0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
+   0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
+   0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
+  Cell vol= 79.765082
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
+         r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
+
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations
+         no attempt to add inversion symmetry
+ zzz nclass=           1
+ 
+ lstar xxx=          -2
+ BZMESH:  64 irreducible QP from 64 ( 4 4 4 )  shift= T T T
+ lstar xxx=          -2
+ >> level: 1  CPUsec=      0.02  enter lmfp
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
+
+ MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
+         generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
+
+ gvlist: cutoff radius  13.000 gives   2899   recips of max   4096
+ SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
+ suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Fe       0*   1.16  -0.10   6.395    1.24E-06     369 
+  Fe       1*   1.16  -0.10   6.825    1.36E-06     429 
+  Fe       2*   1.16  -0.10   7.254    1.68E-06     531 
+  Fe       3    1.16  -0.10   7.681    2.27E-06     603 
+  Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
+  Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
+  Fe       2    1.16  -1.10   7.254    1.68E-06     531 
+
+ suham:  q-dependent PW basis with  Emin = 0 < E < 3.
+         Est. min,max PW dimension = 4,13.  Use npwpad = 3 => ndham = 41
+
+ iors  : read restart file (ascii, mesh density) 
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+ ttt nevmx w=          34  2.00000000000000004E-002
+
+ avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
+
+ smooth rhoves     11.233981   charge     3.504402
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -2.824101 (  -1.319471,  -1.504630)
+         rhomu =   -3.675133 (  -1.690112,  -1.985021)
+       avg vxc =   -0.847914 (  -0.838949,  -0.856879)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           4 T
+
+ site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
+ sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:    0.000780
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -4.927066       -86.790906       -91.717972
+   rhoval*ves            -30.445247       -45.595669       -76.040916
+   psnuc*ves              52.913210     -9993.694286     -9940.781076
+   utot                   11.233981     -5019.644977     -5008.410996
+   rho*exc                -2.824101      -104.427465      -107.251566
+   rho*vxc                -3.675133      -138.243544      -141.918677
+   valence chg             3.504402         4.495598         8.000000
+   valence mag            -0.251543        -1.996439        -2.247982
+   core charge            18.000000        -0.000000        18.000000
+
+ Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+    hom background     0.00000   deviation from neutrality:     -0.00000
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.250   0.000   0.000
+    2   0.250   0.250   0.250
+    3   0.250   0.500   0.500
+    4   0.250   0.750   0.750
+    5   0.500  -0.250   0.000
+    6   0.500   0.000   0.250
+    7   0.500   0.250   0.500
+    8   0.500   0.500   0.750
+    9   0.750  -0.500   0.000
+   10   0.750  -0.250   0.250
+   11   0.750   0.000   0.500
+   12   0.750   0.250   0.750
+   13   1.000  -0.750   0.000
+   14   1.000  -0.500   0.250
+   15   1.000  -0.250   0.500
+   16   1.000   0.000   0.750
+   17   0.500   0.000  -0.250
+   18   0.500   0.250   0.000
+   19   0.500   0.500   0.250
+   20   0.500   0.750   0.500
+   21   0.750  -0.250  -0.250
+   22   0.750   0.000   0.000
+   23   0.750   0.250   0.250
+   24   0.750   0.500   0.500
+   25   1.000  -0.500  -0.250
+   26   1.000  -0.250   0.000
+   27   1.000   0.000   0.250
+   28   1.000   0.250   0.500
+   29   1.250  -0.750  -0.250
+   30   1.250  -0.500   0.000
+   31   1.250  -0.250   0.250
+   32   1.250   0.000   0.500
+   33   0.750   0.000  -0.500
+   34   0.750   0.250  -0.250
+   35   0.750   0.500   0.000
+   36   0.750   0.750   0.250
+   37   1.000  -0.250  -0.500
+   38   1.000   0.000  -0.250
+   39   1.000   0.250   0.000
+   40   1.000   0.500   0.250
+   41   1.250  -0.500  -0.500
+   42   1.250  -0.250  -0.250
+   43   1.250   0.000   0.000
+   44   1.250   0.250   0.250
+   45   1.500  -0.750  -0.500
+   46   1.500  -0.500  -0.250
+   47   1.500  -0.250   0.000
+   48   1.500   0.000   0.250
+   49   1.000   0.000  -0.750
+   50   1.000   0.250  -0.500
+   51   1.000   0.500  -0.250
+   52   1.000   0.750   0.000
+   53   1.250  -0.250  -0.750
+   54   1.250   0.000  -0.500
+   55   1.250   0.250  -0.250
+   56   1.250   0.500   0.000
+   57   1.500  -0.500  -0.750
+   58   1.500  -0.250  -0.500
+   59   1.500   0.000  -0.250
+   60   1.500   0.250   0.000
+   61   1.750  -0.750  -0.750
+   62   1.750  -0.500  -0.500
+   63   1.750  -0.250  -0.250
+   64   1.750   0.000   0.000
+ sigmamode= F
+ goto gen_hamindex nkp=          64
+  gen_hamindex: --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   Fe
+  1  1  1      2    4   Fe
+  1  2  1      5    9   Fe
+  1  3  1     10   16   Fe
+  1  0  2     17   17   Fe
+  1  1  2     18   20   Fe
+  1  2  2     21   25   Fe
+ MPTAUOf: search miat tiat for wave function rotation
+
+  ROTDLMM:
+  end of rotdlmm
+ gen_hamindex: no GW related part. not readin QGpsi
+
+  --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   Fe
+  1  1  1      2    4   Fe
+  1  2  1      5    9   Fe
+  1  3  1     10   16   Fe
+  1  0  2     17   17   Fe
+  1  1  2     18   20   Fe
+  1  2  2     21   25   Fe
+  ngrp=           1
+  mode napw lwsig           0           9           0
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 34
+ -0.5017 -0.0192 -0.0190  0.0078  0.0533  0.1214  1.6138  1.7771  1.7774
+  1.7951  2.1532  2.1533  2.9743  2.9839  3.1413  3.5035  3.5038  3.6029
+  4.7336  5.1708  5.1712  5.8456  6.4003  6.4535  6.4546  6.7967  7.1186
+  7.1187  7.9137  8.7365  9.7808 10.6596 10.6607 10.8640
+nev nmx ndim evl(nev)=   34   34   34    10.86400
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 34
+ -0.5285 -0.1710 -0.1709 -0.1486 -0.1054 -0.0506  1.5631  1.7152  1.7154
+  1.7563  2.1062  2.1063  2.9077  2.9458  2.9654  3.3811  3.3813  3.5674
+  4.6693  5.1159  5.1161  5.7832  6.4043  6.4389  6.4397  6.7607  7.1097
+  7.1098  7.9090  8.6736  9.8258 10.6062 10.6084 10.7411
+nev nmx ndim evl(nev)=   34   34   34    10.74114
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 32
+ -0.2602 -0.0697 -0.0676  0.0684  0.1557  0.1735  0.8666  1.3842  1.3880
+  2.0287  2.2646  2.3743  2.7892  3.3243  3.4656  3.8361  3.9276  4.2668
+  4.7805  4.8616  5.1512  5.8910  5.9618  6.0764  6.4361  6.5603  6.7463
+  7.4976  8.7381  9.1934 11.1923 12.1485
+nev nmx ndim evl(nev)=   32   32   32    12.14848
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 32
+ -0.3347 -0.2115 -0.1797 -0.0914 -0.0192  0.0357  0.7705  1.3159  1.3423
+  1.9717  2.1722  2.3078  2.7419  3.2527  3.4372  3.7866  3.8528  4.2231
+  4.7564  4.8172  5.0796  5.8676  5.9116  6.0296  6.3606  6.5192  6.7406
+  7.4654  8.6753  9.2425 11.1213 11.9968
+nev nmx ndim evl(nev)=   32   32   32    11.99676
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 32
+ -0.1347 -0.1340 -0.0939  0.1210  0.1226  0.5988  0.6006  0.7411  1.7928
+  1.8613  1.8624  2.6193  3.1265  3.3903  3.3912  4.2167  4.2175  4.5352
+  4.6138  4.6139  4.7533  5.4668  6.1078  6.1081  6.5870  6.9654  7.3696
+  7.3711  9.9683  9.9732 11.4464 12.4918
+nev nmx ndim evl(nev)=   32   32   32    12.49175
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 32
+ -0.2481 -0.2467 -0.2255 -0.0461 -0.0449  0.5032  0.5056  0.6624  1.7412
+  1.7979  1.7990  2.5188  3.0800  3.3404  3.3413  4.1636  4.1643  4.5113
+  4.5792  4.5792  4.7228  5.4320  6.0462  6.0465  6.5459  6.9599  7.2988
+  7.3000 10.0136 10.0167 11.3576 12.3537
+nev nmx ndim evl(nev)=   32   32   32    12.35369
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 32
+ -0.1348 -0.1341 -0.0938  0.1210  0.1227  0.5988  0.6005  0.7412  1.7928
+  1.8613  1.8624  2.6193  3.1265  3.3902  3.3912  4.2166  4.2175  4.5352
+  4.6137  4.6141  4.7533  5.4668  6.1075  6.1085  6.5869  6.9654  7.3697
+  7.3713  9.9694  9.9721 11.4458 12.4915
+nev nmx ndim evl(nev)=   32   32   32    12.49151
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 32
+ -0.2483 -0.2468 -0.2253 -0.0461 -0.0448  0.5031  0.5055  0.6625  1.7412
+  1.7979  1.7990  2.5189  3.0800  3.3404  3.3413  4.1636  4.1643  4.5114
+  4.5792  4.5793  4.7227  5.4320  6.0460  6.0465  6.5460  6.9599  7.2990
+  7.2997 10.0145 10.0159 11.3577 12.3540
+nev nmx ndim evl(nev)=   32   32   32    12.35399
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 31
+ -0.1950 -0.1218 -0.0538  0.1121  0.1240  0.3909  0.6462  1.0938  1.1081
+  2.2824  2.6058  2.6647  3.2470  3.3627  3.4397  3.8002  4.0972  4.2203
+  4.3312  4.6692  5.2794  5.2884  5.7037  6.4792  6.8712  6.9726  7.9512
+  8.2465  9.5228  9.6248 11.1939
+nev nmx ndim evl(nev)=   31   31   31    11.19393
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 31
+ -0.3000 -0.2540 -0.1526 -0.0594 -0.0505  0.2813  0.5360  1.0225  1.0517
+  2.2354  2.5832  2.6018  3.2134  3.2743  3.4059  3.7113  4.0176  4.1941
+  4.2634  4.6140  5.2004  5.2296  5.6810  6.4572  6.8795  6.9528  7.9088
+  8.2776  9.3832  9.7413 11.0549
+nev nmx ndim evl(nev)=   31   31   31    11.05492
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 32
+ -0.2601 -0.0694 -0.0680  0.0681  0.1557  0.1739  0.8665  1.3840  1.3884
+  2.0286  2.2647  2.3742  2.7893  3.3243  3.4653  3.8362  3.9275  4.2666
+  4.7805  4.8619  5.1506  5.8908  5.9631  6.0766  6.4351  6.5606  6.7474
+  7.4978  8.7373  9.1924 11.1911 12.1345
+nev nmx ndim evl(nev)=   32   32   32    12.13452
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 32
+ -0.3346 -0.2116 -0.1797 -0.0914 -0.0193  0.0360  0.7706  1.3157  1.3424
+  1.9718  2.1721  2.3079  2.7419  3.2527  3.4372  3.7866  3.8528  4.2231
+  4.7563  4.8170  5.0798  5.8678  5.9111  6.0296  6.3614  6.5192  6.7399
+  7.4654  8.6752  9.2441 11.1235 12.0016
+nev nmx ndim evl(nev)=   32   32   32    12.00158
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 35
+ -0.3467 -0.0868 -0.0865  0.1017  0.1042  0.1561  1.2677  1.2709  1.3599
+  2.0252  2.6303  2.6335  2.7679  2.7680  2.8763  4.0582  4.0592  4.3909
+  4.5040  4.5045  4.9749  5.2521  5.2523  6.2278  6.4320  7.0466  7.0474
+  7.3813  7.4237  7.4245  7.7740  8.8996  9.9972  9.9997
+nev nmx ndim evl(nev)=   34   34   35     9.99975
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 35
+ -0.3825 -0.2249 -0.2247 -0.0681 -0.0656 -0.0055  1.1923  1.1954  1.2952
+  2.0204  2.5813  2.5847  2.6849  2.6851  2.8399  3.9708  3.9718  4.3226
+  4.4190  4.4192  4.9356  5.2080  5.2081  6.2171  6.4035  7.0501  7.0503
+  7.3695  7.4094  7.4096  7.7811  8.8106  9.8665  9.8669
+nev nmx ndim evl(nev)=   34   34   35     9.86686
+  nmx nev=          34          34
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008310;   8.000000 electrons
+         Sum occ. bands:   -1.286179, incl. Bloechl correction: -0.006095
+         Mag. moment:      -2.245008
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.250   0.000   0.000
+    2   0.250   0.250   0.250
+    3   0.250   0.500   0.500
+    4   0.250   0.750   0.750
+    5   0.500  -0.250   0.000
+    6   0.500   0.000   0.250
+    7   0.500   0.250   0.500
+    8   0.500   0.500   0.750
+    9   0.750  -0.500   0.000
+   10   0.750  -0.250   0.250
+   11   0.750   0.000   0.500
+   12   0.750   0.250   0.750
+   13   1.000  -0.750   0.000
+   14   1.000  -0.500   0.250
+   15   1.000  -0.250   0.500
+   16   1.000   0.000   0.750
+   17   0.500   0.000  -0.250
+   18   0.500   0.250   0.000
+   19   0.500   0.500   0.250
+   20   0.500   0.750   0.500
+   21   0.750  -0.250  -0.250
+   22   0.750   0.000   0.000
+   23   0.750   0.250   0.250
+   24   0.750   0.500   0.500
+   25   1.000  -0.500  -0.250
+   26   1.000  -0.250   0.000
+   27   1.000   0.000   0.250
+   28   1.000   0.250   0.500
+   29   1.250  -0.750  -0.250
+   30   1.250  -0.500   0.000
+   31   1.250  -0.250   0.250
+   32   1.250   0.000   0.500
+   33   0.750   0.000  -0.500
+   34   0.750   0.250  -0.250
+   35   0.750   0.500   0.000
+   36   0.750   0.750   0.250
+   37   1.000  -0.250  -0.500
+   38   1.000   0.000  -0.250
+   39   1.000   0.250   0.000
+   40   1.000   0.500   0.250
+   41   1.250  -0.500  -0.500
+   42   1.250  -0.250  -0.250
+   43   1.250   0.000   0.000
+   44   1.250   0.250   0.250
+   45   1.500  -0.750  -0.500
+   46   1.500  -0.500  -0.250
+   47   1.500  -0.250   0.000
+   48   1.500   0.000   0.250
+   49   1.000   0.000  -0.750
+   50   1.000   0.250  -0.500
+   51   1.000   0.500  -0.250
+   52   1.000   0.750   0.000
+   53   1.250  -0.250  -0.750
+   54   1.250   0.000  -0.500
+   55   1.250   0.250  -0.250
+   56   1.250   0.500   0.000
+   57   1.500  -0.500  -0.750
+   58   1.500  -0.250  -0.500
+   59   1.500   0.000  -0.250
+   60   1.500   0.250   0.000
+   61   1.750  -0.750  -0.750
+   62   1.750  -0.500  -0.500
+   63   1.750  -0.250  -0.250
+   64   1.750   0.000   0.000
+ sigmamode= F
+  mode napw lwsig           0           9           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 34
+ -0.5017 -0.0192 -0.0190  0.0078  0.0533  0.1214  1.6138  1.7771  1.7774
+  1.7951  2.1532  2.1533  2.9743  2.9839  3.1413  3.5035  3.5038  3.6029
+  4.7336  5.1708  5.1712  5.8456  6.4003  6.4535  6.4546  6.7967  7.1186
+  7.1187  7.9137  8.7365  9.7808 10.6596 10.6607 10.8640
+nev nmx ndim evl(nev)=   34   34   34    10.86400
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 34
+ -0.5285 -0.1710 -0.1709 -0.1486 -0.1054 -0.0506  1.5631  1.7152  1.7154
+  1.7563  2.1062  2.1063  2.9077  2.9458  2.9654  3.3811  3.3813  3.5674
+  4.6693  5.1159  5.1161  5.7832  6.4043  6.4389  6.4397  6.7607  7.1097
+  7.1098  7.9090  8.6736  9.8258 10.6062 10.6084 10.7411
+nev nmx ndim evl(nev)=   34   34   34    10.74114
+ (warning) DOS window (0.5,2) reset to (-1.0017,0.5083)
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 32
+ -0.2602 -0.0697 -0.0676  0.0684  0.1557  0.1735  0.8666  1.3842  1.3880
+  2.0287  2.2646  2.3743  2.7892  3.3243  3.4656  3.8361  3.9276  4.2668
+  4.7805  4.8616  5.1512  5.8910  5.9618  6.0764  6.4361  6.5603  6.7463
+  7.4976  8.7381  9.1934 11.1923 12.1485
+nev nmx ndim evl(nev)=   32   32   32    12.14848
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 32
+ -0.3347 -0.2115 -0.1797 -0.0914 -0.0192  0.0357  0.7705  1.3159  1.3423
+  1.9717  2.1722  2.3078  2.7419  3.2527  3.4372  3.7866  3.8528  4.2231
+  4.7564  4.8172  5.0796  5.8676  5.9116  6.0296  6.3606  6.5192  6.7406
+  7.4654  8.6753  9.2425 11.1213 11.9968
+nev nmx ndim evl(nev)=   32   32   32    11.99676
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 32
+ -0.1347 -0.1340 -0.0939  0.1210  0.1226  0.5988  0.6006  0.7411  1.7928
+  1.8613  1.8624  2.6193  3.1265  3.3903  3.3912  4.2167  4.2175  4.5352
+  4.6138  4.6139  4.7533  5.4668  6.1078  6.1081  6.5870  6.9654  7.3696
+  7.3711  9.9683  9.9732 11.4464 12.4918
+nev nmx ndim evl(nev)=   32   32   32    12.49175
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 32
+ -0.2481 -0.2467 -0.2255 -0.0461 -0.0449  0.5032  0.5056  0.6624  1.7412
+  1.7979  1.7990  2.5188  3.0800  3.3404  3.3413  4.1636  4.1643  4.5113
+  4.5792  4.5792  4.7228  5.4320  6.0462  6.0465  6.5459  6.9599  7.2988
+  7.3000 10.0136 10.0167 11.3576 12.3537
+nev nmx ndim evl(nev)=   32   32   32    12.35369
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 32
+ -0.1348 -0.1341 -0.0938  0.1210  0.1227  0.5988  0.6005  0.7412  1.7928
+  1.8613  1.8624  2.6193  3.1265  3.3902  3.3912  4.2166  4.2175  4.5352
+  4.6137  4.6141  4.7533  5.4668  6.1075  6.1085  6.5869  6.9654  7.3697
+  7.3713  9.9694  9.9721 11.4458 12.4915
+nev nmx ndim evl(nev)=   32   32   32    12.49151
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 32
+ -0.2483 -0.2468 -0.2253 -0.0461 -0.0448  0.5031  0.5055  0.6625  1.7412
+  1.7979  1.7990  2.5189  3.0800  3.3404  3.3413  4.1636  4.1643  4.5114
+  4.5792  4.5793  4.7227  5.4320  6.0460  6.0465  6.5460  6.9599  7.2990
+  7.2997 10.0145 10.0159 11.3577 12.3540
+nev nmx ndim evl(nev)=   32   32   32    12.35399
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 31
+ -0.1950 -0.1218 -0.0538  0.1121  0.1240  0.3909  0.6462  1.0938  1.1081
+  2.2824  2.6058  2.6647  3.2470  3.3627  3.4397  3.8002  4.0972  4.2203
+  4.3312  4.6692  5.2794  5.2884  5.7037  6.4792  6.8712  6.9726  7.9512
+  8.2465  9.5228  9.6248 11.1939
+nev nmx ndim evl(nev)=   31   31   31    11.19393
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 31
+ -0.3000 -0.2540 -0.1526 -0.0594 -0.0505  0.2813  0.5360  1.0225  1.0517
+  2.2354  2.5832  2.6018  3.2134  3.2743  3.4059  3.7113  4.0176  4.1941
+  4.2634  4.6140  5.2004  5.2296  5.6810  6.4572  6.8795  6.9528  7.9088
+  8.2776  9.3832  9.7413 11.0549
+nev nmx ndim evl(nev)=   31   31   31    11.05492
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 32
+ -0.2601 -0.0694 -0.0680  0.0681  0.1557  0.1739  0.8665  1.3840  1.3884
+  2.0286  2.2647  2.3742  2.7893  3.3243  3.4653  3.8362  3.9275  4.2666
+  4.7805  4.8619  5.1506  5.8908  5.9631  6.0766  6.4351  6.5606  6.7474
+  7.4978  8.7373  9.1924 11.1911 12.1345
+nev nmx ndim evl(nev)=   32   32   32    12.13452
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 32
+ -0.3346 -0.2116 -0.1797 -0.0914 -0.0193  0.0360  0.7706  1.3157  1.3424
+  1.9718  2.1721  2.3079  2.7419  3.2527  3.4372  3.7866  3.8528  4.2231
+  4.7563  4.8170  5.0798  5.8678  5.9111  6.0296  6.3614  6.5192  6.7399
+  7.4654  8.6752  9.2441 11.1235 12.0016
+nev nmx ndim evl(nev)=   32   32   32    12.00158
+  nmx nev=          32          32
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0           7           0
+  nmx nev=          32          32
+  mode napw lwsig           0          10           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 35
+ -0.3467 -0.0868 -0.0865  0.1017  0.1042  0.1561  1.2677  1.2709  1.3599
+  2.0252  2.6303  2.6335  2.7679  2.7680  2.8763  4.0582  4.0592  4.3909
+  4.5040  4.5045  4.9749  5.2521  5.2523  6.2278  6.4320  7.0466  7.0474
+  7.3813  7.4237  7.4245  7.7740  8.8996  9.9972  9.9997
+nev nmx ndim evl(nev)=   34   34   35     9.99975
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 35
+ -0.3825 -0.2249 -0.2247 -0.0681 -0.0656 -0.0055  1.1923  1.1954  1.2952
+  2.0204  2.5813  2.5847  2.6849  2.6851  2.8399  3.9708  3.9718  4.3226
+  4.4190  4.4192  4.9356  5.2080  5.2081  6.2171  6.4035  7.0501  7.0503
+  7.3695  7.4094  7.4096  7.7811  8.8106  9.8665  9.8669
+nev nmx ndim evl(nev)=   34   34   35     9.86686
+  nmx nev=          34          34
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0           6           0
+  nmx nev=          31          31
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0          10           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+  mode napw lwsig           0           9           0
+  nmx nev=          34          34
+
+ IORBTM:  orbital moments :
+ Class  Spec        spin   Moment decomposed by l ...
+    1    Fe           1    0.000000   -0.001584   -0.069814    0.000323
+    1    Fe           2    0.000000    0.001886    0.033505    0.000020
+ total moment for class   1:   -0.035665
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008310;   8.000000 electrons
+         Sum occ. bands:   -1.286179, incl. Bloechl correction: -0.006095
+         Mag. moment:      -2.245008
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    6.978109    2.531191    4.446918     -2.291809   -0.321950   -1.969859
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+
+ Make new boundary conditions for phi,phidot..
+  ebar: 
+    without lo    : ebar = center of gravity of occupied states
+    with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
+                    ebar for valence is at the center of gravity of occ. states.
+    with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ
+                    ebar for valence is at the Fermi energy.
+  idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.
+
+ site    1   species   1:Fe      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.210016   -1.225355    4.584798    4.269935    4.500000    4.500000
+ spn 2 0    0.192189   -1.470011    4.550390    4.235024    4.500000    4.500000
+ 1     0    0.227547   -0.295226    4.304074    4.309089    4.250000    4.309089
+ spn 2 0    0.186012   -0.337931    4.281633    4.312082    4.250000    4.312082
+ 2     0    1.894366   -0.334837    3.539659    3.445837    3.147584    3.445837
+ spn 2 0    4.241223   -0.280232    3.816931    3.716620    3.147584    3.716620
+ 3     0    0.011221   -0.558764    4.108266    4.113768    4.102416    4.113768
+ spn 2 0    0.015536   -0.676205    4.104490    4.111384    4.102416    4.111384
+
+ Harris energy:
+ sumev=       -1.286179  val*vef=     -91.717972   sumtv=      90.431793
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
+ rhoeps=    -107.251566     utot=   -5008.410996    ehar=   -2541.033833
+
+ srhov:     -5.067092    -86.899779    -91.966871 sumev=   -1.286179   sumtv=   90.680692
+
+ avg es pot at rmt= 0.635057  avg sphere pot= 0.637241  vconst=-0.635057
+
+ smooth rhoves     11.451141   charge     3.553082
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -2.871605 (  -1.333496,  -1.538109)
+         rhomu =   -3.737181 (  -1.705617,  -2.031564)
+       avg vxc =   -0.850173 (  -0.840551,  -0.859796)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           4 F
+
+ site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
+ sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -5.082730       -86.808899       -91.891629
+   rhoval*ves            -30.485236       -45.704781       -76.190017
+   psnuc*ves              53.387518     -9994.468426     -9941.080909
+   utot                   11.451141     -5020.086604     -5008.635463
+   rho*exc                -2.871605      -104.404320      -107.275924
+   rho*vxc                -3.737181      -138.213766      -141.950946
+   valence chg             3.553082         4.446918         8.000000
+   valence mag            -0.275148        -1.969859        -2.245008
+   core charge            18.000000        -0.000000        18.000000
+
+ Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+    hom background     0.00000   deviation from neutrality:     -0.00000
+
+ Kohn-Sham energy:
+ sumtv=       90.680692  sumtc=      2484.196936   ekin=     2574.877628
+ rhoep=     -107.275924   utot=     -5008.635463   ehks=    -2541.033759
+ mag. mom=    -2.245008  (bands)       -2.245008  (output rho)
+ mixrho: sum smrho  init = 0.835185D+02 0.000000D+00 0.835185D+02       0
+ mixrho: sum smrnew new  = 0.841622D+02-0.241231D-18 0.841622D+02       0
+  
+ mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
+ mixrho: dqsum rmsuns=  0.61029D-03  0.10126D-02  0.11342D-19
+ mixrealsmooth= T
+ wgtsmooth=  1.56250000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=1.18e-3
+ AMIX: nmix=0 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=5.89e-4
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho=  1.17576249181183812E-007  7.37015787634372498E-010
+ unscreened rms difference:  smooth  0.001432   local  0.002272
+   screened rms difference:  smooth  0.001289   local  0.002272   tot  0.001179
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  1  of  1    ehf=   -2541.033833   ehk=   -2541.033759
+x rel=1 nit=1 so=2 pwmode=11 mmom=-2.2450078 ehf=-2541.0338334 ehk=-2541.0337593
+ >>      4.50   exit  lmfp            4.48
+ Exit 0 LMF 
+ CPU time:    4.496s     Sun Sep 23 14:04:25 2012   on TT4
+
+  ==== workspace ====     calls      == cpu time ===   depth 1
+  entry   mxin  mxout                per call  total
+      0      0      0        1       4.50       4.50   main
+      0      0      0        1       4.48       4.48   `--lmfp
+rdcmd:  rm -f mixm.felz
+rdcmd:  lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz
+HOST_INFORMATION platform: gfortran
+HOST_INFORMATION compiler version: gcc バージョン 4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3) 
+HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-26-generic #42-Ubuntu SMP Wed Sep 5 08:37:08 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
+HOST_INFORMATION git branch: refs/heads/eibz4sig_developing
+HOST_INFORMATION git commit: 3cff819b95c662afa44e9d3dcb6e8dbcaeeb533c
+HOST_INFORMATION linked at: Sun Sep 23 13:53:49 JST 2012
+ -----------------------  START LMF      -----------------------
+ ptenv() is called with EXT=felz
+ ptenv() not supported, but continue.
+ HEADER Fe test spin pol, f-orbitals for cls and mull
+ Fe       xxx            1           1
+
+ rdctrl: reset global max nl from 5 to 4
+  mxcst switch =           1           0 F F F
+  LMF  vn 7.00(LMF 7.0)  verb 30
+ bz:       metal(3), tetra, invit, fixed-spin-mom 
+
+ Automatic symmetry finder turned off.  Use: i*i
+ goto setcg
+ lattic:
+
+                Plat                                  Qlat
+   0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
+   0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
+   0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
+  Cell vol= 79.765082
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
+         r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
+
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations
+         no attempt to add inversion symmetry
+ zzz nclass=           1
+ 
+ lstar xxx=          -2
+ BZMESH:  64 irreducible QP from 64 ( 4 4 4 )  shift= T T T
+ lstar xxx=          -2
+ >> level: 1  CPUsec=      0.01  enter lmfp
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
+
+ MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
+         generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
+
+ gvlist: cutoff radius  13.000 gives   2899   recips of max   4096
+ SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
+ suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Fe       0*   1.16  -0.10   6.395    1.24E-06     369 
+  Fe       1*   1.16  -0.10   6.825    1.36E-06     429 
+  Fe       2*   1.16  -0.10   7.254    1.68E-06     531 
+  Fe       3    1.16  -0.10   7.681    2.27E-06     603 
+  Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
+  Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
+  Fe       2    1.16  -1.10   7.254    1.68E-06     531 
+
+ iors  : read restart file (ascii, mesh density) 
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+ ttt nevmx w=          34  2.00000000000000004E-002
+
+ avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
+
+ smooth rhoves     11.233981   charge     3.504402
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -2.824101 (  -1.319471,  -1.504630)
+         rhomu =   -3.675133 (  -1.690112,  -1.985021)
+       avg vxc =   -0.847914 (  -0.838949,  -0.856879)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           1           4 T
+
+ site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
+ sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+ potential shift to crystal energy zero:    0.000780
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -4.927066       -86.790906       -91.717972
+   rhoval*ves            -30.445247       -45.595669       -76.040916
+   psnuc*ves              52.913210     -9993.694286     -9940.781076
+   utot                   11.233981     -5019.644977     -5008.410996
+   rho*exc                -2.824101      -104.427465      -107.251566
+   rho*vxc                -3.675133      -138.243544      -141.918677
+   valence chg             3.504402         4.495598         8.000000
+   valence mag            -0.251543        -1.996439        -2.247982
+   core charge            18.000000        -0.000000        18.000000
+
+ Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+    hom background     0.00000   deviation from neutrality:     -0.00000
+ Start first of two band passes ...
+ end of suham2
+ -------- qplist --------
+    1   0.250   0.000   0.000
+    2   0.250   0.250   0.250
+    3   0.250   0.500   0.500
+    4   0.250   0.750   0.750
+    5   0.500  -0.250   0.000
+    6   0.500   0.000   0.250
+    7   0.500   0.250   0.500
+    8   0.500   0.500   0.750
+    9   0.750  -0.500   0.000
+   10   0.750  -0.250   0.250
+   11   0.750   0.000   0.500
+   12   0.750   0.250   0.750
+   13   1.000  -0.750   0.000
+   14   1.000  -0.500   0.250
+   15   1.000  -0.250   0.500
+   16   1.000   0.000   0.750
+   17   0.500   0.000  -0.250
+   18   0.500   0.250   0.000
+   19   0.500   0.500   0.250
+   20   0.500   0.750   0.500
+   21   0.750  -0.250  -0.250
+   22   0.750   0.000   0.000
+   23   0.750   0.250   0.250
+   24   0.750   0.500   0.500
+   25   1.000  -0.500  -0.250
+   26   1.000  -0.250   0.000
+   27   1.000   0.000   0.250
+   28   1.000   0.250   0.500
+   29   1.250  -0.750  -0.250
+   30   1.250  -0.500   0.000
+   31   1.250  -0.250   0.250
+   32   1.250   0.000   0.500
+   33   0.750   0.000  -0.500
+   34   0.750   0.250  -0.250
+   35   0.750   0.500   0.000
+   36   0.750   0.750   0.250
+   37   1.000  -0.250  -0.500
+   38   1.000   0.000  -0.250
+   39   1.000   0.250   0.000
+   40   1.000   0.500   0.250
+   41   1.250  -0.500  -0.500
+   42   1.250  -0.250  -0.250
+   43   1.250   0.000   0.000
+   44   1.250   0.250   0.250
+   45   1.500  -0.750  -0.500
+   46   1.500  -0.500  -0.250
+   47   1.500  -0.250   0.000
+   48   1.500   0.000   0.250
+   49   1.000   0.000  -0.750
+   50   1.000   0.250  -0.500
+   51   1.000   0.500  -0.250
+   52   1.000   0.750   0.000
+   53   1.250  -0.250  -0.750
+   54   1.250   0.000  -0.500
+   55   1.250   0.250  -0.250
+   56   1.250   0.500   0.000
+   57   1.500  -0.500  -0.750
+   58   1.500  -0.250  -0.500
+   59   1.500   0.000  -0.250
+   60   1.500   0.250   0.000
+   61   1.750  -0.750  -0.750
+   62   1.750  -0.500  -0.500
+   63   1.750  -0.250  -0.250
+   64   1.750   0.000   0.000
+ sigmamode= F
+ goto gen_hamindex nkp=          64
+  gen_hamindex: --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   Fe
+  1  1  1      2    4   Fe
+  1  2  1      5    9   Fe
+  1  3  1     10   16   Fe
+  1  0  2     17   17   Fe
+  1  1  2     18   20   Fe
+  1  2  2     21   25   Fe
+ MPTAUOf: search miat tiat for wave function rotation
+
+  ROTDLMM:
+  end of rotdlmm
+ gen_hamindex: no GW related part. not readin QGpsi
+
+  --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   Fe
+  1  1  1      2    4   Fe
+  1  2  1      5    9   Fe
+  1  3  1     10   16   Fe
+  1  0  2     17   17   Fe
+  1  1  2     18   20   Fe
+  1  2  2     21   25   Fe
+  ngrp=           1
+  mode napw lwsig           0           0           0
+  end of hambls mode=           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 25
+ -0.5016 -0.0187 -0.0185  0.0088  0.0534  0.1223  1.6190  1.7888  1.7890
+  1.8217  2.2030  2.2031  3.0120  3.1548  3.2084  3.6601  3.6604  3.8167
+  4.9674  5.2167  5.2172  6.8512  8.1159  8.1166  8.3164
+nev nmx ndim evl(nev)=   25   25   25     8.31639
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 25
+ -0.5284 -0.1707 -0.1706 -0.1481 -0.1053 -0.0501  1.5669  1.7215  1.7217
+  1.7809  2.1568  2.1569  2.9398  3.0226  3.1087  3.5394  3.5396  3.7741
+  4.9030  5.1650  5.1651  6.8128  8.0429  8.0431  8.2171
+nev nmx ndim evl(nev)=   25   25   25     8.21709
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 25
+ -0.2601 -0.0694 -0.0667  0.0689  0.1557  0.1748  0.8698  1.3893  1.3965
+  2.0485  2.2667  2.3979  2.8070  3.4323  3.6999  3.8711  4.0245  4.4752
+  5.1262  5.2434  5.2632  6.0734  6.5495  6.9137  7.2319
+nev nmx ndim evl(nev)=   25   25   25     7.23186
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 25
+ -0.3345 -0.2108 -0.1795 -0.0911 -0.0191  0.0363  0.7726  1.3183  1.3517
+  1.9899  2.1744  2.3292  2.7584  3.3634  3.6653  3.8251  3.9468  4.4192
+  5.0823  5.2136  5.2234  6.0236  6.5164  6.9128  7.1633
+nev nmx ndim evl(nev)=   25   25   25     7.16332
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 25
+ -0.1347 -0.1340 -0.0933  0.1222  0.1238  0.5995  0.6012  0.7440  1.8026
+  1.8690  1.8701  2.6234  3.2141  3.4610  3.4617  4.2366  4.2375  4.6498
+  4.7533  5.0638  5.0649  5.9665  6.3989  6.3995  6.9470
+nev nmx ndim evl(nev)=   25   25   25     6.94696
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 25
+ -0.2480 -0.2466 -0.2251 -0.0456 -0.0443  0.5036  0.5061  0.6642  1.7514
+  1.8053  1.8064  2.5253  3.1646  3.4078  3.4086  4.1788  4.1797  4.6267
+  4.7228  5.0249  5.0254  5.9250  6.3776  6.3782  6.9324
+nev nmx ndim evl(nev)=   25   25   25     6.93242
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 25
+ -0.1347 -0.1340 -0.0932  0.1222  0.1239  0.5995  0.6012  0.7441  1.8026
+  1.8690  1.8701  2.6234  3.2141  3.4610  3.4618  4.2366  4.2375  4.6498
+  4.7533  5.0641  5.0647  5.9666  6.3986  6.3999  6.9470
+nev nmx ndim evl(nev)=   25   25   25     6.94697
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 25
+ -0.2481 -0.2467 -0.2249 -0.0456 -0.0443  0.5035  0.5060  0.6643  1.7515
+  1.8053  1.8064  2.5253  3.1646  3.4078  3.4086  4.1788  4.1796  4.6269
+  4.7227  5.0251  5.0253  5.9249  6.3775  6.3781  6.9325
+nev nmx ndim evl(nev)=   25   25   25     6.93246
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 25
+ -0.1949 -0.1212 -0.0538  0.1128  0.1240  0.3910  0.6480  1.0999  1.1097
+  2.3854  2.6201  2.6666  3.2470  3.3757  3.6755  3.8833  4.0972  4.2220
+  4.3450  4.6834  5.4063  6.3336  6.4798  7.3150  8.0736
+nev nmx ndim evl(nev)=   25   25   25     8.07363
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 25
+ -0.2999 -0.2535 -0.1526 -0.0591 -0.0505  0.2813  0.5370  1.0269  1.0532
+  2.3275  2.5969  2.6034  3.2134  3.2993  3.6390  3.7973  4.0176  4.1955
+  4.2745  4.6283  5.3230  6.3090  6.4583  7.2578  8.0592
+nev nmx ndim evl(nev)=   25   25   25     8.05920
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 25
+ -0.2600 -0.0692 -0.0671  0.0686  0.1558  0.1751  0.8698  1.3895  1.3964
+  2.0485  2.2667  2.3979  2.8070  3.4324  3.6993  3.8711  4.0246  4.4748
+  5.1268  5.2430  5.2635  6.0745  6.5502  6.9151  7.2323
+nev nmx ndim evl(nev)=   25   25   25     7.23231
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 25
+ -0.3344 -0.2109 -0.1795 -0.0912 -0.0193  0.0366  0.7727  1.3182  1.3518
+  1.9899  2.1743  2.3293  2.7584  3.3634  3.6655  3.8251  3.9467  4.4194
+  5.0821  5.2133  5.2237  6.0231  6.5162  6.9113  7.1631
+nev nmx ndim evl(nev)=   25   25   25     7.16309
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 25
+ -0.3466 -0.0862 -0.0860  0.1023  0.1048  0.1564  1.2760  1.2791  1.3626
+  2.1831  2.6841  2.6883  2.8506  2.8512  2.9266  4.2426  4.2432  4.5547
+  5.0273  5.0276  5.0894  6.3481  6.3494  7.0574  8.0101
+nev nmx ndim evl(nev)=   25   25   25     8.01010
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 25
+ -0.3824 -0.2246 -0.2243 -0.0678 -0.0653 -0.0053  1.1990  1.2022  1.2980
+  2.1684  2.6248  2.6289  2.7643  2.7649  2.8854  4.1674  4.1679  4.4938
+  4.9320  4.9324  5.0314  6.2854  6.2859  7.0044  7.9824
+nev nmx ndim evl(nev)=   25   25   25     7.98244
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008910;   8.000000 electrons
+         Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
+         Mag. moment:      -2.247982
+
+ Saved qp weights ...
+ Start second band pass ...
+ -------- qplist --------
+    1   0.250   0.000   0.000
+    2   0.250   0.250   0.250
+    3   0.250   0.500   0.500
+    4   0.250   0.750   0.750
+    5   0.500  -0.250   0.000
+    6   0.500   0.000   0.250
+    7   0.500   0.250   0.500
+    8   0.500   0.500   0.750
+    9   0.750  -0.500   0.000
+   10   0.750  -0.250   0.250
+   11   0.750   0.000   0.500
+   12   0.750   0.250   0.750
+   13   1.000  -0.750   0.000
+   14   1.000  -0.500   0.250
+   15   1.000  -0.250   0.500
+   16   1.000   0.000   0.750
+   17   0.500   0.000  -0.250
+   18   0.500   0.250   0.000
+   19   0.500   0.500   0.250
+   20   0.500   0.750   0.500
+   21   0.750  -0.250  -0.250
+   22   0.750   0.000   0.000
+   23   0.750   0.250   0.250
+   24   0.750   0.500   0.500
+   25   1.000  -0.500  -0.250
+   26   1.000  -0.250   0.000
+   27   1.000   0.000   0.250
+   28   1.000   0.250   0.500
+   29   1.250  -0.750  -0.250
+   30   1.250  -0.500   0.000
+   31   1.250  -0.250   0.250
+   32   1.250   0.000   0.500
+   33   0.750   0.000  -0.500
+   34   0.750   0.250  -0.250
+   35   0.750   0.500   0.000
+   36   0.750   0.750   0.250
+   37   1.000  -0.250  -0.500
+   38   1.000   0.000  -0.250
+   39   1.000   0.250   0.000
+   40   1.000   0.500   0.250
+   41   1.250  -0.500  -0.500
+   42   1.250  -0.250  -0.250
+   43   1.250   0.000   0.000
+   44   1.250   0.250   0.250
+   45   1.500  -0.750  -0.500
+   46   1.500  -0.500  -0.250
+   47   1.500  -0.250   0.000
+   48   1.500   0.000   0.250
+   49   1.000   0.000  -0.750
+   50   1.000   0.250  -0.500
+   51   1.000   0.500  -0.250
+   52   1.000   0.750   0.000
+   53   1.250  -0.250  -0.750
+   54   1.250   0.000  -0.500
+   55   1.250   0.250  -0.250
+   56   1.250   0.500   0.000
+   57   1.500  -0.500  -0.750
+   58   1.500  -0.250  -0.500
+   59   1.500   0.000  -0.250
+   60   1.500   0.250   0.000
+   61   1.750  -0.750  -0.750
+   62   1.750  -0.500  -0.500
+   63   1.750  -0.250  -0.250
+   64   1.750   0.000   0.000
+ sigmamode= F
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 25
+ -0.5016 -0.0187 -0.0185  0.0088  0.0534  0.1223  1.6190  1.7888  1.7890
+  1.8217  2.2030  2.2031  3.0120  3.1548  3.2084  3.6601  3.6604  3.8167
+  4.9674  5.2167  5.2172  6.8512  8.1159  8.1166  8.3164
+nev nmx ndim evl(nev)=   25   25   25     8.31639
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000   ndimh = 25
+ -0.5284 -0.1707 -0.1706 -0.1481 -0.1053 -0.0501  1.5669  1.7215  1.7217
+  1.7809  2.1568  2.1569  2.9398  3.0226  3.1087  3.5394  3.5396  3.7741
+  4.9030  5.1650  5.1651  6.8128  8.0429  8.0431  8.2171
+nev nmx ndim evl(nev)=   25   25   25     8.21709
+ (warning) DOS window (0.5,2) reset to (-1.0016,0.5089)
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 25
+ -0.2601 -0.0694 -0.0667  0.0689  0.1557  0.1748  0.8698  1.3893  1.3965
+  2.0485  2.2667  2.3979  2.8070  3.4323  3.6999  3.8711  4.0245  4.4752
+  5.1262  5.2434  5.2632  6.0734  6.5495  6.9137  7.2319
+nev nmx ndim evl(nev)=   25   25   25     7.23186
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 11 of 64, k=  0.75000  0.00000  0.50000   ndimh = 25
+ -0.3345 -0.2108 -0.1795 -0.0911 -0.0191  0.0363  0.7726  1.3183  1.3517
+  1.9899  2.1744  2.3292  2.7584  3.3634  3.6653  3.8251  3.9468  4.4192
+  5.0823  5.2136  5.2234  6.0236  6.5164  6.9128  7.1633
+nev nmx ndim evl(nev)=   25   25   25     7.16332
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 25
+ -0.1347 -0.1340 -0.0933  0.1222  0.1238  0.5995  0.6012  0.7440  1.8026
+  1.8690  1.8701  2.6234  3.2141  3.4610  3.4617  4.2366  4.2375  4.6498
+  4.7533  5.0638  5.0649  5.9665  6.3989  6.3995  6.9470
+nev nmx ndim evl(nev)=   25   25   25     6.94696
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000   ndimh = 25
+ -0.2480 -0.2466 -0.2251 -0.0456 -0.0443  0.5036  0.5061  0.6642  1.7514
+  1.8053  1.8064  2.5253  3.1646  3.4078  3.4086  4.1788  4.1797  4.6267
+  4.7228  5.0249  5.0254  5.9250  6.3776  6.3782  6.9324
+nev nmx ndim evl(nev)=   25   25   25     6.93242
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 25
+ -0.1347 -0.1340 -0.0932  0.1222  0.1239  0.5995  0.6012  0.7441  1.8026
+  1.8690  1.8701  2.6234  3.2141  3.4610  3.4618  4.2366  4.2375  4.6498
+  4.7533  5.0641  5.0647  5.9666  6.3986  6.3999  6.9470
+nev nmx ndim evl(nev)=   25   25   25     6.94697
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 31 of 64, k=  1.25000  -0.25000  0.25000   ndimh = 25
+ -0.2481 -0.2467 -0.2249 -0.0456 -0.0443  0.5035  0.5060  0.6643  1.7515
+  1.8053  1.8064  2.5253  3.1646  3.4078  3.4086  4.1788  4.1796  4.6269
+  4.7227  5.0251  5.0253  5.9249  6.3775  6.3781  6.9325
+nev nmx ndim evl(nev)=   25   25   25     6.93246
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 25
+ -0.1949 -0.1212 -0.0538  0.1128  0.1240  0.3910  0.6480  1.0999  1.1097
+  2.3854  2.6201  2.6666  3.2470  3.3757  3.6755  3.8833  4.0972  4.2220
+  4.3450  4.6834  5.4063  6.3336  6.4798  7.3150  8.0736
+nev nmx ndim evl(nev)=   25   25   25     8.07363
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 41 of 64, k=  1.25000  -0.50000  -0.50000   ndimh = 25
+ -0.2999 -0.2535 -0.1526 -0.0591 -0.0505  0.2813  0.5370  1.0269  1.0532
+  2.3275  2.5969  2.6034  3.2134  3.2993  3.6390  3.7973  4.0176  4.1955
+  4.2745  4.6283  5.3230  6.3090  6.4583  7.2578  8.0592
+nev nmx ndim evl(nev)=   25   25   25     8.05920
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 25
+ -0.2600 -0.0692 -0.0671  0.0686  0.1558  0.1751  0.8698  1.3895  1.3964
+  2.0485  2.2667  2.3979  2.8070  3.4324  3.6993  3.8711  4.0246  4.4748
+  5.1268  5.2430  5.2635  6.0745  6.5502  6.9151  7.2323
+nev nmx ndim evl(nev)=   25   25   25     7.23231
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 51 of 64, k=  1.00000  0.50000  -0.25000   ndimh = 25
+ -0.3344 -0.2109 -0.1795 -0.0912 -0.0193  0.0366  0.7727  1.3182  1.3518
+  1.9899  2.1743  2.3293  2.7584  3.3634  3.6655  3.8251  3.9467  4.4194
+  5.0821  5.2133  5.2237  6.0231  6.5162  6.9113  7.1631
+nev nmx ndim evl(nev)=   25   25   25     7.16309
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 25
+ -0.3466 -0.0862 -0.0860  0.1023  0.1048  0.1564  1.2760  1.2791  1.3626
+  2.1831  2.6841  2.6883  2.8506  2.8512  2.9266  4.2426  4.2432  4.5547
+  5.0273  5.0276  5.0894  6.3481  6.3494  7.0574  8.0101
+nev nmx ndim evl(nev)=   25   25   25     8.01010
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+ bndfp:  kpt 61 of 64, k=  1.75000  -0.75000  -0.75000   ndimh = 25
+ -0.3824 -0.2246 -0.2243 -0.0678 -0.0653 -0.0053  1.1990  1.2022  1.2980
+  2.1684  2.6248  2.6289  2.7643  2.7649  2.8854  4.1674  4.1679  4.4938
+  4.9320  4.9324  5.0314  6.2854  6.2859  7.0044  7.9824
+nev nmx ndim evl(nev)=   25   25   25     7.98244
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+  mode napw lwsig           0           0           0
+  nmx nev=          25          25
+
+ IORBTM:  orbital moments :
+ Class  Spec        spin   Moment decomposed by l ...
+    1    Fe           1    0.000000   -0.001589   -0.070033    0.000331
+    1    Fe           2    0.000000    0.001881    0.033205    0.000017
+ total moment for class   1:   -0.036188
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008910;   8.000000 electrons
+         Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
+         Mag. moment:      -2.247982
+
+ Saved qp weights ...
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    6.976506    2.480909    4.495598     -2.294846   -0.298406   -1.996440
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+
+ Make new boundary conditions for phi,phidot..
+  ebar: 
+    without lo    : ebar = center of gravity of occupied states
+    with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
+                    ebar for valence is at the center of gravity of occ. states.
+    with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ
+                    ebar for valence is at the Fermi energy.
+  idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.
+
+ site    1   species   1:Fe      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.210076   -0.338850    4.584798    4.584798    4.500000    4.584798
+ spn 2 0    0.192292   -0.468990    4.550390    4.550390    4.500000    4.550390
+ 1     0    0.227729   -0.315524    4.304074    4.304074    4.250000    4.304074
+ spn 2 0    0.186129   -0.467989    4.281633    4.281633    4.250000    4.281633
+ 2     0    1.891699   -0.258120    3.539659    3.539659    3.147584    3.539659
+ spn 2 0    4.241537   -0.202177    3.816931    3.816931    3.147584    3.816931
+ 3     0    0.011326   -0.784220    4.108266    4.108266    4.102416    4.108266
+ spn 2 0    0.015718   -0.978768    4.104490    4.104490    4.102416    4.104490
+
+ Harris energy:
+ sumev=       -1.283747  val*vef=     -91.717972   sumtv=      90.434225
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
+ rhoeps=    -107.251566     utot=   -5008.410996    ehar=   -2541.031401
+
+ srhov:     -4.927067    -86.790913    -91.717979 sumev=   -1.283747   sumtv=   90.434232
+
+ avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
+
+ smooth rhoves     11.233980   charge     3.504402
+ smvxcm: all smrho_w is positive
+ smooth rhoeps =   -2.824101 (  -1.319471,  -1.504630)
+         rhomu =   -3.675132 (  -1.690112,  -1.985020)
+       avg vxc =   -0.847914 (  -0.838949,  -0.856878)
+
+ locpot:
+  i job kmax lfltwf(FRZWF see locpot.F)=           0           0           4 F
+
+ site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
+ sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ === rho1 valence true density ===
+ === rho2 valence counter density ===
+ === rhol1 valence+core density ===
+ === rho2 ->valence+smooth core density ===
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -4.927066       -86.790910       -91.717976
+   rhoval*ves            -30.445246       -45.595673       -76.040919
+   psnuc*ves              52.913206     -9993.694292     -9940.781086
+   utot                   11.233980     -5019.644983     -5008.411003
+   rho*exc                -2.824101      -104.427466      -107.251567
+   rho*vxc                -3.675132      -138.243546      -141.918678
+   valence chg             3.504402         4.495598         8.000000
+   valence mag            -0.251542        -1.996440        -2.247982
+   core charge            18.000000        -0.000000        18.000000
+
+ Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+    hom background     0.00000   deviation from neutrality:     -0.00000
+
+ Kohn-Sham energy:
+ sumtv=       90.434232  sumtc=      2484.196936   ekin=     2574.631169
+ rhoep=     -107.251567   utot=     -5008.411003   ehks=    -2541.031401
+ mag. mom=    -2.247982  (bands)       -2.247982  (output rho)
+ mixrho: sum smrho  init = 0.835185D+02 0.000000D+00 0.835185D+02       0
+ mixrho: sum smrnew new  = 0.835185D+02 0.344460D-16 0.835185D+02       0
+  
+ mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
+ mixrho: dqsum rmsuns= -0.38212D-08  0.13753D-07 -0.72853D-20
+ mixrealsmooth= T
+ wgtsmooth=  1.56250000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=2.97e-8
+ AMIX: nmix=0 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=1.49e-8
+ mixrealsmooth= T
+ smrho qcell: add correction to smrho=  1.19820119159896876E-007  7.51081277996817093E-010
+ unscreened rms difference:  smooth  0.000000   local  0.000000
+   screened rms difference:  smooth  0.000000   local  0.000000   tot  0.000000
+ mixrho: all smrho is positive for isp=           1
+ mixrho: all smrho is positive for isp=           2
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  1  of  1    ehf=   -2541.031401   ehk=   -2541.031401
+x rel=1 nit=1 so=2 mmom=-2.2479824 ehf=-2541.0314011 ehk=-2541.0314012
+ >>      3.99   exit  lmfp            3.98
+ Exit 0 LMF 
+ CPU time:    3.988s     Sun Sep 23 14:04:29 2012   on TT4
+
+  ==== workspace ====     calls      == cpu time ===   depth 1
+  entry   mxin  mxout                per call  total
+      0      0      0        1       3.99       3.99   main
+      0      0      0        1       3.98       3.98   `--lmfp

@@ -1,0 +1,8 @@
+         The Er test also illustrates the LDA+U implementation with:
+
+           1. spin-orbit coupling
+
+           2. the initial occupation number matrix given in spherical harmonics
+
+           3. use of local orbitals in LDA+U
+

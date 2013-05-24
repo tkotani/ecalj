@@ -1,0 +1,16 @@
+         The srtio3 test also illustrates the following:
+
+         1.  how to freeze augmented wave functions for a particular
+             species (cf token FRZWF=t for species Sr).
+
+         2.  local orbitals (Sr 4p and Ti 4p are included as local orbitals)
+             
+         3.  extended local orbitals
+             (last step recalculated with extended Sr 4p and Ti 4p local orbitals)
+             
+         4.  APW addition to basis
+
+         5.  Renormalized free O atom for better starting density
+
+         6.  use of restart file with shifted atom positions
+

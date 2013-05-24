@@ -1,0 +1,6 @@
+         The GaAs test computes the energy bands at (0,0,0) (Gamma point),
+         (1/4,1/4,1/4) and (1/2,1/2,1/2) (L point).
+	 The spin-orbit splitting of the valence states is tested.
+
+         This test checks SO coupling in conjunction with conventional local orbitals.
+

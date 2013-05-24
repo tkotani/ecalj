@@ -1,0 +1,26 @@
+         The te test also checks and illustrates the following:
+
+         1.  a simple molecular relaxation with one symmetry-allowed degree of freedom
+
+         2.  an spd-sp basis augmented by floating orbitals, and also by q-dependent APWs
+
+         3.  Comparison of forces and total energy with and without floating orbitals, 
+             and with and without APWs.
+
+         lmf will first relax the atoms with the basis including floating orbitals.
+	 
+         After relaxation, the a new calculation is performed that remove floating orbitals
+         but adding plane waves to the basis, so the total energy and forces may be compared. 
+         The basis size is variable, but averages ~80 orbitals, a little more than the floating
+         orbitals case (~70 orbitals). About 3 mRy is gained relative to the floating orbitals case.
+
+         Note that KMXA=5 is used with the PW calculation.  It isn't necessary in this case; still the
+         user is cautioned to monitor this parameter when using energy cutoffs higher than 3 Ry or so.
+
+         As a last step the calculation is repeated at the relaxed position with only atom-centered
+         MTO's (neither floating orbitals nor plane waves).  Elimination of floating orbitals reduces 
+         the basis from 75 to 39 orbitals, and reduces the LDA total energy by about 4 mRy.
+	 
+         The forces are not strongly affected by the local orbitals (or APWs), as can be seen by
+         looking at the maximum force after the last step.
+

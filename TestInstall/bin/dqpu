@@ -1,0 +1,60 @@
+#!/usr/bin/python
+import sys
+import string
+import os
+
+def compareqpu(qpu1,qpu2,printsw):
+	pr = (printsw==1)
+	oxx= string.split(qpu1,'\n') 
+	oyy= string.split(qpu2,'\n')
+	errsum=0.0
+	for ix in range( max(len(oxx),len(oyy))):
+		iline=oxx[ix]
+		ilin2=oyy[ix]
+		if ix==5:
+			if pr: print iline
+		if ix>=6:
+			if pr: print iline[0:32],
+			try:
+				for iw in range(4,17,1):
+					w1=string.atof(string.split(iline)[iw])
+					w2=string.atof(string.split(ilin2)[iw])
+					if (iw >=15) & pr : print '%9.5f' % (w1-w2),
+					if (iw <=14) & pr : print '%6.2f' % (w1-w2),
+					errsum=errsum + abs(w1-w2)
+				if pr: print
+			except:
+				if pr: print iline
+	return errsum
+
+############### main ###################################
+try:
+	print "   Readin two files =     ", sys.argv[1], sys.argv[2]
+except:	
+	print "   usage: dqpu QPU1 QPU2"
+	sys.exit()
+
+qpu1 = open(sys.argv[1],'rt').read()
+qpu2 = open(sys.argv[2],'rt').read()
+
+#print sys.argv
+if '--print' in sys.argv : 
+	printsw=1
+else:
+	printsw=0
+#print 'printsw=', printsw
+errsum = compareqpu(qpu1,qpu2, printsw)
+#errsum = compareqpu(qpu1,qpu2, printsw=0)
+	
+	
+if(errsum<2e-2):
+	print '   Comparison OK!  Difference sum=',errsum,' <2e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
+	sys.exit()
+else:
+	errsum = compareqpu(qpu1,qpu2, printsw=1)
+	print 
+	print '   Error! Difference>2e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  sum(abs(QPU-QPU))=',errsum
+	print '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)'
+	sys.exit(-1)
+	
+

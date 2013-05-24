@@ -1,0 +1,77 @@
+#!/bin/tcsh
+#for tatara in kyushu-u This is neglected in other cases.
+if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+### MPI version 
+if($# != 3 |$argv[1] != "-np" ) then
+  echo "  An example of usage: eps_lmfh -np 4 si"
+  echo "  k paralell for lmfgw-MPIK and hx0fp0"
+  exit
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+echo "### START eps_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+
+echo $nfpgw
+echo $TARGET
+setenv LMJOB $TARGET
+
+rm -f NoCore QPU* >& /dev/null
+
+### Check the existence of EPScond
+#if (! -e EPScond) then
+#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
+#   echo ' Now I made a sample of EPScond.tmp'
+#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
+#   exit 1
+#endif 
+
+### Get LATTC and SYMOPS
+echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
+
+### Add q points  to Q0P file.  -----------------
+# read <QforEPS> in GWinput
+echo 2|$nfpgw/qg4gw  >lqg4gw02
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+  echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
+  mv eigval eigmtet
+endif
+
+echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
+
+set exinfo = $?
+
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $TARGET
+  echo `tail -3 llmfgw01 `
+  exit
+endif
+
+echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
+rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
+
+echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+
+# get EFERMI
+echo 1|$nfpgw/heftet  >leftet
+
+echo 0|$nfpgw/hbasfp0 >lbas
+echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
+
+echo 203|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
+#mkdir EpsP$qqq
+#mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
+ 
+
+
+
+
+
+ 

@@ -1,0 +1,20 @@
+Intel(R) Xeon(R) CPU X5690  @ 3.47GHz 
+
+--- single core ---
+llmf_lda 7min
+llmfgw01 5min
+lvccC 5.4min <-- faster than lvcc?
+lsxC 40 min
+lvcc 11min
+lsx 13 min
+lx0 103 min
+lsc 432 min
+lmf 10 min
+
+---- 10core ---
+lvccC 1.8min
+lsxC 6.2min
+lx0 45 min
+lvcc 1.5min
+lsc 79 min
+

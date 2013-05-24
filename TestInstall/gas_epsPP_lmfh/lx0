@@ -1,0 +1,1497 @@
+ CPU=       0.0000 secs    0.0 mins
+--- Type numbers #1 #2 #3 [#2 and #3 are options] ---
+ #1:run mode
+    11  : normal    Sergey
+    202 : epsNoLFC  Sergey
+    203 : eps       Sergey
+    222 : chi^+- NoLFC Sergey
+    223 : chi^+- Sergey
+    12  : total energy Miyake Sergey
+    -9999: just show version num
+ #2=iqxini   #3=iqxend
+-------------------------------------------------------
+hx0fp0: VerNum= xxx: imode=202
+ CPU=       0.0000 secs    0.0 mins
+ ixc =  202
+  OK ixc=202  sergey's eps mode Only NoLFC 
+  ### readin BZDATA ###
+  read_bzdata           8           3          27          48           2          24
+i qbz=  1  0.0000  0.0000  0.0000
+i qbz=  2  0.5000  0.5000 -0.5000
+i qbz=  3  0.5000 -0.5000  0.5000
+i qbz=  4  1.0000  0.0000  0.0000
+i qbz=  5 -0.5000  0.5000  0.5000
+i qbz=  6  0.0000  1.0000  0.0000
+i qbz=  7  0.0000  0.0000  1.0000
+i qbz=  8  0.5000  0.5000  0.5000
+  nqbz nqibz =           8           3
+ ScaledGapX0=1.000
+  symgrp=  UseSYMOPSfile                                                                                                         
+  alat natom=   10.660000000000000                4
+  nspin nl nnv nnc =           1           5           3           3
+  divisions along reciprocal base vectors G1 G2 G3=           2           2           2
+  --- READIN ef from EFERMI. ef= -1.54667796363935003E-002
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+  --- Freq ---
+     dw   =  1.00000000000000002E-002
+     niw  =           6
+     delta= -1.00000000000000002E-008
+     esmr =  3.00000000000000006E-003
+  goto prod
+ readin nout=           1
+ readin nout=           1
+ <... > 
+ lx=  0 readin tolerance=  0.100D-02
+ lx=  1 readin tolerance=  0.100D-02
+ lx=  2 readin tolerance=  0.100D-02
+ lx=  3 readin tolerance=  0.100D-02
+ lx=  4 readin tolerance=  0.100D-02
+ lx=  5 readin tolerance=  0.100D-02
+ lx=  6 readin tolerance=  0.100D-02
+ lx=  7 readin tolerance=  0.100D-02
+ lx=  8 readin tolerance=  0.100D-02
+  --- prod section: tolbas lcutmx=  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003  1.00000000000000002E-003           2
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  2  3  1  1
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  0  3  0  1
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  3  0  1  1  1
+  3  0  2  0  0
+  3  1  1  1  1
+  3  1  2  0  0
+  3  2  1  0  1
+  3  2  2  0  0
+  3  3  1  0  0
+  3  3  2  0  0
+  3  4  1  0  0
+  3  4  2  0  0
+  4  0  1  1  1
+  4  0  2  0  0
+  4  1  1  1  1
+  4  1  2  0  0
+  4  2  1  0  1
+  4  2  2  0  0
+  4  3  1  0  0
+  4  3  2  0  0
+  4  4  1  0  0
+  4  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+  1  1  2  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  0  3  0  0  0  0
+  2  1  1  0  0  0  0
+  2  1  2  0  0  0  0
+  2  2  1  0  0  0  0
+  ### Use unocc occ ForX0 for core
+  nw from rgwinaf=        -999
+  rcore2 : ic=           1
+  rcore : goto loop over l n
+  rcore2 : ic=           2
+  rcore : goto loop over l n
+  rcore2 : ic=           3
+  rcore : goto loop over l n
+  rcore2 : ic=           4
+  rcore : goto loop over l n
+  symgrp==UseSYMOPSfile
+ CPU=       0.0040 secs    0.0 mins
+ genallcf_v3
+  ncore=           0           0           0           0
+  iclass=           1           2           3           4
+ nw delta=        -999 -1.00000000000000002E-008
+  hx0fp0: tetrahedron mode delta=  1.00000000000000002E-008
+  *** nqibz nq0i=           3           4
+  num of zero weight q0p=           4
+  1      0.000000        0.000000      0.000000      0.010000
+  2      0.000000        0.050000      0.000000      0.000000
+  3      0.000000        0.100000      0.000000      0.000000
+  4      0.000000        0.100000      0.100000      0.000000
+  ngcmx ngpmx=          34          72
+  rdpp_v3: 
+  ppbrd size           5           6           2           4           1
+  rdpp mdimx=          10
+  rotcg:
+  rotdlmm:
+  rotcg end:
+  rdpp_v3:end 
+  nqibz nqibze=           3           7
+ init_readeigen:
+ read(ifiqg)          40          72   2.3576680327127901                8
+ read EValue: nband_ev,nqi,nsp_ev          66          24           1
+ readin nout=           1
+  goto readin @MNLA_CPHI: norbt=           0
+           0           1           0           1           1           1
+           0           2           0           1           2           2
+          -1           1           1           1           3           3
+           0           1           1           1           4           3
+           1           1           1           1           5           3
+          -1           2           1           1           6           4
+           0           2           1           1           7           4
+           1           2           1           1           8           4
+          -2           1           2           1           9           5
+          -1           1           2           1          10           5
+           0           1           2           1          11           5
+           1           1           2           1          12           5
+           2           1           2           1          13           5
+          -2           2           2           1          14           6
+          -1           2           2           1          15           6
+           0           2           2           1          16           6
+           1           2           2           1          17           6
+           2           2           2           1          18           6
+          -2           3           2           1          19           7
+          -1           3           2           1          20           7
+           0           3           2           1          21           7
+           1           3           2           1          22           7
+           2           3           2           1          23           7
+          -3           1           3           1          24           8
+          -2           1           3           1          25           8
+          -1           1           3           1          26           8
+           0           1           3           1          27           8
+           1           1           3           1          28           8
+           2           1           3           1          29           8
+           3           1           3           1          30           8
+          -3           2           3           1          31           9
+          -2           2           3           1          32           9
+          -1           2           3           1          33           9
+           0           2           3           1          34           9
+           1           2           3           1          35           9
+           2           2           3           1          36           9
+           3           2           3           1          37           9
+          -4           1           4           1          38          10
+          -3           1           4           1          39          10
+          -2           1           4           1          40          10
+          -1           1           4           1          41          10
+           0           1           4           1          42          10
+           1           1           4           1          43          10
+           2           1           4           1          44          10
+           3           1           4           1          45          10
+           4           1           4           1          46          10
+          -4           2           4           1          47          11
+          -3           2           4           1          48          11
+          -2           2           4           1          49          11
+          -1           2           4           1          50          11
+           0           2           4           1          51          11
+           1           2           4           1          52          11
+           2           2           4           1          53          11
+           3           2           4           1          54          11
+           4           2           4           1          55          11
+           0           1           0           2          56          12
+           0           2           0           2          57          13
+           0           3           0           2          58          14
+          -1           1           1           2          59          15
+           0           1           1           2          60          15
+           1           1           1           2          61          15
+          -1           2           1           2          62          16
+           0           2           1           2          63          16
+           1           2           1           2          64          16
+          -2           1           2           2          65          17
+          -1           1           2           2          66          17
+           0           1           2           2          67          17
+           1           1           2           2          68          17
+           2           1           2           2          69          17
+          -2           2           2           2          70          18
+          -1           2           2           2          71          18
+           0           2           2           2          72          18
+           1           2           2           2          73          18
+           2           2           2           2          74          18
+          -3           1           3           2          75          19
+          -2           1           3           2          76          19
+          -1           1           3           2          77          19
+           0           1           3           2          78          19
+           1           1           3           2          79          19
+           2           1           3           2          80          19
+           3           1           3           2          81          19
+          -3           2           3           2          82          20
+          -2           2           3           2          83          20
+          -1           2           3           2          84          20
+           0           2           3           2          85          20
+           1           2           3           2          86          20
+           2           2           3           2          87          20
+           3           2           3           2          88          20
+          -4           1           4           2          89          21
+          -3           1           4           2          90          21
+          -2           1           4           2          91          21
+          -1           1           4           2          92          21
+           0           1           4           2          93          21
+           1           1           4           2          94          21
+           2           1           4           2          95          21
+           3           1           4           2          96          21
+           4           1           4           2          97          21
+          -4           2           4           2          98          22
+          -3           2           4           2          99          22
+          -2           2           4           2         100          22
+          -1           2           4           2         101          22
+           0           2           4           2         102          22
+           1           2           4           2         103          22
+           2           2           4           2         104          22
+           3           2           4           2         105          22
+           4           2           4           2         106          22
+           0           1           0           3         107          23
+           0           2           0           3         108          24
+          -1           1           1           3         109          25
+           0           1           1           3         110          25
+           1           1           1           3         111          25
+          -1           2           1           3         112          26
+           0           2           1           3         113          26
+           1           2           1           3         114          26
+          -2           1           2           3         115          27
+          -1           1           2           3         116          27
+           0           1           2           3         117          27
+           1           1           2           3         118          27
+           2           1           2           3         119          27
+          -2           2           2           3         120          28
+          -1           2           2           3         121          28
+           0           2           2           3         122          28
+           1           2           2           3         123          28
+           2           2           2           3         124          28
+          -3           1           3           3         125          29
+          -2           1           3           3         126          29
+          -1           1           3           3         127          29
+           0           1           3           3         128          29
+           1           1           3           3         129          29
+           2           1           3           3         130          29
+           3           1           3           3         131          29
+          -3           2           3           3         132          30
+          -2           2           3           3         133          30
+          -1           2           3           3         134          30
+           0           2           3           3         135          30
+           1           2           3           3         136          30
+           2           2           3           3         137          30
+           3           2           3           3         138          30
+          -4           1           4           3         139          31
+          -3           1           4           3         140          31
+          -2           1           4           3         141          31
+          -1           1           4           3         142          31
+           0           1           4           3         143          31
+           1           1           4           3         144          31
+           2           1           4           3         145          31
+           3           1           4           3         146          31
+           4           1           4           3         147          31
+          -4           2           4           3         148          32
+          -3           2           4           3         149          32
+          -2           2           4           3         150          32
+          -1           2           4           3         151          32
+           0           2           4           3         152          32
+           1           2           4           3         153          32
+           2           2           4           3         154          32
+           3           2           4           3         155          32
+           4           2           4           3         156          32
+           0           1           0           4         157          33
+           0           2           0           4         158          34
+          -1           1           1           4         159          35
+           0           1           1           4         160          35
+           1           1           1           4         161          35
+          -1           2           1           4         162          36
+           0           2           1           4         163          36
+           1           2           1           4         164          36
+          -2           1           2           4         165          37
+          -1           1           2           4         166          37
+           0           1           2           4         167          37
+           1           1           2           4         168          37
+           2           1           2           4         169          37
+          -2           2           2           4         170          38
+          -1           2           2           4         171          38
+           0           2           2           4         172          38
+           1           2           2           4         173          38
+           2           2           2           4         174          38
+          -3           1           3           4         175          39
+          -2           1           3           4         176          39
+          -1           1           3           4         177          39
+           0           1           3           4         178          39
+           1           1           3           4         179          39
+           2           1           3           4         180          39
+           3           1           3           4         181          39
+          -3           2           3           4         182          40
+          -2           2           3           4         183          40
+          -1           2           3           4         184          40
+           0           2           3           4         185          40
+           1           2           3           4         186          40
+           2           2           3           4         187          40
+           3           2           3           4         188          40
+          -4           1           4           4         189          41
+          -3           1           4           4         190          41
+          -2           1           4           4         191          41
+          -1           1           4           4         192          41
+           0           1           4           4         193          41
+           1           1           4           4         194          41
+           2           1           4           4         195          41
+           3           1           4           4         196          41
+           4           1           4           4         197          41
+          -4           2           4           4         198          42
+          -3           2           4           4         199          42
+          -2           2           4           4         200          42
+          -1           2           4           4         201          42
+           0           2           4           4         202          42
+           1           2           4           4         203          42
+           2           2           4           4         204          42
+           3           2           4           4         205          42
+           4           2           4           4         206          42
+  end of readin @MNLA_CPHI: norbt=          42
+ init_readeigen2: table for rotation of cphi
+           1           0           1           0           0
+           1           0           2           1           1
+           1           1           1           2           2
+           1           1           2           5           5
+           1           2           1           8           8
+           1           2           2          13          13
+           1           2           3          18          18
+           1           3           1          23          23
+           1           3           2          30          30
+           1           4           1          37          37
+           1           4           2          46          46
+           2           0           1          55          55
+           2           0           2          56          56
+           2           0           3          57          57
+           2           1           1          58          58
+           2           1           2          61          61
+           2           2           1          64          64
+           2           2           2          69          69
+           2           3           1          74          74
+           2           3           2          81          81
+           2           4           1          88          88
+           2           4           2          97          97
+           3           0           1         106         106
+           3           0           2         107         107
+           3           1           1         108         108
+           3           1           2         111         111
+           3           2           1         114         114
+           3           2           2         119         119
+           3           3           1         124         124
+           3           3           2         131         131
+           3           4           1         138         138
+           3           4           2         147         147
+           4           0           1         156         156
+           4           0           2         157         157
+           4           1           1         158         158
+           4           1           2         161         161
+           4           2           1         164         164
+           4           2           2         169         169
+           4           3           1         174         174
+           4           3           2         181         181
+           4           4           1         188         188
+           4           4           2         197         197
+  KeepEigen=T; readin geig and cphi into m_readeigen
+  mrelc.ne.0 file=GEIG                                                                   76032
+  mrelc.ne.0 file=CPHI                                                                  217536
+  ifgeig ifcphi=          12          13
+ readin nout=           1
+ dw, omg_c=   1.00000000000000002E-002  5.00000000000000028E-002
+  emin emax omg2max=  -1.1584321350575457        8.5328111052808175        5.0456216201691815     
+  we set frhis nwhis=          69
+  read end of Mix0vec
+  writeemesh: ifi=          13
+  ANFcond exist? = F
+ nbcut nbcutlowto=    0    0
+TimeRevesal switch = T
+=== goto eibzgen === used timereversal=T
+eibzgen: RequiredTimeReversal ngrp= T 24
+iq=   4 # of EIBZ: Full=   8 Used(TimeR 1 or -1)=  8=  4+  4
+eibz: iq neibz nqbz=   4    0.00000    0.00000    0.01000  4  8
+        1    0.00000    0.00000    0.00000   1     1 1
+        2    0.50000    0.50000   -0.50000   4     1 1   6-1  13-1  11 1
+        4    1.00000    0.00000    0.00000   2     1 1  11 1
+        7    0.00000    0.00000    1.00000   1     1 1
+iq=   5 # of EIBZ: Full=   8 Used(TimeR 1 or -1)=  8=  4+  4
+eibz: iq neibz nqbz=   5    0.05000    0.00000    0.00000  4  8
+        1    0.00000    0.00000    0.00000   1     1 1
+        2    0.50000    0.50000   -0.50000   4     1 1   6 1   8-1   7-1
+        4    1.00000    0.00000    0.00000   1     1 1
+        6    0.00000    1.00000    0.00000   2     1 1  16 1
+iq=   6 # of EIBZ: Full=   8 Used(TimeR 1 or -1)=  8=  4+  4
+eibz: iq neibz nqbz=   6    0.10000    0.00000    0.00000  4  8
+        1    0.00000    0.00000    0.00000   1     1 1
+        2    0.50000    0.50000   -0.50000   4     1 1   6 1   8-1   7-1
+        4    1.00000    0.00000    0.00000   1     1 1
+        6    0.00000    1.00000    0.00000   2     1 1  16 1
+iq=   7 # of EIBZ: Full=   4 Used(TimeR 1 or -1)=  4=  2+  2
+eibz: iq neibz nqbz=   7    0.10000    0.10000    0.00000  5  8
+        1    0.00000    0.00000    0.00000   1     1 1
+        2    0.50000    0.50000   -0.50000   2     1 1  11-1
+        3    0.50000   -0.50000    0.50000   2     1 1  23 1
+        4    1.00000    0.00000    0.00000   2     1 1  23 1
+        7    0.00000    0.00000    1.00000   1     1 1
+  sum(neibz(iq)) sum(ngwt)=sum(nqbz)=           17           0          24
+ norbt=          16
+ read(ifiqg)          40          34   1.7682510245345926                8          24           2
+ CPU=       0.0160 secs    0.0 mins
+  init_readqg ifi=           2
+do 1001: iq q=    4   0.0000   0.0000   0.0100 qq=   0.0000   0.0000   0.0000
+ nbloch ngb ngc=          40          67          27
+ zzzzzzzzzzz1
+ nnnnn          67          67
+ vvvvvvvv goto epsmode xxxxxxxxx
+ vvvvvvvv goto epsmode xxxxxxxxx222222222
+ ***    4   1 out of nqibz+n0qi nsp=   7   1 *** 
+ tetra mode niw nw nwhis=    0   68   69
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0-0.154668D-01
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=     513    4104 count(iwgt) =      4104
+  rsvwwk: kx nbnbmax=           9         513
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+ ihis Init  End=   1     0.000000     0.011000
+ ihis Init  End=   2     0.011000     0.024000
+ ihis Init  End=   3     0.024000     0.039000
+ ihis Init  End=   4     0.039000     0.056000
+ ihis Init  End=   5     0.056000     0.075000
+ ihis Init  End=   6     0.075000     0.096000
+ ihis Init  End=   7     0.096000     0.119000
+ ihis Init  End=   8     0.119000     0.144000
+ ihis Init  End=   9     0.144000     0.171000
+ ihis Init  End=  10     0.171000     0.200000
+ ihis Init  End=  11     0.200000     0.231000
+ ihis Init  End=  12     0.231000     0.264000
+ ihis Init  End=  13     0.264000     0.299000
+ ihis Init  End=  14     0.299000     0.336000
+ ihis Init  End=  15     0.336000     0.375000
+ ihis Init  End=  16     0.375000     0.416000
+ ihis Init  End=  17     0.416000     0.459000
+ ihis Init  End=  18     0.459000     0.504000
+ ihis Init  End=  19     0.504000     0.551000
+ ihis Init  End=  20     0.551000     0.600000
+ ihis Init  End=  21     0.600000     0.651000
+ ihis Init  End=  22     0.651000     0.704000
+ ihis Init  End=  23     0.704000     0.759000
+ ihis Init  End=  24     0.759000     0.816000
+ ihis Init  End=  25     0.816000     0.875000
+ ihis Init  End=  26     0.875000     0.936000
+ ihis Init  End=  27     0.936000     0.999000
+ ihis Init  End=  28     0.999000     1.064000
+ ihis Init  End=  29     1.064000     1.131000
+ ihis Init  End=  30     1.131000     1.200000
+ ihis Init  End=  31     1.200000     1.271000
+ ihis Init  End=  32     1.271000     1.344000
+ ihis Init  End=  33     1.344000     1.419000
+ ihis Init  End=  34     1.419000     1.496000
+ ihis Init  End=  35     1.496000     1.575000
+ ihis Init  End=  36     1.575000     1.656000
+ ihis Init  End=  37     1.656000     1.739000
+ ihis Init  End=  38     1.739000     1.824000
+ ihis Init  End=  39     1.824000     1.911000
+ ihis Init  End=  40     1.911000     2.000000
+ ihis Init  End=  41     2.000000     2.091000
+ ihis Init  End=  42     2.091000     2.184000
+ ihis Init  End=  43     2.184000     2.279000
+ ihis Init  End=  44     2.279000     2.376000
+ ihis Init  End=  45     2.376000     2.475000
+ ihis Init  End=  46     2.475000     2.576000
+ ihis Init  End=  47     2.576000     2.679000
+ ihis Init  End=  48     2.679000     2.784000
+ ihis Init  End=  49     2.784000     2.891000
+ ihis Init  End=  50     2.891000     3.000000
+ ihis Init  End=  51     3.000000     3.111000
+ ihis Init  End=  52     3.111000     3.224000
+ ihis Init  End=  53     3.224000     3.339000
+ ihis Init  End=  54     3.339000     3.456000
+ ihis Init  End=  55     3.456000     3.575000
+ ihis Init  End=  56     3.575000     3.696000
+ ihis Init  End=  57     3.696000     3.819000
+ ihis Init  End=  58     3.819000     3.944000
+ ihis Init  End=  59     3.944000     4.071000
+ ihis Init  End=  60     4.071000     4.200000
+ ihis Init  End=  61     4.200000     4.331000
+ ihis Init  End=  62     4.331000     4.464000
+ ihis Init  End=  63     4.464000     4.599000
+ ihis Init  End=  64     4.599000     4.736000
+ ihis Init  End=  65     4.736000     4.875000
+ ihis Init  End=  66     4.875000     5.016000
+ ihis Init  End=  67     5.016000     5.159000
+ ihis Init  End=  68     5.159000     5.304000
+ ihis Init  End=  69     5.304000     5.451000
+  ----------------nbnbx nqbz=          513           8
+  nhwtot=       14906
+  tetwt5_dtet3:init job efermi:= 1-0.154668D-01
+  --- goto x0kf_v4hz ---- newaniso=  T
+ x0kf_v4hz: q=  0.0000  0.0000  0.0100 CPU=       0.0400 secs    0.0 mins
+  nbmx ebmx from GWinput=     99999 0.100000D+11
+do 1000  k=   1
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=       0.0400 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.0400 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+  nctot ncc=           0           0
+ CPU=       0.0560 secs    0.0 mins
+  init_readqg ifi=           1
+ readin nout=           1
+  KeepPPOVL=T; keep PPOVL in m_read_ppovl
+4 z1pp definitions begin 0.279114D+02
+ CPU=       0.0880 secs    0.0 mins
+do 1000  k=   2
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=       0.0960 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.0960 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.1120 secs    0.0 mins
+4 z1pp definitions begin 0.431748D+02
+ CPU=       0.1480 secs    0.0 mins
+do 1000  k=   3
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=       0.1560 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.1560 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.1720 secs    0.0 mins
+4 z1pp definitions begin 0.431730D+02
+ CPU=       0.2080 secs    0.0 mins
+do 1000  k=   4
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=       0.2160 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.2200 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.2320 secs    0.0 mins
+4 z1pp definitions begin 0.283235D+02
+ CPU=       0.2640 secs    0.0 mins
+do 1000  k=   5
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=       0.2720 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.2720 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.2840 secs    0.0 mins
+4 z1pp definitions begin 0.450907D+02
+ CPU=       0.3240 secs    0.0 mins
+do 1000  k=   6
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.3320 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.3440 secs    0.0 mins
+4 z1pp definitions begin 0.283237D+02
+ CPU=       0.3760 secs    0.0 mins
+do 1000  k=   7
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.3840 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.3960 secs    0.0 mins
+4 z1pp definitions begin 0.263015D+02
+ CPU=       0.4280 secs    0.0 mins
+do 1000  k=   8
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.4360 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.4480 secs    0.0 mins
+4 z1pp definitions begin 0.441414D+02
+ CPU=       0.4840 secs    0.0 mins
+  x0kf_v4hz: end
+  end of x0kf_v4h sum rcxq=   0.0000000000000000     
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas1 nmbas2=   69    0   68    0    1    1
+  -------- nmbas1,nmbas2=           1           1
+ dpsion5: start...     nw_w nwhis=   68   69
+ CPU=       0.4880 secs    0.0 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=       0.4920 secs    0.0 mins
+  --- end of dpsion5 ----  1.49439248168615427E-002   0.0000000000000000     
+  end of dpsion5 sum x0mean     1.49439248168615341E-002
+  end of dpsion5 sum x0mean11   1.49439248168615341E-002
+ --- dielectric constant --- without LFC
+  trace check for W-V
+ xxx2 epsmode iq,iw=           4           0
+ iq iw omega eps epsi noLFC=     1     0   0.000  0.876813970248769D+03 -0.000000000000000D+00     0.114049277718087D-02  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.242129357750528D-02  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4           1
+ iq iw omega eps epsi noLFC=     1     1   0.011  0.890189765741540D+03  0.678492377711248D-01     0.112335597720299D-02 -0.856208976244166D-07 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.245827258083343D-02 -0.187577418532373D-06
+ xxx2 epsmode iq,iw=           4           2
+ iq iw omega eps epsi noLFC=     1     2   0.035  0.983290064535579D+03  0.382728037249374D+02     0.101545547106778D-02 -0.395247845344060D-04 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.271565960957630D-02 -0.105809791805432D-03
+ xxx2 epsmode iq,iw=           4           3
+ iq iw omega eps epsi noLFC=     1     3   0.063  0.112820894694855D+04  0.241333509037247D+03     0.847578125919531D-03 -0.181304184712074D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.311630537587539D-02 -0.667195654920553D-03
+ xxx2 epsmode iq,iw=           4           4
+ iq iw omega eps epsi noLFC=     1     4   0.095  0.115841844955027D+04  0.700236419694429D+03     0.632233253345049D-03 -0.382169974853191D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.319982319714101D-02 -0.193588821751704D-02
+ xxx2 epsmode iq,iw=           4           5
+ iq iw omega eps epsi noLFC=     1     5   0.131  0.612150445854029D+03  0.141545384528429D+04     0.257396656067581D-03 -0.595169192576318D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00    -0.168959927530675D-02 -0.391319323653688D-02
+ xxx2 epsmode iq,iw=           4           6
+ iq iw omega eps epsi noLFC=     1     6   0.171 -0.163999217819153D+03  0.109622739828858D+04    -0.133483517270815D-03 -0.892249919225564D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.456160280573545D-03 -0.303065313996707D-02
+ xxx2 epsmode iq,iw=           4           7
+ iq iw omega eps epsi noLFC=     1     7   0.215 -0.402236607984467D+03  0.511427451558145D+03    -0.950122586605890D-03 -0.120804214109335D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.111479634065494D-02 -0.141390300438562D-02
+ xxx2 epsmode iq,iw=           4           8
+ iq iw omega eps epsi noLFC=     1     8   0.263 -0.255585144560421D+03  0.162329332954337D+03    -0.278796094687546D-02 -0.177071261941848D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.709360644739365D-03 -0.448779061164563D-03
+ xxx2 epsmode iq,iw=           4           9
+ iq iw omega eps epsi noLFC=     1     9   0.315 -0.679907674389182D+02  0.130745634081187D+03    -0.313073859026084D-02 -0.602038214223469D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.190733315271923D-03 -0.361462108211990D-03
+ xxx2 epsmode iq,iw=           4          10
+ iq iw omega eps epsi noLFC=     1    10   0.371 -0.471152199632375D+01  0.190358986320290D+03    -0.129941683628102D-03 -0.525001627828495D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.157901928917059D-04 -0.526270425746708D-03
+ xxx2 epsmode iq,iw=           4          11
+ iq iw omega eps epsi noLFC=     1    11   0.431 -0.709953920929920D+01  0.217949377301498D+03    -0.149299488248072D-03 -0.458335809350528D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.223921551087588D-04 -0.602547396374021D-03
+ xxx2 epsmode iq,iw=           4          12
+ iq iw omega eps epsi noLFC=     1    12   0.495 -0.781027114392712D+02  0.288203199933838D+03    -0.875972769333134D-03 -0.323238656538850D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.218689006658295D-03 -0.796772580389485D-03
+ xxx2 epsmode iq,iw=           4          13
+ iq iw omega eps epsi noLFC=     1    13   0.563 -0.212502365075783D+03  0.229612647272296D+03    -0.217106714449416D-02 -0.234587730012054D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.590253093580300D-03 -0.634791915909355D-03
+ xxx2 epsmode iq,iw=           4          14
+ iq iw omega eps epsi noLFC=     1    14   0.635 -0.205987011932682D+03  0.626705583139820D+01    -0.485018543298552D-02 -0.147564560580588D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.572240612326901D-03 -0.173260333243158D-04
+ xxx2 epsmode iq,iw=           4          15
+ iq iw omega eps epsi noLFC=     1    15   0.711 -0.110619683622774D+03  0.480440519445898D+01    -0.902296230538425D-02 -0.391882941170073D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.308586106479013D-03 -0.132823588527279D-04
+ xxx2 epsmode iq,iw=           4          16
+ iq iw omega eps epsi noLFC=     1    16   0.791 -0.780908820020700D+02  0.359761673894525D+01    -0.127784711892650D-01 -0.588699226721638D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.218656302749367D-03 -0.994604630691075D-05
+ xxx2 epsmode iq,iw=           4          17
+ iq iw omega eps epsi noLFC=     1    17   0.875 -0.589978086825451D+02  0.295206149671211D+01    -0.169074512050833D-01 -0.845994738188167D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.165871193840597D-03 -0.816133081361943D-05
+ xxx2 epsmode iq,iw=           4          18
+ iq iw omega eps epsi noLFC=     1    18   0.963 -0.464118083855496D+02  0.249175815151147D+01    -0.214843143466947D-01 -0.115345032363960D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.131075674791114D-03 -0.688876658046165D-05
+ xxx2 epsmode iq,iw=           4          19
+ iq iw omega eps epsi noLFC=     1    19   1.055 -0.376883234825068D+02  0.205324218924382D+01    -0.264548982718754D-01 -0.144125045172625D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.106958546397738D-03 -0.567643620079137D-05
+ xxx2 epsmode iq,iw=           4          20
+ iq iw omega eps epsi noLFC=     1    20   1.151 -0.310368444346824D+02  0.996017149245412D+00    -0.321866226078014D-01 -0.103291519088314D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.885697286276432D-04 -0.275360979440419D-05
+ xxx2 epsmode iq,iw=           4          21
+ iq iw omega eps epsi noLFC=     1    21   1.251 -0.253450081155375D+02  0.268783090918337D+00    -0.394510643936916D-01 -0.418377416942086D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.728339591698411D-04 -0.743083341771460D-06
+ xxx2 epsmode iq,iw=           4          22
+ iq iw omega eps epsi noLFC=     1    22   1.355 -0.208679985470391D+02  0.341337012475724D+00    -0.479074463790986D-01 -0.783620172558557D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.604567250963132D-04 -0.943667427270605D-06
+ xxx2 epsmode iq,iw=           4          23
+ iq iw omega eps epsi noLFC=     1    23   1.463 -0.175074624746503D+02  0.200984168616911D+00    -0.571109736994484D-01 -0.655629082998517D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.511661169472578D-04 -0.555645026436536D-06
+ xxx2 epsmode iq,iw=           4          24
+ iq iw omega eps epsi noLFC=     1    24   1.575 -0.146765750530257D+02  0.571772181279877D-01    -0.681347534588004D-01 -0.265440380097900D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.433397865101296D-04 -0.158073330337025D-06
+ xxx2 epsmode iq,iw=           4          25
+ iq iw omega eps epsi noLFC=     1    25   1.691 -0.123965918741275D+02  0.170590126070294D+00    -0.806520598157569D-01 -0.110985706325572D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.370364974380014D-04 -0.471617022188507D-06
+ xxx2 epsmode iq,iw=           4          26
+ iq iw omega eps epsi noLFC=     1    26   1.811 -0.105832720280307D+02  0.118708190764784D+00    -0.944768500097028D-01 -0.105970780152899D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.320233555534641D-04 -0.328183141237633D-06
+ xxx2 epsmode iq,iw=           4          27
+ iq iw omega eps epsi noLFC=     1    27   1.935 -0.899839795544535D+01  0.119028613370031D+00    -0.111111451397203D+00 -0.146975517806893D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.276417796212880D-04 -0.329068988258262D-06
+ xxx2 epsmode iq,iw=           4          28
+ iq iw omega eps epsi noLFC=     1    28   2.063 -0.781978834251708D+01  0.309932264315947D+00    -0.127680128668500D+00 -0.506051949913034D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.243833708916823D-04 -0.856845205194334D-06
+ xxx2 epsmode iq,iw=           4          29
+ iq iw omega eps epsi noLFC=     1    29   2.195 -0.683966314290281D+01  0.815112573194989D-01    -0.146185268771859D+00 -0.174215378889638D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.216736963128410D-04 -0.225347722857199D-06
+ xxx2 epsmode iq,iw=           4          30
+ iq iw omega eps epsi noLFC=     1    30   2.331 -0.583971169593671D+01  0.301847482293641D-01    -0.171236755425080D+00 -0.885101631595213D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.189092096768624D-04 -0.834493848112669D-07
+ xxx2 epsmode iq,iw=           4          31
+ iq iw omega eps epsi noLFC=     1    31   2.471 -0.495782582256800D+01  0.202314261721663D-01    -0.201697958724069D+00 -0.823069931667951D-03 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.164711295892911D-04 -0.559322229588600D-07
+ xxx2 epsmode iq,iw=           4          32
+ iq iw omega eps epsi noLFC=     1    32   2.615 -0.427937650995833D+01  0.173899392475854D+00    -0.233293655113088D+00 -0.948026536067341D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.145954744626458D-04 -0.480765889146819D-06
+ xxx2 epsmode iq,iw=           4          33
+ iq iw omega eps epsi noLFC=     1    33   2.763 -0.377778001053725D+01  0.150525964844940D+00    -0.264286137098821D+00 -0.105305035420219D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.132087503136779D-04 -0.416147223391872D-06
+ xxx2 epsmode iq,iw=           4          34
+ iq iw omega eps epsi noLFC=     1    34   2.915 -0.325628859757226D+01  0.688077748934322D-01    -0.306961026740432D+00 -0.648631243703632D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.117670242715852D-04 -0.190227410262220D-06
+ xxx2 epsmode iq,iw=           4          35
+ iq iw omega eps epsi noLFC=     1    35   3.071 -0.269161866701928D+01  0.715847843937058D-01    -0.371261053702659D+00 -0.987385130320713D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.102059259987751D-04 -0.197904788673726D-06
+ xxx2 epsmode iq,iw=           4          36
+ iq iw omega eps epsi noLFC=     1    36   3.231 -0.243380635697060D+01  0.399316018017679D+00    -0.400108450639556D+00 -0.656460251354914D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.949317270672001D-05 -0.110395739582295D-05
+ xxx2 epsmode iq,iw=           4          37
+ iq iw omega eps epsi noLFC=     1    37   3.395 -0.221111544137757D+01  0.678592999979107D-01    -0.451834846281651D+00 -0.138668455791860D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.887751675464491D-05 -0.187605236774511D-06
+ xxx2 epsmode iq,iw=           4          38
+ iq iw omega eps epsi noLFC=     1    38   3.563 -0.182092505312467D+01  0.129428795005957D+00    -0.546410862797240D+00 -0.388381166092782D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.779878826529154D-05 -0.357821547426510D-06
+ xxx2 epsmode iq,iw=           4          39
+ iq iw omega eps epsi noLFC=     1    39   3.735 -0.156687035459279D+01  0.119144898846833D+00    -0.634545894853011D+00 -0.482509010616793D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.709642334444477D-05 -0.329390473513925D-06
+ xxx2 epsmode iq,iw=           4          40
+ iq iw omega eps epsi noLFC=     1    40   3.911 -0.130468829807986D+01  0.839762010701709D-01    -0.763304343768785D+00 -0.491300482608751D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.637158936013235D-05 -0.232162357785572D-06
+ xxx2 epsmode iq,iw=           4          41
+ iq iw omega eps epsi noLFC=     1    41   4.091 -0.102956624226682D+01  0.102980286671910D+00    -0.961661778274097D+00 -0.961882796293353D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.561098118373967D-05 -0.284701449392869D-06
+ xxx2 epsmode iq,iw=           4          42
+ iq iw omega eps epsi noLFC=     1    42   4.275 -0.880993728734628D+00  0.244512785101912D+00    -0.105390036105114D+01 -0.292501642288247D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.520023451260911D-05 -0.675985147869955D-06
+ xxx2 epsmode iq,iw=           4          43
+ iq iw omega eps epsi noLFC=     1    43   4.463 -0.754603511493515D+00  0.146832906466367D+00    -0.127685435746050D+01 -0.248453967659256D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.485081348067641D-05 -0.405937317136494D-06
+ xxx2 epsmode iq,iw=           4          44
+ iq iw omega eps epsi noLFC=     1    44   4.655 -0.576466377810145D+00  0.197031053202962D+00    -0.155325369926759D+01 -0.530888225295391D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.435833184375958D-05 -0.544716161074622D-06
+ xxx2 epsmode iq,iw=           4          45
+ iq iw omega eps epsi noLFC=     1    45   4.851 -0.490779862055833D+00  0.235277809230561D+00    -0.165680575134069D+01 -0.794265734260473D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.412144111430959D-05 -0.650453940872461D-06
+ xxx2 epsmode iq,iw=           4          46
+ iq iw omega eps epsi noLFC=     1    46   5.051 -0.336394301587447D+00  0.131790621996576D+00    -0.257714375456525D+01 -0.100965853697868D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.369462357232008D-05 -0.364351103608334D-06
+ xxx2 epsmode iq,iw=           4          47
+ iq iw omega eps epsi noLFC=     1    47   5.255 -0.166927743232243D+00  0.273613956541039D+00    -0.162492559716151D+01 -0.266344175698588D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.322611278888187D-05 -0.756438853676253D-06
+ xxx2 epsmode iq,iw=           4          48
+ iq iw omega eps epsi noLFC=     1    48   5.463 -0.203679412131214D+00  0.421038342811530D+00    -0.931069326336818D+00 -0.192467113932437D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.332771721960635D-05 -0.116401138822146D-05
+ xxx2 epsmode iq,iw=           4          49
+ iq iw omega eps epsi noLFC=     1    49   5.675 -0.247760929182927D+00  0.282342709353871D+00    -0.175588849030558D+01 -0.200097051343444D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.344958590148372D-05 -0.780570545842954D-06
+ xxx2 epsmode iq,iw=           4          50
+ iq iw omega eps epsi noLFC=     1    50   5.891 -0.114939407683312D+00  0.161920330607776D+00    -0.291507893000795D+01 -0.410660324085856D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.308238475159781D-05 -0.447648324742730D-06
+ xxx2 epsmode iq,iw=           4          51
+ iq iw omega eps epsi noLFC=     1    51   6.111  0.858166395435434D-01  0.221602188160052D+00     0.151963098375694D+01 -0.392410554628490D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.252737039431636D-05 -0.612646033495723D-06
+ xxx2 epsmode iq,iw=           4          52
+ iq iw omega eps epsi noLFC=     1    52   6.335 -0.111008395577906D+00  0.613825351723649D+00    -0.285292040060719D+00 -0.157753371645957D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.307151699350392D-05 -0.169699437589038D-05
+ xxx2 epsmode iq,iw=           4          53
+ iq iw omega eps epsi noLFC=     1    53   6.563 -0.191913487537867D+00  0.247567244021345D-01    -0.512539036665031D+01 -0.661172272925739D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.329518889895946D-05 -0.684429568735127D-07
+ xxx2 epsmode iq,iw=           4          54
+ iq iw omega eps epsi noLFC=     1    54   6.795 -0.163265370072798D-01  0.168464707797063D+00    -0.569923072498555D+00 -0.588072803390350D+01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.280975755160074D-05 -0.465741046479848D-06
+ xxx2 epsmode iq,iw=           4          55
+ iq iw omega eps epsi noLFC=     1    55   7.031  0.248799836108817D-01 -0.000000000000000D+00     0.401929525211838D+02  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.269583714485528D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          56
+ iq iw omega eps epsi noLFC=     1    56   7.271  0.152926434815570D+00 -0.000000000000000D+00     0.653909182677281D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.234183725394673D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          57
+ iq iw omega eps epsi noLFC=     1    57   7.515  0.229304168538844D+00 -0.000000000000000D+00     0.436101971617929D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.213068177754340D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          58
+ iq iw omega eps epsi noLFC=     1    58   7.763  0.291235098045894D+00 -0.000000000000000D+00     0.343365207940156D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.195946623753350D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          59
+ iq iw omega eps epsi noLFC=     1    59   8.015  0.344806073398719D+00  0.122451378096935D-03     0.290018056823937D+01 -0.102994446649495D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.181136280122311D-05 -0.338531635044099D-09
+ xxx2 epsmode iq,iw=           4          60
+ iq iw omega eps epsi noLFC=     1    60   8.271  0.392613846321706D+00  0.594581158295079D-03     0.254702608151634D+01 -0.385726008377925D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.167919243460932D-05 -0.164379147717477D-08
+ xxx2 epsmode iq,iw=           4          61
+ iq iw omega eps epsi noLFC=     1    61   8.531  0.438462563231282D+00  0.695399101927621D-03     0.228069068715702D+01 -0.361716230442939D-02 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.155243811512926D-05 -0.192251486788002D-08
+ xxx2 epsmode iq,iw=           4          62
+ iq iw omega eps epsi noLFC=     1    62   8.795  0.480765730223959D+00  0.992206650830680D-02     0.207912958318063D+01 -0.429091773951868D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.143548589693342D-05 -0.274307521097426D-07
+ xxx2 epsmode iq,iw=           4          63
+ iq iw omega eps epsi noLFC=     1    63   9.063  0.504415194215240D+00  0.293282762105760D-01     0.197581432603847D+01 -0.114880021378068D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.137010409529663D-05 -0.810815643963727D-07
+ xxx2 epsmode iq,iw=           4          64
+ iq iw omega eps epsi noLFC=     1    64   9.335  0.516639122643319D+00  0.236064421377681D-01     0.193155438211687D+01 -0.882572084825910D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.133630956769120D-05 -0.652628625228398D-07
+ xxx2 epsmode iq,iw=           4          65
+ iq iw omega eps epsi noLFC=     1    65   9.611  0.540097991041783D+00  0.701991612056159D-02     0.185120313438147D+01 -0.240609869709241D-01 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.127145469060742D-05 -0.194074065894537D-07
+ xxx2 epsmode iq,iw=           4          66
+ iq iw omega eps epsi noLFC=     1    66   9.891  0.571571987386985D+00 -0.000000000000000D+00     0.174956089883206D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.118444102355274D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          67
+ iq iw omega eps epsi noLFC=     1    67  10.175  0.599946789361767D+00 -0.000000000000000D+00     0.166681448710446D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.110599545392452D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           4          68
+ iq iw omega eps epsi noLFC=     1    68  10.463  0.623876951246594D+00 -0.000000000000000D+00     0.160288018014107D+01  0.000000000000000D+00 vcmean x0mean =  0.361713250464714D+06  0.000000000000000D+00     0.103983762903399D-05  0.000000000000000D+00
+ CPU=       0.4920 secs    0.0 mins
+do 1001: iq q=    5   0.0500   0.0000   0.0000 qq=   0.0000   0.0000   0.0000
+ nbloch ngb ngc=          40          67          27
+ zzzzzzzzzzz1
+ nnnnn          67          67
+ vvvvvvvv goto epsmode xxxxxxxxx
+ vvvvvvvv goto epsmode xxxxxxxxx222222222
+ ***    5   1 out of nqibz+n0qi nsp=   7   1 *** 
+ tetra mode niw nw nwhis=    0   68   69
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0-0.154668D-01
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=     513    4104 count(iwgt) =      4104
+  rsvwwk: kx nbnbmax=           9         513
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=          513           8
+  nhwtot=       14644
+  tetwt5_dtet3:init job efermi:= 1-0.154668D-01
+  --- goto x0kf_v4hz ---- newaniso=  T
+ x0kf_v4hz: q=  0.0500  0.0000  0.0000 CPU=       0.5120 secs    0.0 mins
+  nbmx ebmx from GWinput=     99999 0.100000D+11
+do 1000  k=   1
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=       0.5120 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.5120 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.5280 secs    0.0 mins
+4 z1pp definitions begin 0.317158D+02
+ CPU=       0.5560 secs    0.0 mins
+do 1000  k=   2
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=       0.5640 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.5640 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.5760 secs    0.0 mins
+4 z1pp definitions begin 0.480953D+02
+ CPU=       0.6120 secs    0.0 mins
+do 1000  k=   3
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=       0.6160 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.6200 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.6320 secs    0.0 mins
+4 z1pp definitions begin 0.480953D+02
+ CPU=       0.6640 secs    0.0 mins
+do 1000  k=   4
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=       0.6720 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.6720 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.6880 secs    0.0 mins
+4 z1pp definitions begin 0.306457D+02
+ CPU=       0.7160 secs    0.0 mins
+do 1000  k=   5
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=       0.7240 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.7240 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.7400 secs    0.0 mins
+4 z1pp definitions begin 0.474147D+02
+ CPU=       0.7720 secs    0.0 mins
+do 1000  k=   6
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.7800 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.7960 secs    0.0 mins
+4 z1pp definitions begin 0.321562D+02
+ CPU=       0.8281 secs    0.0 mins
+do 1000  k=   7
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.8361 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.8481 secs    0.0 mins
+4 z1pp definitions begin 0.316137D+02
+ CPU=       0.8801 secs    0.0 mins
+do 1000  k=   8
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.8881 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.9001 secs    0.0 mins
+4 z1pp definitions begin 0.485629D+02
+ CPU=       0.9361 secs    0.0 mins
+  x0kf_v4hz: end
+  end of x0kf_v4h sum rcxq=   0.0000000000000000     
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas1 nmbas2=   69    0   68    0    1    1
+  -------- nmbas1,nmbas2=           1           1
+ dpsion5: start...     nw_w nwhis=   68   69
+ CPU=       0.9401 secs    0.0 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=       0.9441 secs    0.0 mins
+  --- end of dpsion5 ----  7.27701489533240792E-002   0.0000000000000000     
+  end of dpsion5 sum x0mean     7.27701489533240514E-002
+  end of dpsion5 sum x0mean11   7.27701489533240514E-002
+ --- dielectric constant --- without LFC
+  trace check for W-V
+ xxx2 epsmode iq,iw=           5           0
+ iq iw omega eps epsi noLFC=     2     0   0.000  0.154682385188335D+03 -0.000000000000000D+00     0.646486022815358D-02  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.106218446710651D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5           1
+ iq iw omega eps epsi noLFC=     2     1   0.011  0.155715108640931D+03 -0.000000000000000D+00     0.642198440939946D-02  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.106932219345569D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5           2
+ iq iw omega eps epsi noLFC=     2     2   0.035  0.167746628238322D+03  0.649819525768445D-01     0.596137079139865D-02 -0.230932518959064D-05 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.115247871927598D-01 -0.449126427760670D-05
+ xxx2 epsmode iq,iw=           5           3
+ iq iw omega eps epsi noLFC=     2     3   0.063  0.199860625741713D+03  0.146487861099514D+02     0.497675089338083D-02 -0.364770995232752D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.137443642303621D-01 -0.101245910836742D-02
+ xxx2 epsmode iq,iw=           5           4
+ iq iw omega eps epsi noLFC=     2     4   0.095  0.233406335673087D+03  0.841268666932327D+02     0.379178170992514D-02 -0.136667547400039D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.160628948793691D-01 -0.581447580725565D-02
+ xxx2 epsmode iq,iw=           5           5
+ iq iw omega eps epsi noLFC=     2     5   0.131  0.174147321218668D+03  0.230720699354975D+03     0.208411580096863D-02 -0.276116021636911D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.119671746956677D-01 -0.159463911751812D-01
+ xxx2 epsmode iq,iw=           5           6
+ iq iw omega eps epsi noLFC=     2     6   0.171  0.299886696479749D+02  0.246233038523043D+03     0.487382662721690D-03 -0.400183520556797D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00    -0.200356824137175D-02 -0.170185352398778D-01
+ xxx2 epsmode iq,iw=           5           7
+ iq iw omega eps epsi noLFC=     2     7   0.215 -0.626088455658034D+02  0.152696730949451D+03    -0.229873988982273D-02 -0.560639735978062D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.439636121262527D-02 -0.105537206228083D-01
+ xxx2 epsmode iq,iw=           5           8
+ iq iw omega eps epsi noLFC=     2     8   0.263 -0.617917573741918D+02  0.572227935784047D+02    -0.871205945548569D-02 -0.806787832307654D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.433988770173315D-02 -0.395498563019682D-02
+ xxx2 epsmode iq,iw=           5           9
+ iq iw omega eps epsi noLFC=     2     9   0.315 -0.218491733093538D+02  0.335276730894253D+02    -0.136430177095483D-01 -0.209352835113057D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.157923349157275D-02 -0.231728402250980D-02
+ xxx2 epsmode iq,iw=           5          10
+ iq iw omega eps epsi noLFC=     2    10   0.371 -0.145562711756262D+02  0.555776464865274D+02    -0.440997587571940D-02 -0.168378341731672D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.107518045016008D-02 -0.384128036170062D-02
+ xxx2 epsmode iq,iw=           5          11
+ iq iw omega eps epsi noLFC=     2    11   0.431 -0.184720691673839D+02  0.334344460784924D+02    -0.126600838849459D-01 -0.229147524386605D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.134582303539031D-02 -0.231084058510438D-02
+ xxx2 epsmode iq,iw=           5          12
+ iq iw omega eps epsi noLFC=     2    12   0.495 -0.165034653399782D+02  0.428566404047286D+02    -0.782504844776061D-02 -0.203202951966026D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.120976187231074D-02 -0.296206085651820D-02
+ xxx2 epsmode iq,iw=           5          13
+ iq iw omega eps epsi noLFC=     2    13   0.563 -0.333965131537441D+02  0.399553559377422D+02    -0.123154494558872D-01 -0.147341180283691D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.237733439325257D-02 -0.276153694535468D-02
+ xxx2 epsmode iq,iw=           5          14
+ iq iw omega eps epsi noLFC=     2    14   0.635 -0.339355461241450D+02  0.621353764259542D+01    -0.285117707667230D-01 -0.522045410048778D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.241458996081267D-02 -0.429452156254497D-03
+ xxx2 epsmode iq,iw=           5          15
+ iq iw omega eps epsi noLFC=     2    15   0.711 -0.199610646006306D+02  0.477227680552450D+01    -0.473888347628030D-01 -0.113296881456019D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.144873579398974D-02 -0.329838601174025D-03
+ xxx2 epsmode iq,iw=           5          16
+ iq iw omega eps epsi noLFC=     2    16   0.791 -0.147348370392286D+02  0.355002070973305D+01    -0.641431345131277D-01 -0.154538156955903D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.108752213046661D-02 -0.245361682222973D-03
+ xxx2 epsmode iq,iw=           5          17
+ iq iw omega eps epsi noLFC=     2    17   0.875 -0.114598052927345D+02  0.294255575509366D+01    -0.818640719838318D-01 -0.210203917080641D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.861166465427726D-03 -0.203376399502458D-03
+ xxx2 epsmode iq,iw=           5          18
+ iq iw omega eps epsi noLFC=     2    18   0.963 -0.929474089347965D+01  0.236849105320317D+01    -0.101027642028303D+00 -0.257439200309615D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.711526819195300D-03 -0.163699594075802D-03
+ xxx2 epsmode iq,iw=           5          19
+ iq iw omega eps epsi noLFC=     2    19   1.055 -0.791452939991401D+01  0.200544574036692D+01    -0.118726985193632D+00 -0.300839777947837D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.616132723899948D-03 -0.138607512658799D-03
+ xxx2 epsmode iq,iw=           5          20
+ iq iw omega eps epsi noLFC=     2    20   1.151 -0.675153698934967D+01  0.974948194592282D+00    -0.145088957164693D+00 -0.209514095925319D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.535751847955685D-03 -0.673840939714971D-04
+ xxx2 epsmode iq,iw=           5          21
+ iq iw omega eps epsi noLFC=     2    21   1.251 -0.527005039109254D+01  0.281756856888601D+00    -0.189210670942945D+00 -0.101159191997053D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.433358066718704D-03 -0.194737839682189D-04
+ xxx2 epsmode iq,iw=           5          22
+ iq iw omega eps epsi noLFC=     2    22   1.355 -0.407386789750294D+01  0.320762094653475D+00    -0.243954586889550D+00 -0.192081300277260D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.350683239479489D-03 -0.221696529605483D-04
+ xxx2 epsmode iq,iw=           5          23
+ iq iw omega eps epsi noLFC=     2    23   1.463 -0.330071125865297D+01  0.194356411044692D+00    -0.301918184260369D+00 -0.177779060704397D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.297246082617282D-03 -0.134330528929030D-04
+ xxx2 epsmode iq,iw=           5          24
+ iq iw omega eps epsi noLFC=     2    24   1.575 -0.258704364455986D+01  0.687217743667101D-01    -0.386269038359885D+00 -0.102607830968891D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.247920543230468D-03 -0.474974416845909D-05
+ xxx2 epsmode iq,iw=           5          25
+ iq iw omega eps epsi noLFC=     2    25   1.691 -0.201925951886458D+01  0.135410420652158D+00    -0.493013975600871D+00 -0.330612430942235D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.208677823367414D-03 -0.935896754366601D-05
+ xxx2 epsmode iq,iw=           5          26
+ iq iw omega eps epsi noLFC=     2    26   1.811 -0.159394946349094D+01  0.100998688929275D+00    -0.624863653254733D+00 -0.395937331664617D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.179282279176161D-03 -0.698058131042990D-05
+ xxx2 epsmode iq,iw=           5          27
+ iq iw omega eps epsi noLFC=     2    27   1.935 -0.120852037895702D+01  0.134138221084054D+00    -0.817388211474603D+00 -0.907249910977129D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.152643130762288D-03 -0.927103875347690D-05
+ xxx2 epsmode iq,iw=           5          28
+ iq iw omega eps epsi noLFC=     2    28   2.063 -0.103174115659472D+01  0.274200996788809D+00    -0.905293395512375D+00 -0.240595569779453D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.140424935172059D-03 -0.189515564387728D-04
+ xxx2 epsmode iq,iw=           5          29
+ iq iw omega eps epsi noLFC=     2    29   2.195 -0.857329242234590D+00  0.365592387886129D-01    -0.116429582870358D+01 -0.496492678952774D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.128370357408666D-03 -0.252681239446628D-05
+ xxx2 epsmode iq,iw=           5          30
+ iq iw omega eps epsi noLFC=     2    30   2.331 -0.555928063778939D+00  0.149098350619866D-01    -0.179750094434587D+01 -0.482084721929402D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.107538845083369D-03 -0.103050165382026D-05
+ xxx2 epsmode iq,iw=           5          31
+ iq iw omega eps epsi noLFC=     2    31   2.471 -0.323519938676735D+00  0.355177837057151D-01    -0.305418793941949D+01 -0.335305412929427D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.914758265265977D-04 -0.245483163942479D-05
+ xxx2 epsmode iq,iw=           5          32
+ iq iw omega eps epsi noLFC=     2    32   2.615 -0.172649908066984D+00  0.104993155686739D+00    -0.422834531831784D+01 -0.257137303618602D+01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.810483593273363D-04 -0.725666113174139D-05
+ xxx2 epsmode iq,iw=           5          33
+ iq iw omega eps epsi noLFC=     2    33   2.763 -0.933348839169739D-01  0.112434590586717D+00    -0.437105587800096D+01 -0.526553264384918D+01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.755664567295158D-04 -0.777098009900976D-05
+ xxx2 epsmode iq,iw=           5          34
+ iq iw omega eps epsi noLFC=     2    34   2.915  0.115580319479773D-01  0.476188742405172D-01     0.481354960619278D+01 -0.198317338435717D+02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.683167237295547D-04 -0.329120533217849D-05
+ xxx2 epsmode iq,iw=           5          35
+ iq iw omega eps epsi noLFC=     2    35   3.071  0.175124084324221D+00  0.313138554412721D-01     0.553332082375492D+01 -0.989410503151893D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.570117638301450D-04 -0.216427476800136D-05
+ xxx2 epsmode iq,iw=           5          36
+ iq iw omega eps epsi noLFC=     2    36   3.231  0.216916536289399D+00  0.176765752791712D+00     0.277036452011341D+01 -0.225757601648201D+01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.541232549574263D-04 -0.122172646332663D-04
+ xxx2 epsmode iq,iw=           5          37
+ iq iw omega eps epsi noLFC=     2    37   3.395  0.243454039427843D+00  0.362689915009046D-01     0.401836754177268D+01 -0.598643335565851D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.522891004708922D-04 -0.250675178958656D-05
+ xxx2 epsmode iq,iw=           5          38
+ iq iw omega eps epsi noLFC=     2    38   3.563  0.353441902348225D+00  0.590770899494111D-01     0.275242097027536D+01 -0.460061526828809D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.446872273335707D-04 -0.408314636900115D-05
+ xxx2 epsmode iq,iw=           5          39
+ iq iw omega eps epsi noLFC=     2    39   3.735  0.409937710028214D+00  0.663276907289189D-01     0.237716310908139D+01 -0.384623652945942D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.407824877434881D-04 -0.458427572847495D-05
+ xxx2 epsmode iq,iw=           5          40
+ iq iw omega eps epsi noLFC=     2    40   3.911  0.460045528205586D+00  0.622618675444809D-01     0.213459949623545D+01 -0.288893474551360D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.373192576482903D-04 -0.430326406749512D-05
+ xxx2 epsmode iq,iw=           5          41
+ iq iw omega eps epsi noLFC=     2    41   4.091  0.519952790893426D+00  0.590676310538376D-01     0.189874744428373D+01 -0.215701339559415D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.331787334225690D-04 -0.408249261210235D-05
+ xxx2 epsmode iq,iw=           5          42
+ iq iw omega eps epsi noLFC=     2    42   4.275  0.528372825009638D+00  0.115528037974520D+00     0.180625109689303D+01 -0.394934477013595D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.325967780189106D-04 -0.798478545875282D-05
+ xxx2 epsmode iq,iw=           5          43
+ iq iw omega eps epsi noLFC=     2    43   4.463  0.548664684819079D+00  0.298921511957239D-01     0.181721288620392D+01 -0.990047361388634D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.311942946912425D-04 -0.206601287776651D-05
+ xxx2 epsmode iq,iw=           5          44
+ iq iw omega eps epsi noLFC=     2    44   4.655  0.622946457852450D+00  0.435558190336684D-01     0.159746491530410D+01 -0.111693215181746D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.260602680811995D-04 -0.301038498152983D-05
+ xxx2 epsmode iq,iw=           5          45
+ iq iw omega eps epsi noLFC=     2    45   4.851  0.639034849826619D+00  0.894047097311814D-01     0.153481790163641D+01 -0.214729993244116D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.249483098021332D-04 -0.617925690353193D-05
+ xxx2 epsmode iq,iw=           5          46
+ iq iw omega eps epsi noLFC=     2    46   5.051  0.641511209518816D+00  0.630704244869171D-01     0.154389604571718D+01 -0.151788741213257D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.247771548062762D-04 -0.435914793629208D-05
+ xxx2 epsmode iq,iw=           5          47
+ iq iw omega eps epsi noLFC=     2    47   5.255  0.658659309162977D+00  0.625903239122525D-01     0.150464845133448D+01 -0.142982013057363D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.235919542343238D-04 -0.432596551447889D-05
+ xxx2 epsmode iq,iw=           5          48
+ iq iw omega eps epsi noLFC=     2    48   5.463  0.672318796350959D+00  0.431252347424503D-01     0.148129489855374D+01 -0.950162193436243D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.226478710785389D-04 -0.298062490555552D-05
+ xxx2 epsmode iq,iw=           5          49
+ iq iw omega eps epsi noLFC=     2    49   5.675  0.695444774599829D+00  0.278516998691870D-01     0.143562609395973D+01 -0.574950428182421D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.210495060575582D-04 -0.192498593428965D-05
+ xxx2 epsmode iq,iw=           5          50
+ iq iw omega eps epsi noLFC=     2    50   5.891  0.726354034557118D+00  0.152356211586761D-01     0.137613364195274D+01 -0.288650573067788D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.189131951344712D-04 -0.105301854351317D-05
+ xxx2 epsmode iq,iw=           5          51
+ iq iw omega eps epsi noLFC=     2    51   6.111  0.748326358327705D+00  0.284647465531281D-01     0.133438465607904D+01 -0.507571604514290D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.173945655929820D-04 -0.196735700137684D-05
+ xxx2 epsmode iq,iw=           5          52
+ iq iw omega eps epsi noLFC=     2    52   6.335  0.751651581092043D+00  0.274396092371336D-01     0.132863301101844D+01 -0.485027525505036D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.171647409474560D-04 -0.189650405799193D-05
+ xxx2 epsmode iq,iw=           5          53
+ iq iw omega eps epsi noLFC=     2    53   6.563  0.770198385858939D+00  0.146776510518099D-02     0.129836206708636D+01 -0.247428528928266D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.158828680826048D-04 -0.101445412509289D-06
+ xxx2 epsmode iq,iw=           5          54
+ iq iw omega eps epsi noLFC=     2    54   6.795  0.789586621339462D+00  0.138456998696967D-01     0.126609617997731D+01 -0.222014751014870D-01 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.145428392597324D-04 -0.956953350235146D-06
+ xxx2 epsmode iq,iw=           5          55
+ iq iw omega eps epsi noLFC=     2    55   7.031  0.801085202242787D+00 -0.000000000000000D+00     0.124830666850457D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.137481083597459D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          56
+ iq iw omega eps epsi noLFC=     2    56   7.271  0.819510061330756D+00 -0.000000000000000D+00     0.122024127242094D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.124746638392251D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          57
+ iq iw omega eps epsi noLFC=     2    57   7.515  0.833131207943704D+00 -0.000000000000000D+00     0.120029113117507D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.115332306138933D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          58
+ iq iw omega eps epsi noLFC=     2    58   7.763  0.845024508941145D+00 -0.000000000000000D+00     0.118339762861203D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.107112184121290D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          59
+ iq iw omega eps epsi noLFC=     2    59   8.015  0.855721679675363D+00  0.126289482315068D-03     0.116860423426318D+01 -0.172465449084195D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.997187742767276D-05 -0.872856874973658D-08
+ xxx2 epsmode iq,iw=           5          60
+ iq iw omega eps epsi noLFC=     2    60   8.271  0.865142228157799D+00  0.576900783202701D-03     0.115587879402258D+01 -0.770771972348336D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.932077090968082D-05 -0.398728227850280D-07
+ xxx2 epsmode iq,iw=           5          61
+ iq iw omega eps epsi noLFC=     2    61   8.531  0.873656637696921D+00  0.471691872497830D-03     0.114461410278809D+01 -0.617983251240216D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.873229269547587D-05 -0.326012496236042D-07
+ xxx2 epsmode iq,iw=           5          62
+ iq iw omega eps epsi noLFC=     2    62   8.795  0.881790044560069D+00  0.584032276972525D-03     0.113405630682036D+01 -0.751114725294713D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.817014769596234D-05 -0.403657199963962D-07
+ xxx2 epsmode iq,iw=           5          63
+ iq iw omega eps epsi noLFC=     2    63   9.063  0.888826858901646D+00  0.150708028940260D-02     0.112507527758565D+01 -0.190765924539992D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.768379430664090D-05 -0.104162703625668D-06
+ xxx2 epsmode iq,iw=           5          64
+ iq iw omega eps epsi noLFC=     2    64   9.335  0.894349412442036D+00  0.186941517874407D-02     0.111812633513937D+01 -0.233716522153861D-02 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.730209990606415D-05 -0.129205683722419D-06
+ xxx2 epsmode iq,iw=           5          65
+ iq iw omega eps epsi noLFC=     2    65   9.611  0.899942142691944D+00  0.477109549265469D-03     0.111118223216402D+01 -0.589099708514315D-03 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.691555520265597D-05 -0.329756954069213D-07
+ xxx2 epsmode iq,iw=           5          66
+ iq iw omega eps epsi noLFC=     2    66   9.891  0.906060684839106D+00 -0.000000000000000D+00     0.110367883380524D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.649266871360989D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          67
+ iq iw omega eps epsi noLFC=     2    67  10.175  0.911640841346378D+00 -0.000000000000000D+00     0.109692321213157D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.610699305151082D-05  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           5          68
+ iq iw omega eps epsi noLFC=     2    68  10.463  0.916657205823631D+00 -0.000000000000000D+00     0.109092035021040D+01  0.000000000000000D+00 vcmean x0mean =  0.144685212359563D+05  0.000000000000000D+00     0.576028419333213D-05  0.000000000000000D+00
+ CPU=       0.9441 secs    0.0 mins
+do 1001: iq q=    6   0.1000   0.0000   0.0000 qq=   0.0000   0.0000   0.0000
+ nbloch ngb ngc=          40          67          27
+ zzzzzzzzzzz1
+ nnnnn          67          67
+ vvvvvvvv goto epsmode xxxxxxxxx
+ vvvvvvvv goto epsmode xxxxxxxxx222222222
+ ***    6   1 out of nqibz+n0qi nsp=   7   1 *** 
+ tetra mode niw nw nwhis=    0   68   69
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0-0.154668D-01
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=     513    4104 count(iwgt) =      4104
+  rsvwwk: kx nbnbmax=           9         513
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=          513           8
+  nhwtot=       14463
+  tetwt5_dtet3:init job efermi:= 1-0.154668D-01
+  --- goto x0kf_v4hz ---- newaniso=  T
+ x0kf_v4hz: q=  0.1000  0.0000  0.0000 CPU=       0.9641 secs    0.0 mins
+  nbmx ebmx from GWinput=     99999 0.100000D+11
+do 1000  k=   1
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=       0.9641 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       0.9641 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       0.9761 secs    0.0 mins
+4 z1pp definitions begin 0.331275D+02
+ CPU=       1.0081 secs    0.0 mins
+do 1000  k=   2
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=       1.0121 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.0161 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.0281 secs    0.0 mins
+4 z1pp definitions begin 0.494594D+02
+ CPU=       1.0601 secs    0.0 mins
+do 1000  k=   3
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=       1.0681 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.0681 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.0841 secs    0.0 mins
+4 z1pp definitions begin 0.494594D+02
+ CPU=       1.1161 secs    0.0 mins
+do 1000  k=   4
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=       1.1241 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.1241 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.1361 secs    0.0 mins
+4 z1pp definitions begin 0.321367D+02
+ CPU=       1.1681 secs    0.0 mins
+do 1000  k=   5
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=       1.1761 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.1761 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.1881 secs    0.0 mins
+4 z1pp definitions begin 0.486751D+02
+ CPU=       1.2241 secs    0.0 mins
+do 1000  k=   6
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.2321 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.2441 secs    0.0 mins
+4 z1pp definitions begin 0.337934D+02
+ CPU=       1.2761 secs    0.0 mins
+do 1000  k=   7
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.2841 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.3001 secs    0.0 mins
+4 z1pp definitions begin 0.333488D+02
+ CPU=       1.3281 secs    0.0 mins
+do 1000  k=   8
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.3361 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.3521 secs    0.0 mins
+4 z1pp definitions begin 0.500448D+02
+ CPU=       1.3841 secs    0.0 mins
+  x0kf_v4hz: end
+  end of x0kf_v4h sum rcxq=   0.0000000000000000     
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas1 nmbas2=   69    0   68    0    1    1
+  -------- nmbas1,nmbas2=           1           1
+ dpsion5: start...     nw_w nwhis=   68   69
+ CPU=       1.3921 secs    0.0 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=       1.3961 secs    0.0 mins
+  --- end of dpsion5 ----  0.13736256371736102        0.0000000000000000     
+  end of dpsion5 sum x0mean     0.13736256371736091     
+  end of dpsion5 sum x0mean11   0.13736256371736091     
+ --- dielectric constant --- without LFC
+  trace check for W-V
+ xxx2 epsmode iq,iw=           6           0
+ iq iw omega eps epsi noLFC=     3     0   0.000  0.643187529430930D+02 -0.000000000000000D+00     0.155475651227997D-01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.175052775129154D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6           1
+ iq iw omega eps epsi noLFC=     3     1   0.011  0.645691504775609D+02 -0.000000000000000D+00     0.154872720580012D-01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.175745031076354D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6           2
+ iq iw omega eps epsi noLFC=     3     2   0.035  0.670221255751006D+02 -0.000000000000000D+00     0.149204459187058D-01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.182526593854966D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6           3
+ iq iw omega eps epsi noLFC=     3     3   0.063  0.756866858299652D+02  0.615690474168686D-02     0.132123633425988D-01 -0.107478959635897D-05 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.206480876707804D-01 -0.170215490852572D-05
+ xxx2 epsmode iq,iw=           6           4
+ iq iw omega eps epsi noLFC=     3     4   0.095  0.962301256512877D+02  0.901581345862997D+01     0.103013326850733D-01 -0.965133249440643D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.263275838457182D-01 -0.249253671720033D-02
+ xxx2 epsmode iq,iw=           6           5
+ iq iw omega eps epsi noLFC=     3     5   0.131  0.106092905924782D+03  0.587813591629400D+02     0.721183099718404D-02 -0.399575470548853D-02 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.290542753503912D-01 -0.162508570827098D-01
+ xxx2 epsmode iq,iw=           6           6
+ iq iw omega eps epsi noLFC=     3     6   0.171  0.586813759675567D+02  0.122687814603898D+03     0.317268591296000D-02 -0.663327835565479D-02 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00    -0.159467526870969D-01 -0.339186124531631D-01
+ xxx2 epsmode iq,iw=           6           7
+ iq iw omega eps epsi noLFC=     3     7   0.215 -0.885021933180524D+01  0.988773122984287D+02    -0.898039075169492D-03 -0.100331626553727D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.272321887200314D-02 -0.273358951505378D-01
+ xxx2 epsmode iq,iw=           6           8
+ iq iw omega eps epsi noLFC=     3     8   0.263 -0.295530927596795D+02  0.478288516849429D+02    -0.934933221194437D-02 -0.151309992275474D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.844679250263691D-02 -0.132228965820201D-01
+ xxx2 epsmode iq,iw=           6           9
+ iq iw omega eps epsi noLFC=     3     9   0.315 -0.120675291078654D+02  0.201915307035111D+02    -0.218091880876789D-01 -0.364913883326783D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.361268522844838D-02 -0.558220640721054D-02
+ xxx2 epsmode iq,iw=           6          10
+ iq iw omega eps epsi noLFC=     3    10   0.371 -0.119189825356297D+02  0.419608615596236D+02    -0.626399651773191D-02 -0.220524436464933D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.357161763236172D-02 -0.116006158071747D-01
+ xxx2 epsmode iq,iw=           6          11
+ iq iw omega eps epsi noLFC=     3    11   0.431 -0.182298075167295D+02  0.125927894862352D+02    -0.371351608614265D-01 -0.256522326325319D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.531632575585994D-02 -0.348143740001306D-02
+ xxx2 epsmode iq,iw=           6          12
+ iq iw omega eps epsi noLFC=     3    12   0.495 -0.853090475138865D+01  0.153628147102246D+02    -0.276266657735524D-01 -0.497512702004205D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.263494028020686D-02 -0.424724623246573D-02
+ xxx2 epsmode iq,iw=           6          13
+ iq iw omega eps epsi noLFC=     3    13   0.563 -0.122503024697566D+02  0.178171932977150D+02    -0.262026063664596D-01 -0.381098265685864D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.366321525743914D-02 -0.492579052303937D-02
+ xxx2 epsmode iq,iw=           6          14
+ iq iw omega eps epsi noLFC=     3    14   0.635 -0.135330337825986D+02  0.632496518255490D+01    -0.606459497101547D-01 -0.283442372598622D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.401784270289729D-02 -0.174861736268969D-02
+ xxx2 epsmode iq,iw=           6          15
+ iq iw omega eps epsi noLFC=     3    15   0.711 -0.917659594434092D+01  0.466690780719217D+01    -0.865798754603328D-01 -0.440316103250390D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.281344985272534D-02 -0.129022623622284D-02
+ xxx2 epsmode iq,iw=           6          16
+ iq iw omega eps epsi noLFC=     3    16   0.791 -0.711857234978536D+01  0.340338923560839D+01    -0.114341478358086D+00 -0.546666575130326D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.224448295940701D-02 -0.940910398335518D-03
+ xxx2 epsmode iq,iw=           6          17
+ iq iw omega eps epsi noLFC=     3    17   0.875 -0.571350932157620D+01  0.279049275133196D+01    -0.141314928447287D+00 -0.690185770762619D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.185603534967527D-02 -0.771467341653849D-03
+ xxx2 epsmode iq,iw=           6          18
+ iq iw omega eps epsi noLFC=     3    18   0.963 -0.471133835228964D+01  0.209944791168478D+01    -0.177088752848423D+00 -0.789135877217988D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.157897239253657D-02 -0.580419174568753D-03
+ xxx2 epsmode iq,iw=           6          19
+ iq iw omega eps epsi noLFC=     3    19   1.055 -0.411658747048664D+01  0.186451235450935D+01    -0.201569220917633D+00 -0.912960808884066D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.141454591928670D-02 -0.515468240842949D-03
+ xxx2 epsmode iq,iw=           6          20
+ iq iw omega eps epsi noLFC=     3    20   1.151 -0.358619535557016D+01  0.897884678387709D+00    -0.262398252993566D+00 -0.656973052604846D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.126791224868014D-02 -0.248231680808650D-03
+ xxx2 epsmode iq,iw=           6          21
+ iq iw omega eps epsi noLFC=     3    21   1.251 -0.269886236561637D+01  0.389759869077960D+00    -0.362956636166745D+00 -0.524168749009248D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.102259771683100D-02 -0.107754091078503D-03
+ xxx2 epsmode iq,iw=           6          22
+ iq iw omega eps epsi noLFC=     3    22   1.355 -0.198312039841734D+01  0.290141571059002D+00    -0.493688262719898D+00 -0.722293453656442D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.824721713576179D-03 -0.802133409668664D-04
+ xxx2 epsmode iq,iw=           6          23
+ iq iw omega eps epsi noLFC=     3    23   1.463 -0.147335420894691D+01  0.171093578434276D+00    -0.669692566265193D+00 -0.777681951273904D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.683790343348447D-03 -0.473010037620532D-04
+ xxx2 epsmode iq,iw=           6          24
+ iq iw omega eps epsi noLFC=     3    24   1.575 -0.105710682447358D+01  0.139656206090263D+00    -0.929750777056224D+00 -0.122830978976800D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.568713440526632D-03 -0.386097408805275D-04
+ xxx2 epsmode iq,iw=           6          25
+ iq iw omega eps epsi noLFC=     3    25   1.691 -0.730974257304061D+00  0.106530525060011D+00    -0.133958513494261D+01 -0.195228089583271D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.478549929261132D-03 -0.294517235114864D-04
+ xxx2 epsmode iq,iw=           6          26
+ iq iw omega eps epsi noLFC=     3    26   1.811 -0.448537465423253D+00  0.994286051201002D-01    -0.212504579689935D+01 -0.471065085282574D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.400466672849330D-03 -0.274883070883236D-04
+ xxx2 epsmode iq,iw=           6          27
+ iq iw omega eps epsi noLFC=     3    27   1.935 -0.228654447505774D+00  0.149354442395805D+00    -0.306550014534830D+01 -0.200234926487137D+01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.339677205746556D-03 -0.412909421048620D-04
+ xxx2 epsmode iq,iw=           6          28
+ iq iw omega eps epsi noLFC=     3    28   2.063 -0.164111246894977D+00  0.242798282896949D+00    -0.191085869225645D+01 -0.282706528721631D+01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.321833414045870D-03 -0.671246846189517D-04
+ xxx2 epsmode iq,iw=           6          29
+ iq iw omega eps epsi noLFC=     3    29   2.195 -0.837986013071945D-01  0.559477172032511D-01    -0.825410663596572D+01 -0.551081302826997D+01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.299629957984849D-03 -0.154674605916075D-04
+ xxx2 epsmode iq,iw=           6          30
+ iq iw omega eps epsi noLFC=     3    30   2.331  0.112131750120025D+00  0.175886503691220D-01     0.870392823822543D+01 -0.136527210585947D+01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.245462511288307D-03 -0.486260691308685D-05
+ xxx2 epsmode iq,iw=           6          31
+ iq iw omega eps epsi noLFC=     3    31   2.471  0.265434238851989D+00  0.423475756229554D-01     0.367389882500167D+01 -0.586136547401482D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.203080081377132D-03 -0.117075278463751D-04
+ xxx2 epsmode iq,iw=           6          32
+ iq iw omega eps epsi noLFC=     3    32   2.615  0.350406004585787D+00  0.963870092235724D-01     0.265308705355842D+01 -0.729790936672344D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.179588552078231D-03 -0.266474190768570D-04
+ xxx2 epsmode iq,iw=           6          33
+ iq iw omega eps epsi noLFC=     3    33   2.763  0.388631436256266D+00  0.100981390459878D+00     0.241039196522353D+01 -0.626312514876144D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.169020643546550D-03 -0.279175944167589D-04
+ xxx2 epsmode iq,iw=           6          34
+ iq iw omega eps epsi noLFC=     3    34   2.915  0.444529033507232D+00  0.636867322463700D-01     0.220432653624363D+01 -0.315809189761353D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.153567039255531D-03 -0.176070100885500D-04
+ xxx2 epsmode iq,iw=           6          35
+ iq iw omega eps epsi noLFC=     3    35   3.071  0.532033306467979D+00  0.551582404886541D-01     0.185959394531065D+01 -0.192792309804130D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.129375366006368D-03 -0.152491996762129D-04
+ xxx2 epsmode iq,iw=           6          36
+ iq iw omega eps epsi noLFC=     3    36   3.231  0.551432471481473D+00  0.131220957312418D+00     0.171627176346086D+01 -0.408410522515215D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.124012219208685D-03 -0.362777086802192D-04
+ xxx2 epsmode iq,iw=           6          37
+ iq iw omega eps epsi noLFC=     3    37   3.395  0.566613984667152D+00  0.466200352281706D-01     0.175300262472831D+01 -0.144234075281282D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.119815096096988D-03 -0.128887038420431D-04
+ xxx2 epsmode iq,iw=           6          38
+ iq iw omega eps epsi noLFC=     3    38   3.563  0.630605579039945D+00  0.565508442219529D-01     0.157312624265917D+01 -0.141073311190051D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.102123802982033D-03 -0.156342027548242D-04
+ xxx2 epsmode iq,iw=           6          39
+ iq iw omega eps epsi noLFC=     3    39   3.735  0.667880810168854D+00  0.577328513753829D-01     0.148616820754674D+01 -0.128467126078114D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.918185895193476D-04 -0.159609837206723D-04
+ xxx2 epsmode iq,iw=           6          40
+ iq iw omega eps epsi noLFC=     3    40   3.911  0.698978360596878D+00  0.652628111581235D-01     0.141829512116119D+01 -0.132424595490752D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.832212747443129D-04 -0.180427372222997D-04
+ xxx2 epsmode iq,iw=           6          41
+ iq iw omega eps epsi noLFC=     3    41   4.091  0.719578939387849D+00  0.742330445558367D-01     0.137506764013576D+01 -0.141854425984623D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.775259817718386D-04 -0.205226727498316D-04
+ xxx2 epsmode iq,iw=           6          42
+ iq iw omega eps epsi noLFC=     3    42   4.275  0.718668145947925D+00  0.850162866038647D-01     0.137225917048483D+01 -0.162334144890809D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.777777822445537D-04 -0.235038376617388D-04
+ xxx2 epsmode iq,iw=           6          43
+ iq iw omega eps epsi noLFC=     3    43   4.463  0.731658786591282D+00  0.417175700143479D-01     0.136232834808656D+01 -0.776769571901281D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.741863538135976D-04 -0.115333547538747D-04
+ xxx2 epsmode iq,iw=           6          44
+ iq iw omega eps epsi noLFC=     3    44   4.655  0.780882133386278D+00  0.336130998962245D-01     0.127823458747269D+01 -0.550216544117999D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.605779312577192D-04 -0.929277053642517D-05
+ xxx2 epsmode iq,iw=           6          45
+ iq iw omega eps epsi noLFC=     3    45   4.851  0.791197854359894D+00  0.851808085696371D-01     0.124942453318282D+01 -0.134513752023958D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.577260185147242D-04 -0.235493218592941D-04
+ xxx2 epsmode iq,iw=           6          46
+ iq iw omega eps epsi noLFC=     3    46   5.051  0.775119745108433D+00  0.659221578632556D-01     0.128085864902646D+01 -0.108934092563758D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.621710170538262D-04 -0.182250220354725D-04
+ xxx2 epsmode iq,iw=           6          47
+ iq iw omega eps epsi noLFC=     3    47   5.255  0.778352796683796D+00  0.510482520582124D-01     0.127926184301135D+01 -0.839003614925360D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.612771986760200D-04 -0.141129409107502D-04
+ xxx2 epsmode iq,iw=           6          48
+ iq iw omega eps epsi noLFC=     3    48   5.463  0.791148594467236D+00  0.277631976108279D-01     0.126243041375144D+01 -0.443015449841035D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.577396370408506D-04 -0.767549037581714D-05
+ xxx2 epsmode iq,iw=           6          49
+ iq iw omega eps epsi noLFC=     3    49   5.675  0.811676415519789D+00  0.184411988799899D-01     0.123138242507179D+01 -0.279768732513080D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.520644588739122D-04 -0.509830483166998D-05
+ xxx2 epsmode iq,iw=           6          50
+ iq iw omega eps epsi noLFC=     3    50   5.891  0.831308369443743D+00  0.136909276148850D-01     0.120259686774649D+01 -0.198057270579650D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.466369546103894D-04 -0.378503170337537D-05
+ xxx2 epsmode iq,iw=           6          51
+ iq iw omega eps epsi noLFC=     3    51   6.111  0.841314751748907D+00  0.211335923503019D-01     0.118786624794016D+01 -0.298388694581481D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.438705624909860D-04 -0.584265137485175D-05
+ xxx2 epsmode iq,iw=           6          52
+ iq iw omega eps epsi noLFC=     3    52   6.335  0.846091346805585D+00  0.112697418408695D-01     0.118169582868598D+01 -0.157399162324532D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.425500118144887D-04 -0.311566398979206D-05
+ xxx2 epsmode iq,iw=           6          53
+ iq iw omega eps epsi noLFC=     3    53   6.563  0.861963898040255D+00  0.593539166341187D-03     0.116014084594320D+01 -0.798860639181120D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.381618424130699D-04 -0.164091479042945D-06
+ xxx2 epsmode iq,iw=           6          54
+ iq iw omega eps epsi noLFC=     3    54   6.795  0.872868170658463D+00  0.900487093356893D-02     0.114552645691941D+01 -0.118177271692313D-01 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.351472170550854D-04 -0.248951151646623D-05
+ xxx2 epsmode iq,iw=           6          55
+ iq iw omega eps epsi noLFC=     3    55   7.031  0.879639117440049D+00 -0.000000000000000D+00     0.113682984325462D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.332753023864030D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          56
+ iq iw omega eps epsi noLFC=     3    56   7.271  0.891124570828467D+00 -0.000000000000000D+00     0.112217756387338D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.301000021857403D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          57
+ iq iw omega eps epsi noLFC=     3    57   7.515  0.899543908917761D+00 -0.000000000000000D+00     0.111167447201449D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.277723686983814D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          58
+ iq iw omega eps epsi noLFC=     3    58   7.763  0.906887289886655D+00 -0.000000000000000D+00     0.110267285819496D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.257421972915142D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          59
+ iq iw omega eps epsi noLFC=     3    59   8.015  0.913485516424036D+00  0.137949387568553D-03     0.109470808153512D+01 -0.165316588713176D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.239180333391108D-04 -0.381378691127185D-07
+ xxx2 epsmode iq,iw=           6          60
+ iq iw omega eps epsi noLFC=     3    60   8.271  0.919139738725906D+00  0.601155483505614D-03     0.108797338434758D+01 -0.711579685168793D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.223548514077973D-04 -0.166197107145089D-06
+ xxx2 epsmode iq,iw=           6          61
+ iq iw omega eps epsi noLFC=     3    61   8.531  0.924117238451745D+00  0.467237110428468D-03     0.108211350546856D+01 -0.547120610257022D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.209787580709688D-04 -0.129173663444287D-06
+ xxx2 epsmode iq,iw=           6          62
+ iq iw omega eps epsi noLFC=     3    62   8.795  0.929004144171795D+00  0.288524545614602D-03     0.107642135916981D+01 -0.334308501735693D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.196277106034702D-04 -0.797662936414855D-07
+ xxx2 epsmode iq,iw=           6          63
+ iq iw omega eps epsi noLFC=     3    63   9.063  0.933490939630133D+00  0.638429593006693D-03     0.107124717531275D+01 -0.732643316726212D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.183872787252164D-04 -0.176502010519443D-06
+ xxx2 epsmode iq,iw=           6          64
+ iq iw omega eps epsi noLFC=     3    64   9.335  0.936927008142809D+00  0.116193159129798D-02     0.106731736126213D+01 -0.132363540512031D-02 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.174373337235855D-04 -0.321230820432847D-06
+ xxx2 epsmode iq,iw=           6          65
+ iq iw omega eps epsi noLFC=     3    65   9.611  0.940244852644294D+00  0.236053201659373D-03     0.106355268434496D+01 -0.267010253304760D-03 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.165200732589743D-04 -0.652599208100838D-07
+ xxx2 epsmode iq,iw=           6          66
+ iq iw omega eps epsi noLFC=     3    66   9.891  0.943956285703580D+00 -0.000000000000000D+00     0.105937109074352D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.154940002134138D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          67
+ iq iw omega eps epsi noLFC=     3    67  10.175  0.947301066865538D+00 -0.000000000000000D+00     0.105563060676036D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.145692927651690D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           6          68
+ iq iw omega eps epsi noLFC=     3    68  10.463  0.950314952559317D+00 -0.000000000000000D+00     0.105228271670026D+01  0.000000000000000D+00 vcmean x0mean =  0.361712363008106D+04  0.000000000000000D+00     0.137360655929721D-04  0.000000000000000D+00
+ CPU=       1.3961 secs    0.0 mins
+do 1001: iq q=    7   0.1000   0.1000   0.0000 qq=   0.0000   0.0000   0.0000
+ nbloch ngb ngc=          40          67          27
+ zzzzzzzzzzz1
+ nnnnn          67          67
+ vvvvvvvv goto epsmode xxxxxxxxx
+ vvvvvvvv goto epsmode xxxxxxxxx222222222
+ ***    7   1 out of nqibz+n0qi nsp=   7   1 *** 
+ tetra mode niw nw nwhis=    0   68   69
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0-0.154668D-01
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=     513    4104 count(iwgt) =      4104
+  rsvwwk: kx nbnbmax=           9         513
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=          513           8
+  nhwtot=       13845
+  tetwt5_dtet3:init job efermi:= 1-0.154668D-01
+  --- goto x0kf_v4hz ---- newaniso=  T
+ x0kf_v4hz: q=  0.1000  0.1000  0.0000 CPU=       1.4121 secs    0.0 mins
+  nbmx ebmx from GWinput=     99999 0.100000D+11
+do 1000  k=   1
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=       1.4161 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.4161 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.4281 secs    0.0 mins
+4 z1pp definitions begin 0.412498D+02
+ CPU=       1.4561 secs    0.0 mins
+do 1000  k=   2
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=       1.4641 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.4641 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.4761 secs    0.0 mins
+4 z1pp definitions begin 0.473383D+02
+ CPU=       1.5121 secs    0.0 mins
+do 1000  k=   3
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=       1.5201 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.5201 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.5321 secs    0.0 mins
+4 z1pp definitions begin 0.507762D+02
+ CPU=       1.5681 secs    0.0 mins
+do 1000  k=   4
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=       1.5761 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.5761 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.5881 secs    0.0 mins
+4 z1pp definitions begin 0.439120D+02
+ CPU=       1.6201 secs    0.0 mins
+do 1000  k=   5
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=       1.6281 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.6281 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.6401 secs    0.0 mins
+4 z1pp definitions begin 0.518705D+02
+ CPU=       1.6761 secs    0.0 mins
+do 1000  k=   6
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.6841 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.6961 secs    0.0 mins
+4 z1pp definitions begin 0.439120D+02
+ CPU=       1.7281 secs    0.0 mins
+do 1000  k=   7
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.7361 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.7481 secs    0.0 mins
+4 z1pp definitions begin 0.427180D+02
+ CPU=       1.7801 secs    0.0 mins
+do 1000  k=   8
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10    66
+ CPU=       1.7881 secs    0.0 mins
+          40           0           9           0          57
+zzzw nkmin nkqmin=    1   10
+ CPU=       1.8001 secs    0.0 mins
+4 z1pp definitions begin 0.485564D+02
+ CPU=       1.8361 secs    0.0 mins
+  x0kf_v4hz: end
+  end of x0kf_v4h sum rcxq=   0.0000000000000000     
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas1 nmbas2=   69    0   68    0    1    1
+  -------- nmbas1,nmbas2=           1           1
+ dpsion5: start...     nw_w nwhis=   68   69
+ CPU=       1.8441 secs    0.0 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=       1.8481 secs    0.0 mins
+  --- end of dpsion5 ----  0.17501526765886466        0.0000000000000000     
+  end of dpsion5 sum x0mean     0.17501526765886469     
+  end of dpsion5 sum x0mean11   0.17501526765886469     
+ --- dielectric constant --- without LFC
+  trace check for W-V
+ xxx2 epsmode iq,iw=           7           0
+ iq iw omega eps epsi noLFC=     4     0   0.000  0.378896699408853D+02 -0.000000000000000D+00     0.263924178162591D-01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.203972881952639D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7           1
+ iq iw omega eps epsi noLFC=     4     1   0.011  0.379980698936580D+02 -0.000000000000000D+00     0.263171261803196D-01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.204572254373320D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7           2
+ iq iw omega eps epsi noLFC=     4     2   0.035  0.390390061509701D+02 -0.000000000000000D+00     0.256154061948411D-01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.210327870204884D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7           3
+ iq iw omega eps epsi noLFC=     4     3   0.063  0.422470739180423D+02 -0.000000000000000D+00     0.236702783709935D-01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.228066137557172D-01  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7           4
+ iq iw omega eps epsi noLFC=     4     4   0.095  0.514903647205083D+02  0.112533630909630D+01     0.194118371510869D-01 -0.424251125253379D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.279174772216322D-01 -0.622228636092831D-03
+ xxx2 epsmode iq,iw=           7           5
+ iq iw omega eps epsi noLFC=     4     5   0.131  0.634704187353618D+02  0.178326279295355D+02     0.146026612938709D-01 -0.410275890443353D-02 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.345415704902186D-01 -0.986013840027648D-02
+ xxx2 epsmode iq,iw=           7           6
+ iq iw omega eps epsi noLFC=     4     6   0.171  0.521632938486578D+02  0.572380226554888D+02     0.869794067640583D-02 -0.954412363100848D-02 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.282895577900907D-01 -0.316484383216748D-01
+ xxx2 epsmode iq,iw=           7           7
+ iq iw omega eps epsi noLFC=     4     7   0.215  0.146832174367708D+02  0.673559240463172D+02     0.308963129026041D-02 -0.141729815971228D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00    -0.756581801744298D-02 -0.372428974461589D-01
+ xxx2 epsmode iq,iw=           7           8
+ iq iw omega eps epsi noLFC=     4     8   0.263 -0.965513297003506D+01  0.402111755843162D+02    -0.564574755921753D-02 -0.235131040776952D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.589150887760553D-02 -0.222338377756701D-01
+ xxx2 epsmode iq,iw=           7           9
+ iq iw omega eps epsi noLFC=     4     9   0.315  0.332456514472700D+00  0.161635781154507D+02     0.127196787783007D-02 -0.618413273876114D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.369102702165423D-03 -0.893727598039864D-02
+ xxx2 epsmode iq,iw=           7          10
+ iq iw omega eps epsi noLFC=     4    10   0.371 -0.785033182949523D+01  0.464640610432204D+02    -0.353533085296076D-02 -0.209246987423857D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.489358590736145D-02 -0.256912258998151D-01
+ xxx2 epsmode iq,iw=           7          11
+ iq iw omega eps epsi noLFC=     4    11   0.431 -0.192536279455295D+02  0.629442168946630D+01    -0.469232238762380D-01 -0.153402028408289D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.111987742602910D-01 -0.348035462036674D-02
+ xxx2 epsmode iq,iw=           7          12
+ iq iw omega eps epsi noLFC=     4    12   0.495 -0.584666703561636D+01  0.852735298416462D+01    -0.546932392061793D-01 -0.797699875360314D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.378570588802424D-02 -0.471500223882392D-02
+ xxx2 epsmode iq,iw=           7          13
+ iq iw omega eps epsi noLFC=     4    13   0.563 -0.540760459150896D+01  0.109510488445129D+02    -0.362518568454481D-01 -0.734143645861523D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.354293648340428D-02 -0.605512870350664D-02
+ xxx2 epsmode iq,iw=           7          14
+ iq iw omega eps epsi noLFC=     4    14   0.635 -0.686429395328478D+01  0.822124253010409D+01    -0.598417916720015D-01 -0.716714473651092D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.434837911194311D-02 -0.454574555636888D-02
+ xxx2 epsmode iq,iw=           7          15
+ iq iw omega eps epsi noLFC=     4    15   0.711 -0.680862074888963D+01  0.591011702073332D+01    -0.837604724744528D-01 -0.727069713960290D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.431759590361890D-02 -0.326786225880608D-02
+ xxx2 epsmode iq,iw=           7          16
+ iq iw omega eps epsi noLFC=     4    16   0.791 -0.600312694456661D+01  0.342124217821081D+01    -0.125739867019622D+00 -0.716604097335485D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.387221676922695D-02 -0.189169658624177D-02
+ xxx2 epsmode iq,iw=           7          17
+ iq iw omega eps epsi noLFC=     4    17   0.875 -0.447075529279944D+01  0.198535735062439D+01    -0.186831871795697D+00 -0.829676432073828D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.302492737212920D-02 -0.109775734280532D-02
+ xxx2 epsmode iq,iw=           7          18
+ iq iw omega eps epsi noLFC=     4    18   0.963 -0.328394331482523D+01  0.179046361506825D+01    -0.234734315098910D+00 -0.127981274370727D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.236870718942972D-02 -0.989995367760255D-03
+ xxx2 epsmode iq,iw=           7          19
+ iq iw omega eps epsi noLFC=     4    19   1.055 -0.292750550447901D+01  0.166633984512192D+01    -0.257998717655322D+00 -0.146853197222573D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.217162316148988D-02 -0.921364005334541D-03
+ xxx2 epsmode iq,iw=           7          20
+ iq iw omega eps epsi noLFC=     4    20   1.151 -0.250959225970352D+01  0.758736913425649D+00    -0.365098778856081D+00 -0.110382042936912D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.194054771657635D-02 -0.419525995009663D-03
+ xxx2 epsmode iq,iw=           7          21
+ iq iw omega eps epsi noLFC=     4    21   1.251 -0.185072864105001D+01  0.527805316809311D+00    -0.499687120143236D+00 -0.142504694044775D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.157624434567101D-02 -0.291837719752006D-03
+ xxx2 epsmode iq,iw=           7          22
+ iq iw omega eps epsi noLFC=     4    22   1.355 -0.137102820670554D+01  0.273874736979877D+00    -0.701391605015410D+00 -0.140109036709808D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.131100510600318D-02 -0.151432689653569D-03
+ xxx2 epsmode iq,iw=           7          23
+ iq iw omega eps epsi noLFC=     4    23   1.463 -0.907679465015956D+00  0.147550339901463D+00    -0.107334727439795D+01 -0.174480927765555D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.105480715589139D-02 -0.815845414475687D-04
+ xxx2 epsmode iq,iw=           7          24
+ iq iw omega eps epsi noLFC=     4    24   1.575 -0.570248461603471D+00  0.172331085157875D+00    -0.160687092876480D+01 -0.485602030532501D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.868232501424413D-03 -0.952864803236403D-04
+ xxx2 epsmode iq,iw=           7          25
+ iq iw omega eps epsi noLFC=     4    25   1.691 -0.344658429700333D+00  0.134661295038606D+00    -0.251716792769114D+01 -0.983481220138007D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.743497720601468D-03 -0.744578427524958D-04
+ xxx2 epsmode iq,iw=           7          26
+ iq iw omega eps epsi noLFC=     4    26   1.811 -0.119672962661659D+00  0.954252228208561D-01    -0.510820604359540D+01 -0.407319823194369D+01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.619097219911498D-03 -0.527631657885082D-04
+ xxx2 epsmode iq,iw=           7          27
+ iq iw omega eps epsi noLFC=     4    27   1.935  0.543515855626280D-01  0.154688485483967D+00     0.202181114494834D+01 -0.575421858827446D+01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.522874378425804D-03 -0.855314136440238D-04
+ xxx2 epsmode iq,iw=           7          28
+ iq iw omega eps epsi noLFC=     4    28   2.063  0.102081086238334D+00  0.203502649051703D+00     0.196938939259303D+01 -0.392605499388296D+01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.496483457003668D-03 -0.112522074278760D-03
+ xxx2 epsmode iq,iw=           7          29
+ iq iw omega eps epsi noLFC=     4    29   2.195  0.166199237533832D+00  0.722257316223150D-01     0.506107186307452D+01 -0.219940610755967D+01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.461030810975184D-03 -0.399355447032984D-04
+ xxx2 epsmode iq,iw=           7          30
+ iq iw omega eps epsi noLFC=     4    30   2.331  0.317070536181359D+00  0.263322314330905D-01     0.313226893493406D+01 -0.260130226853328D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.377610022341436D-03 -0.145597972068016D-04
+ xxx2 epsmode iq,iw=           7          31
+ iq iw omega eps epsi noLFC=     4    31   2.471  0.434430989828561D+00  0.576225217370489D-01     0.226206478653827D+01 -0.300038165749530D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.312718278945386D-03 -0.318610381793034D-04
+ xxx2 epsmode iq,iw=           7          32
+ iq iw omega eps epsi noLFC=     4    32   2.615  0.501579266265436D+00  0.787870003972713D-01     0.194569578589361D+01 -0.305625740468796D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.275590195433308D-03 -0.435634462362704D-04
+ xxx2 epsmode iq,iw=           7          33
+ iq iw omega eps epsi noLFC=     4    33   2.763  0.543126187916974D+00  0.931540887217062D-01     0.178857767962537D+01 -0.306767244077273D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.252617787821354D-03 -0.515073948145557D-04
+ xxx2 epsmode iq,iw=           7          34
+ iq iw omega eps epsi noLFC=     4    34   2.915  0.576638976001046D+00  0.813704602210774D-01     0.170032952568816D+01 -0.239936254382640D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.234087668200522D-03 -0.449919104825351D-04
+ xxx2 epsmode iq,iw=           7          35
+ iq iw omega eps epsi noLFC=     4    35   3.071  0.625854320550763D+00  0.642335388044420D-01     0.158116059751053D+01 -0.162279842546856D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.206875183837868D-03 -0.355164468778229D-04
+ xxx2 epsmode iq,iw=           7          36
+ iq iw omega eps epsi noLFC=     4    36   3.231  0.656677229327029D+00  0.881715227159083D-01     0.149585062553396D+01 -0.200846658782485D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.189832370651052D-03 -0.487524003964694D-04
+ xxx2 epsmode iq,iw=           7          37
+ iq iw omega eps epsi noLFC=     4    37   3.395  0.682880581794718D+00  0.580889183146410D-01     0.145386475285053D+01 -0.123672327373717D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.175343834081817D-03 -0.321189213596538D-04
+ xxx2 epsmode iq,iw=           7          38
+ iq iw omega eps epsi noLFC=     4    38   3.563  0.716161965620100D+00  0.697759047476435D-01     0.138320190069737D+01 -0.134765833293382D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.156941664083783D-03 -0.385809696997472D-04
+ xxx2 epsmode iq,iw=           7          39
+ iq iw omega eps epsi noLFC=     4    39   3.735  0.740862119054052D+00  0.581946675467182D-01     0.134150163643050D+01 -0.105374859555689D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.143284286588487D-03 -0.321773929471351D-04
+ xxx2 epsmode iq,iw=           7          40
+ iq iw omega eps epsi noLFC=     4    40   3.911  0.767086658294558D+00  0.674416487062340D-01     0.129363415991818D+01 -0.113735286129933D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.128784035284157D-03 -0.372902969104686D-04
+ xxx2 epsmode iq,iw=           7          41
+ iq iw omega eps epsi noLFC=     4    41   4.091  0.773372504780470D+00  0.779734746203840D-01     0.128002621812510D+01 -0.129055650692851D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.125308422123893D-03 -0.431136260087640D-04
+ xxx2 epsmode iq,iw=           7          42
+ iq iw omega eps epsi noLFC=     4    42   4.275  0.780276156927206D+00  0.599827014234386D-01     0.127406834863083D+01 -0.979423255093849D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.121491207639121D-03 -0.331660448473772D-04
+ xxx2 epsmode iq,iw=           7          43
+ iq iw omega eps epsi noLFC=     4    43   4.463  0.795448341062844D+00  0.539565775123231D-01     0.125139482811019D+01 -0.848841823608923D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.113102099987517D-03 -0.298340392666181D-04
+ xxx2 epsmode iq,iw=           7          44
+ iq iw omega eps epsi noLFC=     4    44   4.655  0.825347052259184D+00  0.352964441393192D-01     0.120939965959089D+01 -0.517206760598649D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.965703004372365D-04 -0.195163509061326D-04
+ xxx2 epsmode iq,iw=           7          45
+ iq iw omega eps epsi noLFC=     4    45   4.851  0.838369015018372D+00  0.766030420654509D-01     0.118291629834929D+01 -0.108084847291706D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.893701078713291D-04 -0.423558770828468D-04
+ xxx2 epsmode iq,iw=           7          46
+ iq iw omega eps epsi noLFC=     4    46   5.051  0.818318529524522D+00  0.733100131573163D-01     0.121228859324354D+01 -0.108604277569991D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.100456559220132D-03 -0.405350730533667D-04
+ xxx2 epsmode iq,iw=           7          47
+ iq iw omega eps epsi noLFC=     4    47   5.255  0.814199245588503D+00  0.461402517344165D-01     0.122426894297691D+01 -0.693786901985559D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.102734221821498D-03 -0.255121830457433D-04
+ xxx2 epsmode iq,iw=           7          48
+ iq iw omega eps epsi noLFC=     4    48   5.463  0.827792206416801D+00  0.260677375236273D-01     0.120683586037498D+01 -0.380040790412030D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.952183091043057D-04 -0.144135514283531D-04
+ xxx2 epsmode iq,iw=           7          49
+ iq iw omega eps epsi noLFC=     4    49   5.675  0.844797606389470D+00  0.166144216522999D-01     0.118325781347347D+01 -0.232708332596333D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.858155672344516D-04 -0.918655946726159D-05
+ xxx2 epsmode iq,iw=           7          50
+ iq iw omega eps epsi noLFC=     4    50   5.891  0.864932144151422D+00  0.875404038580828D-02     0.115604163998027D+01 -0.117003805124991D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.746826411316409D-04 -0.484034378481690D-05
+ xxx2 epsmode iq,iw=           7          51
+ iq iw omega eps epsi noLFC=     4    51   6.111  0.872413453831067D+00  0.239846649270916D-01     0.114537979567655D+01 -0.314891414075810D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.705460242993874D-04 -0.132617647045553D-04
+ xxx2 epsmode iq,iw=           7          52
+ iq iw omega eps epsi noLFC=     4    52   6.335  0.873124017172004D+00  0.936497921208902D-02     0.114518092522151D+01 -0.122830151821005D-01 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.701531347650187D-04 -0.517814825228147D-05
+ xxx2 epsmode iq,iw=           7          53
+ iq iw omega eps epsi noLFC=     4    53   6.563  0.887904349047783D+00  0.798397797583423D-03     0.112624652928458D+01 -0.101271353100264D-02 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.619806927405978D-04 -0.441455561892247D-06
+ xxx2 epsmode iq,iw=           7          54
+ iq iw omega eps epsi noLFC=     4    54   6.795  0.897073884671029D+00  0.763039582077328D-02     0.111465473742874D+01 -0.948111074842005D-02 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.569106104919955D-04 -0.421905055940207D-05
+ xxx2 epsmode iq,iw=           7          55
+ iq iw omega eps epsi noLFC=     4    55   7.031  0.902736166607839D+00  0.109948654096058D-03     0.110774334978031D+01 -0.134917481870552D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.537797829000701D-04 -0.607935605786790D-07
+ xxx2 epsmode iq,iw=           7          56
+ iq iw omega eps epsi noLFC=     4    56   7.271  0.912271677889295D+00 -0.000000000000000D+00     0.109616468891557D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.485073428915601D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7          57
+ iq iw omega eps epsi noLFC=     4    57   7.515  0.919258384109515D+00 -0.000000000000000D+00     0.108783342886636D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.446442055813633D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7          58
+ iq iw omega eps epsi noLFC=     4    58   7.763  0.925310445741012D+00 -0.000000000000000D+00     0.108071837360398D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.412978583391421D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7          59
+ iq iw omega eps epsi noLFC=     4    59   8.015  0.930731551925149D+00  0.153145044449627D-03     0.107442363037687D+01 -0.176788521127764D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.383003832911906D-04 -0.846780036883298D-07
+ xxx2 epsmode iq,iw=           7          60
+ iq iw omega eps epsi noLFC=     4    60   8.271  0.935270649450874D+00  0.647842493464671D-03     0.106920870529074D+01 -0.740618594282181D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.357905944932155D-04 -0.358209495111036D-06
+ xxx2 epsmode iq,iw=           7          61
+ iq iw omega eps epsi noLFC=     4    61   8.531  0.939210330321698D+00  0.469610648838902D-03     0.106472396832742D+01 -0.532368200666306D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.336122392450298D-04 -0.259660326570601D-06
+ xxx2 epsmode iq,iw=           7          62
+ iq iw omega eps epsi noLFC=     4    62   8.795  0.943165870117466D+00  0.234837151760217D-03     0.106025882582069D+01 -0.263991913483205D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.314251151717754D-04 -0.129847761475882D-06
+ xxx2 epsmode iq,iw=           7          63
+ iq iw omega eps epsi noLFC=     4    63   9.063  0.946854830123154D+00  0.482953938013435D-03     0.105612783293036D+01 -0.538689860084434D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.293853902163234D-04 -0.267038189132175D-06
+ xxx2 epsmode iq,iw=           7          64
+ iq iw omega eps epsi noLFC=     4    64   9.335  0.949617168215709D+00  0.996272463249850D-03     0.105305478122840D+01 -0.110479203193295D-02 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.278580193762784D-04 -0.550865773168395D-06
+ xxx2 epsmode iq,iw=           7          65
+ iq iw omega eps epsi noLFC=     4    65   9.611  0.952273868173929D+00  0.157993889142701D-03     0.105011804470779D+01 -0.174227435496539D-03 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.263890586947920D-04 -0.873590600051033D-07
+ xxx2 epsmode iq,iw=           7          66
+ iq iw omega eps epsi noLFC=     4    66   9.891  0.955292244468948D+00 -0.000000000000000D+00     0.104680008216324D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.247201174635500D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7          67
+ iq iw omega eps epsi noLFC=     4    67  10.175  0.957976191350156D+00 -0.000000000000000D+00     0.104386727877925D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.232360912273568D-04  0.000000000000000D+00
+ xxx2 epsmode iq,iw=           7          68
+ iq iw omega eps epsi noLFC=     4    68  10.463  0.960396449189199D+00 -0.000000000000000D+00     0.104123666934029D+01  0.000000000000000D+00 vcmean x0mean =  0.180855756842475D+04  0.000000000000000D+00     0.218978657368900D-04  0.000000000000000D+00
+ CPU=       1.8481 secs    0.0 mins

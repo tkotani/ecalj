@@ -1,0 +1,13 @@
+         The felz test computes the orbital moment in Fe.
+         lmf calculates the orbital magnetic moment.
+
+           * In the first part of this test only LzSz is used.
+        
+           * The APW basis with LzSz is also checked.
+
+	   * In the second part the FULL SPIN ORBIT is used.
+
+           * Symmetry operations must be suppressed at present.
+
+           * Only 4x4x4 k points are used in this test.
+

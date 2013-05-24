@@ -1,0 +1,110 @@
+HEADER  rocksalt GdN !!!takao modified nk=4 --> nk=2 Apr2010. nk=2 is  two small.
+TESTLMF lmfa gdn
+        lmf  gdn
+        mv rst.gdn rst-save.gdn
+        mv dmats.gdn dmats-save.gdn
+        rm -f rst.gdn wkp.gdn mixm.gdn
+        cp rst-save.gdn rst.gdn
+        cp dmats-save.gdn dmats.gdn
+        lmf  gdn --rs=1,0 -vpwmode=1
+        rm -f rst.gdn wkp.gdn mixm.gdn
+        lmfa gdn -vcoref=t
+        lmf  gdn -vcoref=t
+#NOTE lmf --nosym  is required because "SYMOPS find is effective even for SO=1. rdctrl2.F"(9e96c 2012-12-27 23:).
+TESTCLS cp rst-save.gdn rst.gdn
+        cp dmats-save.gdn dmats.gdn
+        lmf --nosym gdn --mull:mode=1 -vnk=2 -vnit=1 -vso=t
+        mv dos.gdn tdos.gdn
+        lmdos --nosym -vso=t --mull:mode=1 --dos:fpdos:npts=1001:window=-1,1 -vnk=2 gdn
+        mv dos.gdn dos-mull.gdn
+PLOTMUL echo 150 10 -9 10 | pldos -ef=0 -escl=13.6 -fplot '-lst=8' -ref:fn=tdos.gdn:chan=1:scale dos-mull.gdn
+CLEAN   rm -f \{ctrl,atm,dmats,moms,occnum,dmats-save,rst-save}.gdn
+        rm -f \{mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull}.gdn
+% const asa=f nsp=2 nk=2 ldau=t so=f
+VERS    LMASA-6 LMF-6 LM:7 FP:7
+IO      SHOW=f HELP=f VERBOS=40 WKP=F IACTIV=F
+OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f HF=f SO={so} PFLOAT=0
+.SYMGRP  R4Z M(1,1,0) R3D
+SYMGRP  find
+BZ      METAL=2 TETRA=t NEVMX=50 EFMAX=3 NKABC={nk} {nk} {nk} BZJOB=f
+        DOSMAX=1  SAVDOS=T DOS=-1 1.01719 #note DOS is for backword compatibility.
+STR     RMAX=3.02
+CONST     a=4.977/0.529177249 fv=1 tet=1.0
+% const  r1=2 r2=1
+STRUC   NBAS=2 NSPEC=2 NL=4
+        ALAT=a*fv PLAT=  0 .5 .5  .5  0 .5  .5 .5  0
+        SHEAR=0 0 1 tet
+SITE    ATOM=Gd POS=  0   0   0
+        ATOM=N POS= .50 .50 .50
+SPEC
+%ifdef coref
+       ATOM=Gd Z=64 R=2.77  LMX=3 LMXA=3 RSMH= {r1} {r1} 1 1 EH= -0.1 -0.1 -0.1 -0.1 A=0.03
+       RSMH2= 1.7 1.7 0 0 EH2=-1.2 -1.2 0 0 EREF=-22527.214927
+       P=6.5,6.25,5.3,5.3  IDMOD= 0 0 0 1 C-HOLE=4f C-HQ=-7,7
+%else
+       ATOM=Gd Z=64 R=2.77  LMX=3 LMXA=3 RSMH= {r1} {r1} 1 1 EH= -0.1 -0.1 -0.1 -0.1 A=0.03
+       RSMH2= 1.7 1.7 0 0 EH2=-1.2 -1.2 0 0 EREF=-22527.214927 MMOM=0 0 0 7 
+       P=6.63,6.25
+       IDMOD= 0 0 0 3
+% ifdef ldau
+       IDU= 0 0 0 2 UH= 0 0 0 0.515 JH=0 0 0 0
+% endif
+%endif
+       ATOM=N  Z=7 R=1.93 LMX=2 LMXA=2 RSMH= {r2} {r2} {r2} EH= -1 -0.1 -0.1 A=0.03
+       EREF=-108.361329 IDMOD= 0 0 0
+% const nit=2
+ITER   MIX=A,b=0.2,w=0.8,0.2 CONV=1E-5 CONVC=1E-5 NIT={nit}
+       NITU=5 TOLU=1d-6 UMIX=.9
+MIX    MODE=A,b=0.2,w=0.8,0.2 CONV=1E-5 CONVC=1E-5
+       NITU=5 TOLU=1d-6 UMIX=.9
+% const pwmode=0 pwemin=1 pwemax=3 oveps=0
+HAM    FTMESH=30 30 30
+       PMIN=0,0,0,.20 PMAX=0,0,0,0.9
+       NSPIN={nsp} REL=t SO={so}
+       PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
+START   NIT={nit} CNVG=1E-5 FREE=f BEGMOM={nit==0} CNTROL={nit==0} RDVES=f
+        ATOM=Gd       P=  6.1363659  6.1583654  5.5041363  4.2359899
+                      Q=  0.0366349  0.0000000  0.0024538
+                          0.0582177 -0.1245545  0.2709017
+                          0.1853257  0.0000000  0.0067241
+                          0.0606521  0.0000000  0.0019751
+        ATOM=N        P=  2.8965089  2.8184427  3.2051863
+                      Q=  1.7385803  0.0000000  0.0340633
+                          3.9759199  0.0000000  0.0656944
+                          0.2470196  0.0000000  0.0084415
+--
+        ATOM=Gd       P=  6.1514182  6.1603118  5.5608462  4.9096463
+                      Q=  0.0376851  0.0000000  0.0024802
+                          0.0643148 -0.1252109  0.2485367
+                          0.2514381  0.0000000  0.0084668
+                          6.8356089  0.0000000  0.0083584
+        ATOM=N        P=  2.8965082  2.8184392  3.2051845
+                      Q=  1.7385780  0.0000000  0.0340627
+                          3.9758624  0.0000000  0.0656917
+                          0.2470154  0.0000000  0.0084411
+----
+        ATOM=Gd       P=  6.1514182  6.1603118  5.5608462  4.9096463
+                      Q=  0.0376851  0.0000000  0.0024802
+                          0.0643148 -0.1252109  0.2485367
+                          0.2514381  0.0000000  0.0084668
+                          6.8356089  0.0000000  0.0083584
+        ATOM=N        P=  2.8964917  2.8137008  3.2073449
+                      Q=  1.7415989  0.0000000  0.0332540
+                          3.8869600  0.0000000  0.0585715
+                          0.3486542  0.0000000  0.0093161
+--
+        ATOM=Gd P=4.2 4.2 3.6
+                Q=2 0 0
+                  0 0 0
+                  0 0 0
+                  7 0 0
+        ATOM=N  P=2.3 2.2 3.2
+                Q=2 0 0
+                  3 0 0
+                  0 0 0
+        ATOM=E P=1.2 2.2 3.1
+               Q=0 0 0
+                 0 0 0
+                 0 0 0
+
+

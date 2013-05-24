@@ -1,0 +1,11 @@
+         The GdN test case illustrates use of Mulliken analysis in 
+         the spin-coupled case.  Mulliken analysis is a useful way
+         to resolve total DOS into spin components in the spin-coupled case.
+         This test will generate files tdos.gdn and dos.gdn, which you can 
+         use with a graphics packages to emphasize orbital or spin character of the DOS.
+
+         After the calculation completes, this script will ask whether you want to make
+         a figure of total DOS with majority DOS blue, minority DOS red.
+
+
+

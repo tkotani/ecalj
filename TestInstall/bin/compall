@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+# ex) compall dos-cls.fe.gz dos-cls.fe 1e-4
+
+use strict;
+use warnings;
+
+my $refout = shift @ARGV;
+my $testout = shift @ARGV;
+my $tol = shift @ARGV;
+
+if(! open( IN1, "<$refout" )){
+    print "ERR\n";
+    print STDERR "Cannot open $refout\n";
+    exit ;
+}
+if(! open( IN2, "<$testout" )){
+    print "ERR\n";
+    print STDERR "Cannot open $refout\n";
+    exit ;
+}
+
+my $max = 0;
+while ( my $line1 = <IN1> ) {
+    my $line2 = <IN2>;
+    $line1 =~ s/^\s+//;
+    $line2 =~ s/^\s+//;    
+    my @terms1 = split( /\s+/, $line1 );
+    my @terms2 = split( /\s+/, $line2 );
+    for ( my $i=0; $i<@terms1; $i++ ) {
+	#print "$terms1[$i]\t$terms2[$i]\n";
+	my $diff = abs( $terms1[$i] - $terms2[$i] );
+	if ( $diff > $max ) {
+	    $max = $diff;
+	}
+    }
+}
+
+close( IN1 );
+close( IN2 );
+
+printf("max deviation = %.1e tolerance = $tol ",$max);
+if ( $max > $tol ) {
+    print "ERR\n";
+} else {
+    print "OK\n";
+}
+

@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+# ex) comp.eval out.lmf.ls-bands.gasls.gz out.lmf.ls-bands.gasls \
+#     'k=  0.00000  0.00000  0.00000' $lineeval $evalso $tol
+use strict;
+use warnings;
+
+if( @ARGV != 6 ) {
+    print STDERR "Too few/many arguments\n";
+    exit;
+}
+
+my $refout = shift @ARGV;
+my $testout = shift @ARGV;
+my $keyword = shift @ARGV;
+my $lineeval = shift @ARGV;
+my $evalso = shift @ARGV;
+my $tol = shift @ARGV;
+
+my $n = $lineeval-1;
+my $strn  = `grep -A $n '$keyword' $testout | tail -1`;
+my $strnr = `grep -A $n '$keyword' $refout  | tail -1`;
+
+$strn  =~ s/^\s+//;
+$strnr =~ s/^\s+//;
+my @terms = split( /\s+/, $strn );
+my @termsr = split( /\s+/, $strnr );
+
+my $eval1 = $terms[$evalso-1];
+my $eval2 = $terms[$evalso];
+my $eval1r = $termsr[$evalso-1];
+my $eval2r = $termsr[$evalso];
+
+my $delta = sprintf("%8.4f",($eval2-$eval1) * 13.605 );
+my $deltar = sprintf("%8.4f",($eval2-$eval1) * 13.605 );
+
+print "Spin-Orbit splitting = $delta eV ( states $eval1 and $eval2 )\n";
+print "           reference = $deltar eV ( states $eval1r and $eval2r )\n";
+if ( $deltar <= $delta + $tol &&
+     $deltar >= $delta - $tol ) {
+    print "OK\n";
+} else {
+    print "ERR\n";
+}

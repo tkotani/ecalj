@@ -1,0 +1,17 @@
+         The co test also checks and illustrates the following:
+
+         1.  a spin-polarized case
+
+         2.  mixed tetrahedron/sampling method (METAL=4)
+
+         3.  Constrained mixing (first spin is kept frozen, then charge, then both are allowed to change)
+
+         4.  Broyden mixing
+
+         5.  bands mode (see command-line argument --band in last lmf invocation)
+             SO coupling and color weights for projection onto Co d channels are included.
+             Two separate weights are made (one each for d majority and minority bands.)
+             This script will prompt you to see whether it should create 
+             a figure from the bands file (The fplot plotting package needs
+             to be installed for this function).
+

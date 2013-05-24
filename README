@@ -177,29 +177,46 @@ not need to care its fail sign. (a minor bug in test).
 -------------------------------------------
 
 
-MAKEFILE backup: --------------------------------
-For version up, it is convenient to keep your Makefiles...
-mbackup: 
-   backup your customized Makefile MAKEINC/* fpgw/exec/make* into
-   ecalj/MKbackup
-   CAUTION: this overwirte these ones;
-            I recommend you do take git diff >foobar as backup.
-            Not too much dependent on mbackup.
-mkrestore:
-   cp back MKbakcup/* to original dirs.
-
----------------------
-How to do version up?
----------------------
+------------------------------------
+How to make version up?
+------------------------------------
 >cd ecalj
->./mbackup
->git diff > gitdiff_backup   !This is to save your changes for save.
->git checkout -f             ! CAUTION: this delete your changes
+>./mbackup          !this save make related files. Look into the mbackup file.
+>git diff > gitdiff_backup   !This is to save your changes for safe.
+>git checkout -f             ! CAUTION: this delete your changes in ecalj/
+                             ! If you like to 
 >git pull                    !This overwirte makefile and so on. 
 >./mrestore                  ! Look into this script. 
                              ! This copy make.inc* and MAKEINC/* to original directory
 
---> Then start make procedure again.
+--> Then do make procedure again. So, peform make PLATFORM=foobar, fooba_mpik, install, and make at
+    fpgw/exec/.  Probably, you don't need to make cleanall (this
+    delete all binaries).
+
+ --NOTE: MAKEFILE backup: --------------------------------
+  For version up, it is convenient to keep your Makefiles...
+  mbackup: 
+    backup your customized Makefile MAKEINC/* fpgw/exec/make* into
+    ecalj/MKbackup
+    CAUTION: this overwirte these ones;
+            I recommend you do take git diff >foobar as backup.
+            Not too much dependent on mbackup.
+  mkrestore:
+    cp back MKbakcup/* to original dirs.
+
+
 
 -------------------------------------------------
+MEMO
+-------------------------------------------------
+QSGW for Fe.
+  Use 3d+4d as valence. (PZ=0,0,3.8 P=0,0,4.2 should be added in
+  SPEC). It will be also better to use PZ=0,3.9,3.8 P=0,0,4.2 (3p as valence).
+  
+  Use RSRNGE=8 or so, for large number of k points.
 
+Q0P check
+   You have to large enough n1n2n3
+   It is better to do both of Q0Pchoice=1 and 2.
+   (for slabs, Q0Pchoice=2 is better.)
+   
