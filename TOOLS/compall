@@ -8,8 +8,16 @@ my $refout = shift @ARGV;
 my $testout = shift @ARGV;
 my $tol = shift @ARGV;
 
-open( IN1, "<$refout" )  || die "Cannot open $refout\n";
-open( IN2, "<$testout" ) || die "Cannot open $testout\n";
+if(! open( IN1, "<$refout" )){
+    print "ERR\n";
+    print STDERR "Cannot open $refout\n";
+    exit ;
+}
+if(! open( IN2, "<$testout" )){
+    print "ERR\n";
+    print STDERR "Cannot open $refout\n";
+    exit ;
+}
 
 my $max = 0;
 while ( my $line1 = <IN1> ) {
