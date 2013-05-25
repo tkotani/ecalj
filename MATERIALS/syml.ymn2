@@ -1,0 +1,17 @@
+21  .5 .5 .5     0  0 0                L to Gamma
+21   0  0  0     1  0 0                Gamma to X
+0    0 0 0  0 0 0  !stoper here
+
+
+21  .5  .5  .5      0   0   0             P to Gamma   (Lambda)
+21   0   0   0      1   0   0             Gamma to H   (Delta)
+0    0 0 0  0 0 0
+
+21   1   0   0     .5  .5   0             H to N       (G)
+21   0  .5  .5     .5  .5  .5             N to P       (D)
+
+... For fermi surface plotting
+ vx     range  n     vy     range  n   height  band
+1 0 0   -1 1   51   0 1 0   -1 1   51   0.00    4
+1 0 0   -1 1   51   0 1 0   -1 1   51   0.00    5
+

@@ -1,0 +1,6 @@
+# Make a plot of VBM.
+# You have to do job_materials.py in advance.
+# Or, you can expand vbmcbm_data.tar.gz (calculated already) instead.
+grep VBM */vbmcbm.* >VBM.dat
+./sortvbm.py >VBMs.dat
+./bandoffset1.glt
