@@ -22,22 +22,28 @@ c     o     rcxqmean,
       use keyvalue,only:  getkeyvalue
       use m_rotMPB,only:  rotMPB2 !rotMPB,
       use m_readqgcou,only: qtt_,nqnum !itimermap,
-
-!! NOTE: rcxq is i/o variable for accumulation. Now for E_mu basis when chipm=F.
+!! === calculate chi0, or chi0_pm ===
+!! We calculate imaginary part of chi0 along real axis.
 !!
-!! ppovl= <I|J>, V_IJ=<I|v|J>
+!! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
+!!  
+!!
+!! ppovl= <I|J> = O , V_IJ=<I|v|J>
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
-!! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
-!! ppovlz= O Zcousq
-
+!!
+!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
+!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
+!!
 !! when nmbas1=2, this works in a special manner for nolfco=T chipm=F. mar2012takao
-
-C- Only the spectrum function (imaginary part) along the real axis.
-Cr This version x0kf_v2hx is for timereversl=F (npm=2). dec2006
-c   zxq(i,j,iw) = (-1/pi) \int_{freqr(iw)}^{freqr(iw+1)} d \omega Img<M(i)|x0(q,\omega)|M(j)>
-c              for a given q and spin. Stored into rcxq equivalent with zxq.
-c              See rcxq_zxq below.
+!!
+!! 
+!! OUTPUT:
+!!  rcxq (nmbas,nmbas,nwt,npm): for given q,
+!!       rcxq(I,J,iw,ipm) = 
+!!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
+!!      When npm=-1 we calculate negative energy part.
+!!
 c              See also tetwt5. and check weight mode=4 of hx0fp0 and (mode=5,6).
 c
 c- takao kotani Apr 2002   This originated from Ferdi's x0k.
@@ -168,13 +174,14 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
-      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) !,zcousqc(ngbb,ngbb)
+      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
      & ,rzc(ngbb,ngbb),zcousqinv(ngbb,ngbb),cmat(ngbb,ngbb)
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
       complex(8),pointer:: zmat(:,:)
+      complex(8),allocatable,target:: ppovl_(:,:)
 c ------------------------------------------------
 !TIME0 "start xkf_v4hz      
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
@@ -434,14 +441,23 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-!! === zmelt conversion to \mu-basis representation. or zzr multipled ===
-!!  The E_mu is the basis of eigenfunciton of the coulomb-matrix. See PRB.81,125102(2010) 
+!! === zmelt conversion on different basis.
+!! zmelt
+
 c           if(newanisox) then   !.and.iq==1) then
         allocate(zmmm(nmbas))
-        if(chipmzzr) then
+        if(chipmzzr) then  !spin moment basis.
            zmat => zzr
-        else
+        elseif(nolfco .and. nmbas==1) then !for <e^iqr|x0|e^iqr>
            zmat => ppovlz
+        else  !may2013  this removes O^-1 factor from zmelt
+           allocate(ppovl_(ngb,ngb))
+           ppovl_=0d0
+           do i=1,nbloch
+              ppovl_(i,i)=1d0
+           enddo
+           ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+           zmat => ppovl_
         endif
 !! :: zmelt conversion muplitpled by zzr.
 !$OMP parallel do 
@@ -457,6 +473,7 @@ c           if(newanisox) then   !.and.iq==1) then
         enddo
 !$OMP end parallel do 
         deallocate(zmmm)
+        if(allocated(ppovl_)) deallocate(ppovl_)
 !TIME1  "after matmul zmelt"
 !TIME0 
 
@@ -718,9 +735,9 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
 !! Note that k= \hat{A}^k_i(k) (S_A^k)
 !! See Eq.(51) around in PRB81 125102(2010)
+!! 
 
 !! === zmelt conversion === 
-!! \mu-basis representation multipled by zcousq
       if(eibzmode.and.symmetrize) then
 !TIME0 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
@@ -742,7 +759,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
 
 
 !! == Assemble rotantion matrx zrr,zrrc ==
-!! Rotation matrix zrrx is a sparse matrix. 
+!! Rotation matrix zrrx can be a sparse matrix. 
 !! Thus it is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)".
 !! See folloings: matmul(rcxqwww,zrrx) is given by
 !!     do irotm1 = 1,nrotm(icc)
@@ -791,16 +808,26 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
 !! See rotMPB2 defined in readeigen.F.
 !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
 !! zrrx is very sparse matrix. Size is \sim ngb or something.
+
+c$$$                if(itimer==1) then
+c$$$                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
+c$$$                  ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq)) 
+c$$$                else  
+c$$$                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) 
+c$$$                  ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
+c$$$                endif 
+
                 if(itimer==1) then
-                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
+                  zrrx=zrotm
+c                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
                   ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq)) 
                 else  
-                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) 
+                  zrrx=dconjg(zrotm)
+c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele) 
                   ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq)) 
                 endif 
+
               endif
-c              zrr_(:,:,icc)=zrrx
-c              zrrc_(:,:,icc)=transpose(dconjg(zrrx))
 !TIME1 "end matmmsparse"
 !TIME0
               i1(:,icc)=0
@@ -826,9 +853,10 @@ c              zrrc_(:,:,icc)=transpose(dconjg(zrrx))
 !TIME1 "before iagain=1"
 !TIME0
               if(iagain==1) then
-                nrotmx=irotm+10000 !enlarge allocation and do things again.
+                nrotmx=irotm !enlarge allocation and do things again.
                 print *,' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
-                cycle !enlarge nrotmx ang try it again.
+                goto 1011
+                !enlarge nrotmx ang try it again.
               endif   
               nrotm(icc)=irotm
               print *,'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
@@ -845,7 +873,7 @@ c              zrrc_(:,:,icc)=transpose(dconjg(zrrx))
 !! === main part to obtain symmetrized rcxq  ===
 !! neibz is total number of symmetrization operation. 
 !!      rcxq is rotated and accumulated; finally divied by neibz
-c        zcousqc=dconjg(transpose(zcousq))
+        zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
@@ -889,11 +917,11 @@ c$$$               endif
 !!  Followings are equivalent with
 !!            rcxq00= rcxq00 + matmul(zrrc_(:,:,icc),matmul(rcxqwww,zrr_(:,:,icc)))
                do irotm1 = 1,nrotm(icc)
-                 if(abs(zrr(irotm1,icc))<1d-8) cycle
+c                 if(abs(zrr(irotm1,icc))<1d-8) cycle
                  rcxq0(:,i2(irotm1,icc)) =rcxq0(:,i2(irotm1,icc)) + rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,icc)
                enddo
                do irotm2 = 1,nrotm(icc)
-                 if(abs(zrrc(irotm2,icc))<1d-8) cycle
+c                 if(abs(zrrc(irotm2,icc))<1d-8) cycle
                  rcxq00(i2(irotm2,icc),:)= rcxq00(i2(irotm2,icc),:) + zrrc(irotm2,icc) * rcxq0(i1(irotm2,icc),:)
                enddo
 
@@ -940,8 +968,11 @@ c$$$           endif
                rcxq000=rcxq000+rcxq00
             endif   
           enddo
-
           rcxq(:,:,iw,jpm) = rcxq000/neibz
+ccccccccccccccccccc
+          rcxq(:,:,iw,jpm) = matmul(rcxq(:,:,iw,jpm),zcousq)
+          rcxq(:,:,iw,jpm) = matmul(zcousqc,rcxq(:,:,iw,jpm))
+ccccccccccccccccccc
         enddo
         enddo
 !$OMP end  do 
