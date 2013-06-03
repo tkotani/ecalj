@@ -24,6 +24,13 @@
       implicit none
 c      use m_spacegrouprot,only: Spacegrouprot
 c      use m_rotMPB,only: rotMPB
+!! ------------------------------------------------
+!! We calculate chi0 by the follwoing three steps.
+!!  tetwt5: tetrahedron weights
+!!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
+!!  dpsion5: calculate real part by the Hilbert transformation from the Im part
+!! wv 
+!! ------------------------------------------------
 C-------------------------------------------------
 C  Calculate x0, W-V, \epsilon
 Cr

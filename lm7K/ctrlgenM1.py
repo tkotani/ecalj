@@ -48,7 +48,7 @@ Ar=  " atomz=18@ pz='PZ=3.9,3.9'@ p='P=4.3,4.3'@ eh=-0.1*4@ eh2=-2*3@  R=1.72@"
 #------------------------------
 K=   " atomz=19@ pz='PZ=0,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=2.00@"       
 Ca=  " atomz=20@ pz='PZ=0,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=2.08@"       
-Sc=  " atomz=21@ pz='PZ=0,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.31@"       
+Sc=  " atomz=21@ pz='PZ=0,3.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=1.27@"       
 Ti=  " atomz=22@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.95@"       
 V=   " atomz=23@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.87@"       
 Cr=  " atomz=24@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@             R=0.80@"       
@@ -126,8 +126,8 @@ Rb  =" atomz=37@ pz='PZ=0,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.00@"
 ## Note that large R caused basis-independency error due to s-orbital (we can check this by RSMH=0 for s)
 #Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.08@"       
 #Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
-Sr  =" atomz=38@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.08@"       
-Y   =" atomz=39@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
+Sr  =" atomz=38@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=2.0@"       
+Y   =" atomz=39@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
 Zr  =" atomz=40@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@"
 Nb  =" atomz=41@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@" 
 Mo  =" atomz=42@ pz=''@ p=''@ eh=-0.1*4@ eh2=-2*3@   R=?@" 

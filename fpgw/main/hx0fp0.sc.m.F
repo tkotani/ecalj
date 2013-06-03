@@ -24,9 +24,10 @@
 c     use m_spacegrouprot,only: Spacegrouprot
 c     use m_rotMPB,only: rotMPB
 !! ------------------------------------------------
-!! tetwt5: tetrahedron weight
-!! x0kf_v4h: Accumlate Im part of the lindhard function.
-!! dpsion5: Hilbert transformation from Im part
+!! We calculate chi0 by the follwoing three steps.
+!!  tetwt5: tetrahedron weights
+!!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
+!!  dpsion5: calculate real part by the Hilbert transformation from the Im part
 !! ------------------------------------------------
       integer::iopen,maxocc2,iclose, ixc,iqxini,iqxend,
      &     nw_input, ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,

@@ -36,7 +36,7 @@ We now have three commands below. These command uses functions in convert/, so r
     ../viewvesta.py ctrl.cu2gase2
     (this calls ctrl2.vasp internally; thus POSCAR_cu2gase2 is generated).
 
-*vasp2ctrl.py
+*ctrl2vasp.py
 　Convert POSCAR to ctrl file. For help, type this command without
   arguments.
   E.g: 
@@ -45,7 +45,7 @@ We now have three commands below. These command uses functions in convert/, so r
     cp ../sample/ctrl.nio .
     ../vasp2ctrl.py ctrl.nio 
 
-*ctrl2vasp.py
+*vasp2ctrl.py
   ctrl file to POSCAR file. (current version is for Cartesian, but not so difficult if you like Direct).
   E.g: 
     mkdir TEST
