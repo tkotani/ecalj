@@ -123,13 +123,9 @@ C     implicit none
 C ... Passed parameters
       integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-
       type(s_rv1) :: sv_p_oppi(3,nbas)
-
       type(s_rv1) :: sv_p_otau(3,nbas)
-
       type(s_rv1) :: sv_p_osig(3,nbas)
-
       integer nlibu,lmaxu,lldau(nbas),iblu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
@@ -177,25 +173,17 @@ C ... for core hole
       character*20::strib
 C --- Setup ---
       call tcn('locpot')
-Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+      stdo = globalvariables%stdo ! stdo = nglob('stdo')
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0 = 1d0/srfpi
-Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       k = nrmx*nlmx*2
       allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
       allocate(efg(5,nbas),zz(nbas))
+      if (ipr .ge. 30) write(stdo,"(/' locpot:')")
 
-      if (ipr .ge. 30) write(stdo,199)
-  199 format(/' locpot:')
-
-C ... Set up offsets array to qmom
-C$    call setofl(0,ssite,sspec,nbas,nvl,iiv0)
-
-C --- Start loop over sites ---
       call iinit(iltab,nbas)
       vvesat = 0d0
       cpnvsa = 0d0
@@ -239,50 +227,30 @@ C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
       ifivesint=-999
       if(master_mpi()) ifivesint=fopna('vesintloc',-1,2)
-      do  ib = 1, nbas
 
+      do  ib = 1, nbas
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.13.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-ckino Dec.12.2011:           rv_p_ov01 => ssite(ib)%rv_p_ov1
-
-
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-
-
         z=sspec(is)%z
         qc=sspec(is)%qc
         rg=sspec(is)%rg
-
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         call r8tos8(sspec(is)%name,spid)
-
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
         lmxb=sspec(is)%lmxb
-
         zz(ib)=z
         if (lmxa .eq. -1) goto 10 !floating orbital
-
         i_copy_size=size(sspec(is)%idu)
         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
-
         kmax=sspec(is)%kmxt
         i=sspec(is)%mxcst
-
 C       Float wave functions if:
 C         100's digit job > 0 set   OR:
 C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
@@ -292,34 +260,25 @@ cccccccccccccc
 c        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-c        enddo
         call r8tos8(sspec(is)%coreh,chole)
-
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
         if (qsc0 .ne. qsca .or. qc .ne. qc0-qsc0) then
           if (iprint() .gt. 0)
-     .    call awrit5(' is=%i qsc0=%d qsca=%d qc=%d qc0=%d',' ',120,
-     .    stdo,is,qsc0,qsca,qc,qc0)
-          call rxs('problem in locpot -- possibly low LMXA'//
-     .    ', or orbital mismatch, species ',spid)
+     .    call awrit5(' is=%i qsc0=%d qsca=%d qc=%d qc0=%d',' ',120,stdo,is,qsc0,qsca,qc,qc0)
+          call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
         endif
         qval = qval+qv+qsca
         qsc  = qsc+qsca
-
         nlml = (lmxl+1)**2
         nrml = nr*nlml
-C$      j1 = iiv0(ib)+1
         if (ipr .ge. 20) then
           write(stdo,200) ib,z,rmt,nr,a,nlml,rg,lfltwf
   200     format(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,
      .    '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
           if (kcor .ne. 0) then
             if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
-              call info5(30,0,0,' core hole:  kcor=%i  lcor=%i'//
-     .        '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
+              call info5(30,0,0,' core hole:  kcor=%i  lcor=%i  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
             endif
           endif
         endif
@@ -330,11 +289,8 @@ C$      j1 = iiv0(ib)+1
 
 C   ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
-          call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v 
-     .     , rofi , nr , nlml , nsp )
-
+          call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v , rofi , nr , nlml , nsp )
         endif
-
 C   --- Make potential and energy terms at this site ---
         call locpt2 (job , z , rmt , rg , a , nr , nsp , cofg , cofh 
      .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
@@ -350,18 +306,18 @@ C   --- Make potential and energy terms at this site ---
            write(strib,'(i10)') ib
            ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
            do isp=1,nsp
-              do ir=1,nr
-c                 k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
-                 write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),( rhol1(ir + (lm-1)*nr + (isp-1)*nr*nlml), lm=1,nlml)
+             do ir=1,nr
+c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
+               write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),(rhol1(ir+(lm-1)*nr+(isp-1)*nr*nlml),lm=1,nlml)
               enddo
            enddo
            call fclose('rho1MT.'//trim(adjustl(strib)))
            ibx= fopna('rho2MT.'//trim(adjustl(strib)),-1,0)
            do isp=1,nsp
-              do ir=1,nr
-c                 k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
-                 write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),( rhol2(ir + (lm-1)*nr + (isp-1)*nr*nlml), lm=1,nlml)
-              enddo
+             do ir=1,nr
+c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
+               write(ibx,"(i2,d13.6,256f13.6)")isp,rofi(ir),(rhol2(ir+(lm-1)*nr+(isp-1)*nr*nlml),lm=1,nlml)
+             enddo
            enddo
            call fclose('rho2MT.'//trim(adjustl(strib)))
         endif
@@ -370,27 +326,16 @@ C   ... Write true potential to file vtrue.ib
         if (mod(job/10000,10) .eq. 2 .or. mod(job/10000,10) .eq. 3) then
           call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
         endif
-
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
-ckino Dec.13.2011:               call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr
-ckino Dec.28.2011:               call dpscop ( v1 , ssite(ib)%rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr
-            call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
-     .       * i , y0 )
-
+            call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr * i , y0 )
           enddo
         endif
-
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-ckino Dec.12.2011:             call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr
-ckino Dec.28.2011:             call dpscop ( v1 , ssite(ib)%rv_p_ov1, nr , 1 + nr * nlml * i , 1 + nr
-          call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr 
-     .     * i , y0 )
-
+          call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr* i , y0 )
         enddo
-
 C   ... Accumulate terms for LDA total energy
         vvesat = vvesat + valvs
         cpnvsa = cpnvsa + cpnvs
@@ -435,9 +380,7 @@ C       Check for core moment mismatch ; add to total moment
         endif
 
 C   --- Make augmentation matrices sig, tau, ppi ---
-c        print *,'vvv locpot job=',job
         if (mod(job,10) .eq. 1) then
-
 C     ... Smooth Hankel tails for local orbitals
           call dpzero(rsmh,n0*nkap0)
           call dpzero(eh,n0*nkap0)
@@ -447,57 +390,28 @@ C     ... Smooth Hankel tails for local orbitals
             call dcopy(n0,rsmh(1,nkaph),1,rsml,1)
             call dcopy(n0,eh(1,nkaph),  1,ehl, 1)
           endif
-
 C     ... Use effective potentials with modified xc
           if (mod(job,1000) .ge. 100) then
             call dcopy(nrml*nsp,v1es,1,v1,1)
             call dcopy(nrml*nsp,v2es,1,v2,1)
           endif
-
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
-
-ckino Dec.12.2011:             rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.12.2011:             iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.12.2011:             iv_p_oidxcg => slat%iv_p_oidxcg
-
-
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
-ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg
-ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, iv_p_oidxcg
-ckino Dec.12.2011:       .           , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , slat%iv_p_ojcg, slat%iv_p_oidxcg
-ckino Dec.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_p_oidxcg
-ckino Dec.27.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_p_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
-ckino Dec.28.2011:       .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_p_ojcg, slat%iv_a_oidxcg
      .           , a , nr , nsp , lso , rofi , rwgt , slat%rv_a_ocg, slat%iv_a_ojcg, slat%iv_a_oidxcg
-ckino Dec.13.2011:       .           , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi ,
-ckino Dec.28.2011:       .           , ssite(ib)%rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
      .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
      .           , 1 , ib ) )
-
-
-
-
-
-
-
         endif
-
         j1 = j1+nlml
    10   continue
       enddo
       if(master_mpi()) call fclose('vesintloc')
-
 C     Electric field gradient
-      if (ipr .gt. 40) then
-        call elfigr(nbas,stdo,zz,efg)
-      endif
+      if (ipr .gt. 40) call elfigr(nbas,stdo,zz,efg)
       deallocate(efg,zz)
       deallocate(wk,rhol1,rhol2,v1,v2,v1es,v2es)
       call tcx('locpot')
@@ -509,7 +423,6 @@ C     Electric field gradient
      .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
-
       use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------

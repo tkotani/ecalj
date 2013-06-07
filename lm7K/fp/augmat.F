@@ -359,6 +359,15 @@ C     NB:rofi MUST be dimensioned rofi(1..nrx) if V is to be extrapol.
       call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,
      .rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cctest
+c         if(z<0.5) then
+c            v1(1:nr,1,1:nsp)=v1(1:nr,1,1:nsp)+10d0
+c            print *,' hhhhhhhhhhh highvvv v1 --> no charge in z=',z
+c         endif   
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
 C --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
       call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,
      .rwgt,v0,v1,qum,vum)

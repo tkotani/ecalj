@@ -209,8 +209,6 @@ C ... Local parameters
      .rmuat(2),repsm(2),repsmx(2),repsmc(2),rhobg,pi
 C     double precision tmp(2)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-
-
 C     This ordering must match sham->eterms; see uham
       double precision eterms(20)
       equivalence (eterms(1),eh)
@@ -226,20 +224,13 @@ C     This ordering must match sham->eterms; see uham
       equivalence (eterms(11),valvef)
       equivalence (eterms(15),amom)
 
-C ... Heap
-
-ccccccccccccccccccccc
       integer:: itest,wdummy,nnn
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
       real(8),parameter:: minimumrho=1d-14
       real(8)::sss,smmin(2),srshift
 c      logical:: enforce_positive_smrho
-cccccccccccccccccccccc
-
-
 C      print *, '!!'
 C      job = job + 30000
-
       call tcn('mkpot')
 ccccccccccccccccccccccccccccccccc
 c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
@@ -257,28 +248,19 @@ cc      close(1898)
 c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 cc      stop 'xxxxxxxxxx 1111'
 ccccccccccccccccccccccccccccccccc
-
       ipr = iprint()
       ipl = ipr
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
      .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
-
-      if (lso .ne. 0 .and. lcplxp .eq. 0)
-     .call rx('mkpot: incompatible lso,lcplxp')
-      if (isum(nbas,lldau,1) .ne. 0 .and. lcplxp .eq. 0)
-     .call rx('mkpot: incompatible ldau,lcplxp')
+      if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
+      if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
       stdo = lgunit(1)
       stdl = lgunit(2)
-Changenglob      nsp  = nglob('nsp')
-c      nsp  = globalvariables%nsp
-Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
-
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
-
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
@@ -320,38 +302,25 @@ C$$$         print *,'enforce positive smrho, to which we add srshift=',srshift
 C$$$       endif
 C$$$      endif
 
-
 C --- Printout for smooth background charge ---
       if (qbg .ne. 0) then
         rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
         call info5(20,1,0,' Energy for background charge'//
-     .  ' q=%d, radius r=%;3d :  E = 9/5*q*q/r = %;4d',
-     .  qbg,rhobg,1.8d0*qbg*qbg/rhobg,0,0)
+     .  ' q=%d, radius r=%;3d :  E = 9/5*q*q/r = %;4d', qbg,rhobg,1.8d0*qbg*qbg/rhobg,0,0)
       endif
 
 C --- Smooth electrostatic potential ---
-      call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum 
-     . )
-
+      call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum )
       vconst = -vsum/vol
 C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
 C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
       allocate(hpot0_rv(nbas))
 
-
       i = 1
       if (cmdopt('--oldvc',7,0,outs)) i = 0
-
-cccccccccccccccccccccc
-c      smpot(:,:,:,1)=0d0
-c      allocate(smpotbk(k1,k2,k3))
-c      smpotbk=smpot(:,:,:,1)
-ccccccccccccccccccccc
-
       call smves ( i , nbas , ssite , sspec , slat , k1 , k2 , k3 , 
      .qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
      ., smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
-
 
 cccccccccccccccccc
 c      print *,'vvv fix smves'
@@ -367,7 +336,7 @@ c      enddo
 c      close(2021)
 c      stop 'eeeeeeeeeeeeeeeeeee'
 cccccccccccccccccc
-
+c
 c      if(itest==1) then
 c      print *,'vvv: skip smves for smpot'
 c      smpot(:,:,:,1)=smpotbk
@@ -382,8 +351,6 @@ ccccccccccccccccc
         smag = 2*smag - smq
       endif
       if (allocated(hpot0_rv)) deallocate(hpot0_rv)
-
-C     call zprm('smves',2,smpot,k1,k1,k2)
 
 C --- Add smooth exchange-correlation potential ---
       call dpzero(rveps,2)
@@ -401,7 +368,6 @@ C --- Add smooth exchange-correlation potential ---
         smexc_zv(:)=0d0
         fxc_rv(:)  =0d0
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
-c        call pshpr(ipr-30)
 
 Ctakao2012feb --- comment out
 C$$$        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2
@@ -413,67 +379,21 @@ C$$$c        call poppr
 C$$$        rvepsv(1) = rvepsv(1) + rvepsv(2)
 C$$$        rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
 
-
 C   ... Smooth exchange-correlation potential
 c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
 c        call dpzero ( smexc_zv , k1 * k2 * k3 )
         smvxc_zv=0d0
         smexc_zv=0d0
-
-cccccccccccccccccccccccc
-c      open(2021,file='smpot2.bk')
-c      do i3=1,k3
-c      do i2=1,k2
-c      do i1=1,k1
-c        read(2021,"(2d23.15)")smpot(i1,i2,i3,1)
-c      enddo
-c      enddo
-c      enddo
-c      close(2021)
-c      stop 'ccccccccccccccccccc'
-ccccccccccccccccccccccc
-
-c      smpot(:,:,:,1)=0d0
-c      allocate(smpotbkx(k1,k2,k3))
-c      smpotbkx=smpot(:,:,:,1)
-cccccccccccccccccc
-
         call smvxcm ( ssite , sspec , slat , nbas , lfrce , k1 , k2 , 
      .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
      .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
      .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
-
-cccccccccccccccccccccccc
-ccc      print *,'vvv readin smpot vxc'
-c      open(2021,file='smpot2.bk')
-c      allocate(smpotbk(k1,k2,k3))
-c      do i3=1,k3
-c      do i2=1,k2
-c      do i1=1,k1
-cc         write(2021,"(2d23.15)")smpot(i1,i2,i3,1)-smpotbkx(i1,i2,i3)
-c        read(2021,"(2d23.15)") smpotbk(i1,i2,i3)
-c      enddo
-c      enddo
-c      enddo
-c      close(2021)
-c      smpot(:,:,:,1) = smpotbkx + smpotbk
-c      stop 'xxxxxxx smpot2.bk write'
-ccccccccccccccccccccccccc
-
-
-ccccccccccccc
-c        print *,'vvv sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
-c        print *,'vvv repsm=',repsm
-cccccccccccc
-        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas 
-     .  , 1d0 )
-
+        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas, 1d0 )
         if (allocated(fxc_rv)) deallocate(fxc_rv)
         if (allocated(smexc_zv)) deallocate(smexc_zv)
         if (allocated(smvc_zv)) deallocate(smvc_zv)
         if (allocated(smvx_zv)) deallocate(smvx_zv)
         if (allocated(smvxc_zv)) deallocate(smvxc_zv)
-
       else
         call dpzero(repsm,2)
         call dpzero(repsmx,2)
@@ -498,10 +418,6 @@ C --- Make local potential at atomic sites and augmentation matrices ---
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .    lmaxu , vorb , lldau )
-
-
-
-
 
 C ... Combine spin-up and spin-down integrals
       repsm(1)  = repsm(1) + repsm(2)
@@ -534,7 +450,6 @@ c        rvvxcv(1) = rvvxcv(1) + rvvxva
         rveps(1) = rveps(1) + rvepsa
         rvvxc(1) = rvvxc(1) + rvvxca
       endif
-
 
 C ... Integral of valence density times estatic potential
       valves = rhvsm + vvesat

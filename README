@@ -219,4 +219,9 @@ Q0P check
    You have to large enough n1n2n3
    It is better to do both of Q0Pchoice=1 and 2.
    (for slabs, Q0Pchoice=2 is better.)
-   
+
+EPS mode,
+  check Im part of chi0 is smoothly damping at high energy (typically
+  1Ry or larger enengy range). If there is some large Im part remains,
+  something strange (usually due to orthogonality problem of
+  eigenfunctions when you set low q).
