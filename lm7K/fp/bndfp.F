@@ -2426,8 +2426,13 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         ifimag=9058
         inquire(unit=ifimag,opened=nexist)
         if(nexist) stop 'bndfp: ifio=9058 is not used (too sloppy manner ; fix this). '
-        open(ifimag,file='MagField',status='unknown')
-        close(ifimag,status='delete')
+#if MPIK
+        call mpi_barrier(MPI_comm_world,ierr)
+#endif
+        if (procid .eq. master) then
+          open(ifimag,file='MagField',status='unknown')
+          close(ifimag,status='delete')
+        endif  
 
 !! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
@@ -2481,7 +2486,7 @@ ckino       maybe a switch for these is lmet.ne.0
           endif
 
 !! june2013 magfield is added
-          if(fsmom/=NULLR) then
+          if(fsmom/=NULLR.and.procid .eq. master) then
           inquire(unit=ifimag,opened=nexist)
           if(nexist) stop 'mmm: ifimag is used already (too sloppy manner ; fix this). '
           open(ifimag,file='MagField',status='unknown')
