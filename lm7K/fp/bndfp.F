@@ -395,11 +395,12 @@ ctakao
       real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
       real(8),allocatable::vesatm(:),qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
 
-      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold
+      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold, vnow
       logical:: lfill=.false.,ixx,master_mpi,master_mpiset
       integer,allocatable:: ndimhx_(:),nev_(:)
       character(120):: vbmlll
-      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs
+      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag
+      real(8),parameter::    NULLR =-99999
       
 
       call tcn ('bndfp')
@@ -2421,6 +2422,13 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         endif
       endif
 
+!! delete Magfield file for safe if it exist. 
+        ifimag=9058
+        inquire(unit=ifimag,opened=nexist)
+        if(nexist) stop 'bndfp: ifio=9058 is not used (too sloppy manner ; fix this). '
+        open(ifimag,file='MagField',status='unknown')
+        close(ifimag,status='delete')
+
 !! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
         if (lwndow) then
@@ -2440,11 +2448,13 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
           if (mpsord .lt. 0) dosrng = 16
           if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
           if(sbz%fsmommethod == 1) then !takao dec2010
+!! vnow june22013 !vnow !(in Ry) contains magnetic field
+!! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
             call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill)
+     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
           else
 ckino       maybe a switch for these is lmet.ne.0
             l_temp_rv_a_oswtk=.false.
@@ -2462,12 +2472,23 @@ ckino       maybe a switch for these is lmet.ne.0
               allocate(sbz%iv_a_oidtet(1))
               l_temp_iv_a_oidtet=.true.
             endif
+!! vnow june22013
             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .         ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
      .         fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .         ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
-     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill)
+     .         , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
           endif
+
+!! june2013 magfield is added
+          if(fsmom/=NULLR) then
+          inquire(unit=ifimag,opened=nexist)
+          if(nexist) stop 'mmm: ifimag is used already (too sloppy manner ; fix this). '
+          open(ifimag,file='MagField',status='unknown')
+          write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
+          close(ifimag)
+          endif
+
           if (l_temp_rv_a_oswtk) then
             deallocate(rv_a_oswtk)
             l_temp_rv_a_oswtk=.false.

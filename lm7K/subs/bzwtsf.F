@@ -7,7 +7,7 @@
 !!  (Takao think this bzwtsf2 may need to be modified for solids).
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
-     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill)
+     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -100,6 +100,8 @@ C --- Make and print out magnetic moment ---
 !!      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
       if (fmom==NULLR .or. lwtkb .eq. 0) return
 
+      call tcn('bzwtsf2')
+
       ele1 = (zval+fmom)/2d0
       ele2 = (zval-fmom)/2d0
       nmom1 = ele1+1d-8
@@ -133,8 +135,8 @@ c      vnow=0d0
         if (nspc .eq. 2) then
           ebs = eb + vnow/2*swtk
         else
-          ebs(:,1,:) = eb(:,1,:) - vnow/2
-          ebs(:,2,:) = eb(:,2,:) + vnow/2
+          ebs(:,1,:) = eb(:,1,:) - vnow/2d0
+          ebs(:,2,:) = eb(:,2,:) + vnow/2d0
         endif
 !! Fermi level with dv shift
         if(.not.quitvnow) call pshpr(ipr-50)
@@ -209,12 +211,14 @@ c
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
         lwtkb = 1
       endif
-      end
+      call tcx('bzwtsf2')
+      end subroutine bzwtsf2
+
 
 !!== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
-     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill)
+     .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------

@@ -213,9 +213,30 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       logical:: rank0
       integer,allocatable:: iprocq(:,:)
       character*256:: ext
+
+      logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
+      real(8):: vnow
+      integer:: ifimag=9078
 !! --- Setup ---
       call tcn ('sugw')
       print *,'sugw:'
+
+!! june2013 magfield is added
+      inquire(unit=ifimag,opened=nexist)
+      if(nexist) stop 'sugw:ifimag used already (too sloppy manner ; fix this). '
+      open(ifimag,file='MagField',status='old',err=112)
+      magexist=.true.
+      if(magexist) then
+         open(ifimag,file='MagField',status='old')
+         read(ifimag,*)vnow
+         close(ifimag)
+         write(6,"('Add mag.field to eval. -vnow/2 for isp=1, +vnow/2 for isp=2. vnow=',d13.6)")vnow
+         goto 113
+      endif   
+ 112  continue
+      magexist=.false.
+ 113  continue
+
       rank0=.false.
       if(procid==master) rank0=.true.
       call getpr(ipr)
@@ -829,6 +850,11 @@ c            write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,
               ifievec = fopna('evec',-1,4)
               write(ifievec) q, evec(1:ndimh,1:ndimh)
             endif
+
+            if(magexist) then
+               if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
+               if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
+            endif   
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$!! test for takao wave function rotater si 5x5x5.
