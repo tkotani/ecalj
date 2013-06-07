@@ -147,7 +147,7 @@ c ifile = 0 ==> screen
       integer:: i,j,isize
       character(30):: str
 
-      call flush()
+      call flush(6)
       call mpi__barrier()
 
       isize=0
