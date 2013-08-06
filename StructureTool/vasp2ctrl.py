@@ -13,8 +13,8 @@ argc  = len(argvs)
 print 'readin args= ',argvs,argc
 if ('--help' in argvs): 
 	print ' == Convert POSCAR file(input file of lmf) to ctrl =='
-	print '    usage: vasp2ctrl POSCAR_foofar   [option] '
-	print '          Then we have ctrls.foo.vasp2ctrl        '
+	print '    usage: vasp2ctrl POSCAR_foobar.vasp   [option] '
+	print '          Then we have ctrls.foobar.vasp2ctrl        '
 	print '     option: --alat=10.66 (ALAT, you can use eqs such as 10.66*1.88)'
 	sys.exit(-1)
 for ix in argvs:

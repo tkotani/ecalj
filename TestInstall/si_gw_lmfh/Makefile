@@ -17,6 +17,7 @@ $(TARGET).exec:
 	# exec lmf command.
 	$(bindir)/lmf $(MATERIAL) > llmf_lda
 	# exec gw_lmfh command.
+	rm  QPU
 	$(bindir)/gw_lmfh $(MATERIAL)
 	# add summary.txt
 	# check a result by dqpu command.

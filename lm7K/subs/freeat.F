@@ -321,8 +321,8 @@ C     Parameters for optimized free-atom wave functions
       integer ::iwdummy
 
 ctakao
-      integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv
-      real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron
+      integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv,iplz,miplzipl
+      real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron,qvalz
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
 
 c      print *,'0000111 ifives=',ifives
@@ -350,11 +350,10 @@ C --- Get species data ----
       call dpzero(pl,2*n0)
       call dpzero(ql,2*3*n0)
       allocate(plplus(0:lmxa,nsp),qlplus(0:lmxa,nsp))
+!! plplus, qlplus are higher ones (when PZ exist).
       plplus=0d0
       qlplus=0d0
-
-      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
-c      qatbk=qat
+c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
       do  10  i = 1, nsp
       do  10  l = 0, lmxa
         pnul = pnu(l+1,i)
@@ -364,21 +363,28 @@ c      qatbk=qat
         qval=qvaltot
 !!   Make pz the valence state:
 !! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
-!! plplus and qlplus are for P channel when PZ exits.
+!! plplus and qlplus are for P channel when deeper PZ exits.
 !!       jun2012 feb2011
         if (pzl .ne. 0) then
-          if(int(pnul-1) .eq. int(pzl)) then
-            plplus(l,i)= int(pnul) + .5d0
-            if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1)
-            ! plplus and qlplus are for P channel
-
-            if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) !for PZ We assume eigen(PZ) is deeper then eigen(P).
-            if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)
-            qvalv=0d0
-            if(qvaltot-qval>0d0) qvalv = qvaltot-qval
-            qlplus(l,i)= qvalv  ! For P channel. Preserve pl and ql to plplus,and qlplus.
-            pnul = pzl               !!For PZ channel.
-          elseif (int(pnul+1) .ne. int(pzl)) then
+           if(int(pnul-1) .eq. int(pzl)) then !pz is deeper than pnul
+              plplus(l,i)= int(pnul) + .5d0
+              if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1)
+! plplus and qlplus are for P channel
+              if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) ! We assume eigen(PZ) is deeper then eigen(P).
+              if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)
+              qvalv=0d0
+              if(qvaltot-qval>0d0) qvalv = qvaltot-qval
+              qlplus(l,i)= qvalv ! For P channel. Preserve pl and ql to plplus,and qlplus.
+              pnul = pzl       
+           elseif (int(pnul+1) == int(pzl)) then !pz is higher than pnul. plplus and qlplus are for
+              plplus(l,i) = pzl
+              if(nsp==2.and.pnul==0) plplus(l+1,i) = plplus(l+1,1)
+              if(nsp==1) qval = min(qvaltot, 2d0*(2d0*l+1d0)) 
+              if(nsp==2) qval = min(qvaltot, 2d0*l+1d0)
+              qvalz = 0d0
+              if(qvaltot-qval>0d0) qvalz = qvaltot-qval
+              qlplus(l,i)= qvalz
+           else
             call fexit3(-1,111,' Exit -1 freeat, l=%i:  '//
      .        'sc PZ=%d incompatible with valence (you may need to add P simultaneously.) P=%;3d',l,pzl,pnul)
           endif
@@ -389,87 +395,61 @@ c      qatbk=qat
         if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
         ql(2,l+1,i) = 0d0
         ql(3,l+1,i) = 0d0
-        if(pzl/=0) then
-c          print *,'qvaltot=',qvaltot
+        if (pzl/=0.and. int(pnul-1)==int(pzl)) then !pz is deeper than pnul
           if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
           if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+        elseif (pzl/=0) then !pz is higher than pnul
+          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
+          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
         else
           if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
           if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
         endif
    10 continue
-ctakao
+!!
       print *
-      write(stdo,"(a,a)") 'conf:SPEC_ATOM= '//trim(spid),
-     &' : --- Table for atomic configuration ---'
-      write(stdo,"(a)")'conf'//
-     &' When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
-      write(stdo,"(a)")'conf:'//
-     &'  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
-
-c      write(stdo,"(a)")'conf'//
-c     &' When int(P)z .ne. int(P), Qvalz:Q for MTOcore(PZ); Qvalz:MTO(P)'
-c      write(stdo,"(a)")'conf:'//
-c     &'  isp  l  int(P) int(P)z    Qval     Qvalz    Qcore   CoreConf'
-
-c      qtot=0d0
-c      qc  = 0d0
-c      amgm= 0d0
-c      qzz=0d0
+      write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
+      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
+      write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
       do i = 1, nsp
-        do l = 0, lmxa
-          ipl  = int(pnu(l+1,i)) !valence
-          iplv = int(pl(l+1,i))  !Pz
-          ipz = int(mod(pz(l+1,1),10d0))
-          qcc= (iplv-l-1)*(4*l+2)/nsp
-c        qc = qc+qcc
-c        qzz=0d0
-c        if(ipz/=0.and.ipz<ipl) qzz=(4*l+2)/nsp
-
-
-!! plplus, qlplus for P
-!! ql for Pz
-c          write(stdo,"('conf: ',
-c     &    i4,i3,3x,i5,i3,6x,f8.3,f8.3,1x,f8.3,' => ',10(i1,','))")
-c     &    i,l,ipl,iplv,qlplus(l,i),ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
-          write(stdo,"('conf: ', 
-     &    i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") 
-     &    i,l,ipl,iplv,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,iplv-1)
-
-c, qzz
-c     &   ,ql(1,l+1,i)+QZ, qcc-qzz
-c        qtot=qtot +         qcc+ql(1,l+1,i)
-c        amgm=amgm +(3-2*i)*(qcc+ql(1,l+1,i))
-        enddo
-        write(stdo,"(a)")
-     &  'conf:-----------------------------------------------------'
+      do l = 0, lmxa
+         pzl  = mod(pz(l+1,1),10d0)
+         iplz=999
+         if (pzl/=0 .and. int(pnu(l+1,i)-1)==int(pzl)) then !PZ exists and is deeper than P.
+            ipl   = int(plplus(l,i)) !P
+            iplz  = int(pl(l+1,i)) !PZ  deeper
+         else                   !PZ exist and higher than P. Or No PZ exist.
+            ipl  = int(pl(l+1,i)) !P  deeper
+            iplz = int(plplus(l,i)) !PZ
+         endif
+         miplzipl = ipl
+         if(iplz/=0) miplzipl = min(iplz,ipl)
+         qcc= (miplzipl-l-1)*(4*l+2)/nsp
+!!  plplus, qlplus for P;   ql for Pz
+         write(stdo,"('conf: ', i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") 
+     &        i,l,ipl,iplz,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,miplzipl-1)
       enddo
-
+      write(stdo,"(a)")'conf:-----------------------------------------------------'
+      enddo
       write(6,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
-
 
 cNov 2010 QvalCheck
       do i = 1, nsp
-        do l = 0, lmxa
-          if(.not. cmdopt('--skip_qvalcheck',16,0,strn)) then
-            if(ql(1,l+1,i)<-1d-10) then
-              call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM'//
-     &        ' or Use --skip_qvalcheck')
-            endif
-          endif
-        enddo
+      do l = 0, lmxa
+        if(.not. cmdopt('--skip_qvalcheck',16,0,strn)) then
+        if(ql(1,l+1,i)<-1d-10) then
+          call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM or Use --skip_qvalcheck')
+        endif
+        endif
       enddo
-cccccccccccccccccccccc
-c      print *,'tttttttttt11111'
-
+      enddo
 c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
 c     .            qc,qtot,amgm,w,w)
+
 #ifdef USEOPTIONAL
-      call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
-     . lcor , qcor , qc , qtot , amgm )
+      call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm )
 #else
-      call getqvc ( nsp , n0 , lmxa , z , pl , ql , 0 , 0 , kcor , 
-     . lcor , qcor , qc , qtot , amgm , iwdummy , iwdummy )
+      call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm, iwdummy , iwdummy )
 #endif
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011

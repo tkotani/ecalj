@@ -17,7 +17,8 @@ $(TARGET).exec:
 	# exec lmf command.
 	$(bindir)/lmf $(MATERIAL) > llmf
 	# exec eps_lmfh command.
-	$(bindir)/eps_lmfh $(MATERIAL)
+	rm EPS*
+	$(bindir)/eps_lmfh -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt
 	@-$(bindir)/diffnum EPS0001.nlfc.dat $(REFDIR)/EPS0001.nlfc.dat && echo "PASSED: $(TARGET) EPS0001.nlfc.dat" >> ../summary.txt || echo "FAILED: $(TARGET) EPS0001.nlfc.dat" >> ../summary.txt
 	@-$(bindir)/diffnum EPS0002.nlfc.dat $(REFDIR)/EPS0002.nlfc.dat && echo "PASSED: $(TARGET) EPS0002.nlfc.dat" >> ../summary.txt || echo "FAILED: $(TARGET) EPS0002.nlfc.dat" >> ../summary.txt

@@ -227,6 +227,13 @@ C --- Locate band limits ---
      i       konf,z,nl,natom,iclass,nclass
      o      ,valn)
       endif
+cccccccccccccccccccccccccccccccccc
+
+
+cccccccccccccccccccccccccccccccccccccccccc
+c      valn=9d0
+c      print *,' valn=',valn
+cccccccccccccccccccccccccccccccccccccccccc
 
       if(imode==1) then
         call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen

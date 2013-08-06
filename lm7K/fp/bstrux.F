@@ -340,7 +340,6 @@ C         i1 = index to hamiltonian offset
 
       subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,
      .srvol,q,pa,rsma,b0,b1,db)
-
 C- Make PW part of strux b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -381,6 +380,14 @@ C     complex(8),allocatable:: bpw(:,:)
       parameter (srm1=(0d0,1d0))
 
       if (napw .eq. 0) return
+
+cccccccccccccccccccccccccccccccccccccccccccc
+c      b0=0d0
+c      if(mode==0) return
+c      b1=0d0
+c      db=0d0
+c      return
+cccccccccccccccccccccccccccccccccccccccccccc
 
 CSFCPP#if F90
       nlmto = ndimh - napw

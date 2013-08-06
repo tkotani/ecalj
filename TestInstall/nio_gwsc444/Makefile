@@ -15,6 +15,7 @@ $(TARGET).exec:
 	# exec lmfa command.
 	$(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec gwsc command.
+	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)
 
 # check default case for $(TARGET).

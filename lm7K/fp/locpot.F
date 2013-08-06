@@ -254,7 +254,8 @@ C$&  MP_SCHEDTYPE=RUNTIME
 C       Float wave functions if:
 C         100's digit job > 0 set   OR:
 C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
-        lfltwf = mod(job,1000) .ge. 100 .or.
+c        lfltwf = mod(job,1000) .ge. 100 .or.
+        lfltwf = !mod(job,1000) .ge. 100 .or. !aug2013 comment out for lmfgw with FRZWF=T
      .  mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
 cccccccccccccc
 c        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf

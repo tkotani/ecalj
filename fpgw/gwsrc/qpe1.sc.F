@@ -97,14 +97,14 @@ c
 c loop over q-vector
       write (iftote, *) nq,ntq,ef
       write (iftote2,"(2i9,4d24.16)") 
-     &  nq,ntq, ef*rydberg(), eshtlda, eshift0, eshift02
+     .  nq,ntq, ef*rydberg(), eshtlda, eshift0, eshift02
       write (ifqpe,*)
       write (ifqpe,"(a)")
-c    &'           q               state  SEx   SExcore SEc    vxc    dSE
-c    &  dSEnoZ  eLDA  eQPnoZ  eQPnoZ  eHF  Z=1  FWHM=2Z*Simg  ReS(elda)'
-     &'           q               state  SEx   SExcore SEc    vxc   ---'
-     &// '   dSEnoZ  eQP(starting by lmf)'//
-     &'  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
+c     .'           q               state  SEx   SExcore SEc    vxc    dSE
+c     .  dSEnoZ  eLDA  eQPnoZ  eQPnoZ  eHF  Z=1  FWHM=2Z*Simg  ReS(elda)'
+     .'           q               state  SEx   SExcore SEc    vxc   ---'
+     .// '   dSEnoZ  eQP(starting by lmf)'//
+     .'  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
 c
       do      iq = 1,nq
         do      it = 1,ntq
@@ -127,10 +127,10 @@ c
               ehfx  = 0d0
             endif
             write(ifqpe,6100) q(1:3,it,iq),itq(it),sex(it,iq),sexcore(it,iq)
-     &        ,rsec(it,iq),                                 !sf
-     &        vxc(it,iq), 0d0, dsenoz, elda(it,iq)+eshtlda,
-c     &       eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm, 
-     &        0d0, 0d0, ehfx,zfac(it,iq),fwhm, 
+     .        ,rsec(it,iq),                                 !sf
+     .        vxc(it,iq), 0d0, dsenoz, elda(it,iq)+eshtlda,
+c      .       eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm, 
+     .        0d0, 0d0, ehfx,zfac(it,iq),fwhm, 
      .        sex(it,iq)+sexcore(it,iq)+rsec(it,iq)        !sf
  6100       format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
           endif
@@ -139,11 +139,11 @@ c     &       eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm,
           eqp02= elda(it,iq) + eshift2
 c
           write(iftote,"(3f12.7,1x,2i4,1x,4d24.16)") 
-     &   q(1:3,it,iq),itq(it),iq, elda(it,iq), eqp01, eqp02, zfac(it,iq)
+     .   q(1:3,it,iq),itq(it),iq, elda(it,iq), eqp01, eqp02, zfac(it,iq)
 
           write(iftote2,"(3f12.7,1x,2i4,1x,4d24.16)") 
-     &   q(1:3,it,iq),itq(it),iq, elda(it,iq)+eshtlda, 
-     &      eqp(it,iq),eqp2(it,iq), zfac(it,iq)
+     .   q(1:3,it,iq),itq(it),iq, elda(it,iq)+eshtlda, 
+     .      eqp(it,iq),eqp2(it,iq), zfac(it,iq)
         end do
         write (ifqpe,*)
       end do
@@ -172,11 +172,11 @@ c
             zinv2=0d0 !sf    -hartreeinv*(csec(3,it,iq) - csec(1,it,iq))/2d0/deltaw
 
             write (1111,6110) tpia*sqrt(sum(q(1:3,it,iq)**2)/ef)
-     &    ,q(1:3,it,iq),itq(it),
-     &    rydberginv*sm1,rydberginv*sm2,zinv1,zinv2,
-     &    rydberginv/dcmplx(zinv1,zinv2)*dcmplx(sm1,sm2)
+     .    ,q(1:3,it,iq),itq(it),
+     .    rydberginv*sm1,rydberginv*sm2,zinv1,zinv2,
+     .    rydberginv/dcmplx(zinv1,zinv2)*dcmplx(sm1,sm2)
  6110       format (f10.5,2x,
-     &     3f9.5,1x,i2,'  M=',2f12.5'  Zinv=',2f12.5,'  E=',2f12.5)
+     .     3f9.5,1x,i2,'  M=',2f12.5'  Zinv=',2f12.5,'  E=',2f12.5)
           end do
           write (1111,*)
         end do

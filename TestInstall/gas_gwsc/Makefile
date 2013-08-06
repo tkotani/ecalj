@@ -15,6 +15,7 @@ $(TARGET).exec:
 	# exec lmfa command.
 	$(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec gwsc command.
+	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt
 	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt

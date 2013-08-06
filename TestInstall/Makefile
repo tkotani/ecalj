@@ -1,3 +1,5 @@
+ecalroot=..
+
 # default mpi size, it is overwritten by envirionmen variable
 export mpi_size = 2
 # path to the executable programs or scripts
@@ -16,15 +18,15 @@ GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc
 #GW_TEST += nio_gwsc444 yh3fcc_gwsc666 gas_gwsc666 pdo_gwsc443 cugase2_gwsc222
 
 # programs under tools dir, required in the tests
-TL_DIR   = $(HOME)/ecalj/TOOLS
+TL_DIR   = $(ecalroot)/TOOLS
 TL_PROG  = diffnum comp compall comp.eval
 
 # programs under lm7k dir, required in the tests
-LM_DIR   = $(HOME)/ecalj/lm7K
+LM_DIR   = $(ecalroot)/lm7K
 LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK fplot plbnds pldos
 
 # programs under fpgw dir, required in the tests
-GW_DIR   = $(HOME)/ecalj/fpgw/exec
+GW_DIR   = $(ecalroot)/fpgw/exec
 GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc
 GW_PROG += rdata4gw_v2 heftet hchknw hbasfp0 dqpu
 GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm

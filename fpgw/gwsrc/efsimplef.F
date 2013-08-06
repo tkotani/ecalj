@@ -64,8 +64,11 @@ c total valence charge
             valn  = valn - (konfig(l,ic)-l-1) *( 2*l +1)*2
           end do
         end do
-        print *,' valn=',valn
       endif
+ccccccccccccccccccccccccccccccccccccccccccc
+c      valn=9d0
+cccccccccccccccccccccccccccccccccccccccccc
+        print *,' valn=',valn
 c
       do is = 1,ispin
         do iq = 1,nqibz

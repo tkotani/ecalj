@@ -17,7 +17,8 @@ $(TARGET).exec:
 	# exec lmf command.
 	$(bindir)/lmf $(MATERIAL) > llmf
 	# exec epsPP_lmfh_chipm command.
-	$(bindir)/epsPP_lmfh_chipm $(MATERIAL)
+	rm ChiPM*
+	$(bindir)/epsPP_lmfh_chipm -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt
 	@-$(bindir)/diffnum ChiPM0001.nlfc.mat $(REFDIR)/ChiPM0001.nlfc.mat && echo "PASSED: $(TARGET) ChiPM0001.nlfc.mat" >> ../summary.txt || echo "FAILED: $(TARGET) ChiPM0001.nlfc.mat" >> ../summary.txt
 	@-$(bindir)/diffnum ChiPM0002.nlfc.mat $(REFDIR)/ChiPM0002.nlfc.mat && echo "PASSED: $(TARGET) ChiPM0002.nlfc.mat" >> ../summary.txt || echo "FAILED: $(TARGET) ChiPM0002.nlfc.mat" >> ../summary.txt
