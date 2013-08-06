@@ -415,25 +415,6 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
 
       if(debug) print *,' goto alloc zmelpl'
       allocate( zmelpl(ngc,nt0,ntp0) )
-cccccccccccccccccccccccccccccccccccccccccccccccc
-c      if(.false.) then !old version
-c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c     i       shtv, matmul(symope,qibz(1:3,k)), qbas,
-c     o       zmelpl)
-c      else             !new version from Sep-10 2000
-c       call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
-c     o       zmelpl)
-c       endif
-      if(debug) print *, 'drvmelp2:goto melpln2'
 ccccccccccccccccccc
 c      print *, 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
 c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
@@ -673,20 +654,22 @@ c-------------------------------------------------
      &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
      &     nadd(3)   !ngvecc(3,ngc)
       complex(8):: geigq1(ngp1,ntp0),
-     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0*ntp0),  !it was zmelp(ngc,nt0,ntp0); but no effect sep2009.
+     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0,ntp0),
      &             img=(0d0,1d0) ,phas         ,phase2
       real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
      & ,pi=3.1415926535897932D0, symope(3,3)   ,qx(3)
       integer(4),allocatable :: ipp(:,:,:)
-      complex(8),allocatable :: gg(:,:),gg_(:,:,:),xxx(:,:)
+      complex(8),allocatable :: gg(:,:,:),xxx(:,:)
       integer(4) :: iqi,igc2,ngcx,nn(1:3),
      &       nxmin,nymin,nzmin,nxmax,nymax,nzmax,ix,iy
       integer(4)::verbose,nomatm
       logical:: debug=.false.
       real(8):: qu1(3),qu2(3)
-      complex(8),allocatable:: geigq1_(:,:)
-      allocate(geigq1_(ntp0,ngp1))
+
 c------------------------------
+
+      if(debug) write(*,*) "============== DEBUG: PASS melpln2 ============ "
+
       if(verbose()>=100) print *,' melpln2: '
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -706,11 +689,6 @@ c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
         print *, qi, ngcx, ngc
         stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
       endif
-      do ig1=1,ngp1
-        do itp=1,ntp0
-          geigq1_(itp,ig1)=geigq1(ig1,itp)
-        enddo
-      enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      if(debug) then
 c$$$       print *,' melpln2 old sumcheck ngc2 ngvec ppx ='
@@ -759,8 +737,8 @@ c      enddo
 c      print *," melpln2:goto ig1 ig2 loop"
 c #ifdef EXPAND_MELPLN2
 
-      allocate(gg(ngc2,nt0*ntp0),gg_(ntp0,nt0,ngc2)) !sf
-      gg_=0d0 !sf
+      allocate(gg(ngc2,nt0,ntp0)) !sf
+      gg=0d0 !sf
       do ig1 = 1,ngp1
         do ig2 = 1,ngp2
           nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
@@ -783,50 +761,73 @@ c$$$cccccccccccccccccccccccccc
         enddo
       enddo
       if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd
+c$$$-!$OMP parallel private(nn,igc2,qg,phas,ge2) 
+c$$$-      do ig1 = 1,ngp1
+c$$$-        do ig2 = 1,ngp2
+c$$$-c$$$cccccccccccccccccccc
+c$$$-c$$$          if(ig1==2) then
+c$$$-c$$$             print *,' start nn=',ig1,ig2,nadd
+c$$$-c$$$             print *,' ngvecp1(1:3,ig1)',ngvecp1(1:3,ig1)
+c$$$-c$$$             print *,' ngvecp2(1:3,ig2)',ngvecp2(1:3,ig2)
+c$$$-c$$$          endif
+c$$$-c$$$cccccccccccccccccccc
+c$$$-          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
+c$$$-          igc2    = ipp(nn(1),nn(2),nn(3))
+c$$$-          qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
+c$$$-          phas = exp(-img*sum(qg*shtv))
+c$$$-!$OMP do 
+c$$$-          do it =1,nt0
+c$$$-            ge2=dconjg(geigq2(ig2,it)) *phas
+c$$$-            do itp=1,ntp0
+c$$$-              gg_(itp,it,igc2) =gg_(itp,it,igc2) 
+c$$$-     &        +  geigq1_(itp,ig1)*ge2
+c$$$-            enddo
+c$$$-          enddo
+c$$$-!$OMP end do 
+c$$$-        enddo
+c$$$-      enddo
+c$$$-!$OMP end parallel 
+      do it =1,nt0
+         do itp=1,ntp0
+            do ig1 = 1,ngp1
+               do ig2 = 1,ngp2
+                  nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
+                  igc2    = ipp(nn(1),nn(2),nn(3))
+                  qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
+                  phas = exp(+img*sum(qg*shtv))
 
-!$OMP parallel private(nn,igc2,qg,phas,ge2) 
-      do ig1 = 1,ngp1
-        do ig2 = 1,ngp2
-c$$$cccccccccccccccccccc
-c$$$          if(ig1==2) then
-c$$$             print *,' start nn=',ig1,ig2,nadd
-c$$$             print *,' ngvecp1(1:3,ig1)',ngvecp1(1:3,ig1)
-c$$$             print *,' ngvecp2(1:3,ig2)',ngvecp2(1:3,ig2)
-c$$$          endif
-c$$$cccccccccccccccccccc
-          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
-          igc2    = ipp(nn(1),nn(2),nn(3))
-          qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
-          phas = exp(-img*sum(qg*shtv))
-!$OMP do 
-          do it =1,nt0
-            ge2=dconjg(geigq2(ig2,it)) *phas
-            do itp=1,ntp0
-              gg_(itp,it,igc2) =gg_(itp,it,igc2) 
-     &        +  geigq1_(itp,ig1)*ge2
-            enddo
-          enddo
-!$OMP end do 
-        enddo
-      enddo
-!$OMP end parallel 
+                  ge2=geigq2(ig2,it) *phas
+                  gg(igc2,it,itp)=gg(igc2,it,itp)+dconjg(geigq1(ig1,itp))*ge2
+               enddo ! ig2
+            enddo ! ig1
+         enddo ! itp
+      enddo ! it
+      ppx=dconjg(ppx)
 
-      if(debug) print *,'melpln2: 444444444444444 '
+c$$$       do itp=1,ntp0
+c$$$-        do it =1,nt0
+c$$$-          do igc2=1,ngc2
+c$$$-            gg(igc2,it+(itp-1)*nt0)=gg_(itp,it,igc2)
+c$$$-          enddo
+c$$$-        enddo
+c$$$-      enddo
+c$$$-      deallocate(gg_)
+c$$$-c      if(nomatm()==1) then !sep2009 for case to avoid bug in zgemm (called in matm)
+c$$$-c        zmelp = matmul(ppx(1:ngc,1:ngc2),gg)
+c$$$-c      else
+c$$$-      call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0) !ppx= matmul(ppovlinv(ngc,ngc),ppovl(ngc,ngc2)
+c$$$-c      endif
+c$$$-      deallocate(ppx,gg,ngvecc2,ipp,geigq1_)
+c$$$-      zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >
       do itp=1,ntp0
-        do it =1,nt0
-          do igc2=1,ngc2
-            gg(igc2,it+(itp-1)*nt0)=gg_(itp,it,igc2)
-          enddo
-        enddo
-      enddo
-      deallocate(gg_)
-c      if(nomatm()==1) then !sep2009 for case to avoid bug in zgemm (called in matm)
-c        zmelp = matmul(ppx(1:ngc,1:ngc2),gg)
-c      else
-      call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0) !ppx= matmul(ppovlinv(ngc,ngc),ppovl(ngc,ngc2)
-c      endif
-      deallocate(ppx,gg,ngvecc2,ipp,geigq1_)
-      zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >
+         call zgemm( "N", "N", ngc, nt0, ngc2, dcmplx(1d0,0d0), 
+     &        ppx, ngc, 
+     &        gg(:,:,itp), ngc2,
+     &        dcmplx(0d0,0d0), zmelp(:,:,itp), ngc )
+      end do
+
+      deallocate(ppx,gg,ngvecc2,ipp)
+      if(debug) write(*,*) "=== CHECK: melpln2 ", sum(zmelp)
       end subroutine melpln2 
 
 
