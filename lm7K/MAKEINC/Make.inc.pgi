@@ -1,13 +1,14 @@
-FC = gfortran 
-LK = gfortran
+FC = pgf90
+LK = pgf90
+CPP = cpp
 
-FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS_COMMON= -Mextend $(CPP_SW) $(module)
 #gcc ?: -O3, -O2, -O1, -O0
 #gcc 4.6.0: -O2, -O2, -O1, -O0
-FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
-FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS = -O2  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O2 $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O1 $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0 $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 # safer option (debug)
@@ -21,8 +22,7 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 ##### MATH libraries FFTW,BLAS LAPACK ###
 # ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
 #LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-
+LIBMATH=-llapack -lblas -lfftw3
 
 
 #############################################################
@@ -65,11 +65,10 @@ make_fc_version:
 
 ############# where is modules?
 moddir = MODDIR/$(obj_path)
-module = -J$(moddir) -I$(moddir)
-
+module = -module $(moddir)
 
 ############# CPP switch 
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR
+CPP_SW = -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME -DHASGETENVQQ -DHASSETENVQQ -DHASETIME -DNOQUAD  -DNOT_OVERLAP_VAR -DDOUBLEBACKSLASH
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #

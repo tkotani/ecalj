@@ -6,7 +6,7 @@
 # ---- Machine-specific compiler flags ---
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
-include make.inc
+include make.inc.sora1
 
 
 
