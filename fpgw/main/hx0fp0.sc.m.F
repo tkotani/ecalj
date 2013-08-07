@@ -125,7 +125,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ifw0w0i
       logical :: readw0w0i,symmetrize,eibzmode
       real(8):: schi=-9999 !dummy
-      logical:: PBMW=.false.
+      logical:: PBMW=.false. !new paralell version of MPI.
 !-------------------------------------------------------------------------
 
       call MPI__InitializeQPBM()

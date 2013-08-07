@@ -142,7 +142,9 @@ for matr in choosedmaterials:
     os.chdir(wdir)
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
-    joblmf='lmf  '+ext+optionlmf+' >llmf'
+    joblmf='lmf  '+ext+optionlmf+' >llmf'   
+    #joblmf='mpirun -np 12 lmf-MPIK  '+ext+optionlmf+' >llmf'
+
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
         pass

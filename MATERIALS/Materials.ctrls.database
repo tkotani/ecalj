@@ -37,13 +37,13 @@ BCCMG:
 %const bohr=0.529177
 STRUC   ALAT={a} PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5
 SITE    ATOM=@1 POS= 0 0 0
-SPEC    ATOM=@1 Z=@11 MMOM=@101
+SPEC    ATOM=@1 Z=@11 MMOM=@101 
 -----------------------------------------
 FCCMG:
 %const bohr=0.529177
 STRUC   ALAT={a} PLAT= 0.0 0.5 0.5  0.5 0.0 0.5   0.5 0.5 0.0
 SITE    ATOM=@1 POS= 0 0 0 
-SPEC    ATOM=@1 Z=@11 MMOM=@101
+SPEC    ATOM=@1 Z=@11 MMOM=@101 
 -----------------------------------------
 FCC:
 %const bohr=0.529177
@@ -300,8 +300,8 @@ SiO2c SIO2CRIST: a=13.54 --nk1=6  #sc-cubic-cristobalite 13.45485515
 #-----------------------------------
 Li BCC: @1=Li a=6.35  --nk1=12 
 Cu FCC: @1=Cu a=6.798 --nk1=12 
-Fe BCCMG: @1=Fe @11=26 @101=0,0,2,0 a=2.8665/bohr --nk1=12  --nspin=2
-Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5 a=3.524/bohr  --nk1=12  --nspin=2
+Fe BCCMG: @1=Fe @11=26 @101=0,0,2,0  a=2.8665/bohr --nk1=12  --nspin=2
+Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5  a=3.524/bohr  --nk1=12  --nspin=2
 NiO NIOAF2: @1=Niup @2=Nidn @3=O  @11=28 @12=28 @13=8  @101=1.2 a=7.88 --nspin=2 --nk1=6 --nk2=6 --nk3=6
 HfO2 HFO2:  @1=Hf @2=O  a=6.700 --nk1=6 --nk2=6 --nk3=4
 ZrO2 ZRO2:  @1=Zr @2=O  a=6.726 --nk1=6 --nk2=6 --nk3=4
