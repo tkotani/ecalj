@@ -231,7 +231,7 @@ cccccccccccccccccccccccccccccccccc
 
 
 cccccccccccccccccccccccccccccccccccccccccc
-c      valn=9d0
+c      valn=29d0
 c      print *,' valn=',valn
 cccccccccccccccccccccccccccccccccccccccccc
 

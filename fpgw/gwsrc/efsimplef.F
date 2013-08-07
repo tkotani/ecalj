@@ -66,7 +66,7 @@ c total valence charge
         end do
       endif
 ccccccccccccccccccccccccccccccccccccccccccc
-c      valn=9d0
+c      valn=29d0
 cccccccccccccccccccccccccccccccccccccccccc
         print *,' valn=',valn
 c
