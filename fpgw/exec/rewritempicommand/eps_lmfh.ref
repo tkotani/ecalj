@@ -1,0 +1,88 @@
+#!/bin/tcsh
+#for tatara in kyushu-u This is neglected in other cases.
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+%HEADER
+### MPI version 
+if($# != 3 |$argv[1] != "-np" ) then
+  echo "  An example of usage: eps_lmfh -np 4 si"
+  echo "  k paralell for lmfgw-MPIK and hx0fp0"
+  exit
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+echo "### START eps_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+
+echo $nfpgw
+echo $TARGET
+setenv LMJOB $TARGET
+
+rm -f NoCore QPU* >& /dev/null
+
+### Check the existence of EPScond
+#if (! -e EPScond) then
+#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
+#   echo ' Now I made a sample of EPScond.tmp'
+#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
+#   exit 1
+#endif 
+
+### Get LATTC and SYMOPS
+###make_ref.awk echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
+%CMD program=lmfgw echoinput=0  target=--novxc target2=$TARGET output=llmfgw00 
+
+### Add q points  to Q0P file.  -----------------
+# read <QforEPS> in GWinput
+###make_ref.awk echo 2|$nfpgw/qg4gw  >lqg4gw02
+%CMD program=qg4gw echoinput=2 output=lqg4gw02 
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+###make_ref.awk   echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
+%CMD mpi=1 program=lmfgw-MPIK echoinput=5  target=--novxc target2=$TARGET output=llmfgw_eigval 
+  mv eigval eigmtet
+endif
+
+###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
+%CMD mpi=1 program=lmfgw-MPIK echoinput=1  target=--novxc target2=$TARGET output=llmfgw01 
+
+set exinfo = $?
+
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $TARGET
+  echo `tail -3 llmfgw01 `
+  exit
+endif
+
+###make_ref.awk echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
+%CMD program=lmf2gw echoinput=$TARGET output=llmf2gw 
+rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
+
+###make_ref.awk echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+%CMD program=rdata4gw_v2 echoinput=1 output=lrdata4gw 
+
+# get EFERMI
+###make_ref.awk echo 1|$nfpgw/heftet  >leftet
+%CMD program=heftet echoinput=1 output=leftet 
+
+###make_ref.awk echo 0|$nfpgw/hbasfp0 >lbas
+%CMD program=hbasfp0 echoinput=0 output=lbas 
+###make_ref.awk echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
+%CMD mpi=1 program=hvccfp0 echoinput=202 output=lvcc	 
+
+###make_ref.awk echo 203|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
+%CMD mpi=1 program=hx0fp0 echoinput=203 output=lx0 
+#mkdir EpsP$qqq
+#mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
+ 
+
+
+
+
+
+ 

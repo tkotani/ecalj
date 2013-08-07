@@ -1,0 +1,155 @@
+#!/bin/tcsh
+# --------------------------------
+# GW run. Sergey's mode
+# Required inputs are 
+#   ctrl.si rst.si GWinput (ANFcond)
+#---------------------------------------------
+#for tatara in kyushu-u This is neglected in other cases.
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+%HEADER
+set n = $0
+set nfpgw = ${n:h}
+if ($#argv != 1) goto usage
+echo $nfpgw
+echo $argv[1]
+
+pushd $nfpgw >& /dev/null
+if (! -x hbasfp0 || ! -x hvccfp0 || ! -x hx0fp0 || ! -x hsfp0 || ! -x hqpe || ! -x hchknw || ! -x qg4gw || ! -x heftet || ! -x rdata4gw_v2 || ! -x hx0fp0_sc || ! -x hsfp0_sc || ! -x hqpe_sc) then
+  echo "lmgw (abort) one or more of the following is missing from $nfpgw, or is not executable:"
+  echo "  hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe hchknw qg4gw heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc"
+  exit -1
+endif
+popd >& /dev/null
+
+if (! -e ctrl.$argv[1]) then
+  echo "missing file ctrl.$argv[1] !"
+  shift
+  goto usage
+endif
+if (! -e rst.$argv[1] && ! -e rsta.$argv[1]) then
+  echo "missing file neither rst.$argv[1] nor rsta..$argv[1] !"
+  shift
+  goto usage
+endif
+
+if (! -e GWinput) then
+  echo "missing file GWinput !"
+  shift
+  goto usage
+endif
+
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ echo "QPU is moved to QPU.old"
+ mv QPU QPU.old
+endif
+if(-e QPD) then
+ mv QPD QPD.old
+ echo "QPD is moved to QPD.old"
+endif
+     
+
+############## preparatoy gw stage ################
+###make_ref.awk echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+%CMD program=lmfgw echoinput=0  target=$argv[1] output=llmfgw00 
+###make_ref.awk echo 1 |$nfpgw/qg4gw           > lqg4gw
+%CMD program=qg4gw echoinput=1  output=lqg4gw 
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+###make_ref.awk   echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
+%CMD program=lmfgw echoinput=5  target=$argv[1] output=llmfgw_eigval 
+#  exit #Why did I add this exit?
+  mv eigval eigmtet
+  echo 'end of eigval' 
+endif
+
+###make_ref.awk echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+%CMD program=lmfgw echoinput=1  target=$argv[1] output=llmfgw01 
+set exinfo = $?
+#@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $argv[1]
+  echo  `tail -3 llmfgw01 `
+  exit
+endif
+###make_ref.awk echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+%CMD program=lmf2gw echoinput=$argv[1] output=llmf2gw 
+
+
+
+############## main gw stage ################
+###make_ref.awk echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+%CMD program=rdata4gw_v2 echoinput=0 output=lrdata4gw_v2 
+
+
+# -- get EFERMI for hx0fp0
+###make_ref.awk echo 1|$nfpgw/heftet      >leftet
+%CMD program=heftet echoinput=1 output=leftet 
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+###make_ref.awk echo 0|$nfpgw/hchknw         >lchknw
+%CMD program=hchknw echoinput=0 output=lchknw 
+
+
+### Core1 exchange self-energy 
+# -- product basis for core
+###make_ref.awk echo 3|$nfpgw/hbasfp0 >lbasC
+%CMD program=hbasfp0 echoinput=3 output=lbasC 
+# -- Coulobm matrix
+###make_ref.awk echo 0|$nfpgw/hvccfp0        >lvccC
+%CMD program=hvccfp0 echoinput=0 output=lvccC 
+
+
+# -- the self energy from core1
+###make_ref.awk echo 3|$nfpgw/hsfp0   >lsxC
+%CMD program=hsfp0 echoinput=3 output=lsxC 
+
+
+### Valence part of the self-energy
+###make_ref.awk echo 0|$nfpgw/hbasfp0  >lbas
+%CMD program=hbasfp0 echoinput=0 output=lbas 
+# -- Coulobm matrix
+###make_ref.awk echo 0|$nfpgw/hvccfp0  >lvcc	
+%CMD program=hvccfp0 echoinput=0 output=lvcc	 
+
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+###make_ref.awk echo 11|$nfpgw/hsfp0   >lsx_sf
+%CMD program=hsfp0 echoinput=11 output=lsx_sf 
+
+# -- Sergey.F the screened coulom interaction 
+if(-e WVI) then
+  rm -f WVI 
+endif
+if(-e WVR) then
+  rm -f WVR 
+endif
+
+###make_ref.awk echo 11|$nfpgw/hx0fp0  >lx0_sf
+%CMD program=hx0fp0 echoinput=11 output=lx0_sf 
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+###make_ref.awk echo 12|$nfpgw/hsfp0   >lsc_sf
+%CMD program=hsfp0 echoinput=12 output=lsc_sf 
+
+# -- Make summary 
+###make_ref.awk echo 0|$nfpgw/hqpe    >lqpe
+%CMD program=hqpe echoinput=0 output=lqpe 
+
+
+exit
+
+
+##############################################################################
+usage:
+echo '   --- One-shot GW calculation to get QP energies ---'
+echo '             generate imaginary weights in hx0fp0 and'
+echo '             real weights from Hilbert transform (S. Faleev).'
+echo '      usage : gw_lmfh extension'
+echo '         e.g. gw_lmfh si   '
+echo '              for ctrl.si rst.si and GWinput (or GWIN0 GWIN_V2)'
+exit -1

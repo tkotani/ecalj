@@ -42,10 +42,10 @@
 ../Miyake/hx0fp0.m.o:../gwsrc/readqg.o
 ../Miyake/wmat.o:../gwsrc/readqg.o
 ../Miyake/wmat2.o:../gwsrc/readqg.o
-../Miyake/x0kf_v3h.o:../gwsrc/readqg.o
+../Miyake/x0kf_v3h.o:../gwsrc/readqg.o 
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
 ../gwsrc/readeigen.o:../gwsrc/readqg.o
-../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
+../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o ../gwsrc/ppbafp.fal.o 
 ../gwsrc/x0kf_v4h.Slow4timerev.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
