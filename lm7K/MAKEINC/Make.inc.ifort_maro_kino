@@ -1,15 +1,18 @@
+######################################################
+#
+# $lmdir, which is defined in Makefile in ./ and in other 
+# directories, should point at this root directory.
+#
 
-LIBkino= -L$(HOME)/local.ifort/lib -lfftw3 \
-  -L/opt/acml4.4.0/gfortran64/lib -lacml 
+LIBLOC= -lfftw3 -mkl # -lifcore -lguide -pthread
 
-LIBLOC = $(LIBkino)
 
 
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
-FC = mpif90 -f90=ifort -mcmodel=medium -heap-arrays 100
-LK = mpif90 -f90=ifort -parallel -mcmodel=medium -heap-arrays 100
+FC = mpif90 -fc=ifort -mcmodel=medium -heap-arrays 0 
+LK = mpif90 -fc=ifort -mcmodel=medium -heap-arrays 0
 
 # -heap-array puts automatic and temporary arrays on the heap instead of stack
 # -mcmodel=medium uses data area beyound 2GB. 
@@ -24,14 +27,14 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132
+FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132 -g -traceback
 
 #--- v11.1 
 # FFLAGS -O1 -O1 -O1 -O0 -O0 
 
-FFLAGS = -O1 $(FFLAGS_COMMON)
-FFLAGS_LESS =  -O1 $(FFLAGS_COMMON) 
-FFLAGS_LESS2 =  -O1  $(FFLAGS_COMMON)
+FFLAGS = -O1 -xHost $(FFLAGS_COMMON)
+FFLAGS_LESS =  -O1 -xHost $(FFLAGS_COMMON) 
+FFLAGS_LESS2 =  -O1 -xHost  $(FFLAGS_COMMON)
 FFLAGS_LESS3 =  -O0  $(FFLAGS_COMMON)
 FFLAGS_NONE =  -O0 $(FFLAGS_COMMON)
 
@@ -45,7 +48,7 @@ FFLAGS_NONE =  -O0 $(FFLAGS_COMMON)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -DMPIK 
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
@@ -125,11 +128,11 @@ RANLIB := ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
-#SUBS   := libsubs.a
-#FP     := libfp.a
-#GWD    := libgwd.a
-#SLATSM := slatsm.a
+programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
+SUBS   := libsubs.a
+FP     := libfp.a
+GWD    := libgwd.a
+SLATSM := slatsm.a
 #NC     = libnc.a
 #TB     = libtb.a
 #
@@ -141,11 +144,11 @@ RANLIB := ranlib
 #SLATSM = slatsm-MPI.a
 #
 ##### MPIK case ##
-programs = lmf-MPIK lmfgw-MPIK
-SUBS   = libsubs-MPIK.a 
-FP     = libfp-MPIK.a
-GWD    = libgwd-MPIK.a
-SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
+#programs = lmf-MPIK lmfgw-MPIK
+#SUBS   = libsubs-MPIK.a 
+#FP     = libfp-MPIK.a
+#GWD    = libgwd-MPIK.a
+#SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
 ### path to libraries (fixed) #########
 LIBSUBS := subs/$(SUBS)
 LIBFP   := fp/$(FP)
