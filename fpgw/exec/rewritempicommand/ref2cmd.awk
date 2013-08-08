@@ -4,11 +4,11 @@
 BEGIN {
  COMMENT="###ref2cmd.awk"
 
- tempfile="_IN_"
- mpirun="mpirun"
- programdir="$nfpgw/"
-# header="if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh"
- header=""
+ tempfile="_IN_"    # temporary file name 
+ mpirun="mpirun"    # MPI command 
+ programdir="$nfpgw/"   # programpath 
+# header="if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh"   # custom extra script for some system, e.g. Kyushu-U, tatara
+ header=""   # if uncessary blank it.
 
 # and also change  make_cmd()
 
@@ -39,7 +39,11 @@ func make_cmd( ){
   print "#>>>"
   if (length(echoinput)>0) { printf("echo %s > %s\n", echoinput,tempfile)}
   if (mpi>0) { printf("%s -np $MPI_SIZE ",mpirun) } 
-  if (length(program)>0) { printf("%s ",programdir program); }
+
+  if (program=="hx0fp0_sc") { runoption="-nq 2 -nm 2" } # for -np 4 , q=2,m=2 parallel  
+  else { runoption="" }
+
+  if (length(program)>0) { printf("%s %s ",programdir program,runoption); }
   if (length(target)>0) { printf("%s ",target); }
   if (length(target2)>0) { printf("%s ",target2); }
   if (length(target3)>0) { printf("%s ",target3); }

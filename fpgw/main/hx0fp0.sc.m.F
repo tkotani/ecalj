@@ -125,6 +125,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ifw0w0i
       logical :: readw0w0i,symmetrize,eibzmode
       real(8):: schi=-9999 !dummy
+      logical:: PBMW=.false.
 !-------------------------------------------------------------------------
 
       call MPI__InitializeQPBM()
@@ -960,6 +961,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             iqeibz=iq
             symmetrize=(is==nspinmx)
+            write(*,*)'x0kf MPI parallel=',PBMW
+            if (PBMW) then 
             call x0kf_v4hz_PBMW(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
@@ -978,6 +981,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
      i           chipm,eibzmode,  !z1offd,
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+            else
+            call x0kf_v4hz(npm,ncc,   
+     i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+     i           q,  
+     i           nspin,is,isf, symmetrize, !
+     i           qbas,ginv,  qbz,wbz, 
+     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i           ppb(1,is), 
+     i           icore,ncore,
+     d           nlmto,nqbz,noccx,noccxv,
+     d           nl,nclass,natom,nnc,
+     d           nlnmx,mdimx,nbloch,  nwhis,
+     i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i           nqbze,nband,nqibz, 
+     o           rcxq,          ! rcxq is the accumulating variable for spins 
+     i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
+     i           chipm,eibzmode,  !z1offd,
+     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+            endif
             print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
 

@@ -4,7 +4,6 @@
 
 
 # ---- Machine-specific compiler flags ---
-#include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
 include make.inc
 
@@ -345,6 +344,7 @@ eout2: $(EO2)
  $(gwsrc)x0kf_v2h$(x0kf_g) \
  $(gwsrc)x0kf_v3h$(x0kf_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
+ $(gwsrc)x0kf_v4h_PBMW$(x0kf_g) \
  $(nfpsrc)diagcv2.o
 
  X0 = \

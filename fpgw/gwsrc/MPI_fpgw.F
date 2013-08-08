@@ -192,6 +192,11 @@ C     ! in case no arguments, set as default
          mpi__sizeM = 1
       end if
 
+      if (mpi__root) then 
+        write(6,'(a,4i5)') 'MPI parallel: QPBM='
+     .    ,mpi__sizeQ, mpi__sizeP,mpi__sizeB,mpi__sizeM 
+      endif
+
 C     ! check inconsistent settings
       if( mpi__sizeQ*mpi__sizeP*mpi__sizeB*mpi__sizeM /= mpi__size ) then
          write(*,*) "MPI size mismatch"
