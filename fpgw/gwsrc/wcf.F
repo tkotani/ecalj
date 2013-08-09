@@ -160,14 +160,16 @@ c------------
       do iq   = 1,nqbz
         if( nbnb(iq)/=nbnb0(iq) ) then
           print *, 'chknbnb: nbnb(iq)/=',nbnb(iq),nbnb0(iq)
-          stop 'chknbnb: nbnb(iq)/=nbnb0(iq)'
+Cstop2rx 2013.08.09 kino          stop 'chknbnb: nbnb(iq)/=nbnb0(iq)'
+          call rx( 'chknbnb: nbnb(iq)/=nbnb0(iq)')
         endif
         do ibib = 1,nbnb(iq)
           if( n1b(ibib,iq)/=n1b0(ibib,iq) .or.
      &      n2b(ibib,iq)/=n2b0(ibib,iq) ) then
             print *, 'chknbnb: n1b',ibib,iq,n1b(ibib,iq),n1b0(ibib,iq)
             print *, 'chknbnb: n2b',ibib,iq,n2b(ibib,iq),n2b0(ibib,iq)
-            stop 'chknbnb: '
+Cstop2rx 2013.08.09 kino            stop 'chknbnb: '
+            call rx( 'chknbnb: ')
           endif
         enddo
       enddo
@@ -248,7 +250,8 @@ c
       iam(iof(natom)+1:nbloch) = natom
       write(6,*) (ia1, mdim( iclass(ia1) ),ia1 = 1, natom)
       if( nbloch .ne. iof(natom) +mdim(iclass(natom)) )
-     &  stop ' anfx0k: nbloch.ne....'
+Cstop2rx 2013.08.09 kino     &  stop ' anfx0k: nbloch.ne....'
+     &  call rx( ' anfx0k: nbloch.ne....')
 c phase shifts
       do ia1 = 1, natom
         qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))

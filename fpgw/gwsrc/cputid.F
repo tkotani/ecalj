@@ -62,7 +62,8 @@ c ifile = 0 ==> screen
       data cpu0 /-1.d0/
       save cpu0
       character*(*):: message
-      if(ifile .lt. 0)stop 'cputid: negative unit number'
+Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
+      if(ifile .lt. 0)call rx( 'cputid: negative unit number')
       cpuetime = etime(etw)
       if (cpu0 .lt. 0.d0) cpu0 = cpuetime
       cpusec   = cpuetime - cpu0
@@ -76,7 +77,8 @@ c ifile = 0 ==> screen
       return
 !!
       entry cputid2(message,ifile)
-      if(ifile .lt. 0)stop 'cputid: negative unit number'
+Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
+      if(ifile .lt. 0)call rx( 'cputid: negative unit number')
       cpuetime = etime(etw)
       if (cpu0 .lt. 0.d0) cpu0 = cpuetime
       cpusec   = cpuetime - cpu0

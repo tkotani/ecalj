@@ -433,8 +433,10 @@ c eigenfunction for itp at q
       enddo
       if(debug) print *, ' sxcf: 3'
       if(bzcase()==1) then
-        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
-        if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
+        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+Cstop2rx 2013.08.09 kino        if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+        if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       endif
 c-----
       if(exchange.and.(.not.newaniso())) then
@@ -515,12 +517,14 @@ c            print *,'readin qvv=',qvv
           if(sum(abs(qvv-qxx))>1d-6) then
             print *,'qvv =',qvv
             print *,'qxx=',qxx,kx
-            stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
+Cstop2rx 2013.08.09 kino            stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
+            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
           endif
  1133     continue
           if( ngb0/=ngb ) then !sanity check
             print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
-            stop 'hsfp0.m.f:ngb0/=ngb'
+Cstop2rx 2013.08.09 kino            stop 'hsfp0.m.f:ngb0/=ngb'
+            call rx( 'hsfp0.m.f:ngb0/=ngb')
           endif
 c$$$         if(sum(abs(qibz_k))<1d-6) then
 c$$$          idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
@@ -840,13 +844,15 @@ c     endif
           allocate( pomat(nn,no) )
           pomat= pomatr(1:nn,1:no,kx)
           if( sum(abs(qibz_k-qrr(:,kx)))>1d-10 .and.kx <= nqibz ) then
-            stop 'qibz/= qrr'
+Cstop2rx 2013.08.09 kino            stop 'qibz/= qrr'
+            call rx( 'qibz/= qrr')
           endif
           if(no /= ngb.and.kx <= nqibz) then
 !A bit sloppy check only for kx<nqibz because qibze is not supplied...
             write(6,"(' q  ngb  ',3d13.5,3i5)")  qibz_k,ngb
             write(6,"(' q_r  nn no',3d13.5,3i5)") q_r,nn,no
-            stop 'x0kf_v2h: POmat err no/=ngb'
+Cstop2rx 2013.08.09 kino            stop 'x0kf_v2h: POmat err no/=ngb'
+            call rx( 'x0kf_v2h: POmat err no/=ngb')
           endif
 ccccccccccccccccccccccccccc
 ctttt
@@ -947,7 +953,8 @@ c
             wtt = wk(kr)                   !         wtx = 1d0
           else
             wtt = wk(1)*wgt0(kx-nqibz,irot)  !       wtx = wgt0(kx-nqibz,irot)
-            if(abs(wk(1)-1d0/dble(nqbz))>1d-10)stop'sxcf:wk(1)inconsistent'
+Cstop2rx 2013.08.09 kino            if(abs(wk(1)-1d0/dble(nqbz))>1d-10)stop'sxcf:wk(1)inconsistent'
+            if(abs(wk(1)-1d0/dble(nqbz))>1d-10)call rx( 'sxcf:wk(1)inconsistent')
           endif
         endif
 
@@ -1202,7 +1209,8 @@ c COH term test ----- The sum of the all states for zwz00 gives the delta functi
         endif
 c
         nx  = niw
-        if(niw <1) stop " sxcf:niw <1"
+Cstop2rx 2013.08.09 kino        if(niw <1) stop " sxcf:niw <1"
+        if(niw <1) call rx( " sxcf:niw <1")
 
 c May2006 zwz
         npm = 1
@@ -1442,7 +1450,8 @@ c Gaussian smearing
      &      wintzsg_npm(npm, zwzs,zwz0(it,itp),freqx,wx,ua_,expa_,we,nx, esmrx)
               else
                 if(npm==2) 
-     &        stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+Cstop2rx 2013.08.09 kino     &        stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+     &        call rx( ' ###Not impliment wintzav for npm=2. Use Gausssmear.')
                 zwzi(it,itp) = 
      &          wintzav( zwzs,zwz0(it,itp),freqx,wx,ua_,expa_,we,nx, esmrx)
               endif
@@ -1508,10 +1517,13 @@ cccccccccccccccccccccccc
 C... Check freq_r for nw_i case.
 !    We assume freq_r(i) == -freq_r(-i) in this code. feb2006
         if(nw_i/=0) then
-          if(nw/= -nw_i)        stop "sxcf_fal2z: nw/=-nw_i"
-          if(freq_r(0)/=0d0)    stop "sxcf_fal2z: freq_r(0)/=0"
+Cstop2rx 2013.08.09 kino          if(nw/= -nw_i)        stop "sxcf_fal2z: nw/=-nw_i"
+          if(nw/= -nw_i)        call rx( "sxcf_fal2z: nw/=-nw_i")
+Cstop2rx 2013.08.09 kino          if(freq_r(0)/=0d0)    stop "sxcf_fal2z: freq_r(0)/=0"
+          if(freq_r(0)/=0d0)    call rx( "sxcf_fal2z: freq_r(0)/=0")
           if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
-     &       stop "sxcf_fal2z: freq_r /= -freq_r"
+Cstop2rx 2013.08.09 kino     &       stop "sxcf_fal2z: freq_r /= -freq_r"
+     &       call rx( "sxcf_fal2z: freq_r /= -freq_r")
         endif
 
 c---------------------------------------
@@ -1559,7 +1571,8 @@ c             if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                 write (*,*) ' nw_i ixsmin',nw_i, ixsmin
                 write (*,*) ' wexx, dw ',wexx,dw
                 write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
-                stop ' sxcf 222: |w-e| out of range'
+Cstop2rx 2013.08.09 kino                stop ' sxcf 222: |w-e| out of range'
+                call rx( ' sxcf 222: |w-e| out of range')
               endif
  3011       continue
  3002     continue  !end of SEc w and qt -loop
@@ -1572,10 +1585,12 @@ c             if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
           nwx  =  ixsmx+1
         endif
         if (nwx > nw   ) then
-          stop ' sxcf nwx check : |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino          stop ' sxcf nwx check : |w-e| > max(w)'
+          call rx( ' sxcf nwx check : |w-e| > max(w)')
         endif
         if (nwxi < nw_i) then
-          stop ' sxcf nwxi check: |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino          stop ' sxcf nwxi check: |w-e| > max(w)'
+          call rx( ' sxcf nwxi check: |w-e| > max(w)')
         endif
         if(debug) print *,' nwxi nwx nw=',nwxi,nwx,nw
 
@@ -1668,7 +1683,8 @@ c zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-r
 
 c---------------------------------------------
         if(screen) then
-          if(zwz3mode) stop ' this mode is not implimented'
+Cstop2rx 2013.08.09 kino          if(zwz3mode) stop ' this mode is not implimented'
+          if(zwz3mode) call rx( ' this mode is not implimented')
           do ix = nw_i,nwx
             zwz(ix,:,:)=zwz(ix,:,:) - zwz00
           enddo
@@ -1730,16 +1746,19 @@ c three-point interpolation for Wc(we)
             if(nw_i==0) then
               if(ixs+1>nwx) then
                  print *,' ixs,nwx, we =',ixs,nwx,we
-                 stop ' sxcf: ixs+1>nwx xxx2'
+Cstop2rx 2013.08.09 kino                 stop ' sxcf: ixs+1>nwx xxx2'
+                 call rx( ' sxcf: ixs+1>nwx xxx2')
               endif   
             else !   write(6,*)" ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
               if(omg >=ef .and. ixs+1> nwx ) then
                 write(6,*)'ixs+1 nwx=',ixs+1,nwx
-                stop ' sxcf: ixs+1>nwx yyy2a'
+Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+1>nwx yyy2a'
+                call rx( ' sxcf: ixs+1>nwx yyy2a')
               endif
               if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
                 write(6,*)'ixs+1 nwxi=',ixs+1,nwxi
-                stop ' sxcf: ixs-1<nwi yyy2b'
+Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs-1<nwi yyy2b'
+                call rx( ' sxcf: ixs-1<nwi yyy2b')
               endif
             endif
 

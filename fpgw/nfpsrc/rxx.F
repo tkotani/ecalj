@@ -63,15 +63,12 @@ c  error exit with printout of one float
       call exit(-1)
       end
 
-      subroutine rx0(string,msg)
+      subroutine rx0(string)
 c  write extra information before error exit in standard format
       character*(*) string
-      character*(*) msg
-      call strip(msg,i1,i2)
-      write(6,892) string,msg(i1:i2)
+      write(6,892) string
   892 format(/' ---- ',a,a)
-      write(0,710) string,msg(i1:i2)
-  710 format('ERROR EXIT! ',a,a)
+      call exit(0)
       end
 
       subroutine rx00(string,msg)

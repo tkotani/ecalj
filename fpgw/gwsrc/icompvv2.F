@@ -8,7 +8,8 @@ c compare two integer vectors iv1,iv2
         if(iv1(i) /= iv2(i)) then
           icompvv2 = iv1(i) - iv2(i)
           write (*,'(a)') comment
-          stop 'icompvv2 err: '
+Cstop2rx 2013.08.09 kino          stop 'icompvv2 err: '
+          call rx( 'icompvv2 err: ')
         endif
       end do
       end

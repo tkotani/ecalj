@@ -71,7 +71,8 @@ c              endif
             endif
             if(ngcx/=0) deallocate(ngvecc2_0,ppx)         !sf..5June02
           enddo
-          if(iqix==0) stop ' getppx: Wrong PPVOL?'
+Cstop2rx 2013.08.09 kino          if(iqix==0) stop ' getppx: Wrong PPVOL?'
+          if(iqix==0) call rx( ' getppx: Wrong PPVOL?')
           close(ippovl)
           ppovlclosed =.true.
         enddo

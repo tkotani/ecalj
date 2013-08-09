@@ -14,7 +14,8 @@
       elseif(ttt==2) then  
         deltaq_scale=1d0/3.0**.5d0
       else
-        stop 'Use Q0Pchoice = 1 or 2 (=1 is default)'
+Cstop2rx 2013.08.09 kino        stop 'Use Q0Pchoice = 1 or 2 (=1 is default)'
+        call rx( 'Use Q0Pchoice = 1 or 2 (=1 is default)')
       endif
          
       end
@@ -93,7 +94,8 @@ c===========================================================
       subroutine headver(head,id1)
       character*(*) head
       write(6,"(a,a, i3)") head,": VerNum= xxx: imode=",id1
-      if(id1==-9999) stop '---end of version check!'
+Cstop2rx 2013.08.09 kino      if(id1==-9999) stop '---end of version check!'
+      if(id1==-9999) call rx( '---end of version check!')
       end
 c============================================================
       logical function is_mix0vec()

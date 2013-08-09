@@ -27,7 +27,8 @@ C ... write sigm Binary format ---------------------------------------
       write(6,*) "=== Write sigma to files (BINARY) ========"
       call rwsigma2 (-ifse_out,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq,1)
       close(ifse_out)
- 9999 stop ' OK! hsigmconv: convert from sigma to sigm '
+Cstop2rx 2013.08.09 kino 9999 stop ' OK! hsigmconv: convert from sigma to sigm '
+ 9999 call rx0( ' OK! hsigmconv: convert from sigma to sigm ')
 
 
  8888 continue
@@ -47,7 +48,8 @@ C ... write sigm ascii format ---------------------------------------
       open(UNIT=ifse_out, file='sigma')
       call rwsigmaa2 (-ifse_out,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq,1)
       close(ifse_out)
- 9998 stop ' OK! hsigmconv: convert from sigm to sigma '
+Cstop2rx 2013.08.09 kino 9998 stop ' OK! hsigmconv: convert from sigm to sigma '
+ 9998 call rx0( ' OK! hsigmconv: convert from sigm to sigma ')
       end
 
 C----------------------------------------------------------------------

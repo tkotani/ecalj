@@ -56,7 +56,8 @@ c lm = l*l + l + m + 1
         im(ind)   = m
         ilmto(n,lm,ia) = ind
     1 continue
-      if (ind .ne. nlmto) stop 'idxlmto: wrong no. l,n,m'
+Cstop2rx 2013.08.09 kino      if (ind .ne. nlmto) stop 'idxlmto: wrong no. l,n,m'
+      if (ind .ne. nlmto) call rx( 'idxlmto: wrong no. l,n,m')
 
       return
       end
@@ -99,7 +100,8 @@ c lm = l*l + l + m + 1
         ialmto(ind) = ia
         ilmto(n,lm,ia) = ind
     1 continue
-      if (ind .ne. nlmto) stop 'idxlmto: wrong no. l,n,m'
+Cstop2rx 2013.08.09 kino      if (ind .ne. nlmto) stop 'idxlmto: wrong no. l,n,m'
+      if (ind .ne. nlmto) call rx( 'idxlmto: wrong no. l,n,m')
 
       return
       end
@@ -133,7 +135,8 @@ c nlnr       = no. l,n = max(index)
             ilnr(l,n,ic)= i
           end do
         end do
-        if(i .gt. nlnx)stop 'idxlna: nln .gt. nlnx'
+Cstop2rx 2013.08.09 kino        if(i .gt. nlnx)stop 'idxlna: nln .gt. nlnx'
+        if(i .gt. nlnx)call rx( 'idxlna: nln .gt. nlnx')
         nlnr(ic)    = i
       end do
 
@@ -203,7 +206,8 @@ c nctot       = total no. allowed core states
               j          = j + 1
               if (ncwf(l,n,ic) .eq. 1) then
                 i          = i + 1
-                if (i .gt. ncx) stop 'incore: wrong ncx'
+Cstop2rx 2013.08.09 kino                if (i .gt. ncx) stop 'incore: wrong ncx'
+                if (i .gt. ncx) call rx( 'incore: wrong ncx')
                 icore(i,ic)= j
               endif
             end do
@@ -285,7 +289,8 @@ c temporary
 c$$$        if (ifprod .gt. 0)
 c$$$     .write (ifprod,*)lbas,n1,l1,im1(lbas),n2,l2,im2(lbas)
    10 continue
-      if(lbas .ne. nallow)stop 'indxbas: lbas .ne. nallow'
+Cstop2rx 2013.08.09 kino      if(lbas .ne. nallow)stop 'indxbas: lbas .ne. nallow'
+      if(lbas .ne. nallow)call rx( 'indxbas: lbas .ne. nallow')
 
       return
       end
@@ -359,7 +364,8 @@ c i = (l+1)**2 + m - l
           ima(i)     = m
         end do
       end do
-      if(i .ne. nl*nl)stop 'indxlm: wrong no. of l,m'
+Cstop2rx 2013.08.09 kino      if(i .ne. nl*nl)stop 'indxlm: wrong no. of l,m'
+      if(i .ne. nl*nl)call rx( 'indxlm: wrong no. of l,m')
 
       return
       end
@@ -384,7 +390,8 @@ c nofln = number of l,n  from integer function nofln
           iln(l,n)   = i
         end do
       end do
-      if(i .ne. nofln)stop 'indxln: wrong no. of ln'
+Cstop2rx 2013.08.09 kino      if(i .ne. nofln)stop 'indxln: wrong no. of ln'
+      if(i .ne. nofln)call rx( 'indxln: wrong no. of ln')
 
       return
       end
@@ -427,7 +434,8 @@ c     ilna(l1,n1,l2,n2) = 0
         in2a(lbas) = n2
         ilna(l1,n1,l2,n2) = lbas
    10 continue
-      if(lbas .ne. nlna)stop 'indxlna: lbas .ne. nlna'
+Cstop2rx 2013.08.09 kino      if(lbas .ne. nlna)stop 'indxlna: lbas .ne. nlna'
+      if(lbas .ne. nlna)call rx( 'indxlna: lbas .ne. nlna')
 
       return
       end
@@ -458,7 +466,8 @@ c lm = l*l + l + m + 1
         im(ind)   = m - l - 1
         ilnm(n,lm) = ind
     1 continue
-      if (ind .ne. noflnm) stop 'indxlnm: wrong no. l,n,m'
+Cstop2rx 2013.08.09 kino      if (ind .ne. noflnm) stop 'indxlnm: wrong no. l,n,m'
+      if (ind .ne. noflnm) call rx( 'indxlnm: wrong no. l,n,m')
 
       return
       end
@@ -533,7 +542,8 @@ c core
           do      n = 1,nindxc(l,ic)
             do      m = 1,2*l+1
               ind       = ind + 1
-              if (ind .gt. nlnmx) stop 'idxlnmc: ind > nlnmx'
+Cstop2rx 2013.08.09 kino              if (ind .gt. nlnmx) stop 'idxlnmc: ind > nlnmx'
+              if (ind .gt. nlnmx) call rx( 'idxlnmc: ind > nlnmx')
               lm        = l2 + m
               il(ind,ic)= l
               in(ind,ic)= n
@@ -553,11 +563,13 @@ c valence
           l2        = l*l
           ncore     = nindxc(l,ic)
           do      n = 1,nindxv(l,ic)
-            if (ncore+n .gt. nn) stop 'idxlnmc: ncore+n > nn'
+Cstop2rx 2013.08.09 kino            if (ncore+n .gt. nn) stop 'idxlnmc: ncore+n > nn'
+            if (ncore+n .gt. nn) call rx( 'idxlnmc: ncore+n > nn')
             do      m = 1,2*l+1
               ind       = ind + 1
               indv      = indv + 1
-              if (ind .gt. nlnmx) stop 'idxlnmc: ind > nlnmx'
+Cstop2rx 2013.08.09 kino              if (ind .gt. nlnmx) stop 'idxlnmc: ind > nlnmx'
+              if (ind .gt. nlnmx) call rx( 'idxlnmc: ind > nlnmx')
               lm        = l2 + m
               il(ind,ic)= l
               in(ind,ic)= ncore + n
@@ -798,8 +810,10 @@ c nallow    = number of allowed product basis
      i          nindx(0:nl-1)
       dimension icheck(0:lmax,nnx,0:lmax,nnx)
 
-      if(nl-1 .gt. lmax) stop 'nallow: increase lmax'
-      if(nn .gt. nnx) stop 'nallow: increase nnx'
+Cstop2rx 2013.08.09 kino      if(nl-1 .gt. lmax) stop 'nallow: increase lmax'
+      if(nl-1 .gt. lmax) call rx( 'nallow: increase lmax')
+Cstop2rx 2013.08.09 kino      if(nn .gt. nnx) stop 'nallow: increase nnx'
+      if(nn .gt. nnx) call rx( 'nallow: increase nnx')
 c      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
       icheck=0
       do      l1 = 0,nl-1
@@ -851,8 +865,10 @@ c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
      i          nindx(0:nl-1)
       dimension icheck(0:lmax,nnx,0:lmax,nnx)
 
-      if (nl-1 .gt. lmax) stop 'nalwln: increase lmax'
-      if (nn .gt. nnx) stop 'nalwln: increase nnx'
+Cstop2rx 2013.08.09 kino      if (nl-1 .gt. lmax) stop 'nalwln: increase lmax'
+      if (nl-1 .gt. lmax) call rx( 'nalwln: increase lmax')
+Cstop2rx 2013.08.09 kino      if (nn .gt. nnx) stop 'nalwln: increase nnx'
+      if (nn .gt. nnx) call rx( 'nalwln: increase nnx')
 c      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
       icheck=0
       nalwln     = 0

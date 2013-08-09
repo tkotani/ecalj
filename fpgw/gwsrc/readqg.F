@@ -9,7 +9,8 @@
         read(ippovl0) qx,ngc_r
         if(sum(abs(qx-q))<1d-6) then
 c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
-          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
+Cstop2rx 2013.08.09 kino          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
+          if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl
 c           print *,' readin PPOVL0 OK q=',q
           exit
@@ -55,7 +56,8 @@ c- get ngcmx or mgpmx
         read(ifiqg) nqnumc, ngcmx, QpGcut_cou
         ngmx=ngcmx
       else
-        stop "readngmx: key is not QGpsi QGcou"
+Cstop2rx 2013.08.09 kino        stop "readngmx: key is not QGpsi QGcou"
+        call rx( "readngmx: key is not QGpsi QGcou")
       endif
       close(ifiqg)
       end subroutine
@@ -74,7 +76,8 @@ cr key=='QGcou' or 'QGpsi'
         ifi=2
         if(verbose()>=80) write (6,"(' readqg cou: qin=',3f8.3,i5)") qin
       else
-        stop "readqg: wrongkey"
+Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
+        call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
         call init_readqg(ifi,ginv)
@@ -93,7 +96,8 @@ c        call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         ngvec(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
         return
       endif
-      stop "readqg: can not find QGpsi or QPcou for given q"
+Cstop2rx 2013.08.09 kino      stop "readqg: can not find QGpsi or QPcou for given q"
+      call rx( "readqg: can not find QGpsi or QPcou for given q")
       end subroutine
 c--------------------------
       subroutine readqg0(key,qin,ginv,  qu,ngv)
@@ -110,7 +114,8 @@ cr key=='QGcou' or 'QGpsi'
         ifi=2
         if(verbose()>=80) write (6,"('readqg0 cou: qin=',3f8.3,i5)") qin
       else
-        stop "readqg: wrongkey"
+Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
+        call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
         call init_readqg(ifi,ginv)
@@ -128,7 +133,8 @@ c        call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         if(verbose()>=80) print *,'ngc=',ngv
       endif
       return
-      stop "readqg0: can not find QGpsi or QPcou for given q"
+Cstop2rx 2013.08.09 kino      stop "readqg0: can not find QGpsi or QPcou for given q"
+      call rx( "readqg0: can not find QGpsi or QPcou for given q")
       end subroutine
 
 c--------------------------
@@ -203,7 +209,8 @@ c     &     nqnumc, ngcmx, QpGcut_cou
 c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-               stop 'iqindx: bug not sorted well'
+Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
+               call rx( 'iqindx: bug not sorted well')
             endif
          enddo
          nkey(ix)=ik
@@ -275,7 +282,8 @@ c$$$         endif
 c$$$      enddo                                                                                     
       print *, i1,i2,kkin
       print *, kktable(i1),kktable(i2)
-      stop 'takk: error'
+Cstop2rx 2013.08.09 kino      stop 'takk: error'
+      call rx( 'takk: error')
       end subroutine
 
 c$$$c--- release to save memory area.

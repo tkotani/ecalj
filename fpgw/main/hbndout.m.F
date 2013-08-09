@@ -59,7 +59,8 @@ c 211  continue
 c      elseif(iform == 3) then
 c        bnddiv=.false.
       else
-        stop 'hbndout : wrong mode'
+Cstop2rx 2013.08.09 kino        stop 'hbndout : wrong mode'
+        call rx( 'hbndout : wrong mode')
       endif
 
       read (iftote,*) nq,ntq, efermi, eshtlda, eshift0, eshift02
@@ -81,7 +82,8 @@ c     &  qxx,itq(it),iqx, elda(it,iq), eqp1(it,iq), eqp2(it,iq)
           else
             if( sum(abs(qp(:,iq)-qxx))>1d-10 ) then
               print *,' it iq iqx',it,iq,iqx
-              stop 'bndout: badQPU qxx'
+Cstop2rx 2013.08.09 kino              stop 'bndout: badQPU qxx'
+              call rx( 'bndout: badQPU qxx')
             endif
           endif
         end do
@@ -106,7 +108,8 @@ c        write(6,*)
 c     &    nqq(nline),qq1(1:3,nline),qq2(1:3,nline),dd1,dd2
 
         if((dd1/='T' .and. dd1/='F').or.(dd2/='T' .and. dd2/='F')  ) 
-     &     stop 'Error readin SYML derivative switches OK? xxx'
+Cstop2rx 2013.08.09 kino     &     stop 'Error readin SYML derivative switches OK? xxx'
+     &     call rx( 'Error readin SYML derivative switches OK? xxx')
 c        cycle
 c
 c  602   continue
@@ -122,7 +125,8 @@ c     &    nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
      &       nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
      &     ,d0min(nline),aa1(nline), d0max(nline),aa2(nline)
       enddo
-  602 stop 'bndout: Error readin SYML derivative switches OK?  yyy'
+Cstop2rx 2013.08.09 kino  602 stop 'bndout: Error readin SYML derivative switches OK?  yyy'
+  602 call rx( 'bndout: Error readin SYML derivative switches OK?  yyy')
   601 continue
       close(ifsyml)
       nline = nline - 1
@@ -145,7 +149,8 @@ c --- Readin LBAND
       write(6,"(' qlat =',9f12.6)") qlat
       if(nqnum/=nqnumx) then
         print *, nqnum, nqnumx
-        stop 'hbndout: nqnum of LBAND and SYML is inconsistent'
+Cstop2rx 2013.08.09 kino        stop 'hbndout: nqnum of LBAND and SYML is inconsistent'
+        call rx( 'hbndout: nqnum of LBAND and SYML is inconsistent')
       endif
 
 c ---- Readin symops(3,3,ng)
@@ -183,7 +188,8 @@ cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 
           if(iline/=ilinex) 
-     &    stop 'hbndout:iline of LBAND & SYML is inconsistent'
+Cstop2rx 2013.08.09 kino     &    stop 'hbndout:iline of LBAND & SYML is inconsistent'
+     &    call rx( 'hbndout:iline of LBAND & SYML is inconsistent')
 ccccccccccccccccccccccccccccc
 c          write(6,*) qb(1:3,iqq,iline)
 ccccccccccccccccccccccccccccccccc
@@ -440,7 +446,8 @@ C --- write bands
           enddo
         endif
       enddo
-      stop ' OK! bndout for SYML'
+Cstop2rx 2013.08.09 kino      stop ' OK! bndout for SYML'
+      call rx0( ' OK! bndout for SYML')
       end
 
 

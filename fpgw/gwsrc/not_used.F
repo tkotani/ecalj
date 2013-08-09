@@ -949,7 +949,8 @@ c        write(6,*)ibl1,n,l,m,lmbl(ibl1)
       enddo
       if(ibl1/= nbloch) then
         write(6,*)' ibl1 nbloch',ibl1, nbloch
-        stop ' vcoulq: error ibl1/= nbloch'
+Cstop2rx 2013.08.09 kino        stop ' vcoulq: error ibl1/= nbloch'
+        call rx( ' vcoulq: error ibl1/= nbloch')
       endif
 c-- <B|v|B> block
 c      write(6,*)' vcoulq: bvb block xxx rojbsum='
@@ -1274,7 +1275,8 @@ c        write(6,*)ibl1,n,l,m,lmbl(ibl1)
       enddo
       if(ibl1/= nbloch) then
         write(6,*)' ibl1 nbloch',ibl1, nbloch
-        stop ' vcoulq: error ibl1/= nbloch'
+Cstop2rx 2013.08.09 kino        stop ' vcoulq: error ibl1/= nbloch'
+        call rx( ' vcoulq: error ibl1/= nbloch')
       endif
 c-- <B|v|B> block
 c      write(6,*)' vcoulq: bvb block xxx rojbsum='

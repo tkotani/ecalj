@@ -98,7 +98,8 @@ c              write(6,"('             ', 18x,3d13.6,' xx')") xv1, xv2, xv3
               print *,'xxx1=',abs(j1-xv1*n1-1)
               print *,'xxx2=',abs(j2-xv2*n2-1)
               print *,'xxx3=',abs(j3-xv3*n3-1)
-              stop 'bzmesh: bug! abs(j1-xv1*n1-1)+... >4d-6'
+Cstop2rx 2013.08.09 kino              stop 'bzmesh: bug! abs(j1-xv1*n1-1)+... >4d-6'
+              call rx( 'bzmesh: bug! abs(j1-xv1*n1-1)+... >4d-6')
             endif
             IF (IPQ(J1,J2,J3) .EQ. 0) then
               IWGT = IWGT+1
@@ -152,7 +153,8 @@ c            nstar(k)   = nstar(k) + 1
 
               enddo
             enddo
-            stop'bzmesh: not find irotk; it may require accurate symmetry.'
+Cstop2rx 2013.08.09 kino            stop'bzmesh: not find irotk; it may require accurate symmetry.'
+            call rx( 'bzmesh: not find irotk; it may require accurate symmetry.')
  1022       continue
           enddo
         enddo
@@ -160,7 +162,8 @@ c            nstar(k)   = nstar(k) + 1
 c-----------------------------------------
       if (dabs(swgt-2) .gt. 1.d-9) then
         print *,' swgt=',swgt
-        stop 'BZMESH: error in weights'
+Cstop2rx 2013.08.09 kino        stop 'BZMESH: error in weights'
+        call rx( 'BZMESH: error in weights')
       endif
       write(*,744) nq,n1*n2*n3,n1,n2,n3
   744 FORMAT(/' BZMESH: ',I4,' irreducible k - points. from ',i5,
@@ -279,7 +282,8 @@ C temp: try to find bug ...
           SWGT = SWGT + WGT(NQ)
         ENDIF
    20 CONTINUE
-      if (dabs(swgt-2) .gt. 1.d-9) stop 'BZMESH: error in weights'
+Cstop2rx 2013.08.09 kino      if (dabs(swgt-2) .gt. 1.d-9) stop 'BZMESH: error in weights'
+      if (dabs(swgt-2) .gt. 1.d-9) call rx( 'BZMESH: error in weights')
       if (iprint() .ge. 30) then
 cfa
 c       do  30  j = 1, 2

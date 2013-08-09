@@ -1087,12 +1087,14 @@ c----------------------------------------------------
       if (present(s3) ) then
 
         write(*,*) s1(:len_trim(s1)), ' : ', s2(:len_trim(s2)),'(',s3(:len_trim(s3)),')'
-        stop 'in getkeyvalue_err_exit'
+Cstop2rx 2013.08.09 kino        stop 'in getkeyvalue_err_exit'
+        call rx( 'in getkeyvalue_err_exit')
 
       else
 
         write(*,*) s1(:len_trim(s1)), ' : ', s2(:len_trim(s2))
-        stop 'in getkeyvalue_err_exit'
+Cstop2rx 2013.08.09 kino        stop 'in getkeyvalue_err_exit'
+        call rx( 'in getkeyvalue_err_exit')
 
       endif
 
@@ -1538,7 +1540,8 @@ c        call getkeyvalue("IN","realv",rvkey,size=3,default=rvkey2,status=ret )
       call getkeyvalue("IN","char",ckey,status=ret)
       write(*,*) ret,ckey(:len_trim(ckey))
 
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end program keyvalue_test_main
 
 

@@ -351,7 +351,8 @@ c av = resulting vector
 
       dimension a(ndim,nc),v(nc),av(nr)
 
-      if(nr .gt. ndim)stop 'dmv: row of a too large'
+Cstop2rx 2013.08.09 kino      if(nr .gt. ndim)stop 'dmv: row of a too large'
+      if(nr .gt. ndim)call rx( 'dmv: row of a too large')
       do 10    m = 1,nr
         tem        = 0.d0
         do 20    n = 1,nc
@@ -517,7 +518,8 @@ c
       if(n.eq.40) go to 40
       if(n.eq.48) go to 48
       xl = dsqrt(-e06(1))
-      stop 'gauss: wrong no. points'
+Cstop2rx 2013.08.09 kino      stop 'gauss: wrong no. points'
+      call rx( 'gauss: wrong no. points')
     6 continue
       do  7 i = 1,3
         ak = e1*e06(i)
@@ -642,7 +644,8 @@ c irow must be .ge. icol
 
       implicit real*8(a-h,o-z)
 
-      if(irow .lt. icol)stop 'lowtri: irow < icol'
+Cstop2rx 2013.08.09 kino      if(irow .lt. icol)stop 'lowtri: irow < icol'
+      if(irow .lt. icol)call rx( 'lowtri: irow < icol')
       lowtri     =  ldim*(icol-1) - (icol*(icol-1))/2 + irow
 
       return
@@ -1180,7 +1183,8 @@ c calculates pi*lorentzian
       implicit real*8(a-h,o-z)
       data tolmax/1.d10/
       pilrntz    = delta/(x*x + delta*delta)
-      if (dabs(pilrntz) .gt. tolmax) stop 'fn. pilrntz: .gt. tolmax'
+Cstop2rx 2013.08.09 kino      if (dabs(pilrntz) .gt. tolmax) stop 'fn. pilrntz: .gt. tolmax'
+      if (dabs(pilrntz) .gt. tolmax) call rx( 'fn. pilrntz: .gt. tolmax')
       return
       end
 c---------------------------------------------------------------------
@@ -1204,7 +1208,8 @@ c---------------------------------------------------------------------
       implicit real*8(a-h,o-z)
       dimension p(lmax+1)
       p(1) = 1.
-      if(lmax.le.0) stop 'lmax l.t. 0'
+Cstop2rx 2013.08.09 kino      if(lmax.le.0) stop 'lmax l.t. 0'
+      if(lmax.le.0) call rx( 'lmax l.t. 0')
       a2 = 0.
       p2 = a2
       p3 = 1.
@@ -1239,7 +1244,8 @@ c local array
       parameter (lmax=20)
       dimension plt(0:lmax)
 
-      if(lmx .gt. lmax) stop 'plgaus: increase lmax'
+Cstop2rx 2013.08.09 kino      if(lmx .gt. lmax) stop 'plgaus: increase lmax'
+      if(lmx .gt. lmax) call rx( 'plgaus: increase lmax')
       call gauss   (ng,-1.d0,1.d0,x,w)
       do      ig = 1,ng
         call pl      (x(ig),plt(0),lmx)
@@ -1353,7 +1359,8 @@ c-special cubic directions
       fpi           = 4.d0*pi
       if(nsd .eq. 62) goto 62
       if(nsd .eq. 114)goto 114
-      stop 'scudir: wrong number of directions'
+Cstop2rx 2013.08.09 kino      stop 'scudir: wrong number of directions'
+      call rx( 'scudir: wrong number of directions')
 
    62 w(1)          = .130612244897931d0*fpi/6.d0
       w(2)          = .128571428571554d0*fpi/8.d0
@@ -1406,7 +1413,8 @@ c-special cubic directions
           wsd(j)        = w(i)
   110   continue
   100 continue
-      if(j2 .ne. nsd) stop 'scudir: number of directions do not match'
+Cstop2rx 2013.08.09 kino      if(j2 .ne. nsd) stop 'scudir: number of directions do not match'
+      if(j2 .ne. nsd) call rx( 'scudir: number of directions do not match')
 
 ctemp
 c     iftemp = ifile('TEMP')
@@ -2231,7 +2239,8 @@ c ldim    = leading dimension of m
       implicit real*8 (a-h,o-z)
       dimension rv1(n1),cv1(n1),rm(ldim,n2),cm(ldim,n2),rv2(n2),cv2(n2)
 
-      if (n1 .gt. ldim) stop 'vmvc: n1 .gt. ldim'
+Cstop2rx 2013.08.09 kino      if (n1 .gt. ldim) stop 'vmvc: n1 .gt. ldim'
+      if (n1 .gt. ldim) call rx( 'vmvc: n1 .gt. ldim')
       r          = 0.d0
       c          = 0.d0
       do       j = 1,n2
@@ -2262,7 +2271,8 @@ c ldim    = leading dimension of m
       implicit real*8 (a-h,o-z)
       dimension rv1(n1),cv1(n1),rm(ldim,n2),cm(ldim,n2),rv2(n2),cv2(n2)
 
-      if (n1 .gt. ldim) stop 'vmvc1: n1 .gt. ldim'
+Cstop2rx 2013.08.09 kino      if (n1 .gt. ldim) stop 'vmvc1: n1 .gt. ldim'
+      if (n1 .gt. ldim) call rx( 'vmvc1: n1 .gt. ldim')
       r          = 0.d0
       c          = 0.d0
       do       j = 1,n2
@@ -2470,7 +2480,8 @@ c angular integrals
    30 continue
       ny3        = i
       if(ny3 .ne. nl*nl*nl*nl*(2*nl-1)**2 )
-     . stop 'yyy: wrong no. integrals'
+Cstop2rx 2013.08.09 kino     . stop 'yyy: wrong no. integrals'
+     . call rx( 'yyy: wrong no. integrals')
 
       return
       end
@@ -2516,7 +2527,8 @@ c angular integrals
         yy(i)      = resa
         iyy(i1,i2,i3,i4) = i
    30 continue
-      if(i .ne. nyyyy)stop 'yyyy: wrong no. of integrals'
+Cstop2rx 2013.08.09 kino      if(i .ne. nyyyy)stop 'yyyy: wrong no. of integrals'
+      if(i .ne. nyyyy)call rx( 'yyyy: wrong no. of integrals')
 
       return
       end

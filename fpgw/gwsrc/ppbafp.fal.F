@@ -189,7 +189,8 @@ c      enddo
         lnxcg = 7400
       else
         write(6,*) 'rotcg: cannot handle lmxcg=',lmxcg
-        stop       'rotcg: cannot handle lmxcg'
+Cstop2rx 2013.08.09 kino        stop       'rotcg: cannot handle lmxcg'
+        call rx( 'rotcg: cannot handle lmxcg')
       endif
       allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))
       call scg(lmxcg,cg,indxcg,jcg)
@@ -390,8 +391,10 @@ cc      allocate( zmelpl(ngc,nt0,ntp0) )
 c      print *,'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0
-      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
-      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
+Cstop2rx 2013.08.09 kino      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
+      if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
+Cstop2rx 2013.08.09 kino      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
+      if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
       if(debug) print *,' drvmelp2:end of read geig '
 
 c     ngc  = ngcni(k)  ! k-points in IBZ
@@ -410,7 +413,8 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
         print *,' drvmelp qdiff',qdiff
         write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
      &  add,nadd,abs(add-nadd)
-        stop "drvmlp: abs(add-nadd))>1d-10"
+Cstop2rx 2013.08.09 kino        stop "drvmlp: abs(add-nadd))>1d-10"
+        call rx( "drvmlp: abs(add-nadd))>1d-10")
       endif
 
       if(debug) print *,' goto alloc zmelpl'
@@ -535,7 +539,8 @@ ccccccccccccccc
       enddo
       if(abs(sumchk)/nqibz/minval(ngcn)>1d-4) then
         print *," rotgvec: sum chk error sumchk=",sumchk
-        stop "rotgvec: sum chk error >1d-4"
+Cstop2rx 2013.08.09 kino        stop "rotgvec: sum chk error >1d-4"
+        call rx( "rotgvec: sum chk error >1d-4")
       endif
 c      print *,' rotgvec: sumcheck',sumchk !,sumchk2
 c      stop "rotgvec: test end"
@@ -704,7 +709,8 @@ c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
       call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
       if(ngc/=ngcx) then
         print *, qi, ngcx, ngc
-        stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
+Cstop2rx 2013.08.09 kino        stop 'melpln2: ngc/= ngcx by getppx:PPOVL'
+        call rx( 'melpln2: ngc/= ngcx by getppx:PPOVL')
       endif
       do ig1=1,ngp1
         do itp=1,ntp0
@@ -776,10 +782,13 @@ c$$$c             print *,'ttt qu2=',qu2,ngvecp2(1:3,ig2)
 c$$$             print *,'ttt qi =',qi
 c$$$             print *,'ttt nadd=',nadd
 c$$$cccccccccccccccccccccccccc
-             stop "melpln2:nn(1) out of range"
+Cstop2rx 2013.08.09 kino             stop "melpln2:nn(1) out of range"
+             call rx( "melpln2:nn(1) out of range")
           endif   
-          if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
-          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
+Cstop2rx 2013.08.09 kino          if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
+          if(nn(2)<nymin.or.nn(2)>nymax) call rx( "melpln2:nn(2) out of range")
+Cstop2rx 2013.08.09 kino          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
+          if(nn(3)<nzmin.or.nn(3)>nzmax) call rx( "melpln2:nn(3) out of range")
         enddo
       enddo
       if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd

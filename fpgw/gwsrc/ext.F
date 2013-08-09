@@ -661,7 +661,8 @@ c aek dmach(3): smallest eps so that 1.d0+eps > 1.d0
       return
  999  write(i1mach(2),123) i
  123  format(' D1MACH: I=',i1,' OUT OF BOUNDS !')
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end
 C#define EXTENDED
 C This adaptation of I1MACH, is identical to the public version, except

@@ -130,7 +130,8 @@ c        write(6,*)' remove_r0c is effective'
       elseif(imode==0) then
       elseif(imode==3) then
       else
-        stop 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101'
+Cstop2rx 2013.08.09 kino        stop 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101'
+        call rx( 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101')
       endif
 c      if(iqxini< 2) paralellx0=.false.
 c      if(paralellx0) then
@@ -575,7 +576,8 @@ c        iqxend=nqibz ! comment out at 18nov2012
 c qibz loop
 c      epsx =  0.01d0
       if(bzcase()==1) then
-        if(abs(sum(qibz(:,1)**2))/=0d0) stop 'hvccfp0: sum(q**2)==0d0'
+Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop 'hvccfp0: sum(q**2)==0d0'
+        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
       endif
       if(wvcc) write(ifvcfpout) nqbz, nblochpmx
 c      if(imode==101) then
@@ -599,18 +601,21 @@ C... Readin PRODMT into prodmt. oct2005
           read(ifprodmt) nl_r
           if( 2*(nl_r-1) /= lxx ) then
             write(6,*) 2*(nl_r-1),lxx
-            stop '2*nl_r-1 /= lxx '
+Cstop2rx 2013.08.09 kino            stop '2*nl_r-1 /= lxx '
+            call rx( '2*nl_r-1 /= lxx ')
           endif
           read(ifprodmt) nxx_r
           write(6,"(' nxx =',100i3)")nxx_r
-          if(nxx_r>nxx) stop 'nxx_r>nxx'
+Cstop2rx 2013.08.09 kino          if(nxx_r>nxx) stop 'nxx_r>nxx'
+          if(nxx_r>nxx) call rx( 'nxx_r>nxx')
           read(ifprodmt) nx_r(0:lxx)
           write(6,"(' nx_r=',100i3)") nx_r(0:lxx)
           lx_ = lx(ibas)
           if(sum(abs(nx(0:lx_,ibas)-nx_r(0:lx_))) /=0) then
             write(6,*)' debug: nx  =',nx(0:lx_,ibas)
             write(6,*)' debug: nx_r=',nx_r(0:lx_)
-            stop 'nx /=nx_r'
+Cstop2rx 2013.08.09 kino            stop 'nx /=nx_r'
+            call rx( 'nx /=nx_r')
           endif
           read(ifprodmt) prodmt(1:2, 1:nxx_r, 0:lxx, ibas)
           write(6,*)' sumcheck prodmt=',sum(abs(prodmt(:,:,:,ibas)))
@@ -679,7 +684,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
         if(ibl1/= nbloch) then
           write(6,*)' ibl1 nbloch',ibl1, nbloch
-          stop ' hvccfp0:smbasis mode  error ibl1/= nbloch'
+Cstop2rx 2013.08.09 kino          stop ' hvccfp0:smbasis mode  error ibl1/= nbloch'
+          call rx( ' hvccfp0:smbasis mode  error ibl1/= nbloch')
         endif
 ! index (mx,nx,lx,ibas) ordering
 ctttt
@@ -692,7 +698,8 @@ ctttt
           do l   = 0, lx(ibas)
             write(6,"('sss: nx=',3i4)") ibas,l,nx(l,ibas)
             if(nx(l,ibas)<=0) cycle
-            if(nx(l,ibas)==1) stop 'nx(l,ibas) =1'
+Cstop2rx 2013.08.09 kino            if(nx(l,ibas)==1) stop 'nx(l,ibas) =1'
+            if(nx(l,ibas)==1) call rx( 'nx(l,ibas) =1')
 ccccccccccccccccd
 ctttt
 c         nnr = 2 ! =2 new
@@ -1276,11 +1283,14 @@ c2---------------------
 
       call MPI__Finalize
 
-      if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
+Cstop2rx 2013.08.09 kino      if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
+      if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
 c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
 c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
-      if(imode==0) stop ' OK! hvccfp0 imode=0'
-      if(imode==3) stop ' OK! hvccfp0 imode=3'
+Cstop2rx 2013.08.09 kino      if(imode==0) stop ' OK! hvccfp0 imode=0'
+      if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
+Cstop2rx 2013.08.09 kino      if(imode==3) stop ' OK! hvccfp0 imode=3'
+      if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
 
       end
 
@@ -1289,7 +1299,8 @@ c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
         print *,' Error in checkagree:',char
-        stop ' Error in checkagree:'
+Cstop2rx 2013.08.09 kino        stop ' Error in checkagree:'
+        call rx( ' Error in checkagree:')
       endif
       end
 
@@ -1315,7 +1326,8 @@ C----------------------------------------------------
 Cr                                       old     new
 c      write(6,"('mkradmatch: nxdim=',i4)") nxdim
       if(nxdim <=0) return
-      if(nxdim ==1) stop 'mkradmatch err nxdim==1'
+Cstop2rx 2013.08.09 kino      if(nxdim ==1) stop 'mkradmatch err nxdim==1'
+      if(nxdim ==1) call rx( 'mkradmatch err nxdim==1')
       rdmatch=0d0
 C... pivot--- get better set of phi for augmentation
       do
@@ -1331,7 +1343,8 @@ C... pivot--- get better set of phi for augmentation
         if(abs(delta) <eps*p1*p2) then
           if(i2==1) then
             write(6,"(' i1 i2=',2i5,2d13.6)") i1,i2,p1d/p1,p2d/p2
-            stop'mkradmatch: err poor linear dep'
+Cstop2rx 2013.08.09 kino            stop'mkradmatch: err poor linear dep'
+            call rx( 'mkradmatch: err poor linear dep')
           endif
           i2=i2-1
         endif
@@ -1376,9 +1389,11 @@ c     pd = s pd1 + t pd2
       t = matinv(2,1) *p  + matinv(2,2) *pd
 C... check
       ddd1 = abs(s*p1  + t*p2   -  p )
-      if(  ddd1 >1d-8 ) stop 'phimatch: ddd1 err'
+Cstop2rx 2013.08.09 kino      if(  ddd1 >1d-8 ) stop 'phimatch: ddd1 err'
+      if(  ddd1 >1d-8 ) call rx( 'phimatch: ddd1 err')
       ddd2 = abs(s*p1d + t*p2d  -  pd)
-      if(  ddd2 >1d-8 ) stop 'phimatch: ddd2 err'
+Cstop2rx 2013.08.09 kino      if(  ddd2 >1d-8 ) stop 'phimatch: ddd2 err'
+      if(  ddd2 >1d-8 ) call rx( 'phimatch: ddd2 err')
       end
 
       subroutine pmatorth(oo,oon,pmat,no,nn, pomat)
@@ -1446,7 +1461,8 @@ c      print *,' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
         if(nnn==-999.and.ss(i)<epsmx) nnn = i-1
       enddo
 c      write(6,*) 'nnn=',nnn
-      if(nnn==0) stop 'strange: nnn=0'
+Cstop2rx 2013.08.09 kino      if(nnn==0) stop 'strange: nnn=0'
+      if(nnn==0) call rx( 'strange: nnn=0')
       if(nnn>nnmx) nnn=nnmx
       pmat=pmatx
 c      pmat(:,1:nnn) = uu(:,1:nnn)

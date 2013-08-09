@@ -10,7 +10,8 @@ c catches the icol of a matrix am(lrow,lcol) and puts it into v
       dimension am(lrow,lcol)
       dimension v(lrow)
 
-      if (icol .gt. lcol) stop 'catch1: icol > lcol'
+Cstop2rx 2013.08.09 kino      if (icol .gt. lcol) stop 'catch1: icol > lcol'
+      if (icol .gt. lcol) call rx( 'catch1: icol > lcol')
       call dcopy   (lrow,am(1,icol),1,v,1)
       return
       end

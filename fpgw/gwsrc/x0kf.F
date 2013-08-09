@@ -190,7 +190,8 @@ ccccc zvz test cccccccccccccccccccccccccc
       logical :: ippovlinv_test=.true.
       if(verbose()>35) ipr=.true.
       if(zvztest()==1) then
-        if(ngbx /= ngc+nbloch) stop 'x0kf_v2z:ngbx /= ngc+nbloch'
+Cstop2rx 2013.08.09 kino        if(ngbx /= ngc+nbloch) stop 'x0kf_v2z:ngbx /= ngc+nbloch'
+        if(ngbx /= ngc+nbloch) call rx( 'x0kf_v2z:ngbx /= ngc+nbloch')
         if(ippovlinv_test) then
           open (ippovlinv,form='unformatted',file='PPOVLinv')
           do iqx=1,nqibz
@@ -202,7 +203,8 @@ ccccc zvz test cccccccccccccccccccccccccc
             if(sum (abs(q-qx))<1d-10) then
               print *, ' iqx=',iqx
               print *, qx
-              if(ngc/=ngcx) stop 'x0kf: ngx/=ngcx'
+Cstop2rx 2013.08.09 kino              if(ngc/=ngcx) stop 'x0kf: ngx/=ngcx'
+              if(ngc/=ngcx) call rx( 'x0kf: ngx/=ngcx')
               exit
             endif
             deallocate(ppovlinv,ppovl)
@@ -217,11 +219,14 @@ c ------------------------------------------------
 c      print *,' x0kf_v2z ---------'
       if(nolfco) then !ixc==2.or.ixc==22) then
         if(.not.tetra)
-     &    stop'  x0kf_v2z: tetra=t should be for this mode'
+Cstop2rx 2013.08.09 kino     &    stop'  x0kf_v2z: tetra=t should be for this mode'
+     &    call rx( '  x0kf_v2z: tetra=t should be for this mode')
         if(niwt/=0) 
-     &    stop ' x0kf_v2z: niwt==0 should be for this mode'
+Cstop2rx 2013.08.09 kino     &    stop ' x0kf_v2z: niwt==0 should be for this mode'
+     &    call rx( ' x0kf_v2z: niwt==0 should be for this mode')
         if(.not.realomega) 
-     &    stop ' x0kf_v2z: realomega=t should be for this mode'
+Cstop2rx 2013.08.09 kino     &    stop ' x0kf_v2z: realomega=t should be for this mode'
+     &    call rx( ' x0kf_v2z: realomega=t should be for this mode')
       endif
 
       imdim(1) = 1
@@ -366,7 +371,8 @@ cccccccccccccccc
           enddo
  4302     continue
           close(ifmn)
-          if(ix-1/=nlmto) stop 'readin @MNLA_CPHI but nlmto /= readin num'
+Cstop2rx 2013.08.09 kino          if(ix-1/=nlmto) stop 'readin @MNLA_CPHI but nlmto /= readin num'
+          if(ix-1/=nlmto) call rx( 'readin @MNLA_CPHI but nlmto /= readin num')
           do ix=1,nlmto
             if(l_in(ix)>1) cphik (ix,1:nband)=0d0
             if(l_in(ix)>1) cphikq(ix,1:nband)=0d0
@@ -442,7 +448,8 @@ ccc     zzmel(1:nbloch, 1:nctot+nt0, 1:ntp0)
           enddo
           close(ifix)
 c      deallocate(vzz,aaa)
-          if( k==2) stop '--- zvz test mode=2 end------------------' !Takeo k==2 case
+Cstop2rx 2013.08.09 kino          if( k==2) stop '--- zvz test mode=2 end------------------' !Takeo k==2 case
+          if( k==2) call rx( '--- zvz test mode=2 end------------------')
         endif
 
 
@@ -482,12 +489,14 @@ cccccccccccc
         if(sum(abs(qu1-qu1x))>1d-10) then
           print *,' qu1=',qu1
           print *,' qu1x=',qu1x
-          stop 'x0kf_v2z;qu1/=qu1x'
+Cstop2rx 2013.08.09 kino          stop 'x0kf_v2z;qu1/=qu1x'
+          call rx( 'x0kf_v2z;qu1/=qu1x')
         endif
         if(sum(abs(qu2-qu2x))>1d-10) then
           print *,' qu2=',qu2
           print *,' qu2x=',qu2x
-          stop 'x0kf_v2z;qu2/=qu2x'
+Cstop2rx 2013.08.09 kino          stop 'x0kf_v2z;qu2/=qu2x'
+          call rx( 'x0kf_v2z;qu2/=qu2x')
         endif
 cccccccccccccccccccccccc
 c         print *,' qu1=',qu1
@@ -500,7 +509,8 @@ c            ! q   - (q+k)   + k  is not zero.
 c            ! qc  -  q1     + q2
         add   = matmul(qbasinv, qdiff)
         nadd  = idint( add + dsign(.5d0,add))
-        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+        if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
 c     print *,' qdif=',qdiff,qbkp(:),rk(:,k)
 
         if(ipr) print *, '6666666666666'
@@ -571,7 +581,8 @@ c matrix element test case
           close(ifix)
           close(ifix+1)
           deallocate(vzz,aaa)
-          if(k==2) stop '--- zvz test mode=1 end------------------' !Takeo this is k==2 case
+Cstop2rx 2013.08.09 kino          if(k==2) stop '--- zvz test mode=1 end------------------' !Takeo this is k==2 case
+          if(k==2) call rx( '--- zvz test mode=1 end------------------')
         endif
 c-end of matrix elements --------------------------------------------------
 

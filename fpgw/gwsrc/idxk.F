@@ -8,7 +8,8 @@ c--------------------------------------------------------------------
       do ic = 1,nqibz
         if(sum(abs(qibz(:,ic)-q))< 1d-5) goto 1111
       end do
-      stop ' idxk: no match '
+Cstop2rx 2013.08.09 kino      stop ' idxk: no match '
+      call rx( ' idxk: no match ')
  1111 continue
       idxk = ic
       return
@@ -28,7 +29,8 @@ c--------------------------------------------------------------------
         if(icc>nqibz ) icc= ic-nqibz
         if(sum(abs(qibz(:,icc)-q))< 1d-6) goto 1111
       end do
-      stop ' idxk: no match '
+Cstop2rx 2013.08.09 kino      stop ' idxk: no match '
+      call rx( ' idxk: no match ')
  1111 continue
       idxk_cyclic = icc
       is   = icc

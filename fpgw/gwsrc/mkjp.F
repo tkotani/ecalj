@@ -150,7 +150,8 @@ c        write(6,*)ibl1,n,l,m,lmbl(ibl1)
       enddo
       if(ibl1/= nbloch) then
         write(6,*)' ibl1 nbloch',ibl1, nbloch
-        stop ' vcoulq: error ibl1/= nbloch'
+Cstop2rx 2013.08.09 kino        stop ' vcoulq: error ibl1/= nbloch'
+        call rx( ' vcoulq: error ibl1/= nbloch')
       endif
 
 
@@ -792,7 +793,8 @@ c --------------------------------------------------------------
       data w1,w2,w3/0.41666666666666666,0.6666666666666666666,
      &              -0.083333333333333333/
       if(mod(nr,2).eq.0) 
-     &  stop ' INTN: nr should be odd for simpson integration rule'
+Cstop2rx 2013.08.09 kino     &  stop ' INTN: nr should be odd for simpson integration rule'
+     &  call rx( ' INTN: nr should be odd for simpson integration rule')
 c
       int(1)=0.0d0
       DO  10  IR = 3,NR,2
@@ -830,7 +832,8 @@ c---
 c      print *,' sigintAn1: absqg=',absqg
       if(absqg<1d-10) then
 c      if(absqg<1d-6) then !23jan2004 1d-10 ok?
-        stop "sigintAn1: absqg=0 is not supported yet. Improve here."
+Cstop2rx 2013.08.09 kino        stop "sigintAn1: absqg=0 is not supported yet. Improve here."
+        call rx( "sigintAn1: absqg=0 is not supported yet. Improve here.")
 c This part for absqg=0 has not been checked yet!
 c       call bessl(0d0,lx,phi,psi)
 c        do ir = 1,nr

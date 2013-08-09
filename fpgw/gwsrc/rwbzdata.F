@@ -90,7 +90,8 @@ c         write(6,*) " O.K. index_qbz is generated; n=", n
 
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         print *, 'sum (wibz)=', sum(wibz(1:nqibz))
-        stop 'read_BZDATA  sum (wibz) is not 2.'
+Cstop2rx 2013.08.09 kino        stop 'read_BZDATA  sum (wibz) is not 2.'
+        call rx( 'read_BZDATA  sum (wibz) is not 2.')
       endif
 
       end subroutine
@@ -188,7 +189,8 @@ c      endif
       subroutine checkrange(intq,n1,n2)
       if(intq<n1 .or. intq>n2) then
         print *,'checkrange: intq n1 n2= ',intq,n1,n2
-        stop    'checkrange: stop '
+Cstop2rx 2013.08.09 kino        stop    'checkrange: stop '
+        call rx( 'checkrange: stop ')
       endif
       end
 

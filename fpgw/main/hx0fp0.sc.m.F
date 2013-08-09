@@ -145,7 +145,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
       end if
       call MPI__Broadcast(ixc)
-      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+Cstop2rx 2013.08.09 kino      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+      if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
       call headver('hx0fp0_sc',ixc)
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f8.3)") sciss
@@ -155,7 +156,8 @@ c      write(6,"(' ScaledGapX0=',f8.3)") sciss
          write(6,*) 'OK ixc=1011 Add W0W0I part at q=0'
       else
          print *,'we only allow ixc==11. given ixc=',ixc
-         stop 'error:we only allow ixc==11.'
+Cstop2rx 2013.08.09 kino         stop 'error:we only allow ixc==11.'
+         call rx( 'error:we only allow ixc==11.')
       endif
 !! ====newaniso2====
       newaniso2=.false.
@@ -204,7 +206,8 @@ c     print *,'Timereversal=',Timereversal()
       incwfin= 0                !use ForX0 for core in GWIN
       efin =  0d0               !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 !...  These are allocated and setted by genallcf_v3
 !     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
@@ -231,7 +234,8 @@ c     print *,'Timereversal=',Timereversal()
 
 !!!!  WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) stop ' nclass /= natom '
+Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
+      if(nclass /= natom) call rx( ' nclass /= natom ')
 
 !! --- tetra or not
       if(delta <= 0d0) then
@@ -245,8 +249,10 @@ c     print *,'Timereversal=',Timereversal()
 !! --- read dimensions of h,hb
       ifhbe      = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
-      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+Cstop2rx 2013.08.09 kino      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+      if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
+Cstop2rx 2013.08.09 kino      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+      if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 !! --- Readin Offset Gamma --------
       if(debug) print *, 'reading QOP'
@@ -425,9 +431,11 @@ ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
       do iw=1,nw2
          freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
       enddo                     !linear + quadratic term
-      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
-      if (dw*(nw-2) > freqr2(nw2-1)) stop
-     &     "hx0fp0: dw*(nw-2) > freqr2(nw2-1)"
+Cstop2rx 2013.08.09 kino      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
+      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
+Cstop2rx 2013.08.09 kino      if (dw*(nw-2) > freqr2(nw2-1)) stop
+      if (dw*(nw-2) > freqr2(nw2-1)) call rx( ''//
+     &     "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
       nwhis = nw2-1
       allocate(frhis(1:nwhis+1))
       frhis = freqr2(1:nwhis+1)
@@ -479,7 +487,8 @@ ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
          write(6,"('TimeReversal off mode')")
          npm=2
          nw_i=-nw
-         if(.not.tetra)      stop ' tetra=T for timereversal=off'
+Cstop2rx 2013.08.09 kino         if(.not.tetra)      stop ' tetra=T for timereversal=off'
+         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
       endif
       print *,'Timereversal=',Timereversal()
 
@@ -517,7 +526,8 @@ C     --- tetra init
       if(debug) print *,' xxx1:'
 c     ... maximum no. occupied valence states
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze)
-      if(noccxv>nband) stop 'hx0fp0: all the bands filled! too large Ef'
+Cstop2rx 2013.08.09 kino      if(noccxv>nband) stop 'hx0fp0: all the bands filled! too large Ef'
+      if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx      = noccxv + nctot
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble            !We use double precision arrays only.
@@ -560,7 +570,8 @@ C     --- open WV* files
          write(6,'(" ANFcond=",3f13.6)') anfvec
          do ibas=1,natom
             read(ifianf,*) ibas1, ibasf(ibas)
-            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+Cstop2rx 2013.08.09 kino            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+            if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
             write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
 c     &     ,transaf(1:3,ibas)
          enddo
@@ -571,12 +582,14 @@ c     &     ,transaf(1:3,ibas)
       if(smbasis() .and. anfexist) then
          print *,' smbais=T & anfexist=T is not yet. '//
      &        ' At leaset anfx0k shold be changed'
-         stop ' smbais=T & anfexist=T is not yet. '
+Cstop2rx 2013.08.09 kino         stop ' smbais=T & anfexist=T is not yet. '
+         call rx( ' smbais=T & anfexist=T is not yet. ')
       endif
       if((.not.timereversal()) .and. anfexist) then
         print *,' timereversal=F & anfexist=T is not yet examined.'//
      &       'At leaset you have to consider about anfx0k and so.'
-        stop ' timereversal=F & anfexist=T is not yet.'
+Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
+        call rx( ' timereversal=F & anfexist=T is not yet.')
       endif
 !!... these are used x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
@@ -689,7 +702,8 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !!
          if( newaniso2.and.iq==1 ) then ! *sanity check
             if(sum(q**2)>1d-10) then
-               stop ' hx0fp0.sc: sanity check. |q(iqx)| /= 0'
+Cstop2rx 2013.08.09 kino               stop ' hx0fp0.sc: sanity check. |q(iqx)| /= 0'
+               call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
             endif
          endif
 
@@ -707,7 +721,8 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
             read(ifvcoud) qvv
             if(sum(abs(qvv-q))>1d-10) then
                print *,'qvv =',qvv
-               stop 'hx0fp0: qvv/=0 hvcc is not consistent'
+Cstop2rx 2013.08.09 kino               stop 'hx0fp0: qvv/=0 hvcc is not consistent'
+               call rx( 'hx0fp0: qvv/=0 hvcc is not consistent')
             endif
             if(allocated(zcousq)) deallocate( zcousq,vcousq )
             allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
@@ -719,7 +734,8 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !!
          if(newaniso2.and. iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then !for mmmw
             if( ngb0/=ngb ) then
-               stop 'hx0fp0.m.f:ngb0/=ngb'
+Cstop2rx 2013.08.09 kino               stop 'hx0fp0.m.f:ngb0/=ngb'
+               call rx( 'hx0fp0.m.f:ngb0/=ngb')
             endif
             nolfco =.true.
             nmbas_in = 1 
@@ -850,7 +866,8 @@ c
                      write(6,*)"nbnb  =",nbnb(ik,:)
                      write(6,*)"nbnbtt=",nbnbtt(ik,:)
                   enddo
-                  stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
+Cstop2rx 2013.08.09 kino                  stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
+                  call rx( 'hx0fp0:sum(nbnb-nbnbtt)/=0')
                endif
                noccxv = maxval(noccxvx)
                noccx  = nctot + noccxv
@@ -869,7 +886,8 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 !     The last  bin  is     [frhis(nw), frhis(nwp)].
 !     nwp=nw+1; frhis(1)=0
 !     takao-feb/2002
-            if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
+Cstop2rx 2013.08.09 kino            if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
+            if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
             write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
             allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
@@ -1235,7 +1253,8 @@ c     write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
                   endif
 
                   if(.not.newaniso2) then ! Original mode
-                     stop 'not checked here'
+Cstop2rx 2013.08.09 kino                     stop 'not checked here'
+                     call rx( 'not checked here')
 c     call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
                   endif
 
@@ -1357,7 +1376,8 @@ c     write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
                   endif
 
                   if(.not.newaniso2) then  
-                     stop 'not checked here'
+Cstop2rx 2013.08.09 kino                     stop 'not checked here'
+                     call rx( 'not checked here')
 c     call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  zw0)
                   endif
 
@@ -1613,8 +1633,10 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
 !TIMESHOW
       call cputid(0)
       call MPI__Finalize
-      if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
-      if(ixc==1011) stop ' OK! hx0fp0_sc ixc=1011 W0W0Ionly'
+Cstop2rx 2013.08.09 kino      if(ixc==11) stop ' OK! hx0fp0_sc ixc=11 Sergey F. mode'
+      if(ixc==11) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
+Cstop2rx 2013.08.09 kino      if(ixc==1011) stop ' OK! hx0fp0_sc ixc=1011 W0W0Ionly'
+      if(ixc==1011) call rx0( ' OK! hx0fp0_sc ixc=1011 W0W0Ionly')
       end program hx0fp0_sc 
 
 

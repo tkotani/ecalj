@@ -507,8 +507,10 @@ c     b and hb of states {t} at q
          if(debug) print *, ' sxcf: 3'
 
          if(bzcase()==1) then
-            if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
-            if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+Cstop2rx 2013.08.09 kino            if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
+            if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+Cstop2rx 2013.08.09 kino            if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+            if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
          endif
 
 c-----
@@ -655,12 +657,14 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                if(sum(abs(qvv-qxx))>1d-6) then
                   print *,'qvv =',qvv
                   print *,'qxx=',qxx,kx
-                  stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
+Cstop2rx 2013.08.09 kino                  stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
+                  call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
                endif
  1133          continue
                if( ngb0/=ngb ) then !sanity check
                   print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
-                  stop 'hsfp0.m.f:ngb0/=ngb'
+Cstop2rx 2013.08.09 kino                  stop 'hsfp0.m.f:ngb0/=ngb'
+                  call rx( 'hsfp0.m.f:ngb0/=ngb')
                endif
 c$$$  if(sum(abs(qibz_k))<1d-6) then
 c$$$  idummy  = iclose('Vcoud') !close and open again. This is because first data in Voud is for q=0
@@ -954,13 +958,15 @@ c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
                   allocate( pomat(nn,no) )
                   pomat= pomatr(1:nn,1:no,kx)
                   if( sum(abs(qibz_k-qrr(:,kx)))>1d-10 .and.kx <= nqibz ) then
-                     stop 'qibz/= qrr'
+Cstop2rx 2013.08.09 kino                     stop 'qibz/= qrr'
+                     call rx( 'qibz/= qrr')
                   endif
                   if(no /= ngb.and.kx <= nqibz) then
 !     A bit sloppy check only for kx<nqibz because qibze is not supplied...
                      write(6,"(' q  ngb  ',3d13.5,3i5)")  qibz_k,ngb
                      write(6,"(' q_r  nn no',3d13.5,3i5)") q_r,nn,no
-                     stop 'x0kf_v2h: POmat err no/=ngb'
+Cstop2rx 2013.08.09 kino                     stop 'x0kf_v2h: POmat err no/=ngb'
+                     call rx( 'x0kf_v2h: POmat err no/=ngb')
                   endif
 ccccccccccccccccccccccccccc
 ctttt 
@@ -1057,7 +1063,8 @@ c     wtx = 1d0
                   else
 c     wtx = wgt0(kx-nqibz,irot)
                      wtt = wk(1)*wgt0(kx-nqibz,irot)
-                     if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
+Cstop2rx 2013.08.09 kino                     if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
+                     if(abs(wk(1)-1d0/dble(nqbz))>1d-10) call rx( 'sxcf:wk(1) inconsistent')
                   endif
                endif
 !     !
@@ -1233,10 +1240,13 @@ c---  reading general energy mesh from file 'freq_r'
 C...  Check freq_r for nw_i case.
 !     We assume freq_r(i) == -freq_r(-i) in this code. feb2006
                if(nw_i/=0) then
-                  if(nw/= -nw_i)        stop "sxcf_fal3_scz: nw/=-nw_i"
-                  if(freq_r(0)/=0d0)    stop "sxcf_fal3_scz: freq_r(0)/=0"
+Cstop2rx 2013.08.09 kino                  if(nw/= -nw_i)        stop "sxcf_fal3_scz: nw/=-nw_i"
+                  if(nw/= -nw_i)        call rx( "sxcf_fal3_scz: nw/=-nw_i")
+Cstop2rx 2013.08.09 kino                  if(freq_r(0)/=0d0)    stop "sxcf_fal3_scz: freq_r(0)/=0"
+                  if(freq_r(0)/=0d0)    call rx( "sxcf_fal3_scz: freq_r(0)/=0")
                   if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
-     &                 stop "sxcf_fal3_scz: freq_r /= -freq_r"
+Cstop2rx 2013.08.09 kino     &                 stop "sxcf_fal3_scz: freq_r /= -freq_r"
+     &                 call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
                endif
 !     Note this program assumes freq_r(iw)=freq_r(-iw). feb2006
 !     So freq_r(iw <0) is a little redundant because of the above relation.
@@ -1366,7 +1376,8 @@ c     cycle
 c     endif
 c     
                nx  = niw
-               if(niw <1) stop " sxcf:niw <1"
+Cstop2rx 2013.08.09 kino               if(niw <1) stop " sxcf:niw <1"
+               if(niw <1) call rx( " sxcf:niw <1")
 
 c     May2006 zwz
                npm = 1
@@ -1461,7 +1472,8 @@ c     zwz=0d0
                  write(6,'(i3,a,i3,a,i5)')
      &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2*nx; call flush(6) 
                  call mpi_abort()
-                 stop 
+Cstop2rx 2013.08.09 kino                 stop 
+                 call rx( '')
               endif
                do ix=1,nx
                   nrec=ix
@@ -1482,7 +1494,8 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
 !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
                   call flush(6)
                   call mpi_abort()
-                  stop
+Cstop2rx 2013.08.09 kino                  stop
+                  call rx( '')
                endif
 !$OMP do               
                do ix=1,nx
@@ -1631,7 +1644,8 @@ ccc!$OMP& private(zwzs,zwzs0)
                         elseif (iSigma_en==3) then
                            omega0=omega(itp)
                         else
-                           stop "sxcf: iSigma_en /=0,1,2, or 3"
+Cstop2rx 2013.08.09 kino                           stop "sxcf: iSigma_en /=0,1,2, or 3"
+                           call rx( "sxcf: iSigma_en /=0,1,2, or 3")
                         endif
                         we =.5d0*( omega0 -ekc(it))
                         esmrx = esmr
@@ -1683,7 +1697,8 @@ c     &      wintzsg_npm (npm, zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
      &                          ,freqx,wx,ua_,expa_,we,nx,esmrx)
                         else
                            if(npm==2) 
-     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+     &                          call rx( ' ###Not impliment wintzav for npm=2. Use Gausssmear.')
                            zwzi(it,itp,itpp) =  
      &                          wintzav ( zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
      &                          ,freqx,wx,ua_,expa_,we,nx, esmrx)
@@ -1775,7 +1790,8 @@ c     Gaussian smearing
      &                          ,freqx,wx,ua_,expa_,we,nx,esmrx)
                         else
                            if(npm==2) 
-     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
+     &                          call rx( ' ###Not impliment wintzav for npm=2. Use Gausssmear.')
                            zwzi(it,itp,itp) =  
      &                          wintzav ( zwz(1,it,itp,itp),zwz0(it,itp,itp),
      &                          freqx,wx,ua_,expa_,we,nx, esmrx)
@@ -1803,7 +1819,8 @@ c     end of SEc w-loop
                   do itp = 1,ntq
                      write(6,'(" zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip) !sf 22May02
                   enddo
-                  stop 'xxxxxxxxxxxxx test end ecal xxxxxxxxxxxxxx'
+Cstop2rx 2013.08.09 kino                  stop 'xxxxxxxxxxxxx test end ecal xxxxxxxxxxxxxx'
+                  call rx( 'xxxxxxxxxxxxx test end ecal xxxxxxxxxxxxxx')
                endif
                deallocate(zwz,zwz0,zwzi)
 
@@ -1856,7 +1873,8 @@ c---------------------------------------
                         if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
                      endif
                      if(it<=nctot) then
-                        if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                        if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+                        if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
                      endif
                      do iwp = 1,nw
                         ixs=iwp
@@ -1872,7 +1890,8 @@ c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                         write (*,*) ' nw_i ixsmin',nw_i, ixsmin
                         write (*,*) ' wexx, dw ',wexx,dw
                         write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
-                        stop ' sxcf 222: |w-e| out of range'
+Cstop2rx 2013.08.09 kino                        stop ' sxcf 222: |w-e| out of range'
+                        call rx( ' sxcf 222: |w-e| out of range')
                      endif
  3011             continue
  3001          continue         !end of SEc w and qt -loop
@@ -1886,10 +1905,12 @@ c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                   nwx  =  ixsmx+1
                endif
                if (nwx > nw   ) then
-                  stop ' sxcf_fal3_sc nwx check : |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino                  stop ' sxcf_fal3_sc nwx check : |w-e| > max(w)'
+                  call rx( ' sxcf_fal3_sc nwx check : |w-e| > max(w)')
                endif
                if (nwxi < nw_i) then
-                  stop ' sxcf_fal3_sc nwxi check: |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino                  stop ' sxcf_fal3_sc nwxi check: |w-e| > max(w)'
+                  call rx( ' sxcf_fal3_sc nwxi check: |w-e| > max(w)')
                endif
                if(debug) print *,'nw, nwx=',nw,nwx
                if(verbose()>50)call timeshow("10before alagr3z iw,itp,it ")
@@ -1916,7 +1937,8 @@ C...  Find nt_max ------------------------------------
                if(timemix) call timeshow("444444 k-cycle")
                if (iSigma_en == 1 .or. iSigma_en == 3.or.iSigma_en==5) then
                else
-                  stop 'sxcf_fal2_sc: iSigma_en /= 1 3 5'
+Cstop2rx 2013.08.09 kino                  stop 'sxcf_fal2_sc: iSigma_en /= 1 3 5'
+                  call rx( 'sxcf_fal2_sc: iSigma_en /= 1 3 5')
                endif
                allocate( zw3(ngb,ngb,nwxi:nwx))
                do      ix = nwxi,nwx
@@ -1986,14 +2008,16 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c     we = .5d0* abs( weavx2(omg,ef, ekc(it),esmr)- omg )
                         we = .5d0* abs( omg-weavx2(omg,ef, ekc(it),esmr) )
                         if(it<=nctot) then !faleev
-                           if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                           if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+                           if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
                         endif
                      else
                         if( wfac==0d0) cycle ! next it
                         if( omg >= ef) we = 0.5d0* abs( max(omg-ekc(it), 0d0) )
                         if( omg <  ef) we = 0.5d0* abs( min(omg-ekc(it), 0d0) )
                         if( it<=nctot) then !faleev
-                           if(wfac/=0) stop "sxcf:  it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                           if(wfac/=0) stop "sxcf:  it<=nctot.and.wfac/=0"
+                           if(wfac/=0) call rx( "sxcf:  it<=nctot.and.wfac/=0")
                         endif
                      endif
                      if(debug)write(6,"( ' xxx1',10d13.6)") omg,ef, ekc(it),wfac
@@ -2005,17 +2029,20 @@ c     we = .5d0* abs( weavx2(omg,ef, ekc(it),esmr)- omg )
                         if(freq_r(iwp)>we) exit
                      enddo      !sf 23May02
                      if(nw_i==0) then
-                        if(ixs+1>nwx) stop ' sxcf: ixs+1>nwx xxx2'
+Cstop2rx 2013.08.09 kino                        if(ixs+1>nwx) stop ' sxcf: ixs+1>nwx xxx2'
+                        if(ixs+1>nwx) call rx( ' sxcf: ixs+1>nwx xxx2')
                      else
 c     write(6,*) "pppp ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
 c     if(ixs+1>abs(nwxi)) stop ' sxcf: ixs+1>nwx yyy2'
                         if(omg >=ef .and. ixs+1> nwx ) then
                            write(6,*)'ixs+1 nwx=',ixs+1,nwx
-                           stop ' sxcf: ixs+1>nwx yyy2a'
+Cstop2rx 2013.08.09 kino                           stop ' sxcf: ixs+1>nwx yyy2a'
+                           call rx( ' sxcf: ixs+1>nwx yyy2a')
                         endif
                         if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
                            write(6,*)'ixs+1 nwxi=',ixs+1,nwxi
-                           stop ' sxcf: ixs-1<nwi yyy2b'
+Cstop2rx 2013.08.09 kino                           stop ' sxcf: ixs-1<nwi yyy2b'
+                           call rx( ' sxcf: ixs-1<nwi yyy2b')
                         endif
                      endif
 

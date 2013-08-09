@@ -43,7 +43,8 @@ c This now stops (sanity check) if ek wtt is less than 1d-10
           ! However, Takao think it is no way to do this line---so no problem.
           print *, " weavx2: .5*(el+eh) is wrong!"//
      &     " this is supposed not to go. Ask to takao:known at feb2006"
-          stop " weavx2: this is not to go through. Ask to takao"
+Cstop2rx 2013.08.09 kino          stop " weavx2: this is not to go through. Ask to takao"
+          call rx( " weavx2: this is not to go through. Ask to takao")
         endif
         return
       endif
@@ -53,16 +54,19 @@ c This now stops (sanity check) if ek wtt is less than 1d-10
       if(wtt<1d-10) then
         weavx2=9999999999d99
         return
-        stop "weavx2: wtt<1d-10" !feb2006 I changed---but this is just for sanity check.
+Cstop2rx 2013.08.09 kino        stop "weavx2: wtt<1d-10" !feb2006 I changed---but this is just for sanity check.
+        call rx( "weavx2: wtt<1d-10")
       endif
       weavx2 = ek+ esmr/sqrt(2d0*pi)
      &  *( -exp(-(eh-ek)**2/sig2) + exp(-(el-ek)**2/sig2) )/wtt
       if(weavx2<el) then
         write(6,*)'weavx2:err',el,eh, ek,weavx2
-        stop " weavx2:  weavx < el"
+Cstop2rx 2013.08.09 kino        stop " weavx2:  weavx < el"
+        call rx( " weavx2:  weavx < el")
       elseif(eh<weavx2) then
         write(6,*)'weavx2:err',el,eh, ek,weavx2
-        stop " weavx2:  eh < weavx"
+Cstop2rx 2013.08.09 kino        stop " weavx2:  eh < weavx"
+        call rx( " weavx2:  eh < weavx")
       endif
       end
 
@@ -103,7 +107,8 @@ c This now stops (sanity check) if ek wtt is less than 1d-10
           ! However, Takao think it is no way to do this line---so no problem.
           print *," weavx: .5*(el+eh) is wrong!"//
      &     " this is supposed not to go. Ask to takao:known at feb2006"
-          stop " weavx: this is not to go through. Ask to takao"
+Cstop2rx 2013.08.09 kino          stop " weavx: this is not to go through. Ask to takao"
+          call rx( " weavx: this is not to go through. Ask to takao")
         endif
         return
       endif
@@ -113,16 +118,19 @@ c This now stops (sanity check) if ek wtt is less than 1d-10
       if(wtt<1d-10) then
         weavx=9999999999d99
         return
-        stop "weavx: wtt<1d-10" !feb2006 I changed---but this is just for sanity check.
+Cstop2rx 2013.08.09 kino        stop "weavx: wtt<1d-10" !feb2006 I changed---but this is just for sanity check.
+        call rx( "weavx: wtt<1d-10")
       endif
       weavx = ek+ esmr/sqrt(2d0*pi)
      &  *( -exp(-(eh-ek)**2/sig2) + exp(-(el-ek)**2/sig2) )/wtt
       if(weavx<el) then
         write(6,*)'weavx:err',el,eh, ek,weavx
-        stop " weavx:  weavx < el"
+Cstop2rx 2013.08.09 kino        stop " weavx:  weavx < el"
+        call rx( " weavx:  weavx < el")
       elseif(eh<weavx) then
         write(6,*)'weavx:err',el,eh, ek,weavx
-        stop " weavx:  eh < weavx"
+Cstop2rx 2013.08.09 kino        stop " weavx:  eh < weavx"
+        call rx( " weavx:  eh < weavx")
       endif
 
 ccccccccccccccccccccccccccccc

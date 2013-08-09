@@ -1,0 +1,12 @@
+
+DON'T EXECUTE stop2rx.sh HERE!
+
+Place stop2rx.awk and stop2rx.sh in fpgw/ directory.
+
+and 
+$ stop2rx.sh
+,which will replace {main,gwsrc,nfpsrc,slatsmlib}/*.F
+
+DON'T run like
+$ sh stop2rx.sh 
+stop2rx.sh uses bash.

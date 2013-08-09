@@ -141,13 +141,15 @@ C- weight for k-point sampling
           print *,' wibz(1) nqbz=',wibz(1),nqbz
           print *,' sum wibz=',sum(wibz)
           print *, ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
-          stop     ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
+Cstop2rx 2013.08.09 kino          stop     ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
+          call rx( ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)')
         endif
       endif
       if(abs(sum(wibz)-2d0)>1d-10) then
         print *,' sum(wibz)=',sum(wibz)
         print *,' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
-        stop    ' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
+Cstop2rx 2013.08.09 kino        stop    ' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
+        call rx( ' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 ')
       endif
       end
 
@@ -474,9 +476,12 @@ c rc,cc = real and imaginary parts of c
      i          rb(ldb,1),cb(ldb,1)
       dimension rc(ldc,1),cc(ldc,1)
 
-      if(nrow .gt. lda) stop 'mmulc: lda too small'
-      if(nmul .gt. ldb) stop 'mmulc: ldb too small'
-      if(nmul .gt. ldc) stop 'mmulc: ldc too small'
+Cstop2rx 2013.08.09 kino      if(nrow .gt. lda) stop 'mmulc: lda too small'
+      if(nrow .gt. lda) call rx( 'mmulc: lda too small')
+Cstop2rx 2013.08.09 kino      if(nmul .gt. ldb) stop 'mmulc: ldb too small'
+      if(nmul .gt. ldb) call rx( 'mmulc: ldb too small')
+Cstop2rx 2013.08.09 kino      if(nmul .gt. ldc) stop 'mmulc: ldc too small'
+      if(nmul .gt. ldc) call rx( 'mmulc: ldc too small')
 c     do      ir = 1,nrow
 c     do      ic = 1,ncol
 c     rsum       = 0.d0

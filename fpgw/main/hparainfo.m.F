@@ -86,5 +86,6 @@ c
         close(ifix)
         kinit(i+1) = kend(i) +1
       enddo
-      stop ' OK! parainfo QPNT.{number} and X0KDIV generated'
+Cstop2rx 2013.08.09 kino      stop ' OK! parainfo QPNT.{number} and X0KDIV generated'
+      call rx0( ' OK! parainfo QPNT.{number} and X0KDIV generated')
       end

@@ -165,7 +165,8 @@ cccccccccccccccccccccccccccccccccc
       elseif(incwfx==0) then
         print *,' ### Use unocc occ ForX0 for core'
       else
-        stop ' ### proper incwf is not given for genallcf2:rgwinf '
+Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
+        call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
       endif
       deallocate(ncwf2)
       end subroutine
@@ -326,7 +327,8 @@ cccccccccccccc
 c      if(ict .ne. ic) then
 c       stop 'rgwina: 1st wrong class '
 c      endif
-          if(lt  .ne. l ) stop 'rgwina: 1st wrong l '
+Cstop2rx 2013.08.09 kino          if(lt  .ne. l ) stop 'rgwina: 1st wrong l '
+          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
         end do
       end do
       print *,' --- valence product basis section'
@@ -345,8 +347,10 @@ ccccccccccccccccccccccccccccccc
             read(ifi,*)ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
             write(6,"(100i3)") ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
 c      if(ict .ne. ic)stop 'rgwina: 2nd wrong class valence'
-            if(lt  .ne. l )stop 'rgwina: 2nd wrong l valence'
-            if(nt  .ne. n )stop 'rgwina: wrong n valence'
+Cstop2rx 2013.08.09 kino            if(lt  .ne. l )stop 'rgwina: 2nd wrong l valence'
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
+Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n valence'
+            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
           end do
         end do
       end do
@@ -364,8 +368,10 @@ c>> core
      & ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
      & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
 c      if(ict .ne. ic)stop 'rgwina: 2nd wrong class core'
-            if(lt  .ne. l )stop 'rgwina: 2nd wrong l core'
-            if(nt  .ne. n )stop 'rgwina: wrong n core'
+Cstop2rx 2013.08.09 kino            if(lt  .ne. l )stop 'rgwina: 2nd wrong l core'
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
+Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n core'
+            if(nt  .ne. n )call rx( 'rgwina: wrong n core')
           end do
         end do
       end do

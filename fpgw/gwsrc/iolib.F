@@ -173,7 +173,8 @@ C#endif
 C#ifdefC unix
 C      call set_ret_val(retval,1)
 C#endif
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end
       double precision function cpusec()
 C- process cputime, in seconds
@@ -272,7 +273,8 @@ C#else
 C#endif
       imin=14
       goto 10
-    2 stop 'QUERY:  cannot change char or real'
+Cstop2rx 2013.08.09 kino    2 stop 'QUERY:  cannot change char or real'
+    2 call rx( 'QUERY:  cannot change char or real')
     1 continue
       call disply(instr,'=',var,var,var,var,' ',1,cast)
    10 continue
@@ -421,7 +423,8 @@ C --- find a category ---
           noerr = .false.
           if (lopt) then
             call msgio(recrd(nrecs*reclen),cat,' ',' ',3,1,.true.,i)
-            stop
+Cstop2rx 2013.08.09 kino            stop
+            call rx( '')
           endif
           return
         endif
@@ -534,7 +537,8 @@ C --- seek token within a category ---
       if (.not. parstr(categ,token,subsiz,maxlen,term,iend,j)) then
         if (ichoos .lt. nchoos .or. .not. lopt) goto 40
         call msgio(strn,categ,token,term,2,4,.true.,j)
-        stop
+Cstop2rx 2013.08.09 kino        stop
+        call rx( '')
       endif
       noerr = .true.
 
@@ -556,7 +560,8 @@ C --- seek token within a category ---
         call msgio(strn,categ,token,term,2,1,.true.,k)
         print 22, iabs(count), partok
    22   format(' sought',i3,' elements but found only',i3)
-        stop
+Cstop2rx 2013.08.09 kino        stop
+        call rx( '')
       endif
 
    40 iend = j
@@ -711,7 +716,8 @@ C ----------------------------------------------------------------
       itoken = -1
       if (lopt) then
         print *, 'TOKMAT: unmatched ', (string(i), i=1,len)
-        stop
+Cstop2rx 2013.08.09 kino        stop
+        call rx( '')
       endif
       return
       end
@@ -1139,7 +1145,8 @@ C#endif
       entry fadd(nam,unit,switch)
       fadd = unit+1
       nnam = nnam+1
-      if (nnam .gt. mxnam) stop 'iolib: too many file names'
+Cstop2rx 2013.08.09 kino      if (nnam .gt. mxnam) stop 'iolib: too many file names'
+      if (nnam .gt. mxnam) call rx( 'iolib: too many file names')
       pasnam(nnam) = nam
 C#ifdefC unix
 C      call str_lo_case(pasnam(nnam))
@@ -1172,7 +1179,8 @@ c        PRINT *, 'dbg fopn name check', i, nam, pasnam(i)
    10 continue
       if (ista .eq. -2) return
       write(i1mach(4),*) 'fopn: name mismatch: file ', fnam
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
 
    20 continue
       if (ista .eq. -2) return
@@ -1268,7 +1276,8 @@ C     implicit none
       jsopen = .false.
       unitab(nopen) = unit
       nopen = nopen+1
-      if (nopen .gt. maxfil) stop 'JSOPEN: too many files'
+Cstop2rx 2013.08.09 kino      if (nopen .gt. maxfil) stop 'JSOPEN: too many files'
+      if (nopen .gt. maxfil) call rx( 'JSOPEN: too many files')
       return
       end
       subroutine fclose(unit)

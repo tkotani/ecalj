@@ -107,7 +107,8 @@ c---------------------------------------
       read(5,*) imode
       call headver('heftet',imode)
       write(6,*) '--- heftet: calculation mode =',imode
-      if(imode<1.or.imode>4) stop 'mode out of range(1-4)'
+Cstop2rx 2013.08.09 kino      if(imode<1.or.imode>4) stop 'mode out of range(1-4)'
+      if(imode<1.or.imode>4) call rx( 'mode out of range(1-4)')
 c---------------------------------------
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
@@ -141,7 +142,8 @@ c      ifphiv(1)=-999 ! not readin ifphi
       efin =-999d0     ! not readin ef
 C--- readin GWIN and LMTO, then allocate and set datas.
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c------------------------------
 c      integer(4)::
 c     o  nclass,natom,nspin,nl,nn,nnv,nnc,
@@ -177,7 +179,8 @@ c      enddo
 c-------------------------------------------------------------------
 c      if (nclass > mxclass) stop ' heftet:increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+      if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       print *,' hsfp0: end of genallcf2'
 c
       pi   = 4d0*datan(1d0)
@@ -216,7 +219,8 @@ c      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
 c>> read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       isx = iclose('hbe.d')
 
 C --- Locate band limits ---
@@ -302,7 +306,8 @@ c           print *,eband(:,is,iqi)
         iftote=202
         open(iftote,file='TOTE.UP')
         read(iftote,*) nq,ntq, efxx
-        if(nq/= nqibz) stop ' heftet: nq TOTE/= nqibz'
+Cstop2rx 2013.08.09 kino        if(nq/= nqibz) stop ' heftet: nq TOTE/= nqibz'
+        if(nq/= nqibz) call rx( ' heftet: nq TOTE/= nqibz')
         nband = ntq
         allocate( eband(nband,nspin,nqibz), qz(3,nqibz) )
         call dcopy (3*nqibz,qibz,1,qz,1)
@@ -310,19 +315,24 @@ c           print *,eband(:,is,iqi)
           if(is==2) then
             open(iftote,file='TOTE.DN')
             read(iftote,*) nq2,ntq2, efxx2
-            if(nq2/=nq)   stop 'nq dirrerent TOTE.UP TOTE.DN'
-            if(ntq2/=ntq) stop 'ntq dirrerent TOTE.UP TOTE.DN'
-            if(efxx/=efxx)stop 'efxx dirrerent TOTE.UP TOTE.DN'
+Cstop2rx 2013.08.09 kino            if(nq2/=nq)   stop 'nq dirrerent TOTE.UP TOTE.DN'
+            if(nq2/=nq)   call rx( 'nq dirrerent TOTE.UP TOTE.DN')
+Cstop2rx 2013.08.09 kino            if(ntq2/=ntq) stop 'ntq dirrerent TOTE.UP TOTE.DN'
+            if(ntq2/=ntq) call rx( 'ntq dirrerent TOTE.UP TOTE.DN')
+Cstop2rx 2013.08.09 kino            if(efxx/=efxx)stop 'efxx dirrerent TOTE.UP TOTE.DN'
+            if(efxx/=efxx)call rx( 'efxx dirrerent TOTE.UP TOTE.DN')
           endif
           do  iqi = 1,nqibz
             do   it = 1,nband
               read(iftote,*) qq(1:3), itx, iqx, elda, eqp01, eqp02, zfac
-              if(it /= itx ) stop ' heftet: it /=itx '
+Cstop2rx 2013.08.09 kino              if(it /= itx ) stop ' heftet: it /=itx '
+              if(it /= itx ) call rx( ' heftet: it /=itx ')
               if(sum(abs(qq(1:3)-qz(1:3,iqi)))>1d-6 ) then
                 print *, 'iqi it=',iqi,it
                 print *, qq(1:3)
                 print *, qz(1:3,iqi)
-                stop ' heftet: q in TOTE /=qz (iqi) '
+Cstop2rx 2013.08.09 kino                stop ' heftet: q in TOTE /=qz (iqi) '
+                call rx( ' heftet: q in TOTE /=qz (iqi) ')
               endif
               if(imode==2) eband(it,is,iqi) = elda /rydberg() + efxx
               if(imode==3) eband(it,is,iqi) = eqp01/rydberg() + efxx
@@ -363,8 +373,9 @@ cccccccccccccccccccccccccccccccccccccccccccc
         if(.not. ( qbzreg().and.bzcase()==1 ) ) then
           print *,"Fermi energy finder for off-regular mesh"//
      &          "(Chi_RegQbz off)or bzcase==2 is not implimented yet..."
-          stop 
-     &     "Ef finder for off-regular mesh. NotYet implimented"
+Cstop2rx 2013.08.09 kino          stop 
+          call rx( ''//
+     &     "Ef finder for off-regular mesh. NotYet implimented")
         endif
       endif
 cccccccccccccccccccccccccccccccccccccccccccc
@@ -388,7 +399,8 @@ c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
           if(e2 - e1 < tol) goto 4
         enddo
         write(*,*) 'heftet:bug in fermi level finder or tol too small'
-        stop       'heftet:bug in fermi level finder or tol too small'
+Cstop2rx 2013.08.09 kino        stop       'heftet:bug in fermi level finder or tol too small'
+        call rx( 'heftet:bug in fermi level finder or tol too small')
 c        call
 c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
     4   continue
@@ -415,15 +427,19 @@ c- eband check
 c
       if(imode==1) then
         write(6,"(' Tet EFERMI gap = ',2f24.15)") efermi,bandgap
-        stop ' OK! heftet mode=1 EFERMI generated '
+Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=1 EFERMI generated '
+        call rx0( ' OK! heftet mode=1 EFERMI generated ')
       elseif(imode==2) then
         write(6,"(' Tet EFERMI.check gap= ',2f24.15)") efermi,bandgap
-        stop ' OK! heftet mode=2 EFERMI.check generated '
+Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=2 EFERMI.check generated '
+        call rx0( ' OK! heftet mode=2 EFERMI.check generated ')
       elseif(imode==3) then
         write(6,"(' Tet EFERMI.QP gap   = ',2f24.15)") efermi,bandgap
-        stop ' OK! heftet mode=3 EFERMI.QP generated '
+Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=3 EFERMI.QP generated '
+        call rx0( ' OK! heftet mode=3 EFERMI.QP generated ')
       elseif(imode==4) then
         write(6,"(' Tet EFERMI.QPz=1 gap= ',2f24.15)") efermi,bandgap
-        stop ' OK! heftet mode=4 EFERMI.QPz=1 generated '
+Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=4 EFERMI.QPz=1 generated '
+        call rx0( ' OK! heftet mode=4 EFERMI.QPz=1 generated ')
       endif
       end

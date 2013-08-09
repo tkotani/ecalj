@@ -381,8 +381,10 @@ c b and hb of states {t} at q
       if(debug) print *, ' sxcf: 3'
 
       if(bzcase()==1) then
-        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
-        if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
+        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+Cstop2rx 2013.08.09 kino        if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
+        if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       endif
 
 c-----
@@ -459,7 +461,8 @@ c          deallocate(vcoul)
 c          cycle
 c          print *,' kount out =',kount(k,ip)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
-          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
+Cstop2rx 2013.08.09 kino          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
+          if (kount(kx,ip) > nstar(kx)) call rx( 'sexc: too many stars')
         else
           if( wgt0(kx-nqibz,irot) == 0d0 ) then
             if(exchange) deallocate(vcoul)
@@ -671,7 +674,8 @@ c            wtx= wgt0(kx-nqibz,irot)/dble(nqbz)
             wtt = wk(kr)
           else
             wtt = wk(1)*wgt0(kx-nqibz,irot)  !       wtx = wgt0(kx-nqibz,irot)
-            if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
+Cstop2rx 2013.08.09 kino            if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
+            if(abs(wk(1)-1d0/dble(nqbz))>1d-10) call rx( 'sxcf:wk(1) inconsistent')
           endif
         endif
 
@@ -873,7 +877,8 @@ c COH term test ----- The sum of the all states for zwz00 gives the delta functi
         endif
 c
         nx  = niw
-        if(niw <1) stop " sxcf:niw <1"
+Cstop2rx 2013.08.09 kino        if(niw <1) stop " sxcf:niw <1"
+        if(niw <1) call rx( " sxcf:niw <1")
         allocate( zwz(niw,nstate,ntp0),  zwzi(nstate,ntp0) )
         if(screen) allocate(zwz00(nstate,ntp0))
 c
@@ -1030,7 +1035,8 @@ cgaussian
               endif
 
               if(it<=nctot) then
-                if(wfac/=0) stop " it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                if(wfac/=0) stop " it<=nctot.and.wfac/=0"
+                if(wfac/=0) call rx( " it<=nctot.and.wfac/=0")
               endif
 
               if(wfac<wfaccut) cycle
@@ -1043,7 +1049,8 @@ c------
                   write (*,*) ' nw',nw
                   write (*,*) ' dw ',wexx,dw
                   write (*,*) ' esec ekc(it) ef ', esec,ekc(it),ef,wfac
-                  stop ' sxcf 1112: |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino                  stop ' sxcf 1112: |w-e| > max(w)'
+                  call rx( ' sxcf 1112: |w-e| > max(w)')
                 endif
 c------
               endif
@@ -1071,7 +1078,8 @@ c------
                   write (*,*) ' nw',nw
                   write (*,*) ' dw ',wexx,dw
                   write (*,*) ' esec ekc(it) ef ', esec,ekc(it),ef
-                  stop ' sxcf 222: |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino                  stop ' sxcf 222: |w-e| > max(w)'
+                  call rx( ' sxcf 222: |w-e| > max(w)')
                 endif
 c------
               endif
@@ -1080,7 +1088,8 @@ c------
  3001   continue  !end of SEc w and qt -loop
         nwx = ixsmx+2
         if (nwx > nw) then
-          stop ' sxcf xxx: |w-e| > max(w)'
+Cstop2rx 2013.08.09 kino          stop ' sxcf xxx: |w-e| > max(w)'
+          call rx( ' sxcf xxx: |w-e| > max(w)')
         endif
         if(debug) print *,' nwx=',nwx
 
@@ -1144,13 +1153,15 @@ cgaussian
                 if(wfac<wfaccut) cycle
                 we = abs( .5d0*(weavx(esec,ef, ekc(it),esmr)- esec))
                 if(it<=nctot) then                                     !faleev
-                  if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                  if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
+                  if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
                 endif
               else
                 if(wfac==0d0) cycle
                 we   = abs( 0.5d0*(ekc(it) - esec) )
                 if(it<=nctot) then                                     !faleev
-                  if(wfac/=0) stop "sxcf:  it<=nctot.and.wfac/=0"
+Cstop2rx 2013.08.09 kino                  if(wfac/=0) stop "sxcf:  it<=nctot.and.wfac/=0"
+                  if(wfac/=0) call rx( "sxcf:  it<=nctot.and.wfac/=0")
                 endif
               endif
 
@@ -1159,7 +1170,8 @@ c three-point interpolation for Wc(we)
               ixs  = idint (we/dw) + 1
               if(ixs+2>nwx) then
                 print *,' ixs+2=',ixs,we,nwx,dw
-                stop ' sxcf: ixs+2>nw xxx1'
+Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+2>nw xxx1'
+                call rx( ' sxcf: ixs+2>nw xxx1')
               endif
               zsec(iw,itp,ip) = zsec(iw,itp,ip) 
      .      - wfac*wtt*alagr3z(we,freq(ixs),zwz(ixs,it,itp))
@@ -1190,7 +1202,8 @@ c three-point interpolation for Wc(we)
               ixs  = idint (we/dw) + 1
               if(ixs+2>nwx) then
                 print *,'debug dat=',nwx,ixs
-                stop ' sxcf: ixs+2>nwx xxxx2'
+Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+2>nwx xxxx2'
+                call rx( ' sxcf: ixs+2>nwx xxxx2')
               endif
               zsec(iw,itp,ip) = zsec(iw,itp,ip) 
      .      + wfac*wtt*alagr3z(we,freq(ixs),zwz(ixs,it,itp))
@@ -1362,8 +1375,10 @@ c up to x <rmax<15 which is limited by the range of derfc(x).
       real(8),save :: eeint(nd),xval(nd)
       logical :: init=.true.
 c--------------
-      if(rup>rmax) stop 'wintsf: too large rup'
-      if(rup<rdn ) stop 'wintsf: rup<rdn'
+Cstop2rx 2013.08.09 kino      if(rup>rmax) stop 'wintsf: too large rup'
+      if(rup>rmax) call rx( 'wintsf: too large rup')
+Cstop2rx 2013.08.09 kino      if(rup<rdn ) stop 'wintsf: rup<rdn'
+      if(rup<rdn ) call rx( 'wintsf: rup<rdn')
       if(init) then
         eeint(1) = 0d0
         xval(1)  = 0d0
@@ -1437,7 +1452,8 @@ c     return
 c     endif
       if (dabs(we) .lt. tol) then
         print *, ' we=',we
-        stop 'wintz: |w-e| < tol'
+Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
+        call rx( 'wintz: |w-e| < tol')
       endif
 c frequency integral
       we2        = we*we
@@ -1478,13 +1494,15 @@ c Imag part is corrected to be >0
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
 c--- Assure that dimag(fi) is positive.
-      if(x<0d0) stop ' alagr3z: x<0d0'
+Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z: x<0d0'
+      if(x<0d0) call rx( ' alagr3z: x<0d0')
       do i=1,3
         if(dimag(fi(i))>1d-8) then
           ratio= abs(dimag(fi(i))/dreal(fi(i)))
           if( ratio >1d-6) then !jan2004. I added a bit of alloance
             print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-            stop    ' alagr3z: error! dimag(fi(i)) is positive'
+Cstop2rx 2013.08.09 kino            stop    ' alagr3z: error! dimag(fi(i)) is positive'
+            call rx( ' alagr3z: error! dimag(fi(i)) is positive')
           endif
         endif
       enddo

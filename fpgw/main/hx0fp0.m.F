@@ -284,7 +284,8 @@ c      write(6,"(' ixc = ',i4)") ixc
 
       if(ixc<=6.or.ixc==22.or.ixc==23) then
         write(*,*)'these modes are removed now'
-        stop 'these modes are not supported'
+Cstop2rx 2013.08.09 kino        stop 'these modes are not supported'
+        call rx( 'these modes are not supported')
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
         normalm=.true.
@@ -303,7 +304,8 @@ c        iepsmode=203
 ! Total energy modes
       elseif(ixc==12) then
         write(6,*) " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
-        stop " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
+Cstop2rx 2013.08.09 kino        stop " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
+        call rx( " ixc=12 Miyake's total energy Sergey--->need to fix this mode")
         imagonly=.true.
         ecorr_on=901
 !     -- chipm mode NoLFC
@@ -322,12 +324,14 @@ c        eiqr =.true.
 !     -- eps mode with LFC
       elseif(ixc==223) then
         write(6,*) " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary."
-        stop " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary."
+Cstop2rx 2013.08.09 kino        stop " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary."
+        call rx( " ixc=223  chipm with LFC sergey's -->commented out not. need to fix this mode if necessary.")
         realonly=.true.
         omitqbz=.true.
         eiqr =.true.
       else
-        stop' hx0fp0: mode ixc is not appropriate'
+Cstop2rx 2013.08.09 kino        stop' hx0fp0: mode ixc is not appropriate'
+        call rx( ' hx0fp0: mode ixc is not appropriate')
       endif
 
       if(ixc==202.or.ixc==203.or.ixc==222.or.ixc==223) then
@@ -396,7 +400,8 @@ C --- Use regular mesh even for bzcase==2 and qbzreg()=T
         print *,' smbasis=T & chipm=T is not implimented yet.'//
      &       ' Supply consistent MixSpin for smbasis!'//
      &       ' MixSpin should be converted at the end of hvccfp0.'
-        stop ' smbasis=T & chipm=T is not implimented yet.'
+Cstop2rx 2013.08.09 kino        stop ' smbasis=T & chipm=T is not implimented yet.'
+        call rx( ' smbasis=T & chipm=T is not implimented yet.')
       endif
 
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
@@ -411,7 +416,8 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       incwfin= 0  !use ForX0 for core in GWIN
       efin =  0d0 !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 !...  These are allocated and setted by genallcf_v3
 !      integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
@@ -434,7 +440,8 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       print *,' iclass=',iclass
       tpioa=2d0*pi/alat
 ! ...
-      if(chipm.and.nspin==1) stop 'chipm mode is for nspin=2'
+Cstop2rx 2013.08.09 kino      if(chipm.and.nspin==1) stop 'chipm mode is for nspin=2'
+      if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
       nw_input = nw ; print *, 'nw delta=',nw_input,delta
       debug=.false.; if(verbose()>=100) debug=.true.
 ccccccccccccccccccccc
@@ -443,7 +450,8 @@ cccccccccccccccccccc
       if(debug) print *,' end of genallc'
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) stop ' nclass /= natom '
+Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
+      if(nclass /= natom) call rx( ' nclass /= natom ')
 
 !! --- tetra or not
       if(delta <= 0d0) then
@@ -457,8 +465,10 @@ cccccccccccccccccccc
 !! --- read dimensions of h,hb
       ifhbe  = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
-      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+Cstop2rx 2013.08.09 kino      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+      if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
+Cstop2rx 2013.08.09 kino      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+      if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 !! --- Readin Offset Gamma --------
       if(debug) print *, 'reading QOP'
@@ -484,7 +494,8 @@ cccccccccccccccccccc
         wqtsum = sum(abs(wqt(1:nq0i)))
         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
         if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p)) 
-     &  stop ' wqtsum of Q0P /=1 '
+Cstop2rx 2013.08.09 kino     &  stop ' wqtsum of Q0P /=1 '
+     &  call rx( ' wqtsum of Q0P /=1 ')
       endif
 
 C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
@@ -561,8 +572,10 @@ c$$$        endif
       do iw=1,nw2
         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
       enddo !linear + quadratic term
-      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
-      if (dw*(nw-2) > freqr2(nw2-1)) stop "hx0fp0: dw*(nw-2) > freqr2(nw2-1)"
+Cstop2rx 2013.08.09 kino      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
+      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
+Cstop2rx 2013.08.09 kino      if (dw*(nw-2) > freqr2(nw2-1)) stop "hx0fp0: dw*(nw-2) > freqr2(nw2-1)"
+      if (dw*(nw-2) > freqr2(nw2-1)) call rx( "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
       nwhis = nw2-1
       allocate(frhis(1:nwhis+1))
       frhis = freqr2(1:nwhis+1)
@@ -618,9 +631,12 @@ c$$$        endif
         write(6,"('TimeReversal off mode')")
         npm=2
         nw_i=-nw
-        if(.not.tetra)      stop ' tetra=T for timereversal=off'
-        if(chipm)           stop ' chipm=F for timereversal=off. '//
-     &    ' Takao think npm=1 works OK even for chipm=T and TimeReversal=off. But need to check'
+Cstop2rx 2013.08.09 kino        if(.not.tetra)      stop ' tetra=T for timereversal=off'
+        if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
+Cstop2rx 2013.08.09 kino        if(chipm)           stop ' chipm=F for timereversal=off. '//
+Cstop2rx 2013.08.09 kino continue line(2)
+        if(chipm)           call rx( ' chipm=F for timereversal=off. '//
+     &    ' Takao think npm=1 works OK even for chipm=T and TimeReversal=off. But need to check' )
       endif
 !! For chipm=T for TimeReversal=off(psi and psi* are not degenerated), Takao think npm=1 works OK. But need to check.
 !! In addition, we have to consider Spin-orbit interaction correctly...
@@ -690,7 +706,8 @@ C --- tetra init
       endif ;  if(debug) print *,' xxx1:'
 C ... maximum no. occupied valence states
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze)
-      if(noccxv>nband) stop 'hx0fp0: all the bands filled! too large Ef'
+Cstop2rx 2013.08.09 kino      if(noccxv>nband) stop 'hx0fp0: all the bands filled! too large Ef'
+      if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx      = noccxv + nctot
 
 C --- write energy mesh ---
@@ -728,7 +745,8 @@ C ... This is just to get nblochpmx
         write(6,'(" ANFcond=",3f13.6)') anfvec
         do ibas=1,natom
           read(ifianf,*) ibas1, ibasf(ibas)
-          if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+Cstop2rx 2013.08.09 kino          if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+          if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
           write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
         enddo
         close(ifianf)
@@ -737,12 +755,14 @@ C ... This is just to get nblochpmx
       if(smbasis() .and. anfexist) then
         print *,' smbais=T & anfexist=T is not yet.'//
      &       'At leaset anfx0k shold be changed'
-        stop ' smbais=T & anfexist=T is not yet.'
+Cstop2rx 2013.08.09 kino        stop ' smbais=T & anfexist=T is not yet.'
+        call rx( ' smbais=T & anfexist=T is not yet.')
       endif
       if((.not.timereversal()) .and. anfexist) then
         print *,' timereversal=F & anfexist=T is not yet examined.'//
      &       'At leaset you have to consider about anfx0k and so.'
-        stop ' timereversal=F & anfexist=T is not yet.'
+Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
+        call rx( ' timereversal=F & anfexist=T is not yet.')
       endif
 
 !!... these are used x0k
@@ -779,10 +799,12 @@ C ... Set iqxini
 C... check write 1st part for Ec mode to ecorr.chk Nov2004
       if(ecorr_on>0) then
 ccccccccccccccccccccccccccccccccc
-         stop ' need to check subroutine getwk and so on'
+Cstop2rx 2013.08.09 kino         stop ' need to check subroutine getwk and so on'
+         call rx( ' need to check subroutine getwk and so on')
 ccccccccccccccccccccccccccccccccc
         if(ecorr_on >0.and. (.not.imagomega) ) 
-     &    stop ' hx0fp0: ecorr_on .and. (.not.imagomega)'
+Cstop2rx 2013.08.09 kino     &    stop ' hx0fp0: ecorr_on .and. (.not.imagomega)'
+     &    call rx( ' hx0fp0: ecorr_on .and. (.not.imagomega)')
         write(ieclog,
      &          "('   iq                q                       wk')")
         do iqq = iqxini,iqxend
@@ -819,7 +841,8 @@ c        if(.not.sergeyv) necut=1
       allocate(ecut(necut),ecuts(necut))
       call getkeyvalue("GWinput","ecut_p" ,ecut, necut,default=(/1d10/) )
       call getkeyvalue("GWinput","ecuts_p",ecuts,necut,default=(/1d10/) )
-      if(necut/=1) stop 'Sorry! this version is not for necut=1'
+Cstop2rx 2013.08.09 kino      if(necut/=1) stop 'Sorry! this version is not for necut=1'
+      if(necut/=1) call rx( 'Sorry! this version is not for necut=1')
 
 css
 css   if(chipm.and.(.not.legas).and.(.not.eiqr)) then
@@ -828,7 +851,8 @@ c--- sanity check
         if(smbasis()) then
           print *,'This version is not for spin sus for smbais=T.'//
      &         'You need to modify MixSpin.'
-          stop  'This version is not for spin sus for smbais=T'
+Cstop2rx 2013.08.09 kino          stop  'This version is not for spin sus for smbais=T'
+          call rx( 'This version is not for spin sus for smbais=T')
         endif
 
 !Sep2006
@@ -1116,7 +1140,8 @@ c        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
 !!
         if( newaniso2.and.iq==1 ) then ! *sanity check
           if(sum(q**2)>1d-10) then
-            stop ' hx0fp0: sanity check. |q(iqx)| /= 0'
+Cstop2rx 2013.08.09 kino            stop ' hx0fp0: sanity check. |q(iqx)| /= 0'
+            call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
           endif
         endif
 
@@ -1133,12 +1158,14 @@ c        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
           ifvcoud = iopen(trim(vcoudfile),0,-1,0)
           read(ifvcoud) ngb0
           if( ngb0/=ngb ) then
-            stop 'hx0fp0.m.f:ngb0/=ngb'
+Cstop2rx 2013.08.09 kino            stop 'hx0fp0.m.f:ngb0/=ngb'
+            call rx( 'hx0fp0.m.f:ngb0/=ngb')
           endif
           read(ifvcoud) qvv
           if(sum(abs(qvv-q))>1d-10) then
             print *,'qvv =',qvv
-            stop 'hx0fp0: qvv/=0 hvcc is not consistent'
+Cstop2rx 2013.08.09 kino            stop 'hx0fp0: qvv/=0 hvcc is not consistent'
+            call rx( 'hx0fp0: qvv/=0 hvcc is not consistent')
           endif
           if(allocated(zcousq)) deallocate( zcousq,vcousq )
           allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
@@ -1342,7 +1369,8 @@ c            if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
               call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx, !2006
      o        n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
             enddo
-            if(sum(abs(nbnb-nbnbtt))/=0)stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
+Cstop2rx 2013.08.09 kino            if(sum(abs(nbnb-nbnbtt))/=0)stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
+            if(sum(abs(nbnb-nbnbtt))/=0)call rx( 'hx0fp0:sum(nbnb-nbnbtt)/=0')
             noccxv = maxval(noccxvx)
             noccx  = nctot + noccxv
             print *,' Tetra mode: nctot onoccxv= ',nctot,noccxv
@@ -1508,7 +1536,8 @@ C --- METHOD (tetwt5) for the tetrahedron weight
 !     The last  bin  is     [frhis(nw), frhis(nwp)].
 !     nwp=nw+1; frhis(1)=0
 ! takao-feb/2002
-          if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
+Cstop2rx 2013.08.09 kino          if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
+          if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
           write(6,"('  nbnbx nqbz= ',2i8)") nbnbx,nqbz
 C ... make index sets
           allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
@@ -1770,13 +1799,15 @@ c       write(ifdpin)  nwhis,nw,niw, ngb, frhis,freq_r, freq_i,rcxq
 !! ===  RealOmega ====================================
         if (realomega) then
           if(chipm) then !ixc==22.or.ixc==23) then
-            if (nspin==1) stop 'chipm modes are for nspin==2'
+Cstop2rx 2013.08.09 kino            if (nspin==1) stop 'chipm modes are for nspin==2'
+            if (nspin==1) call rx( 'chipm modes are for nspin==2')
             if (anfexist) then
 ! Not tested yet
 !          if(anfexist) x0mean= 2d0*x0mean  !if paramagnetic, multiply x0 by 2
               write(6,*) 'I have not tested anfexist=t and ixc==22 23 '//
      &      '--- Maybe x0mean = 2d0* x0mean*2 will OK.'
-              stop 'hx0fp0: tail output! Not yet for anfexist&ixc==22 23'
+Cstop2rx 2013.08.09 kino              stop 'hx0fp0: tail output! Not yet for anfexist&ixc==22 23'
+              call rx( 'hx0fp0: tail output! Not yet for anfexist&ixc==22 23')
             endif
           elseif(epsmode.and.nolfco.and.(.not.chipm)) then !ixc==2.or.iepsmode==202) then
             if (nspin==1) x0mean= 2d0*x0mean  !if paramagnetic, multiply x0 by 2
@@ -1786,7 +1817,8 @@ c       write(ifdpin)  nwhis,nw,niw, ngb, frhis,freq_r, freq_i,rcxq
 !          if(anfexist) x0mean= 2d0*x0mean  !if paramagnetic, multiply x0 by 2
               write(6,*) 'I have not tested anfexist=t and ixc==2 '//
      &        '--- Maybe x0mean = 2d0* x0mean*2 will OK.'
-              stop 'hx0fp0: tail output! Not yet for anfexist&ixc==2'
+Cstop2rx 2013.08.09 kino              stop 'hx0fp0: tail output! Not yet for anfexist&ixc==2'
+              call rx( 'hx0fp0: tail output! Not yet for anfexist&ixc==2')
             endif
           else
             if (nspin == 1) zxq = 2d0*zxq   !if paramagnetic, multiply x0 by 2
@@ -2003,7 +2035,8 @@ c                write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ng
               endif
 
               if(.not.newaniso2) then               ! Original mode
-                stop 'not checked here'
+Cstop2rx 2013.08.09 kino                stop 'not checked here'
+                call rx( 'not checked here')
 c               call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
               endif
 c$$$!!... a debug mode
@@ -2094,7 +2127,8 @@ C --- ChiPM mode
               allocate( x0meanx(nmbas,nmbas) )
               if(nolfco) then  ! ChiPM mode without LFC
                 if(legas) then
-                   stop ' hx0fp0.m.F need to implement thigs here if required'
+Cstop2rx 2013.08.09 kino                   stop ' hx0fp0.m.F need to implement thigs here if required'
+                   call rx( ' hx0fp0.m.F need to implement thigs here if required')
 ! --- three lines below may work for test purpose for legas. But not sure.
 c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
 c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
@@ -2442,7 +2476,8 @@ c$$$c              write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2
             endif
 
             if(.not.newaniso2) then               ! original mode
-               stop 'not checked here'
+Cstop2rx 2013.08.09 kino               stop 'not checked here'
+               call rx( 'not checked here')
 c              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  zw0)
             endif
 
@@ -2721,7 +2756,8 @@ c          if(iq>nqibz) deallocate(vw_k,vw_ks)
 
 !! --- legas mode is not working now. Need fixing... voltot ntot are not given.
       if(epsmode.and.legas) then
-        stop ' LEGAS mode is not maintained well. Need some fixing.'
+Cstop2rx 2013.08.09 kino        stop ' LEGAS mode is not maintained well. Need some fixing.'
+        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
         voltot=0d0
         ntot=0d0
         print *,' Find LEGAS. legas =',legas
@@ -2798,7 +2834,8 @@ C... Write electron gas correlation energy
         legas = .false.
         INQUIRE (FILE = 'LEGAS', EXIST = legas)
         if(legas) then !!! test for electron gas case.
-          stop ' LEGAS mode is not maintained well. Need some fixing.'
+Cstop2rx 2013.08.09 kino          stop ' LEGAS mode is not maintained well. Need some fixing.'
+          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
           voltot=0d0
           ntot=0d0
           print *,' find LEGAS. legas =',legas
@@ -2813,7 +2850,8 @@ C... Write electron gas correlation energy
           write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
           write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
           write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-          if(tetra) stop 'legas You have to give ef of  tetrahedron'
+Cstop2rx 2013.08.09 kino          if(tetra) stop 'legas You have to give ef of  tetrahedron'
+          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
           efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
           qfermi= dsqrt(efz)
           alpha = (9*pi/4d0)**(1d0/3d0)
@@ -2837,19 +2875,26 @@ c        close(ifdpin)
       is = iclose('hbe.d')
       call cputid(0)
       call MPI__Finalize
-      if(ixc==101) stop ' OK! hx0fp0 mode=101 Ecor '
+Cstop2rx 2013.08.09 kino      if(ixc==101) stop ' OK! hx0fp0 mode=101 Ecor '
+      if(ixc==101) call rx0( ' OK! hx0fp0 mode=101 Ecor ')
 c      if(ixc==1)   stop ' OK! hx0fp0 mode=1 normal'
 c      if(ixc==2)   stop ' OK! hx0fp0 mode=2  eps NoLFC'
 c      if(ixc==22)  stop ' OK! hx0fp0 mode=22 chi+- NoLFC'
 c      if(ixc==23)  stop ' OK! hx0fp0 mode=23 chi+- LFC  '
 c      if(ixc==3)   stop ' OK! hx0fp0 mode=3 eps with LFC'
-      if(ixc==202) stop ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC'
-      if(ixc==203) stop ' OK! hx0fp0 mode=203 sergeyv eps LFC '
-      if(ixc==222) stop ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv'
+Cstop2rx 2013.08.09 kino      if(ixc==202) stop ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC'
+      if(ixc==202) call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
+Cstop2rx 2013.08.09 kino      if(ixc==203) stop ' OK! hx0fp0 mode=203 sergeyv eps LFC '
+      if(ixc==203) call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
+Cstop2rx 2013.08.09 kino      if(ixc==222) stop ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv'
+      if(ixc==222) call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
 c      if(ixc==10222)stop' OK! hx0fp0 mode=10222 <q|chi+-|q> NoLFC sergeyv'
-      if(ixc==223) stop ' OK! hx0fp0 mode=223 chi+- LFC sergeyv'
-      if(ixc==11)  stop ' OK! hx0fp0 mode=11 normal sergeyv'
-      if(ixc==12)  stop ' OK! hx0fp0 mode=12 Ecor sergeyv mode'
+Cstop2rx 2013.08.09 kino      if(ixc==223) stop ' OK! hx0fp0 mode=223 chi+- LFC sergeyv'
+      if(ixc==223) call rx0( ' OK! hx0fp0 mode=223 chi+- LFC sergeyv')
+Cstop2rx 2013.08.09 kino      if(ixc==11)  stop ' OK! hx0fp0 mode=11 normal sergeyv'
+      if(ixc==11)  call rx0( ' OK! hx0fp0 mode=11 normal sergeyv')
+Cstop2rx 2013.08.09 kino      if(ixc==12)  stop ' OK! hx0fp0 mode=12 Ecor sergeyv mode'
+      if(ixc==12)  call rx0( ' OK! hx0fp0 mode=12 Ecor sergeyv mode')
 c      if(ixc==4)   stop ' OK! hx0fp0 ixc=4 test'
 c      if(ixc==5)   stop ' OK! hx0fp0 ixc=5 test'
 c      if(ixc==6)   stop ' OK! hx0fp0 ixc=6 test'
@@ -2942,7 +2987,8 @@ c
       enddo
       do i=1,ngc
         if(eval(i)<0d0) then
-          stop 'getsqovlp:  eval(i) <0d0'
+Cstop2rx 2013.08.09 kino          stop 'getsqovlp:  eval(i) <0d0'
+          call rx( 'getsqovlp:  eval(i) <0d0')
         endif
         do ix=1,ngc;  do iy=1,ngc
           sqovlp(ix+nbloch,iy+nbloch)= 
@@ -3012,14 +3058,16 @@ c--------------------------------------------------------------------
       call zgetrf(n,n,a,n,ipiv,info)
       if(info/=0) then
         print *,' matcinv: zegtrf info=',info
-        stop    ' matcinv: zegtrf '
+Cstop2rx 2013.08.09 kino        stop    ' matcinv: zegtrf '
+        call rx( ' matcinv: zegtrf ')
       endif
       allocate(work(n*n))
       call zgetri(n,a,n,ipiv,work,n*n,info)
       deallocate(work)
       if(info/=0) then
         print *,'matcinv: zegtri info=',info
-        stop    'matcinv: zegtri '
+Cstop2rx 2013.08.09 kino        stop    'matcinv: zegtri '
+        call rx( 'matcinv: zegtri ')
       endif
       end
 

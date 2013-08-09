@@ -13,7 +13,8 @@ c        rchar      = rchar(j+1:72)
         if(rchar(1:3) .eq. '###')return
 
    10 continue
-      stop 'readx: cannot find the string(rw.f)'
+Cstop2rx 2013.08.09 kino      stop 'readx: cannot find the string(rw.f)'
+      call rx( 'readx: cannot find the string(rw.f)')
  5000 format(a72)
 c     return
       end
@@ -30,7 +31,8 @@ c ldim = leading dimension of a
       implicit real*8  (a-h,o-z)
       dimension a(ldim,n)
 
-      if (ifi .eq. 0) stop 'rwdd: ifi .eq. 0'
+Cstop2rx 2013.08.09 kino      if (ifi .eq. 0) stop 'rwdd: ifi .eq. 0'
+      if (ifi .eq. 0) call rx( 'rwdd: ifi .eq. 0')
 
 c read
       if (ifi .gt. 0) then
@@ -62,7 +64,8 @@ c ldim = leading dimension of a
       implicit real*8  (a-h,o-z)
       real*8 a(ldim)
 
-      if (ifi .eq. 0) stop 'rwdd1: ifi .eq. 0'
+Cstop2rx 2013.08.09 kino      if (ifi .eq. 0) stop 'rwdd1: ifi .eq. 0'
+      if (ifi .eq. 0) call rx( 'rwdd1: ifi .eq. 0')
 
 c read
       if (ifi .gt. 0) then
@@ -86,7 +89,8 @@ c write k-points
       implicit real*8 (a-h,o-z)
       dimension qbz(3,nqbz),wbz(nqbz)
 
-      if (ifkp .lt. 0) stop 'wkpnt: unit file < 0'
+Cstop2rx 2013.08.09 kino      if (ifkp .lt. 0) stop 'wkpnt: unit file < 0'
+      if (ifkp .lt. 0) call rx( 'wkpnt: unit file < 0')
       write (ifkp,*) ' label  k-vector  weight '
       do       k = 1,nqbz
         write (ifkp,6000)k,(qbz(i,k),i=1,3),wbz(k)

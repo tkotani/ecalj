@@ -76,7 +76,8 @@ c          print *,"iqindx2:isave iqindx=",isave,iqindx
      &       iq, qq(1:3,iq), matmul(ginv,qq(:,iq)), qx, sum(abs(qx))
       enddo
       print *,'iqindx2: ERROR! we can not find proper iq ###'
-      stop    'iqindx2: ERROR! we can not find proper iq ###'
+Cstop2rx 2013.08.09 kino      stop    'iqindx2: ERROR! we can not find proper iq ###'
+      call rx( 'iqindx2: ERROR! we can not find proper iq ###')
       end
 c----------------------------------------------------------
       integer(4) function iqindx(q, ginv,qq,nq)
@@ -116,5 +117,6 @@ c          print *,"isave=",isave
      &       iq, qq(1:3,iq), matmul(ginv,qq(:,iq)), qx, sum(abs(qx))
       enddo
       print *,'iqindx: ERROR! we can not find proper iq ###'
-      stop    'iqindx: ERROR! we can not find proper iq ###'
+Cstop2rx 2013.08.09 kino      stop    'iqindx: ERROR! we can not find proper iq ###'
+      call rx( 'iqindx: ERROR! we can not find proper iq ###')
       end

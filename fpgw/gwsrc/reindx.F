@@ -19,7 +19,8 @@ c incorporates core states into nocc,nunocc,nindx
           ncore      = nindxc(l,ic)
           nval       = nindxv(l,ic)
           nindx(l,ic)= ncore + nval
-          if (ncore+nval .gt. nn) stop 'reindx: ncore+nval > nn'
+Cstop2rx 2013.08.09 kino          if (ncore+nval .gt. nn) stop 'reindx: ncore+nval > nn'
+          if (ncore+nval .gt. nn) call rx( 'reindx: ncore+nval > nn')
 
           do       n = 1,ncore
             nocc(l,n,ic)   = noccc(l,n,ic)
@@ -90,7 +91,8 @@ c valence
         do       l = 0,nl-1
           ncore      = nindxc(l,ic)
           nval       = nindxv(l,ic)
-          if (ncore+nval .gt. nn) stop 'phivc: ncore+nval > nn'
+Cstop2rx 2013.08.09 kino          if (ncore+nval .gt. nn) stop 'phivc: ncore+nval > nn'
+          if (ncore+nval .gt. nn) call rx( 'phivc: ncore+nval > nn')
           do       n = 1,nval
             do       i = 1,nrx
               phi(i,l,ncore+n,ic) = phiv(i,l,n,ic)
@@ -138,18 +140,24 @@ c phi    = rR
       if(ifil .gt. 0)then
         do      ic = 1,nclass
           read(ifil)ict,zt,nrt,a(ic),b
-          if(ict .ne. ic)stop 'rwphi: wrong class'
-          if(zt .ne. z(ic)) stop 'rwphi: wrong atom'
+Cstop2rx 2013.08.09 kino          if(ict .ne. ic)stop 'rwphi: wrong class'
+          if(ict .ne. ic)call rx( 'rwphi: wrong class')
+Cstop2rx 2013.08.09 kino          if(zt .ne. z(ic)) stop 'rwphi: wrong atom'
+          if(zt .ne. z(ic)) call rx( 'rwphi: wrong atom')
 c     if(nrt.ne. nrofi(ic)) stop 'rwphi: wrong radial mesh'
           nrofi(ic)  = nrt
-          if(nrt .gt. nrx) stop 'rwphi: too many radial mesh pts'
+Cstop2rx 2013.08.09 kino          if(nrt .gt. nrx) stop 'rwphi: too many radial mesh pts'
+          if(nrt .gt. nrx) call rx( 'rwphi: too many radial mesh pts')
           read(ifil)( r(l,ic),l=1,nrt )
           do       l = 0,nl-1
             do       n = 1,nindx(l,ic)
               read(ifil)ict,lt,nt
-              if(lt .ne. l)stop 'rwphi: wrong l'
-              if(nt .ne. n)stop 'rwphi: wrong n'
-              if(n .gt. nn)stop 'rwphi: wrong nn'
+Cstop2rx 2013.08.09 kino              if(lt .ne. l)stop 'rwphi: wrong l'
+              if(lt .ne. l)call rx( 'rwphi: wrong l')
+Cstop2rx 2013.08.09 kino              if(nt .ne. n)stop 'rwphi: wrong n'
+              if(nt .ne. n)call rx( 'rwphi: wrong n')
+Cstop2rx 2013.08.09 kino              if(n .gt. nn)stop 'rwphi: wrong nn'
+              if(n .gt. nn)call rx( 'rwphi: wrong nn')
               read(ifil)( phi(i,l,n,ic),    i=1,nrt )
               read(ifil)( phidot(i,l,n,ic), i=1,nrt )
             end do
@@ -208,18 +216,25 @@ c phi    = rR
       if(ifil .gt. 0)then
         do      ic = 1,nclass
           read(ifil)ict,zt,nrt,a(ic),b
-          if(ict .ne. ic)stop 'rwphic: wrong class'
-          if(zt .ne. z(ic)) stop 'rwphic: wrong atom'
-          if(nrt.ne. nrofi(ic)) stop 'rwphic: wrong radial mesh'
+Cstop2rx 2013.08.09 kino          if(ict .ne. ic)stop 'rwphic: wrong class'
+          if(ict .ne. ic)call rx( 'rwphic: wrong class')
+Cstop2rx 2013.08.09 kino          if(zt .ne. z(ic)) stop 'rwphic: wrong atom'
+          if(zt .ne. z(ic)) call rx( 'rwphic: wrong atom')
+Cstop2rx 2013.08.09 kino          if(nrt.ne. nrofi(ic)) stop 'rwphic: wrong radial mesh'
+          if(nrt.ne. nrofi(ic)) call rx( 'rwphic: wrong radial mesh')
           nrofi(ic)  = nrt
-          if(nrt .gt. nrx) stop 'rwphic: too many radial mesh pts'
+Cstop2rx 2013.08.09 kino          if(nrt .gt. nrx) stop 'rwphic: too many radial mesh pts'
+          if(nrt .gt. nrx) call rx( 'rwphic: too many radial mesh pts')
           read(ifil)( r(l,ic),l=1,nrt )
           do       l = 0,nl-1
             do       n = 1,nindx(l,ic)
               read(ifil)ict,lt,nt
-              if(lt .ne. l)stop 'rwphic: wrong l'
-              if(nt .ne. n)stop 'rwphic: wrong n'
-              if(n .gt. nn)stop 'rwphic: wrong nn'
+Cstop2rx 2013.08.09 kino              if(lt .ne. l)stop 'rwphic: wrong l'
+              if(lt .ne. l)call rx( 'rwphic: wrong l')
+Cstop2rx 2013.08.09 kino              if(nt .ne. n)stop 'rwphic: wrong n'
+              if(nt .ne. n)call rx( 'rwphic: wrong n')
+Cstop2rx 2013.08.09 kino              if(n .gt. nn)stop 'rwphic: wrong nn'
+              if(n .gt. nn)call rx( 'rwphic: wrong nn')
               read(ifil)( phi(i,l,n,ic),    i=1,nrt )
 c     read(ifil)( phidot(i,l,n,ic), i=1,nrt )
             end do

@@ -53,16 +53,19 @@ c      allocate(rr(nlnmx,ntp),cc(nlnmx,ntp))
 c check dimensions
 c      if (ntp0 .gt. ntp) stop 'psi2b_v3: ntp exceeded'
 c      if (nctot+nt0 .gt. nt) stop 'psi2bc: nt exceeded'
-      if(mdimx /= maxval(mdim) ) stop 'psi2b_v3: wrong mdimx'
+Cstop2rx 2013.08.09 kino      if(mdimx /= maxval(mdim) ) stop 'psi2b_v3: wrong mdimx'
+      if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
       if( sum(mdim(iclass(1:natom)))/= nbloch )
-     &         stop 'psi2b_v3: wrong nbloch'
+Cstop2rx 2013.08.09 kino     &         stop 'psi2b_v3: wrong nbloch'
+     &         call rx( 'psi2b_v3: wrong nbloch')
       allocate(iasx(natom))
       ias = 1
       do ia = 1,natom
         iasx(ia) = ias
         ias = ias + nlnmv(iclass(ia))
       enddo
-      if(ias-1/=nlmto) stop ' psi2b_v3:sum(nlnmv)/= nlmto'
+Cstop2rx 2013.08.09 kino      if(ias-1/=nlmto) stop ' psi2b_v3:sum(nlnmv)/= nlmto'
+      if(ias-1/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
 
 c loop over atoms
       do  ia = 1,natom
@@ -70,7 +73,8 @@ c loop over atoms
         nc   = nlnmc(ic)
         nv   = nlnmv(ic)
         nc1  = nc + 1
-        if (nc+ nlnmv(ic) > nlnmx) stop 'psi2b_v3: nlnmx exceeded'
+Cstop2rx 2013.08.09 kino        if (nc+ nlnmv(ic) > nlnmx) stop 'psi2b_v3: nlnmx exceeded'
+        if (nc+ nlnmv(ic) > nlnmx) call rx( 'psi2b_v3: nlnmx exceeded')
 c        phase= dcmplx(coskt(ia),sinkt(ia))
         ias  = iasx(ia)
         iap  = iatomp(ia)
@@ -183,10 +187,12 @@ C-------------------------------------------------------------------------
      &             cphikq(nlmto,*), cphik(nlmto,*),phase(natom)
       integer(4):: verbose,ixx
       if(ncc/=0 .and. ncc/=nctot) then
-        stop "psicb_v3: ncc/=0 and ncc/=ncctot"
+Cstop2rx 2013.08.09 kino        stop "psicb_v3: ncc/=0 and ncc/=ncctot"
+        call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
       endif
       if(sum(ncore(iclass(1:natom)))  /= nctot) 
-     &   stop "psicb_v3:sum(ncore) wrong"
+Cstop2rx 2013.08.09 kino     &   stop "psicb_v3:sum(ncore) wrong"
+     &   call rx( "psicb_v3:sum(ncore) wrong")
 c      write(6,*)" psicb_v3: ncc nctot=",ncc,nctot,sum(ncore(iclass(1:natom)))
 c      stop 'qqqqqqqqqqqqqq'
       zpsi2b = 0d0

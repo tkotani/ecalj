@@ -430,11 +430,13 @@ c     &      sxx(m1,m2,m3,m4)
           dum= DREAL( sxx(m1,m2,m3,m4) )
 
           if(dabs(dimag(sxx(m1,m2,m3,m4))) >1d-8)
-     &      stop ' MAKSX; im part of sxx .ne. 0'
+Cstop2rx 2013.08.09 kino     &      stop ' MAKSX; im part of sxx .ne. 0'
+     &      call rx( ' MAKSX; im part of sxx .ne. 0')
 c
           if(abs(dum)> 1d-8) then
             if(nsxatot.ge.nsxamx) 
-     &        stop ' MAKSX: enlarge the size of nsxamx '
+Cstop2rx 2013.08.09 kino     &        stop ' MAKSX: enlarge the size of nsxamx '
+     &        call rx( ' MAKSX: enlarge the size of nsxamx ')
             nsxatot=nsxatot+1
 c note its oeder! jm1.ge.jm3
             indxsxa(1,nsxatot)=k
@@ -518,7 +520,8 @@ cccc
             k10=igan(j2+m2)
 
             fac2 =  k6*k7*k8*k9*k10
-            if(fac2.eq.0.0d0) stop  ' k6k7k8k9k10=fac2=0'
+Cstop2rx 2013.08.09 kino            if(fac2.eq.0.0d0) stop  ' k6k7k8k9k10=fac2=0'
+            if(fac2.eq.0.0d0) call rx( ' k6k7k8k9k10=fac2=0')
             fac  = sqrt( (2*j3+1) *k1*k2*k3*k4*k5 /fac2 )
 
             do 36 nu =0, j2+j3+m1
@@ -655,7 +658,8 @@ c one over three-> oot,  and so on.
      &              -0.083333333333333333/
 C                        xxxxx
       if(mod(nr,2).eq.0) 
-     &  stop ' intn_smp_g: nr should be odd. '
+Cstop2rx 2013.08.09 kino     &  stop ' intn_smp_g: nr should be odd. '
+     &  call rx( ' intn_smp_g: nr should be odd. ')
 c
       int(1)=0.0d0
 c l00 means u1(r)u2(r)~r**lr0 near r~0

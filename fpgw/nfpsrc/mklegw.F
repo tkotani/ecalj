@@ -40,7 +40,8 @@ c --- find all the roots of p_n ---
 c --- debugging:  check for identical roots ---
       do  300  in = 1, n-1
         if (dabs(z(in)-z(in+1)) .lt. machep)
-     .    stop 'mklegw: identical roots'
+Cstop2rx 2013.08.09 kino     .    stop 'mklegw: identical roots'
+     .    call rx( 'mklegw: identical roots')
   300 continue
 
 c --- make the weights ---

@@ -83,13 +83,15 @@ c --- mode
         continue
       else
         print *,'qg4gw do not allow iq0pin=',iq0pin
-        stop 'qg4gw do not allow iq0pin='
+Cstop2rx 2013.08.09 kino        stop 'qg4gw do not allow iq0pin='
+        call rx( 'qg4gw do not allow iq0pin=')
       endif
 
 c--- If GWinput is not exist, GWIN0 GWIN_V2 and QPNT are converted to GWinput.
       if(iq0pin==-100) then
          call conv2gwinput()
-         stop ' OK! qg4gw mode=-100 to generate GWinput'
+Cstop2rx 2013.08.09 kino         stop ' OK! qg4gw mode=-100 to generate GWinput'
+         call rx0( ' OK! qg4gw mode=-100 to generate GWinput')
       endif   
 c      else
 c        if(iq0pin==-100) stop
@@ -219,10 +221,12 @@ c      endif
         QpGcut_psi = QpGx2
         write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx2
       else
-        stop ' qg4gw: QpGcut_psi are given in both 
+Cstop2rx 2013.08.09 kino        stop ' qg4gw: QpGcut_psi are given in both 
+Cstop2rx 2013.08.09 kino continue line
+        call rx0(  ' qg4gw: QpGcut_psi are given in both 
      &    GWIN0 and LATTC. One of them is used and
      &    other one is the dummy. The dummy should 
-     &    have negative value like -1.'
+     &    have negative value like -1.' )
       endif
 
       write(6,*) ' *** k points for GW from GWIN0 =',n1q,n2q,n3q
@@ -244,7 +248,8 @@ c      endif
       print *,
      & " ERROR! Not find GWIN0. You have to write GWIN0 by hand! 
      &          See above sample!"
-      stop " ERROR! Not find GWIN0. You have to write GWIN0 by hand! "
+Cstop2rx 2013.08.09 kino      stop " ERROR! Not find GWIN0. You have to write GWIN0 by hand! "
+      call rx( " ERROR! Not find GWIN0. You have to write GWIN0 by hand! ")
  1011 continue
 
 C --- Open output files QGpsi QGcou
@@ -262,9 +267,13 @@ C --- Open output files QGpsi QGcou
       call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
      &  QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
-      if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'
-      if(iq0pin ==2) stop ' OK! qg4gw mode=2 Readin Q0P mode'
-      if(iq0pin ==3) stop ' OK! qg4gw mode=3 band-plot mode'
-      if(iq0pin ==4) stop ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0'
+Cstop2rx 2013.08.09 kino      if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'
+      if(iq0pin ==1) call rx0( ' OK! qg4gw mode=1 normal mode')
+Cstop2rx 2013.08.09 kino      if(iq0pin ==2) stop ' OK! qg4gw mode=2 Readin Q0P mode'
+      if(iq0pin ==2) call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
+Cstop2rx 2013.08.09 kino      if(iq0pin ==3) stop ' OK! qg4gw mode=3 band-plot mode'
+      if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
+Cstop2rx 2013.08.09 kino      if(iq0pin ==4) stop ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0'
+      if(iq0pin ==4) call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
       end
 

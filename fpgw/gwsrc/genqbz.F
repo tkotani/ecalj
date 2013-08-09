@@ -54,7 +54,8 @@ c      call cv      (dble(i3-1),qmic(1,3),3,w3)
           end do
         end do
       end do
-      if (kount .ne. n1*n2*n3)stop 'genqbz: wrong no. k-points'
+Cstop2rx 2013.08.09 kino      if (kount .ne. n1*n2*n3)stop 'genqbz: wrong no. k-points'
+      if (kount .ne. n1*n2*n3)call rx( 'genqbz: wrong no. k-points')
       return
       end
 c--------------------

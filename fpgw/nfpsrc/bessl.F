@@ -67,8 +67,10 @@ c ------- negative energy case ----------
    22 continue
       return
   8   write(6,*) '*** lmux in bessl exceeds max allowed value'
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
   10  write(6,11) y
   11  format(' *** power series in bessl not convergent, y=',e12.4)
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end

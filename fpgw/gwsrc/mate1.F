@@ -15,7 +15,8 @@ c compare two vectors v1,v2
         compvv     = dabs(v1(i) - v2(i))
         if (compvv .gt. tol) then
           write (*,6000) comment
-          stop
+Cstop2rx 2013.08.09 kino          stop
+          call rx( '')
         endif
       end do
 
@@ -62,7 +63,8 @@ c DO NOT USE THIS ROUTINE
       dimension fs(0:lmax),fc(0:lmax)
       data tol /1.d-75/
 
-      if (dabs(z)**(lmax+1) .lt. tol) stop 'fbes: argument z too small'
+Cstop2rx 2013.08.09 kino      if (dabs(z)**(lmax+1) .lt. tol) stop 'fbes: argument z too small'
+      if (dabs(z)**(lmax+1) .lt. tol) call rx( 'fbes: argument z too small')
       oz         = 1.d0/z
 
 c sin(z) coefficients, fs(n) = f(n)
@@ -114,7 +116,8 @@ c NOTE: the coefficients are set to zero if xk*r < tol
       dimension wfs(0:lmaxim),wfc(0:lmaxim)
       data tol /1.d-6/
 
-      if (lmax .gt. lmaxim) stop 'fbesa: increase lmaxim'
+Cstop2rx 2013.08.09 kino      if (lmax .gt. lmaxim) stop 'fbesa: increase lmaxim'
+      if (lmax .gt. lmaxim) call rx( 'fbesa: increase lmaxim')
 
 c initialise fs and fc
       do       i = 1,n
@@ -157,7 +160,8 @@ c bes(r,l) = spherical bessel functions
       dimension bes(n,0:lmax)
       dimension spb(0:lmaxim)
 
-      if (lmax .gt. lmaxim) stop 'genbes: increase lmaxim'
+Cstop2rx 2013.08.09 kino      if (lmax .gt. lmaxim) stop 'genbes: increase lmaxim'
+      if (lmax .gt. lmaxim) call rx( 'genbes: increase lmaxim')
 
       xk         = dabs(xk)
       do       i = 1,n
@@ -184,7 +188,8 @@ c compare two integer vectors iv1,iv2
         icompvv    = iv1(i) - iv2(i)
         if (icompvv .ne. 0) then
           write (*,6000) comment
-          stop
+Cstop2rx 2013.08.09 kino          stop
+          call rx( '')
         endif
       end do
 

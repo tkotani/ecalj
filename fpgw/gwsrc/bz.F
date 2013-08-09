@@ -23,7 +23,8 @@ cccccccccccccccccccccc
         print *,' q_out i_out= '
         print *,  q_out, i_out
         print *,'fbz2: qx**2>1d-8 something wrong!!!'
-        stop 'fbz2: qx**2>1d-8 something wrong!!!'
+Cstop2rx 2013.08.09 kino        stop 'fbz2: qx**2>1d-8 something wrong!!!'
+        call rx( 'fbz2: qx**2>1d-8 something wrong!!!')
       endif
       end
 
@@ -549,10 +550,12 @@ c      write(6,"(' qval =',d13.6)") qval
 ccccccccccccccccccccc
 
       if (dos(1) .gt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
-      if (dos(1) .gt. qval) stop 'FERMI: Fermi energy lies below EMIN'
+Cstop2rx 2013.08.09 kino      if (dos(1) .gt. qval) stop 'FERMI: Fermi energy lies below EMIN'
+      if (dos(1) .gt. qval) call rx( 'FERMI: Fermi energy lies below EMIN')
       if (dos(ndos) .lt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
       if (dos(ndos) .lt. qval) then
-        stop 'FERMI: Fermi energy lies above EMAX'
+Cstop2rx 2013.08.09 kino        stop 'FERMI: Fermi energy lies above EMAX'
+        call rx( 'FERMI: Fermi energy lies above EMAX')
       endif
 
 
@@ -743,7 +746,8 @@ c find g = ginv
           if (diff .lt. tol) goto 1111
         end do
  1111   invg(i)    = j
-        if (j .gt. ng) stop 'invgrp: cannot identify inverse of g'
+Cstop2rx 2013.08.09 kino        if (j .gt. ng) stop 'invgrp: cannot identify inverse of g'
+        if (j .gt. ng) call rx( 'invgrp: cannot identify inverse of g')
       end do
 
       return
@@ -815,7 +819,8 @@ c        if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
             endif
           enddo
         enddo
-        stop 'nkstar: can not find irotk'
+Cstop2rx 2013.08.09 kino        stop 'nkstar: can not find irotk'
+        call rx( 'nkstar: can not find irotk')
  1022   continue
       enddo
 c check that the sum of stars equal to the no. k{FBZ
@@ -827,7 +832,8 @@ c check that the sum of stars equal to the no. k{FBZ
             if(irotk(k,ir)/=0) write(6,"(' k ir irotk=',3i6)") k,ir, irotk(k,ir)
           enddo
         enddo
-        stop 'nkstar: wrong no. stars'
+Cstop2rx 2013.08.09 kino        stop 'nkstar: wrong no. stars'
+        call rx( 'nkstar: wrong no. stars')
       endif
 c$$$c write k { IBZ and no. stars to file KPNT
 c$$$      ifkpnt     = ifile('KPNT')

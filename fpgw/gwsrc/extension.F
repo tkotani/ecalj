@@ -62,7 +62,8 @@ c 27July2005
         if(sum(abs(qx))< tolq) return
       enddo
       imx = imx+1
-      if(imx>nmax) stop ' qqsave: imx>=nmax'
+Cstop2rx 2013.08.09 kino      if(imx>nmax) stop ' qqsave: imx>=nmax'
+      if(imx>nmax) call rx( ' qqsave: imx>=nmax')
       qsave(:,imx) = qi
       end
 
@@ -181,7 +182,8 @@ c-------------
       if(num>999)   xt = char(48+mod(num/1000,10))//xt
       if(num>9999)  xt = char(48+mod(num/10000,10))//xt
       if(num>99999) xt = char(48+mod(num/100000,10))//xt
-      if(num>999999) stop ' xt:can not produce'
+Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xt:can not produce'
+      if(num>999999) call rx( ' xt:can not produce')
       xt='.'//xt
       end
 c-------------
@@ -194,7 +196,8 @@ c-------------
       if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
       if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
       if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
-      if(num>999999) stop ' xxt:can not produce'
+Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
+      if(num>999999) call rx( ' xxt:can not produce')
       xxt ='to'//xxt
       num = num1
       xxt = char(48+mod(num,10))//xxt
@@ -203,7 +206,8 @@ c-------------
       if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
       if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
       if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
-      if(num>999999) stop ' xxt:can not produce'
+Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
+      if(num>999999) call rx( ' xxt:can not produce')
       end
 c
       character(5) function charnum5(num)
@@ -242,7 +246,8 @@ c      character*(*) add
       if(num>999)   xts = char(48+mod(num/1000,10))//xts
       if(num>9999)  xts = char(48+mod(num/10000,10))//xts
       if(num>99999) xts = char(48+mod(num/100000,10))//xts
-      if(num>999999) stop ' xts:can not produce'
+Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xts:can not produce'
+      if(num>999999) call rx( ' xts:can not produce')
       xts ='.L'//xts
       num = num1
       xts = char(48+mod(num,10))//xts
@@ -251,5 +256,6 @@ c      character*(*) add
       if(num>999)   xts = char(48+mod(num/1000,10))//xts
       if(num>9999)  xts = char(48+mod(num/10000,10))//xts
       if(num>99999) xts = char(48+mod(num/100000,10))//xts
-      if(num>999999) stop ' xts:can not produce'
+Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xts:can not produce'
+      if(num>999999) call rx( ' xts:can not produce')
       end
