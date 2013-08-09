@@ -122,7 +122,8 @@ c -----------
         write(6,*) " gwinit_v2: GWIN0.tmp is generated! "
         write(6,*) " You have to edit GWIN0.tmp "//  
      &    " and save it as GWIN0. Then repeat!"
-        stop " gwinit_v2: Repeat with GWIN0! "
+Cstop2rx 2013.08.09 kino        stop " gwinit_v2: Repeat with GWIN0! "
+        call rx( " gwinit_v2: Repeat with GWIN0! ")
       endif
 
 C --- Readin LATTC
@@ -158,7 +159,8 @@ cc----------------------------------
       do ibas = 1,nbas
         read(ifi,*) ibasx, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
         write(6,"(100i4)") ibasx, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
-        if(ibasx/=ibas       ) stop ' gwinit_v2: ibasx/=ibas'
+Cstop2rx 2013.08.09 kino        if(ibasx/=ibas       ) stop ' gwinit_v2: ibasx/=ibas'
+        if(ibasx/=ibas       ) call rx( ' gwinit_v2: ibasx/=ibas')
         do l    = 0,lmxaa(ibas)
           nncx(l,ibas) = konf(l,ibas) -1 -l   ! number of cores for each l ibas
         enddo
@@ -228,10 +230,12 @@ C --- Readin GWIN0. nx ny nz for k-points for GW calculations.
           QpGcut_psi = QpGx2
           write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx2
         else
-          stop ' qg4gw: QpGcut_psi are given in both 
+Cstop2rx 2013.08.09 kino          stop ' qg4gw: QpGcut_psi are given in both 
+Cstop2rx 2013.08.09 kino continue line
+          call rx(  ' qg4gw: QpGcut_psi are given in both 
      &     GWIN0 and LATTC. One of them is used and
      &    other one is the dummy. The dummy should 
-     &    have negative value.'
+     &    have negative value.' )
         endif
         close(ifigw0)
         write(6,"(' *** k points mesh for GW from GWIN0 =',3i4)") 
@@ -273,7 +277,8 @@ c --- readin SYML if it exists.
           write(6,"(' ndiv+1=',i4, ' qinit= ',3f10.6,' qend=',3f10.6)") 
      &   nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
         enddo
-  602   stop ' gwinit_v2: Error readin SYML; You follow correct format?'
+Cstop2rx 2013.08.09 kino  602   stop ' gwinit_v2: Error readin SYML; You follow correct format?'
+  602   call rx( ' gwinit_v2: Error readin SYML; You follow correct format?')
   601   continue
         close(ifsyml)
         nline = nline - 1
@@ -380,10 +385,12 @@ c       write(6,"(a100)")recordnla
       enddo
  1039 continue
       write(6,*)' --- end of readin NLAindx--- nla mnla=',izzn,mnla
-      if(mnla /=mnla_) stop ' gwinit_v2:mnla/= mnla_ '
+Cstop2rx 2013.08.09 kino      if(mnla /=mnla_) stop ' gwinit_v2:mnla/= mnla_ '
+      if(mnla /=mnla_) call rx( ' gwinit_v2:mnla/= mnla_ ')
       goto 1041
  1040 continue
-      stop 'gwinit: can not readin recordnla'
+Cstop2rx 2013.08.09 kino      stop 'gwinit: can not readin recordnla'
+      call rx( 'gwinit: can not readin recordnla')
  1041 continue
 
 C --- A sample GWIN_V2 file -----------------------------------------------
@@ -511,7 +518,8 @@ c     & //" (n=1->phi n=2->phidot n=3->LocalOrbital)"
         print *, 
      & ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp. '
       endif
-      stop ' Write GWIN_V2 and QPNT based on these template! '
+Cstop2rx 2013.08.09 kino      stop ' Write GWIN_V2 and QPNT based on these template! '
+      call rx( ' Write GWIN_V2 and QPNT based on these template! ')
       end
 
 

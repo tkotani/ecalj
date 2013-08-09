@@ -43,5 +43,6 @@ c
         close(ifrcwiin,status='delete')
       enddo
  1013 continue
-      stop ' OK! mergewv WVI and WVR'
+Cstop2rx 2013.08.09 kino      stop ' OK! mergewv WVI and WVR'
+      call rx0( ' OK! mergewv WVI and WVR')
       end

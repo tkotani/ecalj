@@ -50,7 +50,8 @@ c check that file is not already opened
       do       i = 1,namnmax
         if(namt .eq. fnamn(i)) then
           write (*,6000) fnamn(i)
-          stop 'iopen: file already exists'
+Cstop2rx 2013.08.09 kino          stop 'iopen: file already exists'
+          call rx( 'iopen: file already exists')
         endif
       end do
 
@@ -62,7 +63,8 @@ c check that file is not already opened
 c        print *,' namnxxx=',namn,namnx,fnamn(namn)
         if(.not.namnx) goto 1012
       enddo
-      stop 'iopen: enlarge mxfil...'
+Cstop2rx 2013.08.09 kino      stop 'iopen: enlarge mxfil...'
+      call rx( 'iopen: enlarge mxfil...')
  1012 continue
       if(verbose()>91) write(6,"(' opening: ',i5,1x,a)") namn+9,namt
 !      namn       = namn + 1

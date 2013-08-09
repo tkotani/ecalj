@@ -224,8 +224,10 @@ cccccccccccccccccccccccccc
       do isp=1,nspxx
       do iqq=1,nqixx
         read(ifiproc,*) iqqxx, ispxx, ixxx
-        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
-        if(ispxx/=isp) stop 'ispxx/=isp'
+Cstop2rx 2013.08.09 kino        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+        if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
+Cstop2rx 2013.08.09 kino        if(ispxx/=isp) stop 'ispxx/=isp'
+        if(ispxx/=isp) call rx( 'ispxx/=isp')
         iprocq(iqq,isp) = ixxx
         write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
       enddo
@@ -260,13 +262,17 @@ cccccccccccccccccccccccccc
 
       print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
-      if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
-      if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
+Cstop2rx 2013.08.09 kino      if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
+      if (nspin .ne. nsp)   call rx( 'hqpe: wrong nspin v_xc')
+Cstop2rx 2013.08.09 kino      if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
+      if (nspin .ne. nspx)  call rx( 'hqpe: wrong nspin evec')
 c      if (ntq .ne. nhq)   stop 'hqpe: ntq/=nhq' !comment out jan2013
 c     if (ntq .ne. ndimh)   stop 'hqpe: SC ndimh/= ntq v_xc'
 c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
-      if (ndimhx /= ndimh)   stop 'hqpe: SC ndimhx/= ndimx'
-      if (nnn .ne. nnnx) stop 'hqpe: wrong nnn evec or v_xc' !sf.end
+Cstop2rx 2013.08.09 kino      if (ndimhx /= ndimh)   stop 'hqpe: SC ndimhx/= ndimx'
+      if (ndimhx /= ndimh)   call rx( 'hqpe: SC ndimhx/= ndimx')
+Cstop2rx 2013.08.09 kino      if (nnn .ne. nnnx) stop 'hqpe: wrong nnn evec or v_xc' !sf.end
+      if (nnn .ne. nnnx) call rx( 'hqpe: wrong nnn evec or v_xc')
       allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
       allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin))
       if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
@@ -289,7 +295,8 @@ c     print *,' nnn =',nnn
           read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
           if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
-     &           stop 'hqpe: qqq/=qqqx'
+Cstop2rx 2013.08.09 kino     &           stop 'hqpe: qqq/=qqqx'
+     &           call rx( 'hqpe: qqq/=qqqx')
         enddo
       enddo                     !sf.end
 
@@ -335,27 +342,47 @@ c
         endif
         read(ifsexcore2(is)) nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
 
-        if (nspin .ne. nspinx)   stop 'hqpe: wrong nspin SEx'
-        if (nspin .ne. nspinxc)  stop 'hqpe: wrong nspin vxc'
-        if (nspin .ne. nspinx2)  stop 'hqpe: wrong nspin SEx2' !sf.beg
-        if (nq .ne. nqx)         stop 'hqpe: wrong nq SEx'
-        if (nq .ne. nqxc)        stop 'hqpe: wrong nq vxc'
-        if (nq .ne. nqx2)        stop 'hqpe: wrong nq SEx2'
-        if (ntq .ne. ntqx)       stop 'hqpe: wrong ntq SEx'
-        if (ntq .ne. ntqxc)      stop 'hqpe: wrong ntq vxc'
-        if (ntq .ne. ntqx2)      stop 'hqpe: wrong ntq SEx2'
+Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinx)   stop 'hqpe: wrong nspin SEx'
+        if (nspin .ne. nspinx)   call rx( 'hqpe: wrong nspin SEx')
+Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinxc)  stop 'hqpe: wrong nspin vxc'
+        if (nspin .ne. nspinxc)  call rx( 'hqpe: wrong nspin vxc')
+Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinx2)  stop 'hqpe: wrong nspin SEx2' !sf.beg
+        if (nspin .ne. nspinx2)  call rx( 'hqpe: wrong nspin SEx2')
+Cstop2rx 2013.08.09 kino        if (nq .ne. nqx)         stop 'hqpe: wrong nq SEx'
+        if (nq .ne. nqx)         call rx( 'hqpe: wrong nq SEx')
+Cstop2rx 2013.08.09 kino        if (nq .ne. nqxc)        stop 'hqpe: wrong nq vxc'
+        if (nq .ne. nqxc)        call rx( 'hqpe: wrong nq vxc')
+Cstop2rx 2013.08.09 kino        if (nq .ne. nqx2)        stop 'hqpe: wrong nq SEx2'
+        if (nq .ne. nqx2)        call rx( 'hqpe: wrong nq SEx2')
+Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqx)       stop 'hqpe: wrong ntq SEx'
+        if (ntq .ne. ntqx)       call rx( 'hqpe: wrong ntq SEx')
+Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqxc)      stop 'hqpe: wrong ntq vxc'
+        if (ntq .ne. ntqxc)      call rx( 'hqpe: wrong ntq vxc')
+Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqx2)      stop 'hqpe: wrong ntq SEx2'
+        if (ntq .ne. ntqx2)      call rx( 'hqpe: wrong ntq SEx2')
         if(.not.exonly) then
-          if (nqbz .ne.  nqbzxc2)  stop 'hqpe: wrong nqbzx2'
-          if (nqibz .ne. nqibzxc2) stop 'hqpe: wrong nqibzxc2'
-          if (nspin .ne. nspinxc2) stop 'hqpe: wrong nspin SExcore2'
-          if (nspin .ne. nspinc)   stop 'hqpe: wrong nspin SEc'
-          if (nspin .ne. nspinc2)  stop 'hqpe: wrong nspin SEc2'
-          if (nq .ne. nqc)         stop 'hqpe: wrong nq SEc'
-          if (nq .ne. nqc2)        stop 'hqpe: wrong nq SEc2'
-          if (nqbz .ne. nqbzc2)    stop 'hqpe: wrong nqbzxc2'
-          if (ntq .ne. ntqc2)      stop 'hqpe: wrong ntq SEc2'
-          if (nq .ne. nqxc2)       stop 'hqpe: wrong nq SExcore2'
-          if (ntq .ne. ntqxc2)     stop 'hqpe: wrong ntq SExcore2'
+Cstop2rx 2013.08.09 kino          if (nqbz .ne.  nqbzxc2)  stop 'hqpe: wrong nqbzx2'
+          if (nqbz .ne.  nqbzxc2)  call rx( 'hqpe: wrong nqbzx2')
+Cstop2rx 2013.08.09 kino          if (nqibz .ne. nqibzxc2) stop 'hqpe: wrong nqibzxc2'
+          if (nqibz .ne. nqibzxc2) call rx( 'hqpe: wrong nqibzxc2')
+Cstop2rx 2013.08.09 kino          if (nspin .ne. nspinxc2) stop 'hqpe: wrong nspin SExcore2'
+          if (nspin .ne. nspinxc2) call rx( 'hqpe: wrong nspin SExcore2')
+Cstop2rx 2013.08.09 kino          if (nspin .ne. nspinc)   stop 'hqpe: wrong nspin SEc'
+          if (nspin .ne. nspinc)   call rx( 'hqpe: wrong nspin SEc')
+Cstop2rx 2013.08.09 kino          if (nspin .ne. nspinc2)  stop 'hqpe: wrong nspin SEc2'
+          if (nspin .ne. nspinc2)  call rx( 'hqpe: wrong nspin SEc2')
+Cstop2rx 2013.08.09 kino          if (nq .ne. nqc)         stop 'hqpe: wrong nq SEc'
+          if (nq .ne. nqc)         call rx( 'hqpe: wrong nq SEc')
+Cstop2rx 2013.08.09 kino          if (nq .ne. nqc2)        stop 'hqpe: wrong nq SEc2'
+          if (nq .ne. nqc2)        call rx( 'hqpe: wrong nq SEc2')
+Cstop2rx 2013.08.09 kino          if (nqbz .ne. nqbzc2)    stop 'hqpe: wrong nqbzxc2'
+          if (nqbz .ne. nqbzc2)    call rx( 'hqpe: wrong nqbzxc2')
+Cstop2rx 2013.08.09 kino          if (ntq .ne. ntqc2)      stop 'hqpe: wrong ntq SEc2'
+          if (ntq .ne. ntqc2)      call rx( 'hqpe: wrong ntq SEc2')
+Cstop2rx 2013.08.09 kino          if (nq .ne. nqxc2)       stop 'hqpe: wrong nq SExcore2'
+          if (nq .ne. nqxc2)       call rx( 'hqpe: wrong nq SExcore2')
+Cstop2rx 2013.08.09 kino          if (ntq .ne. ntqxc2)     stop 'hqpe: wrong ntq SExcore2'
+          if (ntq .ne. ntqxc2)     call rx( 'hqpe: wrong ntq SExcore2')
         endif
 c     if (jin/=-101.and.nqbz .ne. nnn)       stop 'hqpe: wrong nnn'
 c     if (nqibz .ne. nqibzx2)  stop 'hqpe: wrong nqibzx2'
@@ -502,7 +529,8 @@ c     print *,' xxx1'
                 write(*,*)'se   ', se(itpp,itp,ip), se(itp,itpp,ip)
                 write(*,*)'sex2 ',sex2(itpp,itp,ip),sex2(itp,itpp,ip)
                 write(*,*)'sexc2',sexcore2(itpp,itp,ip),sexcore2(itp,itpp,ip)
-                stop "hqpe: Sigma_nn' is not hermitian"
+Cstop2rx 2013.08.09 kino                stop "hqpe: Sigma_nn' is not hermitian"
+                call rx( "hqpe: Sigma_nn' is not hermitian")
               endif
             enddo
           enddo
@@ -524,7 +552,8 @@ ccccccccccccccccccccccccccccccc
               goto 100
             endif
           enddo               !ikp
-          stop 'hqpe.sc: not find ikp 100'
+Cstop2rx 2013.08.09 kino          stop 'hqpe.sc: not find ikp 100'
+          call rx( 'hqpe.sc: not find ikp 100')
  100      continue
 
           nz=nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq
@@ -536,20 +565,24 @@ c          print *,' xxx2 nz=',nz
 c---  make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
 c---  where \psi is eigenfunction and \phi is basis function
           call zgetrf(nz,nz,evec_inv,nhq,ipiv,info)  !nhq is leading dimension of evec_inv
-          if (info /= 0)  stop 'hqpe: zgetrf info/=0'
+Cstop2rx 2013.08.09 kino          if (info /= 0)  stop 'hqpe: zgetrf info/=0'
+          if (info /= 0)  call rx( 'hqpe: zgetrf info/=0')
           call zgetri(nz,evec_inv,nhq,ipiv,work,nhq**2,info)
           !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-          if (info /= 0)  stop 'hqpe: zgetri info/=0'
+Cstop2rx 2013.08.09 kino          if (info /= 0)  stop 'hqpe: zgetri info/=0'
+          if (info /= 0)  call rx( 'hqpe: zgetri info/=0')
 
 C---  takao
           if(evec0ex.and.iSigma_en==5) then
             evec00inv(1:nz,1:nz)=evec00(1:nz,1:nz,ikpx,is)
             !evec(i,n), i-basis, n - band argumants
             call zgetrf(nz,nz,evec00inv,nhq,ipiv,info)
-            if (info /= 0)  stop 'hqpe: zgetrf 00 info/=0'
+Cstop2rx 2013.08.09 kino            if (info /= 0)  stop 'hqpe: zgetrf 00 info/=0'
+            if (info /= 0)  call rx( 'hqpe: zgetrf 00 info/=0')
             call zgetri(nz,evec00inv,nhq,ipiv,work,nhq**2,info)
             !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-            if (info /= 0)  stop 'hqpe: zgetri 00 info/=0'
+Cstop2rx 2013.08.09 kino            if (info /= 0)  stop 'hqpe: zgetri 00 info/=0'
+            if (info /= 0)  call rx( 'hqpe: zgetri 00 info/=0')
             itppxs=0
             do itp=1,nz
               sum0=0d0
@@ -571,7 +604,8 @@ c     if(abs(sum0-1d0)>0.1) stop "!!! sum0 is not unity ==="
             enddo
             if(nz*(nz+1)/2 /= itppxs) then
               print *,'nz_sum itppxs=', nz*(nz+1)/2,itppxs
-              stop "hqpe: nz*(nz+1)/2 /= itppxs"
+Cstop2rx 2013.08.09 kino              stop "hqpe: nz*(nz+1)/2 /= itppxs"
+              call rx( "hqpe: nz*(nz+1)/2 /= itppxs")
             endif
           endif
 
@@ -684,10 +718,12 @@ c     - write SE_ij-Vxc_ij where ij are basis function indices
                 print *,itp,itpp
                 print *,ev_se_ev(itpp,itp)
                 print *,ev_se_ev(itp,itpp)
-                stop 'hqpe: Sigma_ij is not hermitian'
+Cstop2rx 2013.08.09 kino                stop 'hqpe: Sigma_ij is not hermitian'
+                call rx( 'hqpe: Sigma_ij is not hermitian')
               endif
               if( abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))
-     &                 .gt. 1d-8  ) stop 'hqpe: v_xc is not hermitean'
+Cstop2rx 2013.08.09 kino     &                 .gt. 1d-8  ) stop 'hqpe: v_xc is not hermitean'
+     &                 .gt. 1d-8  ) call rx( 'hqpe: v_xc is not hermitean')
             enddo
           enddo
           write(ifse_out) qqq(1:3,ikpx,is),eseavr(ip,is),ntqxx  !june2009 add eseavr !feb2012 ntqxx
@@ -820,7 +856,8 @@ C     ... June2007 for floating orbitals
           write(6,'(" ANFcond=",3f13.6)') anfvec
           do ibas=1,natom
             read(ifianf,*) ibas1, ibasf(ibas)
-            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+Cstop2rx 2013.08.09 kino            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+            if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
             write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
           enddo
           close(ifianf)
@@ -876,7 +913,8 @@ c-----------------------------------------------------------------
       print *,' read from bzdata nqibz2; nqibz nq=',nqibz2,nqibz,nq
       nstarsum= sum(nstar(:))
       print *,' nstarsum=',nstarsum
-      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
+Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
+      if( nstarsum/= nqbz ) call rx( ' nstarsum/= nqbz')
       if_eseavr = iopenxx ('ESEAVR')
       do is=1,nspin
         eseavrmean=0d0
@@ -919,7 +957,8 @@ C     ... Write sigma ASCII format ---------------------------------------
       open(UNIT=ifse_out, file='sigma')
       call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq,eseavr)
       close(ifse_out)
- 9999 stop ' OK! hqpe_sc '
+Cstop2rx 2013.08.09 kino 9999 stop ' OK! hqpe_sc '
+ 9999 call rx0( ' OK! hqpe_sc ')
       end
 
 c------------------------------------------------------
@@ -1254,7 +1293,8 @@ c      imagtwopi = 2d0*(0d0,3.1415926535897932d0)
 c (we had a problem at June18 2007)
 c  this sanitiy check should be removed in fufture...
       if( nbloch /= iof(natom) +ldima(natom) )
-     &  stop ' anfsig: nbloch.ne.... not yet for floting orbital case'
+Cstop2rx 2013.08.09 kino     &  stop ' anfsig: nbloch.ne.... not yet for floting orbital case'
+     &  call rx( ' anfsig: nbloch.ne.... not yet for floting orbital case')
 
 c phase shifts
       do ia1 = 1, natom

@@ -24,7 +24,8 @@ c------------------------------------------------------------
       read(ifx,*) ec_lda
       if(exc_lda /= exc_lda2) then
         write(6,*) exc_lda, exc_lda2
-        stop ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent'
+Cstop2rx 2013.08.09 kino        stop ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent'
+        call rx( ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent')
       endif
 c
       Ex = exxcc + 2d0*exxcv + exxvv
@@ -36,7 +37,8 @@ c
      &  alat, Etot, ex, ecorr, 
      &  Eks*rydberg(), ex_lda*rydberg(), ec_lda*rydberg()
       close(ifx)
-      stop ' OK!: eout. Add data to ETOTeV.dat'
+Cstop2rx 2013.08.09 kino      stop ' OK!: eout. Add data to ETOTeV.dat'
+      call rx0( ' OK!: eout. Add data to ETOTeV.dat')
       end
 
 

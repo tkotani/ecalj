@@ -40,7 +40,8 @@ c         logical:: testtr !invert qibz
 c-------------------------------------------------------
       write(6,*)'getbzdata1: in m_getbzdata1'
       write(6,"(' mkqg: ibzcase()=',i3,'-------------------' )") icase
-      if(icase>2) stop 'mkqg: wrong bzcase'
+Cstop2rx 2013.08.09 kino      if(icase>2) stop 'mkqg: wrong bzcase'
+      if(icase>2) call rx( 'mkqg: wrong bzcase')
       print *,' mkqg: CASE1:', n1q,n2q,n3q
 
       nqbz = n1q*n2q*n3q
@@ -182,7 +183,8 @@ c                write(6,"(' nnn=',3i3)") nnn(1:3)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
               ! qbzm is given as qbzm(1:3, ib1bz(idtetfm(ix,im,itet)) )
               if(abs(sum(nnn - matmul (qbi,qcm(1:3,ix,im))))>1d-8) then
-                stop 'getbzdata1: nnn is not integer'
+Cstop2rx 2013.08.09 kino                stop 'getbzdata1: nnn is not integer'
+                call rx( 'getbzdata1: nnn is not integer')
               endif
 c               write(6,"('n1 n2 n3=',3i5)") nnn(1:3)
             enddo
@@ -337,9 +339,11 @@ c
           wtet(2,itet) =  sum( wt(2,iq(:,itet)) )/4d0
           wtet(3,itet) =  sum( wt(3,iq(:,itet)) )/4d0
 c         write(6,"(' itet wtet=',i5,5f8.3)")itet,wtet(:,itet),sum(wtet(:,itet))
-          if(abs(sum(wtet(:,itet))-1d0)>1d-10) stop 'tetdevide: sumwtet/=1'
+Cstop2rx 2013.08.09 kino          if(abs(sum(wtet(:,itet))-1d0)>1d-10) stop 'tetdevide: sumwtet/=1'
+          if(abs(sum(wtet(:,itet))-1d0)>1d-10) call rx( 'tetdevide: sumwtet/=1')
         enddo
       else
-        stop ' tetdvide: only 2 2 2 has already implimented.'
+Cstop2rx 2013.08.09 kino        stop ' tetdvide: only 2 2 2 has already implimented.'
+        call rx( ' tetdvide: only 2 2 2 has already implimented.')
       endif
       end

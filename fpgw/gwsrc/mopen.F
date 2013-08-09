@@ -17,7 +17,8 @@ c --- mopen
         open (ifi, file=fname, form='UNFORMATTED',status='UNKNOWN')
       else
 c         call rx('mopen: type is not f or u') ! or a-->takao')
-        stop 'mopen: type is not f or u'
+Cstop2rx 2013.08.09 kino        stop 'mopen: type is not f or u'
+        call rx( 'mopen: type is not f or u')
       endif
       end
 c --- strip

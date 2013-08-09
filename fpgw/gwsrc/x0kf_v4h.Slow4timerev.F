@@ -209,7 +209,8 @@ ccccccccccccccccccccccccccccccccc
         if(ncc/=0) then
           print *,"Timereversal=F(ncc/=0) not yet implemented for smbasis."
           print *," pomat should be generated correctly                  ."
-          stop "Timereversal=F(ncc/=0) not yet implemented for smbasis."
+Cstop2rx 2013.08.09 kino          stop "Timereversal=F(ncc/=0) not yet implemented for smbasis."
+          call rx( "Timereversal=F(ncc/=0) not yet implemented for smbasis.")
         endif
 ccccccccccccccccccccccccccccccccc
         ifpomat = iopen('POmat',0,-1,0) !oct2005
@@ -232,7 +233,8 @@ c          write(6,"('ttt: q_r=',3f12.5)") q_r
         if( sum(abs(q-q_r))>1d-10 ) then
           write(6,"('q  =',3f12.5)") q
           write(6,"('q_r=',3f12.5)") q_r
-          stop 'POmat reading err q/=q_r'
+Cstop2rx 2013.08.09 kino          stop 'POmat reading err q/=q_r'
+          call rx( 'POmat reading err q/=q_r')
         endif
         isx = iclose('POmat')
       endif
@@ -308,10 +310,12 @@ c        nkmax  = 0;  nkqmin = nband + nctot   ! for sanity check
         ntp0  = nkqmax - nkqmin +1
         if( npm==2.and. nkqmin/=1) then
           write(6,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
-          stop " When npm==2, nkqmin==1 should be."
+Cstop2rx 2013.08.09 kino          stop " When npm==2, nkqmin==1 should be."
+          call rx( " When npm==2, nkqmin==1 should be.")
         endif
         if(nkmin/=1) then
-          stop " nkmin==1 should be."
+Cstop2rx 2013.08.09 kino          stop " nkmin==1 should be."
+          call rx( " nkmin==1 should be.")
         endif
 !... feb2006
 !  zzmel(1:nbloch, ib_k,ib_kq)
@@ -397,12 +401,14 @@ c      print *,' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) )
         if(sum(abs(qu1-qu1x))>tolqu) then
           write(6,"('qu1 :',3d23.10)") qu1
           write(6,"('qu1x:',3d23.10)") qu1x
-          stop 'x0kf_v4hz:qu1/=qu1x'
+Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu1/=qu1x'
+          call rx( 'x0kf_v4hz:qu1/=qu1x')
         endif
         if(sum(abs(qu2-qu2x))>tolqu) then
           write(6,"('qu2 :',3d23.10)") qu2
           write(6,"('qu2x:',3d23.10)") qu2x
-          stop 'x0kf_v4hz:qu2/=qu2x'
+Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu2/=qu2x'
+          call rx( 'x0kf_v4hz:qu2/=qu2x')
         endif
 
 c     qdiff = q   - qbkp(:) + rk(:,k)
@@ -411,7 +417,8 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         ! qc  -  q1     + q2
         add   = matmul(qbasinv, qdiff)
         nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
-        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+        if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
         zmelt = 0d0
         if(ngc/=0) then !Aug2005
           call melpln2(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
@@ -453,11 +460,14 @@ C...Feb2006 We have gotten zmelt until here. -------------------------------
 !    n1b,n2b has different ordering---core is after valence.
 !... --- end of matrix elements --------------------------------------------
         if(smbasis()) then !
-           stop ' not maintained recently need to check again' !takao for safe jun2012
+Cstop2rx 2013.08.09 kino           stop ' not maintained recently need to check again' !takao for safe jun2012
+           call rx( ' not maintained recently need to check again')
 C... smoothed mixed basis !oct2005
 C This replace original zmelt with new zmelt based on smoothed mixed basis.
-          if(nn /= ngbb) stop 'x0kf_v4h: ngb is not ngbb'
-          if(no /= ngb)  stop 'x0kf_v4h: POmat err no/=ngb'
+Cstop2rx 2013.08.09 kino          if(nn /= ngbb) stop 'x0kf_v4h: ngb is not ngbb'
+          if(nn /= ngbb) call rx( 'x0kf_v4h: ngb is not ngbb')
+Cstop2rx 2013.08.09 kino          if(no /= ngb)  stop 'x0kf_v4h: POmat err no/=ngb'
+          if(no /= ngb)  call rx( 'x0kf_v4h: POmat err no/=ngb')
           ngb = nn       ! Renew ngb
           allocate( zmeltn(ngb, 1:nctot+nt0, 1:ntp0) )
           call matm( pomat, zmelt, zmeltn, nn,no,(nctot+nt0)*ntp0)
@@ -472,7 +482,8 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         if(newanisox.and.eibzmode) then
           if(ngb/=ngbb) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
-            stop 'x0kf_v4h: ngb/=ngbb'
+Cstop2rx 2013.08.09 kino            stop 'x0kf_v4h: ngb/=ngbb'
+            call rx( 'x0kf_v4h: ngb/=ngbb')
           endif
           do it=1,nctot+nt0
           do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
@@ -483,7 +494,8 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
 c        if(newanisox) then !.and.iq==1) then
           if(ngb/=ngbb) then
             print *,' cx0kf_v4h: ngb ngbb=',ngb,ngbb
-            stop 'x0kf_v4h: ngb/=ngbb'
+Cstop2rx 2013.08.09 kino            stop 'x0kf_v4h: ngb/=ngbb'
+            call rx( 'x0kf_v4h: ngb/=ngbb')
           endif
           do it=1,nctot+nt0
           do itp=1,ncc+ntp0  !! See sxcf_fal2.F L933 around. zmelt1
@@ -570,7 +582,8 @@ c$$$          enddo
                   zq0zq0 = dconjg(zq01)*zq02
                   if(z1stcol) zq0zq0 = dconjg(zq0zq0)
                   do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
-                    if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
+Cstop2rx 2013.08.09 kino                    if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
+                    if (iw .gt. nwt) call rx( "x0kf_v4hz: iw > nwt")
                     !iiww=iw+ihw(ibib,k)-1
                     imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
                     rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
@@ -692,7 +705,8 @@ ccccccccccccccccccccccccc takao variant end
             enddo
           endif
 
-          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
+Cstop2rx 2013.08.09 kino          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
+          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
 CCC!$OMP parallel do  private(imagweight) shared(rcxq)
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1   !iiww=iw+ihw(ibib,k)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
@@ -768,7 +782,8 @@ c       endif
 !! ==symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao==
       if(eibzmoden==2) then
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-        if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
+Cstop2rx 2013.08.09 kino        if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
+        if(sum(abs(q-quu))>1d-8) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz=sum(eibzsym(:,1))+sum(eibzsym(:,-1)) !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         print *,' --- goto symmetrization --- ikp neibz q=',ikp,neibz,q
         call cputid2(' --- qqqqq: xxxxxxxxxxstart symmetrization xxxxxxxxxxxxxxx ',0)
@@ -1057,9 +1072,11 @@ C... But I think now this is not necessary. You can supply any freqr(iw). But be
         if(realomega) then
           if( nwhis <= nw_w ) then
             print *,nwhis,nw_w
-            stop ' dpsion5: nwhis<=nw_w'
+Cstop2rx 2013.08.09 kino            stop ' dpsion5: nwhis<=nw_w'
+            call rx( ' dpsion5: nwhis<=nw_w')
           endif
-          if( freqr(0)/=0d0 ) stop ' dpsion5: freqr(0)/=0d0'
+Cstop2rx 2013.08.09 kino          if( freqr(0)/=0d0 ) stop ' dpsion5: freqr(0)/=0d0'
+          if( freqr(0)/=0d0 ) call rx( ' dpsion5: freqr(0)/=0d0')
           aaa = 0d0
           if(nw_w>0) then
             do iw = 1,nw_w
@@ -1067,7 +1084,8 @@ C... But I think now this is not necessary. You can supply any freqr(iw). But be
               if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
      &     iw,freqr(iw),  (frhis(iw)+frhis(iw+1))/2d0
             enddo
-            if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is not implimented yet'
+Cstop2rx 2013.08.09 kino            if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is not implimented yet'
+            if(aaa>1d-10)call rx( 'dpsion5:freqr/=frhis_m is not implimented yet')
           endif
         endif !realomega
 
@@ -1184,7 +1202,8 @@ C--- realomega case
 !! WARN! I think npm==2.and.chipm does not make sense. apr2012.
 !!
           if(npm==2.and.chipm) 
-     &      stop 'x0kf_v4h:npm==2.and.chipm is not meaningful probably'
+Cstop2rx 2013.08.09 kino     &      stop 'x0kf_v4h:npm==2.and.chipm is not meaningful probably'
+     &      call rx( 'x0kf_v4h:npm==2.and.chipm is not meaningful probably')
 
 
 !! Note rcxq is negative now (converted at the top of this routine !!!
@@ -1216,7 +1235,8 @@ C--- realomega case
      &              rcxq(1,1,1,2), 2*nmbas1*nmbas2, rmatt(:,:,2), npm*nw_w+1,
      &               1d0, zxq, 2*nmbas1*nmbas2 )
           else
-            stop 'dpsion5: npm=1 or 2'
+Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
+            call rx( 'dpsion5: npm=1 or 2')
           endif
           deallocate(rmatt)
         endif

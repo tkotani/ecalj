@@ -1,6 +1,7 @@
 #!/bin/tcsh
 #for tatara in kyushu-u This is neglected in other cases.
-if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+###ref2cmd.awk %HEADER
 ### MPI version 
 if($# != 3 |$argv[1] != "-np" ) then
   echo "  An example of usage: eps_lmfh -np 4 si"
@@ -29,20 +30,68 @@ rm -f NoCore QPU* >& /dev/null
 #endif 
 
 ### Get LATTC and SYMOPS
-echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
+###make_ref.awk echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
+###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=--novxc target2=$TARGET output=llmfgw00 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/lmfgw  --novxc $TARGET < _IN_ > llmfgw00 " 
+$nfpgw/lmfgw  --novxc $TARGET < _IN_ > llmfgw00 
+  if ( $? != 0 )  then
+    echo Error in lmfgw input=0 output=llmfgw00
+    exit 10
+  endif
+#<<<
+echo OK
 
 ### Add q points  to Q0P file.  -----------------
 # read <QforEPS> in GWinput
-echo 2|$nfpgw/qg4gw  >lqg4gw02
+###make_ref.awk echo 2|$nfpgw/qg4gw  >lqg4gw02
+###ref2cmd.awk %CMD program=qg4gw echoinput=2 output=lqg4gw02 
+#>>>
+echo 2 > _IN_
+
+echo "         $nfpgw/qg4gw  < _IN_ > lqg4gw02 " 
+$nfpgw/qg4gw  < _IN_ > lqg4gw02 
+  if ( $? != 0 )  then
+    echo Error in qg4gw input=2 output=lqg4gw02
+    exit 10
+  endif
+#<<<
+echo OK
 
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
+###make_ref.awk   echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
+###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK echoinput=5  target=--novxc target2=$TARGET output=llmfgw_eigval 
+#>>>
+echo 5 > _IN_
+
+echo "         mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw_eigval " 
+mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw_eigval 
+  if ( $? != 0 )  then
+    echo Error in lmfgw-MPIK input=5 output=llmfgw_eigval
+    exit 10
+  endif
+#<<<
+echo OK
   mv eigval eigmtet
 endif
 
-echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
+###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
+###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK echoinput=1  target=--novxc target2=$TARGET output=llmfgw01 
+#>>>
+echo 1 > _IN_
+
+echo "         mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw01 " 
+mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw01 
+  if ( $? != 0 )  then
+    echo Error in lmfgw-MPIK input=1 output=llmfgw01
+    exit 10
+  endif
+#<<<
+echo OK
 
 set exinfo = $?
 
@@ -54,18 +103,90 @@ else
   exit
 endif
 
-echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
+###make_ref.awk echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
+###ref2cmd.awk %CMD program=lmf2gw echoinput=$TARGET output=llmf2gw 
+#>>>
+echo $TARGET > _IN_
+
+echo "         $nfpgw/lmf2gw  < _IN_ > llmf2gw " 
+$nfpgw/lmf2gw  < _IN_ > llmf2gw 
+  if ( $? != 0 )  then
+    echo Error in lmf2gw input=$TARGET output=llmf2gw
+    exit 10
+  endif
+#<<<
+echo OK
 rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
 
-echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+###make_ref.awk echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+###ref2cmd.awk %CMD program=rdata4gw_v2 echoinput=1 output=lrdata4gw 
+#>>>
+echo 1 > _IN_
+
+echo "         $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw " 
+$nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw 
+  if ( $? != 0 )  then
+    echo Error in rdata4gw_v2 input=1 output=lrdata4gw
+    exit 10
+  endif
+#<<<
+echo OK
 
 # get EFERMI
-echo 1|$nfpgw/heftet  >leftet
+###make_ref.awk echo 1|$nfpgw/heftet  >leftet
+###ref2cmd.awk %CMD program=heftet echoinput=1 output=leftet 
+#>>>
+echo 1 > _IN_
 
-echo 0|$nfpgw/hbasfp0 >lbas
-echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
+echo "         $nfpgw/heftet  < _IN_ > leftet " 
+$nfpgw/heftet  < _IN_ > leftet 
+  if ( $? != 0 )  then
+    echo Error in heftet input=1 output=leftet
+    exit 10
+  endif
+#<<<
+echo OK
 
-echo 203|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
+###make_ref.awk echo 0|$nfpgw/hbasfp0 >lbas
+###ref2cmd.awk %CMD program=hbasfp0 echoinput=0 output=lbas 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hbasfp0  < _IN_ > lbas " 
+$nfpgw/hbasfp0  < _IN_ > lbas 
+  if ( $? != 0 )  then
+    echo Error in hbasfp0 input=0 output=lbas
+    exit 10
+  endif
+#<<<
+echo OK
+###make_ref.awk echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
+###ref2cmd.awk %CMD mpi=1 program=hvccfp0 echoinput=202 output=lvcc	 
+#>>>
+echo 202 > _IN_
+
+echo "         mpirun -np $MPI_SIZE $nfpgw/hvccfp0  < _IN_ > lvcc " 
+mpirun -np $MPI_SIZE $nfpgw/hvccfp0  < _IN_ > lvcc 
+  if ( $? != 0 )  then
+    echo Error in hvccfp0 input=202 output=lvcc
+    exit 10
+  endif
+#<<<
+echo OK
+
+###make_ref.awk echo 203|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
+###ref2cmd.awk %CMD mpi=1 program=hx0fp0 echoinput=203 output=lx0 
+#>>>
+echo 203 > _IN_
+
+echo "         mpirun -np $MPI_SIZE $nfpgw/hx0fp0  < _IN_ > lx0 " 
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0  < _IN_ > lx0 
+  if ( $? != 0 )  then
+    echo Error in hx0fp0 input=203 output=lx0
+    exit 10
+  endif
+#<<<
+echo OK
 #mkdir EpsP$qqq
 #mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
  

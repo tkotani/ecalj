@@ -132,7 +132,8 @@ c-------------------------------
       efin=  -999d0   ! dummy
 C--- readin GWIN and LMTO, then allocate and set datas.
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c------------------------------
 c      integer(4)::
 c     o  nclass,natom,nspin,nl,nn,nnv,nnc,
@@ -196,7 +197,8 @@ c      enddo
 c-------------------------------------------------------------------
 c      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+      if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       print *,' hsfp0: end of genallcf2'
 c
       call pshprt(30)
@@ -212,7 +214,8 @@ c
 c>> read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 
 
 
@@ -313,6 +316,7 @@ c -------------------
           enddo
         enddo
       enddo
- 999  stop '--- Efermi and EX test --- '
+Cstop2rx 2013.08.09 kino 999  stop '--- Efermi and EX test --- '
+ 999  call rx( '--- Efermi and EX test --- ')
       end
 

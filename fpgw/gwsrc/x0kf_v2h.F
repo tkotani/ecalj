@@ -222,7 +222,8 @@ c          write(6,"('ttt: q_r=',3f12.5)") q_r
         if( sum(abs(q-q_r))>1d-10 ) then
           write(6,"('q  =',3f12.5)") q
           write(6,"('q_r=',3f12.5)") q_r
-          stop 'POmat reading err q/=q_r'
+Cstop2rx 2013.08.09 kino          stop 'POmat reading err q/=q_r'
+          call rx( 'POmat reading err q/=q_r')
         endif
         isx = iclose('POmat')
       endif
@@ -323,8 +324,10 @@ c      print *,' sumtest g1b=',sum(geig1(1:ngp1, itps:itps+ntp0-1))
 c      print *,'uuu sumtest g2a=',sum(geig2(1:ngp2, 1:nt0) )
 c      geig2(1:ngp2, 1:nt0     )= geigB(1:ngp2, 1:nt0,    k )
 c      print *,' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) )
-        if(sum(abs(qu1-qu1x))>1d-10) stop 'x0kf_v2hz:qu1/=qu1x'
-        if(sum(abs(qu2-qu2x))>1d-10) stop 'x0kf_v2hz:qu2/=qu2x'
+Cstop2rx 2013.08.09 kino        if(sum(abs(qu1-qu1x))>1d-10) stop 'x0kf_v2hz:qu1/=qu1x'
+        if(sum(abs(qu1-qu1x))>1d-10) call rx( 'x0kf_v2hz:qu1/=qu1x')
+Cstop2rx 2013.08.09 kino        if(sum(abs(qu2-qu2x))>1d-10) stop 'x0kf_v2hz:qu2/=qu2x'
+        if(sum(abs(qu2-qu2x))>1d-10) call rx( 'x0kf_v2hz:qu2/=qu2x')
 
 c     qdiff = q   - qbkp(:) + rk(:,k)
         qdiff = q    - qu1    + qu2
@@ -332,7 +335,8 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
         ! qc  -  q1     + q2
         add   = matmul(qbasinv, qdiff)
         nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
-        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
+        if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
         zmelt = 0d0
         if(debug) write(*,'("333 goto melpln2",$)')
         if(ngc/=0) then !Aug2005
@@ -367,8 +371,10 @@ ccccccccccccccccccccccccccccccccccccccccc
         if(smbasis()) then !
 C... smoothed mixed basis !oct2005
 C This replace original zmelt with new zmelt based on smoothed mixed basis.
-          if(nn /= ngbb) stop 'x0kf_v2h: ngb is not ngbb'
-          if(no /= ngb)  stop 'x0kf_v2h: POmat err no/=ngb'
+Cstop2rx 2013.08.09 kino          if(nn /= ngbb) stop 'x0kf_v2h: ngb is not ngbb'
+          if(nn /= ngbb) call rx( 'x0kf_v2h: ngb is not ngbb')
+Cstop2rx 2013.08.09 kino          if(no /= ngb)  stop 'x0kf_v2h: POmat err no/=ngb'
+          if(no /= ngb)  call rx( 'x0kf_v2h: POmat err no/=ngb')
           ngb = nn       ! Renew ngb
           allocate( zmeltn(ngb, 1:nctot+nt0, 1:ntp0) )
           call matm( pomat, zmelt, zmeltn, nn,no,(nctot+nt0)*ntp0)
@@ -423,7 +429,8 @@ c$$$     &        sum(abs(geig1(1:ngp1, itps:itps+ntp0-1))),
 c$$$     &        sum(abs(geig2(1:ngp2, 1:nt0)))
 c$$$cccccccccccccccccccccccccccc
             do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1!1,nhw(ibib,k) !iw is in range 1:nwhis
-              if (iw .gt. nwt) stop "x0kf_v2hz: iw > nwt"
+Cstop2rx 2013.08.09 kino              if (iw .gt. nwt) stop "x0kf_v2hz: iw > nwt"
+              if (iw .gt. nwt) call rx( "x0kf_v2hz: iw > nwt")
               !iiww=iw+ihw(ibib,k)-1
               imagweight   = whw(jhw(ibib,k)+iw-ihw(ibib,k))
               rcxqmean(iw) =  ! here we  sum over ibib (or n, n') and k.
@@ -506,7 +513,8 @@ ccccccccccccccccccccccccccccccc faleev variant begin,it about 15% faster for MnO
             enddo
           enddo
 
-          if (ihw(ibib,k)+nhw(ibib,k)-1 >nwt) stop "x0kf_v2hz: iw>nwt"
+Cstop2rx 2013.08.09 kino          if (ihw(ibib,k)+nhw(ibib,k)-1 >nwt) stop "x0kf_v2hz: iw>nwt"
+          if (ihw(ibib,k)+nhw(ibib,k)-1 >nwt) call rx( "x0kf_v2hz: iw>nwt")
 CCC!$OMP parallel do  private(imagweight) shared(rcxq)
           do iw=ihw(ibib,k),ihw(ibib,k)+nhw(ibib,k)-1
             !iiww=iw+ihw(ibib,k)-1

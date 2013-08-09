@@ -102,7 +102,8 @@ c nqbz    = no. k-points
               wiocc = wiocc + wfacef
             endif
             if(efm ==ekt(it,k) .or. ekt(it,k)==efp )
-     &      stop ' nocctotf: efm or efp coincides with ekt'
+Cstop2rx 2013.08.09 kino     &      stop ' nocctotf: efm or efp coincides with ekt'
+     &      call rx( ' nocctotf: efm or efp coincides with ekt')
           enddo
           nocctotf = nocctotf + wbz(k)* wiocc
           wgt      = wgt      + wbz(k)
@@ -127,7 +128,8 @@ c find k in IBZ for given k in FBZ.
             endif
           enddo
         enddo
-        stop ' invkibzx: can not find ibzx'
+Cstop2rx 2013.08.09 kino        stop ' invkibzx: can not find ibzx'
+        call rx( ' invkibzx: can not find ibzx')
   999   continue
 c        write(6,*)' ibzx ',iqx, ibzx(iqx), irk(ibzx(iqx),ig)
       enddo

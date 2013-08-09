@@ -5,7 +5,8 @@
 #   ctrl.si rst.si GWinput (ANFcond)
 #---------------------------------------------
 #for tatara in kyushu-u This is neglected in other cases.
-if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+###ref2cmd.awk %HEADER
 set n = $0
 set nfpgw = ${n:h}
 if ($#argv != 1) goto usage
@@ -51,19 +52,67 @@ endif
      
 
 ############## preparatoy gw stage ################
-echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
-echo 1 |$nfpgw/qg4gw           > lqg4gw
+###make_ref.awk echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=$argv[1] output=llmfgw00 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw00 " 
+$nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw00 
+  if ( $? != 0 )  then
+    echo Error in lmfgw input=0 output=llmfgw00
+    exit 10
+  endif
+#<<<
+echo OK
+###make_ref.awk echo 1 |$nfpgw/qg4gw           > lqg4gw
+###ref2cmd.awk %CMD program=qg4gw echoinput=1  output=lqg4gw 
+#>>>
+echo 1 > _IN_
+
+echo "         $nfpgw/qg4gw  < _IN_ > lqg4gw " 
+$nfpgw/qg4gw  < _IN_ > lqg4gw 
+  if ( $? != 0 )  then
+    echo Error in qg4gw input=1 output=lqg4gw
+    exit 10
+  endif
+#<<<
+echo OK
 
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
+###make_ref.awk   echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
+###ref2cmd.awk %CMD program=lmfgw echoinput=5  target=$argv[1] output=llmfgw_eigval 
+#>>>
+echo 5 > _IN_
+
+echo "         $nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw_eigval " 
+$nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw_eigval 
+  if ( $? != 0 )  then
+    echo Error in lmfgw input=5 output=llmfgw_eigval
+    exit 10
+  endif
+#<<<
+echo OK
 #  exit #Why did I add this exit?
   mv eigval eigmtet
   echo 'end of eigval' 
 endif
 
-echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+###make_ref.awk echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+###ref2cmd.awk %CMD program=lmfgw echoinput=1  target=$argv[1] output=llmfgw01 
+#>>>
+echo 1 > _IN_
+
+echo "         $nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw01 " 
+$nfpgw/lmfgw  $argv[1] < _IN_ > llmfgw01 
+  if ( $? != 0 )  then
+    echo Error in lmfgw input=1 output=llmfgw01
+    exit 10
+  endif
+#<<<
+echo OK
 set exinfo = $?
 #@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
 if($exinfo == 0 ) then
@@ -73,39 +122,159 @@ else
   echo  `tail -3 llmfgw01 `
   exit
 endif
-echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+###make_ref.awk echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+###ref2cmd.awk %CMD program=lmf2gw echoinput=$argv[1] output=llmf2gw 
+#>>>
+echo $argv[1] > _IN_
+
+echo "         $nfpgw/lmf2gw  < _IN_ > llmf2gw " 
+$nfpgw/lmf2gw  < _IN_ > llmf2gw 
+  if ( $? != 0 )  then
+    echo Error in lmf2gw input=$argv[1] output=llmf2gw
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 
 ############## main gw stage ################
-echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+###make_ref.awk echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+###ref2cmd.awk %CMD program=rdata4gw_v2 echoinput=0 output=lrdata4gw_v2 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw_v2 " 
+$nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw_v2 
+  if ( $? != 0 )  then
+    echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 # -- get EFERMI for hx0fp0
-echo 1|$nfpgw/heftet      >leftet
+###make_ref.awk echo 1|$nfpgw/heftet      >leftet
+###ref2cmd.awk %CMD program=heftet echoinput=1 output=leftet 
+#>>>
+echo 1 > _IN_
+
+echo "         $nfpgw/heftet  < _IN_ > leftet " 
+$nfpgw/heftet  < _IN_ > leftet 
+  if ( $? != 0 )  then
+    echo Error in heftet input=1 output=leftet
+    exit 10
+  endif
+#<<<
+echo OK
 
 # -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
-echo 0|$nfpgw/hchknw         >lchknw
+###make_ref.awk echo 0|$nfpgw/hchknw         >lchknw
+###ref2cmd.awk %CMD program=hchknw echoinput=0 output=lchknw 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hchknw  < _IN_ > lchknw " 
+$nfpgw/hchknw  < _IN_ > lchknw 
+  if ( $? != 0 )  then
+    echo Error in hchknw input=0 output=lchknw
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 ### Core1 exchange self-energy 
 # -- product basis for core
-echo 3|$nfpgw/hbasfp0 >lbasC
+###make_ref.awk echo 3|$nfpgw/hbasfp0 >lbasC
+###ref2cmd.awk %CMD program=hbasfp0 echoinput=3 output=lbasC 
+#>>>
+echo 3 > _IN_
+
+echo "         $nfpgw/hbasfp0  < _IN_ > lbasC " 
+$nfpgw/hbasfp0  < _IN_ > lbasC 
+  if ( $? != 0 )  then
+    echo Error in hbasfp0 input=3 output=lbasC
+    exit 10
+  endif
+#<<<
+echo OK
 # -- Coulobm matrix
-echo 0|$nfpgw/hvccfp0        >lvccC
+###make_ref.awk echo 0|$nfpgw/hvccfp0        >lvccC
+###ref2cmd.awk %CMD program=hvccfp0 echoinput=0 output=lvccC 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hvccfp0  < _IN_ > lvccC " 
+$nfpgw/hvccfp0  < _IN_ > lvccC 
+  if ( $? != 0 )  then
+    echo Error in hvccfp0 input=0 output=lvccC
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 # -- the self energy from core1
-echo 3|$nfpgw/hsfp0   >lsxC
+###make_ref.awk echo 3|$nfpgw/hsfp0   >lsxC
+###ref2cmd.awk %CMD program=hsfp0 echoinput=3 output=lsxC 
+#>>>
+echo 3 > _IN_
+
+echo "         $nfpgw/hsfp0  < _IN_ > lsxC " 
+$nfpgw/hsfp0  < _IN_ > lsxC 
+  if ( $? != 0 )  then
+    echo Error in hsfp0 input=3 output=lsxC
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 ### Valence part of the self-energy
-echo 0|$nfpgw/hbasfp0  >lbas
+###make_ref.awk echo 0|$nfpgw/hbasfp0  >lbas
+###ref2cmd.awk %CMD program=hbasfp0 echoinput=0 output=lbas 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hbasfp0  < _IN_ > lbas " 
+$nfpgw/hbasfp0  < _IN_ > lbas 
+  if ( $? != 0 )  then
+    echo Error in hbasfp0 input=0 output=lbas
+    exit 10
+  endif
+#<<<
+echo OK
 # -- Coulobm matrix
-echo 0|$nfpgw/hvccfp0  >lvcc	
+###make_ref.awk echo 0|$nfpgw/hvccfp0  >lvcc	
+###ref2cmd.awk %CMD program=hvccfp0 echoinput=0 output=lvcc	 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hvccfp0  < _IN_ > lvcc " 
+$nfpgw/hvccfp0  < _IN_ > lvcc 
+  if ( $? != 0 )  then
+    echo Error in hvccfp0 input=0 output=lvcc
+    exit 10
+  endif
+#<<<
+echo OK
 
 # -- Sergey.F the exchange self energy from valence core2+valence elctrons 
-echo 11|$nfpgw/hsfp0   >lsx_sf
+###make_ref.awk echo 11|$nfpgw/hsfp0   >lsx_sf
+###ref2cmd.awk %CMD program=hsfp0 echoinput=11 output=lsx_sf 
+#>>>
+echo 11 > _IN_
+
+echo "         $nfpgw/hsfp0  < _IN_ > lsx_sf " 
+$nfpgw/hsfp0  < _IN_ > lsx_sf 
+  if ( $? != 0 )  then
+    echo Error in hsfp0 input=11 output=lsx_sf
+    exit 10
+  endif
+#<<<
+echo OK
 
 # -- Sergey.F the screened coulom interaction 
 if(-e WVI) then
@@ -115,12 +284,48 @@ if(-e WVR) then
   rm -f WVR 
 endif
 
-echo 11|$nfpgw/hx0fp0  >lx0_sf
+###make_ref.awk echo 11|$nfpgw/hx0fp0  >lx0_sf
+###ref2cmd.awk %CMD program=hx0fp0 echoinput=11 output=lx0_sf 
+#>>>
+echo 11 > _IN_
+
+echo "         $nfpgw/hx0fp0  < _IN_ > lx0_sf " 
+$nfpgw/hx0fp0  < _IN_ > lx0_sf 
+  if ( $? != 0 )  then
+    echo Error in hx0fp0 input=11 output=lx0_sf
+    exit 10
+  endif
+#<<<
+echo OK
 # -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
-echo 12|$nfpgw/hsfp0   >lsc_sf
+###make_ref.awk echo 12|$nfpgw/hsfp0   >lsc_sf
+###ref2cmd.awk %CMD program=hsfp0 echoinput=12 output=lsc_sf 
+#>>>
+echo 12 > _IN_
+
+echo "         $nfpgw/hsfp0  < _IN_ > lsc_sf " 
+$nfpgw/hsfp0  < _IN_ > lsc_sf 
+  if ( $? != 0 )  then
+    echo Error in hsfp0 input=12 output=lsc_sf
+    exit 10
+  endif
+#<<<
+echo OK
 
 # -- Make summary 
-echo 0|$nfpgw/hqpe    >lqpe
+###make_ref.awk echo 0|$nfpgw/hqpe    >lqpe
+###ref2cmd.awk %CMD program=hqpe echoinput=0 output=lqpe 
+#>>>
+echo 0 > _IN_
+
+echo "         $nfpgw/hqpe  < _IN_ > lqpe " 
+$nfpgw/hqpe  < _IN_ > lqpe 
+  if ( $? != 0 )  then
+    echo Error in hqpe input=0 output=lqpe
+    exit 10
+  endif
+#<<<
+echo OK
 
 
 exit

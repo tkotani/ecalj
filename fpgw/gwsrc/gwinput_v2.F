@@ -172,7 +172,8 @@ ccv2
 c     &              ,nindx,lindx,ibasindx
 c        endif
       else
-        stop 'gwinput_v2x: wrong ifi'
+Cstop2rx 2013.08.09 kino        stop 'gwinput_v2x: wrong ifi'
+        call rx( 'gwinput_v2x: wrong ifi')
       endif
       end
 c----------------------------------------------------------------------

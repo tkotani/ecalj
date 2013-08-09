@@ -147,7 +147,8 @@ c      if(readgwinput())
         if(sum(abs(mtet))>3) then
           print *, ' we use devided-tetrahedron scheme mtet=',mtet
         elseif(sum(mtet)/=6) then
-          stop ' now only mtet 2 2 2 is allowed '
+Cstop2rx 2013.08.09 kino          stop ' now only mtet 2 2 2 is allowed '
+          call rx( ' now only mtet 2 2 2 is allowed ')
         endif
       else
         mtett=.false.
@@ -180,7 +181,8 @@ ccccccccccccccccccccccccccccccccccccccc
         read(ifeig) nband_x,nqnumm,nsp
         print *,'readin eigmtet ', nband_x,nqnumm,nsp
         if(nband_x /=nband ) then
-          stop 'tetwt5: nband_x /=nband'
+Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
+          call rx( 'tetwt5: nband_x /=nband')
         endif
         allocate( eigtet(nband,nqnumm,nsp) )
         do iqx=1,nqnumm
@@ -281,7 +283,8 @@ c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/
         enddo
       enddo
 c      print *,' xxx4 volt voltot=',volt,voltot
-      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
+Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
+      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 c      endif
 
 C- kqxx(kx)   ekxx
@@ -474,7 +477,8 @@ c
         nwgt(ik) = 0
         do i =1, nband+nctot
           do j =1, nband
-            if(abs(wgt(i,j,ik) )>0d0 .and. j>nband) stop 'tetwt4: bug ?' ! bug checker
+Cstop2rx 2013.08.09 kino            if(abs(wgt(i,j,ik) )>0d0 .and. j>nband) stop 'tetwt4: bug ?' ! bug checker
+            if(abs(wgt(i,j,ik) )>0d0 .and. j>nband) call rx( 'tetwt4: bug ?')
             if(abs(wgt(i,j,ik) )>eps ) then
               nwgt(ik) = nwgt(ik)+1
 cc          write(56,"(3i4,2d13.6)") i,j,ik, wgt(i,j,ik)
@@ -547,14 +551,17 @@ c      write(6,"(3d26.18)") qbzx(1:3)
 c      write(6,*)
 ccccccccccccccccccccc
               if(  sum(abs(rk(1:3,kount)-qbzx(1:3)) ) > epss ) 
-     &    stop 'tetfbzf: rk /= qbzx'
+Cstop2rx 2013.08.09 kino     &    stop 'tetfbzf: rk /= qbzx'
+     &    call rx( 'tetfbzf: rk /= qbzx')
             endif
           end do
         end do
       end do
       chk=.false.
-      if (kount /= n1*n2*n3) stop ' kount: wrong no. k-points'
-      if (nqbz  /= n1*n2*n3) stop ' kount: wrong no. k-points'
+Cstop2rx 2013.08.09 kino      if (kount /= n1*n2*n3) stop ' kount: wrong no. k-points'
+      if (kount /= n1*n2*n3) call rx( ' kount: wrong no. k-points')
+Cstop2rx 2013.08.09 kino      if (nqbz  /= n1*n2*n3) stop ' kount: wrong no. k-points'
+      if (nqbz  /= n1*n2*n3) call rx( ' kount: wrong no. k-points')
 cccccccccccccccccccccccccccc
 c      DO  j1 = 0,n1-1
 c      DO  j2 = 0,n2-1
@@ -1061,7 +1068,8 @@ c      if(   abs( VV(1)-VV(4)   ) < eps2*vvas+1d-4)  idf = 111
         VVd = (VV(3)+VV(4))/2
         intttvc2 = intv3c(omg,vvv,vvd)
       else
-        stop 'intttvc2: idf wrong...'
+Cstop2rx 2013.08.09 kino        stop 'intttvc2: idf wrong...'
+        call rx( 'intttvc2: idf wrong...')
 c      elseif(idf==  110 ) then
 c        VVV = (VV(1)+VV(2)+VV(3))/3
 c        V4  = VV(4)
@@ -1322,7 +1330,8 @@ c
      &    This problem is because inttetra3 could give complete zero 
      &    for small omega. Also the symmetrization could generate zero.'
      &    ,sum(abs(wgt0))
-        stop 'rsvwwk2: sum(abs(wgt0))'
+Cstop2rx 2013.08.09 kino        stop 'rsvwwk2: sum(abs(wgt0))'
+        call rx( 'rsvwwk2: sum(abs(wgt0))')
       endif
       end
 
@@ -1452,7 +1461,8 @@ ccccccccccccccccccccccccccccccccccc
             enddo
           enddo
         enddo
-        stop 'rsvwwk4: sum(abs(wgt0))'
+Cstop2rx 2013.08.09 kino        stop 'rsvwwk4: sum(abs(wgt0))'
+        call rx( 'rsvwwk4: sum(abs(wgt0))')
       endif
       deallocate(wgt0)
       end

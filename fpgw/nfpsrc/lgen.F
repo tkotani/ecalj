@@ -15,7 +15,8 @@ c  generates lattice vectors.
         if(v2.gt.bmax2) goto 20
         nv=nv+1
         if(nv.gt.nvmax) write(6,633) nvmax,i,imax
-        if(nv.gt.nvmax) stop
+Cstop2rx 2013.08.09 kino        if(nv.gt.nvmax) stop
+        if(nv.gt.nvmax) call rx( '')
   633   format(/' --- nv=',i6,'  exceeded,   i=',i3,'  imax=',i3)
         do 22 m=1,3
           vecs(m,nv)=v(m)
@@ -53,7 +54,8 @@ c ---- add neighbor layers if basis vec 3 is not in list ------
       write(6,650)
   650 format(/' basis vec 3 not in list - include 2 more planes')
       if(3*nv.gt.nvmax) write(6,643) nvmax
-      if(3*nv.gt.nvmax) stop
+Cstop2rx 2013.08.09 kino      if(3*nv.gt.nvmax) stop
+      if(3*nv.gt.nvmax) call rx( '')
   643 format( '--- lgen needs nvmax at least',i7)
       do 40 iv=1,nv
       do 40 m=1,3

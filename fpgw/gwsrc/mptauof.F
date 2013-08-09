@@ -202,7 +202,8 @@ c$$$      enddo
       sss(2,:)=(/0d0,1d0,0d0/)
       sss(3,:)=(/0d0,0d0,1d0/)
       sumcheck1= sum(abs(symgg(:,:,1)-sss))
-      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is not E'
+Cstop2rx 2013.08.09 kino      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is not E'
+      if(sumcheck1>1d-8) call rx( 'eibzgen: symgg(:,:,1) is not E')
 
 !!=== Get key and nkey for each ix. (similar with those in readqg,readeigen) ===
       allocate(qbzl(3,nqbz),key(3,nqbz),ieord(nqbz))
@@ -220,7 +221,8 @@ c$$$      enddo
 c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
-               stop 'iqindx: bug not sorted well'
+Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
+               call rx( 'iqindx: bug not sorted well')
             endif
          enddo
          nkey(ix)=ik
@@ -345,7 +347,8 @@ c                   print *,' ibz,im kkk3=',ibz,im,kkk3
              inotime=.false.
              print *,' mptauo: we need time reversal'
           enddo
-          stop 'eibzgen: bug. nwgt sum is not nqbz'
+Cstop2rx 2013.08.09 kino          stop 'eibzgen: bug. nwgt sum is not nqbz'
+          call rx( 'eibzgen: bug. nwgt sum is not nqbz')
  1202     continue
 
 C cccccccccccccccccccccccccccccccccc
@@ -437,7 +440,8 @@ c$$$         endif
 c$$$      enddo                                                                                     
       print *, i1,i2,kkin
       print *, kktable(i1),kktable(i2)
-      stop 'takk: error'
+Cstop2rx 2013.08.09 kino      stop 'takk: error'
+      call rx( 'takk: error')
       end subroutine tabkk
     
 
@@ -568,7 +572,8 @@ c
 c When the do-30 loop has been completed, we get out of do-20 loop
           goto 21
    20   continue
-        stop 'mptauo2: Can not find miat and tiat'
+Cstop2rx 2013.08.09 kino        stop 'mptauo2: Can not find miat and tiat'
+        call rx( 'mptauo2: Can not find miat and tiat')
 c
    21   continue
         delta(:,ig) = tran          ! r' = am(3,3) r +  delta  !Jun 2000

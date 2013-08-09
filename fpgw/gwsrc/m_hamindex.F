@@ -32,7 +32,8 @@ c      if(debug) print *,'nkt=',nkt
       do i=1, nqnum !*2 !nkt
         write(*,"('i qq=',i3,3f11.5)")i, qq(:,i)
       enddo  
-      stop ' getikt can not find ikt for given q'
+Cstop2rx 2013.08.09 kino      stop ' getikt can not find ikt for given q'
+      call rx( ' getikt can not find ikt for given q')
       end function
 
       subroutine writehamindex()

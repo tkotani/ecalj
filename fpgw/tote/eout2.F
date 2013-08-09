@@ -41,7 +41,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       read(ifx,*) ec_lda
       if(exc_lda /= exc_lda2) then
         write(6,*) exc_lda, exc_lda2
-        stop ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent'
+Cstop2rx 2013.08.09 kino        stop ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent'
+        call rx( ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent')
       endif
 c
       open(ifx,file='ETOTeV.dat',access='append')
@@ -66,7 +67,8 @@ ccccccccccccccccccccc
         endif
       enddo
       close(ifx)
-      stop ' OK!: eout. Add data to ETOTeV.dat'
+Cstop2rx 2013.08.09 kino      stop ' OK!: eout. Add data to ETOTeV.dat'
+      call rx0( ' OK!: eout. Add data to ETOTeV.dat')
       end
 
 c------------------------------------

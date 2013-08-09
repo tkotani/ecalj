@@ -33,7 +33,8 @@ c     i       (/'/home/kino','psnmame   '/),ret)
       call getkeyvalue("GWinput","MagAtom", 
      &        imbas,nmbas,status=istat)
       write(6,*) ' nmbas istat=',nmbas,istat
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
 
       write(6,*)' =============test1======================='
       call getkeyvalue("IN","int",ikey,default=999,status=ret )
@@ -70,6 +71,7 @@ c        rvkey2(1:3)=(/10.0d0,10.0d0,10.0d0/)
       call getkeyvalue("IN","char",ckey,status=ret)
       write(*,*) ret,ckey(:len_trim(ckey))
 
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end program
 

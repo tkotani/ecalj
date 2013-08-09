@@ -116,7 +116,8 @@ C--- readin GWIN and LMTO, then allocate and set datas.
       incwfin= 0     !readin condition. use ForX0 for core in GWIN
       efin =  -999d0 !readin condition. Not readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted by genallcf_v3
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
@@ -136,13 +137,16 @@ c      real(8), allocatable::
 c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) stop ' nclass /= natom '
+Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
+      if(nclass /= natom) call rx( ' nclass /= natom ')
 
 c --- read dimensions of h,hb
       ifhbe      = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
-      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+Cstop2rx 2013.08.09 kino      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+      if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
+Cstop2rx 2013.08.09 kino      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+      if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 c --- read by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2(nclass,nl,nxx)
@@ -153,7 +157,8 @@ c --- read radial functions PHIVC   (taken from hasfp0)
       print *,' Go to readining phivc'
       ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
       read(ifphi) nbas, nradmx, ncoremx,nrx
-      if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
+Cstop2rx 2013.08.09 kino      if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
+      if( nbas/=natom ) call rx( ' nbas(PHIVC) /= natom ')
       deallocate(ncore)
       allocate(  ncindx(ncoremx,nbas),
      &           lcindx(ncoremx,nbas),
@@ -178,7 +183,8 @@ c --- read radial functions PHIVC   (taken from hasfp0)
 
         print *, 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
-          stop ' h_uu: ic/=icx'
+Cstop2rx 2013.08.09 kino          stop ' h_uu: ic/=icx'
+          call rx( ' h_uu: ic/=icx')
         endif
         print *,' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
         read(ifphi) rr(1:nrofi(ic),ic)
@@ -231,7 +237,8 @@ c --- Readin nlam index
       allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
       do ix =1,ldim2
         read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-        if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
+Cstop2rx 2013.08.09 kino        if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
+        if(ixx/=ix) call rx( 'failed to readin @MNLA_CPHI')
       enddo
 
 c ---  q near zero
@@ -445,6 +452,7 @@ c      stop ' ====== end ========================================'
         character*(*) :: char
         if(sum(abs(a-b))>1d-6) then
           print *,' Error in checkagree:',char
-          stop ' Error in checkagree:'
+Cstop2rx 2013.08.09 kino          stop ' Error in checkagree:'
+          call rx( ' Error in checkagree:')
         endif
         end

@@ -67,7 +67,8 @@ C--------------------------------------------------------
 c      logical ::readgwinput
 c----------------------------------------------
       iflmto     = iopen('LMTO',1,0,0)
-      if (iflmto < 0) stop 'unit file for GWIN_V2 < 0'
+Cstop2rx 2013.08.09 kino      if (iflmto < 0) stop 'unit file for GWIN_V2 < 0'
+      if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
 c      if(.not.readgwinput()) then
 c        ifinin     = iopen('GWIN_V2',1,0,0)
 c      endif
@@ -197,7 +198,8 @@ c----
       elseif(incwfx==0) then
         print *,' ### Use unocc occ ForX0 for core'
       else
-        stop ' ### proper incwf is not given for genallcf2:rgwinf '
+Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
+        call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
       endif
       deallocate(ncwf2)
 C... End of rgwinf section ----------------------------
@@ -324,7 +326,8 @@ c      CALL SKIPBL(symgrp,120,I)
 c     
       i=2 !see previous definition of symgrp
       if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
-        stop " Not: UseSYMOPSfile in LMTO file"
+Cstop2rx 2013.08.09 kino        stop " Not: UseSYMOPSfile in LMTO file"
+        call rx( " Not: UseSYMOPSfile in LMTO file")
       endif
       write(6,*) ' symgrp==UseSYMOPSfile'
       ifi = 6661
@@ -386,7 +389,8 @@ c eclnm({l,n,m,atom}) = core energies
             do       m = -l,l
               if (ncwf(l,n,ic) .eq. 1) then
                 i          = i + 1
-                if (i .gt. nctot) stop 'gencor: wrong nctot'
+Cstop2rx 2013.08.09 kino                if (i .gt. nctot) stop 'gencor: wrong nctot'
+                if (i .gt. nctot) call rx( 'gencor: wrong nctot')
 cccccccccccccccc
 c      write(6,"(' eco=',4i4,d13.5)")i,l,n,ic,eco(l,n,1,ic)
 cccccccccccccccc
@@ -426,15 +430,18 @@ c
 c loop over l,n
         do       l = 0,nl-1
           ncore      = konfig(l,ic)-l-1
-          if (ncore .gt. nnc) stop 'rcore: wrong nnc'
+Cstop2rx 2013.08.09 kino          if (ncore .gt. nnc) stop 'rcore: wrong nnc'
+          if (ncore .gt. nnc) call rx( 'rcore: wrong nnc')
           do       n = 1,ncore
             read (ifec,*) lt,nt,(eco(l,n,isp,ic),isp=1,nsp) !takao
             if(nsp==1) eco(l,n,2,ic) = eco(l,n,1,ic)        !
 cccccccccccccccc
 c      write(6,"(' eco=',3i4,d13.5)")l,n,ic,eco(l,n,isp,ic)
 cccccccccccccccc
-            if (lt .ne. l) stop 'rcore: wrong l'
-            if (nt .ne. n) stop 'rcore: wrong n'
+Cstop2rx 2013.08.09 kino            if (lt .ne. l) stop 'rcore: wrong l'
+            if (lt .ne. l) call rx( 'rcore: wrong l')
+Cstop2rx 2013.08.09 kino            if (nt .ne. n) stop 'rcore: wrong n'
+            if (nt .ne. n) call rx( 'rcore: wrong n')
           end do
         end do
 

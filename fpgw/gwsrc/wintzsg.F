@@ -321,8 +321,10 @@ c up to x <rmax<15 which is limited by the range of derfc(x).
       real(8),save :: eeint(nd),xval(nd)
       logical :: init=.true.
 c--------------
-      if(rup>rmax) stop 'wintsf: too large rup'
-      if(rup<rdn ) stop 'wintsf: rup<rdn'
+Cstop2rx 2013.08.09 kino      if(rup>rmax) stop 'wintsf: too large rup'
+      if(rup>rmax) call rx( 'wintsf: too large rup')
+Cstop2rx 2013.08.09 kino      if(rup<rdn ) stop 'wintsf: rup<rdn'
+      if(rup<rdn ) call rx( 'wintsf: rup<rdn')
       if(init) then
         eeint(1) = 0d0
         xval(1)  = 0d0
@@ -397,7 +399,8 @@ c     return
 c     endif
       if (dabs(we) .lt. tol) then
         print *, ' we=',we
-        stop 'wintz: |w-e| < tol'
+Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
+        call rx( 'wintz: |w-e| < tol')
       endif
 c frequency integral
       we2        = we*we
@@ -486,7 +489,8 @@ c     return
 c     endif
       if (dabs(we) .lt. tol) then
         print *, ' we=',we
-        stop 'wintz: |w-e| < tol'
+Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
+        call rx( 'wintz: |w-e| < tol')
       endif
 c frequency integral
       we2        = we*we
@@ -527,13 +531,15 @@ c Imag part is corrected to be >0
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
 c--- Assure that dimag(fi) is positive.
-      if(x<0d0) stop ' alagr3z: x<0d0'
+Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z: x<0d0'
+      if(x<0d0) call rx( ' alagr3z: x<0d0')
       do i=1,3
         if(dimag(fi(i))>1d-8) then
           ratio= abs(dimag(fi(i))/dreal(fi(i)))
           if( ratio >1d-6) then !jan2004. I added a bit of alloance
             print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-            stop    ' alagr3z: error! dimag(fi(i)) is positive'
+Cstop2rx 2013.08.09 kino            stop    ' alagr3z: error! dimag(fi(i)) is positive'
+            call rx( ' alagr3z: error! dimag(fi(i)) is positive')
           endif
         endif
       enddo
@@ -587,7 +593,8 @@ c        ua_ = ua_min
       if( ratio > 1d0 ) then
         print *, ' ratio =',ratio
         print *, ' gen_ua: ratio >1 strange ratio...'
-        stop  ' gen_ua: ratio >1 strange ratio...'
+Cstop2rx 2013.08.09 kino        stop  ' gen_ua: ratio >1 strange ratio...'
+        call rx( ' gen_ua: ratio >1 strange ratio...')
       else
         ua_ = sqrt(-1d0/freqw*log(ratio))
       endif
@@ -604,7 +611,8 @@ c        ua_ = ua_min
       if( ratio > 1d0 ) then
         print *, ' ratio =',ratio
         print *, ' gen_uaa: ratio >1 strange ratio...'
-        stop  ' gen_uaa: ratio >1 strange ratio...'
+Cstop2rx 2013.08.09 kino        stop  ' gen_uaa: ratio >1 strange ratio...'
+        call rx( ' gen_uaa: ratio >1 strange ratio...')
       else
         ua_ = sqrt(-1d0/freqw*log(ratio))
       endif
@@ -660,7 +668,8 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
         enddo
 CYY!$OMP end parallel  do
       else
-        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
+Cstop2rx 2013.08.09 kino        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
+        call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
       endif
       !write(*,'("10.3 matzwz end ",$)')
       !call cputid(0)
@@ -682,14 +691,16 @@ c Imag part is corrected to be >0
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
 c--- Assure that dimag(fi) is positive.
-      if(x<0d0) stop ' alagr3z2: x<0d0'
+Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z2: x<0d0'
+      if(x<0d0) call rx( ' alagr3z2: x<0d0')
       if (i==j) then  !sf 24 May02 only diagonal Im[Sigma_ii] should be negative
         do n=1,3
           if(dimag(fi(n))>1d-8) then
             ratio= abs(dimag(fi(i))/dreal(fi(i)))
             if( ratio >1d-8) then !jan2004. I added a bit of alloance
               print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-              stop    ' alagr3z: error! dimag(fi(i)) is positive'
+Cstop2rx 2013.08.09 kino              stop    ' alagr3z: error! dimag(fi(i)) is positive'
+              call rx( ' alagr3z: error! dimag(fi(i)) is positive')
             endif
           endif
         enddo

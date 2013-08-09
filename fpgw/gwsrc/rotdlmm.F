@@ -33,7 +33,8 @@ c calculate determinant(signature)
      &        -am(3,1)*am(2,2)*am(1,3)
         if(abs(abs(det)-1d0).ge.1d-10) then
           print *,' rotdlmm: det/=1 ig and det=',ig,det
-          stop
+Cstop2rx 2013.08.09 kino          stop
+          call rx( '')
         endif
 c seek Euler angle   print *,' goto cbeta',ig,det
         cbeta = am(3,3)/det
@@ -108,7 +109,8 @@ c l-th rep. is odd or even according to (det)**l
      &    abs(am(2,3)*det-symops(8,ig)).gt.1.0d-8.or.
      &    abs(am(3,3)*det-symops(9,ig)).gt.1.0d-8) then
           print *,' rotdlmm: not agree. symgrp and one by eular angle'
-          stop
+Cstop2rx 2013.08.09 kino          stop
+          call rx( '')
         endif
 cccccccccccccccccccccccc
 c        if(iprint().ge.140) then
@@ -178,8 +180,9 @@ c convert to cubic rep.
         do 53 m2=-l,l
         do 53 m1=-l,l
           dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
-          if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
-     &      ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12'
+Cstop2rx 2013.08.09 kino          if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
+          if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) call rx( ''//
+     &      ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12')
    53   continue
 ccccccccccccccccccccc
         if(.false.) then

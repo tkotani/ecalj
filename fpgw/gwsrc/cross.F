@@ -53,12 +53,14 @@ C ----------------------------------------------------------------
       implicit none
       integer iopt,i,j
       double precision matrix(3,3),inverse(3,3),det,ddot
-      if(iopt<0.or.iopt>1) stop 'dinv33:wrong iopt'
+Cstop2rx 2013.08.09 kino      if(iopt<0.or.iopt>1) stop 'dinv33:wrong iopt'
+      if(iopt<0.or.iopt>1) call rx( 'dinv33:wrong iopt')
       call cross_x(matrix(1,2),matrix(1,3),inverse     )
       call cross_x(matrix(1,3),matrix     ,inverse(1,2))
       call cross_x(matrix     ,matrix(1,2),inverse(1,3))
       det = ddot(3,matrix,1,inverse,1)
-      if (abs(det) ==0d0) stop 'dinv33: vanishing determinant'
+Cstop2rx 2013.08.09 kino      if (abs(det) ==0d0) stop 'dinv33: vanishing determinant'
+      if (abs(det) ==0d0) call rx( 'dinv33: vanishing determinant')
       if (iopt == 0) inverse = transpose(inverse)
       inverse = inverse/det
 c      double precision xx

@@ -73,13 +73,15 @@ c--------------------------------------------------------------------------
         incwfin = 0
       else
         print *,' hbasfp: input is out of range'
-        stop    ' hbasfp: input is out of range'
+Cstop2rx 2013.08.09 kino        stop    ' hbasfp: input is out of range'
+        call rx( ' hbasfp: input is out of range')
       endif
 
 !! read data in m_rgwinf_v3
 !! Output are allocated and data are setted as above.
       iflmto     = iopen('LMTO',1,0,0)
-      if (iflmto <= 0) stop 'unit file for LMTO <= 0'
+Cstop2rx 2013.08.09 kino      if (iflmto <= 0) stop 'unit file for LMTO <= 0'
+      if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
       call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
       nsp=nspin
       print *,'end of rgwinf'
@@ -159,7 +161,8 @@ c----------
         read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
           print *, 'ic icx=',ic,icx
-          stop 'hbasfp0: ic/=icx'
+Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
+          call rx( 'hbasfp0: ic/=icx')
         endif
         read(ifphi) rr(1:nrofi(ic),ic)
         do isp = 1, nsp
@@ -221,13 +224,15 @@ c-----------
 !       write(6,'(" ANFcond=",3f13.6)') anfvec
         do ibas=1,natom
           read(ifianf,*) ibas1, ibasf(ibas)
-          if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+Cstop2rx 2013.08.09 kino          if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+          if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
           write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
         enddo
         close(ifianf)
 !! Check iclass =ibas ; CLASS file contains true classs information.
         do ibas=1,natom
-          if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ibas: '
+Cstop2rx 2013.08.09 kino          if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ibas: '
+          if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
         enddo
         ii=0
         do ic=1,nclass
@@ -239,7 +244,8 @@ c-----------
           idid(ii  )= ibasf(ibas)
         enddo
         if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
-     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
+Cstop2rx 2013.08.09 kino     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
+     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
         print *,' end of readin ANFcond:'
       endif
 
@@ -257,13 +263,20 @@ c-----------
      i    cutbase, lcutmxa(ic),ix,iread,alat
      i  ,nc_max(0,ic) )
       end do
-      if(ix==0) stop ' OK! hbasfp0 ix=0 normal mode '
-      if(ix==3) stop ' OK! hbasfp0 ix=3 core mode '
-      if(ix==4) stop ' OK! hbasfp0 ix=4 ptest mode  '
-      if(ix==6) stop ' OK! hbasfp0 ix=6 Exx core-val mode  '
-      if(ix==7) stop ' OK! hbasfp0 ix=7 Exx val-val mode  '
-      if(ix==8) stop ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.'
- 998  if(ix==5) stop ' OK! hbasfp0 ix=5 ex core mode  '
+Cstop2rx 2013.08.09 kino      if(ix==0) stop ' OK! hbasfp0 ix=0 normal mode '
+      if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')
+Cstop2rx 2013.08.09 kino      if(ix==3) stop ' OK! hbasfp0 ix=3 core mode '
+      if(ix==3) call rx0( ' OK! hbasfp0 ix=3 core mode ')
+Cstop2rx 2013.08.09 kino      if(ix==4) stop ' OK! hbasfp0 ix=4 ptest mode  '
+      if(ix==4) call rx0( ' OK! hbasfp0 ix=4 ptest mode  ')
+Cstop2rx 2013.08.09 kino      if(ix==6) stop ' OK! hbasfp0 ix=6 Exx core-val mode  '
+      if(ix==6) call rx0( ' OK! hbasfp0 ix=6 Exx core-val mode  ')
+Cstop2rx 2013.08.09 kino      if(ix==7) stop ' OK! hbasfp0 ix=7 Exx val-val mode  '
+      if(ix==7) call rx0( ' OK! hbasfp0 ix=7 Exx val-val mode  ')
+Cstop2rx 2013.08.09 kino      if(ix==8) stop ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.'
+      if(ix==8) call rx0( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
+Cstop2rx 2013.08.09 kino 998  if(ix==5) stop ' OK! hbasfp0 ix=5 ex core mode  '
+ 998  if(ix==5) call rx0( ' OK! hbasfp0 ix=5 ex core mode  ')
       end
 
 

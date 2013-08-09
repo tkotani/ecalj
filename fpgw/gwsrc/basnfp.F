@@ -33,7 +33,7 @@ c
       integer(4):: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,mintc,mxintc,ibx,
      &    nxx( 0:2*(nl-1) ),nprad, nprod,
      &    nxxold( 0:2*(nl-1) ), ngmxx( 0:2*(nl-1) ),nodnum,nbasen
-      real(8)::    aa,bb,tot, hnrofi,rmax,rx,
+      real(8)::    aa,bb,tot, hnrofi,rmax,
      &     r(nrx),sig,sig0,ovv,rxx(nrofi) ,epsx,sxx,rrt,
      &     alpha,polinta,cutbase(0:2*(nl-1)),adist,rax, plgndr
       real(8):: screen(nrofi),screent(nrofi),kappa,axx,epp   ,f0(nrofi)
@@ -426,9 +426,11 @@ ccccccccccc end of ptest ccccccccccccccccccccccccccccccccccccccccccccccc
 
 c--- check array overflow
       if(maxval(nxx(0:2*(nl-1))) > nxxmx) 
-     & stop ' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f'
+Cstop2rx 2013.08.09 kino     & stop ' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f'
+     & call rx( ' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f')
       if(nprad > npradmx)  
-     & stop ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f'
+Cstop2rx 2013.08.09 kino     & stop ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f'
+     & call rx( ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f')
 
 c---- nprod
       nprod = 0
@@ -487,7 +489,8 @@ c        call diagno(nb, ovvc, oc, wk,iwk, zz, eb) !  eb(ib) -> zz(1:nb,ib)
 c
 c      print *,' Use rs diagonalization for real symmetric'
         call rs(nb, ovvc(:,:,1), eb, zz(:,:,1),ierr)
-        if(ierr/=0) stop ' basnfp: rs error'
+Cstop2rx 2013.08.09 kino        if(ierr/=0) stop ' basnfp: rs error'
+        if(ierr/=0) call rx( ' basnfp: rs error')
 
 c        oxx = matmul( matmul(transpose(zz(:,:,1)), ovvco(:,:,1)),
 c     &                zz(:,:,1) )
@@ -715,7 +718,8 @@ c----------------------------------------------
           lprc (k) = lx   ! irdc(k,ic) = k
         enddo
       enddo
-      if(k/=kmx) stop ' basnfp: k/=kmx'
+Cstop2rx 2013.08.09 kino      if(k/=kmx) stop ' basnfp: k/=kmx'
+      if(k/=kmx) call rx( ' basnfp: k/=kmx')
       if(kmx/=0 ) then
         nblocha = iprlc (kmx) + 2*lprc(kmx)+1
       elseif(kmx==0 ) then
@@ -748,10 +752,14 @@ c        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
       filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
       ificrb   = iopen ( filename,1,3,0)
       read(ificrb,"(4i6,2d24.16)") nl2m1, kmx,nblocha,nrofi_in,aa_in,bb_in
-      if( nl /= nl2m1/2 +1) stop 'wrong 2*(nl-1) in readin BASNFP'
-      if(nrofi_in /= nrofi) stop 'nrofi_in/=nrofi in readin BASNFP'
-      if(abs(aa-aa_in)>1d-12) stop 'aa_in/=aa in readin BASNFP'
-      if(abs(bb-bb_in)>1d-12) stop 'bb_in/=bb in readin BASNFP'
+Cstop2rx 2013.08.09 kino      if( nl /= nl2m1/2 +1) stop 'wrong 2*(nl-1) in readin BASNFP'
+      if( nl /= nl2m1/2 +1) call rx( 'wrong 2*(nl-1) in readin BASNFP')
+Cstop2rx 2013.08.09 kino      if(nrofi_in /= nrofi) stop 'nrofi_in/=nrofi in readin BASNFP'
+      if(nrofi_in /= nrofi) call rx( 'nrofi_in/=nrofi in readin BASNFP')
+Cstop2rx 2013.08.09 kino      if(abs(aa-aa_in)>1d-12) stop 'aa_in/=aa in readin BASNFP'
+      if(abs(aa-aa_in)>1d-12) call rx( 'aa_in/=aa in readin BASNFP')
+Cstop2rx 2013.08.09 kino      if(abs(bb-bb_in)>1d-12) stop 'bb_in/=bb in readin BASNFP'
+      if(abs(bb-bb_in)>1d-12) call rx( 'bb_in/=bb in readin BASNFP')
       write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
       read(ificrb,"(i5)") nxx(0:2*(nl-1))
       allocate(rprodx(nrofi,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
@@ -899,7 +907,8 @@ c
           open(ifv,file='rhoMT.'//trim(charnum3n(ibas)),form='unformatted',status='old',err=1031)
           goto 1032
  1031     continue !bug fix for lmfgw---remove this path in future.
-          if(ibas>9) stop 'rhoMT indexing is over 10'
+Cstop2rx 2013.08.09 kino          if(ibas>9) stop 'rhoMT indexing is over 10'
+          if(ibas>9) call rx( 'rhoMT indexing is over 10')
           open(ifv,file='rhoMT.'//char(48+ibas),form='unformatted')
  1032     continue
           read (ifv) nr_r
@@ -918,8 +927,10 @@ ccccccccccccccccccccc
 c        print *, 'sum rho1=', sum (abs(rho1(1:nr_r,1:nlml_r,1:nsp_r)))
 cccccccccccccccccccc
 
-        if(nsp_r/=nsp) stop " ReadinError: ValMT: nspr/= nsp"
-        if(nsp/=2    ) stop " This mode is only for nsp==2"
+Cstop2rx 2013.08.09 kino        if(nsp_r/=nsp) stop " ReadinError: ValMT: nspr/= nsp"
+        if(nsp_r/=nsp) call rx( " ReadinError: ValMT: nspr/= nsp")
+Cstop2rx 2013.08.09 kino        if(nsp/=2    ) stop " This mode is only for nsp==2"
+        if(nsp/=2    ) call rx( " This mode is only for nsp==2")
         rho1= sqrtfpi*rho1  !rho1 is not including sqrt(fpi) Right?
 
 C
@@ -1068,7 +1079,8 @@ c      data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
 cC#endif
       real(8):: fac2l
       lmux = max0(lmax,2)
-      if (lmux .gt. 9) stop 'bessl2: lmax gt 9'
+Cstop2rx 2013.08.09 kino      if (lmux .gt. 9) stop 'bessl2: lmax gt 9'
+      if (lmux .gt. 9) call rx( 'bessl2: lmax gt 9')
       tol = 1.d-8
       my = -y
       l = lmux
@@ -1138,7 +1150,8 @@ C#endif
       return
    10 write(*,11) y
    11 format(' BESSL2: power series not convergent, E*r**2=',e12.4)
-      stop
+Cstop2rx 2013.08.09 kino      stop
+      call rx( '')
       end
 
       real(8) function fac2l(i)

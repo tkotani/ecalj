@@ -259,7 +259,8 @@ c     call MPI__Broadcast(idummy)
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0_sc'//trim(ixcc))
       write(6,*) ' ixc nz=',ixc, nz
-      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+Cstop2rx 2013.08.09 kino      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+      if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
 
 !     ! ===  readin BZDATA. See gwsrc/rwbzdata.f ===
 !     ! See use m_read_bzdata,only: at the top of this routine
@@ -286,7 +287,8 @@ c-----------------------------------------------------------------
       else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted by genallcf_v3
 c     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
@@ -330,7 +332,8 @@ ccccccccccccccccccccccccccccc
 c-------------------------------------------------------------------
 c     if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 !!!!  WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+      if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       print *,' hsfp0: end of genallcf_v3'
 
       call pshprt(30)
@@ -358,7 +361,8 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-         if(tetra) stop 'legas You have to give ef of  tetrahedron'
+Cstop2rx 2013.08.09 kino         if(tetra) stop 'legas You have to give ef of  tetrahedron'
+         if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
       endif
 
       ifexsp=0
@@ -415,7 +419,8 @@ c     ifsecomg(1) = iopen('SEComgU'//xt(nz),1,-1,0) ! output files
 c     if (nspin == 2)
 c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
       else
-         stop ' hsfp0: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!'
+Cstop2rx 2013.08.09 kino         stop ' hsfp0: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!'
+         call rx( ' hsfp0: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
       endif
 
 c---  Neglect core is NoCore exists ------------
@@ -433,7 +438,8 @@ c     write(6,'("    ua      =",f13.6)') ua
 c>>   read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
 
@@ -533,7 +539,8 @@ c----------------------------------------------
          ifwd =iclose('WV.d')
          call checkeq(nprecx,ndble)
          nw = nwt
-         if(niwt /= niw) stop 'hsfp0: wrong niw'
+Cstop2rx 2013.08.09 kino         if(niwt /= niw) stop 'hsfp0: wrong niw'
+         if(niwt /= niw) call rx( 'hsfp0: wrong niw')
 c!!   direct access files WVR and WVI which include W-V.
 c     if(.not.exchange) then
 c     ifrcw  = iopen('WVR',0,-1,mrecl)
@@ -578,7 +585,8 @@ c     endif
                   write(6,"(i4,d13.5)") ix,ecore(ix, is)
                enddo
             enddo
-            stop 'hsfp0 ixc=3: ecore>evalence. '
+Cstop2rx 2013.08.09 kino            stop 'hsfp0 ixc=3: ecore>evalence. '
+            call rx( 'hsfp0 ixc=3: ecore>evalence. ')
          endif
       endif
 
@@ -806,7 +814,8 @@ c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
          read(ifidmlx) nq0ix,lxklm
          if(nq0i/=nq0ix) then
             print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-            stop 'nq0i from EPSwklm /= nq0i'
+Cstop2rx 2013.08.09 kino            stop 'nq0i from EPSwklm /= nq0i'
+            call rx( 'nq0i from EPSwklm /= nq0i')
          endif
          allocate( dmlx(nq0i,9))
          allocate( epinvq0i(nq0i,nq0i) )
@@ -1198,8 +1207,10 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
          do isp=1,nspxx
             do iqq=1,nqixx
                read(ifiproc,*) iqqxx, ispxx, ixxx
-               if(iqqxx/=iqq) stop 'iqqxx/=iqq'
-               if(ispxx/=isp) stop 'ispxx/=isp'
+Cstop2rx 2013.08.09 kino               if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+               if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
+Cstop2rx 2013.08.09 kino               if(ispxx/=isp) stop 'ispxx/=isp'
+               if(ispxx/=isp) call rx( 'ispxx/=isp')
                iprocq(iqq,isp) = ixxx
                write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
             enddo
@@ -1261,10 +1272,12 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                   endif  
                enddo  
                deallocate(evec,evec_inv,evecrot)
-               stop 'hsfp0_sc: bug:qqqx can not find ...'
+Cstop2rx 2013.08.09 kino               stop 'hsfp0_sc: bug:qqqx can not find ...'
+               call rx( 'hsfp0_sc: bug:qqqx can not find ...')
  3011          continue
 
-               if(tiii) stop 'timereversal is not yet implemented'
+Cstop2rx 2013.08.09 kino               if(tiii) stop 'timereversal is not yet implemented'
+               if(tiii) call rx( 'timereversal is not yet implemented')
                call readeval(q(:,iqxx), is, evaliq)
                evec_inv = evec
                call matcinv(nhdim,evec_inv)
@@ -1481,8 +1494,11 @@ c
       isx = iclose ('hbe.d')
       call cputid(0)
       call MPI__Finalize 
-      if(ixc==1 ) stop ' OK! hsfp0_sc: Exchange mode'
-      if(ixc==2 ) stop ' OK! hsfp0_sc: Correlation mode'
-      if(ixc==3 ) stop ' OK! hsfp0_sc: Core-exchange mode'
+Cstop2rx 2013.08.09 kino      if(ixc==1 ) stop ' OK! hsfp0_sc: Exchange mode'
+      if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
+Cstop2rx 2013.08.09 kino      if(ixc==2 ) stop ' OK! hsfp0_sc: Correlation mode'
+      if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
+Cstop2rx 2013.08.09 kino      if(ixc==3 ) stop ' OK! hsfp0_sc: Core-exchange mode'
+      if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
       end program hsfp0_sc 
 

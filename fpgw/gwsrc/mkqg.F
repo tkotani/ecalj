@@ -142,11 +142,15 @@ c------------------------------------------------
             bbij=sum(qlat(:,i)*ginv(j,:))
             if(verbose()>=40) print *,' i j aaij bbij', i,j,aaij,bbij
             if(i==j) then
-               if(abs(aaij-1d0) >1d-10) stop 'bug 1 qg4gw'
-               if(abs(bbij-1d0) >1d-10) stop 'bug 2 qg4gw'
+Cstop2rx 2013.08.09 kino               if(abs(aaij-1d0) >1d-10) stop 'bug 1 qg4gw'
+               if(abs(aaij-1d0) >1d-10) call rx( 'bug 1 qg4gw')
+Cstop2rx 2013.08.09 kino               if(abs(bbij-1d0) >1d-10) stop 'bug 2 qg4gw'
+               if(abs(bbij-1d0) >1d-10) call rx( 'bug 2 qg4gw')
             else
-               if(abs(aaij) >1d-10) stop 'bug 3 qg4gw'
-               if(abs(bbij) >1d-10) stop 'bug 4 qg4gw'
+Cstop2rx 2013.08.09 kino               if(abs(aaij) >1d-10) stop 'bug 3 qg4gw'
+               if(abs(aaij) >1d-10) call rx( 'bug 3 qg4gw')
+Cstop2rx 2013.08.09 kino               if(abs(bbij) >1d-10) stop 'bug 4 qg4gw'
+               if(abs(bbij) >1d-10) call rx( 'bug 4 qg4gw')
             endif
          enddo
       enddo
@@ -229,14 +233,16 @@ c
          call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
          if(alpv(1)==-1d50) then
             print *,' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput'
-            stop    ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput'
+Cstop2rx 2013.08.09 kino            stop    ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput'
+            call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
          endif
       endif
       print *
       print *,' alpv=',alpv
       print *
       alpm= minval(alpv)
-      if(alpm<=0d0) stop 'alpha_offG or alpha_offG_vec <=0'
+Cstop2rx 2013.08.09 kino      if(alpm<=0d0) stop 'alpha_offG or alpha_offG_vec <=0'
+      if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
 
 !! === Large if start. ===
       if(iq0pin==1) then   ! --- get q0x (offsetted q=0 point) ----------------------
@@ -376,7 +382,8 @@ c     q0x(:,6)=(/deltaq,deltaq, 0d0/)
                   q0x(:,11)=(/delta5,delta8,0d0/)
                   q0x(:,12)=(/0d0,-delta5,-delta8/)
                else
-                  stop 'mkqg: not implemented nq00i'
+Cstop2rx 2013.08.09 kino                  stop 'mkqg: not implemented nq00i'
+                  call rx( 'mkqg: not implemented nq00i')
                endif
 ccccccccccccccccccccccccccccc
                do i=1,nq00i
@@ -635,7 +642,8 @@ c     ... end of get q0x
             else
                nq0i = nq0i00
             endif
-            if(nq0i <=0) stop 'There are neither <QforEPS> nor <QforEPS>.'
+Cstop2rx 2013.08.09 kino            if(nq0i <=0) stop 'There are neither <QforEPS> nor <QforEPS>.'
+            if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPS>.')
             allocate( q0i(3,nq0i) )
             print *,' nq0i=',nq0i
             if(nq0i00>0) then
@@ -1012,7 +1020,8 @@ C-------------------------------------------------------------------------
       integer(4),parameter :: lmx=50
       integer(4),save:: lla((lmx+1)**2)
       logical:: init=.true.
-      if(ilm>(lmx+1)**2) stop 'll: ilm too large'
+Cstop2rx 2013.08.09 kino      if(ilm>(lmx+1)**2) stop 'll: ilm too large'
+      if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
       if(init) then
          do l=0,lmx
             lini= l**2 + 1

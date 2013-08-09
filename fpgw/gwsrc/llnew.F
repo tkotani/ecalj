@@ -14,7 +14,8 @@
       integer(4),parameter :: lmx=50
       integer(4),save:: lla((lmx+1)**2)
       logical:: init=.true.
-      if(ilm>(lmx+1)**2) stop 'll: ilm too large'
+Cstop2rx 2013.08.09 kino      if(ilm>(lmx+1)**2) stop 'll: ilm too large'
+      if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
       if(init) then
         do l=0,lmx
           lini= l**2 + 1

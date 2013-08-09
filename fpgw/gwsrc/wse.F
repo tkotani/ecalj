@@ -1,6 +1,7 @@
       subroutine checkeq(i,j)
-      if(i/=j) stop 
-     & " checkeq in hsfp0: dim of WVR and WVI not compatible"
+Cstop2rx 2013.08.09 kino      if(i/=j) stop 
+      if(i/=j) call rx( ''//
+     & " checkeq in hsfp0: dim of WVR and WVI not compatible")
       end
 
 c--------------------------------------------------------------------
@@ -169,7 +170,8 @@ c          endif
 c
         enddo
         enddo
-        stop ' rsexx: not find ikp'
+Cstop2rx 2013.08.09 kino        stop ' rsexx: not find ikp'
+        call rx( ' rsexx: not find ikp')
  100    continue
         vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
       enddo
@@ -235,7 +237,8 @@ c          endif
           endif
 c
         enddo
-        stop ' rsexx: not find ikp'
+Cstop2rx 2013.08.09 kino        stop ' rsexx: not find ikp'
+        call rx( ' rsexx: not find ikp')
  100    continue
         vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
       enddo
@@ -391,7 +394,8 @@ c        rchar      = rchar(j+1:72)
         if(rchar(1:5) .eq. '*****') return
         if(rchar(1:5) .eq. '#####') return
    10 continue
-      stop 'readx: cannot find the string (gwsrc/wse.f/readxx)'
+Cstop2rx 2013.08.09 kino      stop 'readx: cannot find the string (gwsrc/wse.f/readxx)'
+      call rx( 'readx: cannot find the string (gwsrc/wse.f/readxx)')
       end
 c-------------------------------------------------------------------
 

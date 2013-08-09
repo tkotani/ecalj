@@ -70,6 +70,8 @@ checkmod:
 #lmsrc   = ../../lm-6.14y/
 ######################################################################################            
 
+COMM=$(nfpsrc)rxx.o \
+  $(gwsrc)mopen.o 
 
 ECOR = \
 $(tote)hecor.o \
@@ -140,16 +142,16 @@ EO2= \
 $(tote)eout2.o \
 $(gwsrc)rydberg.o
 
-hecor: $(ECOR) $(NFPLtot) $(GW0)   $(MPI) 
-	$(LK) $(LKFLAGS1) $(ECOR) $(GW0) $(NFPLtot)  $(MPI) $(LKFLAGS2) -o $@
+hecor: $(ECOR) $(NFPLtot) $(GW0)   $(MPI)  $(COMM)
+	$(LK) $(LKFLAGS1) $(ECOR) $(GW0) $(NFPLtot)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 #	$(LK) $(LKFLAGS1) $(ECORtot) $(GW0tot) $(NFPLtot) $(LKFLAGS2) -o $@
 
-eout: $(EO)   
-	$(LK) $(LKFLAGS1) $(EO) $(LKFLAGS2) -o $@
+eout: $(EO)   $(COMM) 
+	$(LK) $(LKFLAGS1) $(EO) $(COMM) $(LKFLAGS2) -o $@
 
-eout2: $(EO2)  
-	$(LK) $(LKFLAGS1) $(EO2) $(LKFLAGS2) -o $@
+eout2: $(EO2)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(EO2) $(COMM) $(LKFLAGS2) -o $@
 
 #lmf_exec:	$(LMFtot)
 #	$(LK) $(LKC) $(LMFtot) $(LIBFP) $(LIBSUBS) $(LIBES) -o $@
@@ -214,7 +216,6 @@ eout2: $(EO2)
  $(gwsrc)switches.o \
  $(main)rdata4gw_v2.m.o \
  $(gwsrc)rwbzdata.o \
- $(gwsrc)mopen.o \
  $(gwsrc)gintxx.o \
  $(gwsrc)cinvrx.o \
  $(gwsrc)idxk.o \
@@ -270,7 +271,6 @@ eout2: $(EO2)
  $(gwsrc)pplmat.o \
  $(gwsrc)matm.o \
  $(gwsrc)getgv2.o \
- $(gwsrc)mopen.o \
  $(gwsrc)cross.o \
  $(gwsrc)llnew.o \
  $(gwsrc)readqg.o \
@@ -386,11 +386,9 @@ eout2: $(EO2)
  $(gwsrc)x0kf_v3h$(x0kf_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(gwsrc)rs.o \
- $(gwsrc)mopen.o \
  $(nfpsrc)u_lat_0.o \
  $(nfpsrc)wronkj.o \
  $(nfpsrc)mklegw.o \
- $(nfpsrc)rxx.o \
  $(nfpsrc)bessl.o \
  $(nfpsrc)cross.o \
  $(nfpsrc)diagcv2.o
@@ -406,11 +404,9 @@ eout2: $(EO2)
  $(gwsrc)getgv2.o \
  $(gwsrc)x0kf_v2h$(x0kf_g) \
  $(gwsrc)rs.o \
- $(gwsrc)mopen.o \
  $(nfpsrc)u_lat_0.o \
  $(nfpsrc)wronkj.o \
  $(nfpsrc)mklegw.o \
- $(nfpsrc)rxx.o \
  $(nfpsrc)bessl.o \
  $(nfpsrc)cross.o
 
@@ -425,11 +421,9 @@ eout2: $(EO2)
  $(gwsrc)getgv2.o \
  $(gwsrc)x0kf_v2h$(x0kf_g) \
  $(gwsrc)rs.o \
- $(gwsrc)mopen.o \
  $(nfpsrc)u_lat_0.o \
  $(nfpsrc)wronkj.o \
  $(nfpsrc)mklegw.o \
- $(nfpsrc)rxx.o \
  $(nfpsrc)bessl.o \
  $(nfpsrc)cross.o
 
@@ -444,11 +438,9 @@ eout2: $(EO2)
  $(gwsrc)getgv2.o \
  $(gwsrc)x0kf_v2h$(x0kf_g) \
  $(gwsrc)rs.o \
- $(gwsrc)mopen.o \
  $(nfpsrc)u_lat_0.o \
  $(nfpsrc)wronkj.o \
  $(nfpsrc)mklegw.o \
- $(nfpsrc)rxx.o \
  $(nfpsrc)bessl.o \
  $(nfpsrc)cross.o
 
@@ -570,7 +562,6 @@ eout2: $(EO2)
          $(nfpsrc)cross.o \
          $(nfpsrc)setpr.o \
          $(nfpsrc)bessl.o \
-         $(nfpsrc)rxx.o \
          $(nfpsrc)hsmq.o \
          $(nfpsrc)lgen.o \
          $(nfpsrc)hansr5.o \
@@ -604,98 +595,98 @@ eout2: $(EO2)
 
 
 
- hsigmconv:	$(SIGMCONV)  $(MPI)  
-	 $(LK) $(LKFLAGS1) $(SIGMCONV) $(MPI)  $(LKFLAGS2) -o $@
+ hsigmconv:	$(SIGMCONV)  $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(SIGMCONV) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 
- gwinit:	$(GWINIT)  $(MPI)  
-	 $(LK) $(LKFLAGS1) $(GWINIT) $(MPI)  $(LKFLAGS2) -o $@
+ gwinit:	$(GWINIT)  $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWINIT) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
 
 
- qpwf:		$(maxloc)qpwf.o $(GW0 $(MPI) )
-	$(LK) $(LKFLAGS1) $(maxloc)qpwf.o $(GW0) $(MPI)   $(LKFLAGS2) -o $@
+ qpwf:		$(maxloc)qpwf.o $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(maxloc)qpwf.o $(GW0) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
 
- qg4gw:		$(QG)  $(MPI)  
-	 $(LK) $(LKFLAGS1) $(QG) $(MPI)   $(LKFLAGS2) -o $@
+ qg4gw:		$(QG)  $(MPI) $(COMM)  
+	 $(LK) $(LKFLAGS1) $(QG) $(MPI) $(COMM)    $(LKFLAGS2) -o $@
 
- rdata4gw_v2:	$(RDAT_v2)  $(NFPL $(MPI) )
-	 $(LK) $(LKFLAGS1) $(RDAT_v2) $(NFPL) $(MPI)  $(LKFLAGS2) -o $@
+ rdata4gw_v2:	$(RDAT_v2)  $(NFPL) $(MPI)  $(COMM)
+	 $(LK) $(LKFLAGS1) $(RDAT_v2) $(NFPL) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
 
- hbasfp0:	$(BAS)  $(MPI) 
-	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(LKFLAGS2) -o $@
+ hbasfp0:	$(BAS)  $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hvccfp0:	$(MPI) $(VCC)  $(NFPL) $(DERFC) $(MPI) 
-	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC) $(MPI) $(LKFLAGS2) -o $@
+ hvccfp0:	$(MPI) $(VCC)  $(NFPL) $(DERFC) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hx0fp0:	$(MPI) $(X0) $(GW0) $(MPI) 
-	 $(LK) $(LKFLAGS1) $(X0)     $(GW0) $(MPI) $(LKFLAGS2) -o $@
+ hx0fp0:	$(MPI) $(X0) $(GW0) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(X0)     $(GW0) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # for maxloc
- hx0fp0_mlw:	$(X0mlw) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(X0mlw)     $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ hx0fp0_mlw:	$(X0mlw) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(X0mlw)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- h_uumatrix:	$(UU) $(GW0)   $(MPI) 
-	$(LK) $(LKFLAGS1) $(UU)     $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ h_uumatrix:	$(UU) $(GW0)   $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(UU)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- huumat:	$(UU2) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(UU2)     $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ huumat:	$(UU2) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(UU2)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hphig:	$(PHIG) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(PHIG)     $(GW0)  $(MPI)  $(LKFLAGS2) $(LIBSLA) -o $@
+ hphig:	$(PHIG) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(PHIG)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) $(LIBSLA) -o $@
 
- hpsig: $(PSIG) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(PSIG)     $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ hpsig: $(PSIG) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(PSIG)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hx0fp0_sc:	$(MPI) $(X0_SC) $(GW0)   $(MPI) 
-	 $(LK) $(LKFLAGS1) $(X0_SC)     $(GW0) $(MPI)  $(LKFLAGS2) -o $@
+ hx0fp0_sc:	$(MPI) $(X0_SC) $(GW0)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(X0_SC)     $(GW0) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hwmat:		$(WMAT) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(WMAT)    $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ hwmat:		$(WMAT) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(WMAT)    $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hmaxloc:	$(MLOC)  $(NFPLtot) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(MLOC) $(NFPLtot) $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ hmaxloc:	$(MLOC)  $(NFPLtot) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(MLOC) $(NFPLtot) $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hmaxloc1D:	$(MLOC1D)  $(NFPLtot) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(MLOC1D) $(NFPLtot) $(GW0)   $(MPI) $(LKFLAGS2) -o $@
+ hmaxloc1D:	$(MLOC1D)  $(NFPLtot) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(MLOC1D) $(NFPLtot) $(GW0)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hsfp0:		$(MPI) $(SXC) $(GW0)   $(MPI) 
-	 $(LK) $(LKFLAGS1) $(SXC)    $(GW0) $(MPI)  $(LKFLAGS2) -o $@
+ hsfp0:		$(MPI) $(SXC) $(GW0)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(SXC)    $(GW0) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hsfp0_sc:	$(MPI) $(SXC_SC) $(GW0)   $(MPI) 
-	 $(LK) $(LKFLAGS1) $(SXC_SC)    $(GW0)  $(MPI) $(LKFLAGS2) -o $@
+ hsfp0_sc:	$(MPI) $(SXC_SC) $(GW0)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(SXC_SC)    $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hnocc_mlw:	$(hnocc_mlw) $(GW0) $(MPI) 
-	$(LK) $(LKFLAGS1) $(hnocc_mlw) $(GW0)  $(MPI)  $(LKFLAGS2) -o $@
+ hnocc_mlw:	$(hnocc_mlw) $(GW0) $(MPI)  $(COMM) 
+	$(LK) $(LKFLAGS1) $(hnocc_mlw) $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- heftet:	$(heftet) $(GW0)  $(MPI) $(MPI) 
-	 $(LK) $(LKFLAGS1) $(heftet) $(GW0)  $(MPI) $(LKFLAGS2) -o $@
+ heftet:	$(heftet) $(GW0)  $(MPI) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(heftet) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hef:		$(hef) $(GW0)   $(MPI)
-	 $(LK) $(LKFLAGS1) $(hef)    $(GW0)  $(MPI) $(LKFLAGS2) -o $@
+ hef:		$(hef) $(GW0)   $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(hef)    $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hchknw:	$(CHK) $(GW0)  $(MPI)
-	 $(LK) $(LKFLAGS1) $(CHK)    $(GW0)   $(MPI) $(LKFLAGS2) -o $@
+	 $(LK) $(LKFLAGS1) $(CHK)    $(GW0)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hqpe:		$(QPE) $(MPI)
-	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(LKFLAGS2) -o $@
+ hqpe:		$(QPE) $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(LKFLAGS2) -o $@
 
- hqpe_sc:		$(QPE_SC)  $(MPI)
-	 $(LK) $(LKFLAGS1) $(QPE_SC) $(MPI) $(LKFLAGS2) -o $@
+ hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(QPE_SC) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hmergewv:	$(MERGE) $(MPI)  
-	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(LKFLAGS2) -o $@
+ hmergewv:	$(MERGE) $(MPI)   $(COMM) 
+	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hparainfo:	$(PARAINFO) $(GW0) $(MPI)  
-	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GW0)  $(MPI) $(LKFLAGS2) -o $@
+ hparainfo:	$(PARAINFO) $(GW0) $(MPI)   $(COMM) 
+	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hbndout:	$(BNDOUT) $(MPI)  
-	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(LKFLAGS2) -o $@
+ hbndout:	$(BNDOUT) $(MPI)   $(COMM) 
+	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- convgwin:	$(convg) $(MPI)  
-	 $(LK) $(LKFLAGS1) $(convg) $(MPI)  $(LKFLAGS2) -o $@
+ convgwin:	$(convg) $(MPI)   $(COMM) 
+	 $(LK) $(LKFLAGS1) $(convg) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- kino_input_test:	$(kino_input_test) $(GW0) $(MPI) 
-	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GW0)  $(MPI) $(LKFLAGS2) -o $@
+ kino_input_test:	$(kino_input_test) $(GW0) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 ################################ test
 #

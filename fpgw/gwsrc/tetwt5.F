@@ -210,7 +210,8 @@ c      if(verbose()>=150) chkwrt=.true.
         read(ifeig) nband_x,nqnumm,nsp
         print *,'readin eigmtet ', nband_x,nqnumm,nsp
         if(nband_x /=nband ) then
-          stop 'tetwt5: nband_x /=nband'
+Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
+          call rx( 'tetwt5: nband_x /=nband')
         endif
         allocate( eigtet(nband,nqnumm,nsp) )
         do iqx=1,nqnumm
@@ -293,7 +294,8 @@ c      if(verbose()>=150) chkwrt=.true.
 c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
         enddo
       enddo
-      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
+Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
+      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 
       if(job==0) then
         demin=  1d10
@@ -413,7 +415,8 @@ c                   endif
                           if(ihis< ihw(ibib,kk(ikx),jpm).or.
      &               ihis> ihw(ibib,kk(ikx),jpm)- 1 + nhw(ibib,kk(ikx),jpm) ) then
                             if(sum(abs(wtthis2(ihis,0:3)))/=0d0) 
-     &               stop 'tetwt5:wtthis2/=0 for out of range'
+Cstop2rx 2013.08.09 kino     &               stop 'tetwt5:wtthis2/=0 for out of range'
+     &               call rx( 'tetwt5:wtthis2/=0 for out of range')
                           endif
                         enddo
                       enddo
@@ -496,7 +499,8 @@ c       if(ipr) print *,' kx nrank =',kx,nrank1,nrank2,nrankc
                   enddo
                 enddo
                 if(isum/=0 .and. isum /= (ixe1-ixi1+1)*(ixe2-ixi2+1) ) then
-                  stop 'tetwt5: isum srrange---1'
+Cstop2rx 2013.08.09 kino                  stop 'tetwt5: isum srrange---1'
+                  call rx( 'tetwt5: isum srrange---1')
                 endif
                 if(isum==0) cycle
 !! --- Get symmetrized whw
@@ -617,7 +621,8 @@ c      print *,' hisrange nwhis=',nwhis,demin,demax
         do ihis = 1, nwhis
           write(6,*) ihis, frhis(ihis+1)
         enddo
-        stop ' hisrange: wrong'
+Cstop2rx 2013.08.09 kino        stop ' hisrange: wrong'
+        call rx( ' hisrange: wrong')
       endif
       end
 
@@ -994,7 +999,8 @@ c            isig= -isig
 !  ww(1)<ww(2)<ww(3)<ww(4)
       if((.not.(WW(1)<=WW(2))).or.(.not.(WW(2)<=WW(3))).or.(.not.(WW(3)<=WW(4))) ) then
         write(6,"(/,' --- intttvc6: wrong order WW=',4d14.6)") WW
-        stop 'intttvc6: wrong order of WW'
+Cstop2rx 2013.08.09 kino        stop 'intttvc6: wrong order of WW'
+        call rx( 'intttvc6: wrong order of WW')
       endif
 
       if(chkwrt) then
@@ -1016,7 +1022,8 @@ c            isig= -isig
       enddo
       if(iedhis==-999.or.inihis==-999) then
         print *,' intttvc6: can not find inihis iedhis'
-        stop    ' intttvc6: can not find inihis iedhis'
+Cstop2rx 2013.08.09 kino        stop    ' intttvc6: can not find inihis iedhis'
+        call rx( ' intttvc6: can not find inihis iedhis')
       endif
 c      if(chkwrt) print *,' inihis iedhis=', inihis,iedhis
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1098,7 +1105,8 @@ c      write(6,"(' --- integtetn ee=',d23.16)") ee
         integb = 0d0
         return
       elseif (ee>e(4) ) then
-        stop ' integtetn: ee>e(4)'
+Cstop2rx 2013.08.09 kino        stop ' integtetn: ee>e(4)'
+        call rx( ' integtetn: ee>e(4)')
       endif
 
 c--- case1. poor numerical accuracy for cases.

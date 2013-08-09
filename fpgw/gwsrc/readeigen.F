@@ -208,7 +208,8 @@ c$$$      end subroutine rotMPB
       if(debug) print *,' end of rotmto2 '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu) !iqindx2 is slow. If required, speed it up in a manner as iqindx2_.
       if(debug) print *,' end of iqindx2rotmto2 '
-      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
+Cstop2rx 2013.08.09 kino      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
+      if(sum(abs(qin-qu))>1d-6) call rx( 'rotMPB:qin is not included in QGcou')
       sss=1d0
       if(igxt==-1) sss=-1d0
       if(debug) print *,' iqindx2 111111111111 sss=',sss,igx,qin
@@ -223,8 +224,10 @@ c$$$      end subroutine rotMPB
          print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
          print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
          print *,' ngc(iqout)=',ngc(iqout)
-         if(ngcx/=ngbb-nbloch) stop 'rotMPB2:ngc(iqin)/=ngbb-nbloch'
-         stop 'rotMPB2:ngc(iqin)/=ngc(iqout)'
+Cstop2rx 2013.08.09 kino         if(ngcx/=ngbb-nbloch) stop 'rotMPB2:ngc(iqin)/=ngbb-nbloch'
+         if(ngcx/=ngbb-nbloch) call rx( 'rotMPB2:ngc(iqin)/=ngbb-nbloch')
+Cstop2rx 2013.08.09 kino         stop 'rotMPB2:ngc(iqin)/=ngc(iqout)'
+         call rx( 'rotMPB2:ngc(iqin)/=ngc(iqout)')
       endif   
       platt=transpose(plat)
 c      print *,' iqin iqout igx=',iqin,iqout,igx
@@ -532,7 +535,8 @@ c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
 c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-               stop 'iqindx: bug not sorted well'
+Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
+               call rx( 'iqindx: bug not sorted well')
             endif
          enddo
          nkey(ix)=ik
@@ -588,7 +592,8 @@ c$$$         endif
 c$$$      enddo                                                                                     
       print *, i1,i2,kkin
       print *, kktable(i1),kktable(i2)
-      stop 'takk: error'
+Cstop2rx 2013.08.09 kino      stop 'takk: error'
+      call rx( 'takk: error')
       end subroutine
       end module
 
@@ -633,7 +638,8 @@ ctm
       real(8):: q(3),qu(3)
       real(8):: ev(nband)
       if(init) then
-        stop 'readeigen: modele is not initialized yet'
+Cstop2rx 2013.08.09 kino        stop 'readeigen: modele is not initialized yet'
+        call rx( 'readeigen: modele is not initialized yet')
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
        call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
@@ -672,7 +678,8 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       img2pi=2d0*4d0*datan(1d0)*img
       platt=transpose(plat) !this is inverse of qlat
       if(init2) then
-        stop 'readgeig: modele is not initialized yet'
+Cstop2rx 2013.08.09 kino        stop 'readgeig: modele is not initialized yet'
+        call rx( 'readgeig: modele is not initialized yet')
       endif
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
@@ -697,7 +704,8 @@ c      enddo
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
-      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
+Cstop2rx 2013.08.09 kino      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
+      if(ngp(iq)/=ngp(iqq)) call rx( 'readgeig:x ngp(iq)/=ngp(iqq)')
       if(debug) print *,' ngp=',ngp(iq)
       if(keepeig) then
         geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
@@ -707,7 +715,8 @@ c      enddo
       endif
       if(ngp_in < ngp(iq)) then
         print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
-        stop 'readgeig: ngpmx<ngp(iq)'
+Cstop2rx 2013.08.09 kino        stop 'readgeig: ngpmx<ngp(iq)'
+        call rx( 'readgeig: ngpmx<ngp(iq)')
       endif
 !! new rotation of IPW. june2012
 !!   qinput: qtt(:,iqq)  ---> qtarget: qtt(:,iq) ( G-vector difference from symops*qtt(:,iqq) )
@@ -765,7 +774,8 @@ ccccccccccccccccccccccccccccccccccc
       img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
 
 
-      if(init2) stop 'readcphi: modele is not initialized yet'
+Cstop2rx 2013.08.09 kino      if(init2) stop 'readcphi: modele is not initialized yet'
+      if(init2) call rx( 'readcphi: modele is not initialized yet')
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
       call iqindx2_(q, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
@@ -910,7 +920,8 @@ c------------------------------
       real(8)   :: q(3),qu(3)
       complex(8):: geigen(ngp_in,nwf)
       if(init2) then
-        stop 'readgeig_mlw: modele is not initialized yet'
+Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: modele is not initialized yet'
+        call rx( 'readgeig_mlw: modele is not initialized yet')
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
 c      print *,' readgeig: q=',q
@@ -918,7 +929,8 @@ c      print *,' readgeig: q=',q
 
       if(ngp_in < ngp(iq)) then
         print *,'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
-        stop 'readgeig_mlw: ngpmx<ngp(iq)'
+Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: ngpmx<ngp(iq)'
+        call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
       endif
       if(keepeig) then
         geigen(1:ngp(iq),1:nwf) = geig_mlw(1:ngp(iq),1:nwf,iq,isp)
@@ -937,7 +949,8 @@ c------------------------------
       real(8)   :: q(3),qu(3)
       complex(8):: cphif(ldim2_in,nwf)
       if(init2) then
-        stop 'readcphi_mlw: modele is not initialized yet'
+Cstop2rx 2013.08.09 kino        stop 'readcphi_mlw: modele is not initialized yet'
+        call rx( 'readcphi_mlw: modele is not initialized yet')
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
 c      print *,' readgcphi_mlw: q=',q
@@ -969,7 +982,8 @@ c      integer(4),allocatable:: ngvecp(:,:)
       allocate(ginv(3,3))
       ginv  = ginv_in
       nsp   = nsp_in
-      if(nsp<0.or.nsp>2) stop 'init_reaeigen:nsp wrong'
+Cstop2rx 2013.08.09 kino      if(nsp<0.or.nsp>2) stop 'init_reaeigen:nsp wrong'
+      if(nsp<0.or.nsp>2) call rx( 'init_reaeigen:nsp wrong')
       nband = nband_in
       mrece = mrece_in
 c      write(6,*) 'init_readeigen:1'
@@ -1005,9 +1019,12 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
       read(ifev) nband_ev, nqi_, nsp_ev
       write(*,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
-      if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
-      if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
-      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
+Cstop2rx 2013.08.09 kino      if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
+      if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
+Cstop2rx 2013.08.09 kino      if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
+      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+Cstop2rx 2013.08.09 kino      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
+      if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_')
       nqixx=nqi
       allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
       read(ifev) qtti_(1:3,1:nqi_) !qtti
@@ -1185,7 +1202,8 @@ c nqbz mesh-points
         if (is.eq.1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp))
         do iqbz = 1,nqbz
           read(ifmlw)iqbz2,q(1:3)
-          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+          if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
           read(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iqbz,is)
         enddo
 
@@ -1193,17 +1211,22 @@ c nqbz mesh-points
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
         if (is.eq.1) 
      >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
         if (iko_ix2.ne.iko_ix)
-     >      stop "init_readeigen_mlw: iko_ix2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
+     >      call rx( "init_readeigen_mlw: iko_ix2 error")
         if (iko_fx2.ne.iko_fx)
-     >      stop "init_readeigen_mlw: iko_fx2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
+     >      call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
             read(ifuu)iqbz2,iq0i2
-            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
-            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+Cstop2rx 2013.08.09 kino            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+            if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
+Cstop2rx 2013.08.09 kino            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+            if (iq0i2 .ne. iq0i) call rx( 'init_readeigen_mlw: iq0i error')
             read(ifuu)
      &      ((uum(j1,j2,iqbz,iq0i,is),
      &         j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
@@ -1376,8 +1399,9 @@ c read UU1dU/D
 
         iko_ix = 1
         iko_fx = nwf
-        if (nqtt.ne.nset*nqbz) stop
-     >      "init_readeigen_nowval1D: nqtt error"
+Cstop2rx 2013.08.09 kino        if (nqtt.ne.nset*nqbz) stop
+        if (nqtt.ne.nset*nqbz) call rx( ''//
+     >      "init_readeigen_nowval1D: nqtt error")
 
 c nqbz mesh-points
 
@@ -1386,18 +1410,23 @@ c nqbz mesh-points
         do iset = 1,nset
           ini = (iset-1)*nqbz
           read(ifmlw)nqbz2,nwf2,iset2,nset2
-          if (nqbz.ne.nqbz2) stop
-     >         "init_readeigen_nowval1D: nqbz error"
-          if (nwf.ne.nwf2) stop
-     >         "init_readeigen_nowval1D: nwf error"
-          if (iset.ne.iset2) stop
-     >         "init_readeigen_nowval1D: iset error"
-          if (nset.ne.nset2) stop
-     >         "init_readeigen_nowval1D: nset error"
+Cstop2rx 2013.08.09 kino          if (nqbz.ne.nqbz2) stop
+          if (nqbz.ne.nqbz2) call rx( ''//
+     >         "init_readeigen_nowval1D: nqbz error")
+Cstop2rx 2013.08.09 kino          if (nwf.ne.nwf2) stop
+          if (nwf.ne.nwf2) call rx( ''//
+     >         "init_readeigen_nowval1D: nwf error")
+Cstop2rx 2013.08.09 kino          if (iset.ne.iset2) stop
+          if (iset.ne.iset2) call rx( ''//
+     >         "init_readeigen_nowval1D: iset error")
+Cstop2rx 2013.08.09 kino          if (nset.ne.nset2) stop
+          if (nset.ne.nset2) call rx( ''//
+     >         "init_readeigen_nowval1D: nset error")
           do iqbz = 1,nqbz
             read(ifmlw)iqbz2,q(1:3)
             if (iqbz2 .ne. iqbz)
-     &           stop 'init_readeigen_mlw_noeval1D: iqbz error'
+Cstop2rx 2013.08.09 kino     &           stop 'init_readeigen_mlw_noeval1D: iqbz error'
+     &           call rx( 'init_readeigen_mlw_noeval1D: iqbz error')
             read(ifmlw)cbwf(1:nwf,1:nwf,ini+iqbz,is)
           enddo
         enddo
@@ -1552,7 +1581,8 @@ c nqbz mesh-points
         if (is.eq.1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp))
         do iqbz = 1,nqbz
           read(ifmlw)iqbz2,q(1:3)
-          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+          if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
           read(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iqbz,is)
         enddo
 
@@ -1560,17 +1590,22 @@ c nqbz mesh-points
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
         if (is.eq.1) 
      >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
         if (iko_ix2.ne.iko_ix)
-     >      stop "init_readeigen_mlw: iko_ix2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
+     >      call rx( "init_readeigen_mlw: iko_ix2 error")
         if (iko_fx2.ne.iko_fx)
-     >      stop "init_readeigen_mlw: iko_fx2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
+     >      call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
             read(ifuu)iqbz2,iq0i2
-            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
-            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+Cstop2rx 2013.08.09 kino            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+            if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
+Cstop2rx 2013.08.09 kino            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+            if (iq0i2 .ne. iq0i) call rx( 'init_readeigen_mlw: iq0i error')
             read(ifuu)
      &      ((uum(j1,j2,iqbz,iq0i,is),
      &         j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
@@ -1787,15 +1822,18 @@ c this should be called after init_readgeigen2
       isx= iclose('PHIG.d')
       if(nsp2.ne.nsp) then
         write(*,*)'nsp,nsp2',nsp,nsp2
-        stop 'init_readeigen_phi: ns'
+Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: ns'
+        call rx( 'init_readeigen_phi: ns')
       endif
       if(nlmto2.ne.ldim2) then
         write(*,*)'nlmto,nlmto2',ldim2,nlmto2
-        stop 'init_readeigen_phi: nlmto'
+Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: nlmto'
+        call rx( 'init_readeigen_phi: nlmto')
       endif
       if(ngpmx2.ne.ngpmx) then
         write(*,*)'ngpmx,ngpmx2',ngpmx,ngpmx2
-        stop 'init_readeigen_phi: ngpmx'
+Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: ngpmx'
+        call rx( 'init_readeigen_phi: ngpmx')
       endif
       nwf = nwf2
       nqbz=nqbz2
@@ -1907,7 +1945,8 @@ c nqbz mesh-points
      >                        dnk2(iko_ix:iko_fx,nwf))
         do iqbz = 1,nqbz
           read(ifmlw)iqbz2,q(1:3)
-          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+          if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
           read(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iqbz,is)
         enddo
 
@@ -1915,17 +1954,22 @@ c nqbz mesh-points
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
         if (is.eq.1) 
      >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
         if (iko_ix2.ne.iko_ix)
-     >      stop "init_readeigen_mlw: iko_ix2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
+     >      call rx( "init_readeigen_mlw: iko_ix2 error")
         if (iko_fx2.ne.iko_fx)
-     >      stop "init_readeigen_mlw: iko_fx2 error"
+Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
+     >      call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
             read(ifuu)iqbz2,iq0i2
-            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
-            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+Cstop2rx 2013.08.09 kino            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+            if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
+Cstop2rx 2013.08.09 kino            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
+            if (iq0i2 .ne. iq0i) call rx( 'init_readeigen_mlw: iq0i error')
             read(ifuu)
      &      ((uum(j1,j2,iqbz,iq0i,is),
      &         j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
@@ -1935,22 +1979,28 @@ c nqbz mesh-points
 
 c nqbze diag-points
         read(ifmlw)nqbze,nwf2
-        if (nwf2 .ne. nwf) stop 'init_readeigen_mlw: nwf error'
+Cstop2rx 2013.08.09 kino        if (nwf2 .ne. nwf) stop 'init_readeigen_mlw: nwf error'
+        if (nwf2 .ne. nwf) call rx( 'init_readeigen_mlw: nwf error')
         if (nqbze.ne.nqtt .and. nqbze.ne.nqtt-1)
-     &      stop 'init_readeigen_mlw: nqbze error'
+Cstop2rx 2013.08.09 kino     &      stop 'init_readeigen_mlw: nqbze error'
+     &      call rx( 'init_readeigen_mlw: nqbze error')
         read(ifmlwe)nqbze2,nwf2
-        if (nwf2 .ne. nwf) stop 'init_readeigen_mlw: nwf error'
-        if (nqbze2.ne.nqbze) stop 'init_readeigen_mlw: nqbze2 error'
+Cstop2rx 2013.08.09 kino        if (nwf2 .ne. nwf) stop 'init_readeigen_mlw: nwf error'
+        if (nwf2 .ne. nwf) call rx( 'init_readeigen_mlw: nwf error')
+Cstop2rx 2013.08.09 kino        if (nqbze2.ne.nqbze) stop 'init_readeigen_mlw: nqbze2 error'
+        if (nqbze2.ne.nqbze) call rx( 'init_readeigen_mlw: nqbze2 error')
         if (is.eq.1)allocate(evec(nwf,nwf,nqtt,nsp),eval(nwf,nqtt,nsp))
         evec = 0d0
         eval = 0d0
         do iqbz = 1,nqbze
           read(ifmlw)iqbz2,q(1:3)
-          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
+          if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
           read(ifmlw)evec(1:nwf,1:nwf,iqbz,is)
 
           read(ifmlwe)iqbz2,q(1:3)
-          if (iqbz2 .ne. iqbz) stop 'init_readeigen: iqbz error'
+Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen: iqbz error'
+          if (iqbz2 .ne. iqbz) call rx( 'init_readeigen: iqbz error')
           read(ifmlwe)eval(1:nwf,iqbz,is)
         enddo
 
@@ -2171,7 +2221,8 @@ c taken from lm7k/subs/rotwv.F
           aa=-a(i)
           ii(i)= -int(aa+eps)
         endif
-        if(abs(ii(i)-a(i))>eps)stop'conv2int: a is not close to integer'
+Cstop2rx 2013.08.09 kino        if(abs(ii(i)-a(i))>eps)stop'conv2int: a is not close to integer'
+        if(abs(ii(i)-a(i))>eps)call rx( 'conv2int: a is not close to integer')
       enddo
       end subroutine conv2int
 
@@ -2200,7 +2251,8 @@ c------------------------------------------------------
       call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx)
       if(sum(abs(qx))>1d-8) then
         write(6,"(a,3f7.3,2x,3f7.3)")'  rotwvigg: qtarget is not a star of q',q,qtarget
-        stop 'rotwvigg: qtarget is not symops(:,:,ig)*q'
+Cstop2rx 2013.08.09 kino        stop 'rotwvigg: qtarget is not symops(:,:,ig)*q'
+        call rx( 'rotwvigg: qtarget is not symops(:,:,ig)*q')
       endif  
       evecout=0d0
       nlmto = ndimh-napw_in

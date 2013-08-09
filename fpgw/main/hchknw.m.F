@@ -111,7 +111,8 @@ c---------------------------------------------------------------
       write(6,*) ' --- Put number above ! ------------'
       call readin5(ixc,nz,idummy)
       call headver('hchknw',ixc)
-      if(ixc/=0.and.ixc/=1) stop "hchknw:Wrong mode!"
+Cstop2rx 2013.08.09 kino      if(ixc/=0.and.ixc/=1) stop "hchknw:Wrong mode!"
+      if(ixc/=0.and.ixc/=1) call rx( "hchknw:Wrong mode!")
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
       call read_BZDATA()
@@ -146,7 +147,8 @@ C--- readin GWIN and LMTO, then allocate and set datas.
       if(legas) efin=-999d0! not readin EFERMI
       incwfin = 0 !dummy
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c--- These are allocated and setted.
 c      integer(4)::
 c     o  nclass,natom,nspin,nl,nn,nnv,nnc,
@@ -215,8 +217,10 @@ c>> l,n,m indices for Phi
 c=== dump test end ==================================================
 
 
-      if (nclass > mxclass) stop ' hchknw: increase mxclass'
-      if (nclass /= natom ) stop ' hchknw: nclass /= natom ' ! We assume nclass = natom.
+Cstop2rx 2013.08.09 kino      if (nclass > mxclass) stop ' hchknw: increase mxclass'
+      if (nclass > mxclass) call rx( ' hchknw: increase mxclass')
+Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hchknw: nclass /= natom ' ! We assume nclass = natom.
+      if (nclass /= natom ) call rx( ' hchknw: nclass /= natom ')
       print *,' hchknw: end of genallc'
 c
       pi   = 4d0*datan(1d0)
@@ -246,7 +250,8 @@ c eigen values ------------------------------
 c>> read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 c
 c      ifev(1)   = iopen('EVU', 0,0,mrece)
 c      if (nspin == 2) ifev(2) = iopen('EVD', 0,0,mrece)
@@ -452,6 +457,7 @@ c
       write(6,'("    esmr    =",f13.6)') esmr
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
       write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
-      stop " OK! hchknw: write nw to NW"
+Cstop2rx 2013.08.09 kino      stop " OK! hchknw: write nw to NW"
+      call rx0( " OK! hchknw: write nw to NW")
 c
       end

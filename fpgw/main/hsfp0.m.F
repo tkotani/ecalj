@@ -182,7 +182,8 @@ C...  mode switch. --------------
       call headver('hsfp0',ixc)
       call cputid (0) !initialization
       write(6,*) ' ixc nz=',ixc, nz
-      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+Cstop2rx 2013.08.09 kino      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+      if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
 
       hartree=2d0*rydberg()
       tetraex=tetra_hsfp0()
@@ -224,7 +225,8 @@ c     &    ,nstar(:),irk(:,:),nstbz(:)
       else               ;  incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted.
 c     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
@@ -254,7 +256,8 @@ ccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccc
       write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 !! WARN!!! WE ASSUME iclass(iatom)= iatom ! this should be improved in future.
-      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+      if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       call pshprt(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
@@ -282,7 +285,8 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
         write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
         write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
         write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-        if(tetraex) stop 'legas You have to give ef of  tetrahedron'
+Cstop2rx 2013.08.09 kino        if(tetraex) stop 'legas You have to give ef of  tetrahedron'
+        if(tetraex) call rx( 'legas You have to give ef of  tetrahedron')
       endif
 c
       ifexsp=0
@@ -344,7 +348,8 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
         write(6,*) ' --- CORE Exx mode core-valence --- '
         ifexx = iopen('TEEXXcv',1,-1,0)
       else
-        stop ' hsfp0: Need input (std input) 1-6!'
+Cstop2rx 2013.08.09 kino        stop ' hsfp0: Need input (std input) 1-6!'
+        call rx( ' hsfp0: Need input (std input) 1-6!')
       endif
 
 c---  Neglect core is NoCore exists ------------
@@ -358,13 +363,15 @@ c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
       if(ixc==6) write(6,'("    esmr2    =",f13.6)') esmr2
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
-      if(nw/=-999) stop "nw here should be -999==nwin"
+Cstop2rx 2013.08.09 kino      if(nw/=-999) stop "nw here should be -999==nwin"
+      if(nw/=-999) call rx( "nw here should be -999==nwin")
       write(6,'("    niw dw   =",i7,f13.6)') niw,dw
 
 !!   read dimensions of wc,b,hb from hbe.d
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
 
@@ -417,13 +424,15 @@ c     nblochpmx = nbloch + ngcmx !oct2005
         ifwd =iclose('WV.d')
         call checkeq(nprecx,ndble)
         nw=nwp-1
-        if (niwt /= niw) stop 'hsfp0: wrong niw'
+Cstop2rx 2013.08.09 kino        if (niwt /= niw) stop 'hsfp0: wrong niw'
+        if (niwt /= niw) call rx( 'hsfp0: wrong niw')
 c        ifrcw     = iopen('WVR',0,-1,mrecl)
 c        if(.not.exchange) ifrcwi = iopen('WVI',0,-1,mrecl)
 !! reading general energy mesh from file 'freq_r'
         open(UNIT=3111,file='freq_r') !this is in a.u.
         read(3111,*)nwxx       !number of energy points
-        if(nwxx/= nw+1) stop ' freq_r nw /=nw'
+Cstop2rx 2013.08.09 kino        if(nwxx/= nw+1) stop ' freq_r nw /=nw'
+        if(nwxx/= nw+1) call rx( ' freq_r nw /=nw')
         allocate(freq_r(nw_i:nw)) !freq_r(1)=0d0
         do iw = nw_i,nw
           read(3111,*)freq_r(iw)
@@ -533,7 +542,8 @@ c     call cputid(0)
             if( sum(abs(wtet(i,:,:,0))) == 0d0 ) exit
           enddo
           if(  sum(abs(wtet(i+1:nband,:,:,0)))/=0d0) 
-     &           stop ' hsfp0: wtetef sum err1'
+Cstop2rx 2013.08.09 kino     &           stop ' hsfp0: wtetef sum err1'
+     &           call rx( ' hsfp0: wtetef sum err1')
           noccxv = i-1
         endif
 !!=======================
@@ -548,7 +558,8 @@ c     call cputid(0)
       if((ixc==3).or.(ixc==6)) then
         ef = lowesteval() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
         if(maxval(ecore(:,1:nspin))>ef) then
-          stop 'hsfp0 ixc=3/6:  ecore>evalence '
+Cstop2rx 2013.08.09 kino          stop 'hsfp0 ixc=3/6:  ecore>evalence '
+          call rx( 'hsfp0 ixc=3/6:  ecore>evalence ')
         endif
 
         if(ixc==6) then
@@ -675,7 +686,8 @@ c     print *,' nwp dw(a.u.) omegamax (Ry)=',nwp,dw,omegamax
           write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
           omegamax = omegamaxin
         endif
-        if( omegamax <0) stop 'hsfp0 :strange omegamax <0 '
+Cstop2rx 2013.08.09 kino        if( omegamax <0) stop 'hsfp0 :strange omegamax <0 '
+        if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
         iwini =  -int( omegamax / dwplot )
         iwend =   int( omegamax/  dwplot )
         print *,' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
@@ -824,7 +836,8 @@ c     --- info
         read(ifidmlx) nq0ix,lxklm
         if(nq0i/=nq0ix) then
           print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-          stop 'nq0i from EPSwklm /= nq0i'
+Cstop2rx 2013.08.09 kino          stop 'nq0i from EPSwklm /= nq0i'
+          call rx( 'nq0i from EPSwklm /= nq0i')
         endif
         allocate( dmlx(nq0i,9))
         allocate( epinvq0i(nq0i,nq0i) )
@@ -1310,11 +1323,17 @@ c-------------------------------------------------------------------------------
       call cputid(0)
 c     if(ixc==1.and.sergeys)stop " OK! hsfp0: Sergey's Exchange mode"
 c     if(ixc==2.and.sergeys)stop " OK! hsfp0: Sergey's Correlation mode"
-      if(ixc==1 ) stop ' OK! hsfp0: Exchange mode'
-      if(ixc==2 ) stop ' OK! hsfp0: Correlation mode'
-      if(ixc==3 ) stop ' OK! hsfp0: Core-exchange mode'
-      if(ixc==4 ) stop ' OK! hsfp0: spectrum mode'
-      if(ixc==5 ) stop ' OK! hsfp0: Exx mode val-val  See TEEXXvv'
-      if(ixc==6 ) stop ' OK! hsfp0: Exx mode core-val See TEEXXcv'
+Cstop2rx 2013.08.09 kino      if(ixc==1 ) stop ' OK! hsfp0: Exchange mode'
+      if(ixc==1 ) call rx0( ' OK! hsfp0: Exchange mode')
+Cstop2rx 2013.08.09 kino      if(ixc==2 ) stop ' OK! hsfp0: Correlation mode'
+      if(ixc==2 ) call rx0( ' OK! hsfp0: Correlation mode')
+Cstop2rx 2013.08.09 kino      if(ixc==3 ) stop ' OK! hsfp0: Core-exchange mode'
+      if(ixc==3 ) call rx0( ' OK! hsfp0: Core-exchange mode')
+Cstop2rx 2013.08.09 kino      if(ixc==4 ) stop ' OK! hsfp0: spectrum mode'
+      if(ixc==4 ) call rx0( ' OK! hsfp0: spectrum mode')
+Cstop2rx 2013.08.09 kino      if(ixc==5 ) stop ' OK! hsfp0: Exx mode val-val  See TEEXXvv'
+      if(ixc==5 ) call rx0( ' OK! hsfp0: Exx mode val-val  See TEEXXvv')
+Cstop2rx 2013.08.09 kino      if(ixc==6 ) stop ' OK! hsfp0: Exx mode core-val See TEEXXcv'
+      if(ixc==6 ) call rx0( ' OK! hsfp0: Exx mode core-val See TEEXXcv')
       end
 

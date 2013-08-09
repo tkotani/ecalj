@@ -90,7 +90,8 @@ c--- debug check ! val at mt in two kinds of calculations.
         endif
 c--- debug check end
       enddo
-      if(debug) stop 'test end ----------'
+Cstop2rx 2013.08.09 kino      if(debug) stop 'test end ----------'
+      if(debug) call rx( 'test end ----------')
       deallocate(yl,cy)
 c          call wronkj( absqg1**2, absqg2**2, rmax(ibas),
 c     &                 lmxa(ibas),fkk,fkj,fjk,fjj)

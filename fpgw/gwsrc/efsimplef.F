@@ -84,7 +84,8 @@ c     o              ekt(1,iq,is) )
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         print *, 'sum (wibz)=', sum(wibz(1:nqibz))
-        stop 'efsimplef2: wibzsumerr'
+Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
+        call rx( 'efsimplef2: wibzsumerr')
       endif
       do is = 1,ispin
         do iq = 1,nqibz
@@ -139,7 +140,8 @@ c
           write(6,*)
           efini = .5*(ektx(ieaord(ik+1))+ ektx(ieaord(ik)))
           if(autoew) then
-            if(ik<3) stop ' efsimplef2: ik<3'
+Cstop2rx 2013.08.09 kino            if(ik<3) stop ' efsimplef2: ik<3'
+            if(ik<3) call rx( ' efsimplef2: ik<3')
             esmr  = ektx(ieaord(ik)) - ektx(ieaord(ik-1))
           endif
           ierr=0
@@ -147,7 +149,8 @@ c
         if( wwg > valn+1d0) ikx=ik
       enddo
 c
-      if(ierr==1) stop ' efsimplef2: ierr=1 given nval is too large'
+Cstop2rx 2013.08.09 kino      if(ierr==1) stop ' efsimplef2: ierr=1 given nval is too large'
+      if(ierr==1) call rx( ' efsimplef2: ierr=1 given nval is too large')
 c
       nbnqnsp = nband*nqibz*ispin
 ccc gaussian
@@ -307,7 +310,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         print *, 'sum (wibz)=', sum(wibz(1:nqibz))
-        stop 'efsimplef2: wibzsumerr'
+Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
+        call rx( 'efsimplef2: wibzsumerr')
       endif
       do is = 1,ispin
         do iq = 1,nqibz
@@ -360,7 +364,8 @@ c
           write(6,*)
           efini = .5*(ektx(ieaord(ik+1))+ ektx(ieaord(ik)))
           if(autoew) then
-            if(ik<3) stop ' efsimplef2: ik<3'
+Cstop2rx 2013.08.09 kino            if(ik<3) stop ' efsimplef2: ik<3'
+            if(ik<3) call rx( ' efsimplef2: ik<3')
             esmr  = ektx(ieaord(ik)) - ektx(ieaord(ik-1))
           endif
           ierr=0
@@ -368,7 +373,8 @@ c
         if( wwg > valn+1d0) ikx=ik
       enddo
 c
-      if(ierr==1) stop ' efsimplef2: ierr=1 given nval is too large'
+Cstop2rx 2013.08.09 kino      if(ierr==1) stop ' efsimplef2: ierr=1 given nval is too large'
+      if(ierr==1) call rx( ' efsimplef2: ierr=1 given nval is too large')
 c
       nbnqnsp = nband*nqibz*ispin
 ccc gaussian

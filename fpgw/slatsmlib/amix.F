@@ -86,7 +86,8 @@ C --  Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  --
 c      if (nmix .lt. 0) call rx('amix: bad nmix')
       if (nmix .lt. 0) then
         print *, 'amix: bad nmix'
-        stop 'amix: bad nmix'
+Cstop2rx 2013.08.09 kino        stop 'amix: bad nmix'
+        call rx( 'amix: bad nmix')
       endif
 
 

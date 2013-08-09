@@ -468,7 +468,8 @@ c     write(6,*) ' smooth mixed basis=',smbasis()
         enddo
         if(ncore(ic)/=icore) then
           write(6,*)ncore(ic),icore
-          stop ' rdata xxx1: ncore(ic)/=icore'
+Cstop2rx 2013.08.09 kino          stop ' rdata xxx1: ncore(ic)/=icore'
+          call rx( ' rdata xxx1: ncore(ic)/=icore')
         endif
       enddo
 !! -------------------------------------------------------------
@@ -566,7 +567,8 @@ c     nword = 4
       enddo
       if(ix/=ldim2) then
         print *,ix,ldim2
-        stop 'rdata4gw_v2:ix/=ldim2'
+Cstop2rx 2013.08.09 kino        stop 'rdata4gw_v2:ix/=ldim2'
+        call rx( 'rdata4gw_v2:ix/=ldim2')
       endif
 
 C --- Mesh refining  ! nov2005
@@ -848,7 +850,8 @@ c     print *,' goto rs: isp l1 n1=',isp,l1,n1
             write(6,"(' eb=',10f12.6)") eb(1:n1)
             if(ierr/=0 ) then
               write(6,*)' rdata4gw_v2: error in rs ierr=',ierr
-              stop ' rdata4gw_v2: error in rs '
+Cstop2rx 2013.08.09 kino              stop ' rdata4gw_v2: error in rs '
+              call rx( ' rdata4gw_v2: error in rs ')
             endif
             do i1=1,n1
               do i2=1,n1
@@ -1239,7 +1242,8 @@ c     endif
               enddo
               close(iffr)
             enddo
-            stop 'test end. radial function plot ###########'
+Cstop2rx 2013.08.09 kino            stop 'test end. radial function plot ###########'
+            call rx( 'test end. radial function plot ###########')
           endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -1369,8 +1373,10 @@ c        ngcx (ikp) = ngc
 c        ngveccf (1:3,1:ngc, ikp) = ngvecc
 c        ngpx (ikp) = ngp
 c        ngvecpf (1:3,1:ngp, ikp) = ngvecp
-        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGphi?'
-        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGcou?'
+Cstop2rx 2013.08.09 kino        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGphi?'
+        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGphi?')
+Cstop2rx 2013.08.09 kino        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGcou?'
+        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGcou?')
         if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
@@ -1665,8 +1671,10 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
           read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
           read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
         enddo
-        if(sum(abs(qx-qqqa))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGphi?'
-        if(sum(abs(qx-qqqb))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGcou?'
+Cstop2rx 2013.08.09 kino        if(sum(abs(qx-qqqa))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGphi?'
+        if(sum(abs(qx-qqqa))>1d-10) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGphi?')
+Cstop2rx 2013.08.09 kino        if(sum(abs(qx-qqqb))>1d-10) stop'rdata4gw_v2:qx/=qqq wrong QpGcou?'
+        if(sum(abs(qx-qqqb))>1d-10) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGcou?')
 c        ngcx (ikp) = ngc
 c        ngveccf (1:3,1:ngc, ikp) = ngvecc
 c        ngpx (ikp) = ngp
@@ -1813,7 +1821,8 @@ c     BZ
       write(ifigwin,"(4i5)") n1q,n2q,n3q
       close(ifigwin)
       print *, " OK! end of rdata4gw_v2 "
-      stop ' OK! rdata4gw_v2'
+Cstop2rx 2013.08.09 kino      stop ' OK! rdata4gw_v2'
+      call rx0( ' OK! rdata4gw_v2')
       end
 
 
@@ -1875,7 +1884,8 @@ c      write(6,"('getab: new a b nr=',2d13.6,i5,d13.6)") a,b,nr_n
       if(abs((rmax-b*(exp(a*(nr_n-1))-1d0)))>1d-13) then
         write(6,"('getab: new nr_n rmax=',2d13.6,i5,2d13.6)")nr_n
      &   ,rmax,b*(exp(a*(nr_n-1))-1d0)
-        stop ' getab: rmax is reproduced'
+Cstop2rx 2013.08.09 kino        stop ' getab: rmax is reproduced'
+        call rx( ' getab: rmax is reproduced')
       endif
       rmax = b *(exp(a*(nr_n-1))-1d0)
       write(6,"('  getab: output  nr a b =',i5,3d13.6)") nr_n,a,b,rmax

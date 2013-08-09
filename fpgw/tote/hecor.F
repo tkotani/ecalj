@@ -178,7 +178,8 @@ c-------------------------------
       incwfin= 0  !use 7th colmn for core at the end section of GWIN
 c
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted by genallcf_v3
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
@@ -260,7 +261,8 @@ c--- ef is taken as rs for the empty-sphere test case of legas=T case ----
         write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
         write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
         write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-        if(tetra) stop 'legas You have to give ef of  tetrahedron'
+Cstop2rx 2013.08.09 kino        if(tetra) stop 'legas You have to give ef of  tetrahedron'
+        if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
       endif
 
 c---
@@ -273,7 +275,8 @@ c      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
 c>> read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-      if (nprecb == 4) stop 'hecor: b,hb in single precision'
+Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single precision'
+      if (nprecb == 4) call rx( 'hecor: b,hb in single precision')
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
 
@@ -357,7 +360,8 @@ c direct access files WVR and WVI which include W-V.
       call checkeq(nprecx,ndble)
       call checkeq(nblochpmx,nblochpmx2)
 c     if (nwt /= nw)   stop 'hecor: wrong nw'
-      if (niwt /= niw) stop 'hecor: wrong niw'
+Cstop2rx 2013.08.09 kino      if (niwt /= niw) stop 'hecor: wrong niw'
+      if (niwt /= niw) call rx( 'hecor: wrong niw')
 c     ifrcw     = iopen('WVR',0,-1,mrecl)
       ifrcwi    = iopen('WVI',0,-1,mrecl)
 
@@ -591,7 +595,8 @@ c------------
       isx = iclose ('hbe.d')
 
       call cputid(0)
-      stop  ' OK! hecor'
+Cstop2rx 2013.08.09 kino      stop  ' OK! hecor'
+      call rx0( ' OK! hecor')
       end
 c--------------------------------------------------------------------
       subroutine winfo(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef
@@ -614,8 +619,9 @@ c--------------------------------------------------------------------
       end
 c------------------------------------------------------------------
       subroutine checkeq(i,j)
-      if(i/=j) stop 
-     & " checkeq in hsfp0: dim of WVR and WVI not compatible"
+Cstop2rx 2013.08.09 kino      if(i/=j) stop 
+      if(i/=j) call rx0( ''//
+     & " checkeq in hsfp0: dim of WVR and WVI not compatible")
       end
 c--------------------------------------------------------------------
       real*8 function eclda_bh(rs)
