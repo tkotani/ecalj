@@ -82,7 +82,7 @@ C       Integrate the scalar relativistic eqn outward from origin to kc
 
         node = nod1 + nod2
         if (node .ne. nod) then
-          if (ipr .ge. 120 .or. nit .ge. nitmax-5)
+          if (ipr .ge. 120 .or. ((nit .ge. nitmax-5).and.ipr>20) )
      .    write(*,101) nit,l,node,nod,nre,kc,e1,e,e2
   101     format(2i3,4i4,3f15.7,1p,d13.4)
           if (node .gt. nod) e2 = e
@@ -107,9 +107,8 @@ C       de = estimated correction to eigenvalue
         de = -val2*(slo2 - ratio*slo1)/q
 
 cccccccccccccccccccccccc
-        if (ipr .ge. 120 .or. nit .ge. nitmax-5)
-     .  write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
-c        write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
+c        if (ipr .ge. 120 .or. nit .ge. nitmax-5)
+c     .  write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
 ccccccccccccccccccccccccc
         if (de .gt. 0d0) e1 = e
         if (de .lt. 0d0) e2 = e
@@ -155,7 +154,7 @@ C --- Possible warning or error exit ---
      .write(*,701) e,q,nr,nre,kc,de
   701 format(' e=',f13.5,'  q=',f10.5,'   nr/nre/kc=',3i4,
      .'   de=',1p,d10.2)
-      if (nit .gt. nitmax) then
+      if (nit .gt. nitmax.and.ipr >20) then
         if (nod .ne. node) then
           write(*,814) nitmax,l,nod,node,e
   814     format(' RSEQ : nit gt',i3,' and bad nodes for l=',i1,

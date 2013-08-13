@@ -425,8 +425,10 @@ C       Get rhrmx, exrmax
         ipr1 = 0
         if (last .and. iprint().ge.40) ipr1 = 1
         if (last .and. iprint().gt.40) ipr1 = 2
+        if(.not.last) call pshpr(15) !low print()
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc,
      .  kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus,nmcore)
+        if(.not.last) call poppr !set back to original print()
         drho = 0
         sum = 0
         vrhoc = 0

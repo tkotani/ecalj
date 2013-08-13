@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import re,sys,string,os,signal,time
+import re,sys,string,os,signal,time,commands
 scfile = open("Materials.ctrls.database",'rt').read().split('\n')
 #print scfile
 sec={}
@@ -42,6 +42,7 @@ for line in sec['DATASECTION:'].split('\n'):
     #print mater,'--->',material[mater]
 AllMaterials= material.keys()
 AllMaterials=sorted(AllMaterials)
+print
 print  '=== Materials in Materials.ctrls.database ==='
 aaa=''
 ix=0
@@ -59,6 +60,19 @@ args=sys.argv[1:]
 argset= set(sys.argv[1:])
 #print argset
 
+
+#####################################################
+print 
+if not '--noexec' in  argset and '--all' in argset:
+    for i in ['LaGaO3','4hSiC','Bi2Te3']:
+        print ' To reduce CPUtime, --all skip ',i
+        AllMaterials.remove(i)
+#print AllMaterials
+#sys.exit()
+#AllMaterials=AllMaterials.split('\s*')
+#####################################################
+
+
 if ('--all' in  argset):
 	choosedmaterials=AllMaterials
 elif(nargv==0 or '--help' in argset):
@@ -68,22 +82,28 @@ elif(nargv==0 or '--help' in argset):
       print "   [options] are material names above separeted by space."
       print "      --all : all materials are specified (in an hour now.)"
       print "      --noexec: not do lmf. Just generates directories and ctrl files"
-
+      print " NOTE: to set number of cores for lmf-MPIK, please modify this code."
+      print "       Search lmf-MPIK in this file"
       sys.exit(-1)
 else:
     choosedmaterials=args
-################
-print 
-print ' !!! Go Materials for',choosedmaterials
-print 
 
+###########################################
+print 
+print ' We are going to do LDA for ',choosedmaterials
+dummy=raw_input('Push return to continue!')
+if dummy != '': sys.exit()
+
+################################################
 for matr in choosedmaterials:
     lll = material[matr]
     m = re.search(r'\w+:',lll)
     STRUCTURE= m.group()
+    #print STRUCTURE
     aaa= re.sub(STRUCTURE,'',material[matr]).lstrip()
     matdat= re.split(r'\s+',aaa)
     #print  matdat
+    #sys.exit()
     constdat=''
     option=''
     optionlmf=''
@@ -97,7 +117,9 @@ for matr in choosedmaterials:
         else:
             constdat=constdat+' '+ii
         
-    aaa= '#id  = '+ matr +'\n' 
+    aaa= '#id  = '+ matr +'\n'
+    #print STRUCTURE
+    #print sec
     structemp = sec[STRUCTURE]
     #print '---- -----'
     #m = re.findall(r'@[0-9]+',sec[STRUCTURE])
@@ -134,7 +156,8 @@ for matr in choosedmaterials:
     os.system(ctrlgenc)
     os.system('mkdir '+matr)
     os.system('cp ctrlgenM1.ctrl.'+ext+' ctrl.'+ext)
-    os.system('cp -f RSEQ* *.'+ext +' '+matr)
+    os.system('cp -f *.'+ext +' '+matr)
+    if os.path.exists("./RSEQ_ERROR"): os.system('cp -f RSEQ* '+matr)
     os.system('rm -f *tmp* RSEQ*')
     rdir=os.path.dirname(os.path.abspath(sys.argv[0]))
     wdir= os.path.dirname(os.path.abspath(sys.argv[0]))+'/'+matr
@@ -142,15 +165,19 @@ for matr in choosedmaterials:
     os.chdir(wdir)
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
-    joblmf='lmf  '+ext+optionlmf+' >llmf'   
-    #joblmf='mpirun -np 12 lmf-MPIK  '+ext+optionlmf+' >llmf'
-
+    #joblmf='lmf  '+ext+optionlmf+' >llmf'   
+    joblmf='mpirun -np 2 lmf-MPIK  '+ext+optionlmf+' >llmf'
+    print 'See joblmf file for lmf-MPIK command arguments.'
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
         pass
     else:
-        os.system(joblmf)
+        try:
+            commands.getoutput(joblmf)
+        except KeyboardInterrupt:
+            'Keyboad interrrupt by user'
+            sys.exit()
+
     os.chdir(rdir)
     os.system('pwd')
 
- 

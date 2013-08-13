@@ -519,7 +519,7 @@ c     & //" (n=1->phi n=2->phidot n=3->LocalOrbital)"
      & ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp. '
       endif
 Cstop2rx 2013.08.09 kino      stop ' Write GWIN_V2 and QPNT based on these template! '
-      call rx( ' Write GWIN_V2 and QPNT based on these template! ')
+      call rx0( ' Write GWIN_V2 and QPNT based on these template! ')
       end
 
 

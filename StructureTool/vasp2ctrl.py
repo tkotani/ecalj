@@ -12,16 +12,18 @@ argvs = sys.argv
 argc  = len(argvs)
 print 'readin args= ',argvs,argc
 if ('--help' in argvs): 
-	print ' == Convert POSCAR file(input file of lmf) to ctrl =='
-	print '    usage: vasp2ctrl POSCAR_foobar.vasp   [option] '
-	print '          Then we have ctrls.foobar.vasp2ctrl        '
+	print ' == Convert POSCAR file (vasp format) to ctrls (ecalj format) =='
+	print '    usage: vasp2ctrl foobar.vasp   [option] '
+	print '          foobar.vasp is the file name in POSCAR format '
+	print '          Then we have ctrls.foobar        '
 	print '     option: --alat=10.66 (ALAT, you can use eqs such as 10.66*1.88)'
 	sys.exit(-1)
 for ix in argvs:
-	if 'POSCAR_' in ix: 
+	if '.vasp' in ix: 
 		print ' Read ', ix, '. It is converted to ctrl file now.'
-		ext1=re.sub('POSCAR_','',ix)
-		ext2=re.sub('.vasp','',ext1)
+		ext2=ix
+#		ext1=re.sub('POSCAR_','',ix)
+#		ext2=re.sub('.vasp','',ext1)
 		break
 	# elif '.cif' in ix: 
 	# 	ext1 = re.sub('.cif','',ix)

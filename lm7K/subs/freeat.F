@@ -409,7 +409,7 @@ c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is
 !!
       print *
       write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
-      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
+c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
       write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
       do i = 1, nsp
       do l = 0, lmxa

@@ -160,7 +160,14 @@ echo OK
 #endif
 
 #echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+echo "         $nfpgw/lmf2gw >llmf2gw"
 $nfpgw/lmf2gw    > llmf2gw
+  if ( $? != 0 )  then
+    echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
+    exit 10
+  endif
+#<<<
+echo OK
 
 ############## main gw stage fpgw/exec ################
 ###make_ref.awk echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
@@ -308,8 +315,8 @@ endif
 #>>>
 echo 11 > _IN_
 
-echo "         mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc -nq 2 -nm 2 < _IN_ > lx0 " 
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc -nq 2 -nm 2 < _IN_ > lx0 
+echo "         mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc < _IN_ > lx0 " 
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc < _IN_ > lx0 
   if ( $? != 0 )  then
     echo Error in hx0fp0_sc input=11 output=lx0
     exit 10

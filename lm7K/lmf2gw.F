@@ -338,8 +338,17 @@ c
      & qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
       close(ifi)
 
-      stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '
+c      stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '
+      call rx0( ' OK! lmf2gw: end --- DATA4GW_V2 is written ')
       end program lmf2gw
+
+      subroutine rx0(string)
+c  write extra information before error exit in standard format
+      character*(*) string
+      write(6,892) string
+  892 format(/' ---- ',a,a)
+      call exit(0)
+      end
 !!--------------------------------------------------------------------------------
 
 

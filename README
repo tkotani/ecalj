@@ -2,6 +2,7 @@
 
 >git clone https://github.com/tkotani/ecalj.git
 to get a ecalj package here. (you need "git" installed).
+https://github.com/tkotani/ecalj shows current status and this README.
 ==================================================================
 ecalj is a first-principle electronic structure calculation package in
 f90, especially for the PMT-QSGW. 
@@ -43,6 +44,7 @@ Then we do three make procedures:
 In the following explanation, we assume gfortran in ubuntu. 
 But we can also use ifort, and others. Follow instructions below.
  (4) Install test
+ (5) crystal structure tools
 
 ------------
 (0) Get ecalj package and get tools.
@@ -83,15 +85,19 @@ We can check history of ecalj code development by
 (1) make single core LDA part (it is in ecalj/lm7K/)
 Move to ecalj/lm7K/, then do "make PLATFORM=gfortran". Then make process start.
 The main makefile is lm7K/Makefile, and it includes
-lm7K/MAKEINC/Make.inc.gfortran. In advance, set LIBLOC in
-Make.inc.gfortran when you use different math libraries.
-For other cases such as ifort, run "make PLATFORM=foobar" where foobar can be ifort
+lm7K/MAKEINC/Make.inc.gfortran. 
+In advance to do make, we have to check LIBLOC= in Make.inc.gfortran.
+LIBLOC should contain path to FFTW, BLAS and LAPACK.
+An example is 
+  LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+
+For other cases, run "make PLATFORM=foobar" where foobar can be ifort
 or something else. foobar corresponds to an include file 
 lm7K/MAKEINC/Make.inc.foobar. For ifort, there are several MAKEINC/Make.inc.ifort*
 (not _mpik*) with which we installed to machines. 
 You can choose one of them or you can set your own Make.inc.ifort.*
 (compilar, compilar options, math library).
-I recommend "make PLATFORM=ifort.simple" for ifort. But you may need
+I think "make PLATFORM=ifort.simple" works well for ifort. But you may need
 to add -heap-arrays 1 (for large calculations. Because we use large stacksize).
 
 Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
@@ -107,12 +113,14 @@ But it stops because of dependency is not well-described in current Makefile.
 In such case, repeat it a few times, or repeat it without -j4.
 
 Then do "make PLATFORM=gfortran install"
-This just copy required files to your ~/bin.
+This just copy required files (binaries and scripts) to your ~/bin.
+(check it in Makefile). If you don't like to copy them to your ~/bin,
+specify different directory at the bottom of Makefile.
 
 ------------
 (2) make MPI LDA part.
-lmf-MPIK is now needed for gwsc. To make it, do
-"make PLATFORM=gfortran_mpik". lmfgw-MPIK is also generated.
+lmf-MPIK and lmfgw-MPIK are needed for gwsc. To make it, do
+"make PLATFORM=gfortran_mpik". 
 For ifort, set PLATFORM=ifort_mpik.simple
 Then ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple is used.
 You may need to add -heap-arrays 1 (for large calculations. Because we
@@ -128,7 +136,7 @@ Look into Makefile if you like to know what they do.
 >make install
 at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
 In advance, you have to make your bin, and add ~/bin to  your path
-(e.g. export PATH=$HOME/bin:$PATH in .bashrc. then login again or source .bashrc)
+(e.g. "export PATH=$HOME/bin:$PATH" in .bashrc . Then login again or "source .bashrc")
 
 (3) Installation for fpgw/
 At ecalj/fpgw/exec/ directory, you have to edit make.inc.
@@ -162,8 +170,42 @@ tests only LDA part.
 >make gwall
 tests only GW part.
 
+NOTE: in principle, repeat make should do nothing when all binaries
+are correctly generated. However, because of some problem in makefile, 
+you may see some make procedure is repeated. You can neglect it as
+long as "All test are passed!" is shown in the (4)install test.
 
-#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si) ###################
+
+(5) Structure tool.
+In any calculations, we first have to supply crystal structure correctly.
+To help this, we have a converter between POSCAR(VASP's crystal
+structure file) and ctrls(that for ecalj). 
+In addition, we have a simple tool to invoke crystal strucrure viewer.
+It is in \verb+ecalj/Structure/tool/.
+
+In advance, install a viever of crystal structure for POSCAR.
+Here we use VESTA at http://jp-minerals.org/vesta/.
+Download it, and expand it to a directory. 
+VESTA can handle kinds of format of crystal structure.
+
+Then make a softlike by
+  ln -s ~/ecalj/StructureTool/viewvesta.py ~/bin/viewvesta
+  ln -s ~/ecalj/StructureTool/ctrl2vasp.py ~/bin/ctrl2vasp
+  ln -s ~/ecalj/StructureTool/vasp2ctrl.py ~/bin/vasp2ctrl
+. With this procedure we can run command viewvesta, ctrl2vasp,
+vasp2ctrl from console as long as you have ~/bin/ in the command
+search path. In my case, .bashrc have a line
+  export PATH=$HOME/bin:$HOME/VESTA-x86_64:$PATH
+. It depends on your machine. (after editing .bashrc, you have to do
+"source ~/.bashrc" to reflect changes).
+
+Set the variable of VESTA=, at the begining of 
+~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
+
+
+
+#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si)  ###################
+See ecalj/Document/ecalj_getstarted.pdf.
 -------------------------------------------
 (1) Write structure file ctrls.si by hand 
     (you can have ctrls from POSCAR(VASP) with vasp2ctrl in ecalj/StructureTool/.)
@@ -191,13 +233,17 @@ tests only GW part.
     For qsub, you have to edit test.sh for your machine.
 -------------------------------------------
 
-####### How to make version up? ######
-ecalj is really a research tool. We do not have enough
-human resource to keep it very well. So be careful for version up.
+####### How to do version up? ######
+We do not have enough human resource to keep it very well. 
+So be careful to do version up. It may cause another problem.
+But it is not so difficult to move it back to original version
+if you use git.
 
 >cd ecalj
+>git log 
+   This shows what version you use now.
 >git diff > gitdiff_backup   
-   This is to save your changes (diff to git_diff_backup )for safe.
+   This is to save your changes added to the original (to a file git_diff_backup ) for safe.
    I recommend you do take git diff >foobar as backup.
 >./mbackup          
     This save makefiles and related files. Look into the ./mbackup file. It is a simple scripts.

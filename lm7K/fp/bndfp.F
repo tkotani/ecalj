@@ -1671,12 +1671,10 @@ c            print *,'bndfp: lpdiag i=',lpdiag,i
 
 !! === Diagonalize and add to density ===
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-#ifndef MPIK
-            call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
-     .      '%?#n#   ndimh = %i##',
-c     .      iq,nkp,qp,mod(pwmode/10,10),ndimh)
-     .      iq,nkp,qp,1,ndimh)
-#endif
+            if(procid==master) then
+               call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
+     .         '%?#n#   ndimh = %i##', iq,nkp,qp,1,ndimh)
+            endif
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
             !  this was used to calculate eigenvalue only in zhev in first-path 
             ! (only for integration weight)-->current version (takao2013mar)store all eigenfunctions
@@ -1791,14 +1789,16 @@ c     print *,' goto zhev_tk2 nmx=',nmx
             endif
             nevls(iq,isp)=nevl
             if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
-
+            
+            if(procid==master) then
+            call prtev ( t_zv , ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
+            endif
 #ifndef MPIK
 c            if (epsovl .ne. 0) then
 c              call info5(30,0,0,' Overlap''s smallest eigenvalue: %;3g.  '//
 c     .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
 c     .        eomin,ndimhx-nevl,ndimhx,nevl,0)
 c            endif
-            call prtev ( t_zv , ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
             if(debug) print *,' end of print ev'
             if (iprint() .ge. 110) then
               call yprm('evals',1,evl(1,jsp),1,ndhamx,nevl,1)

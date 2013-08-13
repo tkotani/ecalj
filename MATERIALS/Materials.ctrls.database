@@ -8,7 +8,7 @@
 #     Each Structure Section starts from {NAMEID}: then ends with a line
 #     '-----------' (it must longer than five minus).
 #     It can contains atoms named as @1,@2,A3,A4...
-#    
+#     Add %const section, even when no variables are used.    
 #  DATASECTION:
 #    This is a table of numerical values for each material.
 #    @1,@2 are replaced by atoms
@@ -21,7 +21,6 @@
 #    WZ: section.
 #  
 ########################################################
-
 
 
 #######################################################
@@ -206,9 +205,8 @@ SITE	ATOM=@1 POS=  0 0 0
 	ATOM=@2 POS= -1/8 -1/8 -3/8
 	ATOM=@2 POS=  1/8 -1/8  3/8
 -------------------------------------
-
 LAGAO3: # A distorted structure. 
-## For relaxiation test with adding
+## For relaxiation test, add category DYN which is:
 ## DYN MSTAT[MODE=5 HESS=t XTOL=.001 GTOL=0 STEP=.015]  NIT=20 in ctrl.lagao3
 ## I think it is better to clean it up...
 % const bohr= 0.529177  
@@ -236,12 +234,35 @@ SITE
         ATOM=@3 POS=   0.2290   0.46300*{b}/{a}   0.76200*{c}/{a} 
         ATOM=@3 POS=   0.7290   0.03700*{b}/{a}  -0.26200*{c}/{a} 
 -----------------------------
+BI2TE3:
+%const
+STRUC
+    ALAT={a}
+    PLAT=  1  0  {coa}
+          -0.5  0.8660254  {coa}
+          -0.5 -0.8660254  {coa}
+SITE
+    ATOM=@1    POS=  0.0000000   0.0000000   0.0000000
+    ATOM=@1    POS= -0.5000000  -0.8660254   1.4616199
+    ATOM=@2    POS=  0.5000000   0.8660254  -1.4616199
+    ATOM=@2    POS=  0.5000000   0.8660254   0.8030878
+    ATOM=@2    POS= -0.5000000  -0.8660254  -0.8030878
+----------------------------- (this line for end of structure section is required) 
 
 
 #######################################################
 DATASECTION:
-# DIA: specify a structure section above.
-#     @1,... are replaced for each structure defined in the section
+# Each material is by a line.
+# Grammner is 
+#   foobar1 foobar2: options
+#     foobar1 is just a symbol of a material.
+#     foobar2 spefify crystal structure defined in the Structure
+#     Options contains
+#       @1,... are to replace these given in the foobar2 structure.
+#       a=... are supplied to %const 
+# example:
+# Si DIA: ---> Si is a symbol of material. DIA is defined in structure section above.
+#     @1=Si is used in the @1 is DIA
 #     a=... are supplied to %const 
 #     --nk1=8 are used for the input of ctrlgen*.py
 #    lmf-vso=1 means option supplied to lmf as lmf foobar -vso=1
@@ -254,9 +275,9 @@ Ge DIA: @1=Ge a= 5.64613/bohr   --nk1=8
 Sn DIA: @1=Sn a= 6.48920/bohr  --nk1=8 #gray tin alpha-tin
 
 #takao from J.App Physics Reviw89  5815(2001), 
-GaAs ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8 
-GaAs_so ZB: @1=Ga @2=As a=5.65325/bohr  -nk1=8 lmf-vso=1 lmf-vnspin=2
-AlAs ZB: @1=Al @2=As a=5.6611/bohr   --nk1=8 
+GaAs ZB: @1=Ga @2=As a=5.65325/bohr     --nk1=8 
+GaAs_so ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8 lmf-vso=1 lmf-vnspin=2
+AlAs ZB: @1=Al @2=As a=5.6611/bohr      --nk1=8 
 InAs ZB: @1=In @2=As a=6.0583/bohr   --nk1=8 
 GaP  ZB: @1=Ga @2=P  a=5.4505/bohr   --nk1=8 
 AlP  ZB: @1=Al @2=P  a=5.4672/bohr   --nk1=8 
@@ -318,6 +339,8 @@ LaGaO3 LAGAO3: @1=La @2=Ga @3=O a=5.485/bohr b=7.770/bohr c=5.523/bohr --nk1=3 -
 #J. Phys.: Condens. Matter 8(1996) 3373–3384
 YMn2 C15: @1=Y @2=Mn a=14.51 --nk1=7
 
+#----http://titus.phy.qub.ac.uk/packages/LMTO/Building_FP_input_file.html
+Bi2Te3 BI2TE3: @1=Bi @2=Te a=4.7825489 coa=4.0154392 --nk1=5 lmf-vso=1 lmf-vnspin=2
 
 ------- Don't delete this line (end of DATASECTION)  -----
 
