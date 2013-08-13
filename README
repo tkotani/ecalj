@@ -10,16 +10,19 @@ We have another home page at http://pmt.sakura.ne.jp/wiki/, but
 not well-organized yet, little in English yet.  We will renew it.
 ===================================================================
 
-##### Unique points in ecalj package #####
+##### Unique features in ecalj package #####
 (1)All electron full-potential PMT method: a mixed basis method of two
    kinds of augmented waves, that is, L(APW+MTO). 
    In principle, it is possible to perform default calculation just
    from atomic structures.
    Relaxiation of atomic positions is possible in GGA/LDA and LDA+U.
-   A converter between POSCAR(VASP) and ctrls is included in
-   ~/ecalj/StructureTool/. (it is slight buggy; let T.Kotani know problems in it.).
-
-(2)GW method, especially, the PMT-QSGW method:
+   A converter between POSCAR(VASP) and our crystal strucrue file
+   'ctrls.*' is included. (a small program---but slight buggy; let
+   T.Kotani know problems in it).
+   Our recent development shows that very localized MTO with APW
+   (cutoff of \sim 3 to 4 Ry) works well to get good convergence.
+   
+(2)The GW method, especially, the PMT-QSGW method:
    the Quasiparticle self-consistent GW method (QSGW) based on the PMT method. 
    In addion, we can calculate dielectric functions, spin fluctions,
    spectrum function of the Green's functions and so on.
