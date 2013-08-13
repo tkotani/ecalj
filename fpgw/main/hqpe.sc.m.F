@@ -640,7 +640,8 @@ c             print *,'ppppp: ',itp,eldax(itp,ip),ef
           enddo
           eseavr(ip,is) = eseavr0/eavr !now eseavr is
 cccccccccccccccccccccccccccccccccccccccccccccc
-c          eseavr = 0d0
+! zero on aug2013
+          eseavr = 0d0
 cccccccccccccccccccccccccccccccccccccccccccc
           do itp = ntqxx+1,ntq
             se(itp,itp,ip) = eseavr(ip,is)
@@ -884,7 +885,7 @@ c-----------------------------------------------------------------
         enddo
         write(if_eseavr,"(d23.15,i3,i8)")eseavrmean/nqbz,is ,ntqxxmin
       enddo
-      write(if_eseavr,"(a)")' e-weighted average of self-energy for unoccupied bands. ispin ntqxxmin'
+      write(if_eseavr,"(a)")' Fixed to be zero aug2013: it was e-weighted ave. of Sigma-Vxc for unocc bands. ispin ntqxxmin'
       close(if_eseavr) !bugfix jan2012
 
 

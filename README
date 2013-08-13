@@ -1,80 +1,89 @@
-=== ecalj package === (this document is checked at mar2013)
+=== ecalj package === (this document is checked at 10Aug2013)
 
-ecalj is a firts-principle electronic structure calculation package in f90.
-Version ctrl by git. Python2.x is used.
+>git clone https://github.com/tkotani/ecalj.git
+to get a ecalj package here. (you need "git" installed).
 ==================================================================
-homepage is at http://pmt.sakura.ne.jp/wiki/,
-  (not so much documents in English yet. not well-organized yet...)
-https://github.com/tkotani/ecalj
+ecalj is a first-principle electronic structure calculation package in
+f90, especially for the PMT-QSGW. 
+This is at https://github.com/tkotani/ecalj
+We have another home page at http://pmt.sakura.ne.jp/wiki/, but
+not well-organized yet, little in English yet.  We will renew it.
 ===================================================================
 
-##### What we can do by ecalj package.#####
-
-(1)All electron full-potential PMT method (LAPW+LMTO). lmf and lmf-MPIK.
-   Related source codes are in ecalj/lm7K/ .
-   A command ecalj/lm7K/ctrlgenM1.py can generate 'standard input file (ctrl file)' 
-   just from a given crystal structure file called as ctrls file. 
-   Relaxiation of atomic possistion is possible in GGA/LDA and LDA+U.
+##### Unique points in ecalj package #####
+(1)All electron full-potential PMT method: a mixed basis method of two
+   kinds of augmented waves, that is, L(APW+MTO). 
+   In principle, it is possible to perform default calculation just
+   from atomic structures.
+   Relaxiation of atomic positions is possible in GGA/LDA and LDA+U.
    A converter between POSCAR(VASP) and ctrls is included in
-   ~/ecalj/StructureTool/. (slight buggy).
-   We have lmf-MPIK (MPI k-parelell verion).
+   ~/ecalj/StructureTool/. (it is slight buggy; let T.Kotani know problems in it.).
 
-(2)GW method, especially, PMT-QSGW method.
-   That is, the Quasiparticle self-consistent GW method (QSGW) based
-   on the PMT method. 
+(2)GW method, especially, the PMT-QSGW method:
+   the Quasiparticle self-consistent GW method (QSGW) based on the PMT method. 
    In addion, we can calculate dielectric functions, spin fluctions,
    spectrum function of the Green's functions and so on.
    GW-related codes are in ecalj/fpgw/.
-   
-   Recently, I renewed some part of algolism of GW/QSGW calculations
-   (some ideas are taken from from PRB.81,125102(2010) 
-    and Copmuter Physics Comm. 176(2007)1-13).
-   ---> this is better than old versions; speed, memory (file size),
-   and accuracy for anisortopic systems.
-   For comparison, you can use old version in .git (gitk --all and check it out).
+   For paralellized calculations, 
+   we can use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc.
+   (although we have room to improve it).
 
-(3) We use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc,
-   although we have room to improve it.
+##### Install and test #####
+At first, 
+ (0) Get ecalj package and get tools.
+To get a ecalj package, do
+>git clone https://github.com/tkotani/ecalj.git
+Then we do three make procedures:
+ (1) make for single-core LDA part, 
+ (2) make for MPIK LDA part, 
+ (3) make for MPIK GW part.
+In the following explanation, we assume gfortran in ubuntu. 
+But we can also use ifort, and others. Follow instructions below.
+ (4) Install test
 
-
-##### Install #####
-In advance, go into ecalj/TOOLS/makedepf90-2.8.8
-and do configure and make, then copy makedep to your bin.
-(this is a packakge taken from http://personal.inet.fi/private/erikedelmann/makedepf90/.)
-
-we have four steps
-(0) get ecalj package and get tools.
-Then we do three make procedure,
-that is, (1) for single-core LDA part, (2) for MPIK LDA part, (3) for MPIK GW part.
-In the followings, we assume gfortran in ubuntu. But we can also use ifort, and others.
-
----
-(0) Take requied tools and ecalj source.
-Get ecalj package by
->git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
-or get it in *.zip from the page https://github.com/tkotani/ecalj
-(push zip button). I recommend you to use git (install it in
-addvance), to check your changes, and know version id.
-
+------------
+(0) Get ecalj package and get tools.
 ---Let us assume you use ubuntu. ---
->sudo apt-get install git  gitk #version control and to get source from github)
+You need following tools and libraries to be installed.
+>sudo apt-get install git  gitk # version control and to get source from github
 >sudo apt-get install gitk #git gui 'gitk --all' is useful. do it at ecal/.
 >sudo apt-get install gfortran      # GFORTRAN
 >sudo apt-get install openmpi-bin openmpi-dev     # MPI 
 >sudo apt-get install libfftw3-3     or something else # FFTW
 >sudo apt-get install libblas3gf     or something else # BLAS
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
->sudo apt-get install etags csh bash tcsh
+>sudo apt-get install etags csh bash tcsh   # shells
 
 python 2.x is also assumed (usually already in ubuntu).
 
+Version ctrl by git (which makes things easier, but not
+necessarily required for installation).
 
-(1) For single core LDA part (it is in ecalj/lm7K/)
+
+After you have installed git (version control software), you can get ecalj package by
+>git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
+or get it in *.zip from the page https://github.com/tkotani/ecalj
+(push zip button). I recommend you to use git, 
+to check your changes (>git diff), and know version id.
+After the above git clone command, a directory ecalj/ appears
+(under the directory at which you did git clone).
+
+We suppose you have ecalj/ and bin/ at your home directory, 
+but it can be at any directory. All are described with relative path.
+(except ~/bin, which is a directory containing all required binaries and scripts.
+ You can also specify other directory instead of ~/bin in makefiles.).
+
+We can check history of ecalj code development by
+">gik --all" at ecalj directory after you did git clone.
+
+------------
+(1) make single core LDA part (it is in ecalj/lm7K/)
 Move to ecalj/lm7K/, then do "make PLATFORM=gfortran". Then make process start.
-The main makefile is lm7K/Makefile, and it includes lm7K/MAKEINC/Make.inc.gfortran.
-Set LIBLOC in Make.inc.gfortran when you use different math libraries.
-For other cases, run "make PLATFORM=foobar" where foobar can be ifort
-or something else. foobar corresponds to the include file 
+The main makefile is lm7K/Makefile, and it includes
+lm7K/MAKEINC/Make.inc.gfortran. In advance, set LIBLOC in
+Make.inc.gfortran when you use different math libraries.
+For other cases such as ifort, run "make PLATFORM=foobar" where foobar can be ifort
+or something else. foobar corresponds to an include file 
 lm7K/MAKEINC/Make.inc.foobar. For ifort, there are several MAKEINC/Make.inc.ifort*
 (not _mpik*) with which we installed to machines. 
 You can choose one of them or you can set your own Make.inc.ifort.*
@@ -83,25 +92,24 @@ I recommend "make PLATFORM=ifort.simple" for ifort. But you may need
 to add -heap-arrays 1 (for large calculations. Because we use large stacksize).
 
 Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
-just because of problem of Makefile. you can neglect this.
+just because of problem of Makefile. you can neglect this. We will fix it..
 
 Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
 but failed with FFLAGS=-O3.
 
-Parallel make as
+Parallel make like
 >make -j4 PLATFORM=gfortran
-may speed it up for multicore machines. But it stops because
-of dependency is not well-described in current Makefile. 
+may speed it up for multicore machines(four core in this case). 
+But it stops because of dependency is not well-described in current Makefile. 
 In such case, repeat it a few times, or repeat it without -j4.
 
 Then do "make PLATFORM=gfortran install"
 This just copy required files to your ~/bin.
 
-
-(2) For MPI LDA part.
+------------
+(2) make MPI LDA part.
 lmf-MPIK is now needed for gwsc. To make it, do
-"make PLATFORM=gfortran_mpik". lmfgw-MPIK is also generated, but it do
-not work now (9thjan2013. need to fix it; but not problem to do calculations).
+"make PLATFORM=gfortran_mpik". lmfgw-MPIK is also generated.
 For ifort, set PLATFORM=ifort_mpik.simple
 Then ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple is used.
 You may need to add -heap-arrays 1 (for large calculations. Because we
@@ -113,17 +121,11 @@ Look into Makefile if you like to know what they do.
 "make cleanall" removes all *.o *.a modules, and binaries.
 
 ---
-*Installation test for lm7K
->make check
-at ecalj/lm7K. It may take five minutes or so. 
-If you see "All test passed" finally, your installation is OK.
-
 * Move binaries to your bin by 
 >make install
 at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
 In advance, you have to make your bin, and add ~/bin to  your path
 (e.g. export PATH=$HOME/bin:$PATH in .bashrc. then login again or source .bashrc)
-
 
 (3) Installation for fpgw/
 At ecalj/fpgw/exec/ directory, you have to edit make.inc.
@@ -138,21 +140,24 @@ Then you have to run
 Before this, you have to set blas and lapack in fpge/exec/make.inc.
 (for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
 "make install" copy requied files to your ~/bin.
--------------
-*Installation test for fpgw/
 
-At fpgw/exec/
->make check
-(this is equivalent to cd ../TESTinstallGW;./testgw.py --enforce --all) 
-
-It makes temp_* directories under fpgw/TESTinstallGW/.
-At the directory, 
->./testgw.py --help
-shows help for the test controller testgw.py
-
-All tests will require ~10min.  (nio_gwsc takes ~300sec)
-In cases, nio_gwsc fails. However, as long as the difference is small,
+----
+(4) Install test
+We have to check whether binaries works fine or not.
+Move to ecalj/TestInstall. Then type make (with no arguments). 
+It shows help about how to do test.
+To test all of binaries, just do
+>make all
+. All tests will require ~10min.  (nio_gwsc takes ~300sec)
+In cases, nio_gwsc fails. 
+However, as long as the difference is small,
 not need to care its fail sign. (a minor bug in test).
+
+As the help of make (no arguments), shows
+>make lmall
+tests only LDA part.
+>make gwall
+tests only GW part.
 
 
 #######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si) ###################
@@ -183,117 +188,57 @@ not need to care its fail sign. (a minor bug in test).
     For qsub, you have to edit test.sh for your machine.
 -------------------------------------------
 
+####### How to make version up? ######
+ecalj is really a research tool. We do not have enough
+human resource to keep it very well. So be careful for version up.
 
-------------------------------------
-How to make version up?
-------------------------------------
 >cd ecalj
->./mbackup          !this save makefiles and related files. Look into the ./mbackup file.
->git diff > gitdiff_backup   !This is to save your changes (diff to git_diff_backup )for safe.
->git checkout -f             ! CAUTION: this delete your changes in ecalj/
->git pull                    !This overwirte makefile and so on. 
->./mrestore                  ! Look into this script. 
-                             ! This copy make.inc* and MAKEINC/* to original directory
+>git diff > gitdiff_backup   
+   This is to save your changes (diff to git_diff_backup )for safe.
+   I recommend you do take git diff >foobar as backup.
+>./mbackup          
+    This save makefiles and related files. Look into the ./mbackup file. It is a simple scripts.
+    Your customized Makefile MAKEINC/* fpgw/exec/make* are copied to ecalj/MKbackup/. 
+    CAUTION: this overwirte old ones.
+>git checkout -f             
+     CAUTION!!!: this delete your changes in ecalj/.
+     Move files controlled by git to the original which is downloaded.
+>git pull                    
+    This overwirte makefile and so on. 
+>./mrestore                  
+    Look into this script before you use this.
+    This copy make.inc* and MAKEINC/* back to original directory.
 
---> Then do make procedure again. So, peform make PLATFORM=foobar, fooba_mpik, install, and make at
-    fpgw/exec/.  Probably, you don't need to make cleanall (this
-    delete all binaries).
+I think it is recommended to use >gitk --all and read this document 
+README to check what is added recently. Difference can be easily taken,
+e.g. by >git diff d2281:README 81d27:README (here d2281 and 81d27 are
+top several digits of version id). 
+>git show 81d27:README is also useful.
 
- --NOTE: MAKEFILE backup: --------------------------------
-  For version up, it is convenient to keep your Makefiles...
-  mbackup: 
-    backup your customized Makefile MAKEINC/* fpgw/exec/make* into
-    ecalj/MKbackup
-    CAUTION: this overwirte these ones;
-            I recommend you do take git diff >foobar as backup.
-            Not too much dependent on mbackup.
-  mkrestore:
-    cp back MKbakcup/* to original dirs.
-
-
-
--------------------------------------------------
-MEMO
--------------------------------------------------
-== QSGW for Fe.
-  Use 3p as core. Thus need to set PZ=0,3.9 (3p as
-  valence). Furthermore, 3d+4d as valence is better 
-  (SPEC_ATOM_PZ=0,3.9,4.15 should be added. Need to test more). 
-  Use RSRNGE=8 or so (in cases 20 or more required for large systems), 
-  for large number of k points.
-
-== Q0P check
-   You have to large enough n1n2n3
-   It is better to do both of Q0Pchoice=1 and 2.
-   (for slabs, Q0Pchoice=2 may be better; need check more. In anyway,
-    it is problematic to use unbalanced k points for anisotropic cell).
-
-==EPS mode,
-  check Im part of chi0 is smoothly damping at high energy (typically
-  1Ry or larger enengy range). If there is some large Im part remains,
-  something strange (usually due to orthogonality problem of
-  eigenfunctions when you set low q).
+After ./mrestore, following instruction of the above installation.
+Probably, you don't need to make cleanall (this delete all binaries).
 
 
-==How to set local orbitals.===
-  To check used MTO basis, do "lmfa |grep conf". 
+###### Document #####
+GetStarted:
+ecalj/Document/GetStarted/ecalj_getstarted.tex 
 
-  We have to set SPEC_ATOM_PZ= and SPEC_ATOM_P=
-  (they ordered as P=s,p,d,f,... )
-  
-  continious principle quantum number ( 
-  P=principleQuantumNumber + 0.5-atan(1/phi dphi/dr) )
-  We show two examples here.
- 
-  When we use lo, we usually take choice 1 or choice 3.
-  In such cases, we just need to set PZ (not need to set P).
-  PZ for choice 1 is just for initial condition (not affect to final
-  PZ for choice 3 may affect slightly to final result).
+Details:
+ecalj/Document/ecaljnote/ecaljnote*.pdf
+(some japanese character included).
 
- Examples:
-  Ga p: (in this case, choice 0 or choice 3 is recommended)
-     (0)no lo
-     (1)3p lo ---> 4p val (when 3p is treated as valence)
-     (2)4p lo ---> 5p val (this is for test purpose)
-     (3)5p lo ---> 4p val (PZ>P)
-     choice 0: 3p core, 4p valence, no lo: default.
-          Then we have choice that lo is set to be for 3p,4p,5p.
-     choice 1: 3d semi core, 4d valence 
-            PZ=0,3.9 (P is not requied. *.9 for core like state)
-     choice 2: 4p lo, 5p valence 
-            PZ=0,4.5 P=0,5.25
-            (NOTE: zero are to use defalut numbers for s,p )
-            (NOTE: fractional part .25 is from CPQN for constant
-             potential for l=1. The fraction .5 of 4.5 is reasonable for half-filled l).
-     choice 3: 4p valence, 5p lo 
-            PZ=0,5.25
 
-  Ga d: (in this case, choice 0 or choice 1 is recommended).
-     (0)no lo
-     (1) 3d lo ---> 4d val  (when 3d is treated as valence)
-     (2) 4d lo ---> 5d val  (this is for test purpose)
-     (3) 5d lo ---> 4d val  (PZ>P)
-     choice 0: 3d core, 4d valecne, no lo: default.
-          Then we have choice that lo is set to be for 3d,4d,5d.
-     choice 1: 3d lo, 4d valence
-              PZ=0,0,3.9  (P is not required. If set, use P=0,0,4.xx;)
-     choice 2: 4d lo, 5p valence 
-              PZ=0,0,5.15 P=0,0,4.5
-               (NOTE: zero are to use defalut numbers for s,p )
-               (NOTE: fractional part .15 is from CPQN for constant potential for l=2).
-     choice 3: 5d lo, 4d valence,  
-              PZ=0,0,5.15
+######## MEMO: ----not read this ---- #########
+branch x0mpi_merge (6b5e3, Aug2013): 
+contains a try to paralellize x0kf
+(imaginary part of dielectric function) more. It just show a
+strategy, not efficient yet.
 
-   See pnew section (console output of lmf) for which lmf really use.
-   If you like to read from atm.ga file instead of rst file(if exist).
-   You have to do lmf --rs=1,1,0,0,1, for example. See lmf --help
-   ----------------------------------------
-   NOTE: free value for P or PZ.
-   free (constant potential fractional number P for
-   phi=r^(l+1)). Shown in 'pfree' in console output.
-   1.500000
-   2.250000
-   3.147584
-   4.102416
-   5.077979
-=============================================================
+branch stop2rx (97b5393, Aug2013):
+contains a newer version which replace all stop with "call rx (or
+rx0)" which are stops with error code.
+New scripts generated by "fpgw/exec/rewritecommand/*.awk"
+catch these error codes. 
+We will move to stop2rx as master branch.
+
+--------- end of file -----------------

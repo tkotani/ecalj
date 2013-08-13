@@ -1006,16 +1006,17 @@ C     This call does nothing except for printout
      .  '%N%3f 2 sigii > a  and  sigii < b'//
      .  '%N%3f 3 sigii = a + b*e')
         nm='HAM_SIGP_A'; call gtv(trim(nm),sw,sigp_a,def_r8=0.02d0,
-     .  note='a parameter in fit')
+     .  note='a parameter in fit. Not used now -->ESEAVR)')
         nm='HAM_SIGP_B'; call gtv(trim(nm),sw,sigp_b,def_r8=0.06d0,
-     .  note='b parameter in fit')
+     .  note='b parameter in fit. Not used now -->ESEAVR')
         nm='HAM_SIGP_NMIN'; call gtv(trim(nm),sw,sigp_nmin,def_i4=0,
-     .  note='Replace subblock 1..nmin with fit')
+     .  note='Replace subblock 1..nmin with fit. For test purpose.')
         nm='HAM_SIGP_EMIN'; call gtv(trim(nm),sw,sigp_emin,def_r8=0d0,
-     .  note='Replace subblock elda<emin with fit (not used if nmin>=0)')
+     .  note='Replace subblock elda<emin with fit (not used if nmin>=0). For test purpose')
         nm='HAM_SIGP_NMAX'; call gtv(trim(nm),sw,sigp_nmax,def_i4=0,
-     .  note='Replace subblock nmax+1.. with fit')
-        nm='HAM_SIGP_EMAX'; call gtv(trim(nm),sw,sigp_emax,def_r8=2d0,
+     .  note='Replace subblock nmax+1.. with fit. For test purpose.')
+!!
+        nm='HAM_SIGP_EMAX'; call gtv(trim(nm),sw,sigp_emax,def_r8=9999d0,
      .  note='Replace subblock elda>emax with fit (not used if nmax>0)')
         nm='HAM_SIGP_EFIT'; call gtv(trim(nm),sw,sigp_efit,def_r8=0d0,
      .  note='Energy cutoff for fitting sigii '//

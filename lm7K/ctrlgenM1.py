@@ -986,8 +986,9 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
 
       #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
-      SIGP[MODE=3 EMAX=2.0]
+      SIGP[MODE=3 EMAX=9999.0]
       RSRNGE=10.0      #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
+      # EMAX=9999 means no cutoff procedure for Sigma-Vxc in lmf. (only in emax in GWinput).
       #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
 
       SO={so}   #default = 0 
