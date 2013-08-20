@@ -1092,52 +1092,34 @@ This is an exaple of one iteration of QSGW cycle.
 \begin{verbatim}
 takao@TT4:~/ecalj/test1$ gwsc 0 -np 2 si
 gwsc 0 -np 2 si
-### START gwsc: ITER= 2, MPI size=  2, TARGET= si
+### START gwsc: ITER= 0, MPI size=  2, TARGET= si
 --- No sigm nor sigm.$TARGET files for starting ---
  ---- goto sc calculation with given sigma-vxc --- ix=,0
 No sigm ---> LDA caculation for eigenfunctions 
-         mpirun -np 2 /home/takao/bin/lmf-MPIK  si > llmf_lda 
-OK
-         /home/takao/bin/lmfgw  si < _IN_ > llmfgw00 
-OK
-         /home/takao/bin/qg4gw  < _IN_ > lqg4gw 
-OK
-         mpirun -np 2 /home/takao/bin/lmfgw-MPIK  si < _IN_ > llmfgw01 
-OK
-         /home/takao/bin/lmf2gw >llmf2gw
-OK
-         /home/takao/bin/rdata4gw_v2  < _IN_ > lrdata4gw_v2 
-OK
-         /home/takao/bin/heftet  < _IN_ > leftet 
-OK
-         /home/takao/bin/hchknw  < _IN_ > lchknw 
-OK
-         /home/takao/bin/hbasfp0  < _IN_ > lbasC 
-OK
-         mpirun -np 2 /home/takao/bin/hvccfp0  < _IN_ > lvccC 
-OK
-         mpirun -np 2 /home/takao/bin/hsfp0_sc  < _IN_ > lsxC 
-OK
-         /home/takao/bin/hbasfp0  < _IN_ > lbas 
-OK
-         mpirun -np 2 /home/takao/bin/hvccfp0  < _IN_ > lvcc 
-OK
-         mpirun -np 2 /home/takao/bin/hsfp0_sc  < _IN_ > lsx 
-OK
-         mpirun -np 2 /home/takao/bin/hx0fp0_sc < _IN_ > lx0 
-OK
-         mpirun -np 2 /home/takao/bin/hsfp0_sc  < _IN_ > lsc 
-OK
-         /home/takao/bin/hqpe_sc  < _IN_ > lqpe 
-OK
-0 iteration over
-         mpirun -np 2 /home/takao/bin/lmf-MPIK  si > llmf_gwscend.0
-OK
+        Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_lda 
+OK! --> Start  echo 0| /home/takao/ecalj/TestInstall/bin/lmfgw si > llmfgw00 
+OK! --> Start  echo 1|/home/takao/ecalj/TestInstall/bin/qg4gw > lqg4gw 
+OK! --> Start  echo 1|mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmfgw-MPIK  si> llmfgw01 
+OK! --> Start  /home/takao/ecalj/TestInstall/bin/lmf2gw >llmf2gw
+OK! --> Start  echo 0|/home/takao/ecalj/TestInstall/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start  echo 1| /home/takao/ecalj/TestInstall/bin/heftet > leftet 
+OK! --> Start  echo 1| /home/takao/ecalj/TestInstall/bin/hchknw > lchknw 
+OK! --> Start  echo 3| /home/takao/ecalj/TestInstall/bin/hbasfp0 > lbasC 
+OK! --> Start  echo 3| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hvccfp0 > lvccC 
+OK! --> Start  echo 3| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc > lsxC 
+OK! --> Start  echo 0|/home/takao/ecalj/TestInstall/bin/hbasfp0  > lbas 
+OK! --> Start  echo 0| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hvccfp0  > lvcc 
+OK! --> Start  echo 1|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc > lsx 
+OK! --> Start  echo 11|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hx0fp0_sc > lx0 
+OK! --> Start  echo 2|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc  > lsc 
+OK! --> Start  echo 0|  /home/takao/ecalj/TestInstall/bin/hqpe_sc  > lqpe 
+OK! --> == 0 iteration over ==
+OK! --> Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_gwscend.0 
+OK! ==== All calclation finished for gwsc 0 -np 2 si ====
 \end{verbatim}
-Here \verb+_IN_+ is the readin input for fortran code (just integern
-umbers). To see it, please look into gwsc script (gwsc is at
+Here \verb+echo (integer)+ is readin in at the beging of the code.
+To see it, please look into gwsc script (gwsc is at
 ecalj/fpgw/exec/ and copied to your bin/ by make install2). 
-(We have room to make this console output a little better). 
 In anyway, this console output shows calculations finished normally.\\
 
 Now we get rst.si and sigm.si file which contains (static version of) self-energy
