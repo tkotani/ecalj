@@ -6,7 +6,6 @@ Ci  QIBZ      : irreducible q point.  Given by qg4gw.
 Ci  QGpsi     : q and G vector for the Coulomb matrix. Given by qg4gw.
 Ci  QGcou     : q and G vector for the Coulomb matrix. Given by qg4gw.
 Ci  Q0P       : q points near q=0 instead of q=0. Given by qg4gw.
-Ci  GWIN0     : required inputs for GW only read its nband.
 Ci  SYMOPS    : points group operation.
 Ci  DATA4GW_V2:  main input, which contains eigenfunctions, radial functions...
 Ci
@@ -43,9 +42,6 @@ Cr  hsfp0 mode 2 : correlated part of the self-energy.
 Cr  hsfp0 mode 3 : exhchange self-energy for core.
 c
 c--------------------------------------------------------------
-c
-c--   From GWIN0.
-Cr  n1 n2 n3: give the BZ mesh
 c
 c--   From QGpsi
 Cr  QpGcut_psi  : Maxmum of |q+G| in a.u. for eigenfunction

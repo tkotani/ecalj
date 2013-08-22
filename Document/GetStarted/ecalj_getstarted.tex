@@ -6,8 +6,64 @@
 \usepackage{setspace}
 \setstretch{1.1}
 \begin{document}
+\date
 \maketitle
 \tableofcontents
+
+\newcommand{\rou}[1]{\noindent------------------------------------------------------------------------------------------------------------
+\noindent{\bf \large #1}}
+\newcommand{\fl}[1]{\noindent{\sf $\bullet$ #1\index{\sf #1}} : }
+\newcommand{\fx}[1]{\subsection{\sf #1\index{\sf #1}}}
+\newcommand{\ssx}[1]{\subsection{\bf #1\index{\bf #1}}}
+\newcommand{\ssxx}[2]{\subsection{\bf #1\index{\bf #2}}}
+\newcommand{\infiles}{\noindent\fbox{Input files}}
+\newcommand{\outfiles}{\noindent\fbox{Output files}}
+\newcommand{\GW}{$GW$}
+\newcommand{\GWinput}{{\sf GWinput}\ }
+\newcommand{\GWIN}{{\sf GWIN}\ }
+\newcommand{\gbox}[1]{\noindent{\color{Green}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\rbox}[1]{\noindent{\color{Red}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\obox}[1]{\noindent{\color{Orange}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\cyanbox}[1]{\noindent{\color{Cyan}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\bluebox}[1]{\noindent{\color{Blue}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\keyw}[1]{\fbox{\tt #1}}
+\newcommand{\bfe}{{\bf e}}
+\newcommand{\bfq}{{\bf q}}
+\newcommand{\bfk}{{\bf k}}
+\newcommand{\bfr}{{\bf r}}
+\newcommand{\bfR}{{\bf R}}
+\newcommand{\bfQ}{{\bf Q}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\exe}[1]{{\bf #1}}
+\newcommand{\io}[1]{{\sf  #1}}
+\newcommand{\raw}[1]{{\tt #1}}
+\newcommand{\repp}[1]{p.\pageref{#1}}
+\newcommand{\eiqr}{e^{i \bfq \bfr}}
+\newcommand{\figp}[1]{\rotatebox{-90}{\includegraphics[width=10cm]{#1}}}
+\newcommand{\bfex}{{\bf e}_x}
+\newcommand{\bfey}{{\bf e}_y}
+\newcommand{\bfez}{{\bf e}_z}
+\newcommand{\bfa}{{\bf a}}
+\newcommand{\bfb}{{\bf b}}
+\newcommand{\bfT}{{\bf T}}
+
+\newcommand{\bfS}{{\bf S}}
+\newcommand{\bfiS}{{\it \Delta \bf S}}
+\newcommand{\bfB}{{\bf B}}
+
+\newcommand{\ispone}{\downarrow}
+\newcommand{\isptwo}{\uparrow}
+
+\newcommand{\eps}{\epsilon}
+\newcommand{\D}{{\it \Delta}}
+\newcommand{\scgw}{QS{\it GW} }
+
+\newcommand{\req}[1]{Eq.(\ref{#1})}
+\newcommand{\figss}[2]{\hspace{-3cm}\rotatebox{-90}{\includegraphics[width=6cm]{#1}}\rotatebox{-90}{\includegraphics[width=6cm]{#2}}}
+\newcommand{\figs}[2]{\hspace{-2cm}\rotatebox{0}{\includegraphics[width=8cm]{#1}}\rotatebox{0}{\includegraphics[width=8cm]{#2}}}
+
+
+
 \newpage
 \section{Introduction}
 ``ecalj package'' is for first-principle electronic structure
@@ -977,26 +1033,84 @@ as long as you don't change MTO sections in ctrl file (number of EH,EH2,PZ).
 
 Look into \verb+GWinput+. Because of historical reason,
 input system is different from ctrl.
-Each line is independent; ``keyword'' followed by some of numbers 
-(or on or off for logical switch of keyword). 
-Except such lines, there are tag sandwitched sections 
-such as \verb+<PRODUCT\_BASIS> ... </PRODUCT_BASIS>+, 
-no comment lines in the middle allowed. They are read by
-read(*,*) (thus spaces cause no problem).
+The main input files is {\sf GWinput}.
+[it is a unified file of old {\sf GWIN0},  {\sf GWIN\_V2}, and {\sf QPNT}].
+This controls the setting of \GW calculation.
+The file {\sf GWinput} consists of
+structures as\\
+{\it keyword1 data1}\\
+{\it keyword2 data2}\\
+...\\
+In each lines, it consists of keyword and data. 
+Data can be sigle or plural.
+As for keywords, upper case or Lowercase is not distingushed.
+All keywords should start from 1st column (no space at head).
+Order of lines are irrelevant.
+As for logical variable, you can use 
+anything among (true, ok, .true. yes, on, 1, T) for .true.,
+and anything among (false, ng, .false., no, off, 0, F) for .false.\\
+
+Or we have ``tag sections'' in {\sf GWinput} 
+specified by \verb#<PRODUCT_BASIS>#, 
+\verb#<QPNT>#,  \verb#<PBASMAX>#, \verb#<QforEPS>#, and \verb#<QforEPSL>#.
+(\verb#<PRODUCT_BASIS># is requires for all kinds of calculations.
+\verb#<PBASMAX># is optional. \verb#<QforEPS># and/or \verb#<QforEPSL># are required
+for eps mode). It is like
+\begin{verbatim}
+<PRODUCT_BASIS>
+ tolerance to remove products
+  0.100000D-04 ! =tolopt
+ lcutmx(atom) 
+  3 3 
+  atom   l
+...
+</PRODUCT_BASIS>
+\end{verbatim}
+. In these tag sections, you have to keep format for its own
+(usually numbers are readin by free format \verb#read(5,*)#).
 
 In the QSGW calculation, we have to set some cutoff parameters
 for self-energy calculations.
 
+The readin routine for GWinput is \verb#getkeyvalue# defined in \verb#gwsrc/keyvalue.f# by Dr.Kino.
+\verb#getkeyvalue# is a general and convenient readin routine in full use of the f90 features.
+Read a head part of the file and try to do "grep getkeyvalue *.F" 
+in \verb#gwsrc/# or \verb#main/# so as to see how to use it
+(test routine is \verb#main/kino_input_test.F#.)
+
+So the {\sf GWinput} consists of three sections \\
+1.General section \\
+2.\verb#<PRODUCT_BASIS># section\\
+3.\verb#<QPNT># section (this is not used for gwsc)\\
+4.\verb#<QforEPS>#,\verb#<QforEPSL># section\\
+We will explain each by each in the followings.
+
 \begin{itemize}
+\item \verb+KeepEigen, KeepPPOVL+:
+      defaults are off.
+If KeepEigen is on, eigenfunctions (Eigen) are kept in memory during calculation.
+If KeepPPOVL is on, the overlapping mamtrix (PPOVL) is stored 
+in a memory. If you have not enough memory or large systems, use them
+off.  Then you can save memory usage. We need to examine it a little more...
+
+\item+Verbose+ 1 integer (default=0)
+If 0, it gives minimum standard output. 
+If 40 or higher, it shows too much output.
+(these verbosity control is not well-organized yet). 
+
 \item
 \verb+emax_sigm+ is the maximum limit of the self-energy 
-(measured from the Fermi energy). I think $2.5\sim5$Ry is reasonable choice.
-But in cases, small \verb+emax_sigm+ can give poor dispersion curve
-(slightly unnatural behevior) because of sudden cutoff by emax\_sigm.
-However, we like to use smaller value to reduce computational time.
-That is, larger is better, but expensive. 
-Generally speaking, accuracy less than 0.1eV (for bandgap) 
-is allowance of current method. Probably, it may be not impossible to have better accuracy, 
+(measured from the Fermi energy). I think $2.5\sim5$Ry is reasonable
+choice. 
+Generally speaking, larger is better but expensive.
+In addition, we can not expect accuracy for high energy bands,
+thus large \verb+emax_sigm+ may give wrong results; we may just change
+\verb+emax_sigm+ and check stability. 
+As \verb+emax_sigm+ gives a sudden energy cutoff, 
+energy band dispersion may give unnatural behevior (then let me know). 
+Generally speaking, accuracy less than $\sim$0.1eV (as for bandgap) 
+is allowance of current implementation. 
+Probably, it may be not impossible to have better accuracy, 
 but it may ask us to repeat many calculations with changing conditions
 to confirm stability. 
 
@@ -1018,12 +1132,60 @@ dangeous in cases. With 0.0001, we can check stability on it.
      \verb+dw+ and \verb+omg_c+ specify real space bins which we accumulate imaginary part
      weight of polarization functions. dw is bin width (in Ry) at
      omega=0, then bin width is twiced at \verb+omg_c+.
-     The bin width is quadratically larger (become rough). 
+     The bin width becomes quadratically coarser at high energy. 
      If bins are too wide, dielectric function can be less accurate, 
      but results are not necessarily so much affected. 
      For metal, our code can capture Drude weight
      numerically. We do not need to be so sensitive to the choice of
      them usually.
+\item
+     \verb+alpha_offG+\\
+     {\tt alpha\_offG} corresponds to $\alpha$ to define auxially function.
+      {\tt alpha\_offG}=1d0 is usually good in the sense that
+      it seems to be almost a limit at $\alpha \to 0$.
+      So we can usually fix it as {\tt alpha\_offG}=1d0, and check the
+      convergence as for {\tt n1n2n3}.
+\item
+    \verb+delta+ (this may be not used now): keep it as it is.
+\item
+    \verb+{niw}+ : 1 integer. \\
+Number of integration points along the imaginary axis to get $\Sigma_c$.
+See routines {\tt wint*} called from {\tt sxcf*.F},
+which is called from the main routine {\tt hsfp0.m.F} (or {\tt hsfp0.sc.m.F} in the QSGW case).
+The integration points are $i \omega'(n)= i( 1/x(n) -1)$, where $x(n)$ is
+the usual Gaussian-integration points for the interval [0,1].
+In addtion, we give the special analitical treatment for the peakey part at $\omega'=0$.
+Out tests shows {\tt niw}=6 for Si is good enough for 0.01 eV accuracy.
+The convergence as for {\tt niw} is quite good.
+This integration scheme has been devloped by Ferdi Aryasetiawan.
+The number of points should be the one of 6,10,12,16,20,24,32,40,or 48. 
+It is because we use a {\tt subroutine gauss} in {\tt /gwsrc/mate.F} 
+prepared by Ferdi. We will replace better one in future. 
+\item
+\verb+GaussSmear+ and \verb+esmr+ : Used by hsfp0 (and hsfp0\_sc for QSGW). \\
+Poles of  the Green fucntion $G^{\rm LDA}$ are treated as if they have width esmr in hsfp0. 
+If {\tt GaussSmear} is on, each pole of $G^{\rm LDA}$
+is smeared by a Gaussian function with $\sigma=${\tt esmr} in the calculation of hsfp0.
+%If {\tt GaussSmear} is off, we assume rectangular smearing for the poles.
+%Usually it is necessary to take rather smaller value than band gap 
+%for insulators. Try to use 0.003 or so in the case of Si and {\tt GaussSmear}=on.\\
+%In the case of insulator, it can be smaller 0.0001 or less (maybe), 
+%but it should have some size in the case of metal.
+\item
+   \verb+Q0Pchoice+: This controls how to choose offset Gamma points in
+   a new version (2012 version).
+   It is usually better to used Q0Pchoice=1. 
+   (For slabs, Q0Pchoice=2 may be better; need check more. In anyway,
+    it is problematic to use unbalanced k points for anisotropic cell).
+
+\item \verb+deltaw+ (only for one-shot GW) is the interval for the numerical derivative
+$\frac{\partial \Sigma(\omega)}{\partial \omega}$ in EQ.8.
+We calculate $\langle \psi^{{\bf k}n} |\Sigma(\epsilon^{{\bf k}n}+{\tt deltaw}) |\psi^{{\bf k}n} \rangle$ 
+and $\langle \psi^{{\bf k}n} |\Sigma(\psi^{{\bf k}n}\!-\!{\tt deltaw})|\psi^{{\bf k}n} \rangle$
+in addition to $\langle \psi^{{\bf k}n} |\Sigma(\epsilon^{{\bf k}n})|\psi^{{\bf k}n} \rangle$.
+From these values, we can calcuate two $Z$ (or second-derivative of $\Sigma(\omega)$), as shown
+in {\sf SECU}. It will help to see whether the used \verb#deltaw# is O.K. or not.
+     
 \item
   n1n2n3: BZ division for k point integration. 
      We usually take '4 4 4' to '8 8 8' for GaAs. For metal such
@@ -1047,17 +1209,49 @@ dangeous in cases. With 0.0001, we can check stability on it.
     Since QSGW have ability to plot energy band within full BZ,
     it should be better to do it.
 \item
+   {\bf set QPNT for eps mode}: See Section 'calculation of susceptibility':
    \verb+<QforEPS>+ and \verb+<QforEPSL>+ are to specify at which k point do we
    calculate susceptibility. It is for epsPP\_lmfh, eps\_lmfh
    (dielectric functions) and epsPP\_chipm (spin susceptibility).
+   For eps modes (scripts \verb#eps_*#, which are for linear responses,
+   you have to specify q point in the following ways.\\
+
+  To specify it directry (cartesian),
+  \begin{verbatim}
+  <QforEPS>
+  0d0 0d0 0.01d0
+  0d0 0d0 0.02d0
+  0d0 0d0 0.04d0
+  0d0 0d0 0.08d0
+  </QforEPS>
+  \end{verbatim}
+  You can specify Q points in addition as 
+  \begin{verbatim}
+  <QforEPSL>
+  0d0 0d0 0d0   1d0   0d0  0d0 8
+  0d0 0d0 0d0  .5d0  .5d0  0d0 8
+  </QforEPSL>
+  \end{verbatim}
+  This is along the line--- 8 point along the line (not left-end q; so omitting 0 0 0).
+  The first line means line (0d0 0d0 0d0)---(1d0 0d0 0d0) is devided to 8. 
+  So we have 7 points, (0.125 0 0), (0.25 0 0),... (1 0 0).
+
+\item \verb+AnyQ+ (default is off. not for gwsc)\\
+If this is on, you can spefify any Q point which is not on the mesh
+point in the one-shot gw $gw\_lmfh$.
+For the purpose, we need to prepare eigenfunctions at extra $\bf k$ points.
+But it is automatic. In order to make computaiton efficients, it is better to choose
+${\bf q}$ on the two times finer devided mesh (or three times finer devided ${\bf k}$ mesh).
+This is used for Fig.6 in Phys. Rev. B 74, 245125 (2006).
 \end{itemize}
 
-\begin{quote}
+
 We need a setting in ctrl file to read sigm file (HAM\_SIGP). 
 It is simplified now, and not need to care it so much.
 As we set RDSIG=12 in defauls, lmf read sigm file and add it to one-body
 potential as long as sigm.* exist.\\
 
+\begin{quote}
 {\bf NOTE for old users}: We now set \verb+SIGP[MODE=3 EMAX=9999.]+
 in ctrl file to read self-energy in lmf (or lmf-MPIK). 
 This is because we use very localized MTOs (similar with the Maxloc Wannier).
@@ -1072,8 +1266,280 @@ However, it can affect slightly. In our tests, it seems slightly better
 to use vwn (XCFUN=1) for QSGW calculations. (BUT need to check more...)
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{$<$PRODUCT\_BASIS$>$ section}
+--- I think this contains old description; not need to read this ---\\
+
+This section is to define product basis to expand $W$ and so wihin MT.
+Numbers are read by free format read(5,*),thus the numbers should be separeted by space.
+The line number in this section is meaningful (you can not add comment lines).
+{\baselineskip=2.6mm
+\begin{verbatim}
+<PRODUCT_BASIS>
+ tolerance to remove products due to poor linear-independency
+  0.100000D-04 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
+ lcutmx(atom) = maximum l-cutoff for the product basis.  =4 is required for atoms with valence d, like Ni Ga
+  4  3
+  atom   l  nnvv  nnc ! nnvv: num. of radial functions (valence) on the augmentation-waves, nnc: num. for core.
+    1    0    2    3
+    1    1    2    2
+    1    2    3    0
+    1    3    2    0
+    1    4    2    0
+    2    0    2    1
+    2    1    2    0
+    2    2    2    0
+    2    3    2    0
+    2    4    2    0
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no) 
+    1    0    1    1    1   ! 4S_p  ----- 
+    1    0    2    1    0   ! 4S_d        
+    1    1    1    1    1   ! 4P_p        
+    1    1    2    0    0   ! 4P_d        
+    1    2    1    1    1   ! 4D_p        
+    1    2    2    0    0   ! 4D_d        
+    1    2    3    1    1   ! 3D_l        
+    1    3    1    0    1   ! 4f_p        
+    1    3    2    0    0   ! 4f_d        
+    1    4    1    0    0   ! 5g_p        
+    1    4    2    0    0   ! 5g_d        
+    2    0    1    1    1   ! 2S_p  ----- 
+    2    0    2    0    0   ! 2S_d        
+    2    1    1    1    1   ! 2P_p        
+    2    1    2    0    0   ! 2P_d        
+    2    2    1    1    1   ! 3d_p        
+    2    2    2    0    0   ! 3d_d        
+    2    3    1    0    1   ! 4f_p        
+    2    3    2    0    0   ! 4f_d        
+    2    4    1    0    0   ! 5g_p        
+    2    4    2    0    0   ! 5g_d        
+  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
+    1    0    1    0    0      0    0    ! 1S -----
+    1    0    2    0    0      0    0    ! 2S      
+    1    0    3    0    0      0    0    ! 3S      
+    1    1    1    0    0      0    0    ! 2P      
+    1    1    2    0    0      0    0    ! 3P      
+    2    0    1    0    0      0    0    ! 1S -----
+</PRODUCT_BASIS>
+\end{verbatim}}
+
+\vspace{5mm}
+\noindent $\bullet$ This section is read in the free format in fortran.
+So, e.g., \verb#0.01# works as same as \verb#0.10000D-01#.
+The line order is important 
+(you have to keep the order given by \io{GWinput.tmp}).
+Be careful atom atom id---lmf may re-order it and pass it to gw code.
+Look into LMTO file (generated by {\bf mkGWIN\_lmf2}); 
+which contains crystal structure information after such re-ordering by lmf.
+I used \verb#!# to make  clear that things after \verb#!#
+are comments. But \verb#!# is not meaningful -- just the expected
+numbers of datas separeted by blank(s) are read for each line 
+from the begining of lines.
+
+
+\vspace{5mm}
+\noindent $\bullet$ The real number in second line \raw{tolerance} is
+to remove the poorly linear-independent product basis.
+If multiple numbers are specified, it means \raw{tolerance} for each atoms.
+
+You can also use \verb#<PBASMAX># section to override this setting. It is given as
+\begin{verbatim}
+<PBASMAX>
+1  5 5 5 3 3
+2  5 5 3 2 3
+3  3 3 2 2 2
+</PBASMAX>
+\end{verbatim}
+The first numebr is for atom index (fixed), and other are product basis 
+for each $l$ channel.
+
+
+\vspace{5mm}
+\noindent $\bullet$ The integer numbers in 4th line \raw{lcutmx}
+gives the maximum angular momentum $l$ for the procduct basis
+for each atomic site.
+In our experience, \raw{lcutmx}=4 is required
+when the semi-core (or valence ) $3d$ electons exist
+and we want to calculate the QP energies of them.
+
+\vspace{5mm}
+\noindent $\bullet$ Keep a block starting from 
+"  atom   l  nnvv  nnc ..."  as it originally generated 
+in \io{GWinput.tmp}. It just shows that how many kinds of radial functions
+for cores and valence electrons for ecah atom and l.
+{\tt nnvv}=2 in the case of $\phi$ and $\dot{\phi}$;
+{\tt nnvv}=3 in the case to add the local orbital in addition.
+
+\vspace{5mm}
+\noindent $\bullet$ There are two blocks after the line
+"{\tt   atom   l    n  occ  unocc  :Valence(1=yes, 0=no)}'
+and after
+"{\tt   atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)}'.
+These are used to choose atomic basis to construct the product basis.
+The product basis are generated from the products of two atomic basis.
+
+{\sf GWinput.tmp} generated by {\bf mkGWIN\_lmf2} contains
+labels on each orbitals as \verb#4S_p#, \verb#4S_d#, \verb#4P_p#...
+Here \verb#4S_p# is for $\phi_{4s}$; \verb#4S_d# for $\dot{\phi}_{4s}$;
+\verb#3D_l# for $\phi^{\rm local}_{3d}$. 
+Capital letter just after the principle-quantum number
+means the orbital is used as `Head of MTO'; lowercase means just used only 
+as the `tail of MTO'.
+
+The swithces for columns labeled as \verb#occ# and \verb#unocc#. take 0 (not included) 
+or 1 (inclueded). With the switch, we can construct two groups of orbitals,
+\verb#occ# and \verb#unocc#.
+In this sample {\sf GWIN\_V2} as for atom 1,
+$\{ \phi_{4s},\dot{\phi}_{4s},\phi_{4p},\phi_{4d},\phi^{\rm local}_{3d}, 
+\phi^{\rm core}_{3s},\phi^{\rm core}_{3p} \}$
+consist the group \verb#occ#, and
+$\{ \phi_{4s},\phi_{4p},\phi_{4d},\phi^{\rm local}_{3d},\phi_{4f} \}$
+consists the group  \verb#unocc#.
+So the any product of combinations
+$\{ \phi_{4s},\dot{\phi}_{4s},\phi_{4p},\phi_{4d},\phi^{\rm local}_{3d}, 
+\phi^{\rm core}_{3s},\phi^{\rm core}_{3p} \}
+\times \{ \phi_{4s},\phi_{4p},\phi_{4d},\phi^{\rm local}_{3d},\phi_{4f} \}$
+are inclueded as for the basis of the product basis.
+As for atom 2,
+$\{ \phi_{2s},\phi_{2p},\phi_{3d} \} 
+\times \{ \phi_{2s},\phi_{2p},\phi_{3d},\phi_{4f} \}$
+are included.
+
+
+\vspace{5mm}
+\noindent $\bullet$ Each line of the last section of {\tt Product BASIS} forms
+{\baselineskip=2.6mm
+\begin{verbatim}
+  atom   l    n  occ unocc   ForX0 ForSxc :CoreState(1=yes, 0=no)
+    1    2    1    A    x      B    C
+\end{verbatim}}
+At first you have to understand the concept of CORE1 and CORE2 in EQ.35 Ref.I.
+However, in our recent calculations, we do not use ``CORE2'' generally.
+So, in such a case, set \verb#A=B=C=0#. And treat shallow cores (above Efermi$-$2Ry or so )
+as valence electron by ``local orbital method'' in lmf.
+
+%As for the case of {\bf gwnc\_{\it foo}}, this section is neglected.
+\begin{quote}
+[( Note: you can skip here if you don't use CORE2.)
+
+Each of \raw{A,x,B,C} takes 0 or 1.
+There are some possible combination of these switches;
+\begin{enumerate}
+\item 
+If you take 
+{\tt ( A  x   B    C )= (1 0 1 1)},
+then the core is included in core2. In other words, this core is treated in the same 
+manner of the valence electron.
+
+\item 
+If you take
+{\tt ( A  x   B    C )= (0 0 0 0)},
+then the core is included in core1.
+The (exchange only) self-energy related to this core is included in {\tt SEXcore}.
+
+\raw{C} is the key switch which determine whether it is included in core1 or core2.
+There could be another option.
+
+\item 
+If you take
+{\tt ( A  x   B    C )= (1 0 0 1)}.
+This core is in core2. But it is not included in the calculation of $D$ and $W$.
+This core is only included for SEX and SEC calculations.
+\end{enumerate}
+These three kinds of choices are reasonable ones but we can consider some another choice.
+In the following, we show how these switches (\verb#A,B,C#) affect executions called from 
+\exe{gw\_lmfh} (esentially as same as \exe{gw\_lmf}).
+\begin{itemize}
+\item 
+\exe{hbasfp0}(mode 3) :Product basis for exchange due to core.\\
+We include the \raw{C}=0 cores as a part of
+the product basis as if \raw{A}=1 \raw{x}=0.
+
+\item 
+\exe{hsfp0}(mode 3): exchange mode for core.\\
+$\Sigma_{\rm x}$ only due to the \raw{C}=0 cores are calculated.
+
+\item 
+\exe{hbasfp0} (mode1): Product basis.\\
+Only see the switch \raw{A} and \raw{x}.
+The product basis is generated from (occupied $\times$ unoccupied), 
+where \raw{A}=1 core is included as one of the occupied basis.
+
+\item 
+\exe{hsfp0} (mode 1): exchange mode.\\
+Only see the switch \raw{C}.
+$\Sigma_{\rm x}$ due to valence and due to \raw{C}=1 cores
+are calculated.
+
+\item 
+\exe{hx0fp} (mode 1): $W-v$ calculation.\\
+Only see the switch \raw{B}.
+$W$ is calculates using all the valence and \raw{B}=1 cores.
+
+\item 
+\exe{hsfp0} (mode 2): correlation mode.\\
+Only see the switch \raw{C}.
+$\Sigma_{\rm c}$ due to valence and due to \raw{C}=1 are calculated.
+
+\end{itemize}
+
+\end{quote}
+
+\noindent $\bullet$ After you perform \verb#gw_lmfh# or anything,
+you find output files \io{lbas} by \exe{hbasfp0} (mode1), and/or \io{lbasc}
+by \exe{hbasfp0} (mode3) for core. These contains inportant informations
+about how many and how product basis are chosen. 
+E.g. '\verb#grep nbloch lbas#' shows how many product basis are used in the calculations.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{ANFcond:not maintained well now...} 
+---- skip to read this ---
+
+This file is used in {\bf hx0fp0} in the calculation of $W-v$ 
+(or rather $\Pi$ in the program) to specify the antiferro condition.\\
+
+{\bf Note} : Now only for the case that 
+(a translation vector + spin flip) is a symmetry operation.\\
+
+This should be given by hand. For the cases of not antiferro,
+this file should not exist. Even if {\sf ANFcond } 
+does not exists for antiferro case, {\bf hx0fp0} works but it 
+requires about two time computational efforts.
+
+
+{\baselineskip=2.6mm \small
+\begin{verbatim} 
+The existence of this file means the Antiferro condition is used for x0k
+Product basis B({\bf r}-{\bf a}) is translated to B({\bf r}-{\bf a}-Af})= B({\bf r}-{\bf a}'-T_0})
+ 1d0  1d0  1d0        ! Af=Antiferro translation vector in Cartesian.
+ 1  2
+ 2  1
+ 3  4
+ 4  3
+\end{verbatim}}
+The first line specifies the Antiferro translation vector.
+From the second line, we specify that atom $i$ in the primitive cell
+is mapped to what atom $j(i)$ in the cell with the opposite spin by
+the translation. In this case, $j(1)=2, j(2)=1,j(3)=4, j(4)=3$.
+You have to be careful as for the true atomic position used in 
+the GW calculations can be different from the given atomic positions in
+{\sf ctrl.MnO}. The true atomic positions is written in {\sf LMTO}.
+
+
+In the case of one-shot GW (gw\_lmf and gw\_lmfh),
+it may be better to set "up only" QPE,
+so that you only calcuate QPE of up spins at the same time.
+
+In the case of gwsc, we just calculate QPE for up spins
+automatically (QPNT section is neglected).
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{do QSGW calculation}
+\subsection{Do QSGW calculation}
 \label{fpgw-calc}
 Let us perform QSGW calculation. 
 Fot this purpose, we use a script \verb+gwsc+. 
@@ -1154,7 +1620,10 @@ You can make total DOS and PDOS plot by
     $ job_tdos si
     $ job_pdos si
 \end{verbatim}
-CAUTION:pdos plot is not allowed for so=1. (even tdos--> ask to t.kotani.)\\
+CAUTION:pdos plot is not allowed for so=1. (even tdos--> ask to
+t.kotani.) In job\_pdos, we use no space group operation and read
+\verb+simg_fbz.*+ (simga file in all q point in BZ) file.
+\\
 
 To get final QSGW results, we have to repeat iteration 
 until eigenvalues are converged.
@@ -1169,15 +1638,16 @@ $ gwsc 5 -np 2 si
  we have sigm already, skip iter=0
  ---- goto sc calculation with given sigma-vxc --- ix=,1
 
- ...(skeip here) ...
+ ...(skip here) ...
 
-         mpirun -np 2 /home/takao/bin/hsfp0_sc  < _IN_ > lsc 
-OK
-         /home/takao/bin/hqpe_sc  < _IN_ > lqpe 
-OK
-5 iteration over
-   mpirun -np 2 /home/takao/bin/lmf-MPIK  si > llmf_gwscend.5
+OK! --> Start  echo 11|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hx0fp0_sc > lx0 
+OK! --> Start  echo 2|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc  > lsc 
+OK! --> Start  echo 0|  /home/takao/ecalj/TestInstall/bin/hqpe_sc  > lqpe 
+OK! --> == 5 iteration over ==
+OK! --> Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_gwscend.5 
+OK! ==== All calclation finished for gwsc 5 -np 2 si ====
 \end{verbatim}
+
 Note that we do skip 0th iteration (it is for one-shot from LDA) since
 we start from rst.si and sigm.si given by one-shot LDA.
 Thus we do just five iterations.
@@ -1242,13 +1712,153 @@ If not converged well, you may need to repeat
   \caption{band(GaAs), QSGW (test case)}
 \end{figure}
 
-\section{calculation of dielectric function}
-  eps mode.
+\subsection{Output files of QSGW }
+\label{mainoutput}
+\fx{QPU}
+This is only the diagonal part of self-energy 
+\footnote{Note that QPU also implies QPD and so on. U is for up D is for
+down spins.} in human format. It is like this
+{\hspace{-1cm}\baselineskip=2.6mm \footnotesize
+\begin{verbatim} 
+ ===============================================================
+  quasiparticle energies MAJORITY
+ ===============================================================
+E_shift=  0.0000000000000000D+00  0.0000000000000000D+00  0.0000000000000000D+00 eV
 
+           q               state  SEx   SExcore SEc    vxc   ---   dSEnoZ  eQP(starting by lmf)  eHF  Z=1  FWHM=2Z*Simg ReS(elda)
+  0.00000  0.00000  0.00000  1  -35.37 -14.40  10.45 -43.40   0.00   4.08 -15.46   0.00   0.00 -21.83 1.00   0.00000    -39.32420
+  0.00000  0.00000  0.00000  2  -35.37 -14.40  10.45 -43.40   0.00   4.08 -15.46   0.00   0.00 -21.83 1.00   0.00000    -39.32420
+  0.00000  0.00000  0.00000  3  -35.37 -14.40  10.45 -43.40   0.00   4.08 -15.46   0.00   0.00 -21.83 1.00   0.00000    -39.32420
+  0.00000  0.00000  0.00000  4  -35.42 -14.53  10.42 -43.69   0.00   4.15 -15.40   0.00   0.00 -21.67 1.00   0.00000    -39.53292
+  0.00000  0.00000  0.00000  5  -35.42 -14.53  10.42 -43.69   0.00   4.15 -15.40   0.00   0.00 -21.67 1.00   0.00000    -39.53292
+  0.00000  0.00000  0.00000  6  -17.75  -2.76   6.72 -14.41   0.00   0.62 -12.99   0.00   0.00 -19.10 1.00   0.00000    -13.79042
+  0.00000  0.00000  0.00000  7  -14.52  -2.81   2.67 -15.77   0.00   1.11  -0.12   0.00   0.00  -1.68 1.00  -0.00000    -14.65796
+  0.00000  0.00000  0.00000  8  -14.52  -2.81   2.67 -15.77   0.00   1.11  -0.12   0.00   0.00  -1.68 1.00  -0.00000    -14.65796
+  0.00000  0.00000  0.00000  9  -14.52  -2.81   2.67 -15.77   0.00   1.11  -0.12   0.00   0.00  -1.68 1.00  -0.00000    -14.65796
+  0.00000  0.00000  0.00000 10   -6.18  -4.31  -4.47 -16.76   0.00   1.79   0.10   0.00   0.00   6.37 1.00   0.00000    -14.96423
+  0.00000  0.00000  0.00000 11   -4.67  -1.77  -4.49 -12.61   0.00   1.69   3.29   0.00   0.00   9.47 1.00  -0.00000    -10.92860
+  0.00000  0.00000  0.00000 12   -4.67  -1.77  -4.49 -12.61   0.00   1.69   3.29   0.00   0.00   9.47 1.00  -0.00000    -10.92860
+  0.00000  0.00000  0.00000 13   -4.67  -1.77  -4.49 -12.61   0.00   1.69   3.29   0.00   0.00   9.47 1.00  -0.00000    -10.92860
+  ...
+\end{verbatim}}
+From the 6h row, we have the eigenvalue datas. All of the unit of energy is in eV.
+Zero of eQP is at the Fermi energy (or middle of VBM and CBM).
+
+{\tt q}  : ${\bf k}$ vector
+
+{\tt state}: Band index $n$, which is from the lowest eigenvalue (not include cores).
+
+{\tt SEx}: = $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core2+valence}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+
+{\tt SExcore}: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core1}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+
+{\tt SEc}: $ = \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm core2+valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$
+
+{\tt vxc}: LDA exchange correlation energy.
+$\langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
+
+{\tt dSEnoZ}: $
+\langle\Psi_{{\bf k}n}|
+\Sigma_{\rm x}^{\rm core1}({\bf r},{\bf r}^{\prime})+
+\Sigma_{\rm xc}^{\rm core2+valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))
+|\Psi_{{\bf k}n}\rangle 
+- \langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
+
+\hspace{1cm} = {\tt SEx + SExcore + SEc - vxc}
+
+{\tt eQP}: QP energy.  $\epsilon_n({\bf k})$+{\tt dSE} (this is given first by lmf)
+
+{\tt eHF}: HF energy of 1st itteration. $\epsilon_n({\bf k})$+{\tt SEx + SExcore -vxc}
+
+{\tt ReS(elda)}:
+${\rm Re}
+\langle\Psi_{{\bf k}n}|
+\Sigma_{\rm x}^{\rm core1}({\bf r},{\bf r}^{\prime})+
+\Sigma_{\rm xc}^{\rm core2+valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))
+|\Psi_{{\bf k}n}\rangle$ 
+
+\fx{XCU}
+LDA exchange-correlation. 
+Detailed data of above {\tt vxc}.
+
+\fx{SEXU}
+Exchange part of the self-energy due to valence electrons.
+Detailed data of above {\tt SEx}.
+
+\fx{SEXcoreU}
+Exchange part of the self-energy due to core.
+Detailed data of above {\tt SExcore}.
+
+\fx{SECU}
+Correlation part of the self-energy.
+Detailed data of above {\tt SEc}.
+
+\fx{TOTE.UP (TOTE.DN)}
+This is a central output.
+It contains QP energies. These values are 
+realtive to a Fermi energy determined by the smering method.
+It contains two kind of QP energies {\tt QP QPnoZ}.
+The first line contains the Fermi energy in Ry determined by the smering method.
+It is also shown in the end of {\sf DOSACC.lda}.
+
+\fx{TOTE2.UP (TOTE2.DN)}
+This is a central output.
+It contains zerolevel shifts from {\sf TOTE.UP}.
+The first line contains the Fermi energy in eV 
+(= the Fermi energy in {\sf TOTE.UP} but it is in Ry)
+and three energy shifts {\tt E\_shift}, which are the same values in the 4th line of {\sf QPU}.
+
+\vspace{1cm}
+
+Note that all \io{*.chk} files are just to check calculations
+(not read in by successive executions).
+{\bf They have extentions of LDA (even in its file)
+but it is wrong; it is just what is calculated by lmf;
+thus sigm maybe added}
+
+\fx{DOSACC.lda}
+This lists all the eigenvalues in acendent order.
+States with almost the same eigenvalues are degenerated states.
+The 4th colmn contains number of electrons up to the eigenvalue.
+
+\fx{DOSACC2.lda}
+This is similar with \io{DOSACC.lda}.
+But we remove the degeneracy.
+
+\fx{Core\_ibas*\_l*.chk}
+Used core eigenfunctions.
+
+\fx{VXCFP.chk}
+This contains eigenvalues and 
+$\langle \psi_{\bfk n} |V_{\rm xc} |\psi_{\bfk n}\rangle$
+in both units, Ry and eV. See below.
+
+
+\section{calculation of susceptibility}
+We can calculate dielectric functions by epsPP\_lmfh (no local field
+corrction), or eps\_lmfh (with local field correction) for given q
+point. First thing is that it require many number of k point 
+(for example, 'n1n2n3 15 15 15' or more for Si).
+After set it with setting QPNT as explained in GWinput section,
+start \verb+epsPP_lmfh si+ or \verb+eps_lmfh si+. Then you will have
+'EPS*.nlfc.dat'(no local field collection) and/or 'EPS.dat'.
+Simple samples are in TestInstall/gas\_eps\_lmfh and /gas\_epsPP\_lmfh. 
+(but too small number to compare with high level calculations). It is time-consuming to use large
+product basis for \verb+eps_lmfh+ (\verb+epsPP_lmfh+ do not use product
+basis), we can use small product basis; but we lose not so much
+accuracy.
+
+As for epsPP\_chipm mode, we can calculate non-interacting 
+spin susceptibility as for ``MagAtom (id)'' which is given in GWinput.
+
+
+xxxxxxxxxxxxxxxxxxxxxx\\
+  under construction \\
+xxxxxxxxxxxxxxxxxxxxxx\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Appendix}
-\subsection{appendex 1; How to add spin-orbit coupling}
+\appendix
+\section{How to add spin-orbit coupling}
 \begin{verbatim}
 Do LDA and/or QSGW with SO=0 first.
 Then apply the spin-orbit coupling by perturbation.
@@ -1286,18 +1896,32 @@ You have to modify it so that --rs=1,0 gas -vnit=1 -vso=1 -vnspin=2
 For given sigm file, it is possible to do full self-consisent SO calculations
 (then we do not set Q=band). However, note that Vxc is fixed in QSGW, 
 it is not necessary better than the above procedure.
-
 \end{verbatim}
 
-\subsection{appendix 2: How to set local orbitals}
-\begin{verbatim}
-  As we stated, do "lmfa |grep conf" to check used MTO basis. 
 
-  We have to set SPEC_ATOM_PZ= 
-  (they ordered as PZ=s,p,d,f,... ) to set local orbitals.
+\section{How to set local orbitals.}
+In cases, it is better to add local orbitals and check convergence,
+especially in QSGW.
+\begin{verbatim}
+  Do "lmfa |grep conf" to check used MTO basis. 
+  (it just gives atm.gaas file. neglect ves... files).
+  Then we see integer numbers at int(P) column.
+  It show up to high l, but used number of l for MTO is just controlled
+  by number of EH,RSMH in ctrl file.
+
+  We usually set int(P)z (principle quantum number of local orbital) 
+  to int(P)-1 or int(P)+1.
   
-  Continious principle quantum number is defined as
-    P=principleQuantumNumber + 0.5-atan(1/phi dphi/dr) 
+  For example if we set SPEC_ATOM_PZ=0,4.9,..., it means we set local orbital
+  of 4p (numbers after PZ= are ordered as PZ=s,p,d,f,... ).
+  Zero means no local orbital for s channel.
+
+  We need to set not =4 but =4.9 for PZ. It is the continuous principle
+  quantum number (see next paragraph).
+
+  Let let us explain "Continious principle quantum number". 
+  It is defined as
+     P=principleQuantumNumber + 0.5-atan(1/phi dphi/dr) 
   Its fractioanl part 0.5-atan(1/phi dphi/dr) is closer to unity for
   core like orbital, but closer to zero for extended orbitals.
   There are the free electron value for P 
@@ -1311,66 +1935,153 @@ it is not necessary better than the above procedure.
 
  Examples of choice:
   Ga p: in this case, choice 0 or choice 3 is recommended.
-        We usually use lo for semi-core, or virtually unoccupied level.
-
-     (0)no lo (4p as valence is default treatment without lo.)
+     (0) no lo (4p as valence is default treatment without lo.)
         3p core, 4p valence, no lo: default.
-        Then we have choice that lo is set to be for 3p,4p,5p.
-     (1)3p lo ---> 4p val (when 3p is treated as valence)
-        3d semi core, 4d valence  
+        Then we have choice that lo is set to be for 3p or 5p.
+     (1) 3p lo 
         Set PZ=0,3.9 
-        (P is not requied to set. *.9 for core like state. It is just an initial condition.)
-     (2)4p lo ---> 5p val (we don't use this usually. this is for test purpose)
-        4p lo, 5p valence 
-        Set PZ=0,4.5 P=0,5.5 (In this case, set P= simultaneously).
-        (NOTE: zero for s channel is to use defalut numbers for s)
-     (3)5p lo ---> 4p val (PZ>P)
+     (2) 5p lo ---> 4p val (PZ>P)
         Set PZ=0,5.5
         5.5 is just simply given by a guess. If 5.2 or something, it may fails
         because of poorness in linear-dependency. We may need to observe
         results should not change so much on the value of PZ.
 
   Ga d: (in this case, choice 0 or choice 1 is recommended).
-     (0)no lo (3d core, 4d valecne, no lo: default.)
+     (0) no lo (3d core, 4d valecne, no lo: default.)
           Then we have choice that lo is set to be for 3d,4d,5d.
-     (1) 3d lo ---> 4d val  (when 3d is treated as valence)
-         Set PZ=0,0,3.9  (P is not required to set)
-     (2) 4d lo ---> 5d val  (this is for test purpose)
-         Set PZ=0,0,5.5 P=0,0,4.5
-         (NOTE: zero  for s,p are to use defalut numbers )
-     (3) 5d lo ---> 4d val  (PZ>P)
+     (1) 3d lo 
+         Set PZ=0,0,3.9  
+     (2) 5d lo 
          Set PZ=0,0,5.5
 
-   If you like to read from atm.ga file instead of rst file(if exist).
-   You have to do lmf --rs=1,1,0,0,1, for example. See lmf --help
-   Becase rst file keeps the setting of MTO, thus change in ctrl is not
+   In default, lmf try to read rst file first. To read atm file,
+   you have to do lmf --rs=1,1,0,0,1, for example. See lmf --help
+   Becase rst file keeps the setting of MTO, change in ctrl is not
    reflected without the above option to lmf.
-=============================================================
 \end{verbatim}
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{ MEMO random}
-These are memo randoms. We will detail it. Ask me if you have questions.
+\section{How gwsc script works.}
+We now explain what is done in gwsc script.
+
+The self-consistency loop consists of two steps
+(1)lmf part, and (2) GW part.
+In the (1)lmf part, we do self-consistent calculations for given
+exchange-correlation (or LDA/GGA at starting point), then
+we need to generate eigenfunctions and eigenvalues required for the
+(2)GW part.
+
+\subsection{lmf part}
+We first perform self-consistent LDA/GGA calculation with adding sigm to
+one-body poteneital if it exist.
+\footnote{{\bf echo 1$|$qg4gw} and so on means that we invoke {\bf qg4gw} with
+the argument 1 from the standard I/O ( not from console).}
+\begin{itemize}
+\item{\bf echo 0 $|$lmfgw}: 
+  Get some small information files (crystal structure info and so on )
+  used in the next {\bf qg4gw}.
+\item{\bf echo 1 $|$qg4gw }: Get ${\bf k}$ points used
+  in the \GW calculations and the correponding ${\bf G}$ vectors.
+  See the output lqg4gw.
+\item{\bf echo 1 $|$lmfgw} : 
+ Calculate eigenfunctions, eigenvlaues, and
+ $\langle \psi | V^{\rm LDA}_{\rm xc}| \psi \rangle$ for these ${\bf k}$ .
+\item{\bf lmf2gw}: store these datas into {\sf DATA4GW\_V2} and {\sf CphiGeig} , 
+whose I/O is controlled by a key subroutine {\bf gwinput\_v2.f}.
+\end{itemize}
+
+At the end of the lmf part, we get required eigenfunctions, BZmesh data, and so on,
+which are required for the successive main stage.
+
+
+\subsection{GW part}
+This part is in order to generate Sigma-$V_{xc}^{\rm LDA}$
+from following files given by (1) lmf part.
+
+\fl{DATA4GW\_V2} Crystal structures and so.
+
+\fl{CphiGeig} Eigenvalues and Eigenfunctions this is divided into Cphi
+and Geig in rdata4gw.
+
+\fl{QGpsi} q and G vector for the eigenfunction(q means {\bf k} in the previous section),
+
+\fl{QGcou} q and G vector for the Coulomb matrix
+
+\fl{Q0P}   q points near q=0 instead of q=0,
+
+\fl{BZDATA} q points date (and tetrahedron weights if necessary) for BZ integrals. 
+
+\fl{QIBZ}  irreducible q points (This is also contained in {\sf BZDATA}).
+
+\fl{CLASS} class information for atomic sites.
+
+\fl{SYMOPS} point group operation
+
+\fl{GWinput} computational conditions.
+
+\begin{itemize}
+\item{\bf rdata4gw\_V2}: 
+     Read {\sf DATA4GW\_V2,CphiGeig}, and generate files
+     ECORE,PHIVC,CPHI,GEIG,VXCFP,... (see \verb+fpgw/main/rdata4gw_v2.m.F+)
+\item{\bf heftet   }: Get the Fermi energy {\sf EFERMI} by tetrahedron method. It is used in {\bf hx0fp0}.
+\item{\bf hchknw   }: stores the number of required $\omega$ points along real-axis into {\sf NW}. \\
+{\small ({\sf NW} is probably not essentially used, but is supposed to exist in the followings.)}
+\item{\bf echo 3$|$hbasfp0}: gives the product basis for Core exchange.
+\item{\bf echo 0$|$hvccfp0}: gives the Coulomb matrix for the Core exchange.
+\item{\bf echo 3$|$hsfp0  }: gives the Core exchange part of the self-energy.
+\item{\bf echo 0$|$hbasfp0}: gives the product basis.
+\item{\bf echo 0$|$hvccfp0}: gives the Coulomb matrix $v$.
+\item{\bf echo 1$|$hsfp0\_sc  }: gives the exchange part of the self-energy.
+\item{\bf echo 11$|$hx0fp0\_sc }: gives the correlated part of the screened Coulomb interaction $W-v$.
+\item{\bf echo 2$|$hsfp0\_sc  }: gives the correlated part of the self-energy.
+\item{\bf echo 0$|$hqpe\_sc   }: gather datas and write down final
+     results into files sigm, {\sf QPU} and so on.
+\end{itemize}
+
+NOTE: As for core exhcnage part, we can do it easily without using product
+basis. We will have to fix it since it becomes somehow time-consuming for large systems.
+
+
+\section{Cautions}
+We will detail it. You don't need to see this.
+Ask me if you have questions.
 
 \begin{verbatim}
+== emax cutoff
+  It is not necessary good to enlarge emax
+== Used MTO 
+ Near beginig of console output, what MTO you use is shown as: (GaAs case).
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Ga       0*   1.13  -1.00   6.579    1.19E-06    1459
+  Ga       1*   1.13  -1.00   7.028    1.26E-06    1807
+  Ga       2*   1.13  -1.00   7.475    1.09E-06    2109
+  Ga       3    1.13  -1.00   7.920    1.06E-06    2637
+  Ga       0*   1.13  -2.00   6.579    1.19E-06    1459
+  Ga       1*   1.13  -2.00   7.028    1.26E-06    1807
+  Ga       2    1.13  -2.00   7.475    1.09E-06    2109
+  As       0*   1.18  -1.00   6.300    2.13E-06    1243
+  As       1*   1.18  -1.00   6.720    1.26E-06    1471
+  As       2*   1.18  -1.00   7.140    1.37E-06    1837
+  As       3    1.18  -1.00   7.558    1.05E-06    2229
+  As       0*   1.18  -2.00   6.300    2.13E-06    1243
+  As       1*   1.18  -2.00   6.720    1.26E-06    1471
+  As       2    1.18  -2.00   7.140    1.37E-06    1837
+
+== gwsc cause error stop.
+ Have you ever changed MTO setting? Consistent with GWinput?
+
 == QSGW for Fe.
-  It is better to use 3p as core. Furthermore, 3d+4d as valence is better. 
-  Thus we need to set PZ=0,3.9,4.5
-  I also got aware that emax_sigm should be large enough (4$\sim$5 Ry) 
-  to have smooth band dispersion. n1n2n3 can be 10x10x10.
+  It is better to use 3p as core. Adding 4d as local orbital seems to
+  make calculation a little unstable (magnetic moment is a little
+  dependent on emax in GWinput).
+  n1n2n3 10 10 10 gives reasonabel result.
 
 == RSRNGE: enlarge RSRNGE ===
   Use RSRNGE=10 or so (in cases, RARNGE=20 or more is required), 
   for large number of k points. Try and enlarge it if it fails with a
   message "Exit -1 rdsigm: Bloch sum deviates more than allowed tolerance (tol=5e-6)".
   We will have to make it automatic in future.
-
-== Q0P check
-   In cases, it is better to use Q0Pchoice=2 instead of default Q0Pchoice=1.
-   (For slabs, Q0Pchoice=2 may be better; need check more. In anyway,
-    it is problematic to use unbalanced k points for anisotropic cell).
 
 == EPS mode,
   Check Im part of chi0 is smoothly damping at high energy (typically

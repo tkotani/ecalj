@@ -399,7 +399,7 @@ ctakao
       logical:: lfill=.false.,ixx,master_mpi,master_mpiset
       integer,allocatable:: ndimhx_(:),nev_(:)
       character(120):: vbmlll
-      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag
+      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag,jobpot
       real(8),parameter::    NULLR =-99999
       
 
@@ -709,11 +709,15 @@ C     Switch to plot bands at specified qp
           spotx=0d0
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
+cccccccccccccccccccccccccccccccccccccccccccccc
+          jobpot=0
+          if(lrsig/=0) jobpot=100
+cccccccccccccccccccccccccccccccccccccccccccccc
           call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 ,
      .     lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
      .     , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .     , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .     , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .     , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,jobpot )
           call togpr()
         endif
 !! --- readin job switch
@@ -755,11 +759,15 @@ ccccccccccccccccccccccccc
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
       call togpr()
+cccccccccccccccccccccccccccccccccccccccccccccc
+      jobpot=0
+      if(lrsig/=0) jobpot=100
+cccccccccccccccccccccccccccccccccccccccccccccc
       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
      .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
      .      , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .      , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,jobpot )
       call togpr()
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat

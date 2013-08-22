@@ -41,6 +41,10 @@ c wqp   = quasiparticle width
       dimension eqp(ntq,nq),eqp2(ntq,nq),wqp(ntq,nq)
       logical legas
 c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      vxc=0d0
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
       zfac=1d0 !sf..13may2002 zfac=1 to not change to much the rest of this code
       ! in SC GW
