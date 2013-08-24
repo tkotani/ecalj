@@ -21,9 +21,9 @@ Generally speaking, central part in any electronic structure
 packages is the one-body problem solver. 
 That is, how to calculate eigenvalues and eigenfunctions for given one-body
 potential. In turn, we can calculate one-body potential 
-for given eigenfuncitons and eigenvalues
+for given eigenfunctions and eigenvalues
 based on the density functional theory (DFT) in the LDA or GGA
-(hearafter LDA means both of LDA and GGA).
+(hereafter LDA means both of LDA and GGA).
 Then we can make the electron density self-consistent by iterations
 until converged, and obtain total energy of ground state.
 We can also calculate atomic forces simultaneously.
@@ -33,18 +33,18 @@ the exchange-correlation potential in DFT with that given by a GW method.
 In addition, kinds of physical properties, linear responses and so on, 
 can be calculated.
 
-Such one-body problem solovers (in the case of linear methods) are
+Such one-body problem solvers (in the case of linear methods) are
 characterized by (i) linear combinations of what basis set give eigenfunctions; 
 (ii) how to represent electron density and one-body potential.
 In the ecalj, we uses the PMT method, which is an
 all-electron full potential method where we use not only the
-augmented plane waves (APW), but also the muffintion oribtails (MTO),
+augmented plane waves (APW), but also the muffin-tin orbitals (MTO),
 in addition to the local orbital (lo). Within out knowledge no other
 methods allows us to use two kinds of augmented waves simultaneously.
-Thus eigenfuncions are represented by linear combinaitons of the
+Thus eigenfunctions are represented by linear combinations of the
 APWs, MTOs, and the lo's.
 Then the electron density and the one-body potential are represented
-by ``smooth part + onisite muffin-tin (MT) part - counter parts to
+by ``smooth part + onsite muffin-tin (MT) part - counter parts to
 remove smooth part within MTs.
 This part (Soler-Williams formalism) is essentially 
 the same as that of the projected augmented wave method.
@@ -53,11 +53,11 @@ With ecalj, we can perform the GW calculation.
 The usual GW approximation is to obtain
 quasiparticle energies (QPE) by one-shot calculation
 starting from LDA; this is so-called ``one-shot GW''.
-Its abilitiy is limited; it can fail when its starting point 
+Its ability is limited; it can fail when its starting point 
 (eigenfunctions and eigenvalues supplied by LDA) is problematic.
-Thus T.Kotani with collabolators have developed the QSGW method. 
-The QSGW now becomes popular, performed by other reserchers. 
-In principle, results by QSGW do not depent on LDA anymore; 
+Thus T.Kotani with collaborators have developed the QSGW method. 
+The QSGW now becomes popular, performed by other researchers. 
+In principle, results by QSGW do not depend on LDA anymore; 
 the LDA are only used to prepare initial condition for
 self-consistency cycle of the QSGW calculation (however, 
 exactly speaking, we use LDA to assist efficient implementation of QSGW,
@@ -78,10 +78,10 @@ calculate dielectric functions and so on.
 But total energy in QSGW is still in research.
 
 The ecalj package can also do other functions, 
-LDA+U, atomic force and relaxiation (in GGA/LDA), 
+LDA+U, atomic force and relaxation (in GGA/LDA), 
 spin fluctuation, optical response and so on.
 
-Recent developement of 
+Recent development of 
 dual-based MTO prescription allows us to use very localized MTOs
 (with damping factors $\exp(-r/(1{\rm a.u.}))$), together 
 with APWs of low energy cutoff ($\sim 3$ Ry). 
@@ -90,15 +90,15 @@ but also for kinds of applications in future.
 The MTOs can be used instead of the Wannier functions,
 but not so much research on it yet.
 
-The QSGW calculation requies so much computational time:
+The QSGW calculation requires so much computational time:
 roughly speaking, it takes $10$ or more times expensive than usual
 one-shot GW (but you can reduce computational time by choosing
 computational conditions).
 Thus the size of systems we can treat is about ten atom in a cell;
 computation requires about a week or so to have reasonable convergence.
 (heavy atoms require longer computational efforts,
-light atoms faster; we still have room to acceralate the method, but not
-yet so much. Minimum MPI parallization is implemented).
+light atoms faster; we still have room to accelerate the method, but not
+yet so much. Minimum MPI parallelization is implemented).
 The computational effort is $\propto N^4$.
 
 The ecalj web site is at 
@@ -107,24 +107,24 @@ The ecalj web site is at
 \end{verbatim}
 We can download ecalj package from this site.
 Free to download, modify, and use it, but we need you to clarify 
-acknowledgement to the package in your publications; 
+acknowledgment to the package in your publications; 
 without it, we can not continue further developments.
 We also have a web site at http://pmt.sakura.ne.jp/, 
-however, most of all are yet in japanese and not yet well organaized.
+however, most of all are yet in Japanese and not yet well organized.
 The ecalj is related to lmv7 package at\\
 \verb+http://titus.phy.qub.ac.uk/packages/LMTO/fp.html+. 
 The lmv7 and ecalj are branched off at year 2009.
 After branched, major contributions are due to Takao Kotani and Hiori
-Kino (NIMS). All codes are now in f90, and we have simpified 
+Kino (NIMS). All codes are now in f90, and we have simplified 
 complications in the lmf7 code. 
 
 A manual on lmv7 may be a help to learn ecalj. 
-But it may make you confused, becasue we have removed confusing
+But it may make you confused, because we have removed confusing
 parts from it, and simplified. Read this first. Then I show where we
 should read in the lmv7 manual.
 
 If you have something, let takaokotani@gmail.com know it.
-With your ideas, we like to have collabolations and newer development on
+With your ideas, we like to have collaborations and newer development on
 it. Or I may help something on it.
 
 
@@ -153,7 +153,7 @@ To help writing \verb+ctrls.*+,  ecalj contains samples
 and a converter between VASP-POSCAR format and ecalj-ctrls format.
 (Thus we can use tools for VASP).
 
-However, we may need to know a littlle more to obtain results for publications;
+However, we may need to know a Little more to obtain results for publications;
 some knowledge to judge whether obtained results 
 are reasonable or not. And check convergence by some different conditions.
 Especially, results by QSGW need to be examined carefully. 
@@ -167,7 +167,7 @@ by github, your results can be reproduced by others.
 Look into ecalj/README. (or you can see it at https://github.com/tkotani/ecalj).
 The installation is not do difficult (especially for gfortran, and ifort). 
 After finished, we have all required binaries and shell scripts in your
-~/bin. (or someswhere else where you specified at the bottom of Makefile.)
+~/bin. (or somewhere else where you specified at the bottom of Makefile.)
 %After installed, run install checker to confirm correct
 %installation.
 
@@ -188,7 +188,7 @@ Calculations are performed by following steps.
       It also calculate core eigenfunctions and valence charge for initial
       condition. And start main calculation lmf successively. 
       Then we get self-consistent result of LDA.
-\item Plot energy band, DOS, PDOS, by runnning scripts.
+\item Plot energy band, DOS, PDOS, by running scripts.
 \end{itemize}
 
 These \verb+ctrls+ and \verb+ctrl+ are with extensions as
@@ -196,7 +196,7 @@ These \verb+ctrls+ and \verb+ctrl+ are with extensions as
     ctrl.(id)
     ctrls.(id)
 \end{verbatim}
-. \verb+(id)+ is extention which we can add
+. \verb+(id)+ is extension which we can add
 (only lower letter allowed). For example, \verb+ctrls.cu+, \verb+ctrls.lagao3+. 
 
 
@@ -238,7 +238,7 @@ SITE
 \end{verbatim}
 
 Lines starting from '\#' are neglected as comment lines.
-Lines statring from \verb+% const+ define variables and set values
+Lines starting from \verb+% const+ define variables and set values
 (in these cases, \verb+da+ and \verb+alat+ \verb+bohr+). 
 Then the variable are used as \verb+{alat}+; in the cu case,
 \verb+{alat}+ means 6.798.
@@ -263,13 +263,13 @@ Note that SITE category can have multiple ATOM tokens. The number of
 ATOM token under SITE should be  the same as atoms in the primitive cell.
 In the case of GaAs; SITE contain multiple ATOM tokens.
 POS just next to ATOM is taken as subtokens under ATOM token. 
-(this may looks sligtly uncompfortable since the end of range of ATOM
- token is not so clear; but it is not a probelm).
+(this may looks slightly uncomfortable since the end of range of ATOM
+ token is not so clear; but it is not a problem).
 In cases, we specify such subtokens as SITE\_ATOM\_POS.
 
-In the SITE caterogy, we place atoms (MT names) in the primitive cell.
+In the SITE category, we place atoms (MT names) in the primitive cell.
 In these cases we use defaults atomic symbol (MT names) for \verb+ATOM+.
-POS is in the Cartesian coodinate, but in the unit of ALAT+DALAT.
+POS is in the Cartesian coordinate, but in the unit of ALAT+DALAT.
 
 For your test, you may make a test directory and copy a ctrls.* to your directory.
 If you have VESTA and ecalj/StructureTool installed, you can see its structure by 
@@ -293,7 +293,7 @@ $\bullet$ ecalj/StructureTool/ is not tested well. Not believe it so
 much... We will fix it on your request.
 \end{quote}
 
-Another exmaple with atoms is 
+Another example with atoms is 
 \verb+~/ecalj/lm7K/TESTsamples/SrTiO3/ctrls.srtio3+. This
 contains \verb+SITE+ category as
 \begin{verbatim}
@@ -307,8 +307,8 @@ contains \verb+SITE+ category as
 . Note that an expression 1/2 can be used for POS. 
 As it show, we can use mathematical expression instead of values.
 Mathematical expressions such as ``$+ -  * /$ sqrt(...)'' are recognized.
-(instead of $3**2$, use $3^2$. You can use parenthese, but no space for separation).
-(After ctrl generated, these is a command lmchk to check wether atomic
+(instead of $3**2$, use $3^2$. You can use parenthesis, but no space for separation).
+(After ctrl generated, these is a command lmchk to check weather atomic
 structure is correctly given or not.)
 We can use default atomic symbols (to check default atom name (MT name) type \verb+ctrlgen2.py --showatomlist+).
 Instead of such default symbols, we can use your own symbol as
@@ -332,7 +332,7 @@ We can see other samples in \verb+~/ecalj/lm7K/TESTsamples/*/ctrls.*+.
 (we also have a sample generator. See later section.)
 Note that ctrls file is jut in order to generate default ctrl file in
 the followings. Not from ctrls but from ctrl, we can start calculations.
-Thus ctrls is not necessary if we prepare ctrl file directry.
+Thus ctrls is not necessary if we prepare ctrl file directory.
 
 
 \subsection{Generate default ctrl from ctrls by ctrlgenM1.py}
@@ -343,7 +343,7 @@ in python 2.x and call fortran code internally).
 Two steps required to complete ctrl file:
 (i) we give reasonable options to invoke ctrlgenM1.py. 
 This generate a ctrl file.;
-(ii)we need to edit the ctrl file afterwards for your calculation.
+(ii)we need to edit the ctrl file afterward for your calculation.
 
 At first, try \verb+ctrlgenM1.py+ without arguments. It shows help. 
 To generate \verb+ctrl+ from \verb+ctrl+, type
@@ -371,7 +371,7 @@ The above command gives following console output.
     OK! A template of ctrl file, ctrlgen2.ctrl.cu, is generated.
 \end{verbatim}
 As we see above, 
-options which you speified are shown at the beginig of the cosole output
+options which you specified are shown at the beginning of the console output
 (in this case --nk1=8). Others such as --nspin=1 are default settings.
 If we like to perform spin-polarized calculations, we add other option
 '--nspin=2' as
@@ -394,14 +394,14 @@ Do lmchk to confirm correct crystal structure is really given or not.
 \begin{verbatim}
    lmchk --pr60 cu 
 \end{verbatim}
-Then it reads \verb+ctrl.cu+. \verb+--pr60+ is an option of verbose. Bigger number gives more informations.
+Then it reads \verb+ctrl.cu+. \verb+--pr60+ is an option of verbose. Bigger number gives more information.
 \begin{itemize}
 \item Lattice info, Space group symmetry operations (in lmf format), and
       their generators (these operations can be generated from a few of them.)
       See \verb+http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat+
       about how to represent the operations.
 \item Show atomic positions. If rst.* (this is generated after DFT
-      calculation and relaxiation) exists, it may show a position in
+      calculation and relaxation) exists, it may show a position in
       rst.* file (relaxed position). NEED to CHECK.
 \item Tabulate MT radius and distance between atomic sites.
 \end{itemize}
@@ -430,17 +430,17 @@ lines start from \verb+% const ...+ to define variables and set constant.
 
 %The ctrl file has a grammatical structure (although not completely systematic).
 We see ``categories'' such as \verb+VERS+ and \verb+IO+, and so on.
-The begining of categories are starting from the first column.
+The beginning of categories are starting from the first column.
 Under categories, we have "tokens" such as \verb+VERBOSE+.
-Thus we specify full name of token \verb+VEROSE+ under category
+Thus we specify full name of token \verb+VERBOSE+ under category
 \verb+IO+ as \verb+IO_VERBOSE+.
 
 The ctrl file generated by ctrlgenM1.py contains explanations.
-Thus read them first. Here we give some comlementary explanations to it.
+Thus read them first. Here we give some complementary explanations to it.
 
 \begin{itemize}
 \item
-\verb+IO_TIM+ is for debugging. Itshows which subroutines are
+\verb+IO_TIM+ is for debugging. It shows which subroutines are
 called and so on. Bigger number shows deeper subroutines.
 
 \item
@@ -463,7 +463,7 @@ We see \verb+ctrls+ is embedded in the \verb+ctrl+ by \verb+ctrlgenM1.py+.
 NL, NBAS(number of SITE) and NSPEC(number of SPEC) are automatically
 added by ctrlgenM1.py.
 It is possible to deform unit cell by adding optional tokens
-(it is possible to rotate PLAT for magnetic anisotoropy calculation).
+(it is possible to rotate PLAT for magnetic anisotropy calculation).
 See \verb+http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#STRUCcat+.
 For new calculations, it is better to find some examples first.
 
@@ -472,19 +472,19 @@ For new calculations, it is better to find some examples first.
 As for MT sites, we have two categories.
 (1)SPEC(species) and (2)SITE(specify centers of atoms(species) in primitive cell)
 As for SPEC, we specify MTs(radius, Z, MTOs on it) appeared in the cell.
-These are defined subtokens under SPEC\_ATOM=foobar (we have multimple SPEC\_ATOM=foobar).
+These are defined subtokens under SPEC\_ATOM=foobar (we have multiple SPEC\_ATOM=foobar).
 Then we place these SPEC\_ATOM=foobar at SITE sections.
 
 At SITE, we specify atomic sites 
 (What SPEC\_ATOM is placed to positions by POS) in a primitive cell.
-We set \verb+POS=+ by direct form (cartesian) but with the unit of \verb$ALAT+DLAT$.
+We set \verb+POS=+ by direct form (Cartesian) but with the unit of \verb$ALAT+DLAT$.
 Total number of SITE (number of tokens SITE\_ATOM) is
 the number of atoms in the primitive cell.
 SITE\_ATOM=foobar means we place foobar defined in SPEC\_ATOM=foobar.
 We set subtoken SITE\_ATOM\_POS under SITE\_ATOM, to specify atomic positions.
 In addition, we can set SITE\_ATOM\_RELAX, if you like to find relaxed
 structure (we simultaneously set DYN category) in LDA. As for
-relaxiation, see \verb+LaGaO_relax/ctrl.lagao+
+relaxation, see \verb+LaGaO_relax/ctrl.lagao+
 example, and read\\ \verb+http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat+.\\
 
 The SITE\_ATOM=foobar (with same foobar with different POS) are not
@@ -493,7 +493,7 @@ necessarily equivalent with respect to the space group operation of a system.
 %is equivalent on space group operations. 
 Thus \verb+SITE_ATOM=foobar+ are divided into ``classes'' which are
 connected by the operation. 
-The lmf automatically judge ``classes'' (see also infor by lmchk). 
+The lmf automatically judge ``classes'' (see also info by lmchk). 
 Thus not need to specify it, but it may be better to check it.
 A sample is \verb+lmchk lagao+ at \verb+~/ecalj/lm7K/TESTsamples/LaGaO_relax+
 
@@ -508,7 +508,7 @@ We have some \verb+SPEC_ATOM+,
 under which we give subtokens such as
 \verb+SPEC_ATOM_R+(MT radius), \verb+SPEC_ATOM_Z+(nucleus charge), 
 cutoff parameters of angular momentum, and so on. 
-These \verb+SPEC_ATOM+ is reffered to in SITE.
+These \verb+SPEC_ATOM+ is refereed to in SITE.
 
 An example of SPEC category is
 \begin{verbatim}
@@ -528,17 +528,17 @@ Under the token \verb+ATOM=Fe+, we have subtokens
 
 Subtokens Z= is the nucleus charge and R= MT radius.
 Note that Fe is just a name to distinguish MT sphere in the cell.
-If you set SPEC\_ATOM\_Z=27, it is recognazed as Co (since Z=27). 
+If you set SPEC\_ATOM\_Z=27, it is recognized as Co (since Z=27). 
 \verb+LMX=3+ is the maximum l of MTOs. Thus maximum l of MTO is l=3.
 The maximum of l to expand electron density and potential within MT is
 LMXA (in contrast to usual LAPW), we can use quite small LMXA such as
 LMXA=4. NMCORE=1 means we calculate core density without non magnetically-polarization.
-This can reduce comuputational confusion.
+This can reduce computational confusion.
 
 PZ is to set local orbital (if not, no local orbitals). EH and RSMH are
-to spefify first set of MTOs.(We can check how local orbitals are 
+to specify first set of MTOs.(We can check how local orbitals are 
 set by lmfa explained in the next section).
-EH2 and RSMH2 are to spefify second set of MTOs. 
+EH2 and RSMH2 are to specify second set of MTOs. 
 
 After PZ=, we have three numbers.
 These are numbers for s,p,d,f,g,... channels. Zero means not exist.
@@ -546,7 +546,7 @@ You can use space or , as delimiter.
 Here not only the integer part of principle quantum number, but also 
 the fractional part should be supplied (If PZ=0,3,4, it does not work.)
 Now PZ=3.9 for p and PZ=4.5 for d. This means we use local orbital for
-3p, and local orbital for 4d (fractional parts (continious principle quantum number) 
+3p, and local orbital for 4d (fractional parts (continuous principle quantum number) 
 are large $\sim 0.9$ for core like orbital, and smaller for extended
 orbital $\sim 0.3$ or something. See Logarithmic Derivative Parameters
 at \verb+http://titus.phy.qub.ac.uk/packages/LMTO/lmto.html+).
@@ -573,7 +573,7 @@ In the case of AntiFerro-II NiO, it contains
 two NiO in a primitive cell. Thus it is reasonable to have place two SPEC\_ATOM
 as Ni1 and Ni2, although subtokens under
 ATOM=Ni1 and ATOM=Ni2 (e.g. \verb+SPEC_ATOM_EH+ for them) are the same
-except initial contition of magnetic moment of MMOM=s,p,d,f...
+except initial condition of magnetic moment of MMOM=s,p,d,f...
 See example of NiO.
 \end{itemize}
 
@@ -594,7 +594,7 @@ to touch them. A part of it is
        Scaling of lattice vectors, in a.u.
     ... ..
 \end{verbatim}
-This is an minimu explanation of it. "reqd" means "required" (no
+This is an minimum explanation of it. "reqd" means "required" (no
 default). r8 means it read with real number, 1,1 means
 that ALAT=xxx should contain one number minimum (max is also one)
 (See also STRUC\_PLAT, and so on).
@@ -614,7 +614,7 @@ As for what is shown in \verb+$ lmf --input+, most of important tokens are
 already described in the ctrl file generated by ctrlgenM1.py.
 So, we don't need to care many options shown by it.
 But we have not explained 
-``STRUC category to defrom crystal, DYN category for dynamics, LDA+U
+``STRUC category to deform crystal, DYN category for dynamics, LDA+U
 treatment, Adding background charge, Core-Hole treatments'' here. 
 We will prepare examples for it if requested.
 \begin{verbatim}
@@ -632,7 +632,7 @@ To obtain the charge density, we solve atoms first. It is by
 \begin{verbatim}
    $ lmfa gaas | tee llmfa
 \end{verbatim}
-It takes just a few seconds. Here tee is a command of linux.
+It takes just a few seconds. Here tee is a command of Linux.
 It divide console output (standard output) to a file, and to console.
 
 Then try
@@ -659,17 +659,17 @@ conf:    1  4       5  0         0.000    0.000 =>
 conf:-----------------------------------------------------
 \end{verbatim}
 This is an initial electron distribution, and how we divide 
-core and valence. In this case core charege Qcore are (6 electron for s channel=1s,2s,3s
+core and valence. In this case core charge Qcore are (6 electron for s channel=1s,2s,3s
 and 12 electron for 2s and 3p). Core is not treated separately from valence electrons
 (frozen core approximation; we superpose rigid core density to make
 all-electron density). Qval means electrons for each s,p,d channels.
 The valence channels are 4s,4p,4d,4f (when we set EH=s,p,d,f). 
-The int(P)z columun is for local orbital. Thus we have 3d treated as
+The int(P)z column is for local orbital. Thus we have 3d treated as
 local orbital. (our code can add one local orbital per l)
 
 isp means spin (1 or 2), since --nspin=1 for Ga and As, no isp=2 exist.
-In summay we have 4s,4p,4d,3d,4f as valence. 
-This means we use correspoing number of MTOs and local orbitals.
+In summary we have 4s,4p,4d,3d,4f as valence. 
+This means we use corresponding number of MTOs and local orbitals.
 
 After lmfa, let us start main calculation.
 \begin{verbatim}
@@ -677,7 +677,7 @@ After lmfa, let us start main calculation.
 \end{verbatim}
 It might be better to do
 \verb+$ lmf cu | tee llmf+
-in order to keep cosole output to llmf. 
+in order to keep console output to llmf. 
 As it is a iteration calculations, 
 it shows similar output again and again.
 Then you end up with self-consistent result as
@@ -690,17 +690,17 @@ c ehf=-3304.8958531 ehk=-3304.8958529
  Exit 0 LMF 
  CPU time:    7.024s     Mon Aug 19 02:03:19 2013   on  
 \end{verbatim}
-\verb+it  8  of 30+ meand it stop at 8th iteration, althogh we set
+\verb+it  8  of 30+ means it stop at 8th iteration, although we set
 maximum number of iteration 30. Note that this number is 
 given by \verb+ITER_NIT=30+ in \verb+ctrl.cu+).
 \verb+ehf+ and \verb+ehk+ are the ground state energy in Ry.
-They are calculated in a littel different manner. Although
+They are calculated in a Little different manner. Although
 they are different during iterations, it finally get to be the
 almost the same number.(but it can be different like 10 micro Ry per atom
 even converged. But you don't need to care it so much).
-ehk:Hohenberg-Kohn energy, ehf: Harris-foulkner energy.
+ehk:Hohenberg-Kohn energy, ehf: Harris-Faulkner energy.
 
-grep diffe lllmf shows how the changed of total energy (and charges)
+``grep diffe lllmf'' shows how the changed of total energy (and charges)
 during iteration. diffe(q) mean  changes of energy with previous
 iteration、q is for electron density difference as well.
 See also save.* file, which only show ehk and ehk.
@@ -709,7 +709,7 @@ Thus we do have ground state energy.
 Although output of lmf is long, most of all are to monitor
 convergence.
 As long as it converged well, you don't need to look into it in detail.
-Eigenvalus are shown as
+Eigenvalues are shown as
 \begin{verbatim}
  bndfp:  kpt 1 of 4, k=  0.00000  0.00000  0.00000   ndimh = 122
  -1.2755 -1.2008 -1.2008 -0.2052 -0.2052 -0.2052 -0.0766 -0.0766 -0.0766
@@ -718,7 +718,7 @@ Eigenvalus are shown as
 \end{verbatim}
 This is at k=  0.00000  0.00000  0.00000 .
 (because of historical reason, two same bndfp: are shown in each
-iteration; two band path method). At,  ``lmf cu|grep -A6 BZWTS'' shows the fermi energy
+iteration; two band path method). At,  ``lmf cu|grep -A6 BZWTS'' shows the Fermi energy
 (for insulator, we see band gap). 
 Deep levels which gives little dependence on k are core like levels.
 
@@ -727,8 +727,8 @@ mix.* is a mixing file (which keeps iteration history).
 When you restart lmf again, it read rst.cu and mix.cu.
 If you start from lmfa result, please remove them.
 (or lmf --help show option of --rs=(five numbers), 
-how to read atm file which is the intial atom file by lmfa).
-We can do pararell calculation with lmf-MPIK, 
+how to read atm file which is the initial atom file by lmfa).
+We can do parallel calculation with lmf-MPIK, 
 we can invoke it with mpirun -np 8 lmf-MPIK cu. It should give the
 same answer.
 
@@ -742,10 +742,10 @@ At \verb+~/ecalj/lm7K/TESTsmaples/*+, we have
 \begin{verbatim}
     job_tdos, job_band_nspin1, job_band_nspin2
 \end{verbatim}
-. Read this script, and then you see how to plot enery bands.
+. Read this script, and then you see how to plot energy bands.
 
 For total DOS plot, it is better to check ctrl file;
-\verb+BZ_TETRA=1+(this is defalult; thus make sure that \verb+BZ_TETRA+ do
+\verb+BZ_TETRA=1+(this is default; thus make sure that \verb+BZ_TETRA+ do
 not exist or \verb+BZ_TETRA=1+). 
 In addition, we have to enlarge number of k point \verb+NKABC+ large enough.
 Then we do
@@ -785,7 +785,7 @@ for {\bf k} points from {\bf k}=(0.5,0.5,0.5) to {\bf k}=(0,0,0).
 seven numbers for each line.
 Second line means, we calculate eigenvalues 
 for k points from {\bf k}=(0,0,0) to {\bf k}=(1,0,0).
-3rd line means calcultion just stop here.
+3rd line means calculation just stop here.
 Units of {\bf k} are in 2$\pi$\verb+ALAT+.
 
 A line starting from '\#' is neglected (comment line).
@@ -812,9 +812,9 @@ It shows many figures in gnuplot. It is a little expensive because we
 use no symmetry to distinguish all lm channel in a simple manner.
 (PDOS is not yet implemented for SO=1 case; spin-orbit coupling $\L\dot S$ is added.)
 We have to re-organize script of gnuplot (pdos.site*.*.glt) for your purpose.
-In priniciple, meanings of all data files are shown (see at the bottom
+In principle, meanings of all data files are shown (see at the bottom
 of console output about lm ordering in a line), thus not so difficult to
-rewrite *.glt. For example, to plot eg and t2g separaely. 
+rewrite *.glt. For example, to plot eg and t2g separately. 
 (NOTE: site id is shown by lmchk).\\
 
 \noindent {\bf \large WARNING}: Usually lmf and so on recognize options such as -vnspin=2 or
@@ -903,7 +903,7 @@ To make band plot and so on for Fe,
 Then it shows a help. 
 See joblmf file also (it contains options to invoke lmf. This is shown
 in save.*. In principle, options in joblmf should be passed to band plot
-and so on. But not yet implemented (it is not so diffficult).
+and so on. But not yet implemented (it is not so difficult).
 
 
 
@@ -928,7 +928,7 @@ Let us start from ctrls.si as
 In order to perform QSGW, one another input file 
 \verb+GWinput+ is necessary in addition to \verb+ctrl+.
 Thus all input files for QSGW is just two files, ctrl.* and GWinput.
-A templete \verb+GWinput+ can be generated by a script \verb+mkGWIN_lmf2+. 
+A template \verb+GWinput+ can be generated by a script \verb+mkGWIN_lmf2+. 
 You may have to modify it in cases for your purpose.
 
 Let us start from ctrls.si;
@@ -944,7 +944,7 @@ SITE
 \end{verbatim}
 . Do ``ctrlgenM1.py si --tratio=1.0''and rename ctrlgenM1.ctrl.si to
 ctrl.si. (--tratio=1.0 means touching MT (check it by lmchk); 
-it is probably slightly advantagenous in our version of GW calculation).
+it is probably slightly advantageous in our version of GW calculation).
 Let us invoke \verb+mkGWIN_lmf2+ as follows.
 \begin{verbatim}
     $ lmfa si (lmfa is needed to do in advance).
@@ -979,7 +979,7 @@ Look into \verb+GWinput+. Because of historical reason,
 input system is different from ctrl.
 Each line is independent; ``keyword'' followed by some of numbers 
 (or on or off for logical switch of keyword). 
-Except such lines, there are tag sandwitched sections 
+Except such lines, there are tag sandwiched sections 
 such as \verb+<PRODUCT\_BASIS> ... </PRODUCT_BASIS>+, 
 no comment lines in the middle allowed. They are read by
 read(*,*) (thus spaces cause no problem).
@@ -992,7 +992,7 @@ for self-energy calculations.
 \verb+emax_sigm+ is the maximum limit of the self-energy 
 (measured from the Fermi energy). I think $2.5\sim5$Ry is reasonable choice.
 But in cases, small \verb+emax_sigm+ can give poor dispersion curve
-(slightly unnatural behevior) because of sudden cutoff by emax\_sigm.
+(slightly unnatural behavior) because of sudden cutoff by emax\_sigm.
 However, we like to use smaller value to reduce computational time.
 That is, larger is better, but expensive. 
 Generally speaking, accuracy less than 0.1eV (for bandgap) 
@@ -1006,7 +1006,7 @@ to expand the Coulomb interaction. (The product basis is to expand the
 Coulomb interaction is different from the basis to expand eigenfunction.)
 In our experience, \verb+0.100000D-02+ (=0.001) is not so bad.
 If you like to reduce computational time use 0.01 or so, but a little
-dangeous in cases. With 0.0001, we can check stability on it.
+dangerous in cases. With 0.0001, we can check stability on it.
 
 \item
      \verb+QGcut_psi+ is a little (usually 0.5 or so) larger than \verb+QpGcut_cou+.
@@ -1041,7 +1041,7 @@ dangeous in cases. With 0.0001, we can check stability on it.
      or do very accurate calculations, we may need to touch it.  
      It is described elsewhere.
 \item
-    \verb+<QPNT>+ tag is to spesify one-shot GW. At which point, do we
+    \verb+<QPNT>+ tag is to specify one-shot GW. At which point, do we
     calculate QPE, not for QSGW. If you set k point in it not on regular mesh point,
     you have to set 'Any Q on'; but it is expensive.
     Since QSGW have ability to plot energy band within full BZ,
@@ -1055,13 +1055,13 @@ dangeous in cases. With 0.0001, we can check stability on it.
 \begin{quote}
 We need a setting in ctrl file to read sigm file (HAM\_SIGP). 
 It is simplified now, and not need to care it so much.
-As we set RDSIG=12 in defauls, lmf read sigm file and add it to one-body
+As we set RDSIG=12 in defaults, lmf read sigm file and add it to one-body
 potential as long as sigm.* exist.\\
 
 {\bf NOTE for old users}: We now set \verb+SIGP[MODE=3 EMAX=9999.]+
 in ctrl file to read self-energy in lmf (or lmf-MPIK). 
 This is because we use very localized MTOs (similar with the Maxloc Wannier).
-Our test shows reasonable results and this simplify algolisms.
+Our test shows reasonable results and this simplify algorithms.
 In my previous version, we asked you to use \verb+SIGP[MODE=3 EMAX=2.0]+
 where EMAX is a little (0.5Ry) less than \verb+emax_sigm+. If something
 strange occurs, try this setting).
@@ -1076,19 +1076,19 @@ to use vwn (XCFUN=1) for QSGW calculations. (BUT need to check more...)
 \subsection{do QSGW calculation}
 \label{fpgw-calc}
 Let us perform QSGW calculation. 
-Fot this purpose, we use a script \verb+gwsc+. 
+For this purpose, we use a script \verb+gwsc+. 
 \begin{verbatim}
     gwsc (number of iteration+1) -np (number of nodes) (id of ctrl)
 \end{verbatim}
 If (number of iteration+1)=0, it gives one-shot calculation from LDA.
 But it is different from the usual one-shot in literatures;
-since it caltulates off-diagonal elements of self-energy also,
+since it calculates off-diagonal elements of self-energy also,
 we can plot energy band dispersion plot. In cases (such as usual
 semiconductors), it gives rather reasonable results in comparison with
-experiments from practical point of veiw.
+experiments from practical point of view.
 
-This is an exaple of one iteration of QSGW cycle.
-(now a little different but essentiall similar)
+This is an example of one iteration of QSGW cycle.
+(now a little different but essentially similar)
 \begin{verbatim}
 takao@TT4:~/ecalj/test1$ gwsc 0 -np 2 si
 gwsc 0 -np 2 si
@@ -1117,15 +1117,15 @@ OK! --> == 0 iteration over ==
 OK! --> Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_gwscend.0 
 OK! ==== All calclation finished for gwsc 0 -np 2 si ====
 \end{verbatim}
-Here \verb+echo (integer)+ is readin in at the beging of the code.
+Here \verb+echo (integer)+ is readin in at the begging of the code.
 To see it, please look into gwsc script (gwsc is at
 ecalj/fpgw/exec/ and copied to your bin/ by make install2). 
 In anyway, this console output shows calculations finished normally.\\
 
 Now we get rst.si and sigm.si file which contains (static version of) self-energy
-minums $V_{\rm xc}^{\rm LDA}$.
+minims $V_{\rm xc}^{\rm LDA}$.
 What we did is the one-shot GW from LDA result; but note that we
-calculate not only diagonalelements but also off-diagonal elements. 
+calculate not only diagonal elements but also off-diagonal elements. 
 
 We can write energy dispersion (band plot) in the same manner in LDA.
 To do it, we need rst.si, sigm.si, ctrl.si, QGpsi, and ESEAVR.
@@ -1181,7 +1181,7 @@ OK
 Note that we do skip 0th iteration (it is for one-shot from LDA) since
 we start from rst.si and sigm.si given by one-shot LDA.
 Thus we do just five iterations.
-Infomation of eigenvalues are in \verb+QPU.(number)run+ files.
+Information of eigenvalues are in \verb+QPU.(number)run+ files.
 (for magnetic systems with nspin=2), wee have \verb+QPD.(number)run+ also).
 Check it by ls;
 \begin{verbatim}
@@ -1190,9 +1190,9 @@ Check it by ls;
 \end{verbatim}
 (These are overwritten when we again repeat gwsc; be careful.)
 Note that \verb+QPU0.run+ was old one when you did 1-shot GW from LDA 
-at the begining.
+at the beginning.
 
-In order to check convergece calculations going well, do
+In order to check convergence calculations going well, do
 \begin{verbatim}
    $ grep gap llmf*
 \end{verbatim}
@@ -1213,7 +1213,7 @@ QPU files).  Then it shows at the bottom as
 \end{verbatim}
 but you don't need to care it so much.
 You rather need to check the difference of values.
-I can say most of all difference (especially aroung the fermi energy are
+I can say most of all difference (especially around the Fermi energy are
 ) are almost 0.00eV or 0.01eV, we can judge QPEs are converged.
 If not converged well, you may need to repeat 
 \verb+gwsc+ again.
@@ -1248,7 +1248,7 @@ If not converged well, you may need to repeat
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Appendix}
-\subsection{appendex 1; How to add spin-orbit coupling}
+\subsection{appendix 1; How to add spin-orbit coupling}
 \begin{verbatim}
 Do LDA and/or QSGW with SO=0 first.
 Then apply the spin-orbit coupling by perturbation.
@@ -1293,25 +1293,27 @@ it is not necessary better than the above procedure.
 \begin{verbatim}
   As we stated, do "lmfa |grep conf" to check used MTO basis. 
 
-  We have to set SPEC_ATOM_PZ= 
+  We have to set SPEC_ATOM_PZ=?,?,? 
   (they ordered as PZ=s,p,d,f,... ) to set local orbitals.
   
-  Continious principle quantum number is defined as
-    P=principleQuantumNumber + 0.5-atan(1/phi dphi/dr) 
+  lmv7 (originally due to ASA in Stuttgart) uses a special terminology
+  "continious principle quantum number for each l", which is just
+  relatated to the logalismic derivative of radial funcitons at MT
+  boundary. It is defined as
+   P= principleQuantumNumber + 0.5-1/pi*atan(r* 1/phi dphi/dr),
+  where phi is the radial function for each l.   For example, 
+   P= n.5 for l=0 of free electron (flat potential) because phi=r^0,
+   P= n.25 for l=1 because phi=r^1; 
+   P= n.147584 for l=2 because phi=r^2; P=, n.102416 n.077979 for l=3,4.
+  (Integer part can be changed). See Logarithmic Derivative Parameters in
+  http://titus.phy.qub.ac.uk/packages/LMTO/lmto.html#section2
+
   Its fractioanl part 0.5-atan(1/phi dphi/dr) is closer to unity for
   core like orbital, but closer to zero for extended orbitals.
-  There are the free electron value for P 
-  (in the case of constant potential, phi=r^(l+1)). 
-  They are shown in 'pfree' in console output. These numbers are
-   1.500000 
-   2.250000 
-   3.147584   0.147584=0.5-atan(2+1)
-   4.102416
-   5.077979
 
- Examples of choice:
-  Ga p: in this case, choice 0 or choice 3 is recommended.
-        We usually use lo for semi-core, or virtually unoccupied level.
+  Examples of choice:
+  Ga p: in this case, choice 0 or choice 2 is recommended.
+      We usually use lo for semi-core, or virtually unoccupied level.
 
      (0)no lo (4p as valence is default treatment without lo.)
         3p core, 4p valence, no lo: default.
@@ -1320,26 +1322,29 @@ it is not necessary better than the above procedure.
         3d semi core, 4d valence  
         Set PZ=0,3.9 
         (P is not requied to set. *.9 for core like state. It is just an initial condition.)
-     (2)4p lo ---> 5p val (we don't use this usually. this is for test purpose)
+     (2)5p lo ---> 4p val (PZ>P)
+        Set PZ=0,5.5 
+        5.5 is just simply given by a guess (no method have yet
+		implemented for 
+        If 5.2 or something, it may fails
+        because of poorness in linear-dependency. We may need to observe
+        results should not change so much on the value of PZ.
+
+     (3xxx)4p lo ---> 5p val (we don't use this usually. this is for test purpose)
         4p lo, 5p valence 
         Set PZ=0,4.5 P=0,5.5 (In this case, set P= simultaneously).
         (NOTE: zero for s channel is to use defalut numbers for s)
-     (3)5p lo ---> 4p val (PZ>P)
-        Set PZ=0,5.5
-        5.5 is just simply given by a guess. If 5.2 or something, it may fails
-        because of poorness in linear-dependency. We may need to observe
-        results should not change so much on the value of PZ.
 
   Ga d: (in this case, choice 0 or choice 1 is recommended).
      (0)no lo (3d core, 4d valecne, no lo: default.)
           Then we have choice that lo is set to be for 3d,4d,5d.
      (1) 3d lo ---> 4d val  (when 3d is treated as valence)
          Set PZ=0,0,3.9  (P is not required to set)
-     (2) 4d lo ---> 5d val  (this is for test purpose)
+     (2) 5d lo ---> 4d val  (PZ>P)
+         Set PZ=0,0,5.5
+     (3xxx) 4d lo ---> 5d val  (this is for test purpose)
          Set PZ=0,0,5.5 P=0,0,4.5
          (NOTE: zero  for s,p are to use defalut numbers )
-     (3) 5d lo ---> 4d val  (PZ>P)
-         Set PZ=0,0,5.5
 
    If you like to read from atm.ga file instead of rst file(if exist).
    You have to do lmf --rs=1,1,0,0,1, for example. See lmf --help
@@ -1349,12 +1354,111 @@ it is not necessary better than the above procedure.
 \end{verbatim}
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{ MEMO random}
-These are memo randoms. We will detail it. Ask me if you have questions.
+These are memo randoms. 
+I have to explain them.
+
+xxx under construction xxxxxxxxxxxxxxx
 
 \begin{verbatim}
+== not meaningful total energy ===
+ Total energy shown in QSGW mode in current version is not meaningul.
+ (just treat as an indicator to convergence).
+
+== Do we use vwn or gga for QSGW? ===
+  In prinicple, QSGW results should not depends on vwn or gga 
+  (XCFUN=1 or 103 in ctrl). But there is minor dependence, because
+   1. frozen core density.
+   2. core eigenfunction.
+   3. radial basis funcitons
+   4. Slight numerical reason 
+      (This is probably because Sigma-interpolation procedure
+       But not exactly figured out yet
+       -->affect about 0.02eV as for band gap for GaAs. ).
+  In anyway, use vwn (HAM_XCFUN=1) as standard.
+  And such technical things affects, 0.05 eV level of error for band gap.
+
+== one show QSGW ==
+  one-shot QSGW may be useful in cases.
+  As it contains off-diagonal part, we can resolve band tanglement
+  problem in Ge (no band gap).
+ 
+
+== Restart calculation in lda ==
+ lmf(lmf-MPIK) read rst.* in defaluts.
+ rst contains electron density.
+ If rst is already converged, it stops after two iteration.
+ rst contains atomic positions.
+ So, in order to read atomic positions change in ctrl,
+ Use options shown in lmf --help.
+
+== Restart calculation in qsgw ==
+  To remove mixsigm* (mixing for sigm), maybe required.
+
+== iteration check ===
+  First, watch console output of gwsc (do redirect to output file)
+  Need to check OK! signs arrayed on 1st columns.
+
+  gwsc iteration is time cosuming,
+  So we need to check calculations are normally going on or not.
+
+  Memory inefficiency.
+  Set 'KeepEigen off' an 'KeepPPOVL' off.
+  In fact, out code is still inefficient for memory usage.
+  
+  grep gap llmf ---> minimum gap at mesh point.
+  see save.* ,or grep '[xc] ' save.*
+  the end of iteration of lmf is shown as x or c.
+  (if failed, QPU file. 
+  dqpu QPU.4run QPU.3run
+  As for usual semi-conductor, accuracy abou t0.1 eV is limit of current implementation.
+  Set vwn (xcfun=1) looks better (stable) for GW.
+
+  $grep rms lqpe* 
+  shows
+           ...  rmsdel=2.44D-04
+           ...  rmsdel=4.91D-03
+           ...   rmsdel=2.44D-04
+           ...   rmsdel=3.37D-04
+  If rsmdel is getteing to be smaller, it is on convergence path.
+  (but in magnetic cases, it may give be too good even not yet going to
+	be converged..., beccause magnetic energy is so small)
+
+  grep diffe llmf  ---> difference of energies of each iteration.
+
+  ehf (harris energy)
+  ehk (Hohenberg kohn energy)
+
+== emax cutoff for APWs. ==
+  We can not use so many APWs in current version,
+  because of overcompleteness (this is because null vector within MTs), 
+  In anyway, use pwemax=3 as standard (test it with 4 or 5).
+  To avoid failure of calculation, we may use smaller MT radius for
+  alkali, and alkali-earth elements. 
+
+== Check Used MTO 
+ Near beginig of console output, what MTO you use is shown as: (GaAs case).
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Ga       0*   1.13  -1.00   6.579    1.19E-06    1459
+  Ga       1*   1.13  -1.00   7.028    1.26E-06    1807
+  Ga       2*   1.13  -1.00   7.475    1.09E-06    2109
+  Ga       3    1.13  -1.00   7.920    1.06E-06    2637
+  Ga       0*   1.13  -2.00   6.579    1.19E-06    1459
+  Ga       1*   1.13  -2.00   7.028    1.26E-06    1807
+  Ga       2    1.13  -2.00   7.475    1.09E-06    2109
+  As       0*   1.18  -1.00   6.300    2.13E-06    1243
+  As       1*   1.18  -1.00   6.720    1.26E-06    1471
+  As       2*   1.18  -1.00   7.140    1.37E-06    1837
+  As       3    1.18  -1.00   7.558    1.05E-06    2229
+  As       0*   1.18  -2.00   6.300    2.13E-06    1243
+  As       1*   1.18  -2.00   6.720    1.26E-06    1471
+  As       2    1.18  -2.00   7.140    1.37E-06    1837
+
+== gwsc cause error stop.
+ Have you ever changed MTO setting? Consistent with GWinput?
+
 == QSGW for Fe.
   It is better to use 3p as core. Furthermore, 3d+4d as valence is better. 
   Thus we need to set PZ=0,3.9,4.5
@@ -1395,6 +1499,23 @@ when calculation fails in LDA level.
   (1) smaller MT
   (2) fewer PW. smaller pwemax.
   (3) core as semicore.
+
+
+=== LDA+U ===
+not yet...
+sample
+
+=== MAE by rotating crystal ===
+(we have a sample at
+
+=== spin wave ===
+J calculation.
+
+
+xxxxxxxxxx
+At line 663 of file slatsm/fopna.F (unit = 13, file = '')
+Fortran runtime error: File 'vessm.gas' already exists
+--> mpirun -np 12 lmf ? (you have to use lmf-MPIK..)
 
 \end{verbatim}
 
