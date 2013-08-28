@@ -10,11 +10,12 @@
 \tableofcontents
 \newpage
 \section{Introduction}
-``ecalj package'' is for first-principle electronic structure
-calculations with unique features. 
-Especially, as we explain in the next subsection,
+``ecalj'' is a package for first-principle electronic structure
+calculation. It has unique features. 
+Especially, as we see in the next subsection,
 a main feature is in the quasiparticle self-consistent GW (QSGW)
 calculation based on the PMT method (=Linearized APW+MTO method).
+
 
 \subsection{Features of the ecalj package.}
 Generally speaking, central part in any electronic structure
@@ -127,45 +128,83 @@ If you have something, let takaokotani@gmail.com know it.
 With your ideas, we like to have collaborations and newer development on
 it. Or I may help something on it.
 
+\subsection{What can we expect for QSGW?}
+We expect that QSGW will give similar results with hybrid functional methods 
+like Vxc = alpha*LDA+(1-alpha)*(Fock exchange), where alpha is taken to
+be ~0.25 usually. QSGW automatically determine $W$ 
+(the screened Coulomb interaction) self-consistntly. 
+Roughly speaking, such alpha is automatically determined.
+Two important aspects of non-local potential:
+one is onsite non-locality given by LDA+U; the other is
+the off-site (mainly nearest neigbor) non-locality which gives 
+LUMO-HOMO gap. The main purpose of QSGW is to determine ``best $H_0$'', 
+on which we describe one-particle picture to describe theories.
+In addition, $W$ is determined consistently.
+
+In comparision with LDA, we see differences of
+\begin{itemize}
+\item
+band gap.
+\item
+band width. As for sp bands, it is enlarged.
+As for localized bands, they can be narrowed.
+\item
+relative position. eg. O(2p) and Ni(3d).
+\item
+hybridyzation.
+QSGW tends to make eigenfunctions localized.
+\item
+magnetization.
+\end{itemize}
+
+In principle, we can calculate total energy, but not yet.
+We can calculation the screened Coulomb interaction $W=v/\epsilon$.
+In addition, spin susceptibility $\chi_0^{+-}$
+(In near future, we need to combine it with $W$).
+
 
 \subsection{What is in this booklet?}
-Here we can show minimum on the ecalj package.
+Here we show minimum on the ecalj package.
 \begin{itemize}
 \item
 How to perform self-consistent calculations by the density functional
-theory (DF) in the LDA 
-%\footnote{In the followings, DF usually means ``DF in LDA or GGA''}
-\item
-How to perform the QSGW calculations.
+theory (DF) in the LDA. 
 \item
 How to plot energy bands (BAND), total density of states
 (DOS), and the partial density of states (PDOS).
 \item
+How to perform the QSGW calculations.
+\item
+How to read input files, and outputs.
+\item
 How to plot dielectric functions, and non-interacting spin
-     susceptibility $\chi_0^{+-}$. (not documented yet...)
+     susceptibility $\chi_0^{+-}$.
 \end{itemize}
 
-To perform calculations becomes easier recently.
+To perform calculations in ecalj becomes easier recently.
 After we prepare a crystal structure file named as \verb+ctrls.*+,
 we run a a script (\verb+ctrlgenM1.py+) to generate \verb+ctrl.*+
-Its contains (not so bad) default setting to do calculations.
-To help writing \verb+ctrls.*+,  ecalj contains samples 
-and a converter between VASP-POSCAR format and ecalj-ctrls format.
-(Thus we can use tools for VASP).
+It contains (not so bad) default setting to do following calculations.
 
-However, we may need to know a Little more to obtain results for publications;
-some knowledge to judge whether obtained results 
-are reasonable or not. And check convergence by some different conditions.
+To help writing \verb+ctrls.*+, ecalj contains samples 
+and a converter between VASP-POSCAR format 
+and ecalj-ctrls format. 
+
+However, we need to know a little more to obtain results for publications;
+knowledge to judge whether obtained results are reasonable or not. 
+And check convergence by some different conditions.
 Especially, results by QSGW need to be examined carefully. 
-But, an advantage is that the QSGW code is version controlled and hosted
-by github, your results can be reproduced by others.
+
+The QSGW code is version controlled by git, 
+and hosted by github, your results can be reproduced by others.
+(need to specify version number and input files.)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Install}
 \label{install}
-Look into ecalj/README. (or you can see it at https://github.com/tkotani/ecalj).
-The installation is not do difficult (especially for gfortran, and ifort). 
+Look into ecalj/README. (it is shown at https://github.com/tkotani/ecalj).
+The installation is not do difficult (especially for gfortran and ifort). 
 After finished, we have all required binaries and shell scripts in your
 ~/bin. (or somewhere else where you specified at the bottom of Makefile.)
 %After installed, run install checker to confirm correct
@@ -180,18 +219,19 @@ Calculations are performed by following steps.
   It can be by hand, or convert it from POSCAR (in vasp). There
   is a tool to convert between POSCAR and ctrls. (ecalj/StructureTool/README).
   There is a checker, lmchk, to confirm the crystal structure is read well or not.
-\item Generate ctrl from ctrls by a script \verb+ctrlgenM1.py+. 
-     \verb+ctrl+ is the main control file which contains all required
+\item Generate ctrl.* from ctrls.* by a script \verb+ctrlgenM1.py+. 
+     \verb+ctrl.*+ is the main control file which contains all required
       information for calculations; as a part it contains ctrls.
       Then we we edit the generated ctrl file for your purpose.
+      You can also write \verb+ctrl.*+ by your hand from scratch.
 \item Do lmfa (just calculate atoms (MT sites) placed in the cell). 
-      It also calculate core eigenfunctions and valence charge for initial
+      It also calculate core eigenfunctions and valence electron charge for initial
       condition. And start main calculation lmf successively. 
       Then we get self-consistent result of LDA.
 \item Plot energy band, DOS, PDOS, by running scripts.
 \end{itemize}
 
-These \verb+ctrls+ and \verb+ctrl+ are with extensions as
+Note \verb+ctrls+ and \verb+ctrl+ are with extensions as
 \begin{verbatim}
     ctrl.(id)
     ctrls.(id)
@@ -238,11 +278,13 @@ SITE
 \end{verbatim}
 
 Lines starting from '\#' are neglected as comment lines.
-Lines starting from \verb+% const+ define variables and set values
-(in these cases, \verb+da+ and \verb+alat+ \verb+bohr+). 
-Then the variable are used as \verb+{alat}+; in the cu case,
+Lines starting from '\verb+% const+' define variables and set values
+(in these cases, \verb+da+, \verb+alat+, and \verb+bohr+). 
+Then the variable \verb+alat+ is referred to as \verb+{alat}+; in the cu case,
 \verb+{alat}+ means 6.798.
 Lines not start from "\#" nor "\%" are main content in the ctrls file.
+\footnote{for these variables, we can give values when we start
+program. E.g, 'lmf -vdalat=0.1' si;this is recorded in save.si file.}
 
 Note that we have two tags of ``categories'' "STRUC" and "SITE". 
 These tags should start from the first column. 
@@ -252,6 +294,7 @@ These under STRUC category.
 ALAT+DALAT specify a unit to mesure length in this ctrl file.
 These are in a.u. (= bohr radius=0.529177\AA). 
 We use ALAT+DALAT as unit to specify primitive vectors to specify unit cell.
+
 The unit cell is given by PLAT (ALAT as unit).
 In the above example, three primitive cell vectors specified by nine
 numbers after PLAT=; they give three primitive vectors;
@@ -1524,6 +1567,7 @@ mixbeta 0.5
 at the begining of sigma.
 
 
+=======
 \end{verbatim}
 
 
