@@ -42,7 +42,7 @@ c wqp   = quasiparticle width
       logical legas
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      vxc=0d0
+c      vxc=0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 

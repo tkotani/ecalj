@@ -127,6 +127,10 @@ C ... Heap
 Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
 Changenglob      lxcfun = nglob('lxcf')
+cccccccccccccccccccccccccccccccccccccccc
+c      lxcfun=1
+c      print *,' smvxcm lxcfun=',lxcfun
+ccccccccccccccccccccccccccccccccccccccccc
       lxcfun = globalvariables%lxcf
       call tcn('smvxc')
 c      i_copy_size=size(slat%nabc)

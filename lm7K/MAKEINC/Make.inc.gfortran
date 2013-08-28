@@ -1,4 +1,4 @@
-FC = gfortran
+FC = gfortran 
 LK = gfortran
 
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
@@ -20,9 +20,8 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
 ##### MATH libraries FFTW,BLAS LAPACK ###
 # ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
-LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-
-
+#LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
 
 

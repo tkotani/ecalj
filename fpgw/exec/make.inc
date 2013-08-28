@@ -130,7 +130,8 @@ tet5_g = .o
 #LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
 
 #LIBLOC= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
-LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+#LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+LIBLOC=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
 
 
@@ -153,12 +154,7 @@ LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-# rcgw handai.
-#LIBLOC= -L/opt/intel/composerxe-2011.1.107/mkl/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_intel_lp64  -lmkl_lapack95_lp64 -lmkl_sequen\
-tial -lmkl_cdft_core -lmkl_core -lpthread -L/home/fukazawa/fftw/lib/libfftw3.a
-
 LIBMATH= $(LIBLOC)
-
 
 
 

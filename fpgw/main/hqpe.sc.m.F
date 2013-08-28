@@ -54,7 +54,7 @@ c----------------------------------------------
 
       real(8):: anfvec(3)
       character(2):: soflag
-      real(8) :: wex
+      real(8) :: wex,wexx
       logical :: exonly,mtosigmaonly
       integer(4):: ret
 
@@ -292,6 +292,10 @@ c     print *,' nnn =',nnn
           print *, ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
           read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ctakao test
+          v_xc=0d0
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
           if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
@@ -640,16 +644,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if(itp/=itpp.and.isigma_en==5) then
                 se(itp,itpp,ip)= 0d0
               else
-c     Aug2004
-                if(.not.exonly) then
-                  se(itp,itpp,ip)= se(itp,itpp,ip)
-     &                       -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
-     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
-                else
-                  se(itp,itpp,ip)= se(itp,itpp,ip)
-     &                       -wex*.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
-     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
-                endif
+!comment out aug2013 
+c$$$c     Aug2004
+c$$$                if(.not.exonly) then
+c$$$                  se(itp,itpp,ip)= se(itp,itpp,ip)
+c$$$     &                       -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
+c$$$     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
+c$$$                else
+c$$$                  se(itp,itpp,ip)= se(itp,itpp,ip)
+c$$$     &                       -wex*.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
+c$$$     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
+c$$$                endif
 
               endif
             enddo
@@ -707,8 +712,14 @@ c
           else
              ndimsig2 = nz
           endif   
+
+          wexx=1d0
+          if(exonly) wexx=wex
           ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntq)
      &    ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:ndimsig2)))
+! aug2013
+     &            -wexx*.5d0* v_xc(1:ndimsig2,1:ndimsig2,ikpx,is)
+
 
 c     - write SE_ij-Vxc_ij where ij are basis function indices
           do itp=1,ndimsig2

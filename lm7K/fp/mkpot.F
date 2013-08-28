@@ -359,6 +359,7 @@ C --- Add smooth exchange-correlation potential ---
       call dpzero(rvexv,2)
       call dpzero(rvecv,2)
       call dpzero(rvvxcv,2)
+c      print *,'wwwwwwwwwwwww going ',mod(job,1000) .lt. 100
       if (mod(job,1000) .lt. 100) then
         allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp),
      &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3*nbas))

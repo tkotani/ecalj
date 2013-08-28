@@ -258,7 +258,7 @@ c        lfltwf = mod(job,1000) .ge. 100 .or.
         lfltwf = !mod(job,1000) .ge. 100 .or. !aug2013 comment out for lmfgw with FRZWF=T
      .  mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
 cccccccccccccc
-c        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf
+        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
         call r8tos8(sspec(is)%coreh,chole)
@@ -333,6 +333,9 @@ C   ... Update the potential used to define basis set
             call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr * i , y0 )
           enddo
         endif
+ccccccccccccccccccccc
+c        print *,' wwwww sumcheck ov0=',sum(abs(ssite(ib)%rv_a_ov0(1:nr)))
+cccccccccccccccccccccc
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
           call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr* i , y0 )
@@ -800,7 +803,11 @@ C     call pshpr(ipr-31)
       call pshpr(max(ipr-31,min(ipr,10)))
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
-
+ccccccccccccccccccccccccccccccccccccccc
+c      lxcfun=103
+c      lxcfun=1
+c      lxcfun=0
+ccccccccccccccccccccccccccccccccccccccc
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
       if(debug) write(6,'(a)')' === rho1 valence true density ==='
       call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
@@ -823,6 +830,11 @@ C     call pshpr(ipr-11)
       call pshpr(max(ipr-11,min(ipr,10)))
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
+ccccccccccccccccccccccccccccccccccccccc
+c      lxcfun=103
+c      lxcfun=1
+c      lxcfun=0
+ccccccccccccccccccccccccccccccccccccccc
       call dpzero(focexc,2)
       call dpzero(focex,2)
       call dpzero(focec,2)
@@ -891,6 +903,13 @@ C$$$  941   format(' smH core xc integrals',3f12.6)
 
       call poppr
 C     call prrmsh('v2',rofi,v2,nr,nr,nlml)
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c      print *,' test skip exchange correlation lda'
+c      call dcopy(nrml*nsp,v1es,1,v1,1)
+c      call dcopy(nrml*nsp,v2es,1,v2,1)
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 C --- Integrals over core times effective potential ---

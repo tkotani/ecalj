@@ -221,6 +221,10 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+
+      integer:: ifntq,ntqmax
+      logical:: lntqmax
+
 c-----------------------------------------------------------------------
 
 c---------------------------------------
@@ -663,6 +667,21 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
             enddo
          enddo
          ntq = min(ntq, nbmx(1))
+
+C !! added aug2013. to avoidoscillation of ntq during iterations.
+          inquire(file='ntqmax',exist=lntqmax)
+          if(lntqmax) then
+             ifntq = iopen('ntqmax',1,-1,0)
+             read (ifntq,*) ntqmax
+             ifntq = iclose('ntqmax')
+          else
+           ntqmax=0
+          endif
+          ntq = max(ntq,ntqmax)
+          ifntq = iopen('ntqmax',1,-1,0)
+          write (ifntq,*)ntq ,'!max of nband (for iterations)'
+          ifntq=iclose('ntqmax')
+
          deallocate(eqt)
          write(*,"(' nband ntq ef eftrue=', 2i5,2f9.4)")nband,ntq,ef,eftrue
       endif
