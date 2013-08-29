@@ -294,7 +294,7 @@ c     print *,' nnn =',nnn
           read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ctakao test
-          v_xc=0d0
+c          v_xc=0d0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
