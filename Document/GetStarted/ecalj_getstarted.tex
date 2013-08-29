@@ -129,19 +129,23 @@ With your ideas, we like to have collaborations and newer development on
 it. Or I may help something on it.
 
 \subsection{What can we expect for QSGW?}
-We expect that QSGW will give similar results with hybrid functional methods 
-like Vxc = alpha*LDA+(1-alpha)*(Fock exchange), where alpha is taken to
-be ~0.25 usually. QSGW automatically determine $W$ 
-(the screened Coulomb interaction) self-consistntly. 
+We expect that QSGW will give similar results with hybrid functional
+methods, which use Vxc = alpha*LDA+(1-alpha)*(Fock exchange), 
+where alpha is taken to be ~0.25 usually. 
+The QSGW automatically determine $W$ 
+(the screened Coulomb interaction) self-consistently. 
 Roughly speaking, such alpha is automatically determined.
-Two important aspects of non-local potential:
-one is onsite non-locality given by LDA+U; the other is
-the off-site (mainly nearest neigbor) non-locality which gives 
-LUMO-HOMO gap. The main purpose of QSGW is to determine ``best $H_0$'', 
-on which we describe one-particle picture to describe theories.
+
+Two important aspects of non-local potential.
+One is the onsite non-locality given by LDA+U 
+(and, e.g., also relative shift of O(2p) band with respect to 3d band; 
+this is not usually in LDA+U). 
+Th other is the off-site non-locality (mainly between nearest neigbors),
+which gives LUMO-HOMO gap. The main purpose of QSGW is to determine 
+``best $H_0$'', on which we describe one-particle picture to describe theories.
 In addition, $W$ is determined consistently.
 
-In comparision with LDA, we see differences of
+In comparision with LDA, we see differences;
 \begin{itemize}
 \item
 band gap.
@@ -149,9 +153,10 @@ band gap.
 band width. As for sp bands, it is enlarged.
 As for localized bands, they can be narrowed.
 \item
-relative position. eg. O(2p) and Ni(3d).
+relative position. eg. O(2p) v.s. Ni(3d),
+exchange splitting between up and down (like LDA+U)
 \item
-hybridyzation.
+hybridyzation of 3d bands with others.
 QSGW tends to make eigenfunctions localized.
 \item
 magnetization.
