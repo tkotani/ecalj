@@ -69,6 +69,7 @@ c----------------------------------------------
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+      integer:: nzmax
 c-----------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
@@ -304,6 +305,10 @@ Cstop2rx 2013.08.09 kino     &           stop 'hqpe: qqq/=qqqx'
         enddo
       enddo                     !sf.end
 
+ccccccccccccccccccccc
+      nzmax= maxval(nhqx(1:nnn,1:nspin))
+cccccccccccccccccccccc
+
 c      allocate(sigmv(nhq,nhq,nq))
       if(mtosigmaonly()) then
            ndimsig = nmto
@@ -499,10 +504,12 @@ c     o              w(ieqp),w(iwqp))
 !------------------------------------------------------------------------------
 ccccccbegin making SE_ij-VXC_ij, ij are 'basis functions' indexes !sf..3June
 !------------------------------------------------------------------------------
-        allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq)
+        allocate(se(nzmax,nzmax,nq),ipiv(nhq),work(nhq*nhq)
+c        allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq)
      &        ,evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
         allocate(ev_se_ev(ndimsig,ndimsig)) !  sep2012     allocate(ev_se_ev(nhq,nhq)) 
         if(evec0ex) allocate(evec00inv(nhq,nhq))
+        se=0d0
         do ip=1,nq
           do itp=1,ntq
             do itpp=1,ntq    !make Sigma hermitean
@@ -638,26 +645,29 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           else
             if(ntqxx<ntqxxmin) ntqxxmin=ntqxx
           endif
-
+c aug2003
+          print *,' xc test xxxxxxxxxx 2013aug gap ntqxx nz=',ntqxx,nz
           do itp = 1,ntqxx
-            do itpp= 1,ntqxx
+          do itpp= 1,ntqxx
+c          do itp = 1,nz
+c          do itpp= 1,nz
               if(itp/=itpp.and.isigma_en==5) then
                 se(itp,itpp,ip)= 0d0
               else
 !comment out aug2013 
-c$$$c     Aug2004
-c$$$                if(.not.exonly) then
-c$$$                  se(itp,itpp,ip)= se(itp,itpp,ip)
-c$$$     &                       -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
-c$$$     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
-c$$$                else
-c$$$                  se(itp,itpp,ip)= se(itp,itpp,ip)
-c$$$     &                       -wex*.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
-c$$$     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
-c$$$                endif
+c     Aug2004
+                if(.not.exonly) then
+                  se(itp,itpp,ip)= se(itp,itpp,ip)
+     &                       -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
+     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
+                else
+                  se(itp,itpp,ip)= se(itp,itpp,ip)
+     &                       -wex*.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
+     &                       matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
+                endif
 
               endif
-            enddo
+          enddo
           enddo
 
 ctakao 2009June. Add diagonal correction to se.
@@ -715,10 +725,12 @@ c
 
           wexx=1d0
           if(exonly) wexx=wex
-          ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntq)
-     &    ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:ndimsig2)))
+c          ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntq)
+c     &    ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:ndimsig2)))
+          ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:nz)
+     &    ,matmul(se(1:nz,1:nz,ip),evec_inv(1:nz,1:ndimsig2)))
 ! aug2013
-     &            -wexx*.5d0* v_xc(1:ndimsig2,1:ndimsig2,ikpx,is)
+c     &            -wexx*.5d0* v_xc(1:ndimsig2,1:ndimsig2,ikpx,is)
 
 
 c     - write SE_ij-Vxc_ij where ij are basis function indices

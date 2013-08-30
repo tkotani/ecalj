@@ -762,8 +762,8 @@ ccccccccccccccccccccccccc
       call togpr()
 cccccccccccccccccccccccccccccccccccccccccccccc
 c      jobpot=0
-      if(lrsig/=0) i=i+100
-      print *,' wwwww goto mkpot i=',i
+c      if(lrsig/=0) i=i+100
+c      print *,' wwwww goto mkpot i=',i
 cccccccccccccccccccccccccccccccccccccccccccccc
       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
      .      , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
