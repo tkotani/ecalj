@@ -1,3 +1,8 @@
 run job_materials.py.
 (type without arguments; it shows help.)
-It allows all sample calculations in MATERIALS/Materials.ctrls.database.
+It allows LDA/GGA calculations in MATERIALS/Materials.ctrls.database.
+
+This job_materials.py works as follows for given material names.
+
+Step 1. Generate ctrls.* file for Materials.ctrls.database. (names are in DATASECTION:)
+Step 2. Generate ctrl by ctrlgenM1.py

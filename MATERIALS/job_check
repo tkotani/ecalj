@@ -1,0 +1,8 @@
+grep 'c ' */save*
+echo
+echo '=== These above are total energies (from final iteration) in save file. =='
+echo '  Number of lines in save files are number of iterations in lmf(or lmf-MPIK)'
+echo '  ehk: Hohenberg-Kohn energy; ehf:Harris energy ==> Both should be the same.'
+echo 
+echo ' # of save.* file with "c " =' `grep 'c ' */save* |wc -l`
+echo ' # of materials (directory) =' `ls -F |grep '\/' |wc -l`

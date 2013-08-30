@@ -34,7 +34,7 @@ for line in sec['DATASECTION:'].split('\n'):
     if line[0]=='#': continue
     if line[0]==' ': continue
     if line[0]=='\t': continue
-    print line
+    #print line
     m=re.match(r'\w+\s',line)
     mater=m.group().strip()
     content=line[len(mater):]
@@ -43,7 +43,7 @@ for line in sec['DATASECTION:'].split('\n'):
 AllMaterials= material.keys()
 AllMaterials=sorted(AllMaterials)
 print
-print  '=== Materials in Materials.ctrls.database ==='
+print  '=== Materials in Materials.ctrls.database are:==='
 aaa=''
 ix=0
 for x in AllMaterials:
@@ -53,6 +53,7 @@ for x in AllMaterials:
         print aaa
         ix=0
         aaa=''
+print aaa
 
 ###############
 nargv = len(sys.argv) -1
@@ -60,12 +61,18 @@ args=sys.argv[1:]
 argset= set(sys.argv[1:])
 #print argset
 
+numcore='2'
+if '-np' in  args:
+    ii=args.index('-np')
+    numcore=args[ii+1]
+    args.remove('-np')
+    args.remove(numcore)
 
 #####################################################
 print 
-if not '--noexec' in  argset and '--all' in argset:
+if not '--noexec' in  argset:
     for i in ['LaGaO3','4hSiC','Bi2Te3']:
-        print ' To reduce CPUtime, --all skip ',i
+        print ' To reduce CPUtime, "--all" do not perform ',i
         AllMaterials.remove(i)
 #print AllMaterials
 #sys.exit()
@@ -77,21 +84,31 @@ if ('--all' in  argset):
 	choosedmaterials=AllMaterials
 elif(nargv==0 or '--help' in argset):
       print
-      print " PURPOSE: perform GGA/LDA calculations for sysmtems in Materials.ctrl.database"
-      print " USAGE:   job_materials.py [options] "
-      print "   [options] are material names above separeted by space."
-      print "      --all : all materials are specified (in an hour now.)"
-      print "      --noexec: not do lmf. Just generates directories and ctrl files"
-      print " NOTE: to set number of cores for lmf-MPIK, please modify this code."
-      print "       Search lmf-MPIK in this file"
-      sys.exit(-1)
+      print "=== HELP: job_marerials.py ==="
+      print " PURPOSE:  Perform GGA/LDA calculations for sysmtems in Materials.ctrl.database"
+      print "           This makes directory for each. See llmf(Console output) and save.* (Energy)"
+      print " USAGE:    job_materials.py [options] "
+      print "        [options] are material names above separeted by space."
+      print "        --all   : all materials are specified (in an hour now.)"
+      print "        --noexec: Not do lmf. Just generates directories and ctrl files"
+      print "        -np 2   : Number of core for lmf-MPIK. 2 core is default."
+      print " (WARN! settings for all atoms are not yet examined carefully. Let me know something wrong.)" 
+      print " "
+      print " "
+      print " --- Please type job_materials.py with above options!!! ---" 
+      print "   type ./job_check (show save file), even during running." 
+      print " "
+      sys.exit(0)
 else:
     choosedmaterials=args
 
+    print
+    print ' ==>We use cores -np =',numcore
+
 ###########################################
 print 
-print ' We are going to do LDA for ',choosedmaterials
-dummy=raw_input('Push return to continue!')
+print ' We are going to do LDA/GGA for ',choosedmaterials
+dummy=raw_input(' !!! Go ahead? Push return to continue !!!')
 if dummy != '': sys.exit()
 
 ################################################
@@ -144,8 +161,8 @@ for matr in choosedmaterials:
     ext=string.lower(matr)
     ctrlsnm = "ctrls."+ext
     ctrlgenc= 'ctrlgenM1.py '+ext+' ' + option 
-
-    print '==='+matr+' /  ',ctrlsnm,' '+option+ ' ==='
+    print '============ start================================'
+    print '=== /'+matr+' :  ',ctrlsnm,' '+option+ ' ==='
     print ' command=',ctrlgenc
     print aaa
 
@@ -166,18 +183,21 @@ for matr in choosedmaterials:
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   
-    joblmf='mpirun -np 2 lmf-MPIK  '+ext+optionlmf+' >llmf'
-    print 'See joblmf file for lmf-MPIK command arguments.'
+    joblmf='mpirun -np '+numcore+' lmf-MPIK  '+ext+optionlmf+' >llmf'
+    print 'Runnning!: ',joblmf,  '   ;this is in joblmf file.'
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
         pass
     else:
         try:
             commands.getoutput(joblmf)
+            os.system('echo Finished!: tail '+matr+'/save.'+ext +':` tail -n 1 save.'+ext+'`')
         except KeyboardInterrupt:
             'Keyboad interrrupt by user'
             sys.exit()
-
+    print '============ end  ================================'
     os.chdir(rdir)
-    os.system('pwd')
+    #os.system('pwd')
+    os.system('echo ""')
+    os.system('echo ""')
 

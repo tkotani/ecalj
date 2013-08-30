@@ -20,6 +20,10 @@
 #    and @2). a=3.545/bohr c=5.703/bohr q=c/a are values used in the
 #    WZ: section.
 #  
+#    In the case of 
+#      GaAs_so ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8 lmf-vso=1 lmf-vnspin=2
+#      --nk1=8 is argument when we invoke ctrlgenM1.py for generated ctrls
+#      lmf-vso=1 and lmf-vnspin=2 are arguments when we invoke lmf.
 ########################################################
 
 

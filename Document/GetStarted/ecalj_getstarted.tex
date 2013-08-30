@@ -1573,6 +1573,63 @@ at the begining of sigma.
 
 
 =======
+cleargw (directory):
+This command clean up up intermediate files under (directory).
+This recursively into deeper level. Be careful, or edit it.
+I use it as '>cleargw .'
+
+
+------------------------------------------------------
+ QSGW: convergence check sheet.
+------------------------------------------------------
+1. Basis to expand eigenfuncitons. 
+   As for APW, try pwemax=3, 4, 5.
+   In principle, bigger is better.
+   Local orbitals for semicore were requied (for Fe, and so on).
+2. Re-expand eigenfuncions (QpGcut_psi for IPW part)
+   In principle, bigger is better. 
+3. Mixed product basis.  QpGcut_cou for IPW part. 
+   <ProductBasis> section for PB part.
+4. number of k points, Q0Pchoice(irrelevant but speed up).
+
+5. omg,dw  (bins to accumulate imaginary part).
+
+6. emax_sigm (use 2Ry to 6Ry. And see stability. In priniciple, bigger is better.) 
+
+7. Do GW with XCFUN=1 or 103 (VWN or GGA)?
+   In priniple, bigger emax_sigm reduce dependence on them.
+   But, not easy. We may take the difference as allowance of error.
+
+------------------------------------
+Magnetic moment within MTs are shown as
+------------------------------------
+ charges:       old           new     
+ smooth      17.240314     17.240740   ...
+ mmom         0.000024     -0.000010   
+ site    1    6.207135      6.206590  
+ mmom         1.062276      1.062991  <--- here
+ site    2    6.207115      6.206834  
+ mmom        -1.062323     -1.062958  <--- here
+ site    3    1.172718      1.172918  
+ mmom         0.000011     -0.000011  
+ site    4    1.172718      1.172918  
+ mmom         0.000011     -0.000011  
+In this case, MTsite1 has 1.062991 and MTsite2 has -1.062958.
+>grep 'lin mix' -A30 llmf 
+can take out this message (if console output is in llmf).
+
+
+-----------------------------
+ORBITAL MOMENT in pertubation:
+-----------------------------
+Try 
+>lmf nio --rs=1,0 -vso=1 --quit=band >llmf
+After converged, try
+>grep IORBTM -A20 llmf
+Then llmf shows shows orbital moment in first order perturbation.
+(Here --rs=1,0 read rst.* file but not change it. See >lmf --help.
+--quit=band means quit just after band calculation.)
+
 \end{verbatim}
 
 

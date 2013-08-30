@@ -20,7 +20,9 @@
 import os, sys, string, re
 
 atomlist="""
-### CAUTION!!! R= in this table is in Angstrome. !!!!!
+
+### !!! CAUTION!!! R= in this table is in Angstrome. !!!!!
+
 ### eh.3 eh2.2 works OK?
 H=   " atomz=1@  pz=''@       p=''@          eh=-1*3@ eh2=-2*2@    R=0.38@" 
 He=  " atomz=2@  pz='PZ=2.5'@ p=''@          eh=-1*3@ eh2=-2*2@    R=1.17@"  
@@ -59,21 +61,21 @@ Ar=  " atomz=18@ pz='PZ=4.3,4.3'@  p=''@     eh=-1*4@ eh2=-2*3@    R=1.72@"
 #Co= "  atomz=27@ pz='PZ=0,3.9,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.00@"
 #Ni= "  atomz=28@ pz='PZ=0,3.9,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.06@"
 
-K=   " atomz=19@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=2.00@"       
-Ca=  " atomz=20@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=2.08@"       
-Sc=  " atomz=21@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=1.27@"       
-Ti=  " atomz=22@ pz='#PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@          R=0.95@"       
-V=   " atomz=23@ pz='#PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@          R=0.87@"       
-Cr=  " atomz=24@ pz='#PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@          R=0.80@"       
-Mn=  " atomz=25@ pz='#PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@          R=0.82@"       
-Fe= "  atomz=26@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.00@"
-Co= "  atomz=27@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.00@"
-Ni= "  atomz=28@ pz='PZ=0,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.06@"
-Cu= "  atomz=29@ pz='PZ=0,0,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.13@"
+K=   " atomz=19@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=2.00@"       
+Ca=  " atomz=20@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=2.08@"       
+Sc=  " atomz=21@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=1.27@"       
+Ti=  " atomz=22@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.95@"       
+V=   " atomz=23@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.87@"       
+Cr=  " atomz=24@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.80@"       
+Mn=  " atomz=25@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.82@"       
+Fe= "  atomz=26@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.00@"
+Co= "  atomz=27@ pz='#PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.00@"
+Ni= "  atomz=28@ pz='#PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.06@"
+Cu= "  atomz=29@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.13@"
 Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.60@"
 Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.37@"
 Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
-As= "  atomz=33@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
+As= "  atomz=33@ pz='#PZ=0,0,3.9'@ p='#P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
 Se= "  atomz=34@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.10@"
 Br= "  atomz=35@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.16@"
 Kr= "  atomz=36@ pz='PZ=5.3,5.3'@  eh=-1*4@ eh2=-2*3@                 R=1.88@"
@@ -83,7 +85,7 @@ Kr= "  atomz=36@ pz='PZ=5.3,5.3'@  eh=-1*4@ eh2=-2*3@                 R=1.88@"
 #Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.08@"       
 #Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
 Rb  =" atomz=37@ pz='PZ=0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.00@"
-Sr  =" atomz=38@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
+Sr  =" atomz=38@ pz='#PZ=0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
 Y   =" atomz=39@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
 Zr  =" atomz=40@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@"
 Nb  =" atomz=41@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 
@@ -93,14 +95,15 @@ Ru  =" atomz=44@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Rh  =" atomz=45@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pd  =" atomz=46@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Ag  =" atomz=47@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Cd  =" atomz=48@ pz='PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-In= "  atomz=49@ pz='PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.37@"
-Sn  =" atomz=50@ pz='PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Sb  =" atomz=51@ pz='PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cd  =" atomz=48@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+In= "  atomz=49@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=1.37@"
+Sn  =" atomz=50@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Sb  =" atomz=51@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #Sb  =" atomz=51@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Te  =" atomz=52@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Te  =" atomz=52@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.5'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 I   =" atomz=53@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Xe  =" atomz=54@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+
 Cs  =" atomz=55@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Ba  =" atomz=56@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
@@ -119,7 +122,8 @@ Er  =" atomz=68@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Tm  =" atomz=69@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Yb  =" atomz=70@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Lu  =" atomz=71@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hf  =" atomz=72@  pz='PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
+#Hf  =" atomz=72@  pz='PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
+Hf  =" atomz=72@  pz='#PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
 Ta  =" atomz=73@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 W   =" atomz=74@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Re  =" atomz=75@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -127,11 +131,12 @@ Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pb  =" atomz=82@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Bi  =" atomz=83@ pz='#PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+
 Po  =" atomz=84@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 At  =" atomz=85@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Rn  =" atomz=86@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -177,7 +182,7 @@ def manip_argset(argset):
     showhelp=0
     metali=3
     fsmom_val=0.0
-    touchingratio=.95 #default value was -1.0 
+    touchingratio=.97 #default value was -1.0 
     eh1set=1
 #    readrmt=0
 #    rlmchk=0
@@ -437,7 +442,7 @@ if(metali==0): insulatorw='given'
 if(showhelp==1):
     print \
 """ 
-ctrlgenM1.py. tkotani and h.kino march_2013 version :
+ctrlgenM1.py. tkotani and h.kino aug_2013 version :
 ---------------
  Purpose: 
      Generate a template of ctrl file names as ctrlgenM1.ctrl.{ext}."
