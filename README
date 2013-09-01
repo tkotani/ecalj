@@ -268,13 +268,19 @@ After ./mrestore, following instruction of the above installation.
 Probably, you don't need to make cleanall (this delete all binaries).
 
 
-###### Document #####
+###### Document for usage #####
 GetStarted:
 ecalj/Document/GetStarted/ecalj_getstarted.tex 
+ecalj/Document/GetStarted/ecalj_getstarted.pdf
+Not yet completed. But it gives you a minimum to do QSGW.
 
+
+#### Document for formulations ###
 Details:
 ecalj/Document/ecaljnote/ecaljnote*.pdf
 (some japanese character included).
+Not yet completed.
+
 
 
 ######## MEMO: ----not read this ---- #########

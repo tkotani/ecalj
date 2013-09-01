@@ -72,8 +72,9 @@ if '-np' in  args:
 print 
 if not '--noexec' in  argset:
     for i in ['LaGaO3','4hSiC','Bi2Te3']:
-        print ' To reduce CPUtime, "--all" do not perform ',i
-        AllMaterials.remove(i)
+        if i not in argset:
+            print ' "--all" skips ',i,', otherwise added explicitly.'
+            AllMaterials.remove(i)
 #print AllMaterials
 #sys.exit()
 #AllMaterials=AllMaterials.split('\s*')

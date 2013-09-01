@@ -239,6 +239,9 @@ SITE
         ATOM=@3 POS=   0.7290   0.03700*{b}/{a}  -0.26200*{c}/{a} 
 -----------------------------
 BI2TE3:
+### NOTE!!! we need to change beta=0.3 in ITER_MIX section.
+### Slower mixing is required.
+### Or fixed moment method, probably.
 %const
 STRUC
     ALAT={a}
