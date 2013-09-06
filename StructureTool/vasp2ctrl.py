@@ -10,13 +10,16 @@ import convctrl
 
 argvs = sys.argv
 argc  = len(argvs)
-print 'readin args= ',argvs,argc
-if ('--help' in argvs): 
+#print 'readin args= ',argvs,argc
+if ('--help' in argvs or argc == 1): 
+	print
 	print ' == Convert POSCAR file (vasp format) to ctrls (ecalj format) =='
-	print '    usage: vasp2ctrl foobar.vasp   [option] '
-	print '          foobar.vasp is the file name in POSCAR format '
-	print '          Then we have ctrls.foobar        '
-	print '     option: --alat=10.66 (ALAT, you can use eqs such as 10.66*1.88)'
+	print '  Usage: vasp2ctrl foobar.vasp   [option] '
+	print '         foobar.vasp is the file name in POSCAR format (.vasp is necessary)'
+	print '         Then we have ctrls.foobar        '
+	print '  Option: --alat=10.66 (Set ALAT in a.u.; Use eqs such as 10.66*1.88)'
+	print '         To get clean ctrl file, set --alat= as a lattice constant in a.u.'
+	print ''
 	sys.exit(-1)
 for ix in argvs:
 	if '.vasp' in ix: 

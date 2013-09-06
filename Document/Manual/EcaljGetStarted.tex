@@ -1,0 +1,1241 @@
+\documentclass[a4paper,10pt,epsf,fleqn]{article}
+%\documentclass[a4paper]{jsarticle}
+\usepackage{graphicx}	% required for `\includegraphics' (yatex added)
+\author{Takao Kotani}
+\title{ecalj --- Get statrted (aug2013)} 
+\usepackage{setspace}
+\usepackage{hyperref}
+\setstretch{1.1}
+\begin{document}
+\maketitle
+\tableofcontents
+\newcommand{\bfr}{{\bf r}}
+
+\newpage
+\section{Introduction}
+The ``ecalj'' package is for first-principle electronic 
+structure calculation for DFT and GW. It has unique features.  
+Especially, we can perform the quasiparticle self-consistent GW (QSGW)
+calculations based on the PMT method (=Linearized APW+MTO method). 
+We name this as the PMT-QSGW. 
+Introduction to the PMT-QSGW is given in Sec.\ref{sec:fecalj}. 
+We can easily plot energy band dispersion curve in QSGW in 
+whole Brillouin zone(BZ), easy to calculate effective mass.
+
+Search papers with keywords `self-consistent GW'. Or many of T.Kotani's
+papers at \url{https://www.zotero.org/groups/takaokotani_paper/items/}\\
+are related to the QSGW. 
+In addition, there are papers which use previous version of GW code
+mainly written by T.Kotani. The PMT-QSGW method described here in ecalj
+is quite new (now preparing a manuscript for its methodology), and is
+based on the previous developments. Now the GW code has long history;
+I learned so much from the Ferdi Aryasetiawan's GW code, 
+and Mark van Schilfgaarde helped a part of its development. 
+
+The ecalj web site is at \url{https://github.com/tkotani/ecalj}\\
+Free to download ecalj package from it, and use it.
+The QSGW code is version controlled by git, 
+thus your obtained results are reproducible by others easily
+(need to specify version number and input files).
+Install and minimum tests are easily possible even in a note PC
+(I use Ubuntu 12.04 on Thinkpad T420s. One advantage of Ubuntu is nothing need to
+buy. You can reproduce things in this manual in a day, or hopefully in half a day). 
+For productive calculations, it is apparently better to use
+a node with 16 core, or something. Current implementation for
+parallelization by MPI is limited; So,
+probably, it is not so efficient to use multiple nodes now.
+We also have a web site at \url{http://pmt.sakura.ne.jp/wiki/}, 
+however, most of all are in Japanese and not organized well.
+We expect you to clarify acknowledgment to ecalj in your publications.
+
+The ecalj is related to another FP-LMTO package lmv7 seen at\\
+\url{http://titus.phy.qub.ac.uk/packages/LMTO/fp.html}. 
+The lmv7 and ecalj are branched off at year 2009.
+After branched, contributions are 
+due to T.Kotani and Hiori Kino (NIMS) until now. 
+We added new features: all codes are in f90;
+new methods are added, especially PMT-QSGW; 
+MPI parallelization for QSGW; quite simplified usage.
+
+Read this EcaljGetStarted.pdf first. 
+It shows minimum to plot energy band,
+density of states, and partial dos after the LDA/QSGW calculations.
+
+If you have something, let takaokotani(at)gmail.com know it.
+I may help you to do something, or it help us to make this text better. 
+Furthermore, with your ideas, we like to have collaborations and add newer
+development on it. I may say the ecalj itself is still in a research stage
+(writing papers by applying to materials, and compare with experiments), 
+although it becomes rather stable \footnote{In cases to treat magnetic
+systems which have intrinsic magnetic fluctuations, 
+we may need to be careful about initial condition or mixing procedure
+to get convergence. In cases, we need to start from LDA+U results as initial
+condition from which we start QSGW. Let me know about such trouble.}
+
+
+\subsection{Features of the ecalj package.}
+\label{sec:fecalj}
+Central part in any electronic structure packages is one-body problem solver. 
+It means how to calculate eigenvalues and eigenfunctions for a
+given one-body potential. Inversely, we have to generate new one-body potential 
+for given eigenfunctions and eigenvalues
+based on the density functional theory (DFT) in the LDA or GGA
+(In the followings, LDA means both of LDA and GGA).
+Then we can make the electron density self-consistent by iterations
+until converged, and obtain total energy of ground states.
+Then we can also calculate atomic forces by perturbation.
+Based on such an one-body problem solver, 
+we can implement kinds of methods; e.g, dielectric function, magnetic
+susceptibility, transport and so on.
+Furthermore, we can implement higher-level approximations 
+such as the QSGW method explained below.
+%(We generate a new exchange-correlation potential 
+%based on the GW approximaiton instead of the exchange-correlation potential in LDA).
+
+An one-body problem solver (in linear methods) are
+characterized by \\
+\ (i) linear combinations of what basis set to represent eigenfunctions; \\
+\ (ii) how to represent electron density and one-body potential.\\
+
+In the ecalj, we use the PMT method \cite{pmt} as the one-body problem solver.
+The PMT method is a new all-electron full potential method. It uses not only the
+augmented plane waves (APW) but also the muffin-tin orbitals (MTO) together,
+in addition to the local orbital (lo), to represent the eigenfunctions
+(within our knowledge, no other methods in the world use two kinds 
+of augmented waves simultaneously).
+Thus eigenfunctions are represented by linear combinations of the
+APWs, MTOs, and the lo's.
+For electron density and the one-body potential, they are represented
+by three components representation. These are divided into three components;
+``smooth part + onsite muffin-tin (MT) part - counter part''. 
+Here the counter part is in order to remove smooth part within MTs.
+This formalism (Soler-Williams formalism) is also used in
+the projected augmented wave (PAW) method \cite{xxx}.
+
+In ecalj, we can perform the GW calculation.
+The usual GW approximation is so-called ``one-shot GW'' starting from LDA.
+It is usually only calculating differences between the quasiparticle energies (QPEs) 
+and the LDA eigenvalues by a perturbation (only diagonal part of self
+energy for the LDA eigenfunctions).
+Its ability is limited; it can fail when its starting point 
+(eigenfunctions and eigenvalues supplied by LDA) is problematic.
+Thus T.Kotani with collaborators developed the QSGW method. 
+The QSGW now becomes popular, performed by other researchers. 
+In principle, results by QSGW do not depend on LDA anymore; 
+the LDA are only used to prepare initial condition for
+self-consistency iteration cycle of the QSGW calculation 
+\footnote{Exactly speaking, we use LDA idea 
+for efficient implementation of QSGW; thus
+obtained results are slightly dependent on the choice of LDA}.
+%,e.g. to prepare required radial functions). 
+
+Usually the QPEs obtained by QSGW reproduce experiments better than LDA.
+For example, the band gap by GGA for GaAs is about 0.5 eV in contrast
+to the experimental value of 1.6eV (If we undo electron-phonon
+effects from the experimental value, it becomes about 1.7eV). 
+On the other hand, the QSGW predict about 1.9eV, a few tenth of eV
+larger than experiment (for practical use, we sometimes 
+need to use ``hybrid functional between QSGW and LDA'';
+this is in contract to the hybrid between Hartree-Fock and LDA).
+Even in the case of NiO and so on, the QSGW gives reasonable
+results (it tends to give a little larger band gaps than experiments).
+This is in contrast to the case of the one-shot GW applied to NiO;
+in such a case, not good results because the stating points in LDA is problematic.
+
+The ecalj package can also have other functions.
+LDA+U, atomic forces and relaxation (in GGA/LDA), core level
+spectroscopy and so on.  In addition, we can calculate
+dielectric functions and magnetic responses 
+from QPEs and the quasiparticle eigenfunctions 
+given by LDA/QSGW.  
+But total energy in QSGW is still in research 
+(shown total energies in QSGW calculations are dummy now).
+
+Recent development of 
+``dual-MTO prescription'' allows us to use very localized MTOs
+(with damping factors $\exp(-r/(1{\rm a.u.}))$ and $\exp(-r/(1.4{\rm a.u.}))$), 
+together with APWs of low energy cutoff ($3\sim 4$ Ry).\footnote{current
+implementation have not yet efficiently use this locality; this must allow
+us to speed up one-body problem solver.} 
+I think this is promising not only for efficient DFT/QSGW scheme, 
+but also for kinds of applications in future. 
+The MTOs can be used instead of the Wannier functions,
+but not so much research on it yet.
+
+The QSGW calculation requires so much computational time:
+roughly speaking, it takes 10 or more times expensive than usual
+one-shot GW (although we can reduce computational time by choosing
+computational conditions).
+Thus the size of systems which we can treat is limited to ten atom in a
+cell or something, say, with a node of 16 cores;
+computation may require a week or so to have reasonable convergence.
+(heavy atoms require longer computational efforts,
+light atoms faster; non-magnetic systems are easier.
+We still have much room to accelerate the method, but not have done
+yet so much. Minimum MPI parallelization is implemented).
+The computational effort is $\propto N^4$ 
+in the most time-consuming part of QSGW.
+
+
+\subsection{What do we expect for QSGW?}
+In the hybrid functional methods, which use Vxc = (1-alpha)*LDA+alpha*(Fock exchange), 
+where alpha is taken to be $\sim0.25$ usually. 
+The alpha can be dependent on materials; for metals alpha should be
+almost zero. For larger band gap insulator, alpha becomes larger.
+(NOTE: if you use alpha=1 (Hartree-Fock limit), 
+the band gap of Si becomes 20eV or something).
+Despite of some success of the functional, its ability is limited.
+For example, it is known that hybrid functionals fail to describe 
+metals such as bcc Fe. 
+On the other hand, we have LDA+U method which succeeded to describe
+materials including localized electrons. However, it contains kinds of
+ambiguity and U is chosen by hand.
+
+The important part of the hybrid functional methods and LDA+U
+is the non-local potential. It is missing in the DFT.
+As we discussed above, they give some success but not satisfactory.
+We somehow need to have a method to determine high-quality
+non-local potential (a substitution of the exchange-correlation potential).
+It is the QSGW method.
+
+In advance, let me point out two important aspects of non-local
+potential (missing in the local potential used in DFT). 
+One is the onsite non-locality; it is also taken into account by LDA+U
+model. However, note that relative shift of O(2p) band with respect
+to the center of 3d band is not in LDA+U.
+The other is the off-site non-locality (mainly between nearest neighbors),
+which gives LUMO-HOMO gap. A non-local potential can behave a
+projector which push down only the HOMO states (valence band) to lower energy.
+This can be in the hybrid functional but not in LDA+U. 
+
+In the QSGW, we determine such a non-local potential with the calculation of the 
+GW method, in a self-consistent manner (we repeat GW calculations
+until converged). We can expect QSGW much more than hybrid methods/LDA+U.
+Very roughly speaking, because the QSGW automatically determine 
+U of LDA+U, or alpha of the hybrid functionals. More accurately speaking,
+we determine not only $G_0$ but also $W$  (the screened Coulomb
+interaction) self-consistently. Here $W$ corresponds to U and alpha.
+Thus QSGW gives reasonable results even if it is applied to metals such
+as Fe. For systems with metallic screening, it gives small non-locality
+(results are close to those of LDA). For systems with large band gap,
+QSGW gives large enough non-locality (like 0.25*(Fock exchange)).
+
+Since we now need to treat complex systems, e.g, metal on
+insulator, it is very essential to treat kinds of materials
+on a same footing.\\
+
+
+The main purpose of QSGW is to determine 
+``best $H_0$'', on which we describe one-particle picture to describe theories.
+In addition, $W$ is determined consistently. In this sense, 
+the QSGW is a method to convert the full many-body Hamiltonian into the
+renormalized many-body Hamiltonian (low energy Hamiltonian) 
+based on the quasiparticle picture (or independent particle picture).
+Its non-interacting part is the quasiparticle (or independent particle)
+part called as $H_0$ (people read this “H-naught”).\\
+
+\noindent In comparison with LDA, we see differences;
+\begin{itemize}
+\item
+Band gap. QSGW tends to give slightly larger than experiments. It looks systematic.
+\item
+Band width. Usually, sp bands are enlarged 
+     (except very low density case such as Na).
+     This is the case for homogeneous electron gas.
+     As for localized bands like 3d electrons, they can be narrowed.
+\item
+Relative position of bands. e.g. O(2p) v.s. Ni(3d).
+More localized bands tends to get more deeper.
+Exchange splitting between up and down (like LDA+U) get larger.
+In cases such as NiO, magnetic moment become larger; closer to
+experimental values.
+%(but it is not so too much like Hartree-Fock in bcc Fe case, since $W$ is
+%     small (screened well).)
+\item
+Hybridization of 3d bands with others. 
+QSGW tends to make eigenfunctions localized.
+\end{itemize}
+
+However, reality is complexed, and not so simple in cases.
+
+
+\subsection{What is in this booklet?}
+Here we show minimum on the ecalj package. We will explain:
+\begin{itemize}
+\item
+How to perform self-consistent calculations by the density functional theory (DF) in the LDA. 
+\item
+How to plot energy bands (BAND), total density of states
+(DOS), and the partial density of states (PDOS).
+\item
+How to perform the QSGW calculations.
+(above plot are possible in the same manner).
+\item
+Minimum about how to read input and outputs.
+\end{itemize}
+
+After we prepare {\it a crystal structure file} named as \verb+ctrls.*+,
+we run a script (\verb+ctrlgenM1.py+) to generate \verb+ctrl.*+
+It contains (reasonable) default setting to do following calculations.
+To help writing \verb+ctrls.*+, ecalj contains samples 
+and a converter between POSCAR(vasp format) and ctrls(ecalj format). \\
+
+%However, we need to have knowledge to judge whether obtained 
+%results are reasonable or not. 
+%Especially, results by QSGW need to be examined carefully. 
+
+\noindent {\bf NOTE}: After this manual, read EcaljUsage.pdf.
+It contains details of usage.
+For LDA/GGA part, relaxation of atomic positions,
+LDA+U, core-spectroscopy and so on.
+For GW part, we show how to plot dielectric functions, 
+non-interacting spin susceptibility $\chi_0^{+-}$, and so on.
+In principle, we can calculate the RPA total energy, 
+but not yet implemented (we had it; but need to renew it and test it again). 
+We will add new features.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Install}
+\label{install}
+Look into ecalj/README. It is also shown at \url{https://github.com/tkotani/ecalj}.
+Installation of ecalj is not so difficult (especially for gfortran and ifort). 
+I myself use Ubuntu12.04+gfortran+note PC for development of ecalj.
+After install procedure finished, we will have all required binaries and
+shell scripts in your \verb+~/bin/+ directory. 
+(or somewhere else where you specified in Makfile and make.inc(BINDIR)).
+We have automatic installation checker.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{LDA calculations and Plots}
+Calculations are performed by following steps. 
+These steps are detailed in the following sections. 
+
+To identify files used for a material we calculate, we add 
+an extension to files. For example, files explained below are
+with extensions (only lower case allowed) of materials.
+For example, \verb+ctrls.cu+ and \verb+ctrl.cu+. In this case
+\verb+cu+ is the extension. Any extension works. Other possible examples are
+\verb+ctrls.lagao3+, \verb+ctrl.wgantest1+, and so on.
+
+
+\begin{enumerate}
+\item Write crystal structure file \verb+ctrls.*+, which contains crystal structure.
+  It can be by hand, or convert it from POSCAR (in vasp). There
+  is a tool to convert between POSCAR and ctrls. (ecalj/StructureTool/README).
+\item Generate \verb+ctrl.*+ from \verb+ctrls.*+ by a script \verb+ctrlgenM1.py+. 
+     Here \verb+ctrl.*+ is the main control file which contains all required
+     information to perform calculations. the content in \verb+ctrls.*+
+     in included in the \verb+ctrls.*+ as a part.
+     If necessary, we edit the generated \verb+ctrl.*+ file before next step.
+      There is a checker, \verb+lmchk+, to confirm the crystal structure
+      (space-group symmetry and so on); this is applied not to
+      \verb+ctrls.*+ but to \verb+ctrl.*+.
+     \verb+ctrls.*+ is not used in the following steps.
+\item Run \verb+lmfa+ (just calculate spherical atoms (MT sites) placed in the cell). 
+     It also calculates core eigenfunctions and valence electron charge
+      to set up initial condition. Then we run main calculation of LDA by \verb+lmf+.
+     It repeats iterations, and end up with converged results in LDA. Main result
+      (electron density satisfying self-consistency) is stored in
+      restart file \verb+rst.*+ (binary file).
+\item Plot energy band, DOS, PDOS, by running scripts. It is quite easy.
+      Since we use gnuplot to plot them, meanings of obtained data is
+      apparently clear.
+\end{enumerate}
+
+
+
+
+\subsection{Write crystal structure file, ctrls}
+\label{ctrls}
+%Let us explain how to write ctrls.
+%Let us make a test directory, and move to it.
+% %It might be better to move to a directory for your test, 
+% e.g, move to \verb+~/ecaljtest+. (note that \~/\  means your root(home) directory).
+% \begin{verbatim}
+%     $ mkdir ~/ecaljtest
+%     $ cd ~/ecaljtest
+% \end{verbatim}
+% Let us start from "fcc Cu". So, make a directory under \verb+~/ecaljtest+
+% \begin{verbatim}
+%     $ mkdir Cu
+%     $ cd Cu
+% \end{verbatim}
+Let me show some samples of crystal structure files \verb+ctrls.*+. 
+\begin{itemize}
+\item[Cu:]
+\begin{verbatim}
+~/ecalj/lm7K/TESTsamples/Cu/ctrls.cu
+------from here ------------------
+% const da=0 alat=6.798
+STRUC  ALAT={alat} DALAT={da}
+       PLAT=  0.0 0.5 0.5   0.5 0.0 0.5    0.5 0.5 0.0
+SITE    ATOM=Cu POS=0 0 0
+------to here ------------------
+\end{verbatim}
+
+\item[GaAs:]
+\begin{verbatim}
+ecalj/lm7K/TESTsamples/GaAs/ctrl.gaas
+------from here ------------------
+#id  = GaAs
+%const bohr=0.529177 a=5.65325/bohr 
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=Ga POS=0.0 0.0 0.0
+     ATOM=As POS=0.25 0.25 0.25
+------to here ------------------
+\end{verbatim}
+\item[SrTiO3:]
+\begin{verbatim}
+ecalj/lm7K/TESTsamples/SrTiO3/ctrls.srtio3 
+------from here ------------------
+%const da=0 au=0.529177
+%const d0=1.95/au a0=2*d0 v=a0^3 a1=v^(1/3)
+HEADER  SrTiO3 cubic 
+STRUC   ALAT={a1} DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+SITE
+      ATOM=Sr POS=1/2 1/2 1/2
+      ATOM=Ti POS= 0   0   0
+      ATOM=O  POS=1/2  0   0
+      ATOM=O  POS= 0  1/2  0
+      ATOM=O  POS= 0   0  1/2
+------to here ------------------
+\end{verbatim}
+\end{itemize}
+
+Lines starting from '\#' are neglected as comment lines.
+Lines starting from '\verb+% const+' define variables and set values
+(in these cases, \verb+da+, \verb+alat+, and \verb+bohr+, and so on). 
+Then the variable \verb+alat+ is referred to as \verb+{alat}+; in the cu case,
+\verb+{alat}+ means 6.798.
+Lines not start from "\#" nor "\%" are main content in the ctrls file.
+\footnote{For these variables, we can overlaid values when we start
+programs. E.g, 'lmf -vdalat=0.1 si'; this alat is recorded in save.si file.}
+
+Note that we have two tags of ``categories'' "STRUC" and "SITE". 
+(``HEADER'' tag is also; but it is just for user's memo shown in console output).
+These tags should start from the first column. 
+Thus ctrls is divided into multiple ``categories''.
+In a category, we have ``tokens'' such as ALAT, DLAT, PLAT. 
+These under STRUC category. 
+ALAT+DALAT specify unit of length in this ctrl file.
+These are in a.u. (= bohr radius=0.529177\AA). 
+
+The unit cell is given by PLAT (as noted, ALAT+DALAT as unit).
+In the above example of GaAs, three primitive cell vectors specified by nine
+numbers after PLAT=; they give three primitive vectors;
+PLAT1=(0,0,0.5), PLAT2=(0.5, 0.0, 0.5), and PLAT3=(0.5, 0.5, 0). 
+DALAT is convenient to change lattice constant; but it is fixed to be
+zero here; thus no effect in this example.
+
+Note that SITE category can have multiple ATOM tokens. The number of
+ATOM token under SITE should be the same as number of atoms in the primitive cell.
+In the case of GaAs; SITE contain multiple ATOM tokens.
+POS= just next to ATOM is taken as subtokens under ATOM token. 
+\footnote{This may looks slightly uncomfortable since the end of range of ATOM
+ is not clearly shown; it end just at the next ATOM token or new category.}
+In cases, we specify such subtokens as SITE\_ATOM\_POS.
+
+In the SITE category, we place atoms (MT names) in the primitive cell.
+In these cases we use defaults atomic symbol (MT names) for \verb+ATOM+.
+POS is in the Cartesian coordinate (in the unit of ALAT+DALAT).
+
+To test ecalj, you may make a test directory and copy a ctrls.* to your directory.
+If you have VESTA and ecalj/StructureTool/ installed, you can see its structure by 
+\begin{verbatim}
+  $ viewvesta ctrls.cu
+\end{verbatim}
+(here \$ means command prompt).
+\begin{quote}
+NOTE: As written in ecalj/README, you have to install VESTA and \verb+viewvesta+. 
+Then set VESTA= at the top of ecalj/Structure/viewvesta, and make softlink to it.
+The command \verb+viewvesta+(\verb+~/ecalj/StructureTool/viewvesta.py+)
+generate \verb+POSCAR_cu.vasp+ first, then send it to VESTA.
+\verb+viewvesta+ also accept \verb+POSCAR_cu.vasp+ directly.
+Except names starting from \verb+ctrl+ and \verb+ctrls+,
+\verb+viewvesta+ sends the name to VESTA directly. 
+We need extension '.vasp' to recognize it is written in VASP format.
+We have samples in \verb+~/ecalj/StructureTool/sample+.\\
+A tool \verb+vasp2ctrl+ converts POSCAR\_\*.vasp to ctrls.\*.
+``--help'' show a small help. \\
+$\bullet$ ecalj/StructureTool/ is not tested well. Not believe it so
+much... We will fix it on your request.
+\end{quote}
+
+In \verb+ctrls.srtio3+, we use an expression 1/2 to give POS. 
+We can use mathematical expression instead of values.
+Mathematical expressions such as ``$+ -  * /$ sqrt(...)'' are recognized.
+(instead of \verb+3**2+, use \verb+3^2+. You can use parenthesis, but no space for separation).
+We can use default atomic symbols (to check default atom name
+(MT name) type \verb+ctrlgenM1.py --showatomlist+).
+Instead of such default symbols, we can use your own symbol as
+\begin{verbatim}
+    SITE
+      ATOM=M1 POS=1/2 1/2 1/2
+      ATOM=M2 POS= 0   0   0
+      ATOM=O  POS=1/2  0   0
+      ATOM=O  POS= 0  1/2  0
+      ATOM=O  POS= 0   0  1/2
+    SPEC
+      ATOM=M1 Z=38
+      ATOM=M2 Z=22
+      ATOM=O  Z=8
+\end{verbatim}
+. Then we have to add extra category SPEC where we set Z number.
+(You can use Z=37.5 for virtual crystal approximation, however, 
+you can not do it in ctrls now. Edit it in ctrl file. Such a procedure
+will be explained in EcaljUsage.pdf\cite{xxx}.)\\
+
+This is an example for Antiferro NiO:
+\begin{verbatim}
+#id  = NiO
+# NOTE set MMOM. (it will be included in this...)
+%const bohr=0.529177 a=7.88
+STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
+SITE    ATOM=Niup POS=  .0   .0   .0
+        ATOM=Nidn POS= 1.0  1.0  1.0
+        ATOM=O POS=  .5   .5   .5
+        ATOM=O POS= 1.5  1.5  1.5
+SPEC
+    ATOM=Niup Z=28 MMOM=0 0  1.2 0
+    ATOM=Nidn Z=28 MMOM=0 0 -1.2 0
+    ATOM=O Z=8 MMOM=0 0 0 0
+\end{verbatim}
+In this case, we define Niup and Nidn sites. These are recognized as
+Ni atom because of given Z number in SPEC. The subtoken MMOM=Ms,Mp,Md,Mf...
+are to specify number of magnetic moments ($\mu_B$) for s,p,d,f channels (difference of up -
+down electrons within MT sites) as initial condition. In this case, we set n(up)-n(down)=1.2
+for Niup site for d channel. Even just one ATOM name is given
+by yourself, all ATOM in SPEC should be given (in this case SPEC for O should be given).
+
+We can see other samples in \verb+~/ecalj/lm7K/TESTsamples/*/ctrls.*+.
+(we also have a sample generator. See later section.)
+Note that ctrls file is jut in order to generate default ctrl file in
+the followings. Not from ctrls but from ctrl, we can start calculations.
+(thus ctrls is not needed if we prepare ctrl file directory).
+
+It is possible to add \verb+RELAX= 0 0 1+ after \verb+SITE_ATOM_POS+;
+this means structure relaxation along z-axis (also need to set
+\verb+DYN+ category 
+(\url{http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat},
+but its defaults are given (but commented out) automatically in the ctrl file
+generated by the procedure described in the following section).
+We detail it in EcaljUsage.pdf.
+
+After \verb+ctrl.*+ is generated as shown below, 
+we can run a quick command \verb+lmchk+ to check weather crystal
+structure is correctly given or not. And show symmetry information, and
+so on.
+ 
+\subsection{Generate default ctrl from ctrls by ctrlgenM1.py}
+To run programs of lm7K (lmfa, lmf, lmchk) in ecalj,
+we need an input file \verb+ctrl.*+, which contains many other settings.
+To generate \verb+ctrl.*+ from \verb+ctrls.*+, we have a command "ctrlgenM1.py" (written
+in python 2.x and call fortran code internally).
+Two steps required to complete ctrl file:
+(i) we give reasonable options when we run ctrlgenM1.py. 
+Then (ii) we may need to edit the ctrl file afterward.
+
+At first, try \verb+ctrlgenM1.py+ without arguments. It shows help. 
+To generate \verb+ctrl+ from \verb+ctrl+, type
+\begin{verbatim}
+   $ ctrlgenM1.py cu --nk1=8
+\end{verbatim}
+Here cu specify ctrls.cu. The option --nk1=8 
+means the number of division of the Brillouin zone for
+integration. It means 8x8x8 division. If we like to use 8x8x4, 
+we have to supply three arguments --nk1=8 --nk2=8 --nk3=4.
+The above command gives following console output.
+\begin{verbatim}
+    $ ctrlgenM1.py cu --nk1=8
+     === INPUT arguments (--help gives default values) === 
+      --help  Not exist
+      --showatomlist  Not exist
+      --nspin=1
+      --nk=8
+      --xcfun=vwn   !(bh,vwn,pbe) 
+      --systype=bulk !(bulk,molecule)
+      --insulator  Not exist !(do not set for --systype=molecule)
+
+    ...
+
+    OK! A template of ctrl file, ctrlgen2.ctrl.cu, is generated.
+\end{verbatim}
+As we see above, 
+options which you specified are shown at the beginning of the console output
+(in this case --nk1=8). Others such as --nspin=1 are default settings.
+If we like to perform spin-polarized calculations, we add other option
+'--nspin=2' as
+\begin{verbatim}
+    ctrlgenM1.py nio --nspin=2 --nk1=6
+\end{verbatim}
+(NOTE: In the spin-polarized case, we need to set initial condition of size of
+magnetic moment at each atoms. Set it in \verb+ctrls.*+ as in the
+previous section, or edit MMOM of ctrl file (\verb+MMOM=s p d f ...+) to be like
+\verb+MMOM=0 0 1.2+.). The \verb+ctrlgenM1.py+ generates ctrl file named as
+\verb+ctrlgenM1.ctrl.cu+. To do calculations, copy it to ctrl.cu so 
+that lmf can recognize it.
+\begin{verbatim}
+   cp ctrlgenM1.ctrl.cu ctrl.cu
+\end{verbatim}
+
+
+\subsection{crystal structure checker: lmchk}
+Do lmchk to confirm correct crystal structure is really given or not.
+\begin{verbatim}
+   lmchk --pr60 cu 
+\end{verbatim}
+Then it reads \verb+ctrl.cu+. \verb+--pr60+ is an option of verbose. Bigger number gives more information.
+\begin{itemize}
+\item Lattice info, Space group symmetry operations (in lmf format), and
+      their generators (these operations can be generated from a few of them.)
+      See \url{http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#SYMGRPcat+}
+      about how to represent the operations.
+\item Show atomic positions in ctrl file. 
+\item Tabulate MT radius and distance between atomic sites.
+\end{itemize}
+(lmchk --help shows help, but difficult to see. Not need to read it first.)\\
+
+lmchk is also shows atom (MT site) id (position and class(equivalent
+positions). This is needed to interpret PDOS.
+
+\subsection{ctrl file}
+It is not necessary to look into ctrl file first, 
+although some details are explained in the generated ctrl file.
+Please compare obtained results by lmf with those by other packages or literatures; 
+let me know if you find something strange or your questions.
+
+It is necessary to edit ctrl file to use full ability of lmf.
+For example, LDA+U, atomic position relaxation, core level
+spectroscopy, Change setting of default MTO and lo,
+better mixing procedure for stable convergence; higher accuracy, and so on. 
+
+But a few of ctrl file is easy to modify. Search these words and read 
+explanations embedded in ctrl file.\\
+(1)XCFUN (choice of XC---it is not need to repeat ctrlgenM1.py). 
+It is also possible to change number of k points for sampling, to modify
+crystal structure slightly, and so on; all things needed are in ctrl.
+It is not needed to repeat ctrlgenM1.py again.\\
+(2)SO (to obtain correct dispersion around top of valence at 
+Gamma for GaAs, we need to set SO=1 and NSPIN=2; 
+it is possible to run it as one-shot after convergence with
+\verb+OPTIONS_Q=band+. and run by \verb+lmf gaas --rs=1,0+).\\
+
+\verb+lmf --input+ shows what can we write in ctrl file.
+But more than half are not for users, but for developers 
+(or irrelevant now).
+ 
+
+\subsection{Do LDA/GGA calculations, and get convergence}
+\label{lm7K-scf}
+Here we show how to get converged results from a \verb+ctrl+ file.
+
+At first, we need initial guess of charge density.
+It can be given by a super position of atomic charge density.
+To obtain the charge density, we solve atoms first. It is by
+\begin{verbatim}
+   $ lmfa gaas | tee llmfa
+\end{verbatim}
+It takes just a few seconds. Here tee is a command of Linux.
+It keeps console output (standard output) to a file (llmfa in this case).
+
+Then try
+\begin{verbatim}
+    $ grep conf llmfa
+\end{verbatim}
+. Then you see a key point that
+\begin{verbatim}
+conf:SPEC_ATOM= Ga : --- Table for atomic configuration ---
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  0         2.000    6.000 => 1,2,3,
+conf:    1  1       4  0         1.000   12.000 => 2,3,
+conf:    1  2       4  3        10.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    1  4       5  0         0.000    0.000 => 
+conf:-----------------------------------------------------
+conf:SPEC_ATOM= As : --- Table for atomic configuration ---
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  0         2.000    6.000 => 1,2,3,
+conf:    1  1       4  0         3.000   12.000 => 2,3,
+conf:    1  2       4  3        10.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    1  4       5  0         0.000    0.000 => 
+conf:-----------------------------------------------------
+\end{verbatim}
+This is an initial electron distribution, and how we divide 
+core and valence. In this case core charge Qcore are (6 electron for s channel=1s,2s,3s
+and 12 electron for 2s and 3p). Core is not treated separately from valence electrons
+(frozen core approximation; we superpose rigid core density to make
+all-electron density). Qval means electrons for each s,p,d channels.
+The valence channels are 4s,4p,4d,4f (when we set EH=s,p,d,f). 
+The int(P)z column is for local orbital. Thus we have 3d treated as
+local orbital. (ecalj can add one local orbital per $l$.)
+
+isp means spin (1 or 2), since --nspin=1 for Ga and As, no isp=2 exist.
+In summary we have 4s,4p,4d,3d,4f as valence. 
+This means we use corresponding number of MTOs and local orbitals.
+
+After lmfa, let us start main calculation.
+\begin{verbatim}
+    $ lmf cu
+\end{verbatim}
+
+In unix, we ca save console output to llmf by
+\verb+$ lmf cu | tee llmf+.
+As it starts iteration calculations, 
+it shows similar output again and again (it is a little too noisy now).
+Then you end up with self-consistent result as
+\begin{verbatim}
+    ......
+   it  8  of 30    ehf=   -3304.895853   ehk=   -3304.895853
+ From last iter    ehf=   -3304.895856   ehk=   -3304.895855
+ diffe(q)=  0.000003 (0.000007)    tol= 0.000010 (0.000010)   more=F
+c ehf=-3304.8958531 ehk=-3304.8958529
+ Exit 0 LMF 
+ CPU time:    7.024s     Mon Aug 19 02:03:19 2013   on  
+\end{verbatim}
+\verb+it  8  of 30+ means it stop at 8th iteration, although we set
+maximum number of iteration 30. Note that this number is 
+given by \verb+ITER_NIT=30+ in \verb+ctrl.cu+).
+\verb+ehf+ and \verb+ehk+ are the ground state energy in Ry.
+They are calculated in a little different procedure. Although
+they are different during iterations, it finally get to be the
+almost the same number. (But they can be slightly different 
+even converged for large systems. But you don't need to care it so much).\\
+NOTE: ehk:Hohenberg-Kohn energy, ehf: Harris-Faulkner energy.
+
+``grep diffe lllmf'' shows how the changed of total energy (and charges)
+during iteration. diffe mean  changes of energy with previous
+iteration, (q) is for electron density difference as well.
+See also save.* file, which only show ehk and ehk obtained by each
+iteration.
+
+`` grep gap llmf'' shows how the band gap changes
+(in the usual setting), two same numbers per iteration are shown now.
+
+Thus we do have ground state energy.
+Although output of lmf is long, most of all are to monitor
+convergence (we will shrink it).
+As long as it converged well, you don't need to look into it in detail.
+Eigenvalues are shown as
+\begin{verbatim}
+ bndfp:  kpt 1 of 4, k=  0.00000  0.00000  0.00000   ndimh = 122
+ -1.2755 -1.2008 -1.2008 -0.2052 -0.2052 -0.2052 -0.0766 -0.0766 -0.0766
+ -0.0174 -0.0174 -0.0174  0.1094  0.1095  0.1095  0.2864  0.2864  0.4170
+  0.4170  0.4736  0.6445  0.6445  0.6445
+\end{verbatim}
+This is at k=  0.00000  0.00000  0.00000 .
+(because of historical reason, two same bndfp: are shown in each
+iteration; two band path method).  ``\verb+lmf cu| grep -A6 BZWTS+'' shows the Fermi energy
+(for insulator, we see band gap). 
+Deep levels which gives little dependence on k are core like levels.
+These are in Ry; zero level is not so meaningful (for convenience, it is
+simply determined from the potential at MT boundaries).
+
+rst.* contains is the main output which contains electron density.
+mix.* is a mixing file (which keeps iteration history).
+When you restart lmf again, it read rst.cu and mix.cu.
+If you start from lmfa result, please remove them.
+We can do parallel calculation with lmf-MPIK, 
+we can invoke it with mpirun -np 8 lmf-MPIK cu. It should give the
+same answer.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{DOS, Band, PDOS plot}
+
+We already have script to plot dos, band, and pdos
+from the result of lmf self-consistent calculations.
+We have scripts
+\begin{verbatim}
+    job_tdos, job_band_nspin1, job_band_nspin2, job_pdos
+\end{verbatim}
+. Look into these scripts, and then you see how to plot them.
+
+For total DOS plot, it is better to check ctrl file;
+\verb+BZ_TETRA=1+(this is default; thus make sure that \verb+BZ_TETRA+ do
+not exist or \verb+BZ_TETRA=1+). 
+In addition, it might be better to enlarge number of k point
+\verb+NKABC+ in ctrl file to have smooth curve. Then we do
+\begin{verbatim}
+    job_tdos cu
+\end{verbatim}
+This shows total DOS as
+\begin{figure}[h]
+ \begin{center}
+  \includegraphics[width=70mm]{img/ps.dos.cu}
+  \vspace{5mm}
+  \caption{DOS(Cu)}
+ \end{center}
+\end{figure}
+ 
+
+For band plot, we have to set symmetry lines along which we plot eigenvalues.
+Collections \verb+syml.*+ are in ecalj/MATERIALS/. 
+Choose and modify one of them and rename it. 
+I will gather other samples soon. 'BZ wikipedia' or something else
+will help you to interpret it.
+
+To do band plot, we need \verb+syml.cu+ in your directory.
+\begin{verbatim}
+   $ cp ~/ecalj/MATERIALS/Cu/syml.cu .
+\end{verbatim}
+Then check \verb+syml.cu+; it is
+\begin{verbatim}
+    21  .5 .5 .5     0  0 0           L to Gamma
+    21   0  0  0     1  0 0          Gamma to X
+    0    0 0 0  0 0 0
+\end{verbatim}
+First line means, we calculate eigenvalues 
+for {\bf k} points from {\bf k}=(0.5,0.5,0.5) to {\bf k}=(0,0,0).
+"L to Gamma" is just a comment since program only read 
+seven numbers for each line.
+Second line means, we calculate eigenvalues 
+for k points from {\bf k}=(0,0,0) to {\bf k}=(1,0,0).
+3rd line means calculation just stop here.
+Units of {\bf k} are in 2$\pi/$\verb+ALAT+ (or 2$\pi/$\verb#(ALAT+DALAT)#
+if \verb+DALAT+ exist.).
+A line starting from '\#' is neglected (comment line).
+
+To do band plot, run
+\begin{verbatim}
+    $ job_band_nspin1 cu
+\end{verbatim}
+. This is for nspin=1.
+\verb+job_band_nspin2+ is for nspin=2
+(These scripts try to determine the Fermi energy first. You may skip it
+in cases (but need to change the script)).
+
+\begin{figure}[h]
+ \begin{center}
+  \includegraphics[width=70mm]{img/ps.band.cu}
+  \caption{band plot(Cu)}
+ \end{center}
+\end{figure}
+
+For PDOS plot,
+\begin{verbatim}
+    job_pdos cu
+\end{verbatim}
+It shows figures (number of figures are number of atoms in the cell) in
+gnuplot (they are written in the same position on X-window;
+move top one a little). The command \verb+job_pdos+ is a little 
+time-consuming because we use no symmetry to distinguish all lm channels.
+(PDOS is not yet implemented for SO=1 case; spin-orbit coupling $\L\dot S$ is added.)
+We can edit script of gnuplot (pdos.site*.*.glt) for your purpose.
+In principle, meanings of all data files are shown (see at the bottom
+of console output about lm ordering in a line), thus not so difficult to
+rewrite *.glt. For example, to plot eg and t2g separately. 
+(NOTE: site id is shown by lmchk).\\
+
+\noindent {\bf WARNING}: 
+Usually lmf and so on recognize options such as -v option. For example,
+' lmf gaas -vnspin=2' or 'lmf gaas -vso=1'. 
+This option changes values of variables defined in \verb+% const+ section.
+This is recorded in save.* file, and also shown at the top of console output. 
+However, job\_tdos and so on, do not yet accept these options.
+Thus we need to modify ctrl file without using -v option.
+Or you need to write these option to these command by hand
+(we will fix this problem in future.)
+
+
+%\paragraph{Practice}
+%Let start from scratch. 
+%Make directory as \verb+~/ecaljtest/Si+ 
+%And make \verb+ctrls.si+ first.
+%Then generates \verb+ctrl.si+, and run lmfa, lmf successively. 
+%There are other sample. Try it by yourself.
+
+
+\subsection{Useful samples: ecalj/MATERIAL/}
+Not only \verb+ecalj/lm7K/TestSamples+ (some of them are by older version),
+We have a material database in \verb+ecalj/MATERIALS/+. 
+Move to the directory, and type  
+\begin{verbatim}
+  $ ./job_materials.py
+\end{verbatim}
+Then it shows a help. You see 
+\begin{verbatim}
+...
+=== Materials in Materials.ctrls.database are:===
+  2hSiC  3cSiC  4hSiC  AlAs  AlN  AlNzb  AlP  AlSb  Bi2Te3  C
+  CdO  CdS  CdSe  CdTe  Ce  Cu  Fe  GaAs  GaAs_so  GaN
+  GaNzb  GaP  GaSb  Ge  HfO2  HgO  HgS  HgSe  HgTe  InAs
+  InN  InNzb  InP  InSb  LaGaO3  Li  MgO  MgS  MgSe  MgTe
+  Ni  NiO  PbS  PbTe  Si  SiO2c  Sn  SrTiO3  SrVO3  YMn2
+  ZnO  ZnS  ZnSe  ZnTe  ZrO2  wCdS  wZnS
+...
+\end{verbatim}
+. For these simple materials (now 57 materials), input files can be generated,
+and run them automatically by a command \verb+./job_materials.py+ below.
+The ctrls are stored in \verb+ecalj/MATERIALS/Materials.ctrls.database+
+in a compact manner
+(in addition, options passed to ctrlgenM1.py and options to lmf-MPIK are
+included). See \verb+ecalj/MATERIALS/README+ about how to add new
+material to it; it is not difficult. 
+The command \verb+./job_materials.py+ gives ctrls.* for these materials
+from descriptions in the \verb+Materials.ctrls.database+.
+And then it generates ctrl file by calling ctrlgenM1.py internally, 
+and run lmfa lmf-MPIK successively (when no --noexec).
+
+Try \verb+./job_materials.py Fe --noexec+. (not fe but Fe as it shown above)
+at \verb+ecalj/MATERIALS/+. 
+Then it makes a directory Fe/ and set ctrl.fe (also ctrls.fe) in the
+directory. Without '--noexec', it does calculation for Fe successively.
+As for NiO and Fe, we see that \verb+./job_materials.py+ gives
+SPEC\_ATOM\_MMOM in generated ctrls and ctrl files.
+(Look into ctrls.fe; we need SPEC section when we add MMOM.)
+
+Try \verb+job_materials.py GaAs Si+.\\
+Then directories GaAs/ and Si/ are generated. See \verb+save.*+ files containing
+total energies iteration by iteration. Starting from \verb+ctrl.*+ in
+these directory, the command perform DFT calculations 
+(Console output is stored in \verb+llmf+, \verb+save.*+ gives
+total energies. \verb+rst.*+ contains self-consistent
+density, from which we can calculate energy bands and so on).
+
+``\verb+./job_materials --all --noexec+'' generates ctrls and ctrl files of
+these materials. ``\verb+./job_materials --all+'' do self-consistent
+LDA calculations for materials (it takes an hour or more. To change the
+number of cores for lmf-MPIK, set option -np (number of core). See
+help of \verb+./job_materials+ (type this without arguments).\\
+
+To make band plot and so on for Fe, follow instructions already explained.
+\begin{verbatim}
+  $ ./job_materials.py Fe  (and need to type return)
+  (If you like start over, remove Fe/ under it first).
+  $ cd Fe
+  $ ./job_materials.py fe
+    (but it might be better to do --noexec, and observe Fe/ctrls.fe and
+	Fe/ctrl.fe first. grep conf llmf shows the initial electron distribution).
+  $ cat save.fe  (this shows total energies of each iteration. 'c ' at
+	the first column gives converged result. 'h ' is from atm file.)
+        If it does not ends with 'c ...' line, something strange
+	occurs. see llmf (console out put of lmf is saved to llmf).
+  $ cp ../syml.fe .
+  $ job_band_nspin2 fe 
+        (As I said, this shell script do not yet accept
+	    options to lmf. Look into the script).
+        (This calculate fermi energy first for safe; it takes
+	    some time)       
+  $ job_tdos fe
+  $ job_pdos fe (as I said, this supress space-group symmetry, thus time consuming).
+\end{verbatim}
+At the end of \verb+job_pdos+, we show a help which pdos data is where
+(In pdos file, we have 26 numbers a line; first is energy, 2-26 are pdos
+for s,p,d,f,g; which is which are shown in the help).
+See joblmf file also (it contains options to invoke lmf. This is shown
+in save.*. In principle, options in joblmf should be passed to band plot
+and so on. But not yet implemented 
+(it is not so difficult; I have to do it).
+
+After doing \verb+./job_materials+ foobar, you may like move it back to
+original... In such a case, git works. At \verb+ecalj/+, do
+\begin{verbatim}
+  $ mv MATERIALS MATERIALS.bk
+  $ git checkout MATERIALS
+\end{verbatim}
+Then you can see \verb+MATERIALS/+ is moved back to just downloaded one.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{QSGW calculation}
+In the QSGW, we calculate a kind of
+{\it non-local exchange-correlation potential} $V^{\rm xc}(\bfr,\bfr')$,
+by a procedure of GW calculation (it is quite time-consuming part).
+Then difference $V^{\rm xc}(\bfr,\bfr')V-V_{\rm xc}^{\rm
+LDA}(\bfr)\delta(\bfr-\bfr')$  is stored into \verb+sigm+ file. 
+Then, we again do one-body calculation by lmf (or lmf-MPIK) where we add
+this sigm to one-body potential. Thus this means that
+we replace $V_{\rm xc}^{\rm LDA}(\bfr)\delta(\bfr-\bfr')$ 
+with $V^{\rm xc}(\bfr,\bfr')V$.
+This iteration cycle is performed by a script ``gwsc'' as we
+explain later on. (In the default setting of \verb+ctrl.*+ file, lmf try
+to read sigm.* file as long as it exists. If not, do lmf or lmf-MPIK calculation.
+Note that \verb+gwsc+ makes a 
+
+\subsection{GWinput}
+\label{GWinput}
+In order to perform QSGW, one another input file 
+\verb+GWinput+ (no extension) is necessary in addition to \verb+ctrl.*+.
+Thus all input files for QSGW is just two files, ctrl.* and GWinput.
+A template \verb+GWinput+ can be generated by a script \verb+mkGWIN_lmf2+. 
+You may have to modify it in cases for your purpose.\\
+
+Let us start from ctrls.si;
+\begin{verbatim}
+#id  = Si
+%const bohr=0.529177 a= 5.43095/bohr
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=Si POS=0.0 0.0 0.0
+     ATOM=Si POS=0.25 0.25 0.25
+\end{verbatim}
+. Do \verb+ctrlgenM1.py si --tratio==1.0 --nk1=6+ and copy ctrlgenM1.ctrl.si to
+ctrl.si. {\small NOTE: the option \verb@--tratio=1.0@ means we use touching MT; 
+this can be checked by \verb+lmchk si+; since defaults is almost unity 
+(\verb@--tratio=0.97@), this is irrelevant, just to explain options.} 
+
+We have to write \verb+GWinput+. The default is given automatically by a
+command \verb+mkGWIN_lmf2+;
+\begin{verbatim}
+    $ lmfa si (lmfa is needed to do in advance).
+    $ mkGWIN_lmf2 si
+    ......
+    == Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! ==
+     n1=
+\end{verbatim}
+Then it pause and ask numbers. You have to type three numbers as
+2+ return + 2+return+2 return.
+\begin{verbatim}
+    == Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! ==
+     n1= 2
+     n2= 2
+     n3= 2
+    2 2 2
+    ...(skip)...
+    OK! GWinput.tmp is generated!
+\end{verbatim}
+Generated file is \verb+GWinput.tmp+; you have to copy it to \verb+GWinput+.
+\begin{verbatim}
+    $ cp GWinput.tmp GWinput
+\end{verbatim}
+These '2 2 2' you typed is reflected in a section 'n1n2n3 2 2 2 ' in
+\verb+GWinput+. This means 2x2x2 (8 points in 1st BZ). 
+You can edit it, and change it to e.g. 'n1n2n3 4 4 4' if you like to
+calculate self-energy on dense BZ mesh 8x8x8. 
+
+The template of GWinput is usually not so bad. But 
+it may give a little expensive setting (or not very good enough in cases).
+Read EcaljUsage.pdf.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{do QSGW calculation}
+\label{fpgw-calc}
+Let us perform QSGW calculation. 
+For this purpose, we use a script \verb+gwsc+. 
+We need to do \verb+lmfa+ in advance. Then do (not need to do \verb+lmf+);
+\begin{verbatim}
+    gwsc (number of iteration+1) -np (number of nodes) (id of ctrl)
+\end{verbatim}
+If (number of iteration+1)=0, it gives one-shot calculation from LDA.
+But it is different from the usual one-shot;
+since it calculates off-diagonal elements of self-energy also,
+we can plot energy band dispersion. In cases (for usual
+semiconductors), it can give rather reasonable results in comparison with
+experiments from practical point of view.
+
+This is an example of one iteration of QSGW cycle.
+(now a little different but essentially similar)
+\begin{verbatim}
+takao@TT4:~/ecalj/test1$ gwsc 0 -np 2 si
+gwsc 0 -np 2 si
+### START gwsc: ITER= 0, MPI size=  2, TARGET= si
+--- No sigm nor sigm.$TARGET files for starting ---
+ ---- goto sc calculation with given sigma-vxc --- ix=,0
+No sigm ---> LDA caculation for eigenfunctions 
+        Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_lda 
+OK! --> Start  echo 0| /home/takao/ecalj/TestInstall/bin/lmfgw si > llmfgw00 
+OK! --> Start  echo 1|/home/takao/ecalj/TestInstall/bin/qg4gw > lqg4gw 
+OK! --> Start  echo 1|mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmfgw-MPIK  si> llmfgw01 
+OK! --> Start  /home/takao/ecalj/TestInstall/bin/lmf2gw >llmf2gw
+OK! --> Start  echo 0|/home/takao/ecalj/TestInstall/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start  echo 1| /home/takao/ecalj/TestInstall/bin/heftet > leftet 
+OK! --> Start  echo 1| /home/takao/ecalj/TestInstall/bin/hchknw > lchknw 
+OK! --> Start  echo 3| /home/takao/ecalj/TestInstall/bin/hbasfp0 > lbasC 
+OK! --> Start  echo 3| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hvccfp0 > lvccC 
+OK! --> Start  echo 3| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc > lsxC 
+OK! --> Start  echo 0|/home/takao/ecalj/TestInstall/bin/hbasfp0  > lbas 
+OK! --> Start  echo 0| mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hvccfp0  > lvcc 
+OK! --> Start  echo 1|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc > lsx 
+OK! --> Start  echo 11|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hx0fp0_sc > lx0 
+OK! --> Start  echo 2|  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/hsfp0_sc  > lsc 
+OK! --> Start  echo 0|  /home/takao/ecalj/TestInstall/bin/hqpe_sc  > lqpe 
+OK! --> == 0 iteration over ==
+OK! --> Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_gwscend.0 
+OK! ==== All calclation finished for gwsc 0 -np 2 si ====
+\end{verbatim}
+Here \verb+echo (integer)+ is readin in at the beginning of the code.
+To see it, please look into gwsc script (gwsc is at
+ecalj/fpgw/exec/ and copied to your bin/ by make install2). 
+In anyway, this console output shows calculations finished normally.
+
+Now we get rst.si and sigm.si file which contains (static version of) self-energy
+minims $V_{\rm xc}^{\rm LDA}$.
+What we did is the one-shot GW from LDA result; but note that we
+calculate not only diagonal elements but also off-diagonal elements. 
+
+We can write energy dispersion (band plot) in the same manner in LDA.
+To do it, we need rst.si, sigm.si, ctrl.si, QGpsi, and ESEAVR.
+(but QGpsi and ESEAVR are quickly reproduced). After you have syml.si
+(e.g. in ecalj/MATERIALS/), Do
+\begin{verbatim}
+    $ job_band_nspin1 si
+\end{verbatim}
+
+\begin{figure}[h]
+ \begin{center}
+  \includegraphics[width=70mm]{img/ps.band.oneshot.si}
+  \caption{Si, one-shot GW with off-diagonal elements}
+ \end{center}
+\label{sigwscone}
+\end{figure}
+You can observe large band gap as shown in the Fig.\ref{sigwscone}.
+(To see it again, \verb+gnuplot bnds.gnu.si -p+.
+All plots are in gnuplot, thus it is easy to replot it as you like).
+
+We have QPU file (and also QPD for spin=2), which contains content
+of the diagonal part of self-energy. It will be explained elsewhere.
+
+You can make total DOS and PDOS plot by 
+\begin{verbatim}
+    $ job_tdos si
+    $ job_pdos si
+\end{verbatim}
+CAUTION:pdos plot is not allowed for so=1. (even tdos--> ask to t.kotani.)\\
+
+To get final QSGW results, we have to repeat iteration 
+until eigenvalues are converged.
+Note that total energy shown by console output llmf (and also shown in
+save file) is not so meaningful in the QSGW; we just take it as an indicator to check convergence. 
+Let us repeat 5 iteration more. "-np 2" means one core to use.
+\begin{verbatim}
+$ gwsc 5 -np 2 si
+### START gwsc: ITER= 5, MPI size=  2, TARGET= si
+ --- sigm is used. sigm.$TARGET is softlink to it  ---
+ ---- goto sc calculation with given sigma-vxc --- ix=,0
+ we have sigm already, skip iter=0
+ ---- goto sc calculation with given sigma-vxc --- ix=,1
+ ...(skeip here) ...
+
+OK! --> == 5 iteration over ==
+OK! --> Start  mpirun -np 2 /home/takao/ecalj/TestInstall/bin/lmf-MPIK  si > llmf_gwscend.0 
+OK! ==== All calclation finished for gwsc 0 -np 2 si ====
+\end{verbatim}
+Note that we do skip 0th iteration (it is for one-shot from LDA) since
+we start from rst.si and sigm.si given by one-shot LDA.
+Thus we do just five iterations.
+Information of eigenvalues are in \verb+QPU.(number)run+ files.
+(for magnetic systems with nspin=2), wee have \verb+QPD.(number)run+ also).
+Check it by ls;
+\begin{verbatim}
+    $ ls QPU.*run
+    QPU0.run  QPU.1run  QPU.2run  QPU.3run  QPU.4run  QPU.5run
+\end{verbatim}
+(These are overwritten when we again repeat gwsc; be careful.)
+Note that \verb+QPU0.run+ was old one when you did 1-shot GW from LDA 
+at the beginning. In anyway *.0run are confusing files; remove them).
+
+In order to check convergence calculations going well during iteration, do
+\begin{verbatim}
+   $ grep gap llmf*
+\end{verbatim}
+This shows how band gap changes in llmf.*run files.
+In metal cases, we need to compare QPU file, magnetic moment or
+\verb+grep '[xc] save.*+; this shows end of lmf iteration.
+Energy is not so meaningful but can be indicator to convergence.
+
+Let us check convergence of the QSGW calculations.
+For this purpose, it is convenient to take a difference of QPU(QPD) files
+by a script \verb+dqpu+. These files are human readable.
+To compare \verb+QPU4.run+ and \verb+QPU5.run+, do
+\begin{verbatim}
+    $ dqpu QPU.3run QPU.4run
+\end{verbatim}
+Then we see a list of numbers (these are the differences of values in
+QPU files).  Then it shows at the bottom as
+\begin{verbatim}
+    Error! Difference>2e-2 between:   QPU.4run   and   QPU.5run  
+    :  sum(abs(QPU-QPD))= 0.05736
+\end{verbatim}
+but you don't need to care it so much.
+You rather need to check the difference of values.
+I can say most of all difference (especially around the Fermi energy are
+) are almost 0.00eV or 0.01eV, we can judge QPEs are converged.
+If not converged well, you may need to repeat 
+\verb+gwsc+ again.
+(when the size of two QPU files are different, dqpu stops.)
+
+\begin{figure}[h]
+ \begin{center}
+  \includegraphics[width=60mm]{img/ps.band.oneshot.si}
+  \includegraphics[width=60mm]{img/ps.band.gga.si}
+  \caption{band plot(Si, QSGW one-shot test)    and    band(Si) (GGA)}
+ \end{center}
+\end{figure}
+
+%\paragraph{practice}
+%Perform QSGW calculation for GaAs.
+%Try one-shot GW, and plot it first.
+%Then do QSGW. You can try 'n1n2n3 4 4 4', it is a little time
+%consuming (maybe about 30 minutes per iteration or more).
+
+%\begin{figure}[hbtp]
+%  \includegraphics[width=60mm]{img/ps.dos.gga.si}\hspace{10mm}
+%\end{figure}
+
+\begin{figure}[hbtp]
+  \includegraphics[width=60mm]{img/ps.band.qsgw.gaas}
+  \caption{band(GaAs), QSGW (test case)}
+\end{figure}
+
+%\section{calculation of dielectric function}
+%  eps mode.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{How to add spin-orbit coupling}
+\begin{verbatim}
+Do LDA and/or QSGW with SO=0 first.
+Then apply the spin-orbit coupling by perturbation.
+
+After converged with nspin=1 (or 2), create new directory and copy
+  ctrl.gas, rst.gas, sigm.gas, QGpsi, ESEAVR
+to it. Then we set
+  nspin=2 
+  METAL=3 (usually it is default)
+  SO=1  (this is ldots calculation off-diagonal elements included).
+  Q=band (we do not change potential.)
+in ctrl.gas. 
+Then run
+>lmf gas >& llmf_SO
+You can see "band gap with SO" by 
+> grep gap llmf_SO.
+Then you can see two same lines.
+  VBmax = 0.101949  CBmin = 0.236351  gap = 0.134402 Ry = 1.82786 eV
+  VBmax = 0.101949  CBmin = 0.236351  gap = 0.134402 Ry = 1.82786 eV
+(two lines per iteration is shown in metel mode).
+This is the band gap with SO as a first-order perturbation 
+on top of the "QSGW without SO". When you use ctrl file generated by
+ctrlgenM1.py. You can do the above procedure with
+>lmf --rs=1,0 gas -vnit=1 -vso=1 -vnspin=2 -vmetal=3 --quit=band
+(--rs=1,0 read rst.gas but not write rst.gas. Run lmf --help.
+ The switch -v (-vso=1 in this case) replaces so=0 with so=1. 
+ This is recorded in save.gas file).
+
+For band plot, you can use the same procedure 
+for the case without SO. (Look into the shell script job_band_nspin1.
+You have to modify it so that 
+  '--rs=1,0 gas -vnit=1 -vso=1 -vnspin=2 -vmetal=3 --quit=band' 
+is added to arguments for >lmf --band:syml ...).
+
+(this will be simplified in future...)
+
+---
+For given sigm file, it seems possible to do self-consisent SO calculations
+with keeping sigm (then we do not set Q=band). 
+However, note that Vxc is fixed in QSGW, 
+it is not necessary better than the above procedure.
+\end{verbatim}
+
+
+==== Here is the end of EcaljGetStarted. Thanks! ====
+\end{document}

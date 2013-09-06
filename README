@@ -202,37 +202,6 @@ search path. In my case, .bashrc have a line
 Set the variable of VESTA=, at the begining of 
 ~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
 
-
-
-#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si)  ###################
-See ecalj/Document/ecalj_getstarted.pdf.
--------------------------------------------
-(1) Write structure file ctrls.si by hand 
-    (you can have ctrls from POSCAR(VASP) with vasp2ctrl in ecalj/StructureTool/.)
-(2) conver ctrls.si to ctrl.si by ctrlgen2.py si --eh1 --nk=6 --tratio=1.0 
-   (do -help). Then you have default ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
-   Modify it if reqiured. We don't need empty sphere now. 
-   pwemax specify number of APW. It is recommended to know
-   meanings of parameters in the generated ctrlgen2.ctr.si. 
-   You may need to modify ctrl.si, especially initial condition for magnetic cases.
-   For examle, you set MMOM=0,0,1.5,0 for Niup, and MMOM=0,0,-1.5 for
-   Nidn for nspin=2 (antiferromagnetic case). 
-   (initial condition of magnetic moment distribution. unit is the
-   difference of number of electrons n_up-n_down).
-(3) Run "lmfa si" to prepare atom.
-(4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si 
-    (just put BZ division n1n2n3). Edit GWinput.tmp and rename it as GWinput.
-(5) Then run a script gwsc, e.g. "gwsc 5 si -np 5" (5+1 iteration with
-    6 nodes).
-(6) To continue calculation do gwsc 5 si -np 5 again.
-    (you have to have ctrl.si rst.si QGpsi ESEAVR sigm.si)
-    (Then 0th iteration is skipped---thus e have just five iteration).
-
-(7) For band plot and tdos plot, please look into samples in
-    job_band and job_tdos in ecalj/CMD22sample/*. 
-    For qsub, you have to edit test.sh for your machine.
--------------------------------------------
-
 ####### How to do version up? ######
 We do not have enough human resource to keep it very well. 
 So be careful to do version up. It may cause another problem.
@@ -244,16 +213,17 @@ if you use git.
    This shows what version you use now.
 >git diff > gitdiff_backup   
    This is to save your changes added to the original (to a file git_diff_backup ) for safe.
-   I recommend you do take git diff >foobar as backup.
+   I recommend you do take git diff >foobar as backup. >git stash also
+   move your changes to stash.
 >./mbackup          
     This save makefiles and related files. Look into the ./mbackup file. It is a simple scripts.
     Your customized Makefile MAKEINC/* fpgw/exec/make* are copied to ecalj/MKbackup/. 
     CAUTION: this overwirte old ones.
 >git checkout -f             
      CAUTION!!!: this delete your changes in ecalj/.
-     Move files controlled by git to the original which is downloaded.
+     This recover files controlled by git to the original which was just downloaded.
 >git pull                    
-    This overwirte makefile and so on. 
+    This takes all new changes.
 >./mrestore                  
     Look into this script before you use this.
     This copy make.inc* and MAKEINC/* back to original directory.
@@ -268,19 +238,55 @@ After ./mrestore, following instruction of the above installation.
 Probably, you don't need to make cleanall (this delete all binaries).
 
 
-###### Document for usage #####
-GetStarted:
-ecalj/Document/GetStarted/ecalj_getstarted.tex 
-ecalj/Document/GetStarted/ecalj_getstarted.pdf
-Not yet completed. But it gives you a minimum to do QSGW.
+###### Documents of ecalj #####################
+We have three documents.
 
+1. GetStarted:
+ecalj/Document/Manual/EcaljGetstarted.pdf
+Almost written OK.
+It gives minimum instruction of ecalj.
 
-#### Document for formulations ###
-Details:
-ecalj/Document/ecaljnote/ecaljnote*.pdf
+2. Usage:
+ecalj/Document/Manual/EcaljUsage.pdf
+Not yet completed.
+
+3. Details:
+ecalj/Document/Manual/EcaljDetails.pdf
 (some japanese character included).
 Not yet completed.
 
+
+#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si)  ###################
+Read ecalj/Document/Manual/EcaljGetstarted.pdf
+Here is very minimum.
+-------------------------------------------
+(1) Write structure file ctrls.si by hand 
+    (you can have ctrls from POSCAR(VASP) with vasp2ctrl in
+    ecalj/StructureTool/.)
+(2) conver ctrls.si to ctrl.si by ctrlgen2.py si --nk=6 
+   (without argument, it shows help). 
+   Then you have default ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
+(3) Run "lmfa si" to prepare atom.
+
+NOTE: If you like to skip them,  run ./job_materials.py Si at /home/takao/ecalj/MATERIALS.
+ >cd Si
+ >cp ../syml.si
+ >job_band1 si
+This shows you band by LDA.
+
+(4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si.
+    Copy GWinput.tmp as GWinput. (you supply three numbers for the
+    command mkGIWN_V2.)
+(5) Then run a script gwsc, e.g. "gwsc 2 si -np 3" 
+    (2+1 iteration with 3 nodes).
+(6) To continue calculation do "gwsc 5 si -np 3" again.
+    (To start, you need ctrl.si rst.si QGpsi ESEAVR sigm.si)
+    When you start from these files, 0th iteration is skipped
+   ---thus we have just five iteration.
+(7) For band, dos, and pdos plot, 
+    we have scripts which almost automatically makes these plot in
+    gnuplot. Thus easy to modify these plots at your desposal.
+-------------------------------------------
 
 
 ######## MEMO: ----not read this ---- #########
@@ -289,11 +295,5 @@ contains a try to paralellize x0kf
 (imaginary part of dielectric function) more. It just show a
 strategy, not efficient yet.
 
-branch stop2rx (97b5393, Aug2013):
-contains a newer version which replace all stop with "call rx (or
-rx0)" which are stops with error code.
-New scripts generated by "fpgw/exec/rewritecommand/*.awk"
-catch these error codes. 
-We will move to stop2rx as master branch.
 
 --------- end of file -----------------

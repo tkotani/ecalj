@@ -154,17 +154,24 @@ def atom(perfectopen,keyword_name): #---get ATOM,POS
 	if re.match('SITE', temp3[0][0]) != None : # wether POS is in SITE or not.
 		temp3[0].pop(0) 
 	for i in range(len(temp3)):	
+#		print 'zzzzz ',temp3[i]
+		vvv1 = re.sub('ATOM=','',temp3[i][0])
+#		print 'atom=',vvv1
+		temp5.append(vvv1)
 		for ii in range(len(temp3[i])):
-			vvv1 = re.sub('ATOM=','',temp3[i][ii])
-			vvv2 = re.sub('POS=','',vvv1) #---remove ATOM and POS
-			temp5.append(vvv2)
+			dat= temp3[i][ii]
+			if re.match("POS=",dat):
+				temp5.append(re.sub('POS=','',dat))
+				temp5.append(temp3[i][ii+1])
+				temp5.append(temp3[i][ii+2])
 	for line_each in range(len(temp5)):
+#		print 'pppp',temp5[line_each]
 		for const_name in range(len(keyword_name)):
 			temp5[line_each] = re.sub('\{'+keyword_name[const_name]+'\}',keyword_name[const_name],temp5[line_each]) 
 	sep_atom = []
-	kaisuu = int(len(temp5)/4) 
+	count = int(len(temp5)/4) 
 	j1 = -1
-	for j in range(kaisuu):
+	for j in range(count):
 		j1 = j1+1
 		j2 = 4*j1
 		sep_list = temp5[j2:j2+4]

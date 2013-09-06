@@ -34,31 +34,35 @@ for ix in argvs:  #Get extensions for ctrl.ext or ctrls.ext
 		break
 
 titleinput = 'POSCAR_'+ext
+
 openfile = open(argvs[1]).read().split('\n') 
 perfectopen = convctrl.fileopen(openfile)
-keyword_val = convctrl.constlist(openfile)
-for const in range(len(keyword_val)):
-	exec keyword_val[const] 
-keyword_name = convctrl.keywordname(keyword_val)
-ALATone = convctrl.alat(perfectopen,keyword_name)
-ALATone[0][1] = eval(ALATone[0][1])
+variable_val = convctrl.constlist(openfile)
+print 'defined variables are:',variable_val
 
+for const in range(len(variable_val)):
+	exec variable_val[const] 
+variable_name = convctrl.keywordname(variable_val)
+
+ALATone = convctrl.alat(perfectopen,variable_name)
+ALATone[0][1] = eval(ALATone[0][1])
 angstrom = 0.529177
 ALAT = ALATone[0][1]*angstrom # ALAT in angstrom
-PLAT_list = convctrl.plat(perfectopen,keyword_name)
-print 'plat=',PLAT_list
+PLAT_list = convctrl.plat(perfectopen,variable_name)
+#print 'plat=',PLAT_list
 
 for line_ing in range(len(PLAT_list)):
-	PLAT_list[line_ing] = re.sub('/','/1.0/',PLAT_list[line_ing])
+	PLAT_list[line_ing] = re.sub('/','/1.0/',PLAT_list[line_ing]) # this trick replace 5/3 with 5/1.0/3. In python 2 this gives difference (5/3=1 in python2).
 	PLAT_list[line_ing] = eval(PLAT_list[line_ing])
 
-atomlist = convctrl.atom(perfectopen,keyword_name)
+atomlist = convctrl.atom(perfectopen,variable_name)
+#print atomlist
 for line_all in range(len(atomlist)):
 	for line_each in range(1,4): # / is replaced by /1.0/ to avoid "integer division" in python2.x
 		atomlist[line_all][line_each] = re.sub('/','/1.0/',atomlist[line_all][line_each])
 		atomlist[line_all][line_each] = eval(atomlist[line_all][line_each])
-#		print atomlist[line_all][line_each]
-#		print "coordinates=",coordinates
+		#print atomlist[line_all][line_each]
+		#print "coordinates=",coordinates
 		if coordinates=='Cartesian' :
 			atomlist[line_all][line_each] = atomlist[line_all][line_each]*ALAT
 #		elif coordinates=='Direct' :
