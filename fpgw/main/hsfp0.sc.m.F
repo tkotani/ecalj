@@ -159,7 +159,7 @@ c     logical :: sergeys     !sf 21may02
 
 c     real(8)   :: ebmx
 c     integer:: nbmx
-      real(8)   :: ebmx(2)
+      real(8)   :: ebmx(20)
       integer:: nbmx(2)
 
       real(8):: volwgt
@@ -318,13 +318,12 @@ c     enddo
 
 c---  Get maximums takao 18June03
       call getnemx8(nbmx,ebmx)
-
 ccccccccccccccccccccccccccccc
 !! forget ebmx2 nbmx2 
       nbmx(2)=9999999
       ebmx(2)=1d10
 ccccccccccccccccccccccccccccc
-      write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
+      write(6,"('  nbmx ebmx from GWinput=',2i8,d13.5)") nbmx,ebmx(1)
 !     !     See sxcf_fal2z--------
 !     !     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
 !     !     nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W

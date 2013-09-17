@@ -87,7 +87,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
 !! but ef is not the true fermi energy for core-exchange mode.
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
-      use keyvalue
+      use keyvalue,only: getkeyvalue
 c      use m_nbandgw,only: getnbandgw
       use m_mpi, only: mpi__rank 
       implicit none
@@ -439,6 +439,11 @@ c      real(8)::wqfac(nqbz)
       real(8):: eftrue
 
       integer::ierr 
+
+      real(8):: emax_d_sigm
+      integer:: ntqxxd,if_ntqxxd,iopenxx
+      logical::ret
+      character(15):: fffn
 !$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -447,6 +452,9 @@ c      wklm=0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0 
 !TIME0 
+      call getkeyvalue("GWinput","emax_d_sigm", emax_d_sigm, default=1d10)
+      print *,'emax_d_sigm=',emax_d_sigm
+
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
@@ -851,9 +859,7 @@ c-------------
                if(debug) print *, ' sxcf: 1100c'
 c-----------
 c     ntqxx is number of bands for <i|sigma|j>.
-               ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
-                             !bug -ef is added jan2013
-                             !previous version do not give wrong results, but inefficient.
+               ntqxx  = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
                ntqxx = min(ntqxx, nbmx(1))
                if(ntqxx<nband) then
                   do i=ntqxx,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012
@@ -865,6 +871,32 @@ c     ntqxx is number of bands for <i|sigma|j>.
                   enddo
                endif  
                nbandmx(ip)=ntqxx !number of bands to be calculated Sep2012.
+
+
+ccccccccccccccccccccccccccccccccccccccccccccc
+c sep2013 test
+               ntqxxd = nocc (omega-eftrue,emax_d_sigm,.true.,ntq) 
+                             !bug -ef is added jan2013
+                             !previous version do not give wrong results, but inefficient.
+               ntqxxd = min(ntqxxd, nbmx(1))
+               if(ntqxxd<nband) then
+                  do i=ntqxxd,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012
+                     if(omega(i+1)-omega(i)<1d-2) then
+                        ntqxxd=i-1
+                     else
+                        exit
+                     endif
+                  enddo
+               endif  
+               if(isp==1) fffn='NTQXXD.up.'//charnum5(ip)
+               if(isp==2) fffn='NTQXXD.dn.'//charnum5(ip)
+               if_ntqxxd=iopen(fffn,1,-1,0)
+               write(if_ntqxxd,"(3f13.6,i5)") q(1:3),ntqxxd
+               if_ntqxxd=iclose(fffn)
+               write(6,*)' ntqxxd=',ip,isp,q(1:3),ntqxxd
+ccccccccccccccccccccccccccccccccccccccccccccc
+
+
 c     override these by takao jun 2009
 c     call getnbandgw(q,isp,ginv,ntqxx) !june2009
 c     if(debug) 
@@ -1138,6 +1170,9 @@ ccccccccccccccccccccccccccccc
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
                            do 994 it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) = 0d0
                               do ivc=1,ngb
@@ -1163,6 +1198,9 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
                            do it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) =dcmplx(
      &                             sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itpp)
@@ -1207,6 +1245,9 @@ c     gaussian
                   do itpp=1,ntqxx
                      do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                         if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
                         zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
      &                       - wtt * sum( w3p(:,itp,itpp) )
                      enddo
@@ -1635,6 +1676,9 @@ ccc!$OMP& private(zwzs,zwzs0)
                do 1385   itpp= 1,ntqxx
                   do 1386    itp = 1,ntqxx
                      if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
 
                      do 1387  it = 1,nstate
                         if (iSigma_en==0 .or. iSigma_en==1.or.iSigma_en==4) then
@@ -1713,6 +1757,9 @@ c     sum over both occupied and unoccupied states and multiply by weight
                do     itpp= 1,ntqxx
                   do     itp = 1,ntqxx
                      if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
 
                      if ((iSigma_en==1 .or. iSigma_en==0) .and. itp==itpp) then
                      else
@@ -2094,6 +2141,10 @@ CYY!$OMP parallel do private(ix,zz2)
 CYY!$OMP end parallel do 
                         do 2021 itpp=1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
+
 
                            if(npm==1) then
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 

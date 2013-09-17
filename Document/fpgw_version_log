@@ -1,5 +1,19 @@
 === Version log of fpgw ====
 
+sep2013
+test version of all diagonal elements
+(emax_sigm_d)
+
+Sep2013 (CMD23)
+  We start to organize ecalj/Documents/.
+
+---
+Aug2013
+  We now fix default ctrl as
+      SIGP[MODE=3 EMAX=9999.0].
+  And ESEAVR is meaningless (0.0 is included).
+  Thus we now avoid complicated interpolation scheme because of 
+  MTO-based expansion of sigm.
 ---
 Aug2013
 Anisotropy is treated in a better manner.

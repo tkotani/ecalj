@@ -54,8 +54,8 @@ c----------------------------------------------
 
       real(8):: anfvec(3)
       character(2):: soflag
-      real(8) :: wex
-      logical :: exonly,mtosigmaonly
+      real(8) :: wex,  eseavrs(2)
+      logical :: exonly,mtosigmaonly,nexist
       integer(4):: ret
 
 
@@ -69,6 +69,10 @@ c----------------------------------------------
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+
+      integer:: ntqxxd,if_ntqxxd
+      character*5:: charnum5
+      real(8)::qttt(3)
 c-----------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
@@ -314,6 +318,19 @@ c      allocate(sigmv(nhq,nhq,nq))
       allocate(sigmv(ndimsig,ndimsig,nq))
 
 
+c sep2013 cccccccccccccccccc
+!! previous iteration
+      eseavrs=0d0
+      inquire(file='ESEAVR',exist=nexist)
+      if(nexist) then
+      if_eseavr = iopenxx ('ESEAVR')
+      do is=1,nspin
+        read(if_eseavr,*) eseavrs(is)
+        print *,'pppp eseavr=',is,eseavrs(is)
+      enddo
+      close(if_eseavr)
+      endif
+      
 c----------------------------------------
  9998 continue
 c----------------------------------------
@@ -546,6 +563,21 @@ c        stop
 ccccccccccccccccccccccccccccccc
 
         do ip=1,nq
+
+c sep2013 ccccccccccccccccccccccccccccc
+           if(is==1) if_ntqxxd=iopenxx('NTQXXD.up.'//charnum5(ip))
+           if(is==2) if_ntqxxd=iopenxx('NTQXXD.dn.'//charnum5(ip))
+           read(if_ntqxxd,*) qttt(1:3),ntqxxd
+           close(if_ntqxxd)
+           if( sum((qx(1:3,1,ip)-qttt(1:3))**2 ) < 1d-10 ) then
+              continue
+           else
+              call rx('hqpe_sc:xxxx:sum((qx(1:3,1,ip)-qttt(1:3))**2')
+           endif
+           write(6,*)' ntqxxd=',ip,qttt(1:3),ntqxxd
+cccccccccccccccccccccccccccccccccccccccc
+
+
           do ikp=1,nnn        !nqbz
             if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < 1d-10 ) then
               ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
@@ -637,6 +669,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
           do itp = 1,ntqxx
             do itpp= 1,ntqxx
+c sep2013 cccccccccccccccccccccc
+                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+cccccccccccccccccccccccccccccccc
               if(itp/=itpp.and.isigma_en==5) then
                 se(itp,itpp,ip)= 0d0
               else
@@ -659,23 +694,30 @@ ctakao 2009June. Add diagonal correction to se.
 c      eldaxc(ntq,nq)
 c e-weighted average
 c  eavr  : average of eigenvalues within threshold (itp<=ntqxx)
+c  eavr2  : square average of eigenvalues within threshold (itp<=ntqxx)
 c  eseavr: average of se*eigenvalue
           eavr  = 0d0
+          eavr2  = 0d0
           eseavr0= 0d0
+          eseavr02 =0d0
           iix=0
           do itp=1,ntqxx
 c             print *,'ppppp: ',itp,eldax(itp,ip),ef
             eee = eldax(itp,ip) - rydberg()*ef
             if( eee > 1d-2 ) then
               eavr   = eavr   + eee
+              eavr2   = eavr2   + eee**2
               eseavr0 = eseavr0 + eee* se(itp,itp,ip)
+              eseavr02 = eseavr02 + eee**2* se(itp,itp,ip)
               iix=iix+1
             endif
           enddo
-          eseavr(ip,is) = eseavr0/eavr !now eseavr is
+c squared average.
+c          eseavr(ip,is) = eseavr0/eavr !now eseavr is
+          eseavr(ip,is) = eseavr02/eavr2 !now eseavr is
 cccccccccccccccccccccccccccccccccccccccccccccc
-! zero on aug2013
-          eseavr = 0d0
+!     zero on aug2013
+c          eseavr = 0d0
 cccccccccccccccccccccccccccccccccccccccccccc
           do itp = ntqxx+1,ntq
             se(itp,itp,ip) = eseavr(ip,is)
@@ -709,6 +751,18 @@ c
           endif   
           ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntq)
      &    ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:ndimsig2)))
+ccccccccccccccccccccccccccccccccc
+          
+
+ccccccccc sep2013
+          do itp =1,ndimsig2
+          do itpp=1,ndimsig2
+            ev_se_ev(itp,itpp) = ev_se_ev(itp,itpp) +
+     &      sum(evec_invt(itp,ntq+1:nhq)*evec_inv(ntq+1:nhq,itpp))*eseavrs(is)/2d0
+          enddo
+          enddo
+ccccccccccccccccccccccc
+
 
 c     - write SE_ij-Vxc_ij where ij are basis function indices
           do itp=1,ndimsig2
@@ -1323,4 +1377,13 @@ cccccccccccccccccccccccc
       enddo
       write(6,*) ' anfsig: end '
       return
+      end
+
+      character(5) function charnum5(num)
+      integer(4) ::num
+      charnum5 = char(48+mod(num/10000,10))//
+     &           char(48+mod(num/1000,10))//
+     &           char(48+mod(num/100,10))//
+     &           char(48+mod(num/10,10))//
+     &           char(48+mod(num,10))
       end
