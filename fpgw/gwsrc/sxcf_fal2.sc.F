@@ -442,8 +442,8 @@ c      real(8)::wqfac(nqbz)
 
       real(8):: emax_d_sigm
       integer:: ntqxxd,if_ntqxxd,iopenxx
-      logical::ret
       character(15):: fffn
+      integer:: inii,iendi
 !$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1171,7 +1171,7 @@ ccccccccccccccccccccccccccccc
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
 c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+                           if(itpp>ntqxxd .and.itp/=itpp) cycle
 cccccccccccccccccccccccccccccccc
                            do 994 it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) = 0d0
@@ -1199,7 +1199,7 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
 c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+                           if(itpp>ntqxxd .and.itp/=itpp) cycle
 cccccccccccccccccccccccccccccccc
                            do it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) =dcmplx(
@@ -1246,7 +1246,7 @@ c     gaussian
                      do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                         if(diagonly.and.(itpp/=itp)) cycle
 c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+                           if(itpp>ntqxxd .and.itp/=itpp) cycle
 cccccccccccccccccccccccccccccccc
                         zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
      &                       - wtt * sum( w3p(:,itp,itpp) )
@@ -1424,6 +1424,7 @@ c     May2006 zwz
                npm = 1
                if(nw_i/=0) npm = 2 ! TimeReversal off case.
 
+c sep2013 not yet touched... ntqxxd?
                allocate(zwz(niw,nstate,ntqxx,ntqxx), zwzi(nstate,ntqxx,ntqxx)) !sf 22may02
 cccccccccccccccccccc
                zwzi=0d0
@@ -1531,7 +1532,7 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
                allocate(zwzix(1:nstate,1:ntqxx,1:ntqxx),stat=ierr)
                if (ierr.ne.0) then 
                   write(6,'(i5,a,i5,a,i7)') mpi__rank,
-     &  'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2
+     &                 'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2
 !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
                   call flush(6)
                   call mpi_abort()
@@ -1555,8 +1556,22 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !KINO                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
 !KINO     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
 c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
-     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+
+
+ccccccccccccccccccccccccccccccccccccccccccc
+c!! sep2013takao
+c                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
+c     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+                  zwzix=0d0
+                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxxd, nstate,ngb,   
+     o                 zwzix(1:nstate,1:ntqxxd,1:ntqxxd)) ! zwz = zmel*(W(0)-v)*zmel
+                  if(ntqxx>ntqxxd) then
+!! mode 1 of matzwz2 is only for diagonal part                
+                  call matzwz2(1,zwix(1:ngb,1:ngb,ix),zmel(1:ngb,1:nstate,ntqxxd+1:ntqxx),ntqxx-ntqxxd, nstate,ngb,
+     o            zwzix(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+                  endif
+ccccccccccccccccccccccccccccccccccccccccccc
+
 c     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
 !KINO                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
                   zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
@@ -1673,11 +1688,19 @@ ccc!$OMP parallel do private(omega0,we,esmrx,ratio,freqw1,ua2_,ua_)
 ccc!$OMP& private(zwzs,zwzs0)
                allocate(zwzs(npm*nx))
 
+
                do 1385   itpp= 1,ntqxx
-                  do 1386    itp = 1,ntqxx
+c sep2013 cccccccccccccccccccccc
+                  if(itpp>ntqxxd) then
+                     inii=itpp; iendi=itpp
+                  else
+                     inii=1; iendi=ntqxxd
+                  endif   
+                  do 1386    itp = inii,iendi
+c                  do 1386    itp = 1,ntqxx
                      if(diagonly.and.(itpp/=itp)) cycle
 c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+c                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
 cccccccccccccccccccccccccccccccc
 
                      do 1387  it = 1,nstate
@@ -1755,10 +1778,18 @@ Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment w
 !TIME0
 c     sum over both occupied and unoccupied states and multiply by weight
                do     itpp= 1,ntqxx
-                  do     itp = 1,ntqxx
+c sep2013 cccccccccccccccccccccc
+                  if(itpp>ntqxxd) then
+                     inii=itpp; iendi=itpp
+                  else
+                     inii=1; iendi=ntqxxd
+                  endif   
+c     do 2021 itpp=ini,iend
+c                  do     itp = 1,ntqxx
+                  do itp = inii,iendi
                      if(diagonly.and.(itpp/=itp)) cycle
 c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
+c                     if(itpp<=ntqxxd .or. itp==itpp) cycle
 cccccccccccccccccccccccccccccccc
 
                      if ((iSigma_en==1 .or. iSigma_en==0) .and. itp==itpp) then
@@ -2126,32 +2157,43 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         endif
 c     this contribution to zsec_nn is real (hermitean)
                      elseif(iSigma_en == 3) then
-                        allocate(zwz4(3,ntqxx))
+                        allocate(zwz4(ntqxx,3)) !itpp
+c                        allocate(zwz4(3,ntqxx))
                         zwz4=(0d0,0d0)
 CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=1,ngb !**** most time consuming part for iSigma_en=3 ******
-                              zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iir*ix)  )
-                              do itpp=1,ntqxx
-                                 zwz4(ix0,itpp)=zwz4(ix0,itpp)+ zz2*zmel1_(itpp,igb2,it)
-                              enddo !itpp
+                             zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iir*ix)  )
+cc sep2013 cccccccccccccccccccccccccccccccccccccccc
+c                              do itpp=1,ntqxx
+c                                 zwz4(ix0,itpp)=zwz4(ix0,itpp)+ zz2*zmel1_(itpp,igb2,it)
+c                              enddo !itpp
+ccccccccccccc
+                             zwz4(1:ntqxxd,ix0)=zwz4(1:ntqxxd,ix0)+ zz2*zmel1_(1:ntqxxd,igb2,it)
+c                            call zaxpy(ntqxxd,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
+                             if(itp>ntqxxd) zwz4(itp,ix0)=zwz4(itp,ix0)+ zz2*zmel1_(itp,igb2,it)
+cccccccccccccccccccccccccccccccccccccccccccccccccc
                            enddo !igb2
                         enddo   !ix
+c sep 2013
+                        if(itp>ntqxxd) then
+                           inii=itp; iendi=itp
+                        else
+                           inii=1; iendi=ntqxxd
+                        endif
 CYY!$OMP end parallel do 
-                        do 2021 itpp=1,ntqxx
+                        do 2021 itpp=inii,iendi
+c                        do 2021 itpp=1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
-c sep2013 cccccccccccccccccccccc
-                           if(itpp/=itp .and. (itpp>ntqxxd.or.itp>ntqxxd)) cycle
-cccccccccccccccccccccccccccccccc
-
-
                            if(npm==1) then
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)
+c    .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)
+     .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(itpp,1:3),itp,itpp)
                            else
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz4(1,itpp))
+c    .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz4(1,itpp))
+     .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz4(itpp,1:3))
                            endif
  2021                   continue !itpp
                         deallocate(zwz4)
