@@ -1395,8 +1395,17 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0
 c     zw=(zw+dconjg(transpose(zw)))/2d0
 
-               call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o              zwz0)       ! zwz0 = zmel*(W(0)-v)*zmel
+
+c               call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+c     o              zwz0)       ! zwz0 = zmel*(W(0)-v)*zmel
+               call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxxd, nstate,ngb,   
+     o              zwz0(1:nstate,1:ntqxxd,1:ntqxxd))       ! zwz0 = zmel*(W(0)-v)*zmel
+!! mode 1 of matzwz2 is only for diagonal part                
+               call matzwz2(2,zw(1:ngb,1:ngb),zmel(1:ngb,1:nstate,ntqxxd+1:ntqxx),ntqxx-ntqxxd, nstate,ngb,
+     o            zwz0(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+
+
+
 !TIME1 "after matzwz2"
 !TIME0
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
