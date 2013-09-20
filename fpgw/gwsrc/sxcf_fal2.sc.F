@@ -87,7 +87,7 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
 !! but ef is not the true fermi energy for core-exchange mode.
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
-      use keyvalue
+      use keyvalue,only: getkeyvalue
 c      use m_nbandgw,only: getnbandgw
       use m_mpi, only: mpi__rank 
       implicit none
@@ -367,7 +367,7 @@ c
       complex(8), allocatable :: zwz2(:,:),zw2(:,:,:),zmel2(:,:)
       complex(8) ::  zz2, zwz3(3)
       complex(8), allocatable :: zmel1_(:,:,:),zz3(:), zw3(:,:,:),zw3x(:,:)
-      complex(8), allocatable :: zwz4(:,:)
+      complex(8), allocatable :: zwz4(:,:),zwz44(:,:)
 
       real(8)::weavx,wfaccut=1d-10
 
@@ -439,6 +439,11 @@ c      real(8)::wqfac(nqbz)
       real(8):: eftrue
 
       integer::ierr 
+
+c      real(8):: emax_d_sigm
+c      integer:: ntqxxd,if_ntqxxd,iopenxx
+c      character(15):: fffn
+c      integer:: inii,iendi
 !$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -447,6 +452,9 @@ c      wklm=0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0 
 !TIME0 
+c      call getkeyvalue("GWinput","emax_d_sigm", emax_d_sigm, default=1d10)
+c      print *,'emax_d_sigm=',emax_d_sigm
+
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
@@ -507,9 +515,7 @@ c     b and hb of states {t} at q
          if(debug) print *, ' sxcf: 3'
 
          if(bzcase()==1) then
-Cstop2rx 2013.08.09 kino            if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
             if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
-Cstop2rx 2013.08.09 kino            if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
             if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
          endif
 
@@ -657,13 +663,11 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                if(sum(abs(qvv-qxx))>1d-6) then
                   print *,'qvv =',qvv
                   print *,'qxx=',qxx,kx
-Cstop2rx 2013.08.09 kino                  stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
                   call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
                endif
  1133          continue
                if( ngb0/=ngb ) then !sanity check
                   print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
-Cstop2rx 2013.08.09 kino                  stop 'hsfp0.m.f:ngb0/=ngb'
                   call rx( 'hsfp0.m.f:ngb0/=ngb')
                endif
 c$$$  if(sum(abs(qibz_k))<1d-6) then
@@ -865,6 +869,32 @@ c     ntqxx is number of bands for <i|sigma|j>.
                   enddo
                endif  
                nbandmx(ip)=ntqxx !number of bands to be calculated Sep2012.
+
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c sep2013t
+c$$$               ntqxxd = nocc (omega-eftrue,emax_d_sigm,.true.,ntq) 
+c$$$                             !bug -ef is added jan2013
+c$$$                             !previous version do not give wrong results, but inefficient.
+c$$$               ntqxxd = min(ntqxxd, nbmx(1))
+c$$$               if(ntqxxd<nband) then
+c$$$                  do i=ntqxxd,1,-1 !redudce ntqxx when band tops are degenerated. !sep2012
+c$$$                     if(omega(i+1)-omega(i)<1d-2) then
+c$$$                        ntqxxd=i-1
+c$$$                     else
+c$$$                        exit
+c$$$                     endif
+c$$$                  enddo
+c$$$               endif  
+c$$$               if(isp==1) fffn='NTQXXD.up.'//charnum5(ip)
+c$$$               if(isp==2) fffn='NTQXXD.dn.'//charnum5(ip)
+c$$$               if_ntqxxd=iopen(fffn,1,-1,0)
+c$$$               write(if_ntqxxd,"(3f13.6,i5)") q(1:3),ntqxxd
+c$$$               if_ntqxxd=iclose(fffn)
+c$$$               write(6,*)' ntqxxd=',ip,isp,q(1:3),ntqxxd
+c$$$ccccccccccccccccccccccccccccccccccccccccccccc
+
+
 c     override these by takao jun 2009
 c     call getnbandgw(q,isp,ginv,ntqxx) !june2009
 c     if(debug) 
@@ -958,14 +988,12 @@ c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
                   allocate( pomat(nn,no) )
                   pomat= pomatr(1:nn,1:no,kx)
                   if( sum(abs(qibz_k-qrr(:,kx)))>1d-10 .and.kx <= nqibz ) then
-Cstop2rx 2013.08.09 kino                     stop 'qibz/= qrr'
                      call rx( 'qibz/= qrr')
                   endif
                   if(no /= ngb.and.kx <= nqibz) then
 !     A bit sloppy check only for kx<nqibz because qibze is not supplied...
                      write(6,"(' q  ngb  ',3d13.5,3i5)")  qibz_k,ngb
                      write(6,"(' q_r  nn no',3d13.5,3i5)") q_r,nn,no
-Cstop2rx 2013.08.09 kino                     stop 'x0kf_v2h: POmat err no/=ngb'
                      call rx( 'x0kf_v2h: POmat err no/=ngb')
                   endif
 ccccccccccccccccccccccccccc
@@ -1063,7 +1091,6 @@ c     wtx = 1d0
                   else
 c     wtx = wgt0(kx-nqibz,irot)
                      wtt = wk(1)*wgt0(kx-nqibz,irot)
-Cstop2rx 2013.08.09 kino                     if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
                      if(abs(wk(1)-1d0/dble(nqbz))>1d-10) call rx( 'sxcf:wk(1) inconsistent')
                   endif
                endif
@@ -1138,6 +1165,9 @@ ccccccccccccccccccccccccccccc
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
+c sep2013t cccccccccccccccccccccc
+c                           if(itpp>ntqxxd .and.itp/=itpp) cycle
+cccccccccccccccccccccccccccccccc
                            do 994 it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) = 0d0
                               do ivc=1,ngb
@@ -1163,6 +1193,9 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
+c sep2013t cccccccccccccccccccccc
+c                           if(itpp>ntqxxd .and.itp/=itpp) cycle
+cccccccccccccccccccccccccccccccc
                            do it  = 1,nctot+nbmax
                               w3p(it,itp,itpp) =dcmplx(
      &                             sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itpp)
@@ -1207,6 +1240,9 @@ c     gaussian
                   do itpp=1,ntqxx
                      do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                         if(diagonly.and.(itpp/=itp)) cycle
+c sep2013t cccccccccccccccccccccc
+c                           if(itpp>ntqxxd .and.itp/=itpp) cycle
+cccccccccccccccccccccccccccccccc
                         zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
      &                       - wtt * sum( w3p(:,itp,itpp) )
                      enddo
@@ -1240,12 +1276,9 @@ c---  reading general energy mesh from file 'freq_r'
 C...  Check freq_r for nw_i case.
 !     We assume freq_r(i) == -freq_r(-i) in this code. feb2006
                if(nw_i/=0) then
-Cstop2rx 2013.08.09 kino                  if(nw/= -nw_i)        stop "sxcf_fal3_scz: nw/=-nw_i"
                   if(nw/= -nw_i)        call rx( "sxcf_fal3_scz: nw/=-nw_i")
-Cstop2rx 2013.08.09 kino                  if(freq_r(0)/=0d0)    stop "sxcf_fal3_scz: freq_r(0)/=0"
                   if(freq_r(0)/=0d0)    call rx( "sxcf_fal3_scz: freq_r(0)/=0")
                   if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
-Cstop2rx 2013.08.09 kino     &                 stop "sxcf_fal3_scz: freq_r /= -freq_r"
      &                 call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
                endif
 !     Note this program assumes freq_r(iw)=freq_r(-iw). feb2006
@@ -1354,6 +1387,12 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0
 c     zw=(zw+dconjg(transpose(zw)))/2d0
 
+c$$$ sep2013t
+c$$$               call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxxd, nstate,ngb,   
+c$$$     o              zwz0(1:nstate,1:ntqxxd,1:ntqxxd))       ! zwz0 = zmel*(W(0)-v)*zmel
+c$$$!! mode 1 of matzwz2 is only for diagonal part                
+c$$$               call matzwz2(2,zw(1:ngb,1:ngb),zmel(1:ngb,1:nstate,ntqxxd+1:ntqxx),ntqxx-ntqxxd, nstate,ngb,
+c$$$     o            zwz0(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
                call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
      o              zwz0)       ! zwz0 = zmel*(W(0)-v)*zmel
 !TIME1 "after matzwz2"
@@ -1376,7 +1415,6 @@ c     cycle
 c     endif
 c     
                nx  = niw
-Cstop2rx 2013.08.09 kino               if(niw <1) stop " sxcf:niw <1"
                if(niw <1) call rx( " sxcf:niw <1")
 
 c     May2006 zwz
@@ -1472,7 +1510,6 @@ c     zwz=0d0
                  write(6,'(i3,a,i3,a,i5)')
      &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2*nx; call flush(6) 
                  call mpi_abort()
-Cstop2rx 2013.08.09 kino                 stop 
                  call rx( '')
               endif
                do ix=1,nx
@@ -1494,7 +1531,6 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
 !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
                   call flush(6)
                   call mpi_abort()
-Cstop2rx 2013.08.09 kino                  stop
                   call rx( '')
                endif
 !$OMP do               
@@ -1514,9 +1550,20 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !KINO                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
 !KINO     &       ngb,ngb,size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3),nstate,ntqxx,ntqxx
 c                  call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+c$$$ccccccccccccccccccccccccccccccccccccccccccc
+c$$$c!! sep2013t
+c$$$                  zwzix=0d0
+c$$$                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxxd, nstate,ngb,   
+c$$$     o                 zwzix(1:nstate,1:ntqxxd,1:ntqxxd)) ! zwz = zmel*(W(0)-v)*zmel
+c$$$                  if(ntqxx>ntqxxd) then
+c$$$!! mode 1 of matzwz2 is only for diagonal part                
+c$$$                  call matzwz2(1,zwix(1:ngb,1:ngb,ix),zmel(1:ngb,1:nstate,ntqxxd+1:ntqxx),ntqxx-ntqxxd, nstate,ngb,
+c$$$     o            zwzix(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+c$$$                  endif
+c$$$ccccccccccccccccccccccccccccccccccccccccccc
                   call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
      o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-c     o                 zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+
 !KINO                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
                   zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
@@ -1633,6 +1680,13 @@ ccc!$OMP& private(zwzs,zwzs0)
                allocate(zwzs(npm*nx))
 
                do 1385   itpp= 1,ntqxx
+c$$$c sep2013t cccccccccccccccccccccc
+c$$$                  if(itpp>ntqxxd) then
+c$$$                     inii=itpp; iendi=itpp
+c$$$                  else
+c$$$                     inii=1; iendi=ntqxxd
+c$$$                  endif   
+c$$$                  do 1386    itp = inii,iendi
                   do 1386    itp = 1,ntqxx
                      if(diagonly.and.(itpp/=itp)) cycle
 
@@ -1644,7 +1698,6 @@ ccc!$OMP& private(zwzs,zwzs0)
                         elseif (iSigma_en==3) then
                            omega0=omega(itp)
                         else
-Cstop2rx 2013.08.09 kino                           stop "sxcf: iSigma_en /=0,1,2, or 3"
                            call rx( "sxcf: iSigma_en /=0,1,2, or 3")
                         endif
                         we =.5d0*( omega0 -ekc(it))
@@ -1697,7 +1750,6 @@ c     &      wintzsg_npm (npm, zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
      &                          ,freqx,wx,ua_,expa_,we,nx,esmrx)
                         else
                            if(npm==2) 
-Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
      &                          call rx( ' ###Not impliment wintzav for npm=2. Use Gausssmear.')
                            zwzi(it,itp,itpp) =  
      &                          wintzav ( zwz(1,it,itp,itpp),zwz0(it,itp,itpp)
@@ -1711,6 +1763,13 @@ Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment w
 !TIME0
 c     sum over both occupied and unoccupied states and multiply by weight
                do     itpp= 1,ntqxx
+c$$$c sep2013t cccccccccccccccccccccc
+c$$$                  if(itpp>ntqxxd) then
+c$$$                     inii=itpp; iendi=itpp
+c$$$                  else
+c$$$                     inii=1; iendi=ntqxxd
+c$$$                  endif   
+c$$$                  do itp = inii,iendi
                   do     itp = 1,ntqxx
                      if(diagonly.and.(itpp/=itp)) cycle
 
@@ -1790,7 +1849,6 @@ c     Gaussian smearing
      &                          ,freqx,wx,ua_,expa_,we,nx,esmrx)
                         else
                            if(npm==2) 
-Cstop2rx 2013.08.09 kino     &                          stop' ###Not impliment wintzav for npm=2. Use Gausssmear.'
      &                          call rx( ' ###Not impliment wintzav for npm=2. Use Gausssmear.')
                            zwzi(it,itp,itp) =  
      &                          wintzav ( zwz(1,it,itp,itp),zwz0(it,itp,itp),
@@ -1819,7 +1877,6 @@ c     end of SEc w-loop
                   do itp = 1,ntq
                      write(6,'(" zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip) !sf 22May02
                   enddo
-Cstop2rx 2013.08.09 kino                  stop 'xxxxxxxxxxxxx test end ecal xxxxxxxxxxxxxx'
                   call rx( 'xxxxxxxxxxxxx test end ecal xxxxxxxxxxxxxx')
                endif
                deallocate(zwz,zwz0,zwzi)
@@ -1873,7 +1930,6 @@ c---------------------------------------
                         if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
                      endif
                      if(it<=nctot) then
-Cstop2rx 2013.08.09 kino                        if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
                         if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
                      endif
                      do iwp = 1,nw
@@ -1890,7 +1946,6 @@ c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                         write (*,*) ' nw_i ixsmin',nw_i, ixsmin
                         write (*,*) ' wexx, dw ',wexx,dw
                         write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
-Cstop2rx 2013.08.09 kino                        stop ' sxcf 222: |w-e| out of range'
                         call rx( ' sxcf 222: |w-e| out of range')
                      endif
  3011             continue
@@ -1905,11 +1960,9 @@ Cstop2rx 2013.08.09 kino                        stop ' sxcf 222: |w-e| out of ra
                   nwx  =  ixsmx+1
                endif
                if (nwx > nw   ) then
-Cstop2rx 2013.08.09 kino                  stop ' sxcf_fal3_sc nwx check : |w-e| > max(w)'
                   call rx( ' sxcf_fal3_sc nwx check : |w-e| > max(w)')
                endif
                if (nwxi < nw_i) then
-Cstop2rx 2013.08.09 kino                  stop ' sxcf_fal3_sc nwxi check: |w-e| > max(w)'
                   call rx( ' sxcf_fal3_sc nwxi check: |w-e| > max(w)')
                endif
                if(debug) print *,'nw, nwx=',nw,nwx
@@ -1937,7 +1990,6 @@ C...  Find nt_max ------------------------------------
                if(timemix) call timeshow("444444 k-cycle")
                if (iSigma_en == 1 .or. iSigma_en == 3.or.iSigma_en==5) then
                else
-Cstop2rx 2013.08.09 kino                  stop 'sxcf_fal2_sc: iSigma_en /= 1 3 5'
                   call rx( 'sxcf_fal2_sc: iSigma_en /= 1 3 5')
                endif
                allocate( zw3(ngb,ngb,nwxi:nwx))
@@ -2008,7 +2060,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c     we = .5d0* abs( weavx2(omg,ef, ekc(it),esmr)- omg )
                         we = .5d0* abs( omg-weavx2(omg,ef, ekc(it),esmr) )
                         if(it<=nctot) then !faleev
-Cstop2rx 2013.08.09 kino                           if(wfac>wfaccut) stop "sxcf: it<=nctot.and.wfac/=0"
                            if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
                         endif
                      else
@@ -2016,7 +2067,6 @@ Cstop2rx 2013.08.09 kino                           if(wfac>wfaccut) stop "sxcf: 
                         if( omg >= ef) we = 0.5d0* abs( max(omg-ekc(it), 0d0) )
                         if( omg <  ef) we = 0.5d0* abs( min(omg-ekc(it), 0d0) )
                         if( it<=nctot) then !faleev
-Cstop2rx 2013.08.09 kino                           if(wfac/=0) stop "sxcf:  it<=nctot.and.wfac/=0"
                            if(wfac/=0) call rx( "sxcf:  it<=nctot.and.wfac/=0")
                         endif
                      endif
@@ -2029,19 +2079,16 @@ Cstop2rx 2013.08.09 kino                           if(wfac/=0) stop "sxcf:  it<=
                         if(freq_r(iwp)>we) exit
                      enddo      !sf 23May02
                      if(nw_i==0) then
-Cstop2rx 2013.08.09 kino                        if(ixs+1>nwx) stop ' sxcf: ixs+1>nwx xxx2'
                         if(ixs+1>nwx) call rx( ' sxcf: ixs+1>nwx xxx2')
                      else
 c     write(6,*) "pppp ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
 c     if(ixs+1>abs(nwxi)) stop ' sxcf: ixs+1>nwx yyy2'
                         if(omg >=ef .and. ixs+1> nwx ) then
                            write(6,*)'ixs+1 nwx=',ixs+1,nwx
-Cstop2rx 2013.08.09 kino                           stop ' sxcf: ixs+1>nwx yyy2a'
                            call rx( ' sxcf: ixs+1>nwx yyy2a')
                         endif
                         if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
                            write(6,*)'ixs+1 nwxi=',ixs+1,nwxi
-Cstop2rx 2013.08.09 kino                           stop ' sxcf: ixs-1<nwi yyy2b'
                            call rx( ' sxcf: ixs-1<nwi yyy2b')
                         endif
                      endif
@@ -2079,31 +2126,48 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         endif
 c     this contribution to zsec_nn is real (hermitean)
                      elseif(iSigma_en == 3) then
-                        allocate(zwz4(3,ntqxx))
+                        allocate(zwz4(ntqxx,3)) !itpp
                         zwz4=(0d0,0d0)
 CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=1,ngb !**** most time consuming part for iSigma_en=3 ******
-                              zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iir*ix)  )
-                              do itpp=1,ntqxx
-                                 zwz4(ix0,itpp)=zwz4(ix0,itpp)+ zz2*zmel1_(itpp,igb2,it)
-                              enddo !itpp
+                             zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iir*ix)  )
+cc sep2013t cccccccccccccccccccccccccccccccccccccccc
+c                              do itpp=1,ntqxx
+c                                 zwz4(ix0,itpp)=zwz4(ix0,itpp)+ zz2*zmel1_(itpp,igb2,it)
+c                              enddo !itpp
+ccccccccccccc
+c$$$                             zwz4(1:ntqxxd,ix0)=zwz4(1:ntqxxd,ix0)+ zz2*zmel1_(1:ntqxxd,igb2,it)
+c$$$c                            call zaxpy(ntqxxd,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
+c$$$                             if(itp>ntqxxd) zwz4(itp,ix0)=zwz4(itp,ix0)+ zz2*zmel1_(itp,igb2,it)
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c                            zwz4(1:ntqxx,ix0)=zwz4(1:ntqxx,ix0)+ zz2*zmel1_(1:ntqxx,igb2,it)
+                             call zaxpy(ntqxx,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
                            enddo !igb2
                         enddo   !ix
+                        allocate(zwz44(3,ntqxx))
+                        zwz44 = transpose(zwz4)
+                        deallocate(zwz4)
+c$$$c sep2013t
+c$$$                        if(itp>ntqxxd) then
+c$$$                           inii=itp; iendi=itp
+c$$$                        else
+c$$$                           inii=1; iendi=ntqxxd
+c$$$                        endif
 CYY!$OMP end parallel do 
+c$$$                        do 2021 itpp=inii,iendi
                         do 2021 itpp=1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
-
                            if(npm==1) then
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz4(1,itpp),itp,itpp)
+     .                             + wfac*alagr3z2(we,freq_r(ixs-1),zwz44(1,itpp),itp,itpp)
                            else
                               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz4(1,itpp))
+     .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz44(1,itpp))
                            endif
  2021                   continue !itpp
-                        deallocate(zwz4)
+                        deallocate(zwz44)
                      endif      ! inner iSigma_en=1 or 3
 c     this contribution to zsec_nn' is not hermitean because W(e_n)
 c     and must be made hermitean when zsec will be written on disc
