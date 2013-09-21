@@ -243,7 +243,7 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       double precision qk
       integer jj1,jj2,jj3,k
       integer ::iwdummy
-      real(8):: eseavr
+c      real(8):: eseavr
       integer:: napw_in
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
       real(8):: qin(3)

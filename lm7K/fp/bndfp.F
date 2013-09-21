@@ -853,22 +853,20 @@ c     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
 c      open(ifiogw,file='NBANDGW')
 Cki  ifiese default value is not set.  set it to 0
 
-! ESEAVR is readin m_psigd
+!! We need ESEAVR file. This is a dummy file when we use huge HAM_SIGP_EMAX such as EMAX=9999.
+!! ESEAVR is called from rdsigm2-psigd.
       ifiese=0
       if(lrsig/=0) then
         ifiese=9039
         inquire(unit=ifiese,opened=nexist)
-        if(nexist) 
-     &  stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
+        if(nexist) stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
         open(ifiese,file='ESEAVR',status='old',err=127)
         goto 128
  127    continue
-        print *
-        print *,'=== No ESEAVR file (given by hqpe_sc)! with sigm.* file==='
-        print *,' You can use a dummy ESEAVR file (two lines) such as'
-        print *,' 0.0 1 0'
-        print *,' 0.0 2 0'
-        stop '=== No ESEAVR file (given by hqpe_sc)! ==='
+        open(ifiese,file='ESEAVR')
+        write(ifiese,*)"0d0 1 !dummy when no ESEAVR"
+        close(ifiese)
+        open(ifiese,file='ESEAVR',status='old',err=127)
       endif
  128  continue
 

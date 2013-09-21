@@ -192,7 +192,7 @@ Ckino isanrg is logical function,             call isanrg(modsgp,0,2,'hambls:','
               if(ndimh==i.and.present(iprx).and.oncewrite(2) ) write(6,"(a,2d13.6,i3)")' ESEAVR: ',sigii,ispx
               if(isp==ispx) goto 898
             enddo
-            stop 'psigd: can not find ESEAVR for given isp'
+            call rx('psigd: No ESEAVR file (given by hqpe_sc)! psigd can not find ESEAVR for given isp')
  898        continue
           endif
         endif  

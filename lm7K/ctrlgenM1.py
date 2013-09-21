@@ -946,10 +946,13 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
 
       #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
-      SIGP[MODE=3 EMAX=9999.0]
+      SIGP[MODE=3]
+      # Now we use no cutoff procedure for Sigma-Vxc in lmf. (only in emax_sigm is effective in GWinput). 
+      # default:SIGP_EMAX=9999.
       RSRNGE=10.0  #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
       # This occurs when you set large n1n2n3 in GWinput, and/or large cell.
-      # EMAX=9999 means no cutoff procedure for Sigma-Vxc in lmf. (only in emax in GWinput).
+      # Reducing RSRNGE makes speed up a little ---> no effect to final results, but have chance 
+      # to show the above message.
 
       #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
       # This is a RPA-level hybridyzation method, in contrast to the B3LYP (hartree-fock level hybridyzation)

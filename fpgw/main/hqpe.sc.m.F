@@ -203,7 +203,6 @@ c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
         !ifse_out(2)=3010                                              !sf
       endif
 
-
       if(jin == -101) goto 9998
 
 c-----------reading self-energy mode parameter from file 'GWIN_V2'
@@ -220,7 +219,6 @@ cccccccccccccccccccccccccc
           if(isigma_en==5) open(ifevecchk,file='evecfix.chk')
         endif
       endif
-
 
 !! === readin lmfgw_kdivider, and get extensions === apr2013
       ifiproc=4001
@@ -320,18 +318,7 @@ c      allocate(sigmv(nhq,nhq,nq))
       endif
       allocate(sigmv(ndimsig,ndimsig,nq))
 
-
-c sep2013 cccccccccccccccccc
-!! previous iteration
-c      eseavrs=0d0
-c      inquire(file='ESEAVR',exist=nexist)
-c      if(nexist) then
       if_eseavr = iopenxx ('ESEAVR')
-c      do is=1,nspin
-c        read(if_eseavr,*) eseavrs(is)
-c        print *,'pppp eseavr=',is,eseavrs(is)
-c      enddo
-c      endif
       
 c----------------------------------------
  9998 continue
@@ -355,6 +342,7 @@ c-----------------------------------------------------------------
       nstarsum= sum(nstar(:))
       print *,' nstarsum=',nstarsum
 Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
+      allocate(ntqxx(nq))
 
 
 !!    loop over spin -------------------------------
@@ -551,7 +539,6 @@ c        enddo
 c        stop
 ccccccccccccccccccccccccccccccc
 
-        allocate(ntqxx(nq))
         do 2001 ip=1,nq
 c$$$c sep2013t ccccccccccccccccccccccccccccc
 c$$$           if(is==1) if_ntqxxd=iopenxx('NTQXXD.up.'//charnum5(ip))
@@ -695,7 +682,7 @@ c          eseavr(ip,is) = eseavr0/eavr !now eseavr is
 cc           do itp = ntqxx+1,ntq
 cc              se(itp,itp,ip) = eseavr(ip,is)
 cc           enddo
-           eseavr(ip,is) = 2d0*eseavr(ip,is) !now eseavr is
+           eseavr(ip,is) = 2d0*eseavr(ip,is) !in Ry.
            write(6,*)"### A correction takao2009June: find this in hqpe.se.m.F"
            write(6,*)"###   constant is added to sigm above threshold."
            write(6,*)"###   the constant (ESEAVR=e-weighted average Ry)= ",is,ip,eseavr(ip,is)
@@ -705,9 +692,12 @@ cc           enddo
           eseavrmean = eseavrmean + nstar(ip)*eseavr(ip,is)
         enddo
         eseavrmean = eseavrmean/nqbz
-c       write(if_eseavr,"(d23.15,i3,i8)") eseavrmean,is ,ntqxxmin
-        write(6,"(' ESEAVRmean isp=',d13.6,i2)")eseavrmean,is
-        write(if_eseavr,"(d23.15,i3)") 0d0, is 
+cccccccccccccccccccccccccccccccc
+c        eseavrmean = 0d0
+cccccccccccccccccccccccccccccccc
+        write(if_eseavr,"(d23.15,i3,i8)") eseavrmean,is ,ntqxxmin
+c       write(if_eseavr,"(d23.15,i3)") 0d0,is
+        write(6,"(' ESEAVRmean (used bands above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
 
 !!-----------------------------------------------------------------
         do 2003 ip=1,nq
@@ -809,7 +799,7 @@ c     &    (2d0*ev_se_ev(1:nhq,1:nhq)-v_xc(1:nhq,1:nhq,ikpx,is)) !in rydberg
 c     endif
 
           sigmv(:,:,ip) = 1d20
-          sigmv(1:ndimsig2,1:ndimsig2,ip) =  2d0*ev_se_ev(1:ndimsig2,1:ndimsig2)
+          sigmv(1:ndimsig2,1:ndimsig2,ip) =  2d0*ev_se_ev(1:ndimsig2,1:ndimsig2) !in Ry.
           write(ifse_out) sigmv(:,:,ip)
 
 !!      2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
