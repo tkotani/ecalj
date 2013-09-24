@@ -727,13 +727,31 @@ c       write(if_eseavr,"(d23.15,i3)") 0d0,is
           endif   
           ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntqxx(ip))
      &    ,matmul(se(1:ntqxx(ip),1:ntqxx(ip),ip),evec_inv(1:ntqxx(ip),1:ndimsig2)))
-c!! sep2012 exprapolation of se by eseavrmean
+
+!! sep2013 exprapolation of se by eseavrmean
           do itp =1,ndimsig2
           do itpp=1,ndimsig2
             ev_se_ev(itp,itpp) = ev_se_ev(itp,itpp) +
-     &      sum(evec_invt(itp,ntqxx(ip)+1:nz)*evec_inv(ntqxx(ip)+1:nz,itpp))*eseavrmean/2d0  !eseavrs(is)/2d0
+     &      sum(evec_invt(itp,ntqxx(ip)+1:nz)*evec_inv(ntqxx(ip)+1:nz,itpp))*eseavrmean/2d0 ! in Hartree.
           enddo
           enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cc11 sep2013 exprapolation of se by eseavrmean                                               
+c          do itp =1,ndimsig2                                                                
+c          do itpp=1,ndimsig2                                                                
+c            ev_se_ev(itp,itpp) = ev_se_ev(itp,itpp) +                                       
+c     &      sum(evec_invt(itp,ntqxx(ip)+1:ntq)*evec_inv(ntqxx(ip)+1:ntq,itpp))*eseavrmean/2d0
+c          enddo                                                                             
+c          enddo                                                                             
+cc12 sep2013 exprapolation of se by eseavrmean                         
+c          do itp =1,ndimsig2                                          
+c          do itpp=1,ndimsig2                                          
+c            ev_se_ev(itp,itpp) = ev_se_ev(itp,itpp) +                 
+c     &      sum(evec_invt(itp,ntq+1:nz)*evec_inv(ntq+1:nz,itpp))* 5d0 
+c          enddo                                                       
+c          enddo                                                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 !! - write SE_ij-Vxc_ij where ij are basis function indices
           do itp=1,ndimsig2
