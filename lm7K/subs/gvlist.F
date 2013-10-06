@@ -1,4 +1,4 @@
-      subroutine gvlist(alat,plat,tau,n1,n2,n3,gmax,job,ngmx,ng,kv,gv,
+      subroutine gvlist_notused(alat,plat,tau,n1,n2,n3,gmax,job,ngmx,ng,kv,gv,
      .igv,igv2)
 C- Create a list of G vectors for a specified uniform mesh and cutoff
 C ----------------------------------------------------------------------
@@ -291,6 +291,8 @@ C         endif
               kv(ig,1) = j1+1
               kv(ig,2) = j2+1
               kv(ig,3) = j3+1
+
+c             write(*,"('wwwww2222 j1j2j3=',4i4,f13.5)")ig,j1,j2,j3,gg
 
 C     ... Copy lattice vectors to gv,igv,igv2, depending on job
               if (ligv .or. ligv2 .or. .true.) then

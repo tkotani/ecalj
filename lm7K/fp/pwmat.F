@@ -133,17 +133,21 @@ C --- Overlaps between IPW's ---
 C     call zprm('ppovl',2,ppovl,ngp,ngp,ngp)
 
 C ... G vectors for the envelope (smooth hankel) functions
-      call iinit(iwk,3)
+c      call iinit(iwk,3)
       call pshpr(0)
 C     Find ngmx = number of G's in PW expansion of basis for this qp:
 C     ngmx dimensions igvx,pwh.
-      call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,100,1,
+c      print *,'pwmat: goto gvlst2 1111 gcutH=',gcutH
+      call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,100,1,
      .ngmx,xx,xx,xx,xx)
       allocate(igvx(3,ngmx),kv(3,ngmx))
-      call iinit(iwk,3)
-      call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,102,1,
+c      call iinit(iwk,3)
+c      print *,'pwmat: goto gvlst2 2222'
+      call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,102,ngmx, !1,
      .ngmx,kv,xx,xx,igvx)
       call poppr
+
+c      print *,'pwmat: end of gvlst2'
 
 C ... Patch: use igv for igvx
 C     deallocate(igvx)

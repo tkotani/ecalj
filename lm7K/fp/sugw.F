@@ -726,7 +726,8 @@ c$$$        write(stdo,"(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)") iq,q,q
           allocate(igv2(3,napw))
           allocate(kv_iv(3*napw))
           call pshpr(iprint()-10)
-          call gvlst2(alat, plat, xx, 0, 0, 0, pwgmin, pwgmax, 0, 2, 0, napw, kv_iv, dum, dum, igv2)
+c          call gvlst2(alat, plat, xx, 0, 0, 0, pwgmin, pwgmax, 0, 2, 0, napw, kv_iv, dum, dum, igv2)
+          call gvlst2(alat, plat, xx, 0, 0, 0, pwgmin, pwgmax, 0, 2, napw, napw, kv_iv, dum, dum, igv2)
           if (allocated(kv_iv)) deallocate(kv_iv)
           call poppr
           ndimh = ldim + napw
@@ -845,7 +846,7 @@ C       to avoid mixing up integration routines
               cycle
             endif
             if (mod(iq,10) .ne. 1) call poppr
-c            write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
+            if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
             if (lwvxc) then
               ifievec = fopna('evec',-1,4)
               write(ifievec) q, evec(1:ndimh,1:ndimh)
@@ -856,6 +857,7 @@ c            write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,
                if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
             endif   
 
+            if(debug) write(6,"(' ppppppp 111111111')")
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$!! test for takao wave function rotater si 5x5x5.
 c$$$            if(.false.) then
@@ -942,6 +944,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             nlmax = globalvariables%mxorb / globalvariables%nkaph
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
+            if(debug) write(6,"(' ppppppp goto makusq')")
             call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
      .      0 , nlmax , ndham , ndimh , napw , igv2 , nev , nsp , 
      .      nspc , isp , 1 , qp , evec , ppn , aus_zv )
@@ -949,6 +952,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      .      , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi 
      .      ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
             if (allocated(aus_zv)) deallocate(aus_zv)
+            if(debug) write(6,"(' ppppppp end of gwcphi')")
+
 !! We keep note in the followings, but be careful (may contain bugs)...
 !!  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
 !!      The IPW basis consisting of PWs with holes knocked out of spheres,
@@ -976,7 +981,7 @@ C       Overlap of IPW and eigenfunction:
 C         PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
 C         PZOVL = O * PWZ (matrix form) <--- old
 C         Note: pzovl is only used as an intermediate construction, old branch
-c            print *,'ngp=',ngp
+            if(debug) print *,'ppppppppppp ngp=',ngp
             if (ngp .gt. 0) then
               allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
               allocate(phovl(ngp,ndimh))
@@ -994,6 +999,7 @@ c          if (mod(loldpw,2) .eq. 0) then
 !!!! do not need to be short enough).
               if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
               inn=0
+              if(debug) print *,'goto pwmat'
               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw,
      .          igv2, sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
      .          ppovl, phovl )

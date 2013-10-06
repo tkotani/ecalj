@@ -75,10 +75,10 @@ c         gmax=1d10
 c         ngmx=min0(m1*m2*m3,n1*n2*n3)
 c      endif
       allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
-      call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,
-     .wdummy,wdummy)
-      call gvlist(1d0,plat,wdummy,n1,n2,n3,gmax,8,ngmx,ng2,kv2,gv2,
-     .wdummy,wdummy)
+c      call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,wdummy,wdummy)
+c      call gvlist(1d0,plat,wdummy,n1,n2,n3,gmax,8,ngmx,ng2,kv2,gv2,wdummy,wdummy)
+      call gvlst2(1d0,plat,wdummy,m1,m2,m3,0d0,gmax,0,8,ngmx,ng1,kv1,gv1,wdummy,wdummy)
+      call gvlst2(1d0,plat,wdummy,n1,n2,n3,0d0,gmax,0,8,ngmx,ng2,kv2,gv2,wdummy,wdummy)
       if (ng1.ne.ng2) call rx('chgmsh: ng1.ne.ng2')
 
 c      call gvmtch(ng1,gv1,kv1,ng2,gv2,kv2)  <--- bug. I had to pass ogv1 and so on in original code. Bug fix on 12Jun2010.

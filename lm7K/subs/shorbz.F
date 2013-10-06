@@ -27,7 +27,10 @@ c
       rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
       nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
       nmax =  nrmax
-
+cccccccccccccccccccccccc
+c      print *,'jjjjj   xmx2=',xmx2
+c      print *,'jjjjjjjj nrmax=',rmax2, nrmax
+cccccccccccccccccccccccc
 C we are looking for shortest vectors
       ik=0
       rmin=1d9

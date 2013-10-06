@@ -434,7 +434,7 @@ c      common /w/ w
 C ... External calls
 ckino      external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,
 ckino     .poppr,pshpr,rlse
-      external dinv33,dpsadd,dpscop,gvlist,hft2r2,
+      external dinv33,dpsadd,dpscop,hft2r2, !gvlist
      .poppr,pshpr
 
       logical:: isanrg, l_dummy_isanrg,debug=.false.
@@ -472,16 +472,14 @@ C --- Make list for a dimensionless lattice (alat=1) ---
 c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
           ngmx = n1*n2*n3
           allocate(gv_rv(ngmx*3))
-
           allocate(kv_iv(ngmx*3))
 
 C     print *, 'ia,ib=',ia,ib
 C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
           call pshpr(80*0)
           i = 208 + 400*0
-          call gvlist ( 1d0 , qlat , tau , n1 , n2 , n3 , 1d5 , i , ngmx 
-     .    , ng , kv_iv , gv_rv , wdummy , wdummy )
-
+c          call gvlist(1d0, qlat, tau , n1,n2,n3, 1d5,i, ngmx, ng ,     kv_iv,gv_rv,wdummy,wdummy)
+          call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv_iv,gv_rv,wdummy,wdummy)
           call poppr
 
 C --- For each connecting vector, mark iax table or poke into hrs ---

@@ -65,7 +65,6 @@ c2012Sep02 kino, add for
        iprx=.false.
        if(procid==master) iprx=.true.
 #endif
-
 !!--- setup ---
       if(.not.siginit) return
       nbas=nbas_in
@@ -156,21 +155,17 @@ ckino2012Sep02      call fclr(' ',ifisym)
 #if (MPI|MPIK)
       endif
 #endif
-
 c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
 c      print *,' end of rotdlmm'
-
-
 !! no GW-related part
 c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
       if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         if(iprx) print *,'gen_hamindex: not readin QGpsi.'
         return
       endif
-
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
@@ -179,8 +174,6 @@ c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi,imx !,nqibz
-
-
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
 c$$$      if(allocated(qq)) deallocate(qq)
@@ -201,7 +194,6 @@ c$$$        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
 c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
 c$$$      enddo
 cccccccccccccccccccccccccccccc
-
 
 !! === feb2012takao. ===
 !! we have two set of data for original qxx in QGpsi and their shortened.
@@ -232,15 +224,13 @@ cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:
         if(iprx)write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
       enddo
       call fclr(' ',ifiqg) !close file
-
 cccccccccccccccccc
 c        do iqi=1,nqi
 c          q=qtti(:,iqi)
 c          print *,' qtti=',iqi,q
 c        enddo
 c        stop 'xxxxxxxxxxxxxxxx'
-ccccccccccccccccccccc
-          
+cccccccccccccccccc
 
 !! ==== Generate info for rotwv and write ====
 c     print *,' nqtt nqi=',nqtt,nqi
@@ -280,10 +270,6 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
         igmap(i)=igg
       enddo
 
-ccccccccccccccccccccccccccccccccccc
-c      stop 'xxxxxxxxxxxxxxxxzzzzzzzzzz'
-ccccccccccccccccccccccccccccccccc
-
 !! === rotation of APW. (not the IPW part for GW).===
 c$$$ 1012 continue
       pwmode=sham%pwmode
@@ -312,8 +298,9 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       pwgmin = 0d0 !dsqrt(pwemin) !this will be removed.
       napwmx = 0
       call pshpr(0)
+c      print *,' zzzzzzzzzzz nkt=',nkt
       do ikt=1,nkt
-        !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
+c        print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
         !print *,' 111 alat plat=',alat,plat
         !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
 ccccccccccccccccccccccccccccccccc !aug2012takao
@@ -322,12 +309,12 @@ ccccccccccccccccccccccccccccccccc !aug2012takao
 cccccccccccccccccccccccccccccccccc
         call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
      .  0,0,napwx,dum,dum,dum,dum)
-        !print *,' 111x   =',napwmx
+c        print *,' 111x   =',napwmx
         napwk(ikt) = napwx
         if(napwmx<napwx) napwmx = napwx
       enddo
       call poppr
-      !print *,'zzzzzzzzzz1'
+c      print *,'zzzzzzzzzz1 napwmx=',napwmx
       allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
       !print *,'zzzzzzzzzz2'
       do ikt = 1,nkt
@@ -337,9 +324,11 @@ cccccccccccccccccccccccccccccccc !Aug2012takao
         if(pwmode<10) qqx=0d0
 cccccccccccccccccccccccccccccccc
         call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
-     .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
+c     .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
+     .  2,napwmx,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
       enddo
       deallocate(kv)
+c      print *,'RRRRRRRRRRRRRRRRRRRRRRRRRRRRr suham.F'
 C ... Reverse table of igv2 --->igv2rev
       imx=-999
       do ikt = 1,nkt
@@ -352,11 +341,14 @@ C ... Reverse table of igv2 --->igv2rev
         do ig  = 1,napwk( ikt )
           nnn  = igv2(1:3, ig, ikt)
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
-          !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+cccccccccccccc
+c          write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+cccccccccccccc
         enddo
       enddo
       call writehamindex() !sep2012takao
-      if(iprx) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+c      if(iprx) 
+      print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
       end subroutine gen_hamindex
 
 

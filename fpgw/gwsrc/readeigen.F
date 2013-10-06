@@ -2284,12 +2284,19 @@ c      print *,' ibastab=',ibastab
         if(napw_in /= napwk(ikt) ) then
           call rx_('rotwv: napw_in /= napw(ikt)')
         endif
+ccccccccccccccccccccccccccccccc
+        print *,'rrrrr q  =',q
+        print *,'rrrrr qr =', matmul(symops(:,:,igg),q) 
+cccccccccccccccccccccccccccccccc
         do ig = 1,napw_in
           qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
           qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
+          print *,' rrrrrrr igv2   =',ig2,igv2(:,ig,ikt),ikt
+          print *,' rrrrrrr igv2rev=',ig2,nnn(1),nnn(2),nnn(3),ikt2
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
+          print *,' rrrr2222 end igv2'
         enddo
       endif
       ierr=0

@@ -73,7 +73,7 @@ Cu   26 Mar 01 Another bug fix for input n1..n3 and gmax nonzero
 Cu   06 Mar 01 Bug fix for input n1..n3 and gmax nonzero
 Cu   Routine was adapted from T. Kotani, routine getgv2
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer n1,n2,n3,job,ng,ngmx,kv(ngmx,3),igv(ngmx,3),igv2(3,*),
      .mshlst(0:*)
@@ -81,12 +81,16 @@ C ... Passed parameters
 C ... Local parameters
       integer ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
       integer n1l,n2l,n3l
-      integer PRTG,PRTG2,iset(3),stdo,ipr,lgunit,job0,job1,job2,job4,
+      integer PRTG,PRTG2,iset(3),stdo,ipr,lgunit,job0,job1,job2,!job4,
      .job8,k1,k2,k3
       double precision qlat(3,3),vol,pi,tpiba,qpg(3),q2
       double precision gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
       character*256 outs
       parameter (PRTG=30,PRTG2=100,tol=1d-8)
+      logical::  lgpq,lgv,lsort,ligv,ligv2
+      real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
+      integer:: j1,j2,j3,noutmx,m,nout,jj1,jj2,jj3,nn1,nn2,nn3
+      integer,allocatable:: nlatout(:,:)
 
 C     call prmx('gv',gv,ngmx,ng,3)
 C ... Setup
@@ -103,86 +107,208 @@ C     Dimensionless gmax
       job0 = mod(job,100)
       job1 = mod(job0,2)
       job2 = mod(job0/2,2)
-      job4 = mod(job0/4,2)
-      job8 = mod(job0/8,2)
-      if (job8 .ne. 0) job4 = 1
-C     Save n1..n3 for printout
-      iset(1) = n1
-      iset(2) = n2
-      iset(3) = n3
-
-C --- Compute range n1min,n1max for each direction vector n1,n2,n3 ---
-      nn = n1
-      call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn,
-     .n1min,n1max)
-      n1l = nn
-      if (mod(job,1000) .ge. 100) n1 = nn
-      nn = n2
-      call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn,
-     .n2min,n2max)
-      n2l = nn
-      if (mod(job,1000) .ge. 100) n2 = nn
-      nn = n3
-      call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn,
-     .n3min,n3max)
-      n3l = nn
-      if (mod(job,1000) .ge. 100) n3 = nn
-
-C --- Count number, get list of vectors ---
+c      job4 = mod(job0/4,2)
+c      job8 = mod(job0/8,2)
+c      if (job8 .ne. 0) job4 = 1
+      ligv  = mod(job0,2)/=0
+      ligv2 = mod(job0/2,2)/=0
+      lgv   = mod(job0/4,4)/=0
+      lsort = mod(job0/8,2)/=0
+      lgpq  = mod(job/100,10)>4 
+!! ... Basis vectors for real-space mesh and recip-space supercell
+      nn1=n1
+      nn2=n2
+      nn3=n3
+      n1min=0; n1max=nn1-1
+      n2min=0; n2max=nn2-1
+      n3min=0; n3max=nn3-1
+      if(nn1==0) call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn1,n1min,n1max)
+      if(nn2==0) call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn2,n2min,n2max)
+      if(nn3==0) call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn3,n3min,n3max)
+      do m = 1, 3
+        plat1(m,1) = plat(m,1)/nn1
+        plat1(m,2) = plat(m,2)/nn2
+        plat1(m,3) = plat(m,3)/nn3
+        qlat1(m,1) = qlat(m,1)*nn1
+        qlat1(m,2) = qlat(m,2)*nn2
+        qlat1(m,3) = qlat(m,3)*nn3
+      enddo
+      n1l=nn1
+      n2l=nn2
+      n3l=nn3
+c      print *,' jjjjjjj qlat=',qlat
+c      print *,' jjjjjjj qlat1=',qlat1
+!! --- Loop through g vectors, shorten, count and keep if within gmax ---
       ig = 0
       gmax2 = (gmax0-tol)**2
       gmin2 = gmin0**2
-      do i1 = n1min, n1max
-        if (job0 .ne. 0) then
-          k1 = mod(i1+n1l,n1l)+1
-        endif
-        do i2 = n2min, n2max
-          if (job0 .ne. 0) then
-            k2 = mod(i2+n2l,n2l)+1
-          endif
-          do i3 = n3min, n3max
+      noutmx=48
+      call shortn3_initialize(qlat1) !initialization for shoten3
+      allocate(nlatout(3,noutmx))
+c      print *,'jjjjjjjj =',n1,n2,n3
+c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n1l =',n1l,n1min,n1max
+c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n2l =',n2l,n2min,n2max
+c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n3l =',n3l,n3min,n3max
+c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  gmax2 =',gmax2
+
+      do  21  j1 = n1min, n1max
+      do  21  j2 = n2min, n2max
+      do  21  j3 = n3min, n3max
+          qpg= (/j1, j2, j3/) + matmul(q,plat(:,:)) 
+          qpg= (/ qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3) /)
+             !qpg on the supercell corrdinate of qlat1.
+          call shortn3(qpg, noutmx, nout,nlatout)
+          gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) 
+          gg = (gs(1)**2+gs(2)**2+gs(3)**2)
+              ! qpg+nlatout(:,ix) are shortest on the corrdinate of
+              ! qlat1 (number of vectors are nlatout).
+              ! We use nlatout(1:3,1).
+c          print *,'jjjjj nlatout',j1,j2,j3,nout,nlatout(:,1)
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$            do  i = 1, 3
+c$$$              qpg(i)= q(i) + qlat(i,1)*j1 + qlat(i,2)*j2 + qlat(i,3)*j3
+c$$$            enddo
+c$$$            gg = qpg(1)**2+qpg(2)**2+qpg(3)**2
+cccccccccccccccccccccccccccccccccccccccccccccccc
+          k1 = mod(j1+n1l,n1l)+1
+          k2 = mod(j2+n2l,n2l)+1
+          k3 = mod(j3+n3l,n3l)+1
+c          write(*,"('wwwww1111 j1j2j3=',7i4,f13.5)")ig,j1,j2,j3,k1,k2,k3,gg
+
+          if(gmin2<= gg .and. gg < gmax2) then
+            ig = ig+1
+c            print *,' zzz ig=',ig,ngmx
             if (job0 .ne. 0) then
-              k3 = mod(i3+n3l,n3l)+1
-            endif
-            do  i = 1, 3
-              qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
-            enddo
-
-C        if (abs(qpg(1)+5) .lt.1d-4 .and. qpg(3).lt.-10.8) then
-C          print *, i1,i2,i3,k1,k2,k3
-C          print *, qpg
-C        endif
-
-            q2 = qpg(1)**2+qpg(2)**2+qpg(3)**2
-            if (q2 .ge. gmin2 .and. q2 .lt. gmax2) then
-              ig = ig+1
-C          print 333, ig,i1,i2,i3,qpg,qpg(1)**2+qpg(2)**2+qpg(3)**2-gmax2
-C  333     format(i6,3i4,3f15.9,1pe10.2)
-              if (job0 .ne. 0) then
-                kv(ig,1) = k1
-                kv(ig,2) = k2
-                kv(ig,3) = k3
-                if (job1 .ne. 0) then
-                  igv(ig,1) = i1
-                  igv(ig,2) = i2
-                  igv(ig,3) = i3
+              if (ig .gt. ngmx) then
+                 print *,' ig ngmx=',ig,ngmx
+                 call rx('gvlist: ng exceeds ngmx')
+              endif   
+              kv(ig,1) = k1!j1+1
+              kv(ig,2) = k2!j2+1
+              kv(ig,3) = k3!j3+1
+              if (ligv .or. ligv2) then
+                jj1= j1 + nn1*nlatout(1,1)
+                jj2= j2 + nn2*nlatout(2,1)
+                jj3= j3 + nn3*nlatout(3,1)
+                if (ligv) then
+                  igv(ig,1) = jj1
+                  igv(ig,2) = jj2
+                  igv(ig,3) = jj3
                 endif
-                if (job2 .ne. 0) then
-                  igv2(1,ig) = i1
-                  igv2(2,ig) = i2
-                  igv2(3,ig) = i3
+                if (ligv2) then
+                  igv2(1,ig) = jj1
+                  igv2(2,ig) = jj2
+                  igv2(3,ig) = jj3
                 endif
-                if (job4 .ne. 0) then
-                  gv(ig,1) = qpg(1)
-                  gv(ig,2) = qpg(2)
-                  gv(ig,3) = qpg(3)
+              endif
+              if (lgv) then
+                if (lgpq) then
+                  gv(ig,1) = gs(1)
+                  gv(ig,2) = gs(2)
+                  gv(ig,3) = gs(3)
+                else
+                  gv(ig,1) = gs(1) - q(1)
+                  gv(ig,2) = gs(2) - q(2)
+                  gv(ig,3) = gs(3) - q(3)
                 endif
               endif
             endif
-          enddo
-        enddo
-      enddo
+          endif
+ 21   continue
+      deallocate(nlatout)
       ng = ig
+cccccccccccccccccccccccccccccccc
+c      print *,'wwwwwwwwwwwwww111111111 ng=',ng
+c      stop '111111111111111111111111'
+cccccccccccccccccccccccccccccccc
+
+c$$$C --- Compute range n1min,n1max for each direction vector n1,n2,n3 ---
+c$$$      nn = n1
+c$$$      call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn,
+c$$$     .n1min,n1max)
+c$$$      n1l = nn
+c$$$c      if (mod(job,1000) .ge. 100) n1 = nn
+c$$$      nn = n2
+c$$$      call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn,
+c$$$     .n2min,n2max)
+c$$$      n2l = nn
+c$$$c      if (mod(job,1000) .ge. 100) n2 = nn
+c$$$      nn = n3
+c$$$      call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn,
+c$$$     .n3min,n3max)
+c$$$      n3l = nn
+c$$$c      if (mod(job,1000) .ge. 100) n3 = nn
+c$$$cccccccccccccccccc
+c$$$      print *,' n1min n1max n1l=',n1min,n1max,n1l
+c$$$      print *,' n2min n2max n2l=',n2min,n2max,n2l
+c$$$      print *,' n3min n3max n3l=',n3min,n3max,n3l
+c$$$cccccccccccccccccc
+c$$$
+c$$$C --- Count number, get list of vectors ---
+c$$$      ig = 0
+c$$$      gmax2 = (gmax0-tol)**2
+c$$$      gmin2 = gmin0**2
+c$$$      do i1 = n1min, n1max
+c$$$        if (job0 .ne. 0) then
+c$$$          k1 = mod(i1+n1l,n1l)+1
+c$$$        endif
+c$$$ccccccccccccc
+c$$$        print *,'ggggg i1 k1=',i1,k1
+c$$$cccccccccccccc
+c$$$        do i2 = n2min, n2max
+c$$$          if (job0 .ne. 0) then
+c$$$            k2 = mod(i2+n2l,n2l)+1
+c$$$          endif
+c$$$          do i3 = n3min, n3max
+c$$$            if (job0 .ne. 0) then
+c$$$              k3 = mod(i3+n3l,n3l)+1
+c$$$            endif
+c$$$cccccccccccccccccc
+c$$$c            print *,'ggggg i1i2i3=',k1,k2,k3
+c$$$cccccccccccccccccc
+c$$$            do  i = 1, 3
+c$$$              qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
+c$$$            enddo
+c$$$
+c$$$C        if (abs(qpg(1)+5) .lt.1d-4 .and. qpg(3).lt.-10.8) then
+c$$$c          print *, i1,i2,i3,k1,k2,k3
+c$$$C          print *, qpg
+c$$$C        endif
+c$$$
+c$$$            q2 = qpg(1)**2+qpg(2)**2+qpg(3)**2
+c$$$            if (q2 .ge. gmin2 .and. q2 .lt. gmax2) then
+c$$$              ig = ig+1
+c$$$c              print *,'ig=',ig
+c$$$C          print 333, ig,i1,i2,i3,qpg,qpg(1)**2+qpg(2)**2+qpg(3)**2-gmax2
+c$$$C  333     format(i6,3i4,3f15.9,1pe10.2)
+c$$$              if (job0 .ne. 0) then
+c$$$                kv(ig,1) = k1
+c$$$                kv(ig,2) = k2
+c$$$                kv(ig,3) = k3
+c$$$                if (job1 .ne. 0) then
+c$$$                  igv(ig,1) = i1
+c$$$                  igv(ig,2) = i2
+c$$$                  igv(ig,3) = i3
+c$$$                endif
+c$$$                if (job2 .ne. 0) then
+c$$$                  igv2(1,ig) = i1
+c$$$                  igv2(2,ig) = i2
+c$$$                  igv2(3,ig) = i3
+c$$$                endif
+c$$$c                if (job4 .ne. 0) then
+c$$$                if (lgv) then
+c$$$                  if (lgpq) then
+c$$$                    gv(ig,:) = qpg(:)
+c$$$                  else
+c$$$                    gv(ig,:) = qpg(:) - q(:)
+c$$$                  endif
+c$$$                endif  
+c$$$              endif
+c$$$            endif
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$      ng = ig
 
 C --- Printout ---
       if (ipr .ge. PRTG .and. n1l*n2l*n3l .eq. 0) then
@@ -195,6 +321,9 @@ C --- Printout ---
         call awrit4('%x%N GVLST2: gmax = %,1;3d'//
      .  ' a.u. created %i vectors of %i (%i%%)',
      .  outs,len(outs),0,gmax,ng,n1l*n2l*n3l,(ng*100)/(n1l*n2l*n3l))
+        iset(1) = n1
+        iset(2) = n2
+        iset(3) = n3
         i = iset(1)*iset(2)*iset(3)
         call awrit7('%a%N%9f%?#n#(input) ##mesh has %i x %i x %i'//
      .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
@@ -207,17 +336,10 @@ C --- Printout ---
         endif
         call awrit0('%a',outs,len(outs),-stdo)
       endif
-
-C --- Sort the list of vectors --
-      if (job8 .ne. 0) then
+!! --- Sort the list of vectors --
+      if(lsort) then
         call gvlsts(ngmx,ng,gv,kv,igv,igv2,job1,job2)
-C        if (job1 .ne. 0) then
-C          call dgemm('N','T',ng,3,3,1d0,dble(igv(1:ng,1:3)),ng,qlat,3,
-C     .      0d0,gv,ng)
-C          call prmx('gvx',gv,ng,ng,3)
-C        endif
       endif
-
       if (ipr.ge.PRTG2 .and. ng.gt.0 .and. job1+job2.ne.0) then
         write(stdo,333)
   333   format(' G vectors (multiples of reciprocal lattice vectors)'/
@@ -242,7 +364,6 @@ C        endif
   334     format(i5,1x,3i5,2x,f8.4)
         enddo
       endif
-
 C     call prmx('gv',gv,ngmx,ng,3)
 C     print *, 'ng,ngmx=',ng,ngmx
       end
@@ -265,7 +386,7 @@ Ci         :on the allowed mesh sizes; this constraint is designed
 Ci         :to handle that restriction.
 Ci Inputs/Outputs
 Ci   nn    :On input, if nonzero, maximum number of mesh points
-Ci         :allowed.  Thus nmax <= (nn-1)/2  and  -nmin <= (nn-1)/2
+Ci         :allowed.  Thus upper limit of nmax is nn/2; lower limit of nmin is -nn/2.
 Ci         :On output, if input is zero, nn = 2*max(|nmin|,nmax)+1
 Cio  gmax0 :On input, cutoff G
 Cio        :On output, gmax0 may be reduced because constraints
@@ -286,7 +407,6 @@ C ... Passed parameters
 C ... Local parameters
       integer indx
       double precision qperp(3),ddot,qqperp
-
 C ... qperp = q1 x q2 / |q1 x q2| ; qqperp = q . qperp
       qperp(1)  = q1(2)*q2(3) - q1(3)*q2(2)
       qperp(2)  = q1(3)*q2(1) - q1(1)*q2(3)
@@ -296,14 +416,11 @@ C     bnorm = sqrt(ddot(3,q2,1,q2,1))
 C     call dscal(3,1/anorm/bnorm,qperp,1)
       call dscal(3,1/sqrt(ddot(3,qperp,1,qperp,1)),qperp,1)
       qqperp = ddot(3,q0,1,qperp,1)
-
 C   10 continue
 C     print *, gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp + 1
 C     print *, -gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp - 1
-
       nmax =  gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp + 1
       nmin = -gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp - 1
-
 C ... Assign nn, if input value is zero
       if (nn .eq. 0) then
         nn = 2*max(iabs(nmin),nmax)+1
@@ -312,9 +429,14 @@ C ... Assign nn, if input value is zero
           call hunti(mshlst(1),mshlst,nn,0,indx)
           nn = mshlst(min(indx+1,mshlst(0)))
         endif
+c      else !bugfix added oct2013
+c         print *,' nnnnn1111 nmax nmin=',nmax,nmin
+c         nmax= min(nmax,  nn/2)
+c         nmin= nmax-nn+1
+c         print *,' nnnnn2222 nmax nmin=',nmax,nmin
       endif
-
       end
+
 
       subroutine gvlsts(ngmx,ng,gv,kv,igv,igv2,job1,job2)
 C- Kernel called by gvlst2 to sort gv and kv

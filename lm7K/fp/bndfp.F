@@ -401,7 +401,10 @@ ctakao
       character(120):: vbmlll
       integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag
       real(8),parameter::    NULLR =-99999
-      
+
+      integer,parameter:: noutmx=48
+      integer:: iout,nout,nlatout(3,noutmx),iapw
+      real(8)::ppin(3)
 
       call tcn ('bndfp')
 !! === MPI setup ===
@@ -1160,17 +1163,17 @@ c     this block is just to get list of qp. suqlst should be cleaned up in futur
 C     kino ib=atom index
 C     kino ltab=L
 C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
-c         write(6,*)
-c         write(6,*) ' --- Hamiltonian index ---'
-c         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+         write(6,*)
+         write(6,*) ' --- Hamiltonian index ---'
+         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
          do  iorb = 1, norbmto
             ib = ibastab(iorb)
             is=ssite(ib)%spec
             do i_spacks=is,is
                call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
-c            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
-c     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+            write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
+     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
          enddo
       endif
 
@@ -1397,6 +1400,11 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       allocate(ndimhx_(nkp),nev_(nkp))
       ndimhx_=0
       nev_   =0
+
+cccccccccccccccccccc
+      call shortn3_initialize(qlat)
+cccccccccccccccccccc
+
       do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
 #ifdef KINODEBUG
@@ -1421,6 +1429,17 @@ C       Get qp either from qp list or read from suqlst
 
 #endif
 
+cccccccccccccccccccccccccccccccccc
+        ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
+        call shortn3(ppin,noutmx, nout,nlatout)
+        do iout=1,nout
+           write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
+     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
+        enddo
+cccccccccccccccccccccccccccccccccc
+
+             
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -1440,10 +1459,12 @@ c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
           if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
 c             print *,' test run ------> temporarly comment out shorbz'
-cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3.
+cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> see new algolism shortn3 .
 c            if(.not.noshorbz()) then
 c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
 c            endif
+
+
 
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
@@ -1462,6 +1483,15 @@ c            endif
               call pshpr(iprint()-10)
               call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
      .        , 0 , 2 , napw , napw , kv_iv , dum , dum , igv2x )
+
+c$$$ccccccccccccccccccccccccccc
+c$$$              if (pwmode<10) then
+c$$$                do iapw=1,napw
+c$$$                igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
+c$$$                enddo
+c$$$              endif
+c$$$ccccccccccccccccccccccccccc
+
               deallocate(kv_iv)
               call poppr
               ndimh = ldim + napw  !ndimh is iq-dependent.
@@ -1787,7 +1817,7 @@ c     print *,' goto zhev_tk2 nmx=',nmx
             endif
             nevls(iq,isp)=nevl
             if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
-            
+
             if(procid==master) then
             call prtev ( t_zv , ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
             endif
@@ -1803,6 +1833,7 @@ c            endif
               if ( nev .gt. 0 ) call zprm ( 'evecs' , 2 , t_zv , ndimhx , ndimhx ,nmx) ! nev )
             endif
 #endif
+
             if (mod(iq,10) .ne. 1) call poppr
 !! ...  In k-parallel mode, defer this section until all qp available
 #ifndef MPIK
