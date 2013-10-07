@@ -217,6 +217,13 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
       real(8):: vnow
       integer:: ifimag=9078
+
+      integer,parameter:: noutmx=48
+      integer:: iout,nout,nlatout(3,noutmx),iapw
+      real(8)::ppin(3)
+      real(8):: rlatp(3,3),xmx2(3)
+      real(8):: qqq(3)
+
 !! --- Setup ---
       call tcn ('sugw')
       print *,'sugw:'
@@ -674,8 +681,9 @@ C   ... Read SYML file
 !!
       rewind ifiqg
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
-      iqq=0
+      call shortn3_initialize(qlat,rlatp,xmx2)
       print *,' goto 1001 procid=',procid
+      iqq=0
       do 1001 iq = 1, nqtot
         read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
         ! eigenfunction expansion at this q
@@ -705,6 +713,17 @@ C   ... Read SYML file
         endif  
 !!
         qp = q
+
+cccccccccccccccccccccccccccccccccc
+        ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
+        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+        do iout=1,nout
+           write(*,"(a,3i5,f10.4,3f8.4)")'sugw:rrrrn1 =',nlatout(:,iout),
+     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
+        enddo
+cccccccccccccccccccccccccccccccccc
+
 c        write(stdo,"(' procid:  iq=',2i4,'  q=',3f7.3)") procid, iq,qp
 !! keep comment for noshorbz case.
 c$$$        if(.not.noshorbz()) then
@@ -719,15 +738,23 @@ c$$$        write(stdo,"(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)") iq,q,q
           pwgmin = dsqrt(pwemin)
           pwgmax = dsqrt(pwemax)
           call pshpr(1)
-          call dpzero(xx,3)
-          if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xx,1,3,1d0)
-          call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,0,0,napw,dum,dum,dum,dum)
+          qqq=0d0 !call dpzero(xx,3)
+          if (mod(pwmode/10,10) == 1) qqq=qp !call dpcopy(qp,xx,1,3,1d0)
+          call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0,napw,dum,dum,dum,dum)
           call poppr
           allocate(igv2(3,napw))
           allocate(kv_iv(3*napw))
           call pshpr(iprint()-10)
 c          call gvlst2(alat, plat, xx, 0, 0, 0, pwgmin, pwgmax, 0, 2, 0, napw, kv_iv, dum, dum, igv2)
-          call gvlst2(alat, plat, xx, 0, 0, 0, pwgmin, pwgmax, 0, 2, napw, napw, kv_iv, dum, dum, igv2)
+          call gvlst2(alat, plat, qqq, 0, 0, 0, pwgmin, pwgmax, 0, 2, napw, napw, kv_iv, dum, dum, igv2)
+cccccccccccccccccccc
+cnnn
+          if (pwmode<10) then
+             do iapw=1,napw
+                igv2(:,iapw)=igv2(:,iapw)+nlatout(:,1)
+             enddo
+          endif
+cccccccccccccccccccccc
           if (allocated(kv_iv)) deallocate(kv_iv)
           call poppr
           ndimh = ldim + napw

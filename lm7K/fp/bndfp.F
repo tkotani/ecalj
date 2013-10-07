@@ -1459,9 +1459,6 @@ cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> 
 c            if(.not.noshorbz()) then
 c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
 c            endif
-
-
-
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
 !! === For this qp, G vectors for PW basis and hamiltonian dimension ===
@@ -1469,25 +1466,22 @@ c            endif
               pwgmin = dsqrt(pwemin)
               pwgmax = dsqrt(pwemax)
               call pshpr(1)
-              call dpzero(xv,3)
-              if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xv,1,3,1d0)
-              call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
-     .        0,napw,napw,dum,dum,dum,dum)
+              qqq=0d0 !call dpzero(xv,3)
+              if (mod(pwmode/10,10) == 1) qqq=qp !call dpcopy(qp,xv,1,3,1d0)
+              call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napw,napw,dum,dum,dum,dum)
               call poppr
               allocate(igv2x(3,napw))
               allocate(kv_iv(3*napw))
               call pshpr(iprint()-10)
-              call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
-     .        , 0 , 2 , napw , napw , kv_iv , dum , dum , igv2x )
-
+              call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
 c$$$ccccccccccccccccccccccccccc
-c$$$              if (pwmode<10) then
-c$$$                do iapw=1,napw
-c$$$                igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
-c$$$                enddo
-c$$$              endif
+cnnn
+              if (pwmode<10) then
+                do iapw=1,napw
+                igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
+                enddo
+              endif
 c$$$ccccccccccccccccccccccccccc
-
               deallocate(kv_iv)
               call poppr
               ndimh = ldim + napw  !ndimh is iq-dependent.
