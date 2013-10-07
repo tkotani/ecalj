@@ -71,8 +71,8 @@ C --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
         i2 = mod(i,3)+1
         i3 = mod(i2,3)+1
         nn = 0
-        call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmax0,nn,
-     .  nmin,nmx(i))
+        call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmax0,nn) !,nmin,nmx(i))
+        nmx(i)=nn
         if (ngabc(i) .eq. 0) ngabc(i) = nn
       enddo
       gmaxn = gmax0
@@ -98,8 +98,8 @@ C ... Reduce gmax slowly until at least one of n1..n3 changes
           i2 = mod(i,3)+1
           i3 = mod(i2,3)+1
           nn = 0
-          call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn,
-     .    nmin,nmxn(i))
+          call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn) !,    nmin,nmxn(i))
+          nmxn(i)=nn
           if (nmxn(i) .ne. nmx(i)) change = .true.
 C       The granularity of gvlstn may be too coarse.
 C       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst

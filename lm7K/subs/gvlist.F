@@ -100,19 +100,9 @@ C ... Local parameters
      .tpiba,tol,gg,vol,gmax2,q(3),s1,s2,s3,ddot
       character*256 outs
       parameter (PRTG=30)
-C ... Heap
-c      integer w(1)
-c      common /w/ w
-C ... External calls
-ckino      external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,
-ckino     .pvglst,rlse,rx,shorbz
-ckino del defrr,rlse
-      external awrit0,awrit4,awrit6,dinv33,dpcopy,dpzero,
-     .pvglst,rx,shorbz
-cccccccccccccc
+      external awrit0,awrit4,awrit6,dinv33,dpcopy,dpzero,pvglst,rx,shorbz
       integer,save:: i,iyy
       integer,allocatable:: ixx(:,:)
-
       integer,parameter :: m_gslist=10
       integer:: n_gslist,i_gslist,if1,if2,if3
       double precision:: gslist(3,m_gslist)
@@ -122,9 +112,8 @@ cccccccccccccc
       real(8) ,allocatable :: kk_rv(:)
       real(8) ,allocatable :: iwk_rv(:)
       integer,allocatable:: nlatout(:,:)
-
       logical:: isanrg, l_dummy_isanrg
-cccccccccccccc
+      real(8):: rlatp(3,3),xmx2(3)
 
 C ... Setup
       stdo = lgunit(1)
@@ -169,7 +158,7 @@ C --- Loop through g vectors, shorten, count and keep if within gmax ---
         ! ---> Kino think this is OK even for fullmesh()=F.
         ! But this path did not go through make check.
         noutmx=48
-        call shortn3_initialize(qlat1) !initialization for shoten3
+        call shortn3_initialize(qlat1,rlatp,xmx2) !initialization for shoten3
         allocate(nlatout(3,noutmx))
         do  21  j1 = 0, n1-1
         do  21  j2 = 0, n2-1
@@ -185,7 +174,7 @@ c                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
 
           qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
           qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /)
-          call shortn3(qpg, noutmx, nout,nlatout)
+          call shortn3(rlatp,xmx2,qpg, noutmx, nout,nlatout)
           gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
           !--->This may numerically break crystal symmetry (very slightly).
           !shortn3 requires shotn3_init in advance.

@@ -1,9 +1,8 @@
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
-c find
-c
-ci   pos,nbas,plot,nk,npairmx,range.
-co   npair(rewritten), nlat,qwgt.
-cr   qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3.
+!! find
+!!i   pos,nbas,plot,nk,npairmx,range.
+!!o   npair(rewritten), nlat,qwgt.
+!!    qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3.
 c
       implicit none
       integer:: nbas,nk1,nk2,nk3,nparimx,npair(nbas,nbas),npairmx
@@ -13,9 +12,10 @@ c
       integer:: nlatout(3,noutmx),debugmode
       real(8):: pos(3,nbas),plat(3,3), pi,qlat(3,3),q(3),pin(3),rmax2 !,nrmax(3)
       real(8):: qwgt(npairmx,nbas,nbas),eps=1d-8
-      real(8):: posp(3),rxlat(3,3),xmx2(3),rxprod(3,3),dummy,rrr,rmax
+      real(8):: posp(3),rxlat(3,3),rxprod(3,3),dummy,rrr,rmax
       logical :: ok
-!
+      real(8):: rlatp(3,3),xmx2(3)
+!!
       call tcn('gennlat')
       print *,'gennlat:'
       ok=.true.
@@ -25,7 +25,7 @@ c
       rxlat(:,1)=plat(:,1)*nk1
       rxlat(:,2)=plat(:,2)*nk2
       rxlat(:,3)=plat(:,3)*nk3
-      call shortn3_initialize(rxlat)
+      call shortn3_initialize(rxlat, rlatp,xmx2)
 c      do i=1,3
 c      do j=1,3
 c        rxprod(i,j) = sum(rxlat(:,i)*rxlat(:,j))
@@ -57,7 +57,7 @@ c      print *, 'end of ellips xmx2=',xmx2
                 pin(1)= (posp(1)+nd(1))/nk1
                 pin(2)= (posp(2)+nd(2))/nk2
                 pin(3)= (posp(3)+nd(3))/nk3
-                call shortn3(pin,noutmx, nout,nlatout)
+                call shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
 
 c          rmax2 = sum(pin*matmul(rxprod,pin)) + eps  ! eps is to make degeneracy safe.
 c          nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix used in shortn2

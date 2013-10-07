@@ -1,20 +1,26 @@
-      subroutine shortn3(pin,noutmx, nout,nlatout)
-C- Find shortest pin + nlatout \in  [ pin + any integer linear-combination of (rlat(:,1),rlat(:,2),rlat(:,3)) ].
-Cr You first have to call shorn3_initialize, then you can call shortn3 for given rlat.
-C
-Cio init
-Ci pin is on the rlat coodinate.
-Cr rlat(3,i) i-th vertor for modulo
-Ci rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
-Ci noutmax: upper limit of nlatout
-Co
-Co nlatout
-C
-Cr  length = sum_i sum_j pin(i)*rlatp(i,j)*pin(j)
-Cr  pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors. We may have multiple nlatout (# is nout).
-c
-c Takao think shorbz will be almost OK, but not perfect as an algolism.
-c Takao think all shorbz should be replaced by shortn3 in future.
+!!NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
+!!NOTE: In advance, we will need to check speed and convenience.
+      subroutine shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
+!!== Find shortest vector in modulo of rlat ===
+!! To call shortn3 for given rlat,
+!! we have to call shorn3_initialize in advane to obtain rlatp and xmx2, which are passed to shortn3.
+!!
+!!i pin is on the rlat coodinate.
+!!i rlatp,xmx2 are passed from shortn3_initialize
+!!  rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
+!!  rlat(3,i) i-th vertor for modulo
+!!o noutmax: upper limit of nlatout
+!!o nout
+!!o nlatout
+!!  Shortest vectors are
+!!  pin + nlatout \in  [ pin + any integer linear-combination of (rlat(:,1),rlat(:,2),rlat(:,3)) ].
+!!
+!!  length = sum_i sum_j pin(i)*rlatp(i,j)*pin(j)
+!!  pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors. We may have multiple nlatout (# is nout).
+!!
+!! Takao think shorbz will be almost OK, but not perfect as an algolism.
+!! Takao think all shorbz should be replaced by shortn3 in future.
+!!==========================================================================
       implicit none
       integer:: nmax(3),nknknk,ik1,ik2,ik3,nout,nk,ik,i,j
       real(8):: rmax2,pin(3),eps=1d-8,rlat(3,3),xmax2(3),rr(3),rmin,nrmax(3)
@@ -22,15 +28,11 @@ c Takao think all shorbz should be replaced by shortn3 in future.
       real(8),allocatable:: rnorm(:)
       integer:: noutmx
       integer:: nlatout(3,noutmx)
-      real(8),save:: rlatp(3,3),xmx2(3)
-c
+      real(8):: rlatp(3,3),xmx2(3)
+
       rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
       nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
       nmax =  nrmax
-cccccccccccccccccccccccc
-c      print *,'jjjjj   xmx2=',xmx2
-c      print *,'jjjjjjjj nrmax=',rmax2, nrmax
-cccccccccccccccccccccccc
 C we are looking for shortest vectors
       ik=0
       rmin=1d9
@@ -64,9 +66,14 @@ C we are looking for shortest vectors
       !write(6,"('pin=',3f8.3,' nmax=',3i4,' nout=',i3)")pin, nmax(1:3),nout
       deallocate(rnorm,nlat0)
       return
-
-      entry shortn3_initialize(rlat)
-C- Set translation vactors rlat(:,i),i=1,3
+      end
+      
+      subroutine shortn3_initialize(rlat,rlatp,xmx2)
+!!== Set translation vactors rlat(:,i),i=1,3 ==
+!!i rlat
+!!o rlatp,xmx2: these are passed to shortn3
+!!=============================================
+      real(8):: rlatp(3,3),xmx2(3),rlat(3,3)
       do i=1,3
         do j=1,3
           rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
@@ -76,10 +83,11 @@ C- Set translation vactors rlat(:,i),i=1,3
       end
 
       subroutine ellipsoidxmax(nn, xmx2)
-C- Maximum value for x_i for ellipsoid
-C  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
-Ci nn(3,3)
-Co xmx2(i)  Maximum of x_i**2
+!!== Maximum value for x_i for ellipsoid ==
+!!  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
+!!i nn(3,3)
+!!o xmx2(i)  Maximum of x_i**2
+!!==========================================
       implicit none
 #define NOTARGET
 #ifdef NOTARGET

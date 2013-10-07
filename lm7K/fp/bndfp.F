@@ -405,13 +405,13 @@ ctakao
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
+      real(8):: rlatp(3,3),xmx2(3)
 
       call tcn ('bndfp')
 !! === MPI setup ===
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
-
 !! computational modes
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
@@ -420,9 +420,6 @@ ctakao
          vol = slat%vol
          goto 8888
       endif   
-
-
-
 !! getq mode  Current version is not for spin dependent nor many restrictions.
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
       if(cmdopt('--getq',6,0,strn)) then
@@ -532,7 +529,6 @@ c      allocate(evl(ndham,2))
       lrsig = int(sham%lsig)
       lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 )
       nspec= sctrl%nspec
-
       if(ldos - mod(sctrl%ldos/1, 2)/=0) call rx('ldos - mod(sctrl%ldos/1, 2)/=0')
       if(lfrzw- mod(sctrl%lbas/16,2)/=0) call rx('lfrzw- mod(sctrl%lbas/16,2)/=0')
       if(lrsig- sham%lsig/=0) call rx('lrsig- sham%lsig/=0')
@@ -1402,7 +1398,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       nev_   =0
 
 cccccccccccccccccccc
-      call shortn3_initialize(qlat)
+      call shortn3_initialize(qlat,rlatp,xmx2)
 cccccccccccccccccccc
 
       do 2010 iq = iqini, iqend !This is a big iq loop
@@ -1431,7 +1427,7 @@ C       Get qp either from qp list or read from suqlst
 
 cccccccccccccccccccccccccccccccccc
         ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-        call shortn3(ppin,noutmx, nout,nlatout)
+        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
         do iout=1,nout
            write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
      &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
