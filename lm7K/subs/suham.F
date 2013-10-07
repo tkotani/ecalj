@@ -56,6 +56,12 @@ c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
       integer::nkt
       logical:: iprx=.true.
+
+      integer,parameter:: noutmx=48
+      integer:: iout,nout,nlatout(3,noutmx),iapw
+      real(8)::ppin(3)
+      real(8):: rlatp(3,3),xmx2(3)
+      real(8):: qqq(3)
 #if (MPI|MPIK)
 c2012Sep02 kino, add for 
        include 'mpif.h'
@@ -303,29 +309,37 @@ c      print *,' zzzzzzzzzzz nkt=',nkt
 c        print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
         !print *,' 111 alat plat=',alat,plat
         !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
-ccccccccccccccccccccccccccccccccc !aug2012takao
-        qqx=qq(:,ikt)
-        if(pwmode<10) qqx=0d0  !Is this call below to gvlst2 is consistent with other part?
-cccccccccccccccccccccccccccccccccc
-        call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
-     .  0,0,napwx,dum,dum,dum,dum)
-c        print *,' 111x   =',napwmx
+        qqq=0d0 !call dpzero(xx,3)
+        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) !call dpcopy(qp,xx,1,3,1d0)
+        call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0,napwx,dum,dum,dum,dum)
         napwk(ikt) = napwx
         if(napwmx<napwx) napwmx = napwx
       enddo
       call poppr
-c      print *,'zzzzzzzzzz1 napwmx=',napwmx
+cnnn
+      if(pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
       allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
-      !print *,'zzzzzzzzzz2'
       do ikt = 1,nkt
-c        print *,' 222 ikt=',ikt
-cccccccccccccccccccccccccccccccc !Aug2012takao
-        qqx=qq(:,ikt)
-        if(pwmode<10) qqx=0d0
-cccccccccccccccccccccccccccccccc
-        call gvlst2(alat,plat,qqx,0,0,0,pwgmin,pwgmax,0,
-c     .  2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
-     .  2,napwmx,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
+        qqq=0d0 !call dpzero(xx,3)
+        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) !call dpcopy(qp,xx,1,3,1d0)
+        call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napwmx,napwk(ikt),kv,dum,dum,igv2(1,1,ikt))
+cnnn
+        if(pwmode<10) then
+        ppin=matmul(transpose(plat),qq(:,ikt))
+        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+        do iout=1,nout
+           write(*,"(a,3i5,f10.4,3f8.4)")'suham.gen_hamindex.F:rrrrn1 =',nlatout(:,iout),
+     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
+        enddo
+        endif
+cnnn
+        if (pwmode<10) then
+           do iapw=1,napwk(ikt)
+              igv2(:,iapw,ikt)=igv2(:,iapw,ikt)+nlatout(:,1)
+           enddo
+           
+        endif
       enddo
       deallocate(kv)
 c      print *,'RRRRRRRRRRRRRRRRRRRRRRRRRRRRr suham.F'
@@ -338,12 +352,16 @@ C ... Reverse table of igv2 --->igv2rev
       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
       igv2rev=999999
       do ikt = 1,nkt
+cccccccccccccccccccccccc
+c          write(6,"(a,3f8.3,i4)")'rrrrrrr suham.gen_hamindex qq ikt: ',qq(:,ikt),ikt
+cccccccccccccccccccccccc
         do ig  = 1,napwk( ikt )
           nnn  = igv2(1:3, ig, ikt)
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
-cccccccccccccc
-c          write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
-cccccccccccccc
+ccccccccccccccccccccccc
+c          write(6,"(a,3f8.3,4i4,i6,i6)")'suham.gen_hamindex: igv2rev: ',qq(:,ikt), nnn, ig, ikt
+c          write(6,"(a,i4,2x,3i4)")'suham.gen_hamindex: igv2: ', ig, nnn
+ccccccccccccccccccccccc
         enddo
       enddo
       call writehamindex() !sep2012takao

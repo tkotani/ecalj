@@ -518,6 +518,14 @@ c      allocate(evl(ndham,2))
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
       pwmode =sham%pwmode
+      if (procid .eq. master) then
+       ifiese=9039
+       inquire(unit=ifiese,opened=nexist)
+       if(nexist) stop 'bndfp: I assumed ifio=9039 is not used(too sloppy) pwmode'
+       open(ifiese,file='PWMODE')
+       write(ifiese,*)pwmode
+       close(ifiese)
+      endif 
       pwemin =sham%pwemin
       pwemax =sham%pwemax
       onesp = 0
@@ -1396,10 +1404,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       allocate(ndimhx_(nkp),nev_(nkp))
       ndimhx_=0
       nev_   =0
-
-cccccccccccccccccccc
-      call shortn3_initialize(qlat,rlatp,xmx2)
-cccccccccccccccccccc
+      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
       do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
@@ -1425,7 +1430,8 @@ C       Get qp either from qp list or read from suqlst
 
 #endif
 
-cccccccccccccccccccccccccccccccccc
+cnnn
+        if(pwmode>0.and.pwmode<10) then
         ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
         call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
         do iout=1,nout
@@ -1433,8 +1439,7 @@ cccccccccccccccccccccccccccccccccc
      &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
      &         matmul(qlat(:,:),ppin+nlatout(:,iout))
         enddo
-cccccccccccccccccccccccccccccccccc
-
+        endif
              
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -1459,9 +1464,6 @@ cctakao do we need to do shorbz? --> furthermore, shorbz is probably wrong.---> 
 c            if(.not.noshorbz()) then
 c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
 c            endif
-
-
-
             if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
             if(allocated(igv2x)) deallocate(igv2x)
 !! === For this qp, G vectors for PW basis and hamiltonian dimension ===
@@ -1469,24 +1471,20 @@ c            endif
               pwgmin = dsqrt(pwemin)
               pwgmax = dsqrt(pwemax)
               call pshpr(1)
-              call dpzero(xv,3)
-              if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xv,1,3,1d0)
-              call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
-     .        0,napw,napw,dum,dum,dum,dum)
+              qqq=0d0 !call dpzero(xv,3)
+              if (mod(pwmode/10,10) == 1) qqq=qp !call dpcopy(qp,xv,1,3,1d0)
+              call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napw,napw,dum,dum,dum,dum)
               call poppr
               allocate(igv2x(3,napw))
               allocate(kv_iv(3*napw))
               call pshpr(iprint()-10)
-              call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
-     .        , 0 , 2 , napw , napw , kv_iv , dum , dum , igv2x )
-
-c$$$ccccccccccccccccccccccccccc
-c$$$              if (pwmode<10) then
-c$$$                do iapw=1,napw
-c$$$                igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
-c$$$                enddo
-c$$$              endif
-c$$$ccccccccccccccccccccccccccc
+              call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
+cnnn
+              if (pwmode<10) then
+                do iapw=1,napw
+                igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
+                enddo
+              endif
 
               deallocate(kv_iv)
               call poppr

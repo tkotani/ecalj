@@ -189,12 +189,29 @@ c$$$      enddo
       integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
 
       real(8)::    epd=1d-5
-      integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix
+      integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix,ifi,pwmode,ifiese
       integer,allocatable:: ieord(:)
       integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       real(8),allocatable:: qbzl(:,:)
-      logical :: inotime
+      logical :: inotime,nexist
 !!
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cnnn
+      real(8):: alatx, plat(3,3)
+      integer,parameter:: noutmx=48
+      integer:: iout,nout,nlatout(3,noutmx),iapw
+      real(8)::ppin(3)
+      real(8):: rlatp(3,3),xmx2(3)
+      ifi = 6661
+      open (ifi, file='LATTC')
+      read(ifi,*) alatx
+      read(ifi,*) plat(1:3,1)
+      read(ifi,*) plat(1:3,2)
+      read(ifi,*) plat(1:3,3)
+      close(ifi)
+      call dinv33x (plat,qlat)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1
@@ -246,7 +263,15 @@ c         print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
       enddo
       deallocate(qbzl)
 !! -----------------------------------------------------------
-
+ccccccccccccccccccc
+      ifiese=9039
+      inquire(unit=ifiese,opened=nexist)
+      if(nexist) stop 'eibzgen: I assumed ifio=9039 is not used(too sloppy) pwmode'
+      open(ifiese,file='PWMODE')
+      read(ifiese,*)pwmode
+      close(ifiese)
+cccccccccccccccccc
+      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
 !! ===  main iq loop ===
       eibzsym = 0
@@ -261,6 +286,22 @@ c        write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
           qdiff= timer*matmul(symgg(:,:,ig),q) - q
           call rangedq(matmul(ginv,qdiff), qxx)
 c        if(iprintx) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
+cccccccccccccccccccccccccccccccccccccccccccccc
+          if(pwmode>0.and.pwmode<10) then
+c     check wheter q is on 1st BZ boundary or not
+             ppin=matmul(transpose(plat),q) 
+             call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+             if(ig/=1.and.nout>1) then
+                do iout=1,nout
+                   write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
+     &                  sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+     &                  matmul(qlat(:,:),ppin+nlatout(:,iout))
+                enddo
+                print *
+                cycle
+             endif  
+          endif
+ccccccccccccccccccccccccccccccccccccccccccccc
           if(sum(abs(qxx))<1d-8) then
             eallow(ig,it)=1
           endif  
@@ -347,7 +388,6 @@ c                   print *,' ibz,im kkk3=',ibz,im,kkk3
              inotime=.false.
              print *,' mptauo: we need time reversal'
           enddo
-Cstop2rx 2013.08.09 kino          stop 'eibzgen: bug. nwgt sum is not nqbz'
           call rx( 'eibzgen: bug. nwgt sum is not nqbz')
  1202     continue
 

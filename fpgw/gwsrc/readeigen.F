@@ -2251,7 +2251,6 @@ c------------------------------------------------------
       call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx)
       if(sum(abs(qx))>1d-8) then
         write(6,"(a,3f7.3,2x,3f7.3)")'  rotwvigg: qtarget is not a star of q',q,qtarget
-Cstop2rx 2013.08.09 kino        stop 'rotwvigg: qtarget is not symops(:,:,ig)*q'
         call rx( 'rotwvigg: qtarget is not symops(:,:,ig)*q')
       endif  
       evecout=0d0
@@ -2284,19 +2283,19 @@ c      print *,' ibastab=',ibastab
         if(napw_in /= napwk(ikt) ) then
           call rx_('rotwv: napw_in /= napw(ikt)')
         endif
-ccccccccccccccccccccccccccccccc
-        print *,'rrrrr q  =',q
-        print *,'rrrrr qr =', matmul(symops(:,:,igg),q) 
-cccccccccccccccccccccccccccccccc
         do ig = 1,napw_in
           qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
           qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
-          print *,' rrrrrrr igv2   =',ig2,igv2(:,ig,ikt),ikt
-          print *,' rrrrrrr igv2rev=',ig2,nnn(1),nnn(2),nnn(3),ikt2
+          if(ig2>=999999) then !See igv2rev=999999 in L354 in lm7K/subs/suham.F
+             print *,'rotwvigg: q  =',q
+             print *,'rorwvigg: qr =', matmul(symops(:,:,igg),q) 
+             print *,'rorwvigg: igv2   ikt ig2=',igv2(:,ig,ikt),ikt,ig2
+             print *,'rorwvigg: igv2rev   ikt2=',nnn(1),nnn(2),nnn(3),ikt2
+             call rx('rotwvigg can not find index of mapped G vector ig2')
+          endif
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
-          print *,' rrrr2222 end igv2'
         enddo
       endif
       ierr=0
