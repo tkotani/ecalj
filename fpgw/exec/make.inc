@@ -7,7 +7,7 @@
 #FC = ifort -132 -cm -w90 -w95
 # FC= ifort -132 -check bobunds -traceback !for check array bound
 #FC = f95 
-FC = mpif90
+FC = mpif90 -g
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
@@ -46,7 +46,7 @@ CPPSWITCH_INTELLINUXIFC  = \
 # older verion OR no -Osomething options. (only for sxcf.*.F)
 #FFLAGSg= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
-FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS=   $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 
 

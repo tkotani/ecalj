@@ -68,6 +68,11 @@ c     logical :: readgwinput
       character*7:: q0pf        !nov2012
       integer:: dummyia(1,1),iimx,irradd,nmax
       real(8):: epstol=1d-8,tolq=1d-6,qx(3)
+
+      integer,parameter:: noutmx=48
+      integer:: iout,nout,nlatout(3,noutmx),iapw
+      real(8)::ppin(3)
+      real(8):: rlatp(3,3),xmx2(3)
 c------------------------------------------------
       print *,' mkqg: '
 
@@ -770,7 +775,11 @@ cccccccccccccccccccc
       deallocate(qq,irr)
       nqnum = nqnum + nqbz*nq0i
       nqnum = nqnum + 1         !add Gamma
+cnnn
       allocate( qq(1:3,nqnum),irr(nqnum) )
+c      allocate( qq(1:3,nqnum*3),irr(nqnum) ) 
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+
 !!!   nqnum = ix !=n1q*n2q*n3q*(nq0i+1) ! total q number
 C...  Regular mesh (qq are the same in the both bzcase)
       ddq = 0d0
@@ -846,6 +855,8 @@ C...  Get qqm; q point for eigenvalues. Saved to Qmtet. Not so much used now... 
       if( qreduce0 ) then       !June2005 remove duplicated qqm
          print *,'goto qqsave nq0i nqnum',nq0i,nqnum
          call cputid (0)
+cnnn
+c         nmax=nq0i+nqnum*3  !nqnum*3 is just a guess for the case of nlatout.
          nmax=nq0i+nqnum
          allocate(qsave(3,nmax)) !,qsavel(nmax))
          imx=0
@@ -853,26 +864,52 @@ C...  Get qqm; q point for eigenvalues. Saved to Qmtet. Not so much used now... 
             do iq=1,nq0i
                call qqsave(q0i(1:3,iq),nmax,ginv,qsave,imx)
             enddo
-c         call qqsave2(q0i,nq0i,nmax,ginv,qsave,qsavel,imx)
          endif
+ccccccccccccccccccccccc
+c         call shortn3_initialize(qlat,rlatp,xmx2)
+ccccccccccccccccccccccc
          do iq=1,nqnum
-            call qqsave(qq(1:3,iq),nmax,ginv,qsave,imx)
+c$$$cccccccccccccccccccccc
+c            ppin=matmul(transpose(plat),qq(1:3,iq))!basis on the qlat coordinate. qp in Cartesian.
+c            call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+c$$$            if(nout>1) then
+c$$$               print *
+c$$$               do iout=1,nout
+c$$$                  write(*,"(a,3f7.3,3i5,f10.4,3f8.4)")'sssss=',qq(1:3,iq),nlatout(:,iout),
+c$$$     &                 sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+c$$$     &                 matmul(qlat(:,:),ppin+nlatout(:,iout))
+c$$$               enddo
+c$$$            endif
+c$$$cccccccccccccccccccccc
+c            if(nout>1) then
+c               do iout=1,nout
+c                  imx=imx+1
+c                  qsave(1:3,imx)= qq(1:3,iq) !matmul(qlat(:,:),ppin+nlatout(:,iout))
+c               enddo 
+c            else
+               call qqsave(qq(1:3,iq),nmax,ginv,qsave,imx)
+c            endif
          enddo
-c         call qqsave2(qq,nqnum,nmax,ginv,qsave,qsavel,imx)
          nqnum = imx
-         qq(:,1:imx)=qsave(:,1:imx)
+         qq(:,1:imx) = qsave(:,1:imx)
          deallocate(qsave)
       endif
  2001 continue
-
-
 !! ------------------------------------------
       if(allocated(wt0)) deallocate(wt0)
       allocate(wt0(nqnum+nq0i),qi(3,nqnum+nq0i),wti(nqnum+nq0i))
+      print *,'nnnnn nqnum +nq0i=',nqnum,nq0i
       wt0=1d0
+ccccccccccccccccccccccc
+c      return
+ccccccccccccccccccccccc
 !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0. 
 !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
       call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr)
+      print *,'nnnnn nqi=',nqi
+ccccccccccccccccccccccc
+c      return
+ccccccccccccccccccccccc
 
 c      write(6,*)' --- Irreducible qpoint --- nqi=',nqi
 c     &     '             qx             qy             qz          count'

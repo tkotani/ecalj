@@ -267,13 +267,9 @@ C --- Open output files QGpsi QGcou
       call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
      &  QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
-Cstop2rx 2013.08.09 kino      if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'
       if(iq0pin ==1) call rx0( ' OK! qg4gw mode=1 normal mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==2) stop ' OK! qg4gw mode=2 Readin Q0P mode'
       if(iq0pin ==2) call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==3) stop ' OK! qg4gw mode=3 band-plot mode'
       if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==4) stop ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0'
       if(iq0pin ==4) call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
       end
 

@@ -338,11 +338,12 @@ cnnn
            do iapw=1,napwk(ikt)
               igv2(:,iapw,ikt)=igv2(:,iapw,ikt)+nlatout(:,1)
            enddo
+           
         endif
 cccccccccccccccccccccc
       enddo
       deallocate(kv)
-c      print *,'RRRRRRRRRRRRRRRRRRRRRRRRRRRRr suham.F'
+      print *,'RRRRRRRRRRRRRRRRRRRRRRRRRRRRr suham.F'
 C ... Reverse table of igv2 --->igv2rev
       imx=-999
       do ikt = 1,nkt
@@ -352,11 +353,13 @@ C ... Reverse table of igv2 --->igv2rev
       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
       igv2rev=999999
       do ikt = 1,nkt
+          write(6,"(a,3f8.3,i4)")'rrrrrrr qqqqqqq qq ikt: ',qq(:,ikt),ikt
         do ig  = 1,napwk( ikt )
           nnn  = igv2(1:3, ig, ikt)
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
 cccccccccccccc
 c          write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+          write(6,"(a,i4,2x,3i4)")'rrrr igv2: ', ig, nnn
 cccccccccccccc
         enddo
       enddo

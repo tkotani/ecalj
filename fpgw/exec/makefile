@@ -12,6 +12,7 @@ include make.inc
 
 #-------------------------------------------------------
 # src directories
+subs = ../../lm7K/subs/
 gwsrc   = ../gwsrc/
 main    = ../main/
 nfpsrc  = ../nfpsrc/
@@ -123,7 +124,8 @@ $(gwsrc)genqbz.o \
 $(gwsrc)switches.o \
 $(gwsrc)linpackdummy.o \
 $(gwsrc)rppovl.o \
-$(gwsrc)llnew.o 
+$(gwsrc)llnew.o \
+$(subs)shorbz.o
 
 #LMFtot= \
 #$(lmsrc)lmf.o \
@@ -196,8 +198,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)iprint.o \
  $(gwsrc)keyvalue.o \
  $(gwsrc)switches.o \
- $(gwsrc)iopen.o 
-
+ $(gwsrc)iopen.o \
+ $(subs)shorbz.o
 
  QG =  \
  $(gwsrc)conv2gwinput.o \
@@ -495,7 +497,9 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)readeigen.o \
  $(gwsrc)readqg.o \
  $(gwsrc)iqindx.o  \
- $(gwsrc)alloclist.o 
+ $(gwsrc)alloclist.o \
+ $(subs)shorbz.o
+
 
  QPE_SC = \
  $(gwsrc)switches.o \
