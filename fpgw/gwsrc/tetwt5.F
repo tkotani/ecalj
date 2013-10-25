@@ -168,7 +168,7 @@ c-devided tet
       real(8):: scissors_x0, ddw
 
       integer :: nbandmx_kq,nbandmx_k
-      real(8):: fermi_dS(3,3) !not yet used...
+c      real(8):: fermi_dS(3,3) !not yet used...
 
       logical:: eibzmode
       integer:: nwgt(nqbz)
@@ -178,7 +178,7 @@ c---------------------------------------------------------------------
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
-      fermi_dS=0d0
+c      fermi_dS=0d0
       if(job==0) iwgt = .false.
 
 !! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
@@ -394,8 +394,8 @@ c           jbxmx = noccx_kq + nctot
      i          kkv,kvec,eocc,eunocc,
      i          x, efermi, 
      i          frhis, nwhis,  
-     o          wtthis2, ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
-     m          fermi_dS) ! may2012
+     o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
+c     m          fermi_dS) ! may2012
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif
@@ -631,8 +631,8 @@ c------------------------------------------------------------------------
       subroutine lindtet6(
      i  kkv,kvec, ea, eb, x, efermi,      ! kvec(1:3, 0:3), ea(0:3), x(0:3) 
      i  frhis, nwhis,  
-     o  wtthis , 
-     m  fermi_ds)
+     o  wtthis ) 
+c     m  fermi_ds)
 C- Calculate the imaginary part of \int dk1 dk2 dk3 f(ea)(1-f(eb))/(\omega+x ), that is,
 C  the microcell integral of wtthis(ihis) = \int_lower(ihis)^upper(ihis) d\omega \int d^3k f(ea(k)) (1-f(eb(q+k))) \delta (omg + x(k) )
 C f(E) denote the Fermi distribution funciton. Only for T=0.
@@ -649,7 +649,7 @@ ctakao/Feb/2002 ----------------------------------------------------------------
       integer(4):: nwhis
       real(8):: frhis(nwhis+1),wtthis(nwhis,4)
       logical:: chkwrt=.false.
-      real(8):: fermi_ds(3,3)
+c      real(8):: fermi_ds(3,3)
 c---------------------------------------------------------------------------------
       if(chkwrt) then
         print *, ' lindtet6: *****************************'
@@ -704,9 +704,9 @@ ccccccccccccc
 
 !! Corners of occupied states at the Fermi energy are kk(1:3,i+4) i=1,2,3.
 !! This makes a Fermi surface
-        if(sum(abs(ea-eb))<1d-6) then
-          call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
-        endif
+c        if(sum(abs(ea-eb))<1d-6) then
+c          call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
+c        endif
 
 !! still developing
         call  inttetra6(kkv,kk,xx,ebf,(/4,1+4,2+4,3+4/),  ! k4,K1,K2,K3
@@ -719,10 +719,10 @@ ccccccccccccc
         call midk3(kk,ee,xx,ebf, 3,1,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
         call midk3(kk,ee,xx,ebf, 3,2,  kk(1,4+4),xx(4+4),ebf(4+4)) !K4
 
-        if(sum(abs(ea-eb))<1d-6) then
-          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
-          call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
-        endif
+c        if(sum(abs(ea-eb))<1d-6) then
+c          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+c          call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
+c        endif
 
         if(chkwrt) write(6,*) 'lindtet6: fig 2 xxx2'
         call  inttetra6(kkv,kk,xx,ebf,(/4, 3,1+4,2+4/),  ! k4,k3,K1,K2
@@ -744,9 +744,9 @@ c-----------
         call midk3(kk,ee,xx,ebf, 1,2,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
         call midk3(kk,ee,xx,ebf, 1,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
 
-        if(sum(abs(ea-eb))<1d-6) then
-          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
-        endif
+c        if(sum(abs(ea-eb))<1d-6) then
+c          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
+c        endif
 
         call  inttetra6(kkv,kk,xx,ebf,(/3, 4,3+4, 2/),  ! k3,k4,K3,k2
      i         frhis,  nwhis,  

@@ -1,7 +1,8 @@
       subroutine fermids(k1,k2,k3,ds)
-      real(8):: k1(3),k2(3),k3(3),ds(3,3),ee(3)
-      call cross_x(k1-k3,k2-k3,ee)
-      ds(i,j)=ds(i,j)+ee(i)*ee(j)/sqrt(sum(ee**2))
+! This is wrong (dummy now). In anyway need to fix this!
+c      real(8):: k1(3),k2(3),k3(3),ds(3,3),ee(3)
+c      call cross_x(k1-k3,k2-k3,ee)
+c      ds(i,j)=ds(i,j)+ee(i)*ee(j)/sqrt(sum(ee**2))
       end
 
 c --- external product
