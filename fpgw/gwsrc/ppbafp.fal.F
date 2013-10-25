@@ -156,6 +156,7 @@ c --- rotated CG coefficients.
      &   symops(9,ng)        ,sumr
       real(8),allocatable:: cg(:),dlmm(:,:,:,:),cgn(:,:,:)
       integer(4),allocatable :: jcg(:),indxcg(:)
+      integer:: ll1,ll2
 #ifdef COMMONLL
       integer(4)::ll(51**2)
       common/llblock/ll
@@ -174,7 +175,9 @@ c     write(6,'(3f12.6)') symops(1:3,ig)
 c     write(6,'(3f12.6)') symops(4:6,ig)
 c     write(6,'(3f12.6)') symops(7:9,ig)
 c      enddo
-      allocate(cgn((2*lmxax+1)**2,(lmxax+1)**2,(lmxax+1)**2) )
+      ll2 = (2*lmxax+1)**2
+      ll1 = (lmxax+1)**2
+      allocate( cgn(ll2,ll1,ll1) )
       cgn = 0d0
       nlmxa = (lmxax+1)**2
       lmxcg = lmxax
@@ -677,7 +680,7 @@ c-------------------------------------------------
       integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
      &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
      &     nadd(3)   !ngvecc(3,ngc)
-      complex(8):: geigq1(ngp1,ntp0),
+      complex(8):: geigq1(ngp1,ntp0),phas1,phas2,phasqadd,
      &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0*ntp0),  !it was zmelp(ngc,nt0,ntp0); but no effect sep2009.
      &             img=(0d0,1d0) ,phas         ,phase2
       real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
@@ -791,11 +794,22 @@ Cstop2rx 2013.08.09 kino          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:n
           if(nn(3)<nzmin.or.nn(3)>nzmax) call rx( "melpln2:nn(3) out of range")
         enddo
       enddo
-      if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,nadd
+      if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,ntp0,nadd
 
+
+!! This loop is time consuming for SiO2c even ngp1=ngp2=283 ntp0 is alrge?
 !$OMP parallel private(nn,igc2,qg,phas,ge2) 
+      qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, -nadd))
+      phasqadd = exp(-img*sum(qg*shtv))
       do ig1 = 1,ngp1
+
+          qg(1:3) = 2d0*pi * ( matmul(qbas, ngvecp1(1:3,ig1)) )
+          phas1 = exp(-img*sum(qg*shtv))
+        
         do ig2 = 1,ngp2
+
+          qg(1:3) = 2d0*pi * ( matmul(qbas, -ngvecp2(1:3,ig1)) )
+          phas2 = exp(-img*sum(qg*shtv))
 c$$$cccccccccccccccccccc
 c$$$          if(ig1==2) then
 c$$$             print *,' start nn=',ig1,ig2,nadd
@@ -807,13 +821,16 @@ c$$$cccccccccccccccccccc
           igc2    = ipp(nn(1),nn(2),nn(3))
           qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, nn(1:3)) )
           phas = exp(-img*sum(qg*shtv))
+
+          phas= phasqadd*phas1*phas2
 !$OMP do 
           do it =1,nt0
             ge2=dconjg(geigq2(ig2,it)) *phas
-            do itp=1,ntp0
-              gg_(itp,it,igc2) =gg_(itp,it,igc2) 
-     &        +  geigq1_(itp,ig1)*ge2
-            enddo
+            call zaxpy(ntp0,ge2,geigq1_(1,ig1),1,gg_(1,it,igc2),1)
+c            do itp=1,ntp0
+c              gg_(itp,it,igc2) =gg_(itp,it,igc2) 
+c     &        +  geigq1_(itp,ig1)*ge2
+c            enddo
           enddo
 !$OMP end do 
         enddo
