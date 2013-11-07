@@ -30,6 +30,7 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(3,3),gmax,xx
       integer ::iwdummy
+      real(8):: wdummy(3)=0d0
       call info0(50,1,0,' supot : potential setup ... ')
       nbas=sctrl%nbas
       nbasp=sctrl%nbasp
@@ -63,7 +64,7 @@ C   ... Make list of lattice vectors within cutoff
         if (allocated(slat%iv_a_okv)) deallocate(slat%iv_a_okv)
         allocate(slat%iv_a_okv(abs(ngmx*3)))
 c        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8, ngmx , ng , slat%iv_a_okv , slat%rv_a_ogv , xx , xx )
-        call gvlst2(alat, plat, iwdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, slat%iv_a_okv, slat%rv_a_ogv, xx, xx)
+        call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, slat%iv_a_okv, slat%rv_a_ogv, xx, xx)
         if (ng .ne. ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx
           call rx('supot: bug in gvlst2')
