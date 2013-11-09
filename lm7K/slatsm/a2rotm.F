@@ -182,7 +182,7 @@ C     implicit none
       double precision r(3,3),alpha,beta,gamma,fuzz,pi
       integer i1mach,i,j
       double precision ca,cb,cg,sa,sb,sg,amg,apg,xx,yy,d1mach
-      parameter (fuzz = 1d-10)
+      parameter (fuzz = 1d-8)
 
       pi = 4*datan(1d0)
       cb = r(3,3)
@@ -262,7 +262,7 @@ C     .    dabs(r(3,3)-cb) .gt. fuzz*10
      .  '  gamma=%1;9d from rot:',' ',80,i1mach(2),alpha,beta,gamma)
         print 335, ((r(i,j),j=1,3),i=1,3)
   335   format((3f20.15))
-        call rx('rm2eua: matrix not consistent with Euler angles')
+        call rx('rm2eua: matrix not consistent with Euler angles: numerical error-->fuzz too large?')
       endif
       end
       subroutine rotma(phi,theta,gamma,rotm)

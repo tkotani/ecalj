@@ -72,14 +72,12 @@ C ... Local parameters
         call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
-
         call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
+C        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+C     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+C     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+C        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+C     .  cast)
       endif
 #endif
 
