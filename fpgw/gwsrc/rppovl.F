@@ -1,22 +1,131 @@
-C ... read PPOVL
       module m_read_ppovl
-c--------readin dataset from PPOVL ------------
+!! == read PPOVLG ==
 c   ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
       implicit none
       integer(4):: ngc2
       complex(8),allocatable :: ppx(:,:)
       integer(4),allocatable :: ngvecc2(:,:)
-
-c---private
-      integer(4),private:: iqix, ippovl=0, ngcmx, ngc2mx, nqq
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      complex(8),allocatable:: ggg(:),ppovlinv(:,:)
+      integer,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
+      integer:: nggg,ngcgp,ngcread
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! private
+      integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx
       logical,private:: ppovlclosed=.true.,init=.true.
       integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
       real(8),allocatable,private    :: qx_s(:,:)
       complex(8),allocatable,private :: ppx_s(:,:,:)
       logical,private:: debug=.false.
-c-----------------------------------------------------------------
+c-----------------------------------------------------
       contains
 c-----------------------------------------------------
+      subroutine get_nvgcgp(qbas,qi,nadd) 
+!! This return ngcgp,nvgcgp(1:3,ngcgp)
+!! ngvcgp2 is for |qi+nadd+G|< QpGcutcou + QpGcutpsi (triangle inequality).
+!!   Readin ngvgcp2 specify G'for |qi+G'|< QpGcutcou + QpGcutpsi
+!!   Thus G= G'-nadd
+      implicit none
+      integer(4):: ngc,ngcmx, ngc2mx, nqibznq0i, iqi,ngcx,ippovlg = 9221,ippovli = 9222,idxk
+      real(8)::qbas(3,3),qi(3),qx(3)
+      integer:: verbose,io, ndummy1,ndummy2,ndmmy3,ndummy4,nadd(3),igc
+cccccccccccccccccccccccccccc
+      iqix=0
+cccccccccccccccccccccccccccc
+      if(allocated(nvgcgp2)) deallocate(nvgcgp2)
+      do io=1,2 !The 1st path start from saved iqix. The second path(io=2)start from iqix=0.
+        if(iqix<=0) then
+           if(iqix==0) close(ippovlg)
+           open(ippovlg,file= "PPOVLG",form='unformatted')
+           read(ippovlg) ndummy1,ndummy2,ndmmy3
+           iqix=0
+        endif
+        do iqi = iqix+1,nqq
+           read(ippovlg) qx, ndummy4, ngcgp
+           if(sum(abs(qx-qi))<1d-10) then !hit
+               allocate(nvgcgp2(1:3,1:ngcgp))
+               read(ippovlg) nvgcgp2(1:3,1:ngcgp)
+               read(ippovlg) 
+               read(ippovlg) 
+               iqix=iqi+1
+               goto 1112
+           else
+              read(ippovlg)
+              read(ippovlg) 
+              read(ippovlg) 
+           endif  
+        enddo
+        if(iqix==0) exit
+        iqix=0
+        print *,'eeeeeee io=',io
+      enddo
+      call rx('get_nvgcgp: can not find given qi')
+ 1112 continue 
+      do igc=1,ngcgp
+         nvgcgp2(1:3,igc)= nvgcgp2(1:3,igc) - nadd
+      enddo   
+      print *,'eeeeeeee2222 iqix=',iqix
+!! rotation is moved to melpl2 oct2013
+      end subroutine
+c-----------------------------------------------------
+      subroutine getppx2(qbas,qi) 
+!! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
+      implicit none
+      integer(4):: ngc,ngcmx, ngc2mx, nqibznq0i, iqi,ngcx,ippovlg = 9221,ippovli = 9222,idxk
+      real(8)::qbas(3,3),qi(3),qx(3)
+      complex(8),allocatable :: ppxs(:,:,:)
+      integer(4),allocatable :: ngvecc2s(:,:,:),ngvecc2s0(:,:,:),
+     &   ngcs(:), ngc2s(:),ngvecc2_0(:,:)
+      real(8),allocatable :: qxs(:,:)
+      logical :: KeepPPOVL,debug=.false.
+      integer:: verbose,io
+!! because of get_ngpgp iqix can be not consistent among PPOVLG and PPOVLI --> use iqix=0
+      iqix=0
+      if(verbose()>=100) debug=.true.
+      if(allocated(nvggg)) deallocate(nvggg,ngvecc,ggg,ppovlinv)
+      do io=1,2 !The 1st path start from saved iqix. The second path(io=2)start from iqix=0.
+        if(iqix<=0) then
+           if(iqix==0) close(ippovlg)
+           if(iqix==0) close(ippovli)
+           open(ippovlg,file= "PPOVLG",form='unformatted')
+           open(ippovli,file= "PPOVLI",form='unformatted')
+           read(ippovlg) ngggmx, ngcgpmx, nqq
+           iqix=0
+        endif
+        do iqi = iqix+1,nqq
+           if(debug) print *,'getppx2: iqi qi=',iqi,qi
+           read(ippovli) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+           read(ippovlg) qx, nggg, ngcgp, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+           if(debug) print *,'getppx2: iqi qx=',iqi,qx
+           ngc=ngcread
+           if(sum(abs(qx-qi))<1d-10) then !hit
+              if(ngc/=0) then
+               allocate(nvggg(1:3,1:nggg),ggg(1:nggg),ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
+               read(ippovlg) !nvgcgp2(1:3,1:ngcgp) skip. This is by getngcgp2
+               read(ippovlg) nvggg(1:3,1:nggg),ngvecc(1:3,1:ngc)
+               read(ippovlg) ggg(1:nggg)
+               read(ippovli) ppovlinv(1:ngc,1:ngc)
+              endif 
+              iqix=iqi+1
+              goto 1012
+           else
+              read(ippovlg)
+              read(ippovlg)
+              read(ippovlg)
+              read(ippovli)
+           endif  
+        enddo
+        if(iqix==0) exit
+        iqix=0
+      enddo
+      call rx('getppx2: can not find given qi')
+ 1012 continue
+      print *,'eeeeeeee111111 iqix=',iqix
+!! rotation is moved to melpl2 oct2013
+      end subroutine getppx2
+
+
+!! ----------------------------------------------------------------------------
       subroutine getppx(qbas,  ngc,qi,symope) ! this return ppx and ngvecc2
       implicit none
       integer(4):: ngc,ngcmx, ngc2mx, nqibznq0i, iqi,ngcx,ippovl = 9221,idxk
@@ -128,4 +237,6 @@ c     i    ngc2mx, ngc2s,qbas, ngvecc2_0, !alpha linux caused segmentation error
       if(allocated(ngc2s)    ) deallocate(ngc2s)
       if(allocated(ngvecc2_0)) deallocate(ngvecc2_0)
       end subroutine
+
+
       end module

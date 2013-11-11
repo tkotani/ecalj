@@ -285,9 +285,9 @@ c     zvztest=2  ! test2   |M_1> =  phi_s*phi_s basis case for Li. Set product b
 c                    1    0    3    1    1   ! 1S_l
       end
 
-      integer function version()
-      version=0
-      end
+c      integer function version()
+c      version=0
+c      end
 
 c      logical function onlyimagaxis()
 c      use keyvalue

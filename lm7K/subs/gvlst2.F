@@ -148,6 +148,9 @@ c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  gmax2 =',gmax2
           call shortn3(rlatp,xmx2,qpg, noutmx, nout,nlatout)
           gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) 
           gg = (gs(1)**2+gs(2)**2+gs(3)**2)
+cccccccccccccccccccccccccccccccccccccccc
+c          write(*,"(a,2d13.5,3i5,3d13.5)") 'gggggggggggg gg=',gg,gmax2,nlatout(:,1),sum(abs(qlat1)),sum(abs(qlat1)),sum(abs(qpg))
+cccccccccccccccccccccccccccccccccccccccc
               ! qpg+nlatout(:,ix) are shortest on the corrdinate of
               ! qlat1 (number of vectors are nlatout).
               ! We use nlatout(1:3,1).
@@ -204,7 +207,7 @@ c            print *,' zzz ig=',ig,ngmx
  21   continue
       deallocate(nlatout)
       ng = ig
-c      print *,'wwwwwwwwwwwwww111111111 ng=',ng
+c      print *,'xxxx wwwwwwwwwwwwww111111111 ng=',ng
 C --- Printout ---
       if (ipr .ge. PRTG .and. n1l*n2l*n3l .eq. 0) then
         call awrit2('%x%N GVLST2: gmax = %,1;3d a.u. created %i'//

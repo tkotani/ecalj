@@ -397,15 +397,16 @@ Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu2/=qu2x'
 Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
         zmelt = 0d0
-!TIME1 "before melpln2"
+!TIME1 "before melpln2t"
 !TIME0  
         if(ngc/=0) then !Aug2005
-          call melpln2(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
+          call melpln2t(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
      &           , ngc,  nadd,
      &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
      i       shtv,  q, q,  symope,qbas,
+     i       q, !qt oct2013
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
         endif
 !! == zmelt contain O^-1=<I|J>^-1 factor. zzmel(J,it,itp)= \sum_I <phi phi|I> O^-1_IJ ==
@@ -416,7 +417,7 @@ Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add
         deallocate(zzmel)
         if(debug) write(*,'("4 z1pp definitions begin",3d13.6,$)') sum(abs(zmelt))
         if(debug) call cputid(0)
-!TIME1 "after melpln2"
+!TIME1 "after melpln2t"
 !TIME0 
 
 

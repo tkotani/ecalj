@@ -962,7 +962,7 @@ c>>   valence
                dimagzzzmel=dimag(zzzmel)
                call drvmelp2( q,             ntqxx, ! q in FBZ
      i              q-qbz_kr,  nbmax, ! q-rk
-     i              qibz_k,     ! k in IBZ for e-product basis
+     i              qibz_k,     ! k in IBZ for mixed product basis. rk = symope(qibz_k) 
      i              isp,ginv,
      i              ngc,ngcmx, ngpmx,nband,itq, 
      i              symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
@@ -979,6 +979,20 @@ c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
                   enddo
                endif
 !TIME1 "after drvmelp2"
+
+!! NOTE:=========================================
+!! zmelt = rmelt(igb(qbz_kr), iocc(q), iunocc(q-qbz_kr)) + i* cmelt
+!! iunocc: band index at target  q.
+!! iocc:   band index at intermediate vector qk = q - qbz_kr 
+!! igb: index of mixed product basis       at qbz_kr (or written as rk)
+!!   igb=1,ngb 
+!!   ngb=nbloch+ngc  ngb: # of mixed product basis
+!!                   nbloch: # of product basis (within MTs)
+!!                   ngc: # of IPW for the Screened Coulomb interaction.
+!!                   igc is for given 
+!! See readgeig in drvmelp2.
+!! ==================================================
+
 !TIME0
 !     ! smbasis 
                if(smbasis()) then !
@@ -1026,8 +1040,11 @@ c     1113 continue
                if( oncew() ) then
                   write(6,"('ngb nn no=',3i6)") ngb,nn,no
                endif
-
                if(timemix) call timeshow("22222 k-cycle")
+
+!! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
+
+
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 c     A matrix element check in Si. See the corresponding section of x0kf.f
 c     write(6,"(3f13.5)") q         !ntq

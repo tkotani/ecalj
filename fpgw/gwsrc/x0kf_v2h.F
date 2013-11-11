@@ -338,15 +338,16 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
 Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
         zmelt = 0d0
-        if(debug) write(*,'("333 goto melpln2",$)')
+        if(debug) write(*,'("333 goto melpln2t",$)')
         if(ngc/=0) then !Aug2005
-          call melpln2(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
+          call melpln2t(  ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
 c     &           , ngc,  ngveccB,  nadd,
      &           , ngc,  nadd,
      &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
      i       shtv,  q, q,  symope,qbas,
+     i       q, !qt oct2013
 C... extensiton to nbloch+ngc       
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0))
         endif

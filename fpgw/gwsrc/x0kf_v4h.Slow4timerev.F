@@ -427,6 +427,7 @@ c     &           , ngc,  ngveccB,  nadd,
      &           , ngc,  nadd,
      &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
+     i       q, !qt oct2013
      i       shtv,  q, q,  symope,qbas,
 C... extensiton to nbloch+ngc       
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))

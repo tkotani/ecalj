@@ -54,7 +54,7 @@ C ----------------------------------------------------------------------
       character(len=10) :: keyw1='unit_2pioa',keyw2
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
-      integer(4):: version,verbose,q0pchoice,bzcase,wgtq0p,normcheck
+      integer(4):: verbose,q0pchoice,bzcase,wgtq0p,normcheck !version,
       logical:: keepppovl,GaussSmear,KeepEigen,core_orth,ldummy
 
       integer(4):: iii, iq0pinxxx !may2013 
@@ -97,7 +97,6 @@ c      else
 c        if(iq0pin==-100) stop
 c      endif
 c-----------------------------------------------------------------
-
 c ... for bug fix of ifc6. ifc6 does not allow
 c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
 c     as first call is not allowed by ifc6.
@@ -110,10 +109,9 @@ c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0)
       idummy=bzcase()
       idummy=q0pchoice()
       idummy=normcheck()
-
 c --- list switches
       print *,' --- switches defined in gwsrc/switch.f ---'
-      write(6,"(' version()   = ',I3)")  version()
+c      write(6,"(' version()   = ',I3)")  version()
       write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
       write(6,"(' keepeigen() = ',L)")  KeepEigen()
       write(6,"(' core_orth()  = ',L)")  core_orth()
@@ -122,9 +120,6 @@ c --- list switches
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
       write(6,"(' bzcase()    = ',i4)")  bzcase()
       write(6,"(' normcheck() = ',i4)")  normcheck()
-
-
-
 C --- readin LATTC
 c----------------------------------
 c A sample LATTICE file for a Si case,

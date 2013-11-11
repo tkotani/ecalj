@@ -20,7 +20,7 @@ c
       logical :: test
 c      real(8)::sumgauss,sumgauss1,sumgauss2 ! I found this bug 9Aug2004
       complex(8)::sumgauss,sumgauss1,sumgauss2
-      integer(4):: version
+c      integer(4):: version
 
       logical ::  test_symmetric_W
 
@@ -102,11 +102,11 @@ C --- simple integration scheme.
       enddo
 
 C --- Gaussian part -------------------------------------
-      if(version()==-1) then !       print *,' version=',version()
-        sumgauss=
-     &          - .5d0*v0*dexp(we2*a**2)
-     &            *( derfcx(a*we) - derfcx(sqrt(a**2+1d0/sig2)*we) )
-      else
+c      if(version()==-1) then !       print *,' version=',version()
+c        sumgauss=
+c     &          - .5d0*v0*dexp(we2*a**2)
+c     &            *( derfcx(a*we) - derfcx(sqrt(a**2+1d0/sig2)*we) )
+c      else
         aw = abs(a*we)
         aw2 = aw**2
         if(aw<6d0) then
@@ -123,8 +123,8 @@ c        sumgauss1=sumgauss
      &               (1d0 - 9d0/2d0/aw2*
      &                 (1d0 - 11d0/2d0/aw2 
      &     ))))))
-c       sumgauss2=sumgauss
-        endif
+cc       sumgauss2=sumgauss
+c        endif
       endif
       wintzsg_npm = -sum/pi  + sumgauss
       if(verbose()>90) 

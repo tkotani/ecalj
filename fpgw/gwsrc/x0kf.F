@@ -187,19 +187,19 @@ ccccc zvz test cccccccccccccccccccccccccc
       complex(8):: zvz,zvz1
       integer(4):: ib1,ib2,ifix,iqx
       integer(4):: ippovlinv=501,ngcx
-      logical :: ippovlinv_test=.true.
+      logical :: ippovlc_test=.true.
       if(verbose()>35) ipr=.true.
       if(zvztest()==1) then
 Cstop2rx 2013.08.09 kino        if(ngbx /= ngc+nbloch) stop 'x0kf_v2z:ngbx /= ngc+nbloch'
         if(ngbx /= ngc+nbloch) call rx( 'x0kf_v2z:ngbx /= ngc+nbloch')
-        if(ippovlinv_test) then
-          open (ippovlinv,form='unformatted',file='PPOVLinv')
+        if(ippovlc_test) then
+          open (ippovlinv,form='unformatted',file='PPOVL0')
           do iqx=1,nqibz
             read(ippovlinv) qx,ngcx
-            allocate( ppovl(1:ngcx,1:ngcx),ppovlinv(1:ngcx,1:ngcx))
+            allocate( ppovl(1:ngcx,1:ngcx)) !,ppovlinv(1:ngcx,1:ngcx))
             print *,' ngc ngcx=',ngc,ngcx
             read(ippovlinv) ppovl(1:ngcx,1:ngcx)
-            read(ippovlinv) ppovlinv(1:ngcx,1:ngcx)
+c            read(ippovlinv) ppovlinv(1:ngcx,1:ngcx)
             if(sum (abs(q-qx))<1d-10) then
               print *, ' iqx=',iqx
               print *, qx
@@ -207,7 +207,7 @@ Cstop2rx 2013.08.09 kino              if(ngc/=ngcx) stop 'x0kf: ngx/=ngcx'
               if(ngc/=ngcx) call rx( 'x0kf: ngx/=ngcx')
               exit
             endif
-            deallocate(ppovlinv,ppovl)
+            deallocate(ppovl) !ppovlinv,
           enddo
         endif
       endif
@@ -521,13 +521,14 @@ c     &           ,  ngp2, ngvecpB(:,1:ngp2, k)    ! q2=k    ; k  ngp2 1:nt0  oc
 c     &           ,  ngc,  ngveccB,  nadd,
 c     &       geigB(1:ngp1, itps:nband,kp), ntp0, ! q1=q+k  ; kp
 c     &       geigB(1:ngp2, 1:nt0,    k ) ,  nt0, ! q2=k    ; k
-        call melpln2( ngp1,  ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
+        call melpln2t( ngp1,  ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &           ,  ngp2,  ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
 c     &           ,  ngc,   ngveccB,  nadd,
      &           ,  ngc,   nadd,
      &       geig1(1:ngp1, itps:nband), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
      i       shtv,  q, q,  symope,qbas,
+     i       q, !qt oct2013
 c extensiton to nbloch+ngc       
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0))
 

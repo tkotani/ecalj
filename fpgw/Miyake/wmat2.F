@@ -923,13 +923,14 @@ c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
       if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
-      call melpln2( ngp1, ngvecpB1
+      call melpln2t( ngp1, ngvecpB1
      &           ,   ngp2, ngvecpB2
 c     &           ,   ngc,  ngveccBr, nadd,
      &           ,   ngc,  nadd,
      &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
      &       geig2(1:ngp2,itp0(1:nt0)), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
      i       shtv, matmul(symope,qik),qik, symope, qbas, 
+     i       qt, !qt oct2013
      o       zmelpl)
 c      deallocate(geig1,geig2)
 c      rmelt=0d0
