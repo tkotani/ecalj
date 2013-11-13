@@ -103,7 +103,7 @@ c     implicit real*8 (a-h,o-z)
      &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv,ikp
      &     ,iband,ib,m,nm,ikpisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
      &     ,nqibz,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
-     &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,iopen
+     &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,iopen,  iqi2
       real(8):: qpgcut_psi,qpgcut_cou,ovvxx,ovvx,qpgcut_psi2,dummy
       integer(4),parameter:: nspx=2
       real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3),det
@@ -244,14 +244,15 @@ c      logical :: ippovlc_test
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso
       integer:: ngcB,iqx,iqindx,iq0i
-      real(8):: quu(3),pi,dQpG,abq0i
+      real(8):: quu(3),pi,dQpG,abq0i,dQQ
       integer,allocatable:: ngveccB(:,:)
       integer:: idummy11(1,1)
 
-      integer:: nxxx(1:3)=0,ngggmx,ngcgpmx,ippovlg,ippovli
+      integer:: nxxx(1:3)=0,ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
       real(8):: QpGcutggg,QpGcutgcgp
       complex(8),allocatable:: ggg(:)
-      integer,allocatable:: nvggg(:,:,:),nvgcgp(:,:,:),nggg(:),ngcgp(:)
+      integer,allocatable:: nvggg(:,:),nvgcgp(:,:)
+      integer:: nggg,ngcgp !q independent 
 
 c---------------------------------------------------
       pi         = 4d0*datan(1d0)
@@ -1591,31 +1592,50 @@ c     nqnumt = imx !nqnumt is changed
 c     deallocate(qsave)
 c     endif
 
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG 
       if(QpGcutggg<1d-9) QpGcutggg=0d0
-      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG 
+c      dQQ = (sum((qlat(:,1)+qlat(:,2)+qlat(:,3))/2d0)**2)**.5
+c      dQQ = max( sum((qlat(:,1)/2d0)**2)**.5,
+c     &           sum((qlat(:,2)/2d0)**2)**.5,
+c     &           sum((qlat(:,3)/2d0)**2)**.5)
+      dQQ=0d0
+      do iqi =1,nqnumt
+      do iqi2=1,nqnumt
+        dQQ= max( sum(qibze(1:3,iqi)**2)**.5 + sum(qibze(1:3,iqi2)**2)**.5, dQQ)
+      enddo
+      enddo
+      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQQ
       if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
-      allocate(ngcgp(nqnumt), nggg(nqnumt))
-      do iqi =1, nqnumt         !nqibz + nq0i +iadd
-        qx = 0d0
-        call getgv2( alat,plat,qlat,qx, QpGcutggg,1,nggg(iqi), idummy11) 
-        qx  = qibze(1:3,iqi)
-        call getgv2( alat,plat,qlat,qx, QpGcutgcgp,1,ngcgp(iqi), idummy11) 
-        if(debug) write(6,"(' iqi qx nggg ngcgp=',i5,3f8.3,2i8)") iqi,qx,nggg(iqi),ngcgp(iqi)
-      enddo
-      ngggmx  = maxval( nggg(1:nqnumt)  )
-      ngcgpmx = maxval( ngcgp(1:nqnumt) )
-      allocate( nvggg(3,ngggmx,nqnumt)  )
-      allocate(nvgcgp(3,ngcgpmx,nqnumt))
+c      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG 
+c      if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
+c      allocate(ngcgp(nqnumt), nggg(nqnumt))
+c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
+      qx = 0d0
+      call getgv2( alat,plat,qlat,qx, QpGcutggg, 1,nggg,  idummy11) 
+      call getgv2( alat,plat,qlat,qx, QpGcutgcgp,1,ngcgp, idummy11) 
+      if(debug) write(6,"(' iqi qx nggg ngcgp=',i5,3f8.3,2i8)") iqi,qx,nggg,ngcgp
+c      enddo
+c      ngggmx  = maxval( nggg(1:nqnumt)  )
+c      ngcgpmx = maxval( ngcgp(1:nqnumt) )
+      allocate( nvggg(3,nggg) )
+      allocate(nvgcgp(3,ngcgp))
 !! Here the range of G for ngvvv is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
-      do iqi =1, nqnumt         !nqibz + nq0i +iadd
+c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
          qx = 0d0
-         call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg(iqi),  nvggg(1,1,iqi) )
-         qx = qibze(1:3,iqi)
-         call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp(iqi), nvgcgp(1,1,iqi))
-         if(debug) write(6,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg(iqi),ngcgp(iqi)
-      enddo
+         call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
+         call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
+         write(6,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
+c      enddo
+        allocate(ggg(nggg))
+        call mkppovl2(alat,plat,qlat, 
+     &        1,  (/0,0,0/),          !dummy 
+     &        nggg,  nvggg, 
+     &        nbas, rmax, bas,  
+     o        ggg)
+
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!
 c$$$      do iqi =1, nqnumt         !nqibz + nq0i +iadd
@@ -1661,13 +1681,22 @@ c      enddo
       do ix=1,nqtti
         write(6,"(' qtti  = ',3f10.4)") qtti(1:3,ix)
       enddo
-!! PPOVLG oct2012
-      if(debug) print *,' --- goto PPOVLG section ---'
+
+!! PPOVLGG,PPOVLG oct2012
+      if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
+      open(ippovlgg,file= "PPOVLGG",form='unformatted')
+      write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1
+      write(ippovlgg) nvgcgp(1:3,1:ngcgp)
+      write(ippovlgg) nvggg(1:3,1:nggg)
+      write(ippovlgg) ggg(1:nggg)
+      deallocate(ggg,nvggg,nvgcgp)
+      close(ippovlgg)
+
       ippovlg = 221
       open( ippovlg,file= "PPOVLG",form='unformatted')
-      write(ippovlg) ngggmx, ngcgpmx , nqnumt-nqini+1
       ippovli = 1221
       open( ippovli,file= "PPOVLI",form='unformatted')
+      if(debug) print *,' --- goto PPOVLI section ---'
 
 !! ==  New version. apr2013takao . Not use ngveccf. ==
       rewind ifiqg
@@ -1721,8 +1750,9 @@ c        write(6,"('   iqi qx ngc ngc2=',i5,3f7.4,4i5)" ) iqi,qx,ngc,ngc2
 
 c        if(ippovlc_test)  write(ippovlc) qx,ngc
         write(ippovli) qx,ngc
-        write(6,"('   iqi qx ngc=',i5,3f7.4,4i5)" ) iqi,qx,ngc
-        if(ppovl0l       )  write(ippovl0)   qx,ngc
+        write(ippovlg) qx,ngc
+        write(6,"(' iqi qx ngc=',i5,3f7.4,4i5)" ) iqi,qx,ngc
+        if(ppovl0l) write(ippovl0)   qx,ngc
         if(ngc==0) then
           deallocate(ngvecc,ngvecp)
           cycle
@@ -1754,7 +1784,7 @@ c        else
 c        endif
         if(debug) print *,' ttt: end of mkppovl2 ...'
 c        if(ippovlc_test)  write(ippovlc) ppovl(1:ngc,1:ngc)
-        if(ppovl0l     )  write(ippovl0) ppovl(1:ngc,1:ngc)
+        if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
 !     replace cinvrx(no pvot version) with matcinv !oct2005
 !     call cinvrx(ppovl,ppovlinv,ngc,1,1)   ! inverse of ppovl
 !     Note the size of ppovlinv and ppovl are the same
@@ -1766,21 +1796,8 @@ c        if(ippovlc_test) write(ippovlc) ppovlinv(1:ngc,1:ngc)
         deallocate(ppovl)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ggg= < exp(i G r) > integral in the interstitial region.
-        allocate(ggg(nggg(iqi)))
-cccccccccccccccccccccc
-c        print *,'bbbb rmax=',rmax
-c        print *,'bbbb bas=',bas
-
-        call mkppovl2(alat,plat,qlat, 
-     &        1,  (/0,0,0/),          !dummy 
-     &        nggg(iqi),  nvggg(1,1,iqi), 
-     &        nbas, rmax, bas,  
-     o        ggg)
-        write(6,"(' iqi qx nggg ngcgp ngc=',i5,3f8.4,4i7)" ) iqi,qx,nggg(iqi),ngcgp(iqi),ngc
-        write(ippovlg) qx, nggg(iqi), ngcgp(iqi),ngc
-        if(ngc/=0) write(ippovlg) nvgcgp(1:3,1:ngcgp(iqi),iqi)
-        if(ngc/=0) write(ippovlg) nvggg(1:3,1:nggg(iqi),iqi),ngvecc(1:3,1:ngc)
-        if(ngc/=0) write(ippovlg) ggg(1:nggg(iqi))
+c        write(6,"(' iqi qx nggg ngcgp ngc=',i5,3f8.4,4i7)" ) iqi,qx,nggg,ngcgp,ngc
+        if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
         if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc) 
         if(debug) print *,' ttt4 ...'
 c        allocate(ppovl(ngc,ngc2),ppx(ngc,ngc2))
@@ -1795,7 +1812,7 @@ c        if(debug)print *,' writing ppovl(ngc ngc2) ...'
 c        write(ippovl) ngvecc2(1:3,1:ngc2,iqi),ppx !iqi added at 18Aug2005
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        deallocate(ppovl,ppx,ppovlinv)
-        deallocate(ppovlinv,ggg,ngvecc,ngvecp)
+        deallocate(ppovlinv,ngvecc,ngvecp)
 c        print *,'end do 2010'
  2010 continue
 c      close(ippovl)

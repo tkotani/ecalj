@@ -375,7 +375,10 @@ Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
 !! ... read plane wave part of eigenfunction.
         call readgeig(q+rk(:,k)-qq, ngpmx,isp2, qu1, geig1)
         call readgeig(  rk(:,k)-qq, ngpmx,isp1, qu2, geig2)
-
+cccccccccccccccccccccccccc
+c        print *,'q+rk(:,k)-qq ',q+rk(:,k)-qq
+c        print *,'qu1=', qu1
+cccccccccccccccccccccccccccc
         if(sum(abs(qu1-qu1x))>tolqu) then
           write(6,"('qu1 :',3d23.10)") qu1
           write(6,"('qu1x:',3d23.10)") qu1x
@@ -399,6 +402,7 @@ Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add
         zmelt = 0d0
 !TIME1 "before melpln2t"
 !TIME0  
+!! <Bq Pq2|Pq1> = < Bq Pqu2|  Pqu1> *exp(i2pi nadd)
         if(ngc/=0) then !Aug2005
           call melpln2t(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
      &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
@@ -406,7 +410,7 @@ Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add
      &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
      &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
      i       shtv,  q, q,  symope,qbas,
-     i       q, !qt oct2013
+     i       qu1, !qt oct2013
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
         endif
 !! == zmelt contain O^-1=<I|J>^-1 factor. zzmel(J,it,itp)= \sum_I <phi phi|I> O^-1_IJ ==
