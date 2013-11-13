@@ -706,8 +706,8 @@ c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlin
       complex(8),allocatable::ggitp(:,:),gp2phas2(:),phase(:)
       integer:: ngcgp2,ngcs(1)
       real(8):: qt(3)
-      complex(8)::ppp
-      complex(8)::zmelp0(ngc,nt0,ntp0)
+      complex(8)::ppp,zdotc
+      complex(8),allocatable:: mmm(:,:),zmelp0(:,:,:),ggitp_(:,:,:)
 c------------------------------
 cc getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
 cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
@@ -823,26 +823,32 @@ c         print *,'iggg=',iggg,nggg
         phase(igc)=exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*gshtv) )
       enddo  
 !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
-      zmelp0=0d0
+      allocate(ggitp_(ngp2,ntp0,ngcgp2))
       if(verbose()>=100) print *,' melpln2t: 33333333'
+      do igc =1,ngc
       do igp2=1,ngp2
-        gp2phas2(1:nt0) = geigq2(igp2,1:nt0)
-      do igc=1,ngc
         nn = ngveccR(:,igc) + ngvecp2(:,igp2) 
         igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
-        do itp=1,ntp0
-         call zaxpy(nt0,phase(igc)*ggitp(itp,igcgp2), gp2phas2,1,zmelp0(igc,1,itp),ngc)
-        enddo 
-c        do itp=1,ntp0
-c        do it=1,nt0
-c        zmelp(igc,it,itp)=zmelp(igc,it,itp) + phase(igc)*gp2phas2(it)*ggitp(itp,igcgp2)
-c        enddo
-c        enddo
+        ggitp_(igp2,1:ntp0,igc) = phase(igc)*ggitp(1:ntp0,igcgp2)
       enddo
       enddo
-      deallocate(ngveccR,phase)
+      if(verbose()>=100) print *,' melpln2t: 33333333 22222222222'
+      allocate(zmelp0(ngc,nt0,ntp0))
+      zmelp0=0d0
+!! This do block is time-consuming when we use large QpGcut_psi _cou.
+!! But this version (nov2013) is not so bad, maybe.
+      do igc=1,ngc
+      do itp=1,ntp0
+      do it=1,nt0
+        zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*ggitp_(:,itp,igc) )
+      enddo
+      enddo
+      enddo
+      if(verbose()>=100) print *,' melpln2t: 4444444444'
+      deallocate(ngveccR,phase,ggitp_)
       call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
-      deallocate(igcgp2i,ggitp,gp2phas2)
+      deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
+      if(verbose()>=100) print *,' melpln2t: end'
       return
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
