@@ -9,7 +9,7 @@
       integer,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
       integer:: nggg,ngcgp,ngcread
 !! private
-      integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx
+      integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
       logical,private:: ppovlclosed=.true.,init=.true.
       integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
       real(8),allocatable,private    :: qx_s(:,:)
@@ -28,12 +28,13 @@ c-----------------------------------------------------
      &   ngcs(:), ngc2s(:),ngvecc2_0(:,:)
       real(8),allocatable :: qxs(:,:)
       logical :: KeepPPOVL,debug=.false., ippovlggooo=.true.
-      integer:: verbose,io,ippovlgg=9223
+      integer:: verbose,io,ippovlgg=9223,ngcread2
+      character*3 charnum3
 !! because of get_ngpgp iqix can be not consistent among PPOVLG and PPOVLI --> use iqix=0
       if(verbose()>=100) debug=.true.
       if(ippovlggooo) then
          open(ippovlgg,file= "PPOVLGG",form='unformatted')
-         read(ippovlgg) nggg, ngcgp, nqq
+         read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
          write(6,"('Readin getppx2: nggg ngcgp nqq=',3i5)") nggg, ngcgp, nqq
          allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
          read(ippovlgg) nvgcgp2(1:3,1:ngcgp)
@@ -42,40 +43,64 @@ c-----------------------------------------------------
          close(ippovlgg)
          ippovlggooo=.false.
       endif
-      iqix=0
-      do io=1,2 !The 1st path start from saved iqix. The second path(io=2) start from iqix=0.
-        if(iqix<=0) then
-           if(verbose()>=100) print *,'iqix <0 readin PPOVLG'
-           if(iqix==0) close(ippovlg)
-           if(iqix==0) close(ippovli)
-           open(ippovlg,file= "PPOVLG",form='unformatted')
-           open(ippovli,file= "PPOVLI",form='unformatted')
-           iqix=0
-        endif
-        do iqi = iqix+1,nqq
-           if(debug) print *,'getppx2: iqi qi=',iqi,qi
-           read(ippovli) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
-           read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
-           if(debug) print *,'getppx2: iqi qx=',iqi,qx
-           ngc=ngcread
-           if(sum(abs(qx-qi))<1d-10) then !hit
-              if(ngc/=0) then
-               if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
-               allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
-               read(ippovlg) ngvecc(1:3,1:ngc)
-               read(ippovli) ppovlinv(1:ngc,1:ngc)
-              endif 
-              iqix=iqi+1
-              goto 1012
-           else
-              read(ippovlg)
-              read(ippovli)
-           endif  
-        enddo
-        if(iqix==0) exit
-        iqix=0
+      do iqi = nqini,nqnumt
+         open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+         read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+         if(debug) print *,'getppx2: iqi qi=',iqi,qi,qx
+         ngc = ngcread
+         if(sum(abs(qx-qi))>1d-10) then
+           close(ippovlg)
+         else
+           open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+           read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)
+           if(ngcread/=ngcread2) call rx('rppovl.F: inconsistent PPOVLI PPOVLg')
+           if(ngc==0) exit
+           if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
+           allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
+           read(ippovlg) ngvecc(1:3,1:ngc)
+           read(ippovli) ppovlinv(1:ngc,1:ngc)
+           close(ippovlg)
+           close(ippovli)
+           goto 1012
+         endif   
       enddo
+      write(6,"('qi qx=',3f13.5,3x,3f13.5)") qi,qx
       call rx('getppx2: can not find given qi')
+c$$$
+c$$$      iqix=0
+c$$$      do io=1,2 !The 1st path start from saved iqix. The second path(io=2) start from iqix=0.
+c$$$        if(iqix<=0) then
+c$$$           if(verbose()>=100) print *,'iqix <0 readin PPOVLG'
+c$$$           if(iqix==0) close(ippovlg)
+c$$$           if(iqix==0) close(ippovli)
+c$$$           open(ippovlg,file= "PPOVLG",form='unformatted')
+c$$$           open(ippovli,file= "PPOVLI",form='unformatted')
+c$$$           iqix=0
+c$$$        endif
+c$$$        do iqi = iqix+1,nqq
+c$$$           if(debug) print *,'getppx2: iqi qi=',iqi,qi
+c$$$           read(ippovli) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+c$$$           read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+c$$$           if(debug) print *,'getppx2: iqi qx=',iqi,qx
+c$$$           ngc=ngcread
+c$$$           if(sum(abs(qx-qi))<1d-10) then !hit
+c$$$              if(ngc/=0) then
+c$$$               if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
+c$$$               allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
+c$$$               read(ippovlg) ngvecc(1:3,1:ngc)
+c$$$               read(ippovli) ppovlinv(1:ngc,1:ngc)
+c$$$              endif 
+c$$$              iqix=iqi+1
+c$$$              goto 1012
+c$$$           else
+c$$$              read(ippovlg)
+c$$$              read(ippovli)
+c$$$           endif  
+c$$$        enddo
+c$$$        if(iqix==0) exit
+c$$$        iqix=0
+c$$$      enddo
+c$$$      call rx('getppx2: can not find given qi')
  1012 continue
 c      print *,'eeeeeeee111111 iqix=',iqix
 !! rotation of gvector rotgvec is moved to melpl2t nov2013

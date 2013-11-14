@@ -242,7 +242,7 @@ c      logical :: ippovlc_test
       real(8),allocatable:: qtt(:,:)
       integer:: nqtt,igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
-      logical:: newaniso
+      logical:: newaniso, noo
       integer:: ngcB,iqx,iqindx,iq0i
       real(8):: quu(3),pi,dQpG,abq0i,dQQ
       integer,allocatable:: ngveccB(:,:)
@@ -1685,18 +1685,12 @@ c      enddo
 !! PPOVLGG,PPOVLG oct2012
       if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
       open(ippovlgg,file= "PPOVLGG",form='unformatted')
-      write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1
+      write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
       write(ippovlgg) nvgcgp(1:3,1:ngcgp)
       write(ippovlgg) nvggg(1:3,1:nggg)
       write(ippovlgg) ggg(1:nggg)
       deallocate(ggg,nvggg,nvgcgp)
       close(ippovlgg)
-
-      ippovlg = 221
-      open( ippovlg,file= "PPOVLG",form='unformatted')
-      ippovli = 1221
-      open( ippovli,file= "PPOVLI",form='unformatted')
-      if(debug) print *,' --- goto PPOVLI section ---'
 
 !! ==  New version. apr2013takao . Not use ngveccf. ==
       rewind ifiqg
@@ -1706,6 +1700,16 @@ c      enddo
       print *
       print *,' --- Write PPOVLG ----'
       do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
+
+        ippovlg = 1221+iqi
+        inquire(unit=ippovlg, opened=noo)
+        if(noo) call rx('rdata4gw_v2: ippovlg poor assignment of file id. Fix it')
+        open( ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+        ippovli = 3221+iqi
+        inquire(unit=ippovli, opened=noo)
+        if(noo) call rx('rdata4gw_v2: ippovli poor assignment of file id. Fix it')
+        open( ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+
         if(debug)print *,'init do 2010'
         qx  = qibze(1:3,iqi)
 !!      iq is removed at apr2013takao   --> iq=idxk(qibze(1:3,iqi), qtti,nqtti) !feb2012takao
@@ -1814,10 +1818,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        deallocate(ppovl,ppx,ppovlinv)
         deallocate(ppovlinv,ngvecc,ngvecp)
 c        print *,'end do 2010'
- 2010 continue
-c      close(ippovl)
       close(ippovlg)
       close(ippovli)
+ 2010 continue
+c      close(ippovl)
       if(ppovl0l) close(ippovl0)
 c      if(ippovlc_test)  close(ippovlc)
 c      print *,'vvvvvvv1 nbas=',nbas
