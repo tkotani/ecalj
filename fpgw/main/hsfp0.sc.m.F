@@ -1149,6 +1149,10 @@ c         deallocate(wbzz)
       write(*,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
       call cpu_time(time_red1)
 !TIME0 
+
+!! CAUITION! Allreduce wait all cpu jobs done here. 
+!! Before nov2013, MPI__sxcf_rankdivider was stpid---> half of cores assigned for isp=2
+!! was just waiting here!
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
       call cpu_time(time_red2)
 !TIME1 "reduction nbandmx end"

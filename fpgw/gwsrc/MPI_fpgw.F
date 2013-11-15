@@ -314,15 +314,16 @@ c$$$                     write(*,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,
       irkip(:,:,:,:) = 0
 
 c$$$      write(*,*) "irkip", mpi__rank
-      do ispinmx=1, nspinmx
-         do iq=1, nq
-            do iqibz=1, nqibz
-               do igrp=1, ngrp
+      do iq=1, nq
+         do iqibz=1, nqibz
+            do igrp=1, ngrp
+               do ispinmx=1, nspinmx 
+               !spin loop must be internal! Nov2013 (it was in outer loop--> allreduce problem)
                   if( irkip_all(ispinmx,iqibz,igrp,iq) /= 0 ) then
                      total = total + 1
                      if( indexi<=total .and. total<=indexe ) then
                         irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
+c$$$  write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
                      end if
                   end if
                end do
