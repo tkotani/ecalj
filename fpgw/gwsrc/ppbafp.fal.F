@@ -813,7 +813,7 @@ c         print *,'iggg=',iggg,nggg
       nymingcgp2 =minval(nvgcgp2(2,1:ngcgp2)) ;nymaxgcgp2=maxval(nvgcgp2(2,1:ngcgp2))
       nzmingcgp2 =minval(nvgcgp2(3,1:ngcgp2)) ;nzmaxgcgp2=maxval(nvgcgp2(3,1:ngcgp2))
       allocate(igcgp2i(nxmingcgp2:nxmaxgcgp2,nymingcgp2:nymaxgcgp2,nzmingcgp2:nzmaxgcgp2))
-      igcgp2i = -10000000
+      igcgp2i = -100000
       do igcgp2 =1,ngcgp2
         igcgp2i(nvgcgp2(1,igcgp2),nvgcgp2(2,igcgp2),nvgcgp2(3,igcgp2))=igcgp2
       enddo
@@ -834,6 +834,7 @@ c         print *,'iggg=',iggg,nggg
       if(verbose()>=100) print *,' melpln2t: 33333333'
 !TIME1 "before zmelp0 loop"
 !TIME0
+!! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
       do igc=1,ngc
       do itp= 1,ntp0
          do igp2=1,ngp2
@@ -868,14 +869,14 @@ c$$$               zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*g
 c$$$            enddo
 c$$$         enddo
 c$$$      enddo
-
       if(verbose()>=100) print *,' melpln2t: 4444444444'
       deallocate(ngveccR,phase,ggitp_)
       call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
       if(verbose()>=100) print *,' melpln2t: end'
 !TIME1 "end of melpln2t"
-      return
+      end subroutine melpln2t 
+
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$!! old version --------------------------------------------------------
@@ -1012,7 +1013,7 @@ c$$$      call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0) !ppx= matmul(ppovlinv(ngc,ng
 c$$$c      endif
 c$$$      deallocate(ppx,gg,ngvecc2,ipp,geigq1_)
 c$$$      zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >
-      end subroutine melpln2t 
+c      end subroutine melpln2t 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      write(6, '(" *** q=",(3f10.4,2x))'),q(1:3)

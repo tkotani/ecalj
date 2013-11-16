@@ -323,7 +323,8 @@ c$$$      write(*,*) "irkip", mpi__rank
                      total = total + 1
                      if( indexi<=total .and. total<=indexe ) then
                         irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-c$$$  write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
+c           write(6,"(a,5i5)") "isp iq iqibz igrp irkip",
+c    &                         ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
                      end if
                   end if
                end do
