@@ -450,10 +450,10 @@ ccccccccccccccccccccccccccccccccccc
       call melpln2t(ngp1, ngvecpB1
      &           ,  ngp2, ngvecpB2
      &           ,   ngc,  nadd,
-     &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
-     &       geig2(1:ngp2,1:nt0), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
+     &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+     &       geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
      i       shtv, matmul(symope,qik),qik, symope, qbas,
-     i       qt, !qt oct2013
+     i       qt, !qt oct2013 means q1
      o       zmelpl)
 !TIME1 "after drv melpln2t"
 !TIME0 
@@ -670,11 +670,12 @@ c--------------------------------------------------------------------
      &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd,
      &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
      &       geigq2, nt0,  ! q2=q-rk ---> kp 1:nt0  occupied                        
-     i       shtv,q, qi, symope, qbas,
-     i       qt, !qt oct2013
+     i       shtv,q, qi, symope, qbas, !
+     i       qt, !qt oct2013 for G1
      o       zmelp)
 !! == Mattrix elements <Plane psi |psi> from interstitial plane wave. ==
 !! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc> matrix element
+!! NOTE: shtv = g(delta_{g^-1})
 !! ----------------------------------------------------------
 c      use m_read_ppovl,only: getppx2,getppx,
 c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlinv
@@ -688,7 +689,7 @@ c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlin
       complex(8):: geigq1(ngp1,ntp0),phas1,phas2,phasqadd,
      &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0,ntp0),  !it was zmelp(ngc,nt0*ntp0)
      &             img=(0d0,1d0) ,phas         ,phase2
-      real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3),gshtv(3)
+      real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
      & ,pi=3.1415926535897932D0, symope(3,3)   ,qx(3)
       integer(4),allocatable :: ipp(:,:,:)
       complex(8),allocatable :: gg(:,:),gg_(:,:,:),xxx(:,:)
@@ -714,7 +715,11 @@ cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
 
 !TIME0
 !! allocate and return foobar decleared in use m_read_ppovl,only: foobar
-      if(verbose()>=100) print *,' melpln2t: '
+c      if(verbose()>=100) 
+cccccccccccccccccccccc
+c      nadd=0
+cccccccccccccccccccccc
+      print *,' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
       if(verbose()>=100) print *,' melpln2t: end of getppx2'
       if(ngc/=ngcread) then
@@ -759,14 +764,13 @@ cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
      o    ngveccR) 
 !TIME1 "end of rotgvec"
 !TIME0
-      gshtv = matmul(symope,shtv)  ! g(delta_{g^-1})
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
 c$$$!!      print *,'--- goto simple case for debug---'
 c$$$      print *,'fffffff: ngc ngp1 ngp2=',ngc,ngp1,ngp2
 c$$$      zmelp0 = 0d0
 c$$$      do igc=1,ngc
-c$$$        phas =exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*gshtv) ) !conjg
+c$$$        phas =exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) ) !conjg
 c$$$      do igp1=1,ngp1     !for ngp1
 c$$$      do igp2=1,ngp2
 c$$$c        nn = ngvecp1(:,igp1)-ngvecp2(:,igp2)-ngveccR(:,igc) - nadd 
@@ -822,10 +826,9 @@ c         print *,'iggg=',iggg,nggg
 !! zmelp <=  \sum_G2 ggitp(Gc+G2) geigqg2(G2))
 !! note \bfr'= g (\bfr) +\delta_g  (\bfr= {\bf r})
 !! mapping of function g[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
-      gshtv = matmul(symope,shtv)  ! g(delta_{g^-1})
       allocate(gp2phas2(nt0),phase(ngc))
       do igc=1,ngc
-        phase(igc)=exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*gshtv) )
+        phase(igc)=exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) )
       enddo  
 !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
       allocate(ggitp_(ngp2,ngcgp2))
