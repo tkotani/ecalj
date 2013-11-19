@@ -223,7 +223,8 @@ Cstop2rx 2013.08.09 kino      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is 
       if(sumcheck1>1d-8) call rx( 'eibzgen: symgg(:,:,1) is not E')
 
 !!=== Get key and nkey for each ix. (similar with those in readqg,readeigen) ===
-      allocate(qbzl(3,nqbz),key(3,nqbz),ieord(nqbz))
+      allocate(qbzl(3,nqbz),key(3,0:nqbz),ieord(nqbz))
+      key(:,0)=0 !dummy
       do ibz=1,nqbz
         call rangedq(matmul(ginv,qbz(:,ibz)), qbzl(1,ibz))
       enddo
@@ -524,7 +525,7 @@ c
       data ep/1.0d-3/
 c      data ep/1.0d-7/
 c
-      write(6,*)' MPTAUO2: search miat tiat for wave function rotation'
+      write(6,*)' mptauof: search miat tiat for wave function rotation'
 
       do 10 ig=1,ng
         do igd=1,ng

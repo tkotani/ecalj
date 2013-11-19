@@ -373,7 +373,7 @@ c
 c     
      &     iclass,lmxa,nr,konf,ncore,
      &     zz,aa,bb,bas,alat,plat,
-     &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,cphi,geig,nocore)
+     &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,nocore) !,cphi,geig
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
       print *,' dummy iclass=',iclass
       print *,' nqtti nbas',nqtti,nbas
@@ -1606,7 +1606,8 @@ c     &           sum((qlat(:,3)/2d0)**2)**.5)
         dQQ= max( sum(qibze(1:3,iqi)**2)**.5 + sum(qibze(1:3,iqi2)**2)**.5, dQQ)
       enddo
       enddo
-      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG+ 2d0*pi/alat*dQQ
+      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
+
       if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
 c      QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG 
 c      if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0

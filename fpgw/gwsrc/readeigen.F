@@ -518,12 +518,14 @@ c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
       integer,allocatable:: ieord(:)
       ginv=ginv_
       allocate(ieord(nqtt))
-      allocate(key(3,nqtt),qxx(3,nqtt))
+c      print *,' iiiiii nqtt=',nqtt
+      allocate(key(3,0:nqtt),qxx(3,nqtt))
       key=-99999
       do iq=1,nqtt
          call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
       enddo
 !! get key and nkey for each ix.
+      key(:,0)=0 !dummy
       do ix =1,3
          call sortea(qxx(ix,:),ieord,nqtt,isig)
          ik=0
@@ -1209,23 +1211,15 @@ Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw:
 
         read(ifuu)
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
-        if (is.eq.1) 
-     >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (is.eq.1) allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
         if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
-        if (iko_ix2.ne.iko_ix)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
-     >      call rx( "init_readeigen_mlw: iko_ix2 error")
-        if (iko_fx2.ne.iko_fx)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
-     >      call rx( "init_readeigen_mlw: iko_fx2 error")
+        if (iko_ix2.ne.iko_ix)  call rx( "init_readeigen_mlw: iko_ix2 error")
+        if (iko_fx2.ne.iko_fx)  call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
             read(ifuu)iqbz2,iq0i2
-Cstop2rx 2013.08.09 kino            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
             if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
-Cstop2rx 2013.08.09 kino            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
             if (iq0i2 .ne. iq0i) call rx( 'init_readeigen_mlw: iq0i error')
             read(ifuu)
      &      ((uum(j1,j2,iqbz,iq0i,is),
@@ -1588,16 +1582,10 @@ Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw:
 
         read(ifuu)
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
-        if (is.eq.1) 
-     >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (is.eq.1)  allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
         if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
-        if (iko_ix2.ne.iko_ix)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
-     >      call rx( "init_readeigen_mlw: iko_ix2 error")
-        if (iko_fx2.ne.iko_fx)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
-     >      call rx( "init_readeigen_mlw: iko_fx2 error")
+        if (iko_ix2.ne.iko_ix) call rx( "init_readeigen_mlw: iko_ix2 error")
+        if (iko_fx2.ne.iko_fx) call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
@@ -1941,8 +1929,7 @@ c fileopen
 
 c nqbz mesh-points
         read(ifmlw)nqbz,nwf,iko_ix,iko_fx
-        if (is.eq.1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp),
-     >                        dnk2(iko_ix:iko_fx,nwf))
+        if (is.eq.1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp), dnk2(iko_ix:iko_fx,nwf))
         do iqbz = 1,nqbz
           read(ifmlw)iqbz2,q(1:3)
 Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
@@ -1952,30 +1939,21 @@ Cstop2rx 2013.08.09 kino          if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw:
 
         read(ifuu)
         read(ifuu)nqbz2,nq0i,iko_ix2,iko_fx2
-        if (is.eq.1) 
-     >     allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
-Cstop2rx 2013.08.09 kino        if (nqbz2.ne.nqbz) stop "init_readeigen_mlw: nqbz2 error"
+        if (is.eq.1) allocate(uum(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i,nsp))
         if (nqbz2.ne.nqbz) call rx( "init_readeigen_mlw: nqbz2 error")
-        if (iko_ix2.ne.iko_ix)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_ix2 error"
-     >      call rx( "init_readeigen_mlw: iko_ix2 error")
-        if (iko_fx2.ne.iko_fx)
-Cstop2rx 2013.08.09 kino     >      stop "init_readeigen_mlw: iko_fx2 error"
-     >      call rx( "init_readeigen_mlw: iko_fx2 error")
+        if (iko_ix2.ne.iko_ix) call rx( "init_readeigen_mlw: iko_ix2 error")
+        if (iko_fx2.ne.iko_fx) call rx( "init_readeigen_mlw: iko_fx2 error")
         do iqbz = 1,nqbz
           do iq0i =1,nq0i
             read(ifuu)
             read(ifuu)iqbz2,iq0i2
-Cstop2rx 2013.08.09 kino            if (iqbz2 .ne. iqbz) stop 'init_readeigen_mlw: iqbz error'
             if (iqbz2 .ne. iqbz) call rx( 'init_readeigen_mlw: iqbz error')
-Cstop2rx 2013.08.09 kino            if (iq0i2 .ne. iq0i) stop 'init_readeigen_mlw: iq0i error'
             if (iq0i2 .ne. iq0i) call rx( 'init_readeigen_mlw: iq0i error')
             read(ifuu)
      &      ((uum(j1,j2,iqbz,iq0i,is),
      &         j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
           enddo
         enddo
-
 
 c nqbze diag-points
         read(ifmlw)nqbze,nwf2

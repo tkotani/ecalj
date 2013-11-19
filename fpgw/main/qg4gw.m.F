@@ -54,7 +54,7 @@ C ----------------------------------------------------------------------
       character(len=10) :: keyw1='unit_2pioa',keyw2
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
-      integer(4):: verbose,q0pchoice,bzcase,wgtq0p,normcheck !version,
+      integer(4):: verbose,q0pchoice,bzcase,wgtq0p !,normcheck !version,
       logical:: keepppovl,GaussSmear,KeepEigen,core_orth,ldummy
 
       integer(4):: iii, iq0pinxxx !may2013 
@@ -108,7 +108,7 @@ c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0)
       ldummy=GaussSmear()
       idummy=bzcase()
       idummy=q0pchoice()
-      idummy=normcheck()
+c      idummy=normcheck()
 c --- list switches
       print *,' --- switches defined in gwsrc/switch.f ---'
 c      write(6,"(' version()   = ',I3)")  version()
@@ -119,7 +119,7 @@ c      write(6,"(' version()   = ',I3)")  version()
       write(6,"(' GaussSmear()= ',L4)")  GaussSmear()
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
       write(6,"(' bzcase()    = ',i4)")  bzcase()
-      write(6,"(' normcheck() = ',i4)")  normcheck()
+c      write(6,"(' normcheck() = ',i4)")  normcheck()
 C --- readin LATTC
 c----------------------------------
 c A sample LATTICE file for a Si case,

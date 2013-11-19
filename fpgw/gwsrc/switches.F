@@ -519,7 +519,7 @@ c write normcheck files or not
 c normcheck=0: not
 c normcheck=1: only dia
 c normcheck=2: dia and off
-      integer(4)::nnn
+      integer(4),save::nnn
       logical,save ::init=.true.
       if(init) then
         call getkeyvalue("GWinput","NormChk",nnn,default=1)

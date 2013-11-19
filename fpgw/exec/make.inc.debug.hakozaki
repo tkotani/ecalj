@@ -11,17 +11,15 @@
 # BINDIR = $(HOME)/bin      ### to which "make install (and install2) copy binaries.
 
 # ##### for an intel. ########
-FC=mpiifort -heap-arrays 100 -mcmodel=medium 
-LK=mpiifort -heap-arrays 100 -mcmodel=medium 
-#FC=mpiifort -C -CB -g  -mcmodel=medium 
-#LK=mpiifort -C -CB -heap-arrays 100 -g  -mcmodel=medium 
-
+FC=mpiifort -C -CB -g  -mcmodel=medium 
+LK=mpiifort -C -CB -heap-arrays 100 -g  -mcmodel=medium 
 #FC = mpif90
 #LK = mpif90
 FFLAGS = -heap-arrays 100 -cpp $(CPPSWITCH_INTELLINUXIFC) -132 
 LIBMATH = -mkl
 ECAL   = $(HOME)/ecal     ### Root of ecal
-BINDIR = $(HOME)/bin2      ### to which "make install (and install2) copy binaries.
+BINDIR = $(HOME)/bindebug      ### to which "make install (and install2) copy binaries.
+
 
 
 

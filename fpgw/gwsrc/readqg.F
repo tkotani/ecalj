@@ -83,7 +83,7 @@ Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
         call init_readqg(ifi,ginv)
         init(ifi)=.false.
       endif
-
+      if(verbose()>=40) print *,'end of init_readqg'
       call iqindx2qg(qin,ifi, iq,qu)
       if(ifi==1) then
 c        call iqindx2(qin,ginv, qp,nqnump, iq,qu)
@@ -192,7 +192,8 @@ c     &     nqnumc, ngcmx, QpGcut_cou
       endif
 !! followings are the same as codes in readeigen.F
       allocate(ieord(nqtt))
-      allocate(key(3,nqtt),qxx(3,nqtt))
+      allocate(key(3,0:nqtt),qxx(3,nqtt))
+      key(:,0)=0 !dummy
       key=-99999
       do iq=1,nqtt
          call rangedq(matmul(ginv_,qtt(:,iq)), qxx(:,iq))

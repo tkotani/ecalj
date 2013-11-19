@@ -4,7 +4,7 @@
      &  nphi,nphimx,nindx,lindx,ibasindx,
      &  iclass,lmxa,nr,konf,ncore,
      &  zz,aa,bb,bas,alat,plat,
-     &  qtt,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore)
+     &  qtt,efermi,ec,evl,vxclda,gx,gcore,nocore) !,cphi,geig
 c
 c     &  ifomit ) !If ifomit=T, omit to store cphi and geig
 c- Read and Write the informations required for GW calculations.
@@ -86,13 +86,13 @@ c     gx is normalized as 1 = \int dr gx**2
 c     gcore is the major part of the true radial functions.
 c
 
-      complex(8)::
+c      complex(8)::
 cv2     &  cphi(ldim, 2, nband, nqtt,nsp), ! Coefficients of eigenfunction
 cv2                                         ! for phi    = cphi(ldim, 1, nband, nqtt), and
 cv2                                         ! for phidot = cphi(ldim, 2, nband, nqtt).
-     &  cphi(ldim2,  nband, nqtt,nsp),     ! Coefficients of eigenfunction
+c     &  cphi(ldim2,  nband, nqtt,nsp),     ! Coefficients of eigenfunction
 c
-     &  geig(ngpmx,  nband, nqtt,nsp)  ! Coefficienets of eigenfunction for IPW.
+c     &  geig(ngpmx,  nband, nqtt,nsp)  ! Coefficienets of eigenfunction for IPW.
 
 
       logical ::

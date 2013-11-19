@@ -221,6 +221,7 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+      integer:: verbose
 c-----------------------------------------------------------------------
 
 c---------------------------------------
@@ -433,7 +434,7 @@ c---
 c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
-      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
+      write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
 
 c>>   read dimensions of wc,b,hb
       ifhbed     = iopen('hbe.d',1,0,0)
@@ -459,7 +460,7 @@ c     Get space-group transformation information. See header of mptaouof.
 c     call mptauof(w(igrp),ngrp,plat,natom,pos,iclasst
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
      o     ,miat,tiat,invgx,shtvg )
-c     write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
+      if(verbose()>=40) write (*,*)' hsfp0.sc.m: end of mptauof'
 
 c     Get array size to call rdpp
 c     call getsrdpp( nclass,nl,
@@ -1050,6 +1051,16 @@ C         enddo
          enddo
       endif
 
+
+
+cccccccccccccccccccccccccccccccccccccc
+c      call MPI__finalize
+c      stop 'test end xxxxxxxxxxxxxx'
+ccccccccccccccccccccccccccccccccccccccc
+
+
+
+
 cccccccccccccccccccccccccccccccccccccccc
 c     do is = 1,nspinmx
 c     do iqq=1,nq
@@ -1143,6 +1154,9 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i        invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c         print *,'---end of sxcf_fal3--- is mpi__rank',is,mpi__rank
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         deallocate(wbzz)
 !TIME1 "after sxcf_fal3_scz"
       call date_and_time(values=timevalues)
