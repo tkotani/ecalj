@@ -11,75 +11,15 @@
 ############################################
 ### For a case of ifort.
 #eee = /home/takao/ecal
-#LIBLOC = \
-#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
-# -pthread 
-# -lsvml
-#
-### for a case of MPI
-#eee = /home/takao/ecal
-#LIBLOC = \
-#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-#  /home/takao/SCALAPACK/scalapack.a \
-#  /home/takao/BLACS/LIB/blacsF77init_MPI-LINUX-0.a \
-#  /home/takao/BLACS/LIB/blacs_MPI-LINUX-0.a \
-#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
-##-lsvml
-#
-### kino's case
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
-# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
-# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-
-#
-#LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
-# I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
-#LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
-# I had a problem in zgemm in pwmat. Wrong normchk.dia
-#LIBLOC= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
-# centos yum install blas, yum install lapack #this works OK.
-#LIBLOC= -lfftw3 /usr/lib64/liblapack.so.3.0.3 /usr/lib64/libblas.a 
-#ububntu apt-get install
-#LIBLOC=  /usr/lib64/libfftw3.so.3.1.2 /usr/lib64/liblapack.a /usr/lib64/libblas-3.a 
-# centos yum install. Zgemm did not work for larger size of matrix.
-#LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
-#          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
-#          /usr/lib64/atlas/libatlas.so.3 -lfftw3
-
-#LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
-
-
-# fukazawa rcgw
-#LIBLOC= -mkl -L/home/fukazawa/fftw/lib/libfftw3.a
-
-### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
-### fftw3 is from http://www.fftw.org/download.html
-### make check OK for Dual-core Intel Xeon E3113  @ 3.00GHz, ifort 10.1
-
-LIBLOC= -lfftw3 /opt/acml4.4.0/ifort64/lib/libacml.a
+LIBLOC= -mkl
 
 
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
-#FC = mpif90
-#LK = mpif90
-#FC = ifort -CB
-#LK = ifort  -parallel  -CB
-FC = ifort -mcmodel=medium -heap-arrays 100
-LK = ifort -parallel -mcmodel=medium -heap-arrays 100
+FC = ifort  -mcmodel=medium -heap-arrays 100
+LK = ifort  -parallel -mcmodel=medium -heap-arrays 100
+#-CB -C -g
 
 # -heap-array puts automatic and temporary arrays on the heap instead of stack
 # -mcmodel=medium uses data area beyound 2GB. 
@@ -94,12 +34,10 @@ make_fc_version:
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 
-FFLAGS_COMMON=  -WB  -cpp $(CPP_SW) $(module) -132 -g -traceback
+FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 
+#-g -traceback
 
-#--- v11.1 
-# FFLAGS -O1 -O1 -O1 -O0 -O0 
-
-FFLAGS = -O1 -xHost $(FFLAGS_COMMON)
+FFLAGS = -O2 -xHost $(FFLAGS_COMMON)
 FFLAGS_LESS =  -O1 -xHost $(FFLAGS_COMMON) 
 FFLAGS_LESS2 =  -O1 -xHost  $(FFLAGS_COMMON)
 FFLAGS_LESS3 =  -O0  $(FFLAGS_COMMON)
@@ -144,6 +82,9 @@ $(subs_obj_path)/ropbes.o: subs/ropbes.F
  
 $(subs_obj_path)/ropyln.o: subs/ropyln.F
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+
+$(subs_obj_path)/xcpbe.o: subs/xcpbe.F90
+	$(FC) $(FFLAGS_LESS) -c $< -o $@
  
 $(subs_obj_path)/spcgrp.o  : subs/spcgrp.F $(moddir)/m_globalvariables.mod 
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
@@ -762,138 +703,6 @@ $(fp_obj_path)/vxcnls.o  : fp/vxcnls.F $(moddir)/m_xcpbe.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/vxcnls.o fp/vxcnls.F
 $(subs_obj_path)/addrwf.o $(moddir)/m_addrwf.mod  : subs/addrwf.F 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/addrwf.o subs/addrwf.F
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$(subs_obj_path)/vxcnls.o  : subs/vxcnls.F $(moddir)/m_xcpbe.mod 
-	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/vxcnls.o subs/vxcnls.F
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

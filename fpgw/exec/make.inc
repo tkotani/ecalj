@@ -1,57 +1,43 @@
-### You need to set switches (1) to (6), by hand
-###
+### you have to set FC,LK, FFLAGS, LIBMATH, ECAL, and BINDIR ###
 
-#(1) Compilar ###################
-# ... Fortran and linker switches for machine LINUX with intel fortran
+# ##### for a gfortran. ########
+# FC = mpif90  #compilar
+# LK = mpif90  #linker
+# FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer \
+#         -funroll-loops -ffast-math -ffixed-line-length-132  ### Compilar options
+# LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf \
+#          /usr/lib/libblas.so.3gf   ### FFT+ BLAS+LAPACK
+# ECAL   = $(HOME)/ecal     ### Root of ecal
+# BINDIR = $(HOME)/bin      ### to which "make install (and install2) copy binaries.
 
-#FC = ifort -132 -cm -w90 -w95
-# FC= ifort -132 -check bobunds -traceback !for check array bound
-#FC = f95 
-FC = mpif90
+# ##### for an intel. ########
+FC=mpiifort -heap-arrays 100 -mcmodel=medium 
+LK=mpiifort -heap-arrays 100 -mcmodel=medium 
+#FC=mpiifort -C -CB -g  -mcmodel=medium 
+#LK=mpiifort -C -CB -heap-arrays 100 -g  -mcmodel=medium 
 
-# -cm is supress all comment.
-# -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
-# See http://www.intel.com/software/products/compilers/flin/docs/ug/msg_warn.htm
+#FC = mpif90
+#LK = mpif90
+FFLAGS = -O3 -heap-arrays 100 -cpp $(CPPSWITCH_INTELLINUXIFC) -132 
+LIBMATH = -mkl
+ECAL   = $(HOME)/ecal     ### Root of ecal
+BINDIR = $(HOME)/bin3     ### to which "make install (and install2) copy binaries.
 
 
-#(2) CPP SWITCHES ###################
+
+#############################################################
+#####   you usually don't need to touch followings      #####
+#############################################################
+
+LKFLAGS2 = $(LIBMATH) 
+
+## CPP SWITCHES ###################
 CPPSWITCH_INTELLINUXIFC  = \
 -DEXPAND_ISWAP  -DEXPAND_VDV   -DCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
 -DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION     -UCOMMENTOUTfor_PARALLEL \
 -DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=1     -DEXPAND_SORTEA
 
-#CPPSWITCH_DECALPHA  = \
-#-DEXPAND_ISWAP  -DEXPAND_VDV   -UCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
-#-DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION     -UCOMMENTOUTfor_PARALLEL \
-#-DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=4     -DEXPAND_SORTEA
 
-#CPPSWITCH_SR8K = \
-#-DEXPAND_ISWAP  -DEXPAND_VDV   -UCOMMONLL  -DDUMMY_ETIME  -DEXPAND_MELPLN2 \
-#-DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION      -DCOMMENTOUTfor_PARALLEL \
-#-DMbytes_X0KBLAS_DIV=1024     -DNWORD_RECORDSIZE=1      -DEXPAND_SORTEA
-
-
-#(3) Compilar options ###################
-# 
-### INTEL FORTRAN ###
-#FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
-#FFLAGS_x   = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
-#FFLAGS=-O3 -cm -WB
-
-#FFLAGS = -O2 -xHost -WB  -cpp $(CPPSWITCH_INTELLINUXIFC) -132 
-
-
-### gfortran ###
-# Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed
-# older verion OR no -Osomething options. (only for sxcf.*.F)
-#FFLAGSg= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
-
-FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
-
-
-
-
-#
 ### Don't change para_g = .o ... below (or modify it if you know how this work) 
 #### don't need to read here #####NoteStart
 # Some groups of .f sources are compiled into .c*_o files.  (* is 1 to 4).
@@ -65,130 +51,3 @@ sxcf_g = .o     # sxcf.f
 x0kf_g = .o     # x0kf.f
 hqpe_g = .o     # hqpe.f
 tet5_g = .o
-
-
-### alpha for older compaq compilar ###
-#FFLAGS = -O4 -fast -arch host -tune host -recursive -cpp $(CPPSWITCH_DECALPHA)   # for .o
-#FFLAGS  = -K -O4 -fast -arch host -tune host -recursive -cpp $(CPPSWITCH_DECALPHA)   # for .o
-#para_g = .o     # ppbafp.f  psi2bc1.f psi2bc.f See makefile.
-#sxcf_g = .o     # sxcf.f
-#x0kf_g = .o     # x0kf.f
-#hqpe_g = .o     # hqpe.f
-#
-#### alpha compaq compilar to override the compilar bug (rather the latest compiler requires this) #######################
-#FFLAGS     = -O3 -fast -arch host -tune host -recursive -cpp $(CPPSWITCH_DECALPHA)   # for .o
-#FFLAGS_c1  = -O1 -fast -arch host -tune host -recursive -cpp $(CPPSWITCH_DECALPHA)   # for .c1_o
-#FFLAGS_c2  = 
-#FFLAGS_c3  = 
-#FFLAGS_c4  = -O4 -fast -arch host -tune host -recursive -cpp $(CPPSWITCH_DECALPHA)   # for .c4_o
-#para_g = .o        # ppbafp.f  psi2bc1.f psi2bc.f
-#sxcf_g = .c4_o     # sxcf.f
-#x0kf_g = .c4_o     # x0kf.f
-#hqpe_g = .c1_o     # hqpe.f
-#
-#
-### for sr8k ###
-#FFLAGS    = -Oss -loglist -Xpcomp -limit -noparallel -Xparmonitor  -nosave -64  -cpp $(CPPSWITCH_SR8K)
-#FFLAGS_c1 = -Oss -loglist -Xpcomp -limit -parallel -Xparmonitor -uinline=2 -nosave -64  -cpp  $(CPPSWITCH_SR8K)
-## We devide .f souces to some groups, which are compiled with the same optins to the objects with the same extentions. 
-#para_g = .c1_o  # ppbafp.f  psi2bc1.f psi2bc.f
-#x0kf_g = .c1_o  # x0kf.f
-#sxcf_g = .o     # sxcf.f
-#hqpe_g = .o     # hqpe.f
-
-
-
-#(4) BLAS + LAPACK ############
-### ATLAS BLAS
-#LIBMATH= $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-#-L$(ECAL)/BLASplusLAPACK/ATLAS/ -llapack  -lcblas -lf77blas -latlas
-#
-### Goto's BLAS; faster than ATLAS.
-#
-### See http://www.cs.utexas.edu/users/flame/goto/
-#LIBMATH= $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-#$(ECAL)/BLASplusLAPACK/GotoBLAS/xerbla.o  $(ECAL)/BLASplusLAPACK/GotoBLAS/libgoto_p4_512-r0.6.so 
-#
-## This is for multi-threaded version of GotoBlas...
-##$(ECAL)/BLASplusLAPACK/GotoBLAS/xerbla.o  $(ECAL)/BLASplusLAPACK/GotoBLAS/libgoto_p4_512p-r0.6.so 
-#
-### alpha
-#LIBMATH=-lcxml #for alpha
-#
-#for henry.eas.asu.edu (Xeon cluster)
-
-#LIBMATH= -lgoto -L/usr/local/lib/ATLAS/ -lf77blas -latlas -L/opt/intel/mkl/lib/32 -lmkl_lapack -lmkl_def -lguide -lsvml -lPEPCF90 $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a 
-
-# I had a problem in zgemm in pwmat. 
-#LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
-
-
-# it caused segmentation fault during lmf. (just after BNDFP: started).
-#LIBMATH= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
-
-# ubuntu 9.10
-#LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
-
-#LIBLOC= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
-LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-
-
-
-# centos yum install blas, yum install lapack
-#LIBLOC= -lfftw3 /usr/lib64/liblapack.so.3.0.3 /usr/lib64/libblas.a 
-
-#LIBLOC= -lfftw3   $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a 
-
-#LIBLOC= -lfftw3 -L/opt/intel/mkl/10.0.2.018/lib/em64t/lib \
-# -lmkl_lapack -lmkl_em64t  -lmkl_core 
-
-#for ubuntu thinkpadt61.
-#LIBLOC=  /usr/lib64/libfftw3.so.3.1.2 /usr/lib64/liblapack.a
-
-#/usr/lib64/libblas-3.a 
-
-#LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
-#          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
-#          /usr/lib64/atlas/libatlas.so.3 -lfftw3
-
-# rcgw handai.
-#LIBLOC= -L/opt/intel/composerxe-2011.1.107/mkl/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_intel_lp64  -lmkl_lapack95_lp64 -lmkl_sequen\
-tial -lmkl_cdft_core -lmkl_core -lpthread -L/home/fukazawa/fftw/lib/libfftw3.a
-
-LIBMATH= $(LIBLOC)
-
-
-
-
-
-
-
-# yum install atlas --> this did not work... normchk.si gave NaN
-#LIBMATH = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
-#            /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
-#            /usr/lib64/atlas/libatlas.so.3 -lfftw3
-
-
-#(5) Linker ####################
-###for linux 586
-#LKFLAGS2 = $(ECAL)/slatsm/slatsm.a  -L/usr/intel/mkl/LIB -lmkl32_lapack -lmkl32_p3  -L/usr/lib/gcc-lib/i586-redhat-linux/2.95.3 -lg2c -lpthread  
-#
-###for sr8k
-#LKFLAGS2 = $(COMMON) $(ECAL)/slatsm/slatsm.a  -lblas -llapack -lpl -parallel  -lm
-
-#LK = f95
-LK = mpif90
-#LK= ifort -parallel 
-
-LKFLAGS2 = $(LIBMATH) 
-#-Vaxlib -tpp7
-#LKFLAGS2 = $(LIBMATH) -Vaxlib -tpp7 -lpthread
-
-
-
-#(6) Root of ecal #############
-ECAL   = $(HOME)/ecal
-BINDIR = $(HOME)/bin
-

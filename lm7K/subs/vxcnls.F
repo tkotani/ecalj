@@ -61,7 +61,8 @@
      &  rdir(3,np),cy1,dydummy,drdp(nr),rmax,ddr,fac,dgr2dn(1:np),polinta,grptot(3)
       integer,parameter:: ndiv=3
 ckino delete target      real(8),target :: yl(np,nlm)
-      real(8) :: yl(np,nlm)
+c      real(8) :: yl(np,nlm)
+      real(8) :: yl(np,4)
 ckino Dec.12.2011 delete drp_drl      real(8),pointer:: drp_drl(:,:) =>NULL()
       real(8),allocatable:: dgrp_drl(:,:,:,:,:),
      &  exci(:,:),vxci(:,:,:),dvxcdgr(:,:,:),grho2_updn(:,:,:),excl(:,:),vlxc(:,:,:)
@@ -387,6 +388,7 @@ c     &  yp=dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
           enddo
         enddo
 
+c        print *,'44444444444 vxcnls'
 !! ==== Split grad r- into x,y,z- components ====
         cy1 = dsqrt(3d0/(16*datan(1d0)))
         do ip = 1, np
@@ -395,6 +397,7 @@ c     &  yp=dvxcdgr_dr(1,ip,isp) ) !radial derivarive of dvxcdgr
           rdir(3,ip)=yl(ip,3)/cy1 !z
 c        print *,' rdir**2 sum=',sum(rdir(:,ip)**2)
         enddo
+c        print *,'5555555555555 vxcnls'
 !! convert dvxcdgr ->  dvxcdgr_ilm  np to ilm representation.
         allocate( nabla_dvxcdgr(1:3,nr,np,3) )
         nabla_dvxcdgr = 0d0
@@ -735,7 +738,8 @@ C     implicit none
             double precision rp(nr,np,nsp),ggrp(nr,np,nsp),ri(1),wp(np),
      .grp(nr,np,3,nsp),agrp(ir0:ir1,np,3*nsp-2),vxcnl(nr,nlm,nsp),
      .excnl(nr,nlm),agrl(nr,nlm,nsp),gagrp(ir0:ir1,np,3,nsp),
-     .yl(np,nlm),ylwp(np,nlm),gyl(np,nlm,3),wkl(ir0:ir1,nlm,nsp),
+c     .yl(np,nlm),ylwp(np,nlm),gyl(np,nlm,3),wkl(ir0:ir1,nlm,nsp),
+     .yl(np,4),ylwp(np,nlm),gyl(np,nlm,3),wkl(ir0:ir1,nlm,nsp),
      .vxcp(ir0:ir1,np,nsp),excp(ir0:ir1,np),rl(nr,nlm,nsp),rwgt(nr),
      .sumnl(0:20)
             integer ll,ir,ip,i,nri,ilm,l,iprint,mlm,lopgfl

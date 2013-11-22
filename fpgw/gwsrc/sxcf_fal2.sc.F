@@ -347,7 +347,7 @@ c
 
       real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:),drealzzzmel(:,:,:),dimagzzzmel(:,:,:)
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzzmel(:,:,:),
-     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:),zwix(:,:,:) ,
+     &     zw (:,:), zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:),zwm(:,:),zwix(:,:) ,
      &     zwzix(:,:,:) 
       complex(8) :: wintzav,wintzsg_npm
 
@@ -1522,22 +1522,13 @@ ccccccccccccccccccccccccvariant ccccccccccccccccccccccccccccccccc
 c     zwz=0d0
 !KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstate,ntqxx
 !TIME0 
-              allocate( zwix(nblochpmx,nblochpmx,nx),stat=ierr )
+              allocate( zwix(nblochpmx,nblochpmx),stat=ierr )
               if (ierr.ne.0) then 
                  write(6,'(i3,a,i3,a,i5)')
-     &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2*nx; call flush(6) 
+     &    mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2; call flush(6) 
                  call mpi_abort()
                  call rx( '')
               endif
-               do ix=1,nx
-                  nrec=ix
-c     nrec=(kx-iqini)*niw+ix
-c     if(bzcase()==2) nrec= (kx-1)*niw+ix
-
-c                  read(ifrcwi,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
-                  read(ifrcwi,rec=nrec) zwix(:,:,ix)  ! direct access read Wc(0) = W(0) - v
-c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
-               enddo
 
 !$OMP parallel  private(zwzix) 
                write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
@@ -1550,8 +1541,12 @@ c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
                   call mpi_abort()
                   call rx( '')
                endif
+
 !$OMP do               
                do ix=1,nx
+                  nrec=ix
+                  read(ifrcwi,rec=nrec) zwix(:,:)  ! direct access read Wc(0) = W(0) - v
+c     read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! direct access read Wc(0) = W(0) - v
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c$$$                  if(sum(abs(qxx(1:2)))<1d-4) then
 c$$$                  do irot2 = 1,ngrp
@@ -1578,8 +1573,9 @@ c$$$                  call matzwz2(1,zwix(1:ngb,1:ngb,ix),zmel(1:ngb,1:nstate,nt
 c$$$     o            zwzix(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
 c$$$                  endif
 c$$$ccccccccccccccccccccccccccccccccccccccccccc
-                  call matzwz2(2, zwix(1:ngb,1:ngb,ix), zmel, ntqxx, nstate,ngb,   
-     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+                  call matzwz2(2, zwix(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
+c     o                 zwzix(1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+     o                 zwzix) ! zwz = zmel*(W(0)-v)*zmel
 
 !KINO                  write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
                   zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
