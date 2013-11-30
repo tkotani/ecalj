@@ -1,5 +1,6 @@
 #!/bin/bash
-#!/bin/bash
+n=$0
+lmdir=${n%/*}
 if [ $# -ne 1 ]; then
   echo "this is for PDOS plot. tdos.*.glt for gnuplot is generated."
   echo "Usage: >job_tdos material_id" 1>&2
@@ -14,9 +15,9 @@ cat <<EOF >SYMOPS
   0.0000000000000000E+00  0.1000000000000000E+01  0.0000000000000000E+00
   0.0000000000000000E+00  0.0000000000000000E+00  0.1000000000000000E+01
 EOF
-echo 1|qg4gw >lqg4gw_symops_e
-lmf   $ddd --pdos    |tee llmf_pdos
-lmdos $ddd --pdos    |tee llmdos_pdos
+echo 1|$lmdir/qg4gw >lqg4gw_symops_e
+$lmdir/lmf   $ddd --pdos    |tee llmf_pdos
+$lmdir/lmdos $ddd --pdos    |tee llmdos_pdos
 
 cat <<EOF
 

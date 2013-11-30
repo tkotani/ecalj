@@ -1,7 +1,9 @@
 #!/bin/bash
+n=$0
+lmdir=${n%/*}
 ddd=$1
-lmf $ddd --quit=band    |tee llmf_ef
-lmf --band:fn=syml $ddd  |tee llmf_band
+$lmdir/lmf $ddd --quit=band    |tee llmf_ef
+$lmdir/lmf --band:fn=syml $ddd  |tee llmf_band
 # -18,16 means the range to plot
 echo -18,16,15,15|plbnds -fplot -gnuplot -ef=0 -scl=13.605  $ddd
 cp  bnds.gnu bnds.gnu.${ddd}

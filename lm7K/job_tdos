@@ -1,11 +1,13 @@
 #!/bin/bash
+n=$0
+lmdir=${n%/*}
 if [ $# -ne 1 ]; then
   echo "this is for Total DOS plot. tdos.*.glt for gnuplot is generated."
   echo "Usage: >job_tdos material_id" 1>&2
   exit 1
 fi
 ddd=$1
-lmf $ddd --tdos    |tee llmf_tdos
+$lmdir/lmf $ddd --tdos    |tee llmf_tdos
 num=`head -2 dos.tot.$ddd |tail -n 1|wc -w`
 
 ufileg=tdos.${ddd}.glt
