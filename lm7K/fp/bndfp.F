@@ -415,6 +415,13 @@ ctakao
 !! computational modes
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
+#if MPIK
+      if(pdos) then
+      call mpi_finalize(ierr)
+      call rx('PDOS mode for lmf-MPIK is not yet implemented'.)
+      endif
+#endif
+
       if(cmdopt('--vbmonly',9,0,strn)) then
          print *,'--vbmonly mode'
          vol = slat%vol
@@ -680,6 +687,15 @@ C     Switch to plot bands at specified qp
         numq = 1
         allocate(ifbls_iv(ndham*nspc*2))
         ifbls_iv(:)=0
+c      elseif (cmdopt('--fermisurface',14,0,strn)) then
+c        plbnd = 1
+c        plbopt = strn(7:)
+c        lrout = 0
+c        lfrce = 0
+c        nkp = 0
+c        numq = 1
+c        allocate(ifbls_iv(ndham*nspc*2))
+c        ifbls_iv(:)=0
       else
         plbnd = 0
       endif
@@ -1041,13 +1057,34 @@ C       Re-allocate qp and evl arrays
 
         call info2(20,1,1,
      .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
+
+!! fermi surface version for xcrysden
+c$$$          if(cmdopt('--fermisurface',14,0,strn)) then
+c$$$             read(strn(14:),*,error=1038) nkk1,nkk2,nkk3
+c$$$             nkp = nkk1*nkk2*nkk3
+c$$$             iq=0
+c$$$ http://www.xcrysden.org/doc/XSF.html#2l.16
+c$$$             do ik1=1,nkk1
+c$$$             do ik2=1,nkk2
+c$$$             do ik3=1,nkk3
+c$$$                      iq=iq+1
+c$$$                      qp(:,iq)= qlat(:,1)*ik1/nkk1
+c$$$     &                      +   qlat(:,2)*ik2/nkk2
+c$$$     &                      +   qlat(:,3)*ik3/nkk3
+c$$$             enddo
+c$$$             enddo
+c$$$             enddo
+c$$$             goto 198
+c$$$ 1038     call rx('read error of --fermisurface divisions. need three numbers after --fermisurface')
+c$$$          endif
+
+ckino2012Oct15 comment loop_start-----------------
 C       Loop through all qp; accumulate vector of qp.
 C       Use i2 in place of nkp to preserve nkp
         if (procid .eq. master) then
 C       iq = running index to big qp list, i1 = index to current line
           iq = 0
           i2 = 0
-ckino2012Oct15 comment loop_start-----------------
   199     continue
           i = 1
           call pshpr(0)
@@ -1068,6 +1105,7 @@ ckino2012Oct15 comment loop_start-----------------
             if (i .ne. 3) goto 199
           endif
 ckino2012Oct15 comment loop_end-----------------
+ 198      continue
         endif
         call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 #endif
@@ -1212,24 +1250,37 @@ c     lwsig=0
                write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
             endif   
             if (ldim .ne. ndham) then !june2009 takao
-               write(6,"(a,2i5)")" --- ndham (>=maxinum of ham dimension) =",ndham
+             write(6,"(a,2i5)")" --- ndham (>=max of ham dimension) =",ndham
             endif
 
 !! sfz is the self-energy roteted in the full BZ.
 ! ndham is removed sep2012 (read from sigma file )
-            call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, 
+cccccccccccccccccccccccccccccccccc
+            if(.not.pdos) then
+              print *,'rrrrrrrrrr goto rdsigm2 rrrrrrrrrrrr'
+              call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, 
      &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
+            endif   
             call fclose(ifi)
             if(.not.cmdopt('--no-wsig_fbz',13,0,strn).and.oncewrite(10)) then
                write(6,*)' write sigm_fbz in full bz'
                ifis2 = fopna('sigm_fbz',-1,4)
-               write(ifis2) nsp,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+               if(pdos) then
+                 read(ifis2) nsp,ndimsig,nk1,nk2,nk3
+               else  
+                 write(ifis2) nsp,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+               endif  
                do is=1,nsp
                   do ik1=1,nk1
                      do ik2=1,nk2
                         do ik3=1,nk3
-                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3)
-                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is),0
+                           if(pdos) then
+                           read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
+                           read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+                           else
+                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
+                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+                           endif
                         enddo
                      enddo
                   enddo
@@ -2204,6 +2255,36 @@ C     Allreduce qkkl
       if (plbnd .ne. 0) then
          call info0(20,1,0,' Writing bands to bands file (MPIK) ...')
          if (procid .eq. master) then
+cccccccccccccccccccccccccccccccccccccccccccccccc
+c            if(cmdopt('--fermisurface',14,0,strn)) then
+c               i=nsp
+c               if(nspc==2) i=1
+c               do isp=1,i
+c               if(isp==1) open(ifi, file='fermiup.bxsf')
+c               if(isp==2) open(ifi, file='fermidn.bxsf')
+c               write(ifi,*) "BEGIN_INFO"
+c               write(ifi,'(a,f9.5)') "  Fermi Energy:",ef0
+c               write(ifi,*) "END_INFO"
+c               write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
+c               write(ifi,*)"  this is for xcrysden"
+c               write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
+c               write(ifi,*) ndham
+c               write(ifi,*) nkk1,nkk2,nkk3
+c               write(ifi,*) 0,0,0
+c               write(ifi,3(f9.5,1x))*) qlat(:,1)
+c               write(ifi,3(f9.5,1x))*) qlat(:,2)
+c               write(ifi,3(f9.5,1x))*) qlat(:,3)
+c               do ikp=1,nkp   
+c                 write(ifi,*)"BAND: ",ikp           
+c                 write(ifi,"(10(f9.5,1x))")(evlall(ib,isp,ikp)),ib=1,ndham)
+c               enddo
+c                 write(ifi,*)
+c               enddo
+c               write(ifi,*)"  END_BANDGRID_3D"
+c               write(ifi,*)"END_BLOCK_BANDGRID_3D"
+c               call rx0('done --fermisurface')
+c            endif     
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!     iq = running index to big qp list, i1 = index to current line
             iq = 0
             i2 = 0

@@ -766,7 +766,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          call rx( 'hqpe: v_xc is not hermitean')
             enddo
           enddo
-          write(ifse_out) qqq(1:3,ikpx,is) !,eseavr(ip,is) !,ntqxxmin ! ntqxx(ip)  sep2013
+          write(ifse_out) qqq(1:3,ikpx,is),is !,eseavr(ip,is) !,ntqxxmin ! ntqxx(ip)  sep2013
 
 c     sigma_mixing = .false.
 c     if (sigma_mixing) then
@@ -912,7 +912,7 @@ c     enddo !ikp
      i              qx(1:3,1,ip),           
      i              anfvec, ibasf, ! these are antiferro informations.
      i              sigmv(1:ndimsig2,1:ndimsig2,ip)) ! i/o
-            write(ifse_out) qx(1:3,1,ip) !,eseavr(ip,is) !june2009 add eseavr
+            write(ifse_out) qx(1:3,1,ip),is !,eseavr(ip,is) !june2009 add eseavr
             write(ifse_out) sigmv(:,:,ip)
           enddo
         endif
@@ -1001,9 +1001,9 @@ C----------------------------------------------------------------------
       if(ifs<0) write(-ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
       do is=1,nspin
         do ip=1,nq
-          if(ifs>0) read (ifs)  qqqx_m(1:3,ip,is) !,eseavr(ip,is)
+          if(ifs>0) read (ifs)  qqqx_m(1:3,ip,is)!,isr !,eseavr(ip,is)
           if(ifs>0) read (ifs)  sigma_m(1:ntq,1:ntq,ip,is)
-          if(ifs<0) write(-ifs) qqqx_m(1:3,ip,is) !,eseavr(ip,is)
+          if(ifs<0) write(-ifs) qqqx_m(1:3,ip,is),is !,eseavr(ip,is)
           if(ifs<0) write(-ifs) sigma_m(1:ntq,1:ntq,ip,is)
           write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
         enddo
@@ -1022,8 +1022,8 @@ c
       if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
       do is=1,nspin
         do ip=1,nq
-          if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is)!,eseavr(ip,is)
-          if(ifs<0) write(-ifs,"(3d24.16)") qqqx_m(1:3,ip,is)!,eseavr(ip,is)
+          if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is) !,isr!,eseavr(ip,is)
+          if(ifs<0) write(-ifs,"(3d24.16)") qqqx_m(1:3,ip,is),is!,eseavr(ip,is)
           do j=1,ntq
             do i=1,ntq
               if(ifs>0) read (ifs,"(2d24.16)")  sigma_m(i,j,ip,is)

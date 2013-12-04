@@ -1,12 +1,18 @@
 #!/bin/bash
+# if [ $# -ne 3 ]; then
+#   echo "this is for Total DOS plot. tdos.*.glt for gnuplot is generated."
+#   echo "Usage: >job_tdos material_id -np 4" 1>&2
+#   exit 1
+# fi
+# MPI_SIZE=1
+# if [ $2 != "-np" ]; then
+#   echo "An example of usage: job_band_nspin1 si -np 4"
+# else
+#   MPI_SIZE=$3
+# fi
+# echo $MPI_SIZE
 n=$0
 lmdir=${n%/*}
-if [ $# -ne 1 ]; then
-  echo "this is for PDOS plot. tdos.*.glt for gnuplot is generated."
-  echo "Usage: >job_tdos material_id" 1>&2
-  exit 1
-fi
-
 ddd=$1
 cat <<EOF >SYMOPS
           1
@@ -16,8 +22,9 @@ cat <<EOF >SYMOPS
   0.0000000000000000E+00  0.0000000000000000E+00  0.1000000000000000E+01
 EOF
 echo 1|$lmdir/qg4gw >lqg4gw_symops_e
-$lmdir/lmf   $ddd --pdos    |tee llmf_pdos
-$lmdir/lmdos $ddd --pdos    |tee llmdos_pdos
+#mpirun -np $MPI_SIZE $lmdir/lmf-MPIK   $ddd --pdos    |tee llmf_pdos
+$lmdir/lmf $ddd --pdos    |tee llmf_pdos
+$lmdir/lmdos $ddd --pdos  |tee llmdos_pdos
 
 cat <<EOF
 

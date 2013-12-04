@@ -1281,7 +1281,7 @@ C.....titus
 
 ccccccccccccccccccccccccccccccccc
       real(8):: qsfz(3,*)
-      integer:: ii1,ii2,ii4
+      integer:: ii1,ii2,ii4,ispr
       sfz=1d99
 
 C     --- Read sigma(orbital basis) from file ---
@@ -1418,38 +1418,41 @@ C     If to mix in some other sigma file, set up ifis2
 
 !! we now not expect ordered data on qp feb2013
           do  iq1 = 1, nqps
-             do ix=0,1
+
+            do ix=0,1
                 do 
-                   read(ifis,end=468) qp 
+                   read(ifis,end=468) qp, ispr  ! ispr is added dec2013
                    call dpdump ( sigm_zv , ndimsig_r * * 2 * 2 , ifis )
                    call dpscop(qp,tmp,3,1,1,1d0)
                    call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
-                   if (latvec(1,tolq,plat,tmp)) goto 460
+cbug               if (latvec(1,tolq,plat,tmp)) goto 460               ! bug before dec2013
+                   if (latvec(1,tolq,plat,tmp).and.isp==ispr) goto 460 ! bugfix isp==ispr dec2013
                 enddo
  468            continue
                 rewind ifis
                 read(ifis)
-             enddo
+            enddo
 !! error exit
             call dpscop(qp,tmp,3,1,1,1d0)
             call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
 c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
             !tmp= qp - w((oqp(3*(iq1-1)+1:3*(iq1-1)+3))+qoffi)
 c            if (.not. latvec(1,tolq,plat,tmp)) then
-              call dpscop ( qp_rv , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
-              if (lssym .ge. 4) then
+            call dpscop ( qp_rv , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
+            if (lssym .ge. 4) then
                 call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .          'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
                 call dpscop(tmp,qp,3,1,1,1d0)
-              else
+             else
                 print 456, iq1,tmp,qp
   456           format(' rdsigm: error on reading qp no',i4/
-     .          ' Expected qp=',3f12.6/
-     .          '     File qp=',3f12.6)
-                call rx(' incompatible q-mesh')
-              endif
-c            endif
+     .          ' Expected qp=',3f12.6,'     File qp=',3f12.6)
+                call rx(' rdsigm2: incompatible q-mesh')
+             endif
+             call rx(' rdsigm2: read error of rdsigm2 -------')
+cc            endif
  460       continue
+
 
 c ... scalced sigm. alf(1:2)
             if (alf(1) .ne. 1d0) then
@@ -1467,13 +1470,14 @@ C       call zprm('sigm',2,w(osigm),ndimsig_r,ndimsig_r,ndimsig_r)
             endif
 c            print *,'ikt qp mtosigmalnly napw_in=',ikt,qp,mtosigmaonly, napw_in
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c            ii1=mod(iq1,2)+1
-c            ii2=mod(iq1/2,2)+1
-c            ii4=mod(iq1/4,2)+1
-c            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
-c            sfz(ii4,ii2,ii1,1:ndimsig_r,1:ndimsig_r,isp)= sigm_zv(:,:)
-c            qsfz(:,iq1)=qp
-c            cycle
+c$$$            ii1=mod(iq1,8)+1
+c$$$            ii2=mod(iq1/2,8)+1
+c$$$            ii4=mod(iq1/4,8)+1
+c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
+c$$$c            sfz(ii4,ii2,ii1,1:ndimsig_r,1:ndimsig_r,isp)= sigm_zv(:,:)
+c$$$            sfz(ii4,ii2,ii1,1:ndimsig,1:ndimsig,isp)= sigm_zv(:,:)
+c$$$            qsfz(:,iq1)=qp
+c$$$            cycle
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c            write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp

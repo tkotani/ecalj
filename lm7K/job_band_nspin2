@@ -1,12 +1,19 @@
 #!/bin/bash
+MPI_SIZE=1
+if [ $2 != "-np" ]; then
+  echo "An example of usage: job_band_nspin1 si -np 4"
+else
+  MPI_SIZE=$3
+fi
+echo $MPI_SIZE
 ddd=$1
 n=$0
 lmdir=${n%/*}
 rm -rf wkp.$ddd
 echo $lmdir
 ### next is to determine the fermi energy. Not needed but safer ###
-$lmdir/lmf $ddd --quit=band    |tee llmf_ef
-$lmdir/lmf --band:fn=syml $ddd  |tee llmf_band
+mpirun -np $lmdir/lmf-MPIK $ddd --quit=band    |tee llmf_ef
+mpirun -np $lmdir/lmf-MPIK --band:fn=syml $ddd  |tee llmf_band
 
 ### We get bnds.fe which contains eigenvalues and the fermi energy.
 

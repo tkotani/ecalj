@@ -271,7 +271,7 @@ Here is very minimum.
 NOTE: If you like to skip them,  run ./job_materials.py Si at /home/takao/ecalj/MATERIALS.
  >cd Si
  >cp ../syml.si
- >job_band1 si
+ >job_band_nspin1 si
 This shows you band by LDA.
 
 (4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si.

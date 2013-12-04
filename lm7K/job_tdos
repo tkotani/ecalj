@@ -1,13 +1,20 @@
 #!/bin/bash
-n=$0
-lmdir=${n%/*}
-if [ $# -ne 1 ]; then
+if [ $# -ne 3 ]; then
   echo "this is for Total DOS plot. tdos.*.glt for gnuplot is generated."
-  echo "Usage: >job_tdos material_id" 1>&2
+  echo "Usage: >job_tdos material_id -np 4" 1>&2
   exit 1
 fi
+MPI_SIZE=1
+if [ $2 != "-np" ]; then
+  echo "An example of usage: job_tdos si -np 4"
+else
+  MPI_SIZE=$3
+fi
+echo $MPI_SIZE
+n=$0
+lmdir=${n%/*}
 ddd=$1
-$lmdir/lmf $ddd --tdos    |tee llmf_tdos
+mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --tdos    |tee llmf_tdos
 num=`head -2 dos.tot.$ddd |tail -n 1|wc -w`
 
 ufileg=tdos.${ddd}.glt

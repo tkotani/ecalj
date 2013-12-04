@@ -25,8 +25,8 @@ Co   gfbz  : For those qp in star iq, hq stored
 C ----------------------------------------------------------------------
       implicit none
       integer:: nk1,nk2,nk3,k1,k2,k3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in,debugmode
-      real(8)::    hq(ndimh,ndimh),qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
-      complex(8):: gfbz(k1,k2,k3,ldima,ldimb)
+      real(8)::    qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
+      complex(8):: hq(ndimh,ndimh),gfbz(k1,k2,k3,ldima,ldimb)
       integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim
       real(8):: q1(3),qk
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
@@ -55,8 +55,8 @@ c        write(6,"(3f10.5)")symops(3,:,ig)
         if(debugmode()>0) write(6,"(a,3f13.5)")' target a        q1 = ', q1   ! qin = g(:,:,ig)^{-1}*q1
 c        write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
 c       write(6,"(a,3f13.5)")
-c            call rotsig(qin,q1,ndimh,napw_in,plat,qlat,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
             call rotsig(qin,q1,ndimh,napw_in,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
+ccc            gfbz(i1,i2,i3,:,:)=hq
           enddo
         enddo
       enddo
