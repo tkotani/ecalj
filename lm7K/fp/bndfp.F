@@ -407,6 +407,11 @@ ctakao
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),vadd
 
+      logical:: fsmode !for --fermisurface for xcrysden.
+      integer:: nkk1,nkk2,nkk3 !for fermi surface mode for xcrysden.
+                               ! add --fermisurface #1 #2 #3
+                               ! only implemented for lmf-MPIK now.
+      integer:: ini,iend,nbxx
       call tcn ('bndfp')
 !! === MPI setup ===
       procid = mpipid(1)
@@ -415,10 +420,30 @@ ctakao
 !! computational modes
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
+!! fermi surfece mode for xcrysden http://www.xcrysden.org/doc/XSF.html#2l.16
+      fsmode=cmdopt('--fermisurface',14,0,strn)
+      if(fsmode) then
+         nkk1=sbz%nkabc(1)
+         nkk2=sbz%nkabc(2)
+         nkk3=sbz%nkabc(3)
+      endif   
+c$$$!!  Example. --fermisurface:#1,#2,#3
+c$$$        ini=15+1  ; iend=ini+index(strn(ini:),',')-1 !position of ','
+c$$$        read(strn(ini:iend-1),*,err=1038) nkk1 !#1
+c$$$        ini=iend+1; iend=ini+index(strn(ini:),',')-1
+c$$$        read(strn(ini:iend-1),*,err=1038) nkk2
+c$$$        ini=iend+1 
+c$$$        read(strn(ini:),*,err=1038) nkk3
+c$$$        print *,' --fermisurface mode: nkk1 nkk2 nkk3=',nkk1,nkk2,nkk3
+c$$$        goto 1039
+c$$$ 1038   call rx('--fermisurface: needs three following numbers(divided by ,)')
+c$$$      endif
+c$$$ 1039 continue
+
 #if MPIK
       if(pdos) then
       call mpi_finalize(ierr)
-      call rx('PDOS mode for lmf-MPIK is not yet implemented'.)
+      call rx('PDOS mode for lmf-MPIK is not yet implemented.')
       endif
 #endif
 
@@ -678,7 +703,7 @@ C     Always need DOS if just sampling
       alfa = 0
 
 C     Switch to plot bands at specified qp
-      if (cmdopt('--band',6,0,strn)) then
+      if (cmdopt('--band',6,0,strn).or.fsmode) then
         plbnd = 1
         plbopt = strn(7:)
         lrout = 0
@@ -687,15 +712,6 @@ C     Switch to plot bands at specified qp
         numq = 1
         allocate(ifbls_iv(ndham*nspc*2))
         ifbls_iv(:)=0
-c      elseif (cmdopt('--fermisurface',14,0,strn)) then
-c        plbnd = 1
-c        plbopt = strn(7:)
-c        lrout = 0
-c        lfrce = 0
-c        nkp = 0
-c        numq = 1
-c        allocate(ifbls_iv(ndham*nspc*2))
-c        ifbls_iv(:)=0
       else
         plbnd = 0
       endif
@@ -1005,7 +1021,10 @@ ckino plotting wavefunction
         if (allocated(listwf))  deallocate(listwf)
         allocate(listwf(ndham))
         n_listwf=ndham; listwf=0
-        if (procid .eq. master) then
+        if (procid .eq. master.and. fsmode) then
+           nkp = nkk1*nkk2*nkk3
+           n_listwf=0
+        elseif (procid .eq. master) then
           write(*,*) 'calling suqlst'
           call suqlst ( plbopt , iopq , ndhamx , ef0 , i , iwdummy , nfbn 
      .     , ifbls_iv , nkp , qp , onesp )
@@ -1045,39 +1064,39 @@ ckino plotting wavefunction
 
 C MPIK: Setup to assemble all k-points into single list with qp table
 #if MPIK
+        if(debug) print *,'vvvvv aa111'
         if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
           call rx('Cannot use color weights with MPIK')
         endif
-
         call suqlsm(i)
-C       Re-allocate qp and evl arrays
+
+!!       Re-allocate qp and evl arrays
+        if(debug) print *,'vvvvv aa222'
         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
         allocate(sbz%rv_p_oqp(3*nkp))
         sbz%rv_p_oqp(:)=0.0d0
 
-        call info2(20,1,1,
-     .  ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
+        if(debug) print *,'vvvvv aa333'
 
-!! fermi surface version for xcrysden
-c$$$          if(cmdopt('--fermisurface',14,0,strn)) then
-c$$$             read(strn(14:),*,error=1038) nkk1,nkk2,nkk3
-c$$$             nkp = nkk1*nkk2*nkk3
-c$$$             iq=0
-c$$$ http://www.xcrysden.org/doc/XSF.html#2l.16
-c$$$             do ik1=1,nkk1
-c$$$             do ik2=1,nkk2
-c$$$             do ik3=1,nkk3
-c$$$                      iq=iq+1
-c$$$                      qp(:,iq)= qlat(:,1)*ik1/nkk1
-c$$$     &                      +   qlat(:,2)*ik2/nkk2
-c$$$     &                      +   qlat(:,3)*ik3/nkk3
-c$$$             enddo
-c$$$             enddo
-c$$$             enddo
-c$$$             goto 198
-c$$$ 1038     call rx('read error of --fermisurface divisions. need three numbers after --fermisurface')
-c$$$          endif
+        call info2(20,1,1,' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
+        call info2(20,1,1,' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
 
+!! Fermi surface version for xcrysden
+        if(fsmode) then
+           iq=0
+           do ik1=1,nkk1
+              do ik2=1,nkk2
+                 do ik3=1,nkk3
+                    iq=iq+1
+                    qp    =  qlat(:,1)*dble(ik1-1)/(nkk1-1)
+     &                   +   qlat(:,2)*dble(ik2-1)/(nkk2-1)
+     &                   +   qlat(:,3)*dble(ik3-1)/(nkk3-1)
+                    call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                 enddo
+              enddo
+           enddo
+           goto 198
+        endif
 ckino2012Oct15 comment loop_start-----------------
 C       Loop through all qp; accumulate vector of qp.
 C       Use i2 in place of nkp to preserve nkp
@@ -1105,8 +1124,8 @@ C       iq = running index to big qp list, i1 = index to current line
             if (i .ne. 3) goto 199
           endif
 ckino2012Oct15 comment loop_end-----------------
- 198      continue
         endif
+ 198    continue
         call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 #endif
       endif
@@ -2259,42 +2278,56 @@ C     Allreduce qkkl
 !!dec2013 --------------------------------
           if(fsmom/=NULLR) then
             ifimag=9058
-            if(nexist) stop 'mmm: ifimag is used already (too sloppy manner ; fix this). '
+            inquire(unit=ifimag,opened=nexist)
+            if(nexist)stop'mmm1:ifimag used already (fix this). '
             open(ifimag,file='MagField',status='unknown')
             read(ifimag,*) vnow
             close(ifimag)
           endif
+!! fermi surface mode
+          if(fsmode) then
+             i=nsp
+             if(nspc==2) i=1
+             do isp=1,i
+                if(isp==1) open(ifi, file='fermiup.bxsf')
+                if(isp==2) open(ifi, file='fermidn.bxsf')
+                write(ifi,*) "BEGIN_INFO"
+                write(ifi,*) " # usage xcrysden --bxsf fermiup.bxsf"
+                write(ifi,*) " # http://www.xcrysden.org/doc/XSF.html#2l.16"
+                write(ifi,'(a,f9.5)') "  Fermi Energy:",ef0
+                write(ifi,*) "END_INFO"
+                write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
+                write(ifi,*)"  this_is_for_xcrysden"
+                write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
+                nbxx=0
+                do ib=1,ndham 
+                   if(minval(evlall(ib,isp,:))<ef0+0.5.and.
+     &                maxval(evlall(ib,isp,:))>ef0-0.5) then
+                     nbxx=nbxx+1
+                   endif  
+                enddo
+                write(ifi,"(4x,i8)") nbxx
+                write(ifi,"(4x,3i8)") nkk1,nkk2,nkk3
+                write(ifi,"(4x,3(f9.5,1x))") 0d0,0d0,0d0
+                write(ifi,"(4x,3(f9.5,1x))") qlat(:,1)
+                write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
+                write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
+                do ib=1,ndham 
+                   if(minval(evlall(ib,isp,:))<ef0+0.5.and.
+     &                maxval(evlall(ib,isp,:))>ef0-0.5) then
+                     write(ifi,"(a,i8)")"  BAND: ",ib    
+                     write(ifi,"(3x,10(x,f9.5))")
+     &                  (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
+                   endif  
+                enddo
+                write(ifi,*)
+               write(ifi,*)"  END_BANDGRID_3D"
+               write(ifi,*)"END_BLOCK_BANDGRID_3D"
+             enddo
+             close(ifi)
+             call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+          endif     
 
-cccccccccccccccccccccccccccccccccccccccccccccccc
-c            if(cmdopt('--fermisurface',14,0,strn)) then
-c               i=nsp
-c               if(nspc==2) i=1
-c               do isp=1,i
-c               if(isp==1) open(ifi, file='fermiup.bxsf')
-c               if(isp==2) open(ifi, file='fermidn.bxsf')
-c               write(ifi,*) "BEGIN_INFO"
-c               write(ifi,'(a,f9.5)') "  Fermi Energy:",ef0
-c               write(ifi,*) "END_INFO"
-c               write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
-c               write(ifi,*)"  this is for xcrysden"
-c               write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
-c               write(ifi,*) ndham
-c               write(ifi,*) nkk1,nkk2,nkk3
-c               write(ifi,*) 0,0,0
-c               write(ifi,3(f9.5,1x))*) qlat(:,1)
-c               write(ifi,3(f9.5,1x))*) qlat(:,2)
-c               write(ifi,3(f9.5,1x))*) qlat(:,3)
-c               do ikp=1,nkp   
-c                 write(ifi,*)"BAND: ",ikp           
-c                 write(ifi,"(10(f9.5,1x))")(evlall(ib,isp,ikp)),ib=1,ndham)
-c               enddo
-c                 write(ifi,*)
-c               enddo
-c               write(ifi,*)"  END_BANDGRID_3D"
-c               write(ifi,*)"END_BLOCK_BANDGRID_3D"
-c               call rx0('done --fermisurface')
-c            endif     
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!     iq = running index to big qp list, i1 = index to current line
             iq = 0
             i2 = 0
@@ -2607,8 +2640,9 @@ ckino       maybe a switch for these is lmet.ne.0
 
 !! june2013 magfield is added
           if(fsmom/=NULLR.and.procid .eq. master) then
+          ifimag=9058
           inquire(unit=ifimag,opened=nexist)
-          if(nexist) stop 'mmm: ifimag is used already (too sloppy manner ; fix this). '
+          if(nexist)stop'mmm2: ifimag used already(poor implementation;fix this). '
           open(ifimag,file='MagField',status='unknown')
           write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
           close(ifimag)

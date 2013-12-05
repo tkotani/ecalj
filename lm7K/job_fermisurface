@@ -1,0 +1,29 @@
+#!/bin/bash
+MPI_SIZE=1
+if [ $# != 6 ]; then
+  echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
+  echo "Here 10 10 10 means number of divisions along qlat."
+  echo "When this ends, you obtain fermiup(dn).bxsf "
+  exit
+elif [ $2 != "-np" ]; then
+  echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
+  exit
+else
+  MPI_SIZE=$3
+fi
+echo $MPI_SIZE
+ddd=$1
+n=$0
+lmdir=${n%/*}
+echo 'determine fermi surface'
+mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --quit=band    -vnk1=$4 -vnk2=$5 -vnk3=$6 >& llmf_ef
+echo 'going to determine fermi surface'
+nkk1=$(($4 +1))
+nkk2=$(($5 +1))
+nkk3=$(($6 +1))
+echo 'going to calculated eigenalue on general grid for xcrysden ', $nkk1,$nkk2,$nkk3
+mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --fermisurface -pr45 -vnk1=$nkk1 -vnk2=$nkk2 -vnk3=$nkk3 >& llmf_fs
+echo 'OK! We got fermiup.bxsf (fermidn.bxsf) for ' ${ddd}
+echo 'Run $xcrysden --bxsf fermiup.bxsf'
+echo 'NOTE: current ersion do not use crystal symmetry... So it can be too time-consuming although k-paralell works.'
+

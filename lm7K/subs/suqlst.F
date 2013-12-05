@@ -196,7 +196,7 @@ C --- First call ... setup and parse options ---
 C   ... Defaults
         fmlong = .false.
         mode = 1
-        fn = 'qp'
+        fn = 'syml'
         nblst = 0
         nevn = 0
         evmxn = -99d9
