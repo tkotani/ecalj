@@ -405,7 +405,7 @@ ctakao
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
-      real(8):: rlatp(3,3),xmx2(3)
+      real(8):: rlatp(3,3),xmx2(3),vadd
 
       call tcn ('bndfp')
 !! === MPI setup ===
@@ -2255,6 +2255,16 @@ C     Allreduce qkkl
       if (plbnd .ne. 0) then
          call info0(20,1,0,' Writing bands to bands file (MPIK) ...')
          if (procid .eq. master) then
+
+!!dec2013 --------------------------------
+          if(fsmom/=NULLR) then
+            ifimag=9058
+            if(nexist) stop 'mmm: ifimag is used already (too sloppy manner ; fix this). '
+            open(ifimag,file='MagField',status='unknown')
+            read(ifimag,*) vnow
+            close(ifimag)
+          endif
+
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c            if(cmdopt('--fermisurface',14,0,strn)) then
 c               i=nsp
@@ -2300,7 +2310,7 @@ c     qp=qplist(:,iq)
                   call suqlst(plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
                   do  isp = 1, nsp
                      ispc = min(isp,nspc)
-C     jsp=isp in the collinear case; jsp=1 in the noncollinear
+C     jsp=isp in the collinear case; jsp=1 in the SO (offdiagonal for spin included).
 C     Thus jsp should be used in place of isp
 C     isp serves as a flag for the noncollinear case
                      if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
@@ -2313,18 +2323,24 @@ C     isp serves as a flag for the noncollinear case
                         i = nsp
                         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
                         print *,'nevls(iq,jsp)=',iq,jsp,nevls(iq,jsp)
-                        call suqlsw2(nevls(iq,jsp),jsp,i,evlall(1,jsp,iq),qp)
+                        if(fsmom/=NULLR) then
+                          if(jsp==1) vadd=-vnow/2d0
+                          if(jsp==2) vadd= vnow/2d0
+                        else
+                           vadd=0d0
+                        endif   
+                        call suqlsw2(nevls(iq,jsp),jsp,i,evlall(:,jsp,iq)+vadd,qp)
                      endif
                   enddo         ! isp
                enddo            ! i1
                if (i .ne. 3) goto 299
             endif 
          endif
+         if(fsmom/=NULLR) write(6,"(a,f10.6)") 
+     &   'NOTE:fsmom on -> read MagField. '//
+     &   'We added -vnow/2(for isp=1) +vnow/2(for isp=2) to evl. vnow=',vnow
          call rx0('done')
       endif
-
-
-
 
 !! ===   Repeat loop for printout.  Put evals back into local array ===
       do  iq = 1, nkp
