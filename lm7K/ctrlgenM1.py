@@ -86,7 +86,7 @@ Kr= "  atomz=36@ pz='PZ=5.3,5.3'@  eh=-1*4@ eh2=-2*3@                 R=1.88@"
 #Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
 Rb  =" atomz=37@ pz='PZ=0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.00@"
 Sr  =" atomz=38@ pz='#PZ=0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
-Y   =" atomz=39@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
+Y   =" atomz=39@ pz=''@ p='PZ=0,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
 Zr  =" atomz=40@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@"
 Nb  =" atomz=41@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 
 Mo  =" atomz=42@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 

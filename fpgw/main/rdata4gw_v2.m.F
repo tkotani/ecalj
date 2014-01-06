@@ -522,7 +522,7 @@ c     nword = 4
       mrecb = 2*ldim2*nband *ndble/nword()
       mrece = nband         *ndble/nword()
       mrecg = 2*ngpmx*nband *ndble/nword()
-      write(ifhbed,"(1x,i3,6i8)") ndble,mrecb,mrece,ldim2,nqbz,nband,mrecg
+      write(ifhbed,"(1x,i3,6i12)") ndble,mrecb,mrece,ldim2,nqbz,nband,mrecg
       write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nband mrecg'
       close(ifhbed)
 
