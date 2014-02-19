@@ -1,7 +1,13 @@
 #!/bin/bash
 MPI_SIZE=1
+#echo $# 
+if [ $#  != 3 ]; then
+  echo "An example of usage: job_band_nspin1 si -np 4"
+  exit
+fi
 if [ $2 != "-np" ]; then
   echo "An example of usage: job_band_nspin1 si -np 4"
+  exit
 else
   MPI_SIZE=$3
 fi
