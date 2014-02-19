@@ -21,7 +21,7 @@ LK=mpiifort -heap-arrays 100 -mcmodel=medium
 FFLAGS = -O3 -heap-arrays 100 -cpp $(CPPSWITCH_INTELLINUXIFC) -132 
 LIBMATH = -mkl
 ECAL   = $(HOME)/ecal     ### Root of ecal
-BINDIR = $(HOME)/bin     ### to which "make install (and install2) copy binaries.
+BINDIR = $(HOME)/bin   ### to which "make install (and install2) copy binaries.
 
 
 

@@ -2012,6 +2012,15 @@ c     read(ifrcw,rec=((kx-2)*nw+ix)) zw
                   nrec= ix-nw_i+1
 c     nrec=(kx-iqini)*(nw+1-nw_i) + ix-nw_i+1
 c     if(bzcase()==2) nrec=(kx-1)*(nw+1-nw_i) + ix-nw_i+1
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c!!!!!!!!!!!!!! for W0test !!!!!!!!!!!!!!!!
+c                  nrec=1 - nw_i !at omega=0
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
                   read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
 
 

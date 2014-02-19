@@ -47,8 +47,8 @@ errsum = compareqpu(qpu1,qpu2, printsw)
 #errsum = compareqpu(qpu1,qpu2, printsw=0)
 	
 	
-if(errsum<2e-2):
-	print '   Comparison OK!  Difference sum=',errsum,' <2e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
+if(errsum<4e-2):
+	print '   Comparison OK!  Difference sum=',errsum,' <4e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
 	sys.exit()
 else:
 	errsum = compareqpu(qpu1,qpu2, printsw=1)

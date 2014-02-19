@@ -1,4 +1,5 @@
 #define GNUPLOT 1
+c$$$ special for mass of LaMnO3 is added on jan2012, but commented out. with c$$$
       program plbnds
 C- Band plotter using bnds file in standard format for lmto programs.
 C ----------------------------------------------------------------------
@@ -17,8 +18,8 @@ C ----------------------------------------------------------------------
       integer nqmx,maxlin,louts,nouts
       parameter(nqmx=4500, maxlin=50, louts=140, nouts=80 )
       double precision xline(0:maxlin),xdum(2),ydum(2)
-      double precision xq(0:nqmx),eq(nqmx)
-      real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:)
+      double precision xq(0:nqmx),eq(nqmx),dmass,polinta,kef,aotpi
+      real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:),diffeb(:)
       double precision dq,emin,ebot,ebotb,etopb,emax,htcm,
      .etik,xmin,xmax,ql1,ql2,ql3,e,h,x,q1,q2,q3,eferm,efermm,widcm,
      .etop,xq0,efnew,scl,syma(4),clip(4),fgs(0:3),sgs(0:4),qm1,qm2,
@@ -42,7 +43,6 @@ C Heap allocation
       integer fontsz
       integer fopna,fopnx,lgcmd,fopng,lenf,awrite
       integer iarg
-
 #ifdef GNUPLOT
       character(3):: str='' 
       real(8):: dx =0.0d0
@@ -230,7 +230,8 @@ C       For color weights, icolwt must be a positive integer
       endif
 
 C#ifdef F90
-      allocate(eb(nbf,nqmx),eb2(nbf))
+      allocate(eb(nbf,nqmx),eb2(nbf),diffeb(nqmx))
+      diffeb=0d0
       if (icolwt .ne. 0) then
         allocate(ebw(nbf,nqmx,icolwt),ebw2(nbf,icolwt))
       endif
@@ -596,6 +597,20 @@ C         Write out bands and optional weights
 C#ifdef GNUPLOT
           if (lgnuplot)then
             do ib=ib1,ib2
+c$$$cccccccccccccccccccc
+c$$$ special for mass of LaMnO3
+c$$$              diffeb=0d0
+c$$$              do iq=1+nq1+1, nql(iline)+nq1-1
+c$$$                diffeb(iq) = (eb(ib,iq+1)-eb(ib,iq-1))/(xq(iq+1)-xq(iq-1))/13.605d0
+c$$$              enddo
+c$$$              dmass=-1d10
+c$$$              if(maxval(eb(ib,1+nq1+1:nql(iline)+nq1-1))>0d0 .and.
+c$$$     &           minval(eb(ib,1+nq1+1:nql(iline)+nq1-1))<0d0) then
+c$$$                dmass=polinta(0d0,eb(ib,1+nq1+1:nql(iline)+nq1-1),diffeb(1+nq1+1),nql(iline)-2)
+c$$$                kef=polinta(0d0,eb(ib,1+nq1:nql(iline)+nq1),xq(1+nq1),nql(iline))
+c$$$              endif
+c$$$cccccccccccccccccccc
+
               do iq=1+nq1, nql(iline)+nq1
                  if (ncolwt>0) then
                  write(10,'(20f20.10)')
@@ -603,13 +618,30 @@ C#ifdef GNUPLOT
      .        xq(iq),
      .        eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
                  else
-                 write(10,'(3f20.10)')
+                 write(10,'(4f20.10," --------------------")')
      .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
      .        xq(iq),
-     .        eb(ib,iq)
+     .        eb(ib,iq) !,diffeb(ib)
+c$$$ special for mass of LaMnO3
+c$$$              if(abs(eb(ib,iq))<1d-1) then
+c$$$                write(6,'(4f20.4)') xq(iq),eb(ib,iq),diffeb(iq)
+c$$$              endif
                  endif
               enddo
               write(10,*)''
+c$$$ special for mass of LaMnO3
+c$$$              if(dmass>-1d5) then
+c$$$c                 aotpi=2d0*3.1415926d0/(3.905d0/.529177d0) !LNAO
+c$$$c                 aotpi=2d0*3.1415926d0/(7.1917d0) !LaNiO3c
+c$$$                 aotpi=2d0*3.1415926d0/(7.35d0) !Li
+c$$$                 write(6,"(a,f8.2,a,f8.3)")'bnd mass= ',
+c$$$! 2d0 is because emass in Ry unit is 1/2
+c$$$     &                2d0*(kef-xq(1+nq1))/dmass*aotpi**2,' at ',kef-xq(1+nq1)
+c$$$     &                     
+c$$$c     &                                                    ,(kef-xq(1+nq1))/dmass * aopi**2
+c$$$c     &                                                    ,(xq(nql(iline)+nq1)-kef)/dmass
+c$$$                 write(6,*)
+c$$$              endif
             enddo
           else ! lgnuplot
 C#else
@@ -627,6 +659,7 @@ C#else
 C#endif
           endif ! lgnuplot 
           endif
+
 C         Build up mc command for color merge
           if (lcol3 .and. ncolwt .ne. 0) then
             j = ib2-ib1+1
@@ -983,4 +1016,111 @@ C     Check whether format contains number of bands to read
       call rx('plbnds:  failed to read qp from file, line:  '//
      .trim(strn))
       
+      end
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      double precision function polinta(x,xa,ya,n)
+c----------------------------------------------------------------------
+c     Given arrays xa and ya, each of length n and given value x,
+c     this function returns a value polint. If p(x) is the polynominal
+c     of degree ndg such that p(xa(i))=ya(i), i=ns,..,ns+ndg then
+c     the returned value polint=p(x). ns is obtained by hunting.
+c     See Numerical Recipes
+c     coded by H.Akai
+c----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      parameter (ndgmx=4, nmx=ndgmx+1)
+      dimension xa(n),ya(n),c(nmx),d(nmx)
+      logical ascnd
+      save jlo
+      data jlo/0/ , small/1d-30/
+      ndg=min(ndgmx,n-1)
+      ndt=ndg+1
+      ascnd=xa(n) .gt. xa(1)
+      if(jlo .le. 0 .or. jlo .gt. n) then
+        jlo=0
+        jhi=n+1
+        go to 30
+      endif
+      inc=1
+      if(x .gt. xa(jlo) .eqv. ascnd) then
+   10   jhi=jlo+inc
+        if(jhi .gt. n) then
+          jhi=n+1
+        else if(x. gt. xa(jhi) .eqv. ascnd) then
+          jlo=jhi
+          inc=inc+inc
+          go to 10
+        endif
+      else
+        jhi=jlo
+   20   jlo=jhi-inc
+        if(jlo .lt. 1) then
+          jlo=0
+        else if(x .lt. xa(jlo) .eqv. ascnd) then
+          jhi=jlo
+          inc=inc+inc
+          go to 20
+        endif
+      endif
+   30 if(jhi-jlo .ne. 1) then
+        jm=(jhi+jlo)/2
+        if(x .gt. xa(jm) .eqv. ascnd) then
+          jlo=jm
+        else
+          jhi=jm
+        endif
+        go to 30
+      endif
+      nlo=max(1,jlo-ndg/2)
+      nhi=min(n,nlo+ndg)
+      nlo=nhi-ndg
+      if(jlo .eq. 0) then
+        ns=1
+      else if(jlo .eq. n) then
+        ns=ndt
+      else if(abs(x-xa(jlo)) .lt. abs(x-xa(jhi))) then
+        ns=jlo-nlo+1
+      else
+        ns=jhi-nlo+1
+      endif
+      do 40 i=1,ndt
+        ii=nlo+i-1
+        c(i)=ya(ii)
+        d(i)=ya(ii)
+   40 continue
+      polint=ya(nlo+ns-1)
+      ns=ns-1
+      do 60 m=1,ndg
+        do 50 i=1,ndt-m
+          ii=nlo+i-1
+          ho=xa(ii)-x
+          hp=xa(ii+m)-x
+          w=c(i+1)-d(i)
+          den=ho-hp
+c
+c     an error can occur if two xa's are identical
+          if(abs(den) .lt. small) then
+            write(6,1000)
+ 1000       format('   ***wrn in polint...data error')
+Cstop2rx 2013.08.09 kino            stop
+            call rx( '')
+          endif
+c
+          den=w/den
+          d(i)=hp*den
+          c(i)=ho*den
+   50   continue
+        if(2*ns .lt. ndt-m) then
+          dy=c(ns+1)
+        else
+          dy=d(ns)
+          ns=ns-1
+        endif
+        polint=polint+dy
+   60 continue
+c takao
+      polinta=polint
+      return
       end

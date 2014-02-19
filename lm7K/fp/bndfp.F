@@ -1361,7 +1361,7 @@ c
             call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
             do
-               npairmx= npairmx + nk1*nk2*nk3*.5
+               npairmx= npairmx + (nk1*nk2*nk3+1)*.5  !+1 added Feb2014 for 1x1x1
                allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
                call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
                if(ok) exit

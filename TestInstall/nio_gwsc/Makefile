@@ -18,15 +18,15 @@ $(TARGET).exec:
 	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt
-	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
-	@-$(bindir)/diffnum $(REFDIR)/log.$(MATERIAL) log.$(MATERIAL) 'fp evl' && echo "PASSED: $(TARGET) diffnum" >> ../summary.txt || echo "FAILED: $(TARGET) diffnum" >> ../summary.txt
+	@-$(bindir)/dqpu QPU $(REFDIR)/QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
+	@-$(bindir)/diffnum log.$(MATERIAL) $(REFDIR)/log.$(MATERIAL) 'fp evl' && echo "PASSED: $(TARGET) diffnum" >> ../summary.txt || echo "FAILED: $(TARGET) diffnum" >> ../summary.txt
 
 # check default case for $(TARGET).
 $(TARGET).check:
 	# add summary.txt
 	@echo  >> ../summary.txt
-	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
-	@-$(bindir)/diffnum $(REFDIR)/log.$(MATERIAL) log.$(MATERIAL) 'fp evl' && echo "PASSED: $(TARGET) diffnum" >> ../summary.txt || echo "FAILED: $(TARGET) diffnum" >> ../summary.txt
+	@-$(bindir)/dqpu QPU $(REFDIR)/QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
+	@-$(bindir)/diffnum log.$(MATERIAL) $(REFDIR)/log.$(MATERIAL) 'fp evl' && echo "PASSED: $(TARGET) diffnum" >> ../summary.txt || echo "FAILED: $(TARGET) diffnum" >> ../summary.txt
 
 # exec case1 for $(TARGET).
 $(TARGET).case1.exec:

@@ -75,7 +75,7 @@ c$$$      integer:: ntqxxd,if_ntqxxd
 c$$$      character*5:: charnum5
 c$$$      real(8)::qttt(3)
       integer,allocatable:: ntqxx(:)
-      real(8):: eseavrmean
+      real(8):: eseavrmean,eseadd
 c-----------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
@@ -692,6 +692,11 @@ cc           enddo
           eseavrmean = eseavrmean + nstar(ip)*eseavr(ip,is)
         enddo
         eseavrmean = eseavrmean/nqbz
+cccccccccccccccccccccccccccccccccccc
+        call getkeyvalue("GWinput","AddToESEAVR",eseadd,default=0d0,status=ret)
+        eseavrmean=  eseavrmean+eseadd
+cccccccccccccccccccccccccccccccccccc
+
 cccccccccccccccccccccccccccccccc
 c        eseavrmean = 0d0
 cccccccccccccccccccccccccccccccc
