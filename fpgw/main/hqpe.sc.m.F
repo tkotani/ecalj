@@ -1028,7 +1028,7 @@ c
       do is=1,nspin
         do ip=1,nq
           if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is) !,isr!,eseavr(ip,is)
-          if(ifs<0) write(-ifs,"(3d24.16)") qqqx_m(1:3,ip,is),is!,eseavr(ip,is)
+          if(ifs<0) write(-ifs,"(3d24.16,i3)") qqqx_m(1:3,ip,is),is!,eseavr(ip,is)
           do j=1,ntq
             do i=1,ntq
               if(ifs>0) read (ifs,"(2d24.16)")  sigma_m(i,j,ip,is)
