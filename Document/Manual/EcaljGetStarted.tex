@@ -2,88 +2,101 @@
 %\documentclass[a4paper]{jsarticle}
 \usepackage{graphicx}	% required for `\includegraphics' (yatex added)
 \author{Takao Kotani}
-\title{ecalj --- Get statrted (aug2013)} 
+\title{ecalj --- Get statrted (feb2014)} 
 \usepackage{setspace}
 \usepackage{hyperref}
 \setstretch{1.1}
+\def\ecalj{\texttt{ecalj}}
 \begin{document}
 \maketitle
 \tableofcontents
 \newcommand{\bfr}{{\bf r}}
 
+\bibliographystyle{apsrev4-1}
 \newpage
 \section{Introduction}
-The ``ecalj'' package is for first-principle electronic 
-structure calculation for DFT and GW. It has unique features.  
-Especially, we can perform the quasiparticle self-consistent GW (QSGW)
-calculations based on the PMT method (=Linearized APW+MTO method). 
-We name this as the PMT-QSGW. 
-Introduction to the PMT-QSGW is given in Sec.\ref{sec:fecalj}. 
-We can easily plot energy band dispersion curve in QSGW in 
-whole Brillouin zone(BZ), easy to calculate effective mass.
+The \ecalj\ is an first-principles electronic 
+structure calculations package in the DFT and GW. It has some unique features.
+Especially, we can perform the quasiparticle self-consistent GW (QSGW) \cite{kotani2007a}
+calculations based on the PMT method (=the Linearized APW+MTO method). 
+We name this the PMT-QSGW. 
+Introduction to PMT-QSGW is given in Sec.\ref{sec:fecalj}. 
+%We can easily plot energy band dispersion curve in QSGW in 
+%whole Brillouin zone(BZ), easy to calculate effective mass.
 
-Search papers with keywords `self-consistent GW'. Or many of T.Kotani's
-papers at \url{https://www.zotero.org/groups/takaokotani_paper/items/}\\
-are related to the QSGW. 
-In addition, there are papers which use previous version of GW code
-mainly written by T.Kotani. The PMT-QSGW method described here in ecalj
-is quite new (now preparing a manuscript for its methodology), and is
-based on the previous developments. Now the GW code has long history;
-I learned so much from the Ferdi Aryasetiawan's GW code, 
-and Mark van Schilfgaarde helped a part of its development. 
+%Search papers with keywords `self-consistent GW'. Or many of T.Kotani's
+%at \url{https://www.zotero.org/groups/takaokotani_paper/items/}\\
+%are related to the QSGW. 
+%There are other papers which use our previous version of GW code,
+%mainly by T.Kotani. The PMT-QSGW method described here in \texttt{ecalj}
+%is quite new (now a paper is in preparation), and is
+%based on the previous developments. The GW code has long history;
+%and Mark van Schilfgaarde helped its development.
+%I learned so much from the Ferdi Aryasetiawan's GW code in LMTO-ASA, 
 
 The ecalj web site is at \url{https://github.com/tkotani/ecalj}\\
-Free to download ecalj package from it, and use it.
-The QSGW code is version controlled by git, 
-thus your obtained results are reproducible by others easily
-(need to specify version number and input files).
-Install and minimum tests are easily possible even in a note PC
-(I use Ubuntu 12.04 on Thinkpad T420s. One advantage of Ubuntu is nothing need to
-buy. You can reproduce things in this manual in a day, or hopefully in half a day). 
-For productive calculations, it is apparently better to use
-a node with 16 core, or something. Current implementation for
-parallelization by MPI is limited; So,
-probably, it is not so efficient to use multiple nodes now.
+See README shown at the page first. Free to download \ecalj\
+package from it, and use it.
+The QSGW code is version controlled by git. 
+%Thus people can
+%easily reproduce obtained results 
+%(just need to specify version number and input files).
+Install and minimum tests are easy; even in a note PC
+(e.g, we can use gfortran in Ubuntu 12.04 on Thinkpad T420s.
+ You can reproduce things in this manual in a day or so). 
+For productive calculations, it may be needed to use a node with
+multi cores. Current implementation for parallelization by MPI is limited
+(not so much especially for the dielectric funciton part yet). 
+So, probably, it is not so efficient to use multiple nodes
+simultaneously now. 
 We also have a web site at \url{http://pmt.sakura.ne.jp/wiki/}, 
-however, most of all are in Japanese and not organized well.
-We expect you to clarify acknowledgment to ecalj in your publications.
+(most of all are in Japanese and not organized well).
+We expect you to clarify acknowledgment to \texttt{ecalj} 
+in your publications.
 
-The ecalj is related to another FP-LMTO package lmv7 seen at\\
+The \ecalj\ is related to a FP-LMTO package lmv7 seen at\\
 \url{http://titus.phy.qub.ac.uk/packages/LMTO/fp.html}. 
 The lmv7 and ecalj are branched off at year 2009.
 After branched, contributions are 
 due to T.Kotani and Hiori Kino (NIMS) until now. 
-We added new features: all codes are in f90;
-new methods are added, especially PMT-QSGW; 
-MPI parallelization for QSGW; quite simplified usage.
-
-Read this EcaljGetStarted.pdf first. 
-It shows minimum to plot energy band,
-density of states, and partial dos after the LDA/QSGW calculations.
-
-If you have something, let takaokotani(at)gmail.com know it.
-I may help you to do something, or it help us to make this text better. 
-Furthermore, with your ideas, we like to have collaborations and add newer
-development on it. I may say the ecalj itself is still in a research stage
-(writing papers by applying to materials, and compare with experiments), 
-although it becomes rather stable \footnote{In cases to treat magnetic
+We added new features: simple install and test;
+all codes are in f90 (no C compilar);
+new methods, especially PMT-QSGW; 
+MPI parallelization for QSGW;
+simple usage with automatic setting of default files by python ver2;
+a small tool to convert VASP POSCASR to ecalj, and so on.
+PMT-QSGW shows more stable convergence than the previous version of FP-LMTO-GW
+\footnote{In cases to treat magnetic
 systems which have intrinsic magnetic fluctuations, 
 we may need to be careful about initial condition or mixing procedure
 to get convergence. In cases, we need to start from LDA+U results as initial
-condition from which we start QSGW. Let me know about such trouble.}
+condition from which we start QSGW. Let me know about such trouble.}.
+
+This document shows minimum about how to plot energy band,
+density of states, and partial dos after we perform the LDA/QSGW
+calculations.
+It is possible to calculate quantities such as dielectric funcitons, 
+magnetic fluctuations, after the self-consistent calculaitons.
+
+If you have something, let takaokotani(at)gmail.com know it.
+%I may help you to do something, or it help us to make this text better. 
+%With your ideas, we like to have collaborations and add newer
+%development on it. I may say \texttt{ecalj} itself is still in a research stage
+%(writing papers by applying to materials, and compare with experiments). 
 
 
 \subsection{Features of the ecalj package.}
 \label{sec:fecalj}
-Central part in any electronic structure packages is one-body problem solver. 
-It means how to calculate eigenvalues and eigenfunctions for a
+{\bf PMT}:
+A central part in an electronic structure packages is one-body problem solver. 
+It means how to calculate eigenvalues/eigenfunctions for a
 given one-body potential. Inversely, we have to generate new one-body potential 
-for given eigenfunctions and eigenvalues
+for given eigenfunctions/eigenvalues
 based on the density functional theory (DFT) in the LDA or GGA
 (In the followings, LDA means both of LDA and GGA).
 Then we can make the electron density self-consistent by iterations
 until converged, and obtain total energy of ground states.
-Then we can also calculate atomic forces by perturbation.
+Then we can calculate atomic forces by perturbation.
 Based on such an one-body problem solver, 
 we can implement kinds of methods; e.g, dielectric function, magnetic
 susceptibility, transport and so on.
@@ -91,58 +104,68 @@ Furthermore, we can implement higher-level approximations
 such as the QSGW method explained below.
 %(We generate a new exchange-correlation potential 
 %based on the GW approximaiton instead of the exchange-correlation potential in LDA).
-
 An one-body problem solver (in linear methods) are
 characterized by \\
-\ (i) linear combinations of what basis set to represent eigenfunctions; \\
-\ (ii) how to represent electron density and one-body potential.\\
-
-In the ecalj, we use the PMT method \cite{pmt} as the one-body problem solver.
+\ \ (i) linear combinations of what basis set to represent eigenfunctions; \\
+\ \ (ii) how to represent electron density and one-body potential. \\
+In \ecalj, we use the PMT method \cite{Kotani2010,Kotani2013} as the one-body problem solver.
 The PMT method is a new all-electron full potential method. It uses not only the
 augmented plane waves (APW) but also the muffin-tin orbitals (MTO) together,
 in addition to the local orbital (lo), to represent the eigenfunctions
-(within our knowledge, no other methods in the world use two kinds 
-of augmented waves simultaneously).
-Thus eigenfunctions are represented by linear combinations of the
+(no other methods use two kinds of augmented waves together).
+Thus eigenfunctions are expanedd in the linear combinations of the
 APWs, MTOs, and the lo's.
-For electron density and the one-body potential, they are represented
-by three components representation. These are divided into three components;
-``smooth part + onsite muffin-tin (MT) part - counter part''. 
+For electron density and the one-body potential, they are given
+by the three components representation. That is, the electron density
+(one-body potential) is divided into three components, \\
+\ \ \ ``smooth part $+$ onsite muffin-tin (MT) part $-$ counter part''. \\
 Here the counter part is in order to remove smooth part within MTs.
 This formalism (Soler-Williams formalism) is also used in
-the projected augmented wave (PAW) method \cite{xxx}.
+the projected augmented wave (PAW) method \cite{soler89,soler90}.
 
-In ecalj, we can perform the GW calculation.
-The usual GW approximation is so-called ``one-shot GW'' starting from LDA.
+We now usually use highly localized MTOs
+together with APWs of low energy cutoff ($3\sim 4$ Ry).\footnote{current
+implementation have not yet efficiently use this locality; this must allow
+us to speed up one-body problem solver.} 
+I think this is promising not only for efficient DFT/QSGW scheme, 
+but also for kinds of applications in future. 
+The MTOs can play a role of the Wannier functions.\\
+
+\noindent{\bf QSGW}: In \ecalj, we can perform the GW calculation.
+The usual GW approximation is so-called ``one-shot GW'' starting from
+LDA \cite{Kotani2002,friedrich_efficient_2010}.
 It is usually only calculating differences between the quasiparticle energies (QPEs) 
 and the LDA eigenvalues by a perturbation (only diagonal part of self
 energy for the LDA eigenfunctions).
 Its ability is limited; it can fail when its starting point 
 (eigenfunctions and eigenvalues supplied by LDA) is problematic.
 Thus T.Kotani with collaborators developed the QSGW method. 
-The QSGW now becomes popular, performed by other researchers. 
-In principle, results by QSGW do not depend on LDA anymore; 
+The QSGW now becomes popular and taken as a possible candidate to go
+beyond current limieation of such GW and LDA/GGA.
+In principle, results given by QSGW do not depend on LDA anymore; 
 the LDA are only used to prepare initial condition for
 self-consistency iteration cycle of the QSGW calculation 
 \footnote{Exactly speaking, we use LDA idea 
 for efficient implementation of QSGW; thus
-obtained results are slightly dependent on the choice of LDA}.
+obtained results are slightly dependent on the choice of LDA or GGA}.
 %,e.g. to prepare required radial functions). 
 
 Usually the QPEs obtained by QSGW reproduce experiments better than LDA.
 For example, the band gap by GGA for GaAs is about 0.5 eV in contrast
-to the experimental value of 1.6eV (If we undo electron-phonon
-effects from the experimental value, it becomes about 1.7eV). 
-On the other hand, the QSGW predict about 1.9eV, a few tenth of eV
+to the experimental value of 1.69 eV 
+\footnote{We undo electron-phonon effect
+(0.06eV) and spin-orbit effect (0.11eV) from the true the experimental value 1.52 eV.} 
+On the other hand, the QSGW predicts about 1.8$\sim$ 1.9eV, a few tenth of eV
 larger than experiment (for practical use, we sometimes 
-need to use ``hybrid functional between QSGW and LDA'';
-this is in contract to the hybrid between Hartree-Fock and LDA).
+use ``hybrid functional between QSGW and LDA'' 
+so as to obtain smaller band gap).
 Even in the case of NiO and so on, the QSGW gives reasonable
-results (it tends to give a little larger band gaps than experiments).
-This is in contrast to the case of the one-shot GW applied to NiO;
-in such a case, not good results because the stating points in LDA is problematic.
+results (there is a tendency to give a little larger band gaps than experiments).
+This is in contrast to the case of the one-shot GW applied to NiO, 
+where we can not have good agreement with experiments
+because the stating points in LDA is problematic.
 
-The ecalj package can also have other functions.
+The \ecalj\ have other functions.
 LDA+U, atomic forces and relaxation (in GGA/LDA), core level
 spectroscopy and so on.  In addition, we can calculate
 dielectric functions and magnetic responses 
@@ -151,16 +174,6 @@ given by LDA/QSGW.
 But total energy in QSGW is still in research 
 (shown total energies in QSGW calculations are dummy now).
 
-Recent development of 
-``dual-MTO prescription'' allows us to use very localized MTOs
-(with damping factors $\exp(-r/(1{\rm a.u.}))$ and $\exp(-r/(1.4{\rm a.u.}))$), 
-together with APWs of low energy cutoff ($3\sim 4$ Ry).\footnote{current
-implementation have not yet efficiently use this locality; this must allow
-us to speed up one-body problem solver.} 
-I think this is promising not only for efficient DFT/QSGW scheme, 
-but also for kinds of applications in future. 
-The MTOs can be used instead of the Wannier functions,
-but not so much research on it yet.
 
 The QSGW calculation requires so much computational time:
 roughly speaking, it takes 10 or more times expensive than usual
@@ -178,19 +191,20 @@ in the most time-consuming part of QSGW.
 
 
 \subsection{What do we expect for QSGW?}
-In the hybrid functional methods, which use Vxc = (1-alpha)*LDA+alpha*(Fock exchange), 
-where alpha is taken to be $\sim0.25$ usually. 
-The alpha can be dependent on materials; for metals alpha should be
-almost zero. For larger band gap insulator, alpha becomes larger.
-(NOTE: if you use alpha=1 (Hartree-Fock limit), 
-the band gap of Si becomes 20eV or something).
-Despite of some success of the functional, its ability is limited.
-For example, it is known that hybrid functionals fail to describe 
+Let us recall hybrid functionals such as B3LYP, and LDA+U.
+In hybrid functional methods, 
+we use Vxc = (1-$\alpha$)*LDA+$\alpha$*(Fock exchange like term),
+where $\alpha$ is taken to be $\sim0.25$ usually. 
+The $\alpha$ can be dependent on materials; for metals $\alpha$ should be
+almost zero. For larger band gap insulator, $\alpha$ becomes larger.
+\footnote{If you use $\alpha=1$ (Hartree-Fock limit), 
+the band gap of Si becomes 20eV or something.}
+Despite of success of the functional, its ability is limited.
+For example, it is known that a hybrid functionals fail to describe 
 metals such as bcc Fe. 
 On the other hand, we have LDA+U method which succeeded to describe
 materials including localized electrons. However, it contains kinds of
 ambiguity and U is chosen by hand.
-
 The important part of the hybrid functional methods and LDA+U
 is the non-local potential. It is missing in the DFT.
 As we discussed above, they give some success but not satisfactory.
@@ -198,13 +212,13 @@ We somehow need to have a method to determine high-quality
 non-local potential (a substitution of the exchange-correlation potential).
 It is the QSGW method.
 
-In advance, let me point out two important aspects of non-local
-potential (missing in the local potential used in DFT). 
+Note two important aspects of non-local potential (missing character 
+in the local potential used in DFT). 
 One is the onsite non-locality; it is also taken into account by LDA+U
 model. However, note that relative shift of O(2p) band with respect
 to the center of 3d band is not in LDA+U.
 The other is the off-site non-locality (mainly between nearest neighbors),
-which gives LUMO-HOMO gap. A non-local potential can behave a
+which may relate to LUMO-HOMO gap. A non-local potential can behave a
 projector which push down only the HOMO states (valence band) to lower energy.
 This can be in the hybrid functional but not in LDA+U. 
 
@@ -224,15 +238,20 @@ Since we now need to treat complex systems, e.g, metal on
 insulator, it is very essential to treat kinds of materials
 on a same footing.\\
 
-
-The main purpose of QSGW is to determine 
-``best $H_0$'', on which we describe one-particle picture to describe theories.
-In addition, $W$ is determined consistently. In this sense, 
-the QSGW is a method to convert the full many-body Hamiltonian into the
-renormalized many-body Hamiltonian (low energy Hamiltonian) 
-based on the quasiparticle picture (or independent particle picture).
-Its non-interacting part is the quasiparticle (or independent particle)
-part called as $H_0$ (people read this “H-naught”).\\
+The main purpose of QSGW is to determine an one-particle effective
+Hamiltonian $H^0$  \footnote{people often pronounce this “H-naught”},
+which describes the quasiparticle picture (or independent-particle
+picture) for the system we calculate.
+In other words, QSGW divide full many-body Hamiltonian $H$ into
+$H=H^0+(H-H^0)$.
+The screened Coulomb interaction $W$ is determined self-consistently in
+the QSGW iteration cycle.\\
+%In this sense, 
+%QSGW is a method to convert the full many-body Hamiltonian into the
+%renormalized many-body Hamiltonian (low energy Hamiltonian) 
+%based on the quasiparticle picture (or independent particle picture).
+%Its non-interacting part is the quasiparticle (or independent particle)
+%part called as $H^0$.\\
 
 \noindent In comparison with LDA, we see differences;
 \begin{itemize}
@@ -259,40 +278,40 @@ QSGW tends to make eigenfunctions localized.
 However, reality is complexed, and not so simple in cases.
 
 
-\subsection{What is in this booklet?}
-Here we show minimum on the ecalj package. We will explain:
-\begin{itemize}
-\item
-How to perform self-consistent calculations by the density functional theory (DF) in the LDA. 
-\item
-How to plot energy bands (BAND), total density of states
-(DOS), and the partial density of states (PDOS).
-\item
-How to perform the QSGW calculations.
-(above plot are possible in the same manner).
-\item
-Minimum about how to read input and outputs.
-\end{itemize}
+% \subsection{What is in this booklet?}
+% Here we show minimum on the ecalj package. We will explain:
+% \begin{itemize}
+% \item
+% How to perform self-consistent calculations by the density functional theory (DF) in the LDA. 
+% \item
+% How to plot energy bands (BAND), total density of states
+% (DOS), and the partial density of states (PDOS).
+% \item
+% How to perform the QSGW calculations.
+% (above plot are possible in the same manner).
+% \item
+% Minimum about how to read input and outputs.
+% \end{itemize}
 
-After we prepare {\it a crystal structure file} named as \verb+ctrls.*+,
-we run a script (\verb+ctrlgenM1.py+) to generate \verb+ctrl.*+
-It contains (reasonable) default setting to do following calculations.
-To help writing \verb+ctrls.*+, ecalj contains samples 
-and a converter between POSCAR(vasp format) and ctrls(ecalj format). \\
+% After we prepare {\it a crystal structure file} named as \verb+ctrls.*+,
+% we run a script (\verb+ctrlgenM1.py+) to generate \verb+ctrl.*+
+% It contains (reasonable) default setting to do following calculations.
+% To help writing \verb+ctrls.*+, ecalj contains samples 
+% and a converter between POSCAR(vasp format) and ctrls(ecalj format). \\
 
-%However, we need to have knowledge to judge whether obtained 
-%results are reasonable or not. 
-%Especially, results by QSGW need to be examined carefully. 
+% %However, we need to have knowledge to judge whether obtained 
+% %results are reasonable or not. 
+% %Especially, results by QSGW need to be examined carefully. 
 
-\noindent {\bf NOTE}: After this manual, read EcaljUsage.pdf.
-It contains details of usage.
-For LDA/GGA part, relaxation of atomic positions,
-LDA+U, core-spectroscopy and so on.
-For GW part, we show how to plot dielectric functions, 
-non-interacting spin susceptibility $\chi_0^{+-}$, and so on.
-In principle, we can calculate the RPA total energy, 
-but not yet implemented (we had it; but need to renew it and test it again). 
-We will add new features.
+% \noindent {\bf NOTE}: After this manual, read EcaljUsage.pdf.
+% It contains details of usage.
+% For LDA/GGA part, relaxation of atomic positions,
+% LDA+U, core-spectroscopy and so on.
+% For GW part, we show how to plot dielectric functions, 
+% non-interacting spin susceptibility $\chi_0^{+-}$, and so on.
+% In principle, we can calculate the RPA total energy, 
+% but not yet implemented (we had it; but need to renew it and test it again). 
+% We will add new features.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -308,17 +327,16 @@ We have automatic installation checker.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{LDA calculations and Plots}
+\section{LDA/GGA calculations and Plots}
 Calculations are performed by following steps. 
-These steps are detailed in the following sections. 
+These steps are detailed in the following sub-sections. 
 
-To identify files used for a material we calculate, we add 
+To identify a set of files used for a material we calculate, we use 
 an extension to files. For example, files explained below are
 with extensions (only lower case allowed) of materials.
 For example, \verb+ctrls.cu+ and \verb+ctrl.cu+. In this case
 \verb+cu+ is the extension. Any extension works. Other possible examples are
 \verb+ctrls.lagao3+, \verb+ctrl.wgantest1+, and so on.
-
 
 \begin{enumerate}
 \item Write crystal structure file \verb+ctrls.*+, which contains crystal structure.
@@ -329,10 +347,11 @@ For example, \verb+ctrls.cu+ and \verb+ctrl.cu+. In this case
      information to perform calculations. the content in \verb+ctrls.*+
      in included in the \verb+ctrls.*+ as a part.
      If necessary, we edit the generated \verb+ctrl.*+ file before next step.
-      There is a checker, \verb+lmchk+, to confirm the crystal structure
-      (space-group symmetry and so on); this is applied not to
-      \verb+ctrls.*+ but to \verb+ctrl.*+.
-     \verb+ctrls.*+ is not used in the following steps.
+\item
+     Check crystal structure. \verb+lmchk+ is to confirm the crystal structure
+     (space-group symmetry and so on). \verb+lmchk+ is applied not to
+     \verb+ctrls.*+ but to \verb+ctrl.*+.
+     \verb+ctrls.*+ never used in the following steps.
 \item Run \verb+lmfa+ (just calculate spherical atoms (MT sites) placed in the cell). 
      It also calculates core eigenfunctions and valence electron charge
       to set up initial condition. Then we run main calculation of LDA by \verb+lmf+.
@@ -364,7 +383,7 @@ For example, \verb+ctrls.cu+ and \verb+ctrl.cu+. In this case
 % \end{verbatim}
 Let me show some samples of crystal structure files \verb+ctrls.*+. 
 \begin{itemize}
-\item[Cu:]
+\item[\bf Cu:]
 \begin{verbatim}
 ~/ecalj/lm7K/TESTsamples/Cu/ctrls.cu
 ------from here ------------------
@@ -375,7 +394,7 @@ SITE    ATOM=Cu POS=0 0 0
 ------to here ------------------
 \end{verbatim}
 
-\item[GaAs:]
+\item[\bf GaAs:]
 \begin{verbatim}
 ecalj/lm7K/TESTsamples/GaAs/ctrl.gaas
 ------from here ------------------
@@ -389,7 +408,7 @@ SITE
      ATOM=As POS=0.25 0.25 0.25
 ------to here ------------------
 \end{verbatim}
-\item[SrTiO3:]
+\item[\bf SrTiO3:]
 \begin{verbatim}
 ecalj/lm7K/TESTsamples/SrTiO3/ctrls.srtio3 
 ------from here ------------------
@@ -414,8 +433,8 @@ Lines starting from '\verb+% const+' define variables and set values
 Then the variable \verb+alat+ is referred to as \verb+{alat}+; in the cu case,
 \verb+{alat}+ means 6.798.
 Lines not start from "\#" nor "\%" are main content in the ctrls file.
-\footnote{For these variables, we can overlaid values when we start
-programs. E.g, 'lmf -vdalat=0.1 si'; this alat is recorded in save.si file.}
+\footnote{For these variables, we can overlay values when we start
+programs. For example,'lmf -vdalat=0.1 si' means that \texttt{alat} is recorded in save.si file.}
 
 Note that we have two tags of ``categories'' "STRUC" and "SITE". 
 (``HEADER'' tag is also; but it is just for user's memo shown in console output).
@@ -470,7 +489,8 @@ much... We will fix it on your request.
 In \verb+ctrls.srtio3+, we use an expression 1/2 to give POS. 
 We can use mathematical expression instead of values.
 Mathematical expressions such as ``$+ -  * /$ sqrt(...)'' are recognized.
-(instead of \verb+3**2+, use \verb+3^2+. You can use parenthesis, but no space for separation).
+(instead of \verb+3**2+, use \verb+3^2+. Use parenthesis, and
+ no space for an expression).
 We can use default atomic symbols (to check default atom name
 (MT name) type \verb+ctrlgenM1.py --showatomlist+).
 Instead of such default symbols, we can use your own symbol as
@@ -489,12 +509,11 @@ Instead of such default symbols, we can use your own symbol as
 . Then we have to add extra category SPEC where we set Z number.
 (You can use Z=37.5 for virtual crystal approximation, however, 
 you can not do it in ctrls now. Edit it in ctrl file. Such a procedure
-will be explained in EcaljUsage.pdf\cite{xxx}.)\\
+will be explained in EcaljUsage.pdf.)\\
 
 This is an example for Antiferro NiO:
 \begin{verbatim}
 #id  = NiO
-# NOTE set MMOM. (it will be included in this...)
 %const bohr=0.529177 a=7.88
 STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
 SITE    ATOM=Niup POS=  .0   .0   .0
@@ -520,9 +539,9 @@ the followings. Not from ctrls but from ctrl, we can start calculations.
 (thus ctrls is not needed if we prepare ctrl file directory).
 
 It is possible to add \verb+RELAX= 0 0 1+ after \verb+SITE_ATOM_POS+;
-this means structure relaxation along z-axis (also need to set
-\verb+DYN+ category 
-(\url{http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat},
+this means structure relaxation along z-axis 
+(also need to set \verb+DYN+ category \\
+ as seen at \url{http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat}),
 but its defaults are given (but commented out) automatically in the ctrl file
 generated by the procedure described in the following section).
 We detail it in EcaljUsage.pdf.
@@ -1237,5 +1256,8 @@ it is not necessary better than the above procedure.
 \end{verbatim}
 
 
-==== Here is the end of EcaljGetStarted. Thanks! ====
+
+\bibliography{ecaljrefs}
+==== reference is not yet completed... ====
+
 \end{document}
