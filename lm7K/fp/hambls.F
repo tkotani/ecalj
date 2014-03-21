@@ -398,6 +398,7 @@ C ----------------------------------------------------------------------
       integer:: ndimsig         !dimension of sigma
       complex(8),allocatable:: sigmat(:,:)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
+      integer:: lb1,lb2,ilb
       call tcn('hambls')
 
 !! === LDA hamiltonian ===
@@ -414,6 +415,77 @@ C ----------------------------------------------------------------------
       ismidb = 0
       l_dummy_isanrg=isanrg(lwsig,0,5,'hambls:','lwsig',T)
       if(debug) print *, ' mode napw lwsig',mode,napw,lwsig
+
+c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc             
+c mar2014
+c$$$      print *,'test ddddddddddddddddddddd'
+c$$$      lb1=5                      
+c$$$      lb2=9                      
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$      lb1= 21                     
+c$$$      lb2= 26
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$      lb1= 26                     
+c$$$      lb2= ndimh
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$c mar2014
+
+c----- Cu test ---------------
+c$$$      print *,'test ddddddddddddddddddddd'
+c$$$      lb1=1                      
+c$$$      lb2=4                      
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$c$$$      lb1= 10                     
+c$$$c$$$      lb2= 20
+c$$$c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$c$$$      do ilb=lb1,lb2             
+c$$$c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$c$$$      enddo                      
+c$$$c$$$      lb1= 26                     
+c$$$      lb1=10
+c$$$      lb2= ndimh
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc                
+
 !! ... Store LDA eigenvectors, eigenvalues in s and h and exit
       if (lwsig .eq. 1) then
          allocate(zqi(ndimh,ndimh))
@@ -473,6 +545,18 @@ c     kino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs 
      .        , 0 , ndimsig, 0 , ndimsig , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy )
          allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
          ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
+
+C cccccccccccccccccccccccccccccccccccccccccccc
+C c mar2014 
+C       lb1=137
+C       lb2=168
+C       ovlmtoi(lb1:lb2,:) = 0d0
+C       ovlmtoi(:,lb1:lb2) = 0d0
+C       do ilb=lb1,lb2
+C          ovlmtoi(ilb,ilb)=1d0
+C       enddo
+C cccccccccccccccccccccccccccccccccccccccccccc
+
          call matcinv(ndimsig,ovlmtoi)
          ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
          deallocate(ovlmtoi)

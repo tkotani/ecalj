@@ -341,6 +341,13 @@ C ... Heap
                        ! that is, ndimh< ndimhr=nlmto+napw !apr2012takao
       complex(8),allocatable:: sqr(:,:)
 
+
+ccccccccccccccccccccccccccccc
+c mar2014
+      integer:: lb1,lb2
+ccccccccccccccccccccccccccccccc
+
+
       call getpr(ipr)
       stdo = lgunit(1)
 Changenglob      nl = nglob('nl')
@@ -459,6 +466,13 @@ C       Call bloch : 104010=perm orb, transpose, c*16
           call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
      .     , iaxs , hrs , ndhrs , isp , nsp , ndimh , ndimh , 0 , ndimh 
      .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy )
+C ccccccccccccccccccccccccccccccccc
+C c mar2014
+C           lb1=137
+C           lb2=168
+C           sq(lb1:lb2,:)=0d0
+C           sq(:,lb1:lb2)=0d0
+C cccccccccccccccccccccccccccccccccc
 
 C        print *, 'iq=',iq1,'qp=',sngl(qp)
 C        call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)

@@ -412,6 +412,11 @@ ctakao
                                ! add --fermisurface #1 #2 #3
                                ! only implemented for lmf-MPIK now.
       integer:: ini,iend,nbxx
+ccccccccccccccccc
+c mar2014
+      integer:: lb1,lb2
+ccccccccccccccccc
+
       call tcn ('bndfp')
 !! === MPI setup ===
       procid = mpipid(1)
@@ -1279,6 +1284,13 @@ cccccccccccccccccccccccccccccccccc
               print *,'rrrrrrrrrr goto rdsigm2 rrrrrrrrrrrr'
               call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, 
      &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
+C cccccccccccccccccccccccccccccccccc
+C c mar2014 also in rdsigm.F chksgr for SiO2c
+C       lb1=137
+C       lb2=168
+C       sfz(:,:,:, lb1:lb2,:,:)=0d0
+C       sfz(:,:,:, :,lb1:lb2,:)=0d0
+C cccccccccccccccccccccccccccccccccc
             endif   
             call fclose(ifi)
             if(.not.cmdopt('--no-wsig_fbz',13,0,strn).and.oncewrite(10)) then
