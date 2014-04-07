@@ -1,4 +1,4 @@
-=== ecalj package === (this document is checked at 10Aug2013)
+=== ecalj package === (this document is checked at Feb2014)
 
 >git clone https://github.com/tkotani/ecalj.git
 to get a ecalj package here. (you need "git" installed).
@@ -57,8 +57,9 @@ You need following tools and libraries to be installed.
 >sudo apt-get install libfftw3-3     or something else # FFTW
 >sudo apt-get install libblas3gf     or something else # BLAS
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
->sudo apt-get install etags csh bash tcsh   # shells
+>sudo apt-get install etags csh bash tcsh gawk  # shells
 
+Note that you need to use
 python 2.x is also assumed (usually already in ubuntu).
 
 Version ctrl by git (which makes things easier, but not
@@ -251,9 +252,13 @@ ecalj/Document/Manual/EcaljUsage.pdf
 Not yet completed.
 
 3. Details:
-ecalj/Document/Manual/EcaljDetails.pdf
-(some japanese character included).
-Not yet completed.
+Two papers (but not yet submitted) are
+  ecalj/Document/Manual/pmttheory17.pdf (for PMT)
+  ecalj/Document/Manual/pmtqsgw13.pdf   (for PMT-QSGW)
+A little extended versions in japanese are
+ecalj/Document/Manual/ecalj_pmttheory17j.pdf (for PMT)
+ecalj/Document/Manual/ecalj_pmqsgw13j.pdf   (for PMT-QSGW)
+We will unify this...
 
 
 #######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si)  ###################

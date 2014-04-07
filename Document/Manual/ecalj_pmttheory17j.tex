@@ -1,13 +1,17 @@
-\documentclass[a4paper,10pt,aip,onecolumn,amsmath,amssymb,floatfix,rmp]{revtex4-1}
-%\documentclass[book,amsmath,amssymb,floatfix]{revtex4-1}
-%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4-1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% takao kotani
+%         Department of applied physics and materials, Tottori university,
+% E-mail  takaokotani@gmail.com
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[twocolumn,showpacs,preprintnumbers,amsmath,amssymb,floatfix]{revtex4-1}
+%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb,linenumbers]{revtex4-1}
 
 % Some other (several out of many) possibilities
 %\documentclass[aps,prl,preprint,groupedaddress,showpacs]{revtex4}
 %\documentclass[aps,prl,twocolumn,superscriptaddress,showpacs]{revtex4}
 %\documentclass[aps,prb,preprint,superscriptaddress,showpacs]{revtex4}
 
-\usepackage{doi}
 \usepackage{graphicx}% Include figure files
 \usepackage{longtable}
 \usepackage{dcolumn}% Align table columns on decimal point
@@ -16,7 +20,6 @@
 \usepackage{fancybox}
 %\topmargin=.0cm
 %\nofiles
-
 \newcommand{\rou}[1]{\noindent------------------------------------------------------------------------------------------------------------
 \noindent{\bf \large #1}}
 \newcommand{\fl}[1]{\noindent{\sf $\bullet$ #1\index{\sf #1}} : }
@@ -142,11 +145,6 @@ here xxxxxxxxxxxxxxx\\ #1 \\ xxxxxxxxxx to here xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\
 \def\Psikm{{\Psi_{{\bf k}m}}}
 \def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
 \def\Psiknp{{\Psi_{{\bf k}n'}}}
-\def\Psikqn{{\Psi_{{\bf k}+{\bf q} n}}}
-\def\Psikm{{\Psi_{{\bf k}m}}}
-\def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
-\def\Psiknp{{\Psi_{{\bf k}n'}}}
-
 %\def\rs{r_{\rm s}}
 
 \newcommand{\CikL}{{C^{(i)}_{kL}}}
@@ -177,10 +175,6 @@ here xxxxxxxxxxxxxxx\\ #1 \\ xxxxxxxxxx to here xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\
 \newcommand{\VAL}{{\rm{VAL}}}
 \newcommand{\EF}{E_{\rm F}}
 \newcommand{\oneshotgw}{1shot-$GW$}
-\def\tn{\tilde{n}}
-\def\tnT{\tilde{n}^{\rm T}}
-\def\tV{\tilde{V}}
-\def\tnT{\tilde{n}^{\rm T}}
 
 
 \def\eak{\varepsilon_{\rm a}(\bfk)}
@@ -242,7 +236,8 @@ here xxxxxxxxxxxxxxx\\ #1 \\ xxxxxxxxxx to here xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\
 \def\nzcv{n^{\rm Zcv}}
 \def\barnzcv{\bar{n}^{\rm Zcv}}
 \def\MM{{\cal M}}
-\def\RR{v}
+%\def\RR{v}
+\def\RR{w}
 \def\inta{\int_{|\bfr|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
 \def\intaa{\int_{|\bfr|\leq R_a}}
 \def\intad{\int_{|\bfr'|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
@@ -259,82 +254,54 @@ here xxxxxxxxxxxxxxx\\ #1 \\ xxxxxxxxxx to here xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\
 \def\iDelta{{\it \Delta}}
 \def\philo{{\phi}^{\rm Lo}_{al}}
 \def\DEe{{\it \Delta} E_{\rm e}}
+\newcommand{\incg}[1]{\includegraphics[width=5.9cm]{#1}}
+\newcommand{\template}{
+&      & $r_{\rm e}$/\AA      & $D_e$/(Kcal/mol) & $\omega_e$/(cm$^{-1}$)\\
+& $R_a$/\AA & for $\EMAX$Ry$\!=\!2,3,4$ & for $\EMAX/$Ry$\!=\!2,3,4$ & for $\EMAX/$Ry$\!=\!2,3,4$  \\
+}
 
-%\bibliographystyle{alpha}
-\setlength{\topmargin}{-10mm}
-\setlength{\textwidth}{140mm}
-\setlength{\textheight}{240mm}
+\newcommand{\incgg}[1]{\includegraphics[width=8.5cm]{#1}}
 
+\bibliographystyle{apsrev4-1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-\special{papersize=210 mm, 297mm}
-
-\title{\Large ecalj --- Details(sep2013): \\ xxxxxx under construction xxxxxx}
-\author{\large \ \\ Takao Kotani}
-\affiliation{Department of applied mathematics and physics,\\ Tottori university, Tottori 680-8552, Japan}
-\author{\large Hiori Kino}
-\affiliation{National Institute for materials science, Sengen 1-2-1, Tsukuba, Ibaraki 305-0047, Japan.}
-% \author{Hisazumu Akai}
-% %\affiliation{Department of Physics, Osaka University, Toyonaka, Osaka 560-0043, Japan}
+\special{papersize=8.5 in, 11 in}
+\title{ecalj package: (based on pmttheoty17.tex:
+Formulation of the augmented plane-wave and muffin-tin orbital method)}
+\author{Takao Kotani}
+\affiliation{Department of applied mathematics and physics, Tottori university, Tottori 680-8552, Japan}
+%\author{Hiori Kino}
+%\affiliation{National Institute for materials science, Sengen 1-2-1, Tsukuba, Ibaraki 305-0047, Japan.}
+\author{Hisazumu Akai}
+\affiliation{Department of Physics, Osaka University, Toyonaka, Osaka 560-0043, Japan}
 \date{\today}
-\vspace{1cm}
+
 \begin{abstract}
-\ \\ The PMT method, which is an all-electron full-potential (FP) mixed-basis
-method for the first-principle electronic structure calculation, was proposed 
-by the author in Phys.Rev.B81 125117(2010). 
-It is a hybrid of the FP-LAPW and FP-LMTO, that is, a method 
-whose basis set consists of both of the augmented plane waves (APW) 
-and the muffin-tin orbitals (MTO). We give improvements for the PMT
-method. 
-
- As we show elsewhere, it works fine even for diatomoic molecules
-from H2 to Kr2; we can obtain atomization energy within chemical
-accuracy with the need cutoff energy of APWs about 3 to 4 Ry. This is
-because we inclue MTOs.
-
-Then we explain how to implement the quasi-particle
-self-conisistent GW (QSGW) method in the PMT method.
-A key point is in how to repsesent static version of the self-energy 
-in the IBZ.\\
-
-What we can do now:
-\begin{itemize}
-\item GGA/LDA calculations, atomic force(relaxation and dynamics), total
-      energy, band, dos. LDA+U. Spin-orbit coupling LdotS (but
-      non-colinear yet). k-point paralell.
-\item one-shot GW, quasiparticle self-consistent GW. dielectric function. Spin
-      fluctuation. MPI.
-\item (not implemented well, but it may work). Maxloc Wannier function.
-      effective coulomb interaction in RPA.
-\end{itemize}
-
-git管理してるのでバージョンはgitで確認のこと。
-
-この文書は、おもにpmttheory.tex（未発表：kotani,kino,and akai)に解説した理論をもとに、
-PMT法（MTOとAPWによる混合基底の方法）とPMT-QSGW法（PMT法をもとにしたQSGW
-法、さらには電荷ゆらぎなど）がいかに実装されているかを記述するものである。\\
-
-英語による記述と日本語による記述が混在している。
-またメモなども混在している。方針は、
-「英語部分だけでもそれなりに意味をなす。
-日本語部分は多少重複するかもしれないが混乱を招かない範囲で、
-理解しやすさのために残していく。
-新しい情報は日本語ででも書く（必要に応じて英語になおす）。」
-と言う方針をとることとする。
-この文書は、徐々に更新、改訂を加えていくつもりである。
-\end{abstract}
-%\pacs{71.15.Ap, 71.15.Fv 71.15.-m}
-\maketitle
-\tableofcontents
-
-% --------------- Introduction ------------------
-\section{introduction}
+{\bf NOTE: This document is for one-body problem part}.
 ``ecalj package''は、おもにはPMT法およびそれを元にしたQSGW法（PMT-QSGW法） 
 を実行するためのコードである。PMT法はAPWとMTOを同時に使う
 混合基底の第一原理計算の方法である。周期境界条件を用いる。
 GGA（PBE）のレベルで原子に働く力を求めての構造緩和なども可能である.
-一体問題を解く部分をlmf,QSGWを解く部分をfpgwと呼ぶ。\\
+一体問題を解く部分をlmf,QSGWを解く部分をfpgwと呼ぶ。この文書ではlmfパートのみについて述べる。\\
 
+A mixed basis all-electron full-potential method, 
+which uses two kinds of augmented waves, the augmented plane waves  
+and the muffin-tin orbitals simultaneously, in addition to the
+local orbitals, was proposed by Kotani and van Schilfgaarde in Phys. Rev. B81, 125117(2010). 
+In this paper, this mixed basis method is reformulated on the basis of a new
+formalism named as the 3-component formalism, which is a
+mathematically transparent version of the additive
+augmentation originally due to Soler and Williams in Phys. Rev. B47, 6784(1993). 
+Atomic forces are easily derived systematically. 
+We discuss some problems in the mixed basis method and ways to
+manage them. In addition, we 
+compare the method with the PAW method on the same footing. 
+\end{abstract}
+\pacs{71.15.Ap, 71.15.-m, 31.15.-p}
+\maketitle
+
+% --------------- Introduction ------------------
+\section{introduction}
 In the first-principle electronic structure calculations based on the
 density functional theory in the LDA/GGA
 (local density approximation/generalized gradient approximation),
@@ -380,19 +347,19 @@ no other mixed basis methods have used different kinds
 of augmented waves simultaneously in the full-potential methods.
 
 A minimum description on the formalism of the PMT method is given in Ref.\cite{pmt1}, 
-which is based on Ref.\onlinecite{lmfchap} for a LMTO method  
+which is based on Ref.\cite{lmfchap} for a LMTO method  
 by Methfessel et al. However, the formalism was not very transparent, 
 mainly because it was not derived from the explicit total energy minimization.
 This makes theoretical treatment of the PMT method somehow complicated.
 For example, it resulted in a complicated logic to derive atomic forces 
-in Refs.\onlinecite{molforce,lmfchap}. 
+in Refs.\cite{molforce,lmfchap}. 
 %Since we are afraid of
 %the Pulay terms \cite{pulay69}, it should be derived from the derivative
 %of total energy. 
 It was not easy to compare the PMT method with the projector augmented
 wave (PAW) methods \cite{PAW,kresse99} on the same footing.
 Thus we should give a simple and clear formalism to the PMT method 
-for its further developments rather than that in Refs.\onlinecite{pmt1,lmfchap}.
+for its further developments rather than that in Refs.\cite{pmt1,lmfchap}.
 
 In this paper, we introduce a formalism, named as the 3-component
 formalism, which is a mathematically transparent generalization of the additive
@@ -407,7 +374,7 @@ This is somehow general in the sense that it allows to use any kinds of basis
 (need not to be given by projectors); thus it is
 suitable to formulate mixed basis methods such as the PMT.
 Results of the PMT method applied to diatomic molecules from H$_2$ through Kr$_2$ 
-are given in elsewhere. Considering the fact
+are given in elsewhere \cite{kotani_linearized_2013}. Considering the fact
 that the PMT method (even the LMTO itself) is already pretty good to
 describe solids \cite{pmt1,lmfchap,kotani07a,mark06adeq},
 the PMT method can be a candidate to perform full-potential
@@ -420,34 +387,24 @@ In Sec.\ref{sec:pmtmethod}, we give the formulation of the PMT method
 based on the 3-component formalism. Then we discuss problems
 in the PMT method and ways to overcome them, giving a comparison with the PAW method.
 Derivation of atomic forces becomes straightforward as given in Appendix
-without any confusion that were discussed in Ref.\onlinecite{soler93}.\\
+without any confusion that were discussed in Ref.\cite{soler93}.
 
 
-以下では、PMT法を``the 3-component augmentation for bilinear product''と名づけた考え方
-によって、解説する。この考え方の軸は、augmentationを基底関数そのものにではなく、その積に
-適用することである。
-%As the name stands for, the augmentation is applied not to the
-%envelope function themselves, but to the products of them. 
-%After the explanation of the \smh\ functions in \refsec{shankel},
-%we explain the one-center expansion within MTs in
-%\refsec{sec:onecenter}.
 
-\subsection{PMT法の基本の考え方}
+\section{PMT法の基本の考え方}
+（スキップしてよい）。
+
 PMT法の母体はFP-LMTOのパッケージ（lmf package）から進化させたものである。
 その母体であるlmfの主文献は二つあり、\cite{lmfchap}と\cite{nfpmanual}で
 ある。これらは、/MarksOriginalDoc/nfp-doc.ps.gzと
 /MarksOriginalDoc/nfp-manual.ps.gz
-に格納されている。
-
-
-PMT法の基本アイデアを記述した文献は\cite{pmt1}である。
-エッセンスだけがかかれているので詳細はすこし分かりにくい。。
-
+に格納されている。PMT法の基本アイデアを記述した文献は\cite{pmt1}である。
+エッセンスだけがかかれているので詳細はすこし分かりにくい。
 
 PMT法は以下の考えに基づいている。
 \begin{itemize}
 \item[(1)]
-3成分表示での取扱い：\\
+3成分表示での取扱い(Soler-Williams形式)：\\
 基底関数,電子密度、一体ポテンシャル（そしてKSハミルトニアン）を、
 「smooth part　+　onsite part」に分割して
 取り扱う手法である。ここで、oniste part =``true part'' - ``counter part''
@@ -511,34 +468,64 @@ b.基本的には、従来のLAPWにおけるtraditionalなaugmentationの仕方
 
 \end{itemize}
 
-PAWの文献\cite{kresse99}は、ノーテーションが煩雑だがまとまりはいい。
+KresseのPAWの文献\cite{kresse99}は、ノーテーションが煩雑だがまとまりはいい。
 その記述の多くの部分は、(1)に関係しており、その点ではlmfと共通である.
 また、一般論として読むなら、lmfの文献\cite{lmfchap}は、
-ちょっとわかりにくい点もある(とくに、Forceをどうやって求めて
+わかりにくい点もある(とくに、Forceをどうやって求めて
 るのか？でMethfessel and van Schilfgaardeの文献(\cite{molforce})
-が引用されてるが,かなりわかりにくい。
-以下では、おもにはlmfの文献を参照しながらlmfのFormalimを説明する
-ここでは、全エネルギー最小化で方程式を導出する点で、
-上記のlmfの主文献とはすこし違っている。
+が引用されてるが,かなりわかりにくい）。
 
 PAW法とPMT法ではエネルギー汎関数の形や表現法はほとんど同じであり、
 用いる基底関数の作成法が違っているだけである。
 
 
-\section{旧：基底関数に関する古いノート} % ---
-\label{sec:oldbasis}
-この章は、以前に書いたもので原則的には読む必要がない。
-以下の3-component formalismの章にまとめられている。
-ただ、記録と、日本語でかかれていることの優位性、もあるので残しておく。
-ざっと目を通しおいてもよい。すこしだけコードに関する記述もある。
-ーーーーーーーーーーーーー
+%%%%%% --------------- PMT formalism ------------------
+\section{3-components formalism}
+\label{sec:formalism}
+まず「3-component formalism」(Soler-Williams形式を書き直したもの)につい
+て説明する。これは一般的なaugmentationの方法である。
+これは一般的に通用する形式論である。たとえばVASPでも基本的に類似の形式を用いている。
 
-以下では「ecal/lmfK7]にimplementされているPMT法について述べていく。
-ここでは系統性が明瞭になるように独自のノーテーションをもちいるので他文献
-との比較には注意を要する。
+一般的なLAPW法と同様に、周期境界条件を考える。
+実空間（もしくは実空間におけるユニットセル）を$\Omega$であらわす。
+$\Omega$はMTregionとその外側のinterstitial regionに分かれる。
+MTは原則的には重なっているべきではない（しかしながら、以下のformalismでは
+MTが重なっていても数学的破綻はなく、DFT計算においてはいくらかの重なりがあっ
+ても、それほどおかしくない全エネルギーの値が得ることはできる）。
+MT半径は$R_a$でその中心は、$\bfR_a$にあるとする。ここで$a$は$\Omega$内のMTを指定するindexである。
+角運動量のindexにはcombined angular momentum index
+$L\equiv(l,m)$をもちいる。ここで $l$ と $m$ はそれぞれ、orbital と magnetic quantum
+numbersである。また$\hbar=1$, electron mass $m_e$, and electron charge
+$e$を用いる。以下では、スピン変数については簡単のため省略して、formalism
+を書き下す（適宜おぎなって読んでいく必要がある）。
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{基底関数(augmented wave)の表式} 
+「3-component formalism」では基底関数を
+スムーズパート、MT内成分、MT内でスムーズパートを打ち消す成分にわけて表現する。
+またaugmentationは実際には「基底関数そのものにではなく、その積に適用する」
+ということを行っており、それらの3成分を実際に加減算するというような演算は行わない。
+%またlocal orbital\cite{PhysRevB.43.6388}も含むことができる。
+
+We assume periodic boundary condition where
+real space (or unit cell) is specified by $\Omega$.
+$\Omega$ is divided into the muffin-tin (MT) regions and the interstitial region.
+The MTs are located at $\bfR_a$ with radius $R_a$, where 
+$a$ is the index specifying a MT within $\Omega$.
+$L\equiv(l,m)$ is the angular momentum index.
+We use units, $\hbar=1$, electron mass $m_e$, and electron charge $e$. 
+The spin index is not shown for simplicity.
+
+Here we give the 3-component formalism as a general
+scheme for the augmented-wave methods, which include any kinds of
+augmented waves including the local orbitals \cite{PhysRevB.43.6388}.
+%The 3-component formalism is given from the point of view that 
+%how to model the quantum mechanics in the 3-component space as follows.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\subsection{the 3-component space(日本語での予備的説明)}
+\label{sec:3compoj}
+（スキップして\refsec{sec:3compo}から読むこともできる）。
+
 最初に全空間をMuffin-Tin(MT)領域と外部領域に分割する。
 エンベロープ関数を用意して、それをaugmentすることで、「基底関数」をくみ
 たてる。おおまかにいえば、MT内部でのみエンベロープ関数をさしかえるということである。
@@ -600,373 +587,13 @@ augmentationに関連した成分である；これらは各原子サイト$a$�
 成分というわけにはいかない点はある。数値計算の上では、そのことが、計算の
 不安定性を引き起こさないようにしないといけない。
 
-\begin{quote}
-[注：ノーテーションに整合性を持たせるのが大変である。\cite{PAW}や
-\cite{kresse99}ではチルダやらハットやらがごちゃごちゃとした意味で使われ
-ている。ここではできるだけすっきりしたノーテーションをもちいるように試
-みるがそのため従来の記法とすこし違うところがある。
-%以下では0,1,2をそれぞれ「smooth part」, 「onsite true part」,
-%「oniste counter part」の表示に用いる。これはlmfのreferenceとはちょっと
-%ちがっている。
-チルダは後述のように「多重極をGaussianで補正した電子密度$\tilde{n}$
-に対して用いるが、上述の$\tilde{P}_{akL}$についても歴史的理由で用いることにする。]
-\end{quote}
-% However, $F_i(\bfr) = \sum_{akL} C^{(i)}_{akL} {P}_{akL}(\bfr-\bfR_a)$
-% for $|\bfr-\bfR_a| <R_a$ is not perfect 
-% becasue of cutoff $k<k_{\rm max}$ and $l<l_{\rm max}$.
-%$\tilde{P}_{akL}(\bfr)$ is the augmentation atomic functions which replace
-%${P}_{akL}(\bfr)$ in the site $a$.
+ただ現実には、
+$F_{0i}(\bfr)+F_{1i}(\bfr)-F_{2i}(\bfr)$などという加減演算はコードの中で
+行う訳ではない。これを考えると、基底関数$F_{i}(\bfr)$はむしろ、「これら
+の関数の一揃い(集合）」であるとして考えた方がいい。これを以下説明する。
 
-
-\subsubsection{\bf ${P}_{akL}(\bfr)$の決め方:}
-APWの場合\cite{soler89}では、envelope関数$F_{0i}(\bfr)$は平面波であり、
-$F_{0i}(\bfr)$のMTサイトでの展開の$L$成分は、エネルギー$|\bfq+\bfG|^2$の球
-ベッセル関数$\times Y_L$となる。lmfではこの球ベッセル関数を
-ラゲール多項式を修正した関数系$p_{kl}(\gamma,r)$で展開している(ラゲール多項式の
-引数に$r^2$を代入したものであり,\cite{Bott98}の12.15式あたりに詳細な説明
-がある)。この$k$の範囲が$0\le k \le$KMXAとなる。
-
-MTOではすこし複雑なことをしていてsmooth Hankelを
-augmentするとき中心の原子におけるMT(Head Part MT)では
-各$L$ごとに完全にradial partをくりぬくやり方でaugmentしている。
-すなわち、このときには${P}_{akL}(\bfr)$として、smooth Hankelのonsite成
-分そのものを使っていることになる。そのためkの数は一個ですむ。
-またTail partのMTでは、上述の$p_{kl}(\gamma,r)$で展開している。
-\cite{lmfchap}のp.11。\\
-
-
-[$p_{kl}(\gamma,r)$での展開は再検討してもいいかもしれない。
-これはbndfp.Fのhambl-augmbl.F-bstrux-pauggp
-あたりに関係している。bndfpでよばれるhamblはハミルトニアンをつくるサブルー
-チンであり、napwがAPWの数であり、kmaxがKMXA。とくに、（推定だが）問題になりそうなの
-は、もとの平面波のMT内での絶対値の２乗和より、projectしたものの２乗和の
-ほうが大きくなりうる点である。これはPAWでも起こりうるが、ノルムがマイナ
-スになるような基底をあたえてしまう要因になりうる。]
-
-
-\subsubsection{\bf $\tilde{P}_{akL} (\bfr)$の決め方:}
-まず、各$a,l$に対してradial schoredinger eq.を
-特定のエネルギーenu(もしくはそれに対応した対数微分であるP(pnu)で解く。
-そのあと、それのエネルギー微分をつくる。これらがphi,phidot
-($\phi_{al}(r),\dot{\phi}_{al}(r)$)である。
-次に、それらの線形結合
-$\tilde{P}_{akL}(\bfr)=(A\phi_{al}(r)+ B \dot{\phi}_{al}(r))\times Y_L$
-を考える。この際、係数$A,B$は、MT端において
-${P}_{akL}(\bfr)$と同じ値と微分値をもつように決定する。
-
-Pの値はコンソール出力でptryで表示されている。
-(一方、コンソール出力で表示されるebarは占有軌道の各lごとのDOSの重心位置。
-現在のデフォルトはOPTIONS PFLOAT=1である。
-古いバージョン（PFLOAT=0)ではバグがあった；過去とのcompatibilityのための
-こしてある）。通常,ebarに対応するptryを計算しそれに対応したptryをpnewとする、
-（コードではfp/pnunew.F L92;ebar =hbyl(m,isp,ib)/qbyl(m,isp,ib)参照）。
-しかしそれでは不十分で、自由空間での対数微分の値(fp/pnunew.F;Free electron value)より深くなりす
-ぎないという制約を課している；これは単純にはMT内でのポテンシャルが
-上に凸であることを意味する。占有数が少なすぎるとき、
-hybridyzationの影きょうで見かけ上そういうこと
-（高い位置にあるべきenuが下がりすぎることが起こる）。
-
-%In the one-body problem for given one-body potential $V(\bfr)$,
-%we consider the eigenvalue problem with the Hamiltonian and overlap matrix 
-%$\langle F_i| -\frac{\nabla^2}{2m} |F_j \rangle $ and 
-%$\langle F_i| F_j \rangle $. However, this procedure contains complicated
-%cross terms. Instead of this procedure, we consider another type of one-body problem
-%explained in the following.
-
-$\tilde{P}_{akL}(\bfr)$は、phi,phidotという関数で表現されており、
-self-cosnsitencyへ達するitetationにおいて更新されていくのがデフォルトだ
-が、固定することも出来る(FRZWFオプション,IDMOD=1、将来的には原子で計算し
-たphi,phidotに固定したほうが系統的誤差を減らせる可能性がある)。
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{基底関数の張る空間と関数の積} 
-\req{eq:basis}のように$F_i$は３つの成分からなっていた。
-%$F_i=[F_{0i}(\bfr),F_{1ia}(\bfr), F_{2ia}(\bfr)]$。ここで、
-%$F_{1ia}(\bfr) =\sum_{kL} C^{i}_{akL} \tilde{P}_{akL}(\bfr)$であり、
-%$F_{2ia}(\bfr) =\sum_{kL} C^{i}_{akL} {P}_{akL}(\bfr)$. 
-%3つの成分を第０成分、第１成分、第２成分と呼ぶことにする。
-%$F_{1ia}(\bfr)$と$F_{2ia}(\bfr)$については$|\bfr| \le R_a$.\\
-%\noindent (ユニットセルに一個以上のMTサイトがある時には
-%$F_i= [F_{0i}(\bfr), \{ F_{1ia}(\bfr), F_{2ia}(\bfr); 
-%a\in {\rm atomic \ sites} \}]$と書いた方が正確だが、単純化して上のよ
-%うに書くことにする
-%, but we sometines use the above expression forsimplicity
-%).
-単純には\req{eq:basis}のように$F_i=F_{0i}+F_{1i}-F_{2i}$と書けるが、この意味には注意を
-払う必要がある.もともとは単純な足し算の意味であったが、
-実際的には、これらの個々の成分は独立性をもたせて扱うので、（もと
-もとの意味を忘れてはいけないが）,数学的にwell-definedなものとするには、
-$F_i$は独立な3成分からなるものであると考える必要がある。実際、
-$F_{0i},F_{1i},F_{2i}$を直接に加減するような演算はでてこない。
-
-%ちょっとおかしい。
-%；たとえば、ある関数を$F_{0i}$に加え、その
-%分を$F_{2i}$から差し引くという変換をしても物理的には等価なものを表すこと
-%になる；全エネルギーはそういう変換に対する不変性をもつ必要がある(注：議
-%論をもう少し加えること)。
-
-%
-%言い方を変えると以下のようにも言える。
-%「ヒルベルト空間（複素関数空間）
-%${\cal W}_{\rm all}={\cal V} \otimes \Pi_a ({\cal A}_a \otimes {\cal A}_a)$
-%（${\cal V}$は全空間であり、${\cal A}_a$はMTサイト$a$の複素関数空間）を考えると、
-%基底関数(basis function)の張る空間 ${\cal W}=\{ F_i \}$は、
-%${\cal W}_{\rm all}$の部分空間となる。」関数の連続性が係数$C^{i}_{akL}$
-%で規定されている。
-%
-%
-%${\cal W}$は、可能な限り最適であり、かつMinimumであり、
-%かつtranferabilityも十分に備えている必要がある。我々は、
-%「未来の電子状態計算においては局在的なenvelope関数と,平面波的なenvelop関
-%数を同時に必要とするであろう」と考えPMT法を開発することにした。
-
-
-%おり、その部分空間の元を「空間連続性をもった関数である」と呼ぶことができる。
-
-のちほど、Hamiltonianや重なり積分を考える時には
-波動関数の積を考える必要があるが、
-$F_i$は３つの成分からなっているので、
-式\req{eq:basis}を単純に2乗するとクロスタームを考えて３x３＝９
-つの項がでてくる。しかし、実際にはクロスタームは無視して取り扱う。
-（ただし$k_{\rm max},l_{\rm max}$が無限大の極限では厳密に無視できる）。
-すなわち、基底関数で張られる空間${\cal W}=\{ F_i \}$においては二つの関数の積を3成分の表示で、
-\begin{eqnarray}
-F_i(\bfr) F_j (\bfr)
-&=& F_{0i}(\bfr) F_{0j}(\bfr)+ F_{1i}(\bfr)F_{1j}(\bfr)-
-F_{2i}(\bfr)F_{2j}(\bfr)
-\label{eq:product}
-\end{eqnarray}と定義する（これは電子密度や波動関数の積において用いる。
-和は形式的なものであり、3つの成分は独立したものであると考える必要がある）。
-また、空間積分は
-\begin{eqnarray}
-\int F_{0i}(\bfr) F_{0j}(\bfr) d^3r 
-+\sum_a \int_a F_{1ia}(\bfr) F_{1ja}(\bfr) d^3r
--\sum_a \int_a F_{2ia}(\bfr) F_{2ja}(\bfr) d^3r
-\end{eqnarray}
-で定義する。内積とするには$F_i$の複素共役をとる。和は自然に定義できるし、
-積や積分が定義できている。それで積としての電子密度（密度行列も）自然につくれる。
-
-クーロン相互作用の定義に関しては、密度も3成分表示されるので、$3\times3$
-成分が出てくる。これをそのまま計算することも可能ではあるが、
-後述の方法ではいったん多重極の考えを利用して,3成分の電荷密度$n$に対して、
-$n\rightarrow \tilde{n}$という変換を定義し、$\tilde{n}$をもちいて
-クーロン相互作用を定義することとする。これは波動関数のレベルでも行えるので、
-$\langle \psi \psi |v| \psi \psi \rangle$も原理的にはきちんと定義できている
-（将来的にこれをきちんと尊重するようにfpgwをなおしていかないといけない）。
-
-$L$のカットオフはLMXA。
-
-{\small [\noindent 注：この括弧内は読む必要なし。修正必要。PAWのformalismでは、
-${F}_i={\cal P}F_{0i}$というような形で、
-「あるprojector${\cal P}$をsmooth part$F_{0i}$に作用させることにより
-Fullの波動関数が得られる」とする。それで、PAWのセールスポイントは
-『total energyをfullな波動関数の代わりに「$F_i$の線型結合からなる
-smoothな波動関数に関して最小化する」という形で定式化でき、projectorを
-たくさんとればこれはいくらでも厳密化できる』というものであった。
-しかし、これは正しいとは思えない。projectorはLAPWで行うように２つにとどめるのがよいように思える。
-単純には、projectorを増やしていくと、真の解にいきつくより先に、解がこわ
-れるということがおこるとおもわれる；昔からLAPW業界ではphi,phidotだけでな
-くもうひとついれて解の精度をあげることが試みられてきたが単純にはうま
-くいかない。基底をふやすにはlocal orbital、あるいは（違うenuでといたもの
-でaugmentする）MTOをいれるべきである；これらの手法では、外部の基底と内部
-の基底の接続をすこしちがうやりかたで行うことになる。]}\\
-
-
-以下では、この3成分をもつ
-%部分空間${\cal W}$のなかにある
-クーロン相互作用、電子密度と外場との結合を、もともとの波動関数がどうであっ
-たかに注意しながら、線形演算子として定義していく。
-波動関数に対して、内積、微分（$\nabla$）、
-さらにLDA計算における全エネルギーを定義し、それの最小化で解をもとめる方
-程式をだす。フルハミルトニアンも作れるので,GW計算の式などもおのずと与えられる
-（$\langle \psi \psi |v| \psi \psi \rangle$が与えられるので）。
-
-
-%[{\bf ???}ヒルベルト空間${\cal W}$での量子力学がきちんと定義できていると言って
-%よいのか???電磁場との相互作用とゲージ不変性から電子密度やカレントを定義
-%する。Non-colinearをきちんと導出。]
-
-
-
-%また、電子密度、密度汎関数も定義できる。このことは将来的により洗練された形のGW近似などをimplementしよ
-%うとするときに重要になってくるかもしれない
-%（実際、現在のGWのimplimentationでは、このクーロン相互作用の定義を
-%ちゃんと守ったimplementationになってない；微妙に乱暴になっている。要は
-%$\langle \psi_i\psi_j|v|\psi_k \psi_l\rangle$をどう計算するか？ということ）。
-
-% (電荷保存法則とかには注意しないといけないかも.電磁場までいれた量子力学を
-% 書き下しておいたほうがいいかも。誰か。。).
-
-% We treat the quantum mechanichs in the Hilbert space $\{ \tF_i \}$
-% instad of the full problem in real space. It is
-% treated numerically very accurately. In order to define the quantum mechanichs, 
-% we have to fix the definitions product of eigenfunctions, $\nabla$, norm, 
-% and the Coulomnb interaction. 
-% We will show how the one-body problem in LDA in represented in ${\cal W}$.
-% The quantities in real space can be simply identified in the $W$ space.
-
-%とにかく、このような「きちんと組み立てておく」というのが大事なような気が
-%する。そうしておくと数値計算がしっかりした土俵に乗る。こういう
-%できるだけおおきい枠組みのレベルでモデル化してカットオフを導入し
-%ておくことをしておかないといけない。
-%低レベルでへんなカットオフをいれるようなコードだと、制御不能になってくる。
-
-
-%またそういうことを意識しておくとコードを書くときにもどこに注意を払うべきか？とかがわかる。
-%最小化の原理がどう成り立つかとか、たとえばある項を意図的に固定するとどう
-%振る舞うか？などが予想できないとデバッグも困難である。
-
-
-%また、系統的なエラーを除くには、コードが最小化原理にそって組み立てられて
-%ることが重要であるとおもわれる。
-
-
-%\noindent {\bf 注意}：もともとのenvelope関数$F_i(\bfr)$から、
-%$\sum_{akL} C^{i}_{akL} {P}_{akL} (\bfr)$をとりだす操作はプロジェクショ
-%ンといわれる。LAPW、PAW、LMTOなどではインプリメンテーションによりいくつかの
-%種類のプロジェクションの仕方がありえる。
-
-
-%以下の議論において「3成分基底関数$F_{i0}$,$F_{i1}$,$F_{i2}$の線形結合で物理
-%量をあらわす」という意味においては、数学的にきちんと定義をしていってるの
-%で、3つの成分を独立なものであると思っても、内積が正定値であるかぎりにおいては、
-%問題なくwell-definedになっている。その意味でMTがかさなっても数学的には破
-%綻していない.
-
-
-以下の議論をきちんとみていくと、
-「3成分ヒルベルト空間の有限次元の部分空間であって、内積
-$= \int dr F^*_{0i}(\bfr) F_{0j}(\bfr)  
-+ \sum_a \int_{|\bfr| <R_a} d\bfr (F^{*}_{1i}(\bfr) F_{1j}(\bfr) -F^{*}_{2i}(\bfr) F_{2j}(\bfr))$
-が正定値になっているもの」において量子力学が数学的にきちんと定義されてい
-ることがわかる。基底はとにかくまず固定するわけでありtigh-bindingモデルで
-の量子力学である。
-
-MTが重なっていても数学的な破綻は生じない。
-ただ、これが「もともとの問題を正確にモデル化したもの」になってるかどうか
-は別問題である。この点で$\{ F_i \}$のクオリティが問われることになる。
-
-「3成分で表現された基底をどうつくるか？」という問題と
-「もし基底があたえられたとしてそれからどうLDAの全エネルギー関数（あ
-るいは量子力学）をset upするか？」は別問題である。あるいは、ここを分離し
-て考えるところがキーポイントである。
-
-基底関数が固定されていれば、最終的に得られるLDAでの全エネルギーは、tight
-bindingなもの（基底関数の線型結合の係数を選んでから波動関数を決定する問
-題）となる。それで、$F_{i}$の3成分が独立に与えられているとしても、数学的
-にきちんと定義された問題として成り立っている
-%これは数値計算のrobustnessの点から非常に重要である。
-%この部分でしっかりしたコーディングになってないといけない。
-%
-%実際には、iterationの途中で$\tilde{P}_{akL}$の最適化
-%もおこなっていくことになる（これは全エネルギー最小化から直接に出て
-%くる最適化ではなく、PDOSの重心位置でradial schoredinge eq.を解いて
-%$\tilde{P}_{akL}$をきめる）。
-
-
-%；$\{F_{i}\}$の内積が正定値であれば、$\{F_{2i}\}$が
-%$\{F_{0i}\}$のプロジェクションである必要もない。
-
-
-\subsection{重なり積分}
-前章で定義した内積から、
-%We introduce an inner product of ${\cal W}$, where 
-%these three type of components are orthogonal each other.It is (overlap matrix is) 
-\begin{eqnarray}
-&&O_{ij} \equiv \langle F_i| F_j \rangle 
-= \int dr F^*_{0i}(\bfr) F_{0j}(\bfr)  
-+ \sum_a \int_{|\bfr| <R_a} d\bfr (F^{*}_{1i}(\bfr) F_{1j}(\bfr) - F^{*}_{2i}(\bfr) F_{2j}(\bfr)) \nonumber \\
-&&= \int dr F^*_{0i}(\bfr) F_{0j}(\bfr)  \nonumber \\
-&&+ \sum_a \sum_{L} (C^{i}_{akL})^* \sum_{k'} C^{j}_{ak'L}
-\left(\int_{|\bfr| <R_a} d\bfr \tilde{P}_{akL}(\bfr) \tilde{P}_{ak'L}(\bfr)
--\int_{|\bfr| <R_a} d\bfr {P}_{akL}(\bfr) {P}_{ak'L}(\bfr) \right)
-\label{eq:over}
-\end{eqnarray}
-となる。基底関数$F_{i}$は、その成分
-$F_{0i},C^i_{akL},\tilde{P}_{akL}(\bfr),{P}_{akL}(\bfr)$
-によって指定されている。
-%また、この内積には原子の位置$\bfR_a$は直接には含まれていない。
-
-
-\subsection{重なり積分が正定値になっているか？}
-前述の重なり積分は、$F^{*}_{2i}(\bfr) F_{2j}(\bfr)$に関わる部分で負符号
-になりうる部分を含んでいる。原則的には、
-\begin{eqnarray}
-\int dr F^*_{0i}(\bfr) F_{0j}(\bfr)  
-+ \sum_a \int_{|\bfr| <R_a} d\bfr ( - F^{*}_{2i}(\bfr) F_{2j}(\bfr)) \nonumber 
-\label{eq:over2}
-\end{eqnarray}
-が、正定値性を満たしているのが望ましいと思われる。しかし、
-PAWや現在のlmfではそれは保証されていない。検討の余地がある。
-
-{\small [ひとつの考え方としては、各$a$サイトにおいて、
-$\int_{|\bfr| <R_a} d\bfr F^*_{0i}(\bfr) F_{0i}(\bfr)  
->\int_{|\bfr| <R_a} d\bfr F^{*}_{2i}(\bfr) F_{2i}(\bfr)$ 
-となるようにとると、これを自然にみたすことができる。
-すなわち各サイトにおいて、もとのenvelope関数の二乗積分のほうが、それを射影して得た$F_{2i}$の二
-乗積分よりおおきくなっていればよい。
-このためには、$F_{2i}$を切り出すprojectorの関数が正規直行系であればよい。
-検討の余地がある。]}
-
-%%%%%% --------------- PMT formalism ------------------
-\section{3-components formalism}
-\label{sec:formalism}
-We assume periodic boundary condition where
-real space (or unit cell) is specified by $\Omega$.
-$\Omega$ is divided into the muffin-tin (MT) regions and the interstitial region.
-The MTs are located at $\bfR_a$ with radius $R_a$, where 
-$a$ is the index specifying a MT within $\Omega$.
-$L\equiv(l,m)$ is the angular momentum index.
-We use units, $\hbar=1$, electron mass $m_e$, and electron charge $e$. 
-The spin index is not shown for simplicity.
-
-Here we give the 3-component formalism as a general
-scheme for the augmented-wave methods, which include any kinds of
-augmented waves including the local orbitals \cite{PhysRevB.43.6388}.
-%The 3-component formalism is given from the point of view that 
-%how to model the quantum mechanics in the 3-component space as follows.
-
-(訳)一般的なLAPW法などと同様に、実空間における周期境界条件を考える。
-実空間（もしくは実空間におけるユニットセル）を$\Omega$であらわす。
-$\Omega$はMTregionとその外側のinterstitial regionに分かれる。
-MTは原則的には重なっているべきではない（しかしながら、以下のformalismでは
-MTが重なっていても数学的破綻はなく、DFT計算においてはいくらかの重なりがあっ
-ても、それほどおかしくない全エネルギーの値が得ることはできる）。
-MT半径は$R_a$でその中心は、$\bfR_a$にあるとする。ここで$a$は$\Omega$内のMTを指定するindexである。
-角運動量のindexにはcombined angular momentum index
-$L\equiv(l,m)$をもちいる。ここで $l$ と $m$ はそれぞれ、orbital と magnetic quantum
-numbersである。また$\hbar=1$, electron mass $m_e$, and electron charge
-$e$を用いる。以下では、スピン変数については簡単のため省略して、formalism
-を書き下す（適宜おぎなって読んでいく必要がある）。
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \subsection{the 3-component space}
 \label{sec:3compo}
-
-（日本語による蛇足的説明）
-Augmentされた基底関数$F_{i}(\bfr)$は3つの成分からなっている。それらは、
-the smooth part (= envelope function) $F_{0i}(\bfr)$;
-the true parts in MTs $F_{1i,a}(\bfr)$
-; the counter parts in MTs (canceling the smooth part) 
-$F_{2i,a}(\bfr)$である。PMT法では、$F_{0i}(\bfr)$は、
-\smh\ $h_L(\bfr-\bfR_a)$のBloch sumあるいはPWである。
-$F_{1i,a}(\bfr)$と$F_{2i,a}(\bfr)$はMT内部$|\bfr-\bfR_a|<R_a$でのみ定
-義されている（以下の数式においては、場合により$|\bfr-\bfR_a|>R_a$でゼロであると考える）。
-従来のaugmentationの理論においては、これらを用いて基底関数は
-$F_i(\bfr) = F_{0i}(\bfr)+\sum_a F_{1i,a}(\bfr-\bfR_a)- \sum_a F_{2i,a}(\bfr-\bfR_a)$ 
-(e.g. See Eq.(2) in \cite{kresse99})と書くことができる。
-しかしながら,以下のthe 3-component augmentation for bilinear productsの
-方法では、この表式は形式的なものであり、各コンポーネントは
-それぞれ個別に処理され、コンポーネントをつなぐような項は現れ得ない。
-これを考えると、基底関数$F_i$はむしろ「関数の集合」であると考えたほうが
-自然であり、$F_i=\{F_{0i}(\bfr),\{F_{1i,a}(\bfr)\},\{F_{2i,a}(\bfr)\} \}$
-という表式を用いて理論をもちいて書き下したほうが、
-より正確に理論が表現でき、以下で見るように数学的に素直で論理構造が明瞭なformalismが組み立てられる。
-ただ、上の$F_i$の表式をそのまま使っていくと、はやたらと括弧がやたら多く、
-見にくい数式になってしまう。それで以下のように組み立てていく。\\
-
-
 Any augmented basis $F_{i}(\bfr)$ consists of three kinds of components, 
 where $i$ is the index specifying basis function. $F_{i}(\bfr)$
 consists of the following three components:
@@ -994,6 +621,18 @@ In the sense that $F_{0i}(\bfr)$ is analytic and 1st and 2nd components
 are given on a dense radial mesh, a basis $F_{i}(\bfr)$ is specified
 without any numerical inaccuracy.
 
+従来のaugmentationの理論においては、これらを用いて基底関数は
+$F_i(\bfr) = F_{0i}(\bfr)+\sum_a F_{1i,a}(\bfr-\bfR_a)- \sum_a F_{2i,a}(\bfr-\bfR_a)$ 
+(e.g. See Eq.(2) in \cite{kresse99})と書くことができる。
+しかしながら,以下の方法では、この表式は形式的なものであり、各コンポーネントは
+それぞれ個別に処理され、コンポーネントをつなぐような項は現れ得ない。
+これを考えると、基底関数$F_i$を「関数の集合」であると考えたほうが
+自然であり、$F_i=\{F_{0i}(\bfr),\{F_{1i,a}(\bfr)\},\{F_{2i,a}(\bfr)\} \}$
+という表式を用いて理論をもちいて書き下したほうが、
+より正確に理論が表現でき、以下で見るように数学的に素直で論理構造が明瞭なformalismが組み立てられる。
+ただ、上の$F_i$の表式をそのまま使っていくと、はやたらと括弧がやたら多く、
+見にくい数式になってしまうので、この式のかわりに以下の\req{eq:basis}を用いることとする。
+
 $F_{i}(\bfr)$ is a member in the {\it 3-component space}, which
 is defined as a direct sum of linear spaces
 corresponding to the components (0), (1) and (2). Thus $F_i$ can be expressed as
@@ -1020,6 +659,24 @@ With the coefficients $\{\alpha_{p}^i\}$, wavefunctions can be written as
 where linear combinations are taken for each components.
 We represent electron density and so on as a 3-component function as well.
 
+$\oplus$と$\ominus$は、単なるセパレーターであり、\req{eq:basis}は
+上記の本来の表式の$F_i(\bfr)$と全く同じものを意味している。
+$F_i(\bfr)$は定義域を$\Omega$とする関数ではなく、
+関数の集合を意味している。
+この\req{eq:basis}は基底関数に関するものであるが、一般的に言ってこの形式
+の表式を3-component functionでの表式と呼ぶことにする。以下では電子密度な
+どもこの表式であらわされることになる。
+記号 $\oplus$ と $\ominus$ で分離された3つの成分を、
+0th, 1st, and 2nd components of $F_i$と呼ぶことにする。
+ここで$F_{1i}\equiv\{ F_{1i,a}(\bfr)\}$ と$F_{2i}\equiv\{ F_{2i,a}(\bfr)\}$と
+書く。それで1stと2nd componentsは、MT内で定義された関数$F_{1i,a}(\bfr)$な
+どの集合である。添字$a$はこの関数が$\bfR_a$にあるMT内で定義された関数で
+あることを示している。
+
+我々は、基底関数を3成分関数であるとしたから、この基底関数を
+実空間$\Omega$での量と対応させるためには、何らかの写像で、$\Omega$の量と対応させ
+る必要がある。この写像として以下の$\calR$-mapping を定義する。
+（ただこれは理論的な議論をするために導入するものであって、実際のコードでそういう足し合わせは行わない）。\\
 Note that the 3-component space is a mathematical
 construction, a model space: we have to specify how to map a 3-component 
 function to a function in real space.
@@ -1092,14 +749,22 @@ As we see in the followings, it is a good approximation to use (A') instead of (
 Above two important concepts, 
 the additive augmentation and the separable form, 
 were used in both of LMTO and PAW \cite{lmfchap,PAW,kresse99}.
-They were originally introduced in Ref.\onlinecite{soler89}.
+They were originally introduced in Ref.\cite{soler89}.
 
+与えられた$F_{0i}$に対して、
+Augmentationの方法により $F_{1i}$ and $F_{2i}$を、\req{f2}のように定めることができる。
+$F_{2i,a}(\bfr)$ は$F_{0i}(\bfr)$のMT内へ射影であり、
+以下で述べる展開 \req{onecenter1} において $\CiakL\equiv C_{akL}[F_{0i}]$を用いて
+定めることができる。ここで、カットオフを
+$l\le l_{{\rm max},a}$と$0\le k\le k_{{\rm max},a}$ とする。すなわち
+$F_{2i,a}(\bfr)$はこのカットオフまで含めた意味で与えられる
+（MTOの中心サイトの\smh 関数（Head part)は$\{P_{akL}(\bfr)\}$に含まれているとする）。\\
 Let us consider how to determine $F_{1i,a},F_{2i,a}$ for
 a given $F_{0i}$. As for $F_{2i,a}$, (A') means that 
 $F_{0i}$ should be reproduced well within MTs.
 Generally speaking, $F_{2i,a}(\bfr)$ can be represented as
 \begin{eqnarray}
-&&F_{2i,a}(\bfr) \equiv \sum_{k,L} \CiakL P_{akL}(\bfr), \label{f2}
+&&F_{2i,a}(\bfr)\equiv \sum_{k,L} \CiakL P_{akL}(\bfr), \label{f2}
 \end{eqnarray}
 where $k$ is index for radial degree of freedom. 
 We introduce truncation parameters
@@ -1112,7 +777,7 @@ low energy (low frequency) parts of $F_{0i}$ well.
 The functions $\{P_{akL}(\bfr)\}$ can be rather general; 
 as explained in \refsec{sec:pmtmethod}
 the central parts of \smh\ is treated as it is
-(in other words, treated as a member of $\{P_{akL}(\bfr)\}$ \cite{privatemark1}).
+(in other words, treated as a member of $\{P_{akL}(\bfr)\}$). %\cite{privatemark1}).
 $F_{1i,a}(\bfr)$ is given from \refeq{f2}
 with a replacement of ${P}_{akL}(\bfr)$ with $\widetilde{P}_{akL}(\bfr)$.
 Here $\widetilde{P}_{akL}(\bfr)$ is a linear combination of
@@ -1124,9 +789,57 @@ F_{1i,a}(\bfr) = \sum_{k,L} C^i_{akL} \wPakL(\bfr). \label{f1}
 %We can usually take relatively small $l_{{\rm max},a}$ ($\sim 4$) in practice.
 %as discussed in Ref.\cite{soler89}.
 
+$F_{1i,a}(\bfr)$を決めるには,あらかじめ、atomic-like radial functions for
+each $al$ を定めておく必要がある。; 我々は、$al$-dependentな
+radial functionsを用いる($aL$-dependentなものは用いない。Remind $L\equiv(l,m)$).
+これらの関数は、a reference spherical one-body potentials $V_a(r)$ (determined
+self-consistently in this paper) と $l$-dependent reference energies
+$\eal$から定めることができる。すなわち、我々は、the radial Schr\"odinger
+equation を$V_a(r)$ at $\eal$で、解きradial functions $\phi_{al}(r)$
+とそのエネルギー微分$\dot{\phi}_{al}(r)$を得ることができる。
+また原子によってはloを用いるが、そのときには、
+さらに別の関数$\philo(r)$ \cite{eal}をreference energy $\eallo$で解いて用意しておく必要がある。
+
+loについては、$F_{0i}$ と $F_{2i}$ が$\Omega$全領域でゼロである。
+それで$F_{1i,a}$はその値と傾きがどちらもMT端でゼロである必要がある。
+このloは、規格化を除いて
+$\{\phi_{al}(r)Y_L(\hat{\bfr}),\dot{\phi}_{al}(r)Y_L(\hat{\bfr}),\philo(r)Y_L(\hat{\bfr}) \}$
+の線型結合で一意的に書くことができる\cite{lo}.
+
+MTOとeloに関しては $F_{1i,a}(\bfr)$ は\refeq{f2}において、
+${P}_{akL}(r)$ を $\widetilde{P}_{akL}(r)$ で置き換えることに寄って得ら
+れる。ここで、$\widetilde{P}_{akL}$ は
+ $\phi_{al}(r)Y_L(\hat{\bfr})$ と$\dot{\phi}_{al}(r)Y_L(\hat{\bfr})$の線
+ 型結合をとり、MT端で$F_{2i,a}(\bfr)$と値と傾きが一致するようにしたもので
+ ある。以上の置き換えで\req{f1}を得る。\\
+
+{\small
+\noindent {\bf elo}:(読まなくてよい)
+``extended local orbital(elo)``は最近はあまり使ってない。eloはMTOの一
+種である。lo同様に、局在性の高いorbitalを表現するために用いられる基底関数
+であるが実際上はある種のMTOであり外部に広がりを持っている。
+eloはMTOなので、エンベロープ関数\smh を指定する必要がある。それには
+$\RSMal$と$\epsilonal$が必要である。これらは、通常のMTOと違い、外部から手
+であたえるものではなく、MT端であらかじめ計算された
+$\philo(r)Y_L(\hat{\bfr})$と
+動径方向の二階微分までスムーズになるように選ばれる。
+したがって、elo の$F_{1i,a}(\bfr)$としては、
+$\philo(r)Y_L(\hat{\bfr})$そのものを使えば、自動的に（この場合2階微分ま
+で）スムーズにそのenvelope関数とつながるものとなっている。
+}
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{augmentation for product of 3-component functions}
-\label{aug3} Let us give a prescription to evaluate physical quantities
+\label{aug3} 
+電子密度などを評価する際には、その積を問題にする必要があ
+る。従来の方法では$\calR[F^*_i]\calR[F_j]$を計算する必要がある。
+これは、それぞれが3項からなるので、
+$F_{0i}(\bfr) F_{1j}(\bfr)$などのクロスタームを含むことになる。 
+このような項を数値的に精度よく評価するのは困難である。
+それで、PMT法では,この積の代わりに以下のような積'diagonal product'を考えることになる。\\
+Let us give a prescription to evaluate physical quantities
 for wavefunctions satisfying conditions (A') and (B).  First, we define
 diagonal product of 3-component functions as
 \begin{widetext}
@@ -1143,6 +856,7 @@ We apply $\calR$-mapping in \req{eq:calRF} to this product as
 + \sum_a F^*_{1i,a}(\bfr\!-\!\bfR_a) F_{1j,a}(\bfr'\!-\!\bfR_a)
 - \sum_a F^*_{2i,a}(\bfr\!-\!\bfR_a)F_{2j,a}(\bfr'\!-\!\bfR_a). \label{fnmap}
 \end{eqnarray}
+\end{widetext}
 We will use $\calR[F^*_i(\bfr)F_{j}(\bfr')]$ to evaluate quasilocal 
 products when (A') is satisfied.
 %\req{fnmap} means an augmentation not for the basis itself, 
@@ -1160,11 +874,53 @@ from 3-component wavefunctions $\psi_p(\bfr)$ in separable form as
 We can read this as a transformation of $X$ to the corresponding 
 operator in the 3-component space.
 
+この$\calR[F^*_i(\bfr)F_{j}(\bfr')]$ が物理的に意味があるのは以
+下の二つの場合である。第一の場合は、 $\bfr$と$\bfr'$ のどちらもが、
+同一のMT内にある場合である。このとき\req{fnmap}の
+$F^*_{1i,a}(\bfr-\bfR_a) F_{1j,a}(\bfr'-\bfR_a)  
+-F^*_{2i,a}(\bfr-\bfR_a) F_{2j,a}(\bfr'-\bfR_a)$ は
+右辺第一項のenvelope関数の積をatomic-like functionsの積で置き換えている
+ことになる。第二の場合は $\bfr$ と $\bfr'$ のどちらもがinterstitial
+regionにある場合であり、$\calR[F^*_i(\bfr)F_{j}(\bfr')]$ は
+$F^*_{0i}(\bfr)F_{0j}(\bfr')$に一致している。
+これらのことから、$\bfr \approx \bfr'$では
+$\calR[F^*_i(\bfr)F_{j}(\bfr')]$ を
+$\calR[F^*_i(\bfr)]\calR[F_{j}(\bfr')]$ の代わりに、
+基底関数の積を表現するのに用いることができることがわかる。
+電子密度や運動エネルギー項など、すべての物理量は、波動関数に関して双線型な演算子を
+基本にして組み立てられているので、この量の線型結合でそれらを表すことがで
+きる。
+
+\subsection{eigenfunction, overlap matrix, and kinetic energy}
+\label{sec:eigenfunction}
+物理量を評価するための基本的処方箋を与える。
+まず、一体波動関数は係数$\{\alpha_{p}^i\}$ をもちいて
+\begin{eqnarray}
+\psi_p(\bfr) = \sum_i \alpha_p^i F_i(\bfr).
+\label{eq:eig}
+\end{eqnarray}
+と展開できることから出発する。
+ここで、この波動関数は3成分表示で表示されている
+（3成分表示での和はその成分ごとにとられる）。
+次に、\req{fnproduct}の定義にもとづいて、
+$\psi^*_p(\bfr)\psi_{p'}(\bfr')$を考える。さらに$\Omega$への写像
+\begin{eqnarray}
+\calR[\psi^*_p(\bfr)\psi_{p'}(\bfr')]= 
+\sum_{i,j} \alpha_{p}^{i*} \alpha_{p'}^j \calR[F^*_i(\bfr) F_j(\bfr')].
+\label{eq:phiphi}
+\end{eqnarray}
+を考える。そして、あらゆる双線形な基礎的物理量は$\bfr \approx \bfr'$で
+$\calR[\psi^*_p(\bfr)\psi_{p'}(\bfr')]$から計算することができる。
+これで、実空間$\Omega$で定義されている物理量を、
+3-component function ${\psi_p}(\bfr)$の汎関数として(基底が固定されているばあには
+$\{\alpha_{p}^i\}$の関数として)与えることが可能になる処方箋を与えたことに
+なる。
+
 Based on the above prescription, we can define the inner product 
 $\langle \psi_p |\psi_{p'} \rangle$ as $\langle \psi_p |\psi_{p'}
 \rangle=\sum_{i,j}\alpha_{p}^{i*}\alpha_{p'}^{j}O_{ij}$.
 Here the overlap matrix  $O_{ij}$ is:
-%\begin{widetext}
+\begin{widetext}
 \begin{eqnarray}
 O_{ij} &\equiv& \langle F_i|F_{j} \rangle \equiv \int_\Omega d^3r 
   \calR[F^*_i(\bfr)F_j(\bfr)] \nonumber \\
@@ -1194,6 +950,27 @@ Partial integration gives $T_{ij}= \langle F_i| \frac{-\nabla^2 }{2m_e}|F_{j} \r
 since $F_{1i,a}$ and $F_{2i,a}$ have the same value and slope at the MT boundaries.
 This kinetic energy operator is interpreted as $T=\frac{-\nabla^2 }{2m_e} \oplus
 \{\frac{-\nabla^2 }{2m_e} \} \ominus  \{\frac{-\nabla^2 }{2m_e} \}$ in the 3-component space.
+
+{\small 
+\noindent{\bf 重なり積分が正定値になっているか？:}\\
+前述の重なり積分は、$F^{*}_{2i}(\bfr) F_{2j}(\bfr)$に関わる部分で負符号
+になりうる部分を含んでいる。原則的には、
+\begin{eqnarray}
+\int dr F^*_{0i}(\bfr) F_{0j}(\bfr)  
++ \sum_a \int_{|\bfr| <R_a} d\bfr ( - F^{*}_{2i}(\bfr) F_{2j}(\bfr)) \nonumber 
+\label{eq:over2}
+\end{eqnarray}
+が、正定値性を満たしているのが望ましいと思われる。しかし、
+PAWや現在のlmfではそれは保証されていない。検討の余地がある。
+[ひとつの考え方としては、各$a$サイトにおいて、
+$\int_{|\bfr| <R_a} d\bfr F^*_{0i}(\bfr) F_{0i}(\bfr)  
+>\int_{|\bfr| <R_a} d\bfr F^{*}_{2i}(\bfr) F_{2i}(\bfr)$ 
+となるようにとると、これを自然にみたすことができる。
+すなわち各サイトにおいて、もとのenvelope関数の二乗積分のほうが、それを射影して得た$F_{2i}$の二
+乗積分よりおおきくなっていればよい。
+このためには、$F_{2i}$を切り出すprojectorの関数が正規直行系であればよい。
+検討の余地がある。]
+}
 
 One-body problem for a given one-particle potential $V(\bfr)$ in real
 space is translated into a problem in the 3-component space for the
@@ -1240,8 +1017,74 @@ example, it is necessary to know how the change in the basis set affects
 the total energy when we calculate atomic forces. These are related to
 the so-called Pulay terms \cite{pulay69}.
 
+\req{eq:n}などの式で、我々は、angular-momentum cutoffを行う。
+それは$F^*_{1i,a}(\bfr) F_{1j,a}(\bfr)$と
+$F^*_{2i,a}(\bfr) F_{2j,a}(\bfr)$の high $l$ contributions
+を正確に取る意義がないからである。
+角運動量合成則から$2\times l_{{\rm max},a}$までの成分がこの
+\req{eq:n}の第１、２成分に現れるが、それの$l_{{\rm max},a}$より上の成分
+は捨てることにする。このカットオフは
+$O_{ij}$ and $T_{ij}$には影響しない：これらは積分の結果、合成後のs成分
+のみしか効かないためである。
+%これら$O_{ij},T_{ij}$ and $n$は
+%$\sum_{ij} \rhoij F_i^*(\bfr) F_j(\bfr')$. As we see in
+%\refsec{sec:augment}, this behaves as the one-body density
+%matrix only when $\bfr \approx \bfr'$.
+
+この$n$から$\calR[n]$を作ると$\Omega$での電子密度が作れる。
+クーロン相互作用は原則的にその$\calR[n]$から評価できる。
+しかし\refsec{sec:coulomb}で説明するように、計算を簡単にするため、
+更なる近似をおこなってそれを評価することにする。結果として、そのクーロン相互作用は
+$\calR[n]$の関数としてではなく、$n$の直接の関数として与えられることになる。
+以下のSec.\ref{sec:multi} と \refsec{sec:frozencore}では、これを説明す
+るための予備的な準備を行い、the Coulomb interactionを
+\refsec{sec:coulomb}で定義する。それで最終的には3成分関数の基底の張る空間において
+モデル化された量子力学が定義されたことになる。
+
+3-component augmentationの手法の２つの問題点を指摘しておく。
+一つ目は正定値性の問題である。
+\req{eq:norm}の最後の項は負の寄与をあたえるので、
+$O_{ij}$が正定値行列となっていない可能性がある。
+これを避けるには、基本的には、
+$\intaa d^3r \left(F^*_{0}(\bfr)F_{0}(\bfr)-F^*_{2,a}(\bfr)F_{2,a}(\bfr)\right)>0$ 
+が任意の基底関数の線型結合$F$について成り立つようしておくべきである。
+現状のPMT法のimplementatioでは、カットオフパラメーターが有限の
+値の時には必ずしも満足されない。しかしカットオフパラメーターを十分に
+大きくとることで対応できている。
+%We think that the PAW method in \cite{kresse99} is
+%designed to satisfy this condition.
+二つ目は、``null-space problem''である。
+この問題を簡単に示すため以下の場合を考える。まずはMT内のみで違いのある
+二つのenvelope関数（あるいはenvelop関数の重ね合わせ）を考えてみる。
+そのとき、その差となる関数が``null envelop function''である。
+これはMT内でのみ値をとるenvelop関数であり、これをaugmentしたものをnull
+basisと呼ぶ。これの1st componentはゼロである。
+カットオフが非常に大きい極限を考える。このときには、
+Hamiltonian $H_{ij}$ (後の\req{eq:v} あたりで説明)と 
+$O_{ij}$の固有値がどちらもゼロになってしまう。これはある種のゴーストである。
+実際、基底関数を大きくとるとき、このnull basisが問題になる。
+これは結果としてコントロール不能な固有値をもつ固有ベクトルを生じえるし、
+あるいは、他の固有関数と不定な結合をつくって、非常に奇妙に変形させてしまう。
+（$n_2$の積分値が異常に大きくなって計算が数値的に破綻したりすることが起こる）。
+これはPMT法のみならず一般的なaugmentationの方法において現れ得る
+課題である。現状においては、基底の数がこのような異常が起こらない範囲にと
+どめて計算を行っている。実際、結果で見られるように、そのような範囲内でも十分に安定し
+た結果が得られている。
+この2番目の問題は大きく言えば1番目の問題と同義であり、
+「数値的な意味で3-componentの基底関数の張る空間を正定値で安定であるように
+保ちながら系統的に大きくしていく」ことが安定してできるようにしていくこと
+が望ましいが、これは将来的課題である。
+
+まとめて言って、augmentationにかかわるcutoff parameterは
+$l_{{\rm max},a},k_{{\rm max},a}$であった。$\EMAX$によりAPWの数はコント
+ロールされた。また0th component$F_{0i}(\bfr)$ を$\Omega$で表現するために
+その実空間メッシュのカットオフエネルギー$\EMAXm$が必要である。
+我々の手法では、$F_{0i}$とその二乗である$n_0$に対しての実空間メッシュは同じにとっている。
+
+
+
 ------------------------\\
-浅いコアについてはPZを指定することでloをもちいて扱う
+浅いコアについてはctrlファイルでPZを指定することでloをもちいて扱う
 （注：デフォルトのPをセミコアにするときは、大きい整数値をもつPを指定する
 必要あり。たとえばFeだとデフォルトで3dがvaleceなので
 これをセミコア扱いして、「PZ=0,0,3.8 P=0,0,4.2」とすれば3d,4dをvalenceに
@@ -1249,38 +1092,27 @@ the so-called Pulay terms \cite{pulay69}.
 設定を使うこともあるが、その有効性はもうすこし検証する必要あり）。
 
 {\small 
-ほかにもPZを13.8などとして、局在MTOにそのハンケル関数のtailを付け加える
-方法もある。ただ数値的安定性などの点から現在はあまり利用していない。
+ほかにもctrlPZを13.8などとして、eloをつかう（局在MTOにそのハンケル関数のtailを付け加える
+方法）のもある。ただ数値的安定性などの点から現在はあまり利用していない。
 注：このときには、semi-coreのエネルギーlevelで、MT内でradial schr\"odinger eq.を解く。
 そして、それをMT外部へsmooth Hankel関数に接続した局在化基底をもちいる。
 この処方箋は基本的には、通常のvalence電子に対してもちいるMTOとおなじであるが、
 この場合envelope関数のsmooth Hankelを指定するパラメーターは自動最適化される。
 このsemi-coreをつかうには、ctrlファイルではPZ＝12.5などとして+10でいれる。
-この場合にもlocal orbitalと言ったりするが用語として適切ではない;通常のLAPWで
-のlocal orbitalは、MT内に拘束されたものであるので混同をまねく。
-}
+（この場合(extended local orbital)はloの一種と言うよりMTOである。通常の
+local orbitalではMT内でのみ値をとる。}
 
-これ以外の取扱いでは、lmfではFrozen core近似で扱う(LFOCA=1)のが基本である。
-これで、コアは、上述のように3成分表示で表現されることになる。
-浅いコアはlocal orbitalで扱わざるをえないが、そうでなければ、
-LFOCA=1のほうがよい。深いコアでMT内に十分に局在してるものなら、LFOCA=1でもLFOCA=0でもかまわない。
-LFOCA＝０は、MT内に閉じ込めた条件である（無理にMT内に局在させて解く）。
-しかし、もし、NMRなどでコア位置での電場などを真面目にときたいのなら、LFOCA=0の方
-がいいかもしれないし、そもそもAkaiKKRのradial schoredinge方程式を解くルーチンを組み
-込んだ方がいいかもしれない（あるいはlmfに組み込まれているlocpot.F elfigr
-でOKなのかもしれない。確認必要。)
-全エネルギーに対してコアは、「コアの運動エネルギー」と「コアの電子密度」
-を通じて寄与する。
-Frozen core近似では、孤立原子の計算によって、それらを決定して用いる。
-とくに、電子密度に関しては、孤立原子に関して得たものを単純に重ね合わせて固体
-中のコア電子密度とする。（LFOCA=0の近似では、MT内で解いて決定する）。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{multipole transformation}
-\label{sec:multi} In order to define Coulomb interaction in
+\label{sec:multi} 
+次のSec.\ref{sec:coulomb}でのクーロン相互作用の定義のために
+the multipole transformation ($\MM$-transformation) を定義しておく。これ
+はthe 3-component functionsを定義域、値域とするものである。\\
+In order to define Coulomb interaction in
 Sec.\ref{sec:coulomb}, we introduce the multipole transformation
 ($\MM$-transformation) for the the 3-component functions.  This
-corresponds to the compensation charges in Ref.\onlinecite{PAW}.
+corresponds to the compensation charges in Ref.\cite{PAW}.
 
 Before defining the $\MM$-transformation, we define the gaussian
 projection $\GG_a \left[f(\bfr)\right]$ as follows.  The projection
@@ -1299,7 +1131,7 @@ so that $G_{aL}(\bfr)$ has a normalized multipole moment.
 %Ritht? $N_{aL}=1/(\sqrt{\pi}RGS,a)^{3/2}}$
 $\RGSa$ in \req{eq:gl} is chosen small enough so that $G_{aL}(\bfr)$ is
 negligible for $|\bfr|\geq R_a$ (See Eq.(25) in
-Ref.\onlinecite{lmfchap}). This $\GG_a \left[f(\bfr)\right]$ is a
+Ref.\cite{lmfchap}). This $\GG_a \left[f(\bfr)\right]$ is a
 superposition of gaussians $G_{aL}(\bfr)$ with keeping the multipole
 moments of $f(\bfr)$.  We can take rather small $\RGSa$ without loss of
 numerical accuracy; it is possible to take a limit $\RGSa \to 0$ because
@@ -1323,24 +1155,49 @@ the same.  Note that the $\MM$-transformation is not a physically
 meaningful transformation because $\calR[\MM[n]]=\calR[n]$.  With this
 transformation, interstitial electrostatic potential calculated from the
 0th component of \req{eq:multi} should be the same as that calculated
-from $\calR[n]$.\\
+from $\calR[n]$.
+
+$\MM[n]$ は単に、gaussiansを第2成分と第0成分に同じだけ付け
+加える変換である。ここで$\bfT$ はセルの translational vectorsである。
+この変換では$\calR[\MM[n]]=\calR[n]$であることはあきらかであるから、
+the $\MM$-transformationはゲージ変換などと同様に、物理量を変換するもので
+はない。ただ、この変換により、the 0th component of \req{eq:multi}でつく
+られるthe interstitial electrostatic potentialは$G_{aL}$の寄与が正しく評
+価される限りにおいて、$\calR[n]$で作られるものと一致することになる。
 
 ------------\\
-＊将来的に「$E_{\rm es}$を多重極変換せずに直接にすべての項をとって評価する」
+＊将来的に,以下の静電エネルギー$E_{\rm es}$を「多重極変換せずに直接にすべての項をとって評価する」
 という改良を考えていいんじゃないかと思う。多重極変換などが不要でむしろ簡
 単になる。逆にいえば、「現在のimplementationにおいて、
 （一見きれいな風には見えるが）なぜ、多重極変換にこだわって$E_{\rm es}$
 を評価する必要があるのか？」という疑問がある。メリットがあるかどうか検討必要。
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Coulomb interaction}
-\label{sec:coulomb} In principle, we can define the Coulomb interaction
+\label{sec:coulomb} 
+\refsec{sec:eigenfunction}で述べた処方箋にしたがえば、
+二つの電子密度$n(\bfr)=n_0\oplus n_1 \ominus n_2$ と
+$m(\bfr)=m_0 \oplus m_1 \ominus m_2$  の間のクーロン相互作用は、
+$\Omega$の電子密度$\calR[n]$と$\calR[m]$から計算すればよいことになる。
+また一方、全節で述べたように
+$\bar{n}=\MM[n]$ は $\calR[\bar{n}]=\calR[n]$ をみたしている( $\bar{m}$
+についても同様).したがって、われわれは$\calR[\bar{n}]$ を $\calR[n]$ 
+の代わりに使うことができる。なのでクーロン相互作用は、以下の\req{eq:coulomb0}
+と書くことができる。ここで $v(\bfr)=e^2/|\bfr|$である。
+和の記号$\sum_{\bfT}$には、セルの数での割り算が含まれているものと解釈することとする。
+しかしながら、この\req{eq:coulomb0}は$v(\bfr-\bfr'+\bfT)$
+が0th componentを他のcomponentとつなぐような
+クロスタームを含んでいるため数値的に評価するのは面倒である。
+それでここでは\req{eq:coulomb0}の代わりの近似形として、\req{eq:coulomb}で
+クーロン相互作用を評価することとする。
+
+In principle, we can define the Coulomb interaction
 between $n(\bfr)=n_0\ooplus n_1 \oominus n_2$ and $m(\bfr)=m_0 \ooplus
 m_1 \oominus m_2$ from the densities $\calR[n]$ and $\calR[m]$.  We can
 use $\calR[\bar{n}]$ instead of $\calR[n]$ where $\bar{n}=\MM[n]$
 satisfies $\calR[\bar{n}]=\calR[n]$, and $\calR[\bar{m}]$ as well.  Thus
 the Coulomb interaction $\left(n|v|m\right)_{\rm original}$ is given as
+\begin{widetext}
 \begin{eqnarray}
 \left(n|v|m\right)_{\rm original}=\sum_{\bfT} \int_\Omega d^3r d^3r' 
 \calR[\bar{n}(\bfr)] v(\bfr-\bfr'+\bfT) \calR[\bar{m}(\bfr')].
@@ -1367,8 +1224,16 @@ functions is given as
 &&\bar{n}_2 \circ v \circ \bar{m}_2 \equiv \sum_a \inta d^3r \intad d^3r' \bar{n}_{2,a}(\bfr)v(\bfr-\bfr') \bar{m}_{2,a}(\bfr'). \label{eq:n2vn2}
 \end{eqnarray}
 Note that $X \bullet Y$ means integral over $\Omega$, whereas $X \circ
-Y$ means integrals within MTs.
+Y$ means integrals within MTs.\\
+ここで、the dot operator($\bullet$や$\circ$)を用いた $X \bullet Y$ は $\bfr$(もしくは$\bfr'$)
+に関する積分を表している; 積分の領域はdot operatorの両サイドで同じでなけ
+ればならない。 $X(\bfr) \bullet Y(\bfr)$はスカラーとなるし、
+$X(\bfr) \bullet Y(\bfr,\bfr')$ は $\bfr'$ に関する関数となる（これは
+Einstein's sum ruleと似た取り決めである).この\req{eq:coulomb}においては$\calR$-mapping
+はつかわれていないことになる。
 
+ここで、元来の\req{eq:coulomb0}と、その近似形である\req{eq:coulomb}の差
+を評価しておく。\\
 Let us evaluate the difference between \req{eq:coulomb0} and \req{eq:coulomb}.
 This can be evaluated with the identity in Appendix \ref{sec:zeroonetwo} as
 \begin{eqnarray}
@@ -1380,7 +1245,7 @@ v(\bfr\!-\!\bfr') \left( \bar{m}_1(\bfr')\!-\!\bar{m}_2(\bfr') \right)  \nonumbe
 v(\bfr\!-\!\bfr') \left( \bar{m}_0(\bfr')\!-\!\bar{m}_2(\bfr') \right)\Big).
 \label{eq:coulombdiff}
 \end{eqnarray}
-This is essentially the same with Eq.(13) in Ref.\onlinecite{kresse99}.  In
+This is essentially the same with Eq.(13) in Ref.\cite{kresse99}.  In
 \req{eq:coulombdiff}, the difference consists of contributions from MT
 sites without terms connecting different MT sites. This is because
 $\bar{n}_{1,a}(\bfr)$ and $\bar{n}_{2,a}(\bfr)$ have the same multipole
@@ -1402,6 +1267,21 @@ $\bfr=\bfr'$.  In calculations such as arising in the $GW$
 approximations \cite{kotani07a}, we have to evaluate this as accurately
 as possible so that the exchange-pair cancellation is kept well.
 
+現在のPMT法のimplementationにおいては、
+Eqs.(\ref{eq:n1vn1},\ref{eq:n2vn2})におけるーロン相互作用
+$v(\bfr-\bfr')$を、別の境界条件を満たすグリーン関数
+$w(\bfr,\bfr')$で置き換えて計算している。ここで、境界条件は、MT球の表面
+をゼロ電位にとるようなものである（MT球を金属板であると考えアースしているのと同じ）。
+この$w(\bfr,\bfr')$をもちいても結果は変わらない；境界条件の違いは、差を
+とることで打ち消されるからである。結果、
+\req{eq:coulomb} の代わりに、
+\begin{eqnarray}
+&&\left(n|v|m\right)=\bar{n} \cdot v \cdot \bar{m} = 
+\bar{n}_0 \cdot v \cdot \bar{m}_0 + \bar{n}_{1} \cdot w
+\cdot \bar{m}_{1} - \bar{n}_{2} \cdot w \cdot \bar{m}_{2}. \label{eq:defnvm}
+\end{eqnarray}
+として、クーロン相互作用を計算することができる。
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Frozen core approximation}
@@ -1410,20 +1290,9 @@ density outside of MTs explicitly. Then we use the frozen core
 approximation; the charge density due to the cores are evaluated by a
 superposition of rigid cores as follows \cite{lmfchap}.
 
-First, we perform a self-consistent atomic calculation under the
-spherical approximation without a spin polarization to obtain its core
-density $\nc_a(\bfr)$. Then we make a fitted density $\nc_{{\rm
-sH},a}(\bfr)$ given by a linear combination of several \smh\ functions
-so that $\nc_{{\rm sH},a}(\bfr)$ reproduces $\nc_{a}(\bfr)$ for
-$|\bfr|>R_a$ within a numerical accuracy. Since $\nc_{{\rm H},a}(\bfr)$
-are analytic and smooth at their centers, we can treat them numerically
-accurately (we can use other kinds of analytic functions such as
-gaussians instead of \smh\ functions).\\
-
-\ \\
-Frozen core近似、LFOCA＝１の場合,
-まず原子のコアをlmfaで孤立原子において計算しておく。これをMT半径内でスムーズ
-化したものを$n^{\rm c}_{\rm sH}(\bfr)$とする（電荷の規格化がなされてい
+Frozen core近似はLFOCA＝１の場合（デフォルト）である。
+まず原子のコアをlmfaで孤立原子において計算しておく。最近では通常、非磁性状態の電子の詰め方で計算している。
+これをMT半径内でスムーズ化したものを$n^{\rm c}_{\rm sH}(\bfr)$とする（電荷の規格化がなされてい
 る必要はない）。この$n^{\rm c}_{\rm sH}(\bfr)$は、MT外においては、孤
 立原子で計算したコアの電荷密度を再現するものである。
 これを用いて,各原子に対して、コアの電子密度$n^{\rm c}(\bfr)$
@@ -1446,6 +1315,15 @@ smooth Hankelの解析性のために、静電相互作用などの計算が容�
 フィットの係数とsmooth Hankelを指定するパラメーター
 は適当に決定されている；fp/locpot.Fのlocpt2のドキュメントなど参
 照.cofg,cofh,ceh,rfocなど。また詳細を書くこと。wiki?。\\
+First, we perform a self-consistent atomic calculation under the
+spherical approximation without a spin polarization to obtain its core
+density $\nc_a(\bfr)$. Then we make a fitted density $\nc_{{\rm
+sH},a}(\bfr)$ given by a linear combination of several \smh\ functions
+so that $\nc_{{\rm sH},a}(\bfr)$ reproduces $\nc_{a}(\bfr)$ for
+$|\bfr|>R_a$ within a numerical accuracy. Since $\nc_{{\rm H},a}(\bfr)$
+are analytic and smooth at their centers, we can treat them numerically
+accurately (we can use other kinds of analytic functions such as
+gaussians instead of \smh\ functions).
   
 Thus we have the expression of all the core electron density with adding
 contribution from nucleus $-Z_a\delta(\bfr)$:
@@ -1465,11 +1343,26 @@ Q^{\rm Zc}_{aL} &=& Q_{aL}[\nzc_1-\nzc_2] =
 Q_{aL}[\nc_{a}(\bfr)-Z_a\delta(\bfr)-\nc_{{\rm sH},a}(\bfr)] \label{eq:qalnzc}.
 \end{eqnarray}
 
+
+コアは、lmfではFrozen core近似で扱う(ctrlの設定でLFOCA=1)のが基本である。
+これで、コア電子密度は、上述のように3成分表示で表現されることになる。
+浅いコアはlocal orbitalで扱わざるをえない。
+LFOCA＝０（MT内に閉じ込めた条件である（無理にMT内に局在させて解く））より
+LFOCA=1のほうがよい。
+深いコアでMT内に十分に局在してるものなら、LFOCA=1でもLFOCA=0でもかまわない。
+しかし、もし、NMRなどでコア位置での電場などを真面目にときたいのなら、LFOCA=0の方
+がいいかもしれないし、そもそもAkaiKKRのradial schoredinge方程式を解くルーチンを組み
+込んだ方がいいかもしれない（あるいはlmfに組み込まれているlocpot.F elfigr
+でOKなのかもしれない。確認必要。)
+全エネルギーに対してコアは、「コアの運動エネルギー」と「コアの電子密度」を通じて寄与する。
+Frozen core近似では、孤立原子の計算によって、それらを決定して用いる。
+とくに、電子密度に関しては、孤立原子に関して得たものを単純に重ね合わせて固体
+中のコア電子密度とする。（LFOCA=0の近似では、MT内で解いて決定する）。
+
 \ \\
 
 MT内にコアが局在するLFOCA=0の場合においては、
 上の式において、$n^{\rm c}_{\rm sH}$の項を除いたものとなる。
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \subsection{total energy in density functional}
@@ -1566,8 +1459,8 @@ Here the operator $H=T+V$ is given as
 \left\{ \sum_L
 {\cal Q}^{\rm v}_{aL} \YY_L(\bfr)
 + \barnzcv_{1,a} \circ \RR \circ + v^{\rm xc}_{1,a} 
-\right\} \nonumber \\
-&&\oominus
+\right\} 
+\oominus
 \left\{ \sum_L
 {\cal Q}^{\rm v}_{aL} \YY_L(\bfr)
 + \barnzcv_{2,a} \circ \RR \circ + v^{\rm xc}_{2,a} 
@@ -1585,6 +1478,7 @@ just need to consider variation with respect to $\alpha_{p}^{i*}$ in
 \sum_j (H_{ij} -\epsilon_p O_{ij}) \alpha_p^j =0,
 \label{eq:eigenp}
 \end{eqnarray}
+\end{widetext}
 where $H_{ij}= \langle F_i| H |F_{j} \rangle = 
 \langle F_i| \frac{-\Delta}{2m} + V |F_{j} \rangle =T_{ij}+V_{ij}$.
 $V_{ij}=\langle F_i|V|F_{j} \rangle=V \cdot F^*_i F_j$. 
@@ -1600,11 +1494,13 @@ and $V_{ij}$ are given in Appendix \ref{onsitematrix}.
 The formula to evaluate atomic forces are given in Appendix
 \ref{sec:force}. It is directly evaluated from the variation on the
 total energy. This procedure is considerably simplified than that given
-in Refs.\cite{lmfchap,molforce}. In addition, we can show that the
-atomic forces are not dependent on the real-space mesh relative to the
-atomic positions as shown in Appendix \ref{sec:realmesh}. This is
-important to allow relaxations of atomic positions and to perform
-first-principle molecular dynamics.\\
+in Refs.\cite{lmfchap,molforce}. 
+
+%In addition, we can show that the
+%atomic forces are not dependent on the real-space mesh relative to the
+%atomic positions as shown in Appendix \ref{sec:realmesh}. This is
+%important to allow relaxations of atomic positions and to perform
+%first-principle molecular dynamics.
 
 ----\\
 $E_{\rm es}$の第0項に関しては、mkpot.F内のsmves.Fで評価している。
@@ -1612,12 +1508,30 @@ $E_{\rm es}$の第0項に関しては、mkpot.F内のsmves.Fで評価してい�
 くる。後者については、off-siteの部分に関しては、単純に多重極のエバルト和で評価できる。
 第1項第2項に関しては、locpot.Fで評価している。
 
+
+\begin{quote}
+ーーー以下は古い記録：たぶん無視してよい　ーーー\\
+local orbital(LAPW的な時、あるいはMTO的な時でも)のときには、現在
+のlmfのコードにおいては,どうも、それに対応する$\pi^{\rm local}$の積分(see \cite{lmfchap})
+がきちんと入ってるのかどうかが疑問である。いいかえると、local orbitalに対応
+する電子密度に関しては、多重極変換できていないかもしれない($\barnzcv_{1,a}$と$\barnzcv_{2,a}$の
+多重極が一致するように実装できていないということ）。
+fp/smves.Fでは、MT boundaryでゼロとせずに、$\barnzcv_0$
+の解でのMT boundaryでの値を計算するルーチンを入れている（call mshvmt).
+(よくわからないので調べる必要あり）。
+ただ、数値精度に問題はあってもそれなりにはちゃんと答えはだせてるのだろう。
+追記：ちょっと別の話であるが木野氏から、
+ルーチンmshvmtが数値的におかしい(これに含まれるspherical bessel funをつ
+くるropbesのため)との指摘あり。
+\end{quote}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{PMT method}
 \label{sec:pmtmethod} Let us give the PMT method based on the
 3-component formalism in \refsec{sec:formalism}. Based on it, we need to
 specify a basis set $\{F_i\}$.  In the PMT, $\{F_i\}$ is classified into
 three kinds of subsets as follows:
+PMT法は,より正確には以下、(c)を含めて3種類の基底関数を用いることになる。
 \begin{itemize}
 \item[(a)] APW. We augment the PW in the manner as will be shown later.
 
@@ -1633,7 +1547,7 @@ three kinds of subsets as follows:
            %some cases. For $sp$ channel for rare gas and $d$ channel
            %for Cu through As, we use three MTOs.
 
-\item[(c)] Local orbital (Lo). It is origiannly introduced for LAPW in Ref.\onlinecite{lo}.
+\item[(c)] Local orbital (Lo) \cite{lo}.
    We use this to represent some degree of freedom in MTs,
    such as semicore states. The envelope function of Lo is zero overall.
 
@@ -1648,43 +1562,39 @@ three kinds of subsets as follows:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %\subsection{one-center expansion}
 %\label{sec:onecenter}
-
 (a),(b)はエンベロープ関数をaugmentationすることで作られる。
 エンベロープ関数として、APWについてはPWを、MTOについては、
-\smh をもちいる。The \smh \ は以下の、\req{eq:defh0}のように
-Methfesselによって導入された関数である \cite{lmfchap,Bott98}.
+\smh をもちいる(以下説明あり)。
 (b)と(c)は原子を中心とする局在基底であり、周期境界条件を考えると、
 Bloch和をとって基底関数とすることになる。
 
-MTO基底に関しては、各$L$あたり2個程度用いれば、APWのカットオフを3-4Ry程
-度にとることができる；これはかなり低いエネルギーである。このときMTOの基
-底は、EH=-1Ry,EH=-2Ryとかなり大きなダンピングのものをつかうことができる。
-これはAPWを用いることで得られるメリットである。
+基底関数のインデックスの集合は$i\equiv\{\bfG,aLn\}$である。すなわち、
+$i$は,$\bfG$か$aLn$のどちらかをとる。$\bfG$ は (a)をあらわし、$aLn$は (b)または
+(c)をあらわす。ここで$n$は与えられた$aL$に対して
+MTOの種類やloを指定するindexである.（$n$が電子密度の記号と重なってしまっているが、
+あとからこれは出てこないのでとりあえず問題ない。$a$は最初に書いてあるが
+MTを指定するindex).それで、基底関数の集合は$\{F_i\}=\{F_{\bfq \bfG},F_{\bfq aLn}\}$と
+書ける。APWの集合の指定に関しては、カットオフ$|\bfq+\bfG|<\EMAX$を用いる。
+(デフォルトでない設定では$|\bfG|<\EMAX$という指定も可能)。
 
-また、smooth Hankelの曲げの自由度をエネルギー最小化に利用するのは
-かなり面倒であり（おそらく無意味）、RSMH、RSMH２は0.5*R程度と十分に小さ
-くとる、という原則を守ったほうがよいようである---結局、MTの外でハンケル的に
-振る舞うようにしてやるのがベストな選択ということである。
+MTOに関しては、ある程度以上の占有数のある$l$については
+2つのMTOを用いる。たとえば$l \le 3$で２つずつ用いるなら
+原子あたり、$2\times\left(\sum_{l\leq 3}(2l+1)^2\right)=32$個のMTOを
+用いることになる。さらには、local orbital (lo) \cite{lo} を、
+いくつかの$al$チャンネルについて用いることにする。 
+（原子によっては、``extended local orbital(elo)``を用いることもできるが、
+最近はあまり使ってない。eloはMTOの一種であるが、
+lo同様、局在性の高いorbitalを表現するために用いられる基底関数である）。
+原子ごとにどのような局在基底を用いるかの指定のしかたはいまは単純になって
+いる。構造ファイル（POSCARも読める）をあたえれば「ctrlgenM1.py」がデフォ
+ルトの入力ファイルを自動生成するがそれに自動で設定されている。\\
 
-このような基底で、2原子分子の結合エネルギーで1Kcal/mol程度の精度が期待で
-きる(遷移金属などでは絶対値はそこまでしっかり収束するわけではない)。
-単純には、MT近傍はMTO記述し、MTとMTをつなぐ中間領域は、APWで補正してやる、
-というpictureである。APWの重ね合わせで局所化させたワニエ的関数をつくる
-ことも考え得るが、これは結局は「floating orbital」の手法
-（MT半径ゼロの正エネルギーのMTOを考える手法）と似たものになる
-（負エネルギーのものに関しては実装されている）。
-緩やかな振動が長距離に及ぶ(PWに関してsin(kr)/rで1/rで落ちる)
-のでどれだけメリットがあるか不明である。
-
-
-
-\subsection{sm hankel function and augmentation}
-\label{sec:smh}
+\noindent{\bf smooth Hankel function(\smh)}:\\
 The \smh\ function, as the envelop function of MTO, is first introduced
 by Methfessel \cite{lmfchap,Bott98}. The spherical \smh\ function
 $h_0(\bfr)$ (for $l=0$) is defined by the Helmholtz equation with a
 gaussian source term $g_0(\bfr) = C \exp(-r^2/\RSM^2)$ (see Eq.(5) in
-Ref.\onlinecite{lmfchap}) instead of $\delta$-function;
+Ref.\cite{lmfchap}) instead of $\delta$-function;
 \begin{equation}
 (\nabla^2+\epsilon)h_0(\bfr) = -4 \pi g_0(\bfr),
 \label{eq:defh0}
@@ -1693,18 +1603,41 @@ where $C=1/(\sqrt{\pi} \RSM)^3$ is the normalization constant.
 $\epsilon=-\kappa^2$ is the negative energy to specify the asymptotic
 damping behavior of $h_0(\bfr)$.  At the limit $\RSM \to 0$ where
 $g_0(\bfr)$ becomes $\delta$-function (as a point charge), $h_0(\bfr)$
-becomes to the Hankel function $h_0(\bfr)=\exp(-kappa r)/r$.  Since the
+becomes to the Hankel function $h_0(\bfr)=\exp(-\kappa r)/r$.  Since the
 source term is smeared with the radius $\RSM$, we have no divergent
 behavior at $r=0$ anymore; the \smh\ bends over at $\sim\RSM$ (See Fig.1
-in Ref.\onlinecite{lmfchap}).  From $h_0(\bfr)$, we can make
+in Ref.\cite{lmfchap}).  From $h_0(\bfr)$, we can make
 $h_L(\bfr)\equiv\YY_L(-\nabla) h_0(\bfr)$ for any $L$ with the spherical
 polynomial $\YY_L(\bfr)=r^l Y_L(\hat{\bfr})$.  $Y_L(\hat{\bfr})$ is the
 real spherical harmonics, where $\hat{\bfr}$ is the normalized
 $\bfr$. $\YY_L(-\nabla)$ means to substitute $\bfr$ in $\YY_L(\bfr)$
-with $-\nabla$. See Ref.\onlinecite{Bott98} for details.
+with $-\nabla$. See Ref.\cite{Bott98} for details.\\
 
+以上でわかるように、envelope
+function $h_L(\bfr)$を与えるには、二つのパラメーター$\RSM$ and
+$\epsilon$を指定する必要がある。これらは、$al$-dependentでありえるから
+PMT法では、一般にはこれらは$\RSMal$および$\epsilon_{al}$と書け
+($L\equiv(l,m)$), $m$ごとにenvelop関数のradial部分を変えることはしていない。
+%実際、$\RSMal$ and $\epsilon_{al}$
+%の決定の困難さがlmto法の問題点である。
+%ガウシアンにおいても、基底の決定には
+文献\cite{lmfchap}はこれらのパラメータの最適化について議論しているが、これは非常な難題である。
+今の手法では、この最適化をさけて簡単な形でこれらのパラメータを与えている。
+まず、すべてのMTに関して$\RSMa= R_a/2$ととることにする。
+これにより、MTの外では、\smh は通常のHankel関数として振る舞うことになる。
+$\epsilon$に関しては、$l$-independentなものを用いることにする。それで
+各$aL$ごとの２つのMTOに対応して, $\epsilonaone$ and $\epsilonatwo$ 
+を指定すればよい。実際に用いた値については最近では$l$によらずに
+$\epsilon=-\kappa^2$を-1,-2Ryと取ることにしている。（APWのカットオフを３
+から４Ryぐらいにすると、LDA・GGAの全エネルギーやバンドギャップが
+$\epsilon$の選択にあまり依存しなくなる）。要するに「かなり局在性の高い
+MTO」＋「かなり少ない平面波」で波動関数を表現することができている。
+これは従来のMTO法にはなかった特徴である。$\epsilon=-\kappa^2$を0.1Ryなど
+に取る必要があった。これではかなりの広がりをもつMTOとなってしまっていた。\\
+
+\noindent{\bf one-center expansion}:\\
 For the augmentation of the PW, that is, to determine the 2nd component
-from PW of 0th component, we expand the PW within the MTs into the
+from PW as 0th component, we expand the PW within the MTs into the
 Laguerre polynomial \cite{pmt1}.  Any function $f(\bfr)$ (PW in this
 case) is expanded within a MT $|\bfr-\bfR_a|\leq R_a$ as
 \begin{eqnarray}
@@ -1726,7 +1659,7 @@ use the head part as it is \cite{privatemark1};
 % head part in such a expansion because of too steep nature of the funcion.
 this can be taken into account in the formalism 
 if the set $\{\PakL(\bfr) \}$ contains not only the Laguerre
-polynomials but also $h_L(\bfr)$ as its members.
+polynomials but also $h_L(\bfr)$ as its members.\\
 
 % In the followings, we apply this expansion not only to the PW, 
 % but also to the \smh\ centered at $\bfR_a$.
@@ -1738,6 +1671,66 @@ polynomials but also $h_L(\bfr)$ as its members.
 
 %Here (b) and (c) are atom-centered localized orbitals, for which we
 %take the Bloch sum to recover translational symmetry. 
+
+\subsection{\bf ${P}_{akL}(\bfr)$の決め方:}
+APWの場合\cite{soler89}では、envelope関数$F_{0i}(\bfr)$は平面波であり、
+$F_{0i}(\bfr)$のMTサイトでの展開の$L$成分は、エネルギー$|\bfq+\bfG|^2$の球
+ベッセル関数$\times Y_L$となる。lmfではこの球ベッセル関数を
+ラゲール多項式を修正した関数系$p_{kl}(\gamma,r)$で展開している(ラゲール多項式の
+引数に$r^2$を代入したものであり,\cite{Bott98}の12.15式あたりに詳細な説明
+がある)。この$k$の範囲が$0\le k \le$KMXAとなる。
+
+MTOではすこし複雑なことをしていてsmooth Hankelを
+augmentするとき中心の原子におけるMT(Head Part MT)では
+各$L$ごとに完全にradial partをくりぬくやり方でaugmentしている。
+すなわち、このときには${P}_{akL}(\bfr)$として、smooth Hankelのonsite成
+分そのものを使っていることになる。そのためkの数は一個ですむ。
+またTail partのMTでは、上述の$p_{kl}(\gamma,r)$で展開している。
+\cite{lmfchap}のp.11。\\
+
+
+[$p_{kl}(\gamma,r)$での展開は再検討してもいいかもしれない。
+これはbndfp.Fのhambl-augmbl.F-bstrux-pauggp
+あたりに関係している。bndfpでよばれるhamblはハミルトニアンをつくるサブルー
+チンであり、napwがAPWの数であり、kmaxがKMXA。とくに、（推定だが）問題になりそうなの
+は、もとの平面波のMT内での絶対値の２乗和より、projectしたものの２乗和の
+ほうが大きくなりうる点である。これはPAWでも起こりうるが、ノルムがマイナ
+スになるような基底をあたえてしまう要因になりうる。]
+
+
+\subsection{\bf $\tilde{P}_{akL} (\bfr)$の決め方:}
+まず、各$a,l$に対してradial schoredinger eq.を
+特定のエネルギーenu(もしくはそれに対応した対数微分であるP(pnu)で解く。
+そのあと、それのエネルギー微分をつくる。これらがphi,phidot
+($\phi_{al}(r),\dot{\phi}_{al}(r)$)である。
+次に、それらの線形結合
+$\tilde{P}_{akL}(\bfr)=(A\phi_{al}(r)+ B \dot{\phi}_{al}(r))\times Y_L$
+を考える。この際、係数$A,B$は、MT端において
+${P}_{akL}(\bfr)$と同じ値と微分値をもつように決定する。
+
+Pの値はコンソール出力でptryで表示されている。
+(一方、コンソール出力で表示されるebarは占有軌道の各lごとのDOSの重心位置。
+現在のデフォルトはOPTIONS PFLOAT=1である。
+古いバージョン（PFLOAT=0)ではバグがあった；過去とのcompatibilityのための
+こしてある）。通常,ebarに対応するptryを計算しそれに対応したptryをpnewとする、
+（コードではfp/pnunew.F L92;ebar =hbyl(m,isp,ib)/qbyl(m,isp,ib)参照）。
+しかしそれでは不十分で、自由空間での対数微分の値(fp/pnunew.F;Free electron value)より深くなりす
+ぎないという制約を課している；これは単純にはMT内でのポテンシャルが
+上に凸であることを意味する。占有数が少なすぎるとき、
+hybridyzationの影きょうで見かけ上そういうこと
+（高い位置にあるべきenuが下がりすぎることが起こる）。
+
+%In the one-body problem for given one-body potential $V(\bfr)$,
+%we consider the eigenvalue problem with the Hamiltonian and overlap matrix 
+%$\langle F_i| -\frac{\nabla^2}{2m} |F_j \rangle $ and 
+%$\langle F_i| F_j \rangle $. However, this procedure contains complicated
+%cross terms. Instead of this procedure, we consider another type of one-body problem
+%explained in the following.
+
+$\tilde{P}_{akL}(\bfr)$は、phi,phidotという関数で表現されており、
+self-cosnsitencyへ達するitetationにおいて更新されていくのがデフォルトだ
+が、固定することも出来る(FRZWFオプション,IDMOD=1、将来的には原子で計算し
+たphi,phidotに固定したほうが系統的誤差を減らせる可能性がある)。\\
 
 After specifying $\{\PakL(\bfr) \}$, we can determine corresponding
 $\{\wPakL(\bfr) \}$ as a linear combination of
@@ -1751,7 +1744,49 @@ states of the $al$ component; thus
 $\phi(r)$ and $\phidot(r)$ are not with the subscripts $aL$ but with $al$.
 This prescription to determine $\{\wPakL(\bfr) \}$ can be taken as a
 quasi-minimization procedure, from the view of total energy
-minimization.\\
+minimization.
+
+As for the $al$ with Lo, we need another partial wave $\phi^{\rm
+Lo}_{al}(r)$ corresponding to Lo.  When the Lo is to describe a deeper
+level, we can set the energy to solve the radial Schr\"odinger equation
+$E^{\rm Lo}_{al}$ at the center of gravity; then we set $E_{al}$ at the
+Fermi energy instead of the prescription in the previous paragraph.
+
+The number of basis is simply specified by the cutoff energy of the APW
+for (a). However, specification of MTOs (b) is not so simple.  
+We use multiple MTOs for each $aL$ to reduce the number of basis with 
+keeping the computational accuracy \cite{pmt1}.
+Since $h_L(\bfr)$ as the envelope functions are specified 
+by the parameters $\RSM$ and $\epsilon$, we have to specify them for
+all MTOs. Ref.\cite{lmfchap} discussed optimization of them so as
+to minimize the total energy. However, as seen in figures in
+Ref.\cite{lmfchap}, such non-linear optimization is too complicated.
+%In fact, most serious problem in the full-potential LMTO method is in the
+%difficulty to optimize $\RSM$ and $\epsilon$.
+Thus it is necessary to give a method to set the parameters 
+in a simple manner as follows. 
+As for $\RSM$, we can use a condition $\RSM= R_a/2$ for all MTOs. 
+Then the envelope functions out side of MTs well coincide with
+the usual Hankel function. 
+Even with this simple setting of $\RSM$ without optimization,
+numerical accuracy can be kept well; we can check the
+convergence of calculations with the number of APWs.
+We also see the dependence on $\epsilon$'s are rather small
+in the PMT method. The dependence becomes less when we use larger
+number of APWs; hence we do not need to stick to careful choice of
+the parameter $\epsilon$.
+Thus the serious problem of the full-potential LMTO method, ``how
+to choose MTO parameters'' are essentially removed in the PMT
+method. This is numerically detailed in the paper which gives results for
+diatomic molecules from H$_2$ through Kr$_2$ \cite{kotani_linearized_2013}.
+
+We use one further approximation. In \req{eq:n}, we make angular-momentum cutoff.
+Even though we have angular momentum component up to 
+$2\times l_{{\rm max},a}$ in the 1st and 2nd components in \req{eq:n}, 
+we drop components higher than $l_{{\rm max},a}$; 
+it is meaningless to take them into account since we have already make 
+truncations for eigenfunctions. Note that this does not affects $O_{ij}$
+and $T_{ij}$ because only the special components determine them.
 
 ----\\
 NULL基底が生じること：\\
@@ -1766,6 +1801,7 @@ NULL基底が生じること：\\
 である；すなわち、第0成分＝第2成分がMT内部に局在して第1成分がゼロという
 関数が基底に含まれることになる（これは物理的に意味をもたない）。
 これが「overcompleteness」が起こる要因である（のひとつである）と思われる。\\
+
 
 また、内積の正定値性の問題がある。
 3-component spaceの内積は、\req{eq:norm}で与えられているという
@@ -1784,60 +1820,105 @@ pwemaxを大きくするとき、kmxaをおおきくしないといけない、�
 た場合である。sp電子が低エネルギーの平面波で表せてしまうので、、ヌルベク
 トルが見えてしまう。これを高いエネルギーのところに飛ばしてしまう必要があ
 る（単純に自由度を引き抜くようなやり方ではどうも系統性をこわしてしまって
-よろしくないようだ）。\\
+よろしくないようだ）。
 
-\ \\
+PMT法である程度以上に平面波数を増やすと線形独立性の問題で計算が破綻する。
+凝縮性の高い固体では４Ry程度が目安である。
+その場合、まずはmixing parameterのb=を0.2程度に小さくしてみるとうまく
+行く場合がある。またKMXAを大きくとると計算が安定する場合もある。
+また「MT半径を小さくする」と計算が安定する。ただし、
+frozen coreのspiloutが大きくなり計算の信頼性が減る場合もある（この時には、
+coreをloで扱う必要もありえる。そうすることでMT半径をかなり小さくとること
+もできる）。およそ、アルカリ、アルカリ土類などの原子半径を小さめにとるべきである。
+とにかくこのような原子のSのMTOは容易に低エネルギーのAPWで作られてしまうために
+計算が破綻しやすい。実際、それらのMTOを抜くと計算が安定したりもする。
 
 
-As for the $al$ with Lo, we need another partial wave $\phi^{\rm
-Lo}_{al}(r)$ corresponding to Lo.  When the Lo is to describe a deeper
-level, we can set the energy to solve the radial Schr\"odinger equation
-$E^{\rm Lo}_{al}$ at the center of gravity; then we set $E_{al}$ at the
-Fermi energy instead of the prescription in the previous paragraph.
+\subsection{離散化における全エネルギーの定義}
+ーーーこのsubsectionは古くなっている可能性ありーーー\\
+計算機においては有限の変数（離散化）により全エネルギーを表現することが
+必要である。
+%すなわち「離散化された変数による全エネルギーの表現」を
+%きちんと定義しておくことを確認しておくことが必要である。
+そして、そのエネルギーを最小化することで全エネルギーを決定することができ
+る。すなわち、Kohn-Sham方程式を出してから離散化するのではなく、
+全エネルギーを離散化表示してから、離散化されたKohn-Sham方程式を導出する
+のである。これにより、全エネルギーとそれの微分であるハミルトニアンとの整
+合性がきちんと保たれることになる
+（打ち切り誤差がなければ厳密にその関係性が満たされる）。
 
-The number of basis is simply specified by the cutoff energy of the APW
-for (a). However, specification of MTOs (b) is not so simple.  
-We use multiple MTOs for each $aL$ to reduce the number of basis with 
-keeping the computational accuracy \cite{pmt1}.
-Since $h_L(\bfr)$ as the envelope functions are specified 
-by the parameters $\RSM$ and $\epsilon$, we have to specify them for
-all MTOs. Ref.\onlinecite{lmfchap} discussed optimization of them so as
-to minimize the total energy. However, as seen in figures in
-Ref.\onlinecite{lmfchap}, such non-linear optimization is too complicated.
-%In fact, most serious problem in the full-potential LMTO method is in the
-%difficulty to optimize $\RSM$ and $\epsilon$.
-Thus it is necessary to give a method to set the parameters 
-in a simple manner as follows. 
-As for $\RSM$, we can use a condition $\RSM= R_a/2$ for all MTOs. 
-Then the envelope functions out side of MTs well coincide with
-the usual Hankel function. 
-Even with this simple setting of $\RSM$ without optimization,
-numerical accuracy can be kept well; we can check the
-convergence of calculations with the number of APWs.
-We also see the dependence on $\epsilon$'s are rather small
-in the PMT method. The dependence becomes less when we use larger
-number of APWs; hence we do not need to stick to careful choice of
-the parameter $\epsilon$.
-Thus the serious problem of the full-potential LMTO method, ``how
-to choose MTO parameters'' are essentially removed in the PMT
-method. This is numerically detailed in the paper which gives results for
-diatomic molecules from H$_2$ through Kr$_2$ \cite{kotanimol2011}.
+このことを全エネルギー\req{eq:etot}において確認し、どれだけの離散化
+パラメーターが出てくるのかを概観する.このとき、radial方向の積分に関して
+は離散化誤差は無視する；この離散化は、計算速度にあまり影響せず
+十分に細かくとれるからである。
+まず、周期境界条件により、波動関数は1stBZ中の波数$\bfk$をもつことになる。
+1stBZを格子で切り分け格子点の上でのみの$\bfk$点を考えるようにする。
+それで、envelope関数$F_{0i}$のindex $i$は、この離散化された$\bfk$の
+値を含む複合indexとなる。
 
-We use one further approximation. In \req{eq:n}, we make angular-momentum cutoff.
-Even though we have angular momentum component up to 
-$2\times l_{{\rm max},a}$ in the 1st and 2nd components in \req{eq:n}, 
-we drop components higher than $l_{{\rm max},a}$; 
-it is meaningless to take them into account since we have already make 
-truncations for eigenfunctions. Note that this does not affects $O_{ij}$
-and $T_{ij}$ because only the special components determine them.\\
+envelope関数$\{F_{0i}\}$は、「平面波(波数$\bfk+\bfG$で指定される)」
+と「smooth Hankel関数をBloch sumして$\bfk$を持つようにしたもの
+（さらには、原子位置、角運動量、およびsmooth Hankelのdamping因子EHと
+smoothing radius RSMHで指定される。）」を含んでいる。
+これらをaugmentするときの係数$C^i_{akL}$と$P_{akL}$は、
+augmentationの処方箋を決めれば決定される。現在、この処方箋は、
+\cite{Bott98}にある手法xxxで行われている。augmentationに関しては、
+$k$のカットオフKMXA,$L$のカットオフLMXAが必要となる。
+$\tilde{P}_{akL}$は、$\phi_l(r),\phidot_l(r)$という二つの
+radial関数をもちいて組み立てられる。これらは、onsiteでの$V_{1,a}$の
+球対称部分)を用いてradial schrodinge eq.を適当なエネルギー
+$\epsilon_{al}$（enuと表示されたりする）で解くことで得られる。
+この方法は、全エネルギー最小化に関しておおむねの最適化''
+になっていると言えるが、\req{eq:eigenp}の一体ハミルトニアンを通じての
+全エネルギー最小化の方程式（Kohn-Sham方程式）とは別である。
+これは基底を固定したとして、それの係数を調整して全エネルギーを最小化する
+方程式である。
+%$\phi_l(r),\phidot_l(r)$を表現する
+%ためのradial方向のメッシュは十分に小さくとれるのでその点における離散化誤
+%差は無視できることにも注意しておく。
 
-基底関数のインデックスの集合は$i\equiv\{\bfG,aLn\}$である。すなわち、
-$i$は,$\bfG$か$aLn$のどちらかをとる。$\bfG$ は (a)をあらわし、$aLn$は (b)または
-(c)をあらわす。ここで$n$は与えられた$aL$に対して
-MTOの種類やloを指定するindexである.（$n$が電子密度の記号と重なってしまっているが、
-あとからこれは出てこないのでとりあえず問題ない。$a$は最初に書いてあるが
-MTを指定するindex).それで、基底関数の集合は$\{F_i\}=\{F_{\bfq \bfG},F_{\bfq aLn}\}$と
-書ける。APWの集合の指定に関しては、カットオフ$|\bfq+\bfG|<\EMAX$を用いる。
+その基底関数をもちいて、運動エネルギーの行列要素\req{eq:kin}を計算することができ
+る。この式の第0成分はenvelop関数にのみ関係しており、その運動エネルギー行
+列要素は解析的に計算できる
+（コードでは,bndfp-hambl-smhsbl-hhibl,hhibl内。smooth Hankelの積やそれ
+をLaplacianではさんだものの積分がsmooth Hankelで書けること---\cite{Bott98}の
+(10.10),(10.12)など---を利用してこれを計算している).
+第1,第2成分に関しても上述の$C^i_{jkL},{P}_{akL},\tilde{P}_{akL}$から計算
+できる。
+
+次に$E_{\rm es}+E_{\rm xc}$を評価することを考える。
+それらの第1,2成分については、radialな積分に帰着できるので、運動エネルギー
+の時と同様に$C^i_{jkL},{P}_{akL},\tilde{P}_{akL}$から計算できる。
+
+つぎに、それらの第0成分について考える。
+このためには、envelope関数（smooth Hankelと平面波）を、
+実空間メッシュ（実空間でのユニットセルを等間隔で分割したもの）の上で表現
+したものを考える必要がある（コード内では,bndfp-addrbl-rsibl-rsibl1,rsiblpで、
+固有関数の実空間メッシュのうえでの値を直接に生成している）。
+そして、それの積により電子密度smrhoをrsibl2で作っている(このsmrhoが
+bndfp.Fに返されmkpotに渡されてポテンシャルの生成に使われる)；
+電子密度は実空間メッシュの上での値で与えられるわけである。
+これをFFTすると電子密度は$\bfG$で展開して表現されていることになる。
+$E_{\rm es}$の評価には、この表現を用いる。coreからの寄与や多重極変換にか
+らんで、$\nzcv$には、smooth HankelやGaussianを含むがこれらに
+関係する部分は解析的に取り扱う(mkpot-smvesのコメントは、参考になる。しか
+し、本書の方が正確である---coreのsmooth Hankelによる寄与が適当に省略されて書かれている）。
+また、$E_{\rm xc}$の第0成分の評価においては、実空間メッシュの上で交換相関エネ
+ルギーを求めてそれを積分することをおこなう(mkpot-smvxcm. mkpot-smvxc2はvalence
+のみに関する量を計算している.mkpot-smvxc2はおそらくvalenceのみの寄与を表示するこ
+とのみに必要で、sc計算には不要)。\\
+
+以上で、全エネルギー$E$が計算機においてどのように表現されているかを与え
+た。これらを考え合わせると、けっきょく、全エネルギーが、$\rho_{ij}$の汎関数で与
+えられることになる。$\rho_{ij}$は、この全エネルギーを最小にするように決定される。
+それで、これを調整してエネルギーを最小化する問題になる。
+{\small 注意：金属の場合は、$\rho_{ij}$の汎関数というよりも,それを生成す
+る$H_{ij}$（あるいはポテンシャルの）汎関数と考えるほうがよい。
+まず$H_{ij}$が与えられれば、BZ内の積分も考慮した形で$\rho_{ij}$が与えら
+れる(離散的な$\bfk$点でtetrahedron法をもちいる)。
+これを用いて全エネルギーが計算される。
+一般的に言っても、密度の汎関数というよりそれを生成するポテンシャルの汎関数と
+して考察したほうが便利な場合も多い。}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{problems in the PMT method}
@@ -1855,7 +1936,7 @@ This guarantees the positive definiteness of $O_{ij}$.
 In practice, we typically use $k_{{\rm max},a} \sim 5$ 
 and $l_{{\rm max},a}\sim 4$; they
 can give satisfactory results with keeping positive
-definiteness of $O_{ij}$, as seen in Refs.\cite{pmt1,kotanimol2011}.
+definiteness of $O_{ij}$, as seen in Refs.\cite{pmt1,kotani_linearized_2013}.
 
 The second is the undefiniteness of the second component $\psi_{2p}$.
 This is clear if (A) is satisfied; as $\psi_{2p}$ within MTs is not uniquely
@@ -1873,7 +1954,7 @@ it can attach to some eigenfunctions and deform them easily.
 In fact, we observed unconverged cases when the 2nd component of
 electron density becomes too large. 
 Within our current implementation of the PMT, we should use limited number
-of basis so as to avoid this problem. However, in Refs.\cite{pmt1,kotanimol2011},
+of basis so as to avoid this problem. However, in Refs.\cite{pmt1,kotani_linearized_2013},
 we can see enough stability on the total energy convergence before such problems occurs
 when we increase the number of basis .
 
@@ -1896,7 +1977,7 @@ However, when we use quite small MTs, we observed a problem of orthogonality
 of wavefunctions to the cores, resulting in unconvergence. In such a case, 
 we  need to introduce local orbitals to represent cores so as to keep
 the orthogonality. It may be possible to enforce the orthogonality 
-with a projector as described in Ref.\onlinecite{PAW}.
+with a projector as described in Ref.\cite{PAW}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
@@ -1915,7 +1996,7 @@ For simplicity, we omit the index $a$ in the followings.
 
 The basis set in the PAW is given as follows.
 We first prepare AE partial waves
-$\{\phi_i(\bfr)\}$ (e.g, two for each $aL$ in Ref.\onlinecite{kresse99}),
+$\{\phi_i(\bfr)\}$ (e.g, two for each $aL$ in Ref.\cite{kresse99}),
 as solutions of radial Sch\"odinger eq. for $V_1$ at some reference 
 energies $\{\epsilon_i\}$ (in this section, the index $i$ is for the
 partial wave). Then we set up corresponding
@@ -1936,7 +2017,7 @@ $\langle \tilde{p}_i|\tilde{\phi}_j \rangle=\delta_{ij}$.
 The minimization of the total energy of the one-body problem 
 $E= \sum_j^{\rm occupied} \psi_j^* \cdot (T+V) \cdot \psi_j$
 with respect to $\bar{\psi}_j$ is given by
-%\begin{widetext}
+\begin{widetext}
 \begin{eqnarray}
 &&\left( \frac{-\nabla^2}{2m}+V_0(\bfr)-\epsilon_j +
  \sum_{ii'}  
@@ -1968,7 +2049,7 @@ $\{\tilde{p}_i\}$ should satisfy
  + \sum_i |\tilde{p}_i \rangle  
    \left(dH_{ij}-\epsilon_j dO_{ij} \right)  =0, \label{eq:condproj}
 \end{eqnarray}
-%\end{widetext}
+\end{widetext}
 in order to satisfy \req{eq:seqpsibar}.
 This determines $\{\tilde{p}_i\}$; this is one of the main idea in the PAW method. 
 In practice, considering the numerical stability, 
@@ -2021,13 +2102,27 @@ wavefunctions not only interstitial region, but also within MT.
 This can be not straightforward.
 
 
+\section{summary}
+We have reformulated the PMT method on the basis of the 3-component
+formalism, which is a generalized version of the additive augmentation 
+given by Soler and Williams. The 3-component formalism
+allows including any kinds of basis not necessarily given by a
+projector as PAW. This fits the procedure to give the Kohn-Sham equation for a mixed basis method such 
+as the PMT method from the total energy minimization scheme; this
+results in the transparent derivation of the atomic forces.
+We believe that the formalism shown here could give a basis for future developments.
+Our results for molecules from H$_2$ through Kr$_2$ 
+with several new developments on the PMT method 
+is given elsewhere \cite{kotani_linearized_2013}.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\appendix
+\appendix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\section{smooth Hankel function}
 %\label{shankel}
-\section{Other points in the PMT method}
-\subsection{the error due to the 3-component formalism}
+\begin{widetext}
+\section{the error due to the separable form}
 \label{sec:zeroonetwo}
 To evaluate matrix element of a quasilocal operator
 $X(\bfr,\bfr')$, we use separable form $0X 0'+1 X 1'-2 X 2'$
@@ -2036,16 +2131,15 @@ instead of $(0+1-2)X(0'+1'-2')$ under the condition (A')
 a eigenfunction as a 3-component function defined in
 \refsec{sec:3compo}, $0',1',2'$ as well.
 
-We have an error because of the separable form in the 3-component formalism.
+We have an error because of the separable form.
 Here we reorganize the discussion to evaluate the error
 \cite{soler89,PAW} to fit to the formalism in this paper.
-The error can be evaluated with a difference;
+The error can be evaluated with an identity as;
 \begin{eqnarray}
 (0+1-2)X(0'+1'-2')-(0X 0'+1 X 1'-2 X 2') 
-= (0-2)X(1'-2')+(1-2)X(0'-2'), \nonumber \\
-\label{eq:zeroonetwo}
+= (0-2)X(1'-2')+(1-2)X(0'-2'), \label{eq:zeroonetwo}
 \end{eqnarray}
-%\end{widetext}
+\end{widetext}
 %We take these are 
 %conttributions of a 3-component function within a MT site.
 %If the right-hand side of \req{eq:zeroonetwo} is negligible,
@@ -2084,7 +2178,7 @@ with some modifications.
 %momentum cutoff as $l_{{\rm max},a}\sim 4$ \cite{lmfchap}.
 
 \begin{widetext}
-\subsection{Atomic Force}
+\section{Atomic Force}
 \label{sec:force}
 全エネルギーの評価において、入力の電子密度$n_{\rm in}$に対して、
 ポテンシャル$V=\frac{\partial (E_{\rm es} + E_{\rm xc})}{\partial n}$
@@ -2093,7 +2187,25 @@ with some modifications.
 また、その固有値問題の波動関数から電子密度$n_{\rm out}$を求めることができる。
 収束すれば$n_{\rm in}=n_{\rm out}$が成り立っているが、収束途上ではなりた
 たない。$n_{\rm in}\ne n_{\rm out}$のとき、
-$n_{\rm in}$の汎関数としての全エネルギー(ハリスエネルギー)について考える。\\
+$n_{\rm in}$の汎関数としての全エネルギー(Harris energy)を考える。\\
+
+Harris energy $\ehf$を与えておく。
+これは、完全な収束に至らない段階においても、収束したエネルギーを予測して
+計算する方法である \cite{molforce,harris85},
+収束していない場合、入力電子密度$\nin$とそれによって定められる$V$、
+そしてその$V$を用いて対角化計算によって得られて電子密度$\nout$を考える
+必要がある。$\ehf$は\req{eq:ebhf}で与えられる。
+ここで、$E_{\rm B}$はバンドエネルギーと呼ばれる。
+$\alpha_i^p$は
+$\langle F_i|H^{\rm in}|F_j \rangle=
+\langle F_i| \frac{-\Delta}{2m} + V[\nzc+\nin,\bfR_a] |F_j\rangle$
+の固有ベクトルである。それで、$\epsilon_p$をその固有値として、$E_{\rm B}=\sum^{\rm occupied}_p$
+と与えられる。また以下のatomic forceの計算のため、$\bfR_a$依存性を陽に書
+き込んである。この\req{eq:ehf}における$\bfR_a$依存性は$\MM$-transformation、$\calR$-mappingに起因してい
+る。たとえ$\nzc+\nin$が固定されていても、
+$\bfR_a$-dependence は Eqs.(\ref{eq:barn0zcv},\ref{eq:calqdef})を通じて、
+\req{eq:v}の中に入ってくる。また$\nzc+\nin$を通じての$\bfR_a$-dependence
+もある。
 
 First, we define the Harris energy $\ehf$ \cite{molforce,harris85} 
 which is the total energy of a functional of the density; this gives
@@ -2185,18 +2297,12 @@ Then we can calculate corresponding $\delta \Vin$ through the change
 $\delta \barnzcv_0$ in \req{eq:v}. $\delta \barnzcv_0$ is evaluated from
 \req{eq:barn0zcv},
 where note that $\nzc_0(\bfr)$ contains $\bfR_a$ dependence as
-given in \req{eq:nzc}.\\
+given in \req{eq:nzc}.
 
-
-最後のパラグラフ：第一項（Forceの補正項）:\\
-Forceを計算するには、Harris-Folkner energy(Harris energyと同義)$E_{\rm HF}$の変分を
+最後のパラグラフ（Forceの補正項）:\\
+Forceを計算するには、Harris-Folkner energy(Harris energyと同義)$E_{\rm Harris}$の変分を
 電子密度が完全にはself-consistentになってないとき、
-とることを考えてやらねばならない。これは、上の式、すなわち、
-\begin{eqnarray}
-\delta E_{\rm HF} = (n_{\rm out}-n_{\rm in})\cdot \delta V
-+\delta E_{\rm B}({\rm Pulay}) 
-+\frac{\partial (E_{\rm es} + E_{\rm xc})}{\partial \bfR_a}
-\end{eqnarray}
+とることを考えてやらねばならない。これは、\req{eq:deltaehf} 
 を計算することになる。ここで、第一項における$\delta V$としては、
 $\bfR_a$を動かしたときに、どれだけのポテンシャル変化があるかを'適当に仮
 定した電荷の変化'から求める。これは$n_{\rm out}-n_{\rm in}=0$で
@@ -2207,8 +2313,7 @@ $\bfR_a$を動かしたときに、どれだけのポテンシャル変化があ
 あげるため、電子系を完全には収束させずに原子位置の緩和をおこなう
 必要があるが、その際、この補正は非常に重要である。
 
-
-\subsection{onsite matrix}
+\section{onsite matrix}
 \label{onsitematrix}
 Here we summarize expressions of one-center matrix for $O_{ij},T_{ij}$, and
 $V_{ij}$. These are essentially the same as what is shown in Ref.\cite{lmfchap}.
@@ -2248,7 +2353,7 @@ $\pi^{\rm mesh}_{akk'LL'} + \pi^{\rm local}_{akk'LL'}$.
 ${\cal Q}^{\rm v}_{aM}$ is given by \req{eq:calqdef}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{scalar relativistic approximation in the augmentation}
+\section{scalar relativistic approximation in the augmentation}
 \label{app:srel}
 Roughly speaking, it is allowed to take the scalar relativistic
 (SR) approximation (e.g. see \cite{rmartinbook}) if we can safely replace the
@@ -2357,608 +2462,89 @@ mesh is too coarse since the expansion \req{fexpand} cannot be
 converged rapidly.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%   QSGW                           %%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\widetext
-\section{Implementatin of QSGW}
-\label{sec:qsgwformalism}
-QSGW法の具体的な実装について述べる。\\
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{choice of a real-space mesh}
+% \label{sec:realmesh}
+% For example, the smooth part of $E_{\rm xc}$ is evaluated on
+% the real-space mesh. Thus we wonder whether $E_{\rm xc}$ can be
+% dependent on choice of a real-space mesh even when we fix the total
+% number of mesh points. Here we show that there is no 
+% such dependence on a choice of the mesh.
 
-\noindent 基本文献について：
-%We use notations in 
-基本的には文献\cite{kotani07a}でのノーテーションを用いる。ただ、現状のコードからみると記述が古くなってしまっている部分もある。
-\begin{quote}
-[文献８]T. Kotani, M. van Schilfgaarde, and S. Faleev, “Quasiparticle
-self-consistent GW method: 
-A basis for the independent-particle approximation,” Physical Review B, vol. 76, no. 16, Oct. 2007.
-http://link.aps.org/doi/10.1103/PhysRevB.76.165106
-\end{quote}
+% First, let us specify our problem. We evaluate an integral 
+% $I=\int_\Omega f(n(\bfr)) d^3r$ as the sum on a discrete real-space mesh 
+% $\{\bfr_i\}$:
+% \begin{eqnarray}
+% I= \sum_{i} f(n(\bfr_{i})). \label{isum}
+% \end{eqnarray}
+% We now show $I$ is not dependent on the choice of the real-space mesh
+% under reasonable conditions.
 
-\noindent Acronyms:
-\begin{enumerate}
-\item[]
-MPB: mixed product basis, which consists of PB and IPW.
-\item[]
-PB: product basis
-\item[]
-IPW: interstitial plane wave(=exp(iq r) but zero in MT). NOTE: we use
-       two kinds of IPWs (for eigenfuncitons $|q+G|^2<$QGphi and for
-       the Coulomb interaction $|q+G|^2<$ QGcou.)
-\end{enumerate}
+% The conditions are as follows:
+% \begin{itemize}
+% \item[(i)]
+% With finite number of $\{\bfG\}$, we represent $n(\bfr)$ for any $\bfr$ as
+% \begin{eqnarray}
+% n(\bfr)= \sum_{\bfG} n_\bfG e^{i \bfG \bfr}.
+% \end{eqnarray}
+% \item[(ii)]
+% Real space mesh $\{\bfr_{i}\}$ should correspond to the Fourier mesh of
+% $\{\bfG\}$ in the sense that
+% \begin{eqnarray}
+% \delta_{\bfG\bfG'}= \sum_{i} e^{i (\bfG-\bfG') \bfr_{i}},\nonumber \\
+% \delta_{ii'}= \sum_{\bfG} e^{i \bfG(\bfr_i-\bfr_{i'})}.
+% \end{eqnarray}
+% (For simplicity, we take $\sum_i$ and $\sum_\bfG$ include a normalization.)
+% \item[(iii)]
+% $f(n)$ is analytic on $n$ for positive $n$. This results in
+% 	   an infinite series of expansion as 
+% \begin{eqnarray}
+% f(n)\!=\! f(\bar{n}) 
+% \!+\! f'(\bar{n}) (n-\bar{n}) \!+\! \frac{f''(\bar{n}) }{2!} (n-\bar{n})^2 \!+\!... , \label{fexpand}
+% \end{eqnarray}
+% where $f',f''...$ are derivatives with respect to $n$ at $\bar{n}$.
+% $\bar{n}$ can be average of density.
+% \end{itemize}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\noindent 課題：
-PMT法の(LDA/GGAレベルでの)不安定性。要因は、１.コアとの直交性、2.基底関数が
-null vectorを含むようになる、の2点にある。この不安定性をもうすこしきちん
-ととりのぞきたい。１はMT半径をかなり小さくしなければphi,phidotとコアがお
-よそ直行しているようでそれほどには問題にならないみたいだ。
+% Our statement is that the integral $I$ is dependent on only $n_\bfG$, not
+% dependent on the choice of $\{\bfr_i\}$ as long as (i),(ii),(iii) are
+% satisfied. To verify this, it is enough to treat 
+% $I_m=\sum_i (n(\bfr_i))^m$, because
+% $I$ is given as a linear combination of $\{I_m\}$
+% due to (iii). As for $I_m$, we can easily show
+% \begin{eqnarray}
+% I_m = \sum_{\bfG_1+\bfG_2+...+\bfG_m=0} n_{\bfG_1} n_{\bfG_2} ... n_{\bfG_m}.
+% \end{eqnarray}
+% This means that the choice of real-space mesh do not affect $I_m$
+% as long as (i) and (ii) are satisfied. Thus our statement is verified.
 
-PMT法では、3成分表示にのっとっているので、第０成分を「擬波動関数」とみな
-せないことはない。ただ、現状のPMT法では,MTOについてはheadパートはそのまま用い
-tailパートとAPWのみにプロジェクタを用いて、第０成分から第２成分をつ
-くり、それに対応するphi,phidotを用いてaugmentしている；注意が必要。
+% This can be extended to the cases of GGA. 
+% This allows us to use relatively coarse mesh to calculate 
+% atomic forces because we have no artificial forces due to the choice 
+% of real-space mesh. However, we expect a numerical error when the real-space
+% mesh is too coarse since the expansion \req{fexpand} cannot be
+% converged rapidly.
 
-\begin{enumerate}
-\item
-KMXAを小さくし（できたらPAW同様に2個にして）、安定化・効率化するには、よいプロジェ
-クタが必要である。これには、各原子をpwemax=3程度で解いておいて、
-そのときの、第2成分をプロジェクタとするのがよいと思える（2つ必要なのでそれと直行するエネルギー微分もとる）。
-このプロジェクタを用いれば、今のようにhead partとtailパートを分別して取り扱う必要もなくせるかもしれない。
+\begin{widetext}
+\section{電荷の表現などについて}
 
-\item
-計算の安定化：全エネルギーに「第2成分（＝第０成分）」を固定するようなポテンシャルを加えて
-計算を安定化させることも考えうる。
-これは原子をPMT法でたとえばpwemax=3程度で解いたときの$a$サイトでの
-第２成分$A_{2a}(\bfr)$（大きくなりすぎない妥当な第２成分の解。擬ポテンシャルの解にも相当する）
-を用いて、$\Delta E= + \alpha \sum_p \sum_a \int_{a} d^3r (\psi_{2p,a}(\bfr) -A_{2a}(\bfr))^2$
-をハミルトニアンに付け加えて解くことである。これによりいくらか
-エネルギー的には損をすることになるかもしれないが、第２成分の不定
-性が固定されることになる。（それゆえ第０成分も決定されてしまうことになる）。
-
-\item 
-QSGWを行うときには、MT半径を大きく取ったほうがPBを大きくとることが
-でき効率的になるので有利（MT半径が小さいと、MPBにおいてIPWをかなり多く取
-らないといけなくなり、相対的に計算が遅くなる）。
-ただ将来的にはMT半径に依存しないような形でのMPBを利用したい。
-PMT法自体はMTに重なりがあっても破綻はないアルゴリズムになっている。
-GW法もそのようにしたい。
-\item
-bcc Fe単体でQSGW計算で正しくモーメントを出そうとすると(QSGWでもGGAとほと
-んど同じモーメントが出るようだ)、3pをvalence扱いする必要あり。せめて
-polarizationに入れなくてすむかどうか要チェック（現在調べ中）。
-\end{enumerate}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{波動関数の表現}
-See eq.25 in the paper[TvSF].
-\begin{eqnarray}
-\Psikn(\bfr)
-= \sum_{Ru}\alpha^{{\bfk}n}_{Ru} \varphi^{\bf k}_{Ru}({\bfr})
- + \sum_{\bf G}  \beta^{{\bfk}n}_{\bf G} P^{\bf k}_{\bf G}({\bf r}),
-\label{def:psiexp}
-\end{eqnarray}
-である。前半がMT内パート、後半がMT外パート（IPW $P^{\bf k}_{\bf G}({\bf r})$で張られる）である。
-MT内部は$\varphi^{\bf k}_{Ru}({\bfr})$という基底で張られている。これは$\bfk$をもつbloch和で、
-\begin{eqnarray}
-\varphi^{\bfk}_{R u}(\bfr)=
-\sum_T \varphi_{Ru}(\bfr-\bfR-\bfT)\exp(-i \bfk(\bfR+\bfT))
-\label{eq:blochsum}
-\end{eqnarray}
-である。ここで、$\varphi_{Ru}(\bfr)$は、MTサイトR内でのみnon zeroな関数
-であり、uは、複合indexで「角運動量$L$,動径部分の区別の
-index（phi,phidot,phizの区別）」である。
-また、GW計算においてはコアは、MT内にあるものとして扱われる（ctrlでLFOCA＝１にしておいてもLFOCA=0で再計算して用いられる）。
-コア波動関数も上述のブロッホ和の形\req{eq:blochsum}で与えられている。
-
-\noindent{\bf データファイル読み込みルーチン:}
+すこし古く、あまり正確でないかもしれない。リクエストしてください。
 \begin{itemize}
+\item
+lmfにおいてコアになっているのは、bndfp.Fである、このルーチンが一回呼ばれ
+ることで、与えられた電子密度からポテンシャルをつくり、バンド計算をおこなっ
+て、新たな電子密度を、返す、ということを行う（LDA＋UのときはUも呼び出し
+時に与えられる。指定したl-channelの占有数matrixをlmfpの部分で扱っており、
+混乱ぎみの構造になっている。）
+その際、電荷のmixingや、力の計算なども行うことになる。
+このルーチンはlmfp.Fから呼び出される。なので、lmfp.Fのなかにiterationの
+ループが存在する；do loopでなくgotoを用いており
+（!! === Re-entry point for a new iteration ===）から始まっている。
+構造緩和などは、lmfp.Fが担っているが、それらは将来的に
+他のものとの差し替えも可能であり、bndfp.F以下が本質的な部分である。
+
 \item 
-readeval:固有値読み込みルーチン
-\item
-readcphi: $\alpha^{{\bfk}n}_{Ru}$の読み込み
-\item
-readgeig: $\beta^{{\bfk}n}_{\bf G}$の読み込み
-\item:
-readngmx,readqg: ${\bf G}$の読み込み。
-\end{itemize}
-readevalなどを用いるには、init\_readeigen,init2\_reaeigenを先に呼ぶ必要
-がある（これらはメインルーチンの中に書かないで一度目の呼び出しのときに。
-すべてのファイルをランダムアクセスファイルにしたほうがいいような気もして
-いる。メモリの制約で、少し大きいシステムになってくるとKeepEigen
-off,KeepPPOVL offをGWinputでセットしないと走らない場合もある。
-データへのアクセスは{\bf q}などを与えて直接に呼び出せるようにしている。
-とにかく、あるプログラム（たとえばhx0fp0)を走らせるとき、それ以前に作ら
-れ、ファイルに格納されたデータの（十分に高速な）読み出しが必要になる。
-これを、read*という名前のルーチンで行えるよう統一したい。
-書き出しに関しては、直接ファイルオープンして書き出させたほうが見やすい場
-合もあるが、write*と言う名前のルーチンを対にしてモジュールに収めたほうがいいかもしれない。
-また、データを二重に持たせているような部分は極力排除したい。
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{行列要素$\langle \psi |\psi M \rangle$の計算}
-（以下の説明ではindexのシステムをもうすこし単純化、系統化したい）。
-
-psicb,melpln,drvmelp2などの目標は、
-最終的にzmelに格納される「行列要素$\langle\Psikqn(\bfr)|\Psi_{\bfk n'}(\bfr) M_{{\bf q}I}(\bfr)\rangle$」
-
-を求めることである。MPBの$M_{{\bf q}I}$はPBとIPW(QGcou)からなる;
-これらは$B_{\bfq Rm}(\bfr-\bfR)$と$P^{\bf k}_{\bf G}({\bf r})$など
-と書かれる。（IPWはIPW(QGpsi)と二種類あるので区別しないといけない）。
-plnとかmelpという文字の入ったルーチンはIPWに関わる部分である。
-hsfp0*,hx0fp0*などにおいては、この行列要素を計算したのちに、
-それを用いて、誘電関数やら、自己エネルギーを計算することになる。
-
-以前、場合によっては、これらをすべてファイルにおとして
-プログラムとして分割することも考えたが、メモリの関係で
-オンザフライで求めている。drvmelp2がsxcfの方にのみ組み込まれているなど、
-かなりごちゃごちゃした形になっている。すっきりさせたい。
-高度な並列化を考える場合にはこの行列要素計算の並列化も必要になってくるか
-と思う。計算量のオーダー的には、N$^3$だろう。\\
-
-smbasis()は以前に開発した新たなMPBだがあまりご利益がないのでいまは使っていない。
-これは、MT内とMT外がスムーズにつながるようなMPBのアイデア。
-たぶん動かないし放置でいいが、記録として残してある。将来的には
-『「MTO基底の積」＋「APW（MT内部のaugmentの仕方は配慮する）』
-をあらたなMPBにしたいと考えてはいる。
-
-
-以下、個別のルーチンの説明。\\
-
-\noindent {\bf psicb\_v3:} \\
-（注意：コア波動関数とバレンス波動関数の直交性の問題があり、
-ncore=ncc=0として分極関数にはコアからの寄与をいれないのを最近はデフォルトにして
-いるのでhx0fp0*内では実質的にスキップすることになる）。\\
-%We usually set ncore=0, that is, we essentially skips this routine in hx0fp0*.
-%Thus we do not include polarization due to cores.)
-このサブルーチンではmatarix element 
-$\langle\Psikqn(\bfr)| \varphi^{\rm core}_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
-および
-$\langle\varphi^{\rm core}_{\bfk+\bfq n}(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
-%``core$\times$valence$\times$product basis''
-を求める；これは最終的にzpsi2b(iblochq,ib1k,ib2qk)に格納される。
-ここで、$\varphi^{\rm core}_{\bfk n}(\bfr)$はブロッホ和\req{eq:blochsum}の形で与えられた
-コア波動関数を意味している。このとき$n$はバンドindexとみてよい
-(コアについては、$n$は「原子サイト$R$、角運動量$L$、主量子数」からなる複合indexである）。
-
-iblochは1:nblochで、nblochは、すべての原子についてのPBの個数の和である。
-なので、nblochは、$B_{\bfq Rm}$における添字$Rm$の要素数でもある。
-$R$はユニットセルの原子数、$m$のサイズは原子によって違っている
-「各原子についてのPBの数」は”grep nbloch lbas”で表示される。
-
-ib1kとib2kはバンドindexで、ib1kが1:nctotの間,ib2kが1:nccの間にあれば、そ
-れらはコア波動関数である。またib1k,ibk2がぞれぞれnctot,nccよりも大きけれ
-ば、それらはバレンス波動関数のindexとなっている。（なので、これらのindex
-についてはコア＋valenceで、通しでnでindexづけされている）。コアとしてどれだ
-けのものをとるかはGWinputで指定できるがコアなしnctot=ncc=0がデフォルト。
-（そもそもはnccはゼロで、ib1kが占有バンド、1b2qkは非占有バンドを表してい
-たが、time-reversalを破る場合に都合が悪くなり、nccもあとから付け足した経緯がある）。
-
-用いている式は、
-\begin{eqnarray}
-\langle\Psikqn(\bfr)| \varphi^{\rm core}_{\bfk n}(\bfr-\bfR) B_{\bfq Rm}(\bfr-\bfR) \rangle
-= \sum_{u} \alpha^{\bfk+\bfq n}_{Ru} 
-\langle \varphi^{\bf k+q}_{Ru}(\bfr)|\varphi^{\rm core}_{{\bf k} n}(\bfr) B_{\bfq Rm}(\bfr) \rangle
-= \sum_{u} \alpha^{\bfk n}_{Ru} 
-\langle \varphi_{Ru}(\bfr)|\varphi^{\rm core}_{n}(\bfr) B_{Rm}(\bfr) \rangle
-\nonumber \\
-\end{eqnarray}
-である.　$\langle\varphi^{\rm core}_{\bfk+\bfq n}(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
-についても同様である（nccがゼロでない場合）。
-
-GWコードではiclass(i)=iatomp(i)となっており、多くのことろでiclassはダミー
-である。ただ、CLASSファイルに等価原子位置の情報が格納されており、これを
-読み込んで波動関数を空間群で回転させるときなどに使っている。
-
-　\\
-
-\noindent {\bf psi2b\_v3:} \\
-このサブルーチンではmatarix element 
-$\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
-を求めている。valenceの$\Psi$に関わる部分のみである。用いている式は、
-\begin{eqnarray}
-\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle
-= \sum_{u} \sum_{u'} \alpha^{\bfk+\bfq n}_{Ru} \alpha^{* \bfk n'}_{Ru'}
-\langle \varphi^{\bf k+q}_{Ru}(\bfr)|\varphi^{\bf k}_{Ru'}(\bfr) B_{\bfq
-Rm}(\bfr) \rangle \nonumber \\
-=
-\sum_{u} \sum_{u'} \alpha^{\bfk+\bfq n}_{Ru} \alpha^{* \bfk n'}_{Ru'}
-\langle \varphi_{Ru}(\bfr)|\varphi_{Ru'}(\bfr) B_{Rm}(\bfr) \rangle
-\end{eqnarray}
-である。変数cphikには$\alpha^{\bfk n'}_{Ru'}$が格納されている。cphikqについても同様である。
-ppbに$\langle \varphi_{Ru}(\bfr)|\varphi_{Ru'}(\bfr)
-B_{Rm}(\bfr)\rangle$が格納されている；これは実関数である（実球面調和関数、実数のradial関数を使っているので）。
-ppb(nc+1,...)などとなっているのはncがコアの数でその分オフセットする必要があるからである。\\
-
-
-\noindent {\bf melpln2:}\\
-名前はmatrix element for plane waveを略したつもりで、melplnになった。
-このルーチンでは、
-$\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) P^{\bf q}_{\bf G}({\bf r}) \rangle$
-を求めている。なので、これと、psi2b\_v3,psicb\_v3などの結果とあわせて、すべてのzmelを求めたことになる。
-使っている式は、
-\begin{eqnarray}
-\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) P^{\bf q}_{\bf G}(\bfr) \rangle
-= \sum_{G'} \sum_{G''} \beta^{\bfk+\bfq n}_{\bfG} \beta^{* \bfk n'}_{\bfG'}
-\langle P^{\bf k+q}_{\bf G'}(\bfr)| P^{\bf k}_{\bf G''}(\bfr) 
-P^{\bf q}_{\bf G}({\bf r}) \rangle \label{eq:ppip} 
-\end{eqnarray}
-であるが、この最後の部分は
-\begin{eqnarray}
-\langle P^{\bf k+q}_{\bf G'}(\bfr)| P^{\bf k}_{\bf G''}(\bfr) 
-P^{\bf q}_{\bf G}({\bf r})\rangle
-=\langle \exp(i (\bfG'- \bfG'')\bfr) |\exp(i \bfG\bfr)\rangle_{\rm I}
-\label{eq:ppx}
-\end{eqnarray}
-と書ける。ここで最後の$\langle ... \rangle_{\rm I}$はinterstitialのみでの積分を表す。
-この行列要素は、その足が$(\bfG'- \bfG'', \bfG)$となっている。
-$\bfG'- \bfG''$の取りうる範囲は、波動関数の積であり、その絶対値は2倍の大きさまでとり
-得ることになる。この\req{eq:ppx}の行列要素が、ppx(1:ngc2,1:ngc)である。ngcは、
-QGcouに対応するIPWの個数である。ngc2は、$\bfG'- \bfG''$の取りうる範囲の
-個数であり、およそ2$^3$倍になっている。
-getppxをコールすると、ppxに値が格納される仕組みになっている
-（モジュールを用いている。便利だけど分かりにくい）。
-
-計算手順としては、まず、
-$\beta^{\bfk+\bfq n}_{\bfG} \beta^{* \bfk n'}_{\bfG'}$
-の積を作ってgg(n,n',$\bfG-\bfG'$)に格納している。
-そのあと最後に、call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0)
-を行って、この\req{eq:ppip} の左辺を得ている。
-
-このルーチンの面倒な点は、エネルギーカットオフをしているので
-$\bfq$点ごとに、$\bfG$のとりうる範囲がちがうことである。
-それで、PPOVLファイル内のppxも$\bfq$ごとに作り直しており、
-ファイルがそれで巨大になってしまっている(PPOVLはrdata4gw.m.Fで作っている)。
-
-ただこれは、ばかげたやりかたです；　範囲が違うだけであって、ppxすなわち
-$\langle \exp(i (\bfG'- \bfG'')\bfr) |\exp(i \bfG\bfr)\rangle_{\rm I}$
-の値自体は、$\bfG'- \bfG''-\bfG$のみに依存しているだけで,
-そんなに大きいことはなく、$|\bfG(\Psi)+|\bfG(\Psi)|+|\bfG({\rm Coulomnb})|$よりも小さなGに対して、
-積分を計算しておけばいいはずである。このあたり作り方がへたすぎる。
-それから、すぐにggxは作れるはずである。
-
-shtvはhx0fpのほうではゼロにセットされているようである。\\
-
-\noindent {\bf drvmelp2:}\\
-このルーチンは、melpl2を被って便利になるように作った。ドライバーというつもり。
-本来はたぶん、hx0fp0\_scでも使うつもりだったとおもうが中途半端なことになって
-いる。あまり多重にサブルーチン化してもご利益はなく、やめたほうがいいのかもしれない。
-
-
-\section{Not organized: memorandum}
-
-\begin{enumerate}
-\item
-計算機においては有限の変数（離散化）により全エネルギーを表現することが
-必要である。そして、そのエネルギーを最小化することで全エネルギーを決定することができ
-る。すなわち、Kohn-Sham方程式を出してから離散化するのではなく、
-全エネルギーを離散化表示してから、離散化されたKohn-Sham方程式を導出する
-のである。これにより、全エネルギーとそれの微分であるハミルトニアンとの整
-合性がきちんと保たれることになる（この場合、打ち切り誤差がなければ厳密にその関係性が満たされる）。
-このことを全エネルギーの標識において確認し、どれだけの離散化
-パラメーターが出てくるのかを概観する.このとき、radial方向の積分に関して
-は離散化誤差は無視する；この離散化は、計算速度にあまり影響せず
-十分に細かくとれるからである。まず、周期境界条件により、波動関数は1stBZ中の波数$\bfk$をもつことになる。
-1stBZを格子で切り分け格子点の上でのみの$\bfk$点を考えるようにする。
-それで、envelope関数$F_{0i}$のindex $i$は、この離散化された$\bfk$の
-値を含む複合indexとなる。
-
-envelope関数$\{F_{0i}\}$は、「平面波(波数$\bfk+\bfG$で指定される)」
-と「smooth Hankel関数をBloch sumして$\bfk$を持つようにしたもの
-（さらには、原子位置、角運動量、およびsmooth Hankelのdamping因子EHと
-smoothing radius RSMHで指定される。）」を含んでいる。
-これらをaugmentするときの係数$C^i_{akL}$と$P_{akL}$は、
-augmentationの処方箋を決めれば決定される。現在、この処方箋は、
-\cite{Bott98}のXIIに書かれている手法で行われている。
-augmentationに関しては、$k$のカットオフKMXA（KMXAはゼロからなのでKMXA＋
-１個）,$L$のカットオフLMXAが必要となる。$\tilde{P}_{akL}$は、$\phi_l(r),\phidot_l(r)$という二つの
-radial関数をもちいて組み立てられる。これらは、onsiteでの
-$\tV_{1a}$(の球対称部分)を用いてradial schrodinge eq.を適当なエネルギー
-$\epsilon_{al}$で解くことで得られる。この「$\phi_l(r),\phidot_l(r)$」
-を固定する（オプションFRZWF=1)ことも可能である
-（ただ、計算を通じて固定するには、それを解くエネルギー$\epsilon_{al}$も
-固定する必要がある。通常は、$\epsilon_{al}$には占有バンドの重心位置、あるいは、fermiエネル
-ギー（セミコアがあるとき）が選ばれる。SPEC\_IDMOD=1でこのpnuが固定でき、FRZWVで
-ポテンシャルも固定できてるはずだが、これで本当に基底の固定が完全にできているかは要チェック）。
-将来的にはPAW法と同様に「基底を完全に固定」したほうがいいのではないかと思う。
-frozenフォノン計算などには有利である。
-
-それで、この方法は、全エネルギー最小化に関しておおむねの最適化
-になっていると言えるが、上述のように、「基底の固定（phi,phidotの固定）」
-が通常のオプションではなされないことには注意する必要がある。また、格子変
-形したときなど、Gベクトルの数が急に変化してエネルギーが突然変化する、
-という点もありえる（ctrlにおいて、GMAXの変わりにFTMESHを用いればさけれる）。
-
-\item
-上述の基底関数をもちいて、運動エネルギーの行列要素を計算す
-ることができる。この式の第0成分はenvelop関数にのみ関係しており、その運動エネルギー行
-列要素は解析的に計算できる。\\
-コードでは,bndfp-hambl-smhsbl-hhibl,hhibl内。smooth Hankelの積やそれ
-をLaplacianではさんだものの積分がsmooth Hankelで書けること---\cite{Bott98}の
-(10.10),(10.12)など---を利用してこれを計算している.
-第1,第2成分に関しても上述の$C^i_{jkL},{P}_{akL},\tilde{P}_{akL}$から計算
-できる。
-
-\item
-$E_{\rm es}+E_{\rm xc}$を評価することを考える。
-まず、第1,2成分については、radialな積分に帰着できるので、運動エネルギー
-の時と同様に$C^i_{jkL},{P}_{akL},\tilde{P}_{akL}$から計算できる。
-次に、第0成分について考える。
-このためには、envelope関数（smooth Hankelと平面波）を、
-実空間メッシュ（実空間でのユニットセルを等間隔で分割したもの）の上で表現
-したものを考える必要がある（コード内では,bndfp-addrbl-rsibl-rsibl1,rsiblpで、
-固有関数の実空間メッシュのうえでの値を直接に生成している）。
-そして、それの積により電子密度smrhoをrsibl2で作っている(このsmrhoが
-bndfp.Fに返されmkpotに渡されてポテンシャルの生成に使われる)；
-電子密度は実空間メッシュの上での値で与えられるわけである。
-これをFFTすると電子密度は$\bfG$で展開して表現されていることになる。
-$E_{\rm es}$の評価には、この表現を用いる。coreからの寄与や多重極変換にか
-らんで、$\tnT$には、smooth HankelやGaussianを含むがこれらに
-関係する部分は解析的に取り扱う(mkpot-smvesのコメントは、参考になる。しか
-し、本書の方が正確である---coreのsmooth Hankelによる寄与が適当に省略されて書かれている）。
-また、$E_{\rm xc}$の第0成分の評価においては、実空間メッシュの上で交換相関エネ
-ルギーを求めてそれを積分することをおこなう\\
-(mkpot-smvxcm. mkpot-smvxc2はvalence
-のみに関する量を計算している.mkpot-smvxc2はおそらくvalenceのみの寄与を表示するこ
-とのみに必要で、sc計算には不要)。
-\end{enumerate}
-
-以上で、全エネルギー$E$が計算機においてどのように表現されているかを与えられる。
-subroutine mkpotは与えられた$n$からこれらのpotentialを計算するルーチンである。
-
-% これらを考え合わせると、けっきょく、全エネルギーが、$\rho_{ij}$の汎関数で与
-% えられることになる。$\rho_{ij}$は、この全エネルギーを最小にするように決定される。
-% それで、これを調整してエネルギーを最小化する問題になる。
-% {\small 注意：金属の場合は、$\rho_{ij}$の汎関数というよりも,それを生成す
-% る$H_{ij}$（あるいはポテンシャルの）汎関数と考えるほうがよい。
-% まず$H_{ij}$が与えられれば、BZ内の積分も考慮した形で$\rho_{ij}$が与えら
-% れる(離散的な$\bfk$点でtetrahedron法をもちいる)。
-% これを用いて全エネルギーが計算される。
-% 一般的に言っても、密度の汎関数というよりそれを生成するポテンシャルの汎関数と
-% して考察したほうが便利な場合も多い。}
-
-%\subsection{全エネルギーの最小化}
-% これで、\req{eq:etot0}における全エネルギーをあたえたことになる。
-% これの最小化問題を解くには,$E_{\rm es} + E_{\rm xc}$の
-% $n$による汎関数微分を計算し、$V_{ij}$を得る必要がある。
-% この際、$n$は3成分からなるので、そのおのおのの成分について微分をとり、
-% $\frac{\delta E_{\rm es}}{\delta n_0} \frac{\delta n_0}{\delta\rho_{ij}}$
-% などの和として,$V_{ij}$は計算される。ここで、
-% $\frac{\delta n_0}{\delta \rho_{ij}}$は、\req{eq:denmat}により容易に、
-% 第0成分からの寄与$F_{0i}^*(\bfr) F_{0j}(\bfr)$であることが
-% 分かる；それで結局、$V_{\rm es0}(\bfr)=\frac{\delta E_{\rm es}}{\delta n_0(\bfr)}$
-% を用いて,$\langle F_{0i}(\bfr)|V_{\rm es0}(\bfr)| F_{0j}(\bfr)\rangle$
-% として計算できることになる。第1,2成分についても同様である。
-
-% それで、$\frac{\delta E_{\rm es}}{\delta n_0}$を
-% 3成分それぞれについての計算することが必要である。
-
-
-%\begin{eqnarray}
-%&&H_{ij} \equiv \langle F_i| \kin+ V |F_j \rangle 
-%= \int dr F^*_{0i}(\bfr) (\kin+V_0(\bfr)) F_{0j}(\bfr)  
-%+ \sum_a \sum_{kL} (C^i_{akL})^* \sum_{k'L'} C^{j}_{ak'L'} \\
-%&&\times
-%\left(
-% \int_{|\bfr| <R_a} \hspace{-15pt} d\bfr \tilde{P}_{akL}(\bfr) \left(\kin + V_{1a}(\bfr) \right) \tilde{P}_{ak'L'}(\bfr)
-%-\int_{|\bfr| <R_a} \hspace{-15pt} d\bfr       {P}_{akL}(\bfr) \left(\kin + V_{2a}(\bfr) \right)       {P}_{ak'L'}(\bfr) \nonumber
-%\right).
-%\end{eqnarray}
-
-% ここで、\req{eq:ees2}の書き方をもちいれば、
-% \cite{lmfchap}のEq.(26)における$\tV_0$などは、
-% $\tV^{\rm es}_0= v\cdot \tn_0$,$\tV^{\rm es}_1= {\cal R} \cdot\tn_1$,
-% $\tV^{\rm es}_2= {\cal R} \cdot \tn_2$と書くことができる。
-% $n$での汎関数微分をとる際には、$E_{\rm es}$は直接的には、
-% $\tn$の関数であることに注意をする必要がある。$\tn$は$n$の汎関
-% 数でありその関係は\req{eq:val0}-\req{eq:val2}で示されている。
-% それで、$\tn$は、${\cal G}(n_1)$などを含んでいるから、
-% それらを$n_1(\bfr)$で汎関数微分すると、\req{eq:gdef}の定義にしたがい、
-% \req{eq:qal}を通じて、$r^l Y_L(\hat{\bfr})$に比例する項が出てくることになる。
-% [$\tV^{\rm es}$は、$E_{\rm es} + E_{\rm xc}$の
-% $n$による汎関数微分において、${\cal G}$を通じての微分を含まない部分として定義できる]。
-
-% それで結局、最終的に得られる静電エネルギーの$V_{ij}$への寄与は、
-% \cite{lmfchap}のEqs.(26)-(29)で与えられる。このEqs.(26)-(29)では、$V$は
-% 静電相互作用のみのものであると考え、$\tV_0$は、本書の$\tV^{\rm es}_0$
-% を意味すると読めばよい。チルダのついているのは多重極変換後の量であり、
-% $V^{\rm es}_1$にはチルダがついてないが、これは、多重極
-% 変換で、$n_1=\tn_1$であるからである（それで\cite{lmfchap}はすべての第1
-% 成分にはチルダをつけてない）。
-
-% また、交換相関エネルギーの$V_{ij}$への寄与は、単純に\req{eq:exc}の
-% $n_0,n_1,n_2$を介しての汎関数微分で与えられることになる。
-% それらを$V^{\rm xc}$とおくと,次式を得る。
-% \begin{eqnarray}
-% &&V^{\rm xc}_{ij} 
-% = \int dr F^*_{0i}(\bfr) V^{\rm xc}_0(\bfr) F_{0j}(\bfr)  \nonumber \\
-% &&+ \sum_a \sum_{L,L'} (C^{i}_{akL})^* \sum_{k'} C^{j}_{ak'L'}
-% \left(\int_{|\bfr| <R_a} d\bfr \tilde{P}_{akL}(\bfr)V^{\rm xc}_1(\bfr)
-% \tilde{P}_{ak'L'}(\bfr)
-% -\int_{|\bfr| <R_a} d\bfr {P}_{akL}(\bfr) V^{\rm xc}_2(\bfr) {P}_{ak'L'}(\bfr) \right)
-% \label{eq:vxc}
-% \end{eqnarray}
-% これは、\req{eq:over}において、$V^{\rm xc}$をはさんだ形である。
-
-% $\tV=\tV^{\rm es}+V^{\rm xc}$は、$E_{\rm es} + E_{\rm xc}$の
-% $n$による汎関数微分において、${\cal G}$に関わらない部分として定義できる。
-% これは、\cite{lmfchap}では、Eqs(41)-(43)における定義と一致している。
-
-% \noindent [注意： 
-\cite{lmfchap}は$V^{\rm xc}$の扱いをすこし間違っている（lmfのコードは
-まちがってない）。$\tV$から、そのなかのEqs.(26)-(29)で、$V_{ij}$が
-作れるように書いてある。しかし、これだと、$V^{\rm xc}$に
-関してまでも、多重極変換が関係してるような表式になってしまい、間違ってい
-る。ただしコードは間違っていない。
-
-mkpot-locpot-augmat-gaugmにおいては、
-gpot0,gpotb(これがポテンシャル$\times r^l Y(\hat{\bfr})$の積分)が
-使われているがこれらは静電ポテンシャルのみから計算されている。]
-
-
-% xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-% これが数学的にどう組み立てられているかに注意する。
-% 単純には、基底関数と、ポテンシャル$V$の汎関数となっている。
-% この$E$は3成分表示での波動関数や密度、ポテンシャルの表現を用いて定義され
-% ており、この$E$を与えた時点で、問題は既に簡略化されていて数値的に解ける問題と
-% して意味を持つことに注意する。
-
-% まず、のちほど述べるように第一項$(E_{\rm B}^{\rm core}-V \cdot n^{\rm core})$　
-% はコアの運動エネルギーであり、$E$を最小化にするという
-% 点からみれば、定数としてよい。
-
-% 二項めのバンドエネルギー$E_{\rm B}$は$V$の関数であり、
-% $E_{\rm es}[\tnT]$,$E_{\rm xc}[n^{\rm c}+n]$であったが、$\tnT$は
-% $\nT$の関数であるとみなせることに注意する。また、\req{eq:eig}から、$n$を
-% （基底関数を固定しておけば）$V$の関数であると考えることができ、コアの電
-% 子密度は以下で述べるように固定されていると考えると、
-% 全エネルギーは$V$の汎関数$E[V]$であると考えることができる。
-% %コアからの外場は、$E_{\rm es}$に含まれている.
-
-% もっと正確にいえば、基底関数をaugmentするためのphi,phidotは
-% $V$(正確には$V_1$)によって与えられるから,そこまで含めて、
-% この$E$を$V$の関数と考えることができる。ただしphi,phidotは、局所的に
-% およその最適化をはかったに過ぎず、以下でエネルギー最小化の方程式を出すと
-% きに、基底関数に関して変分をとっているわけではない。
-
-% $V$の各成分は独立であると考えてよいことに注意する（最小化をはかるときに
-% 重要である）。すなわち、$V_0,V_1,V_2$を独立に動かして、
-% 最小エネルギーを計算することになる.
-
-
-% 原子核位置$R_a$依存性がどこに入っているかに注意しておく。
-% これは、$n^{\rm c}_a(\bfr-\bfR_a)$の3成分表示の形で、
-% $E_{\rm es}[\tnT]$,$E_{\rm xc}[n^{\rm c}+n]$の$\tnT,n^{\rm c}$
-% に入っている(第0成分にのみ$\bfR_a$依存性は入ってくる)。また、
-% augmentationの操作において、$C^{i}_{akL}$にも入っている。
-% これらのことは以下でForceを計算する時に問題になる。
-
-% ているから、$\{ R_a\}$と3成分表示の$\nT$の関数として、次章で定義される。
-% また、$E_{\rm B}$は、$V$と
-% $\{F_i\},P_{akL},\tilde{P}_{akL},C_{akL}$の関数であった；これらは
-% $R_a$依存性を持ちうる。たとえば、原子を動かしたとき、$\{F_i\}$を変化させ
-% ない場合でも、$C_{akL}$などは変化する。
-% 原子核を動かしたときに全エネルギーがどう変化するかはForceのところで考える。
-% とにかく、3成分表示にもとづいて考える必要がある；たとえば「3成分表示にお
-% いて原子核をうごかしたとき$n$を固定しておく」というのは、もともとの対応する電子密度で言えば、
-% すこし変な電子密度の動かし方をしてることになる；このときには、$n_2(\bfr)$成分が
-% $n_0(\bfr)$成分をくりぬいたものではなくなる。が3成分表示を基礎におけば問題は生じない。
-% \req{eq:deltae}あたりで説明する。).
-
-
-% \subsection{Harris-Folkner energyとKohn-Sham energy}
-% \subsubsection{KS energy}
-% まず、通常のKohn-Sham energyは密度の汎関数としての全エネル
-% ギーであり, 密度$n_{\rm in}$に対して$n_{\rm out}$をもとめたのち、
-% この$n_{\rm out}$に対するKS energyが、
-% \begin{eqnarray}
-% E_{\rm KS} = E_{\rm k}^{\rm core} + E_{\rm B} - V \cdot n_{\rm out} + 
-% E_{\rm es}[n_{\rm out}] + E_{\rm xc}[n_{\rm out}]
-% \label{eq:etotks}
-% \end{eqnarray}
-% として計算することができる(ここではcoreの密度は略す）。
-% ここで、$V$は$E_{\rm B}$計算時に使われる一体ポテンシャルであり、
-% $V=\frac{\partial (E_{\rm es} + E_{\rm xc})}{\partial n}$
-% を$n_{\rm in}$で計算するものである。このとき、
-% $E_{\rm B} - V \cdot n_{\rm out}$は、$n_{\rm out}$に対する運動エネルギー
-% となっている。この$E_{\rm KS}$の変分は、
-% \begin{eqnarray}
-% \delta E_{\rm KS} = (-V-V[n_{\rm out}])\cdot \delta n_{\rm out}
-% \label{eq:detotks}
-% \end{eqnarray}
-% と表される（少し計算するとわかる）。ここで、$V[n_{\rm out}]$は、$n_{\rm
-% out}$で計算したポテンシャルである。\\
-
-
-% \noindent * bndfp-mkekinで$E_k$の計算を行っている。
-
-% \subsubsection{Harris Folkner energy}
-% Harris Folkner energyは
-% \begin{eqnarray}
-% E_{\rm HF} = E_{\rm k}^{\rm core} + E_{\rm B} - V \cdot n_{\rm in} + 
-% E_{\rm es}[n_{\rm in}] + E_{\rm xc}[n_{\rm in}]
-% \label{eq:etothf}
-% \end{eqnarray}
-% として定義される。$V$はKS energyとおなじく$n_{\rm in}$に対して計算される
-% ものである。KS energyと比較すると、$E_{\rm B}$は同じであるが,それ以外の
-% 項は$n_{\rm in}$を用いている点で違っている。この$E_{\rm HF}$の変分をとると、
-% \begin{eqnarray}
-% \delta E_{\rm HF} = (n_{\rm out}-n_{\rm in})\cdot \delta V
-% \label{eq:detothk}
-% \end{eqnarray}
-% となることがわかる。
-% lmfでは、以下でのForce計算にはおもには、$E_{\rm HF}$をもちいる。
-% そこでは、収束が甘いときのForceの補正項を計算するのに\req{eq:detothk}を用
-% いている。
-
-
-% \subsection{Forceの計算}
-% lmfにおいて、原子位置をずらしたときの\req{eq:etot0}の変化を考える。
-% このエネルギーは密度行列$\rho(\bfr,\bfr')$と原子位置$\bfR_a$の関数であると
-% 考えられることに注意する。核からの電荷$n^{\rm Z}$、コアの電荷$n^{\rm c}$
-% は原子位置とともに動く。$E_{\rm es}$は\req{eq:ees2}で与えられており、
-% $\tnT$は\req{eq:all0},\req{eq:all1},\req{eq:all2}であたえられていた。
-% これらを考えると、原子位置$\bfR_a$は直接には、第0成分\req{eq:all0}を通じ
-% てのみ$\bfR_a$に依存している（3成分表示で考えるときには、もとの空間で考
-% えるのと意味が違っていることに注意する）。また、$E_{\rm xc}$についても同
-% 様である。
-
-% それで、\req{eq:etot0}の変分を考えると、$\bfR_a$を固定していた時には、
-% $\delta E = \frac{\delta E}{\delta \rho(\bfr,\bfr')}\delta
-% \rho(\bfr,\bfr')$と書けることを考えると、
-% \begin{eqnarray}
-% \delta E = H_{ij} \delta \rho_{ij} + \overline{\delta H}_{ij} \rho_{ij}
-% +\frac{\partial (E_{\rm es} + E_{\rm xc})}{\partial \bfR_a}
-% \label{eq:detot}
-% \end{eqnarray}
-% と書くことができる。self-consistentになっていれば第一項はゼロである。
-% 第二項の$\overline{\delta H}_{ij}$は基底$\{F_i\}$が変化す
-% るための変分を意味する。この第二項がPulay force $\delta E_{\rm B}({\rm Pulay})$である。
-% 第3項がエネルギー変化のメインの項であるが、上述のように第0成分を通じての
-% みの変分を考えればよい。
-
-% それで、$\delta E_{\rm B}({\rm Pulay}) = \overline{\delta H}_{ij} \rho_{ij}$は、
-% \begin{eqnarray}
-% \delta E_{\rm B}({\rm Pulay}) = \sum_p^{\rm occupied}
-%  (\delta\epsilon_p)^{\rm Pulay}
-% =\sum_p^{\rm occupied} \sum_i \sum_j 
-% (\alpha^p_i)^* (\delta^R H_{ij} -\epsilon_p \delta^RO_{ij}) \alpha^p_j.
-% \end{eqnarray}
-% と書くことができる。
-% ここで、 原子位置の変化に対して定まる
-% $\delta^R H_{ij}$ と $\delta^R O_{ij}$ は、
-% $F_{0i},C^{i}_{akL}$を介しての変化量である。
-% [あえていうなら $\tilde{P}_{akL}(\bfr)$,${P}_{akL}(\bfr)$の変化を介して
-% の変化量もあるが、それは無視する。そもそもこれらの量はエネルギー最小でき
-% められたわけでもない。]
-
-
-\subsection{結晶格子の変形}
-（まだimplementされていない）。
-結晶格子を変形させる。格子が変形すると基底関数がずれる。
-これにより電子密度がどう変化するか？などを考えればよい。
-このとき係数$\rho_{ij}$は固定されている。
-[原子が平衡位置にあるなら、それを介しての微分はゼロであり、
-格子を変形するにつれて原子を動かしても動かさなくてもエネルギー変化には寄与しない。]
-また、第0成分のみ考えればよい。
-そもそも、応力を求めるときの計算量は、歪みテンソルの数が6個であり、
-最大でも（真面目に数値差分で計算しても7倍の計算量ですむ）。
-それにある意味、完全に並列化ができる。実装する値打ちがあるかは検討課題。。
-
-
-
-\subsection{電荷の表現}
-\begin{itemize}
-\item 
-bndfpがlmfpから呼ばれる。バンド計算のコア部分.ここで電子状態に関する一回
-のiterationをおこなう。iterationのループはlmfpがうけもつ。
-[LDA＋Uに関しては、d-channelの占有数matrixをlmfpの部分で扱っており、
-混乱ぎみの構造になっている。]
-c-preprocessorでlmfgw(GW計算のドライバー)も埋め込まれているのでややこし
-い。mkpotで与えられた電子密度からポテンシャルを作っている。
+bndfp-mkpotで与えられた電子密度からポテンシャルを作っている。
 bndfpでは$n_{\rm in}$と$n_{\rm out}$を区別して扱っている。
 電子密度$n_{\rm out}$は、hamblでバンド計算した後、bndfp-addrblで生成される。
 以下のほとんどがbndfpから呼ばれているルーチンの説明である。
@@ -2966,9 +2552,9 @@ bndfpでは$n_{\rm in}$と$n_{\rm out}$を区別して扱っている。
 \item 
 $n_{\rm in}$について。
 
-これのvalenceの部分は、\req{eq:nval}で定義された$n$の表示で与えられている。
+これのvalenceの部分は、\req{eq:n}で定義された$n$の表示で与えられている。
 bndfp内において、
-smrho(k1,k2,k2,nsp)が第0成分。localなdensityはw(orhoat(ix,ibas))に格納し
+smrho(k1,k2,k2,nsp)が第0成分。第1,2成分はw(orhoat(ix,ibas))に格納し
 てある(説明は以下)。コード内ではorhoat=w(oorhoat)なので注意がいる；ポインタ
 のポインタの構造。これらがmkpotに渡される。このw(orhoat(ix,ibas))の中身は、
 rhoat(nr,nlml,nsp) = w(orhat(ix,ibas))であり、YLM展開の電子密度を
@@ -3051,23 +2637,34 @@ rho2=rho2+rhochsとして、vxcnspに与えている。v2が出力される.
 (注意：蛇足だが、マイナス符号をとったものが第2成分)。
 locpt2内でこのrhochsがどのように生成されるかをみて確認しておくとよい。
 
+\item
+mkpot:bndfp内で呼びだす。これが、\req{eq:v}を生成する。
+[注意： \cite{lmfchap}は$V^{\rm xc}$の扱いをすこし間違っている。
+$V$から、そのなかのEqs.(26)-(29)で、$V_{ij}$が
+作れるように書いてある。しかし、これだと、$V^{\rm xc}$に
+関してまでも、多重極変換が関係してるような表式になってしまい、間違ってい
+る。ただしコードは間違っていない。bndfp-mkpot-locpot-augmat-gaugmにおいては、
+gpot0,gpotb(これがポテンシャル$\times r^l Y(\hat{\bfr})$の積分)が
+使われているがこれらは静電ポテンシャルのみから計算されている。]
+
+\item
+\req{eq:es}の$E_{\rm es}$の第0成分からの寄与は
+mkpot.F内のsmves.Fで評価している。
+この中で、Gaussian$\times$smooth partの積分やGaussian$\times$Gaussianの積分が出て
+くる。後者については、off-siteの部分に関しては、単純に多重極のエバルト和で評価できる。
+第1,2成分からの項に関しては、locpot.Fで評価している。\\
+
+\item
+callcaller.datにはどのルーチンがどこでdefされどこでcallされてるかの表があ
+る（完全には信用しないこと）。これはCallCaller.shで生成できる。
+（利用法を書く必要あり）。\\
+
+\item
+bndfp-mkekinで$E_k$の計算を行っている。
+
+
 \end{itemize}
+\end{widetext}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{lmfのバンド計算のコードについて：bndfp.F}
-lmfにおいてコアになっているのは、bndfp.Fである、このルーチンが一回呼ばれ
-ることで、与えられた電子密度からポテンシャルをつくり、バンド計算をおこなっ
-て、新たな電子密度を、返す、ということを行う（LDA＋UのときはUも呼び出し
-時に与えられる）。その際、電荷のmixingや、力の計算なども行うことになる。
-このルーチンはlmfp.Fから呼び出される。なので、lmfp.Fのなかにiterationの
-ループが存在する；do loopでなくgotoを用いており
-（!! === Re-entry point for a new iteration ===）から始まっている。
-
-構造緩和などは、lmfp.Fが担っているが、それらは将来的に
-他のものとの差し替えも可能であり、bndfp.F以下が本質的な部分である。
-
-\bibliography{refstakao}
-
-
+\bibliography{lmto,gw}
 \end{document}

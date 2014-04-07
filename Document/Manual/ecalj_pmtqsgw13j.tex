@@ -1,0 +1,2675 @@
+\documentclass[twocolumn,showpacs,preprintnumbers,amsmath,amssymb,floatfix]{revtex4-1}
+%\documentclass[twocolumn,showpacs,preprintnumbers,amsmath,amssymb,floatfix,linenumbers]{revtex4-1}
+%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4-1}
+
+% Some other (several out of many) possibilities
+%\documentclass[aps,prl,preprint,groupedaddress,showpacs]{revtex4}
+%\documentclass[aps,prl,twocolumn,superscriptaddress,showpacs]{revtex4}
+%\documentclass[aps,prb,preprint,superscriptaddress,showpacs]{revtex4}
+\usepackage{color}
+\usepackage{graphicx}% Include figure files
+\usepackage{longtable}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+%\usepackage{pst-all}      % From PSTricks
+\usepackage{fancybox}
+%\topmargin=.0cm
+%\nofiles
+
+\newcommand{\rou}[1]{\noindent------------------------------------------------------------------------------------------------------------
+\noindent{\bf \large #1}}
+\newcommand{\fl}[1]{\noindent{\sf $\bullet$ #1\index{\sf #1}} : }
+\newcommand{\fx}[1]{\subsection{\sf #1\index{\sf #1}}}
+\newcommand{\ssx}[1]{\subsection{\bf #1\index{\bf #1}}}
+\newcommand{\ssxx}[2]{\subsection{\bf #1\index{\bf #2}}}
+\newcommand{\infiles}{\noindent\fbox{Input files}}
+\newcommand{\outfiles}{\noindent\fbox{Output files}}
+\newcommand{\GW}{$GW$}
+\newcommand{\GWinput}{{\sf GWinput}\ }
+\newcommand{\GWIN}{{\sf GWIN}\ }
+\newcommand{\gbox}[1]{\noindent{\color{Green}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\rbox}[1]{\noindent{\color{Red}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\obox}[1]{\noindent{\color{Orange}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\cyanbox}[1]{\noindent{\color{Cyan}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\bluebox}[1]{\noindent{\color{Blue}\fbox{\parbox{260mm}{#1}}}}
+\newcommand{\keyw}[1]{\fbox{\tt #1}}
+\newcommand{\innera}[1]{{[\![#1]\!]_{R_a}}}
+\newcommand{\bfzero}{{\bf 0}}
+\newcommand{\bfq}{{\bf q}}
+\newcommand{\bfk}{{\bf k}}
+\newcommand{\bfr}{{\bf r}}
+\newcommand{\hbfr}{\hat{\bf r}}
+\newcommand{\bfQ}{{\bf Q}}
+\newcommand{\bfT}{{\bf T}}
+\newcommand{\bfG}{{\bf G}}
+\newcommand{\bfR}{{\bf R}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\exe}[1]{{\bf #1}}
+\newcommand{\io}[1]{{\sf  #1}}
+\newcommand{\raw}[1]{{\tt #1}}
+\newcommand{\repp}[1]{p.\pageref{#1}}
+\newcommand{\refeq}[1]{Eq.~(\ref{#1})}
+\newcommand{\reffig}[1]{Fig.\ref{#1}}
+\newcommand{\smH}{{\mathcal H}}
+\newcommand{\YY}{{\cal Y}}
+\newcommand{\GG}{{\cal G}}
+\newcounter{Alist}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\ocite}[1]{\cite{#1}}
+\newcommand{\ispone}{}
+\newcommand{\isptwo}{}
+\newcommand{\ooplus}{\oplus}
+\newcommand{\oominus}{\ominus}
+\newcommand{\req}[1]{\mbox{Eq.~\!(\ref{#1})}}
+\newcommand{\refsec}[1]{\mbox{Sec.~\!\ref{#1}}}
+\newcommand{\hHzero}{\hat{H}^{0}}
+\newcommand{\CikL}{{C^{(i)}_{kL}}}
+\newcommand{\CiRkL}{{C^{(i)}_{{\bf R}kL}}}
+\newcommand{\tPkL}{{\widetilde{P}_{kL}}}
+\newcommand{\tPRkL}{{\widetilde{P}_{{\bf R}kL}}}
+\newcommand{\PkL}{{P_{kL}}}
+\newcommand{\PRkL}{{P_{{\bf R}kL}}}
+\newcommand{\rmt}{{s_{\bf R}}}
+\newcommand{\val}{{\rm{VAL}}}
+\newcommand{\core}{{\rm{CORE}}}
+\newcommand{\xc}{_{\rm{xc}}}
+\newcommand{\CORE}{{CORE}}
+\newcommand{\COREone}{{CORE1}}
+\newcommand{\COREtwo}{{CORE2}}
+\newcommand{\VAL}{{\rm{VAL}}}
+\newcommand{\EF}{E_{\rm F}}
+\newcommand{\oneshotgw}{1shot-$GW$}
+\newcommand{\incg}[1]{\includegraphics[width=5.9cm]{#1}}
+\newcommand{\incgg}[1]{\includegraphics[width=8.5cm]{#1}}
+
+\def\Psikn{{\Psi_{{\bf k}n}}}
+\def\Psikm{{\Psi_{{\bf k}m}}}
+\def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
+\def\Psiknp{{\Psi_{{\bf k}n'}}}
+\def\Psikqn{{\Psi_{{\bf k}+{\bf q} n}}}
+\def\Psikm{{\Psi_{{\bf k}m}}}
+\def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
+\def\Psiknp{{\Psi_{{\bf k}n'}}}
+
+\def\psibar{\bar{\psi}}
+\def\psidotbar{\dot{\bar{\psi}}}
+\def\scgw{{sc{\em GW}}}
+\def\G0{G^0}
+\def\tphi{{\tilde{\phi}}}
+\def\calR{{\cal A}}
+\def\qsgw{QS{GW}}
+\def\QSGW{QS{GW}}
+\def\ldagw{{lda{\it GW}}}
+\def\GLDA{{G^{\rm LDA}}}
+\def\WLDA{{W^{\rm LDA}}}
+\def\ekn{{\varepsilon_{{\bf k}n}}}
+\def\phidot{\dot{\phi}}
+\def\phidottilde{\dot{\tilde{\phi}}}
+\def\phitilde{\tilde{{\phi}}}
+\def\epsilonaone{\epsilon^{(1)}_a}
+\def\epsilonatwo{\epsilon^{(2)}_a}
+\def\ei{\varepsilon_i}
+\def\eis{\varepsilon_{i\sigma}}
+\def\ej{\varepsilon_j}
+\def\Ekn{{E_{{\bf k}n}}}
+\def\Psikn{\Psi_{{\bf k}n}}
+\def\Psiqn{{\Psi_{{\bf q}n}}}
+\def\Psiqm{{\Psi_{{\bf q}m}}}
+\def\DVo{{\it \Delta}V(\omega)}
+\def\DVoret{{\it \Delta}V^R(\omega)}
+\def\DVoadv{{\it \Delta}V^A(\omega)}
+\def\DV{{\it \Delta}V}
+\def\DVhat{{\it \Delta}\hat{V}}
+\def\HLDA{H^{\rm LDA}}
+\def\veff{V^{\rm eff}}
+\def\vxc{V^{\rm xc}}
+\def\Dvxc{{\it \Delta} V^{\rm xc}}
+\def\vc{V^{\rm c}}
+\def\vext{V^{\rm ext}}
+\def\hVext{\hat{V}^{\rm ext}}
+\def\hVeff{\hat{V}^{\rm eff}}
+\def\hvnl{\hat{V}^{\rm nl}}
+\def\vnl{V^{\rm nl}}
+\def\vh{V^{\rm H}}
+\def\vgw{V^{GW}}
+\def\ReDVo{ {\rm Re}[{\it \Delta}V(\omega)] }
+\def\ImDVo{ {\rm Im}[{\it \Delta}V(\omega)] }
+\def\gwa{$GW$\!A}
+\def\hVee{\hat{V}^{\rm ee}}
+\def\hVext{\hat{V}^{\rm ext}}
+\def\hHk{\hat{H}^{\rm k}}
+\def\Sigmax{{\Sigma}^{\rm x}}
+\def\Sigmac{{\Sigma}^{\rm c}}
+\def\Heff{\hat{H}^{\rm eff}}
+\def\vbar{\bar{V}}
+\def\Sbarc{\bar{\Sigma}^{\rm c}}
+\def\scgw{{QS{\em GW}}}
+\def\ldagw{{lda{\em GW}}}
+%\def\GLDA{{G^{\rm LDA}}}
+%\def\WLDA{{W^{\rm LDA}}}
+\def\ekn{{\varepsilon_{{\bf k}n}}}
+\def\ekm{{\varepsilon_{{\bf k}m}}}
+\def\eknp{{\varepsilon_{{\bf k}n'}}}
+\def\Ekn{{E_{{\bf k}n}}}
+\def\Psiqkm{{\Psi_{{\bf q}-{\bf k}m}}}
+\def\Psikn{{\Psi_{{\bf k}n}}}
+\def\Psikm{{\Psi_{{\bf k}m}}}
+\def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
+\def\Psiknp{{\Psi_{{\bf k}n'}}}
+\def\Psiqnp{{\Psi_{{\bf q}n'}}}
+\def\Psiqn{{\Psi_{{\bf q}n}}}
+%\def\rs{r_{\rm s}}
+\def\brl{{\bf R}L}
+\def\brlp{{{\bf R}'L'}}
+%\def\brl{{\bf a}L}
+%\def\brlp{{{\bf a}'L'}}
+\def\tili{{\widetilde{i}}}
+\def\tilj{{\widetilde{j}}}
+\def\tiln{{\widetilde{n}}}
+\def\tilm{{\widetilde{m}}}
+\def\eak{\varepsilon_{\rm a}(\bfk)}
+\def\ebk{\varepsilon_{\rm b}(\bfk)}
+\def\iDelta{{\it \Delta}}
+\def\efermi{\mbox{$E_{\rm F}$}}
+\def\connect#1{\leavevmode{\setbox1=\hbox{#1}\copy1%
+\raise .2\ht1 \vbox{\moveleft \wd1\vbox{\hrule width \wd1 height .5pt depth 0pt}}%
+}}
+%\def\we{\connect{\mbox{$\omega\varepsilon$}}}
+\def\we{\mbox{$\omega_\varepsilon$}}
+\def\eal{\varepsilon_{al}}
+\def\eallo{\varepsilon^{\rm Lo}_{al}}
+\def\smh{smHankel}
+\def\smhs{smHankels}
+\def\shotone{OneShot}
+\def\shotonez{OneShot Z=1}
+\def\x{\mbox{$\times$}}
+\def\xccut{ {\rm xccut} }
+\def\xccutone{ {\rm xccut1} }
+\def\xccuttwo{ {\rm xccut2} }
+\def\ftn[#1]{\rlap{\footnotemark[#1]}}
+\def\tr{{\rm Tr}}
+\def\bQP{{\it bare QP}}
+\def\bQPs{{\it bare QPs}}
+\def\dQP{{\it dressed QP}}
+\def\dQPs{{\it dressed QPs}}
+\def\Re{{\rm Re}}
+%\def\pmdelta{\pm i\delta}
+%\def\pmdelta{i \mbox{\cal sign}(\efermi -\ei) \delta}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\EMAXm{ E^{\rm rmesh}_{\rm MAX} }
+\def\EMAXS{E_{\rm MAX}^\Sigma}
+\def\NAPW{N_{\rm APW}}
+\def\RSM{R_{\rm SM}}
+\def\RSMa{R_{{\rm SM},a}}
+\def\RSMal{R_{{\rm SM},al}}
+\def\epsilonal{\epsilon_{al}}
+\def\RGS{R_{\rm G}}
+\def\RGSa{R_{{\rm G},a}}
+\def\pakl{p_{akl}}
+\def\PakL{P_{akL}}
+\def\wPakL{\widetilde{P}_{akL}}
+\def\CakL{C_{akL}}
+\def\CiakL{C^i_{akL}}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\EMAXm{ E^{\rm rmesh}_{\rm MAX} }
+\def\EMAXvxc{ E^{\rm vxc}_{\rm MAX} }
+\def\nc{n^{\rm c}}
+\def\nzc{n^{\rm Zc}}
+\def\nzcv{n^{\rm Zcv}}
+\def\barnzcv{\bar{n}^{\rm Zcv}}
+\def\MM{{\cal M}}
+\def\RR{v}
+\def\inta{\int_{|\bfr|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
+\def\intaa{\int_{|\bfr|\leq R_a}}
+\def\intad{\int_{|\bfr'|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
+\def\intar{\int_{|\bfr-\bfR_a|\leq R_a}}
+\def\intard{\int_{|\bfr'-\bfR_a|\leq R_a}}
+\def\rhoij{\rho_{ij}}
+\def\ekcore{E_{\rm k}^{\rm core}}
+\def\ek{E_{\rm k}}
+\def\ehf{E_{\rm Harris}}
+\def\nin{n^{\rm in}}
+\def\nout{n^{\rm out}}
+%\def\Vin{V^{\rm in}}
+\def\Vin{V}
+\def\iDelta{{\it \Delta}}
+\def\philo{{\phi}^{\rm Lo}_{al}}
+\def\DEe{{\it \Delta} E_{\rm e}}
+\def\ERPA{E^{\rm RPA}}
+\def\bfp{\bf p}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\H0{H^0}
+\def\hHZ{\hat{H}^0}
+\def\hH{\hat{H}}
+\bibliographystyle{apsrev4-1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\special{papersize=8.5 in, 11 in}
+\title{Quasiparticle self-consistent GW method based on the augmented plane-wave and muffin-tin orbital method}
+\author{Takao Kotani}
+\affiliation{Department of applied mathematics and physics, Tottori university, Tottori 680-8552, Japan}
+%\author{Hiori Kino}
+%\affiliation{National Institute for materials science, Sengen 1-2-1, Tsukuba, Ibaraki 305-0047, Japan.}
+\date{\today}
+
+\begin{abstract}
+We have developed the quasiparticle self-consistent $GW$ (\QSGW) method based
+on a recently developed mixed basis all-electron full-potential
+method (the PMT method), which uses the augmented plane waves (APWs) and
+the highly localized muffin-tin orbitals (MTOs) simultaneously. We call this PMT-QSGW.
+Because of the two kinds of augmented bases, 
+we have efficient description of
+one-particle eigenfunctions in materials with small number of basis functions.
+In QSGW, we have to treat a static non-local exchange-correlation potential,
+which is generated from the self-energy. 
+We expand the potential in the
+highly localized MTOs.
+This allows us to make stable interpolation of 
+the self-energy in the whole Brillouin zone.
+In addition, we have improved the offset-$\Gamma$ method for
+the Brillouin zone integration, so that we take into account 
+the anisotropy of the screened Coulomb interaction in the calculation of
+the self-energy.
+For GaAs and cubic SiO$_2$, we checked convergence 
+of calculated band gaps on cutoff parameters.
+PMT-QSGW is implemented in a first-principles electronic structure 
+package \texttt{ecalj}, which is freely available from github.
+\end{abstract}
+\pacs{71.15.Ap, 71.15.-m, 31.15.-p}
+\maketitle
+
+
+\section{introduction }
+% --------------- Introduction ------------------
+The quasiparticle self-consistent $GW$ method (\QSGW)
+is a self-consistent perturbation method within the $GW$ approximation.
+\QSGW\  find out an optimum 
+static one-body Hamiltonian $\hH^0$ describing the independent-particle picture
+(or the quasiparticle (QP) picture).
+In other words, \QSGW\ divides the full many-body Hamiltonian 
+$\hH$ into $\hH=\hH^0+(\hH-\hH^0)$.
+Then $(\hH-\hH^0)$ is chosen so that it 
+virtually does not affect to the determination of QPs.
+That is, we extract $\hH^0$ as a kernel of $\hH$.
+Note that $(\hH-\hH^0)$ should contain not only the bare 
+Coulomb interaction but also quadratic term,
+which is missing in usual model Hamiltonians.
+Since we evaluate $(\hH-\hH^0)$ in the $GW$ approximation in QSGW,
+we determines $\hH^0$ (or the QPs, equivalently)
+with taking into account the charge fluctuation 
+in the random phase approximation (RPA) self-consistently.
+%xxx1002
+%kino1 From the view of the purpose of \QSGW, \QSGW\ is 
+%kino1 completely different from the fully self-consistent $GW$ method 
+%On this point, 
+\QSGW\ is conceptually completely different from the fully self-consistent $GW$ method 
+\cite{holm_fully_1998,ku_band-gap_2002,stan_fully_2006,
+PhysRevB.81.085103,PhysRevB.88.075105},
+which tries to calculate the full one-body Green's function self-consistently.
+
+\QSGW\ was first introduced by Faleev, 
+van Schilfgaarde, and Kotani \cite{faleev_all-electron_2004}.
+It was implemented based on the all-electron full-potential linearized 
+muffin-tin orbital (FP-LMTO) package \cite{lmfchap} 
+organized by van Schilfgaarde, in combination with 
+the $GW$ package developed by Kotani initially for Ref.\cite{kotani_all-electron_2002},
+where he starts from a detailed analysis of a $GW$ package developed
+by Aryasetiawan 
+\cite{aryasetiawan_electronic_1994,aryasetiawan_product-basis_1994,aryasetiawan__1998} based 
+on the LMTO in the atomic sphere approximation.
+%kino1 We call the implementation FP-LMTO-QSGW.
+%kino1 最後にFP-LMTO-QSGWを出すのでなく、自然にFP-LMTO-QSGWが説明できるよういに書いたほうがいい。
+%kino1 今回は大幅な変更はしない。
+%kino1 収まりが悪いで括弧にいれた。
+%kotani2 やはり(..)もへんなので it をthe implementationにして文章を変更。
+%(We call it FP-LMTO-QSGW.)
+We refer to the implementation as FP-LMTO-QSGW in the followings.
+\QSGW\ is now widely accepted as a possible candidate 
+to go beyond limitations of current first-principles methods
+\cite{vans06,kotani07a}
+(we recently found that FP-LMTO-QSGW is taken to be 
+for massively parallelized \cite{qsgwmass}).
+\QSGW\ is also implemented in other first-principles electronic structure 
+packages in different manners
+\cite{hamann09,shishkin_accurate_2007,shaltaf_band_2008,bruneval_gw_2009,bruneval_ionization_2012,PhysRevB.84.205415}.
+%1103 brunevalの引用はここへ。
+For example, Bruneval have calculated ionization energies of atoms in QSGW
+\cite{bruneval_gw_2009,bruneval_ionization_2012}.
+
+% %このパラグラフは削除.ーーー＞情報は他のパラグラフへ
+% %xxx1004
+% %kino1 Even though we like to apply \QSGW\ to any systems, it is not possible yet.
+% %kino1 like to では主観的すぎる。
+% %kotani2 ok!
+% We still encounter a number of difficulties to apply \QSGW\ to materials.
+% It is not only because of its computational costs
+% (recently, we found that FP-LMTO-QSGW is taken to be 
+% for massively paralellized \cite{qsgwmass}),
+% but also because of difficulty to manage numerical stability and accuracy.
+% %kotani1102 コメントして場所移動。
+% %As for the difficulty, FP-LMTO-QSGW has some defects as we explain afterwards.
+% %We thus need to develop better implementation of \QSGW\ than FP-LMTO-QSGW.
+% xxx1005
+% %kino1 唐突にtotal energyが出ているので文を追加
+% %kotani2  とくに、全エネルギーのとき問題になる、といいたいです。
+% %kotani2  
+% % The latter problem apprears in the calculation of total energy. 
+% % The calculations of the total energy with \QSGW\ is 
+% % a big challenge because we have accumulation of numerical errors 
+% % of eigenfunctions/eigenvalues.
+% %kotani2  を以下のように書き換えた。
+% The difficulty can be serious when we calculate total energy in QSGW,
+% because we have accumulation of numerical errors of eigenfunctions/eigenvalues.
+% xxx1006
+% %kino1 In fact, we have only limited publications on the total energy, see 
+% %kino1 Refs.\onlinecite{bruneval_gw_2009,bruneval_ionization_2012} by Bruneval.
+% %kino1 see以下が文章になっていない。
+% %
+% %kino1 ここはBrunevalに喧嘩を売っていると考えてよろしいか？
+% %kotani2 どういうことでしょうか？「その方向性は評価している。計算は大変ですが」と言いたいです。
+% %
+% %kotani2 Brunevalの名前をいれて引用したいので以下のように書き換えた。
+% xxx1007
+% %文章の位置が変なので以下削除。--->theoryのところで議論あり。
+% % xxx1007
+% % Such developments should contribute not only to \QSGW\ itself,
+% % but also to be a basis of the first-principles many-body perturbation theory (MBPT).
+% % Since the \QSGW\ includes only charge fluctuation self-consistently
+% % in the random phase approximation (RPA), we needs
+% % to add contributions of phonons and/or magnetic fluctuations on top of
+% % QPs given by \QSGW, in order to determine low energy QPs around the
+% % Fermi energy (typically, kink structure, e.g., seen in Ref.\cite{deng_hallmark_2012}).
+
+
+%xxx1008
+%kino1 In \QSGW, we have to treat a non-local but static version of the
+%kotani2 ---> 'non-local static exchange-correlaiton potential' とする。
+In \QSGW, we have to treat a  static non-local exchange-correlation potential $\vxc(\bfr,\bfr')$ (spin index is omitted for simplicity here). 
+It is given by removing the energy-dependence from the self-energy $\Sigma(\bfr,\bfr',\omega)$ in a manner (See \req{eq:vxceq}). 
+%xxx1104 コメントアウト, although we still keep its full non-locality.
+%xxx1010
+%kino1 下のin contrast to... Howeverと繋がりますがは何を言いたいのでしょうか。
+%kotani2   論理がまずかったです。Howeverなしでいいと思います。
+%kotani2     以下のHowever, it is problematic in cases.を
+%kotani2   　 The one-shot $GW$ gives problematic results in cases.と修正しました。
+%kotani2   またnon-localityをいれるとこの点がきちんと修正できます。それをきちんといわないとだめでした。
+%kotani2   なのでそれを最後の行に入れました.
+%kotani2 さらにこの直下の行 With...を追加。
+%kino0320 With $\vxc(\bfr,\bfr')$, we determine eigenvalues and eigenfunctions.
+%kino0320 We determine eigenvalues and eigenfunctions with $\vxc(\bfr,\bfr')$.
+We determine eigenvalues and eigenfunctions with $\vxc(\bfr,\bfr')$, with which we evaluate not only the diagonal , but also the off-diagonal elements.
+%kino0320 This is in contrast to the case of so-called one-shot $GW$ from GGA/LDA\cite{Hybertsen86}, where we only calculate the diagonal elements of $\Sigma(\bfr,\bfr',\omega)$ for GGA/LDA eigenfunctions to evaluate the QP energies.
+%kino0320 A problem is due to a fact neglecting off-diagonal elements as %The one-shot $GW$ gives problematic results in cases.
+%kino0320 seen in Fig.6 in Ref.\cite{schilfgaarde_adequacy_2006}, where we  see that the usual one-shot \GW\ can not give a band gap for Ge.
+The importance of the off-diagonal elements is seen especially in the dispersion crossing. 
+We see the (conventional) one-shot \GW\ only with the diagonal self-energy can not give a band gap for Ge as shown Fig.6 in Ref.\cite{schilfgaarde_adequacy_2006}.
+This is because the connectivity of the dispersion in GGA/LDA can not be altered. 
+In contrast to the case, the connectivity is correctly altered when
+we include the off-diagonal elements (or fully include the non-locality).
+%%%kotani2 end of xxx1010 -----------------
+
+To plot the energy-band dispersion in the whole Brillouin zone (BZ),
+we have to know non-local potential $\vxc_\bfk(\bfr,\bfr')$
+at any $\bfk$ point in the BZ by an interpolation, 
+where $\bfr$ and $\bfr'$ are within the primitive cell.
+This interpolation is also needed for the offset-$\Gamma$ method in Sec.\ref{sec:kint}, 
+and useful for calculating physical quantities which requires integrations in the BZ.
+For the interpolation, we inevitably require real-space representation 
+$\vxc(\bfr,\bfR'+\bfr')$, where $\bfR'$ is to specify origin of primitive cells.
+%xxx1011
+%kino1 It is back Fourier transformed to obtain $\vxc_\bfk(\bfr,\bfr')$ at any $\bfk$.
+%kotani2 ok!
+If it is inverse Fourier transformed, we obtain $\vxc_\bfk(\bfr,\bfr')$ at any $\bfk$.
+%xxx1012
+%kino1 Because the MTOs are atom-centered localized basis in space,
+%kino1 it is possible to make such an interpolation in FP-LMTO-QSGW
+%kotani2 ok!
+The nature that the MTOs are atom-centered and localized basis
+enables us to make such an interpolation in FP-LMTO-QSGW
+\cite{kotani_quasiparticle_2007}.
+
+
+%xxx1012
+%kino1 Even though the implementation of FP-LMTO-QSGW have been applied to many cases, e.g.,
+%kotani2 ok!
+Even though FP-LMTO-QSGW have been successfully applied to many cases, e.g.,
+\cite{chantis_ab_2006,lukashev:195202,kotani_re-examination_2009,christensen_electronic_2010,svane_quasiparticle_2010,huang_electronic_2013}, it still has problems. 
+%xxx1013
+%kino1 It is the limited ability of atom-centered basis, the MTOs.
+%kino1
+%kotani2 以下のように言い切っていいのかどうか不明です。FP-LMTOでもESsをつかうならどんな系でも解けます。
+%kotani2 ただ、ひとつの計算にかなりのチェックなどが必要になります。
+A main problem originates from the FP-LMTO method, 
+the applicability of which is limited to the systems that can be described only by the MTOs.
+Because of this fact, we have to fill empty regions with empty spheres (ESs) in, e.g., not closed packed systems and surfaces.
+The effort of this procedure enforces us to repeat many 
+%kino1 calculations to check numerical convergence. Because of this fact,
+calculations to check numerical convergence. Therefore, 
+it was not easy to apply \QSGW\ to, e.g., surfaces. 
+%xxx1014
+%kino1 上）同じことが何度も出てくるがまあいいか。
+%kotani2 できたら整理したほうがいいかとは思います。
+In addition, it is not so easy to enlarge 
+basis set systematically as in the case of the LAPW method.
+Furthermore, the interpolation of $\vxc_\bfk(\bfr,\bfr')$
+was unstable in cases because we needed to use not well-localized MTOs 
+(they contain damping factor $\propto \exp (-r/\kappa)$ 
+where $\kappa^{-2} \sim$ 0.1 Ry. Thus the MTOs has long range). 
+This required us to use a very complicated
+interpolation procedure \cite{kotani_quasiparticle_2007}.
+
+To overcome the problem in the FP-LMTO in DFT, we recently have given a new all-electron
+full-potential first-principles method of the electronic structure calculations in
+the GGA/LDA (one-body problem solver) \cite{kotani_fusion_2010,kotani_linearized_2013}.
+This method is named the linearized augmented plane wave and muffin-tin
+orbital method (the PMT method), which is a mixed basis method of augmented
+waves, the APWs and the MTOs. Within our knowledge,
+there is no other mixed-basis method of augmented waves.
+We can use a procedure to set parameters of the MTOs almost automatically 
+as given in Ref.\onlinecite{kotani_linearized_2013}.
+(see Fig.1 and Table.I around in Ref.\onlinecite{kotani_linearized_2013}).
+%xxx1015
+%kino1 This is essentially important because a serious difficulty 
+%kino1 of FP-LMTO is how to set the parameters. 
+%kotani2 ok!
+The important point is that  a serious difficulty 
+in the FP-LMTO, how to set the parameters, is now overcomed. 
+In the usual FP-LMTO,
+we need to repeat many calculations to figure out reasonable 
+parameters of the MTOs. In contrast, we can check convergence only by
+changing number of APWs.
+Based on the procedure, we find that 
+the highly localized MTOs ($\kappa^{-2} = 1\sim 2$ (bohr)$^{-2}$) 
+in combination with APWs whose cutoff energy $\sim$ 4Ry can 
+give good convergence of total energy in the GGA/LDA \cite{kotani_linearized_2013};
+we successfully obtained atomization energy for homo-nuclear diatomic molecules, 
+which is converged more than chemical accuracy ($\sim$ 1 Kcal/mol).
+%In addition, thanks to the APWs, we do not need to use ESs as was needed in FP-LMTO.
+%the PMT methods can inherited advantages in both of the LAPW
+%method, that is, 
+Thus we can expand eigenfunctions with highly localized atom-centered MTOs and low energy APWs.
+%xxx1016
+%kino1 This is theoretically feasible...は何を言いたいのでしょうか。
+%kino1 feasible->plausible?
+%kino1 is consistent with physical intuition? 
+%kino1 s-d系だけを扱っているわけでないのでいきなりAnderson modelを出すの
+%も変です。
+%
+%kotani1 　了解です。基本的には、局在性の高いMTOは原子的基底の代わりになるのでモデル的な扱いと整合性がよい、
+%kotani1   というのを言いたかったのですが、やめておきます。以下の文は削除とします。
+%kotani1 　This is theoretically feasible, essentially 
+%kotani1 　consistent with the view of the periodic Anderson model.
+%kotani1 　Such localized MTOs can be used instead of the maximally localized Wannier functions
+%kotani1 　\cite{marzari_maximally_1997,souza_maximally_2001,franchini_maximally_2012}; 
+%kotani1 　the MTOs have advantage that it have monotonic asymptotic behavior.
+%kotani1 　Recall that there are two limits of the Wannier functions. 
+%kotani1 　One is the atomic limit, the other is the homogeneous gas limit. 
+%kotani1 　The latter is not necessarily suitable to be represented 
+%kotani1 　in the real space by the Wannier function.
+%kotani1 　The MTOs and APWs corresponds to these limits.
+%kotani1 　%kino1 上は何を強調したいのかわからない。
+
+In this paper, we show how to implement the QSGW method in the PMT
+method, that is, the PMT-QSGW method. 
+After we explain the QSGW theory in Sec.~\ref{sec:qsgwth},
+we explain the implementation of PMT-QSGW in Sec.~\ref{sec:impl}.
+%xxx1101
+%kotani 簡単化した。おもな部分はimplementationの冒頭へ移動した。
+% In Sec.~\ref{sec:kint}, we show new improvement to the offset-$\Gamma$ method, which is
+% in order to treat $\bfk \to 0$ divergence of integrand for the self-energy calculation.
+% This improvement can correctly capture anisotropy of the screened Coulomb interaction,
+% although the offset-$\Gamma$ method in FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}
+% is dangerous to treat anisotropic systems.
+% In Sec.~\ref{sec:siginterp}, we explain how to make the interpolation of
+% $\vxc_\bfk(\bfr,\bfr')$. The interpolation procedure
+% is very simplified in comparison with that used in FP-LMTO-QSGW.
+Especially, in Sec.~\ref{sec:kint}, we show new improvement to the
+offset-$\Gamma$ method
+to take into the anisotropy of the screened Coulomb interaction accurately;
+in Sec.~\ref{sec:siginterp}, we explain the interpolation of
+$\vxc_\bfk(\bfr,\bfr')$. 
+%%%%%%%%% end of 1101
+Finally, in Sec.\ref{sec:numtest}, we show detailed 
+numerical tests for the band gap (at $\Gamma$ point)
+for GaAs and cubic SiO$_2$ ($\beta$-cristobalite).
+We show how the \QSGW\ band gap can depends on the cutoff parameters. 
+%Then we can see reasonable convergence
+%($\sim$ 0.1 eV) for the band gap with not too expensive cutoff parameters.
+%
+%within the limitation of the current implementation.
+%xxx1017
+%kino1 この下(within the limitation of the current implementation.)は何を言いたいのでしょうか。
+%kotani1 消して新しくした.
+%
+
+
+
+\section{Theory of the \QSGW\ method}
+\label{sec:qsgwth}
+Here we summarize the \QSGW\ method. % from a point of view of total energy.
+We treat the following many-body Hamiltonian for electronic system. 
+With the field operators $\hat{\psi}_\sigma ({\bf r})$, spin index $\sigma$, 
+external potential $\vext_{\sigma}({\bf r})$, 
+and the Coulomb interaction $v(\bfr, \bfr')=\frac{e^2}{|\bfr-\bfr'|}$,
+it is written as
+\begin{eqnarray}
+&&\hat{H}= \hHk + \hVee +\hVext, \label{eq:hami}\\
+&&\hHk =     \sum_\sigma \int d {\bf r} 
+        \hat{\psi}^{\dagger}_{\sigma}({\bf r})
+        ( - \frac{\nabla^2}{2m} )
+        \hat{\psi}_{\sigma}({\bf r}), \\
+&&\hVext \!=\!\sum_{\sigma} \int d {\bf r} \vext_\sigma ({\bf r}) 
+                              \hat{n}_\sigma ({\bf r} ), \label{eq:hvext}\\
+&&\hVee \!\!\!=\!\frac{e^2}{2}\!\!
+          \sum_{\sigma\sigma'}\! \int \!\!d^3\!r d^3\!r'\! v(\bfr,\!\bfr') 
+           { \hat{\psi}^{\dagger}_{\sigma}\!({\bf r})
+                   \hat{\psi}^{\dagger}_{\sigma'}\!({\bf r}')
+                   \hat{\psi}_{\sigma'}\!({\bf r}')
+                   \hat{\psi}_{\sigma}\!({\bf r}) }. 
+\end{eqnarray}
+Here, we omit classical electrostatic nucleus-nucleus
+energy for simplicity. We explicitly show electron mass $m$ and charge
+$e^2$ in the following formulas but with $\hbar=1$.
+%xxx2001
+%kino1 nucleusはcountable
+%kotani2 ok!
+$\vext({\bf r})$ mainly contains those coming from nucleuses, in addition to
+perturbation such as external magnetic fields. 
+Hats on symbols mean the second quantized quantities
+(for example, $\hVext$ and $\vext_\sigma(\bfr)$ 
+mean the same physical quantities in different representations). 
+In the followings, we omit the spin index $\sigma$
+and often $\bfr$ for simplicity.
+% because all
+%quantities are spin-diagonal when we neglect the spin-orbit coupling,
+%which has not fully considered self-consistently in our current implementation yet.
+%on top of the results by \QSGW.
+
+%In principle, it is straight-forward to take into account SOC in the $GW$ approximaiton; 
+%then we expect to calculate lifetime of QPs just for due to a first-order spin-flip decay process.
+
+Let us consider how to obtain best one-body Hamiltonian $\H0$ 
+to describe QPs for given $\hat{H}$.
+If we have the self-energy $\Sigma(\bfr,\bfr',\omega)$ for given $\hat{H}$,
+we can determine the QP energies and eigenfunctions as the solutions of
+\begin{eqnarray}
+H(\epsilon_i)  |\Psi_i (\bfr)\rangle = \epsilon_i |\Psi_i(\bfr)\rangle,
+\label{eq:defqp}
+\end{eqnarray}
+at least near the Fermi energy, where 
+the one-particle dynamical effective Hamiltonian $H(\omega)$ is
+\begin{eqnarray}
+H(\omega)= -\frac{\nabla^2}{2m} + \vext +\vh + \Sigma(\omega).
+\label{eq:hdyn}
+\end{eqnarray}
+Here $\vext$ is the external potential from nucleus and $\vh$ is the Hartree potential. 
+If $H(\omega)$ were $\omega$-independent and Hermitian, we could have directly identified
+this as $\H0$. Apparently this is not true, however, based on the Landau-Silin's QP theory
+(or the independent-particle picture), 
+we can still expect that physical properties can be evaluated
+with the use of the eigenvalues and eigenfunctions of the QPs $\{\epsilon_i,\Psi_i(\bfr)\}$.
+This means a physical picture that primary excitations are specified by electrons 
+%xxx2002
+%kino1 ; : は英語が堪能でないと使わない方が良い。
+%kotani1 了解です。
+or holes added to these orbitals, then 
+they interact each other with a screened Coulomb interaction. 
+%xxx2003
+%kino1 perturbaton theoryでfermi leve上ではimaginary partがゼロなのでQPがwell-definedですが、どのレベルの話をしていますか。
+%kotani1 　とくに問題ないと思いますが、意図がよくわかりません。
+%kotani1 　GWでは虚部を計算しますが、QPはかなりfermiエネルギーから離れたところ（数eV)でも
+%kotani1 　問題なく定義できるだろうと思います。ただ物質にもよりますし、原子極限でのQSGWなどを
+%kotani1 　想像するなら解釈を変える必要もあります。ただそれはあとの話です。
+%kotani1 　GWでは、ギャップがあればペア生成のエネルギーを
+%kotani1 　越えるところまでは虚部ゼロです。
+A theoretical inconvenience is that the set of QPs is not a complete set
+since $\Sigma(\omega)$ is energy-dependent non-Hermitian.
+If we can use a static Hermitian one-body potential $\vxc(\bfr,\bfr')$ 
+in place of $\Sigma(\omega)$,  such a problem does not occur.
+%we have no such a problem.
+Then the set $\{\Psi_i(\bfr)\}$ is an orthonormal complete set, and
+physical quantities can be represented in the Fock space of the set.
+%xxx2004
+%kino1 分けただけ、でなくて分けて何かの考え方（それがi,ii)をしたのと等価、と言いたいのでしょうか。
+%kotani1 意図がよく分からないです。
+%This is nothing but a division of the full many-body Hamiltonian
+%$\hat{H}$
+In other words, we divide
+%We can rewrite the above procedure as a division of 
+the full many-body Hamiltonian $\hat{H}$ into 
+$\hat{H}=\hH^0+ (\hat{H}-\hH^0)$, 
+where the many-body contribution due to $(\hat{H}-\hH^0)$,
+should not change the QPs given by $\hH^0$.
+
+Following the above discussion, we need two methods 
+to obtain such $\hH^0$ for given $\hat{H}$. These are
+\begin{itemize}
+\item[(i)] A method to calculate $\Sigma(\omega)$ (and also $\vh$)
+for given division of $\hat{H}=\hH^0+ (\hat{H}-\hH^0)$.
+\item[(ii)] 
+%xxx2005
+%kino1 \vxcがここで初めてでています。定義がありません。後で書いてあるのですが引っかかります。
+%kino1 定義を後でまとめて書かずに、一体potentialとか書いておいた方がbetterです。
+%kotani1 --->上で\vxc(\bfr,\bfr')が出ているのを確認してもらった。
+A method to determine 
+$\vxc$ as a good substitution of given $\Sigma(\omega)$.
+\end{itemize}
+If both methods (i) and (ii) are given, we can make a self-consistent cycle closed.
+That is, we have the cycle 
+$\hH^0 \rightarrow \{\vh,\Sigma(\omega)\} \rightarrow \hH^0 \rightarrow ...$.
+%Starting from  we can calculate  with the method (i).
+%Then it is converted to $\vxc$ with the method (ii).
+%Together with $\vh$, we have a new $\hH^0$. Then we again calculate $\Sigma(\omega)$...
+This is repeated until converged. 
+%xxx2006
+%kino1 何に対する収束かここでは書かない予定ですか。
+%kotani2 まずいですか？　ここではこの記述で十分な気もするのですが。
+In QSGW, we use the $GW$ approximation for (i).
+As for (ii), we use a mapping from $\Sigma(\omega)$
+to a static Hermitian potential $\vxc(\bfr,\bfr')$ as
+\begin{eqnarray}
+\vxc &=& \frac{1}{2}\int_{-\infty}^{\infty} d \omega {\cal
+ R}\left[\Sigma(\omega)\right]\delta(\omega-\H0) + {\rm c.c.} \nonumber \\
+&=&\sum_{ij} |\Psi_i\rangle 
+  \langle\Psi_i| \frac{{\cal R}\left[\Sigma(\ei)+\Sigma(\ej)\right]}{2} |\Psi_j\rangle
+  \langle\Psi_j|,
+\label{eq:vxceq}
+\end{eqnarray}
+where ${\cal R}[X]= \frac{X+X^\dagger}{2}$ means taking the Hermitian
+part of $X$. 
+%xxx2010
+%kino1 ２式目は=でないですよね。近似と書くか、定義と書くかですが。
+%kotani2 いえ、単純に<i|一式め|j>において\delta(\omega-\H0)を完全系で展開したらいいです。
+%　--->確認してもらった. 1/2を加えた修正。
+\req{eq:vxceq} is given so as to
+reproduce $\{\epsilon_i,\Psi_i(\bfr)\}$ satisfying \req{eq:defqp} 
+as good as possible (this is not an unique choice \cite{kotani_quasiparticle_2007}). 
+If necessary, we can derive \req{eq:vxceq}
+from a minimization of the difference $G^{-1}-(G^0)^{-1}$, written as
+${\rm Tr}\left[\left(G^{-1}-(G^0)^{-1}\right) \delta((G^0)^{-1}) \left(G^{-1}-(G^0)^{-1}\right)\right]+ {\rm c.c.}$ \cite{vans06}. 
+%%%%%%%%%%%%%%%%%%%%%%
+The $GW$ approximation together with \req{eq:vxceq} makes 
+a fundamental equation of QSGW.
+
+Let us detail steps of the QSGW calculation.
+We start from a trial one-particle static Hamiltonian written as
+\begin{equation}
+\H0 = \frac{-\nabla^2}{2m} + \veff(\bfr,\bfr').
+\label{eq:defh0}
+\end{equation}
+This $\H0$ is just the initial condition for iteration cycle, and 
+does not affects to the final result.
+The $GW$ method is applied to the division $\hat{H}=\hH^0+ (\hat{H}-\hH^0)$.
+Its steps are as follows, (I)-(V).
+\begin{enumerate}
+\item[(I)] We have the non-interacting Green's function $G^0$ for given $\H0$. It is
+\begin{equation}
+G^0\left( \bfr,\bfr',\omega \right) 
+= \sum\limits_i {
+\frac{\Psi_i(\bfr) \Psi_i^*(\bfr')}
+     {{\omega -\ei \pm i \delta }}},
+\label{eq:defg}
+\end{equation}
+where $\{\ei,\Psi_i\}$ are eigenvalues and eigenfunctions of $\H0$.
+\item[(II)] Calculate the dynamical screened Coulomb interaction $W$ as
+\begin{equation}
+ W = \epsilon^{-1} v = \left(1-v \Pi\right)^{-1} v,
+\label{eq:defw}
+\end{equation}
+where we use the proper polarization $\Pi=-iG^0\times{}G^0$.
+\item[(III)] Calculate the self-energy $\Sigma(\bfr, \bfr'\!\!, \omega)$ as
+\begin{equation} 
+\label{self_energy}
+\Sigma(\bfr, \bfr'\!\!, \omega)
+\!=\!\frac{i}{2\pi}\!\!\int\!\!d\omega'
+G^0(\bfr,\bfr'\!\!,\omega-\omega')W(\bfr,\bfr'\!\!,\omega')e^{-i\delta\omega'}\!\!.
+\end{equation}
+\item[(IV)]
+Simultaneously, we can calculate $\vh$ for electron density from $G^0$.
+Together with $\vext+\vh$, we have 
+%one-particle dynamical effective potential $\vext+\vh +\Sigma(\omega)$, and/or the
+$H(\omega)=\frac{-\nabla^2}{2m} + \vext+\vh +\Sigma(\omega)$.
+% in the left-hand side of \req{eq:defqp}.
+The conventional one-shot $GW$ evaluates its (usually diagonal) expectation values.
+\item[(IV)] From $\Sigma(\bfr, \bfr'\!\!, \omega)$, we obtain $\vxc$
+	    through \req{eq:vxceq}.
+
+\item[(V)]  For $\vxc$, we obtain a new $\H0$ as
+$\H0 = \frac{-\nabla^2}{2m} + \vext + \vh + \vxc$.
+From this, we do again from (I). 
+\end{enumerate}
+We repeat these steps until converged.
+In the procedure (I), we assume a non-interacting ground state 
+by filling electrons up to the Fermi energy. 
+The self-consistency ensures that this ground state 
+is stable as for the $GW$ approximation.
+%xxx2010x
+%kino1 Landau liquidを仮定すると書くとだいぶ省略できそうな気はします。
+%kotani2 以下の文はここでは蛇足のようなので削除しました.
+%kotani2 　　This corresponds to the adiabatic connection between bare particle and the QPs 
+%kotani2 　　supposed in the Landau-Silin's QP theory.
+%kotani2  非一様系だとどうか？という話です。
+%kotani2  self-consistentにしてるのでGWレベルでマイナスエネルギの一体励起がない。
+
+%ここのxxx2011はimplementationの章へ。
+
+%%%% 全面書き換え　non-local %%%
+We emphasize the ability of the non-locality 
+of the one-particle potential $\veff(\bfr,\bfr')$ to describe QPs,
+in comparison with the ability of the local potential used in GGA/LDA.
+The non-locality may be classified to two kinds.
+One is the onsite non-locality which
+can be also partially described by $U$ of LDA+$U$.
+We have to introduce such a onsite non-local potential for the
+exchange-correlation term to enhance the size of 
+orbital magnetic moment \cite{solovyev_1998}, because local potential
+can not give the time-reversal symmetry.
+%In addition, for exaple, an on-site non-local potential 
+%can push down (or push up) only oxygen p band relative to 3d bands 
+%with keeping eigenfuncitons as they are.
+%The QSGW have ability to describe phycical effects described by LDA+$U$.
+The other is the offsite non-locality that is important to give the
+difference of eigenvalues between bonding and anti-bonding orbitals.
+For example, we can imagine a non-local potential which 
+behaves as a projector to push down only eigenvalues of the bonding orbital.
+A local potential can hardly give this effect.
+
+
+%xxx この章は（英語に問題なければ）文意はこれで出したいです。あるいはざっと見て最後にいじります。
+The QSGW method can be justified from a view of the $GW\Gamma$ theory which
+takes into account the vertex $\Gamma$; 
+Ishii, Maebashi and Takada\cite{ishii2010} gave analyses for the effects of the vertex $\Gamma$ in the self-energy and in the polarization function.
+%kino1 高田先生の議論は電子ガスに近い場合だけです。d系は違います。
+%kotani2 議論自体はそれなりには一般的かと思います。
+%kotani2 (このファイルの冒頭部分の説明）。 
+An illustration of the cancellation is 
+that $G$ contains the renormalization factor $Z$ for the QPs,
+in contrast, the vertex $\Gamma$ is reduced to be $1/Z$ at $\bfq,\omega \to 0$. 
+Thus we see the cancellation, $Z \times 1/Z$ for the QP weight appeared in $G \times \Gamma$
+in the self-energy calculation $\Sigma=G\times W\times \Gamma$ 
+\cite{kotani_quasiparticle_2007}.
+%xxx2018
+%kino1 ここはhoweverで合っていますか？
+%kotani2 引用だけ上の文章に移動し、以下を削除。
+%kotani2 　Similar discussion for $Z$ was given in Ref.\onlinecite{kotani_quasiparticle_2007},
+%kotani2 　however, their discussion based on the Ward identity is quite satisfactory.
+%kotani2 さらにgives a good $\H0$ describing the QPs.までを修正。
+%
+%kino1 下は（vertex correctionを入れない）self-consistent GWよりは遥かに良いという話ですね。
+%kotani2 ーーー＞そうです。
+%kino1 d系でもGxGよりG0xG0の方が良いと思っているはずですが、
+%kino1 takada先生のGWGammaから「一般に」これを言うのは言い過ぎです。
+%kino1 例えばd電子系の場合にincoherent part, 量子化学でいうCIの効果がこれに全く入っていません。
+%kotani2    ishii2010の論文のEq.18を得る議論ですが、基本的には問題ないと思います。
+%kotani2    ２００９ぐらいに物性研で高田先生にかなり教えてもらいました.
+%kotani2　  こういう理論は、厳密解でもないし、不等号で厳密におされれる、とかいう話でもないので、
+%kotani2   「いいすぎ」かどうかはどうしても科学者の多数決（あるいは著者がどう思うか）になると思います。
+%kotani2    まあ控えめに書いておいたほうが安全かもしれないけど。
+%kotani2 don't としてよいか？do notでないのか？
+Their theory is a generalization of this cancellation with the Ward identity.
+They concluded that we should use 
+$\Sigma=G_0\times W$ rather than $\Sigma=G\times W$
+when we neglect vertex correction ($\Gamma=1$). 
+We can interpret their theory as 
+''If we have a good $\H0$ which nearly describes the QPs,
+we have good self-energy to determine the QPs 
+by $\Sigma=G_0\times W$.''. Although they gave no
+discussion about how to obtain $\H0$, we think it is most reasonable
+to determine $\H0$ in a manner of self-consistency of QSGW.
+They also give a discussion not
+to use $\Pi=-iG \times G$ but to use $\Pi=-iG_0 \times G_0$ 
+for the proper polarization. This is reasonable because $\Pi=-iG \times G$ contains
+the QP electron-hole excitations with too small weight 
+$Z_{\rm occupied} \times Z_{\rm unoccupied}$. 
+This discussion for the proper polarization is consistent with the fact that first-principles
+calculations of dielectric functions with $\Pi=-iG_0 \times G_0$
+gives good agreements with experiments 
+\cite{arnaud_local-field_2001} (and the agreements are improved by 
+taking into account the two-body correlations in the Bethe-Salpeter equation).
+%xxx2019
+%kotani2 以下の文はすこし修正したもの。
+On the other hand, numerical calculations by Bechstet et al\cite{Bechstedt97} showed that poorness of $\Pi=-iG \times G$ is corrected if we include the contribution of $\Gamma$ to $\Pi$. This is consistent with our claim here.
+The discussions here gives a support
+advantages of QSGW than the full self-consistent $GW$ methods
+\cite{holm_fully_1998,ku_band-gap_2002,stan_fully_2006,
+PhysRevB.81.085103,PhysRevB.88.075105}.
+
+
+Let us consider two effects which are missing in the QSGW method.
+%xxx2020
+%kino1 effets と言っているので次もeffect(s)に揃える
+%kino1 等価のorなら括弧を除く。
+%kotani2 了解。
+One is the effect not in the $GW$ method utilized in the method (i)
+(or, almost equivalently, how to improve $W(\omega)$ in the step (II)).
+%xxx2021
+%kino1 too largeですか、a little程度でないですか。
+%kotani2
+%kotani1 tooの意味を理解してなかった。a little too large とします。
+%QSGW, for example, tends to give a little too large band gap (too large exchange effect)
+QSGW, for example, tends to give a slightly larger band gap than
+experimental one \cite{kotani_quasiparticle_2007}, which is traced back to
+slightly strong $W(\omega)$ (slightly small
+screening effect) in the RPA. Thus, we need better $W(\omega)$ beyond the RPA.
+Along this line, some works are performed until now: $W(\omega)$ including
+pair excitations \cite{shishkin_accurate_2007}; $W(\omega)$ 
+including phonons \cite{botti_strong_2013}; $W(\omega)$ including
+a vertex correction \cite{ishii2010}.
+The other missing effects are, e.g., the contribution to the self-energy due
+to the low energy excitations such as the magnetic fluctuations and phonons.
+Note that QSGW gives QPs, where charge fluctuation is already 
+taken into account in the RPA self-consistently. Thus we expect that
+the main missing contribution comes from the low energy excitations.
+If such contribution to the self-energy is taken into account, 
+the QP dispersion near the Fermi energy can be 
+deformed; kink-like structure (mass enhancement)
+is added just near the Fermi energy \cite{deng_hallmark_2012} on top of the QP
+%kotani2 複数形
+%kotani2 dispersion of QSGW as long as the effect due to such fluctuation is not too large.
+dispersion of QSGW as long as the effects due to such fluctuations is not too large.
+From the opposite point of view,
+this means that QSGW describes overall feature of energy bands including the
+Fermi surface except such mass enhancement near the Fermi energy.
+%xxx2022
+%kino1 Mott insulatorのincoherent part関係を忘れています。
+%kotani2   as long as the effects due to such fluctuations is not too large.
+%kotani2 　としてあるので問題ないかと思います。
+%kotani2   摂動論的な立場で言えばそんなに変でもないと思います。
+%kotani2   いずれは原子極限でのQSGWというのも、そのうち原子でのGW計算と絡めて、理論的考察と実際的計算で
+%kotani2   研究しておく必要ありです。
+Such low energy part of self-energy may be calculated with $W(\omega=0)$ 
+(neglecting energy dependence) based on the many-body perturbation
+theory,  although we need to avoid double counting problem 
+of the Feynman diagrams intrinsic in the first-principles many-body
+perturbation theory \cite{springer_first-principles_1998}.
+Not so much research have been performed along this line,
+in contrast to the first-principles method combined with the 
+dynamical mean field theory \cite{RevModPhys.68.13}.
+
+
+% Note that even the so-called ``atomic limit'', as discussed in the context of
+% dynamical mean field theory (DMFT) \cite{}, can be reproduced as a solution of QSGW. 
+% Let us consider a case that the energy bands of $\H0$ are
+% spin-degenerated, and half-filled 
+% under the constraint of paramagnetism (an atom with odd number of
+% electrons under the constraint). We consider a limit that band width becomes zero.
+% Then we have zero enegry charge fluctuation contained in $W$, resulting 
+% $\Sigma(\omega)$ that has a divergent behevior $\propto 1/\omega$ around
+% $\omega=0$. Thus $G(\omega)$ shows a band gap (the QP peaks in $\H0$ is divided
+% into two QPs when we add $\Sigma(\omega)$).
+% Even for such a $\Sigma(\omega)$, we can choose lower peak of the two QPs 
+% as the QP energy of $\H0$. 
+% Then we will ends up with a $\H0$ as a self-consistent solution of the QSGW cycle,
+% where we still have a half-filled flat bands, although the band gap 
+% (two QP peaks) in $G(\omega)$ is still kept.
+% %Even in practical cases, we can expect to see such effects which can be
+% %identified as the Kondo resonance around the Fermi energy in $G$.
+% %We will also see the band width narrowing of QPs due to it.
+
+Let us discuss about the total energy in QSGW.
+Formally, the total energy can be given by an adiabatic connection, usually
+specified by a parameter $\lambda$ changing from zero through unity as
+$\hat{H}^\lambda = \hat{H}^0  + (\lambda \hVee -\hVeff_\lambda)$; this
+path starts from $\hat{H}^0$ at $\lambda=0$, and
+ends with $\hat{H}$ at $\lambda=1$ 
+(note that $\hat{H}^0$ and $\hVeff_{\lambda=1}$ are 
+the second-quantized expressions of $\H0$ and $\veff$).  
+Along the path,  $\hVeff_\lambda$ is supposed to be chosen so that QSGW applied to
+$\hat{H}^\lambda$ gives $\hat{H}^0$ for any $\lambda$.
+Then the total energy is given as
+\begin{widetext}
+\begin{eqnarray}
+E = E^0 \!+\! \int_0^1 \! \! d\lambda \frac{d E^\lambda}{d \lambda} 
+= E^0 
++ \int_0^1 \! d\lambda \langle0_{\lambda}| \hVee |0_{\lambda}\rangle
+- \int_0^1 \! d\lambda \langle0_{\lambda}|\frac{\partial \hVeff_\lambda}{\partial \lambda} |0_{\lambda} \rangle,
+\label{eq:etot1}
+\end{eqnarray}
+\end{widetext}
+where $|0_{\lambda}\rangle$ is the ground state for $\hat{H}^\lambda$.
+\req{eq:etot1} is an exact formula without approximation.
+%A perturbation theory give us a mapping procedure from
+%$|0_{\lambda=0}\rangle$ to $|0_{\lambda}\rangle$. 
+As the lowest
+order approximation, we replace $|0_{\lambda}\rangle$ with
+$|0_{\lambda=0}\rangle$. Then we have the Hartree-Fock energy
+calculated from the eigenfunctions of $\H0$.
+%Then it is possible to determine $\hat{H}^0$ so that 
+%the total energy $E$ is minimized, this is the procedure ${\cal P}$
+%for the case. 
+As a more accurate approximation, 
+we evaluate $\langle 0_\lambda| \hVee |0_\lambda \rangle$ 
+in the random phase approximation (RPA); we apply it
+to $\hat{H}^0$ whose ground state is $|0 \rangle$, with the interaction
+of $\lambda \hVee$.  This gives the polarization function
+$\Pi (1-\lambda v \Pi)^{-1}$, where $\Pi(\omega)$ is the polarization
+function of the non-interacting ground state $|0\rangle$.
+Then we have the RPA total energy,
+\begin{eqnarray}
+&&\ERPA =  E_0^{\rm k} + E_0^{\rm ext} + E_0^{\rm H} + E_0^{\rm x} + E^{\rm c},\label{eq:erpa}\\
+&&E^{\rm c} = \frac{-i}{2}{\rm Tr}[  \log(1-v \Pi) + v \Pi] \label{eq:ecrpa}.
+\end{eqnarray}
+%In principle, \req{eq:erpa} can be calculated for any
+%
+%In principle, we can calculate $\ERPA$ for any $\H0$ and corresponding
+%$|0\rangle$. 
+The derivative of $\ERPA$ with respect to the number of occupation
+for the orbital $\{\epsilon_i, \Psi_i\}$ gives
+\begin{eqnarray}
+&&\frac{\partial \ERPA}{\partial n_i} =  
+\langle \Psi_i  |-\frac{\nabla^2}{2m} + \vext +\vh + \Sigma(\epsilon_i)
+|\Psi_i \rangle. 
+\label{eq:derpadn}
+\end{eqnarray}
+%xxx2023
+%kino1 ええと、eq.7の対角項とは何をいいたのですか。
+%kotani2  Because of the diagonal part of \req{eq:vxceq}, は削除したうえ
+%kotani2  なおしました。
+Since $\langle \Psi_i  | \Sigma(\epsilon_i) |\Psi_i \rangle$
+are the diagonal elements of \req{eq:vxceq},
+this change (derivative) of the RPA energy equals to the QP energy given by the QSGW.
+%kotani2 2013 ここまで
+In addition, the minimization of right-hand side of \req{eq:derpadn}
+as a functional of $\Psi_i$ gives \req{eq:defqp} 
+if we can neglect $\Psi_i$ contained in $\Sigma(\epsilon_i)$.
+These show that the QSGW is related to the 'RPA' total energy.
+We need caution to the meaning of the QP energy $\epsilon_i$.
+It is not the change of the total energy for one electron added/removed,
+but the derivative for occupancy. 
+This is common to the case of the Koopman-Slater-Janak's theorem.
+This is related to the localization-delocalization problem
+\cite{cohen_insights_2008}, where we need to know how the eigenvalue 
+$\epsilon_i$ changes as a function of fractional
+%xxx2024
+%kino1 occupancy. In principle, in order to calculate ionization
+%kino1 強調してみた
+%kotani2 了解です。
+occupancy. One must recognize that $\epsilon_i$ must be calculated
+for the fractional occupancy, where we expect that $\epsilon_i$ 
+changes relatively linearly, and be integrated 
+with changing the occupancy \cite{bruneval_gw_2009,bruneval_ionization_2012} 
+in order to calculate ionization energies and so on.  
+% Because of the self-interaction cancellation
+% of the Hatrer-Fock energy,
+% we can easily see that the second derivative with respect to $n_i$ gives
+% $\frac{\partial \epsilon_i}{\partial n_i} = \frac{\partial^2 \ERPA}{\partial n_i^2} =  
+% \langle \Psi_i  | \frac{\partial \Sigma_{\rm c}(\epsilon_i)}{\partial n_i}
+% |\Psi_i \rangle= \langle \Psi_i \Psi_i^*| W_c(0)  |\Psi_i^* \Psi_i \rangle$.
+% This can be identified as the Coulomb hole term for the orbital of $\Psi_i$. 
+% Thus it is different from the exact theory (Ref.\cite{} claims this 
+% should be zero). Since this is 
+
+
+Originally the QSGW is proposed to treat solids, however, we today have
+requirement to treat molecules on surface for such problems like catalysis.
+In the case of molecules (zero-dimensional systems), 
+there are not only continuous eigenvalues but also discrete ones in $\H0$. 
+%xxx2025
+%kino1 A.近似的に正しいとか、ある場合に正しいとか、いう議論をして、この式は原理的は正しいのだが
+%kino1   実際は上手く適用できないとか、いう風にin principleを使って欲しいのですが、
+%kotani2 　　離散的固有値のでる分子の場合でも原理的に正しいと言いたいです。
+%kino1 B. いきなりdownfoldedがでています。どういう意味で使っていますか。
+%kotani2   　通常の意味だと思います。全ヒルベルト空間でのフルハミルトニアンをfock基底をもちいた行列とみなします。
+%kotani2   　H0+のこり、と分けて、H0の空間の自由度のみのこした固有値問題に直します。形式的には厳密な数式です。
+%kino1 C. in principle meangingfullとは？ 
+%kotani2   valid にしました。In principle, \req{eq:hdyn} is still meaningful　--->valid
+%xxx2026
+%kino1 still represents real eigenstates --->ここはどうしてstillですか。
+%kotani2 いらないかも。
+%kotani2 以下の文章は削除。
+% Even in this case, \req{eq:hdyn} is meaningful
+% as the downfolded Hamiltonian to the Hilbelt space of the one-particle eigenfuncitons
+% on the ground state of $\H0$. 
+%
+%kotani2 The solution of \req{eq:defqp} still represents real eigenstates of the system. 
+%kotani2 下の文におきかえ
+Even in this case, \req{eq:defqp} is the equation to determine eigenstates of the system. 
+However, it is not trivial whether we can 
+extract the independent-particle (or the QP) picture in the manner of QSGW.
+%kotani2 これも修正
+%because of the nature of the zero-dimensional systems.
+%because we have discrete eigenvalues.
+%xxx2027
+%kino1 confusion?意味不明です。
+%kotani2 了解-->削除。
+%We are afraid of confusion due to many self-consistent solutions in QSGW.
+%Anyway, only limited number of publications on the \QSGW\ applying to
+%molecules
+%kotani2 Anywayをとった。
+Only limited number of publications on the \QSGW\ applying to molecules
+are available now \cite{bruneval_gw_2009,bruneval_ionization_2012}, 
+and not so much have been clarified yet. 
+%xxx2028
+%kino1 知っている限りでは横国の大野薫先生のところでも分子のGWをやっています。
+%kino1 http://er-web.jmk.ynu.ac.jp/html/OHNO_Kaoru/ja.html
+%kotani2　分かりました.　入れます。--->　まだです。xxxとして残しておきま
+%す。ただ上のAnyway…の文章は\QSGW\としましたのでうまく引用する必要ありです。
+%Even the theoretical analysis on the atomic limit of QSGW have not given yet.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% discussion. RPA is positive definite, TDHF is not. Thereshold energy. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implementation}
+\label{sec:impl}
+
+%xxx3101
+%kotani2 これはintroductionより移動,修正。
+In Sec.~\ref{sec:ov}, we show overview of the method to perform
+the $GW$ calculation. We made some improvements to the method in
+Refs.\onlinecite{kotani_all-electron_2002,kotani_quasiparticle_2007},
+where we take some ideas from another $GW$ implementation 
+given by Friedrich, Bl\"ugel, and Schindlmayr
+\cite{friedrich_efficient_2010}.
+
+In Sec.~\ref{sec:kint}, we show new improvement to the offset-$\Gamma$ method, which is
+in order to treat $\bfk \to 0$ divergence of integrand for the self-energy calculation.
+This improvement can correctly capture anisotropy of the screened Coulomb interaction,
+although the previous offset-$\Gamma$ method in FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}
+is dangerous to treat anisotropic systems.
+
+In Sec.~\ref{sec:siginterp}, we explain the interpolation of 
+$\vxc_\bfk(\bfr,\bfr')$. The interpolation procedure
+is simplified in comparison with that used in FP-LMTO-QSGW.
+
+\subsection{overview}
+\label{sec:ov}
+%xxx3001
+%kino1 MTOは既出
+%kotani2 「MTOは既出」はちょっと意味がわからないです。
+In the PMT method \cite{kotani_fusion_2010}, 
+the valence eigenfunctions for given $\H0$ are represented
+in the linear combinations of the Bloch summed MTOs
+$\chi^{\bfk}_{\brl{j}}({\bf r})$ and the APWs $\chi^{\bfk}_\bfG (\bfr)$;
+\begin{eqnarray}
+\label{eq:lmtopsi}
+\Psikn(\bfr) = \sum_{\brl{j}} z^{{\bfk}n}_{\brl{j}}
+\chi^{\bfk}_{\brl{j}}({\bfr})+ \sum_{\bfG} z^{\bfk n}_{\bfG}
+\chi^{\bfk}_\bfG(\bfr),
+\label{eqeigen}
+\end{eqnarray}
+where we use indexes of wave vector $\bfk$, band index $n$, 
+reciprocal lattice vector $\bfG$. The MTOs in the primitive cell are 
+specified by index of MT site $\bfR$, angular momentum $L=(l,m)$, and
+$j$ for radial functions. 
+%xxx3002
+%kino1 基本的には後方参照してはいけない。
+%kino1 ここはcoreのexchangeだけvalenceと別に、しかしvalenceと同じmanner
+%で計算できると言っていますか？
+%kotani2 その意図です。core1のみです（core1でMendeleyで検索）。
+%kotani2 ややこしいので単純にしました。
+% Core eigenfunctions restricted within MTs 
+% can be also represented in \req{eqeigen}, but without summation 
+% as to $\bfR$, $L$, $j$ and $\bfG$, 
+% the following treatment is applicable; we take into account
+% only the exchange part (in \req{eq:sigx} appeared later) as the
+% contribution from cores.
+As for core eigenfunctions, we calculate them in the condition
+that they are restricted within MTs.
+%We use core eigenfuncitons which are restricted within MTs.
+Then we consider contributions of the cores only to the exchange part 
+defined in \req{eq:sigx} in the followings. 
+(In other words, we apply core1 treatment in 
+Ref.\onlinecite{kotani_quasiparticle_2007} for all cores.)
+
+In Ref.\onlinecite{kotani_fusion_2010}, we have tested variety
+of basis sets of MTOs with APWs, whose numbers are specified by
+the APW cutoff energy $\EMAX$. 
+Then we show a simple and systematic procedure 
+to choose the MTO basis sets in Ref.\onlinecite{kotani_linearized_2013}.
+With the procedure, we can perform 
+stable and accurate calculations. 
+In the procedure, we use a large set of MTOs 
+(two or three MTOs per $L$ for valence electrons) together with APWs 
+with rather low cutoff energy, typically, $\sim$4 Ry.
+Thanks to the APWs, we can include only highly localized MTOs.
+For the damping factors $\propto \exp(- \kappa r)$ contained in MTOs,
+we use $\kappa^2=$ 1.0 and 2.0 (bohr)$^{-2}$. 
+In Ref.\onlinecite{kotani_linearized_2013}, we have shown that it is not necessary 
+to optimize the $\kappa$ parameters when we use large enough $\EMAX$ ($\sim$4 Ry)
+as shown in Fig.1 of Ref.\onlinecite{kotani_linearized_2013}.
+Other parameters to specify MTOs are also fixed in a simple manner.
+The smoothing radii of the smooth Hankel functions, which
+are the envelope function of the MTOs, are set to be one half of the MT radii.
+Thus the MTOs are chosen essentially automatically, and
+the convergence is checked only by $\EMAX$.
+In addition, we do not need to use ESs because APWs is substituted for the MTO basis of ESs.
+%Thus, with the PMT method, we are free from problems of FP-LMTO method: 
+%how to choose parameters to set MTOs; how to set empty spheres.
+We have shown that such basis set works well in practice 
+to determine the atomization 
+energies of homonuclear dimers from H$_2$ through Kr$_2$ with the
+convergence of chemical accuracy $\sim$ 1 Kcal/mol or less
+in the DF calculation in the PBE exchange correlation functional in a large supercell
+\cite{kotani_fusion_2010}. Note that such supercell calculations are 
+tough tests for augmented wave methods (FP-LAPW requires very
+high $\EMAX$ because of small MT radius; 
+%xxx3003
+%kino1 下は言い過ぎでしょう。
+%kotani2 it is not easy にしました。
+%kotani FP-LMTO is essentially not applicable because of no way to fill ESs).
+it is not easy to apply FP-LMTO because of no way to fill ESs).
+In comparison with methods only using the localized basis set
+such as \texttt{Gaussian} in quantum chemistry,
+the PMT method is advantageous in the point that it can describe
+scattering states (higher than zero level) accurately.
+
+%xxx3102
+%kotani2 ここにあったパラグラフ削除。SigmaのinterpolationをMTOでおこなう
+%話。情報はこのサブセクションの最後へ。あるいは、この章の冒頭部分へ（Bluegel論文の引用部分）。
+
+At first, we re-expand $\Psikn(\bfr)$ in \req{eq:lmtopsi}  
+as a sum of the augmentation parts in the MTs and the
+PW parts in the interstitial region.
+\begin{eqnarray}
+\Psikn(\bfr)
+= \sum_{\bfR u}  \alpha^{{\bfk}n}_{\bfR u} \varphi^{\bf k}_{\bfR u}({\bf r})
+ + \sum_{\bf G}  \beta^{{\bfk}n}_{\bf G} P^{\bf k}_{\bf G}({\bf r}),
+\label{def:psiexp}
+\end{eqnarray}
+where the interstitial plane wave (IPW) is defined as
+\begin{eqnarray}
+P^{\bf k}_{\bf G}({\bf r}) =
+\begin{cases}
+ 0                           & \text{if {\bf r}} \in \text{any MT} \\
+\exp (i ({\bf k+G})\cdot{\bf r}) & \text{otherwise}
+\end{cases}
+\end{eqnarray}
+and $\varphi^{\bf k}_{R u}(\bfr)$ are Bloch sums of the atomic functions
+$\varphi_{R u}(\bfr)$ defined within the MT at $R$,
+\begin{eqnarray}
+\varphi^{\bf k}_{R u}({\bf r}) &\equiv& \sum_{\bf T} \varphi_{R u}({\bf
+ r-R-T}) \exp(i {\bf k\cdot{}T}).
+\label{eq:blochsum}
+\end{eqnarray}
+{\bf T} and {\bf G} are lattice translation vectors in real and reciprocal
+space, respectively. 
+
+-------------------------\\
+$\varphi_{Ru}(\bfr)$は、MTサイトR内でのみnon zeroな関数
+であり、uは、複合indexで「角運動量$L$,動径部分の区別の
+index（phi,phidot,phizなどとプログラム内では呼ぶ）」である。
+また、GW計算においてはコアは、MT内にあるものとして扱われる（ctrlでLFOCA＝１にしておいてもLFOCA=0で再計算して用いられる）。
+コア波動関数も上述のブロッホ和の形\req{eq:blochsum}で与えられている。
+
+\noindent{\bf データファイル読み込みルーチン:}
+\begin{itemize}
+\item 
+readeval:固有値読み込みルーチン
+\item
+readcphi: $\alpha^{{\bfk}n}_{Ru}$の読み込み
+\item
+readgeig: $\beta^{{\bfk}n}_{\bf G}$の読み込み
+\item:
+readngmx,readqg: ${\bf G}$の読み込み。
+\end{itemize}
+readevalなどを用いるには、init\_readeigen,init2\_reaeigenを先に呼ぶ必要
+がある（これらはメインルーチンの中に書かないで一度目の呼び出しのときに。
+すべてのファイルをランダムアクセスファイルにしたほうがいいような気もして
+いる。メモリの制約で、少し大きいシステムになってくるとKeepEigen
+offをGWinputでセットしないと走らない場合もある(現状のコードでは有効でな
+いかも。とにかくメモリがきちんと節約できていないかもしれない。)
+データへのアクセスは{\bf q}などを与えて直接に呼び出せるようにしている。
+とにかく、あるプログラム（たとえばhx0fp0\_sc)を走らせるとき、それ以前に作ら
+れ、ファイルに格納されたデータの（十分に高速な）読み出しが必要になる。
+%これを、read*という名前のルーチンで行えるよう統一したい。
+%書き出しに関しては、直接ファイルオープンして書き出させたほうが見やすい場
+%合もあるが、write*と言う名前のルーチンを対にしてモジュールに収めたほうがいいかもしれない。
+データを二重に持たせているような部分は極力排除したい。\\
+--------------------------------\\
+
+In the $GW$ calculation, we need not only the basis set for
+eigenfunctions, but also the basis set to expand the product of eigenfunctions.
+The basis is called as the mixed product basis (MPB) $\{M^{\bf k}_I({\bf r}) \}$
+first introduced in Ref.\cite{kotani_all-electron_2002}.
+The MPB 
+consists of the product basis (PB) within MTs \cite{aryasetiawan_product-basis_1994}
+and the IPW in the interstitial region.
+Since $\{M^{\bf k}_I({\bf r}) \}$ contains IPWs which are not orthogonal,
+we define dual for $\{M^{\bf k}_I({\bf r}) \}$ as
+\begin{eqnarray}
+&& |\tilde{M}^{\bf k}_{I} \rangle \equiv \sum_{I'}
+   |M^{\bf k}_{I'} \rangle (O^{\bf k})^{-1}_{I'I} \, , \\
+&& O^{\bf k}_{I'I} = \langle M^{\bf k}_{I'} |  M^{\bf k}_I \rangle.
+\end{eqnarray}
+%xxx3004
+%kino1  H = E S : generalized eigenvalue problem
+%kotani2 OK。わかりやすいようセンテンス分割。
+From $v_{IJ}^\bfk= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$,  
+we calculate eigenfunction for the generalized eigenvalue problem defined by
+$\sum_J (v_{IJ}^\bfk - v^\bfk_\mu O^{\bfk}_{IJ} ) w_{\mu J}^\bfk = 0$ where
+$v_\mu(\bfk)$ are the eigenvalues of the Coulomb interaction matrix.
+Then we have the Coulomb interaction represented by matrix elements as 
+\begin{eqnarray}
+v(\bfk)=\sum_{\mu} | E^{\bfk}_\mu \rangle {v_\mu(\bfk)} 
+\langle E^{\bfk}_\mu |,
+\label{eqvcoue}
+\end{eqnarray}
+where we define a new MPB 
+$|E^{\bf k}_\mu({\bf r})\rangle=\sum_J |M^\bfk_J\rangle w^\bfk_{\mu J}$ 
+which is orthonormal and is diagonal to the Coulomb interaction $v(\bfk)$. 
+For the all-electron full-potential $GW$ approximation,
+\req{eqvcoue} is introduced in Ref.\onlinecite{friedrich_efficient_2010}.
+This corresponds to the representation in the plane wave expansion 
+$v(\bfk+\bfG,\bfk+\bfG')=\frac{4 \pi \delta_{\bfG \bfG'}}{|\bfk+\bfG|^2}$.
+%kino1 Here $v_\mu(\bfk)$ are the eigenvalues of the Coulomb interaction matrix. 上へ移動。
+%kino1 $\mu=1$ corresponds to the largest eigenvalue of the matrix, that is,
+%kino1 $v_{\mu=1}(\bfk)\sim \frac{4 \pi e^2}{|\bfk|^2}$.
+%kino1 mu=1がlargestである情報は二度と使わない。
+%kino1 修正The largest eigenvalue of $v_{\mu=1}$ is $\sim \frac{4 \pi e^2}{|\bfk|^2}$.
+%kino1 後ろで使いますね。
+$\mu=1$ corresponds to the largest eigenvalue of $v_{\mu}$, and 
+$v_{\mu=1}$ is $\sim \frac{4 \pi e^2}{|\bfk|^2}$, which is related to 
+the divergent term discussed in Sec.\ref{sec:kint}.
+%kotani2 ーーーーーーーーーさわらないでよい
+
+
+\begin{widetext}
+With the definition of 
+$\langle A| B\rangle =\int d^3r A^*(\bfr) B(\bfr)$,
+the exchange part of $\Sigma(\omega)$ is written as
+\begin{eqnarray}
+\Sigma^{\rm x}_{nm}(\bfq)=
+\langle \Psiqn|\Sigma_{\rm x} |\Psiqm \rangle
+&&=-\sum^{\rm BZ}_{{\bf k}}  \sum^{\rm  occ}_{n'}
+\langle \Psiqn| \Psi_{{\bf q-k}n'} E_\mu^{\bf k} \rangle
+v_{\mu}({\bf k})
+\langle E_\mu^\bfk \Psi_{{\bf q-k}n'} | \Psiqm \rangle.
+\label{eq:sigx}
+\end{eqnarray}
+%We evaluate integral on $\bfk$ by a discrete sum on the regular mesh points
+%including $\bfk=0$. However, we need to replace divergent
+%$v_{\mu=1}(\bfk=0)$ with an effective one $\overline{v_{\mu=1}}(\bfk=0)$
+%as explained in Sec.~\ref{sec:kint}.
+
+The screened Coulomb interaction $W(\omega)$ is calculated
+through \req{eq:defw}, where the polarization function $\Pi(\omega)$
+is written as
+%xxx
+%kino1  < Psi | Psi E > の定義がない。
+%kotani2 冒頭に書きました。
+\begin{eqnarray}
+\Pi_{\mu \nu}({\bf q},\omega)
+&&=
+\sum^{\rm BZ}_{\bfk} \sum^{\rm occ}_{n \ispone} \sum^{\rm unocc}_{n'\isptwo}
+\frac{
+\langle E^{\bf q}_\mu \Psikn |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psikn E^{\bf q}_\nu \rangle
+}{\omega-(\varepsilon_{{\bf q+k} n'\isptwo}-\varepsilon_{\bfk n\ispone})+i \delta} \nonumber\\
+&&+ \sum^{\rm BZ}_{\bfk} \sum^{\rm  unocc}_{n \ispone} \sum^{\rm occ}_{n'\isptwo}
+\frac{
+\langle E^{\bf q}_\mu \Psi_{{\bf k}n} |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psi_{{\bf k}n} E^{\bf q}_\nu \rangle
+}{-\omega-(\varepsilon_{\bfk n\ispone}-\varepsilon_{{\bf q+k} n'\isptwo})+i \delta}.
+\label{eq:polf0}
+\end{eqnarray}
+When time-reversal symmetry is assumed, $\Pi(\omega)$ can be simplified to read
+\begin{eqnarray}
+\Pi_{\mu \nu}({\bf q},\omega)
+&&=\sum^{\rm BZ}_{{\bf k}}  \sum^{\rm  occ}_{n} \sum^{\rm  unocc}_{n'}
+\langle E^{\bf q}_\mu \Psi_{{\bf k}n} |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psi_{{\bf k}n} E^{\bf q}_\nu \rangle \nonumber \\
+&& \times
+\left(\frac{1}{\omega-\varepsilon_{{\bf q+k}n'}+\varepsilon_{{\bf k}n}+i \delta}
+-\frac{1}{\omega+\varepsilon_{{\bf q+k}n'}-\varepsilon_{{\bf k}n}-i \delta}\right). \label{dieele}
+\label{eq:polf}
+\end{eqnarray}
+To evaluate \req{eq:polf0} or \req{eq:polf},
+we first accumulate its imaginary parts (anti-Hermitian part) of $\Pi_{\mu \nu}(\bfq,\omega)$
+along bins of histograms on the real axis $\omega$
+with the tetrahedron technique \cite{rath_generalized_1975},
+and then determines the real part via the Hilbert transformation.
+The bins are dense near the Fermi energy and coarse at high energy as described in 
+Ref.\onlinecite{kotani_quasiparticle_2007}.
+This procedure is not only more efficient but also safer than methods
+to calculate the real part directly. 
+We also use the extended irreducible zone (EIBZ) 
+symmetrization procedure described in Ref.\cite{friedrich_efficient_2010}.
+
+The correlation part of the screened Coulomb interaction $W^c(\omega)=W(\omega)-v$, 
+which is calculated from $v$ and $\Pi(\omega)$ is given as
+\begin{eqnarray}
+W^{\rm c}(\bfk,\omega)=\sum_{\mu\nu} | E^{\bfk}_\mu \rangle {W^{\rm c}_{\mu\nu}(\bfk,\omega)} 
+\langle E^{\bfk}_\mu |.
+\end{eqnarray}
+With this $W^{\rm c}(\bfk,\omega)$, we have the correlation part of the self-energy  as
+\begin{eqnarray}\
+\Sigma^{\rm c}_{n,n'}(\bfq,\omega)= \sum_{\bfk,m} \int_{-\infty}^\infty  \!d \omega' \sum_{\mu,\nu} 
+\frac{\langle\Psiqn|\Psiqkm E^{\bfk}_\mu \rangle 
+W^{\rm c}_{\mu\nu}(\bfk,\omega')\langle E^{\bfk}_\nu \Psiqkm
+|\Psiqnp\rangle e^{-i \delta \omega'}}
+{\omega-\omega'-\epsilon_{\bfq-\bfk m}\pm i \delta}.
+\label{sigmann}
+\end{eqnarray}
+\end{widetext}
+Here, we use $+i \delta$ for occupied states of
+${\bfq\!-\!\bfk m}$, $-i \delta$ for unoccupied states.
+In QSGW, 
+we have to calculate Hermitian part of $\Sigma_{nn'}(\bfq,\epsilon_{\bfq n})$, 
+in order to obtain $\vxc_\bfq$ via \req{eq:vxceq}.
+
+There are two key points to handle the $GW$ procedure given above.
+The first key point, given in Sec.\ref{sec:kint},
+is the improved offset-$\Gamma$ method which treats
+divergence of $W^{\rm c}(\bfk \to 0,\omega)$ in \req{sigmann}. 
+For this purpose, we define non-divergent 
+effective interaction $\overline{W^{\rm c}}(\bfk=0,\omega)$ instead of
+${W^{\rm c}}(\bfk=0,\omega)$.
+%; for \req{eq:sigx}, so does $\overline{v_{\mu=1}}(\bfk=0)$ instead of ${v_{\mu=1}}(\bfk=0)$.
+Then we can take simple discrete sum for both expressions of \req{eq:sigx} and \req{sigmann}.
+
+The second point in Sec.\ref{sec:siginterp} is
+how to make 
+%$\vxc_\bfq$ for $\bfq$ in the whole BZ.
+%That is, we need to make 
+an interpolation to give $\vxc_\bfq$ at any $\bfq$ in the whole BZ,
+from $\vxc_\bfq$ calculated only at limited numbers of $\bfq$ points.
+This is required in the offset-$\Gamma$ method shown in Sec.\ref{sec:kint},
+that is, we have to calculate eigenfunctions at some $\bfq$ points near $\bfq=0$.
+For the interpolation, we expand the static
+non-local potential $\vxc$ in \req{eq:vxceq} in the highly-localized
+MTOs in the real space. Thus the MTOs are used for two purposes;
+one is as the bases for the eigenfunctions, the other is as the bases to
+expand $\vxc$. The interpolation procedure of $\vxc_\bfk(\bfr,\bfr')$
+becomes stabilized and simplified rather than the
+complicated interpolation procedure in 
+Ref.\onlinecite{kotani_quasiparticle_2007}.
+This is because we now use highly localized MTOs.
+In the planewave-based \QSGW\ method by Hamann and Vanderbilt \cite{hamann09}, 
+they expand $\vxc$ in the maximally localized Wannier functions instead of the MTOs.
+
+%xxx2011 
+%(theoryの章から移動ーーー)
+%kino1 よくやるのは対応付けて括弧に入れるやり方。
+%kotani2 了解しました。ただ、$V^{\rm xc}_{\rm LDA}$をGGAの場合もつかうので、以下のようにしてみました。
+%kotani2 potential $V^{\rm xc}_{\rm LDA}$ ($V^{\rm xc}_{\rm GGA}$)is
+%used in order to generate core
+%kotani2 --->いちおうLDA/GGAの意味をかくということで承諾してもらった。
+In practical implementation, the LDA or GGA exchange-correlation
+potential $V^{\rm xc}_{\rm LDA}$ 
+is used as an assistance in order to generate core
+eigenfunctions and also the radial functions within the MTs
+(in this paper, we use subscript LDA even in the GGA. ``LDA/GGA'' means LDA or GGA).
+%xxx2012
+%kino1 In addition, the difference $\vxc-V^{\rm xc}_{\rm LDA}$ is used 
+%kino1 in additionが変。
+%kotani2 変でしょうか？ LDAかGGAがどこにあらわれるか？という点でまとめたつもりでした。
+The difference $\vxc-V^{\rm xc}_{\rm LDA}$ is used 
+for the interpolation procedure in the BZ (explained in Sec.\ref{sec:siginterp}),
+because this difference is numerically small 
+as long as $V^{\rm xc}_{\rm LDA}$ is not so bad approximation.
+%kino1 These procedure with using $V^{\rm xc}_{\rm LDA}$ as an assist for numerical
+%kino1 calculations give a slight dependence to the final numerical
+%results
+%取り込み済
+These procedures with $V^{\rm xc}_{\rm LDA}$ give a slight dependence to
+the final numerical results in practice as seen in Sec.\ref{sec:numtest},
+although the results formally does not depend on the LDA/GGA exchange-correlation functions anymore.
+%xxx2013
+%although the results formally doesn't depend on the LDA/GGA exchange-correlation functions anym%ore.
+%kino1 。式でinitial valueですから、relateはしているんです。
+%kotani2 了解しました.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{widetext}
+\subsection{行列要素$\langle \psi |\psi M \rangle$の計算}
+この行列要素は、上述の$\langle \Psi_{{\bf q+k}n} |\Psi_{{\bf q}n'} E^{\bf q}_\mu  \rangle$
+などのことを指している。
+（英文の部分と統一性が取れていないかも。また記述が古くなっている可能性があ
+る。とくに、以前のバージョンでは$M_{{\bf q}I}(\bfr)$を用いていたが、
+今のものでは$E^{\bf q}_\mu (\bfr)$を用いた行列要素を計算している。）
+
+hsfp0\_sc.m.F, hx0fp0\_sc.m.Fなどがメインルーチンである。
+この中のpsicb,melpln,drvmelp2などのサブルーチン目標は、
+最終的にzmelに格納される
+「行列要素$\langle\Psikqn(\bfr)|\Psi_{\bfk n'}(\bfr) M_{{\bf q}I}(\bfr)\rangle$」
+を求めることである。MPBの$M_{{\bf q}I}$はPBとIPW(QGcou)からなる;
+これらは$B_{\bfq Rm}(\bfr-\bfR)$と$P^{\bf k}_{\bf G}({\bf r})$など
+と書かれる。（IPWは,波動関数展開のIPW(QGpsi)とMPBに使うIPW(QGcou)と二種類あるので区別しないといけない）。
+plnとかmelpという文字の入ったルーチンはIPWに関わる部分である。
+hsfp0*,hx0fp0*などにおいては、この行列要素を計算したのちに、
+それを用いて、誘電関数やら、自己エネルギーを計算することになる。
+
+以前、場合によっては、これらをすべてファイルにおとして
+プログラムとして分割することも考えたが、メモリの関係で
+オンザフライで求めている。drvmelp2がsxcfの方にのみ組み込まれているなど、
+かなりごちゃごちゃした形になっている。すっきりさせたい。
+高度な並列化を考える場合にはこの行列要素計算の並列化も必要になってくるか
+と思う。計算量のオーダー的には、N$^3$だろう。\\
+
+smbasis()は以前に開発した新たなMPBだがあまりご利益がないのでいまは使っていない。
+これは、MT内とMT外がスムーズにつながるようなMPBのアイデア。
+たぶん動かないし放置でいいが、記録として残してある。将来的には
+『「MTO基底の積」＋「APW（MT内部のaugmentの仕方は配慮する）』
+をあらたなMPBにしたいと考えてはいる。\\
+
+GWコードではiclass(i)=iatomp(i)となっており、多くのことろでiclassはダミー
+である。ただ、CLASSファイルに等価原子位置の情報が格納されており、これを
+読み込んで波動関数を空間群で回転させるときなどに使っている。
+
+以下、個別のルーチンの説明。\\
+
+
+\noindent {\bf psicb\_v3:} \\
+（注意：コア波動関数とバレンス波動関数の直交性の問題がある。なので、最近は、
+「ncore=ncc=0として分極関数にコアからの寄与をいれない」のをデフォルトにしている。
+なのでhx0fp0*内では実質的にスキップすることになる；なのであまり以下の説明を読む必要はない）。\\
+%We usually set ncore=0, that is, we essentially skips this routine in hx0fp0*.
+%Thus we do not include polarization due to cores.)
+このサブルーチンではmatarix element 
+$\langle\Psikqn(\bfr)| \varphi^{\rm core}_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
+および
+$\langle\varphi^{\rm core}_{\bfk+\bfq n}(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
+%``core$\times$valence$\times$product basis''
+を求める；これは最終的にzpsi2b(iblochq,ib1k,ib2qk)に格納される。
+ここで、$\varphi^{\rm core}_{\bfk n}(\bfr)$はブロッホ和\req{eq:blochsum}の形で与えられた
+コア波動関数を意味している。このとき$n$はバンドindexとみてよい
+(コアについては、$n$は「原子サイト$R$、角運動量$L$、主量子数」からなる複合indexである）。
+
+iblochは1:nblochで、nblochは、すべての原子についてのPBの個数の和である。
+なので、nblochは、$B_{\bfq Rm}$における添字$Rm$の要素数でもある。
+$R$はユニットセルの原子数、$m$のサイズは原子によって違っている
+「各原子についてのPBの数」は”grep nbloch lbas”で表示される。
+
+ib1kとib2kはバンドindexで、ib1kが1:nctotの間,ib2kが1:nccの間にあれば、そ
+れらはコア波動関数である。またib1k,ibk2がぞれぞれnctot,nccよりも大きけれ
+ば、それらはバレンス波動関数のindexとなっている。（なので、これらのindex
+についてはコア＋valenceで、通しでnでindexづけされている）。コアとしてどれだ
+けのものをとるかはGWinputで指定できるがコアなしnctot=ncc=0がデフォルト。
+（そもそもはnccはゼロで、ib1kが占有バンド、1b2qkは非占有バンドを表してい
+たが、time-reversalを破る場合に都合が悪くなり、nccもあとから付け足した経緯がある）。
+
+用いている式は、
+\begin{eqnarray}
+\langle\Psikqn(\bfr)| \varphi^{\rm core}_{\bfk n}(\bfr-\bfR) B_{\bfq Rm}(\bfr-\bfR) \rangle
+= \sum_{u} \alpha^{\bfk+\bfq n}_{Ru} 
+\langle \varphi^{\bf k+q}_{Ru}(\bfr)|\varphi^{\rm core}_{{\bf k} n}(\bfr) B_{\bfq Rm}(\bfr) \rangle
+= \sum_{u} \alpha^{\bfk n}_{Ru} 
+\langle \varphi_{Ru}(\bfr)|\varphi^{\rm core}_{n}(\bfr) B_{Rm}(\bfr) \rangle
+\nonumber \\
+\end{eqnarray}
+である.　$\langle\varphi^{\rm core}_{\bfk+\bfq n}(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
+についても同様である（nccがゼロでない場合）。
+
+　\\
+
+\noindent {\bf psi2b\_v3:} \\
+このサブルーチンではmatarix element 
+$\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle$
+を求めている。valenceの$\Psi$に関わる部分のみである。用いている式は、
+\begin{eqnarray}
+\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) B_{\bfq Rm}(\bfr-\bfR) \rangle
+= \sum_{u} \sum_{u'} \alpha^{\bfk+\bfq n}_{Ru} \alpha^{* \bfk n'}_{Ru'}
+\langle \varphi^{\bf k+q}_{Ru}(\bfr)|\varphi^{\bf k}_{Ru'}(\bfr) B_{\bfq
+Rm}(\bfr) \rangle \nonumber \\
+=
+\sum_{u} \sum_{u'} \alpha^{\bfk+\bfq n}_{Ru} \alpha^{* \bfk n'}_{Ru'}
+\langle \varphi_{Ru}(\bfr)|\varphi_{Ru'}(\bfr) B_{Rm}(\bfr) \rangle
+\end{eqnarray}
+である。変数cphikには$\alpha^{\bfk n'}_{Ru'}$が格納されている。cphikqについても同様である。
+ppbに$\langle \varphi_{Ru}(\bfr)|\varphi_{Ru'}(\bfr)
+B_{Rm}(\bfr)\rangle$が格納されている；これは実関数である（実球面調和関数、実数のradial関数を使っているので）。
+ppb(nc+1,...)などとなっているのはncがコアの数でその分オフセットする必要があるからである。\\
+
+
+\noindent {\bf melpln2:}\\
+名前はmatrix element for plane waveを略したつもりで、melplnになった。
+このルーチンでは、
+$\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) P^{\bf q}_{\bf G}({\bf r}) \rangle$
+を求めている。なので、これと、psi2b\_v3,psicb\_v3などの結果とあわせて、すべてのzmelを求めたことになる。
+使っている式は、
+\begin{eqnarray}
+\langle\Psikqn(\bfr)| \Psi_{\bfk n'}(\bfr) P^{\bf q}_{\bf G}(\bfr) \rangle
+= \sum_{G'} \sum_{G''} \beta^{\bfk+\bfq n}_{\bfG} \beta^{* \bfk n'}_{\bfG'}
+\langle P^{\bf k+q}_{\bf G'}(\bfr)| P^{\bf k}_{\bf G''}(\bfr) 
+P^{\bf q}_{\bf G}({\bf r}) \rangle \label{eq:ppip} 
+\end{eqnarray}
+であるが、この最後の部分は
+\begin{eqnarray}
+\langle P^{\bf k+q}_{\bf G'}(\bfr)| P^{\bf k}_{\bf G''}(\bfr) 
+P^{\bf q}_{\bf G}({\bf r})\rangle
+=\langle \exp(i (\bfG'- \bfG'')\bfr) |\exp(i \bfG\bfr)\rangle_{\rm I}
+\label{eq:ppx}
+\end{eqnarray}
+と書ける。ここで最後の$\langle ... \rangle_{\rm I}$はinterstitialのみでの積分を表す。
+この行列要素は、その足が$(\bfG'- \bfG'', \bfG)$となっている。
+$\bfG'- \bfG''$の取りうる範囲は、波動関数の積であり、その絶対値は2倍の大きさまでとり
+得ることになる。この\req{eq:ppx}の行列要素が、ppx(1:ngc2,1:ngc)である。ngcは、
+QGcouに対応するIPWの個数である。ngc2は、$\bfG'- \bfG''$の取りうる範囲の
+個数であり、およそ2$^3$倍になっている。
+getppxをコールすると、ppxに値が格納される仕組みになっている
+（モジュールを用いている。便利だけど分かりにくい）。
+
+計算手順としては、まず、
+$\beta^{\bfk+\bfq n}_{\bfG} \beta^{* \bfk n'}_{\bfG'}$
+の積を作ってgg(n,n',$\bfG-\bfG'$)に格納している。
+そのあと最後に、call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0)
+を行って、この\req{eq:ppip} の左辺を得ている。
+
+このルーチンの面倒な点は、エネルギーカットオフをしているので
+$\bfq$点ごとに、$\bfG$のとりうる範囲がちがうことである。
+それで、PPOVLファイル内のppxも$\bfq$ごとに作り直しており、
+ファイルがそれで巨大になってしまっている(PPOVLはrdata4gw.m.Fで作っている)。
+
+ただこれは、ばかげたやりかたです；　範囲が違うだけであって、ppxすなわち
+$\langle \exp(i (\bfG'- \bfG'')\bfr) |\exp(i \bfG\bfr)\rangle_{\rm I}$
+の値自体は、$\bfG'- \bfG''-\bfG$のみに依存しているだけで,
+そんなに大きいことはなく、$|\bfG(\Psi)+|\bfG(\Psi)|+|\bfG({\rm Coulomnb})|$よりも小さなGに対して、
+積分を計算しておけばいいはずである。このあたり作り方がへたすぎる。
+それから、すぐにggxは作れるはずである。
+
+shtvはhx0fpのほうではゼロにセットされているようである。\\
+
+\noindent {\bf drvmelp2:}\\
+このルーチンは、melpl2を被って便利になるように作った。ドライバーというつもり。
+本来はたぶん、hx0fp0\_scでも使うつもりだったとおもうが中途半端なことになって
+いる。あまり多重にサブルーチン化してもご利益はなく、やめたほうがいいのかもしれない。
+
+\end{widetext}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Improve offset-$\Gamma$ method}
+\label{sec:kint}
+The offset-$\Gamma$ method, originally 
+invented for Ref.\onlinecite{kotani_all-electron_2002} by Kotani 
+(described in Ref.\onlinecite{kotani_quasiparticle_2007}), 
+was a key to perform accurate $GW$ calculation.
+It is for integration of $\bfk$ 
+in \req{eq:sigx} and \req{sigmann}, where
+we have the integrands diverge at $\bfk \to 0$.
+It worked well for highly symmetric systems, however,
+it can be problematic to apply less symmetric systems, 
+because anisotropic divergence of the integrands 
+%in \req{eq:sigx} and \req{sigmann} around $\bfk=0$ 
+may not be treated accurately.
+Here we show an improved offset-$\Gamma$ method, which treat
+anisotropy of $W(\bfk,\omega)$ accurately.
+In the followings, we use expression $W(\bfk)$
+for simplicity (omit subscripts and $\omega$)
+instead of $W_{\mu \nu}(\bfk,\omega)$, 
+since we concern the $\bfk$ integral.
+
+% In the improved offset-$\Gamma$ method presented here,
+% the integrals for the integrand $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$ 
+% with respect to $\bfk$ in the BZ, 
+% is evaluated by the usual discrete sum on the regular $\bfk$ mesh points, 
+% except a point that we replace 
+% $W(\bfk=0)$ (this is divergent) with $\overline{W}(\bfk=0)$ which is
+% not divergent at $\bfk=0$.
+% %$effective $W(\bfk=0)$.
+% Roughly speaking, 
+% $\overline{W}(\bfk=0)$ is evaluated as an average of $W(\bfk)$ 
+% in the microcell named as the $\Gamma$ cell
+% (the microcell including the $\Gamma$ point)\cite{freysoldt_dielectric_2007}.
+
+Let us give a formula to calculate 
+$\int_{\rm BZ} f(\bfk) d^3k$ by discrete sum on $\bfk$-mesh,
+where $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$.
+As the $\bfk$-mesh, we use
+\begin{eqnarray}
+{\bf k}(i_1,i_2,i_3) &=& 2 \pi (\frac{i_1}{N_1} {\bf b}_1 
++ \frac{i_2}{N_2} {\bf b}_2 + \frac{i_3}{N_3} {\bf b}_3),
+\label{kmesh}
+%\\
+%\sum_{\bf k}^{\rm BZ} &\approx& \frac{1}{N_1N_2N_3} \sum_{i_1,i_2,i_3},
+\nonumber
+\end{eqnarray}
+where ${\bf b}_1,{\bf b}_2$ and ${\bf b}_3$ are the primitive reciprocal
+vectors (the same as the Eq.(47) in Ref.\onlinecite{kotani_quasiparticle_2007}). 
+The 1st BZ is divided into $N=N_1 \times N_2 \times N_3$
+microcells ($i_1=0,1,... N_1-1$. Also the same for $i_2$, and $i_3$.).
+The microcell including the $\Gamma$ point is called as the
+$\Gamma$ cell \cite{freysoldt_dielectric_2007}.
+Main problem is how to evaluate the contribution from the $\Gamma$ cell.
+%where we have divergent behavior $f(\bfk \to 0)$.
+The divergent part of $f(\bfk)$ behaves $\approx$ (analytic function of $\bfk$) 
+$/(\bfk^{\rm T}{\bf L}\bfk)$, 
+where $\bfk^{\rm T}$ means the transpose of $\bfk$, ${\bf L}$
+is an $3\times3$ Hermitian matrix \cite{friedrich_efficient_2010}. 
+%{\sum_{ij} k_i L_{ij}(\omega)k_j}$ at $\bfk \to 0$;
+%$L_{ij}$ means a three-by-three hermitian matrix; $k_i$ means the
+%component of $\bfk$. 
+We neglect an odd part of $\bfk$ in the above (analytic function of $\bfk$)
+because it gives no contribution to the integral around $\bfk=0$.
+Thus it is enough to consider integral for $f(\bfk)$ whose divergent parts behaves
+$f(\bfk)=\sum_L \frac{f_L Y_L(\widehat{\bfk})}{|\bfk|^2}$ at $\bfk \to 0$, 
+where $l$ of $L\equiv(l,m)$ are restricted to be even number.
+We evaluate the integral by a formula
+\begin{eqnarray}
+\int_{\rm BZ} f(\bfk) d^3k \approx \frac{1}{N}\sum^{\bfk \ne 0} f(\bfk)
+ + \sum_L f_L w_L + \frac{1}{N} \tilde{f},
+\label{eq:bzint0}
+\end{eqnarray}
+which is introduced in Ref.\cite{freysoldt_dielectric_2007}. 
+Here weights $w_L$ are determined in a manner as follows,
+so as to take into account contributions of divergent part of $f(\bfk)$
+at $\bfk \to 0$ in the $\Gamma$ cell.
+$\tilde{f}$ is the constant part of $f(\bfk)$ at $\bfk \to 0$.
+
+To determine $w_L$, 
+we can use the following procedure instead of that given 
+in Ref.\cite{freysoldt_dielectric_2007}.
+We first introduce auxiliary functions  
+\begin{eqnarray}
+F_L(\bfk) =\sum_{\bfG} \frac{\exp(- \alpha
+ |\bfk-\bfG|^2)Y_L(\widehat{\bfk-\bfG})}{|\bfk-\bfG|^2}.
+\end{eqnarray}
+This is a generalization of an auxiliary function used in the 
+offset-$\Gamma$ method (then we only used $F_{00}$ \cite{kotani_quasiparticle_2007}).
+We usually take $\alpha \to 0$ limit, or small enough $\alpha$ instead.
+Let us apply \req{eq:bzint0} to $F_L(\bfk)$.
+Then we can evaluate the left hand side of \req{eq:bzint0}
+exactly (the exact values are zero except $L=(0,0)$). 
+On the other hand, the first term and the
+third term in the right-hand side of \req{eq:bzint0}
+can be evaluated numerically.
+In addition, we know that $f_{L'}$ for $F_L(\bfk)$ is unity for $L'=L$,
+and zero otherwise.
+Thus we can determine $w_L$ in \req{eq:bzint0}
+so that \req{eq:bzint0} is exactly satisfied for $F_L(\bfk)$ for any $L$.
+
+% With a definition $\bar{f}(0) \equiv N \sum_L f_L w_L
+% +\tilde{f}$, we can rewrite \req{eq:bzint0} as
+% \begin{eqnarray}
+% \int_{\rm BZ} f(\bfk) d^3k \approx \frac{1}{N}\sum_{\bfk \ne 0} f(\bfk)
+%  + \frac{1}{N} \bar{f}(0).
+% \label{eq:bzint}
+% \end{eqnarray}
+% That is, we can use the usual formula of discrete sum but with
+% $\bar{f}(0)$, which means the effective value of $f(\bfk)$ at $\bfk \to 0$
+% for integration. 
+
+Let us apply \req{eq:bzint0} to $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$.
+%xxx
+%%kino1 f（に？）にGのk,k^2に比例したの項が寄与するでOK?
+%the terms $\propto \bfk$ and $\propto \bfk^2$ at $\bfk \to 0$ 
+%in $G(\bfq-\bfk)$ can yield contributions when
+%multiplied by the divergent part of $W(\bfk)$.
+%However, for simplicity, we neglect such contributions here.
+Then we make an approximation taking only the most divergent term 
+in $W(\bfk)$ in addition to its analytic part. That is, we use
+%kino1 widetildeにできませんか？　ということ！！！
+%kotani2 しました。
+\begin{eqnarray}
+W_{\mu \nu}(\bfk) \sim \widetilde{W}_{\mu \nu}(\bfzero) +
+ \frac{4 \pi}{\bfk^{\rm T} {\bf L} \bfk}
+ \delta_{1\mu}\delta_{1\nu}
+\label{eq:wnear0}
+\end{eqnarray}
+at $\bfk \to 0$. 
+$\widetilde{W}_{\mu \nu}(\bfzero)=0$ for $\mu=1$ or $\nu=1$. 
+See Eq.(36) in Ref.\onlinecite{friedrich_efficient_2010} to know what is
+neglected in the approximation of \req{eq:wnear0}.
+%Compare \req{eq:wnear0} with \req{eq:}.
+
+%We use \req{eq:wnear0} for $W$ in $f(\bfk)$ in \req{eq:bzint}. 
+%Furthermore,
+%we neglect the contributions 
+%terms of 0th-order of $\bfk$, yielded as the divergent term
+%in \req{eq:wnear0} multipled by the 2nd-order terms of $\bfk$ in $G(\bfq-\bfk)$.
+Then we finally obtain
+\begin{eqnarray}
+\int_{\rm BZ} d^3k G(\bfq-\bfk) W(\bfk) 
+\approx \overline{\sum G(\bfq-\bfk) W(\bfk)},\label{eq:bzintbar}
+\end{eqnarray}
+where its right-hand side is defined as
+\begin{eqnarray}
+&&\overline{\sum G(\bfq-\bfk) W(\bfk)} \nonumber \\
+&&\equiv 
+\frac{1}{N} \sum_{\bfk \ne 0} G(\bfq-\bfk) W(\bfk) + \frac{1}{N} G(\bfq)\overline{W}(\bfzero),\\
+&&\overline{W}(\bfzero)\equiv N\sum w_L W_L + \widetilde{W}(\bfzero).
+\end{eqnarray}
+Here $\overline{W}(\bfzero)$ can be taken as an
+averaged $W$ in the $\Gamma$ cell.
+With this $\overline{W}(\bfzero)$, we can 
+evaluate integrals just by sum on discrete $\bfk$-mesh.
+When the matrix ${\bf L}$ is given 
+(a method to calculate ${\bf L}$ is given in the next paragraph),
+the non-analytic (but non-divergent) function 
+${\bfk^{\rm T}{\bf L}\bfk}/|\bfk^2|$ 
+is expanded in the spherical harmonics. Then
+$W_L$ is calculated for the given ${\bf L}$ in the manner of Ref.\onlinecite{friedrich_efficient_2010}. 
+We can evaluate the accuracy of integrals with discrete $\bfk$-mesh
+in combination with the approximation \req{eq:wnear0} 
+by calculations with changing the size of the $\bfk$-mesh.
+
+
+%xxx
+% %kino1 k\T L kのLが説明も無く出ています。これも後で説明すると書かないといけません。
+% %kino1 後で気づいたので調整していません。
+% %kino1 see とはどういう意味？  
+% %See Ref.\onlinecite{friedrich_efficient_2010}.
+% Although our formula \req{eq:bzintbar} contain numerical errors
+% The errors are also discussed in 
+% Ref.\onlinecite{friedrich_efficient_2010}.
+% %This approximation may give some extra poorness in convergence 
+% %for the $\bfk$ point integration mesh. 
+%The overall convergence can be checked by changing 
+% %kino1 near the Gamma pointでいいですか
+%kotani2 -->ちがいます。near the Gamma point　とる
+
+%Here we make an approximation
+%to use $G(\bfq) \overline{W}(\bfzero)$ instead of
+%$\overline{G(\bfq) W(\bfzero)}$ for simplicy.
+
+%Neglected terms are terms related to the wing elements of 
+%$W(\bfk \to \bfzero)$, and the quadratic term $W(\bfk \to \bfzero)$.
+%This cause some errors due to some origins
+%(from linear and quadratic order of $\bfk$ for $G(\bfq-\bfk)$)
+%by higher order terms of $G(\bfq-\bfk)$ times divergent terms. 
+%It is not so easy to evaluate the size of error
+
+%\subsection{evalulation of the effective $\overline{W}$ with the offset $\Gamma$ method}
+%Thus we have to calculate 
+%in addition to $W(\bfk)$ for $\bfk \ne \bfzero$.
+
+The remaining problem is how to calculate
+the matrix ${\bf L}$ in \req{eq:wnear0}.
+There are two possible ways to determine it.
+One is the $\bfk \cdot \bfp$ method (perturbation) used in \cite{friedrich_efficient_2010}, 
+the other is numerical method to determine them by calculations at some
+$\bfk$ points near $\bfk=0$. Here we use the latter method.
+Because of the point-group symmetry of the system, ${\bf L}$ can be expressed by the
+linear combination of invariant tensors $\mu_{ij}^g$ for the symmetry of the unit cell;
+\begin{eqnarray}
+L_{ij}(\omega)=  \sum_{g=1}^{N_g} a_g(\omega) \mu_{ij}^g,
+\end{eqnarray}
+where $g$ is the index of invariant tensor. 
+The number of $g$, $N_g$, can be
+from one (cubic symmetry) through six (no symmetry).
+It is possible to determine coefficient $a_g(\omega)$
+from the dielectric functions ${\hat{\bfk}_{0i}}^{\rm T}{\bf L}\hat{\bfk}_{0i}$
+calculated at $\{\bfk_{0i}\}$ points around
+$\bfk=0$, where $\{\bfk_{0i}; i=1,N_g\}$ is a set of the offset-$\Gamma$ points.
+%xxx
+%kino1 offset Gamma points （複数）で通じますか？
+%kotani2 間違ってました　上に定義いれてます。
+The offset-$\Gamma$ points are chosen so that conversion matrix
+from $\hat{\bfk}_{0i}^{\rm T}{\bf L}(\omega)\hat{\bfk^{0i}}$ to $a_g(\omega)$
+should not numerically degenerated. The length $|\bfk^{0i}|$
+can be chosen to be small enough, but avoiding numerical error
+%(in practice, we now take the length is ten times smaller than $\bfq$ points
+%of the regular mesh points for the BZ integration).
+%
+% (Q0choice=1); one another choice is to be about 
+%the middle of the $\Gamma$ cell (Q0choice=2)
+as the average of $W(\bfk)$ in the $\Gamma$ cell.
+%The latter choice can be meaningful when
+%$\overline{W}(0)$ changes rapidly at $\bfq \to 0$, 
+The improved offset-$\Gamma$ method shown here can be applicable even to metal cases, as long as
+$\hat{\bfk}_{0i}^{\rm T}{\bf L}(\omega)\hat{\bfk_{0i}}$ contains the contribution
+due to intraband transition.
+
+%xxxxx this document until here is the same as pmtqsgw8.tex xxxxx
+
+
+\subsection{Interpolation of the self-energy in the Brillouin zone}
+\label{sec:siginterp}
+Here we show 
+an interpolation procedure to give
+$\vxc_{\bfk}$ at any $\bfk$,
+from $\vxc_{\bfk}$ calculated only at the regular mesh points $\bfk(i_1,i_2,i_3)$.
+This interpolation is used for the offset-$\Gamma$ method that
+requires $W(\omega)$ at $\{\bfk_{0i}\}$;
+to calculate these $W(\omega)$, we need 
+eigenfunctions and eigenvalues not only 
+at the regular mesh points $\bfk(i_1,i_2,i_3)$,
+but also at $\bfk(i_1,i_2,i_3)+\bfk_{0i}$. 
+This interpolation is also useful to plot 
+energy bands, thus to obtain effective mass and so on. 
+%(not so many $GW$ codes can make this interpolation).
+A key point of the interpolation is that $\vxc$ 
+is expanded in real space in the highly localized MTOs as follows.
+
+At the end of the step of (IV) in Sec.\ref{sec:qsgwth}, we obtain the matrix elements
+$\langle \Psikn | \Dvxc_\bfk | \Psikm \rangle$ on the regular mesh
+points of $\bfk$, where
+$\Dvxc_\bfk=\vxc_\bfk-V^{\rm xc,LDA}_\bfk$.
+Then it is converted to the representation in the APW and MTO bases as
+\begin{eqnarray}
+\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle
+= \sum_{n,m} \left(z^{-1}\right)^*_{an}\langle \Psikn |\Dvxc_\bfk |
+\Psikm \rangle z_{bm}^{-1}, \nonumber \\
+\label{eqvxcchi}
+\end{eqnarray}
+where we use simplified basis index $a$, which is the index to specify a basis 
+($\brl{j}$ for MTO or ${\bfG}$ for APW).
+Thus $\chi^{\bfk}_a$ denotes the APWs or MTOs in \req{eqeigen};
+$z_{na}$ ($\bfk$ is omitted for simplicity)
+means the coefficients of the eigenfunctions at $\bfk$, that is,
+$z^{{\bfk}n}_{\brl{j}}$ and $z^{\bfk n}_{\bfG}$ in \req{eqeigen} together.
+This $z_{an}$ is identified as a conversion matrix which connect
+eigenfunctions (band index $n$) and the APW and MTO bases (basis index $a$).
+
+To obtain real space representation, we need a representation
+expanded in the basis that consist of the Bloch summed localized orbitals, 
+which are periodic for $\bfk$ in the BZ. However, this is not the case for the APWs in
+\req{eqvxcchi}. To overcome this problem, we make an approximation 
+that we only take the matrix elements 
+related to the MTOs, that is, the elements 
+$\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle$
+where $a$ and $b$ specify MTOs.
+%This means that $\Dvxc$ is expanded in the basis of MTOs. 
+The part related to APWs are not thrown away but projected onto the basis of MTOs.
+%xxx3103
+%kino1 MTOだけで波動関数を展開しなおしていますか？
+%kino1 projectionしているというならばPDOSを求めるときのように一度
+%<chi_R|chi_G>を求めて云々する必要があるはず。
+%kotani2 --->基本的に「MTOだけで波動関数を展開しなおす」のと同じことになっているはずです。
+This approximation can be reasonable as long as main part of $\Dvxc$ can be
+well expanded in the MTOs,
+although we need numerical tests to confirm accuracy as shown in Sec.\ref{sec:numtest}.
+Then we obtain a real-space representation of 
+$\Dvxc$ expanded in the MTOs from the MTO part of 
+$\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle$ by the Fourier transformation.
+%kino1 one=Dvxc? it=Dvxc? ---> naoshimasu.
+Then we can have interpolated one by the inverse Fourier transformation from it for any $\bfk$.
+%kino1 Since we now usually use very localized MTOs, 
+%kotani1
+Since we use highly localized MTOs, 
+this interpolation procedure is more stable 
+than the previous one in the FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}.
+A complicated interpolation procedure 
+given in Sec.II-G in Ref.\onlinecite{kotani_quasiparticle_2007} is not necessary
+anymore.
+%Note that the MTOs plays two roles; the MTOs are used not only for the basis of eigenfunctions,%but also used for the basis to expand $\Dvxc$, although
+%we use the same set of MTOs in the current implementation for the two roles.
+
+
+%In the plane wave based implementation, 
+%Hamann and Vanderbilt used the maximally localized Wannier functions 
+%for the latter role \cite{hamann09}.
+%Considering the fact that MTOs themselves are good basis to represent eigenfunctions,
+%we can expect this procedure works well. In principle, it is possible to test
+%numerical errors in this method by changing the number of MTOs.
+%Numerical tests are shown in Sec.\cite{}.
+To reduce computational time,
+we calculate $\langle \Psikn |\Dvxc_\bfk | \Psikm \rangle$ only up to the states whose
+eigenvalues are less than $\EMAXS$. 
+%kino1 capital Eはtotal energyの時に使った。eigenvalueの時は\epsilonのはず。
+%kotani2 電話で了解をえましたがCapital Eでお願いします。
+Then the higher energy parts of matrix elements is assumed 
+to be diagonal, where their values are given by a constant, 
+an average of calculated diagonal elements.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical test}
+\label{sec:numtest}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%MTO set
+\begin{table}[htb]
+\begin{center}
+\caption{\label{tab:mtoset}
+Used MTOs for GaAs and SiO2c ($\beta$-cristobalite). These are specified
+by the principle quantum numbers and angular momentums.
+The MTO's envelope functions are the smooth Hankel functions,
+which are specified by two parameters, 
+the damping factor $\kappa$ and the smoothing radius $R_{\rm sm}$.
+We set the parameters in the manner of Ref.\onlinecite{kotani_fusion_2010}.
+$R_{\rm sm}$ is given to be one half of the MT radius $R_{\rm MT}$, which is shown in 
+the unit of bohr radius. Empty spheres (ESs) are located 
+in the middle of the interstitial region
+(two ESs per primitive cell in both of GaAs and SiO2c).
+ESs are used only cases specified by ``vwn,es'' and ``pbe,es'' 
+in \ref{tab:bandgaplda} and \ref{tab:bandgapqsgw}.
+Unit of $\kappa^2$ is in (bohr)$^{-2}$}
+\begin{tabular}{lcccc|l}
+\toprule
+   & valence & $R_{\rm MT}$ \\
+\colrule
+GaAs\\
+   Ga  & 3d(lo), 4s4p4d4f($\kappa^2\!=\!1.0$), 4s4p4d($\kappa^2\!=\!2.0$)  & 2.19 \\
+   As  & 3d(lo), 4s4p4d4f($\kappa^2\!=\!1.0$), 4s4p4d($\kappa^2\!=\!2.0$)  & 2.30 \\
+   (ES)& 1s2p3d($\kappa^2\!=\!1.0$), 1s2p($\kappa^2\!=\!2.0$) & 2.80 \\
+\colrule
+\multicolumn{3}{l}{SiO2c (two Si and four O in a primitive cell)}   \\
+   Si  & 4s4p4d4f($\kappa^2\!=\!1.0$), 4s4p4d($\kappa^2\!=\!2.0$) & 2.19 \\
+   O   & 2s3p4d($\kappa^2\!=\!1.0$), 2s3p4d($\kappa^2\!=\!2.0$) & 2.30\\
+   (ES)& 1s2p3d4f($\kappa^2\!=\!1.0$) & 2.80 \\
+\botrule
+\end{tabular}
+\end{center}
+\end{table}
+Here we show results of test calculations for PMT-QSGW
+applied to two examples, GaAs and the cubic SiO$_2$ ($\beta$-cristobalite,
+denoted as SiO2c hereafter). The latter has large interstitial
+regions; it has the same structure of Si but
+oxygen atoms are located in the middle of Si-Si bonds.
+We use lattice constants 5.653 \AA\ for GaAs, and 7.165 \AA\ for SiO2c.
+We perform calculations with different settings
+in order to show the convergence properties of the band gaps.
+%This shows the numerical reliability and limitations of the PMT-QSGW method.
+We use the simple and systematic procedure 
+to determine sets of MTOs and APWs, as is  
+explained after \req{eqeigen}.
+We use the MTOs shown in Table.\ref{tab:mtoset}. 
+As for Ga(3d) and As(3d), we use the local orbitals \cite{localorbital}.
+
+\begin{table}[tb]
+\begin{center}
+\caption{\label{tab:bandgaplda}
+Band gap in LDA/GGA to check the convergence on the basis set. 
+For sets of MTOs shown in Table.\ref{tab:mtoset},
+we tabulate the calculated band gaps for $\EMAX$.
+Note ``vwn,es'' and ``pbe,es'' means with ESs. 
+We can see band gaps converge well with small number of APWs;
+this is consistent with the case of atomization energies \cite{kotani_linearized_2013}.
+In the GGA case with ESs, 
+convergence behavior becomes a little unstable (not converged for 6.0 Ry for SiO2c),
+because of numerical instability of linear-dependency.
+$n_{\rm APW}$ means number of APWs at $\bfk=0$.
+Number of MTOs without ESs are 60 for GaAs and 168 for SiO2c.}
+\begin{tabular}{cccccc}
+\toprule
+\multicolumn{6}{c}{band gap (eV) in LDA/GGA}   \\
+\colrule
+$\EMAX$(Ry)  & vwn  & vwn,es & pbe  & pbe,es &  $n_{\rm APW}$ \\
+\colrule
+GaAs \\
+0.0 & 0.425 & 0.308 & 0.665 & 0.541 & 0\\
+1.0 & 0.322 & 0.295 & 0.558 & 0.528 & 1\\
+2.0 & 0.294 & 0.294 & 0.526 & 0.529 & 15\\
+3.0 & 0.294 & 0.294 & 0.528 & 0.532 & 27\\
+4.0 & 0.294 & 0.294 & 0.530 & 0.535 & 51\\
+5.0 & 0.294 & 0.294 & 0.530 & 0.536 & 59\\
+6.0 & 0.294 & 0.294 & 0.530 & 0.538 & 65 \\
+\colrule
+SiO2c\\
+0.0 & 8.560 & 6.131 & 8.592 & 6.186 & 0 \\
+1.0 & 5.406 & 5.434 & 5.663 & 5.563 & 15\\
+2.0 & 5.437 & 5.445 & 5.670 & 5.622 & 27\\
+3.0 & 5.442 & 5.445 & 5.665 & 5.652 & 59\\
+4.0 & 5.444 & 5.446 & 5.665 & 5.668 & 65\\
+5.0 & 5.446 & 5.447 & 5.668 & 5.658 & 113 \\
+6.0 & 5.446 & 5.445 & 5.669 & ---   & 169 \\
+\botrule
+\end{tabular}
+\end{center}
+\end{table}
+%xxx
+%kino1 
+%kotani2 First, --->In advance to show results of QSGW, 
+In advance to show the band gaps calculated in QSGW, let us show those
+in LDA/GGA in Table.\ref{tab:bandgaplda}. 
+We can check the convergence behavior by changing the APW cutoff energy $\EMAX$. 
+%We show results in cases with ESs and in cases without ESs.
+For the functional of LDA, we use the VWN exchange-correlation functional
+\cite{vwn}; for GGA, we employ PBE \cite{pbe};
+'vwn,es' and 'pbe,es' mean cases that ESs are included.
+The convergence behavior is satisfactory,
+as was in the case of total energy for homo-nuclear dimers 
+\cite{kotani_linearized_2013}.
+%Note that the converged band gap (e.g., 0.294 eV for GaAs) 
+%is little affected whether we use ESs or not. 
+We see better convergence behavior as for $\EMAX$ for 'vwn,es' and
+'pbe,es' than 'vwn' and 'pbe', since we have larger number of basis.
+For example,'vwn,es' for GaAs
+shows 0.295 eV for $\EMAX=$1 Ry is essentially the same as the
+converged value of 0.294 eV, while 'vwn' requires $\EMAX \gtrsim$ 2 Ry
+to have similar convergence.
+For SiO2c, the convergence is a little slower because SiO2c has large
+interstitial region, e.g., the band gap 5.437 eV for 'vwn' at $\EMAX\gtrsim$2 Ry
+shows $\sim$0.01 eV difference from converged value of 5.445 eV 
+(we took the case of 'vwn,es' at $\EMAX$=6Ry).
+Within this small error, we can determine the band gap even without ESs.
+This confirms our expectation
+that missing part of the Hilbert space spanned by highly localized MTOs 
+(large damping factors $\kappa^2=$ 1.0 and 2.0 (bohr)$^{-2}$) 
+is complemented by the APWs with such very low $\EMAX$.
+The wave number of the cutoff corresponds to distance between nearest-neighbor atoms.
+We saw a little instability (we need many iterations) in the calculations  
+when we use $\EMAX\gtrsim$ 5 Ry in the case of 'pbe,es',
+since GGA requires better numerical accuracy to calculate derivative of density.
+This is because of the overcompleteness problem of the basis set, that is,
+we lose linear-independency of basis functions for large $\EMAX$.
+%Because of the poorness of linear-dependency in the basis set, 
+%With our current setting of MTOs, our calculations becomes less numerically reliable
+%when $\EMAX$ is larger than $\approx$ 6 Ry.
+We conclude that Table.\ref{tab:bandgaplda} 
+gives a satisfactory convergence behavior within this limitation.
+%However, we can say that the converstability of the calculated band gaps 
+%as for the number of basis 
+%in increasing $\EMAX$ upto 6Ry in LDA and 5Ry in GGA.
+
+\begin{table}[htb]
+\begin{center}
+\caption{\label{tab:pbset}
+The product basis (PB) within MTs are constructed from the products of atomic basis.
+After all the products are generated, remove linearly-dependent ones
+with the use of the overlap matrix of the products. See
+ Ref.\onlinecite{kotani_quasiparticle_2007} in detail. 
+$l_{\rm cut}$ means the allowed maximum $l$ of the PB. 
+$n_{\rm PB}$ shows the total number of PB in each MT.}
+\begin{tabular}{llccccc}
+\toprule
+      & &products  & $l_{\rm cut}$ & tol & $n_{\rm PB}$ \\
+\colrule
+GaAs \\
+\colrule
+PB0 &Ga & $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 97 \\
+    &As & $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 106 \\
+\colrule
+PB0$t$ &Ga &  PB0 & 4 & $10^{-5}$ & 119\\
+    &As &  PB0 & 4 & $10^{-5}$ & 126\\
+\colrule
+PB0$l$ &Ga &  PB0 & 6 & $10^{-3}$ & 119\\
+    &As &  PB0 & 6 & $10^{-3}$ & 128\\
+\colrule
+%PB1x Ga& $\phi(4s,4p,3d,4d) \times \phi,\phidot(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 115\\
+%PB1 Ga& $\phi(4s,4p,3d,4d) \times \phi,\phidot(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 115\\
+%     As& $\phi(4s,4p,3d,4d) \times \phi,\phidot(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 115\\
+
+%PB1 Ga & $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 115\\
+%       & $\phi(4s,4p,3d,4d) \times \phidot(4s,4p,3d,4d,4f)$ \\
+%     As& $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$ & 4 & $10^{-3}$ & 115\\
+%       & $\phi(4s,4p,3d,4d) \times \phidot(4s,4p,3d,4d,4f)$ \\
+PB1 &\begin{tabular}{@{}l@{}} Ga\\\ \\\end{tabular}  &
+         \begin{tabular}{@{}l@{}}
+         $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$ \\
+         $\phi(4s,4p,3d,4d) \times \phidot(4s,4p,3d,4d,4f)$
+          \end{tabular}                          & 4 & $10^{-3}$ & 115\\
+    &\begin{tabular}{@{}l@{}}    As\\\ \\\end{tabular}  &
+         \begin{tabular}{@{}l@{}}
+         $\phi(4s,4p,3d,4d) \times \phi(4s,4p,3d,4d,4f)$\\
+         $\phi(4s,4p,3d,4d) \times \phidot(4s,4p,3d,4d,4f)$ 
+         \end{tabular}                       & 4 & $10^{-3}$ & 115\\
+  & (ES) & $\phi(1s,2p,3d) \times \phi(1s,2p,3d,4f)$     & 2      & $10^{-3}$ & 22 \\
+\colrule
+PB1$l$ &Ga &  PB1 & 6 & $10^{-5}$ & 175\\
+    &As &  PB1 & 6 & $10^{-5}$ & 178\\
+\colrule
+SiO2c \\
+\colrule
+PB0 &Si & $\phi(3s,3p,3d) \times \phi(3s,3p,3d,4f)$  & 4 & $10^{-3}$ & 75 \\
+    &O  & $\phi(2s,2p,3d) \times \phi(2s,2p,3d,4f)$  & 4 & $10^{-3}$ & 67 \\
+\colrule
+PB0s &Si & PB0  & 4 & $10^{-3}$ & 76 \\
+    &O & PB0  & 2 & $10^{-3}$ & 31 \\
+\colrule
+%PB1 Si & $\phi(3s,3p,3d) \times \phi,\phidot(3s,3p,3d,4f)$  & 4 & $10^{-3}$ & 76 \\
+%    O  & $\phi(2s,2p,3d) \times \phi,\phidot(2s,2p,3d,4f)$  & 2 & $10^{-3}$ & 31 \\
+%   (ES) & $\phi(1s,2p,3d) \times \phi(1s,2p,3d,4f)$     & 2      & $10^{-3}$ & 22 \\
+
+PB1 &\begin{tabular}{@{}l@{}} Si\\\ \\\end{tabular}  &
+         $\begin{tabular}{@{}l@{}}
+         $\phi(3s,3p,3d) \times \phi(3s,3p,3d,4f)$\\
+         $\phi(3s,3p,3d) \times \phidot(3s,3p,3d,4f)$
+          \end{tabular}$                              & 4 & $10^{-3}$ & 76 \\
+& \begin{tabular}{@{}l@{}}    O\\\ \\\end{tabular}  &
+         $\begin{tabular}{@{}l@{}}
+         $\phi(2s,2p,3d) \times \phi(2s,2p,3d,4f)$\\
+         $\phi(2s,2p,3d) \times \phidot(2s,2p,3d,4f)$ 
+         \end{tabular}$                              & 2 & $10^{-3}$ & 31\\
+  &(ES) & $\phi(1s,2p,3d) \times \phi(1s,2p,3d,4f)$     & 2      & $10^{-3}$ & 22 \\
+\colrule
+PB1$l$ &Si & PB1 & 4 & $10^{-5}$ & 76 \\
+    &O  & PB1 & 4 & $10^{-5}$ & 70 \\
+\botrule
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{widetext}
+\begin{table*}[tb]
+\caption{\label{tab:bandgapqsgw}
+Band gap (at $\Gamma$) for GaAs 
+and cubic SiO2c ($\beta$-cristobalite SiO$_2$) in the PMT-QSGW method
+in different cutoffs/settings. Number of used $\bfk$ points in the 1st BZ
+is $4\times4\times 4$ for GaAs, and $2\times 2 \times 2$ for SiO2c. 
+No spin-orbit coupling. 
+The first line named as REF is treated as a standard to compare others in this table.
+Empty columns mean the default settings of REF.
+The column $|{\bf q +G}|^{\Psi,W}_{\rm Max}$ shows used 
+$|{\bf q +G}|^{\Psi}_{\rm Max}$ and $|{\bf q +G}|^{W}_{\rm Max}$.
+Lines marked by ``*'' show best-efforts values(largest bases). 
+Lines marked by ``*'' is the case used for Fig.\ref{fig:nkconv}.}
+\begin{tabular}{cc}
+\begin{tabular}[t]{lcccc|l}
+%\endfirsthead 
+%\multicolumn{2}{c}{--- Table \ref{tab:atomcond} continued. ---}\\
+%\endhead
+%\endfoot
+%\endlastfoot
+\toprule
+GaAs \\
+   XC  & $|{\bf q +G}|^{\Psi,W}_{\rm Max}$ &  PB  & $\EMAXS$ & $\EMAX$ & Band gap \\
+     & (1/bohr) &   &  (Ry) &  (Ry) &  (eV) \\
+\colrule
+\colrule
+REF:  & & & & & \\
+  vwn  &  4.0, 3.0 & PB1 & all & 3.0   &  1.939 \\
+\colrule
+\colrule
+       &  6.0, 4.0 &      &     &       &  1.939  \\
+       &  3.5, 3.0 &      &     &       &  1.940  \\
+       &  3.0, 2.5 &      &     &       &  1.934  \\
+\colrule
+       &           & PB0  &     &       &  1.956  \\
+       &           & PB0$t$  &     &       &  1.938  \\
+       &           & PB0$l$  &     &       &  1.967  \\
+       &           & PB1$l$  &     &       &  1.946  \\
+\colrule
+%       &           &      &     & 0.0   &   \\
+%       &           &      &     & 1.0   &  2.007 \\
+       &           &      &     & 2.0   &  1.931 \\
+       &           &      &     & 4.0   &  1.950 \\
+       &           &      &     & 5.0   &  1.959 \\
+       &           &      &     & 6.0   &  1.969 \\
+\colrule
+       &           &      & 3.0 &       &  1.942 \ ** \\ 
+       &           &      & 3.0 & 6.0   &  1.980 \\
+%       &           & PB1$l$  &     & 6.0   &  
+\colrule
+vwn,es &           &      &     &       &  1.945 \\
+vwn,es &           &      &     & 6.0   &  1.982 \ \ * \\
+vwn,es &           &      & 3.0 &       &  1.903 \\
+vwn,es &           &      & 3.0 & 6.0   &  1.940 \\
+%\multicolumn{2}{l}{vwn,As(3d)core}       &      &   &       &  1.924\\
+\colrule
+%pbe    &           &      &      &  0.0    &   \\
+%pbe    &           &      &      &  1.0    &  2.048 \\
+pbe    &           &      &      &  2.0    &  1.973 \\
+pbe    &           &      &      &         &  1.981 \\
+pbe    &           &      &      &  4.0    &  1.992 \\
+pbe    &           &      &      &  5.0    &  2.001 \\
+pbe    &           &      &      &  6.0    &  2.010 \\
+pbe,es &           &      &      &         &  1.969 \\
+pbe,es &           &      & 3.0  &         &  1.940  \\ 
+pbe,es &           &      &      &  6.0    &  2.002 \ * \\
+%pbe,es &           & PB1$l$  &      &         &  1.923 \\
+%pbe,es &           & PB1$l$  &      &  6.0    &  1.964 \\
+%pbe,es &           & PB1$l$  &      &  6.0    &  1.964 \\
+\botrule
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% No As(3d) 
+% \colrule
+%   vwn  &  4.0, 3.0 & PB1 & all & 3.0   &  1.881 (base)\\
+% \colrule
+%        &  6.0, 4.0 &      &     &       &  1.881  \\
+%        &  3.5, 3.0 &      &     &       &  1.881  \\
+%        &  3.0, 2.5 &      &     &       &  1.877  \\
+% \colrule
+%        &           & PB0  &     &       &  1.925  \\
+%        &           & PB0$t$  &     &       &  1.906  \\
+%        &           & PB1  &     &       &  1.874  \\
+%        &           & PB0$l$  &     &       &  1.932  \\
+%        &           & PB1$l$  &     &       &  1.881  \\
+% \colrule
+%        &           &      &     & 0.0   &  2.179 \\
+%        &           &      &     & 1.0   &  1.946 \\
+%        &           &      &     & 2.0   &  1.873 \\
+%        &           &      &     & 4.0   &  1.895 \\
+%        &           &      &     & 5.0   &  1.907 \\
+%        &           &      &     & 6.0   &  1.918 \\
+% \colrule
+%        &           &      & 3.0 &       &  1.893 \\
+%        &           &      & 3.0 & 6.0   &  1.930 \\
+%        &           & PB1$l$  &     & 6.0   &  1.923 \\
+%        &           &      & 3.0 & 6.0   &  1.977 \\
+% \colrule
+% vwn,es &           &      &     &       &  1.895 \\
+% vwn,es &           &      &     & 6.0   &  1.935 \ \ * \\
+% vwn,es &           &      & 3.0 &       &  1.862 \\
+% vwn,es &           &      & 3.0 & 6.0   &  1.900 \\
+% \colrule
+% pbe    &           &      &      &  0.0    &  2.202 \\
+% pbe    &           &      &      &  1.0    &  1.986 \\
+% pbe    &           &      &      &  2.0    &  1.916 \\
+% pbe    &           &      &      &         &  1.924 \\
+% pbe    &           &      &      &  4.0    &  1.939 \\
+% pbe    &           &      &      &  5.0    &  1.950 \\
+% pbe    &           &      &      &  6.0    &  1.959 \\
+% pbe,es &           &      &      &         &  1.921 \\
+% pbe,es &           &      &      &  6.0    &  1.965 \ \ * \\
+% %pbe,es &           & PB1$l$  &      &         &  1.923 \\
+% %pbe,es &           & PB1$l$  &      &  6.0    &  1.964 \\
+% %pbe,es &           & PB1$l$  &      &  6.0    &  1.964 \\
+% \colrule
+\end{tabular}
+\ \ \ & 
+\begin{tabular}[t]{lcccc|l}
+%\endfirsthead 
+%\multicolumn{2}{c}{--- Table \ref{tab:atomcond} continued. ---}\\
+%\endhead
+%\endfoot
+%\endlastfoot
+\toprule
+SiO2c \\
+   XC   & $|{\bf q +G}|^{\Psi,W}_{\rm Max}$ &  PB  & $\EMAXS$ & $\EMAX$ & Band gap \\
+     & (1/bohr) &   &  (Ry) &  (Ry) &  (eV) \\
+\colrule
+\colrule
+REF:  & & & & & \\
+  vwn  &  4.0, 3.0 & PB1 & all & 3.0   &  11.16\\
+\colrule
+\colrule
+       &  8.0, 6.0 &      &     &       &  11.28  \\
+       &  6.0, 4.0 &      &     &       &  11.27  \\
+       &  3.5, 3.0 &      &     &       &  11.15  \\
+       &  3.0, 2.5 &      &     &       &  10.76  \\
+\colrule
+       &           & PB0  &     &       &  11.20  \\
+       &           & PB0s  &     &       &  11.17  \\
+       &           & PB1$l$  &     &       &  11.19  \\
+       &           & PB1$l$  &     & 6.0   &  11.21  \\
+\colrule
+%       &           &      &     & 0.0   &  15.38 (8.56) \\
+       &           &      &     & 6.0   &  11.18  \\
+%       &           &      & 8.0 & 8.0   &  10.80 \\
+\colrule
+       &           &      & 3.0 &       &  10.38 \  ** \\
+       &           &      & 6.0 &       &  10.78 \\
+       &           &      & 9.0 &       &  10.99 \\
+\colrule
+%\colrule
+%\multicolumn{2}{l}{vwn,Si(2p)val}       &      &      &         & 11.11 \\
+vwn,es &           &      &     &        &  10.49 \\
+vwn,es &           &      &     & 4.0    &  10.47 \\
+vwn,es &           &      &     & 6.0    &  10.41  \ * \\
+vwn,es &           &      & 3.0 &        &  10.09 \\
+\colrule
+%pbe    &           &      &      &  0.0    &  15.41 (pbe 8.59) \\
+pbe    &           &      &      &         &  11.31  \\
+pbe    &           &      &      &  6.0    &  11.33  \\
+%pbe,es &           &      &      &  0.0    &  11.19 (pbe 6.19) \\
+pbe,es &           &      &      &         &  10.57 \\
+pbe,es &           &      &      &  5.0    &  10.54  \ * \\
+\botrule
+\end{tabular}
+\end{tabular}
+\end{table*}
+%\end{widetext}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%xxx
+%kino1 direct gapでhighest occupiedとlowest unoccupied levelの差のminimumは
+%kino1 通常band gapと呼ばれるのではないのですか。
+%kotani2 ---> 了解です。全体からminimumとりました。
+
+%%%%%% paragraph for cutoff parameters %%%%%%%%%%%%%%%%%%%%%%%%%%
+Let us summarize settings (and parameters) to perform the PMT-QSGW
+calculations.
+These can be classified into followings;
+\begin{enumerate}
+\item[(A)] IPW cutoff $|{\bf q +G}|^\Psi_{\rm Max}$ to give allowed 
+           $P^{\bf q}_{\bf G}({\bf r})$ in the expansion of eigenfunctions \req{def:psiexp}.
+\item[(B)] Settings of the mixed product basis.
+           We have parameters to specify product basis (PB) within MTs.
+           The IPWs belonging to the mixed product basis 
+	   is given by the cutoff $|{\bf q +G}|^W_{\rm Max}$.
+           The sets of PB are shown in Table \ref{tab:pbset}.
+\item[(C)] Cutoff energy for self-energy. 
+	   As we explained in Sec.\ref{sec:siginterp},
+	   we calculate $\langle i|\Dvxc |j\rangle$
+	   only for $\epsilon_i \le \EMAXS$ and $\epsilon_j \le \EMAXS$, where $\EMAXS$
+	   is measured from the top of valence. See the bottom of Sec.\ref{sec:siginterp}.
+\item[(D)] Energy-axis parameters for GW. \\
+	   These are used to accumulate imaginary part of $W(\omega)$.
+	   See the explanation around \req{eq:polf}. 
+	   We use an energy mesh (bin width);
+	   the bin width is 0.005 Ry at $\omega=0$ and quadratically coarser at larger $\omega$
+	   (Sec.II-D in Ref.\onlinecite{kotani_fusion_2010}).
+	   The bin width becomes twiced at 0.04Ry. For integration along imaginary axis, we 
+	   use ten points in the imaginary  axis of $\omega$. 
+	   The parameters are good enough to give reasonable results as seen 
+	   in Ref.\onlinecite{kotani_fusion_2010}.
+\item[(E)]
+	  $\EMAX$
+\item[(F)]
+	  Use ESs or not.
+\item[(G)]
+	  LDA or GGA, which are used as an assistance of numerical
+	  calculation in PMT-QSGW.
+	  See at the bottom of Sec.\ref{sec:ov}.
+%\item[(E)] BZ sampling. \\
+%We can specify it by the number of $k$ mesh-point in the 1st BZ, such as
+%$4\times 4 \times 4$, in addtion to the choice of 
+%Q0Pchoice=1 or Q0Pchoice=2, explained in Sec.\cite{}.
+\end{enumerate}
+%In the followings, we examine how these parameters affects band gaps.
+Here (E),(F) and (G) are settings in common with the LDA/GGA-level calculations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In Table \ref{tab:bandgapqsgw}, we show the
+band gaps for GaAs and SiO2c 
+calculated by PMT-QSGW for changing setting of (A)-(G).
+We calculate self-energy only on $\bfk$-mesh points; 
+these are $4\times4\times4$ and $2\times2\times2$ $\bfk$-mesh points
+in the 1st BZ for GaAs and SiO2c, respectively.
+(This is the mesh for self-energy. The $\bfk$-mesh points for electron density are
+$10\times10\times10$ and $6\times6\times6$ for GaAs and SiO2c, respectively.)
+No spin orbit coupling is included.
+In the calculation of polarization function of \req{eq:polf},
+we take all occupied and unoccupied states.
+%Let us look into the Table \ref{tab:bandgapqsgw}.
+The top line labeled as REF, which show the gaps 1.939 eV(GaAs) and 11.16 eV(SiO2c),
+are treated as bases for the following comparisons with other cases.
+In REF, we do take all bands ('all' for the column of $\EMAXS$ means taking
+all the matrix elements of $\Dvxc$, that is, $\EMAXS$ is infinity).
+Empty spaces in the Table \ref{tab:bandgapqsgw} mean that we use 
+the same settings as REF uses.
+For example, the next line to REF for GaAs means a case
+with the same settings with REF except changes of
+$|{\bf q+G}|^{\Psi}_{\rm Max}$=6.0 and $|{\bf q +G}|^{W}_{\rm Max}$=4.0.
+
+We can see following points from the Table \ref{tab:bandgapqsgw}.
+%This shows a limitation of the current implementation. Especially,
+%most problematic point is in $\EMAX$ to attain the numerical
+%convergence within 0.1 eV for the band gap. 
+Our target of numerical error is $\sim$0.1 eV, thus, 
+it is not meaningful to discuss about smaller differences than this error.
+\begin{enumerate}
+\item
+See the dependence on $|{\bf q+G}|^{\Psi}_{\rm Max}$ and $|{\bf q +G}|^{W}_{\rm Max}$.
+In comparison with cases changing them,
+we see that the REF setting, $(|{\bf q+G}|^{\Psi}_{\rm Max}$,$|{\bf q +G}|^{W}_{\rm Max})
+=$(4.0,3.0) (bohr)$^{-1}$, 
+show convergence of  $\sim$0.01 eV even for the case of SiO2c
+($\sim$ 0.001 eV for GaAs) for these parameters.
+We show similar check in Ref.\onlinecite{kotani_quasiparticle_2007}.
+%kino1 Maximum error is estimated to be $\sim$ 0.1 \eV 
+%kino1 in the case of SiO2c when compared with (8.0,6.0) (bohr)$^{-1}$.
+
+\item
+%xxx
+%kino1 このPBは当然MT内ですね。
+%kotani2 そうです。
+%Although the used PB is not so systematic,
+In our test cases of the PB in Table \ref{tab:pbset},
+we can estimate numerical errors caused by the choice of PB.
+As for PB in GaAs, 1.939 eV given by PB1 (REF) gives good agreement 
+with 1.946 eV by PB1$l$, which is the largest PB among what we used here.
+%kino1 Compared with others, PB2 looks better than PB0,PB0$t$,PB0$l$.
+%the band gaps converging with fluctuation in increasing the quality of PB.
+%kino1 This means that it can be a little efficient 
+%kin to include $\phi \times \phidot$ product in the generation of PB, although even 
+%kin PB0 without $\phidot$ gives only 0.01 eV difference from PB2l6.
+%It is probably safe to conclude that the band gap also has three-digit precision as to the PB. 
+%kino1 下）はtableのどれですか。
+For SiO2c, we have little dependence on the choice of the PB used here. 
+Especially, in case of PB0s, we use a set of PB on oxygen only with $l_{\rm cut}=2$.
+This choice reduces the computational time so much for larger systems.
+
+\item
+%kino1 EMAX=3,6,8のPW数はいくつですか。-->Table 2を見てください。
+The band gap gradually increases when we increase $\EMAX$ in GaAs.
+The band gap monotonically changes from 1.939 eV at $\EMAX$=3.0 Ry to 1.969 eV at $\EMAX$=6.0 Ry for 'vwn'
+(we see similar changes for 'vwn,es' where 1.945 eV to 1.982 eV).
+Thus we can not see convergence behavior within this range of $\EMAX$.
+This 1.969 eV can be taken as the best value for 'vwn' among performed
+calculations in the sense of largest number of APWs.
+Because of linear-dependency problem of the PMT method, 
+it is not easy to enlarge number of APWs.
+In addition, bands at high energy are not 
+necessarily so accurate enough 
+(we do not includes local orbital for high energy bands).
+Thus we inevitably takes this as a limitation of our current
+implementation of the PMT-QSGW.
+Recall that slow convergence on the number of unoccupied bands (= number
+of APWs in our case) is also observed in Ref.\cite{friedrich_band_2011}.
+
+We observe similar behavior in the case of SiO2c. 
+The band gap of SiO2c changes from 11.16 eV at $\EMAX$=3Ry (REF), 
+to 11.18 eV at $\EMAX$=6.0 Ry. We see similar change for 'vwn,es';
+it is from 10.49 eV at $\EMAX$=3.0 Ry to 10.41 eV at $\EMAX$=6.0 Ry. 
+%Thus it shows looks converged well 
+%as long as we allow $\sim$0.1 eV ambiguity.
+%kino1 SIO2cでどうしてE^MAX_sigmaが同時に変わっていますか。
+%kotani2 ーーー＞消しました。
+
+\item
+Let us discuss other points for GaAs. 
+
+At first, we see that using $\EMAXS$=3.0 Ry (marked by **) 
+gives little difference from REF (1.942-1.939 eV).
+Thus we may use $\EMAXS$=3.0 Ry to reduce computational efforts.
+
+We should take ``vwn,es'' gives better values 
+than ``vwn'' because we include the MTOs of ESs as bases.
+%The MTOs are used not only for the expansion of eigenfunctions, 
+%but also for the expansion of $\Dvxc$.
+We see the difference between 'vwn' and 'vwn,es' is small enough
+(1.945-1.939=0.006 eV at $\EMAX$= 3.0 Ry; 
+ 1.982 -1.969 = 0.013 eV at $\EMAX$= 6.0 Ry).
+Thus we do not need to use ESs for GaAs.
+
+There are other cases where we have no clear explanations.
+In the case of ``vwn,es'', 1.945 eV $\EMAXS$='all' changes to
+1.903 eV for $\EMAXS$= 3 Ry. Corresponding change in 'vwn'
+is from 1.939eV to 1.942 eV. 
+%This can be related to the fact %that the MTO in ESs is used for the
+%expansion of $\Dvxc$.
+
+When we use 'pbe' as the assistance of numerical calculation
+(explained at the bottom of \refsec{sec:ov}), result changes a little.
+The best value 2.002 eV (marked by *) show a little 
+difference of 0.02 eV from that in 'vwn,es' of 1.982 eV (marked by *).
+
+As a conclusion, except non-converging behavior on $\EMAX$,
+it might be safer to estimate numerical errors as $\sim$ 0.1 eV,
+based on the dependence on computational conditions.
+
+
+%However, the case ``vwn,es $\EMAXS=$3.0 Ry'' gives the band gap 1.903 eV, 
+%which is 0.04eV smaller than the case ``vwn,es $\EMAXS=$all''.
+%Considering a fact that eigenfunctions at high energy is not so accurate enough,
+%this can be an inevitable error.
+%The value 1.982 eV (marked by * in the Table) $\EMAXS=$ 6.0 Ry
+%is slightly larger than that of 'vwn', 1.969 eV.
+
+%Considering the efficiency of calculations with the allowance of such
+%level of error, we can use $\EMAXS=\EMAX=3.0$ Ry without ES (** in the Table),
+%except the unsolved problem on convergence of $\EMAX$.
+%
+%Again, note that we have not yet completely evaluated the basis size error;
+%it is not easy a job since we have to large cutoff for the case with large basis set.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item
+Let us discuss other points for SiO2c.
+
+In this case, we see large dependence on $\EMAXS$ for 'vwn'.
+It changes from 10.38 eV at $\EMAXS$=3.0Ry (marked by **) 
+to 11.16 eV for 'all' (REF). The difference 11.16-10.38=0.78 eV looks too
+large, much more than our target of numerical error $\sim$0.1 eV.
+In 'vwn,es', corresponding values are 10.09 eV and 10.49 eV, respectively. 
+%The difference 10.49-10.09 eV is a little less but it is
+%still not small enough.
+We see that the difference 10.38-10.09 eV for $\EMAXS$=3.0Ry
+between 'vwn' and 'vwn,es' is relatively small.
+However, the difference becomes larger as 11.16-10.49 eV for
+$\EMAXS$='all'. This means that the difference comes from the high
+energy part of the matrix elements of $\Dvxc$. 
+Generally speaking, higher energy parts are less reliable numerically.
+Considering the fact of no MTOs in ES, 
+we think 11.16 eV of REF is not so reliable.
+
+As we see the above paragraph, 
+it looks not easy to obtain convergence for $\EMAXS$ in this case.
+Thus we think that we need to introduce a restriction to have good numerical accuracy.
+That is, we claim ``we look for convergence for $\EMAXS$=3.0Ry''. 
+In fact, at $\EMAXS$=3.0Ry, the difference between 'vwn' and 'vwn,es' is
+10.38-10.09 eV, not too large. This indicates that we can calculate
+the QSGW band gap for $\EMAXS$=3.0Ry with the numerical error of
+$\sim$ 0.3 eV. %, even when we do not use ESs. 
+(in this case, 10.38 eV accidentally 
+gives good agreement with 'vwn,es' for $\EMAX$=6.0eV).
+
+%$We note the difference between the case with or without ES 
+%is very large, 11.16-10.49=0.67 eV 
+%(our analysis shows that main contribution to the differnce
+% is in the difference of electrostatic potential).
+% which can be caused not by its diagonal elements but by its off-diagonal elements.)
+%This is because we have not used the MTOs in the expansion of $\Dvxc$.
+
+Note that the difference between 'vwn,es' and 'pbe,es'. It gives an extra
+numerical error of $\sim$ 0.1eV.
+
+%Practically, we have a good agreement (within error of $0.1 \sim 0.2$ eV) 
+%in the case of 'vwn' with $\EMAXS=\EMAX=3.0$ Ry (marked by ** in the Table).
+%This means that we have to remove $\Dvxc$ given in the MTOs at ESs together
+%with high energy part of contribution to $\Dvxc$.
+% since the high-energy eigenfunctions, 
+%more than 3 Ry in this case, are mainly located at ESs.
+\end{enumerate}
+
+From the view of ``looking for best results of QSGW'',
+we should use large $\EMAXS$ and $\EMAX$ as possible.
+However, considering the above points,
+it is better to look for 
+convergences of ``QSGW under a constraint of $\EMAXS$ and $\EMAX$''
+from the view of numerical accuracy.
+%As we see, larger $\EMAXS$ may introduce numerical poorness in the case
+%of . 
+%In addition, we can not use very large $\EMAX$
+%because it introduces poorness of the linear-dependency of bases.
+%Simultaneously, we need to take into account computational costs 
+%(smaller $\EMAXS$ and $\EMAX$ are better).
+Here, we suggest to use the method 
+``QSGW with the constraint of $\EMAXS=\EMAX=3.0$ Ry'' 
+for practical calculations. However, remember that 
+it is safer to check effect of ESs 
+for each system if it has large interstitial regions such as SiO2c. 
+%Note that $\EMAXS$ has universal meanings
+%(not dependet on what kinds of one-body solver we use), although
+%$\EMAX$ is a cutoff which is meaningful only in the PMT method.
+%
+%It is not easy to evaluate numeircal error 
+%(difference from the case with $\EMAXS=\EMAX$='all') when we use the condition.
+%If we use ``$\EMAXS=\EMAX=3.0$ Ry without ESs'' for other systems,
+%we should take this a kind of approximation to the QSGW.
+
+
+There is another point of view for numerical error.
+At first, it may be not so meaningful 
+to repeat calculations for practical applications
+in order to figure out converged values in QSGW for $\EMAXS$ and
+$\EMAX$. This is because QSGW gives a little too large band gaps than
+experiments \cite{vans06,kotani_quasiparticle_2007}.
+For example, our best value of 10.41 eV (vwn) for SiO2c is much
+higher than the experimental value $\sim$ 8.9 eV
+\cite{sio2cgap}, thus not directly compared with experiments
+(Other QSGW calculation by Shaltat et al \cite{shaltaf_band_2008} 
+gives band gap 8.8 eV by QSGW for SiO2c. This is very different from our value
+10.41 eV.). We may correct this empirically by a hybrid method such as
+$(1-\alpha)\times$QSGW+$\alpha\times$LDA 
+as was used in \cite{chantis_ab_2006,kotani_impact_2010}
+when we like to have good agreement with experiments. Here we usually use $\alpha \sim$ 0.2.
+Thus, from a practical point of view, it will be better to
+take the parameter $\alpha$ as a combined correction of theoretical and numerical errors.
+%, mainly in order to compensate errors
+%due to the cutoffs $\EMAXS$ and $\EMAX$.
+
+%Considering these facts, it is not necessarily meaningful so much to perform
+%expensive and many calculations to figure out converged values.
+% Second, confirming convergence on $\EMAX$ is difficult job in cases.
+% Since QSGW is expensive calculation, we like to use small cutoff parameters;
+% it is too expensive to use large enough cutoff as default so that 
+% we are not bothered with convergence check.
+% Thus, it may be inevitable to apply 
+% QSGW to materials with a fixed setting such as $\EMAXS=\EMAX=3.0$ Ry, 
+% with allowance of numerical errors analyzed here, after minimum checks
+% for small reference systems.
+
+\begin{figure}[ht]
+\caption{\label{fig:nkconv}
+Dependence of the band gap as for the number of $\bfk$ 
+points in the 1st BZ for self-energy calculation.
+Integer $n$ of x-axis means the number of division of BZ is $n \times n \times n$.
+y-axis means the band gap. }
+%The label ``Q0Pchoice=1'' means to set the 
+%size of offset-$\Gamma$ point at the limit $\bfk \to 0$; ``Q0Pchoice=2'' means 
+%the middle size of $\bfk$ in the microcell of including the $\Gamma$ point.}
+\begin{flushleft}
+\includegraphics[width=8.5cm]{gaasnk.eps}
+\includegraphics[width=8.5cm]{sio2cnk.eps}
+\end{flushleft}
+\end{figure}
+\begin{figure}[ht]
+\caption{\label{fig:qsgwband}
+Band plot for GaAs, corresponding to the case of $10\times10\times10$ in Fig.\ref{fig:nkconv},
+and for SiO2c to the case of $8\times8\times8$.}
+\begin{flushleft}
+\includegraphics[width=8.5cm]{bandgaas.eps}
+\includegraphics[width=8.5cm]{bandsio2c.eps}
+\end{flushleft}
+\end{figure}
+In Fig.\ref{fig:nkconv}, we show the convergence check 
+about the number of $\bfk$ points for self-energy calculation in the 1st
+BZ (the $\bfk$ point mesh for electron density is fixed).
+The integer $n$ of x-axis means that 
+the used number of $\bfk$ points is $n\times n\times n$.
+As for GaAs, we see smooth convergence on the number of $\bfk$ points.
+%Q0Pchoice=2 gives slower congergence but getting to be closer to those of 
+%Q0Pchoice=1 at large $n$. The difference is  an indicator of error due 
+%to the integral on the microcell for integral including $\Gamma$ point.
+In the $4\times 4 \times 4$ calculation,
+we see $\sim$ 0.1eV overestimation in comparison with the value 
+at $10 \times 10 \times 10$. We need to choose number of $\bfk$ points,
+to have best accuracy within the allowed computational resources.
+%%%%%%%%%%%%%
+As for SiO2c, pay attention to the energy scale of y-axis.
+The difference of the gap between $n=2$ and $n=8$ is rather small, 
+only $\sim$0.04 eV. % for Q0Pchoice=1.
+In our analysis, unsmooth behavior of this plot
+is because of the cutoff of $\EMAXS$; see the dependence on $\EMAXS$ 
+in Table.\ref{tab:bandgapqsgw}. Energy bands near $\EMAXS$ are
+taken into account or not by a slight change of $\bfk$ point.
+%We see small differene $\sim$ 0.02 eV between Q0Pchoice=1 and Q0Pchoice=2 cases, 
+%however, this is not a serious problem in comparison 
+%with other ambiguities as seen in Fig.\ref{tab:bandgapqsgw}.
+
+In Fig.\ref{fig:qsgwband}, the energy dispersion curve for \QSGW\
+obtained with the largest number of $\bfk$ point cases in Fig.\ref{fig:nkconv}
+are shown, in order to show the difference from LDA/GGA 
+(These give very small band gaps. Not shown here).
+
+\section{summary}
+We have developed a new method, the PMT-QSGW method
+to perform the QSGW calculation based on the PMT method. 
+This is an extension of,
+FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}.
+PMT-QSGW have advantages 
+in the robustness, easy to use, and accuracy compared to FP-LMTO-QSGW.
+That is, we do not need to tune parameters for MTOs.
+%, we do not need to use empty spheres,
+Thanks to APWs, we can use highly localized MTOs
+with low energy APWs ($\sim$ 4 Ry). 
+Then we employ simplified interpolation procedure to the static component of the self-energy
+instead of previous complicated one in FP-LMTO-QSGW.
+
+We have shown detailed convergence check on the band gaps of two typical cases,
+GaAs and cubic SiO$_2$. We analyzed how the band gap depends
+on the cutoff parameters. Then we show the performance and accuracy of PMT-QSGW.
+%kino1 We see that common cutoff parameters can work well for both of 
+%kino1 GaAs and cubic SiO$_2$. 
+%%%We see that GaAs and cubic SiO2$_2$ have at least 
+%%%two-digit precision if we calculate them using the same parameter set. 
+%kino1 This is important since we will have to treat 
+%kino1 problems related to the mixture of materials, 
+%kino1 such as the band offsets and the Schottkey barriers.
+%kino1 どちらも収束するまでとる、また何桁まであう、という議論のはずです。
+%
+%We expect the same precision when we make interface between them, 
+%which will enables us to disscuss, e.g., the band offsets and the Schottkey barriers in the fut%ure in the QSGW scheme.
+Results shown in this paper can be reproduced by the PMT-QSGW  method implemented in the 
+\texttt{ecalj} package, which is freely available from github \cite{ecalj}.
+
+The PMT-QSGW method with the highly localized MTOs and low energy APWs
+is advantageous for theoretical treatment. 
+Techniques developed here can be useful even to go beyond QSGW.
+
+\  \\
+
+Acknowledgement:\\
+
+This work was partly supported by Advanced Low Carbon Technology Research and Development Program (ALCA) of Japan Science and Technology Agency (JST), and by Grant-in-Aid for Scientific Research 23104510. We also acknowledge computing time provided by Computing System for Research in Kyushu University.
+\bibliography{refsk}
+\end{document}

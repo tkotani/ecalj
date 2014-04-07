@@ -65,7 +65,7 @@ BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
                #Now you don't need to use NEVMX in double band-path method,
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
-      FSMOM={fsmom} (fixed moment method)
+      #FSMOM={fsmom} (fixed moment method)
       #  Set the global magnetic moment (collinear magnetic case). In the fixed-spin moment method, 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)

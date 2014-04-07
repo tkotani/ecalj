@@ -451,7 +451,7 @@ c$$$        s(ilb,ilb,ispc) = 1d0
 c$$$      enddo                      
 c$$$c mar2014
 
-c----- Cu test ---------------
+c$$$c----- Cu Fe 3d band extract test ---------------
 c$$$      print *,'test ddddddddddddddddddddd'
 c$$$      lb1=1                      
 c$$$      lb2=4                      
@@ -463,18 +463,17 @@ c$$$      do ilb=lb1,lb2
 c$$$        h(ilb,ilb,ispc) = 99d0
 c$$$        s(ilb,ilb,ispc) = 1d0    
 c$$$      enddo                      
-c$$$c$$$      lb1= 10                     
-c$$$c$$$      lb2= 20
-c$$$c$$$      h(lb1:lb2,:,ispc) = 0d0    
-c$$$c$$$      h(:,lb1:lb2,ispc) = 0d0    
-c$$$c$$$      s(lb1:lb2,:,ispc) = 0d0    
-c$$$c$$$      s(:,lb1:lb2,ispc) = 0d0    
-c$$$c$$$      do ilb=lb1,lb2             
-c$$$c$$$        h(ilb,ilb,ispc) = 99d0
-c$$$c$$$        s(ilb,ilb,ispc) = 1d0    
-c$$$c$$$      enddo                      
-c$$$c$$$      lb1= 26                     
-c$$$      lb1=10
+c$$$      lb1= 10                     
+c$$$      lb2= 20
+c$$$      h(lb1:lb2,:,ispc) = 0d0    
+c$$$      h(:,lb1:lb2,ispc) = 0d0    
+c$$$      s(lb1:lb2,:,ispc) = 0d0    
+c$$$      s(:,lb1:lb2,ispc) = 0d0    
+c$$$      do ilb=lb1,lb2             
+c$$$        h(ilb,ilb,ispc) = 99d0
+c$$$        s(ilb,ilb,ispc) = 1d0    
+c$$$      enddo                      
+c$$$      lb1= 26                     
 c$$$      lb2= ndimh
 c$$$      h(lb1:lb2,:,ispc) = 0d0    
 c$$$      h(:,lb1:lb2,ispc) = 0d0    

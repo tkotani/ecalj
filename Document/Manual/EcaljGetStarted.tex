@@ -1093,8 +1093,8 @@ What we did is the one-shot GW from LDA result; but note that we
 calculate not only diagonal elements but also off-diagonal elements. 
 
 We can write energy dispersion (band plot) in the same manner in LDA.
-To do it, we need rst.si, sigm.si, ctrl.si, QGpsi, and ESEAVR.
-(but QGpsi and ESEAVR are quickly reproduced). After you have syml.si
+To do it, we need rst.si, sigm.si, ctrl.si, QGpsi.
+(but QGpsi is quickly reproduced). After you have syml.si
 (e.g. in ecalj/MATERIALS/), Do
 \begin{verbatim}
     $ job_band_nspin1 si
@@ -1217,10 +1217,10 @@ Do LDA and/or QSGW with SO=0 first.
 Then apply the spin-orbit coupling by perturbation.
 
 After converged with nspin=1 (or 2), create new directory and copy
-  ctrl.gas, rst.gas, sigm.gas, QGpsi, ESEAVR
+  ctrl.gas, rst.gas, sigm.gas, QGpsi,
 to it. Then we set
   nspin=2 
-  METAL=3 (usually it is default)
+  METAL=3 (usually this is default)
   SO=1  (this is ldots calculation off-diagonal elements included).
   Q=band (we do not change potential.)
 in ctrl.gas. 

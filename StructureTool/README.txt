@@ -12,7 +12,6 @@ If you see something wrong or inconvenient, let t.kotnai know it.
 
 ========
 INSTALL:
- You may need to add path to here, kytool/ to invoke following commands such as vasp2ctrl.py.
 
  As a viewer, we  can use VESTA (http://jp-minerals.org/vesta/jp/download.html).
  This is required to invoke viewer by a command viewvesta.py in the followings
@@ -46,7 +45,7 @@ We now have three commands below. These command uses functions in convert/, so r
     ../vasp2ctrl.py ctrl.nio 
 
 *vasp2ctrl.py
-  ctrl file to POSCAR file. (current version is for Cartesian, but not so difficult if you like Direct).
+  POSCAR file to ctrl. (current version is for Cartesian, but not so difficult if you like Direct).
   E.g: 
     mkdir TEST
     cd TEST
