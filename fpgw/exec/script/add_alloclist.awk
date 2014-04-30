@@ -145,13 +145,13 @@ func level0comma_size(str, name,istart, n,level,i,s,result,pos,dim,ndim ) {
  s=g_name
  if (iomp>0) { s= s"/omp"iomp }
  if (iomp>0) { print "!$OMP critical" }
- printf("      call add_alloclist(\"%s\",kind(%s),\n",s,g_name) 
- printf("     & int8(") 
+ printf("      call add_alloclist(\"%s\",storage_size(%s)/8,\n",s,g_name) 
+ printf("     & int(") 
  for (i=0;i<ndim;i++) {
    printf("(%s)",dimsize1(dim[i]))
    if (i!=ndim-1) { printf("*"); }
  }
- printf("))  !omplevel%i\n",iomp);
+ printf(",kind=8))  !omplevel%i\n",iomp);
  if (iomp>0) { print "!$OMP end critical" }
 }
 
@@ -165,18 +165,18 @@ func dimsize1(str, n) {
 }
 
 
-func process_allocate0(str,   n,i,a,name) {
-  
-  gsub("^     [^ ]","",str)
-  gsub("\!.*$","",str);
-  gsub("^ .*allocate[(]","",str);
-  gsub("[)][ ;]*$","",str);
-  gsub("[(][^(]*[)]"," ",str)
-  gsub("," , " ",str);
-  n=split(str,a)
-  for (i=1;i<=n;i++) {
-    name=a[i]
-    printf("%scall add_patable(\"%s\",int(kind(%s)),int8(dim(%s)))\n", spc,name,name,name)
-  }
-}
+#func process_allocate0(str,   n,i,a,name) {
+#  
+#  gsub("^     [^ ]","",str)
+#  gsub("\!.*$","",str);
+#  gsub("^ .*allocate[(]","",str);
+#  gsub("[)][ ;]*$","",str);
+#  gsub("[(][^(]*[)]"," ",str)
+#  gsub("," , " ",str);
+#  n=split(str,a)
+#  for (i=1;i<=n;i++) {
+#    name=a[i]
+#    printf("%scall add_patable(\"%s\",int(storage_size(%s)/8),int8(dim(%s)))\n", spc,name,name,name)
+#  }
+#}
 
