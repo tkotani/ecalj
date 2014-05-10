@@ -8,6 +8,13 @@ set n = $0
 set nfpgw = ${n:h}
 echo $nfpgw
 echo $argv[1]
+echo $#argv
+if ($#argv == 4) then
+ set n1 = $argv[2]
+ set n2 = $argv[3]
+ set n3 = $argv[4]
+ goto skipn
+endif   
 
 echo "== Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! =="
 echo "== For QSGW, this is reflected in n1n2n3 in GWinput.tmp You can "
@@ -18,7 +25,10 @@ echo -n ' n2= '
 set n2 = $<
 echo -n ' n3= '
 set n3 = $<
+
+skipn:
 echo $n1 $n2 $n3 
+
 
 # This is bug fix for lmto
 #if( `grep -l GW ctrl.$argv[1]` != ctrl.$argv[1]) then

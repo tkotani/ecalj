@@ -120,18 +120,23 @@ for matr in choosedmaterials:
     #print STRUCTURE
     aaa= re.sub(STRUCTURE,'',material[matr]).lstrip()
     matdat= re.split(r'\s+',aaa)
-    #print  matdat
+    print  matdat
     #sys.exit()
     constdat=''
     option=''
     optionlmf=''
+    optiongw=''
     for ii in matdat:
+        print ii
         if re.match(r'@[0-9]+=',ii):
             pass
         elif re.match(r'--\w*',ii):
             option=option +' ' + ii
         elif re.match(r'lmf-+\w*',ii):
             optionlmf=optionlmf +' ' + ii.lstrip('lmf')
+        elif re.match(r'mkGW-+\w*',ii):
+            optiongw= ii.lstrip('mkGW-')
+            optiongw= ' '+re.sub(',',' ',optiongw)+ ' '
         else:
             constdat=constdat+' '+ii
         
@@ -183,6 +188,10 @@ for matr in choosedmaterials:
     os.chdir(wdir)
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
+    print    'mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN'
+    os.system('mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN')
+    os.system('cp GWinput.tmp GWinput')
+   
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   
     joblmf='mpirun -np '+numcore+' lmf-MPIK  '+ext+optionlmf+' >llmf'
     print 'Runnning!: ',joblmf,  '   ;this is in joblmf file.'

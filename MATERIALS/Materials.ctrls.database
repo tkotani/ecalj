@@ -276,78 +276,78 @@ DATASECTION:
 #######################################################
 
 #http://www.siliconfareast.com/lattice_constants.htm
-C  DIA: @1=C  a= 3.56683/bohr   --nk1=8 
-Si DIA: @1=Si a= 5.43095/bohr   --nk1=8
-Ge DIA: @1=Ge a= 5.64613/bohr   --nk1=8
-Sn DIA: @1=Sn a= 6.48920/bohr  --nk1=8 #gray tin alpha-tin
+C  DIA: @1=C  a= 3.56683/bohr   --nk1=8 mkGW-6,6,6
+Si DIA: @1=Si a= 5.43095/bohr   --nk1=8 mkGW-6,6,6
+Ge DIA: @1=Ge a= 5.64613/bohr   --nk1=8 mkGW-6,6,6
+Sn DIA: @1=Sn a= 6.48920/bohr  --nk1=8  mkGW-6,6,6 #gray tin alpha-tin
 
 #takao from J.App Physics Reviw89  5815(2001), 
-GaAs ZB: @1=Ga @2=As a=5.65325/bohr     --nk1=8 
-GaAs_so ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8 lmf-vso=1 lmf-vnspin=2
-AlAs ZB: @1=Al @2=As a=5.6611/bohr      --nk1=8 
-InAs ZB: @1=In @2=As a=6.0583/bohr   --nk1=8 
-GaP  ZB: @1=Ga @2=P  a=5.4505/bohr   --nk1=8 
-AlP  ZB: @1=Al @2=P  a=5.4672/bohr   --nk1=8 
-InP  ZB: @1=In @2=P  a=5.8697/bohr   --nk1=8 
-GaSb ZB: @1=Ga @2=Sb a=6.0959/bohr   --nk1=8 
-AlSb ZB: @1=Al @2=Sb a=6.1355/bohr   --nk1=8 
-InSb ZB: @1=In @2=Sb a=6.4794/bohr   --nk1=8 
-GaN WZ: @1=Ga @2=N  a=3.189/bohr c=5.189/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4
-AlN WZ: @1=Al @2=N  a=3.112/bohr c=4.982/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4
-InN WZ: @1=In @2=N  a=3.545/bohr c=5.703/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4
-GaNzb ZB: @1=Ga @2=N  a=4.50/bohr     --nk1=8
-AlNzb ZB: @1=Al @2=N  a=4.38/bohr     --nk1=8
-InNzb ZB: @1=In @2=N  a=4.98/bohr     --nk1=8
+GaAs ZB: @1=Ga @2=As a=5.65325/bohr     --nk1=8 mkGW-6,6,6
+GaAs_so ZB: @1=Ga @2=As a=5.65325/bohr  --nk1=8 lmf-vso=1 lmf-vnspin=2 mkGW-6,6,6
+AlAs ZB: @1=Al @2=As a=5.6611/bohr      --nk1=8 mkGW-6,6,6
+InAs ZB: @1=In @2=As a=6.0583/bohr   --nk1=8 mkGW-6,6,6
+GaP  ZB: @1=Ga @2=P  a=5.4505/bohr   --nk1=8 mkGW-6,6,6
+AlP  ZB: @1=Al @2=P  a=5.4672/bohr   --nk1=8 mkGW-6,6,6
+InP  ZB: @1=In @2=P  a=5.8697/bohr   --nk1=8 mkGW-6,6,6
+GaSb ZB: @1=Ga @2=Sb a=6.0959/bohr   --nk1=8 mkGW-6,6,6
+AlSb ZB: @1=Al @2=Sb a=6.1355/bohr   --nk1=8 mkGW-6,6,6
+InSb ZB: @1=In @2=Sb a=6.4794/bohr   --nk1=8 mkGW-6,6,6
+GaN WZ: @1=Ga @2=N  a=3.189/bohr c=5.189/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+AlN WZ: @1=Al @2=N  a=3.112/bohr c=4.982/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+InN WZ: @1=In @2=N  a=3.545/bohr c=5.703/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+GaNzb ZB: @1=Ga @2=N  a=4.50/bohr     --nk1=8 mkGW-6,6,6
+AlNzb ZB: @1=Al @2=N  a=4.38/bohr     --nk1=8 mkGW-6,6,6
+InNzb ZB: @1=In @2=N  a=4.98/bohr     --nk1=8 mkGW-6,6,6
 
 #-----------------------------------
-MgO  NACL: @1=Mg @2=O a=7.96 --nk1=8
-ZnO  WZ:   @1=Zn @2=O a=6.14933837 q=1.603 --nk1=6 --nk2=6 --nk3=4
-CdO  NACL: @1=Cd @2=O a=8.92        --nk1=8
-HgO  HGO:                           --nk1=3 --nk2=3 --nk3=6
-MgS  ZB: @1=Mg @2=S  a=10.6198035   --nk1=8
-ZnS  ZB: @1=Zn @2=S  a=10.23        --nk1=8
-CdS  ZB: @1=Cd @2=S  a=11.01        --nk1=8 
-HgS  ZB: @1=Hg @2=S  a=5.8517/bohr  --nk1=8   #beta-HgS
-MgSe ZB: @1=Mg @2=Se a=11.1678005   --nk1=8
-ZnSe ZB: @1=Zn @2=Se a=10.71        --nk1=8
-CdSe ZB: @1=Cd @2=Se a=11.44        --nk1=8 
-HgSe ZB: @1=Hg @2=Se a=11.5         --nk1=8 
-MgTe ZB: @1=Mg @2=Te a=12.1315193   --nk1=8
-ZnTe ZB: @1=Zn @2=Te a=11.53        --nk1=8
-CdTe ZB: @1=Cd @2=Te a=12.25        --nk1=8
-HgTe ZB: @1=Hg @2=Te a=12.21        --nk1=8
-PbS  NACL: @1=Pb @2=S  a=5.9362/bohr --nk1=8
-PbTe NACL: @1=Pb @2=Te a=6.4620/bohr --nk1=8
-wCdS WZ:  @1=Cd @2=S a=4.160/bohr c=6.756/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4
-wZnS WZ:  @1=Zn @2=S a=3.82/bohr  c=6.26/bohr  q=c/a  --nk1=6 --nk2=6 --nk3=4
-3cSiC ZB: @1=Si @2=C a=4.348/bohr  --nk1=8   # ZincBlend COD 9008856.cif 3C-SiC
-2hSiC WZ: @1=Si @2=C a=3.076/bohr c=5.048/bohr q=c/a --nk1=6 --nk2=6 --nk3=4 # 2H-SiC COD 9008875.cif
-4hSiC 4HSIC: --nk1=6 --nk2=6 --nk3=2
-SiO2c SIO2CRIST: a=13.54 --nk1=6  #sc-cubic-cristobalite 13.45485515
+MgO  NACL: @1=Mg @2=O a=7.96 --nk1=8 mkGW-6,6,6
+ZnO  WZ:   @1=Zn @2=O a=6.14933837 q=1.603 --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+CdO  NACL: @1=Cd @2=O a=8.92        --nk1=8 mkGW-6,6,6
+HgO  HGO:                           --nk1=3 --nk2=3 --nk3=6  mkGW-2,2,4
+MgS  ZB: @1=Mg @2=S  a=10.6198035   --nk1=8 mkGW-6,6,6
+ZnS  ZB: @1=Zn @2=S  a=10.23        --nk1=8 mkGW-6,6,6
+CdS  ZB: @1=Cd @2=S  a=11.01        --nk1=8 mkGW-6,6,6
+HgS  ZB: @1=Hg @2=S  a=5.8517/bohr  --nk1=8 mkGW-6,6,6  #beta-HgS
+MgSe ZB: @1=Mg @2=Se a=11.1678005   --nk1=8 mkGW-6,6,6
+ZnSe ZB: @1=Zn @2=Se a=10.71        --nk1=8 mkGW-6,6,6
+CdSe ZB: @1=Cd @2=Se a=11.44        --nk1=8 mkGW-6,6,6 
+HgSe ZB: @1=Hg @2=Se a=11.5         --nk1=8 mkGW-6,6,6
+MgTe ZB: @1=Mg @2=Te a=12.1315193   --nk1=8 mkGW-6,6,6
+ZnTe ZB: @1=Zn @2=Te a=11.53        --nk1=8 mkGW-6,6,6
+CdTe ZB: @1=Cd @2=Te a=12.25        --nk1=8 mkGW-6,6,6
+HgTe ZB: @1=Hg @2=Te a=12.21        --nk1=8 mkGW-6,6,6
+PbS  NACL: @1=Pb @2=S  a=5.9362/bohr --nk1=8 mkGW-6,6,6
+PbTe NACL: @1=Pb @2=Te a=6.4620/bohr --nk1=8 mkGW-6,6,6
+wCdS WZ:  @1=Cd @2=S a=4.160/bohr c=6.756/bohr q=c/a  --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+wZnS WZ:  @1=Zn @2=S a=3.82/bohr  c=6.26/bohr  q=c/a  --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+3cSiC ZB: @1=Si @2=C a=4.348/bohr  --nk1=8  mkGW-6,6,6 # ZincBlend COD 9008856.cif 3C-SiC
+2hSiC WZ: @1=Si @2=C a=3.076/bohr c=5.048/bohr q=c/a --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2  # 2H-SiC COD 9008875.cif
+4hSiC 4HSIC: --nk1=6 --nk2=6 --nk3=2 mkGW-4,4,2
+SiO2c SIO2CRIST: a=13.54 --nk1=6  mkGW-4,4,4 #sc-cubic-cristobalite 13.45485515
  
 #-----------------------------------
-Li BCC: @1=Li a=6.35  --nk1=12 
-Cu FCC: @1=Cu a=6.798 --nk1=12 
-Fe BCCMG: @1=Fe @11=26 @101=0,0,2,0  a=2.8665/bohr --nk1=12  --nspin=2
-Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5  a=3.524/bohr  --nk1=12  --nspin=2
-NiO NIOAF2: @1=Niup @2=Nidn @3=O  @11=28 @12=28 @13=8  @101=1.2 a=7.88 --nspin=2 --nk1=6 --nk2=6 --nk3=6
-HfO2 HFO2:  @1=Hf @2=O  a=6.700 --nk1=6 --nk2=6 --nk3=4
-ZrO2 ZRO2:  @1=Zr @2=O  a=6.726 --nk1=6 --nk2=6 --nk3=4
+Li BCC: @1=Li a=6.35  --nk1=12 mkGW-12,12,12
+Cu FCC: @1=Cu a=6.798 --nk1=12 mkGW-12,12,12
+Fe BCCMG: @1=Fe @11=26 @101=0,0,2,0  a=2.8665/bohr --nk1=12  --nspin=2 mkGW-12,12,12
+Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5  a=3.524/bohr  --nk1=12  --nspin=2 mkGW-12,12,12
+NiO NIOAF2: @1=Niup @2=Nidn @3=O  @11=28 @12=28 @13=8  @101=1.2 a=7.88 --nspin=2 --nk1=6 --nk2=6 --nk3=6 mkGW-4,4,4
+HfO2 HFO2:  @1=Hf @2=O  a=6.700 --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
+ZrO2 ZRO2:  @1=Zr @2=O  a=6.726 --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
 Ce FCC: @1=Ce a=9.052 --nk1=12 
 
 #-------------
-SrTiO3 PEROVSKITE: @1=Sr @2=Ti @3=O a=7.37   --nk1=6
-SrVO3  PEROVSKITE: @1=Sr @2=V  @3=O a=7.2644 --nk1=8 #metal
+SrTiO3 PEROVSKITE: @1=Sr @2=Ti @3=O a=7.37   --nk1=6 mkGW-4,4,4
+SrVO3  PEROVSKITE: @1=Sr @2=V  @3=O a=7.2644 --nk1=8 mkGW-6,6,6 #metal
 
 #---- distorted perovskite. 20 atoms in a cell
-LaGaO3 LAGAO3: @1=La @2=Ga @3=O a=5.485/bohr b=7.770/bohr c=5.523/bohr --nk1=3 --nk2=2 --nk3=3
+LaGaO3 LAGAO3: @1=La @2=Ga @3=O a=5.485/bohr b=7.770/bohr c=5.523/bohr --nk1=3 --nk2=2 --nk3=3 mkGW-2,2,2
 
 #-------------
 #J. Phys.: Condens. Matter 8(1996) 3373–3384
-YMn2 C15: @1=Y @2=Mn a=14.51 --nk1=7
+YMn2 C15: @1=Y @2=Mn a=14.51 --nk1=7 mkGW-5,5,5
 
 #----http://titus.phy.qub.ac.uk/packages/LMTO/Building_FP_input_file.html
-Bi2Te3 BI2TE3: @1=Bi @2=Te a=4.7825489 coa=4.0154392 --nk1=5 lmf-vso=1 lmf-vnspin=2
+Bi2Te3 BI2TE3: @1=Bi @2=Te a=4.7825489 coa=4.0154392 --nk1=5 lmf-vso=1 lmf-vnspin=2 mkGW-3,3,3
 
 ------- Don't delete this line (end of DATASECTION)  -----
 

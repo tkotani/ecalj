@@ -405,7 +405,7 @@ C...
       complex(8):: pomatr(nnmx,nomx,nkpo),zwzs0
       real(8):: qrr(3,nkpo)
 
-      logical:: timemix =.false., oncew
+      logical:: timemix =.true., oncew
       real(8)   :: fffr(3)
       integer(4)::nwp,nw_i,ixsmin,iwp,iwm,isxmin,nwxi,nwx,iir
 
@@ -478,6 +478,9 @@ c      print *,'emax_d_sigm=',emax_d_sigm
 
       if(debug) print *, ' sxcf: 1'
       allocate(expikt(natom))
+cccccccccccccccccccccc
+      print *, 'sssssssss',sizeof(expikt)
+ccccccccccccccccccccccc
 
 !TIME1 "before 1001"
 
@@ -591,6 +594,8 @@ c     if(exchange) iqend=nqibz
             else
                qibz_k= 0d0
             endif
+            if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
+            if(timemix) call timeshow("11111 k-cycle")
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c test
@@ -616,8 +621,6 @@ c               cycle
 c            endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-            if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
-            if(timemix) call timeshow("11111 k-cycle")
             call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
 c     ngc = ngcni(k)  ! k-points in IBZ
             ngb = nbloch + ngc
@@ -697,6 +700,11 @@ c$$$  vcousq=sqrt(vcoud) !
 !     ! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
                if(allocated(ppovlz)) deallocate(ppovlz)
                allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+cccccccccccccccccccc
+               print *,'sssssssssssssss',sizeof(ppovlz)/1000000.
+               print *,'sssssssssssssss',sizeof(ppovlz(1,1))
+               print *,'sssssssssssssss',sizeof(ppovlz(1,1)),sizeof(reshape(ppovlz,(/1/)))
+ccccccccccccccccccccccccccc
                call readppovl0(qibz_k,ngc,ppovl)
 c nnnnnnnnnnn comment out mulipled by ppovl. 
                ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
@@ -954,12 +962,14 @@ c>>   valence
 !TIME1 "bfore psi2b_v2"
 !TIME0
 !     ! -- IPW part.
-               allocate( rmelt(ngb, nctot+nbmax, ntqxx), ! nstate= nctot+nband
-     &              cmelt(ngb, nctot+nbmax, ntqxx))
                if(debug) print *, ' sxcf_fal1: goto drvmelp2 xxx111'
                allocate(drealzzzmel(nbloch,nt,ntqxx),dimagzzzmel(nbloch,nt,ntqxx))
                drealzzzmel=dreal(zzzmel)
                dimagzzzmel=dimag(zzzmel)
+               deallocate(zzzmel)
+c-------------------------------
+               allocate( rmelt(ngb, nctot+nbmax, ntqxx), ! nstate= nctot+nband
+     &              cmelt(ngb, nctot+nbmax, ntqxx))
                call drvmelp2( q,             ntqxx, ! q in FBZ
      i              q-qbz_kr,  nbmax, ! q-rk
      i              qibz_k,     ! k in IBZ for mixed product basis. rk = symope(qibz_k) 
@@ -1081,7 +1091,7 @@ c     &  ,rmel (ibl,it,itp) ,cmel (ibl,it,itp)
 c     enddo
 cccccccccccccccccccccccccccccccccccccccccccccc
 
-               deallocate(zzzmel) !rmel,cmel)
+               if(allocated(zzzmel))deallocate(zzzmel) !rmel,cmel)
 c     
                if(debug) print *, ' sxcf: goto wtt'
                if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")
@@ -2061,6 +2071,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !KINO               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
 !TIME0 
 !     May2006 simplified version ===================================================
+               allocate(zwz44(3,ntqxx),zwz4(3,ntqxx))
+
                do 2001 itp = 1,ntqxx ! loop over states (q-k,n)
                   omg = omega(itp)
                   if (omg >= ef) then
@@ -2148,7 +2160,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         endif
 c     this contribution to zsec_nn is real (hermitean)
                      elseif(iSigma_en == 3) then
-                        allocate(zwz4(ntqxx,3)) !itpp
+c                        allocate(zwz4(ntqxx,3)) !itpp
                         zwz4=(0d0,0d0)
 CYY!$OMP parallel do private(ix,zz2)
                         do ix0=1,3
@@ -2168,9 +2180,9 @@ c                            zwz4(1:ntqxx,ix0)=zwz4(1:ntqxx,ix0)+ zz2*zmel1_(1:n
                              call zaxpy(ntqxx,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
                            enddo !igb2
                         enddo   !ix
-                        allocate(zwz44(3,ntqxx))
+c                        allocate(zwz44(3,ntqxx))
                         zwz44 = transpose(zwz4)
-                        deallocate(zwz4)
+c                        deallocate(zwz4)
 c$$$c sep2013t
 c$$$                        if(itp>ntqxxd) then
 c$$$                           inii=itp; iendi=itp
@@ -2189,7 +2201,7 @@ c$$$                        do 2021 itpp=inii,iendi
      .                             + wfac*alagr3z(we,freq_r(ixs-1),zwz44(1,itpp))
                            endif
  2021                   continue !itpp
-                        deallocate(zwz44)
+c                        deallocate(zwz44)
                      endif      ! inner iSigma_en=1 or 3
 c     this contribution to zsec_nn' is not hermitean because W(e_n)
 c     and must be made hermitean when zsec will be written on disc
