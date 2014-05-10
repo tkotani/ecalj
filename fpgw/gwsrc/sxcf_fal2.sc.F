@@ -2071,7 +2071,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !KINO               write(*,'(a,5i6)')'kino: ntqxx,itini,itend,ngb=',ntqxx,itini,itend,ngb
 !TIME0 
 !     May2006 simplified version ===================================================
-               allocate(zwz44(3,ntqxx),zwz4(3,ntqxx))
+               allocate(zwz44(3,ntqxx),zwz4(ntqxx,3))
 
                do 2001 itp = 1,ntqxx ! loop over states (q-k,n)
                   omg = omega(itp)
@@ -2209,7 +2209,7 @@ c     and must be made hermitean when zsec will be written on disc
  2001          continue         !itp
 !TIME1 "end 2001 loop"
 !TIME0 
-               deallocate(zw3, zmel)
+               deallocate(zw3, zmel, zwz44,zwz4)
                if(verbose()>50)call timeshow("11after alagr3z iw,itp,it cycles")
                if(debug) print *,' end of do 2001 or 2002 '
  1050          continue
