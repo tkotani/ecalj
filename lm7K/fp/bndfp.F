@@ -260,7 +260,7 @@ ckino lswtk must be 0 initially.
       real(8) ,allocatable :: gpot0_rv(:)
       real(8) ,allocatable :: hab_rv(:)
       real(8) ,allocatable :: hbyl_rv(:,:,:)
-      real(8) ,allocatable :: ppnl_rv(:)
+      real(8) ,allocatable :: ppnl_rv(:,:,:,:)
       real(8) ,allocatable :: qbyl_rv(:,:,:)
       real(8) ,allocatable :: qmom_rv(:)
       real(8) ,allocatable :: sab_rv(:)
@@ -407,24 +407,33 @@ ctakao
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),vadd
 
-      logical:: fsmode !for --fermisurface for xcrysden.
+      logical:: fsmode,PROCARon !for --fermisurface for xcrysden.
       integer:: nkk1,nkk2,nkk3 !for fermi surface mode for xcrysden.
                                ! add --fermisurface #1 #2 #3
                                ! only implemented for lmf-MPIK now.
       integer:: ini,iend,nbxx
-ccccccccccccccccc
+
 c mar2014
       integer:: lb1,lb2
-ccccccccccccccccc
+      integer:: iprocar,iprocar1,iprocar2
+      complex(8),allocatable:: auspp(:,:,:,:,:)
+      integer:: l,m,ilm,nlma,iband
+      complex(8):: au,as,az
+      real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100)
+      character*256:: ccc
+
+
 
       call tcn ('bndfp')
+      debug=cmdopt('--debug',6,0,strn)
 !! === MPI setup ===
       procid = mpipid(1)
       master = 0
+!! === computational modes switches
       mlog = cmdopt('--mlog',6,0,strn)
-!! computational modes
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
+
 !! fermi surfece mode for xcrysden http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
       if(fsmode) then
@@ -552,6 +561,9 @@ ctakao sep2010 !complicated.
 c      I think nspc=2 for non-colinear case.
 c      allocate(evl(ndham,2))
       allocate(evl(ndhamx,nspx))
+cccccccccccccccc
+      print *,'qqqqqx',ndhamx,nspx
+ccccccccccccccc
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
       pwmode =sham%pwmode
@@ -724,6 +736,23 @@ C     Switch to plot bands at specified qp
 !! isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
       l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 
+!! == PROCAR file open for pdos mode 
+      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
+      if(plbnd/=0.and.PROCARon) then
+        iprocar1=9139
+        inquire(unit=iprocar1,opened=nexist)
+        if(nexist) stop 'bndfp: I assumed ifio=9139 is not used(too sloppy)'
+        open(iprocar1,file='PROCAR.UP')
+        if(nsp==2) then
+           iprocar2=9140
+           inquire(unit=iprocar2,opened=nexist)
+           if(nexist) stop 'bndfp: I assumed ifio=9140 is not used(too sloppy)'
+           if(nspc/=2) then !non-colinear case nspc=2 ->skip
+           open(iprocar2,file='PROCAR.DN')
+           endif
+        endif
+      endif
+
 !! --- Define local arrays used in the generation of the potential ---
       lnoxc = 0
       if (jobgw .eq. 2) lnoxc = 1
@@ -733,7 +762,7 @@ C     Switch to plot bands at specified qp
       allocate(hab_rv(nab*n0*nsp*nbas))
       allocate(vab_rv(nab*n0*nsp*nbas))
       allocate(sab_rv(nab*n0*nsp*nbas))
-      allocate(ppnl_rv(nppn*n0*nsp*nbas))
+      allocate(ppnl_rv(nppn,n0,nsp,nbas))
       allocate(fes1_rv(3*nbas))
 
 !! dfaugm alllocates and initializes variables
@@ -1802,10 +1831,9 @@ c            print *,'bndfp: lpdiag i=',lpdiag,i
               if(lpdiag==2) allocate(t_zv(ndimhx**2))
               if(lpdiag==0) allocate(t_zv(ndimhx*nmx))
             endif
-            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx**2
+            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,lpdiag,nmx,ndimhx
 
             if(debug) print *,'paralell diagonalization switch lpdiag=',lpdiag
-
 !! lpdiag selection
             if(lpdiag==1) then
               call rx('parallel diag is not yet. Need to implement. See bndfp.F.')
@@ -1872,10 +1900,27 @@ c     then how can I share the same file among the different processes?
 #endif
                      initiqisp=.false.
                   endif  
-               endif 
-c     print *,' goto zhev_tk2 nmx=',nmx
+               endif
+               if(PROCARon) then !!2014mar for band weight mode
+                  nmx=ndimhx
+                  nev=ndimhx
+                  savez=.false.
+                  getz=.false.
+                  nmx = ndimhx
+                  if(allocated(t_zv)) deallocate(t_zv)
+                  allocate(t_zv(ndimhx*ndimhx))
+               endif
                call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
      .              evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
+ccccccccccccccccccccccccccccccccccccccccccccccc
+c               print *,'qqqqq',jsp,nev
+c            write (6,"('qqqqqqqqqqq',100f7.3)") (evl(i,jsp),i=1,nev)
+ccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccc
+               if(debug) write(6,"('xxx iq sumcheck eigenvector=',i4,i5,i5,d13.5)") 
+     &         iq,ndimhx,nev,sum(abs(t_zv(1:ndimhx*nev)))
+c               write(6,*) 'allocated',allocated(t_zv)
+ccccccccccccccccccccccccccccccccccccccccccccc
 !     ! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
 
 !     ! nmx: number of eigenfunctions
@@ -1966,8 +2011,9 @@ c                endif
 #endif
 c##### !MPIK
 
-c             print *,' nmx nev=',nmx,nev
+            if(debug) print *,' nmx nev=',nmx,nev
             if( debug) print *, 'tttttttttt 11111 plbnd=',plbnd
+
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
 C   ... Copy eigenvalues into array containing ev for all qp
@@ -2038,6 +2084,7 @@ C   --- Mulliken analysis and partial DOS ---
      .                   nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
                     allocate(doswt_rv(nchan*ndimhx*nspc))
                     doswt_rv(:)=0.0d0
+!!
                     call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
      .                   , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
      .                   , doswt_rv )
@@ -2112,15 +2159,73 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
 !!   === Save evals for this qp ===
 #ifndef MPIK
             elseif (plbnd .ne. 0) then
-              write(*,*)  'case plbnd.ne.0 (no MPIK) iq=',iq
+                if(debug) write(*,*)  'plbnd/=0 (noMPI)', ndham,jsp,isqp
               if (nfbn(1)>0 .and. n_listwf>0) then
                 call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
      .          ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
      .          ,  n_listwf,listwf    )
               endif
+!! === may2014 === decompose to alm components. PROCAR generation.
+c ? no nsites is used?
+             if(PROCARon) then
+              if(isp==1) iprocar=iprocar1
+              if(isp==2) iprocar=iprocar2
+              if(debug)  print *,'iiiii =',iprocar1,iprocar2,isp,iprocar
+              nlmax = nl*nl
+              if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
+              allocate( auspp(nlmax,ndham*nspc,3,nsp,nbas) )
+              ccc="ion      s     py     pz     px    dxy    dyz    dz2    dxz    dx2"//
+     &        "    f-3    f-2    f-1     f0     f1     f2     f3    tot"
+              write(iprocar,*)
+              write(iprocar,*)
+              write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------')") iq,qp
+              write(iprocar,*)
+              auspp = 0d0
+              call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+     .             0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
+     .             nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
+              do iband = 1, nev
+              write(iprocar,*)
+              write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. = -----' )")iband,evl(iband,jsp)*rydberg
+              write(iprocar,*)
+              dwgtt=0d0
+              do ib = 1, nbas
+                 is  = ssite(ib)%spec
+                 ilm = 0
+                 dwgt=0d0
+                 do  l = 0, sspec(is)%lmxa
+                 do  m = -l, l
+                    ilm = ilm+1
+                    au = auspp(ilm,iband,1,isp,ib)
+                    as = auspp(ilm,iband,2,isp,ib)
+                    az = auspp(ilm,iband,3,isp,ib)
+                    s11 = dconjg(au)*au*ppnl_rv(2,l+1,isp,ib)
+                    s22 = dconjg(as)*as*ppnl_rv(7,l+1,isp,ib)
+                    s33 = dconjg(az)*az*ppnl_rv(8,l+1,isp,ib)
+                    s12 = 0
+                    s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,isp,ib)
+                    s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,isp,ib)
+                    dwgt(ilm)= s11+s22+s33 + s12+s13+s23
+                 enddo
+                 enddo
+                 dwgtt = dwgtt + dwgt(1:ilm)
+                 if(ib==1)  write(iprocar,"(a)") trim(ccc)
+                 write(iprocar,"(i3,100(x,f6.5))")ib,(dwgt(i),i=1,16),sum(dwgt)
+                 if(ib==nbas) write(iprocar,"('tot',100(x,f6.5))")(dwgtt(i),i=1,16),sum(dwgtt)
+              enddo
+              enddo
+              deallocate( auspp )
+             endif 
+!!
+              if(debug) print *,'dddddd111'
               i = nsp
               if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+c              print *,' eee1',nevl,jsp,i
+c              print *,' eee2',allocated(evl)
+c              print *,' eee3',evl(1:2,jsp)
+c              print *,' eee3',evl(1:nevl,jsp)
               call suqlsw2(nevl,jsp,i,evl(1,jsp),qp) !takao
+              if(debug) print *,'ddddd2222'
               if (nfbn(1) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .          call rx('color weights not implemented when '//
@@ -2128,6 +2233,7 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
                 call suqlse ( ndimhx , jsp , i , ndimhx , 1 , nfbn , ifbls_iv 
      .          , ndhamx , t_zv , evl )
               endif
+              if(debug) print *,'ddddd333'
               if (nfbn(2) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .          call rx('color weights not implemented when '//
@@ -2135,19 +2241,26 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
                 call suqlse ( ndimhx , jsp , i , ndimhx , 2 , nfbn , ifbls_iv 
      .          , ndhamx , t_zv , evl )
               endif
+              if(debug) print *,'ddddd4444'
+
 #else
             elseif (plbnd .ne. 0) then
               if (procid.eq.master) then
                 write(*,*)  'case plbnd.ne.0 (MPIK),iq=',iq
+                if(debug) write(*,*)  'nnn ', ndham,jsp,isqp
               endif
               call dpscop(evl(1,jsp),evlall,ndhamx,1,1+ndham*(jsp-1+isqp),1d0)
+              if(debug) print *,'cccccccccccc (MPIK) lpdiag',lpdiag,allocated(t_zv)
 #endif
             endif
 
             if ( lpdiag = = 0.or.lpdiag = = 2 ) then
+              if(debug) print *,'cccccccccccc222 lpdiag',allocated(t_zv)
               if (allocated(t_zv)) deallocate(t_zv)
+              if(debug) print *,'cccccccccccc3333'
             endif
 !! == end loop over isp (main loop in parallel mode)==
+            if(debug) print *,'bbbbbbbb before 30'
    30       continue
             deallocate(igv2x)
           endif
