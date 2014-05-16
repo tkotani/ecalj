@@ -419,8 +419,9 @@ c mar2014
       complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: l,m,ilm,nlma,iband
       complex(8):: au,as,az
-      real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100)
+      real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
       character*256:: ccc
+      logical initbd
 
 
 
@@ -950,6 +951,7 @@ Cki  ifiese default value is not set.  set it to 0
        !this judges going through second pass or not.
       endif 
       ix99=0
+      xdat=0d0
    99 continue
       ix99=ix99+1 !ix99=2 for second pass
       ebot = 1000d0
@@ -2174,11 +2176,19 @@ c ? no nsites is used?
               nlmax = nl*nl
               if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
               allocate( auspp(nlmax,ndham*nspc,3,nsp,nbas) )
+              if(initbd) then
+                xdat = 0d0
+              else
+                xdat = xdat + dsqrt( sum((qp-qold)**2) )
+              endif
+              initbd=.false.
+              qold=qp
               ccc="ion      s     py     pz     px    dxy    dyz    dz2    dxz    dx2"//
      &        "    f-3    f-2    f-1     f0     f1     f2     f3    tot"
               write(iprocar,*)
               write(iprocar,*)
-              write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------')") iq,qp
+              write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)") 
+     &        iq,qp,xdat
               write(iprocar,*)
               auspp = 0d0
               call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
@@ -2186,7 +2196,7 @@ c ? no nsites is used?
      .             nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
               do iband = 1, nev
               write(iprocar,*)
-              write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. = -----' )")iband,evl(iband,jsp)*rydberg
+              write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
               write(iprocar,*)
               dwgtt=0d0
               do ib = 1, nbas
