@@ -2168,7 +2168,7 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
      .          ,  n_listwf,listwf    )
               endif
 !! === may2014 === decompose to alm components. PROCAR generation.
-c ? no nsites is used?
+c ? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
              if(PROCARon) then
               if(isp==1) iprocar=iprocar1
               if(isp==2) iprocar=iprocar2

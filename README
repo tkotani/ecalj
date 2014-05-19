@@ -293,6 +293,13 @@ This shows you band by LDA.
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
 
+=======
+May19.2014
+PROCASR mode for lmf (not yet in lmf-MPIK)
+Band weight decomposition. 
+(Size of circles show the size of components. Super posed on band
+plot). See ecalj/MATERIALS/MgO_PROCAR/README.
+
 
 ######## MEMO: ----not read this ---- #########
 branch x0mpi_merge (6b5e3, Aug2013): 
