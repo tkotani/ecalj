@@ -555,6 +555,9 @@ c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
       ndhamx = ndham*nspc
       nspx = nsp / nspc
+!! iprint=0 except master.
+c      print *,' id iprint=',procid,iprint()
+
 !! related to the error in rseq. clean up RSEQ_ERROR at first because
 !! this error is only fatal when it is finaly converged. takaoNov28_2010
       idummy=unlink('RSEQ_ERROR')
@@ -562,9 +565,6 @@ ctakao sep2010 !complicated.
 c      I think nspc=2 for non-colinear case.
 c      allocate(evl(ndham,2))
       allocate(evl(ndhamx,nspx))
-cccccccccccccccc
-      print *,'qqqqqx',ndhamx,nspx
-ccccccccccccccc
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
       pwmode =sham%pwmode
@@ -1260,6 +1260,7 @@ c     this block is just to get list of qp. suqlst should be cleaned up in futur
 C     kino ib=atom index
 C     kino ltab=L
 C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
+         if(iprint()>29) then
          write(6,*)
          write(6,*) ' --- Hamiltonian index ---'
          write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
@@ -1272,6 +1273,7 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
             write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
      &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
          enddo
+         endif
       endif
 
 !     ! === generate \Sigma for q points on all the mesh points. ===
@@ -1484,6 +1486,7 @@ c     print *,' m2222 procid=',procid
         call tcx('bndfp')
 #if MPIK
         call mpi_barrier(MPI_COMM_WORLD,ierr) 
+c        call mpi_finalize(ierr)  !NOTE: exit() in sunroutine seems to contain rx0.
 #endif
         call rx0('sugw mode') !exit program here normally.
       endif
@@ -1609,7 +1612,7 @@ cnnn
               if (ndimh .gt. ndham) then
                 call fexit2(-1,111,'%N Exit -1 : BNDFP: '//
      .          'ndimh=%i exceeds ndham=%i.  Try increasing '//
-     .          'input NPWPAD',ndimh,ndham)
+     .          'input HAM_NPWPAD',ndimh,ndham)
               endif
             else
               ndimh = ldim

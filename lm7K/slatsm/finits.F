@@ -39,9 +39,9 @@ C Passed parameters
       include "mpif.h"
       common /mpifinits/ starttime, endtime
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, i )
-      if (procid .eq. master) then
+c      if (procid .eq. master) then
         starttime = MPI_WTIME()
-      endif
+c      endif
 #endif
 
       call awrit0('%u',' ',80,0)
@@ -109,7 +109,7 @@ Cr Remarks
 Cu Updates
 Cu   03 Jul 03 Open file tmp with fopnT, for local directories (MPI)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters 
       integer retval,iopt
       character*(*) strng
@@ -121,7 +121,7 @@ C Local parameters
       character*1 timeu
       character*256 strn, datim*26, hostnm*20
       logical isopen
-      integer master,procid
+      integer master,procid,ierr
       parameter (master = 0)
 
 #if MPI | MPIK
@@ -136,29 +136,31 @@ C Local parameters
 
     5 continue
       procid = mpipid(1)
-      if (procid .eq. master) then
+c      if (procid .eq. master) then
+      if (procid .eq. master.or. retval/=0) then
         i = getdig(iopt,0,10)
         if (i .ne. 0) then
-          if (i .eq. 9) then
-            strn = ' Exit %i '//strng
-            if (iprint() .gt. 0) then
-              call strip(strn,i,i2)
-              i2 = min(i2,scrwid)
-              call awrit1(strn,' ',i2,i1mach(2),retval)
-            endif
-C          print 345, retval, strng(1:min(len(strng),scrwid-9))
-C  345     format(' Exit',i3,' ',a)
-          else
-            if (iprint() .gt. 0) then
-              call awrit3(strng,strn,-scrwid,i1mach(2),args,arg2,arg3)
-            endif
-C         strn = strng
-C         print strn, retval, (args(j), j=1,i)
-          endif
+           if (i .eq. 9) then
+              strn = ' Exit %i '//strng
+cc              if (iprint() .gt. 0) then
+                 call strip(strn,i,i2)
+                 i2 = min(i2,scrwid)
+                 call awrit1(strn,' ',i2,i1mach(2),retval)
+cc              endif
+C     print 345, retval, strng(1:min(len(strng),scrwid-9))
+C     345     format(' Exit',i3,' ',a)
+           else
+cc              if (iprint() .gt. 0) then
+                 call awrit3(strng,strn,-scrwid,i1mach(2),args,arg2,arg3)
+cc              endif
+C     strn = strng
+C     print strn, retval, (args(j), j=1,i)
+           endif
         endif
 
         i = getdig(iopt,1,10)
-        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
+c        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
+        if (i .ne. 0 .and. cpusec() .ne. 0) then
           timeu = 's'
           tnew = cpusec()
           if (tnew .gt. 3600) then
@@ -202,11 +204,9 @@ C        goto 11
 C      endif
       call tcprt(i1mach(2))
 
-#ifndef IBM_VM
-      call closea
-#endif
 #if MPI | MPIK
-      if ( procid .eq. master ) then
+c      if ( procid .eq. master ) then
+      if ( procid .eq. master .or. retval/=0 ) then
         endtime = MPI_WTIME()
 
 c takao. Why this cause a stop???
@@ -216,11 +216,14 @@ c---
 c        call awrit2('%N MPI Wall-clock time: %;3ds. Resolution %;9ds%N',
 c     .              ' ',128,i1mach(2),endtime-starttime,MPI_WTICK())
       endif
-      call MPI_FINALIZE(i)
+      if(retval/=0) then
+         print *,'fexit,fexit2,fexit3 error retval=',retval
+         call MPI_abort(MPI_comm_world,retval,ierr)   
+         call MPI_FINALIZE(i)
+         stop
+      endif
 #endif 
-#if unix 
       call cexit(retval,1)
-#endif
       stop
       end
       subroutine rx(string)

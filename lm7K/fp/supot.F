@@ -41,6 +41,7 @@ C ... Local parameters
       nkd=slat%nkd
       nkq=slat%nkq
       nbaspp = 2*nbasp - nbas
+
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
         allocate(spot%rv_a_omad(nbaspp**2))

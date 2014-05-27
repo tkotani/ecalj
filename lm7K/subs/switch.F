@@ -107,7 +107,7 @@ c  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(g
       end
 
       logical function oncewrite(id)
-      integer:: idx(1:100)=1
+      integer,save:: idx(1:100)=1
       if(id<1. or. id >100 ) call rx("oncewrite index out of range")
       oncewrite=.false.
       if( idx(id) ==1)  then

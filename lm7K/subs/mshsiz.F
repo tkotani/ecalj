@@ -45,7 +45,7 @@ C     parameter (fmax=360,tolg=1d0,PRTG=30)
       integer mshlst(0:3*fmax)
       logical:: fullmesh
 
-      print *,'mshsiz: gmax=',gmax
+c     print *,'mshsiz: gmax=',gmax
       stdo = lgunit(1)
       call dpzero(q,3)
 C ... If input gmax is zero assume n1..n3 available, and return w/ gmax
@@ -55,7 +55,7 @@ C ... If input gmax is zero assume n1..n3 available, and return w/ gmax
         call poppr
         return
       endif
-      print *,'mmm2 mshsiz:'
+c      print *,'mmm2 mshsiz:'
 C ... gmax0 = dimensionless gmax
       tpiba = 2*4d0*datan(1d0)/alat
       gmax0  = gmax/tpiba

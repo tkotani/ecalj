@@ -224,6 +224,10 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3)
 
+#if MPI | MPIK
+      include "mpif.h"
+#endif
+
 !! --- Setup ---
       call tcn ('sugw')
       print *,'sugw:'
@@ -682,7 +686,7 @@ C   ... Read SYML file
       rewind ifiqg
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
       if(pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
-      print *,' goto 1001 procid=',procid
+      if(debug)print *,' goto 1001 procid=',procid
       iqq=0
       do 1001 iq = 1, nqtot
         read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
@@ -826,8 +830,8 @@ c            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
           if(job .eq. 1) then !   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
             write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
-     &      ' irank=',i4, ' lwvxc=',l)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc
-            if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
+     &      ' irank=',i4, ' lwvxc=',l,' lpdiag=',i1)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,lpdiag
+c            if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
               if (nspc .eq. 2) then
                 call rx('diagonalization not ready for nspc=2')
