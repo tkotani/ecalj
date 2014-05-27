@@ -333,7 +333,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       !because fp/test/test.fp assumes 'something not inserted in console output'.
 #if MPIK
       integer obuf,oqptr
-      integer igetss,lmxh,nlma,nlmh,nelt(3),nkaph,kmax
+      integer igetss,lmxh,nlmh,nelt(3),nkaph,kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
 #endif
@@ -1482,7 +1482,10 @@ c     print *,' m2222 procid=',procid
      .         ,nk1,nk2,nk3,sfz,sigmamode,ndimsig, numprocs,procid,master)
         deallocate(spotx)
         call tcx('bndfp')
-        call rx0('bndfp') !exit program here normally.
+#if MPIK
+        call mpi_barrier(MPI_COMM_WORLD,ierr) 
+#endif
+        call rx0('sugw mode') !exit program here normally.
       endif
 
 
