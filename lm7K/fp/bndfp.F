@@ -1315,7 +1315,7 @@ c     lwsig=0
 ! ndham is removed sep2012 (read from sigma file )
 cccccccccccccccccccccccccccccccccc
             if(.not.pdos) then
-              print *,'rrrrrrrrrr goto rdsigm2 rrrrrrrrrrrr'
+c              print *,'rrrrrrrrrr goto rdsigm2 rrrrrrrrrrrr'
               call rdsigm2(nbas,nsp,slat,sham,sbz,ifi, 
      &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
 C cccccccccccccccccccccccccccccccccc
@@ -1328,7 +1328,7 @@ C cccccccccccccccccccccccccccccccccc
             endif   
             call fclose(ifi)
             if(.not.cmdopt('--no-wsig_fbz',13,0,strn).and.oncewrite(10)) then
-               write(6,*)' write sigm_fbz in full bz'
+               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
                ifis2 = fopna('sigm_fbz',-1,4)
                if(pdos) then
                  read(ifis2) nsp,ndimsig,nk1,nk2,nk3
@@ -1414,7 +1414,7 @@ c
                deallocate( nlat, qwgt )
             enddo
             deallocate(pos,npair)
-            print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
+            if(iprint()>40) print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
 
 !     ! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
 !     ! Aug2012  newsigmasw()=F is the current version.
@@ -1476,7 +1476,7 @@ c     print *,' m2222 procid=',procid
 !! lmfgw-MPIK does not make sense "just parelell do 
 !!   ---> we need job divider. Then we also have to modify 
 !!
-      print *,'procid llmfgw=',procid,llmfgw
+c      print *,'procid llmfgw=',procid,llmfgw
       if(llmfgw) then
         nchan=spot%nlma
         call sugw( ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
@@ -1612,8 +1612,8 @@ cnnn
               if (mod(pwmode,10) .eq. 2) ndimh = napw
               if (ndimh .gt. ndham) then
                 call fexit2(-1,111,'%N Exit -1 : BNDFP: '//
-     .          'ndimh=%i exceeds ndham=%i.  Try increasing '//
-     .          'input HAM_NPWPAD',ndimh,ndham)
+     .          'ndimh=%i exceeds ndham=%i.  Set '//
+     .          'HAM_NPWPAD=(ndimh-ndham) or larger.',ndimh,ndham)
               endif
             else
               ndimh = ldim
@@ -1794,7 +1794,7 @@ c      if (lrsig .eq. 0) goto 999
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
 c        nsmidb = min(nsmidb,ismidb) !????
-              if(oncewrite(3)) print *,' end of hambls mode=',i
+c              if(oncewrite(3)) print *,' end of hambls mode=',i
             endif
 
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
@@ -2894,7 +2894,7 @@ c      endif
       if(.not. lwndow) then
         ndos0 = sbz%ndos
         if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
-          call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
+          if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
           if (ltet) then
 !! determine eferm
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 

@@ -174,9 +174,6 @@ c        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
 
           datim = ' '
           call ftime(datim)
-ccccccccccccc
-c        write(6,"(a,a,a)") '@@@',datim,'@@@'
-cccccccccccc
           hostnm = ' '
           call gtenv('HOST',hostnm)
           call word(hostnm,1,i,i2)
@@ -189,10 +186,10 @@ cccccccccccc
           endif
         endif
       endif
-
       i = fopnT('TMP' ,-1,0,2)
       if (i .ge. 0) call dfclos(i)
       if (fhndl('TMP') .ge. 0) call dfclos(fopn('TMP'))
+
 c      if (procid .eq. master) then
 c        if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
 c      endif
@@ -226,6 +223,8 @@ c     .              ' ',128,i1mach(2),endtime-starttime,MPI_WTICK())
       call cexit(retval,1)
       stop
       end
+
+
       subroutine rx(string)
 C- Error exit
 C     implicit none

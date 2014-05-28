@@ -55,7 +55,7 @@ c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
 c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),ibastab(:) !,ibasindex(:)
       integer::nkt
-      logical:: iprx=.true.
+      logical:: iprx=.true.,prpushed
 
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw
@@ -303,12 +303,8 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       pwgmax = dsqrt(pwemax)
       pwgmin = 0d0 !dsqrt(pwemin) !this will be removed.
       napwmx = 0
-      call pshpr(0)
-c      print *,' zzzzzzzzzzz nkt=',nkt
+      call pshpr(0) !print index is pushed to be zero 
       do ikt=1,nkt
-c        print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
-        !print *,' 111 alat plat=',alat,plat
-        !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
         qqq=0d0 !call dpzero(xx,3)
         if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) !call dpcopy(qp,xx,1,3,1d0)
         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0,napwx,dum,dum,dum,dum)
@@ -317,12 +313,18 @@ c        print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
       enddo
       call poppr
 cnnn
-      if(pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
+      if(iprx)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
+      if(pwmode<5) call shortn3_initialize(qlat,rlatp,xmx2)
       allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
+      prpushed=.false.
       do ikt = 1,nkt
-        qqq=0d0 !call dpzero(xx,3)
-        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) !call dpcopy(qp,xx,1,3,1d0)
+        qqq=0d0
+        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) 
         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napwmx,napwk(ikt),kv,dum,dum,igv2(1,1,ikt))
+        if(iprx.and.(ikt>5.or.ikt==nkt).and.(.not.prpushed)) then
+          call pshpr(0)
+          prpushed=.true.
+        endif
 cnnn
         if(pwmode<10) then
         ppin=matmul(transpose(plat),qq(:,ikt))
@@ -342,7 +344,8 @@ cnnn
         endif
       enddo
       deallocate(kv)
-c      print *,'RRRRRRRRRRRRRRRRRRRRRRRRRRRRr suham.F'
+      if(iprx) call poppr !print index is poped.
+
 C ... Reverse table of igv2 --->igv2rev
       imx=-999
       do ikt = 1,nkt
@@ -365,8 +368,7 @@ ccccccccccccccccccccccc
         enddo
       enddo
       call writehamindex() !sep2012takao
-c      if(iprx) 
-      print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+      if(iprx) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
       end subroutine gen_hamindex
 
 

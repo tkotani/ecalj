@@ -230,7 +230,7 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
 
 !! --- Setup ---
       call tcn ('sugw')
-      print *,'sugw:'
+      if(iprint()>10) print *,'sugw:'
 
 !! june2013 magfield is added
       inquire(unit=ifimag,opened=nexist)
@@ -295,7 +295,7 @@ C     for now
         write(stdo,*) ' job?'
         read (5,*) job
       endif
-      print '(/a,i2)', ' gw setup, job', job
+      if(iprint()>10) print '(/a,i2)', ' gw setup, job', job
       l_dummy_isanrg=isanrg(job,0,5,'sugw:','job',.true.)
       if (job .eq. 3) call rxi('sugw: bad job = ',job)
       bandmode = .false.
@@ -648,7 +648,7 @@ C   ... Read SYML file
 !!  === job divider apr2013takao ===
       nbalance = nqi*nsp/numproc 
       if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
-      print *,'nbalance=',nbalance
+      if(iprint()>10) print *,'nbalance=',nbalance
       iproc = numproc-1         !from bottom
       allocate(iprocq(nqi,nsp))
       iqq  = 0
@@ -764,8 +764,8 @@ cnnn
           if (mod(pwmode,10) .eq. 2) ndimh = napw
           if (ndimh .gt. ndham) then
             call fexit2(-1,111,'%N Exit -1 : BNDFP: '//
-     .      'ndimh=%i exceeds ndham=%i.  Try increasing '//
-     .      'input NPWPAD',ndimh,ndham)
+     .      'ndimh=%i exceeds ndham=%i.  Set '//
+     .      'HAM_NPWPAD=(ndimh-ndham) or larger.',ndimh,ndham)
           endif
         else
           ndimh = ldim

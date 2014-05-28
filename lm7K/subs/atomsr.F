@@ -61,7 +61,7 @@ C ... Passed parameters
 #endif
 C ... Local parameters
       character*1 pqn(9),ang(6)
-      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit
+      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit,iprint
       double precision deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax,
      .rorim,slo,sumx,tcore,val,vrho,kappa2
 C ... Heap
@@ -72,7 +72,7 @@ C ... Heap
 !! --- spin-averaged potential ---
 c      print *,'rhocor: nmcore=',nmcore
       allocate(vaa(nr,nsp))
-      if(nmcore==1) then
+      if(nmcore==1.and.iprint()>10) then
         if(oncewrite(6))print *,'NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.'
         if(oncewrite(7)) print *,'      We use spin-avaraged potential to calculate core density rhoc.'
         if(oncewrite(8)) print *,'      Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F'

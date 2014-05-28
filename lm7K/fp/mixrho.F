@@ -224,7 +224,7 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
       character sout*80,fnam*8
 C ... Heap
 
-      integer ::iwdummy ,isp,nnnx,ng02,ng2
+      integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint
       real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
       complex(8),allocatable:: w_oqkl(:)
@@ -604,7 +604,7 @@ C         and spherical part of rho1-rho2
         call dcopy(ng02*nsp,dreal(smrho),  1, co_rv,1)
 cccccccccccccccccccccccc
         wgtsmooth=1d0/ng02**0.5d0 !try this relative weight. Not correct weight charge mixing.
-        print *,'wgtsmooth=',wgtsmooth
+        if(iprint()>10) print *,'wgtsmooth=',wgtsmooth
 cccccccccccccccccccccccc
         w_ocn= w_ocn*wgtsmooth !
         co_rv= co_rv*wgtsmooth !
@@ -918,7 +918,7 @@ C     Add constant to smrho to force charge neutrality
       summ = 0
 
 cccccccccccccccccccccccccc
-      write(6,"(a,d13.5,d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx
+      if(iprint()>10) write(6,"(a,d13.5,d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
@@ -1018,7 +1018,7 @@ c            smrho(i1,i2,i3,isp)=minimumrho
           write(6,"(a,2i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
 c          print *,'enforce smrho >',minimumrho
         else
-          write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
+          if(iprint()>10) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
         endif
       enddo
 C$$$      nnnew=0

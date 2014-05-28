@@ -21,7 +21,7 @@ c      mixrealsmooth=.false.
 !mixrealsmooth=T (move it back) on 16Jan2013.
       mixrealsmooth=.true. !
       if(init) then
-        print *,'mixrealsmooth=',mixrealsmooth
+        if(iprint()>10) print *,'mixrealsmooth=',mixrealsmooth
         init=.false.
       endif
       end
