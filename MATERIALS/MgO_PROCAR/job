@@ -1,6 +1,6 @@
 lmfa mgo >llmfa
 lmf mgo > llmf
 job_band_nspin1 mgo -np 2 > ljob_band
-lmf --band:fn=syml mgo >lbandW
+lmf --mkprocar --band:fn=syml mgo >lbandW
 ./BandWeight.py > bw.dat
 gnuplot bnds.gnu.mgoW

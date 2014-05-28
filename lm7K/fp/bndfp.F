@@ -421,7 +421,7 @@ c mar2014
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
       character*256:: ccc
-      logical initbd
+      logical:: initbd=.true.
 
 
 
@@ -738,7 +738,8 @@ C     Switch to plot bands at specified qp
       l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 
 !! == PROCAR file open for pdos mode 
-      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
+c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
+      PROCARon= cmdopt('--mkprocar',10,0,strn)
       if(plbnd/=0.and.PROCARon) then
         iprocar1=9139
         inquire(unit=iprocar1,opened=nexist)
