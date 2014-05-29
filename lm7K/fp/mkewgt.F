@@ -96,26 +96,25 @@ C  268     format(i5,f10.6,d13.2,8f12.6)
   80    continue
       endif
 
-C --- Printout weights near frontier ---
-      if (iprint() .gt. 40) then
-C       write(stdo,200) lmet,numq,nevec
-C 200   format(' mkewgt: lmet=',i2,'   numq=',i2,'  nevec=',i4)
-        i2 = nevec
-        i1 = max0(nevec-5,1)
-        write(stdo,501) (i,i=i1,i2)
-        write(stdo,502) (evl(i),i=i1,i2)
-        do  iq = 1, numq
-          write(stdo,503) iq,(ewgt(iq,i),i=i1,i2)
-        enddo
-  501   format(' state:',7i11)
-  502   format(' evl:  ',7f11.6)
-  503   format(' w',i1,':   ',7f11.6)
-
+!! this print out is confusing because we make truncation of sigm now in fpgw/exec/hqpe_sc
+c$$$C --- Printout weights near frontier ---
+c$$$      if (iprint() .gt. 40) then
+c$$$C       write(stdo,200) lmet,numq,nevec
+c$$$C 200   format(' mkewgt: lmet=',i2,'   numq=',i2,'  nevec=',i4)
+c$$$        i2 = nevec
+c$$$        i1 = max0(nevec-5,1)
+c$$$        write(stdo,501) (i,i=i1,i2)
+c$$$        write(stdo,502) (evl(i),i=i1,i2)
+c$$$        do  iq = 1, numq
+c$$$          write(stdo,503) iq,(ewgt(iq,i),i=i1,i2)
+c$$$        enddo
+c$$$  501   format(' state:',7i11)
+c$$$  502   format(' evl:  ',7f11.6)
+c$$$  503   format(' w',i1,':   ',7f11.6)
 C        do  ie = 1, nevec
 C          write(stdo,210) ie,evl(ie),(ewgt(iq,ie),iq=1,numq)
 C  210     format('  state',i3,'   evl',f10.6,'   wgts:',3f12.6)
 C        enddo
-      endif
-
+c$$$      endif
       end
 

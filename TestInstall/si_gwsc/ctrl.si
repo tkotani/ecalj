@@ -31,5 +31,5 @@ IO      SHOW=f HELP=f VERBOS=55 WKP=F IACTIV=f
 % const emax=1.5 asig=0.1 bsig=0.07
 HAM     RDSIG={sig} EWALD=T
         FORCES=1 ELIND=-1 FTMESH=16 XCFUN=2 TOL=1d-8
-        SIGP[MODE=3 EMAX={emax} A={asig} B={bsig}]
+        SIGP[MODE=3 EMAX={emax}]
 VERS    LM=7 FP=7

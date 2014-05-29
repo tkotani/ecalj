@@ -114,6 +114,7 @@ if dummy != '': sys.exit()
 
 ################################################
 for matr in choosedmaterials:
+    if matr =='--noexec': continue
     lll = material[matr]
     m = re.search(r'\w+:',lll)
     STRUCTURE= m.group()

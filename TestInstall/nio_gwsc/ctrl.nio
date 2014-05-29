@@ -9,7 +9,7 @@ SYMGRP  R3D R2(1,-1,0) M(1,-1,0)
 HAM     FTMESH=27 ELIND=-.7 TOL=1e-5 
         NSPIN=2 REL=T 
         RDSIG=12 RSRNGE=5.5
-        SIGP[MODE=3 EMAX={emax} A={asig} B={bsig}]
+        SIGP[MODE=3 EMAX={emax}]
 
 BZ      NKABC=2 2 2 METAL=0 TOL=1D-13 DOS=-1.7 1.5 NPTS=2001 SAVDOS=t
         EFMAX=999 NEVMX=999

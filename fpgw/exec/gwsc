@@ -66,7 +66,7 @@ if($ix == 0 ) then
 #>>>
 
 echo "        Start  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda " 
-rm llmf
+rm -f llmf
 mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda 
   if ( $? != 0 )  then
     echo Error in lmf-MPIK output=llmf_lda
