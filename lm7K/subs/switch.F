@@ -38,12 +38,8 @@ c      mixrealsmooth=.false.
       end
 
 c-----------
-Cr   To get old result, Use 1. below.
-Cr   1. newsigmasw=F and pmtsig=F : gives old result   (backword compatibility mode)
-Cr
-Cr   2. newsigmasw=F and pmtsig=T : new result               (test mode)
-Cr   3. newsigmasw=T (then pmtsig is irrelevant): new result (run mode)
-Cr
+Cr   1. newsigmasw=F : new result               (test mode)
+Cr   1. newsigmasw=T (then pmtsig is irrelevant): new result (run mode)
 Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
 
       logical function newsigmasw()
@@ -56,13 +52,6 @@ c      newsigmasw=.true.
       newsigmasw=.false.
       end
 
-      logical function pmtsig()
-Cr This switch is effective only when newsigmasw=F.
-Cr This is used in hambls.F.
-c      pmtsig=.true. !new interpolation mode.
-      pmtsig=.false. !old result
-      end
-c-----------
       integer function debugmode()
       debugmode=0
       end

@@ -411,13 +411,13 @@ ctakao
       integer:: nkk1,nkk2,nkk3 !for fermi surface mode for xcrysden.
                                ! add --fermisurface #1 #2 #3
                                ! only implemented for lmf-MPIK now.
-      integer:: ini,iend,nbxx
+      integer:: ini,iend,nbxx,ival
 
 c mar2014
       integer:: lb1,lb2
       integer:: iprocar,iprocar1,iprocar2
       complex(8),allocatable:: auspp(:,:,:,:,:)
-      integer:: l,m,ilm,nlma,iband
+      integer:: l,m,ilm,nlma,iband,hreal,mode
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
       character*256:: ccc
@@ -1241,7 +1241,6 @@ C --- Get qplist. This is only for no MPI mode yet...
 #endif
 
 !! --- New sigma inerpolation mode. Simplified.
-      if(debug) print *,'vvv: new sigma=',newsigmasw()
       sigmamode = mod(lrsig,10) .ne. 0
       if(procid==master) print *,'sigmamode=',sigmamode
 c --- get index for hamiltonian for m_hamindex takao june2009
@@ -1414,7 +1413,6 @@ c
                deallocate( nlat, qwgt )
             enddo
             deallocate(pos,npair)
-            if(iprint()>40) print *,'end of gennlat npairmx newsigmasw=',npairmx,newsigmasw()
 
 !     ! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
 !     ! Aug2012  newsigmasw()=F is the current version.
@@ -1671,14 +1669,34 @@ C         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
 !! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
-         if(sigmamode.and.newsigmasw()) then
+         if(sigmamode .and.newsigmasw()) then
            if(debug) print *,' goto seneinterp2: qp=',qp,ispc,ndimsig,ndimh
            allocate(sene(ndimsig,ndimsig))
-           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-c     i        sfz(:,:,:,:,:,isp),ndimsig,ndimsig, !ldim,ndimh, 
-     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
-     o        sene) 
-         endif
+ccccccccccccccccccc
+ccase1 not work well yet.
+c           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
+c     o        sene) 
+c
+cccccccccccccccccccccccccccccccccccc
+ccase2
+!     ! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
+C     ... Bloch transform sigm(RS)-sigm(k). 
+C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).
+C     Call to bloch : 104110=perm orb, transpose, no add, c*16
+      mode=i
+      lrsig = mod(mode/10,10)
+      hreal = 0
+      if (lrsig .ge. 4) hreal = 1
+      i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
+      call bloch ( i , qp ,globalvariables%nl, plat , globalvariables%mxorb, sham%iv_a_oindxo , 1 , 
+     &     ival( sham%iv_a_ontabs , nbas + 1 ),
+     .     , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+     .     , 0 , ndimsig, 0 , ndimsig , 0 , sene ( 1 , 1 ) , iwdummy , iwdummy )
+      if(debug) print *,'end of bloch sene'
+cccccccccccccccccccccccccccccccccc
+      endif
+
 c$$$
 c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
@@ -1746,7 +1764,7 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
 
 
 !! == Set up hamiltonian. ==
-            if(debug) print *,' mode ispc=',i,ispc
+            if(debug) print *,' mode ispc=',i,ispc,newsigmasw()
             if( newsigmasw() ) then
               print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
@@ -1788,11 +1806,14 @@ c      if (lrsig .eq. 0) goto 999
             else
 !!  Interpolation of sene= \Sigm-Vxc at given q.
               isize_hamm(3)=size(hamm,dim=3)
+              if(debug) print *,'goto hambls'
 !! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
+ccccccccc    This hambls return i=-1 when sigm mode. (already diagonalized).
+
 c        nsmidb = min(nsmidb,ismidb) !????
 c              if(oncewrite(3)) print *,' end of hambls mode=',i
             endif

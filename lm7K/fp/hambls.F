@@ -390,17 +390,19 @@ C ----------------------------------------------------------------------
       double precision wk(ndimh*11),evl(ndimh)
       integer ::iwdummy
 !     !takao
-      complex(8),allocatable:: ss(:,:)
+c      complex(8),allocatable:: ss(:,:)
       integer:: sigswitch,debugmode
-      logical:: pmtsig
+c      logical:: pmtsig
       logical:: debug=.false.
       logical:: l_dummy_isanrg,isanrg,oncewrite
       integer:: ndimsig         !dimension of sigma
       complex(8),allocatable:: sigmat(:,:)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
-      integer:: lb1,lb2,ilb
-      call tcn('hambls')
+      integer:: lb1,lb2,ilb,iprint
 
+       if(iprint()>100) debug=.true.
+       if(debug) print *,'hambls: mod=',mod(mode,10) 
+       call tcn('hambls')
 !! === LDA hamiltonian ===
       if (mod(mode,10) .eq. 0) then
          j = 0
@@ -501,12 +503,10 @@ c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! end of LDA part (lrsig=0)
 
 
-
 !! === Start sigm=\Sigma-Vxc interpolation part ===
 !! complecated. I like to skip to other way in future (see bndfp.F).
       nspc = globalvariables%nspc
       ndimhx = ndimh * nspc
-
 C     ... Setup for Bloch transform
       if(debug) print *,' goto set up bloch transformation'
       ndhrs=sham%ndhrs
@@ -522,54 +522,34 @@ C     hreal=1 -> sig(T) is real
       call dinv33(plat,1,qlat,swt)
       if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
       sigp=sham%sigp
-      if(debug) print *,' hambles: eeeee1111'
 
-
-
-!! ===takao simplified case for the PMT method. ===
-!! Not yet (pmtsig()=F). This does not work well.
-      if (pmtsig()) then 
-         print *,'hambles:  xxxxxxxxxx new pmtsig=',pmtsig()
-C     In this branch, sigq is just a work array
-         allocate(ss(ndimsig,ndimsig))
-C     ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
+!     ! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
+      allocate(sigmat(ndimsig,ndimsig))
+C     ... Bloch transform sigm(RS)-sigm(k). 
+C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).
 C     Call to bloch : 104110=perm orb, transpose, no add, c*16
-         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-c     kino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
-c     kino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
-         call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-c     kino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh
-c     kino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .        , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
-     .        , 0 , ndimsig, 0 , ndimsig , 0 , ss ( 1 , 1 ) , iwdummy , iwdummy )
-         allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
-         ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
-
-C cccccccccccccccccccccccccccccccccccccccccccc
-C c mar2014 
-C       lb1=137
-C       lb2=168
-C       ovlmtoi(lb1:lb2,:) = 0d0
-C       ovlmtoi(:,lb1:lb2) = 0d0
-C       do ilb=lb1,lb2
-C          ovlmtoi(ilb,ilb)=1d0
-C       enddo
-C cccccccccccccccccccccccccccccccccccccccccccc
-
-         call matcinv(ndimsig,ovlmtoi)
-         ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
-         deallocate(ovlmtoi)
-!! for sclaedsigma dec2012
-         if(sham%scaledsigma/=1d0) then
-            print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
-            ss = sham%scaledsigma* ss
-         endif   
-         h(:,:,ispc) = h(:,:,ispc) + matmul(transpose(dconjg(ovliovl)), matmul(ss(:,:),ovliovl))
-         deallocate(ss,ovliovl)
-         call tcx('hambls')
-         return
-      endif
-
+      i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
+      call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
+     .     , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
+     .     , 0 , ndimsig, 0 , ndimsig , 0 , sigmat ( 1 , 1 ) , iwdummy , iwdummy )
+      allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+      ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
+!! === conversion matrix ovliovl is 
+!!     from sigma(1:ndimsig,1:ndimsig) to sigma(1:ndimh,1:ndimh). ===
+      call matcinv(ndimsig,ovlmtoi)
+      ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
+      deallocate(ovlmtoi)
+      if(sham%scaledsigma/=1d0) then
+         print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
+         sigmat = sham%scaledsigma* sigmat
+      endif   
+cccccccccccccccccccccccccccccc
+c         h(:,:,ispc) = h(:,:,ispc) + matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:),ovliovl))
+c         deallocate(sigmat,ovliovl)
+c         call tcx('hambls')
+c         return
+c      endif
+cccccccccccccccccccccccccccccccc
 
 !! == Followings are original Mark's metod ==
       moditp = mod(mode/100,10)
@@ -584,36 +564,19 @@ C     In this branch, sigq is just a work array
          allocate(z0(ndimh,ndimh))
          allocate(e(ndimh))
          allocate(e0(ndimh))
-!! === conversion matrix from sigma(1:ndimsig,1:ndimsig) to sigma(1:ndimh,1:ndimh). ===
-         allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
-         ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)
-         call matcinv(ndimsig,ovlmtoi)
-         ovliovl = matmul(ovlmtoi,s(1:ndimsig,1:ndimh,ispc))
-         deallocate(ovlmtoi)
 !!  === zqi <- evecs, evals of LDA hamiltonian = Z.lda ===
 C     This is step A in Remarks
 *     call zprm('hamiltonian, LDA',2,h,ndimh,ndimh,ndimh)
 *     call zprm('overlap',2,s,ndimh,ndimh,ndimh)
          call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
      .        z0,F,e,ndimh,zqi)
-C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).  This is step B in Remarks
-C     Call to bloch : 104110=perm orb, transpose, no add, c*16
-         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-c     call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-c     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-c     .      , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , iwdummy , iwdummy )
-c     print *,'goto bloch sigmat ndimsig=',ndimsig
-         allocate(sigmat(ndimsig,ndimsig))
-         call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-     .        , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig
-     .        , 0 , ndimsig , 0 , ndimsig , 0 , sigmat( 1 , 1  ) , iwdummy , iwdummy )
 !! sigma (s) is moved back to s in ndimh.
          s(:,:,ispc)= matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:),ovliovl))
          deallocate(sigmat,ovliovl)
 !! for sclaedsigma dec2012takao
          if(sham%scaledsigma/=1d0) then
-            if(oncewrite(9)) print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
-            s(:,:,ispc) = sham%scaledsigma* s(:,:,ispc)
+         if(oncewrite(9)) print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
+          s(:,:,ispc) = sham%scaledsigma* s(:,:,ispc)
          endif   
 C     LDA evals in h
          if (lwsig .ge. 2 .and. lwsig .le. 4) then
@@ -631,7 +594,6 @@ C     call zprm('sigma, orbital basis',2,s,ndimh,ndimh,ndimh)
 #endif
 C     Return with raw sigm (LDA basis) in s, LDA evals in h
          if (lwsig .eq. 3) goto 99
-
 
 c     takao
 c     C   ... Add to least-squares fit of sigma for high energies
@@ -763,645 +725,645 @@ C     Replace h with evals on the diagonal
 
 
 
-      subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
-     .lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
-      use m_struc_def  !Cgetarg
-      use m_globalvariables
-      use m_phmbls
-C- sigma-vxc or sum_occ <sigma-vxc> for one k-point.
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :1s digit specifies what to do:
-Ci         :  0 Make sigma and store in sig
-Ci         :  1 Make sum_states wtkb(iq) (zq+)*sig*zq
-Ci         :10s digit specifies self-energy matrix elements
-Ci         :  0 No self-energy to compute
-Ci         :  1 r.s. sigma is real
-Ci         :  2 r.s. sigma is complex
-Ci   nbas  :size of basis
-Ci     Elts read: ndhrs ontabs oiaxs ohrs oindxo
-Ci     Stored:
-Ci     Passed to:
-Ci   isp   :generate self-energy for this spin
-Ci         :Not used in the noncollinear case
-Ci   plat  :primitive lattice vectors
-Ci   q     :Bloch vector (k-point)
-Ci   wtkp  :q-point weights from symmetry operations
-Ci   lwtkb :(used for 1s digit mode=1)
-Ci         :0 assign weight 1 for first zval states, 0 otherwise
-Ci         :1 weights are required a priori, and are read from disk
-Ci   wtkb  :integration weights, needed if lwtkb is 1
-Ci   ndimh :dimension of hamiltonian and self-energy sig
-Ci   zq    :evecs (used for 1s digit mode=1)
-Cio Inputs/Outputs
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: ndhrs ontabs oiaxs ohrs oindxo eterms
-Ci     Stored:    eterms  (1s digit mode=1)
-Co Outputs
-Co   sig   :(1s digit mode = 0) self-energy matrix
-Co         :(1s digit mode = 1) <zq sig zq>
-Co         :Note: in noncollinear case, passed sig MUST be
-Co         :dimensioned sig(ndimh,nspc,ndimh,nspc) even though
-Co         :dimension appears as sig(ndimh,ndimh) in this routine.
-Cl Local variables
-Cr Remarks
-Cu Updates
-Cu   11 Jan 05 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,nbas,iq,isp,ndimh,nsp,nspc,lwtkb
-      real(8):: plat(3,3) , q(3) , wtkb(ndimh,nsp,1) , wtkp(iq) , zval
-      type(s_ham)::sham
-
-      double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
-C ... Local parameters
-ckino Dec.9.2011:            integer,pointer :: iv_p_ontabs(:) =>NULL()
-
-ckino Dec.9.2011:           integer,pointer :: iv_p_oiaxs(:) =>NULL()
-
-ckino Dec.9.2011:          real(8),pointer :: rv_p_ohrs(:) =>NULL()
-
-ckino Dec.9.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
-      integer i,lrsig,ipr,jsp,ksp
-      integer hreal,nl,nglob,mxorb,nttabs,ival,ndhrs,nevec,ndimhx
-      logical T,F
-      parameter (T=.true.,F=.false.)
-      double precision eterms(20),rhosig,swgt
-      equivalence (eterms(19),rhosig)
-CSFCPP#if F90
-      complex(8),allocatable:: wk(:,:,:,:)
-CSFCPP#else
-CSFCPP      double complex wk(ndimh,nspc,ndimh,nspc)
-CSFCPP#endif
-      double precision zsz(ndimh*nspc),ewgt(ndimh*nspc)
-
-C ... Heap
-      integer ::iwdummy
-
-      logical:: l_dummy_isanrg,isanrg
-
-      save swgt
-
-      lrsig = mod(mode/10,10)
-      if (lrsig .eq. 0) return
-      call tcn('blsig')
-
-C ... Setup for Bloch transform
-      ndhrs=sham%ndhrs
-C     hreal=1 -> sig(T) is real
-      hreal = 0
-      if (lrsig .ge. 4) hreal = 1
-Changenglob      nl = nglob('nl')
-      nl = globalvariables%nl
-Changenglob      mxorb = nglob('mxorb')
-      mxorb = globalvariables%mxorb
-ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
-ckino Dec.14.2011:         nttabs = ival ( sham%iv_p_ontabs , nbas + 1 )
-      nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
-
-Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'blsig:','isp',T)
-      l_dummy_isanrg=isanrg(isp,1,nsp,'blsig:','isp',T)
-      ndimhx = ndimh*nspc
-
-CSFCPP#if F90
-      allocate(wk(ndimh,nspc,ndimh,nspc))
-CSFCPP#endif
-
-C --- Bloch sum sigma-vxc, orbital basis ---
-C     Call to bloch : 104110=perm orb, transpose, no add, c*16
-      i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-      do  jsp = 1, nspc
-        ksp = isp
-        if (nspc .eq. 2) ksp = jsp
-C     collinear case:     ksp = isp, jsp=1
-C     noncollinear case:  ksp=1..2,  jsp=1..2
-ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
-ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
-        call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
-ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
-ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
-ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
-     .      iwdummy )
-
-      enddo
-C     Convert sig to full matrix with zero off-diagonal spin blocks
-      if (nspc .eq. 2) then
-        call sopert(1,ndimh,nspc,wk,sig,sig)
-      endif
-
-      call getpr(ipr)
-      if (ipr .ge. 100 .and. mode .ge. 0) then
-        call info(0,0,0,'sig for q=%3:1;6,6d',q,0)
-        call zprm('sig',2,sig,ndimhx,ndimhx,ndimhx)
-      endif
-
-C ... ksp = current spin index (isp or 1, in noncollinear case)
-      ksp = isp
-      if (nspc .eq. 2) ksp = 1
-
-C --- Compute double-counting contribution to total energy ---
-      if (mod(mode,10) .eq. 1) then
-C  ...  zsz <- diagonal part of <sigma-vxc>
-#ifdef USEOPTIONAL
-        call phmbls ( mode=3 , ndimh=ndimhx , eval=zsz  , wk=wk , h=sig ,zd= zq , z=zq 
-     .   , zhz=sig )
-#else
-        call phmbls ( 3 , ndimhx , zsz , iwdummy , wk , sig , zq , zq 
-     .   , sig )
-#endif
-
-C  ...  Make weights for d.c. sum
-        call dpzero(ewgt,ndimhx)
-        if (lwtkb .eq. 0) then
-          nevec = zval/2d0 + 0.500001d0
-          if (nspc .eq. 2) nevec = 2*nevec
-          do  i = 1, nevec
-            ewgt(i) = abs(wtkp(iq))/nsp
-          enddo
-        else
-          do  i = ndimhx, 1, -1
-            nevec = i
-            if (abs(wtkb(i,ksp,iq)) .gt. 1d-8) goto 12
-          enddo
-   12     continue
-          do  i = 1, nevec
-            ewgt(i) = abs(wtkb(i,ksp,iq))
-          enddo
-        endif
-C  ...  Contribution to d.c. sum for this qp
-
-c        i_copy_size=size(sham%eterms)
-c        call dcopy(i_copy_size,sham%eterms,1,eterms,1)
-        eterms=sham%eterms
-
-        if (iq .eq. 1 .and. ksp .eq. 1) then
-          rhosig = 0
-          swgt = 0
-        endif
-        do  i = 1, nevec
-          swgt = swgt + ewgt(i)
-          rhosig = rhosig + ewgt(i)*zsz(i)
-        enddo
-
-c        i_copy_size=size(sham%eterms)
-c        call dcopy(i_copy_size,eterms,1,sham%eterms,1)
-        sham%eterms=eterms
-        
-
-C  ...  Sanity check
-C       print *, 'iq=',iq,'swgt=',swgt,'rhosig=',rhosig
-      endif
-
-CSFCPP#if F90
-      deallocate(wk)
-CSFCPP#endif
-
-      call tcx('blsig')
-      end subroutine blsig
-
-      subroutine permhk(mode,nbas,ldh,offH,h,hp,lblock)
-      use m_phmbls
-C- Permutation of H by kappa blocks
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 copy permuted h into hp.  Both rows, cols permuted.
-Ci         :1 copying in reverse permutation order hp to h.
-Ci            mode=1 is inverse operation of mode 0.
-Ci            Thus this sequence of calls:
-Ci              call permhk(0,nbas,ldh,offH,h,hp,lblock)
-Ci              h = 0
-Ci              call permhk(1,nbas,ldh,offH,h,hp,lblock)
-Ci            copies h to hp, permuting hp; then initializes h and
-Ci            restores the original h from hp.
-Ci         :2 copy permuted h into hp.  Only cols are permuted.
-Ci         :3 copying in reverse permutation order hp to h.
-Ci            mode=3 is inverse operation of mode 2.
-Ci            Thus this sequence of calls:
-Ci              call permhk(2,nbas,ldh,offH,h,hp,lblock)
-Ci              h = 0
-Ci              call permhk(3,nbas,ldh,offH,h,hp,lblock)
-Ci            copies h to hp, permuting hp; then initializes h and
-Ci            restores the original h from hp.
-Ci         :4 copy permuted h into hp.  Only rows are permuted.
-Ci         :5 copying in reverse permutation order hp to h.
-Ci            mode=5 is inverse operation of mode 4
-Ci            Thus this sequence of calls:
-Ci              call permhk(4,nbas,ldh,offH,h,hp,lblock)
-Ci              h = 0
-Ci              call permhk(5,nbas,ldh,offH,h,hp,lblock)
-Ci            copies h to hp, permuting hp; then initializes h and
-Ci            restores the original h from hp.
-Ci   nbas  :size of basis
-Ci   ldh :dimension of h
-Ci   offH  :table of offsets to unpermuted hamiltonian (makidx.f)
-Ci         :offH(m,ik,ib) = offset to subblock (ik,ib), where
-Ci         :m=1 for lower orbitals, m=2 for intermediate, etc.
-Ci         :offH(m,ik+1,ib)-offH(m,ik,ib) = size of block
-Cio Inputs/Outputs
-Cio  h     :mode=0: (input) matrix to be permuted
-Cio        :mode=2: (input) matrix to be permuted
-Cio        :mode=1: (output) matrix to be restored from hp.
-Cio        :        Both rows and columns are (reverse) permuted
-Cio        :mode=3: (output) matrix to be restored from hp
-Cio        :        Only columns are (reverse) permuted.
-Cio  hp    :mode=0: (output) matrix copied from h where both
-Cio                 rows and columns are permuted.
-Cio        :mode=2: (output) matrix copied from h where only
-Cio                 columns are permuted.
-Cio        :mode=1: (input) matrix used to restore h
-Cio        :mode=3: (input) matrix used to restore h
-Co Outputs
-Co   lblock:dimension of lower block
-Cu Updates
-Cu   17 May 03 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,nbas,ldh,lblock
-      integer nkap0,n0H
-      parameter (nkap0=3,n0H=5)
-      integer offh(n0H,nkap0,nbas+1)
-      double complex h(ldh,ldh),hp(ldh,ldh)
-C ... Local parameters
-      integer nblk,m,i,ib,ikap
-
-      integer iprm(nbas,nkap0),offs(nkap0,nbas+1)
-      double precision xx
-
-      nblk = nkap0*nbas
-      m = 1
-      call icopy(nblk+1,offH(m,1,1),n0H,offs,1)
-      i = 0
-      lblock = 0
-      do  ib = 1, nbas
-        do  ikap = 1, nkap0
-          i = i+1
-          iprm(ib,ikap) = i
-        enddo
-        lblock = lblock + offs(2,ib) - offs(1,ib)
-      enddo
-
-      if (mode .eq. 0) then
-        call zpmblk(nblk,iprm,offs,xx,ldh,h,8120,xx,ldh,ldh,hp,i)
-      elseif (mode .eq. 1) then
-        call zpmblk(nblk,iprm,xx,offs,ldh,hp,8202,xx,ldh,ldh,h,i)
-      elseif (mode .eq. 2) then
-        call zpmblk(nblk,iprm,offs,xx,ldh,h,120,xx,ldh,ldh,hp,i)
-      elseif (mode .eq. 3) then
-        call zpmblk(nblk,iprm,xx,offs,ldh,hp,202,xx,ldh,ldh,h,i)
-      elseif (mode .eq. 4) then
-        call zpmblk(nblk,iprm,offs,xx,ldh,h,4120,xx,ldh,ldh,hp,i)
-      elseif (mode .eq. 5) then
-        call zpmblk(nblk,iprm,xx,offs,ldh,hp,4202,xx,ldh,ldh,h,i)
-      else
-        call rxi('permhk: bad mode',mode)
-      endif
-
-      end subroutine permhk
-
-
-
-C      subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd)
-CC- Approximate sigma for low,higher energies with diagonal part,
-CC- and further add constraints for the higher energies
-CC ----------------------------------------------------------------------
-CCi Inputs
-CCi   mode  :0 sig is a complex square matrix; poke sig(i,i)
-CCi         :  sigd is not used
-CCi         :1 sigd is a real diagonal matrix; poke sigd(i)
-CCi         :  for those elements that satisfy constraints.
-CCi         :  sig is not used
-CCi   ndimh :dimension of hamiltonian, and number of energies
-CCi   eval  :list of (LDA) eigenvalues
-CCi   sigp  :parameters for approximating self-energy sigma.  sigma
-CCi         :is approximated by its diagonal part sigii for energies
-CCi         :below a low-energy cutoff (specified nmin or emin) and
-CCi         :above a low-energy cutoff (specified nmax or emax).
-CCi         : arg 1: specifies how to set diagonal part sigii
-CCi         :        for states above the high-energy cutoff nmax or emax
-CCi         :        0 constrain sigii to be > asig+bsig*e
-CCi         :        1 constrain sigii to be = asig+bsig*e
-CCi         :        2 constrain sigii to be > asig and < bsig
-CCi         :        3 constraint same as case 1; for this routine, there
-CCi         :          is no difference.  Elsewhere,
-CCi         :          arg1=3 differs in that the least-squares fit to
-CCi         :          sigii (for informational purposes only, to help
-CCi         :          estimate asig and bsig) is done for states between
-CCi         :          efit and nmax or emax
-CCi         : arg 2: nmin : usage depends on mode above.
-CCi         :               mode = 0: for states 1..nmin, off-diagonal
-CCi         :               parts of sig(1:nmin,1:nmin) are zeroed out.
-CCi         :               mode = 1: sigd(1..nmin) is filled with emin
-CCi         : arg 3: emin : usage depends on mode above.
-CCi         :               mode = 0: for states e_i<emin, off-diagonal
-CCi         :               parts of sig(1:i,1:i) are zeroed out.
-CCi         :               mode = 1: sigd(1..nmin) is filled with emin
-CCi         : arg 4: nmax : sigma for levels i>nmax are approximated by
-CCi         :               sigii AND constrained according to arg 1
-CCi         : arg 5: emax : (used only if nmax<=0)
-CCi         :             : sigma for levels e<emax are approximated by
-CCi         :               sigii AND constrained according to arg 1
-CCi         : arg 6: asig : constraint used to approximate
-CCi         :               sigii = asig + E * bsig  or
-CCi         :               asig < sigii < bsig
-CCi         : arg 7: bsig : constraint used to approximate
-CCi         :               sigii = asig + E * bsig  or
-CCi         :               asig < sigii < bsig
-CCi         : arg 8: efit : fit sigii between efit and emax
-CCio Inputs/Outputs
-CCio  sig   :sigma, in LDA representation
-CCio        :On output:
-CCio        : *high and low states are replaced by diagonal part
-CCio        :  of sigma
-CCio        : *diagonal part may be altered to satisfy constraints
-CCo Outputs
-CCo   n123  :blocks sigma into lower, middle, high parts
-CCo         :n123(1) = 0
-CCo         :n123(2) = index to highest orbital in 'low' block
-CCo         :n123(3) = index to highest orbital in 'middle' block
-CCo         :n123(4) = ndimh
-CCl Local variables
-CCl   llow  :T if this eigenvalue is below minimum cutoff
-CCl   lhigh :T if this eigenvalue is below above max cutoff
-CCr Remarks
-CCr
-CCu Updates
-CCu   19 May 03 First created
-CC ----------------------------------------------------------------------
-C      implicit none
-CC ... Passed parameters
-C      integer mode,ndimh,n123(4)
-C      double precision eval(ndimh),sigp(10),sigd(ndimh)
-C      double complex sig(ndimh,ndimh)
-CC ... Local parameters
-C      logical llow,lhigh
-C      integer i,stdo,lgunit,ipr,nmin,nmax,modsgp,PRTE
-C      double precision emin,emax,asig,bsig,tol,siglin
-C      double complex zer,sigii
-C      parameter (zer=(0d0,0d0),tol=1d-7,PRTE=45)
-C
-C      call getpr(ipr)
-C      stdo = lgunit(1)
-C      call ivset(n123,1,3,0)
-C      n123(4) = ndimh
-C
-C      modsgp = nint(sigp(1))
-C      if (modsgp .eq. 3) modsgp = 1
-C      nmin   = nint(sigp(2))
-C      emin   = sigp(3)
-C      nmax   = nint(sigp(4))
-C      emax   = sigp(5)
-C      asig   = sigp(6)
-C      bsig   = sigp(7)
-C
-C      if (mode .eq. 0) then
-C        call info5(PRTE,1,0,
-C     .  ' hambls: approximate sigma'//
-C     .  '%?#(n<0)# for energies E(lda)<%d; and%-2j#%-1j#'//
-C     .  '%?#(n>0)# for states %-1jn=%i and below; and##%j'//
-C     .  '%?#(n<=0)# for energies E(lda)>%d%-2j#%-1j#'//
-C     .  '%?#(n>0)# for states above %-1jn=%i##%j'//
-C     .  '%N  state    E(lda)%8fsig_ii%4fconstraint%6fuse',
-C     .  nmin,emin,nmax,emax,0)
-C      elseif (mode .eq. 1) then
-C        call info5(PRTE,1,0,
-C     .  ' hambls: new diagonal sigma for:'//
-C     .  ' %?#(n>0)#%-1j %i DEEP states (E=%d)#%jno DEEP states# and'//
-C     .  ' %?#(n>0)#%-1j %i#no# HIGH states'//
-C     .    ' ',nmin,emin,ndimh-nmax,0,0)
-C        if (nmin .le. 0 .and. nmax .ge. ndimh) return
-C        call info0(PRTE,0,0,'  state    E(lda)%8fsig_ii')
-C        stop 'for now'
-C      else
-C        call rxi('psigd: bad mode ',mode)
-C      endif
-C
-C      do  i = 1, ndimh
-C
-CC       Require evals to be ordered
-C        if (eval(i) .lt. eval(max(i-1,1))-tol)
-C     .    call rxi('psigd: eval %i not ordered',i)
-C
-CC       Decide whether this eval is in low, middle, or high block
-C        llow  = (nmin .lt. 0 .and. eval(i) .lt. emin) .or.
-C     .          (nmin .ge. 0 .and. i .le. nmin)
-C        lhigh = (nmax .le. 0 .and. eval(i) .gt. emax) .or.
-C     .          (nmax .gt. 0 .and. i .gt. nmax)
-C        if (mode .eq. 1) llow = i .le. nmin
-C        if (llow) n123(2) = i
-C        if (.not. lhigh) n123(3) = i
-C
-CC       Calculate new diagonal sigma that satisfies constraints
-C        sigii = 0
-C        if (mode .eq. 0) then
-C          sigii = sig(i,i)
-C        elseif (mode .eq. 1 .and. llow) then
-C          sigii = emin
-C        endif
-C        siglin = asig + bsig*eval(i)
-C        if (lhigh) then
-C          if (modsgp .eq. 0) then
-C            if (dble(sigii) .lt. siglin) sigii = siglin
-C          elseif (modsgp .eq. 1) then
-C            sigii = siglin
-C          elseif (modsgp .eq. 2) then
-C            if (dble(sigii) .lt. asig) sigii = asig
-C            if (dble(sigii) .gt. bsig) sigii = bsig
-C          else
-Ckino isanrg is logical function, C            call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
-C            l_dummy_isanrg=isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
-C          endif
-C        endif
-C
-C
-CC       Printout
-C        if (mode .eq. 1) then
-C        if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
-C          write(stdo,331) i,eval(i),dble(sigii)
-C  331     format(i6,f12.6,2x,f12.6)
-C          endif
-C        else
-C          if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
-C            write(stdo,332)
-C     .        i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
-C  332       format(i6,f12.6,2x,f12.6,f7.2,',',f5.2,f12.6)
-C          elseif (ipr .ge. PRTE .and. lhigh) then
-C            write(stdo,333) i,eval(i),dble(sig(i,i)),siglin,dble(sigii)
-C  333       format(i6,f12.6,2x,2f12.6,f13.6)
-C          elseif (ipr .ge. PRTE) then
-C            write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
-C  334       format(i6,f12.6,2x,f12.6,12x,f13.6)
-C          endif
-C        endif
-C
-CC       Overwrite full sigma with diagonal matrix, or write to sigd
-C        if (llow .or. lhigh) then
-C          if (mode .eq. 0) then
-C            call zscal(ndimh,zer,sig(1,i),1)
-C            call zscal(ndimh,zer,sig(i,1),ndimh)
-C            sig(i,i) = sigii
-C          else
-C            sigd(i) = sigii
-C          endif
-C        endif
-C
-C      enddo
-C
-C      end
-
-      subroutine phmbl3(mode,ndimh,nsmidb,e,de,sigp,a,b)
-
-C- Fit coffs a,b in linear fit a+b*e(lda) = de[e(lda)]
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 do nothing
-Ci         :1 initialize normal matrix
-Ci         :2 add points to normal matrix
-Ci         :4 solve normal matrix for coefficients a and b
-Ci         :8 print out nsmidb
-Ci         :NB: these switches may be taken in combination
-Ci   ndimh :number of eigenvalues
-Ci   nsmidb:smallest value of nmax encountered
-Ci         :(only used in printout, mode=8)
-Ci   e     :list of (LDA) eigenvalues
-Ci   de    :list of self-energies
-Ci   sigp  :parameters for approximating self-energy sigma.  sigma
-Ci         :is approximated by its diagonal part sigii for energies
-Ci         :below a low-energy cutoff (specified nmin or emin) and
-Ci         :above a low-energy cutoff (specified nmax or emax).
-Ci         :NB: this routine uses parts of sigp only to determine
-Ci         :    which states are to be included in fit
-Ci         : arg 1: mode : specifies how to set its diagonal part
-Ci         :        for states above the high-energy cutoff nmax or emax
-Ci         :        0 constrain sigii to be > asig+bsig*e
-Ci         :        1 constrain sigii to be = asig+bsig*e
-Ci         :        2 constrain sigii to be > asig and < bsig
-Ci         :        3 constraint same as mode 1.
-Ci         :          Mode 3 differs in that the least-squares fit to
-Ci         :          sigii (for informational purposes only, to help
-Ci         :          estimate asig and bsig) is done for states between
-Ci         :          efit and nmax or emax
-Ci         : arg 2: nmin : sigma for states 1..nmin are approximated
-Ci         :               by sigii
-Ci         : arg 3: emin : (used only if nmin<0)
-Ci         :             : sigma for levels e<emin are approximated
-Ci         :               by sigii
-Ci         : arg 4: nmax : sigma for levels i>nmax are approximated by
-Ci         :               sigii AND constrained according to mode
-Ci         : arg 5: emax : (used only if nmax<=0)
-Ci         :             : sigma for levels e<emax are approximated by
-Ci         :               sigii AND constrained according to mode
-Ci         : arg 6: asig : constraint used to approximate
-Ci         :               sigii = asig + E * bsig
-Ci         : arg 7: bsig : constraint used to approximate
-Ci         :               sigii = asig + E * bsig
-Ci         : arg 8: efit : fit sigii between efit and emax
-Ci         : arg 9: lwrite:write sigii to 'sigii' file
-Co Outputs
-Co   a     :(4s bit mode set) constant coefficient
-Co   b     :(4s bit mode set) linear coefficient
-Cr Remarks
-Cr
-Cu Updates
-Cu    4 Nov 03 Write SE to sigii file also for states not in fit
-Cu   25 Jun 03 Update to incorporate sigp mode 3
-Cu   21 May 03 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,ndimh,nsmidb
-      double precision e(ndimh),de(ndimh),a,b,sigp(10)
-C ... Local parameters
-      logical lhigh,lfit
-      integer i,nmin,nmax,modsgp,fopna,ifi,lwrite
-      double precision norm(2,2),rhs(2),tnorm(2,2),emin,emax,elo,ehi,
-     .efit
-      save norm,rhs,elo,ehi
-      data norm /4*0d0/,rhs/2*0d0/,elo/9d0/,ehi/-9d0/
-
-      if (mod(mode,2) .eq. 1) then
-        call dpzero(norm,4)
-        call dpzero(rhs,2)
-      endif
-      if (mode .eq. 1) return
-
-      modsgp = nint(sigp(1))
-      nmin   = nint(sigp(2))
-      emin   = sigp(3)
-      nmax   = nint(sigp(4))
-      emax   = sigp(5)
-C     asig   = sigp(6)
-C     bsig   = sigp(7)
-      efit   = sigp(8)
-      lwrite = nint(sigp(9))
-
-      if (mod(mode/2,2) .eq. 1) then
-        if (lwrite .eq. 1) then
-          ifi = fopna('sigii',-1,0)
-          write(ifi,'(''#  state    E(lda)      dE(sig)'')')
-        endif
-        do  i = 1, ndimh
-          lhigh = (nmax .le. 0 .and. e(i) .gt. emax) .or.
-     .    (nmax .gt. 0 .and. i .gt. nmax)
-          if (modsgp .eq. 3) then
-            lfit = e(i) .gt. efit .and. .not. lhigh
-          else
-            lfit = e(i) .gt. efit
-          endif
-          if (lfit) then
-            norm(1,1) = norm(1,1) + 1
-            norm(1,2) = norm(1,2) + e(i)
-            norm(2,1) = norm(2,1) + e(i)
-            norm(2,2) = norm(2,2) + e(i)**2
-            rhs(1) = rhs(1) + de(i)
-            rhs(2) = rhs(2) + e(i)*de(i)
-            elo = min(elo,de(i))
-            ehi = max(ehi,de(i))
-            if (lwrite .eq. 1) then
-              ifi = fopna('sigii',-1,0)
-              write(ifi,'(i6,2f12.6)') i,e(i),de(i)
-            endif
-          else
-            if (lwrite .eq. 1) then
-              ifi = fopna('sigii',-1,0)
-              write(ifi,'(''#'',i5,2f12.6)') i,e(i),de(i)
-            endif
-          endif
-        enddo
-      endif
-
-      if (mod(mode/8,2) .eq. 1 .or. mod(mode/4,2) .eq. 1)
-     .call info0(30,0,0,' ')
-
-
-      if (mod(mode/8,2) .eq. 1) then
-        call info2(30,0,0,' hambls: smallest nmax encountered for '//
-     .  'sigm middle block = %i',nsmidb,0)
-      endif
-
-      if (mod(mode/4,2) .eq. 1) then
-        if (norm(1,1) .ne. 0) then
-          call dinv22(norm,tnorm)
-          a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
-          b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
-          call info5(30,0,0,' hambls: sig(low,high) = %,4;4d,%,4;4d'//
-     .    '  fit : %,4;4d + %,4;4d * E(lda) (%i points)',
-     .    elo,ehi,a,b,nint(norm(1,1)))
-          if (lwrite .eq. 1) then
-            ifi = fopna('sigii',-1,0)
-            write(ifi,345) modsgp,nmin,emin,nmax,emax,a,b,efit
-  345       format('# mode nmin    emin   nmax    emax',8x,
-     .      'asig      bsig',8x,'efit'/2i5,f10.4,i5,f10.4,2x,2f10.4,
-     .      2x,f10.4)
-          endif
-        endif
-      endif
-
-      end subroutine phmbl3
-
-
+c$$$      subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
+c$$$     .lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
+c$$$      use m_struc_def  !Cgetarg
+c$$$      use m_globalvariables
+c$$$      use m_phmbls
+c$$$C- sigma-vxc or sum_occ <sigma-vxc> for one k-point.
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   mode  :1s digit specifies what to do:
+c$$$Ci         :  0 Make sigma and store in sig
+c$$$Ci         :  1 Make sum_states wtkb(iq) (zq+)*sig*zq
+c$$$Ci         :10s digit specifies self-energy matrix elements
+c$$$Ci         :  0 No self-energy to compute
+c$$$Ci         :  1 r.s. sigma is real
+c$$$Ci         :  2 r.s. sigma is complex
+c$$$Ci   nbas  :size of basis
+c$$$Ci     Elts read: ndhrs ontabs oiaxs ohrs oindxo
+c$$$Ci     Stored:
+c$$$Ci     Passed to:
+c$$$Ci   isp   :generate self-energy for this spin
+c$$$Ci         :Not used in the noncollinear case
+c$$$Ci   plat  :primitive lattice vectors
+c$$$Ci   q     :Bloch vector (k-point)
+c$$$Ci   wtkp  :q-point weights from symmetry operations
+c$$$Ci   lwtkb :(used for 1s digit mode=1)
+c$$$Ci         :0 assign weight 1 for first zval states, 0 otherwise
+c$$$Ci         :1 weights are required a priori, and are read from disk
+c$$$Ci   wtkb  :integration weights, needed if lwtkb is 1
+c$$$Ci   ndimh :dimension of hamiltonian and self-energy sig
+c$$$Ci   zq    :evecs (used for 1s digit mode=1)
+c$$$Cio Inputs/Outputs
+c$$$Ci   sham  :struct for parameters defining hamiltonian; see routine uham
+c$$$Ci     Elts read: ndhrs ontabs oiaxs ohrs oindxo eterms
+c$$$Ci     Stored:    eterms  (1s digit mode=1)
+c$$$Co Outputs
+c$$$Co   sig   :(1s digit mode = 0) self-energy matrix
+c$$$Co         :(1s digit mode = 1) <zq sig zq>
+c$$$Co         :Note: in noncollinear case, passed sig MUST be
+c$$$Co         :dimensioned sig(ndimh,nspc,ndimh,nspc) even though
+c$$$Co         :dimension appears as sig(ndimh,ndimh) in this routine.
+c$$$Cl Local variables
+c$$$Cr Remarks
+c$$$Cu Updates
+c$$$Cu   11 Jan 05 First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer mode,nbas,iq,isp,ndimh,nsp,nspc,lwtkb
+c$$$      real(8):: plat(3,3) , q(3) , wtkb(ndimh,nsp,1) , wtkp(iq) , zval
+c$$$      type(s_ham)::sham
+c$$$
+c$$$      double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
+c$$$C ... Local parameters
+c$$$ckino Dec.9.2011:            integer,pointer :: iv_p_ontabs(:) =>NULL()
+c$$$
+c$$$ckino Dec.9.2011:           integer,pointer :: iv_p_oiaxs(:) =>NULL()
+c$$$
+c$$$ckino Dec.9.2011:          real(8),pointer :: rv_p_ohrs(:) =>NULL()
+c$$$
+c$$$ckino Dec.9.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
+c$$$
+c$$$      integer i,lrsig,ipr,jsp,ksp
+c$$$      integer hreal,nl,nglob,mxorb,nttabs,ival,ndhrs,nevec,ndimhx
+c$$$      logical T,F
+c$$$      parameter (T=.true.,F=.false.)
+c$$$      double precision eterms(20),rhosig,swgt
+c$$$      equivalence (eterms(19),rhosig)
+c$$$CSFCPP#if F90
+c$$$      complex(8),allocatable:: wk(:,:,:,:)
+c$$$CSFCPP#else
+c$$$CSFCPP      double complex wk(ndimh,nspc,ndimh,nspc)
+c$$$CSFCPP#endif
+c$$$      double precision zsz(ndimh*nspc),ewgt(ndimh*nspc)
+c$$$
+c$$$C ... Heap
+c$$$      integer ::iwdummy
+c$$$
+c$$$      logical:: l_dummy_isanrg,isanrg
+c$$$
+c$$$      save swgt
+c$$$
+c$$$      lrsig = mod(mode/10,10)
+c$$$      if (lrsig .eq. 0) return
+c$$$      call tcn('blsig')
+c$$$
+c$$$C ... Setup for Bloch transform
+c$$$      ndhrs=sham%ndhrs
+c$$$C     hreal=1 -> sig(T) is real
+c$$$      hreal = 0
+c$$$      if (lrsig .ge. 4) hreal = 1
+c$$$Changenglob      nl = nglob('nl')
+c$$$      nl = globalvariables%nl
+c$$$Changenglob      mxorb = nglob('mxorb')
+c$$$      mxorb = globalvariables%mxorb
+c$$$ckino Dec.9.2011:         nttabs = ival ( iv_p_ontabs , nbas + 1 )
+c$$$ckino Dec.14.2011:         nttabs = ival ( sham%iv_p_ontabs , nbas + 1 )
+c$$$      nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
+c$$$
+c$$$Ckino isanrg is logical function,       call isanrg(isp,1,nsp,'blsig:','isp',T)
+c$$$      l_dummy_isanrg=isanrg(isp,1,nsp,'blsig:','isp',T)
+c$$$      ndimhx = ndimh*nspc
+c$$$
+c$$$CSFCPP#if F90
+c$$$      allocate(wk(ndimh,nspc,ndimh,nspc))
+c$$$CSFCPP#endif
+c$$$
+c$$$C --- Bloch sum sigma-vxc, orbital basis ---
+c$$$C     Call to bloch : 104110=perm orb, transpose, no add, c*16
+c$$$      i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
+c$$$      do  jsp = 1, nspc
+c$$$        ksp = isp
+c$$$        if (nspc .eq. 2) ksp = jsp
+c$$$C     collinear case:     ksp = isp, jsp=1
+c$$$C     noncollinear case:  ksp=1..2,  jsp=1..2
+c$$$ckino Dec.9.2011:              call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs
+c$$$ckino Dec.27.2011:              call bloch ( i , q , nl , plat , mxorb , sham%iv_p_oindxo , 1 , nttabs
+c$$$        call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
+c$$$ckino Dec.9.2011:       .      , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
+c$$$ckino Dec.9.2011:       .      , sham%iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
+c$$$ckino Dec.14.2011:       .      , sham%iv_p_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh
+c$$$ckino Dec.28.2011:       .      , sham%iv_a_oiaxs , sham%rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+c$$$     .      , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+c$$$     .      , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , iwdummy , 
+c$$$     .      iwdummy )
+c$$$
+c$$$      enddo
+c$$$C     Convert sig to full matrix with zero off-diagonal spin blocks
+c$$$      if (nspc .eq. 2) then
+c$$$        call sopert(1,ndimh,nspc,wk,sig,sig)
+c$$$      endif
+c$$$
+c$$$      call getpr(ipr)
+c$$$      if (ipr .ge. 100 .and. mode .ge. 0) then
+c$$$        call info(0,0,0,'sig for q=%3:1;6,6d',q,0)
+c$$$        call zprm('sig',2,sig,ndimhx,ndimhx,ndimhx)
+c$$$      endif
+c$$$
+c$$$C ... ksp = current spin index (isp or 1, in noncollinear case)
+c$$$      ksp = isp
+c$$$      if (nspc .eq. 2) ksp = 1
+c$$$
+c$$$C --- Compute double-counting contribution to total energy ---
+c$$$      if (mod(mode,10) .eq. 1) then
+c$$$C  ...  zsz <- diagonal part of <sigma-vxc>
+c$$$#ifdef USEOPTIONAL
+c$$$        call phmbls ( mode=3 , ndimh=ndimhx , eval=zsz  , wk=wk , h=sig ,zd= zq , z=zq 
+c$$$     .   , zhz=sig )
+c$$$#else
+c$$$        call phmbls ( 3 , ndimhx , zsz , iwdummy , wk , sig , zq , zq 
+c$$$     .   , sig )
+c$$$#endif
+c$$$
+c$$$C  ...  Make weights for d.c. sum
+c$$$        call dpzero(ewgt,ndimhx)
+c$$$        if (lwtkb .eq. 0) then
+c$$$          nevec = zval/2d0 + 0.500001d0
+c$$$          if (nspc .eq. 2) nevec = 2*nevec
+c$$$          do  i = 1, nevec
+c$$$            ewgt(i) = abs(wtkp(iq))/nsp
+c$$$          enddo
+c$$$        else
+c$$$          do  i = ndimhx, 1, -1
+c$$$            nevec = i
+c$$$            if (abs(wtkb(i,ksp,iq)) .gt. 1d-8) goto 12
+c$$$          enddo
+c$$$   12     continue
+c$$$          do  i = 1, nevec
+c$$$            ewgt(i) = abs(wtkb(i,ksp,iq))
+c$$$          enddo
+c$$$        endif
+c$$$C  ...  Contribution to d.c. sum for this qp
+c$$$
+c$$$c        i_copy_size=size(sham%eterms)
+c$$$c        call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+c$$$        eterms=sham%eterms
+c$$$
+c$$$        if (iq .eq. 1 .and. ksp .eq. 1) then
+c$$$          rhosig = 0
+c$$$          swgt = 0
+c$$$        endif
+c$$$        do  i = 1, nevec
+c$$$          swgt = swgt + ewgt(i)
+c$$$          rhosig = rhosig + ewgt(i)*zsz(i)
+c$$$        enddo
+c$$$
+c$$$c        i_copy_size=size(sham%eterms)
+c$$$c        call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+c$$$        sham%eterms=eterms
+c$$$        
+c$$$
+c$$$C  ...  Sanity check
+c$$$C       print *, 'iq=',iq,'swgt=',swgt,'rhosig=',rhosig
+c$$$      endif
+c$$$
+c$$$CSFCPP#if F90
+c$$$      deallocate(wk)
+c$$$CSFCPP#endif
+c$$$
+c$$$      call tcx('blsig')
+c$$$      end subroutine blsig
+c$$$
+c$$$      subroutine permhk(mode,nbas,ldh,offH,h,hp,lblock)
+c$$$      use m_phmbls
+c$$$C- Permutation of H by kappa blocks
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   mode  :0 copy permuted h into hp.  Both rows, cols permuted.
+c$$$Ci         :1 copying in reverse permutation order hp to h.
+c$$$Ci            mode=1 is inverse operation of mode 0.
+c$$$Ci            Thus this sequence of calls:
+c$$$Ci              call permhk(0,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci              h = 0
+c$$$Ci              call permhk(1,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci            copies h to hp, permuting hp; then initializes h and
+c$$$Ci            restores the original h from hp.
+c$$$Ci         :2 copy permuted h into hp.  Only cols are permuted.
+c$$$Ci         :3 copying in reverse permutation order hp to h.
+c$$$Ci            mode=3 is inverse operation of mode 2.
+c$$$Ci            Thus this sequence of calls:
+c$$$Ci              call permhk(2,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci              h = 0
+c$$$Ci              call permhk(3,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci            copies h to hp, permuting hp; then initializes h and
+c$$$Ci            restores the original h from hp.
+c$$$Ci         :4 copy permuted h into hp.  Only rows are permuted.
+c$$$Ci         :5 copying in reverse permutation order hp to h.
+c$$$Ci            mode=5 is inverse operation of mode 4
+c$$$Ci            Thus this sequence of calls:
+c$$$Ci              call permhk(4,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci              h = 0
+c$$$Ci              call permhk(5,nbas,ldh,offH,h,hp,lblock)
+c$$$Ci            copies h to hp, permuting hp; then initializes h and
+c$$$Ci            restores the original h from hp.
+c$$$Ci   nbas  :size of basis
+c$$$Ci   ldh :dimension of h
+c$$$Ci   offH  :table of offsets to unpermuted hamiltonian (makidx.f)
+c$$$Ci         :offH(m,ik,ib) = offset to subblock (ik,ib), where
+c$$$Ci         :m=1 for lower orbitals, m=2 for intermediate, etc.
+c$$$Ci         :offH(m,ik+1,ib)-offH(m,ik,ib) = size of block
+c$$$Cio Inputs/Outputs
+c$$$Cio  h     :mode=0: (input) matrix to be permuted
+c$$$Cio        :mode=2: (input) matrix to be permuted
+c$$$Cio        :mode=1: (output) matrix to be restored from hp.
+c$$$Cio        :        Both rows and columns are (reverse) permuted
+c$$$Cio        :mode=3: (output) matrix to be restored from hp
+c$$$Cio        :        Only columns are (reverse) permuted.
+c$$$Cio  hp    :mode=0: (output) matrix copied from h where both
+c$$$Cio                 rows and columns are permuted.
+c$$$Cio        :mode=2: (output) matrix copied from h where only
+c$$$Cio                 columns are permuted.
+c$$$Cio        :mode=1: (input) matrix used to restore h
+c$$$Cio        :mode=3: (input) matrix used to restore h
+c$$$Co Outputs
+c$$$Co   lblock:dimension of lower block
+c$$$Cu Updates
+c$$$Cu   17 May 03 First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer mode,nbas,ldh,lblock
+c$$$      integer nkap0,n0H
+c$$$      parameter (nkap0=3,n0H=5)
+c$$$      integer offh(n0H,nkap0,nbas+1)
+c$$$      double complex h(ldh,ldh),hp(ldh,ldh)
+c$$$C ... Local parameters
+c$$$      integer nblk,m,i,ib,ikap
+c$$$
+c$$$      integer iprm(nbas,nkap0),offs(nkap0,nbas+1)
+c$$$      double precision xx
+c$$$
+c$$$      nblk = nkap0*nbas
+c$$$      m = 1
+c$$$      call icopy(nblk+1,offH(m,1,1),n0H,offs,1)
+c$$$      i = 0
+c$$$      lblock = 0
+c$$$      do  ib = 1, nbas
+c$$$        do  ikap = 1, nkap0
+c$$$          i = i+1
+c$$$          iprm(ib,ikap) = i
+c$$$        enddo
+c$$$        lblock = lblock + offs(2,ib) - offs(1,ib)
+c$$$      enddo
+c$$$
+c$$$      if (mode .eq. 0) then
+c$$$        call zpmblk(nblk,iprm,offs,xx,ldh,h,8120,xx,ldh,ldh,hp,i)
+c$$$      elseif (mode .eq. 1) then
+c$$$        call zpmblk(nblk,iprm,xx,offs,ldh,hp,8202,xx,ldh,ldh,h,i)
+c$$$      elseif (mode .eq. 2) then
+c$$$        call zpmblk(nblk,iprm,offs,xx,ldh,h,120,xx,ldh,ldh,hp,i)
+c$$$      elseif (mode .eq. 3) then
+c$$$        call zpmblk(nblk,iprm,xx,offs,ldh,hp,202,xx,ldh,ldh,h,i)
+c$$$      elseif (mode .eq. 4) then
+c$$$        call zpmblk(nblk,iprm,offs,xx,ldh,h,4120,xx,ldh,ldh,hp,i)
+c$$$      elseif (mode .eq. 5) then
+c$$$        call zpmblk(nblk,iprm,xx,offs,ldh,hp,4202,xx,ldh,ldh,h,i)
+c$$$      else
+c$$$        call rxi('permhk: bad mode',mode)
+c$$$      endif
+c$$$
+c$$$      end subroutine permhk
+c$$$
+c$$$
+c$$$
+c$$$C      subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd)
+c$$$CC- Approximate sigma for low,higher energies with diagonal part,
+c$$$CC- and further add constraints for the higher energies
+c$$$CC ----------------------------------------------------------------------
+c$$$CCi Inputs
+c$$$CCi   mode  :0 sig is a complex square matrix; poke sig(i,i)
+c$$$CCi         :  sigd is not used
+c$$$CCi         :1 sigd is a real diagonal matrix; poke sigd(i)
+c$$$CCi         :  for those elements that satisfy constraints.
+c$$$CCi         :  sig is not used
+c$$$CCi   ndimh :dimension of hamiltonian, and number of energies
+c$$$CCi   eval  :list of (LDA) eigenvalues
+c$$$CCi   sigp  :parameters for approximating self-energy sigma.  sigma
+c$$$CCi         :is approximated by its diagonal part sigii for energies
+c$$$CCi         :below a low-energy cutoff (specified nmin or emin) and
+c$$$CCi         :above a low-energy cutoff (specified nmax or emax).
+c$$$CCi         : arg 1: specifies how to set diagonal part sigii
+c$$$CCi         :        for states above the high-energy cutoff nmax or emax
+c$$$CCi         :        0 constrain sigii to be > asig+bsig*e
+c$$$CCi         :        1 constrain sigii to be = asig+bsig*e
+c$$$CCi         :        2 constrain sigii to be > asig and < bsig
+c$$$CCi         :        3 constraint same as case 1; for this routine, there
+c$$$CCi         :          is no difference.  Elsewhere,
+c$$$CCi         :          arg1=3 differs in that the least-squares fit to
+c$$$CCi         :          sigii (for informational purposes only, to help
+c$$$CCi         :          estimate asig and bsig) is done for states between
+c$$$CCi         :          efit and nmax or emax
+c$$$CCi         : arg 2: nmin : usage depends on mode above.
+c$$$CCi         :               mode = 0: for states 1..nmin, off-diagonal
+c$$$CCi         :               parts of sig(1:nmin,1:nmin) are zeroed out.
+c$$$CCi         :               mode = 1: sigd(1..nmin) is filled with emin
+c$$$CCi         : arg 3: emin : usage depends on mode above.
+c$$$CCi         :               mode = 0: for states e_i<emin, off-diagonal
+c$$$CCi         :               parts of sig(1:i,1:i) are zeroed out.
+c$$$CCi         :               mode = 1: sigd(1..nmin) is filled with emin
+c$$$CCi         : arg 4: nmax : sigma for levels i>nmax are approximated by
+c$$$CCi         :               sigii AND constrained according to arg 1
+c$$$CCi         : arg 5: emax : (used only if nmax<=0)
+c$$$CCi         :             : sigma for levels e<emax are approximated by
+c$$$CCi         :               sigii AND constrained according to arg 1
+c$$$CCi         : arg 6: asig : constraint used to approximate
+c$$$CCi         :               sigii = asig + E * bsig  or
+c$$$CCi         :               asig < sigii < bsig
+c$$$CCi         : arg 7: bsig : constraint used to approximate
+c$$$CCi         :               sigii = asig + E * bsig  or
+c$$$CCi         :               asig < sigii < bsig
+c$$$CCi         : arg 8: efit : fit sigii between efit and emax
+c$$$CCio Inputs/Outputs
+c$$$CCio  sig   :sigma, in LDA representation
+c$$$CCio        :On output:
+c$$$CCio        : *high and low states are replaced by diagonal part
+c$$$CCio        :  of sigma
+c$$$CCio        : *diagonal part may be altered to satisfy constraints
+c$$$CCo Outputs
+c$$$CCo   n123  :blocks sigma into lower, middle, high parts
+c$$$CCo         :n123(1) = 0
+c$$$CCo         :n123(2) = index to highest orbital in 'low' block
+c$$$CCo         :n123(3) = index to highest orbital in 'middle' block
+c$$$CCo         :n123(4) = ndimh
+c$$$CCl Local variables
+c$$$CCl   llow  :T if this eigenvalue is below minimum cutoff
+c$$$CCl   lhigh :T if this eigenvalue is below above max cutoff
+c$$$CCr Remarks
+c$$$CCr
+c$$$CCu Updates
+c$$$CCu   19 May 03 First created
+c$$$CC ----------------------------------------------------------------------
+c$$$C      implicit none
+c$$$CC ... Passed parameters
+c$$$C      integer mode,ndimh,n123(4)
+c$$$C      double precision eval(ndimh),sigp(10),sigd(ndimh)
+c$$$C      double complex sig(ndimh,ndimh)
+c$$$CC ... Local parameters
+c$$$C      logical llow,lhigh
+c$$$C      integer i,stdo,lgunit,ipr,nmin,nmax,modsgp,PRTE
+c$$$C      double precision emin,emax,asig,bsig,tol,siglin
+c$$$C      double complex zer,sigii
+c$$$C      parameter (zer=(0d0,0d0),tol=1d-7,PRTE=45)
+c$$$C
+c$$$C      call getpr(ipr)
+c$$$C      stdo = lgunit(1)
+c$$$C      call ivset(n123,1,3,0)
+c$$$C      n123(4) = ndimh
+c$$$C
+c$$$C      modsgp = nint(sigp(1))
+c$$$C      if (modsgp .eq. 3) modsgp = 1
+c$$$C      nmin   = nint(sigp(2))
+c$$$C      emin   = sigp(3)
+c$$$C      nmax   = nint(sigp(4))
+c$$$C      emax   = sigp(5)
+c$$$C      asig   = sigp(6)
+c$$$C      bsig   = sigp(7)
+c$$$C
+c$$$C      if (mode .eq. 0) then
+c$$$C        call info5(PRTE,1,0,
+c$$$C     .  ' hambls: approximate sigma'//
+c$$$C     .  '%?#(n<0)# for energies E(lda)<%d; and%-2j#%-1j#'//
+c$$$C     .  '%?#(n>0)# for states %-1jn=%i and below; and##%j'//
+c$$$C     .  '%?#(n<=0)# for energies E(lda)>%d%-2j#%-1j#'//
+c$$$C     .  '%?#(n>0)# for states above %-1jn=%i##%j'//
+c$$$C     .  '%N  state    E(lda)%8fsig_ii%4fconstraint%6fuse',
+c$$$C     .  nmin,emin,nmax,emax,0)
+c$$$C      elseif (mode .eq. 1) then
+c$$$C        call info5(PRTE,1,0,
+c$$$C     .  ' hambls: new diagonal sigma for:'//
+c$$$C     .  ' %?#(n>0)#%-1j %i DEEP states (E=%d)#%jno DEEP states# and'//
+c$$$C     .  ' %?#(n>0)#%-1j %i#no# HIGH states'//
+c$$$C     .    ' ',nmin,emin,ndimh-nmax,0,0)
+c$$$C        if (nmin .le. 0 .and. nmax .ge. ndimh) return
+c$$$C        call info0(PRTE,0,0,'  state    E(lda)%8fsig_ii')
+c$$$C        stop 'for now'
+c$$$C      else
+c$$$C        call rxi('psigd: bad mode ',mode)
+c$$$C      endif
+c$$$C
+c$$$C      do  i = 1, ndimh
+c$$$C
+c$$$CC       Require evals to be ordered
+c$$$C        if (eval(i) .lt. eval(max(i-1,1))-tol)
+c$$$C     .    call rxi('psigd: eval %i not ordered',i)
+c$$$C
+c$$$CC       Decide whether this eval is in low, middle, or high block
+c$$$C        llow  = (nmin .lt. 0 .and. eval(i) .lt. emin) .or.
+c$$$C     .          (nmin .ge. 0 .and. i .le. nmin)
+c$$$C        lhigh = (nmax .le. 0 .and. eval(i) .gt. emax) .or.
+c$$$C     .          (nmax .gt. 0 .and. i .gt. nmax)
+c$$$C        if (mode .eq. 1) llow = i .le. nmin
+c$$$C        if (llow) n123(2) = i
+c$$$C        if (.not. lhigh) n123(3) = i
+c$$$C
+c$$$CC       Calculate new diagonal sigma that satisfies constraints
+c$$$C        sigii = 0
+c$$$C        if (mode .eq. 0) then
+c$$$C          sigii = sig(i,i)
+c$$$C        elseif (mode .eq. 1 .and. llow) then
+c$$$C          sigii = emin
+c$$$C        endif
+c$$$C        siglin = asig + bsig*eval(i)
+c$$$C        if (lhigh) then
+c$$$C          if (modsgp .eq. 0) then
+c$$$C            if (dble(sigii) .lt. siglin) sigii = siglin
+c$$$C          elseif (modsgp .eq. 1) then
+c$$$C            sigii = siglin
+c$$$C          elseif (modsgp .eq. 2) then
+c$$$C            if (dble(sigii) .lt. asig) sigii = asig
+c$$$C            if (dble(sigii) .gt. bsig) sigii = bsig
+c$$$C          else
+c$$$Ckino isanrg is logical function, C            call isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+c$$$C            l_dummy_isanrg=isanrg(modsgp,0,2,'hambls:','sig fit mode',.true.)
+c$$$C          endif
+c$$$C        endif
+c$$$C
+c$$$C
+c$$$CC       Printout
+c$$$C        if (mode .eq. 1) then
+c$$$C        if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
+c$$$C          write(stdo,331) i,eval(i),dble(sigii)
+c$$$C  331     format(i6,f12.6,2x,f12.6)
+c$$$C          endif
+c$$$C        else
+c$$$C          if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
+c$$$C            write(stdo,332)
+c$$$C     .        i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
+c$$$C  332       format(i6,f12.6,2x,f12.6,f7.2,',',f5.2,f12.6)
+c$$$C          elseif (ipr .ge. PRTE .and. lhigh) then
+c$$$C            write(stdo,333) i,eval(i),dble(sig(i,i)),siglin,dble(sigii)
+c$$$C  333       format(i6,f12.6,2x,2f12.6,f13.6)
+c$$$C          elseif (ipr .ge. PRTE) then
+c$$$C            write(stdo,334) i,eval(i),dble(sig(i,i)),dble(sigii)
+c$$$C  334       format(i6,f12.6,2x,f12.6,12x,f13.6)
+c$$$C          endif
+c$$$C        endif
+c$$$C
+c$$$CC       Overwrite full sigma with diagonal matrix, or write to sigd
+c$$$C        if (llow .or. lhigh) then
+c$$$C          if (mode .eq. 0) then
+c$$$C            call zscal(ndimh,zer,sig(1,i),1)
+c$$$C            call zscal(ndimh,zer,sig(i,1),ndimh)
+c$$$C            sig(i,i) = sigii
+c$$$C          else
+c$$$C            sigd(i) = sigii
+c$$$C          endif
+c$$$C        endif
+c$$$C
+c$$$C      enddo
+c$$$C
+c$$$C      end
+c$$$
+c$$$      subroutine phmbl3(mode,ndimh,nsmidb,e,de,sigp,a,b)
+c$$$
+c$$$C- Fit coffs a,b in linear fit a+b*e(lda) = de[e(lda)]
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   mode  :0 do nothing
+c$$$Ci         :1 initialize normal matrix
+c$$$Ci         :2 add points to normal matrix
+c$$$Ci         :4 solve normal matrix for coefficients a and b
+c$$$Ci         :8 print out nsmidb
+c$$$Ci         :NB: these switches may be taken in combination
+c$$$Ci   ndimh :number of eigenvalues
+c$$$Ci   nsmidb:smallest value of nmax encountered
+c$$$Ci         :(only used in printout, mode=8)
+c$$$Ci   e     :list of (LDA) eigenvalues
+c$$$Ci   de    :list of self-energies
+c$$$Ci   sigp  :parameters for approximating self-energy sigma.  sigma
+c$$$Ci         :is approximated by its diagonal part sigii for energies
+c$$$Ci         :below a low-energy cutoff (specified nmin or emin) and
+c$$$Ci         :above a low-energy cutoff (specified nmax or emax).
+c$$$Ci         :NB: this routine uses parts of sigp only to determine
+c$$$Ci         :    which states are to be included in fit
+c$$$Ci         : arg 1: mode : specifies how to set its diagonal part
+c$$$Ci         :        for states above the high-energy cutoff nmax or emax
+c$$$Ci         :        0 constrain sigii to be > asig+bsig*e
+c$$$Ci         :        1 constrain sigii to be = asig+bsig*e
+c$$$Ci         :        2 constrain sigii to be > asig and < bsig
+c$$$Ci         :        3 constraint same as mode 1.
+c$$$Ci         :          Mode 3 differs in that the least-squares fit to
+c$$$Ci         :          sigii (for informational purposes only, to help
+c$$$Ci         :          estimate asig and bsig) is done for states between
+c$$$Ci         :          efit and nmax or emax
+c$$$Ci         : arg 2: nmin : sigma for states 1..nmin are approximated
+c$$$Ci         :               by sigii
+c$$$Ci         : arg 3: emin : (used only if nmin<0)
+c$$$Ci         :             : sigma for levels e<emin are approximated
+c$$$Ci         :               by sigii
+c$$$Ci         : arg 4: nmax : sigma for levels i>nmax are approximated by
+c$$$Ci         :               sigii AND constrained according to mode
+c$$$Ci         : arg 5: emax : (used only if nmax<=0)
+c$$$Ci         :             : sigma for levels e<emax are approximated by
+c$$$Ci         :               sigii AND constrained according to mode
+c$$$Ci         : arg 6: asig : constraint used to approximate
+c$$$Ci         :               sigii = asig + E * bsig
+c$$$Ci         : arg 7: bsig : constraint used to approximate
+c$$$Ci         :               sigii = asig + E * bsig
+c$$$Ci         : arg 8: efit : fit sigii between efit and emax
+c$$$Ci         : arg 9: lwrite:write sigii to 'sigii' file
+c$$$Co Outputs
+c$$$Co   a     :(4s bit mode set) constant coefficient
+c$$$Co   b     :(4s bit mode set) linear coefficient
+c$$$Cr Remarks
+c$$$Cr
+c$$$Cu Updates
+c$$$Cu    4 Nov 03 Write SE to sigii file also for states not in fit
+c$$$Cu   25 Jun 03 Update to incorporate sigp mode 3
+c$$$Cu   21 May 03 First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer mode,ndimh,nsmidb
+c$$$      double precision e(ndimh),de(ndimh),a,b,sigp(10)
+c$$$C ... Local parameters
+c$$$      logical lhigh,lfit
+c$$$      integer i,nmin,nmax,modsgp,fopna,ifi,lwrite
+c$$$      double precision norm(2,2),rhs(2),tnorm(2,2),emin,emax,elo,ehi,
+c$$$     .efit
+c$$$      save norm,rhs,elo,ehi
+c$$$      data norm /4*0d0/,rhs/2*0d0/,elo/9d0/,ehi/-9d0/
+c$$$
+c$$$      if (mod(mode,2) .eq. 1) then
+c$$$        call dpzero(norm,4)
+c$$$        call dpzero(rhs,2)
+c$$$      endif
+c$$$      if (mode .eq. 1) return
+c$$$
+c$$$      modsgp = nint(sigp(1))
+c$$$      nmin   = nint(sigp(2))
+c$$$      emin   = sigp(3)
+c$$$      nmax   = nint(sigp(4))
+c$$$      emax   = sigp(5)
+c$$$C     asig   = sigp(6)
+c$$$C     bsig   = sigp(7)
+c$$$      efit   = sigp(8)
+c$$$      lwrite = nint(sigp(9))
+c$$$
+c$$$      if (mod(mode/2,2) .eq. 1) then
+c$$$        if (lwrite .eq. 1) then
+c$$$          ifi = fopna('sigii',-1,0)
+c$$$          write(ifi,'(''#  state    E(lda)      dE(sig)'')')
+c$$$        endif
+c$$$        do  i = 1, ndimh
+c$$$          lhigh = (nmax .le. 0 .and. e(i) .gt. emax) .or.
+c$$$     .    (nmax .gt. 0 .and. i .gt. nmax)
+c$$$          if (modsgp .eq. 3) then
+c$$$            lfit = e(i) .gt. efit .and. .not. lhigh
+c$$$          else
+c$$$            lfit = e(i) .gt. efit
+c$$$          endif
+c$$$          if (lfit) then
+c$$$            norm(1,1) = norm(1,1) + 1
+c$$$            norm(1,2) = norm(1,2) + e(i)
+c$$$            norm(2,1) = norm(2,1) + e(i)
+c$$$            norm(2,2) = norm(2,2) + e(i)**2
+c$$$            rhs(1) = rhs(1) + de(i)
+c$$$            rhs(2) = rhs(2) + e(i)*de(i)
+c$$$            elo = min(elo,de(i))
+c$$$            ehi = max(ehi,de(i))
+c$$$            if (lwrite .eq. 1) then
+c$$$              ifi = fopna('sigii',-1,0)
+c$$$              write(ifi,'(i6,2f12.6)') i,e(i),de(i)
+c$$$            endif
+c$$$          else
+c$$$            if (lwrite .eq. 1) then
+c$$$              ifi = fopna('sigii',-1,0)
+c$$$              write(ifi,'(''#'',i5,2f12.6)') i,e(i),de(i)
+c$$$            endif
+c$$$          endif
+c$$$        enddo
+c$$$      endif
+c$$$
+c$$$      if (mod(mode/8,2) .eq. 1 .or. mod(mode/4,2) .eq. 1)
+c$$$     .call info0(30,0,0,' ')
+c$$$
+c$$$
+c$$$      if (mod(mode/8,2) .eq. 1) then
+c$$$        call info2(30,0,0,' hambls: smallest nmax encountered for '//
+c$$$     .  'sigm middle block = %i',nsmidb,0)
+c$$$      endif
+c$$$
+c$$$      if (mod(mode/4,2) .eq. 1) then
+c$$$        if (norm(1,1) .ne. 0) then
+c$$$          call dinv22(norm,tnorm)
+c$$$          a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
+c$$$          b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
+c$$$          call info5(30,0,0,' hambls: sig(low,high) = %,4;4d,%,4;4d'//
+c$$$     .    '  fit : %,4;4d + %,4;4d * E(lda) (%i points)',
+c$$$     .    elo,ehi,a,b,nint(norm(1,1)))
+c$$$          if (lwrite .eq. 1) then
+c$$$            ifi = fopna('sigii',-1,0)
+c$$$            write(ifi,345) modsgp,nmin,emin,nmax,emax,a,b,efit
+c$$$  345       format('# mode nmin    emin   nmax    emax',8x,
+c$$$     .      'asig      bsig',8x,'efit'/2i5,f10.4,i5,f10.4,2x,2f10.4,
+c$$$     .      2x,f10.4)
+c$$$          endif
+c$$$        endif
+c$$$      endif
+c$$$
+c$$$      end subroutine phmbl3
+c$$$
+c$$$

@@ -1,6 +1,5 @@
       subroutine bloch(lbloch,qp,nl,plat,mxorb,iprmb,is1,is2,iax,s,
      .nds,isp,nsp,ldima,ldimb,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
-
 C- Bloch transform of real-space matrix
 C ----------------------------------------------------------------------
 Ci Inputs
