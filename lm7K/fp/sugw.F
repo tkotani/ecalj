@@ -4,7 +4,7 @@
       subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ,nk1,nk2,nk3,sfz,sigmamode,ndimsig, numproc,procid,master)
+     .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)
       use m_struc_def,only:  s_rv1, s_lat, s_ham, s_spec, s_site
       use m_globalvariables,only: globalvariables
       use m_phmbls,only: phmbls
@@ -14,6 +14,7 @@
 !!i Inputs
 !!i   ssite,sspec,slat,sham :struct defined in m_struc_def.
 !!i   osig,otau,oppi  augmentation matrices, s_rv1
+!!i   sham%rv_a_ohrs: real space Sigma_vxc 
 !!i   nbas  :size of basis
 !!i   smpot :smooth potential on uniform mesh (mkpot.f)
 !!i   vconst:constant to be added to potential
@@ -205,7 +206,7 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
 
       integer(4):: nk1,nk2,nk3,   irr,nqi, nmcore !feb2012takao
-      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
+c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
       integer:: ndimsig
       
