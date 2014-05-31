@@ -487,7 +487,7 @@ c$$$        s(ilb,ilb,ispc) = 1d0
 c$$$      enddo                      
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc                
 
-!! ... Store LDA eigenvectors, eigenvalues in s and h and exit
+!! === Store LDA eigenvectors, eigenvalues in s and h and exit
       if (lwsig .eq. 1) then
          allocate(zqi(ndimh,ndimh))
          allocate(z0(ndimh,ndimh))
@@ -504,7 +504,6 @@ c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! === Start sigm=\Sigma-Vxc interpolation part ===
-!! complecated. I like to skip to other way in future (see bndfp.F).
       nspc = globalvariables%nspc
       ndimhx = ndimh * nspc
 C     ... Setup for Bloch transform
@@ -523,12 +522,13 @@ C     hreal=1 -> sig(T) is real
       if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
       sigp=sham%sigp
 
-!     ! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
+!! === sigmat = Sigma-Vxc  is generated in a basis of ndimsig (usually MTOs only) ===
       allocate(sigmat(ndimsig,ndimsig))
 C     ... Bloch transform sigm(RS)-sigm(k). 
 C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).
 C     Call to bloch : 104110=perm orb, transpose, no add, c*16
       i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
+      print *,'AAAAAhambles goto bloch sigmat------i q nl plat mxorb ',lrsig,i,q,ndimsig,nttabs
       call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
      .     , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
      .     , 0 , ndimsig, 0 , ndimsig , 0 , sigmat ( 1 , 1 ) , iwdummy , iwdummy )
@@ -543,13 +543,11 @@ C     Call to bloch : 104110=perm orb, transpose, no add, c*16
          print *,' QSGW-LDA hybrid: ScaledSigma=alpha_Q=',sham%scaledsigma
          sigmat = sham%scaledsigma* sigmat
       endif   
-cccccccccccccccccccccccccccccc
 c         h(:,:,ispc) = h(:,:,ispc) + matmul(transpose(dconjg(ovliovl)), matmul(sigmat(:,:),ovliovl))
 c         deallocate(sigmat,ovliovl)
 c         call tcx('hambls')
 c         return
 c      endif
-cccccccccccccccccccccccccccccccc
 
 !! == Followings are original Mark's metod ==
       moditp = mod(mode/100,10)

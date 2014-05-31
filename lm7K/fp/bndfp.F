@@ -141,8 +141,6 @@ Cl         :4  Writes evals,evecs of hamiltonian to file,
 Cl         :   saves in file 'evec'
 Cl         :5  Writes sigm as in lwsig=2 with low- and high- energy blocks
 Cl         :   replaced by diagonal parts, but writes sigm in orbital bas.
-Cl   nsmidb:smallest value of nmax encountered in truncating sigma
-Cl         :   (only used for printout)
 Cr Remarks
 Cr   Band pass consists of:
 Cr   (1) make the effective potential,
@@ -241,7 +239,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
-     ., i , iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
+     ., i , iopq , iq , isqp , ismidb ,  ldos , lmet , nspc 
      ., lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
      ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
      ., lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
@@ -345,7 +343,7 @@ C For self-energy
       integer,allocatable:: nevls(:,:)
 ctakao
       integer :: ifiogw,ifiese,oag,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
-      logical :: nexist,sigmamode,ok, newsigmasw
+      logical :: nexist,sigmamode,ok !, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
@@ -415,15 +413,13 @@ ctakao
 
 c mar2014
       integer:: lb1,lb2
-      integer:: iprocar,iprocar1,iprocar2
+      integer:: iprocar,iprocar1,iprocar2,lrsigx
       complex(8),allocatable:: auspp(:,:,:,:,:)
-      integer:: l,m,ilm,nlma,iband,hreal,mode
+      integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
       character*256:: ccc
       logical:: initbd=.true.
-
-
 
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
@@ -1276,7 +1272,8 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
          endif
       endif
 
-!     ! === generate \Sigma for q points on all the mesh points. ===
+
+!! === Generate \Sigma for q points on all the mesh points. ===
 c     nhmax = ldim + napwmx !napwmx is in m_hamindex
 c     lwsig=0
       if(debug) print *,' --- goto rdsigm2 section ---'
@@ -1391,7 +1388,8 @@ c$$$  call phmbl3(1,0,0,0,0,0,0,0)
 c$$$  endif
 c$$$  print *,'lwsig=',lwsig
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     
+     
+
 c     --- pair-table and weight generator
 c     nknknk = nk1*nk2*nk3
 c     allocate(npair(nbas,nbas),range(nbas,nbas),pos(3,nbas))
@@ -1414,10 +1412,10 @@ c
             enddo
             deallocate(pos,npair)
 
-!     ! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
-!     ! Aug2012  newsigmasw()=F is the current version.
-!     ! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
-            if(.not.newsigmasw()) then 
+!! When ndimsig=ldim, we modify use rdsigm2 projected on MTO.
+!! Aug2012  newsigmasw()=F is the current version.
+!! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
+c            if(.not.newsigmasw()) then 
                allocate( sfzx(nk1,nk2,nk3,ndimsig,ndimsig,nsp) ) 
                sfzx=sfz
                if(pdos) then
@@ -1430,7 +1428,7 @@ c
      &              nk1,nk2,nk3,sfzx) !,qp,isp,sene)
                call fclose(ifi)
                deallocate(sfzx,sfz)
-            endif
+c            endif
             deallocate(qsmesh,nlat,qwgt)
          endif                  ! procid==master
 
@@ -1526,9 +1524,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 
       do 2010 iq = iqini, iqend !This is a big iq loop
 #if MPIK
-#ifdef KINODEBUG
-        write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
-#endif
+        if(debug) write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
         if (iq .eq. kpproc(procid)) then
           if (mlog) then
             call gettime(datim)
@@ -1638,7 +1634,7 @@ C   ... Make Hamiltonian and overlap matrices
             endif
 
             i = lrsig*10
-c            print *,' i lrsig=',i,lrsig
+            if(debug) print *,' i lrsig=',i,lrsig
 C Commented by takao lwsig should be renewed.
 C C       lwsig=-1: sigm LDA -> orbital basis
 C C       lwsig= 1: sigm orbital -> LDA basis
@@ -1662,40 +1658,31 @@ C         elseif (lwsig .eq. 5) then
 C           i = i + 5000
 C         endif
 
-
-
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! For given sfz, we will give a routine seneinterp2 to generate sene(Sigma-Vxc) added to Hamilatoninan.
-!! Determine interpolated self-energy sene at qp from sfz. newsigmasw()=T is under construction.
-         if(sigmamode .and.newsigmasw()) then
-           if(debug) print *,' goto seneinterp2: qp=',qp,ispc,ndimsig,ndimh
-           allocate(sene(ndimsig,ndimsig))
-ccccccccccccccccccc
-ccase1 not work well yet.
-c           call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+!! === Sigma -Vxc ===
+!! Generate sene(Sigma-Vxc) for given sfz.
+!! Determine interpolated self-energy sene at qp from sfz. 
+cccccccccccccccccccccccccccccccccccc
+!!     case1
+!! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
+!!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
+!! NOTE: Call to bloch : 104110=perm orb, transpose, no add, c*16
+            allocate(sene(ndimsig,ndimsig))
+            hreal = 0
+            if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+            mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+            if(debug) print *,'222222222222 goto bloch xxxxxxxxxxxxx'
+            if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( sham%iv_a_ontabs , nbas + 1 )
+            call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
+     &      , ival ( sham%iv_a_ontabs , nbas + 1 )
+     &      , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+     &      , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
+            if(debug) print *,'end of bloch sene'
+!!     case2 not work well yet. We need think about pair tables as in bloch.
+c            allocate(sene(ndimsig,ndimsig))
+c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
 c     o        sene) 
-c
-cccccccccccccccccccccccccccccccccccc
-ccase2
-!     ! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
-C     ... Bloch transform sigm(RS)-sigm(k). 
-C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).
-C     Call to bloch : 104110=perm orb, transpose, no add, c*16
-      mode=i
-      lrsig = mod(mode/10,10)
-      hreal = 0
-      if (lrsig .ge. 4) hreal = 1
-      i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-      call bloch ( i , qp ,globalvariables%nl, plat , globalvariables%mxorb, sham%iv_a_oindxo , 1 , 
-     &     ival( sham%iv_a_ontabs , nbas + 1 ),
-     .     , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
-     .     , 0 , ndimsig, 0 , ndimsig , 0 , sene ( 1 , 1 ) , iwdummy , iwdummy )
-      if(debug) print *,'end of bloch sene'
-cccccccccccccccccccccccccccccccccc
-      endif
+
 
 c$$$
 c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
@@ -1757,16 +1744,17 @@ c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-
 Ckino hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 Ckino finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
 
 
 !! == Set up hamiltonian. ==
-            if(debug) print *,' mode ispc=',i,ispc,newsigmasw()
-            if( newsigmasw() ) then
-              print *,' --- hambl --- sigmamode=',sigmamode
+c            if(debug) print *,' mode ispc=',i,ispc,newsigmasw()
+cttt1
+c            if( newsigmasw() ) then
+            if(.true. ) then
+c             print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
               if (lso == 1) jx = 10
               call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
@@ -1788,34 +1776,16 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                 hamm(:,:,ispc) = hamm(:,:,ispc) + sham%scaledsigma * senex
                 deallocate(senex)
               endif
-
-C ... Store LDA eigenvectors, eigenvalues in s and h and exit
-c      if (lwsig .eq. 1) then
-c        allocate(zqi(ndimh,ndimh))
-c        allocate(z0(ndimh,ndimh))
-c        allocate(e(ndimh))
-c        call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
-c     .    z0,F,e,ndimh,zqi)
-c        call dcopy(ndimh**2*2,zqi,1,s(1,1,ispc),1)
-c        call dcopy(ndimh,e,1,h,1)
-c        deallocate(z0,zqi,e)
-cc        goto 999
-c      endif
-c      if (lrsig .eq. 0) goto 999
-
             else
-!!  Interpolation of sene= \Sigm-Vxc at given q.
+!! Interpolation of sene= \Sigm-Vxc at given q.
+!! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
               isize_hamm(3)=size(hamm,dim=3)
               if(debug) print *,'goto hambls'
-!! note that hambls add SO part when ispc=2. two calls to hambls makes the hamiltonian with SO.
               call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
      .             ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , spot%zv_a_osmpot , 
      .             vconst , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa, 
      .             ndimh , napw , igv2x , hamm , ovlm ,isize_hamm, ismidb ,ndimsig)
-ccccccccc    This hambls return i=-1 when sigm mode. (already diagonalized).
-
-c        nsmidb = min(nsmidb,ismidb) !????
-c              if(oncewrite(3)) print *,' end of hambls mode=',i
+!! NOTE: hambls return i=-1 when sigm mode. (already diagonalized).
             endif
 
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
@@ -1829,8 +1799,6 @@ C       isp serves as a flag for the noncollinear case
             if (ispc .eq. 2) jsp = 1
             if (i .eq. -1) lpdiag = 2
 c            print *,'bndfp: lpdiag i=',lpdiag,i
-
-
 
 !! === Diagonalize and add to density ===
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
@@ -2344,16 +2312,6 @@ C C        if (lwsig .eq. 4) then
 C C        call rx0('BNDFP:  H(QP) saved in file sigm2')
 C C        endif
 C       endif
-
-c$$$C ... Set switch to write file sigii
-c$$$#ifndef LMFGW
-c$$$      if (lrsig .ne. 0 .and. plbnd .eq. 0 .and. procid .eq. master) then
-c$$$        call upack1('ham sigp',sham,sigp)
-c$$$        if (mpipid(0) .le. 1) call phmbl3(12,0,nsmidb,0,0,sigp,qp,qp(2))
-c$$$        call fclose(fopna('sigii',-1,0))
-c$$$      endif
-c$$$#endif
-
 
 C --- Second loop over qp, needed to make k-parallelisation possible: ---
 C     You can't do this until you have all the evals.

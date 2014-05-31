@@ -165,11 +165,9 @@ C     parameter (ndss=49)
 C     double precision sc(ndss,ndss,2),swk(ndss,2,ndss)
 C ... External calls
       external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
-C ... Heap
-C     integer w(1)
-C     common /w/ w
-
+      logical:: debug=.false.
 C --- Setup ---
+      if(debug) print *,' gggggggggg bloch gggggggggggg'
       call tcn('bloch')
       ndss = nds
       twopi = 8*datan(1d0)
@@ -182,11 +180,13 @@ C --- Setup ---
       maskil = bittst(j,2)
       maskii = bittst(j,4)
       lidim = ldima+idim
+      if(debug) print *,' gggggggggg bloch gggggggggggg 11111',ldl,ldl2,ldi,size(sll),size(sil),size(sii)
       if (mod(mod(lblchi/100,10),2) .eq. 0) then
         if (.not. maskll) call dpzero(sll,2*ldl*ldl2)
         if (.not. maskil) call dpzero(sil,2*ldi*ldl2)
         if (.not. maskii) call dpzero(sii,2*ldi**2)
       endif
+      if(debug) print *,' gggggggggg bloch gggggggggggg 2222'
 
 C     Pick up true dimensions of sll,sil,sii from formal ones
       kcplx = mod(mod(lblchi/10,10),4)
@@ -194,6 +194,7 @@ C     Pick up true dimensions of sll,sil,sii from formal ones
       call cplxdm(kcplx,ldl,ldl2,ld11,ld21,oi,oi)
       call cplxdm(kcplx,ldi,ldl2,ld12,ld22,oi,oi)
       call cplxdm(kcplx,ldi,ldi,ld13,ld23,oi,oi)
+
 C     lblchp passed to pblch1. s cplx -> shift lblchi flag 40->1000
       lblchp = mod(lblchi,1000)
       if (scplx .eq. 1) lblchp = lblchp - 40
@@ -274,6 +275,7 @@ C   ... Rotate s to spherical harmonics
 C   ... If otherwise to use transpose of s
         else if (ltrans) then
           if (mod(lblchp/1000,10) .ne. 1) call rx('oops!')
+          print *,' ltrans=',ltrans,scplx
           call rx('bloch not ready for scplx=1 and ltrans')
         endif
 C   ... Take transpose of sc
@@ -320,8 +322,8 @@ C   --- Intermediate-intermediate block ---
         endif
 
 C       call snott(isite,sll,ld21,cost)
-  100 continue
 
+  100 continue
       if (iprint() .ge. 110) then
         k = mod(mod(lblchi/10,10),4)
         if (.not. maskll)
@@ -336,6 +338,10 @@ C       call snott(isite,sll,ld21,cost)
       endif
 
       call tcx('bloch')
+ccccccccccccccccccccccccccccccccccccc
+      if(debug) print *,' end of bloch xxxxxxxxxxxxxxx'
+ccccccccccccccccccccccccccccccccccccc
+
       end subroutine bloch
 
 
