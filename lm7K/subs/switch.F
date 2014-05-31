@@ -37,6 +37,21 @@ c      mixrealsmooth=.false.
       enforce_positive_smrho=.true.
       end
 
+c-----------
+Cr   1. newsigmasw=F : new result               (test mode)
+Cr   1. newsigmasw=T (then pmtsig is irrelevant): new result (run mode)
+Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
+
+      logical function newsigmasw()
+! newsigmasw: in this case, we only use emax_sigm in hqpe.sc.m.F when we construct sigma.
+!!       T: newsigma rotation, and interpolation. !this is still problematic
+c        O: old version
+c      newsigmasw=.true.
+!! in future, I like to modify the interpolation scheme, but not yet.
+c      newsigmasw=.true.
+      newsigmasw=.false.
+      end
+
       integer function debugmode()
       debugmode=0
       end

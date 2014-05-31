@@ -219,10 +219,12 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       integer:: ifimag=9078
 
       integer,parameter:: noutmx=48
-      integer:: iout,nout,nlatout(3,noutmx),iapw
+      integer:: iout,nout,nlatout(3,noutmx),iapw,ival
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3)
+      integer:: hreal,mode,iwdummy,lso,jx
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
 
 #if MPI | MPIK
       include "mpif.h"
@@ -806,23 +808,70 @@ c            write(6,"('lwvxc=T write vxc: iq q=',i3,3f8.4)")iq, q
             write(ifiv) q,vxc
           endif
 !!   --- LDA + sigma Hamiltonian for this qp ---
-          lpdiag = 0
-          i = lrsig*10 + 1
-          if(sigmamode.and.newsigmasw()) then
-            allocate(sene(ndimh,ndimh))
-            call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,
-     i       sfz(:,:,:,:,:,isp),ldim,ndimh, 
-     o       sene)
-            ham=ham+sene
-            deallocate(sene)
-          else
-            ispc = min(isp,nspc)
-            isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
-            call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
-     .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
-     .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
-     .        , napw , igv2 , ham , ovl , isize_ham, i2, ndimsig )
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          if(sigmamode) then
+             allocate(sene(ndimsig,ndimsig))
+             i = lrsig*10 + 1
+             hreal = 0
+             if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+             mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+             if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( sham%iv_a_ontabs , nbas + 1 )
+
+             call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
+     &            , ival ( sham%iv_a_ontabs , nbas + 1 )
+     &            , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+     &            , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
+!!     case2 not work well yet. We need think about pair tables as in bloch.
+c            allocate(sene(ndimsig,ndimsig))
+c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
+c     o        sene) 
+             if(debug) print *,'end of bloch sene'
           endif
+
+          lpdiag = 0
+          jx = 0
+          call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
+     .         qp , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
+     .         , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2, ham, ovl, ham)
+
+          if(sigmamode) then
+             allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+             ovlmtoi = ovl(1:ndimsig,1:ndimsig)
+             call matcinv(ndimsig,ovlmtoi)
+             ovliovl = matmul(ovlmtoi,ovl(1:ndimsig,1:ndimh))
+             deallocate(ovlmtoi)
+             allocate(senex(ndimh,ndimh))
+             senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
+             deallocate(ovliovl,sene)
+             if(sham%scaledsigma/=1d0) then
+                print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+             endif   
+             ham(:,:) = ham(:,:) + sham%scaledsigma * senex
+             deallocate(senex)
+          endif
+c$$$          if(sigmamode.and.newsigmasw()) then
+c$$$            allocate(sene(ndimh,ndimh))
+c$$$            call seneinterp2(qp,nbas,nk1,nk2,nk3,plat,
+c$$$     i       sfz(:,:,:,:,:,isp),ldim,ndimh, 
+c$$$     o       sene)
+c$$$            ham=ham+sene
+c$$$            deallocate(sene)
+c$$$          else
+c$$$            ispc = min(isp,nspc)
+c$$$            isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
+c$$$            call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
+c$$$     .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
+c$$$     .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
+c$$$     .        , napw , igv2 , ham , ovl , isize_ham, i2, ndimsig )
+c$$$          endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
           if (i .eq. -1) lpdiag = 2
           if(debug) print *,' end of generation of Hamiltonian'
 

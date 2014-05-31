@@ -1666,22 +1666,24 @@ cccccccccccccccccccccccccccccccccccc
 !! === sigmat=Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) ===
 !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
 !! NOTE: Call to bloch : 104110=perm orb, transpose, no add, c*16
-            allocate(sene(ndimsig,ndimsig))
-            hreal = 0
-            if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
-            mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-            if(debug) print *,'222222222222 goto bloch xxxxxxxxxxxxx'
-            if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( sham%iv_a_ontabs , nbas + 1 )
-            call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
-     &      , ival ( sham%iv_a_ontabs , nbas + 1 )
-     &      , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
-     &      , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
-            if(debug) print *,'end of bloch sene'
+            if(sigmamode) then
+               allocate(sene(ndimsig,ndimsig))
+               hreal = 0
+               if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+               mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+               if(debug) print *,'222222222222 goto bloch xxxxxxxxxxxxx'
+               if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( sham%iv_a_ontabs , nbas + 1 )
+               call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
+     &              , ival ( sham%iv_a_ontabs , nbas + 1 )
+     &              , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+     &              , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
 !!     case2 not work well yet. We need think about pair tables as in bloch.
 c            allocate(sene(ndimsig,ndimsig))
 c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
 c     o        sene) 
+               if(debug) print *,'end of bloch sene'
+            endif
 
 
 c$$$
@@ -1762,14 +1764,14 @@ c             print *,' --- hambl --- sigmamode=',sigmamode
      .            , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .            , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
               if(sigmamode) then
-                allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
-                ovlmtoi = ovlm(1:ndimsig,1:ndimsig,ispc)
-                call matcinv(ndimsig,ovlmtoi)
-                ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh,ispc))
-                deallocate(ovlmtoi)
-                allocate(senex(ndimh,ndimh))
-                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
-                deallocate(ovliovl,sene)
+               allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+               ovlmtoi = ovlm(1:ndimsig,1:ndimsig,ispc)
+               call matcinv(ndimsig,ovlmtoi)
+               ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh,ispc))
+               deallocate(ovlmtoi)
+               allocate(senex(ndimh,ndimh))
+               senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
+               deallocate(ovliovl,sene)
                 if(sham%scaledsigma/=1d0) then
                   print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
                 endif   
