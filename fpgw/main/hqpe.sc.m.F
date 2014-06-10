@@ -677,6 +677,11 @@ c     Aug2004
                  iix=iix+1
               endif
            enddo
+!! bug fix when iix=0 jun2014.
+           if(iix==0) then
+             eavr2=1d0
+             eseavr02=0d0
+           endif
            eseavr(ip,is) = eseavr02/eavr2 !now eseavr is
 c          eseavr(ip,is) = eseavr0/eavr !now eseavr is
 cc           do itp = ntqxx+1,ntq
