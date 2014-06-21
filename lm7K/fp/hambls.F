@@ -158,7 +158,7 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
       end module m_phmbls
 
 
-      subroutine hambls ( mode , nbas , ssite , sspec , slat , sham 
+      subroutine hambls_unused ( mode , nbas , ssite , sspec , slat , sham 
      .     , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .     , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
      .     , napw , igvapw , h , s ,isize_h, ismidb  ,ndimsig)
@@ -719,7 +719,7 @@ C     Replace h with evals on the diagonal
   999 continue
       call tcx('hambls')
       return
-      end subroutine hambls
+      end subroutine hambls_unused
 
 
 

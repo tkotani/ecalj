@@ -677,6 +677,11 @@ c     Aug2004
                  iix=iix+1
               endif
            enddo
+!! jun2014
+           if(iix==0) then !if iix=0
+             eavr2=1d0                              
+             eseavr02=0d0                           
+           endif                                    
            eseavr(ip,is) = eseavr02/eavr2 !now eseavr is
 c          eseavr(ip,is) = eseavr0/eavr !now eseavr is
 cc           do itp = ntqxx+1,ntq

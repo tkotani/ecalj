@@ -279,7 +279,7 @@ Ci         :1 sigm(R) is real
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
 Ci   nttabs:number of site pairs in sigm(R)
 Ci   iaxs  :neighbor table for sigm(R)
-Ci   hrs   :sigm(R)
+Ci   hrs   :sigm(R)  <=================================== important input to be checked
 Ci   ndhrs :leading dimensions of hrs
 Ci   tols  :deviations in sigma > tols causes chksgr to abort
 Ci         :tols=0 -> chksgr never aborts
@@ -466,13 +466,6 @@ C       Call bloch : 104010=perm orb, transpose, c*16
           call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
      .     , iaxs , hrs , ndhrs , isp , nsp , ndimh , ndimh , 0 , ndimh 
      .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy )
-C ccccccccccccccccccccccccccccccccc
-C c mar2014
-C           lb1=137
-C           lb2=168
-C           sq(lb1:lb2,:)=0d0
-C           sq(:,lb1:lb2)=0d0
-C cccccccccccccccccccccccccccccccccc
 
 C        print *, 'iq=',iq1,'qp=',sngl(qp)
 C        call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
@@ -484,7 +477,7 @@ C       Compare Bloch sum of hrs against file's s(q)
             jj = 1
             do  j = 1, ndimh
               do  i = 1, ndimh
-                err = abs(sq(i,j)-sq1(i,j))
+                err = abs(sq(i,j)-sq1(i,j))  !Comparison here.
                 if (err .gt. errmx) then
                   ii = i
                   jj = j

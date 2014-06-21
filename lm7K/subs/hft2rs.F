@@ -1,8 +1,6 @@
       module m_hft2rs
       contains
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-ckino Dec.14.2011:       .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_p_ontab,iv_p_oiax,ndhrs,
-ckino Dec.14.2011:       .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_p_ontab,iv_a_oiax,ndhrs,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs,
      .hrs)
       use m_pairs
