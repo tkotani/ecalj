@@ -1475,13 +1475,15 @@ C       Get qp either from qp list or read from suqlst
 
 cnnn
         if(pwmode>0.and.pwmode<10) then
-        ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
-        do iout=1,nout
-           write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
-     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
-     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
-        enddo
+           ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
+           call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+           if(debug) then
+              do iout=1,nout
+                 write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
+     &                sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+     &                matmul(qlat(:,:),ppin+nlatout(:,iout))
+              enddo
+           endif
         endif
              
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
