@@ -110,7 +110,7 @@ fp pot  rvvxcv        0.0000000  rvexcv        0.0000000
 fp pot  rvexv         0.0000000  rvecv         0.0000000
 fp KS: U   -2235.6195920 T    1158.9530895 Exc    -79.4654695 EKS  -1156.1319719
 fp 4g  ;Anderson n 2 beta 0.5  sm-dq 1.46e-5  mx loc 1.29e-5  dq 7.51e-6
- CPU time:    6.036s     Mon Jun  9 09:34:59 2014   on TT4
+ CPU time:    7.132s     Sun Jun 22 13:28:12 2014   on TT4
  -----------------------  START LMFGWD   -----------------------
   LMFGWD  vn 7.00(LMFGWD 7.0)  verb 35
  special:  APW basis
@@ -141,7 +141,7 @@ fp pot  rvxc      -104.9826442  rexc        -79.4655082  rves    -2235.6186581
 fp pot  rex        -75.1526724  rec          -4.3128358
 fp pot  rvvxcv        0.0000000  rvexcv        0.0000000
 fp pot  rvexv         0.0000000  rvecv         0.0000000
- CPU time:    4.416s     Mon Jun  9 09:35:05 2014   on TT4
+ CPU time:    4.836s     Sun Jun 22 13:28:18 2014   on TT4
  -----------------------  START LMF      -----------------------
   LMF  vn 7.00(LMF 7.0)  verb 35
  special:  APW basis
@@ -248,4 +248,4 @@ fp pot  rvvxcv        0.0000000  rvexcv        0.0000000
 fp pot  rvexv         0.0000000  rvecv         0.0000000
 fp KS: U   -2235.5899647 T    1158.8668809 Exc    -79.4610438 EKS  -1156.1841276
 fp 4g  ;Anderson n 1 beta 0.5  sm-dq 1.91e-5  mx loc 8.54e-6  dq 6.68e-6
- CPU time:    9.577s     Mon Jun  9 09:35:21 2014   on TT4
+ CPU time:   10.013s     Sun Jun 22 13:28:39 2014   on TT4
