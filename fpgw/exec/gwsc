@@ -90,6 +90,10 @@ mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf
 echo -n 'OK! --> Start'
 endif
 
+#if ( $? == 0 )  then
+rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}*
+#endif
+
 ######## preparatoy gw stage ################
 ###make_ref.awk echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
 ###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=$TARGET output=llmfgw00 
@@ -380,5 +384,6 @@ mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_gwscend.${ITER}
     exit 10
   endif
 #<<<
+rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* _IN_
 echo OK! ==== All calclation finished for  gwsc $argv ====
 exit

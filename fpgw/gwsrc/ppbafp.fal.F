@@ -719,7 +719,7 @@ c      if(verbose()>=100)
 cccccccccccccccccccccc
 c      nadd=0
 cccccccccccccccccccccc
-      print *,' melpln2t: nadd=',nadd
+      if(debug) print *,' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
       if(verbose()>=100) print *,' melpln2t: end of getppx2'
       if(ngc/=ngcread) then

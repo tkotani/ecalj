@@ -98,7 +98,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       implicit none
       integer,parameter:: nmax=10000
       integer:: i1(nmax)=nmax*0 
-      character(30):: msg(nmax)
+      character(80):: msg(nmax)
       real(8):: elapse(nmax)=nmax*0.0d0
       real(8):: start(nmax)=nmax*0.0d0
       end module m_realtimediff

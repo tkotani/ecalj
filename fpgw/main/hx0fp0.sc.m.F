@@ -145,18 +145,15 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
       end if
       call MPI__Broadcast(ixc)
-Cstop2rx 2013.08.09 kino      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
       if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
       call headver('hx0fp0_sc',ixc)
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f8.3)") sciss
-
       if(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
       elseif(ixc==1011) then
          write(6,*) 'OK ixc=1011 Add W0W0I part at q=0'
       else
          print *,'we only allow ixc==11. given ixc=',ixc
-Cstop2rx 2013.08.09 kino         stop 'error:we only allow ixc==11.'
          call rx( 'error:we only allow ixc==11.')
       endif
 !! ====newaniso2====
@@ -171,20 +168,8 @@ Cstop2rx 2013.08.09 kino         stop 'error:we only allow ixc==11.'
 !! naraga says this cause a stop in ifort --->why???
 c     print *,'Timereversal=',Timereversal()
 
-
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
       call read_BZDATA()
-!--------readin data set when you call read_BZDATA ---------------
-!     integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,
-!     c     &   n_index_qbz
-!     integer:: n1,n2,n3
-!     real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2
-!     real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
-!     &    ,wibz(:),qbzw(:,:)
-!     integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-!     &    ,nstar(:),irk(:,:),nstbz(:)
-!     c  ,index_qbz(:,:,:)
-!-----------------------------------------------------------------
 !TIME1 "after readbzdata"
 !TIME0 
 
@@ -1219,11 +1204,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                          endif   
                        enddo
                      enddo
-!TIME0
+c !TIME0
                      epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                      call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                      llw(iw,iq0)= 1d0/epstinv(1,1)
-!TIME1 "end of matcinv,llw=1/epstinv"
+c !TIME1 "end of matcinv_epstinv" !this gives wrong message, probably 
+c         because of a bug of !TIME1 processing for MPI mode.
                    else
 c commentout block inversion
 c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
@@ -1245,7 +1231,7 @@ c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0 
                      write(*,*) 'iq iw_real eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
-!TIME1 "write iq iwreal"
+!TIME1 "write iq iwreal" 
 
 c     write(*,*) 'uuuu iq iw llw vc x0mean',iq,iw,fourpi/sum(q**2*tpioa**2),sk(1)
 c     write(ifisk) iw,iq0,q
