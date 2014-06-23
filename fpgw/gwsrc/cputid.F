@@ -98,7 +98,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       implicit none
       integer,parameter:: nmax=10000
       integer:: i1(nmax)=nmax*0 
-      character(80):: msg(nmax)
+      character(30):: msg(nmax)=''
       real(8):: elapse(nmax)=nmax*0.0d0
       real(8):: start(nmax)=nmax*0.0d0
       end module m_realtimediff
@@ -106,15 +106,22 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
 
       subroutine realtimediff(id,msg0)
       use m_realtimediff 
+      implicit none
       integer,intent(in):: id
       character(*),intent(in)::msg0
 
       integer::mode
       real(8):: diff
       integer:: i2,imax
+      character(20):: errmsg
 #define USEMPIWTIME 
 #ifdef USEMPIWTIME
       real(8):: mpi_wtime
+
+      if (id<=0 .or. id>nmax) then 
+          write(errmsg,"(2i5)") id,nmax
+          call rx('fatal error, id<=0 or id>nmax, id,nmax='//trim(errmsg))
+      endif
 
       mode=0
       if (len_trim(msg0)>0) mode=1 
@@ -146,45 +153,19 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       subroutine print_realtimediff()
       use m_mpi
       use m_realtimediff
+      implicit none
       integer:: i,j,isize
       character(30):: str
-
-      call flush(6)
-      call mpi__barrier()
-
-      isize=0
-      if ( mpi__rank.eq.0 ) then 
          do i=1,nmax
+           !if (i1(i).ne.0 .and. len_trim(msg(i))>0 ) then 
            if (i1(i).ne.0 ) then 
            str=msg(i)
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
-           write(*,'(a,i3,1x,i4,1x,a,1x,F10.2,1x,i5)')'mpi=',mpi__rank,i,trim(str),elapse(i) ,i1(i)
+!           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
+            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
            endif 
          enddo
-      endif
-
-      do isize=1,mpi__size-1
-          if (mpi__rank.eq.isize) then 
-                 call mpi__send(i1,0)
-                 call mpi__send(elapse,0)
-          else if (mpi__rank.eq.0) then 
-                 call mpi__recv(i1,isize)
-                 call mpi__recv(elapse,isize)
-           do i=1,nmax
-           if (i1(i).ne.0 ) then
-           str=msg(i)
-           do j=1,30
-             if (str(j:j).eq.' ') str(j:j)='_'
-           enddo
-           write(*,'(a,i3,1x,i4,1x,a,1x,F10.2,1x,i5)')'mpi=',isize,i,trim(str),elapse(i) ,i1(i)
-           endif
-           enddo 
-         endif 
-      enddo
-!! flush here is commented because tatara@kyushu-u cause seg fault. apr2013takao
-c      call flush()
-      call mpi__barrier()
       end subroutine print_realtimediff
 

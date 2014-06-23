@@ -1,57 +1,60 @@
-=== ecalj package === (this document is checked at Feb2014)
+=== ecalj package === (this document is checked at June2014)
 
 >git clone https://github.com/tkotani/ecalj.git
 to get a ecalj package here. (you need "git" installed).
-https://github.com/tkotani/ecalj shows current status and this README.
+
+The homepage of ecalj, https://github.com/tkotani/ecalj,
+shows current status and this README.
 ==================================================================
 ecalj is a first-principle electronic structure calculation package in
 f90, especially for the PMT-QSGW. 
 This is at https://github.com/tkotani/ecalj
 We have another home page at http://pmt.sakura.ne.jp/wiki/, but
-not well-organized yet, little in English yet.  We will renew it.
+not well-organized yet, little in English yet. We will renew it.
 ===================================================================
 
 ##### Unique features in ecalj package #####
 (1)All electron full-potential PMT method: a mixed basis method of two
    kinds of augmented waves, that is, L(APW+MTO). 
-   In principle, it is possible to perform default calculation just
+   In principle, it is possible to perform default calculations just
    from atomic structures.
    Relaxiation of atomic positions is possible in GGA/LDA and LDA+U.
    A converter between POSCAR(VASP) and our crystal strucrue file
    'ctrls.*' is included. (a small program---but slight buggy; let
-   T.Kotani know problems in it).
-   Our recent development shows that very localized MTO with APW
-   (cutoff of \sim 3 to 4 Ry) works well to get good convergence.
+   T.Kotani know problems in it; need to supply numerically accurate
+   atomic positions to judge crystal symmetry from atomic positions).
+   Our recent development shows that very localized MTO (damping
+   factor is \sim 1 a.u), together with APW
+   (cutoff is \sim 3 to 4 Ry) works well to get good convergences.
    
-(2)The GW method, especially, the PMT-QSGW method:
+(2)The PMT-QSGW method, that is,
    the Quasiparticle self-consistent GW method (QSGW) based on the PMT method. 
-   In addion, we can calculate dielectric functions, spin fluctions,
+   In addion, we can calculate dielectric functions, spin fluctuations,
    spectrum function of the Green's functions and so on.
    GW-related codes are in ecalj/fpgw/.
    For paralellized calculations, 
    we can use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc.
-   (although we have room to improve it).
+   (although we have so much room to improve it).
 
 ##### Install and test #####
-At first, 
- (0) Get ecalj package and get tools.
 To get a ecalj package, do
 >git clone https://github.com/tkotani/ecalj.git
-Then we do three make procedures:
+Then we follow these steps explained below.
+ (0) Get ecalj package and get tools.
  (1) make for single-core LDA part, 
  (2) make for MPIK LDA part, 
  (3) make for MPIK GW part.
-In the following explanation, we assume gfortran in ubuntu. 
-But we can also use ifort, and others. Follow instructions below.
  (4) Install test
  (5) crystal structure tools
+In the following explanation, we assume gfortran in ubuntu. 
+But we can also use ifort, and others. 
 
 ------------
 (0) Get ecalj package and get tools.
----Let us assume you use ubuntu. ---
+--- Let us assume you use ubuntu. ---
 You need following tools and libraries to be installed.
->sudo apt-get install git  gitk # version control and to get source from github
->sudo apt-get install gitk #git gui 'gitk --all' is useful. do it at ecal/.
+>sudo apt-get install git  #version control and to get source from github
+>sudo apt-get install gitk #git gui. 
 >sudo apt-get install gfortran      # GFORTRAN
 >sudo apt-get install openmpi-bin openmpi-dev     # MPI 
 >sudo apt-get install libfftw3-3     or something else # FFTW
@@ -59,14 +62,14 @@ You need following tools and libraries to be installed.
 >sudo apt-get install liblapack3gf   or something else  # LAPACK
 >sudo apt-get install etags csh bash tcsh gawk  # shells
 
-Note that you need to use
-python 2.x is also assumed (usually already in ubuntu).
+Note that you need to use python 2.x is also assumed 
+(usually already in ubuntu. Type >python (ctrl+D for quit)).
 
-Version ctrl by git (which makes things easier, but not
+Version ctrl is by git (which makes things easier, but not
 necessarily required for installation).
 
-
-After you have installed git (version control software), you can get ecalj package by
+After you have installed git (version control software), 
+you can get ecalj package by
 >git clone https://github.com/tkotani/ecalj.git # Get source code for ecalj.
 or get it in *.zip from the page https://github.com/tkotani/ecalj
 (push zip button). I recommend you to use git, 
@@ -80,7 +83,7 @@ but it can be at any directory. All are described with relative path.
  You can also specify other directory instead of ~/bin in makefiles.).
 
 We can check history of ecalj code development by
-">gik --all" at ecalj directory after you did git clone.
+">gik --all" at ecalj/ directory after you did git clone.
 
 ------------
 (1) make single core LDA part (it is in ecalj/lm7K/)
@@ -203,6 +206,7 @@ search path. In my case, .bashrc have a line
 Set the variable of VESTA=, at the begining of 
 ~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
 
+
 ####### How to do version up? ######
 We do not have enough human resource to keep it very well. 
 So be careful to do version up. It may cause another problem.
@@ -293,12 +297,47 @@ This shows you band by LDA.
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
 
-=======
-May19.2014
+###### PROCASR (VASP format) generator #########
 PROCASR mode for lmf (not yet in lmf-MPIK)
 Band weight decomposition. 
-(Size of circles show the size of components. Super posed on band
+(Size of circles show the size of components. Superposed on band
 plot). See ecalj/MATERIALS/MgO_PROCAR/README.
+May19.2014
+
+
+
+##################################################
+Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
+
+We set comment lines such as
+----
+!TIME0
+  ... here lines of fortran codes ...
+!TIME1 "foo bar"
+----
+in fortran files, e.g., in fpgw/main/hsfp0.sc.m.F.
+This reports computational time at the end of output from each node.
+(see stdout.{rankID}.* files).
+
+For example, if we see a line (in stdout.*)
+>timediff,id= 106 (foo_bar_____)    420.00 sec     4 times
+, we used the CPU time 420 sec (roughly =4 x 105 sec) for
+the lines between '!TIME0' and '!TIME1 "foo bar"'.
+
+See fpgw/exec/makefile. At its bottom,
+gawk replaces '!TIME*' with fortran codes (time_xxx.F are
+generated automatically by this procedure).
+
+--
+NOTE: !TIME can be nested as
+!TIME0
+  ... code1 ...
+!TIME0
+  ... code2 ...
+!TIME1 "foobar1"
+!TIME1 "foobar2"
+###################################################
+
 
 
 ######## MEMO: ----not read this ---- #########
@@ -306,6 +345,5 @@ branch x0mpi_merge (6b5e3, Aug2013):
 contains a try to paralellize x0kf
 (imaginary part of dielectric function) more. It just show a
 strategy, not efficient yet.
-
 
 --------- end of file -----------------
