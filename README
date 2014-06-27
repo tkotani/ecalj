@@ -340,10 +340,42 @@ NOTE: !TIME can be nested as
 
 
 
-######## MEMO: ----not read this ---- #########
-branch x0mpi_merge (6b5e3, Aug2013): 
+#############
+WARNING:
+
+1.Bandplot for FSMOMMETHOD/=0 
+Even when you use FSMMOMMETHOD/=0 for gwsc, set it GWinput,
+comment out FSMOMMETHOD= for job_band_nspin2.
+[If you run job_band_nspin2 with FSMOMMETHOD/=0, it make a shift (bias
+magnetic field).]
+Note that ctrlgenM1.py automatically set this for --systype=molecule.
+
+2. core>evalence message.
+   Ecore is grater than Evalence.
+   For save, we do not allow this.
+   Complare ECORE file and valence levels, shown in log file or
+   console output.
+
+3. If you see a error message from lmf (e.g., internally called in the gwsc script).;
+  Exit -1 rdsigm: Bloch sum deviates more than allowed tolerance (tol=5e-6)
+You have to enlarge RSRNG so that lmf finsh normally.
+See FAQ at the bottom of http://titus.phy.qub.ac.uk/packages/LMTO/gw.html
+E.g. try RSRNGE=8 for Ni...
+
+
+
+
+######## MEMO for developer: ----not read this ---- #########
+1.branch x0mpi_merge (6b5e3, Aug2013): 
 contains a try to paralellize x0kf
 (imaginary part of dielectric function) more. It just show a
 strategy, not efficient yet.
 
+2. With FSMOM, Efermi is not uniquely given in job_band_nspin2*.
+It is given by a bndfp-bzwtsf-bzwsf L300 block
+   if ((.not. lfill) .or. (metal .and. (nkp .eq. 1))) then
+   (bisection method to determine a middle of LUMO and HOMO).
+It can give some energy between LUMO and HOMO. 
+Small changes of computational condition can give large change. 
+But no problem.
 --------- end of file -----------------

@@ -112,12 +112,11 @@ C --- Make and print out magnetic moment ---
       elumo1= minval(eb(nmom1+1,1,:))
       elumo2= minval(eb(nmom2+1,2,:))
       vnow = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
-      efermi=(ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0
+      efermi= ((ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0)/2d0 !/2d0 bug fix Jun26,2014 this only affects to the message.
       write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
       write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15)")ehomo1,elumo1,elumo1-ehomo1
       write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15)")ehomo2,elumo2,elumo2-ehomo2
       write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vnow
-
 
 !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
       vhold= 0d0
