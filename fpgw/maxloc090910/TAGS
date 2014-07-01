@@ -1,0 +1,482 @@
+
+e2h.F,103
+      subroutine hermite(66,2037
+      subroutine diag_hm(81,2391
+      subroutine wan2ham(112,3126
+
+eispack.F,632
+      subroutine diagno(3,33
+      subroutine bchd(43,1645
+      subroutine bred(101,3729
+      subroutine bbak(179,6514
+      subroutine hcinv(396,14440
+      subroutine yhifa(482,17152
+      subroutine yhidi(724,25465
+      integer function iyamax(976,33454
+      double precision function dcabs1(1012,34297
+      double precision function cdabs2(1016,34417
+      subroutine cpy(1020,34538
+      subroutine cdiv(1028,34771
+      subroutine btridi(1054,35433
+      SUBROUTINE IMTQLV(1205,40260
+      SUBROUTINE BINVIT(1354,44871
+      subroutine btribk(1743,59366
+      double precision function pythag(2235,75172
+
+ent_MPI.F,495
+      subroutine zgesvdnn(1,0
+      subroutine get_nwf_MPI(42,1973
+      subroutine choose_wanband_MPI(58,2507
+      subroutine sortbnd(186,6701
+      subroutine sortr(217,7397
+      subroutine  sortvec2(250,8150
+      subroutine q2q0(289,9115
+      subroutine q02q(302,9412
+      subroutine q02q0g0(315,9701
+      subroutine read_syml(334,10119
+      subroutine findk(381,11646
+      subroutine findk4(400,12214
+      subroutine q2qg(535,16695
+      subroutine readuuq0(560,17269
+
+hband_ent_MPI2.m.F,179
+      subroutine readuu6(218,6440
+      subroutine chk_umn(258,7836
+      subroutine chk_uuqk(276,8334
+      subroutine disent_band(301,9071
+      subroutine wband(578,17102
+
+hband_ent_MPI.m.F,179
+      subroutine readuu6(217,6429
+      subroutine chk_umn(257,7825
+      subroutine chk_uuqk(275,8323
+      subroutine disent_band(300,9060
+      subroutine wband(577,17091
+
+hband_ent_single_MPI.m.F,179
+      subroutine readuu5(213,6224
+      subroutine chk_umn(251,7484
+      subroutine chk_uuqk(269,7982
+      subroutine disent_band(294,8719
+      subroutine wband(552,16263
+
+hdos_ent_MPI.m.F,218
+      subroutine readuu5(205,6069
+      subroutine chk_umn(243,7329
+      subroutine chk_uuqk(261,7827
+      subroutine disent_band(286,8564
+      subroutine disent_dos(539,15970
+      subroutine wband(792,23357
+
+hibz2fbz0.F,140
+      subroutine checkagree(494,17376
+      subroutine ldanm(503,17682
+      subroutine senm(521,18111
+      subroutine senm2(561,19065
+
+hibz2fbz0_test.F,140
+      subroutine checkagree(530,18369
+      subroutine ldanm(539,18675
+      subroutine senm(557,19104
+      subroutine senm2(597,20058
+
+hibz2fbz0wan.F,183
+      subroutine checkagree(495,17972
+      subroutine ldanm(504,18278
+      subroutine senm_wan_r(522,18707
+      subroutine senm_wan(553,19462
+      subroutine senm2(584,20215
+
+hmaxloc.F,124
+      subroutine chk_amnkweight(1023,32730
+      subroutine chk_cnkweight(1093,34677
+      subroutine chk_umn(1164,36622
+
+hnocc_mlw.F,149
+      subroutine efsimplef2a_mlw 269,9469
+      subroutine r_dnk(579,19544
+      subroutine r_evalevec(612,20474
+      subroutine wefn(787,25700
+
+hphig.F,218
+      subroutine checkagree(579,20375
+      subroutine  readbb(588,20681
+      subroutine  getc1c2(630,21884
+      subroutine qggmat(714,24488
+      subroutine aaumat(875,29326
+      subroutine ophiphi(933,31066
+
+hpsig.F,183
+      subroutine checkagree(518,18499
+      subroutine  readbb(527,18805
+      subroutine  getc1c2(569,20008
+      subroutine qggmat(654,22696
+      subroutine phigmat(815,27534
+
+hpsig_MPI.F,183
+      subroutine checkagree(604,21274
+      subroutine  readbb(613,21580
+      subroutine  getc1c2(655,22783
+      subroutine qggmat(740,25477
+      subroutine phigmat(901,30315
+
+hqpband_ent_MPI.m.F,462
+      subroutine readuu6(299,9965
+      subroutine chk_umn(339,11361
+      subroutine chk_uuqk(357,11859
+      subroutine disent_qpband(382,12596
+      subroutine wband(817,27980
+      subroutine wqpband(832,28312
+      subroutine k2r(847,28660
+      subroutine r2q(869,29275
+      subroutine q2p(889,29830
+      subroutine wan2ham(919,30693
+      subroutine wan2ham_d(936,31138
+      subroutine wan2ks(955,31615
+      subroutine wan2ks_d(972,32057
+
+hqpband_ent_MPI_test.m.F,462
+      subroutine readuu6(275,9110
+      subroutine chk_umn(315,10506
+      subroutine chk_uuqk(333,11004
+      subroutine disent_qpband(358,11741
+      subroutine wband(753,25628
+      subroutine wqpband(768,25960
+      subroutine k2r(783,26308
+      subroutine r2q(805,26923
+      subroutine q2p(825,27478
+      subroutine wan2ham(855,28341
+      subroutine wan2ham_d(872,28786
+      subroutine wan2ks(891,29263
+      subroutine wan2ks_d(908,29705
+
+hupdt_ent_MPI.m.F,554
+      subroutine readuu6(315,10645
+      subroutine chk_umn(355,12041
+      subroutine chk_uuqk(373,12539
+      subroutine updt_wf_eig(398,13276
+      subroutine disent_qpband(746,24527
+      subroutine wband(1136,38077
+      subroutine wqpband(1151,38409
+      subroutine k2r(1166,38757
+      subroutine r2q(1188,39372
+      subroutine q2p(1208,39927
+      subroutine wan2ham(1238,40790
+      subroutine wan2ham_d(1255,41235
+      subroutine wan2ks(1274,41712
+      subroutine wan2ks_d(1291,42154
+      subroutine read_q_qgpsi(1310,42624
+
+huumat.F,215
+      subroutine checkagree(807,28225
+      subroutine  readbb(816,28531
+      subroutine  readbb1D(858,29734
+      subroutine q2q0(923,31536
+      subroutine q02q(936,31833
+      subroutine q02q0g0(949,32122
+
+huumat_MPI.F,116
+      subroutine checkagree(1093,39241
+      subroutine  readbb(1102,39547
+      subroutine  readbb1D(1144,40750
+
+hwfch.F,39
+      subroutine checkagree(335,13126
+
+hwinfo.F,75
+      subroutine checkagree(279,10542
+      subroutine  readbb(288,10848
+
+hwmat2.F,104
+      subroutine wwmat 903,31802
+      subroutine wvmat 965,34117
+      subroutine chkrot 1008,35567
+
+hwmatc.F,103
+      subroutine wwmat 890,31438
+      subroutine wvmat 950,33644
+      subroutine chkrot 990,34931
+
+hwmatc_MPI.F,106
+      subroutine wwmat 1084,39116
+      subroutine wvmat 1143,41273
+      subroutine chkrot 1183,42560
+
+hwmat.F,103
+      subroutine wwmat 891,31429
+      subroutine wvmat 950,33575
+      subroutine chkrot 990,34862
+
+hwmat_MPI.F,106
+      subroutine wwmat 1085,39093
+      subroutine wvmat 1144,41239
+      subroutine chkrot 1184,42526
+
+hx0fp0_cfao.m.F,408
+      real*8 function eclda_bh(2255,90072
+      real*8 function eclda_pz(2265,90447
+      subroutine wecqw(2275,90804
+       subroutine getsqovlp(2311,91902
+       subroutine readppovl0(2357,93379
+      subroutine zgesvdnn(2377,93967
+              subroutine tr_chkwrite(2418,95940
+      subroutine get_nwf(2438,96788
+      subroutine choose_wanband(2448,97106
+      subroutine sortbnd(2563,100779
+
+hx0fp0.m.F,408
+      real*8 function eclda_bh(2298,91670
+      real*8 function eclda_pz(2308,92045
+      subroutine wecqw(2318,92402
+       subroutine getsqovlp(2354,93500
+       subroutine readppovl0(2400,94977
+      subroutine zgesvdnn(2420,95565
+              subroutine tr_chkwrite(2461,97538
+      subroutine get_nwf(2481,98386
+      subroutine choose_wanband(2491,98704
+      subroutine sortbnd(2607,102470
+
+hx0fp0_MPI.m.F,47
+      subroutine tr_chkwrite_RSMPI(1902,73239
+
+index.F,1303
+      integer function maxocc2 1,0
+      subroutine idxlmto 23,658
+      subroutine idxlmt1 63,1857
+      subroutine idxlna 105,3133
+      subroutine idxlnp 141,4039
+      subroutine incor 174,5157
+      subroutine indxbas(223,6474
+      subroutine indxk(291,8516
+      subroutine indxlm(343,10044
+      subroutine indxln(365,10515
+      subroutine indxlna(390,11127
+      subroutine indxlnm(432,12429
+      subroutine idxlnma(462,13227
+      subroutine idxlnmc(497,14111
+      subroutine indxmdm 574,16329
+      integer function indxpp 602,17100
+      subroutine indxql 620,17608
+      subroutine indxrk(664,18621
+      subroutine maxdim 712,20168
+      integer function maxocc 742,21119
+      integer function nallow 783,22262
+      integer function nalwln 834,23694
+      integer function nocc 868,24776
+      subroutine ncorex 898,25419
+      subroutine noccmax(922,25991
+      integer function noccx1 949,26660
+      integer function nofblch(979,27377
+      integer function noflmto(995,27784
+      integer function nofln(1012,28226
+      integer function noflnm(1027,28549
+      integer function noflnmx(1042,28868
+      subroutine nofpppp(1058,29250
+      integer function nofyyyy(1100,30261
+      subroutine nolna 1119,30702
+      subroutine nolnma 1140,31368
+
+maxloc0.F,692
+      subroutine wan_input(1,0
+      subroutine getrt(63,2647
+      subroutine q2q0(178,5360
+      subroutine  getbb(195,5820
+      subroutine  getglat(545,15535
+      subroutine  sortvec(568,16161
+      subroutine  sortvec2(605,17031
+      subroutine  get3vec(644,17996
+      subroutine  writebb(699,19427
+       subroutine kbbindx(740,20601
+      subroutine ewindow(766,21376
+      subroutine erange(908,25496
+      subroutine chk_ewindow(960,26904
+      subroutine readuu(1020,28513
+      subroutine chkuu(1086,30403
+      subroutine readuu0(1128,31573
+      subroutine readpsig(1169,32605
+      subroutine wigner_seitz(1204,33575
+      subroutine super_cell(1266,35119
+
+maxloc1.F,643
+      subroutine init_unkg(1,0
+      subroutine pick_nwf(44,1238
+      subroutine read_cnq0(87,2242
+      subroutine get_amnk(154,4073
+      subroutine amnk2unk(240,6299
+      subroutine init_iew(279,7579
+      subroutine   getupu(359,9675
+      subroutine dimz(449,12126
+      subroutine getzmn(473,12726
+      subroutine chk_hm(527,14062
+      subroutine chk_um(559,15078
+      subroutine chk_on(581,15602
+      subroutine diag_hm(600,16052
+      subroutine chk_eval(630,16697
+       subroutine new_cnk(659,17341
+      subroutine  get_omgik(720,18923
+      subroutine zgesvdmn(754,19731
+      subroutine zgesvdnn(767,20291
+
+maxloc2.F,636
+      subroutine diag_unk(1,0
+      subroutine chk_eunk(68,1636
+      subroutine chk_cnk(101,2420
+      subroutine init_mmn(140,3495
+      subroutine init_Umnk(191,4871
+      subroutine updt_mmn(245,6329
+       subroutine get_rn(300,7649
+      subroutine getrmn(328,8344
+      subroutine getamn(348,8763
+      subroutine getsmn(367,9178
+       subroutine gettmn(387,9623
+      subroutine updt_uk(425,10458
+      subroutine getOmg(484,11861
+      subroutine writeOmg(543,13284
+      subroutine writermn(670,16421
+      subroutine writemmn(753,18703
+      subroutine wmaxloc(798,19856
+      subroutine chk_dnk(843,21084
+
+maxloc3.F,488
+      subroutine get_nqbze(1,0
+      subroutine get_nqbze2(20,436
+      subroutine get_qbze(39,875
+      subroutine get_qbze2(77,1898
+      subroutine rot_hmnk(117,3058
+      subroutine get_hrotr_ws(144,3683
+      subroutine get_hrotkp_ws(181,4631
+      subroutine get_hrotkp_tb_ws(214,5463
+      subroutine wmaxloc_diag(259,6614
+      subroutine chk_diag(282,7288
+      subroutine chk_umnk(326,8406
+      subroutine cmp_umn_evec(377,9664
+      subroutine writeham(409,10407
+
+maxloc4.F,113
+      subroutine write_hrotr(4,35
+      subroutine read_hrotr(48,1169
+      subroutine make_hrotrcut(109,2765
+
+mh_hupdt_ent_MPI.m.F,554
+      subroutine readuu6(316,10680
+      subroutine chk_umn(356,12076
+      subroutine chk_uuqk(374,12574
+      subroutine updt_wf_eig(399,13311
+      subroutine disent_qpband(784,25750
+      subroutine wband(1174,39298
+      subroutine wqpband(1189,39630
+      subroutine k2r(1204,39978
+      subroutine r2q(1226,40593
+      subroutine q2p(1246,41148
+      subroutine wan2ham(1276,42011
+      subroutine wan2ham_d(1293,42456
+      subroutine wan2ks(1312,42933
+      subroutine wan2ks_d(1329,43375
+      subroutine read_q_qgpsi(1348,43845
+
+mkqg_TMBAND.F,82
+      subroutine mkQG2_TMBAND(1,0
+      subroutine genbzdata1_xxxxxxx(572,19592
+
+qpe1_mlw.F,100
+      subroutine qpe1_mlw 1,0
+      subroutine wan2ks(177,6103
+      subroutine wan2ks2(199,6707
+
+read_gw02.F,498
+      subroutine q2k(546,21148
+      subroutine q2p(578,22084
+      subroutine q2r(608,22947
+      subroutine r2k(631,23603
+      subroutine wigner_seitz(652,24195
+      subroutine sortr(714,25739
+      subroutine  sortvec2(747,26492
+      subroutine diag_hm(786,27457
+      subroutine wan2ham(817,28192
+      subroutine wan2ham_d(834,28637
+      subroutine inv_mat(858,29219
+      subroutine fine_mesh(875,29725
+      subroutine calc_ef(900,30389
+      subroutine hermite(1026,34689
+
+read_gw0.F,461
+      subroutine q2k(514,19949
+      subroutine q2p(546,20885
+      subroutine q2r(576,21748
+      subroutine r2k(599,22404
+      subroutine wigner_seitz(620,22996
+      subroutine sortr(682,24540
+      subroutine  sortvec2(715,25293
+      subroutine diag_hm(754,26258
+      subroutine wan2ham(785,26993
+      subroutine wan2ham_d(802,27438
+      subroutine inv_mat(826,28020
+      subroutine fine_mesh(843,28526
+      subroutine calc_ef(868,29190
+
+sxcf_fal2_MPI.F,81
+      subroutine sxcf_fal3z_RSMPI(1,0
+      subroutine drvmelp2_wan(2095,76799
+
+wcf.F,133
+      subroutine wcf(1,0
+      subroutine wcf_maxloc(112,3612
+      subroutine chknbnb(192,6047
+      subroutine anfx0k(236,7541
+
+wmat2.F,138
+      subroutine wmatq2(1,0
+      subroutine matzwz2(794,27154
+      subroutine matzwz3(815,27853
+      subroutine drvmelp3(837,28618
+
+wmat.F,137
+      subroutine wmatq(1,0
+      subroutine matzwz2(796,27225
+      subroutine matzwz3(817,27924
+      subroutine drvmelp3(839,28689
+
+wmat_MPI.F,141
+      subroutine wmatq_MPI(1,0
+      subroutine matzwz2(823,28201
+      subroutine matzwz3(844,28900
+      subroutine drvmelp3(866,29665
+
+x0kf_v3h_cfao.F,214
+      subroutine x0kf_v3hz 1,0
+      subroutine zadd_(782,30884
+      subroutine zaddr_(788,31030
+      subroutine dpsion4 797,31266
+      subroutine hilbertmat 1136,45049
+      subroutine dpsion3 1233,48961
+
+x0kf_v3h.F,214
+      subroutine x0kf_v3hz 1,0
+      subroutine zadd_(765,29990
+      subroutine zaddr_(771,30136
+      subroutine dpsion4 780,30372
+      subroutine hilbertmat 1119,44155
+      subroutine dpsion3 1216,48067
+
+x0kf_v3h_MPI.F,36
+      subroutine x0kf_v3hz_MPI 1,0
+
+zsvd.F,65
+      subroutine zgesvdmn(1,0
+      subroutine zgesvdnn(14,560
+
+read_rmn.F,0
+
+read_mmn.F,0
+
+read_hmlwf.F,0
+
+qpwf.F,0
+
+qg4gw_TMBAND.m.F,0
+
+nocctot.F,0
+
+hsfp0_MPI.m.F,0
+
+hqpe_mlw.m.F,0
