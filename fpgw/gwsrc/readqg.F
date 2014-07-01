@@ -275,15 +275,8 @@ c      print *,' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
             i2=mm
          endif
       enddo
-c$$$      do i=1,n                                                                                  
-c$$$         if(kkin==kktable(i)) then                                                              
-c$$$            nout=i                                                                              
-c$$$            return                                                                              
-c$$$         endif                                                                                  
-c$$$      enddo                                                                                     
       print *, i1,i2,kkin
       print *, kktable(i1),kktable(i2)
-Cstop2rx 2013.08.09 kino      stop 'takk: error'
       call rx( 'takk: error')
       end subroutine
 
@@ -311,7 +304,7 @@ c$$$      end subroutine
       implicit none
       integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3,ifi
       real(8):: q(3),qx(3),qu(3),qzz(3)
-      logical::debug=.false.
+      logical::debug=.true.
       if(ifi==1) then
 c         nqtt => nqnump
          qtt  => qp

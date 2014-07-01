@@ -362,7 +362,12 @@ You have to enlarge RSRNG so that lmf finsh normally.
 See FAQ at the bottom of http://titus.phy.qub.ac.uk/packages/LMTO/gw.html
 E.g. try RSRNGE=8 for Ni...
 
-
+4. You can use fractional numbers for ATOM_Z, and add set ground
+   valence charge by BZ_ZBAK (Use BZ_ZBAK instead of BZ_VAL).
+   You see consolu out put, saying,
+     "Charges:  valence    18.80000   cores     8.00000   nucleii   -28.00000
+        hom background     1.20000   deviation from neutrality:      0.00000
+   . This is because BZ_ZBAK=1.2.
 
 
 ######## MEMO for developer: ----not read this ---- #########

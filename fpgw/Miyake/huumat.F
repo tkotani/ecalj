@@ -119,6 +119,7 @@ c mode switch. --------------
       write(6,*) ' ixc=',ixc
       if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
 
+      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzz'
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
 c--------readin data set when you call read_BZDATA ---------------
@@ -272,7 +273,6 @@ c --- Readin nlam index
         read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
         if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
       enddo
-
 c ---  q near zero
       print *, 'reading QOP'
       open (101,file='Q0P')
@@ -289,7 +289,7 @@ c ---  q near zero
       enddo
       nq0i = nq0ix ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+      write(6,"(i3,'  ',3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
       close(101)
 
 ctm

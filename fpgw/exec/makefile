@@ -71,7 +71,7 @@ checkmod:
 ######################################################################################            
 
 COMM=$(nfpsrc)rxx.o \
-  $(gwsrc)mopen.o 
+$(gwsrc)mopen.o 
 
 ECOR = \
 $(tote)hecor.o \
@@ -628,8 +628,8 @@ eout2: $(EO2)  $(COMM)
  h_uumatrix:	$(UU) $(GW0)   $(MPI)  $(COMM) 
 	$(LK) $(LKFLAGS1) $(UU)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- huumat:	$(UU2) $(GW0) $(MPI)  $(COMM) 
-	$(LK) $(LKFLAGS1) $(UU2)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ huumat:	$(UU2) $(GW0) $(MPI) $(COMM)
+	$(LK) $(LKFLAGS1) $(UU2)  $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
  hphig:	$(PHIG) $(GW0) $(MPI)  $(COMM) 
 	$(LK) $(LKFLAGS1) $(PHIG)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) $(LIBSLA) -o $@
