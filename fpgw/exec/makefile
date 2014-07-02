@@ -758,7 +758,7 @@ $(main)hx0fp0.sc.m.o: $(main)hx0fp0.sc.m.F
 
 $(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
 	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
-	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
+	$(FC) $(FFLAGS_OMP) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
 
 $(gwsrc)rppovl.o: $(gwsrc)rppovl.F
 	gawk -f $(addtime) -vSTART=200 $(gwsrc)rppovl.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_rppovl.F
@@ -770,10 +770,11 @@ $(gwsrc)rppovl.o: $(gwsrc)rppovl.F
 
 $(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
 	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
-	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
+	$(FC) $(FFLAGS_OMP) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
 ###################################################################################
 
 
-
+ $(gwsrc)wintzsg.o :  $(gwsrc)wintzsg.F
+	$(FC)  $(FFLAGS_OMP) $(gwsrc)wintzsg.F  -c -o $*.o
 
 # DO NOT DELETE

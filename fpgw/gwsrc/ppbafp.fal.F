@@ -679,6 +679,7 @@ c--------------------------------------------------------------------
 !! ----------------------------------------------------------
 c      use m_read_ppovl,only: getppx2,getppx,
 c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlinv
+      use m_mpi, only:mpi__rank
       use m_read_ppovl,only: getppx2,
      &  nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv,
      &  ngc2,ngvecc2
@@ -709,6 +710,7 @@ c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlin
       real(8):: qt(3)
       complex(8)::ppp,zdotc
       complex(8),allocatable:: mmm(:,:),zmelp0(:,:,:),ggitp_(:,:)
+!$    integer:: omp_get_num_threads
 c------------------------------
 cc getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
 cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
@@ -838,6 +840,13 @@ c         print *,'iggg=',iggg,nggg
 !TIME1 "before zmelp0 loop"
 !TIME0
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
+!$OMP parallel
+!$OMP master
+!$      write(6,'(2i4,1x,a,1x,3i4)') mpi__rank,omp_get_num_threads(),'OPENMP divide: ngc,ntp0,nt0=',ngc,ntp0,nt0
+!$OMP end master
+!$OMP end parallel
+!$    if (ngc>=nt0) then
+!$OMP parallel do
       do igc=1,ngc
       do itp= 1,ntp0
          do igp2=1,ngp2
@@ -853,6 +862,24 @@ c         print *,'iggg=',iggg,nggg
          enddo
       enddo
       enddo
+!$    else
+!$OMP parallel 
+!$      do igc=1,ngc
+!$      do itp= 1,ntp0
+!$         do igp2=1,ngp2
+!$            nn = ngveccR(:,igc) + ngvecp2(:,igp2)
+!$            igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
+!$            ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
+!$         enddo
+!$         if(verbose()>=100) print *,' melpln2t: 33333333 22222222222'
+!$OMP do 
+!$         do it=1,nt0
+!$            zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*ggitp_(:,igc) )
+!$         enddo
+!$      enddo
+!$      enddo
+!$OMP end parallel
+!$    endif
 !TIME1 "end of zmelp0 loop"
 !TIME0
 c$$$      do itp=1,ntp0

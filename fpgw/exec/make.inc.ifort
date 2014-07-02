@@ -4,7 +4,7 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = ifort -132 -cm -w90 -w95
+FC = mpif90 -132 
 #FC = f95 
 
 # -cm is supress all comment.
@@ -34,7 +34,8 @@ CPPSWITCH_INTELLINUXIFC  = \
 ### INTEL FORTRAN PENTIUM4 LINUX ###
 #FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
-FFLAGS=-O3 -cm -WB -cpp $(CPPSWITCH_INTELLINUXIFC)
+FFLAGS=-O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
+FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
 #gfortran
 #FFLAGS=  -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
@@ -108,7 +109,7 @@ tet5_g = .o
 
 #LIBMATH= -lgoto -L/usr/local/lib/ATLAS/ -lf77blas -latlas -L/opt/intel/mkl/lib/32 -lmkl_lapack -lmkl_def -lguide -lsvml -lPEPCF90 $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a 
 
-LIBMATH= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+LIBMATH= -L$(HOME)/fftw333/lib -lfftw3  -mkl 
 
 # I had a problem in zgemm in pwmat. 
 #LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
@@ -127,7 +128,7 @@ LIBMATH= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #LKFLAGS2 = $(COMMON) $(ECAL)/slatsm/slatsm.a  -lblas -llapack -lpl -parallel  -lm
 
 #LK = f95
-LK=ifort
+LK=mpif90 -openmp
 LKFLAGS2 = $(LIBMATH) 
 #-Vaxlib -tpp7
 #LKFLAGS2 = $(LIBMATH) -Vaxlib -tpp7 -lpthread

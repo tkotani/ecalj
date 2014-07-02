@@ -1170,7 +1170,7 @@ c         deallocate(wbzz)
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
       call cpu_time(time_red2)
 !TIME1 "reduction nbandmx end"
-      write(*,*)'time(MPI__AllreduceMax)=',time_red2-time_red1
+      write(*,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c---------------------------------
 !TIME0

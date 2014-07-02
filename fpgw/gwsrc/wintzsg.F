@@ -636,6 +636,7 @@ c-------------------------------------------------------------------
       complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
       complex(8) :: zwz(nstate,ntq,ntq) ,zdotc                   !sf 23May02
       complex(8), allocatable :: CC(:,:,:)
+!$    integer:: omp_get_num_threads
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
       !call cputid(0)
@@ -644,9 +645,17 @@ c-------------------------------------------------------------------
       write(6,*)mpi__rank,'matzwz2 after matm'
       !write(*,'("10.2 matzwz after matm ",$)')
       !call cputid(0)
+
+!$OMP parallel
+!$OMP master
+!$      write(6,'(2i4,1x,a,1x,3i4)')mpi__rank,omp_get_num_threads(),'OPENMP divide: iSigma_en,ntq,nstate=',iSigma_en,ntq,nstate
+!$OMP end master
+!$OMP end parallel
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
 CYY!$OMP parallel  do
+!$        if (ntq>=nstate) then
+!$OMP parallel do
         do itp = 1,ntq
           do  it = 1,nstate
 c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
@@ -654,9 +663,23 @@ c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
      &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
           enddo
         enddo
+!$        else
+!$OMP parallel
+!$        do itp = 1,ntq
+!$OMP do
+!$          do  it = 1,nstate
+!$            zwz(it,itp,itp)=zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
+!$          enddo
+!$OMP end do nowait
+!$        enddo
+!$OMP end parallel 
+!$        endif
 CYY!$OMP end parallel  do
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
 CYY!$OMP parallel do
+!$        if (ntq>=nstate) then
+
+!$OMP parallel do 
         do itpp= 1,ntq
           do itp = 1,ntq
             do  it = 1,nstate
@@ -666,6 +689,22 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
             enddo
           enddo
         enddo
+
+!$        else
+!$
+!$OMP parallel
+!$        do itpp= 1,ntq
+!$          do itp = 1,ntq
+!$OMP do
+!$            do  it = 1,nstate
+!$              zwz(it,itp,itpp)= zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itpp),1 )
+!$            enddo
+!$OMP end do nowait
+!$          enddo
+!$        enddo
+!$OMP end parallel
+!$
+!$        endif
 CYY!$OMP end parallel  do
       else
 Cstop2rx 2013.08.09 kino        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
