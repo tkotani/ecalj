@@ -1,8 +1,10 @@
 #########################################################
-wan_out_emin -10.0
-wan_out_emax  5.0
+wan_out_emin -2.0  !eV relative to Efermi
+wan_out_emax  2.0  !eV relative to Efermi
+wan_in_emin  -2.0  !eV relative to Efermi
+wan_in_emax    .0  !eV relative to Efermi
 wan_rcut 2.5
-<MLWF>
+<MLWF> 
 3          # gaussian, nwf
 1 1 1  # nphi(1:nwf)
 9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
@@ -22,7 +24,7 @@ wan_rcut 2.5
                 ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).
 !multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work
 ! ##### From GWIN0 ################ 
-n1n2n3         4    4    4 ! for BZ meshing in GW 
+n1n2n3     8 8 8 
 QpGcut_psi    4.000 !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou    3.000 !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 

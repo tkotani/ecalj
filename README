@@ -39,7 +39,7 @@ not well-organized yet, little in English yet. We will renew it.
 ##### Install and test #####
 To get a ecalj package, do
 >git clone https://github.com/tkotani/ecalj.git
-Then we follow these steps explained below.
+Then follow these steps explained below.
  (0) Get ecalj package and get tools.
  (1) make for single-core LDA part, 
  (2) make for MPIK LDA part, 
