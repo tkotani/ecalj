@@ -4,9 +4,9 @@
 FC=mpif90
 LK=mpif90
 
-FFLAGS= -132   -O0
+FFLAGS= -132   
 
-FFLAGS = -ffixed-line-length-132 -c -g -O0  -frange-check -I${top}/exec
+FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
 LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 

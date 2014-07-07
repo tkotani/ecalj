@@ -1,0 +1,20 @@
+set terminal postscript enhanced color eps
+set output 'bandlanio3c.eps'
+set grid
+set ylab "Energy(Ry*    13.60500)"
+set yra [   -2.00000:    2.00000]
+set xtics ( ""         0.0000000000,\
+ ""         0.5000000000,\
+ ""         1.2071067812,\
+ ""         1.7071067812,\
+ ""         2.5731321850)
+ plot \
+ "bnd1.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd2.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd3.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd4.dat" u 2:3 lt 1 pt 1 not w l, \
+ 'bnds.maxloc.up' using ($5):($6) w lp, \
+ 'bnds.tb.up' using ($5):($6) w lp
+ # pause -1 (instead, gnuplot -p ThisScript)
+exit
+, \

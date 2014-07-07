@@ -118,34 +118,27 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       real(8):: rcut, heps
       integer:: nwf,nrws
       complex(8),intent(out):: hrotrcut(nwf,nwf,nrws)
-
       integer:: ir,im,in
       real(8):: heps2,rtmp
-
       heps2=heps*heps
-
       hrotrcut=hrotr 
-
       do ir = 1,nrws
         rtmp = dsqrt(sum(rws(:,ir)**2))  ! unit of alat
-        write(*,*) 'cut:',ir,rtmp,rcut 
+        write(*,"('cut:',i5,2f10.3)") ir,rtmp,rcut 
         if (rtmp>rcut) then
           hrotrcut(:,:,ir)=0.0d0
         endif
-
         do im = 1,nwf
-          do in = 1,nwf
-        
-            if ( im.eq.in ) continue 
-             write(*,*) im,in,hrotr(im,in,ir) ,dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2, heps2
-            if ( dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2 < heps2 ) then
-                hrotrcut(im,in,ir)=0.0d0
-            endif
+           do in = 1,nwf
+              if ( im.eq.in ) continue 
+              write(*,"('  ',2i5,'(',d13.5,',',d13.5,')',d13.5,d13.5)")
+     &             im,in,hrotr(im,in,ir) ,dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2, heps2
+              if ( dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2 < heps2 ) then
+                 hrotrcut(im,in,ir)=0.0d0
+              endif
 
-          enddo
+           enddo
         enddo
-
       enddo 
-
       end subroutine make_hrotrcut
  

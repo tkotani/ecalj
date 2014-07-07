@@ -161,6 +161,9 @@ c ixc=3
       complex(8),allocatable::  hrotrcut(:,:,:)
       integer:: ifh
       real(8):: heps ,r_v
+
+      real(8)::qold(3)
+      real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:)
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -335,12 +338,18 @@ ctm, 080222
         do i = 1,nline
            nq = nq + np(i)
         enddo ! i
-        allocate(q(3,nq))
+        allocate(q(3,nq),xq(nq))
         iq = 0
+        xq=0d0
+        qold=q(:,1)
         do i = 1,nline
         do j = 0,np(i)-1
           iq = iq + 1
           q(:,iq) = qi(:,i) + (qf(:,i)-qi(:,i))*dble(j)/dble(np(i)-1)
+          if(iq>1) then
+            xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
+          endif
+          qold=q(:,iq)
         enddo ! j
         enddo ! i
       else ! lsyml
@@ -373,6 +382,8 @@ ctm 040622
           enddo
         endif ! lqall
         close(ifqpnt)
+        allocate(xq(nq))
+        xq=0d0
       endif ! syml
 c
       nspinmx = nspin
@@ -530,6 +541,7 @@ c read uu-matrix
 
 c step 1  -- choose Hilbert space --
       write(*,*)'Step 1: Hilbert space branch'
+      print *,' iko_ix iko_fx=',iko_ix,iko_fx
 
       allocate (amnk(iko_ix:iko_fx,nwf,nqbz),
      &          upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz),
@@ -614,7 +626,7 @@ c (1-5) w_I(k) > Omaga_I  eq.(11)
          omgi = sum(omgik(:)*wbz(:))
 
 c (1-6) check self-consistency
-         write(*,*)'#SC-loop, conv.',isc,omgi 
+         write(*,"('#SC-loop, conv.',i5,d13.5)")isc,omgi 
          if (isc.ge.2) then
             domgi = dabs((omgiold - omgi) / omgiold)
             if (domgi .lt. conv1) then
@@ -743,8 +755,10 @@ c (2-6) Omeg_I, Omega_D and Omega_OD ([1] eq.34,35,36)
      o               omgi,omgd,omgod,omgdod,omgidod)
 
 c check self-consistency
-         write(*,*)'#SC-loop, conv.',isc,omgdod
-         write(*,950)'Omg: I, OD, D ',omgi,omgod,omgd
+c         write(*,*)'#SC-loop, conv.',isc,omgdod
+c         write(*,950)'Omg: I, OD, D ',omgi,omgod,omgd
+         write(*,"('#SC-loop, conv.',i6,e13.5,' Omg:_I,_OD,_D= ',3f17.10)")
+     &   isc,omgdod,omgi,omgod,omgd
          if (isc.ge.2) then
             domgdod = dabs((omgdodold - omgdod) / omgdodold)
             if (domgdod .lt. conv2) then
@@ -808,7 +822,6 @@ c open file
 c allocate
       allocate (hrotk(nwf,nwf,nqbz), ! hrotr(nwf,nwf,nqbz),
      o          hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
-
 c for small Hamiltonian
       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
       if (lsh) then
@@ -825,82 +838,62 @@ c for small Hamiltonian
          write(ifsh,*)nsh
          allocate (hrotkps(nsh,nsh),eveccs(nsh,nsh),evals(nsh))
       endif
-
 c (3-1) ~H(k) -> Hrot(k)
       call rot_hmnk(umnk,eunk,
      d              nwf,nqbz,
      o              hrotk)
-c      stop 'rot_hmnk done'
-
-
 c (3-2) Hrot_mn(R)
       allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
       call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
       allocate(hrotr(nwf,nwf,nrws))
-
-        if (ixc.eq.2) then
-
-      call get_hrotr_ws(hrotk,qbz,wbz,
-     i                  rws,irws,drws,
-     d                  nwf,nqbz,nrws,
-     o                  hrotr)
-cskino
-c write hrotr and *rws 
-          if (is .eq. 1) then
+      if (ixc.eq.2) then
+         call get_hrotr_ws(hrotk,qbz,wbz,
+     i        rws,irws,drws,
+     d        nwf,nqbz,nrws,
+     o        hrotr)
+c     skino
+c     write hrotr and *rws 
+         if (is .eq. 1) then
             ifh = iopen('hrotr.up',1,-1,0)
-          else
+         else
             ifh = iopen('hrotr.dn',1,-1,0)
-          endif
-
-          call write_hrotr(ifh, hrotr,
-     i                  rws,irws,drws,
-     d                  nwf,nrws )
-
-          close (ifh) 
-
-cekino
-
-cskino
-         else if (ixc.eq.3) then
-
-          if (is .eq. 1) then
-            filename='hrotr.up'
-          else
-            filename = 'hrotr.dn'
-          endif
-       
-            call read_hrotr(filename,nwf,nrws,
-     o          hrotr) 
-
          endif
 
+         call write_hrotr(ifh, hrotr,
+     i        rws,irws,drws,
+     d        nwf,nrws )
 
-          if (is .eq. 1) then
-            ifh = iopen('hrotr.cut.up',1,-1,0)
-          else
-            ifh = iopen('hrotr.cut.dn',1,-1,0)
-          endif
+         close (ifh) 
+c     ekino
+c     skino
+      else if (ixc.eq.3) then
+         if (is .eq. 1) then
+            filename='hrotr.up'
+         else
+            filename = 'hrotr.dn'
+         endif
+         call read_hrotr(filename,nwf,nrws,
+     o        hrotr) 
+      endif
+      if (is .eq. 1) then
+         ifh = iopen('hrotr.cut.up',1,-1,0)
+      else
+         ifh = iopen('hrotr.cut.dn',1,-1,0)
+      endif
+      allocate(hrotrcut(nwf,nwf,nrws))
+      call make_hrotrcut( hrotr,
+     i     rws,irws,drws,
+     i     rcut,heps,
+     d     nwf,nrws,
+     o     hrotrcut )
+      call write_hrotr(ifh, hrotrcut,
+     i     rws,irws,drws,
+     d     nwf,nrws )
+      close (ifh)
+c     ekino
 
-          allocate(hrotrcut(nwf,nwf,nrws))
-
-          call make_hrotrcut( hrotr,
-     i                  rws,irws,drws,
-     i                  rcut,heps,
-     d                  nwf,nrws,
-     o                  hrotrcut )
-
-          call write_hrotr(ifh, hrotrcut,
-     i                  rws,irws,drws,
-     d                  nwf,nrws )
-
-
-          close (ifh)
-
-
-cekino
-
-
-c k-point mesh
+!! ----------------------------------------------------------
+!! k-point mesh
       call get_nqbze(nqbz,nqbze)
       allocate(qbze(3,nqbze))
       call get_qbze(qbz,nqbz,
@@ -908,113 +901,82 @@ c k-point mesh
       write(ifmlw(is))nqbze,nwf
       write(ifmlwe(is))nqbze,nwf
       do iq = 1,nqbze
-          call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq),
+          call get_hrotkp_ws(hrotr,rws,drws,irws,qbze(:,iq), !july2014 qbz->qbze
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
-c          call q2q0(qbze(:,iq),plat,q0(:))
-
           call diag_hm(hrotkp,nwf,eval,evecc)
-!          call chk_diag(qbze(:,iq),hrotkp,nwf,eval,evecc)
-!          if (iq.le.nqbz)
-!     &    call chk_umnk(qbz(:,iq),hrotkp,nwf,eval,umnk(:,:,iq))
-!          if (iq.le.nqbz)
-!     &    call cmp_umn_evec(qbz(:,iq),umnk(:,:,iq),evecc,eval,nwf)
-
           call wmaxloc_diag(ifmlw(is),ifmlwe(is),
      i                 iq,qbze(1:3,iq),umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
-
-c          write(6900,*)'***',iq
-c          write(6900,*)evecc
-cc          write(*,990)'iq =',iq,qbz(1:3,iq)
-c          if (iq.le.nqbz) then
-c          do iband = 1,nwf
-c             e1 = (eval(iband)   -ef)*rydberg()
-c             e2 = (eunk(iband,iq)-ef)*rydberg()
-c             write(*,*)iband,e1,e2
-c          enddo
-c          endif
       enddo
       deallocate(qbze)
+ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
+cc          if (iq.le.nqbz) then
+cc          do iband = 1,nwf
+cc             e1 = (eval(iband)   -ef)*rydberg()
+cc             e2 = (eunk(iband,iq)-ef)*rydberg()
 
-c other k-points
+
+!! --------------------------------------------------------------
+!! other k-points
       write(ifbnd,*)ef,' ef'
       write(iftb,*)ef,' ef'
       if (lsh) write(ifsh,*)ef,' ef'
+      allocate(eval1(nwf,nq),eval3(nwf,nq))
+      if(lsh) allocate(eval2(nwf,nq))
       do iq = 1,nq
 c (3-3) Hrot_mn(k')
           call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
-c          call q2q0(q(:,iq),plat,q0(:))
-
 c (3-4) diagonalize
           call diag_hm(hrotkp,nwf,eval,evecc)
-
-c          write(ifbnd,990)'iq =',iq,q(1:3,iq)
-          write(ifbnd,*)'iq =',iq
-          write(ifbnd,990)q(1:3,iq)
-          do iband = 1,nwf
-             write(ifbnd,*)iband,eval(iband)
-             e1 = (eval(iband)   -ef)*rydberg()
-c             e1 = (dreal(hrotkp(iband,iband))-ef)*rydberg()
-c             write(ifbnd,*)iband,e1
-          enddo
-
+          eval1(1:nwf,iq)=eval
 c (3-4) diagonalize  -- Small Hamiltonian --
           if (lsh) then
-          hrotkps(1:nsh,1:nsh) = hrotkp(nsh1:nsh2,nsh1:nsh2)
-          call diag_hm(hrotkps,nsh,evals,eveccs)
-
-c          write(ifbnd,990)'iq =',iq,q(1:3,iq)
-          write(ifsh,*)'iq =',iq
-          write(ifsh,990)q(1:3,iq)
-          do iband = 1,nsh
-             write(ifsh,*)iband,evals(iband)
-             e1 = (evals(iband)   -ef)*rydberg()
-c             e1 = (dreal(hrotkps(iband,iband))-ef)*rydberg()
-c             write(ifsh,*)iband,e1
-          enddo
-          endif ! lsh
-
+             hrotkps(1:nsh,1:nsh) = hrotkp(nsh1:nsh2,nsh1:nsh2)
+             call diag_hm(hrotkps,nsh,evals,eveccs)
+             write(ifsh,*)'iq =',iq
+             write(ifsh,990)q(1:3,iq)
+             eval2(1:nsh,iq)= evals(1:nsh)
+          endif                 ! lsh
 c (3-3) Hrot_mn(k')  -- Tight-binding ---
-         call get_hrotkp_tb_ws(rcut,plat,alat,
-     i                     hrotr,rws,drws,irws,q(:,iq),
-     d                     nwf,nqbz,nrws,
-     o                     hrotkp)
-
-c (3-4) diagonalize -- Tight-binding --
+          call get_hrotkp_tb_ws(rcut,plat,alat,
+     i         hrotr,rws,drws,irws,q(:,iq),
+     d         nwf,nqbz,nrws,
+     o         hrotkp)
+c     (3-4) diagonalize -- Tight-binding --
           call diag_hm(hrotkp,nwf,eval,evecc)
-
-c          write(iftb,990)'iq =',iq,q(1:3,iq)
-          write(iftb,*)'iq =',iq
-          write(iftb,990)q(1:3,iq)
-          do iband = 1,nwf
-             write(iftb,*)iband,eval(iband)
-             e1 = (eval(iband)   -ef)*rydberg()
-c             write(iftb,*)iband,e1
-          enddo
-c end-of iq-loop
+          eval3(1:nwf,iq)=eval
       enddo
-
-c 080707
-      call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,
-     &              nspin,natom,nwf,nqbz,nrws)
-      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,
-     &           irws,rws,drws)
+!! write eval july2014takao
+      do iband = 1,nwf
+      do iq = 1,nq
+        write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+     &  iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
+        write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+     &  iq,q(1:3,iq),  xq(iq),(eval3(iband,iq)-ef)*rydberg(),iband
+      enddo
+      write(ifbnd,*)
+      write(iftb,*)
+      enddo
+      if(lsh) then
+         do iband = 1,nsh
+            do iq = 1,nq
+               write(ifsh,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+     &              iq,q(1:3,iq),  xq(iq),(eval2(iband,iq)-ef)*rydberg(),iband
+            enddo
+         enddo
+      endif
+      call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
+      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws)
       if (lsh) deallocate(hrotkps,eveccs,evals)
-
       close(ifbnd)
-
 c end of loop over spin
       enddo
-
  950  format(a14,3f23.16)
-c 990  format(a4,i5,3f12.6)
  990  format(3f12.6)
-
-c-----------------------------------------------------------------------
       call cputid(0)
       stop 'hmaxloc: ixc=2 ok'
       end
