@@ -2239,8 +2239,8 @@ c      if (ltbe) xx = 5d0
      .def_i4=0,note='Find at most nevmx eigenvectors'//
      .'%N%3fIf NEVMX=0, program uses internal default'//
      .'%N%3fIf NEVMX<0, no eigenvectors are generated')
-      nm='BZ_ZVAL'; call gtv(trim(nm),tksw(prgn,nm),bz_zval,def_r8=0d0,
-     .note='Number of electrons to accumulate in BZ integration')
+c      nm='BZ_ZVAL'; call gtv(trim(nm),tksw(prgn,nm),bz_zval,def_r8=0d0,
+c     .note='Number of electrons to accumulate in BZ integration')
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp1,
      .def_lg=F,note=
      .'Suppress automatic inclusion of inversion symmetry for BZ')
@@ -3250,7 +3250,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_TETRA~")
       call tkadd(" BZ_W~")
       call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
+c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")
@@ -3393,7 +3393,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_TETRA~")
       call tkadd(" BZ_W~")
       call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
+c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")
@@ -3517,7 +3517,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" BZ_TETRA~")
       call tkadd(" BZ_W~")
       call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
+c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")

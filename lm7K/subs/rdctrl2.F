@@ -398,7 +398,7 @@ ctakao Kino's Cki error
       i_copy_size=size(v_sbz%semsh)
       call dcopy(i_copy_size,bz_semsh,1,v_sbz%semsh,1)
       v_sbz%w=bz_w
-      v_sbz%zval=bz_zval
+c      v_sbz%zval=bz_zval
 
 
 C --- Allocate and copy input to sctrl ---
