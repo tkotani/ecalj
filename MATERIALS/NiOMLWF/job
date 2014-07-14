@@ -3,7 +3,7 @@
 # test script for MaxLoc Wannier. Preparation stage is the same as gwsc
 #---------------------------------
 set nfpgw = ~/bin
-set TARGET=cu
+set TARGET=nio
 set MPI_SIZE=2 
 set ITER=0
 echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET

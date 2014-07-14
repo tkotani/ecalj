@@ -890,7 +890,9 @@ c     skino
      i     rws,irws,drws,
      d     nwf,nrws )
       close (ifh)
+      deallocate(hrotrcut)
 c     ekino
+      print *,'xxxxxxxx make_hrotrcut end xxxxxxx'
 
 !! ----------------------------------------------------------
 !! k-point mesh
@@ -901,6 +903,7 @@ c     ekino
       write(ifmlw(is))nqbze,nwf
       write(ifmlwe(is))nqbze,nwf
       do iq = 1,nqbze
+c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
           call get_hrotkp_ws(hrotr,rws,drws,irws,qbze(:,iq), !july2014 qbz->qbze
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
@@ -910,6 +913,7 @@ c     ekino
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
       enddo
+c      print *,'eeeeeeeee'
       deallocate(qbze)
 ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
 cc          if (iq.le.nqbz) then
@@ -926,6 +930,7 @@ cc             e2 = (eunk(iband,iq)-ef)*rydberg()
       allocate(eval1(nwf,nq),eval3(nwf,nq))
       if(lsh) allocate(eval2(nwf,nq))
       do iq = 1,nq
+         print *,' got get_hrotkp_ws iq =',iq
 c (3-3) Hrot_mn(k')
           call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
      d                     nwf,nqbz,nrws,
@@ -950,17 +955,19 @@ c     (3-4) diagonalize -- Tight-binding --
           call diag_hm(hrotkp,nwf,eval,evecc)
           eval3(1:nwf,iq)=eval
       enddo
-!! write eval july2014takao
+!     ! write eval july2014takao
       do iband = 1,nwf
-      do iq = 1,nq
-        write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
-     &  iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
-        write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
-     &  iq,q(1:3,iq),  xq(iq),(eval3(iband,iq)-ef)*rydberg(),iband
+         do iq = 1,nq
+            write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+     &           iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
+            write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+     &           iq,q(1:3,iq),  xq(iq),(eval3(iband,iq)-ef)*rydberg(),iband
+         enddo
+         write(ifbnd,*)
+         write(iftb,*)
       enddo
-      write(ifbnd,*)
-      write(iftb,*)
-      enddo
+      deallocate(eval1,eval3)
+
       if(lsh) then
          do iband = 1,nsh
             do iq = 1,nq

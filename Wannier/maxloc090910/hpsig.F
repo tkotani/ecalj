@@ -278,7 +278,7 @@ c ---  q near zero
       enddo
       nq0i = nq0ix ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+      write(6,"(i3, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
       close(101)
 
 ctm

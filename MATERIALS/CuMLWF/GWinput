@@ -2,8 +2,8 @@
 #wan_out_ewin off
 #wan_out_bmin 16  !band index for outer window
 #wan_out_bmax 18  !band index for outer window
-wan_out_emin -9.59  !eV relative to Efermi
-wan_out_emax -0.29    !eV relative to Efermi
+wan_out_emin -7   !eV relative to Efermi
+wan_out_emax  3    !eV relative to Efermi
 #wan_in_ewin on
 #wan_in_emin  -4  !eV relative to Efermi
 #wan_in_emax   0  !eV relative to Efermi
