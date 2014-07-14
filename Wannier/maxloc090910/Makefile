@@ -18,7 +18,7 @@ para_g=.o
 
 #-------------------------------------------------------
 # src directories
-top=../
+top=../../fpgw
 gwsrc   = ${top}/gwsrc/
 main    = ${top}/main/
 nfpsrc  = ${top}/nfpsrc/
