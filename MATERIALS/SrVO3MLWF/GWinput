@@ -16,10 +16,17 @@ wan_conv_end=1d-8
 <MLWF> 
 3          # gaussian, nwf
 1 1 1  # nphi(1:nwf)
-9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
-10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
-12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+62 67 2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
+63 68 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
+65 70 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
 </MLWF>
+vis_wan_band_n 3
+vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, バンドindex, lmfのバンドindexでなく,hmaxlocのバンドindex
+vis_wan_tvec 1 1 1   !integer x 3, tlat(R)
+vis_wan_mesh 10 10 10         !integer x 3, # of mesh
+vis_wan_lbound -.2  -.2 -.2   !real x 3, lower bound in alat unit or abc unit
+vis_wan_ubound  2.2  2.2 2.2  !real x 3, upper bound in alat or abc unit
+vis_wan_outputformat xsf      ! opendx, cube, xsf , default=xsf 
 #########################################################
 
 

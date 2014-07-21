@@ -176,7 +176,7 @@ c mode switch. --------------
       write(6,*) ' --- Put number above ! -----------------'
       call readin5(ixc,nz,idummy)
       write(6,*) ' ixc=',ixc
-      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
+      if(ixc<1.or.ixc>3) call rx(' --- ixc=0 --- Choose computational mode!')
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
 c--------readin data set when you call read_BZDATA ---------------
@@ -190,9 +190,9 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
+      print *,' nqibz ngrp=',nqibz,ngrp
       print *,' nqbz  =',nqbz
 c      print *,  qbz 
-      print *,' nqibz ngrp=',nqibz,ngrp
 c      print *,' irk=',irk
 c      print *,' #### idtetf: ####'
 c      print *, idtetf
@@ -200,7 +200,6 @@ c      print *, idtetf
 c set up work array
 c      call wkinit (iwksize)
       call pshprt(60)
-
 
 C--- readin GWIN and LMTO, then allocate and set datas.
       nwin =-999    !not readin NW file
@@ -332,7 +331,7 @@ ctm, 080222
           if (np(i).eq.0) exit
           nline = i
         enddo
-        if (nline.eq.nlinex) stop 'hmaxloc: too many lines in SYML'
+        if (nline.eq.nlinex) call rx('hmaxloc: too many lines in SYML')
         close(99)
         nq = 0
         do i = 1,nline
@@ -479,8 +478,7 @@ c index for k and k+bb
      &          ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz),
      &          ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
 
-
-c ixc = 1
+!! ixc = 1 ----------------
       if (ixc.eq.1) then
          do is = 1,nspin
          call ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f,
@@ -513,13 +511,12 @@ ctm, 060923 !!!
            write(ifwand,*)nqbz,nwf,iko_ixs(is),iko_fxs(is)
          enddo
          isx = iclose('wan.d')
-         stop 'hmaxloc: ixc=1 ok'
+         call rx0('hmaxloc: ixc=1 ok')
       endif
 
-c loop over spin
-      do is = 1,nspin
-         write(*,*)'is =',is,'  out of',nspin
-
+!! loop over spin -----------------------
+      do 1000 is = 1,nspin
+      write(*,*)'is =',is,'  out of',nspin
 c energy window
       call ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f,
      i             eomin,eomax,eimin,eimax,ef,qbz,ikbidx,
@@ -539,37 +536,29 @@ c read uu-matrix
       call chkuu(is,iko_ix,iko_fx,ikbidx,uumat,
      d           nqbz,nbb)
 
-c step 1  -- choose Hilbert space --
+!! step 1  -- choose Hilbert space -- determine cnk
       write(*,*)'Step 1: Hilbert space branch'
       print *,' iko_ix iko_fx=',iko_ix,iko_fx
-
       allocate (amnk(iko_ix:iko_fx,nwf,nqbz),
      &          upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz),
      &          cnk(iko_ix:iko_fx,nwf,nqbz),
      &          cnk2(iko_ix:iko_fx,nwf,nqbz),
      &          omgik(nqbz))
-
       call init_unkg(is,qbz,ginv,ef,lein,
      i              iko_ix,iko_fx,iko_i,iko_f,
      i              iki_i,iki_f,
      d              nwf,nband,nqbz,
      o              amnk,cnk)
-
 !      call chk_amnkweight(qbz,iko_ix,iko_fx,amnk,
 !     &     nqbz,nwf,nband,nlmto)
 !      call chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
 !     &     nqbz,nwf,nband,nlmto)
-
       do isc = 1,nsc1
-
          do iq = 1,nqbz
-
             call dimz(lein,iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq),
      o                ndz,nin)
-
             if (nwf.gt.nin) then
-              if (ndz.lt.1) stop 'ndz < 1'
-
+              if (ndz.lt.1) call rx('ndz < 1')
 c (1-2) <u_mk | P_k+b | u_nk>
                call getupu(isc,
      i                     uumat(:,:,:,iq),cnk,
@@ -581,10 +570,8 @@ c (1-2) <u_mk | P_k+b | u_nk>
      i                     ikbi_i(:,iq),ikbi_f(:,iq),
      d                     nwf,nbb,nqbz,
      u                     upu(:,:,:,iq))
-
 c (1-3) Zmn(k) > phi,eval
                allocate (zmn(ndz,ndz),evecc(ndz,ndz),eval(ndz))
-
                call getzmn(upu(:,:,:,iq),wbb,lein,
      i                     iko_ix,iko_fx,
      i                     iko_i(iq),iko_f(iq),
@@ -594,14 +581,12 @@ c (1-3) Zmn(k) > phi,eval
 
                call chk_hm(zmn,ndz)
                call diag_hm(zmn,ndz,eval,evecc)
-
                call new_cnk(cnk(:,:,iq),evecc,iq,
      i                      iko_ix,iko_fx,
      i                      iko_i(iq),iko_f(iq),
      i                      iki_i(iq),iki_f(iq),
      d                      nwf,ndz,
      o                      cnk2(:,:,iq))
-
 c (1-3) w_I(k)  eq.(18)
                call chk_eval(wbb,eval,nbb,ndz)
                call get_omgik(wbb,eval,
@@ -609,22 +594,16 @@ c (1-3) w_I(k)  eq.(18)
      i                        iki_i(iq),iki_f(iq),
      d                        nbb,nwf,ndz,
      o                        omgik(iq))
-
                deallocate (zmn,evecc,eval)
-
             else
                omgik(iq) = 0d0
                cnk2(:,:,iq) = cnk(:,:,iq)
-
 c end if (ndz>1)
             endif
-
 c end of iq-loop
          enddo
-
 c (1-5) w_I(k) > Omaga_I  eq.(11)
          omgi = sum(omgik(:)*wbz(:))
-
 c (1-6) check self-consistency
          write(*,"('#SC-loop, conv.',i5,d13.5)")isc,omgi 
          if (isc.ge.2) then
@@ -634,23 +613,25 @@ c (1-6) check self-consistency
                goto 810
             endif
          endif
-
 c update
          omgiold = omgi
          cnk     = cnk2
-
 c end of self-consistent loop
       enddo
       write(*,*)'step1: not converged'
-
  810  continue
-
       deallocate(upu,cnk2)
 
-!      call chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
-!     &     nqbz,nwf,nband,nlmto)
+c      call chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
+c     &     nqbz,nwf,nband,nlmto)
 
-c step 2 -- localize Wannier fn. --
+!! NOTE: cnk is the final results of step 1
+!!   cnk(iko_ix:iko_fx,nwf,nqbz)
+!!   cnk(iko_i(iq):iko_f(iq),nwf,iq) gives nwf-dimentional space. 
+!!   step 1 (minimization of Omega_I)
+
+
+!! step 2 -- localize Wannier fn. -------------------------------------------------
       write(*,*)'Step 2: Wannier fn. branch'
 
       allocate (mmn(nwf,nwf,nbb,nqbz),mmn0(nwf,nwf,nbb,nqbz),
@@ -659,7 +640,8 @@ c step 2 -- localize Wannier fn. --
      &          rn(3,nwf),qn(nwf),tmn(nwf,nwf),dwmn(nwf,nwf),
      &          eunk(nwf,nqbz))
 
-c (2-0) construct initlal u~ from u
+!! (2-0) construct initlal u~ from u
+!! eunk(= e~) of {H~}_mn): eigenvalue within the nwf-dimentional Hilbert space
       call diag_unk(is,qbz,
      i              iko_ix,iko_fx,iko_i,iko_f,
      d              nband,nwf,nqbz,
@@ -678,13 +660,11 @@ c (2-0) construct initlal u~ from u
 !      call chk_eunk(is,qbz,eunk,ef,
 !     d              nqbz,nband,nwf)
 
-
-c (2-1) initial: uumat -> Mmn
+c (2-1) initial: uumat -> M_mn(0) Eq.58 in Ref.[1]
       call init_mmn(cnk,uumat,ikbidx,
      i              iko_ix,iko_fx,iko_i,iko_f,ikbo_i,ikbo_f,
      d              nwf,nqbz,nbb,
      o              mmn0)
-
 
 c (2-2) initial U
       call init_Umnk(amnk,cnk,
@@ -701,16 +681,12 @@ c (2-2) initial U
      u              mmn)
 
       do isc = 1, nsc2
-
 c <r_n> ([1] eq.31)
          call get_rn(mmn,bb,wbb,wbz,
      d               nwf,nqbz,nbb,
      o               rn)
-
          do iq = 1,nqbz
-
             dwmn = (0d0,0d0)
-
             do ibb = 1,nbb
 c (2-3) A[R] matrix
                call getrmn(mmn(:,:,ibb,iq),
@@ -803,9 +779,9 @@ c 070830
       deallocate(uumat,amnk,omgik,mmn,mmn0,
      &           rmn,amn,smn,rn,qn,tmn,dwmn)
 
-c step 3 -- reduced Hamiltonian --
-      write(*,*)'Step 3: reduced Hamiltonian branch'
 
+!! step 3 -- reduced Hamiltonian ------------------------------
+      write(*,*)'Step 3: reduced Hamiltonian branch'
 c open file
       if (is .eq. 1) then
          ifbnd = iopen('bnds.maxloc.up',1,-1,0)         
@@ -818,7 +794,6 @@ c open file
       write(ifbnd,*)nwf
       write(iftb,*)nq
       write(iftb,*)nwf
-
 c allocate
       allocate (hrotk(nwf,nwf,nqbz), ! hrotr(nwf,nwf,nqbz),
      o          hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
@@ -838,14 +813,14 @@ c for small Hamiltonian
          write(ifsh,*)nsh
          allocate (hrotkps(nsh,nsh),eveccs(nsh,nsh),evals(nsh))
       endif
-c (3-1) ~H(k) -> Hrot(k)
+c (3-1) ~H(k) -> Hrot(k): note eunk is eigenvalues in the basis of cnk
       call rot_hmnk(umnk,eunk,
      d              nwf,nqbz,
-     o              hrotk)
+     o              hrotk) !rotated Hamiltonian in MLW basis. 
 c (3-2) Hrot_mn(R)
       allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
       call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
-      allocate(hrotr(nwf,nwf,nrws))
+      allocate(hrotr(nwf,nwf,nrws)) !real space Hamiltonian in Wannier funciton basis
       if (ixc.eq.2) then
          call get_hrotr_ws(hrotk,qbz,wbz,
      i        rws,irws,drws,
@@ -930,7 +905,7 @@ cc             e2 = (eunk(iband,iq)-ef)*rydberg()
       allocate(eval1(nwf,nq),eval3(nwf,nq))
       if(lsh) allocate(eval2(nwf,nq))
       do iq = 1,nq
-         print *,' got get_hrotkp_ws iq =',iq
+c         print *,' got get_hrotkp_ws iq =',iq
 c (3-3) Hrot_mn(k')
           call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
      d                     nwf,nqbz,nrws,
@@ -981,11 +956,11 @@ c     (3-4) diagonalize -- Tight-binding --
       if (lsh) deallocate(hrotkps,eveccs,evals)
       close(ifbnd)
 c end of loop over spin
-      enddo
+ 1000 continue
  950  format(a14,3f23.16)
  990  format(3f12.6)
       call cputid(0)
-      stop 'hmaxloc: ixc=2 ok'
+      call rx0('hmaxloc: ixc=2 ok')
       end
 
 c-----------------------------------------------------------------------
@@ -1010,7 +985,7 @@ c --- Readin nlam index
       allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
       do ix =1,ldim2
         read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-        if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
+        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
       enddo   
 
       nbas = ibas_indx(nlmto)
@@ -1080,7 +1055,7 @@ c --- Readin nlam index
       allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
       do ix =1,ldim2
         read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-        if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
+        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
       enddo   
 
       nbas = ibas_indx(nlmto)
@@ -1114,8 +1089,9 @@ c --- Readin nlam index
       do ibas=1,nbas
          write(*,*)ibas,iwf,wbas(ibas,iwf)
       enddo
-      write(*,*)
+      write(*,*) 
       enddo   
+
       write(*,*)'*** ibas,wbas'
       do ibas=1,nbas
          w = 0d0
@@ -1124,10 +1100,8 @@ c --- Readin nlam index
          enddo
          write(*,*)ibas,w
       enddo
-   
       deallocate(cphi1,cphi2,wbas,m_indx,l_indx,n_indx,ibas_indx)
       ix = iclose('@MNLA_CPHI')
-
       end
 c-----------------------------------------------------------------------
       subroutine chk_umn(cnk,umnk,qbz,

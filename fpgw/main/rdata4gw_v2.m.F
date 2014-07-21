@@ -375,7 +375,7 @@ c
      &     zz,aa,bb,bas,alat,plat,
      &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,nocore) !,cphi,geig
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
-      print *,' dummy iclass=',iclass
+      print *,' iclass=',iclass
       print *,' nqtti nbas',nqtti,nbas
       do iq=1,nqtti
         write(*,"(' qtti=',i4,3f9.5)")iq, qtti(1:3,iq)

@@ -237,3 +237,4 @@ echo 1|$nfpgw/hmaxloc   >lmaxloc1
 $nfpgw/hpsig            >lpsig
 echo 2|$nfpgw/huumat    >luumat2
 echo 2|$nfpgw/hmaxloc   >lmaxloc2
+$nfpgw/wanplot >lwanplot

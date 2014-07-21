@@ -702,7 +702,7 @@ c      enddo
         print *,' ddddd qu      =',qu
         print *,' ddddd qtarget=',qtarget
         print *,' ddddd q (iqq)=',qtt(:,iqq)
-        print *,' nqp(iq) ngp(iqq)=',ngp(iq),ngp(iqq)
+        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
@@ -1133,7 +1133,8 @@ c --- Readin CPHI and GEIG
       if(.not.Keepeig) print *,' KeepEigen=F; not keep geig and cphi in m_readeigen'
       ifgeig = iopen('GEIG',0,0,mrecg)
       ifcphi = iopen('CPHI',0,0,mrecb) ! Coeeficients of eigenfunction
-      print *,' ifgeig ifcphi=',ifgeig,ifcphi
+c      print *,' ifgeig ifcphi=',ifgeig,ifcphi
+c      print *,' ldim2,nband,nqi,nsp',ldim2,ngpmx,nband,nqi,nsp
       if(.not.keepeig) return
 c      ifgeig = iopen('GEIG',0,-1,0)
 c      ifcphi = iopen('CPHI',0,-1,0) ! Coeeficients of eigenfunction
@@ -1154,6 +1155,7 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
         enddo
       enddo
+      print *,'eeeeee'
       isx= iclose('CPHI')
       isx= iclose('GEIG')
 

@@ -87,10 +87,10 @@ hibz2fbz0wan.F,183
       subroutine senm_wan(553,19462
       subroutine senm2(584,20215
 
-hmaxloc.F,124
-      subroutine chk_amnkweight(1023,32730
-      subroutine chk_cnkweight(1093,34677
-      subroutine chk_umn(1164,36622
+hmaxloc.F,123
+      subroutine chk_amnkweight(992,32771
+      subroutine chk_cnkweight(1062,34718
+      subroutine chk_umn(1133,36663
 
 hnocc_mlw.F,149
       subroutine efsimplef2a_mlw 269,9469
@@ -107,11 +107,11 @@ hphig.F,218
       subroutine ophiphi(933,31066
 
 hpsig.F,183
-      subroutine checkagree(518,18499
-      subroutine  readbb(527,18805
-      subroutine  getc1c2(569,20008
-      subroutine qggmat(654,22696
-      subroutine phigmat(815,27534
+      subroutine checkagree(518,18490
+      subroutine  readbb(527,18796
+      subroutine  getc1c2(569,19999
+      subroutine qggmat(654,22687
+      subroutine phigmat(815,27525
 
 hpsig_MPI.F,183
       subroutine checkagree(604,21274
@@ -168,12 +168,12 @@ hupdt_ent_MPI.m.F,554
       subroutine read_q_qgpsi(1310,42624
 
 huumat.F,215
-      subroutine checkagree(807,28225
-      subroutine  readbb(816,28531
-      subroutine  readbb1D(858,29734
-      subroutine q2q0(923,31536
-      subroutine q02q(936,31833
-      subroutine q02q0g0(949,32122
+      subroutine checkagree(807,28184
+      subroutine  readbb(816,28490
+      subroutine  readbb1D(858,29693
+      subroutine q2q0(923,31495
+      subroutine q02q(936,31792
+      subroutine q02q0g0(949,32081
 
 huumat_MPI.F,116
       subroutine checkagree(1093,39241

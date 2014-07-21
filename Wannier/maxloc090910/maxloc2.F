@@ -194,7 +194,6 @@ c-----------------------------------------------------------------------
      o                     umnk)
 
       implicit real*8(a-h,o-z)
-
       parameter (eps = 1d-3)
 !      complex(8),allocatable :: amn(:,:),
 !     &                          evecc(:,:),smat(:,:),wmat(:,:)
@@ -205,13 +204,9 @@ c-----------------------------------------------------------------------
      &              amnk(iko_ix:iko_fx,nwf,nqbz),
      &              cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
       integer(4) :: iko_i(nqbz),iko_f(nqbz)
-
-
       allocate (amn(nwf,nwf),zz(nwf,nwf),vv(nwf,nwf),dd(nwf))
       umnk = (0d0,0d0)
-
       do iq = 1,nqbz
-
 c construct A
       amn = (0d0,0d0)
       do in = 1,nwf
@@ -222,10 +217,8 @@ c construct A
          enddo
       enddo
       enddo
-
 c singular value decomposition: amn = zz*dd*vv
       call zgesvdmn(nwf,nwf,amn,dd,zz,vv)
-
 c U(m,n) = ( A S^{-1/2} )_mn = (zz*vv)_mn
       do im = 1,nwf
       do in = 1,nwf
@@ -488,7 +481,7 @@ c-----------------------------------------------------------------------
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz)
-      real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf)
+      real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf),sss
 
 c omgi ([1] eq.34) 
       omgi = 0d0
@@ -525,11 +518,17 @@ c omgd ([1] eq.36)
          rtmp = 0d0
          do in = 1,nwf
             brn = sum(bb(:,ibb)*rn(:,in))
+c            print *,'brn=',brn,sum(abs(bb(:,ibb))),sum(abs(rn(:,in)))
             do iq = 1,nqbz
                rtmp = rtmp + 
      &         wbz(iq)*(-dimag(log(mmn(in,in,ibb,iq)))-brn)**2
             enddo
          enddo
+c         sss=0d0
+c         do in=1,nwf
+c         sss=sss+sum(abs(imag(mmn(in,in,ibb,1:nqbz))))
+c         enddo
+c         print *,'sss=',sss
          omgd = omgd + wbb(ibb)*rtmp
       enddo
 

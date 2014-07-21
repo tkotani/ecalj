@@ -241,9 +241,7 @@ c-----------------------------------------------------------------------
      i                    iko_ix,iko_fx,iko_i,iko_f,
      d                    nwf,nqbz,
      o                    cnk0)
-
       implicit real*8(a-h,o-z)
-
       parameter (eps = 1d-3)
 !      complex(8),allocatable :: evecc(:,:),smat(:,:),wmat(:,:),
 !     &                          wmat2(:,:),wmat3(:,:)
@@ -253,9 +251,8 @@ c-----------------------------------------------------------------------
       complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz),
      &              cnk0(iko_ix:iko_fx,nwf,nqbz),ctmp
       integer(4) :: iko_i(nqbz),iko_f(nqbz)
-
-
-c singular value decomposition, 061003
+!! singular value decomposition, 061003
+!! see around Eq.23 of Ref.[2]
       nks = iko_fx - iko_ix + 1
       allocate (aa(nks,nks),zz(nks,nks),vv(nwf,nwf),dd(nwf))
       cnk0 = (0d0,0d0)
@@ -272,7 +269,6 @@ c singular value decomposition, 061003
          enddo
       enddo ! iq
       deallocate (aa,zz,vv,dd)
-
       return
       end
 c-----------------------------------------------------------------------
