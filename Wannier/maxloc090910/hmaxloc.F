@@ -849,25 +849,24 @@ c     skino
          endif
          call read_hrotr(filename,nwf,nrws,
      o        hrotr) 
-      endif
-      if (is .eq. 1) then
-         ifh = iopen('hrotr.cut.up',1,-1,0)
-      else
-         ifh = iopen('hrotr.cut.dn',1,-1,0)
-      endif
-      allocate(hrotrcut(nwf,nwf,nrws))
-      call make_hrotrcut( hrotr,
-     i     rws,irws,drws,
-     i     rcut,heps,
-     d     nwf,nrws,
-     o     hrotrcut )
-      call write_hrotr(ifh, hrotrcut,
-     i     rws,irws,drws,
-     d     nwf,nrws )
-      close (ifh)
-      deallocate(hrotrcut)
+         if (is .eq. 1) then
+            ifh = iopen('hrotr.cut.up',1,-1,0)
+         else
+            ifh = iopen('hrotr.cut.dn',1,-1,0)
+         endif
+         allocate(hrotrcut(nwf,nwf,nrws))
+         call make_hrotrcut( hrotr,
+     i        rws,irws,drws,
+     i        rcut,heps,
+     d        nwf,nrws,
+     o        hrotrcut )
+         call write_hrotr(ifh, hrotrcut,
+     i        rws,irws,drws,
+     d        nwf,nrws )
+         close (ifh)
+         deallocate(hrotrcut)
 c     ekino
-      print *,'xxxxxxxx make_hrotrcut end xxxxxxx'
+      endif
 
 !! ----------------------------------------------------------
 !! k-point mesh

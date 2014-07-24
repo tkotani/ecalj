@@ -30,7 +30,7 @@ SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automat
 #id  = Cu
 %const bohr=0.529177 a=6.798 
 STRUC   ALAT={a} 
-        PLAT=  0.0 0.5 0.5  0.5 0.0 0.5   0.5 0.5 0.0
+        PLAT=  0.5 0.5 0.0  0.5 0.0 0.5   0.0 0.5 0.5
      NL=4  NBAS= 1  NSPEC=1
 SITE    ATOM=Cu POS=0 0 0
 SPEC

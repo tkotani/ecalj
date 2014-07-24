@@ -7,22 +7,30 @@ wan_out_emax  3    !eV relative to Efermi
 #wan_in_ewin on
 #wan_in_emin  -4  !eV relative to Efermi
 #wan_in_emax   0  !eV relative to Efermi
-wan_tb_cut 12
-wan_maxit_1st 300
+###wan_tb_cut 12
+wan_maxit_1st 1000
 wan_conv_1st=1d-8
 wan_max_1st=0.1
-wan_maxit_2nd 1500
+wan_maxit_2nd 1000
 wan_max_2nd=0.3
 wan_conv_end=1d-8
+#wan_write_mmn on
 <MLWF> 
-5          # gaussian, nwf
-1 1 1 1 1  # nphi(1:nwf)
-9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
+5             # gaussian, nwf
+1 1 1 1 1     # nphi(1:nwf)
+9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1 #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
 10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
-11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 A
 12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
-13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 B
 </MLWF>
+vis_wan_band_n 5
+vis_wan_band_id 1 2 3 4 5   !integer x vis_wan_band_n, hamloc bandindex (for your convenience)
+vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R) to shift the center of MLWF for presentation
+vis_wan_mesh 7 7 7          !integer x 3, # of mesh
+vis_wan_lbound -1.1 -1.1 -1.1 !real x 3, lower bound in plat unit 
+vis_wan_ubound  1.1  1.1  1.1 !real x 3, upper bound 
+vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf 
 #########################################################
 
 !!! Starting from ! (or nonkeyword) is comment line !!! 
@@ -35,7 +43,7 @@ wan_conv_end=1d-8
                 ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).
 !multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work
 ! ##### From GWIN0 ################ 
-n1n2n3         8    8    8 ! for BZ meshing in GW 
+n1n2n3   10 10 10 
 QpGcut_psi    4.000 !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou    3.000 !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
