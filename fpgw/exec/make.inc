@@ -38,7 +38,7 @@ CPPSWITCH_INTELLINUXIFC  = \
 #FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
 #FFLAGS=-O3 -cm -WB
 
-FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS=  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 
 # Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed

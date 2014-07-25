@@ -20,9 +20,9 @@ wan_conv_end=1d-8
 1 1 1 1 1     # nphi(1:nwf)
 9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1 #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
 10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
-11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 A
+11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 
 12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
-13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 B
+13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3 
 </MLWF>
 vis_wan_band_n 5
 vis_wan_band_id 1 2 3 4 5   !integer x vis_wan_band_n, hamloc bandindex (for your convenience)

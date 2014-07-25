@@ -45,6 +45,11 @@ Let me know your git address.
    we can use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc.
    (although we have so much room to improve it).
 
+(3) Wannier function generator and effective model generator
+    (Max loc Wannier and effective
+    interaction between them). This is mainly due to Dr.Miyake,Dr.Sakuma, and Dr.Kino.
+    See ecalj/Wannier/README.
+
 ##### Install and test #####
 To get a ecalj package, do
 >git clone https://github.com/tkotani/ecalj.git
