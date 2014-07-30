@@ -459,6 +459,7 @@ c        close(3111)
 
       else 
        ifvcfpout = iopen('VCCFP',0,-1,0) 
+       allocate(freq_r(1)); freq_r=1d99
 c       nw = 1
        nw = 0
       endif
@@ -676,6 +677,7 @@ c pointer to optimal product basis
         call freq01x  (niw, !ua,
      o                freqx,freqw,wwx) !, expa)
       endif
+      allocate(expa(1));expa=1d99
 ccc ------ write energy mesh ----------
 ccc      if(.not.sergeys) then
 cc      ifemesh = iopen('emesh.hwmat'//xt(nz),1,-1,0)

@@ -304,7 +304,7 @@ c$$$      end subroutine
       implicit none
       integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3,ifi
       real(8):: q(3),qx(3),qu(3),qzz(3)
-      logical::debug=.true.
+      logical::debug=.false.
       if(ifi==1) then
 c         nqtt => nqnump
          qtt  => qp

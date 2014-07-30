@@ -1,14 +1,15 @@
 yourbin=$(HOME)/bin
 
-#FC=mpiifort
-#LK=mpiifort
-#LKFLAGS2=-mkl
-#FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
+FC=mpiifort
+LK=mpiifort
+LKFLAGS2=-mkl
+#FFLAGS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound
+FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound
 
-FC=mpif90
-LK=mpif90
-LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
+#FC=mpif90
+#LK=mpif90
+#LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+#FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
 
 ### I think you don't need to modify following lines. Not machine-dependent ###########
@@ -30,7 +31,7 @@ tote = ../tote/
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot #hwmat hwmat_MPI
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot #hwmat hwmat_MPI
 progs_RSMPI = hvccfp0_RSMPI hx0fp0_RSMPI hsfp0_RSMPI
 progs_RSBAND = qg4gw_RSBAND
 # lmf_exec
@@ -711,7 +712,7 @@ all_tm:	$(progs_tm)
  $(gwt)hnocc_mlwt.o \
  $(gwsrc)bzints2.o \
  $(gwt)ferdi.o \
- $(gwt)efsimpleft.o
+ $(gwsrc)efsimpleft.o
 
  AW = \
  $(gwsrc)switches.o \
@@ -1012,7 +1013,7 @@ all_tm:	$(progs_tm)
  $(maxloc)RSMPI_rotkindex_mod.o \
  $(maxloc)RSMPI_utils.o \
  $(maxloc)hsfp0_MPI.m.o \
- $(gwsrc)efsimplef_RSMPI.o \
+ $(maxloc)efsimplef_RSMPI.o \
  $(maxloc)sxcf_fal2_MPI.o \
  $(gwsrc)wse.o \
  $(gwsrc)wintzsg.o \
@@ -1032,7 +1033,7 @@ all_tm:	$(progs_tm)
  $(gwt)geng0.o \
  $(gwsrc)bzints2.o \
  $(gwsrc)genallcf_dump.o \
- $(gwt)efsimpleft.o
+ $(gwsrc)efsimpleft.o
 
  SXCTAU_MPI = \
  $(maxloc)RSMPI_mod.o \
@@ -1050,7 +1051,7 @@ all_tm:	$(progs_tm)
  $(gwt)geng0.o \
  $(gwsrc)bzints2.o \
  $(gwsrc)genallcf_dump.o \
- $(gwsrc)efsimplef_RSMPI.o \
+ $(maxloc)efsimplef_RSMPI.o \
  $(gwt)efsimpleft_MPI.o
 
  UPDT_ENT = \
@@ -1150,7 +1151,7 @@ all_tm:	$(progs_tm)
  $(maxloc)wmat_MPI.o \
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o \
- $(gwsrc)efsimplef_RSMPI.o
+ $(maxloc)efsimplef_RSMPI.o
 
  WMAT2 = \
  $(maxloc)hwmat2.o \
@@ -1176,7 +1177,7 @@ all_tm:	$(progs_tm)
  $(maxloc)wmat_MPI.o \
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o \
- $(gwsrc)efsimplef_RSMPI.o
+ $(maxloc)efsimplef_RSMPI.o
 
  WTMAT = \
  $(gwt)hwtmat.o \
@@ -1195,7 +1196,7 @@ all_tm:	$(progs_tm)
  $(gwsrc)wse.o \
  $(gwt)wtmat_MPI.o \
  $(gwsrc)genallcf_dump.o \
- $(gwsrc)efsimplef_RSMPI.o
+ $(maxloc)efsimplef_RSMPI.o
 
  X0mlw = \
  $(maxloc)hx0fp0.m.o \
@@ -1255,7 +1256,7 @@ all_tm:	$(progs_tm)
  $(gwt)filong.o \
  $(gwt)gentau.o \
  $(gwt)wtau.o \
- $(gwt)efsimpleft.o
+ $(gwsrc)efsimpleft.o
 
  X0tau_MPI = \
  $(maxloc)RSMPI_mod.o \
@@ -1278,7 +1279,7 @@ all_tm:	$(progs_tm)
  $(gwt)filong.o \
  $(gwt)gentau.o \
  $(gwt)wtau.o \
- $(gwt)efsimpleft_MPI.o
+ $(maxloc)efsimpleft_MPI.o
 # $(gwt)efsimpleft.o
 
  X0tau_test = \
@@ -1297,7 +1298,7 @@ all_tm:	$(progs_tm)
  $(gwt)filong.o \
  $(gwt)gentau.o \
  $(gwt)wtau.o \
- $(gwt)efsimpleft.o
+ $(gwsrc)efsimpleft.o
 
 COMM=$(nfpsrc)rxx.o \
  $(gwsrc)mopen.o \
@@ -1442,7 +1443,7 @@ COMMX=$(nfpsrc)rxx.o \
 	$(LK) $(LKFLAGS1) $(WMAT) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
 
  hwmat_MPI:		$(WMAT_MPI) $(GW0tm)
-	$(LK) $(LKFLAGS1) $(WMAT_MPI) $(COMM)   $(GW0tm)  $(LKFLAGS2) -o $@
+	$(LK) $(LKFLAGS1) $(WMAT_MPI) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
 
  hwmat2:		$(WMAT2) $(GW0tm)
 	$(LK) $(LKFLAGS1) $(WMAT2)    $(GW0tm)  $(LKFLAGS2) -o $@

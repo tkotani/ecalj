@@ -515,7 +515,7 @@ c-plane
 c        allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
 c     &            cmelt(ngb, nctot+nbmax, ntp0))
         allocate( zmelt(ngb, nctot+nbmax, ntp0) )
-        if(debug) print *, ' sxcf_fal2: goto drvmelp'
+        if(debug) print *, ' sxcf_fal2: goto drvmelp xxxxx1',ngb,nctot,nbmax,ntp0
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
@@ -542,7 +542,7 @@ c     o       rmelt,cmelt)
         deallocate(zzmel) !rmel,cmel)
 c
         if(debug) print *, ' sxcf: goto wtt'
-        if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum( rmelt),sum(cmelt)
+        if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(zmelt)
 
         do ir2=1,nrws2
          expiqR2 = exp( img*tpi* sum(q(:)*rws2(:,ir2)))
@@ -905,6 +905,7 @@ c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)')
 c     &  add,nadd,abs(add-nadd)
 
       allocate( zmelpl(ngc,nt0,ntp0) )
+c      print *,' zzzzzzz zmelpl',ngc,nt0,ntp0
 
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c      if(.false.) then !old version
@@ -925,13 +926,14 @@ c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
       if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
-       call melpln2( ngp1, ngvecpB1
+c      print *,'wmat.F: drvmelp3: goto melpln2t',nt0,itp0(1:nt0)
+       call melpln2t( ngp1, ngvecpB1
      &           ,   ngp2, ngvecpB2 
 c     &           ,   ngc,  ngveccBr, nadd,
      &           ,   ngc,  nadd,
      &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
      &       geig2(1:ngp2,itp0(1:nt0)), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-     i       shtv, matmul(symope,qik),qik, symope, qbas, 
+     i       shtv, matmul(symope,qik),qik, symope, qbas, qt, !qt is dummy...
      o       zmelpl)
 c      deallocate(geig1,geig2)
 c      rmelt=0d0

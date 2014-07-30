@@ -952,7 +952,7 @@ c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
       if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
-       call melpln2( ngp1, ngvecpB1
+       call melpln2t( ngp1, ngvecpB1
      &           ,   ngp2, ngvecpB2 
 c     &           ,   ngc,  ngveccBr, nadd,
      &           ,   ngc,  nadd,

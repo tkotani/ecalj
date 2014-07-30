@@ -760,17 +760,17 @@ $(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
 	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
 	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
 
-$(gwsrc)rppovl.o: $(gwsrc)rppovl.F
-	gawk -f $(addtime) -vSTART=200 $(gwsrc)rppovl.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_rppovl.F
-	$(FC) $(FFLAGS) $(gwsrc)time_rppovl.F -c -o $*.o
+#$(gwsrc)rppovl.o: $(gwsrc)rppovl.F
+#	gawk -f $(addtime) -vSTART=200 $(gwsrc)rppovl.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_rppovl.F
+#	$(FC) $(FFLAGS) $(gwsrc)time_rppovl.F -c -o $*.o
 
 #$(gwsrc)x0kf_v4h$(x0kf_g): $(gwsrc)x0kf_v4h.F 
 #	gawk -f $(addtime) -vSTART=100 $(gwsrc)x0kf_v4h.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_x0kf_v4h.F
 #	$(FC) $(FFLAGS) $(gwsrc)time_x0kf_v4h.F -c -o $*.o
 
-$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
-	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
-	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
+#$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
+#	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
+#	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
 ###################################################################################
 
 
