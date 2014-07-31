@@ -474,6 +474,7 @@ c      if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
 
 c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
 ! When esmr is negative, esmr is geven automatically by efsimplef.
+        print *,'nnn1 nband=',nband
         call efsimplef2a(nspin,wibz,qibz,ginv, 
      i        nband,nqibz
      i       ,konf,z,nl,natom,iclass,nclass
@@ -481,6 +482,7 @@ c --- determine Fermi energy ef for given valn (legas case) or corresponding cha
 c
      i        qbz,nqbz !index_qbz, n_index_qbz,
      o       ,efnew)
+        print *,'nnn2 nband=',nband
 c
 c        print *,' end of efsimple'
 c        ef = efnew
@@ -494,15 +496,15 @@ c- check total ele number -------
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
-      write(*,*)'nband =',nband
+      write(*,*)'nnn3 nband =',nband,latomic
       if (latomic) then
          call init_readeigen_phi_noeval(nwf,nband,mrecb,mrecg)
       else   
-!         if (l1d) then
-!           call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
-!         else
-           call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg)
-!         endif
+!     if (l1d) then
+!     call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
+!     else
+         call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg)
+!     endif
       endif
       write(*,*)'Caution! evals are zero hereafter.'
       write(*,*)'nwf =',nwf

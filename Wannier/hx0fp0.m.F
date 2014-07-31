@@ -2396,26 +2396,26 @@ c         call matcinv(ngb,sqovlp)     !  inverse
 c         ovlpi=ovlp
 c         deallocate(ppovl,ovlp)
        end
-c---------------------------------------------------------------------
-       subroutine readppovl0(q,ngc,ppovl)
-       implicit none
-       integer(4):: ngc_r,ippovl0,ixx,ngc
-       complex(8):: ppovl(ngc,ngc)
-       real(8):: q(3),qx(3)
-       ippovl0=2301
-       open(ippovl0,file='PPOVL0',form='unformatted')
-       do 
-        read(ippovl0) qx,ngc_r
-        if(sum(abs(qx-q))<1d-6) then
-c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
-           if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
-           read(ippovl0) ppovl
-c           print *,' readin PPOVL0 OK q=',q
-           exit
-        endif  
-      enddo
-      close(ippovl0)
-      end
+c$$$c---------------------------------------------------------------------
+c$$$       subroutine readppovl0(q,ngc,ppovl)
+c$$$       implicit none
+c$$$       integer(4):: ngc_r,ippovl0,ixx,ngc
+c$$$       complex(8):: ppovl(ngc,ngc)
+c$$$       real(8):: q(3),qx(3)
+c$$$       ippovl0=2301
+c$$$       open(ippovl0,file='PPOVL0',form='unformatted')
+c$$$       do 
+c$$$        read(ippovl0) qx,ngc_r
+c$$$        if(sum(abs(qx-q))<1d-6) then
+c$$$c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
+c$$$           if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
+c$$$           read(ippovl0) ppovl
+c$$$c           print *,' readin PPOVL0 OK q=',q
+c$$$           exit
+c$$$        endif  
+c$$$      enddo
+c$$$      close(ippovl0)
+c$$$      end
 
       subroutine zgesvdnn(ngb,zzz, SS,UU,VT)
 C--- SVD zzz= matmul(UU,matmul(SS,VT)) ------------

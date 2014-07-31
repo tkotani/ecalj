@@ -839,10 +839,8 @@ c -------------------------------------------------------------------
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
      o       zmelt)
-c      use m_readqg
-c      use m_readeigen
-      use m_readqg, only : readqg
-      use m_readeigen,only : readgeig
+      use m_readqg
+      use m_readeigen
 c ! q1=q    ---> iq 1:ntp0 q-point
 c ! q2=q-rk ---> kp 1:nt0  occupied
 c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
@@ -872,7 +870,7 @@ c     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
       integer(4)::verbose
 c
 c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) print *,' drvmelp3: start'
+      if(verbose()>50) print *,' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
@@ -925,7 +923,7 @@ c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
       if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
-      call melpln2t( ngp1, ngvecpB1
+      call melpln2( ngp1, ngvecpB1
      &           ,   ngp2, ngvecpB2
 c     &           ,   ngc,  ngveccBr, nadd,
      &           ,   ngc,  nadd,

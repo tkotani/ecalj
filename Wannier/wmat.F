@@ -418,59 +418,37 @@ c          if (kount(kx) > 1) stop 'wmat: kount > 1'
             cycle
           endif
         endif
-
 c---test
       if(OnlyQ0P.and.kx<=nqibz) then
         if(exchange) deallocate(vcoul)
         cycle
       endif
-    
-c phase factor for off-site W
+
+!! phase factor for off-site W
       do ir1=1,nrws1
          expiqR1(ir1) = exp(-img*tpi* sum(qbz_kr(:)*rws1(:,ir1)))
       enddo
-c      tmp =  sum(qbz_kr*rsite)
-c      write(*,*)'tmp',tmp
-c      write(*,*)'qbz_kr',qbz_kr
-c      write(*,*)'rsite',rsite
-
-c loop over FBZ
       allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
       rmelt3 = 0d0
       cmelt3 = 0d0
 
-      do iq = 1,nqbz
-ctm debug      do iq = 1,0
-
+!! loop over FBZ
+      do iq = 1,nqbz 
       q(:) = qbz(:,iq)
-
-c read eval and eigen
+!!  read eval and eigen
+!!  qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
       call readeval (qbz(:,iq), isp, eq)
-      call readcphi (qbz(:,iq), nlmto,isp, quu, cphiq)
+      call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
+      qk =  q - qbz_kr          ! qbz(:,kr)
+      call readeval(qk, isp, ekq)
+      call  readcphiW(qk, nlmto,isp, quu, cphikq)
 ctm debug
-c      write(7400,*)iq,nlmto,nwf
-c      write(7400,*)cphiq
-      if(debug) print *, ' sxcf: 2'
-
-c qk = q - rk, rk is inside 1st BZ, not restricted to 
-c the irreducible BZ
-c      call vminv   (q,qbz(1,kr),3,qk)
-        qk =  q - qbz_kr ! qbz(:,kr)
-c        iqk = iqindx(qk, ginv,qbz,nqbz)
-
-c bring q-rk into the 1st BZ ==> qfbz labelled by kp
-c         call fbz2(qk, ginv,index_qbz,n_index_qbz, qbz,nqbz, !qbz=rk
-c     o                qfbz,kp)
-
-c        if(debug)  print *,'xxx2',kp,qk,n1,n2,n3,qbas,ginv
-c read eigenvalues,b and hb at q-rk
-c        call rwdd1   (ifev, kp,nband,ekq)
-        call readeval(qk, isp, ekq)
-
-c        ikpisp=isp + nsp*(kp-1)
-c        call rwdd1  (ifcphi, ikpisp,2*nlmtobnd, cphikq)
-        call  readcphi(qk, nlmto,isp, quu, cphikq)
-
+c        print *,'qqq ',iq
+c        print *,'qqq ',q
+c        print *,'qqq ',qk
+c        print *,'quu=',quu
+c        print *,'qqq sum(chiq)',sum(abs(cphiq)),sum(abs(cphikq))
+c        print *,'qqq sum(chiq)',sum(cphiq),sum(cphikq)
 
 c====================================================
 c matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
@@ -557,15 +535,6 @@ c rmelt3,cmelt3
 c end of loop over FBZ
       end do
 
-ctm debug
-c      do jj = 1,nwf
-c        norm2 = 0d0
-c        do ii = 1,ngb
-c           norm2 = norm2 + (rmelt3(ii,jj,jj)**2+cmelt3(ii,jj,jj)**2)
-c        enddo
-c        write(*,*)'norm check',jj,norm2
-c      enddo
-
         if(bzcase()==2)then 
           if(kx<=nqibz) then
             wtt = wk(kr)
@@ -586,10 +555,8 @@ ctm nqibz            wtt = wk(1)*wqt(kx-nqibz)  !
             if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
           endif
         endif  
-
         weight = wtt
 ctm        weight = weight * wik(kx) * 0.5d0 / wk(kr)
-
         if(debug) then
            write(6,"(' kx wtt=',i4,f12.8)") kx,wtt
         endif
@@ -615,35 +582,20 @@ c      write(6,*)' vcoulsum=',sum(vcoul)
 c      if(debug) write(6,*)'  sumz=',dcmplx(rmelt,cmelt),sum(vcoul)
 c
       if(exchange) then
-
          if (debug) write(*,*) 'bare coulomb section begins'
-c
          allocate(z1p(ngb,nwf,nwf))
          allocate(zmel1(ngb))
          allocate(zmel(ngb, nwf, nwf),vcoult(1:ngb,1:ngb))
          do ir2=1,nrws2
-c> zmel(j,t,t') = <psi(q,t') | psi(q-rk,t) B(rk,j)>
+!! zmel(j,t,t') = <psi(q,t') | psi(q-rk,t) B(rk,j)>
           zmel  = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2))
           vcoult= transpose(vcoul)
-c
-c          deallocate(vcoul)
-
-c          allocate( z1p(ngb,nwf,nwf))
-          call matm( vcoult, zmel,
-     &           z1p, ngb,ngb,nwf*nwf )
-c          deallocate(vcoult, zmel)
-c          allocate(zmel1(ngb))
-
-c         print *,' nctot nbmax=',nctot,nbmax
-
-
+          call matm( vcoult, zmel, z1p,  ngb,ngb,nwf*nwf )
           do ir3=1,nrws2
-c
           do itp2 = 1,nwf
           do it2  = 1,nwf
           do it   = 1,nwf
           do itp  = 1,nwf
-
             zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),-cmelt3(:,it,itp,ir3))
             ztmp = sum ( z1p(:,it2,itp2)*zmel1 )
             do ir1=1,nrws1
@@ -657,17 +609,12 @@ c
           enddo
           enddo
           enddo
-c
           enddo ! ir3 
          enddo ! ir2
-         deallocate(vcoul)
-         deallocate(vcoult, zmel)
+         deallocate(vcoul,vcoult, zmel)
          deallocate(z1p,rmelt3,cmelt3,zmel1)
-
          if (debug) write(*,*) 'bare coulomb section finished'
-
 c-- End of bare-Coulomb section --------------
-
       else
 c--------------------------------------------------------------------------
 c--- screening effect section----------------------------------------------
@@ -877,8 +824,8 @@ c      ngp1 = ngpn(iq)  ! q        in FBZ
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
       call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
-      call readgeig(q,    ngpmx, isp, qu1, geig1)
-      call readgeig(q_rk, ngpmx, isp, qu2, geig2)
+      call readgeigW(q,    ngpmx, isp, qu1, geig1)
+      call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
 c debug
 c      geig1=0d0
 c      geig2=0d0

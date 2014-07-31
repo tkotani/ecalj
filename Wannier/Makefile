@@ -1,15 +1,14 @@
 yourbin=$(HOME)/bin
 
-FC=mpiifort
-LK=mpiifort
-LKFLAGS2=-mkl
-#FFLAGS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound
-FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound
+#FC=mpiifort
+#LK=mpiifort
+#LKFLAGS2=-mkl
+#FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
-#FC=mpif90
-#LK=mpif90
-#LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-#FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
+FC=mpif90
+LK=mpif90
+LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
 
 ### I think you don't need to modify following lines. Not machine-dependent ###########
@@ -26,12 +25,12 @@ gwsrc   = ${top}/gwsrc/
 main    = ${top}/main/
 nfpsrc  = ${top}/nfpsrc/
 slatsmlib  =${top}/../lm7K/slatsm/
-tote = ../tote/
+tote = ./
 # tag directory
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot #hwmat hwmat_MPI
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot #hx0fp0_mlw #hwmat hwmat_MPI
 progs_RSMPI = hvccfp0_RSMPI hx0fp0_RSMPI hsfp0_RSMPI
 progs_RSBAND = qg4gw_RSBAND
 # lmf_exec
