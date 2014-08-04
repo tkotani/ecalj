@@ -30,7 +30,7 @@ tote = ./
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot #hx0fp0_mlw #hwmat hwmat_MPI
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot hwmatK #hx0fp0_mlw 
 progs_RSMPI = hvccfp0_RSMPI hx0fp0_RSMPI hsfp0_RSMPI
 progs_RSBAND = qg4gw_RSBAND
 # lmf_exec
@@ -1140,6 +1140,13 @@ all_tm:	$(progs_tm)
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o
 
+ WMATK = \
+ $(maxloc)hwmatK.o \
+ $(gwsrc)wse.o \
+ $(maxloc)wmatK.o \
+ $(maxloc)maxloc0.o \
+ $(gwsrc)genallcf_dump.o
+
  WMAT_MPI = \
  $(maxloc)RSMPI_mod.o \
  $(maxloc)RSMPI_qkgroup_mod.o \
@@ -1440,6 +1447,9 @@ COMMX=$(nfpsrc)rxx.o \
 
  hwmat:		$(WMAT) $(GW0tm)
 	$(LK) $(LKFLAGS1) $(WMAT) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
+
+ hwmatK:		$(WMATK) $(GW0tm)
+	$(LK) $(LKFLAGS1) $(WMATK) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
 
  hwmat_MPI:		$(WMAT_MPI) $(GW0tm)
 	$(LK) $(LKFLAGS1) $(WMAT_MPI) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
