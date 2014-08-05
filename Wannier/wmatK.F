@@ -1,5 +1,5 @@
       logical function newansisoW()
-      newansisoW=.false.
+      newansisoW=.true.
       end
 
       subroutine wmatqk(kount,irot,ef,ef2,esmr,esmr2,tr,
@@ -127,7 +127,6 @@ c nw      = no. frequencies along the real axis
 c niwx    = max(niw,nw)
 c
 c----------------------------------------------------------------------
-c      implicit real*8(a-h,o-z)
       use m_readqg
       use m_readeigen
       use keyvalue
@@ -150,7 +149,7 @@ c
      &  wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),
      &  freqx(niw),wx(niw),expa(niw),
      &  eq(nband), 
-     &   ekq(nband), ekc(nctot+nband),
+c     &   ekq(nband), ekc(nctot+nband),
      &  tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,wfacx,we,esmrx,ua,
      &  dw,wtt,wexx,www,exx,exxq,weight
 c      complex(8) :: zsec(-1:1,ntq,nq)
@@ -175,7 +174,7 @@ c     &                      rmelt3(:,:,:),cmelt3(:,:,:)
      &                      rmelt3(:,:,:,:),cmelt3(:,:,:,:) 
       complex(8),allocatable :: zz(:),zmel(:,:,:),zzmel(:,:,:),
      &     zw (:,:), zwz(:,:,:), zwz0(:,:),zwzi(:,:),zwz00(:,:),
-     &     zmelt(:,:,:),zmelc(:,:,:,:)
+     &     zmelt(:,:,:),zmelc(:,:,:,:),zmelcc(:,:,:,:)
 c for exchange --------------------
       logical :: exchange,screen,cohtest,tote
       real(8),allocatable:: 
@@ -295,6 +294,9 @@ ctm
       real(8),allocatable:: wklm(:),dmlx(:,:),epinvq0i(:,:)
       integer:: ifidmlx,lxklm,nq0ix
       complex(8)::w3p
+
+      integer:: mrecl,nprecx,nword,il
+
 c--------------------------------------------------------------------
       debug=.false.
       if(verbose()>=90) debug=.true.
@@ -305,7 +307,6 @@ c--------------------------------------------------------------------
          read(ifidmlx) nq0ix,lxklm
          if(nq0i/=nq0ix) then
             print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-Cstop2rx 2013.08.09 kino            stop 'nq0i from EPSwklm /= nq0i'
             call rx( 'nq0i from EPSwklm /= nq0i')
          endif
          allocate( dmlx(nq0i,9))
@@ -313,9 +314,11 @@ Cstop2rx 2013.08.09 kino            stop 'nq0i from EPSwklm /= nq0i'
          allocate( wklm((lxklm+1)**2))
          read(ifidmlx) dmlx, epinvq0i
          read(ifidmlx) wklm
+c         do il=1,(lxklm+1)**2
+c         write(6,"('EPSwklm=', i5,3f12.5)") il,wklm(il)
+c         enddo
          ifidmlx = iclose('EPSwklm')
       endif
-
 
 
 c oct2005
@@ -326,7 +329,7 @@ c oct2005
 c      iq         = idxk (q,qbz,nqbz) ! index for q
 c      write(6,"(' iq q  =',i4,3f8.4)")iq,q
 cccc      iq          = idxk (q,qbze,nqbze) ! index for q
-      ekc(1:nctot)= ecore(1:nctot)  ! core
+c      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot) ! core
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
       call dinv33(qbas,0,qbasinv,det) 
@@ -379,6 +382,9 @@ c --- main loop start
          iqend=nqibz            !no sum for offset-Gamma points.
 c     if(exchange) iqend=nqibz
       endif
+ccccccccccccccccccccccccccc
+c      iqini=2
+ccccccccccccccccccc
 
 cccccccccccccccccccccccccccccc
       call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
@@ -399,7 +405,7 @@ c      do 1100 kx = iqini,iqini !kx=1 corresponds to q=0 is omitted.
 c        write (6,"(i3,'  out of ',i3,$)") kx,iqend
         if(debug)  print *, ' sxcf: goto loop kx=',kx
         
-       ! write(*,'("1  begin k-cycle",$)') 
+!        write(*,'("1  begin k-cycle",$)') 
 c         call cputid(0)
 c          write(*,*)'kx, ip, irot=',kx, ip,irot
 
@@ -434,18 +440,17 @@ c        ngc = ngcni(k)  ! k-points in IBZ
 !! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
 !! These can be also separeted into WVR.ID and WVI.ID files.
         if(newansisoW()) then
-           if(kx<=nqibz) qxx=qibz_k
-           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
+           qxx=qibz_k
+c           if(kx<=nqibz) qxx=qibz_k
+c           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
            ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
            do
               read(ifvcoud) ngb0
               read(ifvcoud) qvv
-c     print *,'readin qvv=',qvv
+c              write(6,"('readin qvv ngb0=',3f9.4,i5)")qvv,ngb0
               if(allocated(vcoud)) deallocate(vcoud)
               allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
               read(ifvcoud) vcoud
-
-
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccc
 c$$$  if(sum(abs(qxx(1:2)))<1d-4) then
 c$$$  do irot2 = 1,ngrp
@@ -457,18 +462,16 @@ c$$$  enddo
 c$$$  print *,'wwwwwwwwwww why here ?wwwwwwwwww'
 c$$$  endif
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
               read(ifvcoud) zcousq
               if(sum(abs(qvv-qxx))<1d-6) goto 1133
            enddo
            if(sum(abs(qvv-qxx))>1d-6) then
               print *,'qvv =',qvv
               print *,'qxx=',qxx,kx
-              call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
+              call rx( 'wmatK: qvv/=qibz(:,kx) hvcc is not consistent')
            endif
  1133      continue
+           ifvcoud = iclose('Vcoud.'//charnum5(kx))
            if( ngb0/=ngb ) then !sanity check
               print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
               call rx( 'hsfp0.m.f:ngb0/=ngb')
@@ -495,57 +498,52 @@ c$$$  read(ifvcoud) vcoud
 c$$$  read(ifvcoud) zcousq
 c$$$  vcousq=sqrt(vcoud) !
 
-!     ! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
-!     ! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
-!     ! ppovlz= O Zcousq
-!     ! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
+!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
+!! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi_q,itp |phi_q-rk,it B_rk,I> O^-1_IJ
+!! ppovlz= O Zcousq
+!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
            if(allocated(ppovlz)) deallocate(ppovlz)
            allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-c     print *,'sssssssssssssss',sizeof(ppovlz)/1000000.
-c     print *,'sssssssssssssss',sizeof(ppovlz(1,1))
-c     print *,'sssssssssssssss',sizeof(ppovlz(1,1)),sizeof(reshape(ppovlz,(/1/)))
            call readppovl0(qibz_k,ngc,ppovl)
-c     nnnnnnnnnnn comment out mulipled by ppovl. 
            ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:)) !may2013takao not ppovl inlcuded.
-c     ppovlz(1:nbloch+ngc,:) = zcousq(1:nbloch+ngc,:) !may2013takao not ppovl inlcuded.
+           ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
            deallocate(zcousq,ppovl)
         endif
 
-
-c --- exchange
         if(.not.newansisoW()) then 
-        if(exchange) then
-c          allocate(vcoul(ngb,ngb))
-c          read(ifvcfpout) vcoul(1:ngb,1:ngb)
+           if(exchange) then
+c     allocate(vcoul(ngb,ngb))
+c     read(ifvcfpout) vcoul(1:ngb,1:ngb)
               read(ifvcfpout) nn !oct2005
               allocate(vcoul(nn,nn))
               read(ifvcfpout) vcoul(1:nn,1:nn)
-        endif      
-!! weight check for cycle or not.
-        if(kx <= nqibz ) then
-          if (kr == 0)    then
-c            stop 'wmat: kr=0'
-            if(exchange) deallocate(vcoul)
-            cycle 
-          endif
-          kount(kx)= kount(kx) + 1     ! count the no. times k
-                                             ! appears in the 1st BZ
+           endif
+!     ! weight check for cycle or not.
+           if(kx <= nqibz ) then
+              if (kr == 0)    then
+c     stop 'wmat: kr=0'
+                 if(exchange) deallocate(vcoul)
+                 cycle 
+              endif
+              kount(kx)= kount(kx) + 1 ! count the no. times k
+! appears in the 1st BZ
 cccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
-c          deallocate(vcoul)
-c          cycle
-c          print *,' kount out =',kount(k)
+c     print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
+c     deallocate(vcoul)
+c     cycle
+c     print *,' kount out =',kount(k)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
-c          if (kount(kx) > nstar(kx)) stop 'sexc: too many stars'
-          if (kount(kx) > nstar(kx)) stop 'wmat: kount > nkstar'
-c          if (kount(kx) > 1) stop 'wmat: kount > 1'
+c     if (kount(kx) > nstar(kx)) stop 'sexc: too many stars'
+              if (kount(kx) > nstar(kx)) stop 'wmat: kount > nkstar'
+c     if (kount(kx) > 1) stop 'wmat: kount > 1'
+           else
+              if( wgt0(kx-nqibz,irot) == 0d0 ) then 
+                 if(exchange) deallocate(vcoul)
+                 cycle
+              endif
+           endif
         else
-          if( wgt0(kx-nqibz,irot) == 0d0 ) then 
-            if(exchange) deallocate(vcoul)
-            cycle
-          endif
-        endif
+           if (kr == 0) cycle 
         endif
 c---test
       if(OnlyQ0P.and.kx<=nqibz) then
@@ -566,10 +564,14 @@ c---test
       q(:) = qbz(:,iq)
 !!  read eval and eigen
 !!  qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
-      call readeval (qbz(:,iq), isp, eq)
+!! note call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg), not for eigenvalues.
+c      call readeval (qbz(:,iq), isp, eq)
       call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
       qk =  q - qbz_kr          ! qbz(:,kr)
-      call readeval(qk, isp, ekq)
+c      call readeval(qk, isp, ekq)
+c      ekc(nctot+1:nctot+nband) = ekq (1:nband)
+c      print *,'nnnnnnn nctot, nband=',nctot,nband
+c      print *,'nnnnnnnn ekc=',ekc
       call  readcphiW(qk, nlmto,isp, quu, cphikq)
 ctm debug
 c        print *,'qqq ',iq
@@ -591,37 +593,37 @@ c        call expkt   (qfbz,tr,natom,
 c     o              w(icoskt),w(isinkt))
 c equivalent with above phase
       do ia = 1,natom
-        expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
+         expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
       end do
 c
-        if(debug) print *, ' sxcf: tr=',tr
-        if(debug) print *, ' sxcf: goto psicb2'
+      if(debug) print *, ' sxcf: tr=',tr
+      if(debug) print *, ' sxcf: goto psicb2'
 c> matrix elements
 c>> core
-        nbmax = nwf
-        nt   = nctot + nbmax ! = nstate for the case of correlation
-        ntp0 = nwf
-        allocate( zzmel(nbloch,nt,ntp0))
-        zzmel = 0d0
-c>> valence        
-        call psi2b_v2 (nbmax, ntp0, iclass,
-     i    dreal(expikt(1:natom)),dimag(expikt(1:natom)),
-     i              cphikq, !rbkq,cbkq,rhbkq,chbkq, !  q-rk nko
-     i              cphiq,  !rbq,cbq,rhbq,chbq,     !  q    nko
-     i              ppb,  !pdb,dpb,ddb,
-     i              nlnmv,nlnmc,mdim,nctot,
-     i              imdim,iatomp,
-     d              mdimx,nlmto,nbloch,nlnmx, nband, nt,ntp0,
-     d              natom,nclass,
-     o              zzmel) ! rmel,cmel)
+      nbmax = nwf
+      nt   = nctot + nbmax      ! = nstate for the case of correlation
+      ntp0 = nwf
+      allocate( zzmel(nbloch,nt,ntp0)) ! rk,ibloch  q-rk,it  q,itp
+      zzmel = 0d0
+c>>   valence    zzmel = <psi_q,itp |psi_q-rk,it  B_rk(ibloch)>
+      call psi2b_v2 (nbmax, ntp0, iclass,
+     i     dreal(expikt(1:natom)),dimag(expikt(1:natom)),
+     i     cphikq,              !rbkq,cbkq,rhbkq,chbkq, !  q-rk nko
+     i     cphiq,               !rbq,cbq,rhbq,chbq,     !  q    nko
+     i     ppb,                 !pdb,dpb,ddb,
+     i     nlnmv,nlnmc,mdim,nctot,
+     i     imdim,iatomp,
+     d     mdimx,nlmto,nbloch,nlnmx, nband, nt,ntp0,
+     d     natom,nclass,
+     o     zzmel)               ! rmel,cmel)
 
-        if(debug) write(6,"('sum of zmel abszmel=',4d23.16)")
+      if(debug) write(6,"('sum of zmel abszmel=',4d23.16)")
      &                 sum(zzmel),sum(abs(zzmel) )
 
 c-plane
 c        allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
 c     &            cmelt(ngb, nctot+nbmax, ntp0))
-        allocate( zmelt(ngb, nctot+nbmax, ntp0) )
+        allocate( zmelt(ngb, nctot+nbmax, ntp0) ) ! rk,ibloch  q-rk,it  q,itp
         if(debug) print *, ' sxcf_fal2: goto drvmelp xxxxx1',ngb,nctot,nbmax,ntp0
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
@@ -637,8 +639,8 @@ c     i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
 c     i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
 c     o       rmelt,cmelt) 
 
-        call drvmelp3( q,   ntp0, ! q in FBZ
-     i                 q-qbz_kr, nbmax,  ! q-rk
+        call drvmelp3( q,   ntp0, ! q in FBZ  q,itp
+     i                 q-qbz_kr, nbmax,  ! q-rk,it
      i                 qibz_k,           ! k in IBZ for e-product basis
      i                 isp,ginv,   
      i       ngc,ngcmx,ngpmx,nband,itq, 
@@ -716,19 +718,19 @@ c
          allocate(zmel(ngb, nwf, nwf))
          if(.not.newansisoW()) allocate(vcoult(1:ngb,1:ngb),z1p(ngb,nwf,nwf))
          do ir2=1,nrws2
-!! zmel(j,t,t') = <psi(q,t') | psi(q-rk,t) B(rk,j)>
-          zmel  = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2))
+!!  (rmelt3,cmelt3)  !rk,ibloch  q-rk,it  q,itp
+          zmel  = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>
           if(.not.newansisoW() ) then
             vcoult= transpose(vcoul)
-            call matm( vcoult, zmel, z1p,  ngb,ngb,nwf*nwf )
+            call matm( vcoult, zmel, z1p,  ngb,ngb,nwf*nwf ) !z1p= <psi_itp|psi_it B> * voul
 c            deallocate(vcoult)
             do ir3=1,nrws2
             do itp2 = 1,nwf
             do it2  = 1,nwf
             do it   = 1,nwf
             do itp  = 1,nwf
-            zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),-cmelt3(:,it,itp,ir3))
-            ztmp = sum ( z1p(:,it2,itp2)*zmel1 )
+            zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),-cmelt3(:,it,itp,ir3)) ! <B psi_it|psi_itp>
+            ztmp = sum ( z1p(:,it2,itp2)*zmel1 ) ! <psi_itp2|psi_it2 B>*vcoul*<B psi_it|psi_itp>
             do ir1=1,nrws1
             ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
             rw_w(itp2,it2,it,itp,ir,0) = rw_w(itp2,it2,it,itp,ir,0)
@@ -742,11 +744,12 @@ c            deallocate(vcoult)
             enddo
             enddo ! ir3 
           else
+! based on E_I basis. See Christoph's paper
             allocate(zmeltt(nwf,nwf,ngb))
             do itp= 1,nwf
             do it = 1,nwf
             do ivc=1,ngb
-              zmeltt(it,itp,ivc) =  sum( zmel(:,it,itp)* ppovlz(:,ivc) )
+            zmeltt(it,itp,ivc)=sum(zmel(:,it,itp)*ppovlz(:,ivc)) ! <psi_itp|psi_it E_I> (I=ivc) 
             enddo
             enddo
             enddo
@@ -755,18 +758,18 @@ c            deallocate(vcoult)
             do it2  = 1,nwf
             do it   = 1,nwf
             do itp  = 1,nwf
-              zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),cmelt3(:,it,itp,ir3))
+              zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),cmelt3(:,it,itp,ir3)) ! <psi_itp|psi_it B_I>
               w3p=0d0
               do ivc=1,ngb
-                zmeltt1 =  sum( zmel1(:)*ppovlz(:,ivc) )
+                zmeltt1 =  sum( zmel1(:)*ppovlz(:,ivc) ) !<psi_itp|psi_it E_I>
                 if(ivc==1.and.kx==iqini) then
-                   vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
+                   vc= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
                 else
                    vc= vcoud(ivc)
                 endif
-                w3p = w3p + dconjg(zmeltt1) *vc* zmeltt(it,itp2,ivc)
+                w3p=w3p + zmeltt(it2,itp2,ivc)  *vc* dconjg(zmeltt1) 
+                       ! <psi_itp2|psi_it2 E_I> *vc* <E_I psi_it|psi_itp>
               enddo
-              w3p = w3p* wfacx(-1d99, ef, ekc(it), esmr)
               ztmp= w3p
               do ir1=1,nrws1
               ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
@@ -780,50 +783,61 @@ c            deallocate(vcoult)
             enddo
             enddo
             enddo ! ir3 
+            deallocate(zmeltt)
           endif
          enddo ! ir2
-         deallocate(vcoul,vcoult, zmel)
-         deallocate(z1p,rmelt3,cmelt3,zmel1)
+         if(allocated(vcoul)) deallocate(vcoul,vcoult)
+         if(allocated(z1p))   deallocate(z1p)
+         if(allocated(rmelt3)) deallocate(rmelt3,cmelt3,zmel1, zmel)
          if (debug) write(*,*) 'bare coulomb section finished'
-c-- End of bare-Coulomb section --------------
+!! --- End of bare-Coulomb section --------------
+
       else
 c--------------------------------------------------------------------------
 c--- screening effect section----------------------------------------------
 c--------------------------------------------------------------------------
-
-c--------------------------------------------------------------
 c S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> 
 c                Wc(k,0)(i,j) > <B(rk,j) psi(q-rk,n') |psi(q,t')>
+c t-->itp   n -->it  
+c t'-->itp2 n'-->it2
 c--------------------------------------------------------------
-
-
-c--- The matrix elements zmel.
-        allocate( zmelc (ngb, nwf, nwf,nrws2),
+!!--- The matrix elements zmelc.
+!! zmelc  = < E(rk,j) psi(q-rk,it) | psi(q,itp) >
+!! E basis is ghe Christoph's basis diagonalize the Coulomb inteaction
+        allocate( zmelc (ngb, nwf, nwf,nrws2),zmelcc (ngb, nwf, nwf,nrws2),
      c            zw (nblochpmx,nblochpmx),
      c            zw2(nwf,nwf,nwf,nwf) )
-c> zmelc(j,t,t') = < B(rk,j) psi(q-rk,t) | psi(q,t') >
-        zmelc = dcmplx (rmelt3,-cmelt3)
-        deallocate(rmelt3,cmelt3)
+        zmelcc = dcmplx (rmelt3,-cmelt3) !zmelcc = < B(rk,j) psi(q-rk,it) | psi(q,itp) >
+        do it =1,nwf
+        do itp=1,nwf
+        do ir2=1,nrws2
+           zmelc(:,it,itp,ir2) =  matmul(zmelcc(:,it,itp,ir2),dconjg(ppovlz(:,:)))
+        enddo
+        enddo
+        enddo
+        deallocate(rmelt3,cmelt3,zmelcc)
         if(debug) print *,' end of zmel'
 
 
 c====================================================================
 c Wc(qt,w) along the imaginary axis
 c====================================================================
-
 c------------------------------------------------
 c loop over w' = (1-x)/x, frequencies in Wc(k,w')
 c {x} are gaussian points between (0,1)
 c------------------------------------------------
-c
         nx  = niw
-c        if(niw <1) stop " sxcf:niw <1"
-c
+        nprecx=8
+        mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+        ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
         do ix = 1,nx     ! imaginary frequency w'-loop
-          nrec=(kx-2)*niw+ix
-          if(bzcase()==2) nrec= (kx-1)*niw+ix
+ccccccccccccccccccccccccccccccccc
+c          nrec=(kx-2)*niw+ix
+c          if(bzcase()==2) nrec= (kx-1)*niw+ix
+          nrec=ix
           read(ifrcwi,rec=nrec) zw  ! Readin W-v on imag axis 
 c          read(ifrcwi,rec=((kx-2)*niw+ix)) zw  ! Readin W-v on imag axis 
+ccccccccccccccccccccccccccccccccc
 
 c zwz= S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> 
 c                Wc(k,iw')(i,j) > <B(rk,j) psi(q-rk,n) |psi(q,t)>
@@ -833,57 +847,48 @@ c          zwz(ix,it,itp) = sum(
 c     &   dconjg(zmel(:,it,itp)),matmul(zw(1:ngb,1:ngb),zmel(:,it,itp)) )
 c        enddo
 c        enddo
-
           do ir3=1,nrws2
           do ir2=1,nrws2
-          call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), 
-     i                                   zmelc(:,:,:,ir3), 
+          call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), 
      i      nwf,nwf,ngb, 
      o      zw2)
-
           do ir1=1,nrws1
             ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
-          rw_iw(:,:,:,:,ir,ix)  
-     &  = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
-          cw_iw(:,:,:,:,ir,ix)  
-     &  = cw_iw(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+          rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+          cw_iw(:,:,:,:,ir,ix) = cw_iw(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
           enddo ! ir1
           enddo ! ir2
           enddo ! ir3
-
         enddo
-
+        ifrcwi = iclose('WVI.'//charnum5(kx))
 
 c====================================================================
 c Wc(qt,w) along the real axis
 c====================================================================
-
         if(debug) print *,' go to poles'
-
-c        do      ix = 0,nw                    ! real frequency w'-loop
+        nprecx=8
+        mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+        ifrcw = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
         do      ix = 0,nrw                    ! real frequency w'-loop
-          nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
-          if(bzcase()==2) nrec= (kx-1)*(nw+1-nw_i)+ ix-nw_i+1
+ccccccccccccccccccccccccccc
+c          nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
+c          if(bzcase()==2) nrec= (kx-1)*(nw+1-nw_i)+ ix-nw_i+1
+          nrec=ix-nw_i+1
           read(ifrcw,rec=nrec) zw 
-
+cccccccccccccccccccccccccc
 c zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-rk,n) |psi(q,t)> 
           do ir3=1,nrws2
           do ir2=1,nrws2
-          call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), 
-     i                                   zmelc(:,:,:,ir3), 
+          call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), 
      i      nwf,nwf,ngb, 
      o      zw2)
-
           do ir1=1,nrws1
             ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
-          rw_w(:,:,:,:,ir,ix)  
-     &  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
-          cw_w(:,:,:,:,ir,ix)  
-     &  = cw_w(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+          rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+          cw_w(:,:,:,:,ir,ix)  = cw_w(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
           enddo ! ir1
           enddo ! ir2
           enddo ! ir3
-
 c debug: >
 c          write(*,*)'nw,nrw=',nw,nrw
 c          write(*,*)'ix=',ix
@@ -893,18 +898,17 @@ c          write(*,*)i,rw_w(i,i,i,i,1,ix)
 c          enddo
 c          stop 'debug: 1'
 c debug: <             
-
         enddo
-
+        ifrcw = iclose('WVR.'//charnum5(kx))
         deallocate(zmelc,zw,zw2)
-
         if(debug) print *,' end of screen-if'
-
 c end of if (exchange)
       endif
  1100 continue  ! end of k-loop
       return
       end subroutine wmatqk
+
+
 c -------------------------------------------------------------------
       subroutine matzwz2(zw,zmel, ntp0,nstate,ngb, zwz)
       implicit none
@@ -1013,7 +1017,12 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
                            ! rk    -q  +(q-rk) is not zero.
       add  = matmul(qbasinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
-      if(sum(abs(add-nadd))>1d-7) stop "drvmlp: abs(add-nadd))>1d-10"
+      if(sum(abs(add-nadd))>1d-7) then
+        print *,' drvmelp qdiff',qdiff
+        write(6,'(" add nadd diff =",3f12.5,3i12,3d13.6)') 
+     &  add,nadd,abs(add-nadd)
+        call rx( "drvmlp3: abs(add-nadd))>1d-10")
+      endif
 c     print *,' drvmelp qdiff',qdiff
 c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
 c     &  add,nadd,abs(add-nadd)

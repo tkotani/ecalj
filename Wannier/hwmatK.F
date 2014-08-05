@@ -438,7 +438,7 @@ ctm 050518
           ifrcw     = iopen('WVR.maxloc',0,-1,mrecl)
 c          ifrcwi = iopen('WVI.maxloc',0,-1,mrecl)
        else
-          ifrcw     = iopen('WVR',0,-1,mrecl)
+c          ifrcw     = iopen('WVR',0,-1,mrecl)
 c          ifrcwi = iopen('WVI',0,-1,mrecl)
        endif
 C... reading general energy mesh from file 'freq_r'
@@ -885,10 +885,9 @@ c------------
       isx = iclose ('RHBD')
       isx = iclose ('CHBD')
       isx = iclose ('EVD')
-
 c-----------------------------------------------------------------------
       call cputid(0)
-      stop ' OK! hwmat'
+      call rx0(' OK! hwmat')
       end
 
 c-----------------------------------------------------------------------

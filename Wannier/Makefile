@@ -30,14 +30,14 @@ tote = ./
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI hwmat hwmat_MPI wanplot hwmatK #hx0fp0_mlw 
-progs_RSMPI = hvccfp0_RSMPI hx0fp0_RSMPI hsfp0_RSMPI
-progs_RSBAND = qg4gw_RSBAND
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK #hwmat_MPI hx0fp0_mlw 
+progs2 = $(progs) 
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 #progs2 = $(progs) $(tags)TAGS checkmod 
-progs2 = $(progs) 
-progs_rs = $(progs_RSMPI) $(progs_RSBAND)
+#progs_rs = $(progs_RSMPI) $(progs_RSBAND)
+#progs_RSMPI = hvccfp0_RSMPI hx0fp0_RSMPI hsfp0_RSMPI
+#progs_RSBAND = qg4gw_RSBAND
 
 #script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp
 

@@ -1,0 +1,319 @@
+#!/bin/tcsh
+# --------------------------------
+# generate MLWF
+#---------------------------------
+if($# != 3 ) then
+  echo "An example of usage: genMLWF -np 4 cu"
+  exit
+endif
+if($argv[1] != "-np" ) then
+  echo "An example of usage: genMLWF -np 4 cu"
+  exit
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+set TARGET=$argv[3]
+set MPI_SIZE=$argv[2]
+#set ITER=$argv[1]
+
+ln -s syml.${TARGET} SYML
+ln -s bnds.${TARGET} BNDS
+
+echo "### START genMLWF: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+
+## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
+## sigm is prior to simg.$TARGET.
+if(-e sigm) then
+  if(-e sigm.$TARGET) mv sigm.$TARGET sigm.$TARGET.bakup 
+  ln -s -f sigm sigm.$TARGET 
+  echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
+else
+  if(-e sigm.$TARGET) then
+    mv sigm.$TARGET sigm
+    ln -s -f sigm sigm.$TARGET 
+    echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
+  else
+    echo '--- No sigm nor sigm.$TARGET files for starting ---'
+  endif
+endif 
+
+
+##########################################
+set ixx=0
+@ ix = $ixx
+
+### self-consistent calculation with given sigma ###
+echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
+if($ix == 0 ) then
+  if(-e sigm.$TARGET) then
+    echo " we have sigm already, skip iter=0"
+    continue
+  endif   
+  echo "No sigm ---> LDA caculation for eigenfunctions "
+#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
+###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_lda
+###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_lda 
+#>>>
+
+echo "        Start  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda " 
+rm -f llmf
+$nfpgw/lmfa $TARGET >llmfa
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda 
+  if ( $? != 0 )  then
+    echo Error in lmf-MPIK output=llmf_lda
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+  cp rst.$TARGET rst.$TARGET.lda
+else
+###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
+###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf 
+#>>>
+
+echo "        mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf " 
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf 
+  if ( $? != 0 )  then
+    echo Error in lmf-MPIK output=llmf
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+endif
+
+#if ( $? == 0 )  then
+rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}*
+#endif
+
+
+######## preparatoy gw stage ################
+###make_ref.awk echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
+###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=$TARGET output=llmfgw00 
+#>>>
+set argin=0
+echo $argin > _IN_
+echo "  echo $argin| $nfpgw/lmfgw $TARGET > llmfgw00 " 
+$nfpgw/lmfgw  $TARGET < _IN_ > llmfgw00 
+  if ( $? != 0 )  then
+    echo Error in lmfgw input=0 output=llmfgw00
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+###make_ref.awk echo 1 |$nfpgw/qg4gw           > lqg4gw
+###ref2cmd.awk %CMD program=qg4gw echoinput=1  output=lqg4gw 
+#>>>
+set argin=1
+echo $argin > _IN_
+echo "  echo $argin|$nfpgw/qg4gw > lqg4gw " 
+$nfpgw/qg4gw  < _IN_ > lqg4gw 
+  if ( $? != 0 )  then
+    echo Error in qg4gw input=1 output=lqg4gw
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+
+#echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
+###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
+###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK echoinput=1  target=$TARGET output=llmfgw01 
+#>>>
+set argin=1
+echo $argin > _IN_
+echo "  echo $argin|mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  $TARGET> llmfgw01 " 
+mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  $TARGET < _IN_ > llmfgw01 
+  if ( $? != 0 )  then
+    echo Error in lmfgw-MPIK input=1 output=llmfgw01
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+#set exinfo = $?
+#if($exinfo == 0 ) then
+#  echo " OK! lmfgw mode=1 "
+#else
+#  echo Error in echo 1\|lmfgw $TARGET
+#  echo `tail -3 llmfgw01 `
+#  exit
+#endif
+
+
+#echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+echo "  $nfpgw/lmf2gw >llmf2gw"
+$nfpgw/lmf2gw    > llmf2gw
+  if ( $? != 0 )  then
+    echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+
+
+############## main gw stage fpgw/exec ################
+###make_ref.awk echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+###ref2cmd.awk %CMD program=rdata4gw_v2 echoinput=0 output=lrdata4gw_v2 
+#>>>
+set argin=0
+echo $argin > _IN_
+echo "  echo $argin|$nfpgw/rdata4gw_v2  > lrdata4gw_v2 " 
+$nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw_v2 
+  if ( $? != 0 )  then
+    echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+
+if($ix == 0) then
+  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
+endif
+
+if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond. Unused recently
+
+# -- get EFERMI for hx0fp0
+###make_ref.awk echo 1|$nfpgw/heftet      >leftet
+###ref2cmd.awk %CMD program=heftet echoinput=1 output=leftet 
+#>>>
+set argin=1
+echo $argin > _IN_
+echo "  echo $argin| $nfpgw/heftet > leftet " 
+$nfpgw/heftet  < _IN_ > leftet 
+  if ( $? != 0 )  then
+    echo Error in heftet input=1 output=leftet
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+###make_ref.awk echo 1|$nfpgw/hchknw         >lchknw
+###ref2cmd.awk %CMD program=hchknw echoinput=1 output=lchknw 
+#>>>
+set argin=1
+echo $argin > _IN_
+echo "  echo $argin| $nfpgw/hchknw > lchknw " 
+$nfpgw/hchknw  < _IN_ > lchknw 
+  if ( $? != 0 )  then
+    echo Error in hchknw input=1 output=lchknw
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+
+### Valence part of the self-energy
+###make_ref.awk echo 0|$nfpgw/hbasfp0  >lbas
+###ref2cmd.awk %CMD program=hbasfp0 echoinput=0 output=lbas 
+#>>>
+set argin=0
+echo $argin > _IN_
+echo "  echo $argin|$nfpgw/hbasfp0  > lbas " 
+$nfpgw/hbasfp0  < _IN_ > lbas 
+  if ( $? != 0 )  then
+    echo Error in hbasfp0 input=0 output=lbas
+    exit 10
+  endif
+#<<<
+
+### maxloc ##########################################
+echo -n 'OK! --> Start'
+echo "  echo 1|$nfpgw/hmaxloc"
+echo 1|$nfpgw/hmaxloc   >lmaxloc1
+if ( $? != 0 )  then
+  echo Error in hmaxloc1
+  exit 10
+endif
+#<<<
+
+echo -n 'OK! --> Start'
+echo " echo 1|$nfpgw/hpsig_MPI "
+echo 1|mpirun -np $MPI_SIZE $nfpgw/hpsig_MPI   >lpsig_MPI
+if ( $? != 0 )  then
+  echo Error in hpsig_MPI
+  exit 10
+endif
+#<<<
+
+echo -n 'OK! --> Start'
+echo " echo 2|huumat_MPI"
+echo 2|mpirun -np $MPI_SIZE $nfpgw/huumat_MPI   >luumat2
+if ( $? != 0 )  then
+  echo Error in huumat2
+  exit 10
+endif
+cat UUU.* >UUU
+rm -f UUU.*
+if(-e UUD.0000) then
+cat UUD.* >UUD
+rm -f UUD.*
+endif
+cat PSIGU.* >PSIGU
+rm -f PSIGU.*
+if(-e PSIGD.0000) then
+cat PSIGD.* >PSIGD
+rm -f PSIGD.*
+endif
+#<<<
+
+echo -n 'OK! --> Start'
+echo " echo 2|$nfpgw/hmaxloc"
+echo 2|$nfpgw/hmaxloc   >lmaxloc2
+if ( $? != 0 )  then
+  echo Error in hmaxloc2
+  exit 10
+endif
+#<<<
+
+echo -n 'OK! --> Start'
+echo " $nfpgw/wanplot (this can be too slow...)"
+$nfpgw/wanplot >lwanplot
+if ( $? != 0 )  then
+  echo Error in wanplot
+  exit 10
+endif
+#<<<
+
+echo -n 'OK! --> Start'
+echo " echo 3|$nfpgw/huumat >luumat3 "
+echo 3|$nfpgw/huumat   >luumat3
+if ( $? != 0 )  then
+  echo Error in luumat3
+  exit 10
+endif
+#<<<
+
+# -- Coulobm matrix
+echo -n 'OK! --> Start'
+echo " echo 0|$nfpgw/hvccfp0 >lvcc "
+echo 0|  $nfpgw/hvccfp0  >lvcc
+if ( $? != 0 )  then
+  echo Error in lvcc
+  exit 10
+endif
+    
+echo -n 'OK! --> Start'
+echo " echo 1 | $nfpgw/hwmatK   >lwmatK1 "
+echo 1 | $nfpgw/hwmatK   >lwmatK1
+if ( $? != 0 )  then
+  echo Error in lwmatK1
+  exit 10
+endif
+
+# -- Screened coulom interaction 
+echo -n 'OK! --> Start'
+set argin=11
+echo $argin > _IN_
+echo "  echo $argin|  mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc > lx0 " 
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 < _IN_ > lx011 
+  if ( $? != 0 )  then
+    echo Error in hx0fp0 input=11 output=lx011
+    exit 10
+  endif
+#<<<
+echo -n 'OK! --> Start'
+echo " echo 2 | $nfpgw/hwmatK   >lwmatK2 "
+echo 2 | $nfpgw/hwmatK   >lwmatK2
+if ( $? != 0 )  then
+  echo Error in lwmatK2
+  exit 10
+endif
