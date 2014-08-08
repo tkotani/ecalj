@@ -265,7 +265,7 @@ endif
 #<<<
 
 echo -n 'OK! --> Start'
-echo " $nfpgw/wanplot (this can be too slow...)"
+echo " $nfpgw/wanplot (Not yet parallelized. too slow...)"
 $nfpgw/wanplot >lwanplot
 if ( $? != 0 )  then
   echo Error in wanplot
@@ -280,6 +280,14 @@ if ( $? != 0 )  then
   echo Error in luumat3
   exit 10
 endif
+if(-e UUq0U.0000) then
+cat UUq0U.* > UUq0U
+rm -f UUq0U.*
+endif
+if(-e UUq0D.0000) then
+cat UUq0D.* > UUq0D
+rm -f UUq0D.*
+endif
 #<<<
 
 # -- Coulobm matrix
@@ -293,7 +301,6 @@ endif
     
 echo -n 'OK! --> Start'
 echo " echo 1 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI   >lwmatK1 "
-echo 1 | $nfpgw/hwmatK   >lwmatK1
 echo 1 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI  >lwmatK1
 if ( $? != 0 )  then
   echo Error in lwmatK1
