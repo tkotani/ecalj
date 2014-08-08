@@ -1,14 +1,14 @@
 yourbin=$(HOME)/bin
 
-#FC=mpiifort
-#LK=mpiifort
-#LKFLAGS2=-mkl
-#FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
+FC=mpiifort
+LK=mpiifort
+LKFLAGS2=-mkl
+FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
-FC=mpif90
-LK=mpif90
-LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
+#FC=mpif90
+#LK=mpif90
+#LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+#FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
 
 ### I think you don't need to modify following lines. Not machine-dependent ###########
@@ -30,7 +30,7 @@ tote = ./
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK #hwmat_MPI hx0fp0_mlw 
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI # hx0fp0_mlw 
 progs2 = $(progs) 
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
@@ -698,7 +698,7 @@ misc = ../Miyake/misc/
 
 #progs_tm = hwmat hwmatc hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hx0fp0_mlw_ent hphig hx0tau hs0tau hpsipsi hibz2fbz hhmnk hwtmat hnocc_mlwt hwinfo hpade hibz2fbz0 read_gw0 # hdyson # hmaxloc1D
 progs_TM= hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hwmat hwmatc hx0tau hs0tau hpsipsi hibz2fbz hhmnk hwtmat hnocc_mlwt hwinfo hwfch hibz2fbz0 read_gw0 qg4gw_TMBAND hqpe_mlw hibz2fbz0wan # hdyson hphig hpade haw
-progs_TMMPI= hx0tau_MPI hs0tau_MPI hwtmat_MPI hwmat_MPI hpsig_MPI huumat_MPI hx0fp0_mlw_MPI hwmatc_MPI hsfp0_mlw_MPI hband_ent_MPI hqpband_ent_MPI hupdt_ent_MPI
+progs_TMMPI= hx0tau_MPI hs0tau_MPI hwtmat_MPI hwmatK_MPI hpsig_MPI huumat_MPI hx0fp0_mlw_MPI hwmatc_MPI hsfp0_mlw_MPI hband_ent_MPI hqpband_ent_MPI hupdt_ent_MPI
 
 progs_tm = $(progs_TM) $(progs_TMMPI)
 all_tm:	$(progs_tm)
@@ -1147,14 +1147,14 @@ all_tm:	$(progs_tm)
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o
 
- WMAT_MPI = \
+ WMATK_MPI = \
  $(maxloc)RSMPI_mod.o \
  $(maxloc)RSMPI_qkgroup_mod.o \
  $(maxloc)RSMPI_rotkindex_mod.o \
  $(maxloc)RSMPI_utils.o \
- $(maxloc)hwmat_MPI.o \
+ $(maxloc)hwmatK_MPI.o \
  $(gwsrc)wse.o \
- $(maxloc)wmat_MPI.o \
+ $(maxloc)wmatK_mpi.o \
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o \
  $(maxloc)efsimplef_RSMPI.o
@@ -1178,9 +1178,9 @@ all_tm:	$(progs_tm)
  $(maxloc)RSMPI_qkgroup_mod.o \
  $(maxloc)RSMPI_rotkindex_mod.o \
  $(maxloc)RSMPI_utils.o \
- $(maxloc)hwmat_MPI.o \
+ $(maxloc)hwmatK_MPI.o \
  $(gwsrc)wse.o \
- $(maxloc)wmat_MPI.o \
+ $(maxloc)wmatK_mpi.o \
  $(maxloc)maxloc0.o \
  $(gwsrc)genallcf_dump.o \
  $(maxloc)efsimplef_RSMPI.o
@@ -1451,8 +1451,8 @@ COMMX=$(nfpsrc)rxx.o \
  hwmatK:		$(WMATK) $(GW0tm)
 	$(LK) $(LKFLAGS1) $(WMATK) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
 
- hwmat_MPI:		$(WMAT_MPI) $(GW0tm)
-	$(LK) $(LKFLAGS1) $(WMAT_MPI) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
+ hwmatK_MPI:		$(WMATK_MPI) $(GW0tm)
+	$(LK) $(LKFLAGS1) $(WMATK_MPI) $(COMMX)   $(GW0tm)  $(LKFLAGS2) -o $@
 
  hwmat2:		$(WMAT2) $(GW0tm)
 	$(LK) $(LKFLAGS1) $(WMAT2)    $(GW0tm)  $(LKFLAGS2) -o $@

@@ -1,4 +1,4 @@
-      program hwmat_MPI
+      program hwmatK_MPI
 c-------------------------------------------------------------
 c Calculates the bare/screened interaction W
 c
@@ -950,7 +950,7 @@ c nctot=0 in this version
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         write(*,*) 'wmatq in'
 
-         call wmatq_MPI (kount, irot,ef,ef2,esmr,esmr2,
+         call wmatqk_MPI (kount, irot,ef,ef2,esmr,esmr2,
 ctm, 070501
 c     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr), rsite,
      i              tiat(1:3,1:natom,invr),miat( 1:natom,invr), 

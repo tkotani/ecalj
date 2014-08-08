@@ -53,8 +53,12 @@ c calculate total number of rotation  operators and k'-points
 c that generate k-points
 c
 c this part is taken from gwsrc/sxcf_fal2.F
-      iqini = 2
-      if (bzcase_in .eq. 2) iqini = 1
+c      iqini = 2
+c      if (bzcase_in .eq. 2) iqini = 1
+cccccccccccccccccc
+c takao
+      iqini=1
+cccccccccccccccccc
       iqend = nqibz + nq0i
       
       allocate(nrotktmp(ngrp*(iqend-iqini+1),2))

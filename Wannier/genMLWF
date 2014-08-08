@@ -274,8 +274,8 @@ endif
 #<<<
 
 echo -n 'OK! --> Start'
-echo " echo 3|$nfpgw/huumat >luumat3 "
-echo 3|$nfpgw/huumat   >luumat3
+echo " echo 3|$nfpgw/huumat_MPI >luumat3 "
+echo 3|mpirun -np $MPI_SIZE $nfpgw/huumat_MPI   >luumat3
 if ( $? != 0 )  then
   echo Error in luumat3
   exit 10
@@ -285,15 +285,16 @@ endif
 # -- Coulobm matrix
 echo -n 'OK! --> Start'
 echo " echo 0|$nfpgw/hvccfp0 >lvcc "
-echo 0|  $nfpgw/hvccfp0  >lvcc
+echo 0| mpirun -np $MPI_SIZE  $nfpgw/hvccfp0  >lvcc
 if ( $? != 0 )  then
   echo Error in lvcc
   exit 10
 endif
     
 echo -n 'OK! --> Start'
-echo " echo 1 | $nfpgw/hwmatK   >lwmatK1 "
+echo " echo 1 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI   >lwmatK1 "
 echo 1 | $nfpgw/hwmatK   >lwmatK1
+echo 1 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI  >lwmatK1
 if ( $? != 0 )  then
   echo Error in lwmatK1
   exit 10
@@ -311,8 +312,8 @@ mpirun -np $MPI_SIZE $nfpgw/hx0fp0 < _IN_ > lx011
   endif
 #<<<
 echo -n 'OK! --> Start'
-echo " echo 2 | $nfpgw/hwmatK   >lwmatK2 "
-echo 2 | $nfpgw/hwmatK   >lwmatK2
+echo " echo 2 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI  >lwmatK2 "
+echo 2 |mpirun -np $MPI_SIZE $nfpgw/hwmatK_MPI  >lwmatK2
 if ( $? != 0 )  then
   echo Error in lwmatK2
   exit 10
