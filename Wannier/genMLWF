@@ -311,7 +311,7 @@ endif
 echo -n 'OK! --> Start'
 set argin=11
 echo $argin > _IN_
-echo "  echo $argin|  mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc > lx0 " 
+echo "  echo $argin|  mpirun -np $MPI_SIZE $nfpgw/hx0fp0 > lx011 " 
 mpirun -np $MPI_SIZE $nfpgw/hx0fp0 < _IN_ > lx011 
   if ( $? != 0 )  then
     echo Error in hx0fp0 input=11 output=lx011
