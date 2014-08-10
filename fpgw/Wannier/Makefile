@@ -1,14 +1,14 @@
 yourbin=$(HOME)/bin
 
-FC=mpiifort
-LK=mpiifort
-LKFLAGS2=-mkl
-FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
+#FC=mpiifort
+#LK=mpiifort
+#LKFLAGS2=-mkl
+#FFLAGS = -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
-#FC=mpif90
-#LK=mpif90
-#LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-#FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
+FC=mpif90
+LK=mpif90
+LKFLAGS2= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec
 
 
 ### I think you don't need to modify following lines. Not machine-dependent ###########
@@ -20,7 +20,7 @@ para_g=.o
 
 #-------------------------------------------------------
 # src directories
-top=../fpgw
+top=../
 gwsrc   = ${top}/gwsrc/
 main    = ${top}/main/
 nfpsrc  = ${top}/nfpsrc/
