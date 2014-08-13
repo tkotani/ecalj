@@ -636,7 +636,10 @@ c-------------------------------------------------------------------
       complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
       complex(8) :: zwz(nstate,ntq,ntq) ,zdotc                   !sf 23May02
       complex(8), allocatable :: CC(:,:,:)
-!$    integer:: omp_get_num_threads
+#ifdef USE_GEMM_FOR_SUM
+      complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
+      integer:: ivc
+#endif
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
       !call cputid(0)
@@ -653,9 +656,6 @@ c-------------------------------------------------------------------
 !$OMP end parallel
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
-CYY!$OMP parallel  do
-!$        if (ntq>=nstate) then
-!$OMP parallel do
         do itp = 1,ntq
           do  it = 1,nstate
 c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
@@ -663,23 +663,30 @@ c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
      &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
           enddo
         enddo
-!$        else
-!$OMP parallel
-!$        do itp = 1,ntq
-!$OMP do
-!$          do  it = 1,nstate
-!$            zwz(it,itp,itp)=zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
-!$          enddo
-!$OMP end do nowait
-!$        enddo
-!$OMP end parallel 
-!$        endif
-CYY!$OMP end parallel  do
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
-CYY!$OMP parallel do
-!$        if (ntq>=nstate) then
+#ifdef USE_GEMM_FOR_SUM
+        write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
+        allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
+        do  it = 1, nstate
+          do  itp = 1, ntq
+            do  ivc = 1, ngb
+              z1r(itp,ivc) = dconjg(zmel(ivc,it,itp))
+              z2r(ivc,itp) = CC(ivc,it,itp)
+            enddo
+          enddo
+C         call zprm('z1r',z1r,ntq,ntq,ngb)
+C         call zprm('z2r',z2r,ngb,ngb,ntq)
+          call zgemm('N','N',ntq,ntq,ngb,(1d0,0d0),z1r,ntq,
+     .      z2r,ngb,(0d0,0d0),zwzi,ntq)
+          do  itp = 1, ntq
+            do itpp = 1, ntq
+              zwz(it,itp,itpp) = zwzi(itp,itpp)
+            enddo
+          enddo
+        enddo
+        deallocate(z1r,z2r,zwzi)
 
-!$OMP parallel do 
+#else
         do itpp= 1,ntq
           do itp = 1,ntq
             do  it = 1,nstate
@@ -689,23 +696,8 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
             enddo
           enddo
         enddo
-
-!$        else
-!$
-!$OMP parallel
-!$        do itpp= 1,ntq
-!$          do itp = 1,ntq
-!$OMP do
-!$            do  it = 1,nstate
-!$              zwz(it,itp,itpp)= zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itpp),1 )
-!$            enddo
-!$OMP end do nowait
-!$          enddo
-!$        enddo
-!$OMP end parallel
-!$
-!$        endif
-CYY!$OMP end parallel  do
+#endif
+        write(*,*)'kino:zwz checksum=',sum(zwz)
       else
 Cstop2rx 2013.08.09 kino        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
         call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")

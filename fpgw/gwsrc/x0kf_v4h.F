@@ -182,6 +182,9 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
       complex(8),pointer:: zmat(:,:)
       complex(8),allocatable,target:: ppovl_(:,:)
+#ifdef USE_GEMM_FOR_SUM
+      complex(8),allocatable :: zmelt_tmp(:,:,:)
+#endif
 c ------------------------------------------------
 !TIME0 "start xkf_v4hz      
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
@@ -461,7 +464,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! zmelt
 
 c           if(newanisox) then   !.and.iq==1) then
-        allocate(zmmm(nmbas))
+        allocate(zmmm(nmbas)) ! this is also obsolete if USE_GEMM_FOR_SUM
         if(chipmzzr) then  !spin moment basis.
            zmat => zzr
         elseif(nolfco .and. nmbas==1) then !for <e^iqr|x0|e^iqr>
@@ -476,6 +479,14 @@ c           if(newanisox) then   !.and.iq==1) then
            zmat => ppovl_
         endif
 !! :: zmelt conversion muplitpled by zzr.
+#ifdef USE_GEMM_FOR_SUM
+       write(*,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
+          allocate( zmelt_tmp(ngb,nctot+nt0,ncc+ntp0) )
+          call zcopy(ngb*(nctot+nt0)*(ncc+ntp0),zmelt,1,zmelt_tmp,1)
+          call zgemm('T','N',ngb,(nctot+nt0)*(ncc+ntp0),ngb,(1d0,0d0),
+     .      zmat,ngb,zmelt_tmp,ngb,(0d0,0d0),zmelt,ngb)
+          deallocate(zmelt_tmp)
+#else
 !$OMP parallel do 
         do it=1,nctot+nt0       !this loop, for any case.
            do itp=1,ncc+ntp0
@@ -488,6 +499,8 @@ c           if(newanisox) then   !.and.iq==1) then
            enddo
         enddo
 !$OMP end parallel do 
+#endif
+        write(*,*)'kino: checksum, zmelt=',sum(zmelt)
         deallocate(zmmm)
         if(allocated(ppovl_)) deallocate(ppovl_)
 !TIME1  "after matmul zmelt"

@@ -375,6 +375,9 @@ C...
 
       integer:: ixc
       real(8):: qip(3,*),deltaw,shtw,eqx(nband)
+#ifdef USE_GEMM_FOR_SUM
+      complex(8),allocatable:: zmelt(:,:)
+#endif
 c--------------------------------------------------------------------
       print *,'sxcf_fal3z'
       pi  = 4d0*datan(1d0)
@@ -937,7 +940,7 @@ c     &  ,rmel (ibl,it,itp) ,cmel (ibl,it,itp)
 c      enddo
 cccccccccccccccccccccccccccccccccccccccccccccc
         deallocate(zzmel) !rmel,cmel)
-c
+
         if(debug) print *, ' sxcf: goto wtt'
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
@@ -1123,12 +1126,24 @@ c--- The matrix elements zmel.
         zmel = dcmplx (rmelt,-cmelt)
 c        print *,'ddddddddddddd original like mode ddddddddddddddddd'
         if(newaniso()) then
+#ifdef USE_GEMM_FOR_SUM
+          write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz), in sxcf_fal2.F'
+          allocate( zmelt (ngb, nstate) )
+          do itp=1,ntp0
+          zmelt = dcmplx(rmelt(:,:,itp),-cmelt(:,:,itp))
+          call zgemm('C','N',ngb,nstate,ngb,(1d0,0d0),
+     .      ppovlz,ngb,zmelt,ngb,(0d0,0d0),zmel(1,1,itp),ngb)
+          enddo
+          deallocate(zmelt)
+#else
           do itp=1,ntp0
             do it=1,nstate
 cooo
               zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
             enddo
           enddo
+#endif
+          write(*,*)'kino, zmel checksum=',sum(zmel)
         endif
 
         deallocate(rmelt,cmelt)

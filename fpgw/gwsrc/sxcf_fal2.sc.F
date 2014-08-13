@@ -439,12 +439,15 @@ c      real(8)::wqfac(nqbz)
       real(8):: eftrue
 
       integer::ierr 
+#ifdef USE_GEMM_FOR_SUM
+      complex(8),allocatable :: z1r(:,:),z2r(:,:),w3pi(:,:)
+#endif
 
 c      real(8):: emax_d_sigm
 c      integer:: ntqxxd,if_ntqxxd,iopenxx
 c      character(15):: fffn
 c      integer:: inii,iendi
-!$    integer:: omp_get_num_threads
+!kino 2014-08-13  !$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'wklm=0 test xxxxxxxxxxxxxx'
@@ -1132,8 +1135,49 @@ ccccccccccccccccccccccccccccc
                   if(newaniso()) then
 c                    write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
-!kino2014-07-del !$OMP parallel  private(vc) 
-!kino2014-07-del !$OMP do 
+#ifdef USE_GEMM_FOR_SUM
+                     write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
+                     write(*,*)'zgemmsize',ntqxx*(nctot+nbmax),ngb,ngb
+                     write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
+                     write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
+                     write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
+		     call flush(6)	
+                     call zgemm('T','N',ntqxx*(nctot+nbmax),ngb,ngb,(1d0,0d0),
+     .                    zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,ntqxx*(nctot+nbmax) )
+                     write(*,*)'phase1'
+                     vc = vcoud(1)  ! save vcoud(1)
+                     if (kx == iqini) vcoud(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+                     allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
+                     do  it = 1, nctot+nbmax
+                        do  ivc = 1, ngb
+                           do  itp = 1, ntqxx
+                              z1r(itp,ivc) = zmeltt(it,itp,ivc) * vcoud(ivc)
+                              z2r(itp,ivc) = zmeltt(it,itp,ivc)
+                           enddo ! ivc
+                        enddo  ! it
+C              Straight inline
+              call zgemm('N','C',ntqxx,ntqxx,ngb,(1d0,0d0),z1r,ntqxx,
+     .          z2r,ntqxx,(0d0,0d0),w3pi,ntqxx)
+                     write(*,*)'phase2'
+C              call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
+C             Faster, but harder to parallelize
+!                        call zqsmpy(11,'N','C',ntqxx,ngb,z1r,ntqxx,z2r,ntqxx,
+!     .                       (0d0,0d0),w3pi,ntqxx)
+C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
+                        do  itp = 1, ntqxx
+                           do itpp = 1, ntqxx
+                              w3p(it,itp,itpp) = w3pi(itp,itpp)
+                           enddo
+                        enddo
+                     write(*,*)'phase3'
+                     enddo
+                     vcoud(1) = vc
+                     deallocate(z1r,z2r,w3pi)
+                     if(verbose()>=30) call cputid2(' complete w3p',0)
+
+#else
+!kino 2014-08-13  !$OMP parallel  private(vc) 
+!kino 2014-08-13  !$OMP do 
                      do itp= 1,ntqxx
                         do it = 1,nctot+nbmax
                            do ivc=1,ngb
@@ -1141,8 +1185,8 @@ c                    write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nct
                            enddo
                         enddo
                      enddo
-!kino2014-07-del !$OMP end do 
-!kino2014-07-del !$OMP do 
+!kino 2014-08-13  !$OMP end do 
+!kino 2014-08-13  !$OMP do 
                      do 992 itpp= 1,ntqxx
                         do 993 itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1164,11 +1208,13 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
  994                       continue
  993                    continue
  992                 continue
-!kino2014-07-del !$OMP end do 
-!kino2014-07-del !$OMP end parallel 
+!kino 2014-08-13  !$OMP end do 
+!kino 2014-08-13  !$OMP end parallel 
+#endif
+                     write(*,*)'kino: w3p checksum=',sum(w3p)
                      deallocate(zmeltt)
                   else
-!kino2014-07-del !$OMP parallel do 
+!kino 2014-08-13  !$OMP parallel do 
                      do itpp= 1,ntqxx
                         do itp = 1,ntqxx
                            if(diagonly.and.(itpp/=itp)) cycle
@@ -1182,7 +1228,7 @@ c sep2013t a test:c  if(itpp>ntqxxd .and.itp/=itpp) cycle
                            enddo
                         enddo
                      enddo
-!kino2014-07-del !$OMP end parallel do 
+!kino 2014-08-13  !$OMP end parallel do 
                      deallocate(z1p)
                   endif  
                   deallocate(zmel)
@@ -1265,35 +1311,25 @@ cKINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
                allocate( zmel (ngb, nstate, ntqxx) )
                zmel = dcmplx (rmelt,-cmelt)
                if(newaniso()) then
-!kino2014-07-del !$OMP parallel 
-!kino2014-07-del !$OMP do 
-!$OMP parallel
-!$OMP master
-!$                  write(6,'(2i4,1x,a,1x,2i4)') mpi__rank,omp_get_num_threads(),'OPENMP divide: ntqxx,nstate',ntqxx,nstate
-!$OMP end master
-!$OMP end parallel
-!$                if (ntqxx>=nstate) then 
-!$OMP parallel do 
+!kino 2014-08-13  !$OMP parallel 
+!kino 2014-08-13  !$OMP do 
+#ifdef USE_GEMM_FOR_SUM
+                  write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz) in sxcf_fal2.sc.F'
+                  allocate(zmeltt(ngb, nstate, ntqxx))
+                  zmeltt= dcmplx (rmelt,-cmelt)
+                  call zgemm('C','N',ngb,nstate*ntqxx,ngb,(1d0,0d0),
+     .                 ppovlz,ngb,zmeltt,ngb,(0d0,0d0),zmel,ngb)
+                  deallocate(zmeltt)
+#else
                   do itp=1,ntqxx
                      do it=1,nstate
                         zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
                      enddo
                   enddo
-!$                else  ! ntqxx<nstate
-!$
-!$OMP parallel 
-!$                  do itp=1,ntqxx
-!$OMP do 
-!$                     do it=1,nstate
-!$                        zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
-!$                     enddo
-!$OMP end do nowait
-!$                  enddo
-!$OMP end parallel 
-!$                endif
-
-!kino2014-07-del !$OMP end do nowait 
-!kino2014-07-del !$OMP end parallel
+#endif
+                  write(*,*)'kino: zmel checksum=',sum(zmel)
+!kino 2014-08-13  !$OMP end do nowait 
+!kino 2014-08-13  !$OMP end parallel
                endif  
                deallocate(rmelt,cmelt)
 !TIME1 "matmul zmel ppovlz"
@@ -1492,18 +1528,18 @@ c!KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstat
                  call mpi_abort()
                  call rx( '')
               endif
-!kino2014-07-del !$OMP parallel  private(zwzix) 
+!kino 2014-08-13  !$OMP parallel  private(zwzix) 
                write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
                allocate(zwzix(1:nstate,1:ntqxx,1:ntqxx),stat=ierr)
                if (ierr.ne.0) then 
                   write(6,'(i5,a,i5,a,i7)') mpi__rank,
      &            'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2
-!kino2014-07-del !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
+!kino 2014-08-13  !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
                   call flush(6)
                   call mpi_abort()
                   call rx( '')
                endif
-!kino2014-07-del !$OMP do               
+!kino 2014-08-13  !$OMP do               
                do ix=1,nx
                   nrec=ix
                   read(ifrcwi,rec=nrec) zwix(:,:)  ! direct access read Wc(0) = W(0) - v
@@ -1542,9 +1578,9 @@ c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
 ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
                enddo ! ix
-!kino2014-07-del !$OMP end  do 
+!kino 2014-08-13  !$OMP end  do 
                deallocate(zwzix) 
-!kino2014-07-del !$OMP end parallel 
+!kino 2014-08-13  !$OMP end parallel 
                deallocate(zwix) 
 !TIME1 "end do xxx33333 k-cycle"
                if(timemix) call timeshow("xxx33333 k-cycle")
@@ -2022,7 +2058,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      zmel1(:)=dconjg(zmel(:,it,itp))
                      if (iSigma_en == 1.or.iSigma_en==5) then
                         zwz3=(0d0,0d0)
-!kino2014-07-del !$OMP parallel do private(ix,zz2)
+!kino 2014-08-13  !$OMP parallel do private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
                            do igb2=2,ngb !**** most time consuming part for iSigma_en=1 ******
@@ -2033,7 +2069,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                            zwz3(ix0)=2d0*dreal(zwz3(ix0))+
      &                          zmel1(1)*zw3(1,1, iir*ix)*zmel(1,it,itp)
                         enddo   !ix
-!kino2014-07-del !$OMP end parallel do 
+!kino 2014-08-13  !$OMP end parallel do 
                         if(npm==1) then
                            zsec(itp,itp,ip) = zsec(itp,itp,ip) 
      .                          + wfac*alagr3z2(we,freq_r(ixs-1),zwz3,itp,itp)
