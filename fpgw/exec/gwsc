@@ -18,7 +18,6 @@ set nfpgw = ${n:h}
 set TARGET=$argv[4]
 set MPI_SIZE=$argv[3]
 set ITER=$argv[1]
-$echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
 #cray 
 #set echo_run="aprun"
@@ -30,6 +29,7 @@ set echo_run=""
 set mpi_run="mpirun -np $MPI_SIZE"
 set serial_run=""
 
+$echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
 if(-e NoCore) then #backword compatibility not so meaningful now.
   rm -f NoCore 

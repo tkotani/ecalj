@@ -688,7 +688,9 @@ c$$$  endif
 
 !$OMP parallel private(imagweight) 
 !$OMP master
-!$        write(*,*) 'OMP: parallel '
+!$        if (jpm.eq.1 .and. ibib.eq.nbnb(k,1)) then 
+!$          write(*,*) 'OMP: parallel '
+!$        endif
 !$OMP end master
 !$OMP do 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
