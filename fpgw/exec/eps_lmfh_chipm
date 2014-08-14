@@ -4,10 +4,21 @@ if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 ######## \epsilon calculation.
 set n = $0
 set nfpgw = ${n:h}
-echo $nfpgw
+ echo  $nfpgw
 
-echo $argv[1]
+ echo $argv[1]
 setenv LMJOB $argv[1]
+
+#cray 
+#set echo_run="aprun"
+#set mpi_run="aprun -n $LSB_PROCS -d $LSB_CPUS -N $LSB_PPN"
+#set serial_run="aprun"
+
+#normal mpi 
+set echo_run=""
+set mpi_run="mpirun -np $MPI_SIZE"
+set serial_run=""
+
 
 rm -f NoCore QPU*
 
@@ -20,46 +31,46 @@ rm -f NoCore QPU*
 #endif 
 
 ### Get LATTC and SYMOPS
-echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
+$echo_run echo 0 |$serial_run $nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
 
 
 ### Add q points  to Q0P file.  -----------------
 # moved to <QforEPS> in GWinput
-echo 2|$nfpgw/qg4gw  >lqg4gw02
+$echo_run echo 2|$serial_run $nfpgw/qg4gw  >lqg4gw02
 
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-  echo 5 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
+$echo_run echo 5 |$serial_run $nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
   mv eigval eigmtet
 endif
 
 ###
-#echo 1 | $nfpgw/ng0  >lng01
-#echo 2 | $nfpgw/ng0  >lng02
-#$nfpgw/nfp4gw        >lnfp4gw
-echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
+#echo 1 | $serial_run $nfpgw/ng0  >lng01
+#echo 2 | $serial_run $nfpgw/ng0  >lng02
+#$serial_run $nfpgw/nfp4gw        >lnfp4gw
+$echo_run echo 1 |$serial_run $nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 #set exinfo = `echo $?`
 set exinfo = $?
 
 if($exinfo == 0 ) then
-  echo " OK! lmfgw mode=1 "
+$echo_run echo " OK! lmfgw mode=1 "
 else
-  echo Error in echo 1\|lmfgw $argv[1]
-  echo  `tail -3 llmfgw01 `
+$echo_run echo Error in echo 1\|lmfgw $argv[1]
+$echo_run echo  `tail -3 llmfgw01 `
   exit
 endif
-echo $argv[1]|$nfpgw/lmf2gw   > llmf2gw
+$echo_run echo $argv[1]|$serial_run $nfpgw/lmf2gw   > llmf2gw
 
-echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+$echo_run echo 1|$serial_run $nfpgw/rdata4gw_v2      >lrdata4gw
 
 # get EFERMI
-echo 1|$nfpgw/heftet      >leftet
+$echo_run echo 1|$serial_run $nfpgw/heftet      >leftet
 
-echo 8|$nfpgw/hbasfp0 >lbas
-echo 202|$nfpgw/hvccfp0        >lvcc	
-echo 223|$nfpgw/hx0fp0  >lx0
+$echo_run echo 8|$serial_run $nfpgw/hbasfp0 >lbas
+$echo_run echo 202|$serial_run $nfpgw/hvccfp0        >lvcc	
+$echo_run echo 223|$serial_run $nfpgw/hx0fp0  >lx0
 
 
 
