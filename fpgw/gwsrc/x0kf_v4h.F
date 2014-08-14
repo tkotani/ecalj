@@ -487,7 +487,7 @@ c           if(newanisox) then   !.and.iq==1) then
      .      zmat,ngb,zmelt_tmp,ngb,(0d0,0d0),zmelt,ngb)
           deallocate(zmelt_tmp)
 #else
-!$OMP parallel do 
+!kino 2014-08-13  !$OMP parallel do 
         do it=1,nctot+nt0       !this loop, for any case.
            do itp=1,ncc+ntp0
               do imb=1,nmbas
@@ -498,7 +498,7 @@ c           if(newanisox) then   !.and.iq==1) then
               enddo
            enddo
         enddo
-!$OMP end parallel do 
+!kino 2014-08-13  !$OMP end parallel do 
 #endif
         write(*,*)'kino: checksum, zmelt=',sum(zmelt)
         deallocate(zmmm)
@@ -576,7 +576,7 @@ c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 !KINO        write(*,'(a,i4)')'kino: npm=',npm
-!$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
+!kino 2014-08-13  !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
 !KINO          write(*,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
@@ -676,17 +676,21 @@ c$$$          else
 Cstop2rx 2013.08.09 kino          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
 
-!$OMP do private(zmelt2)
+!kino 2014-08-13  !$OMP do private(zmelt2)
           do igb2=1, nmbas     !....................................
              zmelt2 = zmelt(igb2,it,itp)
              do igb1=1,igb2
                 z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
              enddo
           enddo
-!$OMP end do
+!kino 2014-08-13  !$OMP end do
 c$$$  endif
 
-!$OMP do private(imagweight) 
+!$OMP parallel private(imagweight) 
+!$OMP master
+!$        write(*,*) 'OMP: parallel '
+!$OMP end master
+!$OMP do 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
              imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
              if(eibzmode) imagweight = nwgt(k)*imagweight  
@@ -698,8 +702,9 @@ c$$$  endif
              enddo              !igb2
           enddo                 ! iw
 !$OMP end do 
- 25     continue
 !$OMP end parallel 
+ 25     continue
+!kino 2014-08-13  !$OMP end parallel 
 !TIME1 "after rcxq"
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
@@ -907,9 +912,9 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !!      rcxq is rotated and accumulated; finally divied by neibz
         zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
-!$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
+!kino 2014-08-13  !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
-!$OMP do 
+!kino 2014-08-13  !$OMP do 
         do iw=1,nwt
         do jpm=1,npm
           rcxq000 = 0d0
@@ -1007,9 +1012,9 @@ ccccccccccccccccccc
 ccccccccccccccccccc
         enddo
         enddo
-!$OMP end  do 
+!kino 2014-08-13  !$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
-!$OMP end parallel 
+!kino 2014-08-13  !$OMP end parallel 
 !TIME1 "after sym rcxq"
         deallocate(zrotm,i1,i2)
 
