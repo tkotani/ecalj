@@ -4,7 +4,7 @@
 #@$-J T24
 #@$-lE 88:00:00
 #@$-lm 30gb
-MAT=srvo3
+MAT=cu
 EXE=~/binb2f0
 
 cd $QSUB_WORKDIR
