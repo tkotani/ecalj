@@ -649,11 +649,11 @@ c-------------------------------------------------------------------
       !write(*,'("10.2 matzwz after matm ",$)')
       !call cputid(0)
 
-!$OMP parallel
-!$OMP master
-!$      write(6,'(2i4,1x,a,1x,3i4)')mpi__rank,omp_get_num_threads(),'OPENMP divide: iSigma_en,ntq,nstate=',iSigma_en,ntq,nstate
-!$OMP end master
-!$OMP end parallel
+c!$OMP parallel
+c!$OMP master
+c!$      write(6,'(2i4,1x,a,1x,3i4)')mpi__rank,omp_get_num_threads(),'OPENMP divide: iSigma_en,ntq,nstate=',iSigma_en,ntq,nstate
+c!$OMP end master
+c!$OMP end parallel
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
         do itp = 1,ntq

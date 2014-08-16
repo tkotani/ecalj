@@ -811,6 +811,7 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
                   deallocate(ecore)
                   allocate(ecore(1,2)) !this is dummry
                endif
+               allocate(ibjb(1,1,1,1),ihw(1,1,1),jhw(1,1,1),nhw(1,1,1),whw(1))!dummy
                call tetwt5x_dtet4(npm,ncc,  
      i              q, ekxx1, ekxx2, qbas,ginv,ef, 
      d              ntetf,nqbzw, nband,nqbz,
@@ -823,6 +824,7 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
      i              ihw,nhw,jhw, ! job=1    not-used
      o              whw,        ! job=1    not-used
      i              iq,is,is,nqibz, eibzmode,nwgt(:,iq)) 
+               deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
                nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
                if(debug) print *,' nbnbx=',nbnbx
                allocate(  n1b(nbnbx,nqbz,npm)
@@ -906,9 +908,10 @@ Cstop2rx 2013.08.09 kino            if(frhis(1)/=0d0) stop ' hx0fp0: we assume f
                   enddo
                enddo
             enddo
-C     ... Generate the histogram weights whw
+!!     ... Generate the histogram weights whw
             job=1
             write(6,*) 'goto tetwt5x_dtet4 job=',job
+            allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
             call tetwt5x_dtet4(  npm,ncc, 
      i           q, ekxx1, ekxx2, qbas,ginv,ef, 
      d           ntetf,nqbzw, nband,nqbz,
@@ -921,6 +924,8 @@ C     ... Generate the histogram weights whw
      i           ihw,nhw,jhw,   ! job=1
      o           whw,           ! job=1
      i           iq,is,is,nqibz, eibzmode,nwgt(:,iq)) 
+            deallocate(demin,demax,iwgt) !duumy
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     do ik   = 1,nqbz
 c     do ibib = 1,nbnb(ik)
