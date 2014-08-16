@@ -407,8 +407,9 @@ new input for next iteration). Then I see convergence.
   Now I usually not use CORE2 (CORE1 only).
 
 ==========================================
-9. Wanneir Branch is going on. (imported from T.Miyake's Wannier code and H.Kino's.)
-   A. make at ecalj/fpgw/Wannier/ directory, and do make install. (need to check Makefile first).
+9. Wanneir Branch now under developing (imported from T.Miyake's Wannier code and H.Kino's).
+   A. make at ecalj/fpgw/Wannier/ directory, and do make, and make install. 
+      (need to check Makefile first). You first have to install fpgw/exec/ in advance.
    B. Samples are at these directories. 
       MATERIALS/CuMLWFs (small samples),
       MATERIALS/CuMLWF/
@@ -426,7 +427,9 @@ new input for next iteration). Then I see convergence.
       These are onsite effective interactions (diagonal part only shown).
       *.xsf are for plotting the Maximally localized Wannier funcitons.
 Anyway, documentaion on Wannier is on the way half.
-Time consuming part (and also the advantage) in ecalj is in the calculation of effective interaction in RPA.
+Time consuming part (and also the advantage) is for effective interaction in RPA.
+Look into the shell script genMLWF; you can skip last part if you don't need the effective interaction.
+
 
 ######## MEMO for developers: ####################################
 Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
