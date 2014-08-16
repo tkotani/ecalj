@@ -854,7 +854,7 @@ c         print *,'iggg=',iggg,nggg
          enddo
       enddo
          call zgemm('T','N',ngc,nt0,ngp2,(1.0d0,0.0d0),ggitp_,ngp2,geigq2,ngp2,(0.0d0,0.0d0), 
-     &        z2,ngc,)
+     &        z2,ngc)
          zmelp0(:,:,itp)= z2
       enddo
       deallocate(z2)
@@ -896,7 +896,16 @@ c$$$         enddo
 c$$$      enddo
       if(verbose()>=100) print *,' melpln2t: 4444444444'
       deallocate(ngveccR,phase,ggitp_)
+c      print *,'pppppppp',shape(ppovlinv),sum(abs(ppovlinv))
+c      print *,'pppppppp',shape(zmelp0),sum(abs(zmelp0))
+c      print *,'pppppppp',ngc,ntp0*nt0
+c      print *,'pppppppp',shape(zmelp)
+c      do ix=1,nt0
+c         print *,'ix=',ix, sum(abs(matmul(dconjg(ppovlinv),zmelp0(:,:,ix))))
+c         zmelp(:,:,ix)=matmul(dconjg(ppovlinv),zmelp0(:,:,ix))
+c      enddo
       call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
+c      print *,'pppppppp end of matm' 
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
       if(verbose()>=100) print *,' melpln2t: end'
 !TIME1 "end of melpln2t"
