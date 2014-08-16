@@ -68,10 +68,15 @@ c     logical :: readgwinput
       character*7:: q0pf        !nov2012
       integer:: dummyia(1,1),iimx,irradd,nmax
       real(8):: epstol=1d-8,tolq=1d-6,qx(3)
+      logical :: newoffsetG !july2014
 c------------------------------------------------
-      print *,' mkqg: '
-
+      print *,' mkqg2: '
       qreduce0 = qreduce()
+      newoffsetG=newaniso()
+      if(iq0pin == 101) then
+         iq0pin=1
+         newoffsetG=.false. !for old oldset Gamma case
+      endif
 !!     band case --- iq0pin == 3
 !!     nqq(is),qq1(1:3,is),qq2(1:3,is),is =1,nline
       if(iq0pin == 3) then
@@ -142,19 +147,14 @@ c------------------------------------------------
             bbij=sum(qlat(:,i)*ginv(j,:))
             if(verbose()>=40) print *,' i j aaij bbij', i,j,aaij,bbij
             if(i==j) then
-Cstop2rx 2013.08.09 kino               if(abs(aaij-1d0) >1d-10) stop 'bug 1 qg4gw'
                if(abs(aaij-1d0) >1d-10) call rx( 'bug 1 qg4gw')
-Cstop2rx 2013.08.09 kino               if(abs(bbij-1d0) >1d-10) stop 'bug 2 qg4gw'
                if(abs(bbij-1d0) >1d-10) call rx( 'bug 2 qg4gw')
             else
-Cstop2rx 2013.08.09 kino               if(abs(aaij) >1d-10) stop 'bug 3 qg4gw'
                if(abs(aaij) >1d-10) call rx( 'bug 3 qg4gw')
-Cstop2rx 2013.08.09 kino               if(abs(bbij) >1d-10) stop 'bug 4 qg4gw'
                if(abs(bbij) >1d-10) call rx( 'bug 4 qg4gw')
             endif
          enddo
       enddo
-
       mtet=(/1,1,1/)
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       if(sum(abs(mtet))<3) then
@@ -232,8 +232,6 @@ c
       if(alp==-1d60) then
          call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
          if(alpv(1)==-1d50) then
-            print *,' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput'
-Cstop2rx 2013.08.09 kino            stop    ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput'
             call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
          endif
       endif
@@ -241,7 +239,6 @@ Cstop2rx 2013.08.09 kino            stop    ' mkqg: No alpha_offG nor alpha_offG
       print *,' alpv=',alpv
       print *
       alpm= minval(alpv)
-Cstop2rx 2013.08.09 kino      if(alpm<=0d0) stop 'alpha_offG or alpha_offG_vec <=0'
       if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
 
 !! === Large if start. ===
@@ -300,7 +297,7 @@ c     nq0x = 8*abs (q0pchoice())
             if(.not.timereversal()) nmm=2
             allocate( q0x(3,nq0x), wt0(nq0x), irr(nq0x), wt(nq0x), q0i(3,nq0x*nmm))!,norq0x(nq0x))
 c     takao cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-            if(newaniso() ) then
+            if(newoffsetG) then
                pi=4d0*atan(1d0)
                deltaq=deltaq_scale()*alat/(2*pi) !dq is 0.01 a.u.
                if(nq00ix==3) then

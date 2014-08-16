@@ -1,0 +1,6 @@
+#id  = Fe
+%const bohr=0.529177 a=2.8665/bohr
+STRUC   ALAT={a} PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5
+SITE    ATOM=Fe POS= 0 0 0
+SPEC    ATOM=Fe Z=26 MMOM=0,0,2,0 
+

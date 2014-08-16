@@ -1,0 +1,46 @@
+===============================================
+Maximally localized Wannier funciton generator.
+  organized by t.kotani 2014July.
+===============================================
+After you do make at fpge/exec/, 
+>make 
+>make install
+This copys binaries to your bin. 
+In advance, look at Makefile first (set compilar, library and your bin).
+genMLWF is the script to generate Wanneir function.
+Required setting is written in the GWinput file.
+
+Samples are:
+ ecalj/MATERIALS/CuMLWFs     n1n2n3 4 4 4, rough but small
+ ecalj/MATERIALS/CuMLWF     n1n2n3 10 10 10  
+ ecalj/MATERIALS/SrVO3MLF
+ ecalj/MATERIALS/FeMLWF
+ ecalj/MATERIALS/NiOMLWF
+. 
+
+How to run samples.
+At first, run job_band_nspin1 or job_band_nspin2 for reference.
+It gives correct Fermi energy, and stored into bnds.* file
+It is read by hmaxloc, called from genMLAWF.
+Then run
+>genMLWF -np 12 cu
+where 12 is cores.
+
+(1) Then run MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF
+    Look into this script.
+(2) Plot psi.xsf file. 
+    This contains MaxLoc Wannier function.
+
+
+==============================
+Known bugs:
+ * Range of plot looks not good.
+ * Especially, vis_wan_ubound, vis_wan_lbound should be not integer.
+   Probably, need to improve/(bug fix) wanplot.F.
+ * xsf is cometimes inconvenient. But I have not tested no other format.
+
+==============================
+History:
+This is from maxloc090910 (Miyake and kino).
+visualizer at Kino's https://github.com/nim-hrkn/visualize
+I checked it works for xsf format.

@@ -54,7 +54,7 @@ Cr   35   26   semsh    nz, modec, emin,emax, ecc,eps delta
 Cr   45   27   size     size of this structure
 Cr   46   28   stnr     parameters for Stoner model (not used)
 Cr   47   29   w        Line broadening for sampling integration
-Cr   48   30   zval     No. electrons to accumulate in BZ integration
+ccccccccCr   48   30   zval     No. electrons to accumulate in BZ integration
 C ----------------------------------------------------------------
 C       data  /2,3,5,6,7,8,12,13,14,15,16,19,20,21,22,25,26,27,28,        29,30,31,32,33,34,35,45,46,47,48,49/
 C       data /4,4,4,4,4,4,18*2,4,4,-1,4,4,4/
@@ -87,7 +87,7 @@ C 26  35  4      semsh 10
 C 27  45 -1       size  1
 C 28  46  4       stnr  1
 C 29  47  4          w  1
-C 30  48  4       zval  1
+ccccccccccC 30  48  4       zval  1
       type s_bz
       real(8)  ::   size
       real(8)   ::   def
@@ -129,7 +129,7 @@ ckino Dec.27.2011:         real(8) , pointer ::  rv_p_owtkp (:) =>NULL()
       real(8)   ::   semsh(10)
       real(8)   ::   stnr
       real(8)   ::   w
-      real(8)   ::   zval
+c      real(8)   ::   zval
       end type s_bz
 
 Cr --- explanation of  uarray ---
@@ -2555,8 +2555,8 @@ Cstruc_makeinit.py skip rv_p_owtkp(:) because it is a pointer.
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%w, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%zval, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
+c      call mpi_bcast(struc%zval, 1,MPI_REAL8
+c     , , master, MPI_COMM_WORLD,ierr)
 
       if (mlog) then
         call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -4338,7 +4338,7 @@ C$$$        end subroutine utb
       struc%semsh=0.0d0
       struc%stnr=0.0d0
       struc%w=0.0d0
-      struc%zval=0.0d0
+c      struc%zval=0.0d0
       end subroutine ubz_init
 
       subroutine uarray_init (struc)

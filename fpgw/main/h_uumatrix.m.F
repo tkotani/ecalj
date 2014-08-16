@@ -257,7 +257,7 @@ c ---  q near zero
       enddo
       nq0i = nq0ix ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+      write(6,"(i3, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
       close(101)
 
 
@@ -269,9 +269,10 @@ c======================================================================
 ! So you may need to take into account the phase shift to <u|u> vectors.
 !
 ! --- I inserted checkagree to make sure that q1=q1x and q2=q2x ...
-!
-      q1 = qbz(:, 12)           ;  j1min=1;   j1max=8
-      q2 = qbz(:, 12)+q0i(1:3,1);  j2min=1;   j2max=8
+      q1 = qbz(:, 1) ;  j1min=1;   j1max=8
+      q2 = qbz(:, 2) ;  j2min=1;   j2max=8
+cc      q1 = qbz(:, 12)           ;  j1min=1;   j1max=8
+cc      q2 = qbz(:, 12)+q0i(1:3,1);  j2min=1;   j2max=8
 c      q1 = qbz(:, 5);  j1min=1;   j1max=8
 c      q2 = qbz(:, 5);  j2min=1;   j2max=8
 c      q1 = qbz(:, 12)+q0i(1:3,1);  j1min=1;   j1max=8
@@ -282,15 +283,14 @@ c======================================================================
 C --- ppovl= <P_{q1+G1}|P_{q2+G2}>
       call readqg0('QGpsi',q1,ginv,  q1x, ngp1)
       call readqg0('QGpsi',q2,ginv,  q2x, ngp2)
-      call checkagree(q1,q1x,' q1 ne q1x')
-      call checkagree(q2,q2x,' q2 ne q2x')
-      write(6,"('q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
-      write(6,"('q2 q2x=',3f9.4,3x,3f9.4)") q2,q2x
-
+      call checkagree(q1,q1x,' q1 ne q1x') ! make sure q1=q1x
+      call checkagree(q2,q2x,' q2 ne q2x') 
+      write(6,"('q1 =',3f9.4,3x,3f9.4)") q1
+      write(6,"('q2 =',3f9.4,3x,3f9.4)") q2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
       call readqg('QGpsi',q1,ginv, q1x, ngp1, ngvecpf1)
       call readqg('QGpsi',q2,ginv, q2x, ngp2, ngvecpf2)
-      call checkagree(q1,q1x,' q1 ne q1x xxx2')
+      call checkagree(q1,q1x,' q1 ne q1x xxx2') !make sure q1 =q1x
       call checkagree(q2,q2x,' q2 ne q2x xxx2')
       print *,' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))
       call mkppovl2(alat,plat,qbas, !22April2004 
@@ -364,8 +364,9 @@ cr   ibas_indx(1:ldim2) : ibas index.
         uum = 0d0
         do 1050 ispin=1,nspin
           allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-          call readcphi(q1, nlmto, ispin, quu, cphi1)
-          call checkagree(q1,q1x,' q1 ne quu')
+          call readcphi(q1, nlmto, ispin, quu, cphi1) !quu is true q, q1-q can be G vectors. But need to check it again!
+                                                      !Need to examine readcphi again.  
+          call checkagree(q1,q1x,' q1 ne quu') !check for safe quu is true q 
           call readcphi(q2, nlmto, ispin, quu, cphi2)
           call checkagree(q2,quu,' q2 ne quu')
 
@@ -424,6 +425,7 @@ c ... Interstitial Plane Wave part
      &    sum( dconjg(geig1(1:ngp1,j1)) * matmul(ppovl,geig2(1:ngp2,j2)) )
             enddo
           enddo
+        deallocate(cphi1,cphi2)
  1050   continue
 
 c--- write resutlt

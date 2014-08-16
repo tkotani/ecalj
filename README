@@ -1,4 +1,5 @@
-=== ecalj package === (this document is checked at June2014)
+=== ecalj package === (this document is checked at Jul2014)
+This is README at https://github.com/tkotani/ecalj
 
 >git clone https://github.com/tkotani/ecalj.git
 to get a ecalj package here. (you need "git" installed).
@@ -8,9 +9,17 @@ shows current status and this README.
 ==================================================================
 ecalj is a first-principle electronic structure calculation package in
 f90, especially for the PMT-QSGW. 
-This is at https://github.com/tkotani/ecalj
 We have another home page at http://pmt.sakura.ne.jp/wiki/, but
 not well-organized yet, little in English yet. We will renew it.
+
+At least, three citations are required for your publications.
+ 1. PMT-QSGW, http://arxiv.org/abs/1404.2804 (JPSJ in print).
+ 2. QSGW, 10.1103/PhysRevLett.93.126406
+ 3. ecalj package, https://github.com/tkotani/ecalj
+
+For developers, I like to add your branch on ecalj/master.
+Eventually, I like to take your development into my master.
+Let me know your git address.
 ===================================================================
 
 ##### Unique features in ecalj package #####
@@ -36,10 +45,15 @@ not well-organized yet, little in English yet. We will renew it.
    we can use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc.
    (although we have so much room to improve it).
 
+(3) Wannier function generator and effective model generator
+    (Max loc Wannier and effective
+    interaction between them). This is mainly due to Dr.Miyake,Dr.Sakuma, and Dr.Kino.
+    See ecalj/Wannier/README.
+
 ##### Install and test #####
 To get a ecalj package, do
 >git clone https://github.com/tkotani/ecalj.git
-Then we follow these steps explained below.
+Then follow these steps explained below.
  (0) Get ecalj package and get tools.
  (1) make for single-core LDA part, 
  (2) make for MPIK LDA part, 
@@ -306,9 +320,67 @@ May19.2014
 
 
 
-##################################################
-Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
+#####################################################
+Usage problems, Q&A
 
+1.Bandplot for FSMOMMETHOD/=0 
+Even when you use FSMMOMMETHOD/=0 in GWinput for gwsc, 
+yuo need to set FSMOMMETHOD=0 (or comment it out) when you run job_band_nspin2.
+[If you run job_band_nspin2 with FSMOMMETHOD/=0, it make a shift 
+ (adding bias magnetic field).]
+
+2.Note that ctrlgenM1.py automatically set this for --systype=molecule.
+   Then we have 
+       TETRA=0
+       N=-1  #Negative is the Fermi distribution function W= gives temperature.
+       W=0.001 #W=0.001 corresponds to T=157K as shown in console
+   In addiiton, FSMOM (n_up-n_down) is needed (FSMOMMETHOD=1)if we
+   have magnetic moment.
+
+3. core>evalence message.
+   Ecore is grater than Evalence.
+   For save, we do not allow this.
+   Complare ECORE file and valence levels, shown in log file or
+   console output.
+
+4. If you see a error message from lmf (e.g., internally called in the gwsc script).;
+  Exit -1 rdsigm: Bloch sum deviates more than allowed tolerance (tol=5e-6)
+You have to enlarge RSRNG so that lmf finsh normally.
+See FAQ at the bottom of http://titus.phy.qub.ac.uk/packages/LMTO/gw.html
+E.g. try RSRNGE=8 for Ni...
+
+5. Back ground charge and fractional Z.
+   You can use fractional numbers for ATOM_Z, and also can set
+   valence charge by BZ_ZBAK (I removed BZ_VAL).
+   You see console out put, e.g,
+     "Charges:  valence    19.80000   cores     8.00000   nucleii   -28.00000
+        hom background       .20000   deviation from neutrality:      0.00000
+   . This is a case with BZ_ZBAK=.2.
+
+   NOTE: at the first iteration, Charges: shows such as
+     Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
+      hom background     0.12300   deviation from neutrality: 0.12300
+      because of the initial condition by superposition of atoms. It show
+      deviation seems nonzero. But charge should be conserved from the
+      next iteration.
+
+6. Not converged. --->help
+For example, if you try metal such as Bi2Sr2CuO6, it may fail at LDA/GGA level.
+Then use ITER MIX=A2,b=.2. or something (.2 means it only mix 20% of output to give
+new input for next iteration). Then I see convergence.
+
+7. Use PZ or not.
+   If spillout of core is not so small (more then 0.05 or something.),
+   it is better to use PZ(lo). Treat the core as valecne.
+   Bi4d is such a case. Maybe use PZ=0,0,4.9
+
+8.Core treatment 
+  See 10.1103/PhysRevB.76.165106 (Eq.35 and after).
+  Now I usually not use CORE2 (CORE1 only).
+
+
+######## MEMO for developers: ####################################3
+Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
 We set comment lines such as
 ----
 !TIME0
@@ -336,36 +408,8 @@ NOTE: !TIME can be nested as
   ... code2 ...
 !TIME1 "foobar1"
 !TIME1 "foobar2"
-###################################################
 
-
-
-#############
-WARNING:
-
-1.Bandplot for FSMOMMETHOD/=0 
-Even when you use FSMMOMMETHOD/=0 for gwsc, set it GWinput,
-comment out FSMOMMETHOD= for job_band_nspin2.
-[If you run job_band_nspin2 with FSMOMMETHOD/=0, it make a shift (bias
-magnetic field).]
-Note that ctrlgenM1.py automatically set this for --systype=molecule.
-
-2. core>evalence message.
-   Ecore is grater than Evalence.
-   For save, we do not allow this.
-   Complare ECORE file and valence levels, shown in log file or
-   console output.
-
-3. If you see a error message from lmf (e.g., internally called in the gwsc script).;
-  Exit -1 rdsigm: Bloch sum deviates more than allowed tolerance (tol=5e-6)
-You have to enlarge RSRNG so that lmf finsh normally.
-See FAQ at the bottom of http://titus.phy.qub.ac.uk/packages/LMTO/gw.html
-E.g. try RSRNGE=8 for Ni...
-
-
-
-
-######## MEMO for developer: ----not read this ---- #########
+###################################
 1.branch x0mpi_merge (6b5e3, Aug2013): 
 contains a try to paralellize x0kf
 (imaginary part of dielectric function) more. It just show a
@@ -378,4 +422,10 @@ It is given by a bndfp-bzwtsf-bzwsf L300 block
 It can give some energy between LUMO and HOMO. 
 Small changes of computational condition can give large change. 
 But no problem.
+
+3. Line length for fortran; Add .emacs the following three lines.
+(add-hook 'fortran-mode-hook
+	  '(lambda ()
+	     (setq fortran-line-length 132)))
+
 --------- end of file -----------------

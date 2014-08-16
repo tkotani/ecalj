@@ -629,8 +629,47 @@ ctm
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)
+
+      integer:: ifgeigW,ifcphiW
+      complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
       contains
 !!--------------------------------------------------------------------------
+      subroutine readgeigW(q,ngp_in,isp, qu,geigen)
+      use m_hamindex
+      implicit none
+      integer(4):: isp,iq,iqindx,ngp_in,ikpisp
+      real(8)   :: q(3),qu(3)
+      complex(8):: geigen(ngp_in,nwf)
+      if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
+      call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+      if(ngp_in < ngp(iq)) then
+        print *,'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+        call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
+      endif
+      if(keepeig) then
+        geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
+      else
+        ikpisp= isp + nsp*(iq-1)
+        read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
+      endif
+      end subroutine
+      subroutine readcphiW(q,ldim2_in,isp,  qu,cphif)
+      use m_hamindex
+      implicit none
+      integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
+      real(8)   :: q(3),qu(3)
+      complex(8):: cphif(ldim2_in,nwf)
+      if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
+      call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+      if(keepeig) then
+        cphif(1:ldim2,1:nwf) = cphiW(1:ldim2,1:nwf,iq,isp)
+      else
+        ikpisp= isp + nsp*(iq-1)
+        read(ifcphi_mlw, rec=ikpisp) cphif(1:ldim2,1:nwf)
+      endif
+      end subroutine
+
+
       subroutine readeval(q,isp, ev)
 !! == return ev(1:nband) for given q(1:3) and isp ==
 !! *
@@ -702,7 +741,7 @@ c      enddo
         print *,' ddddd qu      =',qu
         print *,' ddddd qtarget=',qtarget
         print *,' ddddd q (iqq)=',qtt(:,iqq)
-        print *,' nqp(iq) ngp(iqq)=',ngp(iq),ngp(iqq)
+        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
@@ -968,7 +1007,7 @@ c      print *,' readgcphi_mlw: q=',q
 
 ccccccccccccccccccccccccccc
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt,nqtt
+      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt !,nqtt
 
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
@@ -1064,7 +1103,7 @@ C$$$      isx = iclose('EVU')
 C$$$      if(nsp==2) isx = iclose('EVD')
       leval= minval(evud)
       init=.false.
-      end subroutine
+      end subroutine init_readeigen
 
       real(8) function lowesteval()
       lowesteval=leval
@@ -1133,12 +1172,14 @@ c --- Readin CPHI and GEIG
       if(.not.Keepeig) print *,' KeepEigen=F; not keep geig and cphi in m_readeigen'
       ifgeig = iopen('GEIG',0,0,mrecg)
       ifcphi = iopen('CPHI',0,0,mrecb) ! Coeeficients of eigenfunction
-      print *,' ifgeig ifcphi=',ifgeig,ifcphi
+c      print *,' ifgeig ifcphi=',ifgeig,ifcphi
+c      print *,' ldim2,nband,nqi,nsp',ldim2,ngpmx,nband,nqi,nsp
       if(.not.keepeig) return
 c      ifgeig = iopen('GEIG',0,-1,0)
 c      ifcphi = iopen('CPHI',0,-1,0) ! Coeeficients of eigenfunction
       allocate(geig(ngpmx,nband,nqi,nsp))
       allocate(cphi(ldim2,nband,nqi,nsp))
+      print *,' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
       do ikp= 1,nqi
         do is= 1,nsp
 c        read(ifgeig) geig(1:ngpmx,1:nband,ikp,is) !geig(1:ngp(ikp),1:nband,ikp,1:is)
@@ -1154,10 +1195,13 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
         enddo
       enddo
+      print *,'eeeeee'
       isx= iclose('CPHI')
       isx= iclose('GEIG')
-
       end subroutine
+
+
+
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw(nwf_o)
@@ -1334,16 +1378,10 @@ c psi^B : bloch fn. corresponding to maxloc Wannier fn.
 
         deallocate(geig3,geig4,cphi3,cphi4)
       endif
-
-
       deallocate(cbwf)
-
-
 c replace dimensions
       nwf_o = nwf
-
 c ---
-
       end subroutine
 
 c-------------------------------------------------------------
@@ -1528,9 +1566,12 @@ c ---
 
       end subroutine
 
+
+
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
-      use m_hamindex
+c      use m_hamindex
+      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt ,qtti, nqtt
 
 c replace cphi and geig
 c for hwmat
@@ -1541,20 +1582,17 @@ c this should be called after init_readgeigen2
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2,
      & ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,
      & ifuu,nqbz2,nq0i,iko_ix2,iko_fx2,iq0i,iq0i2,j1,j2
-      real(8):: q(3),rnorm,cnorm
+      real(8):: q(3),rnorm,cnorm,qu(3)
       real(8),allocatable :: eval(:,:,:)
       complex(8),allocatable :: dnk(:,:,:,:),evec(:,:,:,:),
-     &                          geig2(:,:,:,:),cphi2(:,:,:,:),
+     &                          geig2(:,:),cphi2(:,:),
      &                          geig3(:,:),cphi3(:,:),
      &                          geig4(:,:),cphi4(:,:),
      &                          cbwf(:,:,:,:),uum(:,:,:,:,:)
-
-
       logical :: keepeigen
+      integer:: ikpx
       keepeig = keepeigen()
-
-      print *,' init_readeigen_mlw'
-
+      print *,' init_readeigen_mlw_noeval'
 
 c --- Readin MLWU/D, MLWEU/D, and UUq0U/D
       do is = 1,nsp
@@ -1618,14 +1656,14 @@ c end of is-loop
 
 c replace evud
       deallocate(evud)
-      allocate(evud(nwf,nqtt,nsp))
+      allocate(evud(nwf,nqi,nsp)) !nqtt
       evud = 0d0
 
 c replace geig and cphi
-      allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp))
+      allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp)) 
       cbwf = 0d0
       do ikp = 1,nqtt
-        iqbz = mod(ikp,nqbz)
+        iqbz = mod(ikp,nqbz) 
         if (iqbz .eq. 0) iqbz = nqbz
         iq0i = (ikp - iqbz)/nqbz
         do is= 1,nsp
@@ -1683,34 +1721,58 @@ c         write(7300,*)cbwf(:,:,ikp,is)
         enddo
       enddo
       deallocate(dnk,uum)
-
-
       mrecb_o = mrecb * nwf / nband
       mrecg_o = mrecg * nwf / nband
 
-
       if(keepeig) then
-
-        allocate(geig2(ngpmx,nband,nqtt,nsp))
-        allocate(cphi2(ldim2,nband,nqtt,nsp))
-        geig2 = geig
-        cphi2 = cphi
-        deallocate(geig,cphi)
-        allocate(geig(ngpmx,nwf,nqtt,nsp))
-        allocate(cphi(ldim2,nwf,nqtt,nsp))
-        geig = 0d0
-        cphi = 0d0
-        do ikp= 1,nqtt
-          do is= 1,nsp
+        print *,' xxx nband=',nband
+        allocate(geig2(ngpmx,nband))  !nqtt -->nqi
+        allocate(cphi2(ldim2,nband))
+c$$$        allocate(geig2(ngpmx,nband,nqtt,nsp))  !nqtt -->nqi
+c$$$        allocate(cphi2(ldim2,nband,nqtt,nsp))
+c$$$        do ikp= 1,nqtt !nqtt --> nqi
+c$$$        do is= 1,nsp
+c$$$           call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2(1,1,ikp,is))
+c$$$           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
+c$$$           call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2(1,1,ikp,is))
+c$$$           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 2222')
+c$$$           write(6,"('xxx ikp=',i5,3f9.5,2d13.5)")ikp,qtt(:,ikp)
+c$$$     &     ,sum(abs(geig2(:,:,ikp,is))),sum(abs(cphi2(:,:,ikp,is)))
+c$$$        enddo
+c$$$        enddo
+c$$$        print *,' xxxx size geig=',size(geig),size(cphi)  
+c$$$        print *,' xxxx size geig2=',size(geig2),size(cphi2)
+c$$$        print *,' size geig2=',ngpmx,nband,nqi,nsp,ldim2
+ccccccccccccccccccccccccccccccccccccccccccc
+c        deallocate(geig,cphi)
+ccccccccccccccccccccccccccccccccccccccccccc
+        allocate(geigW(ngpmx,nwf,nqtt,nsp))
+        allocate(cphiW(ldim2,nwf,nqtt,nsp))
+        geigW = 0d0
+        cphiW = 0d0
+        do ikp= 1,nqtt ! nqi
+        do is= 1,nsp
+           print *,' ikp=',ikp,qtt(:,ikp)
+           call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2)
+           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
+           call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2)
+           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 2222')
+c           call readgeig(qtti(:,ikp),ngpmx,is, qu,geig2)
+c           if(sum(abs(qtti(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
+c           call readcphi(qtti(:,ikp),ldim2,is, qu,cphi2)
+c           if(sum(abs(qtti(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 2222')
             do iwf= 1,nwf
               do ib= iko_ix,iko_fx
-                geig(:,iwf,ikp,is) = geig(:,iwf,ikp,is) + 
-     &           geig2(:,ib,ikp,is)*cbwf(ib,iwf,ikp,is)
-                cphi(:,iwf,ikp,is) = cphi(:,iwf,ikp,is) + 
-     &           cphi2(:,ib,ikp,is)*cbwf(ib,iwf,ikp,is)
+cc                geig(:,iwf,ikp,is) = geig(:,iwf,ikp,is) + 
+cc     &           geig2(:,ib,ikp,is)*cbwf(ib,iwf,ikpx,is)
+cc                cphi(:,iwf,ikp,is) = cphi(:,iwf,ikp,is) + 
+cc     &           cphi2(:,ib,ikp,is)*cbwf(ib,iwf,ikpx,is)
+c                geig(:,iwf,ikp,is) = geig(:,iwf,ikp,is) + geig2(:,ib,ikp,is)*cbwf(ib,iwf,ikp,is)
+c                cphi(:,iwf,ikp,is) = cphi(:,iwf,ikp,is) + cphi2(:,ib,ikp,is)*cbwf(ib,iwf,ikp,is)
+                geigW(:,iwf,ikp,is) = geigW(:,iwf,ikp,is) + geig2(:,ib)*cbwf(ib,iwf,ikp,is)
+                cphiW(:,iwf,ikp,is) = cphiW(:,iwf,ikp,is) + cphi2(:,ib)*cbwf(ib,iwf,ikp,is)
               enddo
             enddo
-
 check write
 c            do iwf  = 1,nwf
 c            do iwf2 = 1,nwf
@@ -1728,14 +1790,10 @@ c            write(7500,*)ikp,ldim2,nwf
 c            write(7500,*)cphi(:,:,ikp,is)
           enddo
         enddo
-
-
-        deallocate(geig2,cphi2)
-
+        deallocate(geig2,cphi2,geig,cphi)
       else
         ifcphi_o = iopen('CPHI.mlw', 0,-1,mrecb_o)
         ifgeig_o = iopen('GEIG.mlw', 0,-1,mrecg_o)
-
         allocate(geig3(ngpmx,nwf))
         allocate(cphi3(ldim2,nwf))
         allocate(geig4(ngpmx,nband))
@@ -1745,7 +1803,6 @@ c            write(7500,*)cphi(:,:,ikp,is)
             ikpisp= is + nsp*(ikp-1)
             read(ifgeig, rec=ikpisp) geig4(1:ngpmx,1:nband)
             read(ifcphi, rec=ikpisp) cphi4(1:ldim2,1:nband)
-
             geig3 = 0d0
             cphi3 = 0d0
             do iwf= 1,nwf
@@ -1754,40 +1811,31 @@ c            write(7500,*)cphi(:,:,ikp,is)
                 cphi3(:,iwf) = cphi3(:,iwf) +  cphi4(:,ib)*cbwf(ib,iwf,ikp,is)
               enddo
             enddo
-
             write(ifgeig_o, rec=ikpisp) geig3(1:ngpmx,1:nwf)
             write(ifcphi_o, rec=ikpisp) cphi3(1:ldim2,1:nwf)
           enddo
         enddo
-
         deallocate(geig3,geig4,cphi3,cphi4)
         isx= iclose('CPHI')
         isx= iclose('GEIG')
         isx= iclose('CPHI.mlw')
         isx= iclose('GEIG.mlw')
-        ifgeig = iopen('GEIG.mlw',0,0,mrecg_o)
-        ifcphi = iopen('CPHI.mlw',0,0,mrecb_o)
+        ifgeigW = iopen('GEIG.mlw',0,0,mrecg_o)
+        ifcphiW = iopen('CPHI.mlw',0,0,mrecb_o)
       endif
-
-
       deallocate(cbwf)
-
-
 c replace dimensions
       nband = nwf
       nwf_o = nwf
       nband_o = nband
       mrecb = mrecb_o
       mrecg = mrecg_o
+      end subroutine init_readeigen_mlw_noeval
 
-c ---
-
-      end subroutine
 
 c-------------------------------------------------------------
       subroutine init_readeigen_phi_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
       use m_hamindex
-
 c replace cphi and geig
 c for hwmat_phi
 c this should be called after init_readgeigen2
@@ -1872,17 +1920,16 @@ c         enddo
 c         enddo
 c         deallocate(geig2,cphi2)
       endif
-
 c replace dimensions
       nband = nwf
       nwf_o = nwf
       nband_o = nband
       mrecb = mrecb_o
       mrecg = mrecg_o
-
 c ---
-
       end subroutine
+
+
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_diag(nwf_o,nband_o,mrecb_o,mrecg_o)
@@ -2184,6 +2231,13 @@ c replace dimensions
 c ---
       end subroutine
       end module
+
+
+
+
+
+
+
 
 
 c taken from lm7k/subs/rotwv.F

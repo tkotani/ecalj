@@ -49,14 +49,12 @@ C ----------------------------------------------------------------------
       real(8) :: plat(3,3), alat,QpGcut_psi, QpGcut_Cou,dummy
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,a1,a2,pi,unit
       real(8),allocatable :: symops(:,:,:)
-
       character(len=150):: recrdxxx
       character(len=10) :: keyw1='unit_2pioa',keyw2
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
       integer(4):: verbose,q0pchoice,bzcase,wgtq0p !,normcheck !version,
       logical:: keepppovl,GaussSmear,KeepEigen,core_orth,ldummy
-
       integer(4):: iii, iq0pinxxx !may2013 
 ccccccccccccccccccccccccccccccccc
 c NaN test See NaNdble().
@@ -71,32 +69,24 @@ c      ixx = zzz
 c      write(6,*) zzz,zzz+1d0,ixx,qqq,ccc
 c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccc
-
       pi= 4d0* atan(1d0)
       call cputid (0)
-c --- mode
-      write(6,*) ' qg4gw: Generate Q0P->1; Readin Q0P ->2; band mode ->3; SW(chipm) ->4'
+      write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
+      write(6,*)'        Generate Q0P->101(old offset Gamma)'
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
-      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4) then
+      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4
+     &   .or.iq0pin==101) then
         continue
       else
-        print *,'qg4gw do not allow iq0pin=',iq0pin
-Cstop2rx 2013.08.09 kino        stop 'qg4gw do not allow iq0pin='
-        call rx( 'qg4gw do not allow iq0pin=')
+        call rx( 'Not allowed iq0pin')
       endif
-
-c--- If GWinput is not exist, GWIN0 GWIN_V2 and QPNT are converted to GWinput.
+!! If GWinput is not exist, GWIN0 GWIN_V2 and QPNT are converted to GWinput.
       if(iq0pin==-100) then
          call conv2gwinput()
-Cstop2rx 2013.08.09 kino         stop ' OK! qg4gw mode=-100 to generate GWinput'
          call rx0( ' OK! qg4gw mode=-100 to generate GWinput')
       endif   
-c      else
-c        if(iq0pin==-100) stop
-c      endif
-c-----------------------------------------------------------------
 c ... for bug fix of ifc6. ifc6 does not allow
 c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
 c     as first call is not allowed by ifc6.
@@ -108,10 +98,7 @@ c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0)
       ldummy=GaussSmear()
       idummy=bzcase()
       idummy=q0pchoice()
-c      idummy=normcheck()
-c --- list switches
       print *,' --- switches defined in gwsrc/switch.f ---'
-c      write(6,"(' version()   = ',I3)")  version()
       write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
       write(6,"(' keepeigen() = ',L)")  KeepEigen()
       write(6,"(' core_orth()  = ',L)")  core_orth()
@@ -119,8 +106,7 @@ c      write(6,"(' version()   = ',I3)")  version()
       write(6,"(' GaussSmear()= ',L4)")  GaussSmear()
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
       write(6,"(' bzcase()    = ',i4)")  bzcase()
-c      write(6,"(' normcheck() = ',i4)")  normcheck()
-C --- readin LATTC
+!! readin LATTC
 c----------------------------------
 c A sample LATTICE file for a Si case,
 c      10.26d0        ! alat        = lattice constant in a.u.
@@ -137,25 +123,20 @@ c----------------------------------
       read(ifi,*) plat(1:3,3)
       read(ifi,*) QpGx1 !If QpGcut_psi is given by the code (LAPW case)
       close(ifi)
-
-C --- readin SYMOPS.
+!! --- readin SYMOPS.
       ifi = 6661
       open (ifi, file='SYMOPS')
       read(ifi,*) ngrp
       write(6,*) ' SYMOPS ngrp=',ngrp
       allocate(symops(3,3,ngrp))
-c      write(667,*) ngrp
       do ig = 1,ngrp
         read(ifi,*)
-c        write(667,*) ig
         do i=1,3
           read(ifi,*) symops(i,1:3,ig)
-c          write(667,"(3d24.16)") symops(i,1:3,ig)
         enddo
       enddo
       close(ifi)
-
-C --- check write
+!! --- check write
       write(6,"(' alat      =',f13.6 )") alat
       write(6,"(' plat a1   =',3f13.6)") plat(1:3,1)
       write(6,"(' plat a2   =',3f13.6)") plat(1:3,2)
@@ -167,9 +148,7 @@ C --- check write
           write(6,"(3f14.6)") symops(i,1:3,ig)
         enddo
       enddo
-
-C --- Readin GWIN0. nx ny nz for k-points for GW calculations.
-c      if(readgwinput()) then
+!! --- Readin GWIN0. nx ny nz for k-points for GW calculations.
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
@@ -180,74 +159,33 @@ c      if(readgwinput()) then
         QpGx2     = QpGx2      *unit
         QpGcut_cou= QpGcut_cou *unit
       endif
-c      else !old part.  from GWIN0
-c       ifigw0 = 101
-c       open(ifigw0,file='GWIN0',status="old",err=1010)
-c       write(6,*) 'Reading GWIN0'
-c       read(ifigw0,*)
-c       read(ifigw0,*) n1q,n2q,n3q !GWIN0
-c       read(ifigw0,*)
-c
-cc ...Jun2002
-c       read(ifigw0,"(150a)") recrdxxx
-c       read(recrdxxx,*) keyw2
-c       if(keyw1==keyw2) then
-c        read(recrdxxx,*) keyw2,a1,a2
-c        unit = 2d0*pi/alat
-c        write(6,*) ' unit_2pioa find: 2pi/alat = ',unit
-c        QpGx2     = unit*a1
-c        QpGcut_Cou= unit*a2               ! cut off for G. |k+G|< QpGcut in (2pi/alat)
-c       else
-c        read(recrdxxx,*) QpGx2, QpGcut_Cou ! cut off for G. |k+G|< QpGcut in  (a.u.)
-c       endif
-
-cccccccccc
-c      write(6,*) QpGx2, QpGcut_Cou  ! cut off for G. |k+G|< QpGcut in  (a.u.)
-c      stop 'testend'
-ccccccccccc
-c       read(ifigw0,*)
-c       read(ifigw0,*) alp
-c       close(ifigw0)
-c      endif
-      if     ( QpGx1>=0d0 .and. QpGx2<0d0 ) then
+      if ( QpGx1>=0d0 .and. QpGx2<0d0 ) then
         QpGcut_psi = QpGx1
         write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx1
       elseif(  QpGx1< 0d0 .and. QpGx2>=0d0) then
         QpGcut_psi = QpGx2
         write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx2
       else
-Cstop2rx 2013.08.09 kino        stop ' qg4gw: QpGcut_psi are given in both 
-Cstop2rx 2013.08.09 kino continue line
-        call rx0(  ' qg4gw: QpGcut_psi are given in both 
+        call rx0(' qg4gw: QpGcut_psi are given in both 
      &    GWIN0 and LATTC. One of them is used and
      &    other one is the dummy. The dummy should 
      &    have negative value like -1.' )
       endif
-
-      write(6,*) ' *** k points for GW from GWIN0 =',n1q,n2q,n3q
-      write(6,"(' *** |k+G| < QpG(psi) QpG(Cou)=',2d13.6)")
-     &             QpGcut_psi, QpGcut_Cou
+      write(6,*)' *** k points for GW from GWIN0 =',n1q,n2q,n3q
+      write(6,"(' *** |k+G| < QpG(psi) QpG(Cou)=',2d13.6)")QpGcut_psi, QpGcut_Cou
       goto 1011
-
  1010 print *," --- a GWIN0 sample for the case of si ---"
       write(6,"(a)")' n1 n2 n3. the number of k-points for GW '
       write(6,"(a)")' 2 2 2 '
       write(6,"(a)")' Cutoff of |q+G| for Coulomb. a.u.'
       write(6,"(a)")' 0 2.7 !QpGcut_psi(=0 -> dummy) QpGcut_Cou'
-      write(6,"(a)")
-     &' Parameter to choose the offsetted gamma points Q0P.'
+      write(6,"(a)")' Parameter to choose the offsetted gamma points Q0P.'
       write(6,"(a)")' 1d0 '
       write(6,"(a)")' number of bands.'
       write(6,"(a)")' 99999 '
       print *," --- end GWIN0 sample --- "
-      print *,
-     & " ERROR! Not find GWIN0. You have to write GWIN0 by hand! 
-     &          See above sample!"
-Cstop2rx 2013.08.09 kino      stop " ERROR! Not find GWIN0. You have to write GWIN0 by hand! "
       call rx( " ERROR! Not find GWIN0. You have to write GWIN0 by hand! ")
  1011 continue
-
-C --- Open output files QGpsi QGcou
       ifiqg  = 401
       ifiqgc = 402
       iq0pinxxx=iq0pin
@@ -256,19 +194,14 @@ C --- Open output files QGpsi QGcou
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
-
       open(ifiqg ,file='QGpsi',form='unformatted')
       open(ifiqgc,file='QGcou',form='unformatted')
       call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
      &  QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
-Cstop2rx 2013.08.09 kino      if(iq0pin ==1) stop ' OK! qg4gw mode=1 normal mode'
       if(iq0pin ==1) call rx0( ' OK! qg4gw mode=1 normal mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==2) stop ' OK! qg4gw mode=2 Readin Q0P mode'
       if(iq0pin ==2) call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==3) stop ' OK! qg4gw mode=3 band-plot mode'
       if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
-Cstop2rx 2013.08.09 kino      if(iq0pin ==4) stop ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0'
       if(iq0pin ==4) call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
       end
 

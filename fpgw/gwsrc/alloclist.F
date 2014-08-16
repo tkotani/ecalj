@@ -79,7 +79,7 @@
       enddo
       write(6,'(a,i4,1x,a,a20,a,i10,a,i1)')
      & 'mpi=',mpi__rank,
-     & 'delete_alloc_list name=', trim(name),' total=',total/var_unit ,'(MB)',idel
+     & 'delete_alloc_list name=', trim(name),' total=',total/var_unit ,'(MB)' !,idel
 
       end subroutine del_alloclist
 
