@@ -100,49 +100,63 @@ We can check history of ecalj code development by
 ">gik --all" at ecalj/ directory after you did git clone.
 
 ------------
-(1) make single core LDA part (it is in ecalj/lm7K/)
-Move to ecalj/lm7K/, then do "make PLATFORM=gfortran". Then make process start.
-The main makefile is lm7K/Makefile, and it includes
-lm7K/MAKEINC/Make.inc.gfortran. 
-In advance to do make, we have to check LIBLOC= in Make.inc.gfortran.
-LIBLOC should contain path to FFTW, BLAS and LAPACK.
+(1) make single core LDA part (it is in ecalj/lm7K/).
+Let us assume gfortran case.
+Move to ecalj/lm7K/, then do "make PLATFORM=gfortran". 
+Then make process start.
+The main makefile is ecalj/lm7K/Makefile, which contains lines
+  PLATFORM=gfortran   #default is PLATFORM=gfortran
+  ...
+  include MAKEINC/Make.inc.$(PLATFORM)
+This means that this Makefile uses ecalj/lm7K/MAKEINC/Make.inc.gfortran
+as a part of the Makefile. Thus we have to check settings in it 
+in advance to run "make PLATFORM=...".
+LIBMATH= should contain path to the math libraries, FFTW, BLAS and LAPACK.
 An example is 
-  LIBLOC= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+  LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+I think FFLAGS=, FFLAGS_LESS=... can be choosed by your own manner. But usually
+Make.inc.gfortran worsk as it is.
 
-For other cases, run "make PLATFORM=foobar" where foobar can be ifort
-or something else. foobar corresponds to an include file 
-lm7K/MAKEINC/Make.inc.foobar. For ifort, there are several MAKEINC/Make.inc.ifort*
+Let us think about an ifort case.
+In this case, "make PLATFORM=ifort" usually.
+There are several MAKEINC/Make.inc.ifort*
 (not _mpik*) with which we installed to machines. 
 You can choose one of them or you can set your own Make.inc.ifort.*
 (compilar, compilar options, math library).
-I think "make PLATFORM=ifort.simple" works well for ifort. But you may need
-to add -heap-arrays 1 (for large calculations. Because we use large stacksize).
+I think "make PLATFORM=ifort" works well for ifort. But you may need
+to add -heap-arrays 1 (for large calculations. Because we use large
+stacksize; but I am not so sure about this).
+
+For other cases, run "make PLATFORM=foobar" where foobar can be ifort
+or something else. foobar corresponds to an include file 
+lm7K/MAKEINC/Make.inc.foobar. 
 
 Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
 just because of problem of Makefile. you can neglect this. We will fix it..
 
-Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2,
-but failed with FFLAGS=-O3.
+Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2, but failed with FFLAGS=-O3.
 
 Parallel make like
->make -j4 PLATFORM=gfortran
-may speed it up for multicore machines(four core in this case). 
+>make -j24 PLATFORM=gfortran
+may speed it up for multicore machines(24 core in this case). 
 But it stops because of dependency is not well-described in current Makefile. 
-In such case, repeat it a few times, or repeat it without -j4.
+In such case, repeat it a few times, or repeat it without -j24.
 
-Then do "make PLATFORM=gfortran install"
+Finally do "make PLATFORM=gfortran install"
 This just copy required files (binaries and scripts) to your ~/bin.
 (check it in Makefile). If you don't like to copy them to your ~/bin,
-specify different directory at the bottom of Makefile.
+replace ~/bin to a directory you like, at the bottom of Makefile.
 
 ------------
 (2) make MPI LDA part.
-lmf-MPIK and lmfgw-MPIK are needed for gwsc. To make it, do
+lmf-MPIK and lmfgw-MPIK are needed for gwsc. These are k-point
+parallel version of lmf, and gw driver lmfgw. To make it, do
 "make PLATFORM=gfortran_mpik". 
-For ifort, set PLATFORM=ifort_mpik.simple
-Then ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple is used.
+For ifort, set PLATFORM=ifort_mpik
+Then Makefile uses ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik is used.
 You may need to add -heap-arrays 1 (for large calculations. Because we
-use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.simple
+use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpi, but I
+am not so sure about this.
 
 Clean up:
 If something wrong. do "make clean" or "make cleanall" and start over.
@@ -156,11 +170,18 @@ at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
 In advance, you have to make your bin, and add ~/bin to  your path
 (e.g. "export PATH=$HOME/bin:$PATH" in .bashrc . Then login again or "source .bashrc")
 
+---------------------
 (3) Installation for fpgw/
 At ecalj/fpgw/exec/ directory, you have to edit make.inc.
-Especially note option, -heap-arrays for ifort
-(to avoid Segmentation fault due to stacksize limit (ulimit -a), it is
-required. Or you can set ulimit -s unimited).
+
+Default make.inc is gfortran, and 
+>cp make.inc.ifort make.inc 
+may work for ifort.
+
+(NOTE: we often see Segmentation fault due to stacksize limit (See by
+a command "ulimit -a"). It is needed to run "ulimit -s unimited" 
+in the qsub script or before running GW jobs. 
+Or probably -heap-arrays for ifort may rescue this problem, I am not sure.)
  
 Then you have to run 
 >make
@@ -170,7 +191,7 @@ Before this, you have to set blas and lapack in fpge/exec/make.inc.
 (for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
 "make install" copy requied files to your ~/bin.
 
-----
+-----------------------
 (4) Install test
 We have to check whether binaries works fine or not.
 Move to ecalj/TestInstall. Then type make (with no arguments). 
@@ -193,7 +214,7 @@ are correctly generated. However, because of some problem in makefile,
 you may see some make procedure is repeated. You can neglect it as
 long as "All test are passed!" is shown in the (4)install test.
 
-
+----------------------
 (5) Structure tool.
 In any calculations, we first have to supply crystal structure correctly.
 To help this, we have a converter between POSCAR(VASP's crystal
@@ -221,11 +242,15 @@ Set the variable of VESTA=, at the begining of
 ~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
 
 
+--------------------------------------
 ####### How to do version up? ######
+
 We do not have enough human resource to keep it very well. 
-So be careful to do version up. It may cause another problem.
+Thus, be careful to do version up. It may cause another problem.
 But it is not so difficult to move it back to original version
 if you use git.
+An important things is your own Make.inc.* files. Keep it by yourself,
+or by a command ./mbackup (look into it first).
 
 >cd ecalj
 >git log 
@@ -247,7 +272,9 @@ if you use git.
     Look into this script before you use this.
     This copy make.inc* and MAKEINC/* back to original directory.
 
-I think it is recommended to use >gitk --all and read this document 
+I think it is recommended to use 
+>gitk --all 
+and read this document 
 README to check what is added recently. Difference can be easily taken,
 e.g. by >git diff d2281:README 81d27:README (here d2281 and 81d27 are
 top several digits of version id). 
@@ -255,6 +282,7 @@ top several digits of version id).
 
 After ./mrestore, following instruction of the above installation.
 Probably, you don't need to make cleanall (this delete all binaries).
+
 
 
 ###### Documents of ecalj #####################
@@ -378,8 +406,29 @@ new input for next iteration). Then I see convergence.
   See 10.1103/PhysRevB.76.165106 (Eq.35 and after).
   Now I usually not use CORE2 (CORE1 only).
 
+==========================================
+9. Wanneir Branch is going on. (imported from T.Miyake's Wannier code and H.Kino's.)
+   A. make at ecalj/fpgw/Wannier/ directory, and do make install. (need to check Makefile first).
+   B. Samples are at these directories. 
+      MATERIALS/CuMLWFs (small samples),
+      MATERIALS/CuMLWF/
+      MATERIALS/CuMLWFs/
+      MATERIALS/FeMLWF/      
+      MATERIALS/NiOMLWF/
+      MATERIALS/SrVO3MLWF/
+   C. With GWinput and ctrl.*, run 
+      >genMLWF
+      at these directories.
+      In GWinput, we supply settings to generate Wannier funcitons. (Sorry,not documentet yet..)
+   D. After genMLWF, do
+      >grep Wan lwmatK*
+      then compare these with Result.grepWanlwmatK
+      These are onsite effective interactions (diagonal part only shown).
+      *.xsf are for plotting the Maximally localized Wannier funcitons.
+Anyway, documentaion on Wannier is on the way half.
+Time consuming part (and also the advantage) in ecalj is in the calculation of effective interaction in RPA.
 
-######## MEMO for developers: ####################################3
+######## MEMO for developers: ####################################
 Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
 We set comment lines such as
 ----

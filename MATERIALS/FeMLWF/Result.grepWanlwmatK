@@ -1,0 +1,20 @@
+lwmatK1:  Wannier    1    1   22.278010    0.000000 eV
+lwmatK1:  Wannier    1    2   22.278004    0.000000 eV
+lwmatK1:  Wannier    1    3   22.994011    0.000000 eV
+lwmatK1:  Wannier    1    4   22.278005    0.000000 eV
+lwmatK1:  Wannier    1    5   22.994018    0.000000 eV
+lwmatK1:  Wannier    2    1   20.401663    0.000000 eV
+lwmatK1:  Wannier    2    2   20.401644    0.000000 eV
+lwmatK1:  Wannier    2    3   21.073580    0.000000 eV
+lwmatK1:  Wannier    2    4   20.401636    0.000000 eV
+lwmatK1:  Wannier    2    5   21.073581    0.000000 eV
+lwmatK2:  Wannier    1    1    0.000000 eV   -20.901135    0.000000 eV
+lwmatK2:  Wannier    1    2    0.000000 eV   -20.901129   -0.000000 eV
+lwmatK2:  Wannier    1    3    0.000000 eV   -21.314818    0.000000 eV
+lwmatK2:  Wannier    1    4    0.000000 eV   -20.901130   -0.000000 eV
+lwmatK2:  Wannier    1    5    0.000000 eV   -21.314824    0.000000 eV
+lwmatK2:  Wannier    2    1    0.000000 eV   -19.165024    0.000000 eV
+lwmatK2:  Wannier    2    2    0.000000 eV   -19.165006    0.000000 eV
+lwmatK2:  Wannier    2    3    0.000000 eV   -19.570558   -0.000000 eV
+lwmatK2:  Wannier    2    4    0.000000 eV   -19.164999    0.000000 eV
+lwmatK2:  Wannier    2    5    0.000000 eV   -19.570559   -0.000000 eV
