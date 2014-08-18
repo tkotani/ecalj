@@ -1,4 +1,4 @@
-=== ecalj package === (this document is checked at Jul2014)
+=== ecalj package === (this document is checked at Augl2014)
 This is README at https://github.com/tkotani/ecalj
 
 >git clone https://github.com/tkotani/ecalj.git
@@ -6,14 +6,16 @@ to get a ecalj package here. (you need "git" installed).
 
 The homepage of ecalj, https://github.com/tkotani/ecalj,
 shows current status and this README.
+
 ==================================================================
 ecalj is a first-principle electronic structure calculation package in
-f90, especially for the PMT-QSGW. 
+f90,  especially for the PMT-QSGW. 
 We have another home page at http://pmt.sakura.ne.jp/wiki/, but
 not well-organized yet, little in English yet. We will renew it.
 
 At least, three citations are required for your publications.
- 1. PMT-QSGW, http://arxiv.org/abs/1404.2804 (JPSJ in print).
+ 1. PMT-QSGW, Takao Kotani, J. Phys. Soc. Jpn., Vol.83, No.9, Article ID: 094711
+    http://dx.doi.org/10.7566/JPSJ.83.094711, DOI: 10.7566/JPSJ.83.094711
  2. QSGW, 10.1103/PhysRevLett.93.126406
  3. ecalj package, https://github.com/tkotani/ecalj
 
@@ -46,9 +48,9 @@ Let me know your git address.
    (although we have so much room to improve it).
 
 (3) Wannier function generator and effective model generator
-    (Max loc Wannier and effective
-    interaction between them). This is mainly due to Dr.Miyake,Dr.Sakuma, and Dr.Kino.
-    See ecalj/Wannier/README.
+    (Maxloc Wannier and effective interaction between them). 
+    This is mainly due to Dr.Miyake,Dr.Sakuma, and Dr.Kino.
+    fpgw/Wannier/README
 
 ##### Install and test #####
 To get a ecalj package, do
@@ -481,3 +483,12 @@ But no problem.
 	     (setq fortran-line-length 132)))
 
 --------- end of file -----------------
+
+
+===================================================
+ecalj PDOS sigm_fbz is required.
+(when cp sigm,rst,GWinput ->LDA-like result.
+ Then cp sigm_fbz ->it fails.
+ Need to make new directory, and copy rst,sigm_fbz.)
+And how to check it. (whether 
+===================================================
