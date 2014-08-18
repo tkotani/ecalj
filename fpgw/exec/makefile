@@ -447,7 +447,7 @@ eout2: $(EO2)  $(COMM)
  $(nfpsrc)bessl.o \
  $(nfpsrc)cross.o
 
- MPI = $(gwsrc)MPI_fpgw.o
+ MPI = $(gwsrc)MPI_fpgw2.o
 
  GW0 = \
  $(gwsrc)m_hamindex.o\

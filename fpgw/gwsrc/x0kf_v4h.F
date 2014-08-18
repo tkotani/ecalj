@@ -252,7 +252,6 @@ Cstop2rx 2013.08.09 kino          stop 'POmat reading err q/=q_r'
       endif
 !TIME1 "after if smbasis"
 
-      write(*,'(a,3i5,2E20.10)') 'kino, pomat checksum',iq,isp1,isp2,sum(pomat)
 ckino
 !KINO      it=0
 !KINO      do k=1,nqbz
@@ -283,8 +282,6 @@ ckinoend
         call  readcphi(  rk(:,k)-qq, nlmto,isp1,   quu,cphik) !quu is used q for eigenfunctions.
         call  readcphi(q+rk(:,k)-qq, nlmto,isp2,   quu,cphikq)
 
-        write(*,'(a,2i5,2E20.10)')'kino, cphik checksum',iq,isp1,sum(cphik)
-        write(*,'(a,2i5,2E20.10)')'kino, cphik checksum',iq,isp2,sum(cphikq)
 C --- tetra ------ override nt0 itps ntp0 ---------------
         nkmin = 999999
         nkmax= -999999
@@ -352,7 +349,6 @@ c        endif
      i              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i              icore,ncore,nl,nnc,
      o              zzmel)
-        write(*,'(a,2I5,2E20.10)')'kino zzmel checksum_after_psicb_v3',iq,isp1,sum(zzmel)
 C ... valence
         !call cputid(0)
         call psi2b_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
@@ -363,7 +359,6 @@ C ... valence
      i              imdim,iatomp,
      d              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      o              zzmel)
-        write(*,'(a,2I5,2E20.10)')'kino zzmel checksum_after_psi2b_v3',iq,isp1,sum(zzmel)
         if(debug) call cputid(0)
 !TIME1 "after psicb_v3"
 !TIME0 
@@ -508,7 +503,6 @@ c           if(newanisox) then   !.and.iq==1) then
         enddo
 !kino 2014-08-13  !$OMP end parallel do 
 #endif
-        write(*,*)'kino: checksum, zmelt=',sum(zmelt)
         deallocate(zmmm)
         if(allocated(ppovl_)) deallocate(ppovl_)
 !TIME1  "after matmul zmelt"
@@ -756,7 +750,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
       endif
 !TIME0
 
-      write(*,'(a,2i5,2E20.10)')'kino rcxq checksum_before_hermi',iq,isp1,sum(rcxq)
 
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
       if(eibzmode) then
@@ -815,9 +808,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
 !!
         zcousqinv=zcousq
-        write(*,*) 'kino,ngb=',ngb
         call matcinv(ngb,zcousqinv)
-        write(*,'(a,2i5,2E20.10)') 'kino zcousqinv, checksum=',iq,isp1,sum(zcousqinv)
 
 
 !! == Assemble rotantion matrx zrr,zrrc ==

@@ -1525,8 +1525,8 @@ c!KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstat
               if (ierr.ne.0) then 
                  write(6,'(i3,a,i3,a,i5)')
      &           mpi__rank,'failed to allocate zwix',ierr,'size=',nblochpmx**2; call flush(6) 
-                 call mpi_abort()
-                 call rx( '')
+!kino 2014-08-19                 call mpi_abort()
+                 call rx( 'failed to allocate zwix')
               endif
 !kino 2014-08-13  !$OMP parallel  private(zwzix) 
                write(6,*)mpi__rank,'zwzix allocate'; call flush(6)
@@ -1536,8 +1536,8 @@ c!KINO               write(*,'(a,7i7)')'kino: nx,ngb,nstate,ntqxx=',nx,ngb,nstat
      &            'failed to allocate zwzix',ierr,'size=',nstate*ntqxx**2
 !kino 2014-08-13  !$                 write(6,'(i5)') 'omp_get_thread=',omp_get_thread_num()
                   call flush(6)
-                  call mpi_abort()
-                  call rx( '')
+!kino 2014-09-18                  call mpi_abort()
+                  call rx( 'failed to allocate zwzix')
                endif
 !kino 2014-08-13  !$OMP do               
                do ix=1,nx

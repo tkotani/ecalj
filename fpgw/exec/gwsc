@@ -19,7 +19,8 @@ set TARGET=$argv[4]
 set MPI_SIZE=$argv[3]
 set ITER=$argv[1]
 
-set lx0_para_option='-nq 2 -ns 2'
+#set lx0_para_option='-nq 4 -ns 1'
+set lx0_para_option=""
 
 #cray 
 #set echo_run="aprun"

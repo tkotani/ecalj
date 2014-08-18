@@ -776,9 +776,7 @@ c$$$  endif
 !! ---------------------------------------------------------------
 !TIME1 "before 1003 loop"
 !         do 1003 is = 1,nspinmx
-          write(*,'(i5,a,2i5)')mpi__rank,'kino spin loop',mpi__Se,mpi__Ss,-1
-!kino         do 1003 is = mpi__Ss,mpi__Se
-         do 1003 is = mpi__Se,mpi__Ss, -1
+         do 1003 is = mpi__Ss,mpi__Se
 !TIME0 
             write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
      &           iq, is, nqibz + nq0i,nspin
@@ -987,60 +985,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             iqeibz=iq
             !symmetrize=(is==nspinmx)
             symmetrize=.false.
-            write(*,'(a,2i5,2E20.10)')'kino: ppb checksum',iq,is,sum(ppb(:,is))
-            write(*,'(a,2i5,2E20.10)')'kino: ppovlz checksum',iq,is,sum(ppovlz)
-            write(*,'(a,2i5,2E20.10)')'kino: ppovl checksum',iq,is,sum(ppovl)
-            write(*,'(a,2i5,2E20.10)')'kino: zcousq checksum',iq,is,sum(zcousq)
-            write(*,'(a,2i5,2I20)')'kino: nwgt checksum',iq,is,sum(nwgt(:,iqeibz))
-            write(*,'(a,2i5,2I20)')'kino: igx checksum',iq,is,sum(igx(:,:,iqeibz))
-            write(*,'(a,2i5,2I20)')'kino: igxt checksum',iq,is,sum(igxt(:,:,iqeibz))
-            write(*,'(a,2i5,2E20.10)')'kino: eibzsym checksum',iq,is,sum(eibzsym(:,:,iqeibz))
-            write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_before_x0k',iq,is,sum(rcxq)
-            write(*,'(a,2i5,2E20.10)')'kino: qbas checksum',iq,is,sum(qbas)
-            write(*,'(a,2i5,2E20.10)')'kino: ginv checksum',iq,is,sum(ginv)
-            write(*,'(a,2i5,2E20.10)')'kino: qbz checksum',iq,is,sum(qbz)
-            write(*,'(a,2i5,2E20.10)')'kino: wbz checksum',iq,is,sum(wbz)
-            write(*,'(a,2i5,2I20)')'kino: n1b checksum',iq,is,sum(n1b)
-            write(*,'(a,2i5,2I20)')'kino: n2b checksum',iq,is,sum(n2b)
-            write(*,'(a,2i5,2I20)')'kino: nbnb checksum',iq,is,sum(nbnb)
-            write(*,'(a,2i5,2I20)')'kino: ihw checksum',iq,is,sum(ihw)
-            write(*,'(a,2i5,2I20)')'kino: nhw checksum',iq,is,sum(nhw)
-            write(*,'(a,2i5,2I20)')'kino: jhw checksum',iq,is,sum(jhw)
-            write(*,'(a,2i5,2E20.10)')'kino: whw checksum',iq,is,sum(whw)
-            write(*,*)'write constants to file.999'
-            write(1000+iq*10+is,*) npm,ncc,
-     i           'phase1',
-     i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i           'phase2',
-     i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
-     i           'phase3',
-     i           q,
-     i           nspin,is,isf, symmetrize, !
-     i           'phase4',
-     i           qbas,ginv,  qbz,wbz,
-     i           'phase5',
-     i           nblocha ,nlnm,nlnmv,nlnmc,iclass,
-     i           'phase6',
-     i           ppb(1,is),
-     i           'phase7',
-     i           icore,ncore,
-     i           'phase8',
-     d           nlmto,nqbz,noccx,noccxv,
-     i           'phase9',
-     d           nl,nclass,natom,nnc,
-     i           'phase10',
-     d           nlnmx,mdimx,nbloch,  nwhis,
-     i           'phase11',
-     i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i           'phase12',
-     i           nqbze,nband,nqibz,
-     i           'phase13',
-     i           nolfco,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
-     i           'phase14',
-     i           chipm,eibzmode,  !z1offd,
-     i           'phase15',
-     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz)
-
 
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
@@ -1062,8 +1006,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
             print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
-
-        write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_after_x0kf=',iq,is,sum(rcxq)
 
 c===========Check write mode4 block ixc==4 ============6ini
 ccccccccccccccccccfaleev 21May02 ixc==4 not used
@@ -1127,7 +1069,6 @@ c=======================================================================
      i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
      i           chipm,eibzmode,  !z1offd,
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
-            write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_after_symme',iq,is,sum(rcxq)
 
 ! reduction rcxq in the S-axis
             write(*,*) 'MPI__AllreduceSumS start'
@@ -1140,8 +1081,6 @@ c=======================================================================
               enddo
             enddo
             write(*,*) 'MPI__AllreduceSumS end'
-            write(*,'(i5,a,i5,2E20.10)') mpi__rank,'rcxq checksum=',iq,sum(rcxq)
-
 !TIME0 
 
 !! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
@@ -1554,8 +1493,6 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
          print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
 CYY!$OMP end master
 CYY!$OMP end parallel 
-         write(*,*) mpi__rank,'llw checksum=',sum(llw)
-         write(*,*) mpi__rank,'llwI checksum=',sum(llwI)
 
 !TIME1 "end eeeeeee"
 
