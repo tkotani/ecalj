@@ -185,6 +185,9 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
 #ifdef USE_GEMM_FOR_SUM
       complex(8),allocatable :: zmelt_tmp(:,:,:)
 #endif
+
+      if (symmetrize) goto 5000
+
 c ------------------------------------------------
 !TIME0 "start xkf_v4hz      
       write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
@@ -249,6 +252,7 @@ Cstop2rx 2013.08.09 kino          stop 'POmat reading err q/=q_r'
       endif
 !TIME1 "after if smbasis"
 
+      write(*,'(a,3i5,2E20.10)') 'kino, pomat checksum',iq,isp1,isp2,sum(pomat)
 ckino
 !KINO      it=0
 !KINO      do k=1,nqbz
@@ -279,6 +283,8 @@ ckinoend
         call  readcphi(  rk(:,k)-qq, nlmto,isp1,   quu,cphik) !quu is used q for eigenfunctions.
         call  readcphi(q+rk(:,k)-qq, nlmto,isp2,   quu,cphikq)
 
+        write(*,'(a,2i5,2E20.10)')'kino, cphik checksum',iq,isp1,sum(cphik)
+        write(*,'(a,2i5,2E20.10)')'kino, cphik checksum',iq,isp2,sum(cphikq)
 C --- tetra ------ override nt0 itps ntp0 ---------------
         nkmin = 999999
         nkmax= -999999
@@ -346,6 +352,7 @@ c        endif
      i              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i              icore,ncore,nl,nnc,
      o              zzmel)
+        write(*,'(a,2I5,2E20.10)')'kino zzmel checksum_after_psicb_v3',iq,isp1,sum(zzmel)
 C ... valence
         !call cputid(0)
         call psi2b_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
@@ -356,6 +363,7 @@ C ... valence
      i              imdim,iatomp,
      d              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      o              zzmel)
+        write(*,'(a,2I5,2E20.10)')'kino zzmel checksum_after_psi2b_v3',iq,isp1,sum(zzmel)
         if(debug) call cputid(0)
 !TIME1 "after psicb_v3"
 !TIME0 
@@ -676,6 +684,7 @@ c$$$          else
 Cstop2rx 2013.08.09 kino          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
 
+
 !kino 2014-08-13  !$OMP do private(zmelt2)
           do igb2=1, nmbas     !....................................
              zmelt2 = zmelt(igb2,it,itp)
@@ -747,6 +756,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
       endif
 !TIME0
 
+      write(*,'(a,2i5,2E20.10)')'kino rcxq checksum_before_hermi',iq,isp1,sum(rcxq)
+
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
       if(eibzmode) then
         do jpm=1,npm
@@ -774,8 +785,19 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !! See Eq.(51) around in PRB81 125102(2010)
 !! 
 
+      goto 9999 ! finalize
+
+ 5000 continue
 !! === zmelt conversion === 
       if(eibzmode.and.symmetrize) then
+
+        ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
+        if(ngb/=ngbb) then
+           print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
+Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
+           call rx( 'x0kf_v4h: ngb/=ngbb')
+        endif
+
 !TIME0 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1 "after iqindx2"
@@ -793,7 +815,9 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
 !!
         zcousqinv=zcousq
+        write(*,*) 'kino,ngb=',ngb
         call matcinv(ngb,zcousqinv)
+        write(*,'(a,2i5,2E20.10)') 'kino zcousqinv, checksum=',iq,isp1,sum(zcousqinv)
 
 
 !! == Assemble rotantion matrx zrr,zrrc ==
@@ -1061,7 +1085,7 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
       endif  
 
  9999 continue
-      deallocate(cphik,cphikq,geig1,geig2)
+!kino 2014.08.19 use automatic deallocation,      deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz

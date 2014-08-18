@@ -16,9 +16,11 @@
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
-      use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
-     &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
-     &   mpi__ranktab,MPI__consoleout
+      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
+     &   mpi__Qtask,MPI__InitializeQSPBM,MPI__Finalize,mpi__root,
+     &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,mpi__rank,mpi__size,
+     &   mpi__Qranktab,MPI__consoleout,mpi__Ss,mpi__Se, mpi__allreducesumS,
+     &   mpi__barrier, mpi__rankQ,mpi__rootQ,mpi__rootS
       implicit none
 !!     Calculate W-V for QSGW mode.
 c     use m_spacegrouprot,only: Spacegrouprot
@@ -127,8 +129,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ifw0w0i
       logical :: readw0w0i,symmetrize,eibzmode
       real(8):: schi=-9999 !dummy
+
+      integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
+
 !-------------------------------------------------------------------------
-      call MPI__Initialize()
+      call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
 !TIME0 
 !TIME0 
@@ -661,7 +666,8 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
          goto 1191
       endif
 
-      call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+      call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
+      call MPI__hx0fp0_rankdivider2S(nspinmx)
 !TIME1 "before 1001 loop"
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
@@ -671,11 +677,15 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
       iqinit=.true.
+      write(*,'(i5,a,10L5)')mpi__rank,'debug,allocated(mpi__qtask)',allocated(mpi__qtask)
+      write(*,'(i5,a,10i5)')mpi__rank,'debug,mpi__qtask',mpi__qtask
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
-         if( .not. mpi__task(iq) ) cycle
+         if( .not. mpi__Qtask(iq) ) cycle
 !TIME0 
+         if (mpi__rootS) then
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
+         endif
          call cputid (0)
          q = qibze(:,iq)
          call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) ! q was qq
@@ -765,7 +775,10 @@ c$$$  endif
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
 !TIME1 "before 1003 loop"
-         do 1003 is = 1,nspinmx
+!         do 1003 is = 1,nspinmx
+          write(*,'(i5,a,2i5)')mpi__rank,'kino spin loop',mpi__Se,mpi__Ss,-1
+!kino         do 1003 is = mpi__Ss,mpi__Se
+         do 1003 is = mpi__Se,mpi__Ss, -1
 !TIME0 
             write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
      &           iq, is, nqibz + nq0i,nspin
@@ -829,6 +842,7 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
                if(debug) print *,' nbnbx=',nbnbx
                allocate(  n1b(nbnbx,nqbz,npm)
      &              ,n2b(nbnbx,nqbz,npm))
+               n1b=0; n2b=0 
                do jpm=1,npm
                   call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx,
      o                 n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
@@ -878,6 +892,7 @@ Cstop2rx 2013.08.09 kino            if(frhis(1)/=0d0) stop ' hx0fp0: we assume f
             write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
             allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
+            ihw=0; nhw=0; jhw=0
             jhwtot = 1
             do jpm =1,npm
                do ik   = 1,nqbz
@@ -970,7 +985,63 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
             print *, ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             iqeibz=iq
-            symmetrize=(is==nspinmx)
+            !symmetrize=(is==nspinmx)
+            symmetrize=.false.
+            write(*,'(a,2i5,2E20.10)')'kino: ppb checksum',iq,is,sum(ppb(:,is))
+            write(*,'(a,2i5,2E20.10)')'kino: ppovlz checksum',iq,is,sum(ppovlz)
+            write(*,'(a,2i5,2E20.10)')'kino: ppovl checksum',iq,is,sum(ppovl)
+            write(*,'(a,2i5,2E20.10)')'kino: zcousq checksum',iq,is,sum(zcousq)
+            write(*,'(a,2i5,2I20)')'kino: nwgt checksum',iq,is,sum(nwgt(:,iqeibz))
+            write(*,'(a,2i5,2I20)')'kino: igx checksum',iq,is,sum(igx(:,:,iqeibz))
+            write(*,'(a,2i5,2I20)')'kino: igxt checksum',iq,is,sum(igxt(:,:,iqeibz))
+            write(*,'(a,2i5,2E20.10)')'kino: eibzsym checksum',iq,is,sum(eibzsym(:,:,iqeibz))
+            write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_before_x0k',iq,is,sum(rcxq)
+            write(*,'(a,2i5,2E20.10)')'kino: qbas checksum',iq,is,sum(qbas)
+            write(*,'(a,2i5,2E20.10)')'kino: ginv checksum',iq,is,sum(ginv)
+            write(*,'(a,2i5,2E20.10)')'kino: qbz checksum',iq,is,sum(qbz)
+            write(*,'(a,2i5,2E20.10)')'kino: wbz checksum',iq,is,sum(wbz)
+            write(*,'(a,2i5,2I20)')'kino: n1b checksum',iq,is,sum(n1b)
+            write(*,'(a,2i5,2I20)')'kino: n2b checksum',iq,is,sum(n2b)
+            write(*,'(a,2i5,2I20)')'kino: nbnb checksum',iq,is,sum(nbnb)
+            write(*,'(a,2i5,2I20)')'kino: ihw checksum',iq,is,sum(ihw)
+            write(*,'(a,2i5,2I20)')'kino: nhw checksum',iq,is,sum(nhw)
+            write(*,'(a,2i5,2I20)')'kino: jhw checksum',iq,is,sum(jhw)
+            write(*,'(a,2i5,2E20.10)')'kino: whw checksum',iq,is,sum(whw)
+            write(*,*)'write constants to file.999'
+            write(1000+iq*10+is,*) npm,ncc,
+     i           'phase1',
+     i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i           'phase2',
+     i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+     i           'phase3',
+     i           q,
+     i           nspin,is,isf, symmetrize, !
+     i           'phase4',
+     i           qbas,ginv,  qbz,wbz,
+     i           'phase5',
+     i           nblocha ,nlnm,nlnmv,nlnmc,iclass,
+     i           'phase6',
+     i           ppb(1,is),
+     i           'phase7',
+     i           icore,ncore,
+     i           'phase8',
+     d           nlmto,nqbz,noccx,noccxv,
+     i           'phase9',
+     d           nl,nclass,natom,nnc,
+     i           'phase10',
+     d           nlnmx,mdimx,nbloch,  nwhis,
+     i           'phase11',
+     i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i           'phase12',
+     i           nqbze,nband,nqibz,
+     i           'phase13',
+     i           nolfco,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
+     i           'phase14',
+     i           chipm,eibzmode,  !z1offd,
+     i           'phase15',
+     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz)
+
+
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
@@ -992,6 +1063,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             print *,' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
 
+        write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_after_x0kf=',iq,is,sum(rcxq)
 
 c===========Check write mode4 block ixc==4 ============6ini
 ccccccccccccccccccfaleev 21May02 ixc==4 not used
@@ -1034,6 +1106,42 @@ c===========Check write mode4 block end  ==============6end
  1003       continue;print *, 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
 c=======================================================================
+
+            is=1 ! dummy
+            symmetrize=.true.
+            call x0kf_v4hz(npm,ncc,   
+     i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+     i           q,  
+     i           nspin,is,isf, symmetrize, !
+     i           qbas,ginv,  qbz,wbz, 
+     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i           ppb(1,is), 
+     i           icore,ncore,
+     d           nlmto,nqbz,noccx,noccxv,
+     d           nl,nclass,natom,nnc,
+     d           nlnmx,mdimx,nbloch,  nwhis,
+     i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i           nqbze,nband,nqibz, 
+     o           rcxq,          ! rcxq is the accumulating variable for spins 
+     i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
+     i           chipm,eibzmode,  !z1offd,
+     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+            write(*,'(a,2i5,2E20.10)')'kino: rcxq checksum_after_symme',iq,is,sum(rcxq)
+
+! reduction rcxq in the S-axis
+            write(*,*) 'MPI__AllreduceSumS start'
+            do i_reduction_npm=1,npm
+              do i_reduction_nwhis=1,nwhis
+                do i_reduction_nmbas2=1,nmbas2
+                    call MPI__AllreduceSumS(
+     .              rcxq(1,i_reduction_nmbas2,i_reduction_nwhis,i_reduction_npm), nmbas1)
+                enddo
+              enddo
+            enddo
+            write(*,*) 'MPI__AllreduceSumS end'
+            write(*,'(i5,a,i5,2E20.10)') mpi__rank,'rcxq checksum=',iq,sum(rcxq)
+
 !TIME0 
 
 !! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
@@ -1170,7 +1278,9 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      zw(1:ngb,1:ngb) = zw0
 !TIME1  "after zw=zw0"
 !TIME0
+                     if (mpi__rootS)then
                      write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
+                     endif
                      call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 !TIME1 "end of tr_chkwrite"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1327,7 +1437,9 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
                      if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
 
                      zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
+                     if (mpi__rootS) then
                      write(ifrcwi, rec= iw)  zw !  WP = vsc-v
+                     endif
                      call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
                   endif
 cmmm  3
@@ -1394,8 +1506,10 @@ c     1002 continue  ! end of frequency block-loop
             if(allocated(zxq )) deallocate(zxq)
             if(allocated(zxqi)) deallocate(zxqi)
 
+            if (mpi__rootS) then
             ifrcwi = iclose('WVI.'//charnum5(iq))
             ifrcw  = iclose('WVR.'//charnum5(iq))
+            endif
 !!  
  1001    continue
 c============end of loop over q point =================================
@@ -1412,8 +1526,8 @@ CYY!$OMP master
             do iq=nqibz+1,iqxend
                iq0 = iq - nqibz
 c     print *,' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
-               if(mpi__ranktab(iq)/=0) then !jan2012
-               if(mpi__ranktab(iq) == mpi__rank) then
+               if(mpi__Qranktab(iq)/=0) then !jan2012
+               if(mpi__Qranktab(iq) == mpi__rankQ) then
 c     print *,' mpi_send iq from',iq,mpi__ranktab(iq)
 c     print *,' send llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
 c     do i=nw_i,nw
@@ -1421,13 +1535,13 @@ c     write(*,*)'sendxxx',i,llw(i,iq0)
 c     enddo   
 c     print *,' send llwI sum=',sum(abs(llwI(:,iq0))),niw
                   dest=0
-                  call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
-                  call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
-               elseif(mpi__root) then
+                  call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
+                  call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+               elseif(mpi__rootQ) then
 c     print *,' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
-                  src=mpi__ranktab(iq)
-                  call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
-                  call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
+                  src=mpi__Qranktab(iq)
+                  call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
+                  call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
 c     do i=nw_i,nw
 c     write(*,*)'recivxxx',i,llw(i,iq0)
 c     enddo   
@@ -1440,6 +1554,8 @@ c     print *,' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
          print *,' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
 CYY!$OMP end master
 CYY!$OMP end parallel 
+         write(*,*) mpi__rank,'llw checksum=',sum(llw)
+         write(*,*) mpi__rank,'llwI checksum=',sum(llwI)
 
 !TIME1 "end eeeeeee"
 

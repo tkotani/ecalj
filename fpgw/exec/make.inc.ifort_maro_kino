@@ -4,24 +4,15 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -fc=ifort -132  -mcmodel=medium -heap-arrays 0 
+FC = mpif90 -fc=ifort -132  -mcmodel=medium -heap-arrays 0  -traceback 
 
 
 #(2) CPP SWITCHES ###################
 CPPSWITCH_INTELLINUXIFC  = \
 -DEXPAND_ISWAP  -DEXPAND_VDV   -DCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
 -DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION     -UCOMMENTOUTfor_PARALLEL \
--DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=1     -DEXPAND_SORTEA
+-DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=1     -DEXPAND_SORTEA -DUSE_GEMM_FOR_SUM
 
-#CPPSWITCH_DECALPHA  = \
-#-DEXPAND_ISWAP  -DEXPAND_VDV   -UCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
-#-DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION     -UCOMMENTOUTfor_PARALLEL \
-#-DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=4     -DEXPAND_SORTEA
-
-#CPPSWITCH_SR8K = \
-#-DEXPAND_ISWAP  -DEXPAND_VDV   -UCOMMONLL  -DDUMMY_ETIME  -DEXPAND_MELPLN2 \
-#-DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION      -DCOMMENTOUTfor_PARALLEL \
-#-DMbytes_X0KBLAS_DIV=1024     -DNWORD_RECORDSIZE=1      -DEXPAND_SORTEA
 
 
 #(3) Compilar options ###################
@@ -47,7 +38,7 @@ tet5_g = .o
 
 #(4) BLAS + LAPACK ############
 
-LKFLAGS2= -lfftw3 /usr/lib/libscalapack-openmpi.so.1 /usr/lib/libblacs-openmpi.so.1.1   -mkl:parallel 
+LKFLAGS2= -L$(HOME)/fftw333/lib -lfftw3 -mkl 
 
 
 

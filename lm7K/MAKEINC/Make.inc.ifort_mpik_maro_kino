@@ -4,7 +4,7 @@
 # directories, should point at this root directory.
 #
 
-LIBLOC = -lfftw3 -mkl:parallel
+LIBLOC = -L$(HOME)/fftw333/lib -lfftw3 -mkl:parallel
 
 
 ############################################

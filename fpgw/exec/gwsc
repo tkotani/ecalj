@@ -1,4 +1,4 @@
-#!/bin/tcsh 
+#!/bin/tcsh  -x
 # --------------------------------
 # self-consistent GW itteration using MPI.
 #---------------------------------
@@ -18,6 +18,8 @@ set nfpgw = ${n:h}
 set TARGET=$argv[4]
 set MPI_SIZE=$argv[3]
 set ITER=$argv[1]
+
+set lx0_para_option='-nq 2 -ns 2'
 
 #cray 
 #set echo_run="aprun"
@@ -334,8 +336,8 @@ endif
 #>>>
 set argin=11
 $echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|  $mpi_run $nfpgw/hx0fp0_sc > lx0 " 
-$mpi_run $nfpgw/hx0fp0_sc < _IN_ > lx0 
+$echo_run echo "  $echo_run echo $argin|  $mpi_run $nfpgw/hx0fp0_sc $lx0_para_option > lx0 " 
+$mpi_run $nfpgw/hx0fp0_sc $lx0_para_option < _IN_ > lx0 
   if ( $? != 0 )  then
     $echo_run echo Error in hx0fp0_sc input=11 output=lx0
     exit 10
