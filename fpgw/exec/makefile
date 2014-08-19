@@ -17,7 +17,7 @@ main    = ../main/
 nfpsrc  = ../nfpsrc/
 slatsmlib  = ../slatsmlib/
 tote = ../tote/
-maxloc = ../Miyake/maxloc/
+#maxloc = ../Miyake/maxloc/
 # tag directory
 tags   = ../
 
@@ -56,10 +56,10 @@ cleanall:
 # When you recompile and link, just repeat 'make' (not necessary to repeat 'make init').
 # When checkmodule recompile source, you have to repeat 'make'.
 init:
-	exec ./checkmodule ../*/*.F ../Miyake/*/*.F
+	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F
 
 checkmod:
-	exec ./checkmodule ../*/*.F ../Miyake/*/*.F 
+	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F
 #../../lm7K/subs/m_hamindex.F
 
 

@@ -48,7 +48,6 @@ include slatsm/make.inc
 include subs/make.inc
 include fp/make.inc
 
-
 #################################
 .PHONY:  progs clean cleanbin cleanall veryclean distclean check checkgw install \
 libs slatsm-dir subs-dir fp-dir mod-dir slatsm-lib subs-lib fp-lib
@@ -83,7 +82,12 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 #fp-lib: fp-dir subs-lib
 
 
+# initialization to check dependency of modules
 
+moduledepends.inc:
+	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F FPLOTdir/*.F
+moduledepends.$(PLATFORM).inc: moduledepends.inc
+	sed -e 's/\//\/$(obj_path)\//g' moduledepends.inc >moduledepends.$(PLATFORM).inc
 
 ########################################
 # general rules
@@ -122,6 +126,9 @@ fp-dir:
 $(fp_obj_path)/%.o: fp/%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
+
+#subs/obj.gfortran/m_rdctrl.o:subs/obj.gfortran/m_gtv.o
+
 ###############################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
@@ -142,6 +149,7 @@ $(fp_obj_path)/%.o: fp/%.F
 
 #include Make.mod.dependency
 include MAKEINC/Make.inc.$(PLATFORM)
+include moduledepends.$(PLATFORM).inc
 #include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
 
 ############################################
