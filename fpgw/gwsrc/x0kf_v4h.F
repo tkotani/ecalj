@@ -785,6 +785,12 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
  5000 continue
 !! === zmelt conversion === 
+
+      if(nolfco .and. nmbas==1) then
+         print *,' nmbas=1 nolfco=T ---> not need to symmetrize'
+         goto 9999
+      endif
+
       if(eibzmode.and.symmetrize) then
 
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005

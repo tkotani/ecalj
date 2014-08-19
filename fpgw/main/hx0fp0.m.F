@@ -712,6 +712,8 @@ Cstop2rx 2013.08.09 kino      if(noccxv>nband) stop 'hx0fp0: all the bands fille
 
 C --- write energy mesh ---
       ifemesh = iopen('emesh.hx0fp0',1,-1,0)
+      if (.not.realomega) then; allocate(freq_r(nwp)); freq_r=0.0d0; endif
+      if (.not.imagomega) then; allocate(freq_i(niw)); freq_i=0.0d0; endif
       call writeemesh(ifemesh,freq_i,niw,freq_r,nwp,delta)
 
 C ... ppb
@@ -1635,7 +1637,8 @@ c          endif
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
           write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
           call cputid(0)
-          symmetrize=(is==nspinmx)
+!kino 2014-08-19 kino          symmetrize=(is==nspinmx)
+          symmetrize=.false.
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -1654,6 +1657,31 @@ c          endif
      i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
+
+
+!kino 2014-08-19 add
+          if (is==nspinmx) then 
+          symmetrize=.true.
+          call x0kf_v4hz(npm,ncc,
+     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+     i              q,
+     i              nspin,is,isf, symmetrize, !
+     i              qbas,ginv,  qbz,wbz,
+     i              nblocha ,nlnm,nlnmv,nlnmc,iclass,
+     i              ppb(1,is),
+     i              icore,ncore,
+     d            nlmto,nqbz,noccx,noccxv,
+     d            nl,nclass,natom,nnc,
+     d            nlnmx,mdimx,nbloch,  nwhis,
+     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i    nqbze,nband,nqibz,
+     o    rcxq,   !  rcxq is the accumulating variable for spins
+     i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
+     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
+          endif
+
 
 c$$$ccccccccccccccccccc
 c$$$          if(nolfco.and.z1offd.and.nmbas1==2) then
