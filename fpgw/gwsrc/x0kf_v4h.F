@@ -185,6 +185,8 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
 #ifdef USE_GEMM_FOR_SUM
       complex(8),allocatable :: zmelt_tmp(:,:,:)
 #endif
+      complex(8),allocatable:: rcxq_core(:,:)
+!$    integer:: omp_get_num_threads
 
       if (symmetrize) goto 5000
 
@@ -692,7 +694,7 @@ c$$$  endif
 !$OMP parallel private(imagweight) 
 !$OMP master
 !$        if (jpm.eq.1 .and. ibib.eq.nbnb(k,1)) then 
-!$          write(*,*) 'OMP: parallel '
+!$          write(*,'(a,i5,a,i5)') 'OMP parallel iw', omp_get_num_threads(),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-ihw(ibib,k,jpm)
 !$        endif
 !$OMP end master
 !$OMP do 
@@ -918,10 +920,10 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
             endif
           enddo
         enddo
-!TIME0
         exit
  1011   continue !only when nrotmx overflow.
 !KINO        write(*,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
+!TIME0
 
 
 !! === main part to obtain symmetrized rcxq  ===
@@ -929,9 +931,12 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !!      rcxq is rotated and accumulated; finally divied by neibz
         zcousqc=dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
-!kino 2014-08-13  !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0)
-        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
-!kino 2014-08-13  !$OMP do 
+!$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
+        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
+!$OMP master
+!$         write(*,'(a,i5,a,i5)') 'OMP parallel nwt',omp_get_num_threads(),' nwt=',nwt
+!$OMP end master
+!$OMP do 
         do iw=1,nwt
         do jpm=1,npm
           rcxq000 = 0d0
@@ -1022,16 +1027,26 @@ c$$$           endif
                rcxq000=rcxq000+rcxq00
             endif   
           enddo
+#if 1
+! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
+! It looks that ifort 14.0.3 has a bug
+! But, zgemm works. So I changed like that. 
+          rcxq_core = rcxq000/neibz
+          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq,ngb, (0.0d0,0.0d0),rcxq000,ngb)
+          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
+          rcxq(:,:,iw,jpm) = rcxq_core 
+#else
           rcxq(:,:,iw,jpm) = rcxq000/neibz
 ccccccccccccccccccc
           rcxq(:,:,iw,jpm) = matmul(rcxq(:,:,iw,jpm),zcousq)
           rcxq(:,:,iw,jpm) = matmul(zcousqc,rcxq(:,:,iw,jpm))
+#endif
 ccccccccccccccccccc
         enddo
         enddo
-!kino 2014-08-13  !$OMP end  do 
+!$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
-!kino 2014-08-13  !$OMP end parallel 
+!$OMP end parallel 
 !TIME1 "after sym rcxq"
         deallocate(zrotm,i1,i2)
 

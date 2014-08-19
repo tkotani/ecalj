@@ -4,7 +4,7 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -fc=ifort -132  -mcmodel=medium -heap-arrays 0  -traceback 
+FC = mpif90  -fc=ifort 
 
 
 #(2) CPP SWITCHES ###################
@@ -17,7 +17,7 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 #(3) Compilar options ###################
 #
-FFLAGS=-O1 -cpp $(CPPSWITCH_INTELLINUXIFC)
+FFLAGS=-openmp -132  -mcmodel=medium -heap-arrays 0  -traceback   -O1 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
 #
 ### Don't change para_g = .o ... below (or modify it if you know how this work) 
