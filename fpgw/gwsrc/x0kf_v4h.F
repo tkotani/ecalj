@@ -694,7 +694,8 @@ c$$$  endif
 !$OMP parallel private(imagweight) 
 !$OMP master
 !$        if (jpm.eq.1 .and. ibib.eq.nbnb(k,1)) then 
-!$          write(*,'(a,i5,a,i5)') 'OMP parallel iw', omp_get_num_threads(),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-ihw(ibib,k,jpm)
+!$          write(*,'(a,i5,a,i5)') 'OMP parallel iw, threads=', omp_get_num_threads(),
+!$   .     ' nw=',ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-ihw(ibib,k,jpm)
 !$        endif
 !$OMP end master
 !$OMP do 
@@ -934,7 +935,7 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !$OMP master
-!$         write(*,'(a,i5,a,i5)') 'OMP parallel nwt',omp_get_num_threads(),' nwt=',nwt
+!$         write(*,'(a,i5,a,i5)') 'OMP parallel nwt, threads=',omp_get_num_threads(),' nwt=',nwt
 !$OMP end master
 !$OMP do 
         do iw=1,nwt

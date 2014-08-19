@@ -163,8 +163,8 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
-!           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
-            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
+           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
+!            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
            endif 
          enddo
       end subroutine print_realtimediff
