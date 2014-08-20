@@ -1,4 +1,4 @@
-#!/bin/tcsh  -x
+#!/bin/tcsh  
 # --------------------------------
 # self-consistent GW itteration using MPI.
 #---------------------------------
