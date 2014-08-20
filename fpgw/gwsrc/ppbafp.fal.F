@@ -713,6 +713,8 @@ c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlin
 #ifdef USE_GEMM_FOR_SUM
       complex(8),allocatable:: z2(:,:)
 #endif
+!$    integer::omp_get_num_threads
+
 c------------------------------
 cc getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
 cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
@@ -795,7 +797,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       if(verbose()>=100) print *,' melpln2t: godo igp1 loop'
       allocate(ggitp(ntp0,ngcgp2))
       ggitp = 0d0
+!$OMP parallel private(nn,iggg)
       do igp1  = 1,ngp1   !for ngp1
+!$OMP do
       do igcgp2= 1,ngcgp2 !for ngc+ngp2 
          nn = ngvecp1(:,igp1)- nvgcgp2(:,igcgp2) - nadd 
          ! G1 -(Gc+G2) - Gadd !  -Gadd= -rk + qt -q_rk
@@ -811,6 +815,7 @@ c         print *,'iggg=',iggg,nggg
          call zaxpy(ntp0,ggg(iggg), geigq1(igp1,1),ngp1, ggitp(1,igcgp2),1)
       enddo
       enddo
+!$OMP end parallel 
 !TIME1 "end of ggitp loop"
 !TIME0
       if(verbose()>=100) print *,' melpln2t: 11111111'
@@ -835,7 +840,6 @@ c         print *,'iggg=',iggg,nggg
         phase(igc)=exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) )
       enddo  
 !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
-      allocate(ggitp_(ngp2,ngcgp2))
       allocate(zmelp0(ngc,nt0,ntp0))
       zmelp0=0d0
       if(verbose()>=100) print *,' melpln2t: 33333333'
@@ -844,7 +848,13 @@ c         print *,'iggg=',iggg,nggg
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
 #ifdef USE_GEMM_FOR_SUM
       write(*,*)'info: USE GEMM FOR SUM (zmelp0=geigq2*ggitp_) in ppbafp.fal.F'
+!$OMP parallel private(z2,ggitp_,igcgp2,nn)
+!$OMP master
+!$    write(*,*)'OMP parallel ',omp_get_num_threads()
+!$OMP end master
       allocate(z2(ngc,nt0))
+      allocate(ggitp_(ngp2,ngcgp2))
+!$OMP do 
       do itp= 1,ntp0
       do igc=1,ngc
          do igp2=1,ngp2
@@ -857,7 +867,8 @@ c         print *,'iggg=',iggg,nggg
      &        z2,ngc)
          zmelp0(:,:,itp)= z2
       enddo
-      deallocate(z2)
+      deallocate(z2,ggitp_)
+!$OMP end parallel 
 #else
       do igc=1,ngc
       do itp= 1,ntp0
@@ -895,7 +906,8 @@ c$$$            enddo
 c$$$         enddo
 c$$$      enddo
       if(verbose()>=100) print *,' melpln2t: 4444444444'
-      deallocate(ngveccR,phase,ggitp_)
+!kino 2014-08-20      deallocate(ngveccR,phase,ggitp_)
+      deallocate(ngveccR,phase)
 c      print *,'pppppppp',shape(ppovlinv),sum(abs(ppovlinv))
 c      print *,'pppppppp',shape(zmelp0),sum(abs(zmelp0))
 c      print *,'pppppppp',ngc,ntp0*nt0
