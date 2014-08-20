@@ -678,7 +678,7 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! ---------------------------------------------------------------
       iqinit=.true.
       write(*,'(i5,a,10L5)')mpi__rank,'debug,allocated(mpi__qtask)',allocated(mpi__qtask)
-      write(*,'(i5,a,10i5)')mpi__rank,'debug,mpi__qtask',mpi__qtask
+      write(*,'(i5,a,10L5)')mpi__rank,'debug,mpi__qtask',mpi__qtask
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
          if( .not. mpi__Qtask(iq) ) cycle
 !TIME0 
