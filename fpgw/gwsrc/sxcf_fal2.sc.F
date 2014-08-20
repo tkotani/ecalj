@@ -2082,8 +2082,10 @@ c     this contribution to zsec_nn is real (hermitean)
 c                        allocate(zwz4(ntqxx,3)) !itpp
                         zwz4=(0d0,0d0)
 CYY!$OMP parallel do private(ix,zz2)
+!$OMP parallel private(ix,zz2)
                         do ix0=1,3
                            ix=ixs+ix0-2
+!$OMP do reduction(+:zwz4)
                            do igb2=1,ngb !**** most time consuming part for iSigma_en=3 ******
                              zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iir*ix)  )
 cc sep2013t cccccccccccccccccccccccccccccccccccccccc
@@ -2099,6 +2101,7 @@ c                            zwz4(1:ntqxx,ix0)=zwz4(1:ntqxx,ix0)+ zz2*zmel1_(1:n
                              call zaxpy(ntqxx,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
                            enddo !igb2
                         enddo   !ix
+!$OMP end parallel
 c                        allocate(zwz44(3,ntqxx))
                         zwz44 = transpose(zwz4)
 c                        deallocate(zwz4)
