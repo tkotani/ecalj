@@ -103,7 +103,7 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
       integer:: npm ,jpm,ncc,nw_i
       real(8)   :: frr !, sciss
       logical :: newaniso,newaniso2 !,z1offd
-      integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x
+      integer :: ngb0,ifvcoud,idummy,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x !ifepstinv,
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:),eemat(:,:),zcousq0(:,:)
       real(8),allocatable:: vcousq(:),vcousq0(:),vcoudummy(:)
       real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
@@ -1115,11 +1115,11 @@ c=======================================================================
 !! prepare for iq0.
                iq0 = iq - nqibz
                if(newaniso2) then
-                 if( iq==1 ) then 
-                    write(*,*)'open EPS0inv mpi=',mpi__rank 
-                   ifepstinv = iopen('EPS0inv',0,-1,0)
-                   write(ifepstinv) ngb
-                 endif  
+c$$$                 if( iq==1 ) then 
+c$$$                    write(*,*)'open EPS0inv mpi=',mpi__rank 
+c$$$                   ifepstinv = iopen('EPS0inv',0,-1,0)
+c$$$                   write(ifepstinv) ngb
+c$$$                 endif  
                  if(iqinit) then
                    allocate( sk(ngb,nwmin:nwmax,nq0i),  sks(ngb,nwmin:nwmax,nq0i) )
                    allocate( skI(ngb,niw,nq0i), sksI(ngb,niw,nq0i))
@@ -1213,7 +1213,7 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                            if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                         enddo
                      enddo
-                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+c$$$                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
                      zw(1:ngb,1:ngb) = zw0
 !TIME1  "after zw=zw0"
 !TIME0
@@ -1373,7 +1373,7 @@ c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
                            if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
                         enddo
                      enddo
-                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
+c$$$                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
 
                      zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
                      if (mpi__rootS) then
@@ -1431,7 +1431,7 @@ c     call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nb
 c     endif
  1016          continue
                if(newaniso2) then
-                 if(iq==1) ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
+c$$$                 if(iq==1) ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
                  deallocate(epstinv)
                  if(allocated(epstilde)) deallocate(epstilde)
                endif
