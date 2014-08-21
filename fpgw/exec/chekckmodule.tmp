@@ -1,6 +1,0 @@
-../gwsrc/ppbafp.fal.F:c      use m_read_ppovl,only: getppx2,getppx,
-../gwsrc/ppbafp.fal.F:      use m_read_ppovl,only: getppx2,
-../gwsrc/ppbafp.fal.F:!! allocate and return foobar decleared in use m_read_ppovl,only: foobar
-../gwsrc/time_ppbafp.fal.F:c      use m_read_ppovl,only: getppx2,getppx,
-../gwsrc/time_ppbafp.fal.F:      use m_read_ppovl,only: getppx2,
-../gwsrc/time_ppbafp.fal.F:!! allocate and return foobar decleared in use m_read_ppovl,only: foobar
