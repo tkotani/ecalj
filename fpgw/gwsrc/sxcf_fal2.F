@@ -1143,7 +1143,7 @@ cooo
             enddo
           enddo
 #endif
-          write(*,*)'kino, zmel checksum=',sum(zmel)
+!KINO          write(*,*)'kino, zmel checksum=',sum(zmel)
         endif
 
         deallocate(rmelt,cmelt)

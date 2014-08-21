@@ -1211,7 +1211,7 @@ c     zmelt2 =  sum( zmel(:,it,itpp) *ppovlz(:,ivc) )
 !kino 2014-08-13  !$OMP end do 
 !kino 2014-08-13  !$OMP end parallel 
 #endif
-                     write(*,*)'kino: w3p checksum=',sum(w3p)
+!KINO                     write(*,*)'kino: w3p checksum=',sum(w3p)
                      deallocate(zmeltt)
                   else
 !kino 2014-08-13  !$OMP parallel do 
@@ -1327,7 +1327,7 @@ cKINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
                      enddo
                   enddo
 #endif
-                  write(*,*)'kino: zmel checksum=',sum(zmel)
+!KINO                  write(*,*)'kino: zmel checksum=',sum(zmel)
 !kino 2014-08-13  !$OMP end do nowait 
 !kino 2014-08-13  !$OMP end parallel
                endif  

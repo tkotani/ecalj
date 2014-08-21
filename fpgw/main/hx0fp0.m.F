@@ -727,8 +727,11 @@ C ... This is just to get nblochpmx
       endif
 
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+      if (mpi__root) then
       ifwd   = iopen('WV.d',1,-1,0)
       write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
+      ifwd = iclose('WV.d'); ifwd=0
+      endif
       allocate(  zw(nblochpmx,nblochpmx) )
       if(debug) print *,' xxx1a2:'
       nspinmx = nspin

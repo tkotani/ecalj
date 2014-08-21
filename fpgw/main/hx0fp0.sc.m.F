@@ -533,9 +533,12 @@ C...  This is just to get nblochpmx
 !TIME1 "before open WVd"
 !TIME0
 C     --- open WV* files
+      if (mpi__root)then
       ifwd   = iopen('WV.d',1,-1,0)
       write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
      &     nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
+      ifwd = iclose('WV.d'); ifwd=0
+      endif
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
 !TIME1 "after write ifwd"

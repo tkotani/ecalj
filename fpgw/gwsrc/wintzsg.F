@@ -697,7 +697,7 @@ c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
           enddo
         enddo
 #endif
-        write(*,*)'kino:zwz checksum=',sum(zwz)
+!KINO        write(*,*)'kino:zwz checksum=',sum(zwz)
       else
 Cstop2rx 2013.08.09 kino        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
         call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
