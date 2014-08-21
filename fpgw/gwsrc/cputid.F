@@ -98,7 +98,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       implicit none
       integer,parameter:: nmax=10000
       integer:: i1(nmax)=nmax*0 
-      character(30):: msg(nmax)=''
+      character(80):: msg(nmax)=''
       real(8):: elapse(nmax)=nmax*0.0d0
       real(8):: start(nmax)=nmax*0.0d0
       end module m_realtimediff
@@ -113,14 +113,13 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       integer::mode
       real(8):: diff
       integer:: i2,imax
-      character(20):: errmsg
 #define USEMPIWTIME 
 #ifdef USEMPIWTIME
       real(8):: mpi_wtime
 
       if (id<=0 .or. id>nmax) then 
-          write(errmsg,"(2i5)") id,nmax
-          call rx('fatal error, id<=0 or id>nmax, id,nmax='//trim(errmsg))
+          write(6,*)'fatal error, id<=0 or id>nmax, id,nmax=', id,nmax
+          stop 
       endif
 
       mode=0
@@ -163,8 +162,8 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
-           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
-!            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
+!           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
+            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
            endif 
          enddo
       end subroutine print_realtimediff
