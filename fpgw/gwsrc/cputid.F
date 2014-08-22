@@ -50,8 +50,10 @@ c     cpusec   = mclock()/100.d0 - cpu0
 c     return
 c     end
 c----------------------------------------------------------------------
+#define REALTIME
       subroutine cputid(ifile)
-      implicit real*8(a-h,o-z)
+      implicit none
+      include 'mpif.h'
 c cpu time in seconds and minutes for RISC IBM: mclock()/100 (secs)
 c                     for HP: secnds(0.0)
 c                        DEC: etime(etw)
@@ -59,15 +61,39 @@ c ifile = file number where the cpu time information is
 c         to be printed
 c ifile = 0 ==> screen
       real*4 cpuetime, etw(2),cpulast, etime
-      data cpu0 /-1.d0/
+      real*4 cpu0 /-1.d0/
       save cpu0
       character*(*):: message
+      real(4):: cpusec,cpumax,cpumin
+      integer:: ierr,rank ,ifile
+#ifdef REALTIME
+      logical,save::firsttime=1
+      integer,save::i1
+      integer:: i2,irate,imax
+      real(4)::diff
+#endif
 Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
+#ifdef REALTIME
+      if (firsttime) then 
+         call system_clock(i1)
+         firsttime=.false.
+         cpusec=0.0d0
+         cpumin=0.0d0
+      else
+         call system_clock(i2,irate,imax)
+         diff=i2-i1
+         if (diff<0) diff=imax-i1+i2
+         diff=diff/dble(irate)
+         cpusec=diff
+         cpumin=cpusec/60.d0
+      endif
+#else
       cpuetime = etime(etw)
       if (cpu0 .lt. 0.d0) cpu0 = cpuetime
       cpusec   = cpuetime - cpu0
       cpumin   = cpusec/60.d0
+#endif
       if(ifile .eq. 0)then
         write(*,6400)cpusec,cpumin
       else
@@ -79,16 +105,62 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       entry cputid2(message,ifile)
 Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
+#ifdef REALTIME
+      if (firsttime) then 
+         call system_clock(i1)
+         firsttime=.false.
+         cpusec=0.0d0
+         cpumin=0.0d0
+      else
+         call system_clock(i2,irate,imax)
+         diff=i2-i1
+         if (diff<0) diff=imax-i1+i2
+         diff=diff/dble(irate)
+         cpusec=diff
+         cpumin=cpusec/60.d0
+      endif
+#else
       cpuetime = etime(etw)
       if (cpu0 .lt. 0.d0) cpu0 = cpuetime
       cpusec   = cpuetime - cpu0
       cpumin   = cpusec/60.d0
+#endif
       if(ifile .eq. 0)then
         write(*,6401)trim(message),cpusec,cpumin
       else
         write(ifile,6401)trim(message),cpusec,cpumin
       end if
  6401 format(a,' CPU= ',f12.4,' secs',f7.1,' mins')
+
+
+      entry mpi_cputid2(message,ifile)
+Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
+      if(ifile .lt. 0)call rx( 'cputid: negative unit number')
+      if (firsttime) then
+         call system_clock(i1)
+         firsttime=.false.
+         cpusec=0.0d0
+      else
+         call system_clock(i2,irate,imax)
+         diff=i2-i1
+         if (diff<0) diff=imax-i1+i2
+         diff=diff/dble(irate)
+         cpusec=diff
+      endif
+
+      call mpi_comm_rank(MPI_COMM_WORLD,rank,ierr)
+      call mpi_reduce(cpusec,cpumax,1,MPI_REAL4,MPI_MAX,0,MPI_COMM_WORLD,ierr)
+      call mpi_reduce(cpusec,cpumin,1,MPI_REAL4,MPI_MIN,0,MPI_COMM_WORLD,ierr)
+
+      if (rank.eq.0) then 
+      if(ifile .eq. 0)then
+        write(*,6402)trim(message),cpumax,cpumax/60.0d0 , cpumin,cpumin/60.0d0
+      else
+        write(ifile,6402)trim(message),cpumax,cpumax/60.d0, cpumin,cpumin/60.d0
+      end if
+      endif
+ 6402 format(a,', realtime nodeMAX=',f12.4,' secs (',f7.1,' mins), MIN=',f12.4,' secs (',f7.1,' mins)')
+
       return
       end
 
@@ -98,7 +170,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       implicit none
       integer,parameter:: nmax=10000
       integer:: i1(nmax)=nmax*0 
-      character(80):: msg(nmax)=''
+      character(30):: msg(nmax)=''
       real(8):: elapse(nmax)=nmax*0.0d0
       real(8):: start(nmax)=nmax*0.0d0
       end module m_realtimediff
@@ -113,13 +185,14 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       integer::mode
       real(8):: diff
       integer:: i2,imax
+      character(20):: errmsg
 #define USEMPIWTIME 
 #ifdef USEMPIWTIME
       real(8):: mpi_wtime
 
       if (id<=0 .or. id>nmax) then 
-          write(6,*)'fatal error, id<=0 or id>nmax, id,nmax=', id,nmax
-          stop 
+          write(errmsg,"(2i5)") id,nmax
+          call rx('fatal error, id<=0 or id>nmax, id,nmax='//trim(errmsg))
       endif
 
       mode=0
@@ -150,7 +223,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       end subroutine realtimediff
 
       subroutine print_realtimediff()
-      use m_mpi
+!      use m_mpi
       use m_realtimediff
       implicit none
       integer:: i,j,isize
@@ -162,8 +235,8 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
            do j=1,30
              if (str(j:j).eq.' ') str(j:j)='_'
            enddo
-!           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
-            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
+           write(6,'(a,i4,1x,a,1x,F10.2,1x,a,1x,i5,1x,a)')'timediff,id=',i,'('//trim(str)//')',elapse(i),'sec' ,i1(i),'times'
+!            write(6,*)'timediff,id=',i,trim(str),elapse(i),'sec', i1(i),'times'
            endif 
          enddo
       end subroutine print_realtimediff
