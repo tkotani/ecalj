@@ -366,7 +366,7 @@ Cstop2rx 2013.08.09 kino         if(tetra) stop 'legas You have to give ef of  t
          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
       endif
 
-      ifexsp=0
+c      ifexsp=0
       if(ixc==1) then
          exchange=.true.
          write(6,*) ' --- Exchange mode --- '
@@ -380,15 +380,15 @@ Cstop2rx 2013.08.09 kino         if(tetra) stop 'legas You have to give ef of  t
                ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
             endif
          endif
-         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
-         if(exspwrite) then
-            print *,'--- Find EXspTEST ExspectrumWrite=',exspwrite
-            print *,'--- esmr is chosen to be 2d0 Ry'
-            esmr= 2d0
-            do is=1,nspin
-               ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
-            enddo
-         endif
+c         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
+c         if(exspwrite) then
+c            print *,'--- Find EXspTEST ExspectrumWrite=',exspwrite
+c            print *,'--- esmr is chosen to be 2d0 Ry'
+c            esmr= 2d0
+c            do is=1,nspin
+c               ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
+c            enddo
+c         endif
       elseif(ixc==2) then
          exchange=.false.
          write(6,*) ' --- Correlation mode --- '
@@ -1420,91 +1420,91 @@ Cstop2rx 2013.08.09 kino               if(tiii) stop 'timereversal is not yet im
 !TIME1 "before 2000 continue"
  2000 continue                  !end of spin-loop
 
-!TIME0 
-!!   --- EXspectrum ----------------------------------------------------
-c     This section is similar with efsimplef.f
-      if(sum(ifexsp(1:nspin))/=0) then
-         do is = 1,nspin
-            print *,' --- Goto ExSpectrum section --- is=',is
-            rewind (ifexsp(is))
-            itmx = 0
-            do
-               read(ifexsp(is),*,end=1215)ipex,itpex,itex,qqex(1:3), eex,exsp
-               if(itex>itmx) itmx=itex
-            enddo
- 1215       continue
-            nspexmx = itmx*(nqbz+nq0i*ngrp) !Get marimum value of the number of the ex spectrum
-c     
-            allocate( eex1(nspexmx,ntq,nq), exsp1(nspexmx,ntq,nq),
-     &           nspex(ntq,nq) ,
-     &           itex1(nspexmx,ntq,nq),
-     &           qqex1(3,nspexmx,ntq,nq) )
-            print *,' nspexmx =',nspexmx
-c     
-            rewind (ifexsp(is))
-            nspex = 0
-            do
-               read(ifexsp(is),*,end=1216) ipex,itpex,itex,qqex(1:3),eex,exsp
-               nspex(itpex,ipex) = nspex(itpex,ipex)+1
-               iex  = nspex(itpex,ipex)
-               eex1  (iex,itpex,ipex) = eex
-               exsp1 (iex,itpex,ipex) = exsp
-               itex1 (iex,itpex,ipex) = itex
-               qqex1(:,iex,itpex,ipex)= qqex
-            enddo
- 1216       continue            !Get eex1(1:nspex) exsp1(1:nspex) for itp ip.
-            print *,' nspex(1 1)=',nspex(1,1)
-c     
-            do ipex = 1,nq
-               do itpex=1,ntq
-                  write(6,*)' is itq ip =',is,itq,ip
-                  nnex = nspex(itpex,ipex)
-                  allocate( ieord(1:nnex) )
-                  call sortea( eex1(1:nnex,itpex,ipex),ieord, nnex,isig)
-                  eex1 (1:nnex,itpex,ipex)  = eex1  (ieord(1:nnex),itpex,ipex)
-                  exsp1 (1:nnex,itpex,ipex) = exsp1 (ieord(1:nnex),itpex,ipex)
-                  itex1 (1:nnex,itpex,ipex) = itex1 (ieord(1:nnex),itpex,ipex)
-                  qqex1(:,1:nnex,itpex,ipex)= qqex1 (:,ieord(1:nnex),itpex,ipex)
-
-                  filenameex = 'EXSP'//charnum3(ipex)//charnum3(itpex)
-     &                 //'.'//char(48+is)
-                  ifexspx=4111
-                  open(ifexspx,file=filenameex)
-
-                  filenameex = 'EXSS'//charnum3(ipex)//charnum3(itpex)
-     &                 //'.'//char(48+is)
-                  ifexspxx=4112
-                  open(ifexspxx,file=filenameex)
-
-                  do i=1,nnex
-                     write(ifexspx, "(2d14.6, i4, 3f14.6)")
-     &                    eex1  (i,itpex,ipex), exsp1 (i,itpex,ipex),
-     &                    itex1 (i,itpex,ipex), qqex1 (1:3,i,itpex,ipex)
-                  enddo
-c     
-                  eee  =-1d99
-                  exwgt= 0d0
-                  do i=1,nnex
-                     if(eex1(i,itpex,ipex) > eee+1d-4 .or. i==nnex) then
-                        if(i/=1) write(ifexspxx, "(2d23.15)")
-     &                       eee, exwgt*hartree
-                        eee  = eex1(i,itpex,ipex)
-                        exwgt= exsp1 (i,itpex,ipex)
-                     else
-                        exwgt= exwgt + exsp1 (i,itpex,ipex)
-                     endif
-                  enddo
-c     
-                  deallocate( ieord )
-                  close(ifexspx)
-                  close(ifexspxx)
-               enddo
-            enddo
-            deallocate( eex1, exsp1, nspex, itex1, qqex1 )
-         enddo
-         print *,' End of ExSpectrum section ---'
-      endif
-!TIME1 "end of exspectrum"
+c$$$!TIME0 
+c$$$!!   --- EXspectrum ----------------------------------------------------
+c$$$c     This section is similar with efsimplef.f
+c$$$      if(sum(ifexsp(1:nspin))/=0) then
+c$$$         do is = 1,nspin
+c$$$            print *,' --- Goto ExSpectrum section --- is=',is
+c$$$            rewind (ifexsp(is))
+c$$$            itmx = 0
+c$$$            do
+c$$$               read(ifexsp(is),*,end=1215)ipex,itpex,itex,qqex(1:3), eex,exsp
+c$$$               if(itex>itmx) itmx=itex
+c$$$            enddo
+c$$$ 1215       continue
+c$$$            nspexmx = itmx*(nqbz+nq0i*ngrp) !Get marimum value of the number of the ex spectrum
+c$$$c     
+c$$$            allocate( eex1(nspexmx,ntq,nq), exsp1(nspexmx,ntq,nq),
+c$$$     &           nspex(ntq,nq) ,
+c$$$     &           itex1(nspexmx,ntq,nq),
+c$$$     &           qqex1(3,nspexmx,ntq,nq) )
+c$$$            print *,' nspexmx =',nspexmx
+c$$$c     
+c$$$            rewind (ifexsp(is))
+c$$$            nspex = 0
+c$$$            do
+c$$$               read(ifexsp(is),*,end=1216) ipex,itpex,itex,qqex(1:3),eex,exsp
+c$$$               nspex(itpex,ipex) = nspex(itpex,ipex)+1
+c$$$               iex  = nspex(itpex,ipex)
+c$$$               eex1  (iex,itpex,ipex) = eex
+c$$$               exsp1 (iex,itpex,ipex) = exsp
+c$$$               itex1 (iex,itpex,ipex) = itex
+c$$$               qqex1(:,iex,itpex,ipex)= qqex
+c$$$            enddo
+c$$$ 1216       continue            !Get eex1(1:nspex) exsp1(1:nspex) for itp ip.
+c$$$            print *,' nspex(1 1)=',nspex(1,1)
+c$$$c     
+c$$$            do ipex = 1,nq
+c$$$               do itpex=1,ntq
+c$$$                  write(6,*)' is itq ip =',is,itq,ip
+c$$$                  nnex = nspex(itpex,ipex)
+c$$$                  allocate( ieord(1:nnex) )
+c$$$                  call sortea( eex1(1:nnex,itpex,ipex),ieord, nnex,isig)
+c$$$                  eex1 (1:nnex,itpex,ipex)  = eex1  (ieord(1:nnex),itpex,ipex)
+c$$$                  exsp1 (1:nnex,itpex,ipex) = exsp1 (ieord(1:nnex),itpex,ipex)
+c$$$                  itex1 (1:nnex,itpex,ipex) = itex1 (ieord(1:nnex),itpex,ipex)
+c$$$                  qqex1(:,1:nnex,itpex,ipex)= qqex1 (:,ieord(1:nnex),itpex,ipex)
+c$$$
+c$$$                  filenameex = 'EXSP'//charnum3(ipex)//charnum3(itpex)
+c$$$     &                 //'.'//char(48+is)
+c$$$                  ifexspx=4111
+c$$$                  open(ifexspx,file=filenameex)
+c$$$
+c$$$                  filenameex = 'EXSS'//charnum3(ipex)//charnum3(itpex)
+c$$$     &                 //'.'//char(48+is)
+c$$$                  ifexspxx=4112
+c$$$                  open(ifexspxx,file=filenameex)
+c$$$
+c$$$                  do i=1,nnex
+c$$$                     write(ifexspx, "(2d14.6, i4, 3f14.6)")
+c$$$     &                    eex1  (i,itpex,ipex), exsp1 (i,itpex,ipex),
+c$$$     &                    itex1 (i,itpex,ipex), qqex1 (1:3,i,itpex,ipex)
+c$$$                  enddo
+c$$$c     
+c$$$                  eee  =-1d99
+c$$$                  exwgt= 0d0
+c$$$                  do i=1,nnex
+c$$$                     if(eex1(i,itpex,ipex) > eee+1d-4 .or. i==nnex) then
+c$$$                        if(i/=1) write(ifexspxx, "(2d23.15)")
+c$$$     &                       eee, exwgt*hartree
+c$$$                        eee  = eex1(i,itpex,ipex)
+c$$$                        exwgt= exsp1 (i,itpex,ipex)
+c$$$                     else
+c$$$                        exwgt= exwgt + exsp1 (i,itpex,ipex)
+c$$$                     endif
+c$$$                  enddo
+c$$$c     
+c$$$                  deallocate( ieord )
+c$$$                  close(ifexspx)
+c$$$                  close(ifexspxx)
+c$$$               enddo
+c$$$            enddo
+c$$$            deallocate( eex1, exsp1, nspex, itex1, qqex1 )
+c$$$         enddo
+c$$$         print *,' End of ExSpectrum section ---'
+c$$$      endif
+c$$$!TIME1 "end of exspectrum"
 !TIME1 "end program"
 !TIMESHOW 
       isx = iclose ('wc.d')
@@ -1512,11 +1512,8 @@ c
       isx = iclose ('hbe.d')
       call cputid(0)
       call MPI__Finalize 
-Cstop2rx 2013.08.09 kino      if(ixc==1 ) stop ' OK! hsfp0_sc: Exchange mode'
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
-Cstop2rx 2013.08.09 kino      if(ixc==2 ) stop ' OK! hsfp0_sc: Correlation mode'
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
-Cstop2rx 2013.08.09 kino      if(ixc==3 ) stop ' OK! hsfp0_sc: Core-exchange mode'
       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
       end program hsfp0_sc 
 

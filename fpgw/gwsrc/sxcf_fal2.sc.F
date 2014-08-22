@@ -1232,16 +1232,17 @@ c sep2013t a test:c  if(itpp>ntqxxd .and.itp/=itpp) cycle
                      deallocate(z1p)
                   endif  
                   deallocate(zmel)
-!!-- Write the Spectrum function for exchange May. 2001
-                  if(ifexsp/=0) then
-                     do it  = 1, nctot+nbmax
-                        do itp = 1,ntqxx
-                           write(ifexsp,"(3i4, 3f12.4, ' ',d23.15,'  ',d23.15)")
-     &                          ip,itp,it, qbz_kr, ekc(it), -wtt*dreal(w3p(it,itp,itp))
-                        enddo
-                     enddo
-                  endif
-!TIME1 "end of write ifsexsp"
+c$$$!!-- Write the Spectrum function for exchange May. 2001
+c$$$                  if(ifexsp/=0) then
+c$$$                     do it  = 1, nctot+nbmax
+c$$$                        do itp = 1,ntqxx
+c$$$                           write(ifexsp,"(3i4, 3f12.4, ' ',d23.15,'  ',d23.15)")
+c$$$     &                          ip,itp,it, qbz_kr, ekc(it), -wtt*dreal(w3p(it,itp,itp))
+c$$$                        enddo
+c$$$                     enddo
+c$$$                  endif
+c$$$!TIME1 "end of write ifsexsp"
+!TIME1 "end of w3p newaniso"
 !TIME0 
                   if(debug) then
                      do  it  = 1,nctot+nbmax
