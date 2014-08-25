@@ -1,1 +1,102 @@
-Make.inc.ifort.cmd
+FC = ifort    # compilar
+LK = ifort    # linker
+LIBLOC= -mkl  # math library BLAS+Lapak+FFTW
+
+FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 -mcmodel=medium -heap-arrays 100
+#-g -traceback
+
+FFLAGS = -O1 -xHost $(FFLAGS_COMMON)
+FFLAGS_LESS =  -O1 -xHost $(FFLAGS_COMMON) 
+FFLAGS_LESS2 =  -O1 -xHost  $(FFLAGS_COMMON)
+FFLAGS_LESS3 =  -O0  $(FFLAGS_COMMON)
+FFLAGS_NONE =  -O0 $(FFLAGS_COMMON)
+
+#--- debug
+#FFLAGS =     -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS2 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_LESS3 =  -g -traceback  $(FFLAGS_COMMON)
+#FFLAGS_NONE =  -g -traceback  $(FFLAGS_COMMON)
+
+
+# -heap-array puts automatic and temporary arrays on the heap instead of stack
+# -mcmodel=medium uses data area beyound 2GB. 
+
+
+######################################################
+# you don't need to touch following lines usually
+######################################################
+
+result_fc_version =$(shell head -1 .fc_version)
+
+make_fc_version:
+	rm -f .fc_version
+	-export LANG=C; ${FC} -v 2> .fc_version
+
+# where is modules?
+moddir = MODDIR/$(obj_path)
+module = -module $(moddir)
+
+##############################################
+# CPP switches (instead of old ccomp procedure
+##############################################
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT
+
+
+# ############################################
+# ### Patches for intel ifc ##################
+# ############################################
+# $(sla_obj_path)/huntx.o:slatsm/huntx.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(sla_obj_path)/hunti.o: slatsm/hunti.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(sla_obj_path)/polcof.o: slatsm/polcof.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(sla_obj_path)/rdfiln.o: slatsm/rdfiln.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(subs_obj_path)/ropbes.o: subs/ropbes.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(subs_obj_path)/ropyln.o: subs/ropyln.F
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(subs_obj_path)/xcpbe.o: subs/xcpbe.F90
+# 	$(FC) $(FFLAGS_LESS) -c $< -o $@
+# $(subs_obj_path)/spcgrp.o  : subs/spcgrp.F
+# 	$(FC) $(FFLAGS_LESS) -c $< -o $@
+# $(subs_obj_path)/m_toksw.o : subs/m_toksw.F 
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
+# $(subs_obj_path)/m_rdctrl.o : subs/m_rdctrl.F
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
+# $(subs_obj_path)/m_rdctrlchk.o : subs/m_rdctrlchk.F
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
+# $(subs_obj_path)/m_struc_def.o : subs/m_struc_def.F 
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
+# $(fp_obj_path)/rhogkl.o  : fp/rhogkl.F
+# 	$(FC) $(FFLAGS_LESS) -c $< -o $@
+
+################################################
+# archiver (maybe fixed).
+################################################
+AR := ar
+ARFLAGS := rv
+RANLIB := ranlib
+
+################################################
+# program and libraries (choose one of sections; normal, MPI, or MPIK)
+################################################
+programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
+SUBS   := libsubs.a
+FP     := libfp.a
+SLATSM := slatsm.a
+
+### path to libraries (fixed) #########
+LIBSUBS := subs/$(SUBS)
+LIBFP   := fp/$(FP)
+LIBSLA  := slatsm/$(SLATSM)
+
+subs/$(SUBS):$(subs_obj)
+	$(AR) $(ARFLAGS) $@ $(subs_obj)
+fp/$(FP): $(fp_obj)
+	$(AR) $(ARFLAGS) $@ $(fp_obj)
+slatsm/$(SLATSM): $(sla_obj)
+	$(AR) $(ARFLAGS) $@ $(sla_obj)
+
