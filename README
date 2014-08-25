@@ -149,6 +149,10 @@ This just copy required files (binaries and scripts) to your ~/bin.
 (check it in Makefile). If you don't like to copy them to your ~/bin,
 replace ~/bin to a directory you like, at the bottom of Makefile.
 
+(For CMD workshop participants: rum
+ >make PLATFORM=ifort.cmd 
+ which corresponds to MAKEINC/Make.inc.ifort.cmd)
+
 ------------
 (2) make MPI LDA part.
 lmf-MPIK and lmfgw-MPIK are needed for gwsc. These are k-point
@@ -174,17 +178,24 @@ In advance, you have to make your bin, and add ~/bin to  your path
 
 ---------------------
 (3) Installation for fpgw/
-At ecalj/fpgw/exec/ directory, you have to edit make.inc.
+At ecalj/fpgw/exec/ directory, you have to a softlink make.inc such as
+>lrwxrwxrwx 1 takao takao 17 Aug 25 13:18 make.inc -> make.inc.gfortran
 
-Default make.inc is gfortran, and 
->cp make.inc.ifort make.inc 
-may work for ifort.
+For each machine you have to prepare your own make.inc.foobar 
+(There are samples. Here is the case of make.inc.ifort.cmd), 
+and do
+>ln -s make.inc.ifort.cmd make.inc
+to make a soft like make.inc -> make.inc.cmd
+(Q. What is soft link foo -> bar? 
+ A. foo is an alias of bar).
 
-(NOTE: we often see Segmentation fault due to stacksize limit (See by
+[NOTE: we often see Segmentation fault due to stacksize limit (See by
 a command "ulimit -a"). It is needed to run "ulimit -s unimited" 
 in the qsub script or before running GW jobs. 
-Or probably -heap-arrays for ifort may rescue this problem, I am not sure.)
- 
+The compilar option of ifort "-heap-arrays 100" try to allocate
+automatic array more than 100KB not at stack but at heap (thus
+requires less stacks.]
+
 Then you have to run 
 >make
 >make install
