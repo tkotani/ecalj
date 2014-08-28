@@ -97,7 +97,7 @@ NFPLtot  = $(nfpsrc)diagcv2.o
 
 GW0tot = \
 $(gwsrc)m_hamindex.o\
-$(gwsrc)MPI_fpgw.o \
+$(gwsrc)MPI_fpgw2.o \
 $(gwsrc)alloclist.o \
 $(gwsrc)rwbzdata.o \
 $(gwsrc)keyvalue.o \
@@ -414,7 +414,7 @@ eout2: $(EO2)
 
  GW0 = \
  $(gwsrc)m_hamindex.o\
- $(gwsrc)MPI_fpgw.o \
+ $(gwsrc)MPI_fpgw2.o \
  $(gwsrc)alloclist.o \
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
@@ -760,7 +760,7 @@ all_tm:	$(progs_tm)
 
  GW0tm = \
  $(gwsrc)m_hamindex.o\
- $(gwsrc)MPI_fpgw.o \
+ $(gwsrc)MPI_fpgw2.o \
  $(gwsrc)alloclist.o \
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
