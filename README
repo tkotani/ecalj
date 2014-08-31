@@ -125,9 +125,14 @@ There are several MAKEINC/Make.inc.ifort*
 (not _mpik*) with which we installed to machines. 
 You can choose one of them or you can set your own Make.inc.ifort.*
 (compilar, compilar options, math library).
-I think "make PLATFORM=ifort" works well for ifort. But you may need
-to add -heap-arrays 1 (for large calculations. Because we use large
-stacksize; but I am not so sure about this).
+I think "make PLATFORM=ifort" works well for ifort. 
+
+But you may need to add -heap-arrays 1 
+(Because we use large stacksize; but I am not so sure about this.
+ In a case, -heap-arrays option did not generate working binaries.
+ However, I think "ulimit -s unlimited" before QSGW calculations and
+ so on works OK. So, maybe we don't need -heap-arrays option.)
+LIBMATH=-lmkl works (including BLAS+LAPACK+FFTW) for latest ifort.
 
 For other cases, run "make PLATFORM=foobar" where foobar can be ifort
 or something else. foobar corresponds to an include file 
@@ -140,8 +145,8 @@ Current ecalj with gfortran4.6 or 4.7 works fine with FFLAGS=-O2, but failed wit
 
 Parallel make like
 >make -j24 PLATFORM=gfortran
-may speed it up for multicore machines(24 core in this case). 
-But it stops because of dependency is not well-described in current Makefile. 
+can speed it up for multicore machines(24 core in this case). 
+But it stops because of dependency is not well-described in our current Makefile. 
 In such case, repeat it a few times, or repeat it without -j24.
 
 Finally do "make PLATFORM=gfortran install"
@@ -149,9 +154,10 @@ This just copy required files (binaries and scripts) to your ~/bin.
 (check it in Makefile). If you don't like to copy them to your ~/bin,
 replace ~/bin to a directory you like, at the bottom of Makefile.
 
-(For CMD workshop participants: rum
+(For CMD workshop participants: run
  >make PLATFORM=ifort.cmd 
- which corresponds to MAKEINC/Make.inc.ifort.cmd)
+ which corresponds to MAKEINC/Make.inc.ifort.cmd
+ We did not set "-heap-array 100" option since it give not working binaries.)
 
 ------------
 (2) make MPI LDA part.
@@ -163,6 +169,10 @@ Then Makefile uses ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik is used.
 You may need to add -heap-arrays 1 (for large calculations. Because we
 use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpi, but I
 am not so sure about this.
+
+(For CMD workshop participants: run
+ >make PLATFORM=ifort_mpik.cmd 
+ which corresponds to MAKEINC/Make.inc.ifort_mpik.cmd)
 
 Clean up:
 If something wrong. do "make clean" or "make cleanall" and start over.
@@ -187,14 +197,7 @@ and do
 >ln -s make.inc.ifort.cmd make.inc
 to make a soft like make.inc -> make.inc.cmd
 (Q. What is soft link foo -> bar? 
- A. foo is an alias of bar).
-
-[NOTE: we often see Segmentation fault due to stacksize limit (See by
-a command "ulimit -a"). It is needed to run "ulimit -s unimited" 
-in the qsub script or before running GW jobs. 
-The compilar option of ifort "-heap-arrays 100" try to allocate
-automatic array more than 100KB not at stack but at heap (thus
-requires less stacks.]
+ A. "foo" is an alias of the file "bar").
 
 Then you have to run 
 >make
@@ -203,6 +206,13 @@ Then you have to run
 Before this, you have to set blas and lapack in fpge/exec/make.inc.
 (for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
 "make install" copy requied files to your ~/bin.
+
+
+[Caution!: we often see "Segmentation fault"due to stacksize limit 
+(See the size by a command "ulimit -a"). 
+It is needed to run "ulimit -s unimited" in the job-submition script 
+or before running GW jobs. ]
+
 
 -----------------------
 (4) Install test
@@ -213,8 +223,8 @@ To test all of binaries, just do
 >make all
 . All tests will require ~10min.  (nio_gwsc takes ~300sec)
 In cases, nio_gwsc fails. 
-However, as long as the difference is small,
-not need to care its fail sign. (a minor bug in test).
+However, as long as the difference is small enough,
+we do not need to care its failure sign. (so nio_gwsc test must be improved...).
 
 As the help of make (no arguments), shows
 >make lmall
