@@ -1,1 +1,1 @@
-make.inc.gfortran
+make.inc.ifort.cmd

@@ -3,7 +3,8 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -132 -xHost -mcmodel=medium -heap-arrays 100
+FC = mpif90 -132 -xHost -mcmodel=medium 
+#-heap-arrays 100
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.

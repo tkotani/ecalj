@@ -39,24 +39,24 @@ else
 endif 
 
 
-##########################################
-set ixx=0
-@ ix = $ixx
+# ##########################################
+# set ixx=0
+# @ ix = $ixx
 
-### self-consistent calculation with given sigma ###
-echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
-if($ix == 0 ) then
-  if(-e sigm.$TARGET) then
-    echo " we have sigm already, skip iter=0"
-    continue
-  endif   
-  echo "No sigm ---> LDA caculation for eigenfunctions "
-#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
-###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_lda
-###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_lda 
-#>>>
+# ### self-consistent calculation with given sigma ###
+# echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
+# if($ix == 0 ) then
+#   if(-e sigm.$TARGET) then
+#     echo " we have sigm already, skip iter=0"
+#     continue
+#   endif   
+#   echo "No sigm ---> LDA caculation for eigenfunctions "
+# #  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
+# ###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_lda
+# ###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_lda 
+# #>>>
 
-echo "        Start  mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda " 
+echo "  Start mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda " 
 rm -f llmf
 $nfpgw/lmfa $TARGET >llmfa
 mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda 
@@ -65,9 +65,9 @@ mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_lda
     exit 10
   endif
 #<<<
-echo -n 'OK! --> Start'
-  cp rst.$TARGET rst.$TARGET.lda
-else
+#echo -n 'OK! --> Start'
+#  cp rst.$TARGET rst.$TARGET.lda
+#else
 ###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
 ###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf 
 #>>>
@@ -104,6 +104,7 @@ echo -n 'OK! --> Start'
 ###make_ref.awk echo 1 |$nfpgw/qg4gw           > lqg4gw
 ###ref2cmd.awk %CMD program=qg4gw echoinput=1  output=lqg4gw 
 #>>>
+
 set argin=1
 echo $argin > _IN_
 echo "  echo $argin|$nfpgw/qg4gw > lqg4gw " 
@@ -114,6 +115,7 @@ $nfpgw/qg4gw  < _IN_ > lqg4gw
   endif
 #<<<
 echo -n 'OK! --> Start'
+
 
 #echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
 ###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
@@ -128,6 +130,8 @@ mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  $TARGET < _IN_ > llmfgw01
     exit 10
   endif
 #<<<
+
+
 echo -n 'OK! --> Start'
 #set exinfo = $?
 #if($exinfo == 0 ) then
@@ -165,9 +169,9 @@ $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw_v2
 #<<<
 echo -n 'OK! --> Start'
 
-if($ix == 0) then
-  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
-endif
+#if($ix == 0) then
+#  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
+#endif
 
 if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond. Unused recently
 
