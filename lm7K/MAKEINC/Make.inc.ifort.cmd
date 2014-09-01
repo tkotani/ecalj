@@ -2,7 +2,7 @@ FC = ifort    # compilar
 LK = ifort    # linker
 LIBLOC= -mkl  # math library BLAS+Lapak+FFTW
 
-FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 -mcmodel=medium
+FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 -mcmodel=medium -heap-arrays 0
 #-g -traceback
 
 FFLAGS = -O2 -xHost $(FFLAGS_COMMON)

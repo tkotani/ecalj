@@ -2,7 +2,7 @@ FC = mpif90 #compilar
 LK = mpif90 #linker
 LIBLOC= -mkl  # math library BLAS+Lapak+FFTW
 
-FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 -mcmodel=medium
+FFLAGS_COMMON= -cpp $(CPP_SW) $(module) -132 -mcmodel=medium -heap-arrays 0
 FFLAGS = -O2 -xHost $(FFLAGS_COMMON)
 FFLAGS_LESS =  -O1 -xHost $(FFLAGS_COMMON) 
 FFLAGS_LESS2 =  -O1 -xHost  $(FFLAGS_COMMON)
