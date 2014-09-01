@@ -2,7 +2,7 @@
 %\documentclass[a4paper]{jsarticle}
 \usepackage{graphicx}	% required for `\includegraphics' (yatex added)
 \author{Takao Kotani}
-\title{ecalj --- Get statrted (feb2014)} 
+\title{ecalj --- Get statrted} 
 \usepackage{setspace}
 \usepackage{hyperref}
 \setstretch{1.1}
@@ -17,8 +17,9 @@
 \section{Introduction}
 The \ecalj\ is an first-principles electronic 
 structure calculations package in the DFT and GW. It has some unique features.
-Especially, we can perform the quasiparticle self-consistent GW (QSGW) \cite{kotani2007a}
-calculations based on the PMT method (=the Linearized APW+MTO method). 
+Especially, we can perform the quasiparticle self-consistent GW (QSGW) 
+calculations based on the PMT method (=the Linearized APW+MTO method)
+\cite{kotani_quasiparticle_2014,kotani2007a}. 
 We name this the PMT-QSGW. 
 Introduction to PMT-QSGW is given in Sec.\ref{sec:fecalj}. 
 %We can easily plot energy band dispersion curve in QSGW in 
@@ -49,8 +50,8 @@ multi cores. Current implementation for parallelization by MPI is limited
 (not so much especially for the dielectric funciton part yet). 
 So, probably, it is not so efficient to use multiple nodes
 simultaneously now. 
-We also have a web site at \url{http://pmt.sakura.ne.jp/wiki/}, 
-(most of all are in Japanese and not organized well).
+%We also have a web site at \url{http://pmt.sakura.ne.jp/wiki/}, 
+%(most of all are in Japanese and not organized well).
 We expect you to clarify acknowledgment to \texttt{ecalj} 
 in your publications.
 
@@ -72,6 +73,7 @@ we may need to be careful about initial condition or mixing procedure
 to get convergence. In cases, we need to start from LDA+U results as initial
 condition from which we start QSGW. Let me know about such trouble.}.
 
+ 
 This document shows minimum about how to plot energy band,
 density of states, and partial dos after we perform the LDA/QSGW
 calculations.
@@ -1208,6 +1210,14 @@ If not converged well, you may need to repeat
 
 %\section{calculation of dielectric function}
 %  eps mode.
+
+\section{new features}
+Wannier functions(under development). 
+Recently T.Kotani includes the Wannier function generator, 
+which was originally developed by T.Miyake and H.Kino on top of 
+previous version of ecalj. Thus the Wannier functions (including
+effective interactions) can be generated in the PMT-QSGW.  
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
