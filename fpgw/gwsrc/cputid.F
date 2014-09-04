@@ -131,7 +131,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
         write(ifile,6401)trim(message),cpusec,cpumin
       end if
  6401 format(a,' CPU= ',f12.4,' secs',f7.1,' mins')
-
+      return
 
       entry mpi_cputid2(message,ifile)
 Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
