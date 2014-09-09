@@ -638,7 +638,7 @@ c-------------------------------------------------------------------
       complex(8), allocatable :: CC(:,:,:)
 #ifdef USE_GEMM_FOR_SUM
       complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
-      integer:: ivc
+      integer:: ivc,verbose
 #endif
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
@@ -665,7 +665,7 @@ c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
         enddo
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
 #ifdef USE_GEMM_FOR_SUM
-        write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
+        if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
         allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
         do  it = 1, nstate
           do  itp = 1, ntq

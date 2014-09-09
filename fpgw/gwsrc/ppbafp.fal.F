@@ -847,7 +847,7 @@ c         print *,'iggg=',iggg,nggg
 !TIME0
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
 #ifdef USE_GEMM_FOR_SUM
-      write(*,*)'info: USE GEMM FOR SUM (zmelp0=geigq2*ggitp_) in ppbafp.fal.F'
+      if(verbose()>39) write(*,*)'info: USE GEMM FOR SUM (zmelp0=geigq2*ggitp_) in ppbafp.fal.F'
 !$OMP parallel private(z2,ggitp_,igcgp2,nn)
 !$OMP master
 !$    write(*,*)'OMP parallel ',omp_get_num_threads()

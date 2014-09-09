@@ -485,7 +485,7 @@ c           if(newanisox) then   !.and.iq==1) then
         endif
 !! :: zmelt conversion muplitpled by zzr.
 #ifdef USE_GEMM_FOR_SUM
-       write(*,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
+       if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
           allocate( zmelt_tmp(ngb,nctot+nt0,ncc+ntp0) )
           call zcopy(ngb*(nctot+nt0)*(ncc+ntp0),zmelt,1,zmelt_tmp,1)
           call zgemm('T','N',ngb,(nctot+nt0)*(ncc+ntp0),ngb,(1d0,0d0),

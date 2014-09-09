@@ -1127,7 +1127,7 @@ c--- The matrix elements zmel.
 c        print *,'ddddddddddddd original like mode ddddddddddddddddd'
         if(newaniso()) then
 #ifdef USE_GEMM_FOR_SUM
-          write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz), in sxcf_fal2.F'
+          if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz), in sxcf_fal2.F'
           allocate( zmelt (ngb, nstate) )
           do itp=1,ntp0
           zmelt = dcmplx(rmelt(:,:,itp),-cmelt(:,:,itp))

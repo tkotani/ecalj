@@ -1136,15 +1136,17 @@ ccccccccccccccccccccccccccccc
 c                    write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
                      allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
 #ifdef USE_GEMM_FOR_SUM
+                     if(verbose()>39) then
                      write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
                      write(*,*)'zgemmsize',ntqxx*(nctot+nbmax),ngb,ngb
                      write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
                      write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
                      write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
+                     endif
 		     call flush(6)	
                      call zgemm('T','N',ntqxx*(nctot+nbmax),ngb,ngb,(1d0,0d0),
      .                    zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,ntqxx*(nctot+nbmax) )
-                     write(*,*)'phase1'
+                     if(verbose()>39) write(*,*)'phase1'
                      vc = vcoud(1)  ! save vcoud(1)
                      if (kx == iqini) vcoud(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
                      allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
@@ -1158,7 +1160,7 @@ c                    write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nct
 C              Straight inline
               call zgemm('N','C',ntqxx,ntqxx,ngb,(1d0,0d0),z1r,ntqxx,
      .          z2r,ntqxx,(0d0,0d0),w3pi,ntqxx)
-                     write(*,*)'phase2'
+                     if(verbose()>39) write(*,*)'phase2'
 C              call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
 C             Faster, but harder to parallelize
 !                        call zqsmpy(11,'N','C',ntqxx,ngb,z1r,ntqxx,z2r,ntqxx,
@@ -1169,7 +1171,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                               w3p(it,itp,itpp) = w3pi(itp,itpp)
                            enddo
                         enddo
-                     write(*,*)'phase3'
+                     if(verbose()>39)write(*,*)'phase3'
                      enddo
                      vcoud(1) = vc
                      deallocate(z1r,z2r,w3pi)
@@ -1315,7 +1317,7 @@ cKINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
 !kino 2014-08-13  !$OMP parallel 
 !kino 2014-08-13  !$OMP do 
 #ifdef USE_GEMM_FOR_SUM
-                  write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz) in sxcf_fal2.sc.F'
+                  if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz) in sxcf_fal2.sc.F'
                   allocate(zmeltt(ngb, nstate, ntqxx))
                   zmeltt= dcmplx (rmelt,-cmelt)
                   call zgemm('C','N',ngb,nstate*ntqxx,ngb,(1d0,0d0),

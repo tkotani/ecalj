@@ -19,6 +19,10 @@
       integer:: i,iadd
       integer(8):: total,isize
       logical:: idone
+cccccccccccccccccccc
+      integer verbose
+      if (verbose()<40) return
+ccccccccccccccccccc
 
       isize=int8(ik)*isi
       iadd=0
@@ -63,7 +67,10 @@
       character(*),intent(in):: name
       integer:: i,idel
       integer(8):: total,isize
- 
+cccccccccccccccccccc
+      integer verbose
+      if (verbose()<40) return
+ccccccccccccccccccc
       idel=0
       do i=var_total,1,-1
           if (name.eq.var_name(i)) then
