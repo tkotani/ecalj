@@ -222,9 +222,11 @@ It shows help about how to do test.
 To test all of binaries, just do
 >make all
 . All tests will require ~10min.  (nio_gwsc takes ~300sec)
-In cases, nio_gwsc fails. 
-However, as long as the difference is small enough,
-we do not need to care its failure sign. (so nio_gwsc test must be improved...).
+In cases, nio_gwsc fails, showing
+ >FAILED: nio_gwsc QPU compared by ./bin/dqpu
+ >PASSED: nio_gwsc diffnum
+However, we do not need to care its failure sign. (so nio_gwsc test
+must be improved...). (numerically small differences).
 
 As the help of make (no arguments), shows
 >make lmall
@@ -372,7 +374,7 @@ May19.2014
 
 
 #####################################################
-Usage problems, Q&A
+Usage problems, Q&A error message.
 
 1.Bandplot for FSMOMMETHOD/=0 
 Even when you use FSMMOMMETHOD/=0 in GWinput for gwsc, 
@@ -415,10 +417,11 @@ E.g. try RSRNGE=8 for Ni...
       deviation seems nonzero. But charge should be conserved from the
       next iteration.
 
-6. Not converged. --->help
+6. Not converged in metal. --->mixing may help
 For example, if you try metal such as Bi2Sr2CuO6, it may fail at LDA/GGA level.
 Then use ITER MIX=A2,b=.2. or something (.2 means it only mix 20% of output to give
-new input for next iteration). Then I see convergence.
+new input for next iteration). Then I see convergence. (b is the
+mixing parameter.
 
 7. Use PZ or not.
    If spillout of core is not so small (more then 0.05 or something.),
@@ -429,8 +432,22 @@ new input for next iteration). Then I see convergence.
   See 10.1103/PhysRevB.76.165106 (Eq.35 and after).
   Now I usually not use CORE2 (CORE1 only).
 
+9. ERROR EXIT! rgwina: 2nd wrong l valence
+   This may be because you use wrong GWinput.
+   Back it up. And run mkGWIN_lmf2 (any n1 n2 n3 is fine).
+
+10. Known bug.
+    Error occurs when system is anisotroic such as CuAlTe2. 
+    Temporary fix is "Add token NPWPAD=100 in HAM category".
+    (guess of used APW fails (more than expected)).
+    CuAlTe2,CuGaTe2 cases.
+
+11. Known bug
+    a little unstable when metal GGA, especially when we have large
+    empty regions.
+
 ==========================================
-9. Wanneir Branch now under developing (imported from T.Miyake's Wannier code and H.Kino's).
+Wanneir Branch now under developing (imported from T.Miyake's Wannier code and H.Kino's).
    A. make at ecalj/fpgw/Wannier/ directory, and do make, and make install. 
       (need to check Makefile first). You first have to install fpgw/exec/ in advance.
    B. Samples are at these directories. 
@@ -452,6 +469,8 @@ new input for next iteration). Then I see convergence.
 Anyway, documentaion on Wannier is on the way half.
 Time consuming part (and also the advantage) is for effective interaction in RPA.
 Look into the shell script genMLWF; you can skip last part if you don't need the effective interaction.
+
+
 
 
 ######## MEMO for developers: ####################################
@@ -513,3 +532,25 @@ ecalj PDOS sigm_fbz is required.
  Need to make new directory, and copy rst,sigm_fbz.)
 And how to check it. (whether 
 ===================================================
+
+
+============================================
+mixbeta:
+takao@TT4:~/ecalj/fpgw$ grep mixbeta */*.F
+main/hqpe.sc.m.F:      call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
+mixing parameter on sigm file.
+As the default beta is unitiy, mixsigm and mixsigma files are 
+
+
+grep rmsdel *
+
+---------------------------------
+(1)
+ modify shell script to bash:
+ use function. (learn git, push your new package to github).
+(2) 
+ fortran.
+ Read dataflow and data structure.
+ Look into gwsc and 
+
+ You can insert your own note in souce code.
