@@ -4,6 +4,10 @@
 #---------------------------------
 ###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh ##for tatara in kyushu-u This is neglected in other cases.
 ###ref2cmd.awk %HEADER
+#normal mpi 
+set echo_run=""
+set serial_run=""
+
 if($# != 4 ) then
   $echo_run echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
   exit

@@ -39,11 +39,15 @@ c
       mtosigmaonly=.true.
       end
 c
-      logical function eibz4x0()
+      logical function eibz4x0() 
+!! T: EIBZ symmetrization in hx0fp0->x0kf_v4h
+!! F: no EIBZ symmetrization
       use keyvalue,only: getkeyvalue
       logical,save:: init=.true.,eibzmode
+      logical ::qbzreg
       if(init) then
         call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
+        if(.not.qbzreg()) eibzmode=.false.  !=F (no symmetrization when we use mesh without Gamma).
         init=.false.
       endif
       eibz4x0=eibzmode
@@ -52,6 +56,7 @@ c
 !      eibz. In addition, inefficient method of symmetrization at the bottom of x0kf_v4h
 !      call eibzgen generates EIBZ.
 !      Probably, it will make things easier to start from "inversion mesh for q point".
+
       end
 
       logical function addbasnew()

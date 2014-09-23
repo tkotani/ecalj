@@ -401,7 +401,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
             ipx(lx, nxx(lx)) = iprad
             absqg2 = absqg2x(n1)
             do ir =1,nrofi
-              call bessl2(absqg2*r(ir)**2,lx,phij,psij)
+              call bessl2(absqg2*r(ir)**2,max(2,lx),phij,psij) !second argument must be larger than 1.
               rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
             enddo
             print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))

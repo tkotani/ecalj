@@ -154,7 +154,7 @@ C========== version 1 ==============
 !!
       implicit none
       integer :: nq0x,ngrp,nq0i,ik,i,j,ig,ix,ixx,jk,ixxin
-      real(8) :: q0x(1:3,nq0x),q0i(1:3,nq0i),symops(3,3,ngrp),sym(3,3),q0xoi(3,nq0x)
+      real(8) :: q0x(1:3,nq0x),q0i(1:3,nq0x),symops(3,3,ngrp),sym(3,3),q0xoi(3,nq0x)
       real(8) :: epinv(3,3,nq0x),emat(3,3),qr(3),fac,qnorm,wq0i(nq0x)
       real(8),allocatable:: epinv_(:,:,:)
 

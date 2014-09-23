@@ -193,7 +193,7 @@ c$$$      enddo
       integer,allocatable:: ieord(:)
       integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       real(8),allocatable:: qbzl(:,:)
-      logical :: inotime,nexist
+      logical :: inotime,nexist,debug=.false.
 !!
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cnnn
@@ -253,15 +253,20 @@ Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
       kk3(:) = key(3,1:nkey(3))
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
-c      print *,' initqqq nqtt=',nqtt
+      if(debug) print *,' initqqq nqbz=',nqbz
       do i=1,nqbz
          kkk3= (qbzl(:,i)+0.5*epd)/epd !kkk is digitized by 1/epd
          call tabkk(kkk3(1), kk1,nkey(1), ik1)
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-c         print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+         if(debug)print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
       enddo
+      if(debug) then
+      print *,'kk1=',kk1
+      print *,'kk2=',kk2
+      print *,'kk3=',kk3
+      endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
 ccccccccccccccccccc
@@ -277,7 +282,7 @@ cccccccccccccccccc
 !! ===  main iq loop ===
       eibzsym = 0
       do iq = iqxini,iqxend
-c        write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
+         if(debug) write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
         q = qibze(:,iq) !q means k in eq.50 of PRB81,125102-9
 !! Allowed operation to keep q,   eallow(ig,it) \in EIBZ(q)
         eallow=0d0
@@ -286,7 +291,7 @@ c        write(6,"('iq =',i7,'  xxxxxxxxxxxxxxxxxxxxxxx')") iq
         do ig=1,ngrp
           qdiff= timer*matmul(symgg(:,:,ig),q) - q
           call rangedq(matmul(ginv,qdiff), qxx)
-c        if(iprintx) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
+          if(debug) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
 cccccccccccccccccccccccccccccccccccccccccccccc
           if(pwmode>0.and.pwmode<10) then
 c     check wheter q is on 1st BZ boundary or not
@@ -311,7 +316,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
         eibzsym(:,:,iq)=eallow ! === eibzsym is eallow -----
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        print *,'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
+        if(debug)print *,'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -338,7 +343,10 @@ c                 nww(ibz,im) = nww(ibz,im)+1
             nxx(:,ibz,imm)= (qxx+.5*epd)/epd  !integer nxx(i) takes from 0 to 1/epd.
             igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
             igxt_(imm,ibz) = it  !
-c            write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
+            if(debug) write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
+c            print *,'qbz=',qbz(:,ibz)
+c            print *,'qx =',qx
+c            print *,'qxi=',qxi
 !! inversion table:
 !!             ibz<---from qbzrid
 !! we can skip such ibz.
@@ -349,7 +357,7 @@ c            write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(
           if(imm>immxx) immxx=imm
         enddo
 
-c        print *,'eibz aaaaaaa'
+        if(debug) print *,'eibz aaaaaaa'
 c        call cputid(0)
 
 !! inequivalent points.
@@ -367,7 +375,7 @@ c        call cputid(0)
                       if(igxt_(im,ibz) ==-1) cycle 
                    endif   
                    kkk3 = nxx(:,ibz,im)
-c                   print *,' ibz,im kkk3=',ibz,im,kkk3
+                   if(debug) print *,'uuuuu ibz,im kkk3=',ibz,im,kkk3
                    call tabkk(kkk3(1), kk1,nkey(1), ik1)
                    call tabkk(kkk3(2), kk2,nkey(2), ik2)
                    call tabkk(kkk3(3), kk3,nkey(3), ik3)

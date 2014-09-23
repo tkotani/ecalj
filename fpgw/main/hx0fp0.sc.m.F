@@ -602,7 +602,7 @@ Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
      i        ppbrd,            !radial integrals
      o        ppb(1,is))        !,pdb(1,is),dpb(1,is),ddb(1,is) )
       enddo
-      print *, ' end of ppbafp_v2'
+      if(debug) print *, ' end of ppbafp_v2'
 !TIME1 "endo of ppbafp_v2"
 !TIME0
 
@@ -617,6 +617,16 @@ C     ---- these are used in x0k
       else
          iqxini = 1
       endif
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      do iq = iqxini,iqxend
+c         write(*,"('q =',i4,3f13.5)") iq,qibze(:,iq)
+c      enddo
+c      do kx = 1, nqbz
+c         write(*,"('qbz =',i4,3f13.5)") kx,qbz(:,kx)
+c      enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
       eibzmode = eibz4x0() !.and.(.not.nolfco)
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -659,6 +669,11 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
                                 ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou()       !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+
+      else !dummy allocation to overlaid -check bound !sep2014
+         iqxendx=iqxend
+         allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
+     &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       endif
 
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
@@ -1052,28 +1067,31 @@ c===========Check write mode4 block end  ==============6end
 c===========end of spin loop============================================
 c=======================================================================
 
-            is=1 ! dummy
-            symmetrize=.true.
-            call x0kf_v4hz(npm,ncc,   
-     i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
-     i           q,  
-     i           nspin,is,isf, symmetrize, !
-     i           qbas,ginv,  qbz,wbz, 
-     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i           ppb(1,is), 
-     i           icore,ncore,
-     d           nlmto,nqbz,noccx,noccxv,
-     d           nl,nclass,natom,nnc,
-     d           nlnmx,mdimx,nbloch,  nwhis,
-     i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i           nqbze,nband,nqibz, 
-     o           rcxq,          ! rcxq is the accumulating variable for spins 
-     i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
-     i           chipm,eibzmode,  !z1offd,
-     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+!! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
+            if(eibzmode)  then
+               symmetrize= .true.
+               is=1             ! dummy
+               call x0kf_v4hz(npm,ncc,   
+     i              ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i              n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+     i              q,  
+     i              nspin,is,isf, symmetrize, !
+     i              qbas,ginv,  qbz,wbz, 
+     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i              ppb(1,is), 
+     i              icore,ncore,
+     d              nlmto,nqbz,noccx,noccxv,
+     d              nl,nclass,natom,nnc,
+     d              nlnmx,mdimx,nbloch,  nwhis,
+     i              iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i              nqbze,nband,nqibz, 
+     o              rcxq,       ! rcxq is the accumulating variable for spins 
+     i              nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
+     i              chipm,eibzmode, !z1offd,
+     i              nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+            endif
 
-! reduction rcxq in the S-axis
+!! reduction rcxq in the S-axis
             write(*,*) 'MPI__AllreduceSumS start'
             do i_reduction_npm=1,npm
               do i_reduction_nwhis=1,nwhis

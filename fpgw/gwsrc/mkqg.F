@@ -250,6 +250,7 @@ c     QpGcut = sqrt(150d0/alp)
 c     QpGcut = sqrt(300d0/alp)
          QpGcut = sqrt(25d0/alpm) !a.u. !exp( -  alp * QpGcut**2) !alp * QpGcut**2 = 22
          allocate( ngcx(nqbz) )
+         ngcx=1
          do iq = 1, nqbz
             q   = qbz(1:3,iq)
             call getgv2(alat,plat,qlat,q, QpGcut, 1, ngcx(iq),  dummyia)
@@ -391,6 +392,7 @@ ccccccccccccccccccccccccccccc
 
 !     ! ...  invariante dielectoric tensor.
                allocate(epinv(3,3,nq0x))
+               print *,' nq0x,nmm nq0i=',nq0x,nmm,nq0i
                call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
 c     call diele_invariant_bk(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
 
@@ -739,14 +741,15 @@ cccccccccccccccccccc
          regmesh = .true.
          offmesh = (bzcase()==2) .or. (.not.qbzreg())
       endif
-      print *,' regmesh offmeshg=', regmesh,regmeshg
-      print *,' offmesh offmeshg=', offmesh,offmeshg
+      print *,' regmesh offmeshg=', regmesh,regmeshg !regular, regular+shifted
+      print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
+!!
       nqnum = 0
       if(regmesh) nqnum = nqnum + nqbz
       if(offmesh) nqnum = nqnum + nqbz
 
 !! We check wether all q0i \in qbz or not. may2013 
-      nqnum = nqbz 
+c      nqnum = nqbz 
       allocate( qq(1:3,nqnum),irr(nqnum) )
       qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
       do iq0i=1,nq0i
@@ -767,6 +770,7 @@ cccccccccccccccccccc
       deallocate(qq,irr)
       nqnum = nqnum + nqbz*nq0i
       nqnum = nqnum + 1         !add Gamma
+      nqnum = nqnum + nq0i         !add q0i
       allocate( qq(1:3,nqnum),irr(nqnum) )
 !!!   nqnum = ix !=n1q*n2q*n3q*(nq0i+1) ! total q number
 C...  Regular mesh (qq are the same in the both bzcase)
@@ -810,6 +814,13 @@ C...  Shifted mesh
             enddo
          enddo
       endif
+!! Add offg anyway.
+      do iq00 = 1, nq0i
+         ix = ix+1
+         qq(1:3,ix) = q0i(1:3,iq00)
+      enddo
+
+
 !!     Add gamma point for anycase.
       ix=ix+1
       qq(1:3,ix)=0d0
@@ -890,13 +901,16 @@ c      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
                endif
             enddo
          endif
+         ngpn(iq)=1
          call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx11) !imx11
          imx0=imx11(1,1)
          if(imx0>imx) imx=imx0
+         ngcn(iq)=1
          call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx11) !imx11 to avoid warning.
          imx0c=imx11(1,1)
          if(imx0c>imxc) imxc=imx0c
-         if(verbose()>150) write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
+         if(verbose()>150)write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
+         if(verbose()>150)write(6,'(3f12.5,3x,2i4)') q ,ngcn(iq) !,ngcn(iq,iq00)
       enddo
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)

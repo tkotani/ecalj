@@ -1117,6 +1117,13 @@ c     loop over spin ----------------------------------------------------
 
 !TIME1 "before sxcf_fal3_scz"
 !TIME0
+
+!! dummy to overlaid -check bounds sep2014
+         if(size(ecore)==0) then
+            deallocate(ecore)
+            allocate(ecore(1,2))
+         endif
+
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i        tiat,miat,
 c     v2

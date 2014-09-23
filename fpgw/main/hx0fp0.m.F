@@ -682,6 +682,8 @@ C --- set freq_i
           wiw(iw)=wx(iw)/(2d0*pi*freqx(iw)*freqx(iw))
         enddo
 c        deallocate(freqx,wx,expa)! freqx,wx is used for Miyake's tote mode !Nov2004
+      else 
+         niw=1
       endif
 
 c ... for Miyake tote mode Nov2004
@@ -788,7 +790,7 @@ Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
      i                 ppbrd,           
      o              ppb(1,is))
       enddo
-      print *, ' end of ppbafp_v2'
+      if(debug)print *, ' end of ppbafp_v2'
 
 C ... Set iqxini
       if(omitqbz) then
@@ -1109,6 +1111,10 @@ c     iqxendx=nqibz
          call cputid(0)
          call readqgcou()       !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+      else !dummy allocation to overlaid -check bound !sep2014
+         iqxendx=iqxend
+         allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
+     &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       endif
 
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
@@ -2093,7 +2099,7 @@ c                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !
               endif
 !! epsmode
             elseif(epsmode.and.(.not.chipm)) then !.and.ixc/=23) then ! No LFC (local field correction). It's better to use echo 4| hbasfp0.
-               print *, 'xxx2 epsmode iq,iw=',iq,iw
+               if(debug)print *, 'xxx2 epsmode iq,iw=',iq,iw
 c              print *,'ppppp sumcheck zxq=',sum(abs(zxq)),sum(abs(zzr)),sum(abs(vcoul)),sum(abs(gbvec))
               if(newaniso2) then
 !! there is difference of two vcmean below since we use (sligthy) screened Coulomb (screenfac() in switch.F)

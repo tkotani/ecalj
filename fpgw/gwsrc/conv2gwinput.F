@@ -84,6 +84,8 @@ c
       write(ifi,"(a)")'!!! Starting from ! (or nonkeyword) is comment line !!! '
       write(ifi,"(a)")'!!! Each lines consists of "keyword value(s)"  !!! '
       write(ifi,"(a)")'!!! Each tag section in <...>... </...> has its own format. !!! '
+      write(ifi,"(a)")'!EIBZmode off   !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.'
+      write(ifi,"(a)")'!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.'
       write(ifi,"(a)")'!Verbose    0  ! 0-->default; 100--->debug '
       write(ifi,"(a)")'!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point'
       write(ifi,"(a)")'!Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region'
@@ -212,10 +214,10 @@ c      else
       write(ifi,"(a)") ' 0d0 0d0 0.02d0'
       write(ifi,"(a)") ' 0d0 0d0 0.04d0'
       write(ifi,"(a)") '</QforEPS>'
-      write(ifi,"(a)") '<QforEPSL>'
-      write(ifi,"(a)") ' 0d0 0d0 0d0   1d0   0d0  0d0 8'
-      write(ifi,"(a)") ' 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
-      write(ifi,"(a)") '</QforEPSL>'
+      write(ifi,"(a)") '!<QforEPSL>'
+      write(ifi,"(a)") '! 0d0 0d0 0d0   1d0   0d0  0d0 8'
+      write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
+      write(ifi,"(a)") '!</QforEPSL>'
 c      endif
 c      close(ifi)
       return

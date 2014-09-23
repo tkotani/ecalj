@@ -163,14 +163,14 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
 !! takao apr2012
       logical :: z1offd !, z1stcol
       complex(8),target :: ppovlz(ngbb,ngbb),zzr(ngbb,nmbas)
-      integer:: igb
+      integer:: igb,symmetrize
 
 !! jun2012takao
 c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 
       integer:: ngrp,nwgt(nqbz) !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
       integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
 !! nwgt(neibz
-      logical:: eibz4x0,checkbelong,eibzmode, symmetrize,chipmzzr
+      logical:: checkbelong,eibzmode, chipmzzr
       complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
@@ -188,7 +188,9 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
       complex(8),allocatable:: rcxq_core(:,:)
 !$    integer:: omp_get_num_threads
 
-      if (symmetrize) goto 5000
+
+      logical:: eibz4x0
+      if (symmetrize) goto 5000 
 
 c ------------------------------------------------
 !TIME0 "start xkf_v4hz      
@@ -464,10 +466,8 @@ c        write(6,"('smbasis: ngb ngbb nn no=',4i5)") ngb,ngbb,nn,no
         endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-
-!! === zmelt conversion on different basis.
+!! === zmelt conversion on different basis. 
 !! zmelt
-
 c           if(newanisox) then   !.and.iq==1) then
         allocate(zmmm(nmbas)) ! this is also obsolete if USE_GEMM_FOR_SUM
         if(chipmzzr) then  !spin moment basis.
@@ -481,6 +481,9 @@ c           if(newanisox) then   !.and.iq==1) then
               ppovl_(i,i)=1d0
            enddo
            ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+           if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
+              ppovl_=matmul(ppovl_,zcousq)
+           endif
            zmat => ppovl_
         endif
 !! :: zmelt conversion muplitpled by zzr.
@@ -755,7 +758,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
-      if(eibzmode) then
+c      if(eibzmode) then !comment out sep2014. 
         do jpm=1,npm
         do iw= 1,nwt
          do igb2= 1,nmbas !eibzmode assumes nmbas1=nmbas2
@@ -765,12 +768,17 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
          enddo
         enddo
         enddo
-       endif 
-!TIME1 "before eibzmode"
+c       endif
+!TIME1 "before eibzmode symmetrization"
+
+!! == End of eibzmode=F (no symmetrization required). ==
+      goto 9999 ! finalize
+
 
 
 !! ------------------------------------------------------------------------
 !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
+!! This may be not so effective ---> only for limited cases?
 !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
 !! We do \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P_I'J' zrom_i(J'J) ] 
 !! (exactrly speaking, we insert conversion matrix between Enu basis and M_I basis).
@@ -780,19 +788,14 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 !! Note that k= \hat{A}^k_i(k) (S_A^k)
 !! See Eq.(51) around in PRB81 125102(2010)
 !! 
-
-      goto 9999 ! finalize
-
  5000 continue
 !! === zmelt conversion === 
-
       if(nolfco .and. nmbas==1) then
          print *,' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
-
+!!
       if(eibzmode.and.symmetrize) then
-
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
            print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
@@ -818,7 +821,6 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
 !!
         zcousqinv=zcousq
         call matcinv(ngb,zcousqinv)
-
 
 !! == Assemble rotantion matrx zrr,zrrc ==
 !! Rotation matrix zrrx can be a sparse matrix. 
@@ -936,7 +938,7 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !! === main part to obtain symmetrized rcxq  ===
 !! neibz is total number of symmetrization operation. 
 !!      rcxq is rotated and accumulated; finally divied by neibz
-        zcousqc=dconjg(transpose(zcousq))
+        zcousqc = dconjg(transpose(zcousq))
         call cputid2(' --- qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
@@ -1034,23 +1036,19 @@ c$$$           endif
                rcxq000=rcxq000+rcxq00
             endif   
           enddo
-#if 1
-! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
-! It looks that ifort 14.0.3 has a bug
-! But, zgemm works. So I changed like that. 
           rcxq_core = rcxq000/neibz
-          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq,ngb, (0.0d0,0.0d0),rcxq000,ngb)
-          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
+#if 1
+!! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
+!! It looks that ifort 14.0.3 has a bug
+!! But, zgemm works. So I changed like that. 
+          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq, ngb, (0.0d0,0.0d0),rcxq000,ngb)
+          call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc  ,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
           rcxq(:,:,iw,jpm) = rcxq_core 
 #else
-          rcxq(:,:,iw,jpm) = rcxq000/neibz
-ccccccccccccccccccc
-          rcxq(:,:,iw,jpm) = matmul(rcxq(:,:,iw,jpm),zcousq)
-          rcxq(:,:,iw,jpm) = matmul(zcousqc,rcxq(:,:,iw,jpm))
+          rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))
 #endif
-ccccccccccccccccccc
-        enddo
-        enddo
+          enddo
+          enddo
 !$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
 !$OMP end parallel 

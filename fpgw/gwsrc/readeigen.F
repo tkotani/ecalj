@@ -1195,7 +1195,7 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
         enddo
       enddo
-      print *,'eeeeee'
+c      print *,'eeeeee'
       isx= iclose('CPHI')
       isx= iclose('GEIG')
       end subroutine

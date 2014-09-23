@@ -1614,6 +1614,8 @@ c      if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
 c      allocate(ngcgp(nqnumt), nggg(nqnumt))
 c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
       qx = 0d0
+      nggg=1 !dummy
+      ngcgp=1 !dummy
       call getgv2( alat,plat,qlat,qx, QpGcutggg, 1,nggg,  idummy11) 
       call getgv2( alat,plat,qlat,qx, QpGcutgcgp,1,ngcgp, idummy11) 
       if(debug) write(6,"(' iqi qx nggg ngcgp=',i5,3f8.3,2i8)") iqi,qx,nggg,ngcgp
@@ -1711,13 +1713,14 @@ c      enddo
         if(noo) call rx('rdata4gw_v2: ippovli poor assignment of file id. Fix it')
         open( ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
 
-        if(debug)print *,'init do 2010'
         qx  = qibze(1:3,iqi)
+        if(debug) write(*,"('init do 2010 qx=',3f13.5)")qx
 !!      iq is removed at apr2013takao   --> iq=idxk(qibze(1:3,iqi), qtti,nqtti) !feb2012takao
         iread=0
 !!      do loop to readin ngc,ngp,ngvecp,ngvecc for give qx. apr2013takao
         do           !irr is the flag to judge to check irreducible point or not.
           read (ifiqg, err=1013,end=1013) qqqa, ngp !, irr
+          if(debug) write(*,"('qqqa=',3f13.5)")qqqa
           read (ifiqgc         ) qqqb, ngc
 c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
