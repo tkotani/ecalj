@@ -3,8 +3,8 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -132 -xHost -mcmodel=medium 
-#-heap-arrays 100
+FC = mpiifort -132 -xHost -mcmodel=medium -heap-arrays 100
+#FC = f95 
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
@@ -21,6 +21,8 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 #(3) Compilar options ###############################################
 ### INTEL FORTRAN LINUX ###
+#FFLAGS=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
+#FFLAGS_OMP=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
 FFLAGS=-O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
@@ -28,6 +30,7 @@ FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS=  -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O0  -ffixed-line-length-132
 
+#
 ### Don't change para_g = .o ... below (or modify it if you know how this work) 
 #### don't need to read here #####NoteStart
 # Some groups of .f sources are compiled into .c*_o files.  (* is 1 to 4).
@@ -92,7 +95,11 @@ LIBMATH= -mkl
 
 
 #(5) Linker ####################################################
-LK = mpif90 -openmp
+LK=mpiifort -openmp
+### gfortran ubuntu12.04 #######
+#LK = mpif90
+#LK= ifort -parallel 
+#LK=mpiifort
 LKFLAGS2 = $(LIBMATH) 
 
 #LK= ifort -parallel 
