@@ -1,3 +1,11 @@
+vis_wan_band_n 5
+vis_wan_band_id 1 2 3 4 5 !integer x vis_wan_band_n, this is index for hmaxloc, as you like.
+vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)
+vis_wan_mesh 5 5 5          !integer x 3, # of mesh
+vis_wan_lbound -1.2  -1.2 -1.2 !real x 3, lower bound in alat unit or abc unit
+vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit
+vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf 
+
 wan_out_emin -10   !eV relative to Efermi
 wan_out_emax  5    !eV relative to Efermi
 #wan_in_ewin on
