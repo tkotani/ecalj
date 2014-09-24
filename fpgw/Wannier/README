@@ -51,3 +51,20 @@ History:
 2009; maxloc090910 (T.Miyake)
 2009; Its documentation and Visualizer at Kino's https://github.com/nim-hrkn/visualize
 2014Aug; T.Kotani modified it so as to fit to latest ecalj.
+
+
+Caution:
+Efermi shift:
+ genMLWF requies bnds.${target} to read the Fermi energy.
+ To generate it, we need to run job_band_* in advance.
+(Or need to shift Ef by hand as follows in gnuplot script.)
+ ----------------------------------------------------
+ de = ((ef shown in "lmaxloc2") - (ef in llmf_ef(bnds.${target}))*13.605
+ plot \
+ "bnd1.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd2.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd3.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd4.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd5.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnds.maxloc.up" u ($5):($6+de) lt 3 w l ti "Wannier"
+ -----------------------------
