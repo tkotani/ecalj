@@ -397,7 +397,7 @@ c     nwhis=nw
       call getkeyvalue("GWinput","omg_c",omg_c )
       write(*,*)'dw, omg_c= ',dw, omg_c
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-      if(bzcase()==2) then
+      if(bzcase()==2.or.(.not.qbzreg())) then
          allocate(qbz2(3,nqbz))
          do iq=1,nqbz
             qbz2(:,iq)=qbz(:,iq)+dq_bzcase2

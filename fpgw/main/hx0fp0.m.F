@@ -550,20 +550,19 @@ C ... frhis
         write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
       endif
       call findemaxmin(nband,qbze,nqbze,nspin ,emax,emin)
-c      call findemaxmin_r(emax,emin)
-
-c$$$ Even if we neglect this section, result is not so bad---anyway we may need to
-c$$$ fix this block if necessary. Oct2005
-c$$$        if(bzcase()==2) then
-c$$$          allocate(qbz2(3,nqbz))
-c$$$          do iq=1,nqbz
-c$$$           qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
-c$$$          enddo
-c$$$          call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-c$$$          emax=max(emax,emax2)
-c$$$          emin=min(emin,emin2)
-c$$$          deallocate(qbz2)
-c$$$        endif
+!! Even if we neglect this section, result is not so bad---anyway we may need to
+!! fix this block if necessary. Oct2005
+      if(bzcase()==2.or.(.not.qbzreg())) then
+         allocate(qbz2(3,nqbz))
+         do iq=1,nqbz
+            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
+         enddo
+         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
+         emax=max(emax,emax2)
+         emin=min(emin,emin2)
+         deallocate(qbz2)
+      endif
+!!!
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
       omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
       print *,' emin emax omg2max=',emin, emax,omg2max
@@ -572,9 +571,8 @@ c$$$        endif
       do iw=1,nw2
         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
       enddo !linear + quadratic term
-Cstop2rx 2013.08.09 kino      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
       if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-Cstop2rx 2013.08.09 kino      if (dw*(nw-2) > freqr2(nw2-1)) stop "hx0fp0: dw*(nw-2) > freqr2(nw2-1)"
+
       if (dw*(nw-2) > freqr2(nw2-1)) call rx( "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
       nwhis = nw2-1
       allocate(frhis(1:nwhis+1))
