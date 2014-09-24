@@ -112,7 +112,7 @@ c-devided tet
 c-----------------------------------------------------------------------
       if(verbose()>=80) chkwrt=.true.
       ipr=chkwrt
-      if(ipr) print *, ' tetwt4x_dev: '
+      if(ipr) write(6,*) ' tetwt4x_dev: '
       voltot = abs(det33(qbas))
       ntet   = ntetf !6*n1*n2*n3
 *poption noparallel
@@ -127,13 +127,13 @@ c         if(isp==2) isp2=1
 c      endif
 c--------------------------------------------------------------------
 c      call cputid  (0)
-c      print *, ' *** q=',q(1:3)
-c      print *, ' qbas ='; write(6,"(3f10.5)")(qbas(1:3,i),i=1,3)
-c      print *, ' vol tot    =',voltot
-c      print *, ' vol of tet =',det33(qbas)/(n1*n2*n3*6)
-c      print *, ' efermi=',efermi
-c      print *, ' nctot nband =',nctot,nband
-c      print *, ' nqbz  =',nqbz
+c      write(6,*) ' *** q=',q(1:3)
+c      write(6,*) ' qbas ='; write(6,"(3f10.5)")(qbas(1:3,i),i=1,3)
+c      write(6,*) ' vol tot    =',voltot
+c      write(6,*) ' vol of tet =',det33(qbas)/(n1*n2*n3*6)
+c      write(6,*) ' efermi=',efermi
+c      write(6,*) ' nctot nband =',nctot,nband
+c      write(6,*) ' nqbz  =',nqbz
 c      do i=1,nctot
 c      write(6,"('  ecore=',i3,f10.5)")i, ecore(i)
 c      enddo
@@ -145,7 +145,7 @@ c      if(readgwinput())
       if(sum(abs(mtet))/=3) then
         mtett=.true.
         if(sum(abs(mtet))>3) then
-          print *, ' we use devided-tetrahedron scheme mtet=',mtet
+          write(6,*) ' we use devided-tetrahedron scheme mtet=',mtet
         elseif(sum(mtet)/=6) then
 Cstop2rx 2013.08.09 kino          stop ' now only mtet 2 2 2 is allowed '
           call rx( ' now only mtet 2 2 2 is allowed ')
@@ -179,7 +179,7 @@ ccccccccccccccccccccccccccccccccccccccc
         ifeig=501
         open (ifeig,file='eigmtet',form='unformatted')
         read(ifeig) nband_x,nqnumm,nsp
-        print *,'readin eigmtet ', nband_x,nqnumm,nsp
+        write(6,*)'readin eigmtet ', nband_x,nqnumm,nsp
         if(nband_x /=nband ) then
 Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
           call rx( 'tetwt5: nband_x /=nband')
@@ -230,8 +230,8 @@ c---------------------------------------------------------
           do kx = 1, nqbzm
 !          q(1:3)+qbzm(1:3,kx) ----> kqxxm
 
-c      print *,' xxx3 ginv=',ginv
-c      print *,' q+qbzm= ', q(1:3) + qbzm(1:3,kx)
+c      write(6,*)' xxx3 ginv=',ginv
+c      write(6,*)' q+qbzm= ', q(1:3) + qbzm(1:3,kx)
 c          call fbz2 ( q(1:3) + qbzm(1:3,kx),
 c     i      ginv ,index_qbzm,n_index_qbzm,qbzm,nqbzm,
 c     o      qdummy,kqxxm)
@@ -282,7 +282,7 @@ C- Check
 c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
         enddo
       enddo
-c      print *,' xxx4 volt voltot=',volt,voltot
+c      write(6,*)' xxx4 volt voltot=',volt,voltot
 Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
       if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 c      endif
@@ -342,7 +342,7 @@ c$$$           endif
 c$$$           wgt1(ib,jb) =  0d0
 c$$$           cycle
 c$$$ 1820      continue
-c$$$           print *,' test itet ib jb=',itet,ib,jb
+c$$$           write(6,*)' test itet ib jb=',itet,ib,jb
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
 c----------
 c        do ib = 1, nband + nctot !   occupied
@@ -401,7 +401,7 @@ c            if(dreal(omg)>0.20d0/2d0) goto 1819
 c            goto 1818
 c 1819       continue
 c            if(itet==ntetf) then
-c             print *,' tetwt5: itet==ntetf'
+c             write(6,*)' tetwt5: itet==ntetf'
 c             stop 'test end'
 c            endif
               endif
@@ -425,7 +425,7 @@ c     &      ib,jb,itet, wgt1(ib,jb)-wgt2,wgt2
                 write(6,"('x    =',4d23.16)") x    (0:3)
                 write(6,"('ek_  =',4d23.16)") ek_  (ib, 0:3)
                 write(6,"('ekq_ =',4d23.16)") ekq_ (jb, 0:3)
-                print *,' tetwt4: abs(wttx/4d0/voltot)>1d0 too large ?' !It seems too large
+                write(6,*)' tetwt4: abs(wttx/4d0/voltot)>1d0 too large ?' !It seems too large
                 write(6,"('------- we omit this WARN hereafter! -------')")
                 iwarn=.false.
               endif
@@ -442,8 +442,8 @@ c-----------
           wgt(1:noccx_k,:,kk(3))= wgt(1:noccx_k,:,kk(3))+ wgt1(1:noccx_k,:)* 4*wtet(3,im,itet)
           wgt(nb1:nbnc,: ,kk(3))= wgt(nb1:nbnc,: ,kk(3))+ wgt1(nb1:nbnc, :)* 4*wtet(3,im,itet)
 ccccccccccccccccccccccccccc
-c        print *,' itet=',itet, sum(abs(wgt1)),' xxx=',sum(abs(wgt))
-c        print *,' itet=',itet, noccx_k,nb1,nbnc,kk
+c        write(6,*)' itet=',itet, sum(abs(wgt1)),' xxx=',sum(abs(wgt))
+c        write(6,*)' itet=',itet, noccx_k,nb1,nbnc,kk
 cccccccccccccccccccccccccc
  1100   continue
  1000 continue
@@ -453,7 +453,7 @@ C- Symmetrization of wgt. ! We need special cares for degenerate cases.
 *poption parallel
 *poption indep( ekxx1,ekxx2,ekxx1, nband ,ipr, ecore, nctot ,wgt)
 *poption tlocal( nrank1, ini1,ied1, nrank2, ini2,ied2, nrankc )
-      do kx = 1, nqbz     ! ipr = .false.; if(ipr)  print *,' kx =',kx
+      do kx = 1, nqbz     ! ipr = .false.; if(ipr)  write(6,*)' kx =',kx
         call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
         call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
         nrankc = 0
@@ -461,7 +461,7 @@ C- Symmetrization of wgt. ! We need special cares for degenerate cases.
           call chkdgn(ecore, nctot, 
      &    nrankc, ini1(nrank1+1), ied1(nrank1+1), nband,ipr)
         endif
-c       if(ipr) print *,' kx nrank =',kx,nrank1,nrank2,nrankc
+c       if(ipr) write(6,*)' kx nrank =',kx,nrank1,nrank2,nrankc
         do irnk1 = 1, nrank1 + nrankc
           do irnk2 = 1, nrank2
             ixi1  = ini1(irnk1);  ixe1 = ied1(irnk1)
@@ -629,7 +629,7 @@ c-------------------
       integer(4) :: ndat,i,ix, ixini(ndat),ixend(ndat),nrank,iof
       real(8)    :: ene(ndat), epsx=1d-4
       logical ipr
-      if(ipr)  print *, 'chgdgn: ndat=',ndat
+      if(ipr)  write(6,*) 'chgdgn: ndat=',ndat
       if(ndat<1) then
         nrank =0
         return
@@ -664,7 +664,7 @@ c
       enddo
 c-check write
       if(ipr) then
-        print *,' nrank=',nrank
+        write(6,*)' nrank=',nrank
         do i = 1, ndat
           write(6,"(' i ',i3,' ene=',d15.7)") i,ene(i)
         enddo
@@ -787,7 +787,7 @@ ccccccccccc
      &       + inttetra3(omg,kk,xx,ebf,Kx,xKx,ebfKx,(/4, 2,20,30/))  ! k4,k2,K2,K3
 cccccccccc test fulled cccccccccccccccccccccccccccccccccccc
 cc     &        + inttetra(kk,xx,Kx,xKx, (/1, 10,20,30/) )  ! test fulling
-cc           print *,' fulled test'
+cc           write(6,*)' fulled test'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       else
         if(debug) write(996,*) 'lindtet3: fig 4 xxx'
@@ -839,8 +839,8 @@ c--- kk xin ebfin ---
           kin(1:3,i) = Kx_ (1:3,ix)
         endif
       enddo
-c      print *, ' ebf  =', ebf
-c      print *, ' ebfkx=', ebfkx
+c      write(6,*) ' ebf  =', ebf
+c      write(6,*) ' ebfkx=', ebfkx
 c      write(6,"(' i=',i3,' xin ebfin =',2f10.5,'  kin=',3f10.5)")
 c     &  (i,xin(i),ebfin(i),kin(1:3,i),i=4,1,-1)
 
@@ -1010,7 +1010,7 @@ C#endif
       call sortea( v,ieaord,4,isig);  VV(1:4) = V(ieaord(1:4)) !vv is ordered
 #endif
 
-      vvas = sum(abs(vv(1:4)))   ! ;print *,'vvas=',vvas
+      vvas = sum(abs(vv(1:4)))   ! ;write(6,*)'vvas=',vvas
       diffc=  max(eps,eps*vvas)
       idf  = 0
       do i = 1,3
@@ -1290,7 +1290,7 @@ cccccccccccccccccccccc
         enddo
         nbnb(kx) = ix
       enddo
-      print *, ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
+      write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 
 c---------------------------------------------------------------
@@ -1323,7 +1323,7 @@ c
         enddo
       enddo
       if( sum(abs(wgt0)) > 1d-10) then
-        print *,' rsvwwk2: sum(abs(wgt0))>0 the set n1b n2b at iw==1 is
+        write(6,*)' rsvwwk2: sum(abs(wgt0))>0 the set n1b n2b at iw==1 is
      &    not enough to reserve wwk. 
      &    If you calculate from omega=0. it could be a problem.
      &    You might start rather large omega. 
@@ -1359,7 +1359,7 @@ c
         enddo
         nbnb(kx) = ix
       enddo
-      print *, ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
+      write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 c---------------------------------------------------------------
       subroutine rsvwwk00_4(jpm,iwgt, nqbz,nband,nctot,ncc,nbnbx, !feb2006 ncc added
@@ -1385,7 +1385,7 @@ C- get (n1b n2b) corresponding to non-zero wgt.
         enddo
         nbnb(kx) = ix
       enddo
-      print *, ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
+      write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 
 c---------------------------------------------------------------
@@ -1411,7 +1411,7 @@ C- get (n1b n2b) corresponding to non-zero wgt.
         enddo
         nbnb(kx) = ix
       enddo
-      print *, ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
+      write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 c---------------------------------------------------------------
 
@@ -1438,9 +1438,9 @@ C- Convert wgt to wwk
           wgt0(ib,jb,kx) = 0d0
         enddo
       enddo
-c      print *,' rsvwwk4: sum(abs(wgt0))=',sum(abs(wgt0))
+c      write(6,*)' rsvwwk4: sum(abs(wgt0))=',sum(abs(wgt0))
 cccccccccccccccccccccccccccccccccc
-c      print *, 'xxxxxxxxxxxxxx nqbz nbnb0', nqbz,nbnb0
+c      write(6,*) 'xxxxxxxxxxxxxx nqbz nbnb0', nqbz,nbnb0
 c      do kx   = 1,nqbz
 c      do ibib = 1,nbnb0(kx)
 c        ib =  n1b0(ibib,kx)
@@ -1450,7 +1450,7 @@ c      enddo
 c      enddo
 ccccccccccccccccccccccccccccccccccc
       if( sum(abs(wgt0))/=0d0 ) then
-        print *,' rsvwwk4: sum(abs(wgt0))/=0d0 the set n1b n2b is',
+        write(6,*)' rsvwwk4: sum(abs(wgt0))/=0d0 the set n1b n2b is',
      &          ' not enough to reserve wwk. ',sum(abs(wgt0))
         do kx = 1,nqbz
           do ib=1,nband+nctot
@@ -1489,9 +1489,9 @@ c      wgt0= wgt
 c        wgt0(ib,jb,kx) = 0d0
         enddo
       enddo
-c      print *,' rsvwwk4: sum(abs(wgt0))=',sum(abs(wgt0))
+c      write(6,*)' rsvwwk4: sum(abs(wgt0))=',sum(abs(wgt0))
 c      if( sum(abs(wgt0))/=0d0 ) then
-c        print *,' rsvwwk4: sum(abs(wgt0))/=0d0 the set n1b n2b is
+c        write(6,*)' rsvwwk4: sum(abs(wgt0))/=0d0 the set n1b n2b is
 c     &    not enough to reserve wwk. ',sum(abs(wgt0))
 c        stop 'rsvwwk4: sum(abs(wgt0))'
 c      endif

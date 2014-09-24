@@ -787,7 +787,7 @@ c$$$      deallocate(ovlpi)
       allocate(zw0bk(ngb,ngb))
       allocate(work(LWORK),rwork(5*ngb)) !,VTT(ngb,ngb))
       zw0bk = zzz
-!      print *,' zgesvdnn: singular value decomp '
+!      write(6,*)' zgesvdnn: singular value decomp '
       call zgesvd('A','A',ngb,ngb,zzz,ngb,SS,UU,ngb,VT,ngb,work,lwork,rwork,info) 
 !      do i=1,ngb
 !         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i) !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)

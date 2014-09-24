@@ -518,7 +518,7 @@ c omgd ([1] eq.36)
          rtmp = 0d0
          do in = 1,nwf
             brn = sum(bb(:,ibb)*rn(:,in))
-c            print *,'brn=',brn,sum(abs(bb(:,ibb))),sum(abs(rn(:,in)))
+c            write(6,*)'brn=',brn,sum(abs(bb(:,ibb))),sum(abs(rn(:,in)))
             do iq = 1,nqbz
                rtmp = rtmp + 
      &         wbz(iq)*(-dimag(log(mmn(in,in,ibb,iq)))-brn)**2
@@ -528,7 +528,7 @@ c         sss=0d0
 c         do in=1,nwf
 c         sss=sss+sum(abs(imag(mmn(in,in,ibb,1:nqbz))))
 c         enddo
-c         print *,'sss=',sss
+c         write(6,*)'sss=',sss
          omgd = omgd + wbb(ibb)*rtmp
       enddo
 

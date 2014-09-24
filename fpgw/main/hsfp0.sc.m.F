@@ -227,7 +227,7 @@ c-----------------------------------------------------------------------
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
-      write(*,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
+      write(6,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
 
 !$      call omp_set_nested(1)
 !TIME0
@@ -275,8 +275,8 @@ c     integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)    
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqbz =',nqbz
-      print *,' nqibz ngrp=',nqibz,ngrp2
+      write(6,*)' nqbz =',nqbz
+      write(6,*)' nqibz ngrp=',nqibz,ngrp2
       call pshprt(60)
 !     ! -----------------------------------------------------------
 
@@ -335,7 +335,7 @@ c     if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 !!!!  WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
-      print *,' hsfp0: end of genallcf_v3'
+      write(6,*)' hsfp0: end of genallcf_v3'
 
       call pshprt(30)
       pi   = 4d0*datan(1d0)
@@ -350,7 +350,7 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
       legas = .false.
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(legas) then            !!! test for electron gas case.
-         print *,' find LEGAS. legas =',legas
+         write(6,*)' find LEGAS. legas =',legas
          iflegas = 2101
          open (iflegas,file='LEGAS')
          read(iflegas,*)rs
@@ -382,8 +382,8 @@ c      ifexsp=0
          endif
 c         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
 c         if(exspwrite) then
-c            print *,'--- Find EXspTEST ExspectrumWrite=',exspwrite
-c            print *,'--- esmr is chosen to be 2d0 Ry'
+c            write(6,*)'--- Find EXspTEST ExspectrumWrite=',exspwrite
+c            write(6,*)'--- esmr is chosen to be 2d0 Ry'
 c            esmr= 2d0
 c            do is=1,nspin
 c               ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
@@ -450,7 +450,7 @@ c     because the class in the generated GW file is dummy.(iclass(ibas)=ibas sho
       open (102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      print *,'  --- Readingin CLASS info ---'
+      write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
          read(102,*) ibasx, iclasst(ibas)
          write(6, "(2i10)") ibasx, iclasst(ibas)
@@ -468,7 +468,7 @@ c     o               ngpmx,ngcmx,nxx )
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
-      print *,' ngcmx ngpmx=',ngcmx,ngpmx
+      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
       allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),
      &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
      &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
@@ -510,7 +510,7 @@ c     write (6,*) i, ngcni(i)
 c     enddo
 c     stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx '
 
-      print *, ' end of read QGcou'
+      write(6,*) ' end of read QGcou'
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     iqx=1
@@ -563,10 +563,10 @@ c     endif
       eftrue = efnew
 !! ==== check total ele number =====
       ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
-      print *,' ef    =',ef
-      print *,' esmr  =',esmr
-      print *,' valn  =',valn
-      print *,' ntot  =',ntot
+      write(6,*)' ef    =',ef
+      write(6,*)' esmr  =',esmr
+      write(6,*)' valn  =',valn
+      write(6,*)' ntot  =',ntot
 !! == Core-exchange case. ef means just below the valence eigenvalue (to take only core in sxcf).==
       if(ixc==3) then
          ef = lowesteval() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
@@ -575,13 +575,13 @@ c     endif
             exonly=.false.
          else
             exonly=.true.
-            print *,' exonly=T ecore shift: ecore---> ecore-100'
+            write(6,*)' exonly=T ecore shift: ecore---> ecore-100'
             ecore = ecore-100.0
          endif
          if(maxval(ecore(:,1:nspin))>ef) then
-            print *,' ef nspin=',ef,nspin,nctot
+            write(6,*)' ef nspin=',ef,nspin,nctot
             do is=1,nspin
-               print *,' maxval( ecore) nctot=', is,nctot
+               write(6,*)' maxval( ecore) nctot=', is,nctot
                do ix=1,nctot
                   write(6,"(i4,d13.5)") ix,ecore(ix, is)
                enddo
@@ -665,7 +665,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
          enddo
          ntq = min(ntq, nbmx(1))
          deallocate(eqt)
-         write(*,"(' nband ntq ef eftrue=', 2i5,2f9.4)")nband,ntq,ef,eftrue
+         write(6,"(' nband ntq ef eftrue=', 2i5,2f9.4)")nband,ntq,ef,eftrue
       endif
       call MPI__Broadcast(ntq)
 
@@ -685,10 +685,10 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
          open(ifianf,file='ANFcond')
          read(ifianf,*) soflag
          if(soflag=='SO') then
-            print *,' ANFcond found. but SO case is not implimented. Not using ANF symm'
+            write(6,*)' ANFcond found. but SO case is not implimented. Not using ANF symm'
             goto 889            !SO case is not implimented
          endif
-         print *, 'Find ANFcond--- up only'
+         write(6,*) 'Find ANFcond--- up only'
          nspinmx =1
       endif
  889  continue
@@ -749,7 +749,7 @@ c     - takao Vxc is readin from VXCFP
       endif
 
 c     q near zero
-      print *, 'reading QOP'
+      write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
@@ -814,7 +814,7 @@ c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
          ifidmlx = iopen('EPSwklm',0,0,0)
          read(ifidmlx) nq0ix,lxklm
          if(nq0i/=nq0ix) then
-            print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+            write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
 Cstop2rx 2013.08.09 kino            stop 'nq0i from EPSwklm /= nq0i'
             call rx( 'nq0i from EPSwklm /= nq0i')
          endif
@@ -909,7 +909,7 @@ c     -- ibzx denote the index of k{FBZ for given k{1BZ.
 c     call invkibzx(w(iirk),nqibz,ngrp,nqbz,
          call invkibzx(irk,nqibz,ngrp,nqbz,
      o        ibzx)
-c     print *,' *** wtet sum 1=', sum( wtet)
+c     write(6,*)' *** wtet sum 1=', sum( wtet)
 c     stop ' -------------test end------------- '
 c     call cputid(0)
       else
@@ -920,7 +920,7 @@ c     -end of tetra section --------------------------------------------
 
 C...  Read pomatr
       if(smbasis()) then
-         print *,' smooth mixed basis : augmented zmel'
+         write(6,*)' smooth mixed basis : augmented zmel'
          ifpomat = iopen('POmat',0,-1,0) !oct2005
          nkpo = nqibz+nq0i
          nnmx=0
@@ -972,7 +972,7 @@ c     o        nwgt,igx,igxt,eibzsym,tiii)
 !     ! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
 cccccccccccccccccccc
          tiii=.false.    !Enforce no time reversal. time reversal not yet...
-         print *,'NOTE:TimeReversal not yet implemented in hsfp0.sc.m.F'
+         write(6,*)'NOTE:TimeReversal not yet implemented in hsfp0.sc.m.F'
          write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
          iprintx=.false.
          if(mpi__root) iprintx=.true.
@@ -1019,7 +1019,7 @@ c     irkip_all(is,:,:,iqq)=irk
                      irkip_all(is,kx,igrp,iqq)= irk(kx,igrp)
                      nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
                   endif   
-c     print *,' iqq kr irk =',iqq,kr,irkip_all(is,kx,igrp,iqq),nrkip_all(is,kx,igrp,iqq)
+c     write(6,*)' iqq kr irk =',iqq,kr,irkip_all(is,kx,igrp,iqq),nrkip_all(is,kx,igrp,iqq)
                enddo
             enddo
          enddo  
@@ -1162,12 +1162,12 @@ c     i              omega,iSigMode, ! iwini,iwend,
      i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,'---end of sxcf_fal3--- is mpi__rank',is,mpi__rank
+c         write(6,*)'---end of sxcf_fal3--- is mpi__rank',is,mpi__rank
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         deallocate(wbzz)
 !TIME1 "after sxcf_fal3_scz"
       call date_and_time(values=timevalues)
-      write(*,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
+      write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
       call cpu_time(time_red1)
 !TIME0 
 
@@ -1177,7 +1177,7 @@ c         deallocate(wbzz)
       call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
       call cpu_time(time_red2)
 !TIME1 "reduction nbandmx end"
-      write(*,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
+      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c---------------------------------
 !TIME0
@@ -1432,7 +1432,7 @@ c$$$!!   --- EXspectrum ----------------------------------------------------
 c$$$c     This section is similar with efsimplef.f
 c$$$      if(sum(ifexsp(1:nspin))/=0) then
 c$$$         do is = 1,nspin
-c$$$            print *,' --- Goto ExSpectrum section --- is=',is
+c$$$            write(6,*)' --- Goto ExSpectrum section --- is=',is
 c$$$            rewind (ifexsp(is))
 c$$$            itmx = 0
 c$$$            do
@@ -1446,7 +1446,7 @@ c$$$            allocate( eex1(nspexmx,ntq,nq), exsp1(nspexmx,ntq,nq),
 c$$$     &           nspex(ntq,nq) ,
 c$$$     &           itex1(nspexmx,ntq,nq),
 c$$$     &           qqex1(3,nspexmx,ntq,nq) )
-c$$$            print *,' nspexmx =',nspexmx
+c$$$            write(6,*)' nspexmx =',nspexmx
 c$$$c     
 c$$$            rewind (ifexsp(is))
 c$$$            nspex = 0
@@ -1460,7 +1460,7 @@ c$$$               itex1 (iex,itpex,ipex) = itex
 c$$$               qqex1(:,iex,itpex,ipex)= qqex
 c$$$            enddo
 c$$$ 1216       continue            !Get eex1(1:nspex) exsp1(1:nspex) for itp ip.
-c$$$            print *,' nspex(1 1)=',nspex(1,1)
+c$$$            write(6,*)' nspex(1 1)=',nspex(1,1)
 c$$$c     
 c$$$            do ipex = 1,nq
 c$$$               do itpex=1,ntq
@@ -1509,7 +1509,7 @@ c$$$               enddo
 c$$$            enddo
 c$$$            deallocate( eex1, exsp1, nspex, itex1, qqex1 )
 c$$$         enddo
-c$$$         print *,' End of ExSpectrum section ---'
+c$$$         write(6,*)' End of ExSpectrum section ---'
 c$$$      endif
 c$$$!TIME1 "end of exspectrum"
 !TIME1 "end program"
@@ -1518,6 +1518,8 @@ c$$$!TIME1 "end of exspectrum"
       isx = iclose ('wci.d')
       isx = iclose ('hbe.d')
       call cputid(0)
+      write(6,*) '--- end of hsfp0_sc --- irank=',mpi__rank
+      call flush(6)
       call MPI__Finalize 
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')

@@ -18,7 +18,7 @@ c-----------------------------------------------------------------
      &            ,dum(2)
       parameter(Img=(0d0,1d0))
 
-      print *,' rotdlmm:'
+      write(6,*)' rotdlmm:'
       do 10 ig =1,ng
         do 20 i=1,3
         do 20 j=1,3
@@ -32,11 +32,11 @@ c calculate determinant(signature)
      &        +am(3,1)*am(1,2)*am(2,3)
      &        -am(3,1)*am(2,2)*am(1,3)
         if(abs(abs(det)-1d0).ge.1d-10) then
-          print *,' rotdlmm: det/=1 ig and det=',ig,det
+          write(6,*)' rotdlmm: det/=1 ig and det=',ig,det
 Cstop2rx 2013.08.09 kino          stop
           call rx( '')
         endif
-c seek Euler angle   print *,' goto cbeta',ig,det
+c seek Euler angle   write(6,*)' goto cbeta',ig,det
         cbeta = am(3,3)/det
 c added region correction so as to go beyond domain error for functions, dsqrt and acos.
         if(abs(cbeta-1d0).le.1d-6) cbeta= 1d0
@@ -58,7 +58,7 @@ c beta= 0~pi
         endif
         co2 = dcos(beta/2)
         so2 = dsin(beta/2)
-c         print *,' calpha=',calpha
+c         write(6,*)' calpha=',calpha
         if(abs(calpha-1.0d0).le.1.0d-6) calpha= 1.0d0
         if(abs(calpha+1.0d0).le.1.0d-6) calpha=-1.0d0
         if(abs(cgamma-1.0d0).le.1.0d-6) cgamma= 1.0d0
@@ -67,7 +67,7 @@ c         print *,' calpha=',calpha
         if(salpha.lt.0d0) alpha=-alpha
         gamma=dacos(cgamma)
         if(sgamma.lt.0d0) gamma=-gamma
-c         print *,'alpha beta gamma det=',alpha,beta,gamma,det
+c         write(6,*)'alpha beta gamma det=',alpha,beta,gamma,det
         do 30 l =  0, nl-1
         do 30 md= -l, l
         do 30 m = -l, l
@@ -108,18 +108,18 @@ c l-th rep. is odd or even according to (det)**l
      &    abs(am(1,3)*det-symops(7,ig)).gt.1.0d-8.or.
      &    abs(am(2,3)*det-symops(8,ig)).gt.1.0d-8.or.
      &    abs(am(3,3)*det-symops(9,ig)).gt.1.0d-8) then
-          print *,' rotdlmm: not agree. symgrp and one by eular angle'
+          write(6,*)' rotdlmm: not agree. symgrp and one by eular angle'
 Cstop2rx 2013.08.09 kino          stop
           call rx( '')
         endif
 cccccccccccccccccccccccc
 c        if(iprint().ge.140) then
         if(.false.) then
-          print *;print *;print *,' **** group ops no. ig=', ig
+          print *;print *;write(6,*)' **** group ops no. ig=', ig
           write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
           write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
           write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
-          print *,' by Eular angle '
+          write(6,*)' by Eular angle '
           write(6,1731)am(1,1)*det,am(1,2)*det,am(1,3)*det
           write(6,1731)am(2,1)*det,am(2,2)*det,am(2,3)*det
           write(6,1731)am(3,1)*det,am(3,2)*det,am(3,3)*det
@@ -146,7 +146,7 @@ c      print * ,' goto do 23'
       do 23 is=1,ng
         if(.false.) then
 c        if(iprint().ge.150) then
-          print *; print *,' **** group ops no. ig=', is
+          print *; write(6,*)' **** group ops no. ig=', is
           write(6,1731) symops(1,is),symops(4,is),symops(7,is)
           write(6,1731) symops(2,is),symops(5,is),symops(8,is)
           write(6,1731) symops(3,is),symops(6,is),symops(9,is)
@@ -188,7 +188,7 @@ ccccccccccccccccccccc
         if(.false.) then
 c        if(.true.) then
 c        if(iprint().ge.41) then
-          print *; print *,'  points ops  ig, l=', is,l,' cubic   '
+          print *; write(6,*)'  points ops  ig, l=', is,l,' cubic   '
           do m2=-l,l
             write(6,"(28f10.5)")( dreal(dlmmc (m2, m1,l,is) ), m1=-l,l)
 c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l)
@@ -196,7 +196,7 @@ c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l
         endif
 cccccccccccccccccccccc
    23 continue
-c      print *,' end of rotdlmm'
+c      write(6,*)' end of rotdlmm'
       end
 c--------------------------------------------
       double precision function igann(i)

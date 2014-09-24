@@ -1,1 +1,1 @@
-make.inc.ifort.cmd
+make.inc.ifort.hakozaki

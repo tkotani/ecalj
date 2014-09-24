@@ -29,8 +29,8 @@ c nqbz    = no. k-points
         enddo
       enddo
       if(ispin==1) nocctotg2 = nocctotg2*2
-      print *,' Ef=',ef
-      print *,' wgt nocc=',wgt,nocctotg2
+      write(6,*)' Ef=',ef
+      write(6,*)' wgt nocc=',wgt,nocctotg2
       end
 
 c------------------------------------------------------------------
@@ -70,8 +70,8 @@ c
         end do
       end do
       if(ispin==1) nocctotg = nocctotg*2
-      print *,' Ef=',ef
-      print *,' wgt nocc=',wgt,nocctotg
+      write(6,*)' Ef=',ef
+      write(6,*)' wgt nocc=',wgt,nocctotg
       end
 c------------------------------------------------------------------
       real(8) function nocctotf(ifev,ispin, efm,efp,wfacef,wbz,
@@ -110,8 +110,8 @@ Cstop2rx 2013.08.09 kino     &      stop ' nocctotf: efm or efp coincides with e
         end do
       end do
       if(ispin==1) nocctotf = nocctotf*2d0
-c     print *,' Ef=',ef
-c     print *,' wgt nocc=',wgt,nocctotf
+c     write(6,*)' Ef=',ef
+c     write(6,*)' wgt nocc=',wgt,nocctotf
       end
 c---------------------------------------
 c inverse of

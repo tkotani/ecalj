@@ -8,11 +8,11 @@
       do
         read(ippovl0) qx,ngc_r
         if(sum(abs(qx-q))<1d-6) then
-c           print *,' q qx ngc ngc_r=',q, qx, ngc, ngc_r
+c           write(6,*)' q qx ngc ngc_r=',q, qx, ngc, ngc_r
 Cstop2rx 2013.08.09 kino          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl
-c           print *,' readin PPOVL0 OK q=',q
+c           write(6,*)' readin PPOVL0 OK q=',q
           exit
         endif
       enddo
@@ -83,7 +83,7 @@ Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
         call init_readqg(ifi,ginv)
         init(ifi)=.false.
       endif
-      if(verbose()>=40) print *,'end of init_readqg'
+      if(verbose()>=40) write(6,*)'end of init_readqg'
       call iqindx2qg(qin,ifi, iq,qu)
       if(ifi==1) then
 c        call iqindx2(qin,ginv, qp,nqnump, iq,qu)
@@ -126,11 +126,11 @@ Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
       if(ifi==1) then
 c        call iqindx2(qin,ginv, qp,nqnump, iq,qu)
         ngv  = ngp(iq)
-        if(verbose()>=80) print *,'ngp=',ngv
+        if(verbose()>=80) write(6,*)'ngp=',ngv
       elseif(ifi==2) then
 c        call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         ngv  = ngc(iq)
-        if(verbose()>=80) print *,'ngc=',ngv
+        if(verbose()>=80) write(6,*)'ngc=',ngv
       endif
       return
 Cstop2rx 2013.08.09 kino      stop "readqg0: can not find QGpsi or QPcou for given q"
@@ -148,7 +148,7 @@ c- initialization. readin QGpsi or QGcou.
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,ik
       integer,allocatable:: ieord(:),key(:,:)
       ginv_=ginv
-      print *,' init_readqg ifi=',ifi
+      write(6,*)' init_readqg ifi=',ifi
       ifiqg=4052
       if(ifi==1) then
         open(ifiqg, file='QGpsi',form='unformatted')
@@ -238,17 +238,17 @@ Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
       kk2(:) = key(2,1:nkey(2))
       kk3(:) = key(3,1:nkey(3))
       deallocate(key)
-c      print *,' ifi init_qqq nqtt=',ifi,nqtt
-c      print *,'kkk3=',kkk3
-c      print *,'nkey=',nkey
-c      print *,'kk1=',kk1
+c      write(6,*)' ifi init_qqq nqtt=',ifi,nqtt
+c      write(6,*)'kkk3=',kkk3
+c      write(6,*)'nkey=',nkey
+c      write(6,*)'kk1=',kk1
       do i=1,nqtt
          kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
          call tabkk(kkk3(1), kk1,nkey(1), ik1)
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-c      print *,' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
+c      write(6,*)' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
       enddo
       deallocate(qxx)
       end subroutine init_readqg
@@ -275,8 +275,8 @@ c      print *,' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
             i2=mm
          endif
       enddo
-      print *, i1,i2,kkin
-      print *, kktable(i1),kktable(i2)
+      write(6,*) i1,i2,kkin
+      write(6,*) kktable(i1),kktable(i2)
       call rx( 'takk: error')
       end subroutine
 
@@ -325,16 +325,16 @@ c         nqtt => nqnumc
       if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv_,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
-c      print *,'kkk3=',kkk3
-c      print *,'kk1,nkey1',kk1,nkey(1)
-c      print *,'kk2,nkey2',kk2,nkey(2)
-c      print *,'kk3,nkey3',kk3,nkey(3)
+c      write(6,*)'kkk3=',kkk3
+c      write(6,*)'kk1,nkey1',kk1,nkey(1)
+c      write(6,*)'kk2,nkey2',kk2,nkey(2)
+c      write(6,*)'kk3,nkey3',kk3,nkey(3)
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-c      print *,' ik1ik2ik3=',ik1,ik2,ik3
+c      write(6,*)' ik1ik2ik3=',ik1,ik2,ik3
       iqindx = iqkkk(ik1,ik2,ik3)
-c      print *,'iqindx=',iqindx
+c      write(6,*)'iqindx=',iqindx
       qu = qtt(:,iqindx)
       end subroutine
 

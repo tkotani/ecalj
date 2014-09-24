@@ -27,10 +27,10 @@ c$$$         enddo
 c$$$         ixx= iclose('NBANDGW')
 c$$$         isave=1
 c$$$      endif
-c$$$      print *,' qin indx=',qin
+c$$$      write(6,*)' qin indx=',qin
 c$$$      ixx = iqindx(qin, ginv,qq(:,:,isp),nn)
 c$$$      ntqxx = intqxx( ixx,isp)
-c$$$      print *,' intqxx  ntqxx=',ntqxx,ixx
+c$$$      write(6,*)' intqxx  ntqxx=',ntqxx,ixx
 c$$$      end subroutine
 c$$$      integer function indxq(qin,isp, q,ispp,nn)
 c$$$      real(8):: qin(3),q(3,nn)
@@ -450,14 +450,14 @@ c      integer:: inii,iendi
 !kino 2014-08-13  !$    integer:: omp_get_thread_num
 c--------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,'wklm=0 test xxxxxxxxxxxxxx'
+c      write(6,*)'wklm=0 test xxxxxxxxxxxxxx'
 c      wklm=0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0 
 !TIME0 
 !TIME0 
 c      call getkeyvalue("GWinput","emax_d_sigm", emax_d_sigm, default=1d10)
-c      print *,'emax_d_sigm=',emax_d_sigm
+c      write(6,*)'emax_d_sigm=',emax_d_sigm
 
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -466,10 +466,10 @@ c      print *,'emax_d_sigm=',emax_d_sigm
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
       if(debug) then
-         print *, ' sxcf_fal3_scz:'
+         write(6,*) ' sxcf_fal3_scz:'
          if(GaussSmear()) then
-            print *,' new version: gaussian smearing!!!'
-            print *,' wintzsg wfacx weavx are related parts...'
+            write(6,*)' new version: gaussian smearing!!!'
+            write(6,*)' wintzsg wfacx weavx are related parts...'
             gass=GaussSmear()
             write(6,*)' sxcf_fal3_scz: new version: gaussian smearing=',gass
          endif
@@ -480,10 +480,10 @@ c      print *,'emax_d_sigm=',emax_d_sigm
       nstatetot      = nctot + nband
       call dinv33(qbas,0,qbasinv,det)
 
-      if(debug) print *, ' sxcf: 1'
+      if(debug) write(6,*) ' sxcf: 1'
       allocate(expikt(natom))
 cccccccccccccccccccccc
-c      print *, 'sssssssss',sizeof(expikt)
+c      write(6,*) 'sssssssss',sizeof(expikt)
 ccccccccccccccccccccccc
 
 !TIME1 "before 1001"
@@ -491,7 +491,7 @@ ccccccccccccccccccccccc
 !!== ip loop to spedify external q ==
       do 1001 ip = 1,nq         
          if(sum(irkip(:,:,ip))==0) cycle ! next ip
-         write (*,*) ip,'  out of ',nq,'  k-points(extrnal q) ' ! call cputid  (0)
+         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) ' ! call cputid  (0)
 c     call readeval(q(1,ip),isp,eq)
 !TIME0 
          q(1:3)= qip(1:3,ip)
@@ -505,21 +505,21 @@ c     deallocate(ecore)
 c     allocate(ecore(1)) !this is dummry
 c     endif
 c     if(debug) write(6,*) "goto sxcf_fal3_scz"
-c     print *, ' sxcf_fal3_scz:'
+c     write(6,*) ' sxcf_fal3_scz:'
 c     iq          = idxk (q,qbz,nqbz) ! index for q
 
 c     direct access read e,b and hb at q
 c     iqisp =isp + nsp*(iq-1)
 c     call rwdd1   (ifcphi, iqisp, 2*nlmtobnd, cphikq)
          call  readcphi(q, nlmto,isp, quu, cphikq)
-         if(debug) print *, ' sxcf: 2'
+         if(debug) write(6,*) ' sxcf: 2'
 
 c     b and hb of states {t} at q
          do      it = 1,ntq
             itp        = itq(it)
             cphiq(1:nlmto,it) = cphikq(1:nlmto,itp)
          enddo
-         if(debug) print *, ' sxcf: 3'
+         if(debug) write(6,*) ' sxcf: 3'
 
          if(bzcase()==1) then
             if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
@@ -544,14 +544,14 @@ c     --- gauss_img : interpolation gaussion for W(i \omega).
                expa_(ix) = exp(-(ua_*freqw)**2)
             enddo
          endif
-c     print *,' ua_auto ua_=',ua_auto,ua_
+c     write(6,*)' ua_auto ua_=',ua_auto,ua_
 c     if(newaniso()) ifvcoud = iopen('Vcoud',0,0,0)
 
          if(debug) then
             do ix = 1,niw
                write(6,"(' expa=',10d13.6)") freqx(ix),expa_(ix)
             enddo
-c     print *, 'test1 bbb'
+c     write(6,*) 'test1 bbb'
          endif
 
 c===============================
@@ -561,9 +561,9 @@ c     if(newaniso()) then
 c     continue
 c     else
 c     if(bzcase()==1) then
-c     c         print *, 'test1 bbb2'
+c     c         write(6,*) 'test1 bbb2'
 c     c           kx = 1  ! qibz(:,1)=0 contribution for kcount
-c     c          print *, 'test1 bbb3'
+c     c          write(6,*) 'test1 bbb3'
 c     c          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
 c     endif
 c     endif
@@ -572,7 +572,7 @@ c     --- main loop start
          iqini=2
          if(bzcase()==2) iqini=1
          iqend= nqibz+nq0i
-c     print *, 'test1 bbb4'
+c     write(6,*) 'test1 bbb4'
          if(newaniso()) then    !takao2012apr
             iqini=1
             iqend=nqibz         !no sum for offset-Gamma points.
@@ -592,35 +592,35 @@ c     if(exchange) iqend=nqibz
          do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
             if(sum(irkip(kx,:,ip))==0) cycle ! next kx
 !TIME0 
-            print *, ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
+            write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
             if( kx <= nqibz ) then
                qibz_k= qibz(:,kx)
             else
                qibz_k= 0d0
             endif
-            if(verbose()>=40)  print *, ' sxcf_fal2_scz: loop 1100 kx=',kx
+            if(verbose()>=40)  write(6,*) ' sxcf_fal2_scz: loop 1100 kx=',kx
             if(timemix) call timeshow("11111 k-cycle")
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c test
 c            if(kx/=iqini) then
 c             cycle !Gamma only test.
-c             print *,'Gamma onlytest skip kx=',kx
+c             write(6,*)'Gamma onlytest skip kx=',kx
 c            endif
 c
 c            if(abs(qibz_k(3))>1d-3) then
 c               cycle
-c               print *,' z-axis only skip kx=',kx,qibz_k
+c               write(6,*)' z-axis only skip kx=',kx,qibz_k
 c            endif
 c
 c
 c            if(abs(qibz_k(1))+abs(qibz_k(2))<1d-3) then
-c               print *,' z-axis skip kx=',kx,qibz_k
+c               write(6,*)' z-axis skip kx=',kx,qibz_k
 c               cycle
 c            endif
 c
 c            if(abs(qibz_k(1))+abs(qibz_k(2))><1d-3) then
-c               print *,' z-axis skip kx=',kx,qibz_k
+c               write(6,*)' z-axis skip kx=',kx,qibz_k
 c               cycle
 c            endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -628,7 +628,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
 c     ngc = ngcni(k)  ! k-points in IBZ
             ngb = nbloch + ngc
-            if(debug) print *, ' sxcf: ngb=',ngb,nbloch
+            if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
 !! note sep102012takao
@@ -644,7 +644,7 @@ c     ngc = ngcni(k)  ! k-points in IBZ
                do
                   read(ifvcoud) ngb0
                   read(ifvcoud) qvv
-c     print *,'readin qvv=',qvv
+c     write(6,*)'readin qvv=',qvv
                   if(allocated(vcoud)) deallocate(vcoud)
                   allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
                   read(ifvcoud) vcoud
@@ -658,7 +658,7 @@ c$$$                     if(kr==0) cycle ! next irot
 c$$$                     vcoud(1) =vcoud(1)*wqfac(kr)
 c$$$                     exit
 c$$$                  enddo
-c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww'
+c$$$                  write(6,*)'wwwwwwwwwww why here ?wwwwwwwwww'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -668,13 +668,13 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                   if(sum(abs(qvv-qxx))<1d-6) goto 1133
                enddo
                if(sum(abs(qvv-qxx))>1d-6) then
-                  print *,'qvv =',qvv
-                  print *,'qxx=',qxx,kx
+                  write(6,*)'qvv =',qvv
+                  write(6,*)'qxx=',qxx,kx
                   call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
                endif
  1133          continue
                if( ngb0/=ngb ) then !sanity check
-                  print *,' qxx ngb0 ngb=',qxx,ngb0,ngb
+                  write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
                   call rx( 'hsfp0.m.f:ngb0/=ngb')
                endif
 c$$$  if(sum(abs(qibz_k))<1d-6) then
@@ -683,14 +683,14 @@ c$$$  ifvcoud = iopen('Vcoud',0,0,0)
 c$$$  endif
 c$$$  read(ifvcoud) ngb0
 c$$$  if( ngb0/=ngb ) then
-c$$$  print *,' qibz_k=',qibz_k,ngb0,ngb
-c$$$  print *,' qibz_k=',qibz_k
+c$$$  write(6,*)' qibz_k=',qibz_k,ngb0,ngb
+c$$$  write(6,*)' qibz_k=',qibz_k
 c$$$  stop 'hsfp0.m.f:ngb0/=ngb'
 c$$$  endif
 c$$$  read(ifvcoud) qvv
 c$$$  if(sum(abs(qvv-qibz_k))>1d-6) then
-c$$$  print *,'qvv =',qvv
-c$$$  print *,'qibz_k=',qibz_k,kx
+c$$$  write(6,*)'qvv =',qvv
+c$$$  write(6,*)'qibz_k=',qibz_k,kx
 c$$$  stop 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent'
 c$$$  endif
 c$$$  if(allocated(zcousq)) deallocate(zcousq,vcousq,vcoud)
@@ -705,9 +705,9 @@ c$$$  vcousq=sqrt(vcoud) !
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
                if(allocated(ppovlz)) deallocate(ppovlz)
                allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-c               print *,'sssssssssssssss',sizeof(ppovlz)/1000000.
-c               print *,'sssssssssssssss',sizeof(ppovlz(1,1))
-c               print *,'sssssssssssssss',sizeof(ppovlz(1,1)),sizeof(reshape(ppovlz,(/1/)))
+c               write(6,*)'sssssssssssssss',sizeof(ppovlz)/1000000.
+c               write(6,*)'sssssssssssssss',sizeof(ppovlz(1,1))
+c               write(6,*)'sssssssssssssss',sizeof(ppovlz(1,1)),sizeof(reshape(ppovlz,(/1/)))
                call readppovl0(qibz_k,ngc,ppovl)
 c nnnnnnnnnnn comment out mulipled by ppovl. 
                ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
@@ -719,7 +719,7 @@ c               ppovlz(1:nbloch+ngc,:) = zcousq(1:nbloch+ngc,:) !may2013takao no
 !! read Coulomb interaction for exchange for newaniso=F
             if(exchange) then
 c     if(testomitq0()) then
-c     print *,'xxxxxxxxxxx takao test omit q0i aaaaa'
+c     write(6,*)'xxxxxxxxxxx takao test omit q0i aaaaa'
 c     if(allocated(vcoul)) deallocate(vcoul)
 c     endif
                if(.not.newaniso()) then 
@@ -841,11 +841,11 @@ c     endif
                   nbmxe = nocc (ekc,ebmx(2),.true.,nstatetot)-nctot
                   nbmax  = min(nband,nbmx(2),nbmxe)
                   if(initp) then
-                     print *,' nbmax=',nbmax
+                     write(6,*)' nbmax=',nbmax
                      initp=.false.
                   endif
                endif
-               if(debug) print *, ' sxcf: 1100c'
+               if(debug) write(6,*) ' sxcf: 1100c'
 !! ntqxx is number of bands for <i|sigma|j>.
                ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
                              !bug -ef is added jan2013
@@ -883,7 +883,7 @@ c$$$               write(if_ntqxxd,"(3f13.6,i5)") q(1:3),ntqxxd
 c$$$               if_ntqxxd=iclose(fffn)
 c$$$               write(6,*)' ntqxxd=',ip,isp,q(1:3),ntqxxd
 c$$$ccccccccccccccccccccccccccccccccccccccccccccc
-               if(debug) print *,' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
+               if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
                nstate = nctot + nbmax ! = nstate for the case of correlation
 !TIME1 "before expikt"
 !TIME0
@@ -898,8 +898,8 @@ c====================================================
                do ia = 1,natom
                   expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
                end do
-               if(debug) print *, ' sxcf: tr=',tr
-               if(debug) print *, ' sxcf: goto psicb2'
+               if(debug) write(6,*) ' sxcf: tr=',tr
+               if(debug) write(6,*) ' sxcf: goto psicb2'
 !! matrix elements
 !!   core
                nt   = nctot + nbmax ! = nstate for the case of correlation
@@ -913,7 +913,7 @@ c====================================================
      d              mdimx,nlmto,nbloch,nlnmx,nt,ntqxx,natom,nclass,
      d              nl,nnc,     
      o              zzzmel)
-               if(debug)  print *, ' sxcf_fal2sc: goto psi2bc1'
+               if(debug)  write(6,*) ' sxcf_fal2sc: goto psi2bc1'
 !!   valence
                call psi2b_v2  (nbmax, ntqxx,iclass,
      i              dreal(expikt(1:natom)),dimag(expikt(1:natom)),
@@ -932,7 +932,7 @@ c====================================================
 !TIME1 "bfore psi2b_v2"
 !TIME0
 !! -- IPW part.
-               if(debug) print *, ' sxcf_fal1: goto drvmelp2 xxx111'
+               if(debug) write(6,*) ' sxcf_fal1: goto drvmelp2 xxx111'
                allocate(drealzzzmel(nbloch,nt,ntqxx),dimagzzzmel(nbloch,nt,ntqxx))
                drealzzzmel=dreal(zzzmel)
                dimagzzzmel=dimag(zzzmel)
@@ -948,7 +948,7 @@ c====================================================
 c     i       dreal(zzzmel), dimag(zzzmel), nbloch, nt,nctot,
      i              drealzzzmel, dimagzzzmel, nbloch, nt,nctot,
      o              rmelt,cmelt)
-               if(debug) print *, ' sxcf_fal1: end of drvmelp2'
+               if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2'
                deallocate(drealzzzmel,dimagzzzmel)
                if(verbose()>50) call timeshow("5 after drvmelp")
                if(nbcut/=0.and.(.not.exchange)) then
@@ -1020,14 +1020,14 @@ c     1113 continue
                if(timemix) call timeshow("22222 k-cycle")
 !! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
                if(allocated(zzzmel))deallocate(zzzmel) !rmel,cmel)
-               if(debug) print *, ' sxcf: goto wtt'
+               if(debug) write(6,*) ' sxcf: goto wtt'
                if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 c     A matrix element check in Si. See the corresponding section of x0kf.f
 c     write(6,"(3f13.5)") q         !ntq
 c     write(6,"(3f13.5)") qbz(:,kr) !product basis
-c     print *,' sxcf: sumcheck rmelt cmelt='
+c     write(6,*)' sxcf: sumcheck rmelt cmelt='
 c     &   ,sum(rmelt(1:ngb,4,1))
 c     &   ,sum(cmelt(1:ngb,4,1))
 c     &   ,sum(abs(rmelt(1:ngb,4,1)))
@@ -1050,7 +1050,7 @@ c     do  it  = 1,nstate
 c     itp=1
 c     it =1
 c     do  itp = 1,ntq
-c     print *,' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
+c     write(6,*)' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
 c     do  ibl  = 1,ngb
 c     write(6,"(' rmelt cmelt =',3i4,4d14.6)")it,itp,ibl
 c     &  ,rmelt(ibl,it,itp) ,cmelt(ibl,it,itp)
@@ -1198,7 +1198,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                               do ivc=1,ngb
                                  if(ivc==1.and.kx==iqini) then
                                     vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
-c     print *,'wklm(1) vc=',wklm(1),vc
+c     write(6,*)'wklm(1) vc=',wklm(1),vc
                                  else
                                     vc= vcoud(ivc)
                                  endif
@@ -1337,7 +1337,7 @@ cKINO&             ngb,nstate,ntqxx,size(ppovlz,dim=1),size(ppovlz,dim=2)
                deallocate(rmelt,cmelt)
 !TIME1 "matmul zmel ppovlz"
 !TIME0
-               if(debug) print *,' end of zmel'
+               if(debug) write(6,*)' end of zmel'
 !!================================================================
 !! need to check the following notes.
 !!     The correlated part of the self-energy:
@@ -1393,7 +1393,7 @@ c$$$  ccccccccccccccccccccccccccccccccccccccccccc
                nrec=ix
 c     nrec=(kx-iqini)*(nw-nw_i+1) + ix !2 -->iqini newaniso
 c     if(bzcase()==2) nrec= (kx-1)*(nw-nw_i+1) + ix
-c     if(debug) print *,' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
+c     if(debug) write(6,*)' kx, nw,nw_i,ix,nrec=',kx,nw,nw_i,ix,nrec
 !TIME1 "before read frcw zw"
 !TIME0 
                read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
@@ -1406,7 +1406,7 @@ c$$$                     if(kr==0) cycle ! next irot
 c$$$                     zw(1,1) = zw(1,1)*wqfac(kr)
 c$$$                     exit
 c$$$                  enddo
-c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww11111111'
+c$$$                  write(6,*)'wwwwwwwwwww why here ?wwwwwwwwww11111111'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -1426,7 +1426,7 @@ c$$$     o            zwz0(1:nstate,ntqxxd+1:ntqxx,ntqxxd+1:ntqxx)) ! zwz = zmel
 !TIME0
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz0) ! zwz0 = zmel*(W(0)-v)*zmel
-c     print *,'sum check2---',sum(abs(zwz0))
+c     write(6,*)'sum check2---',sum(abs(zwz0))
 
 
 ccccccccccccccccccccccccccccccccccccccccccc
@@ -1512,7 +1512,7 @@ C     &     = zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itpp),1)
 C     enddo
 C     enddo
 C     enddo
-C     print *,'sum check1---',sum(abs(zwz(ix,:,:,:)))
+C     write(6,*)'sum check1---',sum(abs(zwz(ix,:,:,:)))
 C     enddo
 C     deallocate(CC)
 C     endif
@@ -1555,7 +1555,7 @@ c$$$                     if(kr==0) cycle ! next irot
 c$$$                     zw(1,1) = zw(1,1)*wqfac(kr)
 c$$$                     exit
 c$$$                  enddo
-c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww22222'
+c$$$                  write(6,*)'wwwwwwwwwww why here ?wwwwwwwwww22222'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 c!KINO                   write(*,'(i3,a,20i7)') mpi__rank,'before matzwz2',
@@ -1579,7 +1579,7 @@ c!KINO                   write(6,*)mpi__rank,'matzwz2 called',ix;call flush(6)
                   zwz(ix,1:nstate,1:ntqxx,1:ntqxx)= zwzix(1:nstate,1:ntqxx,1:ntqxx) 
 c     call matzwzs(zw(1:ngb,1:ngb), zmel, ntq, nstate,ngb,
 c     o    zwz(ix,1:nstate,1:ntq,1:ntq)) ! zwz = zmel*(W(0)-v)*zmel
-ccc   print *,'sum check2---',sum(abs(zwz(ix,:,:,:)))
+ccc   write(6,*)'sum check2---',sum(abs(zwz(ix,:,:,:)))
                enddo ! ix
 !kino 2014-08-13  !$OMP end  do 
                deallocate(zwzix) 
@@ -1839,8 +1839,8 @@ c     &     + dconjg( sum(zwzi(:,itp,itp)) )   )*.5d0          !sf 22May02
 c     end of SEc w-loop
                if(ua_auto) deallocate(uaa)
                if(debug2) then
-                  print *,' ntqxx nstate sum(zwzi)=',ntqxx,nstate,sum(zwzi)
-                  print *,' ntq   nstate sum(zwz )=',ntq,  nstate,sum(zwz)
+                  write(6,*)' ntqxx nstate sum(zwzi)=',ntqxx,nstate,sum(zwzi)
+                  write(6,*)' ntq   nstate sum(zwz )=',ntq,  nstate,sum(zwz)
                   do itp = 1,ntq
                      write(6,'(" zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip) !sf 22May02
                   enddo
@@ -1856,7 +1856,7 @@ c     end of SEc w-loop
 !TIME0
 ccccccccccccccccccccccccccccccccccccc
 c     if(onlyimagaxis()) then
-c     print *,' sxcf_fal2: onlyimagaxis cycle'
+c     write(6,*)' sxcf_fal2: onlyimagaxis cycle'
 c     deallocate(freq_r,zmel,zw,zmel1)
 c     goto 1100
 c     endif
@@ -1865,7 +1865,7 @@ ccccccccccccccccccccccccccccccccccccc
 c==============================================
 c     contribution to SEc(qt,w) from the poles of G
 c==============================================
-               if(debug) print *,' go to poles'
+               if(debug) write(6,*)' go to poles'
 c---------------------------------------
 c     maximum ixs reqired.
 c---------------------------------------
@@ -1928,7 +1928,7 @@ c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                if (nwxi < nw_i) then
                   call rx( ' sxcf_fal3_sc nwxi check: |w-e| > max(w)')
                endif
-               if(debug) print *,'nw, nwx=',nw,nwx
+               if(debug) write(6,*)'nw, nwx=',nw,nwx
                if(verbose()>50)call timeshow("10before alagr3z iw,itp,it ")
 
 C...  Find nt_max ------------------------------------
@@ -1973,7 +1973,7 @@ c$$$                     if(kr==0) cycle ! next irot
 c$$$                     zw(1,1) = zw(1,1)*wqfac(kr)
 c$$$                     exit
 c$$$                  enddo
-c$$$                  print *,'wwwwwwwwwww why here ?wwwwwwwwww333333333333'
+c$$$                  write(6,*)'wwwwwwwwwww why here ?wwwwwwwwww333333333333'
 c$$$                  endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                   do igb2=1,ngb
@@ -1985,7 +1985,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
                deallocate(zw)   !,zw4
                if(timemix) call timeshow("55555 k-cycle")
                if(test_symmetric_W().and.npm==2) then
-                  if(onceww(4)) print *,' test_symmetric_W()=',test_symmetric_W(),nwxi,nwx
+                  if(onceww(4)) write(6,*)' test_symmetric_W()=',test_symmetric_W(),nwxi,nwx
                   allocate(zw3x(ngb,ngb))
                   do ix= 1,min(abs(nwxi),nwx)
                      zw3x = 0.5d0* (zw3(:,:,ix) + zw3(:,:,-ix))
@@ -2136,7 +2136,7 @@ c     and must be made hermitean when zsec will be written on disc
 !TIME0 
                deallocate(zw3, zmel, zwz44,zwz4)
                if(verbose()>50)call timeshow("11after alagr3z iw,itp,it cycles")
-               if(debug) print *,' end of do 2001 or 2002 '
+               if(debug) write(6,*)' end of do 2001 or 2002 '
  1050          continue
                if(debug) then
                   do itp = 1,ntq
@@ -2147,7 +2147,7 @@ c     and must be made hermitean when zsec will be written on disc
                deallocate(freq_r)
  1000       continue ! end do irot
 
-c            print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
+c            write(6,*) 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
             if(newaniso()) ifvcoud =iclose('Vcoud.'//charnum5(kx))
             if(.not.exchange) then
                ifrcw  = iclose('WVR.'//charnum5(kx))
@@ -2158,8 +2158,8 @@ c            print *, 'end kx=',kx,' out of iqend=',iqend,' exchange=',exchange
          if(newaniso()) ifvcoud =iclose('Vcoud')
          if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
 ccccccccccccccccccccccccccccc
-c     print *," end kount ip irot=", irot, ip, sum(kount(:,ip))
-c     print *," sumkount 1=",irot,ip,sum(kount(:,:))
+c     write(6,*)" end kount ip irot=", irot, ip, sum(kount(:,ip))
+c     write(6,*)" sumkount 1=",irot,ip,sum(kount(:,:))
 cccccccccccccccccccccccccccc
          if (allocated(vcoul))deallocate(vcoul)
  1001 continue ! end do ip

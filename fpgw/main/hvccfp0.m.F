@@ -152,18 +152,18 @@ C --- q, nqbz, alat, qlat, nbas, bas
       allocate(qibz(3,nqibz),iqibzx(nqbz))
       read(ifhvccfp) qibz(1:3,1:nqibz)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      print *,' voltot=',voltot
+      write(6,*)' voltot=',voltot
       write(6,*)
       write(6,"(i4,3f13.6)")(i,qibz(1:3,i),i=1,nqibz)
-c      print *," xxx=",alat, plat,qlat, nqbz, nbas, nband
-c      print *," xxx=",qbz,bas,rmax
-c      print *," xxx=",rmax
+c      write(6,*)" xxx=",alat, plat,qlat, nqbz, nbas, nband
+c      write(6,*)" xxx=",qbz,bas,rmax
+c      write(6,*)" xxx=",rmax
 c      is = iclose ('HVCCIN')
 
 c$$$!!! 9dec2012
 c$$$      ifiwqfac = iopen('WQFAC',0,-1,0)
 c$$$      read(ifiwqfac) nnn
-c$$$      print *,'nnn nqbz=',nnn,nqbz
+c$$$      write(6,*)'nnn nqbz=',nnn,nqbz
 c$$$c      if(nnn/=nqbz) stop 'hvccfp0_sc: readin nnn WQFAC/= nqbz'
 c$$$      allocate( wqfac(nnn),qbzwww(3,nnn) )
 c$$$      read(ifiwqfac) wqfac,qbzwww
@@ -296,9 +296,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccc
 c TEST cccccccccccccccccccccccccccccccccccccc
       if(besseltest) then
-        print *
-        print *
-        print *, ' *** TEST case ***  rprodx is given by Bessel.'
+        write(6,*)
+        write(6,*)
+        write(6,*) ' *** TEST case ***  rprodx is given by Bessel.'
 ccc test G, corresponding <q+G|v|q+G> should be exact. e.g. ig1=1 and  ig1=35 for iqx=2
 ccc You can change these values for tests. ccccccccccccc
         iqx  = 2
@@ -410,7 +410,7 @@ c      if(allochk)
 c     &  write(*,*) 'allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))'
       allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))
       call scg(lmxcg,cg,indxcg,jcg)
-      if(allochk) print *,' end of scg: cg coefficients generated.'
+      if(allochk) write(6,*)' end of scg: cg coefficients generated.'
 
 
       call dinv33(qlat,0,ginv,det)
@@ -572,7 +572,7 @@ c     &  !skip
         iqxini=1
 c        iqxend=nqibz ! comment out at 18nov2012
       endif
-      print *,'iqxini iqxend=',iqxini,iqxend
+      write(6,*)'iqxini iqxend=',iqxini,iqxend
 c qibz loop
 c      epsx =  0.01d0
       if(bzcase()==1) then
@@ -745,7 +745,7 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
       do 1001 iqx = mpi__iini, mpi__iend ! q=(0,0,0) is omitted!
 c$$$      do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
-        write(*,"('#### do 1001 start iqx=',i5)")iqx
+        write(6,"('#### do 1001 start iqx=',i5)")iqx
         vcoudfile='Vcoud.'//charnum5(iqx)  !this is closed at the end of do 1001
         ifvcoud = iopen(trim(vcoudfile),0,-1,0)
         if(iqx > nqibz) then  !       iq = 1
@@ -786,7 +786,7 @@ c        q=q/4
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C--- strxq structure factor.
-        if(allochk) print *,' goto strxq'
+        if(allochk) write(6,*)' goto strxq'
         if(allochk) write(*,*) 'allocate( strx(nlxx,nbas,nlxx,nbas))'
         allocate( strx(nlxx,nbas,nlxx,nbas))
         do ibas1 =1,nbas
@@ -820,7 +820,7 @@ c$$$      if(.true.) then !==New version without sgpp and fouvp allocation June2
 c     &            sgpp(ngc, ngc, nlxx, nbas),
 c     &           fouvp(ngc, ngc, nlxx, nbas) )
         do ibas = 1,nbas
-          if(allochk) print *,' --- goto mkjp_4',ibas
+          if(allochk) write(6,*)' --- goto mkjp_4',ibas
           call mkjp_4(q,ngc, ngvecc, alat, qlat, 
      i      lxx, lx(ibas),nxx, nx(0:lxx,ibas),  
      i      bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), 
@@ -837,7 +837,7 @@ c     o      fouvb(1,1,1,ibas))
         enddo
 
 C--- the Coulomb matrix
-        if(allochk) print *,' goto vcoulq_4'
+        if(allochk) write(6,*)' goto vcoulq_4'
         call vcoulq_4(q, nbloch, ngc,  
      i                  nbas, lx,lxx, nx,nxx,
      i                  alat, qlat, voltot, ngvecc,
@@ -851,7 +851,7 @@ c     i                  alat, qlat, voltot, ngvecc,
 c     i       strx, rojp,rojb, sgbb,sgpb, fouvb, !sgpp,fouvp,
 c     i       nblochpmx, bas,rmax,
 c     o          vcoul)
-        if(allochk) print *,' end of vcoulq_4'
+        if(allochk) write(6,*)' end of vcoulq_4'
         deallocate( strx, rojp,sgpb,fouvb)
 
 c$$$      else !===old version (allocation of sgpp and fouvp are required) ====
@@ -863,7 +863,7 @@ c$$$     &           fouvb(ngc, nxx, nlxx, nbas),
 c$$$     &            sgpp(ngc, ngc, nlxx, nbas),
 c$$$     &           fouvp(ngc, ngc, nlxx, nbas) )
 c$$$       do ibas = 1,nbas
-c$$$          print *,' xxx goto mkjp',ibas
+c$$$          write(6,*)' xxx goto mkjp',ibas
 c$$$          call mkjp2(q,ngc, ngvecc, alat, qlat,
 c$$$     i      lxx, lx(ibas),nxx, nx(0:lxx,ibas),
 c$$$     i      bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas),
@@ -873,7 +873,7 @@ c$$$     o      fouvb(1,1,1,ibas),
 c$$$     o      sgpp(1,1,1,ibas),fouvp(1,1,1,ibas) )
 c$$$       enddo
 c$$$c--- the Coulomb matrix
-c$$$       print *,' goto vcoulq'
+c$$$       write(6,*)' goto vcoulq'
 c$$$       call vcoulq(q, nbloch, ngc,
 c$$$     i                  nbas, lx,lxx, nx,nxx,
 c$$$     i                  alat, qlat, voltot, ngvecc,
@@ -977,7 +977,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Reduction of pmat by SVD ... not meaningful
 c      nnmx = 1000000
 c      epsmx= 1D20
-cc      print *,' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
+cc      write(6,*)' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
 c      call  zgesvdnn2(nn,nn, nnmx,epsmx,
 c     o   oon, ! pmat is reduced to pmat(1:no,1:nnn) by SVD.
 c     o   ngcnn)
@@ -1097,7 +1097,7 @@ c        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
 
           allocate( oox(ngb,ngb) )
           oox = oo
-          print *,' --- goto eigen check1 --- '
+          write(6,*)' --- goto eigen check1 --- '
           allocate(  vcoul0(ngb,ngb) )
           vcoul0 = vcoul(1:ngb,1:ngb)
           if(allochk)
@@ -1144,7 +1144,7 @@ c            endif
           write(ifvcoud) zz
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        print *,' dddddddddddddddd q=',q
+c$$$        write(6,*)' dddddddddddddddd q=',q
 c$$$        do ix=1,ngb
 c$$$        do iy=1,ngb
 c$$$          aaaa=  sum(  dconjg(zz(1:ngb,ix))*matmul( oox,zz(1:ngb,iy))  )
@@ -1160,12 +1160,12 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-          print *
+          write(6,*)
           write(6,'(" eig0 must be equal to the largest =", 2d24.16)')
      &       sum(  dconjg(zz(1:ngb,1))*matmul( vcoul0,zz(1:ngb,1))  )
           write(6,'(" zz norm check=",d24.16)')
      &    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
-          print *
+          write(6,*)
 c          write(6,'(" --- vcoul(exact  no eee)=",d14.6," absq2=",d24.16)')
 c     &    fpi*voltot/(sum(tpiba**2*q(1:3)**2))
 c     &             , (sum(tpiba**2*q(1:3)**2))
@@ -1212,12 +1212,12 @@ c1... Case1 to write ifgb0vec -------------------------------------
                   exit
                 endif
               enddo
-              print *,' igc0=',igc0,ngvecc(1:3,igc0)
+              write(6,*)' igc0=',igc0,ngvecc(1:3,igc0)
               zzr(nbloch+1:nbloch+ngc) = ppovl(1:ngc,igc0)
             endif
 
             allocate( gbvec(ngb), b0mat(nbloch) )
-            print *,' goto mkb0'
+            write(6,*)' goto mkb0'
 
 C ... get a vector <Product Basis| q+0>
             call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx,
@@ -1277,28 +1277,20 @@ c2---------------------
         endif
         idummy=iclose(trim(vcoudfile))
  1001 continue
-
       deallocate(ngvecc)
       call cputid(0)
-
+      call flush(6)
       call MPI__Finalize
-
-Cstop2rx 2013.08.09 kino      if(imode==202) stop ' OK! hvccfp0 imode=202 only for Q0P'
       if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
-c      if(imode==101) stop ' OK! hvccfp0 imode=101 overwirte VCCFP'
-c      if(imode==102) stop ' OK! hvccfp0 imode=102 remove_r0c'
-Cstop2rx 2013.08.09 kino      if(imode==0) stop ' OK! hvccfp0 imode=0'
       if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
-Cstop2rx 2013.08.09 kino      if(imode==3) stop ' OK! hvccfp0 imode=3'
       if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
-
       end
 
       subroutine checkagree(a,b,char)
       real(8):: a(3),b(3)
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
-        print *,' Error in checkagree:',char
+        write(6,*)' Error in checkagree:',char
 Cstop2rx 2013.08.09 kino        stop ' Error in checkagree:'
         call rx( ' Error in checkagree:')
       endif
@@ -1431,7 +1423,7 @@ c      pomat = matmul(pmat, matmul(zze,dconjg(transpose(zz))))
         oo(i,i) = 1d0
       enddo
       call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev)
-      print *,' diagcvv: ngb,nev=',ngb,nev
+      write(6,*)' diagcvv: ngb,nev=',ngb,nev
       do i=1,nev
         write(6,'(i4,d23.16)')i, eb(i)
       enddo
@@ -1449,7 +1441,7 @@ Cio output reduced pmat(no,nnn)
       real(8):: ss(nn),epsmx
       real(8),allocatable:: rwork(:)
       complex(8),allocatable:: work(:),vtt(:,:),pmatx(:,:)
-c      print *,' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
+c      write(6,*)' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
       lwork=4*no
       allocate(work(LWORK),rwork(5*no),pmatx(no,nn))
       pmatx =pmat

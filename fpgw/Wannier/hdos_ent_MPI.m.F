@@ -73,7 +73,7 @@ c WS supercell
 
 c loop over spin
       do      is = 1,nspin
-      print *, ' --- is=',is
+      write(6,*) ' --- is=',is
 
 c> output file
 !      ifbnd = 98

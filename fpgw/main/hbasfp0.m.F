@@ -72,7 +72,7 @@ c--------------------------------------------------------------------------
      &            ' and <rho_spin |B(I)> ### ')")
         incwfin = 0
       else
-        print *,' hbasfp: input is out of range'
+        write(6,*)' hbasfp: input is out of range'
 Cstop2rx 2013.08.09 kino        stop    ' hbasfp: input is out of range'
         call rx( ' hbasfp: input is out of range')
       endif
@@ -84,7 +84,7 @@ Cstop2rx 2013.08.09 kino      if (iflmto <= 0) stop 'unit file for LMTO <= 0'
       if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
       call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
       nsp=nspin
-      print *,'end of rgwinf'
+      write(6,*)'end of rgwinf'
 !! readin lcutmxa ------------
       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifinin,status=ret)
       allocate(lcutmxa(1:natom))
@@ -102,7 +102,7 @@ c          write(6, '(" lcutmxa=",20i3)' ) lcutmxa(1:natom)
       close(ifinin)
 
       if(ix==8) then
-         print *,' Enfoece lcutmx=0 for all atoms'
+         write(6,*)' Enfoece lcutmx=0 for all atoms'
          lcutmxa=0
       endif
 
@@ -134,7 +134,7 @@ c> reindex nocc,nunocc,nindx
       call reindx  (occv,unoccv,nindxv,   occc,unoccc,nindxc,
      d              nl,nn,nnv,nnc,nclass,
      o              nocc,nunocc,nindx)
-      print *,' --- end of reindx ---'
+      write(6,*)' --- end of reindx ---'
 
 c-----------
 c read PHIVC  and reserve it to phitot
@@ -160,7 +160,7 @@ c----------
         read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
         read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
-          print *, 'ic icx=',ic,icx
+          write(6,*) 'ic icx=',ic,icx
 Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
           call rx( 'hbasfp0: ic/=icx')
         endif
@@ -213,7 +213,7 @@ c-----------
 
 !! READIN ANFcond ------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
-      print *,' ANFcond exist? =',anfexist
+      write(6,*)' ANFcond exist? =',anfexist
       if(anfexist) then
         allocate(ibasf(natom),idid(natom)) !,transaf(1:3,natom))
         ifianf = 211
@@ -246,7 +246,7 @@ Cstop2rx 2013.08.09 kino          if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ib
         if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
 Cstop2rx 2013.08.09 kino     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
      &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
-        print *,' end of readin ANFcond:'
+        write(6,*)' end of readin ANFcond:'
       endif
 
 !! override cutbase to make epsPP_lmfh safer. may2013takao

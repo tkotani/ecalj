@@ -46,11 +46,11 @@ c wqp   = quasiparticle width
       logical legas,lprev
 c
 !      if(jin==999999) then
-!c         print *,' jin=999999 use given shift '
+!c         write(6,*)' jin=999999 use given shift '
 !      elseif(jin>0) then
 !        iq = jin/ntq + 1
 !        it = jin - (iq-1)*ntq
-!        print *,' eshift is so as to be zero for UP of (it iq)= ',it,iq
+!        write(6,*)' eshift is so as to be zero for UP of (it iq)= ',it,iq
 !        eshift  = zfac(it,iq)
 !     .           * (sex(it,iq)+sexcore(it,iq)+rsec(2,it,iq)-vxc(it,iq))
 !        eshift0 = - elda(it,iq) - eshift

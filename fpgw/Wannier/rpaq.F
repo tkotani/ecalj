@@ -107,7 +107,7 @@ c      call diagno(nbloch,wpv,ovlp,wdiag,iwdiag,evec,eval)
       wpvc = dcmplx( wpv(:,:,1), wpv (:,:,2))
       nev  = nbloch
       nmx  = nbloch
-c      print *,' goto diagcv-----------'
+c      write(6,*)' goto diagcv-----------'
       call diagcv(ovlpc,wpvc, evecc, nbloch, eval, nmx, 1d99, nev)
       evec(:,:,1) =dreal(evecc)
       evec(:,:,2) =dimag(evecc)
@@ -138,15 +138,15 @@ C- weight for k-point sampling
           wk = wqt(ip-nqibz)* 1d0/dble(nqbz) 
         endif
         if(abs(wibz(1)-2d0/dble(nqbz)) >1d-10) then
-          print *,' wibz(1) nqbz=',wibz(1),nqbz
-          print *,' sum wibz=',sum(wibz)
-          print *, ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
+          write(6,*)' wibz(1) nqbz=',wibz(1),nqbz
+          write(6,*)' sum wibz=',sum(wibz)
+          write(6,*) ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
           stop     ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
         endif
       endif  
       if(abs(sum(wibz)-2d0)>1d-10) then
-        print *,' sum(wibz)=',sum(wibz)
-        print *,' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
+        write(6,*)' sum(wibz)=',sum(wibz)
+        write(6,*)' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
         stop    ' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '
       endif
       end

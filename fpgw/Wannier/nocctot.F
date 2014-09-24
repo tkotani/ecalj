@@ -29,8 +29,8 @@ c nqbz    = no. k-points
         enddo
       enddo
       if(ispin==1) nocctot = nocctot*2
-      print *,' Ef=',ef
-      print *,' wgt nocc=',wgt,nocctot
+      write(6,*)' Ef=',ef
+      write(6,*)' wgt nocc=',wgt,nocctot
       end
 
 c------------------------------------------------------------------

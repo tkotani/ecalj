@@ -31,7 +31,7 @@ c     cpusec=0d0
 c     cpumin=0d0
 c----
       if(ifile .le. 0)then
-        write(*,6400)cpusec,cpumin
+        write(6,6400)cpusec,cpumin
       else
         write(ifile,6400)cpusec,cpumin
       end if
@@ -59,7 +59,7 @@ c                     for HP: secnds(0.0)
 c                        DEC: etime(etw)
 c ifile = file number where the cpu time information is
 c         to be printed
-c ifile = 0 ==> screen
+c ifile = 0 ==> screen (id=6)
       real*4 cpuetime, etw(2),cpulast, etime
       real*4 cpu0 /-1.d0/
       save cpu0
@@ -95,7 +95,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       cpumin   = cpusec/60.d0
 #endif
       if(ifile .eq. 0)then
-        write(*,6400)cpusec,cpumin
+        write(6,6400)cpusec,cpumin
       else
         write(ifile,6400)cpusec,cpumin
       end if
@@ -126,7 +126,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       cpumin   = cpusec/60.d0
 #endif
       if(ifile .eq. 0)then
-        write(*,6401)trim(message),cpusec,cpumin
+        write(6,6401)trim(message),cpusec,cpumin
       else
         write(ifile,6401)trim(message),cpusec,cpumin
       end if
@@ -154,7 +154,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
 
       if (rank.eq.0) then 
       if(ifile .eq. 0)then
-        write(*,6402)trim(message),cpumax,cpumax/60.0d0 , cpumin,cpumin/60.0d0
+        write(6,6402)trim(message),cpumax,cpumax/60.0d0 , cpumin,cpumin/60.0d0
       else
         write(ifile,6402)trim(message),cpumax,cpumax/60.d0, cpumin,cpumin/60.d0
       end if
@@ -215,7 +215,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
         diff = i2-i1(id)
         if (i1(id)>i2) diff=imax-i1(id)+i2
         diff= dble(i2-i1(id))/dble(irate)  ! real time
-       ! write(*,*)'mpi=',str_rank,trim(msg),diff
+       ! write(6,*)'mpi=',str_rank,trim(msg),diff
         elapse(id)=elapse(id)+diff  
       endif 
 #endif

@@ -168,7 +168,7 @@ c---------------------------------------
       hartree=2d0*rydberg()
 
       iii=verbose()
-      print *,' verbose=',iii
+      write(6,*)' verbose=',iii
 
 c mode switch. --------------
       write(6,*) ' --- Choose omodes below ----------------'
@@ -190,12 +190,12 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqibz ngrp=',nqibz,ngrp
-      print *,' nqbz  =',nqbz
-c      print *,  qbz 
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+      write(6,*)' nqibz ngrp=',nqibz,ngrp
+      write(6,*)' nqbz  =',nqbz
+c      write(6,*)  qbz 
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 
 c set up work array
 c      call wkinit (iwksize)
@@ -234,7 +234,7 @@ c-------------------------------------------------------------------
 c      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
-      print *,' hsfp0: end of genallcf2'
+      write(6,*)' hsfp0: end of genallcf2'
 c
       call pshprt(30)
       pi   = 4d0*datan(1d0)
@@ -263,7 +263,7 @@ c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should 
       open (102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      print *,'  --- Readingin CLASS info ---'
+      write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
@@ -302,15 +302,15 @@ c
      i        qbz,nqbz !index_qbz, n_index_qbz,
      o       ,efnew)
 c
-c        print *,' end of efsimple'
+c        write(6,*)' end of efsimple'
         ef = efnew
       endif ! lbnds
 c- check total ele number -------
       ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-      print *,' ef    =',ef
-      print *,' esmr  =',esmr
-      print *,' valn  =',valn
-      print *,' ntot  =',ntot
+      write(6,*)' ef    =',ef
+      write(6,*)' esmr  =',esmr
+      write(6,*)' valn  =',valn
+      write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
@@ -354,7 +354,7 @@ ctm, 080222
       else ! lsyml
         write(*,*)'Read k points for bands from GWinput'
         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret) 
-        print *,' ifqpnt ret=',ifqpnt,ret
+        write(6,*)' ifqpnt ret=',ifqpnt,ret
 c
         lqall      = .false.
         laf        = .false.
@@ -390,7 +390,7 @@ c
 c------------
 c input parameters specific to MAXLOC
       call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
-      print *,' ifmloc ret=',ifmloc,ret
+      write(6,*)' ifmloc ret=',ifmloc,ret
       read (ifmloc,*) nwf
       allocate (nphi(nwf))
       read (ifmloc,*) (nphi(i),i=1,nwf)
@@ -430,7 +430,7 @@ c      do      ip = 1,nq
 cc        iq       = idxk (q(1,ip),qbze,nqbze)
 cc        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
 c        call readeval(q(1,ip),is,eqt)
-cc        print *,' eqt=',eqt
+cc        write(6,*)' eqt=',eqt
 c        eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
 c        eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
 c      enddo
@@ -538,7 +538,7 @@ c read uu-matrix
 
 !! step 1  -- choose Hilbert space -- determine cnk
       write(*,*)'Step 1: Hilbert space branch'
-      print *,' iko_ix iko_fx=',iko_ix,iko_fx
+      write(6,*)' iko_ix iko_fx=',iko_ix,iko_fx
       allocate (amnk(iko_ix:iko_fx,nwf,nqbz),
      &          upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz),
      &          cnk(iko_ix:iko_fx,nwf,nqbz),
@@ -887,7 +887,7 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
       enddo
-c      print *,'eeeeeeeee'
+c      write(6,*)'eeeeeeeee'
       deallocate(qbze)
 ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
 cc          if (iq.le.nqbz) then
@@ -904,7 +904,7 @@ cc             e2 = (eunk(iband,iq)-ef)*rydberg()
       allocate(eval1(nwf,nq),eval3(nwf,nq))
       if(lsh) allocate(eval2(nwf,nq))
       do iq = 1,nq
-c         print *,' got get_hrotkp_ws iq =',iq
+c         write(6,*)' got get_hrotkp_ws iq =',iq
 c (3-3) Hrot_mn(k')
           call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
      d                     nwf,nqbz,nrws,

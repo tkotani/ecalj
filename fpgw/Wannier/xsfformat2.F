@@ -26,13 +26,13 @@ c input
       double precision,parameter:: zero=0.0d0 
       double precision :: Z(natom)
       integer:: ic,ia,nrange(3),idim, iimg
-      print *,'--- goto wrt_xsf basename=',basename,natom
+      write(6,*)'--- goto wrt_xsf basename=',basename,natom
       do ia=1,natom
         ic=iclass(ia)
         Z(ia)=zz(ic)
       enddo
       do ia=1,3
-         print *,'rini rfin=',ia,rini(ia),rfin(ia)
+         write(6,*)'rini rfin=',ia,rini(ia),rfin(ia)
          nrange(ia)= max( -floor(rini(ia)), ceiling(rfin(ia)) ) 
       enddo 
       write(*,*) 'nrange=',nrange(1:3) 

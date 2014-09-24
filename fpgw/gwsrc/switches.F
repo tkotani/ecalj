@@ -6,7 +6,7 @@
       logical,save:: init=.true.
       if(init) then
         call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
-        print *,'Q0Pchoice=',ttt
+        write(6,*)'Q0Pchoice=',ttt
         init=.false.
       endif
       if(ttt==1) then
@@ -25,7 +25,7 @@ c
       logical,save:: init=.true.,ttt
       if(init) then
         call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
-        print *,'LFC@Gamma=',ttt
+        write(6,*)'LFC@Gamma=',ttt
         init=.false.
       endif
       localfieldcorrectionllw=ttt
@@ -79,7 +79,7 @@ c screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of
       logical,save:: init=.true.
       if(init) then
         call getkeyvalue("GWinput","Vkappa",ttt,default=1d-5)
-        print *,'Vkappa=',ttt
+        write(6,*)'Vkappa=',ttt
         init=.false.
       endif
       screenfac= -ttt  !note negative sign
@@ -98,9 +98,8 @@ c      end
 c===========================================================
       subroutine headver(head,id1)
       character*(*) head
-      write(6,"(a,a, i3)") head,": VerNum= xxx: imode=",id1
-Cstop2rx 2013.08.09 kino      if(id1==-9999) stop '---end of version check!'
-      if(id1==-9999) call rx( '---end of version check!')
+c      write(6,"(a,a, i3)") head,": VerNum= xxx: imode=",id1
+c      if(id1==-9999) call rx( '---end of version check!')
       end
 c============================================================
       logical function is_mix0vec()
@@ -388,7 +387,7 @@ c      logical:: readgwinput
         else
           verbosex=0
         endif
-c        print *,' verbose=',verbosex
+c        write(6,*)' verbose=',verbosex
         init=.false.
       endif
       verbose=verbosex
@@ -418,7 +417,7 @@ c         recrdxxx = recrdxxx0//' #'
 c         read(recrdxxx,*) a1, keyw2
 c         if(keyw1==keyw2) GaussSmearx=.true.
 c         close(ifinin)
-c         print *,' GaussSmear=',GaussSmearx
+c         write(6,*)' GaussSmear=',GaussSmearx
 c        endif
         init=.false.
       endif
@@ -437,7 +436,7 @@ c      logical:: readgwinput
       integer(4),save:: ret,q0pchoicex
       if(init) then
 c       if(readgwinput()) then
-c         print *,' goto getkeyvalue'
+c         write(6,*)' goto getkeyvalue'
         call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
 c       endif
         init=.false.
@@ -510,7 +509,7 @@ c      subroutine  rewrite_wgtq0p(aaa)
 c      real(8):: www,aaa
 c      common /wgtq00/www
 c      www = aaa
-c      print *, ' www=',www
+c      write(6,*) ' www=',www
 c      return
 c      end
 

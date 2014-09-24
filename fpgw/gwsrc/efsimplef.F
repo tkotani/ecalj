@@ -45,22 +45,22 @@ c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear()) then
-        print *,' efsimplef2(gaussian mode):start'
+        write(6,*)' efsimplef2(gaussian mode):start'
       else
-        print *,' efsimplef2(rectangular mode):start'
+        write(6,*)' efsimplef2(rectangular mode):start'
       endif
       if(esmr<=0d0) autoew=.true.
 c total valence charge
       if(legas) then
-        print *,' efsimplef2: legas=T use given valn = ',valn
+        write(6,*)' efsimplef2: legas=T use given valn = ',valn
       else
         valn    = 0d0
         do ia   = 1,natom
           ic    = iclass(ia)
           valn  = valn + z(ic)
-          print *,' ia z(ic)=',ia, z(ic)
+          write(6,*)' ia z(ic)=',ia, z(ic)
           do    l = 0,nl-1
-            print *,' l (konfig(l,ic)-l-1) 2*(2l+1)=',l,(konfig(l,ic)-l-1),( 2*l +1)*2
+            write(6,*)' l (konfig(l,ic)-l-1) 2*(2l+1)=',l,(konfig(l,ic)-l-1),( 2*l +1)*2
             valn  = valn - (konfig(l,ic)-l-1) *( 2*l +1)*2
           end do
         end do
@@ -68,7 +68,7 @@ c total valence charge
 ccccccccccccccccccccccccccccccccccccccccccc
 c      valn=29d0
 cccccccccccccccccccccccccccccccccccccccccc
-        print *,' valn=',valn
+        write(6,*)' valn=',valn
 c
       do is = 1,ispin
         do iq = 1,nqibz
@@ -83,7 +83,7 @@ c     o              ekt(1,iq,is) )
       enddo
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
-        print *, 'sum (wibz)=', sum(wibz(1:nqibz))
+        write(6,*) 'sum (wibz)=', sum(wibz(1:nqibz))
 Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
         call rx( 'efsimplef2: wibzsumerr')
       endif
@@ -99,7 +99,7 @@ c ekt and wgt
       call dcopy ( nband*nqibz*ispin, wgt,1, wgtx ,1)
       call sortea( ektx,ieaord,nband*nqibz*ispin,isig)
 c
-c      print *,nband,nqibz,ispin,nband*nqibz*ispin
+c      write(6,*)nband,nqibz,ispin,nband*nqibz*ispin
 c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
@@ -161,7 +161,7 @@ ccc gaussian
         valx= enumef( wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))
      &               ,efini,esmr,nbnqnsp)
       endif
-      print *, 'valx at efini=',efini,valx
+      write(6,*) 'valx at efini=',efini,valx
       if(abs(valx-valn)<1d-8) then
         ef=efini
         goto 8891
@@ -193,8 +193,8 @@ c
         close(8302)
       endif 
 
-c      print *,' esmr        =',esmr
-c      print *,' determined ef =',ef
+c      write(6,*)' esmr        =',esmr
+c      write(6,*)' determined ef =',ef
 c----------------------------------
 c      wwg = 0d0
 c      do ik  = 1, nband*nqibz*ispin
@@ -209,17 +209,17 @@ c         ef      = ektx(ieaord(ik))
 c         wfacef  = (valn-wwgo)/wgtx(ieaord(ik))
 c         efp = ef + 0.5d0*(ektx(ieaord(ik+1))-ektx(ieaord(ik)))  !efp is just above the fermi
 c         efm = ef - 0.5d0*(ektx(ieaord(ik))-ektx(ieaord(ik-1)))  !efm is just below the fermi
-c          print *,' determined ef    =',ef
-c          print *,'            efp   =',efp
-c          print *,'            efm   =',efm
-c          print *,'           wfacef =',wfacef
+c          write(6,*)' determined ef    =',ef
+c          write(6,*)'            efp   =',efp
+c          write(6,*)'            efm   =',efm
+c          write(6,*)'           wfacef =',wfacef
 c          return
 c        endif
 c     enddo
       if(GaussSmear()) then
-        print *,' efsimplef2(gauss):end'
+        write(6,*)' efsimplef2(gauss):end'
       else
-        print *,' efsimplef2:end'
+        write(6,*)' efsimplef2:end'
       endif
       end
 c----------------------------------------------------------------------------
@@ -273,14 +273,14 @@ c      real(8) :: efp,efm,wwgo,wfacef
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear()) then
-        print *,' efsimplef2(gaussian mode):start'
+        write(6,*)' efsimplef2(gaussian mode):start'
       else
-        print *,' efsimplef2(rectangular mode):start'
+        write(6,*)' efsimplef2(rectangular mode):start'
       endif
       if(esmr<=0d0) autoew=.true.
 c total valence charge
       if(legas) then
-        print *,' efsimplef2: legas=T use given valn = ',valn
+        write(6,*)' efsimplef2: legas=T use given valn = ',valn
       else
         valn    = 0d0
         do ia   = 1,natom
@@ -290,7 +290,7 @@ c total valence charge
             valn  = valn - (konfig(l,ic)-l-1) *( 2*l +1)*2
           end do
         end do
-        print *,' valn=',valn
+        write(6,*)' valn=',valn
       endif
 c
       do is = 1,ispin
@@ -309,7 +309,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       enddo
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
-        print *, 'sum (wibz)=', sum(wibz(1:nqibz))
+        write(6,*) 'sum (wibz)=', sum(wibz(1:nqibz))
 Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
         call rx( 'efsimplef2: wibzsumerr')
       endif
@@ -325,7 +325,7 @@ c ekt and wgt
       call dcopy ( nband*nqibz*ispin, wgt,1, wgtx ,1)
       call sortea( ektx,ieaord,nband*nqibz*ispin,isig)
 c
-c      print *,nband,nqibz,ispin,nband*nqibz*ispin
+c      write(6,*)nband,nqibz,ispin,nband*nqibz*ispin
 c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
@@ -385,7 +385,7 @@ ccc gaussian
         valx= enumef( wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))
      &               ,efini,esmr,nbnqnsp)
       endif
-      print *, 'valx at efini=',efini,valx
+      write(6,*) 'valx at efini=',efini,valx
       if(abs(valx-valn)<1d-8) then
         ef=efini
         goto 8891
@@ -417,8 +417,8 @@ c
         close(8302)
       endif
 
-c      print *,' esmr        =',esmr
-c      print *,' determined ef =',ef
+c      write(6,*)' esmr        =',esmr
+c      write(6,*)' determined ef =',ef
 c----------------------------------
 c      wwg = 0d0
 c      do ik  = 1, nband*nqibz*ispin
@@ -433,17 +433,17 @@ c         ef      = ektx(ieaord(ik))
 c         wfacef  = (valn-wwgo)/wgtx(ieaord(ik))
 c         efp = ef + 0.5d0*(ektx(ieaord(ik+1))-ektx(ieaord(ik)))  !efp is just above the fermi
 c         efm = ef - 0.5d0*(ektx(ieaord(ik))-ektx(ieaord(ik-1)))  !efm is just below the fermi
-c          print *,' determined ef    =',ef
-c          print *,'            efp   =',efp
-c          print *,'            efm   =',efm
-c          print *,'           wfacef =',wfacef
+c          write(6,*)' determined ef    =',ef
+c          write(6,*)'            efp   =',efp
+c          write(6,*)'            efm   =',efm
+c          write(6,*)'           wfacef =',wfacef
 c          return
 c        endif
 c     enddo
       if(GaussSmear()) then
-        print *,' efsimplef2(gauss):end'
+        write(6,*)' efsimplef2(gauss):end'
       else
-        print *,' efsimplef2:end'
+        write(6,*)' efsimplef2:end'
       endif
       end
 
@@ -459,15 +459,15 @@ c------------------------------------------------------
      &    *0.5d0* derfcx( -(ein-ektx(ik))/sqrt(2d0)/esmr )
       enddo
       enumef_gauss = wwg
-c     print *,' ein enumef=', ein, enumef
+c     write(6,*)' ein enumef=', ein, enumef
       end
 
       real(8) function derfcx(a)
       real(8):: a, derfc,ax, amx=12d0
       ax = a
       if( abs(a)>amx) ax= a/abs(a) * amx
-c      print *,' xxx ',ax
-c      print *,' yyy ',derfc(ax)
+c      write(6,*)' xxx ',ax
+c      write(6,*)' yyy ',derfc(ax)
       derfcx=derfc(ax)
       end
 
@@ -475,10 +475,10 @@ c------------
       real(8) function enumef( wgtx,ektx,ein,esmr,nbnqnsp)
       implicit real*8(a-h,o-z)
       real(8) :: ektx(nbnqnsp),wgtx(nbnqnsp)
-c     print *, esmr
+c     write(6,*) esmr
       wwg = 0d0
       do ik = 1, nbnqnsp
-c       print *,'ik=',ik,ektx(ik),wgtx(ik)
+c       write(6,*)'ik=',ik,ektx(ik),wgtx(ik)
         if    (  ektx(ik) + 0.5d0*esmr < ein ) then
           wwg  = wwg + wgtx(ik)
         elseif(  ektx(ik) - 0.5d0*esmr < ein ) then
@@ -486,7 +486,7 @@ c       print *,'ik=',ik,ektx(ik),wgtx(ik)
         endif
       enddo
       enumef = wwg
-c     print *,' ein enumef=', ein, enumef
+c     write(6,*)' ein enumef=', ein, enumef
       end
 
 

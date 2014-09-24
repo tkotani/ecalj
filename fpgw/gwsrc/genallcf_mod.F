@@ -85,9 +85,9 @@ c     &  ,occc(:,:,:),unoccc(:,:,:)
 c     &  ,ncwf(:,:,:)
 c      real(8),allocatable:: plat(:,:),pos(:,:),z(:)
 c      character*6,allocatable:: clabl(:)
-c      print *,' goto rgwin'
+c      write(6,*)' goto rgwin'
 c      call rgwinf_v3 (iflmto,ifinin,nwin,efin,incwfx) !these are inputs
-c      print *,' end of rgwinf_v3'
+c      write(6,*)' end of rgwinf_v3'
 c-------------------------------------------------------------------------
 c--- rgwinf ---
       ifi = iflmto
@@ -99,7 +99,7 @@ c--- rgwinf ---
 c      call rmvbl (symgrpt,120,j)
 c      symgrp = '  '//symgrpt(j+1:120)
       symgrp='  '//trim(adjustl(symgrpt))
-      print *,' symgrp=', symgrp
+      write(6,*)' symgrp=', symgrp
 
       read(ifi,*)
       read(ifi,*)
@@ -115,7 +115,7 @@ c      symgrp = '  '//symgrpt(j+1:120)
 c-------------------------------------
       nclass = natom  !We set nclass = natom through the GW calculations
 c-------------------------------------
-      print *,' alat natom=',alat,natom
+      write(6,*)'genalloc: alat natom=',alat,natom
       allocate(pos(3,natom))       !positions of atoms
       read(ifi,*)
       do n = 1,natom
@@ -129,7 +129,7 @@ c-------------------------------------
       read(ifi,*)nl              !max. no. valence and core l
       read(ifi,*)
       read(ifi,*)nnv,nnc   !max. no. valence and core n
-      print *,' nspin nl nnv nnc =',nspin,nl,nnv,nnc
+      write(6,*)' nspin nl nnv nnc =',nspin,nl,nnv,nnc
 c--------------------------
       if(nnv==1) nnv=2 ! for backword compatibility!takao apr 2002
       ! nnv=2 corresponds to phi and phidot
@@ -158,7 +158,7 @@ ctakao
 c      incwfx = incwf
 c      call defi    (incwf2,nl*nnc*nclass)
 c      call defi    (incwf,nl*nnc*nclass)
-c      print *,' goto rgwinaf use incfw2=',useincfw2
+c      write(6,*)' goto rgwinaf use incfw2=',useincfw2
       call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass,
 c> BZ
      o                  n1,n2,n3,ef,
@@ -178,10 +178,10 @@ c----
         unoccc=0    ! call iclear(nl*nnc*nclass, w(iunoccc))
         ncwf  =0    ! call iclear(nl*nnc*nclass, w(incwf))
       elseif( incwfx==-1 ) then
-        print *,' ### incwf=-1 Use ForSxc for core'
+        write(6,*)' ### incwf=-1 Use ForSxc for core'
         ncwf = ncwf2  !call icopy(nl*nnc*nclass,w(incwf2),w(incwf))
       elseif( incwfx==-2 ) then
-        print *,' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
+        write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
         call notbit(nl*nnc*nclass, ncwf2)
         ncwf  = ncwf2 ! call icopy (nl*nnc*nclass, w(incwf2),w(incwf))
         occc= ncwf  ! call icopy (nl*nnc*nclass, w(incwf),w(ioccc))
@@ -189,14 +189,14 @@ c----
       elseif( incwfx==-3 ) then
         call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
         unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
-        print *,' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
+        write(6,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
       elseif( incwfx==-4 ) then
-        print *,' ### incwf=-4  occ=0 and unocc=0 for all core '
+        write(6,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
         occc=0  !call iclear(nl*nnc*nclass, w(ioccc))
         unoccc=0 !call iclear(nl*nnc*nclass, w(iunoccc))
         ncwf=0  !call iclear(nl*nnc*nclass, w(incwf))
       elseif(incwfx==0) then
-        print *,' ### Use unocc occ ForX0 for core'
+        write(6,*)' ### Use unocc occ ForX0 for core'
       else
 Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
         call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
@@ -233,7 +233,7 @@ c      tpia       = 2d0*pi/alat
 
 c> frequency mesh
 c      call defdr   (ifreq,nw)
-      print *,' nw from rgwinaf=',nw
+      write(6,*)' nw from rgwinaf=',nw
       if(nw>0) then
         allocate(freq(nw))
         call genfreq (nw,dw,0.d0,
@@ -250,12 +250,12 @@ c      call defi    (incore,nclass)
      d              nl,nnc,nclass,natom,
      o              icore,ncore,nctot )
 ccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,' nnc=',nnc,nl,nclass,natom
-c      print *,' ncwf ',ncwf
-c      print *,' nindxc ',nindxc
-c      print *,' iclass ',iclass
-c      print *,' --- icore=',icore
-c      print *,' --- ncore nctot=',ncore,nctot
+c      write(6,*)' nnc=',nnc,nl,nclass,natom
+c      write(6,*)' ncwf ',ncwf
+c      write(6,*)' nindxc ',nindxc
+c      write(6,*)' iclass ',iclass
+c      write(6,*)' --- icore=',icore
+c      write(6,*)' --- ncore nctot=',ncore,nctot
 ccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c> core energies
@@ -354,7 +354,7 @@ c      call defi    (iinvg,ngrp)
 c      is = iclose ('GWIN_V2')
       is = iclose ('ECORE')
       call cputid(0)
-      write (*,*) 'genallcf_v3'
+      write(6,*) 'genallcf_v3'
       end subroutine
       end module
 

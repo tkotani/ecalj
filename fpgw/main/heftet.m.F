@@ -122,12 +122,12 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqbz qbz =',nqbz
-c      print *,  qbz
-      print *,' nqibz ngrp=',nqibz,ngrp2
-c      print *,' irk=',irk
-      print *,' #### idtetf: ####'
-c      print *, idtetf
+      write(6,*)' nqbz qbz =',nqbz
+c      write(6,*)  qbz
+      write(6,*)' nqibz ngrp=',nqibz,ngrp2
+c      write(6,*)' irk=',irk
+      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 
 
 cccc set up work array
@@ -181,7 +181,7 @@ c      if (nclass > mxclass) stop ' heftet:increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
-      print *,' hsfp0: end of genallcf2'
+      write(6,*)' hsfp0: end of genallcf2'
 c
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
@@ -195,7 +195,7 @@ c--- ef is taken as rs for the empty-sphere test case of legas=T case ----------
       legas = .false.
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(legas) then !!! test for electron gas case.
-        print *,' find LEGAS. legas =',legas
+        write(6,*)' find LEGAS. legas =',legas
         iflegas = 2101
         open (iflegas,file='LEGAS')
         read(iflegas,*)rs
@@ -225,7 +225,7 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
 
 C --- Locate band limits ---
       if(legas) then
-        print *,' efsimplef2: legas=T use given valn = ',valn
+        write(6,*)' efsimplef2: legas=T use given valn = ',valn
       else
         call getvaln(
      i       konf,z,nl,natom,iclass,nclass
@@ -236,7 +236,7 @@ cccccccccccccccccccccccccccccccccc
 
 cccccccccccccccccccccccccccccccccccccccccc
 c      valn=29d0
-c      print *,' valn=',valn
+c      write(6,*)' valn=',valn
 cccccccccccccccccccccccccccccccccccccccccc
 
       if(imode==1) then
@@ -247,8 +247,8 @@ cccccccccccccccccccccccccccccccccccccccccc
         ddq = 0d0
         if(bzcase()==2) ddq= dq_bzcase2
         if(.not.qbzreg()) ddq= ddq- dq_bzcase2
-        print *,' nsp nqbz =', nsp,nqbz
-c        print *,' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
+        write(6,*)' nsp nqbz =', nsp,nqbz
+c        write(6,*)' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
         do is  = 1,nsp !Readin eband
           ix = 0
           do iqi = 1,nqbz
@@ -282,10 +282,10 @@ c$$$     o       ,efnew)
 c$$$        ef = efnew
 c$$$c ... check total ele number -------
 c$$$        ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !require init_readeigen
-c$$$        print *,' ef by smearing   =',ef
-c$$$        print *,' esmr             =',esmr
-c$$$        print *,' valn             =',valn
-c$$$        print *,' ntot             =',ntot
+c$$$        write(6,*)' ef by smearing   =',ef
+c$$$        write(6,*)' esmr             =',esmr
+c$$$        write(6,*)' valn             =',valn
+c$$$        write(6,*)' ntot             =',ntot
 
 c ... read eband
         if(qbzreg() .and. bzcase()==1 ) then
@@ -294,7 +294,7 @@ c ... read eband
             do iqi = 1,nqibz
               call readeval(qibz(:,iqi),is,  eband(:,is,iqi))
               write(6,"(' -------- qibz=',2i5,3f9.4)")iqi,is,qibz(:,iqi)
-c           print *,eband(:,is,iqi)
+c           write(6,*)eband(:,is,iqi)
             enddo
           enddo
         endif
@@ -328,9 +328,9 @@ Cstop2rx 2013.08.09 kino            if(efxx/=efxx)stop 'efxx dirrerent TOTE.UP T
 Cstop2rx 2013.08.09 kino              if(it /= itx ) stop ' heftet: it /=itx '
               if(it /= itx ) call rx( ' heftet: it /=itx ')
               if(sum(abs(qq(1:3)-qz(1:3,iqi)))>1d-6 ) then
-                print *, 'iqi it=',iqi,it
-                print *, qq(1:3)
-                print *, qz(1:3,iqi)
+                write(6,*) 'iqi it=',iqi,it
+                write(6,*) qq(1:3)
+                write(6,*) qz(1:3,iqi)
 Cstop2rx 2013.08.09 kino                stop ' heftet: q in TOTE /=qz (iqi) '
                 call rx( ' heftet: q in TOTE /=qz (iqi) ')
               endif
@@ -371,7 +371,7 @@ cccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccc
       if(e1 /= e2) then
         if(.not. ( qbzreg().and.bzcase()==1 ) ) then
-          print *,"Fermi energy finder for off-regular mesh"//
+          write(6,*)"Fermi energy finder for off-regular mesh"//
      &          "(Chi_RegQbz off)or bzcase==2 is not implimented yet..."
 Cstop2rx 2013.08.09 kino          stop 
           call rx( ''//
@@ -382,12 +382,12 @@ cccccccccccccccccccccccccccccccccccccccccccc
 
       if(e1 == e2) then ! --- Find band gap  e1=e2 is at the middle of gap---
         efermi = e1
-        print *,'heftet: only filled or empty bands encountered.'
+        write(6,*)'heftet: only filled or empty bands encountered.'
         write(ifief,"(2d23.15,a)") efermi,bandgap,
      &  ' ! This efermi bandgap are obtained by heftet: '
         write(ifief,"(a)")'heftet: only filled or empty bands encountered.'
       else ! --- Find the Fermi energy by the Tetrahedron method ---
-        print *,' goto bzints2 for dos'
+        write(6,*)' goto bzints2 for dos'
         allocate(dos(nptdos))
         volwgt = (3.d0 - nsp) / ntetf ! ntetf was =6*n1*n2*n3
         write (6,"(1x,'heftet : ---- Tetrahedron Integration ---- ')")
@@ -415,7 +415,7 @@ c- eband check
         do  is  = 1,nspin
           do  iqi = 1,nqibz
             if( eband(nband,is,iqi) <efermi) then
-              print *,' heftet: WARNING! eband(maxband) is less than efermi:
+              write(6,*)' heftet: WARNING! eband(maxband) is less than efermi:
      &    you might have to enlarge nband to get efermi by tetrahedron'
               goto 666
             endif

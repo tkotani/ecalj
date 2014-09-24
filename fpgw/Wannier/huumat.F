@@ -143,11 +143,11 @@ c--- Use regular mesh even for bzcase==2
 ctm 050802
       if (ixc.le.4) stop "huumat: bzcase=2 is not implemented."
       endif
-      print *,' ======== nqbz qbz  =',nqbz
-      print *,' ======== nqibz ngrp=',nqibz,ngrp
-      print *,  qbz 
-      print *,'============================'
-      print *
+      write(6,*)' ======== nqbz qbz  =',nqbz
+      write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
+      write(6,*)  qbz 
+      write(6,*)'============================'
+      write(6,*)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
       nwin = -999    !readin condition. Not readin NW file
@@ -185,10 +185,10 @@ c --- read dimensions of h,hb
 c --- read by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2(nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
-      print *,' ngpmx=',ngpmx
+      write(6,*)' ngpmx=',ngpmx
 
 c --- read radial functions PHIVC   (taken from hasfp0)
-      print *,' Go to readining phivc'
+      write(6,*)' Go to readining phivc'
       ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
       read(ifphi) nbas, nradmx, ncoremx,nrx
       if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
@@ -202,7 +202,7 @@ c --- read radial functions PHIVC   (taken from hasfp0)
      &        phitoto(nrx,0:nl-1,nn,nbas,nspin),
      &        phitotr(nrx,0:nl-1,nn,nbas,nspin),
      &        nc_max(0:nl-1,nbas),ncore(nbas),rmax(nbas) )
-      print *,' end of allocation'
+      write(6,*)' end of allocation'
       read(ifphi) nrad(1:nbas)
       read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
       nc_max=0
@@ -211,18 +211,18 @@ c --- read radial functions PHIVC   (taken from hasfp0)
         write(6,*)' --- read PHIVC of ibas nrad=',ibas,nrad(ic)
         read(ifphi) ncore(ic), ncoremx                            !core
         read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
-        print *,' xxx0'
+        write(6,*)' xxx0'
         read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
 
-        print *, 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
+        write(6,*) 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
            stop ' h_uu: ic/=icx'
         endif
-        print *,' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
+        write(6,*)' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
         read(ifphi) rr(1:nrofi(ic),ic)
-        print *,' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
+        write(6,*)' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
 
-        print *,' xxx2 nspin=',nspin
+        write(6,*)' xxx2 nspin=',nspin
         rmax(ic) = rr(nrofi(ic),ic)
         do isp = 1, nspin
           write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
@@ -233,15 +233,15 @@ c --- read radial functions PHIVC   (taken from hasfp0)
             phitotr(1:nrofi(ic),l,n, ic,isp)=              !core raw= core orthgonal
      &      phitoto(1:nrofi(ic),l,n, ic,isp)               !
             if(n>nc_max(l,ic)) nc_max(l,ic)=n
-            print *,' sss1c=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
+            write(6,*)' sss1c=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
           enddo
           do irad = 1, nrad(ic)   !valence
             l = lindx_r (irad,ic)
             n = nindx_r (irad,ic) + nc_max(l,ic)
             read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal 
             read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
-            print *,' sss1=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
-            print *,' sss2=',sum(abs(phitotr(1:nrofi(ic),l,n, ic,isp)))
+            write(6,*)' sss1=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
+            write(6,*)' sss2=',sum(abs(phitotr(1:nrofi(ic),l,n, ic,isp)))
           enddo
         enddo  
       enddo   
@@ -260,7 +260,7 @@ c --- initiallization to get eigenfunctions
       call init_readeigen2(mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband),geig2(ngpmx,nband))
-      print *, 'end of initialization'
+      write(6,*) 'end of initialization'
 
 c --- Readin nlam index
       ifoc = iopen('@MNLA_CPHI',1,0,0)
@@ -273,7 +273,7 @@ c --- Readin nlam index
       enddo   
 
 c ---  q near zero
-      print *, 'reading QOP'
+      write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
 !      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
@@ -564,7 +564,7 @@ C --- ppovl= <P_{q1+G1}|P_{q2+G2}>
       call readqg('QGpsi',q2,ginv, q2x, ngp2, ngvecpf2)
 c      call checkagree(q1,q1x,' q1 ne q1x xxx2')
 c      call checkagree(q2,q2x,' q2 ne q2x xxx2')
-c      print *,' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))
+c      write(6,*)' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))
 c 19June2004 T.Miyake  ccccccccccccccccccccccccccccccc
       do i = 1,3
       ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg(i)
@@ -575,7 +575,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    ngp2, ngvecpf2, 
      &    nbas, rmax, pos,  
      o    ppovl)
-c      print *,' end of mkppovl2'
+c      write(6,*)' end of mkppovl2'
 
 c ... lxx and allocations
       lxx=2*(nl-1)
@@ -630,7 +630,7 @@ ccccccccccccccccccccccc
           call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic),
      &        ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
 c          if(l1==l2.and.n1==n2.and.lx==0) 
-c         print *, ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
+c         write(6,*) ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
    25    continue
  125    continue
  900  continue
@@ -768,7 +768,7 @@ check write
       endif
 
 c--- write resutlt 
-c      print *,' ============ result --- diagonal --- =============='
+c      write(6,*)' ============ result --- diagonal --- =============='
 c      do ispin = 1,nspin
 c      do j1=j1min,j1max
 c      do j2=j2min,j2max
@@ -776,7 +776,7 @@ c       if(j1==j2) write(6,"(' ispin=',i2,' j1j2=',2i4,' <u|u>=',2d13.5,' abs=',
 c     & ispin,j1,j2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
 c      enddo
 c      enddo
-c      print *,'--- off diagonal ----------------------'
+c      write(6,*)'--- off diagonal ----------------------'
 c      do j1=j1min,j1max
 c      do j2=j2min,j2max
 c       if(j1/=j2) write(6,"(' ispin=',i2,' j1j2=',2i4,' <u|u>=',2d13.5,' abs=',f13.5)") 
@@ -800,7 +800,7 @@ c end of iqbz-loop
  980  format('uu: norm check',i4,i5,2i4,f12.6)
  990  format(3i6)
 
-      print *, ' ====== end ========================================'
+      write(6,*) ' ====== end ========================================'
       call rx0(' ok! end of huumat ')
       end
 
@@ -808,7 +808,7 @@ c end of iqbz-loop
       real(8):: a(3),b(3) 
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
-         print *,' Error in checkagree:',char
+         write(6,*)' Error in checkagree:',char
          stop ' Error in checkagree:'
       endif
       end

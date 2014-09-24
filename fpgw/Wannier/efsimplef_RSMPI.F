@@ -113,7 +113,7 @@ c ekt and wgt
       call dcopy ( nband*nqibz*ispin, wgt,1, wgtx ,1)
       call sortea( ektx,ieaord,nband*nqibz*ispin,isig)
 c
-c      print *,nband,nqibz,ispin,nband*nqibz*ispin
+c      write(6,*)nband,nqibz,ispin,nband*nqibz*ispin
 c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
@@ -210,8 +210,8 @@ c
         write(8302,*) " ef=",ef
         close(8302)
       endif
-c      print *,' esmr        =',esmr
-c      print *,' determined ef =',ef
+c      write(6,*)' esmr        =',esmr
+c      write(6,*)' determined ef =',ef
 c----------------------------------
 c      wwg = 0d0
 c      do ik  = 1, nband*nqibz*ispin
@@ -226,10 +226,10 @@ c         ef      = ektx(ieaord(ik))
 c         wfacef  = (valn-wwgo)/wgtx(ieaord(ik))
 c         efp = ef + 0.5d0*(ektx(ieaord(ik+1))-ektx(ieaord(ik)))  !efp is just above the fermi
 c         efm = ef - 0.5d0*(ektx(ieaord(ik))-ektx(ieaord(ik-1)))  !efm is just below the fermi
-c          print *,' determined ef    =',ef
-c          print *,'            efp   =',efp
-c          print *,'            efm   =',efm
-c          print *,'           wfacef =',wfacef
+c          write(6,*)' determined ef    =',ef
+c          write(6,*)'            efp   =',efp
+c          write(6,*)'            efm   =',efm
+c          write(6,*)'           wfacef =',wfacef
 c          return
 c        endif 
 c     enddo

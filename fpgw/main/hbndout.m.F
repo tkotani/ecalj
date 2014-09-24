@@ -32,8 +32,8 @@ c
       character(16):: aa1(nlinemax),aa2(nlinemax)
 c---------------------------------
       call headver('hbndout',0)
-      print *,'--- bndout : make band-plot data LDA and QP ---'
-      print *,'--- Readin TOTE2'
+      write(6,*)'--- bndout : make band-plot data LDA and QP ---'
+      write(6,*)'--- Readin TOTE2'
 
       inquire(file='TOTE2',exist=allb) !if allb=F, we only plot LDA ones.
       if(allb) then
@@ -81,7 +81,7 @@ c     &  qxx,itq(it),iqx, elda(it,iq), eqp1(it,iq), eqp2(it,iq)
             qp(:,iq) = qxx
           else
             if( sum(abs(qp(:,iq)-qxx))>1d-10 ) then
-              print *,' it iq iqx',it,iq,iqx
+              write(6,*)' it iq iqx',it,iq,iqx
 Cstop2rx 2013.08.09 kino              stop 'bndout: badQPU qxx'
               call rx( 'bndout: badQPU qxx')
             endif
@@ -92,7 +92,7 @@ Cstop2rx 2013.08.09 kino              stop 'bndout: badQPU qxx'
       eqp2 = eqp2 - elda  ! dSEnoZ
 
 c---Readin SYML
- 2001 print *,'--- Readin SYML'
+ 2001 write(6,*)'--- Readin SYML'
       d0min =.false.
       d0max =.false.
       allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
@@ -131,15 +131,15 @@ Cstop2rx 2013.08.09 kino  602 stop 'bndout: Error readin SYML derivative switche
       close(ifsyml)
       nline = nline - 1
 ccccccccccccccccccccc
-c      print *, 'readin SYML line=',nline
+c      write(6,*) 'readin SYML line=',nline
 c      stop
 ccccccccccccccccccccc
       nqnumx = sum (nqq(1:nline))
       nqqmx = maxval(nqq(1:nline))
-      print *,' nline nqnumx nqqmx= ',nline, nqnumx, nqqmx
+      write(6,*)' nline nqnumx nqqmx= ',nline, nqnumx, nqqmx
 
 c --- Readin LBAND
-      print *,'--- Readin LBAND'
+      write(6,*)'--- Readin LBAND'
       iflband = 3001
       open(iflband,form='unformatted',file='LBAND')
       read(iflband) ndimh, nqnum
@@ -148,13 +148,13 @@ c --- Readin LBAND
       write(6,"(' plat =',9f12.6)") plat
       write(6,"(' qlat =',9f12.6)") qlat
       if(nqnum/=nqnumx) then
-        print *, nqnum, nqnumx
+        write(6,*) nqnum, nqnumx
 Cstop2rx 2013.08.09 kino        stop 'hbndout: nqnum of LBAND and SYML is inconsistent'
         call rx( 'hbndout: nqnum of LBAND and SYML is inconsistent')
       endif
 
 c ---- Readin symops(3,3,ng)
-      print *,'--- Readin SYMOPS'
+      write(6,*)'--- Readin SYMOPS'
       ifi= iopenxx('SYMOPS')
       read(ifi,*) ngrp
       allocate( symops(3,3,ngrp) )
@@ -166,17 +166,17 @@ c ---- Readin symops(3,3,ng)
       enddo
       close(ifi)
 c
-c      print *,' xxx1 ngrp=',ngrp
+c      write(6,*)' xxx1 ngrp=',ngrp
       nxx = ngrp
       allocate(qb(3,nqqmx,nline),
      &      ibidx(ndimh,nqqmx,nline),
      &       evl (ndimh,nqqmx,nline),
      &     qqr(3,nxx,nq),nx(nq),nag(nline),qpos(nqqmx,nline))
 
-      print *,' xxx2 qb = ----------------ndimh=',ndimh
+      write(6,*)' xxx2 qb = ----------------ndimh=',ndimh
 
       do iline = 1,nline
-        print *,' iline nqq=',iline,nqq(iline)
+        write(6,*)' iline nqq=',iline,nqq(iline)
         do iqq   = 1,nqq(iline)
           read(iflband) ilinex, qb(1:3,iqq,iline), qpos(iqq,iline)
      &      ,(ibidx(ibr,iqq,iline),evl(ibr,iqq,iline),ibr=1,ndimh)
@@ -197,7 +197,7 @@ ccccccccccccccccccccccccccccccccc
       enddo
       close(iflband)
 
-c      print *,' xxx3'
+c      write(6,*)' xxx3'
       do iq = 1,nq
         ix=0
         do ig= 1,ngrp
@@ -217,7 +217,7 @@ c        enddo
 ccccccccccccccccccc
       enddo
 
-c      print *,' xxx4'
+c      write(6,*)' xxx4'
 c qqr(3,1:nx(iq), iq) -------------------
       nagmx = nqqmx
       allocate(iq_ag(nagmx,nline),iqq_ag(nagmx,nline))
@@ -285,7 +285,7 @@ c      enddo
 c      enddo
 c      stop ' bndout: can not find zero level along SYML.'
 c 1134 continue
-c      print *,' zero level=',  zerolevel
+c      write(6,*)' zero level=',  zerolevel
 
 
 
@@ -299,7 +299,7 @@ c----
           do ibr = 1, ndimh
             naa=0
             do iag = 1,nag(iline)
-!            print *,iline,ibr,iag,iqq_ag(iag,iline),' ibidx=',
+!            write(6,*)iline,ibr,iag,iqq_ag(iag,iline),' ibidx=',
 !     &               ibidx(ibr,iqq_ag(iag,iline),iline)
               it = itqinv( ibidx(ibr,iqq_ag(iag,iline),iline) )
               if(it==0) cycle
@@ -346,7 +346,7 @@ c
 c
 c      do iline= 1, nline
 c      do ibr  = 1, ndimh
-c        if(iout(ibr,iline)/=0) print *,' ibr iline iout= '
+c        if(iout(ibr,iline)/=0) write(6,*)' ibr iline iout= '
 c     &  ,ibr,iline, iout(ibr,iline)
 c      enddo
 c      enddo

@@ -119,13 +119,13 @@ c
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         ifvxcfp  = iopen('VXCFPV',0,0,0)
-        print *,' OPEN VXCFPV = valence only Vxc'
+        write(6,*)' OPEN VXCFPV = valence only Vxc'
       else
-        print *,' OPEN VXCFP '
+        write(6,*)' OPEN VXCFP '
         ifvxcfp  = iopen('VXCFP',0,0,0)
       endif
       read(ifvxcfp) ldim,nqbz
-      print *,' rsexx ldim,nqbz',ldim,nqbz
+      write(6,*)' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
       do ikp = 1,nqbz
 c        read(ifvxcfp) qqq(1:3,ikp),(vxcfpx(i,ikp),i=1,ldim)
@@ -192,13 +192,13 @@ c
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         ifvxcfp  = iopen('VXCFPV',0,0,0)
-        print *,' OPEN VXCFPV = valence only Vxc'
+        write(6,*)' OPEN VXCFPV = valence only Vxc'
       else
-        print *,' OPEN VXCFP '
+        write(6,*)' OPEN VXCFP '
         ifvxcfp  = iopen('VXCFP',0,0,0)
       endif
       read(ifvxcfp) ldim,nqbz
-      print *,' rsexx ldim,nqbz',ldim,nqbz
+      write(6,*)' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
       do ikp = 1,nqbz
 c        read(ifvxcfp) qqq(1:3,ikp),(vxcfpx(i,ikp),i=1,ldim)
@@ -330,7 +330,7 @@ c wgt0(irreducible-k, irotation)
       integer(4) :: ixx,ix,i, ngrp,ig,nq0i
       real(8)     :: q0(3,6),q0i(3,6),symops(3,3,ngrp),sym(3,3),
      &  sym2(3,3),qt(3), q0in(3,ngrp*nq0i), wgt0(nq0i,ngrp), wqt(nq0i)
-c      print *,' q0iwgt:'
+c      write(6,*)' q0iwgt:'
       wgt0 = 0d0
 C      ixx = 0
       do i = 1,nq0i
@@ -386,7 +386,7 @@ c-----------------------------------------------------------------
       integer(4):: n=1000
       do 10 i = 1,n
         read(ifil,'(a72)')rchar
-c      print *, rchar
+c      write(6,*) rchar
 c        j       = 0
 c        call rmvbl (rchar,72,j)
 c        rchar      = rchar(j+1:72)

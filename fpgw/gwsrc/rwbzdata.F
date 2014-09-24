@@ -20,7 +20,7 @@ c- After you call this, you can access Brillowin Zone datas above ----
       integer(4):: intq(3),iqbz,ifbz,n,verbose
       real(8) :: qout(3)
       ifbz = 6661
-      print *,' ### readin BZDATA ###'
+      write(6,*)' ### readin BZDATA ###'
 ctest
 c         write(6,*) "ixc=",ixc
 c         stop 'xxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxx'
@@ -28,8 +28,7 @@ c         stop 'xxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxx'
       open (ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r
       read(ifbz,*)  n1,n2,n3
-      print *,' read_bzdata',
-     &             nqbz,nqibz, nqbzw, ntetf, nteti,ngrp
+      write(6,"(' read_bzdata',10i5)")nqbz,nqibz, nqbzw, ntetf, nteti,ngrp
       allocate(qbz(3,nqbz),wbz(nqbz))
       allocate(qibz(3,nqbz),wibz(nqbz),nstbz(nqbz))
       allocate(nstar(nqibz), irk(nqibz,ngrp))

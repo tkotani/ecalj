@@ -349,7 +349,7 @@ c
       if(debug) then
         write(6,"(' sxcf_v2z: q  =',3f8.4)")q
         write(6,*)' sxcf_v2z: new version: gaussian smearing=',GaussSmear()
-        print *,' wintzsg wfacx weavx are related parts...'
+        write(6,*)' wintzsg wfacx weavx are related parts...'
       endif
       tpi = 8d0*datan(1.d0)
 c      iq  = idxk (q,qbz,nqbz) ! index for q
@@ -362,7 +362,7 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
       call dinv33(qbas,0,qbasinv,det)
 
 c work arrays for psi2br.f
-      if(debug) print *, ' sxcf: 1'
+      if(debug) write(6,*) ' sxcf: 1'
       allocate(expikt(natom))
 
 c direct access read e,b and hb at q
@@ -371,14 +371,14 @@ c      call rwdd1   (ifev, iq, nband,eq(1,ip))
 c      iqisp =isp + nsp*(iq-1)
 c      call rwdd1   (ifcphi, iqisp, 2*nlmtobnd, cphikq)
       call  readcphi(q, nlmto,isp, quu, cphikq)
-      if(debug) print *, ' sxcf: 2'
+      if(debug) write(6,*) ' sxcf: 2'
 
 c b and hb of states {t} at q
       do      it = 1,ntq
         itp        = itq(it)
         cphiq(1:nlmto,it) = cphikq(1:nlmto,itp)
       enddo
-      if(debug) print *, ' sxcf: 3'
+      if(debug) write(6,*) ' sxcf: 3'
 
       if(bzcase()==1) then
 Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
@@ -398,7 +398,7 @@ c loop over irreducible k-points
 c===============================
 ccccccccccccccccccccccccccccccccc
 c      iii = ivsumxxx(irk,nqibz*ngrp)
-c      print *,' sxcf:sum non-zero irk=',iii
+c      write(6,*)' sxcf:sum non-zero irk=',iii
 c      stop "sss"
 c
 ccccccccccccccccccccccccccccccccc
@@ -416,11 +416,11 @@ c === main loop start ====================================================
 cccccccccccccccccccccccccccccc
       if(test_omitq0p()) then
         iqend=nqibz
-        print *,'iqend=',iqend
+        write(6,*)'iqend=',iqend
       endif
 cccccccccccccccccccccccccccccc
       do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
-        if(debug)  print *, ' sxcf: goto loop kx=',kx
+        if(debug)  write(6,*) ' sxcf: goto loop kx=',kx
 
         if( kx <= nqibz ) then
 c          k  = kx
@@ -456,10 +456,10 @@ c- weight check for cycle or not.
           kount(kx,ip)= kount(kx,ip) + 1     ! count the no. times k
           ! appears in the 1st BZ
 cccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
+c         write(6,*)' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
 c          deallocate(vcoul)
 c          cycle
-c          print *,' kount out =',kount(k,ip)
+c          write(6,*)' kount out =',kount(k,ip)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 Cstop2rx 2013.08.09 kino          if (kount(kx,ip) > nstar(kx)) stop 'sexc: too many stars'
           if (kount(kx,ip) > nstar(kx)) call rx( 'sexc: too many stars')
@@ -482,7 +482,7 @@ c         call fbz2(qk,  ginv,index_qbz,n_index_qbz, qbz,nqbz, !qbz=rk
 c     o                qfbz,kp)
 
 
-c        if(debug)  print *,'xxx2',kp,qk,n1,n2,n3,qbas,ginv
+c        if(debug)  write(6,*)'xxx2',kp,qk,n1,n2,n3,qbas,ginv
 c read eigenvalues,b and hb at q-rk
 c        call rwdd1   (ifev, kp,nband,ekq)
         call readeval (qk,isp, ekq)
@@ -519,7 +519,7 @@ c        endif
 
         if(exchange) then
           nbmax = nt0p-nctot
-          if(debug) print *,' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
+          if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
         else
 c-------------
           nbmax = nband
@@ -527,7 +527,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          nbmxe = nocc (ekc,ebmx,.true.,nstatetot)-nctot
 c          nbmax  = min(nband,nbmx,nbmxe)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          print *,' nbmax=',nbmax
+          write(6,*)' nbmax=',nbmax
 c-------------
         endif
         nstate = nctot + nbmax ! = nstate for the case of correlation
@@ -547,8 +547,8 @@ c equivalent with above phase
           expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
         end do
 c
-        if(debug) print *, ' sxcf: tr=',tr
-        if(debug) print *, ' sxcf: goto psicb2'
+        if(debug) write(6,*) ' sxcf: tr=',tr
+        if(debug) write(6,*) ' sxcf: goto psicb2'
 c> matrix elements
 c>> core
         nt   = nctot + nbmax ! = nstate for the case of correlation
@@ -563,7 +563,7 @@ c>> core
      d              mdimx,nlmto,nbloch,nlnmx,nt,ntp0,natom,nclass,
      d              nl,nnc,                ! nt,ntp0 denotes dimenstion of rmel
      o              zzmel) !rmel,cmel)
-        if(debug)  print *, ' sxcf: goto psi2bc1'
+        if(debug)  write(6,*) ' sxcf: goto psi2bc1'
 c>> valence
         call psi2b_v2  (nbmax, ntp0,iclass,
      i    dreal(expikt(1:natom)),dimag(expikt(1:natom)),
@@ -602,7 +602,7 @@ cccccccccccccccccccccccccccccccccccccccccccccc
 c-plane
         allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
      &            cmelt(ngb, nctot+nbmax, ntp0))
-        if(debug) print *, ' sxcf_v2z: goto drvmelp2'
+        if(debug) write(6,*) ' sxcf_v2z: goto drvmelp2'
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
@@ -624,7 +624,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
 c A matrix element check in Si. See the corresponding section of x0kf.f
 c      write(6,"(3f13.5)") q         !ntp0
 c      write(6,"(3f13.5)") qbz(:,kr) !product basis
-c      print *,' sxcf: sumcheck rmelt cmelt='
+c      write(6,*)' sxcf: sumcheck rmelt cmelt='
 c     &   ,sum(rmelt(1:ngb,4,1))
 c     &   ,sum(cmelt(1:ngb,4,1))
 c     &   ,sum(abs(rmelt(1:ngb,4,1)))
@@ -641,7 +641,7 @@ c      do  it  = 1,nstate
 c      itp=1
 c      it =1
 c     do  itp = 1,ntp0
-c      print *,' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
+c      write(6,*)' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
 c      do  ibl  = 1,ngb
 c        write(6,"(' rmelt cmelt =',3i4,4d14.6)")it,itp,ibl
 c     &  ,rmelt(ibl,it,itp) ,cmelt(ibl,it,itp)
@@ -651,7 +651,7 @@ cccccccccccccccccccccccccccccccccccccccccc
 
         deallocate(zzmel) !rmel,cmel)
 c
-        if(debug) print *, ' sxcf: goto wtt'
+        if(debug) write(6,*) ' sxcf: goto wtt'
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum( rmelt),sum(cmelt )
 
 c        if(kx<= nqibz) then
@@ -717,7 +717,7 @@ c
      &           z1p, ngb,ngb,(nctot+nbmax)*ntp0 )
           deallocate(vcoult, zmel)
 
-c         print *,' nctot nbmax=',nctot,nbmax
+c         write(6,*)' nctot nbmax=',nctot,nbmax
 
           do itp = 1,ntp0
             do it  = 1,nctot+nbmax
@@ -779,7 +779,7 @@ c--- Correct weigts wfac for valence by esmr
           do it = nctot+1, nctot+nbmax
 cgaussian
             wfac = wfacx(-1d99, ef, ekc(it), esmr)
-            if(debug) print *, ' it wfac=',it, wfac,ef, ekc(it), esmr
+            if(debug) write(6,*) ' it wfac=',it, wfac,ef, ekc(it), esmr
             w3p(it,1:ntp0) = wfac * w3p(it,1:ntp0)
           enddo
 
@@ -840,7 +840,7 @@ c--- The matrix elements zmel.
         deallocate(rmelt,cmelt)
 
 
-        if(debug) print *,' end of zmel'
+        if(debug) write(6,*)' end of zmel'
 c================================================================
 c The correlated part of the self-energy:
 c S[n=all] S[i,j=1,nbloch]
@@ -990,8 +990,8 @@ c sum over both occupied and unoccupied states and multiply by weight
 c end of SEc w-loop
         enddo
         if(debug) then
-          print *,' ntq nstate sum(zwzi)=',ntq,nstate,sum(zwzi)
-          print *,' ntq nstate sum(zwz )=',ntq,nstate,sum(zwz)
+          write(6,*)' ntq nstate sum(zwzi)=',ntq,nstate,sum(zwzi)
+          write(6,*)' ntq nstate sum(zwz )=',ntq,nstate,sum(zwz)
           do itp = 1,ntq
             write(6,'(" zsec=",i3,6d15.7)') itp,zsec(iwini:iwini+2,itp,ip)
           enddo
@@ -1007,14 +1007,14 @@ c      cycle
 ccccccccccccccccccccccccccccccccccccc
 
 
-        if(debug) print *,' go to poles'
+        if(debug) write(6,*)' go to poles'
 
 
 c---------------------------------------
 c maximum ixs reqired.
 c---------------------------------------
-c      print *,' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)
-c      print *,'  nt0p nt0m+1=', nt0p, nt0m+1
+c      write(6,*)' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)
+c      write(6,*)'  nt0p nt0m+1=', nt0p, nt0m+1
         ixsmx = 1
         do 3001 iw  = iwini,iwend
         do 3001 itp = 1,ntq
@@ -1091,7 +1091,7 @@ c------
 Cstop2rx 2013.08.09 kino          stop ' sxcf xxx: |w-e| > max(w)'
           call rx( ' sxcf xxx: |w-e| > max(w)')
         endif
-        if(debug) print *,' nwx=',nwx
+        if(debug) write(6,*)' nwx=',nwx
 
 
 c--------------------------------------------
@@ -1169,7 +1169,7 @@ Cstop2rx 2013.08.09 kino                  if(wfac/=0) stop "sxcf:  it<=nctot.and
 c three-point interpolation for Wc(we)
               ixs  = idint (we/dw) + 1
               if(ixs+2>nwx) then
-                print *,' ixs+2=',ixs,we,nwx,dw
+                write(6,*)' ixs+2=',ixs,we,nwx,dw
 Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+2>nw xxx1'
                 call rx( ' sxcf: ixs+2>nw xxx1')
               endif
@@ -1201,7 +1201,7 @@ c          if(wfac<wfaccut) cycle
 c three-point interpolation for Wc(we)
               ixs  = idint (we/dw) + 1
               if(ixs+2>nwx) then
-                print *,'debug dat=',nwx,ixs
+                write(6,*)'debug dat=',nwx,ixs
 Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+2>nwx xxxx2'
                 call rx( ' sxcf: ixs+2>nwx xxxx2')
               endif
@@ -1210,7 +1210,7 @@ Cstop2rx 2013.08.09 kino                stop ' sxcf: ixs+2>nwx xxxx2'
             enddo
           endif
  2001   continue  !end of SEc w and qt -loop
-        if(debug) print *,' end of do 2001'
+        if(debug) write(6,*)' end of do 2001'
 
 
         if(debug) then
@@ -1237,8 +1237,8 @@ c         endif
 
 c      call rlse (iwr1)
 ccccccccccccccccccccccccccccc
-c      print *," end kount ip irot=", irot, ip, sum(kount(:,ip))
-c       print *," sumkount 1=",irot,ip,sum(kount(:,:))
+c      write(6,*)" end kount ip irot=", irot, ip, sum(kount(:,ip))
+c       write(6,*)" sumkount 1=",irot,ip,sum(kount(:,:))
 cccccccccccccccccccccccccccc
       return
       end
@@ -1262,7 +1262,7 @@ c
       real(8)    :: pi=3.1415926535897932d0, rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
      &
 c---------------------------------------------------
-c      print *,' wintzav:'
+c      write(6,*)' wintzav:'
       if(esmr==0d0) then
         wintzav=wintz(v,v0,x,wt,a,expa,we,nx)
         return
@@ -1451,7 +1451,7 @@ c     wintz       = -0.5d0*v0
 c     return
 c     endif
       if (dabs(we) .lt. tol) then
-        print *, ' we=',we
+        write(6,*) ' we=',we
 Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
         call rx( 'wintz: |w-e| < tol')
       endif
@@ -1500,7 +1500,7 @@ Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z: x<0d0'
         if(dimag(fi(i))>1d-8) then
           ratio= abs(dimag(fi(i))/dreal(fi(i)))
           if( ratio >1d-6) then !jan2004. I added a bit of alloance
-            print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
+            write(6,*)' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
 Cstop2rx 2013.08.09 kino            stop    ' alagr3z: error! dimag(fi(i)) is positive'
             call rx( ' alagr3z: error! dimag(fi(i)) is positive')
           endif

@@ -58,7 +58,7 @@ c     &         '# isp,iq_wfn,iq,q,ib=',isp,iq_wfn,iq,qtt(1:3,iq),ib
                call calc_phi_abc2(geig(1,ib,iq_wfn,isp),ngpmx,cphi(1,ib,iq_wfn,isp),ldim2,
      i              iq_wfn,npw,mesh,augregion,
      o              phipwtmp,phiaugtmp)
-c               print *,'sumccc=',sum(abs(phipwtmp)),sum(abs(phiaugtmp))
+c               write(6,*)'sumccc=',sum(abs(phipwtmp)),sum(abs(phiaugtmp))
                do i3=1,mesh(3)+1
                do i2=1,mesh(2)+1
                do i1=1,mesh(1)+1 !   bloch function
@@ -98,7 +98,7 @@ c local
       do ibas=1,nbas
         ic=iclass(ibas)
         rmax = bb(ic)*(exp((nr(ic)-1)*aa(ic))-1d0)
-        print *,'ibas, rmax=',ibas,ic,rmax
+        write(6,*)'ibas, rmax=',ibas,ic,rmax
         do j1=-nshell,nshell
         do j2=-nshell,nshell
         do j3=-nshell,nshell
@@ -225,12 +225,12 @@ c      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat,alat
       double complex :: phia
       double precision :: pi=4.0d0*atan(1.0d0),tpi = 8d0*atan(1.0d0)
       logical :: debug=.false.
-      if(debug) print *,' --- calc_phi_abc2 ---'
+      if(debug) write(6,*)' --- calc_phi_abc2 ---'
       call dinv33x(plat,qlat)
 c      call chkinv33(plat,qlat)
 
       phipwtmp = 0d0
-c      print *,'aaaaaa1',mesh
+c      write(6,*)'aaaaaa1',mesh
       do i3=1,mesh(3)+1
       do i2=1,mesh(2)+1
       do i1=1,mesh(1)+1
@@ -247,7 +247,7 @@ c   r0(i)=G0(j,i)*r(j)*
 c   G(i)= G0(j,i)*nG(i) 
 c   exp (i 2 pi  G(i)*r(i) ) 
          do ig=1,ngp(iq)
-c           print *,'ig ngpmx',ig,ngpmx
+c           write(6,*)'ig ngpmx',ig,ngpmx
            eigr=exp(ci*tpi*sum(r0(:)*dble(ngvecp(:,ig,iq))))
            phipwtmp(i1,i2,i3) = phipwtmp(i1,i2,i3)
      &        + eigr*geig(ig) !,iband) !,iq,isp)
@@ -258,13 +258,13 @@ c           print *,'ig ngpmx',ig,ngpmx
       enddo ! i2
       enddo ! i3
 c Augmented part
-      if(debug) print *,' ----- goto augmented part ------------------'
+      if(debug) write(6,*)' ----- goto augmented part ------------------'
       phiaugtmp(:,:,:)=0.0d0
       do i3=1,mesh(3)+1
       do i2=1,mesh(2)+1
       do i1=1,mesh(1)+1
         if (augregion(4,i1,i2,i3).ne.0) then
-c          print *,i1,i2,i3,mesh(1)+1,mesh(2)+1,mesh(3)+1
+c          write(6,*)i1,i2,i3,mesh(1)+1,mesh(2)+1,mesh(3)+1
 c set plane-wave part to zero
 c          phiaugtmp(i1,i2,i3)=0.0d0
           rtmp(1)=(i1-1)/dble(mesh(1))
@@ -313,7 +313,7 @@ c          phia=0.0d0
       enddo
       enddo
       enddo
-      if(debug) print *,'---- end of calc_phi_abc2 ----------'
+      if(debug) write(6,*)'---- end of calc_phi_abc2 ----------'
       end subroutine calc_phi_abc2
 
 

@@ -23,16 +23,16 @@ c$$$      call dinv33(qlat,0,ginv,det)
 c$$$      ifhbed     = iopen('hbe.d',1,0,0)
 c$$$      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c$$$      call init_readeigen(ginv,nsp,nband,mrece) !initialization of readEigen
-c$$$      print *,'1111111rrrr'
+c$$$      write(6,*)'1111111rrrr'
 c$$$      call init_readeigen2(mrecb,ldim2,mrecg) !initialize m_readeigen
-c$$$      print *,'2222222rrrr'
+c$$$      write(6,*)'2222222rrrr'
 c$$$c replace geig and cphi with those for WF
 c$$$c geig2 = cphi2 = 0 for ik > nqbz
 c$$$      call readngmx('QGpsi',ngpmx)
-c$$$      print *,'333333333',ngpmx,nband,ldim2
+c$$$      write(6,*)'333333333',ngpmx,nband,ldim2
 c$$$      allocate(geig2(ngpmx,nband))
 c$$$      allocate(cphi2(ldim2,nband))
-c$$$      print *,'4444444444333333333'
+c$$$      write(6,*)'4444444444333333333'
 c$$$c
 c$$$c      geig2 = geig
 c$$$c      cphi2 = cphi
@@ -47,7 +47,7 @@ c$$$         write(6,"('setup_MLWF: ikp isp=',2i5,3f12.5)") ikp,isp,qreg(:,ikp)
 c$$$         call readcphi(qreg(:,ikp),ldim2,isp, quu, cphi2)
 c$$$         if(sum(abs(qreg(:,ikp)-quu))>1d-6) stop 'mmlf111eeeee'
 c$$$         call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
-c$$$c         print *,'22222 ikp=',ikp,isp
+c$$$c         write(6,*)'22222 ikp=',ikp,isp
 c$$$         if(sum(abs(qreg(:,ikp)-quu))>1d-6) stop 'mmlf222eeeee'
 c$$$         do iwf = 1,nwf
 c$$$         do ib = iko_ix,iko_fx

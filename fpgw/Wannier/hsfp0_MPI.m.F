@@ -294,11 +294,11 @@ c-----------------------------------------------------------------
       call read_BZDATA()
       if (Is_IO_Root_RSMPI()) then
         write(6,*) ' nqbz  =',nqbz
-c      print *,  qbz 
+c      write(6,*)  qbz 
         write(6,*) ' nqibz ngrp=',nqibz,ngrp
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
       endif
 c set up work array
 c      call wkinit (iwksize)
@@ -644,7 +644,7 @@ c
      i        qbz,nqbz          !index_qbz, n_index_qbz,
      o        ,efnew)
 c
-c     print *,' end of efsimple'
+c     write(6,*)' end of efsimple'
 ctm, 070130
 !      ldk = .false.
 !      INQUIRE (FILE = 'DK', EXIST = ldk)
@@ -760,7 +760,7 @@ c read q-points and states
 c RS: for safety..
 c        omegamax = 2*freq_r(nw) !This is in Ry.
         omegamax = 2*freq_r(nw-1) !This is in Ry.
-c        print *,' nwp dw(a.u.) omegamax (Ry)=',nwp,dw,omegamax
+c        write(6,*)' nwp dw(a.u.) omegamax (Ry)=',nwp,dw,omegamax
         if(omegamaxin < omegamax) then
           if (Is_IO_Root_RSMPI()) then
             write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
@@ -974,7 +974,7 @@ c     ntp0=ntq
 c        iq       = idxk (q(1,ip),qbze,nqbze)
 c        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
           call readeval(q(1,ip),is,eqt)
-c        print *,' eqt=',eqt
+c        write(6,*)' eqt=',eqt
          if (lwang) then
           call readumn_mlw(q(1,ip),is, umn)
           do i = 1,ntq
@@ -1516,7 +1516,7 @@ c     o        zsec,coh,exx) ! acuumulation variable
 c        endif
 cccccccccccccccccccccccccccccccccccccccccc
 c        iii = ivsum(kount,nqibz*nq)
-c        print *," sumkount 2=",nqibz,nq,iii
+c        write(6,*)" sumkount 2=",nqibz,nq,iii
 c        stop "--- kcount test end --- "
 cccccccccccccccccccccccccccccccccccccccccc
  1001     continue              !end of q-loop
@@ -1542,7 +1542,7 @@ c TM: accumulate zsec2
 c check that all k { FBZ have been included
 c      if (ivsum(kount,nqibz*nq) /= nqbz*nq) then
 c        iii = ivsum(kount,nqibz*nq)
-c        print *," ivsum=",iii, nqbz*nq 
+c        write(6,*)" ivsum=",iii, nqbz*nq 
 c        stop 'hsfp0: missing k-pts'
 c      endif
 

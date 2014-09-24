@@ -58,7 +58,7 @@ c      integer(4),allocatable:: ngvecp(:,:), ngvecc(:,:)
 c
 c      logical:: ifgeigb
 
-      print *," rdpp_v3: "
+      write(6,*)" rdpp_v3: "
 c --- Radial integrals ppbrd
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
@@ -83,13 +83,13 @@ c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
 c     call icopy(nclass, nblocha,w(imdim))
-c     print *,' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
+c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
 c --- rotated CG setup
-      print *,' rdpp mdimx=',mdimx
+      write(6,*)' rdpp mdimx=',mdimx
 c      lmxax = nl-1
       cgr=1d99
       call rotcg(nl-1,symope,ngrp,cgr)
-      print *,' rdpp_v3:end '
+      write(6,*)' rdpp_v3:end '
       end
 
 
@@ -114,13 +114,13 @@ c      complex(8) :: geigB(ngpmx,nband,nqbz,nspin) !,img=(0d0,1d0),phase2
       integer(4) :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
 c      logical:: ifgeigb
-      print *," rdpp_pln2: "
+      write(6,*)" rdpp_pln2: "
 c --- plane wave contributions 2000 May
       ifplane = iopen('PLN',0,-1,0)
-      print *,' readin ngp and geig xxxxxxxxxxx'
+      write(6,*)' readin ngp and geig xxxxxxxxxxx'
       read (ifplane) ngpmx_dum, ngcmx_dum
       ngveccB =0  !;ngveccBr =0
-      print *,' readin ngp and geig'
+      write(6,*)' readin ngp and geig'
       iqib = 0
 c      call dcopy(3*nqibz, w(iqibz),1, qibz(:,:),1)
       do iqi  = 1, nqibz
@@ -134,14 +134,14 @@ ccccccccccccccccccccccccc
         read(ifplane) ngp, ngc
         ngpn(iq) = ngp
         allocate( geig(ngp,nband,nspin), ngvecp(3,ngp), ngvecc(3,ngc) )
-c        print *,' xxx1=',iq
+c        write(6,*)' xxx1=',iq
         read(ifplane) ngvecp, ngvecc, geig
-c        print *,' xxx2=',iq
+c        write(6,*)' xxx2=',iq
 c        if(.not.ifgeigb()) then
 c          geigB(1:ngp,1:nband,iq,1:nspin)= geig(1:ngp,1:nband,1:nspin)
 c        endif
         ngvecpB(1:3,1:ngp,iq)  = ngvecp(1:3,1:ngp)
-c        print *,' xxx3=',iq
+c        write(6,*)' xxx3=',iq
         iqi=iqib(iq)
         if(iqi/=0 ) then
 ccccccccccccccccccccccccccc
@@ -154,7 +154,7 @@ cccccccccccccccccccccccccccc
         deallocate( geig, ngvecp, ngvecc )
       enddo
       is = iclose('PLN')
-      print *,' end of PLN read'
+      write(6,*)' end of PLN read'
       return
       end
 
@@ -179,12 +179,12 @@ c----------------------------------
       integer(4) :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
 c      logical:: ifgeigb
-      print *," rdpp_pln: "
+      write(6,*)" rdpp_pln: "
 c --- plane wave contributions 2000 May
       ifplane = iopen('PLN',0,-1,0)
       read (ifplane) ngpmx_dum, ngcmx_dum
       ngveccB =0  !;ngveccBr =0
-c      print *,' readin ngp and geig'
+c      write(6,*)' readin ngp and geig'
       iqib = 0
 c      call dcopy(3*nqibz, w(iqibz),1, qibz(:,:),1)
       do iqi  = 1, nqibz
@@ -215,7 +215,7 @@ cccccccccccccccccccccccccccc
         deallocate( geig, ngvecp, ngvecc )
       enddo
       is = iclose('PLN')
-      print *,' end of PLN read'
+      write(6,*)' end of PLN read'
       return
       end
 
@@ -254,7 +254,7 @@ c
 c
 c      logical:: ifgeigb
 
-      print *," rdpp_v2: "
+      write(6,*)" rdpp_v2: "
 c --- Radial integrals ppbrd
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
@@ -279,19 +279,19 @@ c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
 c     call icopy(nclass, nblocha,w(imdim))
-c     print *,' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
+c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
 c --- rotated CG setup
-      print *,' rdpp mdimx=',mdimx
+      write(6,*)' rdpp mdimx=',mdimx
 c      lmxax = nl-1
       cgr=1d99
       call rotcg(nl-1,symope,ngrp,cgr)
-      print *,' end of rotcg'
+      write(6,*)' end of rotcg'
 c --- plane wave contributions 2000 May
       ifplane = iopen('PLN',0,-1,0)
       read (ifplane) ngpmx_dum, ngcmx_dum
       nblochpmx = nbloch + ngcmx
       ngveccB =0  !;ngveccBr =0
-c      print *,' readin ngp and geig'
+c      write(6,*)' readin ngp and geig'
       iqib = 0
 c      call dcopy(3*nqibz, w(iqibz),1, qibz(:,:),1)
       do iqi  = 1, nqibz
@@ -322,17 +322,17 @@ cccccccccccccccccccccccccccc
         deallocate( geig, ngvecp, ngvecc )
       enddo
       is = iclose('PLN')
-      print *,' end of PLN read'
+      write(6,*)' end of PLN read'
       return
 
 c-----------------------------------------------------------------------
-c      print *,' goto 2111'
+c      write(6,*)' goto 2111'
 c      goto 2111
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 cROTATION test for planewave part NO.1.
 c
 c        ngvecpB(1:3,1:ngp,  2)  --> ngvecpB(1:3, 1:ngp,  3or4)
-c      print *,' xxxgeig 2 and 6'
+c      write(6,*)' xxxgeig 2 and 6'
 c      geigB(:,1:nband,1:1) =0d0
 c      geigB(:,1:nband,3:7) =0d0
 c      geigB(:,1:nband,5:8) =0d0
@@ -355,7 +355,7 @@ c        ngvecpB(3,ig1, iq) = n3
 c      enddo
 c      enddo
 c
-c      print *,' end of pi/2 test 2'
+c      write(6,*)' end of pi/2 test 2'
 c      return
 c
 ccccccccccccccccccccccccccccccccccccc
@@ -376,7 +376,7 @@ c        ngvecpB(3,ig1, iq) = n3
 c      enddo
 c      enddo
 c
-c      print *,' end of pi/2 test'
+c      write(6,*)' end of pi/2 test'
 c      return
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c

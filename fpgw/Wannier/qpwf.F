@@ -17,7 +17,7 @@ c------------------------------------
 
 c QPNT data
       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret) 
-      print *,' ifqpnt ret=',ifqpnt,ret
+      write(6,*)' ifqpnt ret=',ifqpnt,ret
 c
       call readx   (ifqpnt,10)
       read (ifqpnt,*) iqall,iaf

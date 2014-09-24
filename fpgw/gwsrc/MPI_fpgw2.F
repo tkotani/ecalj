@@ -116,11 +116,11 @@ C     !======================================================
       endif
 c! console-output from different nodes to different files
 c      if( mpi__size > 1 ) then
-c        if(mpi__root )write(*,*)'MPI console outputs to following files.'
-c        write(*,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+c        if(mpi__root )write(6,*)'MPI console outputs to following files.'
+c        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
 c        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
 c        open(unit=6,file=trim(stdout))
-c        write(*,"(a,i3)")" ### console output for rank=",mpi__rank
+c        write(6,"(a,i3)")" ### console output for rank=",mpi__rank
 c      endif
 c      if(mpi__root ) then
 c        close(unit=6)
@@ -216,14 +216,14 @@ C     ! in case no arguments, set as default
       end if
 
       if (mpi__root) then
-      write(*,'(a,10I5)')'mpi_size,Q,S,P,B,M=', mpi__size,
+      write(6,'(a,10I5)')'mpi_size,Q,S,P,B,M=', mpi__size,
      .   mpi__sizeQ,mpi__sizeS,mpi__sizeP,mpi__sizeB,mpi__sizeM
       endif
 
 C     ! check inconsistent settings
       if( mpi__sizeQ*mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM /= mpi__size ) then
-         write(*,*) "MPI size mismatch, mpirun -np size program -nq NQ -ns NS ..."
-         write(*,*) "size must be nq*ns*..."
+         write(6,*) "MPI size mismatch, mpirun -np size program -nq NQ -ns NS ..."
+         write(6,*) "size must be nq*ns*..."
          call MPI_Finalize ( mpi__info )
          call rx( ' MPI size mismatch' )
       end if
@@ -249,12 +249,12 @@ C     ! determine ranks
       end do
 
       if (mpi__root) then
-      write(*,*)'MPI rank information'
-      write(*,'(a,$)') 'vrankQ='; write(*,'(10i5)') vrankQ
-      write(*,'(a,$)') 'vrankS='; write(*,'(10i5)') vrankS
-      write(*,'(a,$)') 'vrankP='; write(*,'(10i5)') vrankP
-      write(*,'(a,$)') 'vrankB='; write(*,'(10i5)') vrankB
-      write(*,'(a,$)') 'vrankM='; write(*,'(10i5)') vrankM
+      write(6,*)'MPI rank information'
+      write(6,'(a,$)') 'vrankQ='; write(6,'(10i5)') vrankQ
+      write(6,'(a,$)') 'vrankS='; write(6,'(10i5)') vrankS
+      write(6,'(a,$)') 'vrankP='; write(6,'(10i5)') vrankP
+      write(6,'(a,$)') 'vrankB='; write(6,'(10i5)') vrankB
+      write(6,'(a,$)') 'vrankM='; write(6,'(10i5)') vrankM
       endif
 
 C     ! rank of this process
@@ -399,12 +399,13 @@ C     !======================================================
 ! console-output from different nodes to different files
       if( mpi__size > 1 ) then
         if( mpi__root ) then
-           write(*,*)'MPI console outputs to following files.'
+           write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
+           call flush(6)
         end if
-        write(*,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+c        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
         write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
         open(unit=6,file=trim(stdout))
-        write(*,"(a,i3)")" ### console output for rank=",mpi__rank
+        write(6,"(a,i3)")" ### console output for rank=",mpi__rank
       endif
       return
       end subroutine MPI__consoleout
@@ -678,7 +679,7 @@ C     !======================================================
          return
       end if
 
-c$$$      write(*,*) "irkip_all", mpi__rank
+c$$$      write(6,*) "irkip_all", mpi__rank
       total = 0
       do ispinmx=1, nspinmx
          do iq=1, nq
@@ -686,7 +687,7 @@ c$$$      write(*,*) "irkip_all", mpi__rank
                do igrp=1, ngrp
                   if( irkip_all(ispinmx,iqibz,igrp,iq) /= 0 ) then
                      total = total + 1
-c$$$                     write(*,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,iqibz,igrp,iq)
+c$$$                     write(6,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,iqibz,igrp,iq)
                   end if
                end do
             end do
@@ -713,7 +714,7 @@ c$$$                     write(*,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,
       total = 0
       irkip(:,:,:,:) = 0
 
-c$$$      write(*,*) "irkip", mpi__rank
+c$$$      write(6,*) "irkip", mpi__rank
       do ispinmx=1, nspinmx
          do iq=1, nq
             do iqibz=1, nqibz
@@ -722,7 +723,7 @@ c$$$      write(*,*) "irkip", mpi__rank
                      total = total + 1
                      if( indexi<=total .and. total<=indexe ) then
                         irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-c$$$                        write(*,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
+c$$$                        write(6,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
                      end if
                   end if
                end do
@@ -862,8 +863,8 @@ C     ! for S(npm) parallelization
 
       mpi__Svn(:) = mpi__Snall/mpi__sizeS
       if( mpi__Svn(0) == 0 ) then
-         write(*,*) "Warning: too many processes for S parallelization"
-         write(*,*) "  maximum -np ", mpi__Snall
+         write(6,*) "Warning: too many processes for S parallelization"
+         write(6,*) "  maximum -np ", mpi__Snall
          call rx('Warning: too many processes for S parallelization')
       end if
 
@@ -888,11 +889,11 @@ C     ! for S(npm) parallelization
       write(6,*)mpi__rank,'mpi__Sve',mpi__Sve
       endif
 #if 0
-      write(*,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
-      write(*,*) "DEBUG: mpi__Snall=", mpi__Snall
+      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
+      write(6,*) "DEBUG: mpi__Snall=", mpi__Snall
 
-      write(*,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
-      write(*,*) "DEBUG: mpi__Sn=", mpi__Sn
+      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
+      write(6,*) "DEBUG: mpi__Sn=", mpi__Sn
 #endif
       return
       end subroutine MPI__hx0fp0_rankdivider2S
@@ -921,8 +922,8 @@ C     ! for P(npm) parallelization
 
       mpi__Pvn(:) = mpi__Pnall/mpi__sizeP
       if( mpi__Pvn(0) == 0 ) then
-         write(*,*) "Warning: too many processes for P parallelization"
-         write(*,*) "  maximum -np ", mpi__Pnall
+         write(6,*) "Warning: too many processes for P parallelization"
+         write(6,*) "  maximum -np ", mpi__Pnall
          call rx("Warning: too many processes for P parallelization")
       end if
 
@@ -955,8 +956,8 @@ C     ! for B(Kpoint&nbnb) parallelization
 
       mpi__Bvn(:) = mpi__Bnall/mpi__sizeB
       if( mpi__Bvn(0) == 0 ) then
-         write(*,*) "Warning: too many processes for B parallelization"
-         write(*,*) "  maximum -nb ", mpi__Bnall
+         write(6,*) "Warning: too many processes for B parallelization"
+         write(6,*) "  maximum -nb ", mpi__Bnall
          call rx("Warning: too many processes for B parallelization")
       end if
       do p=0, mpi__sizeB-1
@@ -1052,8 +1053,8 @@ C     ! for W(iw) parallelization
 
       mpi__Wvn(:) = mpi__Wnall/mpi__sizeB
       if( mpi__Wvn(0) == 0 ) then
-         write(*,*) "Warning: too many processes for B parallelization"
-         write(*,*) "  maximum -np ", mpi__Wnall
+         write(6,*) "Warning: too many processes for B parallelization"
+         write(6,*) "  maximum -np ", mpi__Wnall
          call rx("Warning: too many processes for B parallelization")
       end if
 
@@ -1072,17 +1073,17 @@ C     ! for W(iw) parallelization
       mpi__Ws = mpi__Wvs(mpi__rankW)
       mpi__We = mpi__Wve(mpi__rankW)
 
-      write(*,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
-      write(*,*) "DEBUG: mpi__Pnall=", mpi__Pnall
-      write(*,*) "DEBUG: mpi__Bnall=", mpi__Bnall
-      write(*,*) "DEBUG: mpi__Mnall=", mpi__Mnall
-      write(*,*) "DEBUG: mpi__Wnall=", mpi__Wnall
+      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
+      write(6,*) "DEBUG: mpi__Pnall=", mpi__Pnall
+      write(6,*) "DEBUG: mpi__Bnall=", mpi__Bnall
+      write(6,*) "DEBUG: mpi__Mnall=", mpi__Mnall
+      write(6,*) "DEBUG: mpi__Wnall=", mpi__Wnall
 
-      write(*,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
-      write(*,*) "DEBUG: mpi__Pn=", mpi__Pn
-      write(*,*) "DEBUG: mpi__Bn=", mpi__Bn
-      write(*,*) "DEBUG: mpi__Mn=", mpi__Mn
-      write(*,*) "DEBUG: mpi__Wn=", mpi__Wn
+      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
+      write(6,*) "DEBUG: mpi__Pn=", mpi__Pn
+      write(6,*) "DEBUG: mpi__Bn=", mpi__Bn
+      write(6,*) "DEBUG: mpi__Mn=", mpi__Mn
+      write(6,*) "DEBUG: mpi__Wn=", mpi__Wn
 
       return
       end subroutine MPI__x0kf_rankdivider

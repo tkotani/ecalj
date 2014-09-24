@@ -126,14 +126,14 @@ c     &    ,wibz(:),qbzw(:,:)
 c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
-      print *,' nqbz qbz =',nqbz
-c      print *,  qbz
-      print *,' nqibz ngrp=',nqibz,ngrp
-c      print *,' qout=',qout
+      write(6,*)' nqbz qbz =',nqbz
+c      write(6,*)  qbz
+      write(6,*)' nqibz ngrp=',nqibz,ngrp
+c      write(6,*)' qout=',qout
 c      stop 'test end qout'
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 c------------------------------------------------------------------
 
 c set up work array
@@ -221,7 +221,7 @@ Cstop2rx 2013.08.09 kino      if (nclass > mxclass) stop ' hchknw: increase mxcl
       if (nclass > mxclass) call rx( ' hchknw: increase mxclass')
 Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hchknw: nclass /= natom ' ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hchknw: nclass /= natom ')
-      print *,' hchknw: end of genallc'
+      write(6,*)' hchknw: end of genallc'
 c
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
@@ -264,13 +264,13 @@ c      if(.not.qpntexist) then
         write(6,*) ' Take all bands ank qpnt'
         lqall  = .true.
         INQUIRE (FILE ='ANFcond', EXIST = laf)
-        if(laf) print *,' Find ANFcond--- laf=T only UP band'
+        if(laf) write(6,*)' Find ANFcond--- laf=T only UP band'
         ntq=-1
       else
 c        ifqpnt = iopen('QPNT',1,0,0)
 c        if(readgwinput()) then
         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-        print *,' end of getkeyvalue------ ifqpnt=',ifqpnt
+        write(6,*)' end of getkeyvalue------ ifqpnt=',ifqpnt
 c        else
 c        ifqpnt    = iopen('QPNT',1,0,0)
 c        endif
@@ -327,9 +327,9 @@ C...
         enddo
       endif
 
-      if(debug)print *,' goto init_readeigen'
+      if(debug)write(6,*)' goto init_readeigen'
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
-      if(debug)print *,' end of init_readeigen'
+      if(debug)write(6,*)' end of init_readeigen'
 c----------------------------------------------
       if(.not.tetra) then
         if(esmr/=0d0) then
@@ -344,10 +344,10 @@ c
           ef = efnew
 c- check total ele number -------
           ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
-          print *,' ef    =',ef
-          print *,' esmr=',esmr
-          print *,' valn  =',valn
-          print *,' ntot  =',ntot
+          write(6,*)' ef    =',ef
+          write(6,*)' esmr=',esmr
+          write(6,*)' valn  =',valn
+          write(6,*)' ntot  =',ntot
 ccc
 ccc        if(abs(valn-ntot)>1d-6) stop ' abs(valn-ntot)>1d-6'  !20001 May
 c      else
@@ -358,7 +358,7 @@ c        if(legas) ef = efx
 
 
 c ---  q near zero
-      print *, 'reading QOP'
+      write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0it
       write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0it
@@ -393,7 +393,7 @@ c        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(
           call readeval(q(1,ip),is,eqt)
           do it=1,ntq
             eee = eqt(itq(it)) - 2d0*deltaw  !2.d0*(-1d0-shtw)*deltaw
-            print *,' is ip it eee=',eee,eqt(itq(it))
+            write(6,*)' is ip it eee=',eee,eqt(itq(it))
             if(eee>=1d20-1d10) cycle !takao jun2009
             if( eee <ef .and. eee< omegav )  then
               omegav = eee
@@ -402,7 +402,7 @@ c        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(
             endif
             eee = eqt(itq(it)) + 2d0*deltaw  !+ 2.d0*(1d0-shtw)*deltaw
 c
-            print *,' is ip it eee=',eee,eqt(itq(it))
+            write(6,*)' is ip it eee=',eee,eqt(itq(it))
             if( eee >ef .and. eee> omegac )  then
               omegac = eee
               ipx2 = ip
@@ -426,7 +426,7 @@ c       call rwdd1 (ifev(is), iq, nband, eqt)
           print *
           do ib=1,nband
             eee = eqt(ib)
-            if(ib<6) print *,' iq ib eee=',iq,ib,eee
+            if(ib<6) write(6,*)' iq ib eee=',iq,ib,eee
             if( eee <ef+ffac*esmr .and. eee>emaxv) emaxv = eee
             if( eee >ef-ffac*esmr .and. eee<eminc) eminc = eee
           enddo
@@ -438,15 +438,15 @@ c       call rwdd1 (ifev(is), iq, nband, eqt)
       we= we+ffac*esmr
       nw  = idint (we/2d0/dw) + 3
       print *
-      print *,' --------------------------------'
-      print *,' emaxv= ',emaxv
-      print *,' eminc= ',eminc
-      print *,' omegav ip it=',omegav,ipx1,itx1
-      print *,' omegac ip it=',omegac,ipx2,itx2
-      print *,' we max for <ef', emaxv - omegav
-      print *,' we max for >ef', omegac- eminc
-      print *,' *** required we nw=  ', we,nw
-      print *,"write nw to NW"
+      write(6,*)' --------------------------------'
+      write(6,*)' emaxv= ',emaxv
+      write(6,*)' eminc= ',eminc
+      write(6,*)' omegav ip it=',omegav,ipx1,itx1
+      write(6,*)' omegac ip it=',omegac,ipx2,itx2
+      write(6,*)' we max for <ef', emaxv - omegav
+      write(6,*)' we max for >ef', omegac- eminc
+      write(6,*)' *** required we nw=  ', we,nw
+      write(6,*)"write nw to NW"
       open(1101,file='NW')
       write(1101,*) nw
       close(1101)

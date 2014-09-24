@@ -174,8 +174,8 @@ C ---- overlaid ntp0 ---------- kq 21Jun2003 takao
       if(smbasis()) then
 ccccccccccccccccccccccccccccccccc
          if(ncc/=0) then
-         print *,"Timereversal=F(ncc/=0) not yet implemented for smbasis."
-         print *," pomat should be generated correctly                  ."
+         write(6,*)"Timereversal=F(ncc/=0) not yet implemented for smbasis."
+         write(6,*)" pomat should be generated correctly                  ."
          stop "Timereversal=F(ncc/=0) not yet implemented for smbasis."
          endif
 ccccccccccccccccccccccccccccccccc
@@ -328,7 +328,7 @@ c                        q        k          q+k
            write(6,"('nkmin nkqmin=',2i5)") nkmin,nkqmin
         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        print *,' nctot ncc=',nctot,ncc
+c        write(6,*)' nctot ncc=',nctot,ncc
 c        stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
@@ -373,12 +373,12 @@ cccccccccccccc
 c      write(6,"('uuu sumtest g1a=',6f8.4,2i4,2d13.5)")
 c     &  q+rk(:,k), qu1,itps,itps+ntp0-1, sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
 cccccccccccc
-c      print *,'uuu sumtest g1a=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
+c      write(6,*)'uuu sumtest g1a=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
 c      geig1(1:ngp1, itps:itps+ntp0-1)= geigB(1:ngp1, itps:itps+ntp0-1,kp)
-c      print *,' sumtest g1b=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
-c      print *,'uuu sumtest g2a=',sum(geig2(1:ngp2, 1:nt0) ) 
+c      write(6,*)' sumtest g1b=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
+c      write(6,*)'uuu sumtest g2a=',sum(geig2(1:ngp2, 1:nt0) ) 
 c      geig2(1:ngp2, 1:nt0     )= geigB(1:ngp2, 1:nt0,    k )
-c      print *,' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) ) 
+c      write(6,*)' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) ) 
         if(sum(abs(qu1-qu1x))>1d-10) stop 'x0kf_v3hz:qu1/=qu1x'
         if(sum(abs(qu2-qu2x))>1d-10) stop 'x0kf_v3hz:qu2/=qu2x'
 
@@ -387,7 +387,7 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
             ! q   - (q+k)   + k  is not zero.
             ! qc  -  q1     + q2 
         add   = matmul(qbasinv, qdiff)
-        nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
+        nadd  = idint( add + dsign(.5d0,add))  !  write(6,*)' qdif=',qdiff,qbkp(:),rk(:,k)
         if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         zmelt = 0d0
         if(debug) write(*,'("333 goto melpln2",$)')
@@ -537,7 +537,7 @@ c        write(6,*)" nkmax ",nkmax,nkqmax,itps
           if(jpm==1) then 
            if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
             if(iww1) then
-              print *,' nband_chi0 nbmx=',nbmx
+              write(6,*)' nband_chi0 nbmx=',nbmx
               iww1=.false.
             endif
             cycle
@@ -553,7 +553,7 @@ c        write(6,*)" nkmax ",nkmax,nkqmax,itps
           else !jpm==2 ------------------------------
            if( n1b(ibib,k,jpm) > nbmx) then  !nbmx
             if(iww1) then
-              print *,' nband_chi0 nbmx=',nbmx
+              write(6,*)' nband_chi0 nbmx=',nbmx
               iww1=.false.
             endif
             cycle
@@ -759,13 +759,13 @@ c       endif
       !    call cputid(0)
  1000 continue
 
-c      print *,' x0kf_v3hz: 111'
+c      write(6,*)' x0kf_v3hz: 111'
 c      deallocate(zxq_) !...........................sf 21May02
       deallocate(cphik,cphikq,geig1,geig2)
       if(smbasis()) deallocate(pomat)
-      print *,' x0kf_v3hz: end'
+      write(6,*)' x0kf_v3hz: end'
 cccccccccccccccccccccccccccccccccccccccccccc
-c        print *,' ---- trace chck ---- '
+c        write(6,*)' ---- trace chck ---- '
 c        do iw= 1,nwt
 c        do ix=1,5
 c          write(6,"(a,2i4,3d13.5)")' ttt=',iw,ix,
@@ -865,7 +865,7 @@ C... Check freqr=frhis_m.
 C... But I think now this is not necessary. You can supply any freqr(iw). But be careful.
       if(realomega) then
        if( nwhis <= nw_w ) then
-         print *,nwhis,nw_w
+         write(6,*)nwhis,nw_w
          stop ' dpsion4: nwhis<=nw_w'
        endif
        if( freqr(0)/=0d0 ) stop ' dpsion4: freqr(0)/=0d0'
@@ -883,7 +883,7 @@ C... But I think now this is not necessary. You can supply any freqr(iw). But be
 C--------------------------------------------------------------
 ! Each bin  [his_Left, his_Right]  his_Center is middle.
 ! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-      if(debug) print *,' dpsion4: RRR 2222222222 '
+      if(debug) write(6,*)' dpsion4: RRR 2222222222 '
       allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
       his_L(1:nwhis) = frhis(  1:  nwhis)
       his_R(1:nwhis) = frhis(1+1:1+nwhis)
@@ -905,7 +905,7 @@ C
          do jpm=1,npm
           call dscal(2*ngb*ngb, -wfac/(his_r(iw)-his_l(iw)),rcxq(1,1,iw,jpm),1) 
          enddo
-        enddo ;  if(debug) print *, 'dpsion4: RRR 7777 '
+        enddo ;  if(debug) write(6,*) 'dpsion4: RRR 7777 '
 C... Temporary. maybe, we will have better procedure...
         do igb2= 1, ngb 
         do igb1= 1, igb2-1
@@ -924,7 +924,7 @@ C--- realomega case
           call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
 c         call hilbertmat2(zz, nwhis,his_L,his_C,his_R, rrr)
           rmat(it,:,1) = dreal(rrr)
-         enddo ;   if(debug) print *, 'dpsion4: RRR 55555555555'
+         enddo ;   if(debug) write(6,*) 'dpsion4: RRR 55555555555'
          allocate( rmatt(0:nw_w,nwhis,npm) )
          if(     chipm.and.ispx==1 ) then
           rmatt(:,:,1) = rmat(:,1:nwhis,1) 
@@ -950,10 +950,10 @@ c         call hilbertmat2(zz, nwhis,his_L,his_C,his_R, rrr)
            call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
            rmatt(it,:,1) =  dreal(rrr  (1:nwhis))
            rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))
-          enddo ;   if(debug) print *, 'dpsion4: RRR2 55555555555'
+          enddo ;   if(debug) write(6,*) 'dpsion4: RRR2 55555555555'
           deallocate(rrr)
         endif 
-        rmatt = rmatt/pi ; if(debug) print *,'dpsion4: RRR 6666'
+        rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion4: RRR 6666'
 
 !... nolfc case epsmode ----------------------------------------------------
         if(nolfco) then !iepsmode=202 ! real mode is assumed
@@ -1013,7 +1013,7 @@ C... !!!chipm case is not yet for npm==2
 !          call zcopy( ngb*ngb*nw_w, rcxq,1, zxq(1,1,1),1)
 !          call zscal( ngb*ngb*nw_w,   img,  zxq(1,1,1),1)
         endif 
-        if(debug) print *, 'dpsion4: RRR 88888 xxxxxxxxx '
+        if(debug) write(6,*) 'dpsion4: RRR 88888 xxxxxxxxx '
         if(npm==2) then
 c          call zaxpy( ngb*ngb*nw_w,img, rcxq(1,1,1,2),1, zxq(:,:,-1:-nw_w:-1),1) 
           do iw=1,nw_w
@@ -1022,7 +1022,7 @@ c          call zaxpy( ngb*ngb*nw_w,img, rcxq(1,1,1,2),1, zxq(:,:,-1:-nw_w:-1),1
         endif
 !     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
 !                 iw =1,nwhis   it=0:nw_w
-        if(debug) print *, 'dpsion4: RRR 88888 yyyyyy '
+        if(debug) write(6,*) 'dpsion4: RRR 88888 yyyyyy '
         if(npm==1) then
           call dgemm('n','t',  2*ngb*ngb, nw_w+1, nwhis, 1d0, 
      &              rcxq,2*ngb*ngb,  rmatt, nw_w+1,
@@ -1050,7 +1050,7 @@ c          call dgemm('n','t',  2*ngb*ngb, npm*nw_w+1, nwhis, 1d0,
 c     &              rcxq(1,1,1,2), 2*ngb*ngb,  rmatt(:,:,2), npm*nw_w+1,
 c     &               1d0, zxq,2*ngb*ngb )
         endif  
-        if(debug) print *, 'dpsion4: RRR 9999 xxxxxxxxx '
+        if(debug) write(6,*) 'dpsion4: RRR 9999 xxxxxxxxx '
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      write(6,*) '--- after dgemm-------'
 c$$$      do igb1=1,5
@@ -1076,7 +1076,7 @@ C--- imagomega case
           zz = img*freqi(it) !his_C(it)
           call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
           rmat(it,:,1) = dreal(rrr)
-        enddo ;   if(debug) print *, 'dpsion4: III 55555555555'
+        enddo ;   if(debug) write(6,*) 'dpsion4: III 55555555555'
         if(npm==1) then
           allocate( imatt(niwt,nwhis,1) )
           do iw= 1,nwhis
@@ -1090,7 +1090,7 @@ C--- imagomega case
           enddo
         endif  
         deallocate(rmat,rrr)
-        imatt = imatt/pi  ; if(debug) print *, 'dpsion4: III 88888 '
+        imatt = imatt/pi  ; if(debug) write(6,*) 'dpsion4: III 88888 '
   
 !     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
 !                 iw =1,nwhis   it=0:nw_w
@@ -1175,7 +1175,7 @@ c            rl_fac(iw) = log( abs((domega_c/domega_l)) )
       rmat=0d0
       do iw = -nwhis, nwhis !symmetric version. iw=0 is meaningless
           if(iw==0) cycle
-c          if(debug) print *,' it iw=',it, iw
+c          if(debug) write(6,*)' it iw=',it, iw
           domega_c = zz - his_C(iw) 
           if(iw==  nwhis) then
             delta_r = his_R(iw)   - his_C(iw)
@@ -1184,7 +1184,7 @@ c          if(debug) print *,' it iw=',it, iw
           else  
             delta_r = his_C(iw+1) - his_C(iw)
           endif
-!         if(debug) print *,' it iw RRR1'
+!         if(debug) write(6,*)' it iw RRR1'
           if(iw== -nwhis) then
             delta_l = his_C(iw)  - his_L(iw)
           elseif(iw==  1) then
@@ -1192,7 +1192,7 @@ c          if(debug) print *,' it iw=',it, iw
           else  
             delta_l = his_C(iw)  - his_C(iw-1)
           endif
-!         if(debug) print *,' it iw RRR2'
+!         if(debug) write(6,*)' it iw RRR2'
 !          ddr = (his_R(iw)-his_C(iw))/delta_r
 !          ddl = (his_C(iw)-his_L(iw))/delta_l
           rmat(iw)  = rmat(iw  ) + rr_fac(iw)*( 1d0-domega_C/delta_r) !+ ddr
@@ -1296,7 +1296,7 @@ C... Check freqr=frhis_m.
 C... But I think now this is not necessary. You can supply any freqr(iw). But be careful.
       if(realomega) then
        if( nwhis <= nw_w ) then
-         print *,nwhis,nw_w
+         write(6,*)nwhis,nw_w
          stop ' dpsion3: nwhis<=nw_w'
        endif
        if( freqr(0)/=0d0 ) stop ' dpsion3: freqr(0)/=0d0'
@@ -1314,7 +1314,7 @@ C... But I think now this is not necessary. You can supply any freqr(iw). But be
 C--------------------------------------------------------------
 ! Each bin  [his_Left, his_Right]  his_Center is middle.
 ! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-      if(debug) print *,' dpsion3: RRR 2222222222 '
+      if(debug) write(6,*)' dpsion3: RRR 2222222222 '
       allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
       his_L(1:nwhis) = frhis(  1:  nwhis)
       his_R(1:nwhis) = frhis(1+1:1+nwhis)
@@ -1334,7 +1334,7 @@ C
           wfac= 1d0 
         endif         ! rcxq is used as work---> rcxq= Average value of Im chi.
         call dscal(2*ngb*ngb, -wfac/(his_r(iw)-his_l(iw)),rcxq(1,1,iw), 1) 
-        enddo ;  if(debug) print *, 'dpsion3: RRR 7777 '
+        enddo ;  if(debug) write(6,*) 'dpsion3: RRR 7777 '
 C... Temporary. maybe, we will have better procedure...
         do igb2= 1, ngb 
         do igb1= 1, igb2-1
@@ -1352,7 +1352,7 @@ C--- realomega case
           call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
 c          call hilbertmat2(zz, nwhis,his_L,his_C,his_R, rrr)
           rmat(it,:) = dreal(rrr)
-        enddo ;   if(debug) print *, 'dpsion3: RRR 55555555555'
+        enddo ;   if(debug) write(6,*) 'dpsion3: RRR 55555555555'
         allocate( rmatt(0:nw_w,nwhis) )
         if(     chipm.and.ispx==1 ) then
           rmatt = rmat(:,1:nwhis) 
@@ -1366,7 +1366,7 @@ c          call hilbertmat2(zz, nwhis,his_L,his_C,his_R, rrr)
           enddo
         endif
         deallocate(rmat,rrr)
-        rmatt = rmatt/pi ; if(debug) print *,'dpsion3: RRR 6666'
+        rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion3: RRR 6666'
 
 !... nolfc case epsmode
         if(nolfco) then !iepsmode=202 ! real mode is assumed
@@ -1403,13 +1403,13 @@ C...
 !          zxq(:,:,0) = 0d0  
 !          call zcopy( ngb*ngb*nw_w, rcxq,1, zxq(1,1,1),1)
 !          call zscal( ngb*ngb*nw_w,   img,  zxq(1,1,1),1)
-        endif ;  if(debug) print *, 'dpsion3: RRR 88888 xxxxxxxxx '
+        endif ;  if(debug) write(6,*) 'dpsion3: RRR 88888 xxxxxxxxx '
 !     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
 !                 iw =1,nwhis   it=0:nw_w
         call dgemm('n','t',  2*ngb*ngb, nw_w+1, nwhis, 1d0, 
      &              rcxq,2*ngb*ngb,  rmatt,nw_w+1,
      &               1d0, zxq,2*ngb*ngb )
-        if(debug) print *, 'dpsion3: RRR 9999 xxxxxxxxx '
+        if(debug) write(6,*) 'dpsion3: RRR 9999 xxxxxxxxx '
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      write(6,*) '--- after dgemm-------'
 c$$$      do igb1=1,5
@@ -1435,13 +1435,13 @@ C--- imagomega case
           zz = img*freqi(it) !his_C(it)
           call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
           rmat(it,:) = dreal(rrr)
-        enddo ;   if(debug) print *, 'dpsion3: III 55555555555'
+        enddo ;   if(debug) write(6,*) 'dpsion3: III 55555555555'
         allocate( imatt(niwt,nwhis) )
         do iw= 1,nwhis
           imatt(:,iw) = rmat(:,iw) - rmat(:,-iw)
         enddo
         deallocate(rmat,rrr)
-        imatt = imatt/pi  ; if(debug) print *, 'dpsion3: III 88888 '
+        imatt = imatt/pi  ; if(debug) write(6,*) 'dpsion3: III 88888 '
 !     zxq(igb1,igb2, it) = rcxq (igb1,igb2,iw) * rmatt(it,iw)
 !                 iw =1,nwhis   it=0:nw_w
         call dgemm('n','t',  2*ngb*ngb, niwt, nwhis, 1d0, 

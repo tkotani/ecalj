@@ -191,7 +191,7 @@ C --- Check write
       write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
 c      write(6,*) ' --- point group operation --- '
 c      do ig = 1,ngrp
-c        print *, ' ig=',ig
+c        write(6,*) ' ig=',ig
 c        do i=1,3
 c          write(6,"(3f14.6)") symops(i,1:3,ig)
 c        enddo
@@ -263,7 +263,7 @@ c      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 
 c --- readin SYML if it exists.
       inquire(file='SYML',exist=extsyml)
-      print *,'--- Readin SYML'
+      write(6,*)'--- Readin SYML'
       allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax)
      & ,symlon(mxkp))
 
@@ -512,10 +512,10 @@ c     & //" (n=1->phi n=2->phidot n=3->LocalOrbital)"
         enddo
       enddo
       if(extsyml) then
-        print *, 
+        write(6,*) 
      & ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp QPNTforSYML.tmp.'
       else
-        print *, 
+        write(6,*) 
      & ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp. '
       endif
 Cstop2rx 2013.08.09 kino      stop ' Write GWIN_V2 and QPNT based on these template! '

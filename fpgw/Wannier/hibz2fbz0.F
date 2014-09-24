@@ -159,10 +159,10 @@ c--- Use regular mesh even for bzcase==2
 ctm 060916
 c      stop "hibz2fbz: bzcase=2 is not implemented."
       endif
-      print *,' ======== nqbz qbz  =',nqbz
-      print *,' ======== nqibz ngrp=',nqibz,ngrp
-      print *,  qbz 
-      print *,'============================'
+      write(6,*)' ======== nqbz qbz  =',nqbz
+      write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
+      write(6,*)  qbz 
+      write(6,*)'============================'
       print *
 
 C--- readin GWIN and LMTO, then allocate and set datas.
@@ -394,7 +394,7 @@ c --- initiallization to get eigenfunctions
       call init_readeigen2(mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband),geig2(ngpmx,nband))
-      print *, 'end of initialization'
+      write(6,*) 'end of initialization'
 
 c output: header
       write(ifo,*)nwf,nqbz,n1,n2,n3,iwini,iwend,dwplot,nspin,ef2,alat
@@ -488,14 +488,14 @@ c SEC
  1010 continue ! ispin
 
 
-      print *, ' ====== end ========================================'
+      write(6,*) ' ====== end ========================================'
       end
 c-----------------------------------------------------------------------
       subroutine checkagree(a,b,char)
       real(8):: a(3),b(3) 
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
-         print *,' Error in checkagree:',char
+         write(6,*)' Error in checkagree:',char
          stop ' Error in checkagree:'
       endif
       end

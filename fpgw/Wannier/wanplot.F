@@ -85,7 +85,7 @@ c      use m_wfrho_abc
          enddo
          close(ifi)
       enddo                     ! isp
-      print *,'read end of MLWU/D ...'
+      write(6,*)'read end of MLWU/D ...'
 !!
       ifhbed     = iopen('hbe.d',1,0,0)
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
@@ -95,8 +95,8 @@ c      use m_wfrho_abc
 !! replace geig and cphi with those for WF. Converted by the dnk matrix.
 !! geig2 = cphi2 = 0 for ik > nqbz
       call readngmx('QGpsi',ngpmx)
-      print *,'ngpmx nband ldim2=',ngpmx,nband,ldim2
-      print *,'nwf   nqbz  nsp  =',nwf,nqbz,nsp
+      write(6,*)'ngpmx nband ldim2=',ngpmx,nband,ldim2
+      write(6,*)'nwf   nqbz  nsp  =',nwf,nqbz,nsp
       allocate(geig2(ngpmx,nband))
       allocate(cphi2(ldim2,nband))
       allocate(geig(ngpmx,nwf,nqbz,nsp))
@@ -167,10 +167,10 @@ c .... for plot mesh
       do i=1,3
          mesh(i)= (i_rfin(i)-i_rini(i))*mesh0(i)
       enddo 
-      print *,'i_rfin=',i_rini
-      print *,'i_rini=',i_rfin
-      print *,'mmmmmmmmmmm0=',mesh0
-      print *,'mmmmmmmmmmm1=',mesh
+      write(6,*)'i_rfin=',i_rini
+      write(6,*)'i_rini=',i_rfin
+      write(6,*)'mmmmmmmmmmm0=',mesh0
+      write(6,*)'mmmmmmmmmmm1=',mesh
 
       allocate(phipw0 (mesh0(1)+1,mesh0(2)+1,mesh0(3)+1,   nband_wfn,nq_wfn,nsp))
       allocate(phiaug0(mesh0(1)+1,mesh0(2)+1,mesh0(3)+1,  nband_wfn,nq_wfn,nsp))
@@ -182,7 +182,7 @@ c .... for plot mesh
      i     npw,mesh0,nsp,nband,ldim2,ngpmx,  
      i     geig,cphi,nwf,
      o     phipw0,phiaug0,phitot0)
-c      print *,'sumchk0=',sum(abs(phipw0)),sum(abs(phiaug0)),sum(abs(phitot0))
+c      write(6,*)'sumchk0=',sum(abs(phipw0)),sum(abs(phiaug0)),sum(abs(phitot0))
 
       allocate(phipw(mesh(1)+1,mesh(2)+1,mesh(3)+1,   nband_wfn,nq_wfn,nsp))
       allocate(phiaug(mesh(1)+1,mesh(2)+1,mesh(3)+1,  nband_wfn,nq_wfn,nsp))
@@ -194,7 +194,7 @@ c      print *,'sumchk0=',sum(abs(phipw0)),sum(abs(phiaug0)),sum(abs(phitot0))
      i    i_rini,i_rfin, 
      o    mesh0, phipw0,phiaug0,phitot0, 
      o    mesh, phipw,phiaug,phitot )
-c      print *,'sumchk=',sum(abs(phipw)),sum(abs(phiaug)),sum(abs(phitot))
+c      write(6,*)'sumchk=',sum(abs(phipw)),sum(abs(phiaug)),sum(abs(phitot))
 
 !! from Bloch to Wannier
       allocate(wanpw(mesh(1)+1,mesh(2)+1,mesh(3)+1,nband_wfn,nsp) )

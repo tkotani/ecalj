@@ -157,11 +157,11 @@ c--- Use regular mesh even for bzcase==2
       endif
 
       if (myproc.eq.0) then
-      print *,' ======== nqbz qbz  =',nqbz
-      print *,' ======== nqibz ngrp=',nqibz,ngrp
-      print *,  qbz 
-      print *,'============================'
-      print *
+      write(6,*)' ======== nqbz qbz  =',nqbz
+      write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
+      write(6,*)  qbz 
+      write(6,*)'============================'
+      write(6,*)
       endif
 
 C--- readin GWIN and LMTO, then allocate and set datas.
@@ -200,10 +200,10 @@ c --- read dimensions of h,hb
 c --- read by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2(nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
-      if (myproc.eq.0) print *,' ngpmx=',ngpmx
+      if (myproc.eq.0) write(6,*)' ngpmx=',ngpmx
 
 c --- read radial functions PHIVC   (taken from hasfp0)
-      if (myproc.eq.0) print *,' Go to readining phivc'
+      if (myproc.eq.0) write(6,*)' Go to readining phivc'
       ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
       read(ifphi) nbas, nradmx, ncoremx,nrx
       if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
@@ -217,7 +217,7 @@ c --- read radial functions PHIVC   (taken from hasfp0)
      &        phitoto(nrx,0:nl-1,nn,nbas,nspin),
      &        phitotr(nrx,0:nl-1,nn,nbas,nspin),
      &        nc_max(0:nl-1,nbas),ncore(nbas),rmax(nbas) )
-      if (myproc.eq.0) print *,' end of allocation'
+      if (myproc.eq.0) write(6,*)' end of allocation'
       read(ifphi) nrad(1:nbas)
       read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
       nc_max=0
@@ -228,21 +228,21 @@ c --- read radial functions PHIVC   (taken from hasfp0)
         read(ifphi) ncore(ic), ncoremx                            !core
         read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
         if (myproc.eq.0) 
-     &  print *,' xxx0'
+     &  write(6,*)' xxx0'
         read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
 
         if (myproc.eq.0) 
-     &  print *, 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
+     &  write(6,*) 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
            stop ' h_uu: ic/=icx'
         endif
         if (myproc.eq.0) 
-     &  print *,' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
+     &  write(6,*)' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
         read(ifphi) rr(1:nrofi(ic),ic)
         if (myproc.eq.0) 
-     &  print *,' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
+     &  write(6,*)' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
 
-        if (myproc.eq.0) print *,' xxx2 nspin=',nspin
+        if (myproc.eq.0) write(6,*)' xxx2 nspin=',nspin
         rmax(ic) = rr(nrofi(ic),ic)
         do isp = 1, nspin
           if (myproc.eq.0) 
@@ -255,7 +255,7 @@ c --- read radial functions PHIVC   (taken from hasfp0)
      &      phitoto(1:nrofi(ic),l,n, ic,isp)               !
             if(n>nc_max(l,ic)) nc_max(l,ic)=n
             if (myproc.eq.0) 
-     &      print *,' sss1c=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
+     &      write(6,*)' sss1c=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
           enddo
           do irad = 1, nrad(ic)   !valence
             l = lindx_r (irad,ic)
@@ -263,8 +263,8 @@ c --- read radial functions PHIVC   (taken from hasfp0)
             read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal 
             read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
             if (myproc.eq.0) then
-            print *,' sss1=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
-            print *,' sss2=',sum(abs(phitotr(1:nrofi(ic),l,n, ic,isp)))
+            write(6,*)' sss1=',sum(abs(phitoto(1:nrofi(ic),l,n, ic,isp)))
+            write(6,*)' sss2=',sum(abs(phitotr(1:nrofi(ic),l,n, ic,isp)))
             endif
           enddo
         enddo  
@@ -284,7 +284,7 @@ c --- initiallization to get eigenfunctions
       call init_readeigen2(mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband) )
-      if (myproc.eq.0) print *, 'end of initialization'
+      if (myproc.eq.0) write(6,*) 'end of initialization'
 
 c --- Readin nlam index
       ifoc = iopen('@MNLA_CPHI',1,0,0)
@@ -297,7 +297,7 @@ c --- Readin nlam index
       enddo   
 
 c ---  q near zero
-      if (myproc.eq.0) print *, 'reading QOP'
+      if (myproc.eq.0) write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
 !      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
@@ -330,7 +330,7 @@ ctm
 
 c GWinput data
       call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
-      if (myproc.eq.0) print *,' ifmloc ret=',ifmloc,ret
+      if (myproc.eq.0) write(6,*)' ifmloc ret=',ifmloc,ret
       read (ifmloc,*) nwf
 ctm 040928
       allocate (nphi(nwf))
@@ -596,7 +596,7 @@ c finalize MPI
 !      call RSMPI_finalize()
 
       if (myproc.eq.0)
-     & print *, ' ====== end ========================================'
+     & write(6,*) ' ====== end ========================================'
 c      stop ' ====== end ========================================'
       if (myproc.eq.0) write(*,*) 'hpsig: ok'
       end
@@ -605,7 +605,7 @@ c====================================================================
       real(8):: a(3),b(3) 
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
-         print *,' Error in checkagree:',char
+         write(6,*)' Error in checkagree:',char
          stop ' Error in checkagree:'
       endif
       end
@@ -773,7 +773,7 @@ Cr True G is given by
 Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,ig)) ,ig=1,ng
 c-----------------------------------------------------
 
-c      print *,' qggmat:'
+c      write(6,*)' qggmat:'
       pi        = 4d0*datan(1d0)
       voltot    = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       tpibaqlat =  2*pi/alat *qlat
@@ -894,7 +894,7 @@ c end of ig-loop
 
       deallocate(cy,yl,rtail,rg,phij,psij,rjl)
 
-c      print *,' qggmat: done '
+c      write(6,*)' qggmat: done '
       end
 
 c--------------------------------------------------------------

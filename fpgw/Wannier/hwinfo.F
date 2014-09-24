@@ -124,11 +124,11 @@ c--- Use regular mesh even for bzcase==2
 !        write(6,"('i qbz=',i3,3f8.3)") i,qbz(:,i)
       enddo
       endif
-      print *,' ======== nqbz qbz  =',nqbz
-      print *,' ======== nqibz ngrp=',nqibz,ngrp
-!      print *,  qbz 
-!      print *,'============================'
-      print *
+      write(6,*)' ======== nqbz qbz  =',nqbz
+      write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
+!      write(6,*)  qbz 
+!      write(6,*)'============================'
+      write(6,*)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
       nwin = -999    !readin condition. Not readin NW file
@@ -186,7 +186,7 @@ ctm
 
 c GWinput data
       call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
-      print *,' ifmloc ret=',ifmloc,ret
+      write(6,*)' ifmloc ret=',ifmloc,ret
       read (ifmloc,*) nwf
 ctm 040928
       allocate (nphi(nwf))
@@ -272,7 +272,7 @@ c         write(*,*)
  995  format(1x,a33)
  996  format(3f12.6)
 
-      print *, ' ====== end ========================================'
+      write(6,*) ' ====== end ========================================'
       stop 'hwinfo: ok'
       end
 c====================================================================
@@ -280,7 +280,7 @@ c====================================================================
       real(8):: a(3),b(3) 
       character*(*) :: char
       if(sum(abs(a-b))>1d-6) then
-         print *,' Error in checkagree:',char
+         write(6,*)' Error in checkagree:',char
          stop ' Error in checkagree:'
       endif
       end

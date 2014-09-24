@@ -135,7 +135,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        lx=lmxax
-c$$$        print *,' lx=',lx
+c$$$        write(6,*)' lx=',lx
 c$$$        if(allocated(cy)) deallocate(cy)
 c$$$        if(allocated(yl)) deallocate(yl)
 c$$$        allocate(cy((lx+1)**2),yl((lx+1)**2))
@@ -253,19 +253,19 @@ Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
       kk3(:) = key(3,1:nkey(3))
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
-      if(debug) print *,' initqqq nqbz=',nqbz
+      if(debug) write(6,*)' initqqq nqbz=',nqbz
       do i=1,nqbz
          kkk3= (qbzl(:,i)+0.5*epd)/epd !kkk is digitized by 1/epd
          call tabkk(kkk3(1), kk1,nkey(1), ik1)
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-         if(debug)print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+         if(debug)write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
       enddo
       if(debug) then
-      print *,'kk1=',kk1
-      print *,'kk2=',kk2
-      print *,'kk3=',kk3
+      write(6,*)'kk1=',kk1
+      write(6,*)'kk2=',kk2
+      write(6,*)'kk3=',kk3
       endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
@@ -291,7 +291,7 @@ cccccccccccccccccc
         do ig=1,ngrp
           qdiff= timer*matmul(symgg(:,:,ig),q) - q
           call rangedq(matmul(ginv,qdiff), qxx)
-          if(debug) print *,'ig qdiff',ig,qdiff,q,ginv,qxx
+          if(debug) write(6,*)'ig qdiff',ig,qdiff,q,ginv,qxx
 cccccccccccccccccccccccccccccccccccccccccccccc
           if(pwmode>0.and.pwmode<10) then
 c     check wheter q is on 1st BZ boundary or not
@@ -316,7 +316,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
         eibzsym(:,:,iq)=eallow ! === eibzsym is eallow -----
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug)print *,'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
+        if(debug)write(6,*)'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -344,9 +344,9 @@ c                 nww(ibz,im) = nww(ibz,im)+1
             igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
             igxt_(imm,ibz) = it  !
             if(debug) write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
-c            print *,'qbz=',qbz(:,ibz)
-c            print *,'qx =',qx
-c            print *,'qxi=',qxi
+c            write(6,*)'qbz=',qbz(:,ibz)
+c            write(6,*)'qx =',qx
+c            write(6,*)'qxi=',qxi
 !! inversion table:
 !!             ibz<---from qbzrid
 !! we can skip such ibz.
@@ -357,7 +357,7 @@ c            print *,'qxi=',qxi
           if(imm>immxx) immxx=imm
         enddo
 
-        if(debug) print *,'eibz aaaaaaa'
+        if(debug) write(6,*)'eibz aaaaaaa'
 c        call cputid(0)
 
 !! inequivalent points.
@@ -375,7 +375,7 @@ c        call cputid(0)
                       if(igxt_(im,ibz) ==-1) cycle 
                    endif   
                    kkk3 = nxx(:,ibz,im)
-                   if(debug) print *,'uuuuu ibz,im kkk3=',ibz,im,kkk3
+                   if(debug) write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
                    call tabkk(kkk3(1), kk1,nkey(1), ik1)
                    call tabkk(kkk3(2), kk2,nkey(2), ik2)
                    call tabkk(kkk3(3), kk3,nkey(3), ik3)
@@ -395,7 +395,7 @@ c        call cputid(0)
                 goto 1202
              endif   
              inotime=.false.
-             print *,' mptauo: we need time reversal'
+             write(6,*)' mptauo: we need time reversal'
           enddo
           call rx( 'eibzgen: bug. nwgt sum is not nqbz')
  1202     continue
@@ -408,7 +408,7 @@ C           endif
 C         enddo
 C cccccccccccccccccccccccccccccccccc
 
-c          print *,'pppppp nwgt(ibz,iq),nqbz=',iq,sum(nwgt(:,iq)),nqbz
+c          write(6,*)'pppppp nwgt(ibz,iq),nqbz=',iq,sum(nwgt(:,iq)),nqbz
 c$$$!! === Search other ibz generated from ibz. ===
 c$$$!!   ibznxx(ibz,imm) means "ibz rotated by igx(imm,ibz,iq),igxt(imm,ibz,iq)"
 c$$$        allocate(mqbz(nqbz))
@@ -427,7 +427,7 @@ c$$$ 3312     continue
 c$$$        enddo
         deallocate(igx_,igxt_)
 
-c        print *,'eibz bbbbbb'
+c        write(6,*)'eibz bbbbbb'
 c        call cputid(0)
 !
         neibzx=0
@@ -487,8 +487,8 @@ c$$$            nout=i
 c$$$            return                                                                              
 c$$$         endif                                                                                  
 c$$$      enddo                                                                                     
-      print *, i1,i2,kkin
-      print *, kktable(i1),kktable(i2)
+      write(6,*) i1,i2,kkin
+      write(6,*) kktable(i1),kktable(i2)
 Cstop2rx 2013.08.09 kino      stop 'takk: error'
       call rx( 'takk: error')
       end subroutine tabkk
@@ -554,9 +554,9 @@ c seach for inverse  ig->igd
  16     continue
 c
         if(iprint() .ge.40) then
-          print *,' '
-          print *,' '
-          print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
+          write(6,*)' '
+          write(6,*)' '
+          write(6,*)' **** group ops no. ig (igd)= ', ig, invg(ig)
           write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
           write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
           write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)

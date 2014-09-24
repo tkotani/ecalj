@@ -101,7 +101,7 @@ c> output file
 
 c loop over spin
       do      is = 1,nspin
-      print *, ' --- is=',is
+      write(6,*) ' --- is=',is
 c read dimensions
       call readx   (ifsex(is),50)
       read (ifsex(is),*) nspinx,nqx,ntwx
@@ -125,8 +125,8 @@ c
       if (ntw .ne. ntwc)      stop 'hqpe: wrong ntw SEc'
       if (ntw.ne. ntwxc)      stop 'hqpe: wrong ntw vxc'
 c
-      if(is==1) print *,' ###  readin XCU.wan'
-      if(is==2) print *,' ###  readin XCD.wan'
+      if(is==1) write(6,*)' ###  readin XCU.wan'
+      if(is==2) write(6,*)' ###  readin XCD.wan'
       allocate( itxc(ntw),qxc(3,ntw,nq),eldaxc(ntw,nq),
      &          vxc(ntw,nq) )
       call readx (ifxc(is),50)
@@ -139,8 +139,8 @@ c
       enddo
       enddo
 c
-      if(is==1) print *,' ###  readin SEXU.wan'
-      if(is==2) print *,' ###  readin SEXD.wan'
+      if(is==1) write(6,*)' ###  readin SEXU.wan'
+      if(is==2) write(6,*)' ###  readin SEXD.wan'
       allocate( itx(ntw), qx (3,ntw,nq),eldax (ntw,nq),sex(ntw,nq) )
       call readx   (ifsex(is),50)
 	read(ifsex(is),*)
@@ -152,8 +152,8 @@ c
       enddo
       enddo
 c
-      if(is==1) print *,' ###  readin SEXcoreU.wan'
-      if(is==2) print *,' ###  readin SEXcoreD.wan'
+      if(is==1) write(6,*)' ###  readin SEXcoreU.wan'
+      if(is==2) write(6,*)' ###  readin SEXcoreD.wan'
       allocate( sexcore(ntw,nq) )
       call readx   (ifsexcore(is),50)
       call readx   (ifsexcore(is),50)
@@ -165,8 +165,8 @@ c
       enddo
       enddo
 c
-      if(is==1) print *,' ###  readin SEComg.UP.wan'
-      if(is==2) print *,' ###  readin SEComg.DN.wan'
+      if(is==1) write(6,*)' ###  readin SEComg.UP.wan'
+      if(is==2) write(6,*)' ###  readin SEComg.DN.wan'
       allocate( itc(ntw), qc (3,ntw,nq)
      &         ,rsec(iwini:iwfin,ntw,nq),csec(iwini:iwfin,ntw,nq)
      &         ,omg(iwin:iwfin))
@@ -176,7 +176,7 @@ c
         read(ifsec(is),"(4i5,3f10.6,3x,f10.6,2x,f16.8,x,3f16.8)")
      &     iw2,itc(i),ip2,is2,qc(1:3,i,ip),exxx,
      &     omg(iw),rsec(iw,i,ip),csec(iw,i,ip) 
-c      print *," itc=",itc(i)
+c      write(6,*)" itc=",itc(i)
       enddo
       enddo
       enddo

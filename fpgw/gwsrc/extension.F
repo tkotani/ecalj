@@ -89,7 +89,7 @@ cc        output file should contain hermitean part of SE for energies to be rea
 cc        (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
 c        is=iclose('GWIN_V2')
 c      endif
-      print *,' iSigma_en=',iSigma_en
+      write(6,*)' iSigma_en=',iSigma_en
       end
 c--------------------------
       subroutine getnemx(nbmx,ebmx,im,ipr)
@@ -135,16 +135,16 @@ C- Readin nbmx ebmx for hscfp0
       integer (4)::nbmx(2)
 c      character(len=100):: recxxx=' '
       call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
-      print *,' status 1=',ret
+      write(6,*)' status 1=',ret
       call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
-      print *,' status 2=',ret
+      write(6,*)' status 2=',ret
 c$$$      call getkeyvalue("GWinput","nband_sigm",nbmx,2, default=(/9999999,999999/),status=ret)
 c$$$      if(ret<0) call getkeyvalue("GWinput","nband_sigm",nbmx(1), default=9999999)
-c$$$      print *,' status 1=',ret
+c$$$      write(6,*)' status 1=',ret
 c$$$      call getkeyvalue("GWinput","emax_sigm", ebmx,2, default=(/1d10,1d10/),status=ret)
-c$$$      print *,' status 2=',ret
+c$$$      write(6,*)' status 2=',ret
 c$$$      if(ret<0) call getkeyvalue("GWinput","emax_sigm",ebmx(1), default=1d10)
-c$$$      print *,' status 3=',ret
+c$$$      write(6,*)' status 3=',ret
       return
       end
 

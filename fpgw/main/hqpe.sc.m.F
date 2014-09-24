@@ -83,7 +83,7 @@ c     logical :: core3ptest=.false. ! This is for test for NiO_bigbas
 c     ! Project out the 3p(LDA) part from Sigma-Vxc.
 c     ! This requires evec0(LDA eigenfunctions)
 cccccccccccccccccccccccccccccccccccccccccccccccc
-c     if(core3ptest) print *,' core3ptest=',core3ptest
+c     if(core3ptest) write(6,*)' core3ptest=',core3ptest
 
 c----
       hartree=2d0*rydberg()
@@ -107,7 +107,7 @@ c     if (iaf .eq. 1) laf = .true.
         exonly=.false.
       else
         exonly=.true.
-        print *,' exonly=T wex=',wex
+        write(6,*)' exonly=T wex=',wex
       endif
 
 
@@ -117,15 +117,15 @@ c     if (iaf .eq. 1) laf = .true.
         open(ifianf,file='ANFcond')
         read(ifianf,*) soflag
         if(soflag=='SO') then
-          print *,' ANFcond found. but SO case is not implimented. Not using ANF symm'
+          write(6,*)' ANFcond found. but SO case is not implimented. Not using ANF symm'
           laf=.false.
         else
-          print *, 'Find ANFcond--- up only'
+          write(6,*) 'Find ANFcond--- up only'
         endif
         close(ifianf)
       endif
 
-c     '      if(laf) print *, 'Find ANFcond--- up only'
+c     '      if(laf) write(6,*) 'Find ANFcond--- up only'
 
       ifsex(1) = iopenxx ('SEXU')
       ifxc(1)  = iopenxx ('XCU')
@@ -177,7 +177,7 @@ C     3 Feb 2004 read sigma and pass to mixing routine
       ifse_out=3009
       if (lsigin) then
         rewind ifse_out
-        print *, ' ... reading input sigma from file sigm'
+        write(6,*) ' ... reading input sigma from file sigm'
 c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
         read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
         if (nqx .ne. nq) then
@@ -265,7 +265,7 @@ Cstop2rx 2013.08.09 kino        if(ispxx/=isp) stop 'ispxx/=isp'
       read(ifevec_) ndimhx, nspx,nnnx
       nhq=ndimh
 
-      print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
+      write(6,*)' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
 Cstop2rx 2013.08.09 kino      if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
       if (nspin .ne. nsp)   call rx( 'hqpe: wrong nspin v_xc')
@@ -282,7 +282,7 @@ Cstop2rx 2013.08.09 kino      if (nnn .ne. nnnx) stop 'hqpe: wrong nnn evec or v
       allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin))
       if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
       allocate(nhqx(nnn,nspin))
-c     print *,' nnn =',nnn
+c     write(6,*)' nnn =',nnn
 
       iqq=0
       do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
@@ -294,7 +294,7 @@ c     print *,' nnn =',nnn
 
           read(ifvxc_) nz,nmto    ! june209 takao nhqx is true dimension which is dependent on q. 
                                   ! nmto(not iq,is is dependent) is MTO dimension.!2012sep
-          print *, ' reading v_xc ... iq is nz=',iq,is,nz
+          write(6,*) ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
           read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
           read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
@@ -313,7 +313,7 @@ c      allocate(sigmv(nhq,nhq,nq))
       endif
       if (lsigin .and. ndimsigin .ne. ndimsig) then
           deallocate(sigin)
-          print *, '... input sigma dimension mismatch ... discarding'
+          write(6,*) '... input sigma dimension mismatch ... discarding'
           lsigin = .false.
       endif
       allocate(sigmv(ndimsig,ndimsig,nq))
@@ -338,16 +338,16 @@ c     integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' read from bzdata nqibz2; nqibz nq=',nqibz2,nqibz,nq
+      write(6,*)' read from bzdata nqibz2; nqibz nq=',nqibz2,nqibz,nq
       nstarsum= sum(nstar(:))
-      print *,' nstarsum=',nstarsum
+      write(6,*)' nstarsum=',nstarsum
 Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
       allocate(ntqxx(nq))
 
 
 !!    loop over spin -------------------------------
       do 1001  is = 1,nspin
-        print *, ' --- is=',is
+        write(6,*) ' --- is=',is
         call readx   (ifsex(is),50)
         read (ifsex(is),*) nspinx,nqx,ntqx
         read (ifsex(is),*)
@@ -355,7 +355,7 @@ Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
         read (ifsex(is),*) alat
         read (ifsex(is),*) ef
         read (ifsex(is),*) esmr
-        print *,' xxxxxxxxxxx111111111'
+        write(6,*)' xxxxxxxxxxx111111111'
         call readx   (ifxc(is),50)
         read (ifxc(is),*) nspinxc,nqxc,ntqxc
         read(ifsex2(is))  nspinx2, nqx2, ntqx2, nqbz ,  nqibz,  n1,n2,n3 !sf.beg
@@ -390,8 +390,8 @@ Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
           if (nq .ne. nqxc2)       call rx( 'hqpe: wrong nq SExcore2')
           if (ntq .ne. ntqxc2)     call rx( 'hqpe: wrong ntq SExcore2')
         endif
-        if(is==1) print *,' ###  readin XCU'
-        if(is==2) print *,' ###  readin XCD'
+        if(is==1) write(6,*)' ###  readin XCU'
+        if(is==2) write(6,*)' ###  readin XCD'
         allocate( itxc(ntq),qxc(3,ntq,nq),eldaxc(ntq,nq),vxc(ntq,nq) )
         call readx (ifxc(is),50)
         read(ifxc(is),*)
@@ -403,8 +403,8 @@ Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
           enddo
         enddo
 c
-        if(is==1) print *,' ###  readin SEXU'
-        if(is==2) print *,' ###  readin SEXD'
+        if(is==1) write(6,*)' ###  readin SEXU'
+        if(is==2) write(6,*)' ###  readin SEXD'
         allocate( itx(ntq), qx (3,ntq,nq),eldax (ntq,nq),sex(ntq,nq) )
         allocate( sex2(ntq,ntq,nq)) !sf..3June
         call readx   (ifsex(is),50)
@@ -420,10 +420,10 @@ c
 c
         allocate( sexcore(ntq,nq),sexcore2(ntq,ntq,nq) ) !sf..3June
 c     if(exonly) then !zero for exonly case
-c     print *,' set sexcore=0 for exonly case'
+c     write(6,*)' set sexcore=0 for exonly case'
 c     sexcore=0d0; sexcore2=0d0
-        if(is==1) print *,' ###  readin SEXcoreU'
-        if(is==2) print *,' ###  readin SEXcoreD'
+        if(is==1) write(6,*)' ###  readin SEXcoreU'
+        if(is==2) write(6,*)' ###  readin SEXcoreD'
         call readx   (ifsexcore(is),50)
         call readx   (ifsexcore(is),50)
         read(ifsexcore(is),*)
@@ -438,11 +438,11 @@ c
         allocate( itc(ntq), qc (3,ntq,nq),eldac (ntq,nq)
      &        ,rsec(ntq,nq),csec(ntq,nq),sec2(ntq,ntq,nq)) !sf..3June
         if(exonly) then        !zero for exonly case
-          print *,' set sec=0 for exonly case'
+          write(6,*)' set sec=0 for exonly case'
           itc=0d0;qc=0d0;eldac=0d0;rsec=0d0;csec=0d0;sec2=0d0
         else
-          if(is==1) print *,' ###  readin SECU'
-          if(is==2) print *,' ###  readin SECD'
+          if(is==1) write(6,*)' ###  readin SECU'
+          if(is==2) write(6,*)' ###  readin SECD'
           call readx   (ifsec(is),50)
           read(ifsec(is),*)
           do ip = 1,nq
@@ -480,7 +480,7 @@ c     o              w(ieqp),w(iwqp))
      d        ntq,nq,is,
      o        eshift0,eshift02,eshtlda)
 c     o              w(ieqp),w(iwqp))
-        print *,' end of qpe1'
+        write(6,*)' end of qpe1'
         close(ifqpe(is))
         close(iftote(is))
         close(iftote2(is))
@@ -514,7 +514,7 @@ cccccccccccccc
             enddo
           enddo
         enddo
-c     print *,' xxx1'
+c     write(6,*)' xxx1'
         do ip=1,nq
           do itp=1,ntq
             do itpp=1,ntq    !make Sigma hermitian
@@ -532,7 +532,7 @@ Cstop2rx 2013.08.09 kino                stop "hqpe: Sigma_nn' is not hermitian"
 
         if (is == 1) write(ifse_out) nspin,ndimsig,n1,n2,n3,nq,0,0,0
 cccccccccccccccccccccccccc
-c        print *,' nnn=',nnn
+c        write(6,*)' nnn=',nnn
 c        do ikp=1,nnn
 c           write(6,"(i5,3f8.4)")ikp,qqq(1:3,ikp,is)
 c        enddo
@@ -589,7 +589,7 @@ c$$$            do itp=1,nz
 c$$$              sum0=0d0
 c$$$              sum1=0d0
 c$$$              do itpp=1,nz
-c$$$c     print *,evec_inv(itp,itpp)
+c$$$c     write(6,*)evec_inv(itp,itpp)
 c$$$                aaa=abs(sum(evec_inv(itp,1:nz)*evec00(1:nz,itpp,ikpx,is)))**2
 c$$$                if(aaa>sum1) then
 c$$$                  sum1 =aaa
@@ -604,7 +604,7 @@ c$$$              write(ifevecchk,"(3i5,2d13.5)")itp,ikpx,is, sum0, sum1
 c$$$c     if(abs(sum0-1d0)>0.1) stop "!!! sum0 is not unity ==="
 c$$$            enddo
 c$$$            if(nz*(nz+1)/2 /= itppxs) then
-c$$$              print *,'nz_sum itppxs=', nz*(nz+1)/2,itppxs
+c$$$              write(6,*)'nz_sum itppxs=', nz*(nz+1)/2,itppxs
 c$$$Cstop2rx 2013.08.09 kino              stop "hqpe: nz*(nz+1)/2 /= itppxs"
 c$$$              call rx( "hqpe: nz*(nz+1)/2 /= itppxs")
 c$$$            endif
@@ -767,9 +767,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           do itp=1,ndimsig2
             do itpp=1,ndimsig2
               if( abs(ev_se_ev(itpp,itp) - dconjg(ev_se_ev(itp,itpp)) )> 1d-8  ) then
-                print *,itp,itpp
-                print *,ev_se_ev(itpp,itp)
-                print *,ev_se_ev(itp,itpp)
+                write(6,*)itp,itpp
+                write(6,*)ev_se_ev(itpp,itp)
+                write(6,*)ev_se_ev(itp,itpp)
                 call rx( 'hqpe: Sigma_ij is not hermitian')
               endif
               if(abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))> 1d-8) 
@@ -855,7 +855,7 @@ c$$$c--   end check diagonal elements
 
 !!     - ANFcond case. We will make this an independent program ---
         if(laf) then
-          print *, ' Find ANFcond --- Call anfsig.'
+          write(6,*) ' Find ANFcond --- Call anfsig.'
           ildima = 211
           open(ildima,file='ldima')
           read(ildima,'(a3)') iaaa
@@ -948,13 +948,13 @@ C     --- mixing sigma -------------------------------------
 C     ... Once readin sigma
       open(UNIT=ifse_out, file='sigm',form='UNFORMATTED')
       allocate(sigma_m(ndimsig,ndimsig,nq,nspin),qqqx_m(3,nq,nspin))
-      print *,"========= Sigma mixing section using mixsigma ======="
+      write(6,*)"========= Sigma mixing section using mixsigma ======="
       call rwsigma (ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq ) !,eseavr_in)
-C     print *,"==== Have read sigm and goto mixsigma ===="
+C     write(6,*)"==== Have read sigm and goto mixsigma ===="
 C     MvS Feb 04 Allocate sigin if not already done so
       if (lsigin .and. ndimsigin .ne. ndimsig) then
         deallocate(sigin)
-        print *, '... input sigma dimension mismatch ... discarding'
+        write(6,*) '... input sigma dimension mismatch ... discarding'
         lsigin = .false.
       endif
       if (.not. lsigin) then
@@ -1005,8 +1005,8 @@ C----------------------------------------------------------------------
       complex(8)::sigma_m(ntq,ntq,nq,nspin)
       real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
       ntm1=0;ntm2=0;ntm3=0
-      if(ifs>0) print *, " rwsigma: Reading sigm (Binary)==="
-      if(ifs<0) print *, " rwsigma  Writing sigm (Binary)==="
+      if(ifs>0) write(6,*) " rwsigma: Reading sigm (Binary)==="
+      if(ifs<0) write(6,*) " rwsigma  Writing sigm (Binary)==="
       if(ifs>0) read ( ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
       if(ifs<0) write(-ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
       do is=1,nspin
@@ -1018,7 +1018,7 @@ C----------------------------------------------------------------------
           write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
         enddo
       enddo
-      print *,' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
+      write(6,*)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
       print *
       end
 c
@@ -1026,8 +1026,8 @@ c
       complex(8)::sigma_m(ntq,ntq,nq,nspin)
       real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
       ntm1=0;ntm2=0;ntm3=0
-      if(ifs>0) print *, " rwsigmaa: Reading sigma (ASCII)==="
-      if(ifs<0) print *, " rwsigmaa: Writing sigma (ASCII)==="
+      if(ifs>0) write(6,*) " rwsigmaa: Reading sigma (ASCII)==="
+      if(ifs<0) write(6,*) " rwsigmaa: Writing sigma (ASCII)==="
       if(ifs>0)read ( ifs,*)      nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
       if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
       do is=1,nspin
@@ -1043,7 +1043,7 @@ c
           write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
         enddo
       enddo
-      print *,' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
+      write(6,*)' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
       print *
       end
 
@@ -1107,16 +1107,16 @@ C' ... reads prior iteration INCLUDING starting sigma for current iteration
       allocate ( a(nda,0:mxsav+1,2) )
       fff="mixsigma"
       INQUIRE (FILE =fff, EXIST = fexist)
-      if(fexist)      print *,'... reading file mixsigma'
-      if(.not.fexist) print *,'... No file mixsigma'
+      if(fexist)      write(6,*)'... reading file mixsigma'
+      if(.not.fexist) write(6,*)'... No file mixsigma'
       ifi=3021
       open(ifi,file=fff,form='unformatted')
       if(fexist) then
         read(ifi,err=903,end=903) nitr,ndaf
         if (ndaf .ne. nda) goto 903
-C       print *,' read mixsigma: nitr=',nitr
+C       write(6,*)' read mixsigma: nitr=',nitr
         read(ifi,err=903,end=903) a
-C       print *,' read end of mixsigma'
+C       write(6,*)' read end of mixsigma'
         goto 902
       endif
       goto 901
@@ -1128,8 +1128,8 @@ C       print *,' read end of mixsigma'
       nitr = 0
 C      goto 902
 C      rewind(ifi)
-C      print *,'--- New mixsigma  --- '
-C      print *,'--- writing sigma to mixsigma  --- '
+C      write(6,*)'--- New mixsigma  --- '
+C      write(6,*)'--- writing sigma to mixsigma  --- '
 C      print *
 C      a = 0d0
 C      a(:,0,2) = sss
@@ -1147,11 +1147,11 @@ C     beta=1d0
       a(:,0,1) = sss      !output
 C     if input sigma available, use it instead of file a(:,0,2)
       if (lsigin) then
-        print *,'... using input sigma read from sigm file'
+        write(6,*)'... using input sigma read from sigm file'
         a(:,0,2) = sigin  !input
       endif
 
-      print *,'sum sss=',sum(abs(sss))
+      write(6,*)'sum sss=',sum(abs(sss))
 
 C     Restrict maximum number of prior iterations
       call getkeyvalue("GWinput","mixpriorit",imix,default=9,status=ret)
@@ -1160,7 +1160,7 @@ C     Restrict maximum number of prior iterations
       if (mmix > mxsav) mmix = mxsav
 
 c      nmix = mmix
-c      print *,'mixsigma: 3333'
+c      write(6,*)'mixsigma: 3333'
 C ... default nmix
 c      if (nmix .lt. 0) nmix = 2
 c      nmix = min(mmix,nmix)
@@ -1174,7 +1174,7 @@ C ... save PQ array
 c      call defdr(oa,nda*(mxsav+2)*2)
 c      call dcopy(nda*(mxsav+2)*2,a,1,w(oa),1)
 
-c      print *,'mixsigma: goto daxpy'
+c      write(6,*)'mixsigma: goto daxpy'
 C ... for iterations 1,2,... amix needs F-x
 c    1 continue
 c      do  10  jmix = 1, nmix
@@ -1182,21 +1182,21 @@ c   10 call daxpy(nda,-1d0,a(1,jmix,2),1,a(1,jmix,1),1)
 ccc      call query('beta',4,beta)
 c      jmix = min(mmix,iabs(imix))
 
-C     print *,'mixsigma: goto amix'
+C     write(6,*)'mixsigma: goto amix'
 c      call defdr(onorm,mxsav**2)
 c      call defi (okpvt,mxsav)
       allocate(norm(mxsav**2),kpvt(mxsav))
 C     this information already printed out by amix
-C     print *,'mixing parameters for amix are fixed in mixsigma'
-C     print *,'   beta       =', beta
-C     print *,'   tjmax      =', tjmax
-C     print *,'   mmix mxsav =', mmix,mxsav
+C     write(6,*)'mixing parameters for amix are fixed in mixsigma'
+C     write(6,*)'   beta       =', beta
+C     write(6,*)'   tjmax      =', tjmax
+C     write(6,*)'   mmix mxsav =', mmix,mxsav
 
 C     iprintxx = 61
 
       call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
       if(acc/=0d0) then
-        print *,' readin mixtj from GWinput: mixtj=',acc
+        write(6,*)' readin mixtj from GWinput: mixtj=',acc
         tjmax=abs(acc)+1d-3
         if(mmix==1) then
           tj(1)=1d0
@@ -1250,7 +1250,7 @@ cc        output file should contain hermitean part of SE for energies to be rea
 cc        (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
 c        is=iclose('GWIN_V2')
 c      endif
-      print *,' iSigma_en=',iSigma_en
+      write(6,*)' iSigma_en=',iSigma_en
       end
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -164,7 +164,7 @@ c> output file
 
 c loop over spin
       do      is = 1,nspin
-      print *, ' --- is=',is
+      write(6,*) ' --- is=',is
 
       if (is.eq.1) then
         ifev2 = iopen('EVU.new', 0,-1,mrece)

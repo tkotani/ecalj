@@ -76,11 +76,11 @@ cccccccccccccccccccccccccc
       endif
 cccccccccccccccccccccccccccccccc
 
-      if(ifs>0) print *, " rwsigma: Reading sigm (Binary)==="
-      if(ifs<0) print *, " rwsigma  Writing sigm (Binary)==="
+      if(ifs>0) write(6,*) " rwsigma: Reading sigm (Binary)==="
+      if(ifs<0) write(6,*) " rwsigma  Writing sigm (Binary)==="
       if(ifs>0) read ( ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
       if(ifs<0) write(-ifs) nspin,ntq,n1,n2,n3,nqx, ntm1,ntm2,ntm3
-      if(ifs>0) print *,' nspin ntq nq=', nspin,ntq,nq
+      if(ifs>0) write(6,*)' nspin ntq nq=', nspin,ntq,nq
       if(job==0) return
       do is=1,nspin
         do ip=1,nq
@@ -97,7 +97,7 @@ cccccccccccccccccccccccccc
      &  ,sum(abs(sigma_m(1:ntq,1:ntq,ip,is)))
         enddo
       enddo
-      print *,' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
+      write(6,*)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
       print *
       end
 c
@@ -107,11 +107,11 @@ c
       integer(4):: job
       logical :: qlistchk
       ntm1=0;ntm2=0;ntm3=0
-      if(ifs>0) print *, " rwsigmaa: Reading sigma (ASCII)==="
-      if(ifs<0) print *, " rwsigmaa: Writing sigma (ASCII)==="
+      if(ifs>0) write(6,*) " rwsigmaa: Reading sigma (ASCII)==="
+      if(ifs<0) write(6,*) " rwsigmaa: Writing sigma (ASCII)==="
       if(ifs>0)read ( ifs,*)      nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
       if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
-      if(ifs>0) print *,' nspin ntq nq=', nspin,ntq,nq
+      if(ifs>0) write(6,*)' nspin ntq nq=', nspin,ntq,nq
       if(job==0) return
       do is=1,nspin
         do ip=1,nq
@@ -128,7 +128,7 @@ c          write(6,*) i,j,sigma_m(i,j,ip,is)
      &  ,sum(abs(sigma_m(1:ntq,1:ntq,ip,is)))
         enddo
       enddo
-      print *,' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
+      write(6,*)' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
       print *
       end
 
@@ -149,7 +149,7 @@ c          write(6,*) i,j,sigma_m(i,j,ip,is)
         enddo
  101    continue
         nx=ix-1
-        print *,' nx=',nx
+        write(6,*)' nx=',nx
         init=.false.
       endif
       qlistchk=.true.

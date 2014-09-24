@@ -194,7 +194,7 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
 
 c ------------------------------------------------
 !TIME0 "start xkf_v4hz      
-      write(*,'(" x0kf_v4hz: q=",3f8.4,$)')q
+      write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
 c$$$!! check eibzmode assumes nmbas1=nmbs2
 c$$$      if(eibzmode) then
@@ -223,8 +223,8 @@ c$$$      endif
       if(smbasis()) then !need to check again, when we will make smbasis on.
 cccccccccccccccccccccccccccccccc
         if(ncc/=0) then
-          print *,"Timereversal=F(ncc/=0) not yet implemented for smbasis."
-          print *," pomat should be generated correctly                  ."
+          write(6,*)"Timereversal=F(ncc/=0) not yet implemented for smbasis."
+          write(6,*)" pomat should be generated correctly                  ."
 Cstop2rx 2013.08.09 kino          stop "Timereversal=F(ncc/=0) not yet implemented for smbasis."
           call rx( "Timereversal=F(ncc/=0) not yet implemented for smbasis.")
         endif
@@ -263,7 +263,7 @@ ckino
 !KINO        if(sum(nbnb(k,1:npm))==0) cycle
 !KINO        it=it+1
 !KINO      enddo
-!KINO      write(*,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
+!KINO      write(6,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
 ckinoend
 
 
@@ -271,7 +271,7 @@ ckinoend
       qq=0d0
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
-        if(debug) write(*,'("do 1000  k=",i4)')k
+        if(debug) write(6,'("do 1000  k=",i4)')k
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
 !TIME0 "start do 1000"
@@ -340,7 +340,7 @@ c        endif
         if(debug)  write(6,*)nbloch,nctot,nt0,ncc,ntp0
         allocate( zzmel(nbloch, nctot+nt0, ncc+ntp0) )
         if(debug)  write(6,"('zzzw nkmin nkqmin=',2i5)") nkmin,nkqmin
-        if(onceww(5) ) print *,' nctot ncc=',nctot,ncc
+        if(onceww(5) ) write(6,*)' nctot ncc=',nctot,ncc
 
 !TIME1 "before psicb_v3"
 !TIME0 
@@ -375,7 +375,7 @@ C ... valence
 !!      ngc              ! q          in IBZ
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
-           print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
+           write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
 Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
@@ -386,8 +386,8 @@ Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
         call readgeig(q+rk(:,k)-qq, ngpmx,isp2, qu1, geig1)
         call readgeig(  rk(:,k)-qq, ngpmx,isp1, qu2, geig2)
 cccccccccccccccccccccccccc
-c        print *,'q+rk(:,k)-qq ',q+rk(:,k)-qq
-c        print *,'qu1=', qu1
+c        write(6,*)'q+rk(:,k)-qq ',q+rk(:,k)-qq
+c        write(6,*)'qu1=', qu1
 cccccccccccccccccccccccccccc
         if(sum(abs(qu1-qu1x))>tolqu) then
           write(6,"('qu1 :',3d23.10)") qu1
@@ -406,7 +406,7 @@ Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu2/=qu2x'
         ! q   - (q+k)   + k  is not zero.
         ! qc  -  q1     + q2
         add   = matmul(qbasinv, qdiff)
-        nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
+        nadd  = idint( add + dsign(.5d0,add))  !  write(6,*)' qdif=',qdiff,qbkp(:),rk(:,k)
 Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add-nadd))>1d-10"
         if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
         zmelt = 0d0
@@ -429,7 +429,7 @@ Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add
      &  zzmel(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0)
 !!                        k            q+k
         deallocate(zzmel)
-        if(debug) write(*,'("4 z1pp definitions begin",3d13.6,$)') sum(abs(zmelt))
+        if(debug) write(6,'("4 z1pp definitions begin",3d13.6,$)') sum(abs(zmelt))
         if(debug) call cputid(0)
 !TIME1 "after melpln2t"
 !TIME0 
@@ -488,7 +488,7 @@ c           if(newanisox) then   !.and.iq==1) then
         endif
 !! :: zmelt conversion muplitpled by zzr.
 #ifdef USE_GEMM_FOR_SUM
-       if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
+       if(verbose()>39)write(6,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
           allocate( zmelt_tmp(ngb,nctot+nt0,ncc+ntp0) )
           call zcopy(ngb*(nctot+nt0)*(ncc+ntp0),zmelt,1,zmelt_tmp,1)
           call zgemm('T','N',ngb,(nctot+nt0)*(ncc+ntp0),ngb,(1d0,0d0),
@@ -582,11 +582,11 @@ c$$$!TIME0
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-!KINO        write(*,'(a,i4)')'kino: npm=',npm
+!KINO        write(6,'(a,i4)')'kino: npm=',npm
 !kino 2014-08-13  !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
-!KINO          write(*,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
+!KINO          write(6,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
 !KINO&      ngb,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
@@ -604,7 +604,7 @@ c----------------------------
           if(jpm==1) then
             if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
               if(iww1) then
-                print *,' nband_chi0 nbmx=',nbmx
+                write(6,*)' nband_chi0 nbmx=',nbmx
                 iww1=.false.
               endif
               cycle
@@ -620,7 +620,7 @@ c----------------------------
           else !jpm==2 ------------------------------
             if( n1b(ibib,k,jpm) > nbmx) then  !nbmx
               if(iww1) then
-                print *,' nband_chi0 nbmx=',nbmx
+                write(6,*)' nband_chi0 nbmx=',nbmx
                 iww1=.false.
               endif
               cycle
@@ -697,7 +697,7 @@ c$$$  endif
 !$OMP parallel private(imagweight) 
 !$OMP master
 !$        if (jpm.eq.1 .and. ibib.eq.nbnb(k,1)) then 
-!$          write(*,'(a,i5,a,i5)') 'OMP parallel iw, threads=', omp_get_num_threads(),
+!$          write(6,'(a,i5,a,i5)') 'OMP parallel iw, threads=', omp_get_num_threads(),
 !$   .     ' nw=',ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-ihw(ibib,k,jpm)
 !$        endif
 !$OMP end master
@@ -751,7 +751,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
 
 !! Not need to be symmetrized
       if(nolfco .and. nmbas==1) then
-         print *,' nmbas=1 nolfco=T ---> not need to symmetrize'
+         write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
 !TIME0
@@ -791,14 +791,14 @@ c       endif
  5000 continue
 !! === zmelt conversion === 
       if(nolfco .and. nmbas==1) then
-         print *,' nmbas=1 nolfco=T ---> not need to symmetrize'
+         write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
 !!
       if(eibzmode.and.symmetrize) then
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
-           print *,' x0kf_v4h: ngb ngbb=',ngb,ngbb
+           write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
 Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
@@ -919,19 +919,19 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !TIME0
               if(iagain==1) then
                 nrotmx=irotm !enlarge allocation and do things again.
-                print *,' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
+                write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
                 goto 1011
                 !enlarge nrotmx ang try it again.
               endif   
               nrotm(icc)=irotm
-              print *,'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
+              if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
 !TIME1 "end ig itimer icc, nrotm"
             endif
           enddo
         enddo
         exit
  1011   continue !only when nrotmx overflow.
-!KINO        write(*,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
+!KINO        write(6,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
 !TIME0
 
 
@@ -943,7 +943,7 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !$OMP master
-!$         write(*,'(a,i5,a,i5)') 'OMP parallel nwt, threads=',omp_get_num_threads(),' nwt=',nwt
+!$         write(6,'(a,i5,a,i5)') 'OMP parallel nwt, threads=',omp_get_num_threads(),' nwt=',nwt
 !$OMP end master
 !$OMP do 
         do iw=1,nwt
@@ -1025,7 +1025,7 @@ c$$$             rcxq000(:,:) = matmul(zcousqc,matmul(rcxq00,zcousq))
 c$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
 c$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
 c$$$           elseif(icount>0) then  
-c$$$c$$$c           print *,'qqqqq icount=',icount
+c$$$c$$$c           write(6,*)'qqqqq icount=',icount
 c$$$c$$$c           rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
 c$$$             rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
 c$$$           endif
@@ -1170,8 +1170,8 @@ c      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
 
 c        if(verbose()>89) debug=.true.
 c ------------------------------------------------
-        write(*,'(" -- dpsion5: start...   ",$)')
-        write(*,"('  nw_w nwhis=',2i5)") nw_w,nwhis
+        write(6,'(" -- dpsion5: start...   ",$)')
+        write(6,"('  nw_w nwhis=',2i5)") nw_w,nwhis
         if(debug) then
           write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
           write(6,*)' sumchk rcxq=', sum(abs(rcxq))
@@ -1188,7 +1188,7 @@ C... Check freqr=frhis_m.
 C... But I think now this is not necessary. You can supply any freqr(iw). But be careful.
         if(realomega) then
           if( nwhis <= nw_w ) then
-            print *,nwhis,nw_w
+            write(6,*)nwhis,nw_w
 Cstop2rx 2013.08.09 kino            stop ' dpsion5: nwhis<=nw_w'
             call rx( ' dpsion5: nwhis<=nw_w')
           endif
@@ -1209,7 +1209,7 @@ Cstop2rx 2013.08.09 kino            if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is
 C--------------------------------------------------------------
 ! Each bin  [his_Left, his_Right]  his_Center is middle.
 ! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-        if(debug) print *,' dpsion5: RRR 2222222222 '
+        if(debug) write(6,*)' dpsion5: RRR 2222222222 '
         allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
         his_L(1:nwhis) = frhis(  1:  nwhis)
         his_R(1:nwhis) = frhis(1+1:1+nwhis)
@@ -1234,7 +1234,7 @@ C
           do jpm=1,npm
             call dscal(2*nmbas1*nmbas2, -wfac/(his_r(iw)-his_l(iw)),rcxq(1,1,iw,jpm),1)
           enddo
-c         if(debug) print *, 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
+c         if(debug) write(6,*) 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
         enddo
         if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
 
@@ -1281,7 +1281,7 @@ C--- realomega case
               zz = freqr(it) !his_C(it)
               call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
               rmat(it,:,1) = dreal(rrr)
-            enddo ;   if(debug) print *, 'dpsion5: RRR 55555555555'
+            enddo ;   if(debug) write(6,*) 'dpsion5: RRR 55555555555'
             allocate( rmatt(0:nw_w,nwhis,npm) )
             if(     chipm.and.ispx==1 ) then
               rmatt(:,:,1) = rmat(:,1:nwhis,1)
@@ -1307,10 +1307,10 @@ C--- realomega case
               call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
               rmatt(it,:,1) =  dreal(rrr  (1:nwhis))
               rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))
-            enddo ;   if(debug) print *, 'dpsion5: RRR2 55555555555'
+            enddo ;   if(debug) write(6,*) 'dpsion5: RRR2 55555555555'
             deallocate(rrr)
           endif
-          rmatt = rmatt/pi ; if(debug) print *,'dpsion5: RRR 6666'
+          rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion5: RRR 6666'
 
 !! takao remove if(nolfc) block here.
 c          write(6,*) " --- realomega dgemm--- "
@@ -1367,7 +1367,7 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
           else
             allocate( rmatiC(niwt,-nwhis:nwhis,npm))
             rmatiC = 0d0
-          endif ;   if(debug) print *, 'dpsion5: III 111111155555555555'
+          endif ;   if(debug) write(6,*) 'dpsion5: III 111111155555555555'
           do it =  1,niwt
             zz = img*freqi(it) !his_C(it)
             call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
@@ -1376,7 +1376,7 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
             else
               rmatiC(it,:,1) = rrr
             endif
-          enddo ;   if(debug) print *, 'dpsion5: III 55555555555'
+          enddo ;   if(debug) write(6,*) 'dpsion5: III 55555555555'
 !! ==== npm=1 case ====
           if(npm==1) then
             allocate( imatt(niwt, nwhis,npm) )
@@ -1384,7 +1384,7 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
               imatt(:,iw,1) = rmati(:,iw,1) - rmati(:,-iw,1)
             enddo
             deallocate(rmati,rrr)
-            imatt = imatt/pi; if(debug) print *, 'dpsion5: III  '
+            imatt = imatt/pi; if(debug) write(6,*) 'dpsion5: III  '
             call dgemm('n','t',  2*nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq, 2*nmbas1*nmbas2, imatt, niwt,
      &               0d0, zxqi, 2*nmbas1*nmbas2 )
@@ -1397,7 +1397,7 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
               imattC(:,iw,2) = - rmatiC(:,-iw,1)
             enddo
             deallocate(rmatiC,rrr)
-            imattC = imattC/pi; if(debug) print *, 'dpsion5: IIIc '
+            imattC = imattC/pi; if(debug) write(6,*) 'dpsion5: IIIc '
             call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq(1,1,1,1), nmbas1*nmbas2, imattC(1,1,1), niwt,
      &              0d0, zxqi,    nmbas1*nmbas2 )
@@ -1408,7 +1408,7 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
           endif
         endif
         deallocate(his_L,his_C,his_R)
-        write(*,'("         end dpsion5 ",$)')
+        write(6,'("         end dpsion5 ",$)')
         call cputid(0)
         end
         logical function checkbelong(qin, qall, nq,ieibz) !ieibz is also returned

@@ -188,7 +188,7 @@ Cstop2rx 2013.08.09 kino      if(ixc==0) stop ' --- ixc=0 --- Choose computation
       hartree=2d0*rydberg()
       tetraex=tetra_hsfp0()
       iii=verbose()
-      print *,' verbose=',iii
+      write(6,*)' verbose=',iii
 
 !!  tetraex is only for Ex.
       if(ixc==1.or.ixc==5.or.ixc==6) then;
@@ -211,8 +211,8 @@ c     integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)    
 !! -----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqbz  =',nqbz
-      print *,' nqibz ngrp=',nqibz,ngrp
+      write(6,*)' nqbz  =',nqbz
+      write(6,*)' nqibz ngrp=',nqibz,ngrp
       call pshprt(60)
 
 !! === readin GWIN and LMTO, then allocate and set datas. ===
@@ -245,7 +245,7 @@ c     o    nocc(:,:,:),nunocc(:,:,:)
 c     real(8), allocatable::
 c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),freq(:)
 !! ---------------------------------------------------------------------
-      print *,' hsfp0: end of genallcf3'
+      write(6,*)' hsfp0: end of genallcf3'
 
 !! Get maximums 
       call getnemx8(nbmx,ebmx)
@@ -273,7 +273,7 @@ c---  ef is taken as rs for the empty-sphere test case of legas=T case ---------
       legas = .false.
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(legas) then            !!! test for electron gas case.
-        print *,' find LEGAS. legas =',legas
+        write(6,*)' find LEGAS. legas =',legas
         iflegas = 2101
         open (iflegas,file='LEGAS')
         read(iflegas,*)rs
@@ -303,8 +303,8 @@ c
 
         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
         if(exspwrite) then
-          print *,'--- Find EXspTEST ExspectrumWrite=',exspwrite
-          print *,'--- esmr is chosen to be 2d0 Ry'
+          write(6,*)'--- Find EXspTEST ExspectrumWrite=',exspwrite
+          write(6,*)'--- esmr is chosen to be 2d0 Ry'
           esmr= 2d0
           do is=1,nspin
             ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
@@ -381,7 +381,7 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
       open (102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      print *,'  --- Readingin CLASS info ---'
+      write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
@@ -395,7 +395,7 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
-      print *,' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
+      write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),
      &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
      &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
@@ -413,7 +413,7 @@ c     nblochpmx = nbloch + ngcmx !oct2005
       call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
       call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
       deallocate(ngvecp,ngvecc)
-      if(debug) print *, ' end of read QGcou'
+      if(debug) write(6,*) ' end of read QGcou'
       call pshprt(60)
 
 !! Readin WV.d
@@ -444,7 +444,7 @@ Cstop2rx 2013.08.09 kino        if(nwxx/= nw+1) stop ' freq_r nw /=nw'
 !! tetraex section. not checked well recentrly(sep2012) -------
 !! this can be recovered in future.
       if(tetraex) then
-        print *, ' !!!!  tetraex=T is not tested well !!!!!!!!!'
+        write(6,*) ' !!!!  tetraex=T is not tested well !!!!!!!!!'
         ifefsm  = iopen('EFERMI',1,-1,0)
         read(ifefsm,*) ef
         write(6,"(' ef is readin from EFERMI',d23.15)")ef
@@ -534,7 +534,7 @@ c     call invkibzx(w(iirk),nqibz,ngrp,nqbz,
         call invkibzx(irk,nqibz,ngrp,nqbz,
      o        ibzx)
 
-c     print *,' *** wtet sum 1=', sum( wtet)
+c     write(6,*)' *** wtet sum 1=', sum( wtet)
 c     stop ' -------------test end------------- '
 c     call cputid(0)
         if (tote) then
@@ -571,7 +571,7 @@ c
      i           qbz,nqbz       !index_qbz, n_index_qbz,
      o           ,efnew)
           ef2 = efnew
-          print *,' end of efsimple ef2 esmr2=',ef2,esmr2
+          write(6,*)' end of efsimple ef2 esmr2=',ef2,esmr2
         endif
 c
       else                      ! if(esmr/=0d0) then
@@ -585,15 +585,15 @@ c
      i        qbz,nqbz          !index_qbz, n_index_qbz,
      o        ,efnew)
 c
-c     print *,' end of efsimple'
+c     write(6,*)' end of efsimple'
         ef = efnew
         if (ixc==5) ef2 = ef
 c     - check total ele number -------
         ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-        print *,' ef    =',ef
-        print *,' esmr  =',esmr
-        print *,' valn  =',valn
-        print *,' ntot  =',ntot
+        write(6,*)' ef    =',ef
+        write(6,*)' esmr  =',esmr
+        write(6,*)' valn  =',valn
+        write(6,*)' ntot  =',ntot
 c
 c     if(ixc==1) then
 c     ifefsm  = iopen('EFERMI.hsfp0.mode1',1,-1,0)
@@ -666,7 +666,7 @@ c     endif
           ifqpnt  = iopen('QPNT'//xt(nz),1,0,0)
         endif
       endif
-      print *,' ifqpnt ret=',ifqpnt,ret
+      write(6,*)' ifqpnt ret=',ifqpnt,ret
 c     do i=1,ret
 c     read(ifqpnt,'(a)') ddd
 c     write(6,'(a)') ddd
@@ -681,7 +681,7 @@ c     read q-points and states
         read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
  2038   continue
         omegamax = 2*freq_r(nw) !This is in Ry.
-c     print *,' nwp dw(a.u.) omegamax (Ry)=',nwp,dw,omegamax
+c     write(6,*)' nwp dw(a.u.) omegamax (Ry)=',nwp,dw,omegamax
         if(omegamaxin < omegamax) then
           write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
           omegamax = omegamaxin
@@ -690,7 +690,7 @@ Cstop2rx 2013.08.09 kino        if( omegamax <0) stop 'hsfp0 :strange omegamax <
         if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
         iwini =  -int( omegamax / dwplot )
         iwend =   int( omegamax/  dwplot )
-        print *,' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
+        write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
 c     elseif(imgonly) then
 c     iwini=0
 c     iwend=0
@@ -762,7 +762,7 @@ C...
       endif
 
 C     ---  q near zero
-      print *, 'reading QOP'
+      write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
@@ -814,7 +814,7 @@ c     ntp0=ntq
 c     iq       = idxk (q(1,ip),qbze,nqbze)
 c     call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
           call readeval(q(1,ip),is,eqt)
-c     print *,' eqt=',eqt
+c     write(6,*)' eqt=',eqt
           eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
           eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
         enddo
@@ -835,7 +835,7 @@ c     --- info
         ifidmlx = iopen('EPSwklm',0,0,0)
         read(ifidmlx) nq0ix,lxklm
         if(nq0i/=nq0ix) then
-          print *,'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+          write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
 Cstop2rx 2013.08.09 kino          stop 'nq0i from EPSwklm /= nq0i'
           call rx( 'nq0i from EPSwklm /= nq0i')
         endif
@@ -910,7 +910,7 @@ c
       write(6,*) " sum of nonzero iirk=",iii, nqbz
 C...  Read pomatr
       if(smbasis()) then
-        print *,' smooth mixed basis : augmented zmel'
+        write(6,*)' smooth mixed basis : augmented zmel'
         call getngbpomat(nqibz+nq0i,
      o        nnmx,nomx)
         nkpo = nqibz+nq0i
@@ -1022,7 +1022,7 @@ c              deallocate(ecore)
 c              allocate(ecore(1,2)) !this is dummry
 c            endif
 c           call sxcf_fal3z (kount, ip,q(1,ip),itq,ntq,ef,ef2,esmr,esmr2,
-            print *,'### goto sxcf_fal3z ### '
+            write(6,*)'### goto sxcf_fal3z ### '
             call sxcf_fal3z (kount, ixc,deltaw,shtw,q,itq,ntq,ef,ef2,esmr,esmr2,
      i              tiat,miat, nspin,is, 
 c     i              ifrcw,ifrcwi,
@@ -1046,7 +1046,7 @@ c     i              ifrcw,ifrcwi,
      i  invg,il,in,im,nlnm,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012
      o  zsec,coh,exx) ! acuumulation variable
 
-        print *,'### end of sxcf_fal3z ### '
+        write(6,*)'### end of sxcf_fal3z ### '
 c 1001   continue         !end of q-loop
 c---------------------------------
 c     electron gas bare exchange (exact)
@@ -1240,7 +1240,7 @@ C     --- EXspectrum ----------------------------------------------------
 c     This section is similar with efsimplef.f
       if(sum(ifexsp(1:nspin))/=0) then
         do is = 1,nspin
-          print *,' --- Goto ExSpectrum section --- is=',is
+          write(6,*)' --- Goto ExSpectrum section --- is=',is
           rewind (ifexsp(is))
           itmx = 0
           do
@@ -1254,7 +1254,7 @@ c
      &           nspex(ntq,nq) ,
      &           itex1(nspexmx,ntq,nq),
      &           qqex1(3,nspexmx,ntq,nq) )
-          print *,' nspexmx =',nspexmx
+          write(6,*)' nspexmx =',nspexmx
 c
           rewind (ifexsp(is))
           nspex = 0
@@ -1268,7 +1268,7 @@ c
             qqex1(:,iex,itpex,ipex)= qqex
           enddo
  1216     continue            !Get eex1(1:nspex) exsp1(1:nspex) for itp ip.
-          print *,' nspex(1 1)=',nspex(1,1)
+          write(6,*)' nspex(1 1)=',nspex(1,1)
 c
           do ipex = 1,nq
             do itpex=1,ntq
@@ -1317,7 +1317,7 @@ c
           enddo
           deallocate( eex1, exsp1, nspex, itex1, qqex1 )
         enddo
-        print *,' End of ExSpectrum section ---'
+        write(6,*)' End of ExSpectrum section ---'
       endif
 c-------------------------------------------------------------------------------
       call cputid(0)

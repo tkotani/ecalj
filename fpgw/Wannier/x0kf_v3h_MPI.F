@@ -302,7 +302,7 @@ c                        q        k          q+k
            write(ifile_rsmpi,"('nkmin nkqmin=',2i5)") nkmin,nkqmin
         endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        print *,' nctot ncc=',nctot,ncc
+c        write(6,*)' nctot ncc=',nctot,ncc
 c        stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
@@ -347,12 +347,12 @@ cccccccccccccc
 c      write(6,"('uuu sumtest g1a=',6f8.4,2i4,2d13.5)")
 c     &  q+rk(:,k), qu1,itps,itps+ntp0-1, sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
 cccccccccccc
-c      print *,'uuu sumtest g1a=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
+c      write(6,*)'uuu sumtest g1a=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
 c      geig1(1:ngp1, itps:itps+ntp0-1)= geigB(1:ngp1, itps:itps+ntp0-1,kp)
-c      print *,' sumtest g1b=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
-c      print *,'uuu sumtest g2a=',sum(geig2(1:ngp2, 1:nt0) ) 
+c      write(6,*)' sumtest g1b=',sum(geig1(1:ngp1, itps:itps+ntp0-1)) 
+c      write(6,*)'uuu sumtest g2a=',sum(geig2(1:ngp2, 1:nt0) ) 
 c      geig2(1:ngp2, 1:nt0     )= geigB(1:ngp2, 1:nt0,    k )
-c      print *,' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) ) 
+c      write(6,*)' sumtest g2b=',sum(geig2(1:ngp2, 1:nt0) ) 
         if(sum(abs(qu1-qu1x))>1d-10) call RSMPI_Stop('x0kf_v3hz:qu1/=qu1x')
         if(sum(abs(qu2-qu2x))>1d-10) call RSMPI_Stop('x0kf_v3hz:qu2/=qu2x')
 
@@ -361,7 +361,7 @@ c     qdiff = q   - qbkp(:) + rk(:,k)
             ! q   - (q+k)   + k  is not zero.
             ! qc  -  q1     + q2 
         add   = matmul(qbasinv, qdiff)
-        nadd  = idint( add + dsign(.5d0,add))  !  print *,' qdif=',qdiff,qbkp(:),rk(:,k)
+        nadd  = idint( add + dsign(.5d0,add))  !  write(6,*)' qdif=',qdiff,qbkp(:),rk(:,k)
         if(sum(abs(add-nadd))>1d-10) 
      &       call RSMPI_Stop ("sexc: abs(add-nadd))>1d-10")
 
@@ -740,7 +740,7 @@ c       endif
       !    call cputid(0)
  1000 continue
 
-c      print *,' x0kf_v3hz: 111'
+c      write(6,*)' x0kf_v3hz: 111'
 c      deallocate(zxq_) !...........................sf 21May02
       deallocate(cphik,cphikq,geig1,geig2)
 c      if(smbasis()) deallocate(pomat)
@@ -776,7 +776,7 @@ c
 
       write(ifile_rsmpi,*) ' x0kf_v3hz: end'
 cccccccccccccccccccccccccccccccccccccccccccc
-c        print *,' ---- trace chck ---- '
+c        write(6,*)' ---- trace chck ---- '
 c        do iw= 1,nwt
 c        do ix=1,5
 c          write(6,"(a,2i4,3d13.5)")' ttt=',iw,ix,

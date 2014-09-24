@@ -304,7 +304,7 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
       call dinv33(qbas,0,qbasinv,det) 
 
 c work arrays for psi2br.f
-      if(debug) print *, ' sxcf: 1'
+      if(debug) write(6,*) ' sxcf: 1'
       allocate(expikt(natom))
 
       if(bzcase()==1) then
@@ -334,7 +334,7 @@ c loop over irreducible k-points
 c===============================
 ccccccccccccccccccccccccccccccccc
 c      iii = ivsumxxx(irk,nqibz*ngrp)
-c      print *,' sxcf:sum non-zero irk=',iii
+c      write(6,*)' sxcf:sum non-zero irk=',iii
 c      stop "sss"
 c     
 ccccccccccccccccccccccccccccccccc 
@@ -364,7 +364,7 @@ cccccccccccccccccccccccccccccc
 c      iqend=nqibz
 c      if(test_omitq0p()) then
 c        iqend=nqibz
-c        print *,'iqend=',iqend
+c        write(6,*)'iqend=',iqend
 c      endif  
 cccccccccccccccccccccccccccc
 c      do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
@@ -374,7 +374,7 @@ c RS: true index
         kx = ik_index_rotk(irot,kx_local)
 
         write(ifile_rsmpi,*) ' wmat_MPI: goto loop kx=',kx
-        if(debug)  print *, ' sxcf: goto loop kx=',kx
+        if(debug)  write(6,*) ' sxcf: goto loop kx=',kx
         
        ! write(*,'("1  begin k-cycle",$)') 
 c         call cputid(0)
@@ -396,7 +396,7 @@ c          kr= iqindx((/0d0,0d0,0d0/), ginv, qbz,  nqbz)
           qbz_kr= 0d0
         endif
 c        ngc = ngcni(k)  ! k-points in IBZ
-c        print *, ' k ngc=',k,ngc
+c        write(6,*) ' k ngc=',k,ngc
 c        ngb = nbloch + ngcni(k)
 
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
@@ -426,10 +426,10 @@ c RS: this cannot happen..
           kount(kx)= kount(kx) + 1     ! count the no. times k
                                              ! appears in the 1st BZ
 cccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
+c         write(6,*)' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
 c          deallocate(vcoul)
 c          cycle
-c          print *,' kount out =',kount(k)
+c          write(6,*)' kount out =',kount(k)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          if (kount(kx) > nstar(kx)) stop 'sexc: too many stars'
           if (kount(kx) > nstar(kx))
@@ -476,7 +476,7 @@ c read eval and eigen
 ctm debug
 c      write(7400,*)iq,nlmto,nwf
 c      write(7400,*)cphiq
-      if(debug) print *, ' sxcf: 2'
+      if(debug) write(6,*) ' sxcf: 2'
 
 c qk = q - rk, rk is inside 1st BZ, not restricted to 
 c the irreducible BZ
@@ -488,7 +488,7 @@ c bring q-rk into the 1st BZ ==> qfbz labelled by kp
 c         call fbz2(qk, ginv,index_qbz,n_index_qbz, qbz,nqbz, !qbz=rk
 c     o                qfbz,kp)
 
-c        if(debug)  print *,'xxx2',kp,qk,n1,n2,n3,qbas,ginv
+c        if(debug)  write(6,*)'xxx2',kp,qk,n1,n2,n3,qbas,ginv
 c read eigenvalues,b and hb at q-rk
 c        call rwdd1   (ifev, kp,nband,ekq)
         call readeval(qk, isp, ekq)
@@ -513,8 +513,8 @@ c equivalent with above phase
         expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
       end do
 c
-        if(debug) print *, ' sxcf: tr=',tr
-        if(debug) print *, ' sxcf: goto psicb2'
+        if(debug) write(6,*) ' sxcf: tr=',tr
+        if(debug) write(6,*) ' sxcf: goto psicb2'
 c> matrix elements
 c>> core
         nbmax = nwf
@@ -541,7 +541,7 @@ c-plane
 c        allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
 c     &            cmelt(ngb, nctot+nbmax, ntp0))
         allocate( zmelt(ngb, nctot+nbmax, ntp0) )
-        if(debug) print *, ' sxcf_fal2: goto drvmelp'
+        if(debug) write(6,*) ' sxcf_fal2: goto drvmelp'
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
@@ -567,7 +567,7 @@ c     o       rmelt,cmelt)
 
         deallocate(zzmel) !rmel,cmel)
 c
-        if(debug) print *, ' sxcf: goto wtt'
+        if(debug) write(6,*) ' sxcf: goto wtt'
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum( rmelt),sum(cmelt)
 
         do ir2=1,nrws2
@@ -661,7 +661,7 @@ c          allocate( z1p(ngb,nwf,nwf))
 c          deallocate(vcoult, zmel)
 c          allocate(zmel1(ngb))
 
-c         print *,' nctot nbmax=',nctot,nbmax
+c         write(6,*)' nctot nbmax=',nctot,nbmax
 
 
           do ir3=1,nrws2
@@ -713,7 +713,7 @@ c--- The matrix elements zmel.
 c> zmelc(j,t,t') = < B(rk,j) psi(q-rk,t) | psi(q,t') >
         zmelc = dcmplx (rmelt3,-cmelt3)
         deallocate(rmelt3,cmelt3)
-        if(debug) print *,' end of zmel'
+        if(debug) write(6,*)' end of zmel'
 
 
 c====================================================================
@@ -767,7 +767,7 @@ c====================================================================
 c Wc(qt,w) along the real axis
 c====================================================================
 
-        if(debug) print *,' go to poles'
+        if(debug) write(6,*)' go to poles'
 
 c        do      ix = 0,nw                    ! real frequency w'-loop
         do      ix = 0,nrw                    ! real frequency w'-loop
@@ -807,7 +807,7 @@ c debug: <
 
         deallocate(zmelc,zw,zw2)
 
-        if(debug) print *,' end of screen-if'
+        if(debug) write(6,*)' end of screen-if'
 
 c end of if (exchange)
       endif
@@ -898,8 +898,8 @@ c     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
       integer(4)::verbose
 c
-c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) print *,' drvmelp2:'
+c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
+      if(verbose()>50) write(6,*)' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ 
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
@@ -912,7 +912,7 @@ c      geig2=0d0
 
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
-      if(verbose()>=100) print *,' end of read geig '
+      if(verbose()>=100) write(6,*)' end of read geig '
 
 c     ngc  = ngcni(k)  ! k-points in IBZ
 c      allocate( geigq(ngp1,ntp0) )
@@ -920,14 +920,14 @@ c      do itx = 1,ntp0
 c        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
 c      enddo
 
-c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
+c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
 c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp) 
       qdiff = matmul(symope,qik)  - qt + q_rkt 
                            ! rk    -q  +(q-rk) is not zero.
       add  = matmul(qbasinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
       if(sum(abs(add-nadd))>1d-7) stop "drvmlp: abs(add-nadd))>1d-10"
-c     print *,' drvmelp qdiff',qdiff
+c     write(6,*)' drvmelp qdiff',qdiff
 c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
 c     &  add,nadd,abs(add-nadd)
 

@@ -20,7 +20,7 @@ c
         write(ifigwin,"(4i5)")   i1,i2,i3,i4
       enddo
  110  continue
-c      print *,'1111111111111'
+c      write(6,*)'1111111111111'
       write(ifigwin,"(a)")
      & "  atom   l    n  occ;unocc;Valence(1=yes,0=no) "
       do
@@ -32,7 +32,7 @@ c      print *,'1111111111111'
         write(ifigwin,"(5i5)")   i1,i2,i3,i4,i5
       enddo
  120  continue
-c      print *,'22222222222222'
+c      write(6,*)'22222222222222'
       write(ifigwin,"(a)") 
      &'  atom   l    n  occ unocc   '//
      &'ForX0 ForSxc :CoreState(1=yes, 0=no)'
@@ -41,5 +41,5 @@ c      print *,'22222222222222'
         write(ifigwin,"(a)")record
       enddo
  130  continue
-      print *,' GWIN is converted to GWIN_V2!'
+      write(6,*)' GWIN is converted to GWIN_V2!'
       end

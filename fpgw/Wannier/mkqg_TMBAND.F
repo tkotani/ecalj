@@ -105,8 +105,8 @@ c        goto 2001
 C --- Ordinary case --- iq0pin == 1 or 2
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       call dinv33x (plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
-c      print *,'plat qlat='
-c      print *, plat,qlat
+c      write(6,*)'plat qlat='
+c      write(6,*) plat,qlat
 c----------------------
 
 c      if(readgwinput()) then
@@ -143,7 +143,7 @@ c--- See indxk in index.f \in genbz2 \in genallc_v2
       do j=1,3
         aaij=sum(qlat(:,i)*plat(:,j))
         bbij=sum(qlat(:,i)*ginv(j,:))
-        if(verbose()>=40) print *,' i j aaij bbij', i,j,aaij,bbij
+        if(verbose()>=40) write(6,*)' i j aaij bbij', i,j,aaij,bbij
         if(i==j) then
            if(abs(aaij-1d0) >1d-10) stop 'bug 1 qg4gw' 
            if(abs(bbij-1d0) >1d-10) stop 'bug 2 qg4gw' 
@@ -159,7 +159,7 @@ c--- See indxk in index.f \in genbz2 \in genallc_v2
 c      if(readgwinput()) then
         call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
         if(sum(abs(mtet))<3) then
-          print *, ' we use regular meshing for tetrahedron scheme '
+          write(6,*) ' we use regular meshing for tetrahedron scheme '
         endif
 c      endif  
 c--- getbzdata1 allocate all these data
@@ -220,12 +220,12 @@ c
       if(alp==-1d60) then
         call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
         if(alpv(1)==-1d50) then
-          print *,' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput' 
+          write(6,*)' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput' 
           stop    ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput' 
         endif
       endif
       print *
-      print *,' alpv=',alpv
+      write(6,*)' alpv=',alpv
       print *
       alpm= minval(alpv)
       if(alpm<=0d0) stop 'alpha_offG or alpha_offG_vec <=0'
@@ -245,7 +245,7 @@ c        endif
         enddo
         ngcxx = maxval(ngcx)
         allocate( ngvect(3,ngcxx,nqbz) )
-        print *,' goto getgv2: ngcxx=',ngcxx
+        write(6,*)' goto getgv2: ngcxx=',ngcxx
         do iq = 1, nqbz
           q  = qbz(1:3,iq)  
           call getgv2( alat,plat,qlat, q, QpGcut, 2, 
@@ -260,7 +260,7 @@ c        if(q0pchoice()/1000==1) then
 c          nn1= (q0pchoice()-1000)/10 
 c          nn2= mod(q0pchoice()-1000,10) 
 c          nq0x= 4*nn1*nn2
-c          print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
+c          write(6,*)' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c        endif
         if( q0pchoice()<0) then
 c          nq0x = 8*abs (q0pchoice())
@@ -272,7 +272,7 @@ c          nq0x = 8*abs (q0pchoice())
         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
         if(noq0p) then
            nq00i=0
-           print *,' TestNoQ0P=.true. '
+           write(6,*)' TestNoQ0P=.true. '
            nq0i=0
         else
           nmm=1
@@ -285,7 +285,7 @@ c ... inequivalent q0x points ----
           call q0irre(q0x,wt0,nq00i,symops,ngrp,   q0i,nq0i,wt)
           write(6,"(i3,f16.7,2x,3f16.7)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
         endif
-        print *,' xxxxxxx nq0i=',nq0i
+        write(6,*)' xxxxxxx nq0i=',nq0i
 
         open (1101,file='Q0P')
         www=wgtq0p()
@@ -318,11 +318,11 @@ CAug2005
             call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off') 
             nq0i00 =max(nq0i00,0)
             if(nq0i00>0) close(ifinin)
-            print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
+            write(6,*)' end of reaing QforEPS nq0i00',nq0i00,ifinin
             
             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off') 
             nq0i0  =max(nq0i0,0)
-            print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
+            write(6,*)' end of reaing QforEPSL nq0i0',nq0i0,ifinin
             if(nq0i0>0) then
                allocate( ndiv(nq0i0) )
                do i=1,nq0i0
@@ -335,7 +335,7 @@ CAug2005
             endif
             if(nq0i <=0) stop 'There are neither <QforEPS> nor <QforEPS>. '
             allocate( q0i(3,nq0i) )
-            print *,' nq0i=',nq0i
+            write(6,*)' nq0i=',nq0i
             if(nq0i00>0) then
                call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00) 
                do i=1,nq0i00
@@ -377,7 +377,7 @@ c        write(1101,"(i5,a)") nq0i," ---This is readin Q0P --- "
          close(1101)
       endif ! elseif(iq0pin==2) then
 cccccccccccccccccccc
-c      print *,' end fo writing QOP'
+c      write(6,*)' end fo writing QOP'
 
 C... feb2006 enlarge number of q
       if(.not.timereversal()) then
@@ -408,8 +408,8 @@ c RS:
 c        offmesh = (bzcase()==2) .or. (.not.qbzreg())
         offmesh = (bzcase()==2)
       endif  
-      print *,' regmesh offmeshg=', regmesh,regmeshg
-      print *,' offmesh offmeshg=', offmesh,offmeshg
+      write(6,*)' regmesh offmeshg=', regmesh,regmeshg
+      write(6,*)' offmesh offmeshg=', offmesh,offmeshg
 
       nqnum = 0
       if(regmesh) nqnum = nqnum + nqbz
@@ -444,7 +444,7 @@ C... Off Regular mesh.
         enddo
       endif
       nnn   =  ix !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*n3q
-      print *,' nnn=',nnn !This is the number to calcualte Vxc
+      write(6,*)' nnn=',nnn !This is the number to calcualte Vxc
 C... Shifted mesh
       if(regmeshg) then 
         do iq00 = 1, nq0i
@@ -474,7 +474,7 @@ c RS: set q
       enddo
 
 C RS:
-      print *,' nqbnu_rsband=',nqnum_rsband
+      write(6,*)' nqbnu_rsband=',nqnum_rsband
 
 C... Get qqm; q point for eigenvalues. Saved to Qmtet
       if(sum(abs(mtet))/=3) then
@@ -548,7 +548,7 @@ c ... Get G vector for given q.
       enddo
       deallocate(ngpn,ngcn)
       if(iq0pin==1) deallocate(ngvect)
-c      print *,'end of mkqg'
+c      write(6,*)'end of mkqg'
       end
 
 c --- tripl

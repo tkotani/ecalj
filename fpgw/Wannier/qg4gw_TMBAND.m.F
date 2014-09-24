@@ -103,7 +103,7 @@ c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0)
       idummy=normcheck()
 
 c --- list switches
-      print *,' --- switches defined in gwsrc/switch.f ---'
+      write(6,*)' --- switches defined in gwsrc/switch.f ---'
       write(6,"(' version()   = ',I3)")  version()
       write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
       write(6,"(' keepeigen() = ',L)")  KeepEigen()
@@ -158,7 +158,7 @@ C --- check write
       write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
       write(6,*) ' --- point group operation --- '
       do ig = 1,ngrp
-        print *, ' ig=',ig
+        write(6,*) ' ig=',ig
         do i=1,3
           write(6,"(3f14.6)") symops(i,1:3,ig) 
         enddo
@@ -223,7 +223,7 @@ c      endif
      &             QpGcut_psi, QpGcut_Cou
       goto 1011
 
- 1010 print *," --- a GWIN0 sample for the case of si ---" 
+ 1010 write(6,*)" --- a GWIN0 sample for the case of si ---" 
       write(6,"(a)")' n1 n2 n3. the number of k-points for GW '
       write(6,"(a)")' 2 2 2 '
       write(6,"(a)")' Cutoff of |q+G| for Coulomb. a.u.'
@@ -233,8 +233,8 @@ c      endif
       write(6,"(a)")' 1d0 '
       write(6,"(a)")' number of bands.'
       write(6,"(a)")' 99999 '
-      print *," --- end GWIN0 sample --- " 
-      print *,
+      write(6,*)" --- end GWIN0 sample --- " 
+      write(6,*)
      & " ERROR! Not find GWIN0. You have to write GWIN0 by hand! 
      &          See above sample!"
       stop " ERROR! Not find GWIN0. You have to write GWIN0 by hand! "

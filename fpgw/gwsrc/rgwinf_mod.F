@@ -31,7 +31,7 @@ c      character(120):: symgrpt
 c---------
 c SYMMETRY
 c---------
-c      print *,' goto sym'
+c      write(6,*)' goto sym'
 c      read(ifi,*);  read(ifi,*)
 c      read(ifi,*)symgrpt
 c      j           = 0
@@ -45,7 +45,7 @@ c      symgrp(3:120) = symgrpt(j+1:120)
 c----------
 c STRUCTURE
 c----------
-c      print *,' goto structure'
+c      write(6,*)' goto structure'
 c> lattice constant
       read(ifi,*);  read(ifi,*); read(ifi,*)
       read(ifi,*)alat
@@ -74,18 +74,18 @@ c      allocate(pos(3,natom))
 c-----
 c LMTO
 c-----
-      print *,' goto lmto'
+      write(6,*)' goto lmto'
 c> spin (1=paramagnetic  2=ferromagnetic)
       read(ifi,*)
       read(ifi,*)
       read(ifi,*)
       read(ifi,*)nspin
-c      print *,' nspin=',nspin
+c      write(6,*)' nspin=',nspin
 
 c> max. no. valence and core l
       read(ifi,*)
       read(ifi,*)nl
-c      print *,' ispin nl =',ispin,nl
+c      write(6,*)' ispin nl =',ispin,nl
 
 c> max. no. valence and core n
       read(ifi,*)
@@ -139,10 +139,10 @@ c      cutbase = tolbas
         unoccc=0    ! call iclear(nl*nnc*nclass, w(iunoccc))
         ncfw  =0    ! call iclear(nl*nnc*nclass, w(incwf))
       elseif( incwfx==-1 ) then
-        print *,' ### incwf=-1 Use ForSxc for core'
+        write(6,*)' ### incwf=-1 Use ForSxc for core'
         ncwf = ncwf2  !call icopy(nl*nnc*nclass,w(incwf2),w(incwf))
       elseif( incwfx==-2 ) then
-        print *,' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
+        write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
         call notbit(nl*nnc*nclass, ncwf2)
         ncwf  = ncwf2 ! call icopy (nl*nnc*nclass, w(incwf2),w(incwf))
         occc= ncwf  ! call icopy (nl*nnc*nclass, w(incwf),w(ioccc))
@@ -156,14 +156,14 @@ cccccccccccccccccccccccccccccccccc
       elseif( incwfx==-3 ) then
         call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
         unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
-        print *,' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
+        write(6,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
       elseif( incwfx==-4 ) then
-        print *,' ### incwf=-4  occ=0 and unocc=0 for all core '
+        write(6,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
         occc=0  !call iclear(nl*nnc*nclass, w(ioccc))
         unoccc=0  !call iclear(nl*nnc*nclass, w(iunoccc))
         ncwf  =0  !call iclear(nl*nnc*nclass, w(incwf))
       elseif(incwfx==0) then
-        print *,' ### Use unocc occ ForX0 for core'
+        write(6,*)' ### Use unocc occ ForX0 for core'
       else
 Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
         call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
@@ -210,7 +210,7 @@ c> divisions along reciprocal base vectors G1 G2 G3
       read(ifi,6000)blank
       read(ifi,6000)blank
       read(ifi,*)n1,n2,n3
-      print *,' divisions along reciprocal base vectors G1 G2 G3=',
+      write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=',
      & n1,n2,n3
 
 c--- EFERMI
@@ -218,14 +218,14 @@ c--- EFERMI
         open( 1101,file='EFERMI')
         read( 1101,*) ef
         close(1101)
-        print *,' --- READIN ef from EFERMI. ef=',ef
+        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       endif
 c--- NW
       if(nw/=-999) then
         open( 1101,file='NW')
         read( 1101,*) nw
         close(1101)
-        print *,' --- READIN nw from NW. nw=',nw
+        write(6,"(a,i5)")' --- READIN nw from NW. nw=',nw
       endif
 
 c------------
@@ -259,11 +259,11 @@ c       read(ifi,6000)blank
 c      endif
       diw=1d90 !dummy never used.
       imagw=-999999 ! dummy
-      print *,' --- Freq ---'
-      print *,'    dw   =',dw
-      print *,'    niw  =',niw
-      print *,'    delta=',delta
-      print *,'    esmr =',esmr
+      write(6,*)' --- Freq ---'
+      write(6,"(a,f12.6)")'    dw   =',dw
+      write(6,"(a,i6)")'    niw  =',niw
+      write(6,"(a,f12.6)")'    delta=',delta
+      write(6,"(a,f12.6)")'    esmr =',esmr
 
 c--------------
 c PRODUCT BASIS
@@ -271,7 +271,7 @@ c--------------
 ctakao
       ncwf  =99 !This is for counting the number of nctot in gencor.
       ncwf2 =99
-      print *,' goto prod'
+      write(6,*)' reading <PRODUCT_BASIS> section'
 c      if(readgwinput()) then
       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)
       write(6,*)'<... > '
@@ -315,7 +315,7 @@ c> check completeness of optimal product basis
       read(ifi,6000)blank
       read(ifi,*)lcutmx
       write(6,"(' --- prod section: lcutmx tolbas='i3,100d11.3)") lcutmx,tolbas
-c      print *,' nclass nl-1=',nclass,nl-1
+c      write(6,*)' nclass nl-1=',nclass,nl-1
 c> n index for valence and core
       read(ifi,6000)blank
       do      ic = 1,nclass
@@ -331,7 +331,7 @@ Cstop2rx 2013.08.09 kino          if(lt  .ne. l ) stop 'rgwina: 1st wrong l '
           if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
         end do
       end do
-      print *,' --- valence product basis section'
+      write(6,*)' --- valence product basis section'
 c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 c> criteria for product basis
 c>> valence
@@ -355,9 +355,9 @@ Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n valence
         end do
       end do
  1099 continue
-c      print *,' goto prod 3'
+c      write(6,*)' goto prod 3'
 c>> core
-      print *,' --- core product basis section'
+      write(6,*)' --- core product basis section'
       read(ifi,6000)blank
       do      ic = 1,nclass
         do       l = 0,nl-1
@@ -375,7 +375,7 @@ Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n core'
           end do
         end do
       end do
-c      print *,' goto prod 4'
+c      write(6,*)' goto prod 4'
  6000 format(a)
       close(ifi)
       return
@@ -398,7 +398,7 @@ c
         elseif(idat(i)==1) then
           idat(i)=0
         endif
-c       print *,'notbit=',i,ix,idat(i)
+c       write(6,*)'notbit=',i,ix,idat(i)
       enddo
       end
       subroutine iclear(n,idat)

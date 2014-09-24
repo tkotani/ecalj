@@ -21,6 +21,8 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 #(3) Compilar options ###############################################
 ### INTEL FORTRAN LINUX ###
+#FFLAGS=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
+#FFLAGS_OMP=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
 FFLAGS=-O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
@@ -93,10 +95,11 @@ LIBMATH= -mkl
 
 
 #(5) Linker ####################################################
+LK=mpiifort -openmp
 ### gfortran ubuntu12.04 #######
 #LK = mpif90
 #LK= ifort -parallel 
-LK=mpiifort -openmp
+#LK=mpiifort
 LKFLAGS2 = $(LIBMATH) 
 
 #LK= ifort -parallel 

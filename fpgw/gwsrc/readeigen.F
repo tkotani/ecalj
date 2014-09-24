@@ -21,9 +21,9 @@
       allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,nqnum) )
       allocate( itimermap(ngcmx,nqnum))
       do ikp = 1,nqnum
-c         print *,' ikp=',ikp,imxc
+c         write(6,*)' ikp=',ikp,imxc
         read (ifiqg) qtt_(:,ikp), ngc(ikp)
-c        print *,' ngc=',ngc(ikp)
+c        write(6,*)' ngc=',ngc(ikp)
         read (ifiqg) ngvecc(1:3, 1:ngc(ikp),ikp),ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp)
 !! time reversal mapping. only needed for time reversal case.
       enddo
@@ -70,7 +70,7 @@ c      enddo
       enddo
       enddo
       norbt = iorbt !number of product basis block
-      print *,'npbindex: norbt=',norbt
+      write(6,*)'npbindex: norbt=',norbt
       allocate( ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt) )
       iorbt=0
       offset_tbl(1)=0
@@ -139,30 +139,30 @@ c$$$      call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
 c$$$     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
 c$$$     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
 c$$$     o  zcousqr(1:nbloch,1:ngbb))
-c$$$c      print *,' end of rotmto '
+c$$$c      write(6,*)' end of rotmto '
 c$$$      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
 c$$$      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
 c$$$      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
 c$$$!!
 c$$$      ngcx=ngc(iqin)
 c$$$      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
-c$$$         print *,' ngbb qin  =',ngbb,qin
-c$$$         print *,' iqin iqout=',iqin,iqout
-c$$$         print *,' qout=',qout
-c$$$         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
-c$$$         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
-c$$$         print *,' ngc(iqout)=',ngc(iqout)
+c$$$         write(6,*)' ngbb qin  =',ngbb,qin
+c$$$         write(6,*)' iqin iqout=',iqin,iqout
+c$$$         write(6,*)' qout=',qout
+c$$$         write(6,*)' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
+c$$$         write(6,*)' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
+c$$$         write(6,*)' ngc(iqout)=',ngc(iqout)
 c$$$         if(ngcx/=ngbb-nbloch) stop 'rotMPB:ngc(iqin)/=ngbb-nbloch'
 c$$$         stop 'rotMPB:ngc(iqin)/=ngc(iqout)'
 c$$$      endif   
 c$$$      platt=transpose(plat)
-c$$$c      print *,' iqin iqout igx=',iqin,iqout,igx
-c$$$c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
-c$$$c      print *,'qin  =',qin,iqin,igx
-c$$$c      print *,'qout =',qout,iqout
-c$$$c      print *,'ngcx ngbb=',ngcx,ngbb
-c$$$c      print *,'platt=',platt
-c$$$c      print *,' qlat=',qlat
+c$$$c      write(6,*)' iqin iqout igx=',iqin,iqout,igx
+c$$$c      write(6,*)' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
+c$$$c      write(6,*)'qin  =',qin,iqin,igx
+c$$$c      write(6,*)'qout =',qout,iqout
+c$$$c      write(6,*)'ngcx ngbb=',ngcx,ngbb
+c$$$c      write(6,*)'platt=',platt
+c$$$c      write(6,*)' qlat=',qlat
 c$$$      call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
 c$$$     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
 c$$$     o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
@@ -192,7 +192,7 @@ c$$$      end subroutine rotMPB
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
       logical ::debug=.false.
-      if(debug) print *,' rotMPB2:'
+      if(debug) write(6,*)' rotMPB2:'
       if(init==1) then
         lxxa= 2*max_l_tbl
         nl= lxxa +1 
@@ -205,38 +205,38 @@ c$$$      end subroutine rotMPB
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
      o  zrotm(1:nbloch,1:nbloch))
-      if(debug) print *,' end of rotmto2 '
+      if(debug) write(6,*)' end of rotmto2 '
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu) !iqindx2 is slow. If required, speed it up in a manner as iqindx2_.
-      if(debug) print *,' end of iqindx2rotmto2 '
+      if(debug) write(6,*)' end of iqindx2rotmto2 '
 Cstop2rx 2013.08.09 kino      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
       if(sum(abs(qin-qu))>1d-6) call rx( 'rotMPB:qin is not included in QGcou')
       sss=1d0
       if(igxt==-1) sss=-1d0
-      if(debug) print *,' iqindx2 111111111111 sss=',sss,igx,qin
+      if(debug) write(6,*)' iqindx2 111111111111 sss=',sss,igx,qin
       call iqindx2(sss*matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
-      if(debug) print *,' iqindx2 111111111111222222222222'
+      if(debug) write(6,*)' iqindx2 111111111111222222222222'
 !!
       ngcx=ngc(iqin)
       if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
-         print *,' ngbb qin  =',ngbb,qin
-         print *,' iqin iqout=',iqin,iqout
-         print *,' qout=',qout
-         print *,' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
-         print *,' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
-         print *,' ngc(iqout)=',ngc(iqout)
+         write(6,*)' ngbb qin  =',ngbb,qin
+         write(6,*)' iqin iqout=',iqin,iqout
+         write(6,*)' qout=',qout
+         write(6,*)' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
+         write(6,*)' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
+         write(6,*)' ngc(iqout)=',ngc(iqout)
 Cstop2rx 2013.08.09 kino         if(ngcx/=ngbb-nbloch) stop 'rotMPB2:ngc(iqin)/=ngbb-nbloch'
          if(ngcx/=ngbb-nbloch) call rx( 'rotMPB2:ngc(iqin)/=ngbb-nbloch')
 Cstop2rx 2013.08.09 kino         stop 'rotMPB2:ngc(iqin)/=ngc(iqout)'
          call rx( 'rotMPB2:ngc(iqin)/=ngc(iqout)')
       endif   
       platt=transpose(plat)
-c      print *,' iqin iqout igx=',iqin,iqout,igx
-c      print *,' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
-c      print *,'qin  =',qin,iqin,igx
-c      print *,'qout =',qout,iqout
-c      print *,'ngcx ngbb=',ngcx,ngbb
-c      print *,'platt=',platt
-c      print *,' qlat=',qlat
+c      write(6,*)' iqin iqout igx=',iqin,iqout,igx
+c      write(6,*)' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
+c      write(6,*)'qin  =',qin,iqin,igx
+c      write(6,*)'qout =',qout,iqout
+c      write(6,*)'ngcx ngbb=',ngcx,ngbb
+c      write(6,*)'platt=',platt
+c      write(6,*)' qlat=',qlat
       call rotipw2(qin,qout,ngcx,ngbb,
      &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
      o  zrotm(nbloch+1:nbloch+ngcx,nbloch+1:nbloch+ngcx) )
@@ -260,7 +260,7 @@ c$$$      integer,allocatable:: iclasst(:)
 c$$$!!  Get data for space-group transformation. See header of mptaouof.
 c$$$      ificlass   = iopen('CLASS',1,-1,0)
 c$$$      allocate(iclasst(natom))
-c$$$      print *,'  --- Spacegrouprot: Readingin true CLASS info ---'
+c$$$      write(6,*)'  --- Spacegrouprot: Readingin true CLASS info ---'
 c$$$      do ibas = 1,natom
 c$$$        read(ificlass,*) ibasx, iclasst(ibas)
 c$$$        write(6, "(2i10)") ibasx, iclasst(ibas)
@@ -312,7 +312,7 @@ c$$$!! ------------
       if(igxt==-1) qrot=-qrot !july2012takao
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
-c         print *,'iorb=',iorb
+c         write(6,*)'iorb=',iorb
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
           phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
@@ -493,16 +493,16 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
       integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3
       real(8):: q(3),qx(3),qu(3),qzz(3)
       logical::debug=.false.
-      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
-c      print *,'kkk3=',kkk3
-c      print *,'nkey=',nkey
-c      print *,'kk1=',kk1
+c      write(6,*)'kkk3=',kkk3
+c      write(6,*)'nkey=',nkey
+c      write(6,*)'kk1=',kk1
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
+c      write(6,*)' ik1,ik2,ik3=',ik1,ik2,ik3
       iqindx = iqkkk(ik1,ik2,ik3)
       qu =qtt(:,iqindx)
       end subroutine
@@ -518,7 +518,7 @@ c      print *,' ik1,ik2,ik3=',ik1,ik2,ik3
       integer,allocatable:: ieord(:)
       ginv=ginv_
       allocate(ieord(nqtt))
-c      print *,' iiiiii nqtt=',nqtt
+c      write(6,*)' iiiiii nqtt=',nqtt
       allocate(key(3,0:nqtt),qxx(3,nqtt))
       key=-99999
       do iq=1,nqtt
@@ -551,14 +551,14 @@ Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
       kk3(:) = key(3,1:nkey(3))
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
-c      print *,' initqqq nqtt=',nqtt
+c      write(6,*)' initqqq nqtt=',nqtt
       do i=1,nqtt
          kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
          call tabkk(kkk3(1), kk1,nkey(1), ik1)
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-c         print *, ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+c         write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
       enddo
       deallocate(qxx)
       end subroutine
@@ -592,8 +592,8 @@ c$$$            nout=i
 c$$$            return                                                                              
 c$$$         endif                                                                                  
 c$$$      enddo                                                                                     
-      print *, i1,i2,kkin
-      print *, kktable(i1),kktable(i2)
+      write(6,*) i1,i2,kkin
+      write(6,*) kktable(i1),kktable(i2)
 Cstop2rx 2013.08.09 kino      stop 'takk: error'
       call rx( 'takk: error')
       end subroutine
@@ -643,7 +643,7 @@ ctm
       if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
       call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
       if(ngp_in < ngp(iq)) then
-        print *,'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+        write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
         call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
       endif
       if(keepeig) then
@@ -686,7 +686,7 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
        call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
       if(debug) then
-        print *,'iq iqimap(iq)=',iq,iqimap(iq)
+        write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
         write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
         write(6,"(9f9.4)")ev(1:9)
       endif
@@ -726,28 +726,28 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig: modele is not initialized yet'
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
       call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
 
-      if(debug) print *,' readgeig:xxx iq=',iq
+      if(debug) write(6,*)' readgeig:xxx iq=',iq
 c      do iq=1,nqtt
-c         write(*,*)iq,qtt(:,iq)
+c         write(6,*)iq,qtt(:,iq)
 c      enddo
       iqq=iqmap(iq)
       iqi=iqimap(iq)
       igg=igmap(iq)
       qtarget=qtt(:,iq) ! iqq is mapped to qtarget=qu=qtt(:,iq)
       if(debug) then
-        print *,' ddddd ginv=',ginv
-        print *,' ddddd readgeig: iq iqq igg=',iq,iqq,igg
-        print *,' ddddd q      =',q
-        print *,' ddddd qu      =',qu
-        print *,' ddddd qtarget=',qtarget
-        print *,' ddddd q (iqq)=',qtt(:,iqq)
+        write(6,*)' ddddd ginv=',ginv
+        write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg
+        write(6,*)' ddddd q      =',q
+        write(6,*)' ddddd qu      =',qu
+        write(6,*)' ddddd qtarget=',qtarget
+        write(6,*)' ddddd q (iqq)=',qtt(:,iqq)
         write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
 Cstop2rx 2013.08.09 kino      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
       if(ngp(iq)/=ngp(iqq)) call rx( 'readgeig:x ngp(iq)/=ngp(iqq)')
-      if(debug) print *,' ngp=',ngp(iq)
+      if(debug) write(6,*)' ngp=',ngp(iq)
       if(keepeig) then
         geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
       else
@@ -755,7 +755,7 @@ Cstop2rx 2013.08.09 kino      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ng
         read(ifgeig, rec=ikpisp) geigenr(1:ngpmx,1:nband)
       endif
       if(ngp_in < ngp(iq)) then
-        print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+        write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
 Cstop2rx 2013.08.09 kino        stop 'readgeig: ngpmx<ngp(iq)'
         call rx( 'readgeig: ngpmx<ngp(iq)')
       endif
@@ -775,15 +775,15 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig: ngpmx<ngp(iq)'
 !! rotation wave
 c      ddd = shtvg(:,invgx(igg))
 cccccccccccccccccccccccccccccccccc
-c      print *,' xddddd1= ',-matmul(symops(:,:,igg),ddd)
-c      print *,' xddddd2= ',shtvg(:,igg)
-c      print *,' xddddd   '
+c      write(6,*)' xddddd1= ',-matmul(symops(:,:,igg),ddd)
+c      write(6,*)' xddddd2= ',shtvg(:,igg)
+c      write(6,*)' xddddd   '
 ccccccccccccccccccccccccccccccccccc
 c      if(debug) then
-c        print *,' ddddd=',igg,ddd
-c        write(*,"('ddddd iq =',2i5,3f13.5)") iq,  ngp(iq), qtt(:,iqq)
-c        write(*,"('ddddd iqq=',2i5,3f13.5,2x,3f13.5)") iqq, ngp(iq), q,qu
-c        print *,' ddddd '
+c        write(6,*)' ddddd=',igg,ddd
+c        write(6,"('ddddd iq =',2i5,3f13.5)") iq,  ngp(iq), qtt(:,iqq)
+c        write(6,"('ddddd iqq=',2i5,3f13.5,2x,3f13.5)") iqq, ngp(iq), q,qu
+c        write(6,*)' ddddd '
 c      endif
       do ig = 1,ngp(iqq)
         qpg = qtt(:,iqq) + matmul( qlat(:,:),ngvecp(:,ig,iqq)) !q+G
@@ -858,9 +858,9 @@ c$$$cddd
 c$$$c      phaseq   = exp( img2pi*sum( qtt(:,iqq)*shtvg(:,invgx(igg)) ) )
 c$$$cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 c$$$cccccccccccccccccccccccccccccccccc
-c$$$c      print *,' xddddd1= ', sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )
-c$$$c      print *,' xddddd2= ',-sum( qrot*shtvg(:,igg))
-c$$$c      print *,' xddddd diff=   ',sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )+sum( qrot*shtvg(:,igg))
+c$$$c      write(6,*)' xddddd1= ', sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )
+c$$$c      write(6,*)' xddddd2= ',-sum( qrot*shtvg(:,igg))
+c$$$c      write(6,*)' xddddd diff=   ',sum( qtt(:,iqq)*shtvg(:,invgx(igg)) )+sum( qrot*shtvg(:,igg))
 c$$$ccccccccccccccccccccccccccccccccccc
 c$$$      ibaso=-999
 c$$$      do iorb=1,norbt !orbital-blocks are specified by ibas, l, and k.
@@ -921,7 +921,7 @@ c$$$        stop 'readgeig: modele is not initialized yet'
 c$$$      endif
 c$$$      call iqindx2(q,ginv,qtt,nqtt, iq, qu) !qu is used q.  q-qu= G vectors.
 c$$$      if(ngp_in < ngp(iq)) then
-c$$$        print *,'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+c$$$        write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
 c$$$        stop 'readgeig: ngpmx<ngp(iq)'
 c$$$      endif
 c$$$! for ngp=0 Aug2005
@@ -965,11 +965,11 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: modele is not initialized ye
         call rx( 'readgeig_mlw: modele is not initialized yet')
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
-c      print *,' readgeig: q=',q
+c      write(6,*)' readgeig: q=',q
       call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
 
       if(ngp_in < ngp(iq)) then
-        print *,'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+        write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
 Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: ngpmx<ngp(iq)'
         call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
       endif
@@ -994,7 +994,7 @@ Cstop2rx 2013.08.09 kino        stop 'readcphi_mlw: modele is not initialized ye
         call rx( 'readcphi_mlw: modele is not initialized yet')
       endif
 c      iq = iqindx(q, ginv,qtt,nqtt)
-c      print *,' readgcphi_mlw: q=',q
+c      write(6,*)' readgcphi_mlw: q=',q
       call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
 
       if(keepeig) then
@@ -1059,7 +1059,7 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
 !!--- Read eigenvalue ---
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
       read(ifev) nband_ev, nqi_, nsp_ev
-      write(*,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
+      write(6,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
 Cstop2rx 2013.08.09 kino      if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
       if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
 Cstop2rx 2013.08.09 kino      if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
@@ -1079,7 +1079,7 @@ Cstop2rx 2013.08.09 kino      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
             enddo
           enddo
         enddo
-        if(debug) print *,'init_readeigen:end'
+        if(debug) write(6,*)'init_readeigen:end'
       endif
 
 c comment out mar2012takao
@@ -1089,7 +1089,7 @@ C$$$      do is= 1,nsp
 C$$$        call rwdd (ifev(is),   !read eigenvalues
 C$$$     d              nband,nqi,
 C$$$     o              evud(1,1,is))
-C$$$c        print *, 'evud is=',is,minval(evud(:,:,is))
+C$$$c        write(6,*) 'evud is=',is,minval(evud(:,:,is))
 C$$$        if(debug) then
 C$$$          do ik=1,nqtt
 C$$$            do ib=1,nband
@@ -1136,7 +1136,7 @@ c        write(6,*) i1,i2,i3,i4,i5,iorb
         if(iorb>norbtx) norbtx=iorb
       enddo
  106  continue
-      write(*,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
+      write(6,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
       rewind ifoc
       read(ifoc,*)
       allocate(l_tbl(norbtx),k_tbl(norbtx),ibas_tbl(norbtx),offset_tbl(norbtx))
@@ -1159,7 +1159,7 @@ c        write(6,*) i1,i2,i3,i4,i5,iorb
       do iorb=1,norbtx
         offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
       enddo
-      write(*,*)'init_readeigen2: table for rotation of cphi'
+      write(6,*)'init_readeigen2: table for rotation of cphi'
 c      do iorb=1,norbtx
 c        write(*,*)ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb),
 c     &   offset_tbl(iorb),
@@ -1168,18 +1168,18 @@ c      enddo
       ifoc=iclose('@MNLA_CPHI')
 c      stop 'init2 xxxxxxxxxxxxx'
 c --- Readin CPHI and GEIG
-      if(Keepeig     ) print *,' KeepEigen=T; readin geig and cphi into m_readeigen'
-      if(.not.Keepeig) print *,' KeepEigen=F; not keep geig and cphi in m_readeigen'
+      if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
+      if(.not.Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
       ifgeig = iopen('GEIG',0,0,mrecg)
       ifcphi = iopen('CPHI',0,0,mrecb) ! Coeeficients of eigenfunction
-c      print *,' ifgeig ifcphi=',ifgeig,ifcphi
-c      print *,' ldim2,nband,nqi,nsp',ldim2,ngpmx,nband,nqi,nsp
+c      write(6,*)' ifgeig ifcphi=',ifgeig,ifcphi
+c      write(6,*)' ldim2,nband,nqi,nsp',ldim2,ngpmx,nband,nqi,nsp
       if(.not.keepeig) return
 c      ifgeig = iopen('GEIG',0,-1,0)
 c      ifcphi = iopen('CPHI',0,-1,0) ! Coeeficients of eigenfunction
       allocate(geig(ngpmx,nband,nqi,nsp))
       allocate(cphi(ldim2,nband,nqi,nsp))
-      print *,' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
+      write(6,*)' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
       do ikp= 1,nqi
         do is= 1,nsp
 c        read(ifgeig) geig(1:ngpmx,1:nband,ikp,is) !geig(1:ngp(ikp),1:nband,ikp,1:is)
@@ -1195,7 +1195,7 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
         enddo
       enddo
-c      print *,'eeeeee'
+c      write(6,*)'eeeeee'
       isx= iclose('CPHI')
       isx= iclose('GEIG')
       end subroutine
@@ -1226,7 +1226,7 @@ c this should be called after init_readgeigen2
       logical :: keepeigen
       keepeig = keepeigen()
 
-      print *,' init_readeigen_mlw'
+      write(6,*)' init_readeigen_mlw'
 
 
 c --- Readin MLWU/D, MLWEU/D, and UUq0U/D
@@ -1411,7 +1411,7 @@ c this should be called after init_readgeigen2
       logical :: keepeigen
       keepeig = keepeigen()
 
-      print *,' init_readeigen_mlw_noeval1D'
+      write(6,*)' init_readeigen_mlw_noeval1D'
 
 
 c --- Readin MLWU/D and UU1dU/D
@@ -1592,7 +1592,7 @@ c this should be called after init_readgeigen2
       logical :: keepeigen
       integer:: ikpx
       keepeig = keepeigen()
-      print *,' init_readeigen_mlw_noeval'
+      write(6,*)' init_readeigen_mlw_noeval'
 
 c --- Readin MLWU/D, MLWEU/D, and UUq0U/D
       do is = 1,nsp
@@ -1725,7 +1725,7 @@ c         write(7300,*)cbwf(:,:,ikp,is)
       mrecg_o = mrecg * nwf / nband
 
       if(keepeig) then
-        print *,' xxx nband=',nband
+        write(6,*)' xxx nband=',nband
         allocate(geig2(ngpmx,nband))  !nqtt -->nqi
         allocate(cphi2(ldim2,nband))
 c$$$        allocate(geig2(ngpmx,nband,nqtt,nsp))  !nqtt -->nqi
@@ -1740,9 +1740,9 @@ c$$$           write(6,"('xxx ikp=',i5,3f9.5,2d13.5)")ikp,qtt(:,ikp)
 c$$$     &     ,sum(abs(geig2(:,:,ikp,is))),sum(abs(cphi2(:,:,ikp,is)))
 c$$$        enddo
 c$$$        enddo
-c$$$        print *,' xxxx size geig=',size(geig),size(cphi)  
-c$$$        print *,' xxxx size geig2=',size(geig2),size(cphi2)
-c$$$        print *,' size geig2=',ngpmx,nband,nqi,nsp,ldim2
+c$$$        write(6,*)' xxxx size geig=',size(geig),size(cphi)  
+c$$$        write(6,*)' xxxx size geig2=',size(geig2),size(cphi2)
+c$$$        write(6,*)' size geig2=',ngpmx,nband,nqi,nsp,ldim2
 ccccccccccccccccccccccccccccccccccccccccccc
 c        deallocate(geig,cphi)
 ccccccccccccccccccccccccccccccccccccccccccc
@@ -1752,7 +1752,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
         cphiW = 0d0
         do ikp= 1,nqtt ! nqi
         do is= 1,nsp
-           print *,' ikp=',ikp,qtt(:,ikp)
+           write(6,*)' ikp=',ikp,qtt(:,ikp)
            call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2)
            if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
            call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2)
@@ -1851,23 +1851,23 @@ c this should be called after init_readgeigen2
       logical :: keepeigen
       keepeig = keepeigen()
 
-      print *,' init_readeigen_phi_noeval'
+      write(6,*)' init_readeigen_phi_noeval'
 
       ifdim = iopen('PHIG.d',1,0,0)
       read(ifdim,*) nsp2,nqbz2,nwf2,nlmto2,ngpmx2
       isx= iclose('PHIG.d')
       if(nsp2.ne.nsp) then
-        write(*,*)'nsp,nsp2',nsp,nsp2
+        write(6,*)'nsp,nsp2',nsp,nsp2
 Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: ns'
         call rx( 'init_readeigen_phi: ns')
       endif
       if(nlmto2.ne.ldim2) then
-        write(*,*)'nlmto,nlmto2',ldim2,nlmto2
+        write(6,*)'nlmto,nlmto2',ldim2,nlmto2
 Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: nlmto'
         call rx( 'init_readeigen_phi: nlmto')
       endif
       if(ngpmx2.ne.ngpmx) then
-        write(*,*)'ngpmx,ngpmx2',ngpmx,ngpmx2
+        write(6,*)'ngpmx,ngpmx2',ngpmx,ngpmx2
 Cstop2rx 2013.08.09 kino        stop 'init_readeigen_phi: ngpmx'
         call rx( 'init_readeigen_phi: ngpmx')
       endif
@@ -1957,7 +1957,7 @@ c this should be called after init_readgeigen2
       logical :: keepeigen
       keepeig = keepeigen()
 
-      print *,' init_readeigen_mlw'
+      write(6,*)' init_readeigen_mlw'
 
 
 c --- Readin MLWU/D, MLWEU/D, and UUq0U/D
@@ -2290,8 +2290,8 @@ c------------------------------------------------------
 !! mto part
 c          write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
-c      print *,'rotwvigg :nlmto=',nlmto,norbmto
-c      print *,' ibastab=',ibastab
+c      write(6,*)'rotwvigg :nlmto=',nlmto,norbmto
+c      write(6,*)' ibastab=',ibastab
       if(nlmto/=0) then
         ibaso=-999
         do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
@@ -2321,10 +2321,10 @@ c      print *,' ibastab=',ibastab
           call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
           if(ig2>=999999) then !See igv2rev=999999 in L354 in lm7K/subs/suham.F
-             print *,'rotwvigg: q  =',q
-             print *,'rorwvigg: qr =', matmul(symops(:,:,igg),q) 
-             print *,'rorwvigg: igv2   ikt ig2=',igv2(:,ig,ikt),ikt,ig2
-             print *,'rorwvigg: igv2rev   ikt2=',nnn(1),nnn(2),nnn(3),ikt2
+             write(6,*)'rotwvigg: q  =',q
+             write(6,*)'rorwvigg: qr =', matmul(symops(:,:,igg),q) 
+             write(6,*)'rorwvigg: igv2   ikt ig2=',igv2(:,ig,ikt),ikt,ig2
+             write(6,*)'rorwvigg: igv2rev   ikt2=',nnn(1),nnn(2),nnn(3),ikt2
              call rx('rotwvigg can not find index of mapped G vector ig2')
           endif
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )

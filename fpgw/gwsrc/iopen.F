@@ -60,7 +60,7 @@ Cstop2rx 2013.08.09 kino          stop 'iopen: file already exists'
       do ix= naminit, naminit+ mxfil
         namn=ix
         inquire(unit=namn+9, opened=namnx)
-c        print *,' namnxxx=',namn,namnx,fnamn(namn)
+c        write(6,*)' namnxxx=',namn,namnx,fnamn(namn)
         if(.not.namnx) goto 1012
       enddo
 Cstop2rx 2013.08.09 kino      stop 'iopen: enlarge mxfil...'
@@ -74,7 +74,7 @@ Cstop2rx 2013.08.09 kino      stop 'iopen: enlarge mxfil...'
       iunit(namn)= 9 + namn
       if(namn>namnmax) namnmax=namn
 cccccccccccc
-c      print *,'namn,namnmax=',namn,namnmax
+c      write(6,*)'namn,namnmax=',namn,namnmax
 ccccccccccccccc
 ctakao
       if(debug) then
@@ -103,7 +103,7 @@ c> sequential
 
 c> direct access
       if (mrecl .gt. 0) then
-        print *,' mrelc.ne.0 file=',namt,mrecl
+        write(6,*)' mrelc.ne.0 file=',namt,mrecl
         open(iopen,file=namt,form=fmt,status=stat,access='direct',
      .     recl=mrecl)
       endif
@@ -140,7 +140,7 @@ c close file unit for the given file name >>nam<<
 c check that file is not already opened oct2005
       if(debug) then
         write(6,*) '------iclosestart ---------'
-        print *,'namn,namnmax=',namn,namnmax
+        write(6,*)'namn,namnmax=',namn,namnmax
         write (6,"(' ',a)") nam
         do   i = 1,namnmax
           write (6,"(2i3,' ',a)") i+9,iunit(i),fnamn(i)

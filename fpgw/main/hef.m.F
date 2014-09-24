@@ -114,12 +114,12 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqbz qbz =',nqbz
-c      print *,  qbz
-      print *,' nqibz ngrp=',nqibz,ngrp2
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+      write(6,*)' nqbz qbz =',nqbz
+c      write(6,*)  qbz
+      write(6,*)' nqibz ngrp=',nqibz,ngrp2
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 
 c set up work array
 c      call wkinit (iwksize)
@@ -199,7 +199,7 @@ c      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
-      print *,' hsfp0: end of genallcf2'
+      write(6,*)' hsfp0: end of genallcf2'
 c
       call pshprt(30)
       pi   = 4d0*datan(1d0)
@@ -240,10 +240,10 @@ c
       ef = efnew
 c- check total ele number -------
       ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
-      print *,' ef    =',ef
-      print *,' esmr  =',esmr
-      print *,' valn  =',valn
-      print *,' ntot  =',ntot
+      write(6,*)' ef    =',ef
+      write(6,*)' esmr  =',esmr
+      write(6,*)' valn  =',valn
+      write(6,*)' ntot  =',ntot
 c 2001 May
 c        if(abs(valn-ntot)>1d-6) stop ' abs(valn-ntot)>1d-6'
 

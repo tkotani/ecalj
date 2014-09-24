@@ -198,14 +198,14 @@ c------------
       integer(4) :: n1b0(nbnbx,nqbz),n2b0(nbnbx,nqbz),nbnb0(nqbz)
       do iq   = 1,nqbz
         if( nbnb(iq)/=nbnb0(iq) ) then
-           print *, 'chknbnb: nbnb(iq)/=',nbnb(iq),nbnb0(iq)
+           write(6,*) 'chknbnb: nbnb(iq)/=',nbnb(iq),nbnb0(iq)
            stop 'chknbnb: nbnb(iq)/=nbnb0(iq)'
         endif
       do ibib = 1,nbnb(iq)
         if( n1b(ibib,iq)/=n1b0(ibib,iq) .or.
      &      n2b(ibib,iq)/=n2b0(ibib,iq) ) then
-           print *, 'chknbnb: n1b',ibib,iq,n1b(ibib,iq),n1b0(ibib,iq)
-           print *, 'chknbnb: n2b',ibib,iq,n2b(ibib,iq),n2b0(ibib,iq)
+           write(6,*) 'chknbnb: n1b',ibib,iq,n1b(ibib,iq),n1b0(ibib,iq)
+           write(6,*) 'chknbnb: n2b',ibib,iq,n2b(ibib,iq),n2b0(ibib,iq)
            stop 'chknbnb: '
         endif
       enddo

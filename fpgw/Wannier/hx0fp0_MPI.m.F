@@ -393,10 +393,10 @@ c--- Use regular mesh even for bzcase==2 and qbzreg()=T
          write(6,*) ' nqbz nqibz =',nqbz,nqibz
       endif
 
-c      print *,  qbz 
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+c      write(6,*)  qbz 
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 
 C- oct2005 not implimented cases.
 c RS: smbasis=T is not implemented...
@@ -405,7 +405,7 @@ c RS: smbasis=T is not implemented...
 c        if(.not.sergeyv) 
 c     &  stop ' smbasis=T & sergeyv=F is not implimented yet'
 c        if(chipm) then
-c        print *,' smbasis=T & chipm=T is not implimented yet.'//
+c        write(6,*)' smbasis=T & chipm=T is not implimented yet.'//
 c     &       ' Supply consistent MixSpin for smbasis!'//
 c     &       ' MixSpin should be converted at the end of hvccfp0.'
 c        stop ' smbasis=T & chipm=T is not implimented yet.'
@@ -456,7 +456,7 @@ ctm, 060517
 c RS: chipm == F... 
 c      if(chipm.and.nspin==1) stop 'chipm mode is for nspin=2'
 
-c      nw_input = nw ; print *, 'nw delta=',nw_input,delta
+c      nw_input = nw ; write(6,*) 'nw delta=',nw_input,delta
       nw_input = nw
       if (Is_IO_Root_RSMPI()) write(6,*) 'nw delta=',nw_input,delta
 
@@ -464,7 +464,7 @@ cc   if (nclass > mxclass) stop ' hx0fp0: increase mxclass'
       debug=.false.; if(verbose()>=100) debug=.true.
 
 c RS: debug-mode is disabled...
-      if(debug) print *,' end of genallc'
+      if(debug) write(6,*)' end of genallc'
       if(debug) call RSMPI_Stop("sorry, debug mode is disabled.")
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -476,7 +476,7 @@ c ... tetra or not
       if(delta <= 0d0) then
         tetra =  .true.
         delta = -delta
-c        print *,' hx0fp0: tetrahedron mode delta=',delta
+c        write(6,*)' hx0fp0: tetrahedron mode delta=',delta
         if (Is_IO_Root_RSMPI()) write(6,*) 
      &       ' hx0fp0: tetrahedron mode delta=',delta
       else
@@ -493,7 +493,7 @@ c RS: close hbe.d
       if(nqbz /=nqbzt ) call RSMPI_Stop(' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 c --- q near zero --------
-c      if(debug) print *, 'reading QOP'
+c      if(debug) write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
       if (Is_IO_Root_RSMPI()) write(6,*) ' *** nqibz nq0i=', nqibz,nq0i
@@ -532,7 +532,7 @@ c --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
-      print *,' ngcmx ngpmx=',ngcmx,ngpmx
+      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
 ! --- qibze(3,nqbze) qbze(3,nqibze)
       nqbze  = nqbz *(1 + nq0i)
       nqibze = nqibz + nq0i
@@ -602,7 +602,7 @@ c --- set realomega, imagomega tetra nw niw nwp ifgb0vec ------------
       elseif( epsmode.and.(.not.sergeyv)) then
 c!ixc==2.or.ixc==3.or.ixc==22.or.ixc==23 ) then
          call RSMPI_Stop("epsmode=T and sergeyv=F, this cannot happen")
-         print *, 'mode=',ixc
+         write(6,*) 'mode=',ixc
          realomega =.true.
          imagomega =.false.
          niw = 0
@@ -716,7 +716,7 @@ c     &                           "hx0fp0: dw*(nw-2) > freqr2(nw2-1)"
         nwhis = nw2-1
         allocate(frhis(1:nwhis+1)) 
         frhis = freqr2(1:nwhis+1)
-c        print *,' we set frhis nwhis=',nwhis
+c        write(6,*)' we set frhis nwhis=',nwhis
         if (Is_IO_Root_RSMPI()) write(6,*) ' we set frhis nwhis=',nwhis
 C ... for frhis_m
         nw=nw2-1   ! nw+1 is how many points of real omega we use 
@@ -772,7 +772,7 @@ c RS: removed
       endif
 
 !...get eigenvector corresponds to exp(iqr) (q is almost zero).
-      if(epsmode) then !iepsmode/=0) then ;  print *, ' read in Mix0vec'
+      if(epsmode) then !iepsmode/=0) then ;  write(6,*) ' read in Mix0vec'
         allocate(epsi(nw_i:nw,neps)) !5July2005 nwp should be used after it is defined!
         if(paralellx0) then
           call RSMPI_Stop("paralellx0=T: this cannot happen")
@@ -780,7 +780,7 @@ c RS: removed
         else
           ifgb0vec = iopen ( "Mix0vec",1,3,0) 
         endif
-c        print *, ' read end of Mix0vec'
+c        write(6,*) ' read end of Mix0vec'
         if (Is_IO_Root_RSMPI()) write(6,*) ' read end of Mix0vec'
       endif
 ! ...
@@ -876,7 +876,7 @@ C --- tetra init
      &   ,ekxx1(nband,nqbz),ekxx2(nband,nqbz) !!! nband=nlmto 
      &   )
         if(tmpwwk)  ifwwk = iopen('tmp.wwk',0,-1,0)
-      endif ;  if(debug) print *,' xxx1:'
+      endif ;  if(debug) write(6,*)' xxx1:'
 c ... maximum no. occupied valence states
 c      noccxv     = maxocc (ifev,nspin,ef,  nband,nqbze)
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze)
@@ -903,7 +903,7 @@ c RS: Only IO root opens emesh.hx0fp0
          is = iclose("emesh.hx0fp0")
       endif
 
-c      if(debug) print *,' xxx1aax:'
+c      if(debug) write(6,*)' xxx1aax:'
 
 c ... ppb
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
@@ -946,7 +946,7 @@ c RS: close WV.d
 c RS: opens WVI and WVR
 c this part is moved (just before do(1001)-loop)
 
-c      if(debug) print *,' xxx1a2:'
+c      if(debug) write(6,*)' xxx1a2:'
 c      if    (ixc==101) then
 c         if(paralellx0) then
 c           ifrcwi = iopen('WVI.'//xxt(iqxini,iqxend) ,0,-1,mrecl)
@@ -1000,7 +1000,7 @@ c     &     ,transaf(1:3,ibas)
         enddo
         close(ifianf)
         nspinmx =1
-      endif ;   if(debug) print *,' xxx1b:'
+      endif ;   if(debug) write(6,*)' xxx1b:'
 C... oct2005
       if(smbasis() .and. anfexist) then
 
@@ -1032,7 +1032,7 @@ C --- ppb ---
 !      allocate(ecore(nctot,nspin)) !core energies
       do  is = 1,nspin
 ! <Phi(R,L,n) Phi(R,L',n') B(R,i)> for each spin 
-        if(debug) print *," goto ppbafp is=",is
+        if(debug) write(6,*)" goto ppbafp is=",is
         irot = 1
         call ppbafp_v2 (irot,ngrpx,is,nspin,
      i              il,in,im, nlnm,  
@@ -1042,7 +1042,7 @@ C --- ppb ---
      i                 ppbrd,           
      o              ppb(1,is)) 
       enddo
-      if(debug) print *,' xxx1c:'
+      if(debug) write(6,*)' xxx1c:'
 
 c... Set iqxini 
       if(omitqbz) then
@@ -1111,7 +1111,7 @@ c
       call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
       call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
       
-      if(debug) print *,' xxx1a2:'
+      if(debug) write(6,*)' xxx1a2:'
       if    (ixc==101) then
          call RSMPI_Stop("ixc==101, this cannot happen")
 c RS:removed
@@ -1307,7 +1307,7 @@ c         write(6,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')")
 c     &        iq, is, nqibz + nq0i,nspin
          write(ifile_rsmpi,"(' *** ',2i4,' out of nqibz+n0qi nsp=',2i4,' *** ')") 
      &        iq, is, nqibz + nq0i,nspin
-c         if(debug) print *,' niw nw=',niw,nw
+c         if(debug) write(6,*)' niw nw=',niw,nw
 
 C.. spin chi_charge or chi_+-
          isf=is
@@ -1364,7 +1364,7 @@ c     in the denominator of the dielectric function.
      i        iq,is,isf,nqibz) 
             if(ixc/=4.and.ixc/=6.and.(.not.sergeyv)) deallocate(demin,demax)
             nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
-            if(debug) print *,' nbnbx=',nbnbx
+            if(debug) write(6,*)' nbnbx=',nbnbx
             allocate(  n1b(nbnbx,nqbz,npm)
      &                ,n2b(nbnbx,nqbz,npm))
             do jpm=1,npm
@@ -1377,7 +1377,7 @@ c            if(sum(abs(nbnb-nbnbtt))/=0)stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
             endif
             noccxv = maxval(noccxvx)
             noccx  = nctot + noccxv
-c            print *,' Tetra mode: nctot noccxv= ',nctot,noccxv
+c            write(6,*)' Tetra mode: nctot noccxv= ',nctot,noccxv
             write(ifile_rsmpi,*) ' Tetra mode: nctot noccxv= ',nctot,noccxv
             deallocate(iwgt)
          endif !if(tetra)
@@ -1421,10 +1421,10 @@ C ... make index sets
             do jpm =1,npm
             do ik   = 1,nqbz
             do ibib = 1,nbnb(ik,jpm)
-c             print *,' ik ibib = ',ik,ibib
+c             write(6,*)' ik ibib = ',ik,ibib
 cc              ib1=  n1b(ibib,ik,jpm) 
 cc              ib2 = n2b(ibib,ik,jpm) 
-c              print *,' goto histrange=',ib1,ib2
+c              write(6,*)' goto histrange=',ib1,ib2
 c     &         ,demin(n1b(ibib,ik),n2b(ibib,ik),ik)
 c     &         ,demax(n1b(ibib,ik),n2b(ibib,ik),ik)
                call hisrange( frhis, nwhis,  
@@ -1438,7 +1438,7 @@ c     &         ,demax(n1b(ibib,ik),n2b(ibib,ik),ik)
             enddo
 
             nhwtot = jhwtot-1
-c            print *,' nhwtot=',nhwtot
+c            write(6,*)' nhwtot=',nhwtot
             write(ifile_rsmpi,*)' nhwtot=',nhwtot
             deallocate(demin,demax)
             allocate( whw(nhwtot),   ! histo-weight
@@ -1472,9 +1472,9 @@ c            write(6,*) 'goto tetwt5x_dtet4 job=',job
      o          whw,               ! job=1
      i   iq,is,isf,nqibz) 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$            print *,' nqbz=',nqbz 
+c$$$            write(6,*)' nqbz=',nqbz 
 c$$$            do ik   = 1,nqbz
-c$$$            print *,' nbnb=',ik,nbnb(ik) 
+c$$$            write(6,*)' nbnb=',ik,nbnb(ik) 
 c$$$            do jpm  = 1,npm
 c$$$            do ibib = 1,nbnb(ik,jpm)
 c$$$             ib1  = n1b(ibib,ik,jpm) 
@@ -1628,14 +1628,14 @@ c$$$C... this loop is to calculate Ec for different ecut, ecuts.
 c$$$        do 2005 iecut=1,necut !In usual mode, necut=1
 c$$$c-----------------
 c$$$        if(sergeyv) then !This was in 1003 loop as if(ixc==11.and.is==nspinmx) then
-c$$$          if(debug) print *, ' --- goto dpsion2'
+c$$$          if(debug) write(6,*) ' --- goto dpsion2'
 c$$$          call dpsion2(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
 c$$$     i      ngb, rcxq,     
 c$$$     o      zxq, zxqi, ! zxq... are Not the accumulating variable for spins 
 c$$$     i      nolfco,chipm,is,  rcxqmean,ecut(iecut),ecuts(iecut), !iepsmode,
 c$$$     o      x0mean)
-c$$$          print *,' --- end of dpsion2'
-c$$$          if(epsmode) print *,' end of dpsion sum x0mean',sum(abs(x0mean))
+c$$$          write(6,*)' --- end of dpsion2'
+c$$$          if(epsmode) write(6,*)' end of dpsion sum x0mean',sum(abs(x0mean))
 c$$$c          do iw=1,nwp
 c$$$c            write(6,"(a,i5,2d13.5)")' sumcheck zxq=',iw,sum(abs(zxq(:,:,iw)))
 c$$$c          enddo 

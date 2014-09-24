@@ -79,7 +79,7 @@ c> output file
 
 c loop over spin
       do      is = 1,nspin
-        print *, ' --- is=',is
+        write(6,*) ' --- is=',is
 c read dimensions
         call readx   (ifsex(is),50)
         read (ifsex(is),*) nspinx,nqx,ntqx
@@ -113,8 +113,8 @@ Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqc)      stop 'hqpe: wrong ntq SE
 Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqxc)     stop 'hqpe: wrong ntq vxc'
         if (ntq .ne. ntqxc)     call rx( 'hqpe: wrong ntq vxc')
 c
-        if(is==1) print *,' ###  readin XCU'
-        if(is==2) print *,' ###  readin XCD'
+        if(is==1) write(6,*)' ###  readin XCU'
+        if(is==2) write(6,*)' ###  readin XCD'
         allocate( itxc(ntq),qxc(3,ntq,nq),eldaxc(ntq,nq),vxc(ntq,nq) )
         call readx (ifxc(is),50)
         read(ifxc(is),*)
@@ -126,8 +126,8 @@ c
           enddo
         enddo
 c
-        if(is==1) print *,' ###  readin SEXU'
-        if(is==2) print *,' ###  readin SEXD'
+        if(is==1) write(6,*)' ###  readin SEXU'
+        if(is==2) write(6,*)' ###  readin SEXD'
         allocate( itx(ntq), qx (3,ntq,nq),eldax (ntq,nq),sex(ntq,nq) )
         call readx   (ifsex(is),50)
         read(ifsex(is),*)
@@ -139,8 +139,8 @@ c
           enddo
         enddo
 c
-        if(is==1) print *,' ###  readin SEXcoreU'
-        if(is==2) print *,' ###  readin SEXcoreD'
+        if(is==1) write(6,*)' ###  readin SEXcoreU'
+        if(is==2) write(6,*)' ###  readin SEXcoreD'
         allocate( sexcore(ntq,nq) )
         call readx   (ifsexcore(is),50)
         call readx   (ifsexcore(is),50)
@@ -152,8 +152,8 @@ c
           enddo
         enddo
 c
-        if(is==1) print *,' ###  readin SECU'
-        if(is==2) print *,' ###  readin SECD'
+        if(is==1) write(6,*)' ###  readin SECU'
+        if(is==2) write(6,*)' ###  readin SECD'
         allocate( itc(ntq), qc (3,ntq,nq),eldac (ntq,nq)
      &                  ,rsec(3,ntq,nq),csec(3,ntq,nq),zfac(ntq,nq))
         call readx   (ifsec(is),50)
@@ -174,7 +174,7 @@ c
      &     rsec(1:3,i,ip),csec(1:3,i,ip),zfac(i,ip)
           endif  
 c
-c      print *," itc=",itc(i)
+c      write(6,*)" itc=",itc(i)
           enddo
         enddo
 

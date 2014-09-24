@@ -418,7 +418,7 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
       call dinv33(qbas,0,qbasinv,det) 
 
 c work arrays for psi2br.f
-c      if(debug) print *, ' sxcf: 1'
+c      if(debug) write(6,*) ' sxcf: 1'
       allocate(expikt(natom))
 
 c read eval and eigen
@@ -428,14 +428,14 @@ c read eval and eigen
       else ! lwang
       call  readcphi(q, nlmto,isp, quu, cphikq)
       endif ! lwang
-c      if(debug) print *, ' sxcf: 2'
+c      if(debug) write(6,*) ' sxcf: 2'
 
 c eigenfunction for itp at q
       do      it = 1,ntq
         itp        = itq(it)
         cphiq(1:nlmto,it) = cphikq(1:nlmto,itp)
       enddo
-c     if(debug) print *, ' sxcf: 3'
+c     if(debug) write(6,*) ' sxcf: 3'
        
       if(bzcase()==1) then
         if(abs(sum(qibz(:,1)**2))/=0d0) then
@@ -460,7 +460,7 @@ c loop over irreducible k-points
 c===============================
 ccccccccccccccccccccccccccccccccc
 c      iii = ivsumxxx(irk,nqibz*ngrp)
-c      print *,' sxcf:sum non-zero irk=',iii
+c      write(6,*)' sxcf:sum non-zero irk=',iii
 c      stop "sss"
 c     
 ccccccccccccccccccccccccccccccccc 
@@ -511,7 +511,7 @@ cccccccccccccccc
 c      iqend=nqibz
 c      if(test_omitq0p()) then
 c        iqend=nqibz
-c        print *,'iqend=',iqend
+c        write(6,*)'iqend=',iqend
 c      endif  
 cccccccccccccccccccccccccccc
 
@@ -545,7 +545,7 @@ c          kr= iqindx((/0d0,0d0,0d0/), ginv, qbz,  nqbz)
           qbz_kr= 0d0
         endif
 c        ngc = ngcni(k)  ! k-points in IBZ
-c        print *, ' k ngc=',k,ngc
+c        write(6,*) ' k ngc=',k,ngc
 c        ngb = nbloch + ngcni(k)
 
         call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
@@ -576,10 +576,10 @@ c RS: this cannot happen..
           kount(kx,ip)= kount(kx,ip) + 1 ! count the no. times k
                                              ! appears in the 1st BZ
 cccccccccccccccccccccccccccccccccccccccccccccccccc
-c         print *,' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
+c         write(6,*)' irot,ip, k, kount in  =',irot, ip, k, kount(k,ip)
 c          deallocate(vcoul)
 c          cycle
-c          print *,' kount out =',kount(k,ip)
+c          write(6,*)' kount out =',kount(k,ip)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
           if (kount(kx,ip) > nstar(kx)) then
             call RSMPI_Stop('sexc: too many stars')
@@ -607,7 +607,7 @@ c bring q-rk into the 1st BZ ==> qfbz labelled by kp
 c         call fbz2(qk, ginv,index_qbz,n_index_qbz, qbz,nqbz, !qbz=rk
 c     o                qfbz,kp)
 
-c        if(debug)  print *,'xxx2',kp,qk,n1,n2,n3,qbas,ginv
+c        if(debug)  write(6,*)'xxx2',kp,qk,n1,n2,n3,qbas,ginv
 c read eigenvalues,b and hb at q-rk
 c        call rwdd1   (ifev, kp,nband,ekq)
         call readeval(qk, isp, ekq)
@@ -673,8 +673,8 @@ c equivalent with above phase
           expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
         end do
 c
-        if(debug) print *, ' sxcf: tr=',tr
-        if(debug) print *, ' sxcf: goto psicb2'
+        if(debug) write(6,*) ' sxcf: tr=',tr
+        if(debug) write(6,*) ' sxcf: goto psicb2'
 c> matrix elements
 c>> core
         nt   = nctot + nbmax    ! = nstate for the case of correlation
@@ -689,7 +689,7 @@ c>> core
      d              mdimx,nlmto,nbloch,nlnmx,nt,ntp0,natom,nclass,
      d              nl,nnc,                ! nt,ntp0 denotes dimenstion of rmel
      o              zzmel) !rmel,cmel)
-        if(debug)  print *, ' sxcf: goto psi2bc1'
+        if(debug)  write(6,*) ' sxcf: goto psi2bc1'
 c>> valence        
         call psi2b_v2 (nbmax, ntp0, iclass,
      i    dreal(expikt(1:natom)),dimag(expikt(1:natom)),
@@ -722,7 +722,7 @@ cccccccccccccccccccccccccccccccccccccccccccccc
 c-plane
         allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
      &            cmelt(ngb, nctot+nbmax, ntp0))
-        if(debug) print *, ' sxcf_fal2: goto drvmelp'
+        if(debug) write(6,*) ' sxcf_fal2: goto drvmelp'
 c        call drvmelp( iq,   ntp0, ! q in FBZ
 c     i                kp, nbmax,  ! q-rk
 c     i                k,          ! k in IBZ for e-product basis
@@ -808,7 +808,7 @@ c      allocate( zmel (ngb, nctot+nbmax, ntp0), aaa(ngb))
 c      zmel = dcmplx (rmelt,-cmelt)
 c      ifix=9090
 c      open (ifix,file='zvz_test')
-c      print *,' ======= goto zvz test  ========='
+c      write(6,*)' ======= goto zvz test  ========='
 c      do ib1=1,nctot+nbmax
 c      do ib2=1,ntp0
 c! zmelt*vcoul
@@ -829,7 +829,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
 c A matrix element check in Si. See the corresponding section of x0kf.f
 c      write(6,"(3f13.5)") q         !ntp0
 c      write(6,"(3f13.5)") qbz(:,kr) !product basis
-c      print *,' sxcf: sumcheck rmelt cmelt='
+c      write(6,*)' sxcf: sumcheck rmelt cmelt='
 c     &   ,sum(rmelt(1:ngb,4,1))
 c     &   ,sum(cmelt(1:ngb,4,1))
 c     &   ,sum(abs(rmelt(1:ngb,4,1)))
@@ -846,7 +846,7 @@ c      do  it  = 1,nstate
 c      itp=1
 c      it =1
 c     do  itp = 1,ntp0
-c      print *,' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
+c      write(6,*)' ngb nbloch ngc =',ngb,nbloch,ngcni(k)
 c      do  ibl  = 1,ngb
 c        write(6,"(' rmelt cmelt =',3i4,4d14.6)")it,itp,ibl
 c     &  ,rmelt(ibl,it,itp) ,cmelt(ibl,it,itp)
@@ -914,7 +914,7 @@ ctm, 070621
      &         z1p, ngb,ngb,(nctot+nbmax)*ntp0 )
           deallocate(vcoult, zmel)
 
-c         print *,' nctot nbmax=',nctot,nbmax
+c         write(6,*)' nctot nbmax=',nctot,nbmax
           do itp = 1,ntp0
             do it  = 1,nctot+nbmax
               w3p(it,itp) = sum ( dreal(z1p(:,it,itp))*rmelt(:,it,itp)
@@ -937,7 +937,7 @@ ctm, 070621
 
 cccccccccccccccccccccccccccccccccccc
 c test
-c          print *,'nctot=',nctot
+c          write(6,*)'nctot=',nctot
 c          do it=1,nctot+nbmax
 c            if(ekc(it)<-6d0) w3p(it,:)=0d0
 c          enddo
@@ -997,7 +997,7 @@ c--- Correct weigts wfac for valence by esmr
           do it = nctot+1, nctot+nbmax
 cgaussian
             wfac = wfacx(-1d99, ef, ekc(it), esmr)
-c          if(debug) print *, ' it wfac=',it, wfac,ef, ekc(it), esmr
+c          if(debug) write(6,*) ' it wfac=',it, wfac,ef, ekc(it), esmr
             write(ifile_rsmpi,*) ' it wfac=',it, wfac,ef, ekc(it), esmr
             w3p(it,1:ntp0) = wfac * w3p(it,1:ntp0)
 ctm, 070621
@@ -1059,7 +1059,7 @@ c--- The matrix elements zmel.
         zmel = dcmplx (rmelt,-cmelt)
         deallocate(rmelt,cmelt)
 
-c      if(debug) print *,' end of zmel'
+c      if(debug) write(6,*)' end of zmel'
 c================================================================
 c The correlated part of the self-energy:
 c S[n=all] S[i,j=1,nbloch] 
@@ -1086,7 +1086,7 @@ cccccccccccccccccccccccccccccccccc
 c        kxx=34
 c        ix=22
 c        nrec= (kxx-1)*nw+ix
-c        print *,' xxx wvr3 nrec=',nrec,nblochpmx,kxx,ix,nw
+c        write(6,*)' xxx wvr3 nrec=',nrec,nblochpmx,kxx,ix,nw
 c        read(ifrcw,rec=nrec) zw 
 c        stop 'test end xxxxxxxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccc 
@@ -1239,7 +1239,7 @@ c       if(.false.) then
 c        do ix = 1,nx     ! imaginary frequency w'-loop         !********* faleev
 c         nrec=(kx-2)*niw+ix
 c         if(bzcase()==2) nrec= (kx-1)*niw+ix
-c         if(debug) print *,' wvi2 nrec=',nrec
+c         if(debug) write(6,*)' wvi2 nrec=',nrec
 c         read(ifrcwi,rec=nrec) zw  ! Readin W-v on imag axis 
 c
 cc zwz= S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> 
@@ -1482,12 +1482,12 @@ ctm, 070621
         if(ua_auto) deallocate(uaa)
 ccccccccccccccccccccccccccccccccccccc
 c        if(onlyimagaxis()) then
-c          print *,' sxcf_fal2: onlyimagaxis cycle'
+c          write(6,*)' sxcf_fal2: onlyimagaxis cycle'
 c          deallocate(freq_r,zmel,zw,zmel1)
 c         goto 1100
 c        endif
 c        if(testimx) then
-c          print *,' sxcf_fal2: testimx cycle'
+c          write(6,*)' sxcf_fal2: testimx cycle'
 c          deallocate(freq_r,zmel,zw,zmel1)
 c         goto 1100
 c        endif
@@ -1503,7 +1503,7 @@ c        stop 'cccccccccccccccccccccccccccccccccccccccccccc'
 c===============================================================================
 c contribution to SEc(qt,w) from the poles of G
 c===============================================================================
-        if(debug) print *,' go to poles'
+        if(debug) write(6,*)' go to poles'
 
 C... Check freq_r for nw_i case. 
 !    We assume freq_r(i) == -freq_r(-i) in this code. feb2006
@@ -1517,8 +1517,8 @@ C... Check freq_r for nw_i case.
 c---------------------------------------
 c maximum ixs reqired.
 c---------------------------------------
-c      print *,' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)
-c      print *,'  nt0p nt0m+1=', nt0p, nt0m+1
+c      write(6,*)' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)
+c      write(6,*)'  nt0p nt0m+1=', nt0p, nt0m+1
         ixsmx =0
         ixsmin=0
         do 3001 iw  = iwini,iwend
@@ -1545,7 +1545,7 @@ cgaussian
 
 c             if(it<=nctot) then
 c               if(wfac>wfaccut) then
-c                 print *,' debug info aaa1:',wfac,wfaccut,it,nctot
+c                 write(6,*)' debug info aaa1:',wfac,wfaccut,it,nctot
 c                 stop "sxcf: it<=nctot.and.wfac/=0"
 c               endif  
 c             endif
@@ -1617,7 +1617,7 @@ c              write(6,"(' iwp freq_r we=',i5,f13.5,f13.5)") iwp,freq_r(iwp),we
           if (nwxi < nw_i) then 
             call RSMPI_Stop(' sxcf nwxi check: |w-e| > max(w)')
           endif
-c      if(debug) print *,'nw, nwx=',nw,nwx
+c      if(debug) write(6,*)'nw, nwx=',nw,nwx
           write(ifile_rsmpi,*) 'nw, nwx=',nw,nwx
 
 
@@ -1647,7 +1647,7 @@ c           we   = abs( 0.5d0*(esec - ekc(it)) )
               endif
  4001       continue            !end of  w and qt -loop 
 c        if(nt0p>nt_max) then
-c           print *, ' nt0p, nt_max=',nt0p,nt_max
+c           write(6,*) ' nt0p, nt_max=',nt0p,nt_max
 c        endif
    
 C... Set zw3 or zwz -----------------------------------
@@ -1915,7 +1915,7 @@ c three-point interpolation for Wc(we)
             if(freq_r(iwp)>we) exit
            enddo    
            if(ixs+1>nwx) then
-            if (Is_IO_Root_RSMPI())print *,' ixs+1=',ixs,we,nwx,dw
+            if (Is_IO_Root_RSMPI())write(6,*)' ixs+1=',ixs,we,nwx,dw
             call RSMPI_Stop(' sxcf: ixs+1>nw xxx1')
            endif
 cccccccccccccccccccccccccc
@@ -2023,7 +2023,7 @@ c--------------
          enddo
         endif
  2501   continue  !end of SEc w and qt -loop 
-        if(debug.and.Is_IO_Root_RSMPI()) print *,' end of do 2501'
+        if(debug.and.Is_IO_Root_RSMPI()) write(6,*)' end of do 2501'
       endif !loffd
 !
           write(ifile_rsmpi,'("11 after alagr3z iw,itp,it cycles ",$)') 
@@ -2047,8 +2047,8 @@ c     if(smbasis()) isx = iclose("POmat")
 
 c      call rlse (iwr1)
 ccccccccccccccccccccccccccccc
-c      print *," end kount ip irot=", irot, ip, sum(kount(:,ip)) 
-c       print *," sumkount 1=",irot,ip,sum(kount(:,:)) 
+c      write(6,*)" end kount ip irot=", irot, ip, sum(kount(:,ip)) 
+c       write(6,*)" sumkount 1=",irot,ip,sum(kount(:,:)) 
 cccccccccccccccccccccccccccc
       if (tote) then 
         call RSMPI_Stop("sxcf_RSMPI,tote==T")
@@ -2060,8 +2060,8 @@ c         endif
       endif
 c      call rlse (iwr1)
 ccccccccccccccccccccccccccccc
-c      print *," end kount ip irot=", irot, ip, sum(kount(:,ip)) 
-c       print *," sumkount 1=",irot,ip,sum(kount(:,:)) 
+c      write(6,*)" end kount ip irot=", irot, ip, sum(kount(:,ip)) 
+c       write(6,*)" sumkount 1=",irot,ip,sum(kount(:,:)) 
 cccccccccccccccccccccccccccc
       return
       if (allocated(rmelt)) deallocate(rmelt)
@@ -2131,8 +2131,8 @@ ctm, 081021
       integer(4)::iko_ix,iko_fx,nwf
       complex(8):: umn(iko_ix:iko_fx,nwf)
 c
-c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) print *,' drvmelp2:'
+c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
+      if(verbose()>50) write(6,*)' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ 
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
@@ -2143,7 +2143,7 @@ ctm, 081021
       call readgeig(q_rk, ngpmx, isp, qu2, geig2)
       if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
-      if(verbose()>=100) print *,' end of read geig '
+      if(verbose()>=100) write(6,*)' end of read geig '
 
 c     ngc  = ngcni(k)  ! k-points in IBZ
 c      allocate( geigq(ngp1,ntp0) )
@@ -2151,14 +2151,14 @@ c      do itx = 1,ntp0
 c        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
 c      enddo
 
-c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
+c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
 c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp) 
       qdiff = matmul(symope,qik)  - qt + q_rkt 
                            ! rk    -q  +(q-rk) is not zero.
       add  = matmul(qbasinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
       if(sum(abs(add-nadd))>1d-7) then
-        print *,' drvmelp qdiff',qdiff
+        write(6,*)' drvmelp qdiff',qdiff
         write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
      &  add,nadd,abs(add-nadd)
         stop "drvmlp: abs(add-nadd))>1d-10"

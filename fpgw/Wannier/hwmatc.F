@@ -186,7 +186,7 @@ c---------------------------------------
       hartree=2d0*rydberg()
 
       iii=verbose()
-      print *,' verbose=',iii
+      write(6,*)' verbose=',iii
 
 c mode switch. --------------
       write(6,*) ' --- Choose omodes below ----------------'
@@ -209,12 +209,12 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
-      print *,' nqbz  =',nqbz
-c      print *,  qbz 
-      print *,' nqibz ngrp=',nqibz,ngrp
-c      print *,' irk=',irk
-c      print *,' #### idtetf: ####'
-c      print *, idtetf
+      write(6,*)' nqbz  =',nqbz
+c      write(6,*)  qbz 
+      write(6,*)' nqibz ngrp=',nqibz,ngrp
+c      write(6,*)' irk=',irk
+c      write(6,*)' #### idtetf: ####'
+c      write(6,*) idtetf
 
 c set up work array
 c      call wkinit (iwksize)
@@ -255,7 +255,7 @@ c-------------------------------------------------------------------
 c      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
-      print *,' hsfp0: end of genallcf2'
+      write(6,*)' hsfp0: end of genallcf2'
 c
       call pshprt(30)
       pi   = 4d0*datan(1d0)
@@ -339,7 +339,7 @@ c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should 
       open (102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      print *,'  --- Readingin CLASS info ---'
+      write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
@@ -356,7 +356,7 @@ c     o               ngpmx,ngcmx,nxx )
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
-      print *,' ngcmx ngpmx=',ngcmx,ngpmx
+      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
       allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),
      &   ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
      &   cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
@@ -394,7 +394,7 @@ c for info
       call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
       deallocate(ngvecp,ngvecc)
 
-      print *, ' end of read QGcou' 
+      write(6,*) ' end of read QGcou' 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      iqx=1
@@ -482,14 +482,14 @@ c
      i        qbz,nqbz !index_qbz, n_index_qbz,
      o       ,efnew)
 c
-c        print *,' end of efsimple'
+c        write(6,*)' end of efsimple'
 c        ef = efnew
 c- check total ele number -------
         ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-        print *,' ef    =',ef
-        print *,' esmr  =',esmr
-        print *,' valn  =',valn
-        print *,' ntot  =',ntot
+        write(6,*)' ef    =',ef
+        write(6,*)' esmr  =',esmr
+        write(6,*)' valn  =',valn
+        write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
@@ -521,7 +521,7 @@ c        endif
       else
         ifqpnt  = iopen('QPNT'//xt(nz),1,0,0)
       endif
-      print *,' ifqpnt ret=',ifqpnt,ret
+      write(6,*)' ifqpnt ret=',ifqpnt,ret
 
 c read q-points and states
 c ---
@@ -601,7 +601,7 @@ ctm, 070814
       write(*,'(a7,i7)')'nrws  =',nrws
 
 c ---  q near zero
-      print *, 'reading QOP'
+      write(6,*) 'reading QOP'
       open (101,file='Q0P')
       read (101,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
@@ -652,7 +652,7 @@ c      do      ip = 1,nq
 cc        iq       = idxk (q(1,ip),qbze,nqbze)
 cc        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
 c        call readeval(q(1,ip),is,eqt)
-cc        print *,' eqt=',eqt
+cc        write(6,*)' eqt=',eqt
 c        eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
 c        eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
 c      enddo
@@ -686,7 +686,7 @@ c
 
 C... Read pomatr
       if(smbasis()) then
-        print *,' smooth mixed basis : augmented zmel'
+        write(6,*)' smooth mixed basis : augmented zmel'
         call getngbpomat(nqibz+nq0i,
      o  nnmx,nomx)
         nkpo = nqibz+nq0i
@@ -826,7 +826,7 @@ c     i        omega, iwini,iwend,
 c         write(*,*) 'wmatq out'
 cccccccccccccccccccccccccccccccccccccccccc
 c        iii = ivsum(kount,nqibz*nq)
-c        print *," sumkount 2=",nqibz,nq,iii
+c        write(6,*)" sumkount 2=",nqibz,nq,iii
 c        stop "--- kcount test end --- "
 cccccccccccccccccccccccccccccccccccccccccc
 c< end of q-loop
@@ -841,7 +841,7 @@ c      if (debug) write(*,*) 'do-rot out'
 c check that all k { FBZ have been included
 c      if (ivsum(kount,nqibz*nq) /= nqbz*nq) then
 c        iii = ivsum(kount,nqibz*nq)
-c        print *," ivsum=",iii, nqbz*nq 
+c        write(6,*)" ivsum=",iii, nqbz*nq 
 c        stop 'hsfp0: missing k-pts'
 c      endif
 

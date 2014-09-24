@@ -60,7 +60,7 @@ c        do ip2=1,2
 c          ioff(ip1,ip2) =  ip1+ 2*(ip2-1)+ 4*(ic-1) + 4*nclass*(isp-1)
 c        enddo
 c        enddo
-c     print *, ' ic lx=',ic, lx(ibas)
+c     write(6,*) ' ic lx=',ic, lx(ibas)
 
 !! loop over product basis
         i = 0 !i = product basis index.
@@ -89,8 +89,8 @@ c loop over LMTO basis
 cccccccccccccccccccccccccccccccc
 c        do j1=1,2;doj2=1,2
 c        if(abs(ppbrd(l,n, lp,np, lb,nb, ioff(j1,j2))) >1d10) then
-c          print *, abs(ppbrd( l,n, lp,np, lb,nb, ioff(j1,j2)))
-c          print *, l,n, lp,np, lb,nb, ioff(j1,j2)
+c          write(6,*) abs(ppbrd( l,n, lp,np, lb,nb, ioff(j1,j2)))
+c          write(6,*) l,n, lp,np, lb,nb, ioff(j1,j2)
 c          stop
 c        endif
 c       enddo; enddo
@@ -138,7 +138,7 @@ c     dpb =0d0
 c     ddb =0d0
 ccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccc
-c     print *,' ppbafp x sum ppb',sum(ppb)
+c     write(6,*)' ppbafp x sum ppb',sum(ppb)
 c     stop
 cccccccccccccccccccccccccccccccccccccccccccc
       end
@@ -168,7 +168,7 @@ c inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
 c Injcg = indxcg(inxcg) to indxcg(inxcg)-1
 c cg(inxcg)  : = <lm3|lm1 lm2>
 c jcg(lnjcg) : = lm3
-      print *,' rotcg:'
+cc      write(6,*)' rotcg:'
 c      do ig=1,ng
 c      write(6,*)' transposed symope ig  =',ig
 c     write(6,'(3f12.6)') symops(1:3,ig)
@@ -213,7 +213,7 @@ c----
         enddo
       enddo
 ccccccccccccccccccccccccccccccccc
-c      print *,' cgn=',cgn(1,1,1),1/sqrt(4*3.1415926) !=1d0
+c      write(6,*)' cgn=',cgn(1,1,1),1/sqrt(4*3.1415926) !=1d0
 c      stop
 ccccccccccccccccccccccccccccccccc
 
@@ -242,7 +242,7 @@ c        cgr(lm1,lm2,lm,ig) = sumr
         enddo
       enddo
       deallocate( cg,dlmm,cgn,jcg,indxcg)
-      print *,' rotcg end:'
+cc      write(6,*)' rotcg end:'
       end
 
 c$$$c-------------------------------------------------------
@@ -272,7 +272,7 @@ c$$$     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
 c$$$     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
 c$$$     & ,pi=3.1415926535897932D0
 c$$$      complex(8) :: geigB  (ngpmx,nband,nqbz)
-c$$$c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
+c$$$c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
 c$$$      ngp1 = ngpn(iq)  ! q        in FBZ
 c$$$      ngp2 = ngpn(kp)  ! q-rk     in FBZ
 c$$$c     ngc  = ngcni(k)  ! k-points in IBZ
@@ -280,10 +280,10 @@ c$$$      allocate( geigq(ngp1,ntp0), zmelpl(ngc,nt0,ntp0) )
 c$$$      do itx = 1,ntp0
 c$$$        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
 c$$$      enddo
-c$$$c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
+c$$$c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
 c$$$      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
 c$$$      ! rk          -q          +(q-rk) is not zero.
-c$$$c     print *,' drvmelp qdiff',qdiff
+c$$$c     write(6,*)' drvmelp qdiff',qdiff
 c$$$      add  = matmul(qbasinv,qdiff)
 c$$$      nadd = idint( add + dsign(.5d0,add))
 c$$$c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)')
@@ -318,7 +318,7 @@ c$$$     &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
 c$$$      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =
 c$$$     &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c      print *,' !!!!!! NO PLANE WAVE !!!'
+c$$$c      write(6,*)' !!!!!! NO PLANE WAVE !!!'
 c$$$c      return
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c extensiton to nbloch+ngc
@@ -368,19 +368,19 @@ c-----------------------------------------------------
       if(verbose()>=90) debug=.true.
 !TIME0
 c
-c      print *,' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) print *,' drvmelp2:'
+c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
+      if(verbose()>50) write(6,*)' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
       call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp1,q,qt      ,sum(abs(ngvecpB1(:,1:ngp1)))
 c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(ngvecpB2(:,1:ngp2)))
-      if(debug) print *,'drvmelp2: goto readgeig'
+      if(debug) write(6,*)'drvmelp2: goto readgeig'
       call readgeig(q,    ngpmx_in, isp, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
 !TIME1 "after readgeig q q_rk"
-      if(debug) print *,'drvmelp2: endof readgeig'
+      if(debug) write(6,*)'drvmelp2: endof readgeig'
 c      qu1=qt
 c      qu2=q_rkt
 c      geig1=0d0
@@ -390,14 +390,14 @@ c     &       geig1(1:ngp1,itp0(1:ntp0)))), ntp0  ! q1=q    ---> iq ngp1 1:ntp0 
 c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp2,q_rk,q_rkt,sum(abs(
 c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occupied
 cc      allocate( zmelpl(ngc,nt0,ntp0) )
-c      print *,'test 888888888888888888888',ngc,nt0,ntp0
+c      write(6,*)'test 888888888888888888888',ngc,nt0,ntp0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0
 Cstop2rx 2013.08.09 kino      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
       if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
 Cstop2rx 2013.08.09 kino      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
       if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
-      if(debug) print *,' drvmelp2:end of read geig '
+      if(debug) write(6,*)' drvmelp2:end of read geig '
 
 c     ngc  = ngcni(k)  ! k-points in IBZ
 c      allocate( geigq(ngp1,ntp0) )
@@ -405,7 +405,7 @@ c      do itx = 1,ntp0
 c        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
 c      enddo
 
-c     print *,' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
+c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
 c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
       qdiff = matmul(symope,qik)  - qt + q_rkt
       ! rk    -q  +(q-rk) is not zero.
@@ -413,14 +413,14 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
       add  = matmul(qbasinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
       if(sum(abs(add-nadd))>1d-7) then
-        print *,' drvmelp qdiff',qdiff
+        write(6,*)' drvmelp qdiff',qdiff
         write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
      &  add,nadd,abs(add-nadd)
 Cstop2rx 2013.08.09 kino        stop "drvmlp: abs(add-nadd))>1d-10"
         call rx( "drvmlp: abs(add-nadd))>1d-10")
       endif
 
-      if(debug) print *,' goto alloc zmelpl'
+      if(debug) write(6,*)' goto alloc zmelpl'
       allocate( zmelpl(ngc,nt0,ntp0) )
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c      if(.false.) then !old version
@@ -440,10 +440,10 @@ c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occup
 c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
 c     o       zmelpl)
 c       endif
-      if(debug) print *, 'drvmelp2:goto melpln2'
+      if(debug) write(6,*) 'drvmelp2:goto melpln2'
 ccccccccccccccccccc
-c      print *, 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
-c      print *, 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
+c      write(6,*) 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
+c      write(6,*) 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
 ccccccccccccccccccccccccccccccccccc
 !TIME1 "before drv melpln2t"
 !TIME0 
@@ -457,7 +457,7 @@ ccccccccccccccccccccccccccccccccccc
      o       zmelpl)
 !TIME1 "after drv melpln2t"
 !TIME0 
-      if(debug) print *,'end of melpln2t'
+      if(debug) write(6,*)'end of melpln2t'
 
  8888 continue
 c     deallocate(geig1,geig2)
@@ -473,7 +473,7 @@ cc extensiton to nbloch+ngc
       cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
      & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       deallocate(zmelpl)
-      if(debug) print *,'end of drvmelp2'
+      if(debug) write(6,*)'end of drvmelp2'
 !TIME1 "end drvmelpln2t"
       end
 
@@ -499,7 +499,7 @@ cr See the variable sumchck.
       logical:: debug=.false.
 c
       if(verbose()>=100) debug=.true.
-      if(debug) print *,' rotgvec: '
+      if(debug) write(6,*)' rotgvec: '
       call dinv33(qbas,0,qbasinv,det)
 !      symops = grp(:,:,irot)
       if(debug) write(6,'(3f12.6)') symops(1,1:3)
@@ -507,11 +507,11 @@ c
       if(debug) write(6,'(3f12.6)') symops(3,1:3)
 
       rotnvg = matmul(qbasinv,matmul(symops,qbas))
-      if(debug) print *, 'sum rotnvg=',sum(rotnvg),ngcmx,ngcn(1:nqibz)
+      if(debug) write(6,*) 'sum rotnvg=',sum(rotnvg),ngcmx,ngcn(1:nqibz)
       sumchk  =0d0
 c      sumchk2 =0d0
       do iq  = 1, nqibz
-        if(debug) print *,' iq=',iq, ' sum ngveccB=', sum(abs(ngveccB(1:3,1:ngcn(iq), iq)))
+        if(debug) write(6,*)' iq=',iq, ' sum ngveccB=', sum(abs(ngveccB(1:3,1:ngcn(iq), iq)))
         do igc = 1, ngcn(iq)
           vec  = matmul( rotnvg, ngveccB(1:3,igc, iq))
 ! vec should be the almost integer and ngveccBr = vec.
@@ -537,17 +537,17 @@ c     &     qrot + matmul(qbas, ngveccBr(1:3, igc, iq)) ))
 c        enddo
 cccccccccccccccc
 ccccccccccccccc
-        if(debug) print *," rotgvec: nmin nmax="
+        if(debug) write(6,*)" rotgvec: nmin nmax="
      & ,minval(ngveccBr(1:3, 1:ngcn(iq), iq))
      & ,maxval(ngveccBr(1:3, 1:ngcn(iq), iq))
 ccccccccccccccc
       enddo
       if(abs(sumchk)/nqibz/minval(ngcn)>1d-4) then
-        print *," rotgvec: sum chk error sumchk=",sumchk
+        write(6,*)" rotgvec: sum chk error sumchk=",sumchk
 Cstop2rx 2013.08.09 kino        stop "rotgvec: sum chk error >1d-4"
         call rx( "rotgvec: sum chk error >1d-4")
       endif
-c      print *,' rotgvec: sumcheck',sumchk !,sumchk2
+c      write(6,*)' rotgvec: sumcheck',sumchk !,sumchk2
 c      stop "rotgvec: test end"
       end
 
@@ -561,7 +561,7 @@ c wgt0(irreducible-k, irotation)
       integer(4) :: ixx,ix,i, ngrp,ig,nq0i
       real(8)     :: q0(3,6),q0i(3,6),symops(3,3,ngrp),sym(3,3),
      &   qt(3), q0in(3,ngrp*nq0i), wgt0(nq0i,ngrp)
-c      print *,' q0iwgt:'
+c      write(6,*)' q0iwgt:'
       wgt0 = 0d0
       ixx = 0
       do i = 1,nq0i
@@ -616,7 +616,7 @@ c-----------------------------------------------------
      & ,pi=3.1415926535897932D0
 c      inum =0
 c
-c      print *,' melpln: sht nadd=',shtv,nadd
+c      write(6,*)' melpln: sht nadd=',shtv,nadd
       do igc = 1,ngc
         qg(1:3) = 2*pi * (q(1:3)+ matmul(qbas, ngvecc(1:3,igc)))
         phase(igc) = exp(img*sum(qg*shtv))
@@ -725,11 +725,11 @@ c      if(verbose()>=100)
 cccccccccccccccccccccc
 c      nadd=0
 cccccccccccccccccccccc
-      if(debug) print *,' melpln2t: nadd=',nadd
+      if(debug) write(6,*)' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
-      if(verbose()>=100) print *,' melpln2t: end of getppx2'
+      if(verbose()>=100) write(6,*)' melpln2t: end of getppx2'
       if(ngc/=ngcread) then
-         print *,qi,ngcread,ngc
+         write(6,*)qi,ngcread,ngc
          call rx( 'melpln2: ngc/= ngcx by getppx:PPOVLG')
       endif   
       ngcgp2=ngcgp
@@ -757,7 +757,7 @@ cccccccccccccccccccccc
      & nggg, nxminggg,nxmaxggg,nyminggg,nymaxggg,nzminggg,nzmaxggg
       allocate( igggi(nxminggg:nxmaxggg,nyminggg:nymaxggg,nzminggg:nzmaxggg) )
       igggi = -100000
-      if(verbose()>=100) print *,' melpln2t: goto do igggi'
+      if(verbose()>=100) write(6,*)' melpln2t: goto do igggi'
       do iggg =1,nggg
         igggi(nvggg(1,iggg),nvggg(2,iggg),nvggg(3,iggg)) = iggg
       enddo
@@ -765,15 +765,15 @@ cccccccccccccccccccccc
 !! NOTE: nvgcgp2(:,igcgp2) means symope(Gc)+ G2
       allocate(ngveccR(1:3,1:ngc))
       ngcs(1) = ngc
-      if(verbose()>=100) print *,' melpln2t: goto rotation of ngvecc xxxx'
+      if(verbose()>=100) write(6,*)' melpln2t: goto rotation of ngvecc xxxx'
       call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
      o    ngveccR) 
 !TIME1 "end of rotgvec"
 !TIME0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
-c$$$!!      print *,'--- goto simple case for debug---'
-c$$$      print *,'fffffff: ngc ngp1 ngp2=',ngc,ngp1,ngp2
+c$$$!!      write(6,*)'--- goto simple case for debug---'
+c$$$      write(6,*)'fffffff: ngc ngp1 ngp2=',ngc,ngp1,ngp2
 c$$$      zmelp0 = 0d0
 c$$$      do igc=1,ngc
 c$$$        phas =exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) ) !conjg
@@ -794,7 +794,7 @@ c$$$      enddo
 c$$$      call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
 c$$$      return
 ccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(verbose()>=100) print *,' melpln2t: godo igp1 loop'
+      if(verbose()>=100) write(6,*)' melpln2t: godo igp1 loop'
       allocate(ggitp(ntp0,ngcgp2))
       ggitp = 0d0
 !$OMP parallel private(nn,iggg)
@@ -803,13 +803,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       do igcgp2= 1,ngcgp2 !for ngc+ngp2 
          nn = ngvecp1(:,igp1)- nvgcgp2(:,igcgp2) - nadd 
          ! G1 -(Gc+G2) - Gadd !  -Gadd= -rk + qt -q_rk
-c         print *,' nn=',nn
+c         write(6,*)' nn=',nn
          if(nn(1)<nxminggg .or. nxmaxggg<nn(1) ) cycle
          if(nn(2)<nyminggg .or. nymaxggg<nn(2) ) cycle
          if(nn(3)<nzminggg .or. nzmaxggg<nn(3) ) cycle
          iggg = igggi(nn(1),nn(2),nn(3))
          if(iggg<0) cycle
-c         print *,'iggg=',iggg,nggg
+c         write(6,*)'iggg=',iggg,nggg
 !! ggg(iggg) = <qt+G1 -(rk+Gc) -(q_rk+G2) >, where 
 !!       gggx(1:ntp0,igcg2) = gggx(1:ntp0,igcg2)+ ggg(iggg)*geigq1_(1:ntp0,igp1)
          call zaxpy(ntp0,ggg(iggg), geigq1(igp1,1),ngp1, ggitp(1,igcgp2),1)
@@ -818,7 +818,7 @@ c         print *,'iggg=',iggg,nggg
 !$OMP end parallel 
 !TIME1 "end of ggitp loop"
 !TIME0
-      if(verbose()>=100) print *,' melpln2t: 11111111'
+      if(verbose()>=100) write(6,*)' melpln2t: 11111111'
       deallocate(igggi)
       ggitp = dconjg(ggitp)
 !! igcp2 inverse table
@@ -842,7 +842,7 @@ c         print *,'iggg=',iggg,nggg
 !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
       allocate(zmelp0(ngc,nt0,ntp0))
       zmelp0=0d0
-      if(verbose()>=100) print *,' melpln2t: 33333333'
+      if(verbose()>=100) write(6,*)' melpln2t: 33333333'
 !TIME1 "before zmelp0 loop"
 !TIME0
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
@@ -877,7 +877,7 @@ c         print *,'iggg=',iggg,nggg
             igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
             ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
          enddo
-         if(verbose()>=100) print *,' melpln2t: 33333333 22222222222'
+         if(verbose()>=100) write(6,*)' melpln2t: 33333333 22222222222'
 !     ! This do block is time-consuming when we use large QpGcut_psi _cou.
 !     ! But this version (nov2013) is not so bad, maybe.
          do it=1,nt0
@@ -896,7 +896,7 @@ c$$$               igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
 c$$$               ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
 c$$$            enddo
 c$$$         enddo
-c$$$         if(verbose()>=100) print *,' melpln2t: 33333333 22222222222'
+c$$$         if(verbose()>=100) write(6,*)' melpln2t: 33333333 22222222222'
 c$$$!     ! This do block is time-consuming when we use large QpGcut_psi _cou.
 c$$$!     ! But this version (nov2013) is not so bad, maybe.
 c$$$         do igc=1,ngc
@@ -905,21 +905,21 @@ c$$$               zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*g
 c$$$            enddo
 c$$$         enddo
 c$$$      enddo
-      if(verbose()>=100) print *,' melpln2t: 4444444444'
+      if(verbose()>=100) write(6,*)' melpln2t: 4444444444'
 !kino 2014-08-20      deallocate(ngveccR,phase,ggitp_)
       deallocate(ngveccR,phase)
-c      print *,'pppppppp',shape(ppovlinv),sum(abs(ppovlinv))
-c      print *,'pppppppp',shape(zmelp0),sum(abs(zmelp0))
-c      print *,'pppppppp',ngc,ntp0*nt0
-c      print *,'pppppppp',shape(zmelp)
+c      write(6,*)'pppppppp',shape(ppovlinv),sum(abs(ppovlinv))
+c      write(6,*)'pppppppp',shape(zmelp0),sum(abs(zmelp0))
+c      write(6,*)'pppppppp',ngc,ntp0*nt0
+c      write(6,*)'pppppppp',shape(zmelp)
 c      do ix=1,nt0
-c         print *,'ix=',ix, sum(abs(matmul(dconjg(ppovlinv),zmelp0(:,:,ix))))
+c         write(6,*)'ix=',ix, sum(abs(matmul(dconjg(ppovlinv),zmelp0(:,:,ix))))
 c         zmelp(:,:,ix)=matmul(dconjg(ppovlinv),zmelp0(:,:,ix))
 c      enddo
       call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
-c      print *,'pppppppp end of matm' 
+c      write(6,*)'pppppppp end of matm' 
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
-      if(verbose()>=100) print *,' melpln2t: end'
+      if(verbose()>=100) write(6,*)' melpln2t: end'
 !TIME1 "end of melpln2t"
       end subroutine melpln2t 
 
@@ -930,8 +930,8 @@ c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c$$$      if(sum(abs(qu1-(/9.6225044864937631E-002,   9.6225044864937631E-002, 0.10000000000000001/)))<1d-8) then
 c$$$c$$$         debug=.true.
 c$$$c$$$      endif
-c$$$c$$$      if(debug) print *,'melpln2: qu1',qu1
-c$$$c$$$      if(debug) print *,'melpln2: qu2',qu2
+c$$$c$$$      if(debug) write(6,*)'melpln2: qu1',qu1
+c$$$c$$$      if(debug) write(6,*)'melpln2: qu2',qu2
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      do ig1=1,ngp1
 c$$$        do itp=1,ntp0
@@ -940,9 +940,9 @@ c$$$        enddo
 c$$$      enddo
 c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c$$$      if(debug) then
-c$$$c$$$       print *,' melpln2 old sumcheck ngc2 ngvec ppx ='
+c$$$c$$$       write(6,*)' melpln2 old sumcheck ngc2 ngvec ppx ='
 c$$$c$$$     &  ,ngc2,sum(abs(ngvecc2(1:3,1:ngc2))),sum(abs(ppx(1:ngc,1:ngc2)))
-c$$$c$$$       print *,'melpln2: 1111111111'
+c$$$c$$$       write(6,*)'melpln2: 1111111111'
 c$$$c$$$       endif
 c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      nxmin =minval(ngvecc2(1,1:ngc2)) ;nxmax=maxval(ngvecc2(1,1:ngc2))
@@ -951,35 +951,35 @@ c$$$      nzmin =minval(ngvecc2(3,1:ngc2)) ;nzmax=maxval(ngvecc2(3,1:ngc2))
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccc
 c$$$c$$$      if(debug) then
 c$$$c$$$      write(6,"(' iqi ngc ngc2=',3i8)") iqi,ngc,ngc2
-c$$$c$$$c      print *,' scheck2 ppx=',sum(ppovlinv(1:ngcx,1:ngcx))
-c$$$c$$$c      print *,' scheck2 ppovls   =',sum(ppovl   (1:ngcx,1:ngc2))
-c$$$c$$$      print *,' scheck2 ngvecc2s =',sum(ngvecc2(1:3,1:ngc2))
-c$$$c$$$      print *," nxmin:nxmax,nymin:nymax,nzmin:nzmax=",
+c$$$c$$$c      write(6,*)' scheck2 ppx=',sum(ppovlinv(1:ngcx,1:ngcx))
+c$$$c$$$c      write(6,*)' scheck2 ppovls   =',sum(ppovl   (1:ngcx,1:ngc2))
+c$$$c$$$      write(6,*)' scheck2 ngvecc2s =',sum(ngvecc2(1:3,1:ngc2))
+c$$$c$$$      write(6,*)" nxmin:nxmax,nymin:nymax,nzmin:nzmax=",
 c$$$c$$$     & nxmin,nxmax,nymin,nymax,nzmin,nzmax
 c$$$c$$$      endif
 c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccc
 c$$$      allocate(ipp(nxmin:nxmax,nymin:nymax,nzmin:nzmax))
-c$$$      if(debug) print *,'melpln2: 1111111____'
+c$$$      if(debug) write(6,*)'melpln2: 1111111____'
 c$$$      ipp = -10000000
 c$$$      do igc2 =1,ngc2
 c$$$        ipp(ngvecc2(1,igc2),ngvecc2(2,igc2),ngvecc2(3,igc2))=igc2
 c$$$c        nn(1:3) = ngvecc2(1:3,igc2)
 c$$$c        alat =10.26
-c$$$c        print *,'  nn =',nn(1:3)
-c$$$c        print *,'  abs=',2*pi/alat
+c$$$c        write(6,*)'  nn =',nn(1:3)
+c$$$c        write(6,*)'  abs=',2*pi/alat
 c$$$c     &     *sqrt(sum( (qi(1:3)+ matmul(qbas, nn(1:3)))**2 ) )
 c$$$      enddo
-c$$$      if(debug) print *,'melpln2: 2222222222222'
+c$$$      if(debug) write(6,*)'melpln2: 2222222222222'
 c$$$c      inum =0
 c$$$c
-c$$$c      print *,' melpln2: sht nadd=',shtv,nadd
+c$$$c      write(6,*)' melpln2: sht nadd=',shtv,nadd
 c$$$c      do igc = 1,ngc
 c$$$c        qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, ngvecc(1:3,igc)))
 c$$$c        phase(igc) = exp(-img*sum(qg*shtv))
 c$$$c
-c$$$c      print *,' igc phase=', phase(igc)
+c$$$c      write(6,*)' igc phase=', phase(igc)
 c$$$c      enddo
-c$$$c      print *," melpln2:goto ig1 ig2 loop"
+c$$$c      write(6,*)" melpln2:goto ig1 ig2 loop"
 c$$$c #ifdef EXPAND_MELPLN2
 c$$$      allocate(gg(ngc2,nt0*ntp0),gg_(ntp0,nt0,ngc2)) !sf
 c$$$      gg_=0d0 !sf
@@ -989,14 +989,14 @@ c$$$          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
 c$$$          if(nn(1)<nxmin.or.nn(1)>nxmax) then
 c$$$c$$$ccccccccccccccccccccccccc
 c$$$c$$$             do igc2 =1,ngc2
-c$$$c$$$                print *,'ttt ngvecc2:',ngvecc2(1:3,igc2)
+c$$$c$$$                write(6,*)'ttt ngvecc2:',ngvecc2(1:3,igc2)
 c$$$c$$$             enddo
-c$$$c$$$             print *,'ttt ngc2=',ngc2
-c$$$c$$$             print *,'ttt mepln2: nn=',nn(1),nxmin,nxmax,ngp1,ngp2
-c$$$c$$$c             print *,'ttt qu1=',qu1,ngvecp1(1:3,ig1)
-c$$$c$$$c             print *,'ttt qu2=',qu2,ngvecp2(1:3,ig2)
-c$$$c$$$             print *,'ttt qi =',qi
-c$$$c$$$             print *,'ttt nadd=',nadd
+c$$$c$$$             write(6,*)'ttt ngc2=',ngc2
+c$$$c$$$             write(6,*)'ttt mepln2: nn=',nn(1),nxmin,nxmax,ngp1,ngp2
+c$$$c$$$c             write(6,*)'ttt qu1=',qu1,ngvecp1(1:3,ig1)
+c$$$c$$$c             write(6,*)'ttt qu2=',qu2,ngvecp2(1:3,ig2)
+c$$$c$$$             write(6,*)'ttt qi =',qi
+c$$$c$$$             write(6,*)'ttt nadd=',nadd
 c$$$c$$$cccccccccccccccccccccccccc
 c$$$Cstop2rx 2013.08.09 kino             stop "melpln2:nn(1) out of range"
 c$$$             call rx( "melpln2:nn(1) out of range")
@@ -1007,7 +1007,7 @@ c$$$Cstop2rx 2013.08.09 kino          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpl
 c$$$          if(nn(3)<nzmin.or.nn(3)>nzmax) call rx( "melpln2:nn(3) out of range")
 c$$$        enddo
 c$$$      enddo
-c$$$      if(debug) print *,'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,ntp0,nadd
+c$$$      if(debug) write(6,*)'melpln2: 3333333333333  ngp nadd',ngp1,ngp2,ntp0,nadd
 c$$$!! This loop is time consuming for SiO2c even ngp1=ngp2=283 ntp0 is alrge?
 c$$$!$OMP parallel private(nn,igc2,qg,phas,ge2) 
 c$$$      qg(1:3) = 2d0*pi * (q(1:3)+ matmul(qbas, -nadd))
@@ -1020,9 +1020,9 @@ c$$$          qg(1:3) = 2d0*pi * ( matmul(qbas, -ngvecp2(1:3,ig2)) )
 c$$$          phas2 = exp(-img*sum(qg*shtv))
 c$$$c$$$cccccccccccccccccccc
 c$$$c$$$          if(ig1==2) then
-c$$$c$$$             print *,' start nn=',ig1,ig2,nadd
-c$$$c$$$             print *,' ngvecp1(1:3,ig1)',ngvecp1(1:3,ig1)
-c$$$c$$$             print *,' ngvecp2(1:3,ig2)',ngvecp2(1:3,ig2)
+c$$$c$$$             write(6,*)' start nn=',ig1,ig2,nadd
+c$$$c$$$             write(6,*)' ngvecp1(1:3,ig1)',ngvecp1(1:3,ig1)
+c$$$c$$$             write(6,*)' ngvecp2(1:3,ig2)',ngvecp2(1:3,ig2)
 c$$$c$$$          endif
 c$$$c$$$cccccccccccccccccccc
 c$$$          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
@@ -1043,7 +1043,7 @@ c$$$!$OMP end do
 c$$$        enddo
 c$$$      enddo
 c$$$!$OMP end parallel 
-c$$$      if(debug) print *,'melpln2: 444444444444444 '
+c$$$      if(debug) write(6,*)'melpln2: 444444444444444 '
 c$$$      do itp=1,ntp0
 c$$$        do it =1,nt0
 c$$$          do igc2=1,ngc2
@@ -1075,7 +1075,7 @@ cccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
 c      allocate(xxx(ngc,ngc2))
 c      call matm(ppovlinv,ppovl,xxx,ngc,ngc,ngc2)
-c     print *,'invtest'
+c     write(6,*)'invtest'
 c      ix=1
 c     do iy=1,ngc2
 c       write(6,'("  ix iy xxx=",2i6,2f12.6)')  ix,iy,xxx(ix,iy)
