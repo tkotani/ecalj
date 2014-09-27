@@ -1,6 +1,5 @@
 #!/bin/bash
-MPI_SIZE=1
-#echo $# 
+echo $0 $@ 
 if [ $#  != 3 ]; then
   echo "An example of usage: job_band_nspin1 si -np 4"
   exit
@@ -10,15 +9,22 @@ if [ $2 != "-np" ]; then
 else
   MPI_SIZE=$3
 fi
-echo $MPI_SIZE
-ddd=$1
+MATERIAL=$1
+rm -rf wkp.$MATERIAL
+
 n=$0
-lmdir=${n%/*}
-rm -rf wkp.$ddd
-echo $lmdir
+nfpgw=${n%/*}
+NO_MPI=0
+
+source $nfpgw/run_arg #this must be after all input arguments are processed
+
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band
+tail -1 llmf_ef
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band:fn=syml 
+tail -1 llmf_band
 ### next is to determine the fermi energy. Not needed but safer ###
-mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --quit=band    |tee llmf_ef
-mpirun -np $MPI_SIZE $lmdir/lmf-MPIK --band:fn=syml $ddd  |tee llmf_band
+#mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $MATERIAL --quit=band    |tee llmf_ef
+#mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --band:fn=syml $MATERIAL  |tee llmf_band
 
 ### We get bnds.fe which contains eigenvalues and the fermi energy.
 
@@ -26,14 +32,14 @@ mpirun -np $MPI_SIZE $lmdir/lmf-MPIK --band:fn=syml $ddd  |tee llmf_band
 ### Thus you can use bnds.fe or bnd*.dat to obtain bandgap, effective mass, and so on.
 for spin in spin1 spin2
 do
-  echo -18,16,15,15|$lmdir/plbnds -fplot -gnuplot -ef=0 -scl=13.605 -$spin $ddd
+  $echo_run echo -18,16,15,15|$nfpgw/plbnds -fplot -gnuplot -ef=0 -scl=13.605 -$spin $MATERIAL
   for xxx in bnd*.dat
   do
       echo $spin $xxx
       cp $xxx ${xxx}.$spin
   done
-  sed -e "s/\.dat/\.dat\.${spin}/g" bnds.gnu > bnds.gnu.$ddd.$spin
-  gnuplot -persist bnds.gnu.${ddd}.$spin 
+  sed -e "s/\.dat/\.dat\.${spin}/g" bnds.gnu > bnds.gnu.$MATERIAL.$spin
+  gnuplot -persist bnds.gnu.${MATERIAL}.$spin 
 done
-echo If you like, run 'gnuplot -persist bnds.gnu.* again.'
+$echo_run echo If you like, run 'gnuplot -persist bnds.gnu.* again.'
 

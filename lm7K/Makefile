@@ -335,4 +335,4 @@ checkgw:
 
 
 install: 
-	cp $(programs) $(fplotprogs) ctrlgenM1.py job* ~/bin
+	cp $(programs) $(fplotprogs) ctrlgenM1.py job* run_arg ~/bin

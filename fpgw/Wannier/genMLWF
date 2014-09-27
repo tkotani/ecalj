@@ -1,172 +1,110 @@
 #!/bin/bash
-# --------------------------------
+# -------------------------------------------------------------------------
 # generate MLWF.
 # NOTE: Wannier is generated before wanplot (wanplot is only to make *.xsf file for plot).
 #       After wanplot, we goto calculate <wan wan |W |wan wan>
-#---------------------------------
-
-########## Definition of functions #################
-function runfpgw_with_input
-{
-        local argin=$1
-        local nfpgw=$2
-        local comma=$3
-        local output=$4
-        local TARGET=$5
-            
-        echo -n 'OK! --> Start'
-        echo $argin > _IN_
-        echo "  echo $argin | $nfpgw$comma $TARGET > $output " 
-        $nfpgw$comma  $TARGET < _IN_ > $output
-
-        if [ $? != 0 ]; then
-                echo Error in $comma input=$argin output=$output
-                exit 10
-        fi
-}
-
-function runfpgw_with_input_MPI
-{
-        local argin=$1
-        local MPI_SIZE=$2
-        local nfpgw=$3
-        local comma=$4
-        local output=$5
-        local TARGET=$6
-           
-        echo -n 'OK! --> Start'
-        echo $argin > _IN_
-        echo "  echo $argin | mpirun -np $MPI_SIZE $nfpgw$comma $TARGET > $output " 
-        mpirun -np $MPI_SIZE $nfpgw$comma $TARGET < _IN_ > $output
-
-        if [ $? != 0 ]; then
-                echo Error in $comma input=$argin output=$output
-                exit 10
-        fi
-}
-
-function runfpgw_without_input
-{
-        local nfpgw=$1
-        local comma=$2
-        local output=$3
-            
-        echo -n 'OK! --> Start'
-        echo "  $nfpgw$comma > $output" 
-        $nfpgw$comma    > $output
-
-        if [ $? != 0 ]; then
-                echo Error in $comma input=none output=$output
-                exit 10
-        fi
-}
-
-#############################################################
-###              Start from here                          ###
-#############################################################
-if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-  echo "An example of usage: genMLWF -np 4 cu"
-  echo "Do job_band_* in advance to genMLWF to get superposition of Wannier band plot!"
-  exit 101
+# For cray, set machine="cray"
+#--------------------------------------------------------------------------
+### all input arguments are processed ###
+if [ $# -ne 3 ] || [ $2 != "-np" ] ; then
+    echo "An example of usage: genMLWF cu -np 4"
+    echo "Do job_band_* in advance to genMLWF to get superposition of Wannier band plot!"
+    exit 101
 fi
-
 nfpgw=`dirname $0`
-TARGET=$3
-MPI_SIZE=$2
-ln -s syml.${TARGET} SYML
-ln -s bnds.${TARGET} BNDS
-echo "### START genMLWF: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+MATERIAL=$1
+MPI_SIZE=$3
+NO_MPI=0
+### end of processing input arguments ###
 
-## Make softlink from sigm --> simg.$TARGET.
-## If sigm and sigm.$TARGET coexist, sigm.$TARGET is moved to sigm.$TARGET.backup in advance.
+
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg
+
+
+######## start here ##########
+$echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+rm -f SYML BNDS
+ln -s syml.${MATERIAL} SYML
+ln -s bnds.${MATERIAL} BNDS
+## Make softlink from sigm --> simg.$MATERIAL.
+## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
 if [ -e sigm ]; then 
-	if [ -e sigm.$TARGET ]; then
-		mv sigm.$TARGET sigm.$TARGET.bakup 
-  		ln -s -f sigm sigm.$TARGET 
-  		echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
-  	fi
+    if [ -e sigm.$MATERIAL ]; then
+	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
+  	ln -s -f sigm sigm.$MATERIAL 
+  	$echo_run echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
+    fi
 else
-	echo '--- Neither sigm nor sigm.$TARGET exists. ==> LDA '
+    $echo_run echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
 fi 
 
 ######## lmf part #########################################
-echo "  Start mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_start " 
-# if lmfa is not yet.
-$nfpgw/lmfa $TARGET >llmfa
+run_arg '---' $NO_MPI   $nfpgw /lmfa  llmfa $MATERIAL # if lmfa is not yet.
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_start $MATERIAL
+rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
 
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $TARGET > llmf_start
-  if [ $? != 0 ];  then
-    echo Error in lmf-MPIK output=llmf_lda
-    exit 10
-  fi
-# remove temporaly files.
-rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}*
+##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
+argin=0; run_arg $argin $NO_MPI   $nfpgw /lmfgw      llmfgw00 $MATERIAL 
+argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $MATERIAL
+run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
-
-##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ################
-argin=0; runfpgw_with_input     $argin $nfpgw            /lmfgw llmfgw00 $TARGET 
-argin=1; runfpgw_with_input     $argin $nfpgw            /qg4gw lqg4gw  #Generate requied q+G vectors.
-argin=1; runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw  /lmfgw-MPIK llmfgw01 $TARGET
-         runfpgw_without_input         $nfpgw            /lmf2gw llmf2gw
-
-##### GW related part (up to preparation of MPB) ############
-argin=0; runfpgw_with_input $argin $nfpgw /rdata4gw_v2 lrdata4gw_v2
+##### GW related part (up to preparation of MPB) ###########
+argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
 if [ -e ANFcond ];then # This is for ANFcond. Unused recently
     #  cp EVU EVD  
-    "Not maintained recently" 
+    $echo_run echo "Not maintained recently" 
     exit 10
 fi
-argin=1; runfpgw_with_input $argin $nfpgw /heftet leftet # A file EFERMI for hx0fp0
-argin=1; runfpgw_with_input $argin $nfpgw /hchknw lchknw # A file NW containing nw for given QPNT (probably only for one-shot GW).
-argin=0; runfpgw_with_input $argin $nfpgw /hbasfp0 lbas # === Product basis generation ===
+argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet # A file EFERMI for hx0fp0
+argin=1; run_arg $argin $NO_MPI $nfpgw /hchknw lchknw # A file NW, containing nw for given QPNT (probably only for one-shot GW).
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas  # Product basis generation 
 
 ##### maxloc start here #########################
-# b-vector BBVEC
-argin=1 ;runfpgw_with_input $argin $nfpgw /hmaxloc lmaxloc1   
-
-# -- PSIG* <Psi|Gaussian> seed generation.
-argin=1 ;runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI 
-
-# -- UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
-argin=2 ;runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2
-# Gather all UU*.* into a file UU*, PSIG* as well. (U meand UP isp=1, D means Down spin isp=2)
-cat UUU.* >UUU
-rm -f UUU.*
-if [ -e UUD.0000 ]; then 
-        cat UUD.* >UUD
-        rm -f UUD.*
-fi
+argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1     # b-vector BBVEC
+argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
+# Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
 cat PSIGU.* >PSIGU
 rm -f PSIGU.*
 if [ -e PSIGD.0000 ]; then 
-        cat PSIGD.* >PSIGD
-        rm -f PSIGD.*
+    cat PSIGD.* >PSIGD
+    rm -f PSIGD.*
 fi
 
-# -- Main part of Wannier (Both of Marzari's and Souza's procedures sucessively).
-# band plot data are generated.
-argin=2; runfpgw_with_input $argin $nfpgw /hmaxloc lmaxloc2 
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+# Gather all UU*.* into a file UUU/UUD.
+cat UUU.* >UUU
+rm -f UUU.*
+if [ -e UUD.0000 ]; then 
+    cat UUD.* >UUD
+    rm -f UUD.*
+fi
+# -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
+argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are generated.)
+
 
 ############## Wannier function plot. *.xsf for Xcrysden. ############
-argin=2; runfpgw_without_input $nfpgw     /wanplot lwanplot 
+run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
 
-### Here on, we calculate W (v and W-v) for Wannier.
+
+### Here on, we calculate W (v and W-v) for Wannier.###########
 # -- UUmatrix for Q0P (offset Gamma point) are required calculation v and W at the limit of q \to 0.
-argin=3; runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3
+argin=3; run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3
 # Gather all UU*.* into a file UU*, PSIG* as well. (U meand UP isp=1, D means Down spin isp=2)
 if [ -e UUq0U.0000 ]; then 
-        cat UUq0U.* > UUq0U
-        rm -f UUq0U.*
+    cat UUq0U.* > UUq0U
+    rm -f UUq0U.*
 fi
 if [ -e UUq0D.0000 ]; then 
-        cat UUq0D.* > UUq0D
-        rm -f UUq0D.*
+    cat UUq0D.* > UUq0D
+    rm -f UUq0D.*
 fi
-################ Main part of v, W-v for Wanniers.############
-argin=0;  runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc       # Coulomb matrix v
-argin=1;  runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 # Matrix elements of v for Wannier
-argin=11; runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /hx0fp0 lx011       # Screened Coulomb interaction W minus v, W-v
-argin=2;  runfpgw_with_input_MPI $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 # Matrix element of W-v
+### Main part of v, W-v for Wanniers. ##########################
+argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc       # Coulomb matrix v
+argin=1;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 # Matrix elements of v for Wannier
+argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx011       # Screened Coulomb W minus v, W-v
+argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 # Matrix element of W-v
 
-echo "OK! It's finished well."
+$echo_run echo "OK! It's finished well."
 exit 0

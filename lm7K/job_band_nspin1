@@ -1,26 +1,29 @@
 #!/bin/bash
-MPI_SIZE=1
-#echo $# 
-if [ $#  != 3 ]; then
-  echo "An example of usage: job_band_nspin1 si -np 4"
-  exit
-fi
-if [ $2 != "-np" ]; then
+echo $0 $@
+if [ $#  != 3 ] || [ $2 != "-np" ]; then
   echo "An example of usage: job_band_nspin1 si -np 4"
   exit
 else
   MPI_SIZE=$3
 fi
-echo $MPI_SIZE
-ddd=$1
+MATERIAL=$1
 n=$0
-lmdir=${n%/*}
-mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --quit=band    |tee llmf_ef
-mpirun -np $MPI_SIZE $lmdir/lmf-MPIK --band:fn=syml $ddd  |tee llmf_band
-# -18,16 means the range to plot
-echo -18,16,15,15|$lmdir/plbnds -fplot -gnuplot -ef=0 -scl=13.605  $ddd
-cp  bnds.gnu bnds.gnu.${ddd}
-gnuplot -persist bnds.gnu.${ddd}
-echo If you like, edit and run 'job_band, or gnuplot -persist bnds.gnu.'${ddd}
+nfpgw=${n%/*}
+NO_MPI=0
 
+source $nfpgw/run_arg #this must be after all input arguments are processed
+
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band
+tail -1 llmf_ef
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band:fn=syml 
+tail -1 llmf_band
+
+$echo_run echo -18,16,15,15 |$nfpgw/plbnds -fplot -gnuplot -ef=0 -scl=13.605 $MATERIAL
+cp bnds.gnu bnds.gnu.${MATERIAL}
+gnuplot -persist bnds.gnu.${MATERIAL}
+$echo_run echo If you like, edit and run 'job_band, or gnuplot -persist bnds.gnu.'${MATERIAL}
+
+#mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $ddd --quit=band    |tee llmf_ef
+#mpirun -np $MPI_SIZE $lmdir/lmf-MPIK --band:fn=syml $ddd  |tee llmf_band
+# -18,16 means the range to plot
 

@@ -23,7 +23,7 @@ TL_PROG  = diffnum comp compall comp.eval
 
 # programs under lm7k dir, required in the tests
 LM_DIR   = $(ecalroot)/lm7K
-LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK fplot plbnds pldos
+LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK fplot plbnds pldos run_arg
 
 # programs under fpgw dir, required in the tests
 GW_DIR   = $(ecalroot)/fpgw/exec
