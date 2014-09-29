@@ -1,11 +1,14 @@
-yourbin=$(HOME)/bin
-
 ############ ifort ##########
-FC=mpiifort
-LK=mpiifort
-LKFLAGS2=-mkl
-FFLAGS = -132 -I${top}/exec
+#FC=mpiifort
+#LK=mpiifort
+#LKFLAGS2=-mkl
+top=../
+PLATFORM=gfortran
+include ../exec/make.inc.$(PLATFORM)
 
+FFLAGS=${FLAGS} -I${top}/exec
+
+BINDIR=${HOME}/bin
 ########### gfortran #############
 #FC=mpif90
 #LK=mpif90
@@ -22,7 +25,6 @@ para_g=.o
 
 #-------------------------------------------------------
 # src directories
-top=../
 gwsrc   = ${top}/gwsrc/
 main    = ${top}/main/
 nfpsrc  = ${top}/nfpsrc/
@@ -54,7 +56,7 @@ clean:
 	 rm -f  $(progs2) *.o 
 
 install:  
-	 cp  $(progs) genMLWF $(yourbin)
+	 cp  $(progs) genMLWF $(BINDIR)
 
 #install2:  
 #	 cp  $(script) $(HOME)/bin

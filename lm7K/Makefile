@@ -22,6 +22,7 @@
 #  * When you switch to different platform in a machine, you have to clean up FPLOTdir/*.o *.o in advance by hand, 
 #    or use 'make clean'.
 ######################################################################################################
+BINDIR=$(HOME)/bin
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
 #PLATFORM=fujitsufortran.fx10
@@ -36,6 +37,7 @@ PLATFORM=gfortran
 #PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
+
 
 ###########################################################################
 # Don't edit lines below 
@@ -335,4 +337,4 @@ checkgw:
 
 
 install: 
-	cp $(programs) $(fplotprogs) ctrlgenM1.py job* run_arg ~/bin
+	cp $(programs) $(fplotprogs) ctrlgenM1.py job* run_arg  $(BINDIR)

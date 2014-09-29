@@ -1,2 +1,0 @@
-cp  MKbackup/MAKEINC/* lm7K/MAKEINC/
-cp  MKbackup/make.inc* fpgw/exec

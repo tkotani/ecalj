@@ -6,9 +6,10 @@
 # ---- Machine-specific compiler flags ---
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
-include make.inc
+PLATFORM=gfortran
+include make.inc.$(PLATFORM)
 
-
+BINDIR = $(HOME)/bin
 
 #-------------------------------------------------------
 # src directories
