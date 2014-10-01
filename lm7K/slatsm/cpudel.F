@@ -42,6 +42,29 @@ C      if (unit .ge. 0 .and. tnew .gt. 0d0)
 C     .  write(unit,333) strn,delt,tnew,timeu
   333 format(' cpudel',a25,'  time(s):',g10.3,'  total:',f8.3,a1)
       end
+#if 1
+      double precision function cpusec()
+      implicit none
+      logical,save::firsttime=.true.
+      integer,save::i1
+      integer:: i2,irate,imax
+      real(4)::diff
+
+      if (firsttime) then 
+         call system_clock(i1)
+         firsttime=.false.
+         cpusec=0.0d0
+        ! cpumin=0.0d0
+      else
+         call system_clock(i2,irate,imax)
+         diff=i2-i1
+         if (diff<0) diff=imax-i1+i2
+         diff=diff/dble(irate)
+         cpusec=diff
+        ! cpumin=cpusec/60.d0
+      endif
+      end function cpusec
+#else
       double precision function cpusec()
 C- process cputime, in seconds
 C ----------------------------------------------------------------------
@@ -62,4 +85,4 @@ C ----------------------------------------------------------------------
       cpusec   = cpuetime - cpu0
       cpumin   = cpusec/60.d0
       end
-
+#endif

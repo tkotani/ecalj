@@ -23,7 +23,7 @@
       
 
       subroutine fsystm(ps,res)
-#ifdef HASIFPORT
+#ifdef __INTEL_COMPILER
 C#if  ( defined __INTEL_COMPILER && __INTEL_COMPILER!=1110)
       use ifport
 C#endif
@@ -31,11 +31,15 @@ C#endif
       character(*) ps
       integer:: res
       res = system(ps)
-#ifdef HASIFPORT
       if (res.ne.0) then
+#ifdef __INTEL_COMPILER
          write(*,*) 'system: return code=',res,ierrno()
-      endif
+#else
+         write(*,*) 'system: return code=',res
 #endif
+C fortran2008std
+C     call  execute_command_line (ps,exitstat=res) 
+      endif
       end subroutine fsystm
 
       subroutine cwrite(ps,i1,i2,newln)
@@ -104,11 +108,16 @@ c        intel ifort accepts both
 
 
       subroutine sectim(tsec, tusec)
-#ifdef HASIFPORT
+#ifdef __INTEL_COMPILER
       use ifport
 #endif
       integer tsec,tusec
       integer:: ierr
+c for system_clock 
+      logical,save:: firsttime=.true.
+      real :: diff
+      integer,save:: i1
+      integer:: i2,irate,imax
 #if HASGETTIMEOFDAY
 c ------ intel fortran
       integer(4):: v(2)
@@ -124,14 +133,27 @@ c ------- gfortran
       tusec = int((x-tsec)*1000000.0)
 #else
 c#error "needs subroutine to get cpu time"
-      tsec=0.0
-      tusec=0.0
+C fortran2003std
+      if (firsttime) then 
+         call system_clock(i1)
+         firsttime=.false.
+         tsec=0
+         tusec=0
+      else
+         call system_clock(i2,irate,imax)
+         diff=i2-i1
+         if (diff<0) diff=imax-i1+i2
+         diff=diff/dble(irate)
+         tsec=int(diff)
+         tusec= int((diff-tsec)*1000000.0)
+      endif
+
 #endif
 
       end subroutine sectim
 
       subroutine gtenv(pnam,pval)
-#ifdef HASIFPORT
+#ifdef __INTEL_COMPILER
       use ifport
 #endif
       character(*) pnam, pval
@@ -139,19 +161,20 @@ c#error "needs subroutine to get cpu time"
 #ifdef HASGETENVQQ
 c      ----- intel fortran
       ret = getenvqq(pnam,pval)
-#elif HASGETENVIRONMENTVARIABLE
-c     ----- fortran2003std
-      call get_environment_variable(pnam,pval) 
+C#elif HASGETENVIRONMENTVARIABLE
+Cc     ----- fortran2003std
+C      call get_environment_variable(pnam,pval) 
 #elif HASGETENV
       call getenv(pnam,pval) 
 #else
-#error "needs subroutine to get environment variable"
+      call get_environment_variable(pnam,pval)
+C#error "needs subroutine to get environment variable"
 #endif
       end subroutine gtenv
 
 
       subroutine ptenv(pnam)
-#ifdef HASIFPORT
+#ifdef __INTEL_COMPILER
       use ifport
 #endif
       character(*) pnam

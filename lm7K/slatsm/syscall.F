@@ -38,11 +38,11 @@ C Passed parameters
       call gtargc(iarg,strn)
 #elif HASGETARG
       call getarg(iarg,strn)
-#elif HASGETCOMMANDARGUMENT
+#else HASGETCOMMANDARGUMENT
 c -------  fortran2003std
       call get_command_argument(iarg,strn)
-#else
-#error "need a subroutine to get command line argument"
+C#else
+C#error "need a subroutine to get command line argument"
 #endif
 
       end
@@ -99,12 +99,12 @@ C     (e.g. Intel ifort)
 c      external nargs
       nargf = nargs()
 
-#elif HASCOMMANDARGUMENTCOUNT
+#else HASCOMMANDARGUMENTCOUNT
 c ---------  fortran2003std
       integer:: command_argument_count
       nargf = command_argument_count()+1
-#else
-#error "need a subroutine to get command line argument count."
+C#else
+C#error "need a subroutine to get command line argument count."
 #endif
 
       end
