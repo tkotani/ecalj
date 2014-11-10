@@ -189,6 +189,13 @@ ckino Dec.28.2011:       .        ( is ) %rv_p_orhoc , rv_a_ov0a ( is ) %v , ifi
         endif
         call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
         call mpibc1(lfail,1,1,mlog,'rdovfa','read error')
+c2014-11-10kino--->
+        call mpibc1(qc,1,4,mlog,'rdovfa','qc')
+        call mpibc1(ccof,1,4,mlog,'rdovfa','ccof')
+        call mpibc1(ceh,1,4,mlog,'rdovfa','ceh')
+        call mpibc1(stc,1,4,mlog,'rdovfa','stc')
+c2014-11-10kino---<
+
         if (lfail) call rxs('missing species data, species ',spid(is))
 C       i = mpipid(3)
 C   ... Broadcast file data

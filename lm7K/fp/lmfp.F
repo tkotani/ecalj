@@ -163,6 +163,11 @@ c     integer:: odmatu , ovorbdmat , odmato
       call tcn('lmfp')
       etot(1) = 0
 
+C2014-11-10kino--->
+      write(6,*)'set nvrelx=0'
+      nvrelx=0
+C2014-11-10kino---<
+
 C     call wkfast(.false.)
 
 C     if (cmdopt('--rdbasp',8,0,strn)) then
@@ -340,6 +345,13 @@ C     ... Allocate memory for forces
         if ( int(sbz%lmet) .eq. 4 ) numq = 3
         allocate(frc_rv(3*nbas*numq))
       endif
+c2014-11-10kino--->
+      if (.not.allocated(frc_rv)) then 
+        write(6,*) 'frc_rv is not allocated, allocate it as a dummy'
+        allocate(frc_rv(1))
+      endif
+c2014-11-10kino---<
+
 C     ... Relaxation setup
       itrlx = 1
 C     nstack = 0

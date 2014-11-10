@@ -241,7 +241,8 @@ ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      ., i , iopq , iq , isqp , ismidb ,  ldos , lmet , nspc 
      ., lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
-     ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
+C2014-11-10kino     ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
+     ., nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk , nl 
      ., lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
      ., stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
      ., nfilem , iobzwt , lnoxc , lrsig , lwsig , jobgw , nll , lpdiag 
@@ -430,6 +431,8 @@ c mar2014
       mlog = cmdopt('--mlog',6,0,strn)
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
+
+      lswtk=0 ! initial value
 
 !! fermi surfece mode for xcrysden http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
@@ -1551,7 +1554,14 @@ c            endif
               if(allocated(ovlm)) deallocate(ovlm)
               nnspc=1
               if(nspc==2) nnspc=4
+C2014-11-10kino--->
+#if 1
+              write(6,*)'always allocate hamm as (ndimh,ndimh,3)'
+              allocate(hamm(ndimh,ndimh,3),ovlm(ndimh,ndimh,nnspc))
+#else
               allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
+#endif
+C2014-11-10kino---<
             endif
             if(ispc==1) then
               hamm=0d0
@@ -2068,6 +2078,12 @@ C       Even if no output rho, still call addrbl to make DOS when lmet=4
               elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
 C         dum=frc(3,1)
                 if(debug) print *,'goto addrbl nevl=',nevl
+C2014-11-10kino--->
+                if (.not.allocated(rv_a_oswtk)) then 
+                    write(6,*)'allocate rv_a_oswtk as a dummy, lswtk,nsp=',lswtk,nsp;flush(6)
+                    allocate(rv_a_oswtk(1))
+                endif
+C2014-11-10kino---<
                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
      .          , qp , sbz%rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
      .          , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos

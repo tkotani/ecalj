@@ -608,6 +608,10 @@ cccccccccccccccccccccccc
 cccccccccccccccccccccccc
         w_ocn= w_ocn*wgtsmooth !
         co_rv= co_rv*wgtsmooth !
+C2014-11-10kino--->
+        write(6,*)'dummy allocate ips0_iv'
+        allocate(ips0_iv(1))
+C2014-11-10kino---<
       else
 C ... 8. FFT smooth densities -> rho(G) for mixing
 C ... Find and include number of smooth mesh points.

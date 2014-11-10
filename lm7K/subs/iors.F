@@ -541,6 +541,10 @@ C       For compatibility with nfp, read record into wk
 
         endif
 
+C2014-11-10kino--->
+        call mpibc1(lshear,1,1,mlog,'iors','lshear')
+C2014-11-10kino---<
+
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
         if (lrs(1) .ne. 0) then
