@@ -1,5 +1,5 @@
-FC = gfortran
-LK = gfortran
+FC = mpif90 -f90=gfortran
+LK = mpif90 -f90=gfortran
 
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
 FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
@@ -40,7 +40,7 @@ module = -J$(moddir) -I$(moddir)
 ##############################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR 
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR -DMPIK
 
 
 ##### Patch section #######################################3
@@ -95,15 +95,15 @@ RANLIB := ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
-SUBS   := libsubs.a
-FP     := libfp.a
-SLATSM := slatsm.a
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
+#SUBS   := libsubs.a
+#FP     := libfp.a
+#SLATSM := slatsm.a
 ##### MPIK case ##
-#programs = lmf-MPIK lmfgw-MPIK
-#SUBS   = libsubs-MPIK.a 
-#FP     = libfp-MPIK.a
-#SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
+programs = lmf-MPIK lmfgw-MPIK
+SUBS   = libsubs-MPIK.a 
+FP     = libfp-MPIK.a
+SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
 
 ### path to libraries (fixed) #########
 LIBSUBS := subs/$(SUBS)
