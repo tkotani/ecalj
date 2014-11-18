@@ -2,8 +2,8 @@ FC = gfortran
 LK = gfortran
 
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
-FFLAGS_LESS = -O2 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS = -O1  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
@@ -20,8 +20,11 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
 ##### MATH libraries FFTW,BLAS LAPACK ###
 # ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
-LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
-LIBLOC= $(LIBMATH)
+#LIBMATH= /usr/lib/libfftw3.so.3 
+#LIBLOC=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+
+LIBLOC = ${LIBMATH}
+
 
 
 #############################################################

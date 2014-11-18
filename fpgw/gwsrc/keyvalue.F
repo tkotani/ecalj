@@ -520,12 +520,16 @@ c read as strings
       call input_characterv(key,n,str,defstr,flag,nout)
       if (printlevel>10) then
         write(output,*) 'after input_characterv: ',flag,str
+        write(output,*) 'input_err_success=',input_err_success
+        write(output,*) 'nout=',nout
       endif
 c ---
       if(flag.eq.input_err_success) then
 c            successfully read, then convert
 c            read(..., end) is done in input_characterv()
-        read(str,*,err=2000,end=3000) (i(j),j=1,nout) !takao sep2006
+         do j=1,nout
+           read(str(j),*,err=2000,end=3000)i(j) !(i(j),j=1,nout) !takao sep2006
+         enddo
 c        write(6,*)" aaaaaaaaaaa success",nout,success
         if (present(success)) then
           if(success/=-9999) then
@@ -588,7 +592,9 @@ c read as strings
       if (flag.eq.input_err_success) then
 c            successfully read, then convert
 c            read(..., end) is done in input_characterv()
-        read(str,*,err=2000,end=3000) (i(j),j=1,n)
+        do j=1,n 
+          read(str(j),*,err=2000,end=3000) i(j)
+        enddo
         if (present(success)) success = n
       else
         if (present(success)) success = flag
@@ -1322,6 +1328,9 @@ c       print *,' getkeyvalue_iv: 3'
 
       if (present(status)) istatus=status !takao sep2006
       call input_integerv(key,size,var,def_var,istatus)
+cccccccccccccccccccccccccc
+      print *,'size=',size,' var=',var
+cccccccccccccccccccccccccc
       if (istatus==input_err_lessvaluenum) then
         call getkeyvalue_err_exit('getkeyvalue_iv: # of values is wrong', key,filename)
       endif

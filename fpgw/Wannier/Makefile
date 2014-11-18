@@ -2,6 +2,7 @@
 #FC=mpiifort
 #LK=mpiifort
 #LKFLAGS2=-mkl
+
 top=../
 PLATFORM=gfortran
 include ../exec/make.inc.$(PLATFORM)

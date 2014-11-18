@@ -101,6 +101,38 @@ but it can be at any directory. All are described with relative path.
 We can check history of ecalj code development by
 ">gik --all" at ecalj/ directory after you did git clone.
 
+===============================================
+NOTE: Nove19 (2014)
+Following procedures, (1)-(4), are done automatically
+by a script ,e.g., ./InstallAll.ifort.bash for intel fortran as;
+---
+cd ecalj
+./InstallAll.ifort.bash
+(To clean all, do ./CleanAll.ifort.bash).
+---
+Please look into the script "InstallAll.ifort.bash". 
+It contains the setting of your bin directory
+at which you will copy all your binaries, and math library.
+It internally uses three machine-comilar dependent files;
+  a.lm7K/MAKEINC/Make.inc.ifort (for single core version -->(1))
+  b.lm7K/MAKEINC/Make.inc.ifort_mpik (k-point paralell version -->(2)
+  c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version -->(3)).
+At the last stage of the script, it runs automatic tests.
+(Do not need to care so much when nio_gwsc shows one-failure among two checks).
+The test may use ten minutes or more... Have a break!
+  
+Note that ./InstallAll.ifort.bash may not work for your ifort.
+Our intent is that you may prepare your own 
+./InstallAll.foobar.bash
+and the three files for your machine.
+Let us include what you have. (For example, for foobar=ifort11.machin1,
+you need to prepare not only InstallAll.ifort11.machine1.bash, but also
+  a.lm7K/MAKEINC/Make.inc.ifort11.machine1 
+  b.lm7K/MAKEINC/Make.inc.ifort11.machine1_mpik 
+  c.fpgw/exec/make.inc.ifort11.machine1
+In these files, you have to set compilar, linker, compilar options.
+================================================
+
 ------------
 (1) make single core LDA part (it is in ecalj/lm7K/).
 Let us assume gfortran case.
@@ -238,6 +270,7 @@ NOTE: in principle, repeat make should do nothing when all binaries
 are correctly generated. However, because of some problem in makefile, 
 you may see some make procedure is repeated. You can neglect it as
 long as "All test are passed!" is shown in the (4)install test.
+
 
 ----------------------
 (5) Structure tool.

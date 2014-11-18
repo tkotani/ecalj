@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BINDIR=${HOME}/bin
+MATH='-mkl'
 
 ### This is an example for hakozaki (ifort14) ###
 # For each machine, we have to prepare
@@ -14,20 +15,20 @@ echo Going to install required binaries and scripts to ${BINDIR} !
 
 ### Use lm7K/Makefile
 cd lm7K/
-make PLATFORM=ifort 
+make PLATFORM=ifort LIBMATH="$MATH"
 make PLATFORM=ifort      BINDIR=$BINDIR install
-make PLATFORM=ifort_mpik 
+make PLATFORM=ifort_mpik LIBMATH="$MATH"
 make PLATFORM=ifort_mpik BINDIR=$BINDIR install
 
 ### Use fpgw/exec/makefile
 cd ../fpgw/exec/
-make PLATFORM=ifort
+make PLATFORM=ifort LIBMATH="$MATH"
 make PLATFORM=ifort BINDIR=$BINDIR  install
 make PLATFORM=ifort BINDIR=$BINDIR install2
 
 ### Use fpgw/Wannier/Makefile
 cd ../Wannier/
-make PLATFORM=ifort
+make PLATFORM=ifort LIBMATH="$MATH"
 make BINDIR=$BINDIR PLATFORM=ifort install
 
 cd ../../TestInstall/

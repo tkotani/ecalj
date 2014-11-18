@@ -4,8 +4,8 @@
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
 FC = mpiifort -132 -xHost -mcmodel=medium -heap-arrays 100
-#FC = f95 
 
+#FC = f95 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
 # See http://www.intel.com/software/products/compilers/flin/docs/ug/msg_warn.htm
@@ -61,8 +61,7 @@ tet5_g = .o
 LIBMATH= -mkl  
 
 ### ubuntu12.04 gfortran ####
-#LIBMATH= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
-
+#LIBMATH= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf
 
 # I had a problem in zgemm in pwmat. 
 #LIBMATH= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
@@ -96,11 +95,12 @@ LIBMATH= -mkl
 
 #(5) Linker ####################################################
 LK=mpiifort -openmp
+LKFLAGS2 = $(LIBMATH) 
+
 ### gfortran ubuntu12.04 #######
 #LK = mpif90
 #LK= ifort -parallel 
 #LK=mpiifort
-LKFLAGS2 = $(LIBMATH) 
 
 #LK= ifort -parallel 
 #LK=mpiifort -openmp

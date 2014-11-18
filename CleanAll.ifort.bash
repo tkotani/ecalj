@@ -3,10 +3,10 @@
 cd lm7K/
 make PLATFORM=ifort_mpik cleanall
 make PLATFORM=ifort cleanall
+cd ../fpgw/exec/
+make PLATFORM=ifort cleanall
 cd ../Wannier/
 make PLATFORM=ifort cleanall
 
-cd ../fpgw/exec/
-make PLATFORM=ifort cleanall
 
 

@@ -781,7 +781,8 @@ $(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
 ###################################################################################
 
 
- $(gwsrc)wintzsg.o :  $(gwsrc)wintzsg.F
+$(gwsrc)wintzsg.o :  $(gwsrc)wintzsg.F
 	$(FC)  $(FFLAGS) $(gwsrc)wintzsg.F  -c -o $*.o
+
 
 # DO NOT DELETE

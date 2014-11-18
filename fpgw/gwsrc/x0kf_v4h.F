@@ -163,7 +163,8 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
 !! takao apr2012
       logical :: z1offd !, z1stcol
       complex(8),target :: ppovlz(ngbb,ngbb),zzr(ngbb,nmbas)
-      integer:: igb,symmetrize
+      integer:: igb
+      logical:: symmetrize
 
 !! jun2012takao
 c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 

@@ -32,6 +32,7 @@ endef
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	$(call test1.exec,$(out1))
+	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 
 # check default case for $(TARGET).
 $(TARGET).check:

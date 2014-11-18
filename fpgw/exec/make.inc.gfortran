@@ -45,8 +45,10 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 # Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed
 # older verion OR no -Osomething options. (only for sxcf.*.F)
-FFLAGS=-O3 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
-FFLAGS_OMP=-openmp -O3 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+
+FFLAGS=-O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS_OMP=-openmp -O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS_LESS=-O0 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 #FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
@@ -71,6 +73,8 @@ sxcf_g = .o     # sxcf.f
 x0kf_g = .o     # x0kf.f
 hqpe_g = .o     # hqpe.f
 tet5_g = .o
+
+
 
 
 ### alpha for older compaq compilar ###
@@ -110,7 +114,8 @@ tet5_g = .o
 
 ### ubuntu12.04 gfortran ####
 #LIBMATH= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 
-LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+#LIBMATH= /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
+#LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
 ### ATLAS BLAS
 #LIBMATH= $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a -L$(ECAL)/BLASplusLAPACK/ATLAS/ -llapack  -lcblas -lf77blas -latlas
