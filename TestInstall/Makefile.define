@@ -1,5 +1,9 @@
 #
 # local variables
+
+#2014-11-19kino
+LMF=$(bindir)/lmf
+LMFP=mpirun -np $(mpi_size) $(bindir)/lmf-MPIK
 #
 comp=test.comp
 

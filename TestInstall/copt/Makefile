@@ -22,7 +22,7 @@ define test1.exec
 	$(bindir)/lmfa $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \
 		-vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 --rs=0 -vnit=3 \
 		--time=5 --no-iactiv > $1 2>&1
-	$(bindir)/lmf  $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \
+	$(LMFP)  $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \
 		-vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 --rs=0 -vnit=3 \
 		--time=5 --no-iactiv --cvK:158,790 -vpwmode=0 >> $1 2>&1
 endef

@@ -23,16 +23,16 @@ define test1.exec
 	rm -f atm.* eula.* moms.* mixm.* rst.* rsta.* save.* log.* hssn.* wkp.* cv.* bsmv.* bnds.* dmats.* dmats-save.* sigm.* qpp.* 
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa $(TARGET) > $1 2>&1
-	$(bindir)/lmf  $(TARGET) >> $1 2>&1
+	$(LMFP)  $(TARGET) >> $1 2>&1
 	mv rst.$(TARGET) rst-save.$(TARGET)
 	mv dmats.$(TARGET) dmats-save.$(TARGET)
 	rm -f rst.$(TARGET) wkp.$(TARGET) mixm.$(TARGET)
 	cp rst-save.$(TARGET) rst.$(TARGET)
 	cp dmats-save.$(TARGET) dmats.$(TARGET)
-	$(bindir)/lmf  $(TARGET) --rs=1,0 -vpwmode=1 >> $1 2>&1
+	$(LMFP)  $(TARGET) --rs=1,0 -vpwmode=1 >> $1 2>&1
 	rm -f rst.$(TARGET) wkp.$(TARGET) mixm.$(TARGET)
 	$(bindir)/lmfa $(TARGET) -vcoref=t >> $1 2>&1
-	$(bindir)/lmf  $(TARGET) -vcoref=t >> $1 2>&1
+	$(LMFP)  $(TARGET) -vcoref=t >> $1 2>&1
 endef
 
 #----- subroutine test2.exec
@@ -43,7 +43,7 @@ define test2.exec
 	@cat message.test2.$(TARGET)
 	cp rst-save.$(TARGET) rst.$(TARGET)
 	cp dmats-save.$(TARGET) dmats.$(TARGET)
-	$(bindir)/lmf --nosym $(TARGET) --mull:mode=1 -vnk=2 -vnit=1 -vso=t > $1 2>&1
+	$(LMF) --nosym $(TARGET) --mull:mode=1 -vnk=2 -vnit=1 -vso=t > $1 2>&1
 	mv dos.$(TARGET) tdos.$(TARGET)
 	$(bindir)/lmdos --nosym -vso=t --mull:mode=1 \
 		--dos:fpdos:npts=1001:window=-1,1 \

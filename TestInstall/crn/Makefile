@@ -21,8 +21,8 @@ define test2.exec
 	#
 	@cat message.test2.$(TARGET)
 	$(bindir)/lmfa $(TARGET) > $1 2>&1
-	$(bindir)/lmf $(TARGET) >> $1 2>&1
-	$(bindir)/lmf --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1
+	$(LMFP) $(TARGET) >> $1 2>&1
+	$(LMF) --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1
 	$(bindir)/lmdos --dos:cls:window=0,1:npts=101 --cls $(TARGET) >> $1 2>&1
 	mv dos.$(TARGET) dos-cls.$(TARGET)
 endef

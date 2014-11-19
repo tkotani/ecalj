@@ -20,12 +20,12 @@ define test1.exec
 	#
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=0 > $1 2>&1
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=0 >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=0 >> $1 2>&1
 	rm rst.$(TARGET) mixm.$(TARGET)
 	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=2 \
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=2 \
 		--rs=1,1,1,1,1 >> $1 2>&1
 endef
 

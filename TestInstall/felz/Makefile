@@ -22,7 +22,7 @@ define test3.exec
 	#
 	@cat message.test3.$(TARGET)
 	$(bindir)/lmfa -vrel=1 -vnit=1 -vso=0 $(TARGET) > $1 2>&1
-	$(bindir)/lmf -vrel=1 -vnit=3 -vso=2 --rs=2 $(TARGET) \
+	$(LMFP) -vrel=1 -vnit=3 -vso=2 --rs=2 $(TARGET) \
 		-vfsmom=-2 >> $1 2>&1
 endef
 
@@ -34,15 +34,15 @@ define test4a.exec
 	#
 	@cat message.test4.$(TARGET)
 	$(bindir)/lmfa -vrel=1 -vnit=1 -vso=0 $(TARGET) > $1 2>&1
-	$(bindir)/lmf -vrel=1 -vnit=1 -vso=2 --rs=2 $(TARGET) -vpwmode=11 >> $1 2>1
+	$(LMFP) -vrel=1 -vnit=1 -vso=2 --rs=2 $(TARGET) -vpwmode=11 >> $1 2>1
 	rm -f mixm.$(TARGET)
-	$(bindir)/lmf -vrel=1 -vnit=1 -vso=2 --rs=2 $(TARGET) >> $1 2>1
+	$(LMFP) -vrel=1 -vnit=1 -vso=2 --rs=2 $(TARGET) >> $1 2>1
 endef
 
 ###########################################################
 #----- subroutine test4b.exec
 define test4b.exec
-	$(bindir)/lmf -vrel=1 -vnit=1 -vso=1 --rs=2 $(TARGET) > $1 2>&1
+	$(LMFP) -vrel=1 -vnit=1 -vso=1 --rs=2 $(TARGET) > $1 2>&1
 endef
 
 ###########################################################

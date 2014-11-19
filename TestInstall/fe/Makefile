@@ -26,7 +26,7 @@ define test2.exec
 	#
 	@cat message.test2.$(TARGET)
 	$(bindir)/lmfa $(TARGET) > /dev/null
-	$(bindir)/lmf --rs=0 --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 $(TARGET) > $1 2>&1
+	$(LMF) --rs=0 --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 $(TARGET) > $1 2>&1
 	mv dos.$(TARGET) tdos.$(TARGET)
 	$(bindir)/lmdos --cls --dos:wtfn=cls:npts=1001:window=-.7,.8 -vnk=6 $(TARGET) >> $2 2>&1
 	mv dos.$(TARGET) dos-cls.$(TARGET)

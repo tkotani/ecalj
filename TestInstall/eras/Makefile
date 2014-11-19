@@ -20,8 +20,8 @@ define test1.exec
 	#
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa $(TARGET) > $1 2>&1
-	$(bindir)/lmf -vnit=1 --pr51 $(TARGET) >> $1 2>&1
-	$(bindir)/lmf -vnit=3 $(TARGET) >> $1 2>&1
+	$(LMFP) -vnit=1 --pr51 $(TARGET) >> $1 2>&1
+	$(LMFP) -vnit=3 $(TARGET) >> $1 2>&1
 endef
 
 ###########################################################

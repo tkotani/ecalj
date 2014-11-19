@@ -23,7 +23,7 @@ define test4c.exec
 	# --- Test case 4:  Spin-orbit coupling ---
 	#
 	@cat message.test4.$(TARGET)
-	$(bindir)/lmf --rs=2 -vso=1 -vnit=1 $(TARGET) --band:fn=syml \
+	$(LMFP) --rs=2 -vso=1 -vnit=1 $(TARGET) --band:fn=syml \
 		-vpwmode=0 > $1 2>&1
 endef
 

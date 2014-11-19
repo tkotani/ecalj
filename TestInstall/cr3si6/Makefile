@@ -20,7 +20,7 @@ define test1.exec
 	#
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa $(TARGET) --pr51 -vnit=2 --time=6 --no-iactiv > $1 2>&1
-	$(bindir)/lmf  $(TARGET) --pr51 -vnit=2 --time=6 --no-iactiv >> $1 2>&1
+	$(LMFP)  $(TARGET) --pr51 -vnit=2 --time=6 --no-iactiv >> $1 2>&1
 endef
 
 ###########################################################

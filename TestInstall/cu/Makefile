@@ -22,11 +22,11 @@ define test1.exec
 	#
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=8 -vbigbas=f > $1 2>&1
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=8 -vbigbas=f >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=8 -vbigbas=f >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=8 -vbigbas=t -vpwmode=0 \
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=8 -vbigbas=t -vpwmode=0 \
 		-voveps=0d-7 >> $1 2>&1
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vnk=8 -vbigbas=t -vpwmode=0 \
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=8 -vbigbas=t -vpwmode=0 \
 		-voveps=0d-7 --band:fn=syml >> $1 2>&1
 endef
 

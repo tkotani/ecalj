@@ -21,7 +21,7 @@ define test3.exec
 	#
 	@cat message.test3.$(TARGET)
 	$(bindir)/lmfa --no-iactiv $(TARGET) -vzbak=$2 >  $1 2>&1
-	$(bindir)/lmf  --no-iactiv $(TARGET) -vzbak=$2 >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vzbak=$2 >> $1 2>&1
 endef
 
 ###########################################################

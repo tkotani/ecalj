@@ -23,15 +23,15 @@ define test1.exec
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa  $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
 		--no-iactiv > $1 2>&1
-	$(bindir)/lmf   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 \
+	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 \
 		--pr31 --no-iactiv --rs=0 >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(bindir)/lmf   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
+	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
 		--pr31 --no-iactiv >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(bindir)/lmf   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
+	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
 		--pr31 --no-iactiv --time=5 >> $1 2>&1
-	$(bindir)/lmf   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
+	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
 		--no-iactiv -vso=t \
 		--band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml >> $1 2>&1
 endef
@@ -44,7 +44,7 @@ define test2.exec
 	@cat message.test2.$(TARGET)
 	$(bindir)/lmfa  $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv > $1 2>&1
-	$(bindir)/lmf   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
+	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
 	mv dos.$(TARGET) tdos.$(TARGET)
 	echo 501 -.8 .7 | $(bindir)/lmdos $(TARGET) -vmet=4 -vlmf=1 -vnk=8 \
