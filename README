@@ -266,6 +266,13 @@ tests only LDA part.
 >make gwall
 tests only GW part.
 
+NOTE (nov19 2014 kino): 
+In TestInstall/Makefile.define, we define
+LMF=lmf
+LMFP=lmf-MPIK
+(it is possible to use "LMFP=lmf-MPI" instead(for future development).
+If we set LMFP=$(LMF), tests are done with using lmf, not with using lmf-MPIK.
+
 NOTE: in principle, repeat make should do nothing when all binaries
 are correctly generated. However, because of some problem in makefile, 
 you may see some make procedure is repeated. You can neglect it as
