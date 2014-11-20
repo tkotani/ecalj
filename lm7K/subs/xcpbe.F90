@@ -644,6 +644,17 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 
 ! *************************************************************************
 
+
+!ccccccccccccccccccccccccccccc
+!c takao to overide ifort bug
+  logical:: pexexch
+         pexexch=.false.
+         if(present(exexch))then
+           if(exexch==1) pexexch=.true.
+         endif
+!ccccccccccccccccccccccccc
+
+
 !DEBUG
 !write(6,*)' xcpbe : enter'
 !ENDDEBUG
@@ -824,7 +835,7 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 !grho2_updn(ipts+2,3)=(ipts*0.01_dp*factor-delta)**2
 !grho2_updn(ipts+3,3)=(ipts*0.01_dp*factor+delta)**2   ! identical to ipts+1
 !grho2_updn(ipts+4,3)=(ipts*0.01_dp*factor-delta)**2   ! identical to ipts+2
-!rho_updn(ipts:ipts+4,1)=0.2_dp*factor*(1.0_dp+zeta_mean)*0.5_dp    ! spin up density
+!rho_updn(ipts:ipts+4,1)=0.2_dp*factor*(1.0_dp+zeta_mean)*0.5_dp     spin up density
 !rho_updn(ipts:ipts+4,2)=0.2_dp*factor*(1.0_dp-zeta_mean)*0.5_dp    ! spin down density
 !end if
 !end do
@@ -972,9 +983,13 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 !        If non spin-polarized, treat spin down contribution now, similar to spin up
          exc=exc*2
          exci(ipts)=exc*rhotot_inv
-         if(present(exexch))then
-           if(exexch==1) cycle
-         end if
+
+!c takao to overide ifort bug
+!c         if(present(exexch))then
+!c           if(exexch==1) cycle
+!c         end if
+         if(pexexch) cycle
+
 !        -----------------------------------------------------------------------------
 !        Then takes care of the LSD correlation part of the functional
 
@@ -1169,9 +1184,13 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 !        If non spin-polarized, treat spin down contribution now, similar to spin up
          exc=exc*2
          exci(ipts)=exc*rhotot_inv
-         if(present(exexch))then
-           if(exexch==1) cycle
-         end if
+
+!c takao to overide ifort bug
+!c         if(present(exexch))then
+!c           if(exexch==1) cycle
+!c         end if
+         if(pexexch) cycle
+
 !        -----------------------------------------------------------------------------
 !        Then takes care of the LSD correlation part of the functional
 
@@ -4346,9 +4365,12 @@ subroutine xcpbe(exci,npts,nspden,option,order,rho_updn,vxci,ndvxci,ngr2,nd2vxci
 
        end do
        exci(ipts)=exc*rhotot_inv
-       if(present(exexch)) then
-         if(exexch==1)cycle
-       end if
+
+!c takao to overide ifort bug
+!c       if(present(exexch)) then
+!c        if(exexch==1)cycle
+!c      end if
+       if(pexexch) cycle
 
 !      -----------------------------------------------------------------------------
 !      Then takes care of the LSD correlation part of the functional
