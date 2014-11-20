@@ -331,6 +331,7 @@ Cu FCC: @1=Cu a=6.798 --nk1=12 mkGW-12,12,12
 Fe BCCMG: @1=Fe @11=26 @101=0,0,2,0  a=2.8665/bohr --nk1=12  --nspin=2 mkGW-12,12,12
 Ni FCCMG: @1=Ni @11=28 @101=0,0,0.5  a=3.524/bohr  --nk1=12  --nspin=2 mkGW-12,12,12
 NiO NIOAF2: @1=Niup @2=Nidn @3=O  @11=28 @12=28 @13=8  @101=1.2 a=7.88 --nspin=2 --nk1=6 --nk2=6 --nk3=6 mkGW-4,4,4
+MnO NIOAF2: @1=Niup @2=Nidn @3=O  @11=25 @12=25 @13=8  @101=4.0 a=8.40 --nspin=2 --nk1=6 --nk2=6 --nk3=6 mkGW-4,4,4
 HfO2 HFO2:  @1=Hf @2=O  a=6.700 --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
 ZrO2 ZRO2:  @1=Zr @2=O  a=6.726 --nk1=6 --nk2=6 --nk3=4 mkGW-4,4,2
 Ce FCC: @1=Ce a=9.052 --nk1=12 mkGW-12,12,12

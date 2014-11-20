@@ -123,7 +123,8 @@ Tm  =" atomz=69@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Yb  =" atomz=70@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Lu  =" atomz=71@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #Hf  =" atomz=72@  pz='PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
-Hf  =" atomz=72@  pz='#PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
+Hf  =" atomz=72@  pz='PZ=0,5.5,0,0'@ p='P=0,6.5,0,4.5 Q=2,6,2,14'@ eh=-1*5@ eh2=-2*4@
+#PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
 Ta  =" atomz=73@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 W   =" atomz=74@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Re  =" atomz=75@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -949,7 +950,7 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       SIGP[MODE=3]
       # Now we use no cutoff procedure for Sigma-Vxc in lmf. (only in emax_sigm is effective in GWinput). 
       # default:SIGP_EMAX=9999.
-      RSRNGE=10.0  #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
+      RSRNGE=15.0  #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
       # This occurs when you set large n1n2n3 in GWinput, and/or large cell.
       # Reducing RSRNGE makes speed up a little ---> no effect to final results, but have chance 
       # to show the above message.
