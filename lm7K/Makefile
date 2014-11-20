@@ -338,3 +338,7 @@ checkgw:
 
 install: 
 	cp $(programs) $(fplotprogs) ctrlgenM1.py job* run_arg  $(BINDIR)
+
+### this is to avoid compilar bug of ifort bug (Version 14.0.1.106)
+$(subs_obj_path)/xcpbe.o : subs/xcpbe.F90
+	$(FC) $(FFLAGS_LESS) -c $< -o $(subs_obj_path)/xcpbe.o
