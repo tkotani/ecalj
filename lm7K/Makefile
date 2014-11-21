@@ -253,8 +253,8 @@ lmf2gw:	lmf2gw.o make_fc_version
 rdcmd:	rdcmd.o $(LIBSUBS) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lm67:	lm67src/lm67.F
-	(cd lm67src; $(FC) $(FFLAGS_LESS67) lm67.F $(LIBLOC) -o lm67 ; mv lm67 ../)
+#lm67:	lm67src/lm67.F
+#	(cd lm67src; $(FC) $(FFLAGS_LESS67) lm67.F $(LIBLOC) -o lm67 ; mv lm67 ../)
 
 ####### for MPI
 lmf-MPI.o: lmv7.F
