@@ -1,11 +1,12 @@
 #!/bin/bash
 echo $0 $@ 
-if [ $#  != 3 ]; then
-  echo "An example of usage: job_band_nspin1 si -np 4"
-  exit
-fi
+# if [ $#  != 3 ]; then
+#   echo "An example of usage: job_band_nspin1 si -np 4"
+#   exit
+# fi
 if [ $2 != "-np" ]; then
-  echo "An example of usage: job_band_nspin1 si -np 4"
+  echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
+  echo "   For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'       "
 else
   MPI_SIZE=$3
 fi
@@ -18,9 +19,9 @@ NO_MPI=0
 
 source $nfpgw/run_arg #this must be after all input arguments are processed
 
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band  ${@:4:($#-2)}
 tail -1 llmf_ef
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band:fn=syml 
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band:fn=syml  ${@:4:($#-2)}
 tail -1 llmf_band
 ### next is to determine the fermi energy. Not needed but safer ###
 #mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $MATERIAL --quit=band    |tee llmf_ef
