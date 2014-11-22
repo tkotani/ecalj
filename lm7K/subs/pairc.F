@@ -769,7 +769,7 @@ C --- Printout ---
   334   format(i4,i4,3f11.6,f9.4,3x,3i3,i5,2i4)
    90 continue
    91 if (ipr .ge. 20) write(stdo,
-     .'('' pairc:'',i7,'' pairs total'',i5,'' is max cluster size'')')
+     .'('' pairc:'',i8,'' pairs total'',i10,'' is max cluster size'')')
      .nttab, mxcsiz
 
 C     call tcx('ppair1')
