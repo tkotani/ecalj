@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 
 cd lm7K/
 make PLATFORM=gfortran_mpik cleanall
