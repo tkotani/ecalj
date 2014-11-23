@@ -183,6 +183,7 @@ def manip_argset(argset):
     showhelp=0
     metali=3
     fsmom_val=0.0
+    ssig_val=1.0
     touchingratio=.97 #default value was -1.0 
     eh1set=1
 #    readrmt=0
@@ -234,6 +235,10 @@ def manip_argset(argset):
                 nklist=arg.split("=")
                 if len(nklist)==2:
                         fsmom_val=nklist[1]
+	elif re.match("--ssig",arg)!=None:
+                nklist=arg.split("=")
+                if len(nklist)==2:
+                        ssig_val=nklist[1]
 	elif re.match("--tratio",arg)!=None:
                 ttt=arg.split("=")
                 if len(ttt)==2:
@@ -277,7 +282,7 @@ def manip_argset(argset):
     if ierror!=0:
 	print "ABORT. Check names of args. Some are not defined."
 	sys.exit(-1)
-    return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set 
+    return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,ssig_val,touchingratio,eh1set
 
 
 #-------------------------------------------------------
@@ -423,7 +428,7 @@ def getdataa2(aaa,key):
 ### readin args and set them in global variables ###
 nargv = len(sys.argv) -1
 argset= set(sys.argv[1:])
-nspin_val, so_val,xcfun_val,xcfun_str, mmom_val, systype_val, nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,touchingratio,eh1set \
+nspin_val, so_val,xcfun_val,xcfun_str, mmom_val, systype_val, nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,ssig_val,touchingratio,eh1set \
 = manip_argset(argset) #set global argument defined at the top of mainp_argset.
 
 if(so_val !='0' and nspin_val !='2'): sys.exit("Error: so is not zero but with nspin=1")
@@ -472,6 +477,7 @@ print "               if negative, we use use defalut MT radius in ctrlgenM1.py)
 print "  --systype=%s !(bulk,molecule)" % systype_val
 print "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw
 print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val
+print "  --ssig=%s ! ScaledSigma(experimental =1.0 is the standard QSGW"    %  ssig_val
 #print "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)"
 print 
 if(showhelp==1): sys.exit('--- end of help ---')
@@ -795,7 +801,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+"\n"
+tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+\n"
 tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
@@ -955,7 +961,7 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       # Reducing RSRNGE makes speed up a little ---> no effect to final results, but have chance 
       # to show the above message.
 
-      #ScaledSigma=0.9 # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
+      ScaledSigma={ssig} # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
       # This is a RPA-level hybridyzation method, in contrast to the B3LYP (hartree-fock level hybridyzation)
 
       SO={so}   #default = 0 

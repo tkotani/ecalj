@@ -57,10 +57,12 @@ To get a ecalj package, do
 >git clone https://github.com/tkotani/ecalj.git
 Then follow these steps explained below.
  (0) Get ecalj package and get tools.
+--- You can run folling (1)-(4) by a command InstallAll.foobar command at ecalj/ nov2014
  (1) make for single-core LDA part, 
  (2) make for MPIK LDA part, 
  (3) make for MPIK GW part.
  (4) Install test
+-----
  (5) crystal structure tools
 In the following explanation, we assume gfortran in ubuntu. 
 But we can also use ifort, and others. 
@@ -101,9 +103,8 @@ but it can be at any directory. All are described with relative path.
 We can check history of ecalj code development by
 ">gik --all" at ecalj/ directory after you did git clone.
 
-===============================================
-NOTE: Nove19 (2014)
-Following procedures, (1)-(4), are done automatically
+=====NOTE: Automatic command (1)-(4) ====================================
+NOTE: Nove19 (2014) Following procedures, (1)-(4), are done automatically
 by a script ,e.g., ./InstallAll.ifort.bash for intel fortran as;
 ---
 cd ecalj
@@ -118,8 +119,8 @@ It internally uses three machine-comilar dependent files;
   b.lm7K/MAKEINC/Make.inc.ifort_mpik (k-point paralell version -->(2)
   c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version -->(3)).
 At the last stage of the script, it runs automatic tests.
-(Do not need to care so much when nio_gwsc shows one-failure among two checks).
-The test may use ten minutes or more... Have a break!
+(You can neglect failure for nio_gwsc; it may show one-failure among two checks).
+The test may use ten minutes or more... Have a coffee!
   
 Note that ./InstallAll.ifort.bash may not work for your ifort.
 Our intent is that you may prepare your own 
@@ -131,7 +132,9 @@ you need to prepare not only InstallAll.ifort11.machine1.bash, but also
   b.lm7K/MAKEINC/Make.inc.ifort11.machine1_mpik 
   c.fpgw/exec/make.inc.ifort11.machine1
 In these files, you have to set compilar, linker, compilar options.
-================================================
+
+Users can skip to (5) if things finished well.
+=========================================================================
 
 ------------
 (1) make single core LDA part (it is in ecalj/lm7K/).
@@ -511,9 +514,13 @@ Time consuming part (and also the advantage) is for effective interaction in RPA
 Look into the shell script genMLWF; you can skip last part if you don't need the effective interaction.
 
 
+--------- this is the end for users -----------
 
 
-######## MEMO for developers: ####################################
+##################################################################
+######    LOG and MEMO for developers                 ############
+##################################################################
+=====
 Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
 We set comment lines such as
 ----
@@ -543,7 +550,8 @@ NOTE: !TIME can be nested as
 !TIME1 "foobar1"
 !TIME1 "foobar2"
 
-###################################
+
+=====
 1.branch x0mpi_merge (6b5e3, Aug2013): 
 contains a try to paralellize x0kf
 (imaginary part of dielectric function) more. It just show a
@@ -562,19 +570,27 @@ But no problem.
 	  '(lambda ()
 	     (setq fortran-line-length 132)))
 
---------- end of file -----------------
 
 
-===================================================
-ecalj PDOS sigm_fbz is required.
+======
+2014 nov23:
+job_band si -np 4 [options], where
+options can be "-vso=1 -vnspin=2" for SO case.
+--->Need to add documents to GetStarted.
+
+===
+--ssig option (ScaledSigma option).
+Need explanation...
+
+======
+PDOS: sigm_fbz is required.
 (when cp sigm,rst,GWinput ->LDA-like result.
  Then cp sigm_fbz ->it fails.
  Need to make new directory, and copy rst,sigm_fbz.)
 And how to check it. (whether 
-===================================================
 
 
-============================================
+======
 mixbeta:
 takao@TT4:~/ecalj/fpgw$ grep mixbeta */*.F
 main/hqpe.sc.m.F:      call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
@@ -582,9 +598,13 @@ mixing parameter on sigm file.
 As the default beta is unitiy, mixsigm and mixsigma files are 
 
 
-grep rmsdel *
+=======
+Check convergecne on QSGW.
+grep rms lqpe*
 
----------------------------------
+
+======
+other to DO
 (1)
  modify shell script to bash:
  use function. (learn git, push your new package to github).
@@ -594,3 +614,7 @@ grep rmsdel *
  Look into gwsc and 
 
  You can insert your own note in souce code.
+
+--------- end of file -----------------
+
+
