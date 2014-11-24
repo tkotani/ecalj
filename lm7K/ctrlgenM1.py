@@ -801,7 +801,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+\n"
+tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=30  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+"\n"
 tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
