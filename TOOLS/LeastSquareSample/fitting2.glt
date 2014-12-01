@@ -1,0 +1,28 @@
+#!/usr/bin/gnuplot -persist
+datfile='dat'
+rangemin=-0.41
+rangemax=0.41
+xdata=1
+ydata=12
+
+indexi=2 
+
+### fitting function ####################
+xx(x)= x
+d=0
+#this 
+f(x)  = ((( d*xx(x) +e)*xx(x) +f)*xx(x) +g)*xx(x) + h
+
+set key off
+fit [rangemin:rangemax] f(x) datfile index indexi using xdata:ydata via e,f,g,h
+
+set title datfile.'.index'.indexi 
+set mxtics 10  
+set mytics 10 
+set grid 
+set xlabel 'x-axis' 
+set ylabel 'y-axis'
+set xrange [rangemin: rangemax]
+
+plot f(x) with lines, datfile index indexi using xdata:ydata with points pointtype 2pointsize 2.2
+
