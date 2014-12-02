@@ -11,7 +11,7 @@ is the script to generate Wanneir function.
 Required setting is written in the GWinput file.
 
 Samples are:
- ecalj/MATERIALS/CuMLWFs     n1n2n3 4 4 4, rough but small
+ ecalj/MATERIALS/CuMLWFs    n1n2n3 4 4 4, rough but small within ~five minutes.
  ecalj/MATERIALS/CuMLWF     n1n2n3 10 10 10  
  ecalj/MATERIALS/SrVO3MLF
  ecalj/MATERIALS/FeMLWF
@@ -20,7 +20,11 @@ Samples are:
 
 -----------------------------
 How to run samples.
-At first, run job_band_nspin1 or job_band_nspin2 for reference. (need syml.*)
+At first, 
+run job_band_nspin1 or job_band_nspin2 for reference. 
+(need syml.*)
+>job_band_nspin1 cu -np 12
+, where 12 means number of cores.
 This gives correct Fermi energy, and stored into bnds.* file
 It is read by hmaxloc, called from genMLWF.
 
