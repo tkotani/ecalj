@@ -46,7 +46,8 @@ C ...   Find site mapped into first site under this operation
    14     continue
           call shorbz(d,d,plat,qlat)
           ia = ja
-          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-9) goto 80
+          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-7) goto 80
+c          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-9) goto 80
    12   continue
         call rxi('symprj: no site mapped into first under op',ig)
    80   continue
