@@ -1,407 +1,135 @@
-#!/bin/tcsh  
-# --------------------------------
-# self-consistent GW itteration using MPI.
-#---------------------------------
-###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh ##for tatara in kyushu-u This is neglected in other cases.
-###ref2cmd.awk %HEADER
-#normal mpi 
-set echo_run=""
-set serial_run=""
+#!/bin/bash 
+# ---------------------------------------------------------
+# QP self-consistent GW itteration using MPI. Using run_arg
+### you may need to set echo_run and serial_run in /run_arg for cray machine
+# ---------------------------------------------------------
 
-if($# != 4 ) then
-  $echo_run echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
-  exit
-endif
-if($argv[2] != "-np" ) then
-  $echo_run echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
-  exit
-endif
+if [ $# -ne 4 ] || [ $2 != "-np" ] ; then
+    echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
+    exit 101
+fi
+n=$0
+nfpgw=`dirname $0`
+TARGET=$4
+MPI_SIZE=$3
+NO_MPI=0
+ITER=$1
+lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
 
-set n = $0
-set nfpgw = ${n:h}
-set TARGET=$argv[4]
-set MPI_SIZE=$argv[3]
-set ITER=$argv[1]
-
-#set lx0_para_option='-nq 4 -ns 1'
-set lx0_para_option=""
-
-#cray 
-#set echo_run="aprun"
-#set mpi_run="aprun -n $LSB_PROCS -d $LSB_CPUS -N $LSB_PPN"
-#set serial_run="aprun"
-
-#normal mpi 
-set echo_run=""
-set mpi_run="mpirun -np $MPI_SIZE"
-set serial_run=""
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 
 $echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
-if(-e NoCore) then #backword compatibility not so meaningful now.
+##### rm and mkdir ##############
+if [ -e NoCore ]; then #backword compatibility not so meaningful now.
   rm -f NoCore 
-endif
-
-if(-e QPU) then
+fi
+if [ -e QPU ]; then
  rm -f QP[UD]
-endif
-if(! -e SEBK) then
+fi
+if [ ! -e SEBK ]; then
  mkdir SEBK
-endif
-
+fi
 ## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
 ## sigm is prior to simg.$TARGET.
-if(-e sigm) then
-  if(-e sigm.$TARGET) mv sigm.$TARGET sigm.$TARGET.bakup 
-  ln -s -f sigm sigm.$TARGET 
-  $echo_run echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
+if [ -e sigm ]; then
+  if [ -e sigm.$TARGET ]; then
+    mv sigm.$TARGET sigm.$TARGET.bakup 
+    ln -s -f sigm sigm.$TARGET 
+    $echo_run echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
+  fi
 else
-  if(-e sigm.$TARGET) then
+  if [ -e sigm.$TARGET ]; then
     mv sigm.$TARGET sigm
     ln -s -f sigm sigm.$TARGET 
     $echo_run echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
   else
     $echo_run echo '--- No sigm nor sigm.$TARGET files for starting ---'
-  endif
-endif 
+  fi
+fi 
 
-
-##### itteration loop start #############################################
-foreach ixx (`seq 0 ${ITER}`)
-@ ix = $ixx
-
-### self-consistent calculation with given sigma ###
-$echo_run echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
-if($ix == 0 ) then
-  if(-e sigm.$TARGET) then
+##### itteration loop start ##########################################
+for ix in `seq 0 ${ITER}`
+do
+ ##### self-consistent calculation for given Sigma(self-energy ###
+ $echo_run echo " ---- goto sc calculation for given sigma-vxc --- ix=",$ix
+ if [ $ix == 0 ]; then # ix=0 is for iteration from LDA.
+  if [ -e sigm.$TARGET ] ; then
     $echo_run echo " we have sigm already, skip iter=0"
-    continue
-  endif   
+    continue # goto ix=1
+  fi   
   $echo_run echo "No sigm ---> LDA caculation for eigenfunctions "
-#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
-###make_ref.awk   $mpi_run $nfpgw/lmf-MPIK $TARGET > llmf_lda
-###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_lda 
-#>>>
-
-$echo_run echo "        Start  $mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf_lda " 
-rm -f llmf
-$mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf_lda 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmf-MPIK output=llmf_lda
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
+  rm -f llmf
+  run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf_lda $TARGET
   cp rst.$TARGET rst.$TARGET.lda
-else
-###make_ref.awk   $mpi_run $nfpgw/lmf-MPIK $TARGET > llmf
-###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf 
-#>>>
+ else
+  run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
+ fi
+ rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}*
+ argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw  llmfgw00 $TARGET 
+ argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
-$echo_run echo "        $mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf " 
-$mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmf-MPIK output=llmf
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-endif
-
-#if ( $? == 0 )  then
-rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}*
-#endif
-
-######## preparatoy gw stage ################
-###make_ref.awk $echo_run echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
-###ref2cmd.awk %CMD program=lmfgw $echo_run echoinput=0  target=$TARGET output=llmfgw00 
-#>>>
-set argin=0
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $nfpgw/lmfgw $TARGET > llmfgw00 " 
-$serial_run $nfpgw/lmfgw  $TARGET < _IN_ > llmfgw00 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmfgw input=0 output=llmfgw00
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-###make_ref.awk $echo_run echo 1 |$nfpgw/qg4gw           > lqg4gw
-###ref2cmd.awk %CMD program=qg4gw $echo_run echoinput=1  output=lqg4gw 
-#>>>
-set argin=1
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|$nfpgw/qg4gw > lqg4gw " 
-$serial_run $nfpgw/qg4gw  < _IN_ > lqg4gw 
-  if ( $? != 0 )  then
-    $echo_run echo Error in qg4gw input=1 output=lqg4gw
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-### eigenvalues for micro-tetrahedron method. little used now.
-if(-e Qmtet) then
+ ### eigenvalues for micro-tetrahedron method. Rarely used.
+ if [ -e Qmtet ]; then
   mv Qmtet Qeigval 
-###make_ref.awk   $echo_run echo 5 |$nfpgw/lmfgw  $TARGET > llmfgw_eigval
-###ref2cmd.awk %CMD program=lmfgw $echo_run echoinput=5  target=$TARGET output=llmfgw_eigval 
-#>>>
-  set argin=5
-  $echo_run echo $argin > _IN_
-  $echo_run echo "  $echo_run echo $argin|$nfpgw/lmfgw  $TARGET > llmfgw_eigval " 
-$serial_run $nfpgw/lmfgw  $TARGET < _IN_ > llmfgw_eigval 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmfgw input=5 output=llmfgw_eigval
-    exit 10
-  endif
-#<<<
-  $echo_run echo -n 'OK! --> Start'
+  argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
   mv eigval eigmtet
-endif
+ fi
+ argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+ run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
-#$echo_run echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
-###make_ref.awk $echo_run echo 1 |$mpi_run $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
-###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK $echo_run echoinput=1  target=$TARGET output=llmfgw01 
-#>>>
-set argin=1
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|$mpi_run $nfpgw/lmfgw-MPIK  $TARGET> llmfgw01 " 
-$mpi_run $nfpgw/lmfgw-MPIK  $TARGET < _IN_ > llmfgw01 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmfgw-MPIK input=1 output=llmfgw01
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-#set exinfo = $?
-#if($exinfo == 0 ) then
-#  $echo_run echo " OK! lmfgw mode=1 "
-#else
-#  $echo_run echo Error in $echo_run echo 1\|lmfgw $TARGET
-#  $echo_run echo `tail -3 llmfgw01 `
-#  exit
-#endif
+ ##### main stage of gw ################
+ argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+ if [ $ix == 0 ]; then 
+   cp evec.$TARGET evec0  # used in hqpe_sc for isigma_en==5
+ fi
+ if [ -e ANFcond ]; then
+   cp EVU EVD  # This is for ANFcond. Rarely used recently
+ fi
+ argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
+ argin=1; run_arg $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
+ ### Core part of the self-energy (exchange only) ###
+ argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
+ argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
+ argin=3; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsxC # Sigma from core1
+ ### Valence part of the self-energy Sigma ###
+ argin=0; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas # Product basis generation 
+ argin=0; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
+ argin=1; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsx # Exchange Sigma
+  if [ -e WV.d ]; then
+    rm -f WV* 
+  fi
+ # following two runs are most expensive #
+ argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0_sc lx0 $lx0_para_option #x0 part
+ argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsc #correlation Sigma
+ argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
+ $echo_run echo -n 'OK! --> '
+ ### final part of iteration loop. Manupulate files ###
+ cp evec.$TARGET evec_prev_iter
+ ln -s -f sigm sigm.$TARGET
+ mv SEX* SEC* XC* SEBK
+ for file in sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf ESEAVR 
+ do
+ if [ -e $file ]; then
+     cp $file $file.${ix}run
+ fi
+ done
+ if [ $ix == 0 ] && [ ${ITER} != 0 ]; then
+  mkdir RUN0
+  run_arg '---' $MPI_SIZE $nfpgw           /lmf-MPIK llmf_oneshot $TARGET
+  cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_oneshot save.$TARGET RUN0
+ fi
+ $echo_run echo == $ix 'iteration over =='
+done 
+################## end of loop #######################
 
-#$echo_run echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
-$echo_run echo "  $nfpgw/lmf2gw >llmf2gw"
-$serial_run $nfpgw/lmf2gw    > llmf2gw
-  if ( $? != 0 )  then
-    $echo_run echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-############## main gw stage fpgw/exec ################
-###make_ref.awk $echo_run echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
-###ref2cmd.awk %CMD program=rdata4gw_v2 $echo_run echoinput=0 output=lrdata4gw_v2 
-#>>>
-set argin=0
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|$nfpgw/rdata4gw_v2  > lrdata4gw_v2 " 
-$serial_run $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw_v2 
-  if ( $? != 0 )  then
-    $echo_run echo Error in rdata4gw_v2 input=0 output=lrdata4gw_v2
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-if($ix == 0) then
-  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
-endif
-
-if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond. Unused recently
-
-# -- get EFERMI for hx0fp0
-###make_ref.awk $echo_run echo 1|$nfpgw/heftet      >leftet
-###ref2cmd.awk %CMD program=heftet $echo_run echoinput=1 output=leftet 
-#>>>
-set argin=1
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $nfpgw/heftet > leftet " 
-$serial_run $nfpgw/heftet  < _IN_ > leftet 
-  if ( $? != 0 )  then
-    $echo_run echo Error in heftet input=1 output=leftet
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
-###make_ref.awk $echo_run echo 1|$nfpgw/hchknw         >lchknw
-###ref2cmd.awk %CMD program=hchknw $echo_run echoinput=1 output=lchknw 
-#>>>
-set argin=1
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $nfpgw/hchknw > lchknw " 
-$serial_run $nfpgw/hchknw  < _IN_ > lchknw 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hchknw input=1 output=lchknw
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-### Core1 exchange self-energy 
-# -- product basis for core
-###make_ref.awk $echo_run echo 3|$nfpgw/hbasfp0 >lbasC
-###ref2cmd.awk %CMD program=hbasfp0 $echo_run echoinput=3 output=lbasC 
-#>>>
-set argin=3
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $nfpgw/hbasfp0 > lbasC " 
-$serial_run $nfpgw/hbasfp0  < _IN_ > lbasC 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hbasfp0 input=3 output=lbasC
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- Coulobm matrix
-###make_ref.awk $echo_run echo 3|$mpi_run $nfpgw/hvccfp0        >lvccC
-###ref2cmd.awk %CMD mpi=1 program=hvccfp0 $echo_run echoinput=3 output=lvccC 
-#>>>
-set argin=3
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $mpi_run $nfpgw/hvccfp0 > lvccC " 
-$mpi_run $nfpgw/hvccfp0  < _IN_ > lvccC 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hvccfp0 input=3 output=lvccC
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- the self energy from core1
-###make_ref.awk $echo_run echo 3| $mpi_run $nfpgw/hsfp0_sc   >lsxC
-###ref2cmd.awk %CMD mpi=1 program=hsfp0_sc $echo_run echoinput=3 output=lsxC 
-#>>>
-set argin=3
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $mpi_run $nfpgw/hsfp0_sc > lsxC " 
-$mpi_run $nfpgw/hsfp0_sc  < _IN_ > lsxC 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hsfp0_sc input=3 output=lsxC
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-### Valence part of the self-energy
-###make_ref.awk $echo_run echo 0|$nfpgw/hbasfp0  >lbas
-###ref2cmd.awk %CMD program=hbasfp0 $echo_run echoinput=0 output=lbas 
-#>>>
-set argin=0
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|$nfpgw/hbasfp0  > lbas " 
-$serial_run $nfpgw/hbasfp0  < _IN_ > lbas 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hbasfp0 input=0 output=lbas
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- Coulobm matrix
-###make_ref.awk $echo_run echo 0|$mpi_run $nfpgw/hvccfp0  >lvcc	
-###ref2cmd.awk %CMD mpi=1 program=hvccfp0 $echo_run echoinput=0 output=lvcc	 
-#>>>
-set argin=0
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin| $mpi_run $nfpgw/hvccfp0  > lvcc " 
-$mpi_run $nfpgw/hvccfp0  < _IN_ > lvcc 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hvccfp0 input=0 output=lvcc
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
-###make_ref.awk $echo_run echo 1|$mpi_run $nfpgw/hsfp0_sc   >lsx
-###ref2cmd.awk %CMD mpi=1 program=hsfp0_sc $echo_run echoinput=1 output=lsx 
-#>>>
-set argin=1
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|  $mpi_run $nfpgw/hsfp0_sc > lsx " 
-$mpi_run $nfpgw/hsfp0_sc  < _IN_ > lsx 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hsfp0_sc input=1 output=lsx
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-# -- Sergey.F the screened coulom interaction 
-if(-e WV.d) then
-  rm -f WV* 
-endif
-###make_ref.awk $echo_run echo 11|$mpi_run $nfpgw/hx0fp0_sc  >lx0
-###ref2cmd.awk %CMD mpi=1 program=hx0fp0_sc $echo_run echoinput=11 output=lx0 
-#>>>
-set argin=11
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|  $mpi_run $nfpgw/hx0fp0_sc $lx0_para_option > lx0 " 
-$mpi_run $nfpgw/hx0fp0_sc $lx0_para_option < _IN_ > lx0 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hx0fp0_sc input=11 output=lx0
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
-###make_ref.awk $echo_run echo 2|$mpi_run $nfpgw/hsfp0_sc   >lsc
-###ref2cmd.awk %CMD mpi=1 program=hsfp0_sc $echo_run echoinput=2 output=lsc 
-#>>>
-set argin=2
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|  $mpi_run $nfpgw/hsfp0_sc  > lsc " 
-$mpi_run $nfpgw/hsfp0_sc  < _IN_ > lsc 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hsfp0_sc input=2 output=lsc
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> Start'
-
-# -- Make summary 
-###make_ref.awk $echo_run echo 0|$nfpgw/hqpe_sc    >lqpe
-###ref2cmd.awk %CMD program=hqpe_sc $echo_run echoinput=0 output=lqpe 
-#>>>
-set argin=0
-$echo_run echo $argin > _IN_
-$echo_run echo "  $echo_run echo $argin|  $nfpgw/hqpe_sc  > lqpe " 
-$serial_run $nfpgw/hqpe_sc  < _IN_ > lqpe 
-  if ( $? != 0 )  then
-    $echo_run echo Error in hqpe_sc input=0 output=lqpe
-    exit 10
-  endif
-#<<<
-$echo_run echo -n 'OK! --> '
-
-### end of iteration loop ###########
-cp evec.$TARGET evec_prev_iter
-ln -s -f sigm sigm.$TARGET
-mv SEX* SEC* XC* SEBK
-foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf ESEAVR) 
-  if(-e $file) cp $file $file.${ix}run
-end
-$echo_run echo == $ix 'iteration over =='
-end
-
-
-#### exit only for a loop
-###make_ref.awk $mpi_run $nfpgw/lmf-MPIK $TARGET > llmf_gwscend.${ITER}
-###ref2cmd.awk %CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_gwscend.${ITER} 
-#>>>
-$echo_run echo "OK! --> Start  $mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf_gwscend.${ITER} " 
-$mpi_run $nfpgw/lmf-MPIK  $TARGET > llmf_gwscend.${ITER} 
-  if ( $? != 0 )  then
-    $echo_run echo Error in lmf-MPIK output=llmf_gwscend.${ITER}
-    exit 10
-  endif
-#<<<
+### finally we have llmf_gwscend ###
+run_arg '---' $MPI_SIZE $nfpgw             /lmf-MPIK llmf_gwscend.${ITER} $TARGET
 rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* _IN_
+if [ ${ITER} == 0 ]; then
+  mkdir RUN0
+  cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_gwscend.${ITER} save.$TARGET RUN0
+fi
 $echo_run echo OK! ==== All calclation finished for  gwsc $argv ====
 exit

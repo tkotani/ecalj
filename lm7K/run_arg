@@ -1,3 +1,5 @@
+# T.Kotani Nov.2013
+# SeungWoo Jang Sep.2013
 echo_run=""                    # standard
 serial_run=""                  # standard
 mpi_run="mpirun -np $MPI_SIZE" # standard
@@ -28,6 +30,9 @@ function run_arg
     fi
 }
 
+echo "NOTE: Use run_arg defined in $nfpgw/run_arg"
+
+
 ### takao. This sometimes cause error. (only replace > with |tee 
 # Because of hakozaki@kyushu-u.ac.jp ?
 # function run_arg_tee
@@ -52,4 +57,4 @@ function run_arg
 #         exit 10
 #     fi
 # }
-echo "NOTE: Use run_arg and run_arg_tee in $nfpgw/run_arg"
+
