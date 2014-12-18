@@ -7,8 +7,7 @@ top=../
 PLATFORM=gfortran
 include ../exec/make.inc.$(PLATFORM)
 
-FFLAGS=${FLAGS} -I${top}/exec
-
+FFI=-I${top}/exec
 BINDIR=${HOME}/bin
 ########### gfortran #############
 #FC=mpif90
@@ -667,7 +666,7 @@ eout2: $(EO2)
 #.SUFFIXES: .f .o .c1_o .c2_0 .c3_o .c4_o .F
 
 .F.o:
-	$(FC) $(FFLAGS) $*.F -c -o $*.o
+	$(FC) $(FFI) $(FFLAGS) $*.F -c -o $*.o
 #	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 #.F.o:
@@ -679,19 +678,19 @@ eout2: $(EO2)
 #	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 .f.c1_o:
-	$(FC) $(FFLAGS_c1) $*.f -c -o $*.c1_o
+	$(FC) $(FFI) $(FFLAGS_c1) $*.f -c -o $*.c1_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 .f.c2_o:
-	$(FC) $(FFLAGS_c2) $*.f -c -o $*.c2_o
+	$(FC) $(FFI) $(FFLAGS_c2) $*.f -c -o $*.c2_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 .f.c3_o:
-	$(FC) $(FFLAGS_c3) $*.f -c -o $*.c3_o
+	$(FC) $(FFI) $(FFLAGS_c3) $*.f -c -o $*.c3_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 .f.c4_o:
-	$(FC) $(FFLAGS_c4) $*.f -c -o $*.c4_o
+	$(FC) $(FFI) $(FFLAGS_c4) $*.f -c -o $*.c4_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
 
