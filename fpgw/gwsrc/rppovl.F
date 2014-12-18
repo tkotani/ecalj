@@ -27,7 +27,7 @@ c-----------------------------------------------------
       integer(4),allocatable :: ngvecc2s(:,:,:),ngvecc2s0(:,:,:),
      &   ngcs(:), ngc2s(:),ngvecc2_0(:,:)
       real(8),allocatable :: qxs(:,:)
-      logical :: KeepPPOVL,debug=.false., ippovlggooo=.true.
+      logical :: debug=.false., ippovlggooo=.true. !KeepPPOVL,
       integer:: verbose,io,ippovlgg=9223,ngcread2
       character*3 charnum3
 !! because of get_ngpgp iqix can be not consistent among PPOVLG and PPOVLI --> use iqix=0

@@ -43,7 +43,7 @@ Cr  GWIN0 and LATTC. One of them is used and
 Cr  other one is the dummy. The dummy should
 Cr  have negative value.
 C ----------------------------------------------------------------------
-      use keyvalue
+      use keyvalue,only: getkeyvalue
       implicit none
       integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin,idummy
       real(8) :: plat(3,3), alat,QpGcut_psi, QpGcut_Cou,dummy
@@ -54,7 +54,7 @@ C ----------------------------------------------------------------------
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
       integer(4):: verbose,q0pchoice,bzcase,wgtq0p !,normcheck !version,
-      logical:: keepppovl,GaussSmear,KeepEigen,core_orth,ldummy
+      logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
       integer(4):: iii, iq0pinxxx !may2013 
 ccccccccccccccccccccccccccccccccc
 c NaN test See NaNdble().
@@ -91,7 +91,7 @@ c ... for bug fix of ifc6. ifc6 does not allow
 c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
 c     as first call is not allowed by ifc6.
 c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0) seems to be not allowd by ifc6.
-      ldummy=KeepPPOVL()
+c      ldummy=KeepPPOVL()
       ldummy=KeepEigen()
       ldummy=core_orth()
       idummy=verbose()
@@ -99,7 +99,7 @@ c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0)
       idummy=bzcase()
       idummy=q0pchoice()
       print *,' --- switches defined in gwsrc/switch.f ---'
-      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
+c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
       write(6,"(' keepeigen() = ',L)")  KeepEigen()
       write(6,"(' core_orth()  = ',L)")  core_orth()
       write(6,"(' verbose ()  = ',i4)")  verbose()

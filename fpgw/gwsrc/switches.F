@@ -329,18 +329,18 @@ c      use keyvalue
 c      call getkeyvalue("GWinput","UseGeigBFile",ifgeigb,default=.false.)
 c      end
 
-      logical function KeepPPOVL()
-      use keyvalue
-c! Keep data from PPOVL in memory or not; in getppx in rdppovl.f.
-c KeepPPOVL=T : speed up
-c KeepPPOVL=F : efficient memory usage
-      logical,save:: init=.true.,Keepppovl0
-      if(init) then
-        call getkeyvalue("GWinput","KeepPPOVL",KeepPPOVL0,default=.true.)
-        init=.false.
-      endif
-      keepppovl = keepppovl0
-      end
+c      logical function KeepPPOVL()
+c      use keyvalue
+cc! Keep data from PPOVL in memory or not; in getppx in rdppovl.f.
+cc KeepPPOVL=T : speed up
+cc KeepPPOVL=F : efficient memory usage
+c      logical,save:: init=.true.,Keepppovl0
+c      if(init) then
+c        call getkeyvalue("GWinput","KeepPPOVL",KeepPPOVL0,default=.true.)
+c        init=.false.
+c      endif
+c      keepppovl = keepppovl0
+c      end
 
       logical function KeepEigen()
       use keyvalue
