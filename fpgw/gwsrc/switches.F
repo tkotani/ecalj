@@ -454,19 +454,21 @@ c                            ! Note that you have to supply EFERMI by the tetrah
 
 c--------------------------------------------
       integer(4) function bzcase()
-      use keyvalue
-c      bzcase==2 is for regular-mesh in BZ without gamma point.
-      logical,save ::init=.true.
-c      logical:: readgwinput
-      integer(4),save::bzcasex
-      if(init) then
-c        if(readgwinput()) then
-        call getkeyvalue("GWinput","BZmesh",bzcasex,default=1)
-c        endif
-        init=.false.
-      endif
-      bzcase=bzcasex
+      bzcase=1
       end
+c$$$      use keyvalue
+c$$$c      bzcase==2 is for regular-mesh in BZ without gamma point.
+c$$$      logical,save ::init=.true.
+c$$$c      logical:: readgwinput
+c$$$      integer(4),save::bzcasex
+c$$$      if(init) then
+c$$$c        if(readgwinput()) then
+c$$$        call getkeyvalue("GWinput","BZmesh",bzcasex,default=1)
+c$$$c        endif
+c$$$        init=.false.
+c$$$      endif
+c$$$      bzcase=bzcasex
+c$$$      end
 
 c------------------------------------------
       real(8) function wgtq0p()

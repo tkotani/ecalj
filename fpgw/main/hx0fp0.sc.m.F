@@ -90,7 +90,7 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
       real(8)::efin
       logical :: nolfco=.false.
       complex(8) :: x0meann     !dummy
-      integer:: bzcase, isp1,isp2, ngc,mrecg
+      integer:: isp1,isp2, ngc,mrecg ! bzcase,
       real(8)::  quu(3),deltaq(3),qqq(3)=0d0 !
       logical,allocatable :: iwgt(:,:,:,:)
       complex(8),allocatable:: wgt(:,:,:)
@@ -180,8 +180,9 @@ c     write(6,*)'Timereversal=',Timereversal()
 
 !! Use regular mesh even for bzcase==2 and qbzreg()=T
 !!     off-regular mesh for bzcase==1 and qbzreg()=F
-      if( ( bzcase()==2.and.qbzreg() )       .or.
-     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
+c      if( ( bzcase()==2.and.qbzreg() )       .or.
+c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
+      if(.not.qbzreg()) then 
          deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
          do i=1,nqbz
             qbz(:,i) = qbz(:,i) - deltaq/2d0
@@ -396,7 +397,8 @@ c     nwhis=nw
       call getkeyvalue("GWinput","omg_c",omg_c )
       write(6,*)'dw, omg_c= ',dw, omg_c
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-      if(bzcase()==2.or.(.not.qbzreg())) then
+c      if(bzcase()==2.or.(.not.qbzreg())) then
+      if(.not.qbzreg()) then
          allocate(qbz2(3,nqbz))
          do iq=1,nqbz
             qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
@@ -611,10 +613,10 @@ C     ---- these are used in x0k
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
       if(newaniso2) then
          iqxini=1
-      elseif(bzcase()==1) then
+      else !if(bzcase()==1) then
          iqxini = 2
-      else
-         iqxini = 1
+c      else
+c         iqxini = 1
       endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc

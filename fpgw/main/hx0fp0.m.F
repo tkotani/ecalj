@@ -134,7 +134,7 @@ c      integer :: nw2
       integer::nwin, incwfin,  verbose
       real(8)::efin
 
-      integer:: bzcase, ngc,mrecg
+      integer:: ngc,mrecg !bzcase, 
       real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
       logical:: omitqbz=.false., noq0p
 
@@ -142,7 +142,7 @@ c      integer :: nw2
       complex(8),allocatable:: wgt(:,:,:)
 
       real(8),allocatable:: qbz2(:,:)
-      logical :: qbzreg
+      logical :: qbzreg !if true, we use off-gamma mesh.
       integer:: nbcut,nbcut2
 
       integer,allocatable:: nstibz(:) !Nov2004 Miyake's tote
@@ -359,34 +359,34 @@ C ... files for RPA correlation energy mode.
 !! naraga says this cause a stop in ifort --->why???
 c      write(6,*)'Timereversal=',Timereversal()
 
+!! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
       call read_BZDATA()
-C --- Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-!--------readin data set when you call read_BZDATA ---------------
-!       integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,
-!c     &   n_index_qbz
-!       integer:: n1,n2,n3
-!       real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2
-!       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
-!     &    ,wibz(:),qbzw(:,:)
-!       integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-!     &    ,nstar(:),irk(:,:),nstbz(:)
-!c  ,index_qbz(:,:,:)
-!-----------------------------------------------------------------
+
 !! read bzdata; See use m_read_bzdata,only:
+!! Use off-regular mesh for qbzreg()=F See hx0fp0.m.sc.F also.
+!! This must be consistent with qg4gw.F-mkqg.F
+      if(.not.qbzreg()) then 
+         deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
+         do i=1,nqbz
+            qbz(:,i) = qbz(:,i) - deltaq/2d0
+            write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
+         enddo
+      endif
+      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 
 C --- Use regular mesh even for bzcase==2 and qbzreg()=T
 ! A little confusing...
-      ddq = 0d0
-      if(bzcase()==2) ddq= dq_bzcase2
-      do iq = 1, nqbz
-        qbz(1:3,iq) = qbz(1:3,iq) + ddq
-        ! This new qbz is regular mesh, which are identical in the both bzcase.
-      enddo
-      if(.not.qbzreg()) then ! off-regular mesh case
-        do i=1,nqbz
-          qbz(:,i) = qbz(:,i) - dq_bzcase2
-        enddo
-      endif
+c      ddq = 0d0
+c      if(bzcase()==2) ddq= dq_bzcase2
+c      do iq = 1, nqbz
+c        qbz(1:3,iq) = qbz(1:3,iq) + ddq
+c        ! This new qbz is regular mesh, which are identical in the both bzcase.
+c      enddo
+c      if(.not.qbzreg()) then ! off-regular mesh case
+c        do i=1,nqbz
+c          qbz(:,i) = qbz(:,i) - dq_bzcase2
+c        enddo
+c      endif
       if(mpi__root) then
          do i=1,nqbz
             if(i<10.or.i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
@@ -465,9 +465,7 @@ Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
 !! --- read dimensions of h,hb
       ifhbe  = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-Cstop2rx 2013.08.09 kino      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
       if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
-Cstop2rx 2013.08.09 kino      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
       if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 !! --- Readin Offset Gamma --------
@@ -546,23 +544,8 @@ C ... for legas test
       call getkeyvalue("GWinput","omg_c",omg_c )
       write(6,*)'dw, omg_c= ',dw, omg_c
 C ... frhis
-      if(bzcase()==2) then
-        write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
-      endif
+c      write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
       call findemaxmin(nband,qbze,nqbze,nspin ,emax,emin)
-!! Even if we neglect this section, result is not so bad---anyway we may need to
-!! fix this block if necessary. Oct2005
-      if(bzcase()==2.or.(.not.qbzreg())) then
-         allocate(qbz2(3,nqbz))
-         do iq=1,nqbz
-            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
-         enddo
-         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-         emax=max(emax,emax2)
-         emin=min(emin,emin2)
-         deallocate(qbz2)
-      endif
-!!!
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
       omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
       write(6,*)' emin emax omg2max=',emin, emax,omg2max
@@ -795,10 +778,10 @@ C ... Set iqxini
         iqxini= nqibz + 1
       elseif(newaniso2) then
         iqxini=1
-      elseif(bzcase()==1) then
+      else !if(bzcase()==1) then
         iqxini = 2
-      else
-        iqxini = 1
+c      else
+c        iqxini = 1
       endif
 
 C... check write 1st part for Ec mode to ecorr.chk Nov2004
