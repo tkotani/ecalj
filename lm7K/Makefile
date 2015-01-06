@@ -30,6 +30,8 @@ BINDIR=$(HOME)/bin
 #PLATFORM=fujitsufortran_mpik
 
 PLATFORM=gfortran
+LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
