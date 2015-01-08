@@ -434,6 +434,9 @@ c mar2014
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn)
 
+c      if(pdos.and.(.not.ltet)) then
+c         call rx('bndfp: pdos mode requires tetrahedron integration in current version')
+c      endif
 !! fermi surfece mode for xcrysden http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
       if(fsmode) then
@@ -454,12 +457,12 @@ c$$$ 1038   call rx('--fermisurface: needs three following numbers(divided by ,)
 c$$$      endif
 c$$$ 1039 continue
 
-#if MPIK
-      if(pdos) then
-         call mpi_finalize(ierr)
-         call rx('PDOS mode for lmf-MPIK is not yet implemented.')
-      endif
-#endif
+c$$$#if MPIK
+c$$$      if(pdos) then
+c$$$         call mpi_finalize(ierr)
+c$$$         call rx('PDOS mode for lmf-MPIK is not yet implemented.')
+c$$$      endif
+c$$$#endif
 
       if(cmdopt('--vbmonly',9,0,strn)) then
          print *,'--vbmonly mode'
@@ -618,11 +621,11 @@ CKI      enddo
 CKI      deallocate(sspecv)
 
       if (procid .eq. master) then
-         if(pdos) then
-            fxsts= fxst('sigm_fbz')
-         else
+c         if(pdos) then
+c            fxsts= fxst('sigm_fbz')
+c         else
             fxsts= fxst('sigm')
-         endif  
+c         endif  
          if (lrsig .ne. 0 .and. fxsts/=1) then
             call info0(1,1,0,' bndfp (warning): '//
      .        'no sigm file found ... LDA calculation only')
@@ -752,10 +755,10 @@ C     Switch to plot bands at specified qp
 !! isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
       l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 
-!! == PROCAR file open for pdos mode 
+!! == PROCAR file 
 c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
       PROCARon= cmdopt('--mkprocar',10,0,strn)
-      if(plbnd/=0.and.PROCARon) then
+      if(PROCARon) then
          iprocar1=9139
          inquire(unit=iprocar1,opened=nexist)
          if(nexist) stop 'bndfp: I assumed ifio=9139 is not used(too sloppy)'
@@ -1302,11 +1305,11 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
          rsrnge = sham%rsrnge
          if(procid==master) then
             if(oncewrite(9)) print *,'rsrnge procid=',rsrnge,procid
-            if(pdos) then
-               ifi = fopna('sigm_fbz',-1,4)
-            else
+c            if(pdos) then
+c               ifi = fopna('sigm_fbz',-1,4)
+c            else
                ifi = fopna('sigm',-1,4)
-            endif   
+c            endif   
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
             allocate( qsmesh(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
@@ -1325,31 +1328,33 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
             endif
 
 !! sfz is the self-energy roteted in the full BZ.
-! ndham is removed sep2012 (read from sigma file )
-            if(.not.pdos) then
-               call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
-     &           nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
-            endif   
+!!   ndham is removed sep2012 (read from sigma file )
+c            if(.not.pdos) then
+            call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
+     &        nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
+c            endif   
             call fclose(ifi)
-            if(.not.cmdopt('--no-wsig_fbz',13,0,strn).and.oncewrite(10)) then
+
+!! --- write sig_fbz for SYMGRP e
+            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
                write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
                ifis2 = fopna('sigm_fbz',-1,4)
-               if(pdos) then
-                  read(ifis2) nspsigm,ndimsig,nk1,nk2,nk3
-               else  
-                  write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
-               endif  
+c$$$               if(pdos) then
+c$$$                  read(ifis2) nspsigm,ndimsig,nk1,nk2,nk3
+c$$$               else  
+               write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+c$$$               endif  
                do is=1,nspsigm
                   do ik1=1,nk1
                      do ik2=1,nk2
                         do ik3=1,nk3
-                           if(pdos) then
-                              read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
-                              read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-                           else
-                              write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
-                              write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-                           endif
+c$$$                           if(pdos) then
+c$$$                              read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
+c$$$                              read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+c$$$                           else
+                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
+                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+c$$$                           endif
                         enddo
                      enddo
                   enddo
@@ -1375,11 +1380,11 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
 !!    The seneinterp stores real-space sigma to sham%rv_a_ohrs (real space representation), 
 !!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
 !! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
-            if(pdos) then
-               ifi = fopna('sigm_fbz',-1,4)
-            else
-               ifi = fopna('sigm',-1,4)
-            endif   
+c            if(pdos) then
+c               ifi = fopna('sigm_fbz',-1,4)
+c            else
+            ifi = fopna('sigm',-1,4)
+c            endif   
             call seneinterp(nbas,nspsigm,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in sham%rv_a_ohrs
             call fclose(ifi)
@@ -1815,6 +1820,7 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
 !! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
             savez=.false.
             getz=.false.
+
             if(gotosecondpass) then
                if(ix99==1) then
                   savez=.true.  ;  getz=.false.
@@ -1837,6 +1843,7 @@ c     then how can I share the same file among the different processes?
                   initiqisp=.false.
                endif  
             endif
+
             if(PROCARon) then   !!2014mar for band weight mode
                nmx=ndimhx
                nev=ndimhx
@@ -1846,6 +1853,7 @@ c     then how can I share the same file among the different processes?
                if(allocated(t_zv)) deallocate(t_zv)
                allocate(t_zv(ndimhx*ndimhx))
             endif
+
             call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
      .        evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
 ccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1901,7 +1909,7 @@ c            endif
             ecbot = min(ecbot,evl(i+1,jsp))
             if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
             if (plbnd .eq. 0) then
-#if                             ! (MPI | MPIK | MPE)
+#if ! (MPI | MPIK | MPE)
                if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
      .           write (stdl,712) (evl(i,jsp),i=1,nev)
  712           format('fp evl',8f8.4)
@@ -2036,9 +2044,7 @@ C   --- Mulliken analysis and partial DOS ---
                      nl = int(sctrl%nl)
                      nlmax = nl*nl
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
-#ifdef KINODEBUG
-                     write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
-#endif
+                     if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
                      ausu_rv(:)=0.0d0
                      call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
      .                 0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
@@ -2050,7 +2056,7 @@ C   --- Mulliken analysis and partial DOS ---
                   endif
                endif
 
-C   ... for core-level spectroscopy
+!!   ... for core-level spectroscopy
                if (icls .ne. 0 .and. lwtkb .ne. -1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
 #if MPI
@@ -2080,74 +2086,14 @@ C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
                endif
 
 !!   === Save evals for this qp ===
-#ifndef MPIK
             elseif (plbnd .ne. 0) then
+#ifndef MPIK
                if(debug) write(*,*)  'plbnd/=0 (noMPI)', ndham,jsp 
                if (nfbn(1)>0 .and. n_listwf>0) then
                   call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
      .              ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
      .              ,  n_listwf,listwf    )
                endif
-!! === may2014 === decompose to alm components. PROCAR generation.
-c ? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
-               if(PROCARon) then
-                  if(isp==1) iprocar=iprocar1
-                  if(isp==2) iprocar=iprocar2
-                  if(debug)  print *,'iiiii =',iprocar1,iprocar2,isp,iprocar
-                  nlmax = nl*nl
-                  if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
-                  allocate( auspp(nlmax,ndham*nspc,3,nsp,nbas) )
-                  if(initbd) then
-                     xdat = 0d0
-                  else
-                     xdat = xdat + dsqrt( sum((qp-qold)**2) )
-                  endif
-                  initbd=.false.
-                  qold=qp
-                  ccc="ion      s     py     pz     px    dxy    dyz    dz2    dxz    dx2"//
-     &              "    f-3    f-2    f-1     f0     f1     f2     f3    tot"
-                  write(iprocar,*)
-                  write(iprocar,*)
-                  write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)") 
-     &              iq,qp,xdat
-                  write(iprocar,*)
-                  auspp = 0d0
-                  call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .              0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .              nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
-                  do iband = 1, nev
-                     write(iprocar,*)
-                     write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
-                     write(iprocar,*)
-                     dwgtt=0d0
-                     do ib = 1, nbas
-                        is  = ssite(ib)%spec
-                        ilm = 0
-                        dwgt=0d0
-                        do  l = 0, sspec(is)%lmxa
-                           do  m = -l, l
-                              ilm = ilm+1
-                              au = auspp(ilm,iband,1,isp,ib)
-                              as = auspp(ilm,iband,2,isp,ib)
-                              az = auspp(ilm,iband,3,isp,ib)
-                              s11 = dconjg(au)*au*ppnl_rv(2,l+1,isp,ib)
-                              s22 = dconjg(as)*as*ppnl_rv(7,l+1,isp,ib)
-                              s33 = dconjg(az)*az*ppnl_rv(8,l+1,isp,ib)
-                              s12 = 0
-                              s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,isp,ib)
-                              s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,isp,ib)
-                              dwgt(ilm)= s11+s22+s33 + s12+s13+s23
-                           enddo
-                        enddo
-                        dwgtt = dwgtt + dwgt(1:ilm)
-                        if(ib==1)  write(iprocar,"(a)") trim(ccc)
-                        write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,16),sum(dwgt)
-                        if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,16),sum(dwgtt)
-                     enddo
-                  enddo
-                  deallocate( auspp )
-               endif 
-!!
                if(debug) print *,'dddddd111'
                i = nsp
                if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
@@ -2173,9 +2119,7 @@ c              print *,' eee3',evl(1:nevl,jsp)
      .              , ndhamx , t_zv , evl )
                endif
                if(debug) print *,'ddddd4444'
-
 #else
-            elseif (plbnd .ne. 0) then
                if (procid.eq.master) then
                   write(*,*)  'case plbnd.ne.0 (MPIK),iq=',iq
                   if(debug) write(*,*)  'nnn ', ndham,jsp 
@@ -2183,12 +2127,71 @@ c              print *,' eee3',evl(1:nevl,jsp)
                evlall(1:ndhamx,jsp,iq)= evl(1:ndhamx,jsp)
 #endif
             endif
+
+!! === may2014 === decompose to alm components. PROCAR generation.
+c ? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
+            if(PROCARon) then
+               if(isp==1) iprocar=iprocar1
+               if(isp==2) iprocar=iprocar2
+               if(debug)  print *,'iiiii =',iprocar1,iprocar2,isp,iprocar
+               nlmax = nl*nl
+               if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
+               allocate( auspp(nlmax,ndham*nspc,3,nsp,nbas) )
+               if(initbd) then
+                  xdat = 0d0
+               else
+                  xdat = xdat + dsqrt( sum((qp-qold)**2) )
+               endif
+               initbd=.false.
+               qold=qp
+               ccc="ion      s     py     pz     px    dxy    dyz    dz2    dxz    dx2"//
+     &           "    f-3    f-2    f-1     f0     f1     f2     f3    tot"
+               write(iprocar,*)
+               write(iprocar,*)
+               write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)") 
+     &           iq,qp,xdat
+               write(iprocar,*)
+               auspp = 0d0
+               call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+     .           0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
+     .           nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
+               do iband = 1, nev
+                  write(iprocar,*)
+                  write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
+                  write(iprocar,*)
+                  dwgtt=0d0
+                  do ib = 1, nbas
+                     is  = ssite(ib)%spec
+                     ilm = 0
+                     dwgt=0d0
+                     do  l = 0, sspec(is)%lmxa
+                        do  m = -l, l
+                           ilm = ilm+1
+                           au = auspp(ilm,iband,1,isp,ib)
+                           as = auspp(ilm,iband,2,isp,ib)
+                           az = auspp(ilm,iband,3,isp,ib)
+                           s11 = dconjg(au)*au*ppnl_rv(2,l+1,isp,ib)
+                           s22 = dconjg(as)*as*ppnl_rv(7,l+1,isp,ib)
+                           s33 = dconjg(az)*az*ppnl_rv(8,l+1,isp,ib)
+                           s12 = 0
+                           s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,isp,ib)
+                           s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,isp,ib)
+                           dwgt(ilm)= s11+s22+s33 + s12+s13+s23
+                        enddo
+                     enddo
+                     dwgtt = dwgtt + dwgt(1:ilm)
+                     if(ib==1)  write(iprocar,"(a)") trim(ccc)
+                     write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,16),sum(dwgt)
+                     if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,16),sum(dwgtt)
+                  enddo
+               enddo
+               deallocate( auspp )
+            endif 
             if(allocated(t_zv)) deallocate(t_zv)
 !! == end loop over isp (main loop in parallel mode)==
             if(debug) print *,'bbbbbbbb before 30'
  30         continue
             deallocate(igv2x)
-c            endif
  2005    continue
          if(debug) print *, 'tttttttttt 9999999999999999999 2',procid,iq
          deallocate(hamm,ovlm)
@@ -2198,6 +2201,7 @@ c            endif
       inquire(unit=ifig,opened=nexist)
       if(nexist) call fclose(ifig)
       if( debug) print *, 'tttttttttt 9999999999999999999 3',procid,iq
+
 
 #if MPIK
       call mpibc2(ndimhx_,nkp,2,mlog,'bndfp','mdimhx_') !all reduce may be not necessary.
@@ -2799,6 +2803,10 @@ c      endif
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
+
+
+cxxxxx ---here we need pdos integration for doswt_rv(nchan,ndimhx,nspc,nkp); SYMGRP e case.
+cxxxxx  we have to use sbz%iv_a_oidtet_nosym
 
                if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv )

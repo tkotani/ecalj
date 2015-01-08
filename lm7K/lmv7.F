@@ -309,9 +309,9 @@ c        call shosyv(0,-1,0,6)
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
 #endif
-      if( cmdopt('--pdos',6,0,strn)) then
-        write(*,*) ' --pdos: Enforce SYMGRP e. Read sigm_fbz for RDSIG. Set --quit=band.'
-      endif
+c      if( cmdopt('--pdos',6,0,strn)) then
+c        write(*,*) ' --pdos: Enforce SYMGRP e. Read sigm_fbz for RDSIG. Set --quit=band.'
+c      endif
 
 C      write(stdo,*)' === TEST out recrd === '
 C      j = 0
@@ -345,8 +345,9 @@ C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       call upacks('strn symg',i,j)
       if (j .ge. i) strn = sstrn(i:j+1)
-!! mar2013 --pdos
-      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
+!! mar2013 --pdos ===> jan2015 remove pdos again
+c      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
+      if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 10
 #ifndef LMFGWD
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
