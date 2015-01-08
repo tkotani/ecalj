@@ -1,7 +1,7 @@
 #!/bin/bash
 echo $0 $@
 #if [ $#  != 3 ] || [ $2 != "-np" ]; then
-if [ $# -eq 0 ] || [ $2 != "-np" ]; then
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
   echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
   echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1'       "
   exit

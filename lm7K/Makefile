@@ -64,7 +64,7 @@ fplotprogs := fplot plbnds pldos
 
 ALL: libs
 	$(MAKE) -f Makefile progs
-	-[ -f slatsm/slatsm.a ] && (cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) ; cp -f $(fplotprogs) ../)
+	-[ -f slatsm/slatsm.a ] && (cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) LIBLOC='$(LIBLOC)'; cp -f $(fplotprogs) ../)
 #	(cd slatsm; make -f Makefile SLATSM=$(SLATSM))
 #	(cd subs; make -f Makefile SUBS=$(SUBS))
 #	(cd fp; make -f Makefile FP=$(FP))
