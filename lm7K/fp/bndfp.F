@@ -329,12 +329,12 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       logical :: debug=.false.  !debug is only for check write. However, it can cause error
 !for 'make check',
 !because fp/test/test.fp assumes 'something not inserted in console output'.
-#if MPIK
+c#if MPIK
       integer obuf,oqptr
       integer igetss,lmxh,nlmh,nelt(3),nkaph,kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
-#endif
+c#endif
 
 C For self-energy
       integer nqsig
@@ -427,7 +427,7 @@ c mar2014
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
 !! === MPI setup ===
-      procid = mpipid(1)
+      procid = mpipid(1) !zero for no mpi
       master = 0
 !! === computational modes switches
       mlog = cmdopt('--mlog',6,0,strn)
@@ -820,8 +820,8 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
          endif
 #if MPI|MPIK
          call mpi_barrier(MPI_comm_world,ierr)
-         call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
 #endif        
+         call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
       endif
 
 c xxxxxxxxxxx new sigma block
@@ -1059,8 +1059,28 @@ ckino getef is integer          call getef(ifi,0,ef0)
             i_dummy_getef= getef(ifi,0,ef0)
             call fclr('wkp',ifi)
          endif
-
          call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+      endif   
+
+!! ... For insulator, valence band top and conduction band bottom
+      evtop = -99999
+      ecbot = -evtop
+
+C ... Setup for spin-orbit coupling
+      if (lso .ne. 0) then
+C        call sumlst(10,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
+C     .    nsites,lsites,lmxch,nchan,w,nll)
+Changenglob        nlmax = nglob('nlmax')
+         nlmax = globalvariables%nlmax
+         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
+         allocate(orbtm_rv(nl*nsp*nbas))
+         orbtm_rv(:)=0.0d0
+      endif
+
+!! takao. suqlst mechanism is too complicated... we need to remove this ...
+!! === set up qplist
+      if(debug) write(*,*) 'bndfp: uuuuuuu1111111'
+      if (plbnd .ne. 0) then
          iopq = 0
 C       suqlst in MPIK mode; returns cumulative number of k-points
 #if MPIK
@@ -1071,7 +1091,6 @@ C       suqlst in MPIK mode; returns cumulative number of k-points
          if (onesp .ne. 0 .or. nspc .eq. 2) i = 1  
 C       In parallel mode, suqlst call only serves to generate nkp
          if(debug) print *,'vvvvv nkp=',nkp
-
 ckino plotting wavefunction
          write(*,*)'allocate listwf , size=',ndham
          if (allocated(listwf))  deallocate(listwf)
@@ -1105,38 +1124,18 @@ ckino
                write(*,'(8I5)')  listwf(1:n_listwf)
             endif
          endif
-
-         if(debug) print *,'vvvvv nkp222=',nkp,iopq
          call mpibc1(nkp,1,2,mlog,'bndfp','nkp')
          if (nkp .le. 0) call rx0('bndfp')
          call mpibc1(nfbn,2,2,mlog,'bndfp','nfbn')
          call mpibc1(onesp,1,2,mlog,'bndfp','onesp')
-
-ckino plotting wavefunction
-         call mpibc1(n_listwf,1,2, mlog,'bndfp','n_listwf')
+         call mpibc1(n_listwf,1,2, mlog,'bndfp','n_listwf') !ckino plotting wavefunction
          if (n_listwf>0) then
             call mpibc1(listwf,n_listwf,2, mlog,'bndfp','listwf')
          endif
-
-C MPIK: Setup to assemble all k-points into single list with qp table
-#if MPIK
-         if(debug) print *,'vvvvv aa111'
-         if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
-            call rx('Cannot use color weights with MPIK')
-         endif
-         call suqlsm(i)
-
-!!       Re-allocate qp and evl arrays
-         if(debug) print *,'vvvvv aa222'
+!!  Re-allocate qp array
          if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
          allocate(sbz%rv_p_oqp(3*nkp))
-         sbz%rv_p_oqp(:)=0.0d0
-
-         if(debug) print *,'vvvvv aa333'
-
-         call info2(20,1,1,' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
-         call info2(20,1,1,' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
-
+         sbz%rv_p_oqp=0d0
 !! Fermi surface version for xcrysden
          if(fsmode) then
             iq=0
@@ -1153,53 +1152,65 @@ C MPIK: Setup to assemble all k-points into single list with qp table
             enddo
             goto 198
          endif
-ckino2012Oct15 comment loop_start-----------------
-C       Loop through all qp; accumulate vector of qp.
-C       Use i2 in place of nkp to preserve nkp
+
+!! MPIK: Setup to assemble all k-points into single list with qp table
+#if MPIK
+         if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
+            call rx('Cannot use color weights with MPIK')
+         endif
+!! Loop through all qp; accumulate vector of qp.
+!! Use i2 in place of nkp to preserve nkp
          if (procid .eq. master) then
 C       iq = running index to big qp list, i1 = index to current line
             iq = 0
             i2 = 0
- 199        continue
-            i = 1
-            call pshpr(0)
-            call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .        , ifbls_iv , i2 , qp , onesp )
-
-            call poppr
-            if (i2 .gt. 0) then
+            do 199
+               i = 1
                call pshpr(0)
-               do  i1 = 1, i2
-                  iq = iq+1
-                  call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .              , ifbls_iv , i2 , qp , onesp )
-                  call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-               enddo
+!! takao think suqlst is problematic... fatband mode will be removed, 
+!! since we alreay implemented PROCAR mode.
+               call suqlst(plbopt,1,ndhamx,ef0,i,iwdummy,nfbn,ifbls_iv,i2,qp,iwdummy) 
+!! set i2=0 is required for initialization for band mode.
                call poppr
-               call suqlsm(i)
-               if (i .ne. 3) goto 199
-            endif
-ckino2012Oct15 comment loop_end-----------------
+               if (i2 .gt. 0) then
+                  call pshpr(0)
+                  do  i1 = 1, i2
+                     iq = iq+1
+                     call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .                 , ifbls_iv , i2 , qp , iwdummy )
+                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                  enddo
+                  call poppr
+                  call suqlsm(i)
+                  if (i == 3) exit
+               endif
+ 199        enddo
          endif
- 198     continue
-         call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
+#else
+      do iq = 1, nkp
+         i = nsp
+         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+         call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
+     .        , ifbls_iv , nkp , qp , onesp )
+c         qplist(:,iq)=qp
+         call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+      enddo
 #endif
       endif
+ 198  continue
+      call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 
-C ... For insulator, valence band top and conduction band bottom
-      evtop = -99999
-      ecbot = -evtop
-
-C ... Setup for spin-orbit coupling
-      if (lso .ne. 0) then
-C        call sumlst(10,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
-C     .    nsites,lsites,lmxch,nchan,w,nll)
-Changenglob        nlmax = nglob('nlmax')
-         nlmax = globalvariables%nlmax
-         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
-         allocate(orbtm_rv(nl*nsp*nbas))
-         orbtm_rv(:)=0.0d0
-      endif
+!! Copy sbz%rv_p_oqp to qplist. 
+      if(allocated(qplist)) deallocate(qplist)
+      allocate(qplist(3,nkp))
+      if(nkp/=0) call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
+      !NOTE: sbz$qplist and qplist are equivalent
+      if (procid.eq.master) then
+         print *,'-------- qplist --------'
+         do iq=1,nkp
+            write(6,"(i5,3f8.3)")iq,qplist(:,iq)
+         enddo
+      endif 
 
 C ... Setup for case sigma or evecs written to disk.
 C     No integrated quantities accumulated.  qp read from file
@@ -1227,32 +1238,6 @@ C C       endif
 C       endif
 
 
-C --- Get qplist. This is only for no MPI mode yet...
-      if(allocated(qplist)) deallocate(qplist)
-      allocate(qplist(3,nkp))
-#if MPIK
-      call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
-#else
-      do iq = 1, nkp
-         if (plbnd .ne. 0) then
-            i = nsp
-            if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-            call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .        , ifbls_iv , nkp , qp , onesp )
-         else
-            call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
-         endif
-         qplist(:,iq)=qp
-      enddo
-#endif 
-
-
-      if (procid.eq.master) then
-         print *,'-------- qplist --------'
-         do iq=1,nkp
-            write(6,"(i5,3f8.3)")iq,qplist(:,iq)
-         enddo
-      endif 
 
 #if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
@@ -1478,8 +1463,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       nev_   =0
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
-
       do 2010 iq = iqini, iqend !This is a big iq loop
+         qp=qplist(:,iq)
 #if MPIK
          if(debug) write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
          if (iq .eq. kpproc(procid)) then
@@ -1492,15 +1477,6 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
             endif
          endif
 #endif
-C       Get qp either from qp list or read from suqlst
-#ifndef MPIK
-         qp=qplist(:,iq)
-#else
-         call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
-
-#endif
-
-cnnn
          if(pwmode>0.and.pwmode<10) then
             ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
             call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
@@ -1962,15 +1938,12 @@ C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
                evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
                if( debug) print *, 'tttttttttt 22222'
-
 C   --- Orbital magnetic moment (requires lso) ---
                if (lso .ne. 0 .and. lwtkb .ne. -1) then
                   if (lwtkb .eq. 0) call
      .              rx('metal weights required for orb. moment calculation')
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
-#ifdef KINODEBUG
-                  write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
-#endif
+                  if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
                   auso_zv(:)=0.0d0
                   call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
      .              0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
@@ -1981,7 +1954,6 @@ C   --- Orbital magnetic moment (requires lso) ---
                   deallocate(auso_zv)
                endif
                if( debug) print *, 'tttttttttt 333'
-
 C   --- Mulliken analysis and partial DOS ---
                if (lwtkb .ne. -1) then
                   if (procid .eq. master) then
