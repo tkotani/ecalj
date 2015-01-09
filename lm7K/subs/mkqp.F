@@ -132,10 +132,10 @@ C ... Read qp from disk
         endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
 ckino Jan.4.2012
-        if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-        allocate(sbz%rv_p_oqp(abs(3*nkp)))
+        if (associated(sbz%qplist)) deallocate(sbz%qplist)
+        allocate(sbz%qplist(3,nkp))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
-        if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
+        if (3*nkp<0) sbz%qplist(:,:)=0.0d0
 
 ckino Dec.8.2011:           allocate(rv_p_owtkp(abs(-nkp)))
 ckino Dec.27.2011:           allocate(sbz%rv_p_owtkp(abs(-nkp)))
@@ -162,7 +162,7 @@ ckino Dec.28.2011:             if (1<0) sbz%iv_p_oidtet(:)=0
 
         endif
 ckino Dec.8.2011:             call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp
-        call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , sbz%rv_p_oqp
+        call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , sbz%qplist
 ckino Dec.8.2011:       .     , rv_p_owtkp , iv_p_oidtet )
 ckino Dec.8.2011:       .     , sbz%rv_p_owtkp , iv_p_oidtet )
 ckino Dec.27.2011:       .     , sbz%rv_p_owtkp , sbz%iv_p_oidtet )
@@ -215,10 +215,10 @@ ckino Dec.27.2011:           call dvset ( sbz%rv_p_owtkp , 1 , 1 , dble ( nsgrp 
 #endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*mxkp)))
 ckino Jan.4.2012
-        if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-        allocate(sbz%rv_p_oqp(abs(3*mxkp)))
+        if (associated(sbz%qplist)) deallocate(sbz%qplist)
+        allocate(sbz%qplist(3,mxkp))
 ckino Dec.8.2011:           if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-        if (3*mxkp<0) sbz%rv_p_oqp(:)=0.0d0
+        if (3*mxkp<0) sbz%qplist(:,:)=0.0d0
 
 ckino Dec.14.2011:           allocate(iv_p_oipq(abs(6*mxkp)))
 ckino Dec.27.2011:           allocate(sbz%iv_p_oipq(abs(6*mxkp)))
@@ -254,12 +254,12 @@ ckino Dec.27.2011:           call ivset ( sbz%iv_p_ostar , 1 , 1 , lgstar )
         call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
 ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp ,
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp ,
-ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp ,
+ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%qplist ,
+ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%qplist ,
+ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%qplist ,
+ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%qplist ,
+ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%qplist , 
+     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%qplist ,
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc )
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc )
 ckino Dec.27.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc )
@@ -296,10 +296,10 @@ ckino Dec.27.2011:           call dvset ( sbz%rv_p_owtkp , 1 , 1 , dble ( nsgrp 
 #endif
 ckino Dec.8.2011:           allocate(rv_p_oqp(abs(3*nkp)))
 ckino Jan.4.2012
-        if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-        allocate(sbz%rv_p_oqp(abs(3*nkp)))
+        if (associated(sbz%qplist)) deallocate(sbz%qplist)
+        allocate(sbz%qplist(3,nkp))
 ckino Dec.8.2011:           if (3*nkp<0) rv_p_oqp(:)=0.0d0
-        if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
+        if (3*nkp<0) sbz%qplist(:,:)=0.0d0
 
 ckino Dec.14.2011:           allocate(iv_p_oipq(abs(6*mxkp)))
 ckino Dec.27.2011:           allocate(sbz%iv_p_oipq(abs(6*mxkp)))
@@ -317,12 +317,12 @@ ckino Dec.27.2011:           call ivset ( sbz%iv_p_ostar , 1 , 1 , lgstar )
         call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
 ckino Dec.14.2011:  ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp ,
 ckino Dec.8.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , rv_p_oqp ,
-ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%rv_p_oqp ,
-ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp , 
-     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp ,
+ckino Dec.14.2011:  ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , sbz%qplist ,
+ckino Dec.12.2011:       .       ( 3 ) , llshft , rv_p_osymgr , npgrp , sbz%iv_p_oipq , sbz%qplist ,
+ckino Dec.14.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , iv_p_oipq , sbz%qplist ,
+ckino Dec.27.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_p_oipq , sbz%qplist ,
+ckino Dec.28.2011:       .       ( 3 ) , llshft , slat%rv_p_osymgr, npgrp , sbz%iv_a_oipq , sbz%qplist , 
+     .       ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%qplist ,
 ckino Dec.8.2011:       .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc )
 ckino Dec.8.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc )
 ckino Dec.27.2011:       .       sbz%rv_p_owtkp , nkp , mxkp , sbz%iv_p_ostar , lpbc )
@@ -435,7 +435,7 @@ C     call prmx('qp',w(oqp),3,3,nkp)
       sbz%nkp=nkp
       i_copy_size=size(sbz%nkabc)
       call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1)
-ckino Dec.8.2011:         sbz%rv_p_oqp => rv_p_oqp
+ckino Dec.8.2011:         sbz%qplist => rv_p_oqp
 
 ckino Dec.8.2011:         sbz%rv_p_owtkp => rv_p_owtkp
 
@@ -466,7 +466,7 @@ C --- Write q-points to disc ---
 
         nfilqp = fopna('QPTS',-1,0)
 ckino Dec.8.2011:             call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp
-        call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , sbz%rv_p_oqp
+        call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , sbz%qplist
 ckino Dec.8.2011:       .     , rv_p_owtkp , iv_p_oidtet )
 ckino Dec.8.2011:       .     , sbz%rv_p_owtkp , iv_p_oidtet )
 ckino Dec.27.2011:       .     , sbz%rv_p_owtkp , sbz%iv_p_oidtet )

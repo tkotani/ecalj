@@ -212,8 +212,8 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       integer:: ohrss
-      real(8),pointer :: rv_p_oqp(:) =>NULL()
-      real(8),allocatable,target :: rv_a_oqp(:)
+      real(8),pointer :: rv_p_oqp(:,:) =>NULL()
+      real(8),allocatable,target :: rv_a_oqp(:,:)
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -425,10 +425,10 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
       allocate(sham%rv_p_oqsig(abs(3*mxkp)))
       if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
-      allocate(rv_a_oqp(abs(3*mxkp)))
+      allocate(rv_a_oqp(3,mxkp))
       rv_p_oqp=>rv_a_oqp
 ckino end
-      if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+      if (3*mxkp<0) rv_p_oqp(:,:)=0.0d0
       allocate(gstar_iv(abs(-mxkp-1)))
       if (-mxkp-1<0) gstar_iv(:)=0
       gstar_iv = - 2
@@ -617,7 +617,7 @@ c$$$c              i_copy_size=size(sbz%nkabc)
 c$$$c              call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 c$$$c              i_copy_size=size(sbz%lshft)
 c$$$c              call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
-c$$$ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%rv_p_oqp
+c$$$ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%qplist
 c$$$ckino Jan.4.2012               allocate(rv_p_oqp(abs(3*mxkp)))
 c$$$            if (lnwmsh) then
 c$$$              lshft=sbz%lshft
@@ -718,7 +718,7 @@ C ... Transformations done by caller: write qp list to disk
           i_copy_size=size(sbz%lshft)
           call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
           nqp=sbz%nkp
-          rv_p_oqp => sbz%rv_p_oqp
+          rv_p_oqp => sbz%qplist
           call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
      .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
@@ -726,9 +726,9 @@ C ... Transformations done by caller: write qp list to disk
         if (lfbzout) then
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-          allocate(rv_a_oqp(abs(3*mxkp)))
+          allocate(rv_a_oqp(3,mxkp))
           rv_p_oqp=>rv_a_oqp
-          if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+          if (3*mxkp<0) rv_p_oqp(:,:)=0.0d0
           allocate(ipq_iv(mxkp))
           allocate(wgt_rv(abs(-mxkp)))
           if (-mxkp<0) wgt_rv(:)=0.0d0

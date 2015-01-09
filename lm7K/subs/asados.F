@@ -582,7 +582,7 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         allocate(dos_rv(npts,nsp,nchan))
         if (nblst .eq. 0) nblst = nevmx
         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz
-     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%rv_p_oqp
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, sbz%qplist !rv_p_oqp
      .      , sbz%iv_a_oipq, sbz%iv_a_ostar, iblst , eband_rv , cvec ( 1 ) , doswt_rv 
      .      , npts , emin , emax , lidos , wk_rv , dos_rv )
         del = 0d0

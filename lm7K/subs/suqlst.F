@@ -1,6 +1,6 @@
 #define MULLIKEN 1
       subroutine suqlst(sopts,iop,nband,efermi,nsp,evl,nfbn,ifblst,nq,
-     .qp,onesp)
+     .qp, onespdummy) !onesp removed 
       use m_globalvariables
 C- Set up a list of q-points in various modes for energy bands
 C  See also entry suqlsw(nband,jsp,nsp,evl)
@@ -71,7 +71,8 @@ Co         :color weight is the sum of contributions from eigenvector
 Co         :components in iblst
 Co   qp    :not set, if suqlst is called starting a new block.
 Co         :(see Remarks).  Else, k-point at which to generate bands
-Co   onesp :if spin1 flag is encountered, onesp is set to 1 and nsp is set to 1
+Co    onesp(removed by takao) :
+Co    if spin1 flag is encountered, onesp is set to 1 and nsp is set to 1
 Cl Local variables
 Cl   iq    :current qp in this block
 Cl   mode  :1 symmetry-line mode
@@ -143,7 +144,8 @@ Cu Updates
 Cu   08 Jul 08 Extend to case where number of bands can be q dependent
 Cu             modes 1,2: suqlsw writes out number of bands with qp
 Cu   09 Jul 07 configured to with with MPIK mode
-Cu   05 Jul 07 Enable onesp to be set as switch in --band:spin1
+Cu   05 Jul 07 Enable onesp to be set as switch in --band:spin1 
+c                                                          -->forbidden 2014takao
 Cu   02 Jul 06 Color mode extended to two colors
 Cu   02 Jul 06 New color mode (one color weight only)
 Cu   14 Feb 05 contour mode saves both spins in spin-polarized case
@@ -154,7 +156,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*) sopts
-      integer nq,nband,nsp,nfbn(2),ifblst(nband,*),onesp,iop
+      integer nq,nband,nsp,nfbn(2),ifblst(nband,*),onespdummy,iop!onesp
       double precision efermi,qp(3),evl(nband)
 C ... Local variables
       character strn*120, strn2*120, dc*1, fn*120, prfmt*40
@@ -221,8 +223,9 @@ C   ... Return here to resume parsing for arguments
             elseif (sopts(j1:j2) .eq. 'qp')  then
               mode = 2
             elseif (sopts(j1:j2) .eq. 'spin1')  then
-              onesp = 1
-              nsp = 1
+               call rx('suqlst:spin removed! takao')
+c              onesp = 1
+c              nsp = 1
             elseif (sopts(j1:j2) .eq. 'con')  then
               mode = 3
             elseif (sopts(j1:j2) .eq. 'long')  then

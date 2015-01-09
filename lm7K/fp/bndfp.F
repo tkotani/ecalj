@@ -1128,9 +1128,9 @@ C MPIK: Setup to assemble all k-points into single list with qp table
 
 !!       Re-allocate qp and evl arrays
          if(debug) print *,'vvvvv aa222'
-         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-         allocate(sbz%rv_p_oqp(3*nkp))
-         sbz%rv_p_oqp(:)=0.0d0
+         if (associated(sbz%qplist)) deallocate(sbz%qplist)
+         allocate(sbz%qplist(3,nkp))
+         sbz%qplist=0.0d0
 
          if(debug) print *,'vvvvv aa333'
 
@@ -1147,7 +1147,7 @@ C MPIK: Setup to assemble all k-points into single list with qp table
                      qp    =  qlat(:,1)*dble(ik1-1)/(nkk1-1)
      &                 +   qlat(:,2)*dble(ik2-1)/(nkk2-1)
      &                 +   qlat(:,3)*dble(ik3-1)/(nkk3-1)
-                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                     call dpscop ( qp , sbz%qplist , 3 , 1 , 3 * iq - 2 , 1d0 )
                   enddo
                enddo
             enddo
@@ -1173,7 +1173,7 @@ C       iq = running index to big qp list, i1 = index to current line
                   iq = iq+1
                   call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
      .              , ifbls_iv , i2 , qp , onesp )
-                  call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                  call dpscop ( qp , sbz%qplist , 3 , 1 , 3 * iq - 2 , 1d0 )
                enddo
                call poppr
                call suqlsm(i)
@@ -1182,7 +1182,7 @@ C       iq = running index to big qp list, i1 = index to current line
 ckino2012Oct15 comment loop_end-----------------
          endif
  198     continue
-         call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
+         call mpibc1 ( sbz%qplist , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 #endif
       endif
 
@@ -1231,7 +1231,7 @@ C --- Get qplist. This is only for no MPI mode yet...
       if(allocated(qplist)) deallocate(qplist)
       allocate(qplist(3,nkp))
 #if MPIK
-      call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
+      call dcopy(3*nkp,sbz%qplist,1,qplist,1)
 #else
       do iq = 1, nkp
          if (plbnd .ne. 0) then
@@ -1240,7 +1240,7 @@ C --- Get qplist. This is only for no MPI mode yet...
             call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
      .        , ifbls_iv , nkp , qp , onesp )
          else
-            call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
+            call dpscop ( sbz%qplist , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
          endif
          qplist(:,iq)=qp
       enddo
@@ -1496,7 +1496,7 @@ C       Get qp either from qp list or read from suqlst
 #ifndef MPIK
          qp=qplist(:,iq)
 #else
-         call dpscop ( sbz%rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
+         call dpscop ( sbz%qplist , qp , 3 , 3 * iq - 2 , 1 , 1d0 )
 
 #endif
 

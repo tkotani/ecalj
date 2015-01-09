@@ -118,7 +118,10 @@ ckino Dec.27.2011:         integer , pointer ::  iv_p_oipq (:) =>NULL()
       integer , allocatable ::  iv_a_oipq (:)
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
-      real(8) , pointer ::  rv_p_oqp (:) =>NULL()
+
+c      real(8) , pointer ::  rv_p_oqp (:) =>NULL()
+      real(8) , pointer ::  qplist(:,:) =>NULL() !use qplist instead...
+
 CCHSTRUC       integer(8)   ::   ostar
 ckino Dec.27.2011:         integer , pointer ::  iv_p_ostar (:) =>NULL()
       integer , allocatable ::  iv_a_ostar (:)
