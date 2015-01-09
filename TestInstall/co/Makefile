@@ -31,9 +31,9 @@ define test1.exec
 	rm mixm.$(TARGET)
 	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
 		--pr31 --no-iactiv --time=5 >> $1 2>&1
-	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
-		--no-iactiv -vso=t \
-		--band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml >> $1 2>&1
+#	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
+#		--no-iactiv -vso=t \
+#		--band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml >> $1 2>&1
 endef
 
 #----- subroutine test2.exec
@@ -87,7 +87,7 @@ $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
 	$(call plot.plbnds)
-	$(call plot.pldos)
+#	$(call plot.pldos)
 
 # exec case1 for $(TARGET).
 $(TARGET).case1.exec:
