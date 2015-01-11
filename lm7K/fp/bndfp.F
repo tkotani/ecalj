@@ -412,7 +412,7 @@ ctakao
       integer:: ini,iend,nbxx,ival
 
 c mar2014
-      integer:: lb1,lb2
+      integer:: lb1,lb2,onespdummy
       integer:: iprocar,iprocar1,iprocar2,lrsigx
       complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
@@ -1081,6 +1081,14 @@ Changenglob        nlmax = nglob('nlmax')
 !! === set up qplist
       if(debug) write(*,*) 'bndfp: uuuuuuu1111111'
       if (plbnd .ne. 0) then
+C       Try and read Fermi level from file
+         if (procid .eq. master) then
+            ifi = fopna('wkp',-1,4)
+ckino getef is integer          call getef(ifi,0,ef0)
+            i_dummy_getef= getef(ifi,0,ef0)
+            call fclr('wkp',ifi)
+         endif
+!
          iopq = 0
 C       suqlst in MPIK mode; returns cumulative number of k-points
 #if MPIK
@@ -1100,9 +1108,10 @@ ckino plotting wavefunction
             nkp = nkk1*nkk2*nkk3
             n_listwf=0
          elseif (procid .eq. master) then
-            write(*,*) 'calling suqlst'
+c            write(*,*) 'calling suqlst'
             call suqlst ( plbopt , iopq , ndhamx , ef0 , nspx , iwdummy , nfbn 
-     .        , ifbls_iv , nkp , qp , onesp )
+     .        , ifbls_iv , nkp , qp , onespdummy )
+c            write(*,*) 'eeeeeeeeeeee end suqlst'
 ckino       fat band and write psi
             n_listwf=0
 ckino           write(*,*)'checking --writewf option'
@@ -1158,9 +1167,12 @@ ckino
          if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
             call rx('Cannot use color weights with MPIK')
          endif
+         call suqlsm(i)
+
 !! Loop through all qp; accumulate vector of qp.
 !! Use i2 in place of nkp to preserve nkp
          if (procid .eq. master) then
+            print *,'llllllllllll 111111111111'
 C       iq = running index to big qp list, i1 = index to current line
             iq = 0
             i2 = 0
@@ -1169,29 +1181,34 @@ C       iq = running index to big qp list, i1 = index to current line
                call pshpr(0)
 !! takao think suqlst is problematic... fatband mode will be removed, 
 !! since we alreay implemented PROCAR mode.
-               call suqlst(plbopt,1,ndhamx,ef0,i,iwdummy,nfbn,ifbls_iv,i2,qp,iwdummy) 
+               call suqlst(plbopt,1,ndhamx,ef0,i,iwdummy,nfbn,ifbls_iv,i2,qp,onespdummy) 
 !! set i2=0 is required for initialization for band mode.
                call poppr
                if (i2 .gt. 0) then
                   call pshpr(0)
                   do  i1 = 1, i2
                      iq = iq+1
+                     if(debug)print *,'llllllllllll eeeeeeeeee 111111111 iq=',iq
                      call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .                 , ifbls_iv , i2 , qp , iwdummy )
+     .                 , ifbls_iv , i2 , qp , onespdummy )
+                     if(debug) print *,'llllllllllll eeeeeeeeee 222222222 iq=',iq
                      call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
                   enddo
                   call poppr
                   call suqlsm(i)
                   if (i == 3) exit
+               else
+                  exit
                endif
  199        enddo
          endif
+         if(debug)print *,'llllllllllll eeeeeeeeee'
 #else
       do iq = 1, nkp
          i = nsp
          if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
          call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .        , ifbls_iv , nkp , qp , onesp )
+     .        , ifbls_iv , nkp , qp , onespdummy )
 c         qplist(:,iq)=qp
          call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
       enddo
@@ -1859,9 +1876,11 @@ c            nevls(iq,isp)=nevl
 c            if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
             nevls(iq,jsp)=nevl  !nov2014 isp and jsp is confusing...
             if(debug) print *,'iq jsp nevls=',iq,jsp,nevls(iq,jsp) !nov201
+#ifndef MPIK            
             if(procid==master) then
                call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
             endif
+#endif
 
 #ifndef MPIK
 c            if (epsovl .ne. 0) then
@@ -2349,15 +2368,15 @@ C     Allreduce qkkl
 !!     iq = running index to big qp list, i1 = index to current line
             iq = 0
             i2 = 0
- 299        continue
+            do 299
             i = nspx            !nov2014 nsp->nspx
             if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-            call suqlst( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
+            call suqlst(plbopt, 0, ndhamx, ef0, i, iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy)
             if (i2>0) then
                do  i1 = 1, i2
                   iq = iq+1
 c     qp=qplist(:,iq)
-                  call suqlst(plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn, ifbls_iv , i2 , qp , onesp )
+                  call suqlst(plbopt, 0,ndhamx,ef0,i,iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy )
                   do  isp = 1, nsp
                      ispc = min(isp,nspc)
 C     jsp=isp in the collinear case; jsp=1 in the SO (offdiagonal for spin included).
@@ -2369,6 +2388,10 @@ C     isp serves as a flag for the noncollinear case
                         evl(1:ndhamx,jsp)=evlall(1:ndhamx,jsp,iq)
                         if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
                         call info5(30,0,0,' bndfp:MPIK  kpt %i of %i, k=%3:2,5;5d', i1,nkp,qp,0,0)
+                        if (iprint() .ge. 30) then
+                          write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,ndhamx)
+                        endif
+
                         if (mod(i1,10) .ne. 1) call poppr
                         i = nsp
                         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
@@ -2383,8 +2406,11 @@ C     isp serves as a flag for the noncollinear case
                      endif
                   enddo         ! isp
                enddo            ! i1
-               if (i .ne. 3) goto 299
+               if (i == 3) exit
+            else
+               exit
             endif 
+ 299        continue
          endif
          if(fsmom/=NULLR) write(6,"(a,f10.6)") 
      &     'NOTE:fsmom on -> read MagField. '//
