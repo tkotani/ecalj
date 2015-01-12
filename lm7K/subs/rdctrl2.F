@@ -1450,7 +1450,7 @@ c          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
           !      =2: turn off symops
 C     Switches that automatically turn of all symops
           if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
-!! --pdos mar2003 added
+!! --pdos mar2003 added. Also in lmv7.F
      .cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
             symg = 'e'
             lstsym = 2               !lstsym=2: turn off symops
