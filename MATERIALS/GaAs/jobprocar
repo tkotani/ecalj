@@ -1,11 +1,11 @@
 lmfa mgo >llmfa
-mpirun -np 4 lmf-MPIK mgo > llmf
-job_band_nspin1 mgo -np 4 > ljob_band
+mpirun -np 4 lmf-MPIK gaas > llmf
+job_band_nspin1 gaas -np 4 > ljob_band
 # This is for pdos mode
 # mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK --mkprocar --fullmesh mgo >lband
 rm PROCAR*
-mpirun -np 4 lmf-MPIK --mkprocar --band:fn=syml mgo >lbandW
+mpirun -np 4 lmf-MPIK --mkprocar --band:fn=syml gaas >lbandW
 cat PROCAR.UP.* >>PROCAR.UP
 rm PROCAR.UP.*
 ./BandWeight.py > bw.dat
-gnuplot bnds.gnu.mgoW
+gnuplot bnds.gnu.gaasW
