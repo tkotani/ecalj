@@ -24,7 +24,7 @@ C     implicit none
       integer di,dl
       integer l,ir,irra,i,j,mm,i1,i2,nn
       logical norm
-
+      integer,allocatable:: wk(:,:)
       do  2  ir = 1, n
     2 iprm(ir) = ir
       if (n .le. 1) return
@@ -196,8 +196,11 @@ C ... Put rra into its slot
 
 C --- Sort vecs ---
   200 continue
-      if (mod(opts,10) .eq. 0)
-     .call ivprm(m,n,vecs,vecs(1,n+1),iprm,.true.)
+      if (mod(opts,10) .eq. 0) then
+         allocate(wk(m,n))
+         call ivprm(m,n,vecs,wk,iprm,.true.) !wk jan2015
+         deallocate(wk)
+      endif   
 
       end
       subroutine ivprm(m,n,vecs,wk,iprm,lopt)

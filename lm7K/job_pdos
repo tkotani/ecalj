@@ -1,30 +1,25 @@
 #!/bin/bash
-# if [ $# -ne 3 ]; then
-#   echo "this is for Total DOS plot. tdos.*.glt for gnuplot is generated."
-#   echo "Usage: >job_tdos material_id -np 4" 1>&2
-#   exit 1
-# fi
-# MPI_SIZE=1
-# if [ $2 != "-np" ]; then
-#   echo "An example of usage: job_band_nspin1 si -np 4"
-# else
-#   MPI_SIZE=$3
-# fi
-# echo $MPI_SIZE
+###  example: job_pdos mgo -np 4 -vnk1=10 -vnk2=10 -vnk3=10
+echo $0 $@
+#if [ $#  != 3 ] || [ $2 != "-np" ]; then
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
+  echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'"
+  exit
+else
+  MPI_SIZE=$3
+fi
+MATERIAL=$1
 n=$0
-lmdir=${n%/*}
-ddd=$1
-cat <<EOF >SYMOPS
-          1
-   1   1  0.0000000000000000E+00  0.0000000000000000E+00  0.0000000000000000E+00
-  0.1000000000000000E+01  0.0000000000000000E+00  0.0000000000000000E+00
-  0.0000000000000000E+00  0.1000000000000000E+01  0.0000000000000000E+00
-  0.0000000000000000E+00  0.0000000000000000E+00  0.1000000000000000E+01
-EOF
-echo 1|$lmdir/qg4gw >lqg4gw_symops_e
-#mpirun -np $MPI_SIZE $lmdir/lmf-MPIK   $ddd --pdos    |tee llmf_pdos
-$lmdir/lmf $ddd --pdos    |tee llmf_pdos
-$lmdir/lmdos $ddd --pdos  |tee llmdos_pdos
+nfpgw=${n%/*}
+source $nfpgw/run_arg #this must be after all input arguments are processed
+### This generate Pdosdata.$MATERIAL file ###
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_pdos $MATERIAL --mkprocar --fullmesh  ${@:4:($#-2)}
+
+### Read Pdosdata.$MATERIAL and generate PDOS ###
+### You need to change range -eminp -emaxp (eV) and division -ndos. 
+### Not need to repeat above run of llmf_pdos when you like to change these settings.
+run_arg '---' 1 $nfpgw /lmf-MPIK llmf_pdos $MATERIAL --writepdos -eminp=-20.0 -emaxp=20.0 -ndos=4000
 
 cat <<EOF
 
@@ -53,10 +48,12 @@ cat <<EOF
          16   3    3        x(x^2-3y^2)
    ------------------------
    higher is lm ordered. See Ylm definition in lmto/fpgw doc.
+
+NOTE: site index --> run 'lmchk foobar'
 ==============================================================
 EOF
 
-for ufile in `ls dos.isp1.site*.${ddd}`
+for ufile in `ls dos.isp1.site*.${MATERIAL}`
 do
   dfile=`echo $ufile |sed -e 's/isp1/isp2/g'`
   ufileg=pdos.`echo $ufile |sed -e 's/dos.isp1.//g'`.glt

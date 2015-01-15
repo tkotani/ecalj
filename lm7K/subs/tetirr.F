@@ -21,7 +21,7 @@ C Local variables:
       integer:: i , j , i1 , i2 , i3 , j1 , j2 , j3 , k1 , k2 , k3 
      ., itet , mtet , ic , ii , ibtr(3,3) , kcut(3,4,6) , imc(0:1,0:1,0:1) 
      ., iq(4) , iprint , awrite , i1mach
-      integer ,allocatable :: iwk_iv(:)
+      integer ,allocatable :: iwk_iv(:),iprm(:)
 
       double precision qb1(3,3)
       logical ipr
@@ -72,16 +72,16 @@ C    ... Order the identifiers
     6     continue
    10   continue
    20 continue
-
 C --- Eliminate duplicate tetrahedra ---
       mtet = ntet
+c      print *,'mmmmmmmmm mtet=',mtet
 C ... Sort it with fast ivheap unless there is not enough memory
 c      call defask(i)
 c      if (i .gt. mtet*5) then
-      call ivheap(5,mtet,idtet,ipq,1)
-      allocate(iwk_iv(mtet*5))
-      call ivprm ( 5 , mtet , idtet , iwk_iv , ipq , .true. )
-      if (allocated(iwk_iv)) deallocate(iwk_iv)
+      allocate(iprm(mtet),iwk_iv(mtet*5))
+      call ivheap(5, mtet,idtet,iprm,1)
+      call ivprm (5, mtet , idtet , iwk_iv, iprm, .true. )
+      deallocate(iwk_iv,iprm)
 
 *       call yprm('idtet',0,idtet,0,5,5,mtet)
 c      else
