@@ -435,13 +435,18 @@ c mar2014
       mlog = cmdopt('--mlog',6,0,strn)
       tdos=cmdopt('--tdos',6,0,strn)
       pdos=cmdopt('--pdos',6,0,strn) !we assume no symmetry opreration.
-      fullmesh=cmdopt('--fullmesh',10,0,strn)
-      if(cmdopt('--band~col',10,0,strn) then
-         call rx(' no color mode is supported. Use --mkprocar instead')
+      PROCARon= cmdopt('--mkprocar',10,0,strn)
+      fullmesh=cmdopt('--fullmesh',10,0,strn) !full mesh stop just after do 2010 iq loop.
+      if(fullmesh.and.(.not.procaron)) then
+         call rx(' --fullmesh is meaningful only with --mkprocar')
+      endif
+      if(cmdopt('--band~col',10,0,strn)) then
+         call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
       endif
 !!  Fermi surfece mode for xcrysden http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
-      if(fsmode.or.fullmesh) then
+      if(fsmode) fullmesh=.true.
+      if(fullmesh) then
          nkk1=sbz%nkabc(1)
          nkk2=sbz%nkabc(2)
          nkk3=sbz%nkabc(3)
@@ -706,7 +711,7 @@ C     Always need DOS if just sampling
       alfa = 0
 
 C     Switch to plot bands at specified qp
-      if (cmdopt('--band',6,0,strn).or.fsmode.or.fullmesh) then
+      if (cmdopt('--band',6,0,strn).or.fullmesh) then
          plbnd = 1
          plbopt = strn(7:)
          lrout = 0
@@ -724,7 +729,6 @@ C     Switch to plot bands at specified qp
 
 !! == PROCAR file 
 c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
-      PROCARon= cmdopt('--mkprocar',10,0,strn)
       if(PROCARon) then
          iprocar1=9139
          inquire(unit=iprocar1,opened=nexist)
@@ -1071,7 +1075,7 @@ c         write(*,*)'allocate listwf , size=',ndham
 c         if (allocated(listwf))  deallocate(listwf)
 c         allocate(listwf(ndham))
 c         n_listwf=ndham; listwf=0
-         if (procid .eq. master.and. (fsmode.or.fullmesh)) then
+         if (procid .eq. master.and. fullmesh) then
             nkp = nkk1*nkk2*nkk3
 c            n_listwf=0
          elseif (procid .eq. master) then
@@ -1113,7 +1117,7 @@ c         endif
          allocate(sbz%rv_p_oqp(3*nkp))
          sbz%rv_p_oqp=0d0
 !! Fermi surface version for xcrysden
-         if(fsmode.or.fullmesh) then
+         if(fullmesh) then
             iq=0
             do ik1=1,nkk1
                do ik2=1,nkk2
@@ -1718,19 +1722,8 @@ C       isp serves as a flag for the noncollinear case
 !! === Diagonalize and add to density ===
             if(iprint()>=30) 
      &        write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f8.4," ndimh=",i5)')iq,nkp,qp,ndimh
-c              call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
-c     .           '%?#n#   ndimh = %i##', iq,nkp,qp,1,ndimh)
-c            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-c            if(procid==master) then
-c              call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d'//
-c     .           '%?#n#   ndimh = %i##', iq,nkp,qp,1,ndimh)
-c            endif
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
-!  this was used to calculate eigenvalue only in zhev in first-path 
-! (only for integration weight)-->current version (takao2013mar)store all eigenfunctions
-!  in the 1st-path. 2nd path just unpack the eigenfunctions stored in the 1st path 
-
-!!  Calculate all eigenvalues for 'fat bands' plotting mode, pdos, tdos modes.
+!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
             if (nfbn(1) .gt. 0 .or. pdos.or.tdos) then
                nmx = ndimhx
                efmax = 99999
@@ -1738,11 +1731,6 @@ c            endif
             if (allocated(t_zv)) deallocate(t_zv)
             allocate(t_zv(ndimhx*nmx))
             if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx
-c$$$               if(napw/=0.and.ncutovl/=0) then
-c$$$                  if(lpdiag ==1 .or. lpdiag==2) then
-c$$$                     stop 'bndfp: lpdiag-PW mode with OVNCUT/=0 is not yet'
-c$$$                  endif
-c$$$               endif
 
 !! == lpdiag=0 only. ===
 C$$$           if(lpdiag==1) then
@@ -1842,19 +1830,10 @@ ccccccccccccccccccccccccccccccccccccccccccccc
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
             nevl=nev            !ndimhx    this OK? why nevl and nev???
             evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
-c$$$        endif lpdiag=0
-!!  Pad evals between ndimh and ndham with a large positive number to avoid mixing up integration routines
-            if (ndhamx .gt. nevl .and. nspc .eq. 2) then
-               evl(1+nevl:ndhamx)=99999d0 ! call dvset(evl,1+nevl,ndhamx,99999d0)
-            elseif (ndham*nspc .gt. nevl) then
-               evl(1+nevl:ndham )=99999d0 ! call dvset(evl(1,jsp),1+nevl,ndham,99999d0)
-            endif
             nevls(iq,jsp) = nevl  !nov2014 isp and jsp is confusing...
             if(debug) print *,'iq jsp nevls=',iq,jsp,nevls(iq,jsp) !nov201
 #ifndef MPIK            
-            if(procid==master) then
-               call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
-            endif
+            call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required???
 #endif
 
 c$$$#ifndef MPIK
@@ -2481,16 +2460,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
 !! == second loop over qp ==
 
 
-ccccccccccccccccccccccccccccccccccccccccccccccc
-c         if(ix99==2) then
-c            call mpi_barrier(MPI_comm_world,ierr)
-c            call mpi_finalize(ierr)
-c            stop 'xxxxxxxxxxxxxvvvvvvvvvvvv'
-c         endif
-cccccccccccccccccccccccccccccccccccccccccccccc
-      if( debug) print *, 'tttttttttt 9999999999999999999 4'
-
-!!     For now, SO by site, not by class
+!!   For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
          allocate(ips_iv(nbas))
          do i_spackv=1,nbas
@@ -2501,16 +2471,12 @@ cccccccccccccccccccccccccccccccccccccccccccccc
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
       if( debug) print *, 'tttttttttt 9999999999999999999 5'
-
-C ... Case generating bands: find next block of qp
-      if (plbnd .ne. 0) goto 99
-
+cC ... Case generating bands: find next block of qp
+c      if (plbnd .ne. 0) goto 99
       if (ipl.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
- 715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,
-     .  '  smr',f8.4)
+ 715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  smr',f8.4)
 C ... End of k point loop
 
-C     call zprm3('smrho after k-point loop',0,w(osrout),k1,k2,k3)
 
 !! --- Interpolate density to Fermi energy ---
       sev = sumev(1,1)
@@ -2518,8 +2484,6 @@ C     call zprm3('smrho after k-point loop',0,w(osrout),k1,k2,k3)
          call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
      .     - qbg , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
      .     k3 , srout_zv , sv_p_oqkkl , frc , lrep )
-
-
 C   ... Store val q & magnetic moment in sumqv(1) and sumqv(2)
          sumqv(2,1) = sumqv(1,1) - sumqv(1,2)
          sumqv(1,1) = sumqv(1,1) + sumqv(1,2)
@@ -2540,16 +2504,17 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .     ' use:   sev=',f12.6,'   ef=',f12.6)
          if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
  733     format('nf EF:',3f9.5,'    EB:',3f12.5)
-
          sbz%ndos=ndos
          call dcopy(size(sbz%dosw),dosw,1,sbz%dosw,1)
          sbz%ef=ef0
          sbz%def=def
-
          if (lrep .eq. 1) then
             ef0 = -1
             call awrit0('Input Fermi energy was too far off, '//
      .        'repeat band pass',' ',80,stdo)
+#ifdef MPIK
+            call mpi_barrier(MPI_comm_world,ierr)  
+#endif
             goto 99
          endif
       endif
@@ -2616,7 +2581,6 @@ ckino       maybe a switch for these is lmet.ne.0
      .           ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
             endif
-
 !! june2013 magfield is added
             if(fsmom/=NULLR.and.procid .eq. master) then
                ifimag=9058
@@ -2659,7 +2623,6 @@ c          endif
             ef0 = eferm
             sbz%ef=ef0
          endif
-
          if (lmet .gt. 0) then
             if (procid .eq. master) then
                ifi = fopna('wkp',-1,4)
@@ -2667,23 +2630,23 @@ c          endif
                call fclr('wkp',ifi)
             endif
          endif
+         goto99=.false.
          if (lwtkb .eq. -1 .and. lrout .gt. 0) then
             call info0(20,0,0,' Start second band pass ...')
             lwtkb = 1
             if (nspc .eq. 2) lswtk = 1
-            goto 99
+            goto99=.true.
          endif
          if (lwtkb .eq. 2 .and. lrout .gt. 0) then
             call info0(20,0,0,' New pass with constrained weights ...')
-            goto 99
+            goto99=.true.
          endif
+#ifdef MPIK
+         call mpi_barrier(MPI_comm_world,ierr)  
+#endif
+         if(goto99) goto 99
       endif
-
-c!! ... release sigma-related things.
       if(allocated(sfz)) deallocate(sfz)
-c      if(sigmamode) then
-c        deallocate(sfz,qsmesh,pos,nlat,qwgt)
-c      endif
 
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -2708,7 +2671,6 @@ c      endif
          if (iprint() .ge. 10 .and. cmdopt('--mull',6,0,strn)) then
             call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
      .        0 , 0 , 0 , 0 , chan_iv )
-
          endif
       endif
 
@@ -2742,11 +2704,6 @@ c      endif
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
-
-
-cxxxxx ---here we need pdos integration for doswt_rv(nchan,ndimhx,nspc,nkp); SYMGRP e case.
-cxxxxx  we have to use sbz%iv_a_oidtet_nosym
-
                if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv )
                del = 0d0
@@ -2774,14 +2731,13 @@ cxxxxx  we have to use sbz%iv_a_oidtet_nosym
                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
             enddo
             call fclose(ifi)
-
             if (allocated(orbtm_rv)) deallocate(orbtm_rv)
             if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
-
+!! efermi energy
       ifi=fopn('eferm.lmf')
-      write(ifi,"(d16.8, '# Fermi energy given by lmf')") eferm
+      write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
       call fclose(ifi)
 
 !! --- Core-level spectroscopy ---
@@ -2881,7 +2837,6 @@ c          print *,'goto mkpot procid=',procid
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
-
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'
@@ -2899,8 +2854,8 @@ cccccccccccccccccccccccccccccccc
 c          call poppr()
 c          call pshpr(ipr-20)
 c          print *,'vvv takao goto mkehfk mode2'
-            call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
 c          print *,'gogo mkehkf procid=',procid,ipr,eks
+            call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
             call togpr()
          endif
          if( debug) print *, 'tttttttttt 9999999999999999999 9'
