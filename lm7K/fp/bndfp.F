@@ -956,6 +956,10 @@ Cki  ifiese default value is not set.  set it to 0
  128  continue
 
 !! == Start loop over k points; also, re-entry for second band pass ==
+!! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
+!!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
+!!     2nd for re-read eigze_* and accumulate density.                           
+!!    It will be better to remove this double path mechanism in future.
       gotosecondpass =.false.
       if(plbnd==0) then
          gotosecondpass = (lmet >=0 .and. (lmet /=4 .or. ltet) .and. lrout>0 ) !this covers limited cases.
@@ -1228,7 +1232,7 @@ c#endif
       allocate(qplist(3,nkp))
       if(nkp/=0) call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
       !NOTE: sbz$qplist and qplist are equivalent
-      if (procid.eq.master) then
+      if (procid.eq.master.and.ix99==1) then
          print *,'-------- qplist --------'
          do iq=1,nkp
             write(6,"(i5,3f8.3)")iq,qplist(:,iq)
@@ -1280,7 +1284,7 @@ C       endif
       endif
 !! --- New sigma inerpolation mode. Simplified.
       sigmamode = mod(lrsig,10) .ne. 0
-      if(procid==master) print *,'sigmamode=',sigmamode
+      if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
 c --- get index for hamiltonian for m_hamindex takao june2009
 c this must be used for the case of QSGW.
 c      if(sigmamode.and.iter==1) then
@@ -1762,7 +1766,7 @@ C       isp serves as a flag for the noncollinear case
             jsp = isp
             if (ispc .eq. 2) jsp = 1
 !! === Diagonalize and add to density ===
-            if(iprint()>=30) 
+            if(iprint()>=30.and.ix99==1) 
      &        write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f8.4," ndimh=",i5)')iq,nkp,qp,ndimh
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
 !!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
@@ -2444,11 +2448,11 @@ C     isp serves as a flag for the noncollinear case
                         if (ispc .eq. 2) jsp = 1
                         evl(1:ndhamx,jsp)=evlall(1:ndhamx,jsp,iq)
                         if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
-                        if (iprint() > 20) then
+                        if (iprint() > 20.and.ix99==1) then
                           write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh=",i5)')
      &                    iq,nkp,qp,jsp,ndimh
                         endif
-                        if(iprint() >=35) then
+                        if(iprint() >=35.and.ix99==1) then
                           write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
                         endif
                         if (mod(i1,10) .ne. 1) call poppr
@@ -2489,11 +2493,11 @@ C     isp serves as a flag for the noncollinear case
             if( .not. ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) ) cycle
             jsp = isp
             if (ispc .eq. 2) jsp = 1
-            if(iprint()>20) then
+            if(iprint()>20.and.ix99==1) then
                write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
      &           iq,nkp,qp,jsp,ndimh,nevls(iq,jsp)
             endif   
-            if(iprint()>=35) then
+            if(iprint()>=35.and.ix99==1) then
                write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
             endif
             evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
@@ -2571,7 +2575,6 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
       call mpi_barrier(MPI_comm_world,ierr)  
 #endif
       if(goto99) goto 99
-!! == second loop over qp ==
 
 
 !!   For now, SO by site, not by class
@@ -2581,15 +2584,14 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
             call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
      .        , 1 , i_spackv + 1 - 1 , ips_iv )
          enddo
+!! orbital moment
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
-      if( debug) print *, 'tttttttttt 9999999999999999999 5'
-cC ... Case generating bands: find next block of qp
-c      if (plbnd .ne. 0) goto 99
+ccC ... Case generating bands: find next block of qp
+cc      if (plbnd .ne. 0) goto 99
       if (ipl.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
  715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  smr',f8.4)
-C ... End of k point loop
 
 
 !! --- Interpolate density to Fermi energy ---
@@ -2647,6 +2649,13 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
 
 !! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
+c$$$c jan2015 this is not allowed to go through the TestIntall/te
+c$$$         if(ix99==2) then
+c$$$           if(procid==master) write(*,*) 
+c$$$           if(procid==master) write(*,*) '... Goto bzints again (output suppressed) ...'
+c$$$           call pshpr(1)
+c$$$c --> and call poppr before goto99
+c$$$         endif
          if (lwndow) then
             allocate(ww_rv(ndham*nsp*nkp))
             eferm = min(dosw(1),dosw(2))
@@ -2722,14 +2731,6 @@ ckino       maybe a switch for these is lmet.ne.0
                sumqv(1,1) = sumqv(1,2)
                sumqv(2,1) = sumqv(2,2)
             endif
-c!!Nov25 2010
-c          if(allocated(rv_a_owtkb)) then
-c            do  i = ndham, 1, -1 !this is the same as nvec search in addrbl.
-c              nevec = i
-c              if (maxval(rv_a_owtkb(i,:,:)) .gt. epsnevec()) exit
-c            enddo
-cc          call getnevec(ndham,nsp,nkp,nev,rv_p_owtkb, nevec)
-c          endif
          endif
 !!
          if (lmet .ne. 4) then
@@ -2757,9 +2758,15 @@ c          endif
 #ifdef MPIK
          call mpi_barrier(MPI_comm_world,ierr)  
 #endif
+c$$$c jan2015 did not work for Testinstall/te
+c$$$         call poppr
          if(goto99) goto 99
       endif
       if(allocated(sfz)) deallocate(sfz)
+!! == 99 loop over =============================
+
+
+
 
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
