@@ -3,7 +3,7 @@
 echo $0 $@
 #if [ $#  != 3 ] || [ $2 != "-np" ]; then
 if [ $# -le 2 ] || [ $2 != "-np" ]; then
-  echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
+  echo "An example of usage: job_band_pdos si -np 4 [options for lmf]"
   echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'"
   exit
 else
@@ -13,8 +13,11 @@ MATERIAL=$1
 n=$0
 nfpgw=${n%/*}
 source $nfpgw/run_arg #this must be after all input arguments are processed
+
 ### This generate Pdosdata.$MATERIAL file ###
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_pdos $MATERIAL --mkprocar --fullmesh  ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band   ${@:4:($#-2)}
+# the fermi energy is stored into wkp file
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_pdosband $MATERIAL --mkprocar --fullmesh  ${@:4:($#-2)}
 
 ### Read Pdosdata.$MATERIAL and generate PDOS ###
 ### You need to change range -eminp -emaxp (eV) and division -ndos. 
