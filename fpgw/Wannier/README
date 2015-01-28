@@ -55,7 +55,46 @@ History:
 2009; maxloc090910 (T.Miyake)
 2009; Its documentation and Visualizer at Kino's https://github.com/nim-hrkn/visualize
 2014Aug; T.Kotani modified it so as to fit to latest ecalj.
+2015jan: Sengwoo Jang's modification.
 
+=====================================================================
+Seungwoo's modification: To plot extract U, J parameters.
+
+Modified fiels:
+ hwmatK_MPI.F  print all matrix elements of W and frequency in eV.
+ genMLWF  I added the "grep" commands in the last part to make files 
+          containing v and W-v information.
+          grep "Wannier" lwmatK1 > Coulomb_v
+          grep "Wannier" lwmatK2 > Screening_W-v
+new file
+
+Cal_W.py:
+  In this script, "W*****.dat = Coulomb_v + Screening_W-v" files are generated.
+  (In other words, all matrix elements of W are generated.)
+  For example, "W11234.dat" file contains "Spin up, <12|W|34> element".
+  "W21234.dat" file contains "Spin down, <12|W|34> element".
+
+Read_Sakakibara_W.py
+  In  this script, "Sakakibara_W.dat" and plot files are genereated.
+  "Sakakibara_W.dat" file contains static U, U', J, and J' (\omega = 0).
+
+-------------------
+Usage: Seungwoo's procedure for extracting Sakakibara's U,J parameters.
+
+1) genMLWF
+
+2) Modify inputs in "Cal_W.py"
+- nwf : number of Wannier function
+- ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
+Then fun ./Cal_W.py
+
+3) Modify inputs in "Read_Sakakibara_W.py"
+- system : name of the material
+- nwf : number of Wannier function
+- ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
+Then run ./Read_Sakakibara_W.py
+
+===============================================================================
 
 Caution:
 Efermi shift:
@@ -72,3 +111,6 @@ Efermi shift:
  "bnd5.dat" u 2:3 lt 1 pt 1 not w l,\
  "bnds.maxloc.up" u ($5):($6+de) lt 3 w l ti "Wannier"
  -----------------------------
+
+
+

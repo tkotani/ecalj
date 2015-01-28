@@ -192,6 +192,11 @@ c RS: variables for MPI
       real(8),allocatable:: 
      &  rw_w_sum(:,:,:,:,:,:),rw_iw_sum(:,:,:,:,:,:),
      &  cw_w_sum(:,:,:,:,:,:),cw_iw_sum(:,:,:,:,:,:)
+
+      integer :: swj_j, swj_k, swj_l
+      real(8),allocatable:: 
+     &           swj_rv_w(:,:,:,:,:),swj_cv_w(:,:,:,:,:),
+     &           swj_rv_iw(:,:,:,:,:),swj_cv_iw(:,:,:,:,:)
 c---------------------------------------
 c RS: program begins here
       call RSMPI_Init()
@@ -372,7 +377,7 @@ c---
       write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
-      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
+      write(6,'("    niw nw dw   =",2i5,f13.6)') niw,nw,dw
       endif
 
 c>> read dimensions of wc,b,hb
@@ -820,7 +825,9 @@ c arrays for sxcf.f
      &       rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw),
      &       cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw),
      &       rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
-     &       cw_iw(nwf,nwf,nwf,nwf,nrws,niw))
+     &       cw_iw(nwf,nwf,nwf,nwf,nrws,niw),
+     &       swj_rv_w(nwf,nwf,nwf,nwf,nrws),
+     &       swj_cv_w(nwf,nwf,nwf,nwf,nrws))
 
 c RS: set MPI parameters
 c RS: see gwsrc/RSMPI_rotkindex_mod.F
@@ -1049,12 +1056,20 @@ c write <p p | W | p p>
         call       wvmat (is,ifwmat(is),nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0))
+        swj_rv_w = rw_w(:,:,:,:,:,0)
+        swj_cv_w = cw_w(:,:,:,:,:,0)
+c        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
+c        write(*,*) rw_w
+c        write(*,*) cw_w
+c        write(*,*) rw_w(:,:,:,:,:,0)
+c        write(*,*) cw_w(:,:,:,:,:,0)
+
       else
         call       wwmat (is,ifwmat(is),nw_i,nrw+1,nwf,
      i                    rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i                    alat,rcut1,rcut2,
      i                    freq_r(0:nrw),
-     i                    rw_w,cw_w)
+     i                    rw_w,cw_w,swj_rv_w,swj_cv_w)
       endif
       endif
  2000 continue !end of spin-loop
@@ -1088,7 +1103,7 @@ c-----------------------------------------------------------------------
      i                  rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i                  alat,rcut1,rcut2,
      i                  freq,
-     i                  rw_w,cw_w)
+     i                  rw_w,cw_w,swj_rv_w,swj_cv_w)
 
       implicit real*8(a-h,o-z)
 
@@ -1100,7 +1115,9 @@ c-----------------------------------------------------------------------
      &           cw_w(nwf,nwf,nwf,nwf,nrws,1:nw)  ! iw is shifted by one
 c     &          ,rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
 c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw) 
- 
+      integer:: swj_j,swj_k,swj_l, swj_ifreq
+      real(8) :: swj_rv_w(nwf,nwf,nwf,nwf,nrws),swj_cv_w(nwf,nwf,nwf,nwf,nrws)
+
       hartree=2d0*rydberg()
  
       call cv      (hartree,freq,nw,freq2)
@@ -1134,13 +1151,57 @@ c      write(ifwmat,*)rw_iw
 c      write(ifwmat,*)'*** cw_iw'
 c      write(ifwmat,*)cw_iw
 
-      write(*,*)'Screening part: diagonal,real'
+      write(*,*)'Screening part (W-v) : Real'
       do i = 1,nwf
-         write(*,"('  Wannier',2i5,f12.6,' eV ',2f12.6,' eV')")
-     &         is,i,freq(1),rw_w(i,i,i,i,1,1),cw_w(i,i,i,i,1,1)
+          do swj_j = 1,nwf
+            do swj_k = 1, nwf
+              do swj_l = 1, nwf
+                write(*,"(' ',5i5,3f12.6)")
+     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq),rw_w(i,swj_j,swj_k,swj_l,1,1),cw_w(i,swj_j,swj_k,swj_l,1,1)
+              enddo
+            enddo
+          enddo
+      enddo
+      write(*,*) ''
+
+c        write(*,*) rw_w
+c        write(*,*) cw_w
+c        write(*,*) rw_w(:,:,:,:,:,0)
+c        write(*,*) cw_w(:,:,:,:,:,0)
+
+      write(*,*)'Screened Couloumb interaction (W-v) : Real'
+      do swj_i_freq = 1,nw
+        do i = 1,nwf
+          do swj_j = 1,nwf
+            do swj_k = 1, nwf
+              do swj_l = 1, nwf
+                write(*,"(' Wannier ',5i5,4f12.6)")
+     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
+     &                ,rw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)
+     &                ,cw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)
+              enddo
+            enddo
+          enddo
+        enddo
+      write(*,*)''
       enddo
 
-      return
+c      write(*,*)'Screened Couloumb interaction (W) : Real'
+c      do swj_i_freq = 1,nw
+c        do i = 1,nwf
+c          do swj_j = 1,nwf
+c            do swj_k = 1, nwf
+c              do swj_l = 1, nwf
+c                write(*,"(' ',5i5,4f12.6)")
+c     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
+c     &                ,rw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)+swj_rv_w(i,swj_j,swj_k,swj_l,1)
+c     &                ,cw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)+swj_rv_w(i,swj_j,swj_k,swj_l,1)
+c              enddo
+c            enddo
+c          enddo
+c        enddo
+c      write(*,*)''
+c      enddo
       end
 c-----------------------------------------------------------------------
       subroutine wvmat (is,ifwmat,nwf,
@@ -1174,10 +1235,17 @@ c-----------------------------------------------------------------------
       write(ifwmat,*)'*** vcoul: Im'
       write(ifwmat,*)cw_w
 
-      write(*,*)'Coulomb interaction: diagonal'
+
+      write(*,*)'Coulomb interaction (v) : '
       do i = 1,nwf
-         write(*,"('  Wannier',2i5,2f12.6,' eV')")is,i,
-     &      rw_w(i,i,i,i,1),cw_w(i,i,i,i,1)
+        do swj_j = 1,nwf
+          do swj_k = 1, nwf
+            do swj_l = 1, nwf
+              write(*,"(' Wannier ',5i5,2f12.6)")
+     &              is,i,swj_j,swj_k,swj_l,rw_w(i,swj_j,swj_k,swj_l,1),cw_w(i,swj_j,swj_k,swj_l,1)
+            enddo
+          enddo
+        enddo
       enddo
 
       return
