@@ -632,8 +632,14 @@ ctm
 
       integer:: ifgeigW,ifcphiW
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
+
+      logical,private:: Wpkm4crpa=.false.
       contains
 !!--------------------------------------------------------------------------
+      subroutine onoff_write_pkm4crpa(lll)
+      logical:: lll
+      Wpkm4crpa=lll
+      end subroutine
       subroutine readgeigW(q,ngp_in,isp, qu,geigen)
       use m_hamindex
       implicit none
@@ -1590,7 +1596,9 @@ c this should be called after init_readgeigen2
      &                          geig4(:,:),cphi4(:,:),
      &                          cbwf(:,:,:,:),uum(:,:,:,:,:)
       logical :: keepeigen
-      integer:: ikpx
+      integer:: ikpx,ifi
+      character*(8):: fname
+
       keepeig = keepeigen()
       write(6,*)' init_readeigen_mlw_noeval'
 
@@ -1662,6 +1670,17 @@ c replace evud
 c replace geig and cphi
       allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp)) 
       cbwf = 0d0
+!!
+      if(Wpkm4crpa) then
+         fname='pkm4crpa'
+         ifi=8034
+         open(ifi,file=fname,form='formatted',status='unknown')
+         write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
+         write(ifi,"('( = c^sigma_km in book of 45th IFFK by Ersoy)')")
+         write(ifi,"(8i8)") nqtt,nwf,nsp,iko_ix,iko_fx
+         write(ifi,"('       |pkm|**2          ib      iq     is       q(1:3)')")
+      endif
+
       do ikp = 1,nqtt
         iqbz = mod(ikp,nqbz) 
         if (iqbz .eq. 0) iqbz = nqbz
@@ -1689,6 +1708,13 @@ c psi^B : bloch fn. corresponding to maxloc Wannier fn.
      >                      *dnk(iko_ix:iko_fx,iwf,iqbz,is) )
               enddo
             enddo
+          endif
+!! --- write pkm4crpa
+          if(Wpkm4crpa) then
+             do ib = iko_ix,iko_fx
+                write(ifi,"(f19.15, 3i8, 3f13.6 )")
+     &            sum(abs(cbwf(ib,1:nwf,ikp,is))**2),ib, ikp, is, qtt(1:3,ikp)
+             enddo
           endif
 
 ctm norm check
@@ -1720,6 +1746,10 @@ c         write(7300,"(5i5)")is,ikp,iko_ix,iko_fx,nwf
 c         write(7300,*)cbwf(:,:,ikp,is)
         enddo
       enddo
+      if(Wpkm4crpa) then
+         close(ifi)
+      endif
+
       deallocate(dnk,uum)
       mrecb_o = mrecb * nwf / nband
       mrecg_o = mrecg * nwf / nband
@@ -1752,7 +1782,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
         cphiW = 0d0
         do ikp= 1,nqtt ! nqi
         do is= 1,nsp
-           write(6,*)' ikp=',ikp,qtt(:,ikp)
+           write(6,"(' ikp=',i5,3f10.5)") ikp,qtt(:,ikp)
            call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2)
            if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
            call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2)

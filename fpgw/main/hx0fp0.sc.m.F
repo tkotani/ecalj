@@ -131,7 +131,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8):: schi=-9999 !dummy
 
       integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
-
+      logical:: crpa
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
@@ -150,11 +150,16 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
       end if
       call MPI__Broadcast(ixc)
+      crpa=.false.
       if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
       call headver('hx0fp0_sc',ixc)
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f8.3)") sciss
-      if(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
+      if(ixc==11) then
+         write(6,*) " OK ixc=11 normal mode "
+      elseif(ixc==10011) then
+         write(6,*) " OK ixc=10011 crpa mode "
+         crpa=.true.
       elseif(ixc==1011) then
          write(6,*) 'OK ixc=1011 Add W0W0I part at q=0'
       else
@@ -1022,7 +1027,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      o           rcxq,          ! rcxq is the accumulating variable for spins 
      i           nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
      i           chipm,eibzmode,  !z1offd,
-     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+     i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
             write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
 
@@ -1089,7 +1094,7 @@ c=======================================================================
      o              rcxq,       ! rcxq is the accumulating variable for spins 
      i              nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq, !nmbas2 is removed.,nmbas1
      i              chipm,eibzmode, !z1offd,
-     i              nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz))
+     i              nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
             endif
 
 !! reduction rcxq in the S-axis

@@ -164,6 +164,9 @@ c ixc=3
 
       real(8)::qold(3)
       real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:)
+
+      integer::npin 
+      real(8):: qiin(3),qfin(3)
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -326,11 +329,17 @@ ctm, 080222
         lqall      = .false.
         laf        = .false.
         open(99,file='SYML',status='old')
+        nline=0
         do i = 1,nlinex
-          read(99,*)np(i),qi(1:3,i),qf(1:3,i)
-          if (np(i).eq.0) exit
-          nline = i
+          read(99,*,err=551,end=552)npin,qiin,qfin
+          if (np(i)==0) exit
+          nline = nline+1
+          np(nline)=npin
+          qi(1:3,nline)=qiin
+          qf(1:3,nline)=qfin
+ 551      continue
         enddo
+ 552    continue
         if (nline.eq.nlinex) call rx('hmaxloc: too many lines in SYML')
         close(99)
         nq = 0
@@ -759,10 +768,11 @@ c end of self-consistent loop
 !     d             nwf,nqbz,nband,nlmto)
 
 c output
+      write(*,*)"---------- wlaxloc isp =",is
       call wmaxloc(ifmlw(is),ifmlwe(is),
      i             qbz,umnk,cnk,eunk,
      i             iko_ix,iko_fx,iko_i,iko_f,
-     d             nwf,nqbz,nband,nlmto)
+     d             nwf,nqbz,nband,nlmto, is)
       call writeOmg(is,mmn,rn,bb,wbb,wbz,tpia,
      d             nwf,nqbz,nbb)
 c 070824

@@ -1,8 +1,66 @@
+!! === read pkmU for cRPA calclaitons ===
+!! subroutine wmaxloc in maxloc2.F write pkmU file.
+!! takao jan2015 
+          module m_pkm4crpa
+          implicit none
+          real(8),allocatable,private:: pkmud(:,:,:),qvecud(:,:,:)
+          integer,private:: nqbz,nsp,iko_ix,iko_fx,nwf
+          contains
+
+          subroutine readpkm4crpa(ib,q,isp,wpw)
+          use m_iqindx_qtt,only:iqindx2_
+          implicit none
+          integer:: ib,isp,iq,ibin,iqin,ifi,ispin
+          real(8):: wpw,q(3),wpwin,qvec(3),qin(3)
+          character*8::fname
+          logical,save:: init=.true.
+          logical:: outofrange,debug=.false.
+          if(debug)print *,' iiiiiiqqq readpkm4crpa',init
+          ifi= 8398
+          fname= 'pkm4crpa'
+          if(init) then
+            open(ifi,file=fname,form='formatted',status='unknown')
+            read(ifi,*)
+            read(ifi,*)
+            read(ifi,*) nqbz,nwf,nsp,iko_ix,iko_fx
+            read(ifi,*)
+            allocate(qvecud(3,nqbz,nsp),pkmud(iko_ix:iko_fx,nqbz,nsp))
+            qvecud=0d0; pkmud=0d0
+            do 
+               read(ifi,*,end=991) wpwin, ibin,iqin,ispin,qin
+               pkmud(ibin,iqin,ispin)=wpwin
+               qvecud(:,iqin,ispin)=qin
+            enddo   
+ 991        continue
+            init=.false.
+            close(ifi)
+          endif
+          if(debug) print *,' qqqqqqqqqqqqq',nqbz,nwf,nsp,iko_ix,iko_fx
+          if(debug) print *,' qqqqqqqq init',isp,init,ib
+          outofrange = ib<iko_ix .or. iko_fx<ib
+          if(outofrange) then
+             wpw=0d0
+             if(debug) print *,' outofrange',outofrange
+             return
+          endif
+!! find iq
+          if(debug)print *,'qqqqqqqqqqq  q=',q
+          call iqindx2_(q, iq, qvec) !qvec is used q. q-qu is a G vector.
+          if(debug)print *,'qqqqqqqqqqq qvec iq=',qvec,iq
+           wpw = pkmud(ib,iq,isp)
+           if(debug)print *,'qqqqqqqq xxxxxxx qqqqqqqq',qvecud(:,iq,isp)
+           if(sum(abs(qvecud(:,iq,isp)-qvec))>1d-5 ) then
+             call rx('readpkm4crpa:readq in pkmu is not consistent with given q')
+           endif 
+          end subroutine
+      end module m_pkm4crpa
+
+!!----------------------------------------------------------------------------
       subroutine x0kf_v4hz (npm,ncc,
      i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  nsp,isp1,isp2,symmetrize,      !ifcphi,ifrb,ifcb,ifrhb,ifchb,
+     i                  nsp,isp_k,isp_kq,symmetrize,      !ifcphi,ifrb,ifcb,ifrhb,ifchb,
      i                  qbas,ginv,rk,wk,  !,iindxk,
      i                  mdim, nlnm, nlnmv,nlnmc, iclass, ! not the w(pointer)
      i                  ppb, 
@@ -16,12 +74,14 @@
      i     nolfco,zzr,nmbas, ppovlz, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006 nmbas1,
      i     chipmzzr,eibzmode, !z1offd,
 c     o     rcxqmean,
-     i     nwgt,igx,igxt,ngrp,eibzsym)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
+     i     nwgt,igx,igxt,ngrp,eibzsym,crpa)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
       use m_readqg,only :  readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only:  getkeyvalue
       use m_rotMPB,only:  rotMPB2 !rotMPB,
       use m_readqgcou,only: qtt_,nqnum !itimermap,
+      use m_pkm4crpa,only: readpkm4crpa
+
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -42,7 +102,7 @@ c     o     rcxqmean,
 !!  rcxq (nmbas,nmbas,nwt,npm): for given q,
 !!       rcxq(I,J,iw,ipm) = 
 !!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
-!!      When npm=-1 we calculate negative energy part.
+!!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
 !!
 c              See also tetwt5. and check weight mode=4 of hx0fp0 and (mode=5,6).
 c
@@ -84,23 +144,23 @@ c noccx   = maximum number of occupied states
 c noccxv  = maximum number of occupied valence states
 c nbloch  = total number of Bloch basis functions
 c
-c cphik cphikq:  b(k) and b(k+q)
+c cphi_k cphi_kq:  b(k) and b(k+q)
 c  : coefficients of eigenfunctions for argumentation waves in each MT
 c
       implicit none
-      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp1,isp2,nlmto,noccx,noccxv
+      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto,noccx,noccxv
      &  ,nl,nclass,nnc,nlnmx,mdimx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen
-     &  ,jpm,ibib,itps,nt0,ntp0,ngp1,ngp2,it,itp,iw,igb2,igb1,ngb
+     &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
 c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,phase(natom),aaa
-      complex(8),allocatable:: cphik(:,:),cphikq(:,:),geig1(:,:),geig2(:,:)
+      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
       integer(4):: ngpmx, ngcmx, nqbze, nband,
      &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
      &             igc, !ngveccB(3,ngcmx),
-     &             ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx)
+     &             ngvecp_kq(3,ngpmx),ngvecp_k(3,ngpmx)
       complex(8),allocatable :: zmelt(:,:,:)!,zmelt1(:,:,:)
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
      &    ,shtv(3)=(/0d0,0d0,0d0/)
@@ -141,7 +201,7 @@ c      real(8)   :: zq0zq0
       complex(8)   :: zq0zq0 !This is a bug for the case of two atoms per cell!!! oct2006
 c      complex(8):: rcxqmean(nwt,npm,nmbas1,nmbas2)
 
-      real(8):: qu1(3),qu2(3),qu1x(3),qu2x(3),quu(3),tolqu=1d-4
+      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolqu=1d-4,quu1(3),quu2(3)
 
       integer(4):: nbcut,nbcut2
       logical :: iww1=.true.,iww2=.true.
@@ -188,9 +248,11 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
 #endif
       complex(8),allocatable:: rcxq_core(:,:)
 !$    integer:: omp_get_num_threads
-
-
       logical:: eibz4x0
+      logical :: crpa 
+      real(8):: wpw_k,wpw_kq
+      real(8):: vec_kcrpa(3),vec_kqcrpa(3)
+
       if (symmetrize) goto 5000 
 
 c ------------------------------------------------
@@ -213,7 +275,7 @@ c$$$      endif
       nctot      = noccx - noccxv
       call dinv33(qbas,0,qbasinv,det)
       phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
-      allocate(cphik(nlmto,nband),cphikq(nlmto,nband), geig1(ngpmx,nband),  geig2(ngpmx,nband) )
+      allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       call getnemx(nbmx,ebmx,7,.true.)
@@ -284,15 +346,15 @@ ckinoend
           call cputid(0)
         endif
 !! Read cphi part of eigenfunctions for k and k+q
-        call  readcphi(  rk(:,k)-qq, nlmto,isp1,   quu,cphik) !quu is used q for eigenfunctions.
-        call  readcphi(q+rk(:,k)-qq, nlmto,isp2,   quu,cphikq)
+        call  readcphi(q+rk(:,k)-qq, nlmto,isp_kq, quu2,cphi_kq)
+        call  readcphi(  rk(:,k)-qq, nlmto,isp_k, quu1,cphi_k) !quu is used q for eigenfunctions.
 
 C --- tetra ------ override nt0 itps ntp0 ---------------
         nkmin = 999999
         nkmax= -999999
         nkqmin= 999999
         nkqmax=-999999
-        do jpm=1,npm
+        do jpm=1,npm !npm
           do ibib = 1, nbnb(k,jpm)
             nkmin  = min(n1b(ibib,k,jpm),nkmin)
             nkqmin = min(n2b(ibib,k,jpm),nkqmin)
@@ -300,10 +362,10 @@ C --- tetra ------ override nt0 itps ntp0 ---------------
             if(n2b(ibib,k,jpm)<=nband)  nkqmax = max(n2b(ibib,k,jpm),nkqmax)
           enddo
         enddo
-        call readeval(q+rk(:,k)-qq,isp2,eband)
+        call readeval(q+rk(:,k)-qq,isp_kq,eband)
         nkqmax = nocc (eband,ebmx,.true.,nband)
         if(npm==2) then
-          call readeval(rk(:,k)-qq,isp1,eband)
+          call readeval(rk(:,k)-qq,isp_k,eband)
           nkmax = nocc (eband,ebmx,.true.,nband)
         endif
         itps  = nkqmin          ! nkqmin = the num of min   n2 =unocc for jpm=1
@@ -328,6 +390,9 @@ Cstop2rx 2013.08.09 kino          stop " nkmin==1 should be."
 !   If jpm=2, ncc=ncore. itps=1 should be.
 ! There is a little confusion. n1b index contains cores are after valence.
 ! You can see codes to treat the confusion.
+! NOTE: 
+!  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
+!    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
 
 c        if(ipr) then
 c          write(6,"(' nkRange  nkqRange=',2i6,2x,2i6)") nkmin,nkmax,nkqmin,nkqmax
@@ -346,8 +411,8 @@ c        endif
 !TIME1 "before psicb_v3"
 !TIME0 
         call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
-     i              cphik (1,nkmin),  
-     i              cphikq(1,nkqmin), 
+     i              cphi_k (1,nkmin),  
+     i              cphi_kq(1,nkqmin), 
      i              ppb,            
      i              nlnmv,nlnmc,mdim, 
      i              imdim,iatomp,
@@ -357,8 +422,8 @@ c        endif
 C ... valence
         !call cputid(0)
         call psi2b_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
-     i              cphik(1,nkmin), 
-     i              cphikq(1,nkqmin),
+     i              cphi_k(1,nkmin), 
+     i              cphi_kq(1,nkqmin),
      i              ppb,         
      i              nlnmv, nlnmc,mdim,
      i              imdim,iatomp,
@@ -369,41 +434,37 @@ C ... valence
 !TIME0 
 
 !! --- IPW set
-        call readqg('QGpsi',q+rk(:,k)-qq,ginv, qu1x, ngp1, ngvecpB1)
-        call readqg('QGpsi',  rk(:,k)-qq,ginv, qu2x, ngp2, ngvecpB2)
-!!      ngp1 = ngpn(kp)  ! q+k   ntp0 in FBZ
-!!      ngp2 = ngpn(k)   ! k     np0  in FBZ
+        call readqg('QGpsi',q+rk(:,k)-qq,ginv, vec_kq, ngp_kq, ngvecp_kq)
+        call readqg('QGpsi',  rk(:,k)-qq,ginv, vec_k,  ngp_k,  ngvecp_k)
+!!      ngp_kq = ngpn(kp)  ! q+k   ntp0 in FBZ
+!!      ngp_k = ngpn(k)   ! k     np0  in FBZ
 !!      ngc              ! q          in IBZ
+
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
-Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
         allocate( z1p(ngb,ngb) )
 !!                        q       k        q+k
         allocate( zmelt(ngb,nctot+nt0,ncc+ntp0) )
-!! ... read plane wave part of eigenfunction.
-        call readgeig(q+rk(:,k)-qq, ngpmx,isp2, qu1, geig1)
-        call readgeig(  rk(:,k)-qq, ngpmx,isp1, qu2, geig2)
-cccccccccccccccccccccccccc
-c        write(6,*)'q+rk(:,k)-qq ',q+rk(:,k)-qq
-c        write(6,*)'qu1=', qu1
-cccccccccccccccccccccccccccc
-        if(sum(abs(qu1-qu1x))>tolqu) then
-          write(6,"('qu1 :',3d23.10)") qu1
-          write(6,"('qu1x:',3d23.10)") qu1x
-Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu1/=qu1x'
-          call rx( 'x0kf_v4hz:qu1/=qu1x')
+!! ... read plane wave part of eigenfunction. (note isp is opposite).
+        call readgeig(q+rk(:,k)-qq, ngpmx,isp_kq, vec_kq_g, geig_kq)
+        call readgeig(  rk(:,k)-qq, ngpmx,isp_k,  vec_k_g,  geig_k)
+
+        if(sum(abs(vec_kq_g-vec_kq))>tolqu) then
+          write(6,"('vec_kq_g :',3d23.10)") vec_kq_g
+          write(6,"('vec_kq  :',3d23.10)") vec_kq
+          call rx( 'x0kf_v4hz:vec_kq_g/=vec_kq')
         endif
-        if(sum(abs(qu2-qu2x))>tolqu) then
-          write(6,"('qu2 :',3d23.10)") qu2
-          write(6,"('qu2x:',3d23.10)") qu2x
-Cstop2rx 2013.08.09 kino          stop 'x0kf_v4hz:qu2/=qu2x'
-          call rx( 'x0kf_v4hz:qu2/=qu2x')
+        if(sum(abs(vec_k_g-vec_k))>tolqu) then
+          write(6,"('vec_k_g :',3d23.10)") vec_k_g
+          write(6,"('vec_k:  ',3d23.10)") vec_k
+          call rx( 'x0kf_v4hz:vec_k_g/=vec_k')
         endif
+
 !!      qdiff = q   - qbkp(:) + rk(:,k)
-        qdiff = q    - qu1    + qu2
+        qdiff = q    - vec_kq    + vec_k
         ! q   - (q+k)   + k  is not zero.
         ! qc  -  q1     + q2
         add   = matmul(qbasinv, qdiff)
@@ -415,13 +476,13 @@ Cstop2rx 2013.08.09 kino        if(sum(abs(add-nadd))>1d-10) stop "sexc: abs(add
 !TIME0  
 !! <Bq Pq2|Pq1> = < Bq Pqu2|  Pqu1> *exp(i2pi nadd)
         if(ngc/=0) then !Aug2005
-          call melpln2t(ngp1, ngvecpB1  ! q1=q+k  ; kp ngp1 1:ntp0 q-point
-     &             , ngp2, ngvecpB2  ! q2=k    ; k  ngp2 1:nt0  occupied
+          call melpln2t(ngp_kq, ngvecp_kq  ! q+k  ; kp ngp_kq 1:ntp0 q-point
+     &             , ngp_k, ngvecp_k       ! k    ; k  ngp_k 1:nt0  occupied
      &           , ngc,  nadd,
-     &       geig1(1:ngp1, itps:itps+ntp0-1), ntp0, ! q1=q+k  ; kp
-     &       geig2(1:ngp2, 1:nt0     ),  nt0, ! q2=k    ; k
+     &       geig_kq(1:ngp_kq, itps:itps+ntp0-1), ntp0, ! q+k  ; kq
+     &       geig_k(1:ngp_k, 1:nt0     ),  nt0, !    ; k
      i       shtv,  q, q,  symope,qbas,
-     i       qu1, !qt oct2013
+     i       vec_kq, !qt oct2013
      o       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
         endif
 !! == zmelt contain O^-1=<I|J>^-1 factor. zzmel(J,it,itp)= \sum_I <phi phi|I> O^-1_IJ ==
@@ -692,6 +753,24 @@ Cstop2rx 2013.08.09 kino          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) st
                 z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
              enddo
           enddo
+
+!! ---------------------------------
+          if(crpa) then
+c            print *,'readout readqkm init'
+            if(n1b(ibib,k,jpm) <= nband) then
+              call readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k)-qq, isp_k,   wpw_k) !k  n1b
+            else
+              wpw_k=0d0
+            endif  
+            if(n2b(ibib,k,jpm) <= nband) then
+              call readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k)-qq, isp_kq,  wpw_kq) !kq n2b
+            else
+              wpw_kq=0d0
+            endif  
+c            print *,'readout readqkm=',wpw_k,wpw_kq
+          endif
+          
+ccccccccccccccccccccccccccccccc
 !kino 2014-08-13  !$OMP end do
 c$$$  endif
 
@@ -705,6 +784,7 @@ c$$$  endif
 !$OMP do 
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
              imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+             if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq)
              if(eibzmode) imagweight = nwgt(k)*imagweight  
              do igb2=1,nmbas      !this part dominates cpu time most time consuming...........
                 do igb1=1,igb2
@@ -1097,7 +1177,7 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
       endif  
 
  9999 continue
-!kino 2014.08.19 use automatic deallocation,      deallocate(cphik,cphikq,geig1,geig2)
+!kino 2014.08.19 use automatic deallocation,      deallocate(cphi_k,cphi_kq,geig_kq,geig_k)
       if(smbasis()) deallocate(pomat)
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
@@ -1426,4 +1506,4 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
         end
 
 
-
+!!----------------------------------------------------------------------------

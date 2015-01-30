@@ -35,7 +35,7 @@ ctetra     &     wtet,wtetef,
 ctetra    &     ntqx,ibzx,tetraex, 
 c
 c     i omega,iwini,iwend,
-     i     nbmx,ebmx, !takao 18June2003 
+c     i     nbmx,ebmx, !takao 18June2003 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i     nwf,
      o          rw_w,cw_w,rw_iw,cw_iw)
@@ -227,8 +227,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc faleev 2002
       real(8)::weavx,wfaccut=1d-10
 
       logical :: GaussSmear
-      real(8) :: ebmx,ddw
-      integer(4):: nbmx,nbmxe,nstatetot
+      real(8) :: ddw !ebmx,
+      integer(4):: nbmxe,nstatetot !nbmx,
 
 c      integer(4):: n_index_qbz
 c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)

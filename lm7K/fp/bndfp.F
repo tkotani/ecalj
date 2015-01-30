@@ -2812,7 +2812,7 @@ c$$$         call poppr
       endif
 
 !! === Generate DOS on disk ===
-      if(.not. lwndow) then
+      if(.not. lwndow .and. procid==master) then
          ndos0 = sbz%ndos
          if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
             if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
@@ -2847,7 +2847,7 @@ c$$$         call poppr
             call fclose(fopn('dos'))
 !! ... write total dos file. mar2013
             ifi=fopn('dos.tot')
-            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi=',d14.5)") eferm
+c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi=',d14.5)") eferm
             do ipts=1,ndos
                eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
@@ -2857,6 +2857,7 @@ c$$$         call poppr
             if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
+
 !! efermi energy
       ifi=fopn('eferm.lmf')
       write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm

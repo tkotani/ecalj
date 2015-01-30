@@ -797,7 +797,7 @@ c-----------------------------------------------------------------------
       subroutine wmaxloc(ifmlw,ifmlwe,
      i                   qbz,umnk,cnk,eunk,
      i                   iko_ix,iko_fx,iko_i,iko_f,
-     d                   nwf,nqbz,nband,nlmto)
+     d                   nwf,nqbz,nband,nlmto,isp)
 
       implicit real*8(a-h,o-z)
 
@@ -805,13 +805,22 @@ c-----------------------------------------------------------------------
       complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),
      &              umnk(nwf,nwf,nqbz)
       real(8) :: qbz(3,nqbz),eunk(nwf,nqbz)
-      integer(4) :: iko_i(nqbz),iko_f(nqbz)
+      integer(4) :: iko_i(nqbz),iko_f(nqbz),ib,isp
+      character*4::fname
 
       allocate(dnk(iko_ix:iko_fx,nwf,nqbz))
 
       write(ifmlw)nqbz,nwf,iko_ix,iko_fx
 c      write(ifmlwe)nqbz,nwf,iko_ix,iko_fx
 
+c$$$      if (isp.eq.1) fname='pkmU'
+c$$$      if (isp.eq.2) fname='pkmD'
+c$$$      ifi=9034
+c$$$      open(ifi,file=fname,form='formatted',status='unknown')
+c$$$      write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
+c$$$      write(ifi,"(' (this is called as c^sigma_km in book of 45th IFFK by Ersoy)')")
+c$$$      write(ifi,"(8i8)") nqbz,nwf,iko_ix,iko_fx
+c$$$      write(ifi,"('       |pkm|**2          ib      iq     q(1:3)')")
       dnk = (0d0,0d0)
       do iq = 1,nqbz
 
@@ -826,10 +835,34 @@ c      write(ifmlwe)nqbz,nwf,iko_ix,iko_fx
 
          write(ifmlw)iq,qbz(1:3,iq)
          write(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iq)
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+!! jan2015 new section. Write out weight in l-subsapce.
+c         do iwf=1,nwf
+c            do iko=iko_ix,iko_fx
+c               write(*,"('ib iwf iq=',3i4,f10.5)")iko,iwf,iq,abs(dnk(iko,iwf,iq))**2
+c            enddo
+c            write(*,"('iwf iq sumweight=',2i4,f10.5)")
+c     &        iwf,iq, sum(abs(dnk(iko_ix:iko_fx,iwf,iq))**2)
+c         enddo
+c         do ib = iko_ix,iko_fx
+c            write(*,"('ib iq winsubspace=',2i4,f10.5)")
+c     &      ib,iq, sum(abs(dnk(ib,1:nwf,iq))**2)
+c         enddo
+         write(*,"(' iq sumcheck winsub=',i4,f10.5)")
+     &      iq, sum(abs(dnk(iko_ix:iko_fx,1:nwf,iq))**2)
+
+c$$$         do ib = iko_ix,iko_fx
+c$$$            write(ifi,"(f19.15, 2i8, 3f13.6 )")
+c$$$     &      sum(abs(dnk(ib,1:nwf,iq))**2),ib, iq, qbz(1:3,iq)
+c$$$         enddo
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         write(ifmlwe)iq,qbz(1:3,iq)
 c         write(ifmlwe)eunk(1:nwf,iq)
 
       enddo
+c$$$      close(ifi)
 
 c      call chk_cnkweight(qbz,iko_ix,iko_fx,dnk,
 c     &     nqbz,nwf,nband,nlmto)

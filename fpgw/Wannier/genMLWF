@@ -100,6 +100,10 @@ if [ -e UUq0D.0000 ]; then
     cat UUq0D.* > UUq0D
     rm -f UUq0D.*
 fi
+
+### pkm4crpa file mode for crpa ###
+argin=10011; run_arg $argin 1 $nfpgw /hwmatK_MPI lpkm4crpa 
+
 ### Main part of v, W-v for Wanniers. ##########################
 argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc       # Coulomb matrix v
 argin=1;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 # Matrix elements of v for Wannier
@@ -107,6 +111,12 @@ grep "Wannier" lwmatK1 > Coulomb_v
 argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx011       # Screened Coulomb W minus v, W-v
 argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 # Matrix element of W-v
 grep "Wannier" lwmatK2 > Screening_W-v
+#$nfpgw/Cal_W.py
+
+#### crpa
+argin=10011; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx011crpa # cRPA Screened Coulomb W minus v, W-v
+argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2crpa # Matrix element of W-v
+grep "Wannier" lwmatK2crpa > Screening_W-v_crpa
 #$nfpgw/Cal_W.py
 
 $echo_run echo "OK! It's finished well."

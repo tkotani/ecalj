@@ -250,7 +250,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 c      integer,allocatable :: iclasst(:)
       character(128):: vcoudfile
       integer:: src,dest
-
+      logical:: crpa
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -281,14 +281,17 @@ c     call readin5(ixc,iqxini,iqxend)
       call headver('hx0fp0',ixc)
       call cputid(0)
 c      write(6,"(' ixc = ',i4)") ixc
-
+      crpa=.false.
       if(ixc<=6.or.ixc==22.or.ixc==23) then
         write(6,*)'these modes are removed now'
 Cstop2rx 2013.08.09 kino        stop 'these modes are not supported'
         call rx( 'these modes are not supported')
 ! Sergey (Hilbert-transformation) modes
-      elseif(ixc==11) then; write(6,*) " OK ixc=11 s.f.'s normal mode "
+      elseif(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
         normalm=.true.
+      elseif(ixc==10011) then; write(6,*) " OK ixc=10011 crpa mode "
+        normalm=.true.
+        crpa=.true.
 !     -- eps mode NoLFC
       elseif(ixc==202) then
         write(6,*) " OK ixc=202  sergey's eps mode Only NoLFC "
@@ -1646,7 +1649,7 @@ c          endif
      o    rcxq,   !  rcxq is the accumulating variable for spins 
      i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
 
 
 !kino 2014-08-19 add
@@ -1669,7 +1672,7 @@ c          endif
      o    rcxq,   !  rcxq is the accumulating variable for spins
      i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq))
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
           endif
 
 
