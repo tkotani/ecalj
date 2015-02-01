@@ -332,7 +332,7 @@ ctm, 080222
         nline=0
         do i = 1,nlinex
           read(99,*,err=551,end=552)npin,qiin,qfin
-          if (np(i)==0) exit
+          if (npin==0) exit
           nline = nline+1
           np(nline)=npin
           qi(1:3,nline)=qiin

@@ -368,6 +368,8 @@ c
         endif  
       elseif(ixc==10011) then
          write(6,*) 'ixc=10011 pkm4crpa mode'
+         exchange =.false.
+         lueff = .false.
       else   
          call RSMPI_Stop( 'ixc error')
       endif  
