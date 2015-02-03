@@ -1596,7 +1596,7 @@ c this should be called after init_readgeigen2
      &                          geig4(:,:),cphi4(:,:),
      &                          cbwf(:,:,:,:),uum(:,:,:,:,:)
       logical :: keepeigen
-      integer:: ikpx,ifi
+      integer:: ikpx,ifi,ifile_hundle
       character*(8):: fname
 
       keepeig = keepeigen()
@@ -1673,7 +1673,7 @@ c replace geig and cphi
 !!
       if(Wpkm4crpa) then
          fname='pkm4crpa'
-         ifi=8034
+         ifi=ifile_hundle()
          open(ifi,file=fname,form='formatted',status='unknown')
          write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
          write(ifi,"('( = c^sigma_km in book of 45th IFFK by Ersoy)')")

@@ -1,3 +1,18 @@
+      integer function ifile_hundle()
+!! find open file handle
+      implicit none
+      integer:: i
+      logical:: nexist
+      do i=5001,9999
+         inquire(unit=i,opened=nexist)
+         if(.not.nexist) then
+            ifile_hundle=i
+            return
+         endif
+      enddo
+      call rx('ifile_hundle: we did not find open file hundle')
+      end
+
 C#define IEEE
 C#define NEWVERS
 C --- First line of derfc ---

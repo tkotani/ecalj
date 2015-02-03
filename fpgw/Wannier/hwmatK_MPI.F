@@ -367,9 +367,9 @@ c
           if (nspin == 2) ifwmat(2) = iopen('UMATaD',1,-1,0)
         endif  
       elseif(ixc==10011) then
-         write(6,*) 'ixc=10011 pkm4crpa mode'
-         exchange =.false.
-         lueff = .false.
+        write(6,*) 'ixc=10011 pkm4crpa mode'
+        exchange =.false.
+        lueff = .false.
       else   
          call RSMPI_Stop( 'ixc error')
       endif  
@@ -476,6 +476,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c----------------------------------------------
       call pshprt(60)
 
+      if(ixc==10011) goto 1018
 
 C--- Readin WV.d
       if (.not.exchange) then
@@ -538,29 +539,29 @@ c
 
 c... Readin eigen functions
 c      ifev(1)   = iopen('EVU', 0,0,mrece)
-c      if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
+c     if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
 
-c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-! When esmr is negative, esmr is geven automatically by efsimplef.
-        call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv, 
-     i        nband,nqibz
-     i       ,konf,z,nl,natom,iclass,nclass
-     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
-c
-     i        qbz,nqbz !index_qbz, n_index_qbz,
-     o       ,efnew)
-c
-c        write(6,*)' end of efsimple'
-c        ef = efnew
-c- check total ele number -------
-        ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-        write(6,*)' ef    =',ef
-        write(6,*)' esmr  =',esmr
-        write(6,*)' valn  =',valn
-        write(6,*)' ntot  =',ntot
+c     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
+!     When esmr is negative, esmr is geven automatically by efsimplef.
+      call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv, 
+     i     nband,nqibz
+     i     ,konf,z,nl,natom,iclass,nclass
+     i     ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
+c     
+     i     qbz,nqbz             !index_qbz, n_index_qbz,
+     o     ,efnew)
+c     
+c     write(6,*)' end of efsimple'
+c     ef = efnew
+c     - check total ele number -------
+      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
+      write(6,*)' ef    =',ef
+      write(6,*)' esmr  =',esmr
+      write(6,*)' valn  =',valn
+      write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
-
+ 1018 continue
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
       write(*,*)'nband =',nband
 !! jan2015
