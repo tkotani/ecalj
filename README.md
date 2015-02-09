@@ -71,9 +71,14 @@ at ecalj/
 (3) make for MPIK GW part.  
 (4) Install test  
 (5) crystal structure tools  (not necessary).
-In the following explanation, we assume gfortran in ubuntu. 
+In the following explanation, we assume gfortran in ubuntu.
 But we can also use ifort, and others in your environment with
 minimum changes in makefiles.
+For testing \ecalj\ for small systems such as Si and GaAs, 
+we can use even Ubuntu + gfortran + note PC.
+When install procedure have finished, we have all required binaries and
+shell scripts in your \verb+~/bin/+ directory).
+(or somewhere else where BINDIR specified in InstallAll.*).
 
 
 ##### (0) Get ecalj package and get tools.
