@@ -1279,8 +1279,8 @@ C       endif
 #endif
       if (allocated(evlall)) deallocate(evlall)
       allocate(evlall(ndhamx,nspx,nkp)) ; evlall=0d0
+      nchanp=25
       if(procaron.and.fullmesh) then
-         nchanp=25
          allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
          dwgtall=0d0
       endif
@@ -2174,7 +2174,7 @@ c            endif
                      if(ib==1)  write(iprocar,"(a)") trim(ccc)
                      write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt)
                      if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt)
-                     dwgtall(1:nchanp,ib,iband,jsp,iq) = dwgt(1:nchanp)
+                     if(fullmesh) dwgtall(1:nchanp,ib,iband,jsp,iq) = dwgt(1:nchanp)
                   enddo
                enddo
                if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,isp,sum(dwgtall),nev
