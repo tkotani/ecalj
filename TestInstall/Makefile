@@ -14,7 +14,7 @@ LM_TEST  = copt te zrt co cr3si6 fe felz gasls gdn eras c crn cu na
 
 # all gw tests provided by this makefile.
 GW_TEST  = gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh
-GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc 
+GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc
 #GW_TEST += nio_gwsc444 yh3fcc_gwsc666 gas_gwsc666 pdo_gwsc443 cugase2_gwsc222
 
 # programs under tools dir, required in the tests
