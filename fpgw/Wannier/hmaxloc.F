@@ -553,6 +553,7 @@ c read uu-matrix
      &          cnk(iko_ix:iko_fx,nwf,nqbz),
      &          cnk2(iko_ix:iko_fx,nwf,nqbz),
      &          omgik(nqbz))
+! amnk appered in Eq.22 in Ref.II. <psi|Gaussian>
       call init_unkg(is,qbz,ginv,ef,lein,
      i              iko_ix,iko_fx,iko_i,iko_f,
      i              iki_i,iki_f,
@@ -640,7 +641,7 @@ c     &     nqbz,nwf,nband,nlmto)
 !!   step 1 (minimization of Omega_I)
 
 
-!! step 2 -- localize Wannier fn. -------------------------------------------------
+!! === step 2 -- localize Wannier fn. ================
       write(*,*)'Step 2: Wannier fn. branch'
 
       allocate (mmn(nwf,nwf,nbb,nqbz),mmn0(nwf,nwf,nbb,nqbz),
@@ -669,13 +670,14 @@ c     &     nqbz,nwf,nband,nlmto)
 !      call chk_eunk(is,qbz,eunk,ef,
 !     d              nqbz,nband,nwf)
 
-c (2-1) initial: uumat -> M_mn(0) Eq.58 in Ref.[1]
+!! (2-1) initial: uumat -> M_mn(0) Eq.58 in Ref.[1]
       call init_mmn(cnk,uumat,ikbidx,
      i              iko_ix,iko_fx,iko_i,iko_f,ikbo_i,ikbo_f,
      d              nwf,nqbz,nbb,
      o              mmn0)
 
-c (2-2) initial U
+!! (2-2) initial U
+!!    umnk= U(m,n) = ( A S^{-1/2} )_mn. See Eq.23 in Ref.II.
       call init_Umnk(amnk,cnk,
      i               iko_ix,iko_fx,iko_i,iko_f,
      d               nwf,nqbz,
