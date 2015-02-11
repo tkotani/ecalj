@@ -640,17 +640,18 @@ Binary and Scripts contained in \ecalj are
    (Try an example \io{~/ecalj/MATERIALS/MgO\_PROCAR/}. 
     Run \exe{./job} at the directory).
 \item \io{gwsc}\\
-QSGW calculation
+     QSGW calculation
 \item \verb#job_band_nspin1,job_band_nspin2,job_fermisurface,job_tdos,job_pdos#\\
-band, fermi surface, tdos, pdos plot.
+     band, fermi surface, tdos, pdos plot.
 \item \verb#epsPP_lmfh,eps_lmfh#\\
-Dielectric funciton without local field correction (LFC), or with LFC
-\item \verb#eps_chipPP_lmfh#\\
-Non-interacting spin polarization.
-\item \verb#gw_lmfh#\\ One-shot GW calculation. This also show life-time of QPs.
+     Dielectric funciton without local field correction (LFC), or with LFC
+\item \verb#epsPP_lmfh_chipm#\\
+      Non-interacting transverse spin polarization.
+\item \verb#gw_lmfh#\\ One-shot GW calculation. 
+       This also show life-time of QPs (\io{QPU\_lmf}).
 \item \verb#genMLWF#\\ Wannier functions and matrix elements of $W$ on
       it. A implementation of cRPA included.
-\item dqpu
+\item dqpu:\\
       A small python script to compare QPU.* files (eigenvalues are
       compared) numerially. 
       (Seungwoo say it cause ``index error''; Need to fix dqpu if
@@ -1983,23 +1984,104 @@ to get the full spin susceptibility.
 
 \section{Cautions for usage}
 \label{cautionusage}
-\begin{verbatim}
-== not meaningful total energy ===
- Total energy shown in QSGW mode in current version is not meaningul.
- (just treat as an indicator to convergence).
+\begin{enumerate}
+ \item == not meaningful total energy in QSGW===\\
+ Total energy shown in QSGW mode in current version is not meaningul. 
+(just treat as an indicator to convergence).
 
-== Do we use vwn or gga for QSGW? ===
+\item == Do we use vwn or gga for QSGW? ===\\
   In prinicple, QSGW results should not depends on vwn or gga 
-  (XCFUN=1 or 103 in ctrl). But there is minor dependence, because
-   1. frozen core density.
-   2. core eigenfunction.
-   3. radial basis funcitons
-   4. Slight numerical reason 
+  (XCFUN=1 or 103 in ctrl). But there is minor dependence, because\\
+   1. frozen core density.\\
+   2. core eigenfunction.\\
+   3. radial basis funcitons\\
+   4. Slight numerical reason \\
       (This is probably because Sigma-interpolation procedure
        But not exactly figured out yet
-       -->affect about 0.02eV as for band gap for GaAs. ).
-  In anyway, use vwn (HAM_XCFUN=1) as standard.
+       $\rightarrow$ affect about 0.02eV as for band gap for GaAs. ).
+  In anyway, use vwn (HAM\_XCFUN=1) as standard.
   And such technical things affects, 0.05 eV level of error for band gap.
+
+\item{EH and EH2} : For si, if EH and EH2 are the same, the following
+     error occured. 
+\begin{verbatim}
+ fexit,fexit2,fexit3 error retval=          -1
+ Exit -1 zhev_tk2: nev /=nevx something wrong.
+\end{verbatim}
+     The large EH, EH2 get to be meaningless. We usually use up to 
+     $\sim 2$. (If you use very large EH such as E$\sim 10$, I am not so
+     sure wether it is )
+
+\item { The options about the product basis within MT. (SeungWoo's memo)}
+
+\begin{verbatim}
+<PRODUCT_BASIS>
+ tolerance to remove products due to poor linear-independency
+  0.100000D-02 ! =tolopt
+\end{verbatim}
+When the product basis are made, we may have poorly linear independent
+basis. For example, one in the set \{$f_1, f_2, ..., f_n$\} would 
+be almost give by a linear-combination of others. We need to make the
+      linear-independent set. Therefore, after calculating the overlap matrix 
+      $\langle  f_i|f_j \rangle$. We do diagonalization, then 
+      we remove eigenvectors corresponding to small eigenvalues than
+      \verb+tolopt+. 
+      See the {\bf hbasfp0} command in {\bf gwsc}
+
+\begin{verbatim}
+lcutmx(atom) = maximum l-cutoff for the product basis.
+  4  4  4  2  2  4  4
+\end{verbatim}
+For $\phi_1 \times \phi_2$ case, $|l_1 - l_2| \le l_{tot} \le |l_1 + l_2|$. So `lcutmx' changes the maximum cutoff for the l$_{tot}$. The order is the same as the order of atoms in the {\bf ctrl} file.
+
+\begin{verbatim}
+  atom   l  nnvv  nnc !
+    1    0    3    3
+    1    1    3    2
+    1    2    2    1
+\end{verbatim}
+`atom' means the atom number identifed in the {\bf ctrl} file.\\ 
+`l' is the angular momentum quantum number.\\
+`nnvv' is the number of radial functions (valence) on the augmentation-waves.\\
+`nnc' is the number of radial functions for core.\\
+The latter two ones, `nnvv' and `nnc', will be understood more clearly if you see the following ones.
+
+
+\begin{verbatim}
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no)
+    1    0    1    1    1   ! 5S_p  -----
+    1    0    2    0    0   ! 5S_d
+    1    0    3    1    1   ! 4S_l
+    1    1    1    1    1   ! 5p_p
+    1    1    2    0    0   ! 5p_d
+    1    1    3    1    1   ! 4p_l
+\end{verbatim}
+Above options are about the product baiss within MT (Valence).\\
+`atom' and `l' are explained above. `nnvv' for `atom = 1 and l = 0' was `3' so this case we have 3 basis (`n = 1, 2, 3')\\
+`n' is the degree of freedom of the radial function, $\phi$. `n = 1' means $\phi$, `n = 2' means $\dot\phi$, and `n = 3' means kind of $\ddot\phi$, which the dot above the letter represents the differentiation with respect to the energy. So `n = 1 and 2' is related to the linearization of the radial function and `n = 3' is the local orbital which is restricted in MT. The local orbital can be modified changing `PZ' in the {\bf ctrl} file. Finally, the number of the basis which is needed for expanding eigenfunction is $(l+1)^2 \times n$.\\
+`occ' and `unocc` mean that we use only ones that checked as `1', in other words we neglects `0' cases for making product basis. Be careful for confusion with name `occ' and `unocc'. These don't mean that occupied or unocc. When making product basis, $M = \phi_1 \times \phi_2$, `occ' corresponds to $\phi_1$ and `unocc' to $\phi_2$. For example, 
+\begin{verbatim}
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no)
+    1    0    1    1    1   ! 5S_p  -----
+    2    3    1    0    1   ! 4f_p
+\end{verbatim}
+If the options are like the above, the product basis will be consists of ($\phi_1 = \phi_{atom=1,l=0}) \times (\phi_2 = \phi_{atom=1,l=0})$, ($\phi_{atom=1,l=0} \times \phi_{atom=2,l=3}$). As you can see, ($\phi_1 = \phi_{atom=2,l=3}$) is skipped.\\
+In the {\bf ctrl} file, `EH' controls the l part. As for `EH', (s, p, d, f) are used but {\bf GWinput} file uses (s, p, d, f, g). `EH' : HEAD part. `GWinput' : contains TAIL part... need more explanation.
+
+\begin{verbatim}
+  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
+    1    0    1    0    0      0    0    ! 1S -----
+    1    0    2    0    0      0    0    ! 2S
+    1    0    3    0    0      0    0    ! 3S
+\end{verbatim}
+Above options are about the product baiss within MT (Core).\\
+`nnc' for `atom = 1 and l = 0' was `3' so this case we have 3 basis (`n = 1, 2, 3')\\
+Finally, for the convergence check, we can modify the following three things, (i) tolerance, (ii) lcutmx, and (iii) occ and unoccu.
+
+
+\end{enumerate}
+\begin{verbatim}
+
 
 == one show QSGW (not one-shot GW) ==
   one-shot QSGW can be useful in cases.
@@ -2178,6 +2260,58 @@ Then llmf shows shows orbital moment in first order perturbation.
 \subsection{lmf --help}
 lmf --help show option of --rs=(five numbers); this let lmf know 
 how to read atm.* file which is the initial atom file by lmfa.
+
+
+\section{Wannier function }
+xxxxxxxxxx under construction xxxxxxxxxxxxxxxxx
+(See also ecalj/fpgw/Wannier/README)...
+
+We can generate Wannier functions (maximally localized Wannier
+Functions) by a script \exe{genMLWF}.
+Run examples in \io{ecalj/fpgw/MATERIALS/*MLWF}.
+To run the script, we need to set options
+in GWinput.
+For initial condition, we need
+\begin{verbatim}
+<MLWF>
+5          # gaussian, nwf
+1 1 1 1 1  # nphi(1:nwf)
+9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
+10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
+11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+</MLWF>
+\end{verbatim}
+In addition, we have some settings (energy windows and so on).
+This is the example of the initial conditions for Cu case. 
+5 is the number of Wannier function. The most left one means $\phi$ index and the right one of it is $\dot\phi$ index. They are writen in the {\bf @MNLA\_CPHI} file.
+
+Then we can run \exe{genMLWF}. 
+After it finished, we can analyze it results.
+(if you don't need Wannier funciton plot, 
+You can skip a line of wanplot in genMLWF. Then we  don't need to set
+\verb+vis_wan_*+ options.)
+
+\subsection{lwmatK1 and lwmatK2}
+If you input the following command
+\begin{verbatim}
+>grep Wan lwmatK*
+\end{verbatim}
+
+You will get the following results. (This case : Cu cases)
+\begin{verbatim}
+lwmatK1:  Wannier    1    1   24.644475    0.000000 eV
+lwmatK1:  Wannier    1    2   24.644576    0.000000 eV
+lwmatK1:  Wannier    1    3   25.471361    0.000000 eV
+lwmatK1:  Wannier    1    4   24.644575    0.000000 eV
+lwmatK1:  Wannier    1    5   25.470946    0.000000 eV
+lwmatK2:  Wannier    1    1    0.000000 eV   -21.263759   -0.000000 eV
+lwmatK2:  Wannier    1    2    0.000000 eV   -21.263839    0.000000 eV
+lwmatK2:  Wannier    1    3    0.000000 eV   -21.931033   -0.000000 eV
+lwmatK2:  Wannier    1    4    0.000000 eV   -21.263839   -0.000000 eV
+lwmatK2:  Wannier    1    5    0.000000 eV   -21.930702   -0.000000 eV
+\end{verbatim}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
@@ -3745,7 +3879,7 @@ In each iteration, we perform these fortran programs;
 
 \end{verbatim}
 }
-\begin{screen}
+%\begin{screen}
 {\bf run\_arg}:\\ 
 
 Here a subroutine of bash {\bf run\_arg} was used, which is given in \io{ecalj/lm7K};
@@ -3759,7 +3893,7 @@ put go to l* files. For example,
 invokes \exe{hsfp0\_sc} with argument '2' by mpirun with the -np
 \$MPI\_SIZE. Console outputs are written into logfiles such as \io{lqpe}.
 \verb#$nfpgw# contains path to the execution binaries.\\
-\end{screen}
+%\end{screen}
 
 \ \\
 
@@ -4431,7 +4565,7 @@ The obtained datas are in {\sf EPS*.dat} and {\sf EPS*.nlfc.dat}.
 {\bf q}(1:3), $\omega$, Re($\epsilon$) Im($\epsilon$), Re(1/$\epsilon$), In(1/$\epsilon$)\\
 in each line.
 
-\begin{screen}
+%\begin{screen}
 \begin{itemize}
  \item 
 This code works OK only for ${\bf q}$ is near 0.
@@ -4476,7 +4610,7 @@ by this option. Try to plot \io{Core\_*.chk} files,
 which contains core radial functions. 
 Anyway, it is better to treat shallow core as valence by ``local orbital''.
 \end{itemize}
-\end{screen}
+%\end{screen}
 
 
 
@@ -4646,7 +4780,34 @@ fig007
 
 \figp{gas_fig008.eps}\\
 fig008
- 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\section{Used files} 
+\subsection{@MNLA\_CPHI}
+\begin{verbatim}
+    m    n    l ibas
+     0     1     0     1     1     1
+     0     2     0     1     2     2
+    -1     1     1     1     3     3
+     0     1     1     1     4     3
+     1     1     1     1     5     3
+    -1     2     1     1     6     4
+     0     2     1     1     7     4
+     1     2     1     1     8     4
+    -2     1     2     1     9     5
+    -1     1     2     1    10     5
+     0     1     2     1    11     5
+\end{verbatim}
+m is a magneitc quantum number, n is the dgree of freedom which means 1 : $\phi$, 2 : $\dot{\phi}$, and 3 : local orbital. l is the orbital angular quantum number. The match of orbitals and m number is shown by {\bf job\_pdos} command.The folloiwing number is the number of atom. And the next is the numerating number. It corresponds to the number in GWinput which is the most left one in the initial conditions.
+
+\subsection{CPHI and GEIG}
+We exapnd the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region:
+\begin{displaymath}
+\Psi_{{\bf k}n} = \sum_{{\bf R}u}\alpha_{{\bf R}u}^{{\bf k}n}\phi_{{\bf R}u}^{\bf k}({\bf r}) + \sum_{\bf G}\beta_{\bf G}^{{\bf k}n}P_{\bf G}^{\bf k}({\bf r})
+\end{displaymath}
+Here, {\bf CPHI} contains the information of $\alpha_{{\bf R}u}^{{\bf k}n}$ and {\bf GEIG} contains $\beta_{\bf G}^{{\bf k}n}$.
+
 
 \newpage 
 \printindex
