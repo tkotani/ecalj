@@ -686,10 +686,11 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       llw=1d99
       llwI=1d99
 
-      if(ixc==1011) then ! ixc==11 is a debug mode to test contribution at \Gamma point.
+      if(ixc==1011)then !ixc==11 is a debug mode to test contrib. at \Gamma point.
          goto 1191
       endif
 
+!! rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
       call MPI__hx0fp0_rankdivider2S(nspinmx)
 !TIME1 "before 1001 loop"
@@ -701,8 +702,11 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
       iqinit=.true.
-      write(6,'(i5,a,10L5)')mpi__rank,'debug,allocated(mpi__qtask)',allocated(mpi__qtask)
-      write(6,'(i5,a,10L5)')mpi__rank,'debug,mpi__qtask',mpi__qtask
+      write(6,'("irank=",i5," allocated(mpi__qtask)=",L5)')mpi__rank,allocated(mpi__qtask)
+      do iq = iqxini,iqxend
+         if(mpi__qtask(iq)) write(6,'("irank iq=",i5,i5)') mpi__rank,iq
+      enddo
+
       do 1001 iq = iqxini,iqxend ! q=(0,0,0) is omitted!
          if( .not. mpi__Qtask(iq) ) cycle
 !TIME0 
