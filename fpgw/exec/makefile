@@ -127,8 +127,9 @@ $(gwsrc)genqbz.o \
 $(gwsrc)switches.o \
 $(gwsrc)linpackdummy.o \
 $(gwsrc)rppovl.o \
-$(gwsrc)llnew.o 
+$(gwsrc)llnew.o
 
+ 
 #LMFtot= \
 #$(lmsrc)lmf.o \
 #$(tote)mkpot_exec.o \
@@ -499,7 +500,9 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)readeigen.o \
  $(gwsrc)readqg.o \
  $(gwsrc)iqindx.o  \
- $(gwsrc)alloclist.o 
+ $(gwsrc)alloclist.o \
+ $(gwsrc)m_pkm4crpa.o
+
 
  QPE_SC = \
  $(gwsrc)switches.o \
