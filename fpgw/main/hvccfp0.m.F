@@ -67,7 +67,7 @@ c
       logical :: allochk=.false. !paralellx0=.true., 
 
       complex(8),allocatable:: hh1(:,:),oo1(:,:)
-      integer(4):: bzcase, nqnumc,ifiqgc
+      integer(4)::  nqnumc,ifiqgc !bzcase,
 c      character(5)  :: charnum5
 c      integer(4),allocatable:: iqok(:)
       real(8):: qqq(3),QpGcut_Cou       !,qq(3)
@@ -98,7 +98,7 @@ c---
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
-      logical:: is_mix0vec,newaniso,wvcc
+      logical:: is_mix0vec,wvcc !,newaniso
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
       integer:: ifiwqfac,iqbz,iqbzx,nnn
@@ -469,13 +469,13 @@ cccccccccccccccccccccccccccccccccccccc
       deallocate(work)
 
 C... readin r0c
-      if(newaniso()) then
+c      if(newaniso()) then
         eee=screenfac() !takao feb2012
 c      elseif(imode==101.or.imode==102) then
 c        eee = eees()
-      else
-        eee=0d0
-      endif
+c      else
+c        eee=0d0
+c      endif
 
 !! for eps_lmf and epsPP_lmf mode, 
 !! even the small eee=1d-4 can affect to dielectric function near q=0 when its values is large as one-hundred or more.
@@ -542,8 +542,9 @@ C... q near zero
 
 C --- Check PARALELL.X0
 c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
-      wvcc=.true.
-      if(newaniso()) wvcc=.false.
+c$$$      wvcc=.true.
+c$$$      if(newaniso()) wvcc=.false.
+      wvcc=.false.
       write(6,'(a)') " Mix0vec.XXX is not empty only when"
      &   //" the corresponding q is in Q0P with zero weight."
 c      if(paralellx0) then
@@ -561,24 +562,24 @@ c      endif
         iqxini= nqibz + 1
 c      elseif(paralellx0) then
 c     &  !skip
-      elseif(bzcase()==1) then
-!        iqxini = 2
-        iqxini = 1 !oct2005
+c$$$      elseif(bzcase()==1) then
+c$$$!        iqxini = 2
+c$$$        iqxini = 1 !oct2005
       else
         iqxini = 1
       endif
 !!
-      if(newaniso().and.imode==0) then
+c      if(newaniso().and.imode==0) then
+      if(imode==0) then
         iqxini=1
 c        iqxend=nqibz ! comment out at 18nov2012
       endif
       write(6,*)'iqxini iqxend=',iqxini,iqxend
 c qibz loop
 c      epsx =  0.01d0
-      if(bzcase()==1) then
-Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop 'hvccfp0: sum(q**2)==0d0'
+c      if(bzcase()==1) then
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
-      endif
+c      endif
       if(wvcc) write(ifvcfpout) nqbz, nblochpmx
 c      if(imode==101) then
 c        read(ifvcfporg) nqbz_in, nblochpmx_in
@@ -761,19 +762,19 @@ c           qq=q
 c        endif
 cccccccccccccccccccccccc
 
-        if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
-          if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
-        endif
+c$$$        if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
+c$$$          if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
+c$$$        endif
 !! ==== q+G vector ====
         call readqg('QGcou',q,ginv,  quu,ngc, ngvecc ) !qq-->q
         ngb = nbloch + ngc  !it was ngcnn(iq)
         write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
 
-        if(newaniso()) then
-          continue
-        elseif(bzcase()==1.and.iqx==1) then
-          goto 1101
-        endif
+c$$$        if(newaniso()) then
+c$$$          continue
+c$$$        elseif(bzcase()==1.and.iqx==1) then
+c$$$          goto 1101
+c$$$        endif
 
 c        ngc = ngcn(iq)
 c        ngvecc(1:3,1:ngc) = ngvecci(1:3,1:ngc,iq)
@@ -1046,11 +1047,11 @@ C... Store matching matrix
           deallocate(pomat)
         endif
 
-        if(newaniso()) then
-          continue
-        elseif(bzcase()==1.and.iqx==1)then
-          cycle
-        endif
+c$$$        if(newaniso()) then
+c$$$          continue
+c$$$        elseif(bzcase()==1.and.iqx==1)then
+c$$$          cycle
+c$$$        endif
 
 !! == Write out VCCFP ==
         if(debug) write(6,*) 'write out vcoul'

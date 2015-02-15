@@ -100,7 +100,7 @@ c
       integer(4):: nwin,incwfin
       real(8)::efin ,ddq(3),bandgap
 
-      integer(4):: bzcase
+      integer(4):: bzcase=1
 
 c---------------------------------------
       write(6,*) 'mode=(1-4)?'
@@ -245,7 +245,7 @@ cccccccccccccccccccccccccccccccccccccccccc
         nsp   = nspin !26jan2006
         allocate( eband2(nband,nsp,nqbz) )
         ddq = 0d0
-        if(bzcase()==2) ddq= dq_bzcase2
+c        if(bzcase()==2) ddq= dq_bzcase2
         if(.not.qbzreg()) ddq= ddq- dq_bzcase2
         write(6,*)' nsp nqbz =', nsp,nqbz
 c        write(6,*)' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
@@ -288,7 +288,7 @@ c$$$        write(6,*)' valn             =',valn
 c$$$        write(6,*)' ntot             =',ntot
 
 c ... read eband
-        if(qbzreg() .and. bzcase()==1 ) then
+        if(qbzreg() .and. bzcase==1 ) then
           allocate( eband(nband,nspin,nqibz))
           do is  = 1,nspin !Readin eband
             do iqi = 1,nqibz
@@ -370,7 +370,7 @@ cccccccccccccccccccccccccccccccccccc
       write(6,*)'e2=',e2
 cccccccccccccccccccccccccccccccccccccccccccc
       if(e1 /= e2) then
-        if(.not. ( qbzreg().and.bzcase()==1 ) ) then
+        if(.not. ( qbzreg().and.bzcase==1 ) ) then
           write(6,*)"Fermi energy finder for off-regular mesh"//
      &          "(Chi_RegQbz off)or bzcase==2 is not implimented yet..."
 Cstop2rx 2013.08.09 kino          stop 

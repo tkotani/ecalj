@@ -202,7 +202,7 @@ c     logical:: ifgeigb
       integer(4),allocatable:: iffg(:)
 
 
-      integer(4):: ifgeig,iadd,bzcase,normcheck,verbose
+      integer(4):: ifgeig,iadd,normcheck,verbose !,bzcase
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     complex(8)::ddd
 c     itest= 225
@@ -1558,7 +1558,7 @@ c      if(QpGcut_psi2<1d-9) QpGcut_psi2=0d0 !may2013
 
 !! === make <Gc-Gp1+Gp2> matrix ===
       iadd=0
-      if(bzcase()==2) iadd=1
+c      if(bzcase==2) iadd=1
       if(ix==1) nqibz=0
       dQpG=0d0
       do iq0i =1,nq0i
@@ -1574,7 +1574,7 @@ c      if(QpGcut_psi2<1d-9) QpGcut_psi2=0d0 !may2013
         endif
         write(6,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
       enddo
-      if(bzcase()==2) qibze(1:3,nqibz+nq0i+iadd)=0d0
+c      if(bzcase()==2) qibze(1:3,nqibz+nq0i+iadd)=0d0
       nqnumt= nqibz+nq0i+iadd
       write(6,"(' nqnumt nqibz nq0i iadd =',4i6)")nqnumt,nqibz,nq0i,iadd
 

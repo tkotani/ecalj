@@ -291,20 +291,29 @@ c$$$!! ------------
 !!
 !!  cphin (iqq) ---> cphiout (iq)
       implicit none
-      integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
-      integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
-      integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
-      real(8):: tiat(3,nbas)
-      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phase,ddd
-      real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
-      real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
-!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
-      
-      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
-      integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+! input variables
+      integer,intent(in):: nbloch,nband,norbt,nbas
+      integer,intent(in):: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
+      integer,intent(in):: miat(nbas),lxxa
+      real(8),intent(in):: tiat(3,nbas)
+      complex(8),intent(in):: cphiin(nbloch,1:nband)
 
-      complex(8):: img2pi ! MIZUHO-IR
+      real(8),intent(in):: sym(3,3), qin(3),shtvg(3)
+      real(8),intent(in):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
+      integer,intent(in):: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
+      integer,intent(in)::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+
+! output variables
+      complex(8),intent(out):: cphiout(nbloch,1:nband)
+
+! local variables
+      real(8) :: qrot(3)
+      integer :: ibas,ibaso,l,k,ini1,iend1,ini2,iend2,iorb
+      complex(8) :: phase
+
+      complex(8),parameter:: img=(0d0,1d0)
+      complex(8):: img2pi
+
       img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
 
       qrot = matmul(sym,qin)
@@ -438,25 +447,25 @@ c        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
         zrotm(ig2,ig)= exp( -img2pi*sum(qpgr*shtvg) )
       enddo
       end subroutine rotipw2
-!! ------------------------------------------------------
-!! --------------------------------
-      subroutine rotipw(qin,qtarget,geigenin,ngp,nband,
-     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
-     o  geigenout)
-!! == Rotation of Plane wave part. by sym==
-!!
+
+!> Rotation of Plane wave part. by sym
 !! Mapped from qtt(:,iqq) to qtt(:,iq)
 !!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
 !!  geigenin (iqq) ---> geigenout (iq)
+      subroutine rotipw(qin,qtarget,geigenin,ngp,nband,
+     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
+     o  geigenout)
       implicit none
-      real(8):: sym(3,3),qlat(3,3),platt(3,3)
-     &  ,shtvg(3)
-      integer:: ngp,imx,nband,
-     &          ngvecp(3,ngp), !,iqq),
-     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
-      real(8):: qin(3),qout(3),qpg(3),qpgr(3),qtarget(3)
-      integer:: ig,ig2,nnn(3),igxt
-      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
+
+      real(8), intent(in) :: sym(3,3),qlat(3,3),platt(3,3),shtvg(3)
+      integer, intent(in) :: ngp,imx,igxt,nband,
+     &   ngvecp(3,ngp),ngvecprev(-imx:imx,-imx:imx,-imx:imx)
+      real(8), intent(in) :: qin(3),qtarget(3)
+      complex(8), intent(in) :: geigenin(ngp,nband)
+      complex(8), intent(out) :: geigenout(ngp,nband)
+
+      real(8):: qpg(3),qpgr(3)
+      integer:: ig,ig2,nnn(3)
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
 
@@ -483,15 +492,19 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
       contains
-!!---------------------------------------------------------
+!> Find index as q=qq(:,iq) with modulo of premitive vector.===
       subroutine iqindx2_(q,  iqindx,qu)
-!!=== Find index as q=qq(:,iq) with modulo of premitive vector.===
 !! ginv is the inverse of plat (premitive translation vector).
 !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
       implicit none
-      integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3
-      real(8):: q(3),qx(3),qu(3),qzz(3)
+      real(8), intent(in) :: q(3)
+      integer, intent(out) :: iqindx
+      real(8), intent(out) :: qu(3)
+
+      integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
+      real(8):: qx(3),qzz(3)
       logical::debug=.false.
+
       if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
@@ -601,18 +614,16 @@ Cstop2rx 2013.08.09 kino      stop 'takk: error'
 
 
 !! ------------------------------------------------------
-      module m_readeigen
-!!-- Return eigenvalus and eigenfunctions for given q and isp.--
+!> Return eigenvalus and eigenfunctions for given q and isp.
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
 !! qtti(1:3,nqi) :eivenvalues, eigenvectors are calculated only for them.
 !!                  See lmfgw (q-vector with irr flag in QGpsi).
 !!
 !!* we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
+      module m_readeigen
       use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
       implicit none
-c      integer(4),private :: nqtt  
-c      real(8),allocatable,private:: qtt(:,:) <---this is in m_hamindex
       real(8),allocatable,private:: evud(:,:,:), ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
@@ -634,7 +645,6 @@ ctm
 
       logical,private:: Wpkm4crpa=.false.
       contains
-!!--------------------------------------------------------------------------
       subroutine onoff_write_pkm4crpa(lll)
       logical:: lll
       Wpkm4crpa=lll
@@ -675,18 +685,17 @@ ctm
       end subroutine
 
 
+!> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
-!! == return ev(1:nband) for given q(1:3) and isp ==
-!! *
       use m_hamindex, only: qtt,nqtt,iqimap
       implicit none
-      integer(4):: isp,iq,iqindx,i
-      real(8):: q(3),qu(3)
-      real(8):: ev(nband)
-      if(init) then
-Cstop2rx 2013.08.09 kino        stop 'readeigen: modele is not initialized yet'
-        call rx( 'readeigen: modele is not initialized yet')
-      endif
+      integer(4), intent(in) :: isp
+      real(8), intent(in) :: q(3)
+      real(8), intent(out) :: ev(nband)
+
+      integer(4):: iq,iqindx,i
+      real(8):: qu(3)
+      if(init) call rx( 'readeigen: modele is not initialized yet')
 c      iq = iqindx(q, ginv,qtt,nqtt)
        call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
@@ -713,28 +722,26 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       emin = minval(evud)
       end subroutine
 
-!!-----------------------------------------------
+!> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
-!!-- return ev(1:nband) for given q(1:3) and isp --
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
       implicit none
-      integer:: isp,iq,iqindx,ngp_in,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt
-      real(8)   :: q(3),qu(3),ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
-      complex(8):: geigen(ngp_in,nband),geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
+      real(8),intent(in) :: q(3)
+      integer,intent(in) :: isp,ngp_in
+      real(8),intent(out) :: qu(3)
+      complex(8), intent(out) :: geigen(ngp_in,nband)
+
+      integer:: iq,iqindx,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt
+      real(8)   :: ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
+      complex(8):: geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
+
       img2pi=2d0*4d0*datan(1d0)*img
       platt=transpose(plat) !this is inverse of qlat
-      if(init2) then
-Cstop2rx 2013.08.09 kino        stop 'readgeig: modele is not initialized yet'
-        call rx( 'readgeig: modele is not initialized yet')
-      endif
+      if(init2) call rx( 'readgeig: modele is not initialized yet')
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
 c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
       call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
-
       if(debug) write(6,*)' readgeig:xxx iq=',iq
-c      do iq=1,nqtt
-c         write(6,*)iq,qtt(:,iq)
-c      enddo
       iqq=iqmap(iq)
       iqi=iqimap(iq)
       igg=igmap(iq)
@@ -750,7 +757,6 @@ c      enddo
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
-Cstop2rx 2013.08.09 kino      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ngp(iqq)'
       if(ngp(iq)/=ngp(iqq)) call rx( 'readgeig:x ngp(iq)/=ngp(iqq)')
       if(debug) write(6,*)' ngp=',ngp(iq)
       if(keepeig) then
@@ -761,7 +767,6 @@ Cstop2rx 2013.08.09 kino      if(ngp(iq)/=ngp(iqq)) stop 'readgeig:x ngp(iq)/=ng
       endif
       if(ngp_in < ngp(iq)) then
         write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
-Cstop2rx 2013.08.09 kino        stop 'readgeig: ngpmx<ngp(iq)'
         call rx( 'readgeig: ngpmx<ngp(iq)')
       endif
 !! new rotation of IPW. june2012
@@ -771,7 +776,6 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig: ngpmx<ngp(iq)'
      &  platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx,
      &  geigen(1:ngp(iq),1:nband))
       return
-
 !! Followings are not used now...  june2012
 !! We can use the followings instead of rotipw (both should give the same result).
 !! ----------
@@ -795,11 +799,7 @@ c      endif
         qpgr = matmul(symops(:,:,igg),qpg)             !rotated q+G
         call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
         ig2 = ngvecprev(nnn(1),nnn(2),nnn(3),iq)
-ccccccccccccccccccccccccccccccccccc
-cddd
-c        geigen(ig2,:)= geigenr(ig,:) * exp( img2pi*sum(qpg*ddd) )
         geigen(ig2,:)= geigenr(ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
-ccccccccccccccccccccccccccccccccccc
       enddo
       end subroutine readgeig
 
@@ -809,10 +809,16 @@ ccccccccccccccccccccccccccccccccccc
      &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas ,  norbtx
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       implicit none
-      integer:: isp,iq,iqindx,ldim2_in,ikpisp,iqq,iorb,ibaso,ibas,k,l,
+      real(8), intent(in) :: q(3)
+      integer, intent(in)  :: ldim2_in
+      integer, intent(in)  :: isp
+      real(8), intent(out)  :: qu(3)
+      complex(8), intent(out)  :: cphif(ldim2_in,nband)
+
+      integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
-      real(8)   :: q(3),qu(3) ,qrot(3) ,qout(3)
-      complex(8):: phase,cphifr(ldim2_in,nband),cphif(ldim2_in,nband),phaseatom !takao 1->*->nband
+      real(8)   :: qrot(3) ,qout(3)
+      complex(8):: phase,cphifr(ldim2_in,nband),phaseatom !takao 1->*->nband
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
 
@@ -2272,8 +2278,11 @@ c ---
 c taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
       implicit none
-      integer::ii(n),i,n
-      real(8):: a(n),eps=1d-6,aa !eps=1d-8 until aug2012
+      real(8), intent(in) :: a(n)
+      integer, intent(in) :: n
+      integer, intent(out) :: ii(n)
+      integer::i
+      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
         if(a(i)>0) then
           aa = a(i)
@@ -2282,7 +2291,6 @@ c taken from lm7k/subs/rotwv.F
           aa=-a(i)
           ii(i)= -int(aa+eps)
         endif
-Cstop2rx 2013.08.09 kino        if(abs(ii(i)-a(i))>eps)stop'conv2int: a is not close to integer'
         if(abs(ii(i)-a(i))>eps)call rx( 'conv2int: a is not close to integer')
       enddo
       end subroutine conv2int

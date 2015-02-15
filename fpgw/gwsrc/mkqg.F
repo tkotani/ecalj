@@ -35,7 +35,7 @@
       integer(4) :: mxkp,ifiqibz,iqibz,ifigwin,nq00i,mtet(3),nm1,nm2,nm3
       logical ::tetrai,tetraf,tetra_hsfp0    ,noq0p
       integer(4):: ifbz
-      integer(4):: bzcase
+      integer(4):: bzcase=1
 c     logical :: readgwinput
       integer(4):: nqnumm,ifiqmtet,verbose, nq0x,q0pchoice,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
       real(8)::aaij,bbij,wgtq0p, qdum(6)
@@ -51,7 +51,7 @@ c     logical :: readgwinput
       logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
       integer(4)::nmm
 
-      logical ::anyq                , caca,newaniso,debug=.true.
+      logical ::anyq                , caca,debug=.true. !,newaniso
       real(8),allocatable:: qany(:,:)
       integer(4):: nany,ifqpnt,ret,imxc,nnn3(3),imx0c,imx11(1,1)
       real(8):: deltaq,delta5,delta8,deltaq_scale!=1d0/3.0**.5d0 
@@ -72,7 +72,7 @@ c     logical :: readgwinput
 c------------------------------------------------
       print *,' mkqg2: '
       qreduce0 = qreduce()
-      newoffsetG=newaniso()
+      newoffsetG=.true. !newaniso()
       if(iq0pin == 101) then
          iq0pin=1
          newoffsetG=.false. !for old oldset Gamma case
@@ -172,7 +172,7 @@ c     real(8),allocatable:: qbzm(:,:),qbzwm(:,:)
       print *
       print *,'goto getbzdata1...'
       call cputid (0)
-      call getbzdata1(bzcase(),plat,qlat,ginv,n1q,n2q,n3q
+      call getbzdata1(bzcase,plat,qlat,ginv,n1q,n2q,n3q
      &     ,symops,ngrp,tetrai,tetraf,mtet) !all are inputs.
 
 C     ... Write BZDATA
@@ -281,12 +281,12 @@ c     nn2= mod(q0pchoice()-1000,10)
 c     nq0x= 4*nn1*nn2
 c     print *,' mkqg: q0pchoice nq0x=',q0pchoice(),nq0x
 c     endif
-         if(newaniso()) then    !feb2012
+c$$$         if(newaniso) then    !feb2012
             nq0x=nq00ix
-         elseif( q0pchoice()<0) then
-c     nq0x = 8*abs (q0pchoice())
-            nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
-         endif
+c$$$         elseif( q0pchoice()<0) then
+c$$$c     nq0x = 8*abs (q0pchoice())
+c$$$            nq0x = max( (2*abs(q0pchoice()))**3, 8*abs(q0pchoice()))
+c$$$         endif
          www=wgtq0p()
          call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
          if(noq0p) then
@@ -587,7 +587,7 @@ c$$$  ifiwqfac = iclose('WQFAC')
 c$$$  deallocate(epinvq0i,dmlx,wklm,wqfac)
 
             else
-               call setq0_2(bzcase(), alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
+               call setq0_2(bzcase, alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i              ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
      o              q0x,wt0,nq00i)
 !     ! ... inequivalent q0x points ...
@@ -600,11 +600,11 @@ c$$$  deallocate(epinvq0i,dmlx,wklm,wqfac)
 !!
          open (1101,file='Q0P')
          www = wgtq0p()
-         if(bzcase()==2) then
-            write(1101,"(2i5,' !nq0i iq0pin :wgtq0p()=', d23.15)") nq0i,iq0pin,www
-         else
-            write(1101,"(2i5,' !nq0i iq0pin' )") nq0i,iq0pin
-         endif
+c         if(bzcase()==2) then
+c            write(1101,"(2i5,' !nq0i iq0pin :wgtq0p()=', d23.15)") nq0i,iq0pin,www
+c         else
+         write(1101,"(2i5,' !nq0i iq0pin' )") nq0i,iq0pin
+c         endif
          write(1101,"(d24.16,3x, 3d24.16)" ) (wt(i),q0i(1:3,i),i=1,nq0i)
          close(1101)
 c     wtx = 0d0; q0xx(1) = 0.01d0; q0xx(2:3) =0d0
@@ -739,7 +739,7 @@ cccccccccccccccccccc
          offmesh = (.not.qbzreg())
       else
          regmesh = .true.
-         offmesh = (bzcase()==2) .or. (.not.qbzreg())
+         offmesh = (bzcase==2) .or. (.not.qbzreg())
       endif
       print *,' regmesh offmeshg=', regmesh,regmeshg !regular, regular+shifted
       print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
@@ -775,7 +775,7 @@ c      nqnum = nqbz
 !!!   nqnum = ix !=n1q*n2q*n3q*(nq0i+1) ! total q number
 C...  Regular mesh (qq are the same in the both bzcase)
       ddq = 0d0
-      if(bzcase()==2) ddq=  dq_bzcase2
+c      if(bzcase()==2) ddq=  dq_bzcase2
       allocate(qbzrr(1:3,nqbz))
       do iq = 1, nqbz
          qbzrr(1:3,iq) = qbz(1:3,iq) + ddq

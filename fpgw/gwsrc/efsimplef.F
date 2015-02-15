@@ -37,14 +37,14 @@ c
       real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini
      &            ,eee2,wwg2 ,enumef
 c      real(8) :: efp,efm,wwgo,wfacef
-      logical :: legas,autoew,GaussSmear !is external
+      logical :: legas,autoew,GaussSmear=.true. !is external
 
       integer(4):: nqbz
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
 C--------------------------------------------------------------------
       autoew =.false.
-      if(GaussSmear()) then
+      if(GaussSmear) then
         write(6,*)' efsimplef2(gaussian mode):start'
       else
         write(6,*)' efsimplef2(rectangular mode):start'
@@ -154,7 +154,7 @@ Cstop2rx 2013.08.09 kino      if(ierr==1) stop ' efsimplef2: ierr=1 given nval i
 c
       nbnqnsp = nband*nqibz*ispin
 ccc gaussian
-      if(GaussSmear()) then
+      if(GaussSmear) then
         valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))
      &               ,efini,esmr,nbnqnsp)
       else
@@ -172,7 +172,7 @@ ccc gaussian
       nbnqnsp =nband*nqibz*ispin
       do ix = 1,100
         ein = 0.5d0*(ew1+ew2)
-        if(GaussSmear()) then
+        if(GaussSmear) then
           valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp))
      &          ,ektx(ieaord(1:nbnqnsp)),ein,esmr,nbnqnsp)
         else
@@ -216,7 +216,7 @@ c          write(6,*)'           wfacef =',wfacef
 c          return
 c        endif
 c     enddo
-      if(GaussSmear()) then
+      if(GaussSmear) then
         write(6,*)' efsimplef2(gauss):end'
       else
         write(6,*)' efsimplef2:end'
@@ -265,14 +265,14 @@ c
       real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini
      &            ,eee2,wwg2 ,enumef
 c      real(8) :: efp,efm,wwgo,wfacef
-      logical :: legas,autoew,GaussSmear !is external
+      logical :: legas,autoew,GaussSmear=.true. !is external
 
       integer(4):: n_index_qbz,nqbz
       integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
 C--------------------------------------------------------------------
       autoew =.false.
-      if(GaussSmear()) then
+      if(GaussSmear) then
         write(6,*)' efsimplef2(gaussian mode):start'
       else
         write(6,*)' efsimplef2(rectangular mode):start'
@@ -378,7 +378,7 @@ Cstop2rx 2013.08.09 kino      if(ierr==1) stop ' efsimplef2: ierr=1 given nval i
 c
       nbnqnsp = nband*nqibz*ispin
 ccc gaussian
-      if(GaussSmear()) then
+      if(GaussSmear) then
         valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))
      &               ,efini,esmr,nbnqnsp)
       else
@@ -396,7 +396,7 @@ ccc gaussian
       nbnqnsp =nband*nqibz*ispin
       do ix = 1,100
         ein = 0.5d0*(ew1+ew2)
-        if(GaussSmear()) then
+        if(GaussSmear) then
           valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp))
      &          ,ektx(ieaord(1:nbnqnsp)),ein,esmr,nbnqnsp)
         else
@@ -440,7 +440,7 @@ c          write(6,*)'           wfacef =',wfacef
 c          return
 c        endif
 c     enddo
-      if(GaussSmear()) then
+      if(GaussSmear) then
         write(6,*)' efsimplef2(gauss):end'
       else
         write(6,*)' efsimplef2:end'

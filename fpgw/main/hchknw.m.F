@@ -92,7 +92,7 @@ c      common /w/ w(iwksize)
       real(8),allocatable:: qbze(:,:)
       integer(4):: nq0it,nqbze,ini
       real(8):: wdummy
-      logical:: GaussSmear !external
+c      logical:: GaussSmear=.true. !external
 
       real(8):: ffac
       logical ::qpntexist
@@ -412,11 +412,11 @@ c
         enddo
       enddo
 
-      if(GaussSmear()) then
+c      if(GaussSmear()) then
         ffac=10d0 !This is OK?
-      else
-        ffac=0.5d0
-      endif
+c      else
+c        ffac=0.5d0
+c      endif
       emaxv =  0d0 !-1d99 fixed oct.2003 takao
       eminc =  0d0 !1d99
       do is = 1, nspinmx

@@ -95,17 +95,17 @@ c      ldummy=KeepPPOVL()
       ldummy=KeepEigen()
       ldummy=core_orth()
       idummy=verbose()
-      ldummy=GaussSmear()
-      idummy=bzcase()
+c      ldummy=GaussSmear()
+c      idummy=bzcase()
       idummy=q0pchoice()
       print *,' --- switches defined in gwsrc/switch.f ---'
 c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
       write(6,"(' keepeigen() = ',L)")  KeepEigen()
       write(6,"(' core_orth()  = ',L)")  core_orth()
       write(6,"(' verbose ()  = ',i4)")  verbose()
-      write(6,"(' GaussSmear()= ',L4)")  GaussSmear()
+c      write(6,"(' GaussSmear()= ',L4)")  GaussSmear()
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
-      write(6,"(' bzcase()    = ',i4)")  bzcase()
+c      write(6,"(' bzcase()    = ',i4)")  bzcase()
 !! readin LATTC
 c----------------------------------
 c A sample LATTICE file for a Si case,

@@ -123,7 +123,7 @@ ctm 010705
 
       real(8),allocatable :: freq_r(:),freq_i(:),freqx(:),wx(:),expa(:)
      &                      ,frhis(:)
-      integer(4)::nwin, incwfin,  verbose,nqibze,ngc,iqxini,bzcase
+      integer(4)::nwin, incwfin,  verbose,nqibze,ngc,iqxini !,bzcase
       real(8)::efin, qq(3),quu(3)
       integer(4),allocatable:: ngvecc(:,:)
 
@@ -154,22 +154,22 @@ c-----------------------------------------------------------------
       print *,' nqbz qbz =',nqbz
 c      print *,  qbz
       print *,' nqibz ngrp=',nqibz,ngrp
-      print *,' BZmesh=',bzcase()
+c      print *,' BZmesh=',bzcase()
 c      print *,' irk=',irk
 c      print *,' #### idtetf: ####'
 c      print *, idtetf
-      if(bzcase()==2) then
-        allocate(nstibz(nqibz))
-c        do iq=1,nqbz
-c          write(6,"(' iq qbz nstibz=',i5,3f9.4,i5)")iq,qbz(:,iq),nstbz(iq)
-c        enddo
-        do iq=1,nqibz
-          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
-          nstibz(iq) = nstbz(iqbz)
-          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
-        enddo
-c        stop
-      endif
+c$$$      if(bzcase()==2) then
+c$$$        allocate(nstibz(nqibz))
+c$$$c        do iq=1,nqbz
+c$$$c          write(6,"(' iq qbz nstibz=',i5,3f9.4,i5)")iq,qbz(:,iq),nstbz(iq)
+c$$$c        enddo
+c$$$        do iq=1,nqibz
+c$$$          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
+c$$$          nstibz(iq) = nstbz(iqbz)
+c$$$          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
+c$$$        enddo
+c$$$c        stop
+c$$$      endif
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
@@ -460,12 +460,12 @@ c do loop over q { IBZ
       allocate ( ecqw(nqitot,niw) )
 
 
-      if(bzcase()==1) then
-        iqxini = 2
-      else
-        iqxini = 1
-      endif
-
+c      if(bzcase()==1) then
+c        iqxini = 2
+c      else
+c        iqxini = 1
+c      endif
+      iqxini=1
 
       allocate( zw(nblochpmx2, nblochpmx2) )
       do iq = iqxini,nqitot ! q=(0,0,0) is omitted!
@@ -504,11 +504,11 @@ c        erpaq      = 0d0
 c        trpvq      = 0d0
 c        trlogq     = 0d0
         do ix=1,niw
-          if(bzcase()==2) then
-            irecwq = (iq-1)*niw + ix
-          else
+c          if(bzcase()==2) then
+c            irecwq = (iq-1)*niw + ix
+c          else
             irecwq = (iq-2)*niw + ix
-          endif
+c          endif
           read(ifrcwi, rec=irecwq) zw
           call ecorq2 (iq,ix,
      i     zv, zw(1:ngb,1:ngb),

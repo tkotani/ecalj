@@ -1,37 +1,32 @@
       subroutine readppovl0(q,ngc,ppovl)
       implicit none
-      integer(4):: ngc_r,ippovl0,ixx,ngc
-      complex(8):: ppovl(ngc,ngc)
-      real(8):: q(3),qx(3)
+      real(8), intent(in) :: q(3)
+      integer(4), intent(in) :: ngc
+      complex(8), intent(out) :: ppovl(ngc,ngc)
+
+      integer(4):: ngc_r,ippovl0
+      real(8):: qx(3)
       ippovl0=2301
       open(ippovl0,file='PPOVL0',form='unformatted')
       do
         read(ippovl0) qx,ngc_r
         if(sum(abs(qx-q))<1d-6) then
-c           write(6,*)' q qx ngc ngc_r=',q, qx, ngc, ngc_r
-Cstop2rx 2013.08.09 kino          if(ngc_r/=ngc) stop 'readin ppovl: ngc_r/=ngc'
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl
-c           write(6,*)' readin PPOVL0 OK q=',q
           exit
         endif
       enddo
       close(ippovl0)
       end
 
-!! ======================================================
+!> Return QGcou and QGpsi ===
       module m_readQG
-!! === Return QGcou and QGpsi ===
       implicit none
       real(8),allocatable,private,target:: qc(:,:),qp(:,:)
       logical,private:: init(2)=.true.
       real(8),private:: QpGcut_cou, QpGcut_psi
       integer(4),private,target::   nqnumc,nqnump,ngcmx,ngpmx
       integer(4),allocatable,private:: ngvecp(:,:,:),ngp(:),ngvecc(:,:,:),ngc(:)
-!! --------------------------------------------------------
-!! See readeigen.F
-c      module m_iqindx_qtt  
-c      use m_hamindex, only: qtt,nqtt
       integer,pointer,private::nqtt
       real(8),pointer,private::qtt(:,:)
       real(8),private:: epsd=1d-7
@@ -56,19 +51,21 @@ c- get ngcmx or mgpmx
         read(ifiqg) nqnumc, ngcmx, QpGcut_cou
         ngmx=ngcmx
       else
-Cstop2rx 2013.08.09 kino        stop "readngmx: key is not QGpsi QGcou"
         call rx( "readngmx: key is not QGpsi QGcou")
       endif
       close(ifiqg)
       end subroutine
-c--------------------------
+
+!> Get ngv and ngvec(3,ngv) for given qin(3)
+!! key=='QGcou' or 'QGpsi'
       subroutine readqg(key,qin,ginv,  qu,ngv,ngvec)
-c- Get ngv and ngvec(3,ngv) for given qin(3)
-cr key=='QGcou' or 'QGpsi'
       implicit none
-      integer(4):: ngv, ngvec(3,*), ifi, iq,verbose
-      real(8):: qin(3),qu(3),ginv(3,3)
-      character*(*) key
+      character*(*), intent(in) :: key
+      real(8), intent(in) :: qin(3),ginv(3,3)
+      real(8), intent(out) :: qu(3)
+      integer(4), intent(out) :: ngv, ngvec(3,*)
+
+      integer(4):: ifi, iq,verbose
       if    (key=='QGpsi') then
         ifi=1
         if(verbose()>=80) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin
@@ -76,7 +73,6 @@ cr key=='QGcou' or 'QGpsi'
         ifi=2
         if(verbose()>=80) write (6,"(' readqg cou: qin=',3f8.3,i5)") qin
       else
-Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
         call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
@@ -86,27 +82,27 @@ Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
       if(verbose()>=40) write(6,*)'end of init_readqg'
       call iqindx2qg(qin,ifi, iq,qu)
       if(ifi==1) then
-c        call iqindx2(qin,ginv, qp,nqnump, iq,qu)
         ngv  = ngp(iq)
         ngvec(1:3,1:ngv) = ngvecp(1:3,1:ngv,iq)
         return
       elseif(ifi==2) then
-c        call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         ngv  = ngc(iq)
         ngvec(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
         return
       endif
-Cstop2rx 2013.08.09 kino      stop "readqg: can not find QGpsi or QPcou for given q"
       call rx( "readqg: can not find QGpsi or QPcou for given q")
-      end subroutine
-c--------------------------
+      end subroutine readqg
+
+!> Get ngv
+!! key=='QGcou' or 'QGpsi'
       subroutine readqg0(key,qin,ginv,  qu,ngv)
-c- Get ngv
-cr key=='QGcou' or 'QGpsi'
       implicit none
-      integer(4):: ngv, ifi, iq,verbose
-      real(8):: qin(3),qu(3),ginv(3,3)
-      character*(*) key
+      character*(*), intent(in) :: key
+      integer(4), intent(out) :: ngv
+      real(8), intent(in):: qin(3),ginv(3,3)
+      real(8), intent(out):: qu(3)
+
+      integer(4):: ifi, iq,verbose
       if    (key=='QGpsi') then
         ifi=1
         if(verbose()>=80) write (6,"('readqg0 psi: qin=',3f8.3,i5)") qin
@@ -114,36 +110,32 @@ cr key=='QGcou' or 'QGpsi'
         ifi=2
         if(verbose()>=80) write (6,"('readqg0 cou: qin=',3f8.3,i5)") qin
       else
-Cstop2rx 2013.08.09 kino        stop "readqg: wrongkey"
         call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
         call init_readqg(ifi,ginv)
         init(ifi)=.false.
       endif
-
       call iqindx2qg(qin,ifi, iq,qu)
       if(ifi==1) then
-c        call iqindx2(qin,ginv, qp,nqnump, iq,qu)
         ngv  = ngp(iq)
         if(verbose()>=80) write(6,*)'ngp=',ngv
       elseif(ifi==2) then
-c        call iqindx2(qin,ginv, qc,nqnumc, iq,qu)
         ngv  = ngc(iq)
         if(verbose()>=80) write(6,*)'ngc=',ngv
       endif
       return
-Cstop2rx 2013.08.09 kino      stop "readqg0: can not find QGpsi or QPcou for given q"
       call rx( "readqg0: can not find QGpsi or QPcou for given q")
       end subroutine
 
-c--------------------------
+!> initialization. readin QGpsi or QGcou.
       subroutine init_readqg(ifi,ginv)
-c- initialization. readin QGpsi or QGcou.
       implicit none
-      integer(4):: ifi,ifiqg,iq,verbose
+      integer(4), intent(in) :: ifi
+      real(8), intent(in) :: ginv(3,3)
+
+      integer(4):: ifiqg,iq,verbose
       real(8)::qq(3)
-      real(8):: ginv(3,3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,ik
       integer,allocatable:: ieord(:),key(:,:)
@@ -297,13 +289,19 @@ c$$$      endif
 c$$$      init(ifi)=.false.
 c$$$      end subroutine
 !!---------------------------------------------------------
-      subroutine iqindx2qg(q,ifi, iqindx,qu)
-!!=== Find index as q=qq(:,iq) with modulo of premitive vector.===
+
+!> Find index as q=qq(:,iq) with modulo of premitive vector.
 !! ginv is the inverse of plat (premitive translation vector).
 !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
+      subroutine iqindx2qg(q,ifi, iqindx,qu)
       implicit none
-      integer:: i_out, iq,iqx,iqindx ,kkk3(3),ik1,ik2,ik3,ifi
-      real(8):: q(3),qx(3),qu(3),qzz(3)
+      integer, intent(in):: ifi
+      integer, intent(out):: iqindx
+      real(8), intent(in) :: q(3)
+      real(8), intent(out) :: qu(3)
+
+      integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
+      real(8):: qx(3),qzz(3)
       logical::debug=.false.
       if(ifi==1) then
 c         nqtt => nqnump
@@ -338,31 +336,21 @@ c      write(6,*)'iqindx=',iqindx
       qu = qtt(:,iqindx)
       end subroutine
 
-!! === this is  taken from sorta.F ===
+!> mini-sort routine.
       subroutine sortea(ea,ieaord,n,isig)
-c mini-sort routine.
-      integer:: n,isig,ix,itmp,iwirk,i,j
-      real(8)::        ea(n)
-      integer(4):: ieaord(n)
-c sorting of ea
+      real(8), intent(in) :: ea(n)
+      integer(4), intent(inout) :: ieaord(n)
+      integer, intent(in) :: n
+      integer, intent(out) :: isig
+      integer :: ix,i
       isig = 1
-*poption noparallel
       do i = 1,n
         ieaord(i) = i
       enddo
-*poption noparallel
       do ix= 2,n
-*poption noparallel
         do i=ix,2,-1
           if( ea(ieaord(i-1)) >ea(ieaord(i) ) ) then
-#ifdef EXPAND_ISWAP
-            itmp = ieaord(i-1)
-            ieaord(i-1) = ieaord(i)
-            ieaord(i) = itmp
-
-#else
             call iswap (ieaord(i-1),ieaord(i))
-#endif
             isig= -isig
             cycle
           endif
@@ -370,12 +358,12 @@ c sorting of ea
         enddo
       enddo
       end subroutine
-#ifndef EXPAND_ISWAP
       subroutine iswap(i,j)
+      implicit none
+      integer,intent(inout) :: i, j
+      integer:: iwork
       iwork = j
       j = i
       i = iwork
       end subroutine
-#endif
-c---------------------------------------------------------
       end module m_readQG

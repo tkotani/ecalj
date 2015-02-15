@@ -130,12 +130,12 @@ c     logical :: sergeys
       integer,allocatable::imdim(:)
       real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
 
-      logical:: GaussSmear      !readgwinput,
+c      logical:: GaussSmear=.true.      !readgwinput,
       integer::ret
       character*(150):: ddd
 
 
-      integer:: bzcase,  ngpn1,mrecg,verbose,ngcn1,nwxx
+      integer:: bzcase=1,  ngpn1,mrecg,verbose,ngcn1,nwxx
       real(8)   :: wgtq0p,quu(3)
 
       real(8),allocatable:: freq_r(:)
@@ -159,7 +159,7 @@ c     logical :: imgonly=.false.
 !! newaniso mode
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
-      logical:: newaniso
+c      logical:: newaniso=.true.
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
@@ -613,7 +613,8 @@ cxx   ef = efx
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if(tote) then
         ddw= .5d0
-        if(GaussSmear()) ddw= 10d0
+c        if(GaussSmear) ddw= 10d0
+        ddw= 10d0
         if(ixc==6) then
 c     noccxv = maxocc (ifev,nspin, ef2+ ddw*esmr2, nband,nqbz)
           noccxv = maxocc2 (nspin, ef2+ ddw*esmr2, nband,qbz,nqbz)
@@ -652,7 +653,7 @@ c     ifcphi  = iopen('CPHI',0,0,mrecb)
 !Note that nlmto is the size of @MNLA_CPHI.
 
 c     the coulomb matrix for exchange.
-      if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
+c      if((.not.newaniso).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
 c     QPNT data
       if(.not.tote) then
@@ -790,7 +791,7 @@ C--------------------------
 
       if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
       write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
-      if(bzcase()==2) then
+      if(bzcase==2) then
         wgt0= wgt0*wgtq0p()/dble(nqbz)
         write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
       endif
@@ -831,7 +832,7 @@ c     --- info
       endif
 
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
-      if(newaniso()) then
+c      if(newaniso) then
         ifidmlx = iopen('EPSwklm',0,0,0)
         read(ifidmlx) nq0ix,lxklm
         if(nq0i/=nq0ix) then
@@ -845,7 +846,7 @@ Cstop2rx 2013.08.09 kino          stop 'nq0i from EPSwklm /= nq0i'
         read(ifidmlx) dmlx, epinvq0i
         read(ifidmlx) wklm
         ifidmlx = iclose('EPSwklm') !jan2013 bugfix ifidmlx)
-      endif
+c      endif
 
 c-------------------------
 c     LDA exchange-correlation

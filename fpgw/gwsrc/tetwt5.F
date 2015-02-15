@@ -3,58 +3,52 @@
      i    qbas,ginv,efermi,   
      i    ntetf, nqbzw, nband,nqbz,
      i    nctot,ecore,  idtetf,qbzw,ib1bz,
-c
      i   job,
      o   iwgt,nbnb,           !job=0
      o   demin, demax,       !job=0   Note these are real(4)
-c
      i          frhis,nwhis,
      i          nbnbx,ibjb,nhwtot, ihw,nhw,jhw, !job=1
      o          whw,                            !job=1
      i   iq,isp1,isp2,nqibz,eibzmode,nwgt) ! new input for mtett
       use keyvalue
-C- Obtain weights for Dielectric function by tetrahedron method.
-Cr This version tetwt5x_dtet4 Feb2006 works for timereversal=off (npm=2 case)
-Cr  This tetwt5x_dtet2 calculates imaginary part only.
-C  When job=1, we get
-C    wtthis(ihis) = \int_hislow^hisup d\omega \times
-C                      \int d^3k f(e(k)) (1-f(e(q+k))) \delta (omg- e(q+k) + e(k) )
-C    wtthis is stored into whw. See below for indexing.
-C
-Ci q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
-Ci qbas    = base reciprocal lattice vectors
-Ci ginv    = inverse of qbas
-Ci efermi  = Fermi level in Rydberg
-Ci eband1 = eigenvalues for   k
-Ci eband2 = eigenvalues for q+k
-Ci ecore  = eigenvalues for core
-Ci         ,where k runs in the Full 1st BZ, not only in IBZ.
-Ci idtetf,qbzw,ib1bz = outputs from TETFBZF,
-Ci   which should be called before calling tetwt4.
-Ci nctot   = the number of core
-Ci nband   = total number of bands
-Ci nqbz    = number of k-points in the 1st BZ
-Ci
-c
-c ------------------------------------------------------------
-c job=0 is to get  wgt,nbnb, demin,demax.
-c   They are just for the allocation of arrays and set up required indexes.
-c   wgt is now used only for counting nonzero pairs of ib(occupied) jb(unoccupied)
-c   demin demax is maximum and minimum possible values of the excitation energies.
-c-------------------
-c job=1
-ci INPUT
-ci   frhis(1:nwhis+1), nwhis ---histogram bin.  The ihis-th  bin is [frhis(ihis),frhis(ihis+1)].
-ci   nbnbmx,
-ci   nhwtot; the size od whw
-ci   ibjb(nctot+nband,nband,nqbz);ibjb index for given ib jb k.
-ci   ihw(ibjb,kx): omega index, specify the division of the histogram.
-ci   nhw(ibjb,kx): the number of histogram data
-ci   jhw(ibjb,kx): pointer to whw
-co   whw(jhw(ibjb,kx) ) \to whw(jhw(ibjb,kx) + nhw(ibjb),kx)-1 ) where ibjb(ib,jb,kx)
-co     : histogram weights for given ib,jb,kx for histogram divisions
-co       from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-co
+!> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
+!! ------------------------------------------------------------------------------
+!! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
+!! \param  qbas    = base reciprocal lattice vectors
+!! \param  ginv    = inverse of qbas
+!! \param  efermi  = Fermi level in Rydberg
+!! \param  eband1 = eigenvalues for   k
+!! \param  eband2 = eigenvalues for q+k
+!! \param  ecore  = eigenvalues for core
+!!              ,where k runs in the Full 1st BZ, not only in IBZ.
+!! \param  idtetf,qbzw,ib1bz = outputs from TETFBZF,
+!!         which should be called before calling tetwt4.
+!! \param nctot   = the number of core
+!! \param nband   = total number of bands
+!! \param nqbz    = number of k-points in the 1st BZ
+!! \param frhis(1:nwhis+1) histogram bin.
+!!        The ihis-th bin is [frhis(ihis),frhis(ihis+1)].
+!! \param  nbnbmx
+!! \param  nhwtot  the size od whw
+!! \param  ibjb(nctot+nband,nband,nqbz);ibjb index for given ib jb k.
+!! \param  ihw(ibjb,kx): omega index, specify the division of the histogram.
+!! \param  nhw(ibjb,kx): the number of histogram data
+!! \param  jhw(ibjb,kx): pointer to whw
+!! \remark
+!! + This version tetwt5x_dtet4 Feb2006 works for timereversal=off (npm=2 case)
+!!   - When job=1, we get
+!!   - wtthis(ihis) = \int_hislow^hisup d\omega \times
+!!   -                \int d^3k f(e(k)) (1-f(e(q+k))) \delta (omg- e(q+k) + e(k) )
+!!   - wtthis is stored into whw. See below for indexing.
+!! + job=0 is to get  wgt,nbnb, demin,demax.
+!!   - They are just for the allocation of arrays and set up required indexes.
+!!   - wgt is now used only for counting nonzero pairs of ib(occupied) jb(unoccupied)
+!!   - demin demax is maximum and minimum possible values of the excitation energies.
+!! + job=1
+!!   - whw(jhw(ibjb,kx)) \to whw(jhw(ibjb,kx)+nhw(ibjb),kx)-1 ) where ibjb(ib,jb,kx)
+!!   - histogram weights for given ib,jb,kx for histogram divisions
+!!   - from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
+
 C-----------------------------------
 Cr ek   = eigenvalues at k-points in the 1st BZ
 Cr ekq  = eigenvalues at k+q, k   in the 1st BZ
@@ -82,7 +76,7 @@ c              for mtet=(/2,2,2/) mode (each tetrahedron is devided into 2x2x2 t
 c
 c takao dec2003; matrix_linear() mode
       implicit none
-c feb2006
+      integer:: dummy4doxygen
       integer(4):: npm,jpm,ibxmx,jbxmx,jbx,nrankc1,nrankc2,nnn1,nnn2,nnni,nnnj,ncc
 
 c---in out -------------------------------
@@ -1083,12 +1077,14 @@ c      endif
 
 c--------------------------------------------------------------
       subroutine integtetn(e, ee, integb)
-C- Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
-!  S[E] : is area of the cross-section between the omega-constant plane and the tetrahedron.
-!  [here we assumee e1<e2<e3<e4].
-!  Normalization is not considered!
-!  Rath&Freeman Integration of imaginary part on Eq.(17)
+!> Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
+!! \remark
+!!  S[E] : is area of the cross-section between the omega-constant plane and the tetrahedron.
+!!  [here we assumee e1<e2<e3<e4].
+!!  Normalization is not considered!
+!!  Rath&Freeman Integration of imaginary part on Eq.(17)
       implicit none
+      integer:: dummy4doxygen
       real(8) ::  e(1:4), ee, norm, integb,a,b,
      & V1,V2,V3,V4,D1,D2,D3,D4,e1,e2,e3,e4
       integer(4)::i1,i2,i3

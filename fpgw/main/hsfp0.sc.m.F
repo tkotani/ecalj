@@ -1,4 +1,10 @@
       program hsfp0_sc
+!> Calculates the self-energy \Sigma in GW approximation, 
+!!  including Off-diagonal components.
+!! ----------------------------------------
+!!    SEx(q,itp,itpp) = <psi(q,itp) |SEx| psi(q,itpp)>
+!!    SEc(q,itp,itpp) = <psi(q,itp) |SEc| psi(q,itpp)>
+!!    where, SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
@@ -14,12 +20,6 @@
       use keyvalue,only: getkeyvalue
       use m_mpi  ! MIZUHO-IR
       implicit none
-!     ! =  Calculates the  self-energy \Sigma in GW approximation, including Off-diagonal components. =
-!     !
-c     SEx(q,itp,itpp) = <psi(q,itp) |SEx| psi(q,itpp)>
-c     SEc(q,itp,itpp) = <psi(q,itp) |SEc| psi(q,itpp)>
-c     
-c     where, SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
 c     
 c     This routine requirs a number from standard Input.
 c     Look into script calling this routine ecalj/fpgw/exec/gwsc. E.g, this gwsc calls echo 2|../exec/hsfp0_sc >lsc when mode=2.
@@ -169,7 +169,7 @@ c     integer:: nbmx
       integer,allocatable::imdim(:)
       real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
 
-      integer:: bzcase,  ngpn1,mrecg,ngcn1
+      integer::  ngpn1,mrecg,ngcn1 !bzcase, 
       real(8)   :: wgtq0p,quu(3)
 
       character(2):: soflag
@@ -188,7 +188,7 @@ c     integer:: nbmx
 !     ! newaniso mode
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
-      logical:: newaniso
+c      logical:: newaniso
       integer:: ifvcoud,lxklm,ifidmlx,iqq
 
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
@@ -596,7 +596,7 @@ c-------------------------
 c-------------------------
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 c     the coulomb matrix for exchange.
-      if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
+c      if((.not.newaniso()).and.exchange) ifvcfpout = iopen('VCCFP',0,-1,0)
 
 !!    read q-points and states
       if(selectqp .and. mpi__root) then
@@ -628,17 +628,17 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
          close(ifqpnt)
       else
 !     q-points
-         if(bzcase()==1)then
+c$$$         if(bzcase()==1)then
             nq = nqibz
             allocate(q(3,nq))
             call dcopy   (3*nqibz,qibz,1,q,1)
-         else
-            nq = nqibz_r
-            allocate(q(3,nq))
-            do iq= 1,nqibz_r
-               q(:,iq)=qibz_r(:,iq)
-            enddo
-         endif
+c$$$         else
+c$$$            nq = nqibz_r
+c$$$            allocate(q(3,nq))
+c$$$            do iq= 1,nqibz_r
+c$$$               q(:,iq)=qibz_r(:,iq)
+c$$$            enddo
+c$$$         endif
       endif
 !
       call MPI__Broadcast(nq)
@@ -779,10 +779,10 @@ C--------------------------
 
       if (nq0i/=0 ) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
       write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
-      if(bzcase()==2) then
-         wgt0= wgt0*wgtq0p()/dble(nqbz)
-         write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
-      endif
+c$$$      if(bzcase()==2) then
+c$$$         wgt0= wgt0*wgtq0p()/dble(nqbz)
+c$$$         write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
+c$$$      endif
 c     
 c     do i =1,nq0i
 c     do ig=1,ngrp
@@ -810,7 +810,7 @@ c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
 
 
 !     ! === readin Vcoud and EPSwklm for newaniso()=T ===
-      if(newaniso()) then
+c      if(newaniso()) then
          ifidmlx = iopen('EPSwklm',0,0,0)
          read(ifidmlx) nq0ix,lxklm
          if(nq0i/=nq0ix) then
@@ -824,7 +824,7 @@ Cstop2rx 2013.08.09 kino            stop 'nq0i from EPSwklm /= nq0i'
          read(ifidmlx) dmlx, epinvq0i
          read(ifidmlx) wklm
          ifidmlx = iclose('EPSwklm')
-      endif
+c      endif
 
 c---------------------------------------------
       if(tetra) then

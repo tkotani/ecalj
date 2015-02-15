@@ -1,10 +1,10 @@
-      module m_hamindex
-!! == this is in lm7K/subs/m_hamindex.F and in fpgw/gwsrc/m_hamindex.F ==
+!> This is in lm7K/subs/m_hamindex.F and in fpgw/gwsrc/m_hamindex.F 
 !! We will need to unify make system and source code in fpgw and lmf.
+!! norbtx is given in gwsrc/readeigen.F init_readeigen2
+      module m_hamindex
       implicit none
       integer,parameter:: null=-999999
       integer:: ngrp=null, lxx=null, kxx=null,norbmto=null,norbtx=null
-!! norbtx is given in gwsrc/readeigen.F init_readeigen2
       integer:: imx=null,nbas,ndimham=null
       integer:: nqtt,nqi, nqnum,ngpmx
       integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)

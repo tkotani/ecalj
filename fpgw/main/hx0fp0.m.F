@@ -225,7 +225,7 @@ c      real(8):: sciss
      &    asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
       real(8):: eex(4),eey(4),qvv(3)
 !!
-      logical :: newaniso,newaniso2,newanisox !,z1offd
+c      logical :: newaniso,newaniso2,newanisox !,z1offd
       integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x,ifiss,iq0x
       complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)
       real(8),allocatable:: vcousq(:)
@@ -354,10 +354,10 @@ C ... files for RPA correlation energy mode.
         open(ieclog, file='ecorr.chk')
       endif
 !! ====newaniso2====
-      newaniso2=.false.
-      if(newaniso()) then
-        newaniso2=.true.
-      endif
+c$$$      newaniso2=.false.
+c$$$      if(newaniso()) then
+c$$$        newaniso2=.true.
+c$$$      endif
 
 !! naraga says this cause a stop in ifort --->why???
 c      write(6,*)'Timereversal=',Timereversal()
@@ -491,13 +491,12 @@ Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       close(101)
-      if(.not.newaniso2) then
-        wqtsum = sum(abs(wqt(1:nq0i)))
-        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-        if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p)) 
-Cstop2rx 2013.08.09 kino     &  stop ' wqtsum of Q0P /=1 '
-     &  call rx( ' wqtsum of Q0P /=1 ')
-      endif
+c$$$      if(.not.newaniso2) then
+c$$$        wqtsum = sum(abs(wqt(1:nq0i)))
+c$$$        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
+c$$$        if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p)) 
+c$$$     &  call rx( ' wqtsum of Q0P /=1 ')
+c$$$      endif
 
 C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2( nclass,nl,nxx)
@@ -779,12 +778,14 @@ Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
 C ... Set iqxini
       if(omitqbz) then
         iqxini= nqibz + 1
-      elseif(newaniso2) then
-        iqxini=1
-      else !if(bzcase()==1) then
-        iqxini = 2
-c      else
-c        iqxini = 1
+      else
+         iqxini=1
+c$$$      elseif(newaniso2) then
+c$$$        iqxini=1
+c$$$      else !if(bzcase()==1) then
+c$$$        iqxini = 2
+c$$$c      else
+c$$$c        iqxini = 1
       endif
 
 C... check write 1st part for Ec mode to ecorr.chk Nov2004
@@ -1133,7 +1134,8 @@ c        call readqg('QGcou', qq, ginv,  quu,ngc,ngveccB)
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
 !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
 !!
-        if( newaniso2.and.iq==1 ) then ! *sanity check
+c        if( newaniso2.and.iq==1 ) then ! *sanity check
+        if( iq==1 ) then ! *sanity check
           if(sum(q**2)>1d-10) then
 Cstop2rx 2013.08.09 kino            stop ' hx0fp0: sanity check. |q(iqx)| /= 0'
             call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
@@ -1148,7 +1150,8 @@ Cstop2rx 2013.08.09 kino            stop ' hx0fp0: sanity check. |q(iqx)| /= 0'
 
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
-        if(newaniso2.and.(.not.chipm)) then
+c        if(newaniso2.and.(.not.chipm)) then
+        if((.not.chipm)) then
           vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
           ifvcoud = iopen(trim(vcoudfile),0,-1,0)
           read(ifvcoud) ngb0
@@ -1184,7 +1187,9 @@ Cstop2rx 2013.08.09 kino            stop 'hx0fp0: qvv/=0 hvcc is not consistent'
         nmbas2 = nmbas1
 
         if(chipm.and.nolfco) then
-        elseif(newaniso2) then
+          continue
+c        elseif(newaniso2) then
+        else
           if(allocated(ppovlz)) deallocate(ppovlz)
           if(allocated(ppovlzinv)) deallocate(ppovlzinv)
           if(allocated(ppovl)) deallocate(ppovl)
@@ -1628,7 +1633,7 @@ c          endif
 !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
+c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
           call cputid(0)
 !kino 2014-08-19 kino          symmetrize=(is==nspinmx)
           symmetrize=.false.
@@ -1875,7 +1880,8 @@ c         write (ifrx) rxq,cxq
 
 !! prepare for iq0.
           iq0 = iq - nqibz
-          if(newaniso2.and.ixc==11) then
+c          if(newaniso2.and.ixc==11) then
+          if(ixc==11) then
 c            if( iq==1 ) then
 c              ifepstinv = iopen('EPS0inv',0,-1,0)
 c              write(ifepstinv) ngb
@@ -1893,10 +1899,10 @@ c              read(ifepstinv) ngb
 c            endif
 c             allocate(sk(ngb),skI(ngb))
           endif
-          if(newaniso2) then
-            if(allocated(epstilde)) deallocate(epstilde,epstinv)
-            allocate(epstilde(ngb,ngb),epstinv(ngb,ngb))
-          endif
+c          if(newaniso2) then
+          if(allocated(epstilde)) deallocate(epstilde,epstinv)
+          allocate(epstilde(ngb,ngb),epstinv(ngb,ngb))
+c          endif
 
 !! === iw loop for real axiw ===
           do 1015 iw  = nw_i,nw  !Feb2006. Before it was 1:nwp (nwp=nw+1).
@@ -1905,7 +1911,8 @@ c             allocate(sk(ngb),skI(ngb))
             if(.not.epsmode) then  !if(ixc==1.or.sergeyv) then
               imode = 1
 !! === wcf: W= (1-v zxq)^{-1} v ===
-              if(newaniso2.and.iq<=nqibz) then !for mmmw
+c              if(newaniso2.and.iq<=nqibz) then !for mmmw
+              if(iq<=nqibz) then !for mmmw
                 if(iq==1) then
                   ix=1
                   zw0(:,1)=0d0
@@ -1999,7 +2006,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               endif
 
 !! for iq>nqibz
-              if(newaniso2.and.iq>nqibz) then
+c              if(newaniso2.and.iq>nqibz) then
+              if(iq>nqibz) then
 !! Full inversion to calculalte eps with LFC.
                 ix=0
                 vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -2055,11 +2063,12 @@ c                write(ifisk) iw,iq0,q
 c                write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
               endif
 
-              if(.not.newaniso2) then               ! Original mode
-Cstop2rx 2013.08.09 kino                stop 'not checked here'
-                call rx( 'not checked here')
-c               call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
-              endif
+c$$$              if(.not.newaniso2) then               ! Original mode
+c$$$Cstop2rx 2013.08.09 kino                stop 'not checked here'
+c$$$                call rx( 'not checked here')
+c$$$c               call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
+c$$$              endif
+
 c$$$!!... a debug mode
 c$$$                write(6,"('hhh --- EigenValues for Im( W) --------')")
 c$$$                allocate(ebb(ngb))
@@ -2072,7 +2081,9 @@ c$$$                    write(6, "('hhhIWqxxx : iw ii eb=',2i4,d13.5)") iw, ii, 
 c$$$                  endif
 c$$$                enddo
 c$$$                deallocate(ebb)
-              if(newaniso2.and.iq>nqibz) then
+
+c              if(newaniso2.and.iq>nqibz) then
+              if(iq>nqibz) then
 c                zw(1:ngb,1:ngb) = 0d0
 c                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !  WP = vsc-v
               else
@@ -2085,7 +2096,7 @@ c                write(ifrcw, rec=((iq-iqxini)*(nw-nw_i+1)+ iw-nw_i+1 ) ) zw   !
             elseif(epsmode.and.(.not.chipm)) then !.and.ixc/=23) then ! No LFC (local field correction). It's better to use echo 4| hbasfp0.
                if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
 c              write(6,*)'ppppp sumcheck zxq=',sum(abs(zxq)),sum(abs(zzr)),sum(abs(vcoul)),sum(abs(gbvec))
-              if(newaniso2) then
+c              if(newaniso2) then
 !! there is difference of two vcmean below since we use (sligthy) screened Coulomb (screenfac() in switch.F)
 !!   NOTE that we use vcoul with screening (screenfac() is used in hvccfp0.F
 c               vcmean = fourpi/sum(q**2*tpioa**2) !aug2012
@@ -2118,31 +2129,31 @@ c               vcmean = fourpi/sum(q**2*tpioa**2) !aug2012
                   write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
      &            q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
                 endif
-              else   
-                 write(6,*)'not support epsmode and newaniso=F mode now.'
-c$$$                vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
-c$$$                if(.not.nolfco) then
-c$$$                 x0mean(iw,1,1) = sum( dconjg(zzr(:,1))* matmul(zxq(:,:,iw),zzr(:,1)))
-c$$$                endif
-c$$$                epsi(iw,iqixc2) = 1d0/(1- vcmean * x0mean(iw,1,1))
-c$$$                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15,
-c$$$     &          " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr,
-c$$$     &          1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean,x0mean(iw,1,1)
-c$$$                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
-c$$$     &          q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-c$$$                if(.not.nolfco) then ! With LFC
-c$$$                  imode=2
-c$$$                  call wcf( ngb, vcoul, zxq(1,1,iw), imode,
-c$$$     &                zw0) !  write(6,"('ssschk1=',3d13.5)") sum(abs(zw0)) sum(abs(gbvec))
-c$$$                  epsi(iw,iqixc2)= sum( dconjg(gbvec) * matmul(zw0,zzr(:,1)) )
-c$$$                  write(6,'( " iq iw omega eps epsi  wLFC="
-c$$$     &            ,2i6,f8.3,2e23.15,3x, 2e23.15)') 
-c$$$     &            iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-c$$$                  write(6,*)
-c$$$                  write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
-c$$$     &            q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-c$$$                endif   
-              endif
+c$$$              else   
+c$$$                 write(6,*)'not support epsmode and newaniso=F mode now.'
+c$$$c$$$                vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
+c$$$c$$$                if(.not.nolfco) then
+c$$$c$$$                 x0mean(iw,1,1) = sum( dconjg(zzr(:,1))* matmul(zxq(:,:,iw),zzr(:,1)))
+c$$$c$$$                endif
+c$$$c$$$                epsi(iw,iqixc2) = 1d0/(1- vcmean * x0mean(iw,1,1))
+c$$$c$$$                write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15,
+c$$$c$$$     &          " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr,
+c$$$c$$$     &          1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean,x0mean(iw,1,1)
+c$$$c$$$                write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
+c$$$c$$$     &          q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+c$$$c$$$                if(.not.nolfco) then ! With LFC
+c$$$c$$$                  imode=2
+c$$$c$$$                  call wcf( ngb, vcoul, zxq(1,1,iw), imode,
+c$$$c$$$     &                zw0) !  write(6,"('ssschk1=',3d13.5)") sum(abs(zw0)) sum(abs(gbvec))
+c$$$c$$$                  epsi(iw,iqixc2)= sum( dconjg(gbvec) * matmul(zw0,zzr(:,1)) )
+c$$$c$$$                  write(6,'( " iq iw omega eps epsi  wLFC="
+c$$$c$$$     &            ,2i6,f8.3,2e23.15,3x, 2e23.15)') 
+c$$$c$$$     &            iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+c$$$c$$$                  write(6,*)
+c$$$c$$$                  write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
+c$$$c$$$     &            q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+c$$$c$$$                endif   
+c$$$              endif
 C --- ChiPM mode
             elseif(epsmode.and.chipm) then
               allocate( x0meanx(nmbas,nmbas) )
@@ -2422,7 +2433,8 @@ c           enddo
 
 !! === iw loop for imag axiw ===
           do 1016 iw  = 1,niw
-            if(newaniso2 .and. iq<=nqibz ) then
+c            if(newaniso2 .and. iq<=nqibz ) then
+            if( iq<=nqibz ) then
 !!  Eqs.(37),(38) in PRB81 125102
               if(iq==1) then
                 ix=1
@@ -2448,7 +2460,8 @@ c           enddo
               enddo
 c              if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
             endif
-            if(newaniso2.and.iq>nqibz) then
+c            if(newaniso2.and.iq>nqibz) then
+            if(iq>nqibz) then
 !! Full inversion to calculalte eps with LFC.
               ix=0
               vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -2496,13 +2509,14 @@ c$$$c              write(ifisk) iw,iq0,q
 c$$$c              write(ifisk) vcousq(2:ngb)*w_kI(2:ngb),vcousq(2:ngb)*w_ksI( 2:ngb)
             endif
 
-            if(.not.newaniso2) then               ! original mode
-Cstop2rx 2013.08.09 kino               stop 'not checked here'
-               call rx( 'not checked here')
-c              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  zw0)
-            endif
+c$$$            if(.not.newaniso2) then               ! original mode
+c$$$Cstop2rx 2013.08.09 kino               stop 'not checked here'
+c$$$               call rx( 'not checked here')
+c$$$c              call wcf( ngb, vcoul,zxqi(1,1,iw),imode,  zw0)
+c$$$            endif
 
-            if(newaniso2.and.iq>nqibz) then
+c            if(newaniso2.and.iq>nqibz) then
+            if(iq>nqibz) then
 c              zw(1:ngb,1:ngb) = 0d0 ! zw(nblochpmx,nblochpmx)
 c              write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
             else
@@ -2514,7 +2528,8 @@ c              write(ifrcwi, rec=(iq-iqxini)*niw + iw)  zw    !  WP = vsc-v
 
 
 !! --- Miyake's total energy branch !Nov2004. not maintained now... need to fix this maybe(2012takao) -----------
-            if(ecorr_on>0 .and. (.not.newaniso2)) then !I did not modified this for newaniso2 2012takao
+            if(.false.) then
+c            if(ecorr_on>0 .and. (.not.newaniso2)) then !I did not modified this for newaniso2 2012takao
               if (debug) write(6,*)'ip,ix=',iq,iw,'  niw=',niw
               call getwk(iq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
               call ecorq2 (vcoul, zw0, ngb, iq,iw,ieceig,
@@ -2572,14 +2587,11 @@ c           deallocate( ovlpc,evall,evecc)
 ccccccccccccccccccccccccccccccccccccccccccccccc
             endif
  1016     continue
-          if(newaniso2) then
-c            if(iq==1)    ifepstinv = iclose('EPS0inv') !iq==1 close write mode.
-c            if(iq>nqibz) ifepstinv = iclose('EPS0inv') !iq>nqibz --> readin mode
+c          if(newaniso2) then
             deallocate(epstinv)
             if(allocated(epstilde)) deallocate(epstilde)
-c            if(allocated(skI)) deallocate(skI) !,sksI,w_kI,w_ksI)
             if(allocated(epstilde)) deallocate(epstilde)
-          endif
+c          endif
 c$$$          enddo
         endif
 C... ImagOmega end ===============================
@@ -2680,9 +2692,10 @@ c$$$ 1501   continue
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
 !!   Note that this is only for q=0 -->iq=1
-      if(newaniso2.and.ixc==11.and.mpi__rank==0) then
+c      if(newaniso2.and.ixc==11.and.mpi__rank==0) then
+      if(ixc==11.and.mpi__rank==0) then
         write(6,*)
-        write(6,*)' ==== newaniso2 mode W(0) divergent part ==== '
+        write(6,*)' ==== newaniso mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
 !! getw0 routine...
         ifidmlx = iopen('EPSwklm',0,0,0)

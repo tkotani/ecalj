@@ -5,7 +5,6 @@
      i                 cgr,lmxax,   !rotated CG
      i                 ppbrd,           !radial integrals
      o  ppb)
-c ---
 c calculates for all R (class)
 c <Phi(RLn) Phi(RL'n') B(R,i)>
 c   n differenciate core phi phidot localOrbital.
@@ -21,47 +20,19 @@ c mnl   =  (m,n,l) composite idex --- numbering.
 c in,il,im      = index for n,l,m s. indxlnm.f
 c
 c ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
-c
       implicit none
-      integer(4):: ic,nclass,nl,nn,mnlx,mdimx,nlmx,nlxx,
-     &             isp, nxx,lmxax,
-     &             i,lb,nb,mb,lmb,i1,ibas,i2,ig,
-     &             np,lp,mp,lmp,n,l,m,lm,  nlmxa,nspin,ng
-      integer(4):: 
-     i          il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass),
-     i          mnl(nclass),
-c
-     i    lx(nclass),nx(0: 2*(nl-1),nclass),    j1,j2
-c
-      real(8):: ppb(mnlx,mnlx,mdimx,nclass)
-c     o          pdb(mnlx,mnlx,mdimx,nclass),
-c     o          dpb(mnlx,mnlx,mdimx,nclass),
-c     o          ddb(mnlx,mnlx,mdimx,nclass)
-
-      real(8) ::      
-     &   cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng), 
-     &           ppbrd( 0:nl-1,nn, 0:nl-1,nn, 0:2*(nl-1), nxx, 
-     &                 nclass*nspin)
-     & ,sum1,xxx
+      integer(4),intent(in) :: ig,ng,isp,nspin,nclass,mnlx,mdimx
+      integer(4),intent(in) :: il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass)
+      integer(4),intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
+      integer(4),intent(in) :: nxx,lmxax
+      real(8), intent(out) :: ppb(mnlx,mnlx,mdimx,nclass)
+      real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
+      real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
+      integer(4) :: ic,nl,nn, i,lb,nb,mb,lmb,i1,ibas,i2
+      integer(4) :: np,lp,mp,lmp,n,l,m,lm, mnl(nclass)
       integer(4):: zvztest
-ccccccccccccccccccc
-c      write(6,*)'    ppbafp: sum(ppbrd)',sum(ppbrd)
-c      ppb=0d0;pdb=0d0;dpb=0d0;ddb=0d0
-c      ppb=1d99;pdb=1d99;dpb=1d99;ddb=1d99
-cccccccccccccccccccc
-
-c loop over class  ! nclass=nbas
-CCC!$OMP parallel do  private ( ic,ibas, i, ib,nb,mb, lmb, i2,np,kp,mp, lmp)
-CCC!$OMP& private( i1,n,l,m,lm, lp )
       do ic  = 1, nclass
         ibas = ic
-c        do ip1=1,2
-c        do ip2=1,2
-c          ioff(ip1,ip2) =  ip1+ 2*(ip2-1)+ 4*(ic-1) + 4*nclass*(isp-1)
-c        enddo
-c        enddo
-c     write(6,*) ' ic lx=',ic, lx(ibas)
-
 !! loop over product basis
         i = 0 !i = product basis index.
         do lb  = 0, lx (ibas)
@@ -69,12 +40,7 @@ c     write(6,*) ' ic lx=',ic, lx(ibas)
             do mb  = -lb, lb
               i    = i+1  !The number of product basis is  =(i at the end of loop).
               lmb  = lb*lb + lb + mb + 1
-
-cccccccccccccccccc
-c              write(6,"(' === product basis index: i ibas l n m',10i4)")i,ic,lb,nb,mb
-cccccccccccccccccc
-
-c loop over LMTO basis
+!! loop over LMTO basis
               do  i2 = 1,mnl(ic)
                 np   = in(i2,ic)
                 lp   = il(i2,ic)
@@ -86,26 +52,14 @@ c loop over LMTO basis
                   l    = il(i1,ic)
                   m    = im(i1,ic)
                   lm   = l*l + l + m + 1
-cccccccccccccccccccccccccccccccc
-c        do j1=1,2;doj2=1,2
-c        if(abs(ppbrd(l,n, lp,np, lb,nb, ioff(j1,j2))) >1d10) then
-c          write(6,*) abs(ppbrd( l,n, lp,np, lb,nb, ioff(j1,j2)))
-c          write(6,*) l,n, lp,np, lb,nb, ioff(j1,j2)
-c          stop
-c        endif
-c       enddo; enddo
-ccccccccccccccccccccccccccccccccccccc
                   ppb(i1,i2,i,ic) = cgr(lm,lmp, lmb,ig)
      &                  * ppbrd( l,n, lp,np, lb,nb, isp+nspin*(ic-1))
-
-cccccccccccccccccccccccccccccccccccccccccccccccccc
                   if(zvztest()==2) then
                     if(abs(ppb(i1,i2,i,ic))/=0d0  )then
                       write(6,"('i1 i2 i ic=',4i4,' ppb=',f10.6)") i1,i2,i,ic, ppb(i1,i2,i,ic)
                     endif
                   endif
 cccccccccccccccccccccccccccccccccccccccccccccccccc
-
 c        pdb(i1,i2,i,ic) = cgr(lm,lmp, lmb,ig)
 c     &                  * ppbrd( l,n, lp,np, lb,nb, ioff(1,2))
 c        dpb(i1,i2,i,ic) = cgr(lm,lmp, lmb,ig)
@@ -113,34 +67,16 @@ c     &                  * ppbrd( l,n, lp,np, lb,nb, ioff(2,1))
 c        ddb(i1,i2,i,ic) = cgr(lm,lmp, lmb,ig)
 c     &                  * ppbrd( l,n, lp,np, lb,nb, ioff(2,2))
 ccccccccccccccccccc
-c         xxx = ppb(5+1,1,i,1)
-c         ppb(i1,i2,i,ic) = 0d0
-c         ppb(5+1,1,i,1) = xxx
-c         if(i1==6.and.i2==1.and.ic==1.and.ig==1) then
 c          write(6,'(4i4,2d15.6,7i2)')lm,lmp,i,lmb, cgr(lm,lmp, lmb,ig),
 c     &       ppbrd( l,n, lp,np, lb,nb, ioff(1,1))
 c     &       ,l,n, lp,np, lb,nb, ioff(1,1)
 c         endif
-ccccccccccccccccccc
-c      if(ppb(i1,i2,i,ic)/=0d0)
-c     & write(6,'(4i4,d15.6)'),i1,i2,i,ic,ppb(i1,i2,i,ic)
-ccccccccccccccccccc
                 enddo
               enddo
             enddo
           enddo
         enddo
       enddo
-CCC!$OMP end parallel do
-cccccccccccccccccccccccccccccccccccccccccccc
-c      pdb =0d0
-c     dpb =0d0
-c     ddb =0d0
-ccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccc
-c     write(6,*)' ppbafp x sum ppb',sum(ppb)
-c     stop
-cccccccccccccccccccccccccccccccccccccccccccc
       end
 
 c--------------------------------------------------------------------
@@ -330,7 +266,10 @@ c$$$      deallocate(zmelpl)
 c$$$
 c$$$      end
 
-c------------------------------------------------------
+!> Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
+!! q1=q    ---> iq 1:ntp0 q-point
+!! q2=q-rk ---> kp 1:nt0  occupied
+!!  zmelpl
       subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, isp,ginv,
      i        ngc,ngcmx,ngpmx_in,nband,itp0, 
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
@@ -338,75 +277,39 @@ c------------------------------------------------------
      o       rmelt,cmelt)
       use m_readqg, only : readqg
       use m_readeigen,only : readgeig
-c ! q1=q    ---> iq 1:ntp0 q-point
-c ! q2=q-rk ---> kp 1:nt0  occupied
-c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
-c  zmelpl
 c-----------------------------------------------------
       implicit none
-      real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
-      integer(4):: ngp1, ngp2, ngpmx_in,nqbz,nqibz,  !iq,kp,k,
-     &      ngcmx ,nctot,nband,
-     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
-     &             ngvecpB1(3,ngpmx_in),  
-     &             ngvecpB2(3,ngpmx_in),  
-     &             ngveccBr(3,ngcmx), itp0(ntp0),
-     &     nadd(3),isp  !,ngpn(nqbz)
-      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
-      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
-     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
-     &         ,rmel(nbloch,noccx,ntp0) 
-     &         ,cmel(nbloch,noccx,ntp0) 
-     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-     & ,pi=3.1415926535897932D0
-!      complex(8) :: geigB  (ngpmx_in,nband,nqbz)
-      complex(8):: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
+      real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
+      integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
+     &  ntp0,nt0,nbloch,noccx,ngc,itp0(ntp0),isp
+      real(8),intent(in):: qbas(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
+     &  qbasinv(3,3),symope(3,3),rmel(nbloch,noccx,ntp0),
+     &  cmel(nbloch,noccx,ntp0)
+      real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+      real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+
+      integer(4) :: ngp1, ngp2
+      integer(4) :: ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in),nadd(3)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
+      real(8) :: qdiff(3),add(3)
+      complex(8) :: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
+      complex(8),allocatable::  zmelpl(:,:,:)
       integer(4)::verbose
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 !TIME0
-c
-c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) write(6,*)' drvmelp2:'
-c      ngp1 = ngpn(iq)  ! q        in FBZ
-c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
-      call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1) !qt is used q in practice.
-      call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
-c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp1,q,qt      ,sum(abs(ngvecpB1(:,1:ngp1)))
-c      write(*,"('ddd1: ',i4,3f10.6,2x,3f10.6,3x,i15)")ngp2,q_rk,q_rkt,sum(abs(ngvecpB2(:,1:ngp2)))
+      if(verbose()>50) write(6,*)' drvmelp2: start'
+      call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
+      call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
       if(debug) write(6,*)'drvmelp2: goto readgeig'
       call readgeig(q,    ngpmx_in, isp, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
 !TIME1 "after readgeig q q_rk"
-      if(debug) write(6,*)'drvmelp2: endof readgeig'
-c      qu1=qt
-c      qu2=q_rkt
-c      geig1=0d0
-c      geig2=0d0
-c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp1,q,qt      ,sum(abs(
-c     &       geig1(1:ngp1,itp0(1:ntp0)))), ntp0  ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c      write(*,"('ddd2: ',i4,3f10.6,2x,3f10.6,3x,d23.16,i15)")ngp2,q_rk,q_rkt,sum(abs(
-c     &       geig2(1:ngp2,1:nt0))), nt0     ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-cc      allocate( zmelpl(ngc,nt0,ntp0) )
-c      write(6,*)'test 888888888888888888888',ngc,nt0,ntp0
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0
-Cstop2rx 2013.08.09 kino      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
+      if(debug) write(6,*)'drvmelp2: endof readgeig'
       if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
-Cstop2rx 2013.08.09 kino      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
       if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
       if(debug) write(6,*)' drvmelp2:end of read geig '
-
-c     ngc  = ngcni(k)  ! k-points in IBZ
-c      allocate( geigq(ngp1,ntp0) )
-c      do itx = 1,ntp0
-c        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
-c      enddo
-
-c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
-c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
       qdiff = matmul(symope,qik)  - qt + q_rkt
       ! rk    -q  +(q-rk) is not zero.
 !! <rk q-rk |q>
@@ -416,58 +319,31 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
         write(6,*)' drvmelp qdiff',qdiff
         write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
      &  add,nadd,abs(add-nadd)
-Cstop2rx 2013.08.09 kino        stop "drvmlp: abs(add-nadd))>1d-10"
         call rx( "drvmlp: abs(add-nadd))>1d-10")
       endif
-
       if(debug) write(6,*)' goto alloc zmelpl'
       allocate( zmelpl(ngc,nt0,ntp0) )
-cccccccccccccccccccccccccccccccccccccccccccccccc
-c      if(.false.) then !old version
-c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c     i       shtv, matmul(symope,qibz(1:3,k)), qbas,
-c     o       zmelpl)
-c      else             !new version from Sep-10 2000
-c       call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
-c     o       zmelpl)
-c       endif
-      if(debug) write(6,*) 'drvmelp2:goto melpln2'
-ccccccccccccccccccc
-c      write(6,*) 'ssss: sum check geig1=',sum(abs(geig1(1:ngp1,itp0(1:ntp0))))
-c      write(6,*) 'ssss: sum check geig2=',ngp2,nt0,sum(abs(geig2(1:ngp2,1:nt0)))
-ccccccccccccccccccccccccccccccccccc
+      if(debug) write(6,*) 'drvmelp2:goto melpln2t'
 !TIME1 "before drv melpln2t"
 !TIME0 
       call melpln2t(ngp1, ngvecpB1
-     &           ,  ngp2, ngvecpB2
-     &           ,   ngc,  nadd,
-     &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-     &       geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
-     i       shtv, matmul(symope,qik),qik, symope, qbas,
-     i       qt, !qt oct2013 means q1
-     o       zmelpl)
+     &  ,  ngp2, ngvecpB2
+     &  ,   ngc,  nadd,
+     &  geig1(1:ngp1,itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+     &  geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
+     i  shtv, matmul(symope,qik),qik, symope, qbas,
+     i  qt,                     !qt oct2013 means q1
+     o  zmelpl)
 !TIME1 "after drv melpln2t"
 !TIME0 
       if(debug) write(6,*)'end of melpln2t'
-
- 8888 continue
-c     deallocate(geig1,geig2)
       rmelt=0d0
       cmelt=0d0
       rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
      &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
       cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
      &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-cc extensiton to nbloch+ngc
+!! extensiton to nbloch+ngc
       rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
      & = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
@@ -477,27 +353,26 @@ cc extensiton to nbloch+ngc
 !TIME1 "end drvmelpln2t"
       end
 
-
-
-c------------------------------------------------------
+!> Rotated ngveccB
+!! G' = R(G), where R denotes rotation and
+!! We determine ngveccBr so that
+!!      matmul(symops, matmul(qbas, ngveccB(1:3, igc, iq)))
+!!      =  matmul(qbas, ngveccBr(1:3, igc, iq)).
+!! See the variable sumchck.
       subroutine rotgvec(symops, nqibz, 
      i  ngcmx,ngcn, qbas,ngveccB, 
      o  ngveccBr)
-c Rotated ngveccB
-c G' = R(G), where R denotes rotation and
-cr We determine ngveccBr so that
-cr      matmul(symops, matmul(qbas, ngveccB(1:3, igc, iq)))
-cr      =  matmul(qbas, ngveccBr(1:3, igc, iq)).
-cr See the variable sumchck.
       implicit none
-      integer(4) :: irot, ngpmx, nqbz,nqibz, ngcmx, iqbz,
-     i            ngcn(nqibz), idxk,
-     &    ngveccB(3,ngcmx,nqibz), ngveccBr(3,ngcmx,nqibz),iq,igc,kp,verbose
-      real(8)    :: symops(3,3), qq(3), qrot(3),qbas(3,3)
-     &             ,qbasinv(3,3),
-     &     qfbz(3),rotnvg(3,3),vec(3),xsign(1:3),det,sumchk !,sumchk2
+      real(8),intent(in)    :: symops(3,3), qbas(3,3)
+      integer(4),intent(in) :: nqibz, ngcmx, ngcn(nqibz)
+      integer(4), intent(in) :: ngveccB(3,ngcmx,nqibz)
+      integer(4), intent(out) :: ngveccBr(3,ngcmx,nqibz)
+
+      integer(4) :: iq,igc
+      real(8) :: qbasinv(3,3),rotnvg(3,3),vec(3),det,sumchk
+      integer:: verbose
       logical:: debug=.false.
-c
+
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' rotgvec: '
       call dinv33(qbas,0,qbasinv,det)
@@ -536,26 +411,19 @@ c     &    sum(abs(
 c     &     qrot + matmul(qbas, ngveccBr(1:3, igc, iq)) ))
 c        enddo
 cccccccccccccccc
-ccccccccccccccc
         if(debug) write(6,*)" rotgvec: nmin nmax="
      & ,minval(ngveccBr(1:3, 1:ngcn(iq), iq))
      & ,maxval(ngveccBr(1:3, 1:ngcn(iq), iq))
-ccccccccccccccc
       enddo
       if(abs(sumchk)/nqibz/minval(ngcn)>1d-4) then
         write(6,*)" rotgvec: sum chk error sumchk=",sumchk
-Cstop2rx 2013.08.09 kino        stop "rotgvec: sum chk error >1d-4"
         call rx( "rotgvec: sum chk error >1d-4")
       endif
-c      write(6,*)' rotgvec: sumcheck',sumchk !,sumchk2
-c      stop "rotgvec: test end"
       end
 
-c
-c-----------------------------------------------------
+!> Get weight for each k-points near 0.
       subroutine q0iwgt(symops,ngrp,q0i,nq0i, 
      o                  wgt0)
-c Get weight for each k-points near 0.
 c wgt0(irreducible-k, irotation)
       implicit none
       integer(4) :: ixx,ix,i, ngrp,ig,nq0i
@@ -595,16 +463,14 @@ c      enddo
 ccccccccccccccccccccc
       end
 
-c--------------------------------------------------
+!>Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
+!! rmelp, cmelp
       subroutine melpln
      &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc,ngvecc, nadd,
      &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
      &       geigq2, nt0,  ! q2=q-rk ---> kp 1:nt0  occupied                        
      i       shtv,q, qbas, 
      o       zmelp)
-c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
-co rmelp, cmelp
-c-----------------------------------------------------
       implicit none
       integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
      &     itp,it, ngc,ngvecc(3,ngc),nnum,inum,ig1,ig2,igc,ntp0,nt0,
@@ -614,14 +480,10 @@ c-----------------------------------------------------
      &             img=(0d0,1d0)
       real(8)::  q(3),qg(3),qbas(3,3),shtv(3),qdummy(3)
      & ,pi=3.1415926535897932D0
-c      inum =0
-c
-c      write(6,*)' melpln: sht nadd=',shtv,nadd
       do igc = 1,ngc
         qg(1:3) = 2*pi * (q(1:3)+ matmul(qbas, ngvecc(1:3,igc)))
         phase(igc) = exp(img*sum(qg*shtv))
       enddo
-
       zmelp=0d0
       do ig1=1,ngp1
         do ig2=1,ngp2
@@ -635,37 +497,17 @@ c          igdelta(1:3,inum) = (/ig1,ig2,igc/)
                 do it =1,nt0
                   zmelp(igc,it,itp) = zmelp(igc,it,itp)
      &        + dconjg(geigq1(ig1,itp))*geigq2(ig2,it) * phase(igc)
-
-cccccccccccccccccccccccccccccccccccccccccccc
-c      if(sum(abs( ngvecp1(1:3,ig1)))<3.and.
-c     &   igc==4.and.it==32.and.itp==1) then
-c         write(6,'("  g1 g2 zmeladd=",3i3,1x,3i3,1x,3i3,12d12.3)')
-c     &   ngvecp1(1:3,ig1),ngvecp2(1:3,ig2),ngvecc(1:3,igc),
-c     &   dconjg(geigq1(ig1,itp))*geigq2(ig2,it) * phase(igc),
-c     &    geigq1(ig1,itp),geigq2(ig2,it) ,phase(igc)
-c      endif
-cccccccccccccccccccccccccccccccccccccccccc
                 enddo
               enddo
             endif
           enddo
         enddo
       enddo
-c      nnum=inum
-c      do inum=1,nnum
-c        (/ig1,ig2,igc/) = igdelta(1:3,inum)
-c      enddo
-ccccccccccccccccccccccccccccccccccccc
-c      igc=4
-c      it = 32
-c      itp=1
-c      write(6,'("  igc it itp zmel=",3i4,2d15.6)')
-c     &  igc,it,itp,zmelp(igc,it,itp)
-c      stop 'TEST end melpln:'
-ccccccccccccccccccccccccccccccccccccc
       end
 
-c--------------------------------------------------------------------
+!> Mattrix elements <Plane psi |psi> from interstitial plane wave.
+!! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc> 
+!! NOTE: shtv = g(delta_{g^-1})
       subroutine melpln2t
      &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd,
      &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
@@ -673,58 +515,42 @@ c--------------------------------------------------------------------
      i       shtv,q, qi, symope, qbas, !
      i       qt, !qt oct2013 for G1
      o       zmelp)
-!! == Mattrix elements <Plane psi |psi> from interstitial plane wave. ==
-!! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc> matrix element
-!! NOTE: shtv = g(delta_{g^-1})
-!! ----------------------------------------------------------
-c      use m_read_ppovl,only: getppx2,getppx,
-c     &  ppx,ngc2,ngvecc2, nvggg,nvgcgp2,ngvecc, nggg,ngcgp2,ngcread,ggg,ppovlinv
       use m_mpi, only:mpi__rank
       use m_read_ppovl,only: getppx2,
      &  nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv,
      &  ngc2,ngvecc2
       implicit none
-      integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
-     &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
-     &     nadd(3)
-      complex(8):: geigq1(ngp1,ntp0),phas1,phas2,phasqadd,
-     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0,ntp0),  !it was zmelp(ngc,nt0*ntp0)
-     &             img=(0d0,1d0) ,phas         ,phase2
-      real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
-     & ,pi=3.1415926535897932D0, symope(3,3)   ,qx(3)
-      integer(4),allocatable :: ipp(:,:,:)
-      complex(8),allocatable :: gg(:,:),gg_(:,:,:),xxx(:,:)
-      integer(4) :: iqi,igc2,ngcx,nn(1:3),nn1(3),
-     &       nxmin,nymin,nzmin,nxmax,nymax,nzmax,ix,iy
-      integer(4)::verbose,nomatm
-      logical:: debug=.false.
-      real(8):: qu1(3),qu2(3)
-      complex(8),allocatable:: geigq1_(:,:)
+      integer(4):: itp,igc
+      integer(4),intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2
+      integer(4),intent(in) :: ngvecp2(3,ngp2), ngc,nadd(3),ntp0,nt0
+      complex(8),intent(in) :: geigq1(ngp1,ntp0),geigq2(ngp2,nt0)
+      real(8),intent(in) :: shtv(3),q(3),qi(3), symope(3,3),qbas(3,3)
+      real(8),intent(in) :: qt(3)
+      complex(8),intent(out) :: zmelp(ngc,nt0,ntp0)
+
+      complex(8),parameter :: img=(0d0,1d0)
+      real(8), parameter :: pi=3.1415926535897932D0
+      integer(4) :: nn(1:3)
+
       integer::igcgp2,iggg,igp1,igp2
       integer:: nxminggg,nxmaxggg,nyminggg,nymaxggg,nzminggg,nzmaxggg
       integer:: nxmingcgp2,nxmaxgcgp2,nymingcgp2,nymaxgcgp2,nzmingcgp2,nzmaxgcgp2
-      complex(8):: phas1a
       integer,allocatable:: igggi(:,:,:),igcgp2i(:,:,:),ngveccR(:,:)
       complex(8),allocatable::ggitp(:,:),gp2phas2(:),phase(:)
       integer:: ngcgp2,ngcs(1)
-      real(8):: qt(3)
-      complex(8)::ppp,zdotc
-      complex(8),allocatable:: mmm(:,:),zmelp0(:,:,:),ggitp_(:,:)
-#ifdef USE_GEMM_FOR_SUM
-      complex(8),allocatable:: z2(:,:)
-#endif
-!$    integer::omp_get_num_threads
 
-c------------------------------
-cc getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
-cc      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
+      complex(8)::zdotc
+      complex(8),allocatable:: zmelp0(:,:,:),ggitp_(:,:)
+      complex(8),allocatable:: z2(:,:)
+      logical:: debug=.false.
+      integer:: verbose
+      if(verbose()>=90) debug=.true.
+      if(debug) write(6,*)' melpln2t: '
+!! getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
+!!      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
 
 !TIME0
 !! allocate and return foobar decleared in use m_read_ppovl,only: foobar
-c      if(verbose()>=100) 
-cccccccccccccccccccccc
-c      nadd=0
-cccccccccccccccccccccc
       if(debug) write(6,*)' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
       if(verbose()>=100) write(6,*)' melpln2t: end of getppx2'

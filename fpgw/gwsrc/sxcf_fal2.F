@@ -308,7 +308,7 @@ ctakao
 
       real(8)::weavx,wfaccut=1d-10,qqqq
 
-      logical :: GaussSmear,gass
+      logical :: GaussSmear=.true.,gass
       real(8) :: ebmx,ddw
       integer(4):: nbmx,nbmxe,nstatetot
 
@@ -317,7 +317,7 @@ c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 
       integer(4)::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
 
-      integer(4)::verbose,nstbz(nqbz),bzcase,iqini,iqend
+      integer(4)::verbose,nstbz(nqbz),bzcase=1,iqini,iqend
       real(8):: wgtq0p
 
       integer(4):: nrec,kxx
@@ -366,7 +366,7 @@ C...
       real(8):: wklm((lxklm+1)**2),pi,fpi,vc,qvv(3),aaaa
       complex(8)::zmelt1,zmelt0
       real(8)::voltot
-      logical :: newaniso !,testomitq0
+      logical :: newaniso=.true. !,testomitq0
       complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:)
       real(8),allocatable::vcoud(:),vcousq(:)
       integer:: mrecl,nprecx,ifwd
@@ -393,7 +393,7 @@ c oct2005
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
       if(debug) then
-        gass=GaussSmear()
+        gass=GaussSmear
         write(6,"(' sxcf_fal2z: q  =',3f8.4)")q
         write(6,*)' sxcf_fal2z: new version: gaussian smearing=',gass
         write(6,*)' wintzsg wfacx weavx are related parts...'
@@ -434,22 +434,22 @@ c eigenfunction for itp at q
         cphiq(1:nlmto,it) = cphikq(1:nlmto,itp)
       enddo
       if(debug) write(6,*) ' sxcf: 3'
-      if(bzcase()==1) then
+      if(bzcase==1) then
 Cstop2rx 2013.08.09 kino        if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
 Cstop2rx 2013.08.09 kino        if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
         if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       endif
 c-----
-      if(exchange.and.(.not.newaniso())) then
+      if(exchange.and.(.not.newaniso)) then
         rewind  ifvcfpout
         read(ifvcfpout) ndummy1, ndummy2
       endif
 
-      if(newaniso()) then
+      if(newaniso) then
         continue
       else
-        if(bzcase()==1) then
+        if(bzcase==1) then
 c          kx = 1  ! qibz(:,1)=0 contribution for kcount
 c          if(irk(kx,irot)/=0) kount(kx,ip)= kount(kx,ip) + 1
         endif
@@ -467,14 +467,14 @@ c --- gauss_img : interpolation gaussion for W(i \omega).
           expa_(ix) = exp(-(ua_*freqw)**2)
         enddo
       endif
-c      if(newaniso()) ifvcoud = iopen('Vcoud',0,0,0)
+c      if(newaniso) ifvcoud = iopen('Vcoud',0,0,0)
 c     if(smbasis()) ifpomat = iopen('POmat',0,-1,0) !oct2005
 !!
       iqini=2
-      if(bzcase()==2) iqini=1
+      if(bzcase==2) iqini=1
       iqend=nqibz+nq0i
 c      write(6,*)'ddddddddddd  original mode like dddddddddd'
-      if(newaniso()) then !takao2012apr
+      if(newaniso) then !takao2012apr
         iqini=1
         iqend=nqibz !no sum for offset-Gamma points.
 c        if(exchange) iqend=nqibz
@@ -502,7 +502,7 @@ ccccccccccccccccccccccccccccccccc
         if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
-        if(newaniso()) then
+        if(newaniso) then
           if(kx<=nqibz) qxx=qibz_k
           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
           ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
@@ -566,7 +566,7 @@ c          if(testomitq0()) then
 c            write(6,*)'xxxxxxxxxxx takao test omit q0i aaaaa'
 c            if(allocated(vcoul)) deallocate(vcoul)
 c          endif
-          if(.not.newaniso()) then 
+          if(.not.newaniso) then 
             read(ifvcfpout) nn !oct2005
             allocate(vcoul(nn,nn))
             read(ifvcfpout) vcoul(1:nn,1:nn)
@@ -685,7 +685,7 @@ c      call dcopy   (nband,ekq,1,ekc(nctot+1),1)
 
 c
         ddw= .5d0
-        if(GaussSmear()) ddw= 10d0
+        if(GaussSmear) ddw= 10d0
         efp= ef+ddw*esmr
         efm= ef-ddw*esmr
         nt0p = nocc (ekc,efp,.true.,nstatetot)
@@ -943,7 +943,7 @@ cccccccccccccccccccccccccccccccccccccccccccccc
         if(debug) write(6,*) ' sxcf: goto wtt'
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
-        if(bzcase()==2)then
+        if(bzcase==2)then
           if(kx<=nqibz) then
             wtt = wk(kr)
             if(nstbz(kr)/=0) wtt = wk(kr)*(1d0-wgtq0p()/nstbz(kr))
@@ -996,7 +996,7 @@ cccccccccccccccccccccccccccccc
           endif
 ccccccccccccccccccccccccccccc
 
-          if(.not.newaniso()) then
+          if(.not.newaniso) then
             allocate(vcoult(1:ngb,1:ngb), z1p(ngb,nctot+nbmax,ntp0))
             vcoult= transpose(vcoul)
             call matm( vcoult, zmel, z1p, ngb,ngb,(nctot+nbmax)*ntp0 )
@@ -1014,7 +1014,7 @@ c$$$          enddo
 c$$$          deallocate(vcoult, zmel)
 c$$$      else
 
-          if(newaniso()) then !apr2012takao
+          if(newaniso) then !apr2012takao
             do 992 itp = 1,ntp0
             do 993 it  = 1,nctot+nbmax
               w3p(it,itp) = 0d0
@@ -1110,7 +1110,7 @@ cgaussian
               exxq = exxq - wtt * sum( w3p(:,itp) )
             enddo
           endif
-          if(.not.newaniso()) deallocate(vcoul)
+          if(.not.newaniso) deallocate(vcoul)
           deallocate( w3p,rmelt,cmelt)
           cycle
         endif
@@ -1124,7 +1124,7 @@ c--- The matrix elements zmel.
         allocate( zmel (ngb, nstate, ntp0) )
         zmel = dcmplx (rmelt,-cmelt)
 c        write(6,*)'ddddddddddddd original like mode ddddddddddddddddd'
-        if(newaniso()) then
+        if(newaniso) then
 #ifdef USE_GEMM_FOR_SUM
           if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz), in sxcf_fal2.F'
           allocate( zmelt (ngb, nstate) )
@@ -1458,7 +1458,7 @@ c
                 endif
               enddo
 
-              if(GaussSmear()) then
+              if(GaussSmear) then
                 zwzi(it,itp) =
 c Gaussian smearing
      &      wintzsg_npm(npm, zwzs,zwz0(it,itp),freqx,wx,ua_,expa_,we,nx, esmrx)
@@ -1562,7 +1562,7 @@ c          write(6,"('3001: iw itp omg-ef=',2i5,d13.6)")iw,itp,omg-ef
               esmrx = esmr
               if(it<=nctot) esmrx = 0d0
               wfac = wfacx2(omg,ef, ekc(it),esmrx)
-              if(GaussSmear()) then
+              if(GaussSmear) then
                 if(wfac<wfaccut) cycle
                 we = .5d0*(omg-weavx2(omg,ef,ekc(it),esmr))
               else
@@ -1616,8 +1616,8 @@ C... Find nt_max ------------------------------------
             if (omg > ef) then
               do  it = nt0m+1,nstate    ! nt0m corresponds to efm
                 wfac = wfacx2 (ef,omg, ekc(it),esmr)
-                if( (GaussSmear().and.wfac>wfaccut)
-     &         .or.(.not.GaussSmear().and.wfac/=0d0)) then
+                if( (GaussSmear.and.wfac>wfaccut)
+     &         .or.(.not.GaussSmear.and.wfac/=0d0)) then
                   if (it > nt_max) nt_max=it ! nt_max is  unocc. state
                 endif                        ! that ekc(it>nt_max)-omega > 0
               enddo
@@ -1733,7 +1733,7 @@ c          write(6,"('2001: iw itp omg=',2i5,d13.6)")iw,itp,omg-ef
             esmrx = esmr
             if(it<=nctot) esmrx = 0d0
             wfac = wfacx2(omg,ef, ekc(it),esmrx)
-            if(GaussSmear()) then
+            if(GaussSmear) then
               if(wfac<wfaccut) cycle
               we = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr))
             else
@@ -1887,7 +1887,7 @@ cccccccccccccccccccccccccccccccccccccccc
           deallocate(zwz)
         endif
  1000 continue
-      if(newaniso()) ifvcoud =iclose('Vcoud.'//charnum5(kx))
+      if(newaniso) ifvcoud =iclose('Vcoud.'//charnum5(kx))
       if(.not.exchange) then
       ifrcw  = iclose('WVR.'//charnum5(kx))
       ifrcwi = iclose('WVI.'//charnum5(kx))

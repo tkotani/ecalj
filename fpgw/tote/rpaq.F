@@ -122,17 +122,17 @@ c-------------------------------------------
       integer(4):: nqbz,nstibz(nqibz)
       real(8):: wibz(nqibz),wqt(nq0i),wk
       real(8)   :: wgtq0p
-      integer(4):: bzcase
+c$$$      integer(4):: bzcase
 C- weight for k-point sampling
-      if(bzcase()==2)then
-        if(ip <=nqibz) then
-          wk = wibz(ip)*.5d0
-          if(nstibz(ip)/=0) wk = wibz(ip)*.5d0 *(1d0-wgtq0p()/nstibz(ip))
-        elseif(ip>nqibz) then
-          wk = wqt(ip-nqibz)* 1d0/dble(nqbz) * wgtq0p()
-        endif
-      else
-        if(ip <= nqibz) then
+c$$$      if(bzcase()==2)then
+c$$$        if(ip <=nqibz) then
+c$$$          wk = wibz(ip)*.5d0
+c$$$          if(nstibz(ip)/=0) wk = wibz(ip)*.5d0 *(1d0-wgtq0p()/nstibz(ip))
+c$$$        elseif(ip>nqibz) then
+c$$$          wk = wqt(ip-nqibz)* 1d0/dble(nqbz) * wgtq0p()
+c$$$        endif
+c$$$      else
+        If(ip <= nqibz) then
           wk = wibz(ip)*.5d0 ! 0.5 for the normalization of wibz
         else
           wk = wqt(ip-nqibz)* 1d0/dble(nqbz)
@@ -144,7 +144,7 @@ C- weight for k-point sampling
 Cstop2rx 2013.08.09 kino          stop     ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)'
           call rx( ' ecorq2: Bug Stop! this may be a bug?  wibz(1) /= 1/dble(2*nqbz)')
         endif
-      endif
+c$$$      endif
       if(abs(sum(wibz)-2d0)>1d-10) then
         print *,' sum(wibz)=',sum(wibz)
         print *,' ecorq2: Bug Stop! this may be a bug? abs(sum(wibz)-2d0) /=0 '

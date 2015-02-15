@@ -64,10 +64,10 @@ c
       ! If false, use old version (less product basis set is added.)
       end
 
-      logical function newaniso()
-      newaniso=.true. !new GW mode. not the offset Gamma method.
-                      !combines methods by two Christoph. 
-      end
+c$$$      logical function newaniso()
+c$$$      newaniso=.true. !new GW mode. not the offset Gamma method.
+c$$$                      !combines methods by two Christoph. 
+c$$$      end
 
       real(8) function screenfac()
 c The Coulomb interaction is given as exp(- screeenfac()*r)/r (see hvccfp0.m.F)
@@ -111,15 +111,15 @@ c============================================================
       evaltest=.false.
       end
 
-      logical function test_symmetric_W()
-      use keyvalue
-      logical,save:: init=.true.,ttt
-      if(init) then
-        call getkeyvalue("GWinput","TestSymmetricW",ttt,default=.false.)
-        init=.false.
-      endif
-      test_symmetric_W= ttt
-      end
+c      logical function test_symmetric_W()
+c      use keyvalue
+c      logical,save:: init=.true.,ttt
+c      if(init) then
+c        call getkeyvalue("GWinput","TestSymmetricW",ttt,default=.false.)
+c        init=.false.
+c      endif
+c      test_symmetric_W= ttt
+c      end
 
 c      logical function testtr()
 c      testtr=.true.
@@ -393,36 +393,36 @@ c        write(6,*)' verbose=',verbosex
       verbose=verbosex
       end
 
-      logical function GaussSmear()
-      use keyvalue
-C- smergin switch for SEx and SEc.
-c      GaussSmear=.true. ! Gaussian smering.
-c      GaussSmear=.false.! original rectoangular smering.
-c It seems that you might need to use narrower esmer in GWIN_V2
-c when you use GaussSmear=.true.
-      logical ::init=.true. !,readgwinput
-      logical,save :: GaussSmearx=.false.
-      character(len=150):: recrdxxx
-      character(len=130):: recrdxxx0
-      character(len=10)  :: keyw1='GaussSmear',keyw2
-      if(init) then
-c        if(readgwinput()) then
-        call getkeyvalue("GWinput","GaussSmear",GaussSmearx )
-c        else
-c         ifinin = 8087
-c         open(ifinin,file='GWIN_V2')
-c         do i=1,10; read(ifinin,*); enddo
-c         read(ifinin,"(130a)") recrdxxx0
-c         recrdxxx = recrdxxx0//' #'
-c         read(recrdxxx,*) a1, keyw2
-c         if(keyw1==keyw2) GaussSmearx=.true.
-c         close(ifinin)
-c         write(6,*)' GaussSmear=',GaussSmearx
-c        endif
-        init=.false.
-      endif
-      GaussSmear=GaussSmearx
-      end
+c$$$      logical function GaussSmear()
+c$$$      use keyvalue
+c$$$C- smergin switch for SEx and SEc.
+c$$$c      GaussSmear=.true. ! Gaussian smering.
+c$$$c      GaussSmear=.false.! original rectoangular smering.
+c$$$c It seems that you might need to use narrower esmer in GWIN_V2
+c$$$c when you use GaussSmear=.true.
+c$$$      logical ::init=.true. !,readgwinput
+c$$$      logical,save :: GaussSmearx=.false.
+c$$$      character(len=150):: recrdxxx
+c$$$      character(len=130):: recrdxxx0
+c$$$      character(len=10)  :: keyw1='GaussSmear',keyw2
+c$$$      if(init) then
+c$$$c        if(readgwinput()) then
+c$$$        call getkeyvalue("GWinput","GaussSmear",GaussSmearx )
+c$$$c        else
+c$$$c         ifinin = 8087
+c$$$c         open(ifinin,file='GWIN_V2')
+c$$$c         do i=1,10; read(ifinin,*); enddo
+c$$$c         read(ifinin,"(130a)") recrdxxx0
+c$$$c         recrdxxx = recrdxxx0//' #'
+c$$$c         read(recrdxxx,*) a1, keyw2
+c$$$c         if(keyw1==keyw2) GaussSmearx=.true.
+c$$$c         close(ifinin)
+c$$$c         write(6,*)' GaussSmear=',GaussSmearx
+c$$$c        endif
+c$$$        init=.false.
+c$$$      endif
+c$$$      GaussSmear=GaussSmearx
+c$$$      end
 
       integer function q0pchoice()
       use keyvalue
@@ -452,10 +452,11 @@ c                            ! Note that you have to supply EFERMI by the tetrah
       tetra_hsfp0=.false.
       end
 
-c--------------------------------------------
-      integer(4) function bzcase()
-      bzcase=1
-      end
+c$$$c--------------------------------------------
+c$$$      integer(4) function bzcase()
+c$$$      bzcase=1
+c$$$      end
+
 c$$$      use keyvalue
 c$$$c      bzcase==2 is for regular-mesh in BZ without gamma point.
 c$$$      logical,save ::init=.true.

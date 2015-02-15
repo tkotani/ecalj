@@ -887,23 +887,20 @@ c      call iinit   (icheck,nnx*nnx*(lmax+1)*(lmax+1))
 
       return
       end
-c-------------------------------------------------------------------
+
+!> counts the no. occupied/unoccupied states
       integer function nocc (ek,ef,locc,
      d                       n)
-
-c 92.02.18
-c counts the no. occupied/unoccupied states
-
 c ek   = eigenvalues
 c ef   = fermi level
 c locc = .true.  ==> occupied
 c      = .false. ==> unoccupied
 c n    = no. states
-
-      implicit real*8 (a-h,o-z)
-      logical   locc
-      dimension ek(n)
-
+      implicit none
+      logical, intent(in) :: locc
+      integer, intent(in) :: n
+      real(8), intent(in) :: ek(n), ef
+      integer :: i
       nocc       = 0
       if (locc) then
         do       i = 1,n
@@ -914,9 +911,9 @@ c n    = no. states
           if (ek(i) .gt. ef) nocc = nocc + 1
         end do
       endif
-
       return
-      end
+      end function nocc
+
 c-------------------------------------------------------------------
       subroutine ncorex (nindxc,
      d                   nl,nclass,

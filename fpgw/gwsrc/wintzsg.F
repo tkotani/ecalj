@@ -1,30 +1,27 @@
+!> gaussian smeared-pole version of wintz.
+!! takao developed from wintz by ferdi.
+!! Assume that each eigenvale, and w-e as a result, has the width of esmr( Ry).
       complex(8) function wintzsg_npm(npm,v,v0,x,wt,a,expa,we, 
      i                                nx,esmr)
-C- gaussian smeared-pole version of wintz.
-C takao developed from wintz by ferdi.
-C Assume that each eigenvale, and w-e as a result, has the width of esmr( Ry).
-c
       implicit none
-      integer(4)::npm
-      integer(4) :: nx,i
-      real(8) :: x(nx),wt(nx),expa(nx),a,we,we2,weh,wel,weh2,wel2,cons,
+      integer(4),intent(in)::npm,nx
+      complex(8),intent(in) ::v(npm*nx),v0
+      real(8),intent(in):: x(nx),wt(nx),expa(nx),we,esmr
+
+      integer(4) :: i
+      real(8):: a,we2,weh,wel,weh2,wel2,cons,
      & omd,omd2,rup,rdn,sss,sig2,omd2w
-      complex(8) ::v(npm*nx),v0,sum,   wintzsg1  !, wintzsg2,sum2
-      complex(8) :: wwz,wintz_npm, img=(0d0,1d0)
-      real(8)    :: esmr,wintsf,errsum=0d0,derfcx,derfc
+      complex(8) :: wwz,wintz_npm, img=(0d0,1d0),sum,   wintzsg1 
+      real(8)    :: wintsf,errsum=0d0,derfcx,derfc
       integer(4) :: ie,nav = 2000
       real(8)    :: pi=3.1415926535897932d0, rmax=2d0
       !rmax =2 is by ferdi. Is it optimum? See wintz
       real(8)::sig, smxowx, ee, omg, ww,cons1,cons2,xx,aw,eee,aw2
       integer(4) ix,verbose
       logical :: test
-c      real(8)::sumgauss,sumgauss1,sumgauss2 ! I found this bug 9Aug2004
       complex(8)::sumgauss,sumgauss1,sumgauss2
-c      integer(4):: version
+c      logical ::  test_symmetric_W
 
-      logical ::  test_symmetric_W
-
-c---------------------------------------------------
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      print *,' wintzsg: start!'
 c      sig= 1d0 ! sig is in Ry.
@@ -79,7 +76,7 @@ c      return
       we2  = we**2
       sum  = 0d0
 
-C --- simple integration scheme.
+!! simple integration scheme.
       do  i = 1,nx
         omd   = 1d0/x(i) - 1d0
         omd2w = omd**2 + we2
@@ -93,15 +90,15 @@ C --- simple integration scheme.
      &               + omd2w**4/sig2**5/120d0- omd2w**5/sig2**6/720d0 )
         endif
         sum  = sum + we*cons*( v(i)-v0*expa(i) ) *wt(i)/(x(i)**2)
-        if(test_symmetric_W()) then
-        else
+c        if(test_symmetric_W()) then
+c        else
           if(npm==2) then !Asymmetric contribution for
             sum  = sum - cons* v(i+nx)*omd*wt(i)/(x(i)**2)
           endif
-        endif
+c        endif
       enddo
 
-C --- Gaussian part -------------------------------------
+!! --- Gaussian part -------------------------------------
 c      if(version()==-1) then !       print *,' version=',version()
 c        sumgauss=
 c     &          - .5d0*v0*dexp(we2*a**2)
@@ -605,13 +602,14 @@ Cstop2rx 2013.08.09 kino        stop  ' gen_ua: ratio >1 strange ratio...'
       end
       subroutine gen_uaa(ratio,freqx, ua_)
       implicit none
-      integer(4):: ix,niw,verbose
-      real(8):: ratio,freqw, freqx, ua_
+      real(8),intent(in) :: freqx
+      real(8),intent(in) :: ratio
+      real(8),intent(out) :: ua_
+      real(8) :: freqw
       freqw = (1d0 - freqx)/ freqx
       if( ratio > 1d0 ) then
         print *, ' ratio =',ratio
         print *, ' gen_uaa: ratio >1 strange ratio...'
-Cstop2rx 2013.08.09 kino        stop  ' gen_uaa: ratio >1 strange ratio...'
         call rx( ' gen_uaa: ratio >1 strange ratio...')
       else
         ua_ = sqrt(-1d0/freqw*log(ratio))
@@ -620,8 +618,11 @@ Cstop2rx 2013.08.09 kino        stop  ' gen_uaa: ratio >1 strange ratio...'
 
       subroutine gen_expa(niw,freqx,ua_,  expa_)
       implicit none
-      integer(4):: ix,niw
-      real(8)::  freqw, freqx(niw), expa_(niw), ua_
+      integer(4), intent(in)  :: niw
+      real(8),    intent(in)  :: freqx(niw), ua_
+      real(8),    intent(out) :: expa_(niw)
+      real(8) :: freqw
+      integer(4):: ix
       do ix = 1,niw
         freqw     = (1d0 - freqx(ix))/ freqx(ix)
         expa_(ix) = exp(-(ua_*freqw)**2)
@@ -632,14 +633,21 @@ c-------------------------------------------------------------------
       subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz) !sf 23May02
       use m_mpi, only: mpi__rank
       implicit none
-      integer(4) :: nstate,ntq,itp,itpp,it,ngb,iSigma_en
-      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
-      complex(8) :: zwz(nstate,ntq,ntq) ,zdotc                   !sf 23May02
+      integer(4), intent(in) :: iSigma_en
+      complex(8), intent(in) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
+      integer(4), intent(in) :: nstate,ntq,ngb
+      complex(8), intent(out) :: zwz(nstate,ntq,ntq)
+
+      integer(4) :: itp,itpp,it
+      complex(8) :: zdotc
       complex(8), allocatable :: CC(:,:,:)
-#ifdef USE_GEMM_FOR_SUM
       complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
-      integer:: ivc,verbose
-#endif
+      integer :: ivc,verbose
+
+c      integer(4) :: nstate,ntq,itp,itpp,it,ngb,iSigma_en
+c      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
+c      complex(8) :: zwz(nstate,ntq,ntq) ,zdotc                   !sf 23May02
+c      complex(8), allocatable :: CC(:,:,:)
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
       !call cputid(0)
@@ -658,13 +666,11 @@ c!$OMP end parallel
         zwz=0d0
         do itp = 1,ntq
           do  it = 1,nstate
-c        zwz(it,itp,itp)=sum(dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
             zwz(it,itp,itp)=
      &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
           enddo
         enddo
       elseif (iSigma_en==2 .or. iSigma_en==3 ) then
-#ifdef USE_GEMM_FOR_SUM
         if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
         allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
         do  it = 1, nstate
@@ -685,44 +691,27 @@ C         call zprm('z2r',z2r,ngb,ngb,ntq)
           enddo
         enddo
         deallocate(z1r,z2r,zwzi)
-
-#else
-        do itpp= 1,ntq
-          do itp = 1,ntq
-            do  it = 1,nstate
-              zwz(it,itp,itpp)=
-     &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itpp),1 )
-c     &    sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itpp) )      !sf 23May02
-            enddo
-          enddo
-        enddo
-#endif
-!KINO        write(*,*)'kino:zwz checksum=',sum(zwz)
       else
-Cstop2rx 2013.08.09 kino        stop "sxcf, matzwz2: iSigma_en /= 0,1,2,3"
         call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
       endif
-      !write(*,'("10.3 matzwz end ",$)')
-      !call cputid(0)
-
       deallocate(CC)
       write(6,*)mpi__rank,'matzwz2 end'
       end subroutine matzwz2
 
-c--------------------------------------------------------------------
+!> even function version of alagr3z
+!! return the interpolated value on x for fi(xi).
+!! We assume even function.
+!! Imag part is corrected to be >0
       complex(8) function alagr3z2(x,xi,fi,i,j)  !sf 24 May02
-      implicit real*8 (a-h,o-z)
-c evne function version of alagr3z
-c return the interpolated value on x for fi(xi).
-c We assume even function.
-c Imag part is corrected to be >0
-      integer(4) :: i,j,n
-      real(8)::  xi(3)
-      complex(8) :: fi(3)
-      real(8) :: amatinv(3,3),amat(3,3),ratio
+      implicit none
+      integer(4), intent(in) :: i,j
+      real(8),    intent(in) ::  x, xi(3)
+      complex(8), intent(in) :: fi(3)
+
+      integer(4) :: n
+      real(8) :: amatinv(3,3),amat(3,3),ratio,detxx
 
 c--- Assure that dimag(fi) is positive.
-Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z2: x<0d0'
       if(x<0d0) call rx( ' alagr3z2: x<0d0')
       if (i==j) then  !sf 24 May02 only diagonal Im[Sigma_ii] should be negative
         do n=1,3
@@ -730,7 +719,6 @@ Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z2: x<0d0'
             ratio= abs(dimag(fi(i))/dreal(fi(i)))
             if( ratio >1d-8) then !jan2004. I added a bit of alloance
               print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-Cstop2rx 2013.08.09 kino              stop    ' alagr3z: error! dimag(fi(i)) is positive'
               call rx( ' alagr3z: error! dimag(fi(i)) is positive')
             endif
           endif

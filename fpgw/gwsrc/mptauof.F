@@ -458,9 +458,11 @@ c          write(6,"('eibz: iq neibz nqbz= ',i3,3f11.5,3i7)") iq,q,neibz(iq),nqb
       endif  
 c      stop 'test stop -------- end of eibzgen ----------'
       end subroutine eibzgen
-!! -------------------------------------------------
+
       subroutine tabkk(kkin, kktable,n, nout)
-      integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
+      integer, intent(in) :: n,kkin, kktable(n)
+      integer, intent(out) :: nout
+      integer:: i,mm,i1,i2
       i1=1
       i2=n
       if(kkin==kktable(1)) then

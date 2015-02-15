@@ -1,25 +1,20 @@
-      subroutine fermids(k1,k2,k3,ds)
-! This is wrong (dummy now). In anyway need to fix this!
-c      real(8):: k1(3),k2(3),k3(3),ds(3,3),ee(3)
-c      call cross_x(k1-k3,k2-k3,ee)
-c      ds(i,j)=ds(i,j)+ee(i)*ee(j)/sqrt(sum(ee**2))
-      end
-
-c --- external product
       subroutine cross_x(a,b,c)
-      implicit real*8 (a-h,p-z), integer(o)
-      dimension a(3),b(3),c(3)
+      implicit none
+      real(8), intent(in) :: a(3), b(3)
+      real(8), intent(out) :: c(3)
       c(1)=a(2)*b(3)-a(3)*b(2)
       c(2)=a(3)*b(1)-a(1)*b(3)
       c(3)=a(1)*b(2)-a(2)*b(1)
       return
       end
-c
+
+!> This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det) 
+!! the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       subroutine dinv33x(plat,qlat)
-C- This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det) --------------
-Cr THIS IS the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       implicit none
-      double precision plat(3,3),qlat(3,3),det
+      real(8),intent(in)::  plat(3,3)
+      real(8),intent(out):: qlat(3,3)
+      real(8):: det
       call cross_x(plat(1,2),plat(1,3), qlat     )
       call cross_x(plat(1,3),plat     , qlat(1,2))
       call cross_x(plat     ,plat(1,2), qlat(1,3))
@@ -27,11 +22,13 @@ Cr THIS IS the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       qlat = qlat/det
       end
 
+!> This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det)
+!! the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       subroutine dinv33y(plat,qlat,det)
-C- This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det) --------------
-Cr THIS IS the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       implicit none
-      double precision plat(3,3),qlat(3,3),det
+      real(8),intent(in)::  plat(3,3)
+      real(8),intent(out):: qlat(3,3)
+      real(8):: det
       call cross_x(plat(1,2),plat(1,3), qlat     )
       call cross_x(plat(1,3),plat     , qlat(1,2))
       call cross_x(plat     ,plat(1,2), qlat(1,3))
@@ -39,9 +36,8 @@ Cr THIS IS the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
       qlat = qlat/det
       end
 
-c-Taken from Ferdi's GW  -----------------------------------------------------
+!>- Inverts 3X3 matrix
       subroutine dinv33(matrix,iopt,inverse,det)
-C- Inverts 3X3 matrix
 C ----------------------------------------------------------------
 Ci Inputs
 Ci   inverse: input matrix
@@ -52,28 +48,15 @@ Co   inverse, as modified according to iopt
 Co   det:      determinant
 C ----------------------------------------------------------------
       implicit none
-      integer iopt,i,j
-      double precision matrix(3,3),inverse(3,3),det,ddot
-Cstop2rx 2013.08.09 kino      if(iopt<0.or.iopt>1) stop 'dinv33:wrong iopt'
-      if(iopt<0.or.iopt>1) call rx( 'dinv33:wrong iopt')
+      integer iopt
+      real(8), intent(in) :: matrix(3,3)
+      real(8), intent(out) :: inverse(3,3),det
+      real(8) :: ddot           ! BLAS external function
       call cross_x(matrix(1,2),matrix(1,3),inverse     )
       call cross_x(matrix(1,3),matrix     ,inverse(1,2))
       call cross_x(matrix     ,matrix(1,2),inverse(1,3))
       det = ddot(3,matrix,1,inverse,1)
-Cstop2rx 2013.08.09 kino      if (abs(det) ==0d0) stop 'dinv33: vanishing determinant'
       if (abs(det) ==0d0) call rx( 'dinv33: vanishing determinant')
       if (iopt == 0) inverse = transpose(inverse)
       inverse = inverse/det
-c      double precision xx
-c      if (iopt .ge. 2) det = det/(8*datan(1d0))
-c      if (mod(iopt,2) == 0) then
-c        do  10  i = 1, 3
-c          do  10  j = i+1, 3
-c          xx = inverse(i,j)
-c          inverse(i,j) = inverse(j,i)
-c          inverse(j,i) = xx
-c   10   continue
-c      endif
-c     call dscal(9,1/det,inverse,1)
-c      return
       end
