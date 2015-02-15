@@ -1,6 +1,5 @@
       subroutine sxcf_fal3z(kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2,
      i          tiat,miat, nsp,isp, 
-c     i          ifrcw,ifrcwi, 
      i                  qbas,ginv,
      i                  qibz,qbz,wk,nstbz,wik,  
      i                  nstar,irkip,  
@@ -18,8 +17,8 @@ c     i          ifrcw,ifrcwi,
      i     iwini,iwend,
      i     nbmx,ebmx, 
      i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
-     i   wklm,lxklm, !mar2012 !wklm apr2012takao
-     i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
+     i   wklm,lxklm, 
+     i invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, 
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi

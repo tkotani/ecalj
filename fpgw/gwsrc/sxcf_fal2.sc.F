@@ -45,41 +45,34 @@ c$$$      stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
 c$$$      end function
 c$$$      end module m_nbandgw
 
-!! ----------------------------------------------------------------------------
-c      subroutine sxcf_fal3_scz(wqfac,kount,qip,itq,ntq,ef,esmr,tiat,miat,
+
+!> @brief 
+!!   Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> 
+!! ==============
+!! @param
+!! - exchange
+!!   +  =T : Calculate the exchange self-energy
+!!   +  =F : Calculate correlated part of the self-energy
       subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,tiat,miat,
-c     i                  ifev, !removed at Jan2004
-     i     nsp,isp,             !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
-c     i                  ifrcw,ifrcwi, 
+     i     nsp,isp,             
      i     qbas,ginv,
-     i     qibz,qbz,wk,nstbz,nstar,irkip,nrkip, !irkip,nrkip 25Sep2012
-c     
+     i     qibz,qbz,wk,nstbz,nstar,irkip,nrkip, 
      i     iclass,mdim,nlnmv,nlnmc,
      i     icore, ncore,imdim,
-     i     ppb,                 !pdb,dpb,ddb,
-     i     freqx,wx,dw,         ! !expa,ua,deltaw, !sf 23May02   no 'freq'
+     i     ppb,                 
+     i     freqx,wx,dw,         
      i     ecore,
-c     
      d     nlmto,nqibz,nqbz,nctot,
-c     i          index_qbz, n_index_qbz, !12jan2004
      d     nl,nnc,nclass,natom,
-     d     nlnmx,mdimx,nbloch,ngrp,niw,nq, !niwx removed
-c     
-c     &     nblochpmx ,ngpn,ngcni,ngpmx,ngcmx,geigB,ngvecpB,ngveccBr, !12jan2004
-     &     nblochpmx ,ngpmx,ngcmx, !ngveccBr,
+     d     nlnmx,mdimx,nbloch,ngrp,niw,nq, 
+     &     nblochpmx ,ngpmx,ngcmx, 
      &     wgt0,nq0i,q0i,symgg, alat, shtvg,nband, ifvcfpout,
-c     &     shtw,  
      &     exchange,screen,cohtest, ifexsp,
-c     tetra
-c     tetra     &     wtet,wtetef,
-c     tetra    &     ntqx,ibzx,tetra,
-c     
-c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
-     i     iSigma_en,           !iwini,iwend,  !sf 22May02
-     i     nbmx,ebmx,           !takao 18June2003 
-     i     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
-     i     wklm,lxklm,          !mar2012 !wklm apr2012takao
-     i     invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, !sep 2012
+     i     iSigma_en,           
+     i     nbmx,ebmx,           
+     i     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
+     i     wklm,lxklm,          
+     i     invg,il,in,im,nlnm,nn_,lx,nx_,nxx_,cgr,ppbrd, 
      i    diagonly, eftrue,
      o     zsec,coh,nbandmx)
 !! jan2013 eftrue is added.
@@ -91,10 +84,6 @@ c     i omega,iSigma_en, !iwini,iwend,  !sf 22May02
 c      use m_nbandgw,only: getnbandgw
       use m_mpi, only: mpi__rank 
       implicit none
-
-!! == Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ==
-!!  exchange=T : Calculate the exchange self-energy
-!!            =F : Calculate correlated part of the self-energy
 !! output
 !!  zsec: S_ij= <i|Re[S](e_i)|j>
 !!        Note that S_ij itself is not Hermite becasue it includes e_i.
