@@ -211,7 +211,6 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)mkqg.o \
  $(gwsrc)q0irre.o \
  $(gwsrc)getgv2.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)zsvd.o \
  $(GW0)
@@ -344,7 +343,6 @@ eout2: $(EO2)  $(COMM)
  X0_SC = \
  $(main)hx0fp0.sc.m.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(nfpsrc)diagcv2.o
@@ -352,7 +350,6 @@ eout2: $(EO2)  $(COMM)
  X0 = \
  $(main)hx0fp0.m.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(nfpsrc)diagcv2.o \
@@ -363,7 +360,6 @@ eout2: $(EO2)  $(COMM)
  X0mlw = \
  $(maxloc)hx0fp0.m.o \
  $(maxloc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(nfpsrc)diagcv2.o \
  $(tote)rpaq.o \
@@ -372,7 +368,6 @@ eout2: $(EO2)  $(COMM)
  UU = \
  $(main)h_uumatrix.m.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \
@@ -389,7 +384,6 @@ eout2: $(EO2)  $(COMM)
  UU2 = \
  $(maxloc)huumat.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \
@@ -404,7 +398,6 @@ eout2: $(EO2)  $(COMM)
  PSIG = \
  $(maxloc)hpsig.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \
@@ -419,7 +412,6 @@ eout2: $(EO2)  $(COMM)
  PHIG = \
  $(maxloc)hphig.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetwt4.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \

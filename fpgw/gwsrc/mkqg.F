@@ -973,7 +973,7 @@ c      write(6,"(i3,3f15.7,2x,f12.4)")(i,qi(1:3,i),wti(i),i=1,nqi)
 
 
 !! #############################################################################
-      doubleprecision function tripl(a,b,c)
+      double precision function tripl(a,b,c)
 !     ! == tripl  ==
       implicit real*8 (a-h,p-z), integer(o)
 c     dimension a(3),b(3),c(3)

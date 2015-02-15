@@ -1,8 +1,9 @@
+      subroutine shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
 !! shortn3 (and initialize_shorn3 are taken from lm7k/subs/shorbz.F.
 !!
 !!NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
 !!NOTE: In advance, we will need to check speed and convenience.
-      subroutine shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
+!!
 !!== Find shortest vector in modulo of rlat ===
 !! To call shortn3 for given rlat,
 !! we have to call shorn3_initialize in advane to obtain rlatp and xmx2, which are passed to shortn3.
@@ -296,31 +297,3 @@ C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
    10 continue
 
       end
-C      subroutine fmain
-C      implicit none
-C      double precision plat(9),qlat(9),p(3),p1(3),xx
-C      integer mode(3)
-C
-C      data plat /-0.5d0,0.5d0,1.7517d0,
-C     .            0.5d0,-.5d0,1.7517d0,
-C     .            0.5d0,0.5d0,-1.7517d0/
-C
-C      integer w(10000)
-C      common /w/ w
-C
-C      data p /0.0d0,-0.5d0,-1.2638400000000001d0/
-C
-C      call wkinit(10000)
-C
-CC ... qlat = (plat^-1)^T so that qlat^T . plat = 1
-C      call mkqlat(plat,qlat,xx)
-C
-C      call shorbz(p,p1,plat,qlat)
-C      call prmx('p1 from shorbz',p1,1,1,3)
-C
-C      mode(1) = 2
-C      mode(2) = 2
-C      mode(3) = 3
-C      call shorps(1,plat,mode,p,p1)
-C      call prmx('p1 from shorps',p1,1,1,3)
-C      end

@@ -1,7 +1,8 @@
       subroutine scg(lmax,c,cindx,js)
 c  computes clebsch-gordan coefficients (formerly s104 in asw)
 c  but here all is doubleprecision
-      implicit real*8 (a-h,p-z), integer(o)
+      implicit real*8 (a-h,p-z)
+      implicit integer(o)
       integer s1,s2,s3,t1,t2,t3,cindx(*),js(*)
       double precision fac(161),c(*)
       fs(i)=dfloat(1+4*(i/2)-2*i)
@@ -85,7 +86,8 @@ c      print *,' scg: 2'
       subroutine scg_sizechk(lmax,lnjcg,lnxcg) !(lmax,c,cindx,js)
 c  computes clebsch-gordan coefficients (formerly s104 in asw)
 c  but here all is doubleprecision
-      implicit real*8 (a-h,p-z), integer(o)
+      implicit real*8 (a-h,p-z)
+      implicit integer(o)
       integer s1,s2,s3,t1,t2,t3
 c ,cindx(1),js(1)
 c      doubleprecision fac(50),c(1)
@@ -168,10 +170,12 @@ c      cindx(lmindx+1)=ic+1
       lnxcg=max(lnxcg,lmindx+1)
       return
       end
+
 c------------------------------------------------------------------
-      doubleprecision function f100(fac,j1,j2,j3,m1,m2,m3)
-      implicit real*8 (a-h,p-z), integer(o)
-      doubleprecision fac(*)
+      double precision function f100(fac,j1,j2,j3,m1,m2,m3)
+      implicit real*8 (a-h,p-z)
+      implicit integer(o)
+      double precision fac(*)
       if(m3.ne.m1+m2) goto 2
       k1=j1+j2-j3+1
       k2=j3+j1-j2+1
@@ -205,10 +209,11 @@ c------------------------------------------------------------------
       return
       end
 
-      doubleprecision function f102(fac,l1,l2,l3)
-      implicit real*8 (a-h,p-z), integer(o)
+      double precision function f102(fac,l1,l2,l3)
+      implicit real*8 (a-h,p-z) 
+      implicit integer(o)
       integer x,p
-      doubleprecision fac(*)
+      double precision fac(*)
       lt=l1+l2+l3
       p=lt/2
       if(2*p.ne.lt) goto 1

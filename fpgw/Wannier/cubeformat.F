@@ -203,7 +203,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       deallocate(rall,zall)
 
-      end  subroutinewrt_pos_xyz
+      end  subroutine wrt_pos_xyz
 
       end module m_cubeformat
 
