@@ -67,7 +67,7 @@ c ifile = 0 ==> screen (id=6)
       real(4):: cpusec,cpumax,cpumin
       integer:: ierr,rank ,ifile
 #ifdef REALTIME
-      logical,save::firsttime=1
+      logical,save::firsttime=.true.
       integer,save::i1
       integer:: i2,irate,imax
       real(4)::diff
