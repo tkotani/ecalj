@@ -35,8 +35,11 @@ import sys,os
 thisdir= os.path.dirname(os.path.abspath(__file__))
 #sys.path.append(thisdir+'/fparser')
 #sys.path.append(thisdir+'/fparser/numpy')
-sys.path.append(thisdir+'/fparser/')
-sys.path.append(thisdir+'/fparser/numpy')
+#sys.path.append(thisdir+'/fparser/')
+#sys.path.append(thisdir+'/fparser/numpy')
+sys.path.insert(0,thisdir+'/fparser')
+sys.path.insert(0,thisdir+'/fparser/numpy')
+
 from api import parse,walk
 from readfortran import *
 from parsefortran import FortranParser
