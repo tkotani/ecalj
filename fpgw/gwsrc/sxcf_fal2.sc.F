@@ -268,9 +268,9 @@ c----------------------------------------------------------------------
       real(8), intent(in) :: ebmx(2),qrr(3,nkpo),wklm((lxklm+1)**2)
       real(8), intent(in) :: cgr(*),ppbrd(*),qip(3,*),eftrue
       complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
+      real(8), intent(in) :: ppb(*)
 
 ! output variables
-      real(8), intent(out) :: ppb(*)
       integer, intent(out) ::nbandmx(nq)
       complex(8), intent(out) :: zsec(ntq,ntq,nq)          
 
