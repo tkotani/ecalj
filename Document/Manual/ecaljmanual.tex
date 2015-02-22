@@ -106,23 +106,27 @@
 
 \abstract{
 \noindent An all-electron full-potential electronic structure 
-calculation package freely availalbe.\\
+calculation package availalbe freely.\\
 This is based on the formulation in Refs.
-\cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}.
-In \ecalj, we can do QSGW and related calculations
-(Wannier functions also) based on the PMT=LA\underline{P}W+L\underline{MT}O
+\cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}
+(See Kotani2114QSGWinPMT.pdf and KotaniKinoAkai2015FormulationPMT.pdf at
+ecalj/Document/Manual/). In \ecalj, we can do QSGW and related calculations
+based on the PMT=LA\underline{P}W+L\underline{MT}O
 method. To get minimum usage for ecalj, need to read up to Section .5
-or Sec.\ref{cautionusage}.\\
+or Sec.\ref{cautionusage}. (We can generate model Hamiltonian thru
+Wannier functions; not documented well yet...) \\
 
 
 \noindent Be careful. 
-This document is under construction...
+This document still contain many bugs...
 We need your help on this manual.\\
 
 \noindent ------------------------\\
 \noindent {\bf Requirement}\\
-\noindent To support of ecalj activity, we need your acknowledgment to \ecalj 
-in your publications in the manner written in ecalj/README.md such as:\\
+\noindent To support of our ecalj activity, we need your acknowledgment to \ecalj 
+in your publications in the manner shown in ecalj/README.md; \\
+\url{https://github.com/tkotani/ecalj/#we-need-acknowledgment-as}
+such as:\\
 {\small\ \ \ \ \ 
 [1] ecalj package at https://github.com/tkotani/ecalj/. \\
 \ \ \ \ \ \ \ \ \ \  Its one-body part is developed based on Ref.[2].}\\
@@ -615,11 +619,11 @@ Current implementation for parallelization by MPI is limited
 (not so much especially for the dielectric funciton part yet). 
 Thus, probably, it may be not so efficient to use too many cores.
 
-Follow the instruction of \io{ecalj/README.md}.
-(it is shown at \url{https://github.com/tkotani/ecalj}.)
-We have a script \io{ecalj/InsallAll.*},
-which install \ecalj\ and run a
-series of tests automatically.
+Follow the instruction of \io{ecalj/README.md}.\\
+or we can see the same one at \url{https://github.com/tkotani/ecalj/#install-and-test}.
+We have a script \io{ecalj/InsallAll.ifort} and so on.
+This command installs \ecalj and run a series of install tests automatically.
+
 
 \subsection{Binaries and Scripts}
 Binary and Scripts contained in \ecalj are
@@ -631,7 +635,7 @@ Binary and Scripts contained in \ecalj are
   Sphecial atom calculation as initial condition, and core charge 
 \item \lmchk\\
   Check atomic positions, crystal symmetry, and computational conditions.
-\item lmf,\verb#lmf-MPIK# recently instead of \exe{lmf}.\\
+\item \exe{lmf} and \exe{lmf-MPIK}
   LDA/GGA,LDA+U calculations. (or we can use Vxc in QSGW instead).
   We mainly use \exe{lmf-MPI} ($\bfk$-parallel version) instead of \exe{lmf}.
 \item 
@@ -639,19 +643,22 @@ Binary and Scripts contained in \ecalj are
   \verb#mpirun -np 4 lmf-MPIK --mkprocar --band:fn=syml mgo# gives PROCAR \\
    (Try an example \io{~/ecalj/MATERIALS/MgO\_PROCAR/}. 
     Run \exe{./job} at the directory).
-\item \io{gwsc}\\
+\item \exe{gwsc}\\
      QSGW calculation
 \item \verb#job_band_nspin1,job_band_nspin2,job_fermisurface,job_tdos,job_pdos#\\
      band, fermi surface, tdos, pdos plot.
-\item \verb#epsPP_lmfh,eps_lmfh#\\
-     Dielectric funciton without local field correction (LFC), or with LFC
-\item \verb#epsPP_lmfh_chipm#\\
+\item \exe{epsPP\_lmfh}\\
+     Dielectric funciton without local field correction (LFC).
+\item \exe{eps\_lmfh}\\
+     Dielectric funciton with LFC
+\item \exe{epsPP\_lmfh\_chipm}\\
       Non-interacting transverse spin polarization.
-\item \verb#gw_lmfh#\\ One-shot GW calculation. 
+\item \exe{gw\_lmfh}\\ One-shot GW calculation. 
        This also show life-time of QPs (\io{QPU\_lmf}).
-\item \verb#genMLWF#\\ Wannier functions and matrix elements of $W$ on
+      (we need make it paralellized...)
+\item \exe{genMLWF}\\ Wannier functions and matrix elements of $W$ on
       it. A implementation of cRPA included.
-\item dqpu:\\
+\item \exe{dqpu}\\
       A small python script to compare QPU.* files (eigenvalues are
       compared) numerially. 
       (Seungwoo say it cause ``index error''; Need to fix dqpu if
@@ -661,7 +668,7 @@ Binary and Scripts contained in \ecalj are
 
 \subsection{tests}
 Install.ifort run tests at \verb#ecalj/TestInstall#.\\
-In the followings, \verb#si:gw_lmfh# means '$>$\verb#make si_gw_lmfh#'
+In the following, \verb#si:gw_lmfh# means '$>$\verb#make si_gw_lmfh#'
 at \verb#ecalj/TestInstall/#; this test is performed with the Makefile
 at the directory. 
 \begin{verbatim}
@@ -880,6 +887,13 @@ A tool \verb+vasp2ctrl+ converts POSCAR\_\*.vasp to ctrls.\*.
 ``--help'' show a small help. \\
 $\bullet$ ecalj/StructureTool/ is not tested well. Not believe it so
 much... We will fix it on your request.
+Another possible way is using cif2cell.
+
+If you have a cif file, run
+\begin{verbatim}
+cif2cell foobar.cif -p vasp --vasp-cartesian --vasp-format=5
+\end{verbatim}
+And convert POSCAR to ctrls. cif2cell is available from github.
 \end{quote}
 
 In \verb+ctrls.srtio3+, we use an expression 1/2 to give POS. 
@@ -943,24 +957,31 @@ generated by the procedure described in the following section).
 We detail it in other place xxx.\\
 
 After \verb+ctrl.*+ is generated as shown below, 
-we can run a quick command \verb+lmchk+ to check weather crystal
-structure is correctly given or not. And show symmetry information, and
-so on.
+we can run a command \verb+lmchk+ to check weather crystal
+structure is correctly given or not. It finish in a second.
+It show symmetry information, and so on used in the calculation.
 
-{\bf CAUTION!}: Positions of atoms are not necessarily fixed by \io{ctrl.*} when
+\noindent {\bf CAUTION!}: 
+Positions of atoms are not necessarily fixed by \io{ctrl.*} when
 you restart calculation with \io{rst.*} file, because 
 atomic positions are read from \io{rst.*}.
 We need to pay attention when we use DYN option because
 \exe{lmf} run may save relaxed atomic positions into the \io{rst.*}.
- 
+As ``lmf --help'' shows, \verb#lmf si --rs=1,1,1,0,0# can read atomic
+position from ctrl file.
+
+
 \subsection{Generate default ctrl from ctrls by ctrlgenM1.py}
 To run programs of lm7K (lmfa, lmf, lmchk) in ecalj,
-we need an input file \verb+ctrl.*+, which contains many other settings.
+we need an input file \verb+ctrl.*+, which contains not only structures
+but also other settings.
 To generate \verb+ctrl.*+ from \verb+ctrls.*+, we have a command "ctrlgenM1.py" (written
-in python 2.x and call fortran code internally).
+in python 2.x and call fortran programs(lmfa,lmchk) internally).
 Two steps required to complete ctrl file:
 (i) we give reasonable options when we run ctrlgenM1.py. 
-Then (ii) we may need to edit the ctrl file afterward.
+Then (ii) we may edit the ctrl file afterward.
+In anyway, ctrl file is the starting point of calculations;
+ctrls is required just in order to generate ctrl.
 
 At first, try \verb+ctrlgenM1.py+ without arguments. It shows help. 
 To generate \verb+ctrl+ from \verb+ctrl+, type
@@ -1197,7 +1218,9 @@ This shows total DOS as
   \caption{DOS(Cu)}
  \end{center}
 \end{figure}
- 
+The range of DOS and division of total DOS is given by
+DOSMAX and NPTS in ctrl. Edit tdos.cu.glt for gnulot for your presentation. 
+Please look into \io{job\_tdos} file in your bin directory. It is a small script.
 
 For band plot, we have to set symmetry lines along which we plot eigenvalues.
 Collections \verb+syml.*+ are in ecalj/MATERIALS/. 
@@ -1252,6 +1275,10 @@ move top one a little). The command \verb+job_pdos+ is a little
 time-consuming because we use no symmetry to distinguish all lm channels.
 (PDOS is not yet implemented for SO=1 case; spin-orbit coupling $\L\dot S$ is added.)
 We can edit script of gnuplot (pdos.site*.*.glt) for your purpose.
+To plot again, run
+\begin{verbatim}
+  gnuplot -persist pdos.site001.cu.glt
+\end{verbatim}
 In principle, meanings of all data files are shown (see at the bottom
 of console output about lm ordering in a line), thus not so difficult to
 rewrite *.glt. For example, to plot eg and t2g separately. 
@@ -1432,7 +1459,7 @@ when we run \verb#lmf# or \verb#lmf-MPIK#(k-parellel mpi version),
 if we have \io{HAM\_RDSIG=12} in \io{ctrl.*}.
 Thus this means that
 we replace $V_{\rm xc}^{\rm LDA}(\bfr)\delta(\bfr-\bfr')$ 
-with $V^{\rm xc}(\bfr,\bfr')V$.\\
+with $V^{\rm xc}(\bfr,\bfr')$.\\
 
 This iteration cycle is performed by a script ``gwsc'' as we
 explain later on. (In the default setting of \verb+ctrl.*+ file, lmf try
@@ -2266,11 +2293,11 @@ how to read atm.* file which is the initial atom file by lmfa.
 xxxxxxxxxx under construction xxxxxxxxxxxxxxxxx
 (See also ecalj/fpgw/Wannier/README)...
 
-We can generate Wannier functions (maximally localized Wannier
-Functions) by a script \exe{genMLWF}.
+We can generate Wannier functions 
+(maximally localized Wannier Functions or similar) 
+by a script \exe{genMLWF}.
 Run examples in \io{ecalj/fpgw/MATERIALS/*MLWF}.
-To run the script, we need to set options
-in GWinput.
+To run the script, we need to set options in GWinput.
 For initial condition, we need
 \begin{verbatim}
 <MLWF>
