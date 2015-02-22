@@ -60,7 +60,7 @@ c      lmxax = nl-1
       call rotcg(nl-1,symope,ngrp,cgr)
       done_rdpp=.true.
       write(6,*)' rdpp_v3:end '
-      end
+      end subroutine rdpp
       end module m_rdpp
 
 
