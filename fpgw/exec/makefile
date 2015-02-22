@@ -288,7 +288,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)sxcf_fal2.sc$(sxcf_g) \
  $(gwsrc)bzints2.o \
  $(gwsrc)wintzsg.o \
- $(nfpsrc)diagcv2.o
+ $(nfpsrc)diagcv2.o \
+ $(gwsrc)m_zmel.o 
 
  SXC = \
  $(main)hsfp0.m.o \
@@ -297,7 +298,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)sxcf_fal2$(sxcf_g) \
  $(gwsrc)bzints2.o \
  $(gwsrc)genallcf_dump.o \
- $(nfpsrc)diagcv2.o
+ $(nfpsrc)diagcv2.o \
+ $(gwsrc)m_zmel.o 
 
  WMAT = \
  $(maxloc)hwmat.o \

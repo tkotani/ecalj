@@ -1,65 +1,86 @@
-      subroutine getsrdpp2(nclass,nl,nxx) !  ngpmx,ngcmx,nxx)
-c get dimensiton for PLN and PPBRD_V2_/atom
-      integer(4)  :: nx(0:2*(nl-1),nclass)
-      character*11 :: filename
-      do ic = 1,nclass
-        filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        ifppb = iopen(filename,0,-1,0)
-        read(ifppb) nblocha,lx, nx(0:2*(nl-1),ic)
-        is = iclose(filename)
-      enddo
-      nxx   = maxval( nx )
-c      ifplane = iopen('PLN',0,-1,0)
-c      read (ifplane) ngpmx, ngcmx
-c      is = iclose('PLN')
-      end
+      module m_rdpp
+!> Read PPBRD_V2_*, radial integerals <p|pb> and so on.
+      integer,parameter:: NULL=-9999
+      integer:: mdimx=NULL,nbloch=NULL
+      integer,allocatable:: nblocha(:) ,lx(:), nx(:,:)
+      real(8),allocatable:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
+      logical:: done_rdpp=.false.
 
-      subroutine getsrdpp(nclass,nl, ngpmx,ngcmx,nxx)
-c get dimensiton for PLN and PPBRD_V2_/atom
-      integer(4)  :: nx(0:2*(nl-1),nclass)
-      character*11 :: filename
-      do ic = 1,nclass
-        filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        ifppb = iopen(filename,0,-1,0)
-        read(ifppb) nblocha,lx, nx(0:2*(nl-1),ic)
-        is = iclose(filename)
-      enddo
-      nxx   = maxval( nx )
-      ifplane = iopen('PLN',0,-1,0)
-      read (ifplane) ngpmx, ngcmx
-      is = iclose('PLN')
-      end
+      contains
+      subroutine rdpp(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas)
+c     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
+      implicit none
+      integer:: nxx,nl,ngrp,nn,nclass
+      integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
+     i      nspin,nblochpmx,
+     &      n1,n2,n3,iq0,
+     &      ifppb(nclass)
+      real(8)    ::  symope(3,3,ngrp),  pi,qbas(3,3)
+      integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
+     &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
+      character*11 :: filename(nclass)
 
-c----------------------------------
+      allocate( nblocha(nclass) ,lx(nclass),
+     &     nx(0:2*(nl-1),nclass),
+     &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
+     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) )
+      write(6,*)" rdpp: "
+!!  Radial integrals ppbrd
+      do ic = 1,nclass
+        filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
+        ifppb(ic) = iopen(filename(ic),0,-1,0)
+        read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+      enddo
+
+c      nxx   = maxval( nx )
+c     nspin =ispin
+      write(6,*)' ppbrd size',nl,nn,nxx,nclass,nspin
+      do ic = 1,nclass
+        do isp= 1,nspin
+c      do ip2= 1,2
+c      do ip1= 1,2
+c        ioff = 1 + (ic-1) + 4*nclass*(isp-1)
+          nxic = maxval( nx(0:2*(nl-1),ic) )
+          read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
+          write(*,*)'srrrrrr cccccccccc',sum(ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)))
+c      enddo;  enddo;
+        enddo
+        is= iclose(filename(ic))
+      enddo
+c Belows overide the values given by genallc.
+      mdimx  = maxval(nblocha)
+      nbloch = sum(nblocha)
+c     call icopy(nclass, nblocha,w(imdim))
+c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
+c --- rotated CG setup
+      write(6,*)' rdpp mdimx=',mdimx
+c      lmxax = nl-1
+      cgr=1d99
+      call rotcg(nl-1,symope,ngrp,cgr)
+      done_rdpp=.true.
+      write(6,*)' rdpp_v3:end '
+      end
+      end module m_rdpp
+
+
+
       subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
-c simple ppbrd.
-c-- read radial integerals <p|pb> and so on.
       implicit none
       integer(4) :: ngpmx,ngcmx,nxx,  nqbz,nqibz, nband,nl,ngrp,
-     i      nclass,nspin,nn,mdimx,nbloch,nblochpmx,
-c     &      ngpn(nqbz),
-c     &      ngvecpB(3,ngpmx,nqbz) ,
-c     &      ngcni(nqibz), ! IBZ !
-c     &      ngveccB(3,ngcmx,nqibz), !,ngveccBr(3,ngcmx,nqibz),
-c     &      iqib(nqbz),
-     &      nx(0:2*(nl-1),nclass), n1,n2,n3,iq0,
+     i      nclass,nspin,nn,nblochpmx,nbloch,mdimx,
+     &      n1,n2,n3,iq0,
      &      nblocha(nclass) ,lx(nclass),ifppb(nclass)
-c      complex(8) :: geigB(ngpmx,nband,nqbz,nspin) !,img=(0d0,1d0),phase2
-      real(8)    ::  symope(3,3,ngrp), !qibz(3,nqibz), qbz(3,nqbz),
-     & cgr(nl**2,nl**2,(2*nl-1)**2,ngrp),    pi,qbas(3,3),
-     & ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass)
-c
-c      complex(8),allocatable:: geig(:,:,:)
-c      integer(4),allocatable:: ngvecp(:,:), ngvecc(:,:)
+      real(8)    ::  symope(3,3,ngrp),  pi,qbas(3,3)
       integer(4) :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
       character*11 :: filename(nclass)
-c
-c      logical:: ifgeigb
-
+      integer:: nx(0:2*(nl-1),nclass)
+      real(8):: ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
+     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) 
       write(6,*)" rdpp_v3: "
-c --- Radial integrals ppbrd
+!!  Radial integrals ppbrd
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
         ifppb(ic) = iopen(filename(ic),0,-1,0)
@@ -90,6 +111,38 @@ c      lmxax = nl-1
       cgr=1d99
       call rotcg(nl-1,symope,ngrp,cgr)
       write(6,*)' rdpp_v3:end '
+      end
+
+      subroutine getsrdpp2(nclass,nl,nxx) !  ngpmx,ngcmx,nxx)
+c get dimensiton for PLN and PPBRD_V2_/atom
+      integer(4)  :: nx(0:2*(nl-1),nclass)
+      character*11 :: filename
+      do ic = 1,nclass
+        filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
+        ifppb = iopen(filename,0,-1,0)
+        read(ifppb) nblocha,lx, nx(0:2*(nl-1),ic)
+        is = iclose(filename)
+      enddo
+      nxx   = maxval( nx )
+c      ifplane = iopen('PLN',0,-1,0)
+c      read (ifplane) ngpmx, ngcmx
+c      is = iclose('PLN')
+      end
+
+      subroutine getsrdpp(nclass,nl, ngpmx,ngcmx,nxx)
+c get dimensiton for PLN and PPBRD_V2_/atom
+      integer(4)  :: nx(0:2*(nl-1),nclass)
+      character*11 :: filename
+      do ic = 1,nclass
+        filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
+        ifppb = iopen(filename,0,-1,0)
+        read(ifppb) nblocha,lx, nx(0:2*(nl-1),ic)
+        is = iclose(filename)
+      enddo
+      nxx   = maxval( nx )
+      ifplane = iopen('PLN',0,-1,0)
+      read (ifplane) ngpmx, ngcmx
+      is = iclose('PLN')
       end
 
 

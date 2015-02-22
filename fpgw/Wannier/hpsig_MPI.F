@@ -59,7 +59,7 @@ c     o   imagw_dummy,niw,idummy,
      & dwry,dwh,omg_c,omg2,xxx
       integer(4)::nwin, incwfin,  verbose
       real(8)::efin
-      integer(4):: bzcase, mrecg,ifphi,
+      integer(4):: mrecg,ifphi, !bzcase, 
      & nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc,
      & ldim2,ixx,ngp1,ngp2,nq0it
       real(8):: qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
@@ -147,14 +147,14 @@ c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
 
-c--- Use regular mesh even for bzcase==2
-      if(bzcase()==2.and.qbzreg()) then
-      deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
-      do i=1,nqbz
-        qbz(:,i) = qbz(:,i) -deltaq/2d0
-        if (myproc.eq.0) write(6,"('i qbz=',i3,3f8.3)") i,qbz(:,i)
-      enddo
-      endif
+c$$$c--- Use regular mesh even for bzcase==2
+c$$$      if(bzcase()==2.and.qbzreg()) then
+c$$$         deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
+c$$$         do i=1,nqbz
+c$$$            qbz(:,i) = qbz(:,i) -deltaq/2d0
+c$$$            if (myproc.eq.0) write(6,"('i qbz=',i3,3f8.3)") i,qbz(:,i)
+c$$$         enddo
+c$$$      endif
 
       if (myproc.eq.0) then
       write(6,*)' ======== nqbz qbz  =',nqbz

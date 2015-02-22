@@ -39,6 +39,7 @@ cccc      use m_rgwinf_v3
      o    nocc(:,:,:),nunocc(:,:,:)
       real(8), allocatable:: 
      o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:)   !w(igrp)
+      logical:: done_genallcf_v3=.false.
 c-----------------------------------------------------------------------
       contains
       subroutine genallcf_v3(nwin,efin,incwfx)
@@ -63,7 +64,6 @@ C--------------------------------------------------------
       character(120):: symgrpt
       real(8),   allocatable:: ecoret(:)
       integer(4),allocatable::ncwf2(:,:,:)
-
 c      logical ::readgwinput
 c----------------------------------------------
       iflmto     = iopen('LMTO',1,0,0)
@@ -354,6 +354,7 @@ c      call defi    (iinvg,ngrp)
 c      is = iclose ('GWIN_V2')
       is = iclose ('ECORE')
       call cputid(0)
+      done_genallcf_v3=.true.
       write(6,*) 'genallcf_v3'
       end subroutine
       end module

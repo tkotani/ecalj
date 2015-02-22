@@ -61,7 +61,7 @@ c     o   imagw_dummy,niw,idummy,
      & dwry,dwh,omg_c,omg2,xxx
       integer(4)::nwin, incwfin,  verbose
       real(8)::efin
-      integer(4):: bzcase, mrecg,ifphi,
+      integer(4)::  mrecg,ifphi,!bzcase,
      & nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc,
      & ldim2,ixx,ngp1,ngp2,nq0it
       real(8):: qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
@@ -178,15 +178,15 @@ c-----------------------------------------------------------------
 
 c--- Use regular mesh even for bzcase==2
       allocate(qbzs(3,nqbz))
-      if(bzcase()==2.and.qbzreg()) then
-      deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
-      do i=1,nqbz
-        qbzs(:,i) = qbz(:,i) -deltaq/2d0
-        if (myproc.eq.0) write(6,"('i qbz=',i3,3f8.3)") i,qbz(:,i)
-      enddo
-ctm 050802
-      if (ixc.le.6) stop "huumat: bzcase=2 is not implemented."
-      endif
+c$$$      if(bzcase()==2.and.qbzreg()) then
+c$$$         deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
+c$$$         do i=1,nqbz
+c$$$            qbzs(:,i) = qbz(:,i) -deltaq/2d0
+c$$$            if (myproc.eq.0) write(6,"('i qbz=',i3,3f8.3)") i,qbz(:,i)
+c$$$         enddo
+c$$$ctm 050802
+c$$$         if (ixc.le.6) stop "huumat: bzcase=2 is not implemented."
+c$$$      endif
       if (myproc.eq.0) then
       write(6,*)' ======== nqbz qbz  =',nqbz
       write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
@@ -380,7 +380,8 @@ c read BBVEC
         allocate (bbv(3,nbb),qbz2(3,nqbz))
         allocate(ibidx(nb1d,nqbz),ibidxs(nb1d,nqbz),
      >           ibidx0(nb1d,nqbz,nq0i),ij1idx(nb1d),ij2idx(nb1d))
-        call  readbb1D(bzcase(),ifbb,nqbz,nspin,nbb,nb1d,nq0i,
+c        call  readbb1D(bzcase(),ifbb,nqbz,nspin,nbb,nb1d,nq0i,
+        call  readbb1D(1,ifbb,nqbz,nspin,nbb,nb1d,nq0i,
      i             qbz,qbzs,q0i,ginv,
      o             bbv,
      o             ibidx,ibidxs,ibidx0,
@@ -443,7 +444,7 @@ c mode 3
 c mode 4
       elseif (ixc .eq. 4) then
          nbbloop = nq0i+1
-         if (bzcase()==2) nbbloop = nq0i+2
+c         if (bzcase()==2) nbbloop = nq0i+2
       if (myproc.eq.0) then
       ifuu(1) = iopen('UU1dU.'//charnum4(0),0,-1,0)
       write(ifuu(1))nqbz,nq0i,nb1d,nbbloop
@@ -608,7 +609,7 @@ c         write(*,*)'iq =',iqbz, 'out of',nq
          nbbloop = nq0i
       elseif (ixc.eq.4) then
          nbbloop = nq0i+1
-         if (bzcase()==2) nbbloop = nq0i+2
+c         if (bzcase()==2) nbbloop = nq0i+2
       elseif (ixc.eq.5) then
          nbbloop = 1
       elseif (ixc.eq.6) then
@@ -661,31 +662,31 @@ c            q2 = qbz(:,iqb)
 
             if (myproc.eq.0)write(*,*)'iq0i  =',ibb, 'out of',nbbloop
 
-            if (bzcase()==2) then 
-              if (ibb.eq.1) then
-                q1(:) = qbz(:,iqbz)
-                q2(:) = q1(:) + bbv(:,1)
-                ij1idx(:) = ibidx(:,iqbz)
-                iqtmp = iqindx(q2(:), ginv,qbz,nqbz)
-                ij2idx(:) = ibidx(:,iqtmp)
-              elseif (ibb.eq.2) then  
-                q1(:) = qbzs(:,iqbz)
-                q2(:) = q1(:) + bbv(:,1)
-                ij1idx(:) = ibidxs(:,iqbz)
-                iqtmp = iqindx(q2(:), ginv,qbzs,nqbz)
-                ij2idx(:) = ibidxs(:,iqtmp)
-              else
-                iq0i = ibb-2
-                q1(:) = qbz(:,iqbz)+q0i(:,iq0i)
-                q2(:) = q1(:) + bbv(:,1)
-                ij1idx(:) = ibidx0(:,iqbz,iq0i)
-                do iq = 1,nqbz
-                   qbz2(:,iq) = qbz(:,iq) + q0i(:,iq0i)
-                enddo   
-                iqtmp = iqindx(q2(:), ginv,qbz2,nqbz)
-                ij2idx(:) = ibidx0(:,iqtmp,iq0i)
-              endif   
-            else  
+c$$$            if (bzcase()==2) then 
+c$$$              if (ibb.eq.1) then
+c$$$                q1(:) = qbz(:,iqbz)
+c$$$                q2(:) = q1(:) + bbv(:,1)
+c$$$                ij1idx(:) = ibidx(:,iqbz)
+c$$$                iqtmp = iqindx(q2(:), ginv,qbz,nqbz)
+c$$$                ij2idx(:) = ibidx(:,iqtmp)
+c$$$              elseif (ibb.eq.2) then  
+c$$$                q1(:) = qbzs(:,iqbz)
+c$$$                q2(:) = q1(:) + bbv(:,1)
+c$$$                ij1idx(:) = ibidxs(:,iqbz)
+c$$$                iqtmp = iqindx(q2(:), ginv,qbzs,nqbz)
+c$$$                ij2idx(:) = ibidxs(:,iqtmp)
+c$$$              else
+c$$$                iq0i = ibb-2
+c$$$                q1(:) = qbz(:,iqbz)+q0i(:,iq0i)
+c$$$                q2(:) = q1(:) + bbv(:,1)
+c$$$                ij1idx(:) = ibidx0(:,iqbz,iq0i)
+c$$$                do iq = 1,nqbz
+c$$$                   qbz2(:,iq) = qbz(:,iq) + q0i(:,iq0i)
+c$$$                enddo   
+c$$$                iqtmp = iqindx(q2(:), ginv,qbz2,nqbz)
+c$$$                ij2idx(:) = ibidx0(:,iqtmp,iq0i)
+c$$$              endif   
+c$$$            else  
               if (ibb.eq.1) then
                 q1(:) = qbz(:,iqbz)
                 q2(:) = q1(:) + q0i(:,ibb)
@@ -703,7 +704,7 @@ c            q2 = qbz(:,iqb)
                 iqtmp = iqindx(q2(:), ginv,qbz2,nqbz)
                 ij2idx(:) = ibidx0(:,iqtmp,iq0i)
               endif   
-            endif  
+c$$$            endif  
          elseif (ixc.eq.5) then
             q1(:) = qband(:,iqbz)
             call findk(q1,qbz,plat,qbas,nqbz,iq2)
@@ -1173,15 +1174,15 @@ c unshifted grid
         ibidx(:,itmp) = ibidx2(:) 
       enddo   
 
-c shifted grid
-      if (ibzcase.eq.2) then
-        do iq = 1,nqbz
-          read(ifbb,*)q(1:3)
-          read(ifbb,*)ibidx2(1:nband)
-          itmp = iqindx(q(:), ginv,qbzs,nqbz)
-          ibidxs(:,itmp) = ibidx2(:) 
-        enddo   
-      endif   
+c$$$c shifted grid
+c$$$      if (ibzcase.eq.2) then
+c$$$        do iq = 1,nqbz
+c$$$          read(ifbb,*)q(1:3)
+c$$$          read(ifbb,*)ibidx2(1:nband)
+c$$$          itmp = iqindx(q(:), ginv,qbzs,nqbz)
+c$$$          ibidxs(:,itmp) = ibidx2(:) 
+c$$$        enddo   
+c$$$      endif   
 
 c +q0 grid
       do iq0=1,nq0i

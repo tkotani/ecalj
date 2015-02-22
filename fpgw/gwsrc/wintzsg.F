@@ -651,9 +651,9 @@ c      complex(8), allocatable :: CC(:,:,:)
       allocate(CC(ngb,nstate,ntq) )
       !write(*,'("10.1 matzwz begin ",$)')
       !call cputid(0)
-      write(6,'(i3,a,10i7)')mpi__rank,'matzwz2 enter',ngb,ngb,ngb,nstate*ntq,ngb,nstate*ntq
+c      write(6,'(i3,a,10i7)')mpi__rank,'matzwz2 enter',ngb,ngb,ngb,nstate*ntq,ngb,nstate*ntq
       call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
-      write(6,*)mpi__rank,'matzwz2 after matm'
+c      write(6,*)mpi__rank,'matzwz2 after matm'
       !write(*,'("10.2 matzwz after matm ",$)')
       !call cputid(0)
 
@@ -695,7 +695,7 @@ C         call zprm('z2r',z2r,ngb,ngb,ntq)
         call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
       endif
       deallocate(CC)
-      write(6,*)mpi__rank,'matzwz2 end'
+c      write(6,*)mpi__rank,'matzwz2 end'
       end subroutine matzwz2
 
 !> even function version of alagr3z

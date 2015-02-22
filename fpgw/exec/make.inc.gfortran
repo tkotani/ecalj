@@ -6,7 +6,7 @@
 #FC = ifort -132 -cm -w90 -w95
 # FC= ifort -132 -check bobunds -traceback !for check array bound
 #FC = f95 
-FC = mpif90
+FC = mpif90 
 #FC = mpiifort -132 
 #FC = f95 
 
@@ -35,29 +35,24 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 
 #(3) Compilar options ###############################################
-# 
-### INTEL FORTRAN PENTIUM4 LINUX ###
-#FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
-#FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
-#FFLAGS=-O3 -cm -WB
-
-#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
-
-# Switch with -O3 caused a stop for gfortran in ubuntu9.10 ---I needed
-# older verion OR no -Osomething options. (only for sxcf.*.F)
-
 FFLAGS=-O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 FFLAGS_OMP=-openmp -O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 FFLAGS_LESS=-O0 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
-#FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
+#debug
+#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+
+
 
 #FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
+#FFLAGS_LESS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
+#FFLAGS_OMP = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
 
 #gfortran
 #FFLAGS=  -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O0  -ffixed-line-length-132
+
 
 
 ### Don't change para_g = .o ... below (or modify it if you know how this work) 

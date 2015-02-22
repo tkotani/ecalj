@@ -44,7 +44,7 @@ c
       real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini
      &            ,eee2,wwg2 ,enumef
 c      real(8) :: efp,efm,wwgo,wfacef
-      logical :: legas,autoew,GaussSmear !is external
+      logical :: legas,autoew ,GaussSmear=.true. !is external
 
       integer(4):: nqbz
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
@@ -53,7 +53,7 @@ c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 C--------------------------------------------------------------------
       autoew =.false.
       if (Is_IO_Root_RSMPI()) then
-        if(GaussSmear()) then
+        if(GaussSmear) then
           write(6,*) ' efsimplef2(gaussian mode):start'
         else
           write(6,*) ' efsimplef2(rectangular mode):start'
@@ -173,7 +173,7 @@ c
 c
       nbnqnsp = nband*nqibz*ispin
 ccc gaussian
-      if(GaussSmear()) then
+      if(GaussSmear) then
         valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))
      &        ,efini,esmr,nbnqnsp)
       else
@@ -191,7 +191,7 @@ ccc gaussian
       nbnqnsp =nband*nqibz*ispin
       do ix = 1,100
         ein = 0.5d0*(ew1+ew2)
-        if(GaussSmear()) then
+        if(GaussSmear) then
           valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp))
      &           ,ektx(ieaord(1:nbnqnsp)),ein,esmr,nbnqnsp)  
         else
@@ -234,7 +234,7 @@ c          return
 c        endif 
 c     enddo
       if (Is_IO_Root_RSMPI()) then
-        if(GaussSmear()) then
+        if(GaussSmear) then
           write(6,*) ' efsimplef2(gauss):end'
         else
           write(6,*) ' efsimplef2:end'

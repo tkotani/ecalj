@@ -158,7 +158,7 @@ c      logical :: sergeys
       character*(150):: ddd
 
 
-      integer(4):: bzcase,  ngpn1,mrecg,verbose,ngcn1,nwxx
+      integer(4)::   ngpn1,mrecg,verbose,ngcn1,nwxx !bzcase,
       real(8)   :: wgtq0p,quu(3)
 
       real(8),allocatable:: freq_r(:)
@@ -632,10 +632,10 @@ c     o            wgt0)
 C--------------------------
       if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)      
       write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
-      if(bzcase()==2) then
-        wgt0= wgt0*wgtq0p()/dble(nqbz)
-        write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
-      endif
+c$$$      if(bzcase()==2) then
+c$$$        wgt0= wgt0*wgtq0p()/dble(nqbz)
+c$$$        write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
+c$$$      endif
 
 c --- qbze(3,nqibze)
       nqbze  = nqbz *(1 + nq0it)

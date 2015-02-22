@@ -11,6 +11,7 @@ c     &   ,n_index_qbz
      &    ,wibz(:),qbzw(:,:), qibz_r(:,:)
       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
      &    ,nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
+      logical:: done_read_bzdata=.false.
 c-----------------------------------------------------------------
       contains
       subroutine read_BZDATA()
@@ -92,7 +93,7 @@ c         write(6,*) " O.K. index_qbz is generated; n=", n
 Cstop2rx 2013.08.09 kino        stop 'read_BZDATA  sum (wibz) is not 2.'
         call rx( 'read_BZDATA  sum (wibz) is not 2.')
       endif
-
+      done_read_bzdata=.true.
       end subroutine
       end module
 

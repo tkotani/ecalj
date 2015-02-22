@@ -1,4 +1,4 @@
-      integer function ifile_hundle()
+      integer function ifile_handle()
 !! find open file handle
       implicit none
       integer:: i
@@ -6,7 +6,7 @@
       do i=5001,9999
          inquire(unit=i,opened=nexist)
          if(.not.nexist) then
-            ifile_hundle=i
+            ifile_handle=i
             return
          endif
       enddo

@@ -1137,12 +1137,10 @@ c        write(6,*)'ddddddddddddd original like mode ddddddddddddddddd'
 #else
           do itp=1,ntp0
             do it=1,nstate
-cooo
               zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
             enddo
           enddo
 #endif
-!KINO          write(*,*)'kino, zmel checksum=',sum(zmel)
         endif
 
         deallocate(rmelt,cmelt)

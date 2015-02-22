@@ -231,7 +231,7 @@ c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 
       integer(4)::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
 
-      integer(4)::verbose,nstbz(nqbz),bzcase,iqini,iqend
+      integer(4)::verbose,nstbz(nqbz),iqini,iqend !bzcase,
       real(8):: wgtq0p
 
       integer(4):: iqindx,nrec,kxx
@@ -338,10 +338,10 @@ c work arrays for psi2br.f
       if(debug) write(6,*) ' sxcf: 1'
       allocate(expikt(natom))
 
-      if(bzcase()==1) then
+c      if(bzcase()==1) then
       if(abs(sum(qibz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qibz/=0 '
       if(abs(sum( qbz(:,1)**2))/=0d0) stop ' sxcf assumes 1st qbz /=0 '
-      endif
+c      endif
 
       do it = 1,nwf
          itq(it) = it
@@ -366,15 +366,15 @@ c      stop "sss"
 c     
 ccccccccccccccccccccccccccccccccc 
 
-      if(bzcase()==1) then
+c      if(bzcase()==1) then
       kx = 1  ! qibz(:,1)=0 contribution for kcount
       if(irk(kx,irot)/=0) kount(kx)= kount(kx) + 1 
 c      kount(kx)= kount(kx) + 1 
-      endif
+c      endif
       
 c --- main loop start
       iqini=2
-      if(bzcase()==2) iqini=1
+c      if(bzcase()==2) iqini=1
       iqend=nqibz+nq0i
 
       if(newansisoW()) then       !takao2012apr
@@ -666,17 +666,17 @@ c rmelt3,cmelt3
 c end of loop over FBZ
       end do
 
-        if(bzcase()==2)then 
-          if(kx<=nqibz) then
-            wtt = wk(kr)
-            if(nstbz(kr)/=0) wtt = wk(kr)*(1d0-wgtq0p()/nstbz(kr))
-ctm nqibz            wtt = wik(kx)*0.5d0
-ctm nqibz            if(nstbz(kr)/=0) wtt = wtt*(1d0-wgtq0p()/nstbz(kr))
-          elseif(kx>nqibz) then  !   wtx= wgt0(kx-nqibz,irot)/dble(nqbz)
-            wtt= wgt0(kx-nqibz,irot)
-ctm nqibz            wtt= wqt(kx-nqibz)*wgtq0p()/dble(nqbz)
-          endif   
-        else
+c$$$        if(bzcase()==2)then 
+c$$$          if(kx<=nqibz) then
+c$$$            wtt = wk(kr)
+c$$$            if(nstbz(kr)/=0) wtt = wk(kr)*(1d0-wgtq0p()/nstbz(kr))
+c$$$ctm nqibz            wtt = wik(kx)*0.5d0
+c$$$ctm nqibz            if(nstbz(kr)/=0) wtt = wtt*(1d0-wgtq0p()/nstbz(kr))
+c$$$          elseif(kx>nqibz) then  !   wtx= wgt0(kx-nqibz,irot)/dble(nqbz)
+c$$$            wtt= wgt0(kx-nqibz,irot)
+c$$$ctm nqibz            wtt= wqt(kx-nqibz)*wgtq0p()/dble(nqbz)
+c$$$          endif   
+c$$$        else
           if(kx<= nqibz) then 
             wtt = wk(kr)                   !         wtx = 1d0
 ctm nqibz            wtt = wik(kx)*0.5d0             !
@@ -685,7 +685,7 @@ ctm nqibz            wtt = wik(kx)*0.5d0             !
 ctm nqibz            wtt = wk(1)*wqt(kx-nqibz)  !
             if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
           endif
-        endif  
+c$$$        endif  
         weight = wtt
 ctm        weight = weight * wik(kx) * 0.5d0 / wk(kr)
         if(debug) then

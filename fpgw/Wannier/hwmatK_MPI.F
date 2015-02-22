@@ -162,7 +162,7 @@ c      logical :: sergeys
       character*(150):: ddd
 
 
-      integer(4):: bzcase,  ngpn1,mrecg,verbose,ngcn1,nwxx
+      integer(4)::  ngpn1,mrecg,verbose,ngcn1,nwxx !bzcase, 
       real(8)   :: wgtq0p,quu(3)
 
       real(8),allocatable:: freq_r(:)
@@ -748,11 +748,11 @@ C--------------------------
       if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)      
       write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
       endif
-      if(bzcase()==2) then
-        wgt0= wgt0*wgtq0p()/dble(nqbz)
-        if (Is_IO_Root_RSMPI())
-     &   write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
-      endif
+c$$$      if(bzcase()==2) then
+c$$$        wgt0= wgt0*wgtq0p()/dble(nqbz)
+c$$$        if (Is_IO_Root_RSMPI())
+c$$$     &   write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
+c$$$      endif
 
 c --- qbze(3,nqibze)
       nqbze  = nqbz *(1 + nq0it)
@@ -853,15 +853,16 @@ c RS: see gwsrc/RSMPI_rotkindex_mod.F
       call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
 !      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0i,nq)
       nq0ixxx=0
-      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0ixxx,1) ! nq=1
+c      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0ixxx,1) ! nq=1
+      call setup_rotkindex(ngrp,irk,wgt0,1,nqibz,nq0ixxx,1) ! nq=1
 
       if (Is_IO_Root_RSMPI()) then ! debug
         if(nq0i/=0) then
           write(6,*) 'RS: total number of k-points should be',
-     &         nqbz +  1/wgt0(1,1)   - 2 + bzcase()
+     &         nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
         else
           write(6,*) 'RS: total number of k-points should be',
-     &         nqbz  - 2 + bzcase()
+     &         nqbz  - 2 + 1 !bzcase()
         endif
       endif
       call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
