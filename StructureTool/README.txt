@@ -62,6 +62,7 @@ We now have three commands below. These command uses functions in convert/, so r
 
 
 You can test it in your new directory with some files in sample/ directory.
-Crystal structure files sample/STRUC-CIF/*.cif are taken from AIST(osaka), http://staff.aist.go.jp/nomura-k/japanese/itscgallary.htm
+Crystal structure files sample/STRUC-CIF/*.cif are taken from
+AIST(osaka), http://staff.aist.go.jp/nomura-k/japanese/itscgallary.htm
 
 

@@ -14,20 +14,21 @@ argc  = len(argvs)
 if ('--help' in argvs or argc == 1): 
 	print
 	print ' == Convert POSCAR file (vasp format) to ctrls (ecalj format) =='
-	print '  Usage: vasp2ctrl foobar.vasp   [option] '
-	print '         foobar.vasp is the file name in POSCAR format (.vasp is necessary)'
-	print '         Then we have ctrls.foobar        '
+	print '  Usage: vasp2ctrl POSCARfoobar   [option] '
+	print '         POSCARfoobar is the file name in POSCAR format (vasp5)'
+	print '         Then we have ctrls.POSCARfoobar.vasp2ctrl     '
 	print '  Option: --alat=10.66 (Set ALAT in a.u.; Use eqs such as 10.66*1.88)'
 	print '         To get clean ctrl file, set --alat= as a lattice constant in a.u.'
 	print ''
 	sys.exit(-1)
-for ix in argvs:
-	if '.vasp' in ix: 
-		print ' Read ', ix, '. It is converted to ctrl file now.'
-		ext2=ix
+#for ix in argvs:
+#	if '.vasp' in ix: 
+#		print ' Read ', ix, '. It is converted to ctrl file now.'
+ext2=argvs[1]
+print ext2
 #		ext1=re.sub('POSCAR_','',ix)
 #		ext2=re.sub('.vasp','',ext1)
-		break
+#		break
 	# elif '.cif' in ix: 
 	# 	ext1 = re.sub('.cif','',ix)
 	# 	ext2 = re.sub('.vasp','',ext1)
