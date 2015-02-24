@@ -3,7 +3,7 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -132 -xHost -mcmodel=medium -heap-arrays 0
+FC = mpif90 -132 -xHost -mcmodel=medium -heap-arrays 100
 #FC = f95 
 
 # -cm is supress all comment.

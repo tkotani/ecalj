@@ -32,4 +32,4 @@ make PLATFORM=ifort.cmd LIBMATH="$MATH"
 make BINDIR=$BINDIR PLATFORM=ifort.cmd install
 
 cd ../../TestInstall/
-make mpi_size=4 all
+make mpi_size=6 all
