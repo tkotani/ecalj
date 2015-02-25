@@ -19,7 +19,7 @@ C ----------------------------------------------------------------------
       parameter(nqmx=4500, maxlin=50, louts=140, nouts=80 )
       double precision xline(0:maxlin),xdum(2),ydum(2)
       double precision xq(0:nqmx),eq(nqmx),dmass,polinta,kef,aotpi
-      real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:),diffeb(:)
+      real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:),diffeb(:),diff2eb(:)
       double precision dq,emin,ebot,ebotb,etopb,emax,htcm,
      .etik,xmin,xmax,ql1,ql2,ql3,e,h,x,q1,q2,q3,eferm,efermm,widcm,
      .etop,xq0,efnew,scl,syma(4),clip(4),fgs(0:3),sgs(0:4),qm1,qm2,
@@ -49,6 +49,12 @@ C Heap allocation
       logical:: lgnuplot 
       integer::iqstart=0
 #endif
+      real(8),parameter :: pi=4d0*atan(1d0)
+      real(8)::twopi
+      integer:: nsize,iqq
+      real(8),allocatable:: eband(:),kband(:)
+
+      twopi=2d0*pi
 
 C --- Setup and defaults ---
       xnfmt = '%;4d'
@@ -230,7 +236,7 @@ C       For color weights, icolwt must be a positive integer
       endif
 
 C#ifdef F90
-      allocate(eb(nbf,nqmx),eb2(nbf),diffeb(nqmx))
+      allocate(eb(nbf,nqmx),eb2(nbf),diffeb(nqmx),diff2eb(nqmx))
       diffeb=0d0
       if (icolwt .ne. 0) then
         allocate(ebw(nbf,nqmx,icolwt),ebw2(nbf,icolwt))
@@ -477,19 +483,20 @@ C   ... Assign line type to character variable
         endif
         outs(1) = 'fplot '
         nq1 = 0
+
 ckino2012Aug12 comment k-path loop 
         do  40  iline = 1, nline+1
           call awrit5('%a'//
-     .    '%?#n==1#%N%% var ymin=%;3d ymax=%;3d%N#%2j#'//
-     .    ' -frme %;3d,%;3d,0,1 -p0 -x 0,1 -y {ymin},{ymax}'//
-     .    ' -noxn -1p',outs(iouts),louts,0,iline,emin,emax,
-     .    xline(iline-1)/(xmax-xmin),xline(iline)/(xmax-xmin))
+     .      '%?#n==1#%N%% var ymin=%;3d ymax=%;3d%N#%2j#'//
+     .      ' -frme %;3d,%;3d,0,1 -p0 -x 0,1 -y {ymin},{ymax}'//
+     .      ' -noxn -1p',outs(iouts),louts,0,iline,emin,emax,
+     .      xline(iline-1)/(xmax-xmin),xline(iline)/(xmax-xmin))
           if (title .ne. ' ') then
-            call strip(outs(1),ib1,ib2)
-            outs(1)(ib2+1:) = ' -tl "' // title
-            call strip(outs(1),ib1,ib2)
-            outs(1)(ib2+1:ib2+1) = '"'
-            title = ' '
+             call strip(outs(1),ib1,ib2)
+             outs(1)(ib2+1:) = ' -tl "' // title
+             call strip(outs(1),ib1,ib2)
+             outs(1)(ib2+1:ib2+1) = '"'
+             title = ' '
           endif
 C         make ib1,ib2 = indices to lowest, highest band for this panel
           ib1 = nb+1
@@ -500,135 +507,163 @@ C         make ib1,ib2 = indices to lowest, highest band for this panel
             do  20  iq = 1+nq1, nql(iline)+nq1
               ebotb = dmin1(ebotb,eb(ib,iq))
               etopb = dmax1(etopb,eb(ib,iq))
-   20       continue
+ 20         continue
             if (ebotb .lt. emax .and. etopb .gt. emin) then
-              ib1 = min(ib1,ib)
-              ib2 = max(ib2,ib)
+               ib1 = min(ib1,ib)
+               ib2 = max(ib2,ib)
             endif
-   30     continue
+ 30       continue
 
 C         Open band file for this panel
+!! bnd{iline}.dat file 
           call awrit3(' write file bnd%i.'//datnam//'%a, bands %i - %i',
-     .    ' ',80,i1mach(2),iline,ib1,ib2)
+     .      ' ',80,i1mach(2),iline,ib1,ib2)
           lenf = awrite('bnd%i.'//datnam//'%a',s,len(s),0,iline,0,0,0,0,
-     .    0,0,0)
+     .      0,0,0)
           open(10, file=s(1:lenf), status='UNKNOWN', err=99)
 
           if (lcol3) then
-            if (cmdopt('-col3:',6,0,ss)) then
-              fncol3 = trim(ss(7:)) // '/' // s
-            elseif (cmdopt('--col3:',7,0,ss)) then
-              fncol3 = trim(ss(8:)) // '/' // s
-            else
-              fncol3 = 'tmp/' // s
-            endif
+             if (cmdopt('-col3:',6,0,ss)) then
+                fncol3 = trim(ss(7:)) // '/' // s
+             elseif (cmdopt('--col3:',7,0,ss)) then
+                fncol3 = trim(ss(8:)) // '/' // s
+             else
+                fncol3 = 'tmp/' // s
+             endif
           endif
 
-#ifdef GNUPLOT
+c#ifdef GNUPLOT
           if (lgnuplot) then
              if (ncolwt>0) then
                 if (ncolwt>17) then 
 c              ---       format xq,xq,energy,weight(1: )
 c              ---          max. number of all the data is 20 now.
 c              ---       then max. number of weight data is 17 now.
-                      write(*,*)'Error, please increase format string in writng ebw'
+                   write(*,*)'Error, please increase format string in writng ebw'
                 endif
              endif
           endif
 
-#endif
+c#endif
 
 C         Two distinct spin channels: write them both out
           if (cmdopt('-fplot:s',8,0,ss)) then
-            if (ls1 .or. ls2) then
-               write(*,*)  "Error: This is both spin mode. You can't apply -spin1 or -spin2"
-               stop
-            endif
-            if (mod(nql(iline),2) .ne. 0) then
-              write(*,*) 'nql=', nql(iline)
-              call rx('spin pol bands should have even nq')
-            endif
-            j = 2*(ib2-ib1+1)
-            if (ncolwt .ne. 0) j = j*(ncolwt+1)
+             if (ls1 .or. ls2) then
+                write(*,*)  "Error: This is both spin mode. You can't apply -spin1 or -spin2"
+                stop
+             endif
+             if (mod(nql(iline),2) .ne. 0) then
+                write(*,*) 'nql=', nql(iline)
+                call rx('spin pol bands should have even nq')
+             endif
+             j = 2*(ib2-ib1+1)
+             if (ncolwt .ne. 0) j = j*(ncolwt+1)
 C#ifdef GNUPLOT
-         if (lgnuplot) then 
-           if (ncolwt.ne.0) then
-              write(*,*)'error, ncolwt.ne.0, color weight plot is not supported'
-              stop 
-           endif
-           iqstart=0
-           if (ls1) then; iqstart=0; elseif (ls2) then; iqstart=1;endif
-           do ib=ib1,ib2
-              do iq=1+nq1+iqstart,  nql(iline)+nq1,2
-               if (ncolwt>0) then
-                write(10,'(20F20.10)') 
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        xq(iq),
-     .        eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
-               else
-                write(10,'(3F20.10)') 
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        xq(iq),
-     .        eb(ib,iq)
-               endif
-              enddo 
-             write(10,*) ''
-           enddo
-         else  !--- lgnuplot 
+             if (lgnuplot) then 
+                if (ncolwt.ne.0) then
+                   write(*,*)'error, ncolwt.ne.0, color weight plot is not supported'
+                   stop 
+                endif
+                iqstart=0
+                if (ls1) then; iqstart=0; elseif (ls2) then; iqstart=1;endif
+                   do ib=ib1,ib2
+c$$$!! --------------------------
+c$$$                     nsize= (nql(iline)+nq1 -nq1+iqstart)/2 + 1
+c$$$                     allocate(eband(nsize),kband(nsize))
+c$$$                     print *,'iline nsize=',iline,nsize
+c$$$                     iqq=0
+c$$$                     do iq=1+nq1+iqstart,  nql(iline)+nq1,2
+c$$$                       iqq=iqq+1
+c$$$                       eband(iqq)= eb(ib,iq)
+c$$$                       kband(iqq)= xq(iq) !twopi/alat* xq(iq)
+c$$$                     enddo
+c$$$                     if(nsize/=iqq) stop 'nsize/=i: plbnds'
+c$$$!!
+                     iqq=0
+                     do iq=1+nq1+iqstart,  nql(iline)+nq1,2
+                       iqq=iqq+1
+!! In ecalj, we don't use ncolwt>0. (We use --mkprocar mode instead).
+                       if (ncolwt>0) then
+                          write(10,'(20F20.10)') 
+     .                      (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                      xq(iq),
+     .                      eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
+                       else
+                          write(10,'(20F20.10)') 
+     .                      (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                      xq(iq)
+c     .               eb(ib,iq),eband(iqq)
+                       endif
+
+
+                     enddo 
+                     write(10,*) ''
+                   enddo
+                else            !--- lgnuplot 
 C#else
-            call awrit2('%% rows %i cols %i',' ',80,10,nql(iline)/2,1+j)
-            do  36  iq = 1+nq1, nql(iline)+nq1,2
-              write(10,333)
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        (eb(ib,iq),eb(ib,iq+1),ib=ib1,ib2)
-              if (ncolwt .ne. 0) then
-                do  j = 1, ncolwt
-                  write(10,334) (ebw(ib,iq,j),ebw(ib,iq+1,j),ib=ib1,ib2)
-                enddo
-              endif
-   36       continue
-        endif   !---- lgnuplot
+                   call awrit2('%% rows %i cols %i',' ',80,10,nql(iline)/2,1+j)
+                   do  36  iq = 1+nq1, nql(iline)+nq1,2
+                     write(10,333)
+     .                 (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                 (eb(ib,iq),eb(ib,iq+1),ib=ib1,ib2)
+                     if (ncolwt .ne. 0) then
+                        do  j = 1, ncolwt
+                          write(10,334) (ebw(ib,iq,j),ebw(ib,iq+1,j),ib=ib1,ib2)
+                        enddo
+                     endif
+ 36                continue
+                endif           !---- lgnuplot
 C#endif
 
 C         Write out bands and optional weights
-          else
-            j = ib2-ib1+1
-            if (ncolwt .ne. 0) j = j*(ncolwt+1)
+             else
+                j = ib2-ib1+1
+                if (ncolwt .ne. 0) j = j*(ncolwt+1)
 C#ifdef GNUPLOT
-          if (lgnuplot)then
-            do ib=ib1,ib2
-c$$$cccccccccccccccccccc
-c$$$ special for mass of LaMnO3
-c$$$              diffeb=0d0
-c$$$              do iq=1+nq1+1, nql(iline)+nq1-1
-c$$$                diffeb(iq) = (eb(ib,iq+1)-eb(ib,iq-1))/(xq(iq+1)-xq(iq-1))/13.605d0
-c$$$              enddo
+                if (lgnuplot)then
+                   do ib=ib1,ib2
+!! 1st and 2nd derivative. diffeb and diff2eb
+                     do iq=1+nq1+1, nql(iline)+nq1-1
+                       diffeb(iq)=(eb(ib,iq+1)-eb(ib,iq-1))/(xq(iq+1)-xq(iq-1))
+                     enddo
+                     diffeb(1+nq1)             =   polinta( xq(1+nq1), 
+     &                 xq(1+nq1+1), diffeb(1+nq1+1), nql(iline)-2)
+                     diffeb(nql(iline)+nq1)    =   polinta( xq(nq1+nql(iline)), 
+     &                 xq(1+nq1+1), diffeb(1+nq1+1), nql(iline)-2)
+
+                     do iq=1+nq1+1, nql(iline)+nq1-1
+                       diff2eb(iq)=(diffeb(iq+1)-diffeb(iq-1))/(xq(iq+1)-xq(iq-1))
+                     enddo
+                     diff2eb(1+nq1)            =   polinta( xq(1+nq1), 
+     &                 xq(1+nq1+1), diff2eb(1+nq1+1), nql(iline)-2)
+                     diff2eb(nql(iline)+nq1) =   polinta( xq(nq1+nql(iline)), 
+     &                 xq(1+nq1+1), diff2eb(1+nq1+1), nql(iline)-2)
+
 c$$$              dmass=-1d10
 c$$$              if(maxval(eb(ib,1+nq1+1:nql(iline)+nq1-1))>0d0 .and.
 c$$$     &           minval(eb(ib,1+nq1+1:nql(iline)+nq1-1))<0d0) then
 c$$$                dmass=polinta(0d0,eb(ib,1+nq1+1:nql(iline)+nq1-1),diffeb(1+nq1+1),nql(iline)-2)
 c$$$                kef=polinta(0d0,eb(ib,1+nq1:nql(iline)+nq1),xq(1+nq1),nql(iline))
 c$$$              endif
-c$$$cccccccccccccccccccc
-
-              do iq=1+nq1, nql(iline)+nq1
-                 if (ncolwt>0) then
-                 write(10,'(20f20.10)')
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        xq(iq),
-     .        eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
-                 else
-                 write(10,'(4f20.10," --------------------")')
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        xq(iq),
-     .        eb(ib,iq) !,diffeb(ib)
+cccccccccccccccccccc
+                     do iq=1+nq1, nql(iline)+nq1
+                       if (ncolwt>0) then
+                          write(10,'(20f20.10)')
+     .                      (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                      xq(iq),
+     .                      eb(ib,iq), (ebw(ib,iq,j),j=1,ncolwt) 
+                       else
+                          write(10,'(2f13.8,20f17.10," --------------------")')
+     .                      (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                      xq(iq),
+     .                      eb(ib,iq),diffeb(iq),diff2eb(iq)
 c$$$ special for mass of LaMnO3
 c$$$              if(abs(eb(ib,iq))<1d-1) then
 c$$$                write(6,'(4f20.4)') xq(iq),eb(ib,iq),diffeb(iq)
 c$$$              endif
-                 endif
-              enddo
-              write(10,*)''
+                       endif
+                     enddo
+                     write(10,*)''
 c$$$ special for mass of LaMnO3
 c$$$              if(dmass>-1d5) then
 c$$$c                 aotpi=2d0*3.1415926d0/(3.905d0/.529177d0) !LNAO
@@ -642,85 +677,85 @@ c$$$c     &                                                    ,(kef-xq(1+nq1))/
 c$$$c     &                                                    ,(xq(nql(iline)+nq1)-kef)/dmass
 c$$$                 write(6,*)
 c$$$              endif
-            enddo
-          else ! lgnuplot
+                   enddo
+                else            ! lgnuplot
 C#else
-            call awrit2('%% rows %i cols %i',' ',80,10,nql(iline),1+j)
-            do  35  iq = 1+nq1, nql(iline)+nq1
-              write(10,333)
-     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .        (eb(ib,iq),ib=ib1,ib2)
-              if (ncolwt .ne. 0) then
-                do  j = 1, ncolwt
-                  write(10,334) (ebw(ib,iq,j),ib=ib1,ib2)
-                enddo
-              endif
-   35       continue
+                   call awrit2('%% rows %i cols %i',' ',80,10,nql(iline),1+j)
+                   do  35  iq = 1+nq1, nql(iline)+nq1
+                     write(10,333)
+     .                 (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .                 (eb(ib,iq),ib=ib1,ib2)
+                     if (ncolwt .ne. 0) then
+                        do  j = 1, ncolwt
+                          write(10,334) (ebw(ib,iq,j),ib=ib1,ib2)
+                        enddo
+                     endif
+ 35                continue
 C#endif
-          endif ! lgnuplot 
-          endif
+                endif           ! lgnuplot 
+             endif
 
 C         Build up mc command for color merge
-          if (lcol3 .and. ncolwt .ne. 0) then
-            j = ib2-ib1+1
+             if (lcol3 .and. ncolwt .ne. 0) then
+                j = ib2-ib1+1
 C           if (ncolwt .ne. 0) j = j*(ncolwt+1)
 c            print *, '-qr', s(1:lenf), ' -qr ' 'tmp/'//s(1:lenf)
-            call awrit2('%a -qr '//s(1:lenf)//' -qr '//trim(fncol3)//
-     .      ' -sub 1,nr,%i,%i -ccat -w '//s(1:lenf),scol3,len(scol3),
-     .      0,2+j,1+2*j)
-          endif
+                call awrit2('%a -qr '//s(1:lenf)//' -qr '//trim(fncol3)//
+     .            ' -sub 1,nr,%i,%i -ccat -w '//s(1:lenf),scol3,len(scol3),
+     .            0,2+j,1+2*j)
+             endif
 
-  333     format(f8.5,9f9.4:/(8x,9f9.4))
-  334     format((8x,9f9.4))
-          close(10)
-          nq1 = nq1 + nql(iline)
-          if (iline .gt. 1)call awrit1('%a -noyn',outs(iouts),louts,0,1)
-          iouts = iiouts(outs,iouts,louts+64)
-          if (iouts .gt. nouts) call rx('plbnd output string too long')
-          ib = 1+(ib2-ib1+1)
-          if (cmdopt('-fplot:s',lenf,0,ss)) ib = 1+2*(ib2-ib1+1)
-          jb = 1+2*(ib2-ib1+1)
-          if (cmdopt('-fplot:s',lenf,0,ss)) jb = 1+4*(ib2-ib1+1)
-          kb = 1+3*(ib2-ib1+1)
-          lb = 1+4*(ib2-ib1+1)
-          if (cmdopt('-fplot:s',lenf,0,ss)) kb = 1+6*(ib2-ib1+1)
+ 333         format(f8.5,9f9.4:/(8x,9f9.4))
+ 334         format((8x,9f9.4))
+             close(10)
+             nq1 = nq1 + nql(iline)
+             if (iline .gt. 1)call awrit1('%a -noyn',outs(iouts),louts,0,1)
+             iouts = iiouts(outs,iouts,louts+64)
+             if (iouts .gt. nouts) call rx('plbnd output string too long')
+             ib = 1+(ib2-ib1+1)
+             if (cmdopt('-fplot:s',lenf,0,ss)) ib = 1+2*(ib2-ib1+1)
+             jb = 1+2*(ib2-ib1+1)
+             if (cmdopt('-fplot:s',lenf,0,ss)) jb = 1+4*(ib2-ib1+1)
+             kb = 1+3*(ib2-ib1+1)
+             lb = 1+4*(ib2-ib1+1)
+             if (cmdopt('-fplot:s',lenf,0,ss)) kb = 1+6*(ib2-ib1+1)
 
-          call awrit2('%a -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 '//
-     .    '-tp 2~0,%1;4d,1,%1;4d -lt 1',
-     .    outs(iouts),louts,0,efnew,efnew)
-          iouts = iiouts(outs,iouts,louts+90)
-          if (iouts .gt. nouts) call rx('plbnd output string too long')
-          if (ncolwt .eq. 2 .and. lcol3) then
-            call awrit8('%a -colsy 2:%i'//
-     .      ' -colsw %i:%i -colsw2 %i:%i -colsw3 %i:%i '//ltype//
-     .      '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
-     .      0,ib,ib+1,jb,jb+1,kb,kb+1,lb,iline)
-          elseif (ncolwt .eq. 2) then
-            call awrit6('%a -colsy 2:%i'//
-     .      ' -colsw %i:%i -colsw2 %i:%i '//ltype//
-     .      '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
-     .      0,ib,ib+1,jb,jb+1,kb,iline)
-          elseif (ncolwt .ne. 0) then
-            call awrit4('%a -colsy 2:%i'//
-     .      ' -colsw %i:%i '//ltype//'%a -qr bnd%i.'//datnam//'%a',
-     .      outs(iouts),louts,0,ib,ib+1,jb,iline)
-          else
-            call awrit2('%a -colsy 2:%i '//
-     .      ltype//'%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,0,
-     .      ib,iline)
-          endif
+             call awrit2('%a -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 '//
+     .         '-tp 2~0,%1;4d,1,%1;4d -lt 1',
+     .         outs(iouts),louts,0,efnew,efnew)
+             iouts = iiouts(outs,iouts,louts+90)
+             if (iouts .gt. nouts) call rx('plbnd output string too long')
+             if (ncolwt .eq. 2 .and. lcol3) then
+                call awrit8('%a -colsy 2:%i'//
+     .            ' -colsw %i:%i -colsw2 %i:%i -colsw3 %i:%i '//ltype//
+     .            '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
+     .            0,ib,ib+1,jb,jb+1,kb,kb+1,lb,iline)
+             elseif (ncolwt .eq. 2) then
+                call awrit6('%a -colsy 2:%i'//
+     .            ' -colsw %i:%i -colsw2 %i:%i '//ltype//
+     .            '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
+     .            0,ib,ib+1,jb,jb+1,kb,iline)
+             elseif (ncolwt .ne. 0) then
+                call awrit4('%a -colsy 2:%i'//
+     .            ' -colsw %i:%i '//ltype//'%a -qr bnd%i.'//datnam//'%a',
+     .            outs(iouts),louts,0,ib,ib+1,jb,iline)
+             else
+                call awrit2('%a -colsy 2:%i '//
+     .            ltype//'%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,0,
+     .            ib,iline)
+             endif
 
 C     ... Symmetry label, if there is one
-          if (iline .le. nlab) then
-            iouts = iiouts(outs,iouts,louts+30)
-            call awrit3('%a -font %?#n#s#t#24'//
-     .      ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
-     .      lab(iline),outs(iouts),louts,0,isw(lab(iline).eq.'G'),
-     .      0d0,emin-(emax-emin)/60)
-          endif
-          iouts = iiouts(outs,iouts,louts+10)
-          if (iouts .gt. nouts) call rx('plbnd output string too long')
-   40   continue
+             if (iline .le. nlab) then
+                iouts = iiouts(outs,iouts,louts+30)
+                call awrit3('%a -font %?#n#s#t#24'//
+     .            ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
+     .            lab(iline),outs(iouts),louts,0,isw(lab(iline).eq.'G'),
+     .            0d0,emin-(emax-emin)/60)
+             endif
+             iouts = iiouts(outs,iouts,louts+10)
+             if (iouts .gt. nouts) call rx('plbnd output string too long')
+ 40        continue
 ckino 2012Aug12 comment iloop , k-path loop end
 
 C#ifdef GNUPLOT
@@ -730,6 +765,8 @@ C#ifdef GNUPLOT
         write(*,*)''
         open(20,file='bnds.gnu',status='unknown')
         nq1=0
+        write(20,'(a)') 'set xzeroaxis'
+        write(20,'(a)') 'set grid'
         write(20,'(a,F12.5,a)')'set ylab "Energy(Ry*',scl,')"'
         write(20,'(a,F12.5,a,F12.5,a)') 'set yra [',emin,':',emax,']'
         write(20,'(a,$)') 'set xtics ('

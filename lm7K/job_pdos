@@ -67,6 +67,8 @@ do
   echo set title \"PDOS s\,p\,d\,f\,g division in MuffinTin\" >> ${ufileg}
   echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
   echo set ylabel \" number of states/\(cell eV\)\" >> ${ufileg}
+  echo set xzeroaxis >> ${ufileg}
+  etho set grid >> ${ufileg}
 
   if [ -e $dfile ] ; then
       echo set yrange [-5:5] >> ${ufileg}

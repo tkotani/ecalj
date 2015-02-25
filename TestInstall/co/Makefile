@@ -5,6 +5,7 @@ TARGET=co
 out1=out.lmf.$(TARGET)
 out2=out.lmf-dos.$(TARGET)
 out2x=pdos.$(TARGET)
+out2xx=bnds.$(TARGET)
 
 all: help
 
@@ -31,9 +32,9 @@ define test1.exec
 	rm mixm.$(TARGET)
 	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
 		--pr31 --no-iactiv --time=5 >> $1 2>&1
-#	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
-#		--no-iactiv -vso=t \
-#		--band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml >> $1 2>&1
+	$(LMFP)  $(TARGET) -vmet=4  -vnk=8 -vnit=3 --pr31 \
+		--no-iactiv -vso=t \
+		--band:fn=syml >> $1 2>&1  #-vlmf=1
 endef
 
 #----- subroutine test2.exec
@@ -62,15 +63,15 @@ define plot.plbnds
 	@echo "[note] run make plot-band to plot band"
 endef
 
-#----- subroutine plot.pldos
-define plot.pldos
-	echo 30 15 -.8 .7 | $(bindir)/pldos '-lst=1;3,5,7;9,11,13,15,17' \
-		'-lst2=2;4,6,8;10,12,14,16,18' -fplot \
-		pdos.$(TARGET) > plot.log 2>&1
-	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
-	mv ps.dat ps.pldos.dat
-	@echo "[note] run make plot-dos to plot dos"
-endef
+# #----- subroutine plot.pldos
+# define plot.pldos
+# 	echo 30 15 -.8 .7 | $(bindir)/pldos '-lst=1;3,5,7;9,11,13,15,17' \
+# 		'-lst2=2;4,6,8;10,12,14,16,18' -fplot \
+# 		pdos.$(TARGET) > plot.log 2>&1
+# 	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
+# 	mv ps.dat ps.pldos.dat
+# 	@echo "[note] run make plot-dos to plot dos"
+# endef
 
 
 ###########################################################
@@ -81,12 +82,14 @@ $(TARGET).exec:
 	rm -f atm.* mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*
 	$(call test2.exec,$(out2))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
+	$(call test2.check,$(REFDIR)/$(out2xx),$(out2xx))
 
 # check
 $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
-	$(call plot.plbnds)
+	$(call test2.check,$(REFDIR)/$(out2xx),$(out2xx))
+#	$(call plot.plbnds)
 #	$(call plot.pldos)
 
 # exec case1 for $(TARGET).

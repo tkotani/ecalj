@@ -245,14 +245,14 @@ c#endif
 
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
-     .  , i , iopq , iq , ismidb ,  ldos , lmet , nspc  
+     .  , i , iq , ismidb ,  ldos , lmet , nspc  
      .  , lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
      .  , stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lnoxc , lrsig , lwsig , jobgw , nll !, lpdiag 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
-     .  , onesp , nfbn(2) , mpipid , ldham(8,2) , ldim , ndimh , ndimhx 
+     .  , onesp , nfbn(2) , mpipid , ldham(16) , ldim , ndimh , ndimhx 
      .  , lekkl
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
@@ -285,7 +285,7 @@ ckino lswtk must be 0 initially.
       type(s_rv1) :: sv_p_oqkkl(3,nbx)
       type(s_rv1) :: sv_p_otau(3,nbx)
       type(s_rv1) :: sv_p_osig(3,nbx)
-      equivalence (ldim,ldham(1,1))
+c      equivalence (ldim,ldham(1,1))
       logical a2bin
       integer:: ospotx , osgw
       type(s_rv1) :: sv_p_oppix(3,nbx)
@@ -427,12 +427,16 @@ c mar2014
       logical:: fullmesh
 
       integer,allocatable:: ipqe(:,:,:),idtete(:,:)
-      integer:: ntete,init,ient,nchanp,fopnn,nevmin,ifip
+      integer:: ntete,init,ient,nchanp,fopnn,nevmin,ifip,ifsyml,isyml
       real(8):: qx(3)
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
       character*3::charnum3
       character*100::filenm(2)
-      real(8)::eminp,emaxp
+      real(8):: eminp,emaxp
+!! direct read syml
+      integer,parameter:: nsymlmax=100
+      integer:: nqp_syml(nsymlmax),nsyml,fopno,ikp,ifbnd
+      real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
 
 
       call tcn ('bndfp')
@@ -592,8 +596,11 @@ ctakao sep2010 !complicated.
 c      I think nspc=2 for non-colinear case.
 c      allocate(evl(ndham,2))
       allocate(evl(ndhamx,nspx))
-      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
-      pwmode =sham%pwmode
+c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
+      ldham = sham%ldham
+      ldim = ldham(1)
+      if(size(sham%ldham)/=size(ldham))call rx("bndfp:size(sham%ldham)/=size(ldham)")
+      pwmode = sham%pwmode
       if (procid .eq. master) then
          ifiese=9039
          inquire(unit=ifiese,opened=nexist)
@@ -1053,7 +1060,7 @@ C       Try and read Fermi level from file
          if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
 ckino getef is integer          call getef(ifi,0,ef0)
-            i_dummy_getef= getef(ifi,0,ef0)
+            i_dummy_getef= getef(ifi,0,ef0) !Is this necessar???
             call fclr('wkp',ifi)
          endif
          call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
@@ -1074,173 +1081,109 @@ Changenglob        nlmax = nglob('nlmax')
          orbtm_rv(:)=0.0d0
       endif
 
-!! takao. suqlst mechanism is too complicated... we need to remove this ...
-!! === set up qplist
+!! === Get nkp and qplist =========== feb2015
+!! fatband mode ---> --mkprocar
+!! plbnd/=0 ---> band plot mode.
       if(debug) write(*,*) 'bndfp: uuuuuuu1111111'
-      if (plbnd .ne. 0) then
-C       Try and read Fermi level from file
-         if (procid .eq. master) then
-            ifi = fopna('wkp',-1,4)
-            i_dummy_getef= getef(ifi,0,ef0)
-            call fclr('wkp',ifi)
-         endif
-c         iopq = 0
-c#if MPIK
-c         iopq = 2
-c#endif
-C       suqlst in MPIK mode; returns cumulative number of k-points
-         iopq = 2
-
+      if(allocated(qplist)) deallocate(qplist)
+      if( procid==master .and. plbnd==0) then
+         allocate(qplist(3,nkp))
+         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1)
+      elseif(procid==master) then
          if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
-         i = nsp
-         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1  
-
-C       In parallel mode, suqlst call only serves to generate nkp
          if(debug) print *,'vvvvv nkp=',nkp
 ckino plotting wavefunction
 c         write(*,*)'allocate listwf , size=',ndham
 c         if (allocated(listwf))  deallocate(listwf)
 c         allocate(listwf(ndham))
 c         n_listwf=ndham; listwf=0
-         if (procid .eq. master.and. fullmesh) then
+         if(fullmesh) then
             nkp = nkk1*nkk2*nkk3
-c            n_listwf=0
-         elseif (procid .eq. master) then
-c            write(*,*) 'calling suqlst'
-            call suqlst ( plbopt , iopq , ndhamx , ef0 , nspx , iwdummy , nfbn 
-     .        , ifbls_iv , nkp , qp , onespdummy )
-!! takao fat band mode is removed. Use procar mode instead!
-c$$$ckino       fat band and write psi
-c$$$            n_listwf=0
-c$$$ckino           write(*,*)'checking --writewf option'
-c$$$ckino
-c$$$ckino  Usage: also use fat band option
-c$$$ckino    --band~col=1:8~fn=syml --writewf:band=1:10
-c$$$ckino         if you want to write wavefunction (F0) from the 1st to 10th band
-c$$$ckino
-c$$$ckino         q-list must be set in the syml file
-c$$$ckino         For example, if you want to write the wavefunction at the gamma point
-c$$$ckino            ' 2   0 0 0  1 0 0 '
-c$$$ckino            ' 0   0 0 0  0 0 0 '
-c$$$ckino           is necessary. It also write the wavefunction at k=(1 0 0).
-c$$$ckino
-c$$$            strn=' '
-c$$$            if (cmdopt('--writewf',9,0,strn)) then
-c$$$               call w_psir_cmdopt(strn(10:),ndham,n_listwf,listwf)
-c$$$               write(*,*)'--writewf option, ndham,n_listwf=',ndham,n_listwf
-c$$$               write(*,'(8I5)')  listwf(1:n_listwf)
-c$$$            endif
-         endif
-         call mpibc1(nkp,1,2,mlog,'bndfp','nkp')
-         if (nkp .le. 0) call rx0('bndfp')
-         call mpibc1(nfbn,2,2,mlog,'bndfp','nfbn')
-         call mpibc1(onesp,1,2,mlog,'bndfp','onesp')
-c         call mpibc1(n_listwf,1,2, mlog,'bndfp','n_listwf') !ckino plotting wavefunction
-c         if (n_listwf>0) then
-c            call mpibc1(listwf,n_listwf,2, mlog,'bndfp','listwf')
-c         endif
-!!  Re-allocate qp array
-         if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-         allocate(sbz%rv_p_oqp(3*nkp))
-         sbz%rv_p_oqp=0d0
-
+            allocate(qplist(3,nkp))
 !! Fermi surface version for xcrysden
-         if(fullmesh.and.fsmode) then
-            iq=0
-            do ik1=1,nkk1
-               do ik2=1,nkk2
-                  do ik3=1,nkk3
+            if(fsmode) then
+               iq=0
+               do ik1=1,nkk1    !ordering is differnt from procaron case...
+                 do ik2=1,nkk2
+                   do ik3=1,nkk3
                      iq=iq+1
-                     qp    =  qlat(:,1)*dble(ik1-1)/(nkk1-1)
+                     qplist(:,iq)   =  qlat(:,1)*dble(ik1-1)/(nkk1-1)
      &                 +   qlat(:,2)*dble(ik2-1)/(nkk2-1)
      &                 +   qlat(:,3)*dble(ik3-1)/(nkk3-1)
-                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-                  enddo
+c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                   enddo
+                 enddo
                enddo
-            enddo
-            goto 198
-         endif   
+            endif   
 !! pdos (--mkprocar and --fullmesh)
-         if(fullmesh.and.procaron) then !to fit to the tetirr.F
-            iq=0
-            do ik3=1,nkk3
-               do ik2=1,nkk2
-                  do ik1=1,nkk1
+            if(procaron) then !to fit to the tetirr.F
+               iq=0
+               do ik3=1,nkk3
+                 do ik2=1,nkk2
+                   do ik1=1,nkk1
                      iq=iq+1
-                     qp =  qlat(:,1)*dble(ik1-1)/nkk1
+                     qplist(:,iq) =  qlat(:,1)*dble(ik1-1)/nkk1
      &                 +   qlat(:,2)*dble(ik2-1)/nkk2
      &                 +   qlat(:,3)*dble(ik3-1)/nkk3
-                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-                  enddo
+c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
+                   enddo
+                 enddo
                enddo
+            endif
+         else 
+!! syml direct read for plbnd mode. feb2015
+            ifsyml = fopno('syml')
+            nsyml=0
+            do 
+              if(nsyml+1>nsymlmax) call rx('bndfp: Enlarge nsymlmax')
+              read(ifsyml,*,err=1015,end=1015) 
+     &          nqp_syml(nsyml+1), qps_syml(1:3,nsyml+1), qpe_syml(1:3,nsyml+1)
+              if(nqp_syml(nsyml+1)==0) exit
+              nsyml = nsyml + 1
             enddo
-            goto 198
-         endif
+ 1015       continue
+            nkp = sum(nqp_syml(1:nsyml))
+            print *,' nkp total=',nkp
 
-!! MPIK: Setup to assemble all k-points into single list with qp table
-c#if MPIK
-c         if (nfbn(1) .gt. 0 .or. nfbn(2) .gt. 0) then
-c            call rx('Cannot use color weights with MPIK')
-c         endif
-c#endif
-!! Loop through all qp; accumulate vector of qp.
-!! Use i2 in place of nkp to preserve nkp
-         if (procid .eq. master) then
-C       iq = running index to big qp list, i1 = index to current line
-            iq = 0
-            i2 = 0
-            do 199
-               i = 1
-               call pshpr(0)
-!! takao think suqlst is problematic... fatband mode will be removed, 
-!! since we alreay implemented PROCAR mode.
-               call suqlst(plbopt,1,ndhamx,ef0,i,iwdummy,nfbn,ifbls_iv,i2,qp,onespdummy) 
-!! set i2=0 is required for initialization for band mode.
-               call poppr
-               if (i2 .gt. 0) then
-                  call pshpr(0)
-                  do  i1 = 1, i2
-                     iq = iq+1
-                     if(debug)print *,'llllllllllll eeeeeeeeee 111111111 iq=',iq
-                     call suqlst ( plbopt , 1 , ndhamx , ef0 , i , iwdummy , nfbn 
-     .                 , ifbls_iv , i2 , qp , onespdummy )
-                     if(debug) print *,'llllllllllll eeeeeeeeee 222222222 iq=',iq
-                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-                  enddo
-                  call poppr
-                  call suqlsm(i)
-                  if (i == 3) exit
-               else
-                  exit
-               endif
- 199        enddo
+            do isyml=1,nsyml
+              write(6,"(i3,3f10.5,3f10.5)")
+     &          nqp_syml(isyml), qps_syml(1:3,isyml), qpe_syml(1:3,isyml)
+            enddo
+
+            allocate(qplist(3,nkp))
+            ikp=0
+            do isyml=1,nsyml
+              do i=1,nqp_syml(isyml)
+                ikp=ikp+1
+                rq= dble(i-1)/(nqp_syml(isyml)-1)
+                qplist(:,ikp)= (1d0-rq)*qps_syml(1:3,isyml) +rq*qpe_syml(1:3,isyml)
+              enddo
+            enddo
          endif
-c#else
-c      do iq = 1, nkp
-c         i = nsp
-c         if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-c         call suqlst ( plbopt , 0 , ndhamx , ef0 , i , iwdummy , nfbn 
-c     .        , ifbls_iv , nkp , qp , onesp )
-cc         qplist(:,iq)=qp
-c         call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 )
-c      enddo
-c#endif
+         if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
       endif
- 198  continue
-      call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 
-!! Copy sbz%rv_p_oqp to qplist. 
-      if(allocated(qplist)) deallocate(qplist)
-      allocate(qplist(3,nkp))
-      if(nkp/=0) call dcopy(3*nkp,sbz%rv_p_oqp,1,qplist,1)
-      !NOTE: sbz$qplist and qplist are equivalent
+!! broadcase nkp and qplist
+      call mpibc1( nkp,1,2,mlog,'bndfp','nkp')
+      call mpibc1( nfbn,2,2,mlog,'bndfp','nfbn')
+      call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
+      if(procid/=master) allocate(qplist(3,nkp))
+      call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
+c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
+
+c      print *,'-------- qplist --------',procid
+c      do iq=1,nkp
+c        write(6,"(2i5,3f8.3)")procid,iq,qplist(:,iq)
+c      enddo
+c      call rx0(' xxxxxxxxxxxxxxxx end of qplist qqq') !exit program here normally
+
       if (procid.eq.master.and.ix99==1) then
          print *,'-------- qplist --------'
          do iq=1,nkp
             write(6,"(i5,3f8.3)")iq,qplist(:,iq)
          enddo
       endif 
-
+!!
       if(PROCARon) then
       allocate(xdatt(nkp))
       xdatt(1)=0d0
@@ -2314,7 +2257,7 @@ C       endif
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
       if (icls .ne. 0 .and. lwtkb .ne. -1) then
          call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-         call xmpbnd ( kpproc , nlmax * ndham * 3 * nsites , nkp , nsp, ausc_zv )
+         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_zv )
       endif
       call mpibc2(nevls,nkp*nsp,2,mlog,'bndfp','nevls')
 #endif
@@ -2399,7 +2342,7 @@ C     Allreduce qkkl
                   write(ifi,*)"  this_is_for_xcrysden"
                   write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
                   nbxx=0
-                  do ib=1,ndham 
+                  do ib=1,ndhamx
                      if(minval(evlall(ib,isp,:))<ef0+0.5.and.
      &                 maxval(evlall(ib,isp,:))>ef0-0.5) then
                         nbxx=nbxx+1
@@ -2411,7 +2354,7 @@ C     Allreduce qkkl
                   write(ifi,"(4x,3(f9.5,1x))") qlat(:,1)
                   write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
                   write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
-                  do ib=1,ndham 
+                  do ib=1,ndhamx 
                      if(minval(evlall(ib,isp,:))<ef0+0.5.and.
      &                 maxval(evlall(ib,isp,:))>ef0-0.5) then
                         write(ifi,"(a,i8)")"  BAND: ",ib    
@@ -2427,55 +2370,94 @@ C     Allreduce qkkl
                call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
             endif     
 
-!!     iq = running index to big qp list, i1 = index to current line
-            iq = 0
-            i2 = 0
-            do 299
-            i = nspx            !nov2014 nsp->nspx
-            if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-            call suqlst(plbopt, 0, ndhamx, ef0, i, iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy)
-            if (i2>0) then
-               do  i1 = 1, i2
-                  iq = iq+1
-                  if(debug) print *,'iiiiiiiii iq=',iq
-c     qp=qplist(:,iq)
-                  call suqlst(plbopt, 0,ndhamx,ef0,i,iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy )
-                  do  isp = 1, nsp
-                     ispc = min(isp,nspc)
-C     jsp=isp in the collinear case; jsp=1 in the SO (offdiagonal for spin included).
-C     Thus jsp should be used in place of isp
-C     isp serves as a flag for the noncollinear case
-                     if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
-                        jsp = isp
-                        if (ispc .eq. 2) jsp = 1
-                        evl(1:ndhamx,jsp)=evlall(1:ndhamx,jsp,iq)
-                        if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
-                        if (iprint() > 20.and.ix99==1) then
-                          write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh=",i5)')
-     &                    iq,nkp,qp,jsp,ndimh
-                        endif
-                        if(iprint() >=35.and.ix99==1) then
-                          write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
-                        endif
-                        if (mod(i1,10) .ne. 1) call poppr
-                        i = nsp
-                        if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-                        write(*,"('iq jsp nevls(iq,jsp)=',3i8)") iq,jsp,nevls(iq,jsp)
-                        if(fsmom/=NULLR) then
-                           if(jsp==1) vadd=-vnow/2d0
-                           if(jsp==2) vadd= vnow/2d0
-                        else
-                           vadd=0d0
-                        endif   
-                        call suqlsw2(nevls(iq,jsp),jsp,i,evlall(:,jsp,iq)+vadd,qp)
-                     endif
-                  enddo         ! isp
-               enddo            ! i1
-               if (i == 3) exit
-            else
-               exit
-            endif 
- 299        continue
+!! write bnds directly.
+            ifbnd = fopnn('bnds')
+            write(ifbnd,"(i5,f10.5,i6)") nkp,ef0,0
+            ikp=0
+            do isyml = 1,nsyml !symmetry line
+              write(ifbnd,"(i5)") nqp_syml(isyml)
+            do iq = 1,nqp_syml(isyml) 
+              ikp = ikp+1
+              do  isp = 1, nsp
+                ispc = min(isp,nspc)
+                if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
+                   jsp = isp
+                   if (ispc .eq. 2) jsp = 1
+                   if(fsmom/=NULLR) then
+                      if(jsp==1) vadd=-vnow/2d0
+                      if(jsp==2) vadd= vnow/2d0
+                   else
+                      vadd=0d0
+                   endif   
+                   if (iprint() > 20.and.ix99==1) then
+                   write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh=",i5)')
+     &             ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
+                   endif
+                   if(iprint() >=35.and.ix99==1) then
+                      write(stdo,"(9f8.4)") (evlall(i,jsp,ikp), i=1,nevls(ikp,jsp))
+                   endif
+                   write(ifbnd,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
+                   write(ifbnd,"(10f8.4)")(evlall(i,jsp,ikp)+vadd,i=1,nevls(ikp,jsp))
+c                call suqlsw2(nevls(iq,jsp),jsp,i,evlall(:,jsp,iq)+vadd,qp)
+                endif
+              enddo  
+            enddo
+            enddo
+            write(ifbnd,"(i6)") 0
+
+
+c$$$cccccccccccccccccccccccccccccccc
+c$$$c            goto 2991
+c$$$cccccccccccccccccccccccccccccccc
+c$$$!! old code
+c$$$!!     iq = running index to big qp list, i1 = index to current line
+c$$$            iq = 0
+c$$$            i2 = 0
+c$$$            do 299
+c$$$            i = nspx            !nov2014 nsp->nspx
+c$$$            if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+c$$$            call suqlst(plbopt, 0, ndhamx, ef0, i, iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy)
+c$$$            if (i2>0) then
+c$$$               do  i1 = 1, i2
+c$$$                  iq = iq+1
+c$$$                  call suqlst(plbopt, 0,ndhamx,ef0,i,iwdummy, nfbn, ifbls_iv , i2 , qp , onespdummy )
+c$$$                  do  isp = 1, nsp
+c$$$                     ispc = min(isp,nspc)
+c$$$C     jsp=isp in the collinear case; jsp=1 in the SO (offdiagonal for spin included).
+c$$$C     Thus jsp should be used in place of isp
+c$$$C     isp serves as a flag for the noncollinear case
+c$$$                     if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
+c$$$                        jsp = isp
+c$$$                        if (ispc .eq. 2) jsp = 1
+c$$$                        evl(1:ndhamx,jsp)=evlall(1:ndhamx,jsp,iq)
+c$$$                        if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
+c$$$                        if (iprint() > 20.and.ix99==1) then
+c$$$                          write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh=",i5)')
+c$$$     &                    iq,nkp,qp,jsp,ndimh
+c$$$                        endif
+c$$$                        if(iprint() >=35.and.ix99==1) then
+c$$$                          write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+c$$$                        endif
+c$$$                        if (mod(i1,10) .ne. 1) call poppr
+c$$$                        i = nsp
+c$$$                        if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
+c$$$                        write(*,"('iq jsp nevls(iq,jsp)=',3i8)") iq,jsp,nevls(iq,jsp)
+c$$$                        if(fsmom/=NULLR) then
+c$$$                           if(jsp==1) vadd=-vnow/2d0
+c$$$                           if(jsp==2) vadd= vnow/2d0
+c$$$                        else
+c$$$                           vadd=0d0
+c$$$                        endif   
+c$$$                        call suqlsw2(nevls(iq,jsp),jsp,i,evlall(:,jsp,iq)+vadd,qp)
+c$$$                     endif
+c$$$                  enddo         ! isp
+c$$$               enddo            ! i1
+c$$$               if (i == 3) exit
+c$$$            else
+c$$$               exit
+c$$$            endif 
+c$$$ 299        continue
+c$$$ 2991       continue
          endif
          if(fsmom/=NULLR) write(6,"(a,f10.6)") 
      &     'NOTE:fsmom on -> read MagField. '//

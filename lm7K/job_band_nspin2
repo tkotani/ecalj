@@ -7,6 +7,7 @@ echo $0 $@
 if [ $# -le 2 ] || [ $2 != "-np" ]; then
   echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
   echo "   For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'       "
+  echo "   If nspin=2 and so=1, use job_band_nspin1"
   exit
 else
   MPI_SIZE=$3
