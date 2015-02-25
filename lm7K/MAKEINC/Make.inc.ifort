@@ -1,6 +1,6 @@
 ### fortran compilar and linker
-FC = ifort  -mcmodel=medium -heap-arrays 0
-LK = ifort  -mcmodel=medium -heap-arrays 0
+FC = ifort  -mcmodel=medium -heap-arrays 100
+LK = ifort  -mcmodel=medium -heap-arrays 100
 
 # -heap-array puts automatic and temporary arrays on the heap instead of stack
 # -mcmodel=medium uses data area beyound 2GB. 
