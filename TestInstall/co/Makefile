@@ -60,14 +60,14 @@ define test2.exec
 endef
 
 #----- subroutine plot.plbnds
-define plot.plbnds
-	echo -10,5,5,10 | $(bindir)/plbnds -fplot -ef=0 -scl=13.6 \
-		-lt=1,col=0,0,1,colw=1,0,0,colw2=0,1,0 -lbl=M,G,A,L,G,K \
-		bnds.$(TARGET) > plot.log 2>&1
-	$(bindir)/fplot -disp -f plot.plbnds >> plot.log 2>&1
-	mv ps.dat ps.plbnds.dat
-	@echo "[note] run make plot-band to plot band"
-endef
+# define plot.plbnds
+# 	echo -10,5,5,10 | $(bindir)/plbnds -fplot -ef=0 -scl=13.6 \
+# 		-lt=1,col=0,0,1,colw=1,0,0,colw2=0,1,0 -lbl=M,G,A,L,G,K \
+# 		bnds.$(TARGET) > plot.log 2>&1
+# 	$(bindir)/fplot -disp -f plot.plbnds >> plot.log 2>&1
+# 	mv ps.dat ps.plbnds.dat
+# 	@echo "[note] run make plot-band to plot band"
+# endef
 
 # #----- subroutine plot.pldos
 # define plot.pldos
@@ -115,11 +115,11 @@ $(TARGET).case1.exec:
 $(TARGET).case1.check:
 	@echo "nothing to check for $@"
 
-# plot graphs on the display
-plot-band:
-	ghostscript ps.plbnds.dat
+# # plot graphs on the display
+# plot-band:
+# 	ghostscript ps.plbnds.dat
 
-plot-dos:
-	ghostscript ps.pldos.dat
+# plot-dos:
+# 	ghostscript ps.pldos.dat
 
 

@@ -32,17 +32,18 @@ endef
 define plot.pldos
 	echo .25 10 0 1 | $(bindir)/pldos -fplot -lst="1;3;5" -lst2="2;4;6" \
 		dos-cls.$(TARGET) > plot.log 2>&1
-	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
+	$(bindir)/fplot -pr10 -f plot.dos >> plot.log 2>&1
 	mv ps.dat ps.pldos.dat
-	@echo "[note] run make plot-dos to plot dos"
+	@echo "[note] run 'make plot-dos' to plot dos"
 endef
+#	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
 
 ###########################################################
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	$(call test2.exec,$(out2))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
-#	$(call plot.pldos)
+	$(call plot.pldos)
 
 # check default case for $(TARGET).
 $(TARGET).check:
