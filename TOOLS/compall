@@ -13,15 +13,21 @@ if(! open( IN1, "<$refout" )){
     print STDERR "Cannot open $refout\n";
     exit ;
 }
+
 if(! open( IN2, "<$testout" )){
     print "ERR\n";
-    print STDERR "Cannot open $refout\n";
+    print STDERR "Cannot open $testout\n";
     exit ;
 }
 
-my $max = 0;
+
+
+my $max = -9999;
 while ( my $line1 = <IN1> ) {
     my $line2 = <IN2>;
+    if (substr($line1,0,1) eq '#'){ 
+	next;
+    }
     $line1 =~ s/^\s+//;
     $line2 =~ s/^\s+//;    
     my @terms1 = split( /\s+/, $line1 );
@@ -40,6 +46,8 @@ close( IN2 );
 
 printf("max deviation = %.1e tolerance = $tol ",$max);
 if ( $max > $tol ) {
+    print "ERR\n";
+} elsif ( $max <-999) {
     print "ERR\n";
 } else {
     print "OK\n";

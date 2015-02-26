@@ -4,8 +4,11 @@ TARGET=co
 
 out1=out.lmf.$(TARGET)
 out2=out.lmf-dos.$(TARGET)
-out2x=pdos.$(TARGET)
-out2xx=bnds.$(TARGET)
+outbnds=bnds.$(TARGET)
+pdos1001=dos.isp1.site001.$(TARGET)
+pdos1002=dos.isp1.site002.$(TARGET)
+pdos2001=dos.isp2.site001.$(TARGET)
+pdos2002=dos.isp2.site002.$(TARGET)
 
 all: help
 
@@ -45,12 +48,15 @@ define test2.exec
 	@cat message.test2.$(TARGET)
 	$(bindir)/lmfa  $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv > $1 2>&1
-	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
-		--pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
-	mv dos.$(TARGET) tdos.$(TARGET)
-	echo 501 -.8 .7 | $(bindir)/lmdos $(TARGET) -vmet=4 -vlmf=1 -vnk=8 \
-		-vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
-	mv dos.$(TARGET) pdos.$(TARGET)
+        $(bindir)/job_pdos $(TARGET)  -np $(mpi_size) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
+		--pr31 --no-iactiv ---NoGnuplot > $1 2>&1
+
+#	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
+#		--pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
+#	mv dos.$(TARGET) tdos.$(TARGET)
+#	echo 501 -.8 .7 | $(bindir)/lmdos $(TARGET) -vmet=4 -vlmf=1 -vnk=8 \
+#		-vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
+#	mv dos.$(TARGET) pdos.$(TARGET)
 endef
 
 #----- subroutine plot.plbnds
@@ -81,16 +87,25 @@ $(TARGET).exec:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 	rm -f atm.* mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*
 	$(call test2.exec,$(out2))
-	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
-	$(call test2.check,$(REFDIR)/$(out2xx),$(out2xx))
+	$(call test2.check,$(REFDIR)/$(outbnds),$(outbnds))
+	$(call test2.check,$(REFDIR)/$(pdos2002),$(pdos2002))
+
+#	$(call test2.check,$(REFDIR)/$(pdos1001),$(pdos1001))
+#	$(call test2.check,$(REFDIR)/$(pdos1002),$(pdos1002))
+#	$(call test2.check,$(REFDIR)/$(pdos2001),$(pdos2001))
 
 # check
 $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
-	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
-	$(call test2.check,$(REFDIR)/$(out2xx),$(out2xx))
+	$(call test2.check,$(REFDIR)/$(outbnds),$(outbnds))
+	$(call test2.check,$(REFDIR)/$(pdos2002),$(pdos2002))
+
+#	$(call test2.check,$(REFDIR)/$(pdos1001),$(pdos1001))
+#	$(call test2.check,$(REFDIR)/$(pdos1002),$(pdos1002))
+#	$(call test2.check,$(REFDIR)/$(pdos2001),$(pdos2001))
 #	$(call plot.plbnds)
 #	$(call plot.pldos)
+
 
 # exec case1 for $(TARGET).
 $(TARGET).case1.exec:
