@@ -2929,13 +2929,17 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       enddo
       write(ifglt,"('plot \')")
       do isyml = 1,nsyml        !symmetry line
-        aaa= '"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'" '//'u 2:3 lt 1 pt 1 not w l'
+        aaa= '"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'" '//'u 3:4 lt 1 pt 1 not w l'
         if(isyml<nsyml)write(ifglt,"(a,' ,\')")trim(aaa)
         if(isyml==nsyml)write(ifglt,"(a)")trim(aaa)
       enddo  
       close(ifglt)
       enddo
+!! original bnds used for test
+      ifbnd = fopnn('bnds')
+      write(ifbnd,"(i5,f10.5,i6)") nkp,ef0,0
 
+!!
       do isyml = 1,nsyml        !symmetry line
         if(isyml==0) ikp=0
         if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
@@ -2997,8 +3001,8 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             do iq = 1,nqp_syml(isyml) 
               ikp=ikp+1
-              write(ifbndsp(jsp),"(2f13.8,3f17.10,' ',f8.3)") 
-     &         dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
+              write(ifbndsp(jsp),"(i5, 2f13.8,3f17.10,' ',f8.3)") 
+     &         i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
      &         ,diffeb(iq), diff2eb(iq), 2d0/diff2eb(iq)
             enddo  
 
@@ -3013,28 +3017,27 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
           enddo  
 
           deallocate(diffeb,diff2eb)
-          call fclose(ifbndsp(jsp))
+          close(ifbndsp(jsp))
         enddo  
 
-c$$$!!
-c$$$        ifbnd = fopnn('bnds')
-c$$$        write(ifbnd,"(i5,f10.5,i6)") nkp,ef0,0
-c$$$        write(ifbnd,"(i5)") nqp_syml(isyml)
-c$$$        if(isyml==0) ikp=0
-c$$$        if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-c$$$        do iq = 1,nqp_syml(isyml) 
-c$$$          ikp = ikp+1
-c$$$          do jsp = 1, nspx
-c$$$            if(fsmomcase) then
-c$$$               if(jsp==1) vadd=-vnow/2d0
-c$$$               if(jsp==2) vadd= vnow/2d0
-c$$$            else
-c$$$               vadd=0d0
-c$$$            endif   
-c$$$            write(ifbnd,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
-c$$$            write(ifbnd,"(10f8.4)")(evlall(i,jsp,ikp)+vadd,i=1,nevls(ikp,jsp))
-c$$$          enddo
-c$$$        enddo
+c$$$!! used for test purpose (plbnds )...
+        write(ifbnd,"(i5)") nqp_syml(isyml)
+        if(isyml==0) ikp=0
+        if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
+        do iq = 1,nqp_syml(isyml) 
+          ikp = ikp+1
+          do jsp = 1, nspx
+            if(fsmomcase) then
+               if(jsp==1) vadd=-vnow/2d0
+               if(jsp==2) vadd= vnow/2d0
+            else
+               vadd=0d0
+            endif   
+            write(ifbnd,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
+            write(ifbnd,"(10f8.4)")(evlall(i,jsp,ikp)+vadd,i=1,nevls(ikp,jsp))
+          enddo
+        enddo
       enddo  
-c$$$      write(ifbnd,"(i6)") 0
+      write(ifbnd,"(i6)") 0
+      call fclose(ifbnd)
       end
