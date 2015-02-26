@@ -10,6 +10,7 @@ out2xa=tdos.$(TARGET)
 out2xb=dos-cls.$(TARGET)
 out2xc=dos-mull.$(TARGET)
 
+outtdos=dos.tot.$(TARGET)
 all: help
 
 help:
@@ -32,6 +33,19 @@ define test2.exec
 	mv dos.$(TARGET) dos-cls.$(TARGET)
 	$(bindir)/lmdos --nosym --mull:mode=2 --dos:npts=1001:window=-.7,.8 -vnk=6 $(TARGET) >> $3 2>&1
 	mv dos.$(TARGET) dos-mull.$(TARGET)
+
+endef
+
+#----- subroutine job_tdos
+define testjob1.exec
+	#-------------------------------------------
+	# Case Fe: spin-polarized Fe in bcc structure
+	#-------------------------------------------
+	#
+	# --- Test 3.  job_tdos ---------
+	#
+	$(bindir)/lmfa $(TARGET) > /dev/null
+	$(bindir)/job_tdos $(TARGET) -np $(mpi_size) --dos:npts=1001:window=-.7,.8 -vnk=6 NoGnuplot > ljob_tdos
 endef
 
 ###########################################################
@@ -52,6 +66,8 @@ $(TARGET).exec:
 	$(call test2.check,$(REFDIR)/$(out2xa),$(out2xa))
 	$(call test2.check,$(REFDIR)/$(out2xb),$(out2xb))
 	$(call test2.check,$(REFDIR)/$(out2xc),$(out2xc))
+	$(call testjob1.exec,$(outtdos))
+	$(call test2.check,$(REFDIR)/$(outtdos),$(outtdos))
 #	$(call test2.check,$(REFDIR)/$(out2),$(out2))
 #	$(call plot.pldos)
 
@@ -60,6 +76,7 @@ $(TARGET).check:
 	$(call test2.check,$(REFDIR)/$(out2xa),$(out2xa))
 	$(call test2.check,$(REFDIR)/$(out2xb),$(out2xb))
 	$(call test2.check,$(REFDIR)/$(out2xc),$(out2xc))
+	$(call test2.check,$(REFDIR)/$(outtdos),$(outtdos))
 
 # exec case1 for $(TARGET).
 $(TARGET).case1.exec:

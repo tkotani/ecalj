@@ -388,7 +388,7 @@ c      integer:: n_listwf
       integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       integer:: ifis2,ipts,ifid
       real(8):: eee
-      logical :: tdos,pdos
+      logical :: tdos !,pdos
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
       real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
       real(8),allocatable::vesatm(:),qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
@@ -447,7 +447,8 @@ c mar2014
 !! === computational modes switches
       mlog = cmdopt('--mlog',6,0,strn)
       tdos=cmdopt('--tdos',6,0,strn)
-      pdos=cmdopt('--pdos',6,0,strn) !we assume no symmetry opreration.
+
+c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pdos.
       if(cmdopt('--band~col',10,0,strn)) then
          call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
       endif
@@ -1024,30 +1025,30 @@ C   ... If switch '--mull'; get sites, number of channels
          endif
          if(debug) print *,'vvvvv 111aaa 22222222qqq '
 
-C   ... If  '--pdos'; get sites, number of channels
-         if (pdos) then
-            mulopt = strn(7:)
-            ng=slat%nsgrp
-
-            nchmx = min(1024,nbas*nl**2)
-            if (allocated(chan_iv)) deallocate(chan_iv)
-            allocate(chan_iv(nchmx))
-
-            nll = 0
-            call sumlst ( 0 , nchmx , nbas , ng , ssite , sspec , mulopt 
-     .        , moddos , nsites , lsites , lmxch , nchan , iwdummy , nll )
-
-            nlmax = (lmxch+1)**2
-            i = nlmax*ndham*3*nsp*nbas
-            if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
-     .        call info(20,0,0,' PDOS: %iMb memory for aus: nlmax=%i',
-     .        i/1000000,nlmax)
-            if (cmdopt('--mull',6,0,strn))
-     .        call rx('--pdos and --mull not allowed in conjunction')
-            if (cmdopt('--cls',5,0,strn))
-     .        call rx('--pdos and --cls not allowed in conjunction')
-            call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-         endif
+c$$$C   ... If  '--pdos'; get sites, number of channels
+c$$$         if (pdos) then
+c$$$            mulopt = strn(7:)
+c$$$            ng=slat%nsgrp
+c$$$
+c$$$            nchmx = min(1024,nbas*nl**2)
+c$$$            if (allocated(chan_iv)) deallocate(chan_iv)
+c$$$            allocate(chan_iv(nchmx))
+c$$$
+c$$$            nll = 0
+c$$$            call sumlst ( 0 , nchmx , nbas , ng , ssite , sspec , mulopt 
+c$$$     .        , moddos , nsites , lsites , lmxch , nchan , iwdummy , nll )
+c$$$
+c$$$            nlmax = (lmxch+1)**2
+c$$$            i = nlmax*ndham*3*nsp*nbas
+c$$$            if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
+c$$$     .        call info(20,0,0,' PDOS: %iMb memory for aus: nlmax=%i',
+c$$$     .        i/1000000,nlmax)
+c$$$            if (cmdopt('--mull',6,0,strn))
+c$$$     .        call rx('--pdos and --mull not allowed in conjunction')
+c$$$            if (cmdopt('--cls',5,0,strn))
+c$$$     .        call rx('--pdos and --cls not allowed in conjunction')
+c$$$            call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+c$$$         endif
          if(debug) print *,'vvvvv 22222222qqq111 '
          if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
      .     ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
@@ -1088,7 +1089,8 @@ Changenglob        nlmax = nglob('nlmax')
       if(allocated(qplist)) deallocate(qplist)
       if( procid==master .and. plbnd==0) then
          allocate(qplist(3,nkp))
-         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1)
+         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1) 
+         !I think sbz%rv_p_oqp is not used in the following.
       elseif(procid==master) then
          if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
          if(debug) print *,'vvvvv nkp=',nkp
@@ -1272,11 +1274,7 @@ C     kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
          rsrnge = sham%rsrnge
          if(procid==master) then
             if(oncewrite(9)) print *,'rsrnge procid=',rsrnge,procid
-c            if(pdos) then
-c               ifi = fopna('sigm_fbz',-1,4)
-c            else
-               ifi = fopna('sigm',-1,4)
-c            endif   
+            ifi = fopna('sigm',-1,4)
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
             allocate( qsmesh(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
@@ -1296,10 +1294,8 @@ c            endif
 
 !! sfz is the self-energy roteted in the full BZ.
 !!   ndham is removed sep2012 (read from sigma file )
-c            if(.not.pdos) then
             call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
      &        nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
-c            endif   
             call fclose(ifi)
 
 c$$$!! --- write sig_fbz for SYMGRP e
@@ -1715,7 +1711,7 @@ C       isp serves as a flag for the noncollinear case
      &        write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f8.4," ndimh=",i5)')iq,nkp,qp,ndimh
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
 !!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
-            if (nfbn(1) .gt. 0 .or. pdos.or.tdos) then
+            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
                nmx = ndimhx
                efmax = 99999
             endif
@@ -1938,36 +1934,36 @@ C   --- Mulliken analysis and partial DOS ---
      .                    nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
      .                    , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
                         if (allocated(doswt_rv)) deallocate(doswt_rv)
-                     elseif (pdos) then
-                        write(*,*) 'goto pdos mode moddos=',moddos
-#if MPIK
-                        call rx('PDOS not k-parallel.')
-#endif
-                        call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
-                        i = nlmax*ndham*3*nsp*nbas
-                        allocate(ausp_zv(i))
-                        ausp_zv(:)=0.0d0
-                        call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .                    0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .                    nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
-                        allocate(doswt_rv(nchan*ndimhx*nspc))
-                        doswt_rv(:)=0.0d0
-!!
-                        call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
-     .                    , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
-     .                    , doswt_rv )
-                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-#if MPIK
-                        i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
-     .                    i , 1 , iq , isp, ndham , ndimh , nchan , nchan , nev , evl 
-     .                    ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-#else
-                        i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
-     .                    , 1 , 1 , ndham , ndimh , nchan , nchan , nev, evl ( 1 , jsp 
-     .                    ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-#endif
-                        if (allocated(doswt_rv)) deallocate(doswt_rv)
-                        if (allocated(ausp_zv)) deallocate(ausp_zv)
+c$$$                     elseif (pdos) then
+c$$$                        write(*,*) 'goto pdos mode moddos=',moddos
+c$$$#if MPIK
+c$$$                        call rx('PDOS not k-parallel.')
+c$$$#endif
+c$$$                        call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
+c$$$                        i = nlmax*ndham*3*nsp*nbas
+c$$$                        allocate(ausp_zv(i))
+c$$$                        ausp_zv(:)=0.0d0
+c$$$                        call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+c$$$     .                    0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
+c$$$     .                    nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausp_zv )
+c$$$                        allocate(doswt_rv(nchan*ndimhx*nspc))
+c$$$                        doswt_rv(:)=0.0d0
+c$$$!!
+c$$$                        call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
+c$$$     .                    , nev , nchan , 1 , lsites , nsites , ppnl_rv , ausp_zv 
+c$$$     .                    , doswt_rv )
+c$$$                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+c$$$#if MPIK
+c$$$                        i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
+c$$$     .                    i , 1 , iq , isp, ndham , ndimh , nchan , nchan , nev , evl 
+c$$$     .                    ( 1 , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+c$$$#else
+c$$$                        i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
+c$$$     .                    , 1 , 1 , ndham , ndimh , nchan , nchan , nev, evl ( 1 , jsp 
+c$$$     .                    ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+c$$$#endif
+c$$$                        if (allocated(doswt_rv)) deallocate(doswt_rv)
+c$$$                        if (allocated(ausp_zv)) deallocate(ausp_zv)
                      elseif (nfilem .gt. 0) then
                         write (nfilem) 0, ndimhx
                         call dpdump(evl(1,jsp),ndimhx,-nfilem)
@@ -2804,7 +2800,7 @@ c$$$         call poppr
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
-               if(tdos.or.pdos) dosw(2) = sbz%dosmax + eferm
+               if(tdos) dosw(2) = sbz%dosmax + eferm !.or.pdos
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
@@ -2812,7 +2808,7 @@ c$$$         call poppr
      .           , nspx , 0 , dos_rv )
                del = 0d0
             else
-               if(tdos.or.pdos) dosw(2) = sbz%dosmax + eferm
+               if(tdos) dosw(2) = sbz%dosmax + eferm  !.or.pdos
                if ( mpsord .ge. 100) mpsord = mod(mpsord,100)
                if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
      .           , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
