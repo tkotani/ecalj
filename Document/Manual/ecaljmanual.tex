@@ -654,7 +654,7 @@ Binary and Scripts contained in \ecalj are
     Run \exe{./job} at the directory).
 \item \exe{gwsc}\\
      QSGW calculation
-\item \verb#job_band_nspin1,job_band_nspin2,job_fermisurface,job_tdos,job_pdos#\\
+\item \verb#job_band,job_fermisurface,job_tdos,job_pdos#\\
      band, fermi surface, tdos, pdos plot.
 \item \exe{epsPP\_lmfh}\\
      Dielectric funciton without local field correction (LFC).
@@ -767,7 +767,7 @@ For example, \verb+ctrls.cu+ and \verb+ctrl.cu+. In this case
 
 \item Post processing.\\
       Plot energy band, DOS, PDOS, by running scripts.
-      We can use scripts \exe{job\_band\_nspin1} or \exe{job\_band\_nspin2} for 
+      We can use scripts \exe{job\_band} for 
       band plot (need \io{syml.si} file (symmetry line for band plot)).
       We also have \exe{job\_pdos, job\_tdos, job\_fermi} and so on for
       DOS, PDOS, fermi surfaces. 
@@ -1216,7 +1216,7 @@ We already have script to plot dos, band, and pdos
 from the result of lmf self-consistent calculations.
 We have scripts
 \begin{verbatim}
-    job_tdos, job_band_nspin1, job_band_nspin2, job_pdos
+    job_tdos, job_band, job_pdos
 \end{verbatim}
 . Look into these scripts, and then you see how to plot them.
 
@@ -1269,10 +1269,9 @@ A line starting from '\#' is neglected (comment line).
 
 To do band plot, run
 \begin{verbatim}
-    $ job_band_nspin1 cu
+    $ job_band cu
 \end{verbatim}
-. This is for nspin=1.
-\verb+job_band_nspin2+ is for nspin=2
+. This is for both nspin=1 and nspin=2
 (These scripts try to determine the Fermi energy first. You may skip it
 in cases (but need to change the script)).
 
@@ -1386,7 +1385,7 @@ To make band plot and so on for Fe, follow instructions already explained.
         If it does not ends with 'c ...' line, something strange
 	occurs. see llmf (console out put of lmf is saved to llmf).
   $ cp ../syml.fe .
-  $ job_band_nspin2 fe 
+  $ job_band fe -np 4 
         (As I said, this shell script do not yet accept
 	    options to lmf. Look into the script).
         (This calculate fermi energy first for safe; it takes
@@ -1443,7 +1442,7 @@ ctrlgenM1.py. You can do the above procedure with
  This is recorded in save.gas file).
 
 For band plot, you can use the same procedure 
-for the case without SO. (Look into the shell script job_band_nspin1.
+for the case without SO. (Look into the shell script job_band.
 You have to modify it so that 
   '--rs=1,0 gas -vnit=1 -vso=1 -vnspin=2 -vmetal=3 --quit=band' 
 is added to arguments for >lmf --band:syml ...).
@@ -1640,7 +1639,7 @@ To do it, we need rst.si, sigm.si, ctrl.si, QGpsi.
 (but QGpsi is quickly reproduced). After you have syml.si
 (e.g. in ecalj/MATERIALS/), Do
 \begin{verbatim}
-    $ job_band_nspin1 si
+    $ job_band si
 \end{verbatim}
 
 \begin{figure}[h]

@@ -29,7 +29,7 @@ plbnds:	plbnds.o plsub.o alloc.o
 	$(LK) $(LKFLAGS1) $@.o plsub.o  alloc.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 progs:
-	make -f Makefile fplot pldos plbnds
+	make -f Makefile fplot pldos 
  
 tar:	
 	rm -r -f plot; mkdir plot

@@ -1,0 +1,33 @@
+#!/bin/bash
+echo $0 $@ 
+# if [ $#  != 3 ]; then
+#   echo "An example of usage: job_band_nspin1 si -np 4"
+#   exit
+# fi
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo "An example of usage: job_band_nspin1 si -np 4 [options for lmf]"
+  echo "   For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'       "
+  echo "   If nspin=2 and so=1, use job_band_nspin1"
+  exit
+else
+  MPI_SIZE=$3
+fi
+MATERIAL=$1
+rm -rf wkp.$MATERIAL
+
+n=$0
+nfpgw=${n%/*}
+NO_MPI=0
+
+source $nfpgw/run_arg #this must be after all input arguments are processed
+
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band  ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band  ${@:4:($#-2)}
+
+gnuplot -persist bandplot.isp1.glt
+if [ -e 'bandplot.isp2.glt' ]; then
+   gnuplot -persist bandplot.isp2.glt
+fi
+
+$echo_run echo If you like, edit and run 'job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)'
+

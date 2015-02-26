@@ -60,7 +60,7 @@ libs slatsm-dir subs-dir fp-dir mod-dir slatsm-lib subs-lib fp-lib
 #################################
 
 
-fplotprogs := fplot plbnds pldos
+fplotprogs := fplot pldos
 
 ALL: libs
 	$(MAKE) -f Makefile progs
