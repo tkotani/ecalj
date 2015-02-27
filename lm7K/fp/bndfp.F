@@ -428,6 +428,13 @@ c mar2014
       character*20 ::labeli(nsymlmax),labele(nsymlmax)
 
       integer:: ifile_handle
+!! ----------------------------
+c      ifi=fopn('temp')
+c      INQUIRE (ifi, NAME=ccc) 
+c      write(*,*) "extention is ###"//trim(ccc(6:))//"###"
+c      call fclose(ifi)
+c      stop 
+
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
 !! === MPI setup ===
@@ -441,6 +448,7 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
       if(cmdopt('--band~col',10,0,strn)) then
          call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
       endif
+
 
 !!=== Another pdos mode (use --mkprocar and --fullmesh together). ===
 !! --pdos mode did not work for QSGW now.
@@ -2479,9 +2487,17 @@ c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi
       endif
 
 !! efermi energy
-      ifi=fopn('eferm.lmf')
-      write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
-      call fclose(ifi)
+      if(procid==master.and.plbnd==0) then
+         ifi= ifile_handle()     !fopn('eferm.lmf')
+         open(unit=ifi,file='efermi.lmf')
+         write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
+         write(ifi,"(d16.8, ' # (Ry) Top of Valence')") evtop
+         write(ifi,"(d16.8, ' # (Ry) Bottom of conduction')") ecbot
+         write(ifi,
+     &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
+         write(ifi,"('# NOTE: Not by band plot mode')")
+         close(ifi)             !call fclose(ifi)
+      endif
 
 !! --- Core-level spectroscopy ---
       if (icls .ne. 0) then
@@ -2903,42 +2919,83 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       character*100::filenm(2)
       real(8):: rydberg=13.6058d0,vadd
       character*3::charnum3
-      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt
+      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2)
       character*300::aaa
 
       real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
-      integer:: ikps,ikpe,ne
+      integer:: ikps,ikpe,ne,ifi,fopn
       real(8),allocatable::diffeb(:),diff2eb(:)
-      real(8)::polinta,tpiba
-!!
+      real(8)::polinta,tpiba,eferm,evtop,ecbot,eee
+      character*100::fname
+!! ----------------------------
+      ifi=fopn('temp') !this is a trick to get extension foobar of ctrl.foobar
+      INQUIRE (ifi, NAME=fname) 
+c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
+      call fclose(ifi)
+      
+      ifi= ifile_handle()  
+      open(unit=ifi,file='efermi.lmf',status='old',err=1012)
+      read(ifi,*,err=1012) eferm
+      read(ifi,*,err=1012) evtop
+      read(ifi,*,err=1012) ecbot
+      close(ifi) 
+      goto 1013
+ 1012 continue
+      write(*,*) 'erroe readin efermi'
+      eferm=1d10
+      evtop=1d10
+      ecbot=1d10
+ 1013 continue
+
+!! write bandplot.glt for gnuplot
       tpiba = 2d0*4d0*datan(1d0)/alat
       do jsp = 1, nspx
-      ifglt =ifile_handle()
-      open(unit=ifglt,file='bandplot.isp'//char(48+jsp)//'.glt')
-      write(ifglt,'(a)')'set title "isp='//char(48+jsp)//'"'
-      write(ifglt,'(a)')'set xzeroaxis'
-      write(ifglt,'(a)')'set grid'
-      write(ifglt,'(a)')'set ylabel "Energy(eV)"'
-      write(ifglt,'(a,F12.5,a,F12.5,a)') 'set yrange [',emin,':',emax,']'
-      write(ifglt,'(a,$)') 'set xtics ('
-      do isyml = 1,nsyml+1      !symmetry line
-        if(isyml==0) ikp=0
-        if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-        if(isyml<=nsyml  ) write(ifglt,'(a,F15.10,",\")')"'"//trim(labeli(isyml))//"'",xdatt(ikp)
-        if(isyml==nsyml+1) write(ifglt,'(a,F15.10,")")') "'"//trim(labele(isyml-1))//"'",xdatt(ikp)
+        ifglt =ifile_handle()
+        open(unit=ifglt,file='bandplot.isp'//char(48+jsp)//'.glt')
+        write(ifglt,'(a)')'# Plase modify subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
+        write(ifglt,'(a)')'# "if(evtop-0.2<eee.and.eee<ecbot+0.2)" control data in bnd*.nearEf.'
+        if(nspx==1) then
+           write(ifglt,'(a)')'set title "'//trim(fname(6:100))//'"'
+        else
+           write(ifglt,'(a)')'set title "'//trim(fname(6:100))//' isp='//char(48+jsp)//'"'
+        endif  
+        write(ifglt,'(a)')'set xzeroaxis'
+        write(ifglt,'(a)')'set grid'
+        write(ifglt,'(a)')'set ylabel "Energy(eV)"'
+        write(ifglt,'(a,F12.5,a,F12.5,a)') 'set yrange [',emin,':',emax,']'
+        write(ifglt,'(a,$)') 'set xtics ('
+        do isyml = 1,nsyml+1    !symmetry line
+          if(isyml==0) ikp=0
+          if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
+          if(isyml<=nsyml  ) write(ifglt,'(a,F15.10,",\")')"'"//trim(labeli(isyml))//"'",xdatt(ikp)
+          if(isyml==nsyml+1) write(ifglt,'(a,F15.10,")")') "'"//trim(labele(isyml-1))//"'",xdatt(ikp)
+        enddo
+        write(ifglt,'(a,$)') 'set x2tics ('
+        do isyml = 1,nsyml+1    !symmetry line end
+          if(isyml==0) ikp=0
+          if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
+          if(isyml==nsyml+1) then
+             write(ifglt,'(a,F15.10,")")')"'"//trim(labele(isyml-1))//"'",xdatt(ikp)
+          elseif(isyml>1 ) then
+             write(ifglt,'(a,F15.10,",\")')"'"//trim(labele(isyml-1))//"'",xdatt(ikp)
+          endif   
+        enddo
+        write(ifglt,"('plot \')")
+        do isyml = 1,nsyml      !symmetry line
+          aaa='"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'" '//'u 3:4 lt 1 pt 1 w l'
+          if(isyml/=nsyml) write(ifglt,"(a,' ,\')")trim(aaa)
+          if(isyml==nsyml) write(ifglt,"(a)")trim(aaa)
+        enddo  
+        do isyml = 1,nsyml      !symmetry line
+          aaa='#"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf" '//'u 3:4 lt 2 pt 2 w l'
+          write(ifglt,"(a,' ,\')")trim(aaa)
+        enddo  
+        close(ifglt)
       enddo
-      write(ifglt,"('plot \')")
-      do isyml = 1,nsyml        !symmetry line
-        aaa= '"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'" '//'u 3:4 lt 1 pt 1 not w l'
-        if(isyml<nsyml)write(ifglt,"(a,' ,\')")trim(aaa)
-        if(isyml==nsyml)write(ifglt,"(a)")trim(aaa)
-      enddo  
-      close(ifglt)
-      enddo
+
 !! original bnds used for test
       ifbnd = fopnn('bnds')
       write(ifbnd,"(i5,f10.5,i6)") nkp,ef0,0
-
 !!
       do isyml = 1,nsyml        !symmetry line
         if(isyml==0) ikp=0
@@ -2953,7 +3010,7 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
                vadd=0d0
             endif   
             if (iprint() > 20.and.ix99==1) then
-               write(*,'(" bndfp: kpt",i5," of",i5, " k jsp=",3f8.4,i2," ndimh=",i5)')
+               write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f9.5,i2," ndimh=",i5)')
      &           ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
             endif
             if(iprint() >=35.and.ix99==1) then
@@ -2972,27 +3029,42 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
 
           ifbndsp(jsp) =ifile_handle()
           open(unit=ifbndsp(jsp),file='bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp))
-          write(ifbndsp(jsp),"('#  ',i5,f10.5,'   QPE(ev),  1st-deri, 2nd-deri, mass=2/(2nd-deri)')") 
+          write(ifbndsp(jsp),"('#  ',i5,f10.5,
+     &     '                QPE(ev)           1st-deri')") !          2nd-deri      mass=2/(2nd-deri)')") 
      &      nkp,ef0
-          allocate(diffeb(nqp_syml(isyml)),diff2eb(nqp_syml(isyml)))
 
+          ifbndsp_nearef(jsp) =ifile_handle()
+          open(unit=ifbndsp_nearef(jsp),file='bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf')
+          write(ifbndsp_nearef(jsp),"('#  ',i5,f10.5,
+     &     '                QPE(ev)           1st-deri')") !          2nd-deri      mass=2/(2nd-deri)')") 
+     &      nkp,ef0
+!! diffeb and diff2eb are 1st and 2nd derivatives, 
+!! dEi(k)/dk d^2Ei(k)/d^2k along a symmetry line (isyml index).
+!! But be careful to determine effective mass, because it is not analytic at Gamma point.
+!! E.g, see Kittel's book.
+          allocate(diffeb(nqp_syml(isyml)),diff2eb(nqp_syml(isyml)))
           do i=1,minval(nevls(:,jsp)) !band index
+            ne= nqp_syml(isyml)
+
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             ikps=ikp+1
             ikpe=ikp+nqp_syml(isyml)
-            ne= nqp_syml(isyml)
             do iq = 1,nqp_syml(isyml) !k point along a syml (symmetry line).
               ikp=ikp+1
-              if(iq==1.or.iq==nqp_syml(isyml)) cycle
+              if(iq<2.or.iq>nqp_syml(isyml)-1) cycle
               diffeb(iq)=(evlall(i,jsp,ikp+1)-evlall(i,jsp,ikp-1))/(xdatt(ikp+1)-xdatt(ikp-1))/tpiba
             enddo    
+!! polinta is Akai's interpolation routine to determine values at end points.
             diffeb(1)  = polinta( xdatt(ikps), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
             diffeb(ne) = polinta( xdatt(ikpe), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
 
+            if(isyml==0) ikp=0
+            if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             do iq = 1,nqp_syml(isyml) !k point along a syml (symmetry line).
-              if(iq==1.or.iq==nqp_syml(isyml)) cycle
-              diff2eb(iq)=(diffeb(iq+1)-diffeb(iq-1))/(xdatt(iq+1)-xdatt(iq-1))/tpiba
+              ikp=ikp+1
+              if(iq<2.or.iq>nqp_syml(isyml)-1) cycle
+              diff2eb(iq)=(diffeb(iq+1)-diffeb(iq-1))/(xdatt(ikp+1)-xdatt(ikp-1))/tpiba
             enddo    
             diff2eb(1)  = polinta( xdatt(ikps), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
             diff2eb(ne) = polinta( xdatt(ikpe), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
@@ -3001,11 +3073,13 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             do iq = 1,nqp_syml(isyml) 
               ikp=ikp+1
-              write(ifbndsp(jsp),"(i5, 2f13.8,3f17.10,' ',f8.3)") 
+              write(ifbndsp(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
      &         i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
-     &         ,diffeb(iq), diff2eb(iq), 2d0/diff2eb(iq)
+     &         ,diffeb(iq) !, diff2eb(iq), 2d0/diff2eb(iq)
             enddo  
+            write(ifbndsp(jsp),*)
 
+!! effective mass
 !! 2d0 is because emass in Ry unit is 1/2
 !!              ib
 !!              do i=1,nqp_syml(isyml); xdummy(i)=i; enddo
@@ -3013,11 +3087,28 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
 !!                    /dble(nqp_syml(isyml)-1)  * (qplist(:,ikps)-qplist(:,ikpe))
 !!              2d0*kef/diffeb(iq),' at ',kef
 !!
-            write(ifbndsp(jsp),*)
-          enddo  
-
+            eee = evlall(i,jsp,ikps)
+            if( evtop-0.2<eee .and.eee<ecbot+0.2) then
+               write(6,"('EFFECTIVE MASS (be careful!):  isyml,ib,isp=',i3,i4,i2,
+     &         ' QPE= ', f8.3,' mass= ',3f8.3)") 
+     &           isyml,i,jsp, (evlall(i,jsp,ikps)+vadd- ef0)*rydberg
+     &           , 2d0/diff2eb(1), 2d0/diff2eb(2), 2d0/diff2eb(3)
+               if(isyml==0) ikp=0
+               if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
+               do iq = 1,nqp_syml(isyml) 
+                 ikp=ikp+1
+                 write(ifbndsp_nearef(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
+     &             i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
+     &             ,diffeb(iq) 
+               enddo  
+               write(ifbndsp_nearef(jsp),*)
+               write(ifbndsp_nearef(jsp),*)
+            endif
+          enddo
+!! ------------
           deallocate(diffeb,diff2eb)
           close(ifbndsp(jsp))
+          close(ifbndsp_nearef(jsp))
         enddo  
 
 c$$$!! used for test purpose (plbnds )...
