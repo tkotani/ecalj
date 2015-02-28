@@ -426,7 +426,7 @@ c mar2014
       integer:: nqp_syml(nsymlmax),nsyml=0,fopno,ikp,ifbnd
       real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
       character*20 ::labeli(nsymlmax),labele(nsymlmax)
-
+      real(8)::  totxdatt, dqsyml
       integer:: ifile_handle
 !! ----------------------------
 c      ifi=fopn('temp')
@@ -1105,7 +1105,9 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
                enddo
             endif
          else 
+
 !! syml direct read for plbnd mode. feb2015
+            print *,' --- Readin syml file --- '
             ifsyml = fopno('syml')
             nsyml=0
             do 
@@ -1113,37 +1115,33 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
               read(ifsyml,*,err=1015,end=1015) 
      &          nqp_syml(nsyml+1), qps_syml(1:3,nsyml+1), qpe_syml(1:3,nsyml+1),
      &          labeli(nsyml+1),labele(nsyml+1)
+               write(6,"('    ',i3,3f10.5,3f10.5,a,a)")
+     &          nqp_syml(isyml), qps_syml(1:3,isyml), qpe_syml(1:3,isyml),
+     &          labeli(nsyml+1),labele(nsyml+1)
               if(nqp_syml(nsyml+1)==0) exit
               nsyml = nsyml + 1
             enddo
  1015       continue
             nkp = sum(nqp_syml(1:nsyml))
-            print *,' nkp total=',nkp
-
-            do isyml=1,nsyml
-              write(6,"(i3,3f10.5,3f10.5)")
-     &          nqp_syml(isyml), qps_syml(1:3,isyml), qpe_syml(1:3,isyml)
-            enddo
+            write(6,"('nsyml nkp=',2i5)") nsyml,nkp
 
             allocate(qplist(3,nkp))
             if(allocated(xdatt)) deallocate(xdatt)
             allocate(xdatt(nkp))
-            xdatt(1)=0d0
+            totxdatt=0d0
             ikp=0
-            do isyml=1,nsyml
+            do isyml=1,nsyml 
+              dqsyml = dsqrt(sum((qpe_syml(1:3,isyml) -qps_syml(1:3,isyml))**2))
               do i=1,nqp_syml(isyml)
-                ikp=ikp+1
-                rq= dble(i-1)/(nqp_syml(isyml)-1)
+                ikp= ikp+1
+                rq = dble(i-1)/(nqp_syml(isyml)-1)
                 qplist(:,ikp)= (1d0-rq)*qps_syml(1:3,isyml) +rq*qpe_syml(1:3,isyml)
-                if(i==1.and.ikp>1) then
-                  xdatt(ikp) = xdatt(ikp-1) 
-                else  
-                  xdatt(ikp) = xdatt(ikp-1) + dsqrt( sum((qplist(:,ikp)-qplist(:,ikp-1))**2) )
-                endif
-              enddo
-            enddo
-
-         endif
+                xdatt(ikp) = totxdatt + dqsyml*rq
+              enddo  
+              totxdatt = totxdatt + dqsyml
+            enddo  
+c            print *,' sum 111 xdatt ',sum(xdatt),nkp,procid
+        endif
          if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
       endif
 
@@ -1154,13 +1152,6 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-
-c      print *,'-------- qplist --------',procid
-c      do iq=1,nkp
-c        write(6,"(2i5,3f8.3)")procid,iq,qplist(:,iq)
-c      enddo
-c      call rx0(' xxxxxxxxxxxxxxxx end of qplist qqq') !exit program here normally
-
       if (procid.eq.master.and.ix99==1) then
          print *,'-------- qplist --------'
          do iq=1,nkp
@@ -2101,6 +2092,9 @@ C     Allreduce qkkl
             endif     
 !! write bands directly.
             if(nsyml/=0) then
+ccccccccccccccccccccccccccccc
+c            print *,' sum 222 xdatt ',sum(xdatt),nkp,procid
+ccccccccccccccccccccccccccccc
               call writeband(stdo,nkp,ef0,nsyml,nspx,nsp,fsmom/=NULLR,vnow,ix99,ndhamx,
      &        xdatt,nqp_syml,nevls,evlall,qplist,labeli,labele,alat)
             endif
@@ -2900,7 +2894,7 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
             return
          endif
       enddo
-      call rx('ifile_handle: we did not find open file hundle')
+      call rx('ifile_handle: we did not find open file handle')
       end
 
 
@@ -2923,7 +2917,7 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       character*300::aaa
 
       real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
-      integer:: ikps,ikpe,ne,ifi,fopn
+      integer:: ikps,ikpe,ne,ifi,fopn,ix,nee
       real(8),allocatable::diffeb(:),diff2eb(:)
       real(8)::polinta,tpiba,eferm,evtop,ecbot,eee
       character*100::fname
@@ -2946,6 +2940,9 @@ c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
       evtop=1d10
       ecbot=1d10
  1013 continue
+ccccccccccccccccccccc
+      print *,'sum xdatt=',sum(xdatt)
+ccccccccccccccccccccc
 
 !! write bandplot.glt for gnuplot
       tpiba = 2d0*4d0*datan(1d0)/alat
@@ -3042,39 +3039,39 @@ c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
 !! dEi(k)/dk d^2Ei(k)/d^2k along a symmetry line (isyml index).
 !! But be careful to determine effective mass, because it is not analytic at Gamma point.
 !! E.g, see Kittel's book.
-          allocate(diffeb(nqp_syml(isyml)),diff2eb(nqp_syml(isyml)))
+          ne= nqp_syml(isyml)
+          allocate(diffeb(ne),diff2eb(ne))
           do i=1,minval(nevls(:,jsp)) !band index
-            ne= nqp_syml(isyml)
 
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             ikps=ikp+1
-            ikpe=ikp+nqp_syml(isyml)
-            do iq = 1,nqp_syml(isyml) !k point along a syml (symmetry line).
+            ikpe=ikp+ne
+            do iq = 1,ne !k point along a syml (symmetry line).
               ikp=ikp+1
-              if(iq<2.or.iq>nqp_syml(isyml)-1) cycle
+              if(iq<2.or.iq>ne-1) cycle
               diffeb(iq)=(evlall(i,jsp,ikp+1)-evlall(i,jsp,ikp-1))/(xdatt(ikp+1)-xdatt(ikp-1))/tpiba
             enddo    
 !! polinta is Akai's interpolation routine to determine values at end points.
-            diffeb(1)  = polinta( xdatt(ikps), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
-            diffeb(ne) = polinta( xdatt(ikpe), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
+            diffeb(1) = 0d0!polinta( xdatt(ikps), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
+            diffeb(ne)= 0d0!polinta( xdatt(ikpe), xdatt(ikps+1), diffeb(2), nqp_syml(isyml)-2)
 
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-            do iq = 1,nqp_syml(isyml) !k point along a syml (symmetry line).
+            do iq = 1,ne !k point along a syml (symmetry line).
               ikp=ikp+1
-              if(iq<2.or.iq>nqp_syml(isyml)-1) cycle
+              if(iq<3.or.iq>ne-2) cycle
               diff2eb(iq)=(diffeb(iq+1)-diffeb(iq-1))/(xdatt(ikp+1)-xdatt(ikp-1))/tpiba
             enddo    
-            diff2eb(1)  = polinta( xdatt(ikps), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
-            diff2eb(ne) = polinta( xdatt(ikpe), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
+            diff2eb(1:2) = 0d0 !polinta( xdatt(ikps), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
+            diff2eb(ne-1:ne) = 0d0 !polinta( xdatt(ikpe), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
 
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-            do iq = 1,nqp_syml(isyml) 
+            do iq = 1,ne 
               ikp=ikp+1
               write(ifbndsp(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
-     &         i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
+     &         i,dble(iq-1)/dble(ne-1),xdatt(ikp),(evlall(i,jsp,ikp)+vadd-ef0)*rydberg
      &         ,diffeb(iq) !, diff2eb(iq), 2d0/diff2eb(iq)
             enddo  
             write(ifbndsp(jsp),*)
@@ -3087,15 +3084,16 @@ c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
 !!                    /dble(nqp_syml(isyml)-1)  * (qplist(:,ikps)-qplist(:,ikpe))
 !!              2d0*kef/diffeb(iq),' at ',kef
 !!
+            nee= min(10,ne)
             eee = evlall(i,jsp,ikps)
             if( evtop-0.2<eee .and.eee<ecbot+0.2) then
                write(6,"('EFFECTIVE MASS (be careful!):  isyml,ib,isp=',i3,i4,i2,
-     &         ' QPE= ', f8.3,' mass= ',3f8.3)") 
-     &           isyml,i,jsp, (evlall(i,jsp,ikps)+vadd- ef0)*rydberg
-     &           , 2d0/diff2eb(1), 2d0/diff2eb(2), 2d0/diff2eb(3)
+     &         ' QPE= ', f8.3,' mass= ',100(f7.3,x))") 
+     &         isyml,i,jsp, (evlall(i,jsp,ikps)+vadd- ef0)*rydberg
+     &         , (2d0/diff2eb(ix),ix=1,nee) 
                if(isyml==0) ikp=0
                if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-               do iq = 1,nqp_syml(isyml) 
+               do iq = 1,ne
                  ikp=ikp+1
                  write(ifbndsp_nearef(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
      &             i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
@@ -3112,7 +3110,7 @@ c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
         enddo  
 
 c$$$!! used for test purpose (plbnds )...
-        write(ifbnd,"(i5)") nqp_syml(isyml)
+        write(ifbnd,"(i5)") ne
         if(isyml==0) ikp=0
         if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
         do iq = 1,nqp_syml(isyml) 
