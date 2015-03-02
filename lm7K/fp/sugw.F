@@ -217,7 +217,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 
       logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
       real(8):: vnow
-      integer:: ifimag=9078
+      integer:: ifimag,ifile_handle !=9078
 
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw,ival
@@ -236,6 +236,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       if(iprint()>10) print *,'sugw:'
 
 !! june2013 magfield is added
+      ifimag = ifile_handle()
       inquire(unit=ifimag,opened=nexist)
       if(nexist) stop 'sugw:ifimag used already (too sloppy manner ; fix this). '
       open(ifimag,file='MagField',status='old',err=112)

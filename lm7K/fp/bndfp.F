@@ -364,7 +364,8 @@ c      integer:: n_listwf
       logical:: mtosigmaonly
       real(8)::scaledsigma
       real(8):: qsfz(3,100)
-      integer:: nqps,ii1,ii2,ii4,iq1 , fxsts
+      integer:: nqps,ii1,ii2,ii4,iq1 !, fxsts
+      logical:: lfx
 
 #if                             !defined(__INTEL_COMPILER)
       integer:: unlink
@@ -405,7 +406,7 @@ c mar2014
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
-      character*256:: ccc
+      character*256:: ccc,sss
       logical:: initbd=.true.
 
       integer:: nspsigm,ispsigm !nov2014
@@ -414,7 +415,7 @@ c mar2014
       logical:: fullmesh
 
       integer,allocatable:: ipqe(:,:,:),idtete(:,:)
-      integer:: ntete,init,ient,nchanp,fopnn,nevmin,ifip,ifsyml,isyml
+      integer:: ntete,init,ient,nchanp,fopnn,nevmin,ifip,ifisyml,isyml
       real(8):: qx(3)
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
       character*3::charnum3
@@ -428,27 +429,26 @@ c mar2014
       character*20 ::labeli(nsymlmax),labele(nsymlmax)
       real(8)::  totxdatt, dqsyml
       integer:: ifile_handle
-!! ----------------------------
-c      ifi=fopn('temp')
-c      INQUIRE (ifi, NAME=ccc) 
-c      write(*,*) "extention is ###"//trim(ccc(6:))//"###"
-c      call fclose(ifi)
-c      stop 
 
+      character(256)::sname
+!! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
-!! === MPI setup ===
       procid = mpipid(1) !zero for no mpi
-      master = 0
-!! === computational modes switches
-      mlog = cmdopt('--mlog',6,0,strn)
-      tdos=cmdopt('--tdos',6,0,strn)
-
-c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pdos.
+      master = 0         !mpi master
+      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
+      tdos = cmdopt('--tdos',6,0,strn)
       if(cmdopt('--band~col',10,0,strn)) then
-         call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
+        call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
       endif
-
+      if(procid==master) then !a trick to get the extension of ctrlfile
+        ifi=fopn('temptempxxx')
+        sss=''
+        INQUIRE (ifi, NAME=sss) 
+        sname=sss(13:)
+        write(*,*) "ctrl extension is ==="//trim(sname)//"==="
+        close(ifi,status='delete')
+      endif
 
 !!=== Another pdos mode (use --mkprocar and --fullmesh together). ===
 !! --pdos mode did not work for QSGW now.
@@ -456,6 +456,7 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
 !! We use lmf or lmf-MPIK but no symmetry assumed now,
 !! because we have not yet implemented the version with rotation of wave functions.
 !! (in principle, it is already in this package).
+cccc       pdos=cmdopt('--pdos',6,0,strn)  ! old pdos mode switch.
       PROCARon= cmdopt('--mkprocar',10,0,strn)
       fullmesh= cmdopt('--fullmesh',10,0,strn) !full mesh stop just after do 2010 iq loop.
       if(fullmesh.and.(.not.procaron)) then
@@ -480,7 +481,8 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
          print *,'--vbmonly mode'
          vol = slat%vol
          goto 8888
-      endif   
+      endif 
+  
 !! getq mode  Current version is not for spin dependent nor many restrictions.
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
       if(cmdopt('--getq',6,0,strn)) then
@@ -490,7 +492,9 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
          lmxa = maxval(sspec(1:nspec)%lmxa)
          allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
          qrmt= -1d-10
-         ifiwv  = fopna('veswavatm',-1,1)
+c         ifiwv  = fopna('veswavatm',-1,1)
+         ifiwv= ifile_handle()
+         open(ifiwv,file='veswavatm.'//trim(sname))
          do is=1,nspec
             read(ifiwv,*) qatot(is)
             print *,'qatom tot=',qatot(is)
@@ -511,8 +515,13 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
                if(qrmt(il,is)>0d0) print *, is,il,qrmt(il,is)
             enddo   
          enddo  
+         close(ifiwv)
 !! WARN. not averaged yet for given specs...
-         ifiqb  = fopna('qbyl',-1,1)
+c         ifiqb  = fopna('qbyl',-1,1)
+         ifiqb= ifile_handle()
+         open(ifiqb,file='qbyl.'//trim(sname))
+         ifiwv= ifile_handle()
+         open(ifiwv,file='veswavatm.'//trim(sname))
          read(ifiqb,*)
          allocate(ql(0:lmxa,nspec))
          do ib=1,nbas
@@ -529,15 +538,17 @@ c      pdos=cmdopt('--pdos',6,0,strn)  !for pdos, use --mkprocar now. See job_pd
                else
                   qset(il,is)= ql(il,is)/qrmt(il,is)
                   qsetsum = qsetsum+qset(il,is)
-c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is)
+                  if(debug) print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is)
                endif
             enddo  
             write(*,"('not renormalized ',i3,' Q=',12f12.4)")is, qset(0:lmxa,is)
             qset = qatot(is)* qset/qsetsum
-            write(*,"('   renormalizedQ=',12f10.6)") qset(0:lmxa,is)
+            write(*,"('    renormalized     Q=',12f12.4)") qset(0:lmxa,is)
          enddo
+         close(ifiqb)
          call rx0('--getq mode done')
       endif
+
 
 !! === MPI Setup continue===
       numprocs=1                !when no MPI
@@ -548,10 +559,8 @@ c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is
       namelen(procid) = i-1
 #endif
       write(strprocid,'(i10)') procid
-      strprocid=adjustl(strprocid) 
-      ixx=master_mpiset(procid)
-
-!!
+      strprocid = adjustl(strprocid) 
+      ixx = master_mpiset(procid)
       savez=.false.
       getz=.false.
       if (maxit .eq. 0) return
@@ -591,18 +600,16 @@ c                  print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is
       idummy=unlink('RSEQ_ERROR')
 
 ctakao sep2010 !complicated.
-c      I think nspc=2 for non-colinear case.
+c      nspc=2 for non-colinear case. 
 c      allocate(evl(ndham,2))
-      allocate(evl(ndhamx,nspx))
 c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
+      allocate(evl(ndhamx,nspx))
       ldham = sham%ldham
       ldim = ldham(1)
       if(size(sham%ldham)/=size(ldham))call rx("bndfp:size(sham%ldham)/=size(ldham)")
       pwmode = sham%pwmode
       if (procid .eq. master) then
-         ifiese=9039
-         inquire(unit=ifiese,opened=nexist)
-         if(nexist) stop 'bndfp: I assumed ifio=9039 is not used(too sloppy) pwmode'
+         ifiese=ifile_handle()
          open(ifiese,file='PWMODE')
          write(ifiese,*)pwmode
          close(ifiese)
@@ -623,13 +630,9 @@ c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
       if(lrsig- sham%lsig/=0) call rx('lrsig- sham%lsig/=0')
 
       if (procid .eq. master) then
-c         if(pdos) then
-c            fxsts= fxst('sigm_fbz')
-c         else
-            fxsts= fxst('sigm')
-c         endif  
-         if (lrsig .ne. 0 .and. fxsts/=1) then
-            call info0(1,1,0,' bndfp (warning): no sigm file found ... LDA calculation only')
+         inquire(file='sigm',exist=lfx)
+         if (lrsig .ne. 0 .and. (.not.lfx)) then !fxsts/=1) then
+            write(6,*)' bndfp (warning): no sigm file found ... LDA calculation only'
             sham%lsig=0
             lrsig = 0
          endif
@@ -638,11 +641,7 @@ c         endif
       call mpibc1(sham%lsig,1,2,mlog,'bndfp','sham%lsig') 
       jobgw= -999
       epsovl = sham%oveps
-c$$$      lpdiag = isw(cmdopt('--pdiag',7,0,strn)) !not supported
-c$$$
-c$$$#if MPIK
-c$$$      lpdiag = 0
-c$$$#endif
+
       if(llmfgw) then
          i = 7
          if (cmdopt('-jobgw=',i,0,strn)) then
@@ -657,24 +656,7 @@ c$$$#endif
       if (ndham.le.0)
      .  call rx('bndfp: hamiltonian matrix has zero dimension')
 
-c$$$#if MPI
-c$$$C MPI Process configuration
-c$$$      if (lpdiag .eq. 1) then
-c$$$         nblk = 16
-c$$$         dims(1) = 0
-c$$$         dims(2) = 0
-c$$$         call MPI_DIMS_CREATE(numprocs,2,dims,ierr)
-c$$$         npcol = dims(1)
-c$$$         nprow = dims(2)
-c$$$         if (iprint() .ge. 30) then
-c$$$            call awrit3(
-c$$$     .        ' MPI creating process configuration .. nprow=%i npcol=%i,'//
-c$$$     .        ' blocking factor %i',
-c$$$     .        ' ',256,lgunit(1),nprow,npcol,nblk)
-c$$$         endif
-c$$$      endif
-c$$$#endif
-
+!!
       eterms=-99d0
       eterms(19) = 0d0
       sham%eterms=eterms
@@ -759,13 +741,9 @@ c         plbopt = strn(7:)
 c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
       if(PROCARon) then
          iprocar1=ifile_handle()
-         inquire(unit=iprocar1,opened=nexist)
-         if(nexist) stop 'bndfp: I assumed ifio=9139 is not used(too sloppy)'
          open(iprocar1,file='PROCAR.UP.'//trim(strprocid))
          if(nspx==2) then
             iprocar2=ifile_handle()
-            inquire(unit=iprocar2,opened=nexist)
-            if(nexist) stop 'bndfp: I assumed ifio=9140 is not used(too sloppy)'
             open(iprocar2,file='PROCAR.DN.'//trim(strprocid))
          endif
       endif
@@ -945,22 +923,20 @@ c     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
 c      open(ifiogw,file='NBANDGW')
 Cki  ifiese default value is not set.  set it to 0
 
-!! We need ESEAVR file. This is a dummy file when we use huge HAM_SIGP_EMAX such as EMAX=9999.
-!! ESEAVR is called from rdsigm2-psigd.
-      ifiese=0
-      if(lrsig/=0) then
-         ifiese=9039
-         inquire(unit=ifiese,opened=nexist)
-         if(nexist) stop 'bndfp: I assumed ifio=9039 is not used(too sloppy)'
-         open(ifiese,file='ESEAVR',status='old',err=127)
-         goto 128
- 127     continue
-         open(ifiese,file='ESEAVR')
-         write(ifiese,*)"0d0 1 !dummy when no ESEAVR"
-         close(ifiese)
-         open(ifiese,file='ESEAVR',status='old',err=127)
-      endif
- 128  continue
+c$$$!! We need ESEAVR file. This is a dummy file when we use huge HAM_SIGP_EMAX such as EMAX=9999.
+c$$$!! ESEAVR is called from rdsigm2-psigd.
+c$$$      ifiese=0
+c$$$      if(lrsig/=0) then
+c$$$         ifiese=ifile_handle()
+c$$$         open(ifiese,file='ESEAVR',status='old',err=127)
+c$$$         goto 128
+c$$$ 127     continue
+c$$$         open(ifiese,file='ESEAVR')
+c$$$         write(ifiese,*)"0d0 1 !dummy when no ESEAVR"
+c$$$         close(ifiese)
+c$$$         open(ifiese,file='ESEAVR',status='old',err=127)
+c$$$      endif
+c$$$ 128  continue
 
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -1105,14 +1081,26 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
                enddo
             endif
          else 
-
-!! syml direct read for plbnd mode. feb2015
-            print *,' --- Readin syml file --- '
-            ifsyml = fopno('syml')
+!! syml direct read for plbnd mode. See "call writeband" below. feb2015 
+!!   Read efermi.lmf
+            write(6,*)' --- Readin efermi.lmf --- '
+            ifi=ifile_handle()
+            open(unit=ifi,file='efermi.lmf',status='old',err=1012)
+            read(ifi,*,err=1012) eferm
+            read(ifi,*,err=1012) evtop
+            read(ifi,*,err=1012) ecbot
+            close(ifi) 
+            goto 1013
+ 1012       continue
+            call rx('No efermi.lmf!: copy it, or run lmf-MPIK (sc mode) to get efermi.lmf.')
+ 1013       continue
+            write(6,*)' --- Readin syml file --- '
+            ifisyml=ifile_handle()
+            open(ifisyml,status='old',file='syml.'//trim(sname))
             nsyml=0
             do 
               if(nsyml+1>nsymlmax) call rx('bndfp: Enlarge nsymlmax')
-              read(ifsyml,*,err=1015,end=1015) 
+              read(ifisyml,*,err=1015,end=1015) 
      &          nqp_syml(nsyml+1), qps_syml(1:3,nsyml+1), qpe_syml(1:3,nsyml+1),
      &          labeli(nsyml+1),labele(nsyml+1)
                write(6,"('    ',i3,3f10.5,3f10.5,a,a)")
@@ -1122,9 +1110,9 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
               nsyml = nsyml + 1
             enddo
  1015       continue
+            close(ifisyml)
             nkp = sum(nqp_syml(1:nsyml))
             write(6,"('nsyml nkp=',2i5)") nsyml,nkp
-
             allocate(qplist(3,nkp))
             if(allocated(xdatt)) deallocate(xdatt)
             allocate(xdatt(nkp))
@@ -1141,7 +1129,7 @@ c                     call dpscop ( qp , sbz%rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0
               totxdatt = totxdatt + dqsyml
             enddo  
 c            print *,' sum 111 xdatt ',sum(xdatt),nkp,procid
-        endif
+         endif
          if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
       endif
 
@@ -2039,19 +2027,18 @@ C     Allreduce qkkl
             print *,'procid=',procid
             call info0(20,1,0,' Writing bands to bands file (MPIK) ...')
 !!dec2013 --------------------------------
-            if(fsmom/=NULLR) then
-               ifimag=9058
-               inquire(unit=ifimag,opened=nexist)
-               if(nexist)stop'mmm1:ifimag used already (fix this). '
-               open(ifimag,file='MagField',status='unknown')
-               read(ifimag,*) vnow
-               close(ifimag)
-            endif
+c            if(fsmom/=NULLR) then
+c               ifimag=ifile_handle()
+c               open(ifimag,file='MagField',status='unknown')
+c               read(ifimag,*) vnow
+c               close(ifimag)
+c            endif
 !! fermi surface mode
             if(fsmode) then
                i=nsp
                if(nspc==2) i=1
                do isp=1,i
+                  ifi=ifile_handle()
                   if(isp==1) open(ifi, file='fermiup.bxsf')
                   if(isp==2) open(ifi, file='fermidn.bxsf')
                   write(ifi,*) "BEGIN_INFO"
@@ -2092,16 +2079,14 @@ C     Allreduce qkkl
             endif     
 !! write bands directly.
             if(nsyml/=0) then
-ccccccccccccccccccccccccccccc
-c            print *,' sum 222 xdatt ',sum(xdatt),nkp,procid
-ccccccccccccccccccccccccccccc
-              call writeband(stdo,nkp,ef0,nsyml,nspx,nsp,fsmom/=NULLR,vnow,ix99,ndhamx,
-     &        xdatt,nqp_syml,nevls,evlall,qplist,labeli,labele,alat)
+              call writeband(stdo,nkp,nsyml,nspx,nsp,ix99,ndhamx, !,fsmom/=NULLR,vnow
+     &        xdatt,nqp_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,sname)
             endif
          endif
-         if(fsmom/=NULLR) write(6,"(a,f10.6)") 
-     &     'NOTE:fsmom on -> read MagField. '//
-     &     'We added -vnow/2(for isp=1) +vnow/2(for isp=2) to evl. vnow=',vnow
+         if(fsmom/=NULLR) then
+            write(6,"(a)") 'NOTE: Be carful! fsmom (fixed moment on). In the sc cycle, we use additional bias mag. field  '
+            write(6,"(a)") 'NOTE: Use mag.field is written in a file MagField. But it is not used for --band mode! mar2015.'
+         endif
          call rx0('done')
       endif
 
@@ -2260,13 +2245,11 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
       endif
 
 !! delete Magfield file for safe if it exist. 
-      ifimag=9058
-      inquire(unit=ifimag,opened=nexist)
-      if(nexist) stop 'bndfp: ifio=9058 is not used (too sloppy manner ; fix this). '
 #if MPIK
       call mpi_barrier(MPI_comm_world,ierr)
 #endif
       if (procid .eq. master) then
+         ifimag=ifile_handle()
          open(ifimag,file='MagField',status='unknown')
          close(ifimag,status='delete')
       endif  
@@ -2330,9 +2313,7 @@ ckino       maybe a switch for these is lmet.ne.0
             endif
 !! june2013 magfield is added
             if(fsmom/=NULLR.and.procid .eq. master) then
-               ifimag=9058
-               inquire(unit=ifimag,opened=nexist)
-               if(nexist)stop'mmm2: ifimag used already(poor implementation;fix this). '
+               ifimag=ifile_handle()
                open(ifimag,file='MagField',status='unknown')
                write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
                close(ifimag)
@@ -2468,21 +2449,24 @@ c$$$         call poppr
      .        , dosw(2) , nspx , eferm , del , 1 , - fopn ( 'dos' ) )
             call fclose(fopn('dos'))
 !! ... write total dos file. mar2013
-            ifi=fopn('dos.tot')
+c            ifi=fopn('dos.tot')
+            ifi= ifile_handle()     
+            open(unit=ifi,file='dos.tet.'//trim(sname))
 c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi=',d14.5)") eferm
             do ipts=1,ndos
                eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
             enddo
-            call fclose(ifi)
+c            call fclose(ifi)
+            close(ifi)
             if (allocated(orbtm_rv)) deallocate(orbtm_rv)
             if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
 
-!! efermi energy
+!! efermi.lmf is written for bandplot mode of syml, --band. See subroutine writeband
       if(procid==master.and.plbnd==0) then
-         ifi= ifile_handle()     !fopn('eferm.lmf')
+         ifi= ifile_handle()     
          open(unit=ifi,file='efermi.lmf')
          write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d16.8, ' # (Ry) Top of Valence')") evtop
@@ -2490,7 +2474,7 @@ c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi
          write(ifi,
      &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
          write(ifi,"('# NOTE: Not by band plot mode')")
-         close(ifi)             !call fclose(ifi)
+         close(ifi)             
       endif
 
 !! --- Core-level spectroscopy ---
@@ -2543,14 +2527,16 @@ C       call poppr
       endif
 
 !! --- print out qbyl ---
-      ifqbyl = fopna('qbyl',-1,2)
-      write(ifqbyl,"(i5)")nbas
-      do  ib = 1, nbas
-         ispec=ssite(ib)%spec
-         write(ifqbyl,"(i4, i3,i2,10f12.6)")ib, ispec, sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,sspec(ispec)%lmxa+1)
-      enddo  
-      call fclose(ifqbyl)
-      if( debug) print *, 'tttttttttt 9999999999999999999 8'
+      if(procid==master) then
+         ifqbyl = ifile_handle() !fopna('qbyl',-1,2)
+         open(ifqbyl,file='qbyl.'//trim(sname))
+         write(ifqbyl,"(i5)")nbas
+         do  ib = 1, nbas
+           ispec=ssite(ib)%spec
+           write(ifqbyl,"(i4, i3,i2,10f12.6)")ib, ispec, sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,sspec(ispec)%lmxa+1)
+         enddo  
+         close(ifqbyl)
+      endif
 
 !! --- Evaluate Harris energy ---
       call mkehkf(1,sham,sev,sumqv(2,1),sumtv,ehar)
@@ -2734,7 +2720,7 @@ ccccccccccccccccccccccccc
       if (allocated(gpot0_rv)) deallocate(gpot0_rv)
       if (allocated(qmom_rv)) deallocate(qmom_rv)
       call tcx('bndfp')
-      if ( ifiese>0 ) close(ifiese)
+c      if ( ifiese>0 ) close(ifiese)
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
       deallocate(evlall)
       return
@@ -2881,68 +2867,79 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       enddo   
       deallocate(pdosall)
       end
-
+!!
       integer function ifile_handle()
-!! find open file handle
+!! find unused file handle
       implicit none
       integer:: i
       logical:: nexist
-      do i=5001,9999
+      integer,save:: irem=2001
+      character*256::nnn
+c#if MPI | MPIK
+c      include "mpif.h"
+c#endif
+c      integer::mpipid
+      print *,'ifile_handle:'
+      do i=irem,9999
+         inquire(unit=i,opened=nexist,name=nnn)
+         if(.not.nexist) then
+            ifile_handle=i
+            irem=i+1
+            return
+         endif
+c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
+      enddo
+      do i=5001,irem
          inquire(unit=i,opened=nexist)
          if(.not.nexist) then
             ifile_handle=i
+            irem=i
             return
          endif
       enddo
       call rx('ifile_handle: we did not find open file handle')
       end
 
-
 !! ----------------------------------
-      subroutine writeband(stdo,nkp,ef0,nsyml,nspx,nsp,fsmomcase,vnow,ix99,ndhamx,
-     & xdatt,nqp_syml,nevls,evlall,qplist,labeli,labele,alat)
+      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ix99,ndhamx, !fsmomcase,,vnow
+     & xdatt,nqp_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,sname)
 !! == write band file ==
       implicit none
       integer,intent(in)::nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),ix99,stdo
-      real(8),intent(in)::ef0,vnow,   evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat
+      real(8),intent(in)::  evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow, 
       integer,intent(in)::nqp_syml(nsyml)
-      logical,intent(in)::fsmomcase
+c      logical,intent(in)::fsmomcase
       character*20,intent(in)::labeli(nsyml),labele(nsyml)
+      character(*),intent(in)::sname
 
       integer:: ifbnd,ikp,isyml,jsp,fopnn
       character*100::filenm(2)
-      real(8):: rydberg=13.6058d0,vadd
+      real(8):: rydberg=13.6058d0 !,vadd
       character*3::charnum3
-      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2)
+      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2)
       character*300::aaa
 
       real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
-      integer:: ikps,ikpe,ne,ifi,fopn,ix,nee
+      integer:: ikps,ikpe,ne,ifi,fopn,ix,nee,ibindex
       real(8),allocatable::diffeb(:),diff2eb(:)
       real(8)::polinta,tpiba,eferm,evtop,ecbot,eee
       character*100::fname
 !! ----------------------------
-      ifi=fopn('temp') !this is a trick to get extension foobar of ctrl.foobar
-      INQUIRE (ifi, NAME=fname) 
+c      ifi=fopn('temp') !this is a trick to get extension foobar of ctrl.foobar
+c      INQUIRE (ifi, NAME=fname) 
+c      call fclose(ifi)
 c      write(6,*) "extension is ###"//trim(fname(6:100))//"###"
-      call fclose(ifi)
       
-      ifi= ifile_handle()  
-      open(unit=ifi,file='efermi.lmf',status='old',err=1012)
-      read(ifi,*,err=1012) eferm
-      read(ifi,*,err=1012) evtop
-      read(ifi,*,err=1012) ecbot
-      close(ifi) 
-      goto 1013
- 1012 continue
-      write(*,*) 'erroe readin efermi'
-      eferm=1d10
-      evtop=1d10
-      ecbot=1d10
- 1013 continue
-ccccccccccccccccccccc
-      print *,'sum xdatt=',sum(xdatt)
-ccccccccccccccccccccc
+c$$$      ifi= ifile_handle()  
+c$$$      open(unit=ifi,file='efermi.lmf',status='old',err=1012)
+c$$$      read(ifi,*,err=1012) eferm
+c$$$      read(ifi,*,err=1012) evtop
+c$$$      read(ifi,*,err=1012) ecbot
+c$$$      close(ifi) 
+c$$$      goto 1013
+c$$$ 1012 continue
+c$$$      call rx('Error no efermi.lmf: repeat lmf-MPIK (sc mode) to give efermi.lmf')
+c$$$ 1013 continue
 
 !! write bandplot.glt for gnuplot
       tpiba = 2d0*4d0*datan(1d0)/alat
@@ -2950,11 +2947,11 @@ ccccccccccccccccccccc
         ifglt =ifile_handle()
         open(unit=ifglt,file='bandplot.isp'//char(48+jsp)//'.glt')
         write(ifglt,'(a)')'# Plase modify subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
-        write(ifglt,'(a)')'# "if(evtop-0.2<eee.and.eee<ecbot+0.2)" control data in bnd*.nearEf.'
+        write(ifglt,'(a)')'# "if(evtop-0.2<eee.and.eee<ecbot+0.2)" control data set in bnd*.nearEf abd mass.* files.'
         if(nspx==1) then
-           write(ifglt,'(a)')'set title "'//trim(fname(6:100))//'"'
+           write(ifglt,'(a)')'set title "'//trim(sname)//'"'
         else
-           write(ifglt,'(a)')'set title "'//trim(fname(6:100))//' isp='//char(48+jsp)//'"'
+           write(ifglt,'(a)')'set title "'//trim(sname)//' isp='//char(48+jsp)//'"'
         endif  
         write(ifglt,'(a)')'set xzeroaxis'
         write(ifglt,'(a)')'set grid'
@@ -2983,16 +2980,16 @@ ccccccccccccccccccccc
           if(isyml/=nsyml) write(ifglt,"(a,' ,\')")trim(aaa)
           if(isyml==nsyml) write(ifglt,"(a)")trim(aaa)
         enddo  
-        do isyml = 1,nsyml      !symmetry line
-          aaa='#"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf" '//'u 3:4 lt 2 pt 2 w l'
-          write(ifglt,"(a,' ,\')")trim(aaa)
-        enddo  
+c        do isyml = 1,nsyml      !symmetry line
+c          aaa='#"bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf" '//'u 3:4 lt 2 pt 2 w l'
+c          write(ifglt,"(a,' ,\')")trim(aaa)
+c        enddo  
         close(ifglt)
       enddo
 
 !! original bnds used for test
       ifbnd = fopnn('bnds')
-      write(ifbnd,"(i5,f10.5,i6)") nkp,ef0,0
+      write(ifbnd,"(i5,f10.5,i6)") nkp,eferm,0
 !!
       do isyml = 1,nsyml        !symmetry line
         if(isyml==0) ikp=0
@@ -3000,12 +2997,12 @@ ccccccccccccccccccccc
         do iq = 1,nqp_syml(isyml) 
           ikp = ikp+1
           do jsp = 1, nspx
-            if(fsmomcase) then
-               if(jsp==1) vadd=-vnow/2d0
-               if(jsp==2) vadd= vnow/2d0
-            else
-               vadd=0d0
-            endif   
+c            if(fsmomcase) then
+c               if(jsp==1) vadd=-vnow/2d0
+c               if(jsp==2) vadd= vnow/2d0
+c            else
+c               vadd=0d0
+c            endif   
             if (iprint() > 20.and.ix99==1) then
                write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f9.5,i2," ndimh=",i5)')
      &           ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
@@ -3017,32 +3014,36 @@ ccccccccccccccccccccc
         enddo
 
         do jsp = 1, nspx   ! ispx index.
-          if(fsmomcase) then
-             if(jsp==1) vadd=-vnow/2d0
-             if(jsp==2) vadd= vnow/2d0
-          else
-             vadd=0d0
-          endif
+c          if(fsmomcase) then
+c             if(jsp==1) vadd=-vnow/2d0
+c             if(jsp==2) vadd= vnow/2d0
+c          else
+c             vadd=0d0
+c          endif
 
           ifbndsp(jsp) =ifile_handle()
           open(unit=ifbndsp(jsp),file='bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp))
           write(ifbndsp(jsp),"('#  ',i5,f10.5,
      &     '                QPE(ev)           1st-deri')") !          2nd-deri      mass=2/(2nd-deri)')") 
-     &      nkp,ef0
+     &      nkp,eferm
 
-          ifbndsp_nearef(jsp) =ifile_handle()
-          open(unit=ifbndsp_nearef(jsp),file='bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf')
-          write(ifbndsp_nearef(jsp),"('#  ',i5,f10.5,
-     &     '                QPE(ev)           1st-deri')") !          2nd-deri      mass=2/(2nd-deri)')") 
-     &      nkp,ef0
+c$$$          ifbndsp_nearef(jsp) =ifile_handle()
+c$$$          open(unit=ifbndsp_nearef(jsp),file='bnd'//charnum3(isyml)//'.'//'spin'//char(48+jsp)//'.nearEf')
+c$$$          write(ifbndsp_nearef(jsp),"('#  ',i5,f10.5,
+c$$$     &     '                QPE(ev)           1st-deri')") !          2nd-deri      mass=2/(2nd-deri)')") 
+c$$$     &      nkp,eferm
+
+          ifmass(jsp) =ifile_handle()
+          open(unit=ifmass(jsp),file='mass'//charnum3(isyml)//'.'//'spin'//char(48+jsp))
+ 
 !! diffeb and diff2eb are 1st and 2nd derivatives, 
 !! dEi(k)/dk d^2Ei(k)/d^2k along a symmetry line (isyml index).
 !! But be careful to determine effective mass, because it is not analytic at Gamma point.
 !! E.g, see Kittel's book.
           ne= nqp_syml(isyml)
           allocate(diffeb(ne),diff2eb(ne))
+          ibindex=-1
           do i=1,minval(nevls(:,jsp)) !band index
-
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             ikps=ikp+1
@@ -3060,19 +3061,19 @@ ccccccccccccccccccccc
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             do iq = 1,ne !k point along a syml (symmetry line).
               ikp=ikp+1
-              if(iq<3.or.iq>ne-2) cycle
-              diff2eb(iq)=(diffeb(iq+1)-diffeb(iq-1))/(xdatt(ikp+1)-xdatt(ikp-1))/tpiba
+              if(iq<2.or.iq>ne-1) cycle
+              diff2eb(iq)=(evlall(i,jsp,ikp+1)-2d0*evlall(i,jsp,ikp)+evlall(i,jsp,ikp-1))/(xdatt(ikp+1)-xdatt(ikp))**2/tpiba**2
             enddo    
-            diff2eb(1:2) = 0d0 !polinta( xdatt(ikps), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
-            diff2eb(ne-1:ne) = 0d0 !polinta( xdatt(ikpe), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
+            diff2eb(1) = 0d0 !polinta( xdatt(ikps), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
+            diff2eb(ne) = 0d0 !polinta( xdatt(ikpe), xdatt(ikps+1), diff2eb(2), nqp_syml(isyml)-2)
 
             if(isyml==0) ikp=0
             if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
             do iq = 1,ne 
               ikp=ikp+1
               write(ifbndsp(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
-     &         i,dble(iq-1)/dble(ne-1),xdatt(ikp),(evlall(i,jsp,ikp)+vadd-ef0)*rydberg
-     &         ,diffeb(iq) !, diff2eb(iq), 2d0/diff2eb(iq)
+     &         i,dble(iq-1)/dble(ne-1),xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg
+     &         ,diffeb(iq) 
             enddo  
             write(ifbndsp(jsp),*)
 
@@ -3084,29 +3085,40 @@ ccccccccccccccccccccc
 !!                    /dble(nqp_syml(isyml)-1)  * (qplist(:,ikps)-qplist(:,ikpe))
 !!              2d0*kef/diffeb(iq),' at ',kef
 !!
-            nee= min(10,ne)
+
             eee = evlall(i,jsp,ikps)
+
             if( evtop-0.2<eee .and.eee<ecbot+0.2) then
+               ibindex=ibindex+1
+!! mass
                write(6,"('EFFECTIVE MASS (be careful!):  isyml,ib,isp=',i3,i4,i2,
      &         ' QPE= ', f8.3,' mass= ',100(f7.3,x))") 
-     &         isyml,i,jsp, (evlall(i,jsp,ikps)+vadd- ef0)*rydberg
-     &         , (2d0/diff2eb(ix),ix=1,nee) 
-               if(isyml==0) ikp=0
-               if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
-               do iq = 1,ne
-                 ikp=ikp+1
-                 write(ifbndsp_nearef(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
-     &             i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)+vadd- ef0)*rydberg
-     &             ,diffeb(iq) 
-               enddo  
-               write(ifbndsp_nearef(jsp),*)
-               write(ifbndsp_nearef(jsp),*)
+     &         isyml,i,jsp, (evlall(i,jsp,ikps)- eferm)*rydberg, (2d0/diff2eb(ix),ix=1,min(10,ne)) 
+               write(ifmass(jsp),"('# isyml,iq, ib,isp, QPE(at the left end of each panel), mass index=',i3 )")ibindex
+               do ix=3,ne-2
+                 write(ifmass(jsp),"(3i4,i2,' ',f8.3,' ',f13.8,' ',f13.8)")
+     &           isyml,ix,i,jsp, (evlall(i,jsp,ikps+ix-1)- eferm)*rydberg, xdatt(ikps+ix-1), 2d0/diff2eb(ix)
+               enddo
+               write(ifmass(jsp),*)
+               write(ifmass(jsp),*)
+c$$$!! nearef
+c$$$               if(isyml==0) ikp=0
+c$$$               if(isyml>0 ) ikp = sum(nqp_syml(1:isyml-1))
+c$$$               do iq = 1,ne
+c$$$                 ikp=ikp+1
+c$$$                 write(ifbndsp_nearef(jsp),"(i5, 2(1x,f12.8),3(1x,f16.10),' ',f8.3)") 
+c$$$     &             i,dble(iq-1)/dble(nqp_syml(isyml)-1), xdatt(ikp), (evlall(i,jsp,ikp)- eferm)*rydberg
+c$$$     &             ,diffeb(iq) 
+c$$$               enddo  
+c$$$               write(ifbndsp_nearef(jsp),*)
+c$$$               write(ifbndsp_nearef(jsp),*)
+
             endif
           enddo
 !! ------------
           deallocate(diffeb,diff2eb)
           close(ifbndsp(jsp))
-          close(ifbndsp_nearef(jsp))
+c$$$          close(ifbndsp_nearef(jsp))
         enddo  
 
 c$$$!! used for test purpose (plbnds )...
@@ -3116,14 +3128,14 @@ c$$$!! used for test purpose (plbnds )...
         do iq = 1,nqp_syml(isyml) 
           ikp = ikp+1
           do jsp = 1, nspx
-            if(fsmomcase) then
-               if(jsp==1) vadd=-vnow/2d0
-               if(jsp==2) vadd= vnow/2d0
-            else
-               vadd=0d0
-            endif   
+c            if(fsmomcase) then
+c               if(jsp==1) vadd=-vnow/2d0
+c               if(jsp==2) vadd= vnow/2d0
+c            else
+c               vadd=0d0
+c            endif   
             write(ifbnd,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
-            write(ifbnd,"(10f8.4)")(evlall(i,jsp,ikp)+vadd,i=1,nevls(ikp,jsp))
+            write(ifbnd,"(10f8.4)")(evlall(i,jsp,ikp),i=1,nevls(ikp,jsp))
           enddo
         enddo
       enddo  
