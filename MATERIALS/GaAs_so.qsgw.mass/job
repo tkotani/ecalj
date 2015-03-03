@@ -1,0 +1,8 @@
+mpirun -np 2 lmf-MPIK gaas -vnspin=2 -vso=1 >& llmf &
+job_band gaas -np 2 -vnspin=2 -vso=1
+gnuplot -p massplot.isp1.glt
+paste Band005Syml004Spin1.mass Band006Syml004Spin1.mass >temp
+gnuplot -persisit massfit.glt
+
+### See REAEME.md. This is a test to determine effective mass for GaAs
+###  (heavy hole 111 case). 
