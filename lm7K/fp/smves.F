@@ -220,7 +220,7 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       vcnsto = vconst
       if (mode .ne. 0) vconst = -vbar
       if (ipr .ge. 20) write (stdo,232) vbar,vcnsto,vconst
-  232 format(/' vvvvves: avg es pot at rmt=',f9.6,
+  232 format(/' smves:: avg es pot at rmt=',f9.6,
      .'  avg sphere pot=',f9.6,'  vconst=',f9.6)
       if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
 

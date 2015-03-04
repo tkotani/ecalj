@@ -308,6 +308,8 @@ C     real(8),allocatable :: qpe(:,:)
 !!     for Mulliken
       integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
      .  , nchmx , lmdim , lmxch
+      logical:: mullwrite=.false.
+
 ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
@@ -345,7 +347,7 @@ ctakao
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
-      logical:: siginit,bzwtsf_bisection !noshorbz,
+      logical::bzwtsf_bisection !noshorbz,
       real(8),allocatable:: qplist(:,:)
       real(8):: qpx(3)          !qpo(3),
 
@@ -431,7 +433,11 @@ c mar2014
       integer:: ifile_handle, fxsts
 
       character(512),save::sname,schar
+      character(512):: aaachar
       logical:: massline ,initex=.true.
+      logical,save:: siginit=.true.
+      character(10):: i2char
+
 !! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
@@ -569,7 +575,7 @@ c         ifiqb  = fopna('qbyl',-1,1)
       savez=.false.
       getz=.false.
       if (maxit .eq. 0) return
-      siginit=.true.
+c      siginit=.true. !commented out on mar2015. this makes reading sigma at every iteration.
       napw = 0
       ipr  = iprint()
       ipl  = ipr
@@ -655,12 +661,10 @@ c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
          endif
       endif
       pi = 4d0*datan(1d0)
-      if (iprint() .ge. 20) call awrit2('%N --- BNDFP:  '//
-     .  'begin iteration %i of %i ---',' ',80,stdo,iter,maxit)
+      aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
+      write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
-      if (ndham.le.0)
-     .  call rx('bndfp: hamiltonian matrix has zero dimension')
-
+      if (ndham.le.0)  call rx('bndfp: hamiltonian matrix has zero dimension')
 !!
       eterms=-99d0
       eterms(19) = 0d0
@@ -909,11 +913,21 @@ C     Allocate aus for all qp
          nevmx = ndhamx
          nlmax = globalvariables%mxorb / globalvariables%nkaph
          if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid
-     .     .eq. master)
-     .     call awrit6(' CLS: %iMb memory for aus: nlmax=%i ndham=%i '//
-     .     'nsistes=%i nsp=%i nkp=%i',' ',120,
-     .     i1mach(2),16*3*nlmax*ndham*nsites*nsp*nkp/1000000,
-     .     nlmax,ndham,nsites,nsp,nkp)
+     .     .eq. master) then
+!! this path is go through by crn test.
+c     .     call awrit6(' CLS: %iMb memory for aus: nlmax=%i ndham=%i '//
+c     .     'nsistes=%i nsp=%i nkp=%i',' ',120,
+c     .     i1mach(2),16*3*nlmax*ndham*nsites*nsp*nkp/1000000,
+c     .     nlmax,ndham,nsites,nsp,nkp)
+            aaachar=
+     &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
+     &        ' Mb memory for aus: nlmax='//trim(i2char( nlmax))//
+     &        ' ndham='  //trim(i2char( ndham))//
+     &        ' nsistes='//trim(i2char( nsites))//
+     &        ' nsp='    //trim(i2char( nsp))//
+     &        ' nkp='    //trim(i2char( nkp))
+            write(6,"(a)") aaachar
+         endif
          allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))
          ausc_zv(:)=0.0d0
       else
@@ -975,14 +989,13 @@ c$$$ 128  continue
 
 C --- Setup moments file : write header ---
       nl = int(sctrl%nl)
-      nfilem = 0
-      if (procid .eq. master) then
+      mullwrite = .false.
+      if(cmdopt('--mull',6,0,strn).and.procid==master) then
+#if MPIK
+         call rx('MULL not k-parallel yet... Need to fix this if necessary')
+#endif
          nfilem = fopna('moms',-1,4)
-      endif
-C     if (cmdopt('--mull',6,0,strn)) nfilem = fopna('moms',-1,4)
-C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
-      if(debug) print *,'vvvvv 000aaa 22222222qqq '
-      if (nfilem .gt. 0) then
+         mullwrite = .true.
          rewind nfilem
          i = 1
 C   ... If switch '--mull'; get sites, number of channels
@@ -1001,8 +1014,6 @@ C   ... If switch '--mull'; get sites, number of channels
             deallocate(chan0_iv)
             call iomomn(.true.,2,.false.,1,nspc,1,1,i)
          endif
-         if(debug) print *,'vvvvv 111aaa 22222222qqq '
-         if(debug) print *,'vvvvv 22222222qqq111 '
          if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
      .     ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
       endif
@@ -1218,45 +1229,50 @@ c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
          allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
          dwgtall=0d0
       endif
-!! --- New sigma inerpolation mode. Simplified.
-      sigmamode = mod(lrsig,10) .ne. 0
-      if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
+
 !! --- get index for hamiltonian for m_hamindex takao june2009
-!! this must be used for the case of QSGW.
-      if(iter==1.and.onlyonce) then
+!! these are used in sigm mode(QSGW).
+!! memo:
+!!  ib = atom index
+!!  ltab= L (angular momentum index)
+!!  ktab=  =1 for EH, =2 for EH2, =3 for lo
+      if(onlyonce) then 
          onlyonce=.false.
-         nbasp=sctrl%nbasp
-         nl=sctrl%nl
+         nbasp = sctrl%nbasp
+         nl    = sctrl%nl
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
-     .     nbasp , sham%iv_a_oindxo , ldim , siginit,llmfgw.or.lrsig/=0,jobgw) !aug2012
-!! kino ib=atom index
-!! kino ltab=L
-!! kino ktab=  =1 for EH, =2 for EH2, =3 for  cMTO
-         if(iprint()>29) then
+     .     nbasp , sham%iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
+c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
+         if(procid==master) then
             write(6,*)
             write(6,*) ' --- Hamiltonian index ---'
             write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-            do  iorb = 1, norbmto
-               ib = ibastab(iorb)
-               is=ssite(ib)%spec
-               do i_spacks=is,is
-                  call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-               enddo
-               write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
-     &           offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+            do iorb = 1, norbmto !Total number of MTO's
+              ib   = ibastab(iorb)
+              is   = ssite(ib)%spec
+              call r8tos8(sspec(is)%name,spid)
+              write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
+     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
             enddo
          endif
       endif
 
-!! === Store real space \Sigma-Vxc to sham%rv_a_ohrs.
+!! === \Sigma-Vxc to sham%rv_a_ohrs. Neighbor table sham%iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
-      if(debug) print *,' --- goto rdsigm2 section ---'
-      if( sigmamode.and.siginit .and. (.not.(llmfgw.and.jobgw==0)) ) then
-         if(mtosigmaonly()) ndimsig= ldim 
-         rsrnge = sham%rsrnge
+!! --- New sigma inerpolation mode. Simplified.
+!! OUTPUT in this block is used in
+!!   call bloch 
+!!  where we use sham%iv_a_oiaxs , sham%rv_a_ohrs, sham%ndhrs and so on.
+!!  In future, we should make this block to a subroutine which shows clear i/o.
+      sigmamode = mod(lrsig,10) .ne. 0
+      if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
+      if(sigmamode.and.siginit .and. (.not.(llmfgw.and.jobgw==0)) ) then
+         write(6,*)' --- goto rdsigm2 initialization section ---',procid
+         ndimsig= ldim  !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
          if(procid==master) then
-            if(oncewrite(9)) print *,'rsrnge procid=',rsrnge,procid
+            rsrnge = sham%rsrnge
+            write(6,*)'rsrnge procid=',rsrnge,procid
             ifi = fopna('sigm',-1,4)
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
             allocate( qsmesh(3,nk1,nk2,nk3) )
@@ -1274,13 +1290,11 @@ c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
             if (ldim .ne. ndham) then !june2009 takao
                write(6,"(a,2i5)")" --- ndham (>=max of ham dimension) =",ndham
             endif
-
 !! sfz is the self-energy roteted in the full BZ.
 !!   ndham is removed sep2012 (read from sigma file )
             call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
      &        nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
             call fclose(ifi)
-
 c$$$!! --- write sig_fbz for SYMGRP e
 c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
 c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
@@ -1313,14 +1327,13 @@ c$$$            endif
             call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
             do
-               npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
-               allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
-               call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
-               if(ok) exit
-               deallocate( nlat, qwgt )
+              npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
+              allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
+              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
+              if(ok) exit
+              deallocate( nlat, qwgt )
             enddo
             deallocate(pos,npair)
-
 !! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
 !!    The main input of the subroutine seneinterp is sfz. 
 !!    The seneinterp stores real-space sigma to sham%rv_a_ohrs (real space representation), 
@@ -1336,8 +1349,7 @@ c            endif
             call fclose(ifi)
             deallocate(sfz)
             deallocate(qsmesh,nlat,qwgt)
-         endif                  ! procid==master
-
+         endif             !procid==master
 #ifdef MPIK
 !! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
          if(procid==master) then
@@ -1345,7 +1357,6 @@ c            endif
             nsizeoiaxs = size( sham%iv_a_oiaxs )
             nsizeontabs= size(sham%iv_a_ontabs)
             noqsig = size(sham%rv_p_oqsig)
-c     print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sham%rv_a_ohrs),noqsig 
          endif
          call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
          call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
@@ -1353,8 +1364,8 @@ c     print *,'vvvvv size=',size(sham%iv_a_ontabs),size(sham%iv_a_oiaxs),size(sh
          call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
          call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
          call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
+!! allocate and broadcast
          if(procid/=master) then
-c     print *,' allocate procid=',procid
             if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
             allocate( sham%rv_a_ohrs(nsizeohrs) )
             if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
@@ -1363,16 +1374,17 @@ c     print *,' allocate procid=',procid
             allocate( sham%iv_a_ontabs(nsizeontabs))       
             if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
             allocate(sham%rv_p_oqsig(noqsig))
-         endif 
-c         print *,' m1111 procid=',procid
+         endif   
          call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
          call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
          call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
          call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
-c     print *,' m2222 procid=',procid
+         call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
-         siginit=.false.
-      endif                     !end of sigmamode if
+         siginit=.false. !this is equivalent to broad casting.
+         write(6,*)' --- end of rdsigm2 initialization section --- procid=',procid
+      endif    ! end of sigmamode
+
 
 !! == GW driver ==
       if(llmfgw) then
@@ -1386,12 +1398,12 @@ c     print *,' m2222 procid=',procid
          call tcx('bndfp')
 #if MPIK
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
-c        call mpi_finalize(ierr)  !NOTE: exit() in sunroutine seems to contain rx0. ???
 #endif
          call rx0('sugw mode')  !exit program here normally.
       endif
 
-!! === do loop for iq and isp ===
+
+!! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       if(allocated(nevls)) deallocate(nevls)
       allocate(nevls(nkp,nspx))
@@ -1415,7 +1427,6 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       iqini=1
       iqend=nkp
 #endif
-
       initiqisp=.true.
       if(allocated(ndimhx_)) deallocate(ndimhx_)
       if(allocated(nev_)) deallocate(nev_)
@@ -1432,10 +1443,17 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
          if (iq .eq. kpproc(procid)) then
             if (mlog) then
                call gettime(datim)
-               call awrit4(' bndfp '//datim//' Process %i of %i on '
-     .           //shortname(procid)(1:namelen(procid))//
-     .           ' starting k-points %i to %i',' ',256,lgunit(3),
-     .           procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
+c               call awrit4(' bndfp '//datim//' Process %i of %i on '
+c     .           //shortname(procid)(1:namelen(procid))//
+c     .           ' starting k-points %i to %i',' ',256,lgunit(3),
+c     .           procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
+               aaachar=' bndfp '//datim//' Process '//
+     &           trim(i2char(procid))//' of '//
+     &           trim(i2char(numprocs))//' on '//
+     &           shortname(procid)(1:namelen(procid))//' starting k-points '//
+     &           trim(i2char( kpproc( procid)))//' to '//
+     &           trim(i2char( kpproc(procid+1)-1))
+               write(6,"(a)")aaachar
             endif
          endif
 #endif
@@ -1450,7 +1468,6 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
                enddo
             endif
          endif
-         
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -1459,7 +1476,6 @@ c      ! eight corners -->  qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc
 c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 
 !! ... Loop over majority, minority spins
 !!     In the SO case, still a loop isp=1..2
@@ -1770,11 +1786,7 @@ c     then how can I share the same file among the different processes?
 
 !! Mulliken analysis
                if (lwtkb .ne. -1) then
-                  if (procid .eq. master) then
-                     if (cmdopt('--mull',6,0,strn)) then
-#if MPIK
-                        call rx('MULL not k-parallel.')
-#endif
+                  if (mullwrite) then
                         call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
                         call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
                         allocate(doswt_rv(nchan*nevmx*nspc))
@@ -1787,10 +1799,6 @@ c     then how can I share the same file among the different processes?
      .                    nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
      .                    , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
                         if (allocated(doswt_rv)) deallocate(doswt_rv)
-                     elseif (nfilem .gt. 0) then
-                        write (nfilem) 0, ndimhx
-                        call dpdump(evl(1,jsp),ndimhx,-nfilem)
-                     endif
                   endif
                endif   
 
@@ -1958,9 +1966,8 @@ c            endif
       inquire(unit=ifig,opened=nexist)
       if(nexist) call fclose(ifig)
 !! ========== end of iq loop ====================================================
-      if(debug.and.PROCARon) print *,'mmmmmmmmmmmmmmmmmm procid sum dwgt check=',procid,sum(dwgtall)
       if(debug) print *, 'tttttttttt 9999999999999999999 3',procid
-
+      if(debug.and.PROCARon)print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
 
 !! === pdos mode (--mkprocar and --fullmesh). ===
       if(PROCARon.and.fullmesh) then
@@ -1970,7 +1977,7 @@ c            endif
          call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
 #endif
          if(procid==master) then  
-            if(debug) print *,'mmmmmmmmmmmmmmmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
+            if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
 !! tetrahedron without symmetry
             allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
             iq=0
@@ -2225,11 +2232,14 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
                      if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
                      if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
                   endif
-                  if (i .eq. 2) then
-                     call awrit3('%N evl(nev=%i)=%;3d but '//
-     .                 'ef0=%;3d ... restart with larger efmax or nevmx',
-     .                 ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
-                     call rx('bndfp')
+                  if(i .eq. 2) then
+c                     call awrit3('%N evl(nev=%i)=%;3d but '//
+c     .                 'ef0=%;3d ... restart with larger efmax or nevmx',
+c     .                 ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
+                     write(6,"(a,f13.5,f13.5)")
+     &                 'evl(nev='//trim(i2char(nev_iq))//')=',
+     &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
+                     call rx('bndfp:... restart with larger efmax or nevmx: bndfp')
                   endif
                endif
             endif
@@ -2292,8 +2302,9 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
          sbz%def=def
          if (lrep .eq. 1) then
             ef0 = -1
-            call awrit0('Input Fermi energy was too far off, '//
-     .        'repeat band pass',' ',80,stdo)
+c            call awrit0('Input Fermi energy was too far off, '//
+c     .        'repeat band pass',' ',80,stdo)
+           write(6,*)'Input Fermi energy was too far off, repeat band pass'
 #ifdef MPIK
             call mpi_barrier(MPI_comm_world,ierr)  
 #endif
@@ -2428,15 +2439,15 @@ c$$$         call poppr
 !! == 99 loop over =============================
 
 
-
-
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
          if (lmet .eq. 0) then
             ef0 = (evtop+ecbot)/2
-            if (ipr .ge. 20) call awrit3(' Highest occ. level = %,5;5d '//
-     .        ' Lowest unocc. = %,5;5d  average = %,5;5d',' ',80,
-     .        stdo,evtop,ecbot,ef0)
+c            if (ipr .ge. 20) call awrit3(' Highest occ. level = %,5;5d '//
+c     .        ' Lowest unocc. = %,5;5d  average = %,5;5d',' ',80,
+c     .        stdo,evtop,ecbot,ef0)
+            write(6,"(' Highest occ. level = ',f13.5,
+     &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif
          if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
@@ -2446,14 +2457,13 @@ c$$$         call poppr
       endif
 
 !! ... Cleanup asa-style moments file, print table of DOS channels
-      if (nfilem .gt. 0) then
+!! now only for --mull mullikan analysis mode.
+      if (mullwrite) then
          i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
      .     ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
          call fclose(nfilem)
-         if (iprint() .ge. 10 .and. cmdopt('--mull',6,0,strn)) then
-            call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
-     .        0 , 0 , 0 , 0 , chan_iv )
-         endif
+         call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
+     .     0 , 0 , 0 , 0 , chan_iv )
       endif
 
 !! ... Average forces so net force on system is zero (APW case)
@@ -2475,7 +2485,9 @@ c$$$         call poppr
       if(.not. lwndow .and. procid==master) then
          ndos0 = sbz%ndos
          if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
-            if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
+c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
+            if(ndos0<0) write(6,"(a,i5)")'... Generating integrated DOS, ndos0=',ndos0
+            if(ndos0>0) write(6,"(a,i5)")'... Generating total DOS, ndos0=',ndos0
             if (ltet) then
 !! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
@@ -3164,4 +3176,31 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
       enddo
       call rx('ifile_handle: we did not find open file handle')
       end
+
+      character(10) function i2char(num)
+!! convert num>0 to char. See charnum3 to understand this.
+      implicit none
+      integer(4) ::num,itens,iten,i
+      i2char=''
+      do itens=9,1,-1 !itens mean itens+1's digit
+        iten=10**itens
+        if(num>=iten) i2char=trim(i2char)//char(48+mod(num/iten,10))
+      enddo
+      i2char = trim(i2char)//char(48+mod(num,10)) !1st digit
+c      print *,'num ',num,' i2char= ',i2char,' xxx',48+mod(num,10)
+c      print *,'i2char ',char(48+mod(num,10)) , 'xxx',iii//char(48+mod(num,10)) 
+      end
+c$$$      character(3) function charnum3(num) !3digit.
+c$$$      integer(4) ::num
+c$$$      charnum3 = 
+c$$$     &           char(48+mod(num/100,10))//
+c$$$     &           char(48+mod(num/10,10))//
+c$$$     &           char(48+mod(num,10))
+c$$$      end
+c$$$      character(26) function f2char(adat)
+c$$$      real(8):: adat
+c$$$      character(38):: bbb
+c$$$      write(bbb,"(f38.16)")adat
+c$$$      f2char=adjustl(bbb)
+c$$$      end
 
