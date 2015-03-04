@@ -408,7 +408,7 @@ c mar2014
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
-      character*256:: ccc,sss
+      character*256:: ccc,sss,s222
       logical:: initbd=.true.
 
       integer:: nspsigm,ispsigm !nov2014
@@ -437,7 +437,7 @@ c mar2014
       logical:: massline ,initex=.true.
       logical,save:: siginit=.true.
       character(10):: i2char
-
+      integer::ipos
 !! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debug',6,0,strn)
@@ -452,14 +452,17 @@ c mar2014
       if(procid==master.and.initex) then !a trick to get the extension of ctrlfile
         ifi=fopn('temptempxxx') 
         sss=''
-        INQUIRE (ifi, NAME=sss) !second run, ifi is not returened.
-        sname=sss(13:)
+        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
         call fclose(ifi)
+        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
+        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
+        ifi=ifile_handle()
         open(ifi, file='temptempxxx.'//trim(sname)) 
         close(ifi,status='delete')
         initex=.false.
       endif
-      if(procid==master) write(6,*) "bndfp: ctrl extension is ==="//trim(sname)//"==="
+      if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
+
 
 !!=== Another pdos mode (use --mkprocar and --fullmesh together). ===
 !! --pdos mode did not work for QSGW now.
