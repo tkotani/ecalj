@@ -698,32 +698,33 @@ C         call zprm('z2r',z2r,ngb,ngb,ntq)
 c      write(6,*)mpi__rank,'matzwz2 end'
       end subroutine matzwz2
 
+
 !> even function version of alagr3z
 !! return the interpolated value on x for fi(xi).
 !! We assume even function.
 !! Imag part is corrected to be >0
-      complex(8) function alagr3z2(x,xi,fi,i,j)  !sf 24 May02
+      complex(8) function alagr3z2(x,xi,fi, ieqj) !mar2015  i,j) -->ieqj)
       implicit none
-      integer(4), intent(in) :: i,j
+c      integer(4), intent(in) :: i,j
+      logical:: ieqj
       real(8),    intent(in) ::  x, xi(3)
       complex(8), intent(in) :: fi(3)
-
       integer(4) :: n
       real(8) :: amatinv(3,3),amat(3,3),ratio,detxx
-
 c--- Assure that dimag(fi) is positive.
       if(x<0d0) call rx( ' alagr3z2: x<0d0')
-      if (i==j) then  !sf 24 May02 only diagonal Im[Sigma_ii] should be negative
-        do n=1,3
-          if(dimag(fi(n))>1d-8) then
-            ratio= abs(dimag(fi(i))/dreal(fi(i)))
-            if( ratio >1d-8) then !jan2004. I added a bit of alloance
-              print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-              call rx( ' alagr3z: error! dimag(fi(i)) is positive')
-            endif
-          endif
-        enddo
-      endif !(i=j)
+!! takao think fi(i) is a bug. --- march2015. But no effect to old results, since we supply real fi.
+c$$$      if (i==j) then  !sf 24 May02 only diagonal Im[Sigma_ii] should be negative
+c$$$        do n=1,3
+c$$$          if(dimag(fi(n))>1d-8) then
+c$$$            ratio= abs(dimag(fi(i))/dreal(fi(i))) 
+c$$$            if( ratio >1d-8) then !jan2004. I added a bit of alloance
+c$$$              print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
+c$$$              call rx( ' alagr3z: error! dimag(fi(i)) is positive')
+c$$$            endif
+c$$$          endif
+c$$$        enddo
+c$$$      endif !(i=j)
 c
       amat(1:3,1) = 1d0
       amat(1:3,2) = xi(1:3)**2
@@ -736,7 +737,7 @@ c
 c--- imag part of alagr3z is positive because interpolation could give
 c    negative values even if all fi(i) <0.
 c
-      if(i==j) then
+      if(ieqj) then !mar2015 if(i==j) then
         if(dimag(alagr3z2)>0d0 ) then
           alagr3z2 = dcmplx( dreal(alagr3z2),0d0)
         endif
