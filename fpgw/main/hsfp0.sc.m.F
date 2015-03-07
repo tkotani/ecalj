@@ -933,7 +933,7 @@ c     loop over spin ----------------------------------------------------
 c     i        tiat,miat,
      i        nspin,is,   
      i        qbas,ginv,qibz,qbz ,wbz, nstbz, 
-     i        nstar,irkip(is,:,:,:),nrkip(is,:,:,:),
+     i        irkip(is,:,:,:),nrkip(is,:,:,:),
 c    i        iclass,nblocha,nlnmv,nlnmc, 
 c     i        icore,ncore,imdim,
 c     i        ppb,              ! pdb,dpb,ddb,
@@ -952,7 +952,7 @@ c     i        ppb,              ! pdb,dpb,ddb,
      i        nbmx,ebmx,        !takao 18June2003 
 c     i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i        wklm,lxklm,       !mar2012
-     i        invg,il,in,im,nn, lx,nx,nxx,cgr,ppbrd, !sep 2012 ,nlnm
+     i        invg,il,in,im,nn, lx,nx,nxx,ppbrd, !sep 2012 ,nlnm,cgr
      i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
      o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
 

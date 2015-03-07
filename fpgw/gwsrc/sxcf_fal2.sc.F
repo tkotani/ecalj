@@ -1,10 +1,7 @@
       subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr, !tiat,miat,
      i nsp,isp,             
      i qbas,ginv,
-     i qibz,qbz,wk,nstbz,nstar,irkip,nrkip, 
-c     i     iclass,mdim,nlnmv,nlnmc,
-c     i     icore, ncore,imdim,
-c     i     ppb,                 
+     i qibz,qbz,wk,nstbz,irkip,nrkip, 
      i freqx,wx,dw,         
      i ecore,
      d nlmto,nqibz,nqbz,nctot,
@@ -15,18 +12,14 @@ c     i     ppb,
      & exchange,screen,cohtest, ifexsp,
      i iSigma_en,           
      i nbmx,ebmx,           
-c     i     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i wklm,lxklm,          
-     i invg,il,in,im,nn_,lx,nx_,nxx_,cgr,ppbrd, !,nlnm
+     i invg,il,in,im,nn_,lx,nx_,nxx_,ppbrd, !,nlnm
      i diagonly, eftrue,
      o zsec,coh,nbandmx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi,readgeig
       use keyvalue,only: getkeyvalue
-c      use m_mpi, only: mpi__rank 
       use m_zmel,only: get_zmelt,ppovlz,  zmel,zmeltt 
-
-!"call get_zmelt" returns  zmelt or zmeltt
       implicit none
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
@@ -63,192 +56,86 @@ c      use m_mpi, only: mpi__rank
 !!     <i|Re[S](e_i)|j> and transpose(dconjg(<i|Re[S](e_i)|j>)).
 !!     ---because e_i is included.
 !!     The symmetrization (hermitian) procedure is inlucded in hqpe.sc.F
+!!
+!!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
 !! \endverbatim
-
-c original document for sce.f (correlation case) is kept. This is by F.Aryasetiawan.
-c Current GW code is very away from his original, but kept here as a reference.
-c     92.02.24
-c     93.10.18 from sec.f modified to take into account equivalent atoms
-c     calculates the correlated part of the self-energy SE
-c     SEc(q,t,t') = <psi(q,t) |SEc| psi(q,t'>
-c     SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
-
-c     the zeroth order Green function
-c     G(r,r';w)   = S[occ]   psi(kn,r) psi(kn,r')^* /(w-e(kn)-i*delta)
-c     + S[unocc] psi(kn,r) psi(kn,r')^* /(w-e(kn)+i*delta)
-
-c     the screened coulomb potential
-c     Wc(r,r';w)  = W(r,r';w) - v(|r-r'|)
-c     = < [r1,r2] v(|r-r1|) X(r1,r2;w) v(|r2-r'|) >
-c     W(r,r';w)   = < [r''] ei(r,r'';w) v(|r''-r'| >
-c     ei          = e^(-1), inverse dielectric matrix
-c     = 1 + vX
-c     e           = 1 - vX0 in RPA
-
-c     expand Wc(r,r';w) in optimal product basis B
-c     Wc(r,r';w)  = S[k=FBZ] S[i,j=1,nbloch]
-c     B(k,i,r) Wc(k,w)(i,j) B(k,j,r')^*
-c     Wc(k,w)(i,j) are  the matrix elements of Wc in B
-
-c     SEc(q,t,t') = S[k=FBZ] S[n=occ]   S[i,j=1,nbloch]
-c     <psi(q,t) |psi(q-k,n) B(k,i)> <B(k,j) psi(q-k,n) |psi(q,t')>
-c     (i/2pi) <[w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n)-i*delta)>
-c     
-c     + S[k=FBZ] S[n=unocc] S[i,j=1,nbloch]
-c     <psi(q,t) |psi(q-k,n) B(k,i)> <B(k,j) psi(q-k,n) |psi(q,t')>
-c     (i/2pi) <[w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n)+i*delta)>
-
-c     the analytic structure of GWc for w .le. ef
-c     |
-c     |   o = pole of G
-c     ^   x = pole of Wc
-c     |
-c     |   ef-w
-c     |----<-----
-c     |          |
-c     o  o  o  o  o |o  o  o   ^
-c     x  x  x  x  x  x|          |
-c     -----------------------------|---->------------------------------
-c     |x  x  x  x  x  x  x  x
-c     |              o  o  o  o  o
-c     |       <----->
-c     ^        gap in insulator
-c     |
-c     |
-
-c     the analytic structure of GWc for w .gt. ef
-c     |
-c     |   o = pole of G
-c     |   x = pole of Wc
-c     |
-c     gap in insulator      ^
-c     <----->        |
-c     o  o  o  o               |
-c     x  x  x  x  x  x  x  x|
-c     ------------------------>----|-----------------------------------
-c     |           |x  x  x  x  x  x  x  x
-c     ^   o  o  o  o  o  o  o
-c     |           |
-c     ------<----|
-c     w-ef    |
-c     ^
-c     |
-
-c     integration along the real axis from -inf to inf is equivalent to
-c     the integration along the path shown
-
-c------------------------------------------------------------
-c     integration along the imaginary axis: wint (s. also wint.f) (takao ->wintz)
-c     (i/2pi) < [w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n) >
-c     the i*delta becomes irrelevant
-c------------------------------------------------------------
-c     
-c     omit k and basis index for simplicity and denote e(q-k,n) = e
-c     wint = (i/2pi) < [w'=-inf,inf] Wc(w')/(w+w'-e) >
-c     
-c     w' ==> iw', w' is now real
-c     wint = - (1/pi) < [w'=0,inf] Wc(iw') (w-e)/{(w-e)^2 + w'^2} >
-c     
-c     transform: x = 1/(1+w')
-c     this leads to a denser mesh in w' around 0 for equal mesh x
-c     which is desirable since Wc and the lorentzian are peaked around w'=0
-c     wint = - (1/pi) < [x=0,1] Wc(iw') (w-e)x^2/{(w-e)^2 + w'^2} >
-c     
-c     the integrand is peaked around w'=0 or x=1 when w=e
-c     to handel the problem, add and substract the singular part as follows:
-c     wint = - (1/pi) < [x=0,1] { Wc(iw') - Wc(0)exp(-a^2 w'^2) }
-c     * (w-e)/{(w-e)^2 +w'^2}x^2 >
-c     - (1/2) Wc(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
-c     
-c     the second term of the integral can be done analytically, which
-c     results in the last term
-c     a is some constant
-c     
-c     when w = e, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w') and
-c     the integral becomes -Wc(0)/2
-c     this together with the contribution from the pole of G (s.u.)
-c     gives the so called static screened exchange -Wc(0)
-
-c--------------------------------------------
-c     contribution from the poles of G: SEc(pole)
-c--------------------------------------------
-c     
-c     for w .le. ef
-c     SEc(pole) = - S[k=FBZ] S[n=occ] S[i,j=1,nbloch]
-c     <psi(q,t) |psi(q-k,n) B(k,i)> <B(k,j) psi(q-k,n) |psi(q,t')>
-c     Wc(k,e(q-k,n)-w)(i,j) theta(e(q-k,n)-w)
-c     
-c     for w .gt. ef
-c     SEc(pole) = + S[k=FBZ] S[n=unocc] S[i,j=1,nbloch]
-c     <psi(q,t) |psi(q-k,n) B(k,i)> <B(k,j) psi(q-k,n) |psi(q,t')>
-c     Wc(k,w-e(q-k,n))(i,j) theta(w-e(q-k,n))
-c     
-c     theta(x)  = 1   if x > 0
-c     = 1/2 if x = 0
-c     = 0   if x < 0
-
-c     FBZ = 1st BZ
-c     NOTE: the routine only calculates the diagonal elements of the SE
-c     i.e. SEc(q,t)
-
-c     q       = q-vector in SEc(q,t)
-c     itq     = states t at q
-c     ntq     = no. states t
-c     eq      = eigenvalues at q
-c     ef      = fermi level in Rydberg
-c     tr      = translational vectors in rot*R = R' + T
-c     iatomp(R) = R'
-c     ifrw,ifcw,ifrwi,ifcwi
-c     = direct access unit files for Re and Im coulomb matrix
-c     along real and imaginary axis
-c     ifrb,ifcb,ifrhb,ifchb
-c     = direct access unit files for Re and Im b,hb
-c     qbas    = base reciprocal lattice vectors
-c     ginv    = inverse of qbas s. indxrk.f
-cxxxxxippb,ipdb,idpb,iddb = pointers to work array w for
-c     ppb     = <phi(RLn) phi(RL'n') B(R,i)>
-c     pdb     = <phi(RLn) phidot(RL'n') B(R,i)>
-c     dpb     = <phidot(RLn) phi(RL'n') B(R,i)>
-c     ddb     = <phidot(RLn) phidot(RL'n') B(R,i)>
-c     freq    = frequencies along real axis
-c     freqx   = gaussian frequencies x between (0,1)
-c     freqw   = (1-freqx)/freqx
-c     wx      = weights at gaussian points x between (0,1)
-c     ua      = constant in exp(-ua^2 w'^2) s. wint.f
-c     expa    = exp(-ua^2 w'^2) s. wint.f
-c     dw      = frequency mesh along real axis
-c     deltaw  = energy mesh in SEc(qt,w) ---Not used now
-c     iclass  = given an atom, tells the class
-c     wk      = weight for each k-point in the FBZ
-c     indexk  = k-point index
-c     qbz     = k-points in the 1st BZ
-c     nstar   = no. stars for each k
-c     irkip(k,R,nq) = gives index in the FBZ with k{IBZ, R=rotation
-c     mdim    = dimension of B(R,i) for each atom R
-c     work arrays:
-c     rbq,cbq     = real and imaginary part of b(q)
-c     rhbq,chbq   = real and imaginary part of hb(q)
-c     rbkq,cbkq   = real and imaginary part of b(q-k)
-c     rhbkq,chbkq = real and imaginary part of hb(q-k)
-c     b is the eigenvector of the LMTO-Hamiltonian
-c     ekq     = eigenvalues at q-k
-c     rmel,cmel = real and imaginary part of
-c     <psi(q,t') | psi(q-k,t) B(k,R,i)>
-c     wr1 ... = work arrays
-c     dimensions:
-c     nqibz   = number of k-points in the irreducible BZ
-c     n1,n2,n3= divisions along base reciprocal lattice vectors
-c     natom   = number of atoms
-c     nctot   = no. allowed core states
-c     nbloch  = total number of Bloch basis functions
-c     nlnmx   = maximum number of l,n,m
-c     nlmto   = total number of LMTO basis functions
-c     ngrp    = no. group elements (rotation matrices)
-c     niw     = no. frequencies along the imaginary axis
-c     nw      = no. frequencies along the real axis
-c     
-c     secq(t) = <psi(q,t) |SEc| psi(q,t)>
-c----------------------------------------------------------------------
+!!
+!! Calculate the exchange part and the correlated part of self-energy.
+!! T.Kotani started development after the analysis of F.Aryasetiawan's LMTO-ASA-GW.
+!! We still use some of his ideas in this code.
+!!
+!! See paper   
+!! [1]T. Kotani and M. van Schilfgaarde, “Quasiparticle self-consistent GW method: 
+!!     A basis for the independent-particle approximation,” Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
+!! [2]T. Kotani, “Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!    and Muffin-Tin Orbital Method,” J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!!
+!! =======================================================================
+!! Omega integral for SEc
+!! The integral path is deformed along the imaginary-axis, but together with contribution of poles.
+!! See Fig.1 and around in Ref.[1].
+!!
+!! ---Integration along imaginary axis.---
+!!( Current version for it, wintzsg_npm, do not assume time-reversal when npm=2.)
+!! Integration along the imaginary axis: -----------------
+!!    (Here is a memo by F.Aryasetiawan.)
+!!     (i/2pi) < [w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n) >
+!!    Gaussian integral along the imaginary axis.  
+!!    transform: x = 1/(1+w')
+!!     this leads to a denser mesh in w' around 0 for equal mesh x
+!!    which is desirable since Wc and the lorentzian are peaked around w'=0
+!!     wint = - (1/pi) < [x=0,1] Wc(iw') (w-e)x^2/{(w-e)^2 + w'^2} >
+!!     
+!!     the integrand is peaked around w'=0 or x=1 when w=e
+!!     to handel the problem, add and substract the singular part as follows:
+!!     wint = - (1/pi) < [x=0,1] { Wc(iw') - Wc(0)exp(-a^2 w'^2) }
+!!     * (w-e)/{(w-e)^2 +w'^2}x^2 >
+!!     - (1/2) Wc(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
+!!     
+!!     the second term of the integral can be done analytically, which
+!!     results in the last term a is some constant
+!!     
+!!     when w = e, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w') and
+!!     the integral becomes -Wc(0)/2
+!!     this together with the contribution from the pole of G (s.u.)
+!!     gives the so called static screened exchange -Wc(0)
+!!
+!! ---Integration along real axis (contribution from the poles of G: SEc(pole))
+!!    See Eq.(34),(55), and (58) and around in Ref.[1]. We now use Gaussian Smearing.
+!! =======================================================================
+!
+!! ----------------------------------------------
+!!     q     =qip(:,iq)  = q-vector in SEc(q,t). 
+!!    itq     = states t at q
+!!    ntq     = no. states t
+!!    eq      = eigenvalues at q
+!!     ef      = fermi level in Rydberg
+!!   WVI, WVR: direct access files for W. along im axis (WVI) or along real axis (WVR)
+!!   freq_r(nw_i:nw)   = frequencies along real axis. freq_r(0)=0d0
+!!
+!!    qbas    = base reciprocal lattice vectors
+!!    ginv    = inverse of qbas s. indxrk.f
+!!
+!!     wk     = weight for each k-point in the FBZ
+!!    qbz     = k-points in the 1st BZ
+!!
+!!    wx      = weights at gaussian points x between (0,1)
+!!     ua_      = constant in exp(-ua^2 w'^2) s. wint.f
+!!     expa    = exp(-ua^2 w'^2) s. wint.f
+!!
+!!    irkip(k,R,nq) = gives index in the FBZ with k{IBZ, R=rotation
+!!
+!!   nqibz   = number of k-points in the irreducible BZ
+!!   nqbz    =                           full BZ
+!!    natom   = number of atoms
+!!    nctot   = total no. of allowed core states
+!!    nbloch  = total number of Bloch basis functions
+!!    nlmto   = total number of MTO+lo basis functions
+!!    ngrp    = no. group elements (rotation matrices)
+!!    niw     = no. frequencies along the imaginary axis
+!!    nw_i:nw  = no. frequencies along the real axis. nw_i=0 or -nw.
+!!    zsec(itp,itpp,iq)> = <psi(itp,q(:,iq)) |SEc| psi(iq,q(:,iq)>
+!! ----------------------------------------------
       integer:: dummy4doxygen
 
 ! input variables
@@ -256,7 +143,7 @@ c----------------------------------------------------------------------
       integer, intent(in) :: ntq,natom,nqbz,nqibz,ngrp,nq,niw
       integer, intent(in) :: nband,nlmto,nq0i,nctot,isp,nsp !,mdim(*) !,nlnmx
       integer, intent(in) :: ifvcfpout,nbloch,nclass,nl,nnc, nblochpmx
-      integer, intent(in) :: itq(ntq),nstar(nqibz) !miat(natom,ngrp),mdimx,
+      integer, intent(in) :: itq(ntq) !,nstar(nqibz) !miat(natom,ngrp),mdimx,
       integer, intent(in) :: irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq)
       integer, intent(in) :: kount(nqibz,nq),ngpmx,ngcmx,ifexsp,iSigma_en
       integer, intent(in) :: nbmx(2) !,nlnmv(*),nlnmc(*)!,iclass(*),icore(*)
@@ -265,27 +152,23 @@ c----------------------------------------------------------------------
       integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
       real(8), intent(in) :: wgt0(nq0i,ngrp),symgg(3,3,ngrp)
       real(8), intent(in) :: q0i(1:3,1:nq0i),shtvg(3,ngrp),alat,ecore(nctot)
-      real(8), intent(in) :: coh(ntq,nq),qbas(3*3),ginv(3*3)
+      real(8), intent(in) :: coh(ntq,nq),qbas(3,3),ginv(3,3)
       real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
       real(8), intent(in) :: qbz(3,nqbz),freqx(niw),wx(niw),ef,esmr,dw
       real(8), intent(in) :: ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo)
-      real(8), intent(in) :: cgr(*),qip(3,*),eftrue
-c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
-!!
-      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)
-c      real(8), intent(in) :: ppb(*)
-
+      real(8), intent(in) :: qip(3,nq),eftrue
 ! output variables
       integer, intent(out) ::nbandmx(nq)
-      complex(8), intent(out) :: zsec(ntq,ntq,nq)          
-cccccccccccccccccc
-      complex(8) :: zsecx(ntq,ntq,nq)          
-cccccccccccccccccccccc
+      complex(8), intent(out) :: zsec(ntq,ntq,nq)
 
 ! local variables
+c     complex(8) :: zsecx(ntq,ntq,nq)          
+c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
+c$$$      logical :: ua_auto !fixed to be .false.
+      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)
+
       integer :: ifrcw,ifrcwi
       logical :: initp=.true.
-c$$$      logical :: ua_auto !fixed to be .false.
       real(8),allocatable:: vcoud(:)
 
       integer :: ip, it, itp, i, ix, kx, irot, kr
@@ -306,7 +189,6 @@ c$$$      logical :: ua_auto !fixed to be .false.
       complex(8) :: zwzs0,zz2,zwz3(3)
 
 ! local arrays
-ccc ,rmelt(:,:,:),cmelt(:,:,:)
       real(8),allocatable :: freq_r(:)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
@@ -326,11 +208,11 @@ c      logical :: smbasis
 c      logical :: test_symmetric_W
 c      logical :: GaussSmear !fixed to be T
 c      logical :: newaniso !fixed to be T
+c      integer :: bzcase !fixed to be 1
       character(5) :: charnum5
-c      integer(4) :: bzcase !fixed to be 1
-      integer(4) :: iopen,iclose
+      integer :: iopen,iclose
       integer :: invrot
-      complex(8) :: wintzav, wintzsg_npm
+      complex(8) ::  wintzsg_npm !wintzav,
       integer :: nocc
       real(8) :: wfacx
       real(8) :: wfacx2
@@ -342,7 +224,7 @@ c      integer(4) :: bzcase !fixed to be 1
       real(8):: wexx
 c      complex(8),allocatable :: z1p(:,:,:),vcoult(:,:)
       logical :: debug, debugp,debug2=.false.
-      logical :: gass           !external
+c      logical :: gass           !external
 c      real(8):: wgtq0p
       integer::verbose,ififr,ifile_handle
       real(8):: ua2_(niw),freqw1
@@ -370,15 +252,6 @@ c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
       if(verbose()>=90) debug=.true.
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       nbcutc=nctot+nbcut
-      if(debug) then
-        write(6,*) ' sxcf_fal3_scz: Gausssmear=T'
-c         if(GaussSmear()) then
-c            write(6,*)' new version: gaussian smearing!!!'
-c            write(6,*)' wintzsg wfacx weavx are related parts...'
-c            gass=GaussSmear()
-c            write(6,*)' sxcf_fal3_scz: new version: gaussian smearing' ,gass
-c         endif
-      endif
       tpi         = 8d0*datan(1d0)
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot) ! core
       nlmtobnd    = nlmto*nband
@@ -386,6 +259,7 @@ c         endif
 
 !! gauss_img : interpolation gaussion for W(i \omega).
       call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+      if(debug) write(6,*) ' sxcf_fal3_scz: Gausssmear=T'
 
 c         if(ua_<=0d0) then
 c            ua_auto =.true.
@@ -399,6 +273,7 @@ c            ua_auto =.false.
           freqw     = (1d0 - freqx(ix))/ freqx(ix)
           expa_(ix) = exp(-(ua_*freqw)**2)
         enddo
+
 !! Energy mesh; along real axis. Read 'freq_r' 
 !! NOTE nw_i=nw for non-timereversal case.
 !!      nw_i=0 for time-reversal case.
@@ -452,8 +327,6 @@ c     call rwdd1   (ifcphi, iqisp, 2*nlmtobnd, cphikq)
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
         if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
 
-
-
 c$$$!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 c$$$      write(*,*) 'srrrrrrrrrr aaaxxx2',
 c$$$     &     sum(ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)), 
@@ -481,7 +354,10 @@ c$$$        enddo
           ifwd = iclose('WV.d')
         endif 
 !TIME1 "before 1100"
-        do 1100 kx = iqini,iqend !kx=1 corresponds to q=0 is omitted.
+!! NOTE total number of 
+!!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
+!!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
+        do 1100 kx = iqini,iqend 
           if(sum(irkip(kx,:,ip))==0) cycle ! next kx
 !TIME0 
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend

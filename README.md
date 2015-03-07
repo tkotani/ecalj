@@ -622,9 +622,14 @@ other to DO
 end of file
 --------- 
 
+Doxygen:
+
+At ecalj/fpgw, run doxygen. Because we have Doxyfile there,
+we can have doxygen html and pdfs.
+
 
 ============================================================== 
-News: Effective mass calculation and new band plot march2015
+Effective mass calculation and new band plot march2015
 --------------------
 <pre>
 --------
