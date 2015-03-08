@@ -26,6 +26,7 @@
      &   nband,itq,imdim,ngcmx,ngpmx,
      &   miat,tiat,shtvg, ntq, ppbir
 
+      use m_sxcf,only: sxcf_fal3_scz
       use m_mpi  ! MIZUHO-IR
       implicit none
 c     
@@ -230,6 +231,8 @@ c      real(8),allocatable :: qbzwww(:,:),wqfac(:),wbzz(:)
       integer::irot,nn_
       real(8),allocatable:: wgt0(:,:)
       logical:: exchange
+      real(8):: exx
+      complex(8):: zsecd(1,1,1)
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -248,10 +251,13 @@ c---------------------------------------
          write(6,*) ' Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
          write(6,*) ' --- Put number above ! ------------'
          call readin5(ixc,nz,idummy)
+         write(6,*) ixc
          if(ixc>1000) then      !selected QP
             ixc=mod(ixc,1000)
             selectqp=.true.
             diagonly=.true.
+            write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
+            write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
          endif
       endif
       call MPI__Broadcast(ixc)
@@ -281,6 +287,7 @@ c---------------------------------------
       esmref=esmr
 !!
       call readd_iSigma_en(ifinin,iSigMode) !reading self-energy mode parameter from file 'GWinput'
+      if(diagonly) iSigMode=5
       call getnemx8(nbmx,ebmx) !Get maximums takao 18June03
 !!     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
 !!     nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
@@ -948,13 +955,16 @@ c     i        ppb,              ! pdb,dpb,ddb,
      i        shtvg,nband,
      i        ifvcfpout,
      i        exchange, screen, cohtest, ifexsp(is),
-     i        iSigMode,         ! iwini,iwend,            sep2012takao
      i        nbmx,ebmx,        !takao 18June2003 
 c     i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
      i        wklm,lxklm,       !mar2012
      i        invg,il,in,im,nn, lx,nx,nxx,ppbrd, !sep 2012 ,nlnm,cgr
-     i      diagonly, eftrue, !diagonly nov2012, eftrue jan2013
-     o        zsec,coh,nbandmx(1,is)) ! acuumulation variable
+     i        eftrue, 
+!!
+     i        jobsw=iSigMode,
+     x        iwini=-999,iwend=-999, !dummy
+     o        zsec=zsec, nbandmx=nbandmx(1,is)) 
+c     o        exx=exx,zsecd=zsecd) !dummy
 
 !TIME1 "after sxcf_fal3_scz"
       call date_and_time(values=timevalues)

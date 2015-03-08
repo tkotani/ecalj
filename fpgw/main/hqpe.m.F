@@ -163,13 +163,14 @@ c
         do ip = 1,nq
           do i  = 1,ntq
           if(nozmode) then
-            read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,3d24.16,
-     &     3x,3d24.16,3x,d24.16)")
+            read(ifsec(is),*)
      &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
-     &     rsec(2,i,ip),csec(2,i,ip),zfac(i,ip)
+     &     rsec(2,i,ip),csec(2,i,ip)
+           zfac(i,ip)=1.00
+           write(*,*) i,ip,csec(2,i,ip)
           else
-            read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,3d24.16,
-     &     3x,3d24.16,3x,d24.16)")
+            read(ifsec(is),*)
+c "(3i5,3d24.16,3x,d24.16,3x,3d24.16,  3x,3d24.16,3x,d24.16)")
      &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
      &     rsec(1:3,i,ip),csec(1:3,i,ip),zfac(i,ip)
           endif  

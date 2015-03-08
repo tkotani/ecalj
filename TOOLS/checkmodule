@@ -33,6 +33,7 @@ for iline in oxx:
 
 	zzz= 'grep -i ' + string.split(iline)[2] + ' ' + src +'|grep -i use'
 	os.system( zzz +' > ' + tmp)
+#        print 'zzzzzzzzzzzz',zzz
 	oww = string.split(open(tmp,'rt').read(),'\n')
 	for ilinex in oww:	
 		if(len(ilinex)==0): continue
@@ -44,19 +45,19 @@ for iline in oxx:
 		elif(modulef != usef):
 			aaa = Rule[modulef]
 			Rule[modulef]= aaa + [usef]
-
-####print ' --- Obtained Rules --- '
-for k in Rule.keys():
-	print k, '< ', Rule[k]
-print '------------------------'
-print Rule
+print 
+#print ' ------- Obtained Rules -------- '
+#for k in Rule.keys():
+#	print k, ' must be compiled before ', Rule[k]
+#        print 
+#print Rule
 
 vvv=[]
 for k in Rule.keys():
 	vvv=vvv+Rule[k]
-print '===================vvv=================='
-print vvv
-print 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
+#print '===================vvv=================='
+#print vvv
+#print 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
 i=-1
 RuleN={}
 for f0 in Rule.keys():
