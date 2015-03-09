@@ -4,7 +4,7 @@
      i nsp,isp,             
      i qbas,ginv,
      i qibz,qbz,wk,nstbz,irkip,nrkip, 
-     i freqx,wx,dw,         
+     i freq_r,nw_i,nw, freqx,wx,dw,         
      i ecore,
      i nlmto,nqibz,nqbz,nctot,
      i nl,nnc,nclass,natom,
@@ -14,18 +14,18 @@
      i exchange,screen,cohtest, ifexsp,
      i nbmx,ebmx,           
      i wklm,lxklm,          
-     i invg,il,in,im,nn_,lx,nx_,nxx_,ppbrd, !,nlnm
+     i invg,il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
 !!
      i jobsw, !old iSigma_en and extended now... 
-     i iwini,iwend, 
-     i freqsig,
+c     i iwini,iwend, 
+c     i freqsig,
 !! output;  optional.
-     o zsec,coh,nbandmx,
-     o exx,zsecd)
+     o zsec,coh,nbandmx)
+c     o exx,zsecd)
 
       use m_readqg
-      use m_readeigen,only: readeval,readcphi,readgeig
+      use m_readeigen,only: readeval,readcphi
       use keyvalue,only: getkeyvalue
       use m_zmel,only: get_zmelt,ppovlz,  zmel,zmeltt 
       implicit none
@@ -183,20 +183,20 @@
       real(8), intent(in) :: ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo)
       real(8), intent(in) :: qip(3,nq),eftrue
 
-      integer,intent(in):: iwini,iwend
-      real(8),optional::exx
+c      integer,intent(in):: iwini,iwend
+c      real(8),optional::exx
 
 ! output variables
-      real(8),intent(in),optional:: freqsig(iwini:iwend)
+c      real(8),intent(in),optional:: freqsig(iwini:iwend)
       integer, intent(out),optional ::nbandmx(nq)
       complex(8), intent(out),optional :: zsec(ntq,ntq,nq) , coh(ntq,nq)
-      complex(8), intent(out),optional :: zsecd(iwini:iwend,ntq,nq)
+c      complex(8), intent(out),optional :: zsecd(iwini:iwend,ntq,nq)
 
 ! local variables
 c     complex(8) :: zsecx(ntq,ntq,nq)          
 c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
 c$$$      logical :: ua_auto !fixed to be .false.
-      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)
+c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)
 
       integer :: ifrcw,ifrcwi
       logical :: initp=.true.
@@ -206,7 +206,7 @@ c$$$      logical :: ua_auto !fixed to be .false.
       integer :: iatomp(natom), nt0p, nt0m,nstate , nbmax, ntqxx
       integer :: nt,nw,ixs,iw,ivc,ifvcoud,ngb0
       integer :: nprecx,mrecl,ifwd,nrot,nwp,nw_i,ierr 
-      integer :: nstatetot,iqini,iqend,nbcut, ngb,ngc
+      integer :: nstatetot,iqini,iqend, ngb,ngc !nbcut,
       integer :: invr,nbmxe,ia,nn,ntp0,no,itpp,nrec,npm,itini,itend
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
 
@@ -220,12 +220,12 @@ c$$$      logical :: ua_auto !fixed to be .false.
       complex(8) :: zwzs0,zz2,zwz3(3)
 
 ! local arrays
-      real(8),allocatable :: freq_r(:)
+      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
       complex(8),allocatable :: zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:)
-      complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),expikt(:),zmel1(:)
+      complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),zmel1(:) !,expikt(:)
       complex(8), allocatable :: zmel1_(:,:,:), zw3(:,:,:),zw3x(:,:)
       complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
       complex(8),allocatable :: ppovl(:,:),zcousq(:,:)
@@ -259,7 +259,7 @@ c      logical :: gass           !external
 c      real(8):: wgtq0p
       integer::verbose,ififr,ifile_handle
       real(8):: ua2_(niw),freqw1
-      integer ::nbcutc,nbcutin, istate,  nt_max
+      integer :: istate,  nt_max !nbcutc,nbcutin, 
       real(8):: q_r(3),qk(3),omegat
       logical::  oncew, onceww, eibz4sig,  timemix
 
@@ -274,66 +274,40 @@ c      real(8):: wgtq0p
 c      real(8),allocatable:: ppb(:)
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 
-      real(8)::exxq
+c      real(8)::exxq
+
+c--------------------------------------------------------------------
 !TIME0 
 !TIME0 
 !TIME0 
+c      write(6,*)'sxcf_fal3_scz'
       timemix=.false.
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
       if(verbose()>=90) debug=.true.
-      write(*,*) 'present(zsecd,exx,nbandmx,zsec',present(zsecd),present(exx),present(nbandmx),present(zsec)
 
-      call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
-      nbcutc=nctot+nbcut
+      if(.not.exchange) then
+        ifwd = iopen('WV.d',1,-1,0)
+        read (ifwd,*) nprecx,mrecl
+        ifwd = iclose('WV.d')
+!! gauss_img : interpolation gaussion for W(i \omega).
+        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+        if(debug) write(6,*) ' sxcf_fal3_scz: Gausssmear=T'
+        do ix = 1,niw !! Energy mesh; along im axis.
+          freqw     = (1d0 - freqx(ix))/ freqx(ix)
+          expa_(ix) = exp(-(ua_*freqw)**2)
+        enddo
+        npm = 1                 ! npm=1    Timeveversal case
+        if(nw_i/=0) npm = 2     ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
+      endif 
+
+c      call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
+c      nbcutc=nctot+nbcut
       tpi         = 8d0*datan(1d0)
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot) ! core
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
-      if (tote) exxq = 0d0
-
-!! gauss_img : interpolation gaussion for W(i \omega).
-      call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
-      if(debug) write(6,*) ' sxcf_fal3_scz: Gausssmear=T'
-
-c         if(ua_<=0d0) then
-c            ua_auto =.true.
-c            write(6,"(' ua_auto=T')")
-c         else
-c            ua_auto =.false.
-
-      if(.not.exchange) then
-!! Energy mesh; along im axis.
-        do ix = 1,niw
-          freqw     = (1d0 - freqx(ix))/ freqx(ix)
-          expa_(ix) = exp(-(ua_*freqw)**2)
-        enddo
-
-!! Energy mesh; along real axis. Read 'freq_r' 
-!! NOTE nw_i=nw for non-timereversal case.
-!!      nw_i=0 for time-reversal case.
-!!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
-!!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
-        ififr=ifile_handle()
-        open(UNIT=ififr,file='freq_r')
-        read(ififr,*)nwp,nw_i   !nwp=nw+1
-        nw=nwp-1
-        allocate(freq_r(nw_i:nw)) !freq_r(0)=0d0
-        do iw= nw_i,nw  
-          read(ififr,*) freq_r(iw)
-        enddo
-        close(ififr)
-        if(nw_i/=0) then
-          if(nw/= -nw_i)        call rx( "sxcf_fal3_scz: nw/=-nw_i")
-          if(freq_r(0)/=0d0)    call rx( "sxcf_fal3_scz: freq_r(0)/=0")
-          if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
-     &     call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
-        endif
-!! Time reversal switch.
-        npm = 1                 ! npm=1    Timeveversal case
-        if(nw_i/=0) npm = 2     ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
-      endif
 
 !!== ip loop to spedify external q ==
 !TIME1 "before 1001"
@@ -347,52 +321,16 @@ c            ua_auto =.false.
           omega(i) = eq(itq(i)) 
         enddo
 
-c     if(nctot==0) then !this is to override -Mbounds check
-c     deallocate(ecore)
-c     allocate(ecore(1)) !this is dummry
-c     endif
-c     if(debug) write(6,*) "goto sxcf_fal3_scz"
-c     write(6,*) ' sxcf_fal3_scz:'
-c     iq          = idxk (q,qbz,nqbz) ! index for q
-
-c     direct access read e,b and hb at q
-c     iqisp =isp + nsp*(iq-1)
-c     call rwdd1   (ifcphi, iqisp, 2*nlmtobnd, cphikq)
-
 !! we only consider bzcase()==1
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
         if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
 
-c$$$!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-c$$$      write(*,*) 'srrrrrrrrrr aaaxxx2',
-c$$$     &     sum(ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass)), 
-c$$$     &     size(ppbrd)
-
-c ----> moved to hsfp0.sc.m.F Right?
-c$$$        do irot = 1,ngrp
-c$$$        call ppbafp_v2 (irot,ngrp,isp,nsp,
-c$$$     i              il,in,im,nlnm, !w(i_mnl),
-c$$$     d              nl,nn_,nclass,nlnmx,
-c$$$     i              mdimx,lx,nx_,nxx_, !Bloch wave    
-c$$$     i              cgr, nl-1,  !rotated CG
-c$$$     i              ppbrd,      !radial integrals
-c$$$     o              ppbir(:,irot,isp))
-c$$$        enddo  
-
-
-
-!!  Loop over irreducible k-points 
-        iqini=1
-        iqend=nqibz             !no sum for offset-Gamma points.
-        if(.not.exchange) then
-          ifwd = iopen('WV.d',1,-1,0)
-          read (ifwd,*) nprecx,mrecl
-          ifwd = iclose('WV.d')
-        endif 
 !TIME1 "before 1100"
 !! NOTE total number of 
 !!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
 !!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
+        iqini=1
+        iqend=nqibz             !no sum for offset-Gamma points.
         do 1100 kx = iqini,iqend 
           if(sum(irkip(kx,:,ip))==0) cycle ! next kx
 !TIME0 
@@ -474,24 +412,21 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 !TIME0
             if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
-              if(kr==0) then
-                cycle           ! next irot
-              end if
+              if(kr==0) cycle
               qbz_kr= qbz (:,kr) 
             else
-              kr=-99999         !for sanity check
+              kr=-99999 !for sanity check
               qbz_kr= 0d0
-              if( wgt0(kx-nqibz,irot)==0d0 ) then
-                cycle           ! next irot
-              end if
+              if( wgt0(kx-nqibz,irot)==0d0 ) cycle
             endif
+
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
             call readeval(qk, isp, ekq) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = nocc (ekc,ef,.true.,nstatetot)
             ddw= .5d0
-c               if(GaussSmear()) ddw= 10d0
+c            if(GaussSmear()) ddw= 10d0
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
@@ -529,15 +464,12 @@ c               if(GaussSmear()) ddw= 10d0
             nstate = nctot + nbmax ! = nstate for the case of correlation
 
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
+c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) deallocate(zmel)
             if(allocated(zmeltt)) deallocate(zmeltt)
+! this return zmeltt (for exchange), or zmel (for correlation)
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
      &       ngc,ngb,nbmax,ntqxx)
-! this return zmeltt (for exchange), or zmel (for correlation)
-
-c          if(debug) write(*,*)'zAAA ntqxx,ngb,nstate ',ntqxx,ngb,nstate
-c          if(debug.and.(.not.exchange))write(*,*)'zAAA zmel',sum(abs(zmel(1:ngb,1:nstate,1:ntqxx)))
 
 c$$$!! cccccccccc START: old version, instead of get_zmelt ccccccccccc
 c$$$         call  readcphi(q, nlmto,isp, quu, cphikq)
@@ -778,7 +710,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                   enddo
                 enddo
               enddo
-              vcoud(1) = vc
+              vcoud(1) = vc  !restore vcoud(1)
               deallocate(z1r,z2r,w3pi)
               if(verbose()>=30) call cputid2(' complete w3p',0)
               deallocate(zmeltt)
@@ -860,9 +792,7 @@ c$$$!TIME1 "end of write ifsexsp"
 !! --- Correct weigts wfac for valence by esmr
               do it = nctot+1, nctot+nbmax
                 wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
-                do itp=1,ntqxx
-                  w3p(it,itp,1:ntqxx) = wfac * w3p(it,itp,1:ntqxx)
-                enddo
+                w3p(it,1:ntqxx,1:ntqxx) = wfac * w3p(it,1:ntqxx,1:ntqxx)
               enddo
               do itpp=1,ntqxx
                 do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
@@ -872,18 +802,7 @@ c sep2013t a test:c  if(itpp>ntqxxd .and.itp/=itpp) cycle
      &             - wtt * sum( w3p(:,itp,itpp) )
                 enddo
               enddo
-
-
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$! sxcf mode
-c$$$              do itpp=1,ntqxx
-c$$$                zsecd(iwini,itp,ip) = zsecd(iwini,itp,ip) 
-c$$$     &           - wtt * sum( w3p(:,itp,itp) )
-c$$$              enddo
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-                deallocate( w3p)
+              deallocate( w3p)
 c$$$                  if(.not.newaniso()) deallocate(vcoul)
 !TIME1 "enddo of zsec wtt sum"
               cycle             ! next irot do 1000 loop
@@ -1274,8 +1193,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
         if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
         if (allocated(vcoul))deallocate(vcoul)
  1001 continue                  ! end do ip
-      if(allocated(freq_r))deallocate(freq_r)
-      if (allocated(expikt))deallocate(expikt)
+c      if(allocated(freq_r))deallocate(freq_r)
+c      if (allocated(expikt))deallocate(expikt)
 !TIME1 "end of sxcf_fal2_scz"
       end subroutine sxcf_fal3_scz
 

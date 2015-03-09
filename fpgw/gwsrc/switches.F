@@ -32,7 +32,7 @@ c
       end
 c
       logical function eibz4sig()
-      eibz4sig=.true.
+      eibz4sig=.true. !.false.
       end
 c
       logical function mtosigmaonly() !this is also in lm7k/subs/switches.F

@@ -1,7 +1,10 @@
 ../gwsrc/m_zmel.o:../gwsrc/rdpp.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hsfp0.m.o:../gwsrc/rdpp.o
 ../main/hsfp0.sc.m.o:../gwsrc/rdpp.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
@@ -14,12 +17,15 @@
 ../gwsrc/wintzsg.o:../gwsrc/MPI_fpgw2.o
 ../main/hsfp0.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hsfp0.sc.m.o:../gwsrc/MPI_fpgw2.o
+../main/hsfp0.sc.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hvccfp0.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hx0fp0.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hx0fp0.sc.m.o:../gwsrc/MPI_fpgw2.o
 ../gwsrc/m_zmel.o:../gwsrc/rwbzdata.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/h_uumatrix.m.o:../gwsrc/rwbzdata.o
 ../main/hchknw.m.o:../gwsrc/rwbzdata.o
@@ -54,8 +60,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -69,6 +77,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -102,17 +111,26 @@
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
 ../gwsrc/kino_input_test.o:../gwsrc/keyvalue.o
 ../gwsrc/kino_input_test.o:../gwsrc/keyvalue.o
+../gwsrc/m_zmel.o:../gwsrc/keyvalue.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
+../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
+../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/rgwinf_mod.o:../gwsrc/keyvalue.o
 ../gwsrc/genallcf_mod.o:../gwsrc/rgwinf_mod.o
 ../gwsrc/m_zmel.o:../gwsrc/genallcf_mod.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/h_uumatrix.m.o:../gwsrc/genallcf_mod.o
 ../main/hchknw.m.o:../gwsrc/genallcf_mod.o
 ../main/hef.m.o:../gwsrc/genallcf_mod.o
 ../main/heftet.m.o:../gwsrc/genallcf_mod.o
+../main/hsfp0.m.o:../gwsrc/genallcf_mod.o
 ../main/hsfp0.m.o:../gwsrc/genallcf_mod.o
 ../main/hsfp0.m.o:../gwsrc/genallcf_mod.o
 ../main/hsfp0.sc.m.o:../gwsrc/genallcf_mod.o
@@ -198,8 +216,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -213,6 +233,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -235,8 +256,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -250,6 +273,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -272,8 +296,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -287,6 +313,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -309,8 +336,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -324,6 +353,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -346,8 +376,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -361,6 +393,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -383,8 +416,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -398,6 +433,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -420,8 +456,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -435,6 +473,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -457,8 +496,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -472,6 +513,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -494,8 +536,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -509,6 +553,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -531,8 +576,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -546,6 +593,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -568,8 +616,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -583,6 +633,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -605,8 +656,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -620,6 +673,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -642,8 +696,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -657,6 +713,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -679,8 +736,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -694,6 +753,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -716,8 +776,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -731,6 +793,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -753,8 +816,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -768,6 +833,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -790,8 +856,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -805,6 +873,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
@@ -827,8 +896,10 @@
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
 ../gwsrc/index.o:../gwsrc/readeigen.o
 ../gwsrc/m_zmel.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
+../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
@@ -842,6 +913,7 @@
 ../main/hef.m.o:../gwsrc/readeigen.o
 ../main/heftet.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.m.o:../gwsrc/readeigen.o
+../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o

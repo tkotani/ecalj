@@ -16,6 +16,7 @@
       use m_read_bzdata,only: 
      &  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      &  done_read_bzdata
+      use keyvalue,only: getkeyvalue
 !!
       integer,parameter:: NULL=-99999
       integer,allocatable :: miat(:,:)
@@ -62,9 +63,13 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
 c      complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
 c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
 c      allocate(expikt(natom))
+c      integer(4) ::nbcut
 
 !TIME0 
+      if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel in m_zmel: start'
+      call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
+
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
       if(.not.done_rdpp)        call rx('m_zmel: not yet call rdpp')
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
@@ -135,6 +140,18 @@ c$$$     o              ppb)
 !!   core 
       nt   = nctot + nbmax      ! = nstate for the case of correlation
       allocate( zzzmel(nbloch,nt,ntqxx))
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$      write(*,*)'srrrrrrr 1',icore,ncore
+c$$$      write(*,*)'srrrrrrr 2',ntqxx,iclass
+c$$$      write(*,*)'srrrrrrr 3',sum(ppb)
+c$$$      write(*,*)'srrrrrrr 4',nlnmv,nlnmc,sum(nblocha),sum(imdim),sum(iatomp)
+c$$$      write(*,*)'srrrrrrr 5',mdimx,nlmto,nbloch,nlnmx,nt,natom,nclass,nl,nnc
+c$$$      write(*,*)'srrrrr 1',sum(cphikq(1:nlmto,1:ntq))
+c$$$      write(*,*)'srrrrr 1',sum(cphiq(1:nlmto,1:ntq))
+c$$$      write(*,*)'srrrrr 1',sum(ppb)
+c$$$      write(*,*)'srrrrr 1',sum(expikt)
+c$$$      write(*,*)'srrrrr 1',sum(zzzmel)
+c$$$ccccccccccccccccccccccccccccccccccc
       call psicb_v2  (icore,ncore,ntqxx,iclass,
      i  dreal(expikt(1:natom)),dimag(expikt(1:natom)),
      i  cphiq, 
@@ -147,12 +164,6 @@ c     i              nlnmv,nlnmc,mdim,
      o  zzzmel)
       if(debug)  write(6,*) ' sxcf_fal2sc: goto psi2bc1'
 
-ccccccccc cccccccccccccccccccccccccccccccccccccccc
-c               write(*,*)'srrrrr 1',sum(cphikq(1:nlmto,1:ntq))
-c               write(*,*)'srrrrr 1',sum(cphiq(1:nlmto,1:ntq))
-c               write(*,*)'srrrrr 1',sum(ppb)
-c               write(*,*)'srrrrr 1',sum(expikt)
-c               write(*,*)'srrrrr 1',sum(zzzmel)
 
 !!   valence
       call psi2b_v2  (nbmax, ntqxx,iclass,
@@ -185,7 +196,7 @@ c               write(*,*)'srrrrr 1',sum(zzzmel)
      i  symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i  drealzzzmel, dimagzzzmel, nbloch, nt,nctot,
      o  rmelt,cmelt)
-      if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2'
+      if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
       if(verbose()>50) call timeshow("5 after drvmelp")
       if(nbcut/=0.and.(.not.exchange)) then

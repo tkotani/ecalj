@@ -30,7 +30,7 @@ c     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
         ifppb(ic) = iopen(filename(ic),0,-1,0)
         read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
-        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
       enddo
 
 c      nxx   = maxval( nx )
@@ -43,7 +43,7 @@ c      do ip1= 1,2
 c        ioff = 1 + (ic-1) + 4*nclass*(isp-1)
           nxic = maxval( nx(0:2*(nl-1),ic) )
           read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
-          write(*,*)'srrrrrr cccccccccc',sum(ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)))
+c          write(*,*)'srrrrrr cccccccccc',sum(ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)))
 c      enddo;  enddo;
         enddo
         is= iclose(filename(ic))
