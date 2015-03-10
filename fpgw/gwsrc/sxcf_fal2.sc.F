@@ -17,10 +17,7 @@
      i invg,il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
 !!
-     i jobsw, !old iSigma_en and extended now... 
-c     i iwini,iwend, 
-c     i freqsig,
-!! output;  optional.
+     i jobsw, != iSigma_en 
      o zsec,coh,nbandmx)
 c     o exx,zsecd)
 
@@ -188,7 +185,7 @@ c      real(8),optional::exx
 
 ! output variables
 c      real(8),intent(in),optional:: freqsig(iwini:iwend)
-      integer, intent(out),optional ::nbandmx(nq)
+      integer, intent(in) ::nbandmx(nq)
       complex(8), intent(out),optional :: zsec(ntq,ntq,nq) , coh(ntq,nq)
 c      complex(8), intent(out),optional :: zsecd(iwini:iwend,ntq,nq)
 
@@ -445,21 +442,23 @@ c            if(GaussSmear()) ddw= 10d0
                 initp=.false.
               endif
             endif
-!! ntqxx is number of bands for <i|sigma|j>.
-            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
-!bug -ef is added jan2013
-!previous version do not give wrong results, but inefficient.
-            ntqxx = min(ntqxx, nbmx(1))
-            if(ntqxx<nband) then
-              do i=ntqxx,1,-1   !redudce ntqxx when band tops are degenerated. !sep2012
-                if(omega(i+1)-omega(i)<1d-2) then
-                  ntqxx=i-1
-                else
-                  exit
-                endif
-              enddo
-            endif  
-            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
+c$$$!! ntqxx is number of bands for <i|sigma|j>.
+c$$$            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
+c$$$!bug -ef is added jan2013
+c$$$!previous version do not give wrong results, but inefficient.
+c$$$            ntqxx = min(ntqxx, nbmx(1))
+c$$$            if(ntqxx<nband) then
+c$$$              do i=ntqxx,1,-1   !redudce ntqxx when band tops are degenerated. !sep2012
+c$$$                if(omega(i+1)-omega(i)<1d-2) then
+c$$$                  ntqxx=i-1
+c$$$                else
+c$$$                  exit
+c$$$                endif
+c$$$              enddo
+c$$$            endif  
+c$$$            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
+
+            ntqxx = nbandmx(ip) !mar2015
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
 

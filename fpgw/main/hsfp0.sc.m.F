@@ -141,7 +141,7 @@ c
 
       integer :: iSigMode,ifinin ,idummy 
 
-c      real(8),allocatable:: omega(:) 
+      real(8),allocatable:: omega(:) 
       real(8)   :: ebmx(2)
       integer:: nbmx(2)
 
@@ -197,7 +197,7 @@ c      logical:: newaniso
       integer:: verbose,iband,isp,iqq
       integer,allocatable:: nbandmx(:,:)
 
-      integer:: ificlass,ifiq0p
+      integer:: ificlass,ifiq0p,ntqxx
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -535,7 +535,23 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
         call MPI__REAL8recv(q,3*nq,0)
       endif  
 
-!! Determine ntq.  See also ntqxx in sxcf_fal.sc.F ntq should be common for all ixc modes.
+      nspinmx = nspin
+!! ANF mode ---> Unused recently. I think we need fixing for ANFcond mode.
+      inquire(file='ANFcond',EXIST=laf)
+      if(laf) then
+         ifianf = 211
+         open(ifianf,file='ANFcond')
+         read(ifianf,*) soflag
+         if(soflag=='SO') then
+            write(6,*)' ANFcond found. but SO case is not implimented. Not using ANF symm'
+            goto 889            !SO case is not implimented
+         endif
+         write(6,*) 'Find ANFcond--- up only'
+         nspinmx =1
+      endif
+ 889  continue
+
+!! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
       if(mpi__root) then
          allocate(eqt(nband))
          ntq=0
@@ -554,6 +570,48 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
       endif
       call MPI__Broadcast(ntq)
 
+!! Determine nbandmx. Moved from sxcf_fal2.sc.F.
+!!!! count number of band to calculate.
+!! I think it it better to determine nbandmx in a manner within LDA 
+!! (need to care degeneracy...).
+      allocate(nbandmx(nq,nspinmx))
+      if(mpi__root) then
+         allocate(eqt(nband))
+        do is = 1,nspinmx
+          do ip = 1,nq   
+            call readeval(qibz(1,ip),is, eqt)
+c            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
+            ntqxx = 0
+            do i = 1,ntq
+              if(eqt(i)-eftrue<ebmx(1)) ntqxx =ntqxx  + 1
+            enddo
+            ntqxx = min(ntqxx, nbmx(1))
+            if(ntqxx<nband) then !redudce ntqxx when band tops are degenerated. 
+              do i=ntqxx,1,-1   
+                if(eqt(i+1)-eqt(i)<1d-2) then !1d-2 is a tol to check degeneracy.
+                  ntqxx=i-1
+                else
+                  exit
+                endif
+              enddo
+            endif  
+            nbandmx(ip,is) = ntqxx !number of bands to be calculated
+          enddo
+        enddo
+        deallocate(eqt)
+      endif
+      do is=1,nspinmx
+        if(mpi__root) then
+          print *,'is nbandmx(:,is)=',is,nbandmx(:,is)
+          do dest=1,mpi__size-1
+            call MPI__send_iv(nbandmx(1:nq,is),dest)
+          enddo
+        else  
+          call MPI__recv_iv(nbandmx(1:nq,is),0)
+        endif  
+      enddo
+
+!! trivial case of itq itq(i)=i
       allocate (itq(ntq))
       do i = 1, ntq
          itq(i) = i !itq is used also in hsfp0.m.F
@@ -561,22 +619,6 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
       do iq=1,nq
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
-
-!! ANF mode ---> Unused recently. I think we need fixing for ANFcond mode.
-      nspinmx = nspin
-      inquire(file='ANFcond',EXIST=laf)
-      if(laf) then
-         ifianf = 211
-         open(ifianf,file='ANFcond')
-         read(ifianf,*) soflag
-         if(soflag=='SO') then
-            write(6,*)' ANFcond found. but SO case is not implimented. Not using ANF symm'
-            goto 889            !SO case is not implimented
-         endif
-         write(6,*) 'Find ANFcond--- up only'
-         nspinmx =1
-      endif
- 889  continue
 
 !! read LDA eigenvalues
 c      allocate(omega(ntq))
@@ -893,7 +935,7 @@ C         enddo
                         ! It just need to distribute non-zero irkip.
 !!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
-      allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) )
+      allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) )
 !TIME1 "before 2000 loop"
 
       do 2000 is = 1,nspinmx
@@ -926,57 +968,53 @@ C         enddo
          zsec  = 0d0
          coh   = 0d0
          kount = 0
-         nbandmx(:,is) = 0 ! MIZUHO-IR  moved here for nctot=0 3rdNov2012
          if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 !! dummy to overlaid -check bounds sep2014
          if(size(ecore)==0) then
             deallocate(ecore)
             allocate(ecore(1,2))
          endif
+
          call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
-c     i        tiat,miat,
      i    nspin,is,   
      i    qbas,ginv,qibz,qbz ,wbz, nstbz, 
      i    irkip(is,:,:,:),nrkip(is,:,:,:),
-c    i        iclass,nblocha,nlnmv,nlnmc, 
-c     i        icore,ncore,imdim,
-c     i        ppb,              ! pdb,dpb,ddb,
-     i    freq_r,nw_i,nw, freqx,wwx, !freq_r(nw_i:nw) given here at mar2015
-     i    dw,                   !deltaw,
+     i    freq_r,nw_i,nw, freqx,wwx, 
+     i    dw,                   
      i    ecore(:,is),
      d    nlmto,nqibz,nqbz,nctot,
      d    nl,nnc,nclass,natom,
-     d    nbloch,ngrp,niw,nq,   !nlnmx,mdimx, niwx 
+     d    nbloch,ngrp,niw,nq,   
      i    nblochpmx, ngpmx,ngcmx,
      i    wgt0,nq0i,q0i,symgg,alat,
      i    nband, !shtvg,
      i    ifvcfpout,
      i    exchange, screen, cohtest, ifexsp(is),
-     i    nbmx,ebmx,            !takao 18June2003 
-c     i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat 
-     i    wklm,lxklm,           !mar2012
-     i    invg,il,in,im,nn, lx,nx,nxx, !ppbrd, !sep 2012 ,nlnm,cgr
+     i    nbmx,ebmx,      
+     i    wklm,lxklm,          
+     i    invg,il,in,im,nn, lx,nx,nxx, 
      i    eftrue, 
 !!
-     i    jobsw = iSigMode,
-     o    zsec=zsec, nbandmx=nbandmx(1,is)) 
+     i    jobsw = iSigMode, nbandmx=nbandmx(1:nq,is), !nbandmx is input mar2015
+     o    zsec=zsec) 
 !TIME1 "end of sxcf_fal3_scz"
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
       call cpu_time(time_red1)
-!TIME0 
 
+c!TIME0 
 !! CAUITION! Allreduce wait all cpu jobs done here. 
 !! Before nov2013, MPI__sxcf_rankdivider was stpid---> half of cores assigned for isp=2
 !! was just waiting here!
-      call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
-      call cpu_time(time_red2)
-!TIME1 "reduction nbandmx end"
-      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
+c      call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
+c      call cpu_time(time_red2)
+c!TIME1 "reduction nbandmx end"
+c      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c---------------------------------
 !TIME0
 !!  electron gas bare exchange (exact)
+         if(.false.) then !for test calculations.
          if (legas.and.exchange) then
             efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
             pi         = 4.d0*datan(1.d0)
@@ -1008,13 +1046,17 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
                write (663,"(2f14.6)") qm/qfermi, qfermi
             end do
          endif
+         endif
 !TIME1 "end legas exchange"
  2001    continue
 
 !! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.
+
          if(eibz4sig()) then
+!TIME0 
            call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
            call MPI__AllreduceSum( zsec,ntq*ntq*nq )
+!TIME1 'end of zsecsym and reduce'
          endif
 
 !TIME0 
