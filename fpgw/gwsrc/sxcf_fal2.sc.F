@@ -17,7 +17,7 @@
      i invg,il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
 !!
-     i jobsw, != iSigma_en 
+     i jobsw,                   != iSigma_en 
      o zsec,coh,nbandmx)
 c     o exx,zsecd)
 
@@ -291,7 +291,7 @@ c      write(6,*)'sxcf_fal3_scz'
 !! gauss_img : interpolation gaussion for W(i \omega).
         call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
         if(debug) write(6,*) ' sxcf_fal3_scz: Gausssmear=T'
-        do ix = 1,niw !! Energy mesh; along im axis.
+        do ix = 1,niw           !! Energy mesh; along im axis.
           freqw     = (1d0 - freqx(ix))/ freqx(ix)
           expa_(ix) = exp(-(ua_*freqw)**2)
         enddo
@@ -412,7 +412,7 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
               if(kr==0) cycle
               qbz_kr= qbz (:,kr) 
             else
-              kr=-99999 !for sanity check
+              kr=-99999         !for sanity check
               qbz_kr= 0d0
               if( wgt0(kx-nqibz,irot)==0d0 ) cycle
             endif
@@ -709,7 +709,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                   enddo
                 enddo
               enddo
-              vcoud(1) = vc  !restore vcoud(1)
+              vcoud(1) = vc     !restore vcoud(1)
               deallocate(z1r,z2r,w3pi)
               if(verbose()>=30) call cputid2(' complete w3p',0)
               deallocate(zmeltt)
