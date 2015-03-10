@@ -7,6 +7,7 @@
 !!    SEc(q,itp,itpp) = <psi(q,itp) |SEc| psi(q,itpp)>
 !!    Here SEc(r,r';w) = (i/2pi) < [w'=-inf,inf] G(r,r';w+w') Wc(r,r';w') >
 !!
+!! ----------------------------------------
 !! See papers;
 !! [1]T. Kotani and M. van Schilfgaarde, “Quasiparticle self-consistent GW method: 
 !!     A basis for the independent-particle approximation,” Phys. Rev. B, vol. 76, no. 16, 
@@ -19,8 +20,8 @@
 !!  “Efficient implementation of the GW approximation within the all-electron FLAPW method,” 
 !! Physical Review B, vol. 81, no. 12, Mar. 2010.
 !!
-!! Usage: This routine is called from cript calling this routine ecalj/fpgw/exec/gwsc. 
-!! E.g, this gwsc calls echo 2|../exec/hsfp0_sc >lsc when mode=2.
+!! Usage: This routine is called from a script for QSGW, ecalj/fpgw/exec/gwsc. 
+!! which calls is as "echo 2|../exec/hsfp0_sc >lsc" when mode=2 (three times in the gwsc).
 !!     
 !! mode= 1: exchange    mode SEx, the exchange part of the self-energy
 !! mode= 2: correlation mode SEc, the correlated part of the self-energy
@@ -37,7 +38,7 @@
 !!    (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
 !!     
 !!     History: We learned so much from LMTO-ASA codeds developed by F.Aryasetiawan.
-
+!! ----------------------------------------
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
@@ -84,7 +85,7 @@ c     ! Tetrahedron mehod for correlation is a bit
       ! sxcf.f, and a part calling sxcf in this routine. Note wtet wtetef!
       ! They sometimes cause array destruction if you run tetra=T without comment them.
 
-      real(8) :: shtw
+c      real(8) :: shtw
       integer::
      &     ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      &     ibas,ibasx,nxx,ifqpnt,ifwd, 
@@ -140,7 +141,7 @@ c
 
       integer :: iSigMode,ifinin ,idummy 
 
-      real(8),allocatable:: omega(:) 
+c      real(8),allocatable:: omega(:) 
       real(8)   :: ebmx(2)
       integer:: nbmx(2)
 
@@ -195,6 +196,8 @@ c      logical:: newaniso
 
       integer:: verbose,iband,isp,iqq
       integer,allocatable:: nbandmx(:,:)
+
+      integer:: ificlass,ifiq0p
 c---------------------------------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -256,12 +259,12 @@ c---------------------------------------
       call getnemx8(nbmx,ebmx) !Get maximums takao 18June03
 !!     nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
 !!     nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
-!! ebmx2 nbmx2 are dummy now.
+!! ebmx2 nbmx2 are not used. For safe, strange number is supplied here.
       nbmx(2)=9999999
       ebmx(2)=1d10
-      write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
+      write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx(1),ebmx(1)
 
-!!!!  WE ASSUME iclass(iatom)= iatom (because of historical reason)
+!!Caution!  WE ASSUME iclass(iatom)= iatom (because of historical reason)
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       write(6,*)' hsfp0_sc: end of genallcf_v3'
       call pshprt(30)
@@ -269,13 +272,15 @@ c---------------------------------------
       tpia = 2d0*pi/alat
       call dinv33(plat,1,xxx,vol)
       voltot = dabs(vol)*(alat**3)
-      shtw = 0d0
+c      shtw = 0d0
       tetra= tetra_hsfp0()
 !! if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe), I used this until sep2012
 
 !! ef is taken as rs for the empty-sphere test case of legas=T case 
-!! HOMOGENIOUS GAS code. Usually not used.Need fixing if necessary.
+!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
+!! Keep this just as a memo.
       legas = .false.
+      if(.false.) then
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(legas) then            !!! test for electron gas case.
          write(6,*)' find LEGAS. legas =',legas
@@ -292,7 +297,7 @@ c---------------------------------------
          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
       endif
-
+      endif
 !!
       if(ixc==1) then
          exchange=.true.
@@ -362,29 +367,35 @@ c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
 
 !! read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
+      ifhbed = ifile_handle() !  ifhbed = iopen('hbe.d',1,0,0)
+                              ! ifile_handle() search unused file handle
+      open(ifhbed,file='hbe.d',status='old')
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      isx = iclose ('hbe.d')
+      close(ifhbed) !isx = iclose ('hbe.d')
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
+!!
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+      ! required for readeigen readchpi readgeig.
 
-!!  === get space group information ===
+!!  === Get space group information ===
 !! True class information in order to determine the space group,
-!! because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      open (102,file='CLASS')
+!! because the class in the generated GW file is dummy. (iclass(ibas)=ibas should be kept).
+      ificlass=ifile_handle()
+      open (ificlass,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-         read(102,*) ibasx, iclasst(ibas)
+         read(ificlass,*) ibasx, iclasst(ibas)
          write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
+      close(ificlass)
 !!  Get space-group transformation information. See header of mptaouof.
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
-     o     ,miat,tiat,invgx,shtvg )
-      if(verbose()>=40) write (*,*)' hsfp0.sc.m: end of mptauof'
+     o     ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
-!! ====  Get array size to call rdpp ====
+!! ====  Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
@@ -402,13 +413,16 @@ c     write(6,'("    ua      =",f13.6)') ua
 
 !! Readin WV.d
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
-        ifwd = iopen('WV.d',1,-1,0) !direct access files WVR and WVI which include W-V.
+        ifwd=ifile_handle() ! ifwd = iopen('WV.d',1,-1,0) 
+                            !direct access files WVR and WVI which include W-V.
+        open(ifwd,file='WV.d')
         read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
         write(6,"(' Readin WV.d =', 10i5)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-        ifwd =iclose('WV.d')
+        close(ifwd) !ifwd =iclose('WV.d')
         call checkeq(nprecx,ndble)
         nw = nwp-1
         if(niwt /= niw) call rx( 'hsfp0_sc: wrong niw')
+
 !! Energy mesh; along real axis. Read 'freq_r' 
 !! NOTE nw_i=nw for non-timereversal case.
 !!      nw_i=0 for time-reversal case.
@@ -431,7 +445,7 @@ c     write(6,'("    ua      =",f13.6)') ua
         endif
       endif
 
-      if(tetra) goto 201
+      if(tetra) goto 201 !tetra is experimental.  usually =F. 
 
 !!== Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==
 !!    When esmr is negative, esmr is geven automatically by efsimplef.
@@ -443,12 +457,14 @@ c     write(6,'("    ua      =",f13.6)') ua
      o     ,efnew)
       if(ixc/=3) ef = efnew
       eftrue = efnew
+
 !! ==== check total ele number =====
       ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
       write(6,*)' ef    =',ef
       write(6,*)' esmr  =',esmr
       write(6,*)' valn  =',valn
       write(6,*)' ntot  =',ntot
+
 !! == Core-exchange case. ef means just below the valence eigenvalue (to take only core in sxcf).==
       if(ixc==3) then
          ef = lowesteval() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
@@ -471,8 +487,8 @@ c     write(6,'("    ua      =",f13.6)') ua
             call rx( 'hsfp0 ixc=3: ecore>evalence. ')
          endif
       endif
-
  201  continue
+
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 
 !! Read q-points and states
@@ -504,18 +520,10 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
          if (laf) nspinmx =1
          close(ifqpnt)
       else
-!     q-points
-c$$$         if(bzcase()==1)then
-            nq = nqibz
-            allocate(q(3,nq))
-            call dcopy   (3*nqibz,qibz,1,q,1)
-c$$$         else
-c$$$            nq = nqibz_r
-c$$$            allocate(q(3,nq))
-c$$$            do iq= 1,nqibz_r
-c$$$               q(:,iq)=qibz_r(:,iq)
-c$$$            enddo
-c$$$         endif
+!     q-points. bzcase()=1
+        nq = nqibz
+        allocate(q(3,nq))
+        q(:,1:nq) = qibz(:,1:nq)  !call dcopy   (3*nqibz,qibz,1,q,1)
       endif
 !
       call MPI__Broadcast(nq)
@@ -527,7 +535,7 @@ c$$$         endif
         call MPI__REAL8recv(q,3*nq,0)
       endif  
 
-!! == Determine ntq.  See also ntqxx in sxcf_fal.sc.F ntq should be common for all ixc modes.==
+!! Determine ntq.  See also ntqxx in sxcf_fal.sc.F ntq should be common for all ixc modes.
       if(mpi__root) then
          allocate(eqt(nband))
          ntq=0
@@ -554,7 +562,7 @@ c$$$         endif
          write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
       enddo
 
-!! ANF mode ---> not so much used now... need to revise it in future.
+!! ANF mode ---> Unused recently. I think we need fixing for ANFcond mode.
       nspinmx = nspin
       inquire(file='ANFcond',EXIST=laf)
       if(laf) then
@@ -570,9 +578,8 @@ c$$$         endif
       endif
  889  continue
 
-!!
-      allocate(omega(ntq))
 !! read LDA eigenvalues
+c      allocate(omega(ntq))
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do is = 1,nspin
          do ip = 1,nq
@@ -582,7 +589,18 @@ c$$$         endif
          enddo
       enddo
       deallocate(eqt)
-      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
+
+      write (6,*)' ***'
+      write (6,6700) nspin,nq,ntq
+ 6700 format (1x,3i4,'  nspin  nq  ntq')
+      write (6,6501) is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,ef,esmr
+ 6501 format (' spin =',i2,'   nbloch ngp ngc=',3i4
+     &        ,'  nqbz =',i6,'  nqibz =',i6,'   ef=', f10.4,' Rydberg'
+     &        ,/,d23.16,' <= deltaw(Hartree)'
+     &        ,/,d23.16,' <= alat'
+     &        ,/,d23.16,' <= ef '
+     &        ,/,d23.16,' <= esmr')
+c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 !!-------------------------
 !!     LDA exchange-correlation
 !!-------------------------
@@ -625,21 +643,22 @@ c$$$         endif
 
 !!  Offset Gamma point Q0P
       write(6,*) 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      ifiq0p=ifile_handle()
+      open (ifiq0p,file='Q0P')
+      read (ifiq0p,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
       allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
 c     read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       nq0ix = nq0i
       do i=1,nq0i
-         read (101,* ) wqt(i),q0i(1:3,i)
+         read (ifiq0p,* ) wqt(i),q0i(1:3,i)
          if(wqt(i)==0d0 ) nq0ix = i-1
       enddo
       nq0i = nq0ix              ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(101)
+      close(ifiq0p)
       allocate( wgt0(nq0i,ngrp) )
       call getkeyvalue("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
       call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
@@ -653,9 +672,8 @@ c$$$      endif
 
 !! Pointer to optimal product basis
       allocate(imdim(natom))
-      call indxmdm (nblocha,nclass,
-     i     iclass,natom,
-     o     imdim )
+      call indxmdm (nblocha,nclass,iclass,natom,
+     o     imdim ) !in m_zmel
       if(niw/=0) then
 !! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
          allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
@@ -663,30 +681,27 @@ c$$$      endif
      o        freqx,freqw,wwx)  !,expa)
       endif
 
-c     ------ write energy mesh ----------
-c     ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
-c     deltax0 = 0d0
-c     call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
-
+!!  ------ write energy mesh for check ----------
+      ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
+      deltax0 = 0d0
+      call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
 
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
-c      if(newaniso()) then
-         ifidmlx = iopen('EPSwklm',0,0,0)
-         read(ifidmlx) nq0ix,lxklm
-         if(nq0i/=nq0ix) then
-            write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-            call rx( 'nq0i from EPSwklm /= nq0i')
-         endif
-         allocate( dmlx(nq0i,9))
-         allocate( epinvq0i(nq0i,nq0i) )
-         allocate( wklm((lxklm+1)**2))
-         read(ifidmlx) dmlx, epinvq0i
-         read(ifidmlx) wklm
-         ifidmlx = iclose('EPSwklm')
-c      endif
+      ifidmlx = iopen('EPSwklm',0,0,0)
+      read(ifidmlx) nq0ix,lxklm
+      if(nq0i/=nq0ix) then
+        write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+        call rx( 'nq0i from EPSwklm /= nq0i')
+      endif
+      allocate( dmlx(nq0i,9))
+      allocate( epinvq0i(nq0i,nq0i) )
+      allocate( wklm((lxklm+1)**2))
+      read(ifidmlx) dmlx, epinvq0i
+      read(ifidmlx) wklm
+      ifidmlx = iclose('EPSwklm')
 
-c---------------------------------------------
-      if(tetra) then
+c----tetra block is experimental. unused usually. ----------------
+      if(tetra) then 
 c     --- get tetrahedron
 c     mxkp = n1*n2*n3
 c     allocate( qbzxx(3*mxkp),wbzxx(mxkp),ipq(mxkp) )
@@ -751,20 +766,22 @@ c     enddo
             wtet(:,:,iqi,:) = wtet(:,:,iqi,:)/nstar(iqi)
          enddo
          deallocate( eband, qz, ene ) ! pointer for
-!! -- ibzx denote the index of k{FBZ for given k{1BZ.
+c -- ibzx denote the index of k{FBZ for given k{1BZ.
          allocate(ibzx(nqbz))
          call invkibzx(irk,nqibz,ngrp,nqbz,
      o        ibzx)
       else
          allocate(wtet(1,1,1,1), iene(1,1,1)) !dummy
       endif
-!! end of tetra section --------------------------------------------
-      iii=ivsumxxx(irk,nqibz*ngrp)
-      write(6,*) " sum of nonzero iirk=",iii, nqbz
+c ---- end of tetra section --------------------------------------------
+c      iii=ivsumxxx(irk,nqibz*ngrp)
+c      write(6,*) " sum of nonzero iirk=",iii, nqbz
+
 
 !!-----------------------------------------------------------
 !!     calculate the the self-energy SEx(ip) or SEc(ip)
 !!-----------------------------------------------------------
+!! eibz4sig() is EIBZ symmetrization or not...
       if(eibz4sig()) then
          allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq))
          allocate(igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
@@ -860,25 +877,25 @@ C         enddo
       do isp = 1,nspin
         call ppbafp_v2 (irot,ngrp,isp,nspin,
      i              il,in,im,nlnm, !w(i_mnl),
-     d              nl,nn,nclass,nlnmx,
+     i              nl,nn,nclass,nlnmx,
      i              mdimx,lx,nx,nxx, !Bloch wave    
      i              cgr, nl-1,  !rotated CG
      i              ppbrd,      !radial integrals
-     o              ppbir(:,irot,isp))
+     o              ppbir(:,irot,isp)) !this is in m_zmel
       enddo  
       enddo  
 
+!! MPI RankDivider for iqibz and irot cycle in sxcf.
+!!     nrkip is weight correspoinding to irkip for a node.
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
-
-!! nrkip is weight correspoinding to irkip for a node.
-      nrkip = nrkip_all         !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
-!! ----------------------------------------
+      nrkip = nrkip_all ! we don't need to change this for MPI case. 
+                        ! It just need to distribute non-zero irkip.
+!!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
-      allocate( !ppb(nlnmx*nlnmx*mdimx*nclass),
-     &     kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) ) !eq(nband),
+      allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq),nbandmx(nq,nspinmx) )
 !TIME1 "before 2000 loop"
-c     loop over spin ----------------------------------------------------
+
       do 2000 is = 1,nspinmx
 !TIME0 
          if(mpi__root) then
@@ -911,10 +928,6 @@ c     loop over spin ----------------------------------------------------
          kount = 0
          nbandmx(:,is) = 0 ! MIZUHO-IR  moved here for nctot=0 3rdNov2012
          if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
-
-!TIME1 "before sxcf_fal3_scz"
-!TIME0
-
 !! dummy to overlaid -check bounds sep2014
          if(size(ecore)==0) then
             deallocate(ecore)
@@ -936,7 +949,7 @@ c     i        ppb,              ! pdb,dpb,ddb,
      d    nbloch,ngrp,niw,nq,   !nlnmx,mdimx, niwx 
      i    nblochpmx, ngpmx,ngcmx,
      i    wgt0,nq0i,q0i,symgg,alat,
-     i    shtvg,nband,
+     i    nband, !shtvg,
      i    ifvcfpout,
      i    exchange, screen, cohtest, ifexsp(is),
      i    nbmx,ebmx,            !takao 18June2003 
@@ -947,8 +960,7 @@ c     i        pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, !oct2005 for pomat
 !!
      i    jobsw = iSigMode,
      o    zsec=zsec, nbandmx=nbandmx(1,is)) 
-
-!TIME1 "after sxcf_fal3_scz"
+!TIME1 "end of sxcf_fal3_scz"
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
       call cpu_time(time_red1)

@@ -10,7 +10,7 @@
      i nl,nnc,nclass,natom,
      i nbloch,ngrp,niw,nq,      !nlnmx,mdimx,
      i nblochpmx ,ngpmx,ngcmx, 
-     i wgt0,nq0i,q0i,symgg, alat, shtvg,nband, ifvcfpout,
+     i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
      i exchange,screen,cohtest, ifexsp,
      i nbmx,ebmx,           
      i wklm,lxklm,          
@@ -24,7 +24,7 @@ c     i freqsig,
      o zsec,coh,nbandmx)
 c     o exx,zsecd)
 
-      use m_readqg
+      use m_readqg,only:readqg0
       use m_readeigen,only: readeval,readcphi
       use keyvalue,only: getkeyvalue
       use m_zmel,only: get_zmelt,ppovlz,  zmel,zmeltt 
@@ -176,7 +176,7 @@ c     o exx,zsecd)
       integer, intent(in) :: lxklm,invg(ngrp) !nnr(nkpo),nor(nkpo),
       integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
       real(8), intent(in) :: wgt0(nq0i,ngrp),symgg(3,3,ngrp)
-      real(8), intent(in) :: q0i(1:3,1:nq0i),shtvg(3,ngrp),alat,ecore(nctot)
+      real(8), intent(in) :: q0i(1:3,1:nq0i),alat,ecore(nctot) !shtvg(3,ngrp),
       real(8), intent(in) :: qbas(3,3),ginv(3,3)
       real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
       real(8), intent(in) :: qbz(3,nqbz),freqx(niw),wx(niw),ef,esmr,dw
@@ -1263,7 +1263,7 @@ c      if (allocated(expikt))deallocate(expikt)
           endif
         enddo     
       enddo
-      end
+      end subroutine weightset4intreal
       end module m_sxcf
 !! --------------------------------------------------------------
       subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,

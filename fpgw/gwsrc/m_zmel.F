@@ -1,6 +1,11 @@
       module m_zmel
-!> Get zmel <MPB psi|psi>
+!> Get zmel <MPB psi|psi> 
+!! We do "call get_zmelt". Then we have matrix elements zmel (exchange=F for correlation)
+!! or zmeltt (exchange=T). 
+!! 
 !! input
+
+!! basis data for crystal structure.
       use m_genallcf_v3,only: 
      &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
@@ -9,7 +14,9 @@
      &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
      &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg,
      &  done_genallcf_v3  
+!! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
       use m_readeigen,only: readcphi,readgeig
+!! Basic data set to get zmel*
       use m_rdpp,only:       
      &  nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
      &  done_rdpp
@@ -26,7 +33,7 @@
       integer,allocatable:: imdim(:)
       integer:: nbmax=NULL
       real(8),allocatable:: ppbir(:,:,:)
-!! input
+!! input 
       complex(8),allocatable :: ppovlz(:,:)
 !! output
       complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:)
