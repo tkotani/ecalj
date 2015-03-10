@@ -18,7 +18,7 @@ $(TARGET).exec:
 	$(bindir)/lmf $(MATERIAL) > llmf_lda
 	# exec gw_lmfh command.
 	rm QPU
-	$(bindir)/gw_lmfh $(MATERIAL)
+	$(bindir)/gw_lmfh -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt
 	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
 

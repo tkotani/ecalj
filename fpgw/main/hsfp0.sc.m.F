@@ -726,7 +726,9 @@ c$$$      endif
 !!  ------ write energy mesh for check ----------
       ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
       deltax0 = 0d0
+      if(mpi__root) then
       call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
+      endif
 
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
       ifidmlx = iopen('EPSwklm',0,0,0)

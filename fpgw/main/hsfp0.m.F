@@ -622,6 +622,7 @@ C...
         allocate(  vxcfp(ntq,nq,nspin) )
         call rsexx2(nspin,itq,q,ntq,nq, ginv, symgg,ngrp, vxcfp) !add ginv july2011
 c     loop over spins
+        if(mpi__root) then
         do is = 1,nspinmx
           write (ifxc(is),*) '==================================='
           write (ifxc(is),"(' LDA exchange-correlation : is=',i3)")is
@@ -649,7 +650,8 @@ c     loop over spins
 c     end of spin-loop
           if(is==1) isx = iclose('XCU'//xt(nz))
           if(is==2) isx = iclose('XCD'//xt(nz))
-        end do
+        enddo
+        endif !mpi__root
         deallocate(vxcfp)
       endif
 
@@ -712,7 +714,9 @@ c$$$      enddo
 c     ------ write energy mesh ----------
       ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
       deltax0 = 0d0
+      if(mpi__root) then
       call writeemesh(ifemesh,freqw,niw,freq_r,nwp,deltax0)
+      endif
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
 
