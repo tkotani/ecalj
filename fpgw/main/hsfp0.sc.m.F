@@ -1057,9 +1057,9 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
         if(eibz4sig()) then
 !TIME0 
           call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-          call MPI__AllreduceSum( zsec,ntq*ntq*nq )
 !TIME1 'end of zsecsym and reduce'
         endif
+        call MPI__AllreduceSum( zsec,ntq*ntq*nq )
 
 !TIME0 
         if(mpi__root) then
