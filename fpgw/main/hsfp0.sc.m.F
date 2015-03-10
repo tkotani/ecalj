@@ -9,15 +9,15 @@
 !!
 !! ----------------------------------------
 !! See papers;
-!! [1]T. Kotani and M. van Schilfgaarde, “Quasiparticle self-consistent GW method: 
-!!     A basis for the independent-particle approximation,” Phys. Rev. B, vol. 76, no. 16, 
+!! [1]T. Kotani and M. van Schilfgaarde, ?Quasiparticle self-consistent GW method: 
+!!     A basis for the independent-particle approximation,? Phys. Rev. B, vol. 76, no. 16, 
 !!     p. 165106[24pages], Oct. 2007.
-!! [2]T. Kotani, “Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-!!     and Muffin-Tin Orbital Method,” J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!! [2]T. Kotani, ?Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!     and Muffin-Tin Orbital Method,? J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
 !! EIBZ symmetrization;
-!! See [3] C. Friedrich, S. Blügel, and A. Schindlmayr, 
-!!  “Efficient implementation of the GW approximation within the all-electron FLAPW method,” 
+!! See [3] C. Friedrich, S. Bl?gel, and A. Schindlmayr, 
+!!  ?Efficient implementation of the GW approximation within the all-electron FLAPW method,? 
 !! Physical Review B, vol. 81, no. 12, Mar. 2010.
 !!
 !! Usage: This routine is called from a script for QSGW, ecalj/fpgw/exec/gwsc. 

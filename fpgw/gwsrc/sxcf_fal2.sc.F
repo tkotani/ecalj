@@ -76,8 +76,8 @@ c     o exx,zsecd)
 !! Output file in hsfp0 should contain hermitean part of SE
 !!    ( hermitean of SE_nn'(e_n) means SE_n'n(e_n')^* )
 !!             we use that zwz(itp,itpp)=dconjg( zwz(itpp,itp) )
-!! Caution!; npm=2 is not examined enough...
-
+!! Caution! npm=2 is not examined enough...
+!!
 !! \endverbatim
 !!
 !!
@@ -86,10 +86,10 @@ c     o exx,zsecd)
 !! We still use some of his ideas in this code.
 !!
 !! See paper   
-!! [1]T. Kotani and M. van Schilfgaarde, “Quasiparticle self-consistent GW method: 
-!!     A basis for the independent-particle approximation,” Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
-!! [2]T. Kotani, “Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-!!    and Muffin-Tin Orbital Method,” J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!! [1]T. Kotani and M. van Schilfgaarde, ??Quasiparticle self-consistent GW method: 
+!!     A basis for the independent-particle approximation,?? Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
+!! [2]T. Kotani, ??Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!    and Muffin-Tin Orbital Method,?? J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
 !! =======================================================================
 !! Omega integral for SEc

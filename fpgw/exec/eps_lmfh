@@ -1,211 +1,47 @@
-#!/bin/tcsh
+#!/bin/bash
 #for tatara in kyushu-u This is neglected in other cases.
 ###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 ###ref2cmd.awk %HEADER
 ### MPI version 
-if($# != 3 |$argv[1] != "-np" ) then
-$echo_run echo "  An example of usage: eps_lmfh -np 4 si"
-$echo_run echo "  k paralell for lmfgw-MPIK and hx0fp0"
-  exit
-endif
+if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+    echo "An example of usage: epsPP_lmfh -np 4 si"
+    exit 101
+fi
 
-set n = $0
-set nfpgw = ${n:h}
-set TARGET=$argv[3]
-set MPI_SIZE=$argv[2]
+n=$0
+nfpgw=`dirname $0`
+TARGET=$3
+MPI_SIZE=$2
+NO_MPI=0
+ITER=$1
+lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
 
-#cray 
-#set echo_run="aprun"
-#set mpi_run="aprun -n $LSB_PROCS -d $LSB_CPUS -N $LSB_PPN"
-#set serial_run="aprun"
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 
-#normal mpi 
-set echo_run=""
-set mpi_run="mpirun -np $MPI_SIZE"
-set serial_run=""
+echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
 
+######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
+echo $nfpgw
+echo $TARGET
 
+argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw  llmfgw00 $TARGET  --novxc
+argin=2; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw02   #Generate requied q+G v
 
-$echo_run echo "### START eps_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
-
-$echo_run echo $nfpgw
-$echo_run echo $TARGET
-setenv LMJOB $TARGET
-
-rm -f NoCore QPU* >& /dev/null
-
-### Check the existence of EPScond
-#if (! -e EPScond) then
-#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
-#   echo ' Now I made a sample of EPScond.tmp'
-#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
-#   exit 1
-#endif 
-
-### Get LATTC and SYMOPS
-###make_ref.awk echo 0 |$nfpgw/lmfgw --novxc  $TARGET > llmfgw00
-###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=--novxc target2=$TARGET output=llmfgw00 
-#>>>
-$echo_run echo 0 > _IN_
-
-$echo_run echo "         $nfpgw/lmfgw  --novxc $TARGET < _IN_ > llmfgw00 " 
-$serial_run $nfpgw/lmfgw  --novxc $TARGET < _IN_ > llmfgw00 
-  if ( $? != 0 )  then
-$echo_run echo Error in lmfgw input=0 output=llmfgw00
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-### Add q points  to Q0P file.  -----------------
-# read <QforEPS> in GWinput
-###make_ref.awk echo 2|$nfpgw/qg4gw  >lqg4gw02
-###ref2cmd.awk %CMD program=qg4gw echoinput=2 output=lqg4gw02 
-#>>>
-$echo_run echo 2 > _IN_
-
-$echo_run echo "         $nfpgw/qg4gw  < _IN_ > lqg4gw02 " 
-$serial_run $nfpgw/qg4gw  < _IN_ > lqg4gw02 
-  if ( $? != 0 )  then
-$echo_run echo Error in qg4gw input=2 output=lqg4gw02
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-#eigenvalues for micro-tetrahedron method.
-if(-e Qmtet) then
+if [ -e Qmtet ]; then
   mv Qmtet Qeigval 
-###make_ref.awk   echo 5 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw_eigval
-###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK echoinput=5  target=--novxc target2=$TARGET output=llmfgw_eigval 
-#>>>
-$echo_run echo 5 > _IN_
-
-$echo_run echo "         mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw_eigval " 
-$mpi_run $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw_eigval 
-  if ( $? != 0 )  then
-$echo_run echo Error in lmfgw-MPIK input=5 output=llmfgw_eigval
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
+  argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
   mv eigval eigmtet
-endif
+fi
 
-###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --novxc  $TARGET > llmfgw01
-###ref2cmd.awk %CMD mpi=1 program=lmfgw-MPIK echoinput=1  target=--novxc target2=$TARGET output=llmfgw01 
-#>>>
-$echo_run echo 1 > _IN_
-
-$echo_run echo "         mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw01 " 
-$mpi_run $nfpgw/lmfgw-MPIK  --novxc $TARGET < _IN_ > llmfgw01 
-  if ( $? != 0 )  then
-$echo_run echo Error in lmfgw-MPIK input=1 output=llmfgw01
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-set exinfo = $?
-
-if($exinfo == 0 ) then
-$echo_run echo " OK! lmfgw mode=1 "
-else
-$echo_run echo Error in echo 1\|lmfgw $TARGET
-$echo_run echo `tail -3 llmfgw01 `
-  exit
-endif
-
-###make_ref.awk echo $TARGET|$nfpgw/lmf2gw   > llmf2gw
-###ref2cmd.awk %CMD program=lmf2gw echoinput=$TARGET output=llmf2gw 
-#>>>
-$echo_run echo $TARGET > _IN_
-
-$echo_run echo "         $nfpgw/lmf2gw  < _IN_ > llmf2gw " 
-$serial_run $nfpgw/lmf2gw  < _IN_ > llmf2gw 
-  if ( $? != 0 )  then
-$echo_run echo Error in lmf2gw input=$TARGET output=llmf2gw
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
+argin=1; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+rm VXCFP.chk;rm CphiGeig
+argin=1;   run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
+argin=0;   run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas   # Product basis generation mode=4 ptest
+argin=202; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
+argin=203; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0 $lx0_para_option #x0 part
 
-###make_ref.awk echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
-###ref2cmd.awk %CMD program=rdata4gw_v2 echoinput=1 output=lrdata4gw 
-#>>>
-$echo_run echo 1 > _IN_
-
-$echo_run echo "         $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw " 
-$serial_run $nfpgw/rdata4gw_v2  < _IN_ > lrdata4gw 
-  if ( $? != 0 )  then
-$echo_run echo Error in rdata4gw_v2 input=1 output=lrdata4gw
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-# get EFERMI
-###make_ref.awk echo 1|$nfpgw/heftet  >leftet
-###ref2cmd.awk %CMD program=heftet echoinput=1 output=leftet 
-#>>>
-$echo_run echo 1 > _IN_
-
-$echo_run echo "         $nfpgw/heftet  < _IN_ > leftet " 
-$serial_run $nfpgw/heftet  < _IN_ > leftet 
-  if ( $? != 0 )  then
-$echo_run echo Error in heftet input=1 output=leftet
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-###make_ref.awk echo 0|$nfpgw/hbasfp0 >lbas
-###ref2cmd.awk %CMD program=hbasfp0 echoinput=0 output=lbas 
-#>>>
-$echo_run echo 0 > _IN_
-
-$echo_run echo "         $nfpgw/hbasfp0  < _IN_ > lbas " 
-$serial_run $nfpgw/hbasfp0  < _IN_ > lbas 
-  if ( $? != 0 )  then
-$echo_run echo Error in hbasfp0 input=0 output=lbas
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-###make_ref.awk echo 202|mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >lvcc	
-###ref2cmd.awk %CMD mpi=1 program=hvccfp0 echoinput=202 output=lvcc	 
-#>>>
-$echo_run echo 202 > _IN_
-
-$echo_run echo "         mpirun -np $MPI_SIZE $nfpgw/hvccfp0  < _IN_ > lvcc " 
-$mpi_run $nfpgw/hvccfp0  < _IN_ > lvcc 
-  if ( $? != 0 )  then
-$echo_run echo Error in hvccfp0 input=202 output=lvcc
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-
-###make_ref.awk echo 203|mpirun -np $MPI_SIZE $nfpgw/hx0fp0  >lx0
-###ref2cmd.awk %CMD mpi=1 program=hx0fp0 echoinput=203 output=lx0 
-#>>>
-$echo_run echo 203 > _IN_
-
-$echo_run echo "         mpirun -np $MPI_SIZE $nfpgw/hx0fp0  < _IN_ > lx0 " 
-$mpi_run $nfpgw/hx0fp0  < _IN_ > lx0 
-  if ( $? != 0 )  then
-$echo_run echo Error in hx0fp0 input=203 output=lx0
-    exit 10
-  endif
-#<<<
-$echo_run echo OK
-#mkdir EpsP$qqq
-#mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
- 
-
-
-
-
-
- 
+$echo_run echo OK! ==== All calclation finished for epsPP_lmfh $argv ====
