@@ -656,22 +656,28 @@ for semiconductor. An example of new syml is (this is a case of GaAs)
 5  0 0 0   .5 .5  .5    Gamma  L
 5  0 0 0    1.  0  0    Gamma  X
 5  0 0 0   .75 .75 0    Gamma  K
--888 !note -888 start Mass line. Here is a ZB case
+#############
 ## resolution qinit qend iqinit iqend  etolv(Ry) etolc(Ry) symllabels
-## mass*.spin* contains bands which is evaltop-etolv < eband <econdtop+etolc
-513  0 0 0   .5 .5  .5   4     16     0.1 0.01    Gamma  L
-513  0 0 0    1.  0  0   4     16     0.1 0.01    Gamma  X
-513  0 0 0   .75 .75 0   4     16     0.1 0.01    Gamma  K
+## mass*.spin* contains bands which is evaltop-etolv < eband <econtop+etolc
+-888 !note -888 start Mass line. Here is a ZB case
+257  0 0 0   .5 .5  .5   1   32     0.1 0.01    Gamma  L
+257  0 0 0    1.  0  0   1   32     0.1 0.01    Gamma  X
+257  0 0 0   .75 .75 0   1   32     0.1 0.01    Gamma  K
 0 !terminator  
 -------  end ----------------------
 New feature is start from next line to the -888 line.
-513 means a line connecting 0 0 0 (Gamma) and .5 .5 .5 (L) is divided
-into 512. and we only calculate from the 4th point to the 16th point
-among 513 points.
+257 means a line connecting 0 0 0 (Gamma) and .5 .5 .5 (L) is divided
+into 256. and we only calculate from the 1st point to the 16th point
+among 513 points (now we need to include 1st point for mass).
+
 We only make "Band001Syml005Spin1.mass" files which contains effective
 math along the line only near the Fermi energy, that is,
 we plot only bands whose energy E at Gamma (exactly speaking, at
 left-end point), is evaltop-etolv < E < econtop + etolc.
+
+(As its head line shows, Band*.mass file contains data
+ isyml,iq, ib,isp, QPE-EF, QPE-QPE(start), |q|, mass=2*2*(QPE-QPE(start))/|q|**2).
+ here QPE(start) is QPE at the left-end of sym line.)
 
 For GaAs, please use this syml, and run job_band.
 (e.g., job_band gaas -np 2 -vnspin=2 -vso=1; 
@@ -682,8 +688,6 @@ after -888. This is the effective mass plot for q points.
 Note that what we need is at q to zero limit.
 
 3. We have to make interpolation to q to zero.
-In cases, degenerted bands (supposed to be almost the same values)
-tends to show larger differences at  q \to 0.
 In such a case, a possible way is "take average of degenerated bands,
 and make an interpolation (least squrre fit by gnuplot).
 
@@ -707,7 +711,7 @@ print 'mass=',f(0)
 ----------end of massfit------------------
 Then I got mhh(111)=0.796 in QSGW.
 Note that Syml004 means 4th line of syml file.
-("513  0 0 0   .5 .5  .5   4     16     0.1 0.01    Gamma  L" in our example).
+("257  0 0 0   .5 .5  .5   1     32     0.1 0.01    Gamma  L" in our example).
 
 
 An example is at ~/ecalj/MATERIALS/GaAs_so.qsgw.mass

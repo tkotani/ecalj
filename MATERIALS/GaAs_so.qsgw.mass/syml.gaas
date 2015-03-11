@@ -5,9 +5,9 @@
 ## resolution qinit qend iqinit iqend  etolv(Ry) etolc(Ry) symllabels
 ## mass*.spin* contains bands which is evaltop-etolv < eband <econtop+etolc
 -888 !note -888 start Mass line. Here is a ZB case
-513  0 0 0   .5 .5  .5   4   16     0.1 0.01    Gamma  L
-513  0 0 0    1.  0  0   4   16     0.1 0.01    Gamma  X
-513  0 0 0   .75 .75 0   4   16     0.1 0.01    Gamma  K
+257  0 0 0   .5 .5  .5   1   32     0.1 0.01    Gamma  L
+257  0 0 0    1.  0  0   1   32     0.1 0.01    Gamma  X
+257  0 0 0   .75 .75 0   1   32     0.1 0.01    Gamma  K
 0 !terminator  
 
 
