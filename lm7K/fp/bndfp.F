@@ -2954,6 +2954,9 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       real(8),allocatable::disoff(:)
       character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
       logical:: initii
+      logical:: semiconband,metalband
+      integer:: idat,ichangesign
+      character(3)::acrossef
       tpiba = 2d0*4d0*datan(1d0)/alat
 !! ikpoffset 
       allocate(ikpoff(nsyml+1),disoff(nsyml+1))
@@ -3144,19 +3147,27 @@ c unused now      diff2eb(iq)=(evlall(i,jsp,ikp+1)-2d0*evlall(i,jsp,ikp)+evlall(
 !! NOTE: isyml>nsymln is only for mass mode given in syml.
             ikps= ikpoff(isyml)+1
             eee = evlall(i,jsp,ikps)
-            if( evtop-etolv<eee .and. eee<ecbot+etolv .and. isyml>nsymln) then  !mass mode
+
+            semiconband = evtop-etolv<eee .and. eee<ecbot+etolv    .and. isyml>nsymln !check i-th band is neare VCM and CBM
+            idat= ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-eferm,ne) !for metal crosspoint point across eferm
+            metalband  = idat>-1 .and. isyml>nsymln !check i-th band is near VCM and CBM
+            if(metalband) write(6,"('AcrossEf: in ',a,' at ', i5)") trim(fnamem(ibb,isyml,jsp)),idat
+!!
+            if(semiconband.or.metalband) then
                ifmass(jsp) = ifile_handle()
                ibb = ibb+1
                open(unit=ifmass(jsp),file=trim(fnamem(ibb,isyml,jsp)))
                write(ifmass(jsp),"('# isyml,iq, ib,isp, QPE-EF, QPE-QPE(start), |q|, mass=2*2*(QPE-QPE(start))/|q|**2')")
                do ix=2,ne
+                 acrossef=''
+                 if(ix==idat) acrossef='***'
                  qqq= (xdatt(ikps+ix-1)-disoff(isyml))*tpiba       ! tpiba is 2pi/alat.
                  eqq= (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps)) ! in rydberg
-                 write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',f13.8)")
+                 write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',f13.8,a)")
      &           isyml,i,ix,jsp,xdatt(ikps+ix-1)-disoff(isyml), 
      &           (evlall(i,jsp,ikps+ix-1)-eferm)*rydberg,
      &           (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg,
-     &           2d0/(2d0*eqq/qqq**2)
+     &           2d0/(2d0*eqq/qqq**2),acrossef
 c     &           isyml,i,ix,jsp,(evlall(i,jsp,ikps+ix-1)-eferm)*rydberg, xdatt(ikps+ix-1)-disoff(isyml), 2d0/diff2eb(ix)
                enddo
 c               write(6,"('EFFECTIVE MASS (be careful!): isyml(syml),ib(band),isp(spin)=',i3,i4,i2,
@@ -3248,3 +3259,15 @@ c$$$      write(bbb,"(f38.16)")adat
 c$$$      f2char=adjustl(bbb)
 c$$$      end
 
+      integer function ichangesign(a,n)
+      implicit none
+      integer:: i,n
+      real(8):: a(n)
+      ichangesign=-1
+      do i=1,n-1
+        if(a(i)*a(i+1) <0) then
+          ichangesign=i
+          exit
+        endif
+      enddo
+      end
