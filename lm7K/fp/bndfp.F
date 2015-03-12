@@ -2934,7 +2934,8 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),ix99,stdo,nsymln
       real(8),intent(in)::  evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow, 
       integer,intent(in):: nqp_syml(nsyml),nqps_syml(nsyml),nqpe_syml(nsyml)
-      real(8),intent(in):: eferm,evtop,ecbot
+      real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1 
+                                             ! if evtop <evbot ---> insulator 
       real(8),intent(in):: dqsyml(nsyml),etolv,etolc
       character*20,intent(in)::labeli(nsyml),labele(nsyml)
       character(*),intent(in)::sname
@@ -2943,21 +2944,29 @@ c             print *, 'isp,nhcan,npts,nsp=',nchanp,npts,nsp,nlo,ichds
       character*300::filenm(2),bchar
       real(8):: rydberg=13.6058d0 !,vadd
       character*3::charnum3
-      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt
+      integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
       character*300::aaa,addx
       real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
-      integer:: ikps,ne,ifi,fopn,ix,nee,ibb,ilt
+      integer:: ikps,ne,ifi,fopn,ix,nee,ibb,ilt,imin,imax
       real(8),allocatable::diffeb(:),diff2eb(:)
-      real(8)::polinta,tpiba,eee,eqq,qqq
-      character*100::fname,massfile
+      real(8)::polinta,tpiba,eee,eqq,qqq,dEdkatef
+      character*100::fname,massfile,fname2
       integer,allocatable::ikpoff(:)
       real(8),allocatable::disoff(:)
       character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
       logical:: initii
       logical:: semiconband,metalband
       integer:: idat,ichangesign
-      character(3)::acrossef
+      character(100)::acrossef
+      character(13)::massd,mass2d
+      logical:: scd
+
+      real(8)::kef
+      real(8),allocatable:: kabs(:)
+
+      scd= evtop <ecbot
       tpiba = 2d0*4d0*datan(1d0)/alat
+
 !! ikpoffset 
       allocate(ikpoff(nsyml+1),disoff(nsyml+1))
       ikpoff(1)=0
@@ -2978,11 +2987,11 @@ c        write(ifglt,'(a)')'set terminal postscript enhanced color eps'
 c        write(ifglt,'(a)')'set output "'//trim(fname)//'.eps"'
         write(ifglt,'(a)')'set xzeroaxis'
         write(ifglt,'(a)')'set grid'
-        write(ifglt,'(a)')'set ylabel "Energy(eV)"'
+        write(ifglt,'(a)')'set ylabel "Energy-Efermi(eV)"'
         write(ifglt,'(a)')'# This is given written in subroutine writeband in lm7K/fp/bndfp.F'
         if(nspx==1) addx='"'
         if(nspx==2) addx=' isp='//char(48+jsp)//'"'
-        write(ifglt,'(a)')'set title "'//trim(sname)//trim(addx)
+        write(ifglt,'(a)')'set title "Band '//trim(sname)//trim(addx)
         write(ifglt,'(a,F12.5,a,F12.5,a)') 'set yrange [',emin,':',emax,']'
         write(ifglt,'(a,F12.5,a)') 'set xrange [0.0:',disoff(nsymln+1),']'
 
@@ -3017,6 +3026,9 @@ c        write(ifglt,'(a)')'set output "'//trim(fname)//'.eps"'
         ifmglt=ifile_handle()
         fname='massplot.isp'//char(48+jsp)
         open(unit=ifmglt,file=trim(fname)//'.glt')
+        ifmglt2=ifile_handle()
+        fname2='massplotband.isp'//char(48+jsp)
+        open(unit=ifmglt2,file=trim(fname2)//'.glt')
 c   set terminal postscript enhanced color eps
 c   set output 'temp.eps'
         write(ifmglt,'(a)')'set terminal postscript enhanced color eps'
@@ -3027,78 +3039,66 @@ c   set output 'temp.eps'
         write(ifmglt,'(a)')'set ylabel "mass/mass(electron)"'
         write(ifmglt,'(a)')'set xlabel " |q|/(2pi/alat) "'
         write(ifmglt,'(a)')'# If necessary, see subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
+        write(ifmglt2,'(a)')'set terminal postscript enhanced color eps'
+        write(ifmglt2,'(a)')'set output "'//trim(fname2)//'.eps"'
+        write(ifmglt2,'(a,i1)')'set multiplot layout 1,',nsyml-nsymln
+        write(ifmglt2,'(a)')'set xzeroaxis'
+        write(ifmglt2,'(a)')'set grid'
+        write(ifmglt2,'(a)')'set ylabel " e - E(fermi) (eV)"'
+        write(ifmglt2,'(a)')'set xlabel " |q|/(2pi/alat) "'
+        write(ifmglt2,'(a)')'# If necessary, see subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
         if(nspx==1) addx=''
         if(nspx==2) addx=' isp='//char(48+jsp)
         write(ifmglt,*)
         do isyml = nsymln+1,nsyml
-          write(ifmglt,'(a)')'set title "'//trim(sname)//trim(addx)//
-     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//'"'
+          ne = nqpe_syml(isyml)-nqps_syml(isyml)+1
+          if(scd)         aaa='# insul u ($5):($8)'
+          if(.not.scd)    aaa='# metal u ($5):($9)'
+          write(ifmglt,'(a)')'set title "Mass '//trim(sname)//trim(addx)//
+     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//' '//trim(aaa)//'"'
           write(ifmglt,'(a,F12.5,a)') 'set xrange [0.0:',xdatt(ikpoff(isyml+1))-disoff(isyml),']'
           write(ifmglt,"('plot \')")
+          write(ifmglt2,'(a)')'set title "Band '//trim(sname)//trim(addx)//
+     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//'"'
+          write(ifmglt2,'(a,F12.5,a)') 'set xrange [0.0:',xdatt(ikpoff(isyml+1))-disoff(isyml),']'
+          write(ifmglt2,"('plot \')")
           ibb=0
           ikps= ikpoff(isyml)+1
           initii=.true.
           do i=1,minval(nevls(:,:))
             eee = evlall(i,jsp,ikps)
-            if( evtop-etolv<eee .and. eee<ecbot+etolv) then
+            semiconband = scd .and. evtop-etolv<eee .and. eee<ecbot+etolv .and. isyml>nsymln !check i-th band is neare VCM and CBM
+            idat= ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-eferm,ne) !for metal crosspoint point across eferm
+            metalband  = idat>-1 .and. isyml>nsymln !check i-th band is near VCM and CBM
+            if(semiconband.or.metalband) then
                ibb = ibb+1
+c              print *,'mmmmx111 band',semiconband,metalband,ibb,i,isyml,jsp
                fnamem(ibb,isyml,jsp)='Band'//charnum3(ibb)//'Syml'//charnum3(isyml)//'Spin'//char(48+jsp)//'.mass'
-               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//'" u ($5):($8) lt',
-     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
-               if(.not.initii) write(ifmglt,'(",\")') 
-               write(ifmglt,"(a,$)")trim(bchar)
-               initii=.false.
-            endif
-          enddo
-          write(ifmglt,*)
-          write(ifmglt,'(a)')'unset ylabel'
-        enddo  
-        close(ifmglt)
-      enddo
-!! almost the same expcept $8 --->$6 and file name
-      do jsp = 1, nspx
-        ifmglt=ifile_handle()
-        fname='massplotband.isp'//char(48+jsp)
-        open(unit=ifmglt,file=trim(fname)//'.glt')
-c   set terminal postscript enhanced color eps
-c   set output 'temp.eps'
-        write(ifmglt,'(a)')'set terminal postscript enhanced color eps'
-        write(ifmglt,'(a)')'set output "'//trim(fname)//'.eps"'
-        write(ifmglt,'(a,i1)')'set multiplot layout 1,',nsyml-nsymln
-        write(ifmglt,'(a)')'set xzeroaxis'
-        write(ifmglt,'(a)')'set grid'
-        write(ifmglt,'(a)')'set ylabel "mass/mass(electron)"'
-        write(ifmglt,'(a)')'set xlabel " |q|/(2pi/alat) "'
-        write(ifmglt,'(a)')'# If necessary, see subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
-        if(nspx==1) addx=''
-        if(nspx==2) addx=' isp='//char(48+jsp)
-        write(ifmglt,*)
-        do isyml = nsymln+1,nsyml
-          write(ifmglt,'(a)')'set title "'//trim(sname)//trim(addx)//
-     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//'"'
-          write(ifmglt,'(a,F12.5,a)') 'set xrange [0.0:',xdatt(ikpoff(isyml+1))-disoff(isyml),']'
-          write(ifmglt,"('plot \')")
-          ibb=0
-          ikps= ikpoff(isyml)+1
-          initii=.true.
-          do i=1,minval(nevls(:,:))
-            eee = evlall(i,jsp,ikps)
-            if( evtop-etolv<eee .and. eee<ecbot+etolv) then
-               ibb = ibb+1
-               fnamem(ibb,isyml,jsp)='Band'//charnum3(ibb)//'Syml'//charnum3(isyml)//'Spin'//char(48+jsp)//'.mass'
-               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//'" u ($5):($6) lt',
-     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
-               if(.not.initii) write(ifmglt,'(",\")') 
-               write(ifmglt,"(a,$)")trim(bchar)
-               initii=.false.
-            endif
-          enddo
-          write(ifmglt,*)
-          write(ifmglt,'(a)')'unset ylabel'
-        enddo  
-        close(ifmglt)
-      enddo
 
+               if(.not.initii) write(ifmglt,'(",\")') 
+               if(scd)         aaa='" u ($5):($8) lt'
+               if(.not.scd)    aaa='" u ($5):($9) lt'
+               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//trim(aaa),
+     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
+               write(ifmglt,"(a,$)")trim(bchar)
+
+               if(.not.initii) write(ifmglt2,'(",\")') 
+               aaa='" u ($5):($6) lt'
+               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//trim(aaa),
+     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
+               write(ifmglt2,"(a,$)")trim(bchar)
+
+               initii=.false.
+            endif
+          enddo
+          write(ifmglt,*)
+          write(ifmglt,'(a)')'unset ylabel'
+          write(ifmglt2,*)
+          write(ifmglt2,'(a)')'unset ylabel'
+        enddo  
+        close(ifmglt)
+        close(ifmglt2)
+      enddo
 !! show band eigenvalues.
       do 2111 isyml = 1,nsyml  
         ne = nqpe_syml(isyml)-nqps_syml(isyml)+1
@@ -3106,6 +3106,7 @@ c   set output 'temp.eps'
         do iq = 1,ne
           ikp = ikpoff(isyml)+iq
           do jsp = 1, nspx
+c            print *,'qqq1 ',iq,ikp,jsp
             if (iprint() > 20.and.ix99==1) then
                write(stdo,'(" bndfp: kpt",i5," of",i5, " k=",3f9.5,i2," ndimh=",i5)')
      &           ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
@@ -3147,32 +3148,57 @@ c unused now      diff2eb(iq)=(evlall(i,jsp,ikp+1)-2d0*evlall(i,jsp,ikp)+evlall(
 !! NOTE: isyml>nsymln is only for mass mode given in syml.
             ikps= ikpoff(isyml)+1
             eee = evlall(i,jsp,ikps)
-
-            semiconband = evtop-etolv<eee .and. eee<ecbot+etolv    .and. isyml>nsymln !check i-th band is neare VCM and CBM
+!!
+            semiconband = scd.and.evtop-etolv<eee .and. eee<ecbot+etolv .and. isyml>nsymln !check i-th band is neare VCM and CBM
             idat= ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-eferm,ne) !for metal crosspoint point across eferm
             metalband  = idat>-1 .and. isyml>nsymln !check i-th band is near VCM and CBM
-            if(metalband) write(6,"('AcrossEf: in ',a,' at ', i5)") trim(fnamem(ibb,isyml,jsp)),idat
 !!
             if(semiconband.or.metalband) then
                ifmass(jsp) = ifile_handle()
                ibb = ibb+1
+c              print *,'mmmmx222 band',semiconband,metalband,ibb,i,isyml,jsp
+               if(metalband) then
+                 imin=max(2,idat-1)  !diffeb is given from 2 to ne-1
+                 imax=min(ne-1,idat+2)
+                 allocate( kabs(imin:imax))
+                 kabs(imin:imax) = (xdatt(ikps+imin-1:ikps+imax-1)-disoff(isyml))*tpiba ! tpiba is 2pi/alat. |k|. left-end is zero.
+c                 write(*,"(a,2i5)")'kkkk ib idat '//trim(fnamem(ibb,isyml,jsp)),i,idat
+c                 write(*,"(a,13f18.3)")'kkkkk kabs=',kabs/tpiba
+c                 write(*,"(a,13f18.3)")'kkkkk eval=',(evlall(i,jsp,ikps+imin-1:ikps+imax-1)-eferm)*rydberg
+                 kef = polinta(0d0, evlall(i,jsp,ikps+imin-1:ikps+imax-1)-eferm, kabs, imax-imin+1) !we have k at Ef |k|=qef
+                 dEdkatef = polinta(kef, kabs, diffeb(imin:imax), imax-imin+1)
+                 deallocate(kabs)
+                 write(6,"('Effective Mass for metal: ',a,
+     &            ' iq isyml |k|_ef/(2pi/alat) dEdk 2*k/dEdk=', 2i4,' ',f8.3,' ',f8.3,' ',f8.3)") 
+     &            trim(fnamem(ibb,isyml,jsp)),idat,isyml, kef/tpiba, dEdkatef, 2d0*kef/dEdkatef
+               endif
                open(unit=ifmass(jsp),file=trim(fnamem(ibb,isyml,jsp)))
-               write(ifmass(jsp),"('# isyml,iq, ib,isp, QPE-EF, QPE-QPE(start), |q|, mass=2*2*(QPE-QPE(start))/|q|**2')")
-               do ix=2,ne
+               write(ifmass(jsp),"(a)") '# mass1 is for metal, mass2 is for semiconductor'
+               write(ifmass(jsp),"(a)") '# isyml,ib,iq,isp, |k|/(2pi*alat), QPE-EF, QPE-QPE(start),'
+     &              //' mass2=2*2*(QPE-QPE(start))/|k|**2, mass1=2*|k|/(dE/dk)'
+               do ix=1,ne
                  acrossef=''
-                 if(ix==idat) acrossef='***'
-                 qqq= (xdatt(ikps+ix-1)-disoff(isyml))*tpiba       ! tpiba is 2pi/alat.
-                 eqq= (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps)) ! in rydberg
-                 write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',f13.8,a)")
+                 if(ix==idat)   then
+                   write(bchar,"(f13.8,' ',f8.3)") kef/tpiba,2d0*kef/dEdkatef
+                   acrossef=' <--- Ef. kef/(2pi/alat), 2*|k|/(dE/dk)_kef= '//trim(bchar)
+                 endif  
+                 if(ix==idat+1) acrossef=' <--- Ef.'
+                 qqq= (xdatt(ikps+ix-1)-disoff(isyml))*tpiba       ! tpiba is 2pi/alat. |k|. left-end is zero.
+                 eqq= (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps)) ! in rydberg !eqq is relative to the eval at ikps(left end point)
+                 if(ix==1.or.ix==ne) then
+                   massd= '   --------  '
+                   mass2d='   --------  '
+                 else
+                   write(massd,"(f13.8)")  2d0*qqq/diffeb(ix)
+                   write(mass2d,"(f13.8)") 2d0/(2d0*eqq/qqq**2)
+                 endif
+                 write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',a,' ',a,a)")
      &           isyml,i,ix,jsp,xdatt(ikps+ix-1)-disoff(isyml), 
      &           (evlall(i,jsp,ikps+ix-1)-eferm)*rydberg,
      &           (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg,
-     &           2d0/(2d0*eqq/qqq**2),acrossef
-c     &           isyml,i,ix,jsp,(evlall(i,jsp,ikps+ix-1)-eferm)*rydberg, xdatt(ikps+ix-1)-disoff(isyml), 2d0/diff2eb(ix)
-               enddo
-c               write(6,"('EFFECTIVE MASS (be careful!): isyml(syml),ib(band),isp(spin)=',i3,i4,i2,
-c     &         ' QPE= ', f8.3,' mass= ',100(f7.3,x))") 
+     &           mass2d,  massd,  trim(acrossef)
 c    &         isyml,i,jsp,(evlall(i,jsp,ikps)- eferm)*rydberg, (2d0/(2d0*eqq/qqq**2) xxxxxxxxxxxxxx
+               enddo  
                close(ifmass(jsp))
             endif
  2113     continue
