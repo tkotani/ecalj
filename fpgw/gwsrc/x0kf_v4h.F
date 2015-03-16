@@ -592,9 +592,10 @@ c$$$!TIME0
         if(allocated(zmel)) deallocate(zmel)
 cc        call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
 cc     &       ngc,ngb,nbmax,ntqxx,isp_k,isp_kq)
-        call get_zmelt2(exchange, q+rk(:,k)-qq,  !ppovlz is used in this routine through m_zmel
-     &       q,irot,q, !isp,
-     &       ngc,ngb,  nkmin,nt0,  nkqmin,ntp0, isp_kq,isp_k)
+        call get_zmelt2(exchange,  
+     &      q,irot,q,ngc,ngb,                !MPB
+     &      nkmin,nt0,isp_k,                 !middle state
+     &      q+rk(:,k)-qq,nkqmin,ntp0,isp_kq) !end state
 !!      Output is zmel(ngb, nctot+nt0,ncc+ntp0)  nkmin:nt0, nkqmin:ntp0
         zmel=dconjg(zmel)
         allocate( z1p(ngb,ngb) )
