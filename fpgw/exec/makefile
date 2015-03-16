@@ -347,7 +347,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
- $(nfpsrc)diagcv2.o
+ $(nfpsrc)diagcv2.o \
+ $(gwsrc)m_zmel.o 
 
  X0 = \
  $(main)hx0fp0.m.o \
@@ -357,7 +358,8 @@ eout2: $(EO2)  $(COMM)
  $(nfpsrc)diagcv2.o \
  $(tote)rpaq.o \
  $(gwsrc)cinvrx.o \
- $(gwsrc)zsvd.o
+ $(gwsrc)zsvd.o \
+ $(gwsrc)m_zmel.o 
 
  X0mlw = \
  $(maxloc)hx0fp0.m.o \

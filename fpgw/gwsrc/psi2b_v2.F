@@ -56,17 +56,11 @@ c zppb is used as work array for ppb(:,:,i,ic) and for zpsi2b(ib,:,:).
 c      allocate(rr(nlnmx,ntp),cc(nlnmx,ntp))
 
 c check dimensions
-Cstop2rx 2013.08.09 kino      if (ntp0 .gt. ntp) stop 'psi2bc: ntp exceeded'
       if (ntp0 .gt. ntp) call rx( 'psi2bc: ntp exceeded')
-Cstop2rx 2013.08.09 kino      if (mdimx .ne. maxim(mdim,nclass)) stop 'psi2bc: wrong mdimx'
       if (mdimx .ne. maxim(mdim,nclass)) call rx( 'psi2bc: wrong mdimx')
-Cstop2rx 2013.08.09 kino      if (nctot+nt0 .gt. nt) stop 'psi2bc: nt exceeded'
       if (nctot+nt0 .gt. nt) call rx( 'psi2bc: nt exceeded')
-Cstop2rx 2013.08.09 kino      if (nt0 .gt. noccxv) stop 'psi2bc: noccxv exceeded'
       if (nt0 .gt. noccxv) call rx( 'psi2bc: noccxv exceeded')
-      if ( sum(mdim(iclass(1:natom)))/= nbloch ) 
-Cstop2rx 2013.08.09 kino     &          stop 'psi2b_v2: wrong nbloch'
-     &          call rx( 'psi2b_v2: wrong nbloch')
+      if ( sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v2: wrong nbloch')
       allocate(iasx(natom))
       ias = 1
       do ia = 1,natom
@@ -77,8 +71,6 @@ Cstop2rx 2013.08.09 kino      if(ias-1/=nlmto) stop ' psi2b_v2:sum(nlnmv)/= nlmt
       if(ias-1/=nlmto) call rx( ' psi2b_v2:sum(nlnmv)/= nlmto')
 
 c loop over atoms
-c     ib         = 0
-c     ias        = 1
       do  ia = 1,natom
         ic   = iclass(ia)
         nc   = nlnmc(ic)
@@ -90,9 +82,7 @@ Cstop2rx 2013.08.09 kino        if (nc+ nlnmv(ic) .gt. nlnmx) stop 'psi2b_v2: nl
         ias  = iasx(ia)
         iap  = iatomp(ia)
         icp  = iclass(iap)
-c      ib         = imdim(iap)-1
-        do       i = 1,mdim(icp) ! loop over optimal product basis
-c        ib = ib + 1
+        do   i = 1,mdim(icp) ! loop over optimal product basis
 c---------------------------------------------------
 cc sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)>
 cc for a given i, for all L'n' and t'

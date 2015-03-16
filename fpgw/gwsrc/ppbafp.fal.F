@@ -270,18 +270,19 @@ c$$$      end
 !! q1=q    ---> iq 1:ntp0 q-point
 !! q2=q-rk ---> kp 1:nt0  occupied
 !!  zmelpl
-      subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, isp,ginv,
+      subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
      i        ngc,ngcmx,ngpmx_in,nband,itp0, 
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
-     o       rmelt,cmelt)
+     o       rmelt,cmelt
+     i   ,itps)
       use m_readqg, only : readqg
       use m_readeigen,only : readgeig
 c-----------------------------------------------------
       implicit none
       real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
       integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
-     &  ntp0,nt0,nbloch,noccx,ngc,itp0(ntp0),isp
+     &  ntp0,nt0,nbloch,noccx,ngc,itp0(ntp0),ispq,ispq_rk,itps
       real(8),intent(in):: qbas(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
      &  qbasinv(3,3),symope(3,3),rmel(nbloch,noccx,ntp0),
      &  cmel(nbloch,noccx,ntp0)
@@ -302,8 +303,8 @@ c-----------------------------------------------------
       call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
       if(debug) write(6,*)'drvmelp2: goto readgeig'
-      call readgeig(q,    ngpmx_in, isp, qu1, geig1)
-      call readgeig(q_rk, ngpmx_in, isp, qu2, geig2)
+      call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
+      call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
 !TIME1 "after readgeig q q_rk"
 !TIME0
       if(debug) write(6,*)'drvmelp2: endof readgeig'
@@ -322,18 +323,20 @@ c-----------------------------------------------------
         call rx( "drvmlp: abs(add-nadd))>1d-10")
       endif
       if(debug) write(6,*)' goto alloc zmelpl'
-      allocate( zmelpl(ngc,nt0,ntp0) )
       if(debug) write(6,*) 'drvmelp2:goto melpln2t'
 !TIME1 "before drv melpln2t"
 !TIME0 
-      call melpln2t(ngp1, ngvecpB1
-     &  ,  ngp2, ngvecpB2
-     &  ,   ngc,  nadd,
-     &  geig1(1:ngp1,itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-     &  geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
-     i  shtv, matmul(symope,qik),qik, symope, qbas,
-     i  qt,                     !qt oct2013 means q1
-     o  zmelpl)
+      if(ngc/=0) then
+        allocate( zmelpl(ngc,nt0,ntp0) )
+        call melpln2t(ngp1, ngvecpB1
+     &   ,  ngp2, ngvecpB2
+     &   ,   ngc,  nadd,
+     &   geig1(1:ngp1,itps-1+itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+     &   geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
+     i   shtv, matmul(symope,qik),qik, symope, qbas,
+     i   qt,                    !qt oct2013 means q1
+     o   zmelpl)
+      endif
 !TIME1 "after drv melpln2t"
 !TIME0 
       if(debug) write(6,*)'end of melpln2t'
@@ -344,11 +347,13 @@ c-----------------------------------------------------
       cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
      &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
 !! extensiton to nbloch+ngc
-      rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-     & = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
-      cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-     & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
-      deallocate(zmelpl)
+      if(ngc/=0) then
+        rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
+     &   = dreal( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
+        cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
+     &   = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
+        deallocate(zmelpl)
+      endif
       if(debug) write(6,*)'end of drvmelp2'
 !TIME1 "end drvmelpln2t"
       end
@@ -595,7 +600,6 @@ c          igdelta(1:3,inum) = (/ig1,ig2,igc/)
       call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
      o    ngveccR) 
 !TIME1 "end of rotgvec"
-!TIME0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
 c$$$!!      write(6,*)'--- goto simple case for debug---'
@@ -620,6 +624,7 @@ c$$$      enddo
 c$$$      call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
 c$$$      return
 ccccccccccccccccccccccccccccccccccccccccccccccccc
+!TIME0
       if(verbose()>=100) write(6,*)' melpln2t: godo igp1 loop'
       allocate(ggitp(ntp0,ngcgp2))
       ggitp = 0d0
@@ -638,6 +643,7 @@ c         write(6,*)' nn=',nn
 c         write(6,*)'iggg=',iggg,nggg
 !! ggg(iggg) = <qt+G1 -(rk+Gc) -(q_rk+G2) >, where 
 !!       gggx(1:ntp0,igcg2) = gggx(1:ntp0,igcg2)+ ggg(iggg)*geigq1_(1:ntp0,igp1)
+! this is time-consuging part
          call zaxpy(ntp0,ggg(iggg), geigq1(igp1,1),ngp1, ggitp(1,igcgp2),1)
       enddo
       enddo

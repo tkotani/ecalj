@@ -58,7 +58,7 @@
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 
 !! Generate matrix element for "call get_zmelt".
-      use m_zmel,only:          !these data set are stored in this module, and used when 
+      use m_zmel,only:  !these data set are stored in this module, and used when 
      & nband,itq,imdim,ngcmx,ngpmx,
      & miat,tiat,shtvg, ntq, ppbir
 

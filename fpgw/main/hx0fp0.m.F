@@ -21,6 +21,16 @@
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout
+
+
+!! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+      use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
+     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
+!! Generate matrix element for "call get_zmelt".
+      use m_zmel,only:    !these data set are stored in this module, and used when 
+     & nband,itq,imdim,ngcmx,ngpmx,    ppovlz,
+     & ppbir,shtvg, miat,tiat , ntq
+
       implicit none
 c      use m_spacegrouprot,only: Spacegrouprot
 c      use m_rotMPB,only: rotMPB
@@ -63,11 +73,11 @@ C-------------------------------------------------
      &  wqt(:), wgt0(:,:),q0i(:,:)
       integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:) !,ngveccB(:,:,:)
      &           , ngvecp(:,:), ngvecc(:,:), !,ngpn(:),ngcni(:),iqib(:),
-     &   nx(:,:),nblocha(:),lx(:),ifppb(:)   !ongveccBr(:,:,:)
+     &   ifppb(:)   !ongveccBr(:,:,:),nx(:,:),nblocha(:),lx(:),
       complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:),
      &  zw(:,:),zw0(:,:),
      &  zxq(:,:,:),zxqi(:,:,:)
-      real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:),
+      real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:),
      &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
      &  qbze(:,:),qibze(:,:)  !,ecore(:,:)  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
@@ -117,16 +127,16 @@ c      integer :: nw2
      & ixc,iqxini,iqxend,iqxendx,
      &   nw_input,
      &   ifhbe,
-     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,ngcmx,mxx,nqbze,nqibze,ini,ix,ngrpx
-     &   ,mdimx,nbloch,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,
+     &   nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
+     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
+     &   ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond,nxx !,ifvxcpout,ifgb0vec
      &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx
      &   ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &   ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy
      &   ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx(2)=-9999,nwmax  !,ifev1,ifev2
      &   ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode
-     &   ,ngpmx !,  ifchipmlog
+c     &   ,ngpmx !,  ifchipmlog
 
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm,
      & dwry,dwh,omg_c,omg2
@@ -182,7 +192,8 @@ c      integer :: nw2
       real(8),allocatable::eval(:)
       integer:: new,nmxx,ii,iy,ipl1,ixx
 
-      complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:),ppovlz(:,:),ppovlzinv(:,:)
+      complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:),ppovlzinv(:,:)
+! ,ppovlz(:,:)
       real(8)::qxx(3),ssm
 ! svd. not used now
       real(8),allocatable::SS(:),rwork(:),ss0(:)
@@ -247,10 +258,12 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: l2nl
       logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
       real(8):: qread(3)
-c      integer,allocatable :: iclasst(:)
+
       character(128):: vcoudfile
       integer:: src,dest
       logical:: crpa
+      integer,allocatable :: iclasst(:), invgx(:)
+      integer:: ificlass,ifile_handle
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -518,15 +531,45 @@ C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       enddo
       ngrpx = 1
       l2nl=2*(nl-1)
-      allocate( nx(0:l2nl,nclass),  nblocha(nclass) ,lx(nclass),
-     &   ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:l2nl,nxx, nspin*nclass),
-     &   cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
+c      allocate( nx(0:l2nl,nclass),  nblocha(nclass) ,lx(nclass),
+c     &   ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:l2nl,nxx, nspin*nclass),
+c     &   cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
+      allocate(symope(3,3))
       symope(1:3,1) = (/1d0,0d0,0d0/)
       symope(1:3,2) = (/0d0,1d0,0d0/)
       symope(1:3,3) = (/0d0,0d0,1d0/)
-      call rdpp_v3(nxx, nl,ngrpx, nn, nclass, nspin,symope,qbas,
-     o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
+!!  dummy. Get space-group transformation information. See header of mptaouof.
+      ificlass=ifile_handle()
+      open (ificlass,file='CLASS')
+      allocate(iclasst(natom),invgx(ngrp)
+     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+      write(6,*)'  --- Readingin CLASS info ---'
+      do ibas = 1,natom
+        read(ificlass,*) ibasx, iclasst(ibas)
+        write(6, "(2i10)") ibasx, iclasst(ibas)
+      enddo
+      close(ificlass)
+      call mptauof(symope,ngrpx,plat,natom,pos,iclasst
+     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
+c      call rdpp_v3(nxx, nl,ngrpx, nn, nclass, nspin,symope,qbas,
+c     o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
+!!  ppbrd = radial integrals
+!!  cgr   = rotated cg coeffecients.
+      call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas)
+      ntq=nband
+      allocate(itq(ntq))
+      do i=1,ntq
+        itq(i)=i
+      enddo
+!! Pointer to optimal product basis
+      allocate(imdim(natom))
+      call indxmdm (nblocha,nclass,iclass,natom,
+     o imdim )                  !in m_zmel
+
+
+c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
+      nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx)) ! work arry
 
 C ... for legas test
@@ -760,19 +803,32 @@ Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
 
-!! --- ppb ---
-      do  is = 1,nspin
-! <Phi(R,L,n) Phi(R,L',n') B(R,i)> for each spin
-        if(debug) write(6,*)" goto ppbafp is=",is
-        irot = 1
+c$$$!! --- ppb ---
+c$$$      do  is = 1,nspin
+c$$$! <Phi(R,L,n) Phi(R,L',n') B(R,i)> for each spin
+c$$$        if(debug) write(6,*)" goto ppbafp is=",is
+c$$$        irot = 1
+c$$$        call ppbafp_v2 (irot,ngrpx,is,nspin,
+c$$$     i              il,in,im, nlnm,  
+c$$$     i                 nl,nn,nclass,nlnmx,
+c$$$     i                 mdimx,lx,nx,nxx, 
+c$$$     i                 cgr, nl-1,       
+c$$$     i                 ppbrd,           
+c$$$     o              ppb(1,is))
+c$$$      enddo
+!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+      irot=1
+      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,irot,nspin))
+      do is = 1,nspin
         call ppbafp_v2 (irot,ngrpx,is,nspin,
-     i              il,in,im, nlnm,  
-     i                 nl,nn,nclass,nlnmx,
-     i                 mdimx,lx,nx,nxx, 
-     i                 cgr, nl-1,       
-     i                 ppbrd,           
-     o              ppb(1,is))
-      enddo
+     i   il,in,im,nlnm,         !w(i_mnl),
+     i   nl,nn,nclass,nlnmx,
+     i   mdimx,lx,nx,nxx,       !Bloch wave    
+     i   cgr, nl-1,             !rotated CG
+     i   ppbrd,                 !radial integrals
+     o   ppbir(:,irot,is))      !this is in m_zmel
+      enddo  
+
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 C ... Set iqxini
@@ -1652,7 +1708,7 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
+     i    nolfco,zzr,nmbas_in, ppovl,zcousq,   !nmbas1,nmbas2, is removed ppovlz, 
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
 
@@ -1675,7 +1731,7 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz,
      o    rcxq,   !  rcxq is the accumulating variable for spins
-     i    nolfco,zzr,nmbas_in, ppovlz, ppovl,zcousq,   !nmbas1,nmbas2, is removed
+     i    nolfco,zzr,nmbas_in, ppovl,zcousq,   !nmbas1,nmbas2, is removed ppovlz, 
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
           endif
