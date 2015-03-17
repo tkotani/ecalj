@@ -141,6 +141,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 
       integer,allocatable :: iclasst(:), invgx(:)
       integer:: ibasx,ificlass,ifile_handle
+      complex(8),allocatable:: ppovl_(:,:)
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
@@ -210,7 +211,6 @@ c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
       incwfin= 0                !use ForX0 for core in GWIN
       efin =  0d0               !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 !...  These are allocated and setted by genallcf_v3
 !     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
@@ -238,7 +238,6 @@ Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA a
 
 !!!!  WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
-Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
       if(nclass /= natom) call rx( ' nclass /= natom ')
 
 !! --- tetra or not
@@ -253,9 +252,7 @@ Cstop2rx 2013.08.09 kino      if(nclass /= natom) stop ' nclass /= natom '
 !! --- read dimensions of h,hb
       ifhbe      = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-Cstop2rx 2013.08.09 kino      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
       if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
-Cstop2rx 2013.08.09 kino      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
       if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 !! --- Readin Offset Gamma --------
@@ -465,11 +462,8 @@ ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
       do iw=1,nw2
          freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
       enddo                     !linear + quadratic term
-Cstop2rx 2013.08.09 kino      if (nw2 < 2 ) stop "hx0fp0: nw2 < 2"
       if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-Cstop2rx 2013.08.09 kino      if (dw*(nw-2) > freqr2(nw2-1)) stop
-      if (dw*(nw-2) > freqr2(nw2-1)) call rx( ''//
-     &     "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
+      if (dw*(nw-2) > freqr2(nw2-1)) call rx("hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
       nwhis = nw2-1
       allocate(frhis(1:nwhis+1))
       frhis = freqr2(1:nwhis+1)
@@ -521,7 +515,6 @@ Cstop2rx 2013.08.09 kino      if (dw*(nw-2) > freqr2(nw2-1)) stop
          write(6,"('TimeReversal off mode')")
          npm=2
          nw_i=-nw
-Cstop2rx 2013.08.09 kino         if(.not.tetra)      stop ' tetra=T for timereversal=off'
          if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
       endif
       write(6,*)'Timereversal=',Timereversal()
@@ -560,7 +553,6 @@ C     --- tetra init
       if(debug) write(6,*)' xxx1:'
 c     ... maximum no. occupied valence states
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze)
-Cstop2rx 2013.08.09 kino      if(noccxv>nband) stop 'hx0fp0: all the bands filled! too large Ef'
       if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx      = noccxv + nctot
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
@@ -607,7 +599,6 @@ C     --- open WV* files
          write(6,'(" ANFcond=",3f13.6)') anfvec
          do ibas=1,natom
             read(ifianf,*) ibas1, ibasf(ibas)
-Cstop2rx 2013.08.09 kino            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
             if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
             write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
 c     &     ,transaf(1:3,ibas)
@@ -619,13 +610,11 @@ c     &     ,transaf(1:3,ibas)
 c      if(smbasis() .and. anfexist) then
 c         write(6,*)' smbais=T & anfexist=T is not yet. '//
 c     &        ' At leaset anfx0k shold be changed'
-cCstop2rx 2013.08.09 kino         stop ' smbais=T & anfexist=T is not yet. '
 c         call rx( ' smbais=T & anfexist=T is not yet. ')
 c      endif
       if((.not.timereversal()) .and. anfexist) then
         write(6,*)' timereversal=F & anfexist=T is not yet examined.'//
      &       'At leaset you have to consider about anfx0k and so.'
-Cstop2rx 2013.08.09 kino        stop ' timereversal=F & anfexist=T is not yet.'
         call rx( ' timereversal=F & anfexist=T is not yet.')
       endif
 !!... these are used x0k
@@ -758,10 +747,7 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !!
 c         if( newaniso2.and.iq==1 ) then ! *sanity check
          if( iq==1 ) then ! *sanity check
-            if(sum(q**2)>1d-10) then
-Cstop2rx 2013.08.09 kino               stop ' hx0fp0.sc: sanity check. |q(iqx)| /= 0'
-               call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-            endif
+            if(sum(q**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
          endif
 
 !! ==== readin Coulomb matrix ====
@@ -803,18 +789,27 @@ c         elseif(newaniso2) then !.and.iq==1) then
          nmbas1 = nmbas_in
          nmbas2 = nmbas1
 
-c         if(newaniso2) then
+!! newaniso=T case. Used in get_zmelt in m_zmel called in x0kf_v4hz
          if(allocated(ppovlz)) deallocate(ppovlz)
          if(allocated(ppovlzinv)) deallocate(ppovlzinv)
          if(allocated(ppovl)) deallocate(ppovl)
          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
          call readppovl0(q,ngc,ppovl) !q was qq
-         ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-         ppovlz(nbloch+1:nbloch+ngc,:) 
-     &     = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c            if(allocated(zzr)) zzr = ppovlz
-         write(6,*)'nnnnn',nbloch+ngc,ngb
-c         endif
+c         ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c         ppovlz(nbloch+1:nbloch+ngc,:) 
+c     &     = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+         allocate(ppovl_(ngb,ngb))
+         ppovl_=0d0
+         do i=1,nbloch
+           ppovl_(i,i)=1d0
+         enddo
+         ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+         if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
+           ppovl_= matmul(ppovl_,zcousq)
+         endif
+         ppovlz = ppovl_
+         deallocate(ppovl_)
+
          
 c$$$  if(ixc==11) then
 c$$$  write(6,*)" xxx2: memsize 8*ngb*ngb*nwhis=", 8*ngb*ngb*nwhis,' ngb nwhis=',ngb,nwhis
@@ -927,7 +922,6 @@ c
                      write(6,*)"nbnb  =",nbnb(ik,:)
                      write(6,*)"nbnbtt=",nbnbtt(ik,:)
                   enddo
-Cstop2rx 2013.08.09 kino                  stop'hx0fp0:sum(nbnb-nbnbtt)/=0'
                   call rx( 'hx0fp0:sum(nbnb-nbnbtt)/=0')
                endif
                noccxv = maxval(noccxvx)
@@ -947,7 +941,6 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 !     The last  bin  is     [frhis(nw), frhis(nwp)].
 !     nwp=nw+1; frhis(1)=0
 !     takao-feb/2002
-Cstop2rx 2013.08.09 kino            if(frhis(1)/=0d0) stop ' hx0fp0: we assume frhis(1)=0d0'
             if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
             write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
@@ -1360,7 +1353,6 @@ c     write(ifisk) vcousq(2:ngb)*w_k( 2:ngb),vcousq(2:ngb)*w_ks( 2:ngb)
                   endif
 
 c$$$                  if(.not.newaniso2) then ! Original mode
-c$$$Cstop2rx 2013.08.09 kino                     stop 'not checked here'
 c$$$                     call rx( 'not checked here')
 c$$$c     call wcf( ngb, vcoul, zxq(1,1,iw), imode, zw0)
 c$$$                  endif
