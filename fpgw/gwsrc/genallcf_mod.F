@@ -64,6 +64,7 @@ C--------------------------------------------------------
       character(120):: symgrpt
       real(8),   allocatable:: ecoret(:)
       integer(4),allocatable::ncwf2(:,:,:)
+      if(done_genallcf_v3) call rx('genallcf_v3 is already called')
 c      logical ::readgwinput
 c----------------------------------------------
       iflmto     = iopen('LMTO',1,0,0)

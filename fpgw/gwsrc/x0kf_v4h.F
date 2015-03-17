@@ -599,12 +599,14 @@ c
 !!     qbz_kr= rk(:,k)-qq  ! 
 !!     qibz_k= rk(:,k)-qq  ! k
         ngb  = nbloch + ngc 
-        call get_zmelt2(exchange,  
-     &      q,irot,q,ngc,ngb,                !MPB
-     &      nkmin,nt0,isp_k,                 !middle state
-     &      q+rk(:,k)-qq,nkqmin,ntp0,isp_kq) !end state
+!!Get the matrix element zmel   ZO^-1 <MPB psi|psi> , where ZO is ppovlz
 !!  Output is zmel(ngb, nctot+nt0,ncc+ntp0)  nkmin:nt0, nkqmin:ntp0
-        zmel=dconjg(zmel)
+! nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+        call get_zmelt2(exchange,  
+     &      q,irot,q,ngc,ngb,                       !MPB
+     &                   nkmin, nkmax, isp_k,nctot, !middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
+     &      q+rk(:,k)-qq,nkqmin,nkqmax,isp_kq,ncc)  !end state    1:ntp0  -->                     is nkqmin:nkqmin+ntp0-1  
+        zmel = dconjg(zmel)
         allocate( z1p(ngb,ngb) )
 
  8829   continue

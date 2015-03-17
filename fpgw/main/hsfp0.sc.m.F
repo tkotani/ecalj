@@ -62,7 +62,7 @@
      & nband,itq,imdim,ngcmx,ngpmx,
      & miat,tiat,shtvg, ntq, ppbir
 
-      use m_sxcf,only: sxcf_fal3_scz !no common data in 
+      use m_sxcf,only: sxcf_fal3_scz 
       use m_mpi                 ! MIZUHO-IR
       implicit none
 

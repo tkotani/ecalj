@@ -1,14 +1,14 @@
       module m_rdpp
-!> Read PPBRD_V2_*, radial integerals <p|pb> and so on.
+!> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
       integer,parameter:: NULL=-9999
       integer:: mdimx=NULL,nbloch=NULL
       integer,allocatable:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical:: done_rdpp=.false.
-
       contains
+
       subroutine rdpp(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas)
-c     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
+!     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.
       implicit none
       integer:: nxx,nl,ngrp,nn,nclass
       integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
@@ -19,7 +19,7 @@ c     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
       integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
       character*11 :: filename(nclass)
-
+      if(done_rdpp) call rx('rdpp is already called')
       allocate( nblocha(nclass) ,lx(nclass),
      &     nx(0:2*(nl-1),nclass),
      &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
@@ -59,7 +59,7 @@ c      lmxax = nl-1
       cgr=1d99
       call rotcg(nl-1,symope,ngrp,cgr)
       done_rdpp=.true.
-      write(6,*)' rdpp_v3:end '
+      write(6,*)' rdpp:end '
       end subroutine rdpp
       end module m_rdpp
 

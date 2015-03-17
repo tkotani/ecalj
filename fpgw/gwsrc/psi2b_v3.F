@@ -51,8 +51,6 @@ c zwork is used as work array for ppb(:,:,i,ic) and for zpsi2b(ib,:,:).
 c      allocate(rr(nlnmx,ntp),cc(nlnmx,ntp))
 
 c check dimensions
-c      if (ntp0 .gt. ntp) stop 'psi2b_v3: ntp exceeded'
-c      if (nctot+nt0 .gt. nt) stop 'psi2bc: nt exceeded'
       if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
       if( sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v3: wrong nbloch')
       allocate(iasx(natom))

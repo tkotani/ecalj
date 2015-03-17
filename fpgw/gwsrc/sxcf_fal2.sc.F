@@ -468,7 +468,7 @@ c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmeltt)) deallocate(zmeltt)
 ! this return zmeltt (for exchange), or zmel (for correlation)
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-     &       ngc,ngb,nbmax,ntqxx)
+     &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
 
 c$$$!! cccccccccc START: old version, instead of get_zmelt ccccccccccc
 c$$$         call  readcphi(q, nlmto,isp, quu, cphikq)

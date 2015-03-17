@@ -1,135 +1,144 @@
+!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz.
+!! To use this module, set data in this module, and call "call get_zmelt" or "call get_zmelt2". 
+!! Then we have matrix elements zmel (exchange=F for correlation)
+!! or zmeltt (exchange=T). In future, they may be unified...
       module m_zmel
-!> Get zmel <MPB psi|psi> 
-!! We do "call get_zmelt". Then we have matrix elements zmel (exchange=F for correlation)
-!! or zmeltt (exchange=T). 
-!! 
-!! input
 
-!! basis data for crystal structure.
+!! Base data for crystal structure.
+!! these are set by genallcf_v3 usually in the main routine.
       use m_genallcf_v3,only: 
      &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nw,
      &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
      &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
      &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
      &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg,
      &  done_genallcf_v3  
+
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
-      use m_readeigen,only: readcphi,readgeig
+!! Before calling them (get coefficients of eigen funcitons), we need init_readeigen, init_readeigen2 in main rouitne.
+      use m_readeigen,only: readcphi,readgeig 
+
 !! Basic data set to get zmel*
+!! these are set by 'call rdpp' in main routine
       use m_rdpp,only:       
      &  nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
-     &  done_rdpp
+     &  done_rdpp  
+!! BZ data. To set these data 'call read_BZDATA' in main rouitne.
       use m_read_bzdata,only: 
      &  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
-     &  done_read_bzdata
-      use keyvalue,only: getkeyvalue
-!!
+     &  done_read_bzdata  
+!! general purpose routine to read values in GWinput file.
+      use keyvalue,only: getkeyvalue 
+!! --------------------------------------
       integer,parameter:: NULL=-99999
+
+!these are set by mptauof in main routine. 'call mptauof'
       integer,allocatable :: miat(:,:)
-      real(8),allocatable :: tiat(:,:,:),shtvg(:,:)
-      integer:: nband=NULL,ngcmx=NULL,ngpmx=NULL,ntq=NULL
-      integer,allocatable :: itq(:)
-      integer,allocatable:: imdim(:)
-      integer:: nmmax=NULL
-      real(8),allocatable:: ppbir(:,:,:)
-!! input 
-      complex(8),allocatable,target :: ppovlz(:,:)
-!! output
-      complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:)
-!! local
+      real(8),allocatable :: tiat(:,:,:),shtvg(:,:)  
+
+!! We set these values in main routine
+      integer:: nband=NULL,ngcmx=NULL,ngpmx=NULL,ntq=NULL !set in main routine
+      integer,allocatable :: itq(:)                       !set in main routine
+      integer,allocatable:: imdim(:)                      !set in main routine
+      real(8),allocatable:: ppbir(:,:,:)                  !set in main routine, call pbafp_v2. 
+      complex(8),allocatable,target :: ppovlz(:,:)        !set in main rouitne
+
+!! output zmel for exchange=F, zmeltt for exchange=T.
+      complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:) !output
+
+!! local save.
       real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d0
       logical,private:: init=.true.
-c      complex(8),allocatable :: zcousq(:,:)
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
       integer,private::kxold=-9999
-!!
-      contains
-!!
-!! <phi(q,nqmax,ispq) |phi(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)>
-!!
-cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-      subroutine get_zmelt(exchange,q,kx,  kvec,irot,rkvec,kr,isp,
-     &   ngc,ngb,nmmax,nqmax)
-!! kvec is in the IBZ, rk = Rot_irot(kvec)
+      contains
+!! ------------------------------------
+      subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
+!! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
+!! ncc=0
+!!
+!! kvec is in the IBZ, rk = Rot_irot(kvec), kx,kr are dummy.
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       implicit none
       logical:: exchange
-      integer:: kx,kr,isp,ngc,ngb,nmmax,nqmax,irot,ispq,ispm,nmini,nqini
+      integer:: kx,kr,isp,ngc,ngb,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
       ispq = isp
       ispm = isp
       nmini=1
       nqini=1
       call get_zmelt2(exchange,  
-     &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
-     &   nmini,nmmax,ispm,         !middle for    phi_{q-rkvec}
-     &    q,nqini,nqmax,ispq)      !end state for phi_q
+     &   kvec,irot,rkvec,ngc,ngb,    !MPB        for  MPB_rkvec
+     &      nmini,nmmax,ispm,nctot,  !middle-phi for  phi_{q-rkvec}
+     &    q,nqini,nqmax,ispq,ncc  )  !end-phi    for  phi_q
       end
-c ntqxx--->nqmax
-c nbmax -->nmmax
-!! --------------------
-!!note: for usual correlation mode, I think nctot=0
-!!note: in self-energy mode, we use
-!!       nstate=nctot+nmmax
+!! ----------------------------------------
+cold  ntqxx--->nqmax
+cold  nbmax -->nmmax
+!!note: For usual correlation mode, I think nctot=0
+!!note: For self-energy mode;   we calculate <iq1|\Sigma |iq2> , where iq1 and iq2 are in nqmax.
+!!       nstate = nctot+nmmax
 !!       allocate(zmeltt(ngb,    nstate,  nqmax))
-!!           < MPB     phi       | phi > (but true matrix elements are for <phi|phi MPB> (complex conjugate).
-!!             rkvec   q-rkvec   |  q
- !                      cphim    | cphiq
+!!       zmeltt= < MPB     phi   | phi   > (but true matrix elements are for <phi|phi MPB> (complex conjugate).
+!!               <rkvec q-rkvec  |  q    >
+ !                      cphim    | cphiq 
 !                       ispm     | ispq
-!                    nmini:nmmax | nqini:nqmax
+!            nctot+  nmini:nmmax | ncc + nqini:nqmax
+!                    middle state| end state
 !
-!!--- For dielectric funciton, we use irot=1 kvec=rkvec=q
+!!--- For dielectric funciton, we use irot=1 kvec=rkvec=q. We calulate \chi(q).
 !!              q      rkvec     | q + rkvec  
-!                      nkmin:nt0 | nkqmin:ntp0
+!                    nkmin:nkmax | nkqmin:nkqmax
+!                   (we fix nkmin=1)
+!           or
+!              nt0=nkmax-nkmin+1 | ntp0=nkqmax-nkqmin+1
+!                      1:nt0     | 1:ntp0 
 !                         occ    | unocc     
-!                      (nkmin=1)
-!                      (cphi_k  | cphi_kq !in x0kf)
+!                      (cphi_k   | cphi_kq !in x0kf)
+!                    middle state| end state
 !
 !!     rkvec= rk(:,k)-qq  ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
 !!     kvec = rk(:,k)-qq  ! k
 !!
+!! NOTE: dimension
+!!  nmtot = nctot+ nmmax-mnini+1
+!!  nqtot = ncc  + nqmax-nqini+1
+!! <rkvec,1:ngb   q-rkvec, 1:nmtot | q, 1:nqtot>
+!! ----------------------------------------
       subroutine get_zmelt2(exchange,
      &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
-     &   nmini,nmmax,ispm,         !middle for    phi_{q-rkvec}
-     &    q,nqini,nqmax,ispq)      !end state for phi_q
+     &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
+     &    q,nqini,nqmax,ispq,ncc)  !end state for phi_q
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       implicit none
       logical:: exchange
       integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,ngc,ngb,nqmax,nbcut
-      integer:: iatomp(natom),nmini,nqini
+      integer:: iatomp(natom),nmini,nqini,nctot,ncc
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
      &  , quu(3),q(3), kvec(3),rkvec(3),wtt
-c      complex(8) :: cphiq(nlmto,nband), cphim(nlmto,nband)
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
-      integer:: nt
+      integer:: nmtot,nqtot
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:) ,ppb(:)
       logical:: debug=.false.
       complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-
       complex(8):: expikt(natom)
       integer:: it,ia,kx,verbose,nstate
       logical:: oncew
       real(8),parameter::epsd=1d-6
-
       integer::ispq,ispm,iii,itps
-c      complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
-c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
-c      allocate(expikt(natom))
-c      integer(4) ::nbcut
-
 !TIME0 
       if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel in m_zmel: start'
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
-
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
       if(.not.done_rdpp)        call rx('m_zmel: not yet call rdpp')
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
+
       if(init) then
          call dinv33(qbas,0,qbasinv,det)
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband))
@@ -141,19 +150,10 @@ c      integer(4) ::nbcut
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          q_bk=q
       endif
-      if(debug) write(*,*) 'get_zmel in m_zmel: 11111111'
-      allocate( rmelt(ngb, nctot+nmmax, nqmax), ! nstate= nctot+nband
-     &  cmelt(ngb, nctot+nmmax, nqmax))
-      if(debug) write(*,*) 'get_zmel in m_zmel: 22222222'
 
-c      do      it = 1,ntq
-c         itp        = itq(it)
-c         cphiq(1:nlmto,it) = cphim(1:nlmto,itp)
-cc            write(*,*)'svvvv ',it, itp, sum(cphiq(:,it))
-c      enddo
-c               write(*,*)'srrrrr 1c',sum(cphiq(:,1:ntq)),ntq
-c
-c      cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
+      allocate( rmelt(ngb, nctot+nmmax, ncc+nqmax), ! nstate= nctot+nband
+     &  cmelt(ngb, nctot+nmmax, ncc+nqmax))
+      if(debug) write(*,*) 'get_zmel in m_zmel: 22222222'
 
 !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       qk =  q - rkvec        
@@ -161,9 +161,6 @@ c      cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          call readcphi(qk, nlmto,ispm, quu, cphim)
          qk_bk=qk
       endif
-      if(debug) write(*,*) 'get_zmel in m_zmel: 3333333333'
-
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 c      call getsrdpp2( nclass,nl,nxx)
 !! Rotate atomic positions invrot*R = R' + T
       invr  =  invg(irot)       !invrot (irot,invg,ngrp)
@@ -171,94 +168,67 @@ c      call getsrdpp2( nclass,nl,nxx)
       iatomp= miat(:,invr)
       symope= symgg(:,:,irot)
       shtv  = matmul(symope,shtvg(:,invr))
+!! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+!! Note spin-dependence. Look for ixx==8 in hbas.m.F calling basnfp.F, which gives ppbrd.
+      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
+      ppb = ppbir(:,irot,ispq) 
+      if(debug) write(*,*) 'get_zmel in m_zmel: 3333333333'
 
-c$$$!! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-c$$$               call ppbafp_v2 (irot,ngrp,isp,nspin,
-c$$$     i              il,in,im,nlnm, !w(i_mnl),
-c$$$     d              nl,nn_,nclass,nlnmx,
-c$$$     i              mdimx,lx,nx,nxx, !Bloch wave    
-c$$$     i              cgr, nl-1,  !rotated CG
-c$$$     i              ppbrd,      !radial integrals
-c$$$     o              ppb)
-      ppb=ppbir(:,irot,ispq)
-      if(debug) write(6,*) ' sxcf: 1100c',ncore,nqmax
-!TIME1 "end of ppbafp_v2"
+!TIME1 "start in get_zmelt2"
 !TIME0
-!! ====================================================
-!!     matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
-!!     including the phase factor exp(ik.T)
-!!     B(rot*k,r) = B(k,invrot*r)
-!! ====================================================
-!! phase factors expikt(ia) is for exp(ik.T(R))
 
+!! phase factors expikt(ia) is for exp(ik.T(R))
       do ia = 1,natom
          expikt(ia) = exp(img *tpi* sum(kvec*tr(:,ia)) ) 
       end do
-!!   core 
-      nt   = nctot + nmmax      ! = nstate for the case of correlation
-      allocate( zzzmel(nbloch,nt,nqmax))
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$      write(*,*)'srrrrrrr 1',icore,ncore
-c$$$      write(*,*)'srrrrrrr 2',nqmax,iclass
-c$$$      write(*,*)'srrrrrrr 3',sum(ppb)
-c$$$      write(*,*)'srrrrrrr 4',nlnmv,nlnmc,sum(nblocha),sum(imdim),sum(iatomp)
-c$$$      write(*,*)'srrrrrrr 5',mdimx,nlmto,nbloch,nlnmx,nt,natom,nclass,nl,nnc
-c$$$      write(*,*)'srrrrr 1',sum(cphim(1:nlmto,1:ntq))
-c$$$      write(*,*)'srrrrr 1',sum(cphiq(1:nlmto,1:ntq))
-c$$$      write(*,*)'srrrrr 1',sum(ppb)
-c$$$      write(*,*)'srrrrr 1',sum(expikt)
-c$$$      write(*,*)'srrrrr 1',sum(zzzmel)
-c$$$ccccccccccccccccccccccccccccccccccc
-      call psicb_v2  (icore,ncore,nqmax,iclass,
-     i  dreal(expikt(1:natom)),dimag(expikt(1:natom)),
-     i  cphiq(1,nqini), 
-     i  ppb,  
-c     i              nlnmv,nlnmc,mdim,
-     i  nlnmv,nlnmc,nblocha,
-     i  imdim,iatomp,
-     d  mdimx,nlmto,nbloch,nlnmx,nt,nqmax,natom,nclass,
-     d  nl,nnc,     
-     o  zzzmel)
-      if(debug)  write(6,*) ' sxcf_fal2sc: goto psi2bc1'
-      if(debug) write(6,'("4 zzzqqbbb111 ",3d13.5)') sum(abs(zzzmel)),sum(zzzmel)
+      nmtot  = nctot + nmmax -nmini+1      ! = phi_middle
+      nqtot  = ncc   + nqmax -nqini+1      ! = phi_end
+      allocate( zzzmel(nbloch,nmtot,nqtot))
+      zzzmel=0d0
+!! MTO Core 
+      if(ncc>0.or.nctot>0) then
+        call psicb_v3  ( nctot,ncc,nmmax,nqmax,iclass,expikt,
+     i              cphim(1,nmini),  !middle phi
+     i              cphiq(1,nqini),  !end phi
+     i              ppb,!ppb,            
+     i              nlnmv,nlnmc,nblocha, !mdim, 
+     i              imdim,iatomp,
+     i              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
+     i              icore,ncore,nl,nnc,
+     o              zzzmel)
+      endif
+      if(debug) write(6,'("Goto psi2b_v3 nctot ncc nmmax nqmax=",4i4)') nctot,ncc,nmmax,nqmax
+      if(debug) write(6,'("4444 zzzmelsum ",3i5,3d13.5)') nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
+!! MTO Valence
+      if(nmmax*nqmax>0) then      ! val num of nm  ! val num of nq
+        call psi2b_v3( nctot,ncc, nmmax-nmini+1,   nqmax-nqini+1, iclass,expikt, !phase,
+     i              cphim(1,nmini), 
+     i              cphiq(1,nqini),
+     i              ppb,! ppb,         
+     i              nlnmv, nlnmc,nblocha, !mdim,
+     i              imdim,iatomp,
+     d              mdimx,nlmto,nbloch,nlnmx, natom,nclass,
+     o              zzzmel)
+      endif  
+      if(debug) write(6,'("5555 zzzmelsum ",3i5,3d13.5)') nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
+!TIME1 "end of psi2b_v3"
 
-
-!!   valence
-      call psi2b_v2  (nmmax, nqmax,iclass,
-     i  dreal(expikt(1:natom)),dimag(expikt(1:natom)),
-     i  cphim(1,nmini),                !occ    q-rk nband
-     i  cphiq(1,nqini),                 !unocc  q    ntq
-     i  ppb,  
-     i  nlnmv,nlnmc,nblocha,nctot,
-     i  imdim,iatomp,
-     d  mdimx,nlmto,nbloch,nlnmx, nband, nt,nqmax,
-     d  natom,nclass,
-     o  zzzmel)
-      if(verbose()>50) call timeshowx("4 after psi2bc1")
-      if(debug) then
-         write(6,"('sumof zmel abszmel=',4d23.16)")sum(zzzmel),sum(abs(zzzmel) )
-      end if
-      if(debug) write(6,'("4 zzzqqbbb111 ",3d13.5)')sum(abs(zzzmel)),sum(zzzmel)
-
-!TIME1 "bfore psi2b_v2"
 !TIME0
-!! -- IPW part.
-      if(debug) write(6,*) ' sxcf_fal1: goto drvmelp2 xxx111'
-      allocate(drealzzzmel(nbloch,nt,nqmax),dimagzzzmel(nbloch,nt,nqmax))
+!! IPW 
+      allocate(drealzzzmel(nbloch,nmtot,nqtot),dimagzzzmel(nbloch,nmtot,nqtot))
       drealzzzmel=dreal(zzzmel)
       dimagzzzmel=dimag(zzzmel)
       deallocate(zzzmel)
-!    qk =  q - rkvec   
+!    qk =  q - rkvec   !ncc+nqmax? nqtot?
       itps = nqini
-      call drvmelp2( q,             nqmax, ! q in FBZ
-     i  qk,  nmmax,    ! q-rk
+      call drvmelp3( q, nqmax-nqini+1, ! q     nt0 (in FBZ)
+     i  qk,  nmmax-nmini+1,            ! q-rk  ntp0
      i  kvec,        ! k in IBZ for mixed product basis. rk = symope(kvec) 
      i  ispq,ispm,ginv,
      i  ngc,ngcmx, ngpmx,nband,itq, 
      i  symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i  drealzzzmel, dimagzzzmel, nbloch, nt,nctot,
-     o  rmelt,cmelt, 
-     i  itps)
+     i  drealzzzmel, dimagzzzmel, nbloch, nctot,ncc,itps,
+     o  rmelt,cmelt)
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
       if(verbose()>50) call timeshowx("5 after drvmelp")
@@ -268,7 +238,7 @@ c     i              nlnmv,nlnmc,mdim,
             cmelt(:, it,:) =0d0
          enddo
       endif
-!TIME1 "after drvmelp2"
+!TIME1 "after drvmelp3"
 
 !! NOTE:=========================================
 !! zmelt = rmelt(igb(rkvec), iocc(q), iunocc(q-rkvec)) + i* cmelt
@@ -352,64 +322,56 @@ c               if(timemix) call timeshow("22222 k-cycle")
       if(debug) write(6,*) ' sxcf: goto wtt'
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 !! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
+!TIME1 "end of zmelt"
+!TIME0
 
+!! Multipled by ppovlz and reformat
       if(exchange) then
-         if(debug) write(*,*) 'exchange mode 0000'
-         allocate( zmel (ngb, nctot+nmmax, nqmax))
+         if(debug) write(*,*) 'exchange mode 0000 ngb nmtot nqtot',ngb,nmtot,nqtot
+         allocate( zmel (ngb, nmtot, nqtot))
          zmel = dcmplx (rmelt,cmelt)
          if(debug) write(*,*) 'exchange mode 1111'
          deallocate(rmelt,cmelt)
          if(debug) then
-            do it=1,nctot+nmmax
+            do it = 1,nmtot
                write(6,"('wwwwwsc ',i5,2f10.4)") it,sum(abs(zmel(:,it,1)))
             enddo
             write(*,*) 'eeeeeeeeeeeee end of wwwwsc',nctot,nmmax
             write(6,*)'sumcheck ppovlz=',sum(abs(ppovlz(:,:)))
-c            write(6,*)'sumcheck vcoud=',sum(abs(vcoud(:)))
          endif
-c                  if(.not.newaniso() ) then
-c                     allocate(vcoult(1:ngb,1:ngb),z1p(ngb,nctot+nmmax,nqmax))
-c                     vcoult= transpose(vcoul)
-c                     call matm( vcoult, zmel, z1p, ngb,ngb,(nctot+nmmax)*nqmax )
-c                     deallocate(vcoult) !, zmel)
-c                  endif  
-!TIME1 "end of matm vcoult"
-!TIME0
+!! OUTPUT zmeltt for exchange
+         allocate(zmeltt(nmtot,nqtot,ngb))
 
-c$$$                  if(newaniso()) then
-c                    write(*,'(a,5I10)')'kino: nqmax,nctot+nmmax,ngb=',nqmax,nctot+nmmax,ngb
-         allocate(zmeltt(nctot+nmmax,nqmax,ngb))
-c#ifdef USE_GEMM_FOR_SUM
          if(verbose()>39) then
             write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
-            write(*,*)'zgemmsize',nqmax*(nctot+nmmax),ngb,ngb
+            write(*,*)'zgemmsize',nqtot*nmtot,ngb,ngb
             write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
             write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
             write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
          endif
          call flush(6)	
-         call zgemm('T','N',nqmax*(nctot+nmmax),ngb,ngb,(1d0,0d0),
-     .     zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,nqmax*(nctot+nmmax) )
+         call zgemm('T','N',nqtot*nmtot,ngb,ngb,(1d0,0d0),
+     .     zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,nqtot*nmtot )
          deallocate(zmel)
-
       else
-!! correlation case. Get zmel
-c$$$         if(newaniso()) then
+!! Correlation case. Get zmel
          if(debug) write(*,*) 'correlation mode 0000'
-         nstate = nctot + nmmax ! = nstate for the case of correlation
-         allocate(zmeltt(ngb, nstate, nqmax))
+c         nstate = nctot + nmmax ! = nstate for the case of correlation
+         allocate(zmeltt(ngb, nmtot, nqtot))
          zmeltt= dcmplx (rmelt,-cmelt) !zmeltt= <itp|it,ib>
          deallocate(rmelt,cmelt)
 !! zmel(igb,it*itp) = C(ppovlz)*N(zmeltt(:,it*itp))
 !!  C means Hermitian conjugate, N means normal
 !! http://www.netlib.org/lapack/lapack-3.1.1/html/zgemm.f.html
-         allocate( zmel (ngb, nstate, nqmax) )
+!! OUTPUT
+         allocate( zmel (ngb, nmtot, nqtot) )
+
          if(debug) write(6,'("4 zzzppp222aaa ",3d13.5)') sum(abs(zmeltt)),sum(zmeltt)
-         call zgemm('C','N',ngb, nstate*nqmax,ngb,(1d0,0d0),
+         call zgemm('C','N',ngb, nmtot*nqtot,ngb,(1d0,0d0),
      .     ppovlz, ngb, zmeltt,ngb, (0d0,0d0),zmel,ngb)
          deallocate(zmeltt)
-         if(debug) write(*,*)'zz000 nqmax,ngb,nstate ',nqmax,ngb,nstate
-         if(debug) write(*,*)'zz000 sumchk zmel ',sum(abs(zmel(1:ngb,1:nstate,1:nqmax)))
+         if(debug) write(*,*)'zz000 nmtot,ngb,nstate ',nmtot,ngb,nqtot
+         if(debug) write(*,*)'zz000 sumchk zmel ',sum(abs(zmel(1:ngb,1:nmtot,1:nqtot)))
          if(debug) write(*,*) 'correlation mode end'
 !TIME1 "matmul zmel ppovlz"
       endif         

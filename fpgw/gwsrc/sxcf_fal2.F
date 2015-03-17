@@ -561,7 +561,7 @@ c        if(GaussSmear) ddw= 10d0
             if(allocated(zmeltt)) deallocate(zmeltt)
 ! this return zmeltt (for exchange), or zmel (for correlation)
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-     &       ngc,ngb,nbmax,ntqxx)
+     &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
             if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
             else

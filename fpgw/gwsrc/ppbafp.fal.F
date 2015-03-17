@@ -270,24 +270,23 @@ c$$$      end
 !! q1=q    ---> iq 1:ntp0 q-point
 !! q2=q-rk ---> kp 1:nt0  occupied
 !!  zmelpl
-      subroutine drvmelp2( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
+      subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
      i        ngc,ngcmx,ngpmx_in,nband,itp0, 
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i       rmel, cmel, nbloch,noccx,nctot,
-     o       rmelt,cmelt
-     i   ,itps)
+     i       rmel, cmel, nbloch,nctot,ncc,itps,
+     o       rmelt,cmelt)
       use m_readqg, only : readqg
       use m_readeigen,only : readgeig
 c-----------------------------------------------------
       implicit none
       real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
       integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
-     &  ntp0,nt0,nbloch,noccx,ngc,itp0(ntp0),ispq,ispq_rk,itps
+     &  ntp0,nt0,nbloch,ngc,itp0(ntp0),ispq,ispq_rk,itps,ncc
       real(8),intent(in):: qbas(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
-     &  qbasinv(3,3),symope(3,3),rmel(nbloch,noccx,ntp0),
-     &  cmel(nbloch,noccx,ntp0)
-      real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-      real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+     &  qbasinv(3,3),symope(3,3),rmel(nbloch,nctot+nt0,ncc+ntp0),
+     &  cmel(nbloch,nctot+nt0,ncc+ntp0)
+      real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
+      real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
 
       integer(4) :: ngp1, ngp2
       integer(4) :: ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in),nadd(3)
@@ -299,7 +298,7 @@ c-----------------------------------------------------
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 !TIME0
-      if(verbose()>50) write(6,*)' drvmelp2: start'
+      if(verbose()>50) write(*,*) ' drvmelp3: start'
       call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
       if(debug) write(6,*)'drvmelp2: goto readgeig'
