@@ -16,8 +16,9 @@
      i wklm,lxklm,          
      i invg,il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
-!!
+!! 
      i jobsw,                   != iSigma_en 
+     i hermitianW,
      o zsec,coh,nbandmx)
 c     o exx,zsecd)
 
@@ -268,6 +269,7 @@ c      real(8):: wgtq0p
       logical,allocatable:: ititpskip(:,:)
 
       logical:: tote=.false.
+      logical:: hermitianW
 c      real(8),allocatable:: ppb(:)
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 
@@ -332,12 +334,11 @@ c      nbcutc=nctot+nbcut
           if(sum(irkip(kx,:,ip))==0) cycle ! next kx
 !TIME0 
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
-          if( kx <= nqibz ) then
+c          if( kx <= nqibz ) then
             qibz_k= qibz(:,kx)
-          else
-            qibz_k= 0d0
-          endif
-          if(verbose()>=40)  write(6,*) ' sxcf_fal2_scz: loop 1100 kx=',kx
+c          else
+c            qibz_k= 0d0
+c          endif
           if(timemix) call timeshow("11111 k-cycle")
           call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
           ngb = nbloch + ngc
@@ -350,8 +351,9 @@ c      nbcutc=nctot+nbcut
 !! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
 !! These can be also separeted into WVR.ID and WVI.ID files.
 !! NOTE: vcoud and zcousq are in module m_zmelt.
-          if(kx<=nqibz) qxx=qibz_k
-          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
+          qxx=qibz_k
+c          if(kx<=nqibz) qxx=qibz_k
+c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
           ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
           do
             read(ifvcoud) ngb0
@@ -962,7 +964,11 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
             do ix = nwxi,nwx
               nrec = ix-nw_i+1  !freq_r(ix is in nw_i:nx)
               read(ifrcw,rec=nrec) zw ! direct access Wc(omega) = W(omega) - v
-              zw3(:,:,ix)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
+              if(hermitianW) then
+                zw3(:,:,ix)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
+              else
+                zw3(:,:,ix)=zw(1:ngb,1:ngb)
+              endif
             enddo
             deallocate(zw)
 !! rearrange index of zmel

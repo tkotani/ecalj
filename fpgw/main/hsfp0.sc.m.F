@@ -198,6 +198,7 @@ c      logical:: newaniso
       integer,allocatable:: nbandmx(:,:)
 
       integer:: ificlass,ifiq0p,ntqxx
+      logical:: hermitianW
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -205,6 +206,7 @@ c---------------------------------------
 !TIME0
 !TIME0 
       hartree=2d0*rydberg()
+      hermitianW=.false.
       if(cohtest) then          !currently not used (may need fixing if necessary)
         screen = .true.
         ixc = 2; nz=0
@@ -221,6 +223,7 @@ c---------------------------------------
           ixc=mod(ixc,1000)
           selectqp=.true.
           diagonly=.true.
+          hermitianW=.true.
           write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
           write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
         endif
@@ -998,6 +1001,7 @@ C         enddo
      i   eftrue, 
 !!
      i   jobsw = iSigMode, nbandmx=nbandmx(1:nq,is), !nbandmx is input mar2015
+     i   hermitianW=hermitianW,
      o   zsec=zsec) 
 !TIME1 "end of sxcf_fal3_scz"
         call date_and_time(values=timevalues)
