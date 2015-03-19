@@ -972,13 +972,15 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
             enddo
             deallocate(zw)
 !! rearrange index of zmel
-            allocate(zmel1(ngb),zmel1_(ntqxx,ngb,nstate))
-            do itpp= 1,ntqxx
-              do it  = 1,nstate
-                zmel1_(itpp,1:ngb,it) = zmel(1:ngb,it,itpp)
+            allocate(zmel1(ngb)) 
+            if(jobsw==3) then
+              allocate(zmel1_(ntqxx,ngb,nstate))
+              do itpp= 1,ntqxx
+                do it  = 1,nstate
+                  zmel1_(itpp,1:ngb,it) = zmel(1:ngb,it,itpp)
+                enddo
               enddo
-            enddo
-
+            endif
 !! jobsw==3
             if( jobsw==3) then
               allocate(zwz44(3,ntqxx),zwz4(ntqxx,3))
@@ -1026,14 +1028,21 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
 !!               **** most time consuming part for jobsw=1 ******
 !!               To reduce computational time, confusing treatment only uses lower half of zw3 (zw3 is Hermitan)
 !!               Clean up needed.
-                    do igb2=2,ngb 
+
+!! zwz3 contains <itp| it I> wz3_IJ(we)  <J it| itp>
+!!    when zw3 is hermitian.
+                    if(hermitianW) then
+                      do igb2=2,ngb 
                       zz2 = sum(zmel1(1:igb2-1)*zw3(1:igb2-1,igb2,iirx(itp)*ix)  ) +
      &                 .5d0* zmel1(igb2)*zw3(igb2,igb2,iirx(itp)*ix)
                       zwz3(ix0) = zwz3(ix0)+zz2*zmel(igb2,it,itp)
-                    enddo       !igb2
-                    zwz3(ix0)=2d0*dreal(zwz3(ix0))+ !I think 2d0 is from upper half.
-     &               zmel1(1)*zw3(1,1, iirx(itp)*ix)*zmel(1,it,itp)
-! a little complicated but zwz3 contains     <itp| it I> wz3_IJ(we)  <J it| itp>
+                      enddo       !igb2
+                      zwz3(ix0) = 2d0*dreal(zwz3(ix0))+ !I think 2d0 is from upper half.
+     &                zmel1(1)*zw3(1,1, iirx(itp)*ix)*zmel(1,it,itp)
+!!    when zw3 is not need to be hermitian case. This gives life time
+                    else  
+                      zwz3(ix0) = sum( matmul(zmel1(1:ngb), zw3(1:ngb,1:ngb,iirx(itp)*ix))*zmel(1:ngb,it,itp) )
+                    endif  
                   enddo
                   if(npm==1) then
                     zsec(itp,itp,ip) = zsec(itp,itp,ip) 
@@ -1044,9 +1053,9 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
                   endif
                 enddo
               enddo
-            endif               ! this contribution to zsec_nn is real (hermitean)
+            endif               
 
-            goto 2012
+c           goto 2012
 
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 c$$$
@@ -1175,7 +1184,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
  2012       continue
             deallocate(we_,wfac_,ixss,ititpskip,iirx)
  2002       continue
-            deallocate(zw3, zmel, zmel1,zmel1_)
+            deallocate(zw3, zmel, zmel1)
+            if(allocated(zmel1_)) deallocate(zmel1_)
             if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
             if(debug) then
               write(6,*)' end of do 2001 '

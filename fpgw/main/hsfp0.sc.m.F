@@ -206,7 +206,7 @@ c---------------------------------------
 !TIME0
 !TIME0 
       hartree=2d0*rydberg()
-      hermitianW=.false.
+      hermitianW=.true.
       if(cohtest) then          !currently not used (may need fixing if necessary)
         screen = .true.
         ixc = 2; nz=0
@@ -219,19 +219,21 @@ c---------------------------------------
         write(6,*) ' --- Put number above ! ------------'
         call readin5(ixc,nz,idummy)
         write(6,*) ixc
-        if(ixc>1000) then       !selected QP
-          ixc=mod(ixc,1000)
-          selectqp=.true.
-          diagonly=.true.
-          hermitianW=.true.
-          write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
-          write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
-        endif
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)
       if(mpi__root) call headver('hsfp0_sc',ixc)
       write(ixcc,"('.mode=',i4.4)")ixc
+
+      if(ixc>1000) then         !selected QP
+        ixc=mod(ixc,1000)
+        selectqp=.true.
+        diagonly=.true.
+        hermitianW=.false.
+        write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
+        write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
+      endif
+
       call MPI__consoleout('hsfp0_sc'//trim(ixcc))
       write(6,*) ' ixc nz=',ixc, nz
       if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
