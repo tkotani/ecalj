@@ -270,7 +270,7 @@ c$$$      end
 !! q1=q    ---> iq 1:ntp0 q-point
 !! q2=q-rk ---> kp 1:nt0  occupied
 !!  zmelpl
-      subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
+      subroutine drvmelp( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
      i        ngc,ngcmx,ngpmx_in,nband,itp0, 
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,nctot,ncc,itps,
@@ -298,10 +298,10 @@ c-----------------------------------------------------
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
 !TIME0
-      if(verbose()>50) write(*,*) ' drvmelp3: start'
+      if(verbose()>50) write(*,*) ' drvmelp: start'
       call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
-      if(debug) write(6,*)'drvmelp2: goto readgeig'
+      if(debug) write(6,*)'drvmelp: goto readgeig'
       call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
 !TIME1 "after readgeig q q_rk"

@@ -221,7 +221,7 @@ c      call getsrdpp2( nclass,nl,nxx)
       deallocate(zzzmel)
 !    qk =  q - rkvec   !ncc+nqmax? nqtot?
       itps = nqini
-      call drvmelp3( q, nqmax-nqini+1, ! q     nt0 (in FBZ)
+      call drvmelp( q, nqmax-nqini+1, ! q     nt0 (in FBZ)
      i  qk,  nmmax-nmini+1,            ! q-rk  ntp0
      i  kvec,        ! k in IBZ for mixed product basis. rk = symope(kvec) 
      i  ispq,ispm,ginv,
