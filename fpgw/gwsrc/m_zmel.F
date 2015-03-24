@@ -75,7 +75,7 @@
      &   kvec,irot,rkvec,ngc,ngb,    !MPB        for  MPB_rkvec
      &      nmini,nmmax,ispm,nctot,  !middle-phi for  phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc  )  !end-phi    for  phi_q
-      end
+      end subroutine get_zmelt
 !! ----------------------------------------
 cold  ntqxx--->nqmax
 cold  nbmax -->nmmax

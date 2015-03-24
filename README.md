@@ -170,17 +170,8 @@ There are several MAKEINC/Make.inc.ifort*
 You can choose one of them or you can set your own Make.inc.ifort.*
 (compilar, compilar options, math library).
 
-You may need to add -heap-arrays 100 (or 0)   
-(Because we use large stacksize; but I am not so sure about this.
- In a case, -heap-arrays option did not generate working binaries.
- However, I think "ulimit -s unlimited" before QSGW calculations and
- so on works OK. So, maybe we don't need -heap-arrays option.)
-
 Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
 just because of problem of Makefile. you can neglect this. We will fix it..
-
-I saw that current ecalj with gfortran4.6 or 4.7 works fine with
-FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
 
 Parallel make like  
 >make -j24 PLATFORM=gfortran  
@@ -199,9 +190,16 @@ make with BINDIR=xxx.
 (For CMD workshop participants: run  
 >make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
 
-which corresponds to MAKEINC/Make.inc.ifort.cmd
-We did not set "-heap-array 100" option since it give not working
-binaries.)  
+Compile options:
+--------------------
+I saw that current ecalj with gfortran4.6 or 4.7 works fine with
+FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
+ifort12 needs FFLAGS=-O1 for cases.
+We may need -heap-arrays 100 (when zero, we had a problem in a version
+of ifort). In cases, -heap-arrays option did not generate working binaries.
+However, I think "ulimit -s unlimited" before QSGW calculations and
+so on works OK. So, maybe we don't need -heap-arrays option.
+  
 
 ##### (2) make MPI LDA part.
 lmf-MPIK and lmfgw-MPIK are needed for gwsc (srcipt for QSGW). 
