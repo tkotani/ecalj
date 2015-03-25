@@ -89,7 +89,7 @@ c      integer,allocatable :: itq(:)
      &     eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),
      &     ppbrdx(:,:,:,:,:,:,:),aaa(:,:), 
      &     ppb(:), eq(:),       
-     &     eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
+     &     eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:),eqxx(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 
       logical :: exchange, legas, tote
@@ -173,7 +173,7 @@ c      logical:: newaniso=.true.
       integer:: irank,nrank
 
       integer:: ififr,ifile_handle
-      integer:: timevalues(8)  ,isp,dest
+      integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
       character(128) :: ixcc
 
 C...  mode switch. --------------
@@ -324,10 +324,9 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
         write(6,*) ' --- Spectrum function Sigma(omega) mode --- '
         exchange=.false.
         tote=.false.
-c     ifsecomg(1) = iopen('SEComgU'//xt(nz),1,-1,0) ! output files
-c     if (nspin == 2)
-c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
-        call rx('need to test this mode again')
+        ifsecomg(1) = iopen('SEComgU'//xt(nz),1,-1,0) ! output files
+        if (nspin == 2) ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
+c        call rx('need to test this mode again')
       elseif(ixc==5) then
         exchange=.true.
         tote=.true.
@@ -370,14 +369,16 @@ c     write(6,'("    ua      =",f13.6)') ua
 !!  === get space group information ===
 !!  True class information in order to determine the space group -----------
 !!  because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      open (102,file='CLASS')
+      ificlass=ifile_handle()
+      open (ificlass,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-        read(102,*) ibasx, iclasst(ibas)
+        read(ificlass,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
+      close(ificlass)
 !! ===  Get space-group transformation information. See header of mptaouof. ===
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
      o     ,miat,tiat,invgx,shtvg )
@@ -506,27 +507,6 @@ c     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of 
         endif
       endif
 c      write(6,*)' ifqpnt ret=',ifqpnt,ret
-
-!!  read q-points and states
-      if(ixc==4) then
-        call readxx(ifqpnt)    !skip to ***** for q point for spectrum function.
-        omegamaxin = 1d70
-        read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
- 2038   continue
-        omegamax = 2*freq_r(nw) !This is in Ry.
-        if(omegamaxin < omegamax) then
-          write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
-          omegamax = omegamaxin
-        endif
-        if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
-        iwini =  -int( omegamax / dwplot )
-        iwend =   int( omegamax/  dwplot )
-        write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
-      else
-        iwini = -1
-        iwend = 1
-      endif
-
       if (tote) then
         lqall      = .true.
       else
@@ -569,8 +549,8 @@ c      write(6,*)' ifqpnt ret=',ifqpnt,ret
 c
       nspinmx = nspin
       if (laf) nspinmx =1
-      close(ifqpnt)
-!
+
+! necessary ?
       call MPI__Broadcast(nq)
       if(mpi__root) then
         do dest=1,mpi__size-1
@@ -579,6 +559,28 @@ c
       else  
         call MPI__REAL8recv(q,3*nq,0)
       endif  
+
+!!  read q-points and states
+      if(ixc==4) then
+        call readxx(ifqpnt)    !skip to ***** for q point for spectrum function.
+        omegamaxin = 1d70
+        read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
+ 2038   continue
+        omegamax = 2*freq_r(nw) !This is in Ry.
+        if(omegamaxin < omegamax) then
+          write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
+          omegamax = omegamaxin
+        endif
+        if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
+        iwini =  -int( omegamax / dwplot )
+        iwend =   int( omegamax/  dwplot )
+        write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
+      else
+        iwini = -1
+        iwend = 1
+      endif
+
+      close(ifqpnt)
 
 C...
       call getkeyvalue("GWinput","QPNT_nbandrange",nss,2 !nov2005
@@ -592,9 +594,10 @@ C...
         enddo
       endif
 
-C...
-      allocate(omega(ntq,iwini:iwend))
+!! omega
+!! this is also in sxcf.
       if(ixc==4) then
+        allocate(omega(ntq,iwini:iwend))
         do iw = iwini,iwend
           omega(1:ntq,iw) =  dwplot* iw + ef
         enddo
@@ -657,8 +660,9 @@ c     end of spin-loop
 
 !!  Offset Gamma point Q0P
       write(6,*) 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      ifiq0p=ifile_handle()
+      open (ifiq0p,file='Q0P')
+      read (ifiq0p,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
       nq0it = nq0i
@@ -666,13 +670,13 @@ c     end of spin-loop
 c     read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       nq0ix = nq0i
       do i=1,nq0i
-        read (101,* ) wqt(i),q0i(1:3,i)
+        read (ifiq0p,* ) wqt(i),q0i(1:3,i)
         if(wqt(i)==0d0 ) nq0ix = i-1
       enddo
       nq0i = nq0ix              ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(101)
+      close(ifiq0p)
       allocate( wgt0(nq0i,ngrp) )
 C     Sergey's 1stFeb2005
 c     call q0iwgt2(symgg,ngrp,wqt,q0i,nq0i,
@@ -946,7 +950,7 @@ c     i              ppb,
      i   nbmx(2),ebmx(2),
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i   wklm,lxklm,            !mar2012
-     i   invg,il,in,im,nn, lx,nx,nxx, !ppbrd, !sep 2012 cgr,nlnm,
+     i   invg,il,in,im,nn, lx,nx,nxx, dwplot,  !ppbrd, !sep 2012 cgr,nlnm,
      o   zsec,coh,exx)          ! acuumulation variable
 
 c        write(6,*)'### end of sxcf_fal3z ### '
@@ -954,6 +958,8 @@ c        write(6,*)'### end of sxcf_fal3z ### '
 c 1001   continue         !end of q-loop
 c---------------------------------
 c     electron gas bare exchange (exact)
+
+        if(.false.) then
          if (legas.and.exchange.and.(.not.tote)) then
           efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
           pi         = 4.d0*datan(1.d0)
@@ -986,6 +992,8 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
             write (663,"(2f14.6)") qm/qfermi, qfermi
           end do
          endif
+        endif
+
  2001   continue
 !!
         call MPI__AllreduceSum( zsec(:,:,:),(iwend-iwini+1)*ntq*nq ) ! MIZUHO-IR
@@ -1063,7 +1071,8 @@ c-------------------------
      &                    iw,itq(i),ip,is, q(1:3,ip),  eqx(i,ip,is),
      &                    (omega(i,iw)-ef)*rydberg(),  hartree*zsec(iw,i,ip) !,sumimg
               end do
-              write(6,*)
+              write(ifoutsec,*)
+              write(ifoutsec,*)
             end do
           end do
           close(ifoutsec)

@@ -18,7 +18,7 @@ c     i ppb,
      i nbmx,ebmx, 
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i wklm,lxklm, 
-     i invg,il,in,im,nn_, lx,nx_,nxx_, !ppbrd, !cgr,,nlnm
+     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot, !ppbrd, !cgr,,nlnm
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi
@@ -373,7 +373,7 @@ c      logical :: newaniso !fixed to be T
       character(5):: charnum5
 
       integer:: ixc
-      real(8):: qip(3,*),deltaw,shtw,eqx(nband)
+      real(8):: qip(3,*),deltaw,shtw,eqx(nband),dwplot
       complex(8),allocatable:: zmelt(:,:)
       integer:: ntqxx,nrot
 c--------------------------------------------------------------------
@@ -430,6 +430,14 @@ c      allocate(expikt(natom))
             enddo
           enddo
         endif
+!!
+        if(ixc==4) then
+c        dwplot=0.01
+        do iw = iwini,iwend
+          omega(1:ntq,iw) =  dwplot* iw + ef
+        enddo
+        endif
+
         call readeval(q, isp, eq(1,ip))
 !! we only consider bzcase()==1
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
