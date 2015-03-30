@@ -221,6 +221,30 @@ c niwx    = max(niw,nw)
 c
 c secq(t) = <psi(q,t) |SEc| psi(q,t)>
 c----------------------------------------------------------------------
+      intent(in)::
+     i kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2,
+     i nsp,isp,                 !tiat,miat, 
+     i qbas,ginv,
+     i qibz,qbz,wk,nstbz,wik,  
+     i nstar,irkip,  
+c     i iclass,mdim,nlnmv,nlnmc,
+c     i icore,ncore,imdim,
+c     i ppb, 
+     i freq_r,freqx,wx, 
+     i dw,ecore, 
+     d nlmto,nqibz,nqbz,nctot,
+     d nl,nnc,nclass,natom,
+     d mdimx,nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
+     & nblochpmx ,ngpmx,ngcmx, 
+     & wgt0,nq0i,q0i,symgg,alat, nband, ifvcfpout, !shtvg,
+     & exchange,tote,screen,cohtest, ifexsp,
+     i iwini,iwend,
+     i nbmx,ebmx, 
+c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
+     i wklm,lxklm, 
+     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot !ppbrd, !cgr,,nlnm
+
+
       integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      & nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,
      & irot,  iqisp,ikpisp,isp,nsp, !nlnmx, !iq, idxk,

@@ -2154,7 +2154,7 @@ c            endif
             if (ispc .eq. 2) jsp = 1
             if(iprint()>20.and.ix99==1) then
                write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
-     &           iq,nkp,qp,jsp,ndimh,nevls(iq,jsp)
+     &           iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
             endif   
             if(iprint()>=35.and.ix99==1) then
                write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))

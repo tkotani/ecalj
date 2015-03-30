@@ -106,8 +106,8 @@ Te  =" atomz=52@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.5'@ eh=-1*4@ eh2=-2*3@ R=?@"
 I   =" atomz=53@ pz='#PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Xe  =" atomz=54@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
-Cs  =" atomz=55@ pz='PZ=5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ba  =" atomz=56@ pz='PZ=5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cs  =" atomz=55@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ba  =" atomz=56@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
 La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
 Ce  =" atomz=58@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*4@ R=2.80@" 
@@ -134,9 +134,9 @@ Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pb  =" atomz=82@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ pz='#PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ pz='#PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pb  =" atomz=82@ pz='#PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Bi  =" atomz=83@ pz='#PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
@@ -909,7 +909,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       #   If you encounter this message set INVIT=F.
       #  T.Kotani think (this does not yet for lm7K).
     
-ITER MIX=A2,b=.5,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
+ITER MIX=A2,b=.3,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 
