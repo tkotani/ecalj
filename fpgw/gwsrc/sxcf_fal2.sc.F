@@ -1046,7 +1046,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
                   enddo
                   if(npm==1) then
                     zsec(itp,itp,ip) = zsec(itp,itp,ip) 
-     .               + wfac_(it,itp)*alagr3z2(we,freq_r(ixs-1),zwz3,itp,itp)
+     .               + wfac_(it,itp)*alagr3z2(we,freq_r(ixs-1),zwz3,.true.)
                   else
                     zsec(itp,itp,ip) = zsec(itp,itp,ip) 
      .               + wfac_(it,itp)*alagr3z(we,freq_r(ixs-1),zwz3)
