@@ -3,7 +3,7 @@
 ############################################################################
 
 #(1) Compilar ###################
-FC = mpif90 -f90=ifort -132 -xHost -mcmodel=medium -heap-arrays 100
+FC = mpiifort -f90=ifort -132 -xHost -mcmodel=medium -heap-arrays 100
 
 #(2) CPP SWITCHES ###################
 CPPSWITCH_INTELLINUXIFC  = \
@@ -40,7 +40,7 @@ tet5_g = .o
 LIBMATH= -mkl  
 
 #(5) Linker ####################################################
-LK=mpif90 -openmp
+LK=mpiifort -openmp
 LKFLAGS2 = $(LIBMATH) 
 
 # LK = mpif90

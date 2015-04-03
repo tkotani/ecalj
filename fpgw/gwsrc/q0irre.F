@@ -252,14 +252,12 @@ c$$$      nq0i = ixx
           sij=sum(epinv(:,:,ik)*epinv(:,:,jk))
 c          print *,ik,jk,sij
           if(ik==jk) sij=sij-1d0
-          if(abs(sij)>1d-10) then
+          if(abs(sij)>1d-7) then
             write(*,"(2i3,3d22.14)")ik,jk,sij
-Cstop2rx 2013.08.09 kino            stop 'epsinv_invariant: epsinv are not normalized'
             call rx( 'epsinv_invariant: epsinv are not normalized')
           endif
         enddo
       enddo
-c      stop 'xxxxxxxxx test end q0irre diele'
       end
 
       subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
@@ -447,7 +445,6 @@ c wgtq0p in swiches.f should be given correctly --->it should be consistent with
           endif
         enddo
         print *,' nearest iq qmin=',nsc,qmin
-Cstop2rx 2013.08.09 kino        if(nsc/=8 ) stop ' setq0_2: err.we assumce nsc==8'
         if(nsc/=8 ) call rx( ' setq0_2: err.we assumce nsc==8')
         call wgtscale(eee,w1,w2)
         ix=0
@@ -557,7 +554,6 @@ c        do ix=1,nq
 c        ez(1:3,ix)= (/0d0,0d0,1d0/)
 c        enddo
       else
-Cstop2rx 2013.08.09 kino        stop "q0irre: wrong q0pchoice! "
         call rx( "q0irre: wrong q0pchoice! ")
       endif
 
@@ -613,14 +609,12 @@ cccccccccccccccccccccccccccccccccccccccccc
         write(6,*)' Negative Weight CASE!!! wgtQ0p=',wgtq0p()
       endif
       if(auxf0 <0d0) then
-Cstop2rx 2013.08.09 kino        stop  'setq0_2: (wtrue - wsumau)/wtt'
         call rx( 'setq0_2: (wtrue - wsumau)/wtt')
       endif
 
       qini = sqrt(1/auxf0)*alat/(2*pi)/sqrt(minval(alpv))   ! initial guess for q
 
       if(nx0==2) then
-Cstop2rx 2013.08.09 kino        if(nq/=6) stop ' nx0==2.and.nq/=6 not implimented yet'
         if(nq/=6) call rx( ' nx0==2.and.nq/=6 not implimented yet')
         q0x(:,7:12) = q0x(:,1:6)
         nq00i=12
@@ -631,7 +625,6 @@ Cstop2rx 2013.08.09 kino        if(nq/=6) stop ' nx0==2.and.nq/=6 not implimente
         nq00i=nq
         wt0  =1d0/nq
       else
-Cstop2rx 2013.08.09 kino        stop ' setq0: I only support nx0=1 and nx0=2'
         call rx( ' setq0: I only support nx0=1 and nx0=2')
       endif
 
@@ -718,7 +711,6 @@ c
         if( (auxf0-fa)*(auxf0-fb) >0d0 ) then
           write(6,*) i,fa,fb,auxf0
           write(6,*) qa,qb
-Cstop2rx 2013.08.09 kino          stop ' setq0: something wrong (auxf0-fa)*(auxf0-fb) >0d0'
           call rx( ' setq0: something wrong (auxf0-fa)*(auxf0-fb) >0d0')
         elseif((auxf0-fa)*(auxf0-fc) <0d0 ) then
           qb=qc
@@ -977,7 +969,6 @@ c  refine qa
         if( (aufccq0-fa)*(aufccq0-fb) >0d0 ) then
           write(6,*) i,fa,fb,aufccq0
           write(6,*) qa,qb
-Cstop2rx 2013.08.09 kino          stop ' setq0x: something wrong (aufccq0-fa)*(aufccq0-fb) >0d0'
           call rx( ' setq0x: something wrong (aufccq0-fa)*(aufccq0-fb) >0d0')
         elseif((aufccq0-fa)*(aufccq0-fc) <0d0 ) then
           qb=qc
@@ -1022,7 +1013,6 @@ c     qmm = sqrt(q0smean/sumt)
       q0x(:,5)=  qmm* qbas(:,3)/snorm
       q0x(:,6)= -qmm* qbas(:,3)/snorm
       write(6,*) " --- q0x = ",q0x(:,1)
-Cstop2rx 2013.08.09 kino      stop  " setq0x: test end"
       call rx( " setq0x: test end")
       end
 

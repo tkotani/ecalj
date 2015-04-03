@@ -190,16 +190,20 @@ make with BINDIR=xxx.
 (For CMD workshop participants: run  
 >make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
 
-Compile options:
+WARN! Compile options:
 --------------------
-I saw that current ecalj with gfortran4.6 or 4.7 works fine with
-FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
-ifort12 needs FFLAGS=-O1 for cases.
-We may need -heap-arrays 100 (when zero, we had a problem in a version
-of ifort). In cases, -heap-arrays option did not generate working binaries.
-However, I think "ulimit -s unlimited" before QSGW calculations and
-so on works OK. So, maybe we don't need -heap-arrays option.
-  
+* I saw that current ecalj with gfortran4.6 or 4.7 works fine with
+  FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
+* ifort12 needs FFLAGS=-O1 for cases.
+* We may need -heap-arrays 100 (when zero, we had a problem in a version
+  of ifort). In cases, -heap-arrays option did not generate working binaries.
+  However, I think "ulimit -s unlimited" before QSGW calculations and
+  so on works OK. So, maybe we don't need -heap-arrays option.
+* mpiifort works for liker, but mpif90 did not... (but opposite case
+  maybe). Need to set this in lm7K/MAKEINC/Make.inc.ifort
+  lm7K/MAKEINC/Make.inc.ifort_mpik and fpgw/exec/make.inc.ifort
+  (FC and LK variables).
+---------------------
 
 ##### (2) make MPI LDA part.
 lmf-MPIK and lmfgw-MPIK are needed for gwsc (srcipt for QSGW). 
