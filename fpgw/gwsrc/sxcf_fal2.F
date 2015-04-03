@@ -18,7 +18,7 @@ c     i ppb,
      i nbmx,ebmx, 
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i wklm,lxklm, 
-     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot, !ppbrd, !cgr,,nlnm
+c     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot, !ppbrd, !cgr,,nlnm
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi
@@ -240,10 +240,9 @@ c     i ppb,
      & exchange,tote,screen,cohtest, ifexsp,
      i iwini,iwend,
      i nbmx,ebmx, 
+     i wklm,lxklm 
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
-     i wklm,lxklm, 
-     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot !ppbrd, !cgr,,nlnm
-
+c     i invg,!il,in,im,nn_, lx,nx_,nxx_,dwplot !ppbrd, !cgr,,nlnm
 
       integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
      & nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,
@@ -291,8 +290,8 @@ c for exchange --------------------
       real(8),allocatable:: 
      & w1p(:,:,:),w2p(:,:,:),w3p(:,:)
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
-      integer:: invg(ngrp),invrot,invr
-      integer:: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !nlnm(*),
+      integer:: invrot,invr
+c      integer:: invg(ngrp),il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !nlnm(*),
 c      real(8)::  cgr(*),ppbrd(*)
 
 c- debugwrite ---------------------

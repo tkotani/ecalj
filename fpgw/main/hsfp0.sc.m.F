@@ -187,7 +187,7 @@ c      logical:: newaniso
       real(4):: time_red1,time_red2
       integer:: timevalues(8) ,ibz
 
-      integer::irot,nn_
+      integer::irot !,nn_
       real(8),allocatable:: wgt0(:,:)
       logical:: exchange
       real(8):: exx
@@ -999,7 +999,7 @@ C         enddo
      i   exchange, screen, cohtest, ifexsp(is),
      i   nbmx,ebmx,      
      i   wklm,lxklm,          
-     i   invg,il,in,im,nn, lx,nx,nxx, 
+c     i   invg, il,in,im,nn, lx,nx,nxx, 
      i   eftrue, 
 !!
      i   jobsw = iSigMode, nbandmx=nbandmx(1:nq,is), !nbandmx is input mar2015

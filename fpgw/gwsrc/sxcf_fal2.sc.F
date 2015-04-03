@@ -14,7 +14,7 @@
      i exchange,screen,cohtest, ifexsp,
      i nbmx,ebmx,           
      i wklm,lxklm,          
-     i invg,il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
+c     i invg, il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
 !! 
      i jobsw,                   != iSigma_en 
@@ -171,8 +171,8 @@ c     o exx,zsecd)
       integer, intent(in) :: kount(nqibz,nq),ngpmx,ngcmx,ifexsp,jobsw
       integer, intent(in) :: nbmx(2) !,nlnmv(*),nlnmc(*)!,iclass(*),icore(*)
       integer, intent(in) :: nstbz(nqbz) !,nomx !,nkpo,nnmx,imdim(*)ncore(*),
-      integer, intent(in) :: lxklm,invg(ngrp) !nnr(nkpo),nor(nkpo),
-      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
+      integer, intent(in) :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
+c      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
       real(8), intent(in) :: wgt0(nq0i,ngrp),symgg(3,3,ngrp)
       real(8), intent(in) :: q0i(1:3,1:nq0i),alat,ecore(nctot) !shtvg(3,ngrp),
       real(8), intent(in) :: qbas(3,3),ginv(3,3)

@@ -950,7 +950,7 @@ c     i              ppb,
      i   nbmx(2),ebmx(2),
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i   wklm,lxklm,            !mar2012
-     i   invg,il,in,im,nn, lx,nx,nxx, dwplot,  !ppbrd, !sep 2012 cgr,nlnm,
+c     i   invg,il,in,im,nn, lx,nx,nxx, dwplot,  !ppbrd, !sep 2012 cgr,nlnm,
      o   zsec,coh,exx)          ! acuumulation variable
 
 c        write(6,*)'### end of sxcf_fal3z ### '
