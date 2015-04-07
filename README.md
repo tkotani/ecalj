@@ -747,3 +747,28 @@ There is an example MATERIALS/SiSigma/
 ============================================================
 </pre>
 
+====================
+LDA+U, partially occupied core-hole
+---------------------
+<pre>
+----------------
+See
+file:///home/takao/ecalj/Document/BACKUP/MarksOriginalDoc/fp.html#ldaplusu
+We need to add lines such as
+  IDU= 0 0 2 2 UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
+for each SPEC_ATOM, And initial occnum.foobar file.
+An example is in ecalj/MATERIALS/GdNldau/
+
+When you just like to generate initial condition for gwsc,
+you have to remove (or comment out) IDU before the 1st iteration
+with sigm file, because sigm may already can contain LDA+U kind of effect.
+(Thus you may need to modify gwsc or stop it at the 0th iteration,
+and then remove IDU...)
+
+Caution: 
+We need the initial condition file such as occnum.gdn for LDA+U. 
+(you may need to set "% real" at the begninig of the file).
+Note that definition of spherical harmonics is in ecaljmanual.pdf.
+(real harmonics is usual ones used in jobpdos).
+Look for the keyword ldau in fp/lmfp.F -> sudmtu.F which read occnum.gdn.
+</pre>
