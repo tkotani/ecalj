@@ -19,6 +19,7 @@ c     i ppb,
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i wklm,lxklm, 
 c     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot, !ppbrd, !cgr,,nlnm
+     i dwplot,
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval,readcphi

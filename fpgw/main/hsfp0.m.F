@@ -950,7 +950,8 @@ c     i              ppb,
      i   nbmx(2),ebmx(2),
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i   wklm,lxklm,            !mar2012
-c     i   invg,il,in,im,nn, lx,nx,nxx, dwplot,  !ppbrd, !sep 2012 cgr,nlnm,
+c     i   invg,il,in,im,nn, lx,nx,nxx,  !ppbrd, !sep 2012 cgr,nlnm,
+     i   dwplot, 
      o   zsec,coh,exx)          ! acuumulation variable
 
 c        write(6,*)'### end of sxcf_fal3z ### '
@@ -1064,7 +1065,7 @@ c-------------------------
               write(6,"(' --- j iq isp=' i3,i4,i2,' q=',3f8.4,' eig=',f8.4)") 
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is)
               do iw = iwini,iwend
-                if(mod(iw,50)==1) 
+                if(mod(iw-iwini+1,50)==1) 
      &                    write(6,"(' omega-ef=',f9.4,'  Sc=',2f9.4)") 
      &                    (omega(i,iw)-ef)*rydberg(), hartree*zsec(iw,i,ip)
                 write(ifoutsec,"(4i5,3f10.6,3x,f10.6,2x,f16.8,x,3f16.8)")

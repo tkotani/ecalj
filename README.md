@@ -715,7 +715,6 @@ Then I got mhh(111)=0.796 in QSGW.
 Note that Syml004 means 4th line of syml file.
 ("257  0 0 0   .5 .5  .5   1     32     0.1 0.01    Gamma  L" in our example).
 
-
 An example is at ~/ecalj/MATERIALS/GaAs_so.qsgw.mass
 Please look into ./job and run it here. 
 (We automatically have three gnuplot figures.
@@ -724,8 +723,27 @@ Please look into ./job and run it here.
 For your convenience, we have dE/dk in the bnd*.spin* files.
 This is useful to determine the Fermi surface.
 See the efermi.lmf to read the Fermi energy.
+</pre>
 
 
+============================================================== 
+How to calculate <ki|Sigma(omega)|ki> ?
+--------------------
+<pre>
+--------
+1. Set <QPNT> section.
+2. Run gwsigma or 
+   Stop sc calculation after dielectric funciton, and run 
+   echo 4| mpirun -np 24 hsfp0.
+   Then we have SEComg.UP (DN) files, Look for file handle, ifoutsec,
+   for the file in fpgw/main/hsfp0.sc.F to see format for the file.
+3. Be careful about dw and omg_c.
+   (We may not have good accuracy at high energy).
+   We calculate weight of imaginary part along imaginary axis.
+
+There is an example MATERIALS/SiSigma/
+(To generate accurate Sigma(omega),
+  we need to enlarge n1n2n3, and maybe with denser mesh (setting of dw, omg_c).)
 ============================================================
 </pre>
 
