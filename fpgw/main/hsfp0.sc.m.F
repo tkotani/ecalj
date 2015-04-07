@@ -422,7 +422,7 @@ c     write(6,'("    ua      =",f13.6)') ua
 !direct access files WVR and WVI which include W-V.
         open(ifwd,file='WV.d')
         read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-        write(6,"(' Readin WV.d =', 10i5)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
+        write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
         close(ifwd)             !ifwd =iclose('WV.d')
         call checkeq(nprecx,ndble)
         nw = nwp-1
@@ -571,7 +571,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
         enddo
         ntq = min(ntq, nbmx(1))
         deallocate(eqt)
-        write(6,"(' nband ntq ef eftrue=', 2i5,2f9.4)")nband,ntq,ef,eftrue
+        write(6,"(' nband ntq ef eftrue=', 2i8,2f9.4)")nband,ntq,ef,eftrue
       endif
       call MPI__Broadcast(ntq)
 
@@ -622,7 +622,7 @@ c            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq)
          itq(i) = i !itq is used also in hsfp0.m.F
       enddo
       do iq=1,nq
-         write(6,'(" Target iq q=",i5,3f9.4)')iq,q(:,iq)
+         write(6,'(" Target iq q=",i6,3f9.4)')iq,q(:,iq)
       enddo
 
 !! read LDA eigenvalues

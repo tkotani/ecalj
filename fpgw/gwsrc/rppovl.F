@@ -32,7 +32,7 @@
       if(ippovlggooo) then
          open(ippovlgg,file= "PPOVLGG",form='unformatted')
          read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
-         write(6,"('Readin getppx2: nggg ngcgp nqq=',3i5)") nggg, ngcgp, nqq
+         write(6,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
          allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
          read(ippovlgg) nvgcgp2(1:3,1:ngcgp)
          read(ippovlgg) nvggg(1:3,1:nggg)

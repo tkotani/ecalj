@@ -414,7 +414,7 @@ c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
         ifwd = iopen('WV.d',1,-1,0) !direct access files WVR and WVI which include W-V.
         read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-        write(6,"(' Readin WV.d =', 10i5)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
+        write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
         ifwd =iclose('WV.d')
         call checkeq(nprecx,ndble)
         nw=nwp-1
