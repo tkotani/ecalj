@@ -47,7 +47,9 @@ func popall(   all,i,s) {
   all=""
   for (i=1;i<=iline;i++) {
     s=line[i]
-    gsub("\!.*$","",s);
+#    gsub("\!.*$","",s);
+    gsub("!.*$","",s);
+# MIZUHO-IR
     all = all substr(s,7)
   }
   #print all
@@ -145,7 +147,9 @@ func level0comma_size(str, name,istart, n,level,i,s,result,pos,dim,ndim ) {
  s=g_name
  if (iomp>0) { s= s"/omp"iomp }
  if (iomp>0) { print "!$OMP critical" }
- printf("      call add_alloclist(\"%s\",storage_size(%s)/8,\n",s,g_name) 
+# printf("     call add_alloclist(\"%s\",storage_size(%s)/8,\n",s,g_name) 
+ printf("      call add_alloclist(\"%s\",sizeof(%s),\n",s,g_name) 
+# MIZUHO-IR
  printf("     & int(") 
  for (i=0;i<ndim;i++) {
    printf("(%s)",dimsize1(dim[i]))
