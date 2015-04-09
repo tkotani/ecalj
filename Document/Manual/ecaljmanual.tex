@@ -1,4 +1,4 @@
-%#BIBTEX bibtex ecaljmanual
+ %#BIBTEX bibtex ecaljmanual
 \documentclass[a4paper,10pt,epsf,fleqn]{article}
 %\documentclass[a4paper]{jsarticle}
 \setlength{\mathindent}{0mm}
@@ -98,15 +98,15 @@
 
 \begin{document}
 \baselineskip=6mm
-\title{ ecalj manual\\ 
-{\large \url{https://github.com/tkotani/ecalj}}}
+\title{ ecalj manual}
+\author{\url{https://github.com/tkotani/ecalj}}
 %\date{April 2nd 2001}
 \maketitle
 
 
 \abstract{
-\noindent \ecalj is an all-electron full-potential electronic structure 
-calculation package available freely.\\
+\noindent \ecalj is an all-electron full-potential electronic-structure 
+calculation package, available freely.\\
 This is based on the formulation in Refs.
 \cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}
 (See Kotani2114QSGWinPMT.pdf and KotaniKinoAkai2015FormulationPMT.pdf at
@@ -1231,7 +1231,7 @@ In addition, it might be better to enlarge number of k point
 This shows total DOS as
 \begin{figure}[h]
  \begin{center}
-  \includegraphics[width=70mm]{img/ps.dos.cu}
+  \includegraphics[width=70mm]{img/doscu.eps}
   \vspace{5mm}
   \caption{DOS(Cu)}
  \end{center}
@@ -1277,7 +1277,7 @@ in cases (but need to change the script)).
 
 \begin{figure}[h]
  \begin{center}
-  \includegraphics[width=70mm]{img/ps.band.cu}
+  \includegraphics[width=70mm]{img/bandcu.eps}
   \caption{band plot(Cu)}
  \end{center}
 \end{figure}
@@ -1644,7 +1644,7 @@ To do it, we need rst.si, sigm.si, ctrl.si, QGpsi.
 
 \begin{figure}[h]
  \begin{center}
-  \includegraphics[width=70mm]{img/ps.band.oneshot.si}
+  \includegraphics[width=70mm]{img/bandoneshotsi.eps}
   \caption{Si, one-shot GW with off-diagonal elements}
  \end{center}
 \label{sigwscone}
@@ -1727,8 +1727,8 @@ If not converged well, you may need to repeat
 
 \begin{figure}[h]
  \begin{center}
-  \includegraphics[width=60mm]{img/ps.band.oneshot.si}
-  \includegraphics[width=60mm]{img/ps.band.gga.si}
+  \includegraphics[width=60mm]{img/bandoneshotsi.eps}
+  \includegraphics[width=60mm]{img/bandggasi.eps}
   \caption{band plot(Si, QSGW one-shot test)    and    band(Si) (GGA)}
  \end{center}
 \end{figure}
@@ -1744,7 +1744,7 @@ If not converged well, you may need to repeat
 %\end{figure}
 
 \begin{figure}[hbtp]
-  \includegraphics[width=60mm]{img/ps.band.qsgw.gaas}
+  \includegraphics[width=60mm]{img/bandqsgwgaas.eps}
   \caption{band(GaAs), QSGW (test case)}
 \end{figure}
 
@@ -1760,7 +1760,7 @@ If not converged well, you may need to repeat
 \subsection{outputs of \exe{gwsc}}
 
 \begin{figure}[h]
-\includegraphics[width=10cm]{gwsc2014-12-091.ps}
+\includegraphics[width=10cm]{gwsc2014-12-091.eps}
 \caption[]{Shell script {\tt gwsc} to perform \QSGW contains 
 an iteration loop to make sigm (and eigenvalues, eigenfunctions)
 self-consistent. The iteration loop is written in 
@@ -2314,7 +2314,7 @@ how to read atm.* file which is the initial atom file by lmfa.
 
 
 \section{Wannier function }
-xxxxxxxxxx under construction xxxxxxxxxxxxxxxxx
+xxxxxxxxxx under construction xxxxxxxxxxxxxxxxx\\
 (See also ecalj/fpgw/Wannier/README)...
 
 We can generate Wannier functions 
