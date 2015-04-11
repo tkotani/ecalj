@@ -1,41 +1,46 @@
 =============================================================
 Maximally localized Wannier function generator. july2014
 =============================================================
+INSTALL: (automatic by Install.ifort and so)
 After you do make at fpge/exec/, 
 >make 
 >make install
 This copys binaries to your bin. 
 In advance, look at Makefile first (set compilar, library and your bin).
+
+--------------
 >genMLWF 
 is the script to generate Wanneir function.
 Required setting is written in the GWinput file.
 
+-----------
 Samples are:
  ecalj/MATERIALS/CuMLWFs    n1n2n3 4 4 4, rough but small within ~five minutes.
  ecalj/MATERIALS/CuMLWF     n1n2n3 10 10 10  
  ecalj/MATERIALS/SrVO3MLF
  ecalj/MATERIALS/FeMLWF
  ecalj/MATERIALS/NiOMLWF
+ ecalj/MATERIALS/Ni
 . 
 
 -----------------------------
-How to run samples.
-At first, 
-run job_band_nspin1 or job_band_nspin2 for reference. 
+How to run samples?
+-----------------------------
+At first, run job_band for reference
 (need syml.*)
->job_band_nspin1 cu -np 12
+>job_band cu -np 12
 , where 12 means number of cores.
 This gives correct Fermi energy, and stored into bnds.* file
 It is read by hmaxloc, called from genMLWF.
-
 Then run
 >genMLWF -np 12 cu
 where 12 is cores.
 
-(1) Then run MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF
-    Look into this script. This is for interpolated band.
+(1) Then look into ecalj/MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF
+    This is for interpolated band.
 (2) Plot psi.xsf file. 
-    This contains MaxLoc Wannier function.
+    This contains MaxLoc Wannier function. (not necessary; you can
+    comment out "wanplot" line if you don't need to plot Wannier.)
 (3) grep Wan lwmat*
     This gives the matrix element of the Coulomb interaction and W-v.
     (off-diagonal elments are also calculated. Sorry, I have not yet
@@ -57,49 +62,96 @@ History:
 2014Aug; T.Kotani modified it so as to fit to latest ecalj.
 2015jan: Sengwoo Jang's modification.
 
+
 =====================================================================
-Seungwoo's modification: To plot extract U, J parameters.
+To plot U, J parameters.
 
-Modified fiels:
- hwmatK_MPI.F  print all matrix elements of W and frequency in eV.
- genMLWF  I added the "grep" commands in the last part to make files 
-          containing v and W-v information.
-          grep "Wannier" lwmatK1 > Coulomb_v
-          grep "Wannier" lwmatK2 > Screening_W-v
-new file
+1) Run genMLWF
+   Please look into this script.
+   (originally at fpgw/Wannier/genMLWF and copied to your $BINDIR when you
+   did InstallAll.ifort).
+   This is made from two stages. 
+   >argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2
+   (equilavent to echo 2| hmaxloc >lmaxloc2)
+   is the end of Wannier function generation.
 
-Cal_W.py:
+   At this point, you can make plot to check wether your setting for
+   Wannier clearly truncate the model-Hilbert space by band plot.
+   (we need syml.* file and run job_band to get original energy band
+   Then plot wannier band on top of it. See
+   MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF as an example.
+   
+`   If the plot is strange, you need to choose windows for Wannier.
+   (Repeat echo 2| hmaxloc >lmaxloc2 until you have satisfactry
+    fitting with changing the setting wannier part in GWinput ).
+
+---- Followings are very experimental scripts... ---------
+---- We will make a better and simple automatic version ----
+2) Modify inputs in "Cal_W.py" 
+  (copy fpgw/Wannier/Cal_W.py to your working directory).
+  In advance to run Cal_W.py, set two of parameters specified in the file.
+    nwf : number of Wannier function
+    ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
+  Then run ./Cal_W.py
+
+  fpgw/Wannier/Cal_W.py:
   In this script, "W*****.dat = Coulomb_v + Screening_W-v" files are generated.
   (In other words, all matrix elements of W are generated.)
   For example, "W11234.dat" file contains "Spin up, <12|W|34> element".
   "W21234.dat" file contains "Spin down, <12|W|34> element".
 
-Read_Sakakibara_W.py
-  In  this script, "Sakakibara_W.dat" and plot files are genereated.
+   You need to set f2=open("Screening_W-v_crpa", 'r') instead
+   of f2=open("Screening_W-v", 'r') to plot U of cRPA.
+
+3) Modify inputs in "Read_Sakakibara_W.py"
+   system : name of the material
+   nwf : number of Wannier function
+   ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
+  Then run ./Read_Sakakibara_W.py
+  It generates U (or W).
+  For U instead of W, we need to modify Read_Sakakibara_W.py to 
+  Read_Sakakibara_W.py
+  In this script, "Sakakibara_W.dat" and plot files are genereated.
   "Sakakibara_W.dat" file contains static U, U', J, and J' (\omega = 0).
+
+NOTE: for practical calculation, we need to stop right after a line
+>argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  
+in the genMLWF. 
+(Need to modify genMLWF by hand; 
+note that "run_arg" is a special subrouitne of bash. 
+This line is equivalent to  >echo 2| hmaxloc >& lmaxloc2)
+Then we need to check the band plot, with superposing Wannier band
+"bnds.maxloc.up" u ($5):($6).
+If the Wannier band is not reasonable, change settings of inner and outer windows,
+and run >echo 2| hmaxloc |tee lmaxloc2
+again and again until you have a reasonable Wannier band plot.
+Then go ahead to the next steps (you may use genMLWF2).
+
+===============================================================================
+----------------------
+NOTE: genMLWF  
+      I added the "grep" commands in the last part to make files 
+          containing v and W-v information.
+          grep "Wannier" lwmatK1 > Coulomb_v
+          grep "Wannier" lwmatK2 > Screening_W-v
+          grep "Wannier" lwmatK3 > Screening_W-v_crpa
+
+      hwmatK_MPI.F
+         print all matrix elements of W and frequency in eV. called in genMLWF
 
 -------------------
 Usage: Seungwoo's procedure for extracting Sakakibara's U,J parameters.
 
-1) genMLWF
 
-2) Modify inputs in "Cal_W.py"
-- nwf : number of Wannier function
-- ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
-Then fun ./Cal_W.py
-
-3) Modify inputs in "Read_Sakakibara_W.py"
-- system : name of the material
-- nwf : number of Wannier function
-- ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
-Then run ./Read_Sakakibara_W.py
-
-===============================================================================
-
+-----------------------------------------
 Caution:
 Efermi shift:
  genMLWF requies bnds.${target} to read the Fermi energy.
- To generate it, we need to run job_band_* in advance.
+ To generate it, we need to run job_band in advance.
+ Or run, 
+ >echo 2 | /home/usr2/h70252a/binb46f/hmaxloc  > lmaxloc2
+ (need syml*); this can be runned after genMLWF.
+----
 (Or need to shift Ef by hand as follows in gnuplot script.)
  ----------------------------------------------------
  de = ((ef shown in "lmaxloc2") - (ef in llmf_ef(bnds.${target}))*13.605
@@ -110,7 +162,4 @@ Efermi shift:
  "bnd4.dat" u 2:3 lt 1 pt 1 not w l,\
  "bnd5.dat" u 2:3 lt 1 pt 1 not w l,\
  "bnds.maxloc.up" u ($5):($6+de) lt 3 w l ti "Wannier"
- -----------------------------
-
-
-
+----

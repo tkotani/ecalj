@@ -1,0 +1,24 @@
+#!/bin/bash
+#@$-q ha-oc130033
+#@$-N 1
+#@$-J T24
+#@$-lE 24:00:00
+#@$-lm 230gb
+MAT=ni
+EXE=~/binb46f
+
+cd $QSUB_WORKDIR
+h_mpdboot
+
+echo '+gwsc started :' `date` $PBS_O_WORKDIR '+'
+ulimit -s unlimited
+#${EXE}/lmfa $MAT >llmfa
+#mpirun -np 24 ${EXE}/lmf-MPIK $MAT >&llmf
+#jobband $MAT -np 24 >lband
+${EXE}/genMLWF2 $MAT -np 24 >& out
+
+echo '-gwsc finished :' `date` $PBS_O_WORKDIR '-'
+mpdallexit
+
+
+# -- Sergey.F the screened coulom interaction 
