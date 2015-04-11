@@ -492,8 +492,9 @@ c         endif
 !! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
 !! These can be also separeted into WVR.ID and WVI.ID files.
 !! NOTE: vcoud and zcousq are in module m_zmelt.
-          if(kx<=nqibz) qxx=qibz_k
-          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
+c          if(kx<=nqibz) qxx=qibz_k
+c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
+          qxx=qibz_k
           ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
           do
             read(ifvcoud) ngb0
@@ -532,30 +533,30 @@ c         endif
           endif
           nrot=0
           do irot = 1,ngrp
-            if( kx <= nqibz) then
+c            if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
               if(kr==0) cycle   ! next irot
               qbz_kr= qbz (:,kr) 
-            else
-              kr=-99999         !for sanity check
-              qbz_kr= 0d0
-              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
-            endif
+c            else
+c              kr=-99999         !for sanity check
+c              qbz_kr= 0d0
+c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
+c            endif
             nrot=nrot+1
           enddo  
 
 !! == loop over rotations ==
 !! We may extend 
           do 1000 irot = 1,ngrp
-            if( kx <= nqibz) then
+c            if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated k in the FBZ
               if(kr==0) cycle
               qbz_kr= qbz (:,kr) 
-            else
-              kr=-99999         !for sanity check
-              qbz_kr= 0d0
-              if( wgt0(kx-nqibz,irot)==0d0 ) cycle
-            endif
+c            else
+c              kr=-99999         !for sanity check
+c              qbz_kr= 0d0
+c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle
+c            endif
             write(*,"('ip,kx irot=',3i5, ' out of',2i4)") ip,kx,irot, iqend,ngrp
 
 c qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ

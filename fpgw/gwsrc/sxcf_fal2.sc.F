@@ -388,15 +388,15 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
           endif
           nrot=0
           do irot = 1,ngrp
-            if( kx <= nqibz) then
+c            if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
               if(kr==0) cycle   ! next irot
               qbz_kr= qbz (:,kr) 
-            else
-              kr=-99999         !for sanity check
-              qbz_kr= 0d0
-              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
-            endif
+c            else
+c              kr=-99999         !for sanity check
+c              qbz_kr= 0d0
+c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
+c            endif
             nrot=nrot+1
           enddo  
 !TIME1_01000 "sxcf_fal3scz: before 1000"
@@ -404,15 +404,16 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 
 !! === loop 1000 over rotations irot ===
           do 1000 irot = 1,ngrp
-            if( kx <= nqibz) then
+c            if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
               if(kr==0) cycle
               qbz_kr= qbz (:,kr) 
-            else
-              kr=-99999         !for sanity check
-              qbz_kr= 0d0
-              if( wgt0(kx-nqibz,irot)==0d0 ) cycle
-            endif
+c            else
+c              kr=-99999         !for sanity check
+c              qbz_kr= 0d0
+c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle
+c            endif
+
 !TIME0_1010
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
@@ -651,12 +652,12 @@ c$$$                  elseif(kx>nqibz) then !   wtx= wgt0(kx-nqibz,irot)/dble(nq
 c$$$                     wtt= wgt0(kx-nqibz,irot)
 c$$$                  endif
 c$$$               else
-            if(kx<= nqibz) then !  wtx = 1d0
+c            if(kx<= nqibz) then !  wtx = 1d0
               wtt = wk(kr)
-            else                !  wtx = wgt0(kx-nqibz,irot) 
-              wtt = wk(1)*wgt0(kx-nqibz,irot)
-              if(abs(wk(1)-1d0/dble(nqbz))>1d-10) call rx( 'sxcf:wk(1) inconsistent')
-            endif
+c            else                !  wtx = wgt0(kx-nqibz,irot) 
+c              wtt = wk(1)*wgt0(kx-nqibz,irot)
+c              if(abs(wk(1)-1d0/dble(nqbz))>1d-10) call rx( 'sxcf:wk(1) inconsistent')
+c            endif
 !!
             if(eibz4sig()) then
               wtt=wtt*nrkip(kx,irot,ip) 
