@@ -9,16 +9,16 @@
 !!
 !! ----------------------------------------
 !! See papers;
-!! [1]T. Kotani and M. van Schilfgaarde, ?Quasiparticle self-consistent GW method: 
-!!     A basis for the independent-particle approximation,? Phys. Rev. B, vol. 76, no. 16, 
+!! [1]T. Kotani and M. van Schilfgaarde, Quasiparticle self-consistent GW method: 
+!!     A basis for the independent-particle approximation, Phys. Rev. B, vol. 76, no. 16, 
 !!     p. 165106[24pages], Oct. 2007.
-!! [2]T. Kotani, ?Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-!!     and Muffin-Tin Orbital Method,? J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!     and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
 !! EIBZ symmetrization;
 !! See [3] C. Friedrich, S. Bl?gel, and A. Schindlmayr, 
-!!  ?Efficient implementation of the GW approximation within the all-electron FLAPW method,? 
-!! Physical Review B, vol. 81, no. 12, Mar. 2010.
+!!   Efficient implementation of the GW approximation within the all-electron FLAPW method, 
+!!   Physical Review B, vol. 81, no. 12, Mar. 2010.
 !!
 !! Usage: This routine is called from a script for QSGW, ecalj/fpgw/exec/gwsc. 
 !! which calls is as "echo 2|../exec/hsfp0_sc >lsc" when mode=2 (three times in the gwsc).
@@ -26,7 +26,7 @@
 !! mode= 1: exchange    mode SEx, the exchange part of the self-energy
 !! mode= 2: correlation mode SEc, the correlated part of the self-energy
 !! mode= 3: core exchange mode SEXcore
-!! xxx mode= 4: plot spectrum function ---See manual ---> this is in hsfp0 (but need to fix it...)
+!! xxx mode= 4: plot spectrum function ---See manual ---> this is performed by echo 4|hsfp0 
 !!     
 !! iSigMode parameter which determines approximation for self-energy is given by GWinput file as iSigMode.
 !!    iSigMode==0 SE_nn'(ef)+image integr:delta_nn'(SE_nn(e_n)-SE_nn(ef))
@@ -203,8 +203,8 @@ c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
-!TIME0
-!TIME0 
+!TIME0_0000
+!TIME0_0010 
       hartree=2d0*rydberg()
       hermitianW=.true.
       if(cohtest) then          !currently not used (may need fixing if necessary)
@@ -943,10 +943,10 @@ C         enddo
 !!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) )
-!TIME1 "before 2000 loop"
+!TIME1_0010 "main: before 2000 loop"
 
       do 2000 is = 1,nspinmx
-!TIME0 
+!TIME0_0020 
         if(mpi__root) then
           if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
@@ -1005,22 +1005,19 @@ c     i   invg, il,in,im,nn, lx,nx,nxx,
      i   jobsw = iSigMode, nbandmx=nbandmx(1:nq,is), !nbandmx is input mar2015
      i   hermitianW=hermitianW,
      o   zsec=zsec) 
-!TIME1 "end of sxcf_fal3_scz"
+!TIME1_0020 "main: end of sxcf_fal3_scz"
         call date_and_time(values=timevalues)
         write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
         call cpu_time(time_red1)
 
-c!TIME0 
 !! CAUITION! Allreduce wait all cpu jobs done here. 
 !! Before nov2013, MPI__sxcf_rankdivider was stpid---> half of cores assigned for isp=2
 !! was just waiting here!
 c      call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 c      call cpu_time(time_red2)
-c!TIME1 "reduction nbandmx end"
 c      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c---------------------------------
-!TIME0
 !!  electron gas bare exchange (exact)
         if(.false.) then        !for test calculations.
           if (legas.and.exchange) then
@@ -1055,19 +1052,18 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
             end do
           endif
         endif
-!TIME1 "end legas exchange"
  2001   continue
 
 !! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.
-
         if(eibz4sig()) then
-!TIME0 
+!TIME0_0030 
           call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-!TIME1 'end of zsecsym and reduce'
+!TIME1_0030 'main: for zsecsym'
         endif
+!TIME0_0040 
         call MPI__AllreduceSum( zsec,ntq*ntq*nq )
+!TIME1_0040 'main: MPI__AllreduceSum zsec'
 
-!TIME0 
         if(mpi__root) then
           if(exchange) then
             ifoutsex=ifsex(is)
@@ -1104,7 +1100,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
             end do
           endif                 !ixc
         endif                   !mpi__root
-!TIME1 "before 2000 continue"
+
  2000 continue                  !end of spin-loop
 
 c$$$!TIME0 
@@ -1192,8 +1188,6 @@ c$$$         enddo
 c$$$         write(6,*)' End of ExSpectrum section ---'
 c$$$      endif
 c$$$!TIME1 "end of exspectrum"
-!TIME1 "end program"
-!TIMESHOW 
 c      isx = iclose ('wc.d')
 c      isx = iclose ('wci.d')
 c      isx = iclose ('hbe.d')
@@ -1201,6 +1195,8 @@ c      isx = iclose ('hbe.d')
       write(6,*) '--- end of hsfp0_sc --- irank=',mpi__rank
       call flush(6)
       call MPI__Finalize 
+!TIME1_0000 "main: total of hsfp0_sc"
+!TIMESHOW 
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
@@ -1234,7 +1230,7 @@ c      use m_mpi,only: MPI__AllreduceSum
       complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
       real(8)::tolry=1d-4,qqqx(3),qtarget(3)
-!TIME0
+!TIME0_0100
       write(6,*)'zsecsym:'
       allocate( zsect(ntq,ntq))
 !! === readin lmfgw_kdivider, and get extensions === apr2013
@@ -1275,9 +1271,9 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
       read(ifevec_)  ndimhx, nspx,nnnx 
       read(ifvxc_)              !skip ndimh, nsp,nnn
       allocate(evaliq(nband),iblki(nband),iblke(nband))
+!TIME1_0100 "zsecsym: end of allocate zsect"
 
-!TIME1 "end of allocate zsect"
-!TIME0
+!TIME0_0110
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
@@ -1382,5 +1378,5 @@ c          call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
       enddo
       deallocate(iblki,iblke,evaliq)
       deallocate(zsect,extp,ifevec__,ifvxc__,iprocq)
-!TIME1 "end of subroutine zsecsym"
+!TIME1_0110 "zsecsym: end"
       end subroutine zsecsym

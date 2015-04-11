@@ -158,7 +158,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       complex(8):: img=(0d0,1d0),zzz(ngbb)
 
       integer(4):: nkmin,  nkmax, nkqmin, nkqmax
-      real(8):: qq(3)
+c      real(8):: qq(3)
       integer(4):: ib1, ib2,      ngcx,ix,iy
 
       integer(4),allocatable:: ngvecc(:,:)
@@ -187,9 +187,9 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
       complex(8),pointer:: zmat(:,:)
       complex(8),allocatable,target:: ppovl_(:,:)
-#ifdef USE_GEMM_FOR_SUM
-      complex(8),allocatable :: zmelt_tmp(:,:,:)
-#endif
+c#ifdef USE_GEMM_FOR_SUM
+c      complex(8),allocatable :: zmelt_tmp(:,:,:)
+c#endif
       complex(8),allocatable:: rcxq_core(:,:)
 !$    integer:: omp_get_num_threads
       logical:: eibz4x0
@@ -281,7 +281,7 @@ ckinoend
 
 
 !! loop over k-points -------------------------------------------------------------------------
-      qq=0d0
+c      qq=0d0
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
         if(debug) write(6,'("do 1000  k=",i4)')k
@@ -306,10 +306,10 @@ ckinoend
             if(n2b(ibib,k,jpm)<=nband)  nkqmax = max(n2b(ibib,k,jpm),nkqmax)
           enddo
         enddo
-        call readeval(q+rk(:,k)-qq,isp_kq,eband)
+        call readeval(q+rk(:,k),isp_kq,eband)
         nkqmax = nocc (eband,ebmx,.true.,nband)
         if(npm==2) then
-          call readeval(rk(:,k)-qq,isp_k,eband)
+          call readeval(rk(:,k),isp_k,eband)
           nkmax = nocc (eband,ebmx,.true.,nband)
         endif
         itps  = nkqmin          ! nkqmin = the num of min   n2 =unocc for jpm=1
@@ -595,9 +595,9 @@ c
 !                      (nkmin=1)
 !                      (cphi_k  | cphi_kq !in x0kf)
 !
-!!     rkvec= rk(:,k)-qq  ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
-!!     qbz_kr= rk(:,k)-qq  ! 
-!!     qibz_k= rk(:,k)-qq  ! k
+!!     rkvec= rk(:,k)   ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
+!!     qbz_kr= rk(:,k)  ! 
+!!     qibz_k= rk(:,k)  ! k
         ngb  = nbloch + ngc 
 !!Get the matrix element zmel   ZO^-1 <MPB psi|psi> , where ZO is ppovlz
 !!  Output is zmel(ngb, nctot+nt0,ncc+ntp0)  nkmin:nt0, nkqmin:ntp0
@@ -605,7 +605,7 @@ c
         call get_zmelt2(exchange,  
      &      q,irot,q,ngc,ngb,                       !MPB
      &                   nkmin, nkmax, isp_k,nctot, !middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
-     &      q+rk(:,k)-qq,nkqmin,nkqmax,isp_kq,ncc)  !end state    1:ntp0  -->                     is nkqmin:nkqmin+ntp0-1  
+     &      q+rk(:,k),nkqmin,nkqmax,isp_kq,ncc)  !end state    1:ntp0  -->                     is nkqmin:nkqmin+ntp0-1  
         zmel = dconjg(zmel)
         allocate( z1p(ngb,ngb) )
 
@@ -732,12 +732,12 @@ c                z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
           if(crpa) then
 c            print *,'readout readqkm init'
             if(n1b(ibib,k,jpm) <= nband) then
-              call readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k)-qq, isp_k,   wpw_k) !k  n1b
+              call readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k,   wpw_k) !k  n1b
             else
               wpw_k=0d0
             endif  
             if(n2b(ibib,k,jpm) <= nband) then
-              call readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k)-qq, isp_kq,  wpw_kq) !kq n2b
+              call readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq,  wpw_kq) !kq n2b
             else
               wpw_kq=0d0
             endif  
@@ -862,12 +862,11 @@ Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1 "after iqindx2"
 !TIME0
-Cstop2rx 2013.08.09 kino        if(sum(abs(q-quu))>1d-8) stop 'x0kf_v2h: eibz 111 q/quu'
         if(sum(abs(q-quu))>1d-8) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
              !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
-        call cputid2(' --- qqqqq: start symmetrization  ',0)
+        call cputid2(' --- x0kf: start symmetrization  ',0)
 
 c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
         ntimer=1
@@ -896,8 +895,8 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         i2=-99999
         zrr=-99999d0
         zrrc=-99999d0
-        call cputid2(' --- qqqqq111   :',0)
-!TIME1 "call cputid2 qqqqq11"
+        call cputid2(' --- x0kf:11111   :',0)
+!TIME1 "call cputid2 x0kf:11111"
 !!
         icc=0
         do itimer=1,-1,-2
@@ -994,7 +993,7 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !! neibz is total number of symmetrization operation. 
 !!      rcxq is rotated and accumulated; finally divied by neibz
         zcousqc = dconjg(transpose(zcousq))
-        call cputid2(' --- qqqqq222ini:',0)
+        call cputid2(' --- x0kf:qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !$OMP master

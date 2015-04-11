@@ -276,9 +276,7 @@ c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 c      real(8)::exxq
 
 c--------------------------------------------------------------------
-!TIME0 
-!TIME0 
-!TIME0 
+c!TIME0_0000 
 c      write(6,*)'sxcf_fal3_scz'
       timemix=.false.
       pi  = 4d0*datan(1d0)
@@ -308,12 +306,11 @@ c      nbcutc=nctot+nbcut
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
 
+
 !!== ip loop to spedify external q ==
-!TIME1 "before 1001"
       do 1001 ip = 1,nq         
         if(sum(irkip(:,:,ip))==0) cycle ! next ip
         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
-!TIME0 
         q(1:3)= qip(1:3,ip)
         call readeval(q,isp,eq)
         do i  = 1,ntq
@@ -324,7 +321,6 @@ c      nbcutc=nctot+nbcut
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
         if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
 
-!TIME1 "before 1100"
 !! NOTE total number of 
 !!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
 !!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
@@ -332,7 +328,7 @@ c      nbcutc=nctot+nbcut
         iqend=nqibz             !no sum for offset-Gamma points.
         do 1100 kx = iqini,iqend 
           if(sum(irkip(kx,:,ip))==0) cycle ! next kx
-!TIME0 
+!TIME0_01000
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
 c          if( kx <= nqibz ) then
             qibz_k= qibz(:,kx)
@@ -403,12 +399,11 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
             endif
             nrot=nrot+1
           enddo  
-!TIME1 "before 1000"
+!TIME1_01000 "sxcf_fal3scz: before 1000"
 
 
 !! === loop 1000 over rotations irot ===
           do 1000 irot = 1,ngrp
-!TIME0
             if( kx <= nqibz) then
               kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
               if(kr==0) cycle
@@ -418,7 +413,7 @@ c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
               qbz_kr= 0d0
               if( wgt0(kx-nqibz,irot)==0d0 ) cycle
             endif
-
+!TIME0_1010
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
             call readeval(qk, isp, ekq) 
@@ -468,9 +463,12 @@ c$$$            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
 c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) deallocate(zmel)
             if(allocated(zmeltt)) deallocate(zmeltt)
+!TIME1_1010 "sxcf_fal3scz: before get_zmelt"
 ! this return zmeltt (for exchange), or zmel (for correlation)
+!TIME0_1088
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
      &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
+!TIME1_1088 "sxcf_fal3scz: for get_zmelt"
 
 c$$$!! cccccccccc START: old version, instead of get_zmelt ccccccccccc
 c$$$         call  readcphi(q, nlmto,isp, quu, cphikq)
@@ -667,7 +665,6 @@ c$$$               else
 !!--------------------------------------------------------
 !! --- exchange section ---
 !!--------------------------------------------------------
-!TIME0
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
 !! We use the matrix elements zmeltt. Now given by "call get_zmelt"
 !!
@@ -687,6 +684,7 @@ c     !nw is number of frequency points in general mesh: freq_r(nw), freq_r(1)=0
 c     vcoul = vcoul + zw(1:ngb,1:ngb) !c  screen test
 c     deallocate(zw)
 c     endif
+!TIME0_0130
               vc = vcoud(1)     ! save vcoud(1)
               if (kx == iqini) vcoud(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
               allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
@@ -720,6 +718,8 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                   write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)
                 enddo;    enddo
               endif
+!TIME1_0130 "sxcf_fal3scz: end of w3p newaniso"
+
 c$$$#else
 c$$$!kino 2014-08-13  !$OMP parallel  private(vc) 
 c$$$!kino 2014-08-13  !$OMP do 
@@ -788,8 +788,7 @@ c$$$                     enddo
 c$$$                  endif
 c$$$!TIME1 "end of write ifsexsp"
 
-!TIME1 "end of w3p newaniso"
-!TIME0 
+!TIME0_0180 
 !! --- Correct weigts wfac for valence by esmr
               do it = nctot+1, nctot+nbmax
                 wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
@@ -805,14 +804,12 @@ c sep2013t a test:c  if(itpp>ntqxxd .and.itp/=itpp) cycle
               enddo
               deallocate( w3p)
 c$$$                  if(.not.newaniso()) deallocate(vcoul)
-!TIME1 "enddo of zsec wtt sum"
+!TIME1_0180 "sxcf_fal3scz: enddo of zsec wtt sum"
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
 !! ============== End of exchange section ======================
             if(timemix) call timeshow("33333 k-cycle")
-!TIME1 "end of exchange section"
-!TIME0 
-
+cc!TIME1 "end of exchange section"
 
 
 !!----------------------------------------------------------
@@ -859,6 +856,7 @@ c$$$                  if(.not.newaniso()) deallocate(vcoul)
 !! Then get zwz0 and zwz
 !! zwz0 = (zmel*)*(W(*omega=0)   -v)*zmel
 !! zwz =  (zmel*)*(W(i*omega(ix))-v)*zmel
+!TIME0_0200 
             allocate( zwz0(        nstate,ntqxx,ntqxx))
             allocate( zwz (niw*npm,nstate,ntqxx,ntqxx)) 
             allocate( zw (nblochpmx,nblochpmx))
@@ -888,10 +886,12 @@ c$$$                  if(.not.newaniso()) deallocate(vcoul)
  1395         continue
  1390       continue
             deallocate(zw)
+!TIME1_0200 "sxcf_fal3scz: end of do 1390"
 !! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
 !! it   : intermediate state of G.
+!TIME0_0210
             allocate(zwzi(nstate,ntqxx,ntqxx)) 
             do 1400 itpp= 1,ntqxx
               do 1410 itp = 1,ntqxx
@@ -927,6 +927,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
  1400       continue  
             deallocate(zwz0,zwz) !zwzs
             if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
+!TIME1_0210 "sxcf_fal3scz: end of do 1400"
 !! Contribution to Sigma_{ij}(e_i)
             do  1500 itpp= 1,ntqxx
               do 1510 itp = 1,ntqxx
@@ -942,6 +943,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
 !!    Currently, jobsw =1,3,5 are allowed...
 !!    The variable we means \omega_epsilon in Eq.(55) in PRB76,165106 (2007)
 !! -------------------------------------------------------------------
+!TIME0_0310 
             if(timemix) call timeshow("goto Sec pole part k-cycle")
             if(debug)  write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
             if (.not.(jobsw == 1 .or. jobsw == 3.or.jobsw==5)) then
@@ -1054,7 +1056,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
                 enddo
               enddo
             endif               
-
+!TIME1_0310 "sxcf_fal3scz: end of Re correlation"
 c           goto 2012
 
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -1193,15 +1195,12 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
                 write(6,'(" zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip)
               enddo
             endif
-!TIME1 "end of one of do doop 1000 iteration"
-!TIME0 
  1000     continue              ! end do irot
           ifvcoud =iclose('Vcoud.'//charnum5(kx))
           if(.not.exchange) then
             ifrcw  = iclose('WVR.'//charnum5(kx))
             ifrcwi = iclose('WVI.'//charnum5(kx))
           endif   
-!TIME1 "end of 1100 loop"
           deallocate(ppovlz)
  1100   continue                ! end of kx-loop
         ifvcoud =iclose('Vcoud')
@@ -1210,7 +1209,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
  1001 continue                  ! end do ip
 c      if(allocated(freq_r))deallocate(freq_r)
 c      if (allocated(expikt))deallocate(expikt)
-!TIME1 "end of sxcf_fal2_scz"
+c!TIME1_0000 "end of sxcf_fal3_scz"
       end subroutine sxcf_fal3_scz
 
 

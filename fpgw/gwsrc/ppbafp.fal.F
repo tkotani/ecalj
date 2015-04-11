@@ -304,7 +304,7 @@ c-----------------------------------------------------
       if(debug) write(6,*)'drvmelp: goto readgeig'
       call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-!TIME1 "after readgeig q q_rk"
+!TIME1 "drvmelp:after readgeig q q_rk"
 !TIME0
       if(debug) write(6,*)'drvmelp2: endof readgeig'
       if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
@@ -323,7 +323,7 @@ c-----------------------------------------------------
       endif
       if(debug) write(6,*)' goto alloc zmelpl'
       if(debug) write(6,*) 'drvmelp2:goto melpln2t'
-!TIME1 "before drv melpln2t"
+!TIME1 "drvmelp:before drv melpln2t"
 !TIME0 
       if(ngc/=0) then
         allocate( zmelpl(ngc,nt0,ntp0) )
@@ -336,7 +336,7 @@ c-----------------------------------------------------
      i   qt,                    !qt oct2013 means q1
      o   zmelpl)
       endif
-!TIME1 "after drv melpln2t"
+!TIME1 "drvmelp:after drv melpln2t"
 !TIME0 
       if(debug) write(6,*)'end of melpln2t'
       rmelt=0d0
@@ -354,7 +354,7 @@ c-----------------------------------------------------
         deallocate(zmelpl)
       endif
       if(debug) write(6,*)'end of drvmelp2'
-!TIME1 "end drvmelpln2t"
+!TIME1 "drvmelp:end"
       end
 
 !> Rotated ngveccB
@@ -598,7 +598,7 @@ c          igdelta(1:3,inum) = (/ig1,ig2,igc/)
       if(verbose()>=100) write(6,*)' melpln2t: goto rotation of ngvecc xxxx'
       call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
      o    ngveccR) 
-!TIME1 "end of rotgvec"
+!TIME1 "melpln2t:end of rotgvec"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
 c$$$!!      write(6,*)'--- goto simple case for debug---'
@@ -647,7 +647,7 @@ c         write(6,*)'iggg=',iggg,nggg
       enddo
       enddo
 !$OMP end parallel 
-!TIME1 "end of ggitp loop"
+!TIME1 "melpln2t:end of ggitp loop"
 !TIME0
       if(verbose()>=100) write(6,*)' melpln2t: 11111111'
       deallocate(igggi)
@@ -674,7 +674,7 @@ c         write(6,*)'iggg=',iggg,nggg
       allocate(zmelp0(ngc,nt0,ntp0))
       zmelp0=0d0
       if(verbose()>=100) write(6,*)' melpln2t: 33333333'
-!TIME1 "before zmelp0 loop"
+!TIME1 "melpln2t:before zmelp0 loop"
 !TIME0
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
 #ifdef USE_GEMM_FOR_SUM
@@ -717,7 +717,7 @@ c         write(6,*)'iggg=',iggg,nggg
       enddo
       enddo
 #endif
-!TIME1 "end of zmelp0 loop"
+!TIME1 "melpln2t:end of zmelp0 loop"
 !TIME0
 c$$$      do itp=1,ntp0
 c$$$         do igc =1,ngc
@@ -751,7 +751,7 @@ c      enddo
 c      write(6,*)'pppppppp end of matm' 
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
       if(verbose()>=100) write(6,*)' melpln2t: end'
-!TIME1 "end of melpln2t"
+!TIME1 "melpln2t:end"
       end subroutine melpln2t 
 
 
