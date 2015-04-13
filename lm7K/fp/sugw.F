@@ -646,6 +646,9 @@ C   ... Read SYML file
          if (job .eq. 1 .and. .not. bandmode) call info2(20,1,1,
      .        ' ... Make LDA w.f. and matrix elements, %i qp: file(s) gwb'//
      .        '%?#n#, vxc, evec##',nqtot,lsig)
+         if(sham%scaledsigma/=1d0.and.sigmamode) then
+           write(6,*)' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+         endif   
       endif
       iqibz=0
 
@@ -849,9 +852,6 @@ c     o        sene)
              allocate(senex(ndimh,ndimh))
              senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
              deallocate(ovliovl,sene)
-             if(sham%scaledsigma/=1d0) then
-                print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
-             endif   
              ham(:,:) = ham(:,:) + sham%scaledsigma * senex
              deallocate(senex)
           endif

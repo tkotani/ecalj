@@ -1421,6 +1421,9 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       nev_   =0
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
+      if(sham%scaledsigma/=1d0.and.sigmamode) then
+        write(6,*)' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+      endif   
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp=qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid
@@ -1652,9 +1655,6 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                allocate(senex(ndimh,ndimh))
                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
                deallocate(ovliovl,sene)
-               if(sham%scaledsigma/=1d0) then
-                  print *,' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
-               endif   
                hamm(:,:,ispc) = hamm(:,:,ispc) + sham%scaledsigma * senex
                deallocate(senex)
             endif
@@ -2508,7 +2508,7 @@ c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS
 !! ... write total dos file. mar2013
 c            ifi=fopn('dos.tot')
             ifi= ifile_handle()     
-            open(unit=ifi,file='dos.tet.'//trim(sname))
+            open(unit=ifi,file='dos.tot.'//trim(sname))
 c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi=',d14.5)") eferm
             do ipts=1,ndos
                eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
