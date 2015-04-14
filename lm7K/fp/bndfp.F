@@ -1199,11 +1199,16 @@ c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
             write(6,"(i5,4f8.3)")iq,qplist(:,iq)
          enddo
       endif 
-      if(procaron.and.nsyml==0) then !dummy
+
+      if(procaron.and.nsyml==0.and.procid==master) then !xdatt is dummy
         if(allocated(xdatt)) deallocate(xdatt)
         allocate(xdatt(nkp))
         xdatt=0d0
       endif
+      if(plbnd/=0) then
+        if(procid/=master) allocate(xdatt(nkp))
+        call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
+      endif  
 
 #if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
@@ -1671,7 +1676,9 @@ C       isp serves as a flag for the noncollinear case
 
 !! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
-     &        write(*,'(" bndfp: kpt",i5," of",i5, " k=",3f8.4," ndimh=",i5)')iq,nkp,qp,ndimh
+     &        write(*,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
+     &        iq,nkp,qp,ndimh,ndimh-napw,napw
+c     &   iq,nkp,qp,trim(i2char(ndimh))//' '//trim(i2char(napw))//' '//trim(i2char(ndimh-napw)),xdatt(iq)
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
 !!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
             if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
@@ -3108,8 +3115,8 @@ c              print *,'mmmmx111 band',semiconband,metalband,ibb,i,isyml,jsp
           do jsp = 1, nspx
 c            print *,'qqq1 ',iq,ikp,jsp
             if (iprint() > 20.and.ix99==1) then
-               write(stdo,'(" bndfp: kpt",i5," of",i5, " k=",3f9.5,i2," ndimh=",i5)')
-     &           ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
+               write(stdo,'(" bndfp: kpt",i5," of",i5, " k jsp=",3f9.5,i2," ndimh=",i5)')
+     &         ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
             endif
             if(iprint() >=35.and.ix99==1) then
                write(stdo,"(9f8.4)") (evlall(i,jsp,ikp), i=1,nevls(ikp,jsp))

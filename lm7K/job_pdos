@@ -81,7 +81,7 @@ do
   fi
 
   if [ ! `echo ${@:4:($#-2)}|grep -o NoGnuplot` ] ; then
-       gnuplot -p ${ufileg}
+       gnuplot -persist ${ufileg}
   fi
 
 done

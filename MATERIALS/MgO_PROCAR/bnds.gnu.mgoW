@@ -8,9 +8,9 @@ set xtics ( ""         0.0000000000,\
  ""         2.3660254038,\
  ""         3.4840593925)
  plot \
- "bnd1.dat" u 2:3 lt 1 pt 1 not w l,\
- "bnd2.dat" u 2:3 lt 1 pt 1 not w l,\
- "bnd3.dat" u 2:3 lt 1 pt 1 not w l,\
- "bnd4.dat" u 2:3 lt 1 pt 1 not w l,\
+ "bnd001.spin1" u 2:3 lt 1 pt 1 not w l,\
+ "bnd002.spin1" u 2:3 lt 1 pt 1 not w l,\
+ "bnd003.spin1" u 2:3 lt 1 pt 1 not w l,\
+ "bnd004.spin1" u 2:3 lt 1 pt 1 not w l,\
  "bw.dat" u ($1):($2):(sqrt($3)*2) w point pointtype 7 linecolor rgbcolor "blue" pointsize variable
  # pause -1 (instead, gnuplot -p ThisScript)
