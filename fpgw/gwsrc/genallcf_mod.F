@@ -62,14 +62,15 @@ C--------------------------------------------------------
       real(8)::efin
       real(8),allocatable::tolbas(:)
       character(120):: symgrpt
-      real(8),   allocatable:: ecoret(:)
+      real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
+      integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex
+      real(8)::a,b,zz
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
-c      logical ::readgwinput
-c----------------------------------------------
+
       iflmto     = iopen('LMTO',1,0,0)
-Cstop2rx 2013.08.09 kino      if (iflmto < 0) stop 'unit file for GWIN_V2 < 0'
       if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
+
 c      if(.not.readgwinput()) then
 c        ifinin     = iopen('GWIN_V2',1,0,0)
 c      endif
@@ -153,7 +154,6 @@ c--------------------------
      &        occv(nl,nnv,nclass),unoccv(nl,nnv,nclass),
      &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
-
       allocate(tolbas(0:2*(nl-1)))
 ctakao
 c      incwfx = incwf
@@ -260,21 +260,54 @@ c      write(6,*)' --- ncore nctot=',ncore,nctot
 ccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c> core energies
-c      call defi    (ikonf,-nl*nclass)
-c      call defdr   (iecore,2*nctot)
-c      call defdr   (iecoret,-nl*nnc*2*nclass)
       ifec       = iopen ('ECORE',1,0,0)
       allocate(konf(nl,nclass),ecore(nctot,2))
       konf=0
-      allocate(ecoret(nl*nnc*2*nclass))
+      allocate(ecoret(0:nl-1,nnc,2,nclass))
       ecoret=0d0
-      call rcore2   (ifec, ! minor changed version to rcore in rw.f
-     d              nl,nnc,nclass,
-     o              konf,ecoret)
-      call gencor  (ecoret,ncwf,iclass,
-     d              nl,nnc,natom,nclass,nctot,
-     o              ecore)
-c      call rlse    (iecoret)
+c      call rcore2   (ifec, ! minor changed version to rcore in rw.f
+c     d              nl,nnc,nclass,
+c     o              konf,ecoret)
+c      call gencor  (ecoret,ncwf,iclass,
+c     d              nl,nnc,natom,nclass,nctot,
+c     o              ecore)
+      do ic = 1,nclass
+        write(6,*) ' read ECORE : ic=',ic
+        read (ifec,*) 
+        read (ifec,*) 
+        read (ifec,*) 
+        read (ifec,*) !zz,ic1,nr ,a,b,nsp
+        read (ifec,*) 
+        read (ifec,*) (konf(l+1,ic),l=0,nl-1)
+        read (ifec,*) 
+        do  l = 0,nl-1
+          ncorex = konf(l+1,ic)-l-1
+          if (ncorex .gt. nnc) call rx( 'ECORE: wrong nnc')
+          do n = 1,ncorex
+            read (ifec,*) lt,nt,(ecoret(l,n,isp,ic),isp=1,nspin) !takao
+            if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)        !
+c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
+            if (lt .ne. l) call rx( 'rcore: wrong l')
+            if (nt .ne. n) call rx( 'rcore: wrong n')
+          end do
+        end do
+      end do
+      i = 0
+      do ia = 1,nclass
+        ic  = iclass(ia)
+        do l = 0,nl-1
+        do n = 1,nnc
+        do m = -l,l
+          if (ncwf(l+1,n,ic) .eq. 1) then
+            i = i + 1
+            if (i > nctot) call rx( 'genalloc_mod: wrong nctot')
+            ecore(i,1:nspin) = ecoret(l,n,1:nspin,ic)
+            write(6,"(' ecore=',4i4,2d13.5)")i, l,n,ic,ecore(i,1:nspin)
+          endif
+        enddo
+        enddo
+        enddo
+      enddo
       deallocate(ecoret)
 
 c> index for core and LMTO basis
@@ -394,7 +427,7 @@ c eclnm({l,n,m,atom}) = core energies
 Cstop2rx 2013.08.09 kino                if (i .gt. nctot) stop 'gencor: wrong nctot'
                 if (i .gt. nctot) call rx( 'gencor: wrong nctot')
 cccccccccccccccc
-c      write(6,"(' eco=',4i4,d13.5)")i,l,n,ic,eco(l,n,1,ic)
+c        write(6,"(' ecore=',4i4,d13.5)")i, l,n,ic,eco(l,n,1,ic)
 cccccccccccccccc
                 eclnm(i,1) = eco(l,n,1,ic)
                 eclnm(i,2) = eco(l,n,2,ic)
@@ -438,7 +471,7 @@ Cstop2rx 2013.08.09 kino          if (ncore .gt. nnc) stop 'rcore: wrong nnc'
             read (ifec,*) lt,nt,(eco(l,n,isp,ic),isp=1,nsp) !takao
             if(nsp==1) eco(l,n,2,ic) = eco(l,n,1,ic)        !
 cccccccccccccccc
-c      write(6,"(' eco=',3i4,d13.5)")l,n,ic,eco(l,n,isp,ic)
+c      write(6,"(' read eco=',3i4,d13.5)")l,n,ic,eco(l,n,isp,ic)
 cccccccccccccccc
 Cstop2rx 2013.08.09 kino            if (lt .ne. l) stop 'rcore: wrong l'
             if (lt .ne. l) call rx( 'rcore: wrong l')

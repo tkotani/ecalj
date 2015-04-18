@@ -270,6 +270,10 @@ c      real(8):: wgtq0p
 
       logical:: tote=.false.
       logical:: hermitianW
+
+      real(8),allocatable:: wcorehole(:,:)
+      logical:: corehole
+      integer:: ifcorehole
 c      real(8),allocatable:: ppb(:)
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 
@@ -283,6 +287,22 @@ c      write(6,*)'sxcf_fal3_scz'
       fpi = 4d0*pi
       debug=.false.
       if(verbose()>=90) debug=.true.
+
+cccccccccccccccc
+      corehole=.false.
+cccccccccccccccc
+
+!! core-hole
+      if(corehole) then
+        ifcorehole=ifile_handle()
+        open(ifcorehole,file='CoreHole') 
+        if(allocated(wcorehole)) deallocate(wcorehole)
+        allocate(wcorehole(nctot,nsp))
+        do it=1,nctot
+          read(ifcorehole,*) wcorehole(it,1:nsp)
+        enddo
+        close(ifcorehole)
+      endif
 
       if(.not.exchange) then
         ifwd = iopen('WV.d',1,-1,0)
@@ -795,6 +815,14 @@ c$$$!TIME1 "end of write ifsexsp"
                 wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
                 w3p(it,1:ntqxx,1:ntqxx) = wfac * w3p(it,1:ntqxx,1:ntqxx)
               enddo
+
+!! apr2015 correct weights for core-hole case
+              if(corehole) then
+              do it = 1, nctot
+                w3p(it,1:ntqxx,1:ntqxx) = wcorehole(it,isp) * w3p(it,1:ntqxx,1:ntqxx)
+              enddo
+              endif
+
               do itpp=1,ntqxx
                 do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                   if(jobsw==5.and.(itpp/=itp)) cycle
