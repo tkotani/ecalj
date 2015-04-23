@@ -429,8 +429,8 @@ c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+
          write(stdo,"('conf: ', i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") 
      &        i,l,ipl,iplz,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,miplzipl-1)
       enddo
-      write(stdo,"(a)")'conf:-----------------------------------------------------'
-      enddo
+c      write(stdo,"(a)")'conf:-----------------------------------------------------'
+      Enddo
       write(6,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
 
 cNov 2010 QvalCheck
@@ -1838,9 +1838,12 @@ Changenglob      nsp =  nglob('nsp')
         q0 = q0 + wt*(rhoc(i,1)+rhoc(i,nsp))/(3-nsp)
    10 continue
       v0 = (rhoc(nrmt,1)+rhoc(nrmt,nsp))/(3-nsp)/(rmt*rmt)
-      sout = ' '
-      call awrit3('%?#(n>=30)#%N## coretail: q=%;3g, rho(rmt)=%;3g.',
-     .sout,len(sout),0,ipr,v0,q0)
+      write(stdo,"('conf: Core rhoc(rmt)=',f9.6,' spillout=',f9.6)")v0,q0
+      write(stdo,"(a)")'conf:-----------------------------------------------------'
+c      sout = ' '
+c      call awrit3('%?#(n>=30)#%N## coretail: q=%;3g, spill out=%;3g.',
+c     .sout,len(sout),0,ipr,v0,q0)
+
 C      if (ipr .ge. 20) write (stdo,339) v0,q0
 C  339 format(/' coretail:  rho(rmt)=',f12.8,'   charge=',f12.8)
       if (dabs(q0) .lt. 1d-6) then
@@ -1860,8 +1863,9 @@ c|  975 format('ak1,ak2=',2f14.8)
       eh = -akap*akap
 
       if (ipr .ge. 20) then
-        call awrit2('%a  Fit with Hankel e=%;5g  coeff=%;5g',sout,
-     .  len(sout),-stdo,eh,c)
+        write(stdo,"(' Fit with Hankel e=',f10.6,' coeff=',f10.6)")eh,c
+c        call awrit2('%a  Fit with Hankel e=%;5g  coeff=%;5g',sout,
+c     .  len(sout),-stdo,eh,c)
       endif
 
 C ... Test

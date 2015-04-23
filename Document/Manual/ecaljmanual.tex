@@ -4852,12 +4852,14 @@ fig008
 \end{verbatim}
 m is a magnetic quantum number, n is the degree of freedom which means 1 : $\phi$, 2 : $\dot{\phi}$, and 3 : local orbital. l is the orbital angular quantum number. The match of orbitals and m number is shown by {\bf job\_pdos} command.The following number is the number of atom. And the next is the numerating number. It corresponds to the number in GWinput which is the most left one in the initial conditions.
 
+\section{theory of PMT-QSGW}
+
 \subsection{CPHI and GEIG}
 We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region:
 \begin{displaymath}
 \Psi_{{\bf k}n} = \sum_{{\bf R}u}\alpha_{{\bf R}u}^{{\bf k}n}\phi_{{\bf R}u}^{\bf k}({\bf r}) + \sum_{\bf G}\beta_{\bf G}^{{\bf k}n}P_{\bf G}^{\bf k}({\bf r})
 \end{displaymath}
-Here, {\bf CPHI} contains the information of $\alpha_{{\bf R}u}^{{\bf k}n}$ and {\bf GEIG} contains $\beta_{\bf G}^{{\bf k}n}$.
+Here, {\io CPHI} contains the information of $\alpha_{{\bf R}u}^{{\bf k}n}$ and {\io GEIG} contains $\beta_{\bf G}^{{\bf k}n}$.
 
 
 \newpage 

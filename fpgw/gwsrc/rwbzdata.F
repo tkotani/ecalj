@@ -1,31 +1,27 @@
-C ... read BZDATA
+!! read BZDATA
       module m_read_bzdata
-c--------readin data set when you call read_BZDATA ---------------
-c All are outputs
+!! we set following data when you call read_BZDATA() 
       implicit none
-      integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-c     &   ,n_index_qbz
-      integer(4) :: n1,n2,n3
-      real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2(3)
-      real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
-     &    ,wibz(:),qbzw(:,:), qibz_r(:,:)
-      integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-     &    ,nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
+      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer,allocatable :: n1,n2,n3,
+     &    idtetf(:,:),ib1bz(:),idteti(:,:),
+     &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
+      real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_bzcase2(:)
+     &    , qbz(:,:),wbz(:),qibz(:,:)
+     &    , wibz(:),qbzw(:,:), qibz_r(:,:)
       logical:: done_read_bzdata=.false.
 c-----------------------------------------------------------------
       contains
       subroutine read_BZDATA()
-c No input except BZDATA file.
-c- After you call this, you can access Brillowin Zone datas above ----
+!! No input except BZDATA file.
+!! After you call this, you can access Brillowin Zone datas above ----
       implicit none
       integer(4):: intq(3),iqbz,ifbz,n,verbose
       real(8) :: qout(3)
       ifbz = 6661
       write(6,*)' ### readin BZDATA ###'
-ctest
-c         write(6,*) "ixc=",ixc
-c         stop 'xxxxxxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxxx'
-
+      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
+      allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2(3))
       open (ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r
       read(ifbz,*)  n1,n2,n3

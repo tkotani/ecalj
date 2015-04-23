@@ -514,8 +514,8 @@ C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       nqbze  = nqbz *(1 + nq0i)
       nqibze = nqibz + nq0i
       allocate( qbze(3, nqbze), qibze(3, nqibze))
-      call dcopy(3*nqbz, qbz,  1, qbze,1)
-      call dcopy(3*nqibz,qibz, 1, qibze,1)
+      qbze(:,1:nqbz)   = qbz(:,1:nqbz)
+      qibze(:,1:nqibz) = qibz(:,1:nqibz)
       do i = 1,nq0i
         qibze(:,nqibz+i)  = q0i(:,i)
         ini = nqbz*(1 + i -1)
@@ -525,14 +525,10 @@ C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       enddo
       ngrpx = 1
       l2nl=2*(nl-1)
-c      allocate( nx(0:l2nl,nclass),  nblocha(nclass) ,lx(nclass),
-c     &   ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:l2nl,nxx, nspin*nclass),
-c     &   cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
       allocate(symope(3,3))
       symope(1:3,1) = (/1d0,0d0,0d0/)
       symope(1:3,2) = (/0d0,1d0,0d0/)
       symope(1:3,3) = (/0d0,0d0,1d0/)
-!!  dummy. Get space-group transformation information. See header of mptaouof.
       ificlass=ifile_handle()
       open (ificlass,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
@@ -543,50 +539,48 @@ c     &   cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
         write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
       close(ificlass)
+!! Get space-group transformation information. See header of mptaouof.
       call mptauof(symope,ngrpx,plat,natom,pos,iclasst
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
-c      call rdpp_v3(nxx, nl,ngrpx, nn, nclass, nspin,symope,qbas,
-c     o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-!!  ppbrd = radial integrals
-!!  cgr   = rotated cg coeffecients.
+!!  ppbrd = radial integrals,  cgr = rotated cg coeffecients.
       call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas)
-      ntq=nband
-      allocate(itq(ntq))
+      ntq = nband
+      allocate(itq(ntq)) !itq=i for i=1,ntq. a dummy. c.f. hsfp0.sc.F
       do i=1,ntq
         itq(i)=i
       enddo
 !! Pointer to optimal product basis
       allocate(imdim(natom))
       call indxmdm (nblocha,nclass,iclass,natom,
-     o imdim )                  !in m_zmel
-
-
+     o imdim )                  !use in m_zmel
 c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
       nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx)) ! work arry
 
-C ... for legas test
+!! ... for legas test (not used so often. To compare homogeneos electron gas).
       legas = .false.
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
+!!
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
-!!... initialization of readEigen !readin m_hamindex
-      call init_readeigen(ginv,nspin,nband,mrece) ! EVU EVD are readin in init_readeigen
+!! initialization of readEigen !readin m_hamindex
+      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
 
-!! We first accumulate Imaginary parts. Then it is K-K transformed to obtain real part.
+!! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
       realomega = .true.
       imagomega = .true.
       tetra     = .true.
       call getkeyvalue("GWinput","omg_c",omg_c )
       write(6,*)'dw, omg_c= ',dw, omg_c
-C ... frhis
+!! ... frhis is the histgram bin along real axis to accumulate im part
 c      write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
       call findemaxmin(nband,qbze,nqbze,nspin ,emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
-      omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
+      omg2max=(Emax-Emin)*.5d0+.2d0 
+      !(in Hartree) covers  all relevant omega, +.2 for margin
       write(6,*)' emin emax omg2max=',emin, emax,omg2max
       nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
       allocate(freqr2(nw2))                                  !+1 b/c (iw-1)
@@ -594,7 +588,6 @@ c      write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
       enddo !linear + quadratic term
       if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-
       if (dw*(nw-2) > freqr2(nw2-1)) call rx( "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
       nwhis = nw2-1
       allocate(frhis(1:nwhis+1))

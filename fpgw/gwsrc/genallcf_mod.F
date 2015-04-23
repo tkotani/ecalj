@@ -23,34 +23,34 @@ c             ,nocc, nunocc, occv, unoccv, occc, unoccc
 c----------------------------------------------------------------
 cccc      use m_rgwinf_v3
       implicit none
-      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
-      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
-      character(120):: symgrp
+      character(120),allocatable:: symgrp
       character(6),allocatable :: clabl(:)
-      integer(4),allocatable:: iclass(:)
-     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
+      integer,allocatable:: iclass(:),
+     &    nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
      o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
      o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
      o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
      o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
      &    occv(:,:,:),unoccv(:,:,:)   
      &   ,occc(:,:,:),unoccc(:,:,:),
-     o    nocc(:,:,:),nunocc(:,:,:)
+     o    nocc(:,:,:),nunocc(:,:,:),
+     o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
       real(8), allocatable:: 
      o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:)   !w(igrp)
+      real(8),allocatable :: alat,ef, diw,dw,delta,deltaw,esmr
       logical:: done_genallcf_v3=.false.
 c-----------------------------------------------------------------------
       contains
+
       subroutine genallcf_v3(nwin,efin,incwfx)
-C- Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
-C
-Cr Return iclass=ibas.
-Cr nwin,efin,incwfx, are used as switches.
-Ci input: nwin,efin,incwfx,
-Ci        GWIN_V2, LMTO
-Co output: All the output are given in the declear section above.
-C--------------------------------------------------------
+!! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
+!!r Return iclass=ibas.
+!! nwin,efin,incwfx, are used as switches.
+!! input: nwin,efin,incwfx,
+!!        GWIN_V2, LMTO
+!! output: All the output are given in the declear section above.
+!! --------------------------------------------------------
       implicit none
       integer(4)::iflmto,ifinin,nwin,incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
@@ -66,7 +66,12 @@ C--------------------------------------------------------
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex
       real(8)::a,b,zz
+
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
+
+      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
+      allocate(alat,ef, diw,dw,delta,deltaw,esmr,  symgrp)
 
       iflmto     = iopen('LMTO',1,0,0)
       if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
