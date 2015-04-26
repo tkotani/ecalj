@@ -269,12 +269,12 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
-      hartree=2d0*rydberg()
-      pi         = 4d0*datan(1d0)
-      fourpi=4d0*pi
-      sqfourpi=sqrt(fourpi)
       call cputid (0)
-C --- computational mode select
+      hartree  = 2d0*rydberg()
+      pi       = 4d0*datan(1d0)
+      fourpi   = 4d0*pi
+      sqfourpi = sqrt(fourpi)
+!! computational mode select
 c takao keeps only the Sergey mode.
       write(6,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
       write(6,"(a)") ' #1:run mode'
@@ -289,13 +289,11 @@ c      write(6,"(a)") ' #2=iqxini   #3=iqxend' '
 c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
       write(6,"(a)")  '-------------------------------------------------------'
       if( mpi__root ) then
-c     call readin5(ixc,iqxini,iqxend)
          read(5,*) ixc
       end if
       call MPI__Broadcast(ixc)
       call headver('hx0fp0',ixc)
       call cputid(0)
-c      write(6,"(' ixc = ',i4)") ixc
       crpa=.false.
       if(ixc<=6.or.ixc==22.or.ixc==23) then
         write(6,*)'these modes are removed now'

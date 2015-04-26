@@ -143,18 +143,18 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ibasx,ificlass,ifile_handle
       complex(8),allocatable:: ppovl_(:,:)
 !-------------------------------------------------------------------------
+!TIME0 
+!TIME0 
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
-!TIME0 
-!TIME0 
-      allocate( zzr(1,1)) !dummy
-      hartree=2d0*rydberg()
-      pi = 4d0*datan(1d0)
-      fourpi=4d0*pi
-      sqfourpi=sqrt(fourpi)
       call cputid (0)
+      allocate( zzr(1,1)) !dummy
+      hartree= 2d0*rydberg()
+      pi     = 4d0*datan(1d0)
+      fourpi = 4d0*pi
+      sqfourpi=sqrt(fourpi)
       write(6,*) ' --- hx0fp0_sc Choose omodes below ----------------'
-      write(6,*) ' Only for ixc==11 '
+      write(6,*) '  ixc= 11,10011,or 1011 '
       write(6,*) ' --- Put number above ! -----------------'
       if( mpi__root ) then
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
@@ -176,28 +176,21 @@ c      write(6,"(' ScaledGapX0=',f8.3)") sciss
          write(6,*)'we only allow ixc==11. given ixc=',ixc
          call rx( 'error:we only allow ixc==11.')
       endif
-!! ====newaniso2====
-c      newaniso2=.false.
-c      if(newaniso()) then       !.and.ixc==11) then
-c         newaniso2=.true.
-c      endif
-!!
+!! newaniso2 is now fixed to be .true.
       call getkeyvalue("GWinput","ecut_p" ,ecut, default=1d10 )
       call getkeyvalue("GWinput","ecuts_p",ecuts,default=1d10 )
-
 !! naraga says this cause a stop in ifort --->why???
-c     write(6,*)'Timereversal=',Timereversal()
+c    write(6,*)'Timereversal=',Timereversal()
 
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
       call read_BZDATA()
 !TIME1 "after readbzdata"
 !TIME0 
-
 !! Use regular mesh even for bzcase==2 and qbzreg()=T
 !!     off-regular mesh for bzcase==1 and qbzreg()=F
 c      if( ( bzcase()==2.and.qbzreg() )       .or.
 c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
-      if(.not.qbzreg()) then 
+      if(.not.qbzreg()) then ! set off-gamma mesh
          deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
          do i=1,nqbz
             qbz(:,i) = qbz(:,i) - deltaq/2d0
@@ -205,64 +198,43 @@ c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
          enddo
       endif
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
- 
 !! === Readin by genallcf ===
+!! See "use m_genallcf_v3" at the begining of this routine
+!! We set basic data.
       nwin   = 0                !Readin nw from NW file
       incwfin= 0                !use ForX0 for core in GWIN
       efin =  0d0               !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-!...  These are allocated and setted by genallcf_v3
-!     integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-!     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
-!     real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
-!     character(120):: symgrp
-!     character(6),allocatable :: clabl(:)
-!     integer,allocatable:: iclass(:)
-!     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
-!     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
-!     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
-!     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
-!     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
-!     &    occv(:,:,:),unoccv(:,:,:)
-!     &   ,occc(:,:,:),unoccc(:,:,:),
-!     o    nocc(:,:,:),nunocc(:,:,:)
-!     real(8), allocatable::
-!     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
-
       nw_input = nw ; write(6,*) 'nw delta=',nw_input,delta
       debug=.false.
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
       tpioa=2d0*pi/alat
-
-!!!!  WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) call rx( ' nclass /= natom ')
-
+!!!!  WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
+      if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
 !! --- tetra or not
       if(delta <= 0d0) then
          tetra =  .true.
          delta = -delta
          write(6,*)' hx0fp0: tetrahedron mode delta=',delta
       else
-         tetra = .false.        ! switch for tetrahedron method for dielectric functions
+         tetra = .false. ! switch for tetrahedron method for dielectric functions
       endif
-
 !! --- read dimensions of h,hb
       ifhbe      = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
       if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
-
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      ifiq0p=ifile_handle()
+      open (ifiq0p,file='Q0P')
+      read (ifiq0p,"(i5)") nq0i
       write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
       allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
       do i=1,nq0i
-         read (101, * ) wqt(i),q0i(1:3,i)
+         read (ifiq0p, * ) wqt(i),q0i(1:3,i)
       enddo
       nq0ix = nq0i
       do i=1,nq0i
@@ -271,19 +243,18 @@ c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
             exit
          endif
       enddo
-      neps = nq0i - nq0ix       ! number of zero weight q0p which are used for ixc=2 or 3 mode.
-      write( 6,*) ' num of zero weight q0p=',neps
+      neps=nq0i-nq0ix ! number of zero weight q0p which are used for ixc=2 or 3 mode.
+      write(6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(101)
+      close(ifiq0p)
 c$$$      if(.not.newaniso2) then
 c$$$         wqtsum = sum(abs(wqt(1:nq0i)))
 c$$$         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
 c$$$      endif 
+
 !TIME1 "before readngmx"
 !TIME0
-
-c     --- readin by rdpp ; Radial integrals ppbrd and plane wave part
-      call getsrdpp2( nclass,nl,nxx)
+      call getsrdpp2(nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
@@ -299,13 +270,9 @@ c     --- readin by rdpp ; Radial integrals ppbrd and plane wave part
             qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
          enddo
       enddo
-
 !! ---------------- dummy ngrpx=1 -------------------
       ngrpx = 1
       l2nl=2*(nl-1)
-c      allocate( nx(0:l2nl,nclass),  nblocha(nclass) ,lx(nclass),
-c     &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:l2nl,nxx, nspin*nclass),
-c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
       allocate(symope(3,3))
       symope(1:3,1) = (/1d0,0d0,0d0/)
       symope(1:3,2) = (/0d0,1d0,0d0/)
@@ -324,10 +291,7 @@ c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrpx), symope(3,3))
       call mptauof(symope,ngrpx,plat,natom,pos,iclasst
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
-c      call rdpp_v3(nxx, nl,ngrpx, nn, nclass, nspin,symope,qbas,
-c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-!!  ppbrd = radial integrals
-!!  cgr   = rotated cg coeffecients.
+!!  call rdpp gives ppbrd = radial integrals and cgr = rotated cg coeffecients.
       call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas)
       ntq=nband
       allocate(itq(ntq))
@@ -338,19 +302,15 @@ c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
       allocate(imdim(natom))
       call indxmdm (nblocha,nclass,iclass,natom,
      o imdim )                  !in m_zmel
-
-c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
       nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx))
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
-
 !TIME1 "before initreadeigen"
 !TIME0
 !!... initialization of readEigen !readin m_hamindex
-      call init_readeigen(ginv,nspin,nband,mrece) ! EVU EVD are readin in init_readeigen
+      call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
-
 c     --- ecore ---
 c     allocate(ecore(nctot,nspin)) !core energies
 c     do  is = 1,nspin
@@ -430,118 +390,12 @@ c     allocate(frhis(nwp))
 c     frhis=freq_r(1:nwp)
 c     nwhis=nw
 
-!! We first accumulate Imaginary parts. Then it is K-K transformed to obtain real part.
+!! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
       realomega = .true.
       imagomega = .true.
       tetra     = .true.
-      call getkeyvalue("GWinput","omg_c",omg_c )
-      write(6,*)'dw, omg_c= ',dw, omg_c
-      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-c      if(bzcase()==2.or.(.not.qbzreg())) then
-      if(.not.qbzreg()) then
-         allocate(qbz2(3,nqbz))
-         do iq=1,nqbz
-            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
-         enddo
-         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-         emax=max(emax,emax2)
-         emin=min(emin,emin2)
-         deallocate(qbz2)
-      endif
-      if (nctot .gt. 0) Emin=minval(ecore(:,1:nspin))
-      omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
-      write(6,*)' emin emax omega2max=',emin, emax, omg2max
-      write(6,*)
-
-!TIME1 "before histogram division"
-!TIME0 
-ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
-
-      nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
-      allocate(freqr2(nw2))     !+1 b/c (iw-1)
-      do iw=1,nw2
-         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
-      enddo                     !linear + quadratic term
-      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-      if (dw*(nw-2) > freqr2(nw2-1)) call rx("hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
-      nwhis = nw2-1
-      allocate(frhis(1:nwhis+1))
-      frhis = freqr2(1:nwhis+1)
-      write(6,*)' we set frhis nwhis=',nwhis
-!!     ... for frhis_m
-      nw=nw2-1                  ! nw+1 is how many points of real omega we use
-                                ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
-                                ! maximum nw=nw2-1 because nwhis=nw2-1
-      do iw=3,nw2-1
-                                !nw is chosen from condition that frhis_m(nw-3)<dw*(nw_input-3) <frhis_m(nw-2).
-                                !Here frhis_m(iw)= (freqr2(iw)+freqr2(iw+1))/2d0
-                                !nw was constructed such that omg=dw*(nw-2)> all relevant frequensies needed
-                                ! for correlation Coulomb Wc(omg),
-                                ! and one more point omg=dw*(nw-1) needed for extrapolation.
-                                ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
-                                ! and one more point omg=frhis_m(nw) needed for extropolation
-                                ! used in subroutine alagr3z in  sxcf.f.
-         omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
-         if (omg2 > dw*(nw_input-3)) then
-            nw=iw
-            exit                ! 'nw_input' is only used to get maximum frequency for
-                                !  dressed coulomb line
-         endif
-      enddo
-      allocate(freq_r(0:nw))
-      freq_r(0)=0d0
-      do iw=1,nw
-         freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
-      enddo
-      nwp = nw+1
-      delta=0d0                 !only for writeemesh
-
-!! Plot frhis ----------
-          if(onceww(1)) then
-            write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-            do ihis= 1, min(10,nwhis)
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-            write(6,*) 'ihis  ...'
-            do ihis= max(min(10,nwhis),nwhis-10), nwhis
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-          endif
-
-!!     ... timereversal=F is implimented only for tetra=T and sergeyv=T
-      npm=1
-      nw_i=0
-      if(.not.timereversal()) then
-         write(6,"('TimeReversal off mode')")
-         npm=2
-         nw_i=-nw
-         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
-      endif
-      write(6,*)'Timereversal=',Timereversal()
-
-!TIME1 "before realomega write3111"
-!TIME0
-      if(realomega .and. mpi__root) then
-         open(UNIT=3111,file='freq_r') !write number of frequency
-                                !points nwp and frequensies in 'freq_r' file
-         write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
-         do iw= nw_i,-1
-            write(3111,"(d23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
-         enddo
-         do iw= 0,nw
-            write(3111,"(d23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
-         enddo
-         close(3111)
-      endif
-
-C     --- set freq_i
-      if (imagomega) then
-         write(6,*)' freqimg: niw =',niw
-         allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw) )
-         call freq01 (niw,ua,   ! Generate gaussian frequencies x between (0,1) and w=(1-x)/x      
-     o        freqx,freq_i,wx,expa)
-         deallocate(freqx,wx,expa)
-      endif
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      call freq
 
 C     --- tetra init
       if(tetra) then
@@ -647,11 +501,9 @@ c$$$      enddo
      i   ppbrd,                 !radial integrals
      o   ppbir(:,irot,is))      !this is in m_zmel
       enddo  
-
       if(debug) write(6,*) ' end of ppbafp_v2'
 !TIME1 "endo of ppbafp_v2"
 !TIME0
-
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
@@ -1755,3 +1607,132 @@ c     do i = 1,ngb
 c     write(6,'("iii i=",i4,a,f10.4,2i5,4d22.14)')i,tagname,freqq,iq,iw,zw(i,i)
 c     enddo
       end
+
+
+
+
+!!------------------------------------------------------------------------
+      module m_freq
+      real(8),allocatable:: frhis(:)
+
+      contains
+      subroutine(realomega,imagomega,tetra, nband,qbze,nqbze,nspin,
+     o  frhis,freq_r,freq_i)
+!!- frequency histgram, real axis points, im axis points.
+      implicit none
+      logical:: realomega,imagomega,tetra
+      integer::
+      real(8)::omg_c
+      real(8) :: Emin, Emax      ,emax2,emin2
+!! We first accumulate Imaginary parts. 
+!! Then it is K-K transformed to obtain real part.
+      call getkeyvalue("GWinput","omg_c",omg_c )
+      call getkeyvalue("GWinput","omg_c",omg_c )
+      write(6,*)'dw, omg_c= ',dw, omg_c
+      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+c      if(bzcase()==2.or.(.not.qbzreg())) then
+      if(.not.qbzreg()) then
+         allocate(qbz2(3,nqbz))
+         do iq=1,nqbz
+            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
+         enddo
+         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
+         emax=max(emax,emax2)
+         emin=min(emin,emin2)
+         deallocate(qbz2)
+      endif
+      if (nctot .gt. 0) Emin=minval(ecore(:,1:nspin))
+      omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
+      write(6,*)' emin emax omega2max=',emin, emax, omg2max
+      write(6,*)
+
+!TIME1 "before histogram division"
+!TIME0 
+ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
+
+      nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
+      allocate(freqr2(nw2))     !+1 b/c (iw-1)
+      do iw=1,nw2
+         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
+      enddo                     !linear + quadratic term
+      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
+      if (dw*(nw-2) > freqr2(nw2-1)) call rx("hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
+      nwhis = nw2-1
+      allocate(frhis(1:nwhis+1))
+      frhis = freqr2(1:nwhis+1)
+      write(6,*)' we set frhis nwhis=',nwhis
+!!     ... for frhis_m
+      nw=nw2-1                  ! nw+1 is how many points of real omega we use
+                                ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
+                                ! maximum nw=nw2-1 because nwhis=nw2-1
+      do iw=3,nw2-1
+                                !nw is chosen from condition that frhis_m(nw-3)<dw*(nw_input-3) <frhis_m(nw-2).
+                                !Here frhis_m(iw)= (freqr2(iw)+freqr2(iw+1))/2d0
+                                !nw was constructed such that omg=dw*(nw-2)> all relevant frequensies needed
+                                ! for correlation Coulomb Wc(omg),
+                                ! and one more point omg=dw*(nw-1) needed for extrapolation.
+                                ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
+                                ! and one more point omg=frhis_m(nw) needed for extropolation
+                                ! used in subroutine alagr3z in  sxcf.f.
+         omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
+         if (omg2 > dw*(nw_input-3)) then
+            nw=iw
+            exit                ! 'nw_input' is only used to get maximum frequency for
+                                !  dressed coulomb line
+         endif
+      enddo
+      allocate(freq_r(0:nw))
+      freq_r(0)=0d0
+      do iw=1,nw
+         freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
+      enddo
+      nwp = nw+1
+      delta=0d0                 !only for writeemesh
+
+!! Plot frhis ----------
+          if(onceww(1)) then
+            write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
+            do ihis= 1, min(10,nwhis)
+              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
+            enddo
+            write(6,*) 'ihis  ...'
+            do ihis= max(min(10,nwhis),nwhis-10), nwhis
+              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
+            enddo
+          endif
+
+!!     ... timereversal=F is implimented only for tetra=T and sergeyv=T
+      npm=1
+      nw_i=0
+      if(.not.timereversal()) then
+         write(6,"('TimeReversal off mode')")
+         npm=2
+         nw_i=-nw
+         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
+      endif
+      write(6,*)'Timereversal=',Timereversal()
+
+!TIME1 "before realomega write3111"
+!TIME0
+      if(realomega .and. mpi__root) then
+         open(UNIT=3111,file='freq_r') !write number of frequency
+                                !points nwp and frequensies in 'freq_r' file
+         write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
+         do iw= nw_i,-1
+            write(3111,"(d23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
+         enddo
+         do iw= 0,nw
+            write(3111,"(d23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
+         enddo
+         close(3111)
+      endif
+
+C     --- set freq_i
+      if (imagomega) then
+         write(6,*)' freqimg: niw =',niw
+         allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw) )
+         call freq01 (niw,ua,   ! Generate gaussian frequencies x between (0,1) and w=(1-x)/x      
+     o        freqx,freq_i,wx,expa)
+         deallocate(freqx,wx,expa)
+      endif
+

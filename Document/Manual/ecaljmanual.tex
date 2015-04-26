@@ -4852,7 +4852,34 @@ fig008
 \end{verbatim}
 m is a magnetic quantum number, n is the degree of freedom which means 1 : $\phi$, 2 : $\dot{\phi}$, and 3 : local orbital. l is the orbital angular quantum number. The match of orbitals and m number is shown by {\bf job\_pdos} command.The following number is the number of atom. And the next is the numerating number. It corresponds to the number in GWinput which is the most left one in the initial conditions.
 
-\section{theory of PMT-QSGW}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Theory of PMT-QSGW}
+
+\subsection{crystal structue}
+alat, plat, qlat
+nbas, bas, nclass, 
+a,b, rofi,nr (or aa,bb, nrad
+ncindx, lcindx
+
+phi
+
+radial mesh
+CLASS
+mptauof tiat miat
+symgg
+core, radial funcitons
+
+\subsection{bz setting}
+qg4gw-mkqg routines.
+QIBZ,QBZ 
+
+qibz nqbz,qibz wibz, 
+nqibze Q0P
+
+iq0pin mode:
+generate q0p: algolizm
 
 \subsection{CPHI and GEIG}
 We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region:
