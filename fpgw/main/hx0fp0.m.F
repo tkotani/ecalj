@@ -2658,6 +2658,7 @@ c 1002 continue  ! end of frequency block-loop
  1001 continue
 c      ifiss=iclose('SkSks')
 !! == end of loop 1001 for q point ==
+      call mpi__barrier()
 
 
 

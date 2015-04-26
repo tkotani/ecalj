@@ -1501,7 +1501,7 @@ c     1002 continue  ! end of frequency block-loop
 c============end of loop over q point =================================
 c=======================================================================
 !TIME0
-
+         call mpi__barrier()
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         write(6,*)'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
 ccccccccccccccccccccccccccc

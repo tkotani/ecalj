@@ -1329,7 +1329,7 @@ c       print *,' getkeyvalue_iv: 3'
       if (present(status)) istatus=status !takao sep2006
       call input_integerv(key,size,var,def_var,istatus)
 cccccccccccccccccccccccccc
-      print *,'size=',size,' var=',var
+c      print *,'size=',size,' var=',var
 cccccccccccccccccccccccccc
       if (istatus==input_err_lessvaluenum) then
         call getkeyvalue_err_exit('getkeyvalue_iv: # of values is wrong', key,filename)
