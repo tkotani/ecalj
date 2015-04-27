@@ -4,7 +4,15 @@ c hef is from hsfp0 but it is only to calcuate ef and Ex test.
 c so this routine contains unused things so much.
       use m_readeigen,only:init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
+
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,ngrp,   
+     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &  invg,  il,in,im,nlnm,     
+     &  konf, 
+     &  plat, pos,z,ecore, symgg 
+
       use keyvalue
       implicit none
 c
@@ -67,7 +75,7 @@ c takao
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c
-      logical :: exchange, legas
+      logical :: exchange , legas
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
       logical ::nocore
 
@@ -230,6 +238,7 @@ c      if (nspin == 2) ifev(2) = iopen('EVD', 0,0,mrece)
 
 c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
 ! When esmr is negative, esmr is geven automatically by efsimplef.
+      legas=.false.
       call efsimplef2a(nspin,wibz,qibz,ginv, 
      i        nband,nqibz
      i       ,konf,z,nl,natom,iclass,nclass

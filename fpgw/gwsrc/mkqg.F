@@ -6,6 +6,7 @@
 
       integer,private:: nq0x,nmm
       contains
+
       subroutine getq0p(newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv,
      & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
 !!> Get q0p and write 'EPSwklm' file for offset Gamma method.

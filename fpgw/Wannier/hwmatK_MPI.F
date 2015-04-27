@@ -786,11 +786,14 @@ c --- info
      & call winfo(6,nspin,nq,ntq,is,nbloch
      &    ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
-c pointer to optimal product basis
+!! Pointer to optimal product basis
       allocate(imdim(natom))
-      call indxmdm (nblocha,nclass,
-     i              iclass,natom,
-     o              imdim )
+      do ibas=1,natom
+        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
+      enddo  
+c      call indxmdm (nblocha,nclass,
+c     i              iclass,natom,
+c     o              imdim )
 
       if(niw/=0) then ! generate gaussian frequencies x between (0,1) and w=(1-x)/x
         allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))

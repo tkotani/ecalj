@@ -10,17 +10,19 @@
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
      &     dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
-     &     nstar,irk,nstbz
+     &     nstbz
+!! in,il,im( iorb=1,nlnm(ic), ic), where,ic=1,nclass, are l,n,m index for ic.
+!! nlnmx=maxval(nlnm(1:nclass)). Usef for ppb = <phi phi|B> within MT
+!! we assume nclass=natom (historical reason)
       use m_genallcf_v3,only: genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw_input=>nw,
-     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
-     &     invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
-     &     ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
-     &     occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg ! symgg=w(igrp) freq,
+     &     nclass,natom,nspin,nl,nn,ngrp, 
+     &     nlmto,nlnmx,nctot,niw,nw_input=>nw, 
+     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     invg,  il,in,im,nlnm,     
+     &     plat, pos,z,ecore,  symgg 
 
       use keyvalue,only: getkeyvalue
-      use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
+c      use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
      &   mpi__Qtask,MPI__InitializeQSPBM,MPI__Finalize,mpi__root,
@@ -33,7 +35,7 @@
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:    !these data set are stored in this module, and used when 
-     & nband,itq,imdim,ngcmx,ngpmx,    ppovlz,
+     & nband,itq,ngcmx,ngpmx,    ppovlz,!imdim
      & ppbir,shtvg, miat,tiat , ntq
 !! frequency
       use m_freq,only: getfreq,
@@ -60,7 +62,8 @@
      &     zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
       real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:)
      &     ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:),
-     &     ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), qbze(:,:),qibze(:,:) !,ecore(:,:)
+     &  qbze(:,:),qibze(:,:) !,ecore(:,:)
+c     &     ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
 c     &  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       complex(8),allocatable :: rcxq(:,:,:,:)
       logical :: tetra,tmpwwk=.false. ! If tmpwwk=.true., this use a temporary file tmp.wwk so as to reduce the memory usage.
@@ -302,10 +305,13 @@ c$$$      endif
       do i=1,ntq
         itq(i)=i
       enddo
-!! Pointer to optimal product basis
-      allocate(imdim(natom))
-      call indxmdm (nblocha,nclass,iclass,natom,
-     o imdim )                  !in m_zmel
+c!! Pointer to optimal product basis
+c      allocate(imdim(natom))
+c      do ibas=1,natom
+c        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
+c      enddo  
+c      call indxmdm (nblocha,nclass,iclass,natom,
+c     o imdim )                  !in m_zmel
       nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx))
       iqxend = nqibz + nq0i
@@ -430,7 +436,7 @@ c     nwhis=nw
         !max no. of occupied valence states
       if(noccxv>nband) call rx( 'hx0fp0_sc: all the bands filled! too large Ef')
       noccx  = noccxv + nctot
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
+c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble        !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       if(mpi__root)then
@@ -553,8 +559,8 @@ c$$$         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
 c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
 c$$$     o        nwgt,igx,igxt,eibzsym)
 
-         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
-                          ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+c         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
+c                          ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou() ! no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       else !dummy allocation to overlaid -check bound !sep2014
@@ -900,12 +906,12 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
      i           q,  
      i           nspin,is,isf, symmetrize, !
      i           qbas,ginv,  qbz,wbz, 
-     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i           ppb(1,is), 
-     i           icore,ncore,
+c     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+c     i           ppb(1,is), 
+c     i           icore,ncore,
      d           nlmto,nqbz,noccx,noccxv,
-     d           nl,nclass,natom,nnc,
-     d           nlnmx,mdimx,nbloch,  nwhis,
+c     d           nl,nclass,natom,nnc,
+     d           nbloch,  nwhis, !nlnmx,mdimx,
      i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i           nqbze,nband,nqibz, 
      o           rcxq,          ! rcxq is the accumulating variable for spins 
@@ -967,12 +973,12 @@ c=======================================================================
      i              q,  
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
-     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i              ppb(1,is), 
-     i              icore,ncore,
+c     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+c     i              ppb(1,is), 
+c     i              icore,ncore,
      d              nlmto,nqbz,noccx,noccxv,
-     d              nl,nclass,natom,nnc,
-     d              nlnmx,mdimx,nbloch,  nwhis,
+c     d              nl,nclass,natom,nnc,
+     d              nbloch,  nwhis, !nlnmx,mdimx,
      i              iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i              nqbze,nband,nqibz, 
      o              rcxq,       ! rcxq is the accumulating variable for spins 

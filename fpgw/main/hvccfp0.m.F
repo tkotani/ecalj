@@ -10,26 +10,35 @@ c-------------------------------------------------------------
 c int
 c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
-      use m_readqg
-      use keyvalue
+      use m_readqg,only: readqg,readngmx
+      use keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
 
+c$$$      use m_read_bzdata,only: read_bzdata,
+c$$$     &     nqbz,nqibz,qbz,qibz
+c$$$      use m_genallcf_v3,only: genallcf_v3,
+c$$$     &  nbas=>natom,
+c$$$     &  alat,plat, bas=>pos
       implicit none
-      integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,
+      integer:: nqbz,nqibz,nbas
+      real(8):: alat,plat(3,3)
+      real(8),allocatable:: qbz(:,:),qibz(:,:),bas(:,:)
+
+      integer(4) :: ifvcfpout,iopen,ifhvccfp,is, lmxcg, !nqbz,nbas
      &  nband, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,
      &  ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, iclose,
      &  nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg,
-     &  nkd,nkq ,ibas1,ibas2,nlx1,nlx2, nqibz,iqibz
-      real(8) :: alat, plat(3,3),qlat(3,3),q(3),p(3),voltot,
+     &  nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz !nqibz,
+      real(8) ::qlat(3,3),q(3),p(3),voltot,! alat, plat(3,3),
      &  pi,fpi,tripl,alat0,epsx,
      &  tol,as,tpiba,qb0(3,3),vol0,rdist0,qdist0,radd,qadd,
      &  a0,awald,alat1,tol1,r0,q0,awald0,qg(3),   absqg2,aaa,aaa12
       integer(4),allocatable :: jcg(:),indxcg(:),
      &  lx(:),kmx(:),nblocha(:),nr(:),ificrb(:),
      &  nx(:,:),ngvecp(:,:),ngvecc(:,:),ngvecci(:,:,:),iqibzx(:)
-      real(8),allocatable :: qbz(:,:),qibz(:,:),bas(:,:),rmax(:),
+      real(8),allocatable ::rmax(:), ! qbz(:,:),qibz(:,:),bas(:,:),
      &  cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:),
      &  rojb(:,:,:), sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),
      &  wqt(:), q0i(:,:)
@@ -103,6 +112,8 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
       integer:: ifiwqfac,iqbz,iqbzx,nnn
       character(128) :: ixcc
+      real(8)::efin
+      integer::nwin,incwfin
 !!------------------------------------------------------------
       call MPI__Initialize()
       pi  = 4d0*datan(1d0)
@@ -141,20 +152,27 @@ c      endif
 
 C --- q, nqbz, alat, qlat, nbas, bas
       ifhvccfp = iopen('HVCCIN',0,-1,0)
-      read (ifhvccfp) alat, plat,qlat, nqbz, nbas, nband
+      read (ifhvccfp) alat, plat,qlat, nqbz, nbas !, nband
       if(allochk)
      & write(*,*) 'allocate(qbz(3,nqbz),bas(3,nbas),rmax(nbas))'
       allocate(qbz(3,nqbz),bas(3,nbas),rmax(nbas))
-      read(ifhvccfp) qbz, bas,rmax
+      read(ifhvccfp) qbz, bas !,rmax
       read(ifhvccfp) nqibz
-      if(allochk) 
-     &  write(*,*)'allocate(qibz(3,nqibz),iqibzx(nqbz))'
       allocate(qibz(3,nqibz),iqibzx(nqbz))
       read(ifhvccfp) qibz(1:3,1:nqibz)
-      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      write(6,*)' voltot=',voltot
-      write(6,*)
-      write(6,"(i4,3f13.6)")(i,qibz(1:3,i),i=1,nqibz)
+c$$$!! Use instead of HVCCIN
+c$$$      call read_bzdata()
+c$$$      nwin   = 0                !Readin nw from NW file
+c$$$      incwfin= 0                !use ForX0 for core in GWIN
+c$$$      efin =  0d0               !readin EFERMI
+c$$$      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+c$$$      call dinv33x (plat,qlat)
+c$$$      allocate(rmax(nbas))
+c$$$      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+c$$$      write(6,*)' voltot=',voltot
+c$$$      write(6,*)
+c$$$      write(6,"(i4,3f13.6)")(i,qibz(1:3,i),i=1,nqibz)
+
 c      write(6,*)" xxx=",alat, plat,qlat, nqbz, nbas, nband
 c      write(6,*)" xxx=",qbz,bas,rmax
 c      write(6,*)" xxx=",rmax
@@ -821,6 +839,7 @@ c$$$      if(.true.) then !==New version without sgpp and fouvp allocation June2
 c     &            sgpp(ngc, ngc, nlxx, nbas),
 c     &           fouvp(ngc, ngc, nlxx, nbas) )
         do ibas = 1,nbas
+          rmax(ibas)=rofi(nr(ibas),ibas)  !added apr2015
           if(allochk) write(6,*)' --- goto mkjp_4',ibas
           call mkjp_4(q,ngc, ngvecc, alat, qlat, 
      i      lxx, lx(ibas),nxx, nx(0:lxx,ibas),  

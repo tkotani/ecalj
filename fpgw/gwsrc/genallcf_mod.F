@@ -38,7 +38,7 @@ cccc      use m_rgwinf_v3
      o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
       real(8), allocatable:: 
-     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:)   !w(igrp)
+     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), symgg(:,:,:)   !w(igrp) freq(:),
       real(8),allocatable :: alat,ef, diw,dw,delta,deltaw,esmr
       logical:: done_genallcf_v3=.false.
 c-----------------------------------------------------------------------
@@ -223,14 +223,14 @@ c      nphi       = nrx*nl*nn*nclass
 c      pi         = 4d0*datan(1d0)
 c      tpia       = 2d0*pi/alat
 
-c> frequency mesh
-c      call defdr   (ifreq,nw)
-      write(6,*)' nw from rgwinaf=',nw
-      if(nw>0) then
-        allocate(freq(nw))
-        call genfreq (nw,dw,0.d0,
-     o              freq )
-      endif
+c$$$c> frequency mesh
+c$$$c      call defdr   (ifreq,nw)
+c$$$      write(6,*)' nw from rgwinaf=',nw
+c$$$      if(nw>0) then
+c$$$        allocate(freq(nw))
+c$$$        call genfreq (nw,dw,0.d0,
+c$$$     o              freq )
+c$$$      endif
 
 c> index for allowed core states
 c      call defi    (iicore,nl*nl*nnc*nclass)
@@ -356,6 +356,223 @@ c      call defi    (iilnmc,nnc*nl*nl*nclass)
       is = iclose ('ECORE')
       call cputid(0)
       write(6,*) 'genallcf_v3'
-      end subroutine
+      end subroutine genallcf_v3
       end module
 
+      subroutine idxlnmc(nindxv,nindxc,
+     d                   nl,nn,nnv,nnc,nlnmx,nlnmxv,nlnmxc,nclass,
+     o                   il,in,im,ilnm,
+     o                   ilv,inv,imv,ilnmv,
+     o                   ilc,inc,imc,ilnmc)
+c 92.jan.07
+c 92.03.17 include core states
+c indexing of core states and LMTO basis functions for all classes,
+c follows that in TB-LMTO program
+c il,in,im = l,n,m
+c ilnm(n,lm) = index of n,l,m
+c lm = l*l + l + m + 1
+c NOTE: the indexing starts with core first and then valence on top
+c       of core (not the same as index generated from nindx)
+      implicit real*8(a-h,o-z)
+      dimension nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass)
+      dimension ilnm(nn,nl*nl,nclass),
+     o          ilnmv(nnv,nl*nl,nclass),
+     o          ilnmc(nnc,nl*nl,nclass),
+     o          in(nlnmx,nclass),il(nlnmx,nclass),im(nlnmx,nclass),
+     o         inv(nlnmxv,nclass),ilv(nlnmxv,nclass),imv(nlnmxv,nclass),
+     o         inc(nlnmxc,nclass),ilc(nlnmxc,nclass),imc(nlnmxc,nclass)
+      do     ic = 1,nclass
+        ind       = 0
+c core
+        do      l = 0,nl-1
+          l2        = l*l
+          do      n = 1,nindxc(l,ic)
+            do      m = 1,2*l+1
+              ind       = ind + 1
+              if (ind .gt. nlnmx) call rx( 'idxlnmc: ind > nlnmx')
+              lm        = l2 + m
+              il(ind,ic)= l
+              in(ind,ic)= n
+              im(ind,ic)= m - l - 1
+              ilnm(n,lm,ic) = ind
+              ilc(ind,ic)= l
+              inc(ind,ic)= n
+              imc(ind,ic)= m - l - 1
+              ilnmc(n,lm,ic)= ind
+            end do
+          end do
+        end do
+c valence
+        indv      = 0
+        do      l = 0,nl-1
+          l2        = l*l
+          ncore     = nindxc(l,ic)
+          do      n = 1,nindxv(l,ic)
+            if (ncore+n .gt. nn) call rx( 'idxlnmc: ncore+n > nn')
+            do      m = 1,2*l+1
+              ind       = ind + 1
+              indv      = indv + 1
+              if (ind .gt. nlnmx) call rx( 'idxlnmc: ind > nlnmx')
+              lm        = l2 + m
+              il(ind,ic)= l
+              in(ind,ic)= ncore + n
+              im(ind,ic)= m - l - 1
+              ilnm(ncore+n,lm,ic) = ind
+              ilv(indv,ic)= l
+              inv(indv,ic)= n
+              imv(indv,ic)= m - l - 1
+              ilnmv(n,lm,ic) = indv
+            end do
+          end do
+        end do
+      end do
+      return
+      end
+
+      integer function noflmto(nindx,iclass,nl,nclass,natom)
+c total number of LMTO basis functions
+      implicit real*8(a-h,o-z)
+      dimension nindx(0:nl-1,nclass),iclass(natom)
+      noflmto   = 0
+      do 1    i = 1,natom
+        ic        = iclass(i)
+      do 1    l = 0,nl-1
+        noflmto   = noflmto + (2*l+1)*nindx(l,ic)
+    1 continue
+      return
+      end
+
+      integer function nalwln (nocc,nunocc,nindx,nl,nn)
+c gives the number of allowed product radial phi
+c nocc(l,n)   = 0,1 ==> unoccupied, occupied
+c nunocc(l,n) = 1,0 ==> unoccupied,occupied
+c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
+      implicit real*8(a-h,o-z)
+      parameter (lmax=6,nnx=10)
+      dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
+     i          nindx(0:nl-1)
+      dimension icheck(0:lmax,nnx,0:lmax,nnx)
+      if (nl-1 .gt. lmax) call rx( 'nalwln: increase lmax')
+      if (nn .gt. nnx) call rx( 'nalwln: increase nnx')
+      icheck=0
+      nalwln     = 0
+      do 10   l1 = 0,nl-1
+      do 10   n1 = 1,nindx(l1)
+        if(nocc(l1,n1) .eq. 0)goto 10
+        do 20   l2 = 0,nl-1
+        do 20   n2 = 1,nindx(l2)
+          if(nunocc(l2,n2) .eq. 0)goto 20
+          if((l1.ne.l2 .or. n1.ne.n2) .and. icheck(l2,n2,l1,n1).ne.0)
+     . goto 20
+          nalwln     = nalwln + 1
+          icheck(l1,n1,l2,n2) = nalwln
+   20   continue
+   10 continue
+      return
+      end
+
+      integer function nofln(nindx,nl)
+c count the number of l,n
+      implicit real*8(a-h,o-z)
+      dimension nindx(0:nl-1)
+      nofln      = 0
+      do       l = 0,nl-1
+        nofln      = nofln + nindx(l)
+      end do
+      return
+      end
+c------------------------------------------------------------------
+      integer function noflnm(nindx,nl)
+c number of l,n,m
+      implicit real*8(a-h,o-z)
+      dimension nindx(0:nl-1)
+      noflnm    = 0
+      do 1    l = 0,nl-1
+        noflnm    = noflnm + nindx(l)*(2*l+1)
+    1 continue
+      return
+      end
+
+      integer function nallow (nocc,nunocc,nindx,nl,nn)
+c gives the number of allowed product basis
+c nocc(n,l) = 0,1 ==> unoccupied, occupied
+c nallow    = number of allowed product basis
+      implicit real*8(a-h,o-z)
+      parameter (lmax=6,nnx=10)
+      dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
+     i          nindx(0:nl-1)
+      dimension icheck(0:lmax,nnx,0:lmax,nnx)
+      if(nl-1 .gt. lmax) call rx( 'nallow: increase lmax')
+      if(nn .gt. nnx) call rx( 'nallow: increase nnx')
+      icheck=0
+      do      l1 = 0,nl-1
+        do      n1 = 1,nindx(l1)
+          do      l2 = 0,nl-1
+            do      n2 = 1,nindx(l2)
+              icheck(l1,n1,l2,n2) = nocc(l1,n1)*nunocc(l2,n2)
+              if (l1 .ne. l2 .or. n1 .ne. n2) then
+                if (icheck(l1,n1,l2,n2)*icheck(l2,n2,l1,n1) .ne. 0)
+     . icheck(l1,n1,l2,n2) = 0
+              endif
+            end do
+          end do
+        end do
+      end do
+      nallow     = 0
+      do 10   l1 = 0,nl-1
+      do 10   n1 = 1,nindx(l1)
+      do 10   m1 = 1,2*l1+1
+      do 10   l2 = 0,nl-1
+      do 10   n2 = 1,nindx(l2)
+      do 10   m2 = 1,2*l2+1
+c     if (nocc(l1,n1) .eq. 0)goto 10
+c     if (nunocc(l2,n2) .eq. 0)goto 10
+        if (icheck(l1,n1,l2,n2) .eq. 0) goto 10
+c temporary
+        if (l1 .eq. l2 .and. n1.eq.n2 .and. m1.lt.m2)goto 10
+        nallow     = nallow + 1
+   10 continue
+      return
+      end
+
+      subroutine incor  (ncwf,nindxc,iclass,
+     d                   nl,nnc,nclass,natom,
+     o                   icore,ncore,nctot)
+c 92.03.18
+c sorts out allowed core states and count the number of core states
+c ncwf(l,n,cl) = 1 ==> allowed, 0 ==> not allowed
+c nindxc(l,cl)  = no. core states/l,class
+c nl,nnc = max. no. l,n
+c icore(i,cl) = index for allowed core states
+c ncore(cl)   = no. allowed core states
+c nctot       = total no. allowed core states
+      implicit real*8 (a-h,o-z)
+      dimension ncwf(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass),
+     i          iclass(natom)
+      dimension icore(nl*nl*nnc,nclass),ncore(nclass)
+      ncx        = nl*nl*nnc
+      do      ic = 1,nclass
+        i          = 0
+        j          = 0
+        do       l = 0,nl-1
+          do       n = 1,nindxc(l,ic)
+            do       m = -l,l
+              j          = j + 1
+              if (ncwf(l,n,ic) .eq. 1) then
+                i          = i + 1
+                if (i .gt. ncx) call rx( 'incore: wrong ncx')
+                icore(i,ic)= j
+              endif
+            end do
+          end do
+        end do
+        ncore(ic)  = i
+      end do
+c total no. allowed core states
+      nctot      = 0
+      do       i = 1,natom
+        ic         = iclass(i)
+        nctot      = nctot + ncore(ic)
+      end do
+      return
+      end

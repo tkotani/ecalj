@@ -4,8 +4,16 @@ c This routine is from hsfp0
 c So it contains many unused variables.
 c-------------------------------------------------------------
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
       use m_readeigen,only: init_readeigen,readeval
+
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,ngrp,   
+     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &  invg,  il,in,im,nlnm,     
+     &  konf, 
+     &  plat, pos,z,ecore, symgg 
+
       implicit none
       real(8) :: shtw
       integer(4) :: mxclass,ngnmax,
@@ -53,7 +61,7 @@ c takao
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c
-      logical :: exchange, legas
+      logical :: exchange !, legas
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
       logical ::nocore
 
@@ -192,22 +200,22 @@ c
       voltot = dabs(vol)*(alat**3)
 
 c--- ef is taken as rs for the empty-sphere test case of legas=T case -------------
-      legas = .false.
-      INQUIRE (FILE = 'LEGAS', EXIST = legas)
-      if(legas) then !!! test for electron gas case.
-        write(6,*)' find LEGAS. legas =',legas
-        iflegas = 2101
-        open (iflegas,file='LEGAS')
-        read(iflegas,*)rs
-        close(iflegas)
-        alpha = (9*pi/4d0)**(1d0/3d0)
-        qfermi = alpha/rs
-        efx  = qfermi**2
-        valn = efx**1.5d0*voltot/3d0/pi**2
-        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-        write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-        write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-      endif
+c$$$      legas = .false.
+c$$$c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
+c$$$      if(legas) then !!! test for electron gas case.
+c$$$        write(6,*)' find LEGAS. legas =',legas
+c$$$        iflegas = 2101
+c$$$        open (iflegas,file='LEGAS')
+c$$$        read(iflegas,*)rs
+c$$$        close(iflegas)
+c$$$        alpha = (9*pi/4d0)**(1d0/3d0)
+c$$$        qfermi = alpha/rs
+c$$$        efx  = qfermi**2
+c$$$        valn = efx**1.5d0*voltot/3d0/pi**2
+c$$$        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+c$$$        write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
+c$$$        write (6,*)' egas  Exact Fermi energy    Ef  =', efx
+c$$$      endif
 
 c--------------------
       write(6, *) ' --- computational conditions --- '
@@ -223,14 +231,14 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       isx = iclose('hbe.d')
 
-C --- Locate band limits ---
-      if(legas) then
-        write(6,*)' efsimplef2: legas=T use given valn = ',valn
-      else
+c$$$C --- Locate band limits ---
+c$$$      if(legas) then
+c$$$        write(6,*)' efsimplef2: legas=T use given valn = ',valn
+c$$$      else
         call getvaln(
      i       konf,z,nl,natom,iclass,nclass
      o      ,valn)
-      endif
+c$$$      endif
 cccccccccccccccccccccccccccccccccc
 
 

@@ -2,12 +2,19 @@
 c---     check the number of nw
       use m_readeigen,only: init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
+      use m_genallcf_v3,only: genallcf_v3,
+     &  nclass,natom,nspin,nl,nn,ngrp, 
+     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &  invg,  il,in,im,nlnm,     
+     &  konf, 
+     &  plat, pos,z,ecore, symgg 
+
       use keyvalue
       implicit none
       logical :: tetra=.false.
       real(8) :: shtw=0d0
-      integer(4) :: mxclass,ngnmax,mbytes,mwords,iwksize,
+      integer(4) :: mxclass,ngnmax,mbytes,mwords,iwksize,nw,
 c     &   natom,nclass,ipos,igrp,
 c     &   iindxk,
 c     &   iinvg,iirk,
@@ -65,7 +72,7 @@ c takao
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:)
       complex(8),allocatable:: geigB(:,:,:) ,geig(:,:),zsec(:,:,:)
 c
-      logical :: exchange, legas = .false. ! test forelectron gas exchange check write for electron gas test only for exchange.
+      logical :: exchange, legas ! test forelectron gas exchange check write for electron gas test only for exchange.
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
 
 c space group infermation
@@ -105,7 +112,7 @@ c      logical:: GaussSmear=.true. !external
       logical:: debug=.true.
 
 c---------------------------------------------------------------
-      INQUIRE (FILE = 'LEGAS', EXIST = legas)
+c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       write(6,*) ' --- Choose modes below ------------'
       write(6,*) '  From QPNT (0 or return). Fullband(1) '
       write(6,*) ' --- Put number above ! ------------'
@@ -144,7 +151,7 @@ c      call wkinit (iwksize)
 C--- readin GWIN and LMTO, then allocate and set datas.
       nwin    = -999 !Not readin NW file
       efin    = 0d0 !readin EFERMI
-      if(legas) efin=-999d0! not readin EFERMI
+c      if(legas) efin=-999d0! not readin EFERMI
       incwfin = 0 !dummy
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
 Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
@@ -196,30 +203,29 @@ c$$$c> frequency
 c$$$     o                   imagw,niw,diw,nw,dw,delta,deltaw,esmr,ifreq )
 
 
-c=== dump check ===============================
-      gen  =0d0 !dummy
-      imagw=0   !dummy
-      call genallcf_v3_dump(
-     o          plat,alat,natom,nclass, pos,             !structure
-     o          symgrp,gen, ngnmax,ngrp, symgg, !igrp,   !symmetry
-     o          invg, ef,
-c>> l,n and dimensions
-     o           clabl,nspin,nl,nn,nnv,nnc,
-     o           nindx, nindxv, nindxc, iclass,
-     d           nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-     o           z,
-c>> l,n,m indices for Phi
-     o                   il, in, im, ilnm, nlnm,
-     o                   ilv,inv,imv,ilnmv,nlnmv,
-     o                   ilc,inc,imc,ilnmc,nlnmc,
-     o      ncwf, ecore, konf,icore,ncore,nctot,         !core
-     o      imagw,niw,diw,nw,dw,delta,deltaw,esmr,freq ) ! frequency
-c=== dump test end ==================================================
+c$$$c=== dump check ===============================
+c$$$      gen  =0d0 !dummy
+c$$$      imagw=0   !dummy
+c$$$      call genallcf_v3_dump(
+c$$$     o          plat,alat,natom,nclass, pos,             !structure
+c$$$     o          symgrp,gen, ngnmax,ngrp, symgg, !igrp,   !symmetry
+c$$$     o          invg, ef,
+c$$$c>> l,n and dimensions
+c$$$     o           clabl,nspin,nl,nn,nnv,nnc,
+c$$$     o           nindx, nindxv, nindxc, iclass,
+c$$$     d           nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
+c$$$     o           z,
+c$$$c>> l,n,m indices for Phi
+c$$$     o                   il, in, im, ilnm, nlnm,
+c$$$     o                   ilv,inv,imv,ilnmv,nlnmv,
+c$$$     o                   ilc,inc,imc,ilnmc,nlnmc,
+c$$$     o      ncwf, ecore, konf,icore,ncore,nctot,         !core
+c$$$     o      imagw,niw,diw,nw,dw,delta,deltaw,esmr,freq ) ! frequency
+c$$$c=== dump test end ==================================================
 
 
-Cstop2rx 2013.08.09 kino      if (nclass > mxclass) stop ' hchknw: increase mxclass'
       if (nclass > mxclass) call rx( ' hchknw: increase mxclass')
-Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hchknw: nclass /= natom ' ! We assume nclass = natom.
+! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hchknw: nclass /= natom ')
       write(6,*)' hchknw: end of genallc'
 c
@@ -229,19 +235,19 @@ c
       voltot = dabs(vol)*(alat**3)
 
 c--- !!! ef is taken as rs for the empty-sphere test case of legas=T case -------------
-      if(legas) then
-        iflegas=2101
-        open (iflegas,file='LEGAS')
-        read(iflegas,*)rs
-        close(iflegas)
-        alpha = (9*pi/4d0)**(1d0/3d0)
-        qfermi = alpha/rs
-        efx  = qfermi**2
-        valn = efx**1.5d0*voltot/3d0/pi**2
-        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-        write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-        write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-      endif
+c$$$      if(legas) then
+c$$$        iflegas=2101
+c$$$        open (iflegas,file='LEGAS')
+c$$$        read(iflegas,*)rs
+c$$$        close(iflegas)
+c$$$        alpha = (9*pi/4d0)**(1d0/3d0)
+c$$$        qfermi = alpha/rs
+c$$$        efx  = qfermi**2
+c$$$        valn = efx**1.5d0*voltot/3d0/pi**2
+c$$$        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+c$$$        write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
+c$$$        write (6,*)' egas  Exact Fermi energy    Ef  =', efx
+c$$$      endif
 
 c------------
 c open files
@@ -333,6 +339,7 @@ C...
 c----------------------------------------------
       if(.not.tetra) then
         if(esmr/=0d0) then
+          legas=.false.
           call efsimplef2a(nspin,wibz,qibz,ginv, 
      i        nband,nqibz
 c     i       ,w(ikonf),w(iz),nl,natom,w(iiclass),nclass

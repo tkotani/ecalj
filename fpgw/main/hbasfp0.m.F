@@ -15,26 +15,26 @@ c The main part of this routine is in the subroutine basnfp_v2
       use keyvalue,only: getkeyvalue
       implicit none
       real(8):: qbas(3,3),ginv(3,3)
-      integer(4)::
+      integer::
      l     ifphiv(2),ifphic(2),
      l     iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
      l     ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,ifinin,iflmto,ifphi,ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,
      &     l,nn,icore,ifianf,nphi,nradmx,nsp,iopen,maxnn,iclose
-      integer(4),allocatable:: mdim(:),lcutmxa(:)
+      integer,allocatable:: mdim(:),lcutmxa(:)
       character(12) :: aaa
-      integer(4),allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)
+      integer,allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)
       logical :: ptest=.false. !See ptest in hvccfp0.f
       real(8),allocatable :: bb(:),zz(:), phic(:,:)
-      integer(4) :: ndat
-      integer(4),allocatable:: ncindx(:,:),lcindx(:,:),
+      integer :: ndat
+      integer,allocatable:: ncindx(:,:),lcindx(:,:),
      &           nrad(:), nindx_r(:,:), lindx_r(:,:),
      &           nc_max(:,:),ncore(:)
       real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:)
       character*11 :: ffaln
-      integer(4)::incwfin,ret
-      integer(4),allocatable:: idid(:),ibasf(:)
+      integer::incwfin,ret
+      integer,allocatable:: idid(:),ibasf(:)
       logical :: checkdid ,anfexist
-      integer(4):: iread, idummy
+      integer:: iread, idummy
 c--------------------------------------------------------------------------
       ifinin=-99999 !dummy
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
@@ -73,14 +73,12 @@ c--------------------------------------------------------------------------
         incwfin = 0
       else
         write(6,*)' hbasfp: input is out of range'
-Cstop2rx 2013.08.09 kino        stop    ' hbasfp: input is out of range'
         call rx( ' hbasfp: input is out of range')
       endif
 
 !! read data in m_rgwinf_v3
 !! Output are allocated and data are setted as above.
       iflmto     = iopen('LMTO',1,0,0)
-Cstop2rx 2013.08.09 kino      if (iflmto <= 0) stop 'unit file for LMTO <= 0'
       if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
       call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
       nsp=nspin
@@ -183,7 +181,6 @@ Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
           enddo
         enddo
       enddo
-c-----------
 
 !! check write
       ffaln ='PHIV.chk'
@@ -210,7 +207,6 @@ c-----------
         goto 998
       endif
 
-
 !! READIN ANFcond ------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
       write(6,*)' ANFcond exist? =',anfexist
@@ -224,14 +220,12 @@ c-----------
 !       write(6,'(" ANFcond=",3f13.6)') anfvec
         do ibas=1,natom
           read(ifianf,*) ibas1, ibasf(ibas)
-Cstop2rx 2013.08.09 kino          if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
           if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
           write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
         enddo
         close(ifianf)
 !! Check iclass =ibas ; CLASS file contains true classs information.
         do ibas=1,natom
-Cstop2rx 2013.08.09 kino          if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ibas: '
           if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
         enddo
         ii=0
@@ -244,7 +238,6 @@ Cstop2rx 2013.08.09 kino          if(iclass(ibas)/=ibas) stop ' iclass(ibas)/=ib
           idid(ii  )= ibasf(ibas)
         enddo
         if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
-Cstop2rx 2013.08.09 kino     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
      &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
         write(6,*)' end of readin ANFcond:'
       endif
@@ -255,7 +248,6 @@ Cstop2rx 2013.08.09 kino     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
          cutbase=1d-6
       endif
 
-
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
@@ -263,25 +255,18 @@ Cstop2rx 2013.08.09 kino     &    stop 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2'
      i    cutbase, lcutmxa(ic),ix,iread,alat
      i  ,nc_max(0,ic) )
       end do
-Cstop2rx 2013.08.09 kino      if(ix==0) stop ' OK! hbasfp0 ix=0 normal mode '
       if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')
-Cstop2rx 2013.08.09 kino      if(ix==3) stop ' OK! hbasfp0 ix=3 core mode '
       if(ix==3) call rx0( ' OK! hbasfp0 ix=3 core mode ')
-Cstop2rx 2013.08.09 kino      if(ix==4) stop ' OK! hbasfp0 ix=4 ptest mode  '
       if(ix==4) call rx0( ' OK! hbasfp0 ix=4 ptest mode  ')
-Cstop2rx 2013.08.09 kino      if(ix==6) stop ' OK! hbasfp0 ix=6 Exx core-val mode  '
       if(ix==6) call rx0( ' OK! hbasfp0 ix=6 Exx core-val mode  ')
-Cstop2rx 2013.08.09 kino      if(ix==7) stop ' OK! hbasfp0 ix=7 Exx val-val mode  '
       if(ix==7) call rx0( ' OK! hbasfp0 ix=7 Exx val-val mode  ')
-Cstop2rx 2013.08.09 kino      if(ix==8) stop ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.'
       if(ix==8) call rx0( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
-Cstop2rx 2013.08.09 kino 998  if(ix==5) stop ' OK! hbasfp0 ix=5 ex core mode  '
  998  if(ix==5) call rx0( ' OK! hbasfp0 ix=5 ex core mode  ')
       end
 
 
       logical function checkdid (idid,ii, ibas)
-      integer(4):: idid(ii),ix
+      integer:: idid(ii),ix
       checkdid=.true.
       do ix=1,ii
         if(idid(ix)==ibas) return

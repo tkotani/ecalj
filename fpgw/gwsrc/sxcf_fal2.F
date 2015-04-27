@@ -9,7 +9,7 @@ c     i ppb,
      i freq_r,freqx,wx, 
      i dw,ecore, 
      d nlmto,nqibz,nqbz,nctot,
-     d nl,nnc,nclass,natom,
+c     d nl,nnc,nclass,natom,
      d mdimx,nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
      & nblochpmx ,ngpmx,ngcmx, 
      & wgt0,nq0i,q0i,symgg,alat, nband, ifvcfpout, !shtvg,
@@ -234,7 +234,7 @@ c     i ppb,
      i freq_r,freqx,wx, 
      i dw,ecore, 
      d nlmto,nqibz,nqbz,nctot,
-     d nl,nnc,nclass,natom,
+c     d nl,nnc,nclass,natom,
      d mdimx,nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
      & nblochpmx ,ngpmx,ngcmx, 
      & wgt0,nq0i,q0i,symgg,alat, nband, ifvcfpout, !shtvg,
@@ -245,7 +245,7 @@ c     i ppb,
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
 c     i invg,!il,in,im,nn_, lx,nx_,nxx_,dwplot !ppbrd, !cgr,,nlnm
 
-      integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw,niw,
+      integer :: ntq, nqbz,nqibz,ngrp,nq,nw,niw, !natom,
      & nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,
      & irot,  iqisp,ikpisp,isp,nsp, !nlnmx, !iq, idxk,
 c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
@@ -256,10 +256,10 @@ c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      & kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0,
      & nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, !iwp sf 21May02
      & mdimx, nwx,niwx,
-     & itq(ntq),iatomp(natom),  !,miat(natom,ngrp),
+     & itq(ntq), !,iatomp(natom),  !,miat(natom,ngrp),
      & nstar(nqibz),irkip(nqibz,ngrp,nq),kount(nqibz,nq)
 c
-      real(8) :: q(3),qbas(3*3),ginv(3*3),tr(3,natom), !,tiat(3,natom,ngrp)
+      real(8) :: q(3),qbas(3*3),ginv(3*3), !tr(3,natom), !,tiat(3,natom,ngrp)
      & wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),
      & freqx(niw),wx(niw),      !expa(niw),
      & eq(nband,nq), 

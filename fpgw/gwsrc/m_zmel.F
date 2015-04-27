@@ -9,10 +9,13 @@
       use m_genallcf_v3,only: 
      &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nw,
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
-     &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
-     &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
-     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg,
+     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,iclass, 
+c    clabl,nindxv,nindxc,ncwf,
+c    il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, 
+c    ilc,inc,imc,  ilnmc
+     &  invg,nlnmv,nlnmc, !nindx,konf,
+     &  icore,ncore,
+     &  occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, symgg,
      &  done_genallcf_v3  
 
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
@@ -40,7 +43,6 @@
 !! We set these values in main routine
       integer:: nband=NULL,ngcmx=NULL,ngpmx=NULL,ntq=NULL !set in main routine
       integer,allocatable :: itq(:)                       !set in main routine
-      integer,allocatable:: imdim(:)                      !set in main routine
       real(8),allocatable:: ppbir(:,:,:)                  !set in main routine, call pbafp_v2. 
       complex(8),allocatable,target :: ppovlz(:,:)        !set in main rouitne
 
@@ -127,7 +129,7 @@ cold  nbmax -->nmmax
       logical:: debug=.false.
       complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
       complex(8):: expikt(natom)
-      integer:: it,ia,kx,verbose,nstate
+      integer:: it,ia,kx,verbose,nstate,imdim(natom)
       logical:: oncew
       real(8),parameter::epsd=1d-6
       integer::ispq,ispm,iii,itps
@@ -177,8 +179,10 @@ c      call getsrdpp2( nclass,nl,nxx)
 !TIME1 "start in get_zmelt2"
 !TIME0
 
+!! Pointer to optimal product basis
 !! phase factors expikt(ia) is for exp(ik.T(R))
       do ia = 1,natom
+         imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
          expikt(ia) = exp(img *tpi* sum(kvec*tr(:,ia)) ) 
       end do
       nmtot  = nctot + nmmax -nmini+1      ! = phi_middle
