@@ -295,8 +295,8 @@ $(gwsrc)llnew.o
 ##### Maxloc Wannier fn. and Finite-temperature GW
 ### Takashi MIYAKE
 maxloc = ./
-gwt = ../Miyake/gwt/
-misc = ../Miyake/misc/
+#gwt = ../Miyake/gwt/
+#misc = ../Miyake/misc/
 
 #progs_tm = hwmat hwmatc hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hx0fp0_mlw_ent hphig hx0tau hs0tau hpsipsi hibz2fbz hhmnk hwtmat hnocc_mlwt hwinfo hpade hibz2fbz0 read_gw0 # hdyson # hmaxloc1D
 #progs_TM= hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hwmat hwmatc hx0tau hs0tau hpsipsi hibz2fbz hhmnk hwtmat hnocc_mlwt hwinfo hwfch hibz2fbz0 read_gw0 qg4gw_TMBAND hqpe_mlw hibz2fbz0wan # hdyson hphig hpade haw
@@ -424,19 +424,19 @@ misc = ../Miyake/misc/
  $(nfpsrc)cross.o
 
 
- PSIPSI = \
- $(gwt)hpsipsi.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)rs.o \
- $(gwsrc)mopen.o \
- $(nfpsrc)u_lat_0.o \
- $(nfpsrc)wronkj.o \
- $(nfpsrc)mklegw.o \
- $(nfpsrc)rxx.o \
- $(nfpsrc)bessl.o \
- $(nfpsrc)cross.o 
+ # PSIPSI = \
+ # $(gwt)hpsipsi.o \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)pplmat.o \
+ # $(gwsrc)getgv2.o \
+ # $(gwsrc)rs.o \
+ # $(gwsrc)mopen.o \
+ # $(nfpsrc)u_lat_0.o \
+ # $(nfpsrc)wronkj.o \
+ # $(nfpsrc)mklegw.o \
+ # $(nfpsrc)rxx.o \
+ # $(nfpsrc)bessl.o \
+ # $(nfpsrc)cross.o 
 
  UU2 = \
  $(maxloc)huumat.o \
