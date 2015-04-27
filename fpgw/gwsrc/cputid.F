@@ -191,7 +191,7 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       real(8):: mpi_wtime
 
       if (id<=0 .or. id>nmax) then 
-          write(errmsg,"(2i5)") id,nmax
+          write(errmsg,"(i5,' ',i5)") id,nmax
           call rx('fatal error, id<=0 or id>nmax, id,nmax='//trim(errmsg))
       endif
 

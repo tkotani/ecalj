@@ -10,7 +10,7 @@
      &  nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw_input=>nw,
      &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
      &  invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
      &  ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
@@ -20,7 +20,7 @@
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
-     &   mpi__ranktab,MPI__consoleout
+     &   mpi__ranktab,MPI__consoleout,mpi__barrier
 
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
@@ -30,6 +30,9 @@
       use m_zmel,only:    !these data set are stored in this module, and used when 
      & nband,itq,imdim,ngcmx,ngpmx,    ppovlz,
      & ppbir,shtvg, miat,tiat , ntq
+!! frequency
+      use m_freq,only: getfreq,
+     &   frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw  !output of getfreq
 
       implicit none
 c      use m_spacegrouprot,only: Spacegrouprot
@@ -96,7 +99,8 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       logical :: anfexist
       logical :: debug
       integer,allocatable:: ibasf(:)
-      real(8),allocatable :: transaf(:,:),freq_r(:),freq_i(:),freqx(:),wx(:),expa(:),frhis(:)
+      real(8),allocatable :: transaf(:,:)
+c,freq_r(:),freq_i(:),freqx(:),wx(:),expa(:),frhis(:)
       logical :: realomega, imagomega
       complex(8),allocatable:: epsi(:,:),gbvec(:),zzr(:,:),x0mean(:,:,:),zzr0(:)
       complex(8) :: epxxx,vcmean, vcmmmm
@@ -125,13 +129,13 @@ c      integer :: nw2
       logical::imagonly=.false.,realonly=.false. !,readgwinput
       integer::iopen,maxocc2,iclose,
      & ixc,iqxini,iqxend,iqxendx,
-     &   nw_input,
+c     &   nw_input,
      &   ifhbe,
      &   nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
      &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
      &   ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond,nxx !,ifvxcpout,ifgb0vec
-     &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx
+     &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
      &   ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &   ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy
      &   ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx(2)=-9999,nwmax  !,ifev1,ifev2
@@ -156,7 +160,7 @@ c     &   ,ngpmx !,  ifchipmlog
       integer:: nbcut,nbcut2
 
       integer,allocatable:: nstibz(:) !Nov2004 Miyake's tote
-      real(8),allocatable:: ecqw(:,:),wiw(:)
+      real(8),allocatable:: ecqw(:,:) !,wiw(:)
       real(8) :: erpaqw, trpvqw, trlogqw,rydberg,hartree
      &   ,pi,efz,qfermi,alpha,rs,voltot,ecelgas,efx,valn
       integer:: iqbz,iqindx,iflegas,nmx
@@ -214,7 +218,7 @@ c     &   ,ngpmx !,  ifchipmlog
 
 ! Feb2006 time-reversal=off case
       logical :: timereversal, testtimer,onceww
-      integer:: npm ,jpm,ncc,nw_i
+      integer:: jpm,ncc
       real(8):: frr
 
 c      real(8):: sciss
@@ -451,7 +455,8 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       tpioa=2d0*pi/alat
 ! ...
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
-      nw_input = nw ; write(6,*) 'nw delta=',nw_input,delta
+c      nw_input = nw ; 
+      write(6,*) 'nw delta=',nw_input,delta
       debug=.false.; if(verbose()>=100) debug=.true.
 ccccccccccccccccccccc
 c      debug=.true.
@@ -564,134 +569,32 @@ c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! initialization of readEigen !readin m_hamindex
-      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
+      call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
 
-!! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
+!! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
+      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+      if (nctot > 0) Emin=minval(ecore(:,1:nspin))
+      omg2max = (Emax-Emin)*.5d0+.2d0 
+             ! (in Hartree) covers all relevant omega, +.2 for margin
+      write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
       realomega = .true.
       imagomega = .true.
       tetra     = .true.
-      call getkeyvalue("GWinput","omg_c",omg_c )
-      write(6,*)'dw, omg_c= ',dw, omg_c
-!! ... frhis is the histgram bin along real axis to accumulate im part
-c      write(6,'(" dq_bzcase2=",3f9.4)')dq_bzcase2
-      call findemaxmin(nband,qbze,nqbze,nspin ,emax,emin)
-      if (nctot > 0) Emin=minval(ecore(:,1:nspin))
-      omg2max=(Emax-Emin)*.5d0+.2d0 
-      !(in Hartree) covers  all relevant omega, +.2 for margin
-      write(6,*)' emin emax omg2max=',emin, emax,omg2max
-      nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
-      allocate(freqr2(nw2))                                  !+1 b/c (iw-1)
-      do iw=1,nw2
-        freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
-      enddo !linear + quadratic term
-      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-      if (dw*(nw-2) > freqr2(nw2-1)) call rx( "hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
-      nwhis = nw2-1
-      allocate(frhis(1:nwhis+1))
-      frhis = freqr2(1:nwhis+1)
-      write(6,*)' we set frhis nwhis=',nwhis
-!! ... for frhis_m mode
-      nw=nw2-1   ! nw+1 is how many points of real omega we use
-      ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
-      ! maximum nw=nw2-1 because nwhis=nw2-1
-      do iw=3,nw2-1
-        !nw is chosen from condition that frhis_m(nw-3)<dw*(nw-3) <frhis_m(nw-2).
-        !Here frhis_m(iw)= (freqr2(iw)+freqr2(iw+1))/2d0
-        !nw was constructed such that omg=dw*(nw-2)> all relevant frequensies needed
-        ! for correlation Coulomb Wc(omg),
-        ! and one more point omg=dw*(nw-1) needed for extrapolation.
-        ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
-        ! and one more point omg=frhis_m(nw) needed for extropolation
-        ! used in subroutine alagr3z in  sxcf.f.
-        omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
-        if (omg2 > dw*(nw_input-3)) then
-          nw=iw
-          exit   ! 'nw_input' is only used to get maximum frequency for
-          !  dressed coulomb line
-        endif
-      enddo
-      if(epsmode) then
-        nw  = nwhis-1
-        niw = 0
-      endif
-      allocate(freq_r(0:nw))
-      freq_r(0)=0d0
-      do iw=1,nw
-        freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
-      enddo
-      nwp = nw+1
-      delta=0d0 !only for writeemesh
-
-!! Plot frhis ----------
-          if(onceww(1)) then
-            write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-            do ihis= 1, min(10,nwhis)
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-            write(6,*) 'ihis  ...'
-            do ihis= max(min(10,nwhis),nwhis-10), nwhis
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-          endif
-
-!! Timereversal=F is implimented only for tetra=T and sergeyv=T
-      npm=1
-      nw_i=0
-      if(.not.timereversal()) then
-        write(6,"('TimeReversal off mode')")
-        npm=2
-        nw_i=-nw
-        if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
-        if(chipm)           call rx( ' chipm=F for timereversal=off. '//
-     &    ' Takao think npm=1 works OK even for chipm=T and TimeReversal=off. But need to check' )
-      endif
-!! For chipm=T for TimeReversal=off(psi and psi* are not degenerated), Takao think npm=1 works OK. But need to check.
-!! In addition, we have to consider Spin-orbit interaction correctly...
-
-C ... get eigenvector corresponds to exp(iqr) (q is almost zero).
-      if(epsmode) then !iepsmode/=0) then ;  write(6,*) ' read in Mix0vec'
-        allocate(epsi(nw_i:nw,neps)) !5July2005 nwp should be used after it is defined!
-      endif
-! ...
-      if(realomega.and.mpi__root) then
-        open(UNIT=3111,file='freq_r') !write number of frequency
-        !points nwp and frequensies in 'freq_r' file
-        write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
-        do iw= nw_i,-1
-          write(3111,"(e23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
-        enddo
-        do iw= 0,nw
-          write(3111,"(e23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
-        enddo
-        close(3111)
-      endif
-
-C --- WVI only for imagonly for ixc==12
-      if(imagonly) then
+      if(imagonly) then !WVI only for imagonly for ixc==12
         realomega =.false.
         imagomega =.true.
       endif
-
-C --- epsPP noLFC mode for ixc==13
-      if(realonly) then
+      if(realonly) then !epsPP noLFC mode for ixc==13
         realomega =.true.
         imagomega =.false.
       endif
-
-C --- set freq_i
-      if (imagomega) then
-        write(6,*)' freqimg: niw =',niw
-        allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw) )
-        call freq01 (niw,ua,  ! Generate gaussian frequencies x between (0,1) and w=(1-x)/x      
-     o                freqx,freq_i,wx,expa)
-        allocate(wiw(niw))
-        do iw=1,niw
-          wiw(iw)=wx(iw)/(2d0*pi*freqx(iw)*freqx(iw))
-        enddo
-c        deallocate(freqx,wx,expa)! freqx,wx is used for Miyake's tote mode !Nov2004
-      else 
-         niw=1
+      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
+      nwp = nw+1
+      if(.not.imagomega) niw=1
+!! ... get eigenvector corresponds to exp(iqr) (q is almost zero).
+      if(epsmode) then !iepsmode/=0) then ;  write(6,*) ' read in Mix0vec'
+      allocate(epsi(nw_i:nw,neps)) !5July2005 nwp should be used after it is defined!
       endif
 
 c ... for Miyake tote mode Nov2004
@@ -703,7 +606,6 @@ c ... for Miyake tote mode Nov2004
 c          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
         enddo
       endif
-
 
 C --- tetra init
       call getkeyvalue("GWinput","TmpWWK",tmpwwk,default=.false.)

@@ -348,7 +348,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(nfpsrc)diagcv2.o \
- $(gwsrc)m_zmel.o 
+ $(gwsrc)m_zmel.o \
+ $(gwsrc)m_freq.o
 
  X0 = \
  $(main)hx0fp0.m.o \
@@ -359,7 +360,8 @@ eout2: $(EO2)  $(COMM)
  $(tote)rpaq.o \
  $(gwsrc)cinvrx.o \
  $(gwsrc)zsvd.o \
- $(gwsrc)m_zmel.o 
+ $(gwsrc)m_zmel.o \
+ $(gwsrc)m_freq.o 
 
  X0mlw = \
  $(maxloc)hx0fp0.m.o \
@@ -367,7 +369,8 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)tetwt5$(tet5_g) \
  $(nfpsrc)diagcv2.o \
  $(tote)rpaq.o \
- $(gwsrc)cinvrx.o
+ $(gwsrc)cinvrx.o\
+ $(gwsrc)m_freq.o 
 
  UU = \
  $(main)h_uumatrix.m.o \

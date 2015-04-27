@@ -13,7 +13,7 @@
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw,
+     &     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw_input=>nw,
      &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
      &     invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
      &     ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
@@ -27,7 +27,6 @@
      &   mpi__Qranktab,MPI__consoleout,mpi__Ss,mpi__Se, mpi__allreducesumS,
      &   mpi__barrier, mpi__rankQ,mpi__rootQ,mpi__rootS
 
-
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
@@ -35,20 +34,23 @@
       use m_zmel,only:    !these data set are stored in this module, and used when 
      & nband,itq,imdim,ngcmx,ngpmx,    ppovlz,
      & ppbir,shtvg, miat,tiat , ntq
+!! frequency
+      use m_freq,only: getfreq,
+     &   frhis,freq_r,freq_i, nwhis,nw_i,nw,npm !output of getfreq
 
       implicit none
       integer::iopen,maxocc2,iclose, ixc,iqxini,iqxend,
-     &     nw_input, ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
+     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
      &     nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &     ifepscond,nxx,ifvxcpout,ifgb0vec
-     &     ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx
+     &     ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
      &     ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &     ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0
      &     ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx(2)=-9999,nwmax !,ifev1,ifev2
      &     ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode
      &     ,  ifchipmlog ,   nw_w,nwmin  ! ,ngpmx
-      real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg_c,omg2, q(3),  qgbin(3),qx(3) 
+      real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg2, q(3),  qgbin(3),qx(3) 
       real(8):: ua=1d0          ! this is a dummy.
       integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ndble=8, nword
       real(8),allocatable:: vxcfp(:,:),  wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
@@ -68,7 +70,7 @@ c     &  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       real(8) ::qbzx(3),anfvec(3)
       logical :: anfexist,  debug
       integer,allocatable:: ibasf(:)
-      real(8),allocatable :: transaf(:,:), freq_r(:),freq_i(:),freqx(:),wx(:),expa(:),frhis(:) !ppovl(:,:)
+      real(8),allocatable :: transaf(:,:)
       logical :: realomega, imagomega 
       complex(8),allocatable:: zzr(:,:),ppovl(:,:),ppovlzinv(:,:) !,ppovlz(:,:)
       complex(8) :: epxxx,vcmean
@@ -87,7 +89,7 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
                                 !iSigma_en==2 [SE_nn'((e_n+e_n')/2)+h.c.]/2
                                 !iSigma_en==3 [(SE_nn'(e_n)+SE_nn'(e_n'))/2+h.c.]/2
       real(8) :: omg2max,omg1max
-      real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
+c      real(8), allocatable ::  ekxxx(:,:,:)
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
       real(8),allocatable :: whw(:)
       integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
@@ -106,7 +108,7 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
       real(8):: q_r(3)
       complex(8),allocatable:: pomat(:,:)
       logical   :: timereversal,onceww
-      integer:: npm ,jpm,ncc,nw_i
+      integer:: jpm,ncc
       real(8)   :: frr !, sciss
 c      logical :: newaniso,newaniso2 !,z1offd
       integer :: ngb0,ifvcoud,idummy,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x !ifepstinv,
@@ -140,7 +142,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       logical:: crpa
 
       integer,allocatable :: iclasst(:), invgx(:)
-      integer:: ibasx,ificlass,ifile_handle
+      integer:: ibasx,ificlass,ifile_handle,ifiq0p
       complex(8),allocatable:: ppovl_(:,:)
 !-------------------------------------------------------------------------
 !TIME0 
@@ -206,7 +208,8 @@ c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
       efin =  0d0               !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-      nw_input = nw ; write(6,*) 'nw delta=',nw_input,delta
+c      nw_input = nw ; 
+      write(6,*) 'nw delta=',nw_input,delta
       debug=.false.
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
@@ -390,51 +393,56 @@ c     allocate(frhis(nwp))
 c     frhis=freq_r(1:nwp)
 c     nwhis=nw
 
-!! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
+!! We get frhis,freq_r,freq_i, nwhis,nw,npm  by getfreq
       realomega = .true.
       imagomega = .true.
       tetra     = .true.
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      call freq
+      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+      if(.not.qbzreg()) then
+         allocate(qbz2(3,nqbz))
+         do iq=1,nqbz
+            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
+         enddo
+         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
+         emax=max(emax,emax2)
+         emin=min(emin,emin2)
+         deallocate(qbz2)
+      endif
+      if (nctot > 0) Emin=minval(ecore(:,1:nspin))
+      omg2max = (Emax-Emin)*.5d0+.2d0 
+             ! (in Hartree) covers all relevant omega, +.2 for margin
+      write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      call getfreq(.false.,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
+      nwp = nw+1
 
-C     --- tetra init
+!! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
+!TIME1 "before histogram division"
+!TIME0
       if(tetra) then
          allocate(              !wgt(nband+nctot,nband,nqbz), !noccxvv(nw+niw),
      &        nbnb(nqbz,npm),nbnbtt(nqbz,npm)
      &        ,ekxx1(nband,nqbz),ekxx2(nband,nqbz)) !, !!! nband=nlmto
          if(tmpwwk)  ifwwk = iopen('tmp.wwk',0,-1,0)
       endif
-      if(debug) write(6,*)' xxx1:'
-c     ... maximum no. occupied valence states
-      noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze)
-      if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
-      noccx      = noccxv + nctot
+!!... 
+      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
+        !max no. of occupied valence states
+      if(noccxv>nband) call rx( 'hx0fp0_sc: all the bands filled! too large Ef')
+      noccx  = noccxv + nctot
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
-      nprecx = ndble            !We use double precision arrays only.
-
-C...  This is just to get nblochpmx
-c      if(smbasis()) then
-c         call getngbpomat(nqibz+nq0i,
-c     o        nnmx,nomx)
-c         nblochpmx = nnmx
-c      endif
+      nprecx = ndble        !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
-
-!TIME1 "before open WVd"
-!TIME0
-C     --- open WV* files
-      if (mpi__root)then
-      ifwd   = iopen('WV.d',1,-1,0)
-      write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
-     &     nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
-      ifwd = iclose('WV.d'); ifwd=0
+      if(mpi__root)then
+        ifwd   = iopen('WV.d',1,-1,0)
+        write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
+     &  nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
+        ifwd = iclose('WV.d'); ifwd=0
       endif
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
 !TIME1 "after write ifwd"
 !TIME0
-
-!! --- READIN ANFcond. we don't use this path so much -----------
+!! --- READIN ANFcond. we don't use this path so much, Need to fix this..---
       inquire(file='ANFcond',EXIST=anfexist)
       write(6,*)' ANFcond exist? =',anfexist
       if(anfexist) then
@@ -528,7 +536,6 @@ c$$$      enddo
      o        nwgt,igx,igxt,eibzsym,tiii)
          write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
          call cputid(0)
-
 c$$$
 c$$$         write(6,"('TimeRevesal switch = ',l1)") timereversal()
 c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,timereversal(),ginv,iprintx,
@@ -546,10 +553,9 @@ c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx
 c$$$     o        nwgt,igx,igxt,eibzsym)
 
          call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
-                                ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
-         call readqgcou()       !no input. Read QGcou and store date into variables.
+                          ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+         call readqgcou() ! no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
-
       else !dummy allocation to overlaid -check bound !sep2014
          iqxendx=iqxend
          allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
@@ -661,7 +667,6 @@ c     &     = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
          endif
          ppovlz = ppovl_
          deallocate(ppovl_)
-
          
 c$$$  if(ixc==11) then
 c$$$  write(6,*)" xxx2: memsize 8*ngb*ngb*nwhis=", 8*ngb*ngb*nwhis,' ngb nwhis=',ngb,nwhis
@@ -690,7 +695,7 @@ c$$$  endif
             write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
      &           iq, is, nqibz + nq0i,nspin
             if(debug) write(6,*)' niw nw=',niw,nw
-            isf=is
+            isf = is
 !!===========tetraini block tetra==.true.===============================1ini
 !!     --- tetrahedron method --- preparation
 !!     nbnb = total number of weight.
@@ -700,13 +705,12 @@ c$$$  endif
 !!     wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
             if(tetra) then
                write(6,"(' tetra mode niw nw nwhis=',3i5)") niw,nw,nwhis
-!!     ekxx1  for rk
+!!     ekxx1 for rk
 !!     ekxx2 for q+rk See tetwt4
                do kx = 1, nqbz
                   call readeval(qbz(:,kx),  is, ekxx1(1:nband, kx) ) 
                   call readeval(q+qbz(:,kx), is, ekxx2(1:nband, kx) )
                enddo
-
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
 c     the pairs are not dependent on the energy omega
@@ -754,20 +758,18 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
                   call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx,
      o                 n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
                enddo
-c     ... check
                if(debug) then
-                  do kx  = 1, nqbz
-                     do jpm = 1, npm
-c     do ix  = 1, nbnb(kx,jpm)
-c     write(6,"('jpm kx ixx n1b n2b=',5i7)")jpm,kx,ix,n1b(ix,kx,jpm),n2b(ix,kx,jpm)
-c     enddo
-                        write(6,"('jpm kx  minval n1b n2b=',4i5)")jpm,kx,
-     &                       minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
-     &                       minval(n2b(1:nbnb(kx,jpm),kx,jpm))
-                     enddo
-                  enddo
+                 do kx  = 1, nqbz
+                   do jpm = 1, npm
+c do ix  = 1, nbnb(kx,jpm)
+c write(6,"('jpm kx ixx n1b n2b=',5i7)")jpm,kx,ix,n1b(ix,kx,jpm),n2b(ix,kx,jpm)
+c enddo
+                     write(6,"('jpm kx  minval n1b n2b=',4i5)")jpm,kx,
+     &                minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
+     &                minval(n2b(1:nbnb(kx,jpm),kx,jpm))
+                   enddo
+                 enddo
                endif
-c     
                if(sum(abs(nbnb-nbnbtt))/=0)then
                   do ik=1,nqbz
                      write(6,*)
@@ -782,8 +784,6 @@ c
                deallocate(iwgt)
             endif
 c=========end of tetraini block==========================================1end
-
-
 
 c=======TetrahedronWeight_5 block. tetwt5  ixc==,4,6,11 =======4ini
 c     if(ixc==11) then !sf 21May02
@@ -1608,131 +1608,4 @@ c     write(6,'("iii i=",i4,a,f10.4,2i5,4d22.14)')i,tagname,freqq,iq,iw,zw(i,i)
 c     enddo
       end
 
-
-
-
-!!------------------------------------------------------------------------
-      module m_freq
-      real(8),allocatable:: frhis(:)
-
-      contains
-      subroutine(realomega,imagomega,tetra, nband,qbze,nqbze,nspin,
-     o  frhis,freq_r,freq_i)
-!!- frequency histgram, real axis points, im axis points.
-      implicit none
-      logical:: realomega,imagomega,tetra
-      integer::
-      real(8)::omg_c
-      real(8) :: Emin, Emax      ,emax2,emin2
-!! We first accumulate Imaginary parts. 
-!! Then it is K-K transformed to obtain real part.
-      call getkeyvalue("GWinput","omg_c",omg_c )
-      call getkeyvalue("GWinput","omg_c",omg_c )
-      write(6,*)'dw, omg_c= ',dw, omg_c
-      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-c      if(bzcase()==2.or.(.not.qbzreg())) then
-      if(.not.qbzreg()) then
-         allocate(qbz2(3,nqbz))
-         do iq=1,nqbz
-            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
-         enddo
-         call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-         emax=max(emax,emax2)
-         emin=min(emin,emin2)
-         deallocate(qbz2)
-      endif
-      if (nctot .gt. 0) Emin=minval(ecore(:,1:nspin))
-      omg2max=(Emax-Emin)*.5d0+.2d0 !(in Hartree) covers  all relevant omega, +.2 for margin
-      write(6,*)' emin emax omega2max=',emin, emax, omg2max
-      write(6,*)
-
-!TIME1 "before histogram division"
-!TIME0 
-ccccccccccccccccccccccccccccccccchistogram divisions cccccccccccccccccc
-
-      nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
-      allocate(freqr2(nw2))     !+1 b/c (iw-1)
-      do iw=1,nw2
-         freqr2(iw)=dw*(iw-1)+dw**2/2./omg_c*(iw-1)**2
-      enddo                     !linear + quadratic term
-      if (nw2 < 2 ) call rx( "hx0fp0: nw2 < 2")
-      if (dw*(nw-2) > freqr2(nw2-1)) call rx("hx0fp0: dw*(nw-2) > freqr2(nw2-1)")
-      nwhis = nw2-1
-      allocate(frhis(1:nwhis+1))
-      frhis = freqr2(1:nwhis+1)
-      write(6,*)' we set frhis nwhis=',nwhis
-!!     ... for frhis_m
-      nw=nw2-1                  ! nw+1 is how many points of real omega we use
-                                ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
-                                ! maximum nw=nw2-1 because nwhis=nw2-1
-      do iw=3,nw2-1
-                                !nw is chosen from condition that frhis_m(nw-3)<dw*(nw_input-3) <frhis_m(nw-2).
-                                !Here frhis_m(iw)= (freqr2(iw)+freqr2(iw+1))/2d0
-                                !nw was constructed such that omg=dw*(nw-2)> all relevant frequensies needed
-                                ! for correlation Coulomb Wc(omg),
-                                ! and one more point omg=dw*(nw-1) needed for extrapolation.
-                                ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
-                                ! and one more point omg=frhis_m(nw) needed for extropolation
-                                ! used in subroutine alagr3z in  sxcf.f.
-         omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
-         if (omg2 > dw*(nw_input-3)) then
-            nw=iw
-            exit                ! 'nw_input' is only used to get maximum frequency for
-                                !  dressed coulomb line
-         endif
-      enddo
-      allocate(freq_r(0:nw))
-      freq_r(0)=0d0
-      do iw=1,nw
-         freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
-      enddo
-      nwp = nw+1
-      delta=0d0                 !only for writeemesh
-
-!! Plot frhis ----------
-          if(onceww(1)) then
-            write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-            do ihis= 1, min(10,nwhis)
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-            write(6,*) 'ihis  ...'
-            do ihis= max(min(10,nwhis),nwhis-10), nwhis
-              write(6,"(' ihis Init  End=', i5,2f13.6)") ihis,frhis(ihis),frhis(ihis+1)
-            enddo
-          endif
-
-!!     ... timereversal=F is implimented only for tetra=T and sergeyv=T
-      npm=1
-      nw_i=0
-      if(.not.timereversal()) then
-         write(6,"('TimeReversal off mode')")
-         npm=2
-         nw_i=-nw
-         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
-      endif
-      write(6,*)'Timereversal=',Timereversal()
-
-!TIME1 "before realomega write3111"
-!TIME0
-      if(realomega .and. mpi__root) then
-         open(UNIT=3111,file='freq_r') !write number of frequency
-                                !points nwp and frequensies in 'freq_r' file
-         write(3111,"(2i8,'  !(a.u.=2Ry)')") nwp, nw_i
-         do iw= nw_i,-1
-            write(3111,"(d23.15,2x,i6)") -freq_r(-iw),iw !This file is reffere by hsfp0 and so.
-         enddo
-         do iw= 0,nw
-            write(3111,"(d23.15,2x,i6)") freq_r(iw),iw !This file is reffere by hsfp0 and so.
-         enddo
-         close(3111)
-      endif
-
-C     --- set freq_i
-      if (imagomega) then
-         write(6,*)' freqimg: niw =',niw
-         allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw) )
-         call freq01 (niw,ua,   ! Generate gaussian frequencies x between (0,1) and w=(1-x)/x      
-     o        freqx,freq_i,wx,expa)
-         deallocate(freqx,wx,expa)
-      endif
 
