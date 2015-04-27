@@ -17,7 +17,8 @@
      &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
      &     invg, il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, nlnmv,
      &     ilc,inc,imc,  ilnmc, nlnmc,nindx,konf,icore,ncore,
-     &     occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore, freq, symgg ! symgg=w(igrp)
+     &     occv,unoccv ,occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg ! symgg=w(igrp) freq,
+
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou

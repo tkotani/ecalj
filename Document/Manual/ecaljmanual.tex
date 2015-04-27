@@ -4855,14 +4855,59 @@ m is a magnetic quantum number, n is the degree of freedom which means 1 : $\phi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{Theory of PMT-QSGW}
+\section{Theory and algolism for PMT-QSGW}
+Explain this along the script fpgw/exec/gwsc.
+After we did one-body self-consistent calculation, 
+we do echo 0|lmfgw, resulting small files.
+See Sec.\ref{gwsc}. Then we run qg4gw to generate q+G vectors
+stored in QGpsi,QGcou,Q0P files.
 
-\subsection{crystal structue}
-alat, plat, qlat
+\subsection{crystal structure}
+We use unit \alat\ (a.u.) to represent length in the code.
+Thus, in cases, to convert qunatities in the unit of a.u., we
+multipy \alat to quantities.
+For example, primitive cell is given by \alat\ (in a.u.) \times \plat.
+That is, primitive vectors $\bfp_i$ (in a.u.) are
+\verb#alat*plat(1:3,i)#, where i=1,2,3. (see \io{LATTC}).
+The locations of MT sites $\{\bfR\}$ in the primitive cell
+is given by \verb#alat*bas(1:3,ibas),ibas=1,nbas# 
+(or \verb#pos# and \verb#natom# in cases). 
+\verb#nbas# is the number of MT sites in the primitive cell.
+
+\verb#getkeyvalue# is an universal i/o routine for GWinput.
+Its arguments can take any time (logical, integer, real, (int or real) array).
+Do grep 'call getkeyvalue' for fpgw/*/*.F to find out how to use it.
+
+\begin{verbatim}
+alat: unit in a.u. This is in LATTC or (or call genallc_v3)
+plat: primitive vector. this is in LATTC (or call genallc_v3)
+qlat: reciprocal primitive vector  \delta_ij= sum(plat(:,i)*qlat(:,j))
+QpGcut_psi: cutoff to determine G vector for eigenfunction |q+G|< QpGcut_psi
+QpGcut_cou: cutoff
+symops (or symgg): space group, rotational part. This is in SYMOPS 
+(or call genallc_v3)
+nbas (or natom): number of MTs in the primitive cell.
+bas(1:3,1:natom): MT centers R.
+\end{verbatim}
+
+mkqg.F is the main part of \exe{qg4gw} (fpgw/main/qg4gw.F).
+iq0pin is hthe job control of mkqg. iq0pin=101 is only for backward compatibility. 
+The purpose is generates required q and G vectors.
+Not only regular mesh points, or q along symmetry lines, 
+but also offset Gamma points.
+
+iq0pin=1: normal mode. Generate q and G for 
+
+
+iq0pin: input to qg4gw
+
+
+, qlat
 nbas, bas, nclass, 
 a,b, rofi,nr (or aa,bb, nrad
 ncindx, lcindx
 
+getkeyvalue
 phi
 
 radial mesh
@@ -4871,7 +4916,8 @@ mptauof tiat miat
 symgg
 core, radial funcitons
 
-\subsection{bz setting}
+\end{verbatim}
+\subsection{bz setting, q+G for phi and for vcoul}
 qg4gw-mkqg routines.
 QIBZ,QBZ 
 
@@ -4880,7 +4926,13 @@ nqibze Q0P
 
 iq0pin mode:
 generate q0p: algolizm
+\subsection{eigenfunciton}
+radial function
 
+\subsection{Coulomb interaction}
+
+\subsection{mixed product basis}
+\subsection{PPOVL}
 \subsection{CPHI and GEIG}
 We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region:
 \begin{displaymath}

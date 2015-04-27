@@ -46,29 +46,17 @@ C ----------------------------------------------------------------------
       use keyvalue,only: getkeyvalue
       implicit none
       integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin,idummy
-      real(8) :: plat(3,3), alat,QpGcut_psi, QpGcut_Cou,dummy
+      real(8) ::  alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3)
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,a1,a2,pi,unit
       real(8),allocatable :: symops(:,:,:)
       character(len=150):: recrdxxx
       character(len=10) :: keyw1='unit_2pioa',keyw2
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
-      integer(4):: verbose,q0pchoice,bzcase,wgtq0p !,normcheck !version,
+      integer(4):: verbose,q0pchoice,bzcase,wgtq0p    !,normcheck !version,
       logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
-      integer(4):: iii, iq0pinxxx !may2013 
-ccccccccccccccccccccccccccccccccc
-c NaN test See NaNdble().
-c      real(8) :: NaNdble,zzz
-c      complex(8):: ccc,Nancmpx
-c      real(4):: qqq
-c      integer(4):: ixx
-c      zzz = NaNdble()
-c      qqq =NaNdble()
-c      ccc = NaNcmpx()
-c      ixx = zzz
-c      write(6,*) zzz,zzz+1d0,ixx,qqq,ccc
-c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccc
+      integer(4):: iii, iq0pinxxx 
+
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
@@ -87,24 +75,19 @@ ccccccccccccccccccccccccccccccccc
          call conv2gwinput()
          call rx0( ' OK! qg4gw mode=-100 to generate GWinput')
       endif   
-c ... for bug fix of ifc6. ifc6 does not allow
-c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
-c     as first call is not allowed by ifc6.
-c     init mode of KeepPPOVL() and so... Recursive procedure of read-write (i/0) seems to be not allowd by ifc6.
+c      ldummy=KeepEigen()
+c      ldummy=core_orth()
+c      idummy=verbose()
+      idummy=q0pchoice()
+      write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
+c      write(6,"(' keepeigen() = ',L)")  KeepEigen()
+c      write(6,"(' core_orth()  = ',L)")  core_orth()
+c      write(6,"(' verbose ()  = ',i4)")  verbose()
 c      ldummy=KeepPPOVL()
-      ldummy=KeepEigen()
-      ldummy=core_orth()
-      idummy=verbose()
 c      ldummy=GaussSmear()
 c      idummy=bzcase()
-      idummy=q0pchoice()
-      print *,' --- switches defined in gwsrc/switch.f ---'
 c      write(6,"(' keepppovl() = ',L)")  KeepPPOVL()
-      write(6,"(' keepeigen() = ',L)")  KeepEigen()
-      write(6,"(' core_orth()  = ',L)")  core_orth()
-      write(6,"(' verbose ()  = ',i4)")  verbose()
 c      write(6,"(' GaussSmear()= ',L4)")  GaussSmear()
-      write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
 c      write(6,"(' bzcase()    = ',i4)")  bzcase()
 !! readin LATTC
 c----------------------------------
@@ -137,11 +120,12 @@ c----------------------------------
       enddo
       close(ifi)
 !! --- check write
-      write(6,"(' alat      =',f13.6 )") alat
-      write(6,"(' plat a1   =',3f13.6)") plat(1:3,1)
-      write(6,"(' plat a2   =',3f13.6)") plat(1:3,2)
-      write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
-      write(6,*) ' --- point group operation --- '
+      write(6,*) ' --- primitive vectors ---'
+      write(6,"(' unit(a.u.) alat  =',f13.6 )") alat
+      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
+      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
+      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
+      write(6,*) ' --- point group operations --- '
       do ig = 1,ngrp
         print *, ' ig=',ig
         do i=1,3
