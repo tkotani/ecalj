@@ -33,7 +33,8 @@ cccc      use m_rgwinf_v3
      o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
      &    occv(:,:,:),unoccv(:,:,:)   
      &   ,occc(:,:,:),unoccc(:,:,:),
-     o    nocc(:,:,:),nunocc(:,:,:),
+     o    nocc(:,:,:),nunocc(:,:,:)
+      integer::
      o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
       real(8), allocatable:: 
@@ -66,19 +67,14 @@ c-----------------------------------------------------------------------
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex
       real(8)::a,b,zz
-
+c      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
+      done_genallcf_v3=.true.
 
-      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
       allocate(alat,ef, diw,dw,delta,deltaw,esmr,  symgrp)
-
       iflmto     = iopen('LMTO',1,0,0)
       if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
-
-c      if(.not.readgwinput()) then
-c        ifinin     = iopen('GWIN_V2',1,0,0)
-c      endif
 
 c--- readin these by rgwinf_v3
 c      character*120 symgrp
@@ -103,11 +99,8 @@ c--- rgwinf ---
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
-c      call rmvbl (symgrpt,120,j)
-c      symgrp = '  '//symgrpt(j+1:120)
       symgrp='  '//trim(adjustl(symgrpt))
       write(6,*)' symgrp=', symgrp
-
       read(ifi,*)
       read(ifi,*)
       read(ifi,*)
@@ -119,9 +112,8 @@ c      symgrp = '  '//symgrpt(j+1:120)
       read(ifi,*)plat(1:3,3)
       read(ifi,*)
       read(ifi,*) natom            !Number of atoms
-c-------------------------------------
+!!
       nclass = natom  !We set nclass = natom through the GW calculations
-c-------------------------------------
       write(6,*)'genalloc: alat natom=',alat,natom
       allocate(pos(3,natom))       !positions of atoms
       read(ifi,*)
@@ -160,11 +152,6 @@ c--------------------------
      &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(tolbas(0:2*(nl-1)))
-ctakao
-c      incwfx = incwf
-c      call defi    (incwf2,nl*nnc*nclass)
-c      call defi    (incwf,nl*nnc*nclass)
-c      write(6,*)' goto rgwinaf use incfw2=',useincfw2
       call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass,
 c> BZ
      o                  n1,n2,n3,ef,
@@ -204,7 +191,6 @@ c----
       elseif(incwfx==0) then
         write(6,*)' ### Use unocc occ ForX0 for core'
       else
-Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
         call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
       endif
       deallocate(ncwf2)
@@ -270,12 +256,6 @@ c> core energies
       konf=0
       allocate(ecoret(0:nl-1,nnc,2,nclass))
       ecoret=0d0
-c      call rcore2   (ifec, ! minor changed version to rcore in rw.f
-c     d              nl,nnc,nclass,
-c     o              konf,ecoret)
-c      call gencor  (ecoret,ncwf,iclass,
-c     d              nl,nnc,natom,nclass,nctot,
-c     o              ecore)
       do ic = 1,nclass
         write(6,*) ' read ECORE : ic=',ic
         read (ifec,*) 
@@ -314,7 +294,6 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
         enddo
       enddo
       deallocate(ecoret)
-
 c> index for core and LMTO basis
 c      call defi    (iil,nlnmx*nclass)
 c      call defi    (iin,nlnmx*nclass)
@@ -342,16 +321,11 @@ c      call defi    (iilnmc,nnc*nl*nl*nclass)
      & imc(nlnmxc*nclass),
      & ilnmc(nnc*nl*nl*nclass)
      & )
-
       call idxlnmc ( nindxv,nindxc,
      d              nl,nn,nnv,nnc,nlnmx,nlnmxv,nlnmxc,nclass,
      o              il,in,im,ilnm,
      o              ilv,inv,imv,ilnmv,
      o              ilc,inc,imc,ilnmc)
-
-c      call defi    (inlnmv,nclass)
-c      call defi    (inlnmc,nclass)
-c      call defi    (inlnm,nclass)
       allocate(nlnmv(nclass),nlnmc(nclass),nlnm(nclass))
       call nolnma  (nindxv,nl,nclass,
      o              nlnmv )
@@ -359,13 +333,8 @@ c      call defi    (inlnm,nclass)
      o              nlnmc )
       call nolnma  (nindx,nl,nclass,
      o              nlnm )
-c takao
-c      i=0
-c      CALL SKIPBL(symgrp,120,I)
-c     
       i=2 !see previous definition of symgrp
       if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
-Cstop2rx 2013.08.09 kino        stop " Not: UseSYMOPSfile in LMTO file"
         call rx( " Not: UseSYMOPSfile in LMTO file")
       endif
       write(6,*) ' symgrp==UseSYMOPSfile'
@@ -380,124 +349,13 @@ Cstop2rx 2013.08.09 kino        stop " Not: UseSYMOPSfile in LMTO file"
         enddo
       enddo
       close(ifi)
-c      call defdr(igrp,9*ngrp)
-c      call dcopy(9*ngrp,symgg,1,w(igrp),1)
-c      deallocate(symgg)
-
-c> index for inverse rotations
-c      call defi    (iinvg,ngrp)
       allocate(invg(ngrp))
       call invgrp  (symgg,ngrp,
      o              invg)
       is = iclose ('LMTO')
-c      is = iclose ('GWIN_V2')
       is = iclose ('ECORE')
       call cputid(0)
-      done_genallcf_v3=.true.
       write(6,*) 'genallcf_v3'
       end subroutine
       end module
-
-
-c-------------------------------------------------------------------
-c taken from bas.f
-      subroutine gencor (eco,ncwf,iclass,
-     d                   nl,nnc,natom,nclass,nctot,
-     o                   eclnm)
-
-c 92.03.25
-c generate core energies for each l,n,m
-
-c eco(l,n,cl)  = core energies
-c ncwf(l,n,cl) = 1 ==> allowed core state
-c                0 ==> not allowed
-c nnc          = max. no. core states/l
-c nctot        = total no. core states (all atoms)
-
-c eclnm({l,n,m,atom}) = core energies
-
-      implicit real*8 (a-h,o-z)
-      dimension eco(0:nl-1,nnc,2,nclass),ncwf(0:nl-1,nnc,nclass),
-     i          iclass(natom)
-      dimension eclnm(nctot,2)
-
-      i          = 0
-      do      ia = 1,natom
-        ic         = iclass(ia)
-        do       l = 0,nl-1
-          do       n = 1,nnc
-            do       m = -l,l
-              if (ncwf(l,n,ic) .eq. 1) then
-                i          = i + 1
-Cstop2rx 2013.08.09 kino                if (i .gt. nctot) stop 'gencor: wrong nctot'
-                if (i .gt. nctot) call rx( 'gencor: wrong nctot')
-cccccccccccccccc
-c        write(6,"(' ecore=',4i4,d13.5)")i, l,n,ic,eco(l,n,1,ic)
-cccccccccccccccc
-                eclnm(i,1) = eco(l,n,1,ic)
-                eclnm(i,2) = eco(l,n,2,ic)
-              endif
-            end do
-          end do
-        end do
-      end do
-      end
-
-c--------------------------------------------------------------------
-      subroutine rcore2 (ifec, ! minor changed version to rcore in rw.f
-     d                  nl,nnc,nclass,
-     o                  konfig,eco)
-
-c 92.03.17
-c read core eigenvalues both up and down
-
-      implicit real*8 (a-h,o-z)
-      character*32 char32
-      dimension konfig(0:nl-1,nclass),eco(0:nl-1,nnc,2,nclass)
-c loop over class
-      do      ic = 1,nclass
-        write(6,*) ' rcore2 : ic=',ic
-        read (ifec,6000) blank
-        read (ifec,6000) blank
-        read (ifec,6000) blank
-        read (ifec,*) z,ic1,nr,a,b,nsp
-        read (ifec,6000) blank
-        read (ifec,*) (konfig(l,ic),l=0,nl-1)
-        read (ifec,6000) blank
-c
-        write(6,*) ' rcore : goto loop over l n'
-
-c loop over l,n
-        do       l = 0,nl-1
-          ncore      = konfig(l,ic)-l-1
-Cstop2rx 2013.08.09 kino          if (ncore .gt. nnc) stop 'rcore: wrong nnc'
-          if (ncore .gt. nnc) call rx( 'rcore: wrong nnc')
-          do       n = 1,ncore
-            read (ifec,*) lt,nt,(eco(l,n,isp,ic),isp=1,nsp) !takao
-            if(nsp==1) eco(l,n,2,ic) = eco(l,n,1,ic)        !
-cccccccccccccccc
-c      write(6,"(' read eco=',3i4,d13.5)")l,n,ic,eco(l,n,isp,ic)
-cccccccccccccccc
-Cstop2rx 2013.08.09 kino            if (lt .ne. l) stop 'rcore: wrong l'
-            if (lt .ne. l) call rx( 'rcore: wrong l')
-Cstop2rx 2013.08.09 kino            if (nt .ne. n) stop 'rcore: wrong n'
-            if (nt .ne. n) call rx( 'rcore: wrong n')
-          end do
-        end do
-
-      end do
- 6000 format(a)
- 6300 format(1x,2i3,2d13.6)
- 6500 format(1x,10i3)
-      return
-      end
-
-
-
-
-
-
-
-
-
 

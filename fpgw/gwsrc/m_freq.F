@@ -1,7 +1,6 @@
       module m_freq
       real(8),allocatable:: frhis(:),freq_r(:),freq_i(:),wiw(:)
       integer,allocatable:: nwhis,npm,nw_i,nw
-      logical,private:: called=.false.
 
       contains
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
@@ -12,13 +11,18 @@
       integer,intent(in):: niw,nw_input
       logical,intent(in):: realomega,imagomega,tetra,mpi__root,epsmode
       real(8),intent(in):: omg2max,ua
+
       real(8),allocatable:: freqx(:),wx(:),expa(:)
-        logical:: timereversal,onceww
-        integer:: nw2,iw,ihis
-        real(8)::omg_c,dw,omg2
-        real(8), allocatable :: freqr2(:)  
-        real(8)::  pi       = 4d0*datan(1d0)
-      if(called) call rx('gerfreq is already called')
+      logical:: timereversal,onceww
+      integer:: nw2,iw,ihis
+      real(8)::omg_c,dw,omg2
+      real(8), allocatable :: freqr2(:)  
+      real(8)::  pi       = 4d0*datan(1d0)
+
+      logical,save:: done=.false.
+      if(done) call rx('gerfreq is already done')
+      done=.true.
+
       allocate(nwhis,npm,nw_i,nw)
       nw=nw_input
 !! We first accumulate Imaginary parts. 
@@ -117,6 +121,5 @@ c        niw = 0
          enddo
          deallocate(freqx,wx,expa)
       endif
-      called=.true.
       end subroutine getfreq
       end module m_freq

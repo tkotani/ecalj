@@ -15,6 +15,11 @@
           character*8::fname
           logical,save:: init=.true.
           logical:: outofrange,debug=.false.
+
+          logical,save:: done=.false.
+          if(done) call rx('readpkm4crpa is already done')
+          done=.true.
+
           if(debug)print *,' iiiiiiqqq readpkm4crpa',init
           ifi= 8398
           fname= 'pkm4crpa'

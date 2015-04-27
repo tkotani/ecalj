@@ -32,13 +32,15 @@ c      if(debug) print *,'nkt=',nkt
       do i=1, nqnum !*2 !nkt
         write(*,"('i qq=',i3,3f11.5)")i, qq(:,i)
       enddo  
-Cstop2rx 2013.08.09 kino      stop ' getikt can not find ikt for given q'
       call rx( ' getikt can not find ikt for given q')
       end function
 
       subroutine writehamindex()
       integer(4):: ifi
       logical::pmton
+      logical,save:: done=.false.
+      if(done) call rx('writehamindex is already done')
+      done=.true.
 !! == write info for wave rotation. feb2012takao ==
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
@@ -59,6 +61,9 @@ Cstop2rx 2013.08.09 kino      stop ' getikt can not find ikt for given q'
 !! == read info for wave rotation. feb2012takao ==
       integer(4):: ifi,nkt
       logical::pmton
+      logical,save:: done=.false.
+      if(done) call rx('readhamindex is already done')
+      done=.true.
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
       read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
@@ -85,6 +90,7 @@ c      allocate( ngvecp(3,ngpmx,nqnum) )
         read(ifi) igv2,napwk,igv2rev
       endif  
       close(ifi)
+      done=.true.
       end subroutine readhamindex
       end module
 
