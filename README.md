@@ -23,7 +23,7 @@ Overview
    
 2. The PMT-QSGW method, that is,
    the Quasiparticle self-consistent GW method (QSGW) based on the PMT method. 
-   In addion, we can calculate dielectric functions, spin fluctuations,
+   In addion, we can calculate dielectric functions, 
    spectrum function of the Green's functions and so on.
    GW-related codes are in ~/ecalj/fpgw/.
    For paralellized calculations, 
@@ -32,7 +32,25 @@ Overview
    The PMT allows us to perform
    the QSGW calculations virtually automatically
    (10.7566/JPSJ.83.094711). http://journals.jps.jp/doi/abs/10.7566/JPSJ.83.094711
- 
+
+<pre> 
+!! CAUTION for know bug(or not) for spin susceptibility mode!!! (apr2105).
+T.Kotani think epsPP\_lmfh\_chipm branch may/(or may not) have a bug
+(because of symmetrization). It may be near
+------------------
+          if (is==nspinmx) then 
+            symmetrize=.true.
+            call x0kf_v4hz(npm,ncc,... 
+-----------------
+in fpgw/main/hx0fp0.m.F
+(This bug may be from a few years ago, after I implemented EIBZ mode).
+I think  "if (is==nspinmx.or.chipm) then" may be necessary
+especially for cases with more than two atoms in the cell
+(thus fe_epsPP_lmfh test may not work for this case...)
+A possible test is remove symmetrization---> use eibzsym=F.
+If necessary, let me know...
+</pre>
+
 
 3.  Wannier function generator and effective model generator
    (Maxloc Wannier and effective interaction between Wannier funcitons). 
