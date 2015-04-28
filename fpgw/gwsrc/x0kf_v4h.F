@@ -5,8 +5,8 @@
      i                  nsp,isp_k,isp_kq,symmetrize,      !ifcphi,ifrb,ifcb,ifrhb,ifchb,
      i                  qbas,ginv,rk,wk,  !,iindxk,
      i                  mdim, nlnm, nlnmv,nlnmc, iclass, ! not the w(pointer)
-     i                  ppb_unused, 
-     i                  icore,ncore, ! not the w(pointer)
+c     i                  ppb_unused, 
+c     i                  icore,ncore, ! not the w(pointer)
      d                  nlmto,nqbz,noccx,noccxv,
      d                  nl,nclass,natom,nnc,
      d                  nlnmx,mdimx,nbloch,nwt,
@@ -109,7 +109,7 @@ c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
      &    ,shtv(3)=(/0d0,0d0,0d0/)
       data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
-      real(8) :: ppb_unused(*)
+c      real(8) :: ppb_unused(*)
 
       integer(4) :: mdim(natom)
       
@@ -135,7 +135,7 @@ c         allocate( zxq_( nbloch + ngc,nbloch + ngc,nwt)) !..sf 21May02
 c      integer(4):: n_index_qbz
 c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 c-----
-      integer(4):: nlnm(*),nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*)
+      integer(4):: nlnm(*),nlnmv(*),nlnmc(*),iclass(*)!,icore(*),ncore(*)
       integer(4):: verbose
 c---for iepsmode
       logical   :: nolfco !iepsmode

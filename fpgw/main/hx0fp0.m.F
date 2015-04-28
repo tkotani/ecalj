@@ -628,7 +628,7 @@ C --- write energy mesh ---
       call writeemesh(ifemesh,freq_i,niw,freq_r,nwp,delta)
 
 C ... ppb
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
+c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble  !We use double precision arrays only.
 
 C ... This is just to get nblochpmx
@@ -1588,8 +1588,8 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
      i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i              ppb(1,is), 
-     i              icore,ncore,
+c     i              ppb(1,is), 
+c     i              icore,ncore,
      d            nlmto,nqbz,noccx,noccxv,
      d            nl,nclass,natom,nnc,
      d            nlnmx,mdimx,nbloch,  nwhis,
@@ -1611,8 +1611,8 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz,
      i              nblocha ,nlnm,nlnmv,nlnmc,iclass,
-     i              ppb(1,is),
-     i              icore,ncore,
+c     i              ppb(1,is),
+c     i              icore,ncore,
      d            nlmto,nqbz,noccx,noccxv,
      d            nl,nclass,natom,nnc,
      d            nlnmx,mdimx,nbloch,  nwhis,

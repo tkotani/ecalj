@@ -429,7 +429,7 @@ c     nwhis=nw
         !max no. of occupied valence states
       if(noccxv>nband) call rx( 'hx0fp0_sc: all the bands filled! too large Ef')
       noccx  = noccxv + nctot
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
+c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble        !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       if(mpi__root)then
@@ -900,8 +900,8 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
      i           nspin,is,isf, symmetrize, !
      i           qbas,ginv,  qbz,wbz, 
      i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i           ppb(1,is), 
-     i           icore,ncore,
+c     i           ppb(1,is), 
+c     i           icore,ncore,
      d           nlmto,nqbz,noccx,noccxv,
      d           nl,nclass,natom,nnc,
      d           nlnmx,mdimx,nbloch,  nwhis,
@@ -967,8 +967,8 @@ c=======================================================================
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
      i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
-     i              ppb(1,is), 
-     i              icore,ncore,
+c     i              ppb(1,is), 
+c     i              icore,ncore,
      d              nlmto,nqbz,noccx,noccxv,
      d              nl,nclass,natom,nnc,
      d              nlnmx,mdimx,nbloch,  nwhis,
