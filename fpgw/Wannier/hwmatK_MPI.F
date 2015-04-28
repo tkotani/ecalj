@@ -193,7 +193,7 @@ c RS: variables for MPI
      &  rw_w_sum(:,:,:,:,:,:),rw_iw_sum(:,:,:,:,:,:),
      &  cw_w_sum(:,:,:,:,:,:),cw_iw_sum(:,:,:,:,:,:)
 
-      integer :: swj_j, swj_k, swj_l
+      integer :: swj_j, swj_k, swj_l,ia
       real(8),allocatable:: 
      &           swj_rv_w(:,:,:,:,:),swj_cv_w(:,:,:,:,:),
      &           swj_rv_iw(:,:,:,:,:),swj_cv_iw(:,:,:,:,:)
@@ -786,14 +786,14 @@ c --- info
      & call winfo(6,nspin,nq,ntq,is,nbloch
      &    ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
-!! Pointer to optimal product basis
-      allocate(imdim(natom))
-      do ibas=1,natom
-        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
-      enddo  
+c pointer to optimal product basis
+c      allocate(imdim(natom))
 c      call indxmdm (nblocha,nclass,
 c     i              iclass,natom,
 c     o              imdim )
+      do ia = 1,natom
+        imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
+      enddo
 
       if(niw/=0) then ! generate gaussian frequencies x between (0,1) and w=(1-x)/x
         allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))

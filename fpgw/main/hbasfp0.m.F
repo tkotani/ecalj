@@ -15,26 +15,26 @@ c The main part of this routine is in the subroutine basnfp_v2
       use keyvalue,only: getkeyvalue
       implicit none
       real(8):: qbas(3,3),ginv(3,3)
-      integer::
+      integer(4)::
      l     ifphiv(2),ifphic(2),
      l     iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
      l     ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,ifinin,iflmto,ifphi,ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,
      &     l,nn,icore,ifianf,nphi,nradmx,nsp,iopen,maxnn,iclose
-      integer,allocatable:: mdim(:),lcutmxa(:)
+      integer(4),allocatable:: lcutmxa(:)
       character(12) :: aaa
-      integer,allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)
+      integer(4),allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)
       logical :: ptest=.false. !See ptest in hvccfp0.f
       real(8),allocatable :: bb(:),zz(:), phic(:,:)
-      integer :: ndat
-      integer,allocatable:: ncindx(:,:),lcindx(:,:),
+      integer(4) :: ndat
+      integer(4),allocatable:: ncindx(:,:),lcindx(:,:),
      &           nrad(:), nindx_r(:,:), lindx_r(:,:),
      &           nc_max(:,:),ncore(:)
       real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:)
       character*11 :: ffaln
-      integer::incwfin,ret
-      integer,allocatable:: idid(:),ibasf(:)
+      integer(4)::incwfin,ret
+      integer(4),allocatable:: idid(:),ibasf(:)
       logical :: checkdid ,anfexist
-      integer:: iread, idummy
+      integer(4):: iread, idummy
 c--------------------------------------------------------------------------
       ifinin=-99999 !dummy
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
@@ -159,7 +159,6 @@ c----------
         read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
         if(ic/=icx) then
           write(6,*) 'ic icx=',ic,icx
-Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
           call rx( 'hbasfp0: ic/=icx')
         endif
         read(ifphi) rr(1:nrofi(ic),ic)
@@ -181,6 +180,7 @@ Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
           enddo
         enddo
       enddo
+c-----------
 
 !! check write
       ffaln ='PHIV.chk'
@@ -206,6 +206,7 @@ Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
      &    aa,bb,nrofi,rr)
         goto 998
       endif
+
 
 !! READIN ANFcond ------------------------------------
       inquire(file='ANFcond',EXIST=anfexist)
@@ -248,6 +249,7 @@ Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
          cutbase=1d-6
       endif
 
+
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
@@ -266,7 +268,7 @@ Cstop2rx 2013.08.09 kino          stop 'hbasfp0: ic/=icx'
 
 
       logical function checkdid (idid,ii, ibas)
-      integer:: idid(ii),ix
+      integer(4):: idid(ii),ix
       checkdid=.true.
       do ix=1,ii
         if(idid(ix)==ibas) return

@@ -179,7 +179,7 @@ c      logical :: sergeys
       logical:: l1d
       real(8):: rsite(3),rcut1,rcut2
       real(8),allocatable :: rws(:,:),drws(:),rws1(:,:),rws2(:,:)
-      integer(4):: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw
+      integer(4):: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw,ia
       integer(4),allocatable:: irws(:),irws1(:),irws2(:)
 c---------------------------------------
       hartree=2d0*rydberg()
@@ -668,14 +668,14 @@ c --- info
       call winfo(6,nspin,nq,ntq,is,nbloch
      &    ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
-!! Pointer to optimal product basis
-      allocate(imdim(natom))
-      do ibas=1,natom
-        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
-      enddo  
+c pointer to optimal product basis
+c      allocate(imdim(natom))
 c      call indxmdm (nblocha,nclass,
 c     i              iclass,natom,
 c     o              imdim )
+      do ia = 1,natom
+        imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
+      enddo
 
       if(niw/=0) then ! generate gaussian frequencies x between (0,1) and w=(1-x)/x
         allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))

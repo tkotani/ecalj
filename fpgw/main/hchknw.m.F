@@ -3,12 +3,12 @@ c---     check the number of nw
       use m_readeigen,only: init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,only: genallcf_v3,
-     &  nclass,natom,nspin,nl,nn,ngrp, 
-     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     &  invg,  il,in,im,nlnm,     
-     &  konf, 
-     &  plat, pos,z,ecore, symgg 
+     &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw_input=>nw,
+     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
+     &     invg, il, in, im, ilnm, nlnm, nlnmv,
+     &     nlnmc,nindx,konf,icore,ncore,
+     &     plat, pos,z,ecore,  symgg ! symgg=w(igrp) freq,
 
       use keyvalue
       implicit none
@@ -72,7 +72,7 @@ c takao
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:)
       complex(8),allocatable:: geigB(:,:,:) ,geig(:,:),zsec(:,:,:)
 c
-      logical :: exchange, legas ! test forelectron gas exchange check write for electron gas test only for exchange.
+      logical :: exchange, legas = .false. ! test forelectron gas exchange check write for electron gas test only for exchange.
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
 
 c space group infermation
@@ -225,7 +225,7 @@ c$$$c=== dump test end ==================================================
 
 
       if (nclass > mxclass) call rx( ' hchknw: increase mxclass')
-! We assume nclass = natom.
+ ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hchknw: nclass /= natom ')
       write(6,*)' hchknw: end of genallc'
 c
@@ -234,7 +234,7 @@ c
       call dinv33(plat,1,xxx,vol)
       voltot = dabs(vol)*(alat**3)
 
-c--- !!! ef is taken as rs for the empty-sphere test case of legas=T case -------------
+c$$$c--- !!! ef is taken as rs for the empty-sphere test case of legas=T case -------------
 c$$$      if(legas) then
 c$$$        iflegas=2101
 c$$$        open (iflegas,file='LEGAS')
@@ -339,7 +339,6 @@ C...
 c----------------------------------------------
       if(.not.tetra) then
         if(esmr/=0d0) then
-          legas=.false.
           call efsimplef2a(nspin,wibz,qibz,ginv, 
      i        nband,nqibz
 c     i       ,w(ikonf),w(iz),nl,natom,w(iiclass),nclass

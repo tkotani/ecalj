@@ -13,8 +13,7 @@
 !!     A basis for the independent-particle approximation, Phys. Rev. B, vol. 76, no. 16, 
 !!     p. 165106[24pages], Oct. 2007.
 !! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-!!     and Muffin-Tin Orbital Method, 
-!!     J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!!     and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
 !! EIBZ symmetrization;
 !! See [3] C. Friedrich, S. Bl?gel, and A. Schindlmayr, 
@@ -42,22 +41,15 @@
 !! ----------------------------------------
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
-      use m_read_bzdata,only: 
-     &  nqbz,nqibz,nqbzw,nteti,ntetf
+      use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
      & ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
      & ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
-
-!! in,il,im( iorb=1,nlnm(ic), ic), where,ic=1,nclass, are l,n,m index for ic.
-!! nlnmx=maxval(nlnm(1:nclass)). Usef for ppb = <phi phi|B> within MT
-!! we assume nclass=natom (historical reason)
       use m_genallcf_v3,only: genallcf_v3,
-     &  nclass,natom,nspin,nl,nn,ngrp,   
-     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     &  invg,  il,in,im,nlnm,     
-     &  konf, 
-     &  plat, pos,z,ecore, symgg 
-
+     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
+     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
+     & plat, pos,z,ecore, symgg, konf,nlnx
       use keyvalue,only: getkeyvalue
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
@@ -66,17 +58,14 @@
 
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:  !these data set are stored in this module, and used when 
-     & nband,itq,ngcmx,ngpmx, !,imdim
+     & nband,itq,ngcmx,ngpmx,
      & miat,tiat,shtvg, ntq, ppbir
 
       use m_sxcf,only: sxcf_fal3_scz 
-      use m_mpi,only: MPI__Finalize,mpi__root,MPI__Broadcast,
-     & MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,mpi__rank,mpi__size,
-     & MPI__consoleout,
-     & mpi__barrier, mpi__initialize,mpi__real8send,mpi__send_iv,
-     & mpi__recv_iv,mpi__sxcf_rankdivider,mpi__allreducesum,mpi__real8recv
-
+      use m_mpi             
       implicit none
+      integer:: nw
+
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
 c------------------------------------
@@ -101,7 +90,7 @@ c      real(8) :: shtw
      & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      & ibas,ibasx,nxx,ifqpnt,ifwd, 
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
-     & ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
+     & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
      & i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      & mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      & nlnx4,invr,ivsum, ifoutsec, !niwx,
@@ -210,8 +199,6 @@ c      logical:: newaniso
 
       integer:: ificlass,ifiq0p,ntqxx
       logical:: hermitianW
-
-      integer:: nw
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -294,28 +281,28 @@ c      shtw = 0d0
       tetra= tetra_hsfp0()
 !! if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe), I used this until sep2012
 
-c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
-c$$$!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
-c$$$!! Keep this just as a memo.
-c$$$      legas = .false.
-c$$$      if(legas) then
-c$$$        INQUIRE (FILE = 'LEGAS', EXIST = legas)
-c$$$        if(legas) then          !!! test for electron gas case.
-c$$$          write(6,*)' find LEGAS. legas =',legas
-c$$$          iflegas = 2101
-c$$$          open (iflegas,file='LEGAS')
-c$$$          read(iflegas,*)rs
-c$$$          close(iflegas)
-c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$          qfermi = alpha/rs
-c$$$          efx  = qfermi**2
-c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
-c$$$        endif
-c$$$      endif
+!! ef is taken as rs for the empty-sphere test case of legas=T case 
+!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
+!! Keep this just as a memo.
+      legas = .false.
+      if(.false.) then
+        INQUIRE (FILE = 'LEGAS', EXIST = legas)
+        if(legas) then          !!! test for electron gas case.
+          write(6,*)' find LEGAS. legas =',legas
+          iflegas = 2101
+          open (iflegas,file='LEGAS')
+          read(iflegas,*)rs
+          close(iflegas)
+          alpha = (9*pi/4d0)**(1d0/3d0)
+          qfermi = alpha/rs
+          efx  = qfermi**2
+          valn = efx**1.5d0*voltot/3d0/pi**2
+          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
+          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
+          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
+        endif
+      endif
 !!
       if(ixc==1) then
         exchange=.true.
@@ -445,6 +432,7 @@ c     write(6,'("    ua      =",f13.6)') ua
 !!      nw_i=0 for time-reversal case.
 !!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
 !!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
+        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
         ififr=ifile_handle()
         open(UNIT=ififr,file='freq_r')
         read(ififr,*)nwxx
@@ -460,14 +448,12 @@ c     write(6,'("    ua      =",f13.6)') ua
           if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
      &     call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
         endif
-        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
       endif
 
       if(tetra) goto 201        !tetra is experimental.  usually =F. 
 
 !!== Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==
 !!    When esmr is negative, esmr is geven automatically by efsimplef.
-      legas=.false.
       call efsimplef2a(nspin,wibz,qibz,ginv, 
      i nband,nqibz
      i ,konf,z,nl,natom,iclass,nclass
@@ -687,8 +673,7 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
                 write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
      &           itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &           vxcfp(i,ip,is)
-                if(eqx(i,ip,is) <1d20.and.vxcfp(i,ip,is)/=0d0) then 
-!takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
+                if(eqx(i,ip,is) <1d20.and.vxcfp(i,ip,is)/=0d0) then !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
                   write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") 
      &             itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
@@ -734,9 +719,6 @@ c$$$      endif
 
 !! Pointer to optimal product basis
 c      allocate(imdim(natom))
-c      do ibas=1,natom
-c        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
-c      enddo  
 c      call indxmdm (nblocha,nclass,iclass,natom,
 c     o imdim )                  !in m_zmel
       if(niw/=0) then
@@ -747,12 +729,10 @@ c     o imdim )                  !in m_zmel
       endif
 
 c$$$!!  ------ write energy mesh for check ----------
-c$$$      if(.not.exchange) then
 c$$$      ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
 c$$$      deltax0 = 0d0
 c$$$      if(mpi__root) then
 c$$$        call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
-c$$$      endif
 c$$$      endif
 
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
@@ -824,13 +804,12 @@ c     enddo
         call bzints2x(volwgt,eband,wtet(:,:,:,0),nqibz,nband,nband,
      .   nspin,edummy,edummy,edummyd,1,ef,2,nteti,idteti)
         ntot= sum(wtet)
-c$$$        if(legas) then
-c$$$          write(6,"(' tetra=T ef ntot nexact ratio=',15f12.6)") ef,ntot
-c$$$     &     , ef**1.5d0/3d0/pi**2*voltot, ef**1.5d0 /3d0/pi**2*voltot/ntot
-c$$$        else
-c$$$          write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
-c$$$        endif
-        write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
+        if(legas) then
+          write(6,"(' tetra=T ef ntot nexact ratio=',15f12.6)") ef,ntot
+     &     , ef**1.5d0/3d0/pi**2*voltot, ef**1.5d0 /3d0/pi**2*voltot/ntot
+        else
+          write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
+        endif
         if(nspin==1) wtet = wtet/2d0
         do iqi = 1,nqibz
           wtet(:,:,iqi,:) = wtet(:,:,iqi,:)/nstar(iqi)
@@ -951,7 +930,7 @@ C         enddo
      i     mdimx,lx,nx,nxx,     !Bloch wave    
      i     cgr, nl-1,           !rotated CG
      i     ppbrd,               !radial integrals
-     o     ppbir(:,irot,isp))   !this is defined and used in m_zmel
+     o     ppbir(:,irot,isp))   !this is in m_zmel
         enddo  
       enddo  
 
@@ -1011,7 +990,7 @@ C         enddo
      i   dw,                   
      i   ecore(:,is),
      d   nlmto,nqibz,nqbz,nctot,
-c     d   nl,nnc,nclass,natom,
+     d   nl,nnc,nclass,natom,
      d   nbloch,ngrp,niw,nq,   
      i   nblochpmx, ngpmx,ngcmx,
      i   wgt0,nq0i,q0i,symgg,alat,
@@ -1038,41 +1017,41 @@ c      call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 c      call cpu_time(time_red2)
 c      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
-c$$$c---------------------------------
-c$$$!!  electron gas bare exchange (exact)
-c$$$        if(.false.) then        !for test calculations.
-c$$$          if (legas.and.exchange) then
-c$$$            efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
-c$$$            pi         = 4.d0*datan(1.d0)
-c$$$            tpia       = 2.d0*pi/alat
-c$$$            qfermi= dsqrt(efz)
-c$$$            alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$            write (6,*)' --- exact electron gas bare exchange --- '
-c$$$            write (6,*)' density parameter rs= ', alpha/qfermi
-c$$$            write (6,*)' kf= ',qfermi
-c$$$            do      ip = 1,nq
-c$$$              qreal =  tpia*q(1:3,ip)
-c$$$              qm    = dsqrt ( sum(qreal**2) )
-c$$$              xsex  = hartree * egex (qm,efz)
-c$$$              write (6,*)
-c$$$              write (6,"(' True qm-ef Sx=',2f14.6,' q/qf=',f14.6)")
-c$$$     &         rydberg()*(qm**2-efz), xsex, qm/qfermi
-c$$$              write (6,"(' Num  qm-ef Sx=',2f14.6)") 
-c$$$     &         eqx(1,ip,is),        hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$              write (6,"(' === diff     =',2f14.6)") 
-c$$$     &         rydberg()*(qm**2-efz)-eqx(1,ip,is)
-c$$$     &         , xsex - hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$              write (661,"(' qm True qm-ef Sx=',3f14.6)") 
-c$$$     &         qm,rydberg()*(qm**2-efz), xsex
-c$$$              write (662,"(' qm Num  qm-ef Sx=',3f14.6)") 
-c$$$     &         qm,eqx(1,ip,is),     hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$ccc   write (ifsex(is),6600) qreal(1),qreal(2),qreal(3),xsex
-c$$$ccc   write (6,6600) qreal(1),qreal(2),qreal(3),xsex
-c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
-c$$$              write (663,"(2f14.6)") qm/qfermi, qfermi
-c$$$            end do
-c$$$          endif
-c$$$        endif
+c---------------------------------
+!!  electron gas bare exchange (exact)
+        if(.false.) then        !for test calculations.
+          if (legas.and.exchange) then
+            efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
+            pi         = 4.d0*datan(1.d0)
+            tpia       = 2.d0*pi/alat
+            qfermi= dsqrt(efz)
+            alpha = (9*pi/4d0)**(1d0/3d0)
+            write (6,*)' --- exact electron gas bare exchange --- '
+            write (6,*)' density parameter rs= ', alpha/qfermi
+            write (6,*)' kf= ',qfermi
+            do      ip = 1,nq
+              qreal =  tpia*q(1:3,ip)
+              qm    = dsqrt ( sum(qreal**2) )
+              xsex  = hartree * egex (qm,efz)
+              write (6,*)
+              write (6,"(' True qm-ef Sx=',2f14.6,' q/qf=',f14.6)")
+     &         rydberg()*(qm**2-efz), xsex, qm/qfermi
+              write (6,"(' Num  qm-ef Sx=',2f14.6)") 
+     &         eqx(1,ip,is),        hartree*dreal(zsec(1,1,ip)) !sf 21May02
+              write (6,"(' === diff     =',2f14.6)") 
+     &         rydberg()*(qm**2-efz)-eqx(1,ip,is)
+     &         , xsex - hartree*dreal(zsec(1,1,ip)) !sf 21May02
+              write (661,"(' qm True qm-ef Sx=',3f14.6)") 
+     &         qm,rydberg()*(qm**2-efz), xsex
+              write (662,"(' qm Num  qm-ef Sx=',3f14.6)") 
+     &         qm,eqx(1,ip,is),     hartree*dreal(zsec(1,1,ip)) !sf 21May02
+ccc   write (ifsex(is),6600) qreal(1),qreal(2),qreal(3),xsex
+ccc   write (6,6600) qreal(1),qreal(2),qreal(3),xsex
+ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
+              write (663,"(2f14.6)") qm/qfermi, qfermi
+            end do
+          endif
+        endif
  2001   continue
 
 !! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.

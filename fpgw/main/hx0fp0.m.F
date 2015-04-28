@@ -1,4 +1,4 @@
-!! eps_lmf_cphipm mode is commented out; you may need to recover this if necessary
+!! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
       program hx0fp0
       use m_readqg,only: readqg,readngmx
@@ -7,28 +7,28 @@
      &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
      &  dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
-     &  nstbz
-!! in,il,im( iorb=1,nlnm(ic), ic), where,ic=1,nclass, are l,n,m index for ic.
-!! nlnmx=maxval(nlnm(1:nclass)). Usef for ppb = <phi phi|B> within MT
-!! we assume nclass=natom (historical reason)
+     &  nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     &  nclass,natom,nspin,nl,nn,ngrp,   
-     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx, 
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     &  invg,  il,in,im,nlnm,     
-     &  plat, pos,z,ecore, symgg 
+     &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
+     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
+     &     plat, pos,z,ecore, symgg 
+
       use keyvalue,only: getkeyvalue
-c      use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
+      use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout,mpi__barrier
+
+
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
-!! store data sets for "call get_zmelt".
-      use m_zmel,only:    !these data set are stored in this module.
-     & nband,itq,ngcmx,ngpmx,ppovlz, !imdim,
+!! Generate matrix element for "call get_zmelt".
+      use m_zmel,only:    !these data set are stored in this module, and used when 
+     & nband,itq,ngcmx,ngpmx,    ppovlz,
      & ppbir,shtvg, miat,tiat , ntq
 !! frequency
       use m_freq,only: getfreq,
@@ -82,7 +82,7 @@ C-------------------------------------------------
      &  zxq(:,:,:),zxqi(:,:,:)
       real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:),
-c     &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
+     &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
      &  qbze(:,:),qibze(:,:)  !,ecore(:,:)  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       complex(8),allocatable :: trwv(:),trwv2(:),rcxq(:,:,:,:)
 c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case of rcxq(nmbas,nmbas)
@@ -418,12 +418,11 @@ c      endif
      &       ' MixSpin should be converted at the end of hvccfp0.'
         call rx( ' smbasis=T & chipm=T is not implimented yet.')
       endif
+
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f5.3)") sciss
 
 !! === Readin by genallcf ===
-!! See "use m_genallcf_v3" at the begining of this routine
-!! We set basic data.
       if(epsmode) then
         nwin = -999
       else
@@ -433,13 +432,35 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       efin =  0d0 !readin EFERMI
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-c      write(6,*)' ncore=',ncore
+!...  These are allocated and setted by genallcf_v3
+!      integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+!     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
+!      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
+!      character(120):: symgrp
+!      character(6),allocatable :: clabl(:)
+!      integer,allocatable:: iclass(:)
+!     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
+!     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
+!     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
+!     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
+!     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
+!     &    occv(:,:,:),unoccv(:,:,:)
+!     &   ,occc(:,:,:),unoccc(:,:,:),
+!     o    nocc(:,:,:),nunocc(:,:,:)
+!      real(8), allocatable::
+!     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
+
+      write(6,*)' ncore=',ncore
       write(6,*)' iclass=',iclass
       tpioa=2d0*pi/alat
+! ...
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
 c      nw_input = nw ; 
       write(6,*) 'nw delta=',nw_input,delta
       debug=.false.; if(verbose()>=100) debug=.true.
+ccccccccccccccccccccc
+c      debug=.true.
+cccccccccccccccccccc
       if(debug) write(6,*)' end of genallc'
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -487,7 +508,7 @@ c$$$        if(normalm.and.abs(wqtsum-1d0) >1d-10.and.(.not.noq0p))
 c$$$     &  call rx( ' wqtsum of Q0P /=1 ')
 c$$$      endif
 
-!! Readin by rdpp ; Radial integrals ppbrd and plane wave part
+C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
@@ -532,11 +553,8 @@ c$$$      endif
       do i=1,ntq
         itq(i)=i
       enddo
-c!! Pointer to optimal product basis
+!! Pointer to optimal product basis
 c      allocate(imdim(natom))
-c      do ibas=1,natom
-c        imdim(ibas) = sum(nblocha(iclasst(1:ibas-1)))+1
-c      enddo  
 c      call indxmdm (nblocha,nclass,iclass,natom,
 c     o imdim )                  !use in m_zmel
 c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
@@ -544,8 +562,8 @@ c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx)) ! work arry
 
 !! ... for legas test (not used so often. To compare homogeneos electron gas).
-c      legas = .false.
-c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
+      legas = .false.
+      INQUIRE (FILE = 'LEGAS', EXIST = legas)
 !!
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
@@ -610,7 +628,7 @@ C --- write energy mesh ---
       call writeemesh(ifemesh,freq_i,niw,freq_r,nwp,delta)
 
 C ... ppb
-c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
+      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble  !We use double precision arrays only.
 
 C ... This is just to get nblochpmx
@@ -690,6 +708,7 @@ c$$$      enddo
      i   ppbrd,                 !radial integrals
      o   ppbir(:,irot,is))      !this is in m_zmel
       enddo  
+
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 C ... Set iqxini
@@ -1004,8 +1023,8 @@ c     iqxendx=nqibz
      o        nwgt,igx,igxt,eibzsym,tiii)
          write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
          call cputid(0)
-c   call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in carrays in m_pbindex.
-c  ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+         call PBindex(natom,lx,l2nl,nx) !all input. Returns requied index stored in arrays in m_pbindex.
+! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call cputid(0)
          call readqgcou()       !no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
@@ -1568,12 +1587,12 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i              q,  
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
-c     i              nblocha, !,nlnm,nlnmv,nlnmc,iclass, 
-c     i              ppb(1,is), 
-c     i              icore,ncore,
+     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i              ppb(1,is), 
+     i              icore,ncore,
      d            nlmto,nqbz,noccx,noccxv,
-c     d            nl,nclass,natom,nnc,
-     d            nbloch,  nwhis, !nlnmx,mdimx,
+     d            nl,nclass,natom,nnc,
+     d            nlnmx,mdimx,nbloch,  nwhis,
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
@@ -1591,12 +1610,12 @@ c     d            nl,nclass,natom,nnc,
      i              q,
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz,
-c     i              nblocha, !nlnm,nlnmv,nlnmc,iclass,
-c     i              ppb(1,is),
-c     i              icore,ncore,
+     i              nblocha ,nlnm,nlnmv,nlnmc,iclass,
+     i              ppb(1,is),
+     i              icore,ncore,
      d            nlmto,nqbz,noccx,noccxv,
-c     d            nl,nclass,natom,nnc,
-     d            nbloch,  nwhis, !nlnmx,mdimx,
+     d            nl,nclass,natom,nnc,
+     d            nlnmx,mdimx,nbloch,  nwhis,
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz,
      o    rcxq,   !  rcxq is the accumulating variable for spins
@@ -2079,15 +2098,15 @@ C --- ChiPM mode
             elseif(epsmode.and.chipm) then
               allocate( x0meanx(nmbas,nmbas) )
               if(nolfco) then  ! ChiPM mode without LFC
-c$$$                if(legas) then
-c$$$                   call rx( ' hx0fp0.m.F need to implement thigs here if required')
-c$$$! --- three lines below may work for test purpose for legas. But not sure.
-c$$$c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
-c$$$c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
-c$$$c     &            q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
-c$$$                else
+                if(legas) then
+                   call rx( ' hx0fp0.m.F need to implement thigs here if required')
+! --- three lines below may work for test purpose for legas. But not sure.
+c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
+c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
+c     &            q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
+                else
                   x0meanx = x0mean(iw,:,:)/2d0  !in Ry unit.
-c$$$                endif
+                endif
               else
 C ... ChiPM mode with LFC... NoLFC part
                 zxq(1:ngb,1:ngb,iw) = zxq(1:ngb,1:ngb,iw)/2d0  ! in Ry.
@@ -2708,55 +2727,55 @@ c          if(iq>nqibz) deallocate(vw_k,vw_ks)
       endif
 
 
-c$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
-c$$$      if(epsmode.and.legas) then
-c$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-c$$$        voltot=0d0
-c$$$        ntot=0d0
-c$$$        write(6,*)' Find LEGAS. legas =',legas
-c$$$        iflegas = 2101
-c$$$        open (iflegas,file='LEGAS')
-c$$$        read(iflegas,*)rs
-c$$$        close(iflegas)
-c$$$        alpha  = (9*pi/4d0)**(1d0/3d0)
-c$$$        qfermi = alpha/rs
-c$$$        efx  = qfermi**2
-c$$$        valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$        write (6,*)'     Exact Fermi momentum  qf  =', qfermi
-c$$$        write (6,*)'     Exact Fermi energy    Ef  =', efx
-c$$$        do iq = iqxini,iqxend ! q=(0,0,0) is omitted!
-c$$$          if(iq<=nqibz) cycle
-c$$$          write(6,*)' iq=',iq
-c$$$          iqixc2 = iq- (nqibz+nq0ix)
-c$$$          filele ='EPSEG'//charnum4(iqixc2)//'.dat'
-c$$$          ife = iopen ( filele,1,3,0)
-c$$$          write(ife,"(a)")
-c$$$     &          ' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
-c$$$          q = qibze(:,iq)
-c$$$          qt= sqrt(sum(qibze(1:,iq)**2))*2d0*pi/alat
-c$$$          qs= qt/qfermi
-c$$$          write(6,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
-c$$$          write(6,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
-c$$$          do iw  = nw_i,nw
-c$$$            ww  = freq_r(iw)
-c$$$            muu = ww/qfermi**2
-c$$$            if(     qs<2d0 .and. muu < qs-qs**2/2d0) then
-c$$$              x0mx= -img*qfermi/(4*pi*qs)*2*muu
-c$$$            elseif( qs<2d0 .and. muu < qs+qs**2/2d0) then
-c$$$              x0mx= -img*qfermi/(4*pi*qs)*( 1d0-(muu/qs-.5d0*qs)**2 )
-c$$$            else
-c$$$              x0mx=0d0
-c$$$            endif
-c$$$            vcmmmm= 4*pi/qt**2
-c$$$            epsi(iw,iqixc2) = 1d0/(1- vcmmmm * x0mx)
-c$$$c            epsi(iw,iqixc2) = 1d0/(1- vcmmm(iq) * x0meanx)
-c$$$            write(ife,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
-c$$$     &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-c$$$          enddo
-c$$$        enddo
-c$$$        write(6,*)' ----------legas end--------'
-c$$$      endif
+!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
+      if(epsmode.and.legas) then
+        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
+        voltot=0d0
+        ntot=0d0
+        write(6,*)' Find LEGAS. legas =',legas
+        iflegas = 2101
+        open (iflegas,file='LEGAS')
+        read(iflegas,*)rs
+        close(iflegas)
+        alpha  = (9*pi/4d0)**(1d0/3d0)
+        qfermi = alpha/rs
+        efx  = qfermi**2
+        valn = efx**1.5d0*voltot/3d0/pi**2
+        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+        write (6,*)'     Exact Fermi momentum  qf  =', qfermi
+        write (6,*)'     Exact Fermi energy    Ef  =', efx
+        do iq = iqxini,iqxend ! q=(0,0,0) is omitted!
+          if(iq<=nqibz) cycle
+          write(6,*)' iq=',iq
+          iqixc2 = iq- (nqibz+nq0ix)
+          filele ='EPSEG'//charnum4(iqixc2)//'.dat'
+          ife = iopen ( filele,1,3,0)
+          write(ife,"(a)")
+     &          ' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
+          q = qibze(:,iq)
+          qt= sqrt(sum(qibze(1:,iq)**2))*2d0*pi/alat
+          qs= qt/qfermi
+          write(6,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
+          write(6,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
+          do iw  = nw_i,nw
+            ww  = freq_r(iw)
+            muu = ww/qfermi**2
+            if(     qs<2d0 .and. muu < qs-qs**2/2d0) then
+              x0mx= -img*qfermi/(4*pi*qs)*2*muu
+            elseif( qs<2d0 .and. muu < qs+qs**2/2d0) then
+              x0mx= -img*qfermi/(4*pi*qs)*( 1d0-(muu/qs-.5d0*qs)**2 )
+            else
+              x0mx=0d0
+            endif
+            vcmmmm= 4*pi/qt**2
+            epsi(iw,iqixc2) = 1d0/(1- vcmmmm * x0mx)
+c            epsi(iw,iqixc2) = 1d0/(1- vcmmm(iq) * x0meanx)
+            write(ife,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
+     &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+          enddo
+        enddo
+        write(6,*)' ----------legas end--------'
+      endif
 
 C--- Write TEECOR ecorr_on mode
       if(imagomega.and.ecorr_on>0) then
@@ -2784,42 +2803,42 @@ c        call wecqw(ifcor,
 c     d           nqibz,nqbz,nq0i,nqitot,niw,
 c     o           wibz,wqt,wx,freqx,ecqw)
 C... Write electron gas correlation energy
-c$$$        legas = .false.
-c$$$c        INQUIRE (FILE = 'LEGAS', EXIST = legas)
-c$$$        if(legas) then !!! test for electron gas case.
-c$$$          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-c$$$          voltot=0d0
-c$$$          ntot=0d0
-c$$$          write(6,*)' find LEGAS. legas =',legas
-c$$$          iflegas = 2101
-c$$$          open (iflegas,file='LEGAS')
-c$$$          read(iflegas,*)rs
-c$$$          close(iflegas)
-c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$          qfermi = alpha/rs
-c$$$          efx  = qfermi**2
-c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
-c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
-c$$$          qfermi= dsqrt(efz)
-c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$          rs    = alpha/qfermi
-c$$$          write (ifcor,*)' --- electron gas ---'
-c$$$          write (ifcor,*)' density parameter rs= ', rs
-c$$$          write (ifcor,*)' kf= ',qfermi
-c$$$          write (ifcor,*)' ### Barth-Hedin formula'
-c$$$          ecelgas = eclda_bh(rs) * hartree * ntot
-c$$$          write (ifcor,*)ecelgas
-c$$$          write (ifcor,*)' ### Perdew-Zunger formula'
-c$$$          ecelgas = eclda_pz(rs) * hartree * ntot
-c$$$          write (ifcor,*)ecelgas
-c$$$          write (ifcor,*)' ### Gell-Mann and Brueckner formula'
-c$$$          ecelgas = (-0.0311d0 * dlog(rs) -0.048d0) * hartree * ntot
-c$$$          write (ifcor,*)ecelgas
-c$$$        endif
+        legas = .false.
+        INQUIRE (FILE = 'LEGAS', EXIST = legas)
+        if(legas) then !!! test for electron gas case.
+          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
+          voltot=0d0
+          ntot=0d0
+          write(6,*)' find LEGAS. legas =',legas
+          iflegas = 2101
+          open (iflegas,file='LEGAS')
+          read(iflegas,*)rs
+          close(iflegas)
+          alpha = (9*pi/4d0)**(1d0/3d0)
+          qfermi = alpha/rs
+          efx  = qfermi**2
+          valn = efx**1.5d0*voltot/3d0/pi**2
+          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
+          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
+          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
+          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
+          qfermi= dsqrt(efz)
+          alpha = (9*pi/4d0)**(1d0/3d0)
+          rs    = alpha/qfermi
+          write (ifcor,*)' --- electron gas ---'
+          write (ifcor,*)' density parameter rs= ', rs
+          write (ifcor,*)' kf= ',qfermi
+          write (ifcor,*)' ### Barth-Hedin formula'
+          ecelgas = eclda_bh(rs) * hartree * ntot
+          write (ifcor,*)ecelgas
+          write (ifcor,*)' ### Perdew-Zunger formula'
+          ecelgas = eclda_pz(rs) * hartree * ntot
+          write (ifcor,*)ecelgas
+          write (ifcor,*)' ### Gell-Mann and Brueckner formula'
+          ecelgas = (-0.0311d0 * dlog(rs) -0.048d0) * hartree * ntot
+          write (ifcor,*)ecelgas
+        endif
       endif
 C...close files
 c        close(ifdpin)
@@ -2827,18 +2846,18 @@ c        close(ifdpin)
       call cputid(0)
       call MPI__Finalize
       if(ixc==101) call rx0( ' OK! hx0fp0 mode=101 Ecor ')
-      if(ixc==202) call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
-      if(ixc==203) call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
-      if(ixc==222) call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-      if(ixc==223) call rx0( ' OK! hx0fp0 mode=223 chi+- LFC sergeyv')
-      if(ixc==11)  call rx0( ' OK! hx0fp0 mode=11 normal sergeyv')
-      if(ixc==12)  call rx0( ' OK! hx0fp0 mode=12 Ecor sergeyv mode')
 c      if(ixc==1)   stop ' OK! hx0fp0 mode=1 normal'
 c      if(ixc==2)   stop ' OK! hx0fp0 mode=2  eps NoLFC'
 c      if(ixc==22)  stop ' OK! hx0fp0 mode=22 chi+- NoLFC'
 c      if(ixc==23)  stop ' OK! hx0fp0 mode=23 chi+- LFC  '
 c      if(ixc==3)   stop ' OK! hx0fp0 mode=3 eps with LFC'
+      if(ixc==202) call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
+      if(ixc==203) call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
+      if(ixc==222) call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
 c      if(ixc==10222)stop' OK! hx0fp0 mode=10222 <q|chi+-|q> NoLFC sergeyv'
+      if(ixc==223) call rx0( ' OK! hx0fp0 mode=223 chi+- LFC sergeyv')
+      if(ixc==11)  call rx0( ' OK! hx0fp0 mode=11 normal sergeyv')
+      if(ixc==12)  call rx0( ' OK! hx0fp0 mode=12 Ecor sergeyv mode')
 c      if(ixc==4)   stop ' OK! hx0fp0 ixc=4 test'
 c      if(ixc==5)   stop ' OK! hx0fp0 ixc=5 test'
 c      if(ixc==6)   stop ' OK! hx0fp0 ixc=6 test'

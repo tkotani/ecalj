@@ -4,16 +4,8 @@ c This routine is from hsfp0
 c So it contains many unused variables.
 c-------------------------------------------------------------
       use m_read_bzdata,ngrp2=>ngrp
+      use m_genallcf_v3
       use m_readeigen,only: init_readeigen,readeval
-
-      use m_genallcf_v3,only: genallcf_v3,
-     &  nclass,natom,nspin,nl,nn,ngrp,   
-     &  nlmto,nlnx,nctot,niw,nw_input=>nw,nlnmx,
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     &  invg,  il,in,im,nlnm,     
-     &  konf, 
-     &  plat, pos,z,ecore, symgg 
-
       implicit none
       real(8) :: shtw
       integer(4) :: mxclass,ngnmax,
@@ -61,7 +53,7 @@ c takao
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c
-      logical :: exchange !, legas
+      logical :: exchange, legas
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
       logical ::nocore
 
@@ -95,7 +87,7 @@ c
       character(12) :: filenameex
       logical :: exspwrite=.false.
 
-      integer(4) :: nptdos=101,iflegas
+      integer(4) :: nptdos=101 !,iflegas
 
       logical :: metal      ,qbzreg
       integer(4) ::ldim,nbmax,nsp,nkp,
@@ -200,8 +192,8 @@ c
       voltot = dabs(vol)*(alat**3)
 
 c--- ef is taken as rs for the empty-sphere test case of legas=T case -------------
-c$$$      legas = .false.
-c$$$c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
+      legas = .false.
+c$$$      INQUIRE (FILE = 'LEGAS', EXIST = legas)
 c$$$      if(legas) then !!! test for electron gas case.
 c$$$        write(6,*)' find LEGAS. legas =',legas
 c$$$        iflegas = 2101
@@ -231,7 +223,7 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       isx = iclose('hbe.d')
 
-c$$$C --- Locate band limits ---
+C --- Locate band limits ---
 c$$$      if(legas) then
 c$$$        write(6,*)' efsimplef2: legas=T use given valn = ',valn
 c$$$      else
