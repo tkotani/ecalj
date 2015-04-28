@@ -666,7 +666,7 @@ c     &     = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
            ppovl_= matmul(ppovl_,zcousq)
          endif
          ppovlz = ppovl_
-         deallocate(ppovl_)
+         deallocate(ppovl_,ppovl)
          
 c$$$  if(ixc==11) then
 c$$$  write(6,*)" xxx2: memsize 8*ngb*ngb*nwhis=", 8*ngb*ngb*nwhis,' ngb nwhis=',ngb,nwhis
@@ -890,72 +890,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             iqeibz=iq
-            !symmetrize=(is==nspinmx)
             symmetrize=.false.
-
             call x0kf_v4hz(npm,ncc,   
      i           ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i           n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
      i           q,  
      i           nspin,is,isf, symmetrize, !
      i           qbas,ginv,  qbz,wbz, 
-     i           nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i           nblocha, !nlnm,nlnmv,nlnmc,iclass, 
 c     i           ppb(1,is), 
 c     i           icore,ncore,
-     d           nlmto,nqbz,noccx,noccxv,
-     d           nl,nclass,natom,nnc,
-     d           nlnmx,mdimx,nbloch,  nwhis,
+     d           nlmto,nqbz,nctot, !noccx,noccxv,
+     d           natom, !nl,nclass,natom,nnc,
+     d           nbloch,  nwhis, !nlnmx,mdimx,
      i           iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i           nqbze,nband,nqibz, 
      o           rcxq,          ! rcxq is the accumulating variable for spins 
-     i           nolfco,zzr,nmbas_in, ppovl,zcousq, !nmbas2 is removed.,nmbas1 ppovlz, 
+     i           nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
      i           chipm,eibzmode,  !z1offd,
      i           nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
             write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
 !TIME1 "x0vk_v4h"
-
-c===========Check write mode4 block ixc==4 ============6ini
-ccccccccccccccccccfaleev 21May02 ixc==4 not used
-c     if(ixc==4) then
-c     C --- check write ---
-c     ichkhis = iopen ('tethis.chk',1,-1,0)
-c     do ik   = 1,nqbz
-c     do ibib = 1,nbnb(ik)
-c     ib1  = n1b(ibib,ik)
-c     ib2  = n2b(ibib,ik)
-c     ihww = ihw(ibib,ik)
-c     write(ichkhis,"('--- ik ib jb =',3i4)") ik,ib1,ib2
-c     do iw = 1, nhw(ibib,ik)
-c     write(ichkhis, "('his [min max]=',i6,2f7.4,
-c     &             ' whw wwk*h= ',2d12.5,'( =',d12.5,'+',d12.5,')')")
-c     &          ihww+iw-1, freq_r(ihww+iw-1), freq_r(ihww+iw),
-c     !-------------------------------------------------------
-c     &          whw(jhw(ibib,ik)+iw-1),                     !weight for the histgram range. by tetwt5
-c     !------------ v.s. -------------
-c     &          dimag(wwk(ibib,ik,ihww+iw-1)+wwk(ibib,ik,ihww+iw))/2d0
-c     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight=weight1+weight2 for each bin of the histgram range by tetwt4.fal
-c     !-------------------------------------------------------
-c     c
-c     &          dimag(wwk(ibib,ik,ihww+iw-1))/2d0
-c     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight1 for the histgram range by tetwt4
-c     &          dimag(wwk(ibib,ik,ihww+iw))/2d0
-c     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw))     !weight2 for the histgram range by tetwt4
-c     enddo
-c     enddo
-c     enddo
-c     ichkhis = iclose('tethis.chk')
-c     write(6,*)' OK! hx0fp1_tetwt5_test end. Histgram method.'
-c     write(6,*)' The final reulst wwk vs.whw is in tethis.chk!'
-c     write(6,*)' This code is a routine to test tetwt5.'
-c     stop ' ixc==4  Weight Histgram check. wwk vs.whw'
-c     endif  ! end of if(tetra)
-c===========Check write mode4 block end  ==============6end
             deallocate(ihw,nhw,jhw, whw,ibjb )
             if(tetra)            deallocate( n1b,n2b)
  1003       continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
-c=======================================================================
-
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
             if(eibzmode)  then
                symmetrize= .true.
@@ -966,16 +925,16 @@ c=======================================================================
      i              q,  
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
-     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i              nblocha,!nlnm,nlnmv,nlnmc,iclass, 
 c     i              ppb(1,is), 
 c     i              icore,ncore,
-     d              nlmto,nqbz,noccx,noccxv,
-     d              nl,nclass,natom,nnc,
-     d              nlnmx,mdimx,nbloch,  nwhis,
+     d              nlmto,nqbz,nctot, !noccx,noccxv,
+     d              natom, !nl,nclass,natom,nnc,
+     d              nbloch,  nwhis, !nlnmx,mdimx,
      i              iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i              nqbze,nband,nqibz, 
      o              rcxq,       ! rcxq is the accumulating variable for spins 
-     i              nolfco,zzr,nmbas_in, ppovl,zcousq, !nmbas2 is removed.,nmbas1 ppovlz, 
+     i              nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
      i              chipm,eibzmode, !z1offd,
      i              nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
             endif

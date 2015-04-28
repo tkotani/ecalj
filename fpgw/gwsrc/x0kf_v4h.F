@@ -4,16 +4,16 @@
      i                  q,
      i                  nsp,isp_k,isp_kq,symmetrize,      !ifcphi,ifrb,ifcb,ifrhb,ifchb,
      i                  qbas,ginv,rk,wk,  !,iindxk,
-     i                  mdim, nlnm, nlnmv,nlnmc, iclass, ! not the w(pointer)
+     i                  mdim, !nlnm, nlnmv,nlnmc, iclass, ! not the w(pointer)
 c     i                  ppb_unused, 
 c     i                  icore,ncore, ! not the w(pointer)
-     d                  nlmto,nqbz,noccx,noccxv,
-     d                  nl,nclass,natom,nnc,
-     d                  nlnmx,mdimx,nbloch,nwt,
+     d                  nlmto,nqbz,nctot,!noccx,noccxv,
+     d                  natom, !nl,nclass,natom,nnc,
+     d                  nbloch,nwt, !nlnmx,mdimx,
      i      iq, ngbb, ngc, ngpmx,ngcmx,  !oct2005 ngbb is not ngc + nbloch for smbasis=T.
      i      nqbze, nband,nqibz, 
      o      rcxq,
-     i     nolfco,zzr,nmbas, ppovl,zcousq, !iepsmode,zzr, nmbas added Sep2006 nmbas1,ppovlz
+     i     nolfco,zzr,nmbas, zcousq, !ppovl,iepsmode,zzr, nmbas added Sep2006 nmbas1,ppovlz
      i     chipmzzr,eibzmode, !z1offd,
 c     o     rcxqmean,
      i     nwgt,igx,igxt,ngrp,eibzsym,crpa)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
@@ -92,7 +92,7 @@ c cphi_k cphi_kq:  b(k) and b(k+q)
 c  : coefficients of eigenfunctions for argumentation waves in each MT
 c
       implicit none
-      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto,noccx,noccxv
+      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto !,noccx,noccxv
      &  ,nl,nclass,nnc,nlnmx,mdimx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
@@ -135,7 +135,7 @@ c         allocate( zxq_( nbloch + ngc,nbloch + ngc,nwt)) !..sf 21May02
 c      integer(4):: n_index_qbz
 c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 c-----
-      integer(4):: nlnm(*),nlnmv(*),nlnmc(*),iclass(*)!,icore(*),ncore(*)
+c      integer(4):: nlnm(*),nlnmv(*),nlnmc(*)!,iclass(*)!,icore(*),ncore(*)
       integer(4):: verbose
 c---for iepsmode
       logical   :: nolfco !iepsmode
@@ -176,7 +176,7 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
 !! nwgt(neibz
       logical:: checkbelong,eibzmode, chipmzzr
-      complex(8):: ppovl(ngc,ngc) ,zcousq(ngbb,ngbb) 
+      complex(8):: zcousq(ngbb,ngbb)  !ppovl(ngc,ngc) ,
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
       complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
@@ -186,7 +186,7 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
       complex(8),pointer:: zmat(:,:)
-      complex(8),allocatable,target:: ppovl_(:,:)
+c      complex(8),allocatable,target:: ppovl_(:,:)
 c#ifdef USE_GEMM_FOR_SUM
 c      complex(8),allocatable :: zmelt_tmp(:,:,:)
 c#endif
@@ -221,7 +221,7 @@ c$$$      endif
         iatomp(iatom) = iatom
         if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
       enddo
-      nctot      = noccx - noccxv
+c      nctot      = noccx - noccxv
       call dinv33(qbas,0,qbasinv,det)
       phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )

@@ -207,7 +207,7 @@ c     &   ,ngpmx !,  ifchipmlog
       complex(8)::x0mx
       complex(8),allocatable:: UU0(:,:),VT0(:,:)
 
-      logical ::  sergeyv=.true., chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
+      logical ::  chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
      &  ,epsmode=.false.,normalm=.false., eiqr=.false.
       integer::  ife, idum4 !ifchipmn,ifchipm,
       real(8):: qs,qt,ww,muu, ddq(3)
@@ -1231,7 +1231,7 @@ c          if(allocated(ppovlzinv)) deallocate(ppovlzinv)
             ppovl_= matmul(ppovl_,zcousq)
           endif
           ppovlz = ppovl_
-          deallocate(ppovl_)
+          deallocate(ppovl_,ppovl)
         endif
 
 !! takao apr2012
@@ -1578,8 +1578,9 @@ c          endif
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanisox,iq,nqibz,ixc
-          call cputid(0)
+
 !kino 2014-08-19 kino          symmetrize=(is==nspinmx)
+          call cputid(0)
           symmetrize=.false.
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
@@ -1587,147 +1588,56 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i              q,  
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
-     i              nblocha ,nlnm,nlnmv,nlnmc,iclass, 
+     i              nblocha, !,nlnm,nlnmv,nlnmc,iclass, 
 c     i              ppb(1,is), 
 c     i              icore,ncore,
-     d            nlmto,nqbz,noccx,noccxv,
-     d            nl,nclass,natom,nnc,
-     d            nlnmx,mdimx,nbloch,  nwhis,
+     d            nlmto,nqbz,nctot, !noccx,noccxv,
+     d            natom, !nl,nclass,natom,nnc,
+     d            nbloch,  nwhis, !nlnmx,mdimx,
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in, ppovl,zcousq,   !nmbas1,nmbas2, is removed ppovlz, 
+     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
-
-
+!! ------Question, Apr2015takao. -------------------
+!! ???  we may need 
+!! ???  "if(is==nspinmx.or.chipm) then" for chipm mode.
+!! ???  really OK ??? Need check more... Compare with old code...
+!! ---------------------------------------------------
 !kino 2014-08-19 add
           if (is==nspinmx) then 
-          symmetrize=.true.
-          call x0kf_v4hz(npm,ncc,
-     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
-     i              q,
-     i              nspin,is,isf, symmetrize, !
-     i              qbas,ginv,  qbz,wbz,
-     i              nblocha ,nlnm,nlnmv,nlnmc,iclass,
+            symmetrize=.true.
+            call x0kf_v4hz(npm,ncc,
+     i       ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i       n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+     i       q,
+     i       nspin,is,isf, symmetrize, !
+     i       qbas,ginv,  qbz,wbz,
+     i       nblocha,           !nlnm,nlnmv,nlnmc,iclass,
 c     i              ppb(1,is),
 c     i              icore,ncore,
-     d            nlmto,nqbz,noccx,noccxv,
-     d            nl,nclass,natom,nnc,
-     d            nlnmx,mdimx,nbloch,  nwhis,
-     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i    nqbze,nband,nqibz,
-     o    rcxq,   !  rcxq is the accumulating variable for spins
-     i    nolfco,zzr,nmbas_in, ppovl,zcousq,   !nmbas1,nmbas2, is removed ppovlz, 
-     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+     d       nlmto,nqbz,nctot,  !noccx,noccxv,
+     d       natom,             !nl,nclass,natom,nnc,
+     d       nbloch,  nwhis,    ! nlnmx,mdimx,
+     i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i       nqbze,nband,nqibz,
+     o       rcxq,              !  rcxq is the accumulating variable for spins
+     i       nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+     i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
+     i       nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
           endif
-
-
-c$$$ccccccccccccccccccc
-c$$$          if(nolfco.and.z1offd.and.nmbas1==2) then
-c$$$             write(6,*)' pppppppp check start ',npm,nwhis,nmbas1
-c$$$             do jpm=1,npm
-c$$$             do iw=1,nwhis
-c$$$             do imb2=1,nmbas2
-c$$$             if(abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8) then
-c$$$                stop 'abs(rcxqmean(iw,jpm,1,imb2)-dconjg(rcxqmean(iw,jpm,2,imb2)))>1d-8'
-c$$$             endif
-c$$$             enddo
-c$$$             enddo
-c$$$             enddo
-c$$$             write(6,*)' pppppppp check rcxqmean npm nwhis nmbas1=',npm,nwhis,nmbas1
-c$$$          endif
-c$$$ccccccccccccccccccc
-
-C$$$cccccccccccccccccccccccccccccccccccccccccc
-c$$$cooo
-c$$$      do jpm=1,npm
-c$$$          do iw= 1, nwhis
-c$$$            do igb2= 1, nmbas2
-c$$$              do igb1= 1, igb2-1
-c$$$                rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
-c$$$              enddo
-c$$$            enddo
-c$$$          enddo
-c$$$      enddo
-c$$$          write(6,*)' ddddddddddd ppovlinv*rcxq*ppovlinv xxxxxxxx'
-c$$$             ppovlzinv = ppovlz
-c$$$             call matcinv(ngb,ppovlzinv)
-c$$$c          allocate( rcxq(ngb,ngb,nwhis,npm) )
-c$$$             do jpm=1,npm
-c$$$             do iw=1,nwhis
-c$$$             rcxq(:,:,iw,jpm) = matmul(dconjg(transpose(ppovlzinv)),matmul(rcxq(:,:,iw,jpm),ppovlzinv))
-c$$$             enddo
-c$$$             enddo
-c$$$             deallocate(ppovlzinv)
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-c$$$c=========== Check write mode4 block ixc==4 ============6ini
-c$$$          if(ixc==4) then
-c$$$C --- check write ---
-c$$$            ichkhis = iopen ('tethis.chk',1,-1,0)
-c$$$            do jpm   = 1,npm
-c$$$              do ik   = 1,nqbz
-c$$$                do ibib = 1,nbnb(ik,jpm)
-c$$$                  ib1  = n1b(ibib,ik,jpm)
-c$$$                  ib2  = n2b(ibib,ik,jpm)
-c$$$                  ihww = ihw(ibib,ik,jpm)
-c$$$                  write(ichkhis,"('--- ik ib jb jpm =',4i4)") ik,ib1,ib2,jpm
-c$$$                  do iw = 1, nhw(ibib,ik,jpm)
-c$$$                    write(ichkhis, "('his [min max]=',i6,2f7.4,
-c$$$     &             ' whw wwk*h= ',2d12.5,'( =',d12.5,'+',d12.5,')')")
-c$$$     &          ihww+iw-1, freq_r(ihww+iw-1), freq_r(ihww+iw),
-c$$$!-------------------------------------------------------
-c$$$     &          whw(jhw(ibib,ik,jpm)+iw-1),                     !weight for the histgram range. by tetwt5
-c$$$!------------ v.s. -------------
-c$$$     &          dimag(wwk(ibib,ik,ihww+iw-1)+wwk(ibib,ik,ihww+iw))/2d0
-c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight=weight1+weight2 for each bin of the histgram range by tetwt4.fal
-c$$$!-------------------------------------------------------
-c$$$     &          dimag(wwk(ibib,ik,ihww+iw-1))/2d0
-c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw)),    !weight1 for the histgram range by tetwt4
-c$$$     &          dimag(wwk(ibib,ik,ihww+iw))/2d0
-c$$$     &           * (freq_r(ihww+iw-1)- freq_r(ihww+iw))     !weight2 for the histgram range by tetwt4
-c$$$                  enddo
-c$$$                enddo
-c$$$              enddo
-c$$$            enddo
-c$$$            ichkhis = iclose('tethis.chk')
-c$$$            write(6,*)' OK! hx0fp1_tetwt5_test end. Histgram method.'
-c$$$            write(6,*)' The final reulst wwk vs.whw is in tethis.chk!'
-c$$$            write(6,*)' This code is a routine to test tetwt5.'
-c$$$            stop    ' ixc==4  Weight Histgram check. wwk vs.whw'
-c$$$          endif  ! end of if(tetra)
-c$$$c=========== Check write mode4 block end  ==============6end
-          if(debug) write(6,*)'ixc sergeyv =',ixc,sergeyv
-          if(ixc==4.or.sergeyv) deallocate(ihw,nhw,jhw, whw,ibjb)
+          deallocate(ihw,nhw,jhw, whw,ibjb)
           if(debug) write(6,*)' tetra=',tetra
-          if(tetra)             deallocate( n1b,n2b)
+          if(tetra) deallocate( n1b,n2b)
           iecut=1
-!! sergeyv=T only feb2012
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then
-c            write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') 
-c        &   nwhis,nw_i,nw,niw,nmbas1,nmbas2
-c              write(6,*)'sumchk rcxq goto dpsion5=', sum(abs(rcxq))
-!! rcxqmean--->rcxq index conversion
-c            if(nolfco) then
-c              do iw=1,nwhis
-c                do jpm=1,npm
-c                  rcxq(:,:,iw,jpm)=rcxqmean(iw,jpm,:,:)
-c                enddo
-c              enddo
-c            endif
-!! nolfco mode in dpsion5 is removed.
             write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i        rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
-     o        zxq, zxqi,
-c     i        nolfco,chipm, schi,is,  rcxqmean,nmbas_in,ecut(iecut),ecuts(iecut),
-     i        chipm, schi,is,  ecut(iecut),ecuts(iecut))
-c     o        x0mean)  ! x0mean is removed. zxq,zxqi are accumlating veriable for chipm mode
+     i       rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
+     o       zxq, zxqi,
+     i       chipm, schi,is,  ecut(iecut),ecuts(iecut))
             if(nolfco.and.epsmode) then
               do iw=nw_i,nw
                 x0mean(iw,:,:)=zxq(:,:,iw)
@@ -1735,8 +1645,6 @@ c     o        x0mean)  ! x0mean is removed. zxq,zxqi are accumlating veriable f
             endif
             write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
           endif
-c          if(epsmode.and.nolfco) write(6,*)' end of dpsion5 sum x0mean   ',sum(abs(x0mean))
-c          if(epsmode.and.nolfco) write(6,*)' end of dpsion5 sum x0mean11 ',sum(abs(x0mean(:,1,1)))
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
 !=======================================================================
