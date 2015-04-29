@@ -45,7 +45,7 @@
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &     ifepscond,nxx,ifvxcpout,ifgb0vec
      &     ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
-     &     ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
+     &     ,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &     ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0
      &     ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx(2)=-9999,nwmax !,ifev1,ifev2
      &     ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode
