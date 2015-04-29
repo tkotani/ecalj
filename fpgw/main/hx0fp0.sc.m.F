@@ -103,7 +103,8 @@ c      real(8), allocatable ::  ekxxx(:,:,:)
       logical,allocatable :: iwgt(:,:,:,:)
       complex(8),allocatable:: wgt(:,:,:)
       real(8),allocatable:: qbz2(:,:)
-      logical :: qbzreg,smbasis
+      logical :: qbzreg !,smbasis
+!    logical ::smbasis !smbasis will be implemented in m_zmel.f which generates <phi|phi M>
       character(2):: soflag
       real(8):: q_r(3)
       complex(8),allocatable:: pomat(:,:)
@@ -1549,14 +1550,14 @@ C===================================================================
       integer:: nblochpmx,nbloch,ngb,iw,i,iq
       complex(8):: zw(nblochpmx,nblochpmx),trwv,trwv2
       real(8):: freqq
-      logical :: smbasis
+c      logical :: smbasis
       character*(*)::tagname
       trwv=0d0
-      if(.not.smbasis()) then
+c      if(.not.smbasis()) then
          do i = 1,nbloch
             trwv = trwv + zw(i,i)
          enddo
-      endif
+c      endif
       trwv2 = 0d0
       do i = 1,ngb
          trwv2 = trwv2 + zw(i,i)

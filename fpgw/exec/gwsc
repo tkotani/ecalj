@@ -21,13 +21,13 @@ source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 
 $echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
-##### rm and mkdir ##############
-if [ -e NoCore ]; then #backword compatibility not so meaningful now.
-  rm -f NoCore 
-fi
-if [ -e QPU ]; then
- rm -f QP[UD]
-fi
+# ##### rm and mkdir ##############
+# if [ -e NoCore ]; then #backword compatibility not so meaningful now.
+#   rm -f NoCore 
+# fi
+# if [ -e QPU ]; then
+#  rm -f QP[UD]
+# fi
 if [ ! -e SEBK ]; then
  mkdir SEBK
 fi

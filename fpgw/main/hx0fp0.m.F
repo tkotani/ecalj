@@ -213,7 +213,7 @@ c     &   ,ngpmx !,  ifchipmlog
       real(8):: qs,qt,ww,muu, ddq(3)
       character*11 ::ttt
 
-      logical ::smbasis
+c      logical ::smbasis
       integer:: nnmx,nomx
 
 ! Feb2006 time-reversal=off case
@@ -411,13 +411,13 @@ c      endif
          write(6,*)' nqbz nqibz =',nqbz,nqibz
       endif
 
-!!- oct2005 not implimented cases.
-      if(smbasis().and.chipm) then
-        write(6,*)' smbasis=T & chipm=T is not implimented yet.'//
-     &       ' Supply consistent MixSpin for smbasis!'//
-     &       ' MixSpin should be converted at the end of hvccfp0.'
-        call rx( ' smbasis=T & chipm=T is not implimented yet.')
-      endif
+c$$$!!- oct2005 not implimented cases.
+c$$$      if(smbasis().and.chipm) then
+c$$$        write(6,*)' smbasis=T & chipm=T is not implimented yet.'//
+c$$$     &       ' Supply consistent MixSpin for smbasis!'//
+c$$$     &       ' MixSpin should be converted at the end of hvccfp0.'
+c$$$        call rx( ' smbasis=T & chipm=T is not implimented yet.')
+c$$$      endif
 
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f5.3)") sciss
@@ -563,7 +563,7 @@ c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
 
 !! ... for legas test (not used so often. To compare homogeneos electron gas).
       legas = .false.
-      INQUIRE (FILE = 'LEGAS', EXIST = legas)
+c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
 !!
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
@@ -631,11 +631,11 @@ C ... ppb
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble  !We use double precision arrays only.
 
-C ... This is just to get nblochpmx
-      if(smbasis()) then
-        call getngbpomat(nqibz+nq0i,  nnmx,nomx)
-        nblochpmx = nnmx
-      endif
+c$$$C ... This is just to get nblochpmx
+c$$$      if(smbasis()) then
+c$$$        call getngbpomat(nqibz+nq0i,  nnmx,nomx)
+c$$$        nblochpmx = nnmx
+c$$$      endif
 
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       if (mpi__root) then
@@ -667,11 +667,11 @@ C ... This is just to get nblochpmx
         close(ifianf)
         nspinmx =1
       endif ;   if(debug) write(6,*)' xxx1b:'
-      if(smbasis() .and. anfexist) then
-        write(6,*)' smbais=T & anfexist=T is not yet.'//
-     &       'At leaset anfx0k shold be changed'
-        call rx( ' smbais=T & anfexist=T is not yet.')
-      endif
+c$$$      if(smbasis() .and. anfexist) then
+c$$$        write(6,*)' smbais=T & anfexist=T is not yet.'//
+c$$$     &       'At leaset anfx0k shold be changed'
+c$$$        call rx( ' smbais=T & anfexist=T is not yet.')
+c$$$      endif
       if((.not.timereversal()) .and. anfexist) then
         write(6,*)' timereversal=F & anfexist=T is not yet examined.'//
      &       'At leaset you have to consider about anfx0k and so.'
@@ -769,15 +769,14 @@ c        if(.not.sergeyv) necut=1
       call getkeyvalue("GWinput","ecuts_p",ecuts,necut,default=(/1d10/) )
       if(necut/=1) call rx( 'Sorry! this version is not for necut=1')
 
-css
-css   if(chipm.and.(.not.legas).and.(.not.eiqr)) then
-      if(chipm.and.(.not.legas) ) then
-c--- sanity check
-        if(smbasis()) then
-          write(6,*)'This version is not for spin sus for smbais=T.'//
-     &         'You need to modify MixSpin.'
-          call rx( 'This version is not for spin sus for smbais=T')
-        endif
+c      if(chipm.and.(.not.legas) ) then
+      if(chipm ) then
+c$$$c--- sanity check
+c$$$        if(smbasis()) then
+c$$$          write(6,*)'This version is not for spin sus for smbais=T.'//
+c$$$     &         'You need to modify MixSpin.'
+c$$$          call rx( 'This version is not for spin sus for smbais=T')
+c$$$        endif
 
 !Sep2006
 c        nmbas=1
@@ -2882,14 +2881,14 @@ c--------------------------------------------------------------------
       integer:: nblochpmx,nbloch,ngb,iw,i,iq
       complex(8):: zw(nblochpmx,nblochpmx),trwv,trwv2
       real(8):: freqq
-      logical :: smbasis
+c      logical :: smbasis
       character*(*)::tagname
       trwv=0d0
-      if(.not.smbasis()) then
+c      if(.not.smbasis()) then
         do i = 1,nbloch
           trwv = trwv + zw(i,i)
         enddo
-      endif
+c      endif
       trwv2 = 0d0
       do i = 1,ngb
         trwv2 = trwv2 + zw(i,i)
