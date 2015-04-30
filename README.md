@@ -212,7 +212,7 @@ WARN! Compile options:
 --------------------
 * I saw that current ecalj with gfortran4.6 or 4.7 works fine with
   FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
-* ifort12 needs FFLAGS=-O1 for cases.
+* ifort12 may need FFLAGS=-O1 in MAKEINC/Make.inc.ifort. (use InstallAll.ifort12)
 * We may need -heap-arrays 100 (when zero, we had a problem in a version
   of ifort). In cases, -heap-arrays option did not generate working binaries.
   However, I think "ulimit -s unlimited" before QSGW calculations and
